@@ -1,0 +1,51 @@
+#pmieconf-rules 1
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(1)
+
+rule	dmthin.metadata_high_util
+	summary = "$rule$"
+	enumerate = hosts
+	predicate =
+"some_host (
+    some_inst (
+        ( 100 * dmthin.pool.metadata.used $hosts$ /
+                dmthin.pool.metadata.total $hosts$ )
+        > $threshold$
+    )
+)"
+	enabled = no
+	version = 1
+	help	=
+"Device Mapper thin pool metadata utilization percent exceeded
+threshold percent of total size.
+
+If this rule is enabled, the DM PMDA should be installed;
+see pmdadm(1).";
+
+string	rule
+	default = "dmthin pool metadata is filling up"
+	modify	= no
+	display = no;
+
+percent threshold
+	default = 80
+	help	=
+"The threshold of dmthin pool fullness expressed as a percentage,
+usually in the range of 50 to 99. ";
+	
+string	action_expand
+	default = "%v%used [%i]@%h"
+	display	= no
+	modify	= no;
+
+string email_expand
+       default = "host: %h pool: %i metadata utilization: %v%"
+       display = no
+       modify  = no;
+
+string	delta
+	default = "10 mins"
+	help =
+"Sample interval between evaluations of this rule.";
+
+# 
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(1)

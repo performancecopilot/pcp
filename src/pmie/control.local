@@ -1,0 +1,2 @@
+#Host           S?  Log File                                  Arguments
+LOCALHOSTNAME   n   PCP_LOG_DIR/pmie/LOCALHOSTNAME/pmie.log   -c config.default

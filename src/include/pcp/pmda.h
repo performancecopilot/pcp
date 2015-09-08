@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 1995,2005 Silicon Graphics, Inc.  All Rights Reserved.
- * 
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
 #ifndef PCP_PMDA_H
 #define PCP_PMDA_H
@@ -167,10 +167,20 @@ typedef struct pmdaExt {
  * more optimal code as well as ensuring that just the one symbol is
  * exported (which is a good idea in itself).
  */
-#ifdef __GNUC__
-# define __PMDA_INIT_CALL __attribute__ ((visibility ("default")))
+#if !defined(IS_MINGW)
+# if defined(__GNUC__)
+#  define __PMDA_INIT_CALL __attribute__ ((visibility ("default")))
+# else
+#  define __PMDA_INIT_CALL
+# endif
+# define PMDA_CALL
 #else
 # define __PMDA_INIT_CALL
+# if defined(PMDA_INTERNAL)
+#  define PMDA_CALL __declspec(dllexport)
+# else
+#  define PMDA_CALL __declspec(dllimport)
+# endif
 #endif
 
 /*
@@ -260,8 +270,6 @@ typedef struct __pmDSO {
     void		*handle;
     pmdaInterface	dispatch;
 } __pmDSO;
-
-extern __pmDSO *__pmLookupDSO(int /*domain*/);
 
 /*
  * Macro that can be used to create each metrics' PMID.
@@ -413,23 +421,23 @@ typedef struct pmdaOptions {
  *      is ignored.
  */
 
-extern int pmdaGetOpt(int, char *const *, const char *, pmdaInterface *, int *);
-extern int pmdaGetOptions(int, char *const *, pmdaOptions *, pmdaInterface *);
-extern void pmdaUsageMessage(pmdaOptions *);
-extern void pmdaDaemon(pmdaInterface *, int, char *, int , char *, char *);
-extern void pmdaDSO(pmdaInterface *, int, char *, char *);
-extern void pmdaOpenLog(pmdaInterface *);
-extern void pmdaSetFlags(pmdaInterface *, int);
-extern void pmdaInit(pmdaInterface *, pmdaIndom *, int, pmdaMetric *, int);
-extern void pmdaConnect(pmdaInterface *);
+PMDA_CALL extern int pmdaGetOpt(int, char *const *, const char *, pmdaInterface *, int *);
+PMDA_CALL extern int pmdaGetOptions(int, char *const *, pmdaOptions *, pmdaInterface *);
+PMDA_CALL extern void pmdaUsageMessage(pmdaOptions *);
+PMDA_CALL extern void pmdaDaemon(pmdaInterface *, int, char *, int , char *, char *);
+PMDA_CALL extern void pmdaDSO(pmdaInterface *, int, char *, char *);
+PMDA_CALL extern void pmdaOpenLog(pmdaInterface *);
+PMDA_CALL extern void pmdaSetFlags(pmdaInterface *, int);
+PMDA_CALL extern void pmdaInit(pmdaInterface *, pmdaIndom *, int, pmdaMetric *, int);
+PMDA_CALL extern void pmdaConnect(pmdaInterface *);
 
-extern void pmdaMain(pmdaInterface *);
+PMDA_CALL extern void pmdaMain(pmdaInterface *);
 
-extern void pmdaSetResultCallBack(pmdaInterface *, pmdaResultCallBack);
-extern void pmdaSetFetchCallBack(pmdaInterface *, pmdaFetchCallBack);
-extern void pmdaSetCheckCallBack(pmdaInterface *, pmdaCheckCallBack);
-extern void pmdaSetDoneCallBack(pmdaInterface *, pmdaDoneCallBack);
-extern void pmdaSetEndContextCallBack(pmdaInterface *, pmdaEndContextCallBack);
+PMDA_CALL extern void pmdaSetResultCallBack(pmdaInterface *, pmdaResultCallBack);
+PMDA_CALL extern void pmdaSetFetchCallBack(pmdaInterface *, pmdaFetchCallBack);
+PMDA_CALL extern void pmdaSetCheckCallBack(pmdaInterface *, pmdaCheckCallBack);
+PMDA_CALL extern void pmdaSetDoneCallBack(pmdaInterface *, pmdaDoneCallBack);
+PMDA_CALL extern void pmdaSetEndContextCallBack(pmdaInterface *, pmdaEndContextCallBack);
 
 /*
  * Callbacks to PMCD which should be adequate for most PMDAs.
@@ -477,24 +485,24 @@ extern void pmdaSetEndContextCallBack(pmdaInterface *, pmdaEndContextCallBack);
  *	of the value.
  */
 
-extern int pmdaProfile(pmdaInProfile *, pmdaExt *);
-extern int pmdaFetch(int, pmID *, pmResult **, pmdaExt *);
-extern int pmdaInstance(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
-extern int pmdaDesc(pmID, pmDesc *, pmdaExt *);
-extern int pmdaText(int, int, char **, pmdaExt *);
-extern int pmdaStore(pmResult *, pmdaExt *);
-extern int pmdaPMID(const char *, pmID *, pmdaExt *);
-extern int pmdaName(pmID, char ***, pmdaExt *);
-extern int pmdaChildren(const char *, int, char ***, int **, pmdaExt *);
-extern int pmdaAttribute(int, int, const char *, int, pmdaExt *);
+PMDA_CALL extern int pmdaProfile(pmdaInProfile *, pmdaExt *);
+PMDA_CALL extern int pmdaFetch(int, pmID *, pmResult **, pmdaExt *);
+PMDA_CALL extern int pmdaInstance(pmInDom, int, char *, pmdaInResult **, pmdaExt *);
+PMDA_CALL extern int pmdaDesc(pmID, pmDesc *, pmdaExt *);
+PMDA_CALL extern int pmdaText(int, int, char **, pmdaExt *);
+PMDA_CALL extern int pmdaStore(pmResult *, pmdaExt *);
+PMDA_CALL extern int pmdaPMID(const char *, pmID *, pmdaExt *);
+PMDA_CALL extern int pmdaName(pmID, char ***, pmdaExt *);
+PMDA_CALL extern int pmdaChildren(const char *, int, char ***, int **, pmdaExt *);
+PMDA_CALL extern int pmdaAttribute(int, int, const char *, int, pmdaExt *);
 
 /*
  * PMDA "help" text manipulation
  */
-extern int pmdaOpenHelp(char *);
-extern void pmdaCloseHelp(int);
-extern char *pmdaGetHelp(int, pmID, int);
-extern char *pmdaGetInDomHelp(int, pmInDom, int);
+PMDA_CALL extern int pmdaOpenHelp(char *);
+PMDA_CALL extern void pmdaCloseHelp(int);
+PMDA_CALL extern char *pmdaGetHelp(int, pmID, int);
+PMDA_CALL extern char *pmdaGetInDomHelp(int, pmInDom, int);
 
 /*
  * Dynamic metric table manipulation
@@ -530,17 +538,17 @@ typedef int  (*pmdaUpdatePMNS)(pmdaExt *, pmdaNameSpace **);
 typedef int  (*pmdaUpdateText)(pmdaExt *, pmID, int, char **);
 typedef void (*pmdaUpdateMetric)(pmdaMetric *, pmdaMetric *, int);
 typedef void (*pmdaCountMetrics)(int *, int *);
-extern void pmdaDynamicPMNS(const char *, int *, int,
-                            pmdaUpdatePMNS, pmdaUpdateText,
-                            pmdaUpdateMetric, pmdaCountMetrics,
-                            pmdaMetric *, int);
-extern int pmdaDynamicSetClusterMask(const char *, unsigned int);
-extern pmdaNameSpace *pmdaDynamicLookupName(pmdaExt *, const char *);
-extern pmdaNameSpace *pmdaDynamicLookupPMID(pmdaExt *, pmID);
-extern int pmdaDynamicLookupText(pmID, int, char **, pmdaExt *);
-extern void pmdaDynamicMetricTable(pmdaExt *);
+PMDA_CALL extern void pmdaDynamicPMNS(const char *, int *, int,
+                                     pmdaUpdatePMNS, pmdaUpdateText,
+                                     pmdaUpdateMetric, pmdaCountMetrics,
+                                     pmdaMetric *, int);
+PMDA_CALL extern int pmdaDynamicSetClusterMask(const char *, unsigned int);
+PMDA_CALL extern pmdaNameSpace *pmdaDynamicLookupName(pmdaExt *, const char *);
+PMDA_CALL extern pmdaNameSpace *pmdaDynamicLookupPMID(pmdaExt *, pmID);
+PMDA_CALL extern int pmdaDynamicLookupText(pmID, int, char **, pmdaExt *);
+PMDA_CALL extern void pmdaDynamicMetricTable(pmdaExt *);
 
-extern void pmdaRehash(pmdaExt *, pmdaMetric *, int);
+PMDA_CALL extern void pmdaRehash(pmdaExt *, pmdaMetric *, int);
 
 /*
  * Dynamic names interface (version 4) helper routines.
@@ -564,12 +572,12 @@ extern void pmdaRehash(pmdaExt *, pmdaMetric *, int);
  * pmdaTreeSize
  *	returns the numbers of entries in a pmdaNameSpace.
  */
-extern int pmdaTreePMID(pmdaNameSpace *, const char *, pmID *);
-extern int pmdaTreeName(pmdaNameSpace *, pmID, char ***);
-extern int pmdaTreeChildren(pmdaNameSpace *, const char *, int, char ***, int **);
-extern void pmdaTreeRebuildHash(pmdaNameSpace *, int);
-extern int pmdaTreeSize(pmdaNameSpace *);
-extern pmnsNode * pmdaNodeLookup(pmnsNode *, const char *);
+PMDA_CALL extern int pmdaTreePMID(pmdaNameSpace *, const char *, pmID *);
+PMDA_CALL extern int pmdaTreeName(pmdaNameSpace *, pmID, char ***);
+PMDA_CALL extern int pmdaTreeChildren(pmdaNameSpace *, const char *, int, char ***, int **);
+PMDA_CALL extern void pmdaTreeRebuildHash(pmdaNameSpace *, int);
+PMDA_CALL extern int pmdaTreeSize(pmdaNameSpace *);
+PMDA_CALL extern pmnsNode * pmdaNodeLookup(pmnsNode *, const char *);
 
 /*
  * PMDA instance domain cache support
@@ -601,14 +609,14 @@ extern pmnsNode * pmdaNodeLookup(pmnsNode *, const char *);
  * pmdaCacheResize
  *	set the maximum instance identifier
  */
-extern int pmdaCacheStore(pmInDom, int, const char *, void *);
-extern int pmdaCacheStoreKey(pmInDom, int, const char *, int, const void *, void *);
-extern int pmdaCacheLookup(pmInDom, int, char **, void **);
-extern int pmdaCacheLookupName(pmInDom, const char *, int *, void **);
-extern int pmdaCacheLookupKey(pmInDom, const char *, int, const void *, char **, int *, void **);
-extern int pmdaCacheOp(pmInDom, int);
-extern int pmdaCachePurge(pmInDom, time_t);
-extern int pmdaCacheResize(pmInDom, int);
+PMDA_CALL extern int pmdaCacheStore(pmInDom, int, const char *, void *);
+PMDA_CALL extern int pmdaCacheStoreKey(pmInDom, int, const char *, int, const void *, void *);
+PMDA_CALL extern int pmdaCacheLookup(pmInDom, int, char **, void **);
+PMDA_CALL extern int pmdaCacheLookupName(pmInDom, const char *, int *, void **);
+PMDA_CALL extern int pmdaCacheLookupKey(pmInDom, const char *, int, const void *, char **, int *, void **);
+PMDA_CALL extern int pmdaCacheOp(pmInDom, int);
+PMDA_CALL extern int pmdaCachePurge(pmInDom, time_t);
+PMDA_CALL extern int pmdaCacheResize(pmInDom, int);
 
 #define PMDA_CACHE_LOAD			1
 #define PMDA_CACHE_ADD			2
@@ -662,83 +670,83 @@ extern int pmdaCacheResize(pmInDom, int);
  *	print out cache contents
  */
 
-extern int __pmdaCntInst(pmInDom, pmdaExt *);
-extern void __pmdaStartInst(pmInDom, pmdaExt *);
-extern int __pmdaNextInst(int *, pmdaExt *);
+PMDA_CALL extern int __pmdaCntInst(pmInDom, pmdaExt *);
+PMDA_CALL extern void __pmdaStartInst(pmInDom, pmdaExt *);
+PMDA_CALL extern int __pmdaNextInst(int *, pmdaExt *);
 
-extern int __pmdaMainPDU(pmdaInterface *);
-extern int __pmdaInFd(pmdaInterface *);
+PMDA_CALL extern int __pmdaMainPDU(pmdaInterface *);
+PMDA_CALL extern int __pmdaInFd(pmdaInterface *);
 
-extern void __pmdaCacheDumpAll(FILE *, int);
-extern void __pmdaCacheDump(FILE *, pmInDom, int);
+PMDA_CALL extern void __pmdaCacheDumpAll(FILE *, int);
+PMDA_CALL extern void __pmdaCacheDump(FILE *, pmInDom, int);
 
 /*
  * Client Context support
  */
-extern int pmdaGetContext(void);
-extern void __pmdaSetContext(int);
+PMDA_CALL extern int pmdaGetContext(void);
+PMDA_CALL extern void __pmdaSetContext(int);
 
 /*
  * Event Record support
  */
-extern int pmdaEventNewArray(void);
-extern int pmdaEventResetArray(int);
-extern int pmdaEventReleaseArray(int);
-extern int pmdaEventAddRecord(int, struct timeval *, int);
-extern int pmdaEventAddMissedRecord(int, struct timeval *, int);
-extern int pmdaEventAddParam(int, pmID, int, pmAtomValue *);
-extern pmEventArray *pmdaEventGetAddr(int);
+PMDA_CALL extern int pmdaEventNewArray(void);
+PMDA_CALL extern int pmdaEventResetArray(int);
+PMDA_CALL extern int pmdaEventReleaseArray(int);
+PMDA_CALL extern int pmdaEventAddRecord(int, struct timeval *, int);
+PMDA_CALL extern int pmdaEventAddMissedRecord(int, struct timeval *, int);
+PMDA_CALL extern int pmdaEventAddParam(int, pmID, int, pmAtomValue *);
+PMDA_CALL extern pmEventArray *pmdaEventGetAddr(int);
 
 /*
  * High Resolution Timer Event Record support
  */
-extern int pmdaEventNewHighResArray(void);
-extern int pmdaEventResetHighResArray(int);
-extern int pmdaEventReleaseHighResArray(int);
-extern int pmdaEventAddHighResRecord(int, struct timespec *, int);
-extern int pmdaEventAddHighResMissedRecord(int, struct timespec *, int);
-extern int pmdaEventHighResAddParam(int, pmID, int, pmAtomValue *);
-extern pmHighResEventArray *pmdaEventHighResGetAddr(int);
+PMDA_CALL extern int pmdaEventNewHighResArray(void);
+PMDA_CALL extern int pmdaEventResetHighResArray(int);
+PMDA_CALL extern int pmdaEventReleaseHighResArray(int);
+PMDA_CALL extern int pmdaEventAddHighResRecord(int, struct timespec *, int);
+PMDA_CALL extern int pmdaEventAddHighResMissedRecord(int, struct timespec *, int);
+PMDA_CALL extern int pmdaEventHighResAddParam(int, pmID, int, pmAtomValue *);
+PMDA_CALL extern pmHighResEventArray *pmdaEventHighResGetAddr(int);
 
 /*
  * Event Queue support
  */
-extern int pmdaEventNewQueue(const char *, size_t);
-extern int pmdaEventNewActiveQueue(const char *, size_t, unsigned int);
-extern int pmdaEventQueueHandle(const char *);
-extern int pmdaEventQueueAppend(int, void *, size_t, struct timeval *);
-extern int pmdaEventQueueClients(int, pmAtomValue *);
-extern int pmdaEventQueueCounter(int, pmAtomValue *);
-extern int pmdaEventQueueBytes(int, pmAtomValue *);
-extern int pmdaEventQueueMemory(int, pmAtomValue *);
+PMDA_CALL extern int pmdaEventNewQueue(const char *, size_t);
+PMDA_CALL extern int pmdaEventNewActiveQueue(const char *, size_t, unsigned int);
+PMDA_CALL extern int pmdaEventQueueHandle(const char *);
+PMDA_CALL extern int pmdaEventQueueAppend(int, void *, size_t, struct timeval *);
+PMDA_CALL extern int pmdaEventQueueClients(int, pmAtomValue *);
+PMDA_CALL extern int pmdaEventQueueCounter(int, pmAtomValue *);
+PMDA_CALL extern int pmdaEventQueueBytes(int, pmAtomValue *);
+PMDA_CALL extern int pmdaEventQueueMemory(int, pmAtomValue *);
 
 typedef int (*pmdaEventDecodeCallBack)(int,
 		void *, size_t, struct timeval *, void *);
-extern int pmdaEventQueueRecords(int, pmAtomValue *, int,
+PMDA_CALL extern int pmdaEventQueueRecords(int, pmAtomValue *, int,
 		pmdaEventDecodeCallBack, void *);
 
-extern int pmdaEventNewClient(int);
-extern int pmdaEventEndClient(int);
-extern int pmdaEventClients(pmAtomValue *);
+PMDA_CALL extern int pmdaEventNewClient(int);
+PMDA_CALL extern int pmdaEventEndClient(int);
+PMDA_CALL extern int pmdaEventClients(pmAtomValue *);
 
 typedef int (*pmdaEventApplyFilterCallBack)(void *, void *, size_t);
 typedef void (*pmdaEventReleaseFilterCallBack)(void *);
-extern int pmdaEventSetFilter(int, int, void *,
+PMDA_CALL extern int pmdaEventSetFilter(int, int, void *,
 		pmdaEventApplyFilterCallBack, pmdaEventReleaseFilterCallBack);
-extern int pmdaEventSetAccess(int, int, int);
+PMDA_CALL extern int pmdaEventSetAccess(int, int, int);
 
-extern char *__pmdaEventPrint(const char *, int, char *, int);
+PMDA_CALL extern char *__pmdaEventPrint(const char *, int, char *, int);
 
-extern void pmdaInterfaceMoved(pmdaInterface *);
+PMDA_CALL extern void pmdaInterfaceMoved(pmdaInterface *);
 
 /*
  * Privileged PMDA services, as offered by pmdaroot(1).
  */
-extern int pmdaRootConnect(const char *);
-extern void pmdaRootShutdown(int);
-extern int pmdaRootContainerHostName(int, const char *, int, char *, int);
-extern int pmdaRootContainerProcessID(int, const char *, int);
-extern int pmdaRootContainerCGroupName(int, const char *, int, char *, int);
+PMDA_CALL extern int pmdaRootConnect(const char *);
+PMDA_CALL extern void pmdaRootShutdown(int);
+PMDA_CALL extern int pmdaRootContainerHostName(int, const char *, int, char *, int);
+PMDA_CALL extern int pmdaRootContainerProcessID(int, const char *, int);
+PMDA_CALL extern int pmdaRootContainerCGroupName(int, const char *, int, char *, int);
 
 /*
  * Local PDU exchange details for elevated privilege operations.
@@ -772,11 +780,11 @@ typedef struct {
     int		version;
 } __pmdaRootPDUHdr;
 
-extern int __pmdaSendRootPDUInfo(int, int, int);
-extern int __pmdaRecvRootPDUInfo(int, int *, int *);
-extern int __pmdaSendRootPDUContainer(int, int, int, const char *, int, int);
-extern int __pmdaRecvRootPDUContainer(int, int, void *, int);
-extern int __pmdaDecodeRootPDUContainer(void *, int, int *, char *, int);
+PMDA_CALL extern int __pmdaSendRootPDUInfo(int, int, int);
+PMDA_CALL extern int __pmdaRecvRootPDUInfo(int, int *, int *);
+PMDA_CALL extern int __pmdaSendRootPDUContainer(int, int, int, const char *, int, int);
+PMDA_CALL extern int __pmdaRecvRootPDUContainer(int, int, void *, int);
+PMDA_CALL extern int __pmdaDecodeRootPDUContainer(void *, int, int *, char *, int);
 
 #ifdef __cplusplus
 }

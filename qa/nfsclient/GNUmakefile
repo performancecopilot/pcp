@@ -7,8 +7,6 @@ TESTDIR = $(PCP_VAR_DIR)/testsuite/nfsclient
 
 QAFILES = $(shell echo *.qa)
 
-LSRCFILES = $(QAFILES)
-
 default default_pcp setup: 
 
 install install_pcp:

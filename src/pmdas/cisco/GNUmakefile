@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -60,7 +60,7 @@ $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 probe$(EXECSUFFIX):	probe.o interface.o telnet.o
 	$(CCF) -o $@ $(LDFLAGS) probe.o interface.o telnet.o $(LDLIBS)
 
-cisco.o:	domain.h
+$(OBJECTS): domain.h
 
 domain.h:	../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

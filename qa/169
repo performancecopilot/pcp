@@ -23,21 +23,12 @@ echo ""
 LOCALHOST=`hostname`
 signal=$PCP_BINADM_DIR/pmsignal
 
-if [ -d $PCP_LOG_DIR/pmlogger ]
-then
-    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
-else
-    LOGGING_DIR=$PCP_LOG_DIR
-fi
-
 _cleanup()
 {
     $sudo $PCP_RC_DIR/pcp stop >$tmp.stop
     _filter_pcp_stop <$tmp.stop | sed -e 's/\.\.\.\.\.*/[dots]/'
     _restore_config $PCP_PMCDCONF_PATH
-    pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-    && $sudo sh $tmp.cmd
-    $sudo $PCP_RC_DIR/pcp restart >$tmp.start 
+    $sudo $PCP_RC_DIR/pcp start >$tmp.start
     _filter_pcp_start <$tmp.start | sed -e 's/\.\.\.\.\.*/[dots]/'
     _wait_for_pmcd
     _wait_for_pmlogger
@@ -112,6 +103,8 @@ EOF
 # pmcd will run a dumb_pmda, masquerading as the IRIX agent.  This will
 # not respond to PDUs from PMCD, which should then time it out.
 # The pmcd PMDA is required so that pmcd.control.timeout can be modified.
+# We don't need any other PMDAs and in particular all pmlogger and pmie
+# processes are stopped before pmcd is reconfigured.
 # Save the current pmcd.conf so it can be restored afterwards.
 
 _save_config $PCP_PMCDCONF_PATH
@@ -121,17 +114,15 @@ cat >$tmp.tmp <<End-Of-File
 dummyproc	$dummy_domain	pipe	binary 	$here/src/dumb_pmda -d $dummy_domain $TAG
 End-Of-File
 
-$PCP_AWK_PROG <$PCP_PMCDCONF_PATH >>$tmp.tmp '
-    $3 == "dso" && $4 == "irix_init"	{ print }
-    $3 == "dso" && $4 == "linux_init"	{ print }
-    $3 == "dso" && $4 == "pmcd_init"	{ print }
-    $3 == "pipe" && $1 == "pmcd"	{ print }
-					{ next }'
+$PCP_AWK_PROG <$PCP_PMCDCONF_PATH >>$tmp.tmp '$1 == "pmcd" { print }'
 
 pmcdlog=$PCP_PMCDLOG_PATH
 
+$sudo $signal -a -s TERM pmie
+$sudo $signal -a -s TERM pmlogger
+
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
-$sudo $PCP_RC_DIR/pcp start >$tmp.start
+$sudo $PCP_RC_DIR/pmcd start >$tmp.start
 _filter_pcp_start <$tmp.start | sed -e 's/\.\.\.\.\.*/[dots]/'
 _wait_for_pmcd
 if _check_pmcd_procs 1

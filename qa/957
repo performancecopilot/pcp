@@ -25,6 +25,7 @@ _filter()
 {
     sed \
 	-e '/No value.s. available/d' \
+	-e '/Metric not supported by this version of monitored application/d' \
 	-e '/^Warning: noted but unhandled ioctl/d' \
 	-e '/^This could cause spurious value errors/d' \
 	-e '/^See README_MISSING_SYSCALL_OR_IOCTL/d' \

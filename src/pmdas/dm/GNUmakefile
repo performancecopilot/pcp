@@ -25,6 +25,7 @@ IAM		= dm
 DOMAIN		= DM
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAINIT	= $(IAM)_init
+PMIEDIR		= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 
 LDIRT		= domain.h $(IAM).log
 
@@ -37,12 +38,14 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(CMDTARGET) $(LIBTARGET)
+build-me: $(CMDTARGET) $(LIBTARGET)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 root pmns.dmcache pmns.dmthin domain.h help $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
+	$(INSTALL) -m 644 dmthin.data_high_util.pmie $(PMIEDIR)/data_high_util
+	$(INSTALL) -m 644 dmthin.metadata_high_util.pmie $(PMIEDIR)/metadata_high_util
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -52,6 +55,8 @@ endif
 default_pcp : default
 
 install_pcp : install
+
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

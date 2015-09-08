@@ -563,6 +563,43 @@ setup_cpusched(void)
     pmdaCacheOp(INDOM(CGROUP_CPUSCHED_INDOM), PMDA_CACHE_INACTIVE);
 }
 
+static int
+read_cpu_stats(const char *file, cgroup_cpustat_t *ccp)
+{
+    static cgroup_cpustat_t cpustat;
+    static struct {
+	char		*field;
+	__uint64_t	*offset;
+    } cpustat_fields[] = {
+	{ "nr_periods",			&cpustat.nr_periods },
+	{ "nr_throttled",		&cpustat.nr_throttled },
+	{ "throttled_time",		&cpustat.throttled_time },
+    };
+    char buffer[4096], name[64];
+    unsigned long long value;
+    FILE *fp;
+    int i;
+
+    memset(&cpustat, 0, sizeof(cpustat));
+    if ((fp = fopen(file, "r")) == NULL) {
+	memcpy(ccp, &cpustat, sizeof(cpustat));
+	return -ENOENT;
+    }
+    while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+	if (sscanf(buffer, "%s %llu\n", &name[0], &value) < 2)
+	    continue;
+	for (i = 0; cpustat_fields[i].field != NULL; i++) {
+	    if (strcmp(name, cpustat_fields[i].field) != 0)
+		continue;
+	    *cpustat_fields[i].offset = value;
+	    break;
+	}
+    }
+    fclose(fp);
+    memcpy(ccp, &cpustat, sizeof(cpustat));
+    return 0;
+}
+
 void
 refresh_cpusched(const char *path, const char *name)
 {
@@ -579,9 +616,11 @@ refresh_cpusched(const char *path, const char *name)
 	if (!cpusched)
 	    return;
     }
+    snprintf(file, sizeof(file), "%s/cpu.stat", path);
+    read_cpu_stats(file, &cpusched->stat);
     snprintf(file, sizeof(file), "%s/cpu.shares", path);
     cpusched->shares = read_oneline_ull(file);
-    /* cpu.stat - nr_periods, nr_throttled, throttled_time */
+
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, cpusched);
 }
 

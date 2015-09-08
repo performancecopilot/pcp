@@ -27,7 +27,7 @@ PDU_PMNS_NAMES     = 0x700e
 PDU_PMNS_CHILD     = 0x700f
 PDU_PMNS_TRAVERSE  = 0x7010
 def read_fully(sock, n):
-    result = str("")
+    result = b''
     while len(result) < n:
         result += sock.recv(n - len(result))
     return result
@@ -257,11 +257,10 @@ class Desc(tuple):
 
 def parse_desc(blob):
     try:
-        print "len string =", len(blob)
-        print "fmt len =", struct.calcsize(">iiIiIiBBBB")
+        print("len string = %d\n" % len(blob))
+        print("fmt len = %d\n" % struct.calcsize(">iiIiIiBBBB"))
         (typ, from_, pmid, typ2, indom, sem, u1, u2, u3, u4) = \
             struct.unpack(">iiIiIiBBBB", blob)
-        # TODO: check byte order (translated from bitfields)
         # u1 is padding
         scaleCount, scaleTime = _split84(u2)
         scaleSpace, dimCount = _split84(u3)
@@ -443,7 +442,6 @@ def __fetch_value_block(blob, index):
     offset  = index * 4 - 4
     header, = struct.unpack(">I", blob[offset : offset + 4])
     typ = header >> 24
-    # TODO: actually reduce string length by 4?
     length = header & 0xFFFFFF - 4
     return ValueBlock(typ, blob[offset + 4 : offset + 4 + length])
 def parse_result(blob):
@@ -513,13 +511,12 @@ class Cred(tuple):
 
 
 def send_creds(sock, from_, creds):
-    # TODO: check byte order (translated from bitfields
     send_pdu(sock, PDU_CREDS, from_,
              struct.pack(">i", len(creds))
-             + str("").join([struct.pack(">BBBB", *c) for c in creds]))
+             + b''.join([struct.pack(">BBBB", *c) for c in creds]))
 def __pad_to_4(b):
     "Adds NUL bytes at the end to make sure that the length is == 0 (mod 4)."
-    return b + (str(""), str("\0\0\0"), str("\0\0"), str("\0e"))[len(b) & 3]
+    return b + (b"", b"\0\0\0", b"\0\0", b"\0e")[len(b) & 3]
 def send_pmns_names(sock, from_, names, status=False):
     strlen = sum([len(x) + 1 for x in names])
     if status:
@@ -527,7 +524,7 @@ def send_pmns_names(sock, from_, names, status=False):
     else:
         send_pdu(sock, PDU_PMNS_NAMES, from_,
                  struct.pack(">iii", strlen, 0, len(names))
-                 + str("").join([struct.pack(">I", len(x)) + __pad_to_4(x)
+                 + b''.join([struct.pack(">I", len(x)) + __pad_to_4(x.encode())
                              for x in names]))
 def send_pmns_child(sock, from_, name, subtype=0):
     send_pdu(sock, PDU_PMNS_CHILD, from_,
@@ -626,7 +623,7 @@ def send_profile(sock, from_, ctxnum, instprof):
     send_pdu(sock, PDU_PROFILE, from_,
              struct.pack(">iiii", ctxnum, instprof.state,
                          len(instprof.profiles), 0)
-             + str("").join([struct.pack(">Iii" + "i" * len(x.instances),
+             + b''.join([struct.pack(">Iii" + "i" * len(x.instances),
                                      x.indom, x.state, len(x.instances),
                                      *x.instances)
                          for x in instprof.profiles]))

@@ -36,6 +36,7 @@
     <LI><A HREF="#hotproc">Monitoring “Hot” Processes with Hotproc</A>
     <LI><A HREF="#instrument">Application Instrumentation</A>
   </UL>
+  <LI><A HREF="#derived">Derived Metrics</A>
   <LI><A HREF="#pmie">Performance Metrics Inference</A>
   <LI><A HREF="#web">Web Services</A>
   <UL>
@@ -107,8 +108,8 @@
 <P>To enable centralized archive log collection on the monitoring host, its pmlogger is configured to fetch performance metrics from collector hosts. Add each collector host to the pmlogger configuration file <TT>/etc/pcp/pmlogger/control</TT> and then restart the pmlogger service on the monitoring host.
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
-        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Enable recording of metrics from remote host <B><FONT COLOR="#cc0000">acme.com</FONT></B>:<B><BR>
-<BR> # echo <FONT COLOR="#cc0000">acme.com</FONT> n n PCP_LOG_DIR/pmlogger/<FONT COLOR="#cc0000">acme.com</FONT> -r -T24h10m -c config.<FONT COLOR="#cc0000">acme.com</FONT> &gt;&gt; /etc/pcp/pmlogger/control
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Enable recording of metrics from remote host <B>acme.com</B>:<B><BR>
+<BR> # echo acme.com n n PCP_LOG_DIR/pmlogger/acme.com -r -T24h10m -c config.acme.com &gt;&gt; /etc/pcp/pmlogger/control
 <BR>
 <BR> # service pmlogger restart
 </B></TD></TR>
@@ -132,7 +133,7 @@
 <br> $ sudo apt-get install pcp-manager
 <br> $ sudo update-rc.d pmmgr defaults
 <br> # Common:
-<br> # echo <FONT COLOR="#cc0000">acme.com</FONT> >> /etc/pcp/pmmgr/target-host
+<br> # echo acme.com >> /etc/pcp/pmmgr/target-host
 <br> # echo avahi >> /etc/pcp/pmmgr/target-discover
 <br> # echo probe=<FONT COLOR="#cc0000">ip.addr.tup.le/netmask</FONT> >> /etc/pcp/pmmgr/target-discover
 <br> # service pmmgr restart
@@ -188,35 +189,35 @@ Performance Co-Pilot configuration on smash:
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display all the enabled performance metrics on a host (use with -t to include a short description for each):<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -h <FONT COLOR="#cc0000">acme.com</FONT></B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -h acme.com</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display detailed information about a performance metric and its current values:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -dfmtT disk.partitions.read -h <FONT COLOR="#cc0000">acme.com</FONT></B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -dfmtT disk.partitions.read -h acme.com</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor live disk write operations per partition with two second interval using fixed point notation (use <EM>-i</EM> instance to list only certain metrics and <EM>-r</EM> for raw values):<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.partitions.write -h <FONT COLOR="#cc0000">acme.com</FONT></B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.partitions.write -h acme.com</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor live CPU load, memory usage, and disk write operations per partition with two second interval using fixed width columns:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -i -l 'kernel.all.load[1]' mem.util.used disk.partitions.write -h <FONT COLOR="#cc0000">acme.com</FONT></B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -i -l 'kernel.all.load[1]' mem.util.used disk.partitions.write -h acme.com</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor system metrics in a top like window (this needs a large terminal):<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmatop.1.html">pmatop</a> -h <FONT COLOR="#cc0000">acme.com</FONT></B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmatop.1.html">pmatop</a> -h acme.com</B>
 </TD></TR>
 </TABLE>
 
@@ -230,7 +231,7 @@ Monitor system metrics in a sar like fashion with two second interval from two d
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor system metrics in an iostat like fashion with two second interval:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmiostat.1.html">pmiostat</a> -t 2sec -h <FONT COLOR="#cc0000">acme.com</FONT></B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmiostat.1.html">pmiostat</a> -t 2sec -h acme.com</B>
 </TD></TR>
 </TABLE>
 
@@ -249,98 +250,98 @@ Monitor performance metrics with a GUI application with two second default inter
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Check the host and the time period an archive covers:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumplog.1.html">pmdumplog</a> -l <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumplog.1.html">pmdumplog</a> -l acme.com/20140902</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Check PCP configuration at the time when an archive was created:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pcp.1.html">pcp</a> -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pcp.1.html">pcp</a> -a acme.com/20140902</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display all enabled performance metrics at the time when an archive was created:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -a acme.com/20140902</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display detailed information about a performance metric at the time when an archive was created:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -df mem.freemem -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -df mem.freemem -a acme.com/20140902</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Dump past disk write operations per partition in an archive using fixed point notation (use <EM>-i</EM> instance to list only certain metrics and <EM>-r</EM> for raw values):<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -f 3 disk.partitions.write -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -f 3 disk.partitions.write -a acme.com/20140902</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Replay past disk write operations per partition in an archive with two second interval using fixed point notation between 9 AM and 10 AM (use full dates with syntax like <EM>@"2014-08-20 14:00:00"</EM>):<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -d -t 2sec -f 3 disk.partitions.write -S @09:00 -T @10:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -d -t 2sec -f 3 disk.partitions.write -S @09:00 -T @10:00 -a acme.com/20140902</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Calculate average values of performance metrics in an archive between 9 AM / 10 AM using table like formatting including the time of minimum/maximum value and the actual minimum/maximum value:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmlogsummary.1.html">pmlogsummary</a> -HlfiImM -S @09:00 -T @10:00 <FONT COLOR="#cc0000">acme.com</FONT>/20140902 disk.partitions.write mem.freemem</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmlogsummary.1.html">pmlogsummary</a> -HlfiImM -S @09:00 -T @10:00 acme.com/20140902 disk.partitions.write mem.freemem</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Dump past CPU load, memory usage, and disk write operations per partition in an archive averaged over 10 minute interval with fixed columns between 9 AM and 10 AM:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -t 10m -i -l -S @09:00 -T @10:00 'kernel.all.load[1]' 'mem.util.used' 'disk.partitions.write' -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -t 10m -i -l -S @09:00 -T @10:00 'kernel.all.load[1]' 'mem.util.used' 'disk.partitions.write' -a acme.com/20140902</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Summarize differences in past performance metrics between two archives, comparing 2 AM / 3 AM in the first archive to 9 AM / 10 AM in the second archive (grep for <EM>'+'</EM> to quickly see values which were zero during the first period):<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdiff.1.html">pmdiff</a> -S @02:00 -T @03:00 -B @09:00 -E @10:00 <FONT COLOR="#cc0000">acme.com</FONT>/20140902 <FONT COLOR="#cc0000">acme.com</FONT>/20140901</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdiff.1.html">pmdiff</a> -S @02:00 -T @03:00 -B @09:00 -E @10:00 acme.com/20140902 acme.com/20140901</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Replay past system metrics in an archive in a top like window starting 9 AM (this needs a large window):<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmatop.1.html">pmatop</a> -S @09:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmatop.1.html">pmatop</a> -S @09:00 -a acme.com/20140902</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Dump past system metrics in a sar like fashion averaged over 10 minute interval in an archive between 9 AM and 10 AM:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmstat.1.html">pmstat</a> -t 10m -S @09:00 -T @10:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmstat.1.html">pmstat</a> -t 10m -S @09:00 -T @10:00 -a acme.com/20140902</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Dump past system metrics in an <a href="http://man7.org/linux/man-pages/man1/iostat.1.html">iostat(1)</a> like fashion averaged over one hour interval in an archive:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmiostat.1.html">pmiostat</a> -t 1h -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmiostat.1.html">pmiostat</a> -t 1h -a acme.com/20140902</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Dump past system metrics in a <a href="http://man7.org/linux/man-pages/man1/free.1.html">free(1)</a> like fashion at a specific historical time offset:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pcp.1.html">pcp</a> -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902 -O @10:02 free</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pcp.1.html">pcp</a> -a acme.com/20140902 -O @10:02 free</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Replay performance metrics with a GUI application with two second default interval in an archive between 9 AM and 10 AM. Use <EM>File-&gt;New Chart</EM> to select metrics to be included in a new view and use <EM>File-&gt;Open View</EM> to use a predefined view:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmchart.1.html">pmchart</a> -t 2sec -S @09:00 -T @10:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmchart.1.html">pmchart</a> -t 2sec -S @09:00 -T @10:00 -a acme.com/20140902</B>
 </TD></TR>
 </TABLE>
 
@@ -406,14 +407,14 @@ Monitor the CPU time, memory usage (RSS), and the number of threads of the proce
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display all the available process related metrics in an archive:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> proc -a <FONT COLOR="#cc0000">acme.com</FONT>/20140902</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> proc -a acme.com/20140902</B>
 </TD></TR>
 </TABLE>
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Display the number of running processes on 2014-08-20 14:00:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -s 1 -S @"2014-08-20 14:00" proc.nprocs -a <FONT COLOR="#cc0000">acme.com</FONT>/20140820</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -s 1 -S @"2014-08-20 14:00" proc.nprocs -a acme.com/20140820</B>
 </TD></TR>
 </TABLE>
 
@@ -427,7 +428,7 @@ Display the number of running processes on 2014-08-20 14:00:<BR><B>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Enable monitoring of all Java instances on the fly and display all the collected metrics:<BR><B>
 <BR> # <a href="http://man7.org/linux/man-pages/man1/pmstore.1.html">pmstore</a> hotproc.control.config 'fname == "java"'
-<BR> # <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -f hotproc
+<BR> # <a href="http://man7.org/linux/man-pages/man1/pminfo.1.html">pminfo</a> -f hotproc</B>
 </TD></TR>
 </TABLE>
 
@@ -442,6 +443,28 @@ Enable monitoring of all Java instances on the fly and display all the collected
 <P>Instrumentation of unaltered Java applications is a known feature request and is planned for a not-too-distant release.
 
 <P>See the <A HREF="http://www.pcp.io/doc/pcp-programmers-guide.pdf">Performance Co-Pilot Programmer's Guide PDF</A> for more information about application instrumentation.
+
+<a name="derived"></a>
+<H1>Derived Metrics</H1>
+
+<P>PCP provides a wide range of performance metrics but still in some cases the readily available metrics may not exactly provide what is needed. Derived metrics (see <a href="http://man7.org/linux/man-pages/man3/pmloadderivedconfig.3.html">pmLoadDerivedConfig(3)</a>) may be used to extend the available metrics with new (derived) metrics by using simple arithmetic expressions (see <a href="http://man7.org/linux/man-pages/man3/pmregisterderived.3.html">pmRegisterDerived(3)</a>).
+
+<P>The following example illustrates how to define corresponding metrics which are displayed by <KBD>sar -d</KBD> but are not provided by default by PCP:
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+Create a file containing definitions of derived metrics and point PCP_DERIVED_CONFIG to it when running PCP utilities:</BR><B>
+<BR> $ cat ./pcp-deriv-metrics.conf
+<BR> disk.dev.avqsz = disk.dev.read_rawactive + disk.dev.write_rawactive
+<BR> disk.dev.avrqsz = 2 * rate(disk.dev.total_bytes) / rate(disk.dev.total)
+<BR> disk.dev.await = 1000 * (rate(disk.dev.read_rawactive) + rate(disk.dev.write_rawactive)) / rate(disk.dev.total)
+<BR> $ export PCP_DERIVED_CONFIG=./pcp-deriv-metrics.conf
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.dev.avqsz
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.dev.avrqsz -h acme.com
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmval.1.html">pmval</a> -t 2sec -f 3 disk.dev.await -a acme.com/20140902</B>
+</TD></TR>
+</TABLE>
+
 
 <a name="pmie"></a>
 <H1>Performance Metrics Inference</H1>
@@ -463,7 +486,7 @@ Enable monitoring of all Java instances on the fly and display all the collected
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Enable monitoring of metrics from remote host <B>acme.com</B>:<B>
-<BR> # echo <FONT COLOR="#cc0000">acme.com</FONT> n PCP_LOG_DIR/pmie/<FONT COLOR="#cc0000">acme.com</FONT> -c config.<FONT COLOR="#cc0000">acme.com</FONT>
+<BR> # echo acme.com n PCP_LOG_DIR/pmie/acme.com -c config.acme.com
 <BR>
 <BR> # service pmie restart
 </B></TD></TR>
@@ -480,10 +503,10 @@ Enable monitoring of all Java instances on the fly and display all the collected
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 This example shows a PMIE script, checks its syntax, runs it against an archive, and prints a simple message if more than 5 GB of memory was in use between 9 AM and 10 AM using one minute sampling interval:<BR><B>
 <BR> $ cat pmie.ex</B>
-<PRE><B>bloated = (  mem.util.used > 5 Gbyte )
+<PRE><B>bloated = ( mem.util.used > 5 Gbyte )
       -> print "%v memory used on %h!"</B></PRE><B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pmie.1.html">pmie</a> -C pmie.ex
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmie.1.html">pmie</a> -t 1min -c pmie.ex -S @09:00 -T @10:00 -a <FONT COLOR="#cc0000">acme.com</FONT>/20140820</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmie.1.html">pmie</a> -t 1min -c pmie.ex -S @09:00 -T @10:00 -a acme.com/20140820</B>
 </TD></TR>
 </TABLE>
 

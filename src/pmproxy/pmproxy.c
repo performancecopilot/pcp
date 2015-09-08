@@ -466,6 +466,8 @@ main(int argc, char *argv[])
 {
     int		sts;
     int		nport = 0;
+    int		localhost = 0;
+    int		maxpending = MAXPENDING;
     char	*envstr;
 
     umask(022);
@@ -475,7 +477,14 @@ main(int argc, char *argv[])
 
     if ((envstr = getenv("PMPROXY_PORT")) != NULL)
 	nport = __pmServerAddPorts(envstr);
+    if ((envstr = getenv("PMPROXY_LOCAL")) != NULL)
+	if ((localhost = atoi(envstr)) != 0)
+	    __pmServerSetFeature(PM_SERVER_FEATURE_LOCAL);
+    if ((envstr = getenv("PMPROXY_MAXPENDING")) != NULL)
+	maxpending = atoi(envstr);
     ParseOptions(argc, argv, &nport);
+    if (localhost)
+	__pmServerAddInterface("INADDR_LOOPBACK");
     if (nport == 0)
         __pmServerAddPorts(TO_STRING(PROXY_PORT));
     GetProxyHostname();
@@ -494,7 +503,7 @@ main(int argc, char *argv[])
     __pmSetSignalHandler(SIGSEGV, SigBad);
 
     /* Open request ports for client connections */
-    if ((sts = __pmServerOpenRequestPorts(&sockFds, MAXPENDING)) < 0)
+    if ((sts = __pmServerOpenRequestPorts(&sockFds, maxpending)) < 0)
 	DontStart();
     maxReqPortFd = maxSockFd = sts;
 

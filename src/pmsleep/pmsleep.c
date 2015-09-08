@@ -16,8 +16,11 @@
 #include "pmapi.h"
 #include "impl.h"
 #include <signal.h>
+#ifdef HAVE_SYS_WAIT_H
 #include <sys/wait.h>
+#endif
 
+#ifndef IS_MINGW
 static volatile sig_atomic_t finished;
 
 static void
@@ -76,6 +79,14 @@ pmpause(void)
 	pause();
     return 0;
 }
+#else
+static int
+pmpause(void)
+{
+    fprintf(stderr, "Not yet supported\n");
+    return 1;
+}
+#endif
 
 static int
 pmsleep(const char *interval)

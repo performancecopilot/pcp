@@ -572,15 +572,3 @@ __pmSetProcessIdentity(const char *username)
 
     return 0;
 }
-
-int
-__pmGetUsername(char **username)
-{
-    char *user = pmGetOptionalConfig("PCP_USER");
-    if (user && user[0] != '\0') {
-	*username = user;
-	return 1;
-    }
-    *username = "pcp";
-    return 0;
-}

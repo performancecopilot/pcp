@@ -941,6 +941,100 @@ See also network.interface.speed for the Megabytes/second value.
 @ network.sockstat.raw.inuse instantaneous number of raw sockets currently in use
 @ network.sockstat.raw.highest highest number of raw sockets in use at any one time since boot
 @ network.sockstat.raw.util instantaneous raw socket utilization (100 * inuse/highest)
+@ network.softnet.processed number of packets (not including netpoll) received by the interrupt handler
+@ network.softnet.dropped number of packets that were dropped because netdev_max_backlog was exceeded
+@ network.softnet.time_squeeze number of times ksoftirq ran out of netdev_budget or time slice with work remaining
+@ network.softnet.cpu_collision number of times that two cpus collided trying to get the device queue lock
+@ network.softnet.received_rps number of times rps_trigger_softirq has been called
+@ network.softnet.flow_limit_count softnet_data flow limit counter
+The network stack has to drop packets when a receive processing a CPUs
+backlog reaches netdev_max_backlog.  The flow_limit_count counter is
+the number of times very active flows have dropped their traffic earlier
+to maintain capacity for other less active flows.
+
+@ network.ip6.inreceives count of ip6 inreceives
+@ network.ip6.inhdrerrors count of ip6 inhdrerrors
+@ network.ip6.intoobigerrors count of ip6 intoobigerrors
+@ network.ip6.innoroutes count of ip6 innoroutes
+@ network.ip6.inaddrerrors count of ip6 inaddrerrors
+@ network.ip6.inunknownprotos count of ip6 inunknownprotos
+@ network.ip6.intruncatedpkts count of ip6 intruncatedpkts
+@ network.ip6.indiscards count of ip6 indiscards
+@ network.ip6.indelivers count of ip6 indelivers
+@ network.ip6.outforwdatagrams count of ip6 outforwdatagrams
+@ network.ip6.outrequests count of ip6 outrequests
+@ network.ip6.outdiscards count of ip6 outdiscards
+@ network.ip6.outnoroutes count of ip6 outnoroutes
+@ network.ip6.reasmtimeout count of ip6 reasmtimeout
+@ network.ip6.reasmreqds count of ip6 reassembly requireds
+@ network.ip6.reasmoks count of ip6 reassembly oks
+@ network.ip6.reasmfails count of ip6 reassembly failures
+@ network.ip6.fragoks count of ip6 fragmentation oks
+@ network.ip6.fragfails count of ip6 fragmentation failures
+@ network.ip6.fragcreates count of ip6 fragmentation creations
+@ network.ip6.inmcastpkts count of ip6 multicast packets in
+@ network.ip6.outmcastpkts count of ip6 multicast packets out
+@ network.ip6.inoctets count of ip6 octets in
+@ network.ip6.outoctets count of ip6 octets out
+@ network.ip6.inmcastoctets count of ip6 multicast octets in
+@ network.ip6.outmcastoctets count of ip6 multicast octets out
+@ network.ip6.inbcastoctets count of ip6 broadcast octets in
+@ network.ip6.outbcastoctets count of ip6 broadcast octets uot
+@ network.ip6.innoectpkts count of ip6 packets received with NOECT
+@ network.ip6.inect1pkts count of ip6 packets received with ECT(1)
+@ network.ip6.inect0pkts count of ip6 packets received with ECT(0)
+@ network.ip6.incepkts count of ip6 Congestion Experimented packets in
+@ network.icmp6.inmsgs count of icmp6 inmsgs
+@ network.icmp6.inerrors count of icmp6 inerrors
+@ network.icmp6.outmsgs count of icmp6 outmsgs
+@ network.icmp6.outerrors count of icmp6 outerrors
+@ network.icmp6.incsumerrors count of icmp6 incsumerrors
+@ network.icmp6.indestunreachs count of icmp6 indestunreachs
+@ network.icmp6.inpkttoobigs count of icmp6 inpkttoobigs
+@ network.icmp6.intimeexcds count of icmp6 intimeexcds
+@ network.icmp6.inparmproblems count of icmp6 inparmprobs
+@ network.icmp6.inechos count of icmp6 inechos
+@ network.icmp6.inechoreplies count of icmp6 inechoreplies
+@ network.icmp6.ingroupmembqueries count of icmp6 ingroupmembqueries
+@ network.icmp6.ingroupmembresponses count of icmp6 ingroupmembresponses
+@ network.icmp6.ingroupmembreductions count of icmp6 ingroupmembreductions
+@ network.icmp6.inroutersolicits count of icmp6 inroutersolicits
+@ network.icmp6.inrouteradvertisements count of icmp6 inrouteradvertisements
+@ network.icmp6.inneighborsolicits count of icmp6 inneighborsolicits
+@ network.icmp6.inneighboradvertisements count of icmp6 inneighboradvertisements
+@ network.icmp6.inredirects count of icmp6 inredirects
+@ network.icmp6.inmldv2reports count of icmp6 inmldv2reports
+@ network.icmp6.outdestunreachs count of icmp6 outdestunreachs
+@ network.icmp6.outpkttoobigs count of icmp6 outpkttoobigs
+@ network.icmp6.outtimeexcds count of icmp6 outtimeexcds
+@ network.icmp6.outparmproblems count of icmp6 outparmproblems
+@ network.icmp6.outechos count of icmp6 outechos
+@ network.icmp6.outechoreplies count of icmp6 outechoreplies
+@ network.icmp6.outgroupmembqueries count of icmp6 outgroupmembqueries
+@ network.icmp6.outgroupmembresponses count of icmp6 outgroupmembresponses
+@ network.icmp6.outgroupmembreductions count of icmp6 outgroupmembreductions
+@ network.icmp6.outroutersolicits count of icmp6 outroutersolicits
+@ network.icmp6.outrouteradvertisements count of icmp6 outrouteradvertisements
+@ network.icmp6.outneighborsolicits count of icmp6 outneighborsolicits
+@ network.icmp6.outneighboradvertisements count of icmp6 outneighboradvertisements
+@ network.icmp6.outredirects count of icmp6 outredirects
+@ network.icmp6.outmldv2reports count of icmp6 outmldv2reports
+@ network.udp6.indatagrams count of udp6 indatagrams
+@ network.udp6.noports count of udp6 noports
+@ network.udp6.inerrors count of udp6 inerrors
+@ network.udp6.outdatagrams count of udp6 outdatagrams
+@ network.udp6.rcvbuferrors count of udp6 rcvbuferrors
+@ network.udp6.sndbuferrors count of udp6 sndbuferrors
+@ network.udp6.incsumerrors count of udp6 incsumerrors
+@ network.udp6.ignoredmulti count of udp6 ignoredmulti
+@ network.udplite6.indatagrams count of udplite6 indatagrams
+@ network.udplite6.noports count of udplite6 noports
+@ network.udplite6.inerrors count of udplite6 inerrors
+@ network.udplite6.outdatagrams count of udplite6 outdatagrams
+@ network.udplite6.rcvbuferrors count of udplite6 receive buffer errors
+@ network.udplite6.sndbuferrors count of udplite6 send buffer errors
+@ network.udplite6.incsumerrors count of udplite6 in checksum errors
+
 @ hinv.physmem total system memory metric from /proc/meminfo
 @ hinv.pagesize Memory page size
 The memory page size of the running kernel in bytes.

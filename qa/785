@@ -1,0 +1,49 @@
+#!/bin/sh
+# PCP QA Test No. 785
+# Basic checkout of the pcp-atopsar(1) utility.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_BINADM_DIR/pcp-atopsar ] || _notrun "system monitoring tools not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+today=`pmdate %Y/%m/%d`
+echo "TODAY=$today" >> $seq.full
+
+_filter()
+{
+    sed \
+	-e "s#${today}#TODAY#g" \
+    #end
+} 
+
+# real QA test starts here
+allopts="-t1 -z"
+
+echo; echo == Processor metrics
+pcp $allopts atopsar -r $here/archives/pcp-atop	-c | _filter
+
+echo; echo == Disk metrics
+pcp $allopts atopsar -r $here/archives/pcp-atop -d | _filter
+
+echo; echo == Network metrics
+pcp $allopts atopsar -r $here/archives/pcp-atop -i | _filter
+
+echo; echo == Memory metrics
+pcp $allopts atopsar -r $here/archives/pcp-atop -m | _filter
+
+# success, all done
+status=0
+exit

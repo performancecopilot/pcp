@@ -123,7 +123,7 @@ dos_formatter(char *var, char *prefix, char *val)
     PM_UNLOCK(__pmLock_libpcp);
 }
 
-INTERN const __pmConfigCallback __pmNativeConfig = dos_formatter;
+PCP_DATA const __pmConfigCallback __pmNativeConfig = dos_formatter;
 char *__pmNativePath(char *path) { return dos_native_path(path); }
 int __pmPathSeparator() { return posix_style() ? '/' : '\\'; }
 int __pmAbsolutePath(char *path) { return posix_style() ? path[0] == '/' : dos_absolute_path(path); }
@@ -161,7 +161,7 @@ posix_formatter(char *var, char *prefix, char *val)
     (void)prefix;
 }
 
-INTERN const __pmConfigCallback __pmNativeConfig = posix_formatter;
+PCP_DATA const __pmConfigCallback __pmNativeConfig = posix_formatter;
 #endif
 
 
@@ -262,6 +262,7 @@ pmgetconfig(const char *name, int fatal)
 	val = "";
 	return val;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     if ((val = getenv(name)) == NULL) {
 	if (!fatal)
@@ -272,7 +273,6 @@ pmgetconfig(const char *name, int fatal)
     if (pmDebug & DBG_TRACE_CONFIG)
 	fprintf(stderr, "pmgetconfig: %s=%s\n", name, val);
 
-    PM_UNLOCK(__pmLock_libpcp);
     return val;
 }
 
@@ -286,6 +286,18 @@ char *
 pmGetOptionalConfig(const char *name)
 {
     return pmgetconfig(name, PM_RECOV_ERR);
+}
+
+int
+__pmGetUsername(char **username)
+{
+    char *user = pmGetOptionalConfig("PCP_USER");
+    if (user && user[0] != '\0') {
+	*username = user;
+	return 1;
+    }
+    *username = "pcp";
+    return 0;
 }
 
 /*

@@ -1,9 +1,15 @@
-pcp (3.10.6) unstable; urgency=low
+pcp (3.10.7) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
-  * Update documentation license notes (closes: #789376)
 
- -- Nathan Scott <nathans@debian.org>  Fri, 31 Jul 2015 12:00:00 +1000
+ -- Nathan Scott <nathans@debian.org>  Wed, 16 Sep 2015 16:02:16 +1000
+
+pcp (3.10.6) unstable; urgency=low
+
+  * Update documentation license notes (closes: #789376)
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 04 Aug 2015 12:38:48 +1000
 
 pcp (3.10.5) unstable; urgency=low
 

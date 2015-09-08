@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -77,6 +77,8 @@ enum {
 	CLUSTER_DM,		/* 54 disk.dm.* */
 	CLUSTER_SYSFS_DEVICES,	/* 55 /sys/devices metrics */
 	CLUSTER_SHM_INFO,       /* 56 shmctl(SHM_INFO) system call */
+	CLUSTER_NET_SOFTNET,	/* 57 /proc/net/softnet_stat */
+	CLUSTER_NET_SNMP6,	/* 58 /proc/net/snmp6 */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
@@ -90,6 +92,10 @@ enum {
 	REFRESH_NET_DUPLEX,
 	REFRESH_NET_LINKUP,
 	REFRESH_NET_RUNNING,
+
+	REFRESH_NETADDR_INET,
+	REFRESH_NETADDR_IPV6,
+	REFRESH_NETADDR_HW,
 
 	NUM_REFRESHES		/* one more than highest refresh index */
 };

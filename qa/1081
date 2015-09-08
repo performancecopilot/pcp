@@ -1,0 +1,36 @@
+#!/bin/sh
+# PCP QA Test No. 1081
+# Exercise the pcp-python(1) script.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which python2 >/dev/null 2>&1 || _notrun "No binary named python2 found"
+which python3 >/dev/null 2>&1 || _notrun "No binary named python3 found"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_version()
+{
+    sed -e 's/\..*//g'
+}
+
+# real QA test starts here
+echo "Checking switch to python3:"
+PCP_PYTHON_PROG=python3 /usr/bin/pcp python --version 2>&1 | _filter_version
+echo "Checking switch to python2:"
+PCP_PYTHON_PROG=python2 /usr/bin/pcp python --version 2>&1 | _filter_version
+
+# success, all done
+status=0
+exit

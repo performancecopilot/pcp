@@ -37,6 +37,12 @@ verify
 ## get this group devoid of any tests.
 flakey
 
+
+# tests requiring creation/manipulation of very large files
+# (can be extremely slow on certain devices), or otherwise
+# known to take a long time (where long is approx > 3mins).
+slow
+
 ## specific apps
 ##
 # pmcd app and control infrastructure
@@ -174,6 +180,7 @@ pmda.nvidia
 pmda.papi
 pmda.pmcd
 pmda.postfix
+pmda.postgresql
 pmda.proc
 pmda.root
 pmda.rsyslog
@@ -279,6 +286,9 @@ pcp.py
 
 # Uses avahi
 avahi
+
+# pcp-atop and related commands
+atop
 
 # Uses Linux kernel cgroups
 cgroups
@@ -747,8 +757,8 @@ cgroups
 460 pmlogextract local #598265 pmdumplog
 461 pmda.logger pmda.install event local
 462 pmcd_wait local #589006 #581025
-463 pmns local
-464 pmns local
+463 pmns local pmcpp
+464 pmns local pmcpp
 465 pmdumplog local #625913 folio
 466 pmlogger local #625913
 467 pmns pmdumptext local
@@ -789,7 +799,7 @@ cgroups
 502 pmlogrewrite local
 503 logutil pmlogrewrite local pmlogextract
 505 pmlogrewrite local
-506 pmlogrewrite local
+506 pmlogrewrite local slow
 507 pcp local
 508 archive pmlogreduce pmlogextract local
 509 derive pmns local
@@ -898,7 +908,8 @@ cgroups
 657 pmda.dm local
 660 pmwebapi local
 661 pmwebapi local
-666 pmmgr local
+662 pmwebapi local
+666 pmmgr local slow
 667 python local
 670 libpcp local
 701 pmlogcheck local
@@ -949,7 +960,7 @@ cgroups
 747 pmda.linux local
 748 pmlogrewrite pmda.mysql local
 749 pmcd local
-750 pmda.rpm local
+750 pmda.rpm local flakey
 751 pmda.rpm local
 752 libpcp local
 753 derive pmie local
@@ -977,11 +988,14 @@ cgroups
 775 sanity pmfind local
 776 pmfind local
 777 derive pmprobe pmie local
+778 pmda.postgresql pmie local
 779 pmda local
 780 pmwebapi local
 781 logutil local
 782 pmwebapi local
 783 pmda.rpm local valgrind
+784 pmda.mic python local
+785 pcp atop local
 786 context context_local libpcp local
 787 archive local pmie pmlogrewrite pmdumplog pmval flakey
 789 pmda.papi local
@@ -990,6 +1004,8 @@ cgroups
 800 pmda.proc local
 805 pmda.postfix local
 807 pcp local
+808 pmlogger local
+811 pmlogger pmcpp local
 813 pmda.papi local
 815 pmie local
 822:reserved pmlogrewrite
@@ -1015,15 +1031,20 @@ cgroups
 843 pmda local python
 844 pmda.linux local
 845 pmda.mounts local
+850 python local
+853 pmcpp local
 860 pmda pmda.proc ostest local
 861 pmcd pmda.pmcd local
 862 pmie local
+864 pcp python local
+872 pmda.linux local
 873 pmda.linux local
 874 valgrind pmval libpcp local
 875 libpcp local valgrind
 876 pmda.xfs local
 885 pmda.linux local
 888 pmda.linux local
+892 pmcd libpcp local
 897 pmlc pmlogger local
 898 pmlogmv local 
 899 libpcp getopt local
@@ -1035,6 +1056,7 @@ cgroups
 907 pmlogextract local pmdumplog
 909 libpcp pmns local
 914 pmda.papi local
+915 pmcd pmlogger pmproxy libpcp local
 919 pmlogger pmstat local
 921 pmdumplog local
 922 derive pmie pmval local
@@ -1061,11 +1083,13 @@ cgroups
 962 archive local
 963 libpcp local
 964 pmcd local
+965 derive local
 966 secure local
 967 pmda.papi local
 972 pmda.zswap dbpmda local
 973 pmda.zswap pmda.install local
 974 pmda.proc local
+975 pmimport local
 976 dbpmda perl pmda.lustre local
 977 libpcp valgrind local containers
 978 libpcp getopt sanity local
@@ -1077,6 +1101,7 @@ cgroups
 987 pmda.xfs local
 988 pmda.xfs local valgrind
 991 pcp python local
+992 pmcpp pmlogger local
 993 pmlogger pmdumplog local
 994 other verify
 995 python local
@@ -1113,6 +1138,7 @@ cgroups
 1027 pmdumptext local pmstore
 1028 pmdumptext local
 1029 libqmc local pmstore
+1030 pmda.linux local
 1044 pmie local pmieconf sanity
 1045 pmie local pmieconf
 1046 pmie local pmieconf
@@ -1122,8 +1148,11 @@ cgroups
 1051 pmieconf #696008 local
 1052 pmda.json local python
 1053 pmda.json pmda.install local python
-1079 pcp local
-1080 valgrind pcp local
+1054 pmlogger pmcpp local
+1079 pcp atop local
+1080 valgrind pcp atop local
+1081 python pcp local
 1091 pmns libpcp context local
 1092 libpcp local
+1093 pmcpp local
 1108 logutil local folio pmlogextract

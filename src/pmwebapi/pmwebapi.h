@@ -36,6 +36,10 @@ extern "C"
 #include <microhttpd.h>
 }
 
+#if !defined(MHD_SOCKET_DEFINED)
+typedef int MHD_socket;
+#endif
+
 /* ------------------------------------------------------------------------ */
 
 /* a subset of option flags that needs to be read by the other modules */
@@ -78,10 +82,14 @@ extern int
 pmwebres_respond (struct MHD_Connection *connectio, const http_params &,
                   const std::string & url);
 
+#if defined(HAVE_GRAPHITE)
 // pmgraphite.cxx
 extern int
 pmgraphite_respond (struct MHD_Connection *connection, const http_params &,
                     const std::vector <std::string> &url);
+#else
+#define pmgraphite_respond(conn,params,url) mhd_notify_error(conn, -EOPNOTSUPP)
+#endif
 
 // util.cxx
 extern std::ostream & timestamp (std::ostream & o);

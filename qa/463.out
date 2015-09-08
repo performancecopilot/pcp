@@ -129,6 +129,20 @@ root {
     sampledso	30:*:*
 
 }
+---------------- 8a -----------------
+
+foo
+
+bar
+mumble
+
+fumble
+---------------- 8b -----------------
+# white space after include filename
+# spaces, no comment ... this was Nathan's Mac OS X failure */
+foo
+# tab this time
+bar
 
 #include errors ...
 ---------------- 9 -----------------
@@ -169,7 +183,7 @@ root {
 # 1 "TMP.4"
     four	1:0:4
 pmcpp: TMP.4[2]: #include "TMP.5"
-pmcpp: Error: #include nesting too deep
+pmcpp: Error: #include and/or #shell nesting too deep
 
 #define errors ...
 ---------------- 15 -----------------
@@ -181,7 +195,7 @@ pmcpp: Error: Missing macro name
 # 1 "TMP.root"
 root {
 
-pmcpp: TMP.root[3]: #define
+pmcpp: TMP.root[3]: #define 
 pmcpp: Error: Missing macro name
 ---------------- 17 -----------------
 # 1 "TMP.root"
@@ -240,5 +254,5 @@ other #cpp line errors ...
 ---------------- 26 -----------------
 # 1 "TMP.root"
 root {
-pmcpp: TMP.root[2]: #fumble
-pmcpp: Error: Unrecognized control line
+#fumble
+}

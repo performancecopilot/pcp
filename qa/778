@@ -1,0 +1,386 @@
+#!/bin/sh
+# PCP QA Test No. 778
+# Install/Remove postgresql PMDA and check some basic metrics
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+echo '\q' | $sudo -u postgres psql >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "Cannot run psql as the postgres user, postgresql not installed or running?"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pmdapostgresql_remove()
+{
+    echo | tee -a $here/$seq.full
+    echo "=== remove postgresql agent ===" | tee -a $here/$seq.full
+    $sudo ./Remove >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdapostgresql_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/postgresql
+    $sudo ./Remove >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
+
+    echo | tee -a $here/$seq.full
+    echo "=== postgresql agent installation ===" | tee -a $here/$seq.full
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    # filter lines like ...
+    # Check postgresql metrics have appeared ... 4 warnings, 208 metrics and 6839 values
+    # into
+    # Check postgresql metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check postgresql metrics have appeared/   { if ($7 >= 200) $7 = "X"
+                                          if ($10 >= 5000) $10 = "Y"
+                                        }
+                                        { print }'
+}
+
+_prepare_pmda postgresql
+trap "_cleanup_pmda postgresql; exit \$status" 0 1 2 3 15
+
+
+_do_sql()
+{
+    $sudo -u postgres psql -c "$*" >$tmp.out 2>$tmp.err
+    _sts=$?
+    if [ -s $tmp.err ]
+    then
+	cat $tmp.err
+	echo "Warning: stderr from psql"
+    fi
+    if [ $_sts -ne 0 ]
+    then
+	echo "Error: psql exit status: $_sts"
+	exit
+    fi
+    cat $tmp.out >>$here/$seq.full
+    sed <$tmp.out \
+	-e 's/ *| */|/g' \
+	-e 's/^  *//' \
+	-e 's/  *$//' \
+	-e '/^([0-9][0-9]* row/d' \
+    | $PCP_AWK_PROG -F\| '
+NR == 1	{ for (i = 1; i <= NF; i++) name[i] = $i }
+NR >= 3	{ for (i = 1; i <= NF; i++) print NR "|" name[i] "|" $i }'
+}
+
+# aim is to match values ... the sql values are lines like
+# this in $tmp.db
+# 3|client_port|-1
+# 4|client_port|1
+# and the pminfo values are in lines like this in $tmp.pcp
+# postgresql.stat.activity.client_port 3 -1 1 4
+#
+# Usage: _match dbpattern [[pcppattern|-] [width [fuzz]]]
+#
+# if pcppattern is missing or "-", use dbpattern
+# if width specified use only the first n characters of each value
+# if width is missing or "-", use 0 (match full field width)
+# the optional fuzz specifies a +/- % tolerance that is allowed
+#
+# "match" is weakly defined as some value that is not "" and not 0
+# and that occurs in both sets of values (non determinism in the
+# queries being run on the DB engine dictate this as close as we can
+# get ... major PMDA botches fail even this weak test!)
+#
+_match()
+{
+    rm -f $tmp.match
+    pat="$1"
+    egrep "\\|$pat\\|" $tmp.db >$tmp.val.db
+    if [ ! -s $tmp.val.db ]
+    then
+	echo "_match: failed to pick any values from DB using pattern \"|$pat|\""
+	return
+    fi
+    [ "$2" != "-" -a -n "$2" ] && pat="$2"
+    width=0	# use full field width
+    [ "$3" != "-" -a -n "$3" ] && width="$3"
+    fuzz=0
+    [ -n "$4" ] && fuzz="$4"
+    grep "\\.$pat " $tmp.pcp >$tmp.val.pcp
+    if [ ! -s $tmp.val.pcp ]
+    then
+	echo "_match: failed to pick any values from PCP using pattern \"\\.$pat \""
+	return
+    fi
+    nlines=`wc -l <$tmp.val.pcp | sed -e 's/ //g'`
+    if [ "$nlines" != 1 ]
+    then
+	echo "_match: picked $nlines lines of values from PCP, not 1 as expected"
+	return
+    fi
+    # pmprobe output is a bit tricky ... string values have enclosing "
+    if grep '"' $tmp.val.pcp >/dev/null
+    then
+	sed <$tmp.val.pcp \
+	    -e 's/[^"]*"//' \
+	    -e 's/" "/|/g' \
+	    -e 's/"$//'
+    else
+	$PCP_AWK_PROG <$tmp.val.pcp '
+    { for (i = 3; i <= NF; i++) {
+	if (i > 3) printf "|"
+	printf "%s",$i
+      }
+      print ""
+    }'
+    fi >$tmp.tmp
+
+    ( echo "$width|$fuzz" ; cat $tmp.tmp $tmp.val.db ) \
+    | $PCP_AWK_PROG -F\| '
+NR == 1	{ # options: field_width fuzz_pct
+	  width = $1
+	  fuzz = $2
+	  next
+	}
+NR == 2	{ # PCP values
+	  j = 0
+	  for (i = 1; i <= NF; i++) {
+	      if ($i == 0 || $i == "")
+		continue
+	      if (width == 0)
+		  pcp[j] = $i
+	      else
+		  pcp[j] = substr($i, 1, width)
+#debug# print "pcp[" j "]=\"" pcp[j] "\""
+	      j++
+	  }
+	  npcp = j
+	  next
+	}
+	{ if ($3 == 0 || $3 == "") next
+	  if (width != 0)
+	      $3 = substr($3, 1, width)
+	  for (j = 0; j < npcp; j++) {
+#debug# print "pcp[" j "]=\"" pcp[j] "\" : db=\"" $3 "\""
+	      if ($3 == pcp[j]) {
+		  print "$3" >"'$tmp.match'"
+		  exit
+	      }
+	  }
+	}'
+
+    if [ -f $tmp.match ]
+    then
+	echo "$1: match"
+    else
+	echo "$1: no match"
+    fi
+   
+}
+
+# real QA test starts here
+pmdapostgresql_install
+
+echo
+echo "=== check values with pmie ==="
+cat <<End-of-File | pmie -t 2sec -T 5sec 2>$tmp.err >$tmp.out
+// metrics chosen almost at random .. sort of 1 per cluster and
+// metrics where at least one instance is expected to have a
+// value > 0
+//
+
+ruleset
+    postgresql.active.xlog_current_location_offset > 0
+    -> print "postgresql.active.xlog_current_location_offset: OK"
+else
+    postgresql.active.xlog_current_location_offset <= 0
+    -> print "postgresql.active.xlog_current_location_offset: BAD" " %v"
+;
+
+ruleset
+    sum_inst instant(postgresql.statio.sys_tables.idx_blks_read) > 0
+    -> print "postgresql.statio.sys_tables.idx_blks_read: OK"
+otherwise
+    -> print "postgresql.statio.sys_tables.idx_blks_read: BAD" & shell "pminfo -f postgresql.statio.sys_tables.idx_blks_read >>$tmp.bad"
+;
+
+ruleset
+    sum_inst instant(postgresql.statio.sys_indexes.idx_blks_hit) > 0
+    -> print "postgresql.statio.sys_indexes.idx_blks_hit: OK"
+otherwise
+    -> print "postgresql.statio.sys_indexes.idx_blks_hit: BAD" & shell "pminfo -f postgresql.statio.sys_indexes.idx_blks_hit >>$tmp.bad"
+;
+
+ruleset
+    postgresql.stat.activity.datid > 0
+    -> print "postgresql.stat.activity.datid: OK"
+else
+    postgresql.stat.activity.datid <= 0
+    -> print "postgresql.stat.activity.datid: BAD" " %v"
+;
+
+ruleset
+    sum_inst instant(postgresql.stat.sys_indexes.idx_scan) > 0
+    -> print "postgresql.stat.sys_indexes.idx_scan: OK"
+otherwise
+    -> print "postgresql.stat.sys_indexes.idx_scan: BAD" & shell "pminfo -f postgresql.stat.sys_indexes.idx_scan >>$tmp.bad"
+;
+
+ruleset
+    sum_inst instant(postgresql.stat.database.tup_returned) > 0
+    -> print "postgresql.stat.database.tup_returned: OK"
+otherwise
+    -> print "postgresql.stat.database.tup_returned: BAD" & shell "pminfo -f postgresql.stat.database.tup_returned >>$tmp.bad"
+;
+
+ruleset
+    sum_inst instant(postgresql.stat.sys_tables.idx_tup_fetch) > 0
+    -> print "postgresql.stat.sys_tables.idx_tup_fetch: OK"
+otherwise
+    -> print "postgresql.stat.sys_tables.idx_tup_fetch: BAD" & shell "pminfo -f postgresql.stat.sys_tables.idx_tup_fetch >>$tmp.bad"
+;
+
+ruleset
+    sum_inst instant(postgresql.stat.xact.all_tables.seq_scan) > 0
+    -> print "postgresql.stat.xact.all_tables.seq_scan: OK"
+otherwise
+    -> print "postgresql.stat.xact.all_tables.seq_scan: BAD" & shell "pminfo -f postgresql.stat.xact.all_tables.seq_scan >>$tmp.bad"
+;
+
+ruleset
+    sum_inst instant(postgresql.stat.xact.sys_tables.idx_scan) > 0
+    -> print "postgresql.stat.xact.sys_tables.idx_scan: OK"
+otherwise
+    -> print "postgresql.stat.xact.sys_tables.idx_scan: BAD" & shell "pminfo -f postgresql.stat.xact.sys_tables.idx_scan >>$tmp.bad"
+;
+
+ruleset
+    sum_inst instant(postgresql.stat.all_tables.idx_tup_fetch) > 0
+    -> print "postgresql.stat.all_tables.idx_tup_fetch: OK"
+otherwise
+    -> print "postgresql.stat.all_tables.idx_tup_fetch: BAD" & shell "pminfo -f postgresql.stat.all_tables.idx_tup_fetch >>$tmp.bad"
+;
+
+ruleset
+    sum_inst instant(postgresql.stat.all_indexes.idx_tup_read) > 0
+    -> print "postgresql.stat.all_indexes.idx_tup_read: OK"
+otherwise
+    -> print "postgresql.stat.all_indexes.idx_tup_read: BAD" & shell "pminfo -f postgresql.stat.all_indexes.idx_tup_read >>$tmp.bad"
+;
+
+End-of-File
+
+cat $tmp.out >>$here/$seq.full
+cat $tmp.err >>$here/$seq.full
+_filter_pmie_log <$tmp.out \
+| LC_COLLATE=POSIX sort \
+| uniq
+[ -f $tmp.bad ] && cat $tmp.bad
+
+echo "validate values ..."
+
+echo | tee -a $here/$seq.full
+echo "=== pg_stat_activity ===" | tee -a $here/$seq.full
+_do_sql 'select * from pg_stat_activity' >$tmp.db
+pmprobe -v postgresql.stat.activity >$tmp.pcp
+echo "--- DB values ---" >>$here/$seq.full
+cat $tmp.db >>$here/$seq.full
+echo "--- PCP values ---" >>$here/$seq.full
+cat $tmp.pcp >>$here/$seq.full
+_match client_port
+_match backend_start
+_match "(current_query|query)" current_query
+
+echo | tee -a $here/$seq.full
+echo "=== pg_stat_bgwriter ===" | tee -a $here/$seq.full
+_do_sql 'select * from pg_stat_bgwriter' >$tmp.db
+pmprobe -v postgresql.stat.bgwriter >$tmp.pcp
+echo "--- DB values ---" >>$here/$seq.full
+cat $tmp.db >>$here/$seq.full
+echo "--- PCP values ---" >>$here/$seq.full
+cat $tmp.pcp >>$here/$seq.full
+_match checkpoints_timed
+_match buffers_alloc
+
+echo | tee -a $here/$seq.full
+echo "=== pg_stat_database ===" | tee -a $here/$seq.full
+_do_sql 'select * from pg_stat_database' >$tmp.db
+pmprobe -v postgresql.stat.database >$tmp.pcp
+echo "--- DB values ---" >>$here/$seq.full
+cat $tmp.db >>$here/$seq.full
+echo "--- PCP values ---" >>$here/$seq.full
+cat $tmp.pcp >>$here/$seq.full
+_match stats_reset - 10
+_match tup_fetched - - 25
+
+echo | tee -a $here/$seq.full
+echo "=== pg_stat_all_tables ===" | tee -a $here/$seq.full
+_do_sql 'select * from pg_stat_all_tables' >$tmp.db
+pmprobe -v postgresql.stat.all_tables >$tmp.pcp
+echo "--- DB values ---" >>$here/$seq.full
+cat $tmp.db >>$here/$seq.full
+echo "--- PCP values ---" >>$here/$seq.full
+cat $tmp.pcp >>$here/$seq.full
+_match seq_tup_read 
+_match seq_scan
+_match idx_tup_fetch
+_match idx_scan
+
+echo | tee -a $here/$seq.full
+echo "=== pg_stat_sys_tables ===" | tee -a $here/$seq.full
+_do_sql 'select * from pg_stat_sys_tables' >$tmp.db
+pmprobe -v postgresql.stat.sys_tables >$tmp.pcp
+echo "--- DB values ---" >>$here/$seq.full
+cat $tmp.db >>$here/$seq.full
+echo "--- PCP values ---" >>$here/$seq.full
+cat $tmp.pcp >>$here/$seq.full
+_match seq_tup_read 
+_match seq_scan
+_match idx_tup_fetch
+_match idx_scan
+
+echo | tee -a $here/$seq.full
+echo "=== pg_stat_all_indexes ===" | tee -a $here/$seq.full
+_do_sql 'select * from pg_stat_all_indexes' >$tmp.db
+pmprobe -v postgresql.stat.all_indexes >$tmp.pcp
+echo "--- DB values ---" >>$here/$seq.full
+cat $tmp.db >>$here/$seq.full
+echo "--- PCP values ---" >>$here/$seq.full
+cat $tmp.pcp >>$here/$seq.full
+_match idx_scan
+_match idx_tup_read
+_match idx_tup_fetch
+_match relname
+
+echo | tee -a $here/$seq.full
+echo "=== pg_stat_sys_indexes ===" | tee -a $here/$seq.full
+_do_sql 'select * from pg_stat_sys_indexes' >$tmp.db
+pmprobe -v postgresql.stat.sys_indexes >$tmp.pcp
+echo "--- DB values ---" >>$here/$seq.full
+cat $tmp.db >>$here/$seq.full
+echo "--- PCP values ---" >>$here/$seq.full
+cat $tmp.pcp >>$here/$seq.full
+_match idx_scan
+_match idx_tup_read
+_match idx_tup_fetch
+_match relname
+
+echo "PMDA log file ..." >>$here/$seq.full
+$sudo cat $PCP_LOG_DIR/pmcd/postgresql.log >>$here/$seq.full
+
+pmdapostgresql_remove
+
+status=0
+exit

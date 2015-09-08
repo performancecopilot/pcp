@@ -18,6 +18,8 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= elasticsearch
 DOMAIN	= ELASTICSEARCH
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
+LOGCONF	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+
 LDIRT	= domain.h root pmns *.log
 
 MAN_SECTION	= 1
@@ -32,6 +34,8 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
+	$(INSTALL) -m 755 -d $(LOGCONF)
+	$(INSTALL) -m 644 pmlogconf.summary $(LOGCONF)/summary
 	@$(INSTALL_MAN)
 
 default_pcp : default

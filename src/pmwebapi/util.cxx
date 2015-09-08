@@ -24,11 +24,7 @@
 extern "C"
 {
 #include <sys/stat.h>
-#include <sys/syscall.h>
-#include <time.h>
 #include <stdarg.h>
-#include <stdlib.h>
-#include <netdb.h>
 #include <microhttpd.h>
 }
 using namespace std;

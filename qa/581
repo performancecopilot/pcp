@@ -220,6 +220,7 @@ _filter_pmie_log <$tmp.out \
     -e '/^NETWORK docker[0-9][0-9]*$/d' \
     -e '/^NETWORK e[cfmnt][0-9][0-9]*$/d' \
     -e '/^NETWORK ens[0-9]*$/d' \
+    -e '/^NETWORK enp[0-9][0-9]*s[0-9][0-9]*$/d' \
     -e '/^NETWORK enp[0-9][0-9]*s[0-9][0-9]*f[0-9][0-9]*$/d' \
     -e '/^NETWORK enp[0-9][0-9]*s[0-9][0-9]*f[0-9][0-9]*u[0-9][0-9]*$/d' \
     -e '/^NETWORK eth[0-9]/d' \

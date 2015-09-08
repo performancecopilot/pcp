@@ -1,0 +1,72 @@
+QA output created by 992
+preprocessor cmd: PCP_BINADM_DIR/pmcpp -rs TMP.config -I PCP_VAR_DIR/config/pmlogger
+Warning [TMP.config, line 11]
+Instance "no-such-interface" is not defined for the metric "network.interface.out.packets"
+Warning [TMP.config, line 15]
+Problem with lookup for metric "foo.bar" ... logging not activated
+Reason: Unknown metric name
+Warning [TMP.config, line 17]
+Instance "?" is not defined for the metric "sample.string.write_me"
+Config parsed
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 600000 usec numpmid: 10
+  PMID.0.20 (kernel.all.cpu.user):
+  29.0.46 (sample.lights):
+  29.0.10 (sample.long.one):
+  29.0.11 (sample.long.ten):
+  29.0.12 (sample.long.hundred):
+  29.0.13 (sample.long.million):
+  29.0.14 (sample.long.write_me):
+  29.0.103 (sample.long.bin):
+  29.0.104 (sample.long.bin_ctr):
+  29.0.6 (sample.bin):
+Dump optfetch structures ...
+
+Dump optfetch structures ...
+
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  PMID.0.33 (hinv.ndisk):
+Dump optfetch structures ...
+
+
+=== now with disk_all defined ===
+preprocessor cmd: PCP_BINADM_DIR/pmcpp -rs TMP.config -I PCP_VAR_DIR/config/pmlogger
+Warning [TMP.config, line 11]
+Instance "no-such-interface" is not defined for the metric "network.interface.out.packets"
+Warning [TMP.config, line 15]
+Problem with lookup for metric "foo.bar" ... logging not activated
+Reason: Unknown metric name
+Warning [TMP.config, line 17]
+Instance "?" is not defined for the metric "sample.string.write_me"
+Warning [TMP.config, line 27]
+Instance "nodisk" is not defined for the metric "disk.all.read"
+Config parsed
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 20000 usec numpmid: 2
+  PMID.0.25 (disk.all.write):
+  PMID.0.24 (disk.all.read):
+Dump optfetch structures ...
+
+ state: not in log, unavail, mand, on delta: 600000 usec numpmid: 10
+  PMID.0.20 (kernel.all.cpu.user):
+  29.0.46 (sample.lights):
+  29.0.10 (sample.long.one):
+  29.0.11 (sample.long.ten):
+  29.0.12 (sample.long.hundred):
+  29.0.13 (sample.long.million):
+  29.0.14 (sample.long.write_me):
+  29.0.103 (sample.long.bin):
+  29.0.104 (sample.long.bin_ctr):
+  29.0.6 (sample.bin):
+Dump optfetch structures ...
+
+Dump optfetch structures ...
+
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  PMID.0.33 (hinv.ndisk):
+Dump optfetch structures ...
+

@@ -22,3 +22,122 @@ Excluding metric sample.string.hullo (need numeric type)
 Excluding metric NoSuchMetric (PM_ERR_NAME Unknown metric name)
 Excluding metric sample.bad.unknown (PM_ERR_PMID Unknown or illegal metric identifier)
 Excluding metric sample.bad.nosupport (need numeric type)
+=== 4. pcp2graphite count-limited archive transcription ===
+pcp.sample.byte_rate 554.0 1192055482
+pcp.sample.byte_rate 453.0 1192055483
+pcp.sample.byte_rate 924.0 1192055484
+pcp.sample.byte_rate 128.0 1192055485
+pcp.sample.byte_rate 575.0 1192055486
+pcp.sample.byte_rate 649.0 1192055487
+pcp.sample.byte_rate 474.0 1192055488
+pcp.sample.byte_rate 730.0 1192055489
+pcp.sample.byte_rate 436.0 1192055490
+pcp.sample.byte_rate 353.0 1192055491
+pcp.sample.byte_rate 955.0 1192055492
+pcp.sample.byte_rate 350.0 1192055493
+pcp.sample.byte_rate 544.0 1192055494
+pcp.sample.byte_rate 453.0 1192055495
+pcp.sample.byte_rate 903.0 1192055496
+pcp.sample.byte_rate 288.0 1192055497
+pcp.sample.byte_rate 222.0 1192055498
+pcp.sample.byte_rate 964.0 1192055499
+pcp.sample.byte_rate 343.0 1192055500
+pcp.sample.byte_rate 1003.0 1192055501
+pcp.sample.byte_rate 814.0 1192055502
+pcp.sample.byte_rate 644.0 1192055503
+pcp.sample.byte_rate 77.0 1192055504
+pcp.sample.byte_rate 9.0 1192055505
+pcp.sample.byte_rate 412.0 1192055506
+pcp.sample.byte_rate 368.0 1192055507
+pcp.sample.byte_rate 996.0 1192055508
+pcp.sample.byte_rate 912.0 1192055509
+pcp.sample.byte_rate 675.0 1192055510
+
+Relaying 1 metric(s) with prefix pcp. from archive archives/chartqa1.meta in text mode to localhost:2003 every 1.000000 s
+Sending Wed Oct 10 22:31:22 2007: pcp.sample.byte_rate 554.0 1192055482
+Sending Wed Oct 10 22:31:23 2007: pcp.sample.byte_rate 453.0 1192055483
+Sending Wed Oct 10 22:31:24 2007: pcp.sample.byte_rate 924.0 1192055484
+Sending Wed Oct 10 22:31:25 2007: pcp.sample.byte_rate 128.0 1192055485
+Sending Wed Oct 10 22:31:26 2007: pcp.sample.byte_rate 575.0 1192055486
+Sending Wed Oct 10 22:31:27 2007: pcp.sample.byte_rate 649.0 1192055487
+Sending Wed Oct 10 22:31:28 2007: pcp.sample.byte_rate 474.0 1192055488
+Sending Wed Oct 10 22:31:29 2007: pcp.sample.byte_rate 730.0 1192055489
+Sending Wed Oct 10 22:31:30 2007: pcp.sample.byte_rate 436.0 1192055490
+Sending Wed Oct 10 22:31:31 2007: pcp.sample.byte_rate 353.0 1192055491
+Sending Wed Oct 10 22:31:32 2007: pcp.sample.byte_rate 955.0 1192055492
+Sending Wed Oct 10 22:31:33 2007: pcp.sample.byte_rate 350.0 1192055493
+Sending Wed Oct 10 22:31:34 2007: pcp.sample.byte_rate 544.0 1192055494
+Sending Wed Oct 10 22:31:35 2007: pcp.sample.byte_rate 453.0 1192055495
+Sending Wed Oct 10 22:31:36 2007: pcp.sample.byte_rate 903.0 1192055496
+Sending Wed Oct 10 22:31:37 2007: pcp.sample.byte_rate 288.0 1192055497
+Sending Wed Oct 10 22:31:38 2007: pcp.sample.byte_rate 222.0 1192055498
+Sending Wed Oct 10 22:31:39 2007: pcp.sample.byte_rate 964.0 1192055499
+Sending Wed Oct 10 22:31:40 2007: pcp.sample.byte_rate 343.0 1192055500
+Sending Wed Oct 10 22:31:41 2007: pcp.sample.byte_rate 1003.0 1192055501
+Sending Wed Oct 10 22:31:42 2007: pcp.sample.byte_rate 814.0 1192055502
+Sending Wed Oct 10 22:31:43 2007: pcp.sample.byte_rate 644.0 1192055503
+Sending Wed Oct 10 22:31:44 2007: pcp.sample.byte_rate 77.0 1192055504
+Sending Wed Oct 10 22:31:45 2007: pcp.sample.byte_rate 9.0 1192055505
+Sending Wed Oct 10 22:31:46 2007: pcp.sample.byte_rate 412.0 1192055506
+Sending Wed Oct 10 22:31:47 2007: pcp.sample.byte_rate 368.0 1192055507
+Sending Wed Oct 10 22:31:48 2007: pcp.sample.byte_rate 996.0 1192055508
+Sending Wed Oct 10 22:31:49 2007: pcp.sample.byte_rate 912.0 1192055509
+Sending Wed Oct 10 22:31:50 2007: pcp.sample.byte_rate 675.0 1192055510
+=== 5. pcp2graphite time-limited archive transcription ===
+?(lp0
+(pcp.sample.byte_rate
+(I1192055490
+F730
+?(lp0
+(pcp.sample.byte_rate
+(I1192055491
+F436
+?(lp0
+(pcp.sample.byte_rate
+(I1192055492
+F353
+?(lp0
+(pcp.sample.byte_rate
+(I1192055493
+F955
+?(lp0
+(pcp.sample.byte_rate
+(I1192055494
+F350
+?(lp0
+(pcp.sample.byte_rate
+(I1192055495
+F544
+?(lp0
+(pcp.sample.byte_rate
+(I1192055496
+F453
+?(lp0
+(pcp.sample.byte_rate
+(I1192055497
+F903
+?(lp0
+(pcp.sample.byte_rate
+(I1192055498
+F288
+?(lp0
+(pcp.sample.byte_rate
+(I1192055499
+F222
+?(lp0
+(pcp.sample.byte_rate
+(I1192055500
+F964
+
+Relaying 1 metric(s) with prefix pcp. from archive archives/chartqa1.meta in pickled mode to localhost:2004 every 1.000000 s
+Sending Wed Oct 10 22:31:30 2007 #tuples 1
+Sending Wed Oct 10 22:31:31 2007 #tuples 1
+Sending Wed Oct 10 22:31:32 2007 #tuples 1
+Sending Wed Oct 10 22:31:33 2007 #tuples 1
+Sending Wed Oct 10 22:31:34 2007 #tuples 1
+Sending Wed Oct 10 22:31:35 2007 #tuples 1
+Sending Wed Oct 10 22:31:36 2007 #tuples 1
+Sending Wed Oct 10 22:31:37 2007 #tuples 1
+Sending Wed Oct 10 22:31:38 2007 #tuples 1
+Sending Wed Oct 10 22:31:39 2007 #tuples 1
+Sending Wed Oct 10 22:31:40 2007 #tuples 1

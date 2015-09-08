@@ -20,7 +20,7 @@
  * but which we do not want to expose via impl.h or pmapi.h.
  */
 
-#if defined(__GNUC__) && (__GNUC__ >= 4)
+#if defined(__GNUC__) && (__GNUC__ >= 4) && !defined(IS_MINGW)
 # define _PCP_HIDDEN __attribute__ ((visibility ("hidden")))
 #else
 # define _PCP_HIDDEN
@@ -35,7 +35,7 @@ extern int __pmConnectWithFNDELAY(int, void *, __pmSockLen) _PCP_HIDDEN;
 
 extern int __pmPtrToHandle(__pmContext *) _PCP_HIDDEN;
 
-extern int __pmGlibGetDate (struct timespec *, char const *, struct timespec const *)  _PCP_HIDDEN;
+extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)  _PCP_HIDDEN;
 
 #ifdef HAVE_NETWORK_BYTEORDER
 /*

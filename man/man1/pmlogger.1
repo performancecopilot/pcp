@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" Copyright (c) 2014 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2014-2015 Red Hat.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -127,19 +127,21 @@ Optionally, each system running
 may also be configured to run a ``primary''
 .B pmlogger
 instance.
-Like
-.BR pmcd (1),
-this
+This
 .B pmlogger
 instance is launched by 
-.BR $PCP_RC_DIR/pcp ,
+.BR $PCP_RC_DIR/pmlogger ,
 and is affected by the files
-.I $PCP_SYSCONF_DIR/pmlogger/control
+.IR $PCP_SYSCONF_DIR/pmlogger/control ,
+.IR $PCP_SYSCONF_DIR/pmlogger/control .d
 (use
 .BR chkconfig (8)
-to activate or disable the primary
+or similar platform-specific commands to activate or disable the primary
 .B pmlogger 
 instance),
+.I $PCP_SYSCONFIG_DIR/pmlogger
+(environment variable settings for the primary
+.BR pmlogger )
 .I $PCP_SYSCONF_DIR/pmlogger/pmlogger.options
 (command line options passed to the primary
 .BR pmlogger )
@@ -634,6 +636,29 @@ A missing
 section allows all access and is equivalent to
 .BR "allow * : all;" .
 .RE
+.PP
+The configuration (either from standard input or
+.IR configfile )
+is initially scanned by
+.BR pmcpp (1)
+with the options
+.B \-rs
+and
+\fB\-I \fI$PCP_VAR_LIB/config/pmlogger\fR.
+This extends the configuration file syntax with include file
+processing (\c
+.BR %include ),
+a common location to search for include files 
+(\fI$PCP_VAR_LIB/config/pmlogger\fR),
+macro definitions (\c
+.BR %define ),
+macro expansion (\c
+.BI % name
+and
+.BR %{ \fIname\fP } )
+and conditional inclusion of lines
+(\fB%ifdef \fIname\fR ... \fB%else\fR ... \fB%endif\fR and
+\fB%ifndef \fIname\fR ... \fB%else\fR ... \fB%endif\fR).
 .SH EXAMPLES
 For each PCP utility, there is a sample
 .B pmlogger
@@ -668,6 +693,14 @@ log advisory on every 30 minutes {
     pmcd.pdu_out.total
 }
 
+%include "macros.default"
+
+%ifdef %disk_detail
+log mandatory on %disk_detail_freq {
+    disk.dev
+}
+%endif
+
 [access]
 disallow * : all except enquire;
 allow localhost : mandatory, advisory;
@@ -695,9 +728,7 @@ archive log
 maintains the files in this directory as the map between the
 process id of the
 .B pmlogger
-instance and the
-IPC port that may be used to control
-each
+instance and the IPC port that may be used to control each
 .B pmlogger
 instance (as used by
 .BR pmlc (1))
@@ -705,7 +736,7 @@ instance (as used by
 .B $PCP_VAR_LIB/config/pmlogger/config.default
 default configuration file for the primary logger instance
 launched from
-.B $PCP_RC_DIR/pcp
+.B $PCP_RC_DIR/pmlogger
 .TP
 .BR $PCP_VAR_LIB/config/pmlogger/config. *
 assorted configuration files suitable for creating logs that may
@@ -717,30 +748,47 @@ Default directory for PCP archive files for performance
 metric values collected from the host
 .IR hostname .
 .TP
+.B $PCP_SYSCONFIG_DIR/pmlogger
+additional environment variables that will be set when the primary
+.B pmlogger
+instance executes.
+Only settings of the form "PMLOGGER_VARIABLE=value" will be honoured.
+.TP
 .I \&./pmlogger.log
 (or
 .B $PCP_LOG_DIR/pmlogger/\fIhostname\fB/pmlogger.log
 when started automatically by either
-.B $PCP_RC_DIR/pcp
+.B $PCP_RC_DIR/pmlogger
 or one of the
 .BR pmlogger (1)
 monitoring scripts such as
 .BR pmlogger_check (1))
 .br
 all messages and diagnostics are directed here
-.TP
-.B $PCP_RC_DIR/pcplocal
-contains ``hooks'' to enable automatic restart at system boot time
 .PD
 .SH ENVIRONMENT
 Normally
 .B pmlogger
 creates a socket to receive control messages from
 .BR pmlc (1)
-on the first available TCP/IP port numbered 4330 or higher.  The environment
-variable
+on the first available TCP/IP port numbered 4330 or higher.
+The environment variable
 .B PMLOGGER_PORT
 may be used to specify an alternative starting port number.
+.PP
+If set to the value 1, the
+.B PMLOGGER_LOCAL
+environment variable will cause
+.B pmlogger
+to run in a localhost-only mode of operation, where it binds only
+to the loopback interface.
+.PP
+The
+.B PMLOGGER_MAXPENDING
+variable can be set to indicate the maximum length to which the queue
+of pending
+.B pmlc
+connections may grow.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

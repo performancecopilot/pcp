@@ -52,6 +52,7 @@ _filter()
 	-e 's/[A-Z][a-z][a-z] *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/' \
 	-e 's/20[0-9][0-9]-[01][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9]*/TIMESTAMP/' \
 	-e 's/STAMP[-+][0-1][0-9]:[0-5][0-9]/STAMP/' \
+	-e "s/`hostname`/HOST/" \
 	-e "s/`hostname | sed -e 's/\..*//'`/HOST/" \
 	-e 's/[0-9][A-Z]:HOST/HOST/' \
 	-e 's/\(pmie[([]\)[0-9][0-9]*/\1PID/' \
@@ -104,27 +105,55 @@ echo
 echo "pmie stderr ..."
 _filter <$tmp.err
 
+# may be using journalctl, and so no syslog in the file system
+#
+if `which journalctl >/dev/null 2>&1`
+then
+    echo "Using journalctl ..." >>$seq.full
+    have_journalctl=true
+else
+    have_journalctl=false
+    SYSLOG=''
+    for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/syslog /var/log/system.log
+    do
+	if [ -f $f ]
+	then
+	    SYSLOG=$f
+	    break
+	fi
+    done
+    if [ -z "$SYSLOG" ]
+    then
+	echo "Arrgh! Cannot find your syslog file"
+	exit 1
+    fi
+fi
+
 echo
 echo "SYSLOG ..."
-SYSLOG=''
-for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/syslog /var/log/system.log
-do
-    if [ -f $f ]
-    then
-	SYSLOG=$f
-	break
-    fi
-done
-if [ -z "$SYSLOG" ]
+
+if $have_journalctl
 then
-    echo "Arrgh! Cannot find your syslog file"
-    exit 1
+    # be careful ... --boot not supported in all versions, -l not
+    # supported in all versions
+    $sudo journalctl -b --full | tail -100 >$tmp.syslog
+else
+    $sudo tail -100 $SYSLOG >$tmp.syslog
 fi
- 
-$sudo tail -100 $SYSLOG \
-| sed -n '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
+
+sed <$tmp.syslog -n '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
 | _filter \
 | sort -u
+
+echo >>$seq.full
+if $have_journalctl
+then
+    echo "=== tail journalctl -b --full ===" >>$seq.full
+else
+    echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq.full
+fi
+echo "`wc -l <$tmp.syslog | sed -e 's/ //g'` lines ... expect 100" >>$seq.full
+cat $tmp.syslog >>$seq.full
 
 _check_core
 

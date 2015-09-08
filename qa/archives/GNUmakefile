@@ -11,8 +11,8 @@ FOLIOS = $(shell echo *.folio)
 SCRIPTS = mk.diff.sh mk.gap.sh mk.mysql.sh mk.schizo.sh mk.foo+.sh \
 	  mk.dynmetric.sh mk.instant.sh \
 	  mkbadlen mkbadti mkbadlabel mkbadlog
-CONFIGS = config.verify config.shping
-OTHERS = GNUmakefile.install ds390-access.gz
+CONFIGS = config.verify config.shping YWhcCi.toium.config
+OTHERS = ds390-access.gz collectl-qa
 
 default default_pcp setup:
 

@@ -1,3 +1,4 @@
+#!/usr/bin/pcp python
 """ Python test case for Log Import API wrapper module
 """
 #

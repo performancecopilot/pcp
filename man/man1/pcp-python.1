@@ -1,0 +1,79 @@
+.TH PCP-PYTHON 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-python\f1 \- run a python script using a preferred python variant
+.SH SYNOPSIS
+\f3pcp\ python\f1
+[\f2SCRIPT\f1 [\f2ARG\f1]...]
+.SH DESCRIPTION
+.B pcp-python
+provides a way to run python scripts using a customisable python
+binary, rather than embedding any particular version of python into
+each script.
+.PP
+This can be useful as it allows version-independent python code to be
+run anywhere.  All python modules shipped with PCP support versions
+2.6 and later (in the python2 series), and 3.3 and later (in the python3
+release series).
+.PP
+Due to python monitoring and collecting scripts being relatively simple
+in PCP (not requiring new modules, language features, etc), it has been
+possible to ensure they work for all of the above python versions.  Thus,
+it is common for PCP python scripts to use a "shebang" line that invokes
+.B pcp-python
+as follows:
+.PP
+.in 1.0i
+.ft CW
+.nf
+.I "#!/usr/bin/pcp python"
+.fi
+.ft R
+.in
+.PP
+This allows the custom setting to be injected instead of a hard-coded
+python version, while still allowing the user to override the python
+version as follows:
+.PP
+.in 1.0i
+.ft CW
+.nf
+.B "$ PCP_PYTHON_PROG=python3 /usr/bin/pcp python --version"
+Python 3.3.2
+.B "$ PCP_PYTHON_PROG=python2 /usr/bin/pcp python --version"
+Python 2.7.5
+.fi
+.ft R
+.in
+.PP
+This is convenient for shipping identical scripts on multiple platforms,
+and for testing different python versions with the one script (e.g. in
+the case where multiple versions of python are installed, PCP_PYTHON_PROG
+can be set in the local environment to override the global setting).
+.PP
+By default, the value of PCP_PYTHON_PROG from
+.I /etc/pcp.conf
+will be used.
+The default value of this configuration parameter is set depending on
+some heuristics about the target build platform.
+These heuristics favour the use of
+.I python3
+in all recent releases of PCP, for those platforms that support it.
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (5).
+.PP
+.SH "SEE ALSO"
+.BR pcp (1)
+and
+.BR PCPIntro (1).

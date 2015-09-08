@@ -42,18 +42,6 @@ rcprog=$PCP_DIR/etc/init.d/pmlogger
 pmprog=$PCP_RC_DIR/pmlogger
 prog=$PCP_RC_DIR/`basename $0`
 
-# search for your mail agent of choice ...
-#
-MAIL=''
-for try in Mail mail email
-do
-    if which $try >/dev/null 2>&1
-    then
-	MAIL=$try
-	break
-    fi
-done
-
 tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
 status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
@@ -103,18 +91,14 @@ _start_pmcheck()
     bgstatus=$?
     if [ -s $bgtmp/pmcheck ]
     then
-	$PCP_BINADM_DIR/pmpost "pmlogger_check failed in $prog, mailing output to root"
-	if [ ! -z "$MAIL" ]
-	then
-	    $MAIL -s "pmlogger_check failed in $prog" root <$bgtmp/pmcheck
-	else
-	    echo "$prog: pmlogger_check failed ..."
-	    cat $bgtmp/pmcheck
-	fi
+	logfile="$PCP_LOG_DIR/pmlogger/pmlogger_check.log"
+	mv -f $bgtmp/pmcheck $logfile
+
+	message="pmlogger_check failed in $prog, see $logfile"
+	$PCP_SYSLOG_PROG -p daemon.warning "$message"
+	$PCP_BINADM_DIR/pmpost "$message"
     fi
-    # In a container, pmlogger_check cannot run as a co-process. If it did then
-    # the pmpause signal handler would reap the pmlogger_check child and exit.
-    [ -z "$PCP_CONTAINER_IMAGE" ] && exit $bgstatus # co-process is now complete
+    exit $bgstatus # co-process is now complete
 }
 
 _start_pmlogger()
@@ -131,33 +115,35 @@ Error: PCP archive logger control file '$PMLOGCTRL'
 	    # failure
 	    false
 	else
-	    # really start the pmlogger instances based on the control file.
-	    # done in the background to avoid delaying the init script,
-	    # failures are notified by mail
+	    # Really start the pmlogger instances based on the control file.
+	    # Done in the background to avoid delaying the init script,
+	    # failure notification is external (syslog, log files).
 	    #
 	    $ECHO $PCP_ECHO_N "Starting pmlogger ..." "$PCP_ECHO_C"
-	    if [ -z "$PCP_CONTAINER_IMAGE" ]
-	    then
-		# run as a co-process
-		_start_pmcheck &
-	    else
-		#
-		# Container environment
-		#
-		
-		# no co-process - all pmloggers are started serially
-		_start_pmcheck
 
-		# Set up the host crontab for pmlogger_{check,daily).
+	    # run as a co-process
+	    _start_pmcheck &
+
+	    # Container environment
+	    if [ -n "$PCP_CONTAINER_IMAGE" ]
+	    then
+		# Set up the host crontab for pmlogger_{check,daily}.
 		# This needs to be robust for when the container isn't running
 		# so that a failing crontab entry doesn't spam the host logs.
-		if [ ! -f /etc/cron.d/pcp-pmlogger ]
+		cronjob=/etc/cron.d/pcp-pmlogger-docker
+		if [ ! -f $cronjob ]
 		then
-		    # Note the pcp-pmlogger/Dockerfile removes the regular crontab entry.
-		    # We only set this up once - changes thereafter will be persistent.
-		    cp $PCP_VAR_DIR/config/pmlogger/crontab.docker /etc/cron.d/pcp-pmlogger
-		    $PCP_BINADM_DIR/pmpost "pmlogger rc script installed /etc/cron.d/pcp-pmlogger"
+		    cp $PCP_VAR_DIR/config/pmlogger/crontab.docker $cronjob
+		    $PCP_BINADM_DIR/pmpost "pmlogger script installed $cronjob"
 		fi
+
+		# In a container, pmlogger_check cannot run indefinitely -
+		# if it did then the pmpause signal handler would reap the
+		# pmlogger_check child and exit.
+		wait
+
+		# finally, stop here when running as a container
+		exec $PCP_BINADM_DIR/pmpause
 	    fi
 
 	    # success
@@ -299,12 +285,6 @@ case "$1" in
 	    fi
 
 	    _start_pmlogger
-
-	    # started crond if in a container
-	    [ -z "$PCP_CONTAINER_IMAGE" ] || /usr/sbin/crond -i -s
-
-	    # finally, stop here if running in a container
-	    [ -z "$PCP_CONTAINER_IMAGE" ] || exec $PCP_BINADM_DIR/pmpause
 	fi
 
 	status=0
@@ -338,7 +318,7 @@ case "$1" in
 	;;
 
   *)
-	[ -z "$PCP_CONTAINER_IMAGE" ] || exec "$@"
+	[ -n "$PCP_CONTAINER_IMAGE" ] && exec "$@"
 	_usage
         ;;
 esac

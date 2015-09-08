@@ -1,5 +1,5 @@
+#!/usr/bin/pcp python
 """ Test creation of a PCP web daemon via the requests module -*- python -*- """
-
 #
 # Copyright (C) 2013-2015 Red Hat Inc.
 #
@@ -83,7 +83,8 @@ def test_metric_enumeration(ctx, prefix):
 
     proc = subprocess.Popen(procargs,
                             stdout=subprocess.PIPE, 
-                            stderr=devnull)
+                            stderr=devnull,
+                            universal_newlines=True)
     num_metrics = 0
     f = open('webapi-pmcd-' + dbg, 'w')
     while True:

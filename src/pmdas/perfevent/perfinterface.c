@@ -150,6 +150,7 @@ static int perf_setup_event(perfdata_t *inst, const char *eventname, const int c
     events = realloc(events, (nevents + 1) * sizeof(*events) );
     if(NULL == events)
     {
+	free(inst->events);
         inst->nevents = 0;
         inst->events = NULL;
         return -E_PERFEVENT_REALLOC;

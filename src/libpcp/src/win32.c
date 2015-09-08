@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -16,8 +16,8 @@
 /*
  * For the MinGW headers and library to work correctly, we need
  * something newer than the default Windows 95 versions of the Win32
- * APIs.  0x0500 is the magic sauce to select the Windows 2000 version
- * of the Win32 APIs, which is the minimal version needed for PCP.
+ * APIs - we select Windows7 below as that provides minimum version
+ * with modern IPv6, as well as symlink support.
  *
  * WINVER needs to be set before any of the MinGW headers are processed
  * and we include <windows.h> from pmapi.h via platform_defs.h.
@@ -25,7 +25,8 @@
  * Thanks to "Earnie" on the mingw-users@lists.sourceforge.net mailing
  * list for this tip.
  */
-#define WINVER 0x0500
+#define WINVER Windows7
+#define _WIN32_WINNT _WIN32_WINNT_WIN7
 
 #include "pmapi.h"
 #include "impl.h"
@@ -84,11 +85,11 @@ MapSignals(int sig, int *index)
 int
 __pmSetSignalHandler(int sig, __pmSignalHandler func)
 {
-    int sts, index;
+    int sts, index = 0;
     char *signame, evname[64];
     HANDLE eventhdl, waithdl;
 
-    if ((signame = MapSignals(sig, &index)) < 0)
+    if ((signame = MapSignals(sig, &index)) == NULL)
 	return index;
 
     if (signals[index].callback) {	/* remove old handler */
@@ -422,9 +423,40 @@ sleep(unsigned int seconds)
     return 0;
 }
 
-void setlinebuf(FILE *stream)
+void
+setlinebuf(FILE *stream)
 {
     setvbuf(stream, NULL, _IONBF, 0);	/* no line buffering in Win32 */
+}
+
+int
+fsync(int fd)
+{
+    return FlushFileBuffers((HANDLE)_get_osfhandle(fd)) ? 0 : -1;
+}
+
+int
+symlink(const char *oldpath, const char *newpath)
+{
+    return CreateSymbolicLink(newpath, oldpath, 0) ? 0 : -1;
+}
+
+int
+readlink(const char *path, char *buf, size_t bufsiz)
+{
+    return -ENOTSUP;	/* NYI */
+}
+
+long int
+random(void)
+{
+    return rand();
+}
+
+void
+srandom(unsigned int seed)
+{
+    srandom(seed);
 }
 
 long int
@@ -479,50 +511,6 @@ strcasestr(const char *string, const char *substr)
 	continue;
     }
     return NULL;
-}
-
-int
-inet_pton(int family, const char *src, void *dest)
-{
-    struct sockaddr_storage ss = { 0 };
-    char src_copy[INET6_ADDRSTRLEN + 1];
-    int size;
-
-    strncpy(src_copy, src, sizeof(src_copy));
-    src_copy[sizeof(src_copy)-1] = '\0';
-    size = sizeof(ss);
-    if (WSAStringToAddress(src_copy, family, NULL, (struct sockaddr *)&ss, &size) != 0)
-	return 0;
-    switch(family) {
-    case AF_INET:
-	*(struct in_addr *)dest = ((struct sockaddr_in *)&ss)->sin_addr;
-	return 1;
-    case AF_INET6:
-	*(struct in6_addr *)dest = ((struct sockaddr_in6 *)&ss)->sin6_addr;
-	return 1;
-    }
-    return 0;
-}
-
-const char *
-inet_ntop(int family, const void *src, char *dest, socklen_t size)
-{
-    struct sockaddr_storage ss = { .ss_family = family };
-    unsigned long sz = size;
-
-    switch(family) {
-    case AF_INET:
-	((struct sockaddr_in *)&ss)->sin_addr = *(struct in_addr *)src;
-	break;
-    case AF_INET6:
-	((struct sockaddr_in6 *)&ss)->sin6_addr = *(struct in6_addr *)src;
-	break;
-    default:
-	return NULL;
-    }
-    if (WSAAddressToString((struct sockaddr *)&ss, sizeof(ss), NULL, dest, &sz) != 0)
-	return NULL;
-    return dest;
 }
 
 void *
@@ -618,10 +606,8 @@ closelog(void)
 const char *
 strerror_r(int errnum, char *buf, size_t buflen)
 {
-    /* strerror_s is missing from the MinGW string.h */
-    /* we need to wait for it until we can do this:  */
-    /* return strerror_s(buf, buflen, errnum); */
-    return strerror(errnum);
+    strerror_s(buf, buflen, errnum);
+    return (const char *)buf;
 }
 
 /* Windows socket error codes - what a nightmare! */

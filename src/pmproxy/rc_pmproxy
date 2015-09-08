@@ -38,6 +38,7 @@
 
 PMPROXY=$PCP_BINADM_DIR/pmproxy
 PMPROXYOPTS=$PCP_PMPROXYOPTIONS_PATH
+PMPROXYENVS=$PCP_SYSCONFIG_DIR/pmproxy
 RUNDIR=$PCP_LOG_DIR/pmproxy
 pmprog=$PCP_RC_DIR/pmproxy
 prog=$PCP_RC_DIR/`basename $0`
@@ -239,7 +240,9 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 
 	    $ECHO $PCP_ECHO_N "Starting pmproxy ..." "$PCP_ECHO_C"
 
-	    # options file processing ...
+	    # only consider variables which start with PMPROXY
+	    ENVS=`grep ^PMPROXY $PMPROXYENVS 2>/dev/null`
+
 	    # only consider lines which start with a hyphen
 	    # get rid of the -f option
 	    # ensure multiple lines concat onto 1 line
@@ -252,17 +255,7 @@ Error: pmproxy options file "$PMPROXYOPTS" is missing, cannot start pmproxy.'
 			    -e 's/ $//' \
 		    | tr '\012' ' ' `
 
-	    # environment stuff
-	    #
-	    eval `sed -e 's/"/\\"/g' "$PMPROXYOPTS" \
-	    | awk -F= '
-BEGIN			{ exports="" }
-/^[A-Z]/ && NF == 2	{ exports=exports" "$1
-			  printf "%s=${%s:-\"%s\"}\n", $1, $1, $2
-			}
-END			{ if (exports != "") print "export", exports }'`
-
-	    $PMPROXY $OPTS
+	    eval $ENVS '$PMPROXY $OPTS'
 	    $RC_STATUS -v
 
 	    $PCP_BINADM_DIR/pmpost "start pmproxy from $pmprog"

@@ -49,7 +49,7 @@ has two primary modes of operation:
 Record Mode (\f3\-f\f1 or \f3\-\-filename\f1 option) which reads data
 from a live system and writes output to a file or displays it on a terminal.
 .IP 2. 0.3i
-Playback Mode (\f3\-p\f1 or \f3\-\-playback\f1 option) which reads data
+Playback Mode (\f3\-p\f1 or \f3\-a\f1 option) which reads data
 from one or more PCP archive files and displays output on a terminal.
 Note that these files are
 .I not
@@ -179,7 +179,14 @@ than the terminal).
 .\" 
 .B "\-p, --playback filename"
 .RS
-Read data from the specified PCP archive files(s).
+Read data from the specified PCP archive folio files(s) \- refer to
+.BR pmafm (1)
+for archive folio details.
+.RE
+.PP
+.B "\-a, --archive filename"
+.RS
+Read data from the specified PCP raw archive files(s).
 .RE
 .PP
 .\" .B "--thru time"
@@ -327,6 +334,7 @@ if multiple subsystems are involved each needs their own header.
 .BR python (1),
 .BR pmlogger (1),
 .BR pmcd (1),
+.BR pmafm (1),
 .BR pmprobe (1),
 .BR PMAPI (3),
 and

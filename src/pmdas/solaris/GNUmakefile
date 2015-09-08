@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -43,7 +43,7 @@ default: build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "solaris"
-build-me: root_solaris domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(VERSION_SCRIPT)
+build-me: root_solaris $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(VERSION_SCRIPT)
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -64,15 +64,15 @@ default_pcp : default
 
 install_pcp : install
 
-$(OBJECTS):	common.h
+$(OBJECTS):	common.h domain.h
 
 $(HELPTARGETS): help root_solaris
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_solaris -v 2 -o help < help
+	$(NEWHELP) -n root_solaris -v 2 -o help < help
 
 root_solaris: ../../pmns/stdpmid $(PMNS) root
 	rm -f root_solaris
 	sed -e 's;<stdpmid>;"../../pmns/stdpmid";' <root \
-	| $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp \
+	| ( $(PMCPP) ) \
 	| sed -e '/^#/d' -e '/^$$/d' >root_solaris
 
 domain.h: ../../pmns/stdpmid

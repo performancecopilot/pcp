@@ -1,8 +1,8 @@
 #! /bin/sh
 # PCP QA Test No. 430
-# Bugs #568199 #553276
-# Test out pmcheck with duplicate directory names
-# Test out pmcheck with directory names where one is a subname
+#
+# Test out pmlogger_check with duplicate directory names
+# Test out pmlogger_check with directory names where one is a subname
 # of the other.
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
@@ -16,13 +16,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.full $seq.out
-if [ $PCP_VER -ge 30611 ]
-then
-    ln $seq.out.2 $seq.out || exit 1
-else
-    ln $seq.out.1 $seq.out || exit 1
-fi
+rm -f $seq.full
 
 realhost=`hostname`
 LOCALHOST=`echo $realhost | sed -e 's/\..*//'`
@@ -42,6 +36,7 @@ _filter()
 	-e "s/$LOCALHOST/LOCALHOST/g" \
 	-e "s/local:/LOCALHOST/g" \
 	-e 's/control:[0-9][0-9]*]/control:LINE]/' \
+	-e 's/control.d\/*:[0-9][0-9]*]/control:LINE]/' \
 	-e 's;/usr/var;/var;g' \
 	-e "s;$tmp;TMP;g" \
 	-e '/Duplicate/d' \
@@ -243,9 +238,8 @@ do
 
     echo "log mandatory on once pmcd.control.debug" >$logdir/config
     echo "--- pmlogger_check ---" >> $here/$seq.full
-    $sudo $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control 2>&1 \
-    | tee -a $here/$seq.full \
-    | _filter
+    $sudo $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control -l $tmp.log
+    $sudo cat $tmp.log | tee -a $here/$seq.full | _filter
 done
 
 echo | tee -a $here/$seq.full
@@ -301,7 +295,8 @@ $2 == '"$pid"' { print; exit(0) }'
     cat $PCP_TMP_DIR/pmlogger/$pid >>$here/$seq.full
     $signal -s TERM $pid
     echo "Check ..." | tee -a $here/$seq.full
-    $sudo $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control 2>&1 \
+    $sudo $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control -l $tmp.log
+    $sudo cat $tmp.log \
     | tee -a $here/$seq.full \
     | sed -e '/^... try /d' \
     | _filter

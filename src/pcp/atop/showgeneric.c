@@ -792,6 +792,10 @@ generic_samp(double curtime, double delta,
 			   ** sort in network-activity order
 			   */
 			   case MSORTNET:
+#if 1
+				statmsg = "Not yet supported in this atop!";
+				beep();
+#else
 				if ( !(supportflags & NETATOP) )
 				{
 					statmsg = "Kernel module 'netatop' not "
@@ -801,6 +805,7 @@ generic_samp(double curtime, double delta,
 				}
 				showorder = MSORTNET;
 				firstproc = 0;
+#endif
 				break;
 
 			   /*
@@ -850,6 +855,10 @@ generic_samp(double curtime, double delta,
 			   ** network-specific figures per process
 			   */
 			   case MPROCNET:
+#if 1
+				statmsg = "Not yet supported in this atop!";
+				beep();
+#else
 				if ( !(supportflags & NETATOP) )
 				{
 					statmsg = "Kernel module 'netatop' not "
@@ -864,6 +873,7 @@ generic_samp(double curtime, double delta,
 					showorder = MSORTNET;
 
 				firstproc = 0;
+#endif
 				break;
 
 			   /*
@@ -960,7 +970,6 @@ generic_samp(double curtime, double delta,
 #if 1
 				statmsg = "Not supported in this atop!";
 				beep();
-				break;
 #else
 				if (rawreadflag)	// TODO: or via remote pmcd, or...?
 				{
@@ -1003,8 +1012,8 @@ generic_samp(double curtime, double delta,
 				if (!paused)
 					setalarm2(3, 0); /* set short timer */
 
-#endif
 				firstproc = 0;
+#endif
 				break;
 
 			   /*

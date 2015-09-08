@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
- * 
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
 #ifndef PCP_IMPORT_H
 #define PCP_IMPORT_H
@@ -19,30 +19,40 @@
 extern "C" {
 #endif
 
+#if !defined(IS_MINGW)
+# define PMI_CALL
+#else
+# if defined(PMI_INTERNAL)
+#  define PMI_CALL __declspec(dllexport)
+# else
+#  define PMI_CALL __declspec(dllimport)
+# endif
+#endif
+
 /* core libpcp_import API routines */
-extern int pmiStart(const char *, int);
-extern int pmiUseContext(int);
-extern int pmiEnd(void);
-extern int pmiSetHostname(const char *);
-extern int pmiSetTimezone(const char *);
-extern int pmiAddMetric(const char *, pmID, int, pmInDom, int, pmUnits);
-extern int pmiAddInstance(pmInDom, const char *, int);
-extern int pmiPutValue(const char *, const char *, const char *);
-extern int pmiGetHandle(const char *, const char *);
-extern int pmiPutValueHandle(int, const char *);
-extern int pmiWrite(int, int);
-extern int pmiPutResult(const pmResult *);
+PMI_CALL extern int pmiStart(const char *, int);
+PMI_CALL extern int pmiUseContext(int);
+PMI_CALL extern int pmiEnd(void);
+PMI_CALL extern int pmiSetHostname(const char *);
+PMI_CALL extern int pmiSetTimezone(const char *);
+PMI_CALL extern int pmiAddMetric(const char *, pmID, int, pmInDom, int, pmUnits);
+PMI_CALL extern int pmiAddInstance(pmInDom, const char *, int);
+PMI_CALL extern int pmiPutValue(const char *, const char *, const char *);
+PMI_CALL extern int pmiGetHandle(const char *, const char *);
+PMI_CALL extern int pmiPutValueHandle(int, const char *);
+PMI_CALL extern int pmiWrite(int, int);
+PMI_CALL extern int pmiPutResult(const pmResult *);
 
 /* helper routines */
-extern pmID pmiID(int, int, int);
-extern pmInDom pmiInDom(int, int);
-extern pmUnits pmiUnits(int, int, int, int, int, int);
+PMI_CALL extern pmID pmiID(int, int, int);
+PMI_CALL extern pmInDom pmiInDom(int, int);
+PMI_CALL extern pmUnits pmiUnits(int, int, int, int, int, int);
 
 /* diagnostic routines */
-#define PMI_MAXERRMSGLEN	128	/* safe size to accomodate any error message */
-extern char *pmiErrStr_r(int, char *, int);
-extern const char *pmiErrStr(int);	/* cannot ever be made thread-safe */
-extern void pmiDump(void);
+#define PMI_MAXERRMSGLEN	128	/* sized to accomodate any error message */
+PMI_CALL extern char *pmiErrStr_r(int, char *, int);
+PMI_CALL extern const char *pmiErrStr(int);
+PMI_CALL extern void pmiDump(void);
 
 /* libpcp_import error codes */
 #define PMI_ERR_BASE 20000

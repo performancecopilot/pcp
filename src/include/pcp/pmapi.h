@@ -1,18 +1,17 @@
 /*
  * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1997,2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
-
 #ifndef PCP_PMAPI_H
 #define PCP_PMAPI_H
 
@@ -201,22 +200,22 @@ typedef struct pmDesc {
 /*
  * Report PMAPI errors messages
  */
-extern char *pmErrStr(int);				/* NOT thread-safe */
-extern char *pmErrStr_r(int, char *, int);
+PCP_CALL extern char *pmErrStr(int);			/* NOT thread-safe */
+PCP_CALL extern char *pmErrStr_r(int, char *, int);
 /* safe size for a pmErrStr_r buffer to accommodate all error messages */
 #define PM_MAXERRMSGLEN		128
 
 /*
  * Load a Performance Metrics Name Space
  */
-extern int pmLoadNameSpace(const char *);
-extern int pmLoadASCIINameSpace(const char *, int);
-extern void pmUnloadNameSpace(void);
+PCP_CALL extern int pmLoadNameSpace(const char *);
+PCP_CALL extern int pmLoadASCIINameSpace(const char *, int);
+PCP_CALL extern void pmUnloadNameSpace(void);
 
 /*
  * Where is PMNS located - added for distributed PMNS.
  */
-extern int pmGetPMNSLocation(void);
+PCP_CALL extern int pmGetPMNSLocation(void);
 #define PMNS_LOCAL   1
 #define PMNS_REMOTE  2
 #define PMNS_ARCHIVE 3
@@ -225,39 +224,39 @@ extern int pmGetPMNSLocation(void);
  * Trim a name space with respect to the current context
  * (usually from an archive, or after processing an archive)
  */
-extern int pmTrimNameSpace(void);
+PCP_CALL extern int pmTrimNameSpace(void);
 
 /*
  * Expand a list of names to a list of metrics ids
  */
-extern int pmLookupName(int, char **, pmID *);
+PCP_CALL extern int pmLookupName(int, char **, pmID *);
 
 /*
  * Find the names of descendent nodes in the PMNS
  * and in the latter case get the status of each child.
  */
-extern int pmGetChildren(const char *, char ***);
-extern int pmGetChildrenStatus(const char *, char ***, int **);
+PCP_CALL extern int pmGetChildren(const char *, char ***);
+PCP_CALL extern int pmGetChildrenStatus(const char *, char ***, int **);
 #define PMNS_LEAF_STATUS     0	/* leaf node in PMNS tree */
 #define PMNS_NONLEAF_STATUS  1	/* non-terminal node in PMNS tree */
 
 /*
  * Reverse Lookup: find name(s) given a metric id
  */
-extern int pmNameID(pmID, char **);		/* one */
-extern int pmNameAll(pmID, char ***);		/* all */
+PCP_CALL extern int pmNameID(pmID, char **);		/* one */
+PCP_CALL extern int pmNameAll(pmID, char ***);		/* all */
 
 /*
  * Handy recursive descent of the PMNS
  */
-extern int pmTraversePMNS(const char *, void(*)(const char *));
-extern int pmTraversePMNS_r(const char *, void(*)(const char *, void *), void *);
+PCP_CALL extern int pmTraversePMNS(const char *, void(*)(const char *));
+PCP_CALL extern int pmTraversePMNS_r(const char *, void(*)(const char *, void *), void *);
 
 /*
  * Given a metric, find it's descriptor (caller supplies buffer for desc),
  * from the current context.
  */
-extern int pmLookupDesc(pmID, pmDesc *);
+PCP_CALL extern int pmLookupDesc(pmID, pmDesc *);
 
 /*
  * Return the internal instance identifier, from the current context,
@@ -265,8 +264,8 @@ extern int pmLookupDesc(pmID, pmDesc *);
  * Archive variant scans the union of the indom entries in the archive
  * log.
  */
-extern int pmLookupInDom(pmInDom, const char *);
-extern int pmLookupInDomArchive(pmInDom, const char *);
+PCP_CALL extern int pmLookupInDom(pmInDom, const char *);
+PCP_CALL extern int pmLookupInDomArchive(pmInDom, const char *);
 
 /*
  * Return the external instance name, from the current context,
@@ -274,8 +273,8 @@ extern int pmLookupInDomArchive(pmInDom, const char *);
  * Archive variant scans the union of the indom entries in the archive
  * log.
  */
-extern int pmNameInDom(pmInDom, int, char **);
-extern int pmNameInDomArchive(pmInDom, int, char **);
+PCP_CALL extern int pmNameInDom(pmInDom, int, char **);
+PCP_CALL extern int pmNameInDomArchive(pmInDom, int, char **);
 
 /*
  * Return all of the internal instance identifiers (instlist) and external
@@ -284,31 +283,31 @@ extern int pmNameInDomArchive(pmInDom, int, char **);
  * Archive variant returns the union of the indom entries in the archive
  * log.
  */
-extern int pmGetInDom(pmInDom, int **, char ***);
-extern int pmGetInDomArchive(pmInDom, int **, char ***);
+PCP_CALL extern int pmGetInDom(pmInDom, int **, char ***);
+PCP_CALL extern int pmGetInDomArchive(pmInDom, int **, char ***);
 
 /*
  * Given context ID, return the host name associated with that context,
  * or the empty string if no name can be found
  */
-extern const char *pmGetContextHostName(int);
-extern char *pmGetContextHostName_r(int, char *, int);
+PCP_CALL extern const char *pmGetContextHostName(int);
+PCP_CALL extern char *pmGetContextHostName_r(int, char *, int);
 
 /*
  * Return the handle of the current context
  */
-extern int pmWhichContext(void);
+PCP_CALL extern int pmWhichContext(void);
 
 /*
  * Destroy a context and close its connection
  */
-extern int pmDestroyContext(int);
+PCP_CALL extern int pmDestroyContext(int);
 
 /*
  * Establish a new context (source of performance data + instance profile)
  * for the named host
  */
-extern int pmNewContext(int, const char *);
+PCP_CALL extern int pmNewContext(int, const char *);
 #define PM_CONTEXT_UNDEF	-1	/* current context is undefined */
 #define PM_CONTEXT_HOST		1	/* host via pmcd */
 #define PM_CONTEXT_ARCHIVE	2	/* PCP archive */
@@ -325,18 +324,18 @@ extern int pmNewContext(int, const char *);
 /*
  * Duplicate current context -- returns handle to new one for pmUseContext()
  */
-extern int pmDupContext(void);
+PCP_CALL extern int pmDupContext(void);
 
 /*
  * Restore (previously established or duplicated) context
  */
-extern int pmUseContext(int);
+PCP_CALL extern int pmUseContext(int);
 
 /*
  * Reconnect an existing context (when pmcd dies, etc). All existing context
  * settings are preserved and the previous context settings are restored.
  */
-extern int pmReconnectContext(int);
+PCP_CALL extern int pmReconnectContext(int);
 
 /*
  * Add to instance profile.
@@ -345,7 +344,7 @@ extern int pmReconnectContext(int);
  * e.g. to select all available instances in all domains,
  * then use pmAddProfile(PM_INDOM_NULL, 0, NULL).
  */
-extern int pmAddProfile(pmInDom, int, int *);
+PCP_CALL extern int pmAddProfile(pmInDom, int, int *);
 
 /*
  * Delete from instance profile.
@@ -353,7 +352,7 @@ extern int pmAddProfile(pmInDom, int, int *);
  * E.g. to disable all instances in all domains then use
  * pmDelProfile(PM_INDOM_NULL, 0, NULL).
  */
-extern int pmDelProfile(pmInDom, int, int *);
+PCP_CALL extern int pmDelProfile(pmInDom, int, int *);
 
 /* 
  * ---------- Collection services ---------- 
@@ -454,7 +453,7 @@ typedef union {
  * and the number of value sets returned is guaranteed to be the same as
  * the number of metrics in the agument.  
  */
-extern int pmFetch(int, pmID *, pmResult **);
+PCP_CALL extern int pmFetch(int, pmID *, pmResult **);
 
 /*
  * PMCD state changes returned as pmFetch function result for PM_CONTEXT_HOST
@@ -468,7 +467,7 @@ extern int pmFetch(int, pmID *, pmResult **);
 /*
  * Variant that is used to return a pmResult from an archive
  */
-extern int pmFetchArchive(pmResult **);
+PCP_CALL extern int pmFetchArchive(pmResult **);
 
 /*
  * struct timeval is sometimes 2 x 64-bit ... we use a 2 x 32-bit format for
@@ -511,59 +510,59 @@ typedef struct pmLogLabel {
  * Get the label record from the current archive context, and discover
  * when the archive ends
  */
-extern int pmGetArchiveLabel(pmLogLabel *);
-extern int pmGetArchiveEnd(struct timeval *);
+PCP_CALL extern int pmGetArchiveLabel(pmLogLabel *);
+PCP_CALL extern int pmGetArchiveEnd(struct timeval *);
 
 /* Free result buffer */
-extern void pmFreeResult(pmResult *);
-extern void pmFreeHighResResult(pmHighResResult *);
+PCP_CALL extern void pmFreeResult(pmResult *);
+PCP_CALL extern void pmFreeHighResResult(pmHighResResult *);
 
 /* Value extract from pmValue and type conversion */
-extern int pmExtractValue(int, const pmValue *, int, pmAtomValue *, int);
+PCP_CALL extern int pmExtractValue(int, const pmValue *, int, pmAtomValue *, int);
 
 /* Print single pmValue */
-extern void pmPrintValue(FILE *, int, int, const pmValue *, int);
+PCP_CALL extern void pmPrintValue(FILE *, int, int, const pmValue *, int);
 
 /* Scale conversion, based on value format, value type and scale */
-extern int pmConvScale(int, const pmAtomValue *, const pmUnits *, pmAtomValue *, 
+PCP_CALL extern int pmConvScale(int, const pmAtomValue *, const pmUnits *, pmAtomValue *, 
 		       const pmUnits *);
 
 /* Sort instances for each metric within a pmResult */
-extern void pmSortInstances(pmResult *);
+PCP_CALL extern void pmSortInstances(pmResult *);
 
 /* Adjust collection time and/or mode for pmFetch */
-extern int pmSetMode(int, const struct timeval *, int);
+PCP_CALL extern int pmSetMode(int, const struct timeval *, int);
 #define PM_MODE_LIVE	0
 #define PM_MODE_INTERP	1
 #define PM_MODE_FORW	2
 #define PM_MODE_BACK	3
 
 /* Modify the value of one or more metrics */
-extern int pmStore(const pmResult *);
+PCP_CALL extern int pmStore(const pmResult *);
 
 /* Get help and descriptive text */
-extern int pmLookupText(pmID, int, char **);
-extern int pmLookupInDomText(pmInDom, int, char **);
+PCP_CALL extern int pmLookupText(pmID, int, char **);
+PCP_CALL extern int pmLookupInDomText(pmInDom, int, char **);
 #define PM_TEXT_ONELINE	1
 #define PM_TEXT_HELP	2
 
 /*
  * Some handy formatting routines for messages, and other output
  */
-extern const char *pmIDStr(pmID);			/* NOT thread-safe */
-extern char *pmIDStr_r(pmID, char *, int);
-extern const char *pmInDomStr(pmInDom);			/* NOT thread-safe */
-extern char *pmInDomStr_r(pmInDom, char *, int);
-extern const char *pmTypeStr(int);			/* NOT thread-safe */
-extern char *pmTypeStr_r(int, char *, int);
-extern const char *pmUnitsStr(const pmUnits *);		/* NOT thread-safe */
-extern char *pmUnitsStr_r(const pmUnits *, char *, int);
-extern const char *pmAtomStr(const pmAtomValue *, int);	/* NOT thread-safe */
-extern char *pmAtomStr_r(const pmAtomValue *, int, char *, int);
-extern const char *pmNumberStr(double);			/* NOT thread-safe */
-extern char *pmNumberStr_r(double, char *, int);
-extern const char *pmEventFlagsStr(int);		/* NOT thread-safe */
-extern char *pmEventFlagsStr_r(int, char *, int);
+PCP_CALL extern const char *pmIDStr(pmID);			/* NOT thread-safe */
+PCP_CALL extern char *pmIDStr_r(pmID, char *, int);
+PCP_CALL extern const char *pmInDomStr(pmInDom);			/* NOT thread-safe */
+PCP_CALL extern char *pmInDomStr_r(pmInDom, char *, int);
+PCP_CALL extern const char *pmTypeStr(int);			/* NOT thread-safe */
+PCP_CALL extern char *pmTypeStr_r(int, char *, int);
+PCP_CALL extern const char *pmUnitsStr(const pmUnits *);		/* NOT thread-safe */
+PCP_CALL extern char *pmUnitsStr_r(const pmUnits *, char *, int);
+PCP_CALL extern const char *pmAtomStr(const pmAtomValue *, int);	/* NOT thread-safe */
+PCP_CALL extern char *pmAtomStr_r(const pmAtomValue *, int, char *, int);
+PCP_CALL extern const char *pmNumberStr(double);			/* NOT thread-safe */
+PCP_CALL extern char *pmNumberStr_r(double, char *, int);
+PCP_CALL extern const char *pmEventFlagsStr(int);		/* NOT thread-safe */
+PCP_CALL extern char *pmEventFlagsStr_r(int, char *, int);
 
 /* Extended time base definitions and macros */
 #define PM_XTB_FLAG	0x1000000
@@ -572,19 +571,19 @@ extern char *pmEventFlagsStr_r(int, char *, int);
 #define PM_XTB_GET(x) (((x) & PM_XTB_FLAG) ? (((x) & 0xff0000) >> 16) : -1)
 
 /* Parse -t, -S, -T, -A and -O options */
-extern int pmParseInterval(const char *, struct timeval *, char **);
-extern int pmParseTimeWindow(
+PCP_CALL extern int pmParseInterval(const char *, struct timeval *, char **);
+PCP_CALL extern int pmParseTimeWindow(
       const char *, const char *, const char *, const char *,
       const struct timeval *, const struct timeval *,
       struct timeval *, struct timeval *, struct timeval *, char **);
 
 /* Reporting timezone */
-extern int pmUseZone(const int);
-extern int pmNewZone(const char *);
-extern int pmNewContextZone(void);
-extern int pmWhichZone(char **);
-extern char *pmCtime(const time_t *, char *);
-extern struct tm *pmLocaltime(const time_t *, struct tm *);
+PCP_CALL extern int pmUseZone(const int);
+PCP_CALL extern int pmNewZone(const char *);
+PCP_CALL extern int pmNewContextZone(void);
+PCP_CALL extern int pmWhichZone(char **);
+PCP_CALL extern char *pmCtime(const time_t *, char *);
+PCP_CALL extern struct tm *pmLocaltime(const time_t *, struct tm *);
 
 /* Parse host:metric[instances] or archive/metric[instances] */
 typedef struct pmMetricSpec {
@@ -596,9 +595,9 @@ typedef struct pmMetricSpec {
 } pmMetricSpec;
 
 /* Parsing of host:metric[instances] or archive/metric[instances] */
-extern int pmParseMetricSpec(const char *, int, char *, pmMetricSpec **,
+PCP_CALL extern int pmParseMetricSpec(const char *, int, char *, pmMetricSpec **,
 			     char **);
-extern void pmFreeMetricSpec(pmMetricSpec *p);
+PCP_CALL extern void pmFreeMetricSpec(pmMetricSpec *p);
 
 /*
  * Configurable error reporting
@@ -609,8 +608,8 @@ extern void pmFreeMetricSpec(pmMetricSpec *p);
 # define __PM_PRINTFLIKE(idx,cnt)
 #endif
 
-extern int pmprintf(const char *, ...) __PM_PRINTFLIKE(1,2);
-extern int pmflush(void);
+PCP_CALL extern int pmprintf(const char *, ...) __PM_PRINTFLIKE(1,2);
+PCP_CALL extern int pmflush(void);
 
 /*
  * Wrapper for config/environment variables. Warning: this will exit() with
@@ -619,10 +618,10 @@ extern int pmflush(void);
  * Return values point to strings in the environment, or NULL in the optional
  * case when the requested configuration variable was not found.
  */
-extern char *pmGetConfig(const char *);
-extern char *pmGetOptionalConfig(const char *);
+PCP_CALL extern char *pmGetConfig(const char *);
+PCP_CALL extern char *pmGetOptionalConfig(const char *);
 
-extern int pmGetVersion(void);
+PCP_CALL extern int pmGetVersion(void);
 
 /*
  * Common command line argument parsing interfaces
@@ -706,6 +705,9 @@ extern int pmGetVersion(void);
 #define PMLONGOPT_CONTAINER "container"
 #define PMOPT_CONTAINER { PMLONGOPT_CONTAINER, 1, 0, "NAME", \
 		"specify an individual container to be queried" }
+#define PMLONGOPT_DERIVED "derived"
+#define PMOPT_DERIVED { PMLONGOPT_DERIVED, 1, 0, "FILE", \
+		"load derived metric definitions from FILE(s)" }
 
 /* pmOptions flags */
 #define PM_OPTFLAG_INIT		(1<<0)	/* initialisation done */
@@ -791,18 +793,18 @@ typedef struct pmOptions {
     unsigned int	zeroes  : 28;
 } pmOptions;
 
-extern int pmgetopt_r(int, char *const *, pmOptions *);
-extern int pmGetOptions(int, char *const *, pmOptions *);
-extern int pmGetContextOptions(int, pmOptions *);
-extern void pmUsageMessage(pmOptions *);
-extern void pmFreeOptions(pmOptions *);
+PCP_CALL extern int pmgetopt_r(int, char *const *, pmOptions *);
+PCP_CALL extern int pmGetOptions(int, char *const *, pmOptions *);
+PCP_CALL extern int pmGetContextOptions(int, pmOptions *);
+PCP_CALL extern void pmUsageMessage(pmOptions *);
+PCP_CALL extern void pmFreeOptions(pmOptions *);
 
 /*
  * Derived Metrics support
  */
-extern int pmLoadDerivedConfig(const char *);
-extern char *pmRegisterDerived(const char *, const char *);
-extern char *pmDerivedErrStr(void);
+PCP_CALL extern int pmLoadDerivedConfig(const char *);
+PCP_CALL extern char *pmRegisterDerived(const char *, const char *);
+PCP_CALL extern char *pmDerivedErrStr(void);
 
 /*
  * Event Record support
@@ -871,25 +873,25 @@ typedef struct pmHighResEventArray {
 } pmHighResEventArray;
 
 /* Unpack a PM_TYPE_EVENT value into a set on pmResults */
-extern int pmUnpackEventRecords(pmValueSet *, int, pmResult ***);
+PCP_CALL extern int pmUnpackEventRecords(pmValueSet *, int, pmResult ***);
 
 /* Free set of pmResults from pmUnpackEventRecords */
-extern void pmFreeEventResult(pmResult **);
+PCP_CALL extern void pmFreeEventResult(pmResult **);
 
 /* Unpack a PM_TYPE_HIGHRES_EVENT value into a set on pmHighResResults */
-extern int pmUnpackHighResEventRecords(pmValueSet *, int, pmHighResResult ***);
+PCP_CALL extern int pmUnpackHighResEventRecords(pmValueSet *, int, pmHighResResult ***);
 
 /* Free set of pmHighResResults from pmUnpackEventRecords */
-extern void pmFreeHighResEventResult(pmHighResResult **);
+PCP_CALL extern void pmFreeHighResEventResult(pmHighResResult **);
 
 /* Service discovery, for clients. */
 #define PM_SERVER_SERVICE_SPEC	"pmcd"
 #define PM_SERVER_PROXY_SPEC	"pmproxy"
 #define PM_SERVER_WEBD_SPEC	"pmwebd"
 
-extern int pmDiscoverServices(const char *, const char *, char ***);
+PCP_CALL extern int pmDiscoverServices(const char *, const char *, char ***);
 
-extern int pmParseUnitsStr(const char *, pmUnits *, double *, char **);
+PCP_CALL extern int pmParseUnitsStr(const char *, pmUnits *, double *, char **);
 
 #ifdef __cplusplus
 }

@@ -24,12 +24,12 @@ HFILES		= hypnotoad.h
 LCFLAGS		= -DWIN32_LEAN_AND_MEAN -D_WIN32_WINNT=0x0500 \
 		  -I$(WINDIR)/include
 LLDFLAGS	= -L$(WINDIR)/lib
-LLDLIBS		= $(PCP_PMDALIB) -lpcp_pdh
+LLDLIBS		= $(PCP_PMDALIB) -lpdh
 PMNS		= pmns.disk pmns.kernel pmns.mem pmns.network \
 		  pmns.sqlserver pmns.filesys pmns.hinv pmns.pmda \
 		  pmns.process
-LSRCFILES	= $(PMNS) root help README pdhlist.c pdhmatch.sh
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
+LOGCONFDIR	= $(PCP_VAR_DIR)/config/pmlogconf
 LIBTARGET	= pmda_windows.dll
 EXTRATARGETS	= pdhlist.exe help.dir help.pag
 
@@ -50,7 +50,7 @@ build-me: root_windows $(LSRCFILES) $(LIBTARGET) $(EXTRATARGETS)
 	    fi; \
 	fi
 
-install: build-me
+install: build-me configs
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 pdhlist.exe $(LIBTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 README root $(PMNS) $(PMDADIR)
@@ -58,11 +58,15 @@ install: build-me
 	$(INSTALL) -m 644 root_windows $(PCP_VAR_DIR)/pmns/root_windows
 else
 build-me:
-install:
+install: configs
 endif
 
+configs:
+	$(INSTALL) -m 755 -d $(LOGCONFDIR)/sqlserver
+	$(INSTALL) -m 644 pmlogconf.sqlserver $(LOGCONFDIR)/sqlserver/summary
+
 help.dir help.pag : help root_windows
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_windows -v 2 -o help < help
+	$(NEWHELP) -n root_windows -v 2 -o help < help
 
 default_pcp:	default
 
@@ -71,7 +75,7 @@ install_pcp:	install
 root_windows:	../../pmns/stdpmid $(PMNS)
 	rm -f root_windows
 	sed -e 's;<stdpmid>;"../../pmns/stdpmid";' <root \
-	| $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp \
+	| ( $(PMCPP) ) \
 	| sed -e '/^#/d' -e '/^$$/d' >root_windows
 
 domain.h: ../../pmns/stdpmid
@@ -80,4 +84,4 @@ domain.h: ../../pmns/stdpmid
 $(OBJECTS):	hypnotoad.h domain.h
 
 pdhlist.exe:	pdhlist.o error.o
-	$(CCF) -o pdhlist.exe pdhlist.o error.o $(LLDFLAGS) -lpcp_pdh
+	$(CCF) -o pdhlist.exe pdhlist.o error.o $(LLDFLAGS) -lpdh

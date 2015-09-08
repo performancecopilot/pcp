@@ -49,6 +49,7 @@
 #include "proc_net_tcp.h"
 #include "proc_partitions.h"
 #include "proc_net_netstat.h"
+#include "proc_net_snmp6.h"
 #include "proc_net_snmp.h"
 #include "proc_scsi.h"
 #include "proc_slabinfo.h"
@@ -61,6 +62,7 @@
 #include "namespaces.h"
 #include "interrupts.h"
 #include "ipc.h"
+#include "proc_net_softnet.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -80,6 +82,7 @@ static proc_sys_fs_t		proc_sys_fs;
 static sysfs_kernel_t		sysfs_kernel;
 static numa_meminfo_t		numa_meminfo;
 static shm_info_t              _shm_info;
+static proc_net_softnet_t	proc_net_softnet;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static int		rootfd = -1;	/* af_unix pmdaroot */
@@ -2438,6 +2441,420 @@ static pmdaMetric metrictab[] = {
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /*
+ * network IPv6 cluster
+ */
+
+/* network.ip6.inreceives */
+  { &_pm_proc_net_snmp6[_PM_IP6_INRECEIVES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INRECEIVES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inhdrerrors */
+  { &_pm_proc_net_snmp6[_PM_IP6_INHDRERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INHDRERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.intoobigerrors */
+  { &_pm_proc_net_snmp6[_PM_IP6_INTOOBIGERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INTOOBIGERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.innoroutes */
+  { &_pm_proc_net_snmp6[_PM_IP6_INNOROUTES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INNOROUTES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inaddrerrors */
+  { &_pm_proc_net_snmp6[_PM_IP6_INADDRERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INADDRERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inunknownprotos */
+  { &_pm_proc_net_snmp6[_PM_IP6_INUNKNOWNPROTOS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INUNKNOWNPROTOS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.intruncatedpkts */
+  { &_pm_proc_net_snmp6[_PM_IP6_INTRUNCATEDPKTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INTRUNCATEDPKTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.indiscards */
+  { &_pm_proc_net_snmp6[_PM_IP6_INDISCARDS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INDISCARDS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.indelivers */
+  { &_pm_proc_net_snmp6[_PM_IP6_INDELIVERS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INDELIVERS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outforwdatagrams */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTFORWDATAGRAMS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTFORWDATAGRAMS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outrequests */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTREQUESTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTREQUESTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outdiscards */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTDISCARDS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTDISCARDS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outnoroutes */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTNOROUTES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTNOROUTES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.reasmtimeout */
+  { &_pm_proc_net_snmp6[_PM_IP6_REASMTIMEOUT].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_REASMTIMEOUT), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.reasmreqds */
+  { &_pm_proc_net_snmp6[_PM_IP6_REASMREQDS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_REASMREQDS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.reasmoks */
+  { &_pm_proc_net_snmp6[_PM_IP6_REASMOKS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_REASMOKS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.reasmfails */
+  { &_pm_proc_net_snmp6[_PM_IP6_REASMFAILS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_REASMFAILS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.fragoks */
+  { &_pm_proc_net_snmp6[_PM_IP6_FRAGOKS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_FRAGOKS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.fragfails */
+  { &_pm_proc_net_snmp6[_PM_IP6_FRAGFAILS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_FRAGFAILS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.fragcreates */
+  { &_pm_proc_net_snmp6[_PM_IP6_FRAGCREATES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_FRAGCREATES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inmcastpkts */
+  { &_pm_proc_net_snmp6[_PM_IP6_INMCASTPKTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INMCASTPKTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outmcastpkts */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTMCASTPKTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTMCASTPKTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inoctets */
+  { &_pm_proc_net_snmp6[_PM_IP6_INOCTETS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INOCTETS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outoctets */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTOCTETS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTOCTETS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inmcastoctets */
+  { &_pm_proc_net_snmp6[_PM_IP6_INMCASTOCTETS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INMCASTOCTETS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outmcastoctets */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTMCASTOCTETS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTMCASTOCTETS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inbcastoctets */
+  { &_pm_proc_net_snmp6[_PM_IP6_INBCASTOCTETS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INBCASTOCTETS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outbcastoctets */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTBCASTOCTETS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTBCASTOCTETS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.innoectpkts */
+  { &_pm_proc_net_snmp6[_PM_IP6_INNOECTPKTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INNOECTPKTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inect1pkts */
+  { &_pm_proc_net_snmp6[_PM_IP6_INECT1PKTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INECT1PKTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inect0pkts */
+  { &_pm_proc_net_snmp6[_PM_IP6_INECT0PKTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INECT0PKTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.incepkts */
+  { &_pm_proc_net_snmp6[_PM_IP6_INCEPKTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INCEPKTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inmsgs */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INMSGS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INMSGS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inerrors */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outmsgs */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTMSGS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTMSGS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outerrors */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.incsumerrors */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INCSUMERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INCSUMERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.indestunreachs */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INDESTUNREACHS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INDESTUNREACHS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inpkttoobigs */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INPKTTOOBIGS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INPKTTOOBIGS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.intimeexcds */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INTIMEEXCDS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INTIMEEXCDS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inparmproblems */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INPARMPROBLEMS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INPARMPROBLEMS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inechos */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INECHOS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INECHOS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inechoreplies */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INECHOREPLIES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INECHOREPLIES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.ingroupmembqueries */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INGROUPMEMBQUERIES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INGROUPMEMBQUERIES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.ingroupmembresponses */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INGROUPMEMBRESPONSES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INGROUPMEMBRESPONSES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.ingroupmembreductions */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INGROUPMEMBREDUCTIONS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INGROUPMEMBREDUCTIONS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inroutersolicits */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INROUTERSOLICITS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INROUTERSOLICITS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inrouteradvertisements */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INROUTERADVERTISEMENTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INROUTERADVERTISEMENTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inneighborsolicits */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INNEIGHBORSOLICITS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INNEIGHBORSOLICITS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inneighboradvertisements */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INNEIGHBORADVERTISEMENTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INNEIGHBORADVERTISEMENTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inredirects */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INREDIRECTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INREDIRECTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inmldv2reports */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INMLDV2REPORTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INMLDV2REPORTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outdestunreachs */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTDESTUNREACHS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTDESTUNREACHS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outpkttoobigs */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTPKTTOOBIGS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTPKTTOOBIGS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outtimeexcds */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTTIMEEXCDS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTTIMEEXCDS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outparmproblems */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTPARMPROBLEMS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTPARMPROBLEMS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outechos */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTECHOS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTECHOS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outechoreplies */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTECHOREPLIES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTECHOREPLIES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outgroupmembqueries */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTGROUPMEMBQUERIES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTGROUPMEMBQUERIES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outgroupmembresponses */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTGROUPMEMBRESPONSES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTGROUPMEMBRESPONSES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outgroupmembreductions */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTGROUPMEMBREDUCTIONS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTGROUPMEMBREDUCTIONS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outroutersolicits */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTROUTERSOLICITS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTROUTERSOLICITS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outrouteradvertisements */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTROUTERADVERTISEMENTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTROUTERADVERTISEMENTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outneighborsolicits */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTNEIGHBORSOLICITS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTNEIGHBORSOLICITS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outneighboradvertisements */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTNEIGHBORADVERTISEMENTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTNEIGHBORADVERTISEMENTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outredirects */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTREDIRECTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTREDIRECTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outmldv2reports */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTMLDV2REPORTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTMLDV2REPORTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.indatagrams */
+  { &_pm_proc_net_snmp6[_PM_UDP6_INDATAGRAMS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_INDATAGRAMS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.noports */
+  { &_pm_proc_net_snmp6[_PM_UDP6_NOPORTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_NOPORTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.inerrors */
+  { &_pm_proc_net_snmp6[_PM_UDP6_INERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_INERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.outdatagrams */
+  { &_pm_proc_net_snmp6[_PM_UDP6_OUTDATAGRAMS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_OUTDATAGRAMS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.rcvbuferrors */
+  { &_pm_proc_net_snmp6[_PM_UDP6_RCVBUFERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_RCVBUFERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.sndbuferrors */
+  { &_pm_proc_net_snmp6[_PM_UDP6_SNDBUFERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_SNDBUFERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.incsumerrors */
+  { &_pm_proc_net_snmp6[_PM_UDP6_INCSUMERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_INCSUMERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.ignoredmulti */
+  { &_pm_proc_net_snmp6[_PM_UDP6_IGNOREDMULTI].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_IGNOREDMULTI), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite6.indatagrams */
+  { &_pm_proc_net_snmp6[_PM_UDPLITE6_INDATAGRAMS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDPLITE6_INDATAGRAMS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite6.noports */
+  { &_pm_proc_net_snmp6[_PM_UDPLITE6_NOPORTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDPLITE6_NOPORTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite6.inerrors */
+  { &_pm_proc_net_snmp6[_PM_UDPLITE6_INERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDPLITE6_INERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite6.outdatagrams */
+  { &_pm_proc_net_snmp6[_PM_UDPLITE6_OUTDATAGRAMS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDPLITE6_OUTDATAGRAMS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite6.rcvbuferrors */
+  { &_pm_proc_net_snmp6[_PM_UDPLITE6_RCVBUFERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDPLITE6_RCVBUFERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite6.sndbuferrors */
+  { &_pm_proc_net_snmp6[_PM_UDPLITE6_SNDBUFERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDPLITE6_SNDBUFERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite6.incsumerrors */
+  { &_pm_proc_net_snmp6[_PM_UDPLITE6_INCSUMERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDPLITE6_INCSUMERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/*
  * network netstat cluster
  */
 
@@ -3921,6 +4338,38 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_DM,16), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+/*
+ * network.softnet cluster
+ */
+    /* network.softnet.processed */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.dropped */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.time_squeeze */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.cpu_collision */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.received_rps */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.flow_limit_count */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 };
 
 typedef struct {
@@ -3954,7 +4403,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     linux_container_t *cp = linux_ctx_container(context);
     int need_refresh_mtab = 0;
     int need_net_ioctl = 0;
-    int open_ns_fds = 0;
+    int ns_fds = 0;
     int sts = 0;
 
     if (cp && (sts = container_lookup(rootfd, cp)) < 0)
@@ -3989,48 +4438,76 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_NET_SNMP])
 	refresh_proc_net_snmp(&_pm_proc_net_snmp);
 
+    if (need_refresh[CLUSTER_NET_SNMP6])
+	refresh_proc_net_snmp6(_pm_proc_net_snmp6);
+
     if (need_refresh[CLUSTER_NET_TCP])
 	refresh_proc_net_tcp(&proc_net_tcp);
 
     if (need_refresh[CLUSTER_NET_NETSTAT])
 	refresh_proc_net_netstat(&_pm_proc_net_netstat);
 
-    if (need_refresh[CLUSTER_NET_DEV]) {
-	sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &open_ns_fds);
-	if (sts < 0) goto done;
-	refresh_proc_net_dev(INDOM(NET_DEV_INDOM), cp);
-	container_nsleave(cp, LINUX_NAMESPACE_NET);
-    }
-
-    if (need_refresh[CLUSTER_NET_ADDR] ||
+    /*
+     * Network interface metrics and namespaces are complicated by a
+     * need to be in the right namespace at the right time (for /sys
+     * -> MNTNS, for /proc or ioctl -> NETNS) - and the two have been
+     * found to be mutually exclusive from the point of view of access
+     * via the setns(2) syscall.  We also have a further complicating
+     * factor where some values are available *either* by sysfs (newer
+     * kernels), *or* ioctl (older kernels).
+     */
+    if (need_refresh[CLUSTER_NET_DEV] ||
+	need_refresh[CLUSTER_NET_ADDR] ||
 	need_refresh[CLUSTER_FILESYS] ||
 	need_refresh[CLUSTER_TMPFS] ||
 	need_refresh[REFRESH_NET_MTU] ||
 	need_refresh[REFRESH_NET_SPEED] ||
 	need_refresh[REFRESH_NET_DUPLEX] ||
 	need_refresh[REFRESH_NET_LINKUP] ||
-	need_refresh[REFRESH_NET_RUNNING]) {
+	need_refresh[REFRESH_NET_RUNNING] ||
+	need_refresh[REFRESH_NETADDR_INET] ||
+	need_refresh[REFRESH_NETADDR_IPV6] ||
+	need_refresh[REFRESH_NETADDR_HW]) {
+	pmInDom netaddr = INDOM(NET_ADDR_INDOM);
+	pmInDom netdev = INDOM(NET_DEV_INDOM);
 
-	sts = container_nsenter(cp, LINUX_NAMESPACE_MNT, &open_ns_fds);
-	if (sts < 0) goto done;
 	if (need_refresh[CLUSTER_NET_ADDR])
-	    refresh_net_dev_addr(INDOM(NET_ADDR_INDOM), cp);
-	need_net_ioctl = refresh_net_sysfs(INDOM(NET_DEV_INDOM), need_refresh);
+	    clear_net_addr_indom(netaddr);
+	if (need_refresh[REFRESH_NETADDR_INET])
+	    need_net_ioctl = 1;
+	if (need_refresh[REFRESH_NETADDR_IPV6])
+	    need_net_ioctl = 1;
+
+	if (need_refresh[CLUSTER_NET_DEV]) {
+	    if ((sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &ns_fds)) < 0)
+		goto done;
+	    refresh_proc_net_dev(netdev, cp);
+	    container_nsleave(cp, LINUX_NAMESPACE_NET);
+	}
+
+	if ((sts = container_nsenter(cp, LINUX_NAMESPACE_MNT, &ns_fds)) < 0)
+	    goto done;
+	refresh_net_addr_sysfs(netaddr, need_refresh);
+	need_net_ioctl |= refresh_net_sysfs(netdev, need_refresh);
 	if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_TMPFS])
 	    refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM), cp);
 	container_nsleave(cp, LINUX_NAMESPACE_MNT);
 
 	if (need_net_ioctl) {
-	    sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &open_ns_fds);
-	    if (sts < 0) goto done;
-	    refresh_net_ioctl(INDOM(NET_DEV_INDOM), cp, need_refresh);
+	    if ((sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &ns_fds)) < 0)
+		goto done;
+	    refresh_net_addr_ioctl(netaddr, cp, need_refresh);
+	    refresh_net_ioctl(netdev, cp, need_refresh);
 	    container_nsleave(cp, LINUX_NAMESPACE_NET);
 	}
+
+	if (need_refresh[CLUSTER_NET_ADDR])
+	    store_net_addr_indom(netaddr, cp);
     }
 
     if (need_refresh[CLUSTER_KERNEL_UNAME]) {
-	sts = container_nsenter(cp, LINUX_NAMESPACE_UTS, &open_ns_fds);
-	if (sts < 0) goto done;
+	if ((sts = container_nsenter(cp, LINUX_NAMESPACE_UTS, &ns_fds)) < 0)
+	    goto done;
 	uname(&kernel_uname);
 	container_nsleave(cp, LINUX_NAMESPACE_UTS);
     }
@@ -4073,10 +4550,13 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_SYSFS_KERNEL])
     	refresh_sysfs_kernel(&sysfs_kernel);
 
+    if (need_refresh[CLUSTER_NET_SOFTNET])
+	refresh_proc_net_softnet(&proc_net_softnet);
+
 done:
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
-    container_close(cp, open_ns_fds);
+    container_close(cp, ns_fds);
     return sts;
 }
 
@@ -4107,6 +4587,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	break;
     case NET_ADDR_INDOM:
 	need_refresh[CLUSTER_NET_ADDR]++;
+	need_refresh[REFRESH_NETADDR_INET]++;
+	need_refresh[REFRESH_NETADDR_IPV6]++;
+	need_refresh[REFRESH_NETADDR_HW]++;
 	break;
     case FILESYS_INDOM:
 	need_refresh[CLUSTER_FILESYS]++;
@@ -5714,6 +6197,43 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_DM:
 	return proc_partitions_fetch(mdesc, inst, atom);
 
+    case CLUSTER_NET_SOFTNET:
+	switch (idp->item) {
+	case 0:	/* network.softnet.processed */
+	    if (!(proc_net_softnet.flags & SN_PROCESSED))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.processed;
+	    break;
+	case 1: /* network.softnet.dropped */
+	    if (!(proc_net_softnet.flags & SN_DROPPED))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.dropped;
+	    break;
+	case 2: /* network.softnet.time_squeeze */
+	    if (!(proc_net_softnet.flags & SN_TIME_SQUEEZE))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.time_squeeze;
+	    break;
+	case 3: /* network.softnet.cpu_collision */
+	    if (!(proc_net_softnet.flags & SN_CPU_COLLISION))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.cpu_collision;
+	    break;
+	case 4: /* network.softnet.received_rps */
+	    if (!(proc_net_softnet.flags & SN_RECEIVED_RPS))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.received_rps;
+	    break;
+	case 5: /* network.softnet.flow_limit_count */
+	    if (!(proc_net_softnet.flags & SN_FLOW_LIMIT_COUNT))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.flow_limit_count;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -5774,6 +6294,25 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		need_refresh[REFRESH_NET_RUNNING]++;
 		break;
 	    }
+	    break;
+
+	case CLUSTER_NET_ADDR:
+	    switch (idp->item) {
+	    case 0:	/* network.interface.ipv4_addr */
+		need_refresh[REFRESH_NETADDR_INET]++;
+		break;
+	    case 1:	/* network.interface.ipv6_addr */
+	    case 2:	/* network.interface.ipv6_scope */
+		need_refresh[REFRESH_NETADDR_IPV6]++;
+		break;
+	    case 3:	/* network.interface.hw_addr */
+		need_refresh[REFRESH_NETADDR_HW]++;
+		break;
+	    }
+	    break;
+
+	case CLUSTER_NET_SOFTNET:
+	    need_refresh[CLUSTER_NET_SOFTNET]++;
 	    break;
 	}
     }

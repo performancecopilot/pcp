@@ -1,6 +1,7 @@
 #pmlogconf-setup 2.0
-ident	Apache process state information
-probe	apache.sb_waiting
+ident	Apache web server process state information
+probe	apache.sb_waiting exists ? include : exclude
+
 	apache.sb_waiting
 	apache.sb_starting
 	apache.sb_reading

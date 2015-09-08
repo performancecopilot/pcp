@@ -429,10 +429,6 @@ numeric(char *ns)
 void
 ptrverify(const void *ptr, const char *errormsg, ...)
 {
-	va_list args;
-
-        va_start(args, errormsg);
-
 	if (!ptr)
 	{
 		acctswoff();
@@ -442,6 +438,7 @@ ptrverify(const void *ptr, const char *errormsg, ...)
 			(vis.show_end)();
 
         	va_list args;
+		va_start(args, errormsg);
 		fprintf(stderr, errormsg, args);
         	va_end  (args);
 
@@ -876,6 +873,178 @@ get_instances(const char *purpose, int value, pmDesc *descs, int **ids, char ***
 	return sts;
 }
 
+static char *
+rawlocalhost(pmOptions *opts)
+{
+	int		ctxt;
+	char		*host;
+
+	if (opts->nhosts > 0)
+		return opts->hosts[0];
+
+	if ((ctxt = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0)
+	{
+		fprintf(stderr, "%s: cannot create local context: %s\n",
+			pmProgname, pmErrStr(ctxt));
+		cleanstop(1);
+	}
+	host = (char *)pmGetContextHostName(ctxt);
+	pmDestroyContext(ctxt);
+
+	if (host[0] == '\0')
+	{
+		fprintf(stderr, "%s: cannot find local hostname\n", pmProgname);
+		cleanstop(1);
+	}
+	return host;
+}
+
+/*
+** Extract active PCP archive file from latest archive folio,
+** use pmcd.hostname by default, unless directed elsewhere.
+*/
+void
+rawfolio(pmOptions *opts)
+{
+	int		sep = __pmPathSeparator();
+	char		path[MAXPATHLEN];
+	char		*logdir;
+
+	if ((logdir = pmGetOptionalConfig("PCP_LOG_DIR")) == NULL)
+	{
+		fprintf(stderr, "%s: cannot find PCP_LOG_DIR\n", pmProgname);
+		cleanstop(1);
+	}
+
+	snprintf(path, sizeof(path), "%s%c%s%c%s%c",
+		logdir, sep, "pmlogger", sep, rawlocalhost(opts), sep);
+
+	if (chdir(path) < 0)
+	{
+		fprintf(stderr, "%s: cannot change to %s: %s\n",
+			pmProgname, path, pmErrStr(-oserror()));
+		cleanstop(1);
+	}
+	__pmAddOptArchiveFolio(opts, "Latest");
+}
+
+static int
+lookslikedatetome(const char *p)
+{
+	register int    i;
+
+	for (i=0; i < 8; i++)
+		if ( !isdigit(*(p+i)) )
+			return 0;
+
+	if (*p != '2')
+		return 0;       /* adapt this in the year 3000 */
+
+	if ( *(p+4) > '1')
+		return 0;
+
+	if ( *(p+6) > '3')
+		return 0;
+
+	return 1;       /* yes, looks like a date to me */
+}
+
+void
+rawarchive(pmOptions *opts, const char *name)
+{
+	struct tm	*tp;
+	time_t		timenow;
+	char		tmp[MAXPATHLEN];
+	char		path[MAXPATHLEN];
+	char		*logdir, *py, *host;
+	int		sep = __pmPathSeparator();
+	int		sts, len = (name? strlen(name) : 0);
+
+	if (len == 0)
+		return rawfolio(opts);
+
+	/* see if a valid archive exists as specified */
+	if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, name)) >= 0)
+	{
+		pmDestroyContext(sts);
+		__pmAddOptArchive(opts, (char * )name);
+		return;
+	}
+
+	/* see if a valid folio exists as specified */
+	strncpy(tmp, name, sizeof(tmp));
+	tmp[sizeof(tmp)-1] = '\0';
+	if (access(tmp, R_OK) == 0)
+	{
+		__pmAddOptArchiveFolio(opts, tmp);
+		return;
+	}
+	snprintf(path, sizeof(path), "%s/%s.folio", name, basename(tmp));
+	path[sizeof(path)-1] = '\0';
+	if (access(path, R_OK) == 0)
+	{
+		__pmAddOptArchiveFolio(opts, path);
+		return;
+	}
+
+	/* else go hunting in the system locations... */
+	if ((logdir = pmGetOptionalConfig("PCP_LOG_DIR")) == NULL)
+	{
+		fprintf(stderr, "%s: cannot find PCP_LOG_DIR\n", pmProgname);
+		cleanstop(1);
+	}
+
+	host = rawlocalhost(opts);
+
+	/*
+	** Use original rawread() algorithms for specifying dates
+	*/
+
+	if (len == 8 && lookslikedatetome(name))
+	{
+		snprintf(path, sizeof(path), "%s%c%s%c%s%c%s",
+			logdir, sep, "pmlogger", sep, host, sep, name);
+		__pmAddOptArchive(opts, (char * )path);
+	}
+	/*
+	** if one or more 'y' (yesterday) characters are used and that
+	** string is not known as an existing file, the standard logfile
+	** is shown from N days ago (N is determined by the number
+	** of y's).
+	*/
+	else
+	{
+                /*
+		** make a string existing of y's to compare with
+		*/
+		py = malloc(len+1);
+		ptrverify(py, "Malloc failed for 'yes' sequence\n");
+
+		memset(py, 'y', len);
+		*(py+len) = '\0';
+
+		if ( strcmp(name, py) == 0 )
+		{
+			timenow  = time(0);
+			timenow -= len*3600*24;
+			tp       = localtime(&timenow);
+
+			snprintf(path, sizeof(path), "%s%c%s%c%s%c%04u%02u%02u",
+				logdir, sep, "pmlogger", sep, host, sep,
+				tp->tm_year+1900, tp->tm_mon+1, tp->tm_mday);
+			__pmAddOptArchive(opts, (char * )path);
+		}
+		else
+		{
+			fprintf(stderr, "%s: cannot find archive from \"%s\"\n",
+				pmProgname, name);
+			cleanstop(1);
+		}
+
+		free(py);
+	}
+}
+
 /*
 ** Write a pmlogger configuration file for recording.
 */
@@ -906,7 +1075,7 @@ rawconfig(FILE *fp, double interval)
 }
 
 void
-rawwrite(const char *name, const char *host,
+rawwrite(pmOptions *opts, const char *name,
 	struct timeval *delta, unsigned int nsamples, char midnightflag)
 {
 	pmRecordHost	*record;
@@ -914,8 +1083,10 @@ rawwrite(const char *name, const char *host,
 	double		duration;
 	double		interval;
 	char		args[MAXPATHLEN];
+	char		*host;
 	int		sts;
 
+	host = (opts->nhosts > 0) ? opts->hosts[0] : "local:";
 	interval = __pmtimevalToReal(delta);
 	duration = interval * nsamples;
 

@@ -29,6 +29,7 @@ _filter()
 
 # real QA test starts here
 root=$tmp.root
+export PROC_HERTZ=100
 export PROC_STATSPATH=$root
 pmda=$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init
 trees=`pminfo cgroup | awk -F. '{ print $2 }' | sort -u`

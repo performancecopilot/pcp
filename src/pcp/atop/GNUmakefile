@@ -16,6 +16,8 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pcp-atop
+DISTARGET = $(PCP_BINADM_DIR)/$(CMDTARGET)
+DISTLINKS = pcp-atopsar
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
 LLDLIBS = $(PCP_GUILIB) $(LIB_FOR_NCURSES) $(LIB_FOR_MATH)
 LCFLAGS = $(NCURSES_CFLAGS)
@@ -49,18 +51,20 @@ HFILES = \
 	showgeneric.h \
 	showlinux.h
 
-MAN_PAGES = pcp-atop.1 pcp-atoprc.5 #pcp-atopsar.1
+MAN_PAGES = pcp-atop.1 pcp-atoprc.5 pcp-atopsar.1
 
 default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(HAVE_NCURSES)" "true"
-build-me: $(CMDTARGET)
+build-me: $(CMDTARGET) $(DISTLINKS)
 
 install: default
-	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
-	$(INSTALL) -S $(PCP_BINADM_DIR)/$(CMDTARGET) $(PCP_BIN_DIR)/pmatop
+	$(INSTALL) -m 755 $(CMDTARGET) $(DISTARGET)
+	@for link in $(DISTLINKS); do \
+	    $(INSTALL) -S $(DISTARGET) $(PCP_BINADM_DIR)/$$link; \
+	done
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -71,21 +75,24 @@ default_pcp: default
 
 install_pcp: install
 
+$(DISTLINKS):	$(CMDTARGET)
+	@$(LN_S) $(CMDTARGET) $@
+
 pmgenmap.sh:
 	sed -e "s;^\. .PCP_DIR.etc.pcp.env;. $(TOPDIR)/src/include/pcp.env;" \
 		$(TOPDIR)/src/pmgenmap/pmgenmap.sh >pmgenmap.sh
 
 procmetrics.h:	pmgenmap.sh procmetrics.map
-	$(RUN_IN_BUILD_ENV) sh ./pmgenmap.sh procmetrics.map > procmetrics.h
+	$(PMGENMAP) procmetrics.map > procmetrics.h
 
 systmetrics.h:	pmgenmap.sh systmetrics.map
-	$(RUN_IN_BUILD_ENV) sh ./pmgenmap.sh systmetrics.map > systmetrics.h
+	$(PMGENMAP) systmetrics.map > systmetrics.h
 
 ifpropmetrics.h:	pmgenmap.sh ifpropmetrics.map
-	$(RUN_IN_BUILD_ENV) sh ./pmgenmap.sh ifpropmetrics.map > ifpropmetrics.h
+	$(PMGENMAP) ifpropmetrics.map > ifpropmetrics.h
 
 hostmetrics.h:	pmgenmap.sh hostmetrics.map
-	$(RUN_IN_BUILD_ENV) sh ./pmgenmap.sh hostmetrics.map > hostmetrics.h
+	$(PMGENMAP) hostmetrics.map > hostmetrics.h
 
 photoproc.o:	procmetrics.h
 photosyst.o:	systmetrics.h

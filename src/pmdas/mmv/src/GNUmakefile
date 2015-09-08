@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2009-2010 Aconex.  All Rights Reserved.
 # Copyright (c) 2000-2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -46,11 +46,12 @@ install_pcp install: default
 
 $(CMDTARGET):	$(OBJECTS)
 
-$(IAM).o : domain.h
 $(LIBTARGET) : $(VERSION_SCRIPT)
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
+
+$(OBJECTS): domain.h
 
 domain.h: ../../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

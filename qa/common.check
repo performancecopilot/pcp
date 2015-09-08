@@ -226,6 +226,24 @@ _make_helptext()
     return 0
 }
 
+_host_to_ipv6addrs()
+{
+    perl -e '
+	use strict;
+	use warnings;
+	use Socket qw(:addrinfo SOCK_RAW AF_INET AF_INET6);
+	my $hostname = "'$1'";
+        my ($err, @res) = getaddrinfo($hostname, "",
+				{socktype => SOCK_RAW, family => AF_INET6});
+	die "Cannot getaddrinfo - $err" if $err;
+	while (my $ai = shift @res) {
+	    my ($err, $ipaddr) = getnameinfo($ai->{addr},
+					NI_NUMERICHOST, NIx_NOSERV);
+	    die "Cannot getnameinfo - $err" if $err;
+	    print "$ipaddr\n";
+	}'
+}
+
 _host_to_ipaddr()
 {
     perl -MSocket -e '
@@ -1432,7 +1450,8 @@ _change_config()
 	then
 	    # Try the older RedHat and SuSE way ..
 	    #
-	    [ -n "$pat" ] && $sudo chkconfig $pat $2
+	    [ -n "$pat" ] && $sudo chkconfig $pat $2 2>&1 \
+		| sed -e '/insserv: warning: current start runlevel(s) .* of script .pcp./d'
 	elif [ -x /usr/sbin/sysv-rc-conf ]
 	then
 	    # Try the Debian and Ubuntu way ..
@@ -1736,7 +1755,7 @@ p
     fi
 }
 
-# disable all system pmloggers running via the control file
+# disable all system pmloggers running via the control file(s)
 #
 _disable_loggers()
 {
@@ -1746,6 +1765,12 @@ _disable_loggers()
     then
 	[ ! -f $tmp.control ] && \
 		$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
+    fi
+    if [ -d $PCP_PMLOGGERCONTROL_PATH.d ]
+    then
+	[ ! -d $tmp.control.d ] && \
+		$sudo cp -a $PCP_PMLOGGERCONTROL_PATH.d $tmp.control.d
+	$sudo rm -fr $PCP_PMLOGGERCONTROL_PATH.d
     fi
     cat <<End-of-File >$tmp._tmp
 # dummy file created by qa/$seq on `date`
@@ -1761,6 +1786,11 @@ _restore_loggers()
 {
     [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+    if [ -d $tmp.control.d ]
+    then
+	$sudo cp -a $tmp.control.d $PCP_PMLOGGERCONTROL_PATH.d
+	$sudo rm -fr $tmp.control.d
+    fi
     [ -f $tmp.control ] && \
 	$sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
 }
@@ -1872,42 +1902,28 @@ _find_free_port()
     echo $base
 }
 
-_get_ino()
-{
-    # get inode number for $1
-    # throw away stderr (and return '') in case $1 has been removed by now
-    #
-    stat "$1" 2>/dev/null \
-    | sed -n '/Device:[ 	].*[ 	]Inode:/{
-s/Device:[ 	].*[ 	]Inode:[ 	]*//
-s/[ 	].*//
-p
-}'
-}
-
+# get pid for the running primary pmlogger
+#
 _get_primary_logger_pid()
 {
-    # get pid for primary pmlogger
-    #
-    _primary_inode=`_get_ino $PCP_TMP_DIR/pmlogger/primary`
-    _pid=''
-    for _file in $PCP_TMP_DIR/pmlogger/*
-    do
-	case "$_file"
-	in
-	    */primary|*\*)
-		;;
-	    */[0-9]*)
-		_inode=`_get_ino "$_file"`
-		if [ "$_primary_inode" = "$_inode" ]
-		then
-		    _pid="`echo $_file | sed -e 's/.*\/\([^/]*\)$/\1/'`"
-		    break
-		fi
-		;;
-	esac
-    done
-    echo $_pid
+    root="$PCP_TMP_DIR/pmlogger/primary"
+    if [ ! -L "$root" ]
+    then
+	echo ""
+    elif which realpath >/dev/null 2>&1
+    then
+	symroot=`realpath "$root"`
+	basename "$symroot"
+    else
+	symroot=`ls -l "$root" | sed -e 's/.*-> //'`
+	if [ -z "$symroot" ]
+	then
+	    echo "Arrgh, cannot get symlink for device for root fs ..."
+	    ls -l "$root"
+	    exit
+	fi
+	basename "$symroot"
+    fi
 }
 
 _get_libpcp_config()

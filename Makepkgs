@@ -100,7 +100,7 @@ tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp" 0 1 2 3 15
 
 configure=./configure
-target=`uname -s | cut -c-5 | tr 'A-Z' 'a-z'`
+target=`uname -s | tr 'A-Z' 'a-z'`
 
 if [ ! -x /usr/bin/rpmbuild ]
 then
@@ -198,11 +198,14 @@ fi
 
 case "$target"
 in
-    mingw)
+    mingw|mingw64|windows)
+	target=mingw
 	nonrpm=true
-	configure="mingw64-configure"
-	configopts="$configopts --disable-ssp --without-threads"
-	MAKE="mingw64-make"
+	configopts="$configopts --disable-ssp"
+	export configure="/usr/bin/mingw64-configure"
+	export MAKE="/usr/bin/mingw64-make"
+	export QMAKE="/usr/bin/mingw64-qmake-qt4"
+	export PKG_CONFIG="/usr/bin/mingw64-pkg-config"
 	;;
     linux)
 	ARCH=`uname -m`
@@ -211,6 +214,8 @@ in
     sunos|SunOS)
 	ARCH=`isainfo -k`
 	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && configopts="$configopts --libdir=/usr/lib/64"
+	export YACC=bison
+	export LEX=flex
 	;;
 esac
 
@@ -406,8 +411,10 @@ debian_buildpackage()
     echo "== Building deb packages using dpkg-buildpackage"
 
     SUDO=${SUDO:-fakeroot}
-    sign=''
-    $signed -o -n "$DEB_SIGN_KEYID" && sign='-us -uc'
+    # don't sign by default
+    sign='-us -uc'
+    # sign if --signed and $DEB_SIGN_KEYID set in the environment
+    $signed && [ -n "$DEB_SIGN_KEYID" ] && sign=''
     rm -f $tmp/failed
     if $verbose ; then
 	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
@@ -577,9 +584,6 @@ if $nonrpm
 then
     default_build	# perform a complete build in-situ
     packaging_pcp	# create all known package formats
-    if $containers; then
-    	echo "Warning: --with-containers skipped - currently only available on RPM platforms"
-    fi
 else
     packaging_rpm
 fi

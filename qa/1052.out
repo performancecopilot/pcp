@@ -5,7 +5,7 @@ dbpmda> getdesc on
 dbpmda> desc json.nsources
 PMID: 137.0.0
 Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
-Semantics: counter  Units: none
+Semantics: instant  Units: none
 dbpmda> fetch json.nsources
 PMID(s): 137.0.0
 pmResult ... numpmid: 1
@@ -222,14 +222,14 @@ pmInDom: 137.0
 [  2] inst: 2 name: "s2"
 [  3] inst: 3 name: "ceph"
 dbpmda> fetch json.ceph.filestore.journal_wr_bytes.sum
-PMID(s): 137.3.15
+PMID(s): 137.3.ID
 pmResult ... numpmid: 1
-137.3.15 (<noname>): numval: 1 valfmt: 1 vlist[]:
+137.3.ID (<noname>): numval: 1 valfmt: 1 vlist[]:
 value 1585152
 dbpmda> fetch json.ceph.osd.stat_bytes
-PMID(s): 137.3.182
+PMID(s): 137.3.ID
 pmResult ... numpmid: 1
-137.3.182 (<noname>): numval: 1 valfmt: 1 vlist[]:
+137.3.ID (<noname>): numval: 1 valfmt: 1 vlist[]:
 value 25231224832
 
 quit

@@ -223,6 +223,7 @@ FATAL ERROR: Cannot perform cross-compilation without a file to source
 	exit 1
     fi
 fi
+AC_SUBST(cross_compiling)
 
 dnl CFLAGS setting is a co-dependency between here and PCFLAGS in
 dnl src/include/builddefs.in ... need to be the same in both places
@@ -266,7 +267,7 @@ then
     AC_DEFINE(IS_SOLARIS, [1], [Platform is Solaris])
     export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
     export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
-    pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/usr/sfw/bin'
+    pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
 elif test $target_os = aix
 then
@@ -321,27 +322,87 @@ then
     exit 1
 fi
 
-dnl this does nothing useful towards PCP configuration but it does
-dnl trigger the autoconf generated C compiler probing to test if
-dnl the GNU C compiler (gcc) is in play which we need below ...
-AC_COMPILE_IFELSE([AC_LANG_SOURCE([int foo;])], [ ], [ ])
+dnl check if user wants their own C compiler
+cflags_abi=
+AC_PROG_CC(suncc gcc cc)
+if test $target_os = solaris
+then
+    AC_PATH_PROG(CCPATH,$CC,$CC)
+    cc=$CCPATH
+    if test "$GCC" = "yes"
+    then
+	CFLAGS="$CFLAGS $CFLAGS_IF_GCC"
+    else
+	CFLAGS="$CFLAGS $CFLAGS_IF_SUNCC"
+    fi
+    if test "$use_64bit" = "no"
+    then
+	:
+    else
+	AC_MSG_CHECKING([for 64 bit Solaris host])
+	case `isainfo -k`
+	in
+	    amd64|sparcv9)
+		cflags_abi=-m64
+		CFLAGS="$CFLAGS -m64"
+		LDFLAGS="$LDFLAGS -m64"
+		AC_MSG_RESULT(yes)
+		;;
+	    *)
+		AC_MSG_RESULT(no)
+		;;
+	esac
+    fi
+else
+    cc=$CC
+fi
+AC_SUBST(cc)
+cc_is_gcc=$GCC
+AC_SUBST(cc_is_gcc)
+AC_SUBST(cflags_abi)
+dnl these become CFLAGS and LDFLAGS for the build
+PCFLAGS="$CFLAGS"
+PLDFLAGS=$LDFLAGS
+
+if echo "$CFLAGS" | grep 'D_FORTIFY_SOURCE' >/dev/null
+then
+    dnl for cc use locally in configure (not exported via $PCFLAGS),
+    dnl add -O in case -D_FORTIFY_SOURCE has been added to CFLAGS above,
+    dnl as -D_FORTIFY_SOURCE requires -O but we've separated optimization
+    dnl flags out into $CFLAGS_OPT for our build infrastructure
+    CFLAGS="-O $PCFLAGS"
+fi
+
+dnl some versions of gcc (e.g. version 4.8.4 on Gentoo Hardened) have added
+dnl a predefined for _FORTIFY_SOURCE but only when -O is specified ... so
+dnl to be safe we have -U_FORTIFY_SOURCE before -D_FORTIFY_SOURCE=2 below
 
 # Add some security-related gcc flags
-AC_ARG_ENABLE([ssp],
-  [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
-AS_IF([test "x$GCC" = xyes -a "x$enable_ssp" != xno],[
-   save_CFLAGS="$CFLAGS"
-   CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
-   AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
-       AC_MSG_NOTICE([Compiling with gcc -fstack-protector-all et al.])
-       CFLAGS="$save_CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"],[
-       AC_MSG_NOTICE([Compiler does not support -fstack-protector-all et al.])
-       CFLAGS="$save_CFLAGS"])])
+if echo "$CFLAGS" | grep stack-protector >/dev/null
+then
+    dnl already set, probably from the environment
+    :
+else
+    AC_ARG_ENABLE([ssp],
+    [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
+    AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != xno ],[
+       save_CFLAGS="$CFLAGS"
+       CFLAGS="$CFLAGS -O -fstack-protector-all -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"
+       AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
+	   AC_MSG_NOTICE([Compiling with gcc -fstack-protector-all et al.])
+	   PCFLAGS="$PCFLAGS -fstack-protector-all -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"],[
+	   AC_MSG_NOTICE([Compiler does not support -fstack-protector-all et al.])
+	   CFLAGS="$save_CFLAGS"
+       ])
+    ])
+fi
+AC_SUBST(PCFLAGS)
+AC_SUBST(PLDFLAGS)
 
 # Check for even more security-related gcc/linker flags, useful for daemons
 AC_ARG_ENABLE([pie],
   [AS_HELP_STRING([--disable-pie], [disable position-independent-executable])])
-AS_IF([test "x$GCC" = xyes -a "x$enable_pie" != xno],[
+AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_pie" != xno],[
    PIECFLAGS='-fPIE'
    PIELDFLAGS='-pie -Wl,-z,relro -Wl,-z,now'
    save_CFLAGS="$CFLAGS"
@@ -364,7 +425,7 @@ AC_SUBST(PIECFLAGS)
 # Check for support for symbol hiding via gcc flags
 AC_ARG_ENABLE([visibility],
   [AS_HELP_STRING([--disable-visibility], [disable gcc symbol visibility])])
-AS_IF([test "x$GCC" = xyes -a "x$enable_visibility" != xno],[
+AS_IF([test "x$cc_is_gcc" = xyes -a "$enable_visibility" != no],[
    INVISIBILITY="-fvisibility=hidden"
    save_CFLAGS="$CFLAGS"
    CFLAGS="$CFLAGS -c $INVISIBILITY"
@@ -377,6 +438,10 @@ AS_IF([test "x$GCC" = xyes -a "x$enable_visibility" != xno],[
    CFLAGS="$save_CFLAGS"
 ])
 AC_SUBST(INVISIBILITY)
+
+AC_PROG_CXX
+cxx=$CXX
+AC_SUBST(cxx)
 
 # Prevent shared libaries from being built for libpcp and other core libraries
 AC_ARG_ENABLE([shared],
@@ -533,11 +598,11 @@ AC_OUTPUT(src/include/pcp/platform_defs.h)
 AC_CHECK_PROGS(GIT, git)
 AC_SUBST(GIT)
 
-dnl check if python available for the build
+dnl check if python available for the build and runtime
 AC_CHECK_PROGS(PYTHON, python)
 AC_SUBST(PYTHON)
 
-dnl check if python3 available for the build
+dnl check if python3 available for the build and runtime
 AC_CHECK_PROGS(PYTHON3, python3)
 AC_SUBST(PYTHON3)
 
@@ -612,10 +677,15 @@ AS_IF([test "x$do_python3" != "xno"], [
 AC_SUBST(enable_python3)
 
 dnl convenience macro to determine if either python is available
-have_python=false
-if test "$enable_python2" = "true" -o "$enable_python3" = "true"
+AC_MSG_CHECKING([for any python version])
+if test "$cross_compiling" = "yes"; then
+    ans=$have_python
+    echo "cross-compile -> \"$ans\"" >&5
+elif test "$enable_python2" = "true" -o "$enable_python3" = "true"
 then
     have_python=true
+else
+    have_python=false
 fi
 AC_SUBST(have_python)
 
@@ -623,8 +693,11 @@ dnl choose the prefered python executable (py2 -> py3 transtion)
 if test "$enable_python3" = "true"
 then
     pcp_python_prog=$PYTHON3
-else
+elif test "$enable_python2" = "true"
+then
     pcp_python_prog=$PYTHON
+else
+    pcp_python_prog=""
 fi
 AC_SUBST(pcp_python_prog)
 
@@ -663,11 +736,28 @@ pmda_json=false
 AS_IF([test "x$do_pmdajson" = "xyes"], [pmda_json=true])
 AS_IF([test "x$do_pmdajson" = "xcheck"], [
     dnl JSON PMDA needs both the six and jsonpointer Python modules
-    dnl Python 2.6 is also too old for this PMDA.
     $have_python_jsonpointer && $have_python_six && pmda_json=true
-    test $have_python -a "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -le 6 && pmda_json=false
 ])
 AC_SUBST(PMDA_JSON, $pmda_json)
+
+dnl check if perl available for the build and runtime
+AC_CHECK_PROGS(PERL, perl)
+AC_SUBST(PERL)
+
+AC_MSG_CHECKING([for any perl version])
+if test "$cross_compiling" = "yes"; then
+    ans=$have_perl
+    echo "cross-compile -> \"$ans\"" >&5
+elif test -n "$PERL"
+then
+    pcp_perl_prog=$PERL
+    have_perl=true
+else
+    pcp_perl_prog=""
+    have_perl=false
+fi
+AC_SUBST(pcp_perl_prog)
+AC_SUBST(have_perl)
 
 qmake=$QMAKE
 enable_qt=false
@@ -678,7 +768,7 @@ AS_IF([test "x$do_qt" != "xno"], [
     if test -z "$QMAKE"
     then
 	AC_PATH_PROGS(QMAKE, [qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
-	test "x$GCC" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
+	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
     if test -z "$QMAKE"
@@ -713,58 +803,6 @@ AS_IF([test "x$do_qt" != "xno"], [
 AC_SUBST(qt_release)
 AC_SUBST(enable_qt)
 AC_SUBST(qmake)
-
-dnl check if user wants their own C compiler
-cflags_abi=
-AC_PROG_CC(suncc gcc cc)
-if test $target_os = solaris
-then
-    AC_PATH_PROG(CCPATH,$CC,$CC)
-    cc=$CCPATH
-    if test "$GCC" = "yes"
-    then
-	CFLAGS="$CFLAGS $CFLAGS_IF_GCC"
-    else
-	CFLAGS="$CFLAGS $CFLAGS_IF_SUNCC"
-    fi
-    if test "$use_64bit" = "no"
-    then
-	:
-    else
-	AC_MSG_CHECKING([for 64 bit Solaris host])
-	case `isainfo -k`
-	in
-	    amd64|sparcv9)
-		cflags_abi=-m64
-		CFLAGS="$CFLAGS -m64"
-		LDFLAGS="$LDFLAGS -m64"
-		AC_MSG_RESULT(yes)
-		;;
-	    *)
-		AC_MSG_RESULT(no)
-		;;
-	esac
-    fi
-else
-    cc=$CC
-fi
-AC_SUBST(cc)
-cc_is_gcc=$GCC
-AC_SUBST(cc_is_gcc)
-AC_SUBST(cflags_abi)
-PCFLAGS=$CFLAGS
-AC_SUBST(PCFLAGS)
-AC_PROG_CXX
-cxx=$CXX
-AC_SUBST(cxx)
-PLDFLAGS=$LDFLAGS
-AC_SUBST(PLDFLAGS)
-
-dnl for cc use locally in configure (not exported via $PCFLAGS),
-dnl add -O in case -D_FORTIFY_SOURCE has been added to CFLAGS above,
-dnl as -D_FORTIFY_SOURCE requires -O but we've separated optimization
-dnl flags out into $CFLAGS_OPT for our build infrastructure
-CFLAGS="-O $CFLAGS"
 
 dnl check if user wants their own make program
 dnl note: all makefiles in this package use the gmake syntax
@@ -1260,12 +1298,13 @@ AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h)
 AC_CHECK_HEADERS(libgen.h sys/param.h sys/mman.h sys/un.h)
 AC_CHECK_HEADERS(values.h stdint.h ieeefp.h math.h)
 AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
-AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h)
-AC_CHECK_HEADERS(netdb.h sys/socket.h netinet/in.h netinet/tcp.h arpa/inet.h)
+AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h sys/socket.h)
+AC_CHECK_HEADERS(netdb.h net/if.h netinet/in.h netinet/tcp.h arpa/inet.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
 AC_CHECK_HEADERS(execinfo.h bits/wordsize.h)
 AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
-AC_CHECK_HEADERS(fts.h)
+AC_CHECK_HEADERS(iphlpapi.h, [], [], [#include <winsock2.h>])
+AC_CHECK_HEADERS(fts.h libzfs.h)
 
 dnl Check if we have <sys/endian.h> ... standard way
 AC_MSG_CHECKING([for sys/endian.h ])
@@ -1370,17 +1409,26 @@ AS_IF([test "x$do_papi" != "xno"], [
     saved_CFLAGS="$CFLAGS"
     savedLIBS=$LIBS
 
+    dnl potentially from the environment, else empty
+    CFLAGS="$papi_CFLAGS"
+    LDFLAGS="$papi_LIBS"
+
     case "$do_papi" in
-      yes|no|check) ;;
-	 */*) PAPI_ROOTDIR=$do_papi;
-	      CFLAGS="-I$PAPI_ROOTDIR/include"
-	      LDFLAGS="-L$PAPI_ROOTDIR/lib" ;;
-	 *)   PKG_CHECK_MODULES(papi,[$do_papi],[
-		CFLAGS="$papi_CFLAGS"
-		LDFLAGS="$papi_LIBS"]) ;;
-                # $papi_LIBS will include -lpapi harmlessly redudantly with AC_CHECK_LIB
+	yes|no|check)
+	    ;;
+	*/*)
+	    PAPI_ROOTDIR=$do_papi;
+	    CFLAGS="-I$PAPI_ROOTDIR/include"
+	    LDFLAGS="-L$PAPI_ROOTDIR/lib"
+	    ;;
+	 *)
+	    PKG_CHECK_MODULES(papi,[$do_papi],[
+		  CFLAGS="$papi_CFLAGS"
+		  LDFLAGS="$papi_LIBS"])
+	    ;;
     esac
 
+    # $papi_LIBS may include -lpapi harmlessly redudantly with AC_CHECK_LIB
     AC_CHECK_LIB([papi], [PAPI_library_init],
 		 [papi_libs="$LDFLAGS -lpapi"],
 		 [enable_papi=false])
@@ -1464,14 +1512,16 @@ enable_webapi=false
 AS_IF([test "x$do_webapi" != "xno"], [
     enable_webapi=true
 
-    if test "$do_webapi" != "check" -a "$have_libmicrohttpd" != "true"
+    if test "$have_libmicrohttpd" != "true"
     then
+	enable_webapi=false
+	test "$do_webapi" != "check" && \
 	AC_MSG_ERROR([libmicrohttpd is not installed, cannot enable the web API])
     elif test "$do_webapi" != "check" -a "x$cxx" = "x"
     then
+	enable_webapi=false
+	test "$do_webapi" != "check" && \
 	AC_MSG_ERROR([C++ compiler unavailable, cannot enable the web API])
-    else
-	enable_webapi=$have_libmicrohttpd
     fi
 ])
 AC_SUBST(enable_webapi)
@@ -1480,13 +1530,27 @@ enable_manager=false
 AS_IF([test "x$do_manager" != "xno"], [
     enable_manager=true
 
-    if test "$do_manager" != "check" -a $target_os = mingw
+    if test "$target_os" = "mingw"
     then
-	AC_MSG_ERROR([Target platform is MinGW, cannot enable daemon manager])
-    elif test "$do_manager" != "check" -a "x$cxx" = "x"
+	enable_manager=false
+	test "$do_manager" != "check" && \
+	AC_MSG_ERROR([MinGW build, cannot enable daemon manager])
+    elif test "x$cxx" = "x"
     then
+	enable_manager=false
+	test "$do_manager" != "check" && \
 	AC_MSG_ERROR([C++ compiler unavailable, cannot enable daemon manager])
     fi
+    AC_MSG_CHECKING([compilation features for daemon manager])
+    AC_TRY_COMPILE(
+	[ #ifndef _XOPEN_SOURCE
+	  #define _XOPEN_SOURCE 600
+	  #endif
+	  #include <stdio.h>
+	], [],
+	AC_MSG_RESULT(yes),
+	enable_manager=false
+	AC_MSG_RESULT(no))
 ])
 AC_SUBST(enable_manager)
 
@@ -1498,7 +1562,7 @@ AC_CHECK_FUNCS(mktime nanosleep usleep unsetenv)
 AC_CHECK_FUNCS(select socket gethostname getpeerucred getpeereid)
 AC_CHECK_FUNCS(uname syslog __clone pipe2 fcntl ioctl)
 AC_CHECK_FUNCS(prctl setlinebuf waitpid atexit kill)
-AC_CHECK_FUNCS(chown getcwd scandir mkstemp)
+AC_CHECK_FUNCS(chown fchmod getcwd scandir mkstemp)
 AC_CHECK_FUNCS(brk sbrk posix_memalign memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
@@ -1681,7 +1745,7 @@ if test "$cross_compiling" = "yes"; then
 else
     cat <<End-of-File >conftest.c
 #include <stdio.h>
-main(int argc,  char **argv) { printf("%p", argv); exit(0); }
+int main(int argc,  char **argv) { printf("%p", argv); return(0); }
 End-of-File
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
@@ -1781,10 +1845,21 @@ $2 == "bozo"	{ t = $1
 	_fmt='"ld"'
 	;;
     'long long'|'long long int')
-	_fmt='"lld"'
+        if test $target_os = mingw; then
+            _fmt='"I64d"'
+        else
+	    _fmt='"lld"'
+        fi
 	;;
     'unsigned long'|'unsigned long int'|'long unsigned int')
 	_fmt='"lu"'
+	;;
+    'unsigned long long'|'unsigned long long int')
+        if test $target_os = mingw; then
+            _fmt='"I64u"'
+        else
+	    _fmt='"llu"'
+        fi
 	;;
     *\*)	# pointer to a something
 	_fmt='"p"'
@@ -1815,6 +1890,70 @@ fmt_pid="$_fmt"
 AC_MSG_RESULT($fmt_pid)
 AC_SUBST(fmt_pid)
 rm -rf conftest.c conftest.debug
+
+dnl printf type for int64_t
+AC_MSG_CHECKING([printf type for int64_t ])
+if test "$cross_compiling" = "yes"; then
+    ans=$printf_fmt_int64
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
+#include <stdio.h>
+#include <stdint.h>
+#include <inttypes.h>
+int main()
+{
+    printf("\"%s\"\n", __PRI64_PREFIX "d");
+    return(0);
+}
+End-of-File
+    ans=''
+    (eval $ac_link) 2>&5
+    if test -x ./conftest
+    then
+	ans=`./conftest`
+	echo "./conftest -> \"$ans\"" >&5
+    fi
+    if test -z "$ans"
+    then
+	dnl have to try the hardway ...
+	cat <<End-of-File >conftest.c
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+int main()
+{
+    char buf[[17]];
+    int64_t bozo = 0x12345678abcdLL;
+    sprintf(buf, "%lx", bozo);
+    if (strcmp(buf, "12345678abcd") == 0)
+	printf("\"ld\"\n");
+    else {
+	sprintf(buf, "%llx", bozo);
+	if (strcmp(buf, "12345678abcd") == 0)
+	    printf("\"lld\"\n");
+    }
+    return(0);
+}
+End-of-File
+	(eval $ac_link) 2>&5
+	if test -x ./conftest
+	then
+	    ans=`./conftest`
+	    echo "./conftest -> \"$ans\"" >&5
+	fi
+    fi
+fi
+if test -z "$ans"
+then
+    echo 'FATAL ERROR: Cannot determine printf format for int64_t type'
+    rm -rf conftest conftest.*
+    exit 1
+fi
+fmt_int64="$ans"
+AC_MSG_RESULT("$fmt_int64")
+AC_SUBST(fmt_int64)
+rm -rf conftest.* conftest
 
 if test "$do_threads" = "check" -o "$do_threads" = "yes"
 then
@@ -2444,14 +2583,22 @@ pcp_inc_dir=`eval echo $pcp_inc_dir`
 AC_SUBST(pcp_inc_dir)
 
 dnl books - pdfs, html
-pcp_books_dir=`eval echo $datarootdir/doc/pcp-doc`
+if test $target_os = linux; then
+    pcp_books_dir=`eval echo $datarootdir/doc/pcp-doc`
+else
+    pcp_books_dir=`eval echo $datarootdir/doc/pcp`
+fi
 pcp_books_dir=`eval echo $pcp_books_dir`
 pcp_html_dir=`eval echo $pcp_books_dir/html`
 AC_SUBST(pcp_books_dir)
 AC_SUBST(pcp_html_dir)
 
 dnl icon pixmap files
-pcp_icons_dir=`eval echo $datarootdir/pcp-gui/pixmaps`
+if test $target_os = linux; then
+    pcp_icons_dir=`eval echo $datarootdir/pcp-gui/pixmaps`
+else
+    pcp_icons_dir=`eval echo $datarootdir/pcp/pixmaps`
+fi
 pcp_icons_dir=`eval echo $pcp_icons_dir`
 AC_SUBST(pcp_icons_dir)
 
@@ -2530,13 +2677,34 @@ dnl Check for FNDELAY defined in <fcntl.h>
 if test "$ac_cv_header_fcntl_h" = "yes"
 then
     AC_MSG_CHECKING([for FNDELAY in fcntl.h])
-        AC_TRY_COMPILE(
-	[
-	    #include <fcntl.h>
+    AC_TRY_COMPILE([#include <fcntl.h>],
+	[ int i = FNDELAY; ],
+	AC_DEFINE(HAVE_FNDELAY, [1], [FNDELAY macro])
+	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+fi
+
+dnl check for zpool_vdev_name API style from <libzfs.h>
+if test "$ac_cv_header_libzfs_h" = "yes"
+then
+    AC_MSG_CHECKING([for 5-argument style zpool_vdev_name])
+    AC_TRY_COMPILE([#include <libzfs.h>],
+	[ libzfs_handle_t *zh;
+	  zpool_handle_t *zp;
+	  nvlist_t *np;
+	  (void) zpool_vdev_name(zh, zp, np, B_FALSE, B_FALSE);
 	],
-	[
-	    int i = FNDELAY;
-	], AC_DEFINE(HAVE_FNDELAY, [1], [FNDELAY macro]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+	AC_DEFINE(HAVE_ZPOOL_VDEV_NAME_5ARG, [1], [5-arg zpool_vdev_name])
+	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
+
+    AC_MSG_CHECKING([for 4-argument style zpool_vdev_name])
+    AC_TRY_COMPILE([#include <libzfs.h>],
+	[ libzfs_handle_t *zh;
+	  zpool_handle_t *zp;
+	  nvlist_t *np;
+	  (void) zpool_vdev_name(zh, zp, np, B_FALSE);
+	],
+	AC_DEFINE(HAVE_ZPOOL_VDEV_NAME_4ARG, [1], [4-arg zpool_vdev_name])
+	AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 fi
 
 dnl Check for Network Security Services (NSS) and

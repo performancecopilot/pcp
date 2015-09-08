@@ -59,6 +59,15 @@ check_instances()
     done
 }
 
+_run()
+{
+    echo | tee -a $here/$seq.full
+    echo "=== $* ===" | tee -a $here/$seq.full
+    $PYCOLLECTL $* 2>&1 \
+    | tee -a $here/$seq.full \
+    | remove_extra_whitespace
+}
+
 # real QA test starts here
 mkdir $tmp.$seq
 cd $tmp.$seq
@@ -73,15 +82,16 @@ if [ $? -ne 0 ]; then
 fi
 
 args="-c 2 -i 0.1"
-$PYCOLLECTL $args -sc | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $args -sd | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $args -sn | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $args -sj | remove_extra_whitespace | remove_extra_columns | tee -a $tmp.out 2>&1
-$PYCOLLECTL $args -sm | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $args -sc --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $args -sd --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $args -sn --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $args -sm --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+
+_run $args -sc
+_run $args -sd
+_run $args -sn
+_run $args -sj | remove_extra_columns
+_run $args -sm
+_run $args -sc --verbose
+_run $args -sd --verbose
+_run $args -sn --verbose
+_run $args -sm --verbose
 
 $PYCOLLECTL $args -sN > $tmp.net 2>&1 
 check_instances network.interface.total.bytes $tmp.net
@@ -90,27 +100,26 @@ $PYCOLLECTL $args -sD > $tmp.disk 2>&1
 check_instances disk.dev.total_bytes $tmp.disk
 
 # need a generic way to test these on any system
-# $PYCOLLECTL $args -sC | remove_extra_whitespace | tee -a $tmp.out 2>&1
-# $PYCOLLECTL $args -sJ | remove_extra_whitespace | tee -a $tmp.out 2>&1
-# $PYCOLLECTL $args -sCD | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $args | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $args --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $args -scd | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $args -scd --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
+#_run $args -sC
+#_run $args -sJ
+#_run $args -sCD
+_run $args
+_run $args --verbose
+_run $args -scd
+_run $args -scd --verbose
 
 # test playback
 interval=0.1
 $PYCOLLECTL -sdDcCnNjJm -f test.pmcollectl -c10 -i $interval
 logargs="-c 2 -i $interval -p test.pmcollectl"
-$PYCOLLECTL $logargs -sd | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $logargs -sc | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $logargs -sn | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $logargs -sm | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $logargs -sd --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $logargs -sc --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $logargs -sn --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-$PYCOLLECTL $logargs -sm --verbose | remove_extra_whitespace | tee -a $tmp.out 2>&1
-cat $tmp.out >>$here/$seq.full
+_run $logargs -sd
+_run $logargs -sc
+_run $logargs -sn
+_run $logargs -sm
+_run $logargs -sd --verbose
+_run $logargs -sc --verbose
+_run $logargs -sn --verbose
+_run $logargs -sm --verbose
 
 eval `pmafm test.pmcollectl remove`
 

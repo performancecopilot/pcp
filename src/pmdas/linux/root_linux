@@ -448,6 +448,11 @@ network {
     udp
     udplite
     tcpconn
+    softnet
+    ip6
+    icmp6
+    udp6
+    udplite6
 }
 
 network.interface {
@@ -732,6 +737,109 @@ network.udplite {
 network.icmpmsg {
     intype		60:14:88
     outtype		60:14:89
+}
+
+network.softnet {
+    processed		60:57:0
+    dropped		60:57:1
+    time_squeeze	60:57:2
+    cpu_collision	60:57:3
+    received_rps	60:57:4
+    flow_limit_count	60:57:5
+}
+
+network.ip6 {
+    inreceives		60:58:0
+    inhdrerrors		60:58:1
+    intoobigerrors	60:58:2
+    innoroutes		60:58:3
+    inaddrerrors	60:58:4
+    inunknownprotos	60:58:5
+    intruncatedpkts	60:58:6
+    indiscards		60:58:7
+    indelivers		60:58:8
+    outforwdatagrams	60:58:9
+    outrequests		60:58:10
+    outdiscards		60:58:11
+    outnoroutes		60:58:12
+    reasmtimeout	60:58:13
+    reasmreqds		60:58:14
+    reasmoks		60:58:15
+    reasmfails		60:58:16
+    fragoks		60:58:17
+    fragfails		60:58:18
+    fragcreates		60:58:19
+    inmcastpkts		60:58:20
+    outmcastpkts	60:58:21
+    inoctets		60:58:22
+    outoctets		60:58:23
+    inmcastoctets	60:58:24
+    outmcastoctets	60:58:25
+    inbcastoctets	60:58:26
+    outbcastoctets	60:58:27
+    innoectpkts		60:58:28
+    inect1pkts		60:58:29
+    inect0pkts		60:58:30
+    incepkts		60:58:31
+}
+
+network.icmp6 {
+    inmsgs		60:58:32
+    inerrors		60:58:33
+    outmsgs		60:58:34
+    outerrors		60:58:35
+    incsumerrors	60:58:36
+    indestunreachs	60:58:37
+    inpkttoobigs	60:58:38
+    intimeexcds		60:58:39
+    inparmproblems	60:58:40
+    inechos		60:58:41
+    inechoreplies	60:58:42
+    ingroupmembqueries	60:58:43
+    ingroupmembresponses 60:58:44
+    ingroupmembreductions 60:58:45
+    inroutersolicits	60:58:46
+    inrouteradvertisements 60:58:47
+    inneighborsolicits	60:58:48
+    inneighboradvertisements 60:58:49
+    inredirects		60:58:50
+    inmldv2reports	60:58:51
+    outdestunreachs	60:58:52
+    outpkttoobigs	60:58:53
+    outtimeexcds	60:58:54
+    outparmproblems	60:58:55
+    outechos		60:58:56
+    outechoreplies	60:58:57
+    outgroupmembqueries	60:58:58
+    outgroupmembresponses 60:58:59
+    outgroupmembreductions 60:58:60
+    outroutersolicits	60:58:61
+    outrouteradvertisements 60:58:62
+    outneighborsolicits	60:58:63
+    outneighboradvertisements 60:58:64
+    outredirects	60:58:65
+    outmldv2reports	60:58:66
+}
+
+network.udp6 {
+    indatagrams		60:58:67
+    noports		60:58:68
+    inerrors		60:58:69
+    outdatagrams	60:58:70
+    rcvbuferrors	60:58:71
+    sndbuferrors	60:58:72
+    incsumerrors	60:58:73
+    ignoredmulti	60:58:74
+}
+
+network.udplite6 {
+    indatagrams		60:58:75
+    noports		60:58:76
+    inerrors		60:58:77
+    outdatagrams	60:58:78
+    rcvbuferrors	60:58:79
+    sndbuferrors	60:58:80
+    incsumerrors	60:58:81
 }
 
 filesys {
@@ -1023,4 +1131,3 @@ sysfs {
 sysfs.kernel {
     uevent_seqnum	60:35:0
 }
-

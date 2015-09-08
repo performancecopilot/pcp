@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific block dev metrics testing"
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
@@ -55,7 +57,7 @@ part > 0 && NF == 0 {
 root=$tmp.root
 export LINUX_STATSPATH=$root
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
-metrics="disk.all disk.dev disk.dm disk.partitions"
+metrics=`pminfo -L -K clear -K add,60,$pmda disk.all disk.dev disk.dm disk.partitions | LC_COLLATE=POSIX sort`
 
 for tgz in $here/linux/blkdev-root-*.tgz
 do

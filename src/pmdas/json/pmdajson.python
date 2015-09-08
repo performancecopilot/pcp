@@ -1,3 +1,4 @@
+#!/usr/bin/pcp python
 # -*-Python-*-
 # pylint: disable=too-many-public-methods, too-many-instance-attributes
 '''
@@ -378,7 +379,7 @@ class JsonSource(object):
             self.log("%s" % traceback.format_exc())
             return
         try:
-            self.__metadata = json.load(fobj, object_pairs_hook=OrderedDict)
+            self.__metadata = json.load(fobj)
         except ValueError:
             self.log("Couldn't parse JSON metadata from %s"
                      % self.__metadata_path)
@@ -423,8 +424,7 @@ class JsonSource(object):
                 self.log("%s" % traceback.format_exc())
                 return
             try:
-                self.__json_data = json.loads(out,
-                                              object_pairs_hook=OrderedDict)
+                self.__json_data = json.loads(out)
             except ValueError:
                 self.log("Couldn't parse JSON data from command output '%s'"
                          % self.__data_exec)
@@ -439,8 +439,7 @@ class JsonSource(object):
                 self.log("%s" % traceback.format_exc())
                 return
             try:
-                self.__json_data = json.load(fobj,
-                                             object_pairs_hook=OrderedDict)
+                self.__json_data = json.load(fobj)
             except ValueError:
                 self.log("Couldn't parse JSON data from %s"
                          % self.__data_path)
@@ -541,66 +540,101 @@ class JsonSource(object):
         for item in metrics_array:
             metric_info = Metric(metric_prefix, self.cluster, self.__pmda)
             metric_info.indom_cache = self.__indom_cache
-            error_seen = 0
-            for (key, value) in iteritems(item):
-                # 'name' (required): Sanity check it and save it.
-                if key == 'name':
-                    if not isinstance(value, text_type):
-                        self.log("Invalid metadata 'name' value")
-                        raise TypeError("Invalid metadata 'name' value")
-                    try:
-                        metric_info.name = "%s.%s" % (array_name, value)
-                    except RuntimeError:
-                        # If we get an invalid metric name, just skip
-                        # this metric
-                        self.log("Skipping metric with invalid name '%s.%s'"
-                                 % (array_name, value))
-                        continue
-                # 'type' (required): Sanity check it and save it.
-                elif key == 'type':
-                    if not isinstance(value, text_type):
-                        self.log("Invalid metadata 'type' value")
-                        raise TypeError("Invalid metadata 'type' value")
-                    if value == 'string':
-                        metric_info.type = c_api.PM_TYPE_STRING
-                        metric_info.sem = c_api.PM_SEM_INSTANT
-                    elif value == 'integer':
-                        metric_info.type = c_api.PM_TYPE_64
-                        metric_info.sem = c_api.PM_SEM_COUNTER
-                    elif value == 'double':
-                        metric_info.type = c_api.PM_TYPE_DOUBLE
-                        metric_info.sem = c_api.PM_SEM_INSTANT
-                    elif value == 'array':
-                        # We don't allow arrays to have sub-arrays.
-                        self.log("Arrays can't contain arrays")
-                        raise TypeError("Arrays can't contain arrays")
-                    else:
-                        self.log("Type attribute has unknown value '%s'"
-                                 % value)
-                        raise TypeError("Type attribute has unknown value '%s'"
-                                        % value)
-                # 'pointer' (required): Sanity check it and save it.
-                elif key == 'pointer':
-                    if not isinstance(value, text_type):
-                        self.log("Invalid metadata 'pointer' value")
-                        raise TypeError("Invalid metadata 'pointer' value")
-                    metric_info.pointer = jsonpointer.JsonPointer(value)
-                # 'description' (optional): Type check it and save it.
-                elif key == 'description':
-                    if not isinstance(value, text_type):
-                        self.log("Invalid schema 'description' value")
-                        raise TypeError("Invalid schema 'description' value")
-                    metric_info.desc = value
-                # 'units' (optional): Type check and save it.
-                elif key == 'units':
-                    if not isinstance(value, text_type):
-                        self.log("Invalid schema 'units' value")
-                        raise TypeError("Invalid schema 'units' value")
-                    metric_info.units = value
-                # For everything else, just ignore it.
-                else:
-                    self.log("Ignoring unknown attribute in metadata '%s'"
-                             % (key))
+
+            #
+            # 'name' (required): Sanity check it and save it.
+            #
+            if 'name' not in item:
+                self.log("Skipping array metric that has no name")
+                del metric_info
+                continue
+            value = item['name']
+            if not isinstance(value, text_type):
+                self.log("Invalid metadata 'name' value")
+                raise TypeError("Invalid metadata 'name' value")
+            try:
+                metric_info.name = "%s.%s" % (array_name, value)
+            except RuntimeError:
+                # If we get an invalid metric name, just skip this
+                # metric
+                self.log("Skipping metric with invalid name '%s.%s'"
+                         % (array_name, value))
+                del metric_info
+                continue
+
+            #
+            # 'type' (required): Sanity check it and save it.
+            #
+            if 'type' not in item:
+                self.log("Skipping metric '%s' that has no type"
+                         % metric_info.name)
+                del metric_info
+                continue
+            value = item['type']
+            if not isinstance(value, text_type):
+                self.log("Invalid metadata 'type' value for metric '%s'"
+                         % metric_info.name)
+                del metric_info
+                continue
+            if value == 'string':
+                metric_info.type = c_api.PM_TYPE_STRING
+            elif value == 'integer':
+                metric_info.type = c_api.PM_TYPE_64
+            elif value == 'double':
+                metric_info.type = c_api.PM_TYPE_DOUBLE
+            elif value == 'array':
+                # We don't allow arrays to have sub-arrays.
+                self.log("Arrays can't contain arrays")
+                raise TypeError("Arrays can't contain arrays")
+            else:
+                self.log("Type attribute has unknown value '%s'"
+                         % value)
+                raise TypeError("Type attribute has unknown value '%s'"
+                                % value)
+
+            #
+            # 'pointer' (required): Sanity check it and save it.
+            #
+            if 'pointer' not in item:
+                self.log("Skipping metric '%s' that has no pointer"
+                         % metric_info.name)
+                del metric_info
+                continue
+            value = item['pointer']
+            if not isinstance(value, text_type):
+                self.log("Invalid metadata 'pointer' value for metric '%s'"
+                         % metric_info.name)
+                del metric_info
+                continue
+            metric_info.pointer = jsonpointer.JsonPointer(value)
+
+            #
+            # 'description' (optional): Type check it and save it.
+            #
+            if 'description' in item:
+                value = item['description']
+                if not isinstance(value, text_type):
+                    self.log("Invalid schema 'description' value for"
+                             " metric '%s'" % metric_info.name)
+                    del metric_info
+                    continue
+                metric_info.desc = value
+
+            #
+            # 'units' (optional): Type check and save it.
+            #
+            if 'units' in item:
+                value = item['units']
+                if not isinstance(value, text_type):
+                    self.log("Invalid schema 'units' value for metric '%s'"
+                             % metric_info.name)
+                    del metric_info
+                    continue
+                metric_info.units = value
+
+            #
+            # Silently ignore unknown key values.
+            #
 
             # Try looking up the metric name in the metric cache. If
             # it is there, reuse the metric index.
@@ -619,14 +653,12 @@ class JsonSource(object):
                              % metric_prefix)
                     break
 
-            # Make sure we have everything we need. If not (or we've
-            # seen an error), just skip this metric.
-            if error_seen or not metric_info.valid() \
-               or metric_info.pointer == None:
-                if error_seen == 0:
-                    self.log("Metadata doesn't have required"
-                             " information for the following entry: %s"
-                             % metric_info.name)
+            # Make sure we have everything we need. If not, just skip
+            # this metric.
+            if not metric_info.valid() or metric_info.pointer == None:
+                self.log("Metadata doesn't have required"
+                         " information for the following entry: %s"
+                         % metric_info.name)
                 del metric_info
                 continue
 
@@ -708,104 +740,148 @@ class JsonSource(object):
         metric_prefix = "%s.%s" % (self.__pmda.pmda_name, self.__root_name)
         for item in metrics_array:
             metric_info = Metric(metric_prefix, self.__cluster, self.__pmda)
-            error_seen = 0
-            for (key, value) in iteritems(item):
-                # 'name' (required): Sanity check it and save it.
-                if key == 'name':
-                    if not isinstance(value, text_type):
-                        self.log("Skipping metric with invalid"
-                                 " metadata 'name' value")
-                        error_seen = 1
-                        break
-                    try:
-                        metric_info.name = value
-                    except RuntimeError:
-                        # If we get an invalid metric name, just skip
-                        # this metric
-                        self.log("Skipping metric with invalid name '%s'"
-                                 % value)
-                        error_seen = 1
-                        continue
-                # 'type' (required): Sanity check it and save it.
-                elif key == 'type':
-                    if not isinstance(value, text_type):
-                        self.log("Invalid metadata 'type' value")
-                        error_seen = 1
-                        break
-                    if value == 'string':
-                        metric_info.type = c_api.PM_TYPE_STRING
-                        metric_info.sem = c_api.PM_SEM_INSTANT
-                    elif value == 'integer':
-                        metric_info.type = c_api.PM_TYPE_64
-                        metric_info.sem = c_api.PM_SEM_COUNTER
-                    elif value == 'double':
-                        metric_info.type = c_api.PM_TYPE_DOUBLE
-                        metric_info.sem = c_api.PM_SEM_INSTANT
-                    elif value == 'array':
-                        # For arrays, we have to create metrics for
-                        # each subitem in the array, using the same
-                        # indom. This happens in the 'metrics' handling
-                        # below.
-                        metric_info.type = c_api.PM_TYPE_NOSUPPORT
-                    # If we get an invalid type value, just skip this
-                    # metric.
-                    else:
-                        self.log("Type attribute has unknown value '%s'"
-                                 % value)
-                        error_seen = 1
-                        break
-                # 'pointer' (required): Sanity check it and save it.
-                elif key == 'pointer':
-                    if not isinstance(value, text_type):
-                        self.log("Invalid metadata 'pointer' value")
-                        error_seen = 1
-                        break
-                    metric_info.pointer = jsonpointer.JsonPointer(value)
-                # 'description' (optional): Type check it and save it.
-                elif key == 'description':
-                    if not isinstance(value, text_type):
-                        self.log("Invalid schema 'description' value")
-                        error_seen = 1
-                        break
-                    metric_info.desc = value
-                # 'index' (required for arrays): Type check and save it.
-                elif key == 'index':
-                    if not isinstance(value, text_type):
-                        self.log("Invalid schema 'index' value")
-                        error_seen = 1
-                        break
-                    if metric_info.type != c_api.PM_TYPE_NOSUPPORT:
-                        self.log("Metadata has an 'index' item"
-                                 " for non-array '%s'" % metric_info.name)
-                        error_seen = 1
-                        break
-                    # If we're here, we're processing an array's
-                    # metadata
-                    metric_info.index_pointer = jsonpointer.JsonPointer(value)
-                # 'metrics' (required for arrays): Process it.
-                elif key == 'metrics':
-                    if metric_info.type != c_api.PM_TYPE_NOSUPPORT:
-                        self.log("Metadata has an 'metrics' item"
-                                 " for non-array '%s'" % metric_info.name)
-                        error_seen = 1
-                        break
 
-                    # If we're here, we're processing an array's
-                    # metadata. For arrays, we have to create metrics
-                    # for each subitem in the array, using the same
-                    # indom.
-                    self.__parse_array_metadata(metric_info.name, value)
-                # 'units' (optional): Type check and save it.
-                elif key == 'units':
-                    if not isinstance(value, text_type):
-                        self.log("Invalid schema 'units' value")
-                        error_seen = 1
-                        break
-                    metric_info.units = value
-                # For everything else, just ignore it.
-                else:
-                    self.log("Ignoring unknown attribute in metadata '%s'"
-                             % (key))
+            #
+            # 'name' (required): Sanity check it and save it.
+            #
+            if 'name' not in item:
+                self.log("Skipping metric that has no name")
+                del metric_info
+                continue
+            value = item['name']
+            if not isinstance(value, text_type):
+                self.log("Skipping metric with invalid metadata "
+                         "'name' value")
+                del metric_info
+                continue
+            try:
+                metric_info.name = value
+            except RuntimeError:
+                # If we get an invalid metric name, just skip this metric
+                self.log("Skipping metric with invalid name '%s'" % value)
+                del metric_info
+                continue
+
+            #
+            # 'type' (required): Sanity check it and save it.
+            #
+            if 'type' not in item:
+                self.log("Skipping metric '%s' that has no type"
+                         % metric_info.name)
+                del metric_info
+                continue
+            value = item['type']
+            if not isinstance(value, text_type):
+                self.log("Invalid metadata 'type' value for metric '%s'"
+                         % metric_info.name)
+                del metric_info
+                continue
+            if value == 'string':
+                metric_info.type = c_api.PM_TYPE_STRING
+            elif value == 'integer':
+                metric_info.type = c_api.PM_TYPE_64
+            elif value == 'double':
+                metric_info.type = c_api.PM_TYPE_DOUBLE
+            elif value == 'array':
+                # For arrays, we have to create metrics for
+                # each subitem in the array, using the same
+                # indom. This happens in the 'metrics' handling
+                # below.
+                metric_info.type = c_api.PM_TYPE_NOSUPPORT
+            # If we get an invalid type value, just skip this
+            # metric.
+            else:
+                self.log("Type attribute for metric '%s' has unknown value '%s'"
+                         % (metric_info.name, value))
+                del metric_info
+                continue
+
+            #
+            # 'pointer' (required): Sanity check it and save it.
+            #
+            if 'pointer' not in item:
+                self.log("Skipping metric '%s' that has no pointer"
+                         % metric_info.name)
+                del metric_info
+                continue
+            value = item['pointer']
+            if not isinstance(value, text_type):
+                self.log("Invalid metadata 'pointer' value for metric '%s'"
+                         % metric_info.name)
+                del metric_info
+                continue
+            metric_info.pointer = jsonpointer.JsonPointer(value)
+
+            #
+            # 'description' (optional): Type check it and save it.
+            #
+            if 'description' in item:
+                value = item['description']
+                if not isinstance(value, text_type):
+                    self.log("Invalid schema 'description' value for"
+                             " metric '%s'" % metric_info.name)
+                    del metric_info
+                    continue
+                metric_info.desc = value
+
+            #
+            # 'index' (required for arrays): Type check and save it.
+            #
+            if 'index' in item:
+                value = item['index']
+                if not isinstance(value, text_type):
+                    self.log("Invalid schema 'index' value for metric '%s'"
+                             % metric_info.name)
+                    del metric_info
+                    continue
+                if metric_info.type != c_api.PM_TYPE_NOSUPPORT:
+                    self.log("Metadata has an 'index' item"
+                             " for non-array '%s'" % metric_info.name)
+                    del metric_info
+                    continue
+                # If we're here, we're processing an array's metadata
+                metric_info.index_pointer = jsonpointer.JsonPointer(value)
+            elif metric_info.type == c_api.PM_TYPE_NOSUPPORT:
+                self.log("Metadata doesn't have a required 'index' item"
+                         " for array '%s'" % metric_info.name)
+                del metric_info
+                continue
+
+            #
+            # 'metrics' (required for arrays): Process it.
+            #
+            if 'metrics' in item:
+                value = item['metrics']
+                if metric_info.type != c_api.PM_TYPE_NOSUPPORT:
+                    self.log("Metadata has an 'metrics' item"
+                             " for non-array '%s'" % metric_info.name)
+                    del metric_info
+                    continue
+                # If we're here, we're processing an array's
+                # metadata. For arrays, we have to create metrics for
+                # each subitem in the array, using the same indom.
+                self.__parse_array_metadata(metric_info.name, value)
+            elif metric_info.type == c_api.PM_TYPE_NOSUPPORT:
+                self.log("Metadata doesn't have a required 'metrics' item"
+                         " for array '%s'" % metric_info.name)
+                del metric_info
+                continue
+
+            #
+            # 'units' (optional): Type check and save it.
+            #
+            if 'units' in item:
+                value = item['units']
+                if not isinstance(value, text_type):
+                    self.log("Invalid schema 'units' value for metric '%s'"
+                             % metric_info.name)
+                    del metric_info
+                    continue
+                metric_info.units = value
+
+            #
+            # Silently ignore unknown key values.
+            #
 
             # Try looking up the metric name in the metric cache. If
             # it is there, reuse the metric index.
@@ -824,13 +900,12 @@ class JsonSource(object):
                              % metric_prefix)
                     break
 
-            # Make sure we have everything we need. If not (or we've
-            # seen an error), just skip this metric.
-            if error_seen or not metric_info.valid() \
-               or metric_info.pointer == None:
+            # Make sure we have everything we need. If not, just skip
+            # this metric.
+            if not metric_info.valid() or metric_info.pointer == None:
                 self.log("Metadata doesn't have required"
                          " information for the following entry: %s"
-                         % item)
+                         % metric_info.name)
                 del metric_info
                 continue
 
@@ -1003,7 +1078,6 @@ class JsonPMDA(PMDA):
         metric_info = Metric(self.pmda_name, 0, self)
         metric_info.name = 'nsources'
         metric_info.type = c_api.PM_TYPE_64
-        metric_info.sem = c_api.PM_SEM_COUNTER
         metric_info.desc = 'Number of JSON sources'
         metric_info.idx = 0
         metric_info.create()
@@ -1015,7 +1089,6 @@ class JsonPMDA(PMDA):
         metric_info = Metric(self.pmda_name, 0, self)
         metric_info.name = 'debug'
         metric_info.type = c_api.PM_TYPE_64
-        metric_info.sem = c_api.PM_SEM_INSTANT
         metric_info.desc = 'Debug logging state'
         metric_info.idx = 1
         metric_info.create()

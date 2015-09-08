@@ -34,7 +34,7 @@ pmcpp: Error: Cannot open file for #include
 Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
 pminfo: Cannot load namespace from "TMP.root": Problems parsing PMNS definitions
 pmcpp: TMP.4[2]: #include "TMP.5"
-pmcpp: Error: #include nesting too deep
+pmcpp: Error: #include and/or #shell nesting too deep
 load(name=TMP.root, dupok=1, use_cpp=1) lic case=0 fname=TMP.root
 loadascii(dupok=1, use_cpp=1) fname=TMP.root
 pmLoadNameSpace: zero -> 1.0.0
@@ -50,7 +50,7 @@ pmcpp: TMP.root[2]: #define
 pmcpp: Error: Missing macro name
 Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
 pminfo: Cannot load namespace from "TMP.root": Problems parsing PMNS definitions
-pmcpp: TMP.root[3]: #define
+pmcpp: TMP.root[3]: #define 
 pmcpp: Error: Missing macro name
 Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
 pminfo: Cannot load namespace from "TMP.root": Problems parsing PMNS definitions
@@ -61,7 +61,7 @@ Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
 pminfo: Cannot load namespace from "TMP.root": Problems parsing PMNS definitions
 
 other #cpp line errors ...
-pmcpp: TMP.root[2]: #fumble
-pmcpp: Error: Unrecognized control line
-Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
+[TMP.root:1] Error Parsing ASCII PMNS: Illegal line number control number
+    #fumble
+         ^
 pminfo: Cannot load namespace from "TMP.root": Problems parsing PMNS definitions

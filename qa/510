@@ -23,7 +23,7 @@ _cleanup()
 {
     if $needclean
     then
-	_restore_config $PCP_PMLOGGERCONTROL_PATH
+	_restore_config $control
 	needclean=false
 	_restore_primary_logger
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
@@ -39,11 +39,15 @@ _filter()
 	-e 's/Version [0-9].*/Version VERSION/'
 }
 
+control=$PCP_PMLOGGERCONTROL_PATH
+[ -f $PCP_PMLOGGERCONTROL_PATH.d/local ] && \
+control=$PCP_PMLOGGERCONTROL_PATH.d/local
+
 # stop primary logger, add -Dall to config file and restart pmlogger
 $sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
-sed -e '/^LOCALHOSTNAME/s/$/ -Dall/' <$PCP_PMLOGGERCONTROL_PATH >$tmp.control
-_save_config $PCP_PMLOGGERCONTROL_PATH
-$sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
+sed -e '/^LOCALHOSTNAME/s/$/ -Dall/' < $control >$tmp.control
+_save_config $control
+$sudo cp $tmp.control $control
 _writable_primary_logger
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd

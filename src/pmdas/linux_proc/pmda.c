@@ -825,7 +825,22 @@ static pmdaMetric metrictab[] = {
 /* cgroup.cpusched.shares */
   { NULL,
     { PMDA_PMID(CLUSTER_CPUSCHED_GROUPS, CG_CPUSCHED_SHARES), PM_TYPE_U64,
-    CGROUP_CPUSCHED_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) } },
+    CGROUP_CPUSCHED_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/* cgroup.cpusched.periods */
+  { NULL,
+    { PMDA_PMID(CLUSTER_CPUSCHED_GROUPS, CG_CPUSCHED_PERIODS), PM_TYPE_U64,
+    CGROUP_CPUSCHED_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/* cgroup.cpusched.throttled */
+  { NULL,
+    { PMDA_PMID(CLUSTER_CPUSCHED_GROUPS, CG_CPUSCHED_THROTTLED), PM_TYPE_U64,
+    CGROUP_CPUSCHED_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/* cgroup.cpusched.throttled_time */
+  { NULL,
+    { PMDA_PMID(CLUSTER_CPUSCHED_GROUPS, CG_CPUSCHED_THROTTLED_TIME), PM_TYPE_U64,
+    CGROUP_CPUSCHED_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) } },
 
 /* cgroup.memory.stat.cache */
   { NULL,
@@ -1481,7 +1496,7 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
 	    refresh_cgroups("cpuacct", cgroup, cgrouplen,
 			    setup_cpuacct, refresh_cpuacct);
 	if (need_refresh[CLUSTER_CPUSCHED_GROUPS])
-	    refresh_cgroups("cpusched", cgroup, cgrouplen,
+	    refresh_cgroups("cpu", cgroup, cgrouplen,
 			    setup_cpusched, refresh_cpusched);
 	if (need_refresh[CLUSTER_MEMORY_GROUPS])
 	    refresh_cgroups("memory", cgroup, cgrouplen,
@@ -2396,6 +2411,15 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	switch (idp->item) {
 	case CG_CPUSCHED_SHARES: /* cgroup.cpusched.shares */
 	    atom->ull = cpusched->shares;
+	    break;
+	case CG_CPUSCHED_PERIODS: /* cgroup.cpusched.periods */
+	    atom->ull = cpusched->stat.nr_periods;
+	    break;
+	case CG_CPUSCHED_THROTTLED: /* cgroup.cpusched.throttled */
+	    atom->ull = cpusched->stat.nr_throttled;
+	    break;
+	case CG_CPUSCHED_THROTTLED_TIME: /* cgroup.cpusched.throttled_time */
+	    atom->ull = cpusched->stat.throttled_time;
 	    break;
 	default:
 	    return PM_ERR_PMID;

@@ -7,11 +7,7 @@
 
 seq=`basename $0`
 echo "QA output created by $seq"
-
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
 
 host=localhost
 timeout=2
@@ -24,7 +20,7 @@ cd secure
 for crash_test in crash-*
 do
     echo "$crash_test checking: " | tee -a $here/$seq.full
-    python $crash_test $host
+    $python $crash_test $host
     pmcd_wait -t $timeout -h $host
     sts=$?
     echo "$crash_test complete sts=$sts" | tee -a $here/$seq.full

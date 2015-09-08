@@ -31,14 +31,14 @@ HFILES		= freebsd.h
 LSRCFILES	= help root_freebsd
 LDIRT		= help.dir help.pag help.sed help.tmp domain.h $(IAM).log
 
-LLDLIBS = $(PCP_PMDALIB) -ldevstat
+LLDLIBS = $(PCP_PMDALIB) -ldevstat -lkvm
 
 default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "freebsd"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET) help.dir help.pag
+build-me: $(LIBTARGET) $(CMDTARGET) help.dir help.pag
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -58,7 +58,7 @@ endif
 help.dir help.pag : domain.h help
 	$(SED) <domain.h >help.sed -n -e '/#define/s/#define[ 	]*\([A-Z][A-Z]*\)[ 	]*\([0-9][0-9]*\)/s@\1@\2@/p'
 	$(SED) -f help.sed <help >help.tmp
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_freebsd -v 2 -o help <help.tmp
+	$(NEWHELP) -n root_freebsd -v 2 -o help <help.tmp
 	rm -f help.tmp help.tmp
 
 default_pcp : default

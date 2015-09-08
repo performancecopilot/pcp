@@ -309,7 +309,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
 
 
   if Vagrant.has_plugin?("vagrant-cachier")
-    config.cache.scope = :box
+    global_config.cache.scope = :box
   end
 
   # Global shared folder for pcp source.  Copy it so we have our own to muck around in

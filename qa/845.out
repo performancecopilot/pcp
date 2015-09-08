@@ -17,6 +17,15 @@ Starting pmcd ...
 Starting pmlogger ... 
 Check mounts metrics have appeared ... X metrics and Y values
 === verify mounts values ===
+capacity is in range
+used is in range
+free is in range
+maxfiles is in range
+usedfiles is in range
+freefiles is in range
+full is in range
+blocksize is in range
+avail is in range
 
 mounts.device
     inst [0 or "/"] value VALUE
@@ -31,8 +40,41 @@ mounts.options
     inst [3 or "/not-here"] value VALUE
 
 mounts.up
-    inst [0 or "/"] value 1
-    inst [3 or "/not-here"] value 0
+    inst [0 or "/"] value NUMBER
+    inst [3 or "/not-here"] value NUMBER
+
+mounts.capacity
+    inst [0 or "/"] value NUMBER
+
+mounts.used
+    inst [0 or "/"] value NUMBER
+
+mounts.free
+    inst [0 or "/"] value NUMBER
+
+mounts.maxfiles
+    inst [0 or "/"] value NUMBER
+
+mounts.usedfiles
+    inst [0 or "/"] value NUMBER
+
+mounts.freefiles
+    inst [0 or "/"] value NUMBER
+
+mounts.full
+    inst [0 or "/"] value NUMBER
+
+mounts.blocksize
+    inst [0 or "/"] value NUMBER
+
+mounts.avail
+    inst [0 or "/"] value NUMBER
+
+mounts.availfiles
+    inst [0 or "/"] value NUMBER
+
+mounts.readonly
+    inst [0 or "/"] value NUMBER
 
 === remove mounts agent ===
 Culling the Performance Metrics Name Space ...

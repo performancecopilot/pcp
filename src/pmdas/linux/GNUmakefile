@@ -34,7 +34,8 @@ CFILES		= pmda.c \
 		  proc_scsi.c proc_cpuinfo.c proc_net_tcp.c proc_uptime.c \
 		  proc_slabinfo.c proc_sys_fs.c proc_vmstat.c \
 		  sysfs_kernel.c linux_table.c numa_meminfo.c \
-		  proc_net_netstat.c namespaces.c
+		  proc_net_netstat.c namespaces.c proc_net_softnet.c \
+		  proc_net_snmp6.c
 
 HFILES		= clusters.h indom.h convert.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
@@ -44,7 +45,8 @@ HFILES		= clusters.h indom.h convert.h \
 		  proc_scsi.h proc_cpuinfo.h proc_net_tcp.h proc_uptime.h \
 		  proc_slabinfo.h proc_sys_fs.h proc_vmstat.h \
 		  sysfs_kernel.h linux_table.h numa_meminfo.h \
-		  proc_net_netstat.h namespaces.h
+		  proc_net_netstat.h namespaces.h proc_net_softnet.h \
+		  proc_net_snmp6.h
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
@@ -63,7 +65,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: domain.h $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LSRCFILES)
+build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LSRCFILES)
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -87,10 +89,12 @@ default_pcp : default
 install_pcp : install
 
 $(HELPTARGETS) : help
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_linux -v 2 -o help < help
+	$(NEWHELP) -n root_linux -v 2 -o help < help
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
+
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
@@ -100,7 +104,6 @@ linux_kernel_ulong.conf:	mk.rewrite
 
 interrupts.o pmda.o proc_partitions.o:	clusters.h
 pmda.o proc_partitions.o:	convert.h
-pmda.o:	domain.h
 filesys.o interrupts.o pmda.o:	filesys.h
 pmda.o:	getinfo.h
 pmda.o ipc.o:	ipc.h

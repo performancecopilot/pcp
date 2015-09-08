@@ -84,6 +84,11 @@ _count_pmies()
 	    echo "urk, $PCP_TMP_DIR/pmie/$process has no running pmie instance"
 	else
 	    count=`expr $count + 1`
+	    ps -f -p $process >>$here/$seq.full
+	    if `which pstree >/dev/null 2>&1`
+	    then
+		pstree $process >>$here/$seq.full
+	    fi
 	fi
     done
 
@@ -119,6 +124,7 @@ needclean=true
 $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH 
 
 $sudo $signal -a -s TERM pmie >/dev/null 2>&1
+sleep 1
 _change_config pmcd on
 _change_config pmie off
 $sudo rm -f $PCP_TMP_DIR/pmie/*
@@ -144,7 +150,8 @@ echo "pmie count after attempt without control file: $?"
 echo
 
 echo === check pmie_check and custom config ===
-pmie_check -V -V -N -c $tmp.control 2>&1 | _filter
+pmie_check -V -V -N -c $tmp.control -l $tmp.log
+cat $tmp.log | _filter
 # don't bother counting pmie processes, as -N is used above!
 #
 echo

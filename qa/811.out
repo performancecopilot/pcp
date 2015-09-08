@@ -1,0 +1,44 @@
+QA output created by 811
+=== _cpu defined, config from -c ===
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+kernel.all.cpu.sys
+kernel.all.cpu.user
+pmcd.pmlogger.archive
+pmcd.pmlogger.host
+pmcd.pmlogger.port
+
+=== _cpu defined, config from stdin ===
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+kernel.all.cpu.sys
+kernel.all.cpu.user
+pmcd.pmlogger.archive
+pmcd.pmlogger.host
+pmcd.pmlogger.port
+
+=== _cpu not defined, config from stdin ===
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: Sample limit reached, exiting
+
+Log finished DATE
+hinv.ncpu
+pmcd.pmlogger.archive
+pmcd.pmlogger.host
+pmcd.pmlogger.port

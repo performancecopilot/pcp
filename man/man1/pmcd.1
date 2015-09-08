@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2012-2013 Red Hat.
+.\" Copyright (c) 2012-2015 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -1034,7 +1034,7 @@ manually.
 To do this one must become superuser and type
 .PP
 .CS
-# $PCP_RC_DIR/pcp start
+# $PCP_RC_DIR/pmcd start
 .CE
 .PP
 to start
@@ -1042,7 +1042,7 @@ to start
 or
 .PP
 .CS
-# $PCP_RC_DIR/pcp stop
+# $PCP_RC_DIR/pmcd stop
 .CE
 .PP
 to stop
@@ -1131,11 +1131,15 @@ default configuration file
 command line options to
 .B pmcd
 when launched from
-.B $PCP_RC_DIR/pcp
+.B $PCP_RC_DIR/pmcd
 All the command line option lines should start with a hyphen as
 the first character.
-This file can also contain environment variable settings of
-the form "VARIABLE=value".
+.TP
+.B $PCP_SYSCONFIG_DIR/pmcd
+additional environment variables that will be set when
+.B pmcd
+executes.
+Only settings of the form "PMCD_VARIABLE=value" will be honoured.
 .TP
 .B \&./pmcd.log
 (or
@@ -1175,6 +1179,23 @@ and the
 .B PMCD_SOCKET
 variable is also recognised
 as the path to be used for the Unix domain socket.
+.PP
+If set to the value 1, the
+.B PMCD_LOCAL
+environment variable will cause
+.B pmcd
+to run in a localhost-only mode of operation, where it binds only
+to the loopback interface.
+The
+.I pmcd.feature.local
+metric can be queried to determine if
+.B pmcd
+is running in this mode.
+.PP
+The
+.B PMCD_MAXPENDING
+variable can be set to indicate the maximum length to which the queue
+of pending client connections may grow.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

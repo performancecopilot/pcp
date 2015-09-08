@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2008-2011 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -148,14 +148,14 @@ int
 local_sock(char *host, int port, scalar_t *callback, int cookie)
 {
     __pmSockAddr *myaddr;
-    __pmHostEnt  *servinfo = NULL;
+    __pmHostEnt  *servinfo;
     void	 *enumIx;
     int		 sts = -1;
-    int me, fd = -1;
+    int		 me, fd = -1;
 
     if ((servinfo = __pmGetAddrInfo(host)) == NULL) {
 	__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo (%s): %s", host, netstrerror());
-	goto error;
+	exit(1);
     }
     /* Loop over the addresses resolved for this host name until one of them
        connects. */
@@ -193,7 +193,7 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
 
     if (sts < 0) {
         __pmNotifyErr(LOG_ERR, "__pmConnect (%s): %s", host, netstrerror());
-	goto error;
+	exit(1);
     }
 
     me = local_file(FILE_SOCK, fd, callback, cookie);
@@ -201,13 +201,6 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
     files[me].me.sock.port = port;
 
     return me;
-
- error:
-    if (fd >= 0)
-        __pmCloseSocket(fd);
-    if (servinfo)
-        __pmHostEntFree(servinfo);
-    exit(1);
 }
 
 static char *

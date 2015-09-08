@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 #
 
 TOPDIR = ../../..
@@ -19,6 +19,8 @@ LLDFLAGS = $(PCP_LIBS)
 LLDLIBS = $(PCP_PMDALIB)
 
 default default_pcp setup: $(TARGETS)
+
+$(OBJECTS): domain.h
 
 install install_pcp: default
 	$(INSTALL) -m 755 -d $(TESTDIR)

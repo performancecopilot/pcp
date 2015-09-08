@@ -1,18 +1,18 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  *
  * Server side security features - via Network Security Services (NSS) and
  * the Simple Authentication and Security Layer (SASL).
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but
+ * 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
 
 #include "pmapi.h"
@@ -633,7 +633,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 	sts = PM_ERR_IPC;
     }
 
-    if (pinned)
+    if (pinned > 0)
 	__pmUnpinPDUBuf(pb);
     if (sts < 0)
 	return sts;
@@ -675,7 +675,7 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 	    sts = PM_ERR_IPC;
 	}
 
-	if (pinned)
+	if (pinned > 0)
 	    __pmUnpinPDUBuf(pb);
 	if (sts < 0)
 	    break;

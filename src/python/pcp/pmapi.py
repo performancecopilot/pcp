@@ -89,16 +89,17 @@ from ctypes.util import find_library
 #
 # dynamic library loads
 #
+import sys
 
 LIBPCP = CDLL(find_library("pcp"))
-LIBC = CDLL(find_library("c"))
+libc_name = "c" if sys.platform != "win32" else "msvcrt"
+LIBC = CDLL(find_library(libc_name))
 
 
 ##############################################################################
 #
 # python version information and compatibility
 #
-import sys
 
 if sys.version >= '3':
     integer_types = (int,)
@@ -731,12 +732,17 @@ class pmOptions(object):
         return self._mode
     def _R_delta(self):
         return self._delta
+    def _R_need_reset(self):
+        return self._need_reset
+    def _W_need_reset(self, value):
+        self._need_reset = value
 
     ##
     # property definitions
 
     mode = property(_R_mode, None, None, None)
     delta = property(_R_delta, None, None, None)
+    need_reset = property(_R_need_reset, _W_need_reset, None, None)
 
     ##
     # creation and destruction
@@ -753,9 +759,10 @@ class pmOptions(object):
             c_api.pmSetOptionFlags(c_api.PM_OPTFLAG_BOUNDARIES)
         self._delta = 1			# default archive pmSetMode delta
         self._mode = c_api.PM_MODE_INTERP # default pmSetMode access mode
+        self._need_reset = False	# flag for __del__ memory reclaim
 
     def __del__(self):
-        if c_api:
+        if LIBPCP and self._need_reset != False:
             c_api.pmResetAllOptions()
 
     ##
@@ -1065,6 +1072,7 @@ class pmContext(object):
             contexts based on the given command line parameters.
         """
         if (typed <= 0):
+            options.need_reset = True
             if c_api.pmGetOptionsFromList(argv):
                 raise pmUsageErr
             typed = options.pmGetOptionContext()

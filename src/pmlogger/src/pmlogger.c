@@ -19,7 +19,7 @@
 #include "logger.h"
 #include <errno.h>
 
-char		*configfile;
+char		*configfile;		/* current config filename, must be *alloc()d */
 __pmLogCtl	logctl;
 int		exit_samples = -1;       /* number of samples 'til exit */
 __int64_t	exit_bytes = -1;         /* number of bytes 'til exit */
@@ -43,6 +43,7 @@ int		host_context = PM_CONTEXT_HOST;	 /* pmcd / local context mode */
 int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
 int		linger = 0;		/* linger with no tasks/events */
 int		rflag;			/* report sizes */
+int		Cflag;			/* parse config and exit */
 struct timeval	epoch;
 struct timeval	delta = { 60, 0 };	/* default logging interval */
 int		exit_code;		/* code to pass to exit (zero/signum) */
@@ -59,6 +60,7 @@ static time_t	rsc_start;
 static char	*rsc_prog = "<unknown>";
 static char	*folio_name = "<unknown>";
 static char	*dialog_title = "PCP Archive Recording Session";
+static int	sep;
 
 void
 run_done(int sts, char *msg)
@@ -460,6 +462,7 @@ failed:
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     { "config", 1, 'c', "FILE", "file to load configuration from" },
+    { "check", 0, 'C', 0, "parse configuration and exit" },
     PMOPT_DEBUG,
     PMOPT_HOST,
     { "log", 1, 'l', "FILE", "redirect diagnostics and trace output" },
@@ -485,17 +488,57 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:D:h:l:K:Lm:n:op:Prs:T:t:uU:v:V:x:y?",
+    .short_options = "c:CD:h:l:K:Lm:n:op:Prs:T:t:uU:v:V:x:y?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
+
+static FILE *
+do_pmcpp(char *configfile)
+{
+    FILE	*f;
+    char	cmd[3*MAXPATHLEN+80];
+    char	*bin_dir = pmGetConfig("PCP_BINADM_DIR");
+    char	*lib_dir = pmGetConfig("PCP_VAR_DIR");
+
+    if (configfile != NULL) {
+	if ((f = fopen(configfile, "r")) == NULL) {
+	    fprintf(stderr, "%s: Cannot open config file \"%s\": %s\n",
+		pmProgname, configfile, osstrerror());
+	    exit(1);
+	}
+	fclose(f);
+    }
+
+    if (bin_dir == NULL) {
+	fprintf(stderr, "%s: pmGetConfig: cannot get $PCP_BINADM_DIR value\n",
+		pmProgname);
+	exit(1);
+    }
+    if (lib_dir == NULL) {
+	fprintf(stderr, "%s: pmGetConfig: cannot get $PCP_VAR_DIR value\n",
+		pmProgname);
+	exit(1);
+    }
+
+    snprintf(cmd, sizeof(cmd), "%s%cpmcpp -rs %s -I %s%cconfig%cpmlogger",
+	bin_dir, sep, configfile == NULL ? "" : configfile, lib_dir, sep, sep);
+    fprintf(stderr, "preprocessor cmd: %s\n", cmd);
+
+    if ((f = popen(cmd, "r")) == NULL) {
+	fprintf(stderr, "%s: popen(\"%s\", \"r\") failed: %s\n",
+		pmProgname, cmd, osstrerror());
+	exit(1);
+    }
+
+    return f;
+}
 
 int
 main(int argc, char **argv)
 {
     int			c;
     int			sts;
-    int			sep = __pmPathSeparator();
     int			use_localtime = 0;
     int			isdaemon = 0;
     char		*pmnsfile = PM_NS_DEFAULT;
@@ -515,6 +558,7 @@ main(int argc, char **argv)
     pid_t               target_pid = 0;
 
     __pmGetUsername(&username);
+    sep = __pmPathSeparator();
 
     /*
      * Warning:
@@ -527,7 +571,7 @@ main(int argc, char **argv)
 
 	case 'c':		/* config file */
 	    if (access(opts.optarg, F_OK) == 0)
-		configfile = opts.optarg;
+		configfile = strdup(opts.optarg);
 	    else {
 		/* does not exist as given, try the standard place */
 		char *sysconf = pmGetConfig("PCP_VAR_DIR");
@@ -540,9 +584,13 @@ main(int argc, char **argv)
 		if (access(configfile, F_OK) != 0) {
 		    /* still no good, error handling happens below */
 		    free(configfile);
-		    configfile = opts.optarg;
+		    configfile = strdup(opts.optarg);
 		}
 	    }
+	    break;
+
+	case 'C':		/* parse config and exit */
+	    Cflag = 1;
 	    break;
 
 	case 'D':	/* debug flag */
@@ -737,10 +785,12 @@ main(int argc, char **argv)
     if (isdaemon)
 	__pmSetProcessIdentity(username);
 
-    __pmOpenLog("pmlogger", logfile, stderr, &sts);
-    if (sts != 1) {
-	fprintf(stderr, "%s: Warning: log file (%s) creation failed\n", pmProgname, logfile);
-	/* continue on ... writing to stderr */
+    if (Cflag == 0) {
+	__pmOpenLog("pmlogger", logfile, stderr, &sts);
+	if (sts != 1) {
+	    fprintf(stderr, "%s: Warning: log file (%s) creation failed\n", pmProgname, logfile);
+	    /* continue on ... writing to stderr */
+	}
     }
 
     /* base name for archive is here ... */
@@ -794,17 +844,10 @@ main(int argc, char **argv)
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    if (configfile != NULL) {
-	if ((yyin = fopen(configfile, "r")) == NULL) {
-	    fprintf(stderr, "%s: Cannot open config file \"%s\": %s\n",
-		pmProgname, configfile, osstrerror());
-	    exit(1);
-	}
-    }
-    else {
-	/* **ANY** Lex would read from stdin automagically */
-	configfile = "<stdin>";
-    }
+    yyin = do_pmcpp(configfile);
+    /* do not return unless yyin is valid */
+    if (configfile == NULL)
+	configfile = strdup("<stdin>");
 
     __pmOptFetchGetParams(&ocp);
     ocp.c_scope = 1;
@@ -815,16 +858,12 @@ main(int argc, char **argv)
 
     if (yyparse() != 0)
 	exit(1);
-    if (configfile != NULL)
-	fclose(yyin);
+    fclose(yyin);
     yyend();
 
 #ifdef PCP_DEBUG
     fprintf(stderr, "Config parsed\n");
 #endif
-
-    fprintf(stderr, "Starting %slogger for host \"%s\" via \"%s\"\n",
-            primary ? "primary " : "", pmcd_host, pmcd_host_conn);
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
@@ -850,6 +889,12 @@ main(int argc, char **argv)
 	}
     }
 #endif
+
+    if (Cflag)
+	exit(0);
+
+    fprintf(stderr, "Starting %slogger for host \"%s\" via \"%s\"\n",
+            primary ? "primary " : "", pmcd_host, pmcd_host_conn);
 
     if (!primary && tasklist == NULL && !linger) {
 	fprintf(stderr, "Nothing to log, and not the primary logger instance ... good-bye\n");

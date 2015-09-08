@@ -1,6 +1,63 @@
-pcp-3.10.6 (31 July 2015)
-    - packaging: minor fedora.spec updates for el5 
-    - bump VERSION, RPM specs and deb versions for 3.10.6
+pcp-3.10.7 (16 September 2015)
+     - Work in progress, see [ http://pcp.io/roadmap ]
+
+pcp-3.10.6 (4 August 2015)
+    - rc_scripts: use syslog over email for error notification
+    - libpcp: catch bad valfmt encoding in interp.c (SGI BZ 1100)
+    - libpcp: $PATH-alike lists for derived metrics configurations
+    - libpcp: add instant() method for derived metrics
+    - libpcp: fix locking problem in pmGetConfig(3) routine
+    - python: fix bug in pmsubsys causing timestamp to reset.
+    - misc: several Coverity scan bug fixes, across the board
+    - containers: add version and arch to container image filenames
+    - containers: add crontab entries for containers
+    - containers: don't fix pcp user since pcp-base already does
+    - pmlogcheck: teach it about valfmt badness
+    - pmcpp: major revamp for pmlogger use (include files & macros)
+    - pmcpp: speed and robustness enhancements
+    - pmdadm: fix 2 dmcache metrics encoding on big-endian machines
+    - pmdalinux: fix the mnt/net namespace setns call ordering
+    - pmdalinux: corrections to the linux disk statistics metadata
+    - pmdalinux: ipc shared memory metrics for total, rss, and swap
+    - pmdalinux: new network.softnet metrics (/proc/net/softnet_stat)
+    - pmdaproc: reduce log spam in pmdaproc unknown state case
+    - pmdapostgresql: separate DB username from O/S username
+    - pmdapostgresql: major overhaul for different versions schemas
+    - pmdapostfix: general log parsing improvements
+    - pmdajson: handle instances better in the JSON PMDA.
+    - pmdajson: default to instantaneous metrics and do not attempt
+      to guess at semantics from type.
+    - pmdaperfevent: fix typo causing memleak/worse on an error path
+    - pmdadtsrun: fix parenthesis botch in Perl code
+    - pmdate: correct year and month offset problems at end of month
+    - pmlogconf: stop enabling percpu interrupt metrics by default
+    - pmlogger: improve handling of stale primary socket links
+    - pmlogger: integration with pmcpp
+    - pmwebd: elide repeated indom searching in graphite mode
+    - pcp2graphite: archive mode, reused connections, and python3
+    - pcp-atop: correct the reporting of some system memory metrics
+    - pcp-python: allow preferred-python switching at runtime
+    - pcp-collectl: fix an interrupt subsystem crash
+    - pcp-collectl: break out append statements for valid syntax
+    - pcp-collectl: fix recording of data to archive folios
+    - iostat2pcp: fix off-by-one error in disk rawactive metrics
+    - docs: corrections to pmdaperfevent man page
+    - docs: add some missing text to pmGetConfig man page
+    - docs: correct references to pre-v3 CC-BY-SA license
+    - docs: update book builds for current Publican variants
+    - docs: add derived metrics section to guide.html
+    - rpms: pcp-collector meta-package default-enables pmcd+pmlogger
+    - build: fix dependency problems causing parallel make races
+    - build: pcp containers build support via Makepkgs
+    - build: ensure pmcollectl is installed, man page updates
+    - build: correct rpm package dependency on pcp-libs version
+    - build: disable autofsd-probe on (most) platforms, unneeded
+    - build: allow pmdajson configure on/off build overrides
+    - build: rework configure test for ps(1) output formats
+    - build: install python-pcp in pcp-monitor container
+    - build: get native Solaris builds going again
+    - build: get native Illumos builds going again
+    - build: get native Windows builds going again
 
 pcp-3.10.5 (15 June 2015)
     - packaging: rebuild pmns in %post in fedora.spec

@@ -14,35 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# need fix for pv 877570
-if [ $PCP_PLATFORM != irix -a $PCP_VER -ge 20300 ]
-then
-    # fix is in pcp-2.3.0-11
-    :
-elif [ $PCP_PLATFORM = irix -a $PCP_VER -ge 20400 ]
-then
-    # PCP 2.4 or later
-    :
-else
-    echo "need fix for pv #877570" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
-rm -f $seq.out
-if grep ^TERSE= $PCP_BINADM_DIR/pmlogger_check >/dev/null
-then
-    # new version with -T option
-    #
-    have_T=true
-    ln $seq.new.out $seq.out
-else
-    # old version
-    #
-    have_T=false
-    ln $seq.old.out $seq.out
-fi
-
 $sudo rm -rf $tmp.*
 status=1	# failure is the default!
 _needclean=true
@@ -50,9 +21,9 @@ _needclean=true
 	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
 
 LOGGING_DIR=$PCP_LOG_DIR/pmlogger_qa
+PMCHECK_LOG=$LOGGING_DIR/pmlogger_check.log
 
 myhost=`hostname`
-[ $PCP_VER -lt 30806 ] && myhost=`echo $myhost | sed -e 's/\..*//'`
 
 trap "_cleanup" 0 1 2 3 15
 
@@ -62,15 +33,15 @@ _cleanup()
     then
 	[ -f $tmp.control ] && \
 	    $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
+	[ -d $tmp.control.d ] && \
+	    $sudo mv $tmp.control.d $PCP_PMLOGGERCONTROL_PATH.d
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	_needclean=false
     fi
+    $sudo rm -rf $LOGGING_DIR
     $sudo rm -f $tmp.*
-    $sudo rm -rf $LOGGING_DIR/${myhost}-one
-    $sudo rm -rf $LOGGING_DIR/${myhost}-two
-    $sudo rm -rf $LOGGING_DIR/no.such.host.pcp.io
     exit $status
 }
 
@@ -95,6 +66,8 @@ skip == 1	{ next }
 }
 
 $sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
+$sudo mv $PCP_PMLOGGERCONTROL_PATH.d $tmp.control.d
+
 cat <<End-of-File >$tmp.tmp
 # dummy file created by qa/$seq on `date`
 # the goal here is to have just two pmlogger instances running and
@@ -149,7 +122,6 @@ then
 fi
 
 # real QA test starts here
-
 echo
 echo "=== pmlogger_check ==="
 echo "+++ before pmlogger_check ..." >>$seq.full
@@ -157,23 +129,18 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
 echo "+++" >>$seq.full
 echo >>$seq.full
 echo "=== pmlogger_check ===" >>$seq.full
-$sudo $PCP_BINADM_DIR/pmlogger_check >$tmp.out 2>&1
+$sudo $PCP_BINADM_DIR/pmlogger_check -l $PMCHECK_LOG
 echo "+++ after pmlogger_check ..." >>$seq.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$seq.full
 echo "+++" >>$seq.full
-_filter <$tmp.out
-cat $tmp.out >>$seq.full
+_filter < $PMCHECK_LOG
+cat $PMCHECK_LOG >>$seq.full
 
-if $have_T
-then
-    echo
-    echo "=== pmlogger_check -T ==="
-    echo >>$seq.full
-    echo "=== pmlogger_check -T ===" >>$seq.full
-    $sudo $PCP_BINADM_DIR/pmlogger_check -T >$tmp.out 2>&1
-    _filter <$tmp.out
-    cat $tmp.out >>$seq.full
-fi
+echo | tee -a $seq.full
+echo "=== pmlogger_check -T ===" | tee -a $seq.full
+$sudo $PCP_BINADM_DIR/pmlogger_check -T -l $PMCHECK_LOG
+_filter < $PMCHECK_LOG
+cat $PMCHECK_LOG >>$seq.full
 
 # all OK
 status=0

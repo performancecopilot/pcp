@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 #
 
@@ -22,6 +22,8 @@ LLDLIBS = $(PCP_PMDALIB)
 default default_pcp setup: $(TARGETS)
 
 $(LIBTARGET):	bigun.o
+
+$(OBJECTS): domain.h
 
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)

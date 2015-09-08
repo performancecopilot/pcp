@@ -1,0 +1,93 @@
+#!/bin/sh
+# PCP QA Test No. 808
+# exercise pmlogger stale pid files issues
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+# Copyright (c) 2015 Mark Goodwin.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep 'pmlogger.*-P' | \
+grep -v grep | awk '{print $2}'`
+
+if [ ! -S "$PCP_RUN_DIR/pmlogger.$pid.socket" ]; then
+    echo FAIL no primary pmlogger running? pid=$pid
+    status=1
+else
+    echo found primary pmlogger and found control socket in PCP_RUN_DIR
+
+    echo === killing the primary pmlogger with SIGKILL ===
+    $sudo kill -9 $pid
+
+    echo === running pmlogger_check to restart primary logger ===
+    $sudo $PCP_BINADM_DIR/pmlogger_check -C
+    sleep 2
+
+    newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep 'pmlogger.*-P' | \
+	grep -v grep | awk '{print $2}'`
+
+    if [ -z "$newpid" ]; then
+    	echo FAIL pmlogger failed to start 
+	echo pid of killed primary logger is $pid
+	echo === ls -l $PCP_RUN_DIR ===
+	ls -l $PCP_RUN_DIR
+	echo === manually removing stale run files ===
+	$sudo rm -f $PCP_RUN_DIR/*pmlogger*
+	status=1
+	exit
+    fi
+
+#
+# Next test: check primary logger restarts with legacy hardlinks present
+# This is a corner case, but can happen.
+#
+    pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep 'pmlogger.*-P' | \
+    grep -v grep | awk '{print $2}'`
+
+    echo === checking with stale legacy hard links
+    echo === killing the primary pmlogger with SIGKILL ===
+    $sudo kill -9 $pid
+
+    # change the stale symlinks into hardlinks, to simulate an upgrade
+    # from an earlier version of pcp (before we converted to symlinks)
+    $sudo rm -f $PCP_TMP_DIR/pmlogger/primary
+    $sudo ln $PCP_TMP_DIR/pmlogger/$pid $PCP_TMP_DIR/pmlogger/primary
+    $sudo rm -f $PCP_RUN_DIR/pmlogger.primary.socket
+    $sudo ln $PCP_RUN_DIR/pmlogger.$pid.socket $PCP_RUN_DIR/pmlogger.primary.socket
+
+    echo === running pmlogger_check to restart primary logger ===
+    $sudo $PCP_BINADM_DIR/pmlogger_check -C
+    sleep 2
+
+    newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep 'pmlogger.*-P' | \
+	grep -v grep | awk '{print $2}'`
+
+    if [ -z "$newpid" ]; then
+    	echo FAIL pmlogger failed to start 
+	echo pid of killed primary logger is $pid
+	echo === ls -il $PCP_RUN_DIR ===
+	ls -il $PCP_RUN_DIR
+	echo === manually removing stale run files ===
+	$sudo rm -f $PCP_RUN_DIR/*pmlogger*
+	status=1
+	exit
+    fi
+
+    # success
+    status=0
+fi
+
+exit

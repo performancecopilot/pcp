@@ -313,8 +313,9 @@ do
 	    ;;
     esac
 
-    reachable_opt='--show-leak-kinds=all'
-    reachable_opt='--show-reachable=yes'
+    # don't want reachable reported ... caused QA failures on
+    # valgrind 3.10.1 (vm12 after upgrade to Fedora 22)
+    # reachable_opt='--show-reachable=yes'
 
     valgrind \
 	--leak-check=full --read-var-info=yes $reachable_opt \

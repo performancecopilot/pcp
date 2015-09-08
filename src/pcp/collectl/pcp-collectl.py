@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/pcp python
 #
 # Copyright (C) 2012-2015 Red Hat.
 #
@@ -15,10 +15,7 @@
 
 """System status collector using the libpcp Wrapper module
 
-Additional Information:
-
-Performance Co-Pilot Web Site
-http://www.performancecopilot.org
+Additional Information: http://pcp.io
 """
 
 # ignore line too long, missing docstring, method could be a function,
@@ -41,11 +38,8 @@ import cpmgui as c_gui
 from pcp import pmapi, pmgui
 from pcp.pmsubsys import Subsystem
 
-ME = "pmcollectl"
-
 
 # scale  -----------------------------------------------------------------
-
 
 def scale(value, magnitude):
     return (value + (magnitude / 2)) / magnitude
@@ -55,13 +49,13 @@ def scale(value, magnitude):
 
 def record(context, config, duration, path, host):
     if os.path.exists(path):
-        print(ME + "archive %s already exists\n" % path)
+        print("pcp collectl: archive %s already exists\n" % path)
         sys.exit(1)
     # Non-graphical application using libpcp_gui services - never want
     # to see popup dialogs from pmlogger(1) here, so force the issue.
     os.environ['PCP_XCONFIRM_PROG'] = '/bin/true'
     interval = pmapi.timeval.fromInterval(str(duration) + " seconds")
-    context.pmRecordSetup(path, ME, 0) # pylint: disable=W0621
+    context.pmRecordSetup(path, "pcp-collectl", 0) # pylint: disable=W0621
     context.pmRecordAddHost(host, 1, config) # just a filename
     deadhand = "-T" + str(interval) + "seconds"
     context.pmRecordControl(0, c_gui.PM_REC_SETARG, deadhand)
@@ -70,7 +64,7 @@ def record(context, config, duration, path, host):
     context.pmRecordControl(0, c_gui.PM_REC_OFF, "")
     # Note: pmlogger has a deadhand timer that will make it stop of its
     # own accord once -T limit is reached; but we send an OFF-recording
-    # message anyway for cleanliness, just prior to pmcollectl exiting.
+    # message anyway for cleanliness, just prior to pcp-collectl exiting.
 
 # record_add_creator ------------------------------------------------------
 
@@ -252,7 +246,7 @@ class _interruptCollectPrint(_CollectPrint):
     def print_header1_detail(self):
         print('# INTERRUPT DETAILS')
         sys.stdout.write('# Int    ')
-        for k in self.ss.get_metric_value('hinv.ncpu'):
+        for k in range(self.ss.get_metric_value('hinv.ncpu')):
             sys.stdout.write('Cpu%d ' % k)
         print('Type            Device(s)')
     def print_header1_verbose(self):
@@ -295,7 +289,7 @@ class _interruptCollectPrint(_CollectPrint):
                 sys.stdout.write("%-8s" % self.ss.metrics[j_i].split(".")[3])
                 for i in range(ncpu):
                     sys.stdout.write("%4d " % (self.ss.get_scalar_value(j_i, i)))
-                text = (pm.pmLookupText(self.ss.metric_pmids[j_i], c_api.PM_TEXT_ONELINE))
+                text = (pm.pmLookupText(self.ss.metric_pmids[j_i], c_api.PM_TEXT_ONELINE)).decode("utf-8")
                 print("%-18s %s" % (text[:(str.index(text, " "))],
                                  text[(str.index(text, " ")):]))
     def print_verbose(self):
@@ -496,10 +490,7 @@ class _Options(object):
         self.verbosity = "brief"
         self.input_file = ""
         self.output_file = ""
-        self.archive = []
-        self.host = "local:"
         self.create_archive = False
-        self.replay_archive = False
         self.interval_arg = 1
         self.n_samples = 0
         self.duration_arg = 0
@@ -510,26 +501,33 @@ class _Options(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option_callback)
         opts.pmSetOverrideCallback(self.override)
-        opts.pmSetShortOptions("vp:c:f:R:i:s:h:?")
+        opts.pmSetShortOptions("vp:a:c:f:R:i:s:h:?")
+        opts.pmSetLongOptionText("")
+        opts.pmSetLongOptionText("Interactive: pcp collectl [-h HOST] [options]")
+        opts.pmSetLongOptionText("Read PCP archive: pcp collectl -a ARCHIVE [options]")
+        opts.pmSetLongOptionText("Read PCP archive folio: pcp collectl -p FOLIO [options]")
+        opts.pmSetLongOptionText("Write PCP archive folio: pcp collectl -f FOLIO [options]")
         opts.pmSetLongOptionHeader("Options")
-        opts.pmSetLongOption("verbose", 0, 'v', '', "Produce verbose output")
-        opts.pmSetLongOption("playback", 0, 'p', '', "Read sample data from file")
-        opts.pmSetLongOption("count", 1, 'c', 'COUNT', "Number of samples")
-        opts.pmSetLongOption("filename", 1, 'f', 'FILENAME', "Name of output file")
-        opts.pmSetLongOption("runtime", 1, 'R', 'N', "How long to take samples")
-        opts.pmSetLongOption("interval", 1, 'i', 'N', "The sample time interval")
-        opts.pmSetLongOption("subsys", 1, 's', 'SUBSYS', "The subsystem to sample")
-        opts.pmSetShortUsage("[options]\nInteractive: [-v] [-h host] [-s subsys] [-c N] [-i N] [-R N]\nWrite raw logfile: pmcollectl -f rawfile [-c N] [-i N] [-R N]\nRead raw logfile: pmcollectl -p rawfile")
+        opts.pmSetLongOptionArchive()
         opts.pmSetLongOptionHost()
         opts.pmSetLongOptionVersion()
+        opts.pmSetLongOption("verbose", 0, 'v', '', "produce verbose output")
+        opts.pmSetLongOption("playback", 1, 'p', 'FOLIO', "metrics source is a PCP archive folio")
+        opts.pmSetLongOption("count", 1, 'c', 'COUNT', "number of samples")
+        opts.pmSetLongOption("filename", 1, 'f', 'FOLIO', "name of output PCP archive folio")
+        opts.pmSetLongOption("runtime", 1, 'R', 'N', "how long to take report")
+        opts.pmSetLongOption("interval", 1, 'i', 'N', "report time interval")
+        opts.pmSetLongOption("subsys", 1, 's', 'SUBSYS', "subsystem to report")
         opts.pmSetLongOptionHelp()
         return opts
 
 
     def override(self, opt):
-        """ Override a few standard PCP options to match free(1) """
+        """ Override standard PCP options that have different semantics """
+        """ -p FOLIO (not -p port) """
+        """ -s subsystem (not -s samplecount) """
         # pylint: disable=R0201
-        if opt == 's' or opt == 'i' or opt == 'h' or opt == "p":
+        if opt == 'p' or opt == 's':
             return 1
         return 0
 
@@ -559,8 +557,6 @@ class _Options(object):
             self.duration_arg = optarg
         elif opt == 'p':
             self.opts.pmSetOptionArchiveFolio(optarg)
-            self.input_file = optarg
-            self.replay_archive = True
         elif opt == 'f':
             self.output_file = optarg
             self.create_archive = True
@@ -573,8 +569,6 @@ class _Options(object):
         elif opt == 'c':
             self.opts.pmSetOptionSamples(optarg)
             self.n_samples = int(self.opts.pmGetOptionSamples())
-        elif opt == 'h':
-            self.host = optarg
 
 # main -----------------------------------------------------------------
 
@@ -586,6 +580,7 @@ class _Options(object):
 
 if __name__ == '__main__':
     subsys = list()
+    replay_archive = False
     output_file = ""
     input_file = ""
     duration = 0.0
@@ -615,27 +610,31 @@ if __name__ == '__main__':
         subsys.append(disk)
         subsys.append(net)
         if opts.create_archive:
-            subsys.append(interrupt, memory)
-
-    if opts.duration_arg != 0:
-        (timeval, errmsg) = pm.pmParseInterval(str(opts.duration_arg))
-        duration = c_api.pmtimevalToReal(timeval)
+            subsys.append(interrupt)
+            subsys.append(memory)
 
     pm = pmapi.pmContext.fromOptions(opts.opts, sys.argv)
     if pm.type == c_api.PM_CONTEXT_ARCHIVE:
+        replay_archive = True
+        input_file = opts.opts.pmGetOptionArchives()[0]
         pm.pmSetMode(c_api.PM_MODE_FORW, pmapi.timeval(0, 0), 0)
 
     # Find server-side pmcd host-name
     host = pm.pmGetContextHostName()
 
-    (delta, errmsg) = pmapi.pmContext.pmParseInterval(str(opts.interval_arg) + " seconds")
+    (delta, errmsg) = pm.pmParseInterval(str(opts.interval_arg) + " seconds")
+    delta_seconds = c_api.pmtimevalToReal(delta.tv_sec, delta.tv_usec)
+
+    if opts.duration_arg != 0:
+        (timeval, errmsg) = pm.pmParseInterval(str(opts.duration_arg))
+        duration = c_api.pmtimevalToReal(timeval.tv_sec, timeval.tv_usec)
+        opts.n_samples = int((duration / delta_seconds) + 0.5)
 
     if opts.create_archive:
-        delta_seconds = c_api.pmtimevalToReal(delta.tv_sec, delta.tv_usec)
         msec = str(int(1000.0 * delta_seconds))
-        configuration = "log mandatory on every " + msec + " milliseconds { "
-        configuration += ss.dump_metrics()
-        configuration += "}"
+        configuration = "log mandatory on every " + msec + " milliseconds {\n"
+        configuration += ss.dump_metrics().replace(" ", "\n")
+        configuration += "}\n"
         if duration == 0.0:
             if opts.n_samples != 0:
                 duration = float(opts.n_samples) * delta_seconds
@@ -649,7 +648,7 @@ if __name__ == '__main__':
         ss.setup_metrics(pm)
         ss.get_stats(pm)
     except pmapi.pmErr as e:
-        if opts.replay_archive:
+        if replay_archive:
             import textwrap
             print("One of the following metrics is required " + \
                   "but absent in " + input_file + "\n" + \

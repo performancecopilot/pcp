@@ -8,9 +8,20 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 . ./common.webapi
+. ./common.python
+
+[ -f ${PCP_BINADM_DIR}/pmwebd ] || _notrun "pmwebd package not installed"
 
 pyscript=src/test_webapi.py
-python $pyscript --version 2>/dev/null || _notrun "python/modules missing"
+$python --version >/dev/null 2>&1 || _notrun "python missing"
+
+version=`$python --version 2>&1 | sed -e 's/Python //'`
+case "$version"
+in
+    2.7.3|2.7.4)
+	_notrun "requests.json() broken in Python $version"
+	;;
+esac
 
 $sudo rm -f $tmp.* $seq.full
 
@@ -52,11 +63,11 @@ ipv6local=`_ipv6_localhost`
 echo "ipv6local=$ipv6local" >>$seq.full
 if grep -q IPv4 $tmp.out; then
     echo && echo === IPv4 pmwebd testing via python ===
-    python $pyscript --host localhost --port $webport | _webapi_response_filter
+    $python $pyscript --host localhost --port $webport | _webapi_response_filter
 fi
 if grep -q IPv6 $tmp.out; then
     echo && echo === IPv6 pmwebd testing via python ===
-    python $pyscript --host $ipv6local --port $webport | _webapi_response_filter
+    $python $pyscript --host $ipv6local --port $webport | _webapi_response_filter
 fi
 
 status=0

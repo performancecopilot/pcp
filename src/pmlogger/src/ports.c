@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -13,7 +13,6 @@
  * for more details.
  */
 
-#define _WIN32_WINNT	0x0500	/* for CreateHardLink */
 #include <math.h>
 #include <ctype.h>
 #include <sys/stat.h>
@@ -185,13 +184,21 @@ GetPorts(char *file)
     int			fd;
     int			mapfd = -1;
     FILE		*mapstream = NULL;
-    int			sts;
     int			socketsCreated = 0;
+    int			maxpending = 5;	/* Max. pending connection requests */
+    int			address = INADDR_ANY;
     int			ctlix;
+    int			sts;
+    char		*env_str;
     __pmSockAddr	*myAddr;
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
     char		globalPath[MAXPATHLEN];
     char		localPath[MAXPATHLEN];
+#endif
     static int		port_base = -1;
+
+    if ((env_str = getenv("PMLOGGER_MAXPENDING")) != NULL)
+	maxpending = atoi(env_str);
 
     /* Try to create sockets for control connections. */
     for (ctlix = 0; ctlix < CFD_NUM; ++ctlix) {
@@ -312,9 +319,13 @@ GetPorts(char *file)
 	    if (port_base == -1) {
 		/*
 		 * get optional stuff from environment ...
-		 *	PMLOGGER_PORT
+		 *	PMLOGGER_PORT,
+		 *	PMLOGGER_LOCAL
 		 */
-		char	*env_str;
+		if ((env_str = getenv("PMLOGGER_LOCAL")) != NULL) {
+		    if (atoi(env_str) != 0)
+			address = INADDR_LOOPBACK;
+		}
 		if ((env_str = getenv("PMLOGGER_PORT")) != NULL) {
 		    char	*end_ptr;
 
@@ -330,8 +341,8 @@ GetPorts(char *file)
 	    }
 
 	    /*
-	     * try to allocate ports from port_base.  If port already in use, add one
-	     * and try again.
+	     * try to allocate ports from port_base.  If port already in use,
+	     * add one and try again.
 	     */
 	    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
 		fprintf(stderr, "GetPorts: __pmSockAddrAlloc out of memory\n");
@@ -339,15 +350,17 @@ GetPorts(char *file)
 	    }
 	    for (ctlport = port_base; ; ctlport++) {
 		if (ctlix == CFD_INET)
-		    __pmSockAddrInit(myAddr, AF_INET, INADDR_ANY, ctlport);
+		    __pmSockAddrInit(myAddr, AF_INET, address, ctlport);
 		else
-		    __pmSockAddrInit(myAddr, AF_INET6, INADDR_ANY, ctlport);
+		    __pmSockAddrInit(myAddr, AF_INET6, address, ctlport);
 		sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
 		if (sts < 0) {
 		    if (neterror() != EADDRINUSE) {
 			fprintf(stderr, "__pmBind(%d): %s\n", ctlport, netstrerror());
 			break;
 		    }
+		    if (address == INADDR_LOOPBACK)
+			break;
 		}
 		else
 		    break;
@@ -357,7 +370,7 @@ GetPorts(char *file)
 
 	/* Now listen on the new socket. */
 	if (sts >= 0) {
-	    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
+	    sts = __pmListen(fd, maxpending);
 	    if (sts == -1) {
 		__pmCloseSocket(fd);
 		fprintf(stderr, "__pmListen: %s\n", netstrerror());
@@ -435,6 +448,9 @@ init_ports(void)
     int		sep = __pmPathSeparator();
     int		extlen, baselen;
     char	path[MAXPATHLEN];
+    char	pidfile[MAXPATHLEN];
+    int		pidlen;
+    struct stat	sbuf;
     pid_t	mypid = getpid();
 
     /*
@@ -515,36 +531,165 @@ init_ports(void)
 	if (linkfile == NULL)
 	    __pmNoMem("primary logger link file name", n, PM_FATAL_ERR);
 	snprintf(linkfile, n, "%s%cprimary", path, sep);
+
 #ifndef IS_MINGW
-	sts = link(ctlfile, linkfile);
-#else
-	sts = (CreateHardLink(linkfile, ctlfile, NULL) == 0);
+	/*
+	 * Remove legacy linkfile (i.e. if it exists and is NOT a symlink).
+	 * This can occur after an upgrade if pmlogger was SIGKILL'ed, but
+	 * normally an upgrade will restart pmlogger and atexit(cleanup) will
+	 * have been run, which will remove legacy hardlinks.
+	 */
+	if (stat(linkfile, &sbuf) == 0 && !S_ISLNK(sbuf.st_mode)) {
+	    if (unlink(linkfile) != 0) {
+		fprintf(stderr, "%s: warning: failed to remove '%s' hardlink to stale control file '%s': %s\n",
+			pmProgname, linkfile, pidfile, osstrerror());
+	    }
+#ifdef PCP_DEBUG
+	    else if (pmDebug & DBG_TRACE_CONTEXT) {
+		fprintf(stderr, "%s: info: removed '%s' old-style hardlink to stale control file '%s': %s\n",
+			pmProgname, linkfile, pidfile, osstrerror());
+	    }
 #endif
-	if (sts != 0) {
-	    if (oserror() == EEXIST)
-		fprintf(stderr, "%s: there is already a primary pmlogger running, ctlfile=%s linkfile=%s\n", pmProgname, ctlfile, linkfile);
-	    else
-		fprintf(stderr, "%s: error creating primary logger link %s: %s\n",
-			pmProgname, linkfile, osstrerror());
+	}
+#endif
+
+	/*
+	 * Remove symlink if it is stale (i.e. exists but the process does not).
+	 */
+	if ((pidlen = readlink(linkfile, pidfile, sizeof(pidfile))) > 0) {
+	    /* control file name is the PID of the primary pmlogger process */
+	    pidfile[pidlen] = '\0';
+	    pid_t pid = atoi(pidfile);
+	    if (!__pmProcessExists(pid)) {
+	    	if (unlink(linkfile) != 0) {
+		    fprintf(stderr, "%s: warning: failed to remove '%s' symlink to stale control file '%s': %s\n",
+			    pmProgname, linkfile, pidfile, osstrerror());
+		}
+#ifdef PCP_DEBUG
+		else if (pmDebug & DBG_TRACE_CONTEXT) {
+		    fprintf(stderr, "%s: info: removed '%s' symlink to stale control file '%s': %s\n",
+			    pmProgname, linkfile, pidfile, osstrerror());
+		}
+#endif
+		/* remove the stale control file too */
+	    	if (unlink(pidfile) != 0) {
+		    fprintf(stderr, "%s: warning: failed to remove stale control file '%s': %s\n",
+			    pmProgname, pidfile, osstrerror());
+		}
+#ifdef PCP_DEBUG
+		else if (pmDebug & DBG_TRACE_CONTEXT) {
+		    fprintf(stderr, "%s: info: removed stale control file '%s': %s\n",
+			    pmProgname, pidfile, osstrerror());
+		}
+#endif
+	    }
+	}
+
+	/*
+	 * If the symlink still exists then there really is another primary logger running
+	 */
+	if (access(linkfile, F_OK) == 0) {
+	    /* configuration error - only one primary pmlogger should be configured */
+	    fprintf(stderr, "%s: ERROR: there is already a primary pmlogger running, ctlfile=%s linkfile=%s\n",
+		    pmProgname, ctlfile, linkfile);
 	    exit(1);
 	}
 
-#if defined(HAVE_STRUCT_SOCKADDR_UN)
-	/* Create a hard link to the local socket for users wanting the primary logger. */
-	linkSocketPath = __pmLogLocalSocketDefault(PM_LOG_PRIMARY_PID, path, sizeof(path));
-#ifndef IS_MINGW
-	sts = link(socketPath, linkSocketPath);
-#else
-	sts = (CreateHardLink(linkSocketPath, socketPath, NULL) == 0);
+	if ((sts = symlink(ctlfile, linkfile)) != 0) {
+	    fprintf(stderr, "%s: error creating primary logger symbolic link %s: %s\n",
+		    pmProgname, linkfile, osstrerror());
+	}
+#ifdef PCP_DEBUG
+	else if (pmDebug & DBG_TRACE_CONTEXT) {
+	    fprintf(stderr, "%s: info: created control file symlink %s -> %s\n", pmProgname, linkfile, ctlfile);
+	}
 #endif
-	if (sts != 0) {
-	    if (oserror() == EEXIST)
-		fprintf(stderr, "%s: there is already a primary pmlogger running, socketPath=%s linkSocketPath=%s\n", pmProgname, socketPath, linkSocketPath);
-	    else
-		fprintf(stderr, "%s: error creating primary logger socket link %s: %s\n",
-			pmProgname, linkSocketPath, osstrerror());
+
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+	/*
+	 * Create a symbolic link to the local socket for users wanting the primary logger.
+	 */
+	linkSocketPath = __pmLogLocalSocketDefault(PM_LOG_PRIMARY_PID, path, sizeof(path));
+
+	/*
+	 * Remove legacy linkSocketPath hardlink (i.e. if it is a socket).
+	 * This can occur after an upgrade, similarly to the control file link,
+	 * see above.
+	 */
+	if (stat(linkSocketPath, &sbuf) == 0 && S_ISSOCK(sbuf.st_mode)) {
+	    if (unlink(linkSocketPath) != 0) {
+		fprintf(stderr, "%s: warning: failed to remove '%s' hardlink to stale socket '%s': %s\n",
+			pmProgname, linkSocketPath, pidfile, osstrerror());
+	    }
+#ifdef PCP_DEBUG
+	    else if (pmDebug & DBG_TRACE_CONTEXT) {
+		fprintf(stderr, "%s: info: removed '%s' old-style hardlink to stale socket '%s': %s\n",
+			pmProgname, linkSocketPath, pidfile, osstrerror());
+	    }
+#endif
+	}
+
+	/* Remove the symlink if it points to a stale primary pmlogger socket */
+	if ((pidlen = readlink(linkSocketPath, pidfile, sizeof(pidfile))) > 0) {
+	    pidfile[pidlen] = '\0';
+	    for (i=0; i < pidlen; i++) {
+		/* first digit is the start of the PID */
+		if (isdigit(pidfile[i])) {
+		    pid_t pid = atoi(pidfile + i);
+		    if (!__pmProcessExists(pid)) {
+			if (unlink(linkSocketPath) != 0) {
+			    fprintf(stderr, "%s: warning: failed to remove '%s' symlink to stale socket '%s': %s\n",
+				    pmProgname, linkSocketPath, pidfile, osstrerror());
+			}
+#ifdef PCP_DEBUG
+			else if (pmDebug & DBG_TRACE_CONTEXT) {
+			    fprintf(stderr, "%s: info: removed '%s' symlink to stale socket '%s'\n",
+				    pmProgname, linkSocketPath, pidfile);
+			}
+#endif
+			/* remove the stale socket too */
+			if (unlink(pidfile) != 0) {
+			    fprintf(stderr, "%s: warning: failed to remove stale pmlogger socket '%s': %s\n",
+				    pmProgname, pidfile, osstrerror());
+			}
+#ifdef PCP_DEBUG
+			else if (pmDebug & DBG_TRACE_CONTEXT) {
+			    fprintf(stderr, "%s: info: removed stale pmlogger socket '%s'\n",
+				    pmProgname, pidfile);
+			}
+#endif
+		    }
+		    break;
+		}
+	    }
+	}
+
+	/*
+	 * As above, if the symlink still exists then there really is
+	 * another primary logger running - we shouldn't get to here
+	 * but maybe someone manually deleted the primary->control link.
+	 */
+	if (access(linkSocketPath, F_OK) == 0) {
+	    /* configuration error - only one primary pmlogger should be configured */
+	    fprintf(stderr, "%s: ERROR: there is already a primary pmlogger running, socketPath=%s linkSocketPath=%s\n",
+		    pmProgname, socketPath, linkSocketPath);
 	    exit(1);
 	}
+
+	/*
+	 * Create the symlink to the primary pmlogger control socket.
+	 */
+	if ((sts = symlink(socketPath, linkSocketPath)) != 0) {
+	    fprintf(stderr, "%s: error creating primary logger socket symbolic link %s: %s\n",
+		    pmProgname, linkSocketPath, osstrerror());
+	}
+#ifdef PCP_DEBUG
+	else if (pmDebug & DBG_TRACE_CONTEXT) {
+	    fprintf(stderr, "%s: info: created primary pmlogger socket symlink %s -> %s\n",
+		    pmProgname, linkSocketPath, socketPath);
+	}
+#endif
+
 	if ((linkSocketPath = strdup(linkSocketPath)) == NULL) {
 	    fprintf(stderr, "init_ports: strdup out of memory\n");
 	    exit(1);

@@ -2,7 +2,7 @@
 # PCP QA Test No. 660
 # checks basic pmwebd functionality
 #
-# Copyright (c) 2013-2014 Red Hat, Inc.  All Rights Reserved.
+# Copyright (c) 2013-2015 Red Hat, Inc.  All Rights Reserved.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -13,9 +13,6 @@ which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 [ -f ${PCP_BINADM_DIR}/pmwebd ] || _notrun "pmwebd package not installed"
 # nb: wget dispreferred because of its processing of .. relative links,
 # so it's harder to stress pmwebd's base-directory-escaping logic
-
-pyscript=src/test_webapi.py
-python $pyscript --version 2>/dev/null || _notrun "python/modules missing"
 
 $sudo rm -fr $tmp.dir
 $sudo rm -f $tmp.*
@@ -48,6 +45,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # Also there is some other noise from a similar source but different
 # causes, e.g.
 #
+# * Connected to LOCALHOST (LOCALADDR) port 44323 (####)
 # * HTTP 1.1 or later with persistent connection, pipelining supported
 # * additional stuff not fine transfer.c:1037: 0 0
 # *   Trying LOCALADDR...
@@ -62,6 +60,7 @@ _filter()
     sed \
 	-e '/Hostname was NOT found in DNS cache/d' \
 	-e '/About to connect() to LOCALHOST port 44323 (####)/d' \
+	-e '/^\* Connected to LOCALHOST (LOCALADDR) port 44323/d' \
 	-e '/^\* HTTP 1.1 or later with persistent connection/d' \
 	-e '/^\* additional stuff not fine/d' \
 	-e '/^\*  *Trying LOCALADDR/d' \

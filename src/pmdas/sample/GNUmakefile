@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014 Red Hat.  All Rights Reserved.
+# Copyright (c) 2014-2015 Red Hat.  All Rights Reserved.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -36,5 +36,10 @@ install_pcp install :: default
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) pmns root $(PMDADIR)
 	$(INSTALL) -m 644 Sample.pmchart $(PCP_VAR_DIR)/config/pmchart/Sample
+
+$(OBJECTS): domain.h
+
+domain.h:	../../../pmns/stdpmid
+	$(DOMAIN_MAKERULE)
 
 include $(BUILDRULES)

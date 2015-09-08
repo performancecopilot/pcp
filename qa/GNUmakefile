@@ -21,7 +21,7 @@ ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
 endif
 ifeq "$(HAVE_PYTHON)" "true"
-SUBDIRS += secure
+SUBDIRS += secure mic
 endif
 LCONFIG = localconfig
 
@@ -63,11 +63,9 @@ ifeq "$(HAVE_PYTHON)" "true"
 COMMON += common.python 
 endif
 
-OTHERS = GNUmakefile.install group qa_hosts.master README \
-	 valgrind-suppress sanity.coverage
+OTHERS = group qa_hosts.master README valgrind-suppress sanity.coverage
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|work)' | tee qa_outfiles)
-LSRCFILES = $(SCRIPTS) $(COMMON_SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS)
 
 qa_outfiles:
 	@echo $(DOTOUTFILES) > qa_outfiles
@@ -82,7 +80,7 @@ localconfig:
 	@echo 'PCP_PRO_VER=0' >> localconfig
 
 install_pcp install: $(SUBDIRS)
-ifeq (, $(filter mingw darwin solaris, $(TARGET_OS)))
+ifeq (, $(filter mingw darwin freebsd solaris, $(TARGET_OS)))
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 755 $(TESTS) $(SCRIPTS) $(COMMON_SCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 644 $(COMMON) $(OTHERS) $(TESTDIR)

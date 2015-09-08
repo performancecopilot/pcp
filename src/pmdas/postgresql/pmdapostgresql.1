@@ -21,17 +21,29 @@
 live performance data from a running PostgreSQL database.
 .SH INSTALLATION
 \f3pmdapostgresql\f1 uses a configuration file from (in this order):
+.PD 0
 .IP "\(bu" 4
 /etc/pcpdbi.conf
 .IP "\(bu" 4
 \&\f(CW$PCP_PMDAS_DIR\fR/postgresql/postgresql.conf
+.IP "\(bu" 4
+\&./postgresql.conf
+.PD
 .PP
 This file can contain overridden values (Perl code) for the settings
-listed at the start of pmdapostgresql.pl, namely:
+listed at the start of pmdapostgresql.pl, for example:
+.PD 0
 .IP "\(bu" 4
-database name (see \s-1\fIDBI\s0\fR\|(3) for details)
+$database \- database access method and database name, [default: 'dbi:Pg:dbname=postgres']
+(see \s-1\fIDBI\s0\fR\|(3) for details)
 .IP "\(bu" 4
-database username
+$username \- username to connect to the database [default: 'postgres']
+.IP "\(bu" 4
+$password \- password to connect to the database [default: '']
+.IP "\(bu" 4
+$os_user \-
+operating system username (PMDA will run with the corresponding user id) [default: $username]
+.PD
 .PP
 Once this is setup, you can access the names and values for the
 postgresql performance metrics by doing the following as root:
@@ -50,6 +62,7 @@ To uninstall, do the following as root:
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
 agent is installed or removed.
 .SH FILES
+.PD 0
 .IP "\fB/etc/pcpdbi.conf\fR" 4
 configuration file for all \s-1PCP\s0 database monitors
 .ie n .IP "\fB$PCP_PMDAS_DIR/postgresql/postgresql.conf\f1" 4
@@ -61,6 +74,7 @@ installation script for the \fBpmdapostgresql\fR agent
 undo installation script for the \fBpmdapostgresql\fR agent 
 .IP "\fB$PCP_LOG_DIR/pmcd/postgresql.log\fR" 4 
 default log file for error messages from \fBpmdapostgresql\fR 
+.PD
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fR are used to parameterize
 the file and directory names used by \fBPCP\fR. On each installation, the

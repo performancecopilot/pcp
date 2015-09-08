@@ -49,19 +49,28 @@ in
 	;;
 esac
 
-SYSLOG=''
-for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/syslog /var/log/system.log
-do
-    if [ -f $f ]
-    then
-	SYSLOG=$f
-	break
-    fi
-done
-if [ -z "$SYSLOG" ]
+# may be using journalctl, and so no syslog in the file system
+#
+if `which journalctl >/dev/null 2>&1`
 then
-    echo "Arrgh! Cannot find your syslog file"
-    exit 1
+    echo "Using journalctl ..." >>$seq.full
+    have_journalctl=true
+else
+    have_journalctl=false
+    SYSLOG=''
+    for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/syslog /var/log/system.log
+    do
+	if [ -f $f ]
+	then
+	    SYSLOG=$f
+	    break
+	fi
+    done
+    if [ -z "$SYSLOG" ]
+    then
+	echo "Arrgh! Cannot find your syslog file"
+	exit 1
+    fi
 fi
 
 _filter()
@@ -170,8 +179,15 @@ _filter <$tmp.out
 
 echo
 echo "SYSLOG ..."
-$sudo tail -100 $SYSLOG >$tmp.tmp
-sed <$tmp.tmp -n \
+if $have_journalctl
+then
+    # be careful ... --boot not supported in all versions, -l not
+    # supported in all versions
+    $sudo journalctl -b --full | tail -100 >$tmp.syslog
+else
+    $sudo tail -100 $SYSLOG >$tmp.syslog
+fi
+sed <$tmp.syslog -n \
     -e 's/PCP QA '"$seq"'/PCP QA xxx/' \
     -e '/ncpu equal/s/ [0-9][0-9]*/ N/g' \
     -e 's/PCP QA xxx/PCP QA '"$seq"'/' \
@@ -182,9 +198,14 @@ p
 | LC_COLLATE=POSIX sort -u
 
 echo >>$seq.full
-echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq.full
-echo "`wc -l <$tmp.tmp | sed -e 's/ //g'` lines ... expect 100" >>$seq.full
-cat $tmp.tmp >>$seq.full
+if $have_journalctl
+then
+    echo "=== tail journalctl -b --full ===" >>$seq.full
+else
+    echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq.full
+fi
+echo "`wc -l <$tmp.syslog | sed -e 's/ //g'` lines ... expect 100" >>$seq.full
+cat $tmp.syslog >>$seq.full
 
 # success, all done
 status=0

@@ -1,0 +1,35 @@
+QA output created by 915
+Starting pmproxy ... 
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 
+
+== checking loop pmcd access, expecting success
+
+pmcd.feature.local
+    value 1
+
+== checking bad pmcd access, expect no values
+pminfo: Cannot connect to PMCD on host "INTERFACE": Connection refused
+
+== checking primary pmlogger started in local-only mode
+    inst [0 or "primary"] value "HOSTNAME"
+
+== checking loop pmlogger access, expecting success
+Connected to primary pmlogger at localhost
+Goodbye
+
+== checking bad pmlogger access, expect no control
+Unable to connect to primary pmlogger at INTERFACE: Connection refused
+Goodbye
+
+== checking bad pmproxy access, expect no values
+pminfo: Cannot connect to PMCD on host "localhost@INTERFACE": Connection refused
+
+== checking loop pmproxy access, expecting success
+
+pmcd.feature.local
+    value 1
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2003 Moser, Inc.  All Rights Reserved.
  * Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but
+ * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
-
 #ifndef PCP_CONFIG_H
 #define PCP_CONFIG_H
 
@@ -136,12 +135,15 @@ extern "C" {
 #undef HAVE_WS2TCPIP_H
 #undef HAVE_EXECINFO_H
 #undef HAVE_IPTYPES_H
-#undef HAVE_NETDB_H
+#undef HAVE_IPHLPAPI_H
 #undef HAVE_SYS_SOCKET_H
+#undef HAVE_NETDB_H
+#undef HAVE_NET_IF_H
 #undef HAVE_NETINET_IN_H
 #undef HAVE_NETINET_TCP_H
 #undef HAVE_ARPA_INET_H
 #undef HAVE_FTS_H
+#undef HAVE_LIBZFS_H
 
 #undef HAVE_SYS_ENDIAN_H
 #undef HAVE_SYS_MACHINE_H
@@ -232,6 +234,7 @@ extern "C" {
 #undef HAVE_KILL
 
 #undef HAVE_CHOWN
+#undef HAVE_FCHMOD
 #undef HAVE_GETCWD
 #undef HAVE_SCANDIR
 #undef HAVE_MKSTEMP
@@ -287,6 +290,10 @@ extern "C" {
 #undef HAVE_TRACE_BACK_STACK
 #undef HAVE_BACKTRACE
 #undef HAVE_READDIR64
+
+/* define which libzfs functions are available */
+#undef HAVE_ZPOOL_VDEV_NAME_5ARG
+#undef HAVE_ZPOOL_VDEV_NAME_4ARG
 
 /* interfaces used for Linux container support (namespaces) */
 #undef HAVE_SENDMSG
@@ -537,6 +544,14 @@ typedef void (*SIG_PF) (int);
 #undef IS_MINGW
 #ifdef IS_MINGW
 
+#ifdef PCP_INTERNAL
+#define PCP_DATA	__declspec(dllexport)
+#define PCP_CALL	__declspec(dllexport)
+#else
+#define PCP_DATA	__declspec(dllimport)
+#define PCP_CALL	__declspec(dllimport)
+#endif
+
 #ifdef PCP_VERSION		/* used to reduce namespace pollution */
 #define EHOSTDOWN	WSAEHOSTDOWN
 #define ENODATA		WSANO_DATA
@@ -548,17 +563,20 @@ extern const char *wsastrerror(int);
 #define HAVE_DLOPEN
 #define HAVE_FNDELAY
 
+#define SHUT_RDWR	SD_BOTH
 #define MAP_FAILED	NULL
 #define O_NDELAY	0
 #define SIGHUP		(NSIG+1)
 #define SIGUSR1		(NSIG+2)
 #define SIGBUS		(NSIG+3)
+#ifndef S_IRGRP
 #define S_IRGRP		0
 #define S_IWGRP		0
 #define S_IROTH		0
 #define S_IWOTH		0
 #define S_IRWXG		0
 #define S_IRWXO		0
+#endif
 #define S_ISVTX		0
 
 #define fcntl(f, cmd, ...) 0
@@ -567,12 +585,17 @@ extern const char *wsastrerror(int);
 #define realpath(path, pp) strcpy(pp, path)
 #define pipe1(fds) _pipe(fds, 4096, O_BINARY)
 
-extern void setlinebuf(FILE *);
-extern char *index(const char *, int);
-extern char *rindex(const char *, int);
-extern char *strcasestr(const char *, const char *);
-extern long int lrand48(void);
-extern void srand48(long int);
+PCP_CALL extern int fsync(int);
+PCP_CALL extern int symlink(const char *, const char *);
+PCP_CALL extern int readlink(const char *, char *, size_t);
+PCP_CALL extern void setlinebuf(FILE *);
+PCP_CALL extern char *index(const char *, int);
+PCP_CALL extern char *rindex(const char *, int);
+PCP_CALL extern char *strcasestr(const char *, const char *);
+PCP_CALL extern long int lrand48(void);
+PCP_CALL extern void srand48(long int);
+PCP_CALL extern long int random(void);
+PCP_CALL extern void srandom(unsigned int);
 
 #ifdef HAVE_STRUCT_TIMESPEC
 /*
@@ -583,30 +606,22 @@ extern void srand48(long int);
 #include <pthread.h>
 #endif
 
-extern int nanosleep(const struct timespec *, struct timespec *);
-extern unsigned int sleep(unsigned int);
+PCP_CALL extern int nanosleep(const struct timespec *, struct timespec *);
+PCP_CALL extern unsigned int sleep(unsigned int);
 
 enum { RTLD_NOW, RTLD_LAZY };
-extern void *dlopen(const char *, int);
-extern char *dlerror(void);
-extern void *dlsym(void *, const char *);
-extern int dlclose(void *);
+PCP_CALL extern void *dlopen(const char *, int);
+PCP_CALL extern char *dlerror(void);
+PCP_CALL extern void *dlsym(void *, const char *);
+PCP_CALL extern int dlclose(void *);
 
-extern void openlog(const char *, int, int);
-extern void syslog(int, const char *, ...);
-extern void closelog(void);
+PCP_CALL extern void openlog(const char *, int, int);
+PCP_CALL extern void syslog(int, const char *, ...);
+PCP_CALL extern void closelog(void);
 #endif
 enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
        LOG_WARNING, LOG_NOTICE, LOG_INFO, LOG_DEBUG,
        LOG_PID, LOG_CONS, LOG_DAEMON };
-
-#ifdef LIBPCP_INTERNAL
-#define INTERN __declspec(dllexport)
-#define EXTERN
-#else
-#define INTERN
-#define EXTERN __declspec(dllimport)
-#endif
 
 #define setoserror(n)	(errno = (n))	/* not SetLastError() */
 #define oserror()	errno		/* not GetLastError() */
@@ -619,8 +634,8 @@ enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
 #define hoststrerror()	strerror(WSAGetLastError())
 
 #else /*!MINGW*/
-#define INTERN
-#define EXTERN extern
+#define PCP_DATA
+#define PCP_CALL
 
 #define setoserror(n)	(errno = (n))
 #define oserror()	errno
@@ -646,19 +661,19 @@ enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
  * we need to provide our own implementation
  */
 #ifndef HAVE_DIRNAME
-extern char *dirname(char *);
+PCP_CALL extern char *dirname(char *);
 #endif
 #ifndef HAVE_BASENAME
-extern char *basename(char *);
+PCP_CALL extern char *basename(char *);
 #endif
 #ifndef HAVE_STRNDUP
-extern char *strndup(const char *, size_t);
+PCP_CALL extern char * strndup(const char *, size_t);
 #endif
 #ifndef HAVE_STRCHRNUL
-extern char *strchrnul(const char *, int);
+PCP_CALL extern char * strchrnul(const char *, int);
 #endif
 #ifndef HAVE_STRCHRNUL
-extern char *strchrnul(const char *, int c);
+PCP_CALL extern char * strchrnul(const char *, int c);
 #endif
 
 #ifdef HAVE_CONST_DIRENT
@@ -669,10 +684,10 @@ extern char *strchrnul(const char *, int c);
 
 #ifndef HAVE_SCANDIR
 struct dirent;
-extern int scandir(const char *, struct dirent ***,
-                   int(*filter)(const_dirent *),
-                   int(*compare)(const_dirent **, const_dirent **));
-extern int alphasort(const_dirent **, const_dirent **);
+PCP_CALL extern int scandir(const char *, struct dirent ***,
+                            int(*filter)(const_dirent *),
+                            int(*compare)(const_dirent **, const_dirent **));
+PCP_CALL extern int alphasort(const_dirent **, const_dirent **);
 #endif
 
 #ifndef HAVE_MKDIR2
