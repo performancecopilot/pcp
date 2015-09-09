@@ -23,13 +23,20 @@ echo ""
 LOCALHOST=`hostname`
 signal=$PCP_BINADM_DIR/pmsignal
 
+_filter_dots()
+{
+    sed -e 's/\.\.\.\.\.*/[dots]/'
+}
+
 _cleanup()
 {
     $sudo $PCP_RC_DIR/pcp stop >$tmp.stop
-    _filter_pcp_stop <$tmp.stop | sed -e 's/\.\.\.\.\.*/[dots]/'
+    # primary pmlogger exiting during the test is racey depending on timing
+    # of fetches and stopping/starting pmcd (this is also not under test).
+    _filter_pcp_stop <$tmp.stop | _filter_dots | sed -e '/logger not running/d'
     _restore_config $PCP_PMCDCONF_PATH
     $sudo $PCP_RC_DIR/pcp start >$tmp.start
-    _filter_pcp_start <$tmp.start | sed -e 's/\.\.\.\.\.*/[dots]/'
+    _filter_pcp_start <$tmp.start | _filter_dots
     _wait_for_pmcd
     _wait_for_pmlogger
 
