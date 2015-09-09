@@ -1,8 +1,9 @@
 /*
- * Copyright (C) 2014 Red Hat.
- * Copyright (C) 1999-2005 Trolltech AS.  All rights reserved.
+ * Copyright (C) 2014-2015 Red Hat.
+ * Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+ * Contact: http://www.qt-project.org/legal
  *
- * This file was derived from the Qt QColorDialog class
+ * This file derives from the QtWidgets module of the Qt Toolkit.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
