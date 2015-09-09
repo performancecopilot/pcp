@@ -4,7 +4,7 @@ Update: N
 Fileset
   Fileset Name: @package_name@.rte
   Fileset VRMF: @package_version@.@package_release@
-  Fileset Description: Performance Co-Pilot (http://www.performancecopilot.org)
+  Fileset Description: Performance Co-Pilot (http://www.pcp.io)
   Bosboot required: N
   License agreement acceptance required: N
   Name of license agreement:

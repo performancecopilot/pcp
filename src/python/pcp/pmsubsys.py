@@ -19,7 +19,7 @@
 Additional Information:
 
 Performance Co-Pilot Web Site
-http://www.performancecopilot.org
+http://www.pcp.io
 """
 
 # ignore line too long, missing docstring, method could be a function,

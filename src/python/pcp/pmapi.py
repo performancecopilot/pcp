@@ -21,7 +21,7 @@
 # Additional Information:
 #
 # Performance Co-Pilot Web Site
-# http://www.performancecopilot.org
+# http://www.pcp.io
 #
 # Performance Co-Pilot Programmer's Guide
 # cf. Chapter 3. PMAPI - The Performance Metrics API

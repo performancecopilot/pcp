@@ -84,8 +84,7 @@ Basic getting started
     optional PMDAs installed.  Edit common.filter, and modify the
     _filter_top_pmns() procedure to strip the top-level name components for
     any new metric names (there are lots of examples already there) ... if
-    these are distributed PMDAs, you should send patches back to
-    pcp@mail.performancecopilot.org.
+    these are distributed (shipped) PMDAs, please update the list.
 
     Firewalls can get in the way.  In addition to the standard pmcd
     port(s) (TCP ports 44321, 44322 and 44323) one needs to open
@@ -206,8 +205,8 @@ Make in the src Directory
 
     1. cd src
     2. diff -u trace_dev.h ../../src/include/trace_dev.h
-       and mail the differences to pcp@mail.performancecopilot.org so we can
-       refine the Makefiles to avoid cosmetic differences
+       and mail the differences to pcp@oss.sgi.com so we can refine the
+       Makefiles to avoid cosmetic differences
     3. mv trace_dev.h trace_dev.h.orig
        cp ../../src/include/trace_dev.h trace_dev.h
     4. make

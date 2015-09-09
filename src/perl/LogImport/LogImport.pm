@@ -172,10 +172,10 @@ pmiGetHandle(3), pmiPutResult(3), pmiPutValue(3), pmiPutValueHandle(3),
 pmiStart(3), pmiSetHostname(3), pmiSetTimezone(3), pmiUnits(3),
 pmiUseContext(3) and pmiWrite(3).
 
-The PCP mailing list pcp@mail.performancecopilot.org can be used for
-questions about this module.
+The PCP mailing list pcp@oss.sgi.com can be used for questions about
+this module.
 
-Further details can be found at http://www.performancecopilot.org
+Further details can be found at http://www.pcp.io
 
 =head1 AUTHOR
 
