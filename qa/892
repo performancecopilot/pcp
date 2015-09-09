@@ -47,6 +47,8 @@ _filter()
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+echo "Using IPv6 addr=$addr" > $seq.full
+
 _save_config $PCP_SYSCONFIG_DIR/pmcd
 
 echo; echo "== checking loop pmcd access, expecting success"

@@ -226,22 +226,14 @@ _make_helptext()
     return 0
 }
 
+#
+# Get all IPv6 connection strings for a hosts interfaces, excluding loopback
+#
 _host_to_ipv6addrs()
 {
-    perl -e '
-	use strict;
-	use warnings;
-	use Socket qw(:addrinfo SOCK_RAW AF_INET AF_INET6);
-	my $hostname = "'$1'";
-        my ($err, @res) = getaddrinfo($hostname, "",
-				{socktype => SOCK_RAW, family => AF_INET6});
-	die "Cannot getaddrinfo - $err" if $err;
-	while (my $ai = shift @res) {
-	    my ($err, $ipaddr) = getnameinfo($ai->{addr},
-					NI_NUMERICHOST, NIx_NOSERV);
-	    die "Cannot getnameinfo - $err" if $err;
-	    print "$ipaddr\n";
-	}'
+    pminfo -f -h "$1" network.interface.ipv6_addr | \
+    sed -e '/^$/d' -e '/^network/d' -e '/"lo"/d' -e 's/\/[0-9][0-9]*//g' | \
+    awk -F\" '{ printf "%s%%%s\n", $4, $2 }'
 }
 
 _host_to_ipaddr()

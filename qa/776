@@ -3,7 +3,7 @@
 # Test using the pmfind app to find pmcd servers using the active probing
 # discovery mechanism
 #
-# Copyright (c) 2014 Red Hat.  All Rights Reserved.
+# Copyright (c) 2014-2015 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -13,7 +13,10 @@ echo "QA output created by $seq"
 . ./common.discovery
 
 _get_libpcp_config
+$ipv6 || _notrun "No libpcp or local host support for IPv6"
 $service_discovery || _notrun "No support for service discovery"
+addr=`_host_to_ipv6addrs local: | head -1`
+[ ! -z "$addr" ] || _notrun "No active IPv6 interfaces"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -53,35 +56,9 @@ _resolved_filter()
 }
 
 # real QA test starts here
+echo "Using IPv6 addr=$addr" > $seq.full
+
 _control_service_discovery
-
-# Obtain the ipv6 address of an active network interface
-# We're extracting a metric of the form:
-#
-#     inst [0 or "eth0"] value "fe80::3ea9:f4ff:fe76:6c24/64"
-#
-metric=`pminfo -f network.interface.ipv6_addr | \
-  tail -n +3 | \
-  grep -v ::1 | \
-  head -n1`
-
-[ -z metric ] && _notrun "no active ipv6 interfaces"
-
-# Extract the address
-addr=`echo $metric | \
-  awk '{ print $6 }' | \
-  sed -e 's/\"//g' -e 's|/.*$||'`
-
-# Extract the interface
-interface=`echo $metric | \
-  awk '{ print $4 }' | \
-  sed -e 's/\"//g'  -e 's/\]//'`
-
-# combine the address and the interface form a complete address of the form
-#
-# fe80::3ea9:f4ff:fe76:6c24%eth0
-#
-addr=$addr"%"$interface
 
 # Probe the obtained network.
 # Test various combinations of service queries and subnet sizes. Keep the
