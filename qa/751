@@ -12,7 +12,14 @@ _rpm_support_tests
 
 status=1	# failure is the default!
 $sudo rm -fr $tmp.* $seq.full
-trap "_rpm_cleanup" 0 1 2 3 15
+
+_cleanup()
+{
+    unset rpm_name
+    unset rpm_inst
+    _rpm_cleanup
+}
+trap "_cleanup" 0 1 2 3 15
 
 create_rewrite_logs()
 {
@@ -45,7 +52,7 @@ log mandatory on once {
 }
 End-of-File
     pmlogger -r -c $tmp.log.conf -T 2sec $tmp.log
-    echo 'metric 123.1.10 { type -> U32 }' > $tmp.lrw.conf
+    echo 'metric rpm.size { type -> U32 }' > $tmp.lrw.conf
     pmlogrewrite -c $tmp.lrw.conf -w $tmp.log $tmp.log-1
     migrate=$PCP_VAR_DIR/config/pmlogrewrite/rpm_migrate.conf
     pmlogrewrite -c $migrate -w $tmp.log-1 $tmp.log-2
@@ -59,9 +66,14 @@ End-of-File
 }
 
 # real QA test starts here
-
 echo
 _rpm_pmda_prepare
+
+# wait for metrics to appear before starting logging
+rpm_name=pcp
+rpm_inst=`rpm -q pcp`
+_rpm_package_install_await
+
 create_rewrite_logs
 echo "old -> new changes" | tee -a $seq.full
 diff -u $tmp.log-1.dump $tmp.log-2.dump | tee -a $seq.full | sed -e '/^---/d' -e '/^+++/d'
