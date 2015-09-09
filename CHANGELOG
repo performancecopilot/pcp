@@ -1,5 +1,40 @@
 pcp-3.10.7 (16 September 2015)
-     - Work in progress, see [ http://pcp.io/roadmap ]
+    - containers: added the pcp-pmie container
+    - pcp-atopsar: new PMAPI sar command based on http://atoptool.nl
+    - pmchart: fix memory corruption when restoring Saved Hosts list
+    - pmchart: fix sigsegv opening a view when no archive available
+    - rc_scripts: pmie/pmlogger - logged, no longer send cron email
+    - rc_scripts: pmie/pmlogger - support for control.d directories;
+      backward-compatible /etc/pcp/{pmie,pmlogger}/control extension
+    - rc_scripts: pmcd/pmlogger - provide a localhost-only setting
+    - pmdamic: new PMDA for Intel MIC card metrics
+    - pmdaproc: export CPU scheduler cgroup metrics from cpu.stat
+    - pmdalinux: export IPv6 kernel metrics from /proc/net/snmp6
+    - pmdalinux: fix variable types for several disk metrics
+    - pmdalinux: printf int64_t and/or uint64_t support (for softnet)
+    - pmdajson: updates to allow use with python 2.6 installations
+    - pmcpp: support inline shell command execution
+    - pmwebd: multiple metrics/instances per log graphite mode speedup
+    - libpcp: use public domain getdate instead of gnulib version
+    - libpcp: optimise archive decompression for common operations
+    - pmieconf: add dmthin pool utilization monitoring scripts
+    - python: more care taken in pmOptions destructor (could sigsegv)
+    - windows port: 64-bit format specifiers throughout code base
+    - windows port: fix a libpcp dlsym bug and IPC on Windows
+    - windows port: fix a python crash when free'ing resources
+    - pmdawindows: fix mem.cache.bytes metric kernel extraction
+    - perl pmda module: fix double free error in local_sock() routine
+      (observed to cause pmdamemcache crash during error path exit)
+    - pmdamounts: add mount fs usage metrics via statvfs(3)
+    - pmdapostfix: improve error handling for files vs directories
+    - pmdanfsclient: fix typos in metric value parsing routines
+    - pmlogconf: remove tool-specific intervals from tool templates
+    - pmlogconf: add nginx, elasticsearch and memcache configs
+    - docs: update quickref guide for easier command pasting
+    - docs: update references to init scripts, pmlogger control files
+    - build: configure.ac preserves optional gcc flags in the build
+    - build: fix LGPL license annotations in headers+libraries
+    - build: current FreeBSD toolchain updates
 
 pcp-3.10.6 (4 August 2015)
     - rc_scripts: use syslog over email for error notification
