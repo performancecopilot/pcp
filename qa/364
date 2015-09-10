@@ -91,6 +91,7 @@ _filter()
        -e '/disk.dev.bytes .* Unknown metric name/d' \
        -e '/disk.all.bytes .* Unknown metric name/d' \
        -e '/network.igmp .* Unknown metric name/d' \
+       -e '/elasticsearch.search.all.* Metric not supported/d' \
        -e '/swap.in .* Metric not supported/d' \
        -e '/swap.out .* Metric not supported/d' \
     | _filter_linux | _filter_solaris | _filter_darwin
