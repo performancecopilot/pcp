@@ -853,6 +853,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Nginx Webserver
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(LWP::UserAgent)
 
 %description pmda-nginx
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -922,6 +923,8 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for PostgreSQL
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(DBI)
+Requires: perl(DBD::Pg)
 
 %description pmda-postgresql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
