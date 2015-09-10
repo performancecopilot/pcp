@@ -998,6 +998,7 @@ cgroups
 785 pcp atop local
 786 context context_local libpcp local
 787 archive local pmie pmlogrewrite pmdumplog pmval flakey
+788 pmda.nginx pmda.install local
 789 pmda.papi local
 798 pmda.nfsclient local
 799:retired pmda.papi local

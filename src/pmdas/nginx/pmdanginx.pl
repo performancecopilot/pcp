@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2015 Red Hat.
 # Copyright (c) 2013 Ryan Doyle.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -19,6 +20,7 @@ use LWP::UserAgent;
 
 my @nginx_status = ();
 my $nginx_status_url = "http://localhost/nginx_status";
+my $nginx_status_available = 0;
 my $nginx_fetch_timeout = 1;
 my $http_client = LWP::UserAgent->new;
 
@@ -37,18 +39,23 @@ sub update_nginx_status
 	    # All the content on the status page are digits. Map the array
 	    # index to the metric item ID.
 	    @nginx_status = ($response->decoded_content =~ m/(\d+)/gm);
+	    $nginx_status_available = 1;
 	} else {
 	    @nginx_status = undef;
+	    $nginx_status_available = 0;
 	}
 }
 
 sub nginx_fetch_callback
 {
 	my ($cluster, $item, $inst) = @_;
-	if ($cluster == 0 && defined($nginx_status[$item])){
-	    return ($nginx_status[$item], 1);
+	unless ($nginx_status_available == 1) {
+	    return (PM_ERR_AGAIN, 0);
 	}
-	return (PM_ERR_PMID, 0);
+	unless ($cluster == 0 && defined($nginx_status[$item])) {
+	    return (PM_ERR_PMID, 0);
+	}
+	return ($nginx_status[$item], 1);
 }
 
 my $pmda = PCP::PMDA->new('nginx', 117);

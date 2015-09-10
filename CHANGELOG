@@ -25,6 +25,7 @@ pcp-3.10.7 (16 September 2015)
     - pmdawindows: fix mem.cache.bytes metric kernel extraction
     - perl pmda module: fix double free error in local_sock() routine
       (observed to cause pmdamemcache crash during error path exit)
+    - pmdanginx: correct errors returned for not-running nginx daemon
     - pmdamounts: add mount fs usage metrics via statvfs(3)
     - pmdapostfix: improve error handling for files vs directories
     - pmdanfsclient: fix typos in metric value parsing routines
@@ -32,6 +33,7 @@ pcp-3.10.7 (16 September 2015)
     - pmlogconf: add nginx, elasticsearch and memcache configs
     - docs: update quickref guide for easier command pasting
     - docs: update references to init scripts, pmlogger control files
+    - docs: update pmdanginx(1) describing nginx configuration needs
     - build: configure.ac preserves optional gcc flags in the build
     - build: fix LGPL license annotations in headers+libraries
     - build: current FreeBSD toolchain updates
