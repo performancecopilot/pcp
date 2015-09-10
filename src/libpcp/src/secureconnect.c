@@ -215,6 +215,7 @@ int
 __pmInitCertificates(void)
 {
     char nssdb[MAXPATHLEN];
+    const PRUint16 *cipher;
     PK11SlotInfo *slot;
     SECStatus secsts;
     static int initialized;
@@ -256,11 +257,8 @@ __pmInitCertificates(void)
     }
 
     /* Some NSS versions don't do this correctly in NSS_SetDomesticPolicy. */
-    do {
-        const PRUint16 *cipher;
-        for (cipher = SSL_ImplementedCiphers; *cipher != 0; ++cipher)
-            SSL_CipherPolicySet(*cipher, SSL_ALLOWED);
-    } while (0);
+    for (cipher = SSL_GetImplementedCiphers(); *cipher != 0; ++cipher)
+	SSL_CipherPolicySet(*cipher, SSL_ALLOWED);
     SSL_ClearSessionCache();
 
     return 0;
