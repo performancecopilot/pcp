@@ -688,6 +688,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Elasticsearch
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(LWP::UserAgent)
 
 %description pmda-elasticsearch
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -794,6 +795,8 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for MySQL
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(DBI)
+Requires: perl(DBD::mysql)
 
 %description pmda-mysql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -2364,11 +2367,12 @@ cd
 %endif
 
 %changelog
-* Tue Sep 16 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.7-1
-- Work in progress, see [ http://pcp.io/roadmap ]
+* Wed Sep 16 2015 Nathan Scott <nathans@redhat.com> - 3.10.7-1
 - Resolved pmchart sigsegv opening view without context (BZ 1256708)
 - Fixed pmchart memory corruption restoring Saved Hosts (BZ 1257009)
 - Fix perl PMDA API double-free on socket error path (BZ 1258862)
+- Added missing RPM dependencies to several PMDA sub-packages
+- Update to latest PCP sources.
 
 * Tue Aug 04 2015 Nathan Scott <nathans@redhat.com> - 3.10.6-1
 - Fix pcp2graphite write method invocation failure (BZ 1243123)
