@@ -16,10 +16,7 @@
 use strict;
 use warnings;
 
-use Data::Dumper;
-
 use PCP::PMDA;
-use Slurm;
 use Net::Domain qw( hostname );
 
 use Slurm;
