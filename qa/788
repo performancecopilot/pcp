@@ -54,7 +54,7 @@ pmdanginx_install()
         -e 's/[0-9][0-9]* warnings, //' \
     | $PCP_AWK_PROG '
 /Check nginx metrics have appeared/    { if ($7 >= 7) $7 = "X"
-                                         if ($10 >= 7) $10 = "Y"
+                                         if ($10 >= 7 || $10 == 0) $10 = "Y"
                                        }
                                        { print }'
 }
