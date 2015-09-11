@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -41,6 +41,7 @@ endif
 ifneq ($(PACKAGE_DISTRIBUTION),debian)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmcd
 endif
+	$(INSTALL) -m 644 pmcd.defaults $(PCP_SYSCONFIG_DIR)/pmcd
 	$(INSTALL) -m 644 sasl2.conf $(PCP_SASLCONF_DIR)/pmcd.conf
 
 include $(BUILDRULES)

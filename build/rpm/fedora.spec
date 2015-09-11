@@ -688,6 +688,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Elasticsearch
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(LWP::UserAgent)
 
 %description pmda-elasticsearch
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -794,6 +795,8 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for MySQL
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(DBI)
+Requires: perl(DBD::mysql)
 
 %description pmda-mysql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -853,6 +856,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Nginx Webserver
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(LWP::UserAgent)
 
 %description pmda-nginx
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -922,6 +926,8 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for PostgreSQL
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(DBI)
+Requires: perl(DBD::Pg)
 
 %description pmda-postgresql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1072,6 +1078,24 @@ Requires: python-pcp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Unbound DNS Resolver.
 # end pcp-pmda-unbound
+
+#
+# pcp-pmda-mic
+#
+%package pmda-mic
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for Intel MIC cards
+URL: http://www.pcp.io
+%if !%{disable_python3}
+Requires: python3-pcp
+%else
+Requires: python-pcp
+%endif
+%description pmda-mic
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about Intel MIC cards.
+# end pcp-pmda-mic
 
 %endif # !%{disable_python2} || !%{disable_python3}
 
@@ -1382,7 +1406,7 @@ Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-logger
 Requires: pcp-pmda-lustrecomm
 %if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 Requires: pcp-system-tools pcp-export-pcp2graphite
 %endif
 %if !%{disable_json}
@@ -1415,7 +1439,7 @@ Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm pcp-pmda-logger
 %if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 %endif
 %if !%{disable_json}
 Requires: pcp-pmda-json
@@ -1666,6 +1690,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^weblog' |\
   grep -E -v '^rpm' |\
   grep -E -v '^json' |\
+  grep -E -v '^mic' |\
   grep -E -v '^gluster' |\
   grep -E -v '^zswap' |\
   grep -E -v '^unbound' |\
@@ -1755,7 +1780,7 @@ save_configs_script()
         [ "$_dir" = "$_new" ] && continue
         if [ -d "$_dir" ]
         then
-            ( cd "$_dir" ; find . -type f -print ) | sed -e 's/^\.\///' \
+            ( cd "$_dir" ; find . -maxdepth 1 -type f ) | sed -e 's/^\.\///' \
             | while read _file
             do
                 [ "$_file" = "control" ] && continue
@@ -1783,7 +1808,7 @@ done
 for daemon in pmcd pmproxy
 do
     save_configs_script >> "$PCP_LOG_DIR/configs.sh" "$PCP_SYSCONF_DIR/$daemon"\
-        "$PCP_CONFIG_DIR/$daemon" /etc/$daemon /etc/sysconfig/$daemon
+        "$PCP_CONFIG_DIR/$daemon" /etc/$daemon
 done
 exit 0
 
@@ -1985,6 +2010,9 @@ cd
 %config(noreplace) %{_sysconfdir}/sasl2/pmcd.conf
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmlogger
 %config(noreplace) %{_sysconfdir}/cron.d/pcp-pmie
+%config(noreplace) %{_sysconfdir}/sysconfig/pmlogger
+%config(noreplace) %{_sysconfdir}/sysconfig/pmproxy
+%config(noreplace) %{_sysconfdir}/sysconfig/pmcd
 %config %{_sysconfdir}/bash_completion.d/pcp
 %config %{_sysconfdir}/pcp.env
 %config %{_sysconfdir}/pcp.sh
@@ -1995,9 +2023,13 @@ cd
 %dir %{_confdir}/pmproxy
 %config(noreplace) %{_confdir}/pmproxy/pmproxy.options
 %dir %{_confdir}/pmie
+%dir %{_confdir}/pmie/control.d
 %config(noreplace) %{_confdir}/pmie/control
+%config(noreplace) %{_confdir}/pmie/control.d/local
 %dir %{_confdir}/pmlogger
+%dir %{_confdir}/pmlogger/control.d
 %config(noreplace) %{_confdir}/pmlogger/control
+%config(noreplace) %{_confdir}/pmlogger/control.d/local
 
 %{_localstatedir}/lib/pcp/config/pmafm
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmie
@@ -2233,6 +2265,9 @@ cd
 
 %files export-pcp2graphite
 %{_bindir}/pcp2graphite
+
+%files pmda-mic
+%{_pmdasdir}/mic
 %endif # !%{disable_python2} || !%{disable_python3}
 
 %if !%{disable_json}
@@ -2332,8 +2367,12 @@ cd
 %endif
 
 %changelog
-* Tue Sep 16 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.7-1
-- Work in progress, see [ http://pcp.io/roadmap ]
+* Wed Sep 16 2015 Nathan Scott <nathans@redhat.com> - 3.10.7-1
+- Resolved pmchart sigsegv opening view without context (BZ 1256708)
+- Fixed pmchart memory corruption restoring Saved Hosts (BZ 1257009)
+- Fix perl PMDA API double-free on socket error path (BZ 1258862)
+- Added missing RPM dependencies to several PMDA sub-packages
+- Update to latest PCP sources.
 
 * Tue Aug 04 2015 Nathan Scott <nathans@redhat.com> - 3.10.6-1
 - Fix pcp2graphite write method invocation failure (BZ 1243123)

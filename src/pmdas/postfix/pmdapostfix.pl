@@ -234,13 +234,13 @@ if (defined($ENV{'PMDA_POSTFIX_REFRESH'})) { $refresh = $ENV{'PMDA_POSTFIX_REFRE
 
 foreach my $file ( @logfiles ) {
     if ( -r $file ) {
-	$logfile = $file;
+	$logfile = $file unless ( -d $file );
     }
 }
 if (defined($ENV{'PMDA_POSTFIX_LOG'})) { $logfile = $ENV{'PMDA_POSTFIX_LOG'}; } 
 unless(defined($logfile))
 {
-    pmda->log("Fatal: No Postfix log file found in: @logfiles");
+    $pmda->log("Fatal: No Postfix log file found in: @logfiles");
     die 'No Postfix log file found';
 }
 if (!$setup) { $pmda->log("logfile: $logfile"); }

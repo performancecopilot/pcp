@@ -252,11 +252,6 @@ static struct {
 	{	"pacctdir",		do_pacctdir,		1, },
 };
 
-/*
-** internal prototypes
-*/
-static void	engine(void);
-
 int
 main(int argc, char *argv[])
 {
@@ -291,7 +286,7 @@ main(int argc, char *argv[])
 	** i.e. system statistics only
 	*/
 	__pmSetProgname(argv[0]);
-	if (strcmp(pmProgname, "atopsar") == 0)
+	if (strcmp(pmProgname, "pcp-atopsar") == 0)
 		return atopsar(argc, argv);
 
 	__pmStartOptions(&opts);
@@ -329,11 +324,7 @@ main(int argc, char *argv[])
 				break;
 
 			   case 'r':		/* reading of raw data ?      */
-				snprintf(path, sizeof(path), "%s/%s.folio",
-					opts.optarg, basename(opts.optarg));
-				path[sizeof(path)-1] = '\0';
-				p = (!access(path, R_OK)) ? path : opts.optarg;
-				__pmAddOptArchiveFolio(&opts, p);
+				rawarchive(&opts, opts.optarg);
 				rawreadflag++;
 				break;
 
@@ -422,8 +413,7 @@ main(int argc, char *argv[])
 	*/
 	if (rawwriteflag)
 	{
-		char *source = (opts.nhosts > 0) ? opts.hosts[0] : "local:";
-		rawwrite(rawname, source, &interval, nsamples, midnightflag);
+		rawwrite(&opts, rawname, &interval, nsamples, midnightflag);
 		cleanstop(0);
 	}
 
@@ -462,7 +452,7 @@ main(int argc, char *argv[])
 /*
 ** The engine() drives the main-loop of the program
 */
-static void
+void
 engine(void)
 {
 	int 			i, j;

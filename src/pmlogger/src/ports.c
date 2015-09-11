@@ -184,15 +184,21 @@ GetPorts(char *file)
     int			fd;
     int			mapfd = -1;
     FILE		*mapstream = NULL;
-    int			sts;
     int			socketsCreated = 0;
+    int			maxpending = 5;	/* Max. pending connection requests */
+    int			address = INADDR_ANY;
     int			ctlix;
+    int			sts;
+    char		*env_str;
     __pmSockAddr	*myAddr;
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
     char		globalPath[MAXPATHLEN];
     char		localPath[MAXPATHLEN];
 #endif
     static int		port_base = -1;
+
+    if ((env_str = getenv("PMLOGGER_MAXPENDING")) != NULL)
+	maxpending = atoi(env_str);
 
     /* Try to create sockets for control connections. */
     for (ctlix = 0; ctlix < CFD_NUM; ++ctlix) {
@@ -313,9 +319,13 @@ GetPorts(char *file)
 	    if (port_base == -1) {
 		/*
 		 * get optional stuff from environment ...
-		 *	PMLOGGER_PORT
+		 *	PMLOGGER_PORT,
+		 *	PMLOGGER_LOCAL
 		 */
-		char	*env_str;
+		if ((env_str = getenv("PMLOGGER_LOCAL")) != NULL) {
+		    if (atoi(env_str) != 0)
+			address = INADDR_LOOPBACK;
+		}
 		if ((env_str = getenv("PMLOGGER_PORT")) != NULL) {
 		    char	*end_ptr;
 
@@ -331,8 +341,8 @@ GetPorts(char *file)
 	    }
 
 	    /*
-	     * try to allocate ports from port_base.  If port already in use, add one
-	     * and try again.
+	     * try to allocate ports from port_base.  If port already in use,
+	     * add one and try again.
 	     */
 	    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
 		fprintf(stderr, "GetPorts: __pmSockAddrAlloc out of memory\n");
@@ -340,15 +350,17 @@ GetPorts(char *file)
 	    }
 	    for (ctlport = port_base; ; ctlport++) {
 		if (ctlix == CFD_INET)
-		    __pmSockAddrInit(myAddr, AF_INET, INADDR_ANY, ctlport);
+		    __pmSockAddrInit(myAddr, AF_INET, address, ctlport);
 		else
-		    __pmSockAddrInit(myAddr, AF_INET6, INADDR_ANY, ctlport);
+		    __pmSockAddrInit(myAddr, AF_INET6, address, ctlport);
 		sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
 		if (sts < 0) {
 		    if (neterror() != EADDRINUSE) {
 			fprintf(stderr, "__pmBind(%d): %s\n", ctlport, netstrerror());
 			break;
 		    }
+		    if (address == INADDR_LOOPBACK)
+			break;
 		}
 		else
 		    break;
@@ -358,7 +370,7 @@ GetPorts(char *file)
 
 	/* Now listen on the new socket. */
 	if (sts >= 0) {
-	    sts = __pmListen(fd, 5);	/* Max. of 5 pending connection requests */
+	    sts = __pmListen(fd, maxpending);
 	    if (sts == -1) {
 		__pmCloseSocket(fd);
 		fprintf(stderr, "__pmListen: %s\n", netstrerror());

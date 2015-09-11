@@ -1,0 +1,635 @@
+#
+# Copyright (c) 2015 Martins Innus.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+'''
+Python implementation of an Intel "mic" Performance Metrics Domain Agent.
+'''
+
+import sys, os
+from ctypes import c_int, c_uint, c_float, c_ulonglong, POINTER, cast, Structure
+import cpmapi as c_api
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
+from pcp.pmapi import pmUnits, pmContext as PCP
+
+mpss_python_dir = os.environ.get('PMDAMIC_MPSS_PYTHON_DIR')
+
+if mpss_python_dir != None:
+    sys.path.insert(1, mpss_python_dir)
+
+from micmgmt import *
+
+class MicDevInfo(Structure):
+    ''' Metric values for mic device indom (one per card) '''
+# Info
+    _fields_ = [("num_cores", c_uint),
+                ("num_threads", c_uint),
+                ("dev_id", c_uint),
+                ("stepping", c_uint),
+                ("frequency", c_float),
+# Temp
+                ("cpu_temp", c_float),
+                ("mem_temp", c_float),
+                ("fanin_temp", c_float),
+                ("fanout_temp", c_float),
+                ("core_rail_temp", c_float),
+                ("uncore_rail_temp", c_float),
+                ("memory_rail_temp", c_float),
+# Power
+                ("power", c_float),
+                ("power_w0", c_float),
+                ("power_w1", c_float),
+                ("window0", c_float),
+                ("window1", c_float),
+                ("low_power_limit", c_float),
+                ("high_power_limit", c_float),
+                ("phys_power_limit", c_float),
+# Mem in KB
+                ("free_mem", c_ulonglong),
+                ("total_mem", c_ulonglong),
+                ("used_mem", c_ulonglong),
+# Core
+                ("tick_count", c_uint),
+                ("all_usr", c_ulonglong),
+                ("all_sys", c_ulonglong),
+                ("all_nice", c_ulonglong),
+                ("all_idle", c_ulonglong)]
+
+    def __init__(self, cores):
+        self.num_cores = cores
+
+class MicPerCoreInfo(Structure):
+    ''' Metric values for mic percore indom (one per card/core pair) '''
+# Percore
+    _fields_ = [ ("cpu_usr", c_ulonglong),
+                ("cpu_sys", c_ulonglong),
+                ("cpu_nice", c_ulonglong),
+                ("cpu_idle", c_ulonglong)]
+
+class MicPMDA(PMDA):
+    '''
+    A mic Performance Metrics Domain Agent.
+    Install it and make basic use of it, as follows:
+
+    # $PCP_PMDAS_DIR/mic/Install
+    # pminfo -f mic
+    '''
+
+    # Clusters
+    GLOBAL_CLUSTER = 0
+    INFO_CLUSTER = 1
+    TEMP_CLUSTER = 2
+    POWER_CLUSTER = 3
+    MEM_CLUSTER = 4
+    CORE_CLUSTER = 5
+    PERCORE_CLUSTER = 6
+
+    # Card indom
+    numcards = 0
+    cards = {}
+
+    # Percore indom
+    numcardcores = 0
+    cardcores = {}
+
+    # As far as I can tell, this is hard coded.
+    HZ = 100
+
+    def init_mic(self):
+        self.numcards = mic_get_ndevices()
+        
+    def update_mic(self):
+        '''
+            Update the mic stats. Serial "get" calls don't actually
+            refresh unless you call the update functions in between.
+        '''
+        self.cards.clear()
+        self.cardcores.clear()
+
+        for device in range(self.numcards):
+            mic = MicDevice(device)
+
+            mic.mic_update_core_util()
+            mic.mic_update_thermal_info()
+            mic.mic_update_memory_util()
+            mic.mic_update_power_utilization_info()
+
+            devinfo = MicDevInfo( mic.mic_get_cores_count() )
+            cardname = mic.mic_get_device_name()
+
+            # Info / Freq
+
+            devinfo.dev_id = mic.mic_get_device_id()
+            devinfo.stepping = mic.mic_get_processor_steppingid()
+            # Convert from KHz to MHz
+            devinfo.frequency = mic.mic_get_cores_frequency() / 1000.0
+
+            # Power (Need to check the status for the readings)
+            # The readings come in as uWatts but the limits as Watts
+            devinfo.power = mic.mic_get_inst_power_readings() / 1000000.0
+            if( mic.mic_get_inst_power_sensor_sts() < 0 ):
+                devinfo.power = -1
+
+            devinfo.power_w0 = mic.mic_get_total_power_readings_w0() / 1000000.0
+            if( mic.mic_get_total_power_sensor_sts_w0() < 0 ):
+                devinfo.power_w0 = -1
+
+            devinfo.power_w1 = mic.mic_get_total_power_readings_w1() / 1000000.0
+            if( mic.mic_get_total_power_sensor_sts_w1() < 0 ):
+                devinfo.power_w1 = -1
+
+            devinfo.window0 = mic.mic_get_time_window0()
+            devinfo.window1 = mic.mic_get_time_window1()
+
+            devinfo.low_power_limit = mic.mic_get_power_lmrk()
+            devinfo.high_power_limit = mic.mic_get_power_hmrk()
+            devinfo.phys_power_limit = mic.mic_get_power_phys_limit()
+
+            # Temperature (need to check if they are valid after read)
+            devinfo.cpu_temp = mic.mic_get_die_temp()
+            if( not mic.mic_is_die_temp_valid() ):
+                devinfo.cpu_temp = -1
+    
+            devinfo.mem_temp = mic.mic_get_gddr_temp()
+            if( not mic.mic_is_gddr_temp_valid() ):
+                devinfo.mem_temp = -1
+    
+            devinfo.fanin_temp = mic.mic_get_fanin_temp()
+            if( not mic.mic_is_fanin_temp_valid() ):
+                devinfo.fanin_temp = -1
+    
+            devinfo.fanout_temp = mic.mic_get_fanout_temp()
+            if( not mic.mic_is_fanout_temp_valid() ):
+                devinfo.fanout_temp = -1
+    
+            devinfo.core_rail_temp = mic.mic_get_vccp_temp()
+            if( not mic.mic_is_vccp_temp_valid() ):
+                devinfo.core_rail_temp = -1
+    
+            devinfo.uncore_rail_temp = mic.mic_get_vddg_temp()
+            if( not mic.mic_is_vddg_temp_valid() ):
+                devinfo.uncore_rail_temp = -1
+    
+            devinfo.memory_rail_temp = mic.mic_get_vddq_temp()
+            if( not mic.mic_is_vddq_temp_valid() ):
+                devinfo.memory_rail_temp = -1
+
+            # Memory, reported in KB
+            devinfo.free_mem = mic.mic_get_available_memory_size()
+            devinfo.total_mem = mic.mic_get_total_memory_size()
+            devinfo.used_mem = devinfo.total_mem - devinfo.free_mem
+
+            # Core Metrics
+            devinfo.num_threads = mic.mic_get_threads_core()
+
+            # All core metrics are converted to ms per thread from jiffies
+            millis = devinfo.num_threads * self.HZ
+
+            # Overall metrics
+            devinfo.all_usr = int(1000 * mic.mic_get_user_sum() / millis)
+            devinfo.all_sys = int(1000 * mic.mic_get_sys_sum() / millis)
+            devinfo.all_nice = int(1000 * mic.mic_get_nice_sum() / millis)
+            devinfo.all_idle = int(1000 * mic.mic_get_idle_sum() / millis)
+
+            # Per core metrics
+            core_usr = mic.mic_get_user_counters()
+            core_sys = mic.mic_get_sys_counters()
+            core_nice = mic.mic_get_nice_counters()
+            core_idle = mic.mic_get_idle_counters()
+
+            cnt = 0
+            for usr, sys, nice, idle in zip(core_usr, core_sys, core_nice, core_idle):
+                cpuinfo = MicPerCoreInfo()
+                cpuinfo.cpu_usr = int(1000 * usr /  millis)
+                cpuinfo.cpu_sys = int(1000 * sys / millis)
+                cpuinfo.cpu_nice = int(1000 * nice / millis)
+                cpuinfo.cpu_idle = int(1000 * idle / millis)
+
+                coreinst = "%s/core%d" % (cardname, cnt)
+
+                self.cardcores[coreinst] = cpuinfo
+                cnt += 1
+
+            # Not sure if this is useful but we report it
+            devinfo.tick_count = mic.mic_get_tick_count()
+
+            self.cards[cardname] = devinfo
+
+        self.replace_indom(self.card_indom, self.cards)
+        self.replace_indom(self.cardcore_indom, self.cardcores)
+
+    def mic_instance(self, serial):
+        ''' Called once per "instance request" PDU '''
+        # self.log("instance update for %d" % serial)
+        self.update_mic()
+
+
+    def mic_fetch(self):
+        ''' Called once per "fetch" PDU, before callbacks '''
+        self.update_mic()
+
+    def mic_fetch_global_callback(self, item, inst):
+        '''
+        Returns a list of value,status (single pair) for global cluster
+        Helper for the fetch callback
+        '''
+        if (item == 0):
+            if (inst != c_api.PM_IN_NULL):
+                return [c_api.PM_ERR_INST, 0]
+            return [self.numcards, 1]
+        else:
+            return [c_api.PM_ERR_PMID, 0]
+
+    def mic_fetch_info_callback(self, item, inst):
+        '''
+        Returns a list of value,status (single pair) for info cluster
+        Helper for the fetch callback
+        '''
+        
+        voidp = self.inst_lookup(self.card_indom, inst)
+
+        if(voidp == None):
+            return [c_api.PM_ERR_INST, 0]
+
+        cache = cast(voidp, POINTER(MicDevInfo) )
+        micdata = cache.contents
+
+        if (item == 0):
+            return [micdata.num_cores, 1]
+        elif (item == 1):
+            return [micdata.num_threads, 1]
+        elif (item == 2):
+            return [micdata.dev_id, 1]
+        elif (item == 3):
+            return [micdata.stepping, 1]
+        elif (item == 4):
+            return [micdata.frequency, 1]
+        else:
+            return [c_api.PM_ERR_PMID, 0]
+
+    def mic_fetch_temp_callback(self, item, inst):
+        '''
+        Returns a list of value,status (single pair) for temp cluster
+        Helper for the fetch callback
+        '''
+        
+        voidp = self.inst_lookup(self.card_indom, inst)
+
+        if(voidp == None):
+            return [c_api.PM_ERR_INST, 0]
+
+        cache = cast(voidp, POINTER(MicDevInfo) )
+        micdata = cache.contents
+
+        if (item == 0):
+            return [micdata.cpu_temp, 1] if micdata.cpu_temp>=0 else [c_api.PM_ERR_PMID, 0]
+        elif (item == 1):
+            return [micdata.mem_temp, 1] if micdata.mem_temp>=0 else [c_api.PM_ERR_PMID, 0]
+        elif (item == 2):
+            return [micdata.fanin_temp, 1] if micdata.fanin_temp>=0 else [c_api.PM_ERR_PMID, 0]
+        elif (item == 3):
+            return [micdata.fanout_temp, 1] if micdata.fanout_temp>=0 else [c_api.PM_ERR_PMID, 0]
+        elif (item == 4):
+            return [micdata.core_rail_temp, 1] if micdata.core_rail_temp>=0 else [c_api.PM_ERR_PMID, 0]
+        elif (item == 5):
+            return [micdata.uncore_rail_temp, 1] if micdata.uncore_rail_temp>=0 else [c_api.PM_ERR_PMID, 0]
+        elif (item == 6):
+            return [micdata.memory_rail_temp, 1] if micdata.memory_rail_temp>=0 else [c_api.PM_ERR_PMID, 0]
+        else:
+            return [c_api.PM_ERR_PMID, 0]
+
+    def mic_fetch_power_callback(self, item, inst):
+        '''
+        Returns a list of value,status (single pair) for power cluster
+        Helper for the fetch callback
+        '''
+        
+        voidp = self.inst_lookup(self.card_indom, inst)
+
+        if(voidp == None):
+            return [c_api.PM_ERR_INST, 0]
+
+        cache = cast(voidp, POINTER(MicDevInfo) )
+        micdata = cache.contents
+
+        if (item == 0):
+            return [micdata.power , 1] if micdata.power>=0 else [c_api.PM_ERR_PMID, 0]
+        elif (item == 1):
+            return [micdata.power_w0 , 1] if micdata.power_w0>=0 else [c_api.PM_ERR_PMID, 0]
+        elif (item == 2):
+            return [micdata.power_w1 , 1] if micdata.power_w1>=0 else [c_api.PM_ERR_PMID, 0]
+        elif (item == 3):
+            return [micdata.window0 , 1]
+        elif (item == 4):
+            return [micdata.window1 , 1]
+        elif (item == 5):
+            return [micdata.low_power_limit , 1]
+        elif (item == 6):
+            return [micdata.high_power_limit , 1]
+        elif (item == 7):
+            return [micdata.phys_power_limit , 1]
+        else:
+            return [c_api.PM_ERR_PMID, 0]
+
+    def mic_fetch_mem_callback(self, item, inst):
+        '''
+        Returns a list of value,status (single pair) for mem cluster
+        Helper for the fetch callback
+        '''
+        
+        voidp = self.inst_lookup(self.card_indom, inst)
+
+        if(voidp == None):
+            return [c_api.PM_ERR_INST, 0]
+
+        cache = cast(voidp, POINTER(MicDevInfo) )
+        micdata = cache.contents
+
+        if (item == 0):
+            return [micdata.total_mem, 1]
+        elif (item == 1):
+            return [micdata.free_mem, 1]
+        elif (item == 2):
+            return [micdata.used_mem, 1]
+        else:
+            return [c_api.PM_ERR_PMID, 0]
+
+    def mic_fetch_core_callback(self, item, inst):
+        '''
+        Returns a list of value,status (single pair) for core cluster
+        Helper for the fetch callback
+        '''
+        
+        voidp = self.inst_lookup(self.card_indom, inst)
+
+        if(voidp == None):
+            return [c_api.PM_ERR_INST, 0]
+
+        cache = cast(voidp, POINTER(MicDevInfo) )
+        micdata = cache.contents
+
+        if (item == 0):
+            return [micdata.tick_count, 1]
+        elif (item == 1):
+            return [micdata.all_usr, 1]
+        elif (item == 2):
+            return [micdata.all_sys, 1]
+        elif (item == 3):
+            return [micdata.all_nice, 1]
+        elif (item == 4):
+            return [micdata.all_idle, 1]
+        else:
+            return [c_api.PM_ERR_PMID, 0]
+
+    def mic_fetch_percore_callback(self, item, inst):
+        '''
+        Returns a list of value,status (single pair) for percore cluster
+        Helper for the fetch callback
+        '''
+        
+        voidp = self.inst_lookup(self.cardcore_indom, inst)
+
+        if(voidp == None):
+            return [c_api.PM_ERR_INST, 0]
+
+        cache = cast(voidp, POINTER(MicPerCoreInfo) )
+        percoredata = cache.contents
+
+        if( item < 4 ):
+            if( item == 0 ):
+                return [percoredata.cpu_usr, 1]
+            elif( item == 1 ):
+                return [percoredata.cpu_sys, 1]
+            elif( item == 2 ):
+                return [percoredata.cpu_nice, 1]
+            else:
+                return [percoredata.cpu_idle, 1]
+        else:
+            return [c_api.PM_ERR_PMID, 0]
+
+    def mic_fetch_callback(self, cluster, item, inst):
+        '''
+        Main fetch callback, defers to helpers for each cluster.
+        Returns a list of value,status (single pair) for requested pmid/inst
+        '''
+        #self.log("fetch callback for %d.%d[%d]" % (cluster, item, inst))
+        if (cluster == self.GLOBAL_CLUSTER):
+            return self.mic_fetch_global_callback(item, inst)
+        elif (cluster == self.INFO_CLUSTER):
+            return self.mic_fetch_info_callback(item, inst)
+        elif (cluster == self.TEMP_CLUSTER):
+            return self.mic_fetch_temp_callback(item, inst)
+        elif (cluster == self.POWER_CLUSTER):
+            return self.mic_fetch_power_callback(item, inst)
+        elif (cluster == self.MEM_CLUSTER):
+            return self.mic_fetch_mem_callback(item, inst)
+        elif (cluster == self.CORE_CLUSTER):
+            return self.mic_fetch_core_callback(item, inst)
+        elif (cluster == self.PERCORE_CLUSTER):
+            return self.mic_fetch_percore_callback(item, inst)
+        return [c_api.PM_ERR_PMID, 0]
+
+    def __init__(self, name, domain):
+        PMDA.__init__(self, name, domain)
+
+        self.connect_pmcd()
+
+        self.init_mic()
+
+        self.card_indom = self.indom(0)
+        self.cardcore_indom = self.indom(1)
+
+        self.add_indom(pmdaIndom(self.card_indom, self.cards))
+        self.add_indom(pmdaIndom(self.cardcore_indom, self.cardcores))
+
+        # Global
+        self.add_metric(name + '.mgmt.numcards', pmdaMetric(self.pmid(self.GLOBAL_CLUSTER, 0),
+                    c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Number of cards in the host system")
+
+        # Info / Freq
+        self.add_metric(name + '.mgmt.info.numcores', pmdaMetric(self.pmid(self.INFO_CLUSTER,0),
+                    c_api.PM_TYPE_U32, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Number of cores in the mic card")
+
+        self.add_metric(name + '.mgmt.info.numthreads', pmdaMetric(self.pmid(self.INFO_CLUSTER,1),
+                    c_api.PM_TYPE_U32, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Number of threads per core")
+
+        self.add_metric(name + '.mgmt.info.deviceid', pmdaMetric(self.pmid(self.INFO_CLUSTER,2),
+                    c_api.PM_TYPE_U32, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "The 16-bit PCI Device ID")
+
+        self.add_metric(name + '.mgmt.info.stepping', pmdaMetric(self.pmid(self.INFO_CLUSTER,3),
+                    c_api.PM_TYPE_U32, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Stepping and substepping id")
+
+        self.add_metric(name + '.mgmt.info.frequency', pmdaMetric(self.pmid(self.INFO_CLUSTER,4),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Core frequency")
+
+        # Temperature
+        self.add_metric(name + '.mgmt.temp.cpu',  pmdaMetric(self.pmid(self.TEMP_CLUSTER,0),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Die temperature in degrees Celsius")
+
+        self.add_metric(name + '.mgmt.temp.mem',  pmdaMetric(self.pmid(self.TEMP_CLUSTER,1),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "GDDR temperature in degrees Celsius")
+
+        self.add_metric(name + '.mgmt.temp.fanin',  pmdaMetric(self.pmid(self.TEMP_CLUSTER,2),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Fan in temperature in degrees Celsius")
+
+        self.add_metric(name + '.mgmt.temp.fanout',  pmdaMetric(self.pmid(self.TEMP_CLUSTER,3),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Fan out temperature in degrees Celsius")
+
+        self.add_metric(name + '.mgmt.temp.corerail',  pmdaMetric(self.pmid(self.TEMP_CLUSTER,4),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "VCCP temperature in degrees Celsius")
+
+        self.add_metric(name + '.mgmt.temp.uncorerail',  pmdaMetric(self.pmid(self.TEMP_CLUSTER,5),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "VDDG temperature in degrees Celsius")
+
+        self.add_metric(name + '.mgmt.temp.memrail',  pmdaMetric(self.pmid(self.TEMP_CLUSTER,6),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "VDDQ temperature in degrees Celsius")
+
+        # Power utilization and limits
+        self.add_metric(name + '.mgmt.power.inst',  pmdaMetric(self.pmid(self.POWER_CLUSTER,0),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Instantaneous power utilization")
+
+        self.add_metric(name + '.mgmt.power.w0',  pmdaMetric(self.pmid(self.POWER_CLUSTER,1),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Power utilized in Window 0")
+
+        self.add_metric(name + '.mgmt.power.w1',  pmdaMetric(self.pmid(self.POWER_CLUSTER,2),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Power utilized in Window 1")
+
+        self.add_metric(name + '.mgmt.power.t0',  pmdaMetric(self.pmid(self.POWER_CLUSTER,3),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Time window level 0")
+
+        self.add_metric(name + '.mgmt.power.t1',  pmdaMetric(self.pmid(self.POWER_CLUSTER,4),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Time window level 1")
+
+        self.add_metric(name + '.mgmt.power.low_limit',  pmdaMetric(self.pmid(self.POWER_CLUSTER,5),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Limit above which PM initiates basic cooling activities such as increasing the fan speed.")
+
+        self.add_metric(name + '.mgmt.power.high_limit',  pmdaMetric(self.pmid(self.POWER_CLUSTER,6),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Limit above which PM performs aggressive cooling activities such as throttling the cores and maximizing fan speed")
+
+        self.add_metric(name + '.mgmt.power.phys_limit',  pmdaMetric(self.pmid(self.POWER_CLUSTER,7),
+                    c_api.PM_TYPE_FLOAT, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "Also called the shutdown limit. Above this limit, the PM starts shutting down the coprocessor.")
+
+        # Mem
+        self.add_metric(name + '.mgmt.mem.total', pmdaMetric(self.pmid(self.MEM_CLUSTER, 0),
+                c_api.PM_TYPE_U64, self.card_indom, c_api.PM_SEM_INSTANT,
+                pmUnits(1, 0, 0, c_api.PM_SPACE_KBYTE, 0, 0)),
+                "Total Memory")
+
+        self.add_metric(name + '.mgmt.mem.free', pmdaMetric(self.pmid(self.MEM_CLUSTER, 1),
+                c_api.PM_TYPE_U64, self.card_indom, c_api.PM_SEM_INSTANT,
+                pmUnits(1, 0, 0, c_api.PM_SPACE_KBYTE, 0, 0)),
+                "Free Memory")
+
+        self.add_metric(name + '.mgmt.mem.used', pmdaMetric(self.pmid(self.MEM_CLUSTER, 2),
+                c_api.PM_TYPE_U64, self.card_indom, c_api.PM_SEM_INSTANT,
+                pmUnits(1, 0, 0, c_api.PM_SPACE_KBYTE, 0, 0)),
+                "Used Memory")
+
+        # Core
+        self.add_metric(name + '.mgmt.cores.tickcount', pmdaMetric(self.pmid(self.CORE_CLUSTER,0),
+                    c_api.PM_TYPE_U32, self.card_indom, c_api.PM_SEM_INSTANT,
+                    pmUnits(0, 0, 0, 0, 0, 0)),
+                    "The tick value is for measuring internal system time")
+
+        self.add_metric(name + ".mgmt.cores.usr", pmdaMetric(self.pmid(self.CORE_CLUSTER, 1),
+                    c_api.PM_TYPE_U64,  self.card_indom, c_api.PM_SEM_COUNTER,
+                    pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
+                    "User time for all cores")
+
+        self.add_metric(name + ".mgmt.cores.sys", pmdaMetric(self.pmid(self.CORE_CLUSTER, 2),
+                    c_api.PM_TYPE_U64,  self.card_indom, c_api.PM_SEM_COUNTER,
+                    pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
+                    "System time for all cores")
+
+        self.add_metric(name + ".mgmt.cores.nice", pmdaMetric(self.pmid(self.CORE_CLUSTER, 3),
+                    c_api.PM_TYPE_U64,  self.card_indom, c_api.PM_SEM_COUNTER,
+                    pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
+                    "Nice time for all cores")
+
+        self.add_metric(name + ".mgmt.cores.idle", pmdaMetric(self.pmid(self.CORE_CLUSTER, 4),
+                    c_api.PM_TYPE_U64,  self.card_indom, c_api.PM_SEM_COUNTER,
+                    pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
+                    "Idle time for all cores")
+
+        # Percore metrics. Instances are cardname/coreY
+        self.add_metric(name + ".mgmt.percore.usr", pmdaMetric(self.pmid(self.PERCORE_CLUSTER, 0),
+            c_api.PM_TYPE_U64,  self.cardcore_indom, c_api.PM_SEM_COUNTER,
+            pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
+            "User time per core")
+
+        self.add_metric(name + ".mgmt.percore.sys", pmdaMetric(self.pmid(self.PERCORE_CLUSTER, 1),
+            c_api.PM_TYPE_U64,  self.cardcore_indom, c_api.PM_SEM_COUNTER,
+            pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
+            "System time per core")
+    
+        self.add_metric(name + ".mgmt.percore.nice", pmdaMetric(self.pmid(self.PERCORE_CLUSTER, 2),
+            c_api.PM_TYPE_U64,  self.cardcore_indom, c_api.PM_SEM_COUNTER,
+            pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
+            "Nice time per core")
+    
+        self.add_metric(name + ".mgmt.percore.idle", pmdaMetric(self.pmid(self.PERCORE_CLUSTER, 3),
+            c_api.PM_TYPE_U64,  self.cardcore_indom, c_api.PM_SEM_COUNTER,
+            pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)),
+            "Idle time per core")
+
+        self.set_fetch(self.mic_fetch)
+        self.set_instance(self.mic_instance)
+        self.set_fetch_callback(self.mic_fetch_callback)
+        # So far all the stats seem to be available to any user
+        self.set_user(PCP.pmGetConfig('PCP_USER'))
+        self.update_mic()
+
+if __name__ == '__main__':
+    MicPMDA('mic', 138).run()

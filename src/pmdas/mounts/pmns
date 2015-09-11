@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2001 Alan Bailey (bailey@mcs.anl.gov or abailey@ncsa.uiuc.edu) 
  * Copyright (c) 2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2015 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +17,19 @@
  */
 
 mounts {
-    device        MOUNTS:0:0
-    type          MOUNTS:0:1
-    options       MOUNTS:0:2
-    up            MOUNTS:0:3
+    device	MOUNTS:0:0
+    type	MOUNTS:0:1
+    options	MOUNTS:0:2
+    up		MOUNTS:0:3
+    capacity	MOUNTS:0:4
+    used	MOUNTS:0:5
+    free	MOUNTS:0:6
+    maxfiles	MOUNTS:0:7
+    usedfiles	MOUNTS:0:8
+    freefiles	MOUNTS:0:9
+    full	MOUNTS:0:10
+    blocksize	MOUNTS:0:11
+    avail	MOUNTS:0:12
+    availfiles	MOUNTS:0:13
+    readonly	MOUNTS:0:14
 }

@@ -1,7 +1,7 @@
 #pmlogconf-setup 2.0
 ident   per-process metrics used by the atop command
 force	available
-delta   120 seconds
+
 	proc.psinfo.cmd
 	proc.psinfo.sname
 	proc.psinfo.ppid

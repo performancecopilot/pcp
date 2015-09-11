@@ -422,6 +422,7 @@ s/ PMCD / pmcd /
 	-e "s;$PCP_BINADM_DIR/pmcd;\$PCP_BINADM_DIR/pmcd;" \
 	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;" \
 	-e "s;$PCP_PMLOGGERCONTROL_PATH;\$PCP_PMLOGGERCONTROL_PATH;" \
+	-e "s;$PCP_PMLOGGERCONTROL_PATH.d/local;\$PCP_PMLOGGERCONTROL_PATH;" \
 	-e "s;$PCP_VAR_DIR/;\$PCP_VAR_DIR/;" \
 	-e "s;$PCP_SYSCONF_DIR/;\$PCP_SYSCONF_DIR/;" \
 	-e "s;/usr/etc/pmcd;\$PCP_BINADM_DIR/pmcd;" \
@@ -481,6 +482,14 @@ s/\.\.\.\.*/.../
     | _filter_init_distro
 }
 
+_filterall_pcp_start()
+{
+    _filter_pcp_start \
+    | sed \
+        -e '/rebuilding PMNS/d' \
+        -e '/installing /d'
+}
+
 _filter_pmie_start()
 {
     sed \
@@ -513,12 +522,33 @@ _filter_pmie_stop()
     | _filter_init_distro
 }
 
-_filterall_pcp_start()
+_filter_pmproxy_start()
 {
-    _filter_pcp_start \
-    | sed \
-        -e '/rebuilding PMNS/d' \
-        -e '/installing /d'
+    sed \
+	-e '/^Waiting for pmproxy to terminate/d' \
+	-e "s;$PCP_RC_DIR/pmproxy;\$PCP_RC_DIR/pmproxy;g" \
+	-e '/(pmproxy) is disabled/d' \
+	-e '/To enable/d' \
+	-e '/update-rc.d -f pmproxy remove/d' \
+	-e '/update-rc.d pmproxy defaults/d' \
+	-e '/\/sbin\/chkconfig pmpmroxy on/d' \
+	-e '/\/usr\/sbin\/sysv-rc-conf pmproxy on/d' \
+        -e '/update-rc.d -f pmproxy defaults/d' \
+	-e '/ln -sf \.\.\/init.d\/pmproxy \/etc\/rc\.d\//d' \
+	-e '/systemctl enable pmproxy.service/d' \
+        -e '/^\.\.*done$/d' \
+	-e "s;/private/tmp;/tmp;g" \
+	-e '/^$/d' \
+    | _filter_init_distro
+}
+
+_filter_pmproxy_stop()
+{
+    sed \
+	-e "s;$PCP_RC_DIR/pmproxy;\$PCP_RC_DIR/pmproxy;g" \
+	-e '/^Waiting for pmproxy/s/\.\.\.[. ]*done/.../' \
+	-e '/^Waiting for pmproxy/s/\.\.\. *$/.../' \
+    | _filter_init_distro
 }
 
 _sort_pmdumplog_d()

@@ -14,7 +14,7 @@ echo "QA output created by $seq"
 
 if [ $PCP_PLATFORM != irix ]
 then
-    echo "No ipc/shm/sem metrics in $PCP_PLATFORM" >$seq.notrun
+    echo "Missing some ipc/shm/sem metrics on $PCP_PLATFORM" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi

@@ -360,31 +360,44 @@ AC_SUBST(cc)
 cc_is_gcc=$GCC
 AC_SUBST(cc_is_gcc)
 AC_SUBST(cflags_abi)
-PCFLAGS=$CFLAGS
-AC_SUBST(PCFLAGS)
-AC_PROG_CXX
-cxx=$CXX
-AC_SUBST(cxx)
+dnl these become CFLAGS and LDFLAGS for the build
+PCFLAGS="$CFLAGS"
 PLDFLAGS=$LDFLAGS
-AC_SUBST(PLDFLAGS)
 
-dnl for cc use locally in configure (not exported via $PCFLAGS),
-dnl add -O in case -D_FORTIFY_SOURCE has been added to CFLAGS above,
-dnl as -D_FORTIFY_SOURCE requires -O but we've separated optimization
-dnl flags out into $CFLAGS_OPT for our build infrastructure
-CFLAGS="-O $CFLAGS"
+if echo "$CFLAGS" | grep 'D_FORTIFY_SOURCE' >/dev/null
+then
+    dnl for cc use locally in configure (not exported via $PCFLAGS),
+    dnl add -O in case -D_FORTIFY_SOURCE has been added to CFLAGS above,
+    dnl as -D_FORTIFY_SOURCE requires -O but we've separated optimization
+    dnl flags out into $CFLAGS_OPT for our build infrastructure
+    CFLAGS="-O $PCFLAGS"
+fi
+
+dnl some versions of gcc (e.g. version 4.8.4 on Gentoo Hardened) have added
+dnl a predefined for _FORTIFY_SOURCE but only when -O is specified ... so
+dnl to be safe we have -U_FORTIFY_SOURCE before -D_FORTIFY_SOURCE=2 below
 
 # Add some security-related gcc flags
-AC_ARG_ENABLE([ssp],
-  [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
-AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != no],[
-   save_CFLAGS="$CFLAGS"
-   CFLAGS="$CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"
-   AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
-       AC_MSG_NOTICE([Compiling with gcc -fstack-protector-all et al.])
-       CFLAGS="$save_CFLAGS -fstack-protector-all -D_FORTIFY_SOURCE=2"],[
-       AC_MSG_NOTICE([Compiler does not support -fstack-protector-all et al.])
-       CFLAGS="$save_CFLAGS"])])
+if echo "$CFLAGS" | grep stack-protector >/dev/null
+then
+    dnl already set, probably from the environment
+    :
+else
+    AC_ARG_ENABLE([ssp],
+    [AS_HELP_STRING([--disable-ssp], [disable gcc stack-protector])])
+    AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_ssp" != xno ],[
+       save_CFLAGS="$CFLAGS"
+       CFLAGS="$CFLAGS -O -fstack-protector-all -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"
+       AC_COMPILE_IFELSE([AC_LANG_SOURCE([int something ();])], [
+	   AC_MSG_NOTICE([Compiling with gcc -fstack-protector-all et al.])
+	   PCFLAGS="$PCFLAGS -fstack-protector-all -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2"],[
+	   AC_MSG_NOTICE([Compiler does not support -fstack-protector-all et al.])
+	   CFLAGS="$save_CFLAGS"
+       ])
+    ])
+fi
+AC_SUBST(PCFLAGS)
+AC_SUBST(PLDFLAGS)
 
 # Check for even more security-related gcc/linker flags, useful for daemons
 AC_ARG_ENABLE([pie],
@@ -425,6 +438,10 @@ AS_IF([test "x$cc_is_gcc" = xyes -a "$enable_visibility" != no],[
    CFLAGS="$save_CFLAGS"
 ])
 AC_SUBST(INVISIBILITY)
+
+AC_PROG_CXX
+cxx=$CXX
+AC_SUBST(cxx)
 
 # Prevent shared libaries from being built for libpcp and other core libraries
 AC_ARG_ENABLE([shared],
@@ -719,9 +736,7 @@ pmda_json=false
 AS_IF([test "x$do_pmdajson" = "xyes"], [pmda_json=true])
 AS_IF([test "x$do_pmdajson" = "xcheck"], [
     dnl JSON PMDA needs both the six and jsonpointer Python modules
-    dnl Python 2.6 is also too old for this PMDA.
     $have_python_jsonpointer && $have_python_six && pmda_json=true
-    test $have_python -a "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -le 6 && pmda_json=false
 ])
 AC_SUBST(PMDA_JSON, $pmda_json)
 
@@ -1394,17 +1409,26 @@ AS_IF([test "x$do_papi" != "xno"], [
     saved_CFLAGS="$CFLAGS"
     savedLIBS=$LIBS
 
+    dnl potentially from the environment, else empty
+    CFLAGS="$papi_CFLAGS"
+    LDFLAGS="$papi_LIBS"
+
     case "$do_papi" in
-      yes|no|check) ;;
-	 */*) PAPI_ROOTDIR=$do_papi;
-	      CFLAGS="-I$PAPI_ROOTDIR/include"
-	      LDFLAGS="-L$PAPI_ROOTDIR/lib" ;;
-	 *)   PKG_CHECK_MODULES(papi,[$do_papi],[
-		CFLAGS="$papi_CFLAGS"
-		LDFLAGS="$papi_LIBS"]) ;;
-                # $papi_LIBS will include -lpapi harmlessly redudantly with AC_CHECK_LIB
+	yes|no|check)
+	    ;;
+	*/*)
+	    PAPI_ROOTDIR=$do_papi;
+	    CFLAGS="-I$PAPI_ROOTDIR/include"
+	    LDFLAGS="-L$PAPI_ROOTDIR/lib"
+	    ;;
+	 *)
+	    PKG_CHECK_MODULES(papi,[$do_papi],[
+		  CFLAGS="$papi_CFLAGS"
+		  LDFLAGS="$papi_LIBS"])
+	    ;;
     esac
 
+    # $papi_LIBS may include -lpapi harmlessly redudantly with AC_CHECK_LIB
     AC_CHECK_LIB([papi], [PAPI_library_init],
 		 [papi_libs="$LDFLAGS -lpapi"],
 		 [enable_papi=false])
@@ -1721,7 +1745,7 @@ if test "$cross_compiling" = "yes"; then
 else
     cat <<End-of-File >conftest.c
 #include <stdio.h>
-main(int argc,  char **argv) { printf("%p", argv); exit(0); }
+int main(int argc,  char **argv) { printf("%p", argv); return(0); }
 End-of-File
     (eval $ac_compile) 2>&5
     (eval $ac_link) 2>&5
@@ -1830,7 +1854,7 @@ $2 == "bozo"	{ t = $1
     'unsigned long'|'unsigned long int'|'long unsigned int')
 	_fmt='"lu"'
 	;;
-    'unsigned long long')
+    'unsigned long long'|'unsigned long long int')
         if test $target_os = mingw; then
             _fmt='"I64u"'
         else
@@ -1866,6 +1890,70 @@ fmt_pid="$_fmt"
 AC_MSG_RESULT($fmt_pid)
 AC_SUBST(fmt_pid)
 rm -rf conftest.c conftest.debug
+
+dnl printf type for int64_t
+AC_MSG_CHECKING([printf type for int64_t ])
+if test "$cross_compiling" = "yes"; then
+    ans=$printf_fmt_int64
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
+#include <stdio.h>
+#include <stdint.h>
+#include <inttypes.h>
+int main()
+{
+    printf("\"%s\"\n", __PRI64_PREFIX "d");
+    return(0);
+}
+End-of-File
+    ans=''
+    (eval $ac_link) 2>&5
+    if test -x ./conftest
+    then
+	ans=`./conftest`
+	echo "./conftest -> \"$ans\"" >&5
+    fi
+    if test -z "$ans"
+    then
+	dnl have to try the hardway ...
+	cat <<End-of-File >conftest.c
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+int main()
+{
+    char buf[[17]];
+    int64_t bozo = 0x12345678abcdLL;
+    sprintf(buf, "%lx", bozo);
+    if (strcmp(buf, "12345678abcd") == 0)
+	printf("\"ld\"\n");
+    else {
+	sprintf(buf, "%llx", bozo);
+	if (strcmp(buf, "12345678abcd") == 0)
+	    printf("\"lld\"\n");
+    }
+    return(0);
+}
+End-of-File
+	(eval $ac_link) 2>&5
+	if test -x ./conftest
+	then
+	    ans=`./conftest`
+	    echo "./conftest -> \"$ans\"" >&5
+	fi
+    fi
+fi
+if test -z "$ans"
+then
+    echo 'FATAL ERROR: Cannot determine printf format for int64_t type'
+    rm -rf conftest conftest.*
+    exit 1
+fi
+fmt_int64="$ans"
+AC_MSG_RESULT("$fmt_int64")
+AC_SUBST(fmt_int64)
+rm -rf conftest.* conftest
 
 if test "$do_threads" = "check" -o "$do_threads" = "yes"
 then
@@ -2495,14 +2583,22 @@ pcp_inc_dir=`eval echo $pcp_inc_dir`
 AC_SUBST(pcp_inc_dir)
 
 dnl books - pdfs, html
-pcp_books_dir=`eval echo $datarootdir/doc/pcp-doc`
+if test $target_os = linux; then
+    pcp_books_dir=`eval echo $datarootdir/doc/pcp-doc`
+else
+    pcp_books_dir=`eval echo $datarootdir/doc/pcp`
+fi
 pcp_books_dir=`eval echo $pcp_books_dir`
 pcp_html_dir=`eval echo $pcp_books_dir/html`
 AC_SUBST(pcp_books_dir)
 AC_SUBST(pcp_html_dir)
 
 dnl icon pixmap files
-pcp_icons_dir=`eval echo $datarootdir/pcp-gui/pixmaps`
+if test $target_os = linux; then
+    pcp_icons_dir=`eval echo $datarootdir/pcp-gui/pixmaps`
+else
+    pcp_icons_dir=`eval echo $datarootdir/pcp/pixmaps`
+fi
 pcp_icons_dir=`eval echo $pcp_icons_dir`
 AC_SUBST(pcp_icons_dir)
 

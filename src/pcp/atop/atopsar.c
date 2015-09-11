@@ -31,8 +31,8 @@
 #include "photosyst.h"
 #include "photoproc.h"
 
-#define	MAXFL	64      /* maximum number of command-line flags  */
-
+#define	MAXFL		64      /* maximum number of command-line flags  */
+#define	sarflags	"b:e:SxCMh:Hr:R:aA"
 
 /*
 ** color definitions
@@ -81,9 +81,11 @@ static char 		coloron;       /* boolean: colors active now      */
 /*
 ** local prototypes
 */
-static void	engine(void);
 static void	pratopsaruse(char *);
-static void	reportlive(double, double, struct sstat *);
+static char	reportlive(double, double,
+		           struct sstat *, struct tstat *, struct tstat **,
+		           int, int, int, int, int, int, int, int,
+		           int, unsigned int, char);
 static char	reportraw (double, double,
 		           struct sstat *, struct tstat *, struct tstat **,
 		           int, int, int, int, int, int, int, int,
@@ -91,14 +93,11 @@ static char	reportraw (double, double,
 static void	reportheader(struct sysname *, time_t);
 static time_t	daylimit(time_t);
 
-int
-atopsar(int argc, char *argv[])
+static char *
+saroptions(void)
 {
-	register int	i, c;
 	char		*flaglist;
-	pmOptions	opts = { 0 };
-
-	usecolors = 't';
+	int		i;
 
 	/* 
 	** gather all flags for the print-functions
@@ -115,10 +114,23 @@ atopsar(int argc, char *argv[])
 	/*
 	** add generic flags
 	*/
-	strcat(flaglist, "b:e:SxCMHr:R:aA");
+	return strncat(flaglist, sarflags, pricnt+32);
+}
 
-	opts.short_options = flaglist;
+int
+atopsar(int argc, char *argv[])
+{
+	register int	i, c;
+	pmOptions	opts = {
+		.flags = PM_OPTFLAG_BOUNDARIES,
+	};
+
+	usecolors = 't';
+
+	opts.short_options = saroptions();
 	__pmStartOptions(&opts);
+	if (opts.narchives > 0)
+		rawreadflag++;
 
 	/* 
 	** interpret command-line arguments & flags 
@@ -142,7 +154,7 @@ atopsar(int argc, char *argv[])
 				break;
 
 			   case 'r':		/* reading of file data ? */
-				__pmAddOptArchiveFolio(&opts, opts.optarg);
+				rawarchive(&opts, opts.optarg);
 				rawreadflag++;
 				break;
 
@@ -248,15 +260,22 @@ atopsar(int argc, char *argv[])
 				nsamples = opts.samples;
 			}
 		}
-		else	/* if no interval specified, read from logfile */
+		/* if no interval specified, read from logfile */
+		else if (!rawreadflag)
 		{
+			rawfolio(&opts);
 			rawreadflag++;
 		}
 	}
-	else	/* if no flags specified at all, read from logfile */
+	/* if no flags specified at all, read from logfile */
+	else if (!rawreadflag)
 	{
+		rawfolio(&opts);
 		rawreadflag++;
 	}
+
+	__pmEndOptions(&opts);
+
 	if (opts.errors)
 		prusage(pmProgname);
 
@@ -290,11 +309,7 @@ atopsar(int argc, char *argv[])
 	*/
 	if (rawreadflag)
 	{
-		/*
-		** select own reportraw-function to be called
-		** by the rawread function
-		*/
-		vis.show_samp  = reportraw;
+		vis.show_samp = reportraw;
 
 		for (i=0; i < pricnt; i++)
 		{
@@ -302,19 +317,13 @@ atopsar(int argc, char *argv[])
 			{
 				prinow    = i;
 				daylim    = 0;
-				// TODO: PMAPI reading
-				// begintime = saved_begintime;
-				// rawread();
-				printf("\n");
 			}
 		}
-
-		cleanstop(0);
 	}
+	else
+		vis.show_samp = reportlive;
 
 	/*
-	** live data must be gathered
-	**
 	** determine the name of this node (without domain-name)
 	** and the kernel-version
 	*/
@@ -326,117 +335,42 @@ atopsar(int argc, char *argv[])
 	initifprop();
 
 	/*
-	** start live reporting
+	** start the engine now .....
 	*/
 	engine();
+
+	cleanstop(0);
 
 	return 0;
 }
 
 /*
-** engine() that drives the main-loop for atopsar
-*/
-static void
-engine(void)
-{
-	struct sigaction 	sigact;
-	double			timed;
-	double			delta;
-	void			getusr1(int);
-
-	/*
-	** reserve space for system-level statistics
-	*/
-	static struct sstat	*cursstat; /* current   */
-	static struct sstat	*presstat; /* previous  */
-	static struct sstat	*devsstat; /* deviation */
-	static struct sstat	*hlpsstat;
-
-	/*
-	** initialization: allocate required memory dynamically
-	*/
-	cursstat = calloc(1, sizeof(struct sstat));
-	presstat = calloc(1, sizeof(struct sstat));
-	devsstat = calloc(1, sizeof(struct sstat));
-
-	ptrverify(cursstat,  "Malloc failed for current sysstats\n");
-	ptrverify(presstat,  "Malloc failed for prev    sysstats\n");
-	ptrverify(devsstat,  "Malloc failed for deviate sysstats\n");
-
-	/*
-	** install the signal-handler for ALARM and SIGUSR1 (both triggers
-	** for the next sample)
-	*/
-	memset(&sigact, 0, sizeof sigact);
-	sigact.sa_handler = getusr1;
-	sigaction(SIGUSR1, &sigact, (struct sigaction *)0);
-
-	memset(&sigact, 0, sizeof sigact);
-	sigact.sa_handler = getalarm;
-	sigaction(SIGALRM, &sigact, (struct sigaction *)0);
-
-	if (interval.tv_sec || interval.tv_usec)
-		setalarm(&interval);
-
-	/*
-	** print overall report header
-	*/
-	reportheader(&sysname, time(0));
-
-	/*
-	** MAIN-LOOP:
-	**    -	Wait for the requested number of seconds or for other trigger
-	**
-	**    -	System-level counters
-	**		get current counters
-	**		calculate the differences with the previous sample
-	**
-	**    -	Call the print-function to visualize the differences
-	*/
-	for (sampcnt=0; sampcnt < nsamples+1; sampcnt++)
-	{
-		/*
-		** wait for alarm-signal to arrive or
-		** wait for SIGUSR1 in case of an interval of 0.
-		*/
-		if (sampcnt > 0)
-			pause();
-
-		/*
-		** take a snapshot of the current system-level statistics 
-		** and calculate the deviations (i.e. calculate the activity
-		** during the last sample)
-		*/
-		hlpsstat = cursstat;	/* swap current/prev. stats */
-		cursstat = presstat;
-		presstat = hlpsstat;
-
-		photosyst(cursstat);	/* obtain new counters      */
-
-		pretime  = curtime;	/* timestamp for previous sample */
-		curtime  = cursstat->stamp; /* timestamp for this sample */
-
-		deviatsyst(cursstat, presstat, devsstat);
-
-		timed = __pmtimevalToReal(&curtime);
-		delta = timed - __pmtimevalToReal(&pretime);
-
-		/*
-		** activate the report-function to visualize the deviations
-		*/
-		reportlive(timed, delta > 1.0 ? delta : 1.0, devsstat);
-	} /* end of main-loop */
-}
-
-/*
 ** report function to print a new sample in case of live measurements
 */
-static void
-reportlive(double curtime, double numsecs, struct sstat *ss)
+static char
+reportlive(double curtime, double numsecs,
+		struct sstat *ss, struct tstat *ts, struct tstat **proclist,
+		int ndeviat, int ntask, int nactproc,
+		int totproc, int totrun, int totslpi, int totslpu, int totzomb,
+		int nexit, unsigned int noverflow, char flags)
 {
 	char			timebuf[16], datebuf[16];
 	int			i, nr = numreports, rv;
 	static unsigned int	curline, headline;
+	static char		firstcall = 1;
+
+	(void)ts; (void)proclist; (void)ndeviat; (void)ntask; (void)nactproc;		(void)totproc; (void)totrun; (void)totslpi; (void)totslpu;
+	(void)totzomb; (void)nexit; (void)noverflow; (void)flags;
+
+	/*
+	** when this is first call to this function,
+	** print overall header with system information
+	*/
+	if (firstcall)
+	{
+		reportheader(&sysname, time(0));
+		firstcall = 0;
+	}
 
 	/*
 	** printing more reports needs another way of handling compared
@@ -448,7 +382,7 @@ reportlive(double curtime, double numsecs, struct sstat *ss)
 		** skip first sample
 		*/
 		if (sampcnt == 0)
-			return;
+			return '\0';
 
 		printf(datemsg, convdate(curtime, datebuf, sizeof(datebuf)-1));
 
@@ -540,7 +474,7 @@ reportlive(double curtime, double numsecs, struct sstat *ss)
 			curline+=2;
 
 			headline = repeathead;
-			return;
+			return '\0';
 		}
 
 		/*
@@ -585,6 +519,8 @@ reportlive(double curtime, double numsecs, struct sstat *ss)
 			curline+=2;
 		}
 	}
+
+	return '\0';
 }
 
 /*
@@ -885,7 +821,7 @@ pratopsaruse(char *myname)
 		"Usage: %s [-flags] interval [samples]\n", myname);
 	fprintf(stderr, "\n");
 	fprintf(stderr,
-		"\tToday's atop logfile is used by default!\n");
+		"\tToday's pmlogger archive is used by default!\n");
 	fprintf(stderr, "\n");
 	fprintf(stderr,
 		"\tGeneric flags:\n");

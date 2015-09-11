@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -39,10 +39,13 @@ install:: $(SUBDIRS)
 
 install:: default
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_VAR_DIR)/config/pmlogger
+	$(INSTALL) -m 644 pmlogger.defaults $(PCP_SYSCONFIG_DIR)/pmlogger
 ifneq ($(PACKAGE_DISTRIBUTION),debian)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmlogger
 endif
+	$(INSTALL) -m 755 -d $(PCP_PMLOGGERCONTROL_PATH).d
 	$(INSTALL) -m 644 control $(PCP_PMLOGGERCONTROL_PATH)
+	$(INSTALL) -m 644 control.local $(PCP_PMLOGGERCONTROL_PATH).d/local
 	$(INSTALL) -m 755 pmnewlog.sh $(PCP_BINADM_DIR)/pmnewlog$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmlogger_daily.sh $(PCP_BINADM_DIR)/pmlogger_daily$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmlogger_check.sh $(PCP_BINADM_DIR)/pmlogger_check$(SHELLSUFFIX)
@@ -55,13 +58,12 @@ endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmlogger
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmlogger
 ifeq ($(TARGET_OS),linux)
+	# In a container environment, the rc_pmlogger script installs the
+	# Docker version of the crontab into the hosts cron.d directory.
+	$(INSTALL) -m 644 crontab.docker $(PCP_VAR_DIR)/config/pmlogger/crontab.docker
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 endif
 	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
-	# In a container environment, the pmlogger rc script installs the docker version
-	# of the crontab into the host's cron.d directory. The pcp-pmlogger Dockerfile
-	# deletes the regular pcp-pmlogger crontab entry.
-	$(INSTALL) -m 644 crontab.docker $(PCP_VAR_DIR)/config/pmlogger/crontab.docker
 
 include $(BUILDRULES)
 

@@ -19,6 +19,7 @@ fi
 #
 OPTION_AGENTS=true
 OPTION_LOGGER=true
+OPTION_REMOTE=true
 OPTION_PMCD_TRACE=true
 
 # Default PMCD host ... normally empty, but could be remote_hostname to

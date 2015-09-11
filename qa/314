@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
-trap "rm -fr $tmp.*; $sudo rm -fr /tmp/$seq; exit \$status" 0 1 2 3 15
+trap "$sudo rm -fr $tmp.*; $sudo rm -fr /tmp/$seq; exit \$status" 0 1 2 3 15
 
 # create a pmie config file, causing frequent output (to log)
 cat > $tmp.config << EOF1
@@ -45,7 +45,8 @@ pmstore simple.numfetch 0 >/dev/null
 # fire em all up
 echo "Starting pmie process"
 echo "=== pmie_check ===" >>$seq.full
-$sudo $PCP_BINADM_DIR/pmie_check -c $tmp.control -VV >>$seq.full
+$sudo $PCP_BINADM_DIR/pmie_check -c $tmp.control -VV -l $tmp.log
+$sudo cat $tmp.log >>$seq.full
 ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
 sleep 6		# fill original log a bit
 cat /tmp/$seq/1.good.log >>$seq.full
@@ -54,13 +55,15 @@ ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
 echo "Rotate, rotate..."
 previous=`pmdate -1d %Y%m%d`
 echo "=== pmie_daily ===" >>$seq.full
-$sudo $PCP_BINADM_DIR/pmie_daily -c $tmp.control -VV >>$seq.full
+$sudo $PCP_BINADM_DIR/pmie_daily -c $tmp.control -VV -l $tmp.log
+$sudo cat $tmp.log >>$seq.full
 ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
 sleep 3		# fill rotated log a bit
 
 echo "Shutdown pmie process"
 echo "=== pmie_check ===" >>$seq.full
-$sudo $PCP_BINADM_DIR/pmie_check -c $tmp.control -s -VV >>$seq.full
+$sudo $PCP_BINADM_DIR/pmie_check -c $tmp.control -s -VV -l $tmp.log
+$sudo cat $tmp.log >>$seq.full
 ps $PCP_PS_ALL_FLAGS | grep '[p]mie' >>$seq.full
 
 grep rotated /tmp/$seq/1.good.log >/dev/null \

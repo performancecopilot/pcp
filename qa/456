@@ -1,7 +1,7 @@
 #! /bin/sh
 # PCP QA Test No. 456
 #
-# Bug #591459: incomplete control file for cron.pm*
+# Bug #591459: incomplete control file for cron pm* scripts
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -89,13 +89,15 @@ EOF
 echo "--------------"
 echo "PMLOGGER.CHECK"
 echo "--------------"
-$sudo $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log
+$sudo cat $tmp/log | _filter
 
 echo
 echo "--------------"
 echo "PMLOGGER.DAILY"
 echo "--------------"
-$sudo $PCP_BINADM_DIR/pmlogger_daily -V -c $tmp/control 2>&1 | _filter
+$sudo $PCP_BINADM_DIR/pmlogger_daily -V -c $tmp/control -l $tmp/log
+$sudo cat $tmp/log | _filter
 
 # success, all done
 status=0

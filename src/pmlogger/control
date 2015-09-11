@@ -14,6 +14,9 @@
 #		a first step
 #    Args	optional additional arguments to pmlogger and/or pmnewlog
 #
+# All files below "${PCP_PMLOGGERCONTROL_PATH}.d" are appended to this
+# file before evaluation, if any exist.
+#
 
 # === VARIABLE ASSIGNMENTS ===
 #
@@ -31,16 +34,15 @@ $PMCD_REQUEST_TIMEOUT=120
 #
 #Host		P?  S?	directory				args
 
-# local primary logger
 #
-# (LOCALHOSTNAME is expanded to local: in the first column,
-# and to `hostname` in the fourth (directory) column.)
+# Note: - LOCALHOSTNAME will be expanded to local: in the first column,
+#         and to `hostname` in the fourth (directory) column
+#       - Default local primary logger specification is nowadays setup
+#         via ${PCP_PMLOGGERCONTROL_PATH}.d/local
+#	- If multiple pmloggers for the same host (e.g. both primary and
+#	  non-primary loggers are active), then they MUST use different
+#	  directories
 #
-LOCALHOSTNAME	y   n	PCP_LOG_DIR/pmlogger/LOCALHOSTNAME	-r -T24h10m -c config.default
-
-# Note:	if multiple pmloggers for the same host (e.g. both primary and
-#	non-primary loggers are active), then they MUST use different
-#	directories
 
 # local non-primary logger
 #LOCALHOSTNAME	n   n	PCP_LOG_DIR/pmlogger/mysummary		-r -T24h10m -c config.Summary

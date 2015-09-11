@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -18,9 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS	= src examples
 OTHERS  = control stomp rc_pmie pmie2col.sh pmie_check.sh pmie_daily.sh
-
-LSRCFILES = $(OTHERS) crontab.in
-LDIRT	= crontab pmie.service
+LDIRT	= crontab crontab.docker pmie.service
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
@@ -30,7 +28,7 @@ CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmie/crontab
 endif
 
-default:: crontab pmie.service
+default:: crontab crontab.docker pmie.service
 
 default:: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -43,7 +41,9 @@ install:: default
 ifneq ($(PACKAGE_DISTRIBUTION),debian)
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pmie
 endif
+	$(INSTALL) -m 755 -d $(PCP_PMIECONTROL_PATH).d
 	$(INSTALL) -m 644 control $(PCP_PMIECONTROL_PATH)
+	$(INSTALL) -m 644 control.local $(PCP_PMIECONTROL_PATH).d/local
 	$(INSTALL) -m 755 pmie_check.sh $(PCP_BINADM_DIR)/pmie_check$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmie_daily.sh $(PCP_BINADM_DIR)/pmie_daily$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmie2col.sh $(PCP_BIN_DIR)/pmie2col$(SHELLSUFFIX)
@@ -54,6 +54,9 @@ endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmie
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmie
 ifeq ($(TARGET_OS),linux)
+	# In a Docker container environment, the rc_pmie script installs the
+	# Docker version of the crontab into the hosts /etc/cron.d directory.
+	$(INSTALL) -m 644 crontab.docker $(PCP_VAR_DIR)/config/pmie/crontab.docker
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 endif
 	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
@@ -69,3 +72,7 @@ pmie.service : pmie.service.in
 
 crontab: crontab.in
 	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';g' $< > $@
+
+crontab.docker:	crontab.docker.in
+	# docker crontab runs as root. this may change in the future.
+	$(SED) -e 's;@path@;'$(PCP_BINADM_DIR)';' $< > $@

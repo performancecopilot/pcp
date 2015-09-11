@@ -613,10 +613,6 @@ if __name__ == '__main__':
             subsys.append(interrupt)
             subsys.append(memory)
 
-    if opts.duration_arg != 0:
-        (timeval, errmsg) = pm.pmParseInterval(str(opts.duration_arg))
-        duration = c_api.pmtimevalToReal(timeval)
-
     pm = pmapi.pmContext.fromOptions(opts.opts, sys.argv)
     if pm.type == c_api.PM_CONTEXT_ARCHIVE:
         replay_archive = True
@@ -626,10 +622,15 @@ if __name__ == '__main__':
     # Find server-side pmcd host-name
     host = pm.pmGetContextHostName()
 
-    (delta, errmsg) = pmapi.pmContext.pmParseInterval(str(opts.interval_arg) + " seconds")
+    (delta, errmsg) = pm.pmParseInterval(str(opts.interval_arg) + " seconds")
+    delta_seconds = c_api.pmtimevalToReal(delta.tv_sec, delta.tv_usec)
+
+    if opts.duration_arg != 0:
+        (timeval, errmsg) = pm.pmParseInterval(str(opts.duration_arg))
+        duration = c_api.pmtimevalToReal(timeval.tv_sec, timeval.tv_usec)
+        opts.n_samples = int((duration / delta_seconds) + 0.5)
 
     if opts.create_archive:
-        delta_seconds = c_api.pmtimevalToReal(delta.tv_sec, delta.tv_usec)
         msec = str(int(1000.0 * delta_seconds))
         configuration = "log mandatory on every " + msec + " milliseconds {\n"
         configuration += ss.dump_metrics().replace(" ", "\n")

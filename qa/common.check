@@ -226,6 +226,16 @@ _make_helptext()
     return 0
 }
 
+#
+# Get all IPv6 connection strings for a hosts interfaces, excluding loopback
+#
+_host_to_ipv6addrs()
+{
+    pminfo -f -h "$1" network.interface.ipv6_addr | \
+    sed -e '/^$/d' -e '/^network/d' -e '/"lo"/d' -e 's/\/[0-9][0-9]*//g' | \
+    awk -F\" '{ printf "%s%%%s\n", $4, $2 }'
+}
+
 _host_to_ipaddr()
 {
     perl -MSocket -e '
@@ -1737,7 +1747,7 @@ p
     fi
 }
 
-# disable all system pmloggers running via the control file
+# disable all system pmloggers running via the control file(s)
 #
 _disable_loggers()
 {
@@ -1747,6 +1757,12 @@ _disable_loggers()
     then
 	[ ! -f $tmp.control ] && \
 		$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
+    fi
+    if [ -d $PCP_PMLOGGERCONTROL_PATH.d ]
+    then
+	[ ! -d $tmp.control.d ] && \
+		$sudo cp -a $PCP_PMLOGGERCONTROL_PATH.d $tmp.control.d
+	$sudo rm -fr $PCP_PMLOGGERCONTROL_PATH.d
     fi
     cat <<End-of-File >$tmp._tmp
 # dummy file created by qa/$seq on `date`
@@ -1762,6 +1778,11 @@ _restore_loggers()
 {
     [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+    if [ -d $tmp.control.d ]
+    then
+	$sudo cp -a $tmp.control.d $PCP_PMLOGGERCONTROL_PATH.d
+	$sudo rm -fr $tmp.control.d
+    fi
     [ -f $tmp.control ] && \
 	$sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
 }

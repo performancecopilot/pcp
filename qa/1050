@@ -39,9 +39,8 @@ echo "=== Checking help text ==="
 pmieconf -f $tmp.pmie help all | _length_check 80
 echo
 echo "=== Checking predicate ==="
-# increased from 80 to 96 because of all of the crap white space to the
-# left of the real prodicate text.
-#
+# (increased from 80 to 96 because of the white space to the
+#  left of the real prodicate text, in pmieconf output).
 pmieconf -f $tmp.pmie list all predicate | _length_check 96
 
 # success, all done

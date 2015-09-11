@@ -118,12 +118,17 @@ _interrupt()
 
 _save_setup()
 {
-	for file in $PCP_PMCDCONF_PATH $SYSPMDA \
+	for file in $PCP_PMCDCONF_PATH \
 		$CHECK $PCP_PMLOGGERCONTROL_PATH \
 		$PCP_PMLOGGEROPTIONS_PATH
 	do
 	    [ -f $file.$seq ] && $sudo rm -f $file.$seq
 	    [ -f $file ] && $sudo cp -p $file $file.$seq
+	done
+	for dir in $PCP_PMLOGGERCONTROL_PATH.d
+	do
+	    [ -d $dir.$seq ] && $sudo rm -fr $dir.$seq
+	    [ -d $dir ] && $sudo cp -a $dir $dir.$seq
 	done
 }
 
@@ -134,7 +139,7 @@ _cleanup()
     then
 	echo
 	echo "Restore the state of the universe ..."
-	for file in $PCP_PMCDCONF_PATH $SYSPMDA \
+	for file in $PCP_PMCDCONF_PATH \
 		$CHECK $PCP_PMLOGGERCONTROL_PATH \
 		$PCP_PMLOGGEROPTIONS_PATH
 	do
@@ -143,6 +148,15 @@ _cleanup()
 		$sudo rm -f $file
 		$sudo cp -p $file.$seq $file
 		$sudo rm -f $file.$seq
+	    fi
+	done
+	for dir in $PCP_PMLOGGERCONTROL_PATH.d
+	do
+	    if [ -d $dir.$seq ]
+	    then
+		$sudo rm -fr $dir
+		$sudo cp -a $dir.$seq $dir
+		$sudo rm -fr $dir.$seq
 	    fi
 	done
 	[ -f $PCP_PMCD_PROG.$seq ] && \
@@ -154,7 +168,7 @@ _cleanup()
 	_wait_for_pmcd
 	_needclean=false
     fi
-    $sudo rm -f $tmp.*
+    $sudo rm -fr $tmp.*
     exit $status
 }
 

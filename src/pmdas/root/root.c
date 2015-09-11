@@ -207,6 +207,8 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->cp = *cp->name == '/' ? cp->name+1 : cp->name;
 	    break;
 	case 2:		/* containers.pid */
+	    if (cp->pid <= 0)
+		return PMDA_FETCH_NOVALUES;
 	    atom->ul = cp->pid;
 	    break;
 	case 3:		/* containers.state.running */
@@ -227,7 +229,7 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return PM_ERR_PMID;
     }
 
-    return 1;
+    return PMDA_FETCH_STATIC;
 }
 
 /* General utility routine for checking timestamp differences */

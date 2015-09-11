@@ -183,7 +183,7 @@ root {
 # 1 "TMP.4"
     four	1:0:4
 pmcpp: TMP.4[2]: #include "TMP.5"
-pmcpp: Error: #include nesting too deep
+pmcpp: Error: #include and/or #shell nesting too deep
 
 #define errors ...
 ---------------- 15 -----------------

@@ -184,6 +184,8 @@ events.o
     pmid_flags			# no unsafe side-effects
     pmid_missed			# no unsafe side-effects
     ?caller                     # const
+    ?pmUnpackEventRecords.caller		# const
+    ?pmUnpackHighResEventRecords.caller	# const
 fault.o
 fetchlocal.o
     splitlist			# single-threaded PM_SCOPE_DSO_PMDA
@@ -191,14 +193,11 @@ fetchlocal.o
 fetch.o
 freeresult.o
 getdate.tab.o
-    dst_table              	# const
-    meridian_table         	# const
-    military_table         	# const
-    month_and_day_table    	# const
-    relative_time_table    	# const
-    time_units_table       	# const
-    time_zone_table        	# const
-    universal_time_zone_table	# const
+    MilitaryTable         	# const
+    OtherTable         		# const
+    MonthDayTable    		# const
+    TimezoneTable        	# const
+    UnitsTable			# const
     yycheck                	# const
     yydefact               	# const
     yydefgoto              	# const
@@ -349,6 +348,7 @@ units.o
     space_keywords              # const
     time_keywords               # const
     time_scales                 # const
+    ?pmParseUnitsStr.time_scales	# const
 util.o
     idbuf			# pmIDStr deprecated by pmIDStr_r
     indombuf			# pmInDomStr deprecated by pmInDomStr_r
@@ -452,7 +452,9 @@ do
 		    -e '/ s .*_\.[0-9][0-9]*$/d' \
 		    -e '/ s LC[0-9][0-9]*$/d' \
 		    -e '/ s L_\.str[0-9][0-9]*$/d' -e '/ s L_\.str$/d' \
+		    -e '/ r \.L\.str[0-9][0-9]*$/d' -e '/ r \.L\.str$/d' \
 		    -e '/ s L___func__\./d' \
+		    -e '/ r \.LCPI./d' \
 		    -e '/ s l_switch\./d' \
 		    -e '/ s .*\$tlv\$init$/d' \
 		    -e 's/b \([_a-zA-Z][_a-zA-Z0-9]*\)\.b$/b \1/' \
@@ -466,6 +468,7 @@ do
 		    -e '/ r \.eh_frame/d' \
 		    -e '/ r __PRETTY_FUNCTION__.[0-9][0-9]*$/d' \
 		    -e '/ r __func__.[0-9][0-9]*$/d' \
+		    -e '/ r \.L__func__.*$/d' \
 		    -e '/ r CSWTCH.[0-9][0-9]*$/d' \
 		    -e '/ r \.LC[0-9][0-9]*$/d' \
 		    -e '/ C ___pmLogReads/d' \

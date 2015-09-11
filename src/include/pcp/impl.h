@@ -2,18 +2,17 @@
  * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
- * 
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- * 
- * This program is distributed in the hope that it will be useful, but
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
-
 #ifndef PCP_IMPL_H
 #define PCP_IMPL_H
 
@@ -656,6 +655,7 @@ typedef enum {
     PM_SERVER_FEATURE_UNIX_DOMAIN,
     PM_SERVER_FEATURE_DISCOVERY,
     PM_SERVER_FEATURE_CONTAINERS,
+    PM_SERVER_FEATURE_LOCAL,
     PM_SERVER_FEATURES
 } __pmServerFeature;
 

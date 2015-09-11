@@ -1,137 +1,104 @@
 QA output created by 1024
 == Checking metric values - blkdev-root-001.tgz
 
-disk.all.read
-    value 1132105
-
-disk.all.write
-    value 1541331
-
-disk.all.total
-    value 2673436
-
-disk.all.blkread
-    value 95048962
-
-disk.all.blkwrite
-    value 178999432
-
-disk.all.blktotal
-    value 274048394
-
-disk.all.read_bytes
-    value 47524481
-
-disk.all.write_bytes
-    value 89499716
-
-disk.all.total_bytes
-    value 137024197
-
-disk.all.read_merge
-    value 127625
-
-disk.all.write_merge
-    value 2624311
-
 disk.all.avactive
     value 15011617
-
-disk.all.read_rawactive
-    value 12125298
-
-disk.all.write_rawactive
-    value 520526656
-
-disk.all.total_rawactive
-    value 532651954
 
 disk.all.aveq
     value 532716500
 
-disk.dev.read
-    inst [N or "sda"] value 1132105
+disk.all.blkread
+    value 95048962
 
-disk.dev.write
-    inst [N or "sda"] value 1541331
+disk.all.blktotal
+    value 274048394
 
-disk.dev.total
-    inst [N or "sda"] value 2673436
+disk.all.blkwrite
+    value 178999432
 
-disk.dev.blkread
-    inst [N or "sda"] value 95048962
+disk.all.read
+    value 1132105
 
-disk.dev.blkwrite
-    inst [N or "sda"] value 178999432
+disk.all.read_bytes
+    value 47524481
 
-disk.dev.blktotal
-    inst [N or "sda"] value 274048394
+disk.all.read_merge
+    value 127625
 
-disk.dev.read_bytes
-    inst [N or "sda"] value 47524481
+disk.all.read_rawactive
+    value 12125298
 
-disk.dev.write_bytes
-    inst [N or "sda"] value 89499716
+disk.all.total
+    value 2673436
 
-disk.dev.total_bytes
-    inst [N or "sda"] value 137024197
+disk.all.total_bytes
+    value 137024197
 
-disk.dev.read_merge
-    inst [N or "sda"] value 127625
+disk.all.total_rawactive
+    value 532651954
 
-disk.dev.write_merge
-    inst [N or "sda"] value 2624311
+disk.all.write
+    value 1541331
+
+disk.all.write_bytes
+    value 89499716
+
+disk.all.write_merge
+    value 2624311
+
+disk.all.write_rawactive
+    value 520526656
 
 disk.dev.avactive
     inst [N or "sda"] value 15011617
 
-disk.dev.read_rawactive
-    inst [N or "sda"] value 12125298
-
-disk.dev.write_rawactive
-    inst [N or "sda"] value 520526656
-
-disk.dev.total_rawactive
-    inst [N or "sda"] value 532651954
-
 disk.dev.aveq
     inst [N or "sda"] value 532716500
+
+disk.dev.blkread
+    inst [N or "sda"] value 95048962
+
+disk.dev.blktotal
+    inst [N or "sda"] value 274048394
+
+disk.dev.blkwrite
+    inst [N or "sda"] value 178999432
+
+disk.dev.read
+    inst [N or "sda"] value 1132105
+
+disk.dev.read_bytes
+    inst [N or "sda"] value 47524481
+
+disk.dev.read_merge
+    inst [N or "sda"] value 127625
+
+disk.dev.read_rawactive
+    inst [N or "sda"] value 12125298
 
 disk.dev.scheduler
     inst [N or "sda"] value "unknown"
 
-disk.dm.read
-    inst [N or "docker-8:7-1974438-pool"] value 5454
+disk.dev.total
+    inst [N or "sda"] value 2673436
 
-disk.dm.write
-    inst [N or "docker-8:7-1974438-pool"] value 1346
+disk.dev.total_bytes
+    inst [N or "sda"] value 137024197
 
-disk.dm.total
-    inst [N or "docker-8:7-1974438-pool"] value 6800
+disk.dev.total_rawactive
+    inst [N or "sda"] value 532651954
 
-disk.dm.blkread
-    inst [N or "docker-8:7-1974438-pool"] value 125544
+disk.dev.write
+    inst [N or "sda"] value 1541331
 
-disk.dm.blkwrite
-    inst [N or "docker-8:7-1974438-pool"] value 56256
+disk.dev.write_bytes
+    inst [N or "sda"] value 89499716
 
-disk.dm.blktotal
-    inst [N or "docker-8:7-1974438-pool"] value 181800
+disk.dev.write_merge
+    inst [N or "sda"] value 2624311
 
-disk.dm.read_bytes
-    inst [N or "docker-8:7-1974438-pool"] value 62772
-
-disk.dm.write_bytes
-    inst [N or "docker-8:7-1974438-pool"] value 28128
-
-disk.dm.total_bytes
-    inst [N or "docker-8:7-1974438-pool"] value 90900
-
-disk.dm.read_merge
-    inst [N or "docker-8:7-1974438-pool"] value 0
-
-disk.dm.write_merge
-    inst [N or "docker-8:7-1974438-pool"] value 0
+disk.dev.write_rawactive
+    inst [N or "sda"] value 520526656
 
 disk.dm.avactive
     inst [N or "docker-8:7-1974438-pool"] value 9601
@@ -139,157 +106,47 @@ disk.dm.avactive
 disk.dm.aveq
     inst [N or "docker-8:7-1974438-pool"] value 16196
 
+disk.dm.blkread
+    inst [N or "docker-8:7-1974438-pool"] value 125544
+
+disk.dm.blktotal
+    inst [N or "docker-8:7-1974438-pool"] value 181800
+
+disk.dm.blkwrite
+    inst [N or "docker-8:7-1974438-pool"] value 56256
+
+disk.dm.read
+    inst [N or "docker-8:7-1974438-pool"] value 5454
+
+disk.dm.read_bytes
+    inst [N or "docker-8:7-1974438-pool"] value 62772
+
+disk.dm.read_merge
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
 disk.dm.read_rawactive
     inst [N or "docker-8:7-1974438-pool"] value 8299
 
-disk.dm.write_rawactive
-    inst [N or "docker-8:7-1974438-pool"] value 7895
+disk.dm.total
+    inst [N or "docker-8:7-1974438-pool"] value 6800
+
+disk.dm.total_bytes
+    inst [N or "docker-8:7-1974438-pool"] value 90900
 
 disk.dm.total_rawactive
     inst [N or "docker-8:7-1974438-pool"] value 16194
 
-disk.partitions.read
-    inst [N or "sda1"] value 8457
-    inst [N or "sda10"] value 8283
-    inst [N or "sda2"] value 8451
-    inst [N or "sda3"] value 8450
-    inst [N or "sda4"] value 8282
-    inst [N or "sda5"] value 8451
-    inst [N or "sda6"] value 2536
-    inst [N or "sda7"] value 1021678
-    inst [N or "sda8"] value 8282
-    inst [N or "sda9"] value 49120
-    inst [N or "sr0"] value 0
+disk.dm.write
+    inst [N or "docker-8:7-1974438-pool"] value 1346
 
-disk.partitions.write
-    inst [N or "sda1"] value 0
-    inst [N or "sda10"] value 0
-    inst [N or "sda2"] value 0
-    inst [N or "sda3"] value 0
-    inst [N or "sda4"] value 0
-    inst [N or "sda5"] value 0
-    inst [N or "sda6"] value 0
-    inst [N or "sda7"] value 1514895
-    inst [N or "sda8"] value 0
-    inst [N or "sda9"] value 2805
-    inst [N or "sr0"] value 0
+disk.dm.write_bytes
+    inst [N or "docker-8:7-1974438-pool"] value 28128
 
-disk.partitions.total
-    inst [N or "sda1"] value 8457
-    inst [N or "sda10"] value 8283
-    inst [N or "sda2"] value 8451
-    inst [N or "sda3"] value 8450
-    inst [N or "sda4"] value 8282
-    inst [N or "sda5"] value 8451
-    inst [N or "sda6"] value 2536
-    inst [N or "sda7"] value 2536573
-    inst [N or "sda8"] value 8282
-    inst [N or "sda9"] value 51925
-    inst [N or "sr0"] value 0
+disk.dm.write_merge
+    inst [N or "docker-8:7-1974438-pool"] value 0
 
-disk.partitions.blkread
-    inst [N or "sda1"] value 142016
-    inst [N or "sda10"] value 140872
-    inst [N or "sda2"] value 141976
-    inst [N or "sda3"] value 141960
-    inst [N or "sda4"] value 140616
-    inst [N or "sda5"] value 141968
-    inst [N or "sda6"] value 20288
-    inst [N or "sda7"] value 93178730
-    inst [N or "sda8"] value 140616
-    inst [N or "sda9"] value 857928
-    inst [N or "sr0"] value 0
-
-disk.partitions.blkwrite
-    inst [N or "sda1"] value 0
-    inst [N or "sda10"] value 0
-    inst [N or "sda2"] value 0
-    inst [N or "sda3"] value 0
-    inst [N or "sda4"] value 0
-    inst [N or "sda5"] value 0
-    inst [N or "sda6"] value 0
-    inst [N or "sda7"] value 176402352
-    inst [N or "sda8"] value 0
-    inst [N or "sda9"] value 2597080
-    inst [N or "sr0"] value 0
-
-disk.partitions.blktotal
-    inst [N or "sda1"] value 142016
-    inst [N or "sda10"] value 140872
-    inst [N or "sda2"] value 141976
-    inst [N or "sda3"] value 141960
-    inst [N or "sda4"] value 140616
-    inst [N or "sda5"] value 141968
-    inst [N or "sda6"] value 20288
-    inst [N or "sda7"] value 269581082
-    inst [N or "sda8"] value 140616
-    inst [N or "sda9"] value 3455008
-    inst [N or "sr0"] value 0
-
-disk.partitions.read_bytes
-    inst [N or "sda1"] value 71008
-    inst [N or "sda10"] value 70436
-    inst [N or "sda2"] value 70988
-    inst [N or "sda3"] value 70980
-    inst [N or "sda4"] value 70308
-    inst [N or "sda5"] value 70984
-    inst [N or "sda6"] value 10144
-    inst [N or "sda7"] value 46589365
-    inst [N or "sda8"] value 70308
-    inst [N or "sda9"] value 428964
-    inst [N or "sr0"] value 0
-
-disk.partitions.write_bytes
-    inst [N or "sda1"] value 0
-    inst [N or "sda10"] value 0
-    inst [N or "sda2"] value 0
-    inst [N or "sda3"] value 0
-    inst [N or "sda4"] value 0
-    inst [N or "sda5"] value 0
-    inst [N or "sda6"] value 0
-    inst [N or "sda7"] value 88201176
-    inst [N or "sda8"] value 0
-    inst [N or "sda9"] value 1298540
-    inst [N or "sr0"] value 0
-
-disk.partitions.total_bytes
-    inst [N or "sda1"] value 71008
-    inst [N or "sda10"] value 70436
-    inst [N or "sda2"] value 70988
-    inst [N or "sda3"] value 70980
-    inst [N or "sda4"] value 70308
-    inst [N or "sda5"] value 70984
-    inst [N or "sda6"] value 10144
-    inst [N or "sda7"] value 134790541
-    inst [N or "sda8"] value 70308
-    inst [N or "sda9"] value 1727504
-    inst [N or "sr0"] value 0
-
-disk.partitions.read_merge
-    inst [N or "sda1"] value 0
-    inst [N or "sda10"] value 0
-    inst [N or "sda2"] value 0
-    inst [N or "sda3"] value 0
-    inst [N or "sda4"] value 0
-    inst [N or "sda5"] value 0
-    inst [N or "sda6"] value 0
-    inst [N or "sda7"] value 70096
-    inst [N or "sda8"] value 0
-    inst [N or "sda9"] value 57529
-    inst [N or "sr0"] value 0
-
-disk.partitions.write_merge
-    inst [N or "sda1"] value 0
-    inst [N or "sda10"] value 0
-    inst [N or "sda2"] value 0
-    inst [N or "sda3"] value 0
-    inst [N or "sda4"] value 0
-    inst [N or "sda5"] value 0
-    inst [N or "sda6"] value 0
-    inst [N or "sda7"] value 2309144
-    inst [N or "sda8"] value 0
-    inst [N or "sda9"] value 315167
-    inst [N or "sr0"] value 0
+disk.dm.write_rawactive
+    inst [N or "docker-8:7-1974438-pool"] value 7895
 
 disk.partitions.avactive
     inst [N or "sda1"] value 22942
@@ -317,6 +174,84 @@ disk.partitions.aveq
     inst [N or "sda9"] value 9383713
     inst [N or "sr0"] value 0
 
+disk.partitions.blkread
+    inst [N or "sda1"] value 142016
+    inst [N or "sda10"] value 140872
+    inst [N or "sda2"] value 141976
+    inst [N or "sda3"] value 141960
+    inst [N or "sda4"] value 140616
+    inst [N or "sda5"] value 141968
+    inst [N or "sda6"] value 20288
+    inst [N or "sda7"] value 93178730
+    inst [N or "sda8"] value 140616
+    inst [N or "sda9"] value 857928
+    inst [N or "sr0"] value 0
+
+disk.partitions.blktotal
+    inst [N or "sda1"] value 142016
+    inst [N or "sda10"] value 140872
+    inst [N or "sda2"] value 141976
+    inst [N or "sda3"] value 141960
+    inst [N or "sda4"] value 140616
+    inst [N or "sda5"] value 141968
+    inst [N or "sda6"] value 20288
+    inst [N or "sda7"] value 269581082
+    inst [N or "sda8"] value 140616
+    inst [N or "sda9"] value 3455008
+    inst [N or "sr0"] value 0
+
+disk.partitions.blkwrite
+    inst [N or "sda1"] value 0
+    inst [N or "sda10"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+    inst [N or "sda4"] value 0
+    inst [N or "sda5"] value 0
+    inst [N or "sda6"] value 0
+    inst [N or "sda7"] value 176402352
+    inst [N or "sda8"] value 0
+    inst [N or "sda9"] value 2597080
+    inst [N or "sr0"] value 0
+
+disk.partitions.read
+    inst [N or "sda1"] value 8457
+    inst [N or "sda10"] value 8283
+    inst [N or "sda2"] value 8451
+    inst [N or "sda3"] value 8450
+    inst [N or "sda4"] value 8282
+    inst [N or "sda5"] value 8451
+    inst [N or "sda6"] value 2536
+    inst [N or "sda7"] value 1021678
+    inst [N or "sda8"] value 8282
+    inst [N or "sda9"] value 49120
+    inst [N or "sr0"] value 0
+
+disk.partitions.read_bytes
+    inst [N or "sda1"] value 71008
+    inst [N or "sda10"] value 70436
+    inst [N or "sda2"] value 70988
+    inst [N or "sda3"] value 70980
+    inst [N or "sda4"] value 70308
+    inst [N or "sda5"] value 70984
+    inst [N or "sda6"] value 10144
+    inst [N or "sda7"] value 46589365
+    inst [N or "sda8"] value 70308
+    inst [N or "sda9"] value 428964
+    inst [N or "sr0"] value 0
+
+disk.partitions.read_merge
+    inst [N or "sda1"] value 0
+    inst [N or "sda10"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+    inst [N or "sda4"] value 0
+    inst [N or "sda5"] value 0
+    inst [N or "sda6"] value 0
+    inst [N or "sda7"] value 70096
+    inst [N or "sda8"] value 0
+    inst [N or "sda9"] value 57529
+    inst [N or "sr0"] value 0
+
 disk.partitions.read_rawactive
     inst [N or "sda1"] value 23259
     inst [N or "sda10"] value 21933
@@ -330,17 +265,30 @@ disk.partitions.read_rawactive
     inst [N or "sda9"] value 614180
     inst [N or "sr0"] value 0
 
-disk.partitions.write_rawactive
-    inst [N or "sda1"] value 0
-    inst [N or "sda10"] value 0
-    inst [N or "sda2"] value 0
-    inst [N or "sda3"] value 0
-    inst [N or "sda4"] value 0
-    inst [N or "sda5"] value 0
-    inst [N or "sda6"] value 0
-    inst [N or "sda7"] value 511278010
-    inst [N or "sda8"] value 0
-    inst [N or "sda9"] value 8768694
+disk.partitions.total
+    inst [N or "sda1"] value 8457
+    inst [N or "sda10"] value 8283
+    inst [N or "sda2"] value 8451
+    inst [N or "sda3"] value 8450
+    inst [N or "sda4"] value 8282
+    inst [N or "sda5"] value 8451
+    inst [N or "sda6"] value 2536
+    inst [N or "sda7"] value 2536573
+    inst [N or "sda8"] value 8282
+    inst [N or "sda9"] value 51925
+    inst [N or "sr0"] value 0
+
+disk.partitions.total_bytes
+    inst [N or "sda1"] value 71008
+    inst [N or "sda10"] value 70436
+    inst [N or "sda2"] value 70988
+    inst [N or "sda3"] value 70980
+    inst [N or "sda4"] value 70308
+    inst [N or "sda5"] value 70984
+    inst [N or "sda6"] value 10144
+    inst [N or "sda7"] value 134790541
+    inst [N or "sda8"] value 70308
+    inst [N or "sda9"] value 1727504
     inst [N or "sr0"] value 0
 
 disk.partitions.total_rawactive
@@ -354,6 +302,58 @@ disk.partitions.total_rawactive
     inst [N or "sda7"] value 522648549
     inst [N or "sda8"] value 18237
     inst [N or "sda9"] value 9382874
+    inst [N or "sr0"] value 0
+
+disk.partitions.write
+    inst [N or "sda1"] value 0
+    inst [N or "sda10"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+    inst [N or "sda4"] value 0
+    inst [N or "sda5"] value 0
+    inst [N or "sda6"] value 0
+    inst [N or "sda7"] value 1514895
+    inst [N or "sda8"] value 0
+    inst [N or "sda9"] value 2805
+    inst [N or "sr0"] value 0
+
+disk.partitions.write_bytes
+    inst [N or "sda1"] value 0
+    inst [N or "sda10"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+    inst [N or "sda4"] value 0
+    inst [N or "sda5"] value 0
+    inst [N or "sda6"] value 0
+    inst [N or "sda7"] value 88201176
+    inst [N or "sda8"] value 0
+    inst [N or "sda9"] value 1298540
+    inst [N or "sr0"] value 0
+
+disk.partitions.write_merge
+    inst [N or "sda1"] value 0
+    inst [N or "sda10"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+    inst [N or "sda4"] value 0
+    inst [N or "sda5"] value 0
+    inst [N or "sda6"] value 0
+    inst [N or "sda7"] value 2309144
+    inst [N or "sda8"] value 0
+    inst [N or "sda9"] value 315167
+    inst [N or "sr0"] value 0
+
+disk.partitions.write_rawactive
+    inst [N or "sda1"] value 0
+    inst [N or "sda10"] value 0
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 0
+    inst [N or "sda4"] value 0
+    inst [N or "sda5"] value 0
+    inst [N or "sda6"] value 0
+    inst [N or "sda7"] value 511278010
+    inst [N or "sda8"] value 0
+    inst [N or "sda9"] value 8768694
     inst [N or "sr0"] value 0
 
 == done

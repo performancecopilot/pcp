@@ -487,10 +487,10 @@ with
 
 perl(1) and PCPIntro(1).
 
-The PCP mailing list pcp@mail.performancecopilot.org can be used for
-questions about this module.
+The PCP mailing list pcp@oss.sgi.com can be used for questions about
+this module.
 
-Further details can be found at http://www.performancecopilot.org/
+Further details can be found at http://www.pcp.io
 
 =head1 AUTHOR
 

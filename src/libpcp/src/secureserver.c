@@ -3,16 +3,16 @@
  *
  * Server side security features - via Network Security Services (NSS) and
  * the Simple Authentication and Security Layer (SASL).
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but
+ * 
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.
  */
 
 #include "pmapi.h"
@@ -248,6 +248,7 @@ int
 __pmSecureServerInit(void)
 {
     const char *nickname = SECURE_SERVER_CERTIFICATE;
+    const PRUint16 *cipher;
     SECStatus secsts;
     int pathSpecified;
     int sts = 0;
@@ -308,11 +309,8 @@ __pmSecureServerInit(void)
     }
 
     /* Some NSS versions don't do this correctly in NSS_SetDomesticPolicy. */
-    do {
-        const PRUint16 *cipher;
-        for (cipher = SSL_ImplementedCiphers; *cipher != 0; ++cipher)
-            SSL_CipherPolicySet(*cipher, SSL_ALLOWED);
-    } while (0);
+    for (cipher = SSL_GetImplementedCiphers(); *cipher != 0; ++cipher)
+	SSL_CipherPolicySet(*cipher, SSL_ALLOWED);
 
     /* Configure SSL session cache for multi-process server, using defaults */
     secsts = SSL_ConfigMPServerSIDCache(1, 0, 0, NULL);

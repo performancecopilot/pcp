@@ -30,7 +30,7 @@
 provides a very simple pre-processor originally designed for manipulating Performance
 Metric Name Space (PMNS) files for the
 Performance Co-Pilot (PCP), but later generalized to provide conditional
-blocks, include file processing
+blocks, include file processing, in-line shell command execution
 and macro substitution for arbitrary files.
 It is most commonly used internally
 to process the PMNS file(s) after
@@ -89,6 +89,31 @@ and the implied used from
 .BR pmLoadASCIINameSpace (3)).
 .B #include
 directives may be nested, up to a maximum depth of 5.
+.IP \(bu 3n
+\fB#shell "\fIcommand\fB"\fR
+.br
+or
+.br
+\fB#shell '\fIcommand\fB'
+.br
+The shell
+.I command
+will be executed and the standard output is inserted into the
+stream of data to be processed by
+.BR pmcpp .
+Functionally this is similar to a
+.B #include
+directive, except input lines are read from a
+.I command
+rather than a file.
+The
+.B #shell
+directive is most useful for including or excluding
+.B #define
+or
+.B #undef
+directives based on run-time logic in the
+.IR command .
 .IP \(bu 3n
 \fB#define \fIname value\fR
 .br

@@ -8,6 +8,7 @@
 
 /* printf candy ... */
 #define FMT_PID @fmt_pid@
+#define FMT_INT64 @fmt_int64@
 #define FMT_PTHREAD @fmt_pthread@
 
 /* build version macros */

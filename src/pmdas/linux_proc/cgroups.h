@@ -46,12 +46,21 @@ enum {
 };
 
 typedef struct {
+    __uint64_t		nr_periods;
+    __uint64_t		nr_throttled;
+    __uint64_t		throttled_time;
+} cgroup_cpustat_t;
+
+typedef struct {
     __uint64_t		shares;
-    /* cpu.stat - nr_periods, nr_throttled, throttled_time */
+    cgroup_cpustat_t	stat;
 } cgroup_cpusched_t;
 
 enum {
-    CG_CPUSCHED_SHARES	= 0,
+    CG_CPUSCHED_SHARES		= 0,
+    CG_CPUSCHED_PERIODS		= 1,
+    CG_CPUSCHED_THROTTLED	= 2,
+    CG_CPUSCHED_THROTTLED_TIME	= 3,
 };
 
 typedef struct {

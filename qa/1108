@@ -1,6 +1,6 @@
 #! /bin/sh
-# PCP QA Test No. 1108 (formerly 830)
-# pv:821339 sed gives "Too many commands" in cron.pmdaily script
+# PCP QA Test No. 1108
+# pv:821339 sed gives "Too many commands" in daily cron script
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -63,7 +63,7 @@ $sudo rm -f $tmp.control
 echo '$version=1.1' >> $tmp.control
 echo 'LOCALHOSTNAME y n PCP_LOG_DIR/pmlogger/LOCALHOSTNAME -c config.default' >> $tmp.control
 
-# make sure  pmlogger_daily gets a timestamp that is at least
+# make sure pmlogger_daily gets a timestamp that is at least
 # a minute after the previous primary logger was started to avoid
 # the collision on the timestamp and the extra 3 mv's needed to
 # rename the archive files from <timestamp> to <timestamp>-00
@@ -95,6 +95,7 @@ echo "done, now=$now" >>$seq.full
 # real QA test starts here
 test -f $PCP_LOG_DIR/NOTICES && \
 	$sudo mv $PCP_LOG_DIR/NOTICES $PCP_LOG_DIR/NOTICES.orig
-$sudo $PCP_BINADM_DIR/pmlogger_daily -o -k 550 -N -c $tmp.control 2>&1 \
+$sudo $PCP_BINADM_DIR/pmlogger_daily -o -k 550 -N -c $tmp.control -l $tmp.log
+$sudo cat $tmp.log \
 | tee -a $seq.full \
 | _filter

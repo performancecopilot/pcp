@@ -67,9 +67,6 @@ These time terms are relative to the start/end time.
 #1 "@19 Jan 2014 11:45:50"          2014-01-19 11:45:50
 #2 "@19 Jan 2014 11:45:50"          2014-01-19 11:45:50
 #3 "@19 Jan 2014 11:45:50"          2014-01-27 11:28:50
-#1 "@next day"                      2014-01-19 15:08:50
-#2 "@next day"                      2014-01-19 15:08:50
-#3 "@next day"                      2014-01-27 11:28:50
 #1 "@1 day ago"                     2014-01-26 11:28:50
 #2 "@1 day ago"                     2014-01-26 11:28:50
 #3 "@1 day ago"                     2014-01-27 11:28:50
@@ -85,9 +82,6 @@ These time terms are relative to the start/end time.
 #1 "last day"                       2014-01-26 11:28:50
 #2 "last day"                       2014-01-26 11:28:50
 #3 "last day"                       2014-01-27 11:28:50
-#1 "next day"                       2014-01-19 15:08:50
-#2 "next day"                       2014-01-19 15:08:50
-#3 "next day"                       2014-01-27 11:28:50
 These time terms for a specific day are relative to the current time.
 #1 "now"                            TODAY
 #2 "now"                            TODAY
@@ -113,9 +107,6 @@ These time terms for a specific day are relative to the current time.
 #1 "this sunday"                    this SUNDAY
 #2 "this sunday"                    this SUNDAY
 #3 "this sunday"                    2014-01-27 11:28:50
-#1 "next sunday"                    next SUNDAY
-#2 "next sunday"                    next SUNDAY
-#3 "next sunday"                    2014-01-27 11:28:50
 #1 "last sunday"                    last SUNDAY
 #2 "last sunday"                    last SUNDAY
 #3 "last sunday"                    2014-01-27 11:28:50
@@ -128,9 +119,6 @@ These time terms for a specific day are relative to the current time.
 #1 "this monday"                    this MONDAY
 #2 "this monday"                    this MONDAY
 #3 "this monday"                    2014-01-27 11:28:50
-#1 "next monday"                    next MONDAY
-#2 "next monday"                    next MONDAY
-#3 "next monday"                    2014-01-27 11:28:50
 #1 "last monday"                    last MONDAY
 #2 "last monday"                    last MONDAY
 #3 "last monday"                    2014-01-27 11:28:50
@@ -143,9 +131,6 @@ These time terms for a specific day are relative to the current time.
 #1 "this tuesday"                   this TUESDAY
 #2 "this tuesday"                   this TUESDAY
 #3 "this tuesday"                   2014-01-27 11:28:50
-#1 "next tuesday"                   next TUESDAY
-#2 "next tuesday"                   next TUESDAY
-#3 "next tuesday"                   2014-01-27 11:28:50
 #1 "last tuesday"                   last TUESDAY
 #2 "last tuesday"                   last TUESDAY
 #3 "last tuesday"                   2014-01-27 11:28:50
@@ -158,9 +143,6 @@ These time terms for a specific day are relative to the current time.
 #1 "this wednesday"                 this WEDNESDAY
 #2 "this wednesday"                 this WEDNESDAY
 #3 "this wednesday"                 2014-01-27 11:28:50
-#1 "next wednesday"                 next WEDNESDAY
-#2 "next wednesday"                 next WEDNESDAY
-#3 "next wednesday"                 2014-01-27 11:28:50
 #1 "last wednesday"                 last WEDNESDAY
 #2 "last wednesday"                 last WEDNESDAY
 #3 "last wednesday"                 2014-01-27 11:28:50
@@ -173,9 +155,6 @@ These time terms for a specific day are relative to the current time.
 #1 "this thursday"                  this THURSDAY
 #2 "this thursday"                  this THURSDAY
 #3 "this thursday"                  2014-01-27 11:28:50
-#1 "next thursday"                  next THURSDAY
-#2 "next thursday"                  next THURSDAY
-#3 "next thursday"                  2014-01-27 11:28:50
 #1 "last thursday"                  last THURSDAY
 #2 "last thursday"                  last THURSDAY
 #3 "last thursday"                  2014-01-27 11:28:50
@@ -188,9 +167,6 @@ These time terms for a specific day are relative to the current time.
 #1 "this friday"                    this FRIDAY
 #2 "this friday"                    this FRIDAY
 #3 "this friday"                    2014-01-27 11:28:50
-#1 "next friday"                    next FRIDAY
-#2 "next friday"                    next FRIDAY
-#3 "next friday"                    2014-01-27 11:28:50
 #1 "last friday"                    last FRIDAY
 #2 "last friday"                    last FRIDAY
 #3 "last friday"                    2014-01-27 11:28:50
@@ -203,9 +179,6 @@ These time terms for a specific day are relative to the current time.
 #1 "this saturday"                  this SATURDAY
 #2 "this saturday"                  this SATURDAY
 #3 "this saturday"                  2014-01-27 11:28:50
-#1 "next saturday"                  next SATURDAY
-#2 "next saturday"                  next SATURDAY
-#3 "next saturday"                  2014-01-27 11:28:50
 #1 "last saturday"                  last SATURDAY
 #2 "last saturday"                  last SATURDAY
 #3 "last saturday"                  2014-01-27 11:28:50
