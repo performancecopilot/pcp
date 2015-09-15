@@ -536,7 +536,9 @@ packaging_docker()
     rm -f $tmp/failed
 
     if docker version >/dev/null 2>&1; then
-	v=$(docker version | sed -e 's/\./ /g' | awk '/Server version/ {print $3*10+$4}')
+	v=`docker version | sed -e 's/\./ /g' | \
+	    awk '/^Server/ {s=1; if($2 == "version:") {print 10*$3+$4; exit}}
+	    	/Version:/ {if (s) {print 10*$2+$3; exit}}'`
 	if [ -z "$v" -o "$v" -lt 14 ]; then
 	    echo 'Error: docker version too old. Containers build skipped.'
 	    touch $tmp/failed
