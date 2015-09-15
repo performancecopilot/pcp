@@ -18,6 +18,7 @@
 import sys
 from pcp import pmapi
 from cpmapi import PM_TYPE_U32, PM_TYPE_FLOAT
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_MODE_FORW, PM_ERR_VALUE
 
 def print_timestamp(stamp):
     """ Report the sample time (struct tm) in HH:MM:SS form """
@@ -82,6 +83,9 @@ class Uptime(object):
         pmids = self.context.pmLookupName(metrics)
         descs = self.context.pmLookupDescs(pmids)
         result = self.context.pmFetch(pmids)
+        if result.contents.numpmid != len(metrics):
+            raise pmapi.pmErr(PM_ERR_VALUE)
+
         uptime = ''
 
         sample_time = result.contents.timestamp.tv_sec
@@ -113,6 +117,9 @@ class Uptime(object):
     def connect(self):
         """ Establish a PMAPI context to archive, host or local, via args """
         self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
+        if self.context.type == PM_CONTEXT_ARCHIVE:
+            origin = self.opts.pmGetOptionOrigin()
+            self.context.pmSetMode(PM_MODE_FORW, origin, 0)
 
 
 if __name__ == '__main__':

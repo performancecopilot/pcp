@@ -140,12 +140,9 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 
     if (acp->ac_cache == NULL) {
 	/* cache initialization */
-	acp->ac_cache = cache = (cache_t *)malloc(NUMCACHE*sizeof(cache_t));
-	/* TODO error check */
-	for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
-	    cp->rp = NULL;
-	    cp->mfp = NULL;
-	}
+	acp->ac_cache = cache = (cache_t *)calloc(NUMCACHE, sizeof(cache_t));
+	if (!cache)
+	    return -ENOMEM;
 	acp->ac_cache_idx = 0;
     }
     else
