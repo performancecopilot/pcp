@@ -260,9 +260,9 @@ p_attr.o
 p_creds.o
 p_desc.o
 pdubuf.o
-    buf_tree			# guarded by __pmLock_libpcp mutex
-    pdu_bufcnt_need		# guarded by __pmLock_libpcp mutex
-    pdu_bufcnt			# guarded by __pmLock_libpcp mutex
+    buf_free			# guarded by __pmLock_libpcp mutex
+    buf_pin			# guarded by __pmLock_libpcp mutex
+    buf_pin_tail		# guarded by __pmLock_libpcp mutex
 pdu.o
     done_default		# guarded by __pmLock_libpcp mutex
     ?def_timeout		# guarded by __pmLock_libpcp mutex
