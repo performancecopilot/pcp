@@ -1,6 +1,8 @@
 pcp-3.10.7 (16 September 2015)
     - containers: added the pcp-pmie container
+    - containers: remove /proc bind mount, conflicts with --pid=host
     - pcp-atopsar: new PMAPI sar command based on http://atoptool.nl
+    - pcp-uptime: fix sigsegv from missing metrics on first fetch
     - pmchart: fix memory corruption when restoring Saved Hosts list
     - pmchart: fix sigsegv opening a view when no archive available
     - rc_scripts: pmie/pmlogger - logged, no longer send cron email
@@ -17,6 +19,7 @@ pcp-3.10.7 (16 September 2015)
     - pmwebd: multiple metrics/instances per log graphite mode speedup
     - libpcp: use public domain getdate instead of gnulib version
     - libpcp: optimise archive decompression for common operations
+    - libpcp: revert pdubuf tsearch-based optimisation, fails on OSX
     - pmieconf: add dmthin pool utilization monitoring scripts
     - python: more care taken in pmOptions destructor (could sigsegv)
     - windows port: 64-bit format specifiers throughout code base
@@ -35,6 +38,7 @@ pcp-3.10.7 (16 September 2015)
     - docs: update references to init scripts, pmlogger control files
     - docs: update pmdanginx(1) describing nginx configuration needs
     - build: configure.ac preserves optional gcc flags in the build
+    - build: cater for builds using the latest Vector (now 1.0.2)
     - build: fix LGPL license annotations in headers+libraries
     - build: current FreeBSD toolchain updates
 
