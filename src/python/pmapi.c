@@ -948,6 +948,15 @@ getOptionStart_usec(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+getOptionAlign_optarg(PyObject *self, PyObject *args)
+{
+    if (options.align_optarg)
+	return Py_BuildValue("s", options.align_optarg);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 getOptionFinish_optarg(PyObject *self, PyObject *args)
 {
     if (options.finish_optarg)
@@ -1170,6 +1179,9 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmGetOptionStart_usec",
 	.ml_meth = (PyCFunction) getOptionStart_usec,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionAlign_optarg",
+	.ml_meth = (PyCFunction) getOptionAlign_optarg,
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmGetOptionFinish_optarg",
 	.ml_meth = (PyCFunction) getOptionFinish_optarg,

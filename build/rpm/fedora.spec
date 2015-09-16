@@ -2380,6 +2380,7 @@ cd
 - Resolved pmchart sigsegv opening view without context (BZ 1256708)
 - Fixed pmchart memory corruption restoring Saved Hosts (BZ 1257009)
 - Fix perl PMDA API double-free on socket error path (BZ 1258862)
+- Fix python API pmGetOption(3) alignment interface (BZ 1262722)
 - Added missing RPM dependencies to several PMDA sub-packages.
 - Update to latest stable Vector release for pcp-vector-webapp.
 - Update to latest PCP sources.
