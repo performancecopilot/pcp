@@ -83,9 +83,10 @@ bufctl_t_compare(const void *a, const void *b)
     const bufctl_t *bb = (const bufctl_t *) b;
     int res;
 
-    if ((uintptr_t) & aa->bc_buf[aa->bc_size] < (uintptr_t) & bb->bc_buf[0])
+    /* NB: valid range is bc_buf[0 .. bc_size-1] */
+    if ((uintptr_t) & aa->bc_buf[aa->bc_size-1] < (uintptr_t) & bb->bc_buf[0])
 	res = -1;
-    else if ((uintptr_t) & bb->bc_buf[bb->bc_size] < (uintptr_t) & aa->bc_buf[0])
+    else if ((uintptr_t) & bb->bc_buf[bb->bc_size-1] < (uintptr_t) & aa->bc_buf[0])
 	res = 1;
     else
 	res = 0;		/* overlap */
@@ -164,9 +165,10 @@ __pmPinPDUBuf(void *handle)
     /* NB: don't release the lock until final disposition of this object;
        we don't want to play TOCTOU. */
 
-    if (likely(pcp != NULL))
-	pcp->bc_pincnt++;
-    else {
+    if (likely(pcp != NULL)) {
+        assert ((&pcp->bc_buf[0] <= (char*)handle) && ((char*)handle < &pcp->bc_buf[pcp->bc_size]));
+        pcp->bc_pincnt++;
+    } else {
 	__pmNotifyErr(LOG_WARNING, "__pmPinPDUBuf: 0x%lx not in pool!", (unsigned long) handle);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PDUBUF)
@@ -226,6 +228,7 @@ __pmUnpinPDUBuf(void *handle)
 		pcp->bc_buf, pcp->bc_pincnt - 1);
 #endif
 
+    assert ((&pcp->bc_buf[0] <= (char*)handle) && ((char*)handle < &pcp->bc_buf[pcp->bc_size]));
     if (likely(--pcp->bc_pincnt == 0)) {
 	tdelete(pcp, &buf_tree, &bufctl_t_compare);
 	PM_UNLOCK(__pmLock_libpcp);
