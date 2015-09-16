@@ -11,7 +11,7 @@ Distribution: @package_distribution@
 %if 0%{?fedora} > 22 || 0%{?rhel} > 7
 %global with_compat 0
 %else
-%global with_compat 1
+%global with_compat 0%{!?_without_compat:1}
 %endif
 BuildRequires: procps bison flex
 BuildRequires: ncurses-devel

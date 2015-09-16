@@ -124,6 +124,10 @@ __pmSockAddrGetPort(const __pmSockAddr *addr)
         return ntohs(addr->sockaddr.inet.sin_port);
     if (addr->sockaddr.raw.sa_family == AF_INET6)
         return ntohs(addr->sockaddr.ipv6.sin6_port);
+#if defined(HAVE_STRUCT_SOCKADDR_UN)
+    if (addr->sockaddr.raw.sa_family == AF_UNIX)
+	return 0;
+#endif
     __pmNotifyErr(LOG_ERR,
 		  "__pmSockAddrGetPort: Invalid address family: %d\n",
 		  addr->sockaddr.raw.sa_family);
