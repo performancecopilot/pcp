@@ -1524,6 +1524,7 @@ rm -f $DIST_MANIFEST
 %if "@have_webjs@" == "true"
 rm -fr $WEBAPP_ROOT && mkdir -p -m 755 $WEBAPP_ROOT
 tar -xz -C $WEBAPP_ROOT -f $BACKDIR/../build/tar/webjs.tar.gz
+sed -i -e 's/vector [0-9]\.[0-9]*\.[0-9]*/vector/g' $WEBAPP_ROOT/index.html
 %endif
 %if "@have_vector@" == "true"
 rm -fr $WEBAPP_ROOT/vector && mkdir -p -m 755 $WEBAPP_ROOT/vector
