@@ -938,17 +938,20 @@ class pmOptions(object):
     def pmGetOptionArchives(self):	# str list
         return c_api.pmGetOptionArchives()
 
-    def pmGetOptionAlignment(self):		# timeval
-        sec = c_api.pmGetOptionAlignment_sec()
-        if sec == None:
+    def pmGetOptionAlignment(self):	# timeval
+        alignment = c_api.pmGetOptionAlign_optarg()
+        if alignment == None:
             return None
-        return timeval(sec, c_api.pmGetOptionAlignment_sec())
+        return timeval.fromInterval(alignment)
 
     def pmGetOptionStart(self):		# timeval
         sec = c_api.pmGetOptionStart_sec()
         if sec == None:
             return None
         return timeval(sec, c_api.pmGetOptionStart_usec())
+
+    def pmGetOptionAlignOptarg(self):	# string
+        return c_api.pmGetOptionAlign_optarg()
 
     def pmGetOptionFinishOptarg(self):	# string
         return c_api.pmGetOptionFinish_optarg()

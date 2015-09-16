@@ -21,6 +21,7 @@ eval HOST=`pmprobe -v pmcd.hostname | awk '{ print $3 }'`
 _filter_live()
 {
     sed \
+	-e '/^Align: /d' \
 	-e '/^Start: /d' \
 	-e '/^Finish: /d' \
 	-e '/^Origin: /d' \
@@ -34,7 +35,9 @@ $python $here/src/test_pcp_getopts.py -a src/ace_v2 -z
 
 echo && echo check archive time windows
 $python $here/src/test_pcp_getopts.py -a src/ace_v2 -z \
+	--align="1 second" \
 	--start="@ Mon Oct 30 14:25:10 1995" \
+	--origin="@ Mon Oct 30 14:25:10 1995" \
 	--finish="@ Mon Oct 30 14:25:15 1995"
 
 echo && echo check multiple host contexts
