@@ -21,7 +21,7 @@
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
-PMIE=pmie
+PMIE="$PCP_BIN_DIR/pmie"
 PMIECONF="$PCP_BIN_DIR/pmieconf"
 
 # error messages should go to stderr, not the GUI notifiers
