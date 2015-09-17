@@ -2376,6 +2376,9 @@ cd
 %endif
 
 %changelog
+* Fri Oct 30 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.8-1
+- Currently under development [see http://pcp.io/roadmap]
+
 * Wed Sep 16 2015 Nathan Scott <nathans@redhat.com> - 3.10.7-1
 - Resolved pmchart sigsegv opening view without context (BZ 1256708)
 - Fixed pmchart memory corruption restoring Saved Hosts (BZ 1257009)

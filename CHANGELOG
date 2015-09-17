@@ -1,3 +1,6 @@
+pcp-3.10.8 (30 October 2015)
+    - under development [see http://pcp.io/roadmap]
+
 pcp-3.10.7 (16 September 2015)
     - containers: added the pcp-pmie container
     - containers: remove /proc bind mount, conflicts with --pid=host
