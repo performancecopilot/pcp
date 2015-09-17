@@ -248,6 +248,7 @@ int
 __pmSecureServerInit(void)
 {
     const char *nickname = SECURE_SERVER_CERTIFICATE;
+    const PRUint16 *cipher;
     SECStatus secsts;
     int pathSpecified;
     int sts = 0;
@@ -308,11 +309,8 @@ __pmSecureServerInit(void)
     }
 
     /* Some NSS versions don't do this correctly in NSS_SetDomesticPolicy. */
-    do {
-        const PRUint16 *cipher;
-        for (cipher = SSL_ImplementedCiphers; *cipher != 0; ++cipher)
-            SSL_CipherPolicySet(*cipher, SSL_ALLOWED);
-    } while (0);
+    for (cipher = SSL_GetImplementedCiphers(); *cipher != 0; ++cipher)
+	SSL_CipherPolicySet(*cipher, SSL_ALLOWED);
 
     /* Configure SSL session cache for multi-process server, using defaults */
     secsts = SSL_ConfigMPServerSIDCache(1, 0, 0, NULL);

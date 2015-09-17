@@ -196,6 +196,7 @@ getdate.tab.o
     MilitaryTable         	# const
     OtherTable         		# const
     MonthDayTable    		# const
+    ?DaysInMonth		# const (LLVM)
     TimezoneTable        	# const
     UnitsTable			# const
     yycheck                	# const
@@ -241,6 +242,7 @@ logportmap.o
     szlogport			# single-threaded PM_SCOPE_LOGPORT
     logport			# single-threaded PM_SCOPE_LOGPORT
     match			# single-threaded PM_SCOPE_LOGPORT
+    ?namelist			# const (LLVM)
 logutil.o
     tbuf			# __pmLogName deprecated by __pmLogName_r
     compress_ctl		# const
@@ -258,9 +260,9 @@ p_attr.o
 p_creds.o
 p_desc.o
 pdubuf.o
-    buf_tree			# guarded by __pmLock_libpcp mutex
-    pdu_bufcnt_need		# guarded by __pmLock_libpcp mutex
-    pdu_bufcnt			# guarded by __pmLock_libpcp mutex
+    buf_free			# guarded by __pmLock_libpcp mutex
+    buf_pin			# guarded by __pmLock_libpcp mutex
+    buf_pin_tail		# guarded by __pmLock_libpcp mutex
 pdu.o
     done_default		# guarded by __pmLock_libpcp mutex
     ?def_timeout		# guarded by __pmLock_libpcp mutex
@@ -311,6 +313,7 @@ p_pmns.o
 p_profile.o
 p_result.o
 probe.o
+    ?againWait			# const (LLVM)
 profile.o
 p_text.o
 rtime.o

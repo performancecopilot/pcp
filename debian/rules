@@ -80,7 +80,7 @@ alldir = $(dirpcp) $(dirpcpcfg) \
 		$(dirpcp_manager) $(dirpcp_webapi) \
 		$(dirpcp_python)
 
-zip = export GZIP=-9q
+zip = export GZIP=-9qn
 pkgpcp = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp);
 pkgpcpgui = $(zip) DIST_ROOT=`pwd`/$(dirgui);
 pkgpcpdoc = $(zip) DIST_ROOT=`pwd`/$(dirdoc);

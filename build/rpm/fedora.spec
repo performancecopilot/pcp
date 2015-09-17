@@ -7,8 +7,12 @@ Release: %{buildversion}%{?dist}
 License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL: http://www.pcp.io
 Group: Applications/System
+# https://bintray.com/artifact/download/pcp/source/pcp-%{version}.src.tar.gz
 Source0: pcp-%{version}.src.tar.gz
+# https://github.com/performancecopilot/pcp-webjs/archive/master.zip
 Source1: pcp-webjs.src.tar.gz
+# https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
+Source2: vector.tar.gz
 
 # Compat check for distros that already have single install pmda's
 %if 0%{?fedora} > 22 || 0%{?rhel} > 7
@@ -688,6 +692,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Elasticsearch
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(LWP::UserAgent)
 
 %description pmda-elasticsearch
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -794,6 +799,8 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for MySQL
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(DBI)
+Requires: perl(DBD::mysql)
 
 %description pmda-mysql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -853,6 +860,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for the Nginx Webserver
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(LWP::UserAgent)
 
 %description pmda-nginx
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -922,6 +930,8 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for PostgreSQL
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(DBI)
+Requires: perl(DBD::Pg)
 
 %description pmda-postgresql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1571,6 +1581,7 @@ PCP utilities and daemons, and the PCP graphical tools.
 
 %prep
 %setup -q
+%setup -q -T -D -a 2 -c -n pcp-%{version}/vector
 %setup -q -T -D -a 1
 
 %clean
@@ -1605,8 +1616,12 @@ rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
 rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
 %endif
+# prefer latest released Netflix version over pcp-webjs copy.
+rm -fr pcp-webjs/vector
+sed -i -e 's/vector [0-9]\.[0-9]*\.[0-9]*/vector/g' pcp-webjs/index.html
 mv pcp-webjs/* $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps
 rmdir pcp-webjs
+mv vector $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps
 
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
@@ -2361,11 +2376,17 @@ cd
 %endif
 
 %changelog
-* Tue Sep 16 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.7-1
-- Work in progress, see [ http://pcp.io/roadmap ]
+* Fri Oct 30 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.8-1
+- Currently under development [see http://pcp.io/roadmap]
+
+* Wed Sep 16 2015 Nathan Scott <nathans@redhat.com> - 3.10.7-1
 - Resolved pmchart sigsegv opening view without context (BZ 1256708)
 - Fixed pmchart memory corruption restoring Saved Hosts (BZ 1257009)
 - Fix perl PMDA API double-free on socket error path (BZ 1258862)
+- Fix python API pmGetOption(3) alignment interface (BZ 1262722)
+- Added missing RPM dependencies to several PMDA sub-packages.
+- Update to latest stable Vector release for pcp-vector-webapp.
+- Update to latest PCP sources.
 
 * Tue Aug 04 2015 Nathan Scott <nathans@redhat.com> - 3.10.6-1
 - Fix pcp2graphite write method invocation failure (BZ 1243123)

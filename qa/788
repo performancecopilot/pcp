@@ -1,0 +1,84 @@
+#!/bin/sh
+# PCP QA Test No. 788
+# Exercise the Nginx PMDA Install/Remove, as well as the
+# mechanism by which a PMDA can be installed with no pmcd
+# process running.
+
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/nginx/pmdanginx.pl ] || _notrun "nginx pmda not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+_filter_nginx()
+{
+    # cull message resulting from no running nginx daemon
+    grep -v 'Information not currently available'
+}
+
+pmdanginx_remove()
+{
+    echo
+    echo "=== remove nginx agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdanginx_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/nginx
+    $sudo ./Remove >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
+
+    echo
+    echo "=== nginx agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    # Check nginx metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check nginx metrics have appeared/    { if ($7 >= 7) $7 = "X"
+                                         if ($10 >= 7 || $10 == 0) $10 = "Y"
+                                       }
+                                       { print }'
+}
+
+_prepare_pmda nginx
+trap "_cleanup_pmda nginx; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmdanginx_install
+
+# there may be a race if the pmda has a bit of a slow start ... pause
+# 
+sleep 3
+
+# pmcd should have been started by the Install process - check
+if pminfo -v nginx > $tmp.info 2> $tmp.err
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err | _filter_nginx
+
+pmdanginx_remove
+status=0
+exit

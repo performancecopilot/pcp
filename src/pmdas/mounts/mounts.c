@@ -23,6 +23,8 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
+#include <stdlib.h>
+#include <limits.h>
 
 #ifdef IS_SOLARIS
 #define MOUNT_FILE "/etc/vfstab"
@@ -321,7 +323,8 @@ mounts_refresh_mounts(void)
 	    if (strcmp(path, mounts[item].i_name) != 0)
 		continue;
 	    strncpy(mp->type, type, MAXFSTYPE-1);
-	    strncpy(mp->device, device, MAXPATHLEN-1);
+	    if (realpath(device, mp->device) == NULL)
+		strncpy(mp->device, device, MAXPATHLEN-1);
 	    strncpy(mp->options, options, MAXOPTSTR-1);
 	    mp->flags = MOUNTS_FLAG_UP;
 	    if (statvfs(path, &vfs) < 0)

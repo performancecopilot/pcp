@@ -105,7 +105,7 @@ pkg_upload windows pcp-${buildversion}.msi ${version}
 # Solaris
 cd ${topdir}/pcp-${version}/build/sun 2>/dev/null && \
 verify_asset pcp-${version} && \
-pkg_upload solaris pcp-${version} ${version}
+pkg_upload solaris11 pcp-${version} ${version}
 
 # Docker images
 if cd ${topdir}/pcp-${version}/build/containers 2>/dev/null

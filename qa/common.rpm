@@ -20,7 +20,7 @@ _rpm_pmda_prepare()
 {
     _prepare_pmda_install rpm
     cd $PCP_PMDAS_DIR/rpm
-    $sudo ./Install </dev/null >/dev/null 2>&1
+    $sudo ./Install </dev/null >> $here/$seq.full 2>&1
     cd $here
 }
 
@@ -33,7 +33,7 @@ _rpm_pmda_restore()
 _remove_rpm_pmda()
 {
     cd $PCP_PMDAS_DIR/rpm
-    $sudo ./Remove < /dev/null > /dev/null 2>&1
+    $sudo ./Remove < /dev/null >> $here/$seq.full 2>&1
     cd $here
 }
 

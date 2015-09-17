@@ -21,7 +21,7 @@
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
-PMIE=pmie
+PMIE="$PCP_BIN_DIR/pmie"
 PMIECONF="$PCP_BIN_DIR/pmieconf"
 
 # error messages should go to stderr, not the GUI notifiers
@@ -179,6 +179,8 @@ fi
 # accidentally sent from cron.  Close stdout and stderr, then open stdout
 # as our logfile and redirect stderr there too.
 #
+PROGLOGDIR=`dirname "$PROGLOG"`
+[ -d "$PROGLOGDIR" ] || mkdir -p -m 775 "$PROGLOGDIR" 2>/dev/null
 [ -f "$PROGLOG" ] && mv "$PROGLOG" "$PROGLOG.prev"
 exec 1>"$PROGLOG"
 exec 2>&1

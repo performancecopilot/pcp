@@ -107,6 +107,10 @@ finish = options.pmGetOptionFinish()
 if finish != None:
     print("Finish: %s" % finish)
 
+align = options.pmGetOptionAlignment()
+if align != None:
+    print("Align: %s" % align)
+
 origin = options.pmGetOptionOrigin()
 if origin != None:
     print("Origin: %s" % origin)

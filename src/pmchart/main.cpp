@@ -51,7 +51,6 @@ static pmLongOptions longopts[] = {
     PMOPT_ORIGIN,
     PMOPT_GUIPORT,
     PMOPT_START,
-    PMOPT_SAMPLES,
     PMOPT_FINISH,
     PMOPT_INTERVAL,
     PMOPT_TIMEZONE,
