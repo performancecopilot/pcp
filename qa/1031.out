@@ -1,0 +1,34 @@
+QA output created by 1031
+=== Testing perl pmda
+dbpmda> open pipe /usr/bin/perl pmdaslurm.pl
+Start perl PMDA: /usr/bin/perl pmdaslurm.pl
+dbpmda> getdesc on
+dbpmda> wait 3
+dbpmda> desc slurm.numnodes
+PMID: 23.0.0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+dbpmda> desc slurm.node.job.id
+PMID: 23.1.1
+    Data Type: 32-bit unsigned int  InDom: 23.1 0x5c00001
+    Semantics: instant  Units: none
+dbpmda> desc slurm.node.job.name
+PMID: 23.1.2
+    Data Type: string  InDom: 23.1 0x5c00001
+    Semantics: instant  Units: none
+dbpmda> fetch slurm.numnodes
+PMID(s): 23.0.0
+pmResult ... numpmid: 1
+  23.0.0 (<noname>): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+dbpmda> fetch slurm.node.job.id
+PMID(s): 23.1.1
+pmResult ... numpmid: 1
+  23.1.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
+    inst [4452824 or ???] value NUMBER
+dbpmda> fetch slurm.node.job.name
+PMID(s): 23.1.2
+pmResult ... numpmid: 1
+  23.1.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [4452824 or ???] value STRING
+dbpmda> 

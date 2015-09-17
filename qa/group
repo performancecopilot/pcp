@@ -188,6 +188,7 @@ pmda.sample
 pmda.sendmail
 pmda.shping
 pmda.simple
+pmda.slurm
 pmda.summary
 pmda.systemd
 pmda.trivial
@@ -1140,6 +1141,7 @@ cgroups
 1028 pmdumptext local
 1029 libqmc local pmstore
 1030 pmda.linux local
+1031 pmda.slurm perl local
 1044 pmie local pmieconf sanity
 1045 pmie local pmieconf
 1046 pmie local pmieconf

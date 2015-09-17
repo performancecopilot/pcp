@@ -994,6 +994,22 @@ collecting metrics about Samba.
 #end pcp-pmda-samba
 
 #
+# pcp-pmda-slurm
+#
+%package pmda-slurm
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for NFS Clients
+URL: http://www.pcp.io
+Requires: perl-PCP-PMDA = @package_version@
+
+%description pmda-slurm
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from the SLURM Workload Manager.  The PMDA is written in Perl.
+
+#end pcp-pmda-slurm
+
+#
 # pcp-pmda-snmp
 #
 %package pmda-snmp
@@ -1458,7 +1474,7 @@ Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-
 Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
-Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
+Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
 Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
@@ -1663,6 +1679,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/postfix' > pmda_postfix_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/postgresql' > pmda_postgresql_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/rsyslog' > pmda_rsyslog_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/samba' > pmda_samba_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/slurm' > pmda_slurm_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/snmp' > pmda_snmp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/vmware' > pmda_vmware_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zimbra' > pmda_zimbra_files
@@ -1707,7 +1724,7 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
       pmda_memcache_files pmda_mysql_files pmda_named_files \
       pmda_netfilter_files pmda_news_files pmda_nfsclient_files \
       pmda_nginx_files pmda_pdns_files pmda_postfix_files pmda_postgresql_files \
-      pmda_rsyslog_files pmda_samba_files pmda_snmp_files \
+      pmda_rsyslog_files pmda_samba_files pmda_slurm_files pmda_snmp_files \
       pmda_vmware_files pmda_zimbra_files pmda_apache_files pmda_bash_files \
       pmda_cifs_files pmda_cisco_files pmda_gfs2_files \
       pmda_lmsensors_files pmda_logger_files \
@@ -1760,6 +1777,7 @@ BEGIN {
     while( getline < "pmda_postgresql_files") pmda_postgresql[$0]=1;
     while( getline < "pmda_rsyslog_files") pmda_rsyslog[$0]=1;
     while( getline < "pmda_samba_files") pmda_samba[$0]=1;
+    while( getline < "pmda_slurm_files") pmda_slurm[$0]=1;
     while( getline < "pmda_snmp_files") pmda_snmp[$0]=1;
     while( getline < "pmda_vmware_files") pmda_vmware[$0]=1;
     while( getline < "pmda_zimbra_files") pmda_zimbra[$0]=1;
@@ -1837,6 +1855,7 @@ BEGIN {
     else if (pmda_postgresql[$NF]) f="pmda_postgresql_files.rpm";
     else if (pmda_rsyslog[$NF]) f="pmda_rsyslog_files.rpm";
     else if (pmda_samba[$NF]) f="pmda_samba_files.rpm";
+    else if (pmda_slurm[$NF]) f="pmda_slurm_files.rpm";
     else if (pmda_snmp[$NF]) f="pmda_snmp_files.rpm";
     else if (pmda_vmware[$NF]) f="pmda_vmware_files.rpm";
     else if (pmda_zimbra[$NF]) f="pmda_zimbra_files.rpm";
@@ -2240,6 +2259,8 @@ cd
 %files pmda-rsyslog -f pmda_rsyslog_files.rpm
 
 %files pmda-samba -f pmda_samba_files.rpm
+
+%files pmda-slurm -f pmda_slurm_files.rpm
 
 %files pmda-snmp -f pmda_snmp_files.rpm
 
