@@ -52,6 +52,7 @@ _filter()
 {
     sed \
 	-e "s/$seq-$$/SEQ-PID/g" \
+	-e "s;$PCP_BIN_DIR/pmie;\$PCP_BIN_DIR/pmie;" \
 	-e 's/$/ /' \
 	-e 's/\([ "]\)'"$remote"'\([ "]\)/\1REMOTEHOST\2/g' \
 	-e 's/\([ "]\)'"$rhost"'\([ "]\)/\1REMOTEHOST\2/g' \
