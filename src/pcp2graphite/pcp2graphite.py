@@ -38,6 +38,9 @@ class GraphiteRelay(object):
             if hosts is None: # pmapi.py idiosyncracy; it has already defaulted to this
                 hosts = ["local:"]
             return "host " + ", ".join(hosts)
+        elif ctxtype == c_api.PM_CONTEXT_LOCAL:
+            hosts = ["local:"]
+            return "host " + ", ".join(hosts)
         else:
             raise pmapi.pmUsageErr
 
@@ -234,7 +237,7 @@ Options""")
         """
 
         # align poll interval to host clock
-        if (self.context.type == c_api.PM_CONTEXT_HOST):
+        if (self.context.type == c_api.PM_CONTEXT_HOST) or (self.context.type == c_api.PM_CONTEXT_LOCAL):
             time.sleep(float(self.interval) - (time.time() % float(self.interval)))
 
         # NB: we'd like to do: result = self.context.pmFetch(self.pmids)
