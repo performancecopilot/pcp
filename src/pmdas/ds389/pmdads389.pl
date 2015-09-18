@@ -227,6 +227,27 @@ $pmda->add_metric(pmda_pmid(1,13), PM_TYPE_U32, PM_INDOM_NULL,
 $pmda->add_metric(pmda_pmid(1,14), PM_TYPE_32, PM_INDOM_NULL,
 		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		'ds389.userroot.maxdncachecount', '', '');
+$pmda->add_metric(pmda_pmid(1,15), PM_TYPE_32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'ds389.userroot.normalizeddncachehits', '', '');
+$pmda->add_metric(pmda_pmid(1,16), PM_TYPE_32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'ds389.userroot.normalizeddncachetries', '', '');
+$pmda->add_metric(pmda_pmid(1,17), PM_TYPE_32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'ds389.userroot.normalizeddncachehitratio', '', '');
+$pmda->add_metric(pmda_pmid(1,18), PM_TYPE_32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		'ds389.userroot.currentnormalizeddncachesize', '', '');
+$pmda->add_metric(pmda_pmid(1,19), PM_TYPE_32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		'ds389.userroot.maxnormalizeddncachesize', '', '');
+$pmda->add_metric(pmda_pmid(1,20), PM_TYPE_32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'ds389.userroot.currentnormalizeddncachecount', '', '');
+$pmda->add_metric(pmda_pmid(1,21), PM_TYPE_32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'ds389.userroot.normalizeddncachemisses', '', '');
 
 $pmda->set_refresh(\&ds389_fetch);
 $pmda->set_fetch_callback(\&ds389_fetch_callback);

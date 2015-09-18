@@ -34,6 +34,8 @@ ds389.userroot.currentdncachecount 1 VALUE
 ds389.userroot.currentdncachesize 1 VALUE
 ds389.userroot.currententrycachecount 1 VALUE
 ds389.userroot.currententrycachesize 1 VALUE
+ds389.userroot.currentnormalizeddncachecount 1 VALUE
+ds389.userroot.currentnormalizeddncachesize 1 VALUE
 ds389.userroot.dncachehitratio 1 VALUE
 ds389.userroot.dncachehits 1 VALUE
 ds389.userroot.dncachetries 1 VALUE
@@ -44,6 +46,11 @@ ds389.userroot.maxdncachecount 1 VALUE
 ds389.userroot.maxdncachesize 1 VALUE
 ds389.userroot.maxentrycachecount 1 VALUE
 ds389.userroot.maxentrycachesize 1 VALUE
+ds389.userroot.maxnormalizeddncachesize 1 VALUE
+ds389.userroot.normalizeddncachehitratio 1 VALUE
+ds389.userroot.normalizeddncachehits 1 VALUE
+ds389.userroot.normalizeddncachemisses 1 VALUE
+ds389.userroot.normalizeddncachetries 1 VALUE
 ds389.userroot.readonly 1 VALUE
 
 === remove ds389 agent ===
