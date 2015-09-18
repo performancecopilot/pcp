@@ -37,7 +37,7 @@ ENV IMAGE pcp-pmie
 
 #
 # The RUN label is for the atomic command, e.g. atomic run pcp-pmie
-LABEL RUN docker run -d --privileged --net=host --pid=host --ipc=host -v /sys:/sys:ro -v /etc/localtime:/etc/localtime:ro -v /var/lib/docker:/var/lib/docker:ro -v /run:/run -v /var/log:/var/log -v /etc/cron.d:/etc/cron.d --name=pcp-pmie pcp-pmie
+LABEL RUN docker run -d --privileged --net=host --pid=host --ipc=host -v /sys:/sys:ro -v /etc/localtime:/etc/localtime:ro -v /var/lib/docker:/var/lib/docker:ro -v /run:/run -v /var/log:/var/log -v /etc/cron.d:/etc/cron.d -v /dev/log:/dev/log --name=pcp-pmie pcp-pmie
 
 #
 # The command to run - in this case the pmie service script.

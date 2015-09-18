@@ -38,7 +38,7 @@ ENV IMAGE pcp-collector
 # The RUN label is used by 'atomic' command, e.g. atomic run pcp-collector
 # Other platforms without the 'atomic' command can use docker inspect to
 # extract the RUN label  and use it in a script.
-LABEL RUN docker run -d --privileged --net=host --pid=host --ipc=host -v /sys:/sys:ro -v /etc/localtime:/etc/localtime:ro -v /var/lib/docker:/var/lib/docker:ro -v /run:/run -v /var/log:/var/log --name=pcp-collector pcp-collector
+LABEL RUN docker run -d --privileged --net=host --pid=host --ipc=host -v /sys:/sys:ro -v /etc/localtime:/etc/localtime:ro -v /var/lib/docker:/var/lib/docker:ro -v /run:/run -v /var/log:/var/log -v /dev/log:/dev/log --name=pcp-collector pcp-collector
 
 #
 # The command to run - in this case the pmcd service script. When this command

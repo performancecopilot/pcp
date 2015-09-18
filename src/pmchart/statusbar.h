@@ -30,7 +30,7 @@ public:
     void resetFont();
 
     static int buttonSize() { return 56; }	// pixels
-    static int timeAxisHeight() { return 30; }	// pixels
+    static int timeAxisHeight() { return 34; }	// pixels
 
     QLabel *dateLabel() { return my.dateLabel; }
     TimeAxis *timeAxis() { return my.timeAxis; }
