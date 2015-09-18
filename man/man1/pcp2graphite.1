@@ -7,6 +7,7 @@
 .B pcp2graphite
 [\f3\-h\f1 \f2HOST\f1]
 [\f3\-a\f1 \f2ARCHIVE\f1]
+[\f3\-L\f1]
 [\f3\-O\f1 \f2TIMEORIGIN\f1]
 [\f3\-T\f1 \f2TIMEFINISH\f1]
 [\f3\-s\f1 \f2SAMPLES\f1]
@@ -68,13 +69,13 @@ WantedBy=multi\-user\&.target
 Extract metrics from given PMCD server.
 Default \f2local:\f1.
 
-." .TP
-." .B \-L
-." Extract metrics from the local context PCP PMDAs.
-."
 .TP
 .B \-a ARCHIVE
 Extract metrics from given archive.
+
+.TP
+.B \-L
+Extract metrics from the local context PCP PMDAs.
 
 .TP
 .B \-t DELTA
