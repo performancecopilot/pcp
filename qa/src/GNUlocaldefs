@@ -72,7 +72,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c \
 	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c \
 	churnctx.c badUnitsStr_r.c units-parse.c rootclient.c \
-	lookupnametest.c getversion.c
+	lookupnametest.c getversion.c pdubufbounds.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig

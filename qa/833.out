@@ -3,517 +3,431 @@ QA output created by 833
 Note: timezone set to local timezone of host "sourceware.org" from archive
 
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:51:52 2014
 60.2.0: 0 values
 60.0.32: 0 values
 60.0.28: 0 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:52:07 2014
 60.2.0: 0 values
 60.0.32: 1 values
 60.0.28: 0 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:52:22 2014
 60.2.0: 0 values
 60.0.32: 1 values
 60.0.28: 0 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:52:37 2014
 60.2.0: 0 values
 60.0.32: 1 values
 60.0.28: 0 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:52:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:53:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:53:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:53:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:53:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:54:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:54:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:54:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:54:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:55:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:55:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:55:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:55:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:56:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:56:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:56:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:56:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:57:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:57:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:57:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:57:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:58:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:58:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:58:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:58:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:59:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:59:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:59:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:59:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 01:00:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 01:00:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 01:00:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 01:00:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 churnctx: pmFetch failed: End of PCP archive log
 
 === pmDupContext ===
 Note: timezone set to local timezone of host "sourceware.org" from archive
 
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:51:52 2014
 60.2.0: 0 values
 60.0.32: 0 values
 60.0.28: 0 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:52:07 2014
 60.2.0: 0 values
 60.0.32: 1 values
 60.0.28: 0 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:52:22 2014
 60.2.0: 0 values
 60.0.32: 1 values
 60.0.28: 0 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:52:37 2014
 60.2.0: 0 values
 60.0.32: 1 values
 60.0.28: 0 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:52:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:53:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:53:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:53:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:53:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:54:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:54:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:54:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:54:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:55:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:55:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:55:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:55:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:56:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:56:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:56:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:56:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:57:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:57:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:57:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:57:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:58:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:58:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:58:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:58:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:59:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:59:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:59:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 00:59:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 01:00:07 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 01:00:22 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 01:00:37 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 Tue Jun 10 01:00:52 2014
 60.2.0: 3 values
 60.0.32: 1 values
 60.0.28: 10 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 churnctx: pmFetch failed: End of PCP archive log
 
 === host context, and pmNewContext ... just to be sure ===
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 DATE
 60.2.0: 3 values
 60.0.32: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
-   free pdubuf[size]: ... <= 7 buffers ...
 DATE
 60.2.0: 3 values
 60.0.32: 1 values

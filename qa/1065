@@ -1,0 +1,43 @@
+#!/bin/sh
+# PCP QA Test No. 1065
+# pdubuf bounds testing
+#
+# Copyright (c) 2015 Red Hat
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+# test for-some-thing || _notrun No support for some-thing
+
+_filter() {
+    sed -e 's,0x[0-9a-fA-F]*,HEX,g'
+    }
+
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_run_valgrind src/pdubufbounds > $tmp.out 2>&1
+cat $tmp.out | _filter
+cat $tmp.out >> $seq.full
+
+# if error
+exit
+
+# optional stuff if your test has verbose output to help resolve problems
+#echo
+#echo "If failure, check $seq.full"
+
+# success, all done
+status=0
+
+exit
