@@ -969,6 +969,21 @@ collecting metrics about Samba.
 #end pcp-pmda-samba
 
 #
+# pcp-pmda-slurm
+#
+%package pmda-slurm
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for NFS Clients
+URL: http://www.pcp.io
+Requires: perl-PCP-PMDA = @package_version@
+
+%description pmda-slurm
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from the SLURM Workload Manager.
+#end pcp-pmda-slurm
+
+#
 # pcp-pmda-snmp
 #
 %package pmda-snmp
@@ -1437,7 +1452,7 @@ Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-
 Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
-Requires: pcp-pmda-samba pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
+Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
@@ -1677,6 +1692,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^postgresql' |\
   grep -E -v '^rsyslog' |\
   grep -E -v '^samba' |\
+  grep -E -v '^slurm' |\
   grep -E -v '^snmp' |\
   grep -E -v '^vmware' |\
   grep -E -v '^zimbra' |\
@@ -2202,75 +2218,78 @@ cd
 %files pmda-gpfs
 %{_pmdasdir}/gpfs
 
-%files pmda-gpsd 
-%{_pmdasdir}/gpsd 
+%files pmda-gpsd
+%{_pmdasdir}/gpsd
 
-%files pmda-kvm 
-%{_pmdasdir}/kvm 
+%files pmda-kvm
+%{_pmdasdir}/kvm
 
-%files pmda-lustre 
+%files pmda-lustre
 %{_pmdasdir}/lustre
 
 %files pmda-lustrecomm
 %{_pmdasdir}/lustrecomm
 
-%files pmda-memcache 
-%{_pmdasdir}/memcache 
+%files pmda-memcache
+%{_pmdasdir}/memcache
 
-%files pmda-mysql 
-%{_pmdasdir}/mysql 
+%files pmda-mysql
+%{_pmdasdir}/mysql
 
-%files pmda-named 
-%{_pmdasdir}/named 
+%files pmda-named
+%{_pmdasdir}/named
 
-%files pmda-netfilter 
-%{_pmdasdir}/netfilter 
+%files pmda-netfilter
+%{_pmdasdir}/netfilter
 
-%files pmda-news 
-%{_pmdasdir}/news 
+%files pmda-news
+%{_pmdasdir}/news
 
-%files pmda-nginx 
-%{_pmdasdir}/nginx 
+%files pmda-nginx
+%{_pmdasdir}/nginx
 
-%files pmda-nfsclient 
-%{_pmdasdir}/nfsclient 
+%files pmda-nfsclient
+%{_pmdasdir}/nfsclient
 
-%files pmda-pdns 
-%{_pmdasdir}/pdns 
+%files pmda-pdns
+%{_pmdasdir}/pdns
 
-%files pmda-postfix 
-%{_pmdasdir}/postfix 
+%files pmda-postfix
+%{_pmdasdir}/postfix
 
-%files pmda-postgresql 
-%{_pmdasdir}/postgresql 
+%files pmda-postgresql
+%{_pmdasdir}/postgresql
 
-%files pmda-rsyslog 
-%{_pmdasdir}/rsyslog 
+%files pmda-rsyslog
+%{_pmdasdir}/rsyslog
 
 %files pmda-samba 
 %{_pmdasdir}/samba 
 
-%files pmda-snmp 
-%{_pmdasdir}/snmp 
+%files pmda-snmp
+%{_pmdasdir}/snmp
 
-%files pmda-vmware 
-%{_pmdasdir}/vmware 
+%files pmda-slurm
+%{_pmdasdir}/slurm
 
-%files pmda-zimbra 
-%{_pmdasdir}/zimbra 
+%files pmda-vmware
+%{_pmdasdir}/vmware
 
-%files pmda-dm 
-%{_pmdasdir}/dm 
+%files pmda-zimbra
+%{_pmdasdir}/zimbra
+
+%files pmda-dm
+%{_pmdasdir}/dm
 
 %if !%{disable_python2} || !%{disable_python3}
-%files pmda-gluster 
-%{_pmdasdir}/gluster 
+%files pmda-gluster
+%{_pmdasdir}/gluster
 
-%files pmda-zswap 
-%{_pmdasdir}/zswap 
+%files pmda-zswap
+%{_pmdasdir}/zswap
 
-%files pmda-unbound 
-%{_pmdasdir}/unbound 
+%files pmda-unbound
+%{_pmdasdir}/unbound
 
 %files export-pcp2graphite
 %{_bindir}/pcp2graphite
@@ -2284,63 +2303,63 @@ cd
 %{_pmdasdir}/json
 %endif
 
-%files pmda-apache 
-%{_pmdasdir}/apache 
+%files pmda-apache
+%{_pmdasdir}/apache
 
-%files pmda-bash 
-%{_pmdasdir}/bash 
+%files pmda-bash
+%{_pmdasdir}/bash
 
-%files pmda-cifs 
-%{_pmdasdir}/cifs 
+%files pmda-cifs
+%{_pmdasdir}/cifs
 
-%files pmda-cisco 
-%{_pmdasdir}/cisco 
+%files pmda-cisco
+%{_pmdasdir}/cisco
 
-%files pmda-gfs2 
-%{_pmdasdir}/gfs2 
+%files pmda-gfs2
+%{_pmdasdir}/gfs2
 
-%files pmda-lmsensors 
-%{_pmdasdir}/lmsensors 
+%files pmda-lmsensors
+%{_pmdasdir}/lmsensors
 
-%files pmda-logger 
-%{_pmdasdir}/logger 
+%files pmda-logger
+%{_pmdasdir}/logger
 
-%files pmda-mailq 
-%{_pmdasdir}/mailq 
+%files pmda-mailq
+%{_pmdasdir}/mailq
 
-%files pmda-mounts 
-%{_pmdasdir}/mounts 
+%files pmda-mounts
+%{_pmdasdir}/mounts
 
-%files pmda-nvidia-gpu 
+%files pmda-nvidia-gpu
 %{_pmdasdir}/nvidia
 
-%files pmda-roomtemp 
-%{_pmdasdir}/roomtemp 
+%files pmda-roomtemp
+%{_pmdasdir}/roomtemp
 
 %if !%{disable_rpm}
-%files pmda-rpm 
-%{_pmdasdir}/rpm 
+%files pmda-rpm
+%{_pmdasdir}/rpm
 %endif
 
-%files pmda-sendmail 
-%{_pmdasdir}/sendmail 
+%files pmda-sendmail
+%{_pmdasdir}/sendmail
 
-%files pmda-shping 
-%{_pmdasdir}/shping 
+%files pmda-shping
+%{_pmdasdir}/shping
 
-%files pmda-summary 
-%{_pmdasdir}/summary 
+%files pmda-summary
+%{_pmdasdir}/summary
 
 %if !%{disable_systemd}
-%files pmda-systemd 
-%{_pmdasdir}/systemd 
+%files pmda-systemd
+%{_pmdasdir}/systemd
 %endif
 
-%files pmda-trace 
-%{_pmdasdir}/trace 
+%files pmda-trace
+%{_pmdasdir}/trace
 
-%files pmda-weblog 
-%{_pmdasdir}/weblog 
+%files pmda-weblog
+%{_pmdasdir}/weblog
 
 %files -n perl-PCP-PMDA -f perl-pcp-pmda.list
 

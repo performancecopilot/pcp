@@ -1005,8 +1005,7 @@ Requires: perl-PCP-PMDA = @package_version@
 
 %description pmda-slurm
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics from the SLURM Workload Manager.  The PMDA is written in Perl.
-
+collecting metrics from the SLURM Workload Manager.
 #end pcp-pmda-slurm
 
 #
