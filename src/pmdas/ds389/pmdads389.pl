@@ -183,7 +183,7 @@ $pmda->add_metric(pmda_pmid(0,11), PM_TYPE_U32, PM_INDOM_NULL,
 
 # cn=monitor,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, PM_INDOM_NULL,
-		PM_SEM_DISCRETE, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		'ds389.userroot.readonly', '', '');
 $pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U64, PM_INDOM_NULL,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
@@ -204,7 +204,7 @@ $pmda->add_metric(pmda_pmid(1,6), PM_TYPE_U32, PM_INDOM_NULL,
 		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		'ds389.userroot.currententrycachecount', '', '');
 $pmda->add_metric(pmda_pmid(1,7), PM_TYPE_32, PM_INDOM_NULL,
-		PM_SEM_DISCRETE, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		'ds389.userroot.maxentrycachecount', '', '');
 $pmda->add_metric(pmda_pmid(1,8), PM_TYPE_U64, PM_INDOM_NULL,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
@@ -225,7 +225,7 @@ $pmda->add_metric(pmda_pmid(1,13), PM_TYPE_U32, PM_INDOM_NULL,
 		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		'ds389.userroot.currentdncachecount', '', '');
 $pmda->add_metric(pmda_pmid(1,14), PM_TYPE_32, PM_INDOM_NULL,
-		PM_SEM_DISCRETE, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		'ds389.userroot.maxdncachecount', '', '');
 
 $pmda->set_refresh(\&ds389_fetch);
