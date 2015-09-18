@@ -6,6 +6,10 @@ Found pcp.hinv.ncpu in pickled output
 foobar.hinv.ncpu NCPUS TIMESTAMP2
 foobar.hinv.ncpu NCPUS TIMESTAMP2
 Excluding metric sample.datasize (incompatible dimensions)
+=== 2a. pcp2graphite text, 2-second aligned, local  ===
+foobar.hinv.ncpu NCPUS TIMESTAMP2
+foobar.hinv.ncpu NCPUS TIMESTAMP2
+Excluding metric sample.datasize (PM_ERR_NOAGENT No PMCD agent for domain of request)
 === 3. pcp2graphite bad-instance tolerance ===
 pcp.sample.bogus_bin._bin-100 100.0 TIMESTAMP2
 pcp.sample.bogus_bin._bin-100 100.0 TIMESTAMP2
