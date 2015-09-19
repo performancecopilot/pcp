@@ -976,7 +976,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for NFS Clients
 URL: http://www.pcp.io
-Requires: perl-PCP-PMDA = @package_version@
+Requires: perl-PCP-PMDA = %{version}-%{release}
 
 %description pmda-slurm
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
