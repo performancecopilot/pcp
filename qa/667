@@ -93,6 +93,22 @@ head -2 $tmp.socat.out |
 grep 'Excluding' $tmp.p2g.err
 _full_stash
 
+echo "=== 2a. pcp2graphite text, 2-second aligned, local  ===" | tee -a $seq.full
+rm -f $tmp.socat.out $tmp.socat.err
+socat tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &
+pid=$!
+sleep 2
+$pcp2graphite -L -t 2 -P $port_text -u "/$scale" -m foobar. hinv.ncpu sample.datasize >$tmp.p2g.out 2>$tmp.p2g.err &
+p2gpid=$!
+sleep 8 # enough for at least 2 messages
+$signal $pid $p2gpid 2>/dev/null
+wait
+head -2 $tmp.socat.out |
+    sed -e "s,\.ncpu $ncpu ,.ncpu NCPUS ," |    # confirm ncpus value
+    sed -r -e 's, [0-9]+[02468]$, TIMESTAMP2,'  # confirm time alignment
+grep 'Excluding' $tmp.p2g.err
+_full_stash
+
 echo "=== 3. pcp2graphite bad-instance tolerance ===" | tee -a $seq.full
 rm -f $tmp.socat.out $tmp.socat.err
 socat tcp-listen:$port_text,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.err &

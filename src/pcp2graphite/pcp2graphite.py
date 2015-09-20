@@ -38,6 +38,9 @@ class GraphiteRelay(object):
             if hosts is None: # pmapi.py idiosyncracy; it has already defaulted to this
                 hosts = ["local:"]
             return "host " + ", ".join(hosts)
+        elif ctxtype == c_api.PM_CONTEXT_LOCAL:
+            hosts = ["local:"]
+            return "host " + ", ".join(hosts)
         else:
             raise pmapi.pmUsageErr
 
@@ -48,7 +51,7 @@ class GraphiteRelay(object):
         self.sampleCount = 0
         self.debug = False
         self.opts = pmapi.pmOptions()
-        self.opts.pmSetShortOptions("a:O:s:T:g:p:P:u:m:t:h:t:D:V?") # must include common options
+        self.opts.pmSetShortOptions("a:O:s:T:g:p:P:u:m:t:h:t:D:LV?") # must include common options
         self.opts.pmSetShortUsage("[options] metricname ...")
         self.opts.pmSetOptionCallback(self.option)
         self.opts.pmSetOverrideCallback(self.option_override)
@@ -66,7 +69,7 @@ Options""")
         self.opts.pmSetLongOptionFinish() # -T NUMBER
         self.opts.pmSetLongOptionDebug() # -D stuff
         self.opts.pmSetLongOptionHost() # -h HOST
-        # self.opts.pmSetLongOptionLocalPMDA() # -L ... no workie in pmapi.py?
+        self.opts.pmSetLongOptionLocalPMDA() # -L
         self.opts.pmSetLongOptionInterval() # -t NUMBER
         self.opts.pmSetLongOption("graphite-host", 1, 'g', '', "graphite server host (default \"localhost\")")
         self.opts.pmSetLongOption("pickled-port", 1, 'p', '', "graphite pickled port (default 2004)")
@@ -234,7 +237,7 @@ Options""")
         """
 
         # align poll interval to host clock
-        if (self.context.type == c_api.PM_CONTEXT_HOST):
+        if (self.context.type == c_api.PM_CONTEXT_HOST) or (self.context.type == c_api.PM_CONTEXT_LOCAL):
             time.sleep(float(self.interval) - (time.time() % float(self.interval)))
 
         # NB: we'd like to do: result = self.context.pmFetch(self.pmids)
