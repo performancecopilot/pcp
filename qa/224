@@ -31,7 +31,7 @@ _reset()
 	_wait_for_pmlogger
 	done_reset=true
     fi
-    $sudo rm -f $tmp.*
+    $sudo rm -fr $tmp.*
 }
 
 _filter()

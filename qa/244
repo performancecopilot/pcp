@@ -96,6 +96,7 @@ LOGCONTROL=$PCP_PMLOGGERCONTROL_PATH
 SAVE_LOGCONTROL=$tmp/control.save
 signal="$sudo $PCP_BINADM_DIR/pmsignal"
 _needclean=true
+status=1
 
 # for local PMNS to avoid conflict with pmcd tests
 #
@@ -110,7 +111,7 @@ $sudo chmod u+w $CONFIG
 cp $CONFIG $CONFIGSAVE
 [ -f $LOGCONTROL ] && $sudo mv $LOGCONTROL $SAVE_LOGCONTROL
 
-cleanup()
+_cleanup()
 {
     cd $here
     if $_needclean
@@ -136,7 +137,7 @@ cleanup()
     $sudo rm -rf $tmp $tmp.*
 }
 
-trap cleanup 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
@@ -271,3 +272,7 @@ fi
 _filter_log
 echo
 echo "..."
+
+# success, all done
+status=0
+exit

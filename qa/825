@@ -7,7 +7,7 @@
 # test assumes local ds389 server with default everything
 # and bind password as set in $passwd below.
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 #
 
 seq=`basename $0`
@@ -61,7 +61,7 @@ EOF
     | sed \
         -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
     | $PCP_AWK_PROG '
-/Check ds389 metrics have appeared/  { if ($7 >= 0 && $7 <= 20) $7 = "W"
+/Check ds389 metrics have appeared/  { if ($7 >= 0 && $7 <= 30) $7 = "W"
                                        if ($9 >= 25 && $9 <= 75) $9 = "N"
                                        if ($12 >= 25 && $12 <= 75) $12 = "V"
                                      }

@@ -25,7 +25,7 @@
 
 <copyright>
 <year>2013</year>
-<year>2014</year>
+<year>2015</year>
 <holder>Red Hat, Inc.</holder>
 </copyright>
 
@@ -2966,7 +2966,7 @@ per second (by default), and produces output similar to this:</para>
 <literallayout class="monospaced"><userinput>pmval proc.nprocs</userinput>
 metric:    proc.nprocs
 host:      localhost
-semantics: discrete instantaneous value
+semantics: instantaneous value
 units:     none
 samples:   all
 interval:  1.00 sec
@@ -3097,7 +3097,7 @@ The following command and response show use of the <literal>-d</literal> option:
 <literallayout class="monospaced"><userinput>pminfo -d proc.nprocs disk.dev.read filesys.free</userinput>
 proc.nprocs
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: discrete  Units: none
+    Semantics: instant  Units: none
 
 disk.dev.read
     Data Type: 32-bit unsigned int  InDom: 60.1 0xf000001

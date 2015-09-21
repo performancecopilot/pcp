@@ -1045,7 +1045,7 @@ class pmContext(object):
         self._type = typed                              # the context type
         self._target = target                            # the context target
         self._ctx = c_api.PM_ERR_NOCONTEXT                # init'd pre-connect
-        if type(target) != type(b''):
+        if target and type(target) != type(b''):
             source = target.encode('utf-8')
         else:
             source = target

@@ -185,6 +185,7 @@ parsehostspec
 parseinterval
 parsemetricspec
 pcp_lite_crash
+pdubufbounds
 pducheck
 pducrash
 pdu-server

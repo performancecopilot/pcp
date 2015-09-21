@@ -31,6 +31,8 @@ public:
     void resetFont();
     void clearScaleCache();
     double scaleValue(double delta, int count);
+    double delta(void) { return my.delta; }
+    double points(void) { return my.points; }
     void noArchiveSources();
     void print(QPainter *, QRect &, bool);
 
