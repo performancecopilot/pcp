@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014 Joseph White
+.\" Copyright (c) 2014-2015 Joseph White
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -163,6 +163,14 @@ agent
 default log file for error messages and other information from
 .B pmdaperfevent
 .PD
+.SH UPGRADING
+Some metric names have changed starting in version 3.10.8 to better conform to PMNS conventions.
+.BR pmlogrewrite (1)
+can be used to update old archives.  A helper utility,
+.B $PCP_PMDAS_DIR/perfevent/perfevent-makerewrite.pl
+will generate a config file that is suitable for use with
+.BR pmlogrewrite (1)
+to update the metric names in existing archives.
 .SH BUGS
 Each event is placed in its own group and there is no way to group related
 events together so they are guaranteed to be simultaneously active.
@@ -188,6 +196,7 @@ as described in
 .BR perfevent.conf (5),
 .BR PCPIntro (1),
 .BR pmcd (1),
+.BR pmlogrewrite (1),
 .BR PMAPI (3),
 .BR pcp.conf (5)
 and
