@@ -79,9 +79,14 @@ struct ethtool_cmd {
     uint8_t	phy_address;
     uint8_t	transceiver;    /* Which tranceiver to use */
     uint8_t	autoneg;        /* Enable or disable autonegotiation */
+    uint8_t	mdio_support;
     uint32_t	maxtxpkt;       /* Tx pkts before generating tx int */
     uint32_t	maxrxpkt;       /* Rx pkts before generating rx int */
-    uint32_t	reserved[4];
+    uint16_t	speed_hi;	/* High bits of the speed */
+    uint8_t	eth_tp_mdix;
+    uint8_t	eth_tp_mdix_ctrl;
+    uint32_t	lp_advertising;
+    uint32_t	reserved[2];
 };
 
 #define IPV6_ADDR_ANY           0x0000U

@@ -94,9 +94,11 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip,
 	if (!(ioctl(fd, SIOCETHTOOL, &ifr) < 0)) {
 	    /*
 	     * speed is defined in ethtool.h and returns the speed in
-	     * Mbps, so 100 for 100Mbps, 1000 for 1Gbps, etc
+	     * Mbps, so 100 for 100Mbps, 1000 for 1Gbps, etc.
+	     * For kernel ABI reasons, this is split into two 16 bits
+	     * fields, which must be combined for speeds above 1Gbps.
 	     */
-	    netip->ioc.speed = ecmd.speed;
+	    netip->ioc.speed = (ecmd.speed << 16) | ecmd.speed;
 	    netip->ioc.duplex = ecmd.duplex + 1;
 	}
     }
