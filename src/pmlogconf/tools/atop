@@ -152,3 +152,37 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	network.udp.noports
 	network.udp.inerrors
 	network.udp.outdatagrams
+
+	rpc.server.rchits
+	rpc.server.rcmisses
+	rpc.server.rcnocache
+	rpc.server.io_read
+	rpc.server.io_write
+	rpc.server.netcnt
+	rpc.server.netudpcnt
+	rpc.server.nettcpcnt
+	rpc.server.nettcpconn
+	rpc.server.rpccnt
+	rpc.server.rpcbadfmt
+	rpc.server.rpcbadauth
+	rpc.server.rpcbadclnt
+	nfs.server.reqs[read,write]
+	nfs3.server.reqs[read,write]
+	nfs4.server.reqs[read,write]
+	rpc.client.rpccnt
+	rpc.client.rpcretrans
+	rpc.client.rpcauthrefresh
+	nfs.client.reqs[read,write]
+	nfs3.client.reqs[read,write]
+	nfs4.client.reqs[read,write]
+
+	nfsclient.export
+	nfsclient.age
+	nfsclient.bytes.read.normal
+	nfsclient.bytes.write.normal
+	nfsclient.bytes.read.direct
+	nfsclient.bytes.write.direct
+	nfsclient.bytes.read.server
+	nfsclient.bytes.write.server
+	nfsclient.pages.read
+	nfsclient.pages.write
