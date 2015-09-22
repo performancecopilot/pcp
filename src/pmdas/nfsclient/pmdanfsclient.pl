@@ -409,12 +409,17 @@ sub nfsclient_fetch {
 
 sub nfsclient_fetch_callback {
 	my ($cluster, $item, $inst) = @_; 
+	my $value;
 
 	my $lookup = pmda_inst_lookup($nfsclient_indom, $inst);
 	return (PM_ERR_INST, 0) unless defined($lookup);
 
 	my $pmid_name = pmda_pmid_name($cluster, $item)
                or die "Unknown metric name: cluster $cluster item $item\n";
+
+	# check if we have no values for this NFS version
+	$value = $lookup->{$pmid_name};
+	return ($value, 0) unless ($value != $noval);
 
 	return ($lookup->{$pmid_name}, 1);
 

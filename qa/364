@@ -35,6 +35,7 @@ _filter_solaris()
 	    -e '/network.ip.* Unknown metric name/d' \
 	    -e '/network.tcp.* Unknown metric name/d' \
 	    -e '/network.udp.* Unknown metric name/d' \
+	    -e '/nfsclient.* Unknown metric name/d' \
 	    -e '/filesys.* Unknown metric name/d' \
 	    -e '/nfs.* Unknown metric name/d' \
 	    -e '/rpc.* Unknown metric name/d' \
