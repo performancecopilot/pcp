@@ -61,7 +61,8 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp)
 	/* /proc/pid/status */
 	task->gen.nthr = extract_integer_inst(rp, dp, TASK_GEN_NTHR, pid);
 	task->gen.tgid = extract_integer_inst(rp, dp, TASK_GEN_TGID, pid);
-	task->gen.envid = extract_integer_inst(rp, dp, TASK_GEN_ENVID, pid);
+	task->gen.ctid = extract_integer_inst(rp, dp, TASK_GEN_ENVID, pid);
+	task->gen.vpid = extract_integer_inst(rp, dp, TASK_GEN_VPID, pid);
 	task->gen.ruid = extract_integer_inst(rp, dp, TASK_GEN_RUID, pid);
 	task->gen.euid = extract_integer_inst(rp, dp, TASK_GEN_EUID, pid);
 	task->gen.suid = extract_integer_inst(rp, dp, TASK_GEN_SUID, pid);

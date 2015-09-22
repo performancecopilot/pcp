@@ -22,6 +22,8 @@
 #include "netstats.h"
 
 #define	MAXDKNAM	32
+#define	MAXIFNAM	32
+#define MAXMNTNAME	128
 
 /************************************************************************/
 
@@ -132,7 +134,7 @@ struct dskstat {
 /************************************************************************/
 
 struct	perintf {
-        char	name[16];	/* empty string for last        */
+        char	name[MAXIFNAM];	/* empty string for last        */
 
         count_t	rbyte;	/* number of read bytes                 */
         count_t	rpack;	/* number of read packets               */
@@ -153,12 +155,84 @@ struct	perintf {
 	count_t scompr; /* transmit compressed                  */
 
 	long 	speed;	/* interface speed in megabits/second	*/
+	long 	speedp;	/* previous interface speed 		*/
 	char	duplex;	/* full duplex (boolean) 		*/
 };
 
 struct intfstat {
 	int		nrintf;
 	struct perintf	*intf;
+};
+
+/************************************************************************/
+
+struct  pernfsmount {
+	char 	mountdev[MAXMNTNAME];		/* mountdevice 		*/
+	count_t	age;			/* number of seconds mounted	*/
+
+	count_t	bytesread;		/* via normal reads		*/
+	count_t	byteswrite;		/* via normal writes		*/
+	count_t	bytesdread;		/* via direct reads		*/
+	count_t	bytesdwrite;		/* via direct writes		*/
+	count_t	bytestotread;		/* via reads			*/
+	count_t	bytestotwrite;		/* via writes			*/
+	count_t	pagesmread;		/* via mmap  reads		*/
+	count_t	pagesmwrite;		/* via mmap  writes		*/
+};
+
+struct nfsstat {
+	struct {
+        	count_t	netcnt;
+		count_t netudpcnt;
+		count_t nettcpcnt;
+		count_t nettcpcon;
+
+		count_t rpccnt;
+		count_t rpcbadfmt;
+		count_t rpcbadaut;
+		count_t rpcbadcln;
+
+		count_t rpcread;
+		count_t rpcwrite;
+
+	   	count_t	rchits;		/* repcache hits	*/
+	   	count_t	rcmiss;		/* repcache misses	*/
+	   	count_t	rcnoca;		/* uncached requests	*/
+
+	   	count_t	nrbytes;	/* read bytes		*/
+	   	count_t	nwbytes;	/* written bytes	*/
+	} server;
+
+	struct {
+		count_t	rpccnt;
+		count_t rpcretrans;
+		count_t rpcautrefresh;
+
+		count_t rpcread;
+		count_t rpcwrite;
+	} client;
+
+	int             	nrmounts;
+	struct pernfsmount	*nfsmnt;
+};
+
+/************************************************************************/
+
+struct  percontainer {
+        unsigned long	ctid;		/* container id			*/
+        unsigned long	numproc;	/* number of processes		*/
+
+        count_t system;  	/* */
+        count_t user;  		/* */
+        count_t nice;  		/* */
+        count_t uptime; 	/* */
+
+        count_t physpages; 	/* */
+};
+
+struct contstat {
+        int             	nrcontainer;
+        struct percontainer	*cont;
 };
 
 /************************************************************************/
@@ -184,6 +258,8 @@ struct	sstat {
 	struct netstat	net;
 	struct intfstat	intf;
 	struct dskstat  dsk;
+	struct nfsstat	nfs;
+	struct contstat	cfs;
 
 	struct wwwstat	www;
 };
@@ -192,5 +268,5 @@ struct	sstat {
 ** prototypes
 */
 void	photosyst (struct sstat *);
-void	deviatsyst(struct sstat *, struct sstat *, struct sstat *);
+void	deviatsyst(struct sstat *, struct sstat *, struct sstat *, double);
 void	totalsyst (char,           struct sstat *, struct sstat *);
