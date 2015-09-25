@@ -227,7 +227,7 @@ systmetrics {
 	# /proc/net/rpc/nfsd
 	rpc.server.rchits			NFS_RCHITS
 	rpc.server.rcmisses			NFS_RCMISS
-	rpc.server.rcnocache			NFS_RCNOCA
+	rpc.server.rcnocache			NFS_RCNOCACHE
 	rpc.server.io_read			NFS_IORD
 	rpc.server.io_write			NFS_IOWR
 	rpc.server.netcnt			NFS_NETCNT

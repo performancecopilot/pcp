@@ -627,7 +627,7 @@ extract_integer_index(pmResult *result, pmDesc *descs, int value, int i)
 	pmValueSet *values = result->vset[value];
 
 	if (values->numval <= 0 || values->numval <= i)
-		return -1;
+		return 0;
 	pmExtractValue(values->valfmt, &values->vlist[i],
 			descs[value].type, &atom, PM_TYPE_32);
 	return atom.l;
@@ -655,7 +655,7 @@ extract_integer_inst(pmResult *result, pmDesc *descs, int value, int inst)
 		break;
 	}
 	if (values->numval <= 0 || i == values->numval)
-		return -1;
+		return 0;
 	return atom.l;
 }
 
@@ -672,7 +672,7 @@ extract_count_t_index(pmResult *result, pmDesc *descs, int value, int i)
 	pmValueSet *values = result->vset[value];
 
 	if (values->numval <= 0 || values->numval <= i)
-		return -1;
+		return 0;
 
 	pmExtractValue(values->valfmt, &values->vlist[i],
 			descs[value].type, &atom, PM_TYPE_64);
@@ -695,7 +695,7 @@ extract_count_t_inst(pmResult *result, pmDesc *descs, int value, int inst)
 		break;
 	}
 	if (values->numval <= 0 || i == values->numval)
-		return -1;
+		return 0;
 	return atom.ll;
 }
 

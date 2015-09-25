@@ -542,8 +542,8 @@ photosyst(struct sstat *si)
 
 	/* NFS server statistics */
 	si->nfs.server.rchits = extract_count_t(result, descs, NFS_RCHITS);
-	si->nfs.server.rchits = extract_count_t(result, descs, NFS_RCMISS);
-	si->nfs.server.rchits = extract_count_t(result, descs, NFS_RCNOCA);
+	si->nfs.server.rcmiss = extract_count_t(result, descs, NFS_RCMISS);
+	si->nfs.server.rcnoca = extract_count_t(result, descs, NFS_RCNOCACHE);
 	si->nfs.server.nrbytes = extract_count_t(result, descs, NFS_IORD);
 	si->nfs.server.nwbytes = extract_count_t(result, descs, NFS_IOWR);
 	si->nfs.server.netcnt = extract_count_t(result, descs, NFS_NETCNT);

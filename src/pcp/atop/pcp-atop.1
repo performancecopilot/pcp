@@ -1668,9 +1668,21 @@ Some features of that
 .B atop
 command are not available in
 .BR pcp-atop .
+.PP
+Some features of
+.BR pcp-atop
+(such as reporting on the Apache HTTP daemon, and NFS client mounts)
+are only activated if the corresonding PCP metrics are available.
+Refer to the documentation for
+.BR pmdaapache (1)
+and
+.BR pmdanfsclient (1)
+for further details on activating these metrics.
 .SH SEE ALSO
 .BR pcp (1),
 .BR pcp-atopsar (1),
+.BR pmdaapache (1),
+.BR pmdanfsclient (1),
 .BR mkaf (1),
 .BR pmlogger (1),
 .BR pmlogger_daily (1),

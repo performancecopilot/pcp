@@ -28,6 +28,12 @@ then
     exit 1
 fi
 
+if pmprobe nfsclient >&1 | grep -q 'Unknown metric name'
+then
+    echo "Arrgh, nfsclient PMDA is apparently not installed"
+    exit 1
+fi
+
 trap "rm -rf $tmp; exit" 0 1 2 3 15
 
 mkdir -p $tmp/config
