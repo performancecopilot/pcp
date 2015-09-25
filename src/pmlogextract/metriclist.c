@@ -288,15 +288,20 @@ searchmlist(pmResult *_Oresult)
 	/* note: found may be <= ml[j].numinst
 	 *	 further more, found may be zero ... deal with this later?
 	 *		- NUMVAL
+         *
+         * note2: if ml[j].numinst == -1, it means we want all insts.
+         *        ignore the fact that found is 0.
 	 */
-	vsetp->numval = found;
+        if( ml[j].numinst != -1 ){
+	    vsetp->numval = found;
 
-	for (q=0; q<vsetp->numval; q++) {
-	    vsetp->vlist[q].inst = vlistp[q].inst;
-	    vsetp->vlist[q].value = vlistp[q].value;
-	    vlistp[q].inst = 0;
-	    vlistp[q].value.lval = 0;
-	} /*for(q)*/
+	    for (q=0; q<vsetp->numval; q++) {
+	        vsetp->vlist[q].inst = vlistp[q].inst;
+	        vsetp->vlist[q].value = vlistp[q].value;
+	        vlistp[q].inst = 0;
+	        vlistp[q].value.lval = 0;
+	    } /*for(q)*/
+        } /* if */
     } /*for(k)*/
 
     free(ilist);
