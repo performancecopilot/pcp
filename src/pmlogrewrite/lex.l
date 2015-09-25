@@ -178,7 +178,7 @@ dupstr(char *s, int strip_quotes)
 [0-9]+\.\*\.\*		{ yylval.str = dupstr(yytext, 0); return TOK_PMID_STAR; }
 
 	/* Generic name, e.g. for identifier or metric or hostname */
-[A-Za-z][A-Za-z0-9_.]*	{ yylval.str = dupstr(yytext, 0); return TOK_GNAME; }
+[A-Za-z][A-Za-z0-9_.=-]*	{ yylval.str = dupstr(yytext, 0); return TOK_GNAME; }
 
 \#.*			{ }
 

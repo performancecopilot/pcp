@@ -29,7 +29,7 @@ CFILES	= pmda.c perfmanager.c perfinterface.c architecture.c \
 HFILES  = architecture.h configparser.h perfinterface.h perfmanager.h \
 		  rapl-interface.h perflock.h
 
-SCRIPTS		= Install Remove
+SCRIPTS		= Install Remove perfevent-makerewrite.pl
 
 DFILES	= README help
 
