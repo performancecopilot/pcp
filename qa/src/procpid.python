@@ -19,7 +19,7 @@ import sys
 from pcp import pmapi, pmcc
 from cpmapi import (PM_CONTEXT_ARCHIVE, PM_MODE_FORW)
 
-PROC_METRICS = [ 'proc.psinfo.pid' ]
+METRICS = ['']
 
 class ProcReport(pmcc.MetricGroupPrinter):
 
@@ -37,15 +37,16 @@ class ProcReport(pmcc.MetricGroupPrinter):
     def report(self, groups):
         self.convert(groups)
         group = groups['proc']
-        pids = self.pid_dict(group, 'proc.psinfo.pid')
+        pids = self.pid_dict(group, METRICS[0])
         pidlist = pids.keys()
         for pidinst in sorted(pidlist):
-            print("[%s] \"%s\"" % (pids[pidinst], pidinst))
+            print("%s" % pidinst)
         sys.exit(0)
 
 if __name__ == '__main__':
     try:
         options = pmapi.pmOptions('a:h:?')
+        options.pmSetShortUsage("[options] metric")
         options.pmSetLongOptionArchive()
         options.pmSetLongOptionHost()
         options.pmSetLongOptionHelp()
@@ -54,7 +55,10 @@ if __name__ == '__main__':
             origin = options.pmGetOptionOrigin()
             manager.pmSetMode(PM_MODE_FORW, origin, 0)
         manager.printer = ProcReport()
-        manager['proc'] = PROC_METRICS
+        METRICS = options.pmNonOptionsFromList(sys.argv)
+        if METRICS == None:
+            raise pmapi.pmUsageErr()
+        manager['proc'] = METRICS
         manager.run()
     except pmapi.pmErr as error:
         print('%s: %s\n' % (error.progname(), error.message()))
