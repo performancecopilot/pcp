@@ -18,12 +18,12 @@ Starting pmlogger ...
 Check perfevent metrics have appeared ... 8 metrics and Y values
 perfevent.version
 perfevent.active
-perfevent.hwcounters.perf--PERF_COUNT_SW_CPU_CLOCK.dutycycle
-perfevent.hwcounters.perf--PERF_COUNT_SW_CPU_CLOCK.value
-perfevent.hwcounters.perf--PERF_COUNT_SW_TASK_CLOCK.dutycycle
-perfevent.hwcounters.perf--PERF_COUNT_SW_TASK_CLOCK.value
-perfevent.hwcounters.perf--PERF_COUNT_SW_PAGE_FAULTS.dutycycle
-perfevent.hwcounters.perf--PERF_COUNT_SW_PAGE_FAULTS.value
+perfevent.hwcounters.perf__PERF_COUNT_SW_CPU_CLOCK.dutycycle
+perfevent.hwcounters.perf__PERF_COUNT_SW_CPU_CLOCK.value
+perfevent.hwcounters.perf__PERF_COUNT_SW_TASK_CLOCK.dutycycle
+perfevent.hwcounters.perf__PERF_COUNT_SW_TASK_CLOCK.value
+perfevent.hwcounters.perf__PERF_COUNT_SW_PAGE_FAULTS.dutycycle
+perfevent.hwcounters.perf__PERF_COUNT_SW_PAGE_FAULTS.value
 
 === remove perfevent agent ===
 Culling the Performance Metrics Name Space ...
