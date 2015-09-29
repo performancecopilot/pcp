@@ -21,6 +21,7 @@ use Net::Domain qw( hostname );
 
 use Slurm;
 use Slurm::Hostlist;
+use Slurm qw(:constant);
 
 use threads;
 use threads::shared;
@@ -40,9 +41,9 @@ my $PARTITION_CLUSTER = 5;
 
 # Slurm parameters we actually care about
 # Order matches the metric item number to make the fetch logic easier
-# Names match the struct entries in slurm.h:job_info
+# Names match the struct entries in slurm.h:job_info if existing, otherwise prepend with "DERIVED"
 
-my @slurm_job_stats = ( "FILLER_FOR_NUM_JOBS", "job_id", "name", "job_state", "user_id", "batch_host", "submit_time", "start_time", "end_time", "features", "gres", "nodes", "num_nodes", "num_cpus", "ntasks_per_node", "work_dir" );
+my @slurm_job_stats = ( "FILLER_FOR_NUM_JOBS", "job_id", "name", "job_state", "user_id", "batch_host", "submit_time", "start_time", "end_time", "features", "gres", "nodes", "num_nodes", "num_cpus", "ntasks_per_node", "work_dir", "DERIVED_job_alloc_cores");
 
 #
 # Shared Variables between slurm gather thread and main pmda thread
@@ -100,7 +101,7 @@ sub slurm_update_cluster_jobs {
     #
     # This could take a while
     # Returns a hash ref where the main element we care about is the job_array array
-    my $jobmsg = $slurm->load_jobs($jobs_update_time, 0);
+    my $jobmsg = $slurm->load_jobs($jobs_update_time, SHOW_DETAIL);
 
     unless($jobmsg) {
         # This can fail if the slurm controller has not come up yet
@@ -144,6 +145,24 @@ sub slurm_update_cluster_jobs {
                                     $nodejobs{$jid}{$key} = $value;
                                 }
                             }
+                            #
+                            # Grab the cores allocated per node
+                            # Not exposed in the API so we need to parse the string representation of the job
+                            my $slurmstr = $slurm->sprint_job_info($job,1);
+                            my $nodecores = "";
+                            # Should always exist, but just in case
+                            # Could be multiple matches
+                            # SLURM api groups hosts together that have the same cores allocated
+                            while ( $slurmstr =~ /Nodes=(\S*) CPU_IDs=(\S*)/g ){
+                                my $foundnodes = $1;
+                                my $foundcores = $2;
+                                my $corehosts = Slurm::Hostlist::create( $foundnodes );
+                                while( my $corehost = $corehosts->shift()){
+                                    $nodecores .= "$corehost:$foundcores ";
+                                }
+                            }
+                            $nodecores =~ s/\s+$//;
+                            $nodejobs{$jid}{"DERIVED_job_alloc_cores"} = "$nodecores";
                         }
                     }
                 }
@@ -355,6 +374,12 @@ $pmda->add_metric(pmda_pmid($NODE_JOB_CLUSTER,15), PM_TYPE_STRING, $node_job_ind
     PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
     'slurm.node.job.work_dir',
     'Working directory of the job',
+    '');
+
+$pmda->add_metric(pmda_pmid($NODE_JOB_CLUSTER,16), PM_TYPE_STRING, $node_job_indom,
+    PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+    'slurm.node.job.job_alloc_cores',
+    'Cores allocated to the job',
     '');
 
 # To add - batch script, alloc_node, account, partition ?
