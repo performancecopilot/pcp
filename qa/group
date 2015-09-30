@@ -1008,6 +1008,7 @@ cgroups
 807 pcp local
 808 pmlogger local
 811 pmlogger pmcpp local
+812 pmlogextract local
 813 pmda.papi local
 815 pmie local
 822:reserved pmlogrewrite

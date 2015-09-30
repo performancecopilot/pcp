@@ -1,0 +1,940 @@
+QA output created by 812
+=== pmlogextract no config ===
+--- sample.mirage diffs ---
+--- sample.bin diffs ---
+
+=== pmlogextract config with metrics, no instances ===
+--- sample.mirage diffs ---
+--- sample.bin diffs ---
+
+=== pmlogextract config with metrics, all instances in order ===
+--- sample.mirage diffs ---
+--- sample.bin diffs ---
+
+=== pmlogextract config with metrics, all instances in reverse order ===
+--- sample.mirage diffs ---
+--- sample.bin diffs ---
+
+=== pmlogextract config with metrics, some instances ===
+--- sample.mirage diffs ---
+2c2,4
+< 08:31:22.697  29.0.37 (sample.mirage): inst [0 or "m-00"] value 92
+---
+> 08:31:22.697  29.0.37 (sample.mirage):
+>                 inst [0 or "m-00"] value 92
+>                 inst [1 or "m-01"] value 191
+4c6,8
+< 08:31:23.697  29.0.37 (sample.mirage): inst [0 or "m-00"] value 85
+---
+> 08:31:23.697  29.0.37 (sample.mirage):
+>                 inst [0 or "m-00"] value 85
+>                 inst [1 or "m-01"] value 184
+6c10,12
+< 08:31:24.697  29.0.37 (sample.mirage): inst [0 or "m-00"] value 78
+---
+> 08:31:24.697  29.0.37 (sample.mirage):
+>                 inst [0 or "m-00"] value 78
+>                 inst [1 or "m-01"] value 177
+8c14,16
+< 08:31:25.697  29.0.37 (sample.mirage): inst [0 or "m-00"] value 71
+---
+> 08:31:25.697  29.0.37 (sample.mirage):
+>                 inst [0 or "m-00"] value 71
+>                 inst [1 or "m-01"] value 170
+10c18,20
+< 08:31:26.697  29.0.37 (sample.mirage): inst [0 or "m-00"] value 64
+---
+> 08:31:26.697  29.0.37 (sample.mirage):
+>                 inst [0 or "m-00"] value 64
+>                 inst [1 or "m-01"] value 163
+12c22,24
+< 08:31:27.697  29.0.37 (sample.mirage): inst [0 or "m-00"] value 57
+---
+> 08:31:27.697  29.0.37 (sample.mirage):
+>                 inst [0 or "m-00"] value 57
+>                 inst [1 or "m-01"] value 156
+14c26,28
+< 08:31:28.697  29.0.37 (sample.mirage): inst [0 or "m-00"] value 50
+---
+> 08:31:28.697  29.0.37 (sample.mirage):
+>                 inst [0 or "m-00"] value 50
+>                 inst [1 or "m-01"] value 149
+16c30,32
+< 08:31:29.697  29.0.37 (sample.mirage): inst [0 or "m-00"] value 43
+---
+> 08:31:29.697  29.0.37 (sample.mirage):
+>                 inst [0 or "m-00"] value 43
+>                 inst [1 or "m-01"] value 142
+18c34,36
+< 08:31:30.697  29.0.37 (sample.mirage): inst [0 or "m-00"] value 36
+---
+> 08:31:30.697  29.0.37 (sample.mirage):
+>                 inst [0 or "m-00"] value 36
+>                 inst [1 or "m-01"] value 135
+20c38,40
+< 08:31:31.697  29.0.37 (sample.mirage): inst [0 or "m-00"] value 29
+---
+> 08:31:31.697  29.0.37 (sample.mirage):
+>                 inst [0 or "m-00"] value 29
+>                 inst [1 or "m-01"] value 128
+273a294
+>                 inst [10 or "m-10"] value 1002
+279a301
+>                 inst [10 or "m-10"] value 1089
+285a308
+>                 inst [10 or "m-10"] value 1076
+291a315
+>                 inst [10 or "m-10"] value 1063
+297a322
+>                 inst [10 or "m-10"] value 1050
+303a329
+>                 inst [10 or "m-10"] value 1037
+309a336
+>                 inst [10 or "m-10"] value 1024
+315a343
+>                 inst [10 or "m-10"] value 1011
+321a350
+>                 inst [10 or "m-10"] value 1098
+327a357
+>                 inst [10 or "m-10"] value 1085
+333a364
+>                 inst [10 or "m-10"] value 1071
+340a372
+>                 inst [10 or "m-10"] value 1056
+347a380
+>                 inst [10 or "m-10"] value 1041
+354a388
+>                 inst [10 or "m-10"] value 1026
+361a396
+>                 inst [10 or "m-10"] value 1011
+368a404
+>                 inst [10 or "m-10"] value 1096
+375a412
+>                 inst [10 or "m-10"] value 1081
+382a420
+>                 inst [10 or "m-10"] value 1066
+389a428
+>                 inst [10 or "m-10"] value 1051
+396a436
+>                 inst [10 or "m-10"] value 1036
+403a444
+>                 inst [10 or "m-10"] value 1024
+408a450
+>                 inst [10 or "m-10"] value 1013
+413a456
+>                 inst [10 or "m-10"] value 1002
+418a462
+>                 inst [10 or "m-10"] value 1091
+423a468
+>                 inst [10 or "m-10"] value 1080
+428a474
+>                 inst [10 or "m-10"] value 1069
+433a480
+>                 inst [10 or "m-10"] value 1058
+438a486
+>                 inst [10 or "m-10"] value 1047
+443a492
+>                 inst [10 or "m-10"] value 1036
+448a498
+>                 inst [10 or "m-10"] value 1025
+453a504
+>                 inst [10 or "m-10"] value 1013
+459a511
+>                 inst [10 or "m-10"] value 1100
+465a518
+>                 inst [10 or "m-10"] value 1087
+471a525
+>                 inst [10 or "m-10"] value 1074
+477a532
+>                 inst [10 or "m-10"] value 1061
+483a539
+>                 inst [10 or "m-10"] value 1048
+489a546
+>                 inst [10 or "m-10"] value 1035
+495a553
+>                 inst [10 or "m-10"] value 1022
+501a560
+>                 inst [10 or "m-10"] value 1009
+507a567
+>                 inst [10 or "m-10"] value 1096
+513a574
+>                 inst [10 or "m-10"] value 1082
+520a582
+>                 inst [10 or "m-10"] value 1067
+527a590
+>                 inst [10 or "m-10"] value 1052
+534a598
+>                 inst [10 or "m-10"] value 1037
+541a606
+>                 inst [10 or "m-10"] value 1022
+548a614
+>                 inst [10 or "m-10"] value 1007
+555a622
+>                 inst [10 or "m-10"] value 1092
+562a630
+>                 inst [10 or "m-10"] value 1077
+569a638
+>                 inst [10 or "m-10"] value 1062
+576a646
+>                 inst [10 or "m-10"] value 1047
+583a654
+>                 inst [10 or "m-10"] value 1030
+592a664
+>                 inst [10 or "m-10"] value 1011
+601a674
+>                 inst [10 or "m-10"] value 1092
+610a684
+>                 inst [10 or "m-10"] value 1073
+619a694
+>                 inst [10 or "m-10"] value 1054
+628a704
+>                 inst [10 or "m-10"] value 1035
+637a714
+>                 inst [10 or "m-10"] value 1016
+646a724
+>                 inst [10 or "m-10"] value 1097
+655a734
+>                 inst [10 or "m-10"] value 1078
+664a744
+>                 inst [10 or "m-10"] value 1059
+1038a1119
+>                 inst [20 or "m-20"] value 2057
+1046a1128
+>                 inst [20 or "m-20"] value 2040
+1054a1137
+>                 inst [20 or "m-20"] value 2023
+1062a1146
+>                 inst [20 or "m-20"] value 2006
+1070a1155
+>                 inst [20 or "m-20"] value 2089
+1078a1164
+>                 inst [20 or "m-20"] value 2072
+1086a1173
+>                 inst [20 or "m-20"] value 2055
+1094a1182
+>                 inst [20 or "m-20"] value 2038
+1102a1191
+>                 inst [20 or "m-20"] value 2021
+1110a1200
+>                 inst [20 or "m-20"] value 2004
+--- sample.bin diffs ---
+2a3
+>                 inst [100 or "bin-100"] value 100
+9a11
+>                 inst [900 or "bin-900"] value 900
+11a14
+>                 inst [100 or "bin-100"] value 100
+18a22
+>                 inst [900 or "bin-900"] value 900
+20a25
+>                 inst [100 or "bin-100"] value 100
+27a33
+>                 inst [900 or "bin-900"] value 900
+29a36
+>                 inst [100 or "bin-100"] value 100
+36a44
+>                 inst [900 or "bin-900"] value 900
+38a47
+>                 inst [100 or "bin-100"] value 100
+45a55
+>                 inst [900 or "bin-900"] value 900
+47a58
+>                 inst [100 or "bin-100"] value 100
+54a66
+>                 inst [900 or "bin-900"] value 900
+56a69
+>                 inst [100 or "bin-100"] value 100
+63a77
+>                 inst [900 or "bin-900"] value 900
+65a80
+>                 inst [100 or "bin-100"] value 100
+72a88
+>                 inst [900 or "bin-900"] value 900
+74a91
+>                 inst [100 or "bin-100"] value 100
+81a99
+>                 inst [900 or "bin-900"] value 900
+83a102
+>                 inst [100 or "bin-100"] value 100
+90a110
+>                 inst [900 or "bin-900"] value 900
+92a113
+>                 inst [100 or "bin-100"] value 100
+99a121
+>                 inst [900 or "bin-900"] value 900
+101a124
+>                 inst [100 or "bin-100"] value 100
+108a132
+>                 inst [900 or "bin-900"] value 900
+110a135
+>                 inst [100 or "bin-100"] value 100
+117a143
+>                 inst [900 or "bin-900"] value 900
+119a146
+>                 inst [100 or "bin-100"] value 100
+126a154
+>                 inst [900 or "bin-900"] value 900
+128a157
+>                 inst [100 or "bin-100"] value 100
+135a165
+>                 inst [900 or "bin-900"] value 900
+137a168
+>                 inst [100 or "bin-100"] value 100
+144a176
+>                 inst [900 or "bin-900"] value 900
+146a179
+>                 inst [100 or "bin-100"] value 100
+153a187
+>                 inst [900 or "bin-900"] value 900
+155a190
+>                 inst [100 or "bin-100"] value 100
+162a198
+>                 inst [900 or "bin-900"] value 900
+164a201
+>                 inst [100 or "bin-100"] value 100
+171a209
+>                 inst [900 or "bin-900"] value 900
+173a212
+>                 inst [100 or "bin-100"] value 100
+180a220
+>                 inst [900 or "bin-900"] value 900
+182a223
+>                 inst [100 or "bin-100"] value 100
+189a231
+>                 inst [900 or "bin-900"] value 900
+191a234
+>                 inst [100 or "bin-100"] value 100
+198a242
+>                 inst [900 or "bin-900"] value 900
+200a245
+>                 inst [100 or "bin-100"] value 100
+207a253
+>                 inst [900 or "bin-900"] value 900
+209a256
+>                 inst [100 or "bin-100"] value 100
+216a264
+>                 inst [900 or "bin-900"] value 900
+218a267
+>                 inst [100 or "bin-100"] value 100
+225a275
+>                 inst [900 or "bin-900"] value 900
+227a278
+>                 inst [100 or "bin-100"] value 100
+234a286
+>                 inst [900 or "bin-900"] value 900
+236a289
+>                 inst [100 or "bin-100"] value 100
+243a297
+>                 inst [900 or "bin-900"] value 900
+245a300
+>                 inst [100 or "bin-100"] value 100
+252a308
+>                 inst [900 or "bin-900"] value 900
+254a311
+>                 inst [100 or "bin-100"] value 100
+261a319
+>                 inst [900 or "bin-900"] value 900
+263a322
+>                 inst [100 or "bin-100"] value 100
+270a330
+>                 inst [900 or "bin-900"] value 900
+272a333
+>                 inst [100 or "bin-100"] value 100
+279a341
+>                 inst [900 or "bin-900"] value 900
+281a344
+>                 inst [100 or "bin-100"] value 100
+288a352
+>                 inst [900 or "bin-900"] value 900
+290a355
+>                 inst [100 or "bin-100"] value 100
+297a363
+>                 inst [900 or "bin-900"] value 900
+299a366
+>                 inst [100 or "bin-100"] value 100
+306a374
+>                 inst [900 or "bin-900"] value 900
+308a377
+>                 inst [100 or "bin-100"] value 100
+315a385
+>                 inst [900 or "bin-900"] value 900
+317a388
+>                 inst [100 or "bin-100"] value 100
+324a396
+>                 inst [900 or "bin-900"] value 900
+326a399
+>                 inst [100 or "bin-100"] value 100
+333a407
+>                 inst [900 or "bin-900"] value 900
+335a410
+>                 inst [100 or "bin-100"] value 100
+342a418
+>                 inst [900 or "bin-900"] value 900
+344a421
+>                 inst [100 or "bin-100"] value 100
+351a429
+>                 inst [900 or "bin-900"] value 900
+353a432
+>                 inst [100 or "bin-100"] value 100
+360a440
+>                 inst [900 or "bin-900"] value 900
+362a443
+>                 inst [100 or "bin-100"] value 100
+369a451
+>                 inst [900 or "bin-900"] value 900
+371a454
+>                 inst [100 or "bin-100"] value 100
+378a462
+>                 inst [900 or "bin-900"] value 900
+380a465
+>                 inst [100 or "bin-100"] value 100
+387a473
+>                 inst [900 or "bin-900"] value 900
+389a476
+>                 inst [100 or "bin-100"] value 100
+396a484
+>                 inst [900 or "bin-900"] value 900
+398a487
+>                 inst [100 or "bin-100"] value 100
+405a495
+>                 inst [900 or "bin-900"] value 900
+407a498
+>                 inst [100 or "bin-100"] value 100
+414a506
+>                 inst [900 or "bin-900"] value 900
+416a509
+>                 inst [100 or "bin-100"] value 100
+423a517
+>                 inst [900 or "bin-900"] value 900
+425a520
+>                 inst [100 or "bin-100"] value 100
+432a528
+>                 inst [900 or "bin-900"] value 900
+434a531
+>                 inst [100 or "bin-100"] value 100
+441a539
+>                 inst [900 or "bin-900"] value 900
+443a542
+>                 inst [100 or "bin-100"] value 100
+450a550
+>                 inst [900 or "bin-900"] value 900
+452a553
+>                 inst [100 or "bin-100"] value 100
+459a561
+>                 inst [900 or "bin-900"] value 900
+461a564
+>                 inst [100 or "bin-100"] value 100
+468a572
+>                 inst [900 or "bin-900"] value 900
+470a575
+>                 inst [100 or "bin-100"] value 100
+477a583
+>                 inst [900 or "bin-900"] value 900
+479a586
+>                 inst [100 or "bin-100"] value 100
+486a594
+>                 inst [900 or "bin-900"] value 900
+488a597
+>                 inst [100 or "bin-100"] value 100
+495a605
+>                 inst [900 or "bin-900"] value 900
+497a608
+>                 inst [100 or "bin-100"] value 100
+504a616
+>                 inst [900 or "bin-900"] value 900
+506a619
+>                 inst [100 or "bin-100"] value 100
+513a627
+>                 inst [900 or "bin-900"] value 900
+515a630
+>                 inst [100 or "bin-100"] value 100
+522a638
+>                 inst [900 or "bin-900"] value 900
+524a641
+>                 inst [100 or "bin-100"] value 100
+531a649
+>                 inst [900 or "bin-900"] value 900
+533a652
+>                 inst [100 or "bin-100"] value 100
+540a660
+>                 inst [900 or "bin-900"] value 900
+542a663
+>                 inst [100 or "bin-100"] value 100
+549a671
+>                 inst [900 or "bin-900"] value 900
+551a674
+>                 inst [100 or "bin-100"] value 100
+558a682
+>                 inst [900 or "bin-900"] value 900
+560a685
+>                 inst [100 or "bin-100"] value 100
+567a693
+>                 inst [900 or "bin-900"] value 900
+569a696
+>                 inst [100 or "bin-100"] value 100
+576a704
+>                 inst [900 or "bin-900"] value 900
+578a707
+>                 inst [100 or "bin-100"] value 100
+585a715
+>                 inst [900 or "bin-900"] value 900
+587a718
+>                 inst [100 or "bin-100"] value 100
+594a726
+>                 inst [900 or "bin-900"] value 900
+596a729
+>                 inst [100 or "bin-100"] value 100
+603a737
+>                 inst [900 or "bin-900"] value 900
+605a740
+>                 inst [100 or "bin-100"] value 100
+612a748
+>                 inst [900 or "bin-900"] value 900
+614a751
+>                 inst [100 or "bin-100"] value 100
+621a759
+>                 inst [900 or "bin-900"] value 900
+623a762
+>                 inst [100 or "bin-100"] value 100
+630a770
+>                 inst [900 or "bin-900"] value 900
+632a773
+>                 inst [100 or "bin-100"] value 100
+639a781
+>                 inst [900 or "bin-900"] value 900
+641a784
+>                 inst [100 or "bin-100"] value 100
+648a792
+>                 inst [900 or "bin-900"] value 900
+650a795
+>                 inst [100 or "bin-100"] value 100
+657a803
+>                 inst [900 or "bin-900"] value 900
+659a806
+>                 inst [100 or "bin-100"] value 100
+666a814
+>                 inst [900 or "bin-900"] value 900
+668a817
+>                 inst [100 or "bin-100"] value 100
+675a825
+>                 inst [900 or "bin-900"] value 900
+677a828
+>                 inst [100 or "bin-100"] value 100
+684a836
+>                 inst [900 or "bin-900"] value 900
+686a839
+>                 inst [100 or "bin-100"] value 100
+693a847
+>                 inst [900 or "bin-900"] value 900
+695a850
+>                 inst [100 or "bin-100"] value 100
+702a858
+>                 inst [900 or "bin-900"] value 900
+704a861
+>                 inst [100 or "bin-100"] value 100
+711a869
+>                 inst [900 or "bin-900"] value 900
+713a872
+>                 inst [100 or "bin-100"] value 100
+720a880
+>                 inst [900 or "bin-900"] value 900
+722a883
+>                 inst [100 or "bin-100"] value 100
+729a891
+>                 inst [900 or "bin-900"] value 900
+731a894
+>                 inst [100 or "bin-100"] value 100
+738a902
+>                 inst [900 or "bin-900"] value 900
+740a905
+>                 inst [100 or "bin-100"] value 100
+747a913
+>                 inst [900 or "bin-900"] value 900
+749a916
+>                 inst [100 or "bin-100"] value 100
+756a924
+>                 inst [900 or "bin-900"] value 900
+758a927
+>                 inst [100 or "bin-100"] value 100
+765a935
+>                 inst [900 or "bin-900"] value 900
+767a938
+>                 inst [100 or "bin-100"] value 100
+774a946
+>                 inst [900 or "bin-900"] value 900
+776a949
+>                 inst [100 or "bin-100"] value 100
+783a957
+>                 inst [900 or "bin-900"] value 900
+785a960
+>                 inst [100 or "bin-100"] value 100
+792a968
+>                 inst [900 or "bin-900"] value 900
+794a971
+>                 inst [100 or "bin-100"] value 100
+801a979
+>                 inst [900 or "bin-900"] value 900
+803a982
+>                 inst [100 or "bin-100"] value 100
+810a990
+>                 inst [900 or "bin-900"] value 900
+812a993
+>                 inst [100 or "bin-100"] value 100
+819a1001
+>                 inst [900 or "bin-900"] value 900
+821a1004
+>                 inst [100 or "bin-100"] value 100
+828a1012
+>                 inst [900 or "bin-900"] value 900
+830a1015
+>                 inst [100 or "bin-100"] value 100
+837a1023
+>                 inst [900 or "bin-900"] value 900
+839a1026
+>                 inst [100 or "bin-100"] value 100
+846a1034
+>                 inst [900 or "bin-900"] value 900
+848a1037
+>                 inst [100 or "bin-100"] value 100
+855a1045
+>                 inst [900 or "bin-900"] value 900
+857a1048
+>                 inst [100 or "bin-100"] value 100
+864a1056
+>                 inst [900 or "bin-900"] value 900
+866a1059
+>                 inst [100 or "bin-100"] value 100
+873a1067
+>                 inst [900 or "bin-900"] value 900
+875a1070
+>                 inst [100 or "bin-100"] value 100
+882a1078
+>                 inst [900 or "bin-900"] value 900
+884a1081
+>                 inst [100 or "bin-100"] value 100
+891a1089
+>                 inst [900 or "bin-900"] value 900
+893a1092
+>                 inst [100 or "bin-100"] value 100
+900a1100
+>                 inst [900 or "bin-900"] value 900
+902a1103
+>                 inst [100 or "bin-100"] value 100
+909a1111
+>                 inst [900 or "bin-900"] value 900
+911a1114
+>                 inst [100 or "bin-100"] value 100
+918a1122
+>                 inst [900 or "bin-900"] value 900
+920a1125
+>                 inst [100 or "bin-100"] value 100
+927a1133
+>                 inst [900 or "bin-900"] value 900
+929a1136
+>                 inst [100 or "bin-100"] value 100
+936a1144
+>                 inst [900 or "bin-900"] value 900
+938a1147
+>                 inst [100 or "bin-100"] value 100
+945a1155
+>                 inst [900 or "bin-900"] value 900
+947a1158
+>                 inst [100 or "bin-100"] value 100
+954a1166
+>                 inst [900 or "bin-900"] value 900
+956a1169
+>                 inst [100 or "bin-100"] value 100
+963a1177
+>                 inst [900 or "bin-900"] value 900
+965a1180
+>                 inst [100 or "bin-100"] value 100
+972a1188
+>                 inst [900 or "bin-900"] value 900
+974a1191
+>                 inst [100 or "bin-100"] value 100
+981a1199
+>                 inst [900 or "bin-900"] value 900
+983a1202
+>                 inst [100 or "bin-100"] value 100
+990a1210
+>                 inst [900 or "bin-900"] value 900
+992a1213
+>                 inst [100 or "bin-100"] value 100
+999a1221
+>                 inst [900 or "bin-900"] value 900
+1001a1224
+>                 inst [100 or "bin-100"] value 100
+1008a1232
+>                 inst [900 or "bin-900"] value 900
+1010a1235
+>                 inst [100 or "bin-100"] value 100
+1017a1243
+>                 inst [900 or "bin-900"] value 900
+1019a1246
+>                 inst [100 or "bin-100"] value 100
+1026a1254
+>                 inst [900 or "bin-900"] value 900
+1028a1257
+>                 inst [100 or "bin-100"] value 100
+1035a1265
+>                 inst [900 or "bin-900"] value 900
+1037a1268
+>                 inst [100 or "bin-100"] value 100
+1044a1276
+>                 inst [900 or "bin-900"] value 900
+1046a1279
+>                 inst [100 or "bin-100"] value 100
+1053a1287
+>                 inst [900 or "bin-900"] value 900
+1055a1290
+>                 inst [100 or "bin-100"] value 100
+1062a1298
+>                 inst [900 or "bin-900"] value 900
+1064a1301
+>                 inst [100 or "bin-100"] value 100
+1071a1309
+>                 inst [900 or "bin-900"] value 900
+1073a1312
+>                 inst [100 or "bin-100"] value 100
+1080a1320
+>                 inst [900 or "bin-900"] value 900
+1082a1323
+>                 inst [100 or "bin-100"] value 100
+1089a1331
+>                 inst [900 or "bin-900"] value 900
+1091a1334
+>                 inst [100 or "bin-100"] value 100
+1098a1342
+>                 inst [900 or "bin-900"] value 900
+1100a1345
+>                 inst [100 or "bin-100"] value 100
+1107a1353
+>                 inst [900 or "bin-900"] value 900
+1109a1356
+>                 inst [100 or "bin-100"] value 100
+1116a1364
+>                 inst [900 or "bin-900"] value 900
+1118a1367
+>                 inst [100 or "bin-100"] value 100
+1125a1375
+>                 inst [900 or "bin-900"] value 900
+1127a1378
+>                 inst [100 or "bin-100"] value 100
+1134a1386
+>                 inst [900 or "bin-900"] value 900
+1136a1389
+>                 inst [100 or "bin-100"] value 100
+1143a1397
+>                 inst [900 or "bin-900"] value 900
+1145a1400
+>                 inst [100 or "bin-100"] value 100
+1152a1408
+>                 inst [900 or "bin-900"] value 900
+1154a1411
+>                 inst [100 or "bin-100"] value 100
+1161a1419
+>                 inst [900 or "bin-900"] value 900
+1163a1422
+>                 inst [100 or "bin-100"] value 100
+1170a1430
+>                 inst [900 or "bin-900"] value 900
+1172a1433
+>                 inst [100 or "bin-100"] value 100
+1179a1441
+>                 inst [900 or "bin-900"] value 900
+1181a1444
+>                 inst [100 or "bin-100"] value 100
+1188a1452
+>                 inst [900 or "bin-900"] value 900
+1190a1455
+>                 inst [100 or "bin-100"] value 100
+1197a1463
+>                 inst [900 or "bin-900"] value 900
+1199a1466
+>                 inst [100 or "bin-100"] value 100
+1206a1474
+>                 inst [900 or "bin-900"] value 900
+1208a1477
+>                 inst [100 or "bin-100"] value 100
+1215a1485
+>                 inst [900 or "bin-900"] value 900
+1217a1488
+>                 inst [100 or "bin-100"] value 100
+1224a1496
+>                 inst [900 or "bin-900"] value 900
+1226a1499
+>                 inst [100 or "bin-100"] value 100
+1233a1507
+>                 inst [900 or "bin-900"] value 900
+1235a1510
+>                 inst [100 or "bin-100"] value 100
+1242a1518
+>                 inst [900 or "bin-900"] value 900
+1244a1521
+>                 inst [100 or "bin-100"] value 100
+1251a1529
+>                 inst [900 or "bin-900"] value 900
+1253a1532
+>                 inst [100 or "bin-100"] value 100
+1260a1540
+>                 inst [900 or "bin-900"] value 900
+1262a1543
+>                 inst [100 or "bin-100"] value 100
+1269a1551
+>                 inst [900 or "bin-900"] value 900
+1271a1554
+>                 inst [100 or "bin-100"] value 100
+1278a1562
+>                 inst [900 or "bin-900"] value 900
+1280a1565
+>                 inst [100 or "bin-100"] value 100
+1287a1573
+>                 inst [900 or "bin-900"] value 900
+1289a1576
+>                 inst [100 or "bin-100"] value 100
+1296a1584
+>                 inst [900 or "bin-900"] value 900
+1298a1587
+>                 inst [100 or "bin-100"] value 100
+1305a1595
+>                 inst [900 or "bin-900"] value 900
+1307a1598
+>                 inst [100 or "bin-100"] value 100
+1314a1606
+>                 inst [900 or "bin-900"] value 900
+1316a1609
+>                 inst [100 or "bin-100"] value 100
+1323a1617
+>                 inst [900 or "bin-900"] value 900
+1325a1620
+>                 inst [100 or "bin-100"] value 100
+1332a1628
+>                 inst [900 or "bin-900"] value 900
+1334a1631
+>                 inst [100 or "bin-100"] value 100
+1341a1639
+>                 inst [900 or "bin-900"] value 900
+1343a1642
+>                 inst [100 or "bin-100"] value 100
+1350a1650
+>                 inst [900 or "bin-900"] value 900
+1352a1653
+>                 inst [100 or "bin-100"] value 100
+1359a1661
+>                 inst [900 or "bin-900"] value 900
+1361a1664
+>                 inst [100 or "bin-100"] value 100
+1368a1672
+>                 inst [900 or "bin-900"] value 900
+1370a1675
+>                 inst [100 or "bin-100"] value 100
+1377a1683
+>                 inst [900 or "bin-900"] value 900
+1379a1686
+>                 inst [100 or "bin-100"] value 100
+1386a1694
+>                 inst [900 or "bin-900"] value 900
+1388a1697
+>                 inst [100 or "bin-100"] value 100
+1395a1705
+>                 inst [900 or "bin-900"] value 900
+1397a1708
+>                 inst [100 or "bin-100"] value 100
+1404a1716
+>                 inst [900 or "bin-900"] value 900
+1406a1719
+>                 inst [100 or "bin-100"] value 100
+1413a1727
+>                 inst [900 or "bin-900"] value 900
+1415a1730
+>                 inst [100 or "bin-100"] value 100
+1422a1738
+>                 inst [900 or "bin-900"] value 900
+1424a1741
+>                 inst [100 or "bin-100"] value 100
+1431a1749
+>                 inst [900 or "bin-900"] value 900
+1433a1752
+>                 inst [100 or "bin-100"] value 100
+1440a1760
+>                 inst [900 or "bin-900"] value 900
+1442a1763
+>                 inst [100 or "bin-100"] value 100
+1449a1771
+>                 inst [900 or "bin-900"] value 900
+1451a1774
+>                 inst [100 or "bin-100"] value 100
+1458a1782
+>                 inst [900 or "bin-900"] value 900
+1460a1785
+>                 inst [100 or "bin-100"] value 100
+1467a1793
+>                 inst [900 or "bin-900"] value 900
+1469a1796
+>                 inst [100 or "bin-100"] value 100
+1476a1804
+>                 inst [900 or "bin-900"] value 900
+1478a1807
+>                 inst [100 or "bin-100"] value 100
+1485a1815
+>                 inst [900 or "bin-900"] value 900
+1487a1818
+>                 inst [100 or "bin-100"] value 100
+1494a1826
+>                 inst [900 or "bin-900"] value 900
+1496a1829
+>                 inst [100 or "bin-100"] value 100
+1503a1837
+>                 inst [900 or "bin-900"] value 900
+1505a1840
+>                 inst [100 or "bin-100"] value 100
+1512a1848
+>                 inst [900 or "bin-900"] value 900
+1514a1851
+>                 inst [100 or "bin-100"] value 100
+1521a1859
+>                 inst [900 or "bin-900"] value 900
+1523a1862
+>                 inst [100 or "bin-100"] value 100
+1530a1870
+>                 inst [900 or "bin-900"] value 900
+1532a1873
+>                 inst [100 or "bin-100"] value 100
+1539a1881
+>                 inst [900 or "bin-900"] value 900
+1541a1884
+>                 inst [100 or "bin-100"] value 100
+1548a1892
+>                 inst [900 or "bin-900"] value 900
+1550a1895
+>                 inst [100 or "bin-100"] value 100
+1557a1903
+>                 inst [900 or "bin-900"] value 900
+1559a1906
+>                 inst [100 or "bin-100"] value 100
+1566a1914
+>                 inst [900 or "bin-900"] value 900
+1568a1917
+>                 inst [100 or "bin-100"] value 100
+1575a1925
+>                 inst [900 or "bin-900"] value 900
+1577a1928
+>                 inst [100 or "bin-100"] value 100
+1584a1936
+>                 inst [900 or "bin-900"] value 900
+1586a1939
+>                 inst [100 or "bin-100"] value 100
+1593a1947
+>                 inst [900 or "bin-900"] value 900
+1595a1950
+>                 inst [100 or "bin-100"] value 100
+1602a1958
+>                 inst [900 or "bin-900"] value 900
+1604a1961
+>                 inst [100 or "bin-100"] value 100
+1611a1969
+>                 inst [900 or "bin-900"] value 900
+1613a1972
+>                 inst [100 or "bin-100"] value 100
+1620a1980
+>                 inst [900 or "bin-900"] value 900
