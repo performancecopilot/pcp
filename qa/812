@@ -1,0 +1,121 @@
+#!/bin/sh
+# PCP QA Test No. 812
+# pmlogextract with config file and various instance specifications
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_sort_pmdumplog()
+{
+    $PCP_AWK_PROG '
+BEGIN				{ in_inst = 0; part = 0; pname = sprintf("%03d",part) }
+in_inst == 1 && NF == 0		{ in_inst = 0; part++; pname = sprintf("%03d",part) }
+in_inst == 0 && / inst \[/	{ in_inst = 1; part++; pname = sprintf("%03d",part) }
+				{ if (part <= 999)
+				    print >"'"$tmp"'." pname
+				  else {
+				    # too many parts to sort
+				    exit 1
+				  }
+				}'
+    if [ $? -ne 0 ]
+    then
+	echo >&2 "--- 000 ---"
+	[ -f $tmp.000 ] && cat >&2 $tmp.000
+	echo >&2 "--- 001 ---"
+	[ -f $tmp.001 ] && cat >&2 $tmp.001
+	echo >&2 "--- ... ---"
+	echo >&2 "--- 999 ---"
+	[ -f $tmp.999 ] && cat >&2 $tmp.999
+	echo >&2 "_sort_pmdumplog failed: more than 999 parts to sort"
+	exit 1
+    fi
+    for p in $tmp.[0-9][0-9][0-9]
+    do
+	LC_COLLATE=POSIX sort $p
+	rm $p
+    done
+}
+
+pmdumplog archives/chartqa1 sample.mirage >$tmp.tmp
+_sort_pmdumplog <$tmp.tmp >$tmp.ref.mirage || exit
+pmdumplog archives/chartqa1 sample.bin >$tmp.tmp
+_sort_pmdumplog <$tmp.tmp >$tmp.ref.bin || exit
+
+_do_diffs()
+{
+    echo "--- sample.mirage diffs ---"
+    pmdumplog $tmp sample.mirage >$tmp.tmp
+    if _sort_pmdumplog <$tmp.tmp
+    then
+	:
+    else
+	exit
+    fi \
+    | diff - $tmp.ref.mirage
+    echo "--- sample.bin diffs ---"
+    pmdumplog $tmp sample.bin | _sort_pmdumplog | diff - $tmp.ref.bin
+}
+
+# real QA test starts here
+echo "=== pmlogextract no config ==="
+rm -f $tmp.0 $tmp.meta $tmp.index
+pmlogextract archives/chartqa1 $tmp
+_do_diffs
+
+echo
+echo "=== pmlogextract config with metrics, no instances ==="
+rm -f $tmp.0 $tmp.meta $tmp.index
+cat <<End-of-File >$tmp.config
+sample.mirage
+sample.bin
+End-of-File
+pmlogextract -c $tmp.config archives/chartqa1 $tmp
+_do_diffs
+
+echo
+echo "=== pmlogextract config with metrics, all instances in order ==="
+rm -f $tmp.0 $tmp.meta $tmp.index
+cat <<End-of-File >$tmp.config
+sample.mirage["m-00","m-01","m-02","m-03","m-04","m-05","m-08","m-09","m-10","m-11","m-12","m-13","m-14","m-15","m-16","m-17","m-18","m-19","m-20"]
+sample.bin[ "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900" ]
+End-of-File
+pmlogextract -c $tmp.config archives/chartqa1 $tmp
+_do_diffs
+
+echo
+echo "=== pmlogextract config with metrics, all instances in reverse order ==="
+rm -f $tmp.0 $tmp.meta $tmp.index
+cat <<End-of-File >$tmp.config
+sample.mirage["m-20","m-19","m-18","m-17","m-16","m-15","m-14","m-13","m-12","m-11","m-10","m-09","m-08","m-05","m-04","m-03","m-02","m-01","m-00"]
+sample.bin[ "bin-900" "bin-800" "bin-700" "bin-600" "bin-500" "bin-400" "bin-300" "bin-200" "bin-100" ]
+End-of-File
+pmlogextract -c $tmp.config archives/chartqa1 $tmp
+_do_diffs
+
+echo
+echo "=== pmlogextract config with metrics, some instances ==="
+rm -f $tmp.0 $tmp.meta $tmp.index
+cat <<End-of-File >$tmp.config
+sample.mirage["m-19","m-18","m-17","m-16","m-15","m-14","m-13","m-12","m-11","m-09","m-08","m-05","m-04","m-03","m-02","m-00"]
+sample.bin[ "bin-800" "bin-700" "bin-600" "bin-500" "bin-400" "bin-300" "bin-200" ]
+End-of-File
+pmlogextract -c $tmp.config archives/chartqa1 $tmp
+_do_diffs
+
+# success, all done
+status=0
+
+exit

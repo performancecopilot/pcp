@@ -40,7 +40,7 @@ do
 	pmdumplog -z $tmp.xtract $metric
     else
 	_filter <$tmp.err
-	echo "intermedial pmlog extract failed!"
+	echo "intermediate pmlogextract failed!"
 	continue
     fi
     rm -f $tmp.out.*

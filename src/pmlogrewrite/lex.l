@@ -177,8 +177,14 @@ dupstr(char *s, int strip_quotes)
 [0-9]+\.[0-9]+\.\*	{ yylval.str = dupstr(yytext, 0); return TOK_PMID_STAR; }
 [0-9]+\.\*\.\*		{ yylval.str = dupstr(yytext, 0); return TOK_PMID_STAR; }
 
-	/* Generic name, e.g. for identifier or metric or hostname */
-[A-Za-z][A-Za-z0-9_.=-]*	{ yylval.str = dupstr(yytext, 0); return TOK_GNAME; }
+	/*
+	 * Generic name, e.g. for identifier or metric or hostname
+	 *
+	 * Note: pattern expanded to include embedded '=' or '-' characters
+	 *       that maybe inappropriate metric names we're trying to
+	 *       correct by rewriting.
+	 */
+[A-Za-z]([A-Za-z0-9_.]|([=-][A-Za-z0-9_.]))*   { yylval.str = dupstr(yytext, 0); return TOK_GNAME; }
 
 \#.*			{ }
 
