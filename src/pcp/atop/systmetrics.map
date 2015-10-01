@@ -220,9 +220,47 @@ systmetrics {
         disk.dm.write				PERDM_NWRITE
         disk.dm.blkwrite			PERDM_NWSECT
 	disk.md.read				PERMD_NREAD
-        disk.md.blkread				PERMD_NRSECT
-        disk.md.write				PERMD_NWRITE
-        disk.md.blkwrite			PERMD_NWSECT
+	disk.md.blkread				PERMD_NRSECT
+	disk.md.write				PERMD_NWRITE
+	disk.md.blkwrite			PERMD_NWSECT
+
+	# /proc/net/rpc/nfsd
+	rpc.server.rchits			NFS_RCHITS
+	rpc.server.rcmisses			NFS_RCMISS
+	rpc.server.rcnocache			NFS_RCNOCACHE
+	rpc.server.io_read			NFS_IORD
+	rpc.server.io_write			NFS_IOWR
+	rpc.server.netcnt			NFS_NETCNT
+	rpc.server.netudpcnt			NFS_UDP
+	rpc.server.nettcpcnt			NFS_TCP
+	rpc.server.nettcpconn			NFS_TCPCONN
+	rpc.server.rpccnt			NFS_RPCCNT
+	rpc.server.rpcbadfmt			NFS_RPCBADFMT
+	rpc.server.rpcbadauth			NFS_RPCBADAUTH
+	rpc.server.rpcbadclnt			NFS_RPCBADCLNT
+	nfs.server.reqs				NFS_REQS
+	nfs3.server.reqs			NFS3_REQS
+	nfs4.server.reqs			NFS4_REQS
+
+	# /proc/net/rpc/nfs
+	rpc.client.rpccnt			NFC_RPCCNT
+	rpc.client.rpcretrans			NFC_RETRANS
+	rpc.client.rpcauthrefresh		NFC_AUTHREFRESH
+	nfs.client.reqs				NFC_REQS
+	nfs3.client.reqs			NFC3_REQS
+	nfs4.client.reqs			NFC4_REQS
+
+	# /proc/self/mountstats
+	nfsclient.export			PERNFS_EXPORT
+	nfsclient.age				PERNFS_AGE
+	nfsclient.bytes.read.normal		PERNFS_RDBYTES
+	nfsclient.bytes.write.normal		PERNFS_WRBYTES
+	nfsclient.bytes.read.direct		PERNFS_DRDBYTES
+	nfsclient.bytes.write.direct		PERNFS_DWRBYTES
+	nfsclient.bytes.read.server		PERNFS_TOTRDBYTES
+	nfsclient.bytes.write.server		PERNFS_TOTWRBYTES
+	nfsclient.pages.read			PERNFS_RDPAGES
+	nfsclient.pages.write			PERNFS_WRPAGES
 
 	# http status
 	apache.total_accesses			WWW_ACCESSES

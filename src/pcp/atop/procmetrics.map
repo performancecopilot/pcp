@@ -24,6 +24,7 @@ procmetrics {
 	proc.psinfo.tgid		TASK_GEN_TGID
 	proc.psinfo.pid			TASK_GEN_PID
 	proc.namespaces.envid		TASK_GEN_ENVID
+	proc.namespaces.vpid		TASK_GEN_VPID
 	proc.id.uid			TASK_GEN_RUID
 	proc.id.euid			TASK_GEN_EUID
 	proc.id.suid			TASK_GEN_SUID

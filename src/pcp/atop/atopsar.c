@@ -396,10 +396,12 @@ reportlive(double curtime, double numsecs,
 			/*
 			** print header-line
 			*/
+			printf("\n");
+
 			if (usecolors)
 				printf(COLSETHEAD);
 
-			printf("\n%s  ", convtime(curtime-numsecs, timebuf, sizeof(timebuf)-1));
+			printf("%s  ", convtime(curtime-numsecs, timebuf, sizeof(timebuf)-1));
 	
 			(pridef[i].prihead)(osvers, osrel, ossub);
 	
@@ -459,10 +461,12 @@ reportlive(double curtime, double numsecs,
 			/*
 			** print header-line
 			*/
+			printf("\n");
+
 			if (usecolors)
 				printf(COLSETHEAD);
 
-			printf("\n%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
+			printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
 	
 			(pridef[i].prihead)(osvers, osrel, ossub);
 
@@ -504,10 +508,12 @@ reportlive(double curtime, double numsecs,
 			/*
 			** print header-line
 			*/
+			printf("\n");
+
 			if (usecolors)
 				printf(COLSETHEAD);
 
-			printf("\n%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
+			printf("%s  ", convtime(curtime, timebuf, sizeof(timebuf)-1));
 	
 			(pridef[i].prihead)(osvers, osrel, ossub);
 
@@ -601,11 +607,13 @@ reportraw(double curtime, double numsecs,
 		/*
 		** print header-line
 		*/
+		printf("\n");
+
 		if (usecolors)
 			printf(COLSETHEAD);
 
 		timed = __pmtimevalToReal(&pretime);
-		printf("\n%s  ", convtime(timed, timebuf, sizeof(timebuf)-1));
+		printf("%s  ", convtime(timed, timebuf, sizeof(timebuf)-1));
 
 		(pridef[prinow].prihead)(osvers, osrel, ossub);
 
@@ -1419,6 +1427,121 @@ dskline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 }
 
 /*
+** NFS client statistics
+*/
+static void
+nfmhead(int osvers, int osrel, int ossub)
+{
+	printf("mounted_device                          physread/s  physwrit/s"
+               "  _nfm_");
+}
+
+static int
+nfmline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
+        time_t deltasec, time_t deltatic, time_t hz,
+        int osvers, int osrel, int ossub, char *tstamp,
+        int ppres,  int ntrun, int ntslpi, int ntslpu, int pexit, int pzombie)
+{
+	static char	firstcall = 1;
+	register long	i, nlines = 0;
+	char		*pn, state;
+	int		len;
+
+	for (i=0; i < ss->nfs.nrmounts; i++)	/* per NFS mount */
+	{
+		/*
+		** print for the first sample all mounts that
+		** are found; afterwards print only the mounts
+		** that were really active during the interval
+		*/
+		if (firstcall                                  ||
+		    allresources                               ||
+		    ss->nfs.nfsmnt[i].age < deltasec ||
+		    ss->nfs.nfsmnt[i].bytestotread   ||
+		    ss->nfs.nfsmnt[i].bytestotwrite    )
+		{
+			if (nlines++)
+				printf("%s  ", tstamp);
+
+			if ( (len = strlen(ss->nfs.nfsmnt[i].mountdev)) > 38)
+				pn = ss->nfs.nfsmnt[i].mountdev + len - 38;
+			else
+				pn = ss->nfs.nfsmnt[i].mountdev;
+
+		    	if (ss->nfs.nfsmnt[i].age < deltasec)
+				state = 'M';
+			else
+				state = ' ';
+
+			printf("%-38s %10.3lfK %10.3lfK    %c\n", 
+			    pn,
+			    (double)ss->nfs.nfsmnt[i].bytestotread  /
+								1024 / deltasec,
+			    (double)ss->nfs.nfsmnt[i].bytestotwrite /
+								1024 / deltasec,
+			    state);
+		}
+	}
+
+	if (nlines == 0)
+	{
+		printf("\n");
+		nlines++;
+	}
+
+	firstcall= 0;
+	return nlines;
+}
+
+static void
+nfchead(int osvers, int osrel, int ossub)
+{
+	printf("     rpc/s   rpcread/s  rpcwrite/s  retrans/s  autrefresh/s   "
+               "  _nfc_");
+}
+
+static int
+nfcline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
+        time_t deltasec, time_t deltatic, time_t hz,
+        int osvers, int osrel, int ossub, char *tstamp,
+        int ppres,  int ntrun, int ntslpi, int ntslpu, int pexit, int pzombie)
+{
+	printf("%10.2lf  %10.2lf  %10.2lf %10.2lf  %12.2lf\n",
+		(double)ss->nfs.client.rpccnt        / deltasec,
+		(double)ss->nfs.client.rpcread       / deltasec,
+		(double)ss->nfs.client.rpcwrite      / deltasec,
+		(double)ss->nfs.client.rpcretrans    / deltasec,
+		(double)ss->nfs.client.rpcautrefresh / deltasec);
+
+	return 1;
+}
+
+static void
+nfshead(int osvers, int osrel, int ossub)
+{
+	printf("  rpc/s  rpcread/s rpcwrite/s MBcr/s  MBcw/s  "
+               "nettcp/s netudp/s _nfs_");
+}
+
+static int
+nfsline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
+        time_t deltasec, time_t deltatic, time_t hz,
+        int osvers, int osrel, int ossub, char *tstamp,
+        int ppres,  int ntrun, int ntslpi, int ntslpu, int pexit, int pzombie)
+{
+	printf("%7.2lf %10.2lf %10.2lf %6.2lf %7.2lf %9.2lf %8.2lf\n",
+		(double)ss->nfs.server.rpccnt    / deltasec,
+		(double)ss->nfs.server.rpcread   / deltasec,
+		(double)ss->nfs.server.rpcwrite  / deltasec,
+		(double)ss->nfs.server.nrbytes / 1024.0 / 1024.0 / deltasec,
+		(double)ss->nfs.server.nwbytes / 1024.0 / 1024.0 / deltasec,
+		(double)ss->nfs.server.nettcpcnt / deltasec,
+		(double)ss->nfs.server.netudpcnt / deltasec);
+
+	return 1;
+}
+
+/*
 ** network-interface statistics
 */
 static void
@@ -1474,6 +1597,25 @@ ifline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 			else
 				busy = (ival + oval) * 100 /
 				        ss->intf.intf[i].speed;
+
+			// especially with wireless, the speed might have
+			// dropped temporarily to a very low value (snapshot)
+			// it might be better to take the speed of the
+			// previous sample
+			if (busy > 100 && ss->intf.intf[i].speed <
+			                  	ss->intf.intf[i].speedp )
+			{
+				ss->intf.intf[i].speed =
+					ss->intf.intf[i].speedp;
+
+				if (ss->intf.intf[i].duplex)
+					busy = (ival > oval ?
+						ival*100 : oval*100) /
+				        	ss->intf.intf[i].speed;
+				else
+					busy = (ival + oval) * 100 /
+				        	ss->intf.intf[i].speed;
+			}
 
 			snprintf(busyval, sizeof busyval,
 						"%3.0lf%%", busy);
@@ -2190,6 +2332,9 @@ struct pridef pridef[] =
    {0,  "cd", 'l',  lvmhead,	lvmline,	"logical volume activity", },
    {0,  "cd", 'f',  mddhead,	mddline,	"multiple device activity",},
    {0,  "cd", 'd',  dskhead,	dskline,	"disk activity",          },
+   {0,  "n",  'n',  nfmhead,	nfmline,	"NFS client mounts",      },
+   {0,  "n",  'j',  nfchead,	nfcline,	"NFS client activity",    },
+   {0,  "n",  'J',  nfshead,	nfsline,	"NFS server activity",    },
    {0,  "n",  'i',  ifhead,	ifline,		"net-interf (general)",   },
    {0,  "n",  'I',  IFhead,	IFline,		"net-interf (errors)",    },
    {0,  "n",  'w',  ipv4head,	ipv4line,	"ip   v4    (general)",   },

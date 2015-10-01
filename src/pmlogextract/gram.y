@@ -182,30 +182,15 @@ dometric(const char *name)
 	extlist = NULL;
 	/* user hasn't specified any instances
 	 *	- if there is NO instance domain, then allocate at least one
-	 *	- if there is an instance domain, then need to get them all
+	 *	- if there is an instance domain, set to -1 and searchmlist
+         *        will grab them all
 	 */
 	if (dp->indom == PM_INDOM_NULL) {
 	    ml[ml_numpmid-1].numinst = 1;
 	}
 	else {
-	    if ((sts = pmGetInDomArchive(dp->indom, &intlist, &extlist)) < 0) {
-		if (sts == PM_ERR_INDOM_LOG) {
-		    /*
-		     * If instance domain is not in archive, then there
-		     * are no instances, this is not a fatal error
-		     */
-		    ml[ml_numpmid-1].numinst = 0;
-		    ml[ml_numpmid-1].instlist = NULL;
-		}
-		else {
-		    snprintf(emess, sizeof(emess),
-			"Cannot get instance domain for metric %s - %s)\n",
-			    name, pmErrStr(sts));
-		    yyerror(emess);
-		}
-	    }
-	    else
-		ml[ml_numpmid-1].numinst = sts;
+	    ml[ml_numpmid-1].numinst = -1;
+	    ml[ml_numpmid-1].instlist = NULL;
 	}
 
 	if (ml[ml_numpmid-1].numinst >= 1) {

@@ -138,6 +138,7 @@ static const char *dynamic_helptab[] =
 static char mypath[MAXPATHLEN];
 static int	isDSO = 1;		/* =0 I am a daemon */
 static char	*username;
+static int	compat_names = 0;
 
 /*
  * \brief callback function that retrieves the metric value.
@@ -417,9 +418,27 @@ static char *normalize_metric_name(const char *name)
 
     res = strdup(name);
 
-    for(p = strchr(res, ':'); p != NULL; p = strchr(p, ':') )
+    /*
+     * We can't control the names that libpfm returns. Replace any invalid
+     * characters with underscore. Allow the old way for backwards compatability
+     */
+
+    if(compat_names)
     {
-        *p = '-';
+        for(p = strchr(res, ':'); p != NULL; p = strchr(p, ':') )
+        {
+            *p = '-'; /* "dash" - old name */
+        }
+    }
+    else
+    {
+        for(p = res; *p != '\0'; p++)
+        {
+            if( !isalnum((int)*p) && *p != '_')
+            {
+                *p = '_'; /* "underscore" - new name */
+            }
+        }
     }
     return res;
 }
@@ -524,6 +543,7 @@ static void usage(void)
 {
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
+          "  -C           maintain compatability to (possibly) nonconforming metric names\n"
           "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
           "  -l logfile   write log into logfile rather than using default log name\n"
           "  -U username  user account to run under (default \"pcp\")\n"
@@ -554,10 +574,13 @@ int main(int argc, char **argv)
     pmdaDaemon(&dispatch, PMDA_INTERFACE_5, pmProgname, PERFEVENT,
                "perfevent.log", mypath);
 
-    while ((c = pmdaGetOpt(argc, argv, "D:d:i:l:pu:U:6:?", &dispatch, &err)) != EOF)
+    while ((c = pmdaGetOpt(argc, argv, "CD:d:i:l:pu:U:6:?", &dispatch, &err)) != EOF)
     {
         switch(c)
         {
+        case 'C':
+            compat_names = 1;
+            break;
         case 'U':
             username = optarg;
             break;

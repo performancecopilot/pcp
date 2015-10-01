@@ -44,6 +44,7 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip,
 		linux_container_t *cp, int *need_refresh)
 {
     struct ethtool_cmd ecmd;
+    struct iwreq iwreq;
     struct ifreq ifr;
     int fd;
 
@@ -57,6 +58,7 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip,
      * failures for qa/957
      * - Ken McDonell, 11 Apr 2014
      */
+    memset(&iwreq, 0, sizeof(iwreq));
     memset(&ecmd, 0, sizeof(ecmd));
     memset(&ifr, 0, sizeof(ifr));
 
@@ -91,13 +93,26 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip,
 	ifr.ifr_data = (caddr_t)&ecmd;
 	strncpy(ifr.ifr_name, name, IF_NAMESIZE);
 	ifr.ifr_name[IF_NAMESIZE-1] = '\0';
+	/* GIWRATE ioctl -> wireless interface bitrate access method */
+	strncpy(iwreq.ifr_ifrn.ifrn_name, name, IF_NAMESIZE);
+	iwreq.ifr_ifrn.ifrn_name[IF_NAMESIZE-1] = '\0';
+
 	if (!(ioctl(fd, SIOCETHTOOL, &ifr) < 0)) {
 	    /*
 	     * speed is defined in ethtool.h and returns the speed in
-	     * Mbps, so 100 for 100Mbps, 1000 for 1Gbps, etc
+	     * Mbps, so 100 for 100Mbps, 1000 for 1Gbps, etc.
+	     * For kernel ABI reasons, this is split into two 16 bits
+	     * fields, which must be combined for speeds above 1Gbps.
 	     */
-	    netip->ioc.speed = ecmd.speed;
+	    netip->ioc.speed = (ecmd.speed << 16) | ecmd.speed;
 	    netip->ioc.duplex = ecmd.duplex + 1;
+	} else if (!(ioctl(fd, SIOCGIWRATE, &iwreq) < 0)) {
+	    /*
+	     * Wireless interface if the above succeeds; calculate the
+	     * canonical speed and set duplex according to iface type.
+	     */
+	    netip->ioc.speed = (iwreq.u.bitrate.value + 500000) / 1000000;
+	    netip->ioc.duplex = 1;
 	}
     }
 }
@@ -147,6 +162,15 @@ refresh_net_dev_sysfs(char *name, net_interface_t *netip, int *need_refresh)
     char line[64];
     char *value;
 
+    if (need_refresh[REFRESH_NET_SPEED]) {
+	snprintf(path, sizeof(path), "%s/sys/class/net/%s/speed",
+		linux_statspath, name);
+	path[sizeof(path)-1] = '\0';
+	value = read_oneline(path, line);
+	if (value == NULL)
+	    return PM_ERR_AGAIN;	/* no sysfs, try ioctl */
+	netip->ioc.speed = atoi(value);
+    }
     if (need_refresh[REFRESH_NET_MTU]) {
 	snprintf(path, sizeof(path), "%s/sys/class/net/%s/mtu",
 		linux_statspath, name);
@@ -156,21 +180,15 @@ refresh_net_dev_sysfs(char *name, net_interface_t *netip, int *need_refresh)
 	    return PM_ERR_AGAIN;	/* no sysfs, try ioctl */
 	netip->ioc.mtu = atoi(value);
     }
-    if (need_refresh[REFRESH_NET_SPEED]) {
-	snprintf(path, sizeof(path), "%s/sys/class/net/%s/speed",
-		linux_statspath, name);
-	path[sizeof(path)-1] = '\0';
-	value = read_oneline(path, line);
-	if (value)
-	    netip->ioc.speed = atoi(value);
-    }
     if (need_refresh[REFRESH_NET_LINKUP] ||
 	need_refresh[REFRESH_NET_RUNNING]) {
 	snprintf(path, sizeof(path), "%s/sys/class/net/%s/flags",
 		linux_statspath, name);
 	path[sizeof(path)-1] = '\0';
 	value = read_oneline(path, line);
-	if (value) {
+	if (value == NULL)
+	    return PM_ERR_AGAIN;	/* no sysfs, try ioctl */
+	else {
 	    unsigned long flags = strtoul(value, &value, 16);
 	    netip->ioc.linkup = !!(flags & IFF_UP);
 	    netip->ioc.running = !!(flags & IFF_RUNNING);

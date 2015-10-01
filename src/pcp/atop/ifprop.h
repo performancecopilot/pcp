@@ -1,4 +1,4 @@
-#define MAXINTNM	16
+#define MAXINTNM	32
 struct ifprop	{
 	char		name[MAXINTNM];	/* name of interface  		*/
 	long int	speed;		/* in megabits per second	*/

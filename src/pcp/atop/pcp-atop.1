@@ -448,8 +448,19 @@ Specify a search string for specific user names as a regular expression.
 From now on, only (active) processes will be shown from a user which matches
 the regular expression.
 The system statistics are still system wide.
-If the Enter-key is pressed without specifying a name, active
+If the Enter-key is pressed without specifying a name, (active)
 processes of all users will be shown again.
+.br
+Whether this key is active or not can be seen in the header line.
+.PP
+.TP 5
+.B I
+Specify a list with one or more PIDs to be selected.
+From now on, only processes will be shown with a PID which matches
+one of the given list.
+The system statistics are still system wide.
+If the Enter-key is pressed without specifying a PID, all (active)
+processes will be shown again.
 .br
 Whether this key is active or not can be seen in the header line.
 .PP
@@ -459,7 +470,18 @@ Specify a search string for specific process names as a regular expression.
 From now on, only processes will be shown with a name which matches the
 regular expression.
 The system statistics are still system wide.
-If the Enter-key is pressed without specifying a name, all active
+If the Enter-key is pressed without specifying a name, all (active)
+processes will be shown again.
+.br
+Whether this key is active or not can be seen in the header line.
+.PP
+.TP 5
+.B /
+Specify a specific command line search string as a regular expression.
+From now on, only processes will be shown with a command line which
+matches the regular expression.
+The system statistics are still system wide.
+If the Enter-key is pressed without specifying a string, all (active)
 processes will be shown again.
 .br
 Whether this key is active or not can be seen in the header line.
@@ -816,6 +838,52 @@ By specifying the value 0 for a particular class, no lines will be
 shown any more for that class.
 .PP
 .TP 5
+.B NFM
+Network Filesystem (NFS) mount at the client side.
+.br
+For each NFS-mounted filesystem, a line is shown that contains 
+the mounted server directory, the name of the server (`srv'),
+the total number of bytes physically read from the server (`read') and
+the total number of bytes physically written to the server (`write').
+Data transfer is subdivided in
+the number of bytes read via normal read() system calls (`nread'),
+the number of bytes written via normal read() system calls (`nwrit'),
+the number of bytes read via direct I/O (`dread'),
+the number of bytes written via direct I/O (`dwrit'),
+the number of bytes read via memory mapped I/O pages (`mread'), and
+the number of bytes written via memory mapped I/O pages (`mwrit').
+.PP
+.TP 5
+.B NFC
+Network Filesystem (NFS) client side counters.
+.br
+This line contains the number of RPC calls issues by local processes 
+(`rpc'), the number of read RPC calls (`read`) and
+write RPC calls (`rpwrite') issued to the NFS server,
+the number of RPC calls being retransmitted (`retxmit')
+and the number of authorization refreshes (`autref').
+.PP
+.TP 5
+.B NFS
+Network Filesystem (NFS) server side counters.
+.br
+This line contains the number of RPC calls received from 
+NFS clients (`rpc'),
+the number of read RPC calls received (`cread`),
+the number of write RPC calls received (`cwrit'),
+the number of network requests handled via TCP (`nettcp'), 
+the number of network requests handled via UDP (`netudp'),
+the number of Megabytes/second returned to read requests by clients (`MBcr/s`),
+the number of Megabytes/second passed in write requests by clients (`MBcw/s`),
+the number of reply cache hits (`rchits'),
+the number of reply cache misses (`rcmiss') and
+the number of uncached requests (`rcnoca').
+Furthermore some error counters indicating the number of requests
+with a bad format (`badfmt') or a bad authorization (`badaut'), and a
+counter indicating the number of bad clients (`badcln').
+and the number of authorization refreshes (`autref').
+.PP
+.TP 5
 .B NET
 Network utilization (TCP/IP). 
 .br
@@ -869,6 +937,7 @@ interface), `---' is shown instead of the percentage.
 .br
 Furthermore the number of received packets (`pcki'),
 the number of transmitted packets (`pcko'),
+the line speed of the interface (`sp'),
 the effective amount of bits received per second (`si'),
 the effective amount of bits transmitted per second (`so'),
 the number of collisions (`coll'),
@@ -1264,7 +1333,8 @@ parseable output is produced for each sample.
 The labels that can be specified for system-level statistics
 correspond to the labels (first verb of each line)
 that can be found in the interactive output:
-"CPU", "cpu" "CPL" "MEM", "SWP", "PAG", "LVM", "MDD", "DSK" and "NET".
+"CPU", "cpu" "CPL" "MEM", "SWP", "PAG", "LVM", "MDD", "DSK", "NFM",
+"NFC", "NFS" and "NET".
 .br
 For process-level statistics special labels are introduced:
 "PRG" (general), "PRC" (cpu), "PRM" (memory), "PRD" (disk, only if
@@ -1386,6 +1456,44 @@ number of sectors transferred for reads,
 number of writes issued,
 and number of sectors transferred for write.
 .TP 9
+.B NFM
+Subsequent fields:
+mounted NFS filesystem,
+total number of bytes read,
+total number of bytes written,
+number of bytes read by normal system calls,
+number of bytes written by normal system calls,
+number of bytes read by direct I/O,
+number of bytes written by direct I/O,
+number of pages read by memory-mapped I/O, and
+number of pages written by memory-mapped I/O.
+.TP 9
+.B NFC
+Subsequent fields:
+number of transmitted RPCs,
+number of transmitted read RPCs,
+number of transmitted write RPCs,
+number of RPC retransmissions, and
+number of authorization refreshes.
+.TP 9
+.B NFS
+Subsequent fields:
+number of handled RPCs,
+number of received read RPCs,
+number of received write RPCs,
+number of bytes read by clients,
+number of bytes written by clients,
+number of RPCs with bad format,
+number of RPCs with bad authorization,
+number of RPCs from bad client,
+total number of handled network requests,
+number of handled network requests via TCP,
+number of handled network requests via UDP,
+number of handled TCP connections,
+number of hits on reply cache,
+number of misses on reply cache, and
+number of uncached requests.
+.TP 9
 .B NET
 First one line is produced for the upper layers of the TCP/IP stack.
 .br
@@ -1425,7 +1533,8 @@ number of threads in state 'interruptible sleeping' (S),
 number of threads in state 'uninterruptible sleeping' (D),
 effective uid, effective gid,
 saved uid, saved gid,
-filesystem uid, filesystem gid, elapsed time (hertz) and is_process (y/n).
+filesystem uid, filesystem gid, elapsed time (hertz),
+is_process (y/n), virtual pid and container id.
 .TP 9
 .B PRC
 For every process one line is shown.
@@ -1559,9 +1668,21 @@ Some features of that
 .B atop
 command are not available in
 .BR pcp-atop .
+.PP
+Some features of
+.BR pcp-atop
+(such as reporting on the Apache HTTP daemon, and NFS client mounts)
+are only activated if the corresonding PCP metrics are available.
+Refer to the documentation for
+.BR pmdaapache (1)
+and
+.BR pmdanfsclient (1)
+for further details on activating these metrics.
 .SH SEE ALSO
 .BR pcp (1),
 .BR pcp-atopsar (1),
+.BR pmdaapache (1),
+.BR pmdanfsclient (1),
 .BR mkaf (1),
 .BR pmlogger (1),
 .BR pmlogger_daily (1),

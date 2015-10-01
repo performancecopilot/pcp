@@ -54,6 +54,10 @@ sstat_alloc(const char *purpose)
 	ptrverify(ptr, "Alloc failed for %s (MD devices)\n", purpose);
 	sstat->dsk.mdd = (struct perdsk *)ptr;
 
+	ptr = calloc(1, sizeof(struct pernfsmount));
+	ptrverify(ptr, "Alloc failed for %s (NFS mounts)\n", purpose);
+	sstat->nfs.nfsmnt = (struct pernfsmount *)ptr;
+
 	return sstat;
 }
 
@@ -64,20 +68,22 @@ sstat_alloc(const char *purpose)
 void
 sstat_reset(struct sstat *sstat)
 {
-	void		*cpu, *intf, *mdd, *lvm, *dsk;
-	unsigned int	nrcpu, nrintf, nrdsk, nrlvm, nrmdd;
+	void		*cpu, *intf, *mdd, *lvm, *dsk, *nfs;
+	unsigned int	nrcpu, nrintf, nrdsk, nrlvm, nrmdd, nrnfs;
 
 	cpu = sstat->cpu.cpu;
 	intf = sstat->intf.intf;
 	dsk = sstat->dsk.dsk;
 	lvm = sstat->dsk.lvm;
 	mdd = sstat->dsk.mdd;
+	nfs = sstat->nfs.nfsmnt;
 
 	nrcpu = sstat->cpu.nrcpu;
 	nrintf = sstat->intf.nrintf;
 	nrdsk = sstat->dsk.ndsk;
 	nrlvm = sstat->dsk.nlvm;
 	nrmdd = sstat->dsk.nmdd;
+	nrnfs = sstat->nfs.nrmounts;
 
 	/* clear fixed portion now that pointers/sized are safe */
 	memset(sstat, 0, sizeof(struct sstat));
@@ -88,6 +94,7 @@ sstat_reset(struct sstat *sstat)
 	memset(dsk, 0, sizeof(struct perdsk) * nrdsk);
 	memset(lvm, 0, sizeof(struct perdsk) * nrlvm);
 	memset(mdd, 0, sizeof(struct perdsk) * nrmdd);
+	memset(nfs, 0, sizeof(struct pernfsmount) * nrnfs);
 
 	/* stitch the main sstat buffer back together once more */
 	sstat->cpu.cpu = cpu;
@@ -95,12 +102,14 @@ sstat_reset(struct sstat *sstat)
 	sstat->dsk.dsk = dsk;
 	sstat->dsk.lvm = lvm;
 	sstat->dsk.mdd = mdd;
+	sstat->nfs.nfsmnt = nfs;
 
 	sstat->cpu.nrcpu = nrcpu;
 	sstat->intf.nrintf = nrintf;
 	sstat->dsk.ndsk = nrdsk;
 	sstat->dsk.nlvm = nrlvm;
 	sstat->dsk.nmdd = nrmdd;
+	sstat->nfs.nrmounts = nrnfs;
 }
 
 static void
@@ -188,15 +197,34 @@ update_mdd(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp)
 	dsk->avque = 0;
 }
 
+static void
+update_mnt(struct pernfsmount *mp, int id, char *name, pmResult *rp, pmDesc *dp)
+{
+	(void)name;	/* unused - local client mount - use server export */
+	extract_string_inst(rp, dp, PERNFS_EXPORT, &mp->mountdev[0],
+				sizeof(mp->mountdev), id);
+	mp->mountdev[sizeof(mp->mountdev)-1] = '\0';
+
+	mp->age = extract_count_t_inst(rp, dp, PERNFS_AGE, id);
+	mp->bytesread = extract_count_t_inst(rp, dp, PERNFS_RDBYTES, id);
+	mp->byteswrite = extract_count_t_inst(rp, dp, PERNFS_WRBYTES, id);
+	mp->bytesdread = extract_count_t_inst(rp, dp, PERNFS_DRDBYTES, id);
+	mp->bytesdwrite = extract_count_t_inst(rp, dp, PERNFS_DWRBYTES, id);
+	mp->bytestotread = extract_count_t_inst(rp, dp, PERNFS_TOTRDBYTES, id);
+	mp->bytestotwrite = extract_count_t_inst(rp, dp, PERNFS_TOTWRBYTES, id);
+	mp->pagesmread = extract_count_t_inst(rp, dp, PERNFS_RDPAGES, id);
+	mp->pagesmwrite = extract_count_t_inst(rp, dp, PERNFS_WRPAGES, id);
+}
+
 void
 photosyst(struct sstat *si)
 {
 	static int	setup;
 	count_t		count;
-	unsigned int	nrcpu, nrdisk, nrlvm, nrintf;
+	unsigned int	nrcpu, nrdisk, nrintf;
 	unsigned int	onrcpu, onrdisk, onrintf;
-	unsigned int	nrmdd = 0;
-	unsigned int	onrlvm, onrmdd;
+	unsigned int	nrlvm, nrmdd, nrnfs;
+	unsigned int	onrlvm, onrmdd, onrnfs;
 	static pmID	pmids[SYST_NMETRICS];
 	static pmDesc	descs[SYST_NMETRICS];
 	pmResult	*result;
@@ -217,6 +245,7 @@ photosyst(struct sstat *si)
 	onrdisk = si->dsk.ndsk;
 	onrlvm  = si->dsk.nlvm;
 	onrmdd  = si->dsk.nmdd;
+	onrnfs  = si->nfs.nrmounts;
 
 	sstat_reset(si);
 	si->stamp = result->timestamp;
@@ -508,6 +537,62 @@ photosyst(struct sstat *si)
 	}
 	si->dsk.mdd[nrmdd].name[0] = '\0'; 
 	si->dsk.nmdd = nrmdd;
+	free(insts);
+	free(ids);
+
+	/* NFS server statistics */
+	si->nfs.server.rchits = extract_count_t(result, descs, NFS_RCHITS);
+	si->nfs.server.rcmiss = extract_count_t(result, descs, NFS_RCMISS);
+	si->nfs.server.rcnoca = extract_count_t(result, descs, NFS_RCNOCACHE);
+	si->nfs.server.nrbytes = extract_count_t(result, descs, NFS_IORD);
+	si->nfs.server.nwbytes = extract_count_t(result, descs, NFS_IOWR);
+	si->nfs.server.netcnt = extract_count_t(result, descs, NFS_NETCNT);
+	si->nfs.server.netudpcnt = extract_count_t(result, descs, NFS_UDP);
+	si->nfs.server.nettcpcnt = extract_count_t(result, descs, NFS_TCP);
+	si->nfs.server.nettcpcon = extract_count_t(result, descs, NFS_TCPCONN);
+	si->nfs.server.rpccnt = extract_count_t(result, descs, NFS_RPCCNT);
+	si->nfs.server.rpcbadfmt = extract_count_t(result, descs, NFS_RPCBADFMT);
+	si->nfs.server.rpcbadaut = extract_count_t(result, descs, NFS_RPCBADAUTH);
+	si->nfs.server.rpcbadcln = extract_count_t(result, descs, NFS_RPCBADCLNT);
+
+	si->nfs.server.rpcread += extract_count_t_inst(result, descs, NFS_REQS, 6 /*read*/);
+	si->nfs.server.rpcwrite += extract_count_t_inst(result, descs, NFS_REQS, 8 /*write*/);
+	si->nfs.server.rpcread += extract_count_t_inst(result, descs, NFS3_REQS, 6 /*read*/);
+	si->nfs.server.rpcwrite += extract_count_t_inst(result, descs, NFS3_REQS, 7 /*write*/);
+	si->nfs.server.rpcread += extract_count_t_inst(result, descs, NFS4_REQS, 26 /*read*/);
+	si->nfs.server.rpcwrite += extract_count_t_inst(result, descs, NFS4_REQS, 39 /*write*/);
+
+	/* NFS client statistics */
+	si->nfs.client.rpccnt = extract_count_t(result, descs, NFC_RPCCNT);
+	si->nfs.client.rpcretrans = extract_count_t(result, descs, NFC_RETRANS);
+	si->nfs.client.rpcautrefresh = extract_count_t(result, descs, NFC_AUTHREFRESH);
+	si->nfs.client.rpcread += extract_count_t_inst(result, descs, NFC_REQS, 6/*read*/);
+	si->nfs.client.rpcwrite += extract_count_t_inst(result, descs, NFC_REQS, 8/*write*/);
+	si->nfs.client.rpcread += extract_count_t_inst(result, descs, NFC3_REQS, 6/*read*/);
+	si->nfs.client.rpcwrite += extract_count_t_inst(result, descs, NFC3_REQS, 7/*write*/);
+	si->nfs.client.rpcread += extract_count_t_inst(result, descs, NFC4_REQS, 1/*read*/);
+	si->nfs.client.rpcwrite += extract_count_t_inst(result, descs, NFC4_REQS, 2/*write*/);
+
+	/* NFS client mount statistics */
+	insts = NULL;
+	ids = NULL;
+	nrnfs = get_instances("nfsclient", PERNFS_EXPORT, descs, &ids, &insts);
+	if (nrnfs > onrnfs)
+	{
+		size = (nrnfs + 1) * sizeof(struct pernfsmount);
+		si->nfs.nfsmnt = (struct pernfsmount *)realloc(si->nfs.nfsmnt, size);
+		ptrverify(si->nfs.nfsmnt, "photosyst nfs [%ld]\n", (long)size);
+	}
+
+	for (i=0; i < nrnfs; i++)
+	{
+		if (pmDebug & DBG_TRACE_APPL0)
+			fprintf(stderr, "%s: updating nfsmnt %d: %s\n",
+				pmProgname, ids[i], insts[i]);
+		update_mnt(&si->nfs.nfsmnt[i], ids[i], insts[i], result, descs);
+	}
+	si->nfs.nfsmnt[nrnfs].mountdev[0] = '\0'; 
+	si->nfs.nrmounts = nrnfs;
 	free(insts);
 	free(ids);
 

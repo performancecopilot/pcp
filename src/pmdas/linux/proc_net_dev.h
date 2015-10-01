@@ -68,6 +68,10 @@ typedef struct {
 #define SIOCETHTOOL	0x8946
 #endif
 
+#ifndef SIOCGIWRATE
+#define SIOCGIWRATE	0x8B21
+#endif
+
 /* ioctl(SIOCIFETHTOOL) GSET ("get settings") structure */
 struct ethtool_cmd {
     uint32_t	cmd;
@@ -79,9 +83,34 @@ struct ethtool_cmd {
     uint8_t	phy_address;
     uint8_t	transceiver;    /* Which tranceiver to use */
     uint8_t	autoneg;        /* Enable or disable autonegotiation */
+    uint8_t	mdio_support;
     uint32_t	maxtxpkt;       /* Tx pkts before generating tx int */
     uint32_t	maxrxpkt;       /* Rx pkts before generating rx int */
-    uint32_t	reserved[4];
+    uint16_t	speed_hi;	/* High bits of the speed */
+    uint8_t	eth_tp_mdix;
+    uint8_t	eth_tp_mdix_ctrl;
+    uint32_t	lp_advertising;
+    uint32_t	reserved[2];
+};
+
+/* ioctl(SIOCGIWRATE) GET ("get wireless rate") structure */
+struct iw_param {
+    int32_t	value;
+    uint8_t	fixed;
+    uint8_t	disabled;
+    uint16_t	flags;
+};
+
+union iwreq_data {
+    char		padding[256];	/* sufficient for any kernel copyout */
+    struct iw_param	bitrate;	/* default bit rate */
+};
+
+struct iwreq {
+        union {
+		char	ifrn_name[16];
+        } ifr_ifrn;
+        union iwreq_data u;		/* payload, defined above */
 };
 
 #define IPV6_ADDR_ANY           0x0000U

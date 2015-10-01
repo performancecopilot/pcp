@@ -100,9 +100,9 @@ hhmm2secs(char *itim, unsigned int *otim)
 
 
 /*
-** Function val2valstr() converts a value to an ascii-string of a fixed
-** number of positions; if the value does not fit, it will be formatted to
-** exponent-notation (as short as possible, so not via the standard printf-
+** Function val2valstr() converts a positive value to an ascii-string of a 
+** fixed number of positions; if the value does not fit, it will be formatted
+** to exponent-notation (as short as possible, so not via the standard printf-
 ** formatters %f or %e). The offered string should have a length of width+1.
 ** The value might even be printed as an average for the interval-time.
 */
@@ -113,11 +113,17 @@ val2valstr(count_t value, char *strvalue, size_t buflen, int width, int avg, int
 	int	exp     = 0;
 	char	*suffix = "";
 
-	if (avg)
+	if (avg && nsecs)
 	{
 		value  = (value + (nsecs/2)) / nsecs;     /* rounded value */
 		width  = width - 2;	/* subtract two positions for '/s' */
 		suffix = "/s";
+	}
+
+	if (value < 0)		// no negative value expected
+	{
+		sprintf(strvalue, "%*s%s", width, "?", suffix);
+		return strvalue;
 	}
 
 	maxval = pow(10.0, width) - 1;
@@ -175,43 +181,32 @@ val2valstr(count_t value, char *strvalue, size_t buflen, int width, int avg, int
 int
 val2elapstr(int value, char *strvalue, size_t buflen)
 {
-        char	*p=strvalue, doshow=0;
+        char	*p=strvalue;
 	int	bytes, offset=0;
 
-        if (value > DAYSECS) 
+        if (value >= DAYSECS) 
         {
-                bytes = snprintf(p, buflen-offset, "%dd", value/DAYSECS);
+		bytes = snprintf(p, buflen-offset, "%dd", value/DAYSECS);
 		p += bytes;
 		offset += bytes;
-                value %= DAYSECS;
-		doshow = 1;
         }
 
-        if (value > HOURSECS || doshow) 
+        if (value >= HOURSECS) 
         {
-                bytes = snprintf(p, buflen-offset, "%dh", value/HOURSECS);
+		bytes = snprintf(p, buflen-offset, "%dh", (value%DAYSECS)/HOURSECS);
 		p += bytes;
 		offset += bytes;
-                value %= HOURSECS;
-		doshow = 1;
         }
 
-        if (value > MINSECS || doshow) 
+        if (value >= MINSECS) 
         {
-                bytes = snprintf(p, buflen-offset, "%dm", value/MINSECS);
+                bytes = snprintf(p, buflen-offset, "%dm", (value%HOURSECS)/MINSECS);
 		p += bytes;
 		offset += bytes;
-                value %= MINSECS;
-		doshow = 1;
         }
 
-        if (value || doshow) 
-        {
-                bytes = snprintf(p, buflen-offset, "%ds", value);
-		p += bytes;
-		offset += bytes;
-		doshow = 1;
-        }
+	bytes = snprintf(p, buflen-offset, "%ds", (value%MINSECS));
+	offset += bytes;
 
         return offset;
 }
@@ -311,11 +306,13 @@ val2Hzstr(count_t value, char *strvalue, size_t buflen)
 #define	ONEMBYTE	1048576
 #define	ONEGBYTE	1073741824L
 #define	ONETBYTE	1099511627776LL
+#define	ONEPBYTE	1125899906842624LL
 
 #define	MAXBYTE		1024
 #define	MAXKBYTE	ONEKBYTE*99999L
 #define	MAXMBYTE	ONEMBYTE*999L
 #define	MAXGBYTE	ONEGBYTE*999LL
+#define	MAXTBYTE	ONETBYTE*999LL
 
 char *
 val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval, int nsecs)
@@ -339,10 +336,10 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 	/*
 	** verify if printed value is required per second (average) or total
 	*/
-	if (avgval)
+	if (avgval && nsecs)
 	{
 		value     /= nsecs;
-		verifyval *= 100;
+		verifyval  = verifyval * 100 /nsecs;
 		basewidth -= 2;
 		suffix     = "/s";
 	}
@@ -359,10 +356,13 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 			if (verifyval <= MAXMBYTE)	/* mbytes ? */
 				aformat = MBFORMAT;
 			else
-				if (verifyval <= MAXGBYTE)	/* mbytes ? */
+				if (verifyval <= MAXGBYTE)	/* gbytes ? */
 					aformat = GBFORMAT;
 				else
-					aformat = TBFORMAT;
+					if (verifyval <= MAXTBYTE)/* tbytes? */
+						aformat = TBFORMAT;/* tbytes! */
+					else
+						aformat = PBFORMAT;/* pbytes! */
 
 	/*
 	** check if this is also the preferred format
@@ -395,6 +395,11 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 	   case	TBFORMAT:
 		snprintf(strvalue, buflen, "%*.1lfT%s",
 			basewidth-1, (double)((double)value/ONETBYTE), suffix);
+		break;
+
+	   case	PBFORMAT:
+		snprintf(strvalue, buflen, "%*.1lfP%s",
+			basewidth-1, (double)((double)value/ONEPBYTE), suffix);
 		break;
 
 	   default:
@@ -622,7 +627,7 @@ extract_integer_index(pmResult *result, pmDesc *descs, int value, int i)
 	pmValueSet *values = result->vset[value];
 
 	if (values->numval <= 0 || values->numval <= i)
-		return -1;
+		return 0;
 	pmExtractValue(values->valfmt, &values->vlist[i],
 			descs[value].type, &atom, PM_TYPE_32);
 	return atom.l;
@@ -650,7 +655,7 @@ extract_integer_inst(pmResult *result, pmDesc *descs, int value, int inst)
 		break;
 	}
 	if (values->numval <= 0 || i == values->numval)
-		return -1;
+		return 0;
 	return atom.l;
 }
 
@@ -667,7 +672,7 @@ extract_count_t_index(pmResult *result, pmDesc *descs, int value, int i)
 	pmValueSet *values = result->vset[value];
 
 	if (values->numval <= 0 || values->numval <= i)
-		return -1;
+		return 0;
 
 	pmExtractValue(values->valfmt, &values->vlist[i],
 			descs[value].type, &atom, PM_TYPE_64);
@@ -690,7 +695,7 @@ extract_count_t_inst(pmResult *result, pmDesc *descs, int value, int inst)
 		break;
 	}
 	if (values->numval <= 0 || i == values->numval)
-		return -1;
+		return 0;
 	return atom.ll;
 }
 

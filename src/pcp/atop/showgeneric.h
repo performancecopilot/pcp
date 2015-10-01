@@ -21,6 +21,7 @@
 */
 #define USERSTUB	9999999
 #define MAXUSERSEL	64
+#define MAXPID		32
 
 struct syscap {
 	int	nrcpu;
@@ -34,9 +35,15 @@ struct pselection {
 	char	username[256];
 	uid_t	userid[MAXUSERSEL];
 
+	pid_t	pid[MAXPID];
+
 	char	progname[64];
 	int	prognamesz;
 	regex_t	progregex;
+
+	char	argname[64];
+	int	argnamesz;
+	regex_t	argregex;
 };
 
 struct sselection {
@@ -92,6 +99,8 @@ struct sselection {
 
 #define	MSELUSER	'U'
 #define	MSELPROC	'P'
+#define	MSELPID		'I'
+#define	MSELARG		'/'
 #define	MSELSYS		'S'
 
 #define	MALLPROC	'a'
@@ -129,7 +138,7 @@ void	showcmdproc(struct tstat *, double, int, int);
 
 void	printg     (const char *, ...);
 int	prisyst(struct sstat  *, int, int, int, int, struct sselection *,
-			char *, int, int, int, int, int);
+			char *, int, int, int, int, int, int, int);
 int	priproc(struct tstat  **, int, int, int, int, int, char, char,
 	        struct syscap *, int, int);
 void	priphead(int, int, char *, char *, char);

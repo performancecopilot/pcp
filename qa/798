@@ -66,13 +66,16 @@ PCP_PERL_PMNS=root /usr/bin/perl $script > $tmp.root
 cat >$tmp.cmds <<End-of-File
 open pipe /usr/bin/perl $script
 getdesc on
+desc nfsclient.export
 desc nfsclient.mountpoint
 desc nfsclient.options.string
 desc nfsclient.options.proto
 desc nfsclient.options.vers
+fetch nfsclient.export
 fetch nfsclient.mountpoint
 fetch nfsclient.options.string
 fetch nfsclient.options.proto
+fetch nfsclient.options.vers
 fetch nfsclient.options.vers
 instance $domain.0
 End-of-File

@@ -243,6 +243,7 @@ _filter_optional_pmdas()
 	-e '/pmdanetfilter/d' \
 	-e '/pmdanetprobe/d' \
 	-e '/pmdanews/d' \
+	-e '/pmdanfsclient/d' \
 	-e '/pmdanginx/d' \
 	-e '/pmdanvidia/d' \
 	-e '/pmdaperfevent/d' \
@@ -331,6 +332,7 @@ _filter_top_pmns()
 	-e '/^    netfilter /d' \
 	-e '/^    netprobe /d' \
 	-e '/^    news /d' \
+	-e '/^    nfsclient /d' \
 	-e '/^    nginx /d' \
 	-e '/^    nvidia /d' \
 	-e '/^    papi /d' \
@@ -729,6 +731,7 @@ _filter_torture_api()
 	-e '/^    named /d' \
 	-e '/^    nasavg /d' \
 	-e '/^    netfilter /d' \
+	-e '/^    nfsclient /d' \
 	-e '/^    numa /d' \
 	-e '/^    nvidia /d' \
 	-e '/^    origin /d' \

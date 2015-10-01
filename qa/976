@@ -53,8 +53,6 @@ fetch lustre.lnet.recv_length
 instance $domain.0
 End-of-File
 
-# iterate over our pre-canned mountstats files
-test="$here/nfsclient"
 echo === Testing precanned lustre files
 $sudo dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
 

@@ -433,11 +433,12 @@ calcdiff(struct tstat *devstat, struct tstat *curstat, struct tstat *prestat,
 ** calculate the system-activity during the last sample
 */
 void
-deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
+deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev, double interval)
 {
 	register int	i, j;
 	size_t		size;
 	count_t		*cdev, *ccur, *cpre;
+	struct ifprop	ifprop;
 
 	if (cur->cpu.nrcpu != dev->cpu.nrcpu)
 	{
@@ -626,7 +627,21 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 
 	/*
 	** calculate deviations for interfaces
+	**
+	** refresh all interface properties
 	*/
+
+	for (i=0; cur->intf.intf[i].name[0]; i++)
+	{
+		strcpy(ifprop.name, cur->intf.intf[i].name);
+
+		getifprop(&ifprop);
+
+		cur->intf.intf[i].speed  = ifprop.speed;
+		cur->intf.intf[i].speedp = ifprop.speed;
+		cur->intf.intf[i].duplex = ifprop.fullduplex;
+	}
+
 	if (cur->intf.nrintf != dev->intf.nrintf)
 	{
 		size = (cur->intf.nrintf + 1) * sizeof(struct perintf);
@@ -636,8 +651,6 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 
 	if (pre->intf.nrintf < cur->intf.nrintf)	/* first sample? */
 	{
-		struct ifprop	ifprop;
-
 		free(pre->intf.intf);
 		size = (cur->intf.nrintf + 1) * sizeof(struct perintf);
 		pre->intf.intf = (struct perintf *)calloc(1, size);
@@ -647,44 +660,40 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 		{
 			strcpy(pre->intf.intf[i].name, cur->intf.intf[i].name);
 
-			strcpy(ifprop.name, cur->intf.intf[i].name);
-
-			getifprop(&ifprop);
-
-			pre->intf.intf[i].speed         = ifprop.speed;
-			pre->intf.intf[i].duplex        = ifprop.fullduplex;
+			pre->intf.intf[i].speed  = cur->intf.intf[i].speed;
+			pre->intf.intf[i].speedp = cur->intf.intf[i].speedp;
+			pre->intf.intf[i].duplex = cur->intf.intf[i].duplex;
  		}
 		pre->intf.intf[i].name[0] = '\0';
 	}
 
-	for (i=0; cur->intf.intf && cur->intf.intf[i].name[0]; i++)
+	for (i=0, j=0; cur->intf.intf && cur->intf.intf[i].name[0]; i++, j++)
 	{
 		/*
-		** check if an interface has been added or removed;
-		** in that case, skip further handling for this sample
+		** be sure that we have the same interface
+		** (interfaces could have been added or removed since
+		** previous sample)
 		*/
-		if (strcmp(cur->intf.intf[i].name, pre->intf.intf[i].name) != 0)
+		if (strcmp(cur->intf.intf[i].name, pre->intf.intf[j].name) != 0)
 		{
-			int		j;
-			struct ifprop	ifprop;
-
-			/*
-			** take care that interface properties are
-			** corrected for future samples
-			*/
-		        initifprop();		/* refresh interface info   */
-
-			for (j=0; cur->intf.intf[j].name[0]; j++)
+			// try to resync
+			for (j=0; pre->intf.intf[j].name[0]; j++)
 			{
-				strcpy(ifprop.name, cur->intf.intf[j].name);
-
-				getifprop(&ifprop);
-
-				cur->intf.intf[j].speed  = ifprop.speed;
-				cur->intf.intf[j].duplex = ifprop.fullduplex;
+				if (strcmp(cur->intf.intf[i].name,
+					   pre->intf.intf[j].name) == 0)
+					break;
 			}
 
-			break;
+			// resync not succeeded?
+			if (! pre->intf.intf[j].name[0])
+			{
+				memcpy(&dev->intf.intf[i],
+				       &cur->intf.intf[i],
+				       sizeof cur->intf.intf[i]);
+
+				j = 0;
+				continue;
+			}
 		}
 
 		/*
@@ -693,47 +702,44 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 		strcpy(dev->intf.intf[i].name, cur->intf.intf[i].name);
 
 		dev->intf.intf[i].rbyte = subcount(cur->intf.intf[i].rbyte,
-           	                                   pre->intf.intf[i].rbyte);
+           	                                   pre->intf.intf[j].rbyte);
 		dev->intf.intf[i].rpack = subcount(cur->intf.intf[i].rpack,
-		                                   pre->intf.intf[i].rpack);
+		                                   pre->intf.intf[j].rpack);
 		dev->intf.intf[i].rerrs = subcount(cur->intf.intf[i].rerrs,
-		                                   pre->intf.intf[i].rerrs);
+		                                   pre->intf.intf[j].rerrs);
 		dev->intf.intf[i].rdrop = subcount(cur->intf.intf[i].rdrop,
-		                                   pre->intf.intf[i].rdrop);
+		                                   pre->intf.intf[j].rdrop);
 		dev->intf.intf[i].rfifo = subcount(cur->intf.intf[i].rfifo,
-		                                   pre->intf.intf[i].rfifo);
+		                                   pre->intf.intf[j].rfifo);
 		dev->intf.intf[i].rframe= subcount(cur->intf.intf[i].rframe,
-		                                   pre->intf.intf[i].rframe);
+		                                   pre->intf.intf[j].rframe);
 		dev->intf.intf[i].rcompr= subcount(cur->intf.intf[i].rcompr,
-		                                   pre->intf.intf[i].rcompr);
+		                                   pre->intf.intf[j].rcompr);
 		dev->intf.intf[i].rmultic=subcount(cur->intf.intf[i].rmultic,
-		                                   pre->intf.intf[i].rmultic);
+		                                   pre->intf.intf[j].rmultic);
 
 		dev->intf.intf[i].sbyte = subcount(cur->intf.intf[i].sbyte,
-		                                   pre->intf.intf[i].sbyte);
+		                                   pre->intf.intf[j].sbyte);
 		dev->intf.intf[i].spack = subcount(cur->intf.intf[i].spack,
-		                                   pre->intf.intf[i].spack);
+		                                   pre->intf.intf[j].spack);
 		dev->intf.intf[i].serrs = subcount(cur->intf.intf[i].serrs,
-		                                   pre->intf.intf[i].serrs);
+		                                   pre->intf.intf[j].serrs);
 		dev->intf.intf[i].sdrop = subcount(cur->intf.intf[i].sdrop,
-		                                   pre->intf.intf[i].sdrop);
+		                                   pre->intf.intf[j].sdrop);
 		dev->intf.intf[i].sfifo = subcount(cur->intf.intf[i].sfifo,
-		                                   pre->intf.intf[i].sfifo);
+		                                   pre->intf.intf[j].sfifo);
 		dev->intf.intf[i].scollis= subcount(cur->intf.intf[i].scollis,
-		                                   pre->intf.intf[i].scollis);
+		                                   pre->intf.intf[j].scollis);
 		dev->intf.intf[i].scarrier= subcount(cur->intf.intf[i].scarrier,
-		                                   pre->intf.intf[i].scarrier);
+		                                   pre->intf.intf[j].scarrier);
 		dev->intf.intf[i].scompr= subcount(cur->intf.intf[i].scompr,
-		                                   pre->intf.intf[i].scompr);
+		                                   pre->intf.intf[j].scompr);
 
-		dev->intf.intf[i].speed 	= pre->intf.intf[i].speed;
-		dev->intf.intf[i].duplex	= pre->intf.intf[i].duplex;
+		dev->intf.intf[i].duplex	= cur->intf.intf[j].duplex;
+		dev->intf.intf[i].speed 	= cur->intf.intf[i].speed;
+		dev->intf.intf[i].speedp 	= pre->intf.intf[i].speed;
 
-		/*
-		** save interface properties for next interval
-		*/
-		cur->intf.intf[i].speed 	= pre->intf.intf[i].speed;
-		cur->intf.intf[i].duplex	= pre->intf.intf[i].duplex;
+		cur->intf.intf[i].speedp	= pre->intf.intf[j].speed;
 	}
 
 	dev->intf.intf[i].name[0] = '\0';
@@ -929,6 +935,168 @@ deviatsyst(struct sstat *cur, struct sstat *pre, struct sstat *dev)
 	dev->dsk.nlvm = i;
 
 	/*
+	** calculate deviations for NFS
+	*/
+	dev->nfs.server.netcnt    = subcount(cur->nfs.server.netcnt,
+	                                     pre->nfs.server.netcnt);
+	dev->nfs.server.netudpcnt = subcount(cur->nfs.server.netudpcnt,
+	                                     pre->nfs.server.netudpcnt);
+	dev->nfs.server.nettcpcnt = subcount(cur->nfs.server.nettcpcnt,
+	                                     pre->nfs.server.nettcpcnt);
+	dev->nfs.server.nettcpcon = subcount(cur->nfs.server.nettcpcon,
+	                                     pre->nfs.server.nettcpcon);
+
+	dev->nfs.server.rpccnt    = subcount(cur->nfs.server.rpccnt,
+	                                     pre->nfs.server.rpccnt);
+	dev->nfs.server.rpcread   = subcount(cur->nfs.server.rpcread,
+	                                     pre->nfs.server.rpcread);
+	dev->nfs.server.rpcwrite  = subcount(cur->nfs.server.rpcwrite,
+	                                     pre->nfs.server.rpcwrite);
+	dev->nfs.server.rpcbadfmt = subcount(cur->nfs.server.rpcbadfmt,
+	                                     pre->nfs.server.rpcbadfmt);
+	dev->nfs.server.rpcbadaut = subcount(cur->nfs.server.rpcbadaut,
+	                                     pre->nfs.server.rpcbadaut);
+	dev->nfs.server.rpcbadcln = subcount(cur->nfs.server.rpcbadcln,
+	                                     pre->nfs.server.rpcbadcln);
+	
+	dev->nfs.server.rchits    = subcount(cur->nfs.server.rchits,
+	                                     pre->nfs.server.rchits);
+	dev->nfs.server.rcmiss    = subcount(cur->nfs.server.rcmiss,
+	                                     pre->nfs.server.rcmiss);
+	dev->nfs.server.rcnoca    = subcount(cur->nfs.server.rcnoca,
+	                                     pre->nfs.server.rcnoca);
+
+	dev->nfs.server.nrbytes   = subcount(cur->nfs.server.nrbytes,
+	                                     pre->nfs.server.nrbytes);
+	dev->nfs.server.nwbytes   = subcount(cur->nfs.server.nwbytes,
+	                                     pre->nfs.server.nwbytes);
+
+	dev->nfs.client.rpccnt        = subcount(cur->nfs.client.rpccnt,
+	                                         pre->nfs.client.rpccnt);
+	dev->nfs.client.rpcread       = subcount(cur->nfs.client.rpcread,
+	                                         pre->nfs.client.rpcread);
+	dev->nfs.client.rpcwrite      = subcount(cur->nfs.client.rpcwrite,
+	                                         pre->nfs.client.rpcwrite);
+	dev->nfs.client.rpcretrans    = subcount(cur->nfs.client.rpcretrans,
+	                                         pre->nfs.client.rpcretrans);
+	dev->nfs.client.rpcautrefresh = subcount(cur->nfs.client.rpcautrefresh,
+	                                         pre->nfs.client.rpcautrefresh);
+
+
+	for (i=j=0; i < cur->nfs.nrmounts; i++, j++)
+	{
+		/*
+ 		** check if nfsmounts have been added or removed since
+		** previous interval
+		*/
+		if ( strcmp(cur->nfs.nfsmnt[i].mountdev,
+		            pre->nfs.nfsmnt[j].mountdev) != 0)
+		{
+			for (j=0; j < pre->nfs.nrmounts; j++)
+			{
+			    if ( strcmp(cur->nfs.nfsmnt[i].mountdev,
+		                        pre->nfs.nfsmnt[j].mountdev) == 0)
+					break;
+			}
+
+			/*
+			** either the corresponding entry has been found
+			** in the case that a container has been removed,
+			** or an empty entry has been found (all counters
+			** on zero) in the case that a container has
+			** been added during the last sample
+			*/
+		}
+
+		strcpy(dev->nfs.nfsmnt[i].mountdev,
+		       cur->nfs.nfsmnt[i].mountdev);
+
+                dev->nfs.nfsmnt[i].age = cur->nfs.nfsmnt[i].age;
+
+		if (dev->nfs.nfsmnt[i].age <= interval)
+			memset(&(pre->nfs.nfsmnt[j]), 0, 
+					sizeof(struct pernfsmount));
+
+                dev->nfs.nfsmnt[i].bytesread = 
+                          subcount(cur->nfs.nfsmnt[i].bytesread,
+                                   pre->nfs.nfsmnt[j].bytesread);
+
+                dev->nfs.nfsmnt[i].byteswrite = 
+                          subcount(cur->nfs.nfsmnt[i].byteswrite,
+                                   pre->nfs.nfsmnt[j].byteswrite);
+
+                dev->nfs.nfsmnt[i].bytesdread = 
+                          subcount(cur->nfs.nfsmnt[i].bytesdread,
+                                   pre->nfs.nfsmnt[j].bytesdread);
+
+                dev->nfs.nfsmnt[i].bytesdwrite = 
+                          subcount(cur->nfs.nfsmnt[i].bytesdwrite,
+                                   pre->nfs.nfsmnt[j].bytesdwrite);
+
+                dev->nfs.nfsmnt[i].bytestotread = 
+                          subcount(cur->nfs.nfsmnt[i].bytestotread,
+                                   pre->nfs.nfsmnt[j].bytestotread);
+
+                dev->nfs.nfsmnt[i].bytestotwrite = 
+                          subcount(cur->nfs.nfsmnt[i].bytestotwrite,
+                                   pre->nfs.nfsmnt[j].bytestotwrite);
+
+                dev->nfs.nfsmnt[i].pagesmread = 
+                          subcount(cur->nfs.nfsmnt[i].pagesmread,
+                                   pre->nfs.nfsmnt[j].pagesmread);
+
+                dev->nfs.nfsmnt[i].pagesmwrite = 
+                          subcount(cur->nfs.nfsmnt[i].pagesmwrite,
+                                   pre->nfs.nfsmnt[j].pagesmwrite);
+	}
+
+	dev->nfs.nrmounts = cur->nfs.nrmounts;
+
+	/*
+	** calculate deviations for containers
+	*/
+	for (i=j=0; i < cur->cfs.nrcontainer; i++, j++)
+	{
+		/*
+ 		** check if containers have been added or removed since
+		** previous interval
+		*/
+		if (cur->cfs.cont[i].ctid != pre->cfs.cont[j].ctid)
+		{
+			for (j=0; j < pre->cfs.nrcontainer; j++)
+			{
+				if (cur->cfs.cont[i].ctid ==
+						pre->cfs.cont[j].ctid)
+					break;
+			}
+
+			/*
+			** either the corresponding entry has been found
+			** in the case that a container has been removed,
+			** or an empty entry has been found (all counters
+			** on zero) in the case that a container has
+			** been added during the last sample
+			*/
+		}
+
+		dev->cfs.cont[i].ctid    = cur->cfs.cont[i].ctid;
+		dev->cfs.cont[i].numproc = cur->cfs.cont[i].numproc;
+
+		dev->cfs.cont[i].system  = subcount(cur->cfs.cont[i].system,
+		                                    pre->cfs.cont[i].system);
+		dev->cfs.cont[i].user    = subcount(cur->cfs.cont[i].user,
+		                                    pre->cfs.cont[i].user);
+		dev->cfs.cont[i].nice    = subcount(cur->cfs.cont[i].nice,
+		                                    pre->cfs.cont[i].nice);
+		dev->cfs.cont[i].uptime  = subcount(cur->cfs.cont[i].uptime,
+		                                    pre->cfs.cont[i].uptime);
+
+		dev->cfs.cont[i].physpages = cur->cfs.cont[i].physpages;
+	}
+
+	dev->cfs.nrcontainer = cur->cfs.nrcontainer;
+
+	/*
 	** application-specific counters
 	*/
 	if (cur->www.uptime >= pre->www.uptime)
@@ -1026,8 +1194,33 @@ totalsyst(char category, struct sstat *new, struct sstat *tot)
 		break;
 
 	   case 'n':	/* accumulate network-related counters */
+		tot->nfs.server.rpccnt     += new->nfs.server.rpccnt;
+		tot->nfs.server.rpcread    += new->nfs.server.rpcread;
+		tot->nfs.server.rpcwrite   += new->nfs.server.rpcwrite;
+		tot->nfs.server.rpcbadfmt  += new->nfs.server.rpcbadfmt;
+		tot->nfs.server.rpcbadaut  += new->nfs.server.rpcbadaut;
+		tot->nfs.server.rpcbadcln  += new->nfs.server.rpcbadcln;
+
+		tot->nfs.server.netcnt     += new->nfs.server.netcnt;
+		tot->nfs.server.nettcpcnt  += new->nfs.server.nettcpcnt;
+		tot->nfs.server.netudpcnt  += new->nfs.server.netudpcnt;
+		tot->nfs.server.nettcpcon  += new->nfs.server.nettcpcon;
+
+		tot->nfs.server.rchits     += new->nfs.server.rchits;
+		tot->nfs.server.rcmiss     += new->nfs.server.rcmiss;
+		tot->nfs.server.rcnoca     += new->nfs.server.rcnoca;
+
+		tot->nfs.server.nrbytes    += new->nfs.server.nrbytes;
+		tot->nfs.server.nwbytes    += new->nfs.server.nwbytes;
+
+		tot->nfs.client.rpccnt        += new->nfs.client.rpccnt;
+		tot->nfs.client.rpcread       += new->nfs.client.rpcread;
+		tot->nfs.client.rpcwrite      += new->nfs.client.rpcwrite;
+		tot->nfs.client.rpcretrans    += new->nfs.client.rpcretrans;
+		tot->nfs.client.rpcautrefresh += new->nfs.client.rpcautrefresh;
+
 		/*
-		** structures with network-related counters are considered
+		** other structures with network counters are considered
 		** as tables of frequency-counters that will be accumulated;
 		** values that do not represent a frequency are corrected
 		** afterwards

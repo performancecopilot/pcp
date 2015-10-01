@@ -1401,7 +1401,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
         if status > 0:
-            nameL = list(map(lambda x: str(nameA_p[x].decode()), range(status)))
+            nameL = list(map(lambda x: str(nameA_p[x].decode('ascii', 'ignore')), range(status)))
             instL = list(map(lambda x: int(instA_p[x]), range(status)))
             LIBC.free(instA_p)
             LIBC.free(nameA_p)
@@ -1441,7 +1441,7 @@ class pmContext(object):
             raise pmErr(status)
         result = name_p.value
         LIBC.free(name_p)
-        return str(result.decode())
+        return str(result.decode('ascii', 'ignore'))
 
     ##
     # PMAPI Context Services
@@ -1720,7 +1720,7 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
         if status > 0:
-            nameL = list(map(lambda x: str(nameA_p[x].decode()), range(status)))
+            nameL = list(map(lambda x: str(nameA_p[x].decode('ascii', 'ignore')), range(status)))
             instL = list(map(lambda x: int(instA_p[x]), range(status)))
             LIBC.free(instA_p)
             LIBC.free(nameA_p)
@@ -1759,7 +1759,7 @@ class pmContext(object):
             raise pmErr(status)
         result = name_p.value
         LIBC.free(name_p)
-        return str(result.decode())
+        return str(result.decode('ascii', 'ignore'))
 
     def pmFetchArchive(self):
         """PMAPI - Fetch measurements from the target source
