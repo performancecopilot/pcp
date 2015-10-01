@@ -191,6 +191,7 @@ fetchlocal.o
     splitlist			# single-threaded PM_SCOPE_DSO_PMDA
     splitmax			# single-threaded PM_SCOPE_DSO_PMDA
 fetch.o
+fetchgroup.o
 freeresult.o
 getdate.tab.o
     MilitaryTable         	# const

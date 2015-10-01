@@ -893,6 +893,18 @@ PCP_CALL extern int pmDiscoverServices(const char *, const char *, char ***);
 
 PCP_CALL extern int pmParseUnitsStr(const char *, pmUnits *, double *, char **);
 
+typedef struct __pmFetchGroup* pmFG; /* black-box */
+PCP_CALL extern int pmCreateFetchGroup(pmFG *);
+PCP_CALL extern int pmSetFetchGroupMode(pmFG, int, const struct timeval*, int);
+PCP_CALL extern int pmExtendFetchGroup_item(pmFG, const char*, const char *, const char *,
+                                            pmAtomValue *, int, int*);
+PCP_CALL extern int pmExtendFetchGroup_indom(pmFG, const char*, const char *,
+                                             int[], char *[], pmAtomValue [], int, int[],
+                                             unsigned, unsigned *, int*);
+PCP_CALL extern int pmExtendFetchGroup_timestamp(pmFG, struct timeval*);
+PCP_CALL extern int pmFetchGroup(pmFG);
+PCP_CALL extern int pmDestroyFetchGroup(pmFG);
+
 #ifdef __cplusplus
 }
 #endif

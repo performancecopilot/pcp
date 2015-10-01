@@ -27,11 +27,8 @@ default: $(TARGETS)
 install:
 
 clobber:
-	rm -f $(TARGETS) *.o core a.out pmnsmap.h mylog.* pmlogger.log
+	rm -f $(TARGETS) *.o core a.out mylog.* pmlogger.log
 
-pmclient:	pmclient.c pmnsmap.h
+pmclient:	pmclient.c
 	rm -f $@
 	$(CC) $(CFLAGS) pmclient.c -o $@ $(LDOPTS) $(LDLIBS)
-
-pmnsmap.h:	pmnsmap.spec
-	pmgenmap pmnsmap.spec >pmnsmap.h

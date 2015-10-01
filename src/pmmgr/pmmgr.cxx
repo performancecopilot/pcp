@@ -233,8 +233,13 @@ pmmgr_job_spec::parse_metric_spec (const string& spec)
 pmmgr_hostid
 pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
 {
-  int pmc = pmNewContext (PM_CONTEXT_HOST, ctx.c_str());
+  int pmc = pmNewContext (PM_CONTEXT_HOST, ctx.c_str()); // $PMCD_CONNECT_TIMEOUT
   if (pmc < 0)
+    return "";
+
+  pmFG fg;
+  int sts = pmCreateFetchGroup (&fg);
+  if (sts < 0)
     return "";
 
   // parse all the hostid metric specifications
@@ -242,87 +247,43 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
   if (hostid_specs.size() == 0)
     hostid_specs.push_back(string("pmcd.hostname"));
 
-  // fetch all hostid metrics in sequence
-  vector<string> hostid_fields;
+  // load all metrics into a single big array of pmAtomValue via pmfg
+  const unsigned max_instances_per_metric = 100;
+  pmAtomValue *values = new pmAtomValue[max_instances_per_metric * hostid_specs.size()];
+  memset (values, 0, sizeof(pmAtomValue)*max_instances_per_metric * hostid_specs.size());
+  unsigned values_idx = 0; // index into values[]
+  
+  // extend the fetchgroup with all the metrics
+  // NB: even cursory error handling is skipped, relying on pmfgs' reliable representation
+  // of missing/potential values as (char*) NULLs in the output pmAtomValue.
   for (unsigned i=0; i<hostid_specs.size(); i++)
     {
       pmMetricSpec* pms = parse_metric_spec (hostid_specs[i]);
-
-      pmID pmid;
-      int rc = pmLookupName (1, & pms->metric, &pmid);
-      if (rc < 0)
-	continue;
-
-      pmDesc desc;
-      rc = pmLookupDesc (pmid, & desc);
-      if (rc < 0)
-	continue;
-
-      if (desc.type != PM_TYPE_STRING)
-	continue;
-
-      if ((desc.indom != PM_INDOM_NULL) && pms->ninst > 0)
-	{
-	  // reset the indom to include all elements
-	  rc = pmDelProfile(desc.indom, 0, (int *)0);
-	  if (rc < 0)
-	    continue;
-
-	  int *inums = (int *) malloc (pms->ninst * sizeof(int));
-	  if (inums == NULL)
-	    continue;
-	  // NB: after this point, 'continue' must also free(inums);
-
-	  // map the instance names to instance numbers
-	  unsigned numinums_used = 0;
-	  for (int j=0; j<pms->ninst; j++)
-	    {
-	      int inum = pmLookupInDom (desc.indom, pms->inst[j]);
-	      if (inum < 0)
-		continue;
-	      inums[numinums_used++] = inum;
-	    }
-
-	  // add the selected instances to the profile
-	  rc = pmAddProfile (desc.indom, numinums_used, inums);
-	  free (inums);
-	  if (rc < 0)
-	    continue;
-	}
-
-      // fetch the values
-      pmResult *r;
-      rc = pmFetch (1, &pmid, &r);
-      if (rc < 0)
-	continue;
-      // NB: after this point, 'continue' must also pmFreeResult(r)
-
-      // in-place sort value list by indom number
-      pmSortInstances(r);
-
-      // only vset[0] will be set, for csb->pmid
-      if (r->vset[0]->numval > 0)
-	{
-	  for (int j=0; j<r->vset[0]->numval; j++) // iterate over instances
-	    {
-	      // fetch the string value
-	      pmAtomValue av;
-	      rc = pmExtractValue(r->vset[0]->valfmt,
-				  & r->vset[0]->vlist[j],
-				  PM_TYPE_STRING, & av, PM_TYPE_STRING);
-	      if (rc < 0)
-		continue;
-
-	      // at last!  we have a string we can accumulate
-	      hostid_fields.push_back (av.cp);
-	      free (av.cp);
-	    }
-	}
-
-      (void) pmFreeResult (r);
+      
+      if (pms->ninst)
+        for (unsigned j=0; j<pms->ninst && j<max_instances_per_metric; j++)
+          (void) pmExtendFetchGroup_item (fg, pms->metric, pms->inst[j], NULL,
+                                          & values[values_idx++], PM_TYPE_STRING, NULL);
+      else {
+        (void) pmExtendFetchGroup_indom (fg, pms->metric, NULL, NULL, NULL,
+                                         & values[values_idx], PM_TYPE_STRING, NULL,
+                                         max_instances_per_metric, NULL, NULL);
+        values_idx += max_instances_per_metric;
+      }
     }
 
-  (void) pmDestroyContext (pmc);
+  // fetch them all, depositing strings in the pmAtomValue .cp fields
+  (void) pmFetchGroup (fg);
+
+  vector<string> hostid_fields;
+  for (unsigned i=0; i<max_instances_per_metric * hostid_specs.size(); i++)
+    if (values[i].cp) // assured by pmfg & prior-memset to be NULL or valid
+      hostid_fields.push_back (values[i].cp);
+
+  (void) pmDestroyFetchGroup (fg);
+
+  (void) pmDestroyContext (pmc); // a dup copy is saved in the fetch group ... but see PR1129
+
 
   // Sanitize the host-id metric values into a single string that is
   // suitable for posix-portable-filenames, and not too ugly for

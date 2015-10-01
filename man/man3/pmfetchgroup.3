@@ -1,0 +1,437 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2014-2015 Red Hat, Inc.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMFETCHGROUP 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmCreateFetchGroup\f1,
+\f3pmExtendFetchGroup_item\f1,
+\f3pmExtendFetchGroup_indom\f1,
+\f3pmFetchGroup\f1,
+\f3pmFetchGroupSetMode\f1,
+\f3pmDestroyFetchGroup\f1
+        \- simplified fetch/convert for performance metrics
+.SH "C SYNOPSIS"
+
+.ft 3
+#include <pcp/pmapi.h>
+.sp
+.nf
+int pmCreateFetchGroup(pmFG* \fIptr\fP);
+int pmFetchGroupSetMode(pmFG \fIpmfg\fP, int \fImode\fP,
+                        const struct timeval *\fIwhen\fP, int \fIdelta\fP);
+int pmExtendFetchGroup_item(pmFG \fIpmfg\fP, const char* \fImetric\fP,
+                            const char* \fIinstance\fP, const char *\fIscale\fP,
+                            pmAtomValue *\fIout_value\fP, int \fIout_type\fP,
+                            int \fI*out_sts\fP);
+int pmExtendFetchGroup_indom(pmFG \fIpmfg\fP, const char* \fImetric\fP,
+                             const char *\fIscale\fP,
+                             int \fIout_inst_codes\fP[],
+                             char *\fIout_inst_names\fP[],
+                             pmAtomValue \fIout_values\fP[], int \fIout_type\fP,
+                             int \fIout_stss\fP[],
+                             unsigned \fIout_maxnum\fP, unsigned *\fIout_num\fP,
+                             int *\fIout_sts\fP);
+int pmExtendFetchGroup_timestamp(pmFG \fIpmfg\fP, struct timeval *\fIout_value\fP);
+int pmFetchGroup(pmFG \fIpmfg\fP);
+int pmDestroyFetchGroup(pmFG \fIpmfg\fP);
+.fi
+.sp
+cc ... \-lpcp
+.ft 1
+
+.SH "DESCRIPTION"
+
+The fetchgroup functions implement a registration-based mechanism to
+fetch groups of performance metrics, including automation for general
+unit, rate, type conversions and convenient instance and value
+encodings.  They constitute a powerful and compact alternative to the
+classic Performance Metrics Application Programming Interface (PMAPI)
+sequence of separate lookup, check, fetch, iterate, extract, and
+convert functions.
+
+The general idea is to identify desired metrics by name with desired
+conversions, and register a \fBpmAtomValue\fP output location where
+the fetchgroup system is to deposit the result.  It is also possible
+to identify a metric with an instance domain, and register a
+\fIvector\fP of pmAtomValue objects for them.  After that setup, one
+simple \fBpmFetchGroup\fP function fetches, decodes, converts, and
+stores all metrics to their destinations, where the application can
+\fIread\fP them directly.  This function may be called repeatedly, and
+each time new \fBpmAtomValue\fP values will be stored in the same
+destinations.  Rate conversions between consecutive samples may be
+requested.
+
+Each fetchgroup is associated with a private PMAPI context, so it can
+manipulate instance profiles and other such state without disrupting
+other contexts.  This private PMAPI context belongs to the fetchgroup,
+to be used for all of its internal operations, and will be destroyed
+automatically when appropriate.
+
+Multiple fetchgroups may be used concurrently, independently.  An
+opaque type \fBpmFG\fP is used to identify a fetchgroup, which is
+passed to all related function calls.
+
+.SS creating a fetchgroup
+
+.ft 3
+.nf
+int pmCreateFetchGroup(pmFG* \fIptr\fP);
+.fi
+.ft 1
+
+A fetchgroup client application must create a PMAPI context (see
+\fBpmNewContext\fP) to establish a connection to a data source such as
+a Performance Metrics Collector Daemon (PMCD) or an archive.
+
+This function creates a new fetchgroup, and associates it with a
+private \fBpmDupContext\fP copy of the current PMAPI context.  The
+fetchgroup identifier is returned upon success through the \fIptr\fP
+pointer.  This object is later used as a parameter to all other
+fetchgroup functions.
+
+The normal function return code is zero.  This function may fail in
+case of \fBpmDupContext\fP or memory allocation errors.  Those are
+indicated with a negative return code.
+
+.SS setting collection time parameters for fetchgroup
+
+.ft 3
+.nf
+int pmFetchGroupSetMode(pmFG \fIpmfg\fP, int \fImode\fP,
+                        const struct timeval *\fIwhen\fP, int \fIdelta\fP);
+.fi
+.ft 1
+
+This function is a thin wrapper on \fBpmSetMode\fP, and takes the same
+\fImode\fP / \fIwhen\fP / \fIdelta\fP parameters, only it applies to
+the fetchgroup's PMAPI context.  As it may involve jumping across
+time, rate conversions are interrupted.
+
+This function is optional.  Without it, the fetchgroup uses inherited
+time parameters from the initial context.
+
+The normal function return code is zero.  This function may fail in
+case of \fBpmSetMode\fP errors.  Those are indicated with a negative
+return code.
+
+.SS extending a fetchgroup with a metric instance of interest
+
+.ft 3
+.nf
+int pmExtendFetchGroup_item(pmFG \fIpmfg\fP, const char* \fImetric\fP,
+                            const char* \fIinstance\fP, const char *\fIscale\fP,
+                            pmAtomValue *\fIout_value\fP, int \fIout_type\fP,
+                            int \fI*out_sts\fP);
+.fi
+.ft 1
+
+This function registers interest in a single metric/instance.  The
+metric name is given in the mandatory \fImetric\fP parameter, which is
+checked immediately via \fBpmLookupName\fP and other calls.  Iff the
+metric has an instance domain, the specific instance of interest may
+be named by the \fIinstance\fP parameter, which is checked immediately
+via \fBpmNameInDom\fP; otherwise pass NULL.
+
+The optional \fIscale\fP parameter specifies desired unit/scale/rate
+conversions for the metric value.  It can take the following values:
+.IP NULL 4
+No unit/scale conversion.  If metric has \fBPM_SEM_COUNTER\fP semantics,
+perform rate conversion.
+.IP "rate" 4
+Perform rate conversion regardless of semantics, and no unit/scale conversion.
+.IP "instant" 4
+Perform no rate conversion regardless of semantics, and no unit/scale conversion.
+.IP "EXPRESSION" 4
+Perform unit/scale/rate conversion as specified by the EXPRESSION,
+which is parsed by \fBpmParseUnitsStr\fP.  This may be useful to
+assert a canonical scaling for the resulting metric value, independent
+of PCP version or configuration.  Dimensionality must match the
+metric, except if rate conversion is requested, in which case the time
+dimension must be one smaller than the metric's time dimension.  Note that
+the type of rate conversion performed here matches the
+.BR rate(x)
+function in derived metric expressions, in that it is calculated as the
+naive difference between previous and current values of a metric, divided
+by elapsed time.  For example, if a counter wraps around, or a non-counter
+value decreases, a \fInegative\fP output rate may be computed.
+
+The optional but usual \fIout_value\fP parameter specifies the
+\fBpmAtomValue\fP where the converted result should later be stored.
+(If the value is NULL, fetching & conversions will be attempted, and
+possible errors reported, but the result tossed away.)  The mandatory
+\fIout_type\fP parameter specifes the \fBPM_TYPE_*\fP requested for
+the output value.  It need not match the metric's native type, as the
+fetchgroup facility is capable of casting between all supported types
+(including to and from strings!).
+
+Any errors subsequently encountered during fetching, unit/scale/rate
+conversion, or casting, will result in the assignment of a sentinel
+value to the output \fBpmAtomValue\fP (see the UNUSUAL SITUATIONS
+section below).  In addition, if the optional \fIout_sts\fP parameter
+is specified, an appropriate PMAPI error code will be stored there.
+
+As a review, only the \fIpmfg\fP, \fImetric\fP, and \fIout_type\fP
+parameters are mandatory.  Others may be NULL to indicate applicaton
+disinterest.
+
+The normal function return code is zero.  This function may fail in
+case of various lookup, type- and conversion- checking errors.  Those
+are indicated with a negative return code.
+
+.SS extending a fetchgroup with a metric instance domain of interest
+
+.ft 3
+.nf
+int pmExtendFetchGroup_indom(pmFG \fIpmfg\fP, const char* \fImetric\fP,
+                             const char *\fIscale\fP,
+                             int \fIout_inst_codes\fP[],
+                             char *\fIout_inst_names\fP[],
+                             pmAtomValue \fIout_values\fP[], int \fIout_type\fP,
+                             int \fIout_stss\fP[],
+                             unsigned \fIout_maxnum\fP, unsigned *\fIout_num\fP,
+                             int *\fIout_sts\fP);
+.fi
+.ft 1
+
+This function generalizes the \fBpmExtendFetchGroup_item\fP function
+by registering interest in a whole instance domain.  Therefore, the
+function registers preallocated \fIvectors\fP for output variables
+(instead of a singleton).  Instances will be stored in sorted order in
+elements of those vectors.  The concepts are otherwise the same.
+
+The metric name is specified by the mandatory \fImetric\fP parameter.
+Note that it \fImay\fP refer to a metric without an instance domain,
+in which case the single output value will appear as one unnamed
+instance.
+
+The optional \fIscale\fP parameter specifies desired unit/scale/rate
+conversions for the metric value, same as above.
+
+The optional \fIout_inst_codes\fP parameter specifies a vector of
+integers, where the raw instance number of the fetched metrics should
+later be stored.
+
+The optional \fIout_inst_names\fP parameter specifies a vector of
+strings, where the instance names of the fetched metrics should later
+be stored.  (If an instance does not have a corresponding name, a NULL
+pointer is stored instead.)  The application must not modify or free
+strings in that vector.
+
+The optional \fIout_values\fP parameter specifies a vector of
+\fBpmAtomValue\fP objects where the converted result should later be
+stored.  The mandatory \fIout_type\fP parameter specifies the
+\fBPM_TYPE_*\fP requested for the all output values, same as above.
+
+The optional \fIout_stss\fP parameter specifies a vector of integers
+where per-instance error codes may be stored.
+
+The mandatory \fIout_maxnum\fP parameter specifies the number of
+elements of the vectors above.  In other words, it tells the
+fetchgroup the maximum number of instances which are expected.  The
+optional \fIout_num\fP parameter specifies an integer where the the
+actual number of instances should later be stored.  It will range
+between 0 and \fIout_maxnum\fP.
+
+Finally, the optional \fIout_sts\fP parameter specifies a single
+location where an integer status code for the overall fetch for this
+metric may be stored.  Normally, this will be zero.  Other than a
+severe fetch error, one may see a \fBPM_ERR_TOOBIG\fP here if the
+number of instances actually encountered was larger than
+\fIout_maxnum\fP.
+
+Any errors subsequently encountered during fetching, unit/scale/rate
+conversion, or casting, will result in the assignment of a sentinel
+value to the appropriate output \fBpmAtomValue\fP (see the UNUSUAL
+SITUATIONS section below).  In addition, if the optional
+\fIout_stss\fP parameter was specified, an appropriate PMAPI
+error code will be stored in the appropriate position.
+
+As a review, only the \fIpmfg\fP, \fImetric\fP, \fIout_type\fP, and
+\fIout_maxnum\fP parameters are mandatory.  Others may be NULL to
+indicate applicaton disinterest.
+
+The normal function return code is zero.  This function may fail in
+case of various lookup, type- and conversion- checking errors.  Those
+are indicated with a negative return code.
+
+.SS extending a fetchgroup with the fetch timestamp
+
+.ft 3
+.nf
+
+int pmExtendFetchGroup_timestamp(pmFG \fIpmfg\fP, struct timeval *\fIout_value\fP);
+.fi
+.ft 1
+
+This function registers interest in the \fBpmResult\fP timestamp.  If
+the \fIout_value\fP pointer is non-NULL, at every future
+\fBpmFetchGroup\fR call, the corresponding result timestamp will be
+copied there.
+
+.SS fetching all metrics in fetchgroup
+
+.ft 3
+.nf
+int pmFetchGroup(pmFG \fIpmfg\fP);
+.fi
+.ft 1
+
+This function performs one \fBpmFetch\fP on its private PMAPI context,
+including all the metrics that were registered via prior
+\fBpmExtendFetchGroup_*\fP calls.  It runs all the data extraction /
+conversion operations necessary to populate all the requested output
+variables.
+
+The normal function return code is zero.  This function may fail in
+case of severe fetch errors, which are indicated with a negative
+return code.  Even in this case, the output variables will be reset to
+sentinel values with individual error codes set.
+
+.SS destroying a fetchgroup
+
+.ft 3
+.nf
+int pmDestroyFetchGroup(pmFG \fIpmfg\fP);
+.fi
+.ft 1
+
+When the fetchgroup is no longer needed, it may be explicitly freed
+with this function.  It releases any dynamically stored state, as well
+as the private PMAPI context.  It clears frees any pointers such as
+indom instance names or strings that may have been stored in output
+variables.
+
+.SH "EXAMPLE"
+
+The following program demonstrates fetchgroup usage.  Run it with
+different $PCP_DISK_UNITS environment variables to see different
+unit/rate conversion in effect.
+
+.\" NB: the following code escapes \ for nroff
+.nf
+#include <pcp/pmapi.h>
+#include <stdio.h>
+#define pcpassert(sts) while (sts<0) { fprintf(stderr, "%s\\n", pmErrStr(sts)); exit(42); }
+
+int main() {
+    pmFG fg;
+    pmAtomValue v, v2;
+    enum { v3_maxnum = 100 };
+    pmAtomValue v3_values[v3_maxnum];
+    char *v3_names[v3_maxnum];
+    int v3_stss[v3_maxnum];
+    unsigned v3_num;
+    int sts, i;
+    char *diskunits = getenv("PCP_DISK_UNITS");
+    struct timeval t;
+    
+    int c = pmNewContext(PM_CONTEXT_HOST, "local:");
+    pcpassert(c);
+    sts = pmCreateFetchGroup(&fg);
+    pcpassert(sts);
+    sts = pmExtendFetchGroup_item(fg, "kernel.all.load", "1 minute",
+                                  NULL, &v, PM_TYPE_FLOAT, NULL);
+    pcpassert(sts);
+    sts = pmExtendFetchGroup_item(fg, "kernel.all.idletime", NULL,
+                                  "hour", &v2, PM_TYPE_DOUBLE, NULL);
+    pcpassert(sts);
+    sts = pmExtendFetchGroup_indom(fg, "disk.dev.total", diskunits,
+                                   NULL, v3_names,
+                                   v3_values, PM_TYPE_STRING,
+                                   v3_stss, v3_maxnum, &v3_num, NULL);
+    pcpassert(sts);
+    sts = pmExtendFetchGroup_timestamp(fg, &t);
+    pcpassert(sts);
+    
+    for (i=0; i<10; i++) {
+        unsigned j;
+        sts = pmFetchGroup(fg);
+        pcpassert(sts);
+        printf("%s", ctime(& t.tv_sec));
+        printf("1-minute load: %f; idletime: %f h\\n", v.f, v2.d);
+        for (j=0; j<v3_num; j++) {
+            if (v3_stss[j] == 0)
+                 printf("disk %s i/o operations (%s): %s\\n",
+                        v3_names[j] ? v3_names[j] : "?",
+                        diskunits ? diskunits : "-",
+                        v3_values[j].cp);
+        }
+        sleep(1);
+    }
+
+    sts = pmDestroyFetchGroup(fg);
+    pcpassert(sts);
+    pmDestroyContext(c);
+    return (0);
+}
+
+.fi
+
+
+.SH "UNUSUAL SITUATIONS"
+
+The fetchgroup API supports only the numeric and string pcp metric
+types.  Aggregates and events are rejected during
+\fBpmExtendFetchGroup_*\fP.
+
+Any strings supplied by the fetchgroup API to the application are
+"owned" by the API.  The application should consider them read-only,
+so it should not modify them nor free them.
+
+Error codes are always negative integers, whether returned from
+fetchgroup functions as return value, or stored in \fIout_sts\fP
+type variables.  Normal result codes are always zero.
+
+Because of the unique ways in which extracted data is shared between
+the application and a fetchgroup, the functions in this API are \fInot
+protected\fP by the multi-threading mutexes conventional in other
+parts of PMAPI.  Specifically, for any given \fBpmFG\fP, it is \fInot
+safe\fP to concurrently call two or more fetchgroup API functions, nor
+to traverse the registered output variables while calling one of the
+functions.  Instead, the calling application must ensure that only one
+thread at a time uses these calls \fIand\fP the registered output
+variables.  On the other hand, concurrency between different
+\fBpmFG\fP instances is unrestricted, because they share no global
+data.
+
+.SH "DIAGNOSTICS"
+
+The fetchgroup API offers several options for collecting diagnostics.
+Negative integer error codes may be returned from each function for
+serious conditions.
+
+In addition, each output pmAtomValue may have a corresponding integer
+variable, where \fBpmFetchGroup\fP can store per-metric per-instance
+error codes.
+
+As an alternative, per-metric per-instance error conditions are also
+signalled by setting the corresponding pmAtomValue to a sentinel
+value.  If unambiguous & precise error detection is not required, this
+may be sufficient.  The sentinel value is 0 for integers, \fBNaN\fP
+for floating point types, a NULL pointer for strings, and 0.0s for the
+a timestamp.  The fetchgroup system guarantees that once an output
+pmAtomValue is registered (during a successful
+\fBpmExtendFetchGroup_*\fP call), it will be cleared to the sentinel
+value or to a valid converted metric value, from the time of
+registration until the \fBpmDestroyFetchGroup\fP.
+
+.SH "SEE ALSO"
+.BR PMAPI (3),
+.BR pmLookupName (3),
+.BR pmFetch (3),
+.BR pmParseUnitsStr (3),
+.BR pmUseContext (3),
+.BR pmRegisterDerived (3),
+.BR pmExtractValue (3)

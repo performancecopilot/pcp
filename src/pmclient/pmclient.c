@@ -1,7 +1,7 @@
 /*
  * pmclient - sample, simple PMAPI client
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -16,8 +16,9 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"
-#include "pmnsmap.h"
+#include "impl.h"  /* bogus: just for pmProgname */
+#include <assert.h>
+
 
 pmLongOptions longopts[] = {
     PMAPI_GENERAL_OPTIONS,
@@ -34,209 +35,137 @@ pmOptions opts = {
 
 typedef struct {
     struct timeval	timestamp;	/* last fetched time */
-    float		cpu_util;	/* aggregate CPU utilization, usr+sys */
+    double		cpu_util;	/* aggregate CPU utilization, usr+sys */
     int			peak_cpu;	/* most utilized CPU, if > 1 CPU */
-    float		peak_cpu_util;	/* utilization for most utilized CPU */
-    float		freemem;	/* free memory (Mbytes) */
-    unsigned int	dkiops;		/* aggregate disk I/O's per second */
-    float		load1;		/* 1 minute load average */
-    float		load15;		/* 15 minute load average */
+    double		peak_cpu_util;	/* utilization for most utilized CPU */
+    pmAtomValue		freemem;	/* free memory (Mbytes) */
+    pmAtomValue		dkiops;		/* aggregate disk I/O's per second */
+    pmAtomValue		load1;		/* 1 minute load average */
+    pmAtomValue		load15;		/* 15 minute load average */
 } info_t;
 
-static unsigned int	ncpu;
+static info_t           info;
+static int 	        ncpu;
 
-static unsigned int
+
+static int
 get_ncpu(void)
 {
-    /* there is only one metric in the pmclient_init group */
-    pmID	pmidlist[1];
-    pmDesc	desclist[1];
-    pmResult	*rp;
-    pmAtomValue	atom;
     int		sts;
+    pmFG        fg;
+    pmAtomValue ncpu_val;
+    
+    sts = pmCreateFetchGroup(& fg);
+    if (sts)
+        goto out;
+    sts = pmExtendFetchGroup_item(fg, "hinv.ncpu", NULL, NULL, &ncpu_val, PM_TYPE_32, &sts);
+    pmFetchGroup(fg);
+    if (sts >= 0)
+        ncpu = ncpu_val.l;
+    pmDestroyFetchGroup(fg);
 
-    if ((sts = pmLookupName(1, pmclient_init, pmidlist)) < 0) {
-	fprintf(stderr, "%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
-	fprintf(stderr, "%s: metric \"%s\" not in name space\n",
-			pmProgname, pmclient_init[0]);
-	exit(1);
-    }
-    if ((sts = pmLookupDesc(pmidlist[0], desclist)) < 0) {
-	fprintf(stderr, "%s: cannot retrieve description for metric \"%s\" (PMID: %s)\nReason: %s\n",
-		pmProgname, pmclient_init[0], pmIDStr(pmidlist[0]), pmErrStr(sts));
-	exit(1);
-    }
-    if ((sts = pmFetch(1, pmidlist, &rp)) < 0) {
-	fprintf(stderr, "%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
-	exit(1);
-    }
-
-    /* the thing we want is known to be the first value */
-    pmExtractValue(rp->vset[0]->valfmt, rp->vset[0]->vlist, desclist[0].type,
-		   &atom, PM_TYPE_U32);
-    pmFreeResult(rp);
-
-    return atom.ul;
+ out:
+    if (sts)
+        fprintf(stderr, "%s: Cannot fetch hinv.ncpu: %s\n", pmProgname, pmErrStr(sts));
+    return sts;
 }
 
+
 static void
-get_sample(info_t *ip)
+get_sample()
 {
-    static pmResult	*crp = NULL;	/* current */
-    static pmResult	*prp = NULL;	/* prior */
-    static int		first = 1;
-    static int		numpmid;
-    static pmID		*pmidlist;
-    static pmDesc	*desclist;
-    static int		inst1;
-    static int		inst15;
-    static pmUnits	mbyte_scale;
-
+    static pmFG         pmfg = NULL;
+    enum { indom_maxnum = 1024 };
+    static int          cpu_user_inst[indom_maxnum]; 
+    static pmAtomValue  cpu_user[indom_maxnum];
+    static unsigned     num_cpu_user;
+    static int          cpu_sys_inst[indom_maxnum];
+    static pmAtomValue  cpu_sys[indom_maxnum];
+    static unsigned     num_cpu_sys;
     int			sts;
-    int			i;
-    float		u;
-    pmAtomValue		tmp;
-    pmAtomValue		atom;
-    double		dt;
+    int                 i;
 
-    if (first) {
-	/* first time initialization */
-	mbyte_scale.dimSpace = 1;
-	mbyte_scale.scaleSpace = PM_SPACE_MBYTE;
+    if (pmfg == NULL) {
+        if ((sts = pmCreateFetchGroup(& pmfg) < 0)) {
+            fprintf(stderr, "%s: Failed CreateFetchGroup: %s\n", pmProgname, pmErrStr(sts));
+            exit(1);
+        }
 
-	numpmid = sizeof(pmclient_sample) / sizeof(char *);
-	if ((pmidlist = (pmID *)malloc(numpmid * sizeof(pmidlist[0]))) == NULL) {
-	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmProgname, osstrerror());
-	    exit(1);
-	}
-	if ((desclist = (pmDesc *)malloc(numpmid * sizeof(desclist[0]))) == NULL) {
-	    fprintf(stderr, "%s: get_sample: malloc: %s\n", pmProgname, osstrerror());
-	    exit(1);
-	}
-	if ((sts = pmLookupName(numpmid, pmclient_sample, pmidlist)) < 0) {
-	    printf("%s: pmLookupName: %s\n", pmProgname, pmErrStr(sts));
-	    for (i = 0; i < numpmid; i++) {
-		if (pmidlist[i] == PM_ID_NULL)
-		    fprintf(stderr, "%s: metric \"%s\" not in name space\n", pmProgname, pmclient_sample[i]);
-	    }
-	    exit(1);
-	}
-	for (i = 0; i < numpmid; i++) {
-	    if ((sts = pmLookupDesc(pmidlist[i], &desclist[i])) < 0) {
-		fprintf(stderr, "%s: cannot retrieve description for metric \"%s\" (PMID: %s)\nReason: %s\n",
-		    pmProgname, pmclient_sample[i], pmIDStr(pmidlist[i]), pmErrStr(sts));
-		exit(1);
-	    }
-	}
+        if ((sts = pmExtendFetchGroup_item(pmfg, "kernel.all.load", "1 minute", NULL,
+                                           &info.load1, PM_TYPE_DOUBLE, NULL)) < 0) {
+            fprintf(stderr, "%s: Failed kernel.all.load[1] ExtendFetchGroup: %s\n",
+                    pmProgname, pmErrStr(sts));
+            exit(1);
+        }
+        if ((sts = pmExtendFetchGroup_item(pmfg, "kernel.all.load", "15 minute", NULL,
+                                           &info.load15, PM_TYPE_DOUBLE, NULL)) < 0) {
+            fprintf(stderr, "%s: Failed kernel.all.load[15] ExtendFetchGroup: %s\n",
+                    pmProgname, pmErrStr(sts));
+            exit(1);
+        }
+        if ((sts = pmExtendFetchGroup_indom(pmfg, "kernel.percpu.cpu.user", "second/second",
+                                            cpu_user_inst, NULL, cpu_user, PM_TYPE_DOUBLE, NULL,
+                                            indom_maxnum, &num_cpu_user, NULL)) < 0) {
+            fprintf(stderr, "%s: Failed kernel.percpu.cpu.user ExtendFetchGroup: %s\n",
+                    pmProgname, pmErrStr(sts));
+            exit(1);
+        }
+
+        if ((sts = pmExtendFetchGroup_indom(pmfg, "kernel.percpu.cpu.sys", "second/second",
+                                            cpu_sys_inst, NULL, cpu_sys, PM_TYPE_DOUBLE, NULL,
+                                            indom_maxnum, &num_cpu_sys, NULL)) < 0) {
+            fprintf(stderr, "%s: Failed kernel.percpu.cpu.sys ExtendFetchGroup: %s\n",
+                    pmProgname, pmErrStr(sts));
+            exit(1);
+        }
+        if ((sts = pmExtendFetchGroup_item(pmfg, "mem.freemem", NULL, "Mbyte",
+                                           &info.freemem, PM_TYPE_DOUBLE, NULL)) < 0) {
+            fprintf(stderr, "%s: Failed mem.freemem ExtendFetchGroup: %s\n", pmProgname, pmErrStr(sts));
+            exit(1);
+        }
+        if ((sts = pmExtendFetchGroup_item(pmfg, "disk.all.total", NULL, "count/second",
+                                           &info.dkiops, PM_TYPE_32, NULL)) < 0) {
+            fprintf(stderr, "%s: Failed disk.all.total ExtendFetchGroup: %s\n", pmProgname, pmErrStr(sts));
+            exit(1);
+        }
+        if ((sts = pmExtendFetchGroup_timestamp(pmfg, &info.timestamp)) < 0) {
+            fprintf(stderr, "%s: Failed ExtendFetchGroup: %s\n", pmProgname, pmErrStr(sts));
+            exit(1);
+        }
+
+        /* NB: since we don't have a "last" call, we will have some
+           unfreed some memory at exit, namely the cpu_sys* and
+           cpu_user* arrays, and the object hiding behind pmfg. */
     }
 
-    /* fetch the current metrics */
-    if ((sts = pmFetch(numpmid, pmidlist, &crp)) < 0) {
-	fprintf(stderr, "%s: pmFetch: %s\n", pmProgname, pmErrStr(sts));
-	exit(1);
+    /* fetch the current metrics; fill many info.* fields.  Since we
+       passed NULLs to most fetchgroup status int*'s, we'll get
+       PM_TYPE_DOUBLE fetch/conversion errors represented by NaN's. */
+    (void) pmFetchGroup(pmfg);
+
+    /* compute rate-converted values */
+    info.cpu_util = 0;
+    info.peak_cpu_util = -1;	/* force re-assignment at first CPU */
+
+    /* we're assuming that the cpu_user and cpu_sys indoms are identical
+       and that each has a corresponding set of values, so we zip them
+       up pairwise with one iteration and no auxiliary data structures. */
+    assert (num_cpu_user == num_cpu_sys);
+    for (i = 0; i<num_cpu_user; i++) {
+        double u; /* w */
+        assert (cpu_user_inst[i] == cpu_sys_inst[i]); /* corresponding instances */
+        u = cpu_user[i].d + cpu_sys[i].d; /* already rate-converted */
+        if (u > 1.0)
+            /* small errors are possible, so clip the utilization at 1.0 */
+            u = 1.0;
+        info.cpu_util += u;
+        if (u > info.peak_cpu_util) {
+            info.peak_cpu_util = u;
+            info.peak_cpu = cpu_user_inst[i]; /* indom instance, not mere result index! */
+        }
     }
-
-    /*
-     * minor gotcha ... for archives, it helps to do the first fetch of
-     * real data before interrogating the instance domains ... this
-     * forces us to be "after" the first batch of instance domain info
-     * in the meta data files
-     */
-    if (first) {
-	/*
-	 * from now on, just want the 1 minute and 15 minute load averages,
-	 * so limit the instance profile for this metric
-	 */
-	pmDelProfile(desclist[LOADAV].indom, 0, NULL);	/* all off */
-	if ((inst1 = pmLookupInDom(desclist[LOADAV].indom, "1 minute")) < 0) {
-	    fprintf(stderr, "%s: cannot translate instance for 1 minute load average\n", pmProgname);
-	    exit(1);
-	}
-	pmAddProfile(desclist[LOADAV].indom, 1, &inst1);
-	if ((inst15 = pmLookupInDom(desclist[LOADAV].indom, "15 minute")) < 0) {
-	    fprintf(stderr, "%s: cannot translate instance for 15 minute load average\n", pmProgname);
-	    exit(1);
-	}
-	pmAddProfile(desclist[LOADAV].indom, 1, &inst15);
-
-	first = 0;
-    }
-
-    /* if the second or later sample, pick the results apart */
-    if (prp !=  NULL) {
-	
-	dt = __pmtimevalSub(&crp->timestamp, &prp->timestamp);
-	ip->cpu_util = 0;
-	ip->peak_cpu_util = -1;	/* force re-assignment at first CPU */
-	for (i = 0; i < ncpu; i++) {
-	    pmExtractValue(crp->vset[CPU_USR]->valfmt,
-			   &crp->vset[CPU_USR]->vlist[i],
-			   desclist[CPU_USR].type, &atom, PM_TYPE_FLOAT);
-	    u = atom.f;
-	    pmExtractValue(prp->vset[CPU_USR]->valfmt,
-			   &prp->vset[CPU_USR]->vlist[i],
-			   desclist[CPU_USR].type, &atom, PM_TYPE_FLOAT);
-	    u -= atom.f;
-	    pmExtractValue(crp->vset[CPU_SYS]->valfmt,
-			   &crp->vset[CPU_SYS]->vlist[i],
-			   desclist[CPU_SYS].type, &atom, PM_TYPE_FLOAT);
-	    u += atom.f;
-	    pmExtractValue(prp->vset[CPU_SYS]->valfmt,
-			   &prp->vset[CPU_SYS]->vlist[i],
-			   desclist[CPU_SYS].type, &atom, PM_TYPE_FLOAT);
-	    u -= atom.f;
-	    /*
-	     * really should use pmConvertValue, but I _know_ the times
-	     * are in msec!
-	     */
-	    u = u / (1000 * dt);
-
-	    if (u > 1.0)
-		/* small errors are possible, so clip the utilization at 1.0 */
-		u = 1.0;
-	    ip->cpu_util += u;
-	    if (u > ip->peak_cpu_util) {
-		ip->peak_cpu_util = u;
-		ip->peak_cpu = i;
-	    }
-	}
-	ip->cpu_util /= ncpu;
-
-	/* freemem - expect just one value */
-	pmExtractValue(crp->vset[FREEMEM]->valfmt, crp->vset[FREEMEM]->vlist,
-		    desclist[FREEMEM].type, &tmp, PM_TYPE_FLOAT);
-	/* convert from today's units at the collection site to Mbytes */
-	pmConvScale(PM_TYPE_FLOAT, &tmp, &desclist[FREEMEM].units,
-		    &atom, &mbyte_scale);
-	ip->freemem = atom.f;
-
-	/* disk IOPS - expect just one value, but need delta */
-	pmExtractValue(crp->vset[DKIOPS]->valfmt, crp->vset[DKIOPS]->vlist,
-		    desclist[DKIOPS].type, &atom, PM_TYPE_U32);
-	ip->dkiops = atom.ul;
-	pmExtractValue(prp->vset[DKIOPS]->valfmt, prp->vset[DKIOPS]->vlist,
-		    desclist[DKIOPS].type, &atom, PM_TYPE_U32);
-	ip->dkiops -= atom.ul;
-	ip->dkiops = ((float)(ip->dkiops) + 0.5) / dt;
-
-	/* load average ... process all values, matching up the instances */
-	for (i = 0; i < crp->vset[LOADAV]->numval; i++) {
-	    pmExtractValue(crp->vset[LOADAV]->valfmt,
-			   &crp->vset[LOADAV]->vlist[i],
-			   desclist[LOADAV].type, &atom, PM_TYPE_FLOAT);
-	    if (crp->vset[LOADAV]->vlist[i].inst == inst1)
-		ip->load1 = atom.f;
-	    else if (crp->vset[LOADAV]->vlist[i].inst == inst15)
-		ip->load15 = atom.f;
-	}
-
-	/* free very old result */
-	pmFreeResult(prp);
-    }
-    ip->timestamp = crp->timestamp;
-
-    /* swizzle result pointers */
-    prp = crp;
+    assert (ncpu != 0);
+    info.cpu_util /= ncpu;
 }
 
 int
@@ -249,7 +178,6 @@ main(int argc, char **argv)
     int			lines = 0;
     char		*source;
     const char		*host;
-    info_t		info;		/* values to report each sample */
     char		timebuf[26];	/* for pmCtime result */
 
     setlinebuf(stdout);
@@ -301,7 +229,7 @@ main(int argc, char **argv)
     }
 
     host = pmGetContextHostName(c);
-    ncpu = get_ncpu();
+    (void) get_ncpu();
 
     if ((opts.context == PM_CONTEXT_ARCHIVE) &&
 	(opts.start.tv_sec != 0 || opts.start.tv_usec != 0)) {
@@ -312,7 +240,7 @@ main(int argc, char **argv)
 	}
     }
 
-    get_sample(&info);
+    get_sample();
 
     /* set a default sampling interval if none has been requested */
     if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
@@ -326,8 +254,8 @@ main(int argc, char **argv)
 	    if (opts.context == PM_CONTEXT_ARCHIVE)
 		printf("Archive: %s, ", opts.archives[0]);
 	    printf("Host: %s, %d cpu(s), %s",
-		    host, ncpu,
-		    pmCtime((const time_t *)&info.timestamp.tv_sec, timebuf));
+                    host, ncpu,
+		    pmCtime(&info.timestamp.tv_sec, timebuf));
 /* - report format
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
@@ -348,9 +276,9 @@ X.XXX   XXX   X.XXX XXXXX.XXX XXXXXX  XXXX.XX XXXX.XX
 	printf("%5.2f", info.cpu_util);
 	if (ncpu > 1)
 	    printf("   %3d   %5.2f", info.peak_cpu, info.peak_cpu_util);
-	printf(" %9.3f", info.freemem);
-	printf(" %6d", info.dkiops);
-	printf("  %7.2f %7.2f\n", info.load1, info.load15);
+	printf(" %9.3f", info.freemem.d);
+	printf(" %6d", info.dkiops.l);
+	printf("  %7.2f %7.2f\n", info.load1.d, info.load15.d);
  	lines++;
     }
     exit(0);
