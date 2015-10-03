@@ -1011,6 +1011,7 @@ cgroups
 812 pmlogextract local
 813 pmda.papi local
 815 pmie local
+816 libpcp local
 822:reserved pmlogrewrite
 823 pmda.sample pmstore secure local
 824 pmlogsummary local #1132476
