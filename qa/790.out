@@ -1,0 +1,52 @@
+QA output created by 790
+=== metric name cases ===
+Warning [TMP.config, line 1]
+Problem with lookup for metric "sample.bad.name" ... metric ignored
+Reason: Unknown metric name
+Warning [TMP.config, line 3]
+Problem with lookup for metric "sample.mumble" ... metric ignored
+Reason: Unknown metric name
+Warning [TMP.config, line 7]
+Problem with lookup for metric "sample.another.bad.name" ... metric ignored
+Reason: Unknown metric name
+Warning [TMP.config, line 9]
+Problem with lookup for metric "sample.fumble" ... metric ignored
+Reason: Unknown metric name
+Specification error in configuration file (TMP.config)
+[line 9] Unexpected character '?'
+
+=== instance name cases ===
+Warning [TMP.config, line 9]
+Instance "bin-101" is not defined for the metric "sample.bin"
+Warning [TMP.config, line 9]
+Instance "bin101" is not defined for the metric "sample.bin"
+Warning [TMP.config, line 9]
+Instance "101" is not defined for the metric "sample.bin"
+Warning [TMP.config, line 11]
+Instance "any" is not defined for the metric "sample.seconds"
+Warning [TMP.config, line 11]
+None of the instances for metric "sample.seconds" are valid, metric not extracted
+Warning [TMP.config, line 13]
+Instance "purple" is not defined for the metric "sample.colour"
+Warning [TMP.config, line 13]
+Instance "white" is not defined for the metric "sample.colour"
+Warning [TMP.config, line 13]
+Instance "yellow" is not defined for the metric "sample.colour"
+Warning [TMP.config, line 13]
+Instance "brown" is not defined for the metric "sample.colour"
+Warning [TMP.config, line 13]
+None of the instances for metric "sample.colour" are valid, metric not extracted
+Error: sample.seconds: Unknown metric name
+Error: sample.colour: Unknown metric name
+
+sample.bin
+    inst [100 or "bin-100"] value 100
+    inst [200 or "bin-200"] value 200
+    inst [300 or "bin-300"] value 300
+    inst [400 or "bin-400"] value 400
+
+=== syntax errors ==
+Specification error in configuration file (TMP.config)
+[line 1] syntax error
+Specification error in configuration file (TMP.config)
+[line 2] syntax error
