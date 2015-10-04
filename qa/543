@@ -16,6 +16,18 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# This test is not stable in the vicinity of a timezone change, e.g.
+# daylight saving or summer time transitions.
+# Don't run if this happened in the last 1 day.
+#
+now_hr=`pmdate '%H'`
+now_hr_1=`pmdate -1d '%H'`
+if [ "$now_hr" != "$now_hr_1" ]
+then
+    _notrun "timezone change? now = ${now_hr}H:??M, yesterday = ${now_hr_1}H:??M"
+    # NOTREACHED
+fi
+
 host=`hostname`
 NOTICES=$PCP_LOG_DIR/NOTICES
 MAIL=/var/mail/pcpqa
