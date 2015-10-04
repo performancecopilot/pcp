@@ -341,8 +341,8 @@ tvcmp(__pmTimeval a, __pmTimeval b)
     return 0;
 }
 
-static void
-abandon()
+void
+abandon_extract(void)
 {
     char    fname[MAXNAMELEN];
     if (desperate == 0) {
@@ -406,7 +406,7 @@ newvolume(char *base, __pmTimeval *tvp)
     else {
 	fprintf(stderr, "%s: Error: volume %d: %s\n",
 		pmProgname, nextvol, pmErrStr(-oserror()));
-	abandon();
+	abandon_extract();
     }
     flushsize = 100000;
 }
@@ -433,7 +433,7 @@ newlabel(void)
     if (inarchvers != PM_LOG_VERS02) {
 	fprintf(stderr,"%s: Error: illegal version number %d in archive (%s)\n",
 		pmProgname, inarchvers, iap->name);
-	abandon();
+	abandon_extract();
     }
 
     /* copy magic number, pid, host and timezone */
@@ -466,7 +466,7 @@ newlabel(void)
 		"archive: %s version: %d\n",
 		    pmProgname, inarch[0].name, inarchvers,
 		    iap->name, (iap->label.ll_magic & 0xff));
-	    abandon();
+	    abandon_extract();
         }
 
 	/* Ensure all archives of the same host */
@@ -477,7 +477,7 @@ newlabel(void)
 		    inarch[0].name, inarch[0].label.ll_hostname);
 	    fprintf(stderr, "archive: %s host: %s\n",
 		    iap->name, iap->label.ll_hostname);
-	    abandon();
+	    abandon_extract();
 	}
 
 	/* Ensure all archives of the same timezone */
@@ -542,7 +542,7 @@ mk_reclist_t(void)
     if ((rec = (reclist_t *)malloc(sizeof(reclist_t))) == NULL) {
 	fprintf(stderr, "%s: Error: cannot malloc space for record list.\n",
 		pmProgname);
-	abandon();
+	abandon_extract();
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
@@ -679,7 +679,7 @@ update_descreclist(int i)
 		    printmetricnames(stderr, curr->pdu);
 		    fprintf(stderr, ": PMID changed from %s", pmIDStr(curr->desc.pmid));
 		    fprintf(stderr, " to %s!\n", pmIDStr(ntoh_pmID(iap->pb[META][2])));
-		    abandon();
+		    abandon_extract();
 		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_APPL1) {
@@ -720,7 +720,7 @@ update_descreclist(int i)
 	    fprintf(stderr, " to ");
 	    printmetricnames(stderr, iap->pb[META]);
 	    fprintf(stderr, "!\n");
-	    abandon();
+	    abandon_extract();
 	}
 	if (curr->desc.type != ntohl(iap->pb[META][3])) {
 	    fprintf(stderr, "%s: Error: metric ", pmProgname);
@@ -728,7 +728,7 @@ update_descreclist(int i)
 	    fprintf(stderr, ": type changed from");
 	    fprintf(stderr, " %s", pmTypeStr(curr->desc.type));
 	    fprintf(stderr, " to %s!\n", pmTypeStr(ntohl(iap->pb[META][3])));
-	    abandon();
+	    abandon_extract();
 	}
 	if (curr->desc.indom != ntoh_pmInDom(iap->pb[META][4])) {
 	    fprintf(stderr, "%s: Error: metric ", pmProgname);
@@ -736,7 +736,7 @@ update_descreclist(int i)
 	    fprintf(stderr, ": indom changed from");
 	    fprintf(stderr, " %s", pmInDomStr(curr->desc.indom));
 	    fprintf(stderr, " to %s!\n", pmInDomStr(ntoh_pmInDom(iap->pb[META][4])));
-	    abandon();
+	    abandon_extract();
 	}
 	if (curr->desc.sem != ntohl(iap->pb[META][5])) {
 	    fprintf(stderr, "%s: Error: metric ", pmProgname);
@@ -747,7 +747,7 @@ update_descreclist(int i)
 	    fprintf(stderr, " to ");
 	    printsem(stderr, (int)ntohl(iap->pb[META][5]));
 	    fprintf(stderr, "!\n");
-	    abandon();
+	    abandon_extract();
 	}
 	pmup = (pmUnits *)&iap->pb[META][6];
 	pmu = ntoh_pmUnits(*pmup);
@@ -762,7 +762,7 @@ update_descreclist(int i)
 	    fprintf(stderr, ": units changed from");
 	    fprintf(stderr, " %s", pmUnitsStr(&curr->desc.units));
 	    fprintf(stderr, " to %s!\n", pmUnitsStr(&pmu));
-	    abandon();
+	    abandon_extract();
 	}
 	/* not adding, so META: discard new record */
 	free(iap->pb[META]);
@@ -867,7 +867,7 @@ write_rec(reclist_t *rec)
 	if (rec->pdu == NULL) {
 	    fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 	    fprintf(stderr,"    record is marked for write, but pdu is NULL\n");
-	    abandon();
+	    abandon_extract();
 	}
 
 #ifdef PCP_DEBUG
@@ -935,7 +935,7 @@ write_rec(reclist_t *rec)
 	if ((sts = _pmLogPut(logctl.l_mdfp, rec->pdu)) < 0) {
 	    fprintf(stderr, "%s: Error: _pmLogPut: meta data : %s\n",
 		    pmProgname, pmErrStr(sts));
-	    abandon();
+	    abandon_extract();
 	}
 	/* META: free PDU buffer */
 	free(rec->pdu);
@@ -979,7 +979,7 @@ write_metareclist(pmResult *result, int *needti)
 	    /* descriptor has not been found - this is bad
 	     */
 	    fprintf(stderr, "%s: Error: meta data (TYPE_DESC) for pmid %s has not been found.\n", pmProgname, pmIDStr(pmid));
-	    abandon();
+	    abandon_extract();
 	}
 	else {
 	    /* descriptor has been found
@@ -997,7 +997,7 @@ write_metareclist(pmResult *result, int *needti)
 		 */
 		fprintf(stderr, "%s: Error: missing pdu for pmid %s\n",
 			pmProgname, pmIDStr(pmid));
-	        abandon();
+	        abandon_extract();
 	    }
 	    else {
 		/* descriptor is in list, has not been written, and has pdu
@@ -1076,7 +1076,7 @@ _createmark(void)
     if (markp == NULL) {
 	fprintf(stderr, "%s: Error: mark_t malloc: %s\n",
 		pmProgname, osstrerror());
-	abandon();
+	abandon_extract();
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
@@ -1143,11 +1143,11 @@ nextmeta(void)
 	if (iap->pb[META] != NULL) {
 	    fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 	    fprintf(stderr, "    iap->pb[META] is not NULL\n");
-	    abandon();
+	    abandon_extract();
 	}
 	if ((ctxp = __pmHandleToPtr(iap->ctx)) == NULL) {
 	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, iap->ctx);
-	    abandon();
+	    abandon_extract();
 	}
 	lcp = ctxp->c_archctl->ac_log;
 
@@ -1161,7 +1161,7 @@ againmeta:
 		fprintf(stderr, "%s: Error: _pmLogGet[meta %s]: %s\n",
 			pmProgname, iap->name, pmErrStr(sts));
 		_report(lcp->l_mdfp);
-		abandon();
+		abandon_extract();
 	    }
 	    PM_UNLOCK(ctxp->c_lock);
 	    continue;
@@ -1239,7 +1239,7 @@ againmeta:
 	else {
 	    fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
 		    pmProgname, (int)ntohl(iap->pb[META][1]));
-	    abandon();
+	    abandon_extract();
 	}
 
 	PM_UNLOCK(ctxp->c_lock);
@@ -1291,7 +1291,7 @@ nextlog(void)
 
 	if ((ctxp = __pmHandleToPtr(iap->ctx)) == NULL) {
 	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, iap->ctx);
-	    abandon();
+	    abandon_extract();
 	}
 	lcp = ctxp->c_archctl->ac_log;
 
@@ -1302,7 +1302,7 @@ againlog:
 			pmProgname, iap->name, pmErrStr(sts));
 		_report(lcp->l_mfp);
 		if (sts != PM_ERR_LOGREC)
-		    abandon();
+		    abandon_extract();
 	    }
 	    /* if the first data record has not been written out, then
 	     * do not generate a mark record, and you may as well ignore
@@ -1586,7 +1586,7 @@ checkwinend(__pmTimeval now)
     if ((sts = __pmLogPutResult2(&logctl, markpdu)) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		pmProgname, pmErrStr(sts));
-	abandon();
+	abandon_extract();
     }
     written++;
     free(markpdu);
@@ -1651,7 +1651,7 @@ fprintf(stderr, " break!\n");
 	if (sts < 0) {
 	    fprintf(stderr, "%s: Error: __pmEncodeResult: %s\n",
 		    pmProgname, pmErrStr(sts));
-	    abandon();
+	    abandon_extract();
 	}
 
         /* switch volumes if required */
@@ -1680,7 +1680,7 @@ fprintf(stderr, " break!\n");
 	if ((sts = __pmLogPutResult2(&logctl, pb)) < 0) {
 	    fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		    pmProgname, pmErrStr(sts));
-	    abandon();
+	    abandon_extract();
 	}
 	written++;
 
@@ -1753,13 +1753,13 @@ writemark(inarch_t *iap)
     if (!iap->mark) {
 	fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 	fprintf(stderr, "    writemark called, but mark not set\n");
-	abandon();
+	abandon_extract();
     }
 
     if (p == NULL) {
 	fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 	fprintf(stderr, "    writemark called, but no pdu\n");
-	abandon();
+	abandon_extract();
     }
 
     p->timestamp.tv_sec = htonl(p->timestamp.tv_sec);
@@ -1768,7 +1768,7 @@ writemark(inarch_t *iap)
     if ((sts = __pmLogPutResult2(&logctl, iap->pb[LOG])) < 0) {
 	fprintf(stderr, "%s: Error: __pmLogPutResult2: log data: %s\n",
 		pmProgname, pmErrStr(sts));
-	abandon();
+	abandon_extract();
     }
     written++;
     free(iap->pb[LOG]);
@@ -1967,7 +1967,7 @@ main(int argc, char **argv)
     if (sts < 0) {
 	fprintf(stderr, "%s: Invalid time window specified: %s\n",
 		pmProgname, msg);
-	abandon();
+	abandon_extract();
     }
     winstart.tv_sec = winstart_tval.tv_sec;
     winstart.tv_usec = winstart_tval.tv_usec;
@@ -2075,7 +2075,7 @@ main(int argc, char **argv)
 	if (ilog < 0 || ilog >= inarchnum) {
 	    fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 	    fprintf(stderr, "    log file index = %d\n", ilog);
-	    abandon();
+	    abandon_extract();
 	}
 
 
@@ -2088,7 +2088,7 @@ main(int argc, char **argv)
 	    if (iap->_Nresult == NULL) {
 		fprintf(stderr, "%s: Fatal Error!\n", pmProgname);
 		fprintf(stderr, "    pick == LOG and _Nresult = NULL\n");
-		abandon();
+		abandon_extract();
 	    }
 	    insertresult(&rlready, iap->_Nresult);
 #if 0
@@ -2140,7 +2140,7 @@ main(int argc, char **argv)
         fprintf(stderr, "%s: Warning: no qualifying records found.\n",
                 pmProgname);
 cleanup:
-	abandon();
+	abandon_extract();
     }
     else {
 	/* write the last time stamp */

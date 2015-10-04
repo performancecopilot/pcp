@@ -31,7 +31,6 @@ static int	sts;
 static int	numinst;	/* num instances (per metric) in config file */
 static int	*intlist;	/* instance id's  (internal list) */
 static char	**extlist;	/* instance names (external list) */
-static int	warn = 1;
 
 extern int	lineno;
 
@@ -124,7 +123,7 @@ dometric(const char *name)
     int		skip;
     int		sts;
     pmID	pmid;
-    pmDesc	*dp;
+    pmDesc	*dp = NULL;
 
     if ((dp = (pmDesc *)malloc(sizeof(pmDesc))) == NULL) {
 	goto nomem;
@@ -133,100 +132,88 @@ dometric(const char *name)
     /* Cast away const, pmLookUpName should not modify name
      */
     if ((sts = pmLookupName(1,(char **)&name,&pmid)) < 0 || pmid == PM_ID_NULL){
-	snprintf(emess, sizeof(emess), "Metric \"%s\" is unknown ... not logged", name);
-	goto defer;
+	/*
+	 * should not happen ... if name is a leaf, we've already called
+	 * pmLookupName once earlier, otherwise the PMNS is botched
+	 * somehow
+	 */
+	snprintf(emess, sizeof(emess), "Metric \"%s\" is unknown ... not extracted", name);
+	goto bad;
     }
 
     if ((sts = pmLookupDesc(pmid, dp)) < 0) {
+	/*
+	 * also should not happen ... if name is valid in the archive
+	 * then the pmDesc should be available
+	 */
 	snprintf(emess, sizeof(emess),
-	    "Description unavailable for metric \"%s\" ... not logged", name);
-	goto defer;
+	    "Description unavailable for metric \"%s\" ... not extracted", name);
+	goto bad;
     }
 
-
-    ml_numpmid++;
-    if (ml_size < ml_numpmid) {
-	ml_size = ml_numpmid;
+    if (ml_size < ml_numpmid+1) {
+	if (ml_size == 0)
+	    ml_size = 4;
+	else
+	    /* double the size of the array */
+	    ml_size *= 2;
 	ml = (mlist_t *) realloc(ml, ml_size * sizeof(mlist_t));
 	if (ml == NULL) {
             goto nomem;
 	}
     }
 
-    ml[ml_numpmid-1].name = NULL;
-    ml[ml_numpmid-1].idesc = NULL;
-    ml[ml_numpmid-1].odesc = NULL;
-    ml[ml_numpmid-1].numinst = 0;
-    ml[ml_numpmid-1].instlist = NULL;
+    ml[ml_numpmid].name = NULL;
+    ml[ml_numpmid].idesc = NULL;
+    ml[ml_numpmid].odesc = NULL;
+    ml[ml_numpmid].numinst = 0;
+    ml[ml_numpmid].instlist = NULL;
 
 
     /*
-     * ml_nmpmid-1 == index of latest addition to the list
+     * ml_nmpmid == index of latest addition to the list
      */
 
-    ml[ml_numpmid-1].name = strdup(name);
-    if (ml[ml_numpmid-1].name == NULL) {
+    ml[ml_numpmid].name = strdup(name);
+    if (ml[ml_numpmid].name == NULL) {
 	goto nomem;
     }
 
     /* input descriptor (idesc) and output descriptor (odesc) are initially
      * pointed at the same descriptor
      */
-    ml[ml_numpmid-1].idesc = dp;
-    ml[ml_numpmid-1].odesc = dp;
-    ml[ml_numpmid-1].numinst = numinst;
+    ml[ml_numpmid].idesc = dp;
+    ml[ml_numpmid].odesc = dp;
+    ml[ml_numpmid].numinst = numinst;
 
     skip = 0;
     if (numinst == 0) {
-	intlist = NULL;
-	extlist = NULL;
 	/* user hasn't specified any instances
-	 *	- if there is NO instance domain, then allocate at least one
-	 *	- if there is an instance domain, set to -1 and searchmlist
-         *        will grab them all
+	 *	- if there is NO instance domain, then allow for at least one
+	 *	- if there is an instance domain, set to numinst -1 and
+	 *	  searchmlist() will grab them all
 	 */
 	if (dp->indom == PM_INDOM_NULL) {
-	    ml[ml_numpmid-1].numinst = 1;
-	}
-	else {
-	    ml[ml_numpmid-1].numinst = -1;
-	    ml[ml_numpmid-1].instlist = NULL;
-	}
-
-	if (ml[ml_numpmid-1].numinst >= 1) {
+	    ml[ml_numpmid].numinst = 1;
 	    /*
-	     * malloc here, and keep ... gets buried
+	     * malloc here, and keep ...
 	     */
-	    ml[ml_numpmid-1].instlist = (int *)malloc(ml[ml_numpmid-1].numinst * sizeof(int));
-	    if (ml[ml_numpmid-1].instlist == NULL) {
+	    ml[ml_numpmid].instlist = (int *)malloc(sizeof(int));
+	    if (ml[ml_numpmid].instlist == NULL) {
 		goto nomem;
 	    }
-
-	    for (i=0; i<ml[ml_numpmid-1].numinst; i++) {
-		if (intlist == NULL) {
-		    /* PM_INDOM_NULL case */
-		    ml[ml_numpmid-1].instlist[i] = -1;
-		}
-		else
-		    ml[ml_numpmid-1].instlist[i] = intlist[i];
-
-	    } /*for(i)*/
+	    ml[ml_numpmid].instlist[0] = -1;
 	}
+	else
+	    ml[ml_numpmid].numinst = -1;
 
-	if (intlist != NULL)
-	    free(intlist);
-	if (extlist != NULL)
-	    free(extlist);
-
-	intlist = NULL;
-	extlist = NULL;
     }
-    else if (numinst) {
+    else if (numinst > 0) {
 	/*
-	 * malloc here, and keep ... gets buried
+	 * malloc here, and keep ... 
 	 */
-	ml[ml_numpmid-1].instlist = (int *)malloc(numinst * sizeof(int));
-	if (ml[ml_numpmid-1].instlist == NULL) {
+	ml[ml_numpmid].instlist = (int *)malloc(numinst * sizeof(int));
+	if (ml[ml_numpmid].instlist == NULL) {
 	    goto nomem;
 	}
 
@@ -239,7 +226,7 @@ dometric(const char *name)
 			"Instance \"%s\" is not defined for the metric \"%s\"",
 			    extlist[i], name);
 		    yywarn(emess);
-		    ml[ml_numpmid-1].numinst--;
+		    ml[ml_numpmid].numinst--;
 		    continue;
 		}
 		inst = sts;
@@ -251,7 +238,7 @@ dometric(const char *name)
 			"Instance \"%d\" is not defined for the metric \"%s\"",
 			    intlist[i], name);
 		    yywarn(emess);
-		    ml[ml_numpmid-1].numinst--;
+		    ml[ml_numpmid].numinst--;
 		    continue;
 		}
 		else {
@@ -263,43 +250,42 @@ dometric(const char *name)
 	    /* if inst is > -1 then this instance exists, and its id is `inst'
 	     */
 	    if (inst > -1) {
-		ml[ml_numpmid-1].instlist[j] = inst;
+		ml[ml_numpmid].instlist[j] = inst;
 		++j;
 	    }
 	} /* for(i) */
 
-	if (ml[ml_numpmid-1].numinst == 0)
+	if (ml[ml_numpmid].numinst == 0)
 	    skip = 1;
 
     }
+    else {
+	fprintf(stderr, "%s: dometric: botch: bad numinst %d!\n", pmProgname, numinst);
+	abandon_extract();
+    }
 
 
-    /* if skip has been set, then this metric has no instances
-     * (probably because all instances specified by user are invalid)
-     * then we don't want this metric, so ...
-     *	- free dp (the descriptor)
-     *	- free the instance list
-     *	- adjust ml_numpmid ... do not free the space ... it isn't much
-     *		and we may need it (if there is another metric)
+    /*
+     * if skip has been set, then none of the instance specified for
+     * this metric are valid ... skip the metric
      */
     if (skip) {
+	snprintf(emess, sizeof(emess),
+		"None of the instances for metric \"%s\" are valid, metric not extracted",
+		ml[ml_numpmid].name);
+	yywarn(emess);
 	free(dp);
-	free(ml[ml_numpmid-1].instlist);
-	--ml_numpmid;
+	free(ml[ml_numpmid].instlist);
+	free(ml[ml_numpmid].name);
     }
-    else {
-	/* EXCEPTION PCP 2.1.1 - may want to check instances here
-	 */
-    }
+    else
+	ml_numpmid++;
     return;
 
-defer:
-    /* EXCEPTION PCP 2.1.1 - defer this one until sometime later ... */
-    if (warn) {
-	yywarn(emess);
-	fprintf(stderr, "Reason: %s\n", pmErrStr(sts));
-    }
-    free(dp);
+bad:
+    yywarn(emess);
+    fprintf(stderr, "Reason: %s\n", pmErrStr(sts));
+    if (dp != NULL) free(dp);
     return;
 
 nomem:

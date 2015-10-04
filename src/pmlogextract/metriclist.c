@@ -167,6 +167,7 @@ insertresult(rlist_t **rlist, pmResult *result)
 
 /*
  * Find out whether the metrics in _result are in the metric list ml
+ * and optionally cherry-pick requested instances
  */
 pmResult *
 searchmlist(pmResult *_Oresult)
@@ -193,41 +194,39 @@ searchmlist(pmResult *_Oresult)
     if (jlist == NULL)
 	goto nomem;
 
-    /* find out how many of the pmid's in _Oresult need to be written out
+    /*
+     * find out how many of the pmid's in _Oresult need to be written out
+     * and build map ... for the kth pmid that will be written out,
+     * ilist[k] points to the associated metric in _Oresult and jlist[k]
+     * points to the associated metric in ml[]
      * (also, find out the maximum number of instances to write out)
      */
-    numpmid = 0;
-    maxinst = 0;
     for (i=0; i<_Oresult->numpmid; i++) {
 	vsetp = _Oresult->vset[i];
 
 	for (j=0; j<ml_numpmid; j++) {
 	    if (vsetp->pmid == ml[j].idesc->pmid) {
-		/* pmid has been found in metric list
-		 */
+		/* pmid in _Oresult and in metric list */
+		ilist[numpmid] = i;	/* _Oresult index */
+		jlist[numpmid] = j;	/* ml list index */
+		numpmid++;
 		if (ml[j].numinst > maxinst)
 		    maxinst = ml[j].numinst;
-
-		++numpmid;
-		ilist[numpmid-1] = i;	/* _Oresult index */
-		jlist[numpmid-1] = j;	/* ml list index */
 		break;
 	    }
 	}
     }
 
-
-    /*  if no matches (no pmid's are ready for writing), then return
-     */
+    /*  if no matches (no pmid's are ready for writing), then return */
     if (numpmid == 0) {
 	free(ilist);
 	free(jlist);
 	return(NULL);
     }
 
-
-    /*  `numpmid' matches were found (some or all pmid's are ready for writing),
-     *	then allocate space for new result
+    /*
+     * numpmid pmid matches were found (some or all pmid's are ready
+     * for writing), so allocate space for new result
      */
     _Nresult = (pmResult *) malloc(sizeof(pmResult) +
 					(numpmid - 1) * sizeof(pmValueSet *));
@@ -238,75 +237,58 @@ searchmlist(pmResult *_Oresult)
     _Nresult->timestamp.tv_usec = _Oresult->timestamp.tv_usec;
     _Nresult->numpmid = numpmid;
 
-
-    /*  make array for indeces into vlist
-     */
+    /*  vlistp[] is array for indices into vlist */
     if (maxinst > 0) {
 	vlistp = (pmValue *) malloc(maxinst * sizeof(pmValue));
 	if (vlistp == NULL)
 	    goto nomem;
     }
 
-
-    /*  point _Nresult at the right pmValueSet(s)
-     */
+    /*  point _Nresult at the right pmValueSet(s) */
     for (k=0; k<numpmid; k++) {
 	i = ilist[k];
 	j = jlist[k];
 
-	/* point new result at the wanted pmid
-	 */
+	/* start by assuming all instances are required */
 	_Nresult->vset[k] = _Oresult->vset[i];
 
+        if (ml[j].numinst != -1) {
+	    /*
+	     * specific instances requested ... need to
+	     * find which ones are in the pmResult and
+	     * vlistp[k] identfies the kth instance we will
+	     * require
+	     */
+	    vsetp = _Nresult->vset[k];
 
-	/* allocate the right instances
-	 */
-	vsetp = _Nresult->vset[k];
-
-	found = 0;
-	for (q=0; q<ml[j].numinst; q++) {
-	    for (r=0; r<vsetp->numval; r++) {
-
-		/* if id in ml is -1, chances are that we haven't seen
-		 * it before ... set the instance id
-		 */
-		if (ml[j].instlist[q] < 0)
-		    ml[j].instlist[q] = vsetp->vlist[r].inst;
-
-		if (ml[j].instlist[q] == vsetp->vlist[r].inst) {
-		    /* instance has been found
-		     */
-		    vlistp[found].inst = vsetp->vlist[r].inst;
-		    vlistp[found].value = vsetp->vlist[r].value;
-		    ++found;
-		    break;
-		} /*if*/
-	    } /*for(r)*/
-	} /*for(q)*/
-
-
-	/* note: found may be <= ml[j].numinst
-	 *	 further more, found may be zero ... deal with this later?
-	 *		- NUMVAL
-         *
-         * note2: if ml[j].numinst == -1, it means we want all insts.
-         *        ignore the fact that found is 0.
-	 */
-        if( ml[j].numinst != -1 ){
+	    found = 0;
+	    /* requested instances loop ... */
+	    for (q=0; q<ml[j].numinst; q++) {
+		/* instances in pmResult loop ... */
+		for (r=0; r<vsetp->numval; r++) {
+		    if (ml[j].instlist[q] == vsetp->vlist[r].inst) {
+			vlistp[found].inst = vsetp->vlist[r].inst;
+			vlistp[found].value = vsetp->vlist[r].value;
+			++found;
+			break;
+		    }
+		}
+	    }
 	    vsetp->numval = found;
 
-	    for (q=0; q<vsetp->numval; q++) {
-	        vsetp->vlist[q].inst = vlistp[q].inst;
-	        vsetp->vlist[q].value = vlistp[q].value;
-	        vlistp[q].inst = 0;
-	        vlistp[q].value.lval = 0;
-	    } /*for(q)*/
-        } /* if */
-    } /*for(k)*/
+	    /* now cherry-pick instances ... */
+	    for (r=0; r<vsetp->numval; r++) {
+	        vsetp->vlist[r].inst = vlistp[r].inst;
+	        vsetp->vlist[r].value = vlistp[r].value;
+	    }
+        }
+
+    }
 
     free(ilist);
     free(jlist);
-    if (maxinst > 0) free(vlistp);	/* free only if space was allocated */
+    if (vlistp != NULL) free(vlistp);
+
     return(_Nresult);
 
 nomem:
