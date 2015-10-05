@@ -14,10 +14,14 @@ include $(TOPDIR)/src/include/builddefs
 TESTDIR = $(PCP_VAR_DIR)/testsuite
 TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9]/s/:reserved//' -e '/^[0-9]/s/[        ].*//' -e '/^[0-9]/p' <group)
 
-SUBDIRS = src pmdas cisco gluster pconf sadist collectl secure nfsclient \
-	  archives views qt linux perfevent unbound cifs gpfs lustre ganglia
-ifeq "$(ENABLE_PYTHON)" "true"
-SUBDIRS += secure
+SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient \
+	  archives views qt linux unbound cifs gpfs lustre ganglia \
+	  postfix perl json slurm
+ifeq "$(PMDA_PERFEVENT)" "true"
+SUBDIRS += perfevent
+endif
+ifeq "$(HAVE_PYTHON)" "true"
+SUBDIRS += secure mic
 endif
 LCONFIG = localconfig
 
@@ -53,17 +57,15 @@ COMMON_SCRIPTS = common.install.cisco common.pcpweb
 COMMON = common.check common.config common.filter \
 	 common.product common.rc common.setup \
 	 common.secure common.gfs2 common.rpm \
-	 common.sh common.qt common.avahi \
+	 common.sh common.qt common.avahi common.docker \
 	 common.discovery common.compress common.webapi
-ifeq "$(ENABLE_PYTHON)" "true"
+ifeq "$(HAVE_PYTHON)" "true"
 COMMON += common.python 
 endif
 
-OTHERS = GNUmakefile.install group qa_hosts.master README \
-	 valgrind-suppress sanity.coverage
+OTHERS = group qa_hosts.master README valgrind-suppress sanity.coverage
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|work)' | tee qa_outfiles)
-LSRCFILES = $(SCRIPTS) $(COMMON_SCRIPTS) $(COMMON) $(TESTS) $(DOTOUTFILES) $(OTHERS)
 
 qa_outfiles:
 	@echo $(DOTOUTFILES) > qa_outfiles
@@ -78,7 +80,7 @@ localconfig:
 	@echo 'PCP_PRO_VER=0' >> localconfig
 
 install_pcp install: $(SUBDIRS)
-ifeq (, $(filter mingw darwin solaris, $(TARGET_OS)))
+ifeq (, $(filter mingw darwin freebsd solaris, $(TARGET_OS)))
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 755 $(TESTS) $(SCRIPTS) $(COMMON_SCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 644 $(COMMON) $(OTHERS) $(TESTDIR)

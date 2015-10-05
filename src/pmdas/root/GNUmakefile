@@ -29,12 +29,12 @@ endif
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT)
+LDIRT		= $(HELPTARGETS) pmns domain.h $(VERSION_SCRIPT)
 
 LCFLAGS		= -DJSMN_PARENT_LINKS
 LLDLIBS		= $(PCP_PMDALIB)
 
-default:	domain.h $(CMDTARGET) $(HELPTARGETS)
+default:	$(CMDTARGET) $(HELPTARGETS) pmns
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -45,8 +45,9 @@ include $(BUILDRULES)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help help.dir help.pag root root_root $(PMDADIR)
+	$(INSTALL) -m 644 domain.h help help.dir help.pag root $(PMDADIR)
 	$(INSTALL) -m 755 $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
+	$(INSTALL) -m 644 pmns $(PMDADIR)/root_root
 	$(INSTALL) -m 644 root_root $(PCP_VAR_DIR)/pmns/root_root
 
 default_pcp : default
@@ -54,10 +55,15 @@ default_pcp : default
 install_pcp : install
 
 $(HELPTARGETS) : help
-	$(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp -n root_root -v 2 -o help < help
+	$(NEWHELP) -n root_root -v 2 -o help < help
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
 
+$(OBJECTS): domain.h
+
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
+pmns :
+	$(LN_S) -f root_root pmns

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -44,7 +44,7 @@ static pmLongOptions longopts[] = {
     { "oneline",  0, 't', 0, "get and display (terse) oneline text" },
     { "helptext", 0, 'T', 0, "get and display (verbose) help text" },
     PMAPI_OPTIONS_HEADER("Metrics options"),
-    { "derived",  1, 'c', "FILE", "load derived metric definitions from FILE" },
+    { "derived",  1, 'c', "FILE", "load derived metric definitions from FILE(s)" },
     { "events",   0, 'x', 0, "unpack and report on any fetched event records" },
     { "verify",   0, 'v', 0, "verify mode, be quiet and only report errors" },
     PMAPI_OPTIONS_END
@@ -535,7 +535,7 @@ main(int argc, char **argv)
 	    case 'c':		/* derived metrics config file */
 		sts = pmLoadDerivedConfig(opts.optarg);
 		if (sts < 0) {
-		    fprintf(stderr, "%s: -c error: %s\n", pmProgname, pmErrStr(sts));
+		    fprintf(stderr, "%s: derived configuration(s) error: %s\n", pmProgname, pmErrStr(sts));
 		    /* errors are not necessarily fatal ... */
 		}
 		break;

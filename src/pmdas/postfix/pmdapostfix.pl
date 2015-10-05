@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012,2014 Red Hat.
+# Copyright (c) 2012-2015 Red Hat.
 # Copyright (c) 2009-2010 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -21,10 +21,11 @@ use Time::HiRes qw ( time );
 use vars qw( $pmda );
 use vars qw( %caches );
 use vars qw( %logstats );
-my @logfiles = ( '/var/log/mail.log', '/var/log/maillog' );
+my @logfiles = ( '/var/log/mail.log', '/var/log/maillog', '/var/log/mail' );
 my $logfile;
-my $qshape = 'qshape -b 10 -t 5';
-my $refresh = 5.0; # 5 seconds between qshape refreshes
+my $qshape = 'qshape';
+my $refresh = 5; # 5 seconds between qshape refreshes
+my $qshape_args = "-b 10 -t $refresh";
 
 my $cached = 0;
 
@@ -55,12 +56,14 @@ my @postfix_received_dom = (
 		1 => 'smtp',
 	     );
 
+my $setup = defined($ENV{'PCP_PERL_PMNS'}) || defined($ENV{'PCP_PERL_DOMAIN'});
+
 sub postfix_do_refresh
 {
     QUEUE:
     foreach my $qname ("maildrop", "incoming", "hold", "active", "deferred") {
-	unless (open(PIPE, "$qshape $qname |")) {
-	    $pmda->log("couldn't execute '$qshape $qname'");
+	unless (open(PIPE, "$qshape $qshape_args $qname |")) {
+	    $pmda->log("couldn't execute '$qshape $qshape_args $qname'");
 	    next QUEUE;
 	}
 	while(<PIPE>) {
@@ -69,7 +72,7 @@ sub postfix_do_refresh
 	close PIPE;
 
 	unless (/^[\t ]*TOTAL /) {
-	    $pmda->log("malformed output for '$qshape $qname': $_");
+	    $pmda->log("malformed output for '$qshape $qshape_args $qname': $_");
 	    next QUEUE;
 	}
 
@@ -95,10 +98,18 @@ sub postfix_do_refresh
 sub postfix_log_parser
 {
     ( undef, $_ ) = @_;
+    my $do_sent = 0;
 
     if (/status=sent/) {
 	return unless (/ postfix\//);
+	$do_sent = 1;
+    }
+    elsif (/stat=Sent/) {
+	return unless (/relay=[^,]+/);
+	$do_sent = 1;
+    }
 
+    if ($do_sent == 1) {
 	my $relay = "";
 
 	if (/relay=([^,]+)/o) {
@@ -199,17 +210,44 @@ $logstats{"sent"}{0} = 0;
 $logstats{"received"}{0} = 0;
 $logstats{"received"}{1} = 0;
 
+# Note:
+# Environment variables.
+# $PMDA_POSTFIX_QSHAPE: alternative executable qshape scrpipt (for QA)
+#                       ... over-rides default and command line argument.
+#			... over-rides default arguments -b 10 -t $refresh
+# $PMDA_POSTFIX_REFRESH: alternative refresh rate (for QA)
+# $PMDA_POSTFIX_LOG: alternative postfix log file (for QA)
+#
+# Command line argument.
+# Path to qshape Perl script (optional, instead of executable qshape
+# on the $PATH).
+#
+
+if (defined($ARGV[0])) { $qshape = "perl $ARGV[0]"; }
+if (defined($ENV{'PMDA_POSTFIX_QSHAPE'})) {
+    $qshape = $ENV{'PMDA_POSTFIX_QSHAPE'};
+    $qshape_args = '';
+}
+if (!$setup) { $pmda->log("qshape cmd: $qshape $qshape_args <qname>"); }
+
+if (defined($ENV{'PMDA_POSTFIX_REFRESH'})) { $refresh = $ENV{'PMDA_POSTFIX_REFRESH'}; }
+
 foreach my $file ( @logfiles ) {
     if ( -r $file ) {
-	$logfile = $file;
+	$logfile = $file unless ( -d $file );
     }
 }
-die 'No Postfix log file found' unless defined($logfile);
+if (defined($ENV{'PMDA_POSTFIX_LOG'})) { $logfile = $ENV{'PMDA_POSTFIX_LOG'}; } 
+unless(defined($logfile))
+{
+    $pmda->log("Fatal: No Postfix log file found in: @logfiles");
+    die 'No Postfix log file found';
+}
+if (!$setup) { $pmda->log("logfile: $logfile"); }
 
 $pmda->add_indom($postfix_queues_indom, \@postfix_queues_dom, '', '');
 $pmda->add_indom($postfix_sent_indom, \@postfix_sent_dom, '', '');
 $pmda->add_indom($postfix_received_indom, \@postfix_received_dom, '', '');
 $pmda->add_tail($logfile, \&postfix_log_parser, 0);
 $pmda->set_fetch_callback(\&postfix_fetch_callback);
-$pmda->set_user('postfix');
 $pmda->run;

@@ -91,7 +91,7 @@ echo "this logger pid=$this_pid" >>$seq.full
 _wait_for_pmlogger $this_pid $tmp.log1
 $sudo mv $tmp.log1 $tmp.$this_pid
 
-trap "$signal $this_pid $other_pid $otherfqdn_pid >/dev/null 2>&1; wait; $sudo rm -fr $tmp.*; exit \$sts" 0 1 2 3 15
+trap "$sudo $signal $this_pid $other_pid $otherfqdn_pid >/dev/null 2>&1; wait; $sudo rm -fr $tmp.*; exit \$sts" 0 1 2 3 15
 
 _burn_pids
 

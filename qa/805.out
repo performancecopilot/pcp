@@ -1,0 +1,179 @@
+QA output created by 805
+Waiting for pmcd to terminate ...
+
+=== postfix agent installation ===
+You will need to choose an appropriate configuration for installation of
+the "postfix" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Starting pmcd ... 
+Starting pmlogger ... 
+Check postfix metrics have appeared ... X metrics and Y values
+=== verify postfix values - postfix-log-001.gz ===
+
+postfix.queues.active
+    inst [0 or "total"] value 0
+    inst [1 or "0-5 mins"] value 1
+    inst [2 or "5-10 mins"] value 0
+    inst [3 or "10-20 mins"] value 1
+    inst [4 or "20-40 mins"] value 0
+    inst [5 or "40-80 mins"] value 1
+    inst [6 or "80-160 mins"] value 0
+    inst [7 or "160-320 mins"] value 1
+    inst [8 or "320-640 mins"] value 0
+    inst [9 or "640-1280 mins"] value 1
+    inst [10 or "1280+ mins"] value 10
+
+postfix.queues.deferred
+    inst [0 or "total"] value 10
+    inst [1 or "0-5 mins"] value 9
+    inst [2 or "5-10 mins"] value 8
+    inst [3 or "10-20 mins"] value 7
+    inst [4 or "20-40 mins"] value 6
+    inst [5 or "40-80 mins"] value 5
+    inst [6 or "80-160 mins"] value 4
+    inst [7 or "160-320 mins"] value 3
+    inst [8 or "320-640 mins"] value 2
+    inst [9 or "640-1280 mins"] value 1
+    inst [10 or "1280+ mins"] value 0
+
+postfix.queues.hold
+    inst [0 or "total"] value 10
+    inst [1 or "0-5 mins"] value 9
+    inst [2 or "5-10 mins"] value 8
+    inst [3 or "10-20 mins"] value 7
+    inst [4 or "20-40 mins"] value 6
+    inst [5 or "40-80 mins"] value 5
+    inst [6 or "80-160 mins"] value 4
+    inst [7 or "160-320 mins"] value 3
+    inst [8 or "320-640 mins"] value 2
+    inst [9 or "640-1280 mins"] value 1
+    inst [10 or "1280+ mins"] value 0
+
+postfix.queues.incoming
+    inst [0 or "total"] value 9
+    inst [1 or "0-5 mins"] value 0
+    inst [2 or "5-10 mins"] value 1
+    inst [3 or "10-20 mins"] value 2
+    inst [4 or "20-40 mins"] value 3
+    inst [5 or "40-80 mins"] value 4
+    inst [6 or "80-160 mins"] value 5
+    inst [7 or "160-320 mins"] value 6
+    inst [8 or "320-640 mins"] value 7
+    inst [9 or "640-1280 mins"] value 8
+    inst [10 or "1280+ mins"] value 9
+
+postfix.queues.maildrop
+    inst [0 or "total"] value 0
+    inst [1 or "0-5 mins"] value 1
+    inst [2 or "5-10 mins"] value 2
+    inst [3 or "10-20 mins"] value 3
+    inst [4 or "20-40 mins"] value 4
+    inst [5 or "40-80 mins"] value 5
+    inst [6 or "80-160 mins"] value 6
+    inst [7 or "160-320 mins"] value 7
+    inst [8 or "320-640 mins"] value 8
+    inst [9 or "640-1280 mins"] value 9
+    inst [10 or "1280+ mins"] value 10
+
+postfix.received
+    inst [0 or "local"] value 0
+    inst [1 or "smtp"] value 0
+
+postfix.sent
+    inst [0 or "smtp"] value 0
+=== done ===
+
+=== verify postfix values - postfix-log-002.gz ===
+
+postfix.queues.active
+    inst [0 or "total"] value 0
+    inst [1 or "0-5 mins"] value 1
+    inst [2 or "5-10 mins"] value 0
+    inst [3 or "10-20 mins"] value 1
+    inst [4 or "20-40 mins"] value 0
+    inst [5 or "40-80 mins"] value 1
+    inst [6 or "80-160 mins"] value 0
+    inst [7 or "160-320 mins"] value 1
+    inst [8 or "320-640 mins"] value 0
+    inst [9 or "640-1280 mins"] value 1
+    inst [10 or "1280+ mins"] value 10
+
+postfix.queues.deferred
+    inst [0 or "total"] value 10
+    inst [1 or "0-5 mins"] value 9
+    inst [2 or "5-10 mins"] value 8
+    inst [3 or "10-20 mins"] value 7
+    inst [4 or "20-40 mins"] value 6
+    inst [5 or "40-80 mins"] value 5
+    inst [6 or "80-160 mins"] value 4
+    inst [7 or "160-320 mins"] value 3
+    inst [8 or "320-640 mins"] value 2
+    inst [9 or "640-1280 mins"] value 1
+    inst [10 or "1280+ mins"] value 0
+
+postfix.queues.hold
+    inst [0 or "total"] value 10
+    inst [1 or "0-5 mins"] value 9
+    inst [2 or "5-10 mins"] value 8
+    inst [3 or "10-20 mins"] value 7
+    inst [4 or "20-40 mins"] value 6
+    inst [5 or "40-80 mins"] value 5
+    inst [6 or "80-160 mins"] value 4
+    inst [7 or "160-320 mins"] value 3
+    inst [8 or "320-640 mins"] value 2
+    inst [9 or "640-1280 mins"] value 1
+    inst [10 or "1280+ mins"] value 0
+
+postfix.queues.incoming
+    inst [0 or "total"] value 9
+    inst [1 or "0-5 mins"] value 0
+    inst [2 or "5-10 mins"] value 1
+    inst [3 or "10-20 mins"] value 2
+    inst [4 or "20-40 mins"] value 3
+    inst [5 or "40-80 mins"] value 4
+    inst [6 or "80-160 mins"] value 5
+    inst [7 or "160-320 mins"] value 6
+    inst [8 or "320-640 mins"] value 7
+    inst [9 or "640-1280 mins"] value 8
+    inst [10 or "1280+ mins"] value 9
+
+postfix.queues.maildrop
+    inst [0 or "total"] value 0
+    inst [1 or "0-5 mins"] value 1
+    inst [2 or "5-10 mins"] value 2
+    inst [3 or "10-20 mins"] value 3
+    inst [4 or "20-40 mins"] value 4
+    inst [5 or "40-80 mins"] value 5
+    inst [6 or "80-160 mins"] value 6
+    inst [7 or "160-320 mins"] value 7
+    inst [8 or "320-640 mins"] value 8
+    inst [9 or "640-1280 mins"] value 9
+    inst [10 or "1280+ mins"] value 10
+
+postfix.received
+    inst [0 or "local"] value 1
+    inst [1 or "smtp"] value 0
+
+postfix.sent
+    inst [0 or "smtp"] value 1
+    inst [1 or "local"] value 1
+=== done ===
+
+
+=== remove postfix agent ===
+Culling the Performance Metrics Name Space ...
+postfix ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check postfix metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

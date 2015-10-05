@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -123,7 +123,7 @@ dos_formatter(char *var, char *prefix, char *val)
     PM_UNLOCK(__pmLock_libpcp);
 }
 
-INTERN const __pmConfigCallback __pmNativeConfig = dos_formatter;
+PCP_DATA const __pmConfigCallback __pmNativeConfig = dos_formatter;
 char *__pmNativePath(char *path) { return dos_native_path(path); }
 int __pmPathSeparator() { return posix_style() ? '/' : '\\'; }
 int __pmAbsolutePath(char *path) { return posix_style() ? path[0] == '/' : dos_absolute_path(path); }
@@ -161,11 +161,12 @@ posix_formatter(char *var, char *prefix, char *val)
     (void)prefix;
 }
 
-INTERN const __pmConfigCallback __pmNativeConfig = posix_formatter;
+PCP_DATA const __pmConfigCallback __pmNativeConfig = posix_formatter;
 #endif
 
-void
-__pmConfig(__pmConfigCallback formatter)
+
+static void
+__pmconfig(__pmConfigCallback formatter, int fatal)
 {
     /*
      * Scan ${PCP_CONF-$PCP_DIR/etc/pcp.conf} and put all PCP config
@@ -173,6 +174,7 @@ __pmConfig(__pmConfigCallback formatter)
      */
     FILE *fp;
     char confpath[32];
+    char errmsg[PM_MAXERRMSGLEN];
     char dir[MAXPATHLEN];
     char var[MAXPATHLEN];
     char *prefix;
@@ -194,14 +196,15 @@ __pmConfig(__pmConfigCallback formatter)
 	}
     }
 
-    if (access((const char *)conf, R_OK) < 0 ||
-	(fp = fopen(conf, "r")) == (FILE *)NULL) {
-	char	errmsg[PM_MAXERRMSGLEN];
-	pmprintf("FATAL PCP ERROR: could not open config file \"%s\" : %s\n",
-		conf, osstrerror_r(errmsg, sizeof(errmsg)));
-	pmprintf("You may need to set PCP_CONF or PCP_DIR in your environment.\n");
-	pmflush();
+    if ((fp = fopen(conf, "r")) == NULL) {
 	PM_UNLOCK(__pmLock_libpcp);
+	if (!fatal)
+	    return;
+	pmprintf(
+	    "FATAL PCP ERROR: could not open config file \"%s\" : %s\n"
+	    "You may need to set PCP_CONF or PCP_DIR in your environment.\n",
+		conf, osstrerror_r(errmsg, sizeof(errmsg)));
+	pmflush();
 	exit(1);
     }
 
@@ -218,14 +221,20 @@ __pmConfig(__pmConfigCallback formatter)
 	    formatter(var, prefix, val);
 
 	if (pmDebug & DBG_TRACE_CONFIG)
-	    fprintf(stderr, "pmGetConfig: (init) %s=%s\n", var, val);
+	    fprintf(stderr, "pmgetconfig: (init) %s=%s\n", var, val);
     }
     fclose(fp);
     PM_UNLOCK(__pmLock_libpcp);
 }
 
-char *
-pmGetConfig(const char *name)
+void
+__pmConfig(__pmConfigCallback formatter)
+{
+    __pmconfig(formatter, PM_FATAL_ERR);
+}
+
+static char *
+pmgetconfig(const char *name, int fatal)
 {
     /*
      * state controls one-trip initialization, and recursion guard
@@ -239,7 +248,7 @@ pmGetConfig(const char *name)
     if (state == 0) {
 	state = 1;
 	PM_UNLOCK(__pmLock_libpcp);
-	__pmConfig(__pmNativeConfig);
+	__pmconfig(__pmNativeConfig, fatal);
 	PM_LOCK(__pmLock_libpcp);
 	state = 2;
     }
@@ -247,20 +256,48 @@ pmGetConfig(const char *name)
 	/* recursion from error in __pmConfig() ... no value is possible */
 	PM_UNLOCK(__pmLock_libpcp);
 	if (pmDebug & DBG_TRACE_CONFIG)
-	    fprintf(stderr, "pmGetConfig: %s= ... recursion error\n", name);
+	    fprintf(stderr, "pmgetconfig: %s= ... recursion error\n", name);
+	if (!fatal)
+	    return NULL;
 	val = "";
 	return val;
     }
+    PM_UNLOCK(__pmLock_libpcp);
 
     if ((val = getenv(name)) == NULL) {
+	if (!fatal)
+	    return NULL;
 	val = "";
     }
 
     if (pmDebug & DBG_TRACE_CONFIG)
-	fprintf(stderr, "pmGetConfig: %s=%s\n", name, val);
+	fprintf(stderr, "pmgetconfig: %s=%s\n", name, val);
 
-    PM_UNLOCK(__pmLock_libpcp);
     return val;
+}
+
+char *
+pmGetConfig(const char *name)
+{
+    return pmgetconfig(name, PM_FATAL_ERR);
+}
+
+char *
+pmGetOptionalConfig(const char *name)
+{
+    return pmgetconfig(name, PM_RECOV_ERR);
+}
+
+int
+__pmGetUsername(char **username)
+{
+    char *user = pmGetOptionalConfig("PCP_USER");
+    if (user && user[0] != '\0') {
+	*username = user;
+	return 1;
+    }
+    *username = "pcp";
+    return 0;
 }
 
 /*
@@ -374,4 +411,13 @@ __pmGetAPIConfig(const char *name)
         if (strcasecmp(name, features[i].feature) == 0)
 	    return features[i].detector();
     return NULL;
+}
+
+/*
+ * binary encoding of current PCP version
+ */
+int
+pmGetVersion(void)
+{
+    return PM_VERSION_CURRENT;
 }

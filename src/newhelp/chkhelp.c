@@ -12,10 +12,6 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
- * 
  * check help files build by newhelp
  *
  * Usage:
@@ -56,7 +52,7 @@ next(int *ident, int *type)
     static int		nextidx;
     pmID		pmid;
     __pmID_int		*pi = (__pmID_int *)&pmid;
-    extern void		*__pmdaHelpTab(void);
+    PMDA_CALL extern void *__pmdaHelpTab(void);
 
     if (hp == NULL) {
 	hp = (help_t *)__pmdaHelpTab();
@@ -254,8 +250,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	fprintf(stderr, "pmLoadNameSpace: %s\n", pmErrStr(sts));
+    if ((sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
+	fprintf(stderr, "pmLoadASCIINameSpace(%s, 1): %s\n", pmnsfile, pmErrStr(sts));
 	exit(1);
     }
 

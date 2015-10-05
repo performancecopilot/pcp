@@ -9,7 +9,11 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./localconfig
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
 if [ $PCP_PLATFORM != irix -a $PCP_VER -ge 20200 ]
 then
     : PCP 2.2 or later
@@ -22,11 +26,6 @@ then
 else
     _notrun "need fix for pv #809111 and multiple DSO PMDAs"
 fi
-
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
 
 status=1	# failure is the default!
 

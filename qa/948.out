@@ -1,0 +1,44 @@
+QA output created by 948
+=== error cases ===
+pmlogger: -o and -h are mutually exclusive; use -o only when running
+pmlogger on the same (local) host as the DSO PMDA(s) being used.
+Usage: pmlogger [options] archive
+
+Options:
+...
+
+=== linger tests ===
+--- expect error from pmlc ---
+Unable to connect to pmlogger pid PID at local:: Connection refused
+quit
+Goodbye
+--- expect success from pmlc ---
+Connected to pmlogger pid PID at local:
+quit
+Goodbye
+
+=== OK case ===
+Waiting for pmcd to terminate ...
+Log for pmlogger on HOST started DATE
+
+Config parsed
+Starting logger for host "HOST"
+Archive basename: ARCHIVE
+pmlogger: End of run time, exiting
+
+Log finished DATE
+verifying the archive
+PAGESZ samples:
+              60.1.11 (hinv.pagesize): value PAGESZ
+              60.1.11 (hinv.pagesize): value PAGESZ
+              60.1.11 (hinv.pagesize): value PAGESZ
+HZ samples:
+              60.0.48 (kernel.all.hz): value HZ
+              60.0.48 (kernel.all.hz): value HZ
+              60.0.48 (kernel.all.hz): value HZ
+MILLION samples:
+              30.0.13 (sampledso.long.million): value 1000000
+              30.0.13 (sampledso.long.million): value 1000000
+              30.0.13 (sampledso.long.million): value 1000000
+Starting pmcd ... 
+Starting pmlogger ... 

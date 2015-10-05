@@ -149,6 +149,7 @@ pmcd.feature {
     unix_domain_sockets	PMCD:8:5
     service_discovery	PMCD:8:6
     containers		PMCD:8:7
+    local		PMCD:8:8
 }
 
 #undef PMCD

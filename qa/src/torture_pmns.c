@@ -258,7 +258,7 @@ load_namespace(char *namespace)
     int sts;
 
     gettimeofday(&then, (struct timezone *)0);
-    if ((sts = pmLoadNameSpace(namespace)) < 0) {
+    if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);
     }
@@ -344,6 +344,7 @@ test_api(void)
 		}
 		free(back);
 	    }
+	    allnames = NULL; /* silence coverity */
 	    n = pmNameAll(midlist[i], &allnames);
 	    REPORT("pmNameAll", n);
 	    if (n >= 0) {

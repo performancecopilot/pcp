@@ -2,6 +2,7 @@
 # PCP QA Test No. 565
 # Install/Remove for sendmail PMDA
 #
+# Copyright (c) 2015 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -12,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+
+[ -f $PCP_PMDAS_DIR/sendmail/pmdasendmail ] || _notrun "sendmail pmda not installed"
 
 rm -f $seq.out
 case $PCP_PLATFORM

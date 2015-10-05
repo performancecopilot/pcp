@@ -11,30 +11,12 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./localconfig
 
-if which journalctl >/dev/null 2>&1
-then
-    echo Found journalctl
-else
-    _notrun no journalctl
-fi
-
-if which logger >/dev/null 2>&1
-then
-    echo Found logger
-else
-    _notrun no logger
-fi
-
+[ -d $PCP_VAR_DIR/pmdas/systemd ] || _notrun "systemd PMDA not installed"
+which logger >/dev/null 2>&1 || _notrun no logger
+which journalctl >/dev/null 2>&1 || _notrun no journalctl
 journal_version=`journalctl --version | grep ^systemd | awk '{print $2}'`
-if [ "$journal_version" -ge 193 ]; then
-    echo Found recent enough journalctl
-else
-    _notrun journalctl too old "$journal_version"
-fi
-
-[ $PCP_VER -ge 30805 ] || _notrun "Installed pmdasystemd is too old"
+[ "$journal_version" -ge 193 ] || _notrun journalctl too old "$journal_version"
 
 _cleanup()
 {
@@ -103,13 +85,13 @@ pmprobe -v systemd | tee -a $here/$seq.full | _filter_probe
 
 echo | tee -a $here/$seq.full
 echo "=== 2. journald.records  ===" | tee -a $here/$seq.full
-(sleep 3; logger yo) &
-pmevent -T 10 systemd.journal.records | tee -a $here/$seq.full | _filter_events
+(pmsleep 2.5; logger yo) &
+pmevent -T 5 systemd.journal.records | tee -a $here/$seq.full | _filter_events
 
 echo | tee -a $here/$seq.full
 echo "=== 3. journald.records  ===" | tee -a $here/$seq.full
-(sleep 3; logger yo) &
-pmevent -T 10 systemd.journal.records_raw | tee -a $here/$seq.full | _filter_events_raw
+(pmsleep 2.5; logger yo) &
+pmevent -T 5 systemd.journal.records_raw | tee -a $here/$seq.full | _filter_events_raw
 
 # remove PMDA to ensure proper cleanup (in case it wasnt already installed beforehand)
 $sudo ./Remove </dev/null >>$here/$seq.full 2>&1

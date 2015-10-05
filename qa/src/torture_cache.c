@@ -1,10 +1,13 @@
 /*
+ * Copyright (C) 2013-2014 Red Hat.
  * Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
  */
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <pcp/pmda.h>
+
+#define FORQA 251
 
 static pmInDom		indom;
 static __pmInDom_int	*indomp;
@@ -18,7 +21,7 @@ _a(int load, int verbose, int extra)
     int		inst;
     int		sts;
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 7;
 
     if (load) {
@@ -168,7 +171,7 @@ _b(void)
     int		sts;
     char	cmd[2*MAXPATHLEN+30];
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 8;
 
     sprintf(cmd, "rm -f %s/config/pmda/%s", pmGetConfig("PCP_VAR_DIR"), pmInDomStr(indom));
@@ -268,7 +271,7 @@ _c(void)
     int		inst;
     int		sts;
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 13;
 
     fprintf(stderr, "Load the instance domain ...\n");
@@ -308,7 +311,7 @@ _e(int since)
     int		sts;
     int		inst;
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 11;
 
     sts = pmdaCacheOp(indom, PMDA_CACHE_LOAD);
@@ -355,7 +358,7 @@ _g(void)
     int		inst;
     int		i;
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 7;
 
     for (i = 0; i < 254; i++) {
@@ -392,7 +395,7 @@ _h(void)
     int		inst;
     int		i;
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 17;
 
     sts = pmdaCacheOp(indom, PMDA_CACHE_LOAD);
@@ -435,7 +438,7 @@ _i(int style)
     int		i;
     static int	first = 1;
 
-    indomp->domain = 123;
+    indomp->domain = FORQA;
     indomp->serial = 15;
 
     if (first) {
@@ -538,6 +541,48 @@ _i(int style)
     }
 }
 
+static void
+_j(void)
+{
+    int		inst;
+    int		sts;
+    int		i;
+
+    indomp->domain = FORQA;
+    indomp->serial = 10;
+
+    fprintf(stderr, "\nPopulate the instance domain ...\n");
+    for (i = 0; i < 20; i++) {
+	strncpy(nbuf, xxx, ncount+3);
+	sprintf(nbuf, "%03d", ncount);
+	ncount++;
+        inst = pmdaCacheStore(indom, PMDA_CACHE_ADD, nbuf, (void *)((__psint_t)(0xbeef0000+ncount)));
+	if (inst < 0)
+	    fprintf(stderr, "PMDA_CACHE_ADD failed for \"%s\": %s\n", nbuf, pmErrStr(inst));
+    }
+    sts = pmdaCacheOp(indom, PMDA_CACHE_SAVE);
+    fprintf(stderr, "Save -> %d\n", sts);
+    __pmdaCacheDump(stderr, indom, 0);
+
+    /* We've now got a cache with 20 items. Try to resize the cache. */
+    sts = pmdaCacheResize(indom, 1234);
+    fprintf(stderr, "Resize (good) -> %d", sts);
+    if (sts < 0) fprintf(stderr, ": %s", pmErrStr(sts));
+    fputc('\n', stderr);
+
+    /* This should fail, since we've got more than 10 items in this cache. */
+    sts = pmdaCacheResize(indom, 10);
+    fprintf(stderr, "Resize (bad) -> %d", sts);
+    if (sts < 0) fprintf(stderr, ": %s", pmErrStr(sts));
+    fputc('\n', stderr);
+
+    /* Since we've changed the max, we'll need to save
+       again. PMDA_CACHE_SAVE won't resave the cache with just a
+       dirty cache header, but PMDA_CACHE_SYNC will. */
+    sts = pmdaCacheOp(indom, PMDA_CACHE_SYNC);
+    fprintf(stderr, "Sync -> %d\n", sts);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -590,6 +635,7 @@ main(int argc, char **argv)
 	    optind++;
 	    _i(atoi(argv[optind]));
 	}
+	else if (strcmp(argv[optind], "j") == 0) _j();
 	else
 	    fprintf(stderr, "torture_cache: no idea what to do with option \"%s\"\n", argv[optind]);
 	optind++;

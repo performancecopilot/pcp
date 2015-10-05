@@ -1,6 +1,7 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014 Red Hat.
+.\" Copyright (c) 2014-2015 Red Hat.
+.\" Copyright (c) 2015 Martins Innus.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -102,6 +103,170 @@ seteuid (2)
 and
 setegid (2)
 switching for accessing most information.
+.SH HOTPROC OVERVIEW
+The
+.B pmdaproc
+Performance Metrics Domain Agent (PMDA) includes an additional set of
+per-process metrics with an instance domain of processes restricted
+to an "interesting" or "hot" set.
+Unlike the stock metrics exported by the
+.B proc
+PMDA, which have an instance domain equal to the current processes,
+.B hot
+metrics have an instance domain which is a subset of this.
+This
+.B hotproc
+instance domain is determined by a configurable predicate evaluated
+over some refresh interval.
+.P
+As well as the equivalent per-process
+.B proc
+metrics,
+.B hotproc
+provides a \f3cpuburn\f1 metric which specifies the CPU utilization
+of the process over the refresh interval, \f3total\f1 metrics which
+indicate how much of the available CPU time the "interesting" processes
+account for, \f3predicate\f1 metrics which show the values of
+the reserved variables (see below) that are being used in the hotproc
+predicate, and \f3control\f1 metrics for controlling the agent.
+.PP
+.SH HOTPROC CONFIGURATION
+The configuration file consists of one predicate used to determine if
+a process should be in the interesting set or not.
+.PP
+An example configuration file may be found at
+.B $PCP_PMDAS_DIR/proc/samplehotproc.conf
+.PP
+This file with any modifications can be copied to
+.B $PCP_PMDAS_DIR/proc/hotproc.conf
+in order to configure the
+.B hot
+metrics. The
+.BR pmstore (1)
+and
+.BR pmStore (3)
+interfaces can be used as well (described below).
+.PP
+The predicate is described using the language specified below.
+The symbols are based on those used by the
+.BR C (1)
+and
+.BR awk (1)
+languages.
+.TP
+Boolean Connectives
+.B &&
+(and),
+.B ||
+(or),
+.B !
+(not),
+.B ()
+(precedence overriding)
+.TP
+Number comparators
+.B <
+,
+.B <=
+,
+.B >
+,
+.B >=
+,
+.B ==
+,
+.B !=
+.TP
+String comparators
+.B ==
+,
+.B !=
+.TP
+String/Pattern comparators
+.B ~
+(string matches pattern)
+,
+.B !~
+(string does not match pattern)
+.TP
+Reserved variables
+.B uid
+(user id; type integer)
+.B uname
+(user name; type string),
+.B gid
+(group id; type integer)
+.B gname
+(group name; type string),
+.B fname
+(process file name; type string),
+.B psargs
+(process file name with args; type string),
+.B cpuburn
+(cpu utilization; type float),
+.B iodemand
+(I/O demand - Kbytes read/written per second; type float),
+.B ctxswitch
+(number of context switches per second; type float),
+.B syscalls
+(number of system calls per second; type float),
+.B virtualsize
+(virtual size in Kbytes; type float),
+.B residentsize
+(resident size in Kbytes; type float),
+.B iowait
+(blocked and raw io wait in secs/sec; type float),
+.B schedwait
+(time waiting in run queue in secs/sec; type float).
+.TP
+Literal values
+.B 1234
+(positive integer),
+.B 0.35
+(positive float),
+\f3"foobar"\f1
+(string; delimited by \f3"\f1),
+.B /[fF](o)+bar/
+(pattern; delimited by \f3/\f1),
+.B true
+(boolean),
+.B false
+(boolean)
+.TP
+Comments
+.B #this is a comment
+(from \f3#\f1 to the end of the line).
+.TP
+Examples
+  cpuburn > 0.2 # cpu utilization of more than 20%
+  cpuburn > 0.2 && uname == "root"
+  cpuburn > 0.2 && (uname == "root" || uname == "hot")
+  psargs ~ /pmda/ && cpuburn > 0.4
+
+.PP
+The \f3hotproc.predicate\f1 metrics may be used
+to see what the values of the reserved variables are
+that were used by the predicate at the last refresh.
+They do not cover the reserved variables which are
+already exported elsewhere. A \f3hotproc.predicate\f1 metric
+may not have a value if it is not referenced in the configuration
+predicate.
+
+.SH DYNAMIC CONFIGURATION
+The
+.B hot
+metrics can also be configured at runtime through the
+.BR pmstore (1)
+interface (and, implicitly, the
+.BR pmStore (3)
+API)
+.TP
+Examples
+  pmstore hotproc.control.config 'fname == "mingetty"'
+  pmstore hotproc.control.config 'uid == 0'
+.TP
+To force the config file to be reloaded:
+  pmstore hotproc.control.reload_config "1"
 .SH INSTALLATION
 The
 .B proc
@@ -159,6 +324,12 @@ agent
 .B $PCP_LOG_DIR/pmcd/proc.log
 default log file for error messages and other information from
 .B pmdaproc
+.TP 10
+.B $PCP_PMDAS_DIR/proc/samplehotproc.conf
+simple sample hotproc configuration
+.TP 10
+.B $PCP_PMDAS_DIR/proc/hotproc.conf
+default hotproc configuration file
 .PD
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
@@ -177,6 +348,7 @@ as described in
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
+.BR pmstore (1),
 .BR seteuid (2),
 .BR setegid (2),
 .BR PMAPI (3),

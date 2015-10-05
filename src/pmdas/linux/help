@@ -2,7 +2,7 @@
 # Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
-# Portions Copyright (c) 2013-2014 Red Hat.
+# Portions Copyright (c) 2013-2015 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -137,29 +137,58 @@ and merging adjacent requests into larger ones to reduce seek activity,
 but certainly not limited to that).
 
 @ disk.dev.avactive per-disk count of active time
+Counts the number of milliseconds for which at least one I/O is in
+progresss for each device.
+
 When converted to a rate, this metric represents the average utilization of
 the disk during the sampling interval.  A value of 0.5 (or 50%) means the
 disk was active (i.e. busy) half the time.
 
-@ disk.dev.read_rawactive per-disk raw count of active read time
-When converted to a rate, this metric represents the raw utilization of
-the disk during the sampling interval as a result of reads.  Accounting for
-this metric is only done on I/O completion and can thus result in more than a
-second's worth of IO being accounted for within any one second, leading to
->100% utilisation.  It is suitable mainly for use in calculations with other
-metrics, e.g. mirroring the results from existing performance tools:
+@ disk.dev.read_rawactive per-disk raw count of read response time
+For each completed read on each disk the response time (queue time plus
+service time) in milliseconds is added to the associated instance of
+this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding reads for a disk.  When divided by the number
+of completed reads for a disk (disk.dev.read), the value represents the
+stochastic average of the read response (or wait) time for that disk.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
 
  iostat.dev.r_await = delta(disk.dev.read_rawactive) / delta(disk.dev.read)
 
-@ disk.dev.write_rawactive per-disk raw count of active write time
-When converted to a rate, this metric represents the raw utilization of
-the disk during the sampling interval as a result of writes.  Accounting for
-this metric is only done on I/O completion and can thus result in more than a
-second's worth of IO being accounted for within any one second, leading to
->100% utilisation.  It is suitable mainly for use in calculations with other
-metrics, e.g. mirroring the results from existing performance tools:
+@ disk.dev.write_rawactive per-disk raw count of write response time
+For each completed write on each disk the response time (queue time plus
+service time) in milliseconds is added to the associated instance of
+this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a disk.  When divided by
+the number of completed writes for a disk (disk.dev.write), the value
+represents the stochastic average of the write response (or wait)
+time for that disk.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
 
  iostat.dev.w_await = delta(disk.dev.write_rawactive) / delta(disk.dev.write)
+
+@ disk.dev.total_rawactive per-disk raw count of I/O response time
+For each completed I/O on each disk the response time (queue time plus
+service time) in milliseconds is added to the associated instance of
+this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding I/Os for a disk.  When divided by the number
+of completed I/Os for a disk (disk.dev.total), the value represents the
+stochastic average of the I/O response (or wait) time for that disk.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dev.await = delta(disk.dev.total_rawactive) / delta(disk.dev.total)
 
 @ disk.dev.aveq per-disk time averaged count of request queue length
 When converted to a rate, this metric represents the time averaged disk
@@ -196,28 +225,62 @@ Count of write requests that were merged with an already queued write request.
 @ disk.dm.write_merge per-device-mapper device count of merged write requests
 
 @ disk.dm.avactive per-device-mapper device count of active time
+Counts the number of milliseconds for which at least one I/O is in
+progresss for each device-mapper device.
+
+When converted to a rate, this metric represents the average utilization
+of the device during the sampling interval.  A value of 0.5 (or 50%)
+means the device was active (i.e. busy) half the time.
 
 @ disk.dm.aveq per-device-mapper device time averaged count of request queue length
 
-@ disk.dm.read_rawactive per-device-mapper raw count of active read time
-When converted to a rate, this metric represents the raw utilization of
-the device during the sampling interval as a result of reads.  Accounting for
-this metric is only done on I/O completion and can thus result in more than a
-second's worth of IO being accounted for within any one second, leading to
->100% utilisation.  It is suitable mainly for use in calculations with other
-metrics, e.g. mirroring the results from existing performance tools:
+@ disk.dm.read_rawactive per-device-mapper raw count of read response time
+For each completed read on each device-mapper device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding reads for a device-mapper device.
+When divided by the number of completed reads for a device-mapper device
+(disk.dm.read), the value represents the stochastic average of the read
+response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
 
  iostat.dm.r_await = delta(disk.dm.read_rawactive) / delta(disk.dm.read)
 
-@ disk.dm.write_rawactive per-device-mapper raw count of active write time
-When converted to a rate, this metric represents the raw utilization of
-the device during the sampling interval as a result of writes.  Accounting for
-this metric is only done on I/O completion and can thus result in more than a
-second's worth of IO being accounted for within any one second, leading to
->100% utilisation.  It is suitable mainly for use in calculations with other
-metrics, e.g. mirroring the results from existing performance tools:
+@ disk.dm.write_rawactive per-device-mapper raw count of write response time
+For each completed write on each device-mapper device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a device-mapper device.
+When divided by the number of completed writes for a device-mapper device
+(disk.dm.write), the value represents the stochastic average of the
+write response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
 
  iostat.dm.w_await = delta(disk.dm.write_rawactive) / delta(disk.dm.write)
+
+@ disk.dm.total_rawactive per-device-mapper raw count of I/O response time
+For each completed I/O on each device-mapper device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding I/Os for a device-mapper device.
+When divided by the number of completed I/Os for a device-mapper device
+(disk.dm.total), the value represents the stochastic average of the I/O
+response (or wait) time for that device-mapper device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.dm.await = delta(disk.dm.total_rawactive) / delta(disk.dm.total)
 
 @ hinv.map.dmname per-device-mapper device persistent name mapping to dm-[0-9]*
 
@@ -228,29 +291,48 @@ Total count of read requests that were merged with an already queued read reques
 Total count of write requests that were merged with an already queued write request.
 
 @ disk.all.avactive total count of active time, summed for all disks
-When converted to a rate, this metric represents the average utilization of
-all disks during the sampling interval.  A value of 0.25 (or 25%) means that
-on average every disk was active (i.e. busy) one quarter of the time.
+Counts the number of milliseconds for which at least one I/O is in
+progresss on each disk, summed across all disks.
 
-@ disk.all.read_rawactive raw count of active read time, summed for all disks
-When converted to a rate, this metric represents the raw utilization of all
-disks during the sampling interval due to read requests.  The accounting for
-this metric is only done on I/O completion and can thus result in more than a
-second's worth of IO being accounted for within any one second, leading to
->100% utilisation.  It is suitable mainly for use in calculations with other
-metrics, e.g. mirroring the results from existing performance tools:
+When converted to a rate and divided by the number of disks (hinv.ndisk),
+this metric represents the average utilization of all disks during the
+sampling interval.  A value of 0.25 (or 25%) means that on average every
+disk was active (i.e. busy) one quarter of the time.
+
+@ disk.all.read_rawactive raw count of read response time, summed for all disks
+For each completed read on every disk the response time (queue time plus
+service time) in milliseconds is added to this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding reads across all disks.  When divided
+by the number of completed reads for all disks (disk.all.read), value
+represents the stochastic average of the read response (or wait) time
+across all disks.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
 
  iostat.all.r_await = delta(disk.all.read_rawactive) / delta(disk.all.read)
 
-@ disk.all.write_rawactive raw count of active write time, summed for all disks
-When converted to a rate, this metric represents the raw utilization of all
-disks during the sampling interval due to write requests.  The accounting for
-this metric is only done on I/O completion and can thus result in more than a
-second's worth of IO being accounted for within any one second, leading to
->100% utilisation.  It is suitable mainly for use in calculations with other
-metrics, e.g. mirroring the result from existing performance tools:
+@ disk.all.write_rawactive raw count of write response time, summed for all disks
+For each completed write on every disk the response time (queue time
+plus service time) in milliseconds is added to this metric.
 
- iostat.all.w_await = delta(disk.all.write_rawactive) / delta(disk.all.write)
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding writes across all disks.  When divided by
+the number of completed writes for all disks (disk.all.write), value
+represents the stochastic average of the write response (or wait) time
+across all disks.
+
+@ disk.all.total_rawactive raw count of I/O response time, summed for all disks
+For each completed I/O on every disk the response time (queue time
+plus service time) in milliseconds is added to this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding I/Os across all disks.  When divided by
+the number of completed I/Os for all disks (disk.all.total), value
+represents the stochastic average of the I/O response (or wait) time
+across all disks.
 
 @ disk.all.aveq total time averaged count of request queue length, summed for all disks
 When converted to a rate, this metric represents the average across all disks
@@ -328,6 +410,65 @@ counter wrap) for individual disk partitions or logical volumes.
 Cumulative number of bytes read and written since system boot time
 (subject to counter wrap) for individual disk partitions or logical
 volumes.
+
+@ disk.partitions.read_merge per-disk-partition count of merged read requests
+
+@ disk.partitions.write_merge per-disk-partition count of merged write requests
+
+@ disk.partitions.avactive per-disk-partition device count of active time
+Counts the number of milliseconds for which at least one I/O is in
+progresss for each disk partition.
+
+When converted to a rate, this metric represents the average utilization
+of the disk partition during the sampling interval.  A value of 0.5
+(or 50%) means the disk partition was active (i.e. busy) half the time.
+
+@ disk.partitions.aveq per-disk-partition device time averaged count of request queue length
+
+@ disk.partitions.read_rawactive per-disk-partition raw count of read response time
+For each completed read on each disk partition the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time average
+of the number of outstanding reads for a disk partition.  When divided by
+the number of completed reads for a disk partition (disk.partitions.read),
+the value represents the stochastic average of the read response (or wait)
+time for that disk partition.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.partitions.r_await = delta(disk.partitions.read_rawactive) /
+                             delta(disk.partitions.read)
+
+@ disk.partitions.write_rawactive per-disk-partition raw count of write response time
+For each completed write on each disk partition the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a disk partition.
+When divided by the number of completed writes for a disk partition
+(disk.partitions.write), the value represents the stochastic average of
+the write response (or wait) time for that disk partition.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.partitions.w_await = delta(disk.partitions.write_rawactive) /
+                             delta(disk.partitions.write)
+
+@ disk.partitions.total_rawactive per-disk-partition raw count of I/O response time
+For each completed I/O on each disk partition the response time (queue
+time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding I/Os for a disk partition.
+When divided by the number of completed I/Os for a disk partition
+(disk.partitions.total), the value represents the stochastic average of
+the I/O response (or wait) time for that disk partition.
 
 @ swap.pagesin pages read from swap devices due to demand for physical memory
 @ swap.pagesout pages written to swap devices due to demand for physical memory
@@ -800,9 +941,105 @@ See also network.interface.speed for the Megabytes/second value.
 @ network.sockstat.raw.inuse instantaneous number of raw sockets currently in use
 @ network.sockstat.raw.highest highest number of raw sockets in use at any one time since boot
 @ network.sockstat.raw.util instantaneous raw socket utilization (100 * inuse/highest)
+@ network.softnet.processed number of packets (not including netpoll) received by the interrupt handler
+@ network.softnet.dropped number of packets that were dropped because netdev_max_backlog was exceeded
+@ network.softnet.time_squeeze number of times ksoftirq ran out of netdev_budget or time slice with work remaining
+@ network.softnet.cpu_collision number of times that two cpus collided trying to get the device queue lock
+@ network.softnet.received_rps number of times rps_trigger_softirq has been called
+@ network.softnet.flow_limit_count softnet_data flow limit counter
+The network stack has to drop packets when a receive processing a CPUs
+backlog reaches netdev_max_backlog.  The flow_limit_count counter is
+the number of times very active flows have dropped their traffic earlier
+to maintain capacity for other less active flows.
+
+@ network.ip6.inreceives count of ip6 inreceives
+@ network.ip6.inhdrerrors count of ip6 inhdrerrors
+@ network.ip6.intoobigerrors count of ip6 intoobigerrors
+@ network.ip6.innoroutes count of ip6 innoroutes
+@ network.ip6.inaddrerrors count of ip6 inaddrerrors
+@ network.ip6.inunknownprotos count of ip6 inunknownprotos
+@ network.ip6.intruncatedpkts count of ip6 intruncatedpkts
+@ network.ip6.indiscards count of ip6 indiscards
+@ network.ip6.indelivers count of ip6 indelivers
+@ network.ip6.outforwdatagrams count of ip6 outforwdatagrams
+@ network.ip6.outrequests count of ip6 outrequests
+@ network.ip6.outdiscards count of ip6 outdiscards
+@ network.ip6.outnoroutes count of ip6 outnoroutes
+@ network.ip6.reasmtimeout count of ip6 reasmtimeout
+@ network.ip6.reasmreqds count of ip6 reassembly requireds
+@ network.ip6.reasmoks count of ip6 reassembly oks
+@ network.ip6.reasmfails count of ip6 reassembly failures
+@ network.ip6.fragoks count of ip6 fragmentation oks
+@ network.ip6.fragfails count of ip6 fragmentation failures
+@ network.ip6.fragcreates count of ip6 fragmentation creations
+@ network.ip6.inmcastpkts count of ip6 multicast packets in
+@ network.ip6.outmcastpkts count of ip6 multicast packets out
+@ network.ip6.inoctets count of ip6 octets in
+@ network.ip6.outoctets count of ip6 octets out
+@ network.ip6.inmcastoctets count of ip6 multicast octets in
+@ network.ip6.outmcastoctets count of ip6 multicast octets out
+@ network.ip6.inbcastoctets count of ip6 broadcast octets in
+@ network.ip6.outbcastoctets count of ip6 broadcast octets uot
+@ network.ip6.innoectpkts count of ip6 packets received with NOECT
+@ network.ip6.inect1pkts count of ip6 packets received with ECT(1)
+@ network.ip6.inect0pkts count of ip6 packets received with ECT(0)
+@ network.ip6.incepkts count of ip6 Congestion Experimented packets in
+@ network.icmp6.inmsgs count of icmp6 inmsgs
+@ network.icmp6.inerrors count of icmp6 inerrors
+@ network.icmp6.outmsgs count of icmp6 outmsgs
+@ network.icmp6.outerrors count of icmp6 outerrors
+@ network.icmp6.incsumerrors count of icmp6 incsumerrors
+@ network.icmp6.indestunreachs count of icmp6 indestunreachs
+@ network.icmp6.inpkttoobigs count of icmp6 inpkttoobigs
+@ network.icmp6.intimeexcds count of icmp6 intimeexcds
+@ network.icmp6.inparmproblems count of icmp6 inparmprobs
+@ network.icmp6.inechos count of icmp6 inechos
+@ network.icmp6.inechoreplies count of icmp6 inechoreplies
+@ network.icmp6.ingroupmembqueries count of icmp6 ingroupmembqueries
+@ network.icmp6.ingroupmembresponses count of icmp6 ingroupmembresponses
+@ network.icmp6.ingroupmembreductions count of icmp6 ingroupmembreductions
+@ network.icmp6.inroutersolicits count of icmp6 inroutersolicits
+@ network.icmp6.inrouteradvertisements count of icmp6 inrouteradvertisements
+@ network.icmp6.inneighborsolicits count of icmp6 inneighborsolicits
+@ network.icmp6.inneighboradvertisements count of icmp6 inneighboradvertisements
+@ network.icmp6.inredirects count of icmp6 inredirects
+@ network.icmp6.inmldv2reports count of icmp6 inmldv2reports
+@ network.icmp6.outdestunreachs count of icmp6 outdestunreachs
+@ network.icmp6.outpkttoobigs count of icmp6 outpkttoobigs
+@ network.icmp6.outtimeexcds count of icmp6 outtimeexcds
+@ network.icmp6.outparmproblems count of icmp6 outparmproblems
+@ network.icmp6.outechos count of icmp6 outechos
+@ network.icmp6.outechoreplies count of icmp6 outechoreplies
+@ network.icmp6.outgroupmembqueries count of icmp6 outgroupmembqueries
+@ network.icmp6.outgroupmembresponses count of icmp6 outgroupmembresponses
+@ network.icmp6.outgroupmembreductions count of icmp6 outgroupmembreductions
+@ network.icmp6.outroutersolicits count of icmp6 outroutersolicits
+@ network.icmp6.outrouteradvertisements count of icmp6 outrouteradvertisements
+@ network.icmp6.outneighborsolicits count of icmp6 outneighborsolicits
+@ network.icmp6.outneighboradvertisements count of icmp6 outneighboradvertisements
+@ network.icmp6.outredirects count of icmp6 outredirects
+@ network.icmp6.outmldv2reports count of icmp6 outmldv2reports
+@ network.udp6.indatagrams count of udp6 indatagrams
+@ network.udp6.noports count of udp6 noports
+@ network.udp6.inerrors count of udp6 inerrors
+@ network.udp6.outdatagrams count of udp6 outdatagrams
+@ network.udp6.rcvbuferrors count of udp6 rcvbuferrors
+@ network.udp6.sndbuferrors count of udp6 sndbuferrors
+@ network.udp6.incsumerrors count of udp6 incsumerrors
+@ network.udp6.ignoredmulti count of udp6 ignoredmulti
+@ network.udplite6.indatagrams count of udplite6 indatagrams
+@ network.udplite6.noports count of udplite6 noports
+@ network.udplite6.inerrors count of udplite6 inerrors
+@ network.udplite6.outdatagrams count of udplite6 outdatagrams
+@ network.udplite6.rcvbuferrors count of udplite6 receive buffer errors
+@ network.udplite6.sndbuferrors count of udplite6 send buffer errors
+@ network.udplite6.incsumerrors count of udplite6 in checksum errors
+
 @ hinv.physmem total system memory metric from /proc/meminfo
 @ hinv.pagesize Memory page size
 The memory page size of the running kernel in bytes.
+@ hinv.hugepagesize Huge page size from /proc/meminfo
+The memory huge page size of the running kernel in bytes.
 @ hinv.ncpu number of CPUs in the system
 @ hinv.ndisk number of disks in the system
 @ hinv.nfilesys number of (local) file systems currently mounted
@@ -815,10 +1052,6 @@ D is controller number, C is channel number, I is device ID
 and L is the SCSI LUN number for the device. The values for this
 metric are the actual device names (sd[a-z] are SCSI disks, st[0-9]
 are SCSI tapes and scd[0-9] are SCSI CD-ROMS.
-@ hinv.nlv number of logical volumes
-@ hinv.map.lvname mapping of logical volume names for devices
-Provides a logical-volume-name to device-name mapping for the device
-mapper subsystem.
 @ filesys.capacity Total capacity of mounted filesystem (Kbytes)
 @ filesys.used Total space used on mounted filesystem (Kbytes)
 @ filesys.free Total space free on mounted filesystem (Kbytes)
@@ -1173,6 +1406,9 @@ See also the kernel.uname.* metrics
 @ ipc.shm.max_seg maximum number of shared segments in system (from shmctl(..,IPC_INFO,..))
 @ ipc.shm.max_segproc maximum number of shared segments per process (from shmctl(..,IPC_INFO,..))
 @ ipc.shm.max_shmsys maximum amount of shared memory in system in pages (from shmctl(..,IPC_INFO,..))
+@ ipc.shm.tot total number of shared memory pages (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.rss number of resident shared memory pages (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.swp number of swapped shared memory pages (from shmctl(..,SHM_INFO,..))
 
 @ vfs.files.count number of in-use file structures
 @ vfs.files.free number of available file structures

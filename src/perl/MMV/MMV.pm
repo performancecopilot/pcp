@@ -102,10 +102,10 @@ available as PCP metrics using the MMV PMDA.
 mmv_stats_init(3), mmv_inc_value(3), mmv_lookup_value_desc(3),
 mmv(4) and pmda(3).
 
-The PCP mailing list pcp@mail.performancecopilot.org can be used for
-questions about this module.
+The PCP mailing list pcp@oss.sgi.com can be used for questions about
+this module.
 
-Further details can be found at http://www.performancecopilot.org
+Further details can be found at http://www.pcp.io
 
 =head1 AUTHOR
 

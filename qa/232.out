@@ -17,7 +17,6 @@ nfs4.server.reqs:
 network.interface.total.bytes:
 tmpfs.capacity:
 kernel.pernode.cpu.nice:
-hinv.nlv:
 hinv.map.dmname:
 sampledso.colour:
 sampledso.bucket:

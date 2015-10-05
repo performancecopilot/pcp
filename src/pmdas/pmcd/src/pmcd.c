@@ -215,6 +215,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(8,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* pmcd.feature.containers */
     { PMDA_PMID(8,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* pmcd.feature.local */
+    { PMDA_PMID(8,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* End-of-List */
     { PM_ID_NULL, 0, 0, 0, PMDA_PMUNITS(0, 0, 0, 0, 0, 0) }
@@ -1773,7 +1775,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		else if (val == 1)
 		    _pmcd_trace_mask |= TR_MASK_CONN;
 		else {
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		    break;
 		}
 	    }
@@ -1784,7 +1786,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		else if (val == 1)
 		    _pmcd_trace_mask |= TR_MASK_PDU;
 		else {
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		    break;
 		}
 	    }
@@ -1812,7 +1814,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		else if (val == 1)
 		    _pmcd_trace_mask |= TR_MASK_NOBUF;
 		else {
-		    sts = PM_ERR_CONV;
+		    sts = PM_ERR_BADSTORE;
 		    break;
 		}
 	    }

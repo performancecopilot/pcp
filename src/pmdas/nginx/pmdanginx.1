@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2013 Red Hat.
 .\" Copyright (c) 2013 Ryan Doyle.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -18,10 +19,44 @@
 \f3pmdanginx\f1 \- nginx performance metrics domain agent (PMDA)
 .SH DESCRIPTION
 \f3pmdanginx\f1 is a Performance Metrics Domain Agent (\s-1PMDA\s0) which
-exports performance metrics from nginx.
+exports performance metrics from
+.BR nginx (8)
+\- an HTTP and reverse proxy server, a mail proxy server, and a generic
+TCP proxy server.
 .SH INSTALLATION
-This \s-1PMDA\s0 requires that the nginx stub_status module is active and 
-available at http://localhost/nginx_status
+This \s-1PMDA\s0 requires that the
+.B nginx
+stub_status module is active and available at http://localhost/nginx_status
+.PP
+In order to enable this module, the "server" section of the
+.I nginx.conf
+configuration file should contain the following.
+.de CS
+.in +0.5i
+.ft CW
+.nf
+..
+.de CE
+.fi
+.ft 1
+.in
+..
+.PP
+.CS
+location /nginx_status {
+    stub_status on;
+    access_log off;
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+}
+.CE
+.PP
+Instrumentation availability can be verified using these
+commands (compile-time then run-time checks):
+.PP
+      # nginx -V 2>&1 | grep -o with-http_stub_status_module
+      # curl http://localhost/nginx_status
 .PP
 Install the nginx \s-1PMDA\s0 by using the Install script as root:
 .PP
@@ -54,4 +89,6 @@ file \fB/etc/pcp.conf\fR contains the local values for these variables.
 The \fB$PCP_CONF\fR variable may be used to specify an alternative 
 configuration file, as described in \fIpcp.conf\fR(5).
 .SH SEE ALSO
-.BR pmcd (1).
+.BR pmcd (1)
+and
+.BR nginx (8).

@@ -49,8 +49,8 @@
  *
  * All access to registered is controlled by the registered.mutex.
  *
- * No locking needed in init() to protect need_init and the getenv()
- * call, as we always lock the registered.mutex before calling init().
+ * No locking needed in __dminit() to protect need_init and the getenv()
+ * call, as we always lock the registered.mutex before calling __dminit().
  *
  * The context locking protocol ensures that when any of the routines
  * below are called with a __pmContext * argument, that argument is
@@ -68,9 +68,12 @@
 #include "impl.h"
 #include "internal.h"
 #include "fault.h"
+#include <sys/stat.h>
 #ifdef IS_MINGW
 extern const char *strerror_r(int, char *, size_t);
 #endif
+
+static int __dminit_configfile(const char *);
 
 static int		need_init = 1;
 static ctl_t		registered = {
@@ -102,7 +105,7 @@ static char		*derive_errmsg;
 static const char	*type_dbg[] = {
 	"ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "PLUS", "MINUS",
 	"STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA",
-	"MAX", "MIN", "SUM", "ANON", "RATE" };
+	"MAX", "MIN", "SUM", "ANON", "RATE", "INSTANT" };
 static const char	type_c[] = {
 	'\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '(', ')', '\0' };
 
@@ -119,6 +122,7 @@ static const struct {
     { L_SUM,	"sum" },
     { L_ANON,	"anon" },
     { L_RATE,	"rate" },
+    { L_INSTANT,"instant" },
     { L_UNDEF,	NULL }
 };
 
@@ -134,8 +138,7 @@ static const struct {
 static const char	*state_dbg[] = {
 	"INIT", "LEAF", "LEAF_PAREN", "BINOP", "FUNC_OP", "FUNC_END" };
 
-#ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+#if defined(PM_MULTI_THREAD) && !defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
 static void
 initialize_mutex(void)
 {
@@ -145,7 +148,7 @@ initialize_mutex(void)
     char			errmsg[PM_MAXERRMSGLEN];
     if ((psts = pthread_mutex_lock(&init)) != 0) {
 	strerror_r(psts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "initializ_mutex: pthread_mutex_lock failed: %s", errmsg);
+	fprintf(stderr, "initialize_mutex: pthread_mutex_lock failed: %s", errmsg);
 	exit(4);
     }
     if (!done) {
@@ -178,7 +181,8 @@ initialize_mutex(void)
 	exit(4);
     }
 }
-#endif
+#else
+# define initialize_mutex() do { } while (0)
 #endif
 
 /* Register an anonymous metric */
@@ -219,26 +223,137 @@ PM_FAULT_CHECK(PM_FAULT_PMAPI);
     return 0;
 }
 
+/*
+ * Handle one component of the ':' separated derived config spec.
+ * Used for $PCP_DERIVED_CONFIG evaluation and pmLoadDerivedConfig.
+ *
+ * If descend is 1 and name is a directory then we will process all
+ * the files in that directory, otherwise directories are skipped.
+ * Note: for the current implementation, descend is always 1.
+ *
+ * If recover is 1 then we are tolerant of failures like missing or
+ * inaccessible files/directories, otherwise we're not and an error
+ * is propagated back to the caller.
+ */
+static int
+__dminit_component(const char *name, int descend, int recover)
+{
+    struct stat	sbuf;
+    int		sts = 0;
+
+    if (stat(name, &sbuf) < 0) {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_DERIVE) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "Warning: derived metrics path component: %s: %s\n",
+		name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+	}
+#endif
+	sts = -oserror();
+	goto finish;
+    }
+    if (S_ISREG(sbuf.st_mode)) {
+	/* regular file or symlink to a regular file, load it */
+	sts = __dminit_configfile(name);
+#ifdef PCP_DEBUG
+	if (sts < 0 && pmDebug & DBG_TRACE_DERIVE) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "pmLoadDerivedConfig(%s): %s\n", name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+#endif
+	goto finish;
+    }
+    if (descend && S_ISDIR(sbuf.st_mode)) {
+	/* directory, descend to process all files in the directory */
+	DIR		*dirp;
+	struct dirent	*dp;
+
+	if ((dirp = opendir(name)) == NULL) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_DERIVE) {
+		char	errmsg[PM_MAXERRMSGLEN];
+		fprintf(stderr, "Warning: derived metrics path directory component: %s: %s\n",
+		    name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+	    }
+#endif
+	    sts = -oserror();
+	    goto finish;
+	}
+	while (setoserror(0), (dp = readdir(dirp)) != NULL) {
+	    char	path[MAXPATHLEN+1];
+	    int		localsts;
+	    /*
+	     * skip "." and ".." and recursively call __dminit_component()
+	     * to process the directory entries ... descend is passed down
+	     */
+	    if (strcmp(dp->d_name, ".") == 0) continue;
+	    if (strcmp(dp->d_name, "..") == 0) continue;
+	    snprintf(path, sizeof(path), "%s%c%s", name, __pmPathSeparator(), dp->d_name);
+	    if ((localsts = __dminit_component(path, descend, recover)) < 0)
+		sts = localsts;
+	}
+#ifdef PCP_DEBUG
+	/* error is most unlikely and ignore unless -Dderive specified */
+	if (oserror() != 0 && pmDebug & DBG_TRACE_DERIVE) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "Warning: %s: readdir failed: %s\n",
+		name, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
+	}
+#endif
+	closedir(dirp);
+	goto finish;
+    }
+    /* otherwise not a file or symlink to a real file or a directory */
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_DERIVE) {
+	fprintf(stderr, "Warning: derived metrics path component: %s: unexpected st_mode=%o?\n",
+	    name, sbuf.st_mode);
+    }
+#endif
+
+finish:
+    return recover ? 0 : sts;
+}
+
+/*
+ * Parse, split and process ':' separated components from a
+ * derived metrics path specification.
+ */
+static int
+__dminit_parse(const char *path, int recover)
+{
+    const char	*p = path;
+    const char	*q;
+    int		sts = 0;
+
+    while ((q = index(p, ':')) != NULL) {
+	char	*name = strndup(p, q-p+1);
+	name[q-p] = '\0';
+	sts = __dminit_component(name, 1, recover);
+	free(name);
+	p = q+1;
+    }
+    if (*p != '\0' && sts >= 0)
+	sts = __dminit_component(p, 1, recover);
+    return sts;
+}
+
+/*
+ * initialization for Derived Metrics ...
+ */
 static void
-init(void)
+__dminit(void)
 {
     if (need_init) {
 	char	*configpath;
 
 	if ((configpath = getenv("PCP_DERIVED_CONFIG")) != NULL) {
-	    int	sts;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
 		fprintf(stderr, "Derived metric initialization from $PCP_DERIVED_CONFIG\n");
 	    }
 #endif
-	    sts = pmLoadDerivedConfig(configpath);
-#ifdef PCP_DEBUG
-	    if (sts < 0 && (pmDebug & DBG_TRACE_DERIVE)) {
-		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "pmLoadDerivedConfig -> %s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	    }
-#endif
+	    __dminit_parse(configpath, 1 /*recovering*/);
 	}
 	need_init = 0;
     }
@@ -526,6 +641,7 @@ void report_sem_error(char *name, node_t *np)
 	case L_COUNT:
 	case L_DELTA:
 	case L_RATE:
+	case L_INSTANT:
 	case L_MAX:
 	case L_MIN:
 	case L_SUM:
@@ -889,11 +1005,13 @@ check_expr(int n, node_t *np)
 	 * delta()	expect numeric operand, result is instantaneous
 	 * rate()	expect numeric operand, dimension of time must be
 	 * 		0 or 1, result is instantaneous
+	 * instant()	result is instantaneous
 	 * aggr funcs	most expect numeric operand, result is instantaneous
 	 *		and singular
 	 */
 	if (np->type == L_AVG || np->type == L_COUNT
-	    || np->type == L_DELTA || np->type == L_RATE
+	    || np->type == L_DELTA 
+	    || np->type == L_RATE || np->type == L_INSTANT
 	    || np->type == L_MAX || np->type == L_MIN || np->type == L_SUM) {
 	    if (np->type == L_COUNT) {
 		/* count() has its own type and units */
@@ -901,6 +1019,17 @@ check_expr(int n, node_t *np)
 		memset((void *)&np->desc.units, 0, sizeof(np->desc.units));
 		np->desc.units.dimCount = 1;
 		np->desc.units.scaleCount = PM_COUNT_ONE;
+		np->desc.sem = PM_SEM_INSTANT;
+	    }
+	    else if (np->type == L_INSTANT) {
+		/*
+		 * semantics are INSTANT if operand is COUNTER, else
+		 * inherit the semantics of the operand
+		 */
+		if (np->left->desc.sem == PM_SEM_COUNTER)
+		    np->desc.sem = PM_SEM_INSTANT;
+		else
+		    np->desc.sem = np->left->desc.sem;
 	    }
 	    else {
 		/* others inherit, but need arithmetic operand */
@@ -917,9 +1046,9 @@ check_expr(int n, node_t *np)
 			report_sem_error(registered.mlist[n].name, np);
 			return -1;
 		}
+		np->desc.sem = PM_SEM_INSTANT;
 	    }
-	    np->desc.sem = PM_SEM_INSTANT;
-	    if (np->type == L_DELTA || np->type == L_RATE) {
+	    if (np->type == L_DELTA || np->type == L_RATE || np->type == L_INSTANT) {
 		/* inherit indom */
 		if (np->type == L_RATE) {
 		    /*
@@ -1162,7 +1291,8 @@ parse(int level)
 		    state = P_LEAF_PAREN;
 		}
 		else if (type == L_AVG || type == L_COUNT
-			 || type == L_DELTA || type == L_RATE
+			 || type == L_DELTA
+			 || type == L_RATE || type == L_INSTANT
 		         || type == L_MAX || type == L_MIN || type == L_SUM 
 			 || type == L_ANON) {
 		    expr = curr = newnode(type);
@@ -1181,7 +1311,8 @@ parse(int level)
 		    if (state == P_LEAF_PAREN ||
 		        curr->type == L_NAME || curr->type == L_NUMBER ||
 			curr->type == L_AVG || curr->type == L_COUNT ||
-			curr->type == L_DELTA || curr->type == L_RATE ||
+			curr->type == L_DELTA ||
+			curr->type == L_RATE || curr->type == L_INSTANT ||
 			curr->type == L_MAX || curr->type == L_MIN ||
 			curr->type == L_SUM || curr->type == L_ANON ||
 		        type == L_PLUS || type == L_MINUS) {
@@ -1236,7 +1367,8 @@ parse(int level)
 		    state = P_LEAF_PAREN;
 		}
 		else if (type == L_AVG || type == L_COUNT
-			 || type == L_DELTA || type == L_RATE
+			 || type == L_DELTA
+			 || type == L_RATE || type == L_INSTANT
 		         || type == L_MAX || type == L_MIN || type == L_SUM
 			 || type == L_ANON) {
 		    np = newnode(type);
@@ -1339,11 +1471,7 @@ pmRegisterDerived(const char *name, const char *expr)
     int			i;
 
     PM_INIT_LOCKS();
-#ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     initialize_mutex();
-#endif
-#endif
     PM_LOCK(registered.mutex);
 
 #ifdef PCP_DEBUG
@@ -1402,6 +1530,12 @@ pmRegisterDerived(const char *name, const char *expr)
 
 int
 pmLoadDerivedConfig(const char *fname)
+{
+    return __dminit_parse(fname, 0 /*non-recovering*/);
+}
+
+static int
+__dminit_configfile(const char *fname)
 {
     FILE	*fp;
     int		buflen;
@@ -1549,13 +1683,9 @@ __dmtraverse(const char *name, char ***namelist)
     char	**list = NULL;
     int		matchlen = strlen(name);
 
-#ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     initialize_mutex();
-#endif
-#endif
     PM_LOCK(registered.mutex);
-    init();
+    __dminit();
 
     for (i = 0; i < registered.nmetric; i++) {
 	/*
@@ -1592,13 +1722,9 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
     int		start;
     int		len;
 
-#ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     initialize_mutex();
-#endif
-#endif
     PM_LOCK(registered.mutex);
-    init();
+    __dminit();
 
     for (i = 0; i < registered.nmetric; i++) {
 	/*
@@ -1690,13 +1816,9 @@ __dmgetpmid(const char *name, pmID *dp)
 {
     int		i;
 
-#ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     initialize_mutex();
-#endif
-#endif
     PM_LOCK(registered.mutex);
-    init();
+    __dminit();
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (strcmp(name, registered.mlist[i].name) == 0) {
@@ -1714,13 +1836,9 @@ __dmgetname(pmID pmid, char ** name)
 {
     int		i;
 
-#ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     initialize_mutex();
-#endif
-#endif
     PM_LOCK(registered.mutex);
-    init();
+    __dminit();
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (pmid == registered.mlist[i].pmid) {
@@ -1746,13 +1864,9 @@ __dmopencontext(__pmContext *ctxp)
     int		sts;
     ctl_t	*cp;
 
-#ifdef PM_MULTI_THREAD
-#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
     initialize_mutex();
-#endif
-#endif
     PM_LOCK(registered.mutex);
-    init();
+    __dminit();
 
 #ifdef PCP_DEBUG
     if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
@@ -1811,7 +1925,7 @@ __dmclosecontext(__pmContext *ctxp)
     int		i;
     ctl_t	*cp = (ctl_t *)ctxp->c_dm;
 
-    /* if needed, init() called in __dmopencontext beforehand */
+    /* if needed, __dminit() called in __dmopencontext beforehand */
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DERIVE) {
@@ -1833,7 +1947,7 @@ __dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
     int		i;
     ctl_t	*cp = (ctl_t *)ctxp->c_dm;
 
-    /* if needed, init() called in __dmopencontext beforehand */
+    /* if needed, __dminit() called in __dmopencontext beforehand */
 
     if (cp == NULL) return PM_ERR_PMID;
 
@@ -1849,8 +1963,7 @@ __dmdesc(__pmContext *ctxp, pmID pmid, pmDesc *desc)
     return PM_ERR_PMID;
 }
 
-#ifdef PM_MULTI_THREAD
-#ifdef PM_MULTI_THREAD_DEBUG
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
 /*
  * return true if lock == registered.mutex ... no locking here to avoid
  * recursion ad nauseum
@@ -1860,5 +1973,4 @@ __pmIsDeriveLock(void *lock)
 {
     return lock == (void *)&registered.mutex;
 }
-#endif
 #endif

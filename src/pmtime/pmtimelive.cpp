@@ -164,7 +164,7 @@ void PmTimeLive::displayPosition()
     QString text;
     char ctimebuf[32], msecbuf[5];
 
-    pmCtime(&my.pmtime.position.tv_sec, ctimebuf);
+    pmCtime((const time_t *)&my.pmtime.position.tv_sec, ctimebuf);
     text = tr(ctimebuf);
     if (my.showYear == false)
 	text.remove(19, 5);

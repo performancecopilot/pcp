@@ -230,6 +230,7 @@ typedef int Op;
 #define CND_FETCH	1
 #define CND_DELAY	2
 #define CND_RATE	3
+#define CND_INSTANT	9
 /* arithmetic */
 #define CND_NEG		4
 #define CND_ADD		5
@@ -400,6 +401,7 @@ extern RealTime	   dfltDelta;	/* default sample interval */
 extern RealTime    runTime;	/* run time interval */
 extern int	   hostZone;	/* timezone from host? */
 extern char	   *timeZone;	/* timezone from command line */
+extern int	   quiet;	/* suppress default diagnostics */
 extern int	   verbose;	/* verbosity 0, 1 or 2 */
 extern int	   interactive;	/* interactive mode, -d */
 extern int	   isdaemon;	/* run as a daemon */

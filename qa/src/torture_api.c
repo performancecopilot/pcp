@@ -249,7 +249,7 @@ load_namespace(char *namespace)
 
     gettimeofday(&then, (struct timezone *)0);
     _op++;
-    if ((sts = pmLoadNameSpace(namespace)) < 0) {
+    if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	_err++;
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, namespace, pmErrStr(sts));
 	exit(1);
@@ -300,7 +300,11 @@ test_api(void)
 
     _op++;
     n = pmLookupName(numpmid, namelist, midlist);
-    if (n != PM_ERR_NONLEAF) {	/* expect failure due to pmcd */
+    if (n < 0 && n != PM_ERR_NONLEAF) {
+	/*
+	 * PM_ERR_NONLEAF would be from an older pmcd/libpcp, before the
+	 * pmLookupName() return value fix up.
+	 */
 	_err++;
 	printf("pmLookupName: Unexpected error: %s\n", pmErrStr(n));
 	for (i = 0; i < numpmid; i++) {
@@ -346,6 +350,7 @@ test_api(void)
 	    do_chn(namelist[i]);
 	if (midlist[i] != PM_ID_NULL) {
 	    _op++;
+	    names = NULL; /* silence coverity */
 	    n = pmNameAll(midlist[i], &names);
 	    if (n < 0) {
 		_err++;
@@ -370,6 +375,7 @@ test_api(void)
 		    printf("\"\n");
 		}
 		free(names);
+		names = NULL;
 	    }
 	    _op++;
 	    if ((n = pmLookupDesc(midlist[i], &desc)) < 0) {
@@ -386,6 +392,8 @@ test_api(void)
 		if (desc.indom == PM_INDOM_NULL)
 		    continue;
 		_op++;
+		inamelist = NULL; /* silence coverity */
+		instlist = NULL;
 		if ((n = pmGetInDom(desc.indom, &instlist, &inamelist)) < 0) {
 		    _err++;
 		    printf("pmGetInDom: %s\n", pmErrStr(n));

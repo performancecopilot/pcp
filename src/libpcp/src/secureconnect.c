@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Security and Authentication (NSS and SASL) support.  Client side.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -215,6 +215,7 @@ int
 __pmInitCertificates(void)
 {
     char nssdb[MAXPATHLEN];
+    const PRUint16 *cipher;
     PK11SlotInfo *slot;
     SECStatus secsts;
     static int initialized;
@@ -256,11 +257,8 @@ __pmInitCertificates(void)
     }
 
     /* Some NSS versions don't do this correctly in NSS_SetDomesticPolicy. */
-    do {
-        const PRUint16 *cipher;
-        for (cipher = SSL_ImplementedCiphers; *cipher != 0; ++cipher)
-            SSL_CipherPolicySet(*cipher, SSL_ALLOWED);
-    } while (0);
+    for (cipher = SSL_GetImplementedCiphers(); *cipher != 0; ++cipher)
+	SSL_CipherPolicySet(*cipher, SSL_ALLOWED);
     SSL_ClearSessionCache();
 
     return 0;
@@ -1091,7 +1089,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	sts = PM_ERR_IPC;
     }
 
-    if (pinned)
+    if (pinned > 0)
 	__pmUnpinPDUBuf(pb);
     if (sts < 0)
 	return sts;
@@ -1149,7 +1147,7 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	    sts = PM_ERR_IPC;
 	}
 
-	if (pinned)
+	if (pinned > 0)
 	    __pmUnpinPDUBuf(pb);
 	if (sts >= 0)
 	    sts = __pmSendAuth(fd, FROM_ANON, 0, length ? buffer : "", length);
@@ -1187,12 +1185,12 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 
 	pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &rpdu);
 	if (sts != PDU_ERROR) {
-	    if (pinpdu)
+	    if (pinpdu > 0)
 		__pmUnpinPDUBuf(&rpdu);
 	    return -PM_ERR_IPC;
 	}
 	sts = __pmDecodeError(rpdu, &serverSts);
-	if (pinpdu)
+	if (pinpdu > 0)
 	    __pmUnpinPDUBuf(&rpdu);
 	if (sts < 0)
 	    return sts;

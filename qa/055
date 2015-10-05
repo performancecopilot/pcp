@@ -9,15 +9,12 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard filters
+# get standard environment, filters and checks
 . ./common.product
 . ./common.filter
+. ./common.check
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
-
-# get standard filters
-. ./common.filter
-
 rm -f $seq.full
 
 # here are the exercises

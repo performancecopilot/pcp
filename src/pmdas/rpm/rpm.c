@@ -601,6 +601,8 @@ void
 __PMDA_INIT_CALL
 rpm_init(pmdaInterface * dp)
 {
+    int		sts;
+
     if (isDSO) {
 	int sep = __pmPathSeparator();
 	char helppath[MAXPATHLEN];
@@ -627,7 +629,13 @@ rpm_init(pmdaInterface * dp)
 
     pthread_mutex_init(&indom_mutex, NULL);
     /* Monitor changes to the rpm database */
-    pthread_create(&inotify_thread, NULL, rpm_inotify, NULL);
+    sts = pthread_create(&inotify_thread, NULL, rpm_inotify, NULL);
+    if (sts != 0) {
+	__pmNotifyErr(LOG_CRIT, "rpm_init: cannot spawn a new thread: errno=%d\n", sts);
+	dp->status = sts;
+    }
+    else
+	__pmNotifyErr(LOG_INFO, "Started rpm database monitoring thread\n");
 }
 
 static void

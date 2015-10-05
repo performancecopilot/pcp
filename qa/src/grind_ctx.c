@@ -117,7 +117,7 @@ main(int argc, char **argv)
 	    break;
 
 	case 'n':	/* alternative name space file */
-	    if ((sts = pmLoadNameSpace(optarg)) < 0) {
+	    if ((sts = pmLoadASCIINameSpace(optarg, 1)) < 0) {
 		fprintf(stderr, "%s: cannot load namespace from \"%s\": %s\n", pmProgname, optarg, pmErrStr(sts));
 		exit(1);
 	    }

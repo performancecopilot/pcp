@@ -50,6 +50,7 @@ _filter()
 	-e 's/[A-Z][a-z][a-z] *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/TIMESTAMP/' \
 	-e 's/20[0-9][0-9]-[01][0-9]-[0-3][0-9]T[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9]*/TIMESTAMP/' \
 	-e 's/STAMP[-+][0-1][0-9]:[0-5][0-9]/STAMP/' \
+	-e "s/`hostname`/HOST/" \
 	-e "s/`hostname | sed -e 's/\..*//'` /HOST /" \
 	-e 's/[0-9][A-Z]:HOST/HOST/' \
 	-e 's/\(pmie[([]\)[0-9][0-9]*/\1PID/'
@@ -64,19 +65,28 @@ PMCD_REQUEST_TIMEOUT=60
 PMCD_RECONNECT_TIMEOUT=1,2
 export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT PMCD_RECONNECT_TIMEOUT
 
-SYSLOG=''
-for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/syslog /var/log/system.log
-do
-    if [ -f $f ]
-    then
-	SYSLOG=$f
-	break
-    fi
-done
-if [ -z "$SYSLOG" ]
+# may be using journalctl, and so no syslog in the file system
+#
+if `which journalctl >/dev/null 2>&1`
 then
-    echo "Arrgh! Cannot find your syslog file"
-    exit 1
+    echo "Using journalctl ..." >>$seq.full
+    have_journalctl=true
+else
+    have_journalctl=false
+    SYSLOG=''
+    for f in /var/adm/SYSLOG /var/log/daemon.log /var/log/messages /var/log/syslog /var/log/system.log
+    do
+	if [ -f $f ]
+	then
+	    SYSLOG=$f
+	    break
+	fi
+    done
+    if [ -z "$SYSLOG" ]
+    then
+	echo "Arrgh! Cannot find your syslog file"
+	exit 1
+    fi
 fi
 
 # real QA test starts here
@@ -139,14 +149,26 @@ cat $tmp.err >>$seq.full
 
 echo
 echo "SYSLOG ..."
-$sudo tail -100 $SYSLOG >$tmp.tmp
-sed <$tmp.tmp -n '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
+if $have_journalctl
+then
+    # be careful ... --boot not supported in all versions, -l not
+    # supported in all versions
+    $sudo journalctl -b --full | tail -100 >$tmp.syslog
+else
+    $sudo tail -100 $SYSLOG >$tmp.syslog
+fi
+sed <$tmp.syslog -n '/PCP QA '"$seq"' - please ignore/s/\.\.\..*/.../p' \
 | _filter \
 | LC_COLLATE=POSIX sort -u
 
 echo >>$seq.full
-echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq.full
-cat $tmp.tmp >>$seq.full
+if $have_journalctl
+then
+    echo "=== tail journalctl -b --full ===" >>$seq.full
+else
+    echo "=== tail SYSLOG ($SYSLOG) ===" >>$seq.full
+fi
+cat $tmp.syslog >>$seq.full
 
 _check_core
 

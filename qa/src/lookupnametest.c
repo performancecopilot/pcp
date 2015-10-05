@@ -23,6 +23,7 @@ main(int argc, char **argv)
     char	*pmnsfile = PM_NS_DEFAULT;
     char	**namelist;
     pmID	*pmidlist;
+    char	*name;
 
     /* trim cmd name of leading directory components */
     __pmSetProgname(argv[0]);
@@ -124,7 +125,7 @@ Options:\n\
         exit(1);
     }
 
-    if (pmnsfile != PM_NS_DEFAULT && (sts = pmLoadNameSpace(pmnsfile)) < 0) {
+    if (pmnsfile != PM_NS_DEFAULT && (sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmProgname, 
 	       pmnsfile, pmErrStr(sts));
 	exit(1);
@@ -187,8 +188,56 @@ Options:\n\
 	printf(": %s\n", pmErrStr(sts));
     else
 	putchar('\n');
-    for (i = 0; i < numpmid; i++)
-	printf("[%d] %s %s\n", i, namelist[i], pmIDStr(pmidlist[i]));
+    for (i = 0; i < numpmid; i++) {
+	printf("[%d] %s", i, namelist[i]);
+	printf(" %s", pmIDStr(pmidlist[i]));
+	if (pmidlist[i] == PM_ID_NULL) {
+	    /* this one failed */
+	    sts = pmLookupName(1, &namelist[i], &pmidlist[i]);
+	    printf(" (%s)\n", pmErrStr(sts));
+	}
+	else {
+	    /*
+	     * success ... expect reverse lookups to work
+	     */
+	    char	**names;
+	    int		match = 0;
+	    sts = pmNameAll(pmidlist[i], &names);
+	    if (sts < 0)
+		printf(" pmNameAll: %s", pmErrStr(sts));
+	    else {
+		int	j;
+		for (j = 0; j < sts; j++) {
+		    if (strcmp(namelist[i], names[j]) == 0) {
+			match++;
+			break;
+		    }
+		}
+		if (match != 1) {
+		    /* oops, no matching name or more than one match! */
+		    printf(" botch pmNameAll ->");
+		    for (j = 0; j < sts; j++)
+			printf(" %s", names[j]);
+		}
+		free(names);
+	    }
+	    sts = pmNameID(pmidlist[i], &name);
+	    if (sts < 0)
+		printf(" pmNameID: %s", pmErrStr(sts));
+	    else {
+		if (strcmp(namelist[i], name) != 0) {
+		    /*
+		     * mismatch is OK if dups in PMNS and correct one
+		     * returned by pmNameAll
+		     */
+		    if (match != 1)
+			printf(" botch pmNameID -> %s", name);
+		}
+		free(name);
+	    }
+	    putchar('\n');
+	}
+    }
 
     return 0;
 }

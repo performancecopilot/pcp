@@ -1,7 +1,7 @@
 /*
  * Linux /proc/meminfo metrics cluster
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -79,6 +79,7 @@ static struct {
     { "HugePages_Free",	&moff.HugepagesFree },
     { "HugePages_Rsvd",	&moff.HugepagesRsvd },
     { "HugePages_Surp",	&moff.HugepagesSurp },
+    { "Hugepagesize",	&moff.Hugepagesize },
     { "DirectMap4k",	&moff.directMap4k },
     { "DirectMap2M",	&moff.directMap2M },
     { "DirectMap1G",	&moff.directMap1G },

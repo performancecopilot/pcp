@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2014 Red Hat.
+.\" Copyright (c) 2013-2015 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -23,11 +23,13 @@
 .B $PCP_BINADM_DIR/pmlogger_check
 [\f3\-CNsTV\f1]
 [\f3\-c\f1 \f2control\f1]
+[\f3\-l\f1 \f2logfile\f1]
 .br
 .B $PCP_BINADM_DIR/pmlogger_daily
 [\f3\-NorV\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2discard\f1]
+[\f3\-l\f1 \f2logfile\f1]
 [\f3\-m\f1 \f2addresses\f1]
 [\f3\-s\f1 \f2size\f1]
 [\f3\-t\f1 \f2want\f1]
@@ -45,23 +47,6 @@ create a customized regime of administration and management for
 Performance Co-Pilot (see
 .BR PCPintro (1))
 archive log files.
-.PP
-The
-.B \-V
-option that is common to all the scipts will enable verbose tracing and
-reporting.
-By default the scripts generate no output unless some error or warning condition is
-encountered.
-.PP
-The common
-.B \-N
-option enables a ``show me'' mode, where the actions are echoed,
-but not executed, in the style of ``make \-n''.
-Using
-.B \-N
-in conjunction with
-.B \-V
-maximizes the diagnostic capabilities for debugging.
 .PP
 .B pmlogger_daily
 is intended to be run once per day, preferably in the early morning, as
@@ -112,15 +97,15 @@ is integrated with
 .BR pmlogrewrite (1)
 to allow optional and automatic rewriting of archives before merging.
 If there are global rewriting rules to be applied across all archives
-mentioned in the control file, then create the directory
+mentioned in the control file(s), then create the directory
 .B $PCP_SYSCONF_DIR/pmlogrewrite
 and place any
 .BR pmlogrewrite (1)
 rewriting rules in this directory.
 For rewriting rules that are specific to only one family of archives,
-use the directory name from the control file (the
+use the directory name from the control file(s) \- i.e. the
 .I fourth
-field) and create a file, or a directory, or a symbolic link named
+field \- and create a file, or a directory, or a symbolic link named
 .B pmlogrewrite
 within this directory
 and place the required rewriting rule(s) in the
@@ -273,7 +258,7 @@ Both
 .B pmlogger_daily
 and
 .B pmlogger_check
-are controlled by a PCP logger control file
+are controlled by PCP logger control file(s)
 that specifies the
 .B pmlogger
 instances to be managed.  The default control file is
@@ -281,8 +266,16 @@ instances to be managed.  The default control file is
 but an alternate may be specified using the
 .B \-c
 option.
+If the directory
+.BR $PCP_PMLOGGERCONTROL_PATH .d
+(or
+.IR control .d
+from the
+.B \-c
+option) exists, then the contents of any additional control files therein
+will be appended to the main control file (which must exist).
 .PP
-The control file should be customized according to the following rules
+The control file(s) should be customized according to the following rules
 that define for the current version (1.1)
 of the control file format.
 .IP 1.
@@ -311,12 +304,14 @@ $ PMCD_CONNECT_TIMEOUT=20
 .BR Warning :
 The
 .B $PCP_PMLOGGERCONTROL_PATH
-file must not be writable by any user other than root.
+and
+.BR $PCP_PMLOGGERCONTROL_PATH .d
+files must not be writable by any user other than root.
 .br
 .IP 3.
 There
 .B must
-be a version line of the form:
+be a version line in the initial control file of the form:
 .br
 .in +4n
 .ft CW
@@ -326,7 +321,7 @@ $ version=1.1
 .ft R
 .in -4n
 .IP 4.
-There should be one line in the control file
+There should be one line in the control file(s)
 for each
 .B pmlogger
 instance of the form:
@@ -340,7 +335,7 @@ instance of the form:
 .in -4n
 
 .IP 5.
-Fields within a line of the control file
+Fields within a line of the control file(s)
 are separated by one or more spaces or tabs.
 .IP 6.
 The
@@ -447,11 +442,35 @@ and shown below.
 .ft 1
 .fi
 .PP
+In order to ensure that mail is not unintentionally sent when these
+scripts are run from
+.BR cron (8)
+diagnostics are always sent to a log file.
+By default, this file is
+.B $PCP_LOG_DIR/pmlogger/pmlogger_daily.log
+or
+.B $PCP_LOG_DIR/pmlogger/pmlogger_check.log
+but this can be changed using the
+.B \-l
+option.
+If this log file already exists when the script starts, it will be
+renamed with a
+.I .prev
+suffix (overwriting any log file saved earlier) before diagnostics
+are generated to the log file.
+The
+.B \-l
+and
+.B \-t
+options cannot be used together.
+.PP
 The output from the
-.BR cron (1)
+.BR cron
 execution of the scripts may be extended using the
 .B \-V
-option.
+option to the scripts which will enable verbose tracing of their activity.
+By default the scripts generate no output unless some error or warning
+condition is encountered.
 
 .SH FILES
 .TP 10
@@ -460,6 +479,13 @@ the PCP logger control file
 .br
 .BR Warning :
 this file must not be writable by any user other than root.
+.TP
+.BR $PCP_PMLOGGERCONTROL_PATH .d
+optional directory containing additional PCP logger control files,
+typically one per host
+.br
+.BR Warning :
+the files herein must not be writable by any user other than root.
 .TP
 .B $PCP_SYSCONF_DIR/pmlogger/crontab
 sample crontab for automated script execution by $PCP_USER (or root).

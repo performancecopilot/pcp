@@ -70,7 +70,7 @@ dumpLabel(void)
     fprintf(stderr, "Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
     fprintf(stderr, "Performance metrics from host %s\n", label.ll_hostname);
 
-    ddmm = pmCtime(&label.ll_start.tv_sec, timebuf);
+    ddmm = pmCtime((const time_t *)&label.ll_start.tv_sec, timebuf);
     ddmm[10] = '\0';
     yr = &ddmm[20];
     fprintf(stderr, "  commencing %s ", ddmm);
@@ -82,7 +82,7 @@ dumpLabel(void)
         fprintf(stderr, "  ending     UNKNOWN\n");
     }
     else {
-        ddmm = pmCtime(&opts.finish.tv_sec, timebuf);
+        ddmm = pmCtime((const time_t *)&opts.finish.tv_sec, timebuf);
         ddmm[10] = '\0';
         yr = &ddmm[20];
         fprintf(stderr, "  ending     %s ", ddmm);
@@ -289,7 +289,7 @@ main(int argc, char *argv[])
 
     if (strcmp(archdirname, ".") == 0)
 	/* skip ./ prefix */
-	strncpy(archname, archbasename, sizeof(archname));
+	strncpy(archname, archbasename, sizeof(archname) - 1);
     else
 	snprintf(archname, sizeof(archname), "%s%c%s", archdirname, sep, archbasename);
 

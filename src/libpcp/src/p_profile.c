@@ -15,6 +15,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include "fault.h"
 #include "internal.h"
 
 #define LIMIT_CTXNUM	2048
@@ -126,6 +127,7 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxnump, __pmProfile **resultp)
     ctxnum = ntohl(pduProfile->ctxnum);
     if (ctxnum < 0 || ctxnum > LIMIT_CTXNUM)
 	return PM_ERR_IPC;
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if ((instprof = (__pmProfile *)malloc(sizeof(__pmProfile))) == NULL)
 	return -oserror();
     instprof->state = ntohl(pduProfile->g_state);
@@ -144,6 +146,7 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxnump, __pmProfile **resultp)
 	    sts = PM_ERR_IPC;
 	    goto fail;
 	}
+PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	if ((instprof->profile = (__pmInDomProfile *)calloc(
 	     instprof->profile_len, sizeof(__pmInDomProfile))) == NULL) {
 	    sts = -oserror();
@@ -178,6 +181,7 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxnump, __pmProfile **resultp)
 		    sts = PM_ERR_IPC;
 		    goto fail;
 		}
+PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 		prof->instances = (int *)calloc(prof->instances_len, sizeof(int));
 		if (prof->instances == NULL) {
 		    sts = -oserror();
@@ -190,11 +194,17 @@ __pmDecodeProfile(__pmPDU *pdubuf, int *ctxnump, __pmProfile **resultp)
 		    }
 		    prof->instances[j] = ntohl(*p);
 		}
-	    } else if (prof->instances_len < 0) {
+	    }
+	    else if (prof->instances_len < 0) {
 		sts = PM_ERR_IPC;
 		goto fail;
-	    } else {
-		prof->instances = NULL;
+	    }
+	    else {
+		/*
+		 * do nothing, prof->instances already NULL from initialization
+		 * in earlier loop.
+		 */
+		;
 	    }
 	}
     }

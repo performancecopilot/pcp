@@ -47,6 +47,14 @@
 #define PMID_MASK	0x7fffffff	/* 31 bits of PMID */
 #define MARK_BIT	0x80000000	/* mark bit */
 
+/*
+ * conditional controls
+ */
+#define NO_DUPS		0
+#define DUPS_OK		1
+#define NO_CPP		0
+#define USE_CPP		1
+
 
 static int	lineno;
 static char	linebuf[256];
@@ -98,8 +106,8 @@ static int export;
 
 static int havePmLoadCall;
 
-static int load(const char *filename, int dupok);
-static __pmnsNode *locate(const char *name, __pmnsNode *root);
+static int load(const char *, int, int);
+static __pmnsNode *locate(const char *, __pmnsNode *);
 
 /*
  * Helper routine to report all the names for a metric ...
@@ -154,7 +162,7 @@ pmPMNSLocationStr(int location)
 
 
 static int
-LoadDefault(char *reason_msg)
+LoadDefault(char *reason_msg, int use_cpp)
 {
     if (main_pmns == NULL) {
 #ifdef PCP_DEBUG
@@ -165,7 +173,7 @@ LoadDefault(char *reason_msg)
 	}
 #endif
 	/* duplicate names in the PMNS are OK now ... */
-	if (load(PM_NS_DEFAULT, 1) < 0)
+	if (load(PM_NS_DEFAULT, DUPS_OK, NO_CPP) < 0)
 	    return PM_ERR_NOPMNS;
 	else
 	    return PMNS_LOCAL;
@@ -229,7 +237,7 @@ pmGetPMNSLocation(void)
 			/* Local context requires single-threaded applications */
 			pmns_location = PM_ERR_THREAD;
 		    else
-			pmns_location = LoadDefault("local");
+			pmns_location = LoadDefault("local", 0);
 		    break;
 
 		case PM_CONTEXT_ARCHIVE:
@@ -374,11 +382,15 @@ err(char *s)
 
 /*
  * lexical analyser for loading the ASCII pmns
+ * reset == 0 => get next token
+ * reset == 1+NO_CPP => initialize to pre-process with pmcpp and popen()
+ * reset == 1+USE_CPP => initialize to use fopen() not popen()
  */
 static int
 lex(int reset)
 {
     static int	first = 1;
+    static int	use_cpp;
     static FILE	*fin;
     static char	*lp;
     char	*tp;
@@ -387,33 +399,46 @@ lex(int reset)
     int		d, c, i;
     __pmID_int	pmid_int;
 
-    if (reset) {
-	/* reset! */
+    if (reset == 1+NO_CPP || reset == 1+USE_CPP) {
+	/* reset/initialize */
 	linep = NULL;
 	first = 1;
+	if (reset == 1+NO_CPP)
+	    use_cpp = NO_CPP;
+	else
+	    /* else assume pmcpp(1) needed */
+	    use_cpp = USE_CPP;
 	return 0;
     }
 
     if (first) {
-	char	*alt;
-	char	cmd[80+MAXPATHLEN];
+	if (use_cpp == USE_CPP) {
+	    char	*alt;
+	    char	cmd[80+MAXPATHLEN];
 
-	first = 0;
-	if ((alt = getenv("PCP_ALT_CPP")) != NULL) {
-	    /* $PCP_ALT_CPP used in the build before pmcpp installed */
-	    snprintf(cmd, sizeof(cmd), "%s %s", alt, fname);
+	    if ((alt = getenv("PCP_ALT_CPP")) != NULL) {
+		/* $PCP_ALT_CPP used in the build before pmcpp installed */
+		snprintf(cmd, sizeof(cmd), "%s %s", alt, fname);
+	    }
+	    else {
+		/* the normal case ... */
+		int	sep = __pmPathSeparator();
+		char	*bin_dir = pmGetOptionalConfig("PCP_BINADM_DIR");
+
+		if (bin_dir == NULL)
+		    return PM_ERR_GENERIC;
+		snprintf(cmd, sizeof(cmd), "%s%c%s %s", bin_dir, sep, "pmcpp" EXEC_SUFFIX, fname);
+	    }
+
+	    if ((fin = popen(cmd, "r")) == NULL)
+		return -oserror();
 	}
 	else {
-	    /* the normal case ... */
-	    int		sep = __pmPathSeparator();
-	    char	*bin_dir = pmGetConfig("PCP_BINADM_DIR");
-	    snprintf(cmd, sizeof(cmd), "%s%c%s %s", bin_dir, sep, "pmcpp" EXEC_SUFFIX, fname);
+	    if ((fin = fopen(fname, "r")) == NULL)
+		return -oserror();
 	}
 
-	fin = popen(cmd, "r");
-	if (fin == NULL)
-	    return -oserror();
-
+	first = 0;
 	lp = linebuf;
 	*lp = '\0';
     }
@@ -427,13 +452,20 @@ lex(int reset)
 	    int		inspace = 0;
 
 	    if (fgets(linebuf, sizeof(linebuf), fin) == NULL) {
-		if (pclose(fin) != 0) {
-		    lineno = -1; /* We're outside of line counting range now */
-		    err("pmcpp returned non-zero exit status");
-		    return PM_ERR_PMNS;
-		} else {
-		    return 0;
+		lineno = -1; /* We're outside of line counting range now */
+		if (use_cpp == USE_CPP) {
+		    if (pclose(fin) != 0) {
+			err("pmcpp returned non-zero exit status");
+			return PM_ERR_PMNS;
+		    }
 		}
+		else {
+		    if (fclose(fin) != 0) {
+			err("fclose returned non-zero exit status");
+			return PM_ERR_PMNS;
+		    }
+		}
+		return 0;
 	    }
 	    for (q = p = linebuf; *p; p++) {
 		if (isspace((int)*p)) {
@@ -699,8 +731,7 @@ backlink(__pmnsTree *tree, __pmnsNode *root, int dupok)
 	    __pmnsNode	*xp;
 	    i = np->pmid % tree->htabsize;
 	    for (xp = tree->htab[i]; xp != NULL; xp = xp->hash) {
-		if (xp->pmid == np->pmid && !dupok &&
-		    (pmid_domain(np->pmid) != DYNAMIC_PMID || pmid_item(np->pmid) != 0)) {
+		if (xp->pmid == np->pmid && dupok == NO_DUPS) {
 		    char	*nn, *xn;
 		    char	strbuf[20];
 		    backname(np, &nn);
@@ -1015,9 +1046,19 @@ __pmAddPMNSNode(__pmnsTree *tree, int pmid, const char *name)
  *	3	NAME	3
  *	3	PMID	2
  *	3	RBRACE	0
+ *
+ * dupok
+ *	NO_DUPS	duplicate names are not allowed
+ *	DUPS_OK	duplicate names are allowed
+ *
+ * use_cpp
+ *	NO_CPP	just fopen() the PMNS file
+ *	USE_CPP	pre-process the PMNS file with pmcpp(1)
+ *
+ * PMNS file (fname) set up before we get here ...
  */
 static int
-loadascii(int dupok)
+loadascii(int dupok, int use_cpp)
 {
     int		state = 0;
     int		type;
@@ -1025,12 +1066,13 @@ loadascii(int dupok)
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS)
-	fprintf(stderr, "loadascii(file=%s)\n", fname);
+	fprintf(stderr, "loadascii(dupok=%d, use_cpp=%d) fname=%s\n", dupok, use_cpp, fname);
 #endif
 
 
-    /* do some resets */
-    lex(1);      /* reset analyzer */
+    /* reset the lexical scanner */
+    lex(1+use_cpp);
+
     seen = NULL; /* make seen-list empty */
     seenpmid = 0;
 
@@ -1172,8 +1214,11 @@ getfname(const char *filename)
 	else {
 	    static char repname[MAXPATHLEN];
 	    int sep = __pmPathSeparator();
+
+	    if ((def_pmns = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
+		return NULL;
 	    snprintf(repname, sizeof(repname), "%s%c" "pmns" "%c" "root",
-		     pmGetConfig("PCP_VAR_DIR"), sep, sep);
+		     def_pmns, sep, sep);
 	    return repname;
 	}
     }
@@ -1265,8 +1310,9 @@ done:
 }
 
 static int
-load(const char *filename, int dupok)
+load(const char *filename, int dupok, int use_cpp)
 {
+    const char	*f;
     int 	i = 0;
 
     if (main_pmns != NULL) {
@@ -1285,12 +1331,15 @@ load(const char *filename, int dupok)
 	}
     }
 
-    strcpy(fname, getfname(filename));
+    if ((f = getfname(filename)) == NULL)
+	return PM_ERR_GENERIC;
+    strncpy(fname, f, sizeof(fname));
+    fname[sizeof(fname)-1] = '\0';
  
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS)
-	fprintf(stderr, "load(name=%s, dupok=%d) lic case=%d fname=%s\n",
-		filename, dupok, i, fname);
+	fprintf(stderr, "load(name=%s, dupok=%d, use_cpp=%d) lic case=%d fname=%s\n",
+		filename, dupok, use_cpp, i, fname);
 #endif
 
     /* Note modification time of pmns file */
@@ -1309,9 +1358,17 @@ load(const char *filename, int dupok)
     }
 
     /*
+     * use_cpp passed in is a hint ... if it is USE_CPP and filename
+     * is PM_NS_DEFAULT (NULL) then we can safely change to NO_CPP
+     * because the PMNS file contains no cpp-style controls or macros
+     */
+    if (use_cpp == USE_CPP && filename == PM_NS_DEFAULT)
+	use_cpp = NO_CPP;
+
+    /*
      * load ASCII PMNS
      */
-    return loadascii(dupok);
+    return loadascii(dupok, use_cpp);
 }
 
 /*
@@ -1373,7 +1430,14 @@ locate(const char *name, __pmnsNode *root)
 int
 pmLoadNameSpace(const char *filename)
 {
-    return pmLoadASCIINameSpace(filename, 1);
+    int	sts;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    havePmLoadCall = 1;
+    sts = load(filename, DUPS_OK, NO_CPP);
+    PM_UNLOCK(__pmLock_libpcp);
+    return sts;
 }
 
 int
@@ -1384,7 +1448,7 @@ pmLoadASCIINameSpace(const char *filename, int dupok)
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     havePmLoadCall = 1;
-    sts = load(filename, dupok);
+    sts = load(filename, dupok, USE_CPP);
     PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
@@ -1511,10 +1575,14 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	     */
 	    np = locate(namelist[i], PM_TPD(curr_pmns)->root);
 	    if (np != NULL ) {
-		if (np->first == NULL)
+		if (np->first == NULL) {
+		    /* looks good from local PMNS */
 		    pmidlist[i] = np->pmid;
+		}
 		else {
-		    sts = PM_ERR_NONLEAF;
+		    /* non-leaf ... no error unless numpmid == 1 */
+		    if (numpmid == 1)
+			sts = PM_ERR_NONLEAF;
 		    nfail++;
 		}
 		continue;
@@ -1541,11 +1609,14 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 		    pmid_item(np->pmid) == 0) {
 		    /* root of dynamic subtree */
 		    if (c_type == PM_CONTEXT_LOCAL) {
-			/* have PM_CONTEXT_LOCAL ... ship request to PMDA */
+			/* have PM_CONTEXT_LOCAL ... try to ship request to PMDA */
 			int	domain = ((__pmID_int *)&np->pmid)->cluster;
 			__pmDSO	*dp;
 			if ((dp = __pmLookupDSO(domain)) == NULL) {
-			    if (sts >= 0) sts = PM_ERR_NOAGENT;
+			    /* no PMDA ... no error unless numpmid == 1 */
+			    if (numpmid == 1)
+				sts = PM_ERR_NOAGENT;
+			    pmidlist[i] = PM_ID_NULL;
 			    break;
 			}
 			if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
@@ -1554,12 +1625,24 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 			    lsts = dp->dispatch.version.four.pmid(namelist[i], &pmidlist[i], dp->dispatch.version.four.ext);
 			    if (lsts >= 0)
 				nfail--;
-
+			    else {
+				/* return error if numpmid == 1 */
+				if (numpmid == 1)
+				    sts = lsts;
+				pmidlist[i] = PM_ID_NULL;
+			    }
 			    break;
 			}
 		    }
 		    else {
-			/* No PM_LOCAL_CONTEXT, use PMID from PMNS */
+			/*
+			 * The requested name is _below_ a DYNAMIC node
+			 * in the PMNS, so return the DYNAMIC node's PMID
+			 * (as set above)
+			 * ... this is a little odd, but is the trigger
+			 * that pmcd requires to try and reship the request
+			 * to the associated PMDA.
+			 */
 			pmidlist[i] = np->pmid;
 			nfail--;
 			break;
@@ -2184,49 +2267,107 @@ receive_a_name(__pmContext *ctxp, char **name)
 int
 pmNameID(pmID pmid, char **name)
 {
-    int pmns_location = GetLocation();
-
-    if (pmns_location < 0)
-	return pmns_location;
+    int 	pmns_location = GetLocation();
+    int		ctx;
+    __pmContext	*ctxp;
+    int		c_type;
+    int		sts;
+    int		lsts;
 
     PM_INIT_LOCKS();
 
-    if (pmns_location == PMNS_LOCAL) {
+    sts = ctx = pmWhichContext();
+    if (ctx >= 0) {
+	ctxp = __pmHandleToPtr(ctx);
+	c_type = ctxp->c_type;
+    }
+    else {
+	ctxp = NULL;
+	/*
+	 * set c_type to be NONE of PM_CONTEXT_HOST, PM_CONTEXT_ARCHIVE
+	 * nor PM_CONTEXT_LOCAL
+	 */
+	c_type = 0;
+    }
+    if (ctxp != NULL && c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
+	/* Local context requires single-threaded applications */
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_THREAD;
+    }
+
+    if (pmns_location < 0) {
+	if (ctxp != NULL)
+	    PM_UNLOCK(ctxp->c_lock);
+	sts = pmns_location;
+	/* only hope is derived metrics ... */
+    }
+    else if (pmns_location == PMNS_LOCAL) {
     	__pmnsNode	*np;
+
+	if (ctxp != NULL)
+	    PM_UNLOCK(ctxp->c_lock);
+	if (pmid_domain(pmid) == DYNAMIC_PMID && pmid_item(pmid) == 0) {
+	    /* cannot return name for dynamic PMID from local PMNS */
+	    return PM_ERR_PMID;
+	}
 	for (np = PM_TPD(curr_pmns)->htab[pmid % PM_TPD(curr_pmns)->htabsize];
              np != NULL;
              np = np->hash) {
-	    if (np->pmid == pmid) {
-		int	sts;
-		if (pmid_domain(np->pmid) != DYNAMIC_PMID ||
-		    pmid_item(np->pmid) != 0)
-		    sts = backname(np, name);
+	    if (np->pmid == pmid)
+		return backname(np, name);
+	}
+	/* not found in PMNS ... try some other options */
+	sts = PM_ERR_PMID;
+
+	if (c_type == PM_CONTEXT_LOCAL) {
+	    /* have PM_CONTEXT_LOCAL ... try to ship request to PMDA */
+	    int		domain = pmid_domain(pmid);
+	    __pmDSO	*dp;
+
+	    if ((dp = __pmLookupDSO(domain)) == NULL)
+		sts = PM_ERR_NOAGENT;
+	    else {
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dp->dispatch.version.four.ext->e_context = ctx;
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
+		    char	**names;
+		    sts = dp->dispatch.version.four.name(pmid, &names,
+				    dp->dispatch.version.four.ext);
+		    if (sts > 0) {
+			/* for pmNameID, pick just the first one */
+			*name = strdup(names[0]);
+			if (*name == NULL)
+			    sts = -oserror();
+			else
+			    sts = 0;
+			free(names);
+		    }
+		}
 		else
+		    /* Not PMDA_INTERFACE_4 or later */
 		    sts = PM_ERR_PMID;
-		return sts;
 	    }
 	}
-	/* not found so far, try derived metrics ... */
-    	return __dmgetname(pmid, name);
     }
-
     else {
 	/* assume PMNS_REMOTE */
-	int         n;
-	__pmContext  *ctxp;
-
-	/* As we have PMNS_REMOTE there must be a current host context */
-	if ((n = pmWhichContext()) < 0 || (ctxp = __pmHandleToPtr(n)) == NULL)
-	    return PM_ERR_NOCONTEXT;
+	assert(c_type == PM_CONTEXT_HOST);
 	PM_LOCK(ctxp->c_pmcd->pc_lock);
-	if ((n = request_namebypmid(ctxp, pmid)) >= 0) {
-	    n = receive_a_name(ctxp, name);
+	if ((sts = request_namebypmid(ctxp, pmid)) >= 0) {
+	    sts = receive_a_name(ctxp, name);
 	}
 	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	PM_UNLOCK(ctxp->c_lock);
-	if (n >= 0) return n;
-    	return __dmgetname(pmid, name);
     }
+
+    if (sts >= 0) return sts;
+
+    /*
+     * failed everything else, try derived metric, but if this fails
+     * return last error from above ...
+     */
+    lsts = __dmgetname(pmid, name);
+    return lsts >= 0 ? lsts : sts;
 }
 
 int
@@ -2234,25 +2375,49 @@ pmNameAll(pmID pmid, char ***namelist)
 {
     int		pmns_location = GetLocation();
     char	**tmp = NULL;
-    int		n = 0;
     int		len = 0;
+    int		n = 0;
     char	*sp;
-
-    if (pmns_location < 0)
-	return pmns_location;
+    int		ctx;
+    __pmContext	*ctxp;
+    int		c_type;
+    int		sts;
 
     PM_INIT_LOCKS();
 
-    if (pmns_location == PMNS_LOCAL) {
+    sts = ctx = pmWhichContext();
+    if (ctx >= 0) {
+	ctxp = __pmHandleToPtr(ctx);
+	c_type = ctxp->c_type;
+    }
+    else {
+	ctxp = NULL;
+	/*
+	 * set c_type to be NONE of PM_CONTEXT_HOST, PM_CONTEXT_ARCHIVE
+	 * nor PM_CONTEXT_LOCAL
+	 */
+	c_type = 0;
+    }
+    if (ctxp != NULL && c_type == PM_CONTEXT_LOCAL && PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
+	/* Local context requires single-threaded applications */
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_THREAD;
+    }
+
+    if (pmns_location < 0) {
+	if (ctxp != NULL)
+	    PM_UNLOCK(ctxp->c_lock);
+	sts = pmns_location;
+	/* only hope is derived metrics ... */
+    }
+    else if (pmns_location == PMNS_LOCAL) {
     	__pmnsNode	*np;
-	int		sts = 0;
 	int		i;
 
+	if (ctxp != NULL)
+	    PM_UNLOCK(ctxp->c_lock);
 	if (pmid_domain(pmid) == DYNAMIC_PMID && pmid_item(pmid) == 0) {
-	    /*
-	     * pmid is for the root of a dynamic subtree in the PMNS ...
-	     * there is no matching leaf name
-	     */
+	    /* cannot return name(s) for dynamic PMID from local PMNS */
 	    return PM_ERR_PMID;
 	}
 	for (np = PM_TPD(curr_pmns)->htab[pmid % PM_TPD(curr_pmns)->htabsize];
@@ -2277,51 +2442,73 @@ pmNameAll(pmID pmid, char ***namelist)
 	if (sts < 0)
 	    return sts;
 
-	if (n == 0)
-	    goto try_derive;
+	if (n > 0) {
+	    /* all good ... rearrange to a contiguous allocation and return */
+	    len += n * sizeof(tmp[0]);
+	    if ((tmp = (char **)realloc(tmp, len)) == NULL)
+		return -oserror();
 
-	len += n * sizeof(tmp[0]);
-	if ((tmp = (char **)realloc(tmp, len)) == NULL)
-	    return -oserror();
+	    sp = (char *)&tmp[n];
+	    for (i = 0; i < n; i++) {
+		strcpy(sp, tmp[i]);
+		free(tmp[i]);
+		tmp[i] = sp;
+		sp += strlen(sp)+1;
+	    }
 
-	sp = (char *)&tmp[n];
-	for (i = 0; i < n; i++) {
-	    strcpy(sp, tmp[i]);
-	    free(tmp[i]);
-	    tmp[i] = sp;
-	    sp += strlen(sp)+1;
+	    *namelist = tmp;
+	    return n;
 	}
+	/* not found in PMNS ... try some other options */
+	sts = PM_ERR_PMID;
 
-	*namelist = tmp;
-	return n;
+	if (c_type == PM_CONTEXT_LOCAL) {
+	    /* have PM_CONTEXT_LOCAL ... try to ship request to PMDA */
+	    int		domain = pmid_domain(pmid);
+	    __pmDSO	*dp;
+
+	    if ((dp = __pmLookupDSO(domain)) == NULL)
+		sts = PM_ERR_NOAGENT;
+	    else {
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dp->dispatch.version.four.ext->e_context = ctx;
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_4) {
+		    n = dp->dispatch.version.four.name(pmid, &tmp,
+				    dp->dispatch.version.four.ext);
+		    if (n > 0) {
+			*namelist = tmp;
+			return n;
+		    }
+		}
+		else
+		    /* Not PMDA_INTERFACE_4 or later */
+		    sts = PM_ERR_PMID;
+	    }
+	}
     }
-
     else {
 	/* assume PMNS_REMOTE */
-	int         n;
-	__pmContext  *ctxp;
-
-	/* As we have PMNS_REMOTE there must be a current host context */
-	if ((n = pmWhichContext()) < 0 || (ctxp = __pmHandleToPtr(n)) == NULL)
-	    return PM_ERR_NOCONTEXT;
+	assert(c_type == PM_CONTEXT_HOST);
 	PM_LOCK(ctxp->c_pmcd->pc_lock);
-	if ((n = request_namebypmid (ctxp, pmid)) >= 0) {
-	    n = receive_namesbyid (ctxp, namelist);
+	if ((sts = request_namebypmid (ctxp, pmid)) >= 0) {
+	    sts = receive_namesbyid (ctxp, namelist);
 	}
 	PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 	PM_UNLOCK(ctxp->c_lock);
-	if (n < 1)
-	    goto try_derive;
-	return n;
+	if (sts > 0)
+	    return sts;
     }
 
-try_derive:
+    /*
+     * failed everything else, try derived metric, but if this fails
+     * return last error from above ...
+     */
     if ((tmp = (char **)malloc(sizeof(tmp[0]))) == NULL)
 	return -oserror();
     n = __dmgetname(pmid, tmp);
     if (n < 0) {
 	free(tmp);
-	return n;
+	return sts < 0 ? sts : PM_ERR_PMID;
     }
     len = sizeof(tmp[0]) + strlen(tmp[0])+1;
     if ((tmp = (char **)realloc(tmp, len)) == NULL)

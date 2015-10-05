@@ -40,8 +40,6 @@ typedef struct {
 #define PROC_DEV_COUNTERS_PER_LINE   16
 
 typedef struct {
-    uint64_t	last_gen;
-    uint64_t	last_counters[PROC_DEV_COUNTERS_PER_LINE];
     uint64_t	counters[PROC_DEV_COUNTERS_PER_LINE];
     net_dev_t	ioc;
 } net_interface_t;
@@ -95,6 +93,17 @@ struct ethtool_cmd {
 #define IPV6_ADDR_SITELOCAL     0x0040U
 #define IPV6_ADDR_COMPATv4      0x0080U
 
-extern int refresh_proc_net_dev(pmInDom);
-extern int refresh_net_dev_addr(pmInDom);
+struct linux_container;
+extern int refresh_proc_net_dev(pmInDom, struct linux_container *);
+extern void refresh_net_addr_ioctl(pmInDom, struct linux_container *, int *);
+extern int refresh_net_ioctl(pmInDom, struct linux_container *, int *);
+extern void refresh_net_addr_sysfs(pmInDom, int *);
+extern int refresh_net_sysfs(pmInDom, int *);
+
+extern void refresh_net_addr_sysfs(pmInDom, int *);
+extern void refresh_net_addr_ioctl(pmInDom, struct linux_container *, int *);
+
+extern void clear_net_addr_indom(pmInDom);
+extern void store_net_addr_indom(pmInDom, struct linux_container *);
+
 extern char *lookup_ipv6_scope(int);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -72,12 +72,32 @@ enum {
 	CLUSTER_INTERRUPT_LINES,/* 49 /proc/interrupts percpu interrupts */
 	CLUSTER_INTERRUPT_OTHER,/* 50 /proc/interrupts percpu interrupts */
 	PROC_PID_FD,		/* 51 /proc/<pid>/fd -> proc PMDA */
-	CLUSTER_LV,		/* 52 /dev/mapper */
+	CLUSTER_LV,		/* deprecated: do not re-use 52 */
 	CLUSTER_NET_NETSTAT,    /* 53 /proc/net/netstat */
 	CLUSTER_DM,		/* 54 disk.dm.* */
 	CLUSTER_SYSFS_DEVICES,	/* 55 /sys/devices metrics */
+	CLUSTER_SHM_INFO,       /* 56 shmctl(SHM_INFO) system call */
+	CLUSTER_NET_SOFTNET,	/* 57 /proc/net/softnet_stat */
+	CLUSTER_NET_SNMP6,	/* 58 /proc/net/snmp6 */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
+};
+
+/*
+ * Extra refresh array indices for fine-grained (within-cluster) refresh
+ */
+enum {
+	REFRESH_NET_MTU = NUM_CLUSTERS,
+	REFRESH_NET_SPEED,
+	REFRESH_NET_DUPLEX,
+	REFRESH_NET_LINKUP,
+	REFRESH_NET_RUNNING,
+
+	REFRESH_NETADDR_INET,
+	REFRESH_NETADDR_IPV6,
+	REFRESH_NETADDR_HW,
+
+	NUM_REFRESHES		/* one more than highest refresh index */
 };
 
 #endif /* _CLUSTERS_H */

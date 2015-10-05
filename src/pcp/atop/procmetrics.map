@@ -1,0 +1,54 @@
+#
+# metric names and access macros for photoproc.[ch]
+#
+procmetrics {
+	# /proc/pid/stat
+	proc.psinfo.cmd			TASK_GEN_NAME
+	proc.psinfo.sname		TASK_GEN_STATE
+	proc.psinfo.ppid		TASK_GEN_PPID
+	proc.psinfo.minflt		TASK_MEM_MINFLT
+	proc.psinfo.maj_flt		TASK_MEM_MAJFLT
+	proc.psinfo.utime		TASK_CPU_UTIME
+	proc.psinfo.stime		TASK_CPU_STIME
+	proc.psinfo.priority		TASK_CPU_PRIO
+	proc.psinfo.nice		TASK_CPU_NICE
+	proc.psinfo.start_time		TASK_GEN_BTIME
+	proc.psinfo.vsize		TASK_MEM_VMEM
+	proc.psinfo.rss			TASK_MEM_RMEM
+	proc.psinfo.processor		TASK_CPU_CURCPU
+	proc.psinfo.rt_priority		TASK_CPU_RTPRIO
+	proc.psinfo.policy		TASK_CPU_POLICY
+
+	# /proc/pid/status
+	proc.psinfo.threads		TASK_GEN_NTHR
+	proc.psinfo.tgid		TASK_GEN_TGID
+	proc.psinfo.pid			TASK_GEN_PID
+	proc.namespaces.envid		TASK_GEN_ENVID
+	proc.id.uid			TASK_GEN_RUID
+	proc.id.euid			TASK_GEN_EUID
+	proc.id.suid			TASK_GEN_SUID
+	proc.id.fsuid			TASK_GEN_FSUID
+	proc.id.gid			TASK_GEN_RGID
+	proc.id.egid			TASK_GEN_EGID
+	proc.id.sgid			TASK_GEN_SGID
+	proc.id.fsgid			TASK_GEN_FSGID
+	proc.memory.vmdata		TASK_MEM_VDATA
+	proc.memory.vmstack		TASK_MEM_VSTACK
+	proc.memory.vmexe		TASK_MEM_VEXEC
+	proc.memory.vmlib		TASK_MEM_VLIBS
+	proc.memory.vmswap		TASK_MEM_VSWAP
+
+	# /proc/pid/io
+	proc.io.read_bytes		TASK_DSK_RSZ
+	proc.io.write_bytes		TASK_DSK_WSZ
+	proc.io.cancelled_write_bytes	TASK_DSK_CWSZ
+
+	# getpwuid
+	proc.id.uid_nm			TASK_GEN_RUIDNM
+	proc.id.euid_nm			TASK_GEN_EUIDNM
+	proc.id.suid_nm			TASK_GEN_SUIDNM
+	proc.id.fsuid_nm		TASK_GEN_FSUIDNM
+
+	# end marker - provides count
+	.				TASK_NMETRICS
+}

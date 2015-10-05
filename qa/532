@@ -118,7 +118,8 @@ ls -l $tmp >>$seq.full
 # complexity at the end of this pipeline
 #
 echo
-$sudo $PCP_BINADM_DIR/pmlogger_daily -o -c $tmp/control -k 2 $verbose 2>&1 \
+$sudo $PCP_BINADM_DIR/pmlogger_daily -o -c $tmp/control -k 2 $verbose -l $tmp.log
+$sudo cat $tmp.log \
 | _filter \
 | $PCP_AWK_PROG '
 state == 0		{ print >"'$tmp.out.0'"
@@ -144,8 +145,6 @@ pmdumplog -a $tmp/$yesterday >>$seq.full
 echo
 echo "Differences ..."
 diff $tmp.before $tmp.after
-
-rm -rf $tmp/* $tmp.*
 
 # all done
 status=0

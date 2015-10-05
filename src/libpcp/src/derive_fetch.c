@@ -655,6 +655,18 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    return np->info->numval;
 	    break;
 
+	case L_INSTANT:
+	    /*
+	     * values are in the left expr
+	     */
+	    np->info->last_stamp = np->info->stamp;
+	    np->info->stamp = rp->timestamp;
+	    np->info->numval = np->left->info->numval;
+	    if (np->info->numval > 0)
+		np->info->ivlist = np->left->info->ivlist;
+	    return np->info->numval;
+	    break;
+
 	case L_AVG:
 	case L_COUNT:
 	case L_SUM:

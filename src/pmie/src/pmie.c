@@ -2,7 +2,7 @@
  * pmie.c - performance inference engine
  ***********************************************************************
  *
- * Copyright (c) 2013-2014 Red Hat, Inc.
+ * Copyright (c) 2013-2015 Red Hat, Inc.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -104,6 +104,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "buffer", 0, 'b', 0, "one line buffered output stream, stdout on stderr" },
     { "timestamp", 0, 'e', 0, "force timestamps to be reported with -V, -v or -W" },
+    { "quiet", 0, 'q', 0, "quiet mode, default diagnostics suppressed" },
     { "", 0, 'v', 0, "verbose mode, expression values printed" },
     { "verbose", 0, 'V', 0, "verbose mode, annotated expression values printed" },
     { "", 0, 'W', 0, "verbose mode, satisfying expression values printed" },
@@ -114,7 +115,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:A:bc:CdD:efHh:j:l:n:O:S:t:T:U:vVWXxzZ:?",
+    .short_options = "a:A:bc:CdD:efHh:j:l:n:O:qS:t:T:U:vVWXxzZ:?",
     .long_options = longopts,
     .short_usage = "[options] [filename ...]",
     .override = override,
@@ -573,6 +574,10 @@ getargs(int argc, char *argv[])
 	    isdaemon = 1;
 	    break;
 
+	case 'q': 			/* suppress default diagnostics */
+	    quiet = 1;
+	    break;
+
 	case 'v': 			/* print values */
 	    verbose = 1;
 	    break;
@@ -612,6 +617,22 @@ getargs(int argc, char *argv[])
     if (opts.errors) {
     	pmUsageMessage(&opts);
 	exit(1);
+    }
+    /* check if archives/hosts available in the environment */
+    if (!dfltConn && opts.narchives) {
+	dfltConn = opts.context = PM_CONTEXT_ARCHIVE;
+	for (c = 0; c < opts.narchives; c++) {
+	    a = (Archive *)zalloc(sizeof(Archive));
+	    a->fname = opts.archives[c];
+	    if (!initArchive(a))
+		exit(1);
+	}
+	foreground = 1;
+    }
+    if (!dfltConn && opts.nhosts) {
+	dfltConn = opts.context = PM_CONTEXT_HOST;
+	dfltHostConn = opts.hosts[c];
+        dfltHostName = ""; /* unknown until newContext */
     }
 
     if (foreground)
@@ -707,7 +728,7 @@ getargs(int argc, char *argv[])
     }
 
     /* initialize time */
-    now = archives ? first : getReal() + 1.0;
+    now = archives ? first : getReal();
     zoneInit();
     reflectTime(dfltDelta);
 
@@ -750,6 +771,12 @@ getargs(int argc, char *argv[])
 	dumpRules();
 #endif
 
+    /* really parse time window */
+    if (!archives) {
+	now = getReal();
+	reflectTime(dfltDelta);
+    }
+
     if (checkFlag)
 	exit(errs == 0 ? 0 : 1);	/* exit 1 for syntax errors ...
 					 * suggestion from 
@@ -773,11 +800,6 @@ getargs(int argc, char *argv[])
     if (agent)
 	agentInit();			/* initialize secret agent stuff */
 
-    /* really parse time window */
-    if (!archives) {
-	now = getReal() + 1.0;
-	reflectTime(dfltDelta);
-    }
     __pmtimevalFromReal(now, &tv1);
     if (archives) {
 	__pmtimevalFromReal(last, &tv2);

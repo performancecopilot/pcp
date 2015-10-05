@@ -367,7 +367,7 @@ dump_result(pmResult *resp)
 	char	       *ddmm;
 	char	       *yr;
 
-	ddmm = pmCtime(&resp->timestamp.tv_sec, timebuf);
+	ddmm = pmCtime((const time_t *)&resp->timestamp.tv_sec, timebuf);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("%s ", ddmm);
@@ -389,6 +389,7 @@ dump_result(pmResult *resp)
 
 	if (i > 0)
 	    printf("            ");
+	names = NULL; /* silence coverity */
 	n = pmNameAll(vsp->pmid, &names);
 	if (vsp->numval == 0) {
 	    printf("  %s (", pmIDStr(vsp->pmid));
@@ -438,6 +439,7 @@ dumpDesc(__pmContext *ctxp)
     for (i = 0; i < ctxp->c_archctl->ac_log->l_hashpmid.hsize; i++) {
 	for (hp = ctxp->c_archctl->ac_log->l_hashpmid.hash[i]; hp != NULL; hp = hp->next) {
 	    dp = (pmDesc *)hp->data;
+	    names = NULL; /* silence coverity */
 	    sts = pmNameAll(dp->pmid, &names);
 	    if (sts < 0)
 		printf("PMID: %s (%s)\n", pmIDStr(dp->pmid), "<noname>");
@@ -498,6 +500,9 @@ dumpTI(__pmContext *ctxp)
     struct stat	sbuf;
     __pmLogTI	*tip;
     __pmLogTI	*lastp;
+    __pmLogCtl  *lcp;
+    
+    lcp = ctxp->c_archctl->ac_log;
 
     printf("\nTemporal Index\n");
     printf("             Log Vol    end(meta)     end(log)\n");
@@ -509,14 +514,14 @@ dumpTI(__pmContext *ctxp)
 	__pmPrintStamp(stdout, &tv);
 	printf("    %4d  %11d  %11d\n", tip->ti_vol, tip->ti_meta, tip->ti_log);
 	if (i == 0) {
-	    sprintf(path, "%s.meta", opts.archives[0]);
+	    sprintf(path, "%s.meta", lcp->l_name);
 	    if (stat(path, &sbuf) == 0)
 		meta_size = sbuf.st_size;
 	    else
 		meta_size = -1;
 	}
 	if (lastp == NULL || tip->ti_vol != lastp->ti_vol) { 
-	    sprintf(path, "%s.%d", opts.archives[0], tip->ti_vol);
+	    sprintf(path, "%s.%d", lcp->l_name, tip->ti_vol);
 	    if (stat(path, &sbuf) == 0)
 		log_size = sbuf.st_size;
 	    else {
@@ -578,7 +583,7 @@ dumpLabel(int verbose)
     printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
     printf("Performance metrics from host %s\n", label.ll_hostname);
 
-    ddmm = pmCtime(&label.ll_start.tv_sec, timebuf);
+    ddmm = pmCtime((const time_t *)&label.ll_start.tv_sec, timebuf);
     ddmm[10] = '\0';
     yr = &ddmm[20];
     printf("  commencing %s ", ddmm);
@@ -590,7 +595,7 @@ dumpLabel(int verbose)
 	printf("  ending     UNKNOWN\n");
     }
     else {
-	ddmm = pmCtime(&opts.finish.tv_sec, timebuf);
+	ddmm = pmCtime((const time_t *)&opts.finish.tv_sec, timebuf);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("  ending     %s ", ddmm);
@@ -954,7 +959,7 @@ main(int argc, char *argv[])
 	    if (first && mode == PM_MODE_BACK) {
 		first = 0;
 		printf("\nLog finished at %24.24s - dump in reverse order\n",
-			pmCtime(&result->timestamp.tv_sec, timebuf));
+			pmCtime((const time_t *)&result->timestamp.tv_sec, timebuf));
 	    }
 	    if ((mode == PM_MODE_FORW && tvcmp(result->timestamp, done) > 0) ||
 		(mode == PM_MODE_BACK && tvcmp(result->timestamp, done) < 0)) {

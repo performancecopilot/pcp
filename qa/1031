@@ -1,0 +1,62 @@
+#!/bin/sh
+# PCP QA Test No. 1031
+# Test the slurm perl pmda
+#
+# Copyright (c) 2015 Martins Innus.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+        -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+        -e "s;$script;pmdaslurm.pl;" \
+    | _filter_dumpresult
+}
+
+
+# real QA test starts here
+
+domain=23
+script=pmdaslurm.pl
+cd "$PCP_PMDAS_DIR/slurm"
+
+# create a root namespace file for dbpmda to use
+export PERL5LIB=$here/slurm
+PCP_PERL_PMNS=root /usr/bin/perl $script > $tmp.root
+
+# create a set of commands for dbpmda
+# Need to wait a bit for the helper thread to run
+cat >$tmp.cmds <<End-of-File
+open pipe /usr/bin/perl $script
+getdesc on
+wait 3
+desc slurm.numnodes
+desc slurm.node.job.id
+desc slurm.node.job.name
+fetch slurm.numnodes
+fetch slurm.node.job.id
+fetch slurm.node.job.name
+End-of-File
+
+echo === Testing perl pmda
+sudo PERL5LIB=$here/slurm dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
+
+# success, all done
+status=0
+
+exit

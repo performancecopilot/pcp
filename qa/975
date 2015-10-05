@@ -14,6 +14,20 @@ echo "QA output created by $seq"
 . ./common.check
 
 which iostat >/dev/null || _notrun "No local iostat binary found"
+which sar >/dev/null 2>&1 || _notrun "sar not installed"
+
+version=`sar -V 2>&1 | sed -n -e '/sysstat version /{
+s/.* //
+p
+}'`
+case "$version"
+in
+    7.0.*)	# too old
+    	_notrun "sysstat version $version too old"
+	;;
+esac
+
+
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -44,10 +58,9 @@ BEGIN		{ cpucount=0; devcount=0 }
 		  if (tpsmode == 1 && devcount > 1) {
 		    sample="'$f.'"devcount-1
 		    instance=$1
-		    s=0.5	# size scale - sectors vs kilobytes
 		    printf "dev.total::%s %f\n", instance, $2		>> sample
-		    printf "dev.read_bytes::%s %f\n", instance, $3*s	>> sample
-		    printf "dev.write_bytes::%s %f\n", instance, $4*s	>> sample
+		    printf "dev.read_bytes::%s %f\n", instance, $3	>> sample
+		    printf "dev.write_bytes::%s %f\n", instance, $4	>> sample
 		  }
 		  if (devices == 1 && devcount > 1) {
 		    sample="'$f.'"devcount-1
@@ -114,7 +127,7 @@ compare_samples()
 
 	echo Verifying sample $sample
 	$PCP_AWK_PROG <$tmp.both '
-		{ if (($2-$4) > 0.000001 || ($2-$4) < -0.000001)
+		{ if (($2-$4) > 0.000002 || ($2-$4) < -0.000002)
 		    print "[",NR,"] mismatch:",$1,$2,$4
 		}'
     done

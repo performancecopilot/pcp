@@ -65,6 +65,13 @@ _cmds_exist()
     _have_flag=false
     [ -f $PCP_RC_DIR/$1 ] && _have_flag=true
 
+    # systemctl is special ... sometimes it is installed, but not with
+    # full systemd behind it, e.g Debian-based systems circa 2015
+    # ... see special case handling where systemctl might be used in
+    # the "do something" sections elsewhere in this file and it only
+    # makes sense to try systemctl if the corresponding
+    # $PCP_SYSTEMDUNIT_DIR/$_flag.service file exists.
+    #
     _have_systemctl=false
     _which systemctl && _have_systemctl=true
     _have_runlevel=false
@@ -138,7 +145,7 @@ is_chkconfig_on()
 	pmwebd)   [ "`. /etc/hostconfig; echo $PMWEBD`" = "-YES-" ] && _ret=0 ;;
 	pmmgr)    [ "`. /etc/hostconfig; echo $PMMGR`" = "-YES-" ] && _ret=0 ;;
 	esac
-    elif $_have_systemctl
+    elif [ "$_have_systemctl" = true -a -n "$PCP_SYSTEMDUNIT_DIR" -a -f "$PCP_SYSTEMDUNIT_DIR/$_flag.service" ]
     then
 	$VERBOSE_CONFIG && echo "is_chkconfig_on: using systemctl"
 	# if redirected to chkconfig, the answer is buried in stdout
@@ -218,7 +225,7 @@ chkconfig_on()
 	pmwebd) echo "PMWEBD=-YES-" ;;
 	pmmgr) echo "PMMGR=-YES-" ;;
 	esac
-    elif $_have_systemctl
+    elif [ "$_have_systemctl" = true -a -n "$PCP_SYSTEMDUNIT_DIR" -a -f "$PCP_SYSTEMDUNIT_DIR/$_flag.service" ]
     then
 	systemctl --no-reload enable "$_flag".service >/dev/null 2>&1
     elif $_have_chkconfig
@@ -270,7 +277,7 @@ chkconfig_off()
     then
 	# unknown mechanism, just pretend
 	return 0
-    elif $_have_systemctl
+    elif [ "$_have_systemctl" = true -a -n "$PCP_SYSTEMDUNIT_DIR" -a -f "$PCP_SYSTEMDUNIT_DIR/$_flag.service" ]
     then
 	systemctl --no-reload disable "$_flag".service >/dev/null 2>&1
     elif $_have_chkconfig
@@ -315,7 +322,7 @@ chkconfig_on_msg()
 	return 0
     else
 	echo "    To enable $_flag, run the following as root:"
-	if $_have_systemctl
+	if [ "$_have_systemctl" = true -a -n "$PCP_SYSTEMDUNIT_DIR" -a -f "$PCP_SYSTEMDUNIT_DIR/$_flag.service" ]
 	then
 	    _cmd=`$PCP_WHICH_PROG systemctl`
 	    echo "    # $_cmd enable $_flag.service"

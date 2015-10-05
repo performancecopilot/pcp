@@ -21,12 +21,27 @@
 iam=postfix
 perl_opt=true
 daemon_opt=false
-forced_restart=false
+forced_restart=true
 
 which qshape >/dev/null 2>&1
 if test $? -ne 0; then
-    echo "Postfix qshape utility is not installed"
-    exit 1
+    # no qshape executable, look for the Perl script in some obscure
+    # places
+    #
+    for script in \
+	/usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl
+    do
+	if [ -f "$script" ]
+	then
+	    args="$script"
+	    break
+	fi
+    done
+    if [ -z "$args" ]
+    then
+	echo "Postfix qshape utility is not installed"
+	exit 1
+    fi
 fi
 
 pmdaSetup

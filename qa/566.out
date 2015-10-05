@@ -23,6 +23,8 @@ TMP/foo.index: start pass0
 TMP/foo.meta: start pass0
 
 TMP/foo.index missing:
+
+Note: timezone set to local timezone of host "HOST" from archive
 Processed 9 pmResult records
 Scanning for components of archive "TMP/foo"
 TMP/foo.0: start pass0
@@ -59,6 +61,8 @@ foo.index: start pass0
 foo.meta: start pass0
 
 foo.index:
+
+Note: timezone set to local timezone of host "HOST" from archive
 Processed 9 pmResult records
 Scanning for components of archive "foo.index"
 foo.0: start pass0
@@ -73,6 +77,8 @@ foo: start pass2
 foo: start pass3
 
 archive-20150415.044829:
+
+Note: timezone set to local timezone of host "HOST" from archive
 Processed 9 pmResult records
 Scanning for components of archive "archive-20150415.044829"
 archive-20150415.044829.0: start pass0
@@ -83,6 +89,14 @@ archive-20150415.044829: start pass2
 archive-20150415.044829: start pass3
 
 === pass 0 failures ===
+
+archives/badlen-1.meta:
+Due to earlier errors, cannot continue ... bye
+Scanning for components of archive "archives/badlen-1.meta"
+archives/badlen-1.0: start pass0
+archives/badlen-1.0[record 1]: length mismatch: header 132 != trailer 128
+archives/badlen-1.index: start pass0
+archives/badlen-1.meta: start pass0
 
 archives/badlen-10.meta:
 Due to earlier errors, cannot continue ... bye
@@ -99,14 +113,6 @@ archives/badlen-11.0: start pass0
 archives/badlen-11.0[record 1]: unexpected EOF in record header
 archives/badlen-11.index: start pass0
 archives/badlen-11.meta: start pass0
-
-archives/badlen-1.meta:
-Due to earlier errors, cannot continue ... bye
-Scanning for components of archive "archives/badlen-1.meta"
-archives/badlen-1.0: start pass0
-archives/badlen-1.0[record 1]: length mismatch: header 132 != trailer 128
-archives/badlen-1.index: start pass0
-archives/badlen-1.meta: start pass0
 
 archives/badlen-2.meta:
 Due to earlier errors, cannot continue ... bye
@@ -191,6 +197,8 @@ archives/badlabel-2.meta: start pass0
 === pass 1 failures ===
 
 archives/badti-2.index:
+
+Note: timezone set to local timezone of host "HOST" from archive
 Processed 9 pmResult records
 Scanning for components of archive "archives/badti-2.index"
 archives/badti-2.0: start pass0
@@ -206,6 +214,8 @@ archives/badti-2: start pass2
 archives/badti-2: start pass3
 
 archives/badti-3.index:
+
+Note: timezone set to local timezone of host "HOST" from archive
 Processed 9 pmResult records
 Scanning for components of archive "archives/badti-3.index"
 archives/badti-3.0: start pass0
@@ -220,6 +230,8 @@ archives/badti-3: start pass2
 archives/badti-3: start pass3
 
 archives/badti-4.index:
+
+Note: timezone set to local timezone of host "HOST" from archive
 Processed 9 pmResult records
 Scanning for components of archive "archives/badti-4.index"
 archives/badti-4.0: start pass0
@@ -244,6 +256,8 @@ archives/badlog-1.index: start pass0
 archives/badlog-1.meta: start pass0
 
 archives/badlog-2.0:
+
+Note: timezone set to local timezone of host "HOST" from archive
 	value 1 at 04:34:35.258
 	value 891 at 04:34:34.248
 Processed 9 pmResult records
@@ -257,6 +271,8 @@ archives/badlog-2: start pass2
 archives/badlog-2: start pass3
 
 archives/badlog-3.0:
+
+Note: timezone set to local timezone of host "HOST" from archive
 Processed 9 pmResult records
 Scanning for components of archive "archives/badlog-3.0"
 archives/badlog-3.0: start pass0

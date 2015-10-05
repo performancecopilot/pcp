@@ -21,7 +21,7 @@
 # Additional Information:
 #
 # Performance Co-Pilot Web Site
-# http://www.performancecopilot.org
+# http://www.pcp.io
 #
 # Performance Co-Pilot Programmer's Guide
 # cf. Chapter 3. PMAPI - The Performance Metrics API
@@ -89,16 +89,17 @@ from ctypes.util import find_library
 #
 # dynamic library loads
 #
+import sys
 
 LIBPCP = CDLL(find_library("pcp"))
-LIBC = CDLL(find_library("c"))
+libc_name = "c" if sys.platform != "win32" else "msvcrt"
+LIBC = CDLL(find_library(libc_name))
 
 
 ##############################################################################
 #
 # python version information and compatibility
 #
-import sys
 
 if sys.version >= '3':
     integer_types = (int,)
@@ -142,10 +143,12 @@ class pmErr(Exception):
         return str(errStr.decode())
 
     def progname(self):
-        return c_char_p.in_dll(LIBPCP, "pmProgname").value
+        return str(c_char_p.in_dll(LIBPCP, "pmProgname").value.decode())
 
 class pmUsageErr(Exception):
     def message(self):
+        for index in range(0, len(self.args)):
+            LIBPCP.pmprintf(str(self.args[index]).encode('utf-8'))
         return c_api.pmUsageMessage()
 
 
@@ -655,8 +658,8 @@ LIBPCP.pmFetchArchive.argtypes = [POINTER(POINTER(pmResult))]
 # PMAPI Ancilliary Support Services
 
 
-LIBPCP.pmGetConfig.restype = c_char_p
-LIBPCP.pmGetConfig.argtypes = [c_char_p]
+LIBPCP.pmGetOptionalConfig.restype = c_char_p
+LIBPCP.pmGetOptionalConfig.argtypes = [c_char_p]
 
 LIBPCP.pmErrStr_r.restype = c_char_p
 LIBPCP.pmErrStr_r.argtypes = [c_int, c_char_p, c_int]
@@ -729,12 +732,17 @@ class pmOptions(object):
         return self._mode
     def _R_delta(self):
         return self._delta
+    def _R_need_reset(self):
+        return self._need_reset
+    def _W_need_reset(self, value):
+        self._need_reset = value
 
     ##
     # property definitions
 
     mode = property(_R_mode, None, None, None)
     delta = property(_R_delta, None, None, None)
+    need_reset = property(_R_need_reset, _W_need_reset, None, None)
 
     ##
     # creation and destruction
@@ -751,9 +759,11 @@ class pmOptions(object):
             c_api.pmSetOptionFlags(c_api.PM_OPTFLAG_BOUNDARIES)
         self._delta = 1			# default archive pmSetMode delta
         self._mode = c_api.PM_MODE_INTERP # default pmSetMode access mode
+        self._need_reset = False	# flag for __del__ memory reclaim
 
     def __del__(self):
-        c_api.pmResetAllOptions()
+        if LIBPCP and self._need_reset != False:
+            c_api.pmResetAllOptions()
 
     ##
     # general command line option access and manipulation
@@ -928,17 +938,20 @@ class pmOptions(object):
     def pmGetOptionArchives(self):	# str list
         return c_api.pmGetOptionArchives()
 
-    def pmGetOptionAlignment(self):		# timeval
-        sec = c_api.pmGetOptionAlignment_sec()
-        if sec == None:
+    def pmGetOptionAlignment(self):	# timeval
+        alignment = c_api.pmGetOptionAlign_optarg()
+        if alignment == None:
             return None
-        return timeval(sec, c_api.pmGetOptionAlignment_sec())
+        return timeval.fromInterval(alignment)
 
     def pmGetOptionStart(self):		# timeval
         sec = c_api.pmGetOptionStart_sec()
         if sec == None:
             return None
         return timeval(sec, c_api.pmGetOptionStart_usec())
+
+    def pmGetOptionAlignOptarg(self):	# string
+        return c_api.pmGetOptionAlign_optarg()
 
     def pmGetOptionFinishOptarg(self):	# string
         return c_api.pmGetOptionFinish_optarg()
@@ -1062,6 +1075,7 @@ class pmContext(object):
             contexts based on the given command line parameters.
         """
         if (typed <= 0):
+            options.need_reset = True
             if c_api.pmGetOptionsFromList(argv):
                 raise pmUsageErr
             typed = options.pmGetOptionContext()
@@ -1770,7 +1784,9 @@ class pmContext(object):
         """PMAPI - Return value from environment or pcp config file """
         if type(variable) != type(b''):
             variable = variable.encode('utf-8')
-        result = LIBPCP.pmGetConfig(variable)
+        result = LIBPCP.pmGetOptionalConfig(variable)
+        if result == None:
+            return result
         return str(result.decode())
 
     @staticmethod

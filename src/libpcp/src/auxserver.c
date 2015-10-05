@@ -281,7 +281,11 @@ __pmServerCreatePIDFile(const char *spec, int verbose)
     }
     atexit(pidonexit);
     fprintf(pidfile, "%" FMT_PID, getpid());
+#ifdef HAVE_FCHMOD
     (void)fchmod(fileno(pidfile), S_IRUSR | S_IRGRP | S_IROTH);
+#else
+    (void)chmod(pidpath, S_IRUSR | S_IRGRP | S_IROTH);
+#endif
     fclose(pidfile);
     return 0;
 }
@@ -322,7 +326,9 @@ AddRequestPort(const char *address, int port)
 {
     ReqPortInfo	*rp;
 
-    if (address == NULL)
+    if (address == NULL && port == 0)
+	address = "INADDR_LOOPBACK";
+    else if (address == NULL)
 	address = "INADDR_ANY";
 
     if (nReqPorts == szReqPorts)
@@ -405,7 +411,8 @@ AddressFamily(int family)
  * Otherwise:
  * address is a string representing the Inet/IPv6 address that the port
  * is advertised for.  To allow connections to all this host's internet
- * addresses from clients use address = "INADDR_ANY".
+ * addresses from clients use address == "INADDR_ANY", or for localhost
+ * access only use address == "INADDR_LOOPBACK".
  * On input, 'family' is a pointer to the address family to use (AF_INET,
  * AF_INET6) if the address specified is empty.  If the spec is not
  * empty then family is ignored and is set to the actual address family
@@ -443,21 +450,33 @@ OpenRequestSocket(int port, const char *address, int *family,
 	fd = __pmCreateUnixSocket();
     }
     else {
-	if ((myAddr = __pmStringToSockAddr(address)) == NULL) {
-	    __pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
-			  port, address);
-	    goto fail;
-	}
-
 	/*
 	 * If the address is unspecified, then use the address family we
 	 * have been given, otherwise the family will be determined by
 	 * __pmStringToSockAddr.
 	 */
-	if (address == NULL || strcmp(address, "INADDR_ANY") == 0)
-	    __pmSockAddrSetFamily(myAddr, *family);
-	else
+	if (address == NULL || strcmp(address, "INADDR_ANY") == 0) {
+	    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
+		__pmNoMem("OpenRequestSocket: can't allocate socket address",
+			  sizeof(*myAddr), PM_FATAL_ERR);
+	    }
+	    __pmSockAddrInit(myAddr, *family, INADDR_ANY, 0);
+	}
+	else if (strcmp(address, "INADDR_LOOPBACK") == 0) {
+	    if ((myAddr = __pmSockAddrAlloc()) == NULL) {
+		__pmNoMem("OpenRequestSocket: can't allocate socket address",
+			  sizeof(*myAddr), PM_FATAL_ERR);
+	    }
+	    __pmSockAddrInit(myAddr, *family, INADDR_LOOPBACK, 0);
+	}
+	else {
+	    if ((myAddr = __pmStringToSockAddr(address)) == NULL) {
+		__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s) invalid address\n",
+			      port, address);
+		goto fail;
+	    }
 	    *family = __pmSockAddrGetFamily(myAddr);
+	}
 	__pmSockAddrSetPort(myAddr, port);
 
 	/* Create the socket. */
@@ -572,15 +591,18 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 
     for (i = 0; i < nReqPorts; i++) {
 	ReqPortInfo	*rp = &reqPorts[i];
-	int		portsOpened = 0;;
+	int		portsOpened = 0;
 
 	/*
-	 * If the spec is NULL or "INADDR_ANY", then we open one socket
-	 * for each address family (inet, IPv6).  Otherwise, the address
-	 * family will be determined by OpenRequestSocket.  Reporting of
-	 * all errors is left to OpenRequestSocket to avoid doubling up.
+	 * If the spec is NULL or "INADDR_ANY" or "INADDR_LOOPBACK", then
+	 * we open one socket for each address family (inet, IPv6).
+	 * Otherwise, the address family will be determined by
+	 * OpenRequestSocket.  Reporting of all errors is left to
+	 * OpenRequestSocket to avoid doubling up.
 	 */
-	if (rp->address == NULL || strcmp(rp->address, "INADDR_ANY") == 0) {
+	if (rp->address == NULL ||
+	    strcmp(rp->address, "INADDR_ANY") == 0 ||
+	    strcmp(rp->address, "INADDR_LOOPBACK") == 0) {
 	    family = AF_INET;
 	    if ((fd = OpenRequestSocket(rp->port, rp->address, &family,
 					backlog, fdset, &maximum)) >= 0) {
@@ -626,6 +648,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 	}
     }
 
+#ifndef IS_MINGW
     /* Open a local unix domain socket, if specified, and supported. */
     if (localSocketPath != NULL) {
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
@@ -640,6 +663,7 @@ OpenRequestPorts(__pmFdSet *fdset, int backlog)
 		      pmProgname);
 #endif
     }
+#endif
 
     if (success)
 	return maximum;
@@ -947,7 +971,8 @@ __pmServerClearFeature(__pmServerFeature clear)
 int
 __pmServerSetFeature(__pmServerFeature wanted)
 {
-    if (wanted == PM_SERVER_FEATURE_DISCOVERY ||
+    if (wanted == PM_SERVER_FEATURE_LOCAL ||
+	wanted == PM_SERVER_FEATURE_DISCOVERY ||
 	wanted == PM_SERVER_FEATURE_CREDS_REQD ||
 	wanted == PM_SERVER_FEATURE_UNIX_DOMAIN) {
 	server_features |= (1 << wanted);
@@ -973,6 +998,7 @@ __pmServerHasFeature(__pmServerFeature query)
     case PM_SERVER_FEATURE_IPV6:
 	sts = (strcmp(__pmGetAPIConfig("ipv6"), "true") == 0);
 	break;
+    case PM_SERVER_FEATURE_LOCAL:
     case PM_SERVER_FEATURE_DISCOVERY:
     case PM_SERVER_FEATURE_CONTAINERS:
     case PM_SERVER_FEATURE_CREDS_REQD:

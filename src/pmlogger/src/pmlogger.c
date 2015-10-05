@@ -17,8 +17,9 @@
 #include <limits.h>
 #include <sys/stat.h>
 #include "logger.h"
+#include <errno.h>
 
-char		*configfile;
+char		*configfile;		/* current config filename, must be *alloc()d */
 __pmLogCtl	logctl;
 int		exit_samples = -1;       /* number of samples 'til exit */
 __int64_t	exit_bytes = -1;         /* number of bytes 'til exit */
@@ -38,16 +39,18 @@ int		primary;		/* Non-zero for primary pmlogger */
 char	    	*archBase;		/* base name for log files */
 char		*pmcd_host;
 char		*pmcd_host_conn;
-struct timeval	epoch;
+int		host_context = PM_CONTEXT_HOST;	 /* pmcd / local context mode */
 int		archive_version = PM_LOG_VERS02; /* Type of archive to create */
-int		linger;			/* linger with no tasks/events */
+int		linger = 0;		/* linger with no tasks/events */
 int		rflag;			/* report sizes */
+int		Cflag;			/* parse config and exit */
+struct timeval	epoch;
 struct timeval	delta = { 60, 0 };	/* default logging interval */
 int		exit_code;		/* code to pass to exit (zero/signum) */
 int		qa_case;		/* QA error injection state */
 char		*note;			/* note for port map file */
 
-static int 	    pmcdfd;		/* comms to pmcd */
+static int 	    pmcdfd = -1;	/* comms to pmcd */
 static __pmFdSet    fds;		/* file descriptors mask for select */
 static int	    numfds;		/* number of file descriptors in mask */
 
@@ -57,6 +60,7 @@ static time_t	rsc_start;
 static char	*rsc_prog = "<unknown>";
 static char	*folio_name = "<unknown>";
 static char	*dialog_title = "PCP Archive Recording Session";
+static int	sep;
 
 void
 run_done(int sts, char *msg)
@@ -458,11 +462,14 @@ failed:
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     { "config", 1, 'c', "FILE", "file to load configuration from" },
+    { "check", 0, 'C', 0, "parse configuration and exit" },
     PMOPT_DEBUG,
     PMOPT_HOST,
     { "log", 1, 'l', "FILE", "redirect diagnostics and trace output" },
     { "linger", 0, 'L', 0, "run even if not primary logger instance and nothing to log" },
     { "note", 1, 'm', "MSG", "descriptive note to be added to the port map file" },
+    PMOPT_SPECLOCAL,
+    { "local-PMDA", 0, 'o', 0, "metrics sourced without connecting to pmcd" },
     PMOPT_NAMESPACE,
     { "PID", 1, 'p', "PID", "Log specified metric for the lifetime of the pid" },
     { "primary", 0, 'P', 0, "execute as primary logger instance" },
@@ -481,17 +488,57 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:D:h:l:Lm:n:p:Prs:T:t:uU:v:V:x:y?",
+    .short_options = "c:CD:h:l:K:Lm:n:op:Prs:T:t:uU:v:V:x:y?",
     .long_options = longopts,
     .short_usage = "[options] archive",
 };
+
+static FILE *
+do_pmcpp(char *configfile)
+{
+    FILE	*f;
+    char	cmd[3*MAXPATHLEN+80];
+    char	*bin_dir = pmGetConfig("PCP_BINADM_DIR");
+    char	*lib_dir = pmGetConfig("PCP_VAR_DIR");
+
+    if (configfile != NULL) {
+	if ((f = fopen(configfile, "r")) == NULL) {
+	    fprintf(stderr, "%s: Cannot open config file \"%s\": %s\n",
+		pmProgname, configfile, osstrerror());
+	    exit(1);
+	}
+	fclose(f);
+    }
+
+    if (bin_dir == NULL) {
+	fprintf(stderr, "%s: pmGetConfig: cannot get $PCP_BINADM_DIR value\n",
+		pmProgname);
+	exit(1);
+    }
+    if (lib_dir == NULL) {
+	fprintf(stderr, "%s: pmGetConfig: cannot get $PCP_VAR_DIR value\n",
+		pmProgname);
+	exit(1);
+    }
+
+    snprintf(cmd, sizeof(cmd), "%s%cpmcpp -rs %s -I %s%cconfig%cpmlogger",
+	bin_dir, sep, configfile == NULL ? "" : configfile, lib_dir, sep, sep);
+    fprintf(stderr, "preprocessor cmd: %s\n", cmd);
+
+    if ((f = popen(cmd, "r")) == NULL) {
+	fprintf(stderr, "%s: popen(\"%s\", \"r\") failed: %s\n",
+		pmProgname, cmd, osstrerror());
+	exit(1);
+    }
+
+    return f;
+}
 
 int
 main(int argc, char **argv)
 {
     int			c;
     int			sts;
-    int			sep = __pmPathSeparator();
     int			use_localtime = 0;
     int			isdaemon = 0;
     char		*pmnsfile = PM_NS_DEFAULT;
@@ -511,6 +558,7 @@ main(int argc, char **argv)
     pid_t               target_pid = 0;
 
     __pmGetUsername(&username);
+    sep = __pmPathSeparator();
 
     /*
      * Warning:
@@ -523,7 +571,7 @@ main(int argc, char **argv)
 
 	case 'c':		/* config file */
 	    if (access(opts.optarg, F_OK) == 0)
-		configfile = opts.optarg;
+		configfile = strdup(opts.optarg);
 	    else {
 		/* does not exist as given, try the standard place */
 		char *sysconf = pmGetConfig("PCP_VAR_DIR");
@@ -536,9 +584,13 @@ main(int argc, char **argv)
 		if (access(configfile, F_OK) != 0) {
 		    /* still no good, error handling happens below */
 		    free(configfile);
-		    configfile = opts.optarg;
+		    configfile = strdup(opts.optarg);
 		}
 	    }
+	    break;
+
+	case 'C':		/* parse config and exit */
+	    Cflag = 1;
 	    break;
 
 	case 'D':	/* debug flag */
@@ -560,6 +612,14 @@ main(int argc, char **argv)
 	    logfile = opts.optarg;
 	    break;
 
+	case 'K':
+	    if ((endnum = __pmSpecLocalPMDA(opts.optarg)) != NULL) {
+		pmprintf("%s: __pmSpecLocalPMDA failed: %s\n",
+			pmProgname, endnum);
+		opts.errors++;
+	    }
+	    break;
+
 	case 'L':		/* linger if not primary logger */
 	    linger = 1;
 	    break;
@@ -572,6 +632,17 @@ main(int argc, char **argv)
 
 	case 'n':		/* alternative name space file */
 	    pmnsfile = opts.optarg;
+	    break;
+
+	case 'o':		/* local context mode, no pmcd */
+	    /*
+	     * Note, using Lflag here because this has the same
+	     * semantics as -L for all the other PCP commands, but
+	     * -L was already taken (for "linger") in pmlogger, so
+	     * we're forced to use -o on the command line.
+	     */
+	    host_context = PM_CONTEXT_LOCAL;
+	    opts.Lflag = 1;
 	    break;
 
 	case 'p':
@@ -677,10 +748,18 @@ main(int argc, char **argv)
 	}
     }
 
-    if (primary && pmcd_host != NULL) {
+    if (pmcd_host_conn != NULL && primary) {
 	pmprintf(
 	    "%s: -P and -h are mutually exclusive; use -P only when running\n"
 	    "%s on the same (local) host as the PMCD to which it connects.\n",
+		pmProgname, pmProgname);
+	opts.errors++;
+    }
+
+    if (pmcd_host_conn != NULL && host_context == PM_CONTEXT_LOCAL) {
+	pmprintf(
+	    "%s: -o and -h are mutually exclusive; use -o only when running\n"
+	    "%s on the same (local) host as the DSO PMDA(s) being used.\n",
 		pmProgname, pmProgname);
 	opts.errors++;
     }
@@ -706,17 +785,16 @@ main(int argc, char **argv)
     if (isdaemon)
 	__pmSetProcessIdentity(username);
 
-    __pmOpenLog("pmlogger", logfile, stderr, &sts);
-    if (sts != 1) {
-	fprintf(stderr, "%s: Warning: log file (%s) creation failed\n", pmProgname, logfile);
-	/* continue on ... writing to stderr */
+    if (Cflag == 0) {
+	__pmOpenLog("pmlogger", logfile, stderr, &sts);
+	if (sts != 1) {
+	    fprintf(stderr, "%s: Warning: log file (%s) creation failed\n", pmProgname, logfile);
+	    /* continue on ... writing to stderr */
+	}
     }
 
     /* base name for archive is here ... */
     archBase = argv[opts.optind];
-
-    if (pmcd_host_conn == NULL)
-	pmcd_host_conn = "local:";
 
     /* initialise access control */
     if (__pmAccAddOp(PM_OP_LOG_ADV) < 0 ||
@@ -727,13 +805,18 @@ main(int argc, char **argv)
     }
 
     if (pmnsfile != PM_NS_DEFAULT) {
-	if ((sts = pmLoadNameSpace(pmnsfile)) < 0) {
+	if ((sts = pmLoadASCIINameSpace(pmnsfile, 1)) < 0) {
 	    fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n", pmProgname, pmnsfile, pmErrStr(sts));
 	    exit(1);
 	}
     }
 
-    if ((ctx = pmNewContext(PM_CONTEXT_HOST, pmcd_host_conn)) < 0) {
+    if (host_context == PM_CONTEXT_LOCAL)
+	pmcd_host_conn = "local context";
+    else if (pmcd_host_conn == NULL)
+	pmcd_host_conn = "local:";
+
+    if ((ctx = pmNewContext(host_context, pmcd_host_conn)) < 0) {
 	fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n", pmProgname, pmcd_host_conn, pmErrStr(ctx));
 	exit(1);
     }
@@ -744,7 +827,7 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if (rsc_fd == -1) {
+    if (rsc_fd == -1 && host_context != PM_CONTEXT_LOCAL) {
 	/* no -x, so register client id with pmcd */
 	__pmSetClientIdArgv(argc, argv);
     }
@@ -752,24 +835,19 @@ main(int argc, char **argv)
     /*
      * discover fd for comms channel to PMCD ... 
      */
-    if ((ctxp = __pmHandleToPtr(ctx)) == NULL) {
-	fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, ctx);
-	exit(1);
-    }
-    pmcdfd = ctxp->c_pmcd->pc_fd;
-    PM_UNLOCK(ctxp->c_lock);
-
-    if (configfile != NULL) {
-	if ((yyin = fopen(configfile, "r")) == NULL) {
-	    fprintf(stderr, "%s: Cannot open config file \"%s\": %s\n",
-		pmProgname, configfile, osstrerror());
+    if (host_context != PM_CONTEXT_LOCAL) {
+	if ((ctxp = __pmHandleToPtr(ctx)) == NULL) {
+	    fprintf(stderr, "%s: botch: __pmHandleToPtr(%d) returns NULL!\n", pmProgname, ctx);
 	    exit(1);
 	}
+	pmcdfd = ctxp->c_pmcd->pc_fd;
+	PM_UNLOCK(ctxp->c_lock);
     }
-    else {
-	/* **ANY** Lex would read from stdin automagically */
-	configfile = "<stdin>";
-    }
+
+    yyin = do_pmcpp(configfile);
+    /* do not return unless yyin is valid */
+    if (configfile == NULL)
+	configfile = strdup("<stdin>");
 
     __pmOptFetchGetParams(&ocp);
     ocp.c_scope = 1;
@@ -780,16 +858,12 @@ main(int argc, char **argv)
 
     if (yyparse() != 0)
 	exit(1);
-    if (configfile != NULL)
-	fclose(yyin);
+    fclose(yyin);
     yyend();
 
 #ifdef PCP_DEBUG
     fprintf(stderr, "Config parsed\n");
 #endif
-
-    fprintf(stderr, "Starting %slogger for host \"%s\" via \"%s\"\n",
-            primary ? "primary " : "", pmcd_host, pmcd_host_conn);
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG) {
@@ -815,6 +889,12 @@ main(int argc, char **argv)
 	}
     }
 #endif
+
+    if (Cflag)
+	exit(0);
+
+    fprintf(stderr, "Starting %slogger for host \"%s\" via \"%s\"\n",
+            primary ? "primary " : "", pmcd_host, pmcd_host_conn);
 
     if (!primary && tasklist == NULL && !linger) {
 	fprintf(stderr, "Nothing to log, and not the primary logger instance ... good-bye\n");
@@ -906,7 +986,8 @@ main(int argc, char **argv)
 	    __pmFD_SET(ctlfds[i], &fds);
     }
 #ifndef IS_MINGW
-    __pmFD_SET(pmcdfd, &fds);
+    if (pmcdfd != -1)
+	__pmFD_SET(pmcdfd, &fds);
 #endif
     if (rsc_fd != -1)
 	__pmFD_SET(rsc_fd, &fds);
@@ -1212,9 +1293,11 @@ disconnect(int sts)
 	fprintf(stderr, "This is fatal for the primary logger.");
 	exit(1);
     }
-    close(pmcdfd);
-    __pmFD_CLR(pmcdfd, &fds);
-    pmcdfd = -1;
+    if (pmcdfd != -1) {
+	close(pmcdfd);
+	__pmFD_CLR(pmcdfd, &fds);
+	pmcdfd = -1;
+    }
     numfds = maxfd() + 1;
     if ((ctx = pmWhichContext()) >= 0)
 	ctxp = __pmHandleToPtr(ctx);

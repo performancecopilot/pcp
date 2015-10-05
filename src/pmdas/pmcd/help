@@ -537,3 +537,7 @@ A value of zero indicates no support, one indicates actively available.
 
 @ pmcd.feature.containers status of support for containers in pmcd
 A value of zero indicates no support, one indicates actively available.
+
+@ pmcd.feature.local status of localhost-only mode of operation in pmcd
+A value of zero indicates not enabled, one indicates the localhost-only
+mode of operation is active.

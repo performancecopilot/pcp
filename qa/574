@@ -12,7 +12,6 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
-. ./localconfig
 
 rm -f $seq.out
 case $PCP_PLATFORM

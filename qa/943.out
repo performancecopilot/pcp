@@ -37,8 +37,12 @@ proc.memory.size -12387 No permission to perform requested operation
 proc.memory.textrss -12387 No permission to perform requested operation
 proc.memory.vmdata -12387 No permission to perform requested operation
 proc.memory.vmexe -12387 No permission to perform requested operation
+proc.memory.vmhwn -12387 No permission to perform requested operation
 proc.memory.vmlib -12387 No permission to perform requested operation
 proc.memory.vmlock -12387 No permission to perform requested operation
+proc.memory.vmpeak -12387 No permission to perform requested operation
+proc.memory.vmpin -12387 No permission to perform requested operation
+proc.memory.vmpte -12387 No permission to perform requested operation
 proc.memory.vmrss -12387 No permission to perform requested operation
 proc.memory.vmsize -12387 No permission to perform requested operation
 proc.memory.vmstack -12387 No permission to perform requested operation
@@ -66,6 +70,7 @@ proc.psinfo.it_real_value -12387 No permission to perform requested operation
 proc.psinfo.labels -12387 No permission to perform requested operation
 proc.psinfo.maj_flt -12387 No permission to perform requested operation
 proc.psinfo.minflt -12387 No permission to perform requested operation
+proc.psinfo.ngid -12387 No permission to perform requested operation
 proc.psinfo.nice -12387 No permission to perform requested operation
 proc.psinfo.nswap -12387 No permission to perform requested operation
 proc.psinfo.nvctxsw -12387 No permission to perform requested operation
@@ -91,6 +96,7 @@ proc.psinfo.start_code -12387 No permission to perform requested operation
 proc.psinfo.start_stack -12387 No permission to perform requested operation
 proc.psinfo.start_time -12387 No permission to perform requested operation
 proc.psinfo.stime -12387 No permission to perform requested operation
+proc.psinfo.tgid -12387 No permission to perform requested operation
 proc.psinfo.threads -12387 No permission to perform requested operation
 proc.psinfo.tty -12387 No permission to perform requested operation
 proc.psinfo.tty_pgrp -12387 No permission to perform requested operation
@@ -128,8 +134,12 @@ proc.memory.size COUNT
 proc.memory.textrss COUNT
 proc.memory.vmdata COUNT
 proc.memory.vmexe COUNT
+proc.memory.vmhwn COUNT
 proc.memory.vmlib COUNT
 proc.memory.vmlock COUNT
+proc.memory.vmpeak COUNT
+proc.memory.vmpin COUNT
+proc.memory.vmpte COUNT
 proc.memory.vmrss COUNT
 proc.memory.vmsize COUNT
 proc.memory.vmstack COUNT
@@ -157,6 +167,7 @@ proc.psinfo.it_real_value COUNT
 proc.psinfo.labels COUNT
 proc.psinfo.maj_flt COUNT
 proc.psinfo.minflt COUNT
+proc.psinfo.ngid COUNT
 proc.psinfo.nice COUNT
 proc.psinfo.nswap COUNT
 proc.psinfo.nvctxsw COUNT
@@ -182,6 +193,7 @@ proc.psinfo.start_code COUNT
 proc.psinfo.start_stack COUNT
 proc.psinfo.start_time COUNT
 proc.psinfo.stime COUNT
+proc.psinfo.tgid COUNT
 proc.psinfo.threads COUNT
 proc.psinfo.tty COUNT
 proc.psinfo.tty_pgrp COUNT

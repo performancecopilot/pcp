@@ -254,15 +254,18 @@ for details).
 .PD 0
 .TP
 .B PCP_PMPROXYOPTIONS_PATH
-command line options
-and environment variable settings for
+command line options for
 .B pmproxy
 when launched from
 .B $PCP_RC_DIR/pmproxy
 All the command line option lines should start with a hyphen as
 the first character.
-This file can also contain environment variable settings of
-the form "VARIABLE=value".
+.TP
+.B $PCP_SYSCONFIG_DIR/pmproxy
+additional environment variables that will be set when
+.B pmproxy
+executes.
+Only settings of the form "PMPROXY_VARIABLE=value" will be honoured.
 .TP
 .B \&./pmproxy.log
 (or
@@ -329,6 +332,18 @@ these same environment variables control the timeouts between
 and all
 .BR pmcd (1)
 instances (independent of which monitoring client is involved).
+.PP
+If set to the value 1, the
+.B PMPROXY_LOCAL
+environment variable will cause
+.B pmproxy
+to run in a localhost-only mode of operation, where it binds only
+to the loopback interface.
+.PP
+The
+.B PMPROXY_MAXPENDING
+variable can be set to indicate the maximum length to which the queue
+of pending client connections may grow.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

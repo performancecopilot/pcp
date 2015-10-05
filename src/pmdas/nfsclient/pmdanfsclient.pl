@@ -370,7 +370,7 @@ sub nfsclient_parse_proc_mountstats {
                         $h{$nfsinst}->{"nfsclient.ops.$opname.bytes_recv"} = $noval;
                         $h{$nfsinst}->{"nfsclient.ops.$opname.queue"} = $noval;
                         $h{$nfsinst}->{"nfsclient.ops.$opname.rtt"} = $noval;
-                        $h{$nfsinst}->{"nfsclinet.ops.$opname.execute"} = $noval;
+                        $h{$nfsinst}->{"nfsclient.ops.$opname.execute"} = $noval;
 		}
 
 		if ($line =~ /\tper-op statistics$/) {
@@ -388,7 +388,7 @@ sub nfsclient_parse_proc_mountstats {
 				 $h{$nfsinst}->{"nfsclient.ops.$op_name.bytes_recv"},
 				 $h{$nfsinst}->{"nfsclient.ops.$op_name.queue"},
 				 $h{$nfsinst}->{"nfsclient.ops.$op_name.rtt"},
-				 $h{$nfsinst}->{"nfsclinet.ops.$op_name.execute"}) =
+				 $h{$nfsinst}->{"nfsclient.ops.$op_name.execute"}) =
 					($2, $3, $4, $5, $6, $7, $8, $9);
 			}
 		}

@@ -54,7 +54,7 @@ do
 	lasttime=`sed -n -e "/^$seq /s/.* //p" <check.time`
 	[ "X$lasttime" != X ] && $PCP_ECHO_PROG $PCP_ECHO_N " ${lasttime}s""$PCP_ECHO_C"
 	rm -f $seq.out.bak $seq.full.ok.bak
-	if sh $seq >$seq.new 2>&1
+	if ./$seq >$seq.new 2>&1
 	then
 	    if [ -f $seq.notrun ]
 	    then

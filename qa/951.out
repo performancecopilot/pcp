@@ -1,0 +1,120 @@
+QA output created by 951
+=== instant disk.dev.total(PM_SEM_COUNTER) ===
+19:37:25 ? ? OK
+19:37:26 ? ? OK
+19:37:27 3256075 1879364 0 3256075 1879364 0 OK OK OK
+19:37:28 3256350 1879364 0 3256350 1879364 0 OK OK OK
+19:37:29 3256483 1879364 0 3256483 1879364 0 OK OK OK
+19:37:30 3256723 1879364 0 3256723 1879364 0 OK OK OK
+19:37:31 3257057 1879364 0 3257057 1879364 0 OK OK OK
+19:37:32 3257505 1879364 0 3257505 1879364 0 OK OK OK
+19:37:33 3257833 1879364 0 3257833 1879364 0 OK OK OK
+19:37:34 3258304 1879364 0 3258304 1879364 0 OK OK OK
+19:37:35 3258777 1879364 0 3258777 1879364 0 OK OK OK
+
+=== disk.dev.total(PM_SEM_INSTANT) ===
+(expect slightly smaller values than the case above)
+19:37:25 ? ? OK
+19:37:26 ? ? OK
+19:37:27 3255698 1879364 0 3255698 1879364 0 OK OK OK
+19:37:28 3256075 1879364 0 3256075 1879364 0 OK OK OK
+19:37:29 3256350 1879364 0 3256350 1879364 0 OK OK OK
+19:37:30 3256483 1879364 0 3256483 1879364 0 OK OK OK
+19:37:31 3256723 1879364 0 3256723 1879364 0 OK OK OK
+19:37:32 3257057 1879364 0 3257057 1879364 0 OK OK OK
+19:37:33 3257505 1879364 0 3257505 1879364 0 OK OK OK
+19:37:34 3257833 1879364 0 3257833 1879364 0 OK OK OK
+19:37:35 3258304 1879364 0 3258304 1879364 0 OK OK OK
+
+=== (rate) disk.dev.total(PM_SEM_COUNTER) ===
+19:37:25 ? ? OK
+19:37:26 ? ? OK
+19:37:27 ? ? ? ? OK OK
+19:37:28 275 0 0 275.0 0.0 0.0 OK OK OK
+19:37:29 133 0 0 133.0 0.0 0.0 OK OK OK
+19:37:30 240 0 0 240.0 0.0 0.0 OK OK OK
+19:37:31 334 0 0 334.0 0.0 0.0 OK OK OK
+19:37:32 448 0 0 448.0 0.0 0.0 OK OK OK
+19:37:33 328 0 0 328.0 0.0 0.0 OK OK OK
+19:37:34 471 0 0 471.0 0.0 0.0 OK OK OK
+19:37:35 473 0 0 473.0 0.0 0.0 OK OK OK
+
+=== rate disk.dev.total(PM_SEM_INSTANT) ===
+19:37:25 ? ?
+19:37:26 ? ?
+19:37:27 3255698 1879364 0 ? ? ?
+19:37:28 3256075 1879364 0 377 0 0 OK OK OK
+19:37:29 3256350 1879364 0 275 0 0 OK OK OK
+19:37:30 3256483 1879364 0 133 0 0 OK OK OK
+19:37:31 3256723 1879364 0 240 0 0 OK OK OK
+19:37:32 3257057 1879364 0 334 0 0 OK OK OK
+19:37:33 3257505 1879364 0 448 0 0 OK OK OK
+19:37:34 3257833 1879364 0 328 0 0 OK OK OK
+19:37:35 3258304 1879364 0 471 0 0 OK OK OK
+
+=== extra cases with PM_SEM_COUNTER archive ===
+pmie: timezone set to local timezone of host bozo
+DATE: rate converted UNKNOWN
+DATE: instant UNKNOWN
+DATE: rate converted UNKNOWN
+DATE: instant UNKNOWN
+DATE: rate converted UNKNOWN
+DATE: instant OK
+DATE: rate converted OK
+DATE: instant OK
+DATE: rate converted OK
+DATE: instant OK
+DATE: rate converted OK
+DATE: instant OK
+DATE: rate converted OK
+DATE: instant OK
+DATE: rate converted OK
+DATE: instant OK
+DATE: rate converted OK
+DATE: instant OK
+DATE: rate converted OK
+DATE: instant OK
+DATE: rate converted OK
+DATE: instant OK
+
+=== extra cases with PM_SEM_INSTANT archive ===
+pmie: timezone set to local timezone of host bozo
+DATE: raw UNKNOWN
+DATE: rate UNKNOWN
+DATE: raw UNKNOWN
+DATE: rate UNKNOWN
+DATE: raw UNKNOWN
+DATE: rate UNKNOWN
+DATE: raw OK
+DATE: rate UNKNOWN
+DATE: raw OK
+DATE: rate OK
+DATE: raw OK
+DATE: rate OK
+DATE: raw OK
+DATE: rate OK
+DATE: raw OK
+DATE: rate OK
+DATE: raw OK
+DATE: rate OK
+DATE: raw OK
+DATE: rate OK
+DATE: raw OK
+DATE: rate OK
+
+=== live pmcd cases ===
+DATE: OK: instant sum_inst == sum_inst instant
+DATE: UNKNOWN: rate instant ...
+DATE: OK: instant sum_inst == sum_inst instant
+DATE: OK: rate instant <x> == <x>
+DATE: OK: instant sum_inst == sum_inst instant
+DATE: OK: rate instant <x> == <x>
+DATE: OK: instant sum_inst == sum_inst instant
+DATE: OK: rate instant <x> == <x>
+DATE: OK: instant sum_inst == sum_inst instant
+DATE: OK: rate instant <x> == <x>
+
+=== man page example ===
+FALSE
+TRUE
+UNKNOWN

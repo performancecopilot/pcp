@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2015 Red Hat.
  * Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -20,7 +20,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-static __uint32_t hash(const char *, int, __uint32_t);
+static __uint32_t hash(const signed char *, int, __uint32_t);
 
 /*
  * simple linked list for each cache at this stage
@@ -39,7 +39,9 @@ typedef struct entry {
     time_t		stamp;
 } entry_t;
 
-#define VERSION 1	/* version of external file format */
+#define CACHE_VERSION1	1
+#define CACHE_VERSION2	2
+#define CACHE_VERSION	CACHE_VERSION2	/* version of external file format */
 #define MAX_HASH_TRY	10
 
 /*
@@ -59,7 +61,10 @@ typedef struct hdr {
     int			ins_mode;	/* see insert_cache() */
     int			hstate;		/* dirty/clean/string state */
     int			keyhash_cnt[MAX_HASH_TRY];
+    int			maxinst;	/* maximum inst */
 } hdr_t;
+
+#define DEFAULT_MAXINST 0x7fffffff
 
 /* bitfields for hstate */
 #define DIRTY_INSTANCE	0x1
@@ -86,7 +91,7 @@ get_hashlen(hdr_t *h, const char *str)
 }
 
 static unsigned int
-hash_str(const char *str, int len)
+hash_str(const signed char *str, int len)
 {
     return hash(str, len, 0);
 }
@@ -189,6 +194,7 @@ find_cache(pmInDom indom, int *sts)
     h->hstate = 0;
     for (i = 0; i < MAX_HASH_TRY; i++)
 	h->keyhash_cnt[i] = 0;
+    h->maxinst = DEFAULT_MAXINST;
     return h;
 }
 
@@ -363,7 +369,7 @@ find_entry(hdr_t *h, const char *name, int inst, int *sts)
 	if (h->ctl_name == NULL)
 	    /* no hash, use linear search */
 	    return find_name(h, name, sts);
-	for (e = h->ctl_name[hash_str(name, hashlen) & h->hbits]; e != NULL; e = e->h_name) {
+	for (e = h->ctl_name[hash_str((const signed char *)name, hashlen) & h->hbits]; e != NULL; e = e->h_name) {
 	    if (e->state != PMDA_CACHE_EMPTY) {
 		if ((*sts = name_eq(e, name, hashlen)))
 		    return e;
@@ -431,7 +437,7 @@ redo_hash(hdr_t *h, int resize)
 	    for (e = old_name[oldi]; e != NULL; ) {
 		t = e;
 		e = e->h_name;
-		i = hash_str(t->name, t->hashlen) & h->hbits;
+		i = hash_str((const signed char *)t->name, t->hashlen) & h->hbits;
 		t->h_name = h->ctl_name[i];
 		h->ctl_name[i] = t;
 	    }
@@ -617,7 +623,7 @@ insert_cache(hdr_t *h, const char *name, int inst, int *sts)
 	    if (last_e == NULL)
 		inst = 0;
 	    else {
-		if (last_e->inst == 0x7fffffff) {
+		if (last_e->inst == h->maxinst) {
 		    /*
 		     * overflowed inst identifier, need to shift to 
 		     * ins_mode == 1
@@ -635,7 +641,7 @@ retry:
 	    for (e = h->first; e != NULL; e = e->next) {
 		if (inst < e->inst)
 		    break;
-		if (inst == 0x7fffffff) {
+		if (inst == h->maxinst) {
 		    /*
 		     * 2^32-1 is the maximum number of instances we can have
 		     */
@@ -698,7 +704,7 @@ retry:
 
     /* link into the name hash list, if any */
     if (h->ctl_name != NULL) {
-	i = hash_str(e->name, e->hashlen) & h->hbits;
+	i = hash_str((const signed char *)e->name, e->hashlen) & h->hbits;
 	e->h_name = h->ctl_name[i];
 	h->ctl_name[i] = e;
     }
@@ -726,7 +732,8 @@ load_cache(hdr_t *h)
     char	strbuf[20];
 
     if (vdp == NULL) {
-	vdp = pmGetConfig("PCP_VAR_DIR");
+	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
+	    return PM_ERR_GENERIC;
 	snprintf(filename, sizeof(filename),
 		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
 	mkdir2(filename, 0755);
@@ -742,10 +749,33 @@ load_cache(hdr_t *h)
 	fclose(fp);
 	return PM_ERR_GENERIC;
     }
-    s = sscanf(buf, "%d %d", &x, &h->ins_mode);
-    if (s != 2 || x != 1 || h->ins_mode < 0 || h->ins_mode > 1) {
+    /* First grab the file version. */
+    s = sscanf(buf, "%d ", &x);
+    if (s != 1 || x <= 0 || x > CACHE_VERSION) {
 	__pmNotifyErr(LOG_ERR, 
-	     "pmdaCacheOp: %s: illegal first record: %s",
+	     "pmdaCacheOp: %s: illegal cache header record: %s",
+	     filename, buf);
+	fclose(fp);
+	return PM_ERR_GENERIC;
+    }	
+
+    /* Based on the file version, grab the entire line. */
+    switch (x) {
+	case CACHE_VERSION1:
+	    h->maxinst = DEFAULT_MAXINST;
+	    s = sscanf(buf, "%d %d", &x, &h->ins_mode);
+	    if (s != 2)
+		s = 0;
+	    break;
+	default:
+	    s = sscanf(buf, "%d %d %d", &x, &h->ins_mode, &h->maxinst);
+	    if (s != 3)
+		s = 0;
+	    break;
+    }
+    if (s == 0 || h->ins_mode < 0 || h->ins_mode > 1 || h->maxinst < 0) {
+	__pmNotifyErr(LOG_ERR, 
+	     "pmdaCacheOp: %s: illegal cache header record: %s",
 	     filename, buf);
 	fclose(fp);
 	return PM_ERR_GENERIC;
@@ -863,7 +893,8 @@ save_cache(hdr_t *h, int hstate)
     }
 
     if (vdp == NULL) {
-	vdp = pmGetConfig("PCP_VAR_DIR");
+	if ((vdp = pmGetOptionalConfig("PCP_VAR_DIR")) == NULL)
+	    return PM_ERR_GENERIC;
 	snprintf(filename, sizeof(filename),
 		"%s%c" "config" "%c" "pmda", vdp, sep, sep);
 	mkdir2(filename, 0755);
@@ -873,7 +904,7 @@ save_cache(hdr_t *h, int hstate)
 		vdp, sep, sep, sep, pmInDomStr_r(h->indom, strbuf, sizeof(strbuf)));
     if ((fp = fopen(filename, "w")) == NULL)
 	return -oserror();
-    fprintf(fp, "%d %d\n", VERSION, h->ins_mode);
+    fprintf(fp, "%d %d %d\n", CACHE_VERSION, h->ins_mode, h->maxinst);
 
     now = time(NULL);
     cnt = 0;
@@ -1085,7 +1116,7 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
     else {
 	/* we're in the inst guessing game ... */
 	for (i = 0; i < MAX_HASH_TRY; i++) {
-	    try = hash(mykey, mykeylen, try);
+	    try = hash((const signed char *)mykey, mykeylen, try);
 	    /* strip top bit ... instance id must be positive */
 	    inst = try & ~(1 << (8*sizeof(__uint32_t)-1));
 	    e = find_entry(h, NULL, inst, &sts);
@@ -1411,6 +1442,34 @@ int pmdaCachePurge(pmInDom indom, time_t recent)
     return cnt;
 }
 
+int pmdaCacheResize(pmInDom indom, int maximum)
+{
+    hdr_t	*h;
+    int		sts;
+    entry_t	*e;
+
+    if (indom == PM_INDOM_NULL)
+	return PM_ERR_INDOM;
+
+    if ((h = find_cache(indom, &sts)) == NULL)
+	return sts;
+
+    if (maximum < 0)
+	return PM_ERR_SIGN;
+
+    /* Find the largest inst in the queue. */
+    for (e = h->first; e != NULL; e = e->next) {
+	/* If the new maximum is smaller than an existing inst, error. */
+	if (maximum < e->inst)
+	    return PM_ERR_TOOBIG;
+    }
+    h->maxinst = maximum;
+    /* The timestamp doesn't really need updating, but the cache
+       header does now that we've modified the maximum value. */
+    h->hstate |= DIRTY_STAMP;
+    return 0;
+}
+
 /*
 --------------------------------------------------------------------
 lookup2.c, by Bob Jenkins, December 1996, Public Domain.
@@ -1497,7 +1556,7 @@ acceptable.  Do NOT use for cryptographic purposes.
 */
 
 static __uint32_t
-hash(const char *k, int length, __uint32_t initval)
+hash(const signed char *k, int length, __uint32_t initval)
 {
    __uint32_t a,b,c,len;
 

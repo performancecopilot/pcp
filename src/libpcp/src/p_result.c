@@ -309,7 +309,7 @@ __pmDecodeResult(__pmPDU *pdubuf, pmResult **result)
 		    if (sizeof(__pmValue_PDU) > (size_t)(pduend - (char *)pduvp)) {
 #ifdef PCP_DEBUG
 			if ((pmDebug & DBG_TRACE_PDU) && (pmDebug & DBG_TRACE_DESPERATE)) {
-			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] intial pduvp past end of PDU buffer\n", i, j);
+			    fprintf(stderr, "__pmDecodeResult: Bad: pmid[%d] value[%d] initial pduvp past end of PDU buffer\n", i, j);
 			}
 #endif
 			goto corrupt;

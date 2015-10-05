@@ -37,6 +37,8 @@ void cndDelay_n(Expr *);
 void cndDelay_1(Expr *);
 void cndRate_n(Expr *);
 void cndRate_1(Expr *);
+void cndInstant_n(Expr *);
+void cndInstant_1(Expr *);
 void cndSum_host(Expr *);
 void cndSum_inst(Expr *);
 void cndSum_time(Expr *);

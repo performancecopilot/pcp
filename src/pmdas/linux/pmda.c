@@ -49,13 +49,11 @@
 #include "proc_net_tcp.h"
 #include "proc_partitions.h"
 #include "proc_net_netstat.h"
+#include "proc_net_snmp6.h"
 #include "proc_net_snmp.h"
 #include "proc_scsi.h"
 #include "proc_slabinfo.h"
 #include "proc_uptime.h"
-#include "sem_limits.h"
-#include "msg_limits.h"
-#include "shm_limits.h"
 #include "proc_sys_fs.h"
 #include "proc_vmstat.h"
 #include "sysfs_kernel.h"
@@ -63,7 +61,8 @@
 #include "numa_meminfo.h"
 #include "namespaces.h"
 #include "interrupts.h"
-#include "devmapper.h"
+#include "ipc.h"
+#include "proc_net_softnet.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -73,7 +72,6 @@ static proc_net_tcp_t		proc_net_tcp;
 static proc_net_sockstat_t	proc_net_sockstat;
 static struct utsname		kernel_uname;
 static char 			uname_string[sizeof(kernel_uname)];
-static dev_mapper_t		dev_mapper;
 static proc_cpuinfo_t		proc_cpuinfo;
 static proc_slabinfo_t		proc_slabinfo;
 static sem_limits_t		sem_limits;
@@ -83,6 +81,8 @@ static proc_uptime_t		proc_uptime;
 static proc_sys_fs_t		proc_sys_fs;
 static sysfs_kernel_t		sysfs_kernel;
 static numa_meminfo_t		numa_meminfo;
+static shm_info_t              _shm_info;
+static proc_net_softnet_t	proc_net_softnet;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static int		rootfd = -1;	/* af_unix pmdaroot */
@@ -302,7 +302,7 @@ static pmdaIndom indomtab[] = {
     { NODE_INDOM, 0, NULL },
     { PROC_CGROUP_SUBSYS_INDOM, 0, NULL },
     { PROC_CGROUP_MOUNTS_INDOM, 0, NULL },
-    { LV_INDOM, 0, NULL },
+    { 0 }, /* deprecated LV_INDOM */
     { ICMPMSG_INDOM, NR_ICMPMSG_COUNTERS, _pm_proc_net_snmp_indom_id },
     { DM_INDOM, 0, NULL }, /* cached */
 };
@@ -441,12 +441,12 @@ static pmdaMetric metrictab[] = {
 
 /* disk.dev.blkread */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,6), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,6), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.dev.blkwrite */
     { NULL, 
-      { PMDA_PMID(CLUSTER_STAT,7), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_STAT,7), KERNEL_ULONG, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.dev.avactive */
@@ -484,6 +484,11 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,73), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
+/* disk.dev.total_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,79), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
 /* disk.all.avactive */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,44), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
@@ -509,9 +514,14 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
-/* disk.all.read_rawactive */
+/* disk.all.write_rawactive */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,75), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.all.total_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,80), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
 /* swap.pagesin */
@@ -942,6 +952,11 @@ static pmdaMetric metrictab[] = {
     { NULL,
       { PMDA_PMID(CLUSTER_MEMINFO,58), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* hinv.hugepagesize */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_MEMINFO,59), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
 /* mem.numa.util.total */
     { NULL,
@@ -1827,12 +1842,12 @@ static pmdaMetric metrictab[] = {
 
 /* disk.partitions.read */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,0), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,0), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.partitions.write */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,1), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,1), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.partitions.total */
@@ -1842,12 +1857,12 @@ static pmdaMetric metrictab[] = {
 
 /* disk.partitions.blkread */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,3), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,3), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.partitions.blkwrite */
     { NULL, 
-      { PMDA_PMID(CLUSTER_PARTITIONS,4), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_PARTITIONS,4), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* disk.partitions.blktotal */
@@ -1870,7 +1885,41 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_PARTITIONS,8), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
-		
+/* disk.partitions.read_merge*/
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,9), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.partitions.write_merge */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,10), KERNEL_ULONG, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.partitions.avactive */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,11), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.partitions.aveq */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,12), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.partitions.read_rawactive */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,13), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.partitions.write_rawactive */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,14), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/* disk.partitions.total_rawactive */
+    { NULL,
+      { PMDA_PMID(CLUSTER_PARTITIONS,15), PM_TYPE_U32, PARTITIONS_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
 /* disk.dev.read_bytes */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,38), PM_TYPE_U32, DISK_INDOM, PM_SEM_COUNTER, 
@@ -2390,6 +2439,420 @@ static pmdaMetric metrictab[] = {
   { &_pm_proc_net_snmp.icmpmsg[_PM_SNMP_ICMPMSG_OUTTYPE],
     { PMDA_PMID(CLUSTER_NET_SNMP,89), PM_TYPE_U64, ICMPMSG_INDOM, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/*
+ * network IPv6 cluster
+ */
+
+/* network.ip6.inreceives */
+  { &_pm_proc_net_snmp6[_PM_IP6_INRECEIVES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INRECEIVES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inhdrerrors */
+  { &_pm_proc_net_snmp6[_PM_IP6_INHDRERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INHDRERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.intoobigerrors */
+  { &_pm_proc_net_snmp6[_PM_IP6_INTOOBIGERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INTOOBIGERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.innoroutes */
+  { &_pm_proc_net_snmp6[_PM_IP6_INNOROUTES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INNOROUTES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inaddrerrors */
+  { &_pm_proc_net_snmp6[_PM_IP6_INADDRERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INADDRERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inunknownprotos */
+  { &_pm_proc_net_snmp6[_PM_IP6_INUNKNOWNPROTOS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INUNKNOWNPROTOS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.intruncatedpkts */
+  { &_pm_proc_net_snmp6[_PM_IP6_INTRUNCATEDPKTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INTRUNCATEDPKTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.indiscards */
+  { &_pm_proc_net_snmp6[_PM_IP6_INDISCARDS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INDISCARDS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.indelivers */
+  { &_pm_proc_net_snmp6[_PM_IP6_INDELIVERS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INDELIVERS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outforwdatagrams */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTFORWDATAGRAMS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTFORWDATAGRAMS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outrequests */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTREQUESTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTREQUESTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outdiscards */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTDISCARDS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTDISCARDS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outnoroutes */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTNOROUTES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTNOROUTES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.reasmtimeout */
+  { &_pm_proc_net_snmp6[_PM_IP6_REASMTIMEOUT].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_REASMTIMEOUT), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.reasmreqds */
+  { &_pm_proc_net_snmp6[_PM_IP6_REASMREQDS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_REASMREQDS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.reasmoks */
+  { &_pm_proc_net_snmp6[_PM_IP6_REASMOKS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_REASMOKS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.reasmfails */
+  { &_pm_proc_net_snmp6[_PM_IP6_REASMFAILS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_REASMFAILS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.fragoks */
+  { &_pm_proc_net_snmp6[_PM_IP6_FRAGOKS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_FRAGOKS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.fragfails */
+  { &_pm_proc_net_snmp6[_PM_IP6_FRAGFAILS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_FRAGFAILS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.fragcreates */
+  { &_pm_proc_net_snmp6[_PM_IP6_FRAGCREATES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_FRAGCREATES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inmcastpkts */
+  { &_pm_proc_net_snmp6[_PM_IP6_INMCASTPKTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INMCASTPKTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outmcastpkts */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTMCASTPKTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTMCASTPKTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inoctets */
+  { &_pm_proc_net_snmp6[_PM_IP6_INOCTETS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INOCTETS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outoctets */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTOCTETS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTOCTETS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inmcastoctets */
+  { &_pm_proc_net_snmp6[_PM_IP6_INMCASTOCTETS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INMCASTOCTETS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outmcastoctets */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTMCASTOCTETS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTMCASTOCTETS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inbcastoctets */
+  { &_pm_proc_net_snmp6[_PM_IP6_INBCASTOCTETS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INBCASTOCTETS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.outbcastoctets */
+  { &_pm_proc_net_snmp6[_PM_IP6_OUTBCASTOCTETS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_OUTBCASTOCTETS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.innoectpkts */
+  { &_pm_proc_net_snmp6[_PM_IP6_INNOECTPKTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INNOECTPKTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inect1pkts */
+  { &_pm_proc_net_snmp6[_PM_IP6_INECT1PKTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INECT1PKTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.inect0pkts */
+  { &_pm_proc_net_snmp6[_PM_IP6_INECT0PKTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INECT0PKTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.ip6.incepkts */
+  { &_pm_proc_net_snmp6[_PM_IP6_INCEPKTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_IP6_INCEPKTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inmsgs */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INMSGS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INMSGS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inerrors */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outmsgs */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTMSGS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTMSGS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outerrors */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.incsumerrors */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INCSUMERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INCSUMERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.indestunreachs */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INDESTUNREACHS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INDESTUNREACHS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inpkttoobigs */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INPKTTOOBIGS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INPKTTOOBIGS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.intimeexcds */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INTIMEEXCDS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INTIMEEXCDS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inparmproblems */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INPARMPROBLEMS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INPARMPROBLEMS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inechos */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INECHOS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INECHOS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inechoreplies */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INECHOREPLIES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INECHOREPLIES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.ingroupmembqueries */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INGROUPMEMBQUERIES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INGROUPMEMBQUERIES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.ingroupmembresponses */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INGROUPMEMBRESPONSES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INGROUPMEMBRESPONSES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.ingroupmembreductions */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INGROUPMEMBREDUCTIONS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INGROUPMEMBREDUCTIONS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inroutersolicits */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INROUTERSOLICITS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INROUTERSOLICITS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inrouteradvertisements */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INROUTERADVERTISEMENTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INROUTERADVERTISEMENTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inneighborsolicits */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INNEIGHBORSOLICITS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INNEIGHBORSOLICITS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inneighboradvertisements */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INNEIGHBORADVERTISEMENTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INNEIGHBORADVERTISEMENTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inredirects */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INREDIRECTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INREDIRECTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.inmldv2reports */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_INMLDV2REPORTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_INMLDV2REPORTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outdestunreachs */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTDESTUNREACHS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTDESTUNREACHS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outpkttoobigs */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTPKTTOOBIGS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTPKTTOOBIGS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outtimeexcds */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTTIMEEXCDS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTTIMEEXCDS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outparmproblems */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTPARMPROBLEMS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTPARMPROBLEMS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outechos */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTECHOS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTECHOS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outechoreplies */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTECHOREPLIES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTECHOREPLIES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outgroupmembqueries */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTGROUPMEMBQUERIES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTGROUPMEMBQUERIES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outgroupmembresponses */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTGROUPMEMBRESPONSES].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTGROUPMEMBRESPONSES), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outgroupmembreductions */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTGROUPMEMBREDUCTIONS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTGROUPMEMBREDUCTIONS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outroutersolicits */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTROUTERSOLICITS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTROUTERSOLICITS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outrouteradvertisements */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTROUTERADVERTISEMENTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTROUTERADVERTISEMENTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outneighborsolicits */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTNEIGHBORSOLICITS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTNEIGHBORSOLICITS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outneighboradvertisements */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTNEIGHBORADVERTISEMENTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTNEIGHBORADVERTISEMENTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outredirects */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTREDIRECTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTREDIRECTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.icmp6.outmldv2reports */
+  { &_pm_proc_net_snmp6[_PM_ICMP6_OUTMLDV2REPORTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_ICMP6_OUTMLDV2REPORTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.indatagrams */
+  { &_pm_proc_net_snmp6[_PM_UDP6_INDATAGRAMS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_INDATAGRAMS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.noports */
+  { &_pm_proc_net_snmp6[_PM_UDP6_NOPORTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_NOPORTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.inerrors */
+  { &_pm_proc_net_snmp6[_PM_UDP6_INERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_INERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.outdatagrams */
+  { &_pm_proc_net_snmp6[_PM_UDP6_OUTDATAGRAMS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_OUTDATAGRAMS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.rcvbuferrors */
+  { &_pm_proc_net_snmp6[_PM_UDP6_RCVBUFERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_RCVBUFERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.sndbuferrors */
+  { &_pm_proc_net_snmp6[_PM_UDP6_SNDBUFERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_SNDBUFERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.incsumerrors */
+  { &_pm_proc_net_snmp6[_PM_UDP6_INCSUMERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_INCSUMERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udp6.ignoredmulti */
+  { &_pm_proc_net_snmp6[_PM_UDP6_IGNOREDMULTI].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDP6_IGNOREDMULTI), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite6.indatagrams */
+  { &_pm_proc_net_snmp6[_PM_UDPLITE6_INDATAGRAMS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDPLITE6_INDATAGRAMS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite6.noports */
+  { &_pm_proc_net_snmp6[_PM_UDPLITE6_NOPORTS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDPLITE6_NOPORTS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite6.inerrors */
+  { &_pm_proc_net_snmp6[_PM_UDPLITE6_INERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDPLITE6_INERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite6.outdatagrams */
+  { &_pm_proc_net_snmp6[_PM_UDPLITE6_OUTDATAGRAMS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDPLITE6_OUTDATAGRAMS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite6.rcvbuferrors */
+  { &_pm_proc_net_snmp6[_PM_UDPLITE6_RCVBUFERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDPLITE6_RCVBUFERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite6.sndbuferrors */
+  { &_pm_proc_net_snmp6[_PM_UDPLITE6_SNDBUFERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDPLITE6_SNDBUFERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.udplite6.incsumerrors */
+  { &_pm_proc_net_snmp6[_PM_UDPLITE6_INCSUMERRORS].val,
+    { PMDA_PMID(CLUSTER_NET_SNMP6, _PM_UDPLITE6_INCSUMERRORS), PM_TYPE_U64,
+    PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /*
  * network netstat cluster
@@ -2995,16 +3458,6 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_SCSI,0), PM_TYPE_STRING, SCSI_INDOM, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* hinv.map.lvname */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_LV,0), PM_TYPE_STRING, LV_INDOM, PM_SEM_DISCRETE,
-      PMDA_PMUNITS(0,0,0,0,0,0) }, },
-
-/* hinv.nlv */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_LV,1), PM_TYPE_U32, LV_INDOM, PM_SEM_DISCRETE,
-      PMDA_PMUNITS(0,0,0,0,0,0) }, },
-
 /*
  * /proc/cpuinfo cluster (cpu indom)
  */
@@ -3182,6 +3635,21 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_MSG_LIMITS, 7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* ipc.shm.tot */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
+
+/* ipc.shm.rss */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
+
+/* ipc.shm.swp */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
 
 /*
  * shared memory limits cluster
@@ -3797,17 +4265,17 @@ static pmdaMetric metrictab[] = {
 
     /* disk.dm.total */
     { NULL, 
-      { PMDA_PMID(CLUSTER_DM,2), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_DM,2), PM_TYPE_U64, DM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.blkread */
     { NULL, 
-      { PMDA_PMID(CLUSTER_DM,3), PM_TYPE_U64, DM_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_DM,3), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.blkwrite */
     { NULL, 
-      { PMDA_PMID(CLUSTER_DM,4), PM_TYPE_U64, DM_INDOM, PM_SEM_COUNTER, 
+      { PMDA_PMID(CLUSTER_DM,4), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.blktotal */
@@ -3864,6 +4332,44 @@ static pmdaMetric metrictab[] = {
     { NULL, 
       { PMDA_PMID(CLUSTER_DM,15), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* disk.dm.write_rawactive */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_DM,16), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/*
+ * network.softnet cluster
+ */
+    /* network.softnet.processed */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.dropped */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.time_squeeze */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.cpu_collision */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.received_rps */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.flow_limit_count */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NET_SOFTNET,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 };
 
 typedef struct {
@@ -3883,10 +4389,25 @@ linux_statsfile(const char *path, char *buffer, int size)
     return fopen(buffer, "r");
 }
 
-static void
-linux_refresh(pmdaExt *pmda, int *need_refresh, int pid)
+static linux_container_t *
+linux_ctx_container(int ctx)
 {
+    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container.name)
+	return &ctxtab[ctx].container;
+    return NULL;
+}
+
+static int
+linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
+{
+    linux_container_t *cp = linux_ctx_container(context);
     int need_refresh_mtab = 0;
+    int need_net_ioctl = 0;
+    int ns_fds = 0;
+    int sts = 0;
+
+    if (cp && (sts = container_lookup(rootfd, cp)) < 0)
+	return sts;
 
     if (need_refresh[CLUSTER_PARTITIONS])
     	refresh_proc_partitions(INDOM(DISK_INDOM),
@@ -3908,14 +4429,88 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int pid)
     if (need_refresh[CLUSTER_LOADAVG])
 	refresh_proc_loadavg(&proc_loadavg);
 
-    if (need_refresh[CLUSTER_NET_DEV])
-	refresh_proc_net_dev(INDOM(NET_DEV_INDOM));
+    if (need_refresh[CLUSTER_NET_NFS])
+	refresh_proc_net_rpc(&proc_net_rpc);
 
-    if (need_refresh[CLUSTER_NET_ADDR])
-	refresh_net_dev_addr(INDOM(NET_ADDR_INDOM));
+    if (need_refresh[CLUSTER_NET_SOCKSTAT])
+	refresh_proc_net_sockstat(&proc_net_sockstat);
 
-    if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_TMPFS])
-	refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM), pid);
+    if (need_refresh[CLUSTER_NET_SNMP])
+	refresh_proc_net_snmp(&_pm_proc_net_snmp);
+
+    if (need_refresh[CLUSTER_NET_SNMP6])
+	refresh_proc_net_snmp6(_pm_proc_net_snmp6);
+
+    if (need_refresh[CLUSTER_NET_TCP])
+	refresh_proc_net_tcp(&proc_net_tcp);
+
+    if (need_refresh[CLUSTER_NET_NETSTAT])
+	refresh_proc_net_netstat(&_pm_proc_net_netstat);
+
+    /*
+     * Network interface metrics and namespaces are complicated by a
+     * need to be in the right namespace at the right time (for /sys
+     * -> MNTNS, for /proc or ioctl -> NETNS) - and the two have been
+     * found to be mutually exclusive from the point of view of access
+     * via the setns(2) syscall.  We also have a further complicating
+     * factor where some values are available *either* by sysfs (newer
+     * kernels), *or* ioctl (older kernels).
+     */
+    if (need_refresh[CLUSTER_NET_DEV] ||
+	need_refresh[CLUSTER_NET_ADDR] ||
+	need_refresh[CLUSTER_FILESYS] ||
+	need_refresh[CLUSTER_TMPFS] ||
+	need_refresh[REFRESH_NET_MTU] ||
+	need_refresh[REFRESH_NET_SPEED] ||
+	need_refresh[REFRESH_NET_DUPLEX] ||
+	need_refresh[REFRESH_NET_LINKUP] ||
+	need_refresh[REFRESH_NET_RUNNING] ||
+	need_refresh[REFRESH_NETADDR_INET] ||
+	need_refresh[REFRESH_NETADDR_IPV6] ||
+	need_refresh[REFRESH_NETADDR_HW]) {
+	pmInDom netaddr = INDOM(NET_ADDR_INDOM);
+	pmInDom netdev = INDOM(NET_DEV_INDOM);
+
+	if (need_refresh[CLUSTER_NET_ADDR])
+	    clear_net_addr_indom(netaddr);
+	if (need_refresh[REFRESH_NETADDR_INET])
+	    need_net_ioctl = 1;
+	if (need_refresh[REFRESH_NETADDR_IPV6])
+	    need_net_ioctl = 1;
+
+	if (need_refresh[CLUSTER_NET_DEV]) {
+	    if ((sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &ns_fds)) < 0)
+		goto done;
+	    refresh_proc_net_dev(netdev, cp);
+	    container_nsleave(cp, LINUX_NAMESPACE_NET);
+	}
+
+	if ((sts = container_nsenter(cp, LINUX_NAMESPACE_MNT, &ns_fds)) < 0)
+	    goto done;
+	refresh_net_addr_sysfs(netaddr, need_refresh);
+	need_net_ioctl |= refresh_net_sysfs(netdev, need_refresh);
+	if (need_refresh[CLUSTER_FILESYS] || need_refresh[CLUSTER_TMPFS])
+	    refresh_filesys(INDOM(FILESYS_INDOM), INDOM(TMPFS_INDOM), cp);
+	container_nsleave(cp, LINUX_NAMESPACE_MNT);
+
+	if (need_net_ioctl) {
+	    if ((sts = container_nsenter(cp, LINUX_NAMESPACE_NET, &ns_fds)) < 0)
+		goto done;
+	    refresh_net_addr_ioctl(netaddr, cp, need_refresh);
+	    refresh_net_ioctl(netdev, cp, need_refresh);
+	    container_nsleave(cp, LINUX_NAMESPACE_NET);
+	}
+
+	if (need_refresh[CLUSTER_NET_ADDR])
+	    store_net_addr_indom(netaddr, cp);
+    }
+
+    if (need_refresh[CLUSTER_KERNEL_UNAME]) {
+	if ((sts = container_nsenter(cp, LINUX_NAMESPACE_UTS, &ns_fds)) < 0)
+	    goto done;
+	uname(&kernel_uname);
+	container_nsleave(cp, LINUX_NAMESPACE_UTS);
+    }
 
     if (need_refresh[CLUSTER_INTERRUPTS] ||
 	need_refresh[CLUSTER_INTERRUPT_LINES] ||
@@ -3925,29 +4520,8 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int pid)
     if (need_refresh[CLUSTER_SWAPDEV])
 	refresh_swapdev(INDOM(SWAPDEV_INDOM));
 
-    if (need_refresh[CLUSTER_NET_NFS])
-	refresh_proc_net_rpc(&proc_net_rpc);
-
-    if (need_refresh[CLUSTER_NET_SOCKSTAT])
-	refresh_proc_net_sockstat(&proc_net_sockstat);
-
-    if (need_refresh[CLUSTER_KERNEL_UNAME])
-	uname(&kernel_uname);
-
-    if (need_refresh[CLUSTER_NET_SNMP])
-	refresh_proc_net_snmp(&_pm_proc_net_snmp);
-
     if (need_refresh[CLUSTER_SCSI])
 	refresh_proc_scsi(INDOM(SCSI_INDOM));
-
-    if (need_refresh[CLUSTER_LV])
-	refresh_dev_mapper(&dev_mapper);
-
-    if (need_refresh[CLUSTER_NET_TCP])
-	refresh_proc_net_tcp(&proc_net_tcp);
-
-    if (need_refresh[CLUSTER_NET_NETSTAT])
-	refresh_proc_net_netstat(&_pm_proc_net_netstat);
 
     if (need_refresh[CLUSTER_SLAB])
 	refresh_proc_slabinfo(&proc_slabinfo);
@@ -3957,6 +4531,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int pid)
 
     if (need_refresh[CLUSTER_MSG_LIMITS])
         refresh_msg_limits(&msg_limits);
+
+    if (need_refresh[CLUSTER_SHM_INFO])
+        refresh_shm_info(&_shm_info);
 
     if (need_refresh[CLUSTER_SHM_LIMITS])
         refresh_shm_limits(&shm_limits);
@@ -3973,25 +4550,22 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int pid)
     if (need_refresh[CLUSTER_SYSFS_KERNEL])
     	refresh_sysfs_kernel(&sysfs_kernel);
 
+    if (need_refresh[CLUSTER_NET_SOFTNET])
+	refresh_proc_net_softnet(&proc_net_softnet);
+
+done:
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
-}
-
-static linux_container_t *
-linux_ctx_container(int ctx)
-{
-    if (ctx < num_ctx && ctx >= 0 && ctxtab[ctx].container.name)
-	return &ctxtab[ctx].container;
-    return NULL;
+    container_close(cp, ns_fds);
+    return sts;
 }
 
 static int
 linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)
 {
-    linux_container_t	*container = NULL;
     __pmInDom_int	*indomp = (__pmInDom_int *)&indom;
-    int			need_refresh[NUM_CLUSTERS] = {0};
-    int			sts, pid = 0, ns_flags = 0;
+    int			need_refresh[NUM_REFRESHES] = {0};
+    int			sts;
 
     switch (indomp->serial) {
     case DISK_INDOM:
@@ -4010,19 +4584,18 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	break;
     case NET_DEV_INDOM:
 	need_refresh[CLUSTER_NET_DEV]++;
-	ns_flags |= LINUX_NAMESPACE_NET;
 	break;
     case NET_ADDR_INDOM:
 	need_refresh[CLUSTER_NET_ADDR]++;
-	ns_flags |= LINUX_NAMESPACE_NET;
+	need_refresh[REFRESH_NETADDR_INET]++;
+	need_refresh[REFRESH_NETADDR_IPV6]++;
+	need_refresh[REFRESH_NETADDR_HW]++;
 	break;
     case FILESYS_INDOM:
 	need_refresh[CLUSTER_FILESYS]++;
-	ns_flags |= LINUX_NAMESPACE_MNT;
 	break;
     case TMPFS_INDOM:
 	need_refresh[CLUSTER_TMPFS]++;
-	ns_flags |= LINUX_NAMESPACE_MNT;
 	break;
     case SWAPDEV_INDOM:
 	need_refresh[CLUSTER_SWAPDEV]++;
@@ -4032,13 +4605,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     case NFS4_CLI_INDOM:
     case NFS4_SVR_INDOM:
 	need_refresh[CLUSTER_NET_NFS]++;
-	ns_flags |= LINUX_NAMESPACE_MNT;
 	break;
     case SCSI_INDOM:
 	need_refresh[CLUSTER_SCSI]++;
-	break;
-    case LV_INDOM:
-	need_refresh[CLUSTER_LV]++;
 	break;
     case SLAB_INDOM:
 	need_refresh[CLUSTER_SLAB]++;
@@ -4049,17 +4618,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     /* no default label : pmdaInstance will pick up errors */
     }
 
-    if ((container = linux_ctx_container(pmda->e_context)) != NULL) {
-	sts = container_enter_namespaces(rootfd, container, ns_flags);
-	if (sts < 0)
-	    return sts;
-	pid = sts;
-    }
-    linux_refresh(pmda, need_refresh, pid);
-    sts = pmdaInstance(indom, inst, name, result, pmda);
-    if (container)
-	container_leave_namespaces(rootfd, ns_flags);
-    return sts;
+    if ((sts = linux_refresh(pmda, need_refresh, pmda->e_context)) < 0)
+	return sts;
+    return pmdaInstance(indom, inst, name, result, pmda);
 }
 
 /*
@@ -4262,37 +4823,37 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			/ proc_stat.hz);
 	    break;
 
-	case 8: /* pagesin */
+	case 8: /* swap.pagesin */
 	    if (_pm_have_proc_vmstat)
 		atom->ul = _pm_proc_vmstat.pswpin;
 	    else
 		atom->ul = proc_stat.swap[0];
 	    break;
-	case 9: /* pagesout */
+	case 9: /* swap.pagesout */
 	    if (_pm_have_proc_vmstat)
 		atom->ul = _pm_proc_vmstat.pswpout;
 	    else
 		atom->ul = proc_stat.swap[1];
 	    break;
-	case 10: /* in */
+	case 10: /* swap.in */
 	    if (_pm_have_proc_vmstat)
 		return PM_ERR_APPVERSION; /* no swap operation counts in 2.6 */
 	    else
 		atom->ul = proc_stat.page[0];
 	    break;
-	case 11: /* out */
+	case 11: /* swap.out */
 	    if (_pm_have_proc_vmstat)
 		return PM_ERR_APPVERSION; /* no swap operation counts in 2.6 */
 	    else
 		atom->ul = proc_stat.page[1];
 	    break;
-	case 12: /* intr */
+	case 12: /* kernel.all.intr */
 	    _pm_assign_utype(_pm_intr_size, atom, proc_stat.intr);
 	    break;
-	case 13: /* ctxt */
+	case 13: /* kernel.all.pswitch */
 	    _pm_assign_utype(_pm_ctxt_size, atom, proc_stat.ctxt);
 	    break;
-	case 14: /* processes */
+	case 14: /* kernel.all.sysfork */
 	    _pm_assign_ulong(atom, proc_stat.processes);
 	    break;
 
@@ -4709,6 +5270,11 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.MemAvailable >> 10;
 	   break;
+	case 59: /* hinv.hugepagesize (in bytes) */
+	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugepagesize))
+	    	return 0; /* no values available */
+	    atom->ul = proc_meminfo.Hugepagesize;
+	    break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -5162,29 +5728,6 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
     	break;
 
-    case CLUSTER_LV:
-	switch(idp->item) {
-	case 0: /* hinv.map.lvname */
-	    if (dev_mapper.nlv == 0)
-		return 0; /* no values available */
-	    atom->cp = (char *)NULL;
-	    for (i = 0; i < dev_mapper.nlv; i++) {
-		if (dev_mapper.lv[i].id == inst) {
-		    atom->cp = dev_mapper.lv[i].dev_name;
-		    break;
-		}
-	    }
-	    if (i == dev_mapper.nlv)
-	    	return PM_ERR_INST;
-	    break;
-	case 1:	/* hinv.nlv */
-	    atom->ul = dev_mapper.nlv;
-	    break;
-	default:
-	    return PM_ERR_PMID;
-	}
-    	break;
-
     case CLUSTER_KERNEL_UNAME:
 	switch(idp->item) {
 	case 5: /* pmda.uname */
@@ -5334,6 +5877,22 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 9:	/* ipc.sem.max_exit */
 	    atom->ul = sem_limits.semaem;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_SHM_INFO:
+	switch (idp->item) {
+	case 0: /* ipc.shm.tot */
+	    atom->ul = _shm_info.shm_tot;
+	    break;
+	case 1: /* ipc.shm.rss */
+	    atom->ul = _shm_info.shm_rss;
+	    break;
+	case 2: /* ipc.shm.swp */
+	    atom->ul = _shm_info.shm_swp;
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -5638,6 +6197,43 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_DM:
 	return proc_partitions_fetch(mdesc, inst, atom);
 
+    case CLUSTER_NET_SOFTNET:
+	switch (idp->item) {
+	case 0:	/* network.softnet.processed */
+	    if (!(proc_net_softnet.flags & SN_PROCESSED))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.processed;
+	    break;
+	case 1: /* network.softnet.dropped */
+	    if (!(proc_net_softnet.flags & SN_DROPPED))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.dropped;
+	    break;
+	case 2: /* network.softnet.time_squeeze */
+	    if (!(proc_net_softnet.flags & SN_TIME_SQUEEZE))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.time_squeeze;
+	    break;
+	case 3: /* network.softnet.cpu_collision */
+	    if (!(proc_net_softnet.flags & SN_CPU_COLLISION))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.cpu_collision;
+	    break;
+	case 4: /* network.softnet.received_rps */
+	    if (!(proc_net_softnet.flags & SN_RECEIVED_RPS))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.received_rps;
+	    break;
+	case 5: /* network.softnet.flow_limit_count */
+	    if (!(proc_net_softnet.flags & SN_FLOW_LIMIT_COUNT))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.flow_limit_count;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -5649,9 +6245,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 static int
 linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    linux_container_t	*container = NULL;
-    int			need_refresh[NUM_CLUSTERS] = {0};
-    int			i, sts, pid = 0, ns_flags = 0;
+    int		i, sts, need_refresh[NUM_REFRESHES] = {0};
 
     for (i = 0; i < numpmid; i++) {
 	__pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
@@ -5681,40 +6275,51 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    need_refresh[CLUSTER_STAT]++;
 	    break;
 
-	case CLUSTER_KERNEL_UNAME:
-	    ns_flags |= LINUX_NAMESPACE_UTS;
-	    break;
-
 	case CLUSTER_NET_DEV:
+	    switch (idp->item) {
+	    case 21:	/* network.interface.mtu */
+		need_refresh[REFRESH_NET_MTU]++;
+		break;
+	    case 22:	/* network.interface.speed */
+	    case 23:	/* network.interface.baudrate */
+		need_refresh[REFRESH_NET_SPEED]++;
+		break;
+	    case 24:	/* network.interface.duplex */
+		need_refresh[REFRESH_NET_DUPLEX]++;
+		break;
+	    case 25:	/* network.interface.up */
+		need_refresh[REFRESH_NET_LINKUP]++;
+		break;
+	    case 26:	/* network.interface.running */
+		need_refresh[REFRESH_NET_RUNNING]++;
+		break;
+	    }
+	    break;
+
 	case CLUSTER_NET_ADDR:
-	    ns_flags |= LINUX_NAMESPACE_NET;
+	    switch (idp->item) {
+	    case 0:	/* network.interface.ipv4_addr */
+		need_refresh[REFRESH_NETADDR_INET]++;
+		break;
+	    case 1:	/* network.interface.ipv6_addr */
+	    case 2:	/* network.interface.ipv6_scope */
+		need_refresh[REFRESH_NETADDR_IPV6]++;
+		break;
+	    case 3:	/* network.interface.hw_addr */
+		need_refresh[REFRESH_NETADDR_HW]++;
+		break;
+	    }
 	    break;
 
-	case CLUSTER_NET_NFS:
-	case CLUSTER_FILESYS:
-	case CLUSTER_TMPFS:
-	    ns_flags |= LINUX_NAMESPACE_MNT;
-	    break;
-
-	case CLUSTER_SEM_LIMITS:
-	case CLUSTER_MSG_LIMITS:
-	case CLUSTER_SHM_LIMITS:
-	    ns_flags |= LINUX_NAMESPACE_IPC;
+	case CLUSTER_NET_SOFTNET:
+	    need_refresh[CLUSTER_NET_SOFTNET]++;
 	    break;
 	}
     }
 
-    if ((container = linux_ctx_container(pmda->e_context)) != NULL) {
-	sts = container_enter_namespaces(rootfd, container, ns_flags);
-	if (sts < 0)
-	    return sts;
-	pid = sts;
-    }
-    linux_refresh(pmda, need_refresh, pid);
-    sts = pmdaFetch(numpmid, pmidlist, resp, pmda);
-    if (container)
-	container_leave_namespaces(rootfd, ns_flags);
-    return sts;
+    if ((sts = linux_refresh(pmda, need_refresh, pmda->e_context)) < 0)
+	return sts;
+    return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
 static int
@@ -5771,6 +6376,8 @@ linux_end_context(int ctx)
     if (ctx >= 0 && ctx < num_ctx) {
 	if (ctxtab[ctx].container.name)
 	    free(ctxtab[ctx].container.name);
+	if (ctxtab[ctx].container.netfd)
+	    close(ctxtab[ctx].container.netfd);
 	memset(&ctxtab[ctx], 0, sizeof(perctx_t));
     }
 }
@@ -5786,6 +6393,7 @@ linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 	if ((ctxtab[ctx].container.name = strdup(value)) == NULL)
 	    return -ENOMEM;
 	ctxtab[ctx].container.length = len;
+	ctxtab[ctx].container.netfd = -1;
 	ctxtab[ctx].container.pid = 0;
     }
     return pmdaAttribute(ctx, attr, value, len, pmda);
@@ -5838,7 +6446,11 @@ linux_init(pmdaInterface *dp)
     char	*envpath;
     __pmID_int	*idp;
 
-    _pm_system_pagesize = getpagesize();
+    /* optional overrides of some globals for testing */
+    if ((envpath = getenv("LINUX_PAGESIZE")) != NULL)
+	_pm_system_pagesize = atoi(envpath);
+    else
+	_pm_system_pagesize = getpagesize();
     if ((envpath = getenv("LINUX_STATSPATH")) != NULL)
 	linux_statspath = envpath;
 
@@ -5869,7 +6481,6 @@ linux_init(pmdaInterface *dp)
 
     proc_stat.cpu_indom = proc_cpuinfo.cpuindom = &indomtab[CPU_INDOM];
     numa_meminfo.node_indom = proc_cpuinfo.node_indom = &indomtab[NODE_INDOM];
-    dev_mapper.lv_indom = &indomtab[LV_INDOM];
     proc_slabinfo.indom = &indomtab[SLAB_INDOM];
 
     /*

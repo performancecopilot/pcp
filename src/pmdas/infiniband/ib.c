@@ -62,8 +62,9 @@ typedef struct mad_cnt_desc_s {
 } mad_cnt_desc_t;
 
 #define MADDESC_INIT(id, mask, shft, mul) \
-	[ IBPMDA_##id ] {IB_PC_##id##_F, #id, (1<<mask), (1U<<shft), mul}
+	{IB_PC_##id##_F, #id, (1<<mask), (1U<<shft), mul}
 
+/* note: order must match ibpmd_cndid definition */
 static mad_cnt_desc_t mad_cnt_descriptors[] = {
     MADDESC_INIT(ERR_SYM,         0, 15, 1),
     MADDESC_INIT(LINK_RECOVERS,   1,  7, 1),

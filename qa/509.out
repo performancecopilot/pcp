@@ -61,8 +61,8 @@ pmResult dump from ADDR timestamp: 0.000000 HH:00:00.000 numpmid: 3
   29.0.1002 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 2 2.8025969e-45 ADDR
 dbpmda> 
-load(name=(null), dupok=1) lic case=0 fname=/var/lib/pcp/pmns/root
-loadascii(file=/var/lib/pcp/pmns/root)
+load(name=(null), dupok=1, use_cpp=0) lic case=0 fname=/var/lib/pcp/pmns/root
+loadascii(dupok=1, use_cpp=0) fname=/var/lib/pcp/pmns/root
 pmLoadNameSpace: active -> 29.0.123
 pmLoadNameSpace: base -> 29.0.115
 pmLoadNameSpace: bigid -> 29.0.1023

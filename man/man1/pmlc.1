@@ -107,7 +107,7 @@ option changes the timezone to
 in the format of the environment variable
 .B TZ
 as described in
-.BR environ (5).
+.BR environ (7).
 The
 .B \-z
 option changes the timezone to the timezone of the pmlogger
@@ -177,7 +177,7 @@ running.  Alternatively an explicit
 enclosed in quotes may be supplied (refer to
 .B TZ
 in
-.BR environ (5)
+.BR environ (7)
 for details).  The default time zone is
 .B local
 unless one of the
@@ -356,7 +356,7 @@ process has to be owned by the user ``pcp'' and/or the group ``pcp''.
 If
 .BR pmlogger (1)
 is running on the host ``foo'' then
-use ``pminfo -f -h foo pmcd.pmlogger'' to verify that the
+use ``pminfo \-f \-h foo pmcd.pmlogger'' to verify that the
 .BR pmlogger (1)
 of interest is known to
 .BR pmcd (1),
@@ -432,7 +432,7 @@ as described in
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and
-.BR environ (5).
+.BR environ (7).
 .SH DIAGNOSTICS
 Most error or warning messages are self-explanatory.  A message of the form
 .br

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -70,6 +70,7 @@ build_dsotab(void)
     char	pathbuf[MAXPATHLEN];
     FILE	*configFile;
     char	*config;
+    char	*pmdas;
     char	*p;
     char	*q;
     struct stat	sbuf;
@@ -82,7 +83,12 @@ build_dsotab(void)
     numdso = 0;
     dsotab = NULL;
 
-    strcpy(configFileName, pmGetConfig("PCP_PMCDCONF_PATH"));
+    if ((pmdas = pmGetOptionalConfig("PCP_PMDAS_DIR")) == NULL)
+	return PM_ERR_GENERIC;
+    if ((config = pmGetOptionalConfig("PCP_PMCDCONF_PATH")) == NULL)
+	return PM_ERR_GENERIC;
+    strncpy(configFileName, config, sizeof(configFileName));
+    configFileName[sizeof(configFileName) - 1] = '\0';
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT) {
 	fprintf(stderr, "build_dsotab: parsing %s\n", configFileName);
@@ -128,8 +134,7 @@ build_dsotab(void)
 	     */
 	    domain = 60;
 	    init = "linux_init";
-	    snprintf(pathbuf, sizeof(pathbuf), "%s/linux/pmda_linux.so",
-			pmGetConfig("PCP_PMDAS_DIR"));
+	    snprintf(pathbuf, sizeof(pathbuf), "%s/linux/pmda_linux.so", pmdas);
 	    name = pathbuf;
 	    peekc = *p;
 	    goto dsoload;
@@ -309,6 +314,7 @@ __pmConnectLocal(__pmHashCtl *attrs)
     int			i;
     __pmDSO		*dp;
     char		pathbuf[MAXPATHLEN];
+    char		*pmdas;
     const char		*path;
 #if defined(HAVE_DLOPEN)
     unsigned int	challenge;
@@ -317,6 +323,9 @@ __pmConnectLocal(__pmHashCtl *attrs)
     static int		atexit_installed = 0;
 #endif
 #endif
+
+    if ((pmdas = pmGetOptionalConfig("PCP_PMDAS_DIR")) == NULL)
+	return PM_ERR_GENERIC;
 
     if (numdso == -1) {
 	int	sts;
@@ -334,10 +343,10 @@ __pmConnectLocal(__pmHashCtl *attrs)
 	 * options and also with and without DSO_SUFFIX (so, dll, etc)
 	 */
 	snprintf(pathbuf, sizeof(pathbuf), "%s%c%s",
-		 pmGetConfig("PCP_PMDAS_DIR"), __pmPathSeparator(), dp->name);
+		 pmdas, __pmPathSeparator(), dp->name);
 	if ((path = __pmFindPMDA(pathbuf)) == NULL) {
 	    snprintf(pathbuf, sizeof(pathbuf), "%s%c%s.%s",
-		 pmGetConfig("PCP_PMDAS_DIR"), __pmPathSeparator(), dp->name, DSO_SUFFIX);
+		 pmdas, __pmPathSeparator(), dp->name, DSO_SUFFIX);
 	    if ((path = __pmFindPMDA(pathbuf)) == NULL) {
 		if ((path = __pmFindPMDA(dp->name)) == NULL) {
 		    snprintf(pathbuf, sizeof(pathbuf), "%s.%s", dp->name, DSO_SUFFIX);

@@ -72,4 +72,11 @@ in
     *)
 	$*
 	;;
-esac
+esac \
+| sed -e '/^#/d' -e '/^[ 	]*$/d'
+
+# last filter is because the rpm "find-requires" on some platforms emits
+# lines with a leading # and blank lines ... these kill the rpm packaging
+# with the dreaded "Failed to find Requires:" error message
+
+exit 0

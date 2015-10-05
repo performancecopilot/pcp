@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -570,17 +570,5 @@ __pmSetProcessIdentity(const char *username)
 	exit(1);
     }
 
-    return 0;
-}
-
-int
-__pmGetUsername(char **username)
-{
-    char *user = pmGetConfig("PCP_USER");
-    if (user && user[0] != '\0') {
-	*username = user;
-	return 1;
-    }
-    *username = "pcp";
     return 0;
 }

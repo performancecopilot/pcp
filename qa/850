@@ -1,0 +1,39 @@
+#!/bin/sh
+# PCP QA Test No. 850
+# Exercise pmcollectl archive functionality
+#
+# Copyright (c) 2015 Red Hat Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmcollectl 2>&1 1>/dev/null || _notrun "pmcollectl not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+pmcollectl -p archives/collectl-qa
+pmcollectl -p archives/collectl-qa -sC
+pmcollectl -p archives/collectl-qa -sN
+pmcollectl -p archives/collectl-qa -sD
+pmcollectl -p archives/collectl-qa -sj
+
+pmcollectl -a archives/YWhcCi.toium.0
+pmcollectl -a archives/YWhcCi.toium.0 -sC
+pmcollectl -a archives/YWhcCi.toium.0 -sN
+pmcollectl -a archives/YWhcCi.toium.0 -sD
+pmcollectl -a archives/YWhcCi.toium.0 -sj
+
+# success, all done
+status=0
+
+exit

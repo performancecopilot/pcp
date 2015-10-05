@@ -295,30 +295,45 @@ cgroup_name(const char *path, int offset)
     return name;
 }
 
+static int
+check_refresh(const char *cgroup, const char *container, int container_length)
+{
+    /*
+     * See whether a refresh needed - if no container, always needed,
+     * otherwise we only refresh for a matching container name/path.
+     */
+    if (container_length > 0) {
+	while (*cgroup == '/')
+	    cgroup++;	/* do not compare any leading slashes */
+	return (strncmp(cgroup, container, container_length) == 0);
+    }
+    return 1;
+}
+
 static void
 cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh,
 		const char *container, int container_length)
 {
-    int length;
+    int length, mntlen = strlen(mnt) + 1;
     DIR *dirp;
     struct stat sbuf;
     struct dirent *dp;
     const char *cgname;
-    char cgpath[MAXPATHLEN];
+    char cgpath[MAXPATHLEN] = { 0 };
 
     if (path[0] == '\0') {
 	snprintf(cgpath, sizeof(cgpath), "%s%s", proc_statspath, mnt);
 	length = strlen(cgpath);
     } else {
 	snprintf(cgpath, sizeof(cgpath), "%s%s/%s", proc_statspath, mnt, path);
-	length = strlen(proc_statspath) + strlen(mnt) + 1;
+	length = strlen(proc_statspath) + mntlen;
     }
 
     if ((dirp = opendir(cgpath)) == NULL)
 	return;
 
     cgname = cgroup_name(cgpath, length);
-    if (strncmp(cgpath, container, container_length) == 0)
+    if (check_refresh(cgpath + mntlen, container, container_length))
 	refresh(cgpath, cgname);
 
     /* descend into subdirectories to find all cgroups */
@@ -337,7 +352,7 @@ cgroup_scan(const char *mnt, const char *path, cgroup_refresh_t refresh,
 	    continue;
 
 	cgname = cgroup_name(cgpath, length);
-	if (strncmp(cgpath, container, container_length) == 0)
+	if (check_refresh(cgpath + mntlen, container, container_length))
 	    refresh(cgpath, cgname);
 	cgroup_scan(mnt, cgname, refresh, container, container_length);
     }
@@ -548,6 +563,43 @@ setup_cpusched(void)
     pmdaCacheOp(INDOM(CGROUP_CPUSCHED_INDOM), PMDA_CACHE_INACTIVE);
 }
 
+static int
+read_cpu_stats(const char *file, cgroup_cpustat_t *ccp)
+{
+    static cgroup_cpustat_t cpustat;
+    static struct {
+	char		*field;
+	__uint64_t	*offset;
+    } cpustat_fields[] = {
+	{ "nr_periods",			&cpustat.nr_periods },
+	{ "nr_throttled",		&cpustat.nr_throttled },
+	{ "throttled_time",		&cpustat.throttled_time },
+    };
+    char buffer[4096], name[64];
+    unsigned long long value;
+    FILE *fp;
+    int i;
+
+    memset(&cpustat, 0, sizeof(cpustat));
+    if ((fp = fopen(file, "r")) == NULL) {
+	memcpy(ccp, &cpustat, sizeof(cpustat));
+	return -ENOENT;
+    }
+    while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+	if (sscanf(buffer, "%s %llu\n", &name[0], &value) < 2)
+	    continue;
+	for (i = 0; cpustat_fields[i].field != NULL; i++) {
+	    if (strcmp(name, cpustat_fields[i].field) != 0)
+		continue;
+	    *cpustat_fields[i].offset = value;
+	    break;
+	}
+    }
+    fclose(fp);
+    memcpy(ccp, &cpustat, sizeof(cpustat));
+    return 0;
+}
+
 void
 refresh_cpusched(const char *path, const char *name)
 {
@@ -564,9 +616,11 @@ refresh_cpusched(const char *path, const char *name)
 	if (!cpusched)
 	    return;
     }
+    snprintf(file, sizeof(file), "%s/cpu.stat", path);
+    read_cpu_stats(file, &cpusched->stat);
     snprintf(file, sizeof(file), "%s/cpu.shares", path);
     cpusched->shares = read_oneline_ull(file);
-    /* cpu.stat - nr_periods, nr_throttled, throttled_time */
+
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, cpusched);
 }
 
@@ -663,6 +717,12 @@ refresh_memory(const char *path, const char *name)
     }
     snprintf(file, sizeof(file), "%s/memory.stat", path);
     read_memory_stats(file, memory);
+    snprintf(file, sizeof(file), "%s/memory.limit_in_bytes", path);
+    memory->limit = read_oneline_ull(file);
+    snprintf(file, sizeof(file), "%s/memory.usage_in_bytes", path);
+    memory->usage = read_oneline_ull(file);
+    snprintf(file, sizeof(file), "%s/memory.failcnt", path);
+    memory->failcnt = read_oneline_ull(file);
 
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, memory);
 }

@@ -8,10 +8,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard filters
+# get standard environment, filters and checks
 . ./common.product
 . ./common.filter
-. ./localconfig
+. ./common.check
 
 rm -f $seq.out
 if [ $PCP_EOE_VER -ge 60512 -o \

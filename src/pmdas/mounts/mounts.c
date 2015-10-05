@@ -1,10 +1,9 @@
 /*
- * Mounts, info on current mounts
+ * Mounts PMDA, info on current tracked filesystem mounts
  *
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012,2015 Red Hat.
  * Copyright (c) 2001,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2001 Alan Bailey (bailey@mcs.anl.gov or abailey@ncsa.uiuc.edu) 
- * for the portions of the code supporting the initial agent functionality.
  * All rights reserved. 
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -23,62 +22,132 @@
 #include "domain.h"
 #include <dirent.h>
 #include <sys/stat.h>
-
-/*
- * Mounts PMDA
- *
- * Metrics
- *   mounts.device
- *     The device which the mount is mounted on
- *   mounts.type
- *     The type of filesystem
- *   mounts.options
- *     The mounting options
- *   mounts.up
- *     always equals 1
- */
-
-/*
- * all metrics supported in this PMDA - one table entry for each
- */
+#include <sys/statvfs.h>
+#include <stdlib.h>
+#include <limits.h>
 
 #ifdef IS_SOLARIS
 #define MOUNT_FILE "/etc/vfstab"
 #else
 #define MOUNT_FILE "/proc/mounts"
 #endif
+#define MAXFSTYPE	32
+#define MAXOPTSTR	256
+
+enum {	/* instance domain identifiers */
+    MOUNTS_INDOM = 0,
+};
+enum {	/* metric cluster identifiers */
+    MOUNTS_CLUSTER = 0,
+};
+enum {	/* metric item identifiers */
+    MOUNTS_DEVICE = 0,
+    MOUNTS_TYPE,
+    MOUNTS_OPTIONS,
+    MOUNTS_UP,
+    MOUNTS_CAPACITY,
+    MOUNTS_USED,
+    MOUNTS_FREE,
+    MOUNTS_MAXFILES,
+    MOUNTS_USEDFILES,
+    MOUNTS_FREEFILES,
+    MOUNTS_FULL,
+    MOUNTS_BLOCKSIZE,
+    MOUNTS_AVAIL,
+    MOUNTS_AVAILFILES,
+    MOUNTS_READONLY,
+};
+enum {	/* internal mount states */
+    MOUNTS_FLAG_UP	= 0x1,
+    MOUNTS_FLAG_RO	= 0x2,
+    MOUNTS_FLAG_STAT	= 0x4,
+};
 
 static pmdaInstid *mounts;
 
 static pmdaIndom indomtab[] = {
-#define MOUNTS_INDOM    0
   { MOUNTS_INDOM, 0, NULL }
 };
 
+
+/*
+ * all metrics supported in this PMDA - one table entry for each
+ */
 static pmdaMetric metrictab[] = {
-/* mounts.device */
-    { NULL,
-      { PMDA_PMID(0,0), PM_TYPE_STRING, MOUNTS_INDOM, PM_SEM_INSTANT,
-        PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* mounts.type */
-    { NULL,
-      { PMDA_PMID(0,1), PM_TYPE_STRING, MOUNTS_INDOM, PM_SEM_INSTANT,
-        PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* mounts.options */
-    { NULL,
-      { PMDA_PMID(0,2), PM_TYPE_STRING, MOUNTS_INDOM, PM_SEM_INSTANT,
-        PMDA_PMUNITS(0,0,0,0,0,0) }, },
-/* mounts.up */
-    { NULL,
-      { PMDA_PMID(0,3), PM_TYPE_DOUBLE, MOUNTS_INDOM, PM_SEM_INSTANT,
-        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL,	/* mounts.device */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_DEVICE),
+	PM_TYPE_STRING, MOUNTS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL,	/* mounts.type */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_TYPE),
+	PM_TYPE_STRING, MOUNTS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL,	/* mounts.options */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_OPTIONS),
+	PM_TYPE_STRING, MOUNTS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL,	/* mounts.up */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_UP),
+	PM_TYPE_U32, MOUNTS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL,	/* mounts.capacity */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_CAPACITY),
+	PM_TYPE_U64, MOUNTS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    { NULL,	/* mounts.used */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_USED),
+	PM_TYPE_U64, MOUNTS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    { NULL,	/* mounts.free */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_FREE),
+	PM_TYPE_U64, MOUNTS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    { NULL,	/* mounts.maxfiles */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_MAXFILES),
+	PM_TYPE_U64, MOUNTS_INDOM, PM_SEM_DISCRETE,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL,	/* mounts.usedfiles */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_USEDFILES),
+	PM_TYPE_U64, MOUNTS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL,	/* mounts.freefiles */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_FREEFILES),
+	PM_TYPE_U64, MOUNTS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL,	/* mounts.full */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_FULL),
+	PM_TYPE_DOUBLE, MOUNTS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL,	/* mounts.blocksize */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_BLOCKSIZE),
+	PM_TYPE_U32, MOUNTS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+    { NULL,	/* mounts.avail */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_AVAIL),
+	PM_TYPE_U64, MOUNTS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    { NULL,	/* mounts.availfiles */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_AVAILFILES),
+	PM_TYPE_U64, MOUNTS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL,	/* mounts.readonly */
+      { PMDA_PMID(MOUNTS_CLUSTER, MOUNTS_READONLY),
+	PM_TYPE_U32, MOUNTS_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
-typedef struct {
-    int	up;
-    char device[100];
-    char type[100];
-    char options[100];
+typedef struct mountinfo {
+    __uint32_t	flags;
+    __uint32_t	bsize;
+    char	type[MAXFSTYPE];
+    char	device[MAXPATHLEN];
+    char	options[MAXOPTSTR];
+    __uint64_t	capacity;
+    __uint64_t	bfree;
+    __uint64_t	bavail;
+    __uint64_t	files;
+    __uint64_t	ffree;
+    __uint64_t	favail;
 } mountinfo;
 
 static mountinfo *mount_list;
@@ -213,58 +282,66 @@ done:
 static void
 mounts_refresh_mounts(void)
 {
-    FILE *fd;
-    char device[100];
-    char mount[100];
-    char type[100];
-    char options[100];
-    char junk[10];
+    FILE *fp;
+    struct statvfs vfs;
+    struct mountinfo *mp;
+    char *path, *device, *type, *options;
+    char buf[BUFSIZ];
     int item;
-    int mount_name;
 
-    /* Clear the variables */
-    for(item = 0; item < indomtab[MOUNTS_INDOM].it_numinst; item++) {
-	strcpy(mount_list[item].device, "none");
-	strcpy(mount_list[item].type, "none");
-	strcpy(mount_list[item].options, "none");
-	mount_list[item].up = 0;
+    /* Reset all mount structures */
+    for (item = 0; item < indomtab[MOUNTS_INDOM].it_numinst; item++) {
+	mp = &mount_list[item];
+	memset(mp, 0, sizeof(*mp));
+	strcpy(mp->device, "none");
+	strcpy(mp->type, "none");
+	strcpy(mp->options, "none");
     }
 
-    if ((fd = fopen(MOUNT_FILE, "r")) != NULL) {
+    if ((fp = fopen(MOUNT_FILE, "r")) == NULL)
+	return;
+
+    while (fgets(buf, sizeof(buf), fp) != NULL) {
+	if ((device = strtok(buf, " ")) == NULL)
+            continue;
 #ifdef IS_SOLARIS
-	char device_to_fsck[100];
-	char fsck_pass[100];
-	char mount_at_boot[100];
-
-	while ((fscanf(fd, "%s %s %s %s %s %s %s", 
-			device, device_to_fsck, mount, type, fsck_pass,
-			mount_at_boot, options)) == 7)
-#else
-	while ((fscanf(fd, "%s %s %s %s", device, mount, type, options)) == 4)
+	strtok(NULL, " ");	/* device_to_fsck */
 #endif
-	{
-	    if (fgets(junk, sizeof(junk), fd) == NULL) {
-		/* early EOF? will be caught in next iteration */
-		;
-	    }
+	if ((path = strtok(NULL, " ")) == NULL)
+	    continue;
+	if ((type = strtok(NULL, " ")) == NULL)
+	    continue;
+#ifdef IS_SOLARIS
+	strtok(NULL, " ");	/* fsck_pass */
+	strtok(NULL, " ");	/* mount_at_boot */
+#endif
+	if ((options = strtok(NULL, " ")) == NULL)
+	    continue;
 
-	    for (mount_name = 0;
-		 mount_name < indomtab[MOUNTS_INDOM].it_numinst; 
-		 mount_name++) {
-		if (strcmp(mount, (mounts[mount_name]).i_name) == 0) {
-		    strcpy(mount_list[mount_name].device, device);
-		    strcpy(mount_list[mount_name].type, type);
-		    strcpy(mount_list[mount_name].options, options);
-		    mount_list[mount_name].up = 1;
-		}
-	    }
-	    memset(device, 0, sizeof(device));
-	    memset(mount, 0, sizeof(mount));
-	    memset(type, 0, sizeof(type));
-	    memset(options, 0, sizeof(options));
+	for (item = 0; item < indomtab[MOUNTS_INDOM].it_numinst; item++) {
+	    mp = &mount_list[item];
+	    if (strcmp(path, mounts[item].i_name) != 0)
+		continue;
+	    strncpy(mp->type, type, MAXFSTYPE-1);
+	    if (realpath(device, mp->device) == NULL)
+		strncpy(mp->device, device, MAXPATHLEN-1);
+	    strncpy(mp->options, options, MAXOPTSTR-1);
+	    mp->flags = MOUNTS_FLAG_UP;
+	    if (statvfs(path, &vfs) < 0)
+		continue;
+	    mp->flags |= MOUNTS_FLAG_STAT;
+	    if (vfs.f_flag & ST_RDONLY)
+		mp->flags |= MOUNTS_FLAG_RO;
+	    mp->capacity = (vfs.f_blocks * vfs.f_frsize) / vfs.f_bsize;
+	    mp->bsize = vfs.f_bsize;
+	    mp->bfree = vfs.f_bfree;
+	    mp->bavail = vfs.f_bavail;
+	    mp->files = vfs.f_files;
+	    mp->ffree = vfs.f_ffree;
+	    mp->favail = vfs.f_favail;
 	}
-	fclose(fd);
     }
+    fclose(fp);
 }
 
 /*
@@ -288,22 +365,88 @@ static int
 mounts_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     __pmID_int	*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    __uint64_t	ull, used;
+    mountinfo	*mp;
 
-    if (idp->cluster != 0)
+    if (idp->cluster != MOUNTS_CLUSTER)
 	return PM_ERR_PMID;
     if (inst >= indomtab[MOUNTS_INDOM].it_numinst)
 	return PM_ERR_INST;
+    mp = &mount_list[inst];
 
-    if (idp->item == 0)
-	atom->cp = (mount_list[inst]).device;
-    else if (idp->item == 1)
-	atom->cp = (mount_list[inst]).type;
-    else if (idp->item == 2)
-	atom->cp = (mount_list[inst]).options;
-    else if (idp->item == 3)
-	atom->d = (mount_list[inst]).up;
-    else
+    switch (idp->item) {
+    case MOUNTS_DEVICE:
+	atom->cp = mp->device;
+	break;
+    case MOUNTS_TYPE:
+	atom->cp = mp->type;
+	break;
+    case MOUNTS_OPTIONS:
+	atom->cp = mp->options;
+	break;
+    case MOUNTS_UP:
+	atom->ul = (mp->flags & MOUNTS_FLAG_UP) ? 1 : 0;
+	break;
+    case MOUNTS_CAPACITY:
+	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
+	    return PM_ERR_AGAIN;
+	atom->ull = mp->capacity * mp->bsize / 1024;
+	break;
+    case MOUNTS_USED:
+	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
+	    return PM_ERR_AGAIN;
+	atom->ull = (mp->capacity - mp->bfree) * mp->bsize / 1024;
+	break;
+    case MOUNTS_FREE:
+	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
+	    return PM_ERR_AGAIN;
+	atom->ull = mp->bfree * mp->bsize / 1024;
+	break;
+    case MOUNTS_MAXFILES:
+	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
+	    return PM_ERR_AGAIN;
+	atom->ull = mp->files;
+	break;
+    case MOUNTS_USEDFILES:
+	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
+	    return PM_ERR_AGAIN;
+	atom->ull = mp->files - mp->ffree;
+	break;
+    case MOUNTS_FREEFILES:
+	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
+	    return PM_ERR_AGAIN;
+	atom->ull = mp->ffree;
+	break;
+    case MOUNTS_FULL:
+	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
+	    return PM_ERR_AGAIN;
+	used = (__uint64_t)(mp->capacity - mp->bfree);
+	ull = used + (__uint64_t)mp->bavail;
+	atom->d = (100.0 * (double)used) / (double)ull;
+	break;
+    case MOUNTS_BLOCKSIZE:
+	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
+	    return PM_ERR_AGAIN;
+	atom->ul = mp->bsize;
+	break;
+    case MOUNTS_AVAIL:
+	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
+	    return PM_ERR_AGAIN;
+	atom->ull = mp->bavail * mp->bsize / 1024;
+	break;
+    case MOUNTS_AVAILFILES:
+	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
+	    return PM_ERR_AGAIN;
+	atom->ull = mp->favail;
+	break;
+    case MOUNTS_READONLY:
+	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
+	    return PM_ERR_AGAIN;
+	atom->ul = (mp->flags & MOUNTS_FLAG_RO) ? 1 : 0;
+	break;
+    default:
 	return PM_ERR_PMID;
+    }
     return 0;
 }
 
@@ -311,6 +454,7 @@ mounts_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
  * Initialise the agent (both daemon and DSO).
  */
 void 
+__PMDA_INIT_CALL
 mounts_init(pmdaInterface *dp)
 {
     if (isDSO) {
@@ -335,7 +479,7 @@ mounts_init(pmdaInterface *dp)
     mounts_grab_config_info();
 }
 
-pmLongOptions	longopts[] = {
+static pmLongOptions	longopts[] = {
     PMDA_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
     PMDAOPT_DOMAIN,
@@ -345,7 +489,7 @@ pmLongOptions	longopts[] = {
     PMDA_OPTIONS_END
 };
 
-pmdaOptions	opts = {
+static pmdaOptions	opts = {
     .short_options = "D:d:l:U:?",
     .long_options = longopts,
 };

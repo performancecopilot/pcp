@@ -1,6 +1,7 @@
 #pmlogconf-setup 2.0
-ident	Apache summary information
-probe	apache.total_accesses exists ? include : exclude
+ident	Apache web server summary information
+probe	apache.uptime exists ? include : exclude
+
 	apache.total_accesses
 	apache.total_kbytes
 	apache.requests_per_sec
@@ -8,3 +9,4 @@ probe	apache.total_accesses exists ? include : exclude
 	apache.bytes_per_requests
 	apache.busy_servers
 	apache.idle_servers
+	apache.uptime

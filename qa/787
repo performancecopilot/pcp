@@ -75,8 +75,6 @@ pmval -z -Dlog -t 1hr -A 1hr -a $tmp pmcd.numagents 2>$tmp.err \
 | _filter
 echo "log reads: `_summary <$tmp.err`"
 $full && cat $tmp.err >>$seq.full
-rm /tmp/convert.*
-pmlogmv $tmp /tmp/convert
 
 echo
 echo "=== all metrics at once ==="

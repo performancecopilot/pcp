@@ -553,6 +553,7 @@ _dbDumpResult(FILE *f, pmResult *resp, pmDesc *desc_list)
     fprintf(f, " numpmid: %d\n", resp->numpmid);
     for (i = 0; i < resp->numpmid; i++) {
 	pmValueSet	*vsp = resp->vset[i];
+	names = NULL; /* silence coverity */
 	n = pmNameAll(vsp->pmid, &names);
 	if (n < 0)
 	    fprintf(f, "  %s (%s):", pmIDStr(vsp->pmid), "<noname>");

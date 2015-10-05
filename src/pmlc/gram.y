@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2015 Red Hat.
  * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -11,10 +11,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 %{
@@ -69,7 +65,7 @@ extern int	is_socket_path;
 	MSEC SECOND MINUTE HOUR
 
 	QUERY SHOW LOGGER CONNECT PRIMARY QUIT STATUS HELP
-	TIMEZONE LOCAL PORT SOCKET
+	TIMEZONE LOCAL PORT SOCK
 	NEW VOLUME
 
 	SYNC
@@ -287,7 +283,7 @@ hostopt		: AT NAME	{ hostname = strdup($2); }
 towhom		: PRIMARY	{ pid = PM_LOG_PRIMARY_PID; port = PM_LOG_NO_PORT; }
 		| NUMBER	{ pid = $1; port = PM_LOG_NO_PORT; }
 		| PORT NUMBER	{ pid = PM_LOG_NO_PID; port = $2; }
-		| SOCKET	{ pid = PM_LOG_NO_PID; port = PM_LOG_NO_PORT; }
+		| SOCK		{ pid = PM_LOG_NO_PID; port = PM_LOG_NO_PORT; }
 		;
 
 tzspec		: LOCAL		{ tztype = TZ_LOCAL; }

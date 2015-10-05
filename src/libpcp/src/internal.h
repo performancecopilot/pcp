@@ -12,20 +12,15 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-#ifndef _INTERNAL_H
-#define _INTERNAL_H
+#ifndef _LIBPCP_INTERNAL_H
+#define _LIBPCP_INTERNAL_H
 
 /*
  * Routines and data structures used within libpcp source files,
  * but which we do not want to expose via impl.h or pmapi.h.
  */
 
-#if defined(__GNUC__) && (__GNUC__ >= 4)
-# define _PCP_HIDDEN __attribute__ ((visibility ("hidden")))
-#else
-# define _PCP_HIDDEN
-#endif
-
+#include "compiler.h"
 #include "derive.h"
 
 extern int __pmConvertTimeout(int) _PCP_HIDDEN;
@@ -34,9 +29,8 @@ extern const struct timeval * __pmDefaultRequestTimeout(void) _PCP_HIDDEN;
 extern int __pmConnectWithFNDELAY(int, void *, __pmSockLen) _PCP_HIDDEN;
 
 extern int __pmPtrToHandle(__pmContext *) _PCP_HIDDEN;
-extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **) _PCP_HIDDEN;
 
-extern int __pmGlibGetDate (struct timespec *, char const *, struct timespec const *)  _PCP_HIDDEN;
+extern int __pmGetDate(struct timespec *, char const *, struct timespec const *)  _PCP_HIDDEN;
 
 #ifdef HAVE_NETWORK_BYTEORDER
 /*
@@ -257,7 +251,7 @@ typedef struct {
 } __pmServiceInfo;
 
 typedef struct {
-    const volatile unsigned	*flags;		/* Service discovery flags */
+    const volatile sig_atomic_t	*flags;		/* Service discovery flags */
     struct timeval		timeout;	/* Global timeout period */
     volatile int		timedOut;	/* Global timeout occurred */
     int				resolve;	/* Resolve discovered addresses */
@@ -277,4 +271,4 @@ extern int __pmProxyAddPorts(int **, int) _PCP_HIDDEN;
 extern int __pmWebdAddPorts(int **, int) _PCP_HIDDEN;
 extern int __pmAddPorts(const char *, int **, int) _PCP_HIDDEN;
 
-#endif /* _INTERNAL_H */
+#endif /* _LIBPCP_INTERNAL_H */

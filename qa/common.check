@@ -226,6 +226,16 @@ _make_helptext()
     return 0
 }
 
+#
+# Get all IPv6 connection strings for a hosts interfaces, excluding loopback
+#
+_host_to_ipv6addrs()
+{
+    pminfo -f -h "$1" network.interface.ipv6_addr | \
+    sed -e '/^$/d' -e '/^network/d' -e '/"lo"/d' -e 's/\/[0-9][0-9]*//g' | \
+    awk -F\" '{ printf "%s%%%s\n", $4, $2 }'
+}
+
 _host_to_ipaddr()
 {
     perl -MSocket -e '
@@ -279,7 +289,7 @@ _ipv6_localhost()
 	echo "Arrgh ... cannot find /etc/hosts to determine IPv6 localhost name"
 	exit
     fi
-    for sniff in localhost6 ip6-localhost
+    for sniff in localhost6 ip6-localhost ipv6-localhost
     do
 	if sed -e '/^#/d' -e 's/$/ /' /etc/hosts | grep -q "[ 	]$sniff "
 	then
@@ -616,7 +626,7 @@ _writable_primary_logger()
 {
     _configfile="$PCP_VAR_DIR/config/pmlogger/config.default"
 
-    echo "_open_primary_logger checking config file: $_configfile" >>$seq.full
+    echo "_open_primary_logger checking config file: $_configfile" >>$here/$seq.full
 
     # first, move aside the default configuration file
     _save_config "$_configfile"
@@ -624,7 +634,7 @@ _writable_primary_logger()
     # next, create a new default configuration file
     PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
     test -f "$_configfile" || \
-	$sudo $PMLOGCONF -q -h localhost "$_configfile" >>$seq.full 2>&1
+	$sudo $PMLOGCONF -q -h localhost "$_configfile" >>$here/$seq.full 2>&1
 
     # finally, open it up to local access from pmlc
     sed <"$_configfile" >$tmp.sed-i \
@@ -681,7 +691,7 @@ _setup_purify()
     RSU_LICENSE_MAP=/usr/Rational/config/LICENSE_MAP
     export LM_LICENSE_FILE RSU_LICENSE_MAP
 
-    rm -f $seq.full
+    rm -f $here/$seq.full
     _path=$1
     _prog=`echo $_path | sed -e 's#.*/##'`
     _pure_prog="$_prog.pure"
@@ -880,7 +890,7 @@ _run_valgrind()
     if [ -f $here/valgrind-suppress-$__version ]
     then
 	__extra="--suppressions=$here/valgrind-suppress-$__version"
-	echo "Warning: using extra $__extra" >>$seq.full
+	echo "Warning: using extra $__extra" >>$here/$seq.full
     else
 	__extra=''
     fi
@@ -893,8 +903,8 @@ _run_valgrind()
     cat $tmp._valgrind.out
     echo "=== std err ==="
     cat $tmp._valgrind.err
-    echo "=== valgrind report ===" >>$seq.full
-    cat $tmp._valgrind >>$seq.full
+    echo "=== valgrind report ===" >>$here/$seq.full
+    cat $tmp._valgrind >>$here/$seq.full
     echo "=== filtered valgrind report ==="
     _filter_valgrind <$tmp._valgrind
 }
@@ -917,7 +927,7 @@ if which valgrind >/dev/null 2>&1; then
     if [ -f $here/valgrind-suppress-$__version ]
     then
         __extra="--suppressions=$here/valgrind-suppress-$__version"
-        echo "Warning: using extra $__extra" >>$seq.full
+        echo "Warning: using extra $__extra" >>$here/$seq.full
     else
 	__extra=''
     fi
@@ -1193,7 +1203,7 @@ _get_word_size()
 	# but, apps are 64-bit on my Mac OS X
 	[ $PCP_PLATFORM = darwin ] && size=64
 	;;
-    x86_64|ia64|ppc64|s390x|aarch64)
+    x86_64|ia64|ppc64|ppc64le|s390x|aarch64)
 	size=64
 	;;
     *)
@@ -1399,7 +1409,18 @@ _change_config()
 	pat=$1
 	[ "$1" = "verbose" ] && pat=""
 
-	if which systemctl >/dev/null 2>&1
+	_have_systemctl=false
+	which systemctl >/dev/null 2>&1 && _have_systemctl=true
+	if [ -z "$pat" ]
+	then
+	    _have_service=true
+	elif [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$pat.service ]
+	then
+	    _have_service=true
+	else
+	    _have_service=false
+	fi
+	if $_have_systemctl && $_have_service
 	then
 	    # Run with systemd whenever it is available now
 	    #
@@ -1421,7 +1442,8 @@ _change_config()
 	then
 	    # Try the older RedHat and SuSE way ..
 	    #
-	    [ -n "$pat" ] && $sudo chkconfig $pat $2
+	    [ -n "$pat" ] && $sudo chkconfig $pat $2 2>&1 \
+		| sed -e '/insserv: warning: current start runlevel(s) .* of script .pcp./d'
 	elif [ -x /usr/sbin/sysv-rc-conf ]
 	then
 	    # Try the Debian and Ubuntu way ..
@@ -1551,7 +1573,18 @@ _get_config()
 	    *)	pat=$1 ;;
 	esac
 
-	if which systemctl >/dev/null 2>&1
+	_have_systemctl=false
+	which systemctl >/dev/null 2>&1 && _have_systemctl=true
+	if [ -z "$pat" ]
+	then
+	    _have_service=true
+	elif [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$pat.service ]
+	then
+	    _have_service=true
+	else
+	    _have_service=false
+	fi
+	if $_have_systemctl && $_have_service
 	then
 	    # Run with systemd whenever it is available now
 	    #
@@ -1714,7 +1747,7 @@ p
     fi
 }
 
-# disable all system pmloggers running via the control file
+# disable all system pmloggers running via the control file(s)
 #
 _disable_loggers()
 {
@@ -1724,6 +1757,12 @@ _disable_loggers()
     then
 	[ ! -f $tmp.control ] && \
 		$sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
+    fi
+    if [ -d $PCP_PMLOGGERCONTROL_PATH.d ]
+    then
+	[ ! -d $tmp.control.d ] && \
+		$sudo cp -a $PCP_PMLOGGERCONTROL_PATH.d $tmp.control.d
+	$sudo rm -fr $PCP_PMLOGGERCONTROL_PATH.d
     fi
     cat <<End-of-File >$tmp._tmp
 # dummy file created by qa/$seq on `date`
@@ -1739,6 +1778,11 @@ _restore_loggers()
 {
     [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 		PCP_PMLOGGERCONTROL_PATH="$PCP_VAR_DIR/config/pmlogger/control"
+    if [ -d $tmp.control.d ]
+    then
+	$sudo cp -a $tmp.control.d $PCP_PMLOGGERCONTROL_PATH.d
+	$sudo rm -fr $tmp.control.d
+    fi
     [ -f $tmp.control ] && \
 	$sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
 }
@@ -1850,42 +1894,28 @@ _find_free_port()
     echo $base
 }
 
-_get_ino()
-{
-    # get inode number for $1
-    # throw away stderr (and return '') in case $1 has been removed by now
-    #
-    stat "$1" 2>/dev/null \
-    | sed -n '/Device:[ 	].*[ 	]Inode:/{
-s/Device:[ 	].*[ 	]Inode:[ 	]*//
-s/[ 	].*//
-p
-}'
-}
-
+# get pid for the running primary pmlogger
+#
 _get_primary_logger_pid()
 {
-    # get pid for primary pmlogger
-    #
-    _primary_inode=`_get_ino $PCP_TMP_DIR/pmlogger/primary`
-    _pid=''
-    for _file in $PCP_TMP_DIR/pmlogger/*
-    do
-	case "$_file"
-	in
-	    */primary|*\*)
-		;;
-	    */[0-9]*)
-		_inode=`_get_ino "$_file"`
-		if [ "$_primary_inode" = "$_inode" ]
-		then
-		    _pid="`echo $_file | sed -e 's/.*\/\([^/]*\)$/\1/'`"
-		    break
-		fi
-		;;
-	esac
-    done
-    echo $_pid
+    root="$PCP_TMP_DIR/pmlogger/primary"
+    if [ ! -L "$root" ]
+    then
+	echo ""
+    elif which realpath >/dev/null 2>&1
+    then
+	symroot=`realpath "$root"`
+	basename "$symroot"
+    else
+	symroot=`ls -l "$root" | sed -e 's/.*-> //'`
+	if [ -z "$symroot" ]
+	then
+	    echo "Arrgh, cannot get symlink for device for root fs ..."
+	    ls -l "$root"
+	    exit
+	fi
+	basename "$symroot"
+    fi
 }
 
 _get_libpcp_config()

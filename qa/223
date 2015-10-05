@@ -124,11 +124,9 @@ _remove_rebuild()
     fi
 }
 
-# get standard filters
-. ./common.filter
-
 tmp=/tmp/$$
 status=0
+$sudo rm -f $tmp.* $seq.full
 DO_VALIDATE=true
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 

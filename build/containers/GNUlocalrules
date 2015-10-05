@@ -1,0 +1,26 @@
+#
+# Copyright (c) 2015 Red Hat.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+#
+# Local rule to build a container tarball.tgz from a Dockerfile.
+#
+# To avoid having to run the docker commands as root, you can run the docker
+# daemon with -G groupname  where groupname is a group you're in. Edit
+# /etc/sysconfig/docker (or equiv for your distro) and set the OPTIONS variable
+# e.g. OPTIONS="-G wheel", then restart the docker service. This allows users
+# in group e.g. 'wheel' access to the local docker unix domain socket interface.
+
+$(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz: Dockerfile
+	docker build --no-cache -t $(CONTAINER):latest .
+	docker save $(CONTAINER) | gzip > $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz 
+	@echo Wrote: $(PWD)/$(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz

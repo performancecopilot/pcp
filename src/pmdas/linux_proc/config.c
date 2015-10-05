@@ -53,19 +53,23 @@ extern FILE *yyin;
 void
 set_conf_buffer(char *buf)
 {
+    if(conf_buffer != NULL)
+        free(conf_buffer);
     conf_buffer = strdup(buf);
 }
 
 char *
 get_conf_buffer(void)
 {
-    return conf_buffer;
+    return pred_buffer;
 }
 
 FILE *
 open_config(char configfile[])
 {
     FILE *conf;
+    int fd;
+    struct stat sb;
 
     hotproc_configfile = strdup(configfile);
 
@@ -76,12 +80,27 @@ open_config(char configfile[])
 	}
 	return NULL;
     }
+
+    fd = fileno(conf);
+    if( fstat(fd, &sb) == -1 ) {
+	fclose(conf);
+        return NULL;
+    }
+
+    if( sb.st_mode & S_IWOTH){
+        fprintf(stderr, "Hotproc config file : %s has global write permission, ignoring\n",
+            hotproc_configfile);
+	fclose(conf);
+        return NULL;
+    }
+
     return conf;
 }
 
 int
 parse_config(bool_node **tree)
 {
+    /* Return 1 on success, 0 on empty config, sts on error (negative)*/
     int sts;
     FILE *file = NULL;
     char tmpname[] = "/var/tmp/pcp.XXXXXX";
@@ -93,7 +112,15 @@ parse_config(bool_node **tree)
 
     if ((sts = parse_predicate(tree)) != 0) {
 	fprintf(stderr, "%s: Failed to parse configuration file\n", pmProgname);
-	return sts;
+	return -sts;
+    }
+
+    if( *tree == NULL ){
+        /* Parsed as empty config, so we should disable */
+        if (pred_buffer != NULL)
+            free(pred_buffer);
+        pred_buffer = NULL;
+        return 0;
     }
 
     /* --- dump to tmp file & read to buffer --- */
@@ -143,7 +170,7 @@ parse_config(bool_node **tree)
 	free(pred_buffer);
     pred_buffer = ptr; 
     pred_buffer[size] = '\0';
-    return 0;
+    return 1;
 
 error:
     if (ptr)
@@ -197,10 +224,7 @@ read_config(FILE *conf)
     }
     conf_buffer[size] = '\0'; /* terminate the buffer */
 
-    if (parse_config(&the_tree) != 0)
-        return 0;
-
-    return 1;
+    return parse_config(&the_tree);
 }
 
 void

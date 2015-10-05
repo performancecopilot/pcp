@@ -38,6 +38,7 @@ General options:
                         optional additional PMDA spec for local connection
   -L, --local-PMDA      metrics source is local connection to a PMDA
   --container=NAME      specify an individual container to be queried
+  --derived=FILE        load derived metric definitions from FILE(s)
 
 Reporting options:
   -d, --delay           delay, pause between updates for archive replay

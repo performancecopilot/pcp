@@ -13,7 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+$sudo rm -f $tmp.* $seq.full
+trap "rm -f $tmp $tmp.*; exit 0" 0 1 2 3 15
 
 _filter_load()
 {
@@ -49,6 +50,7 @@ s/  2010040/  2010000/
 s/  2010057/  2010000/
 s/      102/  2010000/
 s/ 17000102/  2010000/
+s/ 40000102/  2010000/
 s/ 57000102/  2010000/
 }' \
 	-e 's/  201[0-9][0-9][0-9][0-9]/  2010000/' \

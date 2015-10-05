@@ -948,6 +948,15 @@ getOptionStart_usec(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+getOptionAlign_optarg(PyObject *self, PyObject *args)
+{
+    if (options.align_optarg)
+	return Py_BuildValue("s", options.align_optarg);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 getOptionFinish_optarg(PyObject *self, PyObject *args)
 {
     if (options.finish_optarg)
@@ -1171,6 +1180,9 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmGetOptionStart_usec",
 	.ml_meth = (PyCFunction) getOptionStart_usec,
         .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionAlign_optarg",
+	.ml_meth = (PyCFunction) getOptionAlign_optarg,
+        .ml_flags = METH_NOARGS },
     { .ml_name = "pmGetOptionFinish_optarg",
 	.ml_meth = (PyCFunction) getOptionFinish_optarg,
         .ml_flags = METH_NOARGS },
@@ -1351,6 +1363,10 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_EVENT_FLAG_PARENT", PM_EVENT_FLAG_PARENT);
     dict_add(dict, "PM_EVENT_FLAG_MISSED", PM_EVENT_FLAG_MISSED);
 
+    /*
+     * for ease of maintenance make the order of the error codes
+     * here the same as the output from pmerr -l
+     */
     edict_add(dict, edict, "PM_ERR_GENERIC", PM_ERR_GENERIC);
     edict_add(dict, edict, "PM_ERR_PMNS", PM_ERR_PMNS);
     edict_add(dict, edict, "PM_ERR_NOPMNS", PM_ERR_NOPMNS);
@@ -1365,6 +1381,7 @@ MOD_INIT(cpmapi)
     edict_add(dict, edict, "PM_ERR_PMID", PM_ERR_PMID);
     edict_add(dict, edict, "PM_ERR_INDOM", PM_ERR_INDOM);
     edict_add(dict, edict, "PM_ERR_INST", PM_ERR_INST);
+    edict_add(dict, edict, "PM_ERR_TYPE", PM_ERR_TYPE);
     edict_add(dict, edict, "PM_ERR_UNIT", PM_ERR_UNIT);
     edict_add(dict, edict, "PM_ERR_CONV", PM_ERR_CONV);
     edict_add(dict, edict, "PM_ERR_TRUNC", PM_ERR_TRUNC);
@@ -1377,8 +1394,8 @@ MOD_INIT(cpmapi)
     edict_add(dict, edict, "PM_ERR_MODE", PM_ERR_MODE);
     edict_add(dict, edict, "PM_ERR_LABEL", PM_ERR_LABEL);
     edict_add(dict, edict, "PM_ERR_LOGREC", PM_ERR_LOGREC);
-    edict_add(dict, edict, "PM_ERR_NOTARCHIVE", PM_ERR_NOTARCHIVE);
     edict_add(dict, edict, "PM_ERR_LOGFILE", PM_ERR_LOGFILE);
+    edict_add(dict, edict, "PM_ERR_NOTARCHIVE", PM_ERR_NOTARCHIVE);
     edict_add(dict, edict, "PM_ERR_NOCONTEXT", PM_ERR_NOCONTEXT);
     edict_add(dict, edict, "PM_ERR_PROFILESPEC", PM_ERR_PROFILESPEC);
     edict_add(dict, edict, "PM_ERR_PMID_LOG", PM_ERR_PMID_LOG);
@@ -1393,13 +1410,14 @@ MOD_INIT(cpmapi)
     edict_add(dict, edict, "PM_ERR_NOTCONN", PM_ERR_NOTCONN);
     edict_add(dict, edict, "PM_ERR_NEEDPORT", PM_ERR_NEEDPORT);
     edict_add(dict, edict, "PM_ERR_NONLEAF", PM_ERR_NONLEAF);
-    edict_add(dict, edict, "PM_ERR_TYPE", PM_ERR_TYPE);
-    edict_add(dict, edict, "PM_ERR_THREAD", PM_ERR_THREAD);
-    edict_add(dict, edict, "PM_ERR_TOOSMALL", PM_ERR_TOOSMALL);
-    edict_add(dict, edict, "PM_ERR_TOOBIG", PM_ERR_TOOBIG);
-    edict_add(dict, edict, "PM_ERR_FAULT", PM_ERR_FAULT);
     edict_add(dict, edict, "PM_ERR_PMDAREADY", PM_ERR_PMDAREADY);
     edict_add(dict, edict, "PM_ERR_PMDANOTREADY", PM_ERR_PMDANOTREADY);
+    edict_add(dict, edict, "PM_ERR_TOOSMALL", PM_ERR_TOOSMALL);
+    edict_add(dict, edict, "PM_ERR_TOOBIG", PM_ERR_TOOBIG);
+    edict_add(dict, edict, "PM_ERR_THREAD", PM_ERR_THREAD);
+    edict_add(dict, edict, "PM_ERR_FAULT", PM_ERR_FAULT);
+    edict_add(dict, edict, "PM_ERR_NOCONTAINER", PM_ERR_NOCONTAINER);
+    edict_add(dict, edict, "PM_ERR_BADSTORE", PM_ERR_BADSTORE);
     edict_add(dict, edict, "PM_ERR_NYI", PM_ERR_NYI);
 
     return MOD_SUCCESS_VAL(module);

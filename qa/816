@@ -1,0 +1,47 @@
+#!/bin/sh
+# PCP QA Test No. 816
+# Exercise libpcp pdubuf/interp issue (github issue #35)
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<EOF > $tmp.dumptext
+filesys.free[/dev/dm-1]
+filesys.free[/dev/sda1]
+filesys.free[/dev/sdb]
+activemq.queue.queue_size["Dxb.EntityIncrementalIndexer"]
+activemq.queue.enqueue_count["Dxb.EntityIncrementalIndexer"]
+activemq.queue.dequeue_count["Dxb.EntityIncrementalIndexer"]
+rsyslog.queues.enqueued["action 7 queue[DA]"]
+rsyslog.queues.enqueued["action 7 queue"]
+rsyslog.queues.enqueued["main Q"]
+rsyslog.queues.full["action 7 queue[DA]"]
+rsyslog.queues.full["action 7 queue"]
+rsyslog.queues.full["main Q"]
+rsyslog.queues.size["action 7 queue[DA]"]
+rsyslog.queues.size["action 7 queue"]
+rsyslog.queues.size["main Q"]
+EOF
+
+# pmdebug sent to $seq.full - in failure case, pmdumptext will abort on
+# MacOSX as per https://github.com/performancecopilot/pcp/issues/35
+#
+pmdumptext -z -S@07:00 -a archives/small -c $tmp.dumptext -t 15sec -s 100 \
+	-DDESPERATE,PDUBUF,LOG,FETCH 2>$seq.full
+
+# success, all done
+status=0
+exit

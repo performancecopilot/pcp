@@ -3,6 +3,7 @@
 # pmlogconf - migrate from version 1.0 to 2.0
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
 #
 # Maintenance notes.
 # As pmlogconf usage grows, the generated pmlogconf files are going
@@ -33,9 +34,15 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./localconfig
 
 [ -f $PCP_BINADM_DIR/pmlogconf-setup ] || _notrun "pmlogconf version 2.0 not installed"
+[ -f $PCP_BINADM_DIR/pcp-atop ] || _notrun "system monitoring tools not installed"
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+[ -f $PCP_PMDAS_DIR/mysql/pmdamysql.pl ] || _notrun "mysql pmda not installed"
+[ -f $PCP_PMDAS_DIR/postgresql/pmdapostgresql.pl ] || _notrun "postgresql pmda not installed"
+[ -f $PCP_PMDAS_DIR/zimbra/pmdazimbra.pl ] || _notrun "zimbra pmda not installed"
+[ -f $PCP_PMDAS_DIR/netfilter/pmdanetfilter.pl ] || _notrun "netfilter pmda not installed"
 
 _filter()
 {
@@ -59,12 +66,17 @@ networking/nfs4-client
 networking/nfs4-server
 tools/atop
 tools/collectl
+tools/collectl-interrupts
 tools/dmcache
 tools/mpstat
+tools/mpstat-interrupts
 tools/vmstat
 tools/iostat
 tools/sar
+nginx/summary
 shping/summary
+memcache/summary
+elasticsearch/summary
 postgresql/summary
 sqlserver/summary
 mysql/summary

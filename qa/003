@@ -55,6 +55,7 @@ linux_filter()
 	-e "/disk\.dm\..*: $unavailable/d" \
 	-e "/filesys\.readonly: $unknown/d" \
 	-e "/hinv\.cpu\..*: $unavailable/d" \
+	-e "/hinv\.hugepagesize: $unavailable/d" \
 	-e "/hinv\.map\.dmname: $unavailable/d" \
 	-e "/hinv\.nlv: $unavailable/d" \
 	-e "/hinv\.node\.online: $unavailable/d" \
@@ -99,6 +100,7 @@ linux_filter()
 	-e "/network\.ip\.noect.*: $unavailable/d" \
 	-e "/network\.ip\.outbcastoctets: $unavailable/d" \
 	-e "/network\.ip\.outoctets: $unavailable/d" \
+	-e "/network\.softnet\..*: $nosupport/d" \
 	-e "/network\.tcp\.autocork.*: $unavailable/d" \
 	-e "/network\.tcp\.backlogdrop: $unavailable/d" \
 	-e "/network\.tcp\.busypoll.*: $unavailable/d" \
@@ -129,6 +131,7 @@ linux_filter()
 	-e "/network\.udplite\..*: $unavailable/d" \
 	-e "/network\.udp\.recvbuferrors: $unavailable/d" \
 	-e "/network\.udp\.sndbuferrors: $unavailable/d" \
+	-e "/network\.softnet\.flow_limit_count: $nosupport/d" \
 	-e "/swapdev\.free: $unavailable/d" \
 	-e "/swapdev\.length: $unavailable/d" \
 	-e "/swapdev\.maxswap: $unavailable/d" \
@@ -202,7 +205,6 @@ do
 	    -e "/hinv\.interconnect: $unavailable/d" \
 	    -e "/hinv\.map\.cpu: $unavailable/d" \
 	    -e "/hinv\.map\.disk: $unavailable/d" \
-	    -e "/hinv\.map\.lvname: $unavailable/d" \
 	    -e "/hinv\.map\.node: $unavailable/d" \
 	    -e "/hinv\.map\.routerport: $unavailable/d" \
 	    -e "/hinv\.map\.router: $unavailable/d" \

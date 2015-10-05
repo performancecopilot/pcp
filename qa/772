@@ -1,0 +1,171 @@
+#!/bin/sh
+# PCP QA Test No. 772
+# pmnsmerge -x checks
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.root
+root {
+	foo	1:2:3
+	dyno	4:*:*
+	bar
+}
+bar {
+	bar
+	one	7:0:1
+}
+bar.bar {
+	bar
+	two	7:0:2
+}
+bar.bar.bar {
+	three	7:0:3
+}
+End-of-File
+
+cat <<End-of-File >$tmp.root2
+root {
+	black
+	white
+}
+black {
+	sheep	7:0:2
+}
+white {
+	dyno	4:*:*
+}
+End-of-File
+
+cat <<End-of-File >$tmp.root3
+root {
+	white
+}
+white {
+	dyno	4:*:*
+}
+End-of-File
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+echo "no dups"
+rm -f $tmp.tmp
+pmnsmerge $tmp.root $tmp.tmp >$tmp.out 2>&1
+xit=$?
+_filter <$tmp.out
+echo "exit status: $xit"
+not=''
+[ -f $tmp.tmp ] || not=' not'
+echo "output PMNS$not created"
+
+echo
+echo "no dups -x"
+rm -f $tmp.tmp
+pmnsmerge -x $tmp.root $tmp.tmp >$tmp.out 2>&1
+xit=$?
+_filter <$tmp.out
+echo "exit status: $xit"
+not=''
+[ -f $tmp.tmp ] || not=' not'
+echo "output PMNS$not created"
+
+echo
+echo "dups"
+rm -f $tmp.tmp
+pmnsmerge $tmp.root $tmp.root2 $tmp.tmp >$tmp.out 2>&1
+xit=$?
+_filter <$tmp.out
+echo "exit status: $xit"
+not=''
+[ -f $tmp.tmp ] || not=' not'
+echo "output PMNS$not created"
+
+echo
+echo "dups - order reversed"
+rm -f $tmp.tmp
+pmnsmerge $tmp.root $tmp.root3 $tmp.tmp >$tmp.out 2>&1
+xit=$?
+_filter <$tmp.out
+echo "exit status: $xit"
+not=''
+[ -f $tmp.tmp ] || not=' not'
+echo "output PMNS$not created"
+
+echo
+echo "dups -x"
+rm -f $tmp.tmp
+pmnsmerge -x $tmp.root $tmp.root2 $tmp.tmp >$tmp.out 2>&1
+xit=$?
+_filter <$tmp.out
+echo "exit status: $xit"
+not=''
+[ -f $tmp.tmp ] || not=' not'
+echo "output PMNS$not created"
+
+echo
+echo "dups -x - order reversed"
+rm -f $tmp.tmp
+pmnsmerge -x $tmp.root $tmp.root3 $tmp.tmp >$tmp.out 2>&1
+xit=$?
+_filter <$tmp.out
+echo "exit status: $xit"
+not=''
+[ -f $tmp.tmp ] || not=' not'
+echo "output PMNS$not created"
+
+echo
+echo "dups - 3 input files"
+rm -f $tmp.tmp
+pmnsmerge $tmp.root $tmp.root2 $tmp.root3 $tmp.tmp >$tmp.out 2>&1
+xit=$?
+_filter <$tmp.out
+echo "exit status: $xit"
+not=''
+[ -f $tmp.tmp ] || not=' not'
+echo "output PMNS$not created"
+cp $tmp.tmp $tmp.merged
+
+echo
+echo "merged"
+rm -f $tmp.tmp
+pmnsmerge $tmp.merged $tmp.tmp >$tmp.out 2>&1
+xit=$?
+_filter <$tmp.out
+echo "exit status: $xit"
+not=''
+[ -f $tmp.tmp ] || not=' not'
+echo "output PMNS$not created"
+
+echo
+echo "merged -x"
+rm -f $tmp.tmp
+pmnsmerge -x $tmp.merged $tmp.tmp >$tmp.out 2>&1
+xit=$?
+_filter <$tmp.out
+echo "exit status: $xit"
+not=''
+[ -f $tmp.tmp ] || not=' not'
+echo "output PMNS$not created"
+
+# success, all done
+status=0
+
+exit

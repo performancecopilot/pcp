@@ -3,6 +3,7 @@
 # basic pmlogcheck workout
 #
 # Copyright (c) 2013 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat Inc.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -18,8 +19,16 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 mkdir $tmp
 
+_filter_hostnames()
+{
+    sed -e 's/host \".*\"/host \"HOST\"/g' $tmp.out > $tmp.out.1
+    mv $tmp.out.1 $tmp.out
+    sed -e 's/host \".*\"/host \"HOST\"/g' $tmp.err > $tmp.err.1
+    mv $tmp.err.1 $tmp.err
+}
 _filter()
 {
+    _filter_hostnames
     echo >>$here/$seq.full
     echo "stdout" >>$here/$seq.full
     cat $tmp.out >>$here/$seq.full
@@ -45,24 +54,25 @@ _filter_pass0()
 }
 
 # real QA test starts here
+export LC_COLLATE=POSIX
 echo "=== directory traversal and file checks ===" | tee -a $here/$seq.full
 cp src/foo.index $tmp
 ( echo; echo "TMP/foo.index alone:" ) | tee -a $here/$seq.full
-pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
+pmlogcheck -z -v $tmp/foo >$tmp.out 2>$tmp.err
 _filter
 cp src/foo.0 $tmp
 ( echo; echo "TMP/foo.meta missing:" ) | tee -a $here/$seq.full
-pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
+pmlogcheck -z -v $tmp/foo >$tmp.out 2>$tmp.err
 _filter
 rm $tmp/foo.0
 cp src/foo.meta $tmp
 ( echo; echo "TMP/foo.0 missing:" ) | tee -a $here/$seq.full
-pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
+pmlogcheck -z -v $tmp/foo >$tmp.out 2>$tmp.err
 _filter
 rm $tmp/foo.index
 cp src/foo.0 $tmp
 ( echo; echo "TMP/foo.index missing:" ) | tee -a $here/$seq.full
-pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
+pmlogcheck -z -v $tmp/foo >$tmp.out 2>$tmp.err
 _filter
 cp src/foo.index $tmp
 
@@ -75,24 +85,24 @@ chmod 0 $tmp/foo.1
 touch $tmp/foo.bar
 touch $tmp/foo.9x9
 ( echo; echo "TMP/bar:" ) | tee -a $here/$seq.full
-pmlogcheck -v $tmp/bar >$tmp.out 2>$tmp.err
+pmlogcheck -z -v $tmp/bar >$tmp.out 2>$tmp.err
 _filter
 ( echo; echo "TMP/foo:" ) | tee -a $here/$seq.full
-pmlogcheck -v $tmp/foo >$tmp.out 2>$tmp.err
+pmlogcheck -z -v $tmp/foo >$tmp.out 2>$tmp.err
 _filter
 cd $tmp
 ( echo; echo "foo:" ) | tee -a $here/$seq.full
-pmlogcheck -v foo >$tmp.out 2>$tmp.err
+pmlogcheck -z -v foo >$tmp.out 2>$tmp.err
 _filter
 chmod 644 foo.1
 ( echo; echo "foo.index:" ) | tee -a $here/$seq.full
-pmlogcheck -v foo.index >$tmp.out 2>$tmp.err
+pmlogcheck -z -v foo.index >$tmp.out 2>$tmp.err
 _filter
 ( echo; echo "archive-20150415.044829:" ) | tee -a $here/$seq.full
 ln foo.0 archive-20150415.044829.0
 ln foo.meta archive-20150415.044829.meta
 ln foo.index archive-20150415.044829.index
-pmlogcheck -v archive-20150415.044829 >$tmp.out 2>$tmp.err
+pmlogcheck -z -v archive-20150415.044829 >$tmp.out 2>$tmp.err
 _filter
 
 cd $here
@@ -110,7 +120,7 @@ do
 		;;
 	*)
  		( echo; echo "$arch:" ) | tee -a $here/$seq.full
-		pmlogcheck -v $arch >$tmp.out 2>$tmp.err
+		pmlogcheck -z -v $arch >$tmp.out 2>$tmp.err
 		_filter | _filter_pass0
 		;;
     esac
@@ -129,7 +139,7 @@ do
 		;;
 	*)
  		( echo; echo "$arch:" ) | tee -a $here/$seq.full
-		pmlogcheck -v $arch >$tmp.out 2>$tmp.err
+		pmlogcheck -z -v $arch >$tmp.out 2>$tmp.err
 		_filter
 		;;
     esac
@@ -146,7 +156,7 @@ do
     in
 	*)
  		( echo; echo "$arch:" ) | tee -a $here/$seq.full
-		pmlogcheck -v $arch >$tmp.out 2>$tmp.err
+		pmlogcheck -z -v $arch >$tmp.out 2>$tmp.err
 		_filter
 		;;
     esac

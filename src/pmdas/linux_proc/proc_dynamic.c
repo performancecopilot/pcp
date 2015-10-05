@@ -1,4 +1,6 @@
 /*
+ * Copyright (c) 2015 Red Hat.
+ * Copyright (c) 2014-2015 Martins Innus.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -15,6 +17,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "clusters.h"
+#include "proc_pid.h"
 #include "indom.h"
 
 #include <ctype.h>
@@ -29,17 +32,20 @@ static __pmnsTree *dynamic_proc_tree;
 
 enum {
     DYNPROC_GROUP_PSINFO = 0,
-    DYNPROC_GROUP_FD = 1,
-    DYNPROC_GROUP_ID = 2,
-    DYNPROC_GROUP_MEMORY = 3,
-    DYNPROC_GROUP_IO = 4,
-    DYNPROC_GROUP_SCHEDSTAT = 5,
+    DYNPROC_GROUP_FD,
+    DYNPROC_GROUP_ID,
+    DYNPROC_GROUP_MEMORY,
+    DYNPROC_GROUP_IO,
+    DYNPROC_GROUP_SCHEDSTAT,
+    DYNPROC_GROUP_NAMESPACE,
+
     NUM_DYNPROC_GROUPS
 };
 
 enum {
     DYNPROC_PROC = 0,
     DYNPROC_HOTPROC = 1,
+
     NUM_DYNPROC_TREES
 };
 
@@ -128,7 +134,9 @@ static dynproc_metric_t psinfo_metrics[] = {
 	{ .name = "labels",	    .cluster = CLUSTER_PID_LABEL,	.item=0 },
 	{ .name = "vctxsw",	    .cluster = CLUSTER_PID_STATUS,	.item=29 },
 	{ .name = "nvctxsw",	    .cluster = CLUSTER_PID_STATUS,	.item=30 },
-	{ .name = "cpusallowed",	.cluster = CLUSTER_PID_STATUS,	.item=31 },
+	{ .name = "cpusallowed",    .cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_CPUSALLOWED },
+	{ .name = "ngid",	    .cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_NGID },
+        { .name = "tgid",	    .cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_TGID },
 };
 
 static dynproc_metric_t id_metrics[] = {
@@ -167,6 +175,18 @@ static dynproc_metric_t memory_metrics[] = {
         { .name = "vmexe",  .cluster = CLUSTER_PID_STATUS,  .item=25 },
         { .name = "vmlib",  .cluster = CLUSTER_PID_STATUS,  .item=26 },
         { .name = "vmswap", .cluster = CLUSTER_PID_STATUS,  .item=27 },
+        { .name = "vmpeak",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMPEAK },
+	{ .name = "vmpin",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMPIN },
+	{ .name = "vmhwn",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMHWN },
+	{ .name = "vmpte",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMPTE },
+};
+
+static dynproc_metric_t namespace_metrics[] = {
+        { .name = "tgid",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_NSTGID },
+        { .name = "pid",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_NSPID },
+        { .name = "pgid",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_NSPGID },
+        { .name = "sid",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_NSSID },
+        { .name = "envid",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_ENVID },
 };
 
 static dynproc_metric_t io_metrics[] = {
@@ -196,6 +216,7 @@ static dynproc_group_t dynproc_groups[] = {
 	[DYNPROC_GROUP_IO]	  = { .name = "io",	    .metrics = io_metrics,	    .nmetrics = sizeof(io_metrics)/sizeof(dynproc_metric_t)},
 	[DYNPROC_GROUP_FD]	  = { .name = "fd",	    .metrics = fd_metrics,	    .nmetrics = sizeof(fd_metrics)/sizeof(dynproc_metric_t)},
 	[DYNPROC_GROUP_SCHEDSTAT] = { .name = "schedstat",  .metrics = schedstat_metrics,   .nmetrics = sizeof(schedstat_metrics)/sizeof(dynproc_metric_t) },
+	[DYNPROC_GROUP_NAMESPACE] = { .name = "namespaces", .metrics = namespace_metrics,   .nmetrics = sizeof(namespace_metrics)/sizeof(dynproc_metric_t) },
 };
 
 /*

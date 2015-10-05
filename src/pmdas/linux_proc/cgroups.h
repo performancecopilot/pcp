@@ -46,12 +46,21 @@ enum {
 };
 
 typedef struct {
+    __uint64_t		nr_periods;
+    __uint64_t		nr_throttled;
+    __uint64_t		throttled_time;
+} cgroup_cpustat_t;
+
+typedef struct {
     __uint64_t		shares;
-    /* cpu.stat - nr_periods, nr_throttled, throttled_time */
+    cgroup_cpustat_t	stat;
 } cgroup_cpusched_t;
 
 enum {
-    CG_CPUSCHED_SHARES	= 0,
+    CG_CPUSCHED_SHARES		= 0,
+    CG_CPUSCHED_PERIODS		= 1,
+    CG_CPUSCHED_THROTTLED	= 2,
+    CG_CPUSCHED_THROTTLED_TIME	= 3,
 };
 
 typedef struct {
@@ -79,6 +88,9 @@ typedef struct {
     __uint64_t		recent_rotated_file;
     __uint64_t		recent_scanned_anon;
     __uint64_t		recent_scanned_file;
+    __uint64_t		usage;
+    __uint64_t		limit;
+    __uint64_t		failcnt;
 } cgroup_memory_t;
 
 enum {
@@ -118,6 +130,10 @@ enum {
     CG_MEMORY_STAT_RECENT_ROTATED_FILE	= 61,
     CG_MEMORY_STAT_RECENT_SCANNED_ANON	= 62,
     CG_MEMORY_STAT_RECENT_SCANNED_FILE	= 63,
+
+    CG_MEMORY_USAGE_IN_BYTES		= 80,
+    CG_MEMORY_LIMIT_IN_BYTES		= 81,
+    CG_MEMORY_FAILCNT			= 82,
 };
 
 typedef struct {

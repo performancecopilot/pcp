@@ -31,7 +31,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 pmstore sample.event.reset 0 >/dev/null 2>&1
-pmevent -Dpdu -t 10msec -s 20 sample.event.records >$tmp.out 2>&1
+pmevent -Dpdu,derive -t 10msec -s 20 sample.event.records >$tmp.out 2>&1
 cat $tmp.out >>$seq.full
 
 # Need to make this not host specific ...

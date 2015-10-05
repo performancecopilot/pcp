@@ -338,14 +338,23 @@ QA output created by 366
 > 	network.interface.inet_addr
 > }
 > #----
-> #+ tools/atop-proc:n:120 seconds:
+> #+ tools/atop-httpstats:x::
+> #----
+> #+ tools/atop-proc:n:default:
 > ## per-process metrics used by the atop command
 > #----
 > #+ tools/atop-summary:y:once:
 > ## metrics sampled once by the atop command
 > log advisory on once {
-> 	hinv.cpu.clock
 > 	hinv.ncpu
+> 	hinv.ndisk
+> 	hinv.ninterface
+> 	hinv.pagesize
+> 	kernel.all.hz
+> 	kernel.uname.release
+> 	kernel.uname.version
+> 	kernel.uname.machine
+> 	kernel.uname.nodename
 > 	mem.physmem
 > }
 > #----
@@ -418,7 +427,7 @@ QA output created by 366
 > 	pmcd.pmie
 > }
 > #----
-> #+ tools/pmclient:n:5 second:
+> #+ tools/pmclient:n:default:
 > ## metrics sampled frequently by the pmclient(1) command
 > #----
 > #+ tools/pmclient-summary:n:once:

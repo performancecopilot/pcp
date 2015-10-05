@@ -21,3 +21,25 @@
    obj:*
 }
 
+# Seen on vm19 x86_64 openSUSE 12.2 and qa/783
+# at 0x4C2ABED: malloc (in /usr/lib64/valgrind/vgpreload_memcheck-amd64-linux.so)
+# by 0x5910AFD: getdelim (in /lib64/libc-2.15.so)
+# by 0x6BD00B4: ??? (in /lib64/libselinux.so.1)
+# by 0x400E7B5: call_init (in /lib64/ld-2.15.so)
+# by 0x400E899: _dl_init (in /lib64/ld-2.15.so)
+# by 0x4001519: ??? (in /lib64/ld-2.15.so)
+# by 0x1: ???
+# by 0x7FF000276: ???
+# by 0x7FF000295: ???
+{
+   dl_init botch
+   Memcheck:Leak
+   fun:malloc
+   fun:getdelim
+   obj:/lib64/libselinux.so.1
+   fun:call_init
+   fun:_dl_init
+   obj:/lib64/ld-2.15.so
+   obj:*
+}
+

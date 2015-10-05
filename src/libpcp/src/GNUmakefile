@@ -28,7 +28,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c getopt.c probe.c
-HFILES = derive.h internal.h avahi.h probe.h
+HFILES = derive.h internal.h avahi.h probe.h compiler.h
 YFILES = getdate.y
 VERSION_SCRIPT = exports
 
@@ -71,7 +71,7 @@ endif
 
 LLDLIBS	+= $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) $(LIB_FOR_RT)
 
-LCFLAGS += -DLIBPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
+LCFLAGS += -DPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
 	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
 
 DSOVERSION = 3
@@ -104,7 +104,7 @@ endif
 
 include $(BUILDRULES)
 
-*.o: internal.h
+*.o: internal.h compiler.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h

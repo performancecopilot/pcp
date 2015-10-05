@@ -1,0 +1,80 @@
+#!/bin/sh
+# PCP QA Test No. 1054
+# pmlogger/pmcpp implementation of pmlognow
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+cat >$tmp.config <<'End-of-File'
+%shell '[ -n "$PMLOGGER_ONCE" ] && echo %define PMLOGGER_ONCE; exit 0'
+
+%ifdef PMLOGGER_ONCE
+%define disk_dev_freq once
+%define cpu_all_freq once
+# etc ..
+%else
+%define disk_dev_freq '10 sec'
+%define cpu_all_freq '1 sec'
+# etc ..
+%endif
+
+log mandatory on %{disk_dev_freq} {
+    disk.dev
+}
+
+log mandatory on %{cpu_all_freq} {
+    kernel.all.cpu
+}
+End-of-File
+
+_filter()
+{
+    $PCP_AWK_PROG '
+$1 == "Group"	{ $2 = "[N"
+		  print
+		  skip = 1
+		  next
+		} 
+skip == 1 && $1 == "}" {
+		  print
+		  skip = 0
+		  next
+		}
+skip == 1 	{ next } 
+		{ print }' \
+| sed -e '/} logged /s/[0-9][0-9.]*/NNN/g'
+}
+
+# real QA test starts here
+echo "once case ..." | tee -a $seq.full
+PMLOGGER_ONCE=yes pmlogger -c $tmp.config -s 1 -r -l $tmp.log $tmp
+pmdumplog $tmp >>$seq.full
+cat $tmp.log >>$seq.full
+_filter_pmlogger_log <$tmp.log \
+| _filter
+rm -f $tmp.0 $tmp.meta $tmp.index
+
+echo | tee -a $seq.full
+echo "other case ..." | tee -a $seq.full
+pmlogger -c $tmp.config -s 2 -r -l $tmp.log $tmp
+pmdumplog $tmp >>$seq.full
+cat $tmp.log >>$seq.full
+_filter_pmlogger_log <$tmp.log \
+| _filter
+
+# success, all done
+status=0
+
+exit

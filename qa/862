@@ -1,0 +1,41 @@
+#!/bin/sh
+# PCP QA Test No. 862
+# Exercise pmie handling of interactive (stdin) configs.
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo Silence is golden
+( sleep 2 && echo 'one = sample.long.one;' ) | pmie -q -T 1
+
+# The above should exit immediately with no output, and should
+# not produce a task scheduling dump state ala...
+# 
+# sleepTight: negative delay (-1.995965). sched=1433305770.991639, cur=1433305772.987604
+# This sleepTight() entry: Wed Jun  3 14:29:32 2015.987603
+# Harvest children done: Wed Jun  3 14:29:32 2015.987603
+# Want sleepTight (eval) until: Wed Jun  3 14:29:30 2015.991638
+# This Task dump @ 0x7f020f9acce0
+#   nth=0 delta=10.000 tick=0 next=(nil) prev=(nil)
+#   eval time: Wed Jun  3 14:29:30 2015.991638
+#   retry time: Thu Jan  1 10:00:00 1970.000000
+#   host=localhost.localdomain (up)
+#   rules:
+#     one
+
+# success, all done
+status=0
+exit

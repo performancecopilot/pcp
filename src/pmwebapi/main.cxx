@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2014 Red Hat.
+ * Copyright (c) 2011-2015 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,6 +37,8 @@ unsigned graphite_p;		/* set by -G option */
 unsigned exit_p;		/* counted by SIG* handler */
 static __pmServerPresence *presence;
 unsigned multithread = 0;       /* set by -M option */
+unsigned graphite_timestep = 60;  /* set by -i option */
+unsigned graphite_archivedir = 0; /* set by -I option */
 string logfile = "";		/* set by -l option */
 string fatalfile = "/dev/tty";	/* fatal messages at startup go here */
 
@@ -446,6 +448,8 @@ option_overrides (int opt, pmOptions * opts)
     case 'p':
     case 'd':
     case 't':
+    case 'i':
+    case 'I':
         return 1;
     }
     return 0;
@@ -457,10 +461,12 @@ longopts[] = {
     {"port", 1, 'p', "NUM", "listen on given TCP port [default 44323]"},
     {"ipv4", 0, '4', 0, "listen on IPv4 only"},
     {"ipv6", 0, '6', 0, "listen on IPv6 only"},
-    {"timeout", 1, 't', "SEC", "max time (seconds) for PMAPI polling [default 300]"},
-    {"resources", 1, 'R', "DIR", "serve non-API files from given directory"},
+    PMAPI_OPTIONS_HEADER ("Graphite options"),
     {"graphite", 0, 'G', 0, "enable graphite 0.9 API/backend emulation"},
+    {"graphite-timestamp", 1, 'i', "SEC", "minimum graphite timestep (s) [default 60]"},
+    {"graphite-archivedir", 0, 'I', 0, "prefer archive directories [default OFF]"},
     PMAPI_OPTIONS_HEADER ("Context options"),
+    {"timeout", 1, 't', "SEC", "max time (seconds) for PMAPI polling [default 300]"},
     {"context", 1, 'c', "NUM", "set next permanent-binding context number"},
     {"host", 1, 'h', "HOST", "permanent-bind next context to PMCD on host"},
     {"archive", 1, 'a', "FILE", "permanent-bind next context to archive"},
@@ -469,6 +475,7 @@ longopts[] = {
     {"", 1, 'A', "DIR", "permit remote new-archive-context under dir [default CWD]"},
     PMAPI_OPTIONS_HEADER ("Other"),
     PMOPT_DEBUG,
+    {"resources", 1, 'R', "DIR", "serve non-API files from given directory"},
     {"log", 1, 'l', "FILE", "redirect diagnostics and trace output"},
     {"verbose", 0, 'v', 0, "increase verbosity"},
 #ifdef HAVE_PTHREAD_H
@@ -492,6 +499,7 @@ main (int argc, char *argv[])
     int     mhd_ipv4 = 1;
     int     mhd_ipv6 = 1;
     int    port = PMWEBD_PORT;
+    char   utc_timezone[] = "TZ=UTC";
     char *   endptr;
     struct MHD_Daemon * d4 = NULL;
     struct MHD_Daemon * d6 = NULL;
@@ -500,13 +508,13 @@ main (int argc, char *argv[])
     // NB: important to standardize on a single default timezone, since
     // we'll be interacting with web clients from anywhere, and dealing
     // with pcp servers/archvies from anywhere else.
-    (void) setenv ("TZ", "UTC", 1);
+    (void) putenv (utc_timezone);
 
     umask (022);
     char * username_str;
     __pmGetUsername (&username_str);
 
-    opts.short_options = "A:a:c:D:h:Ll:NM:p:R:Gt:U:vx:d:46?";
+    opts.short_options = "A:a:c:D:h:Ll:NM:p:R:Gi:It:U:vx:d:46?";
     opts.long_options = longopts;
     opts.override = option_overrides;
 
@@ -534,6 +542,18 @@ main (int argc, char *argv[])
 
         case 'G':
             graphite_p = 1;
+            break;
+
+        case 'i':
+            graphite_timestep = atoi (opts.optarg);
+            if (graphite_timestep <= 0) {
+                pmprintf ("%s: timestep too small %s\n", pmProgname, opts.optarg);
+                opts.errors++;
+            }
+            break;
+
+        case 'I':
+            graphite_archivedir = 1;
             break;
 
         case 'A':
@@ -659,10 +679,11 @@ main (int argc, char *argv[])
         pmweb_dont_start ();
     }
 
+#ifndef IS_MINGW
     /* lose root privileges if we have them */
-    if (geteuid () == 0) {
+    if (geteuid () == 0)
+#endif
         __pmSetProcessIdentity (username_str);
-    }
 
     /* tell the world we have arrived */
     __pmServerCreatePIDFile (PM_SERVER_WEBD_SPEC, 0);
@@ -707,7 +728,9 @@ main (int argc, char *argv[])
     __pmSetSignalHandler (SIGHUP, SIG_IGN);
     __pmSetSignalHandler (SIGINT, handle_signals);
     __pmSetSignalHandler (SIGTERM, handle_signals);
+#ifndef IS_MINGW
     __pmSetSignalHandler (SIGQUIT, handle_signals);
+#endif
     /* Not this one; might get it from pmcd momentary disconnection. */
     /* __pmSetSignalHandler(SIGPIPE, handle_signals); */
 
@@ -721,16 +744,16 @@ main (int argc, char *argv[])
         fd_set        rs;
         fd_set        ws;
         fd_set        es;
-        int        max = 0;
+        MHD_socket    maxsock = 0;
 
         /* Based upon MHD fileserver_example_external_select.c */
         FD_ZERO (&rs);
         FD_ZERO (&ws);
         FD_ZERO (&es);
-        if (d4 && MHD_YES != MHD_get_fdset (d4, &rs, &ws, &es, &max)) {
+        if (d4 && MHD_YES != MHD_get_fdset (d4, &rs, &ws, &es, &maxsock)) {
             break;		/* fatal internal error */
         }
-        if (d6 && MHD_YES != MHD_get_fdset (d6, &rs, &ws, &es, &max)) {
+        if (d6 && MHD_YES != MHD_get_fdset (d6, &rs, &ws, &es, &maxsock)) {
             break;		/* fatal internal error */
         }
 
@@ -755,7 +778,7 @@ main (int argc, char *argv[])
             tv.tv_sec = dumpstats;
         }
 
-        select (max + 1, &rs, &ws, &es, &tv);
+        select (maxsock + 1, &rs, &ws, &es, &tv);
 
         if (d4) {
             MHD_run (d4);

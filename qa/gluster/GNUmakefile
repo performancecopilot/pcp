@@ -1,3 +1,5 @@
+#!gmake
+
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
@@ -7,14 +9,13 @@ SCRIPT = test.sh
 INFOFILES = $(shell echo info-*)
 PROFFILES = $(shell echo profile-*)
 
-LSRCFILES = $(SCRIPT) $(INFOFILES) $(PROFFILES)
-
 default default_pcp setup:
 
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 755 $(SCRIPT) $(TESTDIR)/$(SCRIPT)
 	$(INSTALL) -m 644 $(INFOFILES) $(PROFFILES) $(TESTDIR)
+	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 include $(BUILDRULES)
 

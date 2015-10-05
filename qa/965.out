@@ -1,0 +1,12 @@
+QA output created by 965
+== Two valid configuration files
+qa.bad_in_pkts
+qa.disk.dev.read_pct
+== One good, one bad configuration file
+pminfo: derived configuration(s) error: No such file or directory
+qa.bad_in_pkts
+== No valid configuration files
+pminfo: derived configuration(s) error: No such file or directory
+Error: qa: Unknown metric name
+pminfo: derived configuration(s) error: No such file or directory
+Error: qa: Unknown metric name

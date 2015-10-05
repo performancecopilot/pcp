@@ -57,10 +57,16 @@ cgroup.cpuacct.stat {
 
 cgroup.cpusched {
     shares		PROC:43:0
+    periods		PROC:43:1
+    throttled		PROC:43:2
+    throttled_time	PROC:43:3
 }
 
 cgroup.memory {
     stat
+    usage		PROC:45:80
+    limit		PROC:45:81
+    failcnt		PROC:45:82
 }
 
 cgroup.memory.stat {
@@ -244,6 +250,7 @@ proc {
     io			PROC:*:*
     schedstat		PROC:*:*
     fd			PROC:*:*
+    namespaces		PROC:*:*
     control
 }
 
@@ -255,6 +262,7 @@ hotproc {
     io			PROC:*:*
     schedstat		PROC:*:*
     fd			PROC:*:*
+    namespaces		PROC:*:*
     control
     total
     predicate
@@ -289,6 +297,7 @@ hotproc.control {
     refresh PROC:60:1
     config  PROC:60:8
     config_gen  PROC:60:9
+    reload_config PROC:60:10
 }
 
 hotproc.total {

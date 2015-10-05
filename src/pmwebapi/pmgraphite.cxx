@@ -27,11 +27,13 @@
 #include <iomanip>
 #include <sstream>
 #include <set>
+#include <map>
 
 using namespace std;
 
 extern "C"
 {
+#include <unistd.h>
 #include <ctype.h>
 #ifdef HAVE_FTS_H
 #include <fts.h>
@@ -156,10 +158,13 @@ pmgraphite_metric_decode (const string & foo)
 // ------------------------------------------------------------------------
 
 
+typedef multimap<pmInDom,string> pmis_t;
+
 struct pmg_enum_context {
     const vector <string> *patterns;
     vector <string> *output;
     string archivepart;
+    pmis_t indom_instance_parts; // filtered indom instance names
 };
 
 
@@ -222,26 +227,36 @@ pmg_enumerate_pmns (const char *name, void *cls)
 
     if (pmd.indom == PM_INDOM_NULL) { // no more
         c->output->push_back (final_metric_name);
-    } else { // nesting
-        int *instlist;
-        char **namelist;
-        sts = pmGetInDomArchive (pmd.indom, &instlist, &namelist);
-        if (sts >= 1) {
-            for (int i=0; i<sts; i++) {
-                string instance_part = pmgraphite_metric_encode (namelist[i]);
-                // must filter out mismatches here too!
-                if (c->patterns->size () > metric_parts.size ()+1) {
-                    const string & pattern = (*c->patterns)[metric_parts.size ()+1];
-                    if (fnmatch (pattern.c_str (), instance_part.c_str (), FNM_NOESCAPE) != 0) {
-                        continue;
+    } else { // has instance domain - get one more graphite name component
+        // check indom instance cache
+        if (c->indom_instance_parts.find(pmd.indom) == c->indom_instance_parts.end()) {
+            // populate it
+            int *instlist;
+            char **namelist;
+            sts = pmGetInDomArchive (pmd.indom, &instlist, &namelist);
+            if (sts >= 1) {
+                for (int i=0; i<sts; i++) {
+                    string instance_part = pmgraphite_metric_encode (namelist[i]);
+                    // must filter out mismatches here too!
+                    if (c->patterns->size () > metric_parts.size ()+1) {
+                        const string & pattern = (*c->patterns)[metric_parts.size ()+1];
+                        if (fnmatch (pattern.c_str (), instance_part.c_str (), FNM_NOESCAPE) != 0) {
+                            continue;
+                        }
                     }
+                    c->indom_instance_parts.insert(make_pair(pmd.indom, instance_part));
                 }
-                c->output->push_back (final_metric_name + "." + instance_part);
+                free (instlist);
+                free (namelist);
+            } else {
+                // should not happen
             }
-            free (instlist);
-            free (namelist);
-        } else {
-            // should not happen
+        }
+
+        // iterate across instance cache
+        pair<pmis_t::iterator,pmis_t::iterator> range = c->indom_instance_parts.equal_range(pmd.indom);
+        for (pmis_t::iterator a = range.first; a != range.second; a++) {
+            c->output->push_back (final_metric_name + "." + a->second);
         }
     }
 }
@@ -286,21 +301,28 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
     }
     for (FTSENT * ent = fts_read (f); ent != NULL; ent = fts_read (f)) {
         if (exit_p) {
-            goto out;
+            break; // don't bypass the fts_close()
         }
 
         if (ent->fts_info == FTS_SL) {
             // follow symlinks (unlikely)
             (void) fts_set (f, ent, FTS_FOLLOW);
+            continue;
         }
 
-        if (fnmatch ("*.meta", ent->fts_path, FNM_NOESCAPE) != 0) {
-            continue;
-        }
+        // Skip if suspiciously named
         string archive = string (ent->fts_path);
-        if (cursed_path_p (archivesdir, archive)) {
+        if (cursed_path_p (archivesdir, archive))
             continue;
-        }
+
+        // Skip if uninteresting directory
+        if ((ent->fts_info == FTS_D) && !graphite_archivedir)
+            continue;
+
+        // Skip if uninteresting file
+        if ((ent->fts_info == FTS_F) &&
+            fnmatch ("*.meta", ent->fts_path, FNM_NOESCAPE) != 0)
+            continue;
 
         // Abbrevate archive to clip off the archivesdir prefix (if
         // it's there).
@@ -314,12 +336,27 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
         // Filter out mismatches of the first pattern component.
         // (note that this applies after _metric_encode().)
         if (patterns_tok.size () >= 1 &&	// have -some- specification
-                ((patterns_tok[0] != archivepart) &&	// not identical
-                 (fnmatch (patterns_tok[0].c_str (), archivepart.c_str (), FNM_NOESCAPE) != 0))) {
+            ((patterns_tok[0] != archivepart) &&	// not identical
+             (fnmatch (patterns_tok[0].c_str (), archivepart.c_str (), FNM_NOESCAPE) != 0))) {
             // mismatches?
             continue;
         }
 
+        if (ent->fts_info == FTS_F) {
+            // PR1099: compressed archives can take too long to open &
+            // check, because libpcp completely decompresses them into a
+            // temporary directory ... every time a context is created for
+            // them.  Perhaps we could tolerate very small ones, but for
+            // now let's just skip them completely.
+            //
+            // We use a heuristic to determine whether the archive's
+            // compressed or not: simply whether there is a .0 file for a
+            // .meta.
+            string vol0 = archive.substr(0, archive.size()-strlen(".meta")) + ".0";
+            if (access (vol0.c_str(), R_OK) != 0) {
+                continue;
+            }
+        }
         int ctx = pmNewContext (PM_CONTEXT_ARCHIVE, archive.c_str ());
         if (ctx < 0) {
             continue;
@@ -335,6 +372,10 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
         (void) pmTraversePMNS_r ("", &pmg_enumerate_pmns, &c);
 
         pmDestroyContext (ctx);
+
+        // Don't recurse if this was a successfully opened archive-directory
+        if ((ent->fts_info == FTS_D) && graphite_archivedir)
+            (void) fts_set (f, ent, FTS_SKIP);
     }
     fts_close (f);
 
@@ -393,7 +434,7 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
         return MHD_NO;
 
     // The metrics<> vector contains all possible full metric strings
-    // for the query_tok prefix.   We need to transform this into a one-step 
+    // for the query_tok prefix.   We need to transform this into a one-step
     // expansion - just those components that match the query_tok<> prefix,
     // stripping the suffixes.
 
@@ -523,7 +564,7 @@ out1:
 
 int
 pmgraphite_respond_metrics_grep (struct MHD_Connection *connection,
-                                 const http_params & params, 
+                                 const http_params & params,
                                  const vector <string> &/*url*/,
                                  bool graphlot_p)
 {
@@ -626,10 +667,11 @@ struct timestamped_float {
 
 // parameters for fetching a series
 struct fetch_series_jobspec {
-    vector<timestamped_float> output;
-    string target;
+    vector<vector<timestamped_float>*> outputs;
+    vector<string> targets;
+    string archive; // common first part of targets[]
     time_t t_start, t_end, t_step;
-    string message;
+    string message; // may have error or verbose message
 };
 
 
@@ -732,9 +774,9 @@ void fetch_series_jobqueue<Spec>::run ()
 
 
 // Heavy lifter.  Parse graphite "target" name into archive
-// file/directory, metric name, and (if appropriate) instance within
+// file/directory, metric names, and (if appropriate) instances within
 // metric indom; fetch all the data values interpolated between given
-// inclusive-end time points, and assemble them into single
+// inclusive-end time points, and assemble them into given vector of
 // series-of-numbers for rendering.
 //
 // A lot can go wrong, but is signalled only with a stderr message and
@@ -744,23 +786,29 @@ void fetch_series_jobqueue<Spec>::run ()
 void pmgraphite_fetch_series (fetch_series_jobspec *spec)
 {
     assert (spec != NULL);
-    vector <timestamped_float>& output = spec->output;
+    assert (spec->outputs.size() > 0);
+    assert (spec->targets.size() == spec->outputs.size());
+
+    // vectors are indexed parallel with spec->targets[] == spec->outputs[]
     time_t t_start = spec->t_start;
     time_t t_end = spec->t_end;
     time_t t_step = spec->t_step;
-    const string& target = spec->target;
     int sts;
     string last_component;
-    string metric_name;
     int pmc;
     string archive;
     string archive_part;
-    string instance_name;
-    unsigned entries_good, entries;
+    unsigned entries_good = 0, entries;
     stringstream message;
     pmLogLabel archive_label;
     struct timeval archive_end;
     int pmSetMode_called_p = 0;
+    vector<pmID> pmids;
+    vector<pmDesc> pmdescs;
+    vector<int> pminsts;
+
+    set<pmID> pmids_set;
+    vector<pmID> unique_pmids;
 
     // ^^^ several of these declarations are here (instead of at
     // point-of-use) only because we jump to an exit point, and may
@@ -771,42 +819,25 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
     //
     // XXX: in future, cache the pmid/pmdesc/inst# -> pcp-context
 
-    vector <string> target_tok = split (target, '.');
-    if (target_tok.size () < 2) {
-        message << "not enough target components";
-        goto out0;
-    }
-    for (unsigned i = 0; i < target_tok.size (); i++)
-        if (target_tok[i] == "") {
-            message << "empty target components";
-            goto out0;
-        }
-    // Extract the archive file/directory name
-    archive_part = pmgraphite_metric_decode (target_tok[0]);
-    if (archive_part == "") {
-        message << "undecodeable archive-path " << target_tok[0];
-        goto out0;
-    }
-    if (__pmAbsolutePath ((char *) archive_part.c_str ())) {
+    // -------------------- PART 1 - per-archive processing
+
+    if (__pmAbsolutePath ((char *) spec->archive.c_str ())) {
         // accept absolute paths too
-        archive = archive_part;
+        archive = spec->archive;
     } else {
-        archive = archivesdir + (char) __pmPathSeparator () + archive_part;
+        archive = archivesdir + (char) __pmPathSeparator () + spec->archive;
     }
 
     if (cursed_path_p (archivesdir, archive)) {
         message << "invalid archive path " << archive;
         goto out0;
     }
+
     // Open the bad boy.
-    // XXX: if it's a directory, redirect to the newest entry? or wait till libpcp autoglue?
     pmc = pmNewContext (PM_CONTEXT_ARCHIVE, archive.c_str ());
     if (pmc < 0) {
-        // error already noted
+        // error already noted XXX where?
         goto out0;
-    }
-    if (verbosity > 2) {
-        message << "opened archive " << archive << ", ";
     }
 
     // NB: past this point, exit via 'goto out;' to release pmc
@@ -827,60 +858,79 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
         goto out;
     }
 
-    // We need to decide whether the next dotted components represent
-    // a metric name, or whether there is an instance name squished at
-    // the end.
-    metric_name = "";
-    for (unsigned i = 1; i < target_tok.size () - 1; i++) {
-        const string & piece = target_tok[i];
-        if (i > 1) {
-            metric_name += '.';
-        }
-        metric_name += piece;
+    if (verbosity > 3) {
+        message << "[" << archive_label.ll_start.tv_sec
+                << "-" << archive_end.tv_sec << "] ";
     }
-    last_component = target_tok[target_tok.size () - 1];
 
-    pmID pmid;			// as yet unknown
-    pmDesc pmd;
+    // -------------------- PART 2 - per-metric metadata processing
 
-    {
+    pmids.resize(spec->targets.size());
+    pmdescs.resize(spec->targets.size());
+    pminsts.resize(spec->targets.size());
+
+    for (unsigned j=0; j<spec->targets.size(); j++) {
+        if (exit_p)
+            break;
+
+        const string& target = spec->targets[j];
+        pmids[j] = 0; // always invalid
+
+        vector <string> target_tok = split (target, '.');
+        if (target_tok.size () < 2) {
+            message << target << ": not enough target components";
+            continue;
+        }
+        for (unsigned i = 0; i < target_tok.size (); i++)
+            if (target_tok[i] == "") {
+                message << target << ": empty target components";
+                continue;
+            }
+
+        // We need to decide whether the next dotted components represent
+        // a metric name, or whether there is an instance name squished at
+        // the end.
+        string metric_name = "";
+        for (unsigned i = 1; i < target_tok.size () - 1; i++) {
+            const string & piece = target_tok[i];
+            if (i > 1) {
+                metric_name += '.';
+            }
+            metric_name += piece;
+        }
+        last_component = target_tok[target_tok.size () - 1];
+
         char *namelist[1];
-        pmID pmidlist[1];
+        pmID pmidlist[1]; // fetch here instead of pmids[i], so an early error continue leaves latter zero
         namelist[0] = (char *) metric_name.c_str ();
-        int sts = pmLookupName (1, namelist, pmidlist);
+        int sts = pmLookupName (1, namelist, & pmidlist[0]);
 
         if (sts == 1) {
             // found ... last name must be instance domain name
-            pmid = pmidlist[0];
-            sts = pmLookupDesc (pmid, &pmd);
+            sts = pmLookupDesc (pmidlist[0], &pmdescs[j]);
             if (sts != 0) {
                 message << "cannot find metric descriptor " << metric_name;
-                goto out;
+                continue;
             }
             // check that there is an instance domain, in order to use that last component
-            if (pmd.indom == PM_INDOM_NULL) {
+            if (pmdescs[j].indom == PM_INDOM_NULL) {
                 message << "metric " << metric_name << " lacks expected indom "
                         << last_component;
-                goto out;
-
+                continue;
             }
             // look up that instance name
-            instance_name = pmgraphite_metric_decode (last_component);
-            int inst = pmLookupInDomArchive (pmd.indom,
+            string instance_name = pmgraphite_metric_decode (last_component);
+            int inst = pmLookupInDomArchive (pmdescs[j].indom,
                                              (char *) instance_name.c_str ());	// XXX: why not pmLookupInDom?
             if (inst < 0) {
                 message << "metric " << metric_name << " lacks recognized indom "
                         << last_component;
-                goto out;
+                continue;
             }
-            // activate only that instance name in the profile
-            sts = pmDelProfile (pmd.indom, 0, NULL);
-            sts |= pmAddProfile (pmd.indom, 1, &inst);
-            if (sts != 0) {
-                message << "metric " << metric_name
-                        << " cannot set unitary instance profile " << inst;
-                goto out;
-            }
+            pminsts[j] = inst;
+            // NB: don't mess with instance domain profiles.  We may have multiple
+            // contradictory sets for different metrics in the same fetch loop.
+            // Instead we receive them all and search through them via pminst[i].
         } else {
             // not found ... ok, try again with that last component
             metric_name = metric_name + '.' + last_component;
@@ -889,60 +939,67 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
             if (sts != 1) {
                 // still not found .. give up
                 message << "cannot find metric name " << metric_name;
-                goto out;
+                continue;
             }
 
-            pmid = pmidlist[0];
-            sts = pmLookupDesc (pmid, &pmd);
+            sts = pmLookupDesc (pmidlist[0], &pmdescs[j]);
             if (sts != 0) {
                 message << "cannot find metric descriptor " << metric_name;
-                goto out;
+                continue;
             }
             // check that there is no instance domain
-            if (pmd.indom != PM_INDOM_NULL) {
-                message << "metric " << metric_name << " has unexpected indom " << pmd.indom;
-                goto out;
+            if (pmdescs[j].indom != PM_INDOM_NULL) {
+                message << "metric " << metric_name << " has unexpected indom " << pmdescs[j].indom;
+                continue;
             }
+
+            pminsts[j] = -1; // PMAPI magic value for pmResult inst for PM_INDOM_NULL
         }
+
+        // Check that the pmDesc type is numeric
+        switch (pmdescs[j].type) {
+        case PM_TYPE_32:
+        case PM_TYPE_U32:
+        case PM_TYPE_64:
+        case PM_TYPE_U64:
+        case PM_TYPE_FLOAT:
+        case PM_TYPE_DOUBLE:
+            break;
+        default:
+            message << "metric " << metric_name << " has unsupported type " << pmdescs[j].type;
+            continue;
+        }
+
+        pmids[j] = pmidlist[0]; // Now we're committed to trying to fetch this pmid.
     }
 
-    // OK, to recap, if we got this far, we have an open pmcontext to the archive,
-    // a looked-up pmID and its pmDesc, and validated instance-profile.
+    // -------------------- PART 3 - giant fetch loop
 
-    // Check that the pmDesc type is numeric
-    switch (pmd.type) {
-    case PM_TYPE_32:
-    case PM_TYPE_U32:
-    case PM_TYPE_64:
-    case PM_TYPE_U64:
-    case PM_TYPE_FLOAT:
-    case PM_TYPE_DOUBLE:
-        break;
-    default:
-        message << "metric " << metric_name << " has unsupported type " << pmd.type;
-        goto out;
-    }
-
-    // Time to iterate across time and space, and get us some tasty values
+    // compute unique subset of pmids; we search through pmResult
+    pmids_set.insert(pmids.begin(), pmids.end());
+    unique_pmids.insert(unique_pmids.begin(), pmids_set.begin(), pmids_set.end());
 
     // inclusive iteration from t_start to t_end
-    entries_good = entries = 0;
+    entries = 0;
     pmSetMode_called_p = 0;
-    for (time_t iteration_time = t_start; iteration_time <= t_end; iteration_time += t_step) {
-        pmID pmidlist[1];
-        pmidlist[0] = pmid;
-        pmResult *result;
 
-        if (exit_p) {
-            break;
+    // initialize the outputs vectors with a bunch of NaNs
+    for (unsigned i=0; i<spec->targets.size(); i++)
+        for (time_t iteration_time = t_start; iteration_time <= t_end; iteration_time += t_step) {
+            timestamped_float x;
+            x.when.tv_sec = iteration_time;
+            x.when.tv_usec = 0;
+            x.what = nanf ("");	// initialize to a NaN
+            spec->outputs[i]->push_back(x);
         }
 
-        entries++;
 
-        timestamped_float x;
-        x.when.tv_sec = iteration_time;
-        x.when.tv_usec = 0;
-        x.what = nanf ("");	// initialize to a NaN
+    entries = 0; // index in (*outputs[i]) to fill - i.e., a scaled time coordinate
+    for (time_t iteration_time = t_start; iteration_time <= t_end; iteration_time += t_step, entries++) {
+        if (exit_p)
+            break;
+
+        pmResult *result;
 
         // We only want to pmFetch within known time boundaries of the archive.
         if (iteration_time >= archive_label.ll_start.tv_sec &&
@@ -955,119 +1012,170 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
                 sts = pmSetMode (PM_MODE_INTERP | PM_XTB_SET (PM_TIME_SEC), &start_timeval, t_step);
                 if (sts != 0) {
                     message << "cannot set time mode origin/delta";
-                    goto out;
+                    break;
                 }
 
                 pmSetMode_called_p = 1;
             }
 
-            int sts = pmFetch (1, pmidlist, &result);
+            // fetch all unique metrics
+            int sts = pmFetch (unique_pmids.size(), & unique_pmids[0], &result);
             if (sts >= 0) {
-                if (result->vset[0]->numval == 1) {
-                    pmAtomValue value;
-                    sts = pmExtractValue (result->vset[0]->valfmt,
-                                          &result->vset[0]->vlist[0],	// we know: one pmid, one instance
-                                          pmd.type, &value, PM_TYPE_FLOAT);
-                    if (sts == 0) {
-                        x.when = result->timestamp;	// should generally match iteration_time
-                        x.what = value.f;
-                        entries_good++;
-                    }
+                if (verbosity > 4) {
+                    message << "@" << result->timestamp.tv_sec
+                            << result->vset[0]->numval << " ";
                 }
+
+                assert ((size_t)result->numpmid == unique_pmids.size()); // PMAPI guarantee?
+
+                // search them all for matching pmid/inst tuples
+                for (unsigned i=0; i<spec->targets.size(); i++) {
+
+                    timestamped_float x;
+                    x.when.tv_sec = iteration_time;
+                    x.when.tv_usec = 0;
+                    x.what = nanf ("");	// initialize to a NaN
+
+                    for (unsigned j=0; j<unique_pmids.size(); j++) { // for indexing over result->vset
+                        if (result->vset[j]->pmid != pmids[i])
+                            continue;
+
+                        for (int k=0; k<result->vset[j]->numval; k++) {
+                            if (result->vset[j]->vlist[k].inst != pminsts[i])
+                                continue;
+
+                            // yey, found our (pmid,inst) value!!
+
+                            pmAtomValue value;
+                            sts = pmExtractValue (result->vset[j]->valfmt,
+                                                  &result->vset[j]->vlist[k],	// we know: one pmid, one instance
+                                                  pmdescs[i].type, &value, PM_TYPE_FLOAT);
+                            if (sts == 0) {
+                                x.when = result->timestamp;	// should generally match iteration_time
+                                x.what = value.f;
+                                entries_good++;
+                            }
+
+                            // overwrite the pre-prepared NaN with our genuine value
+                            (*spec->outputs[i])[entries] = x;
+
+                            j = unique_pmids.size(); // arrange to exit the valuesets iteration too
+                            break;
+                        } // search over instances
+                    } // search over valuesets
+
+                } // done iterating over all targets
 
                 pmFreeResult (result);
             }
         }
+    } // iterate over time
 
-        output.push_back (x);
-    }
-
+    // -------------------- PART 4 - rate-conversion post-processing
     // Rate conversion for COUNTER semantics values; perhaps should be a libpcp feature.
     // XXX: make this optional
-    if (pmd.sem == PM_SEM_COUNTER && output.size () > 0) {
-        // go backward, so we can do the calculation in one pass
-        for (unsigned i = output.size () - 1; i > 0; i--) {
-            float this_value = output[i].what;
-            float last_value = output[i - 1].what;
 
-            if (exit_p) {
-                break;
+    for (unsigned i=0; i<spec->targets.size(); i++) {
+        if (pmids[i] == 0)
+            continue;
+
+        vector<timestamped_float>& output = *spec->outputs[i];
+        pmDesc pmd = pmdescs[i];
+
+        if (pmd.sem == PM_SEM_COUNTER && output.size () > 0) {
+            // go backward, so we can do the calculation in one pass
+            for (unsigned i = output.size () - 1; i > 0; i--) {
+                float this_value = output[i].what;
+                float last_value = output[i - 1].what;
+
+                if (exit_p) {
+                    break;
+                }
+
+                if (this_value < last_value) { // suspected counter overflow
+                    output[i].what = nanf ("");
+                    continue;
+                }
+
+                // truncate time at seconds; we can't accurately subtract two large integers
+                // when represented as floating point anyways
+                time_t this_time = output[i].when.tv_sec;
+                time_t last_time = output[i - 1].when.tv_sec;
+                time_t delta = this_time - last_time;
+                if (delta == 0) {
+                    delta = 1;    // some token protection against div-by-zero
+                }
+
+                if (pmgraphite_isnanf (last_value) || pmgraphite_isnanf (this_value)) {
+                    output[i].what = nanf ("");
+                } else {
+                    // avoid loss of significance risk of naively calculating
+                    // (double)(this_v-last_v)/(double)(this_t-last_t)
+                    output[i].what = (this_value / delta) - (last_value / delta);
+                }
             }
 
-            if (this_value < last_value) { // suspected counter overflow
-                output[i].what = nanf ("");
-                continue;
-            }
-
-            // truncate time at seconds; we can't accurately subtract two large integers
-            // when represented as floating point anyways
-            time_t this_time = output[i].when.tv_sec;
-            time_t last_time = output[i - 1].when.tv_sec;
-            time_t delta = this_time - last_time;
-            if (delta == 0) {
-                delta = 1;    // some token protection against div-by-zero
-            }
-
-            if (pmgraphite_isnanf (last_value) || pmgraphite_isnanf (this_value)) {
-                output[i].what = nanf ("");
-            } else {
-                // avoid loss of significance risk of naively calculating
-                // (double)(this_v-last_v)/(double)(this_t-last_t)
-                output[i].what = (this_value / delta) - (last_value / delta);
-            }
+            // we have nothing to rate-convert the first value to, so we nuke it
+            output[0].what = nanf ("");
         }
-
-        // we have nothing to rate-convert the first value to, so we nuke it
-        output[0].what = nanf ("");
     }
 
-    if ((verbosity) == 3 && (entries_good == 0)) {
-         // drop the "opened archive ...," partial message
-        message.str(string());
-        message.clear();
-    } else if ((verbosity > 3) || (verbosity > 2 && entries_good > 0)) {
-        string instance_spec;
-        if (instance_name != "") {
-            instance_spec = string ("[\"") + instance_name + string ("\"]");
-        }
-        message << "metric " << metric_name << instance_spec;
-        message << ", " << entries_good << "/" << entries << " values";
+    if ((verbosity > 3) || (verbosity > 2 && entries_good > 0)) {
+        message << spec->targets.size() << " targets(s) (" << pmids_set.size() << " unique metrics)";
+        message << ", " << entries_good << "/" << entries*spec->targets.size() << " values";
     }
 
-    // Done!
-
-out:
+ out:
     pmDestroyContext (pmc);
-out0:
+ out0:
     // vector output already returned via jobspec pointer
-    // pass back message
-    spec->message = message.str ();
+
+    spec->message = message.str (); // pass back message
+    // ... but prefix it with archive name
+    if (spec->message.size() > 0 && // have -some- message
+        (entries_good == 0 || verbosity > 2)) // big fetch error or verbosity
+        spec->message = archive + ": " + spec->message;
 }
 
 
 
 // A parallelizable version of the above.
 
-vector<vector <timestamped_float> >
-                                pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<string>& targets,
-                                        time_t t_start, time_t t_end, time_t t_step)
+void
+pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<string>& targets,
+                             vector<vector <timestamped_float> >& outputs,
+                             time_t t_start, time_t t_end, time_t t_step)
 {
-    // XXX: peephole optimize: for fetches of different metrics/instances
-    // from the same archive, it could be faster to have one thread fetch
-    // them all in one pmFetch list.
-
-    // prepare a jobqueue
-    fetch_series_jobqueue<fetch_series_jobspec> q (& pmgraphite_fetch_series);
-
+    // create some jobspecs, one per archive
+    outputs.resize(targets.size()); // with many little empty vectors inside
+    map <string, fetch_series_jobspec> jobmap;
     for (unsigned i = 0; i < targets.size (); i++) {
-        // ensure we have enough output rows
-        fetch_series_jobspec js;
-        js.target = targets[i];
-        js.t_start = t_start;
-        js.t_end = t_end;
-        js.t_step = t_step;
-        q.jobs.push_back (js);
+        const string& target = targets[i];
+        vector <string> target_tok = split (target, '.');
+        if (target_tok.size () < 2)
+            continue;
+        string archive_part = pmgraphite_metric_decode (target_tok[0]);
+        if (archive_part == "")
+            continue;
+
+        map<string,fetch_series_jobspec>::iterator it = jobmap.find(archive_part);
+        if (it == jobmap.end()) {
+            fetch_series_jobspec js;
+            js.t_start = t_start;
+            js.t_end = t_end;
+            js.t_step = t_step;
+            js.archive = archive_part;
+            it = jobmap.insert(make_pair(archive_part,js)).first;
+        }
+
+        it->second.targets.push_back (target);
+        it->second.outputs.push_back (& outputs[i]);
     }
+
+    // copy into a jobqueue vector (since the execution loop wants a vector)
+    fetch_series_jobqueue<fetch_series_jobspec> q (& pmgraphite_fetch_series);
+    for (map<string,fetch_series_jobspec>::iterator it = jobmap.begin(); it != jobmap.end(); it++)
+        q.jobs.push_back(it->second);
 
     // it's ready to go
     struct timeval start;
@@ -1075,11 +1183,10 @@ vector<vector <timestamped_float> >
     q.run ();
     struct timeval finish;
     (void) gettimeofday (&finish, NULL);
+    // ... aaaand it's gone
 
-    // propagate any output, messages
-    vector <vector <timestamped_float> > all_outputs;
+    // propagate any messages
     for (unsigned i = 0; i < q.jobs.size (); i++) {
-        all_outputs.push_back (q.jobs[i].output);
         const string& message = q.jobs[i].message;
         if (message != "") {
             connstamp (clog, connection) << message << endl;
@@ -1094,8 +1201,7 @@ vector<vector <timestamped_float> >
                                      << endl;
     }
 
-    assert (all_outputs.size () == targets.size ());
-    return all_outputs;
+    assert (outputs.size () == targets.size ());
 }
 
 
@@ -1218,17 +1324,23 @@ pmgraphite_gather_data (struct MHD_Connection *connection,
     t_start = pmgraphite_parse_timespec (connection, from);
     t_end = pmgraphite_parse_timespec (connection, until);
 
-    // We could hard-code t_step = 60 as in the /rawdata case, since that is the
-    // typical sampling rate for graphite as well as pcp.  But maybe a graphite
-    // webapp (grafana) can't handle as many as that.
+    // sanity-check time interval
+    if (t_start >= t_end) {
+        return -EINVAL;
+    }
+
+    // Compute t_step.  Because we calculate with integers, the
+    // minimum is 1.  The practical minimum is something dependent on
+    // the archive's sampling rate for this particular metric, since
+    // supersampling wastes CPU.
     int maxdatapt = atoi (params["maxDataPoints"].c_str ());	// ignore failures
     if (maxdatapt <= 0) {
         maxdatapt = 1024;		// a sensible upper limit?
     }
 
-    t_step = 60;		// a default, but ...
+    t_step = graphite_timestep;
+    // make it larger if needed; maxdatapt governs
     if (((t_end - t_start) / t_step) > maxdatapt) {
-        // make it larger if needed
         t_step = ((t_end - t_start) / maxdatapt) + 1;
     }
 
@@ -1730,7 +1842,11 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     cairo_restore (cr);
 
     // Gather up all the data.  We need several passes over it, so gather it into a vector<vector<> >.
-    all_results = pmgraphite_fetch_all_series (connection, targets, t_start, t_end, t_step);
+    (void) pmgraphite_fetch_all_series (connection, targets, all_results, t_start, t_end, t_step);
+
+    if (exit_p) {
+        return MHD_NO;
+    }
 
     // Compute vertical bounds.
     float ymin;
@@ -1881,12 +1997,15 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
             for (unsigned k=0; k<all_results.size (); k++) {
                 const vector<timestamped_float>& f2 = all_results[k];
-                if (i == k) {
+                if (i == k) // same time series?
                     continue;
-                }
-                if (pmgraphite_isnand (f2[j].what)) {
+
+                if (f2.size() <= j) // small vector due to fetch errors?
                     continue;
-                }
+
+                if (pmgraphite_isnand (f2[j].what)) // missing data item?
+                    continue;
+
                 assert (f2[j].when.tv_sec == f[j].when.tv_sec);
                 float delta = f2[j].what - f[j].what;
                 float reldelta = fabs (delta / (ymax - ymin)); // compare delta to height of graph
@@ -1937,7 +2056,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             }
             notcairo_parse_color (fgcolor, r, g, b);
             cairo_set_source_rgb (cr, r, g, b);
-            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
             cairo_set_font_size (cr, spacing);
             cairo_move_to (cr, leftedge + spacing*1.5, baseline);
             cairo_show_text (cr, name.c_str ());
@@ -1948,7 +2067,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             if (graphyhigh > baseline) {
                 graphyhigh = baseline - spacing;
             }
-            if (graphyhigh < height*0.5) { // forget it, too many
+            if (graphyhigh < height*0.6) { // forget it, don't go beyond 40%
                 break;
             }
         }
@@ -1989,7 +2108,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
             string lstr = label.str ();
             cairo_text_extents_t ext;
             cairo_save (cr);
-            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+            cairo_select_font_face (cr, "sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
             cairo_set_font_size (cr, 8.0);
             string fgcolor = params["fgcolor"];
             if (fgcolor == "") {
@@ -2228,9 +2347,8 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
         return mhd_notify_error (connection, rc);
     }
 
-    vector <vector <timestamped_float> > all_results = pmgraphite_fetch_all_series (connection, targets,
-                                     t_start,
-                                     t_end, t_step);
+    vector <vector <timestamped_float> > all_results;
+    pmgraphite_fetch_all_series (connection, targets, all_results, t_start, t_end, t_step);
 
     stringstream output;
     output << "[";

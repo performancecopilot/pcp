@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2008 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat Inc.
 #
 # Author: Scott Emery <emery@sgi.com> 
 #
@@ -45,7 +46,7 @@ default: build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me:	domain.h $(TARGETS)
+build-me:	$(TARGETS)
 
 install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
@@ -62,6 +63,8 @@ endif
 default_pcp: default
 
 install_pcp: install
+
+$(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

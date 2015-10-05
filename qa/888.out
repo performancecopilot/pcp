@@ -1,0 +1,16 @@
+QA output created by 888
+
+ipc.shm.tot
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+    value 36864
+
+ipc.shm.rss
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+    value 409600
+
+ipc.shm.swp
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+    value 36864000

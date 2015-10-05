@@ -1,19 +1,18 @@
 /*
  * Copyright (c) 1997 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
  */
-
-#ifndef _PMAFM_H
-#define _PMAFM_H
+#ifndef PCP_PMAFM_H
+#define PCP_PMAFM_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,7 +27,7 @@ extern "C" {
 #define PM_REC_STATUS	44
 #define PM_REC_SETARG	45
 
-typedef struct {
+typedef struct pmRecordHost {
     FILE	*f_config;	/* caller writes pmlogger configuration here */
     int		fd_ipc;		/* IPC channel to pmlogger */
     char	*logfile;	/* full pathname for pmlogger error logfile */
@@ -44,4 +43,4 @@ extern int pmRecordControl(pmRecordHost *, int, const char *);
 }
 #endif
 
-#endif	/* _PMAFM_H */
+#endif	/* PCP_PMAFM_H */

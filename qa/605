@@ -12,7 +12,6 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
-. ./localconfig
 
 rm -f $seq.out
 if [ $PCP_VER -lt 20200 ]; then

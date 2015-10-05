@@ -1,3 +1,4 @@
+'\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
@@ -20,18 +21,24 @@
 .\" arguments use .I or \f2
 .SH SYNOPSIS
 .B pmcpp
+[\f3\-Prs\f1]
 [\f3\-D\f1 \f2name\f1[=\f2value\f1] ...]
+[\f3\-I\f1 \f2dir\f1 ...]
 [\f2infile\f1]
 .SH DESCRIPTION
 .B pmcpp
-provides a very simple pre-processor for manipulating Performance
+provides a very simple pre-processor originally designed for manipulating Performance
 Metric Name Space (PMNS) files for the
-Performance Co-Pilot (PCP).  It is most commonly used internally
+Performance Co-Pilot (PCP), but later generalized to provide conditional
+blocks, include file processing, in-line shell command execution
+and macro substitution for arbitrary files.
+It is most commonly used internally
 to process the PMNS file(s) after
 .BR pmLoadNameSpace (3)
 or
 .BR pmLoadASCIINameSpace (3)
-is called.
+is called and to pre-process the configuration files for
+.BR pmlogger (1).
 .PP
 Input lines are read from
 .I infile
@@ -57,7 +64,7 @@ directive.
 .B pmcpp
 accepts the following directives in the input stream (like
 .BR cpp (1)):
-.IP * 3n
+.IP \(bu 3n
 \fB#include "\fIfilename\fB"\fR
 .br
 or
@@ -71,30 +78,70 @@ tries
 first, then the directory for the command line
 .I infile
 (if any),
-followed by the
+followed by any directories named in
+.B \-I
+command line arguments, and finally the
 .B $PCP_VAR_DIR/pmns
-directory.
+directory (the latter is for backwards compatibility with
+earlier versions of
+.B pmcpp
+and the implied used from
+.BR pmLoadASCIINameSpace (3)).
 .B #include
 directives may be nested, up to a maximum depth of 5.
-.IP * 3n
+.IP \(bu 3n
+\fB#shell "\fIcommand\fB"\fR
+.br
+or
+.br
+\fB#shell '\fIcommand\fB'
+.br
+The shell
+.I command
+will be executed and the standard output is inserted into the
+stream of data to be processed by
+.BR pmcpp .
+Functionally this is similar to a
+.B #include
+directive, except input lines are read from a
+.I command
+rather than a file.
+The
+.B #shell
+directive is most useful for including or excluding
+.B #define
+or
+.B #undef
+directives based on run-time logic in the
+.IR command .
+.IP \(bu 3n
 \fB#define \fIname value\fR
+.br
+or
+.br
+\fB#define \fIname \fB"\fIvalue\fB"\fR
+.br
+or
+.br
+\fB#define \fIname \fB'\fIvalue\fB'\fR
 .br
 Defines a value for the macro
 .I name
-which must be a valid C-style name, so leading alphabetic or ``_'' followed by
-zero or more alphanumerics or ``_''.
+which must be a valid C-style name, so leading alphabetic or underscore
+followed by
+zero or more alphanumerics or underscores.
 .I value
-is optional (and defaults to an empty value) but when present it may
-.B not
-contain white space and quoting or escaping is
-.B not
-supported.
-.IP * 3n
+is optional (and defaults to an empty string).
+There is no character escape mechanism, but either single quotes or
+double quotes may be used to define a
+.I value
+with special characters or embedded horizontal white space (no newlines).
+.IP \(bu 3n
 \fB#undef \fIname\fR
 .br
 Removes the macro definition, if any, for
 .IR name .
-.IP * 3n
+.IP \(bu 3n
 \fB#ifdef \fIname\fR
 .br
 \&...
@@ -113,11 +160,21 @@ The enclosing lines will be stripped or included, depending if the
 macro
 .I name
 is defined or not.
+.IP \(bu 3n
+\fB#else\fR
+.br
+Within a
+.B #ifdef
+or
+.B #ifndef
+block,
+.B #else
+may be used to delimit lines to be included if the preceding ``if'' condition
+is false.
 .PP
 Macro substitution is achieved by breaking the input stream into words
-separated by white space or one of the characters ``.'' or ``:''
-\- this matches the syntax of the PMNS, see
-.BR pmns (5).
+separated by white space or characters that are not valid in a macro
+name, i.e. not alphanumeric and not underscore.
 Each word is checked and if it matches a macro name, the word is
 replaced by the macro value, otherwise the word is unchanged.
 .PP
@@ -127,14 +184,60 @@ comments or conditional directives.  When there is a change in the input
 stream, an additional output line is generated of the form:
 .PP
 .ti +10n
-# line "name"
+# lineno "filename"
 .PP
 to indicate the 
 .I following
 line of output corresponds to line number
-.I line
+.I lineno
 of the input file
-.IR name .
+.IR filename .
+.PP
+The
+.B \-P
+argument suppresses the generation of these linemarker lines.
+.PP
+The
+.B \-s
+argument changes the expected input style from C-like to shell-like
+(where # is a comment prefix).  This forces the following changes
+in
+.B pmcpp
+behaviour:
+.PD 0
+.IP \(bu 3n
+The control prefix character changes from
+.B #
+to
+.BR % ,
+so 
+.B %include
+for example.
+.IP \(bu 3n
+No comment stripping is performed.
+.PD
+.PP
+To provide finer control of macro expansion, the
+.B \-r
+option restricts macro substitution to words that match the patterns
+.BR # name
+or
+.BR #{ name }
+or if
+.B \-s
+is specified, then
+.BR % name
+or
+.BR %{ name } .
+In this mode, the macro
+.I name
+alone in the input stream will never be expanded, however in control
+lines (like
+.BR #ifdef )
+the macro
+.I name
+should appear alone with out the prefix character or the
+curly braces (refer to the EXAMPLES below).
 .PP
 Important
 .BR cpp (1)
@@ -143,36 +246,122 @@ features that are
 supported by
 .B pmcpp
 include:
-.IP * 3n
+.PD 0
+.IP \(bu 3n
+Macros with parameters \- the
+.B pmcpp
+macros support only parameterless string substitution.
+.IP \(bu 3n
 \fB#if \fIexpr\fR
 .br
 \&...
 .br
 \fB#endif\fR
-.IP * 3n
+.IP \(bu 3n
 Nested use of
 .B #ifdef
 or
 .BR #ifndef .
-.IP * 3n
-.B #else
-within an
-.B #ifdef
-or
-.BR #ifndef .
-.IP * 3n
-Stripping C++ style comments, as in // comment
-.IP * 3n
+.IP \(bu 3n
+Stripping C++ style comments, as in // comment.
+.IP \(bu 3n
 Error recovery - the first error encountered by
 .B pmcpp
 will be fatal.
-.IP * 3n
+.IP \(bu 3n
 .BR cpp (1)
 command line options like
-.B \-U ,
-.B \-P
+.BR \-o ,
+.BR \-W ,
+.BR \-U ,
 and
-.BR \-I .
+.BR \-x .
+.PD
+.SH EXAMPLES
+.\" man.1.in from src dir
+.TS
+box;
+lR s
+lB | lB
+lf(CW) | lf(CW).
+Command: \fBpmcpp\fP
+_
+Input	Output
+_
+	# 1 "<stdin>"
+#define MYDOMAIN 27	
+	
+root {	root {
+    foo   MYDOMAIN:0:0	   foo   27:0:0
+}	}
+.TE
+.PP
+For the following examples, the file
+.I frequencies
+contains the lines:
+.nf
+.ft CW
+.in +8n
+%define dk_freq 1minute
+%define cpu_freq '15 sec'
+.in
+.ft
+.fi
+.PP
+.\" man.2.in from src dir
+.TS
+box;
+lR s
+lB | lB
+lf(CW) | lf(CW).
+Command: \fBpmcpp -rs\fP
+_
+Input	Output
+_
+# get logging frequencies	# get logging frequencies
+# e.g. dk_freq macro	# e.g. dk_freq macro
+%include "frequencies"
+
+log mandatory on %dk_freq {	log mandatory on 1minute {
+    disk.dev	   disk.dev
+}	}
+
+# note no % for want_cpu here	# note no % for want_cpu here
+%ifdef want_cpu
+%define cpu_pfx 'kernel.all.cpu.'
+log mandatory on %cpu_freq {
+    %{cpu_pfx}user
+    %{cpu_pfx}sys
+}
+%endif
+.TE
+.PP
+.TS
+box;
+lR s
+lB | lB
+lf(CW) | lf(CW).
+Command: \fBpmcpp -rs -Dwant_cpu\fP
+_
+Input	Output
+_
+# get logging frequencies	# get logging frequencies
+# e.g. dk_freq macro	# e.g. dk_freq macro
+%include "frequencies"
+
+log mandatory on %dk_freq {	log mandatory on 1minute {
+    disk.dev	   disk.dev
+}	}
+
+# note no % for want_cpu here	# note no % for want_cpu here
+%ifdef want_cpu
+%define cpu_pfx 'kernel.all.cpu.'
+log mandatory on %cpu_freq {	log mandatory on 15 sec {
+    %{cpu_pfx}user	   kernel.all.cpu.user
+    %{cpu_pfx}sys	   kernel.all.cpu.sys
+}	}
+%endif
+.TE
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

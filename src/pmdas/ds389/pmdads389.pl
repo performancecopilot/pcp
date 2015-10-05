@@ -18,21 +18,21 @@ use PCP::PMDA;
 use Net::LDAP;
 use POSIX;
 
-my $server = 'localhost';
-my $binddn = 'cn=Directory Manager';
-my $bindpw = 'Manager12';
-my $scope  = 'base';
-my $cnbase = 'cn=monitor';
-my $urbase = 'cn=monitor,cn=userRoot,cn=ldbm database,cn=plugins,cn=config';
-my $filter = '(objectclass=*)';
-my $query_interval = 2; # seconds
-
-use vars qw( $ldap $pmda %metrics );
+our $server = 'localhost';
+our $binddn = 'cn=Directory Manager';
+our $bindpw = 'Manager12';
+our $scope  = 'base';
+our $cnbase = 'cn=monitor';
+our $urbase = 'cn=monitor,cn=userRoot,cn=ldbm database,cn=plugins,cn=config';
+our $filter = '(objectclass=*)';
+our $query_interval = 2; # seconds
 
 # Configuration files for overriding the above settings
 for my $file (pmda_config('PCP_PMDAS_DIR') . '/ds389/ds389.conf', './ds389.conf') {
 	eval `cat $file` unless ! -f $file;
 }
+
+use vars qw( $ldap $pmda %metrics );
 
 # Timestamps
 my $ts_cn = 0;
@@ -40,13 +40,18 @@ my $ts_ur = 0;
 
 sub ds389_connection_setup {
 	if (!defined($ldap)) {
+		$pmda->log("binding to $server");
 		$ldap = Net::LDAP->new($server);
-		return if (!defined($ldap));
+		if (!defined($ldap)) {
+			$pmda->log("bind failed, server down?");
+			return;
+		}
 		my $mesg = $ldap->bind($binddn, password => $bindpw);
 		if ($mesg->code) {
 			$pmda->log("bind failed: " . $mesg->error);
-			die;
+			return;
 		}
+		$pmda->log("bind to $server ok");
 	}
 }
 
@@ -99,6 +104,7 @@ sub ds389_fetch {
 			$mesg = $ldap->search(scope => $scope, base => $cnbase, filter => $filter);
 			if ($mesg->code) {
 				$pmda->log("search failed: " . $mesg->error);
+				undef $ldap;
 				return;
 			}
 			ds389_process_entry($mesg->entry, 'cn.', 0);
@@ -112,6 +118,7 @@ sub ds389_fetch {
 			$mesg = $ldap->search(scope => $scope, base => $urbase, filter => $filter);
 			if ($mesg->code) {
 				$pmda->log("search failed: " . $mesg->error);
+				undef $ldap;
 				return;
 			}
 			ds389_process_entry($mesg->entry, 'userroot.', 1);
@@ -176,7 +183,7 @@ $pmda->add_metric(pmda_pmid(0,11), PM_TYPE_U32, PM_INDOM_NULL,
 
 # cn=monitor,cn=userRoot,cn=ldbm database,cn=plugins,cn=config
 $pmda->add_metric(pmda_pmid(1,0), PM_TYPE_U32, PM_INDOM_NULL,
-		PM_SEM_DISCRETE, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		'ds389.userroot.readonly', '', '');
 $pmda->add_metric(pmda_pmid(1,1), PM_TYPE_U64, PM_INDOM_NULL,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
@@ -197,7 +204,7 @@ $pmda->add_metric(pmda_pmid(1,6), PM_TYPE_U32, PM_INDOM_NULL,
 		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		'ds389.userroot.currententrycachecount', '', '');
 $pmda->add_metric(pmda_pmid(1,7), PM_TYPE_32, PM_INDOM_NULL,
-		PM_SEM_DISCRETE, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		'ds389.userroot.maxentrycachecount', '', '');
 $pmda->add_metric(pmda_pmid(1,8), PM_TYPE_U64, PM_INDOM_NULL,
 		PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
@@ -218,8 +225,29 @@ $pmda->add_metric(pmda_pmid(1,13), PM_TYPE_U32, PM_INDOM_NULL,
 		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		'ds389.userroot.currentdncachecount', '', '');
 $pmda->add_metric(pmda_pmid(1,14), PM_TYPE_32, PM_INDOM_NULL,
-		PM_SEM_DISCRETE, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		'ds389.userroot.maxdncachecount', '', '');
+$pmda->add_metric(pmda_pmid(1,15), PM_TYPE_32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'ds389.userroot.normalizeddncachehits', '', '');
+$pmda->add_metric(pmda_pmid(1,16), PM_TYPE_32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'ds389.userroot.normalizeddncachetries', '', '');
+$pmda->add_metric(pmda_pmid(1,17), PM_TYPE_32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'ds389.userroot.normalizeddncachehitratio', '', '');
+$pmda->add_metric(pmda_pmid(1,18), PM_TYPE_32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		'ds389.userroot.currentnormalizeddncachesize', '', '');
+$pmda->add_metric(pmda_pmid(1,19), PM_TYPE_32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
+		'ds389.userroot.maxnormalizeddncachesize', '', '');
+$pmda->add_metric(pmda_pmid(1,20), PM_TYPE_32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'ds389.userroot.currentnormalizeddncachecount', '', '');
+$pmda->add_metric(pmda_pmid(1,21), PM_TYPE_32, PM_INDOM_NULL,
+		PM_SEM_INSTANT, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		'ds389.userroot.normalizeddncachemisses', '', '');
 
 $pmda->set_refresh(\&ds389_fetch);
 $pmda->set_fetch_callback(\&ds389_fetch_callback);

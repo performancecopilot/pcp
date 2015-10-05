@@ -147,8 +147,6 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === CHECKING SUBTREE: swap
 
 === std out ===
-swap.in: Metric not supported by this version of monitored application
-swap.out: Metric not supported by this version of monitored application
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector

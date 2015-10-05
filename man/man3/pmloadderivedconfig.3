@@ -15,19 +15,42 @@
 .\"
 .TH PMLOADDERIVEDCONFIG 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3pmLoadDerivedConfig\f1 \- load derived metric definitions from a file
+\f3pmLoadDerivedConfig\f1 \- load derived metric definitions from files
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-int pmLoadDerivedConfig(char *\fIfname\fP);
+int pmLoadDerivedConfig(char *\fIpath\fP);
 .sp
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 .PP
-Each line of the file
-.I fname
+Derived metrics may be used to extend the available metrics with
+new (derived) metrics using simple arithmetic expressions.
+The definitions of these metrics can be persisted and loaded
+programatically by monitor tools using
+.BR pmLoadDerivedConfig .
+.PP
+The
+.I path
+parameter defines a colon separated list of files and/or
+directories (the syntax is the same as for the
+.B $PATH
+variable for
+.BR sh (1)),
+from which derived metric specifications are to be sourced.
+The
+.I path
+components are expanded into a list of files as follows: if a component
+is a file, then that file is added to the list, else if a component
+is a directory then recursive descent is used to enumerate all
+files below that directory and these are added to the list.
+Each file in the resulting list is parsed in order, and according to
+the derived metrics syntax described below.
+.PP
+Each line of the file(s) identified by
+.I path
 is either a comment line (with a ``#'' in the first position of the line)
 or the declaration of a derived performance metric, specified as:
 .IP * 2n
@@ -50,8 +73,8 @@ is called to register the new derived metric.
 .PP
 The result from
 .B pmLoadDerivedConfig
-will be the number of derived metrics loaded from
-.I fname
+will be the number of derived metrics loaded from files on the given
+.IR path ,
 else a value less than zero in the case of an error.
 .SH EXAMPLE
 .nf
@@ -62,7 +85,9 @@ disk.dev.read_pct = 100 * delta(disk.dev.read) /
             (delta(disk.dev.read) + delta(disk.dev.write))
 .fi
 .SH SEE ALSO
+.BR sh (1),
 .BR PCPIntro (1),
-.BR PMAPI (3)
+.BR PMAPI (3),
+.BR pmRegisterDerived (3)
 and
-.BR pmRegisterDerived (3).
+.BR pmns (5).

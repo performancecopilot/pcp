@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2014 Red Hat Inc.
+ * Copyright (c) 2011-2015 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,6 +36,10 @@ extern "C"
 #include <microhttpd.h>
 }
 
+#if !defined(MHD_SOCKET_DEFINED)
+typedef int MHD_socket;
+#endif
+
 /* ------------------------------------------------------------------------ */
 
 /* a subset of option flags that needs to be read by the other modules */
@@ -47,7 +51,8 @@ extern unsigned new_contexts_p;		/* cleared by -N option */
 extern unsigned exit_p;			/* counted by SIG* handler */
 extern unsigned maxtimeout;			/* set by -t option */
 extern unsigned multithread;			/* set by -M option */
-
+extern unsigned graphite_timestep;              /* set by -i option */
+extern unsigned graphite_archivedir;            /* set by -I option */
 
 struct http_params: public std::multimap <std::string, std::string> {
     std::string operator [] (const std::string &) const;
@@ -77,10 +82,14 @@ extern int
 pmwebres_respond (struct MHD_Connection *connectio, const http_params &,
                   const std::string & url);
 
+#if defined(HAVE_GRAPHITE)
 // pmgraphite.cxx
 extern int
 pmgraphite_respond (struct MHD_Connection *connection, const http_params &,
                     const std::vector <std::string> &url);
+#else
+#define pmgraphite_respond(conn,params,url) mhd_notify_error(conn, -EOPNOTSUPP)
+#endif
 
 // util.cxx
 extern std::ostream & timestamp (std::ostream & o);

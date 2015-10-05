@@ -36,8 +36,7 @@ containers.name
     inst [N or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value "jolly_tesla"
 
 containers.pid
-    inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
-    inst [N or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value 0
+No value(s) available!
 
 containers.state.running
     inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
@@ -66,7 +65,6 @@ containers.name
     inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value "dreamy_elion"
 
 containers.pid
-    inst [N or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value 0
     inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value 32471
     inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 9579
 

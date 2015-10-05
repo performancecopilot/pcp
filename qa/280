@@ -27,6 +27,9 @@ _filter()
     PCP_PMLOGGERCONTROL_PATH=`dirname "$PCP_PMLOGGERCONTROL_PATH"`
     sed \
 	-e 's/\.\.\.*/[dots]/' \
+	-e 's/control.d\/.*:[0-9][0-9]*]/control:LINE]/' \
+	-e 's/control:[0-9][0-9]*]/control:LINE]/' \
+	-e 's/process [0-9][0-9]*/process PID/' \
 	-e 's;/usr/var;/var;g' \
 	-e "s/`hostname`/LOCALHOST/g" \
 	-e "s/$LOCALHOST/LOCALHOST/g" \
@@ -37,8 +40,6 @@ _filter()
 	-e "s;$LOGGING_DIR;\$PCP_LOG_DIR;" \
 	-e "s;$PCP_LOG_DIR;\$PCP_LOG_DIR;" \
 	-e "s;$PCP_PMLOGGERCONTROL_PATH;\$PCP_PMLOGGERCONTROL_PATH;" \
-	-e 's/control:[0-9][0-9]*]/control:LINE]/' \
-	-e 's/process [0-9][0-9]*/process PID/' \
 	-e 's/\.* done/. done/' \
 	-e 's/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]/CHECK/' \
 	-e 's/-rw-r--r--\./-rw-r--r--/' \
@@ -48,8 +49,7 @@ _filter()
 status=1	# failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 LOCALHOST=`hostname`
-[ $PCP_VER -lt 30806 ] && LOCALHOST=`echo $LOCALHOST | sed -e 's/\..*//'`
-trap "rm -f $tmp.* $LOGGING_DIR/$LOCALHOST/lock; exit \$status" 0 1 2 3 15
+trap "$sudo rm -f $tmp.* $LOGGING_DIR/$LOCALHOST/lock; exit \$status" 0 1 2 3 15
 
 rm -f $seq.full
 
@@ -70,7 +70,8 @@ echo 'connect primary' | pmlc
 
 echo
 echo "Expect this should do nothing ..." | tee -a $seq.full
-$sudo $PCP_BINADM_DIR/pmlogger_check -V 2>&1 | tee -a $seq.full | _filter
+$sudo $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log
+[ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
 pid=`_get_primary_logger_pid`
@@ -95,7 +96,8 @@ pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 sleep 10
 
 echo "Expect this to re-start the primary logger ..." | tee -a $seq.full
-$sudo $PCP_BINADM_DIR/pmlogger_check -V 2>&1 | tee -a $seq.full | _filter
+$sudo $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log
+$sudo cat $tmp.log | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
 pid=`_get_primary_logger_pid`
@@ -121,14 +123,15 @@ sleep 10
 
 echo
 echo "Expect this to quietly re-start the primary logger ..." | tee -a $seq.full
-$sudo $PCP_BINADM_DIR/pmlogger_check 2>&1 | tee -a $seq.full | _filter
+$sudo $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
+[ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq.full | _filter
 echo 'connect primary' | pmlc
 
 echo
 echo "Expect this to get a mutex failure ..." | tee -a $seq.full
 $sudo touch $LOGGING_DIR/$LOCALHOST/lock
-$sudo $PCP_BINADM_DIR/pmlogger_check 2>&1 \
-| tee -a $seq.full | _filter \
+$sudo $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
+$sudo cat $tmp.log | tee -a $seq.full | _filter \
 | $PCP_AWK_PROG '
 /-r.-r.-r.-/	{ $3 = "USER"; $4 = "GROUP"; $6 = "Mmm"; $7 = "D"; $8 = "YYYY" }
 		{ print }'
@@ -137,8 +140,8 @@ echo
 echo "Expect this to cleanup an old lock file ..." | tee -a $seq.full
 $sudo rm -f $LOGGING_DIR/$LOCALHOST/lock
 $sudo touch -t 199701020304.00 $LOGGING_DIR/$LOCALHOST/lock
-$sudo $PCP_BINADM_DIR/pmlogger_check 2>&1 \
-| tee -a $seq.full | _filter \
+$sudo $PCP_BINADM_DIR/pmlogger_check -l $tmp.log
+$sudo cat $tmp.log | tee -a $seq.full | _filter \
 | $PCP_AWK_PROG '
 /-r.-r.-r.-/	{ $3 = "USER"; $4 = "GROUP" }
 		{ print }'

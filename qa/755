@@ -4,7 +4,7 @@
 # mechanism by which a PMDA can be installed with no pmcd
 # process running.
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014-2015 Red Hat.
 #
 
 seq=`basename $0`
@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+
+[ -f $PCP_PMDAS_DIR/apache/pmdaapache ] || _notrun "apache pmda not installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

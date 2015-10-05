@@ -392,7 +392,7 @@ main(int argc, char *argv[])
 	printf("Log Label (Log Format Version %d)\n", golden.ill_magic & 0xff);
 	printf("Performance metrics from host %s\n", golden.ill_hostname);
 
-	ddmm = pmCtime(&t, buffer);
+	ddmm = pmCtime((const time_t *)&t, buffer);
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("  commencing %s ", ddmm);
@@ -405,7 +405,7 @@ main(int argc, char *argv[])
 	else if (__pmGetArchiveEnd(&logctl, &tv) < 0)
 	    printf("  ending     UNKNOWN\n");
 	else {
-	    ddmm = pmCtime(&tv.tv_sec, buffer);
+	    ddmm = pmCtime((const time_t *)&tv.tv_sec, buffer);
 	    ddmm[10] = '\0';
 	    yr = &ddmm[20];
 	    printf("  ending     %s ", ddmm);

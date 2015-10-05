@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat Inc.
+# Copyright (c) 2012-2015 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -36,7 +36,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(PMDA_SYSTEMD)" "true"
-build-me: domain.h $(CMDTARGET)
+build-me: $(CMDTARGET)
 
 install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
@@ -50,10 +50,7 @@ build-me:
 install:
 endif
 
-systemd.o: domain.h
-
-.NOTPARALLEL:
-.ORDER:	domain.h $(OBJECTS)
+$(OBJECTS): domain.h
 
 default_pcp : default
 
