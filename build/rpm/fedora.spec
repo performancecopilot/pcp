@@ -617,6 +617,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for ActiveMQ
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(LWP::UserAgent)
 
 %description pmda-activemq
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
