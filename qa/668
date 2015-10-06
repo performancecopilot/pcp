@@ -126,10 +126,10 @@ else
     echo "not enough .meta files $num" | tee -a $seq.full
 fi
 num=`ls $tmp.dir/$hostname--*/config.pmie 2>/dev/null | wc -l`
-if [ "$num" -eq 0 ]; then
-    echo "no config.pmie files" | tee -a $seq.full
+if [ "$num" -ge 3 ]; then
+    echo "enough config.pmie files" | tee -a $seq.full
 else
-    echo "too many config.pmie files $num" | tee -a $seq.full
+    echo "not enough config.pmie files $num" | tee -a $seq.full
 fi
 
 date >>$seq.full
