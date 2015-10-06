@@ -14,12 +14,11 @@
 #
 """ Relay PCP metrics to a graphite server """
 
+import re
 import sys
 import time
 
-
 from pcp import pmapi
-from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_DOUBLE
 import cpmapi as c_api
 
 class GraphiteRelay(object):
@@ -153,12 +152,12 @@ network.""")
 
         # reject non-numeric types (future pmExtractValue failure)
         types = desc.contents.type
-        if not ((types == PM_TYPE_32) or
-                (types == PM_TYPE_U32) or
-                (types == PM_TYPE_64) or
-                (types == PM_TYPE_U64) or
+        if not ((types == c_api.PM_TYPE_32) or
+                (types == c_api.PM_TYPE_U32) or
+                (types == c_api.PM_TYPE_64) or
+                (types == c_api.PM_TYPE_U64) or
                 (types == c_api.PM_TYPE_FLOAT) or
-                (types == PM_TYPE_DOUBLE)):
+                (types == c_api.PM_TYPE_DOUBLE)):
             sys.stderr.write("Excluding metric %s (need numeric type)\n" % name)
             return
 
@@ -222,7 +221,6 @@ network.""")
     def sanitize_nameindom(self,str):
         """ Quote the given instance-domain string for proper digestion
         by carbon/graphite. """
-        import re
         return "_" + re.sub('[^a-zA-Z_0-9-]','_', str)
 
     def execute(self):
