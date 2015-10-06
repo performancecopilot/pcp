@@ -1,5 +1,5 @@
 #! /bin/sh
-# PCP QA Test No. 666
+# PCP QA Test No. 668
 # checks container-related pmmgr functionality
 #
 # Copyright (c) 2015 Red Hat, Inc.
@@ -11,6 +11,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+
+_check_containers
 
 which pmmgr >/dev/null 2>&1 || _notrun "No pmmgr binary installed"
 echo pmmgr ok
