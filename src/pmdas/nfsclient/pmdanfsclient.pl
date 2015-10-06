@@ -419,10 +419,9 @@ sub nfsclient_fetch_callback {
 
 	# check if we have no values for this NFS version
 	$value = $lookup->{$pmid_name};
-	return ($value, 0) unless ($value != $noval);
+	return ($value, 0) unless ($value ne $noval);
 
 	return ($lookup->{$pmid_name}, 1);
-
 }
 
 # the PCP::PMDA->new line is parsed by the check_domain rule of the PMDA build
