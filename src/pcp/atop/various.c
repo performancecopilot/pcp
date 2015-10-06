@@ -605,8 +605,10 @@ setup_globals(pmOptions *opts)
 		cleanstop(1);
 	}
 
-	hertz = extract_integer(result, descs, HOST_HERTZ);
-	pagesize = extract_integer(result, descs, HOST_PAGESIZE);
+	if ((hertz = extract_integer(result, descs, HOST_HERTZ)) <= 0)
+		hertz = sysconf(_SC_CLK_TCK);
+	if ((pagesize = extract_integer(result, descs, HOST_PAGESIZE)) <= 0)
+		pagesize = getpagesize();
 	extract_string(result, descs, HOST_RELEASE, sysname.release, sizeof(sysname.release));
 	extract_string(result, descs, HOST_VERSION, sysname.version, sizeof(sysname.version));
 	extract_string(result, descs, HOST_MACHINE, sysname.machine, sizeof(sysname.machine));
