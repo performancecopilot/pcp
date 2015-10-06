@@ -2138,6 +2138,7 @@ cd
 %{_datadir}/pcp/webapps/*.png
 %{_datadir}/pcp/webapps/*.ico
 %{_datadir}/pcp/webapps/*.html
+%{_datadir}/pcp/webapps/*.txt
 %{_datadir}/pcp/webapps/blinkenlights
 
 %files webapp-grafana
