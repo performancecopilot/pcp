@@ -711,34 +711,34 @@ $pmda->add_metric(pmda_pmid(5,1), PM_TYPE_U32, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.events.inoderevalidate',
 		  'NFSIOS_INODEREVALIDATE',
-'incremented in __nfs_revalidate_inode whenever an inode is revalidated');
+'Incremented in __nfs_revalidate_inode whenever an inode is revalidated');
 
 $pmda->add_metric(pmda_pmid(5,2), PM_TYPE_U32, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.events.dentryrevalidate',
 		  'NFSIOS_DENTRYREVALIDATE',
-'incremented in nfs_lookup_revalidate whenever a dentry is revalidated');
+'Incremented in nfs_lookup_revalidate whenever a dentry is revalidated');
 
 $pmda->add_metric(pmda_pmid(5,3), PM_TYPE_U32, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.events.datainvalidate',
 		  'NFSIOS_DATAINVALIDATE',
-'incremented in nfs_invalidate_mapping_nolock when data cache for an inode ' .
+"Incremented in nfs_invalidate_mapping_nolock when data cache for an inode\n" .
 'is invalidated');
 
 $pmda->add_metric(pmda_pmid(5,4), PM_TYPE_U32, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.events.attrinvalidate',
 		  'NFSIOS_ATTRINVALIDATE',
-'incremented in nfs_zap_caches_locked and nfs_update_inode when an the ' .
+"Incremented in nfs_zap_caches_locked and nfs_update_inode when an the\n" .
 'attribute cache for an inode has been invalidated');
 
 $pmda->add_metric(pmda_pmid(5,5), PM_TYPE_U32, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.events.vfsopen',
 		  'NFSIOS_VFSOPEN',
-'incremented in nfs_file_open and nfs_opendir whenever a file or directory ' .
-'is opened');
+"Incremented in nfs_file_open and nfs_opendir whenever a file or directory\n" .
+"is opened\n");
 
 $pmda->add_metric(pmda_pmid(5,6), PM_TYPE_U32, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
@@ -846,54 +846,55 @@ $pmda->add_metric(pmda_pmid(6,1), pmda_ulong, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'nfsclient.bytes.read.normal',
 		  'NFSIOS_NORMALREADBYTES',
-'the number of bytes read by applications via the read system call interface');
+"The number of bytes read by applications via the read system call\n" .
+'interface');
 
 $pmda->add_metric(pmda_pmid(6,2), PM_TYPE_U64, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'nfsclient.bytes.write.normal',
 		  'NFSIOS_NORMALWRITTENBYTES',
-'the number of bytes written by applications via the write system call ' .
+"The number of bytes written by applications via the write system call\n" .
 'interface');
 
 $pmda->add_metric(pmda_pmid(6,3), PM_TYPE_U64, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'nfsclient.bytes.read.direct',
 		  'NFSIOS_DIRECTREADBYTES',
-'the number of bytes read by applications from files opened with the ' .
+"The number of bytes read by applications from files opened with the\n" .
 'O_DIRECT flag');
 
 $pmda->add_metric(pmda_pmid(6,4), PM_TYPE_U64, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'nfsclient.bytes.write.direct',
 		  'NFSIOS_DIRECTWRITTENBYTES',
-'the number of bytes written by applications to files opened with the ' .
+"The number of bytes written by applications to files opened with the\n" .
 'O_DIRECT flag');
 
 $pmda->add_metric(pmda_pmid(6,5), PM_TYPE_U64, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'nfsclient.bytes.read.server',
 		  'NFSIOS_SERVERREADBYTES',
-'the number of bytes read from the nfs server by the nfs client via nfs ' .
+"The number of bytes read from the nfs server by the nfs client via nfs\n" .
 'read requests');
 
 $pmda->add_metric(pmda_pmid(6,6), PM_TYPE_U64, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 		  'nfsclient.bytes.write.server',
 		  'NFSIOS_SERVERWRITTENBYTES',
-'the number of bytes written to the nfs server by the nfs client via nfs ' .
+"The number of bytes written to the nfs server by the nfs client via nfs\n" .
 'write requests');
 
 $pmda->add_metric(pmda_pmid(6,7), PM_TYPE_U64, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.pages.read',
 		  'NFSIOS_READPAGES',
-'the number of pages read via nfs_readpage or nfs_readpages');
+'The number of pages read via nfs_readpage or nfs_readpages');
 
 $pmda->add_metric(pmda_pmid(6,8), PM_TYPE_U64, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.pages.write',
 		  'NFSIOS_WRITEPAGES',
-'the number of pages written via nfs_writepage or nfs_writepages');
+'The number of pages written via nfs_writepage or nfs_writepages');
 
 # xprt - cluster 7
 #
@@ -904,36 +905,37 @@ $pmda->add_metric(pmda_pmid(7,1), PM_TYPE_STRING, $nfsclient_indom,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'nfsclient.xprt.srcport',
 		  'tcp source port',
-'source port on the client');
+		  'Source port on the client');
 
 $pmda->add_metric(pmda_pmid(7,2), PM_TYPE_U32, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.xprt.bind_count',
 		  'count of rpcbind get_port calls',
-'incremented in rpcb_getport_async: \"obtain the port for a given RPC ' .
+"Incremented in rpcb_getport_async: \"obtain the port for a given RPC\n" .
 'service on a given host\"');
 
 $pmda->add_metric(pmda_pmid(7,3), PM_TYPE_U32, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.xprt.connect_count',
 		  'count of tcp connects',
-'incremented in xs_tcp_finish_connecting and xprt_connect_status.  This is ' .
-'a count of the number of tcp (re)connects (only of which is active at a ' .
-'time) for this mount.');
+"Incremented in xs_tcp_finish_connecting and xprt_connect_status.\n" .
+"This is a count of the number of tcp (re)connects (one of which is\n" .
+'active at a time) for this mount.');
 
 $pmda->add_metric(pmda_pmid(7,4), PM_TYPE_U32, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.xprt.connect_time',
 		  'jiffies waiting for connect',
-'Summed in xprt_connect_status, it is stored and printed in jiffies.  This ' .
-'the sum of all connection attempts: how long was spent waiting to connect.');
+"Summed in xprt_connect_status, it is stored and printed in jiffies.\n" .
+"This is the sum of all connection attempts: how long was spent waiting\n" .
+'to connect.');
 
 $pmda->add_metric(pmda_pmid(7,5), PM_TYPE_U32, $nfsclient_indom,
 		  PM_SEM_INSTANT, pmda_units(0,1,0,0,PM_TIME_SEC,0),
 		  'nfsclient.xprt.idle_time',
 		  'transport idle time',
-'How long has it been since the transport has been used.  Stored and ' .
-'calculated in jiffies and printed in seconds.');
+"How long has it been since the transport has been used.\n" .
+'Stored and calculated in jiffies and reported in seconds.');
 
 $pmda->add_metric(pmda_pmid(7,6), PM_TYPE_U32, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
@@ -951,26 +953,26 @@ $pmda->add_metric(pmda_pmid(7,8), PM_TYPE_U32, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.xprt.bad_xids',
 		  'count of bad transaction identifiers',
-'When processing an rpc reply it is necessary to look up the original ' .
-'rpc_rqst using xprt_lookup_rqst.  If the rpc_rqst that prompted the reply ' .
-'cannot be found on the transport bad_xids is incremented.');
+"When processing an rpc reply it is necessary to look up the original\n" .
+"rpc_rqst using xprt_lookup_rqst.  If the rpc_rqst that prompted the\n" .
+'reply cannot be found on the transport then bad_xids is incremented.');
 
 $pmda->add_metric(pmda_pmid(7,9), PM_TYPE_U64, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.xprt.req_u',
                   'average requests on the wire',
-'FIXME:  The comment in struct stat says: \"average requests on the wire\", ' .
-'but the actual calculation in xprt_transmit is: ' .
-'xprt->stat.req_u += xprt->stat.sends - xprt->stat.recvs;\n' .
-'This stat may be broken.');
+"The comment in struct stat says: \"average requests on the wire\",\n" .
+"but the actual calculation in xprt_transmit is:\n" .
+"  xprt->stat.req_u += xprt->stat.sends - xprt->stat.recvs;\n" .
+'The kernel-exported value for this metric may be broken.');
 
 $pmda->add_metric(pmda_pmid(7,10), PM_TYPE_U64, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.xprt.backlog_u',
 		  'backlog queue utilization',
-'FIXME: here is the calculation in xprt_transmit:  ' .
-'xprt->stat.bklog_u += xprt->backlog.qlen;\n ' .
-'qlen is incremented in __rpc_add_wait_queue and decremented in ' .
+"This is the calculation in xprt_transmit:\n" .
+"  xprt->stat.bklog_u += xprt->backlog.qlen;\n" .
+"qlen is incremented in __rpc_add_wait_queue and decremented in\n" .
 '__rpc_remove_wait_queue.');
 
 $pmda->add_metric(pmda_pmid(7,11), pmda_ulong, $nfsclient_indom,
@@ -1072,42 +1074,41 @@ for my $op_name (@all_ops) {
 			  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 			  "nfsclient.ops.$op_name.ops",
 			  'count of operations',
-'rpc count for this op, only bumped in rpc_count_iostats');
+'RPC count for this op, only bumped in rpc_count_iostats');
 
 	$pmda->add_metric(pmda_pmid(8, $item++), pmda_ulong, $nfsclient_indom,
 			  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 			  "nfsclient.ops.$op_name.ntrans",
 			  'count of transmissions',
-'there can be more than one transmission per rpc');
+'There can be more than one transmission per rpc');
 
 	$pmda->add_metric(pmda_pmid(8, $item++), pmda_ulong, $nfsclient_indom,
 			  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 			  "nfsclient.ops.$op_name.timeouts",
-			  'count of major timeouts',
-'XXX fill me in');
+			  'count of major timeouts', '');
 
 	$pmda->add_metric(pmda_pmid(8, $item++), PM_TYPE_U64, $nfsclient_indom,
 			  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 			  "nfsclient.ops.$op_name.bytes_sent",
 			  'count of bytes out',
-'How many bytes are sent for this procedure type.  This indicates how much ' .
-'load this procedure is putting on the network.  It includes the RPC and ULP' .
+"How many bytes are sent for this procedure type.  This indicates how much\n" .
+"load this procedure puts on the network.  It includes the RPC and ULP\n" .
 'headers, and the request payload');
 
 	$pmda->add_metric(pmda_pmid(8, $item++), PM_TYPE_U64, $nfsclient_indom,
 			  PM_SEM_COUNTER, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 			  "nfsclient.ops.$op_name.bytes_recv",
 			  'count of bytes in',
-'How many bytes are received for this procedure type.  This indicates how ' .
-'much load this procedure is putting on the network.  It includes RPC and ' .
+"How many bytes are received for this procedure type.  This indicates how\n" .
+"much load this procedure is putting on the network.  It includes RPC and\n" .
 'ULP headers, and the request payload');
 
 	$pmda->add_metric(pmda_pmid(8, $item++), PM_TYPE_U64, $nfsclient_indom,
 			  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
 			  "nfsclient.ops.$op_name.queue",
 			  'milliseconds queued for transmit',
-'The length of time an RPC request waits in queue before transmission in ' .
-' milliseconds.');
+"The length of time an RPC request waits in queue before transmission in\n" .
+'milliseconds.');
 
 	$pmda->add_metric(pmda_pmid(8, $item++), PM_TYPE_U64, $nfsclient_indom,
 			  PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
