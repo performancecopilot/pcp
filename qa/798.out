@@ -78,6 +78,8 @@ pmInDom: 62.0
 [X+2] inst: X+2 name: "/mnt/nfs41"
 [X+3] inst: X+3 name: "/mnt/nfsv4"
 dbpmda> 
+Log for pmdanfsclient on HOST ...
+Log finished ...
 === Test case: nonfsmounts.qa
 dbpmda> open pipe /usr/bin/perl pmdanfsclient.pl
 Start perl PMDA: /usr/bin/perl pmdanfsclient.pl
@@ -129,3 +131,5 @@ pmResult ... numpmid: 1
 dbpmda> instance 62.0
 pmInDom: 62.0
 dbpmda> 
+Log for pmdanfsclient on HOST ...
+Log finished ...
