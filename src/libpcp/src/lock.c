@@ -49,6 +49,27 @@ __pmTPD__destroy(void *addr)
 #endif
 #endif
 
+static void
+SetupDebug(void)
+{
+    /*
+     * if $PCP_DEBUG is set in the environment then use the (decimal)
+     * value to set bits in pmDebug via bitwise ORing
+     */
+    char	*val = getenv("PCP_DEBUG");
+    int		ival;
+
+    if (val != NULL) {
+	char	*end;
+	ival = strtol(val, &end, 10);
+	if (*end != '\0') {
+	    fprintf(stderr, "Error: $PCP_DEBUG=%s is not numeric, ignored\n", val);
+	}
+	else
+	    pmDebug |= ival;
+    }
+}
+
 void
 __pmInitLocks(void)
 {
@@ -62,6 +83,7 @@ __pmInitLocks(void)
 	exit(4);
     }
     if (!done) {
+	SetupDebug();
 #ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 	/*
 	 * Unable to initialize at compile time, need to do it here in
@@ -277,7 +299,14 @@ __pmUnlock(void *lock, const char *file, int line)
 
 #else /* !PM_MULTI_THREAD - symbols exposed at the shlib ABI level */
 void *__pmLock_libpcp;
-void __pmInitLocks(void) { }
+void __pmInitLocks(void)
+{
+    static int		done = 0;
+    if (!done) {
+	SetupDebug();
+	done = 1;
+    }
+}
 int __pmMultiThreaded(int scope) { (void)scope; return 0; }
 int __pmLock(void *l, const char *f, int n) { (void)l, (void)f, (void)n; return 0; }
 int __pmUnlock(void *l, const char *f, int n) { (void)l, (void)f, (void)n; return 0; }
