@@ -33,6 +33,8 @@ _filter()
 	-e '/^elasticsearch.*: Try again. Information not currently /d' \
 	-e '/^apache.*: Try again. Information not currently available/d' \
 	-e '/^zswap.*: Try again. Information not currently available/d' \
+	-e '/^nginx.*: Try again. Information not currently available/d' \
+	-e '/^postgresql.*: Missing metric value(s)/d' \
 	-e '/^hotproc.psinfo.cgroups: No data available/d' \
     #end
 }
