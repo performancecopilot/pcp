@@ -68,6 +68,18 @@ command-line syntax to enable debug control.
 .B pmdbg
 is designed to help choose an appropriate value for
 .IR N .
+.PP
+Alternatively the initial value of the debug control flags may be set
+to a value
+.I N
+using the environment variable
+.BR $PCP_DEBUG .
+If both mechanisms are used the effect is additive, so the resultant flags are
+those set via
+.B $PCP_DEBUG
+combined with those set via any
+.B \-D
+command line options.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
