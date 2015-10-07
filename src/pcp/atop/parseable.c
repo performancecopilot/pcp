@@ -158,7 +158,7 @@ parseout(double timed, double delta,
 	 struct sstat *ss, struct tstat *ts, struct tstat **proclist,
 	 int ndeviat, int ntask, int nactproc,
          int totproc, int totrun, int totslpi, int totslpu, int totzomb,
-	 int nexit, unsigned int noverflow, char flag)
+	 int nexit, unsigned int noverflow, int flags)
 {
 	register int	i;
 	char		datestr[32], timestr[32], header[256];
@@ -166,7 +166,7 @@ parseout(double timed, double delta,
 	/*
 	** print reset-label for sample-values since boot
 	*/
-	if (flag&RRBOOT)
+	if (flags & RRBOOT)
 		printf("RESET\n");
 
 	/*

@@ -91,7 +91,7 @@ generic_samp(double curtime, double delta,
            struct sstat *sstat, struct tstat *tstat, struct tstat **proclist,
            int ndeviat, int ntask, int nactproc,
            int totproc, int totrun, int totslpi, int totslpu, int totzomb,
-           int nexit, unsigned int noverflow, char flag)
+           int nexit, unsigned int noverflow, int flags)
 {
 	static int	callnr = 0;
 
@@ -366,7 +366,7 @@ generic_samp(double curtime, double delta,
 		}
 		else
 		{
-			if (flag&RRBOOT)
+			if (flags & RRBOOT)
 			{
 				if (screen)
 				{

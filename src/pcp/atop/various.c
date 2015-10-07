@@ -487,14 +487,16 @@ setalarm2(int sec, int usec)
 }
 
 static void
-setup_step_mode(void)
+setup_step_mode(int forward)
 {
 	const int SECONDS_IN_24_DAYS = 2073600;
 
-	if (rawreadflag)
-		fetchmode = PM_MODE_INTERP;
-	else
+	if (!rawreadflag)
 		fetchmode = PM_MODE_LIVE;
+	else if (forward)
+		fetchmode = PM_MODE_FORW;
+	else
+		fetchmode = PM_MODE_INTERP;
 
 	if (interval.tv_sec > SECONDS_IN_24_DAYS)
 	{
@@ -524,7 +526,7 @@ setup_origin(pmOptions *opts)
 		if (opts->interval.tv_sec || opts->interval.tv_usec)
 			interval = opts->interval;
 
-		setup_step_mode();
+		setup_step_mode(1);
 
 		if ((sts = pmSetMode(fetchmode, &curtime, fetchstep)) < 0)
 		{
@@ -605,8 +607,10 @@ setup_globals(pmOptions *opts)
 		cleanstop(1);
 	}
 
-	hertz = extract_integer(result, descs, HOST_HERTZ);
-	pagesize = extract_integer(result, descs, HOST_PAGESIZE);
+	if ((hertz = extract_integer(result, descs, HOST_HERTZ)) <= 0)
+		hertz = sysconf(_SC_CLK_TCK);
+	if ((pagesize = extract_integer(result, descs, HOST_PAGESIZE)) <= 0)
+		pagesize = getpagesize();
 	extract_string(result, descs, HOST_RELEASE, sysname.release, sizeof(sysname.release));
 	extract_string(result, descs, HOST_VERSION, sysname.version, sizeof(sysname.version));
 	extract_string(result, descs, HOST_MACHINE, sysname.machine, sizeof(sysname.machine));
@@ -614,6 +618,7 @@ setup_globals(pmOptions *opts)
 	nodenamelen = strlen(sysname.nodename);
 
 	pmFreeResult(result);
+	setup_step_mode(0);
 }
 
 /*

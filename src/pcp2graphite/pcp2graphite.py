@@ -14,12 +14,11 @@
 #
 """ Relay PCP metrics to a graphite server """
 
+import re
 import sys
 import time
 
-
 from pcp import pmapi
-from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_DOUBLE
 import cpmapi as c_api
 
 class GraphiteRelay(object):
@@ -49,19 +48,16 @@ class GraphiteRelay(object):
         self.context = None
         self.socket = None
         self.sampleCount = 0
-        self.debug = False
         self.opts = pmapi.pmOptions()
-        self.opts.pmSetShortOptions("a:O:s:T:g:p:P:u:m:t:h:t:D:LV?") # must include common options
+        self.opts.pmSetShortOptions("a:O:s:T:g:p:P:u:m:t:h:t:D:LV?")
         self.opts.pmSetShortUsage("[options] metricname ...")
         self.opts.pmSetOptionCallback(self.option)
         self.opts.pmSetOverrideCallback(self.option_override)
-        # hack to include some explanatory text
-        self.opts.pmSetLongOptionHeader("""
+        self.opts.pmSetLongOptionText("""
 Description: Periodically, relay raw values of all instances of a
 given hierarchies of PCP metrics to a graphite/carbon server on the
-network.
-
-Options""")
+network.""")
+        self.opts.pmSetLongOptionHeader("Options")
         self.opts.pmSetLongOptionVersion() # -V
         self.opts.pmSetLongOptionArchive() # -a FILE
         self.opts.pmSetLongOptionOrigin() # -O TIME
@@ -121,9 +117,6 @@ Options""")
     def option_override(self, opt):
         if (opt == 'p') or (opt == 'g'):
             return 1
-        if (opt == 'D'): # pmapi.cc doesn't give us access to pmDebug, so intercept -D0
-            self.debug = True
-            # fallthrough
         return 0
 
     def option(self, opt, optarg, index): # need only handle the non-common options
@@ -159,12 +152,12 @@ Options""")
 
         # reject non-numeric types (future pmExtractValue failure)
         types = desc.contents.type
-        if not ((types == PM_TYPE_32) or
-                (types == PM_TYPE_U32) or
-                (types == PM_TYPE_64) or
-                (types == PM_TYPE_U64) or
+        if not ((types == c_api.PM_TYPE_32) or
+                (types == c_api.PM_TYPE_U32) or
+                (types == c_api.PM_TYPE_64) or
+                (types == c_api.PM_TYPE_U64) or
                 (types == c_api.PM_TYPE_FLOAT) or
-                (types == PM_TYPE_DOUBLE)):
+                (types == c_api.PM_TYPE_DOUBLE)):
             sys.stderr.write("Excluding metric %s (need numeric type)\n" % name)
             return
 
@@ -207,7 +200,7 @@ Options""")
                     pickled_output = pickle.dumps(pickled_input, protocol=0)
                     header = struct.pack("!L", len(pickled_output))
                     msg = header + pickled_output
-                    if (self.debug):
+                    if (self.context.pmDebug(c_api.PM_DEBUG_APPL0)):
                         print ("Sending %s #tuples %d" %
                                (time.ctime(timestamp), len(pickled_input)))
                     self.socket.send(msg)
@@ -215,7 +208,7 @@ Options""")
                 for (metric, value) in miv_tuples:
                     message = ("%s %s %s\n" % (metric, value, timestamp))
                     msg = str.encode(message)
-                    if (self.debug):
+                    if (self.context.pmDebug(c_api.PM_DEBUG_APPL0)):
                         print ("Sending %s: %s" % (time.ctime(timestamp), msg.rstrip().decode()))
                     self.socket.send(msg)
         except socket.error as err:
@@ -228,7 +221,6 @@ Options""")
     def sanitize_nameindom(self,str):
         """ Quote the given instance-domain string for proper digestion
         by carbon/graphite. """
-        import re
         return "_" + re.sub('[^a-zA-Z_0-9-]','_', str)
 
     def execute(self):

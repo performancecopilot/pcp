@@ -1961,3 +1961,13 @@ class pmContext(object):
         """
         return tvp.sleep()
 
+    @staticmethod
+    def pmProgname():
+        return str(c_char_p.in_dll(LIBPCP, "pmProgname").value.decode())
+
+    @staticmethod
+    def pmDebug(flags):
+        if (c_int.in_dll(LIBPCP, "pmDebug").value & flags):
+            return True
+        return False
+
