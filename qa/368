@@ -17,7 +17,7 @@ echo "QA output created by $seq"
 
 [ -f $PCP_BINADM_DIR/pmlogconf-setup ] || _notrun pmlogconf-setup not installed
 postgres=`pmprobe postgresql.stat.all_tables.seq_scan | awk '{ print $2 }'`
-[ "$postgres" -gt 0 ] && _notrun "Test $seq sensitive to local postgres install"
+[ "$postgres" -ge 0 ] && _notrun "Test $seq sensitive to local postgres install"
 
 rm -f $seq.out
 if [ $PCP_PLATFORM = darwin ]
