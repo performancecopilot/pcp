@@ -511,10 +511,16 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 		# recursion and setting $PMDA_SETUP_RUNNING in the
 		# environment is the guard
 		#
-		PMDA_SETUP_RUNNING=yes _pmda_setup &
+		export PMDA_SETUP_RUNNING=yes
+		if [ -z "PCP_CONTAINER_IMAGE" ]
+		then
+		    _pmda_setup &
+		else
+		    # running in a container
+		    _pmda_setup
+		    exec $PCP_BINADM_DIR/pmpause
+		fi
 
-		# finally, stop here if running in a container
-		[ -z "$PCP_CONTAINER_IMAGE" ] || exec $PCP_BINADM_DIR/pmpause
 	    else
 		$PCP_BINADM_DIR/pmpost "start pmcd from PMDA setup called from $prog"
 	    fi
