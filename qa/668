@@ -1,5 +1,5 @@
 #! /bin/sh
-# PCP QA Test No. 666
+# PCP QA Test No. 668
 # checks container-related pmmgr functionality
 #
 # Copyright (c) 2015 Red Hat, Inc.
@@ -11,6 +11,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 . ./common.check
+
+_check_containers
 
 which pmmgr >/dev/null 2>&1 || _notrun "No pmmgr binary installed"
 echo pmmgr ok
@@ -124,10 +126,10 @@ else
     echo "not enough .meta files $num" | tee -a $seq.full
 fi
 num=`ls $tmp.dir/$hostname--*/config.pmie 2>/dev/null | wc -l`
-if [ "$num" -eq 0 ]; then
-    echo "no config.pmie files" | tee -a $seq.full
+if [ "$num" -ge 3 ]; then
+    echo "enough config.pmie files" | tee -a $seq.full
 else
-    echo "too many config.pmie files $num" | tee -a $seq.full
+    echo "not enough config.pmie files $num" | tee -a $seq.full
 fi
 
 date >>$seq.full

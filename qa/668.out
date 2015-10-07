@@ -6,5 +6,5 @@ docker ok
 === 3. check that the containers were found ===
 enough config.pmlogger files
 enough .meta files
-no config.pmie files
+enough config.pmie files
 === 4. kill pmmgr ===

@@ -679,9 +679,7 @@ pmmgr_job_spec::note_new_hostid(const pmmgr_hostid& hid, const pcp_context_spec&
     daemons.insert(make_pair(hid, new pmmgr_pmlogger_daemon(config_directory, hid, spec)));
 
   if (get_config_exists("pmie"))
-      // PR1105 precludes pmie instances on containers
-      if (spec.find("container=") == string::npos) // ? or &
-          daemons.insert(make_pair(hid, new pmmgr_pmie_daemon(config_directory, hid, spec)));
+    daemons.insert(make_pair(hid, new pmmgr_pmie_daemon(config_directory, hid, spec)));
 }
 
 
