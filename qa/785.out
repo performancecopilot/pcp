@@ -2,7 +2,7 @@ QA output created by 785
 
 == Processor metrics
 
-        TODAY
+HOST-SUMMARY-LINE
 
 -------------------------- analysis date: 2015/09/25 --------------------------
 
@@ -28,7 +28,7 @@ QA output created by 785
 
 == Disk metrics
 
-        TODAY
+HOST-SUMMARY-LINE
 
 -------------------------- analysis date: 2015/09/25 --------------------------
 
@@ -36,10 +36,13 @@ QA output created by 785
 11:03:19  ......................... logging restarted .........................
 
 11:03:21  disk           busy read/s KB/read  writ/s KB/writ avque avserv _dsk_
+11:03:21  sda              0%    0.2    18.1     0.2    14.6  14.9   6.23 ms
+11:03:22  
+11:03:23  sda              1%    0.0     0.0     0.2    57.0   1.0  41.50 ms
 
 == Network metrics
 
-        TODAY
+HOST-SUMMARY-LINE
 
 -------------------------- analysis date: 2015/09/25 --------------------------
 
@@ -59,7 +62,7 @@ QA output created by 785
 
 == Memory metrics
 
-        TODAY
+HOST-SUMMARY-LINE
 
 -------------------------- analysis date: 2015/09/25 --------------------------
 
