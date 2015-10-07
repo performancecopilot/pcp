@@ -219,7 +219,7 @@ sub nfsclient_parse_proc_mountstats {
         		}
 		}
 		#age
-		if ($line =~ /^\tage:\t(.*)$/) {
+		if ($line =~ /^\tage:\t(\d+).*$/) {
                         $h{$nfsinst}->{'nfsclient.age'} = $1;
                 }
 		#caps
@@ -289,7 +289,7 @@ sub nfsclient_parse_proc_mountstats {
 				 $h{$nfsinst}->{'nfsclient.xprt.recvs'},
 				 $h{$nfsinst}->{'nfsclient.xprt.bad_xids'},
 				 $h{$nfsinst}->{'nfsclient.xprt.req_u'},
-				 $h{$nfsinst}->{'nfsclient.xprt.bklog_u'}) =
+				 $h{$nfsinst}->{'nfsclient.xprt.backlog_u'}) =
 					@stats;
 
 				 # Unused RDMA Elements
@@ -311,7 +311,7 @@ sub nfsclient_parse_proc_mountstats {
                                  $h{$nfsinst}->{'nfsclient.xprt.recvs'},
                                  $h{$nfsinst}->{'nfsclient.xprt.bad_xids'},
                                  $h{$nfsinst}->{'nfsclient.xprt.req_u'},
-                                 $h{$nfsinst}->{'nfsclient.xprt.bklog_u'}) =
+                                 $h{$nfsinst}->{'nfsclient.xprt.backlog_u'}) =
                                         @stats;
 
 				 # Unused TCP elements
@@ -341,7 +341,7 @@ sub nfsclient_parse_proc_mountstats {
                                  $h{$nfsinst}->{'nfsclient.xprt.recvs'},
                                  $h{$nfsinst}->{'nfsclient.xprt.bad_xids'},
                                  $h{$nfsinst}->{'nfsclient.xprt.req_u'},
-                                 $h{$nfsinst}->{'nfsclient.xprt.bklog_u'},
+                                 $h{$nfsinst}->{'nfsclient.xprt.backlog_u'},
 				 $h{$nfsinst}->{'nfsclient.xprt.read_chunks'},
 				 $h{$nfsinst}->{'nfsclient.xprt.write_chunks'},
 				 $h{$nfsinst}->{'nfsclient.xprt.reply_chunks'},
