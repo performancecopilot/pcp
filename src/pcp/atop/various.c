@@ -487,9 +487,14 @@ setalarm2(int sec, int usec)
 }
 
 static void
-setup_step_mode(int forward)
+setup_step_mode(pmOptions *opts, int forward)
 {
 	const int SECONDS_IN_24_DAYS = 2073600;
+
+	if (forward)
+		curtime = opts->start;
+	else
+		curtime = opts->origin;
 
 	if (!rawreadflag)
 		fetchmode = PM_MODE_LIVE;
@@ -526,7 +531,7 @@ setup_origin(pmOptions *opts)
 		if (opts->interval.tv_sec || opts->interval.tv_usec)
 			interval = opts->interval;
 
-		setup_step_mode(1);
+		setup_step_mode(opts, 1);
 
 		if ((sts = pmSetMode(fetchmode, &curtime, fetchstep)) < 0)
 		{
@@ -618,7 +623,7 @@ setup_globals(pmOptions *opts)
 	nodenamelen = strlen(sysname.nodename);
 
 	pmFreeResult(result);
-	setup_step_mode(0);
+	setup_step_mode(opts, 0);
 }
 
 /*

@@ -3,7 +3,7 @@ General options (default)
 === std out
 
 
-ATOP -           2015/09/25  11:03:20          -------------          1s elapsed
+ATOP - slick        2015/09/25  11:03:20        -------------         1s elapsed
 PRC | sys   16m20s | user  61m45s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       1% | user      4% | irq       0% | idle    392% | wait      2% |
 cpu | sys       0% | user      1% | irq       0% | idle     97% | cpu002 w  1% |
@@ -280,7 +280,7 @@ WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
    670  0.00s  0.00s     0K     0K     0K     0K N-   -    0%                
 
 
-ATOP -           2015/09/25  11:03:21          -------------          1s elapsed
+ATOP - slick        2015/09/25  11:03:21        -------------         1s elapsed
 PRC | sys    0.04s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       5% | user      5% | irq       0% | idle    382% | wait      8% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
@@ -318,7 +318,7 @@ NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
  22844  0.00s  0.00s     0K     0K     0K     0K --   - S   0% kworker/u16:1  
 
 
-ATOP -           2015/09/25  11:03:22          -------------          1s elapsed
+ATOP - slick        2015/09/25  11:03:22        -------------         1s elapsed
 PRC | sys    0.01s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       2% | user      2% | irq       0% | idle    395% | wait      1% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
@@ -354,7 +354,7 @@ Memory option
 === std out
 
 
-ATOP -           2015/09/25  11:03:20          -------------          1s elapsed
+ATOP - slick        2015/09/25  11:03:20        -------------         1s elapsed
 PRC | sys   16m20s | user  61m45s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       1% | user      4% | irq       0% | idle    392% | wait      2% |
 cpu | sys       0% | user      1% | irq       0% | idle     97% | cpu002 w  1% |
@@ -631,7 +631,7 @@ WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
    670     0K     0K     0K     ?K     0K     0K     0K   0%                
 
 
-ATOP -           2015/09/25  11:03:21          -------------          1s elapsed
+ATOP - slick        2015/09/25  11:03:21        -------------         1s elapsed
 PRC | sys    0.04s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       5% | user      5% | irq       0% | idle    382% | wait      8% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
@@ -669,7 +669,7 @@ NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
  22844     0K     0K     0K     ?K     0K     0K     0K   0% kworker/u16:1  
 
 
-ATOP -           2015/09/25  11:03:22          -------------          1s elapsed
+ATOP - slick        2015/09/25  11:03:22        -------------         1s elapsed
 PRC | sys    0.01s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       2% | user      2% | irq       0% | idle    395% | wait      1% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
@@ -705,7 +705,7 @@ Disk option
 === std out
 
 
-ATOP -           2015/09/25  11:03:20          -------------          1s elapsed
+ATOP - slick        2015/09/25  11:03:20        -------------         1s elapsed
 PRC | sys   16m20s | user  61m45s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       1% | user      4% | irq       0% | idle    392% | wait      2% |
 cpu | sys       0% | user      1% | irq       0% | idle     97% | cpu002 w  1% |
@@ -982,7 +982,7 @@ WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
    670      -     0K     0K     0K   0%                
 
 
-ATOP -           2015/09/25  11:03:21          -------------          1s elapsed
+ATOP - slick        2015/09/25  11:03:21        -------------         1s elapsed
 PRC | sys    0.04s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       5% | user      5% | irq       0% | idle    382% | wait      8% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
@@ -1020,7 +1020,7 @@ NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
  22844      -     0K     0K     0K   0% kworker/u16:1  
 
 
-ATOP -           2015/09/25  11:03:22          -------------          1s elapsed
+ATOP - slick        2015/09/25  11:03:22        -------------         1s elapsed
 PRC | sys    0.01s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       2% | user      2% | irq       0% | idle    395% | wait      1% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
@@ -1056,7 +1056,7 @@ Scheduling option
 === std out
 
 
-ATOP -           2015/09/25  11:03:20          -------------          1s elapsed
+ATOP - slick        2015/09/25  11:03:20        -------------         1s elapsed
 PRC | sys   16m20s | user  61m45s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       1% | user      4% | irq       0% | idle    392% | wait      2% |
 cpu | sys       0% | user      1% | irq       0% | idle     97% | cpu002 w  1% |
@@ -1333,7 +1333,7 @@ WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
    670    0     0     0 norm    0 120    0     0 N-   -    0%                
 
 
-ATOP -           2015/09/25  11:03:21          -------------          1s elapsed
+ATOP - slick        2015/09/25  11:03:21        -------------         1s elapsed
 PRC | sys    0.04s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       5% | user      5% | irq       0% | idle    382% | wait      8% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
@@ -1371,7 +1371,7 @@ NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
  22844    0     1     0 norm    0 120    0     2 --   - S   0% kworker/u16:1  
 
 
-ATOP -           2015/09/25  11:03:22          -------------          1s elapsed
+ATOP - slick        2015/09/25  11:03:22        -------------         1s elapsed
 PRC | sys    0.01s | user   0.02s | #proc    254 | #zombie    0 | no  procacct |
 CPU | sys       2% | user      2% | irq       0% | idle    395% | wait      1% |
 cpu | sys       2% | user      2% | irq       0% | idle     96% | cpu000 w  0% |
