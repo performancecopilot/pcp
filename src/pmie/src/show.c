@@ -521,7 +521,7 @@ showSyn(FILE *f, Expr *x)
 	m = x->metrics;
 	fprintf(f, "%s", symName(m->mname));
 	for (i = 0; i < x->hdom; i++) {
-	    fprintf(f, " :%s", symName(m->hname)); /* or m->hconn? */
+	    fprintf(f, " :%s", symName(m->hname));
 	    m++;
 	}
 	m = x->metrics;
@@ -796,12 +796,12 @@ findValues(Expr *x)
  ***********************************************************************/
 
 /* Locate next %h, %i or %v or %c in format string. */
-static int	/* 0 -> not found, format code char otherwise. */
+static char	/* '\0' -> not found, format code char otherwise. */
 findFormat(char *format, char **pos)
 {
     for (;;) {
 	if (*format == '\0')
-	    return 0;
+	    return '\0';
 	if (*format == '%') {
 	    switch (*(format + 1)) {
 	    case 'h':
@@ -816,7 +816,9 @@ findFormat(char *format, char **pos)
 	    case 'c':
 		*pos = format;
 		return 'c';
-		/* no default: case -> no bad-%code detection */
+	    default:
+		/* % but not followed by a valid format character, keep going */
+		;
 	    }
 	}
 	format++;
@@ -983,13 +985,13 @@ showSatisfyingValue(FILE *f, Expr *x)
     for (i = 0; i < x1->tspan; i++) {
 	if ((x1->sem == SEM_BOOLEAN && *((char *)x1->smpls[0].ptr + i) == B_TRUE)
 	    || (x1->sem != SEM_BOOLEAN && x1->sem != SEM_UNKNOWN)) {
-	    length = concat("\n	   ", length, &string);
+	    length = concat("\n    ", length, &string);
 	    lookupHostInst(x1, i, &host, &conn, &inst);
 	    length = concat(host, length,  &string);
 	    if (inst) {
-		length = concat(": [", length,	&string);
-		length = concat(inst, length,  &string);
-		length = concat("] ", length,  &string);
+		length = concat(": [", length, &string);
+		length = concat(inst, length, &string);
+		length = concat("] ", length, &string);
 	    }
 	    else
 		length = concat(": ", length,  &string);
@@ -1027,8 +1029,8 @@ formatSatisfyingValue(char *format, size_t length, char **string)
     int	    i;
     Expr    *x1;
     Expr    *x2;
-    int	    sts1;
-    int	    sts2;
+    char    sts1;
+    char    sts2;
 
     /* no formatting present? */
     if ((sts1 = findFormat(format, &first)) == 0)
