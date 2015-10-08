@@ -25,6 +25,8 @@ then
     echo "Cannot find second remote host running pmcd" >$seq.notrun
     exit
 fi
+echo "other1=$other1" >>$here/$seq.full
+echo "other2=$other2" >>$here/$seq.full
 
 case $PCP_PLATFORM
 in
@@ -127,14 +129,30 @@ sleep 15
 $signal -s TERM $pmie_pid
 wait
 
+# hostnames $other1 and $other2 may contain domain name components,
+# but pmie may just report the hostname
+#
+o1=`echo $other1 | sed -e 's/\..*//'`
+o2=`echo $other2 | sed -e 's/\..*//'`
+local=`hostname`
+l=`echo $local | sed -e 's/\..*//'`
+echo "o1=$o1" >>$here/$seq.full
+echo "o2=$o2" >>$here/$seq.full
+echo "local=$local" >>$here/$seq.full
+echo "l=$l" >>$here/$seq.full
 echo "pmie output ..."
 sed <$tmp.out \
     -e "/ $other1:/d" \
+    -e "/ $o1:/d" \
     -e "/ $other2:/d" \
-    -e '/ localhost:/d'
-grep " $other1:" <$tmp.out >/dev/null && echo "... at least one line for other1 host"
-grep " $other2:" <$tmp.out >/dev/null && echo "... at least one line for other2 host"
-grep ' localhost:' <$tmp.out >/dev/null && echo "... at least one line for localhost"
+    -e "/ $o2:/d" \
+    -e '/ localhost:/d' \
+    -e "/ $local:/d" \
+    -e "/ $l:/d" \
+#
+egrep " ($other1|$o1):" <$tmp.out >/dev/null && echo "... at least one line for other1 host"
+egrep " ($other2|$o2):" <$tmp.out >/dev/null && echo "... at least one line for other2 host"
+egrep " (localhost|$local|$l):" <$tmp.out >/dev/null && echo "... at least one line for localhost"
 
 echo
 echo "pmie stderr ..."
