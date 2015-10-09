@@ -1,6 +1,7 @@
 /*
  * Linux Partitions (disk and disk partition IO stats) Cluster
  *
+ * Copyright (c) 2015 Intel, Inc.  All Rights Reserved.
  * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2008,2012 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
