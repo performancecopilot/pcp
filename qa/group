@@ -1044,6 +1044,7 @@ cgroups
 861 pmcd pmda.pmcd local
 862 pmie local
 864 pcp python local
+869 pmda.linux local
 872 pmda.linux local
 873 pmda.linux local
 874 valgrind pmval libpcp local
