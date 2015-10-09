@@ -61,6 +61,8 @@ static pmdaMetric root_metrictab[] = {
 	CONTAINERS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
     { NULL, { PMDA_PMID(0, CONTAINERS_RESTARTING), PM_TYPE_U32,
 	CONTAINERS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL, { PMDA_PMID(0, CONTAINERS_CGROUP), PM_TYPE_STRING,
+	CONTAINERS_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) } },
 };
 #define METRICTAB_SZ (sizeof(root_metrictab)/sizeof(root_metrictab[0]))
 
@@ -219,6 +221,9 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 5:		/* containers.state.restarting */
 	    atom->ul = (cp->flags & CONTAINER_FLAG_RESTARTING) != 0;
+	    break;
+	case 6:		/* containers.cgroup */
+	    atom->cp = cp->cgroup;
 	    break;
 	default:
 	    return PM_ERR_PMID;
