@@ -590,7 +590,7 @@ cgroups
 292 pmlogextract logutil pmval local
 293 pmstat #939275 local
 294 pmproxy local pmval pmie
-295 pmproxy local pmval
+295 pmproxy local pmval pmstat pmie
 296 pmcd local
 297 pmproxy local
 298 pmie local
