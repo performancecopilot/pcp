@@ -1,0 +1,165 @@
+#! /bin/sh
+# PCP QA Test No. 668
+# checks container-related pmmgr functionality
+#
+# Copyright (c) 2015 Red Hat, Inc.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_containers
+
+which pmmgr >/dev/null 2>&1 || _notrun "No pmmgr binary installed"
+echo pmmgr ok
+
+which docker >/dev/null 2>&1 || _notrun "No docker binary installed"
+docker info >/dev/null 2>&1 || _notrun "missing docker permissions or service"
+
+# Run the docker smoke-tester under /usr/bin/timeout control, in case
+# the docker daemon is stuck, as has been observed on occasion on
+# rawhide docker-1.5.0-25.git5ebfacd.fc23.x86_64.
+if which timeout >/dev/null; then
+    timeout -k 10s 60s docker run --rm busybox true || _notrun "failed docker smoke-test"
+else    
+    docker run --rm busybox true || _notrun "failed docker smoke-test"
+fi
+echo docker ok
+
+$sudo rm -fr $tmp.dir
+$sudo rm -f $tmp.*
+rm -f $seq.full
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+hostname=`hostname`
+trap "_cleanup" 0 1 2 3 15
+
+# Shorten timeouts because of the rapid-fire pmcd/pmmgr-daemon lifespan tests
+PMCD_WAIT_TIMEOUT=2
+PMCD_CONNECT_TIMEOUT=2
+PMCD_RECONNECT_TIMEOUT=2
+export PMCD_WAIT_TIMEOUT PMCD_CONNECT_TIMEOUT PMCD_RECONNECT_TIMEOUT
+
+_cleanup()
+{
+    if [ -n "$pid" ]; then $sudo kill $pid; fi
+    # restart pmcd and primary pmlogger
+    $sudo $PCP_RC_DIR/pcp restart >>$seq.full 2>&1
+    _wait_for_pmcd
+    # no need for _wait_for_pmlogger
+    $sudo rm -fr $tmp.dir
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+_filter()
+{
+    tee -a $seq.full |
+    sed -e 's,^\[.*\],TIMESTAMP,' \
+        -e 's,pmmgr.[0-9]*/[0-9]*.,pmmgr(PID/TID),' \
+        -e 's,hostid [a-zA-Z0-9_-.]*,hostid HOSTID,' \
+        -e 's,at [a-zA-Z0-9_-.:]*,at LOCAL,' \
+        -e 's,'$tmp.dir',TMPDIR,'
+}
+
+echo "hostname=$hostname" >>$seq.full
+id >>$seq.full
+
+date >>$seq.full
+echo "=== 1. prepare pmmgr config directory  ===" | tee -a $seq.full
+$sudo rm -rf $tmp.dir
+mkdir $tmp.dir
+$sudo chown pcp.pcp $tmp.dir
+$sudo chmod 777 $tmp.dir
+echo 'local:' >$tmp.dir/target-host         # evoke ?container=FOO
+echo 'local:?dummy' >>$tmp.dir/target-host  # evoke &container=FOO
+# NB: other hostspec syntaxes (ip addresses, hostnames, etc.) also
+# seem to work with the [?&]container=XXX suffix; testing each of
+# them here would make the test much longer.  As it is, pmmgr will
+# semirandomly pick one or the other.
+echo '-t 30' >$tmp.dir/pmlogger
+touch $tmp.dir/pmlogconf # <-- this can be very very slow
+touch $tmp.dir/pmie
+touch $tmp.dir/pmieconf
+touch $tmp.dir/subtarget-containers
+echo $tmp.dir >$tmp.dir/log-directory  # same dir
+ls -ld $tmp.dir >>$seq.full
+
+$PCP_BINADM_DIR/pmmgr -U `whoami` -v -v -v -p 1 -c $tmp.dir -l $tmp.out &
+pid=$!
+echo "pid=$!" >>$seq.full
+
+date >>$seq.full
+echo "=== 2. cycle some short-lived containers ===" | tee -a $seq.full
+# need a time long enough to get enough docker instances started,
+# ... and then to run pmlogconf on each found container (in parallel)
+# ... and then to start a pmlogger (in parallel)
+#
+# on a 8cpu bare-metal machine, these steps can finish in a few seconds
+# on a 2vcpu virtual machine, these steps can take minutes (!)
+(docker info >>$seq.full
+ for i in `seq 3`; do
+     docker run --rm busybox sleep 150  &
+     sleep 20 # staggering seems to reduce load
+ done
+ docker ps >>$seq.full
+ wait)
+
+date >>$seq.full
+echo "=== 3. check that the containers were found ===" | tee -a $seq.full
+num=`ls $tmp.dir/$hostname--*/config.pmlogger 2>/dev/null | wc -l`
+# there might be more if the machine's already running other containers
+if [ "$num" -ge 3 ]; then
+    echo "enough config.pmlogger files" | tee -a $seq.full
+else
+    echo "not enough config.pmlogger files $num" | tee -a $seq.full
+fi
+num=`ls $tmp.dir/$hostname--*/*.meta 2>/dev/null | wc -l`
+if [ "$num" -ge 3 ]; then
+    echo "enough .meta files" | tee -a $seq.full
+else
+    echo "not enough .meta files $num" | tee -a $seq.full
+fi
+num=`ls $tmp.dir/$hostname--*/config.pmie 2>/dev/null | wc -l`
+if [ "$num" -ge 3 ]; then
+    echo "enough config.pmie files" | tee -a $seq.full
+else
+    echo "not enough config.pmie files $num" | tee -a $seq.full
+fi
+
+date >>$seq.full
+echo "=== 4. kill pmmgr ===" | tee -a $seq.full
+$sudo kill $pid
+pid=
+sleep 2
+
+echo >>$seq.full
+echo "== collecting full pmmgr logs:" >>$seq.full
+cat $tmp.out >>$seq.full
+
+echo >>$seq.full
+echo "== collecting container logs/configs:" >>$seq.full
+for log in $tmp.dir/$hostname--*/*.log $tmp.dir/$hostname--*/config.*
+do
+    if [ -f "$log" ]
+    then
+	echo "-- $log --" >>$seq.full
+	cat $log >>$seq.full
+    fi
+done
+
+echo >>$seq.full
+echo "== container archive data dump:" >>$seq.full
+ls -lR $tmp.dir >>$seq.full # for reference
+for f in $tmp.dir/$hostname--*/*.meta; do
+    echo == $f == >>$seq.full
+    pmdumplog -a $f >>$seq.full
+done
+
+status=0
+exit
