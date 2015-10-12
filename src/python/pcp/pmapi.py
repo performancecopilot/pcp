@@ -69,8 +69,8 @@
                 print "load average 5=",atom.f
 """
 
-# for reporting on times from pmLocaltime function
-from time import mktime
+import sys
+import time
 
 # constants adapted from C header file <pcp/pmapi.h>
 import cpmapi as c_api
@@ -89,8 +89,6 @@ from ctypes.util import find_library
 #
 # dynamic library loads
 #
-import sys
-
 LIBPCP = CDLL(find_library("pcp"))
 libc_name = "c" if sys.platform != "win32" else "msvcrt"
 LIBC = CDLL(find_library(libc_name))
@@ -201,7 +199,7 @@ class timeval(Structure):
 
     def sleep(self):
         """ Delay for the amount of time specified by this timeval. """
-        c_api.pmtimevalSleep(self.tv_sec, self.tv_usec)
+        time.sleep(float(self))
         return None
 
 class tm(Structure):
@@ -223,7 +221,7 @@ class tm(Structure):
                      self.tm_wday, self.tm_yday, self.tm_isdst)
         inseconds = 0.0
         try:
-            inseconds = mktime(timetuple)
+            inseconds = time.mktime(timetuple)
         except:
             pass
         return "%s %s" % (inseconds.__str__(), timetuple)
