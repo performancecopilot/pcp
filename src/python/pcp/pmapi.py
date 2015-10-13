@@ -978,11 +978,17 @@ class pmOptions(object):
     def pmGetOptionTimezone(self):	# str
         return c_api.pmGetOptionTimezone()
 
+    def pmSetOptionArchive(self, archive):	# str
+        return c_api.pmSetOptionArchive(archive)
+
     def pmSetOptionArchiveList(self, archives):	# str
         return c_api.pmSetOptionArchiveList(archives)
 
     def pmSetOptionArchiveFolio(self, folio):	# str
         return c_api.pmSetOptionArchiveFolio(folio)
+
+    def pmSetOptionHost(self, host):	# str
+        return c_api.pmSetOptionHost(host)
 
     def pmSetOptionHostList(self, hosts):	# str
         return c_api.pmSetOptionHostList(hosts)

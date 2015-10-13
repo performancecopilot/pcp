@@ -935,6 +935,7 @@ cgroups
 719 libpcp local valgrind
 720 libpcp local valgrind
 721 dbpmda local
+722 python local
 723 pmda.proc local
 724 pmfind local
 725 pmda.jbd2 local
