@@ -716,14 +716,23 @@ root_check_user(void)
 #endif
 }
 
+/*
+ * Perform early checking, and setup - before communicating with
+ * anyone else (incl. pmcd).
+ */
+static void
+root_prep(void)
+{
+    root_check_user();
+    root_setup_socket();
+    atexit(root_close_socket);
+}
+
 static void
 root_init(pmdaInterface *dp)
 {
-    root_check_user();
     root_setup_containers();
-    root_container_search(NULL);	/* potentially costly early scan */
-    root_setup_socket();
-    atexit(root_close_socket);
+    root_container_search(NULL); /* potentially costly early scan */
 
     dp->version.any.fetch = root_fetch;
     dp->version.any.instance = root_instance;
@@ -775,6 +784,7 @@ main(int argc, char **argv)
     }
 
     pmdaOpenLog(&dispatch);
+    root_prep();
     pmdaConnect(&dispatch);
     root_init(&dispatch);
     root_main(&dispatch);
