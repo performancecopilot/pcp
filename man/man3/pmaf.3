@@ -15,6 +15,7 @@
 .\"
 .TH PMAF 3 "PCP" "Performance Co-Pilot"
 .SH NAME
+\f3__pmAFsetup\f1,
 \f3__pmAFregister\f1,
 \f3__pmAFunregister\f1,
 \f3__pmAFblock\f1,
@@ -28,6 +29,10 @@
 .sp
 .ad l
 .hy 0
+.in +8n
+.ti -8n
+int __pmAFsetup(const struct timeval *\fIstart\fP, const struct timeval *\fIdelta\fP, void *\fIdata\fP, void\ (*\fIfunc\fP)(int,\ void *));
+.in
 .in +8n
 .ti -8n
 int __pmAFregister(const struct timeval *\fIdelta\fP, void *\fIdata\fP, void\ (*\fIfunc\fP)(int,\ void *));
@@ -58,19 +63,27 @@ PMDA and the
 .BR pmdahotproc (1)
 PMDA are the principal users of these services.
 .P
-An event is registered by calling
-.BR __pmAFregister ,
+An event is created by calling
+.B __pmAFsetup
+or
+.B __pmAFregister
 and on success the return value is an event number greater than zero.
 The event has associated event data identified by the opaque pointer
 .IR data .
 The event will occur with frequency
 .IR delta
-(the first instance will be
-.I delta
-after the current time when the event is registered),
 and each time the event occurs the function
 .I func
 will be called with the event number and the event data as arguments.
+.P
+If
+.B __pmAFsetup
+is used then the first event is scheduled for the current time plus
+.IR start ,
+else if
+.B __pmAFregister
+is used then the first event is scheduled for the current time plus
+.IR delta .
 .P
 .I func
 is called in a SIGALRM signal handler context and so the routines
@@ -122,6 +135,8 @@ and
 may be used to explicitly block and unblock the dispatch of events.
 This is most useful when the caller wishes to set up a number of
 events via
+.B __pmAFsetup
+or
 .B __pmAFregister
 and complete the registration phase before the first
 event callback occurs.
@@ -133,6 +148,7 @@ returns 1 or 0 depending on whether the event queue is empty or not.
 .BR PMAPI (3)
 .SH DIAGNOSTICS
 .PP
+.BR __pmAFsetup ,
 .B __pmAFregister
 and
 .B __pmAFunregister
@@ -158,13 +174,19 @@ require direct and concurrent access to these services and resources.
 If the callback functions are slow, or delayed, it is possible that
 the event scheduling could fall behind and never catchup.  When this
 begins to happen, events are silently skipped and rescheduled at the earliest
-possible time on the future according to the fixed schedule defined
+possible time in the future according to the fixed schedule defined
 by the time of the call to
+.B __pmAFsetup
+and the value of the
+.I start
+and
+.I delta
+arguments
+(or defined by the time of the call to
 .B __pmAFregister
 and the value of the
 .I delta
-argument to
-.BR __pmAFregister .
+argument).
 .P
 In addition, the semantics of the interval timer(s) and the global
 state needed to support these services demand that applications

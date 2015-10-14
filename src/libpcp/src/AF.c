@@ -54,7 +54,7 @@ static HANDLE	afblock;	/* mutex protecting callback */
 static HANDLE	aftimer;	/* equivalent to ITIMER_REAL */
 static int	afsetup;	/* one-time-setup: done flag */
 
-static void AFsetup(void)
+static void AFinit(void)
 {
     PM_LOCK(__pmLock_libpcp);
     if (afsetup) {
@@ -68,7 +68,7 @@ static void AFsetup(void)
 }
 static void AFhold(void)
 { 
-    AFsetup();
+    AFinit();
     WaitForSingleObject(afblock, INFINITE);
 }
 static void AFrelse(void)
@@ -86,7 +86,7 @@ static void AFsetitimer(struct timeval *interval)
     LARGE_INTEGER duetime;
     long long inc;
 
-    AFsetup();
+    AFinit();
 
     inc = interval->tv_sec * 10000000ULL;	/* sec -> 100 nsecs */
     inc += (interval->tv_usec * 10ULL);		/* used -> 100 nsecs */
@@ -377,7 +377,7 @@ onalarm(int dummy)
 }
 
 int
-__pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *))
+__pmAFsetup(const struct timeval *start, const struct timeval *delta, void *data, void (*func)(int, void *))
 {
     qelt		*qp;
     struct timeval	now;
@@ -400,7 +400,8 @@ __pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *
     qp->q_delta = *delta;
     qp->q_func = func;
     __pmtimevalNow(&qp->q_when);
-    __pmtimevalInc(&qp->q_when, &qp->q_delta);
+    if (start != NULL)
+	__pmtimevalInc(&qp->q_when, start);
 
     enqueue(qp);
     if (root == qp) {
@@ -427,6 +428,12 @@ __pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *
     if (!block)
 	AFrelse();
     return qp->q_afid;
+}
+
+int
+__pmAFregister(const struct timeval *delta, void *data, void (*func)(int, void *))
+{
+    return __pmAFsetup(delta, delta, data, func);
 }
 
 int
