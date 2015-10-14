@@ -912,6 +912,7 @@ cgroups
 662 pmwebapi local
 666 pmmgr local slow
 667 python local
+668 pmmgr local containers
 670 libpcp local
 701 pmlogcheck local
 702 python libpcp local
@@ -934,6 +935,7 @@ cgroups
 719 libpcp local valgrind
 720 libpcp local valgrind
 721 dbpmda local
+722 python local
 723 pmda.proc local
 724 pmfind local
 725 pmda.jbd2 local

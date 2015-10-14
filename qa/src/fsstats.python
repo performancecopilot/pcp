@@ -45,7 +45,7 @@ class FilesysReport(pmcc.MetricGroupPrinter):
             filesys = self.currentValue(group, 'filesys.' + name)
             mounts = self.currentValue(group, 'mounts.' + name)
             # print("%s %s %s" % (name, self._device, self._fspath))
-            print("%s %d %d" % (name,
+            print("%s %f %f" % (name,
                 filesys[self._device], mounts[self._fspath]))
         sys.exit(0)
 

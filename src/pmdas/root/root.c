@@ -61,6 +61,8 @@ static pmdaMetric root_metrictab[] = {
 	CONTAINERS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
     { NULL, { PMDA_PMID(0, CONTAINERS_RESTARTING), PM_TYPE_U32,
 	CONTAINERS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL, { PMDA_PMID(0, CONTAINERS_CGROUP), PM_TYPE_STRING,
+	CONTAINERS_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) } },
 };
 #define METRICTAB_SZ (sizeof(root_metrictab)/sizeof(root_metrictab[0]))
 
@@ -219,6 +221,11 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 5:		/* containers.state.restarting */
 	    atom->ul = (cp->flags & CONTAINER_FLAG_RESTARTING) != 0;
+	    break;
+	case 6:		/* containers.cgroup */
+	    if (cp->pid <= 0)
+		return PMDA_FETCH_NOVALUES;
+	    atom->cp = cp->cgroup;
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -711,14 +718,23 @@ root_check_user(void)
 #endif
 }
 
+/*
+ * Perform early checking, and setup - before communicating with
+ * anyone else (incl. pmcd).
+ */
+static void
+root_prep(void)
+{
+    root_check_user();
+    root_setup_socket();
+    atexit(root_close_socket);
+}
+
 static void
 root_init(pmdaInterface *dp)
 {
-    root_check_user();
     root_setup_containers();
-    root_container_search(NULL);	/* potentially costly early scan */
-    root_setup_socket();
-    atexit(root_close_socket);
+    root_container_search(NULL); /* potentially costly early scan */
 
     dp->version.any.fetch = root_fetch;
     dp->version.any.instance = root_instance;
@@ -770,6 +786,7 @@ main(int argc, char **argv)
     }
 
     pmdaOpenLog(&dispatch);
+    root_prep();
     pmdaConnect(&dispatch);
     root_init(&dispatch);
     root_main(&dispatch);

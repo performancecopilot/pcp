@@ -462,8 +462,9 @@ Options structure dump:
     version: 2
     flags: 0xb (init,done,usage_err)
     errors: 1
-    context: 0x0 (-)
-    nhosts: 0
+    context: 0x1 (host)
+    nhosts: 2
+    hosts: foo.com,bar.org
     narchives: 0
     start: -
     finish: -
@@ -554,9 +555,10 @@ Options structure dump:
     version: 2
     flags: 0xb (init,done,usage_err)
     errors: 1
-    context: 0x0 (-)
+    context: 0x2 (archive)
     nhosts: 0
-    narchives: 0
+    narchives: 3
+    archives: foo,bar,moo
     start: -
     finish: -
     origin: -

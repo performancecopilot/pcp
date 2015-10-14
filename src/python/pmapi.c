@@ -513,6 +513,36 @@ setOptionArchiveList(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+setOptionArchive(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *archive;
+    char *keyword_list[] = {"archive", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"s:pmSetOptionArchive", keyword_list, &archive))
+	return NULL;
+
+    __pmAddOptArchive(&options, archive);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+setOptionHost(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *host;
+    char *keyword_list[] = {"host", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"s:pmSetOptionHost", keyword_list, &host))
+	return NULL;
+
+    __pmAddOptHost(&options, host);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 setOptionHostList(PyObject *self, PyObject *args, PyObject *keywords)
 {
     char *hosts;
@@ -1216,11 +1246,17 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmGetOptionTimezone",
 	.ml_meth = (PyCFunction) getOptionTimezone,
         .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetOptionArchive",
+	.ml_meth = (PyCFunction) setOptionArchive,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmSetOptionArchiveList",
 	.ml_meth = (PyCFunction) setOptionArchiveList,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmSetOptionArchiveFolio",
 	.ml_meth = (PyCFunction) setOptionArchiveFolio,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetOptionHost",
+	.ml_meth = (PyCFunction) setOptionHost,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmSetOptionHostList",
 	.ml_meth = (PyCFunction) setOptionHostList,

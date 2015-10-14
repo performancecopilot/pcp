@@ -37,3 +37,4 @@ is the unique container identification string for each container.
 @ containers.state.running this container is currently running (one/zero)
 @ containers.state.paused this container is currently paused (one/zero)
 @ containers.state.restarting this container is restarting (one/zero)
+@ containers.cgroup path mapping container names to their cgroups
