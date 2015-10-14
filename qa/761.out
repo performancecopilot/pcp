@@ -40,8 +40,7 @@ containers.pid
 No value(s) available!
 
 containers.cgroup
-    inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value "system.slice/docker-781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af.scope"
-    inst [N or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value "system.slice/docker-d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec.scope"
+No value(s) available!
 
 containers.state.running
     inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
@@ -74,7 +73,6 @@ containers.pid
     inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 9579
 
 containers.cgroup
-    inst [N or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value "system.slice/docker-252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f.scope"
     inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value "system.slice/docker-2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255.scope"
     inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value "system.slice/docker-d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e.scope"
 

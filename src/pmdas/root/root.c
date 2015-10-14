@@ -223,6 +223,8 @@ root_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = (cp->flags & CONTAINER_FLAG_RESTARTING) != 0;
 	    break;
 	case 6:		/* containers.cgroup */
+	    if (cp->pid <= 0)
+		return PMDA_FETCH_NOVALUES;
 	    atom->cp = cp->cgroup;
 	    break;
 	default:
