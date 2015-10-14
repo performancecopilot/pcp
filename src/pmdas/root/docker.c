@@ -89,16 +89,26 @@ jsmnstrdup(const char *js, jsmntok_t *tok, char **name)
 void
 docker_setup(container_engine_t *dp)
 {
-     static const char *docker_default = "/var/lib/docker";
-     const char *docker = getenv("PCP_DOCKER_DIR");
+    static const char *docker_default = "/var/lib/docker";
+    static const char *systemd_cgroup = "/sys/fs/cgroup/memory/system.slice";
+    const char *cgroup = getenv("PCP_SYSTEMD_CGROUP");
+    const char *docker = getenv("PCP_DOCKER_DIR");
 
-     if (!docker)
+    /* determine the location of docker container config.json files */
+    if (!docker)
 	docker = docker_default;
-     snprintf(dp->path, sizeof(dp->path), "%s/containers", docker);
-     dp->path[sizeof(dp->path)-1] = '\0';
+    snprintf(dp->path, sizeof(dp->path), "%s/containers", docker);
+    dp->path[sizeof(dp->path)-1] = '\0';
+
+    /* heuristic to determine which cgroup naming convention in use */
+    if (!cgroup)
+	cgroup = systemd_cgroup;
+    if (access(cgroup, F_OK) == 0)
+	dp->state |= CONTAINER_STATE_SYSTEMD;
 
     if (pmDebug & DBG_TRACE_ATTR)
-	__pmNotifyErr(LOG_DEBUG, "docker_setup: using path: %s\n", dp->path);
+	__pmNotifyErr(LOG_DEBUG, "docker_setup: path %s, %s suffix\n", dp->path,
+			(dp->state & CONTAINER_STATE_SYSTEMD)? "systemd" : "default");
 }
 
 int
@@ -152,7 +162,9 @@ docker_insts_refresh(container_engine_t *dp, pmInDom indom)
 		continue;
 	    cp->engine = dp;
 	    snprintf(cp->cgroup, sizeof(cp->cgroup),
-			"system.slice/docker-%s.scope", path);
+			(dp->state & CONTAINER_STATE_SYSTEMD) ?
+			"system.slice/docker-%s.scope" : "docker/%s",
+			path);
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
     }

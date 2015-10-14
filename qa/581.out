@@ -56,23 +56,23 @@ Expect only connection lost/re-established and DYN_* lines ...
 DATE: DYN_DISCRETE ten twenty thirty
 DATE: DYN_INSTANT ten twenty thirty
 [TIMESTAMP] pmie(PID) Error: pmFetch from HOST failed: IPC protocol failure
-[TIMESTAMP] pmie(PID) Info: Lost connection to pmcd on host HOST
-[TIMESTAMP] pmie(PID) Info: Re-established connection to pmcd on host HOST
+[TIMESTAMP] pmie(PID) Info: Lost connection to pmcd HOST
+[TIMESTAMP] pmie(PID) Info: Re-established connection to pmcd HOST
 DATE: DYN_DISCRETE ten twenty thirty
 DATE: DYN_INSTANT ten twenty thirty
 [TIMESTAMP] pmie(PID) Error: pmFetch from HOST failed: IPC protocol failure
-[TIMESTAMP] pmie(PID) Info: Lost connection to pmcd on host HOST
-[TIMESTAMP] pmie(PID) Info: Re-established connection to pmcd on host HOST
+[TIMESTAMP] pmie(PID) Info: Lost connection to pmcd HOST
+[TIMESTAMP] pmie(PID) Info: Re-established connection to pmcd HOST
 DATE: DYN_DISCRETE twenty twenty-five thirty forty forty-nine fifty fifty-eight one-hundred-and-six
 DATE: DYN_INSTANT twenty twenty-five thirty forty forty-nine fifty fifty-eight one-hundred-and-six
 [TIMESTAMP] pmie(PID) Error: pmFetch from HOST failed: IPC protocol failure
-[TIMESTAMP] pmie(PID) Info: Lost connection to pmcd on host HOST
-[TIMESTAMP] pmie(PID) Info: Re-established connection to pmcd on host HOST
+[TIMESTAMP] pmie(PID) Info: Lost connection to pmcd HOST
+[TIMESTAMP] pmie(PID) Info: Re-established connection to pmcd HOST
 DATE: DYN_DISCRETE seven eight ten twenty thirty-* one-hundred
 DATE: DYN_INSTANT seven eight ten twenty thirty-* one-hundred
 [TIMESTAMP] pmie(PID) Error: pmFetch from HOST failed: IPC protocol failure
-[TIMESTAMP] pmie(PID) Info: Lost connection to pmcd on host HOST
-[TIMESTAMP] pmie(PID) Info: Re-established connection to pmcd on host HOST
+[TIMESTAMP] pmie(PID) Info: Lost connection to pmcd HOST
+[TIMESTAMP] pmie(PID) Info: Re-established connection to pmcd HOST
 Waiting for pmcd to terminate ...
 Starting pmcd ... 
 Starting pmlogger ... 

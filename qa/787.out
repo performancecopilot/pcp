@@ -1027,7 +1027,7 @@ interval:  3600.00 sec
 log reads: 13266
 
 === all metrics at once ===
-pmie: timezone set to local timezone of host super.elastic.org
+pmie: timezone set to local timezone from archives/bug-1044
 hinv_ncpu (Fri Jan 10 18:00:00 2014): 4
 kernel_all_nprocs (Fri Jan 10 18:00:00 2014): 444
 pmcd_numagents (Fri Jan 10 18:00:00 2014): ?

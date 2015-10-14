@@ -150,12 +150,14 @@ _reboot_setup()
     fi
 }
 
-# Note: _pmda_setup() runs in the background, in parallel with
-# the rest of the script.  It might complete well after the caller.
+# Note: _pmda_setup() is run only once per rc script invocation ...
+#       even though this may call Install and/or Remove scripts
+#       for multiple PMDAs which may in turn (recursively) call
+#       the rc script
 #
 _pmda_setup()
 {
-    # Auto-Install PMDAs?
+    # Auto-Install and/or Auto-Remove PMDAs?
     #
     if [ -d "$PCP_PMDAS_DIR" ]
     then
@@ -486,21 +488,46 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
             _start_pmcheck
 	    $RC_STATUS -v
 
-	    $PCP_BINADM_DIR/pmpost "start pmcd from $prog"
-
-	    # install any extra PMDAs, in the background
-	    _pmda_setup &
-
-	    # force removal of primary pmlogger link ... if primary
-	    # pmlogger is started, this will re-create the link
+	    # auto-install and/or auto-removal of PMDAs may trigger
+	    # a recursive call into this script to restart pmcd,
+	    # so be careful to only run _pmda_setup once and do other
+	    # tasks related to the initial script invocation only once
 	    #
-	    rm -f "$PCP_TMP_DIR/pmlogger/primary"
+	    if [ -z "$PMDA_SETUP_RUNNING" ]
+	    then
+		# not a recursive call ...
 
-	    # site-local customisations after PMCD startup
-	    [ -x $PCPLOCAL ] && $PCPLOCAL $VFLAG start
+		$PCP_BINADM_DIR/pmpost "start pmcd from $prog"
 
-	    # finally, stop here if running in a container
-	    [ -z "$PCP_CONTAINER_IMAGE" ] || exec $PCP_BINADM_DIR/pmpause
+		# force removal of primary pmlogger link ... if primary
+		# pmlogger is started, this will re-create the link
+		#
+		rm -f "$PCP_TMP_DIR/pmlogger/primary"
+
+		# site-local customisations after PMCD startup
+		[ -x $PCPLOCAL ] && $PCPLOCAL $VFLAG start
+
+		# auto install/remove any PMDAs ... this may trigger the
+		# recursion and setting $PMDA_SETUP_RUNNING in the
+		# environment is the guard
+		#
+		PMDA_SETUP_RUNNING=yes _pmda_setup &
+
+		# container environment
+		if [ -n "$PCP_CONTAINER_IMAGE" ]
+		then
+		    # in a container, _pmda_setup cannot run indefinitely -
+		    # if it did then the pmpause signal handler would reap
+		    # the _pmda_setup child and exit.
+		    wait
+
+		    # finally, stop here when running as a container
+		    exec $PCP_BINADM_DIR/pmpause
+		fi
+	    else
+		$PCP_BINADM_DIR/pmpost "start pmcd from PMDA setup called from $prog"
+	    fi
+
 	fi
 	status=0
         ;;

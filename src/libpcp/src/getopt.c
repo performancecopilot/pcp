@@ -570,6 +570,10 @@ __pmAddOptArchiveList(pmOptions *opts, char *arg)
 	*end = saveend;
 	start = (*end == '\0') ? end : end + 1;
     }
+    if (opts->narchives > 1 && !(opts->flags & PM_OPTFLAG_MULTI)) {
+	pmprintf("%s: too many archives requested: %s\n", pmProgname, arg);
+	opts->errors++;
+    }
 }
 
 void
@@ -690,6 +694,10 @@ __pmAddOptArchiveFolio(pmOptions *opts, char *arg)
 
 	fclose(fp);
     }
+    if (opts->narchives > 1 && !(opts->flags & PM_OPTFLAG_MULTI)) {
+	pmprintf("%s: too many archives requested: %s\n", pmProgname, arg);
+	opts->errors++;
+    }
     return;
 
 badfolio:
@@ -758,10 +766,7 @@ __pmAddOptHostFile(pmOptions *opts, char *arg)
 void
 __pmAddOptHostList(pmOptions *opts, char *arg)
 {
-    if (!(opts->flags & PM_OPTFLAG_MULTI)) {
-	pmprintf("%s: too many hosts requested: %s\n", pmProgname, arg);
-	opts->errors++;
-    } else if (opts->narchives && !(opts->flags & PM_OPTFLAG_MIXED)) {
+    if (opts->narchives && !(opts->flags & PM_OPTFLAG_MIXED)) {
 	pmprintf("%s: only one of hosts or archives allowed\n", pmProgname);
 	opts->errors++;
     } else {
@@ -790,6 +795,10 @@ __pmAddOptHostList(pmOptions *opts, char *arg)
 	next:
 	    start = (*end == '\0') ? end : end + 1;
 	}
+    }
+    if (opts->nhosts > 1 && !(opts->flags & PM_OPTFLAG_MULTI)) {
+	pmprintf("%s: too many hosts requested: %s\n", pmProgname, arg);
+	opts->errors++;
     }
 }
 

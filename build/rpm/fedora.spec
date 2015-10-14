@@ -617,6 +617,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for ActiveMQ
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(LWP::UserAgent)
 
 %description pmda-activemq
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -2138,6 +2139,7 @@ cd
 %{_datadir}/pcp/webapps/*.png
 %{_datadir}/pcp/webapps/*.ico
 %{_datadir}/pcp/webapps/*.html
+%{_datadir}/pcp/webapps/*.txt
 %{_datadir}/pcp/webapps/blinkenlights
 
 %files webapp-grafana
@@ -2396,6 +2398,9 @@ cd
 
 %changelog
 * Fri Oct 30 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.8-1
+- Fix python scripts response to being interrupted (BZ 1238550)
+- Add pmOption host and archive setter python APIs (BZ 1270176)
+- Replace old pmatop(1) man page with pcp-atop(1) (BZ 1270761)
 - Currently under development [see http://pcp.io/roadmap]
 
 * Wed Sep 16 2015 Nathan Scott <nathans@redhat.com> - 3.10.7-1

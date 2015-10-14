@@ -7,6 +7,7 @@
  ***********************************************************************
  *
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2015 Red Hat
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,13 +29,13 @@
 #include "pmapi.h"
 
 /* report where PCP data is coming from */
-char *findsource(char *);
+char *findsource(const char *, const char *);
 
 /* initialize performance metrics API */
 void pmcsInit(void);
 
 /* juggle contexts */
-int newContext(char *);
+int newContext(Symbol *, const char *);
 
 /* initialize access to archive */
 int initArchive(Archive *);

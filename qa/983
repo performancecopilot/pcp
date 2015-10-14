@@ -1,0 +1,112 @@
+#!/bin/sh
+# PCP QA Test No. 983
+# pmie via proxies
+#
+# Copyright (c) 2015 Red Hat
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
+
+port2=55432 # just some random port
+port1=55431 # just some random port
+echo | $PCP_BINADM_DIR/telnet-probe localhost $port1 \
+    && _notrun "Someone already listening on port $port1"
+echo | $PCP_BINADM_DIR/telnet-probe localhost $port2 \
+    && _notrun "Someone already listening on port $port2"
+# (technically, this is a TOCTTOU race condition)
+
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+
+signal=$PCP_BINADM_DIR/pmsignal
+
+_cleanup() {
+    $sudo rm -f $tmp.*
+    [ -z "$pmcd_pid" ] || sudo $signal $pmcd_pid
+    [ -z "$socat_pid" ] || sudo $signal $socat_pid
+    $sudo $PCP_RC_DIR/pmcd restart | _filter_pcp_start
+}
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+
+# ditch timestamps and exact hostnames 
+_filter_pmie() {
+    hostname=`hostname`
+    _filter_pmie_log |
+        sed -e 's/^\[.*\]/[TIMESTAMP]/' |
+        sed -e 's/'$hostname'/HOSTNAME/'
+}
+
+
+
+# real QA test starts here
+
+# We use socat to create a loopback proxy for pmcd on some oddball
+# port, and have pmie be forced to talk to it there.  The idea is that
+# if pmie were to still use the host-name as a pmNewContext attempt,
+# it will fail (since there won't be a pmcd there).
+
+# see also qa/283 for "pmcd -p" testing.
+$sudo $PCP_RC_DIR/pmcd stop >/dev/null 2>&1
+# allow time to cleanup and close all sockets
+sleep 3
+
+rm -f $seq.full
+
+
+echo "=== starting pmcd on port $port1 ===" |tee -a $seq.full
+cat >$tmp.sh <<END
+#!/bin/sh
+PATH=$PATH
+$PCP_PMCD_PROG -f -l $tmp.log -p $port1 &
+echo \$!
+END
+
+# Filter the stderr of this using a temp file
+pmcd_pid=`$sudo sh $tmp.sh 2>$tmp.tmp`
+cat $tmp.tmp 1>&2
+sleep 1
+
+
+echo "=== starting socat on port $port2 ===" |tee -a $seq.full
+
+# Filter the stderr of this using a temp file
+socat -d -d TCP-LISTEN:$port2,fork TCP:localhost:$port1 2>$tmp.socat &
+socat_pid=$!
+sleep 1
+
+cat >$tmp.pmie <<END
+delta = 1sec;
+(sample.load > 40) -> print "found the meaning of %h %c %v";
+END
+
+
+for port in $port2 $port1 44321  # the latter will fail
+do
+    echo "=== running pmie via $port ===" |tee -a $seq.full
+    pmie -f -h localhost:$port -c $tmp.pmie -T 5s > $tmp.out 2>&1
+    cat $tmp.out >> $seq.full
+    cat $tmp.out | _filter_pmie
+    #(echo f $tmp.pmie; echo l; echo r 5s) | pmie -d -f -h localhost:$port | _filter_pmie
+done
+
+
+# collect misc.
+echo "pmie log" >> $seq.full
+cat $tmp.log >> $seq.full
+echo "socat log" >> $seq.full
+cat $tmp.socat >> $seq.full
+
+# success, all done
+status=0
+
+exit

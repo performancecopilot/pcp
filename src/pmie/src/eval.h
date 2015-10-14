@@ -3,6 +3,7 @@
  ***********************************************************************
  *
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2015 Red Hat
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +41,7 @@ void invalidate(void);
 #define STATE_FAILINIT	1
 #define STATE_RECONN	2
 #define STATE_LOSTCONN	3
-int host_state_changed(char *, int);
+int host_state_changed(const char *, int);
 
 #endif /* EVAL_H */
 

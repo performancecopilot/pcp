@@ -838,6 +838,16 @@ This is used in places where console-based tools need to interact
 with the user, and in particular is used when authentication is
 being performed.
 .TP
+.B PCP_DEBUG
+When set, this variable provides an alternate way to initialize
+the value used to control diagnostic and debug output (the default
+value is 0 to suppress this output).
+The value for
+.B $PCP_DEBUG
+should be a decimal integer, see
+.BR pmdbg (1)
+for a description of the supported values.
+.TP
 .B PCP_DERIVED_CONFIG
 When set, this variable defines a colon separated list of
 files and/or directories (the syntax is the same as for the

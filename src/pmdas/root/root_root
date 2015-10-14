@@ -25,6 +25,7 @@ containers {
     name		ROOT:0:1
     pid			ROOT:0:2
     state
+    cgroup		ROOT:0:6
 }
 
 containers.state {

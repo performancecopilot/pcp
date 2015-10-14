@@ -1,0 +1,25 @@
+QA output created by 983
+=== starting pmcd on port 55431 ===
+=== starting socat on port 55432 ===
+=== running pmie via 55432 ===
+DATE: found the meaning of HOSTNAME localhost:55432 42
+DATE: found the meaning of HOSTNAME localhost:55432 42
+DATE: found the meaning of HOSTNAME localhost:55432 42
+DATE: found the meaning of HOSTNAME localhost:55432 42
+DATE: found the meaning of HOSTNAME localhost:55432 42
+DATE: found the meaning of HOSTNAME localhost:55432 42
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
+=== running pmie via 55431 ===
+DATE: found the meaning of HOSTNAME localhost:55431 42
+DATE: found the meaning of HOSTNAME localhost:55431 42
+DATE: found the meaning of HOSTNAME localhost:55431 42
+DATE: found the meaning of HOSTNAME localhost:55431 42
+DATE: found the meaning of HOSTNAME localhost:55431 42
+DATE: found the meaning of HOSTNAME localhost:55431 42
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
+=== running pmie via 44321 ===
+[TIMESTAMP] pmie(PID) Info: Cannot connect to pmcd localhost:44321
+pmie: warning - pmcd via localhost:44321 does not respond
+[TIMESTAMP] pmie(PID) Info: evaluator exiting
+Waiting for pmcd to terminate ...
+Starting pmcd ... 

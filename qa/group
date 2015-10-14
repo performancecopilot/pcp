@@ -590,7 +590,7 @@ cgroups
 292 pmlogextract logutil pmval local
 293 pmstat #939275 local
 294 pmproxy local pmval pmie
-295 pmproxy local pmval
+295 pmproxy local pmval pmstat pmie
 296 pmcd local
 297 pmproxy local
 298 pmie local
@@ -912,6 +912,7 @@ cgroups
 662 pmwebapi local
 666 pmmgr local slow
 667 python local
+668 pmmgr local containers
 670 libpcp local
 701 pmlogcheck local
 702 python libpcp local
@@ -934,6 +935,7 @@ cgroups
 719 libpcp local valgrind
 720 libpcp local valgrind
 721 dbpmda local
+722 python local
 723 pmda.proc local
 724 pmfind local
 725 pmda.jbd2 local
@@ -1001,6 +1003,9 @@ cgroups
 787 archive local pmie pmlogrewrite pmdumplog pmval flakey
 788 pmda.nginx pmda.install local
 789 pmda.papi local
+790 pmlogextract local
+791 pmlogextract valgrind local
+792 libpcp local
 798 pmda.nfsclient local
 799:retired pmda.papi local
 800 pmda.proc local
@@ -1011,6 +1016,7 @@ cgroups
 812 pmlogextract local
 813 pmda.papi local
 815 pmie local
+816 libpcp local
 822:reserved pmlogrewrite
 823 pmda.sample pmstore secure local
 824 pmlogsummary local #1132476
@@ -1040,6 +1046,7 @@ cgroups
 861 pmcd pmda.pmcd local
 862 pmie local
 864 pcp python local
+869 pmda.linux local
 872 pmda.linux local
 873 pmda.linux local
 874 valgrind pmval libpcp local
@@ -1100,6 +1107,7 @@ cgroups
 980 python local
 981 dbpmda perl pmda.gpfs local
 982 pmda.proc pmda.hotproc local
+983 pmie local
 984 cgroups local
 987 pmda.xfs local
 988 pmda.xfs local valgrind

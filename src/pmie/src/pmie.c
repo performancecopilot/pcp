@@ -375,8 +375,11 @@ startmonitor(void)
     path = (logfile[0] == '\0') ? "<none>" : logfile;
     strncpy(perf->logfile, path, sizeof(perf->logfile));
     perf->logfile[sizeof(perf->logfile)-1] = '\0';
-    strncpy(perf->defaultfqdn, dfltHostName, sizeof(perf->defaultfqdn));
+    /* Don't try to improvise a current fdqn for "the" pmcd. 
+       It'll be filled in periodically by newContext(). */
+    strncpy(perf->defaultfqdn, "(uninitialized)", sizeof(perf->defaultfqdn));
     perf->defaultfqdn[sizeof(perf->defaultfqdn)-1] = '\0';
+
     perf->version = 1;
 }
 
@@ -420,8 +423,8 @@ logRotate(void)
 
     fp = __pmRotateLog(pmProgname, logfile, logfp, &sts);
     if (sts != 0) {
-	fprintf(stderr, "pmie: PID = %" FMT_PID ", default host = %s via %s\n\n",
-                getpid(), dfltHostName, dfltHostConn);
+	fprintf(stderr, "pmie: PID = %" FMT_PID ", via %s\n\n",
+                getpid(), dfltHostConn);
 	remap_stdout_stderr();
 	logfp = fp;
     } else {
@@ -552,7 +555,6 @@ getargs(int argc, char *argv[])
 	    }
 	    dfltConn = opts.context = PM_CONTEXT_HOST;
 	    dfltHostConn = opts.optarg;
-            dfltHostName = ""; /* unknown until newContext */
 	    break;
 
         case 'j':			/* stomp protocol (JMS) config */
@@ -632,7 +634,6 @@ getargs(int argc, char *argv[])
     if (!dfltConn && opts.nhosts) {
 	dfltConn = opts.context = PM_CONTEXT_HOST;
 	dfltHostConn = opts.hosts[c];
-        dfltHostName = ""; /* unknown until newContext */
     }
 
     if (foreground)
@@ -690,40 +691,16 @@ getargs(int argc, char *argv[])
 	a = archives;
 	while (a->next)
 	    a = a->next;
-	dfltHostName = a->hname; /* already filled in during initArchive() */
+        dfltHostConn = a->fname;
     } else if (!dfltConn || dfltConn == PM_CONTEXT_HOST) {
 	if (dfltConn == 0)	/* default case, no -a or -h */
 	    dfltHostConn = "local:";
-	sts = pmNewContext(PM_CONTEXT_HOST, dfltHostConn);
-	/* pmcd down locally, try to extract hostname manually */
-	if (sts < 0 && (!dfltConn ||
-			!strcmp(dfltHostConn, "localhost") ||
-			!strcmp(dfltHostConn, "local:") ||
-			!strcmp(dfltHostConn, "unix:")))
-	    sts = pmNewContext(PM_CONTEXT_LOCAL, NULL);
-	if (sts < 0) {
-	    fprintf(stderr, "%s: cannot find host name for %s\n"
-		    "pmNewContext failed: %s\n",
-		    pmProgname, dfltHostConn, pmErrStr(sts));
-	    exit(1);
-	} else {
-	    const char	*tmp = pmGetContextHostName(sts);
-
-	    if (strlen(tmp) == 0) {
-		fprintf(stderr, "%s: pmGetContextHostName(%d) failed\n",
-			pmProgname, sts);
-		exit(1);
-	    }
-	    if ((dfltHostName = strdup(tmp)) == NULL)
-		__pmNoMem("host name copy", strlen(tmp)+1, PM_FATAL_ERR);
-	    pmDestroyContext(sts);
-        }
     }
 
     if (!archives && !interactive) {
 	if (commandlog != NULL)
-            fprintf(stderr, "pmie: PID = %" FMT_PID ", default host = %s via %s\n\n",
-                    getpid(), dfltHostName, dfltHostConn);
+            fprintf(stderr, "pmie: PID = %" FMT_PID ", via %s\n\n",
+                    getpid(), dfltHostConn);
 	startmonitor();
     }
 

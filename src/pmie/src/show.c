@@ -3,6 +3,7 @@
  ***********************************************************************
  *
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2015 Red Hat
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -139,7 +140,7 @@ concat(char *string1, size_t pos, char **string2)
 
 /* Return host and instance name for nth value in expression *x */
 static int
-lookupHostInst(Expr *x, int nth, char **host, char **inst)
+lookupHostInst(Expr *x, int nth, char **host, char **conn, char **inst)
 {
     Metric	*m = NULL;
     int		mi;
@@ -147,7 +148,7 @@ lookupHostInst(Expr *x, int nth, char **host, char **inst)
     int		pick = -1;
     int		matchaggr = 0;
     int		aggrop = NOP;
-    double      *aggrval = NULL;
+    double	*aggrval = NULL;
 #if PCP_DEBUG
     static Expr	*lastx = NULL;
     int		dbg_dump = 0;
@@ -163,8 +164,8 @@ lookupHostInst(Expr *x, int nth, char **host, char **inst)
     }
 #endif
     if (x->op == CND_MIN_HOST || x->op == CND_MAX_HOST ||
-        x->op == CND_MIN_INST || x->op == CND_MAX_INST ||
-        x->op == CND_MIN_TIME || x->op == CND_MAX_TIME) {
+	x->op == CND_MIN_INST || x->op == CND_MAX_INST ||
+	x->op == CND_MIN_TIME || x->op == CND_MAX_TIME) {
 	/*
 	 * extrema operators ... value is here, but the host, instance, sample
 	 * context is in the child expression ... go one level deeper and try
@@ -184,6 +185,7 @@ lookupHostInst(Expr *x, int nth, char **host, char **inst)
     /* check for no host and instance available e.g. constant expression */
     if ((x->e_idom <= 0 && x->hdom <= 0) || ! x->metrics) {
 	*host = NULL;
+	*conn = NULL;
 	*inst = NULL;
 #if PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL2) {
@@ -277,10 +279,12 @@ done:
     /* host and instance names */
     if (m == NULL) {
 	*host = NULL;
+	*conn = NULL;
 	*inst = NULL;
     }
     else {
 	*host = symName(m->hname);
+	*conn = symName(m->hconn);
 	sts++;
 	if (pick >= 0 && x->e_idom > 0 && m->inames) {
 	    *inst = m->inames[pick];
@@ -791,24 +795,30 @@ findValues(Expr *x)
  * format string
  ***********************************************************************/
 
-/* Locate next %h, %i or %v in format string. */
-static int	/* 0 -> not found, 1 -> host, 2 -> inst, 3 -> value */
+/* Locate next %h, %i or %v or %c in format string. */
+static char	/* '\0' -> not found, format code char otherwise. */
 findFormat(char *format, char **pos)
 {
     for (;;) {
 	if (*format == '\0')
-	    return 0;
+	    return '\0';
 	if (*format == '%') {
 	    switch (*(format + 1)) {
 	    case 'h':
 		*pos = format;
-		return 1;
+		return 'h';
 	    case 'i':
 		*pos = format;
-		return 2;
+		return 'i';
 	    case 'v':
 		*pos = format;
-		return 3;
+		return 'v';
+	    case 'c':
+		*pos = format;
+		return 'c';
+	    default:
+		/* % but not followed by a valid format character, keep going */
+		;
 	    }
 	}
 	format++;
@@ -873,6 +883,7 @@ showAnnotatedValue(FILE *f, Expr *x)
     char    *string = NULL;
     size_t  length = 0;
     char    *host;
+    char    *conn;
     char    *inst;
     int	    i;
 
@@ -888,7 +899,7 @@ showAnnotatedValue(FILE *f, Expr *x)
     /* construct string representation */
     for (i = 0; i < x->tspan; i++) {
 	length = concat("\n    ", length, &string);
-	lookupHostInst(x, i, &host, &inst);
+	lookupHostInst(x, i, &host, &conn, &inst);
 	length = concat(host, length,  &string);
 	if (inst) {
 	    length = concat(": [", length,  &string);
@@ -941,6 +952,7 @@ showSatisfyingValue(FILE *f, Expr *x)
     char    *string = NULL;
     size_t  length = 0;
     char    *host;
+    char    *conn;
     char    *inst;
     int	    i;
     Expr    *x1;
@@ -974,12 +986,12 @@ showSatisfyingValue(FILE *f, Expr *x)
 	if ((x1->sem == SEM_BOOLEAN && *((char *)x1->smpls[0].ptr + i) == B_TRUE)
 	    || (x1->sem != SEM_BOOLEAN && x1->sem != SEM_UNKNOWN)) {
 	    length = concat("\n    ", length, &string);
-	    lookupHostInst(x1, i, &host, &inst);
+	    lookupHostInst(x1, i, &host, &conn, &inst);
 	    length = concat(host, length,  &string);
 	    if (inst) {
-		length = concat(": [", length,  &string);
-		length = concat(inst, length,  &string);
-		length = concat("] ", length,  &string);
+		length = concat(": [", length, &string);
+		length = concat(inst, length, &string);
+		length = concat("] ", length, &string);
 	    }
 	    else
 		length = concat(": ", length,  &string);
@@ -1001,7 +1013,7 @@ done:
 
 /*
  * Instantiate format string for each satisfying binding and value
- * of the current rule ... enumerate and insert %h, %v and %v values
+ * of the current rule ... enumerate and insert %h, %c, %v and %i values
  *
  * WARNING: This is not thread safe, it dinks with the format string.
  */
@@ -1009,15 +1021,16 @@ size_t	/* new length of string */
 formatSatisfyingValue(char *format, size_t length, char **string)
 {
     char    *host;
+    char    *conn;
     char    *inst;
     char    *first;
     char    *prev;
     char    *next;
-    int     i;
+    int	    i;
     Expr    *x1;
     Expr    *x2;
-    int	    sts1;
-    int	    sts2;
+    char    sts1;
+    char    sts2;
 
     /* no formatting present? */
     if ((sts1 = findFormat(format, &first)) == 0)
@@ -1045,30 +1058,36 @@ formatSatisfyingValue(char *format, size_t length, char **string)
 	    prev = format;
 	    next = first;
 	    sts2 = sts1;
-	    lookupHostInst(x1, i, &host, &inst);
+	    lookupHostInst(x1, i, &host, &conn, &inst);
 	    do {
 		*next = '\0';
 		length = concat(prev, length, string);
 		*next = '%';
 
 		switch (sts2) {
-		case 1:
+		case 'h':
 		    if (host)
 			length = concat(host, length, string);
 		    else
 			length = concat("<%h undefined>", length, string);
 		    break;
-		case 2:
+		case 'i':
 		    if (inst)
 			length = concat(inst, length, string);
 		    else
 			length = concat("<%i undefined>", length, string);
 		    break;
-		case 3:
+		case 'v':
 		    if (x2->sem == SEM_BOOLEAN)
 			length = showBoolean(x2, i, length, string);
 		    else	/* numeric value */
 			length = showNum(x2, i, length, string);
+		    break;
+		case 'c':
+		    if (conn)
+			length = concat(conn, length, string);
+		    else
+			length = concat("<%c undefined>", length, string);
 		    break;
 		}
 		prev = next + 2;

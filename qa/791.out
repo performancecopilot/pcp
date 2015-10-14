@@ -1,0 +1,103 @@
+QA output created by 791
+=== std out ===
+=== std err ===
+Warning [TMP.config, line 3]
+Instance "bin-bad" is not defined for the metric "sample.bin"
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogextract -c TMP.config archives/foo+ TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+sample.bin
+sample.dupnames.two.bin
+sample.dupnames.three.bin
+sample.long.one
+sample.long.ten
+sample.long.hundred
+sample.long.million
+sample.long.write_me
+sample.long.bin
+sample.long.bin_ctr
+sample.longlong.one
+sample.longlong.ten
+sample.longlong.hundred
+sample.longlong.million
+sample.longlong.write_me
+sample.longlong.bin
+sample.longlong.bin_ctr
+
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+20:13:17.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+
+20:13:18.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+
+20:13:19.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+
+20:13:20.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+
+20:13:21.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+
+20:13:22.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+
+20:13:23.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+
+20:13:24.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+
+20:13:25.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+
+20:13:26.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+
+20:13:27.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+
+20:13:28.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+
+20:13:29.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+
+20:13:30.586  29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600

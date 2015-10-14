@@ -1,5 +1,5 @@
 QA output created by 556
-pmie: timezone set to local timezone of host moomba
+pmie: timezone set to local timezone from src/ace_v2
 syslog Mon Oct 30 14:25:10 1995: test syslog
 print Mon Oct 30 14:25:10 1995: test print
 shell Mon Oct 30 14:25:10 1995: echo test shell

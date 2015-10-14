@@ -3,7 +3,7 @@
  *********************************************************************** 
  *
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2013 Red Hat, Inc.
+ * Copyright (c) 2013-2015 Red Hat, Inc.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -619,8 +619,37 @@ fetchExpr(char *mname,
     sum = 0;
     for (i = 0; i < hnames.n; i++) {
         m->mname = symIntern(&metrics, mname);
-	if (hnames.ss) m->hname = symIntern(&hosts, hnames.ss[i]);
-	else m->hname = symIntern(&hosts, dfltHostName);
+	if (hnames.ss) {
+            /* Explicitly specified host name, but is it a
+               hostname or a connection-string?  Depends on
+               whether we're in archive-mode or not!  In
+               archive-mode, it's a host name, which we resolve
+               to the archive file name by a search; if in
+               live-mode, it's a connection string. */
+            if (archives) {
+                m->hname = symIntern(&hosts, hnames.ss[i]);
+                Archive	*a = archives;
+                while (a) {	/* find archive for host */
+                    if (strcmp(a->hname, hnames.ss[i]) == 0)
+                        break;
+                    a = a->next;
+                }
+                if (a)
+                    m->hconn = symIntern(&hosts, a->fname);
+                else
+                    m->hconn = symIntern(&hosts, "unknown archive");
+            }
+            else {
+                m->hconn = symIntern(&hosts, hnames.ss[i]);
+                /* We don't know the host name yet.  We don't really want to
+                   connect at this time just to fish it out.  See newContext. */
+                m->hname = symIntern(&hosts, "");
+            }
+        }
+	else {
+            m->hconn = symIntern(&hosts, dfltHostConn);
+            m->hname = symIntern(&hosts, ""); /* Filled in at newContext. */
+        } 
 	m->desc.sem = SEM_UNKNOWN;
 	m->m_idom = -1;
 	if (inames.n > 0) {

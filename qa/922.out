@@ -43,7 +43,7 @@ interval:  300.00 sec
 15:28:46.349    15768745
 15:33:46.349    16663459
 15:38:46.349    17500897
-pmie: timezone set to local timezone of host brutus.corp
+pmie: timezone set to local timezone from src/960624.08.17_v2
 raw (DATE): ?
 delta.cpu (DATE): ?
 rate.cpu (DATE): ?
@@ -117,7 +117,7 @@ interval:  3.00 sec
 21:52:44.647 4130536.612
 21:52:47.647 4133536.589
 21:52:50.647 4136536.609
-pmie: timezone set to local timezone of host ha2
+pmie: timezone set to local timezone from src/ok-bigbin
 raw (DATE): ?
 delta.milliseconds (DATE): ?
 rate.milliseconds (DATE): ?
@@ -202,7 +202,7 @@ interval:  2.00 sec
 04:34:36.257         893
 04:34:38.257         895
 04:34:40.257         897
-pmie: timezone set to local timezone of host gonzo
+pmie: timezone set to local timezone from src/ok-foo
 raw (DATE): ?
 delta.seconds (DATE): ?
 rate.seconds (DATE): ?
@@ -295,7 +295,7 @@ interval:  60.00 sec
 22:07:48.422        2700
 22:08:48.422        2740
 22:09:48.422        2780
-pmie: timezone set to local timezone of host kenj-pc
+pmie: timezone set to local timezone from src/reduce-gap
 raw (DATE): ?
 delta.step_counter (DATE): ?
 rate.step_counter (DATE): ?
@@ -413,7 +413,7 @@ interval:  1.00 sec
 21:59:01.005       26082
 21:59:02.005       27023
 21:59:03.005       28370
-pmie: timezone set to local timezone of host bozo
+pmie: timezone set to local timezone from src/sample_expr
 raw (DATE): ?
 delta.kbyte_ctr (DATE): ?
 rate.kbyte_ctr (DATE): ?

@@ -11,4 +11,4 @@ yylex() -> IDENT "sample.long.no-hyphen"
 yylex() -> TOKEN ':' (0x3a)
 yylex() -> IDENT "PCPQA_HYPHEN_HOST"
 yylex() -> END-OF-RULE
-pmie: metric sample.long.no-hyphen not in namespace for host PCPQA_HYPHEN_HOST
+pmie: metric sample.long.no-hyphen not in namespace for pmcd PCPQA_HYPHEN_HOST (host PCPQA_HYPHEN_HOST)

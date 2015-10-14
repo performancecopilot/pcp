@@ -13,15 +13,6 @@ echo "QA output created by $seq"
 
 . ./common.python
 
-rm -f $seq.out
-pymajor=`$python -V 2>&1 | sed -e 's/\..*$//g' -e 's/Python //g'`
-if [ -f $seq.out.py$pymajor ]
-then
-    ln $seq.out.py$pymajor $seq.out
-else
-    _notrun "Cannot figure out installed python major version"
-fi
-
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15

@@ -100,6 +100,7 @@ echo "# from QA $seq ..." >> $tmp.conf
 echo PCP_LXC_DIR=$root/var/lib/lxc >> $tmp.conf
 echo PCP_LXC_INFO=$tmp.test-lxc-info.sh >> $tmp.conf
 echo PCP_DOCKER_DIR=$root/var/lib/docker >> $tmp.conf
+echo PCP_SYSTEMD_CGROUP=/tmp >> $tmp.conf
 $sudo cp $tmp.conf $PCP_DIR/etc/pcp.conf
 root_install
 

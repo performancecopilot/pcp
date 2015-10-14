@@ -214,29 +214,43 @@ The default is to initially use the timezone of the local host.
 .SH CONFIGURATION FILE SYNTAX
 The
 .I configfile
-contains metrics of interest, listed one per line.  Instances
+contains metrics of interest \- only those metrics (or instances)
+mentioned explicitly or implicitly in the configuration file will be
+included in the
+.I output
+archive.
+Each specifications must begin on a new line, and may span multiple lines
+in the configuration file.
+Instances
 may also be specified, but they are optional.  The format for
-each metric name is
+each specification is
 
         metric [[instance[,instance...]]]
 
 where
 .I metric
-may be a leaf or a non-leaf node in the Performance Metrics
+may be a leaf or a non-leaf name in the Performance Metrics
 Name Space (PMNS, see
 .BR pmns (5)).
 If a metric refers to a non-leaf node in the PMNS,
 .B pmlogextract
 will recursively descend the PMNS and include all metrics
-corresponding to descendent leaf nodes.  Instances are
+corresponding to descendent leaf nodes.
+.PP
+Instances are
 optional, and may be specified as a list of one or more
-space (or comma) separated names, numbers or strings.
-Elements in the list that are numbers are assumed to be external
+space (or comma) separated names, numbers or strings (enclosed
+in single or double quotes).
+Elements in the list that are numbers are assumed to be internal
 instance identifiers - see
 .BR pmGetInDom (3)
 for more information.
-If no instances are given, then the logging specification is applied
-to all instances of the associated metric(s).
+If no instances are given, then 
+.B all
+instances of the associated metric(s) will be extracted.
+.PP
+Any additional white space is ignored and
+comments may be added with a `#' prefix.
 .SH CONFIGURATION FILE EXAMPLE
 This is an example of a valid
 .IR configfile :

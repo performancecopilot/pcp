@@ -1,6 +1,6 @@
 QA output created by 433
 pmie: evaluator exiting
-pmie: timezone set to local timezone of host omen
+pmie: timezone set to local timezone from src/573184
 print Wed Feb 18 12:10:42 1998: Disk reads on omen
 print Wed Feb 18 12:10:43 1998: Disk reads on omen
 print Wed Feb 18 12:10:44 1998: Disk reads on omen

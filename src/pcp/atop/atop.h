@@ -57,7 +57,7 @@ struct visualize {
 	char	(*show_samp)  (double, double,
 	                struct sstat *, struct tstat *, struct tstat **,
 			int, int, int, int, int, int, int, int, 
-			int, unsigned int, char);
+			int, unsigned int, int);
 	void	(*show_error) (const char *, ...);
 	void	(*show_end)   (void);
 	void	(*show_usage) (void);
@@ -126,7 +126,7 @@ extern int		almostcrit;
 char		generic_samp (double, double,
 		            struct sstat *, struct tstat *, struct tstat **,
 		            int, int, int, int, int, int, int, int,
-		            int, unsigned int, char);
+		            int, unsigned int, int);
 void		generic_error(const char *, ...);
 void		generic_end  (void);
 void		generic_usage(void);

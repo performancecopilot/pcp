@@ -1,6 +1,7 @@
 /*
  * Linux Partitions (disk and disk partition IO stats) Cluster
  *
+ * Copyright (c) 2015 Intel, Inc.  All Rights Reserved.
  * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2008,2012 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
@@ -76,6 +77,20 @@ _pm_ismmcdisk(char *dname)
     return (strchr(dname + 6, 'p') == NULL);
 }
 
+static int
+_pm_isnvmedrive(char *dname)
+{
+    if (strncmp(dname, "nvme", 4) != 0)
+        return 0;
+    /*
+     * Are we a disk or a partition of the disk? If there is a "p"
+     * assume it is a partition - e.g. nvme0n1p1.
+     */
+    return (strchr(dname + 4, 'p') == NULL);
+}
+
+
+
 /*
  * return true if arg is a device-mapper device
  */
@@ -122,6 +137,7 @@ _pm_ispartition(char *dname)
 		!_pm_isloop(dname) &&
 		!_pm_isramdisk(dname) &&
 		!_pm_ismmcdisk(dname) &&
+		!_pm_isnvmedrive(dname) &&
 		!_pm_isdm(dname);
     }
 }

@@ -10,6 +10,18 @@ answer_yes_or_no()
     return $?
 }
 
+fail_and_bail()
+{
+    echo "Error: $@"
+    exit 1
+}
+
+### Lets do some sanity checks first
+for command in bower fedpkg git gulp node npm
+do
+    which $command >/dev/null 2>&1 || fail_and_bail "$command not installed"
+done
+
 ### Create the directory we'll be working in
 DIR=`mktemp -d pcpXXX -p /tmp/`; cd $DIR
 
@@ -35,14 +47,6 @@ CHANGELOG_VERSION=`echo $PCP_FULL_VERSION`
 GIT_DESCRIBE=`git describe | rev | cut -f1 -d"g" | rev`
 PCP_WEB_JS=`grep "^Source*" build/rpm/fedora.spec | grep "webjs" | cut -f2 -d" " | rev | cut -f1 -d"/" | rev`
 VECTOR=`grep "^Source*" build/rpm/fedora.spec | grep "vector" | cut -f2 -d" " | rev | cut -f1 -d"/" | rev`
-
-### lets do a sanity check first
-if which fedpkg >/dev/null; then
-    :
-else
-    echo "Please install the fedpkg package"
-    exit
-fi
 
 # Checkout the fedora sources pcp
 cd ..
@@ -85,8 +89,12 @@ if [ ! -z $VECTOR ]; then
     cd ..
     # git clone git@github.com:netflix/vector.git vector
     git clone https://github.com/Netflix/vector.git vector
-    cd vector
-    git archive --prefix=vector/ -o ../pcp/$VECTOR HEAD
+    cd vector && rm -rf node_modules/
+    npm install || fail_and_bail "npm install failed in" `pwd`
+    bower install || fail_and_bail "bower install failed in" `pwd`
+    gulp build || fail_and_bail "gulp build failed in" `pwd`
+    cd dist && tar czf ../../pcp/$VECTOR *
+    cd ..
 fi
 
 # if $PCP_WEB_JS is empty, then we don't need to git archive it separately.

@@ -15,13 +15,7 @@ echo "QA output created by $seq"
 
 which pmproxy >/dev/null 2>&1 || _notrun "No pmproxy binary installed"
 
-rm -f $seq.out
-if [ $PCP_VER -ge 30806 ]
-then
-    ln $seq.out.2 $seq.out
-else
-    ln $seq.out.1 $seq.out
-fi
+rm -f $seq.full
 
 signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
@@ -49,6 +43,9 @@ _check()
 {
     echo "`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'` connects"
     echo "`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'` disconnects"
+    echo "--- $tmp.log ---" >>$here/$seq.full
+    cat $tmp.log >>$here/$seq.full
+    echo "--- end $tmp.log ---" >>$here/$seq.full
 }
 
 $sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
@@ -63,10 +60,13 @@ export PMPROXY_HOST
 
 # real QA test starts here
 pidlist=`sh -c "pmval -h $PMPROXY_HOST hinv.ncpu >$tmp.1 2>&1 & echo \\\$!"`
+echo "pmval pid=$pidlist" >>$here/$seq.full
 pid=`sh -c "pmstat -h $PMPROXY_HOST >$tmp.2 2>&1 & echo \\\$!"`
+echo "pmstat pid=$pid" >>$here/$seq.full
 pidlist="$pidlist $pid"
 echo "kernel.all.load;" >$tmp.in
 pid=`sh -c "pmie -v -h $PMPROXY_HOST -c $tmp.in >$tmp.3 2>&1 & echo \\\$!"`
+echo "pmie pid=$pid" >>$here/$seq.full
 pidlist="$pidlist $pid"
 
 sleep 3
@@ -79,19 +79,20 @@ for pid in $pidlist
 do
     echo
     echo "kill off a client ..."
+    echo "kill off client pid=$pid" >>$here/$seq.full
     $signal -s KILL $pid
     sleep 1
     _check
 done
 
-echo "pmval output ..." >$seq.full
-cat $tmp.1 >>$seq.full
-echo >>$seq.full
-echo "pmstat output ..." >>$seq.full
-cat $tmp.2 >>$seq.full
-echo >>$seq.full
-echo "pmie output ..." >>$seq.full
-cat $tmp.3 >>$seq.full
+echo "pmval output ..." >>$here/$seq.full
+cat $tmp.1 >>$here/$seq.full
+echo >>$here/$seq.full
+echo "pmstat output ..." >>$here/$seq.full
+cat $tmp.2 >>$here/$seq.full
+echo >>$here/$seq.full
+echo "pmie output ..." >>$here/$seq.full
+cat $tmp.3 >>$here/$seq.full
 
 # success, all done
 exit

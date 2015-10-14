@@ -1,6 +1,6 @@
 QA output created by 764
-[TIMESTAMP] pmie(PID) Info: Cannot connect to pmcd on host no.such.host.pcp.io
-pmie: warning - host no.such.host.pcp.io is unreachable
+[TIMESTAMP] pmie(PID) Info: Cannot connect to pmcd no.such.host.pcp.io
+pmie: warning - pmcd via no.such.host.pcp.io is unreachable
 DATE: [1] no value for first fetch
 DATE: [2] no value for first two fetches
 DATE: [3] unknown as expected

@@ -14,21 +14,22 @@
 #
 """ Relay PCP metrics to a graphite server """
 
+import re
 import sys
 import time
 
-
 from pcp import pmapi
-from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_DOUBLE
 import cpmapi as c_api
 
 class GraphiteRelay(object):
-    """ Sends a periodic report to graphite about all instances of named metrics.
-        Knows about some of the default PCP arguments.
+    """ Sends a periodic report to graphite about all instances of named
+        metrics.  Knows about some of the default PCP arguments.
     """
 
-    def describeSource(self):
-        """ Return a string describing our context; apprx. inverse of pmapi.fromOptions """
+    def describe_source(self):
+        """ Return a string describing our context; apprx. inverse of
+            pmapi.fromOptions
+        """
 
         ctxtype = self.context.type
         if ctxtype == c_api.PM_CONTEXT_ARCHIVE:
@@ -48,20 +49,17 @@ class GraphiteRelay(object):
         """ Construct object, parse command line """
         self.context = None
         self.socket = None
-        self.sampleCount = 0
-        self.debug = False
+        self.sample_count = 0
         self.opts = pmapi.pmOptions()
-        self.opts.pmSetShortOptions("a:O:s:T:g:p:P:u:m:t:h:t:D:LV?") # must include common options
+        self.opts.pmSetShortOptions("a:O:s:T:g:p:P:u:m:t:h:t:D:LV?")
         self.opts.pmSetShortUsage("[options] metricname ...")
         self.opts.pmSetOptionCallback(self.option)
         self.opts.pmSetOverrideCallback(self.option_override)
-        # hack to include some explanatory text
-        self.opts.pmSetLongOptionHeader("""
+        self.opts.pmSetLongOptionText("""
 Description: Periodically, relay raw values of all instances of a
 given hierarchies of PCP metrics to a graphite/carbon server on the
-network.
-
-Options""")
+network.""")
+        self.opts.pmSetLongOptionHeader("Options")
         self.opts.pmSetLongOptionVersion() # -V
         self.opts.pmSetLongOptionArchive() # -a FILE
         self.opts.pmSetLongOptionOrigin() # -O TIME
@@ -71,11 +69,18 @@ Options""")
         self.opts.pmSetLongOptionHost() # -h HOST
         self.opts.pmSetLongOptionLocalPMDA() # -L
         self.opts.pmSetLongOptionInterval() # -t NUMBER
-        self.opts.pmSetLongOption("graphite-host", 1, 'g', '', "graphite server host (default \"localhost\")")
-        self.opts.pmSetLongOption("pickled-port", 1, 'p', '', "graphite pickled port (default 2004)")
-        self.opts.pmSetLongOption("text-port", 1, 'P', '', "graphite plaintext port (usually 2003)")
-        self.opts.pmSetLongOption("units", 1, 'u', '', "rescale all metric units (e.g., \"mbytes/5 sec\")")
-        self.opts.pmSetLongOption("prefix", 1, 'm', '', "prefix for metric names (default \"pcp.\")")
+        self.opts.pmSetLongOption("graphite-host", 1, 'g', '',
+                                  "graphite server host " +
+                                  "(default \"localhost\")")
+        self.opts.pmSetLongOption("pickled-port", 1, 'p', '',
+                                  "graphite pickled port (default 2004)")
+        self.opts.pmSetLongOption("text-port", 1, 'P', '',
+                                  "graphite plaintext port (usually 2003)")
+        self.opts.pmSetLongOption("units", 1, 'u', '',
+                                  "rescale all metric units " +
+                                  "(e.g., \"mbytes/5 sec\")")
+        self.opts.pmSetLongOption("prefix", 1, 'm', '',
+                                  "prefix for metric names (default \"pcp.\")")
         self.opts.pmSetLongOptionHelp()
         self.graphite_host = "localhost"
         self.graphite_port = 2004
@@ -87,9 +92,10 @@ Options""")
 
         # now actually parse
         self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
-        self.interval = self.opts.pmGetOptionInterval() or pmapi.timeval(60,0)
+        self.interval = self.opts.pmGetOptionInterval() or pmapi.timeval(60, 0)
         if self.unitsstr is not None:
-            (self.units, self.units_mult) = self.context.pmParseUnitsStr(self.unitsstr)
+            units = self.context.pmParseUnitsStr(self.unitsstr)
+            (self.units, self.units_mult) = units
         self.metrics = []
         self.pmids = []
         self.descs = []
@@ -99,7 +105,8 @@ Options""")
                 try:
                     self.context.pmTraversePMNS(m, self.handle_candidate_metric)
                 except pmapi.pmErr as error:
-                    sys.stderr.write("Excluding metric %s (%s)\n" % (m, str(error)))
+                    sys.stderr.write("Excluding metric %s (%s)\n" %
+                                     (m, str(error)))
             sys.stderr.flush()
 
         if len(self.metrics) == 0:
@@ -107,37 +114,35 @@ Options""")
             raise pmapi.pmUsageErr()
 
         # Report what we're about to do
-        print ("Relaying %d %smetric(s) with prefix %s from %s "
-               "in %s mode to %s:%d every %f s" % (
-                   len(self.metrics),
-                   "rescaled " if self.units else "",
-                   self.prefix,
-                   self.describeSource(),
-                   "pickled" if self.pickle else "text",
-                   self.graphite_host, self.graphite_port,
-                   self.interval))
+        print("Relaying %d %smetric(s) with prefix %s from %s "
+              "in %s mode to %s:%d every %f s" %
+              (len(self.metrics),
+               "rescaled " if self.units else "",
+               self.prefix,
+               self.describe_source(),
+               "pickled" if self.pickle else "text",
+               self.graphite_host, self.graphite_port,
+               self.interval))
         sys.stdout.flush()
 
     def option_override(self, opt):
         if (opt == 'p') or (opt == 'g'):
             return 1
-        if (opt == 'D'): # pmapi.cc doesn't give us access to pmDebug, so intercept -D0
-            self.debug = True
-            # fallthrough
         return 0
 
-    def option(self, opt, optarg, index): # need only handle the non-common options
-        if (opt == 'g'):
+    def option(self, opt, optarg, index):
+        # need only handle the non-common options
+        if opt == 'g':
             self.graphite_host = optarg
-        elif (opt == 'p'):
+        elif opt == 'p':
             self.graphite_port = int(optarg if optarg else "2004")
             self.pickle = True
-        elif (opt == 'P'):
+        elif opt == 'P':
             self.graphite_port = int(optarg if optarg else "2003")
             self.pickle = False
-        elif (opt == 'u'):
+        elif opt == 'u':
             self.unitsstr = optarg
-        elif (opt == 'm'):
+        elif opt == 'm':
             self.prefix = optarg
         else:
             raise pmapi.pmUsageErr()
@@ -147,8 +152,8 @@ Options""")
     # acceptability for graphite: it needs to be numeric, and
     # convertable to the given unit (if specified).
     #
-    # Print an error message here if needed; can't throw an exception through the
-    # pmapi pmTraversePMNS wrapper.
+    # Print an error message here if needed; can't throw an exception
+    # through the pmapi pmTraversePMNS wrapper.
     def handle_candidate_metric(self, name):
         try:
             pmid = self.context.pmLookupName(name)[0]
@@ -159,22 +164,24 @@ Options""")
 
         # reject non-numeric types (future pmExtractValue failure)
         types = desc.contents.type
-        if not ((types == PM_TYPE_32) or
-                (types == PM_TYPE_U32) or
-                (types == PM_TYPE_64) or
-                (types == PM_TYPE_U64) or
+        if not ((types == c_api.PM_TYPE_32) or
+                (types == c_api.PM_TYPE_U32) or
+                (types == c_api.PM_TYPE_64) or
+                (types == c_api.PM_TYPE_U64) or
                 (types == c_api.PM_TYPE_FLOAT) or
-                (types == PM_TYPE_DOUBLE)):
-            sys.stderr.write("Excluding metric %s (need numeric type)\n" % name)
+                (types == c_api.PM_TYPE_DOUBLE)):
+            sys.stderr.write("Excluding metric %s (%s)\n" %
+                             (name, "need numeric type"))
             return
 
         # reject dimensionally incompatible (future pmConvScale failure)
         if self.units is not None:
             units = desc.contents.units
-            if ((units.dimSpace != self.units.dimSpace) or
-                (units.dimTime != self.units.dimTime) or
-                (units.dimCount != self.units.dimCount)):
-                sys.stderr.write("Excluding metric %s (incompatible dimensions)\n" % name)
+            if (units.dimSpace != self.units.dimSpace or
+                    units.dimTime != self.units.dimTime or
+                    units.dimCount != self.units.dimCount):
+                sys.stderr.write("Excluding metric %s (%s)\n" %
+                                 (name, "incompatible dimensions"))
                 return
 
         self.metrics.append(name)
@@ -182,12 +189,12 @@ Options""")
         self.descs.append(desc)
 
 
-    # Convert a python list of pmids (numbers) to a ctypes LP_c_uint (a C array of uints).
+    # Convert a python list of pmids (numbers) to a ctypes LP_c_uint
+    # (a C array of uints).
     def convert_pmids_to_ctypes(self, pmids):
-        import ctypes
         from ctypes import c_uint
         pmidA = (c_uint * len(pmids))()
-        for i,p in enumerate(pmids):
+        for i, p in enumerate(pmids):
             pmidA[i] = c_uint(p)
         return pmidA
 
@@ -196,18 +203,20 @@ Options""")
         try:
             # reuse socket
             if self.socket is None:
-                self.socket = socket.create_connection((self.graphite_host, self.graphite_port))
+                self.socket = socket.create_connection((self.graphite_host,
+                                                        self.graphite_port))
             if self.pickle:
                 import pickle
                 import struct
                 pickled_input = []
                 for (metric, value) in miv_tuples:
                     pickled_input.append((metric, (timestamp, value)))
-                    # protocol=0 in case carbon is running under older python than we are
+                    # protocol=0 in case carbon is running under an
+                    # older python version than we are
                     pickled_output = pickle.dumps(pickled_input, protocol=0)
                     header = struct.pack("!L", len(pickled_output))
                     msg = header + pickled_output
-                    if (self.debug):
+                    if self.context.pmDebug(c_api.PM_DEBUG_APPL0):
                         print ("Sending %s #tuples %d" %
                                (time.ctime(timestamp), len(pickled_input)))
                     self.socket.send(msg)
@@ -215,21 +224,21 @@ Options""")
                 for (metric, value) in miv_tuples:
                     message = ("%s %s %s\n" % (metric, value, timestamp))
                     msg = str.encode(message)
-                    if (self.debug):
-                        print ("Sending %s: %s" % (time.ctime(timestamp), msg.rstrip().decode()))
+                    if self.context.pmDebug(c_api.PM_DEBUG_APPL0):
+                        print("Sending %s: %s" %
+                              (time.ctime(timestamp), msg.rstrip().decode()))
                     self.socket.send(msg)
         except socket.error as err:
             sys.stderr.write("cannot send message to %s:%d, %s, continuing\n" %
-                             (self.graphite_host, self.graphite_port, err.strerror))
+                             (self.graphite_host, self.graphite_port,
+                              err.strerror))
             self.socket = None
             return
 
-
-    def sanitize_nameindom(self,str):
+    def sanitize_nameindom(self, string):
         """ Quote the given instance-domain string for proper digestion
         by carbon/graphite. """
-        import re
-        return "_" + re.sub('[^a-zA-Z_0-9-]','_', str)
+        return "_" + re.sub('[^a-zA-Z_0-9-]', '_', string)
 
     def execute(self):
         """ Using a PMAPI context (could be either host or archive),
@@ -237,40 +246,47 @@ Options""")
         """
 
         # align poll interval to host clock
-        if (self.context.type == c_api.PM_CONTEXT_HOST) or (self.context.type == c_api.PM_CONTEXT_LOCAL):
-            time.sleep(float(self.interval) - (time.time() % float(self.interval)))
+        ctype = self.context.type
+        if ctype == c_api.PM_CONTEXT_HOST or ctype == c_api.PM_CONTEXT_LOCAL:
+            align = float(self.interval) - (time.time() % float(self.interval))
+            time.sleep(align)
 
-        # NB: we'd like to do: result = self.context.pmFetch(self.pmids)
-        # But: pmFetch takes ctypes array-of-uint's, not a python list.  It needs to become polymorphic.
+        # We would like to do: result = self.context.pmFetch(self.pmids)
+        # But pmFetch takes ctypes array-of-uint's and not a python list;
+        # ideally, pmFetch would become polymorphic to improve this code.
         result = self.context.pmFetch(self.convert_pmids_to_ctypes(self.pmids))
-        sample_time = result.contents.timestamp.tv_sec # + (result.contents.timestamp.tv_usec/1000000.0)
+        sample_time = result.contents.timestamp.tv_sec
+             # + (result.contents.timestamp.tv_usec/1000000.0)
 
-        if (self.context.type == c_api.PM_CONTEXT_ARCHIVE):
+        if ctype == c_api.PM_CONTEXT_ARCHIVE:
             endtime = self.opts.pmGetOptionFinish()
             if endtime is not None:
-                if (float(sample_time) > float(endtime.tv_sec)):
+                if float(sample_time) > float(endtime.tv_sec):
                     raise SystemExit
 
         miv_tuples = []
 
         for i, name in enumerate(self.metrics):
-            for j in range(0,result.contents.get_numval(i)):
-                # a fetch or other error will just omit that data value from the graphite-bound set
+            for j in range(0, result.contents.get_numval(i)):
+                # a fetch or other error will just omit that data value
+                # from the graphite-bound set
                 try:
                     atom = self.context.pmExtractValue(
                         result.contents.get_valfmt(i),
-                        result.contents.get_vlist(i,j),
+                        result.contents.get_vlist(i, j),
                         self.descs[i].contents.type, c_api.PM_TYPE_FLOAT)
 
-                    inst = result.contents.get_vlist(i,j).inst
+                    inst = result.contents.get_vlist(i, j).inst
                     if inst is None or inst < 0:
-                        suffix=""
+                        suffix = ""
                     else:
-                        suffix="."+self.sanitize_nameindom(self.context.pmNameInDom(self.descs[i], inst))
+                        indom = self.context.pmNameInDom(self.descs[i], inst)
+                        suffix = "." + self.sanitize_nameindom(indom)
 
                     # Rescale if desired
                     if self.units is not None:
-                        atom = self.context.pmConvScale(c_api.PM_TYPE_FLOAT, atom,
+                        atom = self.context.pmConvScale(c_api.PM_TYPE_FLOAT,
+                                                        atom,
                                                         self.descs, i,
                                                         self.units)
 
@@ -280,21 +296,21 @@ Options""")
                     miv_tuples.append((self.prefix+name+suffix, atom.f))
 
                 except pmapi.pmErr as error:
-                    sys.stderr.write("%s[%d]: %s, continuing\n" % (name, inst, str(error)))
-                    pass
+                    sys.stderr.write("%s[%d]: %s, continuing\n" %
+                                     (name, inst, str(error)))
 
         self.send(sample_time, miv_tuples)
         self.context.pmFreeResult(result)
 
-        self.sampleCount += 1
-        maxSampleCount = self.opts.pmGetOptionSamples()
-        if maxSampleCount is not None and self.sampleCount >= maxSampleCount:
+        self.sample_count += 1
+        max_samples = self.opts.pmGetOptionSamples()
+        if max_samples is not None and self.sample_count >= max_samples:
             raise SystemExit
 
 
 if __name__ == '__main__':
     try:
-        G=GraphiteRelay()
+        G = GraphiteRelay()
         while True:
             G.execute()
 

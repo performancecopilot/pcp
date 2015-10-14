@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
@@ -33,6 +33,7 @@ OBJECTS += probes.o
 endif
 LDIRT += probes.h pmcd.stp
 endif
+LDIRT += probes.o
 
 ifeq "$(TARGET_OS)" "mingw"
 LIBTARGET = libpcp_pmcd.$(DSOSUFFIX)
@@ -46,14 +47,14 @@ default : $(LIBTARGET) $(STATICLIBTARGET)
 
 # Static probing for Linux, Mac OS X and Solaris.
 ifeq "$(ENABLE_PROBES)" "true"
-ifneq "$(findstring $(TARGET_OS),linux darwin freebsd)" ""
+ifneq "$(findstring $(TARGET_OS),linux darwin)" ""
 trace.o: probes.h
 probes.h: probes.d pmcd.stp
 	$(DTRACE) -h -s $< -o $@
 probes.o: probes.d
 	$(DTRACE) -G -s $< -o $@
 endif
-ifeq "$(TARGET_OS)" "solaris"
+ifneq "$(findstring $(TARGET_OS),solaris freebsd)" ""
 $(STATICLIBTARGET): rewrite
 trace.o: probes.h
 probes.h: probes.d

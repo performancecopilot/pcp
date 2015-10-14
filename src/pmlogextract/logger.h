@@ -112,6 +112,7 @@ extern pmUnits ntoh_pmUnits(pmUnits);
 /* internal routines */
 extern void insertresult(rlist_t **, pmResult *);
 extern pmResult *searchmlist(pmResult *);
+extern void abandon_extract(void);
 
 
 #endif /* _LOGGER_H */

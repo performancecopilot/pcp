@@ -69,8 +69,8 @@
                 print "load average 5=",atom.f
 """
 
-# for reporting on times from pmLocaltime function
-from time import mktime
+import sys
+import time
 
 # constants adapted from C header file <pcp/pmapi.h>
 import cpmapi as c_api
@@ -89,8 +89,6 @@ from ctypes.util import find_library
 #
 # dynamic library loads
 #
-import sys
-
 LIBPCP = CDLL(find_library("pcp"))
 libc_name = "c" if sys.platform != "win32" else "msvcrt"
 LIBC = CDLL(find_library(libc_name))
@@ -201,7 +199,7 @@ class timeval(Structure):
 
     def sleep(self):
         """ Delay for the amount of time specified by this timeval. """
-        c_api.pmtimevalSleep(self.tv_sec, self.tv_usec)
+        time.sleep(float(self))
         return None
 
 class tm(Structure):
@@ -223,7 +221,7 @@ class tm(Structure):
                      self.tm_wday, self.tm_yday, self.tm_isdst)
         inseconds = 0.0
         try:
-            inseconds = mktime(timetuple)
+            inseconds = time.mktime(timetuple)
         except:
             pass
         return "%s %s" % (inseconds.__str__(), timetuple)
@@ -980,11 +978,17 @@ class pmOptions(object):
     def pmGetOptionTimezone(self):	# str
         return c_api.pmGetOptionTimezone()
 
+    def pmSetOptionArchive(self, archive):	# str
+        return c_api.pmSetOptionArchive(archive)
+
     def pmSetOptionArchiveList(self, archives):	# str
         return c_api.pmSetOptionArchiveList(archives)
 
     def pmSetOptionArchiveFolio(self, folio):	# str
         return c_api.pmSetOptionArchiveFolio(folio)
+
+    def pmSetOptionHost(self, host):	# str
+        return c_api.pmSetOptionHost(host)
 
     def pmSetOptionHostList(self, hosts):	# str
         return c_api.pmSetOptionHostList(hosts)
@@ -1960,4 +1964,14 @@ class pmContext(object):
             Single arg is timeval in tuple returned from pmParseInterval().
         """
         return tvp.sleep()
+
+    @staticmethod
+    def pmProgname():
+        return str(c_char_p.in_dll(LIBPCP, "pmProgname").value.decode())
+
+    @staticmethod
+    def pmDebug(flags):
+        if (c_int.in_dll(LIBPCP, "pmDebug").value & flags):
+            return True
+        return False
 

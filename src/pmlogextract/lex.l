@@ -54,7 +54,18 @@ int lineno = 1;
 
 [A-Za-z][A-Za-z0-9_.]*	{ yylval.str = yytext; return NAME; }
 
-\"[^\"\n][^\"\n]*\"	{ yylval.str = yytext; return STRING; }
+\"[^\"\n][^\"\n]*\"	{
+			    /* strip string delimiters */
+			    yylval.str = &yytext[1];
+			    yytext[strlen(yytext)-1] = '\0';
+			    return STRING;
+			}
+\'[^\'\n][^\'\n]*\'	{
+			    /* strip string delimiters */
+			    yylval.str = &yytext[1];
+			    yytext[strlen(yytext)-1] = '\0';
+			    return STRING;
+			}
 
 [0-9]+			{ yylval.lval = atol(yytext); return NUMBER; }
 

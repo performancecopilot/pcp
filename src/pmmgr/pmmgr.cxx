@@ -354,6 +354,65 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
 }
 
 
+
+set<string>
+pmmgr_job_spec::find_containers (const pcp_context_spec& ctx)
+{
+    set<string> result;
+    int rc;
+    const char* names[1] = { "containers.state.running" };
+    
+    int pmc = pmNewContext (PM_CONTEXT_HOST, ctx.c_str());
+    if (pmc < 0)
+        goto out;
+
+    pmID pmid[1];
+    rc = pmLookupName (1, (char **) &names, &pmid[0]);
+    if (rc < 1) // 1: we want this single name resolved
+        goto out2;
+
+    pmDesc desc;
+    rc = pmLookupDesc (pmid[0], &desc);
+    if (rc < 0)
+        goto out2;
+
+    pmResult *r;
+    rc = pmFetch (1, &pmid[0], &r);
+    if (rc < 0)
+        goto out2;
+
+    // only vset[0] will be set
+    if (r->vset[0]->numval > 0)
+        for (int j=0; j<r->vset[0]->numval; j++) { // iterate over instances
+            // fetch the number value
+            pmAtomValue av;
+            rc = pmExtractValue(r->vset[0]->valfmt,
+                                & r->vset[0]->vlist[j],
+                                desc.type, & av, PM_TYPE_32);
+            if (rc < 0) // type error or absent value or something
+		continue;
+            
+            if (av.l == 0) // container not running
+                continue;
+
+            char *instance;
+            rc = pmNameInDom(desc.indom, r->vset[0]->vlist[j].inst, & instance);
+            if (rc < 0)
+                continue;
+            result.insert (string(instance));
+            free (instance);
+        }
+
+    (void) pmFreeResult (r);
+
+ out2:
+    (void) pmDestroyContext (pmc);
+
+ out:
+    return result;
+}
+
+
 pmmgr_job_spec::pmmgr_job_spec(const std::string& config_directory):
   pmmgr_configurable(config_directory)
 {
@@ -433,9 +492,9 @@ pmmgr_job_spec::poll()
 
       if (hostid != "") // verified existence/liveness
 	{
-	  // If we already have this connection to the same hostid,
-	  // favour its preservation.  This way, an existing daemon connection
-	  // won't be upset / flopped around.
+            // If we already have this connection to the same hostid,
+            // favour its preservation.  This way, an existing daemon connection
+            // won't be upset / flopped around.
 	    if ((old_known_targets.find(hostid) != old_known_targets.end()) && // known host
 		(*it == old_known_targets.find(hostid)->second)) // same connection
 		{
@@ -452,6 +511,32 @@ pmmgr_job_spec::poll()
 	}
     }
 
+  // phase 3b: container subtargeting
+  if (get_config_exists("subtarget-containers")) {
+      // iterate over a copy (so we don't append and iterate at the same time)
+      const map<pmmgr_hostid,pcp_context_spec> known_plain_targets = known_targets;
+      for (map<pmmgr_hostid,pcp_context_spec>::const_iterator it = known_plain_targets.begin();
+           it != known_plain_targets.end();
+           ++it)
+          {
+              set<string> containers = find_containers(it->second);
+              for (set<string>::const_iterator it2 = containers.begin();
+                   it2 != containers.end();
+                   ++it2) {
+                  // XXX: presuming that the container name is safe & needs no escape;
+                  // on docker, this is ok because the container id is a long hex string.
+                  pmmgr_hostid subtarget_hostid = it->first + string("--") + *it2;
+                  // Choose ? or & for the hostspec suffix-prefix, depending
+                  // on whether there's already a ?.  There can be only one (tm).
+                  char pfx = (it->second.find('?') == string::npos) ? '?' : '&';
+                  pcp_context_spec subtarget_spec = it->second +
+                      pfx + string("container=") + *it2;
+                  known_targets[subtarget_hostid] = subtarget_spec;
+              }
+          }
+  }
+
+  
   if (pmDebug & DBG_TRACE_APPL1)
       {
 	  timestamp(cout) << "poll results" << endl;

@@ -1051,8 +1051,8 @@ expr_1: N N N
 expr_1: N N N
 
 [DATE] pmie(PID) Info: evaluator exiting
-7 connects
-7 disconnects
+6 connects
+6 disconnects
 
 +++ pmie -h MY_HOSTNAME -c TMP.in -v -t 0.5 -T 1.5 +++
 expr_1: ?
@@ -1064,26 +1064,26 @@ expr_1: N
 expr_1: N
 
 [DATE] pmie(PID) Info: evaluator exiting
-10 connects
-10 disconnects
+8 connects
+8 disconnects
 
 +++ pmdumptext -h MY_HOSTNAME -t 0.5 -s 2 sample.string.hullo +++
 DATE	"hullo world!"
 DATE	"hullo world!"
-11 connects
-11 disconnects
+9 connects
+9 disconnects
 
 +++ pmdumptext -t 0.5 -s 2 MY_HOSTNAME:sample.string.hullo +++
 DATE	"hullo world!"
 DATE	"hullo world!"
-12 connects
-12 disconnects
+10 connects
+10 disconnects
 
 +++ pmdumptext -t 0.5 -s 2 MY_HOSTNAME:kernel.all.load +++
 DATE	N	N	N
 DATE	N	N	N
-13 connects
-13 disconnects
+11 connects
+11 disconnects
 
 +++ pmstat -h MY_HOSTNAME -t 0.5 -s 2 +++
 @ DATE
@@ -1091,12 +1091,12 @@ DATE	N	N	N
    1 min   swpd   free   buff  cache   si   so   bi   bo   in   cs  us  sy  id
  N N N N N N N N N N N N N N
  N N N N N N N N N N N N N N
-14 connects
-14 disconnects
+12 connects
+12 disconnects
 
 +++ pmlogger -h MY_HOSTNAME -c TMP.logger.config -t 0.5sec -s 3 -l TMP.logger.log TMP.arch +++
-15 connects
-15 disconnects
+13 connects
+13 disconnects
 
 +++ pmstat -S +0.25sec -t 0.5sec -a TMP.arch -z +++
 Note: timezone set to local timezone of host "MY_HOSTNAME" from archive
@@ -1104,8 +1104,7 @@ Note: timezone set to local timezone of host "MY_HOSTNAME" from archive
 @ DATE
  loadavg                      memory      swap        io    system         cpu
    1 min   swpd   free   buff  cache   si   so   bi   bo   in   cs  us  sy  id
- N N N N N    ?    ?    ?    ?    ?    ?   ?   ?   ?
  N N N N N N N N N N N N N N
  pmFetch: End of PCP archive log
-15 connects
-15 disconnects
+13 connects
+13 disconnects
