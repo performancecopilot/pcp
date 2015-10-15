@@ -11448,6 +11448,65 @@ $as_echo "\"$fmt_int64\"" >&6; }
 
 rm -rf conftest.* conftest
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking strtol or strtoll for int64_t" >&5
+$as_echo_n "checking strtol or strtoll for int64_t... " >&6; }
+if test "$cross_compiling" = "yes"; then
+    ans=$strtoint64
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
+#include <stdio.h>
+#include <stdlib.h>
+main()
+{
+    long long int	value = -1;
+    value = strtol("1234567812345678", NULL, 16);
+    if (value == 0x1234567812345678LL) {
+	printf("strotol\n");
+	exit(0);
+    }
+    value = strtoll("1234567812345678", NULL, 16);
+    if (value == 0x1234567812345678LL) {
+	printf("strtoll\n");
+	exit(0);
+    }
+    exit(1);
+}
+End-of-File
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
+case "$ans"
+in
+    strtol)
+	$as_echo "#define strtoint64 strtol" >>confdefs.h
+
+	$as_echo "#define strtouint64 strtoul" >>confdefs.h
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: strtol" >&5
+$as_echo "strtol" >&6; }
+	;;
+    strtoll)
+	$as_echo "#define strtoint64 strtoll" >>confdefs.h
+
+	$as_echo "#define strtouint64 strtoull" >>confdefs.h
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: strtoll" >&5
+$as_echo "strtoll" >&6; }
+	;;
+    *)
+	$as_echo "#define strtoint64 strtoll" >>confdefs.h
+
+	$as_echo "#define strtouint64 strtoull" >>confdefs.h
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: assuming strtoll" >&5
+$as_echo "assuming strtoll" >&6; }
+	;;
+esac
+rm -rf conftest conftest.*
+
 if test "$do_threads" = "check" -o "$do_threads" = "yes"
 then
     for ac_header in pthread.h

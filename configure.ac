@@ -1955,6 +1955,55 @@ AC_MSG_RESULT("$fmt_int64")
 AC_SUBST(fmt_int64)
 rm -rf conftest.* conftest
 
+AC_MSG_CHECKING([strtol or strtoll for int64_t])
+if test "$cross_compiling" = "yes"; then
+    ans=$strtoint64
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
+#include <stdio.h>
+#include <stdlib.h>
+main()
+{
+    long long int	value = -1;
+    value = strtol("1234567812345678", NULL, 16);
+    if (value == 0x1234567812345678LL) {
+	printf("strotol\n");
+	exit(0);
+    }
+    value = strtoll("1234567812345678", NULL, 16);
+    if (value == 0x1234567812345678LL) {
+	printf("strtoll\n");
+	exit(0);
+    }
+    exit(1);
+}
+End-of-File
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
+case "$ans"
+in
+    strtol)
+	AC_DEFINE(strtoint64, strtol)
+	AC_DEFINE(strtouint64, strtoul)
+	AC_MSG_RESULT([strtol])
+	;;
+    strtoll)
+	AC_DEFINE(strtoint64, strtoll)
+	AC_DEFINE(strtouint64, strtoull)
+	AC_MSG_RESULT([strtoll])
+	;;
+    *)
+	AC_DEFINE(strtoint64, strtoll)
+	AC_DEFINE(strtouint64, strtoull)
+	AC_MSG_RESULT([assuming strtoll])
+	;;
+esac
+rm -rf conftest conftest.*
+
 if test "$do_threads" = "check" -o "$do_threads" = "yes"
 then
     AC_CHECK_HEADERS(

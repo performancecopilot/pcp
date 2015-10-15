@@ -66,6 +66,10 @@ extern "C" {
 #define PRINTF_P_PFX "0x"
 #endif
 
+/* Determine the safest way to covert ascii to int64_t and uint64_t */
+#undef strtoint64
+#undef strtouint64
+
 /* Defined if bit fields are allocated left-to-right within a word */
 #undef HAVE_BITFIELDS_LTOR
 
