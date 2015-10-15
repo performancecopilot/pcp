@@ -20,6 +20,8 @@
 
 #include "pmdagfs2.h"
 
+#include "pcp/config.h"
+
 #include <ctype.h>
 
 static const char *stattype[] = {
@@ -144,7 +146,7 @@ gfs2_refresh_sbstats(const char *sysfs, const char *name, struct sbstats *sb)
 	for (p++; *p != '\0'; p++) {
 	    __uint64_t value;
 
-	    value = strtoull(p, &end, 10);
+	    value = strtouint64(p, &end, 10);
 	    if (end == p)
 		break;
 	    sb->values[id] += value;
