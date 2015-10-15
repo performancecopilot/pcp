@@ -21,6 +21,7 @@ typedef struct {
     struct {				/* Status of connection to client */
 	unsigned int	connected : 1;	/* Client connected */
 	unsigned int	changes : 3;	/* PMCD_* bits for changes since last fetch */
+	unsigned int	attributes: 1;	/* Connection attributes have changed */
     } status;
     /* There is an array of profiles, as there is a profile associated
      * with each client context.  The array is not guaranteed to be dense.
@@ -47,6 +48,7 @@ extern ClientInfo *AcceptNewClient(int);
 extern int NewClient(void);
 extern void DeleteClient(ClientInfo *);
 PMCD_CALL extern ClientInfo *GetClient(int);
+PMCD_CALL extern int SetClientAttribute(int, int, char *);
 PMCD_CALL extern void ShowClients(FILE *m);
 extern int CheckClientAccess(ClientInfo *);
 extern int CheckAccountAccess(ClientInfo *);

@@ -1420,6 +1420,9 @@ AgentsAttributes(int clientID)
 	   (sts = DoAttributes(&agent[agentID], clientID)) < 0)
 	    break;
     }
+    if (sts == 0 && agentID == nAgents) {
+	client[clientID].status.attributes = 0;
+    }
     return sts;
 }
 
@@ -1436,6 +1439,7 @@ ClientsAttributes(AgentInfo *ap)
 	if (client[clientID].status.connected &&
 	   (sts = DoAttributes(ap, clientID)) < 0)
 	    break;
+	client[clientID].status.attributes = 0;
     }
     return sts;
 }

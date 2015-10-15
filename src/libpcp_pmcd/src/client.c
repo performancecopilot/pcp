@@ -32,6 +32,38 @@ GetClient(int n)
     return NULL;
 }
 
+/*
+ * Modify an attribute value for this client
+ */
+int
+SetClientAttribute(int client, int attr, char *value)
+{
+    int			sts;
+    ClientInfo		*cp;
+    __pmHashNode	*node;
+
+    if ((cp = GetClient(client)) == NULL)
+	return -EINVAL;
+
+    if ((value = strdup(value)) == NULL)
+	return -ENOMEM;
+
+    /* Add supplied value into attribute hash, permanently */
+    if ((node = __pmHashSearch(attr, &cp->attrs)) == NULL) {	/* insert */
+	if ((sts = __pmHashAdd(attr, (void *)value, &cp->attrs)) < 0) {
+	    free(value);
+	    return sts;
+	}
+    } else {	/* replace existing */
+	free(node->data);
+	node->data = (void *)value;
+    }
+
+    /* Flag a need to inform PMDAs that attributes changed */
+    cp->status.attributes = 1;
+    return 0;
+}
+
 void
 ShowClients(FILE *f)
 {

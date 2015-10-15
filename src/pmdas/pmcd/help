@@ -502,6 +502,12 @@ to provide more useful information about the client.
 The date and time in ctime(2) format on which the client connected
 to pmcd.
 
+@ pmcd.client.container name of container (if any) being analysed
+The name of the container (if any) associated with this context at
+the time of the fetch request.  The container name can be set when
+establishing a PMAPI context, or by storing into this metric using
+the pmStore interface.
+
 @ pmcd.cputime.total CPU time used by pmcd and DSO PMDAs
 Sum of user and system time since pmcd started.
 
