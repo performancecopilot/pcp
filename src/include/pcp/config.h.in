@@ -66,7 +66,7 @@ extern "C" {
 #define PRINTF_P_PFX "0x"
 #endif
 
-/* Determine the safest way to covert ascii to int64_t and uint64_t */
+/* Determine the safest way to convert ascii to int64_t and uint64_t */
 #undef strtoint64
 #undef strtouint64
 

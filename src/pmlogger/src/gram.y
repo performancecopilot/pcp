@@ -35,7 +35,7 @@
 int		mystate = GLOBAL;	/* config file parser state */
 
 __pmHashCtl	pm_hash;
-task_t		*tasklist = NULL;
+task_t		*tasklist;
 
 static task_t	*tp;
 static int	numinst;
@@ -131,6 +131,7 @@ dowhat		: logopt action
 			    snprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
 			    yyerror(emess);
 			} else {
+			    task_t	*ltp;
 
 			    /*
 			     * Add to end of tasklist ... this means the
@@ -141,7 +142,6 @@ dowhat		: logopt action
 			     * first, and clauses combined into the same
 			     * task.
 			     */
-			    static task_t	*ltp;
 			    for (ltp = tasklist; ltp != NULL && ltp->t_next != NULL; ltp = ltp->t_next)
 				;
 			    if (ltp == NULL)
