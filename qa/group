@@ -332,9 +332,9 @@ cgroups
 029 pmns local ostest pmdumplog
 030 pdu pmcd pmda context_local local ostest pmstore
 031 pmns local sanity
-032 pmlc local ostest
+032 pmlc local ostest pmlogger
 033 libirixpmda local ostest
-034 pmlogger archive local ostest sanity pmdumplog
+034 archive local ostest sanity pmdumplog
 037 archive local ostest
 038 pmlogger local pmdumplog
 039 pmlogger archive local ostest pmdumplog
@@ -351,7 +351,7 @@ cgroups
 050 archive local ostest
 051 pmcd ostest remote
 052 pmns local ostest
-053 other local pmprobe ostest
+053 other local pmprobe ostest pmlogger
 054 pmlogger archive ostest remote pmdumplog
 055 pmie ostest local sanity
 057 pmns local ostest
@@ -397,12 +397,12 @@ cgroups
 099 pmlc local
 100 pmlc pmlogger local pmdumplog
 101 pmlc pmlogger remote pmdumplog
-102 pmlc local
+102 pmlc local pmlogger
 103 pmlc pmlogger local pmdumplog
 104 pmlc pmlogger local pmdumplog
 105 pmlc pmlogger local pmdumplog
 106 pmlc pmlogger local pmdumplog
-107 pmlc pmlogger local sanity
+107 pmlc local sanity
 108 pmda.cisco pmda.sample local
 109 other local pmprobe
 110 pmda.simple pmda.proc local pmda.install
@@ -473,7 +473,7 @@ cgroups
 175 pmval local
 176 libpcp pmval local
 177 archive pmval local pmdumplog pmlc
-178 logutil pmval local pmlogextract sanity pmdumplog
+178 logutil pmval local pmlogextract sanity pmdumplog pmlogger
 179 pmval pmlc local pmdumplog
 180 archive pmval local
 181 pmval archive pmval local
@@ -562,7 +562,7 @@ cgroups
 264 pmns local
 265 libpcp local
 266 logutil #466346 patch2140 patch2141 local pmlogextract pmdumplog
-267 pmlogger local
+267 libpcp local
 268 interop local
 269 wrap pmval pmkstat local
 270 pmlogextract logutil local pmdumplog
@@ -606,7 +606,7 @@ cgroups
 308 pmlc pmlogger #452417 remote pmdumplog pmda.proc
 309 libpcp pmcd pmda.linux pmda.simple local
 310 pmie local
-311 archive compat pmlogger #509592 pminfo local pmstore pmdumplog
+311 archive compat #509592 pminfo local pmstore pmdumplog
 312 pmie local
 313 pmval archive local pmdumplog
 314 pmie local
@@ -713,8 +713,8 @@ cgroups
 415 pmval pmstore local event
 416 pmda.news dbpmda local sanity perl
 417 archive local pmdumplog
-418 pmdumplog local
-419 pmdumplog local
+418 pmdumplog local pmlogger
+419 pmdumplog local pmlogger
 420 folio local pmdumplog
 421 trace local pmda.install
 422 libpcp local pmstore

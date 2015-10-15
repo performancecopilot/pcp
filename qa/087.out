@@ -331,7 +331,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 4000 +/- 40
 
 sample 16, delta time=4.000 secs
-sample.seconds: value OK
+sample.seconds: no current values 
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 4000 +/- 40
 sample[17] pmFetch: End of PCP archive log
@@ -402,7 +402,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 5000 +/- 40
 
 sample 13, delta time=5.000 secs
-sample.seconds: value OK
+sample.seconds: no current values 
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 5000 +/- 40
 sample[14] pmFetch: End of PCP archive log
@@ -448,7 +448,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 8000 +/- 60
 
 sample 8, delta time=8.000 secs
-sample.seconds: value OK
+sample.seconds: no current values 
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 8000 +/- 60
 sample[9] pmFetch: End of PCP archive log
@@ -822,7 +822,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 4000 +/- 40
 
 sample 16, delta time=4.000 secs
-sample.seconds: value OK
+sample.seconds: no current values 
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 4000 +/- 40
 sample[17] pmFetch: End of PCP archive log
@@ -893,7 +893,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 5000 +/- 40
 
 sample 13, delta time=5.000 secs
-sample.seconds: value OK
+sample.seconds: no current values 
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 5000 +/- 40
 sample[14] pmFetch: End of PCP archive log
@@ -939,7 +939,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 8000 +/- 60
 
 sample 8, delta time=8.000 secs
-sample.seconds: value OK
+sample.seconds: no current values 
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 8000 +/- 60
 sample[9] pmFetch: End of PCP archive log
@@ -1313,7 +1313,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 4000 +/- 40
 
 sample 16, delta time=4.000 secs
-sample.seconds: value OK
+sample.seconds: no current values 
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 4000 +/- 40
 sample[17] pmFetch: End of PCP archive log
@@ -1384,7 +1384,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 5000 +/- 40
 
 sample 13, delta time=5.000 secs
-sample.seconds: value OK
+sample.seconds: no current values 
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 5000 +/- 40
 sample[14] pmFetch: End of PCP archive log
@@ -1430,7 +1430,7 @@ sample.drift: current error Metric not defined in the PCP archive log
 sample.milliseconds: delta: 8000 +/- 60
 
 sample 8, delta time=8.000 secs
-sample.seconds: value OK
+sample.seconds: no current values 
 sample.drift: current error Metric not defined in the PCP archive log 
 sample.milliseconds: delta: 8000 +/- 60
 sample[9] pmFetch: End of PCP archive log

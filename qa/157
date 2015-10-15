@@ -26,7 +26,8 @@ echo "log mandatory on default { sample.bucket }" \
 | pmlogger -u -r -l $tmp.log -t 2sec -s 5 $tmp &
 
 then=0
-for i in 1 2 3 4 5 6 7 8 9 10 11 12
+# expect pmlogger above to run for (5-1)*2sec
+for i in 1 2 3 4 5 6 7 8 9 10
 do
     if [ -f $tmp.0 ]
     then

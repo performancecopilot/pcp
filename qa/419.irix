@@ -1,99 +1,99 @@
 QA output created by 419
- 2 disk.dev.read
- 2 disk.dev.total
- 2 disk.dev.write
- 2 kernel.all.cpu.idle
- 2 kernel.all.cpu.intr
- 2 kernel.all.cpu.sxbrk
- 2 kernel.all.cpu.sys
- 2 kernel.all.cpu.user
- 2 kernel.all.cpu.wait.total
- 2 kernel.all.ipc.msg
- 2 kernel.all.ipc.sema
- 2 kernel.all.load
- 2 kernel.all.pswitch
- 2 kernel.all.readch
- 2 kernel.all.runocc
- 2 kernel.all.runque
- 2 kernel.all.syscall
- 2 kernel.all.writech
- 2 network.interface.in.bytes
- 2 network.interface.out.bytes
+ 3 disk.dev.read
+ 3 disk.dev.total
+ 3 disk.dev.write
+ 3 kernel.all.cpu.idle
+ 3 kernel.all.cpu.intr
+ 3 kernel.all.cpu.sxbrk
+ 3 kernel.all.cpu.sys
+ 3 kernel.all.cpu.user
+ 3 kernel.all.cpu.wait.total
+ 3 kernel.all.ipc.msg
+ 3 kernel.all.ipc.sema
+ 3 kernel.all.load
+ 3 kernel.all.pswitch
+ 3 kernel.all.readch
+ 3 kernel.all.runocc
+ 3 kernel.all.runque
+ 3 kernel.all.syscall
+ 3 kernel.all.writech
+ 3 network.interface.in.bytes
+ 3 network.interface.out.bytes
  1 pmcd.pmlogger.archive
  1 pmcd.pmlogger.host
  1 pmcd.pmlogger.port
 
 === kernel.all disk.dev network.interface.in network.interface.out ===
- 2 disk.dev.read
- 2 disk.dev.total
- 2 disk.dev.write
- 2 kernel.all.cpu.idle
- 2 kernel.all.cpu.intr
- 2 kernel.all.cpu.sxbrk
- 2 kernel.all.cpu.sys
- 2 kernel.all.cpu.user
- 2 kernel.all.cpu.wait.total
- 2 kernel.all.ipc.msg
- 2 kernel.all.ipc.sema
- 2 kernel.all.load
- 2 kernel.all.pswitch
- 2 kernel.all.readch
- 2 kernel.all.runocc
- 2 kernel.all.runque
- 2 kernel.all.syscall
- 2 kernel.all.writech
- 2 network.interface.in.bytes
- 2 network.interface.out.bytes
+ 3 disk.dev.read
+ 3 disk.dev.total
+ 3 disk.dev.write
+ 3 kernel.all.cpu.idle
+ 3 kernel.all.cpu.intr
+ 3 kernel.all.cpu.sxbrk
+ 3 kernel.all.cpu.sys
+ 3 kernel.all.cpu.user
+ 3 kernel.all.cpu.wait.total
+ 3 kernel.all.ipc.msg
+ 3 kernel.all.ipc.sema
+ 3 kernel.all.load
+ 3 kernel.all.pswitch
+ 3 kernel.all.readch
+ 3 kernel.all.runocc
+ 3 kernel.all.runque
+ 3 kernel.all.syscall
+ 3 kernel.all.writech
+ 3 network.interface.in.bytes
+ 3 network.interface.out.bytes
  1 pmcd.pmlogger.archive
  1 pmcd.pmlogger.host
  1 pmcd.pmlogger.port
 
 === kernel disk network ===
- 2 disk.dev.read
- 2 disk.dev.total
- 2 disk.dev.write
- 2 kernel.all.cpu.idle
- 2 kernel.all.cpu.intr
- 2 kernel.all.cpu.sxbrk
- 2 kernel.all.cpu.sys
- 2 kernel.all.cpu.user
- 2 kernel.all.cpu.wait.total
- 2 kernel.all.ipc.msg
- 2 kernel.all.ipc.sema
- 2 kernel.all.load
- 2 kernel.all.pswitch
- 2 kernel.all.readch
- 2 kernel.all.runocc
- 2 kernel.all.runque
- 2 kernel.all.syscall
- 2 kernel.all.writech
- 2 network.interface.in.bytes
- 2 network.interface.out.bytes
+ 3 disk.dev.read
+ 3 disk.dev.total
+ 3 disk.dev.write
+ 3 kernel.all.cpu.idle
+ 3 kernel.all.cpu.intr
+ 3 kernel.all.cpu.sxbrk
+ 3 kernel.all.cpu.sys
+ 3 kernel.all.cpu.user
+ 3 kernel.all.cpu.wait.total
+ 3 kernel.all.ipc.msg
+ 3 kernel.all.ipc.sema
+ 3 kernel.all.load
+ 3 kernel.all.pswitch
+ 3 kernel.all.readch
+ 3 kernel.all.runocc
+ 3 kernel.all.runque
+ 3 kernel.all.syscall
+ 3 kernel.all.writech
+ 3 network.interface.in.bytes
+ 3 network.interface.out.bytes
  1 pmcd.pmlogger.archive
  1 pmcd.pmlogger.host
  1 pmcd.pmlogger.port
 
 === kernel.all.load kernel.all.pswitch kernel.all.readch kernel.all.writech kernel.all.runocc kernel.all.runque kernel.all.syscall kernel.all.cpu.idle kernel.all.cpu.intr kernel.all.cpu.sys kernel.all.cpu.sxbrk kernel.all.cpu.user kernel.all.cpu.wait.total kernel.all.ipc.msg kernel.all.ipc.sema disk.dev.read disk.dev.write disk.dev.total network.interface.in.bytes network.interface.out.bytes ===
- 2 disk.dev.read
- 2 disk.dev.total
- 2 disk.dev.write
- 2 kernel.all.cpu.idle
- 2 kernel.all.cpu.intr
- 2 kernel.all.cpu.sxbrk
- 2 kernel.all.cpu.sys
- 2 kernel.all.cpu.user
- 2 kernel.all.cpu.wait.total
- 2 kernel.all.ipc.msg
- 2 kernel.all.ipc.sema
- 2 kernel.all.load
- 2 kernel.all.pswitch
- 2 kernel.all.readch
- 2 kernel.all.runocc
- 2 kernel.all.runque
- 2 kernel.all.syscall
- 2 kernel.all.writech
- 2 network.interface.in.bytes
- 2 network.interface.out.bytes
+ 3 disk.dev.read
+ 3 disk.dev.total
+ 3 disk.dev.write
+ 3 kernel.all.cpu.idle
+ 3 kernel.all.cpu.intr
+ 3 kernel.all.cpu.sxbrk
+ 3 kernel.all.cpu.sys
+ 3 kernel.all.cpu.user
+ 3 kernel.all.cpu.wait.total
+ 3 kernel.all.ipc.msg
+ 3 kernel.all.ipc.sema
+ 3 kernel.all.load
+ 3 kernel.all.pswitch
+ 3 kernel.all.readch
+ 3 kernel.all.runocc
+ 3 kernel.all.runque
+ 3 kernel.all.syscall
+ 3 kernel.all.writech
+ 3 network.interface.in.bytes
+ 3 network.interface.out.bytes
  1 pmcd.pmlogger.archive
  1 pmcd.pmlogger.host
  1 pmcd.pmlogger.port

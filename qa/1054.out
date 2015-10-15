@@ -21,6 +21,9 @@ Archive basename: ARCHIVE
 
 Group [N metrics] {
 } logged every NNN sec: NNN bytes or NNN Mbytes/day
+
+Group [N metrics] {
+} logged every NNN sec: NNN bytes or NNN Mbytes/day
 pmlogger: Sample limit reached, exiting
 
 Log finished DATE

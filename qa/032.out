@@ -48,15 +48,15 @@ sampledso.bin
 
 +++ should fail to turn off +++
 sampledso.bin
-  inst [100 or "bin-100"]  3 (mand on, delta=5000 msec)
-  inst [200 or "bin-200"]  3 (mand on, delta=5000 msec)
-  inst [300 or "bin-300"]  3 (mand on, delta=5000 msec)
-  inst [400 or "bin-400"]  3 (mand on, delta=5000 msec)
-  inst [500 or "bin-500"]  3 (mand on, delta=5000 msec)
-  inst [600 or "bin-600"]  3 (mand on, delta=5000 msec)
-  inst [700 or "bin-700"]  3 (mand on, delta=5000 msec)
-  inst [800 or "bin-800"]  3 (mand on, delta=5000 msec)
-  inst [900 or "bin-900"]  3 (mand on, delta=5000 msec)
+  inst [100 or "bin-100"]  15 (mand on, delta=5000 msec, inlog, avail)
+  inst [200 or "bin-200"]  15 (mand on, delta=5000 msec, inlog, avail)
+  inst [300 or "bin-300"]  15 (mand on, delta=5000 msec, inlog, avail)
+  inst [400 or "bin-400"]  15 (mand on, delta=5000 msec, inlog, avail)
+  inst [500 or "bin-500"]  15 (mand on, delta=5000 msec, inlog, avail)
+  inst [600 or "bin-600"]  15 (mand on, delta=5000 msec, inlog, avail)
+  inst [700 or "bin-700"]  15 (mand on, delta=5000 msec, inlog, avail)
+  inst [800 or "bin-800"]  15 (mand on, delta=5000 msec, inlog, avail)
+  inst [900 or "bin-900"]  15 (mand on, delta=5000 msec, inlog, avail)
 sample.colour
   inst [0 or "red"]  3 (mand on, delta=5000 msec)
 
@@ -67,10 +67,10 @@ sample.lights  0 (adv off)
 sample.lights  1 (adv on, delta=5000 msec)
 
 +++ turn it on again (NOP) +++
-sample.lights  1 (adv on, delta=5000 msec)
+sample.lights  13 (adv on, delta=5000 msec, inlog, avail)
 
 +++ turn it off +++
-sample.lights  0 (adv off)
+sample.lights  12 (adv off, inlog, avail)
 
 +++ turn it on +++
-sample.lights  1 (adv on, delta=5000 msec)
+sample.lights  13 (adv on, delta=5000 msec, inlog, avail)

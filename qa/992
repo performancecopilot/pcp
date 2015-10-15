@@ -88,7 +88,12 @@ cat <<End-of-File >$tmp.macros.default
 %define disk_all disk.all
 %define disk_all_freq 20sec
 End-of-File
-pmlogger -Dlog -C -c $tmp.config $tmp 2>&1 | _filter
+pmlogger -Dlog -C -c $tmp.config $tmp >$tmp.out 2>$tmp.err
+echo "--- stdout ---" >>$here/$seq.full
+cat $tmp.out >>$here/$seq.full
+echo "--- stderr ---" >>$here/$seq.full
+cat $tmp.err >>$here/$seq.full
+cat $tmp.out $tmp.err | _filter
 
 # success, all done
 status=0

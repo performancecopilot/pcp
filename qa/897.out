@@ -78,7 +78,7 @@ sample.colour
     adv  off nl              [2 or "blue"]
 
 sample.long.one
-    adv  on  nl       5 sec 
+    adv  on           5 sec 
 
 
 === allow * : mandatory ===
@@ -158,7 +158,7 @@ sample.colour
     adv  off nl              [2 or "blue"]
 
 sample.long.one
-    adv  on  nl       5 sec 
+    adv  on           5 sec 
 
 
 === allow * : enquire,mandatory ===
@@ -237,7 +237,7 @@ sample.colour
     mand off nl              [2 or "blue"]
 
 sample.long.one
-    adv  on  nl       5 sec 
+    adv  on           5 sec 
 
 
 === allow * : enquire,advisory,mandatory ===
@@ -276,5 +276,5 @@ sample.colour
     mand off nl              [2 or "blue"]
 
 sample.long.one
-    adv  on  nl       5 sec 
+    adv  on           5 sec 
 

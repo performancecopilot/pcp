@@ -12,11 +12,13 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
+$sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 _filter()
 {
-    sed \
+    tee -a $here/$seq.full \
+    | sed \
 	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9][0-9]/TIMESTAMP/' \
 	-e 's/  *[0-9][0-9]* forw/ N forw/' \
 	-e 's/  *[0-9][0-9]* back/ M back/' \
@@ -29,25 +31,25 @@ _filter()
 }
 
 # real QA test starts here
-echo "=== src/foo ==="
-src/interp2 -a src/foo | _filter 79 82 4 15
+echo "=== src/foo ===" | tee -a $here/$seq.full
+src/interp2 -a src/foo | _filter 72 82 4 15
 
-echo
-echo "=== src/ok-bigbin ==="
+echo | tee -a $here/$seq.full
+echo "=== src/ok-bigbin ===" | tee -a $here/$seq.full
 src/interp2 -a src/ok-bigbin | _filter 199 210 900 1210
 
-echo
-echo "=== src/mv-foo ==="
-src/interp2 -a src/mv-foo | _filter 79 82 10 20
+echo | tee -a $here/$seq.full
+echo "=== src/mv-foo ===" | tee -a $here/$seq.full
+src/interp2 -a src/mv-foo | _filter 72 82 10 20
 
-echo
-echo "=== src/ok-mv-bigbin ==="
+echo | tee -a $here/$seq.full
+echo "=== src/ok-mv-bigbin ===" | tee -a $here/$seq.full
 src/interp2 -a src/ok-mv-bigbin | _filter 199 210 980 1025
 
-echo
-echo "=== src/noti-foo ==="
-src/interp2 -a src/noti-foo | _filter 79 82 10 20
+echo | tee -a $here/$seq.full
+echo "=== src/noti-foo ===" | tee -a $here/$seq.full
+src/interp2 -a src/noti-foo | _filter 72 82 10 20
 
-echo
-echo "=== src/ok-noti-bigbin ==="
+echo | tee -a $here/$seq.full
+echo "=== src/ok-noti-bigbin ===" | tee -a $here/$seq.full
 src/interp2 -a src/ok-noti-bigbin | _filter 199 210 1980 2010

@@ -11,6 +11,10 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  PMID.0.33 (hinv.ndisk):
+Dump optfetch structures ...
+
  state: not in log, unavail, mand, on delta: 600000 usec numpmid: 10
   PMID.0.20 (kernel.all.cpu.user):
   29.0.46 (sample.lights):
@@ -24,10 +28,6 @@ After loading config ...
   29.0.6 (sample.bin):
 Dump optfetch structures ...
 
-Dump optfetch structures ...
-
- state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
-  PMID.0.33 (hinv.ndisk):
 Dump optfetch structures ...
 
 
@@ -46,9 +46,8 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
- state: not in log, unavail, mand, on delta: 20000 usec numpmid: 2
-  PMID.0.25 (disk.all.write):
-  PMID.0.24 (disk.all.read):
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  PMID.0.33 (hinv.ndisk):
 Dump optfetch structures ...
 
  state: not in log, unavail, mand, on delta: 600000 usec numpmid: 10
@@ -66,7 +65,8 @@ Dump optfetch structures ...
 
 Dump optfetch structures ...
 
- state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
-  PMID.0.33 (hinv.ndisk):
+ state: not in log, unavail, mand, on delta: 20000 usec numpmid: 2
+  PMID.0.25 (disk.all.write):
+  PMID.0.24 (disk.all.read):
 Dump optfetch structures ...
 

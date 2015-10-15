@@ -52,7 +52,7 @@ TIME VALUE
 TIME VALUE
 TIME  No values available
 TIME  No values available
-TIME  No values available
+TIME VALUE
 TIME VALUE
 TIME VALUE
 
@@ -74,7 +74,7 @@ TIME VALUE
 TIME VALUE
 TIME  No values available
 TIME  No values available
-TIME  No values available
+TIME VALUE
 TIME VALUE
 TIME VALUE
 
@@ -130,7 +130,7 @@ TIME VALUE
 TIME VALUE
 TIME  No values available
 TIME  No values available
-TIME  No values available
+TIME VALUE
 TIME VALUE
 TIME VALUE
 
@@ -152,7 +152,7 @@ TIME VALUE
 TIME  No values available
 TIME  No values available
 TIME  No values available
-TIME  No values available
+TIME VALUE
 TIME VALUE
 TIME VALUE
 TIME VALUE
@@ -209,7 +209,7 @@ TIME VALUE
 TIME VALUE
 TIME  No values available
 TIME  No values available
-TIME  No values available
+TIME VALUE
 TIME VALUE
 TIME VALUE
 
@@ -231,7 +231,7 @@ TIME VALUE
 TIME  No values available
 TIME  No values available
 TIME  No values available
-TIME  No values available
+TIME VALUE
 TIME VALUE
 TIME VALUE
 TIME VALUE
@@ -288,7 +288,7 @@ TIME VALUE
 TIME VALUE
 TIME  No values available
 TIME  No values available
-TIME  No values available
+TIME VALUE
 TIME VALUE
 TIME VALUE
 
@@ -310,7 +310,7 @@ TIME VALUE
 TIME VALUE
 TIME  No values available
 TIME  No values available
-TIME  No values available
+TIME VALUE
 TIME VALUE
 TIME VALUE
 
@@ -372,9 +372,9 @@ TIME VALUE         200           ?         400           ?           ?          
 TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
 TIME  No values available
 TIME  No values available
-TIME  No values available
 
                 bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
 TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
 TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
 
@@ -398,8 +398,8 @@ TIME VALUE         200           ?         400           ?           ?          
 TIME VALUE         200           ?         400           ?           ?           ?           ?           ? 
 TIME  No values available
 TIME  No values available
-TIME  No values available
 
                 bin-100     bin-200     bin-300     bin-400     bin-500     bin-600     bin-700     bin-800     bin-900 
+TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
 TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
 TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 

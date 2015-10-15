@@ -301,7 +301,7 @@ sample.bin
     mand on  nl       1 hour [900 or "bin-900"]
 
 sample.drift
-    mand on  nl       1 hour
+    mand on           1 hour
 
 sample.seconds
     mand on  nl       1 hour
@@ -319,7 +319,7 @@ sample.bin
     mand on  nl       1 hour [900 or "bin-900"]
 
 sample.drift
-    mand on  nl       1 hour
+    mand on           1 hour
 
 sample.seconds
     mand on  nl       1 hour
