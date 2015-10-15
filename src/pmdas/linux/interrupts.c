@@ -97,11 +97,12 @@ column_to_cpuid(int column)
 static char *
 extract_values(char *buffer, unsigned long long *values, int ncolumns)
 {
-    unsigned long i, value, cpuid;
+    unsigned long i, cpuid;
+    unsigned long long value;
     char *s = buffer, *end = NULL;
 
     for (i = 0; i < ncolumns; i++) {
-	value = strtoul(s, &end, 10);
+	value = strtoull(s, &end, 10);
 	if (*end != ' ')
 	    return NULL;
 	s = end;
