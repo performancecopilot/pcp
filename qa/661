@@ -90,13 +90,13 @@ echo # not \n terminated
 
 echo
 echo "metric value dump 1" 
-curl -s -S "http://localhost:44323/graphite/render?format=json&target=*-2F-node_archive-2E-meta.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100" | _webapi_json_pretty
+curl -s -S "http://localhost:44323/graphite/render?format=json&target=*/node_archive.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100" | _webapi_json_pretty
 echo
 echo "metric value dump 2" 
-curl -s -S "http://localhost:44323/graphite/rawdata?target=*-2F-node_archive-2E-meta.proc.psinfo.pid.*&from=00:00_20131127&until=00:00_20131129&maxDataPoints=300" | _webapi_json_pretty
+curl -s -S "http://localhost:44323/graphite/rawdata?target=*/node_archive.proc.psinfo.pid.*&from=00:00_20131127&until=00:00_20131129&maxDataPoints=300" | _webapi_json_pretty
 
 echo PR1099 workaround, expect empty result
-curl -s -S "http://localhost:44323/graphite/rawdata?target=*20130706-2E-meta.kernel.all.nprocs&from=00:00_20130705&until=23:59_20130705" | _webapi_json_pretty
+curl -s -S "http://localhost:44323/graphite/rawdata?target=*20130706.kernel.all.nprocs&from=00:00_20130705&until=23:59_20130705" | _webapi_json_pretty
 
 echo
 echo "metric gfx rendering" 
