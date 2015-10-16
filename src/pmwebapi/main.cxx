@@ -35,6 +35,7 @@ map<string,unsigned> clients_usage;
 unsigned perm_context = 1;	/* set by -c option, changed by -h/-a/-L */
 unsigned new_contexts_p = 1;	/* cleared by -N option */
 unsigned graphite_p;		/* set by -G option */
+unsigned graphite_encode = 1;	/* unset by -X option */
 unsigned exit_p;		/* counted by SIG* handler */
 static __pmServerPresence *presence;
 unsigned multithread = 0;       /* set by -M option */
@@ -455,6 +456,7 @@ option_overrides (int opt, pmOptions * opts)
     case 't':
     case 'i':
     case 'I':
+    case 'X':
         return 1;
     }
     return 0;
@@ -468,6 +470,7 @@ longopts[] = {
     {"ipv6", 0, '6', 0, "listen on IPv6 only"},
     PMAPI_OPTIONS_HEADER ("Graphite options"),
     {"graphite", 0, 'G', 0, "enable graphite 0.9 API/backend emulation"},
+    {"graphite-noencode", 0, 'X', 0, "don't encode special characters that are now allowed by graphite"},
     {"graphite-timestamp", 1, 'i', "SEC", "minimum graphite timestep (s) [default 60]"},
     {"graphite-archivedir", 0, 'I', 0, "prefer archive directories [default OFF]"},
     PMAPI_OPTIONS_HEADER ("Context options"),
@@ -553,6 +556,10 @@ main (int argc, char *argv[])
 
         case 'G':
             graphite_p = 1;
+            break;
+
+        case 'X':
+            graphite_encode = 0;
             break;
 
         case 'i':

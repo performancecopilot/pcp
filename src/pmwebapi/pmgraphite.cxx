@@ -112,10 +112,20 @@ pmgraphite_metric_encode (const string & foo)
         char c = foo[i];
         // Pass through enough characters to make the metric names relatively
         // human-readable in the javascript guis
-        if (isalnum (c) || (c == '_') || (c == ' ') || (c == '-') || (c == '/') ) {
-            output << c;
-        } else {
-            output << "%" << hex[ (c >> 4) & 15] << hex[ (c >> 0) & 15];
+        if (graphite_encode) {
+            if (isalnum (c) || (c == '_') || (c == ' ')) {
+                output << c;
+            } else {
+                output << "-" << hex[ (c >> 4) & 15] << hex[ (c >> 0) & 15] << "-";
+            }
+        }
+        // Newer graphite/grafana support more characters
+        else {
+            if (isalnum (c) || (c == '_') || (c == ' ') || (c == '-') || (c == '/') ) {
+                output << c;
+            } else {
+                output << "%" << hex[ (c >> 4) & 15] << hex[ (c >> 0) & 15];
+            }
         }
     }
     return output.str ();
@@ -130,22 +140,45 @@ pmgraphite_metric_decode (const string & foo)
     static const char hex[] = "0123456789ABCDEF";
     for (unsigned i = 0; i < foo.size (); i++) {
         char c = foo[i];
-        if (c == '%') {
-            if (i + 2 >= foo.size ()) {
-                return "";
+        if (graphite_encode) {
+            if (c == '-') {
+                if (i + 3 >= foo.size ()) {
+                    return "";
+                }
+                const char *p = lower_bound (hex, hex + 16, foo[i + 1]);
+                if (*p != foo[i + 1]) {
+                    return "";
+                }
+                const char *q = lower_bound (hex, hex + 16, foo[i + 2]);
+                if (*q != foo[i + 2]) {
+                    return "";
+                }
+                if ('-' != foo[i + 3]) {
+                    return "";
+                }
+                output += (char) (((p - hex) << 4) | (q - hex));
+                i += 3;		// skip over hex bytes
+            } else {
+                output += c;
             }
-            const char *p = lower_bound (hex, hex + 16, foo[i + 1]);
-            if (*p != foo[i + 1]) {
-                return "";
-            }
-            const char *q = lower_bound (hex, hex + 16, foo[i + 2]);
-            if (*q != foo[i + 2]) {
-                return "";
-            }
-            output += (char) (((p - hex) << 4) | (q - hex));
-            i += 2;		// skip over hex bytes
         } else {
-            output += c;
+            if (c == '%') {
+                if (i + 2 >= foo.size ()) {
+                    return "";
+                }
+                const char *p = lower_bound (hex, hex + 16, foo[i + 1]);
+                if (*p != foo[i + 1]) {
+                    return "";
+                }
+                const char *q = lower_bound (hex, hex + 16, foo[i + 2]);
+                if (*q != foo[i + 2]) {
+                    return "";
+                }
+                output += (char) (((p - hex) << 4) | (q - hex));
+                i += 2;		// skip over hex bytes
+            } else {
+                output += c;
+            }
         }
     }
     return output;
@@ -328,12 +361,15 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
                 (char) __pmPathSeparator ())) {
             archivepart = archivepart.substr (archivesdir.size () + 1);
         }
-        // Remove the .meta part
-        string metastring = ".meta";
-        string::size_type metaidx = archivepart.find( metastring );
 
-        if (metaidx != std::string::npos)
-           archivepart.erase(metaidx, metastring.length());
+        // Remove the .meta part
+        if (!graphite_encode) {
+            string metastring = ".meta";
+            string::size_type metaidx = archivepart.find( metastring );
+
+            if (metaidx != std::string::npos)
+               archivepart.erase(metaidx, metastring.length());
+        }
 
         archivepart = pmgraphite_metric_encode (archivepart);
 
@@ -1168,8 +1204,7 @@ pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<str
             js.t_start = t_start;
             js.t_end = t_end;
             js.t_step = t_step;
-            // We took off the meta for display purposes, add it back on to open the file
-            js.archive = archive_part+".meta";
+            js.archive = archive_part;
             it = jobmap.insert(make_pair(archive_part,js)).first;
         }
 
