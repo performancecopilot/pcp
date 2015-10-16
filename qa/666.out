@@ -11,10 +11,11 @@ more than one
 === 7. add log-merging/rewriting, sans pmFOOconf ===
 === 8. recheck the directories past retain/merge ===
 less than three
-=== 9. how about some granular mode ===
+=== 9. how about some granular/reduced mode ===
 === 10. wait a bit ===
-=== 11. admire grained / retained data ===
-more than two and less than five
+=== 11. admire grained / reduced / retained data ===
+more than two and less than five archives
+more than zero and less than three reduced archives
 === ZZZ kill pmmgr ===
 === valgrind stdout ===
 === valgrind stderr ===
