@@ -258,35 +258,58 @@ The default is
 .BR "no granularity" .
 
 .TP
-pmlogmerge\-retain
-If this file exists, pmmgr will set the relative starting time for
-retaining old archived data.  It will be passed to pmlogextract as a
-negative parameter to \-S.  It is interpreted as a request that data
-older than the given interval should be thrown away.  In addition,
-unmerged archive files left around, that are older than this, are
-deleted.  (This can happen if those archive files had errors that
-prevented their merging.)  The default is
-.BR 14days .
-
-.TP
 pmlogmerge\-rewrite
-If this file exists, pmmgr will run 
+If this file exists, pmmgr will run
 .BR "pmlogrewrite -i"
 (plus any other options listed in this file) on each input archive before
 merging it.  This will naturally require more disk I/O.  The default is
 .BR "no rewriting" .
 
+.TP
+pmlogmerge\-retain
+pmmgr reduces/deletes any original-resolution archives after a time
+period specified by this file, as measured by the file mtime.
+The period will also be passed to pmlogextract as a
+negative parameter to \-S.  The default is
+.BR 14days .
+To store archives indefinitely, set this to a large quantity
+like "99999weeks".
+
+.TP
+pmlogreduce
+If this file exists, then prior to removing archives that
+expire past the
+.I pmlogmerge\-retain
+period, they are processed with
+.I pmlogreduce
+to create reduced archives (named \fBreduced-*\fR).  If the
+file contains space-separated options, they are passed onto
+pmlogreduce.  (By default, pmlogreduce downsamples to a
+600-second interval.)
+
+.TP
+pmlogreduce\-retain
+If this file exists, then reduced archives (identified by the
+\fBreduced-*\fR pattern) are deleted after a time period
+specified by this file, as measured from the file mtime.
+Since this time is likely that of the pmlogreduce run, the
+total retention time will be approximately the pmlogmerge\-retain
+time \fBplus\fR the pmlogreduce\-retain time.
+The default is
+.BR 90days .
+To store reduced archives indefinitely, set this to a large
+quantity like "99999weeks".
 
 .SS PMIE CONFIGURATION
 
-This group of configuration options controls a 
+This group of configuration options controls a
 .BR pmie
 daemon for each host.  This may include generating a custom
 configuration.
 
 .TP
 pmie
-If and only if this file exists, pmmgr will maintain a 
+If and only if this file exists, pmmgr will maintain a
 .BR pmie
 daemon for each
 targeted pmcd.  This file contains one line of additional space-separated options

@@ -16,7 +16,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CONFIGS = pmie pmieconf pmlogconf pmlogger \
-	pmlogmerge pmlogmerge-rewrite pmlogmerge-granular \
+	pmlogmerge pmlogmerge-rewrite pmlogmerge-granular pmlogreduce \
 	README target-discovery.example-avahi 
 
 PMMGR_SYSCONF_DIR=$(PCP_SYSCONF_DIR)/pmmgr

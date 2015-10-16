@@ -900,6 +900,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
       string pmlogrewrite_command =
 	string(pmGetConfig("PCP_BINADM_DIR")) + (char)__pmPathSeparator() + "pmlogrewrite";
 
+      string pmlogreduce_command =
+	string(pmGetConfig("PCP_BINADM_DIR")) + (char)__pmPathSeparator() + "pmlogreduce";
+
       string pmlogextract_options = sh_quote(pmlogextract_command);
 
       string retention = get_config_single ("pmlogmerge-retain");
@@ -916,6 +919,19 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	  retention_tv.tv_usec = 0;
 	}
       pmlogextract_options += " -S -" + sh_quote(retention);
+
+      string reduced_retention = get_config_single ("pmlogreduce-retain");
+      if (reduced_retention == "") reduced_retention = "90days";
+      struct timeval reduced_retention_tv;
+      rc = pmParseInterval(reduced_retention.c_str(), &reduced_retention_tv, &errmsg);
+      if (rc)
+	{
+	  timestamp(cerr) << "pmlogreduce-retain '" << reduced_retention << "' parse error: " << errmsg << endl;
+	  free (errmsg);
+	  reduced_retention = "90days";
+	  reduced_retention_tv.tv_sec = 90*24*60*60;
+	  reduced_retention_tv.tv_usec = 0;
+	}
 
       // Arrange our new pmlogger to kill itself after the given
       // period, to give us a chance to rerun.
@@ -951,22 +967,22 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	}
       pmlogger_options += " -y -T " + sh_quote(period); // NB: pmmgr host local time!
 
-      // Find prior archives by globbing for *.index files,
-      // just like pmlogger_merge does.
-      // Er ... but aren't .index files optional?
+      // Find prior archives by globbing for archive-*.index files,
+      // to exclude reduced-archives (if any).  (*.index files are
+      // optional as per pcp-archive.5, but pmlogger_merge.sh relies
+      // on it.)
       vector<string> mergeable_archives; // those to merge
       glob_t the_blob;
-      string glob_pattern = host_log_dir + (char)__pmPathSeparator() + "*.index";
+      string glob_pattern = host_log_dir + (char)__pmPathSeparator() + "archive-*.index";
       rc = glob (glob_pattern.c_str(), GLOB_NOESCAPE, NULL, & the_blob);
       if (rc == 0)
 	{
-	  // compute appropriate
 	  struct timeval now_tv;
 	  __pmtimevalNow (&now_tv);
 	  time_t period_s = period_tv.tv_sec;
 	  if (period_s < 1) period_s = 1; // at least one second
 	  time_t prior_period_start = ((now_tv.tv_sec + 1 - period_s) / period_s) * period_s;
-	  time_t prior_period_end = prior_period_start + period_s - 1; 
+	  time_t prior_period_end = prior_period_start + period_s - 1;
 	  // schedule end -before- the period boundary, so that the
 	  // last recorded metric timestamp is strictly before the end
 
@@ -992,12 +1008,38 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	      else if ((foo.st_mtime + retention_tv.tv_sec) < now_tv.tv_sec)
 		{
 		  string bnq = sh_quote(base_name);
-		  string cleanup_cmd = string("/bin/rm -f")
-		    + " " + bnq + ".[0-9]*"
-		    + " " + bnq + ".index" +
-		    + " " + bnq + ".meta";
 
-		  (void) wrap_system(cleanup_cmd);
+                  rc = 0;
+                  if (get_config_exists ("pmlogreduce"))
+                    {
+                      string pmlogreduce_options = sh_quote(pmlogreduce_command);
+                      pmlogreduce_options += " " + get_config_single ("pmlogreduce");
+
+                      // turn $host_log_dir/archive-FOO.meta into $host_log_dir/reduced-FOO.meta
+                      // NB: Don't assume $host_log_dir is too sanitized, so proceed backward from
+                      // end.
+
+                      string cutme = "archive-";
+                      size_t cut_here = base_name.rfind(cutme);
+                      if (cut_here == string::npos) // can't happen; guaranteed by glob_pattern
+                        continue;
+                      size_t cut_len = cutme.length();
+                      string output_file = base_name;
+                      output_file.replace(cut_here, cut_len, "reduced-");
+
+                      pmlogreduce_options += " " + sh_quote(base_name) + " " + sh_quote(output_file);
+                      rc = wrap_system(pmlogreduce_options);
+                      if (rc)
+                        timestamp(cerr) << "pmlogreduce error; keeping " << index_name << endl;
+                    }
+
+		  string cleanup_cmd = string("/bin/rm -f")
+                      + " " + bnq + ".[0-9]*"
+                      + " " + bnq + ".index" +
+                      + " " + bnq + ".meta";
+
+                  if (rc == 0) // only delete if the pmlogreduce succeeded!
+                    (void) wrap_system(cleanup_cmd);
 		  continue; // it's gone now; don't try to merge it or anything
 		}
 
@@ -1068,6 +1110,49 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	    }
 	  globfree (& the_blob);
 	}
+
+      // remove too-old reduced archives too
+      glob_pattern = host_log_dir + (char)__pmPathSeparator() + "reduced-*.index";
+      rc = glob (glob_pattern.c_str(), GLOB_NOESCAPE, NULL, & the_blob);
+      if (rc == 0)
+	{
+	  struct timeval now_tv;
+	  __pmtimevalNow (&now_tv);
+	  for (unsigned i=0; i<the_blob.gl_pathc; i++)
+	    {
+	      if (quit) return "";
+
+	      string index_name = the_blob.gl_pathv[i];
+	      string base_name = index_name.substr(0,index_name.length()-6); // trim .index
+
+	      // Manage retention based upon the stat timestamps of the .index file,
+              // same as above.  NB: this is invariably a -younger- base point than
+              // the archive log-label!
+	      struct stat foo;
+	      rc = stat (the_blob.gl_pathv[i], & foo);
+	      if (rc)
+		{
+		  // this apprx. can't happen
+		  timestamp(cerr) << "stat '" << the_blob.gl_pathv[i] << "' error; skipping cleanup" << endl;
+		  continue; // likely nothing can be done to this one
+		}
+              if (pmDebug & DBG_TRACE_APPL0)
+                timestamp(cout) << "contemplating deletion of archive " << base_name
+                                << " (" << foo.st_mtime << "+" << reduced_retention_tv.tv_sec
+                                << "  < " << now_tv.tv_sec << ")"
+                                << endl;
+	      if ((foo.st_mtime + reduced_retention_tv.tv_sec) < now_tv.tv_sec)
+		{
+		  string bnq = sh_quote(base_name);
+		  string cleanup_cmd = string("/bin/rm -f")
+                      + " " + bnq + ".[0-9]*"
+                      + " " + bnq + ".index" +
+                      + " " + bnq + ".meta";
+
+		  (void) wrap_system(cleanup_cmd);
+                }
+            }
+        }
 
       string timestr = "archive";
       time_t now2 = time(NULL);
@@ -1418,8 +1503,13 @@ int main (int argc, char *argv[])
 
   timestamp(cout) << "Log finished" << endl;
 
-  // Send a last-gasp signal out, just in case daemons somehow missed 
+  // Send a last-gasp signal out, just in case daemons somehow missed
   kill(-getpid(), SIGTERM);
 
   return 0;
 }
+
+/* Local Variables:  */
+/* mode: c++         */
+/* c-basic-offset: 2 */
+/* End:              */
