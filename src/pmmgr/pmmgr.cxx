@@ -1045,20 +1045,6 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
 	      if (quit) return "";
 
-	      // sic pmlogcheck on it; if it is broken, pmlogextract
-	      // will give up and make no progress
-	      string pmlogcheck_options = sh_quote(pmlogcheck_command);
-	      pmlogcheck_options += " " + sh_quote(base_name) + " >/dev/null";
-
-	      rc = wrap_system(pmlogcheck_options);
-	      if (rc != 0)
-		{
-		  timestamp(cerr) << "corrupt archive " << base_name << " preserved." << endl;
-		  continue;
-		}
-
-	      if (quit) return "";
-
 	      // In granular mode, skip if this file is too old or too new.  NB: Decide
 	      // based upon the log-label, not fstat timestamps, since files postdate
 	      // the time region they cover.
@@ -1104,6 +1090,20 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 		  // fallthrough: the archive intersects the prior_period_{start,end} interval
 
 		  // XXX: What happens for archives that span across granular periods?
+		}
+
+	      if (quit) return "";
+
+	      // sic pmlogcheck on it; if it is broken, pmlogextract
+	      // will give up and make no progress
+	      string pmlogcheck_options = sh_quote(pmlogcheck_command);
+	      pmlogcheck_options += " " + sh_quote(base_name) + " >/dev/null";
+
+	      rc = wrap_system(pmlogcheck_options);
+	      if (rc != 0)
+		{
+		  timestamp(cerr) << "corrupt archive " << base_name << " preserved." << endl;
+		  continue;
 		}
 
 	      mergeable_archives.push_back (base_name);
