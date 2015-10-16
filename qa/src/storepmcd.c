@@ -72,7 +72,7 @@ store_container(pmID pmid, char *name)
     int			sts;
 
     vlen = PM_VAL_HDR_SIZE + strlen(name) + 1;
-    pmvb = (pmValueBlock *)malloc(vlen);
+    pmvb = (pmValueBlock *)calloc(1, vlen);
     if (pmvb == NULL)
 	__pmNoMem("store_container", vlen, PM_FATAL_ERR);
     pmvb->vtype = PM_TYPE_STRING;
@@ -92,7 +92,7 @@ store_container(pmID pmid, char *name)
 	fprintf(stderr, "pmStore: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    printf("pmStore: container %s ok\n", name);
+    printf("pmStore: container \"%s\" ok\n", name);
     free(pmvb);
 }
 
