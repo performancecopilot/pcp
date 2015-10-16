@@ -2,17 +2,17 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2013-2015 Red Hat, Inc.  All Rights Reserved.
-.\" 
+.\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
 .\" Free Software Foundation; either version 2 of the License, or (at your
 .\" option) any later version.
-.\" 
+.\"
 .\" This program is distributed in the hope that it will be useful, but
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
+.\"
 .\"
 .TH PMMGR 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -29,7 +29,7 @@
 manages a collection of PCP daemons for a set of discovered local and
 remote hosts running the Performance Metrics Collection Daemon (PMCD),
 according to zero or more configuration directories.  It keeps a
-matching set of 
+matching set of
 .BR pmlogger " and/or " pmie
 daemons running, and their archives/logs merged/rotated.  It supplants
 the older
@@ -88,10 +88,10 @@ name for locating daemon data.
 .TP
 hostid\-metrics
 This file contains one or more lines of metric specifications in the format
-accepted by 
+accepted by
 .IR pmParseMetricSpec .
 Metrics without instance specifiers mean all instances of that metric.
-These are used to generate the 
+These are used to generate the
 .IR unique
 host-id string for each pmcd server that pmmgr discovers.  Upon discovery,
 all the metrics/instances named are queried, string values fetched, and
@@ -101,7 +101,7 @@ The default is the single metric
 which is sufficient if all the hosts discovered have unique hostname(2).  If
 they don't, you should add other pcp metric specifications to set them apart
 at your site.  The more you add, the longer the host-id string, but the more
-likely that accidental duplication is prevented.  
+likely that accidental duplication is prevented.
 
 However, it may be desirable for a host-id to also be
 .IR persistent ,
@@ -119,7 +119,7 @@ Some candidate metrics to consider:
 
 .TP
 log\-directory
-This file contains the path of a directory beneath which the per-host-id 
+This file contains the path of a directory beneath which the per-host-id
 subdirectories are to be created by pmmgr.  If it is not a full path, it
 is implicitly relative to the configuration directory itself.  The default is
 .BR $PCP_LOG_DIR/pmmgr/ .
@@ -129,7 +129,7 @@ target\-host
 This file contains one or more lines containing pmcd host specifications, as
 described on the
 .IR PCPintro (1)
-man page.  Each poll interval, pmmgr will attempt to make a brief 
+man page.  Each poll interval, pmmgr will attempt to make a brief
 .IR pmNewContext
 connection to the host to check liveness.  It is not a problem if more than
 one specification for the same host is listed, because the host-id processing
@@ -173,21 +173,21 @@ have not been touched (in the
 sense) in at least that long, and not associated with a currently
 monitored target, are deleted entirely.  This value should be
 longer than the longest interval that pmmgr normally recreates
-archives (such as due to pmmgr restarts, and 
+archives (such as due to pmmgr restarts, and
 .BR pmlogmerge
 intervals).  The default value is
 .BR 90days .
 
 .SS PMLOGGER CONFIGURATION
 
-This group of configuration options controls a 
+This group of configuration options controls a
 .BR pmlogger
 daemon for each host.  This may include generating its configuration,
 and managing its archives.
 
 .TP
 pmlogger
-If and only if this file exists, pmmgr will maintain a 
+If and only if this file exists, pmmgr will maintain a
 .BR pmlogger
 daemon for each
 targeted host.  This file contains one line of additional space-separated options
@@ -198,13 +198,13 @@ default is to maintain
 
 .TP
 pmlogconf
-If and only if this file exists, pmmgr will run 
+If and only if this file exists, pmmgr will run
 .BR pmlogconf
 to generate a configuration
-file for each target pmcd.  The file contains one line of space-separated additional 
+file for each target pmcd.  The file contains one line of space-separated additional
 options for the pmlogconf program.  pmlogconf's generated output file will be stored under
 the log\-directory/hostid subdirectory.  (pmmgr already adds \-c, \-r, and \-h.)  The
-default is 
+default is
 .BR "no pmlogconf" ,
 so instead, the pmlogger file above should probably contain a \-c option, to
 specify a fixed pmlogger configuration.
@@ -235,16 +235,16 @@ written-to by pmlogger.
 
 .TP
 pmlogmerge
-If this file exists, pmmgr will run 
+If this file exists, pmmgr will run
 .BR pmlogextract
 to periodically merge together preexisting log archives for each
 target pmcd into a single large one.  Then, the preexisting log
-archives are deleted (including any prior merged ones). 
+archives are deleted (including any prior merged ones).
 This configuration file may contain a time interval specification as per the
 .IR PCPintro
 man page, representing the period after which pmlogger should be temporarily
 stopped, and archives merged.  It represents the maximum amount of time that
-the merged archive \fIlags\fR the present time. The default is 
+the merged archive \fIlags\fR the present time. The default is
 .BR 24hours .
 
 .TP
@@ -323,10 +323,10 @@ pmieconf
 If and only if this file exists, pmmgr will run
 .BR pmieconf
 to generate a configuration
-file for each target pmcd.  The file  contains one line of space-separated additional 
+file for each target pmcd.  The file  contains one line of space-separated additional
 options for the pmieconf program.  pmieconf's generated output file will be stored under
 the log\-directory/hostid subdirectory.  (pmmgr already adds \-F, \-c, and \-f.)  The
-default is 
+default is
 .BR "no pmieconf" ,
 so instead, the pmie file above should probably contain a \-c option, to
 specify a fixed pmie configuration.

@@ -124,8 +124,8 @@ pmmgr_configurable::wrap_system(const std::string& cmd)
       timestamp(cerr) << "fork for " << cmd << " failed: errno=" << errno << endl;
       return -1;
     }
-  else 
-    { 
+  else
+    {
       // parent
       int status = -1;
       int rc;
@@ -361,7 +361,7 @@ pmmgr_job_spec::find_containers (const pcp_context_spec& ctx)
     set<string> result;
     int rc;
     const char* names[1] = { "containers.state.running" };
-    
+
     int pmc = pmNewContext (PM_CONTEXT_HOST, ctx.c_str());
     if (pmc < 0)
         goto out;
@@ -391,7 +391,7 @@ pmmgr_job_spec::find_containers (const pcp_context_spec& ctx)
                                 desc.type, & av, PM_TYPE_32);
             if (rc < 0) // type error or absent value or something
 		continue;
-            
+
             if (av.l == 0) // container not running
                 continue;
 
@@ -536,7 +536,7 @@ pmmgr_job_spec::poll()
           }
   }
 
-  
+
   if (pmDebug & DBG_TRACE_APPL1)
       {
 	  timestamp(cout) << "poll results" << endl;
@@ -795,9 +795,9 @@ void pmmgr_daemon::poll()
 
       string commandline = daemon_command_line(); // <--- may take many seconds!
 
-      // NB: Note this time as a restart attempt, even if daemon_command_line() 
+      // NB: Note this time as a restart attempt, even if daemon_command_line()
       // returned an empty string, so that we don't try to restart it too soon.
-      // We note this time rather than the beginning of daemon_command_line(), 
+      // We note this time rather than the beginning of daemon_command_line(),
       // to ensure at least polltime seconds of rest between attempts.
       last_restart_attempt = now;
 
