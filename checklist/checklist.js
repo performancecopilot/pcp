@@ -16,15 +16,15 @@ function addChild(parent,child) {
     child.parent = parent;
 }
 
-Tree.prototype.traverseDF = function(pre,post,level) {
-    (function recurse(currentNode, level) {
-        pre(currentNode, level);
+Tree.prototype.traverseDF = function(pre,post,res) {
+    return (function recurse(currentNode, level, res) {
+        res = pre(currentNode, level, res);
         for (var i = 0, length = currentNode.children.length; i < length; i++) {
-            recurse(currentNode.children[i], level+1);
+            res = recurse(currentNode.children[i], level+1, res);
         }
-        post(currentNode, level);
-    })(this._root, 0);
- 
+        res = post(currentNode, level, res);
+	return res ;
+    })(this._root, 0, res)
 };
 
 /*
@@ -248,16 +248,23 @@ storage = new Node(function() {return 0.5;}, 'storage limited');
 addChild(tree._root, storage);
 
 
-// some debug code to print out the tree to make sure that it is sensible
-console.log("(checklist start)");
-tree.traverseDF(function(node, level) {
-    console.log(indent.substring(0,(2*level)) + node.desc)
-}, function(node, level){}, 0);
-console.log("(checklist end)");
-
 // setup pmwebd connection
 // get pmwebd context
 
 
 // do the search to find out the likely problem
 search(tree._root);
+
+function loadChecklist() {
+    $("#header").html("pcp checklist demo");
+    $("#content").html(
+    tree.traverseDF(
+	function(node, level, o) { return (o + "<ul><li>" + node.desc + "\n");},
+	function(node, level, o) { return (o + "</li></ul>\n");},
+	""));
+}
+
+
+$(document).ready(function() {
+  loadChecklist();
+});
