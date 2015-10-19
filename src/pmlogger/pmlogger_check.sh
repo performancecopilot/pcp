@@ -19,6 +19,7 @@
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/rc-proc.sh
+. $PCP_SHARE_DIR/lib/utilproc.sh
 
 PMLOGGER="$PCP_BINADM_DIR/pmlogger"
 PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
@@ -456,8 +457,10 @@ _parse_control()
 
 	# NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config
 	# line differently for the directory and the pcp -h HOST arguments.
+	#
 	dir_hostname=`hostname || echo localhost`
 	dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dir_hostname;"`
+
 	[ "x$host" = "xLOCALHOSTNAME" ] && host=local:
 
 	$VERY_VERBOSE && echo "[$controlfile:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
@@ -514,6 +517,10 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    dir="$socks"
 	    socks=n
 	fi
+
+	# do shell expansion of $dir if needed
+	#
+	_do_dir_and_args
 
 	if [ -z "$primary" -o -z "$socks" -o -z "$dir" -o -z "$args" ]
 	then
