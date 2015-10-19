@@ -16,23 +16,13 @@ function addChild(parent,child) {
     child.parent = parent;
 }
 
-Tree.prototype.pretraverseDF = function(callback) {
+Tree.prototype.traverseDF = function(pre,post,level) {
     (function recurse(currentNode, level) {
-        callback(currentNode, level);
+        pre(currentNode, level);
         for (var i = 0, length = currentNode.children.length; i < length; i++) {
             recurse(currentNode.children[i], level+1);
         }
-    })(this._root, 0);
- 
-};
-
-Tree.prototype.posttraverseDF = function(callback, level) {
-    (function recurse(currentNode, level) {
-        for (var i = 0, length = currentNode.children.length; i < length; i++) {
-            recurse(currentNode.children[i], level+1);
-        }
-        callback(currentNode, level);
-
+        post(currentNode, level);
     })(this._root, 0);
  
 };
@@ -260,9 +250,9 @@ addChild(tree._root, storage);
 
 // some debug code to print out the tree to make sure that it is sensible
 console.log("(checklist start)");
-tree.pretraverseDF(function(node, level) {
+tree.traverseDF(function(node, level) {
     console.log(indent.substring(0,(2*level)) + node.desc)
-}, 0);
+}, function(node, level){}, 0);
 console.log("(checklist end)");
 
 // setup pmwebd connection
