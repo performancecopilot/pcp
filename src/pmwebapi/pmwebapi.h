@@ -54,6 +54,7 @@ extern unsigned maxtimeout;			/* set by -t option */
 extern unsigned multithread;			/* set by -M option */
 extern unsigned graphite_timestep;              /* set by -i option */
 extern unsigned graphite_archivedir;            /* set by -I option */
+extern unsigned graphite_encode;                /* set by -X option */
 
 struct http_params: public std::multimap <std::string, std::string> {
     std::string operator [] (const std::string &) const;
