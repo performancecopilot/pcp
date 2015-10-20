@@ -111,8 +111,11 @@ archive
 # getopt support - libpcp, pmgetopt, python
 getopt
 
-# cron.*, pm*log* apps (except pmlogger)
+# pmlogger_* scripts (but not pmlogger)
 logutil
+
+# pmie_* scripts (but not pmie)
+pmieutil
 
 # NSS, SASL, other authentication
 secure
@@ -410,7 +413,7 @@ cgroups
 112 pmns local sanity
 113 libirixpmda local
 114 pmda.linux local
-115 pmie remote
+115 pmie remote pmieutil
 116 other pmie pmval remote pmlc
 117 libirixpmda local
 118 pmie local
@@ -609,8 +612,8 @@ cgroups
 311 archive compat #509592 pminfo local pmstore pmdumplog
 312 pmie local
 313 pmval archive local pmdumplog
-314 pmie local
-315 pmie local
+314 pmie local pmieutil
+315 pmie local pmieutil
 316 libpcp local
 317 logutil pmlogsummary local
 318 pmie local
