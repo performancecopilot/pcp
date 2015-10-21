@@ -29,53 +29,15 @@ done
 #
 _getnetworkaddr()
 {
-    if `which ifconfig >/dev/null 2>&1`
+    if `which hostname >/dev/null 2>&1`
     then
-	# expecting ifconfig lines like ...
-        # inet 192.168.1.222  netmask 255.255.255.0  broadcast 192.168.1.255
-	# inet addr:192.168.1.100  Bcast:192.168.1.255  Mask:255.255.255.0
-	#
-	# skip ip tunnels/vpns like
-	# inet addr:10.8.3.138  P-t-P:10.8.3.137  Mask:255.255.255.255
-	#
-	ifconfig \
-	| grep -v '[ :]127\.0\.0' \
-	| sed -n >$tmp.addr \
-	    -e '/^[ 	]*inet .*cast[ :]/{
-s/^[ 	]*inet[ 	]//
-s/^addr://
-s/[ 	][ 	]*broadcast[ 	][^ 	]*//
-s/:Bcast:[^ ]*//
-s/[ 	][ 	]*netmask[ 	]/ /
-s/[ 	][ 	]*Mask:/ /
-p
-}'
-	#debug# cat $tmp.addr >&2
-	num=`wc -l <$tmp.addr | sed -e 's/ //g'`
-	if [ "$num" -gt 1 ]
+	host=`hostname`
+	if `which host >/dev/null 2>&1`
 	then
-	    echo >&2 "_getnetworkaddr: confused by multiple network addresses"
-	    echo >&2 "Please choose the primary address for incoming pmlc requests:"
-	    rm -f $tmp.tmp
-	    cat $tmp.addr \
-	    | while read addr stuff
-	    do
-		echo -n >&2 "$addr [y|n]?"
-		read ans </dev/tty
-		if [ "X$ans" = Xy ]
-		then
-		    echo "$addr $stuff" >$tmp.tmp
-		    break
-		fi
-	    done
-	    mv $tmp.tmp $tmp.addr
-	    num=`wc -l <$tmp.addr | sed -e 's/ //g'`
-	fi
-	case "$num"
-	in
-	    1)	# good
-		addr=`cat $tmp.addr | sed -e 's/ .*//'`
-		mask=`cat $tmp.addr | sed -e 's/.* //'`
+	    addr=`host $host | sed -e 's/.*address //'`
+	    if `which ifconfig >/dev/null 2>&1`
+	    then
+		mask=`ifconfig | grep $addr | sed -e 's/.*Mask://'`
 		case "$mask"
 		in
 		    255.255.255.0|0xffffff00)	# /24 network
@@ -89,20 +51,17 @@ p
 			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
 			;;
 		    *)
-			echo >&2 "_getnetworkaddr: cannot handle network mask: $mask"
+			echo >&2 "_getnetworkaddr: Warning: cannot handle network mask: $mask"
 			;;
 		esac
-		;;
-	    0)	# none?
-		echo >&2 "_getnetworkaddr: cannot get network address"
-		;;
-	    *)	# multiple?
-		echo >&2 "_getnetworkaddr: cannot handle multiple network addresses:"
-		cat >&2 $tmp.addr
-		;;
-	esac
+	    else
+		echo >&2 "No ifconfig(1)? Not sure how to get primary ip addr and netmask"
+	    fi
+	else
+	    echo >&2 "No host(1)? Not sure how to get primary ip addr and netmask"
+	fi
     else
-	echo >&2 '_getnetworkaddr: no ifconfig?'
+	echo >&2 "No hostname(1)? Not sure how to get primary ip addr and netmask"
     fi
 }
 
