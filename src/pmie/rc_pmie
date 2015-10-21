@@ -186,7 +186,7 @@ _shutdown()
     _get_pids_by_name pmie >$tmp/pmies 2>&1
     if [ ! -s $tmp/pmies ]
     then
-	[ "$1" = verbose ] && echo "$pmprog: PMIE not running"
+	[ "$1" = verbose ] && echo "$pmprog: pmie not running"
 	return 0
     fi
 
