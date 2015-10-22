@@ -12,16 +12,15 @@ echo "QA output created by $seq"
 . ./common.python
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
+$sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
-$sudo rm -f $seq.full $tmp.stderr
 
 _check_stderr()
 {
     if [ -s $tmp.stderr ]
     then
 	echo fail
-	cat $tmp.stderr >> $seq.full
+	cat $tmp.stderr >>$here/$seq.full
     else
 	echo pass
     fi
