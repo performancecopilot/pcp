@@ -217,6 +217,7 @@ rootclient
 rtimetest
 scale
 slow_af
+statvfs
 store
 storepast
 storepdu
