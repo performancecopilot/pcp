@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+ */
+
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
