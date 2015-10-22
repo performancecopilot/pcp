@@ -12,6 +12,8 @@ echo "QA output created by $seq"
 [ $PCP_PLATFORM = mingw -o $PCP_PLATFORM = darwin ] && \
     _notrun "Test only valid on platforms with a mount table"
 
+[ -n "$PCP_PYTHON_PROG" ] || _notrun "no acceptable python to run src/fsstats.python"
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 
