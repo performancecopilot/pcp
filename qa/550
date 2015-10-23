@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -n "$PCP_PYTHON_PROG" ] || _notrun "no acceptable python to run secure/leak-*"
+
 host=localhost
 iterate=1000
 timeout=2
