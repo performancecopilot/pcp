@@ -199,7 +199,6 @@ function search(root)
 /* FIXME: the predicate weights need to be replaced with actual code to get the weights */
 
 var tree = new Tree(function() {return 1.0}, 'toplev of checklist');
-var indent = "                                                                                   ";
 
 cpu = new Node(function() {return 0.5;}, 'cpu limited');
 addChild(tree._root, cpu);
