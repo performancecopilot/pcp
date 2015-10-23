@@ -63,9 +63,18 @@ $sudo rm -f $tmp.*
 _start_up_pmlogger -s5 -L -c /dev/null -l $tmp.log $tmp
 sleep 2
 
+# split log requests across 2 pmlc invocations to help avoid a race
+# at pmlogger where if the two requests arrive before the first one's
+# timer event has been processed then the order of the two records in
+# the archive may be reversed (issue occurs with "log early" changes
+# to pmlogger).
+#
 pmlc -ie <<End-of-File 2>&1 | _filter_pmlc
 connect $pid
 log mandatory on once hinv.ndisk
+End-of-File
+pmlc -ie <<End-of-File 2>&1 | _filter_pmlc
+connect $pid
 log mandatory on 200 msec sample.bin
 End-of-File
 _wait_pmlogger_end $pid
