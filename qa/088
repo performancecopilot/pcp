@@ -28,14 +28,11 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 # real QA test starts here
 for arch in src/bar src/mv-bar src/noti-bar
 do
-    # get the time of the first sample
-    first_time=`pmval -U $arch -s1 sampledso.bin | tail -1 | cut -f1 -d ' '`
-
-    pmval -U $arch -S "@$first_time" \
+    pmval -U $arch \
         -i bin-100,bin-500,bin-700,bin-900 sampledso.bin \
 	2>/dev/null | _filter
 
-    pmval -a $arch -S "@$first_time" -t 0.5 \
+    pmval -a $arch -t 0.5 \
         -i bin-100,bin-500,bin-700,bin-900 sampledso.bin \
 	2>/dev/null | _filter
 done
