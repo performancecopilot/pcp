@@ -9,8 +9,10 @@
 #if defined(HAVE_SYS_STATVFS_H)
 #include <sys/statvfs.h>
 #if defined(HAVE_SYS_VFS_H)
+/* Linux style */
 #include <sys/vfs.h>
 #elif defined(HAVE_SYS_PARAM_H) && defined(HAVE_SYS_MOUNT_H)
+/* BSD style */
 #include <sys/param.h>
 #include <sys/mount.h>
 #else
@@ -45,7 +47,11 @@ main(int argc, char **argv)
 	}
 	else {
 	    printf("f_bsize=%lu [%lu] ", (unsigned long)buf.f_bsize, (unsigned long)vbuf.f_bsize);
+#if defined(HAVE_SYS_VFS_H)
 	    printf("f_frsize=%lu [%lu] ", (unsigned long)buf.f_frsize, (unsigned long)vbuf.f_frsize);
+#else
+	    printf("f_frsize=[%lu] ", (unsigned long)vbuf.f_frsize);
+#endif
 	    putchar('\n');
 	    printf("f_blocks=%llu [%llu] ", (unsigned long long)buf.f_blocks, (unsigned long long)vbuf.f_blocks);
 	    printf("f_bfree=%llu [%llu] ", (unsigned long long)buf.f_bfree, (unsigned long long)vbuf.f_bfree);
@@ -55,10 +61,18 @@ main(int argc, char **argv)
 	    printf("f_ffree=%llu [%llu] ", (unsigned long long)buf.f_ffree, (unsigned long long)vbuf.f_ffree);
 	    printf("f_favail=[%llu] ", (unsigned long long)vbuf.f_favail);
 	    putchar('\n');
+#if defined(HAVE_SYS_VFS_H)
 	    printf("f_fsid={%d,%d} [%lu] ", buf.f_fsid.__val[0], buf.f_fsid.__val[1], (unsigned long)vbuf.f_fsid);
+#else
+	    printf("f_fsid=[%lu] ", (unsigned long)vbuf.f_fsid);
+#endif
 	    putchar('\n');
 	    printf("f_flag=[%lu] ", vbuf.f_flag);
+#if defined(HAVE_SYS_VFS_H)
 	    printf("f_namelen[f_namemax]=%lu [%lu] ", (unsigned long)buf.f_namelen, (unsigned long)vbuf.f_namemax);
+#else
+	    printf("f_namemax=[%lu] ", (unsigned long)vbuf.f_namemax);
+#endif
 	    putchar('\n');
 	}
 	argv++;
