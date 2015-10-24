@@ -5,8 +5,22 @@
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
-#include <sys/vfs.h>
+#include <pcp/pmapi.h>
+#if defined(HAVE_SYS_STATVFS_H)
 #include <sys/statvfs.h>
+#if defined(HAVE_SYS_VFS_H)
+#include <sys/vfs.h>
+#elif defined(HAVE_SYS_PARAM_H) && defined(HAVE_SYS_MOUNT_H)
+#include <sys/param.h>
+#include <sys/mount.h>
+#else
+int
+main(int argc, char **argv)
+{
+    printf("No statfs() on this platform!\n");
+    return(1);
+}
+#endif
 
 int
 main(int argc, char **argv)
@@ -52,3 +66,11 @@ main(int argc, char **argv)
 
     return(0);
 }
+#else
+int
+main(int argc, char **argv)
+{
+    printf("No statvfs() on this platform!\n");
+    return(1);
+}
+#endif
