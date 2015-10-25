@@ -28,6 +28,13 @@ AC_ARG_WITH(
     [use_64bit=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-64bit=$withval"])
 
 AC_ARG_WITH(
+    [optimization],
+    [AS_HELP_STRING([--with-optimization],
+		    [enable optimization for C/C++ code (default is yes)])],
+    [use_optimization=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-optimization=$withval"],
+    [use_optimizaton=yes])
+
+AC_ARG_WITH(
     [threads],
     [AC_HELP_STRING([--with-threads],
 		    [enable support for multiple threads (default is on)])],
@@ -310,6 +317,15 @@ else
 fi
 AC_SUBST(pcp_platform_paths)
 AC_SUBST(pcp_ps_all_flags)
+
+dnl default C and C++ compiler optimization to -O2 -g
+if test "$use_optimization" = yes ]
+then
+    optimization="-O2 -g"
+else
+    optimization="-O0 -g"
+fi
+AC_SUBST(optimization)
 
 PKG_PROG_PKG_CONFIG
 if test -z "$PKG_CONFIG"

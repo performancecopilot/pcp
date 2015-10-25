@@ -855,6 +855,7 @@ CC
 PKG_CONFIG_LIBDIR
 PKG_CONFIG_PATH
 PKG_CONFIG
+optimization
 pcp_ps_all_flags
 pcp_platform_paths
 cross_compiling
@@ -914,6 +915,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 with_64bit
+with_optimization
 with_threads
 with_secure_sockets
 with_static_probes
@@ -1611,6 +1613,7 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-64bit            turn on 64 bit compilation mode (default is platform
                           dependent)
+  --with-optimization     enable optimization for C/C++ code (default is yes)
   --with-threads          enable support for multiple threads (default is on)
   --with-secure-sockets   enable support for secure sockets (default is on)
   --with-static-probes    enable support for static probes (default is on)
@@ -2589,6 +2592,15 @@ fi
 
 
 
+# Check whether --with-optimization was given.
+if test "${with_optimization+set}" = set; then :
+  withval=$with_optimization; use_optimization=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-optimization=$withval"
+else
+  use_optimizaton=yes
+fi
+
+
+
 # Check whether --with-threads was given.
 if test "${with_threads+set}" = set; then :
   withval=$with_threads; do_threads=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-threads=$withval"
@@ -3078,6 +3090,14 @@ else
     exit 1
 fi
 
+
+
+if test "$use_optimization" = yes ]
+then
+    optimization="-O2 -g"
+else
+    optimization="-O0 -g"
+fi
 
 
 
