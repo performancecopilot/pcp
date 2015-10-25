@@ -30,6 +30,7 @@ log advisory on 5sec sample.long.one
 Error receiving response from pmlogger: No permission to perform requested operation
 log mandatory off sample.colour
 Error receiving response from pmlogger: No permission to perform requested operation
+connect QA_LOGGER_PID
 # check
 query { sample.colour sample.long.one }
 sample.colour
@@ -70,6 +71,7 @@ Error: No permission to perform requested operation
 log advisory on 5sec sample.long.one
 log mandatory off sample.colour
 Error receiving response from pmlogger: No permission to perform requested operation
+connect QA_LOGGER_PID
 # check
 query { sample.colour sample.long.one }
 sample.colour
@@ -110,6 +112,7 @@ New log volume 1
 log advisory on 5sec sample.long.one
 Error receiving response from pmlogger: No permission to perform requested operation
 log mandatory off sample.colour
+connect QA_LOGGER_PID
 # check
 query { sample.colour sample.long.one }
 sample.colour
@@ -150,6 +153,7 @@ Error: No permission to perform requested operation
 log advisory on 5sec sample.long.one
 log mandatory off sample.colour
 Error receiving response from pmlogger: No permission to perform requested operation
+connect QA_LOGGER_PID
 # check
 query { sample.colour sample.long.one }
 sample.colour
@@ -190,6 +194,7 @@ New log volume 1
 log advisory on 5sec sample.long.one
 Error receiving response from pmlogger: No permission to perform requested operation
 log mandatory off sample.colour
+connect QA_LOGGER_PID
 # check
 query { sample.colour sample.long.one }
 sample.colour
@@ -229,6 +234,7 @@ new volume
 New log volume 1
 log advisory on 5sec sample.long.one
 log mandatory off sample.colour
+connect QA_LOGGER_PID
 # check
 query { sample.colour sample.long.one }
 sample.colour
@@ -268,6 +274,7 @@ new volume
 New log volume 1
 log advisory on 5sec sample.long.one
 log mandatory off sample.colour
+connect QA_LOGGER_PID
 # check
 query { sample.colour sample.long.one }
 sample.colour

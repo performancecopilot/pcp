@@ -56,6 +56,7 @@ End-of-File
     #
     _start_up_pmlogger -L -c $tmp.config -l $tmp.log $tmp
     _wait_for_pmlogger $pid $tmp.log
+    pmsleep 0.1
     cat <<End-of-File | pmlc -e 2>&1 | tee -a $seq.full | _filter
 show loggers
 connect $pid
@@ -66,6 +67,9 @@ flush
 new volume
 log advisory on 5sec sample.long.one
 log mandatory off sample.colour
+End-of-File
+    cat <<End-of-File | pmlc -e 2>&1 | tee -a $seq.full | _filter
+connect $pid
 # check
 query { sample.colour sample.long.one }
 End-of-File
