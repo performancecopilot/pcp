@@ -16,7 +16,6 @@
 
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
--include ./GNUlocaldefs
 
 IAM		= linux
 DOMAIN		= LINUX
