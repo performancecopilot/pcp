@@ -185,6 +185,17 @@ do
     esac
 done
 
+# now some specific QA/development hosts with special needs ...
+#
+case `hostname`
+in
+    vm04.localdomain)
+	# gcc -O2 is broken here (for the linux PMDA)
+	#
+	configopts="$configopts --without-optimization"
+	;;
+esac
+
 if [ "$nonrpm" = "unknown" ]
 then
     nonrpm=true
