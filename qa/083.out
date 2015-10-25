@@ -68,6 +68,8 @@ Warning: unable to change logging state for:
 sample.bin instance(s):
     [700 or "bin-700"]
 
+Goodbye
+Connected to primary pmlogger at ME
 sample.bin
     adv  on           1 hour [100 or "bin-100"]
     adv  off nl              [200 or "bin-200"]
@@ -100,6 +102,8 @@ Warning: unable to change logging state for:
 sample.bin instance(s):
     [800 or "bin-800"]
 
+Goodbye
+Connected to primary pmlogger at ME
 sample.bin
     adv  on           1 hour [100 or "bin-100"]
     adv  on  nl       1 hour [200 or "bin-200"]
@@ -128,6 +132,8 @@ sample.bin
     mand off nl              [800 or "bin-800"]
     mand off nl              [900 or "bin-900"]
 
+Goodbye
+Connected to primary pmlogger at ME
 sample.bin
     adv  on           1 hour [100 or "bin-100"]
     adv  on  nl       1 hour [200 or "bin-200"]
@@ -165,6 +171,8 @@ sample.bin
     mand off nl              [800 or "bin-800"]
     mand off nl              [900 or "bin-900"]
 
+Goodbye
+Connected to primary pmlogger at ME
 sample.bin
     mand on           3 hour [100 or "bin-100"]
     adv  off nl              [200 or "bin-200"]
@@ -193,6 +201,8 @@ sample.bin
     mand off nl              [800 or "bin-800"]
     mand off nl              [900 or "bin-900"]
 
+Goodbye
+Connected to primary pmlogger at ME
 sample.bin
     mand on           3 hour [100 or "bin-100"]
     adv  off nl              [200 or "bin-200"]
@@ -225,6 +235,8 @@ sample.bin
     mand off nl              [800 or "bin-800"]
     mand off nl              [900 or "bin-900"]
 
+Goodbye
+Connected to primary pmlogger at ME
 sample.bin
     mand on           3 hour [100 or "bin-100"]
     adv  off nl              [200 or "bin-200"]
