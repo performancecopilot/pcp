@@ -4,5 +4,7 @@ primary pmlogger processes?  exect none
 
 primary port map? expect none
 not there - goodness.
+$PCP_RC_DIR/pmlogger: pmlogger not running
+$PCP_RC_DIR/pmcd: pmcd not running
 Starting pmcd ... 
 Starting pmlogger ... 
