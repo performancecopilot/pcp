@@ -243,6 +243,27 @@ These are not currently supported.
 .B /pmapi/NNNN/_profile_del?indom=DDDD&iname=INAME1,INAME2
 These are not currently supported.
 
+.SS METRIC STORE: pmStore
+
+.TP
+.B /pmapi/NNNN/_store?
+These are not currently supported.
+.TP
+.B /pmapi/NNNN/_store?name=NAME&value=VALUE
+These are not currently supported.
+.TP
+.B /pmapi/NNNNN/_store?pmid=PPPP&value=VALUE
+These are not currently supported.
+
+In addition, either query may be suffixed with:
+.TP
+.B &instance=IIII,JJJJ
+Restrict store to given instance code numbers.
+.TP
+.B &iname=INAME1,INAME2
+Restrict store gs to given instance names.
+.PP
+
 .SS DERIVED METRICS: pmRegisterDerived
 
 .TP
