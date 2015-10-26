@@ -1010,6 +1010,7 @@ cgroups
 791 pmlogextract valgrind local
 792 libpcp local
 793 logutil local
+794 containers pmcd pmda.pmcd local
 798 pmda.nfsclient local
 799:retired pmda.papi local
 800 pmda.proc local

@@ -288,6 +288,7 @@ HandleClientInput(__pmFdSet *fdsPtr)
 
     for (i = 0; i < nClients; i++) {
 	int		pinpdu;
+
 	if (!client[i].status.connected || !__pmFD_ISSET(client[i].fd, fdsPtr))
 	    continue;
 
@@ -387,6 +388,17 @@ HandleClientInput(__pmFdSet *fdsPtr)
 	}
 	if (pinpdu > 0)
 	    __pmUnpinPDUBuf(pb);
+
+	/*
+	 * May need to send connection attributes to interested PMDAs, if
+	 * something changed for this client during this PDU exchange.
+	 */
+	if (client[i].status.attributes) {
+	    if (pmDebug & DBG_TRACE_APPL1)
+		__pmNotifyErr(LOG_INFO, "Client idx=%d,seq=%d attrs reset\n",
+				i, client[i].seq);
+	    AgentsAttributes(i);
+	}
     }
 }
 
