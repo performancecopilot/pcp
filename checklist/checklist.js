@@ -1,3 +1,52 @@
+var pm_root = "http://" + location.hostname + ":" + location.port + "/pmapi";
+var pm_context = -1;
+
+// ----------------------------------------------------------------------
+
+var metrics = {};
+
+function Metric(name,index) {
+    this.name = name;
+    this.index = index;
+}
+
+// create a metric to fetch (FIXME pull metrics from functions)
+metrics["kernel.all.load"] = new Metric("kernel.all.load", "");
+metrics["disk.dm.avactive"] = new Metric("disk.dm.avactive", "");
+metrics["hinv.ncpu"] = new Metric("hinv.ncpu", "");
+metrics["kernel.percpu.cpu.idle"] = new Metric("kernel.percpu.cpu.idle", "");
+
+Metric.prototype.to_string = function() {
+    return this.name + "[" + this.index + "]";
+};
+
+Metric.prototype.get_iname = function(iid) {
+  if (!(iid in this.inames)) {
+    var pm_url = pm_root + "/" + pm_context + "/_indom?name=" + this.name + "&instance=" + iid;
+    var metric = this;
+    $.getJSON(pm_url, function(data, status) {
+      // TODOXXX error check: should return 1 instance
+      metric.inames[iid] = data.instances[0].name;
+    });
+
+    return "..."; // will be reloaded next cycle
+  }
+
+  return this.inames[iid];
+}
+
+var data_dict = {};
+var old_data_dict = {};
+
+function fetch_metric(name, i) {
+    console.log( name + "[" + i + "] = " + data_dict[name].instances[i].value);
+    return data_dict[name].instances[i].value;
+}
+
+
+// ----------------------------------------------------------------------
+
+
 function Node(exp, desc) {
     this.exp = exp; // the test to determine whether to check this tree
     this.desc = desc; // the description of what it is doing
@@ -205,7 +254,9 @@ addChild(tree._root, cpu);
 
 serialization = new Node(function() {return 0.5;}, 'poor explotation of parallelism')
 addChild(cpu, serialization);
-thread_limited = new Node(function() {return 0.5;}, 'runnable threads > processors');
+thread_limited = new Node(
+    function() { return Math.min(1.0, fetch_metric("kernel.all.load",0)/fetch_metric("hinv.ncpu",0));},
+    'runnable threads > processors');
 addChild(cpu, thread_limited);
 cpu_mem = new Node(function() {return 0.5;}, 'poor memory system performance');
 addChild(cpu, cpu_mem);
@@ -247,12 +298,82 @@ storage = new Node(function() {return 0.5;}, 'storage limited');
 addChild(tree._root, storage);
 
 
-// setup pmwebd connection
-// get pmwebd context
+// ----------------------------------------------------------------------
+
+var updateInterval = 10000; // milliseconds
+var updateIntervalID = 1;
+
+function setUpdateInterval(i) {
+   if (updateIntervalID >= 0) { clearInterval(updateIntervalID); }
+   if (i > updateInterval) { pm_context = -1; } // will likely need a new context
+   updateInterval = i;
+   updateIntervalID = setInterval(updateChecklist, updateInterval);
+}
+
+// default mode
+var pm_context_type = "hostspec";
+var pm_context_spec = "localhost";
+
+function setPMContextType(k) {
+   pm_context_type = k;
+   pm_context = -1;
+   updateChecklist();
+}
+function setPMContextSpec(i) {
+   pm_context_spec = i;
+   pm_context = -1;
+   updateChecklist();
+}
 
 
-// do the search to find out the likely problem
-search(tree._root);
+function updateChecklist() {
+  var pm_url;
+
+    if (pm_context < 0) {
+	pm_url = pm_root
+            + "/context?"
+            + pm_context_type + "=" + encodeURIComponent(pm_context_spec)
+            + "&polltimeout=" + Math.floor(5*updateInterval/1000);
+	$.getJSON(pm_url, function(data, status) {
+	    pm_context = data.context;
+	    setTimeout(updateChecklist, 100); // retry soon
+	}).error(function() { pm_context = -1; });
+	return; // will retry one cycle later
+    }
+
+    if(metrics.length == 0) {
+	$("#content").html("<b>No metrics requested...</b>");
+	return;
+    }
+
+    // ajax request for JSON data
+    pm_url = pm_root + "/" + pm_context + "/_fetch?names=";
+    var i = 0;
+    for(var m in metrics) {
+	if (i > 0) pm_url += ",";
+	pm_url += metrics[m].name;
+	++i;
+    };
+
+    $.getJSON(pm_url, function(data, status) {
+	// update data_dict
+	$.each(data.values, function(i, value) {
+	    data_dict[value.name] = value;
+	    console.log( "data_dict[" + value.name + "] = "); console.log(data_dict[value.name]);
+	});
+	// update status field
+	theDate = new Date(0);
+	theDate.setUTCSeconds(data.timestamp.s);
+	theDate.setUTCMilliseconds(data.timestamp.us/1000);
+	$("#status").html("Timestamp: " + theDate.toString());
+
+	// do the search to find out the likely problem
+	search(tree._root);
+    }).error(function() {
+	$("#checklist").html("<b>error accessing server, retrying...</b>");
+	pm_context = -1; });
+}
+
 
 function loadChecklist() {
     $("#header").html("pcp checklist demo");
@@ -261,8 +382,11 @@ function loadChecklist() {
 	function(node, level, o) { return (o + "<ul><li>" + node.desc + "\n");},
 	function(node, level, o) { return (o + "</li></ul>\n");},
 	""));
-}
 
+    // start timer for updateChecklist
+    updateChecklist();
+    setUpdateInterval(updateInterval);
+}
 
 $(document).ready(function() {
   loadChecklist();
