@@ -163,7 +163,7 @@ docker_insts_refresh(container_engine_t *dp, pmInDom indom)
 	    cp->engine = dp;
 	    snprintf(cp->cgroup, sizeof(cp->cgroup),
 			(dp->state & CONTAINER_STATE_SYSTEMD) ?
-			"system.slice/docker-%s.scope" : "docker/%s",
+			"/system.slice/docker-%s.scope" : "/docker/%s",
 			path);
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
