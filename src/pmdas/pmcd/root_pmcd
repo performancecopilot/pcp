@@ -133,6 +133,7 @@ pmcd.buf {
 pmcd.client {
     whoami		PMCD:6:0
     start_date		PMCD:6:1
+    container		PMCD:6:2
 }
 
 pmcd.cputime {

@@ -243,7 +243,7 @@ sample_ctx_end(int ctx)
 	 * This is expected ... when a context is closed in pmcd
 	 * (or for a local context or for dbpmda or ...) all the
 	 * PMDAs with a registered pmdaEndContextCallBack will be
-	 * called end some of the PMDAs may not have not serviced
+	 * called and some of the PMDAs may not have not serviced
 	 * any previous requests for that context.
 	 */
 	return;

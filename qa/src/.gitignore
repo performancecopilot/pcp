@@ -221,6 +221,7 @@ statvfs
 store
 storepast
 storepdu
+storepmcd
 stripmark
 tabort
 template

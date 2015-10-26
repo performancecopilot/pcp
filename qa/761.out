@@ -73,8 +73,8 @@ containers.pid
     inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 9579
 
 containers.cgroup
-    inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value "system.slice/docker-2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255.scope"
-    inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value "system.slice/docker-d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e.scope"
+    inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value "/system.slice/docker-2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255.scope"
+    inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value "/system.slice/docker-d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e.scope"
 
 containers.state.running
     inst [N or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value 0
@@ -105,7 +105,7 @@ containers.pid
     inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value 18720
 
 containers.cgroup
-    inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value "system.slice/docker-c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9.scope"
+    inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value "/system.slice/docker-c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9.scope"
 
 containers.state.running
     inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value 1

@@ -919,6 +919,9 @@ main(int argc, char *argv[])
 	exit(EXIT_FAILURE);
     }
 
+    if (opts.context == PM_CONTEXT_HOST)
+	__pmSetClientIdArgv(argc, argv);
+
     context.hostname = pmGetContextHostName(ctx);
     if (strlen(context.hostname) == 0) {
 	fprintf(stderr, "%s: Cannot evaluate context host name: %s\n",

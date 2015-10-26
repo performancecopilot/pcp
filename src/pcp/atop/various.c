@@ -516,8 +516,8 @@ setup_step_mode(pmOptions *opts, int forward)
 }
 
 /*
- * Set the origin position and interval for PMAPI context fetching
- */
+** Set the origin position and interval for PMAPI context fetching
+*/
 static int
 setup_origin(pmOptions *opts)
 {
@@ -546,8 +546,26 @@ setup_origin(pmOptions *opts)
 }
 
 /*
- * PMAPI context creation and initial command line option handling.
- */
+** Function abstime() converts a user-specified HH:MM time string
+** into @-prefixed form that is used by libpcp interfaces.
+*/
+char *
+abstime(char *str)
+{
+	size_t		length = strlen(str) + 2;
+	char		*arg;
+
+	/* length includes @-prefix and a null terminator */
+	if ((arg = malloc(length)) == NULL)
+		__pmNoMem("abstime", length, PM_FATAL_ERR);
+	snprintf(arg, length, "@%s", str);
+	arg[length-1] = '\0';
+	return arg;
+}
+
+/*
+** PMAPI context creation and initial command line option handling.
+*/
 static int
 setup_context(pmOptions *opts)
 {

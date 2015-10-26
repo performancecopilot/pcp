@@ -90,7 +90,7 @@ void
 docker_setup(container_engine_t *dp)
 {
     static const char *docker_default = "/var/lib/docker";
-    static const char *systemd_cgroup = "/sys/fs/cgroup/memory/system.slice";
+    static const char *systemd_cgroup = "/sys/fs/cgroup/systemd";
     const char *cgroup = getenv("PCP_SYSTEMD_CGROUP");
     const char *docker = getenv("PCP_DOCKER_DIR");
 
@@ -163,7 +163,7 @@ docker_insts_refresh(container_engine_t *dp, pmInDom indom)
 	    cp->engine = dp;
 	    snprintf(cp->cgroup, sizeof(cp->cgroup),
 			(dp->state & CONTAINER_STATE_SYSTEMD) ?
-			"system.slice/docker-%s.scope" : "docker/%s",
+			"/system.slice/docker-%s.scope" : "/docker/%s",
 			path);
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);

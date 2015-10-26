@@ -216,8 +216,15 @@ Monitor live CPU load, memory usage, and disk write operations per partition wit
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Monitor system metrics in a top like window (this needs a large terminal):<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmatop.1.html">pmatop</a> -h acme.com</B>
+Monitor system metrics in a top-like window:<BR><B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pcp-atop.1.html">pcp atop</a></B>
+</TD></TR>
+</TABLE>
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+        <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
+Monitor system metrics in a sar-like (System Activity Report) manner:<BR><B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pcp-atopsar.1.html">pcp atopsar</a></B>
 </TD></TR>
 </TABLE>
 
@@ -312,8 +319,9 @@ Summarize differences in past performance metrics between two archives, comparin
 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
-Replay past system metrics in an archive in a top like window starting 9 AM (this needs a large window):<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmatop.1.html">pmatop</a> -S @09:00 -a acme.com/20140902</B>
+Replay past system metrics in an archive in a top-like window starting 9 AM:<BR><B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pcp-atop.1.html">pcp atop</a> -b 09:00 -r acme.com/20140902
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pcp-atop.1.html">pcp</a> -S @09:00 -a acme.com/20140902 atop</B>
 </TD></TR>
 </TABLE>
 
@@ -552,7 +560,7 @@ This example shows a PMIE script, checks its syntax, runs it against an archive,
 <LI>A simple command line monitor tool is <TT>/usr/share/pcp/demos/pmclient</TT> (C language).</LI>
 <LI>Good initial Python monitor examples are <TT>/usr/libexec/pcp/bin/pcp/pcp-*</TT> (Fedora/RHEL) or <TT>/usr/lib/pcp/bin/pcp-*</TT> (Debian/Ubuntu).
   <UL>
-    <LI>Slightly more complex examples are the pmiostat, pmatop, pmcollectl commands.</LI>
+    <LI>Slightly more complex examples are the pcp-free, pmiostat, pmcollectl commands.</LI>
   </UL></LI>
 <LI>The applications in the <A HREF="https://www.sourceware.org/git/gitweb.cgi?p=pcpfans.git;a=shortlog;h=refs/heads/webjs">pcp-webjs</A> source tree are helpful when developing new web applications.</LI>
 </UL>
