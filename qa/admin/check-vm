@@ -40,7 +40,7 @@ _getnetworkaddr()
 	    addr=`host $host | sed -e 's/.*address //'`
 	    if `which ifconfig >/dev/null 2>&1`
 	    then
-		mask=`ifconfig | grep $addr | sed -e 's/.*Mask://'`
+		mask=`ifconfig | grep $addr | sed -e 's/.*Mask://' -e 's/.*netmask \([^ ][^ ]*\).*/\1/'`
 		case "$mask"
 		in
 		    255.255.255.0|0xffffff00)	# /24 network
@@ -250,11 +250,14 @@ rpm?	JSON::			[perl-JSON or 'perl(JSON)']
 emerge?	JSON::			[dev-perl/JSON]
 dpkg?	LWP::UserAgent		[libwww-perl]
 rpm?	LWP::UserAgent		[perl-libwww-perl or 'perl(LWP::UserAgent)']
-emerge?	LWP::UserAgent		[dev-perl/LWP]
+emerge?	LWP::UserAgent		[dev-perl/LWP-Protocol-https]
 # other run-time
 rpm?	time			[time]
 emerge?	time			[sys-process/time]
 sadf				[sysstat]
+dpkg?	host			[bind9-host]
+rpm?	host			[bind-utils]
+emerge?	host			[net-dns/bind-tools]
 # QA
 bc				[(QA optional)]
 curl				[(QA optional)]

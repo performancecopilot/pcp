@@ -37,7 +37,7 @@ _getnetworkaddr()
 	    addr=`host $host | sed -e 's/.*address //'`
 	    if `which ifconfig >/dev/null 2>&1`
 	    then
-		mask=`ifconfig | grep $addr | sed -e 's/.*Mask://'`
+		mask=`ifconfig | grep $addr | sed -e 's/.*Mask://' -e 's/.*netmask \([^ ][^ ]*\).*/\1/'`
 		case "$mask"
 		in
 		    255.255.255.0|0xffffff00)	# /24 network
