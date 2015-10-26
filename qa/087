@@ -46,8 +46,8 @@ BEGIN	{ s = '$1'
 	  lo[50] = 30; hi[50] = 50
 	  lo[20] = 30; hi[20] = 45
 	  lo[16] = 30; hi[16] = 45
-	  lo[10] = 30; hi[10] = 40
-	  lo[8] = 30; hi[8] = 40
+	  lo[10] = 30; hi[10] = 45
+	  lo[8] = 30; hi[8] = 45
 	}
 /samples required/	{ if (lo[s] <= $4 && $4 <= hi[s])
 			    print $1 " samples required " lo[s] "-" hi[s] " log reads"
