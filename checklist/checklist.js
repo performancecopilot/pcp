@@ -35,12 +35,39 @@ Metric.prototype.get_iname = function(iid) {
   return this.inames[iid];
 }
 
+// timestamps are recorded in milliseconds
+var data_timestamp;
+var old_data_timestamp;
 var data_dict = {};
 var old_data_dict = {};
 
 function fetch_metric(name, i) {
     console.log( name + "[" + i + "] = " + data_dict[name].instances[i].value);
     return data_dict[name].instances[i].value;
+}
+
+function fetch_metric_rate(name, i) {
+    var xs = old_data_dict[name].instances[i].value
+    var xe = data_dict[name].instances[i].value
+    var r = (xe-xs)/(data_timestamp-old_data_timestamp);
+    console.log( "rate " + name + "[" + i + "] = " + r);
+    return r;
+}
+
+function fetch_metric_max(name) {
+    var m = fetch_metric_rate(name, 0);
+    for (var i = 1, length = data_dict[name].instances.length; i < length; i++) {
+        m = Math.max(m, fetch_metric_rate(name, i));
+    }
+    return m;
+}
+
+function fetch_metric_min(name) {
+    var m = fetch_metric_rate(name, 0);
+    for (var i = 1, length = data_dict[name].instances.length; i < length; i++) {
+        m = Math.min(m, fetch_metric_rate(name, i));
+    }
+    return m;
 }
 
 
@@ -249,7 +276,7 @@ function search(root)
 
 var tree = new Tree(function() {return 1.0}, 'toplev of checklist');
 
-cpu = new Node(function() {return 0.5;}, 'cpu limited');
+cpu = new Node(function() {return (1- fetch_metric_min("kernel.percpu.cpu.idle")); }, 'cpu limited');
 addChild(tree._root, cpu);
 
 serialization = new Node(function() {return 0.5;}, 'poor explotation of parallelism')
@@ -355,12 +382,20 @@ function updateChecklist() {
 	++i;
     };
 
+    // Copy current metrics over old metrics
+    for (var k in data_dict) {
+	old_data_dict[k] = data_dict[k];
+    }
+    old_data_timestamp = data_timestamp;
+    data_dict = {};
+
     $.getJSON(pm_url, function(data, status) {
 	// update data_dict
 	$.each(data.values, function(i, value) {
 	    data_dict[value.name] = value;
 	    console.log( "data_dict[" + value.name + "] = "); console.log(data_dict[value.name]);
 	});
+	data_timestamp = data.timestamp.s * 1000 + (data.timestamp.us/1000);
 	// update status field
 	theDate = new Date(0);
 	theDate.setUTCSeconds(data.timestamp.s);
