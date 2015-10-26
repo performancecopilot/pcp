@@ -57,3 +57,26 @@
    fun:_dlerror_run
 }
 
+# from vm25 and qa/957
+#    at 0x4A0610C: malloc (vg_replace_malloc.c:195)
+#    by 0x4C440CD: loadascii (pmns.c:1149)
+#    by 0x4C44755: load (pmns.c:1371)
+#    by 0x4C41A0D: LoadDefault (pmns.c:176)
+#    by 0x4C41C3E: pmGetPMNSLocation (pmns.c:240)
+#    by 0x4C41E3E: GetLocation (pmns.c:304)
+#    by 0x4C47908: TraversePMNS (pmns.c:2575)
+#    by 0x4C47CE5: pmTraversePMNS (pmns.c:2683)
+#    by 0x402E31: main (pminfo.c:677)
+{
+   loadascii
+   Memcheck:Leak
+   fun:malloc
+   fun:loadascii
+   fun:load
+   fun:LoadDefault
+   fun:pmGetPMNSLocation
+   fun:GetLocation
+   fun:TraversePMNS
+   fun:pmTraversePMNS
+   fun:main
+}
