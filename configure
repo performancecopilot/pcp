@@ -3092,11 +3092,11 @@ fi
 
 
 
-if test "$use_optimization" = yes
+if test "$use_optimization" = no
 then
-    optimization="-O2 -g"
-else
     optimization="-O0 -g"
+else
+    optimization="-O2 -g"
 fi
 
 

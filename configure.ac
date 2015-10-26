@@ -319,11 +319,11 @@ AC_SUBST(pcp_platform_paths)
 AC_SUBST(pcp_ps_all_flags)
 
 dnl default C and C++ compiler optimization to -O2 -g
-if test "$use_optimization" = yes
+if test "$use_optimization" = no
 then
-    optimization="-O2 -g"
-else
     optimization="-O0 -g"
+else
+    optimization="-O2 -g"
 fi
 AC_SUBST(optimization)
 
