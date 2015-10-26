@@ -755,9 +755,9 @@ The following are valid hostname specifications that specify connections to
 .B pmcd
 on host
 .I nas1.servers.com
-with/without a list of ports and with/without a
+with/without a list of ports, with/without a
 .BR pmproxy (1)
-connection through a firewall.
+connection through a firewall, and with IPv6 and IPv4 addresses as shown.
 .PP
 .in +0.5i
 .nf
@@ -767,23 +767,29 @@ $ pcp \-h nas1.servers.com:44321@firewall.servers.com:44322
 $ pcp \-h nas1.servers.com:44321@firewall.servers.com
 $ pcp \-h nas1.servers.com@firewall.servers.com
 $ pcp \-h nas1.servers.com:44321
+$ pcp \-h [fe80::2ad2:44ff:fe88:e4f1%p2p1]
+$ pcp \-h 192.168.0.103
 .ft R
 .fi
 .in
 .PP
-In addition, security attributes and credentials can also be specified.
-These include username, an optional password (can be given interactively
-and may depend on the authentication mechanism employed), whether to use
-secure (encrypted) or native (naked) protocol, and so on. The previous
-examples all default to native protocol, and use no authentication.
+In addition, ``connection attributes'' can also be specified.
+These include username, password (can be given interactively
+and may depend on the authentication mechanism employed),
+whether to target a specific running container, whether to use
+secure (encrypted) or native (naked) protocol, and so on.
+The previous examples all default to native protocol, and use
+no authentication.
 This can be altered, as in the following examples.
 .PP
 .in +0.5i
 .nf
 .ft CW
+$ pcp \-h pcps://app2.servers.com?container=cae8e6edc0d5
 $ pcp \-h pcps://nas1.servers.com:44321?username=tanya&method=gssapi
 $ pcp \-h pcps://nas2.servers.com@firewalls.r.us?method=plain
 $ pcp \-h pcp://nas3.servers.com
+$ pcp \-h 192.168.0.103?container=cae8e6edc0d5,method=digest-md5
 $ pcp \-h unix:
 $ pcp \-h local:
 .ft R
@@ -797,6 +803,11 @@ used by each (remote)
 Tutorials are available specifying various aspects of configuring the
 authentication module(s) used, these fine details are outside the scope
 of this document.
+.PP
+In all situations, host names can be used interchangeably with IPv4 or IPv6
+addressing (directly), as shown above.  In the case of an IPv6 address, the
+full address must be enclosed by square brackets and the scope (interface)
+must also be specified.
 .PP
 The final
 .I local:
