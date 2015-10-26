@@ -90,7 +90,7 @@ void
 docker_setup(container_engine_t *dp)
 {
     static const char *docker_default = "/var/lib/docker";
-    static const char *systemd_cgroup = "/sys/fs/cgroup/memory/system.slice";
+    static const char *systemd_cgroup = "/sys/fs/cgroup/systemd";
     const char *cgroup = getenv("PCP_SYSTEMD_CGROUP");
     const char *docker = getenv("PCP_DOCKER_DIR");
 
