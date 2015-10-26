@@ -10,12 +10,6 @@ function Metric(name,index) {
     this.index = index;
 }
 
-// create a metric to fetch (FIXME pull metrics from functions)
-metrics["kernel.all.load"] = new Metric("kernel.all.load", "");
-metrics["disk.dm.avactive"] = new Metric("disk.dm.avactive", "");
-metrics["hinv.ncpu"] = new Metric("hinv.ncpu", "");
-metrics["kernel.percpu.cpu.idle"] = new Metric("kernel.percpu.cpu.idle", "");
-
 Metric.prototype.to_string = function() {
     return this.name + "[" + this.index + "]";
 };
@@ -324,6 +318,18 @@ addChild(net, buff_bloat);
 storage = new Node(function() {return 0.5;}, 'storage limited');
 addChild(tree._root, storage);
 
+// go through the tree and find the needed metrics
+tree.traverseDF(
+    function(node, level, o) { var e = node.exp.toString();
+			       var possible_metric = /\"([\.\w]+)\"/g;
+			       var match;
+			       while (match = possible_metric.exec(e)){
+				   console.log("found", match[1], "at", match.index);
+				   metrics[match[1]] = new Metric(match[1]);
+			       }
+			     },
+    function(node, level, o) { },
+    0);
 
 // ----------------------------------------------------------------------
 
