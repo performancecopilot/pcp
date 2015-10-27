@@ -273,46 +273,46 @@ var tree = new Tree(function() {return 1.0}, 'toplev of checklist');
 cpu = new Node(function() {return (1- fetch_metric_min("kernel.percpu.cpu.idle")); }, 'cpu limited');
 addChild(tree._root, cpu);
 
-serialization = new Node(function() {return 0.5;}, 'poor explotation of parallelism')
+serialization = new Node(function() {return 0;}, 'poor explotation of parallelism')
 addChild(cpu, serialization);
 thread_limited = new Node(
     function() { return Math.min(1.0, fetch_metric("kernel.all.load",0)/fetch_metric("hinv.ncpu",0));},
     'runnable threads > processors');
 addChild(cpu, thread_limited);
-cpu_mem = new Node(function() {return 0.5;}, 'poor memory system performance');
+cpu_mem = new Node(function() {return 0;}, 'poor memory system performance');
 addChild(cpu, cpu_mem);
-cpu_task_migration = new Node(function() {return 0.5;}, 'excessive task migration');
+cpu_task_migration = new Node(function() {return 0;}, 'excessive task migration');
 addChild(cpu_mem, cpu_task_migration);
-cpu_task_interfere = new Node(function() {return 0.5;}, 'excessive task interference');
+cpu_task_interfere = new Node(function() {return 0;}, 'excessive task interference');
 addChild(cpu_mem, cpu_task_interfere);
-cpu_cache = new Node(function() {return 0.5;}, 'CPU cache issues');
+cpu_cache = new Node(function() {return 0;}, 'CPU cache issues');
 addChild(cpu_mem, cpu_cache);
-cache_capacity = new Node(function() {return 0.5;}, 'Cache capacity');
+cache_capacity = new Node(function() {return 0;}, 'Cache capacity');
 addChild(cpu_cache, cache_capacity);
-cache_false_share = new Node(function() {return 0.5;}, 'Cache false sharing');
+cache_false_share = new Node(function() {return 0;}, 'Cache false sharing');
 addChild(cpu_cache, cache_false_share);
-tlb = new Node(function() {return 0.5;}, 'Translation Look aside Buffer (TLB) issues');
+tlb = new Node(function() {return 0;}, 'Translation Look aside Buffer (TLB) issues');
 addChild(cpu_mem, tlb);
-thp_issue = new Node(function() {return 0.5;}, 'Transparent Huge Page issue');
+thp_issue = new Node(function() {return 0;}, 'Transparent Huge Page issue');
 addChild(tlb, thp_issue);
-itlb_issue = new Node(function() {return 0.5;}, 'Instruction TLB issue');
+itlb_issue = new Node(function() {return 0;}, 'Instruction TLB issue');
 addChild(tlb, itlb_issue);
-numa_layout = new Node(function() {return 0.5;}, 'NUMA memory layout')
+numa_layout = new Node(function() {return 0;}, 'NUMA memory layout')
 addChild(cpu_mem, numa_layout);
-branch_miss = new Node(function() {return 0.5;}, 'Branch misprediction');
+branch_miss = new Node(function() {return 0;}, 'Branch misprediction');
 addChild(cpu, branch_miss);
 
 
-mem = new Node(function() {return 0.5;}, 'memory limited');
+mem = new Node(function() {return 0;}, 'memory limited');
 addChild(tree._root, mem);
 
-net = new Node(function(value) {return 0.5;}, 'network limited');
+net = new Node(function(value) {return 0;}, 'network limited');
 addChild(tree._root, net);
-tx_bw = new Node(function() {return 0.5;}, 'tx-bandwidth limited');
+tx_bw = new Node(function() {return 0;}, 'tx-bandwidth limited');
 addChild(net, tx_bw);
-rx_bw = new Node(function() {return 0.5;}, 'rx-bandwidth limited');
+rx_bw = new Node(function() {return 0;}, 'rx-bandwidth limited');
 addChild(net, rx_bw);
-buff_bloat = new Node(function() {return 0.5;}, 'buffer bloat');
+buff_bloat = new Node(function() {return 0;}, 'buffer bloat');
 addChild(net, buff_bloat);
 
 storage = new Node(function() {return fetch_metric_max("disk.dm.avactive");}, 'storage limited');
