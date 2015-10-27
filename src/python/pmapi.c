@@ -522,6 +522,8 @@ setOptionArchive(PyObject *self, PyObject *args, PyObject *keywords)
 			"s:pmSetOptionArchive", keyword_list, &archive))
 	return NULL;
 
+    if ((archive = strdup(archive ? archive : "")) == NULL)
+	return PyErr_NoMemory();
     __pmAddOptArchive(&options, archive);
     Py_INCREF(Py_None);
     return Py_None;
@@ -537,6 +539,8 @@ setOptionHost(PyObject *self, PyObject *args, PyObject *keywords)
 			"s:pmSetOptionHost", keyword_list, &host))
 	return NULL;
 
+    if ((host = strdup(host ? host : "")) == NULL)
+	return PyErr_NoMemory();
     __pmAddOptHost(&options, host);
     Py_INCREF(Py_None);
     return Py_None;
