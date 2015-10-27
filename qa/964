@@ -17,7 +17,7 @@ echo "QA output created by $seq"
 status=1	# failure is the default!
 LOCALHOST=`hostname`
 _needclean=true
-$sudo rm -rf $tmp.* $seq.full
+$sudo rm -rf $tmp $tmp.* $seq.full
 
 _interrupt()
 {
@@ -55,6 +55,7 @@ _count_pmloggers()
     else return 0
     fi
 
+    ls -l >>$here/$seq.full
     plist=`ls -1`
     cd $here
 
@@ -91,7 +92,7 @@ pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 $sudo rm -f $PCP_TMP_DIR/pmlogger/*
 
 _count_pmloggers
-echo "pmlogger count at start of QA testing: $?"
+echo "pmlogger count at start of QA testing: $?" | tee -a $here/$seq.full
 echo
 
 # switch off pmcd and pmlogger
@@ -103,7 +104,7 @@ $sudo ./Install < /dev/null 2>&1 | _filter_root_install
 
 # verify no pmloggers running
 _count_pmloggers
-echo "pmlogger count at end of Install (expect 0): $?"
+echo "pmlogger count at end of Install (expect 0): $?" | tee -a $here/$seq.full
 echo
 
 # switch default pmlogger on once more
@@ -116,7 +117,7 @@ $sudo ./Install < /dev/null 2>&1 | _filter_root_install
 
 # verify pmlogger is running
 _count_pmloggers
-echo "pmlogger count at end of Install (expect 1): $?"
+echo "pmlogger count at end of Install (expect 1): $?" | tee -a $here/$seq.full
 echo
 
 # success, all done
