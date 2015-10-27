@@ -410,6 +410,13 @@ function updateChecklist() {
 
 	// do the search to find out the likely problem
 	search(tree._root);
+
+	$("#content").html(
+	    tree.traverseDF(
+		function(node, level, o) { return (o + "<ul><li>" + node.score + " " + node.desc + "\n");},
+		function(node, level, o) { return (o + "</li></ul>\n");},
+		""));
+
     }).error(function() {
 	$("#checklist").html("<b>error accessing server, retrying...</b>");
 	pm_context = -1; });
@@ -420,7 +427,7 @@ function loadChecklist() {
     $("#header").html("pcp checklist demo");
     $("#content").html(
     tree.traverseDF(
-	function(node, level, o) { return (o + "<ul><li>" + node.desc + "\n");},
+	function(node, level, o) { return (o + "<ul><li>" + node.score + " " + node.desc + "\n");},
 	function(node, level, o) { return (o + "</li></ul>\n");},
 	""));
 
