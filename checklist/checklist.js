@@ -315,7 +315,7 @@ addChild(net, rx_bw);
 buff_bloat = new Node(function() {return 0.5;}, 'buffer bloat');
 addChild(net, buff_bloat);
 
-storage = new Node(function() {return 0.5;}, 'storage limited');
+storage = new Node(function() {return fetch_metric_max("disk.dm.avactive");}, 'storage limited');
 addChild(tree._root, storage);
 
 // go through the tree and find the needed metrics
