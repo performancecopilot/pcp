@@ -40,7 +40,10 @@ extract_iostat()
 
     f="$2.unsorted"
     $PCP_AWK_PROG < $1 '
-BEGIN		{ cpucount=0; devcount=0 }
+BEGIN		{ cpucount=0; devcount=0; s=1.0 }
+/Blk_read/	{ s=0.5 }
+/kB_read/	{ s=1.0 }
+/MB_read/	{ s=1024 }
 /^avg-cpu:/   	{ cpumode=1; cpucount++; next }
 /^Device: *tps/	{ tpsmode=1; devcount++; next }
 /^Device:/   	{ devices=1; devcount++; next }
@@ -59,8 +62,8 @@ BEGIN		{ cpucount=0; devcount=0 }
 		    sample="'$f.'"devcount-1
 		    instance=$1
 		    printf "dev.total::%s %f\n", instance, $2		>> sample
-		    printf "dev.read_bytes::%s %f\n", instance, $3	>> sample
-		    printf "dev.write_bytes::%s %f\n", instance, $4	>> sample
+		    printf "dev.read_bytes::%s %f\n", instance, $3*s	>> sample
+		    printf "dev.write_bytes::%s %f\n", instance, $4*s	>> sample
 		  }
 		  if (devices == 1 && devcount > 1) {
 		    sample="'$f.'"devcount-1
