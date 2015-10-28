@@ -1,5 +1,45 @@
 pcp-3.10.8 (30 October 2015)
-    - under development [see http://pcp.io/roadmap]
+    - pmdaslurm: new PMDA exporting HPC scheduler metrics
+    - pmdalinux: correctly report high speed network link speeds
+    - pmdalinux: support for wireless network interfaces
+    - pmdalinux: add support for NVME devices
+    - pmie: fqdn functionality, added %c for action strings
+    - pmlogextract: runtime reducing instance optimizations
+    - pmlogrewrite: metric name lex pattern change
+    - pmlogger: change semantics for first logging operation
+    - rc_pmlogger: shell escape for control file "directory" field
+    - pcp-atop: update with latest atop features (esp. NFS)
+    - pcp-atop: fix initial fetch time offset for the globals
+    - pcp-atop: fix -b/-e options to match man page description
+    - docs: update Quick Ref Guide with pcp-atop/pcp-atopsar
+    - docs: remove outdated pmatop man page, see pcp-atop(1)
+    - python api: fix local-context mode type error
+    - python api: improve handling of non-ascii instance names
+    - python api: simple debugging interface to access pmDebug
+    - python api: ensure an interruptible sleep is used
+    - python api: add single host/archive pmOption setter methods
+    - libpcp: add $PCP_DEBUG to initialize pmDebug
+    - libpcp: extend __pmAF* family with __pmAFsetup
+    - libpcp: resolve false-context-sharing corner cases
+    - pcp2graphite: provide a local-context mode option
+    - pmmgr: add the subtarget-containers option
+    - pmmgr: add pmlogreduce support
+    - rc_pmcd: be more careful with auto-install/-remove
+    - pmcd: allow dynamic switching of monitored containers
+    - pmdapmcd: add pmcd.client.container diagnostic metric
+    - pmdaroot: new metric mapping containers to their cgroups
+    - pmdaroot: add cgroup heuristics for non-systemd setups
+    - pmdaroot: fix timeliness of creation of socket connection
+    - pmdads389: add normalized dn cache metrics
+    - pmdads389: instantaneous vs discrete metric corrections
+    - pmdads389: send correct error codes when not connected
+    - pmdamounts: correct a number of 32-bit unsafe calculations
+    - pmdanfsclient: improve PMDA error handling
+    - pmdaperfevent: fix invalid metric names
+    - pmdaperfevent: add reference clock cycles for NHM and WSM
+    - docs: added upgrade instructions to pmdaperfevent man page
+    - containers: bindmount /dev/log for syslog messages
+    - build: fix FreeBSD 10.2 with dtrace probes auto-enabled
 
 pcp-3.10.7 (16 September 2015)
     - containers: added the pcp-pmie container

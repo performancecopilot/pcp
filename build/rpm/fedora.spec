@@ -2402,7 +2402,7 @@ cd
 - Update pmlogger to log an immediate sample first (BZ 1269921)
 - Add pmOption host and archive setter python APIs (BZ 1270176)
 - Replace old pmatop(1) man page with pcp-atop(1) (BZ 1270761)
-- Currently under development [see http://pcp.io/roadmap]
+- Update to latest PCP sources.
 
 * Wed Sep 16 2015 Nathan Scott <nathans@redhat.com> - 3.10.7-1
 - Resolved pmchart sigsegv opening view without context (BZ 1256708)
