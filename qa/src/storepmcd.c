@@ -38,6 +38,26 @@ fetch_values(pmID *pmids)
 }
 
 void
+exclude_values(pmID pmid, int nexcludes, int *excludes)
+{
+    pmDesc	desc;
+    int		sts;
+
+    if ((sts = pmLookupDesc(pmid, &desc)) < 0) {
+	fprintf(stderr, "pmLookupDesc: %s\n", pmErrStr(sts));
+	exit(1);
+    }
+    if ((sts = pmAddProfile(desc.indom, 0, NULL)) < 0) { /* all on */
+	fprintf(stderr, "pmAddProfile: %s\n", pmErrStr(sts));
+	exit(1);
+    }
+    if ((sts = pmDelProfile(desc.indom, nexcludes, excludes)) < 0) {
+	fprintf(stderr, "pmDelProfile: %s\n", pmErrStr(sts));
+	exit(1);
+    }
+}
+
+void
 report_values(pmResult *result)
 {
     int		i, j;
@@ -104,15 +124,18 @@ main(int argc, char **argv)
     int		sts;
     int		errflag = 0;
     char	*host = "local:";
-    static char	*usage = "[-w] [-D N] [-h hostname] container...";
+    static char	*usage = "[-w] [-x N] [-D N] [-h hostname] container...";
     pmID	pmids[num_metrics];
     pmResult	*result;
+    int		*excludes = NULL;
+    int		excludesize = 0;
+    int		nexcludes = 0;
     int		whoflag = 0;
     int		delay = 0;
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "d:D:h:w?")) != EOF) {
+    while ((c = getopt(argc, argv, "d:D:h:wx:?")) != EOF) {
 	switch (c) {
 	case 'D':	/* debug flag */
 	    if ((sts = __pmParseDebug(optarg)) < 0) {
@@ -134,6 +157,13 @@ main(int argc, char **argv)
 
 	case 'w':	/* set pmcd.client.whoami metric */
 	    whoflag = 1;
+	    break;
+
+	case 'x':	/* exclude instance from returned values */
+	    excludesize = (nexcludes + 1) * sizeof(int);
+	    if ((excludes = realloc(excludes, excludesize)) == NULL)
+		__pmNoMem("excludes", excludesize, PM_FATAL_ERR);
+	    excludes[nexcludes++] = atoi(optarg);
 	    break;
 
 	case '?':
@@ -164,6 +194,9 @@ main(int argc, char **argv)
 	}
 	exit(1);
     }
+
+    if (nexcludes)
+	exclude_values(pmids[pmcd_client_whoami], nexcludes, excludes);
 
     result = fetch_values(&pmids[0]);
     report_values(result);

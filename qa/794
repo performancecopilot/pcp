@@ -42,7 +42,18 @@ _filter()
     #end
 }
 
+_exclude_clients()
+{
+    # remove any long-running clients (pmlogger/pmie)
+    pminfo -f pmcd.client.whoami | \
+    egrep ' pmlogger | pmie ' | \
+    sed -e 's/ *inst \[\([0-9][0-9]*\) or .*/-x \1 /g'
+}
+
 # real QA test starts here
+xargs=`_exclude_clients`
+echo "Exclusions: $xargs" >> $seq.full
+
 container=`$docker run -d busybox sleep 15`
 echo "== container: $container" >> $seq.full
 
@@ -59,7 +70,7 @@ echo localhost hostname: $localhost_hostname >> $seq.full
 
 # switch to container, then back, reporting pmcd.hostname
 echo "== switch to container, reset, repeat" | tee -a $seq.full
-$here/src/storepmcd "$container" "" "$container" "" | _filter
+$here/src/storepmcd $xargs "$container" "" "$container" "" | _filter
 
 # success, all done
 status=0
