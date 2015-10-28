@@ -514,19 +514,17 @@ INIT_CONTEXT:
 	 */
 	if (nhosts == 1) { /* not proxied */
 	    for (i = 0; i < contexts_len; i++) {
-		pmHostSpec *pmcd_host;
-
 		if (i == PM_TPD(curcontext))
 		    continue;
-		pmcd_host = &contexts[i]->c_pmcd->pc_hosts[0];
 		if (contexts[i]->c_type == new->c_type &&
+		    contexts[i]->c_flags == new->c_flags &&
 		    contexts[i]->c_flags == 0 &&
-		    strcmp(pmcd_host->name, hosts[0].name) == 0 &&
-                    pmcd_host->nports == hosts[0].nports) {
+		    strcmp(contexts[i]->c_pmcd->pc_hosts[0].name, hosts[0].name) == 0 &&
+                    contexts[i]->c_pmcd->pc_hosts[0].nports == hosts[0].nports) {
                     int j;
                     int ports_same = 1;
-                    for (j = 0; j < hosts[0].nports; j++)
-                        if (pmcd_host->ports[j] != hosts[0].ports[j])
+                    for (j=0; j<hosts[0].nports; j++)
+                        if (contexts[i]->c_pmcd->pc_hosts[0].ports[j] != hosts[0].ports[j])
                             ports_same = 0;
                     if (ports_same)
                         new->c_pmcd = contexts[i]->c_pmcd;
