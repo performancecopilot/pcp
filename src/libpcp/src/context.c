@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2015 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -505,20 +505,28 @@ INIT_CONTEXT:
 	    goto FAILED;
 	}
 
-        /* As an optimization, if there is already a connection to the same PMCD,
-           we try to reuse (share) it. */
+	/*
+	 * As an optimization, if there is already a connection to the
+	 * same PMCD, we try to reuse (share) it.  This is not viable
+	 * in several situations - when pmproxy is in use, or when any
+	 * connection attribute(s) are set, or when exclusion has been
+	 * explicitly requested (i.e. PM_CTXFLAG_EXCLUSIVE in c_flags).
+	 */
 	if (nhosts == 1) { /* not proxied */
 	    for (i = 0; i < contexts_len; i++) {
+		pmHostSpec *pmcd_host;
+
 		if (i == PM_TPD(curcontext))
 		    continue;
+		pmcd_host = &contexts[i]->c_pmcd->pc_hosts[0];
 		if (contexts[i]->c_type == new->c_type &&
-		    contexts[i]->c_flags == new->c_flags &&
-		    strcmp(contexts[i]->c_pmcd->pc_hosts[0].name, hosts[0].name) == 0 &&
-                    contexts[i]->c_pmcd->pc_hosts[0].nports == hosts[0].nports) {
+		    contexts[i]->c_flags == 0 &&
+		    strcmp(pmcd_host->name, hosts[0].name) == 0 &&
+                    pmcd_host->nports == hosts[0].nports) {
                     int j;
                     int ports_same = 1;
-                    for (j=0; j<hosts[0].nports; j++)
-                        if (contexts[i]->c_pmcd->pc_hosts[0].ports[j] != hosts[0].ports[j])
+                    for (j = 0; j < hosts[0].nports; j++)
+                        if (pmcd_host->ports[j] != hosts[0].ports[j])
                             ports_same = 0;
                     if (ports_same)
                         new->c_pmcd = contexts[i]->c_pmcd;
