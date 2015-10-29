@@ -86,6 +86,8 @@ unset ROOT MAKEFLAGS
 # Install the PMDA
 cd $here/pmdas/broken
 $sudo ./broken_Install -N < /dev/null | _filter_ins
+# ensure help text built (-N above skips this)
+$sudo make broken_v2.dir > /dev/null 2>&1
 cd $here
 
 # Remove the PMDA
