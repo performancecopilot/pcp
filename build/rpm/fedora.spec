@@ -2012,6 +2012,7 @@ cd
 %{_datadir}/pcp/lib/bashproc.sh
 %{_datadir}/pcp/lib/lockpmns
 %{_datadir}/pcp/lib/pmdaproc.sh
+%{_datadir}/pcp/lib/utilproc.sh
 %{_datadir}/pcp/lib/rc-proc.sh
 %{_datadir}/pcp/lib/rc-proc.sh.minimal
 %{_datadir}/pcp/lib/unlockpmns
