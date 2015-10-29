@@ -24,7 +24,9 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
+#ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
+#endif
 
 #include "atop.h"
 #include "ifprop.h"
@@ -186,7 +188,7 @@ atopsar(int argc, char *argv[])
 
 			   case 'H':		/* repeat headers          */
 				repeathead = 23;	/* define default  */
-
+#if defined(TIOCGWINSZ)
 				if (isatty(1))
 				{
 					struct winsize wsz;
@@ -194,6 +196,7 @@ atopsar(int argc, char *argv[])
 					if ( ioctl(1, TIOCGWINSZ, &wsz) != -1)
 						repeathead = wsz.ws_row - 1;
 				}
+#endif
 				break;
 
 			   case 'a':		/* every interval all units */
@@ -983,7 +986,7 @@ do_atopsarflags(char *val)
 
 		   case 'H':		/* repeat headers          */
 			repeathead = 23;	/* define default  */
-
+#if defined(TIOCGWINSZ)
 			if (isatty(1))
 			{
 				struct winsize wsz;
@@ -991,6 +994,7 @@ do_atopsarflags(char *val)
 				if ( ioctl(1, TIOCGWINSZ, &wsz) != -1)
 					repeathead = wsz.ws_row - 1;
 			}
+#endif
 			break;
 
 		   case 'a':		/* every interval all units */
