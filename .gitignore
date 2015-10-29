@@ -5,6 +5,7 @@
 *.swp
 *.swo
 *.log
+*.dSYM
 Logs
 .census
 .DS_Store
