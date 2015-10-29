@@ -1,3 +1,6 @@
+pcp-3.10.9 (16 December 2015)
+    - Work in progress [see http://pcp.io/roadmap]
+
 pcp-3.10.8 (30 October 2015)
     - pmdaslurm: new PMDA exporting HPC scheduler metrics
     - pmdalinux: correctly report high speed network link speeds

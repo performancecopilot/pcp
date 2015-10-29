@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.10.8
+Version: 3.10.9
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -2398,6 +2398,9 @@ cd
 %endif
 
 %changelog
+* Wed Dec 16 2015 Lukas Berk <lberk@redhat.com> - 3.10.9-1
+- Work in progress [see http://pcp.io/roadmap]
+
 * Fri Oct 30 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.8-1
 - Update pmlogger to log an immediate sample first (BZ 1269921)
 - Add pmOption host and archive setter python APIs (BZ 1270176)
@@ -2412,6 +2415,12 @@ cd
 - Added missing RPM dependencies to several PMDA sub-packages.
 - Update to latest stable Vector release for pcp-vector-webapp.
 - Update to latest PCP sources.
+
+* Sat Sep 05 2015 Kalev Lember <klember@redhat.com> - 3.10.6-2.1
+- Rebuilt for librpm soname bump
+
+* Thu Aug 06 2015 Lukas Berk <lberk@redhat.com> - 3.10.6-2
+- Fix SDT related build error (BZ 1250894)
 
 * Tue Aug 04 2015 Nathan Scott <nathans@redhat.com> - 3.10.6-1
 - Fix pcp2graphite write method invocation failure (BZ 1243123)
