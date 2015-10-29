@@ -115,7 +115,7 @@ extern "C" {
 #undef HAVE_SYS_RESOURCE_H
 #undef HAVE_SYS_PRCTL_H
 #undef HAVE_SYS_STATVFS_H
-#undef HAVE_SYS_VFS_H
+#undef HAVE_SYS_STATFS_H
 #undef HAVE_SYS_PARAM_H
 #undef HAVE_SYS_MOUNT_H
 #undef HAVE_ENDIAN_H

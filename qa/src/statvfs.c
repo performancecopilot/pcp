@@ -8,9 +8,9 @@
 #include <pcp/pmapi.h>
 #if defined(HAVE_SYS_STATVFS_H)
 #include <sys/statvfs.h>
-#if defined(HAVE_SYS_VFS_H)
-/* Linux style */
-#include <sys/vfs.h>
+#if defined(HAVE_SYS_STATFS_H)
+/* Linux and Solaris style */
+#include <sys/statfs.h>
 #elif defined(HAVE_SYS_PARAM_H) && defined(HAVE_SYS_MOUNT_H)
 /* BSD style */
 #include <sys/param.h>
@@ -33,7 +33,11 @@ main(int argc, char **argv)
 
     while (--argc > 0) {
 	printf("%s N (statfs) [N (statvfs)]:\n", argv[1]);
+#if defined(IS_SOLARIS)
+	sts = statfs(argv[1], &buf, 0, 0);
+#else
 	sts = statfs(argv[1], &buf);
+#endif
 	if (sts < 0) {
 	    printf("Error: statfs: %s\n", strerror(errno));
 	    argv++;
@@ -47,7 +51,7 @@ main(int argc, char **argv)
 	}
 	else {
 	    printf("f_bsize=%lu [%lu] ", (unsigned long)buf.f_bsize, (unsigned long)vbuf.f_bsize);
-#if defined(HAVE_SYS_VFS_H)
+#if defined(HAVE_SYS_STATFS_H)
 	    printf("f_frsize=%lu [%lu] ", (unsigned long)buf.f_frsize, (unsigned long)vbuf.f_frsize);
 #else
 	    printf("f_frsize=[%lu] ", (unsigned long)vbuf.f_frsize);
@@ -55,20 +59,28 @@ main(int argc, char **argv)
 	    putchar('\n');
 	    printf("f_blocks=%llu [%llu] ", (unsigned long long)buf.f_blocks, (unsigned long long)vbuf.f_blocks);
 	    printf("f_bfree=%llu [%llu] ", (unsigned long long)buf.f_bfree, (unsigned long long)vbuf.f_bfree);
+#if !defined(IS_SOLARIS)
 	    printf("f_bavail=%llu [%llu] ", (unsigned long long)buf.f_bavail, (unsigned long long)vbuf.f_bavail);
+#endif
 	    putchar('\n');
 	    printf("f_files=%llu [%llu] ", (unsigned long long)buf.f_files, (unsigned long long)vbuf.f_files);
 	    printf("f_ffree=%llu [%llu] ", (unsigned long long)buf.f_ffree, (unsigned long long)vbuf.f_ffree);
+#if !defined(IS_SOLARIS)
 	    printf("f_favail=[%llu] ", (unsigned long long)vbuf.f_favail);
+#endif
 	    putchar('\n');
-#if defined(HAVE_SYS_VFS_H)
+#if defined(IS_SOLARIS)
+	    /* no f_fsid field */
+#elif defined(HAVE_SYS_STATFS_H)
 	    printf("f_fsid={%d,%d} [%lu] ", buf.f_fsid.__val[0], buf.f_fsid.__val[1], (unsigned long)vbuf.f_fsid);
 #else
 	    printf("f_fsid=[%lu] ", (unsigned long)vbuf.f_fsid);
 #endif
 	    putchar('\n');
 	    printf("f_flag=[%lu] ", vbuf.f_flag);
-#if defined(HAVE_SYS_VFS_H)
+#if defined(IS_SOLARIS)
+	    /* no f_name[len,max] fields */
+#elif defined(HAVE_SYS_STATFS_H)
 	    printf("f_namelen[f_namemax]=%lu [%lu] ", (unsigned long)buf.f_namelen, (unsigned long)vbuf.f_namemax);
 #else
 	    printf("f_namemax=[%lu] ", (unsigned long)vbuf.f_namemax);
