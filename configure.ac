@@ -465,6 +465,123 @@ AC_ARG_ENABLE([shared],
   [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"])
 AC_SUBST(enable_shared)
 
+dnl check if user wants their own lex, yacc
+AC_PROG_LEX
+lex=$LEX
+AC_SUBST(lex)
+AC_PROG_YACC
+yacc=$YACC
+AC_SUBST(yacc)
+
+dnl extra check for lex and yacc as these are often not installed
+AC_MSG_CHECKING([if yacc is executable])
+binary=`echo $yacc | awk '{print $1}'`
+binary=`which "$binary"`
+if test -x "$binary"
+then
+    AC_MSG_RESULT([ yes])
+else
+    AC_MSG_RESULT([ no])
+    echo
+    echo "FATAL ERROR: did not find a valid yacc executable."
+    echo "You can either set \$YACC as the full path to yacc"
+    echo "in the environment, or install a yacc/bison package."
+    rm -rf conftest conftest.*
+    exit 1
+fi
+AC_MSG_CHECKING([if lex is executable])
+binary=`echo $lex | awk '{print $1}'`
+binary=`which "$binary"`
+if test -x "$binary"
+then
+    AC_MSG_RESULT([ yes])
+else
+    AC_MSG_RESULT([ no])
+    echo
+    echo "FATAL ERROR: did not find a valid lex executable."
+    echo "You can either set \$LEX as the full path to lex"
+    echo "in the environment, or install a lex/flex package."
+    rm -rf conftest conftest.*
+    exit 1
+fi
+
+dnl check if user wants their own awk, sed and echo
+if test -z "$AWK"; then
+    AC_PATH_PROGS(AWK, gawk awk, /usr/bin/awk)
+fi
+case "$AWK"
+in
+    gawk|*/gawk)
+	awk="$AWK --posix"
+	;;
+    *)
+	awk=$AWK
+	;;
+esac
+AC_SUBST(awk)
+if test -z "$SED"; then
+    AC_PATH_PROG(SED, sed, /bin/sed)
+fi
+sed=$SED
+AC_SUBST(sed)
+if test -z "$ECHO"; then
+    AC_PATH_PROG(ECHO, echo, /bin/echo)
+fi
+echo=$ECHO
+AC_SUBST(echo)
+if test -z "$WHICH"; then
+    AC_PATH_PROG(WHICH, which, /usr/bin/which)
+fi
+which=$WHICH
+AC_SUBST(which)
+
+dnl check we don't get the Windows sort ...
+AC_MSG_CHECKING([where unix-like sort(1) lives])
+if test $target_os = mingw; then
+    for d in /bin /usr/bin /mingw/bin /mingw/usr/bin
+    do
+	if test -x $d/sort; then
+	    sort=$d/sort
+	    break
+	fi
+    done
+else
+    sort=`which sort`
+fi
+AC_MSG_RESULT($sort)
+$sort -n </dev/null
+if test $? != 0
+then
+    echo
+    echo "FATAL ERROR: $sort -n failed!"
+    rm -rf conftest conftest.*
+    exit 1
+fi
+AC_SUBST(sort)
+
+dnl echo_n set to -n if echo understands -n to suppress newline
+dnl echo_c set to \c if echo understands \c to suppress newline
+AC_MSG_CHECKING([if echo uses -n or backslash-c to suppress newlines])
+if ( $echo "testing\c"; $echo 1,2,3 ) | grep c >/dev/null
+then
+  if ( $echo -n testing; $echo 1,2,3 ) | sed s/-n/xn/ | grep xn >/dev/null
+  then
+    echo_n= echo_c=
+    AC_MSG_RESULT([neither?])
+  else
+    echo_n=-n echo_c=
+    AC_MSG_RESULT([ -n])
+  fi
+else
+  echo_n= echo_c='\c'
+  AC_MSG_RESULT([backslash-c])
+fi
+AC_SUBST(echo_n)
+AC_SUBST(echo_c)
+
+dnl subsequent configure checks rely on $EGREP being set
+AC_PROG_EGREP
+
 dnl Check for static probes (dtrace, systemtap)
 if test "$do_probes" = "check" -o "$do_probes" = "yes"
 then
@@ -1135,120 +1252,6 @@ AC_PROG_LN_S
 if test $target_os = mingw; then
     as_ln_s=/bin/true
 fi
-
-dnl check if user wants their own lex, yacc
-AC_PROG_LEX
-lex=$LEX
-AC_SUBST(lex)
-AC_PROG_YACC
-yacc=$YACC
-AC_SUBST(yacc)
-
-dnl extra check for lex and yacc as these are often not installed
-AC_MSG_CHECKING([if yacc is executable])
-binary=`echo $yacc | awk '{print $1}'`
-binary=`which "$binary"`
-if test -x "$binary"
-then
-    AC_MSG_RESULT([ yes])
-else
-    AC_MSG_RESULT([ no])
-    echo
-    echo "FATAL ERROR: did not find a valid yacc executable."
-    echo "You can either set \$YACC as the full path to yacc"
-    echo "in the environment, or install a yacc/bison package."
-    rm -rf conftest conftest.*
-    exit 1
-fi
-AC_MSG_CHECKING([if lex is executable])
-binary=`echo $lex | awk '{print $1}'`
-binary=`which "$binary"`
-if test -x "$binary"
-then
-    AC_MSG_RESULT([ yes])
-else
-    AC_MSG_RESULT([ no])
-    echo
-    echo "FATAL ERROR: did not find a valid lex executable."
-    echo "You can either set \$LEX as the full path to lex"
-    echo "in the environment, or install a lex/flex package."
-    rm -rf conftest conftest.*
-    exit 1
-fi
-
-dnl check if user wants their own awk, sed and echo
-if test -z "$AWK"; then
-    AC_PATH_PROGS(AWK, gawk awk, /usr/bin/awk)
-fi
-case "$AWK"
-in
-    gawk|*/gawk)
-	awk="$AWK --posix"
-	;;
-    *)
-	awk=$AWK
-	;;
-esac
-AC_SUBST(awk)
-if test -z "$SED"; then
-    AC_PATH_PROG(SED, sed, /bin/sed)
-fi
-sed=$SED
-AC_SUBST(sed)
-if test -z "$ECHO"; then
-    AC_PATH_PROG(ECHO, echo, /bin/echo)
-fi
-echo=$ECHO
-AC_SUBST(echo)
-if test -z "$WHICH"; then
-    AC_PATH_PROG(WHICH, which, /usr/bin/which)
-fi
-which=$WHICH
-AC_SUBST(which)
-
-dnl check we don't get the Windows sort ...
-AC_MSG_CHECKING([where unix-like sort(1) lives])
-if test $target_os = mingw; then
-    for d in /bin /usr/bin /mingw/bin /mingw/usr/bin
-    do
-	if test -x $d/sort; then
-	    sort=$d/sort
-	    break
-	fi
-    done
-else
-    sort=`which sort`
-fi
-AC_MSG_RESULT($sort)
-$sort -n </dev/null
-if test $? != 0
-then
-    echo
-    echo "FATAL ERROR: $sort -n failed!"
-    rm -rf conftest conftest.*
-    exit 1
-fi
-AC_SUBST(sort)
-
-dnl echo_n set to -n if echo understands -n to suppress newline
-dnl echo_c set to \c if echo understands \c to suppress newline
-AC_MSG_CHECKING([if echo uses -n or backslash-c to suppress newlines])
-if ( $echo "testing\c"; $echo 1,2,3 ) | grep c >/dev/null
-then
-  if ( $echo -n testing; $echo 1,2,3 ) | sed s/-n/xn/ | grep xn >/dev/null
-  then
-    echo_n= echo_c=
-    AC_MSG_RESULT([neither?])
-  else
-    echo_n=-n echo_c=
-    AC_MSG_RESULT([ -n])
-  fi
-else
-  echo_n= echo_c='\c'
-  AC_MSG_RESULT([backslash-c])
-fi
-AC_SUBST(echo_n)
-AC_SUBST(echo_c)
 
 dnl if /proc is not mounted, try and mount it
 dnl before trying to run the ps style test below
