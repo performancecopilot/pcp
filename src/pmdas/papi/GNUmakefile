@@ -50,7 +50,6 @@ install_pcp install:	default
 else
 build-me:
 install_pcp install:
-	@$(INSTALL_MAN)
 endif
 
 $(VERSION_SCRIPT):

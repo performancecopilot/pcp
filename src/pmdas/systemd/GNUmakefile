@@ -31,14 +31,14 @@ MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default:	build-me
+default_pcp default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(PMDA_SYSTEMD)" "true"
 build-me: $(CMDTARGET)
 
-install:	default
+install_pcp install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(DFILES) root help pmns $(PMDADIR)
@@ -47,14 +47,10 @@ install:	default
 	@$(INSTALL_MAN)
 else
 build-me:
-install:
+install_pcp install:
 endif
 
 $(OBJECTS): domain.h
-
-default_pcp : default
-
-install_pcp : install
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
