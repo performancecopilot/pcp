@@ -954,6 +954,19 @@ fi
 AC_SUBST(PMDA_NGINX, $pmda_nginx)
 if $pmda_nginx; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
+AC_MSG_CHECKING([if the activemq PMDA should be included])
+pmda_activemq=false
+if test "$have_perl" = true
+then
+    dnl rpm build for activemq PMDA needs Perl LWP::UserAgent
+    if $pcp_perl_prog -e "use LWP::UserAgent" >/dev/null 2>&1
+    then
+	pmda_activemq=true
+    fi
+fi
+AC_SUBST(PMDA_ACTIVEMQ, $pmda_activemq)
+if $pmda_activemq; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
 qmake=$QMAKE
 enable_qt=false
 qt_release=release
