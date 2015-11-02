@@ -193,6 +193,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(6,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* client.start_date */
     { PMDA_PMID(6,1), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* client.container */
+    { PMDA_PMID(6,2), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* pmcd.cputime.total */
     { PMDA_PMID(7,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) },
@@ -265,25 +267,26 @@ static struct {
 };
 static const int	nbufsz = sizeof(bufinst) / sizeof(bufinst[0]);
 
+/*
+ * Per-context structures
+ */
 typedef struct {
-    int		id;		/* index into client[] */
-    int		seq;
     char	*value;
-} whoami_t;
-static whoami_t		*whoamis;
-static unsigned int	nwhoamis;
+} pmcd_whoami_t;
 
 typedef struct {
-    int		pid;
     int		length;
     char	*name;
 } pmcd_container_t;
 
 typedef struct {
+    int			id;		/* index into client[] */
+    int			seq;
     int			state;
     pmcd_container_t	container;
-    double		last_cputime;
+    pmcd_whoami_t	whoami;
     __uint64_t		last_pdu_in;
+    double		last_cpu_time;
 } perctx_t;
 
 /* utilization values for per context state */
@@ -302,16 +305,18 @@ grow_ctxtab(int ctx)
 {
     ctxtab = (perctx_t *)realloc(ctxtab, (ctx+1)*sizeof(ctxtab[0]));
     if (ctxtab == NULL) {
-        __pmNoMem("grow_ctxtab", (ctx+1)*sizeof(ctxtab[0]), PM_FATAL_ERR);
-        /*NOTREACHED*/
+	__pmNoMem("grow_ctxtab", (ctx+1)*sizeof(ctxtab[0]), PM_FATAL_ERR);
+	/*NOTREACHED*/
     }
     while (num_ctx <= ctx) {
-        ctxtab[num_ctx].state = CTX_INACTIVE;
-	ctxtab[num_ctx].container.name = NULL;
-        num_ctx++;
+	memset(&ctxtab[num_ctx], 0, sizeof(perctx_t));
+	ctxtab[num_ctx].id = -1;
+	ctxtab[num_ctx].seq = -1;
+	num_ctx++;
     }
-    ctxtab[ctx].state = CTX_INACTIVE;
-    ctxtab[ctx].container.name = NULL;
+    memset(&ctxtab[ctx], 0, sizeof(perctx_t));
+    ctxtab[ctx].id = -1;
+    ctxtab[ctx].seq = -1;
 }
 
 /*
@@ -370,6 +375,23 @@ init_tables(int dom)
 	    desctab[i].indom = clientindom;
     }
     ndesc--;
+}
+
+/*
+ * Ensure we have a connection to pmdaroot in case we need it.
+ * Note this must be done early-on (init) only, because pmcd
+ * will drop privileges and DSO pmdapmcd will then be unable to
+ * connect to the Unix domain socket (requires root).
+ */
+static void
+init_pmdaroot_connect(void)
+{
+    setoserror(0);
+    if ((rootfd = pmdaRootConnect(NULL)) < 0) {
+	if (pmDebug & DBG_TRACE_ATTR)
+	    fprintf(stderr, "pmdapmcd cannot connect to pmdaroot: %s\n",
+			osstrerror());
+    }
 }
 
 static int
@@ -1200,18 +1222,21 @@ fetch_cputime(int item, int ctx, pmAtomValue *avp)
 	    pdu_in += __pmPDUCntIn[j];
 	if (ctxtab[ctx].state == CTX_INACTIVE) {
 	    /* first call for this context */
+	    ctxtab[ctx].id = this_client_id;
+	    ctxtab[ctx].seq = client[this_client_id].seq;
 	    ctxtab[ctx].state = CTX_ACTIVE;
-	    avp->d = cputime*1000/pdu_in;
+	    avp->d = cputime * 1000 / pdu_in;
 	}
 	else {
-	    if (pdu_in > ctxtab[ctx].last_pdu_in)
-		avp->d = 1000*(cputime-ctxtab[ctx].last_cputime)/(pdu_in-ctxtab[ctx].last_pdu_in);
-	    else {
+	    if (pdu_in > ctxtab[ctx].last_pdu_in) {
+		avp->d = 1000 * (cputime - ctxtab[ctx].last_cpu_time)
+			/ (pdu_in - ctxtab[ctx].last_pdu_in);
+	    } else {
 		/* should not happen, as you need another pdu to get here */
 		avp->d = 0;
 	    }
 	}
-	ctxtab[ctx].last_cputime = cputime;
+	ctxtab[ctx].last_cpu_time = cputime;
 	ctxtab[ctx].last_pdu_in = pdu_in;
     }
     return 0;
@@ -1221,12 +1246,30 @@ static void
 end_context(int ctx)
 {
     if (ctx >= 0 && ctx < num_ctx) {
-	if (ctxtab[ctx].state == CTX_ACTIVE)
-	    ctxtab[ctx].state = CTX_INACTIVE;
+	ctxtab[ctx].state = CTX_INACTIVE;
+	if (ctxtab[ctx].whoami.value)
+	    free(ctxtab[ctx].whoami.value);
 	if (ctxtab[ctx].container.name)
 	    free(ctxtab[ctx].container.name);
-	ctxtab[ctx].container.name = NULL;
+	memset(&ctxtab[ctx], 0, sizeof(ctxtab[ctx]));
+	ctxtab[ctx].seq = -1;
+	ctxtab[ctx].id = -1;
     }
+}
+
+static char *
+fetch_client_metric(int item, ClientInfo *cp)
+{
+    int	k;
+
+    for (k = 0; k < num_ctx; k++) {
+	if (ctxtab[k].seq == cp->seq) {
+	    return (item == 0) ?
+		ctxtab[k].whoami.value :
+		ctxtab[k].container.name;
+	}
+    }
+    return NULL;
 }
 
 static int
@@ -1651,6 +1694,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		for (j = numval = 0; j < nClients; ++j) {
 		    int		k;
 		    char	ctim[sizeof("Thu Nov 24 18:22:48 1986\n")];
+
 		    if (!client[j].status.connected)
 			continue;
 		    if (!__pmInProfile(clientindom, _profile, client[j].seq))
@@ -1658,16 +1702,13 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    vset->vlist[numval].inst = client[j].seq;
 		    switch (pmidp->item) {
 			case 0:		/* client.whoami */
-			    for (k = 0; k < nwhoamis; k++) {
-				if (whoamis[k].seq == client[j].seq) {
-				    atom.cp = whoamis[k].value;
-				    break;
-				}
-			    }
-			    if (k == nwhoamis)
+			case 2:		/* client.container */
+			    atom.cp = fetch_client_metric(pmidp->item, &client[j]);
+			    if (!atom.cp)
 				/* no id registered, so no value */
 				atom.cp = "";
 			    break;
+
 			case 1:		/* client.start_date */
 			    atom.cp = strcpy(ctim, ctime(&client[j].start));
 			    /* trim trailing \n */
@@ -1735,9 +1776,11 @@ pmcd_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 static int
 pmcd_store(pmResult *result, pmdaExt *pmda)
 {
-    int		i;
-    pmValueSet	*vsp;
+    int		i, j, val;
     int		sts = 0;
+    int		ctx = pmda->e_context;
+    char	*cp;
+    pmValueSet	*vsp;
     __pmID_int	*pmidp;
 
     for (i = 0; i < result->numpmid; i++) {
@@ -1748,7 +1791,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		pmDebug = vsp->vlist[0].value.lval;
 	    }
 	    else if (pmidp->item == 4) { /* pmcd.control.timeout */
-		int	val = vsp->vlist[0].value.lval;
+		val = vsp->vlist[0].value.lval;
 		if (val < 0) {
 		    sts = PM_ERR_SIGN;
 		    break;
@@ -1758,7 +1801,6 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		}
 	    }
 	    else if (pmidp->item == 8) { /* pmcd.control.register */
-		int	j;
 		for (j = 0; j < vsp->numval; j++) {
 		    if (0 <= vsp->vlist[j].inst && vsp->vlist[j].inst < NUMREG)
 			reg[vsp->vlist[j].inst] = vsp->vlist[j].value.lval;
@@ -1769,7 +1811,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		}
 	    }
 	    else if (pmidp->item == 9) { /* pmcd.control.traceconn */
-		int	val = vsp->vlist[0].value.lval;
+		val = vsp->vlist[0].value.lval;
 		if (val == 0)
 		    _pmcd_trace_mask &= (~TR_MASK_CONN);
 		else if (val == 1)
@@ -1780,7 +1822,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		}
 	    }
 	    else if (pmidp->item == 10) { /* pmcd.control.tracepdu */
-		int	val = vsp->vlist[0].value.lval;
+		val = vsp->vlist[0].value.lval;
 		if (val == 0)
 		    _pmcd_trace_mask &= (~TR_MASK_PDU);
 		else if (val == 1)
@@ -1791,7 +1833,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		}
 	    }
 	    else if (pmidp->item == 11) { /* pmcd.control.tracebufs */
-		int	val = vsp->vlist[0].value.lval;
+		val = vsp->vlist[0].value.lval;
 		if (val < 0) {
 		    sts = PM_ERR_SIGN;
 		    break;
@@ -1808,7 +1850,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		ShowClients(stderr);
 	    }
 	    else if (pmidp->item == 14) { /* pmcd.control.tracenobuf */
-		int	val = vsp->vlist[0].value.lval;
+		val = vsp->vlist[0].value.lval;
 		if (val == 0)
 		    _pmcd_trace_mask &= (~TR_MASK_NOBUF);
 		else if (val == 1)
@@ -1833,56 +1875,37 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	    }
 	}
 	else if (pmidp->cluster == 6) {
-	    if (pmidp->item == 0) {	/* pmcd.client.whoami */
+	    if (pmidp->item == 0 ||	/* pmcd.client.whoami */
+		pmidp->item == 2) {	/* pmcd.client.container */
 		/*
 		 * Expect one value for one instance (PM_IN_NULL)
 		 *
 		 * Use the value from the pmResult to change the value
 		 * for the client[] that matches the current pmcd client.
 		 */
-		char	*cp = vsp->vlist[0].value.pval->vbuf;
-		int	j;
-		int	last_free = -1;
-
-		if (vsp->numval != 1 || vsp->vlist[0].inst != PM_IN_NULL) {
+		if (vsp->numval != 1 || vsp->vlist[0].inst != PM_IN_NULL)
 		    return PM_ERR_INST;
+
+		if (ctx >= num_ctx)
+		    grow_ctxtab(ctx);
+		ctxtab[ctx].id = this_client_id;
+		ctxtab[ctx].seq = client[this_client_id].seq;
+		cp = vsp->vlist[0].value.pval->vbuf;
+		if (pmidp->item == 0) {
+		    free(ctxtab[ctx].whoami.value);
+		    ctxtab[ctx].whoami.value = strdup(cp);
+		} else {
+		    free(ctxtab[ctx].container.name);
+		    ctxtab[ctx].container.name = NULL;
+		    ctxtab[ctx].container.length = 0;
+		    /*
+		     * Set client[this_client_id].status.attributes bit
+		     * and store the new value in the attribute hash -
+		     * pmcd can then inform all PMDAs about the change,
+		     * including pmdapmcd, via the attribute callback.
+		     */
+		    SetClientAttribute(this_client_id, PCP_ATTR_CONTAINER, cp);
 		}
-		for (j = 0; j < nwhoamis; j++) {
-		    if (whoamis[j].id == -1) {
-			/* slot in whoamis[] not in use */
-			last_free = j;
-			continue;
-		    }
-		    if (whoamis[j].id == this_client_id &&
-		        whoamis[j].seq == client[this_client_id].seq) {
-			/* found the one to replace */
-			free(whoamis[j].value);
-			break;
-		    }
-		    if (!client[whoamis[j].id].status.connected ||
-		        client[whoamis[j].id].seq != whoamis[j].seq) {
-			/* old whoamis[] entry, mark as available for reuse */
-			free(whoamis[j].value);
-			whoamis[j].id = -1;
-			last_free = j;
-		    }
-		}
-		if (j == nwhoamis) {
-		    if (last_free != -1) {
-			j = last_free;
-		    }
-		    else {
-			nwhoamis++;
-			if ((whoamis = (whoami_t *)realloc(whoamis, nwhoamis*sizeof(whoamis[0]))) == NULL) {
-			    __pmNoMem("pmstore whoami", nwhoamis*sizeof(whoamis[0]), PM_RECOV_ERR);
-			    nwhoamis = 0;
-			    return -ENOMEM;
-			}
-		    }
-		    whoamis[j].id = this_client_id;
-		    whoamis[j].seq = client[this_client_id].seq;
-		}
-		whoamis[j].value = strdup(cp);
 	    }
 	    else {
 		sts = PM_ERR_PMID;
@@ -1905,12 +1928,13 @@ pmcd_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
     if (ctx >= num_ctx)
 	grow_ctxtab(ctx);
     if (attr == PCP_ATTR_CONTAINER) {
+	ctxtab[ctx].id = this_client_id;
+	ctxtab[ctx].seq = client[this_client_id].seq;
 	if (ctxtab[ctx].container.name)
 	    free(ctxtab[ctx].container.name);
 	if ((ctxtab[ctx].container.name = strdup(value)) == NULL)
 	    return -ENOMEM;
 	ctxtab[ctx].container.length = len;
-	ctxtab[ctx].container.pid = 0;
     }
     return pmdaAttribute(ctx, attr, value, len, pmda);
 }
@@ -1936,6 +1960,7 @@ pmcd_init(pmdaInterface *dp)
     dp->version.six.ext->e_endCallBack = end_context;
 
     init_tables(dp->domain);
-    rootfd = pmdaRootConnect(NULL);
+    init_pmdaroot_connect();
+
     pmdaInit(dp, NULL, 0, NULL, 0);
 }

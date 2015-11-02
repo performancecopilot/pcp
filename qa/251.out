@@ -117,6 +117,7 @@ All volumes present ... bin-100,bin-500,bin-900 ...
 __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 1
 __pmLogChangeVol: change to volume 2
+__pmLogChangeVol: change to volume 3
 
 metric:    sampledso.bin
 archive:   mv-bar
@@ -135,6 +136,7 @@ TIMESTAMP           100         500         900
 First volume missing ... bin-100,bin-500,bin-900 ...
 __pmLogChangeVol: change to volume 1
 __pmLogChangeVol: change to volume 2
+__pmLogChangeVol: change to volume 3
 
 metric:    sampledso.bin
 archive:   mv-bar
@@ -167,7 +169,7 @@ interval:  2.00 sec
 
                 bin-100     bin-500     bin-900 
 TIMESTAMP           100         500         900 
-TIMESTAMP           100         500         900 
+TIMESTAMP           100         500           ? 
 
 Second volume missing ... bin-100,bin-500,bin-900 ...
 __pmLogChangeVol: change to volume 0
@@ -176,6 +178,7 @@ __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 2
 __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 2
+__pmLogChangeVol: change to volume 3
 
 metric:    sampledso.bin
 archive:   mv-bar

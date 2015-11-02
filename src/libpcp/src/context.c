@@ -681,14 +681,20 @@ INIT_CONTEXT:
 	    goto FAILED;
 	}
 
-        /* As an optimization, if there is already a connection to the same PMCD,
-           we try to reuse (share) it. */
+	/*
+	 * As an optimization, if there is already a connection to the
+	 * same PMCD, we try to reuse (share) it.  This is not viable
+	 * in several situations - when pmproxy is in use, or when any
+	 * connection attribute(s) are set, or when exclusion has been
+	 * explicitly requested (i.e. PM_CTXFLAG_EXCLUSIVE in c_flags).
+	 */
 	if (nhosts == 1) { /* not proxied */
 	    for (i = 0; i < contexts_len; i++) {
 		if (i == PM_TPD(curcontext))
 		    continue;
 		if (contexts[i]->c_type == new->c_type &&
 		    contexts[i]->c_flags == new->c_flags &&
+		    contexts[i]->c_flags == 0 &&
 		    strcmp(contexts[i]->c_pmcd->pc_hosts[0].name, hosts[0].name) == 0 &&
                     contexts[i]->c_pmcd->pc_hosts[0].nports == hosts[0].nports) {
                     int j;

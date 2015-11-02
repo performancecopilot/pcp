@@ -1104,8 +1104,7 @@ do_control(__pmPDU *pb)
 		newtp->t_state = PMLC_GET_STATE(reqstate);
 		if (PMLC_GET_ON(reqstate)) {
 		    newtp->t_delta = tdelta;
-		    newtp->t_afid = __pmAFregister(&tdelta, (void *)newtp,
-					       log_callback);
+		    newtp->t_afid = __pmAFsetup(NULL, &tdelta, (void *)newtp, log_callback);
 		}
 		else
 		    newtp->t_delta.tv_sec = newtp->t_delta.tv_usec = 0;

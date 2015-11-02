@@ -7,3 +7,4 @@ printf_fmt_int64=I64d
 have_procfs=false
 have_python=false
 have_perl=false
+strtoint64=strtoll

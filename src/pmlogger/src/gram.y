@@ -131,10 +131,26 @@ dowhat		: logopt action
 			    snprintf(emess, sizeof(emess), "malloc failed: %s", osstrerror());
 			    yyerror(emess);
 			} else {
+			    task_t	*ltp;
+
+			    /*
+			     * Add to end of tasklist ... this means the
+			     * first records to appear in the archive
+			     * are more likely to follow the order of
+			     * clauses in the configuration.
+			     * Exceptions are "log once" that will appear
+			     * first, and clauses combined into the same
+			     * task.
+			     */
+			    for (ltp = tasklist; ltp != NULL && ltp->t_next != NULL; ltp = ltp->t_next)
+				;
+			    if (ltp == NULL)
+				tasklist = tp;
+			    else
+				ltp->t_next = tp;
+			    tp->t_next = NULL;
 			    tp->t_delta = delta;
 			    tp->t_state = state;
-			    tp->t_next = tasklist;
-			    tasklist = tp;
 			}
 		    }
 		    state = 0;
@@ -560,11 +576,41 @@ findtask(int state, struct timeval *delta)
 void
 yyend(void)
 {
+    /*
+     * The value of blink is chosen to ensure the tasks that require
+     * repeated scheduling are not all done with the "log once" tasks.
+     * In onlalarm() in the AF.c code of libpcp, there is a 10msec
+     * window in which any task that is scheduled for within 10msec
+     * of the time that the alarm goes off will be run, and we need
+     * to go outside this window, hence blink is 20msec.
+     */
+    struct timeval blink = { 0, 20000 };
+    /*
+     * First pass to initialize and do the "log once" tasks.
+     * We want the "log once" cases to come first in the
+     * archive so that things like the hinv.* metrics are defined
+     * _before_ any of the useful data, otherwise the first useful
+     * data sample will be wasted, e.g. if hinv.ncpu does not
+     * (yet) have a value in the archive.
+     */
     for (tp = tasklist; tp != NULL; tp = tp->t_next) {
 	if (tp->t_numvalid == 0)
 	    continue;
 	PMLC_SET_MAYBE(tp->t_state, 0);	/* clear req */
-	if (PMLC_GET_ON(tp->t_state))
+	if (PMLC_GET_ON(tp->t_state) && (tp->t_delta.tv_sec == 0 && tp->t_delta.tv_usec == 0)) {
 	    tp->t_afid = __pmAFregister(&tp->t_delta, (void *)tp, log_callback);
+	}
+    }
+    /* Second pass for the other tasks */
+    for (tp = tasklist; tp != NULL; tp = tp->t_next) {
+	if (tp->t_numvalid == 0)
+	    continue;
+	if (PMLC_GET_ON(tp->t_state) && (tp->t_delta.tv_sec != 0 || tp->t_delta.tv_usec != 0)) {
+	    /*
+	     * log as soon as possible and then every t_delta units of
+	     * time thereafter
+	     */
+	    tp->t_afid = __pmAFsetup(&blink, &tp->t_delta, (void *)tp, log_callback);
+	}
     }
 }

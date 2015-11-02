@@ -61,7 +61,6 @@ other ones:
         $PCPQA_CISCO_ROUTER.
 
 common.install.cisco
-common.sh
 
 common
   - starting point for all of ./check, ./remake, ./show-me

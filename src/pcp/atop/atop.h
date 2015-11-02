@@ -176,6 +176,7 @@ void		cleanstop(int);
 void		prusage(char *);
 void		engine(void);
 
+char 		*abstime(char *);
 void		setup_globals(struct pmOptions *);
 void		setup_process(void);
 void		setup_metrics(char **, unsigned int *, struct pmDesc *, int);

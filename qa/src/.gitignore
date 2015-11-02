@@ -217,9 +217,11 @@ rootclient
 rtimetest
 scale
 slow_af
+statvfs
 store
 storepast
 storepdu
+storepmcd
 stripmark
 tabort
 template

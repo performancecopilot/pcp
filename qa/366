@@ -65,6 +65,8 @@ networking/nfs3-server
 networking/nfs4-client
 networking/nfs4-server
 tools/atop
+tools/atop-httpstats
+tools/atop-proc
 tools/collectl
 tools/collectl-interrupts
 tools/dmcache
@@ -73,6 +75,9 @@ tools/mpstat-interrupts
 tools/vmstat
 tools/iostat
 tools/sar
+apache/summary
+apache/uptime
+apache/processes
 nginx/summary
 shping/summary
 memcache/summary

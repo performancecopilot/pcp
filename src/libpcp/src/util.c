@@ -1574,7 +1574,7 @@ __pmSetClientId(const char *id)
     vblen += strlen(host) + strlen(id) + 2;
 
     /* build pmResult for pmStore() */
-    pmvb = (pmValueBlock *)malloc(PM_VAL_HDR_SIZE+vblen);
+    pmvb = (pmValueBlock *)calloc(1, PM_VAL_HDR_SIZE+vblen);
     if (pmvb == NULL) {
 	__pmNoMem("__pmSetClientId", PM_VAL_HDR_SIZE+vblen, PM_RECOV_ERR);
 	return -ENOMEM;

@@ -156,6 +156,8 @@ _remove_cron $tmp.cron $sudo
 echo "=== Install broken namespace ==="
 cd $here/pmdas/broken
 $sudo ./broken_Install -N < /dev/null | _filter_ins 2>&1
+# ensure help text built (-N above skips this)
+$sudo make broken_v2.dir > /dev/null 2>&1
 cd $here
 echo "=== Broken PMNS ==="
 if pminfo broken

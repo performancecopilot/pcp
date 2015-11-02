@@ -59,7 +59,7 @@ do
     echo
     echo "=== $host ===" >>$seq.full
     rm -f $tmp.0 $tmp.meta $tmp.index
-    pmlogger -h $host -s 2 -c $tmp.config -l $tmp.out $tmp >$tmp.err 2>&1
+    pmlogger -h $host -s 3 -c $tmp.config -l $tmp.out $tmp >$tmp.err 2>&1
     ( echo "pmlogger output:"; cat $tmp.err $tmp.out ) >>$seq.full
     cat $tmp.err $tmp.out | _filter_pmlogger_log
 

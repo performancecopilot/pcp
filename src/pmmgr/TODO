@@ -1,6 +1,5 @@
 - pmmgr.1 EXAMPLE CONFIGURATIONS
 - optionally delay pm*conf
-- pmlogreduce
 - log aging in background while new pmlogger's already running
 - old log compression (until we get libpcp zlib or something)
 - email error reporting?

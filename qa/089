@@ -26,7 +26,13 @@ $2 <= 0.95 || $2 >= 1.05	{ print "oops: " $0; next }
 
 # real QA test starts here
 
-# get the time of the first sample
-first_time=`pmval -U src/bar -s2 sampledso.milliseconds | tail -1 | cut -f1 -d ' '`
+# get the time of the fifth sample ... we skip the first few to ensure
+# things have stablized after pmlogger startup
+#
+first_time=`pmval -U src/bar -s5 sampledso.milliseconds | tail -1 | cut -f1 -d ' '`
 
+# there are 70 samples in src/bar, 65 after skipping the first 5 and
+# the logging interval is 0.1 sec ... so more than enough for the
+# 485 samples x 0.01 sec needed for pmval
+#
 pmval -S "@$first_time" -t 0.01 -s 485 -a src/bar sampledso.milliseconds 2>/dev/null | _filter

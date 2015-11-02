@@ -68,7 +68,7 @@ rm -f $tmp.0 $tmp.meta $tmp.index
 
 echo | tee -a $seq.full
 echo "other case ..." | tee -a $seq.full
-pmlogger -c $tmp.config -s 2 -r -l $tmp.log $tmp
+pmlogger -c $tmp.config -s 4 -r -l $tmp.log $tmp
 pmdumplog $tmp >>$seq.full
 cat $tmp.log >>$seq.full
 _filter_pmlogger_log <$tmp.log \

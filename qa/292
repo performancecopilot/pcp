@@ -25,14 +25,18 @@ _filter()
 
 _cleanup()
 {
-    $signal -a -s TERM pmlogger >/dev/null 2>&1
-    cd $here
-    $sudo rm -rf $tmp
+    if [ ! -f $tmp.cleanup ]
+    then
+	$signal -a -s TERM pmlogger >/dev/null 2>&1
+	$sudo $PCP_BINADM_DIR/pmlogger_check
+	_wait_for_pmlogger
+	touch $tmp.cleanup
+    fi
 }
 
 signal="$sudo $PCP_BINADM_DIR/pmsignal"
 status=0	# success is the default!
-trap "_cleanup; exit \$status" 0 1 2 3 15
+trap "_cleanup; cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 debug=`pmprobe -v pmcd.control.debug | $PCP_AWK_PROG '{ print $3 }'`
 

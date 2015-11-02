@@ -43,7 +43,7 @@ merge -s 10
 merge (expect 10): 10
 
 merge -T 6.9
-merge (expect 31 + 2 preamble + 1 mark): 33 (+1 mark)
+merge (expect 32 + 2 preamble + 1 mark): 34 (+1 mark)
 
 merge -S 6.9 -T 7.2
 merge (expect 12): 12

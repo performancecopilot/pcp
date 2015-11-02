@@ -11,7 +11,6 @@ semantics: instantaneous value
 units:     none
 
                 bin-100     bin-500     bin-700     bin-900 
-TIMESTAMP           100           ?           ?         900 
 TIMESTAMP           100         500           ?           ? 
 TIMESTAMP           100         500           ?         900 
 TIMESTAMP     No values available
@@ -33,7 +32,6 @@ semantics: instantaneous value
 units:     none
 
                 bin-100     bin-500     bin-700     bin-900 
-TIMESTAMP           100           ?           ?         900 
 TIMESTAMP           100         500           ?           ? 
 TIMESTAMP           100         500           ?         900 
 TIMESTAMP     No values available
@@ -55,7 +53,6 @@ semantics: instantaneous value
 units:     none
 
                 bin-100     bin-500     bin-700     bin-900 
-TIMESTAMP           100           ?           ?         900 
 TIMESTAMP           100         500           ?           ? 
 TIMESTAMP           100         500           ?         900 
 TIMESTAMP     No values available

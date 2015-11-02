@@ -10,7 +10,7 @@ primary pmlogger alive
 checking enquire access for this host...
 Connected to primary pmlogger at ME
 kernel.all.load
-    mand on  nl       1 hour [1 or "1 minute"]
+    mand on           1 hour [1 or "1 minute"]
     adv  off nl              [5 or "5 minute"]
     adv  off nl              [15 or "15 minute"]
 
@@ -20,7 +20,7 @@ Goodbye
 checking enquire access for other1...
 Connected to primary pmlogger at ME
 kernel.all.load
-    mand on  nl       1 hour [1 or "1 minute"]
+    mand on           1 hour [1 or "1 minute"]
     adv  off nl              [5 or "5 minute"]
     adv  off nl              [15 or "15 minute"]
 
@@ -38,7 +38,7 @@ Not connected to any pmlogger instance
 re-checking enquire access for this host...
 Connected to primary pmlogger at ME
 kernel.all.load
-    mand on  nl       1 hour [1 or "1 minute"]
+    mand on           1 hour [1 or "1 minute"]
     adv  off nl              [5 or "5 minute"]
     adv  off nl              [15 or "15 minute"]
 
@@ -68,11 +68,13 @@ Warning: unable to change logging state for:
 sample.bin instance(s):
     [700 or "bin-700"]
 
+Goodbye
+Connected to primary pmlogger at ME
 sample.bin
-    adv  on  nl       1 hour [100 or "bin-100"]
+    adv  on           1 hour [100 or "bin-100"]
     adv  off nl              [200 or "bin-200"]
     adv  off nl              [300 or "bin-300"]
-    adv  on  nl       2 hour [400 or "bin-400"]
+    adv  on           2 hour [400 or "bin-400"]
     adv  off nl              [500 or "bin-500"]
     adv  off nl              [600 or "bin-600"]
     mand off nl              [700 or "bin-700"]
@@ -86,10 +88,10 @@ checking advisory access for other1...
 (200,500 will change, 800 will not)
 Connected to primary pmlogger at ME
 sample.bin
-    adv  on  nl       1 hour [100 or "bin-100"]
+    adv  on           1 hour [100 or "bin-100"]
     adv  off nl              [200 or "bin-200"]
     adv  off nl              [300 or "bin-300"]
-    adv  on  nl       2 hour [400 or "bin-400"]
+    adv  on           2 hour [400 or "bin-400"]
     adv  off nl              [500 or "bin-500"]
     adv  off nl              [600 or "bin-600"]
     mand off nl              [700 or "bin-700"]
@@ -100,11 +102,13 @@ Warning: unable to change logging state for:
 sample.bin instance(s):
     [800 or "bin-800"]
 
+Goodbye
+Connected to primary pmlogger at ME
 sample.bin
-    adv  on  nl       1 hour [100 or "bin-100"]
+    adv  on           1 hour [100 or "bin-100"]
     adv  on  nl       1 hour [200 or "bin-200"]
     adv  off nl              [300 or "bin-300"]
-    adv  on  nl       2 hour [400 or "bin-400"]
+    adv  on           2 hour [400 or "bin-400"]
     adv  on  nl       2 hour [500 or "bin-500"]
     adv  off nl              [600 or "bin-600"]
     mand off nl              [700 or "bin-700"]
@@ -118,21 +122,23 @@ checking advisory access for other2...
 (expect 3 permission errors)
 Connected to primary pmlogger at ME
 sample.bin
-    adv  on  nl       1 hour [100 or "bin-100"]
+    adv  on           1 hour [100 or "bin-100"]
     adv  on  nl       1 hour [200 or "bin-200"]
     adv  off nl              [300 or "bin-300"]
-    adv  on  nl       2 hour [400 or "bin-400"]
+    adv  on           2 hour [400 or "bin-400"]
     adv  on  nl       2 hour [500 or "bin-500"]
     adv  off nl              [600 or "bin-600"]
     mand off nl              [700 or "bin-700"]
     mand off nl              [800 or "bin-800"]
     mand off nl              [900 or "bin-900"]
 
+Goodbye
+Connected to primary pmlogger at ME
 sample.bin
-    adv  on  nl       1 hour [100 or "bin-100"]
+    adv  on           1 hour [100 or "bin-100"]
     adv  on  nl       1 hour [200 or "bin-200"]
     adv  off nl              [300 or "bin-300"]
-    adv  on  nl       2 hour [400 or "bin-400"]
+    adv  on           2 hour [400 or "bin-400"]
     adv  on  nl       2 hour [500 or "bin-500"]
     adv  off nl              [600 or "bin-600"]
     mand off nl              [700 or "bin-700"]
@@ -165,14 +171,16 @@ sample.bin
     mand off nl              [800 or "bin-800"]
     mand off nl              [900 or "bin-900"]
 
+Goodbye
+Connected to primary pmlogger at ME
 sample.bin
-    mand on  nl       3 hour [100 or "bin-100"]
+    mand on           3 hour [100 or "bin-100"]
     adv  off nl              [200 or "bin-200"]
     adv  off nl              [300 or "bin-300"]
-    mand on  nl       4 hour [400 or "bin-400"]
+    mand on           4 hour [400 or "bin-400"]
     adv  off nl              [500 or "bin-500"]
     adv  off nl              [600 or "bin-600"]
-    mand on  nl       5 hour [700 or "bin-700"]
+    mand on           5 hour [700 or "bin-700"]
     mand off nl              [800 or "bin-800"]
     mand off nl              [900 or "bin-900"]
 
@@ -183,24 +191,26 @@ checking mandatory access for other1...
 Expect 3 permission errors
 Connected to primary pmlogger at ME
 sample.bin
-    mand on  nl       3 hour [100 or "bin-100"]
+    mand on           3 hour [100 or "bin-100"]
     adv  off nl              [200 or "bin-200"]
     adv  off nl              [300 or "bin-300"]
-    mand on  nl       4 hour [400 or "bin-400"]
+    mand on           4 hour [400 or "bin-400"]
     adv  off nl              [500 or "bin-500"]
     adv  off nl              [600 or "bin-600"]
-    mand on  nl       5 hour [700 or "bin-700"]
+    mand on           5 hour [700 or "bin-700"]
     mand off nl              [800 or "bin-800"]
     mand off nl              [900 or "bin-900"]
 
+Goodbye
+Connected to primary pmlogger at ME
 sample.bin
-    mand on  nl       3 hour [100 or "bin-100"]
+    mand on           3 hour [100 or "bin-100"]
     adv  off nl              [200 or "bin-200"]
     adv  off nl              [300 or "bin-300"]
-    mand on  nl       4 hour [400 or "bin-400"]
+    mand on           4 hour [400 or "bin-400"]
     adv  off nl              [500 or "bin-500"]
     adv  off nl              [600 or "bin-600"]
-    mand on  nl       5 hour [700 or "bin-700"]
+    mand on           5 hour [700 or "bin-700"]
     mand off nl              [800 or "bin-800"]
     mand off nl              [900 or "bin-900"]
 
@@ -215,24 +225,26 @@ checking mandatory access for other2...
 Expect 3 permission errors
 Connected to primary pmlogger at ME
 sample.bin
-    mand on  nl       3 hour [100 or "bin-100"]
+    mand on           3 hour [100 or "bin-100"]
     adv  off nl              [200 or "bin-200"]
     adv  off nl              [300 or "bin-300"]
-    mand on  nl       4 hour [400 or "bin-400"]
+    mand on           4 hour [400 or "bin-400"]
     adv  off nl              [500 or "bin-500"]
     adv  off nl              [600 or "bin-600"]
-    mand on  nl       5 hour [700 or "bin-700"]
+    mand on           5 hour [700 or "bin-700"]
     mand off nl              [800 or "bin-800"]
     mand off nl              [900 or "bin-900"]
 
+Goodbye
+Connected to primary pmlogger at ME
 sample.bin
-    mand on  nl       3 hour [100 or "bin-100"]
+    mand on           3 hour [100 or "bin-100"]
     adv  off nl              [200 or "bin-200"]
     adv  off nl              [300 or "bin-300"]
-    mand on  nl       4 hour [400 or "bin-400"]
+    mand on           4 hour [400 or "bin-400"]
     adv  off nl              [500 or "bin-500"]
     adv  off nl              [600 or "bin-600"]
-    mand on  nl       5 hour [700 or "bin-700"]
+    mand on           5 hour [700 or "bin-700"]
     mand off nl              [800 or "bin-800"]
     mand off nl              [900 or "bin-900"]
 

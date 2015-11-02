@@ -90,7 +90,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
     switch (mp->desc.type) {
 	case PM_TYPE_32:
 	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_INSITU;
-	    vp->value.lval = strtol(value, &end, 10);
+	    vp->value.lval = (__int32_t)strtol(value, &end, 10);
 	    if (*end != '\0') {
 		vsp->numval = PM_ERR_CONV;
 		return PM_ERR_CONV;
@@ -99,7 +99,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 
 	case PM_TYPE_U32:
 	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_INSITU;
-	    vp->value.lval = strtoul(value, &end, 10);
+	    vp->value.lval = (__uint32_t)strtoul(value, &end, 10);
 	    if (*end != '\0') {
 		vsp->numval = PM_ERR_CONV;
 		return PM_ERR_CONV;
@@ -108,7 +108,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 
 	case PM_TYPE_64:
 	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
-	    ll = strtoll(value, &end, 10);
+	    ll = strtoint64(value, &end, 10);
 	    if (*end != '\0') {
 		vsp->numval = PM_ERR_CONV;
 		return PM_ERR_CONV;
@@ -119,7 +119,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 
 	case PM_TYPE_U64:
 	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
-	    ull = strtoull(value, &end, 10);
+	    ull = strtouint64(value, &end, 10);
 	    if (*end != '\0') {
 		vsp->numval = PM_ERR_CONV;
 		return PM_ERR_CONV;

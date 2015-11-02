@@ -115,25 +115,25 @@ _filter_pmlogger_log <$tmp.log
 echo "verifying the archive"
 pmlogcheck $tmp
 
-# expect 3, 4 or 5 sample lines for each metric
+# expect 4, 5 or 6 sample lines for each metric
 echo PAGESZ samples:
 pmdumplog $tmp \
 	| _filter_pmdumplog \
 	| grep 'hinv.pagesize' \
 	| _filter_kernel \
-	| sed -e 4d -e 5d
+	| sed -e 5d -e 6d
 echo HZ samples:
 pmdumplog $tmp \
 	| _filter_pmdumplog \
 	| grep 'kernel.all.hz' \
 	| _filter_kernel \
-	| sed -e 4d -e 5d
+	| sed -e 5d -e 6d
 echo MILLION samples:
 pmdumplog $tmp \
 	| _filter_pmdumplog \
 	| grep 'sampledso.long.million' \
 	| _filter_kernel \
-	| sed -e 4d -e 5d
+	| sed -e 5d -e 6d
 
 echo "Full log dump:" >> $seq.full
 pmdumplog $tmp >> $seq.full

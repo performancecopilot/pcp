@@ -64,6 +64,7 @@ ifeq ($(TARGET_OS),linux)
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
 endif
 	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
+	$(INSTALL) -m 644 utilproc.sh $(PCP_SHARE_DIR)/lib/utilproc.sh
 
 include $(BUILDRULES)
 

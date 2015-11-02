@@ -166,7 +166,7 @@ echo "QA output created by \$seq"
 # test for-some-thing || _notrun No support for some-thing
 
 status=1	# failure is the default!
-\$sudo rm -rf \$tmp.* \$seq.full
+\$sudo rm -rf \$tmp \$tmp.* \$seq.full
 trap "cd \$here; rm -rf \$tmp.*; exit \\\$status" 0 1 2 3 15
 
 # real QA test starts here

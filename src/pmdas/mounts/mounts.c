@@ -332,7 +332,7 @@ mounts_refresh_mounts(void)
 	    mp->flags |= MOUNTS_FLAG_STAT;
 	    if (vfs.f_flag & ST_RDONLY)
 		mp->flags |= MOUNTS_FLAG_RO;
-	    mp->capacity = (vfs.f_blocks * vfs.f_frsize) / vfs.f_bsize;
+	    mp->capacity = ((__uint64_t)vfs.f_blocks * vfs.f_frsize) / vfs.f_bsize;
 	    mp->bsize = vfs.f_bsize;
 	    mp->bfree = vfs.f_bfree;
 	    mp->bavail = vfs.f_bavail;
@@ -390,17 +390,17 @@ mounts_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case MOUNTS_CAPACITY:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
 	    return PM_ERR_AGAIN;
-	atom->ull = mp->capacity * mp->bsize / 1024;
+	atom->ull = (__uint64_t)mp->capacity * mp->bsize / 1024;
 	break;
     case MOUNTS_USED:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
 	    return PM_ERR_AGAIN;
-	atom->ull = (mp->capacity - mp->bfree) * mp->bsize / 1024;
+	atom->ull = ((__uint64_t)mp->capacity - mp->bfree) * mp->bsize / 1024;
 	break;
     case MOUNTS_FREE:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
 	    return PM_ERR_AGAIN;
-	atom->ull = mp->bfree * mp->bsize / 1024;
+	atom->ull = (__uint64_t)mp->bfree * mp->bsize / 1024;
 	break;
     case MOUNTS_MAXFILES:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
@@ -432,7 +432,7 @@ mounts_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case MOUNTS_AVAIL:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)
 	    return PM_ERR_AGAIN;
-	atom->ull = mp->bavail * mp->bsize / 1024;
+	atom->ull = (__uint64_t)mp->bavail * mp->bsize / 1024;
 	break;
     case MOUNTS_AVAILFILES:
 	if ((mp->flags & MOUNTS_FLAG_STAT) == 0)

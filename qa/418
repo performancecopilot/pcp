@@ -16,10 +16,11 @@ echo "QA output created by $seq"
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+rm -f $seq.full
+
 # real QA test starts here
 
-echo "expect 2 x one and 0 x million"
-echo "expect 2 x one and 0 x million" >$seq.full
+echo "expect 4 x one and 2 x million" | tee -a $seq.full
 $sudo rm -f $tmp.0 $tmp.index $tmp.meta
 
 cat <<End-of-File >$tmp.config
@@ -42,7 +43,7 @@ pmdumplog $tmp | _filter_pmdumplog | grep sample | sort -n -k2
 pmdumplog $tmp >>$seq.full
 
 echo
-echo "expect 2 x one and 4 x million"
+echo "expect 4 x one and 6 x million" | tee -a $seq.full
 $sudo rm -f $tmp.0 $tmp.index $tmp.meta
 
 cat <<End-of-File >$tmp.config

@@ -46,6 +46,9 @@ atop "Memory option" -m
 atop "Disk option" -d
 atop "Scheduling option" -s
 
+echo "Replay with atop-style time window"
+PCP_HOSTZONE=1 $ATOP -r $here/archives/pcp-atop -b 11:03 -e 11:04 1 5 
+
 # write a new archive, replay with pcp-atop
 echo "Recording an archive using atop"
 $ATOP -w $tmp.atop 1 5

@@ -81,14 +81,13 @@ log mandatory on 100 msec {
     sampledso.secret.foo.bar.grunt
 }
 End-of-File
-echo "+ pmlogger -T 0.3 -c $tmp.config -l $tmp.log $tmp" >>$seq.full
-pmlogger -T 0.3 -c $tmp.config -l $tmp.log $tmp
+echo "+ pmlogger -s 3 -c $tmp.config -l $tmp.log $tmp" >>$seq.full
+pmlogger -s 3 -c $tmp.config -l $tmp.log $tmp
 
 cat $tmp.log >>$seq.full
 pmdumplog $tmp 2>&1 \
 | tee -a $seq.full \
 | _filter_pmdumplog \
 | sed -e 1,4d
-
 
 exit

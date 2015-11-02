@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+which pmdumptext >/dev/null 2>&1 || _notrun "pmdumptext not installed"
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15

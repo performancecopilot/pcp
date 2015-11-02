@@ -1,0 +1,77 @@
+#!/bin/sh
+# PCP QA Test No. 794
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+# Exercise "container switching" using pmStore.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.docker
+
+_check_containers
+_check_docker_images busybox
+count=`_count_docker_containers`
+[ "$count" -gt 0 ] && \
+    _notrun "Needs quiesced docker setup ($count running containers found)"
+
+_cleanup()
+{
+    if [ -n "$container" ]
+    then
+        echo "== removing container" | tee -a $seq.full
+        _remove_docker_containers $container
+        container=""
+    fi 
+    rm -rf $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s/\[.*\]: /[INST]: /g" \
+	-e "s/$container/CONTAINER/g" \
+	-e "s/$container_hostname/CONTAINER_HOSTNAME/g" \
+	-e "s/$localhost_hostname/LOCALHOST_HOSTNAME/g" \
+	-e "/pmcd.client.whoami/d" \
+    #end
+}
+
+_exclude_clients()
+{
+    # remove any long-running clients (pmlogger/pmie)
+    pminfo -f pmcd.client.whoami | \
+    egrep ' pmlogger | pmie ' | \
+    sed -e 's/ *inst \[\([0-9][0-9]*\) or .*/-x \1 /g'
+}
+
+# real QA test starts here
+xargs=`_exclude_clients`
+echo "Exclusions: $xargs" >> $seq.full
+
+container=`$docker run -d busybox sleep 15`
+echo "== container: $container" >> $seq.full
+
+echo "== get host and container hostname " | tee -a $seq.full
+# expect a different hostname to local hostname
+pmprobe --values --container=$container pmcd.hostname > $tmp.chost
+pmprobe --values pmcd.hostname > $tmp.host
+eval container_hostname=`awk '{ print $3 }' $tmp.chost`
+eval localhost_hostname=`awk '{ print $3 }' $tmp.host`
+
+cat $tmp.chost $tmp.host >> $seq.full
+echo container hostname: $container_hostname >> $seq.full
+echo localhost hostname: $localhost_hostname >> $seq.full
+
+# switch to container, then back, reporting pmcd.hostname
+echo "== switch to container, reset, repeat" | tee -a $seq.full
+$here/src/storepmcd $xargs "$container" "" "$container" "" | _filter
+
+# success, all done
+status=0
+exit

@@ -495,3 +495,8 @@ PCP_3.11 {
     pmGetOptionalConfig;
     __pmFetchLocal;
 } PCP_3.10;
+
+PCP_3.12 {
+  global:
+    __pmAFsetup;
+} PCP_3.11;

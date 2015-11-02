@@ -30,6 +30,7 @@ log advisory on 5sec sample.long.one
 Error receiving response from pmlogger: No permission to perform requested operation
 log mandatory off sample.colour
 Error receiving response from pmlogger: No permission to perform requested operation
+connect QA_LOGGER_PID
 # check
 query { sample.colour sample.long.one }
 sample.colour
@@ -70,6 +71,7 @@ Error: No permission to perform requested operation
 log advisory on 5sec sample.long.one
 log mandatory off sample.colour
 Error receiving response from pmlogger: No permission to perform requested operation
+connect QA_LOGGER_PID
 # check
 query { sample.colour sample.long.one }
 sample.colour
@@ -78,7 +80,7 @@ sample.colour
     adv  off nl              [2 or "blue"]
 
 sample.long.one
-    adv  on  nl       5 sec 
+    adv  on           5 sec 
 
 
 === allow * : mandatory ===
@@ -110,6 +112,7 @@ New log volume 1
 log advisory on 5sec sample.long.one
 Error receiving response from pmlogger: No permission to perform requested operation
 log mandatory off sample.colour
+connect QA_LOGGER_PID
 # check
 query { sample.colour sample.long.one }
 sample.colour
@@ -150,6 +153,7 @@ Error: No permission to perform requested operation
 log advisory on 5sec sample.long.one
 log mandatory off sample.colour
 Error receiving response from pmlogger: No permission to perform requested operation
+connect QA_LOGGER_PID
 # check
 query { sample.colour sample.long.one }
 sample.colour
@@ -158,7 +162,7 @@ sample.colour
     adv  off nl              [2 or "blue"]
 
 sample.long.one
-    adv  on  nl       5 sec 
+    adv  on           5 sec 
 
 
 === allow * : enquire,mandatory ===
@@ -190,6 +194,7 @@ New log volume 1
 log advisory on 5sec sample.long.one
 Error receiving response from pmlogger: No permission to perform requested operation
 log mandatory off sample.colour
+connect QA_LOGGER_PID
 # check
 query { sample.colour sample.long.one }
 sample.colour
@@ -229,6 +234,7 @@ new volume
 New log volume 1
 log advisory on 5sec sample.long.one
 log mandatory off sample.colour
+connect QA_LOGGER_PID
 # check
 query { sample.colour sample.long.one }
 sample.colour
@@ -237,7 +243,7 @@ sample.colour
     mand off nl              [2 or "blue"]
 
 sample.long.one
-    adv  on  nl       5 sec 
+    adv  on           5 sec 
 
 
 === allow * : enquire,advisory,mandatory ===
@@ -268,6 +274,7 @@ new volume
 New log volume 1
 log advisory on 5sec sample.long.one
 log mandatory off sample.colour
+connect QA_LOGGER_PID
 # check
 query { sample.colour sample.long.one }
 sample.colour
@@ -276,5 +283,5 @@ sample.colour
     mand off nl              [2 or "blue"]
 
 sample.long.one
-    adv  on  nl       5 sec 
+    adv  on           5 sec 
 

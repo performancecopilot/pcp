@@ -296,6 +296,11 @@ query sample.bin[100,200,300,400,500,600,700,800,900]
 advisory on 1 hour sample.bin[100]
 advisory on 2 hour sample.bin[400]
 advisory on 3 hour sample.bin[700]
+quit
+End-Of-File
+pmsleep 0.1
+pmlc -P <<End-Of-File 2>>$errors \
+| _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
 quit
 End-Of-File
@@ -320,6 +325,11 @@ query sample.bin[100,200,300,400,500,600,700,800,900]
 advisory on 1 hour sample.bin[200]
 advisory on 2 hour sample.bin[500]
 advisory on 3 hour sample.bin[800]
+quit
+End-Of-File
+pmsleep 0.1
+pmlc -P <<End-Of-File 2>>$errors \
+| _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
 quit
 End-Of-File
@@ -339,6 +349,11 @@ query sample.bin[100,200,300,400,500,600,700,800,900]
 advisory on 1 hour sample.bin[300]
 advisory on 2 hour sample.bin[600]
 advisory on 3 hour sample.bin[900]
+quit
+End-Of-File
+pmsleep 0.1
+pmlc -P <<End-Of-File 2>>$errors \
+| _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
 quit
 End-Of-File
@@ -374,6 +389,11 @@ query sample.bin[100,200,300,400,500,600,700,800,900]
 mandatory on 3 hour sample.bin[100]
 mandatory on 4 hour sample.bin[400]
 mandatory on 5 hour sample.bin[700]
+quit
+End-Of-File
+pmsleep 0.1
+pmlc -P <<End-Of-File 2>>$errors \
+| _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
 quit
 End-Of-File
@@ -393,6 +413,11 @@ query sample.bin[100,200,300,400,500,600,700,800,900]
 mandatory on 3 hour sample.bin[200]
 mandatory on 4 hour sample.bin[500]
 mandatory on 5 hour sample.bin[800]
+quit
+End-Of-File
+pmsleep 0.1
+pmlc -P <<End-Of-File 2>>$errors \
+| _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
 quit
 End-Of-File
@@ -412,6 +437,11 @@ query sample.bin[100,200,300,400,500,600,700,800,900]
 mandatory on 3 hour sample.bin[300]
 mandatory on 4 hour sample.bin[600]
 mandatory on 5 hour sample.bin[900]
+quit
+End-Of-File
+pmsleep 0.1
+pmlc -P <<End-Of-File 2>>$errors \
+| _filter
 query sample.bin[100,200,300,400,500,600,700,800,900]
 quit
 End-Of-File

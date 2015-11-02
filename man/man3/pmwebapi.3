@@ -56,7 +56,7 @@ To create a new web context identifier, a web client invokes:
 .B /pmapi/context?hostspec=STRING
 Creates a PM_CONTEXT_HOST PMAPI context with the given host name and/or extended
 specification.  If the host specification contains a userid/password combination,
-then the corresponding pmapi context operations will require HTTP Basic authentication
+then the corresponding PMAPI context operations will require HTTP Basic authentication
 credentials with matching userid/password.
 
 Note that most command line pcp tools default to
@@ -68,7 +68,6 @@ in the pmwebapi.
 .B /pmapi/context?local=ANYTHING
 Creates a PM_CONTEXT_LOCAL PMAPI context, corresponding to \f3-L\fR for 
 most command line pcp tools.  Fewer metrics are normally available this way.
-
 .TP
 .B /pmapi/context?archivefile=ARCHIVE
 Creates a PM_CONTEXT_ARCHIVE PMAPI context with the given file name.  Only
@@ -224,9 +223,7 @@ as an array.  For example:
 
 .SS INSTANCE PROFILE: pmAddProfile, pmDelProfile
 
-.TP
-.B /pmapi/NNNN/_profile_reset?
-These are not currently supported.
+The general form of these requests is as follows:
 .TP
 .B /pmapi/NNNN/_profile_reset?indom=DDDD
 These are not currently supported.
@@ -242,6 +239,24 @@ These are not currently supported.
 .TP
 .B /pmapi/NNNN/_profile_del?indom=DDDD&iname=INAME1,INAME2
 These are not currently supported.
+
+.SS METRIC STORE: pmStore
+
+The general form of these requests is as follows:
+.TP
+.B /pmapi/NNNN/_store?name=NAME&value=VALUE
+These are not currently supported.
+.TP
+.B /pmapi/NNNNN/_store?pmid=PPPP&value=VALUE
+These are not currently supported.
+.PP
+In addition, either query may be suffixed with:
+.TP
+.B &instance=IIII,JJJJ
+Restrict store to given instance code numbers.
+.TP
+.B &iname=INAME1,INAME2
+Restrict store to given instance names.
 
 .SS DERIVED METRICS: pmRegisterDerived
 

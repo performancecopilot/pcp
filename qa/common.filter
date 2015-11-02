@@ -481,6 +481,7 @@ s/\.\.\.\.*/.../
         -e '/^\.[. ]*done$/d' \
 	-e '/is not a native service, redirecting to .*chkconfig/d' \
 	-e '/^Executing .*chkconfig pm.* --level=5/d' \
+	-e "s;$PCP_RC_DIR/pmcd;\$PCP_RC_DIR/pmcd;" \
 	-e "s;$PCP_RC_DIR/pmlogger;\$PCP_RC_DIR/pmlogger;" \
     | _filter_init_distro
 }

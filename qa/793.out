@@ -1,0 +1,91 @@
+QA output created by 793
+pmlogger_check #1
+PMLOGGER.CHECK [TMP/control:LINE]
+Warning: creating directory (TMP/A) for PCP archive files
+Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
+Latest folio created for DATE.TIME
+PMLOGGER.CHECK [TMP/control:LINE]
+Warning: creating directory (TMP/B) for PCP archive files
+Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
+Latest folio created for DATE.TIME
+PMLOGGER.CHECK [TMP/control:LINE]
+Warning: creating directory (TMP/C) for PCP archive files
+Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
+Latest folio created for DATE.TIME
+1 archives in TMP/A
+1 archives in TMP/B
+1 archives in TMP/C
+pmlogger_check #2
+Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
+Latest folio created for DATE.TIME
+Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
+Latest folio created for DATE.TIME
+Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
+Latest folio created for DATE.TIME
+2 archives in TMP/A
+2 archives in TMP/B
+2 archives in TMP/C
+
+pmlogger_daily
+
+=== daily maintenance of PCP archives for host LOCALHOST ===
+
+Looking for pmlogger (process PID) [dots] found
+pcp ...
+Terminating pmlogger (process PID) [dots] SIGUSR1 LOCALHOST SIGTERM LOCALHOST done
+Launching new pmlogger in directory "TMP/A" as [dots]
+pmlogger -m PMLOGGER.DAILY -l pmlogger.log -h LOCALHOST -c TMP.config DATE.TIME
+Waiting for new pmlogger to start [dots] done
+New pmlogger status [dots]
+pmlogger [PID] on host LOCALHOST is logging metrics from host ...
+PMCD host ...
+log started ...
+last log entry ...
+current time ...
+log volume       0
+log size ...
+
+PMLOGGER.DAILY: Warning: no archives found to merge
+
+=== daily maintenance of PCP archives for host LOCALHOST ===
+
+Looking for pmlogger (process PID) [dots] found
+pcp ...
+Terminating pmlogger (process PID) [dots] SIGUSR1 LOCALHOST SIGTERM LOCALHOST done
+Launching new pmlogger in directory "TMP/B" as [dots]
+pmlogger -m PMLOGGER.DAILY -l pmlogger.log -h LOCALHOST -c TMP.config DATE.TIME
+Waiting for new pmlogger to start [dots] done
+New pmlogger status [dots]
+pmlogger [PID] on host LOCALHOST is logging metrics from host ...
+PMCD host ...
+log started ...
+last log entry ...
+current time ...
+log volume       0
+log size ...
+
+PMLOGGER.DAILY: Warning: no archives found to merge
+
+=== daily maintenance of PCP archives for host LOCALHOST ===
+
+Looking for pmlogger (process PID) [dots] found
+pcp ...
+Terminating pmlogger (process PID) [dots] SIGUSR1 LOCALHOST SIGTERM LOCALHOST done
+Launching new pmlogger in directory "TMP/C" as [dots]
+pmlogger -m PMLOGGER.DAILY -l pmlogger.log -h LOCALHOST -c TMP.config DATE.TIME
+Waiting for new pmlogger to start [dots] done
+New pmlogger status [dots]
+pmlogger [PID] on host LOCALHOST is logging metrics from host ...
+PMCD host ...
+log started ...
+last log entry ...
+current time ...
+log volume       0
+log size ...
+
+PMLOGGER.DAILY: Warning: no archives found to merge
+3 archives in TMP/A
+3 archives in TMP/B
+3 archives in TMP/C
+
+Cleaning up

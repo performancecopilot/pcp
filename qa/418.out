@@ -1,12 +1,20 @@
 QA output created by 418
-expect 2 x one and 0 x million
+expect 4 x one and 2 x million
 TIMESTAMP  29.0.10 (sample.long.one): value 1
+TIMESTAMP  29.0.10 (sample.long.one): value 1
+TIMESTAMP  29.0.13 (sample.long.million): value 1000000
 TIMESTAMP  29.0.15 (sample.float.one): value 1
+TIMESTAMP  29.0.15 (sample.float.one): value 1
+TIMESTAMP  29.0.18 (sample.float.million): value 1000000
 
-expect 2 x one and 4 x million
+expect 4 x one and 6 x million
+TIMESTAMP  29.0.10 (sample.long.one): value 1
 TIMESTAMP  29.0.10 (sample.long.one): value 1
 TIMESTAMP  29.0.13 (sample.long.million): value 1000000
 TIMESTAMP  29.0.13 (sample.long.million): value 1000000
+TIMESTAMP  29.0.13 (sample.long.million): value 1000000
 TIMESTAMP  29.0.15 (sample.float.one): value 1
+TIMESTAMP  29.0.15 (sample.float.one): value 1
+TIMESTAMP  29.0.18 (sample.float.million): value 1000000
 TIMESTAMP  29.0.18 (sample.float.million): value 1000000
 TIMESTAMP  29.0.18 (sample.float.million): value 1000000

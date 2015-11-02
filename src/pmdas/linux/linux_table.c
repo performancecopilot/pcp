@@ -20,6 +20,7 @@
 #include <stdint.h>
 
 #include "linux_table.h"
+#include "pcp/config.h"
 
 extern int linux_table_lookup(const char *field, struct linux_table *table, uint64_t *val);
 extern struct linux_table *linux_table_clone(struct linux_table *table);
@@ -88,7 +89,7 @@ linux_table_scan(FILE *fp, struct linux_table *table)
 			break;
 		}
 		if (isdigit((int)*p)) {
-		    t->this = strtoul(p, NULL, 10);
+		    t->this = strtouint64(p, NULL, 10);
 		    t->valid = LINUX_TABLE_VALID;
 		    ret++;
 		    break;

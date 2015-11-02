@@ -33,7 +33,19 @@ _cleanup()
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
 	rm -f $tmp.cmd
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	# delay to allow pmcd socket to be closed
+	#
+	for i in 1 2 3 4 5
+	do
+	    echo "delay $i" >>$here/$seq.full
+	    if netstat -t -n | grep 44321 >>$here/$seq.full
+	    then
+		sleep 1
+	    else
+		break
+	    fi
+	done
+	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	clean=true

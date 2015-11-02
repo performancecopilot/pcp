@@ -36,12 +36,15 @@ _filter()
 }
 
 status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 mkdir $tmp
 cp src/mv-bar.* $tmp
 offset=`_arch_start src/mv-bar 0`
+echo "offset=$offset" >>$here/$seq.full
+pmdumplog -a -z src/mv-bar >>$here/$seq.full
 cd $tmp
 
 for inst in "bin-100" "bin-100,bin-500,bin-900"

@@ -1339,6 +1339,7 @@ PCP_CALL extern void __pmEndOptions(pmOptions *);
 /*
  * AF - general purpose asynchronous event management routines
  */
+PCP_CALL extern int __pmAFsetup(const struct timeval *, const struct timeval *, void *, void (*)(int, void *));
 PCP_CALL extern int __pmAFregister(const struct timeval *, void *, void (*)(int, void *));
 PCP_CALL extern int __pmAFunregister(int);
 PCP_CALL extern void __pmAFblock(void);

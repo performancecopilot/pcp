@@ -16,6 +16,7 @@ usr/share/man/man3/pmAddProfile.3.gz
 usr/share/man/man3/pmaf.3.gz
 usr/share/man/man3/__pmAFblock.3.gz
 usr/share/man/man3/__pmAFisempty.3.gz
+usr/share/man/man3/__pmAFsetup.3.gz
 usr/share/man/man3/__pmAFregister.3.gz
 usr/share/man/man3/__pmAFunblock.3.gz
 usr/share/man/man3/__pmAFunregister.3.gz

@@ -270,12 +270,6 @@ QA output created by 366
 < ## XBOW activity [xbowvis]
 ---
 > #+ sgi/xbow:x::
-> #+ apache/processes:x::
-> #----
-> #+ apache/summary:x::
-> #----
-> #+ apache/uptime:x::
-> #----
 > #+ filesystem/summary:n:default:
 > ## filesystem size and fullness
 > #----
@@ -337,11 +331,6 @@ QA output created by 366
 > 	network.interface.duplex
 > 	network.interface.inet_addr
 > }
-> #----
-> #+ tools/atop-httpstats:x::
-> #----
-> #+ tools/atop-proc:n:default:
-> ## per-process metrics used by the atop command
 > #----
 > #+ tools/atop-summary:y:once:
 > ## metrics sampled once by the atop command

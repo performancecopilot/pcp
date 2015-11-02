@@ -28,6 +28,13 @@ AC_ARG_WITH(
     [use_64bit=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-64bit=$withval"])
 
 AC_ARG_WITH(
+    [optimization],
+    [AS_HELP_STRING([--with-optimization],
+		    [enable optimization for C/C++ code (default is yes)])],
+    [use_optimization=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-optimization=$withval"],
+    [use_optimizaton=yes])
+
+AC_ARG_WITH(
     [threads],
     [AC_HELP_STRING([--with-threads],
 		    [enable support for multiple threads (default is on)])],
@@ -311,6 +318,15 @@ fi
 AC_SUBST(pcp_platform_paths)
 AC_SUBST(pcp_ps_all_flags)
 
+dnl default C and C++ compiler optimization to -O2 -g
+if test "$use_optimization" = no
+then
+    optimization="-O0 -g"
+else
+    optimization="-O2 -g"
+fi
+AC_SUBST(optimization)
+
 PKG_PROG_PKG_CONFIG
 if test -z "$PKG_CONFIG"
 then
@@ -448,6 +464,123 @@ AC_ARG_ENABLE([shared],
   [AS_HELP_STRING([--disable-shared], [disable core shared libary generation])],
   [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"])
 AC_SUBST(enable_shared)
+
+dnl check if user wants their own lex, yacc
+AC_PROG_LEX
+lex=$LEX
+AC_SUBST(lex)
+AC_PROG_YACC
+yacc=$YACC
+AC_SUBST(yacc)
+
+dnl extra check for lex and yacc as these are often not installed
+AC_MSG_CHECKING([if yacc is executable])
+binary=`echo $yacc | awk '{print $1}'`
+binary=`which "$binary"`
+if test -x "$binary"
+then
+    AC_MSG_RESULT([ yes])
+else
+    AC_MSG_RESULT([ no])
+    echo
+    echo "FATAL ERROR: did not find a valid yacc executable."
+    echo "You can either set \$YACC as the full path to yacc"
+    echo "in the environment, or install a yacc/bison package."
+    rm -rf conftest conftest.*
+    exit 1
+fi
+AC_MSG_CHECKING([if lex is executable])
+binary=`echo $lex | awk '{print $1}'`
+binary=`which "$binary"`
+if test -x "$binary"
+then
+    AC_MSG_RESULT([ yes])
+else
+    AC_MSG_RESULT([ no])
+    echo
+    echo "FATAL ERROR: did not find a valid lex executable."
+    echo "You can either set \$LEX as the full path to lex"
+    echo "in the environment, or install a lex/flex package."
+    rm -rf conftest conftest.*
+    exit 1
+fi
+
+dnl check if user wants their own awk, sed and echo
+if test -z "$AWK"; then
+    AC_PATH_PROGS(AWK, gawk awk, /usr/bin/awk)
+fi
+case "$AWK"
+in
+    gawk|*/gawk)
+	awk="$AWK --posix"
+	;;
+    *)
+	awk=$AWK
+	;;
+esac
+AC_SUBST(awk)
+if test -z "$SED"; then
+    AC_PATH_PROG(SED, sed, /bin/sed)
+fi
+sed=$SED
+AC_SUBST(sed)
+if test -z "$ECHO"; then
+    AC_PATH_PROG(ECHO, echo, /bin/echo)
+fi
+echo=$ECHO
+AC_SUBST(echo)
+if test -z "$WHICH"; then
+    AC_PATH_PROG(WHICH, which, /usr/bin/which)
+fi
+which=$WHICH
+AC_SUBST(which)
+
+dnl check we don't get the Windows sort ...
+AC_MSG_CHECKING([where unix-like sort(1) lives])
+if test $target_os = mingw; then
+    for d in /bin /usr/bin /mingw/bin /mingw/usr/bin
+    do
+	if test -x $d/sort; then
+	    sort=$d/sort
+	    break
+	fi
+    done
+else
+    sort=`which sort`
+fi
+AC_MSG_RESULT($sort)
+$sort -n </dev/null
+if test $? != 0
+then
+    echo
+    echo "FATAL ERROR: $sort -n failed!"
+    rm -rf conftest conftest.*
+    exit 1
+fi
+AC_SUBST(sort)
+
+dnl echo_n set to -n if echo understands -n to suppress newline
+dnl echo_c set to \c if echo understands \c to suppress newline
+AC_MSG_CHECKING([if echo uses -n or backslash-c to suppress newlines])
+if ( $echo "testing\c"; $echo 1,2,3 ) | grep c >/dev/null
+then
+  if ( $echo -n testing; $echo 1,2,3 ) | sed s/-n/xn/ | grep xn >/dev/null
+  then
+    echo_n= echo_c=
+    AC_MSG_RESULT([neither?])
+  else
+    echo_n=-n echo_c=
+    AC_MSG_RESULT([ -n])
+  fi
+else
+  echo_n= echo_c='\c'
+  AC_MSG_RESULT([backslash-c])
+fi
+AC_SUBST(echo_n)
+AC_SUBST(echo_c)
+
+dnl subsequent configure checks rely on $EGREP being set
+AC_PROG_EGREP
 
 dnl Check for static probes (dtrace, systemtap)
 if test "$do_probes" = "check" -o "$do_probes" = "yes"
@@ -1120,120 +1253,6 @@ if test $target_os = mingw; then
     as_ln_s=/bin/true
 fi
 
-dnl check if user wants their own lex, yacc
-AC_PROG_LEX
-lex=$LEX
-AC_SUBST(lex)
-AC_PROG_YACC
-yacc=$YACC
-AC_SUBST(yacc)
-
-dnl extra check for lex and yacc as these are often not installed
-AC_MSG_CHECKING([if yacc is executable])
-binary=`echo $yacc | awk '{print $1}'`
-binary=`which "$binary"`
-if test -x "$binary"
-then
-    AC_MSG_RESULT([ yes])
-else
-    AC_MSG_RESULT([ no])
-    echo
-    echo "FATAL ERROR: did not find a valid yacc executable."
-    echo "You can either set \$YACC as the full path to yacc"
-    echo "in the environment, or install a yacc/bison package."
-    rm -rf conftest conftest.*
-    exit 1
-fi
-AC_MSG_CHECKING([if lex is executable])
-binary=`echo $lex | awk '{print $1}'`
-binary=`which "$binary"`
-if test -x "$binary"
-then
-    AC_MSG_RESULT([ yes])
-else
-    AC_MSG_RESULT([ no])
-    echo
-    echo "FATAL ERROR: did not find a valid lex executable."
-    echo "You can either set \$LEX as the full path to lex"
-    echo "in the environment, or install a lex/flex package."
-    rm -rf conftest conftest.*
-    exit 1
-fi
-
-dnl check if user wants their own awk, sed and echo
-if test -z "$AWK"; then
-    AC_PATH_PROGS(AWK, gawk awk, /usr/bin/awk)
-fi
-case "$AWK"
-in
-    gawk|*/gawk)
-	awk="$AWK --posix"
-	;;
-    *)
-	awk=$AWK
-	;;
-esac
-AC_SUBST(awk)
-if test -z "$SED"; then
-    AC_PATH_PROG(SED, sed, /bin/sed)
-fi
-sed=$SED
-AC_SUBST(sed)
-if test -z "$ECHO"; then
-    AC_PATH_PROG(ECHO, echo, /bin/echo)
-fi
-echo=$ECHO
-AC_SUBST(echo)
-if test -z "$WHICH"; then
-    AC_PATH_PROG(WHICH, which, /usr/bin/which)
-fi
-which=$WHICH
-AC_SUBST(which)
-
-dnl check we don't get the Windows sort ...
-AC_MSG_CHECKING([where unix-like sort(1) lives])
-if test $target_os = mingw; then
-    for d in /bin /usr/bin /mingw/bin /mingw/usr/bin
-    do
-	if test -x $d/sort; then
-	    sort=$d/sort
-	    break
-	fi
-    done
-else
-    sort=`which sort`
-fi
-AC_MSG_RESULT($sort)
-$sort -n </dev/null
-if test $? != 0
-then
-    echo
-    echo "FATAL ERROR: $sort -n failed!"
-    rm -rf conftest conftest.*
-    exit 1
-fi
-AC_SUBST(sort)
-
-dnl echo_n set to -n if echo understands -n to suppress newline
-dnl echo_c set to \c if echo understands \c to suppress newline
-AC_MSG_CHECKING([if echo uses -n or backslash-c to suppress newlines])
-if ( $echo "testing\c"; $echo 1,2,3 ) | grep c >/dev/null
-then
-  if ( $echo -n testing; $echo 1,2,3 ) | sed s/-n/xn/ | grep xn >/dev/null
-  then
-    echo_n= echo_c=
-    AC_MSG_RESULT([neither?])
-  else
-    echo_n=-n echo_c=
-    AC_MSG_RESULT([ -n])
-  fi
-else
-  echo_n= echo_c='\c'
-  AC_MSG_RESULT([backslash-c])
-fi
-AC_SUBST(echo_n)
-AC_SUBST(echo_c)
-
 dnl if /proc is not mounted, try and mount it
 dnl before trying to run the ps style test below
 if test -d /proc
@@ -1305,6 +1324,7 @@ AC_CHECK_HEADERS(execinfo.h bits/wordsize.h)
 AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
 AC_CHECK_HEADERS(iphlpapi.h, [], [], [#include <winsock2.h>])
 AC_CHECK_HEADERS(fts.h libzfs.h)
+AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h sys/mount.h)
 
 dnl Check if we have <sys/endian.h> ... standard way
 AC_MSG_CHECKING([for sys/endian.h ])
@@ -1954,6 +1974,55 @@ fmt_int64="$ans"
 AC_MSG_RESULT("$fmt_int64")
 AC_SUBST(fmt_int64)
 rm -rf conftest.* conftest
+
+AC_MSG_CHECKING([strtol or strtoll for int64_t])
+if test "$cross_compiling" = "yes"; then
+    ans=$strtoint64
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
+#include <stdio.h>
+#include <stdlib.h>
+main()
+{
+    long long int	value = -1;
+    value = strtol("1234567812345678", NULL, 16);
+    if (value == 0x1234567812345678LL) {
+	printf("strotol\n");
+	exit(0);
+    }
+    value = strtoll("1234567812345678", NULL, 16);
+    if (value == 0x1234567812345678LL) {
+	printf("strtoll\n");
+	exit(0);
+    }
+    exit(1);
+}
+End-of-File
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+fi
+case "$ans"
+in
+    strtol)
+	AC_DEFINE(strtoint64, strtol)
+	AC_DEFINE(strtouint64, strtoul)
+	AC_MSG_RESULT([strtol])
+	;;
+    strtoll)
+	AC_DEFINE(strtoint64, strtoll)
+	AC_DEFINE(strtouint64, strtoull)
+	AC_MSG_RESULT([strtoll])
+	;;
+    *)
+	AC_DEFINE(strtoint64, strtoll)
+	AC_DEFINE(strtouint64, strtoull)
+	AC_MSG_RESULT([assuming strtoll])
+	;;
+esac
+rm -rf conftest conftest.*
 
 if test "$do_threads" = "check" -o "$do_threads" = "yes"
 then

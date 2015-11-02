@@ -112,6 +112,7 @@ AcceptNewClient(int reqfd)
 
     client[i].fd = fd;
     client[i].status.connected = 1;
+    client[i].status.attributes = 0;
     client[i].status.changes = 0;
     memset(&client[i].attrs, 0, sizeof(__pmHashCtl));
 
@@ -213,6 +214,8 @@ DeleteClient(ClientInfo *cp)
     __pmSockAddrFree(cp->addr);
     cp->addr = NULL;
     cp->status.connected = 0;
+    cp->status.attributes = 0;
+    cp->status.changes = 0;
     cp->fd = -1;
 
     NotifyEndContext(cp-client);

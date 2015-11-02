@@ -25,6 +25,24 @@ do
     else
 	echo "$seq: Error: file exists but missing from group"
     fi
+    # special control lines
+    # check-group-include: group ..
+    # check-group-exclude: group ..
+    grep '# check-group-' $seq >$tmp.chk
+    if [ -s $tmp.chk ]
+    then
+	if egrep "check-group-include:.* $1( |\$)" <$tmp.chk >/dev/null
+	then
+	    #debug# echo "$seq: explicit include"
+	    echo $seq >>$tmp.tmp
+	    continue
+	fi
+	if egrep "check-group-exclude:.* $1( |\$)" <$tmp.chk >/dev/null
+	then
+	    #debug# echo "$seq: explicit exclude"
+	    continue
+	fi
+    fi
     ( grep -v '^#' $seq \
        | egrep -q "(^$1([ \'\"]|$))|([ /\'\"_]$1([ \'\"_]|$))" ) && echo $seq >>$tmp.tmp
 done

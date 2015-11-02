@@ -50,3 +50,10 @@ _remove_docker_containers()
 	eval $docker rm --force $__container >/dev/null
     done
 }
+
+# count the number of (running) docker containers
+#
+_count_docker_containers()
+{
+    $docker ps -q | wc -l
+}

@@ -580,8 +580,9 @@ root_cgroupname_request(root_client_t *cp, void *pdu, int pdulen)
     } else {
 	sts = 0;
 	pid = container->pid;
-	cgroup = container->cgroup;
-	length = strlen(container->cgroup);
+	/* skip leading slash, it is there just for exported metric value */
+	cgroup = &container->cgroup[1];
+	length = strlen(cgroup);
 	if (pmDebug & DBG_TRACE_ATTR)
 	    __pmNotifyErr(LOG_DEBUG, "container %s cgroup=%s\n", name, cgroup);
     }

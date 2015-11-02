@@ -1,67 +1,67 @@
 QA output created by 419
- 2 disk.dev.read
- 2 disk.dev.total
- 2 disk.dev.write
- 2 kernel.all.cpu.idle
- 2 kernel.all.cpu.intr
- 2 kernel.all.cpu.sys
- 2 kernel.all.cpu.user
- 2 kernel.all.cpu.wait.total
- 2 kernel.all.load
- 2 kernel.all.pswitch
- 2 network.interface.in.bytes
- 2 network.interface.out.bytes
+ 3 disk.dev.read
+ 3 disk.dev.total
+ 3 disk.dev.write
+ 3 kernel.all.cpu.idle
+ 3 kernel.all.cpu.intr
+ 3 kernel.all.cpu.sys
+ 3 kernel.all.cpu.user
+ 3 kernel.all.cpu.wait.total
+ 3 kernel.all.load
+ 3 kernel.all.pswitch
+ 3 network.interface.in.bytes
+ 3 network.interface.out.bytes
  1 pmcd.pmlogger.archive
  1 pmcd.pmlogger.host
  1 pmcd.pmlogger.port
 
 === kernel.all disk.dev network.interface.in network.interface.out ===
- 2 disk.dev.read
- 2 disk.dev.total
- 2 disk.dev.write
- 2 kernel.all.cpu.idle
- 2 kernel.all.cpu.intr
- 2 kernel.all.cpu.sys
- 2 kernel.all.cpu.user
- 2 kernel.all.cpu.wait.total
- 2 kernel.all.load
- 2 kernel.all.pswitch
- 2 network.interface.in.bytes
- 2 network.interface.out.bytes
+ 3 disk.dev.read
+ 3 disk.dev.total
+ 3 disk.dev.write
+ 3 kernel.all.cpu.idle
+ 3 kernel.all.cpu.intr
+ 3 kernel.all.cpu.sys
+ 3 kernel.all.cpu.user
+ 3 kernel.all.cpu.wait.total
+ 3 kernel.all.load
+ 3 kernel.all.pswitch
+ 3 network.interface.in.bytes
+ 3 network.interface.out.bytes
  1 pmcd.pmlogger.archive
  1 pmcd.pmlogger.host
  1 pmcd.pmlogger.port
 
 === kernel disk network ===
- 2 disk.dev.read
- 2 disk.dev.total
- 2 disk.dev.write
- 2 kernel.all.cpu.idle
- 2 kernel.all.cpu.intr
- 2 kernel.all.cpu.sys
- 2 kernel.all.cpu.user
- 2 kernel.all.cpu.wait.total
- 2 kernel.all.load
- 2 kernel.all.pswitch
- 2 network.interface.in.bytes
- 2 network.interface.out.bytes
+ 3 disk.dev.read
+ 3 disk.dev.total
+ 3 disk.dev.write
+ 3 kernel.all.cpu.idle
+ 3 kernel.all.cpu.intr
+ 3 kernel.all.cpu.sys
+ 3 kernel.all.cpu.user
+ 3 kernel.all.cpu.wait.total
+ 3 kernel.all.load
+ 3 kernel.all.pswitch
+ 3 network.interface.in.bytes
+ 3 network.interface.out.bytes
  1 pmcd.pmlogger.archive
  1 pmcd.pmlogger.host
  1 pmcd.pmlogger.port
 
 === kernel.all.load kernel.all.pswitch kernel.all.cpu.idle kernel.all.cpu.intr kernel.all.cpu.sys kernel.all.cpu.user kernel.all.cpu.wait.total disk.dev.read disk.dev.write disk.dev.total network.interface.in.bytes network.interface.out.bytes ===
- 2 disk.dev.read
- 2 disk.dev.total
- 2 disk.dev.write
- 2 kernel.all.cpu.idle
- 2 kernel.all.cpu.intr
- 2 kernel.all.cpu.sys
- 2 kernel.all.cpu.user
- 2 kernel.all.cpu.wait.total
- 2 kernel.all.load
- 2 kernel.all.pswitch
- 2 network.interface.in.bytes
- 2 network.interface.out.bytes
+ 3 disk.dev.read
+ 3 disk.dev.total
+ 3 disk.dev.write
+ 3 kernel.all.cpu.idle
+ 3 kernel.all.cpu.intr
+ 3 kernel.all.cpu.sys
+ 3 kernel.all.cpu.user
+ 3 kernel.all.cpu.wait.total
+ 3 kernel.all.load
+ 3 kernel.all.pswitch
+ 3 network.interface.in.bytes
+ 3 network.interface.out.bytes
  1 pmcd.pmlogger.archive
  1 pmcd.pmlogger.host
  1 pmcd.pmlogger.port

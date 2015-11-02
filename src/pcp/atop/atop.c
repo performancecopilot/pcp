@@ -345,11 +345,11 @@ main(int argc, char *argv[])
 				break;
 
                            case 'b':		/* begin time ?               */
-				opts.start_optarg = opts.optarg;
+				opts.start_optarg = abstime(opts.optarg);
 				break;
 
                            case 'e':		/* end   time ?               */
-				opts.finish_optarg = opts.optarg;
+				opts.finish_optarg = abstime(opts.optarg);
 				break;
 
                            case 'P':		/* parseable output?          */
