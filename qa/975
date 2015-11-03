@@ -130,9 +130,24 @@ compare_samples()
 
 	echo Verifying sample $sample
 	$PCP_AWK_PROG <$tmp.both '
-		{ if (($2-$4) > 0.000002 || ($2-$4) < -0.000002)
-		    print "[",NR,"] mismatch:",$1,$2,$4
-		}'
+$2 != 0 && $4 != 0 {
+	    # within 2% is close enough to a match
+	    if ($2/$4 > 1.002 || $2/$4 < 0.992)
+		print "[",NR,"] mismatch:",$1,$2,$4
+	    next
+	}
+$2 == 0	{
+	    # within 0.002 of zero is close enough to a match
+	    if ($4 > 0.002)
+		print "[",NR,"] mismatch:",$1,$2,$4
+	    next
+	}
+$4 == 0	{
+	    # within 0.002 of zero is close enough to a match
+	    if ($2 > 0.002)
+		print "[",NR,"] mismatch:",$1,$2,$4
+	    next
+	}'
     done
 }
 
