@@ -98,9 +98,9 @@ else
 End-of-File
 
 pminfo -d sample.seconds delta.seconds rate.seconds
-pmval -z -f3 -w12 -t 2sec -a src/ok-foo sample.seconds
-pmval -z -f3 -w12 -r -t 2sec -a src/ok-foo sample.seconds
-pmie -z -v -c $tmp.pmie -t 2sec -a src/ok-foo 2>&1 \
+pmval -z -f3 -w12 -t 2sec -a archives/ok-foo sample.seconds
+pmval -z -f3 -w12 -r -t 2sec -a archives/ok-foo sample.seconds
+pmie -z -v -c $tmp.pmie -t 2sec -a archives/ok-foo 2>&1 \
 | _filter_pmie_log
 
 echo

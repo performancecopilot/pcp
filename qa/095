@@ -142,9 +142,9 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 echo "=== foo ==="
-src/interp3 -t 0.5 -a src/ok-foo | _filter05foo
-src/interp3 -t 1.0 -a src/ok-foo | _filter10foo
-src/interp3 -t 2.0 -a src/ok-foo | _filter20foo
+src/interp3 -t 0.5 -a archives/ok-foo | _filter05foo
+src/interp3 -t 1.0 -a archives/ok-foo | _filter10foo
+src/interp3 -t 2.0 -a archives/ok-foo | _filter20foo
 
 echo
 echo "=== bigbin ==="

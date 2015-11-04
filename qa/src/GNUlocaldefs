@@ -15,7 +15,7 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	babylon.percpu.0 babylon.percpu_v2.0 \
 	omen.client.0 bozo.client.0 bozo.client_v2.0 \
 	late.0 ok-bigbin.0 ok-mv-bigbin.0 ok-truncbin.0 \
-	babylon.pmview.0 babylon.pmview_v2.0 ok-foo.0 ok-mv-foo.0 \
+	babylon.pmview.0 babylon.pmview_v2.0 ok-mv-foo.0 \
 	bug.0 bug_v2.0 ace.0 ace_v2.0 bigace.0 bigace_v2.0 \
 	951127.23.01.0 951127.23.01_v2.0 960624.08.17.0 960624.08.17_v2.0 \
 	rattle.0 mark-bug.0 arch_a.0 arch_b.0 \
@@ -643,9 +643,9 @@ noti-foo.0:	foo.0
 	cp foo.0 noti-foo.0
 	cp foo.meta noti-foo.meta
 
-noti-ok-foo.0:	ok-foo.0
-	cp ok-foo.0 noti-ok-foo.0
-	cp ok-foo.meta noti-ok-foo.meta
+noti-ok-foo.0:	../archives/ok-foo.0
+	cp ../archives/ok-foo.0 noti-ok-foo.0
+	cp ../archives/ok-foo.meta noti-ok-foo.meta
 
 bar.0:	config.bar
 	rm -f bar.index bar.meta bar.0

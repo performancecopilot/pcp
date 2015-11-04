@@ -171,7 +171,7 @@ rate.seconds
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.seconds
-archive:   src/ok-foo
+archive:   archives/ok-foo
 host:      gonzo
 start:     Fri Aug  7 04:34:32 1998
 end:       Fri Aug  7 04:34:40 1998
@@ -189,7 +189,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.seconds
-archive:   src/ok-foo
+archive:   archives/ok-foo
 host:      gonzo
 start:     Fri Aug  7 04:34:32 1998
 end:       Fri Aug  7 04:34:40 1998
@@ -202,7 +202,7 @@ interval:  2.00 sec
 04:34:36.257         893
 04:34:38.257         895
 04:34:40.257         897
-pmie: timezone set to local timezone from src/ok-foo
+pmie: timezone set to local timezone from archives/ok-foo
 raw (DATE): ?
 delta.seconds (DATE): ?
 rate.seconds (DATE): ?

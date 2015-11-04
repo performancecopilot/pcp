@@ -78,7 +78,7 @@ done
 echo
 echo "non-null -> null cases"
 rm -f $tmp.old.*
-pmlogextract -s 3 src/ok-foo $tmp.old
+pmlogextract -s 3 archives/ok-foo $tmp.old
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	metric spec ...
 $tmp.old	metric sample.colour { indom -> NULL }
@@ -106,7 +106,7 @@ done
 echo
 echo "null -> non-null cases"
 rm -f $tmp.old.*
-pmlogextract -s 3 src/ok-foo $tmp.old
+pmlogextract -s 3 archives/ok-foo $tmp.old
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	metric spec ...
 $tmp.old	metric sample.seconds { indom -> 29.2 }

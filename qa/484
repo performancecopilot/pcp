@@ -45,9 +45,9 @@ _cmp()
 #
 # src/mirage ... diffs reflect semantically acceptable differences
 #
-for arch in src/ok-foo src/541380_v2 src/mirage src/bigbin \
+for arch in archives/ok-foo src/541380_v2 src/mirage src/bigbin \
 	src/ok-mv-foo src/mirage-1 src/mirage-2 src/gap \
-	src/gap2 '-Dall src/ok-foo'
+	src/gap2 '-Dall archives/ok-foo'
 do
     echo | tee -a $seq.full
     echo "=== $arch ===" | tee -a $seq.full

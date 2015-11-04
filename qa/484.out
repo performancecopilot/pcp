@@ -1,6 +1,6 @@
 QA output created by 484
 
-=== src/ok-foo ===
+=== archives/ok-foo ===
 pmdumplog diffs ...
 
 === src/541380_v2 ===
@@ -27,5 +27,5 @@ pmdumplog diffs ...
 === src/gap2 ===
 pmdumplog diffs ...
 
-=== -Dall src/ok-foo ===
+=== -Dall archives/ok-foo ===
 pmdumplog diffs ...
