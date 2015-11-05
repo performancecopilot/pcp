@@ -26,11 +26,11 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 _control_service_discovery
 
-echo "-m avahi"
+echo "-m avahi" | tee -a $here/$seq.full
 pmfind -m avahi | _filter_discovery_unresolved
 echo "Exit status: $?"
 
-echo "-s pmcd -m avahi -r"
+echo "-s pmcd -m avahi -r" | tee -a $here/$seq.full
 pmfind -s pmcd -m avahi -r | _filter_discovery_resolved
 echo "Exit status: $?"
 
@@ -52,11 +52,11 @@ AVAHI_DISCOVERY_TIMEOUT=5 pmfind -q -s pmcd -m avahi
 # up to 5 seconds may elapse here
 echo "Exit status: $?"
 
-echo "-m all"
+echo "-m all" | tee -a $here/$seq.full
 pmfind -m all | _filter_discovery_unresolved
 echo "Exit status: $?"
 
-echo "-m all --resolve"
+echo "-m all --resolve" | tee -a $here/$seq.full
 pmfind -m all --resolve | _filter_discovery_resolved
 echo "Exit status: $?"
 

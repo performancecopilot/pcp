@@ -28,15 +28,21 @@ MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 LDIRT	= domain.h $(IAM).log
 
-default_pcp default:	check_domain
+default_pcp default:	build-me
 
 include $(BUILDRULES)
 
+ifeq "$(PMDA_JSON)" "true"
+build-me:	check_domain
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) generate_ceph_metadata $(PMDADIR)
 	$(INSTALL) -m 644 config.json README $(PMDADIR)
 	@$(INSTALL_MAN)
+else
+build-me:
+install_pcp install:
+endif
 
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)

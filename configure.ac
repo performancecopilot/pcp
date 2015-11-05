@@ -821,6 +821,7 @@ else
     have_python=false
 fi
 AC_SUBST(have_python)
+if $have_python; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 dnl choose the prefered python executable (py2 -> py3 transtion)
 if test "$enable_python3" = "true"
@@ -865,6 +866,7 @@ AC_SUBST(have_python_jsonpointer)
 PCP_CHECK_PYTHON_MODULE(six)
 AC_SUBST(have_python_six)
 
+AC_MSG_CHECKING([if the json PMDA should be included])
 pmda_json=false
 AS_IF([test "x$do_pmdajson" = "xyes"], [pmda_json=true])
 AS_IF([test "x$do_pmdajson" = "xcheck"], [
@@ -872,6 +874,7 @@ AS_IF([test "x$do_pmdajson" = "xcheck"], [
     $have_python_jsonpointer && $have_python_six && pmda_json=true
 ])
 AC_SUBST(PMDA_JSON, $pmda_json)
+if $pmda_json; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 dnl check if perl available for the build and runtime
 AC_CHECK_PROGS(PERL, perl)
@@ -891,6 +894,78 @@ else
 fi
 AC_SUBST(pcp_perl_prog)
 AC_SUBST(have_perl)
+AC_MSG_RESULT($pcp_perl_prog)
+
+AC_MSG_CHECKING([if the mysql PMDA should be included])
+pmda_mysql=false
+if test "$have_perl" = true
+then
+    dnl rpm build for mysql PMDA needs Perl DBI and DBD::mysql
+    if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+    then
+	if $pcp_perl_prog -e "use DBD::mysql" >/dev/null 2>&1
+	then
+	    pmda_mysql=true
+	fi
+    fi
+fi
+AC_SUBST(PMDA_MYSQL, $pmda_mysql)
+if $pmda_mysql; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the postgresql PMDA should be included])
+pmda_postgresql=false
+if test "$have_perl" = true
+then
+    dnl rpm build for postgresql PMDA needs Perl DBI and DBD::Pg
+    if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+    then
+	if $pcp_perl_prog -e "use DBD::Pg" >/dev/null 2>&1
+	then
+	    pmda_postgresql=true
+	fi
+    fi
+fi
+AC_SUBST(PMDA_POSTGRESQL, $pmda_postgresql)
+if $pmda_postgresql; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the elasticsearch PMDA should be included])
+pmda_elasticsearch=false
+if test "$have_perl" = true
+then
+    dnl rpm build for elasticsearch PMDA needs Perl LWP::UserAgent
+    if $pcp_perl_prog -e "use LWP::UserAgent" >/dev/null 2>&1
+    then
+	pmda_elasticsearch=true
+    fi
+fi
+AC_SUBST(PMDA_ELASTICSEARCH, $pmda_elasticsearch)
+if $pmda_elasticsearch; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the nginx PMDA should be included])
+pmda_nginx=false
+if test "$have_perl" = true
+then
+    dnl rpm build for nginx PMDA needs Perl LWP::UserAgent
+    if $pcp_perl_prog -e "use LWP::UserAgent" >/dev/null 2>&1
+    then
+	pmda_nginx=true
+    fi
+fi
+AC_SUBST(PMDA_NGINX, $pmda_nginx)
+if $pmda_nginx; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the activemq PMDA should be included])
+pmda_activemq=false
+if test "$have_perl" = true
+then
+    dnl rpm build for activemq PMDA needs Perl LWP::UserAgent
+    if $pcp_perl_prog -e "use LWP::UserAgent" >/dev/null 2>&1
+    then
+	pmda_activemq=true
+    fi
+fi
+AC_SUBST(PMDA_ACTIVEMQ, $pmda_activemq)
+if $pmda_activemq; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 qmake=$QMAKE
 enable_qt=false
@@ -1377,7 +1452,9 @@ AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
 PKG_CHECK_MODULES([SYSTEMD], [libsystemd-journal],
                   [pmda_systemd=true], [pmda_systemd=false])
+AC_MSG_CHECKING([if the systemd PMDA should be included])
 AC_SUBST(PMDA_SYSTEMD, $pmda_systemd)
+if $pmda_systemd; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 pmda_infiniband=false
 AS_IF([test "x$do_infiniband" != "xno"], [
@@ -1419,7 +1496,9 @@ AS_IF([test "x$do_infiniband" != "xno"], [
     LIBS=$savedLIBS
     AC_SUBST(IB_LIBS)
 ])
+AC_MSG_CHECKING([if the infinband PMDA should be included])
 AC_SUBST(PMDA_INFINIBAND, $pmda_infiniband)
+if $pmda_infiniband; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 pmda_papi=false
 AS_IF([test "x$do_papi" != "xno"], [
@@ -1465,7 +1544,9 @@ AS_IF([test "x$do_papi" != "xno"], [
     AC_SUBST(PAPI_CFLAGS, $papi_cflags)
     AC_SUBST(PAPI_LIBS, $papi_libs)
 ])
+AC_MSG_CHECKING([if the papi PMDA should be included])
 AC_SUBST(PMDA_PAPI, $pmda_papi)
+if $pmda_papi; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AS_IF([test "x$pmda_papi" = "xtrue"], [
     	dnl check if struct PAPI_component_info_t has a disabled field
@@ -1505,7 +1586,9 @@ AS_IF([test "x$do_perfevent" != "xno" ], [
     LIBS=$savedLIBS
     AC_SUBST(PFM_LIBS, $pfm_libs)
 ])
+AC_MSG_CHECKING([if the perfevent PMDA should be included])
 AC_SUBST(PMDA_PERFEVENT, $pmda_perfevent)
+if $pmda_perfevent; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 dnl Do you have RPM Package Manager libraries for pmdarpm?
 pmda_rpm=false
@@ -1517,8 +1600,31 @@ AC_COMPILE_IFELSE(
    [AC_MSG_RESULT([yes])
     pmda_rpm=true],
    [AC_MSG_RESULT([no])])
-AC_SUBST(PMDA_RPM,[$pmda_rpm])
+AC_MSG_CHECKING([if the rpm PMDA should be included])
+AC_SUBST(PMDA_RPM,$pmda_rpm)
+if $pmda_rpm; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 LIBS=$savedLIBS
+
+dnl Do you have the required qshape script for the postfix PMDA
+dnl The logic here is copied from the PMDA's Install script
+pmda_postfix=false
+AC_CHECK_PROGS(QSHAPE, qshape, [])
+AC_MSG_CHECKING([if the postfix PMDA should be included])
+if test -n "$QSHAPE"
+then
+    pmda_postfix=true
+else
+    for script in /usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl
+    do
+	if test -f "$script"
+	then
+	    pmda_postfix=true
+	    break
+	fi
+    done
+fi
+AC_SUBST(PMDA_POSTFIX,$pmda_postfix)
+if $pmda_postfix; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 dnl Do you have system microhttpd libraries for pmwebapi?
 PKG_CHECK_MODULES([libmicrohttpd], [libmicrohttpd > 0.9.9], [have_libmicrohttpd=true], [have_libmicrohttpd=false])

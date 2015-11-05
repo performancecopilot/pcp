@@ -635,6 +635,7 @@ collecting hardware counters statistics through libpfm.
 #end pcp-pmda-perfevent
 %endif
 
+%if "@pmda_activemq@" == "true"
 #
 # pcp-pmda-activemq
 #
@@ -650,6 +651,7 @@ Requires: perl(LWP::UserAgent)
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the ActiveMQ message broker.
 #end pcp-pmda-activemq
+%endif
 
 #
 # pcp-pmda-bonding
@@ -711,6 +713,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from a 389 Directory Server log.
 #end pcp-pmda-ds389log
 
+%if "@pmda_elasticsearch@" == "true"
 #
 # pcp-pmda-elasticsearch
 #
@@ -726,6 +729,7 @@ Requires: perl(LWP::UserAgent)
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Elasticsearch.
 #end pcp-pmda-elasticsearch
+%endif
 
 #
 # pcp-pmda-gpfs
@@ -816,6 +820,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Memcached.
 #end pcp-pmda-memcache
 
+%if "@pmda_mysql@" == "true"
 #
 # pcp-pmda-mysql
 #
@@ -832,6 +837,7 @@ Requires: perl(DBD::mysql)
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the MySQL database.
 #end pcp-pmda-mysql
+%endif
 
 #
 # pcp-pmda-named
@@ -877,6 +883,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Usenet News.
 #end pcp-pmda-news
 
+%if "@pmda_nginx@" == "true"
 #
 # pcp-pmda-nginx
 #
@@ -892,6 +899,7 @@ Requires: perl(LWP::UserAgent)
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Nginx Webserver.
 #end pcp-pmda-nginx
+%endif
 
 #
 # pcp-pmda-nfsclient
@@ -923,6 +931,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the PowerDNS.
 #end pcp-pmda-pdns
 
+%if "@pmda_postfix@" == "true"
 #
 # pcp-pmda-postfix
 #
@@ -946,7 +955,9 @@ Requires: postfix-doc
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Postfix (MTA).
 #end pcp-pmda-postfix
+%endif
 
+%if "@pmda_postgresql@" == "true"
 #
 # pcp-pmda-postgresql
 #
@@ -963,6 +974,7 @@ Requires: perl(DBD::Pg)
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the PostgreSQL database.
 #end pcp-pmda-postgresql
+%endif
 
 #
 # pcp-pmda-rsyslog
@@ -1439,10 +1451,10 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) compat package for existing systems
 URL: http://www.pcp.io
-Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
-Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
-Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
-Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
+Requires: pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
+Requires: pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
+Requires: pcp-pmda-memcache pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
+Requires: pcp-pmda-nfsclient pcp-pmda-pdns
 Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
 Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
@@ -1455,6 +1467,24 @@ Requires: pcp-pmda-json
 %endif
 %if "@pmda_rpm@" == "true"
 Requires: pcp-pmda-rpm
+%endif
+%if "@pmda_mysql@" == "true"
+Requires: pcp-pmda-mysql
+%endif
+%if "@pmda_postgresql@" == "true"
+Requires: pcp-pmda-postgresql
+%endif
+%if "@pmda_nginx@" == "true"
+Requires: pcp-pmda-nginx
+%endif
+%if "@pmda_activemq@" == "true"
+Requires: pcp-pmda-activemq
+%endif
+%if "@pmda_elasticsearch@" == "true"
+Requires: pcp-pmda-elasticsearch
+%endif
+%if "@pmda_postfix@" == "true"
+Requires: pcp-pmda-postfix
 %endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
 Requires: pcp-doc
@@ -1470,10 +1500,10 @@ License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot (PCP) Collection meta Package
 URL: http://www.pcp.io
-Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
-Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
-Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
-Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
+Requires: pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
+Requires: pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
+Requires: pcp-pmda-memcache pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
+Requires: pcp-pmda-nfsclient pcp-pmda-pdns
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
 Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
@@ -1487,6 +1517,24 @@ Requires: pcp-pmda-json
 %endif
 %if "@pmda_rpm@" == "true"
 Requires: pcp-pmda-rpm
+%endif
+%if "@pmda_mysql@" == "true"
+Requires: pcp-pmda-mysql
+%endif
+%if "@pmda_postgresql@" == "true"
+Requires: pcp-pmda-postgresql
+%endif
+%if "@pmda_nginx@" == "true"
+Requires: pcp-pmda-nginx
+%endif
+%if "@pmda_activemq@" == "true"
+Requires: pcp-pmda-activemq
+%endif
+%if "@pmda_elasticsearch@" == "true"
+Requires: pcp-pmda-elasticsearch
+%endif
+%if "@pmda_postfix@" == "true"
+Requires: pcp-pmda-postfix
 %endif
 Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
 %description collector
@@ -1656,27 +1704,39 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'perfevent|perfalloc.1' > pmda_perfeven
 awk '{print $NF}' $DIST_MANIFEST | grep 'pmdas/systemd' > pmda_systemd_files
 %endif
 
+%if "@pmda_activemq@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/activemq' > pmda_activemq_files
+%endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bonding' > pmda_bonding_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dbping' > pmda_dbping_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/ds389log' > pmda_ds389log_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/ds389' > pmda_ds389_files
+%if "@pmda_elasticsearch@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/elasticsearch' > pmda_elasticsearch_files
+%endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gpfs' > pmda_gpfs_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gpsd' > pmda_gpsd_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/kvm' > pmda_kvm_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lustrecomm' > pmda_lustrecomm_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lustre' > pmda_lustre_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/memcache' > pmda_memcache_files
+%if "@pmda_mysql@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mysql' > pmda_mysql_files
+%endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/named' > pmda_named_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/netfilter' > pmda_netfilter_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/news' > pmda_news_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nfsclient' > pmda_nfsclient_files
+%if "@pmda_nginx@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nginx' > pmda_nginx_files
+%endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/pdns' > pmda_pdns_files
+%if "@pmda_postfix@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/postfix' > pmda_postfix_files
+%endif
+%if "@pmda_postgresql@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/postgresql' > pmda_postgresql_files
+%endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/rsyslog' > pmda_rsyslog_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/samba' > pmda_samba_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/slurm' > pmda_slurm_files
@@ -1718,12 +1778,12 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/trace' > pmda_trace_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/weblog' > pmda_weblog_files
 
 touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files \
-      pmda_perfevent_files pmda_activemq_files pmda_bonding_files pmda_dbping_files \
-      pmda_ds389_files pmda_ds389log_files pmda_elasticsearch_files pmda_gpfs_files \
+      pmda_perfevent_files pmda_bonding_files pmda_dbping_files \
+      pmda_ds389_files pmda_ds389log_files pmda_gpfs_files \
       pmda_gpsd_files pmda_kvm_files pmda_lustre_files pmda_lustrecomm_files \
-      pmda_memcache_files pmda_mysql_files pmda_named_files \
+      pmda_memcache_files pmda_named_files \
       pmda_netfilter_files pmda_news_files pmda_nfsclient_files \
-      pmda_nginx_files pmda_pdns_files pmda_postfix_files pmda_postgresql_files \
+      pmda_pdns_files \
       pmda_rsyslog_files pmda_samba_files pmda_slurm_files pmda_snmp_files \
       pmda_vmware_files pmda_zimbra_files pmda_apache_files pmda_bash_files \
       pmda_cifs_files pmda_cisco_files pmda_gfs2_files \
@@ -1737,7 +1797,25 @@ touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
       pmda_mic_files system_tools_files
 %endif
 %if "@pmda_json@" == "true"
-touch pmda_json_file 
+touch pmda_json_files
+%endif
+%if "@pmda_mysql@" == "true"
+touch pmda_mysql_files
+%endif
+%if "@pmda_nginx@" == "true"
+touch pmda_nginx_files
+%endif
+%if "@pmda_activemq@" == "true"
+touch pmda_activemq_files
+%endif
+%if "@pmda_postgresql@" == "true"
+touch pmda_postgresql_files
+%endif
+%if "@pmda_elasticsearch@" == "true"
+touch pmda_elasticsearch_files
+%endif
+%if "@pmda_postfix@" == "true"
+touch pmda_postfix_files
 %endif
 
 rm -f *_files.rpm
@@ -1754,27 +1832,39 @@ BEGIN {
     while( getline < "pmda_infiniband_files") pmda_infiniband[$0]=1;
     while( getline < "pmda_papi_files") pmda_papi[$0]=1;
     while( getline < "pmda_perfevent_files") pmda_perfevent[$0]=1;
+%if "@pmda_activemq@" == "true"
     while( getline < "pmda_activemq_files") pmda_activemq[$0]=1;
+%endif
     while( getline < "pmda_bonding_files") pmda_bonding[$0]=1;
     while( getline < "pmda_dbping_files") pmda_dbping[$0]=1;
     while( getline < "pmda_ds389log_files") pmda_ds389log[$0]=1;
     while( getline < "pmda_ds389_files") pmda_ds389[$0]=1;
+%if "@pmda_elasticsearch@" == "true"
     while( getline < "pmda_elasticsearch_files") pmda_elasticsearch[$0]=1;
+%endif
     while( getline < "pmda_gpfs_files") pmda_gpfs[$0]=1;
     while( getline < "pmda_gpsd_files") pmda_gpsd[$0]=1;
     while( getline < "pmda_kvm_files") pmda_kvm[$0]=1;
     while( getline < "pmda_lustrecomm_files") pmda_lustrecomm[$0]=1;
     while( getline < "pmda_lustre_files") pmda_lustre[$0]=1;
     while( getline < "pmda_memcache_files") pmda_memcache[$0]=1;
+%if "@pmda_mysql@" == "true"
     while( getline < "pmda_mysql_files") pmda_mysql[$0]=1;
+%endif
     while( getline < "pmda_named_files") pmda_named[$0]=1;
     while( getline < "pmda_netfilter_files") pmda_netfilter[$0]=1;
     while( getline < "pmda_news_files") pmda_news[$0]=1;
     while( getline < "pmda_nfsclient_files") pmda_nfsclient[$0]=1;
+%if "@pmda_nginx@" == "true"
     while( getline < "pmda_nginx_files") pmda_nginx[$0]=1;
+%endif
     while( getline < "pmda_pdns_files") pmda_pdns[$0]=1;
+%if "@pmda_postfix@" == "true"
     while( getline < "pmda_postfix_files") pmda_postfix[$0]=1;
+%endif
+%if "@pmda_postgresql@" == "true"
     while( getline < "pmda_postgresql_files") pmda_postgresql[$0]=1;
+%endif
     while( getline < "pmda_rsyslog_files") pmda_rsyslog[$0]=1;
     while( getline < "pmda_samba_files") pmda_samba[$0]=1;
     while( getline < "pmda_slurm_files") pmda_slurm[$0]=1;
@@ -1832,27 +1922,39 @@ BEGIN {
     else if (pmda_infiniband[$NF]) f="pmda_infiniband_files.rpm";
     else if (pmda_papi[$NF]) f="pmda_papi_files.rpm";
     else if (pmda_perfevent[$NF]) f="pmda_perfevent_files.rpm";
+%if "@pmda_activemq@" == "true"
     else if (pmda_activemq[$NF]) f="pmda_activemq_files.rpm";
+%endif
     else if (pmda_bonding[$NF]) f="pmda_bonding_files.rpm";
     else if (pmda_dbping[$NF]) f="pmda_dbping_files.rpm";
     else if (pmda_ds389log[$NF]) f="pmda_ds389log_files.rpm";
     else if (pmda_ds389[$NF]) f="pmda_ds389_files.rpm";
+%if "@pmda_elasticsearch@" == "true"
     else if (pmda_elasticsearch[$NF]) f="pmda_elasticsearch_files.rpm";
+%endif
     else if (pmda_gpfs[$NF]) f="pmda_gpfs_files.rpm";
     else if (pmda_gpsd[$NF]) f="pmda_gpsd_files.rpm";
     else if (pmda_kvm[$NF]) f="pmda_kvm_files.rpm";
     else if (pmda_lustrecomm[$NF]) f="pmda_lustrecomm_files.rpm";
     else if (pmda_lustre[$NF]) f="pmda_lustre_files.rpm";
     else if (pmda_memcache[$NF]) f="pmda_memcache_files.rpm";
+%if "@pmda_mysql@" == "true"
     else if (pmda_mysql[$NF]) f="pmda_mysql_files.rpm";
+%endif
     else if (pmda_named[$NF]) f="pmda_named_files.rpm";
     else if (pmda_netfilter[$NF]) f="pmda_netfilter_files.rpm";
     else if (pmda_news[$NF]) f="pmda_news_files.rpm";
     else if (pmda_nfsclient[$NF]) f="pmda_nfsclient_files.rpm";
+%if "@pmda_nginx@" == "true"
     else if (pmda_nginx[$NF]) f="pmda_nginx_files.rpm";
+%endif
     else if (pmda_pdns[$NF]) f="pmda_pdns_files.rpm";
+%if "@pmda_postfix@" == "true"
     else if (pmda_postfix[$NF]) f="pmda_postfix_files.rpm";
+%endif
+%if "@pmda_postgresql@" == "true"
     else if (pmda_postgresql[$NF]) f="pmda_postgresql_files.rpm";
+%endif
     else if (pmda_rsyslog[$NF]) f="pmda_rsyslog_files.rpm";
     else if (pmda_samba[$NF]) f="pmda_samba_files.rpm";
     else if (pmda_slurm[$NF]) f="pmda_slurm_files.rpm";
@@ -2214,7 +2316,9 @@ cd
 %files pmda-perfevent -f pmda_perfevent_files.rpm
 %endif
 
+%if "@pmda_activemq@" == "true"
 %files pmda-activemq -f pmda_activemq_files.rpm
+%endif
 
 %files pmda-bonding -f pmda_bonding_files.rpm
 
@@ -2224,7 +2328,9 @@ cd
 
 %files pmda-ds389 -f pmda_ds389_files.rpm
 
+%if "@pmda_elasticsearch@" == "true"
 %files pmda-elasticsearch -f pmda_elasticsearch_files.rpm
+%endif
 
 %files pmda-gpfs -f pmda_gpfs_files.rpm
 
@@ -2238,7 +2344,9 @@ cd
 
 %files pmda-memcache -f pmda_memcache_files.rpm
 
+%if "@pmda_mysql@" == "true"
 %files pmda-mysql -f pmda_mysql_files.rpm
+%endif
 
 %files pmda-named -f pmda_named_files.rpm
 
@@ -2246,15 +2354,21 @@ cd
 
 %files pmda-news -f pmda_news_files.rpm
 
+%if "@pmda_nginx@" == "true"
 %files pmda-nginx -f pmda_nginx_files.rpm
+%endif
 
 %files pmda-nfsclient -f pmda_nfsclient_files.rpm
 
 %files pmda-pdns -f pmda_pdns_files.rpm
 
+%if "@pmda_postfix@" == "true"
 %files pmda-postfix -f pmda_postfix_files.rpm
+%endif
 
+%if "@pmda_postgresql@" == "true"
 %files pmda-postgresql -f pmda_postgresql_files.rpm
+%endif
 
 %files pmda-rsyslog -f pmda_rsyslog_files.rpm
 

@@ -67,6 +67,12 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_infiniband@|$(PMDA_INFINIBAND)|g' \
 	    -e's|@pmda_perfevent@|$(PMDA_PERFEVENT)|g' \
 	    -e's|@pmda_json@|$(PMDA_JSON)|g' \
+	    -e's|@pmda_nginx@|$(PMDA_NGINX)|g' \
+	    -e's|@pmda_postgresql@|$(PMDA_POSTGRESQL)|g' \
+	    -e's|@pmda_postfix@|$(PMDA_POSTFIX)|g' \
+	    -e's|@pmda_elasticsearch@|$(PMDA_ELASTICSEARCH)|g' \
+	    -e's|@pmda_mysql@|$(PMDA_MYSQL)|g' \
+	    -e's|@pmda_activemq@|$(PMDA_ACTIVEMQ)|g' \
 	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \
 	    -e's|@enable_probes@|$(ENABLE_PROBES)|g' \

@@ -33,12 +33,7 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 	rsyslog elasticsearch snmp nginx nfsclient \
 	ds389 ds389log activemq lustre gpfs slurm
 
-ifeq "$(HAVE_PYTHON)" "true"
-PYPMDAS = gluster zswap unbound mic
-ifeq "$(PMDA_JSON)" "true"
-PYPMDAS += json
-endif
-endif
+PYPMDAS = gluster zswap unbound mic json
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf

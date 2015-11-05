@@ -77,6 +77,8 @@ _wait_for_pmwebd()
 	if [ $count -ge 20 ]
 	then
 	    echo "pmwebd failed to start on port $webport"
+	    echo "likely looking processes ..."
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mwebd'
 	    status=1
 	    exit
 	fi
@@ -88,15 +90,25 @@ _wait_for_pmwebd_logfile()
 {
     logfile="$1"
 
-    sleep 2		# let it start up
-    if [ -f "$logfile" ]
-    then
-	cat "$logfile" >>$here/$seq.full
-    else
-	echo "pmwebd failed to start, $logfile not created"
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mwebd'
-	status=1
-	exit
-    fi
+    # let it start up
+    _wait_for_pmwebd
+
+    count=0
+    while [ ! -f "$logfile" ]
+    do
+	count=`expr $count + 1`
+	if [ $count -ge 20 ]
+	then
+	    date
+	    echo "pmwebd failed to start, $logfile not created"
+	    echo "likely looking processes ..."
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mwebd'
+	    status=1
+	    exit
+	fi
+	pmsleep 0.1
+    done
+    date >>$here/$seq.full
+    cat "$logfile" >>$here/$seq.full
 }
 

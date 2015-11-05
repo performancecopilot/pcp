@@ -35,26 +35,22 @@ LIB_FOR_RPM	= -lrpm
 LLDLIBS		= $(PCP_PMDALIB) $(LIB_FOR_RPM) $(LIB_FOR_PTHREADS)
 LCFLAGS		= $(INVISIBILITY)
 
-default:	build-me
+default_pcp default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(PMDA_RPM)" "true"
 build-me: $(CMDTARGET) $(LIBTARGET)
 
-install:	default 
+install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 root pmns domain.h help $(PMDADIR)
 	$(INSTALL) -m 755 $(CMDTARGET) $(LIBTARGET) $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/rpm_migrate.conf
 else
 build-me:
-install:
+install_pcp install:
 endif
-
-default_pcp : default
-
-install_pcp : install
 
 $(VERSION_SCRIPT):
 	$(VERSION_SCRIPT_MAKERULE)
