@@ -142,9 +142,9 @@ else
 End-of-File
 
 pminfo -d sample.kbyte_ctr delta.kbyte_ctr rate.kbyte_ctr
-pmval -z -f3 -w12 -t 1sec -a src/sample_expr sample.kbyte_ctr
-pmval -z -f3 -w12 -r -t 1sec -a src/sample_expr sample.kbyte_ctr
-pmie -z -v -c $tmp.pmie -t 1sec -a src/sample_expr 2>&1 \
+pmval -z -f3 -w12 -t 1sec -a archives/sample_expr sample.kbyte_ctr
+pmval -z -f3 -w12 -r -t 1sec -a archives/sample_expr sample.kbyte_ctr
+pmie -z -v -c $tmp.pmie -t 1sec -a archives/sample_expr 2>&1 \
 | _filter_pmie_log
 
 # success, all done

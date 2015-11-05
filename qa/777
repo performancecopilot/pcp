@@ -71,7 +71,7 @@ cooked = qa.instant.milliseconds;
 reverse = rate(qa.instant.milliseconds) == sample.milliseconds;
 reverse4 = qa.instant.pmlogger.port == pmcd.pmlogger.port;
 End-of-File
-pmie -v -z -c $tmp.pmie -t 10sec -A 10sec -a src/sample-secs 2>&1 \
+pmie -v -z -c $tmp.pmie -t 10sec -A 10sec -a archives/sample-secs 2>&1 \
 | sed -e '/ Info: evaluator exiting/d'
 
 echo

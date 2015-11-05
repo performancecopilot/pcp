@@ -40,7 +40,7 @@ indom 1.5 {
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 
 for t in +3 +3.5 +3. +03 4 4.000005 4. 04 -5 -5.005 -5. -05 \
 	+1:00.123456 +2:00 3:00. 04:00 -5:12.345 -6:30 \
@@ -50,7 +50,7 @@ do
     echo "=== global time -> $t ==="
     echo "global { time -> $t }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 done
 
 for h in abc node123.localdomain foo-bar 123 123.456 123.456foobar \
@@ -60,7 +60,7 @@ do
     echo "=== global hostname -> $h ==="
     echo "global { hostname -> $h }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 done
 
 for t in 60 123:45 123:0:61.678901
@@ -69,7 +69,7 @@ do
     echo "=== global time -> $t (expect warning) ==="
     echo "global { time -> $t }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 done
 
 echo
@@ -83,7 +83,7 @@ global {
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 
 echo
 echo "=== global dup tz clause (expect error) ==="
@@ -96,7 +96,7 @@ global {
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 
 echo
 echo "=== global dup time clause (expect error) ==="
@@ -109,7 +109,7 @@ global {
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 
 echo
 echo "=== indom dup indom clause (expect error) ==="
@@ -121,7 +121,7 @@ indom 1.5 {
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 
 echo
 echo "=== indom dup name clause (expect error) ==="
@@ -133,7 +133,7 @@ indom 1.5 {
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 
 echo
 echo "=== indom dup inst clause (expect error) ==="
@@ -144,7 +144,7 @@ indom 1.5 {
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 
 # indom ... { indom ... } checks
 #
@@ -156,12 +156,12 @@ do
     echo "=== indom $i { } ==="
     echo "indom $i { }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -w -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
     echo
     echo "=== indom 1.5 { indom -> $i } ==="
     echo "indom 1.5 { indom -> $i }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -w -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 done
 
 # indom ... { iname | inst ... } exercises
@@ -175,7 +175,7 @@ do
     echo "=== indom 1.5 { $i } ==="
     echo "indom 1.5 { $i }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -w -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 done
 
 # indom ... { iname | inst ... } checks
@@ -194,7 +194,7 @@ do
     echo "=== indom 1.5 { $i } (expect error) ==="
     echo "indom 1.5 { $i }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -w -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -w -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 done
 
 # instance iname upto space checks
@@ -204,7 +204,7 @@ do
     echo "=== indom 1.5 { iname \"$i\" -> \"yippee\" } ==="
     echo "indom 1.5 { iname \"$i\" -> \"yippee\" }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 done
 for i in 19856 "19856 does not matter" 19857
 do
@@ -212,7 +212,7 @@ do
     echo "=== indom 2.1 { iname \"$i\" -> \"19856 bozo\" } ==="
     echo "indom 2.1 { iname \"$i\" -> \"19856 bozo\" }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+    pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 done
 
 echo
@@ -223,35 +223,35 @@ global {
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 cat <<End-of-File >$tmp.conf
 global {
     hostname -> inst
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 cat <<End-of-File >$tmp.conf
 global {
     hostname -> hostname
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 cat <<End-of-File >$tmp.conf
 global {
     hostname -> tz
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 cat <<End-of-File >$tmp.conf
 metric 1.18.3 {
     name -> hostname
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 cat <<End-of-File >$tmp.conf
 metric 1.18.3 {
     name -> indom
@@ -267,14 +267,14 @@ metric 1.18.3 {
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 cat <<End-of-File >$tmp.conf
 metric 1.18.3 {
     name -> units
 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -C -c $tmp.conf src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 
 # success, all done
 exit

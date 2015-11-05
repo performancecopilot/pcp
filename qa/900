@@ -56,7 +56,7 @@ _verify "no arguments" $tmp.env.none
 pcp -A '1 hour' env > $tmp.env.align
 _verify "align argument" $tmp.env.align
 
-pcp -a src/rattle env > $tmp.env.archive
+pcp -a archives/rattle env > $tmp.env.archive
 _verify "archive argument" $tmp.env.archive
 
 pcp -h moo.cow.com env > $tmp.env.host

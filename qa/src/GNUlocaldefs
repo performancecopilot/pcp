@@ -13,17 +13,17 @@ HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || ech
 
 SRCARCH	= \
 	\
-	rattle.0 \
 	\
-	wrap.0 xbug1.0 \
-	sample-secs.0 \
-	reduce-1.0 reduce-2.0 snort-disks.0 \
-	vldb-disks.0 \
-	uwrap.0 \
-	tzchange-10-a.0 tzchange-10-b.0 tzchange-11-a.0 tzchange-11-b.0 \
-	tzchange-12-a.0 tzchange-12-b.0 sample_expr.0 \
 	\
-	rewrite.0 section-a.0 section-b.0 section-c.0 section-d.0 \
+	\
+	\
+	\
+	\
+	\
+	\
+	\
+	\
+	\
 	\
 	\
 	\
@@ -721,9 +721,9 @@ gap.0 gap2.0:
 	pmlogextract tmp/A tmp/B tmp/C gap2
 	rm -rf tmp
 
-reduce-gap.0:	reduce-1.0 reduce-2.0
+reduce-gap.0:	../archives/reduce-1.0 ../archives/reduce-2.0
 	rm -f reduce-gap.*
-	pmlogextract reduce-1 reduce-2 reduce-gap
+	pmlogextract ../archives/reduce-1 ../archives/reduce-2 reduce-gap
 
 torture_indom: torture_indom.c
 	rm -f $@

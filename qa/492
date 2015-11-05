@@ -56,7 +56,7 @@ pmlogrewrite -c /dev/tty in out
 echo
 touch $tmp.forbidden
 chmod 0 $tmp.forbidden
-pmlogrewrite -c $tmp.forbidden src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -c $tmp.forbidden archives/rattle $tmp.new 2>&1 | _filter
 rm -f $tmp.new.* $tmp.forbidden
 echo
 mkdir $tmp.forbiddendir
@@ -70,15 +70,15 @@ echo
 mkdir $tmp.configdir
 touch $tmp.configdir/forbidden
 chmod 0 $tmp.configdir/forbidden
-pmlogrewrite -v -c $tmp.configdir src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -v -c $tmp.configdir archives/rattle $tmp.new 2>&1 | _filter
 echo
 ln -s $tmp.configdir/forbidden $tmp.link
-pmlogrewrite -v -c $tmp.link src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -v -c $tmp.link archives/rattle $tmp.new 2>&1 | _filter
 rm -rf $tmp.config $tmp.forbidden
 echo
 rm -f $tmp.link
 ln -s $tmp.configdir $tmp.link
-pmlogrewrite -v -c $tmp.link src/rattle $tmp.new 2>&1 | _filter
+pmlogrewrite -v -c $tmp.link archives/rattle $tmp.new 2>&1 | _filter
 rm -rf $tmp.configdir $tmp.link
 
 echo

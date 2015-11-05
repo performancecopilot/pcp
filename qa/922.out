@@ -384,7 +384,7 @@ rate.kbyte_ctr
 Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    sample.kbyte_ctr
-archive:   src/sample_expr
+archive:   archives/sample_expr
 host:      bozo
 start:     Wed Dec 30 21:58:59 2009
 end:       Wed Dec 30 21:59:04 2009
@@ -400,7 +400,7 @@ interval:  1.00 sec
 Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    sample.kbyte_ctr
-archive:   src/sample_expr
+archive:   archives/sample_expr
 host:      bozo
 start:     Wed Dec 30 21:58:59 2009
 end:       Wed Dec 30 21:59:04 2009
@@ -413,7 +413,7 @@ interval:  1.00 sec
 21:59:01.005       26082
 21:59:02.005       27023
 21:59:03.005       28370
-pmie: timezone set to local timezone from src/sample_expr
+pmie: timezone set to local timezone from archives/sample_expr
 raw (DATE): ?
 delta.kbyte_ctr (DATE): ?
 rate.kbyte_ctr (DATE): ?

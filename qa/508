@@ -133,11 +133,11 @@ do
 	    ;;
     esac
     echo "=== $m ===" | tee -a $seq.full
-    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src/section-a $m \
+    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a archives/section-a $m \
     | _filter1 >$tmp.in
-    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src/section-b $m \
+    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a archives/section-b $m \
     | _filter2 >>$tmp.in
-    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src/section-d $m \
+    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a archives/section-d $m \
     | _filter2 >>$tmp.in
     sed -n '/^[0-2]/{
 s/[ 	]*$//

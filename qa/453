@@ -23,7 +23,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 cat <<'End-of-File' >$tmp.pl
 use PCP::LogSummary;
 
-my $archive = 'src/snort-disks.0';
+my $archive = 'archives/snort-disks.0';
 my @metrics = ( 'disk.dev.read', 'disk.dev.read_bytes' );
 my $hdl = PCP::LogSummary->new($archive, \@metrics);
 

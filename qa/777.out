@@ -78,7 +78,7 @@ reverse3: true
 
 
 === archive tests ===
-pmie: timezone set to local timezone from src/sample-secs
+pmie: timezone set to local timezone from archives/sample-secs
 raw (Mon May  1 20:36:50 2000): ?
 cooked (Mon May  1 20:36:50 2000): 380437
 reverse (Mon May  1 20:36:50 2000): unknown

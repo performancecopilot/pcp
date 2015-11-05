@@ -392,6 +392,6 @@ Note: timezone set to local timezone of host "gonzo" from archive
 sample.drift the same ... good
 
  --- step 8: test -w flag (with -S, -T and -z) ---
-(output depends on src/rattle{0,index,meta})
+(output depends on archives/rattle{0,index,meta})
 --- dump values for irix.kernel.all.load ---
 irix.kernel.all.load the same ... good
