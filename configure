@@ -10006,8 +10006,8 @@ rm -f core conftest.err conftest.$ac_objext \
 
 
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the infinband PMDA should be included" >&5
-$as_echo_n "checking if the infinband PMDA should be included... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the infiniband PMDA should be included" >&5
+$as_echo_n "checking if the infiniband PMDA should be included... " >&6; }
 PMDA_INFINIBAND=$pmda_infiniband
 
 if $pmda_infiniband; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
