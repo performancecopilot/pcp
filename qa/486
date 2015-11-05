@@ -87,22 +87,22 @@ _cmp()
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	spec
 # rewrite pmDesc and pmid in pmResults
-src/mirage	metric sample.bin { pmid->42.42.42 }
+archives/mirage	metric sample.bin { pmid->42.42.42 }
 # name is 3 bytes shorter
-src/mirage	metric sample.bin { name -> sam.bin }
+archives/mirage	metric sample.bin { name -> sam.bin }
 # name is 10 bytes longer
-src/mirage	metric sample.bin { name -> x23456789.sample.bin }
+archives/mirage	metric sample.bin { name -> x23456789.sample.bin }
 # inst renumbering
-src/mirage	indom 29.2 { inst 300 -> 42 }
-src/mirage	indom 29.2 { inst 300 -> 400 }
-src/mirage	indom 29.2 { iname "bin-700" -> "bin-900" }
-src/mirage	indom 29.2 { iname "bin-700" -> "bin-900 and some" }
-src/mirage	indom 29.2 { iname "bin-300" -> "bin-100" inst 300 -> 100 }
+archives/mirage	indom 29.2 { inst 300 -> 42 }
+archives/mirage	indom 29.2 { inst 300 -> 400 }
+archives/mirage	indom 29.2 { iname "bin-700" -> "bin-900" }
+archives/mirage	indom 29.2 { iname "bin-700" -> "bin-900 and some" }
+archives/mirage	indom 29.2 { iname "bin-300" -> "bin-100" inst 300 -> 100 }
 src/rattle	indom 1.5 { iname "1 minute" -> "5" }
 src/rattle	indom 1.5 { iname "5 minute" -> "15 doo dah" }
 src/rattle	indom 1.5 { iname "5" -> "5 hours" }
 # all metric semantics
-src/mirage	metric 29.*.* { sem->DISCRETE } metric pmcd.pmlogger.port { sem->COUNTER }
+archives/mirage	metric 29.*.* { sem->DISCRETE } metric pmcd.pmlogger.port { sem->COUNTER }
 # scale conversion
 src/snort-disks	metric disk.dev.bytes { units->1,0,0,MBYTE,0,0 }
 src/snort-disks|-s	metric disk.dev.bytes { units->1,0,0,MBYTE,0,0 }
@@ -111,8 +111,8 @@ src/snort-disks|-ws	metric disk.dev.bytes { units->1,-1,0,kbyte,sec,0 }
 src/sample_expr	metric sample.scale_step.time_up_secs { units->0,1,0,0,MSEC,0 }
 # type conversion
 # 32 ->
-src/mirage	metric sample.drift { type -> U32 }
-src/mirage	metric sample.drift { type -> 64 }
+archives/mirage	metric sample.drift { type -> U32 }
+archives/mirage	metric sample.drift { type -> 64 }
 # double -> 
 src/sample_expr	metric sample.scale_step.time_up_secs { type -> FLOAT }
 src/sample_expr	metric sample.scale_step.time_up_secs { type -> U32 }

@@ -403,7 +403,7 @@ pmdumplog diffs ...
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmlogrewrite -s -c TMP.conf src/mirage TMP.new
+Command: pmlogrewrite -s -c TMP.conf archives/mirage TMP.new
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -1058,7 +1058,7 @@ pmdumplog diffs ...
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmlogrewrite -s -c TMP.conf src/mirage TMP.new
+Command: pmlogrewrite -s -c TMP.conf archives/mirage TMP.new
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

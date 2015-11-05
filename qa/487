@@ -82,8 +82,8 @@ echo
 echo "=== overflow in type conversion - step 1 (no errors) ==="
 echo "metric sample.drift { units->1,0,-1,MBYTE,0,0 type->U64 }" >$tmp.config
 rm -f $tmp.tmp.*
-pmlogrewrite -w -c $tmp.config src/mirage $tmp.tmp 2>&1 | _filter
-_cmp2 src/mirage $tmp.tmp sample.drift 
+pmlogrewrite -w -c $tmp.config archives/mirage $tmp.tmp 2>&1 | _filter
+_cmp2 archives/mirage $tmp.tmp sample.drift 
 echo "=== overflow in type conversion - step 2 (expect error) ==="
 echo "metric sample.drift { units->1,0,-1,BYTE,0,1 type->32 }" >$tmp.config
 rm -f $tmp.new.*

@@ -24,21 +24,21 @@ _filter()
 
 # real QA test starts here
 echo "=== mirage-1 ==="
-pmdumplog -z -d src/mirage-1
-pmdumplog -z -i src/mirage-1
-pmdumplog -z src/mirage-1
-pmval -z -U src/mirage-1 sample.mirage
-pmval -z -U src/mirage-1 sample.many.int
+pmdumplog -z -d archives/mirage-1
+pmdumplog -z -i archives/mirage-1
+pmdumplog -z archives/mirage-1
+pmval -z -U archives/mirage-1 sample.mirage
+pmval -z -U archives/mirage-1 sample.many.int
 
 echo
 echo "=== mirage-2 ==="
-pmdumplog -z -d src/mirage-2
-pmdumplog -z -i src/mirage-2
-pmdumplog -z src/mirage-2
-pmval -z -U src/mirage-2 sample.mirage
-pmval -z -U src/mirage-2 sample.many.int
+pmdumplog -z -d archives/mirage-2
+pmdumplog -z -i archives/mirage-2
+pmdumplog -z archives/mirage-2
+pmval -z -U archives/mirage-2 sample.mirage
+pmval -z -U archives/mirage-2 sample.many.int
 
-pmlogextract src/mirage-1 src/mirage-2 $tmp
+pmlogextract archives/mirage-1 archives/mirage-2 $tmp
 
 echo
 echo "=== merged archive ==="

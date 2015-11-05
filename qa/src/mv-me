@@ -19,15 +19,8 @@ _ans()
 }
 
 tmp=/var/tmp/mv-me-$$
+rm -rf $tmp $tmp.*
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
-
-# debug
-# GITMV="echo + git mv"
-# MV="echo + mv"
-
-# real deal
-GITMV="git mv"
-MV="mv"
 
 # spilt GNUlocaldefs, add spaces at start and end of lines
 sed <GNUlocaldefs \
@@ -57,12 +50,11 @@ do
 	exit
     fi
 
-    if grep " ${arch}.0 " $tmp.make.macro >/dev/null
+    if grep "[ 	]${arch}.0 " $tmp.make.macro >/dev/null
     then
 	sed <$tmp.make.macro >$tmp.tmp \
-	    -e "s/ ${arch}.0 / /"
+	    -e "s/\([ 	]\)${arch}.0\1/ /"
 	mv $tmp.tmp $tmp.make.macro
-	echo ". update SRCARCH macro in GNUlocaldefs"
     else
 	echo "Error: unable to update SRCARCH macro in GNUlocaldefs"
 	exit
@@ -86,13 +78,12 @@ done
 echo "GNUlocaldefs: diffs"
 diff -u GNUlocaldefs $tmp.tmp
 _ans "OK" y
-$MV $tmp.tmp GNUlocaldefs
+echo "cat $tmp.make.head $tmp.make.macro $tmp.make.tail | sed -e 's/ \$//' -e 's/^ //' >GNUlocaldefs" >>$tmp.sh
 
 cat $tmp.movers \
 | while read file
 do
-    $GITMV $file ../archives/$file
-    echo ". git mv $file ../archives/$file"
+    echo "git mv $file ../archives/$file" >>$tmp.sh
 done
 
 echo
@@ -110,6 +101,10 @@ do
     echo -n "${arch}:"
     for file in [0-9][0-9][0-9]*
     do
+	# weak guards
+	[ -f $file ] || continue
+	grep "$arch" $file >/dev/null || continue
+	# needs to be in git
 	git shortlog -1 -- $file >$tmp.out
 	if [ -s $tmp.out ]
 	then
@@ -118,23 +113,44 @@ do
 	    # not in git
 	    continue
 	fi
-	if egrep -l "src/$arch([.'\$ 	]|\$)" $file >/dev/null
+	# real guard now
+	if egrep -l "src/$arch([.'\"\$,{ 	]|\$)" $file >/dev/null
 	then
-	    sed -i \
-		-e "s;src/$arch\([.'\$ 	]\);archives/$arch\1;" \
-		-e "s;src/$arch\$;archives/$arch;" \
-		$file
-	    # end
-	    echo -n " $file"
+	    case $file
+	    in
+		# skip ones already dealt with
+		217.out.?)
+		    ;;
+		# all the others
+		*)
+		    # need to skip pathnames in archive preamble
+		    # records (pmcd.pmlogger.archive)
+		    sed \
+			-e '/(pmcd.pmlogger.archive)/n' \
+			-e "s;src/$arch\([.'\"\$,{ 	]\);archives/$arch\1;" \
+			-e "s;src/$arch\$;archives/$arch;" \
+			<$file >$file.mv-me
+		    echo "cp ../$file.mv-me ../$file" >>$tmp.sh
+		    echo "rm ../$file.mv-me" >>$tmp.sh
+		    echo -n " $file"
+		    ;;
+	    esac
 	    echo $file | sed -e 's/\..*//' >>$tmp.tmp
 	fi
     done
     echo
 done
+cd src
+
+echo "Commands ..."
+cat $tmp.sh
+_ans "OK" y
+sh $tmp.sh
 
 if [ -s $tmp.tmp ]
 then
     echo "Check ..."
+    cd ..
     check -l `sort -u $tmp.tmp`
 else
     echo "Warning: no tests modified?"

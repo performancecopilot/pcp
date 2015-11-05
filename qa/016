@@ -16,7 +16,7 @@ status=0
 trap "rm -f $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmdumplog -i src/mirage >$tmp 2>&1
+pmdumplog -i archives/mirage >$tmp 2>&1
 
 echo "For InDom 2.1 (pmcd.pmlogger.*) do not expect membership to change ..."
 echo "For InDom 29.2 (sample.bin) do not expect membership to change ..."

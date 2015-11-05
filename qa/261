@@ -37,10 +37,10 @@ _filter()
 echo >$seq.full
 
 # real QA test starts here
-pmdumplog -z -l src/mirage
-pmdumplog -z -a src/mirage 2>&1 >>$seq.full
+pmdumplog -z -l archives/mirage
+pmdumplog -z -a archives/mirage 2>&1 >>$seq.full
 
-pmlogextract -S 5min -T 5min src/mirage $tmp
+pmlogextract -S 5min -T 5min archives/mirage $tmp
 
 echo "--- copyied archive ---" >>$seq.full
 pmdumplog -z -a $tmp | tee -a $seq.full | _filter
@@ -56,14 +56,14 @@ echo "Check metrics using pmval ..."
 for metric in sample.mirage
 do
     echo "$metric:"
-    pmval -z -t 30 -S @10:51:07.407 -T 4.0001min -a src/mirage -i m-00,m-21,m-22,m-23,m-24 $metric >$tmp.orig
+    pmval -z -t 30 -S @10:51:07.407 -T 4.0001min -a archives/mirage -i m-00,m-21,m-22,m-23,m-24 $metric >$tmp.orig
     pmval -z -t 30 -T 4.0001min -a $tmp -i m-00,m-21,m-22,m-23,m-24 $metric >$tmp.new
     sed -e "s;$tmp;TMP;g" $tmp.new \
     | diff -c $tmp.orig - \
     | sed -e "s;$tmp;TMP;g" \
 	  -e '1,2s/	.*/	TODAY/' \
 	  -e 's/--- -/--- Standard Input/'
-    echo "--- $metric, src/mirage archive, instances" >>$seq.full
+    echo "--- $metric, archives/mirage archive, instances" >>$seq.full
     cat $tmp.orig >>$seq.full
     echo "--- $metric, copied archive, instances" >>$seq.full
     cat $tmp.new >>$seq.full
@@ -73,14 +73,14 @@ echo
 for metric in sample.bin sample.drift
 do
     echo "$metric:"
-    pmval -z -t 30 -S @10:51:07.407 -T 4.0001min -a src/mirage $metric >$tmp.orig
+    pmval -z -t 30 -S @10:51:07.407 -T 4.0001min -a archives/mirage $metric >$tmp.orig
     pmval -z -t 30 -T 4.0001min -a $tmp $metric >$tmp.new
     sed -e "s;$tmp;TMP;g" $tmp.new \
     | diff -c $tmp.orig - \
     | sed -e "s;$tmp;TMP;g" \
 	  -e '1,2s/	.*/	TODAY/' \
 	  -e 's/--- -/--- Standard Input/'
-    echo "--- $metric, src/mirage archive, NO instances" >>$seq.full
+    echo "--- $metric, archives/mirage archive, NO instances" >>$seq.full
     cat $tmp.orig >>$seq.full
     echo "--- $metric, copied archive, NO instances" >>$seq.full
     cat $tmp.new >>$seq.full

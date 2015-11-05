@@ -11,7 +11,7 @@ DEBUG   = $(DBG)
 
 HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || echo 0)
 
-SRCARCH	= mirage.0 moomba.client.0 \
+SRCARCH	= moomba.client.0 \
 	babylon.percpu.0 babylon.percpu_v2.0 \
 	omen.client.0 bozo.client.0 bozo.client_v2.0 \
 	late.0 ok-bigbin.0 ok-mv-bigbin.0 ok-truncbin.0 \
@@ -27,7 +27,7 @@ SRCARCH	= mirage.0 moomba.client.0 \
 	uwrap.0 20041125.0 ac15.0 conn20070309.0 logsummary-bug.0 \
 	tzchange-10-a.0 tzchange-10-b.0 tzchange-11-a.0 tzchange-11-b.0 \
 	tzchange-12-a.0 tzchange-12-b.0 sample_expr.0 \
-	mirage-1.0 mirage-2.0 eventrec-old.0 eventrec.0 \
+	eventrec-old.0 eventrec.0 \
 	540117-short.0 541380.0 541380_v2.0 573184.0 20101004-trunc.0 \
 	bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
 	rewrite.0 proc.0 section-a.0 section-b.0 section-c.0 section-d.0 \
@@ -201,7 +201,7 @@ MYFILES += $(SRCARCH) \
 	qa_shmctl.c
 
 MYSCRIPTS = grind-tools ipcs_clear make.dodgey mkarch-all \
-	mkeventrec mkinterpmark mkmirage mkproc mkrewrite mksample_expr \
+	mkeventrec mkinterpmark mkproc mkrewrite mksample_expr \
 	mksa-sysstat mktzchange show-args mkbig1 fixhosts mkpermslist \
 	memcachestats.pl
 
@@ -658,10 +658,6 @@ mv-bar.0:	config.bar
 noti-bar.0:	bar.0
 	cp bar.0 noti-bar.0
 	cp bar.meta noti-bar.meta
-
-mirage.0:
-	rm -f mirage.index mirage.meta mirage.0
-	pmlogger -c config.mirage -s 20 mirage
 
 dodgey-some.0:	make.dodgey config.dodgey-some
 	./make.dodgey some 50

@@ -48,7 +48,7 @@ _cmp()
 
 echo "non-null -> non-null cases"
 rm -f $tmp.old.*
-pmlogextract -s 3 src/mirage-1 $tmp.old
+pmlogextract -s 3 archives/mirage-1 $tmp.old
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	metric spec ...
 $tmp.old	metric sample.mirage { indom -> 29.8 }
