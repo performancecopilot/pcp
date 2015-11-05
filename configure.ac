@@ -1001,6 +1001,11 @@ AS_IF([test "x$do_qt" != "xno"], [
     if test "$do_qt" != "check" -a "$enable_qt" != "true"
     then
 	AC_MSG_ERROR([cannot enable Qt - no supported Qt installation found])
+    elif test "$enable_qt" = "true" -a "x$cxx" = "x"
+    then
+	enable_qt=false
+	test "$do_qt" != "check" && \
+	AC_MSG_ERROR([C++ compiler unavailable, cannot build Qt components])
     elif test "$do_qt" = "debug"
     then
 	dnl Debug/release style build? (non-debug by default)

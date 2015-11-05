@@ -7376,6 +7376,11 @@ $as_echo "$QT_MAJOR.$QT_MINOR.$QT_POINT" >&6; }
     if test "$do_qt" != "check" -a "$enable_qt" != "true"
     then
 	as_fn_error $? "cannot enable Qt - no supported Qt installation found" "$LINENO" 5
+    elif test "$enable_qt" = "true" -a "x$cxx" = "x"
+    then
+	enable_qt=false
+	test "$do_qt" != "check" && \
+	as_fn_error $? "C++ compiler unavailable, cannot build Qt components" "$LINENO" 5
     elif test "$do_qt" = "debug"
     then
 		qt_release=debug
