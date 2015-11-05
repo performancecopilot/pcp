@@ -148,18 +148,18 @@ src/interp3 -t 2.0 -a archives/ok-foo | _filter20foo
 
 echo
 echo "=== bigbin ==="
-src/interp3 -t 2 -a src/ok-bigbin | _filter05bigbin
-src/interp3 -t 0.012 -a src/ok-bigbin | _filter003bigbin
+src/interp3 -t 2 -a archives/ok-bigbin | _filter05bigbin
+src/interp3 -t 0.012 -a archives/ok-bigbin | _filter003bigbin
 
 echo "=== multi-volume foo ==="
-src/interp3 -t 0.5 -a src/ok-mv-foo | _filter05foo
-src/interp3 -t 1.0 -a src/ok-mv-foo | _filter10foo
-src/interp3 -t 2.0 -a src/ok-mv-foo | _filter20foo
+src/interp3 -t 0.5 -a archives/ok-mv-foo | _filter05foo
+src/interp3 -t 1.0 -a archives/ok-mv-foo | _filter10foo
+src/interp3 -t 2.0 -a archives/ok-mv-foo | _filter20foo
 
 echo
 echo "=== multi-volume bigbin ==="
-src/interp3 -t 2 -a src/ok-mv-bigbin | _filter05bigbin
-src/interp3 -t 0.012 -a src/ok-mv-bigbin | _filter003bigbin
+src/interp3 -t 2 -a archives/ok-mv-bigbin | _filter05bigbin
+src/interp3 -t 0.012 -a archives/ok-mv-bigbin | _filter003bigbin
 
 echo "=== no index foo ==="
 src/interp3 -t 0.5 -a src/noti-ok-foo | _filter05foo

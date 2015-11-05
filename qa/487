@@ -63,8 +63,8 @@ sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # double -> 
 src/sample_expr	metric sample.scale_step.time_up_secs { type -> string }
 src/sample_expr	metric pmcd.pmlogger.host { type -> U32 }
-src/kenj-pc-2	metric sample.wrap.longlong { type -> U32 }
-src/kenj-pc-2	metric sample.wrap.ulonglong { type -> 64 }
+archives/kenj-pc-2	metric sample.wrap.longlong { type -> U32 }
+archives/kenj-pc-2	metric sample.wrap.ulonglong { type -> 64 }
 End-of-File
 do
     echo | tee -a $seq.full

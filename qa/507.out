@@ -27,7 +27,7 @@ pmcd.pmlogger.host
 pcp(1) output:
 Performance Co-Pilot configuration on wobbly:
 
-  archive: src/pcpcmd
+  archive: archives/pcpcmd
  platform: IRIX wobbly 6.5 05190003 IP22
  hardware: 1 R4400 cpu, 2 disks, 64MB RAM
  timezone: EST-11EST-10,87/2:00,297/2:00

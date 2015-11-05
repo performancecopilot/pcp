@@ -27,7 +27,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
-pmdumplog -z -a src/kenj-pc-diskstat disk >$tmp.out
+pmdumplog -z -a archives/kenj-pc-diskstat disk >$tmp.out
 awk <$tmp.out '/^[0-1].*\(disk.dev.read\)/	{ print NR }' >$tmp.tmp
 echo "=== first sample ==="
 f=`sed 1q $tmp.tmp`
@@ -41,19 +41,19 @@ sed -n -e "$f,\$p" $tmp.out
 
 echo
 echo "=== pmval ==="
-pmval -z -t 10 -S 10 -a src/kenj-pc-diskstat disk.dev.total
+pmval -z -t 10 -S 10 -a archives/kenj-pc-diskstat disk.dev.total
 
 echo
 echo "=== diskstat ==="
-diskstat -z -t 10 -S 10 -a src/kenj-pc-diskstat
+diskstat -z -t 10 -S 10 -a archives/kenj-pc-diskstat
 
 echo
 echo "=== diskstat -i ==="
-diskstat -z -i -t 10 -S 10 -a src/kenj-pc-diskstat
+diskstat -z -i -t 10 -S 10 -a archives/kenj-pc-diskstat
 
 echo
 echo "=== diskstat -x ==="
-diskstat -z -x -t 10 -S 10 -a src/kenj-pc-diskstat
+diskstat -z -x -t 10 -S 10 -a archives/kenj-pc-diskstat
 
 # success, all done
 exit

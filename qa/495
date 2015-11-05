@@ -134,7 +134,7 @@ done
 echo
 echo "spaces in inames cases"
 rm -f $tmp.old.*
-pmlogextract -s 3 src/moomba.pmkstat $tmp.old
+pmlogextract -s 3 archives/moomba.pmkstat $tmp.old
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	metric spec ...
 # non-null -> null (so input side selection)

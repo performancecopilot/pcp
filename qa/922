@@ -76,9 +76,9 @@ else
 End-of-File
 
 pminfo -d sample.milliseconds delta.milliseconds rate.milliseconds
-pmval -z -f3 -w12 -t 3sec -a src/ok-bigbin sample.milliseconds
-pmval -z -f3 -w12 -r -t 3sec -a src/ok-bigbin sample.milliseconds
-pmie -z -v -c $tmp.pmie -t 3sec -a src/ok-bigbin 2>&1 \
+pmval -z -f3 -w12 -t 3sec -a archives/ok-bigbin sample.milliseconds
+pmval -z -f3 -w12 -r -t 3sec -a archives/ok-bigbin sample.milliseconds
+pmie -z -v -c $tmp.pmie -t 3sec -a archives/ok-bigbin 2>&1 \
 | _filter_pmie_log
 
 echo

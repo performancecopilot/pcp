@@ -104,14 +104,14 @@ pmlogrewrite: Cannot open config file "TMP.link": Permission denied
 pmlogrewrite: Cannot open config file "TMP.link/forbidden": Permission denied
 
 === truncated archive ===
-pmlogrewrite: Error: __pmLogRead[log src/ok-truncbin]: Corrupted record in a PCP archive log
+pmlogrewrite: Error: __pmLogRead[log archives/ok-truncbin]: Corrupted record in a PCP archive log
 pmlogrewrite: Error occurred at byte offset 204456 into a file of 204800 bytes.
 Archive "TMP.new" not created.
 input records: 416
 output records: no file
 
 === truncated archive -d ===
-pmlogrewrite: Error: __pmLogRead[log src/ok-truncbin]: Corrupted record in a PCP archive log
+pmlogrewrite: Error: __pmLogRead[log archives/ok-truncbin]: Corrupted record in a PCP archive log
 pmlogrewrite: Error occurred at byte offset 204456 into a file of 204800 bytes.
 The last record, and the remainder of this file will not be processed.
 Archive "TMP.new" creation truncated.

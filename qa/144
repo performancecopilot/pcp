@@ -26,9 +26,9 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 rm -f $seq.full
 
 # real QA test starts here
-pmlogreduce -A 30sec -t 30sec src/naslog $tmp
+pmlogreduce -A 30sec -t 30sec archives/naslog $tmp
 
-nch_in=`wc -c <src/naslog.0 | sed -e 's/ //g'`
+nch_in=`wc -c <archives/naslog.0 | sed -e 's/ //g'`
 nch_out=`wc -c <$tmp.0 | sed -e 's/ //g'`
 echo "Data reduction: `echo scale=4\\;$nch_out/$nch_in | bc`"
 
@@ -59,7 +59,7 @@ do
     echo "=== $metric ==="
     echo "=== $metric ===" >>$seq.full
     echo "--- original ---" >>$seq.full
-    pmval -z -a src/naslog -t 30sec -A 30sec $metric 2>&1 \
+    pmval -z -a archives/naslog -t 30sec -A 30sec $metric 2>&1 \
     | tee -a $seq.full \
     | _filter >$tmp.in
 

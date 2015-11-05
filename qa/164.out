@@ -73,7 +73,7 @@ QA output created by 164
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    disk.dev.total
-archive:   src/kenj-pc-diskstat
+archive:   archives/kenj-pc-diskstat
 host:      kenj-pc
 start:     Mon Mar 14 10:38:24 2005
 end:       Mon Mar 14 10:40:04 2005
@@ -98,7 +98,7 @@ pmval: pmFetch: End of PCP archive log
 === diskstat ===
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
-Archive: src/kenj-pc-diskstat, Host: kenj-pc, Mon Mar 14 10:38:34 2005
+Archive: archives/kenj-pc-diskstat, Host: kenj-pc, Mon Mar 14 10:38:34 2005
          %busy r+w/s   Kb/s   w/s  wKb/s  tavq device
 10:38:34  95.6    77    637     2      5   2.4 hda
            0.0     0      0     0      0   0.0 hdc
@@ -131,7 +131,7 @@ Archive: src/kenj-pc-diskstat, Host: kenj-pc, Mon Mar 14 10:38:34 2005
 === diskstat -i ===
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
-Archive: src/kenj-pc-diskstat, Host: kenj-pc, Mon Mar 14 10:38:34 2005
+Archive: archives/kenj-pc-diskstat, Host: kenj-pc, Mon Mar 14 10:38:34 2005
          %busy r+w/s   Kb/s   w/s  wKb/s  tavq device
 10:38:34  95.6    77    637     2      5   2.4 hda
 
@@ -155,7 +155,7 @@ Archive: src/kenj-pc-diskstat, Host: kenj-pc, Mon Mar 14 10:38:34 2005
 === diskstat -x ===
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
-Archive: src/kenj-pc-diskstat, Host: kenj-pc, Mon Mar 14 10:38:34 2005
+Archive: archives/kenj-pc-diskstat, Host: kenj-pc, Mon Mar 14 10:38:34 2005
          %busy r+w/s   Kb/s   w/s  wKb/s  tavq device
 10:38:34  95.6    77    637     2      5   2.4 hda
            0.0     0      0     0      0   0.0 hdc

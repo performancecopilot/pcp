@@ -19,10 +19,10 @@ pcp_free="$python $pcp_free"
 
 # real QA test starts here
 echo && echo === free output, at first sample
-PCP_ARCHIVE="src/pcp-free" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_free
+PCP_ARCHIVE="archives/pcp-free" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_free
 
-archive_first="-a src/pcp-free -z -O +1"
-archive_last="-a src/pcp-free -z -O -0"
+archive_first="-a archives/pcp-free -z -O +1"
+archive_last="-a archives/pcp-free -z -O -0"
 
 echo && echo === free output, at last sample
 pcp $archive_last free

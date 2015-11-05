@@ -23,9 +23,9 @@ metric sample.bucket { indom -> 99.* pmid -> 99.*.* }
 End-of-File
 
 # real QA test starts here
-pmlogrewrite -w -c $tmp.config src/ok-bigbin $tmp
+pmlogrewrite -w -c $tmp.config archives/ok-bigbin $tmp
 
-pmdumplog -z -a src/ok-bigbin >$tmp.old
+pmdumplog -z -a archives/ok-bigbin >$tmp.old
 pmdumplog -z -a $tmp >$tmp.new
 
 diff $tmp.old $tmp.new

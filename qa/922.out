@@ -82,7 +82,7 @@ rate.milliseconds
 Note: timezone set to local timezone of host "ha2" from archive
 
 metric:    sample.milliseconds
-archive:   src/ok-bigbin
+archive:   archives/ok-bigbin
 host:      ha2
 start:     Mon May  3 21:52:32 1999
 end:       Mon May  3 21:52:52 1999
@@ -102,7 +102,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "ha2" from archive
 
 metric:    sample.milliseconds
-archive:   src/ok-bigbin
+archive:   archives/ok-bigbin
 host:      ha2
 start:     Mon May  3 21:52:32 1999
 end:       Mon May  3 21:52:52 1999
@@ -117,7 +117,7 @@ interval:  3.00 sec
 21:52:44.647 4130536.612
 21:52:47.647 4133536.589
 21:52:50.647 4136536.609
-pmie: timezone set to local timezone from src/ok-bigbin
+pmie: timezone set to local timezone from archives/ok-bigbin
 raw (DATE): ?
 delta.milliseconds (DATE): ?
 rate.milliseconds (DATE): ?

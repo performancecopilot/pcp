@@ -116,7 +116,7 @@ do
 	    continue
 	fi
 	# real guard now
-	if egrep -l "src/$arch([.'\"\$,{ 	]|\$)" $file >/dev/null
+	if egrep -l "src/$arch([.'\"\'\$,{/ 	]|\$)" $file >/dev/null
 	then
 	    case $file
 	    in
@@ -138,7 +138,7 @@ do
 		    fi
 		    sed \
 			-e '/(pmcd.pmlogger.archive)/n' \
-			-e "s;src/$arch\([.'\"\$,{ 	]\);archives/$arch\1;" \
+			-e "s;src/$arch\([.'\"\`\$,{/ 	]\);archives/$arch\1;" \
 			-e "s;src/$arch\$;archives/$arch;" \
 			<$infile >$file.mv-me
 		    if [ "$infile" = "$file" ]

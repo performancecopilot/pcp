@@ -66,7 +66,7 @@ _do()
     $PCP_ECHO_PROG $PCP_ECHO_N "$1""$PCP_ECHO_C"
     echo >>$seq.full
     echo "=== $1 orig ===" >>$seq.full
-    pmval -z -O 1m -A 15m -t 15m -a src/kenj-pc-1 $1 2>$tmp.orig.err \
+    pmval -z -O 1m -A 15m -t 15m -a archives/kenj-pc-1 $1 2>$tmp.orig.err \
     | tee -a $seq.full \
     | _fix_e_fmt \
     | _filter >$tmp.orig
@@ -112,7 +112,7 @@ $3 == "?"	{ print; next }
 }
 
 # real QA test starts here
-pmlogreduce -A 15m -t 15m -D appl0,appl1,appl2 src/kenj-pc-1 $tmp 2>>$seq.full
+pmlogreduce -A 15m -t 15m -D appl0,appl1,appl2 archives/kenj-pc-1 $tmp 2>>$seq.full
 
 for m in \
     disk.all.total kernel.all.cpu.idle \

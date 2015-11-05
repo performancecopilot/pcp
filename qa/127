@@ -18,7 +18,7 @@ $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmlogreduce src/kenj-pc-1 $tmp
+pmlogreduce archives/kenj-pc-1 $tmp
 pmdumplog -d $tmp \
 | sed -e '/^PMID/{
 N

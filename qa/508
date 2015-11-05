@@ -60,7 +60,7 @@ NF % 2 == 1	{ for (i = 2; i < 2+(NF-1)/2; i++) {
 ok == 0		{ print }'
 }
 
-if pmlogreduce -A 3sec -t 3sec src/interpmark $tmp.reduce
+if pmlogreduce -A 3sec -t 3sec archives/interpmark $tmp.reduce
 then
     :
 else
@@ -145,9 +145,9 @@ s/No values/No input values/
 p
 }' $tmp.in >$tmp.in2
     echo "--- inputs compared to merge ---" | tee -a $seq.full
-    pmval -rz -w 12 -f 3 -U src/interpmark $m >>$seq.full 2>&1
+    pmval -rz -w 12 -f 3 -U archives/interpmark $m >>$seq.full 2>&1
 
-    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a src/interpmark $m \
+    pmval -rz -w 12 -f 3 -A 3sec -t 3sec -a archives/interpmark $m \
     | tee -a $seq.full \
     | _filter1 >$tmp.merge
     sed -n '/^[0-2]/{

@@ -17,9 +17,9 @@ pcp_numastat="$PCP_BINADM_DIR/pcp-numastat"
 test -x $pcp_numastat || _notrun "No pcp-numastat(1) installed"
 pcp_numastat="$python $pcp_numastat"
 
-archive1="$here/src/pcp-numastat-1-node"
-archive2="-a $here/src/pcp-numastat-1-node -z"
-archive3="-a $here/src/numa -z"
+archive1="$here/archives/pcp-numastat-1-node"
+archive2="-a $here/archives/pcp-numastat-1-node -z"
+archive3="-a $here/archives/numa -z"
 
 # real QA test starts here
 echo && echo 1 node numastat output, at archive start, cmd width

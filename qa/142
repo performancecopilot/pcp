@@ -24,7 +24,7 @@ $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmlogreduce -Dappl2 -S 15s -t 15s src/kenj-pc-1 $tmp >$tmp.out 2>&1
+pmlogreduce -Dappl2 -S 15s -t 15s archives/kenj-pc-1 $tmp >$tmp.out 2>&1
 
 echo "Samples: `pmdumplog $tmp | grep '^[0-2]' | wc -l | sed -e 's/ //g'`"
 
