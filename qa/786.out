@@ -27,7 +27,7 @@ dup ctx pmGetContextHostName_r(1, ...) => "HOSTNAME"
 original ctx pmGetContextHostName(0)="HOSTNAME"
 original ctx pmGetContextHostName_r(0, ...) => "HOSTNAME"
 
-=== -a src/babylon.percpu_v2 ===
+=== -a archives/babylon.percpu_v2 ===
 pmGetContextHostName(0)="babylon"
 pmGetContextHostName_r(0, ...) => "babylon"
 pmDupConext()=1

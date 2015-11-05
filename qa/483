@@ -67,7 +67,7 @@ do
     echo "=== metric $m { type->U32 } ==="
     echo "metric $m { type->U32 }" >$tmp.conf
     rm -f $tmp.new.*
-    pmlogrewrite -w -C -c $tmp.conf src/ac15 $tmp.new 2>&1 | _filter
+    pmlogrewrite -w -C -c $tmp.conf archives/ac15 $tmp.new 2>&1 | _filter
 done
 
 # pmid exercises

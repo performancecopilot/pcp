@@ -18,7 +18,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # usage: _xtract metric
 _xtract()
 {
-    pmdumplog -D1 src/binning $1 >$tmp.out 2>$tmp.err
+    pmdumplog -D1 archives/binning $1 >$tmp.out 2>$tmp.err
     cat $tmp.err $tmp.out \
     | $PCP_AWK_PROG '
 $1 == "pmResult"                { state=1; time=$7; stamp=$6; next }
@@ -102,7 +102,7 @@ $PCP_ECHO_PROG $PCP_ECHO_N "QA calculates: ""$PCP_ECHO_C"
 fgrep -v COUNT $tmp.noncount | _dobinning $nbins $MIN $MAX
 
 $PCP_ECHO_PROG $PCP_ECHO_N "pmlogsummary calculates: ""$PCP_ECHO_C"
-pmlogsummary -ymMB $nbins src/binning sample.scale_step.time_up_nanosecs \
+pmlogsummary -ymMB $nbins archives/binning sample.scale_step.time_up_nanosecs \
 	| _filterbins $nbins
 
 echo
@@ -115,17 +115,17 @@ $PCP_ECHO_PROG $PCP_ECHO_N "QA calculates: ""$PCP_ECHO_C"
 fgrep -v COUNT $tmp.count | _dobinning $nbins $MIN $MAX
 
 $PCP_ECHO_PROG $PCP_ECHO_N "pmlogsummary calculates: ""$PCP_ECHO_C"
-pmlogsummary -ymMB $nbins src/binning | fgrep sample.milliseconds \
+pmlogsummary -ymMB $nbins archives/binning | fgrep sample.milliseconds \
 	| _filterbins $nbins
 
 # misc checks
 echo
 echo "=== testing boundary conditions ==="
-pmlogsummary -B 1 src/binning >/dev/null 2>&1
+pmlogsummary -B 1 archives/binning >/dev/null 2>&1
 [ $? -ne 0 ] && echo "  urk - error test #1 failed!"
-pmlogsummary -B 0 src/binning >/dev/null 2>&1
+pmlogsummary -B 0 archives/binning >/dev/null 2>&1
 [ $? -ne 0 ] && echo "  urk - error test #2 failed!"
-pmlogsummary -B -7 src/binning >/dev/null 2>&1
+pmlogsummary -B -7 archives/binning >/dev/null 2>&1
 [ $? -eq 0 ] && echo "  urk - error test #3 failed!"
 
 echo done.

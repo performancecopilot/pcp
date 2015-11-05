@@ -90,7 +90,7 @@ done
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	spec|metric...
 # double -> 
-src/babylon.pmview_v2		metric disk.dev.read { type -> U64 } metric disk.dev.write { type -> U64 } metric disk.dev.total { type -> U64 }|disk.dev.read disk.dev.write disk.dev.total
+archives/babylon.pmview_v2		metric disk.dev.read { type -> U64 } metric disk.dev.write { type -> U64 } metric disk.dev.total { type -> U64 }|disk.dev.read disk.dev.write disk.dev.total
 End-of-File
 do
     echo | tee -a $seq.full

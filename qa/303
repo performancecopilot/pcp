@@ -33,14 +33,14 @@ export TZ
 # real QA test starts here
 
 echo "=== arch_a ==="
-pmdumplog -a -z src/arch_a | _filter
+pmdumplog -a -z archives/arch_a | _filter
 
 echo
 echo "=== arch_b ==="
-pmdumplog -a -z src/arch_b | _filter
+pmdumplog -a -z archives/arch_b | _filter
 
 rm -rf $tmp.arch*
-pmlogextract -z src/arch_a src/arch_b $tmp.arch
+pmlogextract -z archives/arch_a archives/arch_b $tmp.arch
 
 echo
 echo "=== the merged archive ==="

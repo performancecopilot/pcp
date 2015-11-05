@@ -46,7 +46,7 @@ sed -e '/^#/d' <<End-of-File | while read arch_args spec
 src/rattle		metric hinv.ncpu { delete }
 src/rattle		metric hinv.ncpu { delete } metric hinv.ndisk { delete }
 src/rattle		metric 1.*.* { delete }
-src/ace_v2		metric 40.*.* { delete } metric 1.25.* { delete }
+archives/ace_v2		metric 40.*.* { delete } metric 1.25.* { delete }
 archives/mirage		indom 29.3 { iname "m-00" -> delete inst 33 -> delete }
 End-of-File
 do

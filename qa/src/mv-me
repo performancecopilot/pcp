@@ -53,7 +53,7 @@ do
     if grep "[ 	]${arch}.0 " $tmp.make.macro >/dev/null
     then
 	sed <$tmp.make.macro >$tmp.tmp \
-	    -e "s/\([ 	]\)${arch}.0\1/ /"
+	    -e "s/\\([ 	]\\)${arch}.0 /\\1/"
 	mv $tmp.tmp $tmp.make.macro
     else
 	echo "Error: unable to update SRCARCH macro in GNUlocaldefs"
@@ -87,7 +87,7 @@ do
 done
 
 echo
-echo "QA tests ..."
+echo "QA tests and output [*] => modified again ..."
 rm -f $tmp.tmp
 cd ..
 for arch
@@ -125,14 +125,28 @@ do
 		*)
 		    # need to skip pathnames in archive preamble
 		    # records (pmcd.pmlogger.archive)
+		    if [ -f $file.mv-me ]
+		    then
+			# already been here for a previous archive
+			cp $file.mv-me $tmp.seq
+			infile=$tmp.seq
+		    else
+			# first time
+			infile=$file
+		    fi
 		    sed \
 			-e '/(pmcd.pmlogger.archive)/n' \
 			-e "s;src/$arch\([.'\"\$,{ 	]\);archives/$arch\1;" \
 			-e "s;src/$arch\$;archives/$arch;" \
-			<$file >$file.mv-me
-		    echo "cp ../$file.mv-me ../$file" >>$tmp.sh
-		    echo "rm ../$file.mv-me" >>$tmp.sh
-		    echo -n " $file"
+			<$infile >$file.mv-me
+		    if [ "$infile" = "$file" ]
+		    then
+			echo "cp ../$file.mv-me ../$file" >>$tmp.sh
+			echo "rm ../$file.mv-me" >>$tmp.sh
+			echo -n " $file"
+		    else
+			echo -n " $file[*]"
+		    fi
 		    ;;
 	    esac
 	    echo $file | sed -e 's/\..*//' >>$tmp.tmp

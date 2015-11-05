@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 
 # use V2 archives only
-arch=src/ace_v2
+arch=archives/ace_v2
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
