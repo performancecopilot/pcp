@@ -39,15 +39,15 @@ echo | tee -a $seq.full
 echo "=== global hostname -> foo.bar.com ===" | tee -a $seq.full
 echo 'global { hostname -> foo.bar.com }' >$tmp.config
 rm -f $tmp.new.*
-pmlogrewrite -wv -c $tmp.config src/541380_v2 $tmp.new 2>&1 | _filter
-_cmp src/541380_v2 $tmp.new
+pmlogrewrite -wv -c $tmp.config archives/541380_v2 $tmp.new 2>&1 | _filter
+_cmp archives/541380_v2 $tmp.new
 
 echo | tee -a $seq.full
 echo "=== global tz -> "GMT" ===" | tee -a $seq.full
 echo 'global { tz -> "GMT" }' >$tmp.config
 rm -f $tmp.new.*
-pmlogrewrite -wv -c $tmp.config src/541380_v2 $tmp.new 2>&1 | _filter
-_cmp src/541380_v2 $tmp.new
+pmlogrewrite -wv -c $tmp.config archives/541380_v2 $tmp.new 2>&1 | _filter
+_cmp archives/541380_v2 $tmp.new
 
 for t in 10:20:30 +10:20:30 -10:20:30 "-22:33:24.637 tz->\"GMT\" hostname->eek"
 do
@@ -55,8 +55,8 @@ do
     echo "=== global time->$t ===" | tee -a $seq.full
     echo "global{time->$t}" >$tmp.config
     rm -f $tmp.new.*
-    pmlogrewrite -wv -c $tmp.config src/541380_v2 $tmp.new 2>&1 | _filter
-    _cmp src/541380_v2 $tmp.new
+    pmlogrewrite -wv -c $tmp.config archives/541380_v2 $tmp.new 2>&1 | _filter
+    _cmp archives/541380_v2 $tmp.new
 done
 
 # success, all done

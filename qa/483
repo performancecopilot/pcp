@@ -118,7 +118,7 @@ echo
 echo "=== metric pmcd.pmlogger.port { indom -> 60.* } ==="
 echo "metric pmcd.pmlogger.port { indom -> 60.* }" >$tmp.conf
 rm -f $tmp.new.*
-pmlogrewrite -w -C -c $tmp.conf src/20041125 $tmp.new 2>&1 | _filter
+pmlogrewrite -w -C -c $tmp.conf archives/20041125 $tmp.new 2>&1 | _filter
 echo
 echo "=== metric hinv.ndisk { indom -> 1.5 } ==="
 echo "metric hinv.ndisk { indom -> 1.5 }" >$tmp.conf

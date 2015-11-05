@@ -15,7 +15,7 @@ rate.cpu.user
 Note: timezone set to local timezone of host "brutus.corp" from archive
 
 metric:    kernel.all.cpu.user
-archive:   src/960624.08.17_v2
+archive:   archives/960624.08.17_v2
 host:      brutus.corp
 start:     Sun Jun 23 15:23:46 1996
 end:       Sun Jun 23 15:43:26 1996
@@ -31,7 +31,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "brutus.corp" from archive
 
 metric:    kernel.all.cpu.user
-archive:   src/960624.08.17_v2
+archive:   archives/960624.08.17_v2
 host:      brutus.corp
 start:     Sun Jun 23 15:23:46 1996
 end:       Sun Jun 23 15:43:26 1996
@@ -43,7 +43,7 @@ interval:  300.00 sec
 15:28:46.349    15768745
 15:33:46.349    16663459
 15:38:46.349    17500897
-pmie: timezone set to local timezone from src/960624.08.17_v2
+pmie: timezone set to local timezone from archives/960624.08.17_v2
 raw (DATE): ?
 delta.cpu (DATE): ?
 rate.cpu (DATE): ?

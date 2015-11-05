@@ -14,9 +14,9 @@ echo "QA output created by $seq"
 
 if [ $PCP_VER -lt 30600 ]
 then
-    arch=src/951127.23.01
+    arch=archives/951127.23.01
 else
-    arch=src/951127.23.01_v2
+    arch=archives/951127.23.01_v2
 fi
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15

@@ -39,23 +39,23 @@ export TZ
 
 echo
 echo 'marks in one archive ...'
-pmdumplog -z src/19970807.09.54 2>&1 | grep '<mark>' >$tmp.one
+pmdumplog -z archives/19970807.09.54 2>&1 | grep '<mark>' >$tmp.one
 cat $tmp.one
 
 echo
 echo 'marks in other archive ...'
-pmdumplog -z src/19970807.09.59 2>&1 | grep '<mark>' >$tmp.other
+pmdumplog -z archives/19970807.09.59 2>&1 | grep '<mark>' >$tmp.other
 cat $tmp.other
 
 echo
 echo 'pmlogextract ... and marks ... and diffs (expect an extra one in the middle)'
-pmlogextract src/19970807.09.54 src/19970807.09.59 $tmp
+pmlogextract archives/19970807.09.54 archives/19970807.09.59 $tmp
 _check
 
 echo
 echo 'pmlogextract ... and marks ... and diffs (expect an extra one in the middle)'
 rm -f $tmp.0 $tmp.meta $tmp.index
-pmlogextract src/19970807.09.54 src/19970807.09.59 $tmp
+pmlogextract archives/19970807.09.54 archives/19970807.09.59 $tmp
 _check
 
 # success, all done

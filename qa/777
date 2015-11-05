@@ -75,8 +75,8 @@ pmie -v -z -c $tmp.pmie -t 10sec -A 10sec -a src/sample-secs 2>&1 \
 | sed -e '/ Info: evaluator exiting/d'
 
 echo
-pmval -z -t 15sec -A 15sec -a src/951127.23.01_v2 sample.lights
-pmval -z -t 15sec -A 15sec -a src/951127.23.01_v2 qa.instant.lights
+pmval -z -t 15sec -A 15sec -a archives/951127.23.01_v2 sample.lights
+pmval -z -t 15sec -A 15sec -a archives/951127.23.01_v2 qa.instant.lights
 
 # success, all done
 status=0

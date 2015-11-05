@@ -28,7 +28,7 @@ _filter()
 
 # real QA test starts here
 
-# pmdumplog -z -L src/conn20070309.0 reports ...
+# pmdumplog -z -L archives/conn20070309.0 reports ...
 #
 # commencing Fri Mar  9 00:10:47.856 2007
 # ending     Sat Mar 10 00:10:17.859 2007
@@ -38,7 +38,7 @@ echo "=============================================="
 echo "-S +8h -T +3h -t 20min ... expect 10 results"
 echo "=============================================="
 $sudo rm -f $tmp.*
-pmlogreduce -D appl0 -z -S +8h -T+3h -t 20min src/conn20070309.0 $tmp 2>&1 \
+pmlogreduce -D appl0 -z -S +8h -T+3h -t 20min archives/conn20070309.0 $tmp 2>&1 \
 | _filter
 pmdumplog -z $tmp
 
@@ -47,7 +47,7 @@ echo "=============================================="
 echo "-A 15m -S +8h -T +2h -t 15min ... expect 9 results"
 echo "=============================================="
 $sudo rm -f $tmp.*
-pmlogreduce -D appl0 -z -A 15m -S +8h -T+2h -t 15min src/conn20070309.0 $tmp 2>&1 \
+pmlogreduce -D appl0 -z -A 15m -S +8h -T+2h -t 15min archives/conn20070309.0 $tmp 2>&1 \
 | _filter
 pmdumplog -z $tmp
 
@@ -56,7 +56,7 @@ echo "=============================================="
 echo "-Z UTC -S @16:00:00 -T +2h -t 15min ... expect 9 results"
 echo "=============================================="
 $sudo rm -f $tmp.*
-pmlogreduce -D appl0 -Z UTC -S @16:00:00 -T+2h -t 15min src/conn20070309.0 $tmp 2>&1 \
+pmlogreduce -D appl0 -Z UTC -S @16:00:00 -T+2h -t 15min archives/conn20070309.0 $tmp 2>&1 \
 | _filter
 pmdumplog -Z GMT $tmp
 
@@ -65,7 +65,7 @@ echo "=============================================="
 echo "-s 6 ... expect 6 results"
 echo "=============================================="
 $sudo rm -f $tmp.*
-pmlogreduce -s 6 src/conn20070309.0 $tmp
+pmlogreduce -s 6 archives/conn20070309.0 $tmp
 pmdumplog -z $tmp
 
 # success, all done

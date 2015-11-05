@@ -40,3 +40,35 @@ mirage.0:
 
 mirage-1.0 mirage-2.0:
 	./mkmirage
+
+# 4 secs, 3 sec gap, 4 secs, 3 sec gap, 4 secs
+# and indom changes ... checked in, this is the recipe that was
+# used
+#
+changeinst.0:
+	rm -rf tmp
+	mkdir tmp
+	echo 'log mandatory on once { hinv.ncpu }' >tmp/A.config
+	echo 'log mandatory on 1sec {' >>tmp/A.config
+	echo '  sample.seconds,hinv.ncpu,sample.bin["bin-100","bin-200","bin-400"]' >>tmp/A.config
+	echo '  sample.drift' >>tmp/A.config
+	echo '  irix.network.interface.total.packets["lo0","ec0"]' >>tmp/A.config
+	echo '}' >>tmp/A.config
+	echo 'log mandatory on once { sample.bin["bin-500"] }' >tmp/B.config
+	echo 'log mandatory on 1sec {' >>tmp/B.config
+	echo '  sample.seconds,sample.milliseconds,sample.bin["bin-100","bin-300","bin-400"]' >>tmp/B.config
+	echo '}' >>tmp/B.config
+	echo 'log mandatory on once { hinv.ncpu }' >tmp/C.config
+	echo 'log mandatory on 1sec {' >>tmp/C.config
+	echo '  sample.drift' >>tmp/C.config
+	echo '  sample.seconds,sample.bin["bin-200","bin-300","bin-400","bin-500"]' >>tmp/C.config
+	echo '  irix.network.interface.total.packets["ec2","lo0"]' >>tmp/C.config
+	echo '}' >>tmp/C.config
+	pmlogger -s 5 -c tmp/A.config tmp/A
+	sleep 3
+	pmlogger -s 5 -c tmp/B.config tmp/B
+	sleep 3
+	pmlogger -s 5 -c tmp/C.config tmp/C
+	rm -f changeinst.index changeinst.meta changeinst.0
+	pmlogextract tmp/A tmp/B tmp/C changeinst
+	rm -rf tmp

@@ -57,6 +57,8 @@ do
 	mv $tmp.tmp $tmp.make.macro
     else
 	echo "Error: unable to update SRCARCH macro in GNUlocaldefs"
+	echo "Failed for ${arch}.0 in ..."
+	cat $tmp.make.macro
 	exit
     fi
 

@@ -13,22 +13,20 @@ HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || ech
 
 SRCARCH	= moomba.client.0 omen.client.0 \
 	late.0 ok-bigbin.0 ok-mv-bigbin.0 ok-truncbin.0 ok-mv-foo.0 \
-	951127.23.01.0 951127.23.01_v2.0 960624.08.17.0 960624.08.17_v2.0 \
 	rattle.0 mark-bug.0 \
-	err_v1.0 changeinst.0 19970807.09.54.0 19970807.09.59.0 \
-	wrap.0 573184.0 xbug1.0 pcpcmd.0 markmerge.0 \
-	sample-secs.0 gmt-boring.0 kenj-pc-1.0 kenj-pc-2.0 \
+	\
+	wrap.0 xbug1.0 pcpcmd.0 markmerge.0 \
+	sample-secs.0 kenj-pc-1.0 kenj-pc-2.0 \
 	reduce-1.0 reduce-2.0 kenj-pc-diskstat.0 snort-disks.0 \
-	vldb-disks.0 moomba.pmkstat.0 fcsw_indom.0 \
-	uwrap.0 20041125.0 conn20070309.0 logsummary-bug.0 \
+	vldb-disks.0 moomba.pmkstat.0 \
+	uwrap.0 logsummary-bug.0 \
 	tzchange-10-a.0 tzchange-10-b.0 tzchange-11-a.0 tzchange-11-b.0 \
 	tzchange-12-a.0 tzchange-12-b.0 sample_expr.0 \
-	eventrec-old.0 eventrec.0 \
-	540117-short.0 541380.0 541380_v2.0 573184.0 20101004-trunc.0 \
+	\
 	rewrite.0 proc.0 section-a.0 section-b.0 section-c.0 section-d.0 \
-	interpmark.0 all-irix-6.5.25.0 all-sles9-sp1.0 naslog.0 \
+	interpmark.0 naslog.0 \
 	multi-vm00.0 multi-vm01.0 multi-vm02.0 multi-vm03.0 pmatop-log.0 \
-	new_mysql.0 new_snmp.0 old_xfs.0 node_archive.0 count-mark.0 \
+	new_mysql.0 new_snmp.0 old_xfs.0 node_archive.0 \
 	pyapi.0 pcp-free.0 pcp-uptime.0 pcp-numastat-1-node.0 numa.0
 
 SRCARCHPART = ok-noti-bigbin.0 pmatop-log.folio \
@@ -701,38 +699,6 @@ null.0:	foo.0
 	ln foo.meta null.meta
 	ln foo.index null.index
 	dd ibs=132 count=1 if=foo.0 of=null.0
-
-# 4 secs, 3 sec gap, 4 secs, 3 sec gap, 4 secs
-# and indom changes ... checked in, this is the recipe that was
-# used
-#
-changeinst.0:
-	rm -rf tmp
-	mkdir tmp
-	echo 'log mandatory on once { hinv.ncpu }' >tmp/A.config
-	echo 'log mandatory on 1sec {' >>tmp/A.config
-	echo '  sample.seconds,hinv.ncpu,sample.bin["bin-100","bin-200","bin-400"]' >>tmp/A.config
-	echo '  sample.drift' >>tmp/A.config
-	echo '  irix.network.interface.total.packets["lo0","ec0"]' >>tmp/A.config
-	echo '}' >>tmp/A.config
-	echo 'log mandatory on once { sample.bin["bin-500"] }' >tmp/B.config
-	echo 'log mandatory on 1sec {' >>tmp/B.config
-	echo '  sample.seconds,sample.milliseconds,sample.bin["bin-100","bin-300","bin-400"]' >>tmp/B.config
-	echo '}' >>tmp/B.config
-	echo 'log mandatory on once { hinv.ncpu }' >tmp/C.config
-	echo 'log mandatory on 1sec {' >>tmp/C.config
-	echo '  sample.drift' >>tmp/C.config
-	echo '  sample.seconds,sample.bin["bin-200","bin-300","bin-400","bin-500"]' >>tmp/C.config
-	echo '  irix.network.interface.total.packets["ec2","lo0"]' >>tmp/C.config
-	echo '}' >>tmp/C.config
-	pmlogger -s 5 -c tmp/A.config tmp/A
-	sleep 3
-	pmlogger -s 5 -c tmp/B.config tmp/B
-	sleep 3
-	pmlogger -s 5 -c tmp/C.config tmp/C
-	rm -f changeinst.index changeinst.meta changeinst.0
-	pmlogextract tmp/A tmp/B tmp/C changeinst
-	rm -rf tmp
 
 # gap: 10 sec data, 5 sec gap, 10 sec data
 # gap2: 10 sec data, 5 sec gap, 10 sec data, 5 sec gap, 10 sec data

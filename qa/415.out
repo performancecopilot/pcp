@@ -5,7 +5,7 @@ QA output created by 415
 pmval: Cannot display values for event type metrics
 exit status=1
 
-=== pmval -s 1 -a src/eventrec-old sample.event.records ===
+=== pmval -s 1 -a archives/eventrec-old sample.event.records ===
 
 pmval: Cannot display values for event type metrics
 exit status=1

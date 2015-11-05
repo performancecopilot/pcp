@@ -54,9 +54,9 @@ else
 End-of-File
 
 pminfo -d kernel.all.cpu.user delta.cpu.user rate.cpu.user
-pmval -z -f3 -w12 -t 5min -asrc/960624.08.17_v2 kernel.all.cpu.user
-pmval -z -f3 -w12 -r -t 5min -a src/960624.08.17_v2 kernel.all.cpu.user
-pmie -z -v -c $tmp.pmie -t 5min -a src/960624.08.17_v2 2>&1 \
+pmval -z -f3 -w12 -t 5min -aarchives/960624.08.17_v2 kernel.all.cpu.user
+pmval -z -f3 -w12 -r -t 5min -a archives/960624.08.17_v2 kernel.all.cpu.user
+pmie -z -v -c $tmp.pmie -t 5min -a archives/960624.08.17_v2 2>&1 \
 | _filter_pmie_log
 
 echo

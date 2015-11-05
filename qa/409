@@ -32,7 +32,7 @@ $1 == "sample.event.param_aggregate"	{ want = 1 }
 }
 
 # real QA test starts here
-pminfo -x -a src/eventrec-old | _filter
+pminfo -x -a archives/eventrec-old | _filter
 
 # success, all done
 exit
