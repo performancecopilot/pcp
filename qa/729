@@ -20,7 +20,7 @@ cat > $tmp.units <<EOF
 import pcp.pmapi
 from pcp.pmapi import c_api
 
-fname = 'src/bug_v2'
+fname = 'archives/bug_v2'
 context = pcp.pmapi.pmContext(c_api.PM_CONTEXT_ARCHIVE, fname)
 pmids = context.pmLookupName(['proc.nprocs'])
 descs = context.pmLookupDescs(pmids[0])

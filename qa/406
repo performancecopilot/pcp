@@ -29,7 +29,7 @@ fi
 
 # real QA test starts here
 echo "Expect $message for each pmFetch ..."
-src/interp0 -t 0.5 -a src/eventrec-old sample.event.records
+src/interp0 -t 0.5 -a archives/eventrec-old sample.event.records
 
 # success, all done
 exit

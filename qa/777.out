@@ -78,7 +78,7 @@ reverse3: true
 
 
 === archive tests ===
-pmie: timezone set to local timezone from src/sample-secs
+pmie: timezone set to local timezone from archives/sample-secs
 raw (Mon May  1 20:36:50 2000): ?
 cooked (Mon May  1 20:36:50 2000): 380437
 reverse (Mon May  1 20:36:50 2000): unknown
@@ -113,7 +113,7 @@ reverse4 (Mon May  1 20:37:40 2000): true
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.lights
-archive:   src/951127.23.01_v2
+archive:   archives/951127.23.01_v2
 host:      gonzo
 start:     Mon Nov 27 23:01:45 1995
 end:       Mon Nov 27 23:03:38 1995
@@ -132,7 +132,7 @@ interval:  15.00 sec
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    qa.instant.lights
-archive:   src/951127.23.01_v2
+archive:   archives/951127.23.01_v2
 host:      gonzo
 start:     Mon Nov 27 23:01:45 1995
 end:       Mon Nov 27 23:03:38 1995

@@ -79,7 +79,7 @@ cat $tmp.out \
 
 echo | tee -a $seq.full
 echo "=== archive and pmie2col -w ===" | tee -a $seq.full
-pmie -v -z -A 30m -t 30m -a src/kenj-pc-1 <$tmp.config >$tmp.out 2>$tmp.tmp
+pmie -v -z -A 30m -t 30m -a archives/kenj-pc-1 <$tmp.config >$tmp.out 2>$tmp.tmp
 cat $tmp.out >>$seq.full
 sed -e '/Info: evaluator exiting/d' <$tmp.tmp >$tmp.err
 if [ -s $tmp.err ]

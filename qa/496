@@ -85,18 +85,18 @@ cat $tmp.conf.? >$tmp.conf.all
 #
 echo "=== baseline ==="
 rm -f $tmp.baseline.*
-pmlogrewrite -ws -c $tmp.conf.all src/rewrite $tmp.baseline 2>&1 | _filter
+pmlogrewrite -ws -c $tmp.conf.all archives/rewrite $tmp.baseline 2>&1 | _filter
 
 echo
 echo "=== one config file ==="
 rm -f $tmp.new.*
-pmlogrewrite -ws -c $tmp.conf.all src/rewrite $tmp.new 2>&1 | _filter
+pmlogrewrite -ws -c $tmp.conf.all archives/rewrite $tmp.new 2>&1 | _filter
 _cmp $tmp.baseline $tmp.new
 
 echo
 echo "=== three config files ==="
 rm -f $tmp.new.*
-pmlogrewrite -ws -c $tmp.conf.1 -c $tmp.conf.2 -c $tmp.conf.3 src/rewrite $tmp.new 2>&1 | _filter
+pmlogrewrite -ws -c $tmp.conf.1 -c $tmp.conf.2 -c $tmp.conf.3 archives/rewrite $tmp.new 2>&1 | _filter
 _cmp $tmp.baseline $tmp.new
 
 echo
@@ -104,7 +104,7 @@ echo "=== config dir with regular files ==="
 mkdir $tmp.conf.dir
 cp $tmp.conf.[123] $tmp.conf.dir
 rm -f $tmp.new.*
-pmlogrewrite -ws -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 | _filter
+pmlogrewrite -ws -c $tmp.conf.dir archives/rewrite $tmp.new 2>&1 | _filter
 _cmp $tmp.baseline $tmp.new
 
 echo
@@ -116,7 +116,7 @@ do
 done
 echo "metric sampledso.ulong.hundred { type -> U32 }" >$tmp.conf.dir/.$seq-$$.conf.4
 rm -f $tmp.new.*
-pmlogrewrite -ws -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 | _filter
+pmlogrewrite -ws -c $tmp.conf.dir archives/rewrite $tmp.new 2>&1 | _filter
 _cmp $tmp.baseline $tmp.new
 
 echo
@@ -125,7 +125,7 @@ mv $tmp.conf.dir/.$seq-$$.conf.4 $tmp.conf.dir/$seq-$$.conf.4
 rm -f $tmp.new.*
 # need to sort here because the order in which the files are processed
 # depends in readdir() and is not deterministic
-pmlogrewrite -ws -c $tmp.conf.dir src/rewrite $tmp.new 2>&1 \
+pmlogrewrite -ws -c $tmp.conf.dir archives/rewrite $tmp.new 2>&1 \
 | LC_COLLATE=POSIX sort \
 | _filter
 _cmp $tmp.baseline $tmp.new

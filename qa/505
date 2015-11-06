@@ -42,7 +42,7 @@ _cmp()
 
 # real QA test starts here
 
-pmdumplog -z -a src/ok-mv-foo \
+pmdumplog -z -a archives/ok-mv-foo \
 | tee -a $seq.full \
 | sed -e '/\[[0-9][0-9]* bytes]/d' >$tmp.ref
 
@@ -50,7 +50,7 @@ echo | tee -a $seq.full
 echo "metric sample.seconds { type -> U64 }" >$tmp.config
 echo "=== `cat $tmp.config` ===" | tee -a $seq.full
 rm -f $tmp.new.*
-pmlogrewrite -ws -c $tmp.config src/ok-mv-foo $tmp.new 2>&1 | _filter
+pmlogrewrite -ws -c $tmp.config archives/ok-mv-foo $tmp.new 2>&1 | _filter
 echo "Output archive contains: `ls $tmp.new.* | tee -a $seq.full | wc -l | sed -e 's/ //g'` files"
 _cmp $tmp.new
 
@@ -60,7 +60,7 @@ echo "=== -i `cat $tmp.config` ===" | tee -a $seq.full
 rm -f $tmp.new.*
 for i in index meta 0 1 2
 do
-    cp src/ok-mv-foo.$i $tmp.new.$i
+    cp archives/ok-mv-foo.$i $tmp.new.$i
 done
 pmlogrewrite -iws -c $tmp.config $tmp.new 2>&1 | _filter
 echo "Output archive contains: `ls $tmp.new.* | tee -a $seq.full | wc -l | sed -e 's/ //g'` files"

@@ -26,14 +26,21 @@ MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default_pcp default:	check_domain
+default_pcp default:	build-me
 
 include $(BUILDRULES)
 
+ifeq "$(HAVE_PYTHON)" "true"
+build-me:	check_domain
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PYSCRIPT) $(PMDADIR)
 	@$(INSTALL_MAN)
+else
+build-me:
+install_pcp install:
+	@$(INSTALL_MAN)
+endif
 
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)

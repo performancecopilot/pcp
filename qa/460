@@ -31,7 +31,7 @@ export TZ
 # this should operate without any warnings or errors
 #
 rm -f $tmp.*
-$pmlogextract ./src/xbug1 $tmp
+$pmlogextract ./archives/xbug1 $tmp
 
 # check that the output file contains all the right descriptors, indoms, values
 #

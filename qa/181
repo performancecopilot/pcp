@@ -17,11 +17,11 @@ rm -f $seq.out
 if [ $PCP_VER -lt 30600 ]
 then
     # V1 archives supported
-    arch=src/bigace
+    arch=archives/bigace
     ln $seq.out.1 $seq.out
 else
     # no support for V1 archives
-    arch=src/bigace_v2
+    arch=archives/bigace_v2
     ln $seq.out.2 $seq.out
 fi
 

@@ -500,3 +500,8 @@ PCP_3.12 {
   global:
     __pmAFsetup;
 } PCP_3.11;
+
+PCP_3.13 {
+  global:
+    __pmStringValue;
+} PCP_3.12;

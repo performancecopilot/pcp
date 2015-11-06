@@ -30,7 +30,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c getopt.c probe.c
-HFILES = derive.h internal.h avahi.h probe.h
+HFILES = derive.h internal.h avahi.h probe.h compiler.h
 YFILES = getdate.y
 VERSION_SCRIPT = exports
 

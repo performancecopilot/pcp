@@ -1878,12 +1878,13 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	    if (pmidp->item == 0 ||	/* pmcd.client.whoami */
 		pmidp->item == 2) {	/* pmcd.client.container */
 		/*
-		 * Expect one value for one instance (PM_IN_NULL)
+		 * Expect one value for one instance (current client).
+		 * Clients can only set their own whoami/container.
 		 *
 		 * Use the value from the pmResult to change the value
 		 * for the client[] that matches the current pmcd client.
 		 */
-		if (vsp->numval != 1 || vsp->vlist[0].inst != PM_IN_NULL)
+		if (vsp->numval != 1)
 		    return PM_ERR_INST;
 
 		if (ctx >= num_ctx)

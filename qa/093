@@ -35,21 +35,21 @@ echo "=== src/foo ===" | tee -a $here/$seq.full
 src/interp2 -a src/foo | _filter 72 82 4 15
 
 echo | tee -a $here/$seq.full
-echo "=== src/ok-bigbin ===" | tee -a $here/$seq.full
-src/interp2 -a src/ok-bigbin | _filter 199 210 900 1210
+echo "=== archives/ok-bigbin ===" | tee -a $here/$seq.full
+src/interp2 -a archives/ok-bigbin | _filter 199 210 900 1210
 
 echo | tee -a $here/$seq.full
 echo "=== src/mv-foo ===" | tee -a $here/$seq.full
 src/interp2 -a src/mv-foo | _filter 72 82 10 20
 
 echo | tee -a $here/$seq.full
-echo "=== src/ok-mv-bigbin ===" | tee -a $here/$seq.full
-src/interp2 -a src/ok-mv-bigbin | _filter 199 210 980 1025
+echo "=== archives/ok-mv-bigbin ===" | tee -a $here/$seq.full
+src/interp2 -a archives/ok-mv-bigbin | _filter 199 210 980 1025
 
 echo | tee -a $here/$seq.full
 echo "=== src/noti-foo ===" | tee -a $here/$seq.full
 src/interp2 -a src/noti-foo | _filter 72 82 10 20
 
 echo | tee -a $here/$seq.full
-echo "=== src/ok-noti-bigbin ===" | tee -a $here/$seq.full
-src/interp2 -a src/ok-noti-bigbin | _filter 199 210 1980 2010
+echo "=== archives/ok-noti-bigbin ===" | tee -a $here/$seq.full
+src/interp2 -a archives/ok-noti-bigbin | _filter 199 210 1980 2010

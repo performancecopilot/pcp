@@ -108,6 +108,11 @@ pkgpcp_webapi = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_webapi);
 pkgpcp_python = $(zip) DIST_ROOT=`pwd`/$(dirpcp_python);
 
 configure_tools = export DEBUG=-DNDEBUG;
+# Note: configure options come from $(configure_paths) here, _plus_
+#       any passed in from the environment via $(configure_opts)
+#       ... Makepkgs uses the latter mechanism to refine the configure
+#       options
+#
 configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-sysconfigdir=/etc/default --without-systemd --without-python3
 
 checkdir = test -f debian/rules
@@ -136,7 +141,7 @@ config: .census
 	$(checkdir)
 	autoconf
 	dh_autotools-dev_updateconfig
-	$(configure_tools) ./configure $(configure_paths)
+	$(configure_tools) ./configure $(configure_paths) $(configure_opts)
 	touch .census
 
 clean:

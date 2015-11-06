@@ -103,9 +103,9 @@ metric hinv.ncpu { name->hinv.number_of_cpus type->U64 }
 End-of-File
 rm -f $tmp.new.*
 cat $tmp.conf >>$seq.full
-_run_valgrind pmlogrewrite -c $tmp.conf src/rattle $tmp.new 2>$tmp.err | _filter
+_run_valgrind pmlogrewrite -c $tmp.conf archives/src-rattle $tmp.new 2>$tmp.err | _filter
 cat $tmp.err >>$seq.full
-_cmp src/rattle $tmp.new
+_cmp archives/src-rattle $tmp.new
 
 cat <<End-of-File >$tmp.conf
 metric sample.mirage_longlong { type->U32 indom->NULL }
@@ -113,9 +113,9 @@ metric sample.scale_step.time_up_secs { type->FLOAT units->0,1,0,0,MSEC,0 }
 End-of-File
 rm -f $tmp.new.*
 cat $tmp.conf >>$seq.full
-_run_valgrind pmlogrewrite -c $tmp.conf src/sample_expr $tmp.new 2>$tmp.err | _filter
+_run_valgrind pmlogrewrite -c $tmp.conf archives/sample_expr $tmp.new 2>$tmp.err | _filter
 cat $tmp.err >>$seq.full
-_cmp src/sample_expr $tmp.new
+_cmp archives/sample_expr $tmp.new
 
 cat <<End-of-File >$tmp.conf
 metric sample.bin { name -> x23456789.sample.bin type -> 64 }
@@ -131,11 +131,11 @@ indom 29.3 { iname "m-00" -> delete inst 33 -> delete }
 End-of-File
 rm -f $tmp.new.*
 cat $tmp.conf >>$seq.full
-_run_valgrind pmlogrewrite -s -c $tmp.conf src/mirage $tmp.new 2>$tmp.err | _filter
+_run_valgrind pmlogrewrite -s -c $tmp.conf archives/mirage $tmp.new 2>$tmp.err | _filter
 cat $tmp.err >>$seq.full
 oldfilter=_scale
 newfilter=_noscale
-_cmp src/mirage $tmp.new
+_cmp archives/mirage $tmp.new
 
 echo
 echo "=== correctness checked in QA 493 ... only care about valgrind here ==="
@@ -168,7 +168,7 @@ indom 30.2 { inst 800 -> DELETE }
 End-of-File
 rm -f $tmp.new.*
 cat $tmp.conf >>$seq.full
-_run_valgrind pmlogrewrite -s -c $tmp.conf src/mirage $tmp.new 2>$tmp.err | _filter
+_run_valgrind pmlogrewrite -s -c $tmp.conf archives/mirage $tmp.new 2>$tmp.err | _filter
 cat $tmp.err >>$seq.full
 
 # success, all done

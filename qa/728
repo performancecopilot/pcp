@@ -38,10 +38,10 @@ echo '== Arguments: own long-only options'
 $here/src/getoptions --fubar --foobar eek
 
 echo '== Arguments: one archive, all time options (x2)'
-$here/src/getoptions -a src/20041125.0 -z \
+$here/src/getoptions -a archives/20041125.0 -z \
 	-A "1 minute" -O "@10:10:10" -S "@10:15" -T "@10:30" \
 	$here/src/getoptions
-$here/src/getoptions --archive src/20041125.0 --hostzone \
+$here/src/getoptions --archive archives/20041125.0 --hostzone \
 	--align "1 minute" --origin "@10:10:10" \
 	--start "@10:15" --finish "@10:30" $here/src/getoptions
 
@@ -59,7 +59,7 @@ echo '== Arguments: host list env var'
 PCP_HOST_LIST=foo.com,bar.org $here/src/getoptions
 
 echo '== Arguments: archive, time window env vars'
-PCP_ARCHIVE=src/20041125.0 PCP_HOSTZONE=true \
+PCP_ARCHIVE=archives/20041125.0 PCP_HOSTZONE=true \
 	PCP_ALIGN="1 minute" PCP_ORIGIN="@10:10:10" \
 	PCP_START_TIME="@10:15" PCP_FINISH_TIME="@10:30" $here/src/getoptions
 

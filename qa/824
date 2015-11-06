@@ -19,23 +19,23 @@ $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmdumplog -zL src/20041125
+pmdumplog -zL archives/20041125
 
 echo
 echo "=== no -S or -T ==="
-pmlogsummary -zHlfiImMy src/20041125 mem.freemem disk.partitions.write | head -10
+pmlogsummary -zHlfiImMy archives/20041125 mem.freemem disk.partitions.write | head -10
 
 echo
 echo "=== with -S @00:15 ==="
-pmlogsummary -zHlfiImMy -S @00:15 src/20041125 mem.freemem disk.partitions.write | head -10
+pmlogsummary -zHlfiImMy -S @00:15 archives/20041125 mem.freemem disk.partitions.write | head -10
 
 echo
 echo "=== with -T @00:45 ==="
-pmlogsummary -zHlfiImMy -T @00:45 src/20041125 mem.freemem disk.partitions.write | head -10
+pmlogsummary -zHlfiImMy -T @00:45 archives/20041125 mem.freemem disk.partitions.write | head -10
 
 echo
 echo "=== with -S @00:15 and -T @00:45 ==="
-pmlogsummary -zHlfiImMy -S @00:15 -T @00:45 src/20041125 mem.freemem disk.partitions.write | head -10
+pmlogsummary -zHlfiImMy -S @00:15 -T @00:45 archives/20041125 mem.freemem disk.partitions.write | head -10
 
 # success, all done
 status=0

@@ -3,7 +3,7 @@ QA output created by 459
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmlogreduce -t 30sec src/20101004-trunc TMP
+Command: pmlogreduce -t 30sec archives/20101004-trunc TMP
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

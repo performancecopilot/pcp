@@ -47,7 +47,7 @@ some_host (
 -> print "Disk reads on %h";
 end-of-file
 
-pmie -z -a src/573184 $tmp.conf >$tmp.out 2>$tmp.err
+pmie -z -a archives/573184 $tmp.conf >$tmp.out 2>$tmp.err
 cat $tmp.out $tmp.err | _filter
 
 _check_core

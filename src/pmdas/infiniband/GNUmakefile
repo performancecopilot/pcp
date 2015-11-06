@@ -30,14 +30,14 @@ MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default: build-me
+default_pcp default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(PMDA_INFINIBAND)" "true"
 build-me: $(CMDTARGET)
 
-install: default
+install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -S $(PMDADIR) $(PCP_PMDAS_DIR)/$(IAM)
 	$(INSTALL) -m 755 Install Remove $(CMDTARGET) $(PMDADIR)
@@ -45,15 +45,11 @@ install: default
 	@$(INSTALL_MAN)
 else
 build-me:
-install:
+install_pcp install:
 	@$(INSTALL_MAN)
 endif
 
 $(OBJECTS): domain.h
-
-default_pcp : default
-
-install_pcp : install
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)

@@ -27,7 +27,7 @@ s/^\[.*\] /[DATE] /
 }
 
 # real QA test starts here
-pmie -D fetch -Z EST-10 -v -a src/sample-secs <<End-of-File >$tmp.out 2>$tmp.err
+pmie -D fetch -Z EST-10 -v -a archives/sample-secs <<End-of-File >$tmp.out 2>$tmp.err
 delta = 10sec;
 sample.seconds;
 delta = 15sec;

@@ -18,12 +18,12 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo && echo "Verify no pmlogsummary coredump..."
-pmlogsummary -v -z src/logsummary-bug >$tmp.out 2>$tmp.err
+pmlogsummary -v -z archives/logsummary-bug >$tmp.out 2>$tmp.err
 cat $tmp.out
 cat $tmp.err
 
 echo && echo "Verify no pmlogcheck coredump..."
-pmlogcheck -z src/logsummary-bug >$tmp.out 2>$tmp.err
+pmlogcheck -z archives/logsummary-bug >$tmp.out 2>$tmp.err
 cat $tmp.out
 cat $tmp.err
 

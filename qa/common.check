@@ -341,6 +341,7 @@ _wait_for_pmcd()
     done
     if $_dead
     then
+	date
 	echo "Arrgghhh ... pmcd at $_host failed to start after $_can_wait seconds"
 	echo "=== failing pmprobe ==="
 	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients"
@@ -420,6 +421,7 @@ _wait_for_pmlogger()
     done
     if $_dead
     then
+	date
 	echo "Arrgghhh ... pmlogger ($_iam) failed to start after $_maxdelay seconds"
 	echo "at `date`."
 	echo "pmlogger log ($_logfile) ..."

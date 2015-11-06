@@ -274,7 +274,7 @@ Options structure dump:
     context: 0x2 (archive)
     nhosts: 0
     narchives: 1
-    archives: src/20041125.0
+    archives: archives/20041125.0
     start: -
     finish: -
     origin: -
@@ -298,7 +298,7 @@ Options structure dump:
     context: 0x2 (archive)
     nhosts: 0
     narchives: 1
-    archives: src/20041125.0
+    archives: archives/20041125.0
     start: -
     finish: -
     origin: -
@@ -490,7 +490,7 @@ Options structure dump:
     context: 0x2 (archive)
     nhosts: 0
     narchives: 1
-    archives: src/20041125.0
+    archives: archives/20041125.0
     start: -
     finish: -
     origin: -

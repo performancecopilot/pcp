@@ -31,10 +31,10 @@ export TZ
 # real QA test starts here
 base=19970709
 
-pmlogextract -z -T "@22:30" $here/src/rattle $base.22.30-01
-pmlogextract -z -S "@22:30" -T "@23:30" $here/src/rattle $base.22.30-02
-pmlogextract -z -S "@23:30" -T "@00:30" $here/src/rattle $base.22.30
-pmlogextract -z -S "@00:30" -T "@01:30" $here/src/rattle $base.23.10
+pmlogextract -z -T "@22:30" $here/archives/rattle $base.22.30-01
+pmlogextract -z -S "@22:30" -T "@23:30" $here/archives/rattle $base.22.30-02
+pmlogextract -z -S "@23:30" -T "@00:30" $here/archives/rattle $base.22.30
+pmlogextract -z -S "@00:30" -T "@01:30" $here/archives/rattle $base.23.10
 
 echo "=== archives before ==="
 for arch in $base.22.30-01 $base.22.30-02 $base.22.30 $base.23.10

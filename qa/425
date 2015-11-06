@@ -116,7 +116,7 @@ _compare_results()
 
 # real QA test starts here
 
-archive="src/wrap"
+archive="archives/wrap"
 metric="sample.wrap.long"
 
 _wrap_off > $seq.full

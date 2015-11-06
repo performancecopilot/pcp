@@ -26,15 +26,22 @@ MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 DOMAIN	= MIC
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 
-default_pcp default:	check_domain
+default_pcp default:	build-me
 
 include $(BUILDRULES)
 
+ifeq "$(HAVE_PYTHON)" "true"
+build-me:	check_domain
 install_pcp install:	default 
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 $(PYSCRIPT) $(PMDADIR)/$(PYSCRIPT)
 	@$(INSTALL_MAN)
+else
+build-me:
+install_pcp install:
+	@$(INSTALL_MAN)
+endif
 
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)

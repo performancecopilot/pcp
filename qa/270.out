@@ -2,7 +2,7 @@ QA output created by 270
 Test pmlogextract
 
  --- step 1: no flags ---
-(output depends on src/mirage{0,index,meta})
+(output depends on archives/mirage{0,index,meta})
 Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
@@ -13,7 +13,7 @@ Archive timezone: EST-11EST-10,91/2:00,301/2:00
 PID for pmlogger: PID
 
  --- step 2: test -S, -T and -z flags ---
-(output depends on src/mirage{0,index,meta})
+(output depends on archives/mirage{0,index,meta})
 Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
@@ -24,7 +24,7 @@ Archive timezone: EST-11EST-10,91/2:00,301/2:00
 PID for pmlogger: PID
 
  --- step 3: test -S out of range ---
-(output depends on src/mirage{0,index,meta})
+(output depends on archives/mirage{0,index,meta})
 Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
@@ -35,7 +35,7 @@ Archive timezone: EST-11EST-10,91/2:00,301/2:00
 PID for pmlogger: PID
 
  --- step 4: test -T out of range ---
-(output depends on src/mirage{0,index,meta})
+(output depends on archives/mirage{0,index,meta})
 Note: timezone set to local timezone of host "gonzo" from archive
 
 Log Label (Log Format Version 2)
@@ -46,7 +46,7 @@ Archive timezone: EST-11EST-10,91/2:00,301/2:00
 PID for pmlogger: PID
 
  --- step 6: test config file ---
-(output depends on src/mirage{0,index,meta})
+(output depends on archives/mirage{0,index,meta})
 
 --- dump descriptors ---
 Note: timezone set to local timezone of host "gonzo" from archive
@@ -387,11 +387,11 @@ Note: timezone set to local timezone of host "gonzo" from archive
                 inst [24 or "m-24"] value 2413
 
  --- step 7: test config file, plus -S, -T and -z flags ---
-(output depends on src/mirage{0,index,meta})
+(output depends on archives/mirage{0,index,meta})
 --- dump values for sample.drift ---
 sample.drift the same ... good
 
  --- step 8: test -w flag (with -S, -T and -z) ---
-(output depends on src/rattle{0,index,meta})
+(output depends on archives/rattle{0,index,meta})
 --- dump values for irix.kernel.all.load ---
 irix.kernel.all.load the same ... good

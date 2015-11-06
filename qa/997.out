@@ -2,7 +2,7 @@ QA output created by 997
 Running log extract on corrupt archive
 Note: timezone set to local timezone of host "bozo" from archive
 
-pmlogextract: Error: __pmLogRead[log src/ok-truncbin.0]: Corrupted record in a PCP archive log
+pmlogextract: Error: __pmLogRead[log archives/ok-truncbin.0]: Corrupted record in a PCP archive log
 pmlogextract: Error occurred at byte offset 204456 into a file of 204800 bytes.
 The last record, and the remainder of this file will not be extracted.
 

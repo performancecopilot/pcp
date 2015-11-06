@@ -32,7 +32,7 @@ _filter()
 
 # real QA test starts here
 
-infiles=`echo src/tzchange*.0 | sed -e 's/\.0//g'`
+infiles=`echo archives/tzchange*.0 | sed -e 's/\.0//g'`
 for file in $infiles
 do
     echo "=== $file ==="
@@ -48,16 +48,16 @@ do
 		files="$infiles"
 		;;
 	2)	# 3 archives, 3 timezones
-		files="`ls src/tzchange*.0 | sed -e '/\.meta/d' -e '/\.index/d' | grep '.-a' | tr '\012' ' ' | sed -e 's/  *$//'`"
+		files="`ls archives/tzchange*.0 | sed -e '/\.meta/d' -e '/\.index/d' | grep '.-a' | tr '\012' ' ' | sed -e 's/  *$//'`"
 		;;
 	3)	# 2 archives, 2 timezones
-		files="`ls src/tzchange*.0 | sed -e '/\.meta/d' -e '/\.index/d' | grep '.-a' | sed -e 2q | tr '\012' ' ' | sed -e 's/  *$//'`"
+		files="`ls archives/tzchange*.0 | sed -e '/\.meta/d' -e '/\.index/d' | grep '.-a' | sed -e 2q | tr '\012' ' ' | sed -e 's/  *$//'`"
 		;;
 	4)	# 1 archive, 1 timezone
-		files="`ls src/tzchange*.0 | sed -e '/\.meta/d' -e '/\.index/d' | grep '.-a' | sed -e 1q | tr '\012' ' ' | sed -e 's/  *$//'`"
+		files="`ls archives/tzchange*.0 | sed -e '/\.meta/d' -e '/\.index/d' | grep '.-a' | sed -e 1q | tr '\012' ' ' | sed -e 's/  *$//'`"
 		;;
 	5)	# 2 archives, 1 timezone
-		files="`ls src/tzchange*.0 | sed -e '/\.meta/d' -e '/\.index/d' | grep '.-11' | sed -e 2q | tr '\012' ' ' | sed -e 's/  *$//'`"
+		files="`ls archives/tzchange*.0 | sed -e '/\.meta/d' -e '/\.index/d' | grep '.-11' | sed -e 2q | tr '\012' ' ' | sed -e 's/  *$//'`"
 		;;
     esac
 

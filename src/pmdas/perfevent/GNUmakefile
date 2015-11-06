@@ -35,25 +35,21 @@ DFILES	= README help
 
 VERSION := $(shell head -n 1 ChangeLog | cut -d ":" -f 1)
 
-default:	build-me
+default_pcp default:	build-me
 
 include $(BUILDRULES)
 
 ifeq "$(PMDA_PERFEVENT)" "true"
 build-me: $(CMDTARGET) $(HELPTARGETS) perfalloc
 
-install: default
+install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 domain.h help root pmns perfevent.conf $(PMDADIR)
 	$(INSTALL) -m 755 $(CMDTARGET) $(SCRIPTS) perfalloc $(PMDADIR)
 else
 build-me:
-install:
+install_pcp install:
 endif
-
-default_pcp : default
-
-install_pcp : install
 
 TARGETS = $(CMDTARGET) perfalloc
 

@@ -65,7 +65,7 @@ units:     none
 Note: timezone set to local timezone of host "rattle" from archive
 
 metric:    sampledso.bin
-archive:   src/late
+archive:   archives/late
 host:      rattle
 start:     Sat Jun 14 23:23:02 1997
 end:       Sat Jun 14 23:23:08 1997

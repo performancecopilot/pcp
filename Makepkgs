@@ -102,13 +102,8 @@ trap "rm -rf $tmp" 0 1 2 3 15
 configure=./configure
 target=`uname -s | tr 'A-Z' 'a-z'`
 
-if [ ! -x /usr/bin/rpmbuild ]
+if [ -x /usr/bin/rpmbuild ]
 then
-    # Bog-standard options suitable for a package on any platform.
-    # Command line can be used to extend this set, and any unusual
-    # platform-specific requirements are also appended later on.
-    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
-else
     # On RPM-based platforms, rpm macros provide an excellent set of defaults.
     # This set is based on Fedora 22 %configure macro from /usr/lib/rpm/macros,
     # and is known to work as far back as RHEL5.
@@ -117,6 +112,17 @@ else
     # rpm build configure
     #
     configopt="$configopts --with-make=$MAKE --with-tar=$TAR --with-zip=$ZIP"
+elif [ -f /etc/debian_version ]
+then
+    # On Debian-based platforms, the debian/rules file already captures
+    # most of the required configure settings in $(configure_paths)
+    #
+    configopts=''
+else
+    # Bog-standard options suitable for a package on any platform.
+    # Command line can be used to extend this set, and any unusual
+    # platform-specific requirements are also appended later on.
+    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
 fi
 
 for opt in $*
@@ -192,7 +198,11 @@ in
     vm04|vm04.localdomain|vm11|vm11.localdomain)
 	# gcc -O2 is broken here (for the linux PMDA)
 	#
-	configopts="$configopts --without-optimization"
+	configopts="$configopts --with-optimization=no"
+	# over-ride the settings from dpkg-buildflags
+	#
+	export DEB_CFLAGS_SET=''
+	export DEB_CXXFLAGS_SET=''
 	;;
 esac
 
@@ -463,6 +473,24 @@ prepare_debian_control()
 debian_build()
 {
     prepare_debian_sources
+    # Note: we need to run configure here to get things like builddefs
+    #       created, but configure will be run _again_ from
+    #       debian_buildpackage, but we need to make sure the same
+    #       configure options are used in both places
+    #
+    export configure_opts="$configopts"
+    if [ ! -f debian/rules ]
+    then
+	echo "Botch: cannot find debian/rules"
+	exit 1
+    fi
+    debian_opts=`sed -n <debian/rules -e '/^configure_paths/s/^[^=]*= *//p'`
+    if [ -z "$debian_opts" ]
+    then
+	echo "Botch: cannot get config options from configure_paths in debian/rules"
+	exit 1
+    fi
+    configopts="$debian_opts $configopts"
     configure_pcp
     prepare_debian_control
     sanity_check_settings

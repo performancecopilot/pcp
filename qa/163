@@ -19,11 +19,11 @@ rm -f $seq.out
 if [ $PCP_VER -lt 30600 ]
 then
     # V1 archives supported
-    archlist="src/naslog src/all-irix-6.5.25 src/bigace"
+    archlist="archives/naslog archives/all-irix-6.5.25 archives/bigace"
     ln $seq.out.1 $seq.out
 else
     # no support for V1 archives
-    archlist="src/naslog src/all-irix-6.5.25 src/bigace_v2"
+    archlist="archives/naslog archives/all-irix-6.5.25 archives/bigace_v2"
     ln $seq.out.2 $seq.out
 fi
 
@@ -33,16 +33,16 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # original failures ...
 #
-# src/naslog
+# archives/naslog
 # Mismatch: end=06:11:45.000 serial=15:21:13.958
 # Failed @ 832292
 # ...
 #
-# src/all-irix-6.5.25
+# archives/all-irix-6.5.25
 # Mismatch: end=10:00:00.066 serial=18:55:00.683
 # Failed @ 120984
 #
-# src/bigace
+# archives/bigace
 # Mismatch: end=10:17:04.001 serial=16:12:55.556
 # Failed @ 1192840
 # dumped core

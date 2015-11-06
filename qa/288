@@ -25,7 +25,7 @@ do
     do
 	echo
 	echo "=== metric $m alignment $a ==="
-	pmval -z -Dinterp -t 2min $a -a src/20041125 $m 2>$tmp.trace
+	pmval -z -Dinterp -t 2min $a -a archives/20041125 $m 2>$tmp.trace
 	echo
 	$PCP_AWK_PROG <$tmp.trace '
 /log reads/		{ f+=$5; b+=$7; next}

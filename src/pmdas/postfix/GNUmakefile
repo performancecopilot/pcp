@@ -24,19 +24,22 @@ MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-default: check_domain
+default_pcp default:	build-me
 
 include $(BUILDRULES)
 
-install: default
+ifeq "$(PMDA_POSTFIX)" "true"
+build-me:	check_domain
+install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
 	@$(INSTALL_MAN)
-
-default_pcp : default
-
-install_pcp : install
+else
+build-me:
+install_pcp install:
+	@$(INSTALL_MAN)
+endif
 
 check_domain:	../../pmns/stdpmid
 	$(DOMAIN_PERLRULE)

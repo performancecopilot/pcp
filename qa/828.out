@@ -56,7 +56,7 @@ __pmFindPDUBuf(DEBUG)
 __pmFindPDUBuf(DEBUG)
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/churnctx -z -s 10 -a src/bug1057 kernel.all.load hinv.ncpu disk.dev.total
+Command: src/churnctx -z -s 10 -a archives/bug1057 kernel.all.load hinv.ncpu disk.dev.total
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -119,7 +119,7 @@ __pmFindPDUBuf(DEBUG)
 __pmFindPDUBuf(DEBUG)
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/churnctx -d -z -s 10 -a src/bug1057 kernel.all.load hinv.ncpu disk.dev.total
+Command: src/churnctx -d -z -s 10 -a archives/bug1057 kernel.all.load hinv.ncpu disk.dev.total
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

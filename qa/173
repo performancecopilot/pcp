@@ -16,11 +16,11 @@ echo "QA output created by $seq"
 if [ $PCP_VER -lt 30600 ]
 then
     # V1 archives supported
-    arch=src/bug
+    arch=archives/bug
     pmns="-n src/root_irix"
 else
     # no support for V1 archives
-    arch=src/bug_v2
+    arch=archives/bug_v2
     pmns=
 fi
 

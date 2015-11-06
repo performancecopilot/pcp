@@ -41,7 +41,7 @@ _filter2()
     | _filter
 }
 
-cp src/bozo.client_v2.* $tmp
+cp archives/bozo.client_v2.* $tmp
 mv $tmp/bozo.client_v2.meta $tmp/bozo.client_v2.save
 
 # real QA test starts here
@@ -65,27 +65,27 @@ done
 
 echo
 echo "torture_indom ... silence is golden"
-src/torture_indom -a src/ace_v2 disk.dev.total
+src/torture_indom -a archives/ace_v2 disk.dev.total
 
 echo
 echo "pmie archive meta data exercises ..."
 echo 'some_inst disk.dev.total > 0 -> print "active disks:" " %i"' \
-| pmie -z -t 2sec -a src/ace_v2 2>&1 \
+| pmie -z -t 2sec -a archives/ace_v2 2>&1 \
 | _filter2
 echo
 echo 'some_inst disk.dev.total #dks1d1 #dks1d7 > 0 -> print "active disks: " "%i"' \
-| pmie -Dlogmeta -z -t 2sec -a src/ace_v2 2>&1 \
+| pmie -Dlogmeta -z -t 2sec -a archives/ace_v2 2>&1 \
 | _filter2
 
 echo
 echo "pmval archive meta data exercises ..."
-pmval -z -t 5sec -Dlogmeta -a src/ac15 kernel.all.load 2>&1 | _filter
+pmval -z -t 5sec -Dlogmeta -a archives/ac15 kernel.all.load 2>&1 | _filter
 echo
-pmval -z -t 5sec -Dlogmeta -a src/ac15 -i '"15 minute","5","1 minute"' kernel.all.load 2>&1 | _filter
+pmval -z -t 5sec -Dlogmeta -a archives/ac15 -i '"15 minute","5","1 minute"' kernel.all.load 2>&1 | _filter
 
 echo
 echo "torture ..."
-src/torture_logmeta -Dlogmeta src/ac15 60 2 123 2>&1 \
+src/torture_logmeta -Dlogmeta archives/ac15 60 2 123 2>&1 \
 | tee -a $seq.full \
 | _filter
 

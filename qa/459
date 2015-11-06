@@ -31,7 +31,7 @@ _filter()
 }
 
 # real QA test starts here
-_run_valgrind pmlogreduce -t 30sec src/20101004-trunc $tmp 2>&1 | _filter
+_run_valgrind pmlogreduce -t 30sec archives/20101004-trunc $tmp 2>&1 | _filter
 
 echo
 echo "Samples: `pmdumplog $tmp | grep '^[0-2]' | wc -l | sed -e 's/ //g'`"

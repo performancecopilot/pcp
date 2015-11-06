@@ -1,7 +1,7 @@
 /*
  * pmstore [-h hostname ] [-i inst[,inst...]] [-n pmnsfile ] metric value
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 1995,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,19 +17,6 @@
 
 #include "pmapi.h"
 #include "impl.h"
-#include "pmda.h"
-#include <ctype.h>
-#include <limits.h>
-#ifdef HAVE_VALUES_H
-#include <values.h>
-#endif
-#include <float.h>
-
-#define	IS_UNKNOWN	15
-#define	IS_STRING	1
-#define IS_INTEGER	2
-#define IS_FLOAT	4
-#define IS_HEX		8
 
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("General options"),
@@ -52,171 +39,26 @@ static pmOptions opts = {
     .short_usage = "[options] metricname value",
 };
 
-#ifndef HAVE_STRTOLL
-/*
- * cheap hack ...won't work for large values!
- */
-static __int64_t
-strtoll(char *p, char **endp, int base)
-{
-    return (__int64_t)strtol(p, endp, base);
-}
-#endif
-
-#ifndef HAVE_STRTOULL
-/*
- * cheap hack ...won't work for large values!
- */
-static __uint64_t
-strtoull(char *p, char **endp, int base)
-{
-    return (__uint64_t)strtoul(p, endp, base);
-}
-#endif
-
 static void
-mkAtom(pmAtomValue *avp, int type, char *buf)
+mkAtom(pmAtomValue *avp, int type, const char *buf)
 {
-    char	*p = buf;
-    char	*endbuf;
-    int		vtype = IS_UNKNOWN;
-    int		seendot = 0;
-    int		base;
-    double	d;
-    __int64_t	temp_l;
-    __uint64_t	temp_ul;
+    int	sts = __pmStringValue(buf, avp, type);
 
-    /*
-     * for strtol() et al, start with optional white space, then
-     * optional sign, then optional hex prefix, then stuff ...
-     */
-    p = buf;
-    while (*p && isspace((int)*p)) p++;
-    if (*p && *p == '-') p++;
-
-    if (*p && *p == '0' && p[1] && tolower((int)p[1]) == 'x') {
-	p += 2;
-    }
-    else {
-	vtype &= ~IS_HEX; /* hex MUST start with 0x or 0X */
-    }
-
-    /*
-     * does it smell like a hex number or a floating point number?
-     */
-    while (*p) {
-	if (!isdigit((int)*p)) {
-	    vtype &= ~IS_INTEGER;
-	    if (!isxdigit((int)*p) ) {
-		vtype &= ~IS_HEX;
-		if (*p == '.')
-		    seendot++;
-	    }
-	}
-	p++;
-    }
-
-    if (seendot != 1)
-	/* more or less than one '.' and it is not a floating point number */
-	vtype &= ~IS_FLOAT;
-
-    endbuf = buf;
-    base = (vtype & IS_HEX) ? 16:10;
-
-    switch (type) {
-	case PM_TYPE_32:
-		temp_l = strtol(buf, &endbuf, base);
-		if (oserror() != ERANGE) {
-		    /*
-		     * ugliness here is for cases where pmstore is compiled
-		     * 64-bit (e.g. on ia64) and then strtol() may return
-		     * values larger than 32-bits with no error indication
-		     * ... if this is being compiled 32-bit, then the
-		     * condition will be universally false, and a smart
-		     * compiler may notice and warn.
-		     */
-#ifdef HAVE_64BIT_LONG
-		    if (temp_l > 0x7fffffffLL || temp_l < (-0x7fffffffLL - 1))
-			setoserror(ERANGE);
-		    else 
-#endif
-		    {
-			avp->l = (__int32_t)temp_l;
-		    }
-		}
-		break;
-
-	case PM_TYPE_U32:
-		temp_ul = strtoul(buf, &endbuf, base);
-		if (oserror() != ERANGE) {
-#ifdef HAVE_64BIT_LONG
-		    if (temp_ul > 0xffffffffLL)
-			setoserror(ERANGE);
-		    else 
-#endif
-		    {
-			avp->ul = (__uint32_t)temp_ul;
-		    }
-		}
-		break;
-
-	case PM_TYPE_64:
-		avp->ll = strtoll(buf, &endbuf, base);
-		/* trust library to set error code to ERANGE as appropriate */
-		break;
-
-	case PM_TYPE_U64:
-		/* trust library to set error code to ERANGE as appropriate */
-		avp->ull = strtoull(buf, &endbuf, base);
-		break;
-
-	case PM_TYPE_FLOAT:
-		if (vtype & IS_HEX) {
-		    /* strtod from GNU libc would try to convert it using some
-		     * strange algo - we don't want it */
-		    endbuf = buf;
-		}
-		else {
-		    d = strtod(buf, &endbuf);
-		    if (d < FLT_MIN || d > FLT_MAX)
-			setoserror(ERANGE);
-		    else {
-			avp->f = (float)d;
-		    }
-		}
-		break;
-
-	case PM_TYPE_DOUBLE:
-		if (vtype & IS_HEX) {
-		    /* strtod from GNU libc would try to convert it using some
-		     * strange algo - we don't want it */
-		    endbuf = buf;
-		}
-		else {
-		    avp->d = strtod(buf, &endbuf);
-		}
-		break;
-
-	case PM_TYPE_STRING:
-		if ((avp->cp = strdup(buf)) == NULL) {
-		    __pmNoMem("pmstore", strlen(buf)+1, PM_FATAL_ERR);
-		}
-		endbuf = "";
-		break;
-
-    }
-    if (*endbuf != '\0') {
-	fprintf(stderr,
-			"The value \"%s\" is incompatible with the data "
+    if (sts == PM_ERR_TYPE) {
+	fprintf(stderr, "The value \"%s\" is incompatible with the data "
 			"type (PM_TYPE_%s)\n",
 			buf, pmTypeStr(type));
 	exit(1);
     }
-    if (oserror() == ERANGE) {
-	fprintf(stderr, 
-			"The value \"%s\" is out of range for the data "
+    if (sts == -ERANGE) {
+	fprintf(stderr, "The value \"%s\" is out of range for the data "
 			"type (PM_TYPE_%s)\n",
 			buf, pmTypeStr(type));
+	exit(1);
+    }
+    if (sts < 0) {
+	fprintf(stderr, "%s: cannot convert string value \"%s\": %s\n",
+		    pmProgname, buf, pmErrStr(sts));
 	exit(1);
     }
 }

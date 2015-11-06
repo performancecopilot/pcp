@@ -18,10 +18,10 @@ echo "QA output created by $seq"
 if [ $PCP_VER -lt 30600 ]
 then
     # V1 archives supported
-    arch=src/541380
+    arch=archives/541380
 else
     # no support for V1 archives
-    arch=src/541380_v2
+    arch=archives/541380_v2
 fi
 
 status=1	# failure is the default!

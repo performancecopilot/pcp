@@ -18,11 +18,11 @@ echo "QA output created by $seq"
 if [ $PCP_VER -lt 30600 ]
 then
     # V1 archives supported
-    arch=src/babylon.pmview
+    arch=archives/babylon.pmview
     pmns="-n src/root_irix"
 else
     # no support for V1 archives
-    arch=src/babylon.pmview_v2
+    arch=archives/babylon.pmview_v2
     pmns=
 fi
 

@@ -19,7 +19,7 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "Running log extract on corrupt archive"
-pmlogextract -z src/ok-truncbin.0 $tmp.log 2>$tmp.err >$tmp.out
+pmlogextract -z archives/ok-truncbin.0 $tmp.log 2>$tmp.err >$tmp.out
 cat $tmp.out
 cat $tmp.err
 

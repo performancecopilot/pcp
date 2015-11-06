@@ -76,7 +76,7 @@ s/ 0x2c/ 0xfXX/
 }
 
 # real QA test starts here
-original=src/old_xfs
+original=archives/old_xfs
 pmlogrewrite -c $migrate -w $original $tmp.new
 
 echo "=== old ===" >>$seq.full

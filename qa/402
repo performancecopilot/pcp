@@ -18,9 +18,9 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
-pmprobe -a src/540117-short.0  -v irix.pmda.uname hinv.ncpu
+pmprobe -a archives/540117-short.0  -v irix.pmda.uname hinv.ncpu
 
-pminfo -a src/540117-short.0  -f irix.pmda.uname hinv.ncpu
+pminfo -a archives/540117-short.0  -f irix.pmda.uname hinv.ncpu
 
 # success, all done
 status=0

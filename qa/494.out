@@ -671,7 +671,7 @@ pmval diffs ...
  Note: timezone set to local timezone of host "babylon" from archive
  
  metric:    disk.dev.read
--archive:   src/babylon.pmview_v2
+-archive:   archives/babylon.pmview_v2
 +archive:   TMP.new
  host:      babylon
  start:     Tue Mar 12 11:19:10 1996
@@ -697,7 +697,7 @@ pmval diffs ...
  Note: timezone set to local timezone of host "babylon" from archive
  
  metric:    disk.dev.write
--archive:   src/babylon.pmview_v2
+-archive:   archives/babylon.pmview_v2
 +archive:   TMP.new
  host:      babylon
  start:     Tue Mar 12 11:19:10 1996
@@ -723,7 +723,7 @@ pmval diffs ...
  Note: timezone set to local timezone of host "babylon" from archive
  
  metric:    disk.dev.total
--archive:   src/babylon.pmview_v2
+-archive:   archives/babylon.pmview_v2
 +archive:   TMP.new
  host:      babylon
  start:     Tue Mar 12 11:19:10 1996

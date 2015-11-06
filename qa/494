@@ -70,13 +70,13 @@ _cmp2()
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	spec
 # double -> 
-src/rewrite		global { time -> 30 }
-src/rewrite		global { time -> -23:59:59.999 }
-src/rewrite		indom 29.* { indom -> 109.* }
-src/rewrite		metric 30.*.* { pmid -> 123.*.* }
-src/rewrite		indom 29.* { indom -> 109.* } metric sample.bin { indom -> 109.2 }
-src/rewrite		indom 29.* { indom -> 109.* } metric sample.bin { indom -> 123.2 }
-src/proc		indom 60.2 { inst 1 -> 60 iname "1 minute" -> "60 second" inst 5 -> 300 iname "5 minute" -> "300 second" inst 15 -> 900 iname "15 minute" -> "900 second" }
+archives/rewrite		global { time -> 30 }
+archives/rewrite		global { time -> -23:59:59.999 }
+archives/rewrite		indom 29.* { indom -> 109.* }
+archives/rewrite		metric 30.*.* { pmid -> 123.*.* }
+archives/rewrite		indom 29.* { indom -> 109.* } metric sample.bin { indom -> 109.2 }
+archives/rewrite		indom 29.* { indom -> 109.* } metric sample.bin { indom -> 123.2 }
+archives/proc		indom 60.2 { inst 1 -> 60 iname "1 minute" -> "60 second" inst 5 -> 300 iname "5 minute" -> "300 second" inst 15 -> 900 iname "15 minute" -> "900 second" }
 End-of-File
 do
     echo | tee -a $seq.full
@@ -90,7 +90,7 @@ done
 sed -e '/^#/d' <<End-of-File | while read arch_args spec
 # archive[|arg1[|arg2[|...]]]	spec|metric...
 # double -> 
-src/babylon.pmview_v2		metric disk.dev.read { type -> U64 } metric disk.dev.write { type -> U64 } metric disk.dev.total { type -> U64 }|disk.dev.read disk.dev.write disk.dev.total
+archives/babylon.pmview_v2		metric disk.dev.read { type -> U64 } metric disk.dev.write { type -> U64 } metric disk.dev.total { type -> U64 }|disk.dev.read disk.dev.write disk.dev.total
 End-of-File
 do
     echo | tee -a $seq.full
@@ -121,9 +121,9 @@ metric 60.51.* { pmid -> 123.*.* }
 indom 60.9 { indom -> 123.0 }
 End-of-File
 rm -f $tmp.new.*
-pmlogrewrite -ws -c $tmp.config src/proc $tmp.new 2>&1 | _filter
+pmlogrewrite -ws -c $tmp.config archives/proc $tmp.new 2>&1 | _filter
 
-pminfo -m -a src/proc | LC_COLLATE=POSIX sort >$tmp.in
+pminfo -m -a archives/proc | LC_COLLATE=POSIX sort >$tmp.in
 pminfo -m -a $tmp.new | LC_COLLATE=POSIX sort >$tmp.out
 echo
 echo "pmns diffs ..."
@@ -131,10 +131,10 @@ diff -u $tmp.in $tmp.out | _filter
 
 for arg in -i -m
 do
-    pmdumplog -z $arg src/proc >$tmp.in 2>$tmp.err
+    pmdumplog -z $arg archives/proc >$tmp.in 2>$tmp.err
     if [ -s $tmp.err ]
     then
-	echo "stderr from pmdumplog -z $arg src/proc ..."
+	echo "stderr from pmdumplog -z $arg archives/proc ..."
 	cat $tmp.err
     fi
     pmdumplog -z $arg $tmp.new >$tmp.out 2>$tmp.err
