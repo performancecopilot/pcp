@@ -1,0 +1,61 @@
+#!/bin/sh
+# 
+# Automate updating package version metadata on bintray.com.
+# This script should only be run run *after* binary uploads.
+#
+
+# Run in the top-level of a tree, ensuring .bintrayrc is available with
+# valid user setting (username, email, apikey, distro, gpgphrase).
+
+topdir=`pwd`
+
+quit()
+{
+    echo $*
+    exit 1
+}
+
+[ -e "${topdir}/VERSION.pcp" ] || quit "Not a PCP git tree, missing VERSION.pcp"
+[ -e "${topdir}/.bintrayrc" ] || quit "Tree is unconfigured, missing .bintrayrc"
+
+. ${topdir}/.bintrayrc
+. ${topdir}/VERSION.pcp
+
+version=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+date=`date "+%Y-%m-%dT00:00:00.000Z"`
+
+[ -z "${user}" ] && quit "user is not configured (via .bintrayrc)"
+[ -z "${email}" ] && quit "email is not configured (via .bintrayrc)"
+[ -z "${apikey}" ] && quit "apikey is not configured (via .bintrayrc)"
+[ -z "${gpgpass}" ] && quit "passphrase is not configured (via .bintrayrc)"
+
+version_update()
+{
+    distro="$1"; desc="$2"
+
+    url="https://api.bintray.com/packages/pcp/${distro}/pcp/versions/${version}"
+    echo "Updating ${distro} information for ${version}:" && echo "    ${url}"
+    curl \
+	-u ${user}:${apikey} \
+	-H "X-GPG-PASSPHRASE: ${gpgpass}" \
+	-H "Content-Type:application/json" \
+	-H "Accept: application/json" \
+	--request PATCH \
+	--data "{\"desc\":\"$desc\",\"vcs_tag\":\"$version\",\"released\":\"$date\"}" \
+	"${url};bt_package=pcp;bt_version=${version};publish=1"
+    echo
+}
+
+version_update source "Performance Co-Pilot source code, gzipped tarball"
+version_update el5 "Performance Co-Pilot builds for EL5"
+version_update el6 "Performance Co-Pilot builds for EL6"
+version_update el7 "Performance Co-Pilot builds for EL7"
+version_update f21 "Performance Co-Pilot builds for Fedora 21"
+version_update f22 "Performance Co-Pilot builds for Fedora 22"
+version_update jessie "Performance Co-Pilot builds for Debian 7 (jessie)"
+version_update wheezy "Performance Co-Pilot builds for Debian 8 (wheezy)"
+version_update trusty "Performance Co-Pilot builds for Ubuntu 14.04 (trusty tahr)"
+version_update vivid "Performance Co-Pilot builds for Ubuntu 15.04 (vivid vervet)"
+version_update solaris11 "Performance Co-Pilot builds for Solaris 11"
+version_update opensuse13 "Performance Co-Pilot builds for OpenSUSE 13"
+

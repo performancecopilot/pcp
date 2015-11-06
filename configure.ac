@@ -1496,7 +1496,7 @@ AS_IF([test "x$do_infiniband" != "xno"], [
     LIBS=$savedLIBS
     AC_SUBST(IB_LIBS)
 ])
-AC_MSG_CHECKING([if the infinband PMDA should be included])
+AC_MSG_CHECKING([if the infiniband PMDA should be included])
 AC_SUBST(PMDA_INFINIBAND, $pmda_infiniband)
 if $pmda_infiniband; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
