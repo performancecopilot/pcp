@@ -1155,6 +1155,9 @@ PCP_CALL extern void __pmResetIPC(int);
 /* safely insert an atom value into a pmValue */
 PCP_CALL extern int __pmStuffValue(const pmAtomValue *, pmValue *, int);
 
+/* string conversion to value of given type, suitable for pmStore */
+PCP_CALL extern int __pmStringValue(const char *, pmAtomValue *, int);
+
 /*
  * Optimized fetch bundling ("optfetch") services
  */
