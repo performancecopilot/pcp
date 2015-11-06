@@ -14,8 +14,8 @@ echo "QA output created by $seq"
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
-src/context_test -i6 -a src/foo
-src/context_test -i5 -a src/foo
-src/context_test -i5 -a src/mv-foo
-src/context_test -i5 -a src/noti-foo
+src/context_test -i6 -a tmparch/foo
+src/context_test -i5 -a tmparch/foo
+src/context_test -i5 -a tmparch/mv-foo
+src/context_test -i5 -a tmparch/noti-foo
 

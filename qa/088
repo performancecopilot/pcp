@@ -26,7 +26,7 @@ _filter()
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-for arch in src/bar src/mv-bar src/noti-bar
+for arch in tmparch/bar tmparch/mv-bar tmparch/noti-bar
 do
     pmval -U $arch \
         -i bin-100,bin-500,bin-700,bin-900 sampledso.bin \

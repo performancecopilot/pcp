@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-for arch in src/mv-bigbin src/foo src/null src/mv-bigbin.* src/foo.* src/null.*
+for arch in tmparch/mv-bigbin tmparch/foo tmparch/null tmparch/mv-bigbin.* tmparch/foo.* tmparch/null.*
 do
     echo
     echo "=== $arch ==="

@@ -14,10 +14,10 @@ SRCOTHER = bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
 	   $(patsubst %.0,%.meta,$(SRCNOTI))
 
 # now all the rest ...
-SRCFULL = $(shell echo *.[0-9])
+SRCFULL = $(shell echo *.[0-9]) 20130706.0.bz2
 SRCARCH = $(filter-out $(SRCNOTI),$(SRCFULL))
-SRCMETA = $(patsubst %.0,%.meta,$(SRCARCH))
-SRCIDX = $(patsubst %.0,%.index,$(SRCARCH))
+SRCMETA = $(patsubst %.0,%.meta,$(SRCARCH)) 20130706.meta
+SRCIDX = $(patsubst %.0,%.index,$(SRCARCH)) 20130706.index
 
 FOLIOS = $(shell echo *.folio)
 

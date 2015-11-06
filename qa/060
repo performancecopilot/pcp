@@ -47,12 +47,12 @@ src/defctx -h localhost 2>&1 | _filter
 
 echo ""
 echo "explicit archive context ..."
-src/defctx -a src/foo 2>&1 | _filter
+src/defctx -a tmparch/foo 2>&1 | _filter
 
 echo ""
 echo "explicit multi-volume archive context ..."
-src/defctx -a src/mv-foo 2>&1 | _filter
+src/defctx -a tmparch/mv-foo 2>&1 | _filter
 
 echo ""
 echo "explicit no index archive context ..."
-src/defctx -a src/noti-foo 2>&1 | _filter
+src/defctx -a tmparch/noti-foo 2>&1 | _filter

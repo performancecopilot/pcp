@@ -11,14 +11,6 @@ DEBUG   = $(DBG)
 
 HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || echo 0)
 
-SRCARCHPART = pmatop-log.folio \
-	20130706.0.bz2 20130706.index 20130706.meta
-
-MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
-	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 null.0 \
-	interp.0 mv-interp.0 noti-interp.0 noti-ok-foo.0 gap.0 gap2.0 \
-	dodgey-some.0 dodgey-all.0 dodgey-mixed.0 reduce-gap.0
-
 CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	xval.c xxx.c chkopenlog.c chkconnect.c t_fetch.c \
 	hp-mib.c agenttimeout.c chkctx2.c pmcdgone.c chkhelp.c \
@@ -102,12 +94,6 @@ MYFILES += getoptions.c
 LDIRT += getoptions
 endif
 
-ifeq ($(shell test $(PCP_VER) -ge 3811 && echo 1), 1)
-CONFIG_INTERP = config2.interp
-else
-CONFIG_INTERP = config1.interp
-endif
-
 ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
 # only make these ones if the fault injection version of libpcp
 # appears to have been installed (assumes PCP >= 3.5), and then
@@ -153,10 +139,7 @@ MYFILES += $(POSIXFILES) $(TRACEFILES)
 endif
 
 MYFILES += \
-	$(SRCARCHPART) \
-	err_v1.dump \
-	config.bar config.bigbin config.dodgey-all config.dodgey-mixed \
-	config.dodgey-some config.foo config1.interp config2.interp \
+	pmatop-log.folio err_v1.dump \
 	kenj-pc-2.config reduce.config uwrap.config wrap.config \
 	root_irix root_pmns tiny.pmns sgi.bf versiondefs \
 	simple.csv simple.ods simple-resave.csv simple-resave.xlsx \
@@ -171,7 +154,7 @@ MYFILES += \
 	permslist \
 	qa_shmctl.c
 
-MYSCRIPTS = grind-tools ipcs_clear make.dodgey mkarch-all \
+MYSCRIPTS = grind-tools ipcs_clear mkarch-all \
 	mkeventrec mkinterpmark mkproc mkrewrite mksample_expr \
 	mksa-sysstat mktzchange show-args mkbig1 fixhosts mkpermslist \
 	memcachestats.pl
@@ -209,28 +192,7 @@ TRACELIB	= $(LLDLIBS) -lpcp_trace
 # then add executables beyond $(TARGETS)
 #
 LDIRT	+= *.log domain.h help.pag help.dir \
-	foo.0 foo.index foo.meta \
-	mv-foo.[0-9] mv-foo.index mv-foo.meta \
-	noti-foo.0 noti-foo.meta \
-	bar.0 bar.index bar.meta \
 	big[0-2].[0-2] big[0-2].index big[0-2].meta \
-	mv-bar.[0-9] mv-bar.index mv-bar.meta \
-	noti-bar.0 noti-bar.meta \
-	bigbin.0 bigbin.index bigbin.meta \
-	mv-bigbin.[0-9] mv-bigbin.index mv-bigbin.meta \
-	noti-bigbin.0 noti-bigbin.meta \
-	truncbin.0 truncbin.index truncbin.meta \
-	null.0 null.index null.meta \
-	interp.0 interp.index interp.meta \
-	mv-interp.[0-9] mv-interp.index mv-interp.meta \
-	noti-interp.0 noti-interp.meta \
-	noti-ok-foo.0 noti-ok-foo.meta \
-	gap.0 gap.index gap.meta \
-	gap2.0 gap2.index gap2.meta \
-	dodgey-some.0 dodgey-some.index dodgey-some.meta \
-	dodgey-all.0 dodgey-all.index dodgey-all.meta \
-	dodgey-mixed.0 dodgey-mixed.index dodgey-mixed.meta \
-	reduce-gap.0 reduce-gap.index reduce-gap.meta \
 	chkctx2_lite.c fetchrate_lite.c \
 	localconfig.h gmon.out \
 	$(TARGETS)
@@ -244,7 +206,7 @@ default default_pcp: \
 	$(PLFILES) $(PYFILES) \
 	ipcs_clear
 
-setup: default $(MKARCH) $(XTRATARGETS)
+setup: default $(XTRATARGETS)
 
 $(TARGETS):
 
@@ -257,16 +219,11 @@ clean-exec:
 	rm -f $(OBJECTS)
 	rm -f pv64
 
-# remake just the archives, not the binaries
-#
-clean-arch:
-	rm -f $(MKARCH) $(subst 0,meta,$(MKARCH)) $(subst 0,index,$(MKARCH))
-
 OBJECTS = $(shell echo $(CFILES) | sed -e 's/\.c/.o/g')
 
 # make just the archives, not the binaries
 #
-arch:	$(SRCARCHPART) $(MKARCH)
+arch:	$(SRCARCHPART)
 
 # --- do NOT need libpcp
 #
@@ -601,109 +558,6 @@ endif
 
 # -- archives
 #
-
-foo.0:	config.foo
-	rm -f foo.index foo.meta foo.0
-	pmlogger -c config.foo -s 8 foo
-
-mv-foo.0:	config.foo
-	rm -f mv-foo.index mv-foo.meta mv-foo.?
-	pmlogger -c config.foo -s 8 -v 3 mv-foo
-
-noti-foo.0:	foo.0
-	cp foo.0 noti-foo.0
-	cp foo.meta noti-foo.meta
-
-noti-ok-foo.0:	../archives/ok-foo.0
-	cp ../archives/ok-foo.0 noti-ok-foo.0
-	cp ../archives/ok-foo.meta noti-ok-foo.meta
-
-bar.0:	config.bar
-	rm -f bar.index bar.meta bar.0
-	pmlogger -c config.bar -s 70 bar
-
-mv-bar.0:	config.bar
-	rm -f mv-bar.index mv-bar.meta mv-bar.?
-	pmlogger -c config.bar -s 70 -v 20 mv-bar
-
-noti-bar.0:	bar.0
-	cp bar.0 noti-bar.0
-	cp bar.meta noti-bar.meta
-
-dodgey-some.0:	make.dodgey config.dodgey-some
-	./make.dodgey some 50
-
-dodgey-all.0:	make.dodgey config.dodgey-all
-	./make.dodgey all 50
-
-dodgey-mixed.0:	make.dodgey config.dodgey-mixed
-	./make.dodgey mixed 150
-
-bigbin.0:	config.bigbin
-	rm -f bigbin.index bigbin.meta bigbin.0
-	sync
-	sleep 3
-	pmlogger -c config.bigbin -s 1000 bigbin
-
-mv-bigbin.0:	config.bigbin
-	rm -f mv-bigbin.index mv-bigbin.meta mv-bigbin.?
-	sync
-	sleep 3
-	pmlogger -c config.bigbin -s 1000 -v 101 mv-bigbin
-
-noti-bigbin.0:	bigbin.0
-	cp bigbin.0 noti-bigbin.0
-	cp bigbin.meta noti-bigbin.meta
-
-interp.0:	$(CONFIG_INTERP)
-	rm -f interp.index interp.meta interp.0
-	pmlogger -c $(CONFIG_INTERP) -s 30 interp
-
-mv-interp.0:	$(CONFIG_INTERP)
-	rm -f mv-interp.index mv-interp.meta mv-interp.?
-	pmlogger -c $(CONFIG_INTERP) -s 30 -v 10 mv-interp
-
-noti-interp.0:	interp.0
-	cp interp.0 noti-interp.0
-	cp interp.meta noti-interp.meta
-
-truncbin.0:	bigbin.0
-	rm -f truncbin.index truncbin.meta truncbin.0
-	ln bigbin.meta truncbin.meta
-	ln bigbin.index truncbin.index
-	dd ibs=1024 count=200 if=bigbin.0 of=truncbin.0
-
-# just the label record
-null.0:	foo.0
-	rm -f null.index null.meta null.0
-	ln foo.meta null.meta
-	ln foo.index null.index
-	dd ibs=132 count=1 if=foo.0 of=null.0
-
-# gap: 10 sec data, 5 sec gap, 10 sec data
-# gap2: 10 sec data, 5 sec gap, 10 sec data, 5 sec gap, 10 sec data
-# sample.bin instances change across gaps
-#
-gap.0 gap2.0:
-	rm -rf tmp
-	mkdir tmp
-	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-200","bin-400"] }' >tmp/A.config
-	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-300","bin-400"] }' >tmp/B.config
-	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-400"] }' >tmp/C.config
-	pmlogger -s 10 -c tmp/A.config tmp/A
-	sleep 5
-	pmlogger -s 10 -c tmp/B.config tmp/B
-	sleep 5
-	pmlogger -s 10 -c tmp/C.config tmp/C
-	rm -f gap.index gap.meta gap.0
-	pmlogextract tmp/A tmp/B gap
-	rm -f gap2.index gap2.meta gap2.0
-	pmlogextract tmp/A tmp/B tmp/C gap2
-	rm -rf tmp
-
-reduce-gap.0:	../archives/reduce-1.0 ../archives/reduce-2.0
-	rm -f reduce-gap.*
-	pmlogextract ../archives/reduce-1 ../archives/reduce-2 reduce-gap
 
 torture_indom: torture_indom.c
 	rm -f $@

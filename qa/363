@@ -52,8 +52,8 @@ _filter()
 	# sample[dso].milliseconds is a fickle mistress
 }
 
-pmlogsummary src/truncbin | _filter
-pmlogsummary src/null
+pmlogsummary tmparch/truncbin | _filter
+pmlogsummary tmparch/null
 
 
 # success, all done

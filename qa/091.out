@@ -1,6 +1,6 @@
 QA output created by 091
 
-=== archive src/foo ===
+=== archive tmparch/foo ===
 
 metric: sample.seconds
 metric[0]: sample.seconds
@@ -177,7 +177,7 @@ value[0]: COLOUR
 
 6 samples required 8 - 12 log reads
 
-=== archive src/mv-foo ===
+=== archive tmparch/mv-foo ===
 
 metric: sample.seconds
 metric[0]: sample.seconds
@@ -354,7 +354,7 @@ value[0]: COLOUR
 
 6 samples required 8 - 12 log reads
 
-=== archive src/noti-foo ===
+=== archive tmparch/noti-foo ===
 
 metric: sample.seconds
 metric[0]: sample.seconds

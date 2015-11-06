@@ -16,7 +16,7 @@ TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9]/s/:reserved//' -e '
 
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient \
 	  archives views qt linux unbound cifs gpfs lustre ganglia \
-	  postfix perl json slurm
+	  postfix perl json slurm tmparch
 ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
 endif

@@ -1,5 +1,5 @@
 QA output created by 093
-=== src/foo ===
+=== tmparch/foo ===
 start: TIMESTAMP
 end: TIMESTAMP
 step: 100 msec
@@ -31,7 +31,7 @@ step: 100 msec
 90% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
 100% TIMESTAMP N forw + M back = 199-210 900-1210 log reads
 
-=== src/mv-foo ===
+=== tmparch/mv-foo ===
 start: TIMESTAMP
 end: TIMESTAMP
 step: 100 msec
@@ -63,7 +63,7 @@ step: 100 msec
 90% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
 100% TIMESTAMP N forw + M back = 199-210 980-1025 log reads
 
-=== src/noti-foo ===
+=== tmparch/noti-foo ===
 start: TIMESTAMP
 end: TIMESTAMP
 step: 100 msec

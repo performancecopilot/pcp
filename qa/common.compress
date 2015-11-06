@@ -35,7 +35,7 @@ _prepare_compress()
     suffix="$3"
 
     mkdir $tmp
-    cp src/mv-bigbin* $tmp
+    cp tmparch/mv-bigbin* $tmp
 }
 
 _run_tools()
@@ -58,7 +58,7 @@ _run_tools()
 
 _exercise_compression()
 {
-    _run_tools src/mv-bigbin n | tee $full >$tmp.orig
+    _run_tools tmparch/mv-bigbin n | tee $full >$tmp.orig
 
     cd $tmp
     echo "expect only a few lines of diff output ..."
