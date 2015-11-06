@@ -119,5 +119,5 @@ else
 fi
 
 unset TZ
-pmval -Z 'America/Los_Angeles' -S '1998-8-6 02:00:00' sample.bin -a src/ok-foo
-pmval -Z 'America/New_York' -S '1998-8-6 02:00:00' sample.bin -a src/ok-foo
+pmval -Z 'America/Los_Angeles' -S '1998-8-6 02:00:00' sample.bin -a archives/ok-foo
+pmval -Z 'America/New_York' -S '1998-8-6 02:00:00' sample.bin -a archives/ok-foo

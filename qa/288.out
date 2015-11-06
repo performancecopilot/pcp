@@ -4,7 +4,7 @@ QA output created by 288
 Note: timezone set to local timezone of host "mortenb.oslo.sgi.com" from archive
 
 metric:    mem.physmem
-archive:   src/20041125
+archive:   archives/20041125
 host:      mortenb.oslo.sgi.com
 start:     Thu Nov 25 00:10:06 2004
 end:       Thu Nov 25 00:58:06 2004
@@ -45,7 +45,7 @@ total log reads: forward 51 backwards 1
 Note: timezone set to local timezone of host "mortenb.oslo.sgi.com" from archive
 
 metric:    mem.physmem
-archive:   src/20041125
+archive:   archives/20041125
 host:      mortenb.oslo.sgi.com
 start:     Thu Nov 25 00:11:00 2004
 end:       Thu Nov 25 00:58:06 2004
@@ -85,7 +85,7 @@ total log reads: forward 49 backwards 1
 Note: timezone set to local timezone of host "mortenb.oslo.sgi.com" from archive
 
 metric:    mem.freemem
-archive:   src/20041125
+archive:   archives/20041125
 host:      mortenb.oslo.sgi.com
 start:     Thu Nov 25 00:10:06 2004
 end:       Thu Nov 25 00:58:06 2004
@@ -126,7 +126,7 @@ total log reads: forward 51 backwards 1
 Note: timezone set to local timezone of host "mortenb.oslo.sgi.com" from archive
 
 metric:    mem.freemem
-archive:   src/20041125
+archive:   archives/20041125
 host:      mortenb.oslo.sgi.com
 start:     Thu Nov 25 00:11:00 2004
 end:       Thu Nov 25 00:58:06 2004

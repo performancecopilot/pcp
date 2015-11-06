@@ -21,7 +21,7 @@ $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmlogextract -Z UTC -S "@ Nov 27 15:52:30" -T "@ Nov 27 15:54:30" src/node_archive $tmp
+pmlogextract -Z UTC -S "@ Nov 27 15:52:30" -T "@ Nov 27 15:54:30" archives/node_archive $tmp
 
 pmdumplog -a -Z UTC $tmp
 

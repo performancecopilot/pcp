@@ -13,15 +13,15 @@ echo "QA output created by $seq"
 . ./common.filter
 
 # use V2 archives only
-arch=src/ace_v2
+arch=archives/ace_v2
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # strip marks from archives
-src/stripmark src/changeinst.0 $tmp.changeinst.0 > /dev/null 2>&1
-cp src/changeinst.index $tmp.changeinst.index
-cp src/changeinst.meta $tmp.changeinst.meta
+src/stripmark archives/changeinst.0 $tmp.changeinst.0 > /dev/null 2>&1
+cp archives/changeinst.index $tmp.changeinst.index
+cp archives/changeinst.meta $tmp.changeinst.meta
 
 # deal with an annoying libc error ... using TZ=:Australia/Melbourne
 # causes the -z option to report the wrong time, at least for some
@@ -37,7 +37,7 @@ pmlogsummary -z -n src/root_irix -bmMy $arch \
      | LC_COLLATE=POSIX sort -f | ./xlate_2_new_pmns
 echo
 echo "=== Down-rev error check ==="
-pmlogsummary -v -z -n src/root_irix -a src/err_v1
+pmlogsummary -v -z -n src/root_irix -a archives/err_v1
 echo
 echo "=== Changing inst check ==="
 pmlogsummary -z -a $tmp.changeinst

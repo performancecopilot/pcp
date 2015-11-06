@@ -26,7 +26,7 @@ _filter()
 }
 
 # real QA test starts here
-pmdumplog src/eventrec-old | _filter
+pmdumplog archives/eventrec-old | _filter
 
 # success, all done
 exit

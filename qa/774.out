@@ -1,6 +1,6 @@
 QA output created by 774
 
-using src/ok-foo ...
+using archives/ok-foo ...
 --- stdout ---
 Note: timezone set to local timezone of host "gonzo" from archive
 
@@ -220,19 +220,19 @@ Temporal Index
               29.0.2 (sample.seconds): value 897
 --- stderr ---
 
-using src/ok-foo.0 ...
+using archives/ok-foo.0 ...
 --- stdout ---
 No diffs.
 --- stderr ---
 No diffs.
 
-using src/ok-foo.meta ...
+using archives/ok-foo.meta ...
 --- stdout ---
 No diffs.
 --- stderr ---
 No diffs.
 
-using src/ok-foo.index ...
+using archives/ok-foo.index ...
 --- stdout ---
 No diffs.
 --- stderr ---

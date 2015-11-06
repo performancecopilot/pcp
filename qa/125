@@ -19,7 +19,7 @@ $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmval -z -Dlog,interp -O-16 -t 15 -a src/kenj-pc-1 kernel.all.cpu.idle 2>$tmp.err
+pmval -z -Dlog,interp -O-16 -t 15 -a archives/kenj-pc-1 kernel.all.cpu.idle 2>$tmp.err
 
 echo
 echo "__pmLogRead calls: `grep __pmLogRead $tmp.err | wc -l | sed -e 's/ *//g'`"

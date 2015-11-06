@@ -35,11 +35,11 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 echo "=== pmNewContext ==="
-src/churnctx -z -s 400 -a src/bug1057 kernel.all.load hinv.ncpu disk.dev.total 2>&1 | _filter
+src/churnctx -z -s 400 -a archives/bug1057 kernel.all.load hinv.ncpu disk.dev.total 2>&1 | _filter
 
 echo
 echo "=== pmDupContext ==="
-src/churnctx -d -z -s 400 -a src/bug1057 kernel.all.load hinv.ncpu disk.dev.total 2>&1 | _filter
+src/churnctx -d -z -s 400 -a archives/bug1057 kernel.all.load hinv.ncpu disk.dev.total 2>&1 | _filter
 
 echo
 echo "=== host context, and pmNewContext ... just to be sure ==="

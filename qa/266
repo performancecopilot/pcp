@@ -19,12 +19,12 @@ if [ $PCP_VER -lt 30600 ]
 then
     # V1 archives supported
     ln $seq.out.1 $seq.out
-    arch=src/960624.08.17
+    arch=archives/960624.08.17
     pmns="-n src/root_irix"
 else
     # no support for V1 archives
     ln $seq.out.2 $seq.out
-    arch=src/960624.08.17_v2
+    arch=archives/960624.08.17_v2
     pmns=''
 fi
 

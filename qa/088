@@ -48,4 +48,4 @@ done
 TZ=EST-10
 export TZ
 
-pmval -a src/late -s1 -z sampledso.bin
+pmval -a archives/late -s1 -z sampledso.bin

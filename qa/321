@@ -19,7 +19,7 @@ $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmie -z -a src/conn20070309 -S @17:00 -T @17:10 <<'End-of-File' 2>&1 \
+pmie -z -a archives/conn20070309 -S @17:00 -T @17:10 <<'End-of-File' 2>&1 \
 | fgrep -v "evaluator exiting"
 service_name_cn = "CON_USE";
 sample_count = "@0..4";

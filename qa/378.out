@@ -1,6 +1,6 @@
 QA output created by 378
 just one archive (kenj-pc-1) ...
-pmie: timezone set to local timezone from src/kenj-pc-1
+pmie: timezone set to local timezone from archives/kenj-pc-1
 print Sun Feb  8 13:02:00 2004: kenj-pc: 1.51
 print Sun Feb  8 13:05:00 2004: kenj-pc: 1.71
 print Sun Feb  8 13:23:00 2004: kenj-pc: 2.23
@@ -17,10 +17,10 @@ print Sun Feb  8 15:16:00 2004: kenj-pc: 1.56
 print Sun Feb  8 15:17:00 2004: kenj-pc: 1.53
 
 expect error as same host ...
-pmie: Error: archive src/kenj-pc-2 not legal - archive src/kenj-pc-1 is already open for host kenj-pc
+pmie: Error: archive archives/kenj-pc-2 not legal - archive archives/kenj-pc-1 is already open for host kenj-pc
 
 other archive (naslog) ...
-pmie: timezone set to local timezone from src/naslog
+pmie: timezone set to local timezone from archives/naslog
 print Thu Apr  8 16:12:00 2004: snort: 3.27
 print Thu Apr  8 16:13:00 2004: snort: 2.87
 print Thu Apr  8 16:14:00 2004: snort: 3.17
@@ -29,7 +29,7 @@ print Thu Apr  8 16:16:00 2004: snort: 3.04
 print Thu Apr  8 16:17:00 2004: snort: 2.11
 
 and now together kenj-pc-1 first ...
-pmie: timezone set to local timezone from src/kenj-pc-1
+pmie: timezone set to local timezone from archives/kenj-pc-1
 print Sun Feb  8 13:02:00 2004: kenj-pc: 1.51
 print Sun Feb  8 13:05:00 2004: kenj-pc: 1.71
 print Sun Feb  8 13:23:00 2004: kenj-pc: 2.23
@@ -46,7 +46,7 @@ print Sun Feb  8 15:16:00 2004: kenj-pc: 1.56
 print Sun Feb  8 15:17:00 2004: kenj-pc: 1.53
 
 and now together naslog first ...
-pmie: timezone set to local timezone from src/naslog
+pmie: timezone set to local timezone from archives/naslog
 print Thu Apr  8 16:12:00 2004: snort: 3.27
 print Thu Apr  8 16:13:00 2004: snort: 2.87
 print Thu Apr  8 16:14:00 2004: snort: 3.17
@@ -55,7 +55,7 @@ print Thu Apr  8 16:16:00 2004: snort: 3.04
 print Thu Apr  8 16:17:00 2004: snort: 2.11
 
 two rules, host-specific (naslog first) ...
-pmie: timezone set to local timezone from src/naslog
+pmie: timezone set to local timezone from archives/naslog
 print Sun Feb  8 13:02:00 2004: kenj-pc: 1.51
 print Sun Feb  8 13:05:00 2004: kenj-pc: 1.71
 print Sun Feb  8 13:23:00 2004: kenj-pc: 2.23
@@ -80,7 +80,7 @@ print Thu Apr  8 16:17:00 2004: snort: 2.11
 and now with some_host ... only one value ever available, so >
 condition is always false and some_host never gets a chance
 ... expect no output
-pmie: timezone set to local timezone from src/naslog
+pmie: timezone set to local timezone from archives/naslog
 
 ... and it does not matter which order the archives are given
-pmie: timezone set to local timezone from src/kenj-pc-1
+pmie: timezone set to local timezone from archives/kenj-pc-1

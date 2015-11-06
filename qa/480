@@ -71,10 +71,10 @@ do
     case $i
     in
 	1|2|3|4)
-	    pmdumplog -di src/ace_v2 2>&1 | _filter
+	    pmdumplog -di archives/ace_v2 2>&1 | _filter
 	    ;;
 	7|8|9)
-	    src/torture_logmeta -f src/ace_v2 1 2 123 2>&1 | _filter
+	    src/torture_logmeta -f archives/ace_v2 1 2 123 2>&1 | _filter
 	    ;;
 	5|6)
 	    rm -f $tmp.0 $tmp.meta $tmp.index

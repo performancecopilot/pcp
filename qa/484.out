@@ -1,24 +1,24 @@
 QA output created by 484
 
-=== src/ok-foo ===
+=== archives/ok-foo ===
 pmdumplog diffs ...
 
-=== src/541380_v2 ===
+=== archives/541380_v2 ===
 pmdumplog diffs ...
 
-=== src/mirage ===
+=== archives/mirage ===
 pmdumplog diffs ...
 
 === src/bigbin ===
 pmdumplog diffs ...
 
-=== src/ok-mv-foo ===
+=== archives/ok-mv-foo ===
 pmdumplog diffs ...
 
-=== src/mirage-1 ===
+=== archives/mirage-1 ===
 pmdumplog diffs ...
 
-=== src/mirage-2 ===
+=== archives/mirage-2 ===
 pmdumplog diffs ...
 
 === src/gap ===
@@ -27,5 +27,5 @@ pmdumplog diffs ...
 === src/gap2 ===
 pmdumplog diffs ...
 
-=== -Dall src/ok-foo ===
+=== -Dall archives/ok-foo ===
 pmdumplog diffs ...

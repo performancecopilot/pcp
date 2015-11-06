@@ -24,7 +24,7 @@ $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmstat -z -a src/ac15 2>&1 | _filter
+pmstat -z -a archives/ac15 2>&1 | _filter
 
 # success, all done
 exit

@@ -7,7 +7,7 @@ QA output created by 493
  Note: timezone set to local timezone of host "bozo-laptop" from archive
  
  metric:    sample.ulong.bin_ctr
--archive:   src/rewrite
+-archive:   archives/rewrite
 +archive:   TMP.new
  host:      bozo-laptop
  start:     Sat Oct  1 21:10:11 2011
@@ -32,7 +32,7 @@ QA output created by 493
  Note: timezone set to local timezone of host "bozo-laptop" from archive
  
  metric:    sample.ulonglong.bin_ctr
--archive:   src/rewrite
+-archive:   archives/rewrite
 +archive:   TMP.new
  host:      bozo-laptop
  start:     Sat Oct  1 21:10:11 2011
@@ -57,7 +57,7 @@ QA output created by 493
  Note: timezone set to local timezone of host "bozo-laptop" from archive
  
  metric:    sampledso.double.bin_ctr
--archive:   src/rewrite
+-archive:   archives/rewrite
 +archive:   TMP.new
  host:      bozo-laptop
  start:     Sat Oct  1 21:10:11 2011
@@ -81,7 +81,7 @@ QA output created by 493
  Note: timezone set to local timezone of host "bozo-laptop" from archive
  
  metric:    sample.float.bin_ctr
--archive:   src/rewrite
+-archive:   archives/rewrite
 +archive:   TMP.new
  host:      bozo-laptop
  start:     Sat Oct  1 21:10:11 2011
@@ -103,7 +103,7 @@ QA output created by 493
  Note: timezone set to local timezone of host "bozo-laptop" from archive
  
  metric:    sample.longlong.bin_ctr
--archive:   src/rewrite
+-archive:   archives/rewrite
 +archive:   TMP.new
  host:      bozo-laptop
  start:     Sat Oct  1 21:10:11 2011

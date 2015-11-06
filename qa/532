@@ -87,12 +87,12 @@ do
 	do
 	    if [ $hour -ne 4 ]
 	    then
-		cp src/arch_a.$ext $tmp/$namea.$ext
+		cp archives/arch_a.$ext $tmp/$namea.$ext
 		touch -t $stampa $tmp/$namea.$ext
 	    fi
-	    cp src/arch_b.$ext $tmp/$nameb.$ext
+	    cp archives/arch_b.$ext $tmp/$nameb.$ext
 	    touch -t $stampb $tmp/$nameb.$ext
-	    cp src/arch_b.$ext $tmp/$namec.$ext
+	    cp archives/arch_b.$ext $tmp/$namec.$ext
 	    touch -t $stampc $tmp/$namec.$ext
 	done
     done

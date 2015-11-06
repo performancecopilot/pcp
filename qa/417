@@ -35,7 +35,7 @@ mkdir $tmp
 cd $tmp
 
 # make the corrupted archive
-arch=src/bigace_v2
+arch=archives/bigace_v2
 cp $here/$arch.meta bad.meta
 dd ibs=1 count=512 if=$here/$arch.index of=bad.index 2>/dev/null
 dd ibs=1 count=512 if=$here/$arch.index >>bad.index 2>/dev/null
@@ -52,46 +52,46 @@ export TZ=EST-10
 
 echo
 echo "=== pminfo ==="
-pminfo -O0 -n $here/src/bigace.pmns -a bad >$tmp.out 2>$tmp.err
+pminfo -O0 -n $here/archives/bigace.pmns -a bad >$tmp.out 2>$tmp.err
 cat $tmp.err $tmp.out
 _check_core
 
 echo
 echo "=== pminfo -f irix ==="
-pminfo -O0 -n $here/src/bigace.pmns -a bad -f irix
+pminfo -O0 -n $here/archives/bigace.pmns -a bad -f irix
 _check_core
 
 echo
 echo "=== pmdumplog -t ==="
-pmdumplog -n $here/src/bigace.pmns -z -t bad
+pmdumplog -n $here/archives/bigace.pmns -z -t bad
 _check_core
 
 echo
 echo "=== pmdumplog -t, no index ==="
 mv bad.index save.index
-pmdumplog -n $here/src/bigace.pmns -z -t bad
+pmdumplog -n $here/archives/bigace.pmns -z -t bad
 mv save.index bad.index
 _check_core
 
 echo
 echo "=== pmdumplog -l ==="
-pmdumplog -n $here/src/bigace.pmns -z -l bad
+pmdumplog -n $here/archives/bigace.pmns -z -l bad
 _check_core
 
 echo
 echo "=== pmdumplog -L ==="
-pmdumplog -n $here/src/bigace.pmns -z -L bad
+pmdumplog -n $here/archives/bigace.pmns -z -L bad
 _check_core
 
 echo
 echo "=== pmdumplog -m ==="
-pmdumplog -n $here/src/bigace.pmns -z -m bad >$tmp.out 2>$tmp.err
+pmdumplog -n $here/archives/bigace.pmns -z -m bad >$tmp.out 2>$tmp.err
 cat $tmp.err $tmp.out
 _check_core
 
 echo
 echo "=== pmlogsummary ==="
-pmlogsummary -n $here/src/bigace.pmns bad >$tmp.out 2>$tmp.err
+pmlogsummary -n $here/archives/bigace.pmns bad >$tmp.out 2>$tmp.err
 cat $tmp.err $tmp.out | sed -e 's/^\*//g'
 _check_core
 

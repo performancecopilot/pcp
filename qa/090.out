@@ -1,6 +1,6 @@
 QA output created by 090
 
-=== src/ok-bigbin ===
+=== archives/ok-bigbin ===
 100 samples, 80 msec apart
 sample 1, delta time=0.080 secs
 sample 2, delta time=0.080 secs
@@ -206,7 +206,7 @@ sample 99, delta time=0.008 secs
 100 samples required 40-110 log reads
 more than 85 data values in the range 6 - 9
 
-=== src/ok-mv-bigbin ===
+=== archives/ok-mv-bigbin ===
 100 samples, 80 msec apart
 sample 1, delta time=0.080 secs
 sample 2, delta time=0.080 secs

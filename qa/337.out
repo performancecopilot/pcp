@@ -512,7 +512,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 metric:    sample.mirage
-archive:   src/mirage-1
+archive:   archives/mirage-1
 host:      ken.engr.acx
 start:     Sat May 17 13:33:44 2008
 end:       Sat May 17 13:34:29 2008
@@ -541,7 +541,7 @@ pmval: pmFetchArchive: End of PCP archive log
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 metric:    sample.many.int
-archive:   src/mirage-1
+archive:   archives/mirage-1
 host:      ken.engr.acx
 start:     Sat May 17 13:33:44 2008
 end:       Sat May 17 13:34:29 2008
@@ -964,7 +964,7 @@ Note: timezone set to local timezone of host "ken.engr.acx" from archive
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 metric:    sample.mirage
-archive:   src/mirage-2
+archive:   archives/mirage-2
 host:      ken.engr.acx
 start:     Sat May 17 13:33:49 2008
 end:       Sat May 17 13:33:59 2008
@@ -988,7 +988,7 @@ pmval: pmFetchArchive: End of PCP archive log
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 metric:    sample.many.int
-archive:   src/mirage-2
+archive:   archives/mirage-2
 host:      ken.engr.acx
 start:     Sat May 17 13:33:49 2008
 end:       Sat May 17 13:33:59 2008

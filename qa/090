@@ -44,7 +44,7 @@ END				{ print total }'`
 }
 
 # real QA test starts here
-for arch in src/ok-bigbin src/ok-mv-bigbin
+for arch in archives/ok-bigbin archives/ok-mv-bigbin
 do
     echo
     echo "=== $arch ==="

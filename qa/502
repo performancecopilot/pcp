@@ -61,7 +61,7 @@ mkdir $tmp.arch
 echo "=== metric not in archive ===" | tee -a $seq.full
 arch=rewrite
 rm -f $tmp.arch/*
-cp src/$arch.* $tmp.arch
+cp archives/$arch.* $tmp.arch
 ls -l $tmp.arch | tee -a $seq.full >$tmp.before
 cat <<'End-of-File' >$tmp.conf
 metric kernel.all.load { pmid -> 1.2.3 }
@@ -80,7 +80,7 @@ else
     echo "After ..."
     cat $tmp.after
 fi
-_cmp src/$arch $tmp.arch/$arch
+_cmp archives/$arch $tmp.arch/$arch
 
 echo | tee -a $seq.full
 echo "=== correctness checked in QA 493 ... only care about expected file contents here ===" | tee -a $seq.full
@@ -114,7 +114,7 @@ End-of-File
 cat $tmp.conf >>$seq.full
 arch=mirage
 rm -f $tmp.arch/*
-cp src/$arch.* $tmp.arch
+cp archives/$arch.* $tmp.arch
 ls $tmp.arch
 ls -l $tmp.arch >>$seq.full
 pmlogrewrite -s -c $tmp.conf $tmp.arch/$arch $tmp.arch/$arch.expect 2>&1 \
@@ -136,7 +136,7 @@ End-of-File
 cat $tmp.conf >>$seq.full
 arch=ok-truncbin
 rm -f $tmp.arch/*
-cp src/$arch.* $tmp.arch
+cp archives/$arch.* $tmp.arch
 ls -l $tmp.arch >>$seq.full
 pmlogrewrite -Dlog -iwv -c $tmp.conf $tmp.arch/$arch 2>$tmp.err >$tmp.out
 cat $tmp.out $tmp.err \
@@ -148,7 +148,7 @@ s/\.0/.EXT/
 }'
 ls $tmp.arch
 ls -l $tmp.arch >>$seq.full
-_cmp src/$arch $tmp.arch/$arch
+_cmp archives/$arch $tmp.arch/$arch
 
 # success, all done
 exit

@@ -75,7 +75,7 @@ count_host (some_inst sampledso.part_bin > 300) > 0 -> print "count_host:" " @%h
 End-of-File
 
 # real QA test starts here
-cat <<End-of-File | pmie -t 2sec -d -Dappl1 -a src/multi-vm00 -a src/multi-vm01 -a src/multi-vm02 -a src/multi-vm03 >$tmp.out 2>$tmp.err &
+cat <<End-of-File | pmie -t 2sec -d -Dappl1 -a archives/multi-vm00 -a archives/multi-vm01 -a archives/multi-vm02 -a archives/multi-vm03 >$tmp.out 2>$tmp.err &
 f $tmp.pmie
 l
 r 10sec

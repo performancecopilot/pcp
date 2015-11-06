@@ -53,8 +53,8 @@ echo "Test pmlogextract"
 rm -rf $tmp.arch*
 echo
 echo " --- step 1: no flags ---"
-echo "(output depends on src/mirage{0,index,meta})"
-pmlogextract src/mirage $tmp.arch >$tmp.out 2>$tmp.err
+echo "(output depends on archives/mirage{0,index,meta})"
+pmlogextract archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
 _check_output pmlogextract
 pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
 
@@ -63,8 +63,8 @@ pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
 rm -rf $tmp.arch*
 echo
 echo " --- step 2: test -S, -T and -z flags ---"
-echo "(output depends on src/mirage{0,index,meta})"
-pmlogextract -S "@10:50:00" -T "@11:00:00" -z src/mirage $tmp.arch >$tmp.out 2>$tmp.err
+echo "(output depends on archives/mirage{0,index,meta})"
+pmlogextract -S "@10:50:00" -T "@11:00:00" -z archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
 _check_output pmlogextract
 pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
 
@@ -73,8 +73,8 @@ pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
 rm -rf $tmp.arch*
 echo
 echo " --- step 3: test -S out of range ---"
-echo "(output depends on src/mirage{0,index,meta})"
-pmlogextract -S "@10:00:00" -z src/mirage $tmp.arch >$tmp.out 2>$tmp.err
+echo "(output depends on archives/mirage{0,index,meta})"
+pmlogextract -S "@10:00:00" -z archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
 _check_output pmlogextract
 pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
 
@@ -83,8 +83,8 @@ pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
 rm -rf $tmp.arch*
 echo
 echo " --- step 4: test -T out of range ---"
-echo "(output depends on src/mirage{0,index,meta})"
-pmlogextract -T "@12:00:00" -z src/mirage $tmp.arch >$tmp.out 2>$tmp.err
+echo "(output depends on archives/mirage{0,index,meta})"
+pmlogextract -T "@12:00:00" -z archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
 _check_output pmlogextract
 pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
 
@@ -94,9 +94,9 @@ pmdumplog -L -z $tmp.arch | sed -e '/^PID/s/: [0-9]*/: PID/'
 #rm -rf $tmp.arch*
 #echo
 #echo " --- step 5: test -t flag ---"
-#echo "(output depends on src/mirage{0,index,meta})"
-## update interval for "sample.drift" in src/mirage is 1 minute
-#pmlogextract -n src/root_irix -t "2min" src/mirage $tmp.arch >$tmp.out 2>$tmp.err1
+#echo "(output depends on archives/mirage{0,index,meta})"
+## update interval for "sample.drift" in archives/mirage is 1 minute
+#pmlogextract -n src/root_irix -t "2min" archives/mirage $tmp.arch >$tmp.out 2>$tmp.err1
 #cat $tmp.err1 \
 #	| sed -e '/^Description unavailable/d' \
 #	| sed -e '/^Reason:/d' \
@@ -109,8 +109,8 @@ rm -rf $tmp.arch*
 rm -rf $tmp.config
 echo
 echo " --- step 6: test config file ---"
-echo "(output depends on src/mirage{0,index,meta})"
-# src/mirage contains "sample.bin", "sample.drift", & "sample.mirage"
+echo "(output depends on archives/mirage{0,index,meta})"
+# archives/mirage contains "sample.bin", "sample.drift", & "sample.mirage"
 cat >$tmp.config <<'End-of-file'
 #
 # pmlogextract config file
@@ -120,7 +120,7 @@ sample.drift
 sample.mirage ["m-00" "m-13" "m-17" "m-24"]		# in order
 End-of-file
     
-pmlogextract -c $tmp.config src/mirage $tmp.arch >$tmp.out 2>$tmp.err
+pmlogextract -c $tmp.config archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
 _check_output pmlogextract
 # dump descriptors
 echo
@@ -153,8 +153,8 @@ rm -rf $tmp.arch*
 rm -rf $tmp.config
 echo
 echo " --- step 7: test config file, plus -S, -T and -z flags ---"
-echo "(output depends on src/mirage{0,index,meta})"
-# src/mirage contains "sample.drift"
+echo "(output depends on archives/mirage{0,index,meta})"
+# archives/mirage contains "sample.drift"
 cat >$tmp.config <<'End-of-file'
 #
 # pmlogextract config file
@@ -162,12 +162,12 @@ cat >$tmp.config <<'End-of-file'
 sample.drift
 End-of-file
 
-pmlogextract -c $tmp.config -S "@10:50:00" -T "@11:00:00" -z src/mirage $tmp.arch >$tmp.out 2>$tmp.err
+pmlogextract -c $tmp.config -S "@10:50:00" -T "@11:00:00" -z archives/mirage $tmp.arch >$tmp.out 2>$tmp.err
 _check_output pmlogextract
 
 # dump values for sample.drift
 echo "--- dump values for sample.drift ---"
-pmdumplog -m -z src/mirage sample.drift \
+pmdumplog -m -z archives/mirage sample.drift \
 	| sed -e '/^$/d' \
 	| $PCP_AWK_PROG -F":" '{ if ($1 == 10 && $2 >= 50) print $0; }' > $tmp.m
 pmdumplog -m -z $tmp.arch sample.drift \
@@ -188,15 +188,15 @@ rm -rf $tmp.arch*
 rm -rf $tmp.config
 echo
 echo " --- step 8: test -w flag (with -S, -T and -z) ---"
-echo "(output depends on src/rattle{0,index,meta})"
-# src/rattle contains "irix.kernel.all.load"
+echo "(output depends on archives/rattle{0,index,meta})"
+# archives/rattle contains "irix.kernel.all.load"
 
-pmlogextract -S "@00:00:00" -T "@12:00:00" -w -z src/rattle $tmp.arch >$tmp.out 2>$tmp.err
+pmlogextract -S "@00:00:00" -T "@12:00:00" -w -z archives/rattle $tmp.arch >$tmp.out 2>$tmp.err
 _check_output pmlogextract
 
 # dump values for irix.kernel.all.load
 echo "--- dump values for irix.kernel.all.load ---"
-pmdumplog -m -z src/rattle irix.kernel.all.load \
+pmdumplog -m -z archives/rattle irix.kernel.all.load \
 	| sed -e '/^$/d' \
 	| $PCP_AWK_PROG -F":" '{ if ($1 >= 0 && $1 < 12) print $0; }' > $tmp.m
 pmdumplog -m -z $tmp.arch irix.kernel.all.load \

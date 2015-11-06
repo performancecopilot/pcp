@@ -5,7 +5,7 @@ QA output created by 165
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    kernel.all.load
-archive:   src/kenj-pc-1
+archive:   archives/kenj-pc-1
 host:      kenj-pc
 start:     Sun Feb  8 12:22:31 2004
 end:       Sun Feb  8 15:28:46 2004
@@ -24,7 +24,7 @@ interval:  60.00 sec
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    kernel.all.load
-archive:   src/kenj-pc-1
+archive:   archives/kenj-pc-1
 host:      kenj-pc
 start:     Sun Feb  8 12:22:31 2004
 end:       Sun Feb  8 15:28:46 2004
@@ -43,7 +43,7 @@ interval:  60.00 sec
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    kernel.all.load
-archive:   src/kenj-pc-1
+archive:   archives/kenj-pc-1
 host:      kenj-pc
 start:     Sun Feb  8 12:22:31 2004
 end:       Sun Feb  8 15:28:46 2004
@@ -62,7 +62,7 @@ interval:  60.00 sec
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    kernel.all.load
-archive:   src/kenj-pc-1
+archive:   archives/kenj-pc-1
 host:      kenj-pc
 start:     Sun Feb  8 12:22:31 2004
 end:       Sun Feb  8 15:28:46 2004
@@ -84,7 +84,7 @@ full label for instance[2]: 15 minute
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    kernel.all.load
-archive:   src/kenj-pc-1
+archive:   archives/kenj-pc-1
 host:      kenj-pc
 start:     Sun Feb  8 12:22:31 2004
 end:       Sun Feb  8 15:28:46 2004
@@ -105,7 +105,7 @@ interval:  60.00 sec
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    irix.network.interface.total.packets
-archive:   src/changeinst
+archive:   archives/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -125,7 +125,7 @@ interval:  1.00 sec
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    irix.network.interface.total.packets
-archive:   src/changeinst
+archive:   archives/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -145,7 +145,7 @@ interval:  1.00 sec
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    irix.network.interface.total.packets
-archive:   src/changeinst
+archive:   archives/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -165,7 +165,7 @@ interval:  1.00 sec
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    irix.network.interface.total.packets
-archive:   src/changeinst
+archive:   archives/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997
@@ -185,7 +185,7 @@ interval:  1.00 sec
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    irix.network.interface.total.packets
-archive:   src/changeinst
+archive:   archives/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
 end:       Tue Aug  5 07:45:59 1997

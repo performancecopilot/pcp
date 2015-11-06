@@ -24,23 +24,23 @@ _filter()
 
 # real QA test starts here
 echo "== simple comparison, defaults"
-pmdiff -z $here/src/section-a $here/src/section-b | _filter
+pmdiff -z $here/archives/section-a $here/archives/section-b | _filter
 echo
 
 echo "== change the comparison ratio"
-pmdiff -z -q 1.5 $here/src/section-a $here/src/section-b | _filter
+pmdiff -z -q 1.5 $here/archives/section-a $here/archives/section-b | _filter
 echo
 
 echo "== change the report precision"
-pmdiff -z -p 5 $here/src/section-a $here/src/section-b | _filter
+pmdiff -z -p 5 $here/archives/section-a $here/archives/section-b | _filter
 echo
 
 echo "== skip the excluded metrics report"
-pmdiff -z --skip-excluded $here/src/section-a $here/src/section-b | _filter
+pmdiff -z --skip-excluded $here/archives/section-a $here/archives/section-b | _filter
 echo
 
 echo "== skip the missing metrics report"
-pmdiff -z --skip-missing $here/src/section-a $here/src/section-c | _filter
+pmdiff -z --skip-missing $here/archives/section-a $here/archives/section-c | _filter
 
 # success, all done
 status=0

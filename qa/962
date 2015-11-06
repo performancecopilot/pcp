@@ -21,7 +21,7 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 for delta in 1min 15min 1hr 4hr 12hr
 do
-    pmval -a src/count-mark -z -A $delta -t $delta kernel.all.pswitch
+    pmval -a archives/count-mark -z -A $delta -t $delta kernel.all.pswitch
 done
 
 # success, all done

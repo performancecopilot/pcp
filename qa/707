@@ -17,7 +17,7 @@ $python -c 'from pcp import pmapi' 2>/dev/null
 test $? -eq 0 || _notrun 'Python pcp pmapi module is not installed'
 
 # real QA test starts here
-$python $here/src/test_pcp.py src/pyapi.0 >$seq.full 2>&1
+$python $here/src/test_pcp.py archives/pyapi.0 >$seq.full 2>&1
 _check_unittest archive $seq.full
 status=$?
 exit

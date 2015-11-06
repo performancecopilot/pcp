@@ -134,10 +134,10 @@ egrep '(Unknown)|( unknown)' $tmp.arch
 
 echo === Checking bug 640234
 echo 'pminfo(1) output:'
-pminfo -fa src/pcpcmd pmcd.pmlogger
+pminfo -fa archives/pcpcmd pmcd.pmlogger
 echo
 echo 'pcp(1) output:'
-pcp -n src/root_irix -a src/pcpcmd | fgrep -v "$PCP_PMDAS_DIR/summary"
+pcp -n src/root_irix -a archives/pcpcmd | fgrep -v "$PCP_PMDAS_DIR/summary"
 # dont use services/pmie output here cos archive doesn't have all metrics
 
 # success, all done

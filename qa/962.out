@@ -2,7 +2,7 @@ QA output created by 962
 Note: timezone set to local timezone of host "bozo-vm" from archive
 
 metric:    kernel.all.pswitch
-archive:   src/count-mark
+archive:   archives/count-mark
 host:      bozo-vm
 start:     Thu Jan 16 00:12:00 2014
 end:       Fri Jan 17 18:42:13 2014
@@ -2565,7 +2565,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "bozo-vm" from archive
 
 metric:    kernel.all.pswitch
-archive:   src/count-mark
+archive:   archives/count-mark
 host:      bozo-vm
 start:     Thu Jan 16 00:15:00 2014
 end:       Fri Jan 17 18:42:13 2014
@@ -2747,7 +2747,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "bozo-vm" from archive
 
 metric:    kernel.all.pswitch
-archive:   src/count-mark
+archive:   archives/count-mark
 host:      bozo-vm
 start:     Thu Jan 16 01:00:00 2014
 end:       Fri Jan 17 18:42:13 2014
@@ -2801,7 +2801,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "bozo-vm" from archive
 
 metric:    kernel.all.pswitch
-archive:   src/count-mark
+archive:   archives/count-mark
 host:      bozo-vm
 start:     Thu Jan 16 03:00:00 2014
 end:       Fri Jan 17 18:42:13 2014
@@ -2823,7 +2823,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "bozo-vm" from archive
 
 metric:    kernel.all.pswitch
-archive:   src/count-mark
+archive:   archives/count-mark
 host:      bozo-vm
 start:     Thu Jan 16 11:00:00 2014
 end:       Fri Jan 17 18:42:13 2014

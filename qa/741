@@ -31,10 +31,10 @@ _filter_live()
 
 # real QA test starts here
 echo && echo check archive and boundaries
-$python $here/src/test_pcp_getopts.py -a src/ace_v2 -z
+$python $here/src/test_pcp_getopts.py -a archives/ace_v2 -z
 
 echo && echo check archive time windows
-$python $here/src/test_pcp_getopts.py -a src/ace_v2 -z \
+$python $here/src/test_pcp_getopts.py -a archives/ace_v2 -z \
 	--align="1 second" \
 	--start="@ Mon Oct 30 14:25:10 1995" \
 	--origin="@ Mon Oct 30 14:25:10 1995" \

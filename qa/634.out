@@ -3,7 +3,7 @@ time zone from archive ...
 Note: timezone set to local timezone of host "oasis.reading.sgi.com" from archive
 
 metric:    hinv.ncpu
-archive:   src/gmt-boring
+archive:   archives/gmt-boring
 host:      oasis.reading.sgi.com
 start:     Wed May 30 03:54:49 2001
 end:       Wed May 30 03:55:03 2001
@@ -19,7 +19,7 @@ GMT via -Z ...
 Note: timezone set to "TZ=GMT"
 
 metric:    hinv.ncpu
-archive:   src/gmt-boring
+archive:   archives/gmt-boring
 host:      oasis.reading.sgi.com
 start:     Wed May 30 02:54:49 2001
 end:       Wed May 30 02:55:03 2001
@@ -34,7 +34,7 @@ interval:  5.00 sec
 GMT via default local timezone ...
 
 metric:    hinv.ncpu
-archive:   src/gmt-boring
+archive:   archives/gmt-boring
 host:      oasis.reading.sgi.com
 start:     Wed May 30 02:54:49 2001
 end:       Wed May 30 02:55:03 2001

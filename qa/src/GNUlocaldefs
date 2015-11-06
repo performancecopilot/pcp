@@ -11,33 +11,7 @@ DEBUG   = $(DBG)
 
 HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || echo 0)
 
-SRCARCH	= mirage.0 moomba.client.0 \
-	babylon.percpu.0 babylon.percpu_v2.0 \
-	omen.client.0 bozo.client.0 bozo.client_v2.0 \
-	late.0 ok-bigbin.0 ok-mv-bigbin.0 ok-truncbin.0 \
-	babylon.pmview.0 babylon.pmview_v2.0 ok-foo.0 ok-mv-foo.0 \
-	bug.0 bug_v2.0 ace.0 ace_v2.0 bigace.0 bigace_v2.0 \
-	951127.23.01.0 951127.23.01_v2.0 960624.08.17.0 960624.08.17_v2.0 \
-	rattle.0 mark-bug.0 arch_a.0 arch_b.0 \
-	err_v1.0 changeinst.0 19970807.09.54.0 19970807.09.59.0 \
-	binning.0 wrap.0 573184.0 xbug1.0 pcpcmd.0 markmerge.0 \
-	sample-secs.0 gmt-boring.0 kenj-pc-1.0 kenj-pc-2.0 \
-	reduce-1.0 reduce-2.0 kenj-pc-diskstat.0 snort-disks.0 \
-	vldb-disks.0 moomba.pmkstat.0 fcsw_indom.0 \
-	uwrap.0 20041125.0 ac15.0 conn20070309.0 logsummary-bug.0 \
-	tzchange-10-a.0 tzchange-10-b.0 tzchange-11-a.0 tzchange-11-b.0 \
-	tzchange-12-a.0 tzchange-12-b.0 sample_expr.0 \
-	mirage-1.0 mirage-2.0 eventrec-old.0 eventrec.0 \
-	540117-short.0 541380.0 541380_v2.0 573184.0 20101004-trunc.0 \
-	bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
-	rewrite.0 proc.0 section-a.0 section-b.0 section-c.0 section-d.0 \
-	interpmark.0 all-irix-6.5.25.0 all-sles9-sp1.0 naslog.0 \
-	multi-vm00.0 multi-vm01.0 multi-vm02.0 multi-vm03.0 pmatop-log.0 \
-	new_mysql.0 new_snmp.0 old_xfs.0 node_archive.0 count-mark.0 \
-	pyapi.0 pcp-free.0 pcp-uptime.0 pcp-numastat-1-node.0 numa.0 \
-	bug1057.0
-
-SRCARCHPART = ok-noti-bigbin.0 pmatop-log.folio \
+SRCARCHPART = pmatop-log.folio \
 	20130706.0.bz2 20130706.index 20130706.meta
 
 MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
@@ -178,12 +152,9 @@ else
 MYFILES += $(POSIXFILES) $(TRACEFILES)
 endif
 
-MYFILES += $(SRCARCH) \
-	$(patsubst %.0,%.meta,$(SRCARCH)) $(patsubst %.0,%.index,$(SRCARCH)) \
-	ok-mv-bigbin.[1-9] ok-mv-foo.[12] \
+MYFILES += \
 	$(SRCARCHPART) \
-	ok-noti-bigbin.meta err_v1.dump \
-	bigace.pmns \
+	err_v1.dump \
 	config.bar config.bigbin config.dodgey-all config.dodgey-mixed \
 	config.dodgey-some config.foo config1.interp config2.interp \
 	kenj-pc-2.config reduce.config uwrap.config wrap.config \
@@ -201,7 +172,7 @@ MYFILES += $(SRCARCH) \
 	qa_shmctl.c
 
 MYSCRIPTS = grind-tools ipcs_clear make.dodgey mkarch-all \
-	mkeventrec mkinterpmark mkmirage mkproc mkrewrite mksample_expr \
+	mkeventrec mkinterpmark mkproc mkrewrite mksample_expr \
 	mksa-sysstat mktzchange show-args mkbig1 fixhosts mkpermslist \
 	memcachestats.pl
 
@@ -269,7 +240,7 @@ LDIRT	+= *.log domain.h help.pag help.dir \
 
 default default_pcp: \
 	$(CFILES_TARGETS) $(TARGETS) \
-	$(SRCARCH) $(SRCARCHPART) \
+	$(SRCARCHPART) \
 	$(PLFILES) $(PYFILES) \
 	ipcs_clear
 
@@ -295,7 +266,7 @@ OBJECTS = $(shell echo $(CFILES) | sed -e 's/\.c/.o/g')
 
 # make just the archives, not the binaries
 #
-arch:	$(SRCARCH) $(SRCARCHPART) $(MKARCH)
+arch:	$(SRCARCHPART) $(MKARCH)
 
 # --- do NOT need libpcp
 #
@@ -643,9 +614,9 @@ noti-foo.0:	foo.0
 	cp foo.0 noti-foo.0
 	cp foo.meta noti-foo.meta
 
-noti-ok-foo.0:	ok-foo.0
-	cp ok-foo.0 noti-ok-foo.0
-	cp ok-foo.meta noti-ok-foo.meta
+noti-ok-foo.0:	../archives/ok-foo.0
+	cp ../archives/ok-foo.0 noti-ok-foo.0
+	cp ../archives/ok-foo.meta noti-ok-foo.meta
 
 bar.0:	config.bar
 	rm -f bar.index bar.meta bar.0
@@ -658,10 +629,6 @@ mv-bar.0:	config.bar
 noti-bar.0:	bar.0
 	cp bar.0 noti-bar.0
 	cp bar.meta noti-bar.meta
-
-mirage.0:
-	rm -f mirage.index mirage.meta mirage.0
-	pmlogger -c config.mirage -s 20 mirage
 
 dodgey-some.0:	make.dodgey config.dodgey-some
 	./make.dodgey some 50
@@ -713,38 +680,6 @@ null.0:	foo.0
 	ln foo.index null.index
 	dd ibs=132 count=1 if=foo.0 of=null.0
 
-# 4 secs, 3 sec gap, 4 secs, 3 sec gap, 4 secs
-# and indom changes ... checked in, this is the recipe that was
-# used
-#
-changeinst.0:
-	rm -rf tmp
-	mkdir tmp
-	echo 'log mandatory on once { hinv.ncpu }' >tmp/A.config
-	echo 'log mandatory on 1sec {' >>tmp/A.config
-	echo '  sample.seconds,hinv.ncpu,sample.bin["bin-100","bin-200","bin-400"]' >>tmp/A.config
-	echo '  sample.drift' >>tmp/A.config
-	echo '  irix.network.interface.total.packets["lo0","ec0"]' >>tmp/A.config
-	echo '}' >>tmp/A.config
-	echo 'log mandatory on once { sample.bin["bin-500"] }' >tmp/B.config
-	echo 'log mandatory on 1sec {' >>tmp/B.config
-	echo '  sample.seconds,sample.milliseconds,sample.bin["bin-100","bin-300","bin-400"]' >>tmp/B.config
-	echo '}' >>tmp/B.config
-	echo 'log mandatory on once { hinv.ncpu }' >tmp/C.config
-	echo 'log mandatory on 1sec {' >>tmp/C.config
-	echo '  sample.drift' >>tmp/C.config
-	echo '  sample.seconds,sample.bin["bin-200","bin-300","bin-400","bin-500"]' >>tmp/C.config
-	echo '  irix.network.interface.total.packets["ec2","lo0"]' >>tmp/C.config
-	echo '}' >>tmp/C.config
-	pmlogger -s 5 -c tmp/A.config tmp/A
-	sleep 3
-	pmlogger -s 5 -c tmp/B.config tmp/B
-	sleep 3
-	pmlogger -s 5 -c tmp/C.config tmp/C
-	rm -f changeinst.index changeinst.meta changeinst.0
-	pmlogextract tmp/A tmp/B tmp/C changeinst
-	rm -rf tmp
-
 # gap: 10 sec data, 5 sec gap, 10 sec data
 # gap2: 10 sec data, 5 sec gap, 10 sec data, 5 sec gap, 10 sec data
 # sample.bin instances change across gaps
@@ -766,9 +701,9 @@ gap.0 gap2.0:
 	pmlogextract tmp/A tmp/B tmp/C gap2
 	rm -rf tmp
 
-reduce-gap.0:	reduce-1.0 reduce-2.0
+reduce-gap.0:	../archives/reduce-1.0 ../archives/reduce-2.0
 	rm -f reduce-gap.*
-	pmlogextract reduce-1 reduce-2 reduce-gap
+	pmlogextract ../archives/reduce-1 ../archives/reduce-2 reduce-gap
 
 torture_indom: torture_indom.c
 	rm -f $@

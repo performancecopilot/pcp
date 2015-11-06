@@ -46,7 +46,7 @@ fi
 for suffix in 0 1 meta index
 do
     echo "=== checking corrupt ok-mv-foo.$suffix label ==="
-    cp -f $here/src/ok-mv-foo.* $tmp
+    cp -f $here/archives/ok-mv-foo.* $tmp
     of=$tmp/ok-mv-foo.$suffix
 
     # Offsets: 4+20+64+40+4  (prefix+5*int+hostname+timezone+suffix)

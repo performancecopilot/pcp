@@ -2,7 +2,7 @@ QA output created by 125
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    kernel.all.cpu.idle
-archive:   src/kenj-pc-1
+archive:   archives/kenj-pc-1
 host:      kenj-pc
 start:     Sun Feb  8 15:28:30 2004
 end:       Sun Feb  8 15:28:46 2004

@@ -322,7 +322,7 @@ do
 	--suppressions=$tmp.suppress --log-file=$tmp.valgrind \
 	--gen-suppressions=all \
 	2>$tmp.valgrind.err >$tmp.valgrind.out \
-	src/churnctx $arg -z -s 10 -a src/bug1057 kernel.all.load hinv.ncpu disk.dev.total
+	src/churnctx $arg -z -s 10 -a archives/bug1057 kernel.all.load hinv.ncpu disk.dev.total
 
     echo "=== std out ==="
     cat $tmp.valgrind.out

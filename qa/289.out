@@ -1,7 +1,7 @@
 QA output created by 289
 Note: timezone set to local timezone of host "sandpit" from archive
 
-archive src/mark-bug
+archive archives/mark-bug
 startTime: Wed Jul  9 12:09:16 1997+933192  
 endTime  : Wed Jul  9 12:12:11 1997+621362  
 samples=60 delta=2000ms

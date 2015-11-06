@@ -35,6 +35,6 @@ if [ -z "$DISPLAY" ]
 then
     export DISPLAY=$PCPQA_CLOSE_X_SERVER
 fi
-src/grind-tools -v -a src/fcsw_indom fcsw.port.bytes_out 2>&1 | _filter_views
+src/grind-tools -v -a archives/fcsw_indom fcsw.port.bytes_out 2>&1 | _filter_views
 status=$?
 exit

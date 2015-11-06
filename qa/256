@@ -108,11 +108,11 @@ for args in sample.suba.subb.subc.subd.six sample.suba.subb sample \
     sample.one.bad sample.suba.subb.subc.bad
 do
     echo | tee -a $seq.full
-    echo "=== -a src/reduce-1 $args ===" | tee -a $seq.full
-    pminfo -a src/reduce-1 -c $tmp.config $args >$tmp.out 2>&1
+    echo "=== -a archives/reduce-1 $args ===" | tee -a $seq.full
+    pminfo -a archives/reduce-1 -c $tmp.config $args >$tmp.out 2>&1
     _filter
-    echo "=== -a src/reduce-1 -f $args ===" | tee -a $seq.full
-    pminfo -a src/reduce-1 -c $tmp.config -f $args >$tmp.out 2>&1
+    echo "=== -a archives/reduce-1 -f $args ===" | tee -a $seq.full
+    pminfo -a archives/reduce-1 -c $tmp.config -f $args >$tmp.out 2>&1
     _filter
 done
 

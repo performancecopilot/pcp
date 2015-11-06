@@ -78,12 +78,12 @@ indom 30.2 { inst 800 -> DELETE }
 End-of-File
 rm -f $tmp.new.*
 cat $tmp.conf >>$seq.full
-pmlogrewrite -ws -c $tmp.conf src/rewrite $tmp.new 2>$tmp.err | _filter
+pmlogrewrite -ws -c $tmp.conf archives/rewrite $tmp.new 2>$tmp.err | _filter
 cat $tmp.err >>$seq.full
 for m in sample.ulong.bin_ctr sample.ulonglong.bin_ctr \
     sampledso.double.bin_ctr sample.float.bin_ctr sample.longlong.bin_ctr
 do
-    _cmp src/rewrite $tmp.new $m
+    _cmp archives/rewrite $tmp.new $m
 done
 
 # success, all done

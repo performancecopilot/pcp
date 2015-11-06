@@ -50,7 +50,7 @@ src/interp4 -a src/foo | _filterfoo
 
 echo
 echo "Archive ok-bigbin ..."
-src/interp4 -a src/ok-bigbin | _filterbigbin
+src/interp4 -a archives/ok-bigbin | _filterbigbin
 
 echo
 echo "Archive multi-volume foo ..."
@@ -58,4 +58,4 @@ src/interp4 -a src/mv-foo | _filterfoo
 
 echo
 echo "Archive multi-volume ok-bigbin ..."
-src/interp4 -a src/ok-mv-bigbin | _filterbigbin
+src/interp4 -a archives/ok-mv-bigbin | _filterbigbin

@@ -18,7 +18,7 @@ $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmlogcheck $here/src/ace_v2
+pmlogcheck $here/archives/ace_v2
 echo "Silence is golden"
 
 # success, all done

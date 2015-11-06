@@ -40,7 +40,7 @@ for interval in 2sec 5sec 15sec
 do
     echo
     rm -f $tmp.*
-    pmlogreduce -t $interval src/uwrap $tmp
+    pmlogreduce -t $interval archives/uwrap $tmp
     echo "-- raw reduce -t $interval --"
     pmval -z -r -w 15 -f 0 -t $interval -U $tmp sample.wrap.ulong 2>&1 \
     | _filter
@@ -51,17 +51,17 @@ done
 
 echo
 echo "-- raw input archive --"
-pmval -z -r -w 15 -f 0 -U src/uwrap sample.wrap.ulong
+pmval -z -r -w 15 -f 0 -U archives/uwrap sample.wrap.ulong
 
 echo
 echo "-- input archive, rate converted with PCP_COUNTER_WRAP set --"
 PCP_COUNTER_WRAP=on
 export PCP_COUNTER_WRAP
-pmval -z -w 15 -f 0 -a src/uwrap -t 1sec sample.wrap.ulong
+pmval -z -w 15 -f 0 -a archives/uwrap -t 1sec sample.wrap.ulong
 
 echo
 echo "-- input metric descriptor --"
-pminfo -d -a src/uwrap sample.wrap.ulong
+pminfo -d -a archives/uwrap sample.wrap.ulong
 echo
 echo "-- output metric descriptor --"
 pminfo -d -a $tmp sample.wrap.ulong
