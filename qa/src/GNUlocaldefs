@@ -127,6 +127,7 @@ PYTHONFILES = \
 	test_set_source.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
+LDIRT += $(PYFILES)
 else
 PYTHONFILES =
 PYFILES =
@@ -140,7 +141,6 @@ endif
 
 MYFILES += \
 	pmatop-log.folio err_v1.dump \
-	kenj-pc-2.config reduce.config uwrap.config wrap.config \
 	root_irix root_pmns tiny.pmns sgi.bf versiondefs \
 	simple.csv simple.ods simple-resave.csv simple-resave.xlsx \
 	simple.sxc simple.xls simple.xlsx \
@@ -154,10 +154,8 @@ MYFILES += \
 	permslist \
 	qa_shmctl.c
 
-MYSCRIPTS = grind-tools ipcs_clear mkarch-all \
-	mkeventrec mkinterpmark mkproc mkrewrite mksample_expr \
-	mksa-sysstat mktzchange show-args mkbig1 fixhosts mkpermslist \
-	memcachestats.pl
+MYSCRIPTS = grind-tools ipcs_clear mksa-sysstat show-args fixhosts \
+	    mkpermslist memcachestats.pl
 
 PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 

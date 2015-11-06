@@ -20,21 +20,21 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 rm -f $seq.full
-./src/mkbig1 > $seq.full 2>&1
+./tmparch/mkbig1 > $seq.full 2>&1
 [ $? -eq 0 ] || _notrun `cat $seq.full`
 
 # expect 2 volumes, and both < 2^31 bytes in size
 #
 limit=2147483648
-nvol=`ls src/big1.? | wc -l | sed -e 's/ //g'`
+nvol=`ls tmparch/big1.? | wc -l | sed -e 's/ //g'`
 if [ $nvol -ne 2 ]
 then
-    ls -l src/big1.?
+    ls -l tmparch/big1.?
     echo "Error: expecting 2 volumes, found $nvol"
     status=1
 fi
 
-for vol in src/big1.?
+for vol in tmparch/big1.?
 do
     size=`_filesize $vol`
     if [ -z "$size" ]

@@ -15,12 +15,12 @@ MKARCH	= foo.0 mv-foo.0 noti-foo.0 noti-ok-foo.0 null.0 \
 LDIRT = $(MKARCH) \
 	$(patsubst %.0,%.meta,$(MKARCH)) $(patsubst %.0,%.index,$(MKARCH)) \
 	mv-foo.[1-9] mv-bar.[1-9] mv-bigbin.[1-9] mv-interp.[1-9] \
-	pmlogger.log
+	big1.* pmlogger.log
 
 MYCONFIGS = config.foo config.bar config.bigbin \
 	config.dodgey-all config.dodgey-mixed config.dodgey-some
 
-MYSCRIPTS = make.dodgey 
+MYSCRIPTS = make.dodgey mkbig1
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig

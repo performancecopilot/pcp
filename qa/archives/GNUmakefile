@@ -23,8 +23,13 @@ FOLIOS = $(shell echo *.folio)
 
 SCRIPTS = mk.diff.sh mk.gap.sh mk.mysql.sh mk.schizo.sh mk.foo+.sh \
 	  mk.dynmetric.sh mk.instant.sh \
-	  mkbadlen mkbadti mkbadlabel mkbadlog mkmirage
-CONFIGS = config.verify config.shping YWhcCi.toium.config
+	  mkbadlen mkbadti mkbadlabel mkbadlog mkmirage mkproc \
+	  mknuma mkrewrite mkeventrec mkinterpmark mkmultihost \
+	  mksample_expr mktzchange
+
+CONFIGS = config.verify config.shping YWhcCi.toium.config \
+	  kenj-pc-2.config reduce.config uwrap.config wrap.config
+
 OTHERS = ds390-access.gz collectl-qa small.0.xz small.meta small.index \
 	bigace.pmns
 

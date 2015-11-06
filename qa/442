@@ -14,8 +14,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.full src/big2.* src/big3.*
-./src/mkbig1 > $seq.full 2>&1
+rm -f $seq.full tmparch/big2.* tmparch/big3.*
+./tmparch/mkbig1 > $seq.full 2>&1
 [ $? -eq 0 ] || _notrun `cat $seq.full`
 
 # 10GB should keep us out of trouble
@@ -23,14 +23,14 @@ free=`_check_freespace 10240`
 [ -z "$free" ] || _notrun $free
 
 status=1	# failure is the default!
-trap "rm -f $tmp.* src/big2.* src/big3.*; exit \$status" 0 1 2 3 15
+trap "rm -f $tmp.* tmparch/big2.* tmparch/big3.*; exit \$status" 0 1 2 3 15
 
-for file in src/big1.*
+for file in tmparch/big1.*
 do
     ln $file `echo $file | sed -e 's/big1/big2/'`
     :
 done
-ls -l src/big1* src/big2* >$seq.full 2>&1
+ls -l tmparch/big1* tmparch/big2* >$seq.full 2>&1
 
 _filter()
 {
@@ -39,28 +39,28 @@ _filter()
 }
 
 # real QA test starts here
-pmlogextract src/big1 src/big2 src/big3 2>&1 | _filter
-ls -l src/big3* >>$seq.full 2>&1
+pmlogextract tmparch/big1 tmparch/big2 tmparch/big3 2>&1 | _filter
+ls -l tmparch/big3* >>$seq.full 2>&1
 
 # expect 3 volumes, and all < 2^31 bytes in size
 #
 limit=2147483648
-nvol=`ls src/big3.? | wc -l | sed -e 's/ //g'`
+nvol=`ls tmparch/big3.? | wc -l | sed -e 's/ //g'`
 if [ $nvol -ne 3 ]
 then
-    ls -l src/big3.?
+    ls -l tmparch/big3.?
     echo "Error: expecting 3 volumes, found $nvol"
     status=1
 fi
 
 echo "0" >$tmp.bc
-for vol in src/big1.?
+for vol in tmparch/big1.?
 do
     size=`_filesize $vol`
     echo "+2*$size" >>$tmp.bc
 done
 
-for vol in src/big3.?
+for vol in tmparch/big3.?
 do
     size=`_filesize $vol`
     if [ -z "$size" ]
@@ -84,9 +84,9 @@ echo "sum(input data volume sizes) - sum(output data volume sizes)"
 
 echo
 echo "Temporal Index Entries ..."
-for arch in src/big1 src/big2 src/big3
+for arch in tmparch/big1 tmparch/big2 tmparch/big3
 do
-    log=`echo $arch | sed -e 's/src\///g'`
+    log=`echo $arch | sed -e 's/tmparch\///g'`
     echo "$log: `pmdumplog -t $arch | grep '^[0-9]' | wc -l | sed -e 's/ //g'`"
 done
 

@@ -14,9 +14,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f src/big2.*
+rm -f tmparch/big2.*
 rm -f $seq.full
-./src/mkbig1 > $seq.full 2>&1
+./tmparch/mkbig1 > $seq.full 2>&1
 [ $? -eq 0 ] || _notrun `cat $seq.full`
 
 # 10GB should keep us out of trouble
@@ -25,7 +25,7 @@ free=`_check_freespace 10240`
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "rm -f $tmp.* src/big2.*; exit \$status" 0 1 2 3 15
+trap "rm -f $tmp.* tmparch/big2.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -75,27 +75,27 @@ echo "metric sample.hordes.two { type -> 64 }" >>$tmp.config
 
 # real QA test starts here
 echo "rewrite and copy" | tee -a $seq.full
-rm -f src/big2*
-ls -l src/big1* >>$seq.full 2>&1
-pminfo -d -a src/big1 >>$seq.full
-pmlogrewrite -w -c $tmp.config src/big1 src/big2 2>&1 | _filter
-ls -l src/big2* >>$seq.full 2>&1
-pminfo -d -a src/big2 >>$seq.full
-_check src/big2
+rm -f tmparch/big2*
+ls -l tmparch/big1* >>$seq.full 2>&1
+pminfo -d -a tmparch/big1 >>$seq.full
+pmlogrewrite -w -c $tmp.config tmparch/big1 tmparch/big2 2>&1 | _filter
+ls -l tmparch/big2* >>$seq.full 2>&1
+pminfo -d -a tmparch/big2 >>$seq.full
+_check tmparch/big2
 
 echo | tee -a $seq.full
 echo "rewrite in place" | tee -a $seq.full
-rm -f src/big2*
-for file in src/big1.*
+rm -f tmparch/big2*
+for file in tmparch/big1.*
 do
     cp $file `echo $file | sed -e 's/big1/big2/'`
 done
-ls -l src/big2* >>$seq.full 2>&1
-pminfo -d -a src/big2 >>$seq.full
-pmlogrewrite -iw -c $tmp.config src/big2 2>&1 | _filter
-ls -l src/big2* >>$seq.full 2>&1
-pminfo -d -a src/big2 >>$seq.full
-_check src/big2
+ls -l tmparch/big2* >>$seq.full 2>&1
+pminfo -d -a tmparch/big2 >>$seq.full
+pmlogrewrite -iw -c $tmp.config tmparch/big2 2>&1 | _filter
+ls -l tmparch/big2* >>$seq.full 2>&1
+pminfo -d -a tmparch/big2 >>$seq.full
+_check tmparch/big2
 
 # success, all done
 exit
