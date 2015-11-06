@@ -245,10 +245,10 @@ These are not currently supported.
 The general form of these requests is as follows:
 .TP
 .B /pmapi/NNNN/_store?name=NAME&value=VALUE
-These are not currently supported.
+Store a new value for given named metrics.
 .TP
 .B /pmapi/NNNNN/_store?pmid=PPPP&value=VALUE
-These are not currently supported.
+Store a new value for given performance metric identifier (PMID).
 .PP
 In addition, either query may be suffixed with:
 .TP
@@ -257,6 +257,12 @@ Restrict store to given instance code numbers.
 .TP
 .B &iname=INAME1,INAME2
 Restrict store to given instance names.
+.PP
+If successful, the response from these requests is a JSON document of the form:
+
+.SAMPLE
+{ "success" : true }
+.ESAMPLE
 
 .SS DERIVED METRICS: pmRegisterDerived
 
