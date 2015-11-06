@@ -11,25 +11,7 @@ DEBUG   = $(DBG)
 
 HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || echo 0)
 
-SRCARCH	= \
-	\
-	\
-	\
-	\
-	\
-	\
-	\
-	\
-	\
-	\
-	\
-	\
-	\
-	\
-	\
-	
-
-SRCARCHPART = ok-noti-bigbin.0 pmatop-log.folio \
+SRCARCHPART = pmatop-log.folio \
 	20130706.0.bz2 20130706.index 20130706.meta
 
 MKARCH	= foo.0 mv-foo.0 noti-foo.0 bar.0 mv-bar.0 noti-bar.0 \
@@ -170,11 +152,9 @@ else
 MYFILES += $(POSIXFILES) $(TRACEFILES)
 endif
 
-MYFILES += $(SRCARCH) \
-	$(patsubst %.0,%.meta,$(SRCARCH)) $(patsubst %.0,%.index,$(SRCARCH)) \
-	ok-mv-bigbin.[1-9] ok-mv-foo.[12] \
+MYFILES += \
 	$(SRCARCHPART) \
-	ok-noti-bigbin.meta err_v1.dump \
+	err_v1.dump \
 	config.bar config.bigbin config.dodgey-all config.dodgey-mixed \
 	config.dodgey-some config.foo config1.interp config2.interp \
 	kenj-pc-2.config reduce.config uwrap.config wrap.config \
@@ -260,7 +240,7 @@ LDIRT	+= *.log domain.h help.pag help.dir \
 
 default default_pcp: \
 	$(CFILES_TARGETS) $(TARGETS) \
-	$(SRCARCH) $(SRCARCHPART) \
+	$(SRCARCHPART) \
 	$(PLFILES) $(PYFILES) \
 	ipcs_clear
 
@@ -286,7 +266,7 @@ OBJECTS = $(shell echo $(CFILES) | sed -e 's/\.c/.o/g')
 
 # make just the archives, not the binaries
 #
-arch:	$(SRCARCH) $(SRCARCHPART) $(MKARCH)
+arch:	$(SRCARCHPART) $(MKARCH)
 
 # --- do NOT need libpcp
 #

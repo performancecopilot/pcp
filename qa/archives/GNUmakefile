@@ -3,14 +3,23 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/archives
 
-SRCARCH = $(shell echo *.[0-9])
-SRCMETA = $(subst .0,.meta,$(SRCARCH))
-SRCIDX = $(subst .0,.index,$(SRCARCH))
-FOLIOS = $(shell echo *.folio)
-
-# now add in the special and odd ones
+# first the special and odd ones
 #
-SRCMETA += bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2
+# volumes other than .0
+SRCPART = ok-mv-bigbin.[1-9] ok-mv-foo.[12]
+# archives with no .index
+SRCNOTI	= ok-noti-bigbin.0
+# other .meta files
+SRCOTHER = bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
+	   $(patsubst %.0,%.meta,$(SRCNOTI))
+
+# now all the rest ...
+SRCFULL = $(shell echo *.[0-9])
+SRCARCH = $(filter-out $(SRCNOTI),$(SRCFULL))
+SRCMETA = $(patsubst %.0,%.meta,$(SRCARCH))
+SRCIDX = $(patsubst %.0,%.index,$(SRCARCH))
+
+FOLIOS = $(shell echo *.folio)
 
 SCRIPTS = mk.diff.sh mk.gap.sh mk.mysql.sh mk.schizo.sh mk.foo+.sh \
 	  mk.dynmetric.sh mk.instant.sh \
@@ -25,8 +34,8 @@ install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 755 $(SCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
-	$(INSTALL) -m 644 $(SRCARCH) $(TESTDIR)
-	$(INSTALL) -m 644 $(SRCMETA) $(TESTDIR)
+	$(INSTALL) -m 644 $(SRCARCH) $(SRCNOTI) $(SRCPART) $(TESTDIR)
+	$(INSTALL) -m 644 $(SRCMETA) $(SRCOTHER) $(TESTDIR)
 	$(INSTALL) -m 644 $(SRCIDX) $(TESTDIR)
 	$(INSTALL) -m 644 $(OTHERS) $(CONFIGS) $(FOLIOS) $(TESTDIR)
 
