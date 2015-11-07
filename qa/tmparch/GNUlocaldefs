@@ -22,6 +22,8 @@ MYCONFIGS = config.foo config.bar config.bigbin \
 
 MYSCRIPTS = make.dodgey mkbig1
 
+OTHERS = README
+
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
 else

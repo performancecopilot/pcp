@@ -40,7 +40,7 @@ setup: $(SUBDIRS) $(LCONFIG) qa_hosts
 	$(SUBDIRS_MAKERULE)
 
 LDIRT += 051.work 134.full.* \
-	 *.bak *.bad *.core *.full *.raw *.o core a.out core.* \
+	 *.bak *.bad *.core *.full *.notrun *.raw *.o core a.out core.* \
 	 *.log eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
 	 *.full.ok *.new rc_cron_check.clean \
 	  make.out qa_hosts qa_outfiles localconfig check.time
@@ -63,7 +63,8 @@ ifeq "$(HAVE_PYTHON)" "true"
 COMMON += common.python 
 endif
 
-OTHERS = group qa_hosts.master README valgrind-suppress sanity.coverage
+OTHERS = group qa_hosts.master README valgrind-suppress sanity.coverage \
+	 .gitignore
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|work)' | tee qa_outfiles)
 
