@@ -18,7 +18,8 @@ LDIRT = $(MKARCH) \
 	big1.* pmlogger.log
 
 MYCONFIGS = config.foo config.bar config.bigbin \
-	config.dodgey-all config.dodgey-mixed config.dodgey-some
+	config.dodgey-all config.dodgey-mixed config.dodgey-some \
+	config1.interp config2.interp
 
 MYSCRIPTS = make.dodgey mkbig1
 

@@ -124,7 +124,7 @@ PYTHONFILES = \
 	test_pcp_options.python test_pcp_getopts.python \
 	test_pcp_time.python test_pmnswalk.python \
 	pmapi_exceptions.python fsstats.python procpid.python \
-	test_set_source.python
+	test_set_source.python test_pmda_memleak.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
 LDIRT += $(PYFILES)
@@ -150,7 +150,7 @@ MYFILES += \
 	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
 	sa-sysstat-9.0.4 sa-sysstat-9.0.6 sa-sysstat-9.0.6.1 \
 	sa-sysstat-10.0.1 sa-sysstat-10.0.5 sa-sysstat-10.2.0 \
-	sa-sysstat-9.0.4_rh6.5 \
+	sa-sysstat-9.0.4_rh6.5 sa-sysstat-9.1.7 \
 	permslist \
 	qa_shmctl.c
 
@@ -179,6 +179,7 @@ LLDLIBS	= $(LDFLAGS) $(PCPLIB)
 ifneq ($(NVIDIAQALIB),)
 LIBTARGET = true
 MYCFILES += nvidia-ml.c
+LDIRT += nvidia-ml.o
 LCFLAGS += $(NVIDIACFLAGS)
 TARGETS += $(NVIDIAQALIB)
 endif

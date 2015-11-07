@@ -21,4 +21,6 @@ setup: $(MKARCH)
 
 include GNUlocaldefs
 
+LDIRT += mkbig1.log
+
 include $(BUILDRULES)
