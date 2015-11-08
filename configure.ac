@@ -1608,7 +1608,7 @@ LIBS=$savedLIBS
 dnl Do you have the required qshape script for the postfix PMDA
 dnl The logic here is copied from the PMDA's Install script
 pmda_postfix=false
-AC_CHECK_PROGS(QSHAPE, qshape, [])
+AC_CHECK_PROGS(QSHAPE, qshape, [], path=[$PATH:/usr/sbin])
 AC_MSG_CHECKING([if the postfix PMDA should be included])
 if test -n "$QSHAPE"
 then
