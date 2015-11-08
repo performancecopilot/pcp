@@ -52,13 +52,13 @@ sts=$?
 pmlogmv foo bar
 sts=$?
 [ $sts -eq 0 ] || echo exit status $sts
-cp $here/src/foo.0 .
+cp $here/tmparch/foo.0 .
 pmlogmv foo bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
 rm foo.0
-cp $here/src/foo.meta .
+cp $here/tmparch/foo.meta .
 pmlogmv foo bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
@@ -67,7 +67,7 @@ rm -f foo.* bar.*
 
 echo
 echo "=== non-pcp archives and output files already exist ==="
-cp $here/src/foo.* .
+cp $here/tmparch/foo.* .
 touch foo.frog
 pmlogmv -V foo bar >$tmp.out 2>&1
 sts=$?
@@ -75,11 +75,11 @@ _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
 ls foo* bar* 2>&1 | _filter_ls
 rm -f foo.* bar.*
-cp $here/src/foo.* .
+cp $here/tmparch/foo.* .
 for i in 0 index meta
 do
     echo "--- bar.$i already exists ---"
-    cp $here/src/bar.$i .
+    cp $here/tmparch/bar.$i .
     pmlogmv -V foo bar >$tmp.out 2>&1
     sts=$?
     _filter <$tmp.out
@@ -91,7 +91,7 @@ rm -f foo.* bar.*
 
 echo
 echo "=== simplest case ==="
-cp $here/src/foo.* .
+cp $here/tmparch/foo.* .
 pmlogmv -NV foo bar >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
@@ -102,12 +102,12 @@ _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
 for part in 0 index meta
 do
-    if cmp $here/src/foo.$part bar.$part
+    if cmp $here/tmparch/foo.$part bar.$part
     then
 	:
     else
 	echo "Arrgh ... input foo.$part not the same as output bar.$part"
-	ls -l $here/src/foo.$part bar.$part
+	ls -l $here/tmparch/foo.$part bar.$part
     fi
 done
 ls foo* bar* 2>&1 | _filter_ls
@@ -118,19 +118,19 @@ echo "=== single oldfile name cases ==="
 for ext in meta 0 index
 do
     echo "--- foo.$ext ---"
-    cp $here/src/foo.* .
+    cp $here/tmparch/foo.* .
     pmlogmv -V foo.$ext bar >$tmp.out 2>&1
     sts=$?
     _filter <$tmp.out
     [ $sts -eq 0 ] || echo exit status $sts
     for part in 0 index meta
     do
-	if cmp $here/src/foo.$part bar.$part
+	if cmp $here/tmparch/foo.$part bar.$part
 	then
 	    :
 	else
 	    echo "Arrgh ... input foo.$part not the same as output bar.$part"
-	    ls -l $here/src/foo.$part bar.$part
+	    ls -l $here/tmparch/foo.$part bar.$part
 	fi
     done
     ls foo* bar* 2>&1 | _filter_ls
@@ -139,7 +139,7 @@ done
 
 echo
 echo "=== multi-volume case ==="
-cp $here/src/mv-foo.* .
+cp $here/tmparch/mv-foo.* .
 cp mv-foo.2 mv-foo.123456789
 pmlogmv -V mv-foo bar >$tmp.out 2>&1
 sts=$?
@@ -149,12 +149,12 @@ for opart in 0 1 2 123456789 index meta
 do
     npart=$opart
     [ "$opart" = 123456789 ] && opart=2
-    if cmp $here/src/mv-foo.$opart bar.$npart
+    if cmp $here/tmparch/mv-foo.$opart bar.$npart
     then
 	:
     else
 	echo "Arrgh ... input mv-foo.$opart not the same as output bar.$npart"
-	ls -l $here/src/mv-foo.$opart bar.$npart
+	ls -l $here/tmparch/mv-foo.$opart bar.$npart
     fi
 done
 ls foo* bar* 2>&1 | _filter_ls
@@ -163,19 +163,19 @@ rm -f foo.* bar.*
 echo
 echo "=== old and new in different directories =="
 mkdir new
-cp $here/src/mv-foo.* .
+cp $here/tmparch/mv-foo.* .
 pmlogmv -V mv-foo new/mv-foo >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
 [ $sts -eq 0 ] || echo exit status $sts
 for part in 0 1 2 index meta
 do
-    if cmp $here/src/mv-foo.$part new/mv-foo.$part
+    if cmp $here/tmparch/mv-foo.$part new/mv-foo.$part
     then
 	:
     else
 	echo "Arrgh ... input mv-foo.$part not the same as output new/mv-foo.$part"
-	ls -l $here/src/mv-foo.$part new/mv-foo.$part
+	ls -l $here/tmparch/mv-foo.$part new/mv-foo.$part
     fi
 done
 ls foo* new/* 2>&1 | _filter_ls
@@ -185,7 +185,7 @@ echo
 echo "=== error case for ln failing ==="
 mkdir new
 chmod u-w,g-w,o-w new
-cp $here/src/mv-foo.* .
+cp $here/tmparch/mv-foo.* .
 pmlogmv -V mv-foo new/mv-foo >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
@@ -197,7 +197,7 @@ echo
 echo "=== error case for rm failing ==="
 mkdir new
 chmod u-w,g-w,o-w .
-cp $here/src/mv-foo.* .
+cp $here/tmparch/mv-foo.* .
 pmlogmv -V mv-foo new/mv-foo >$tmp.out 2>&1
 sts=$?
 _filter <$tmp.out
@@ -208,7 +208,7 @@ rm -rf mv-foo.* new
 
 echo
 echo "=== Frank's error case rm failing after first file ==="
-cp $here/src/mv-foo.* .
+cp $here/tmparch/mv-foo.* .
 ln mv-foo.2 mv-foo.3
 pmlogmv -V mv-foo mv-bar >$tmp.out 2>&1
 sts=$?

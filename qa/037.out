@@ -1,10 +1,10 @@
 QA output created by 037
 
-Archive src/foo
+Archive tmparch/foo
 
 === Context 0 ===
 Dump Contexts: current context = 0
-Context[0] log src/foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+Context[0] log tmparch/foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
@@ -42,7 +42,7 @@ desc: type=6 indom=0xffffffff sem=4 units=none
 
 === Context 1 ===
 Dump Contexts: current context = 1
-Context[1] log src/foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+Context[1] log tmparch/foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
@@ -78,11 +78,11 @@ desc: type=0 indom=0xffffffff sem=3 units=none
 pmid: 0x740002e name: sample.lights indom: 0xffffffff
 desc: type=6 indom=0xffffffff sem=4 units=none
 
-Archive src/bar
+Archive tmparch/bar
 
 === Context 0 ===
 Dump Contexts: current context = 0
-Context[0] log src/bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+Context[0] log tmparch/bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
@@ -110,7 +110,7 @@ desc: type=0 indom=0x7800002 sem=3 units=none
 
 === Context 1 ===
 Dump Contexts: current context = 1
-Context[1] log src/bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+Context[1] log tmparch/bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
@@ -136,11 +136,11 @@ desc: type=0 indom=0x7800002 sem=3 units=none
   instance id: 0x320 bin-800 (== bin-800?)
   instance id: 0x384 bin-900 (== bin-900?)
 
-Archive src/mv-foo
+Archive tmparch/mv-foo
 
 === Context 0 ===
 Dump Contexts: current context = 0
-Context[0] log src/mv-foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+Context[0] log tmparch/mv-foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
@@ -178,7 +178,7 @@ desc: type=6 indom=0xffffffff sem=4 units=none
 
 === Context 1 ===
 Dump Contexts: current context = 1
-Context[1] log src/mv-foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+Context[1] log tmparch/mv-foo: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
@@ -214,11 +214,11 @@ desc: type=0 indom=0xffffffff sem=3 units=none
 pmid: 0x740002e name: sample.lights indom: 0xffffffff
 desc: type=6 indom=0xffffffff sem=4 units=none
 
-Archive src/mv-bar
+Archive tmparch/mv-bar
 
 === Context 0 ===
 Dump Contexts: current context = 0
-Context[0] log src/mv-bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+Context[0] log tmparch/mv-bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
@@ -246,7 +246,7 @@ desc: type=0 indom=0x7800002 sem=3 units=none
 
 === Context 1 ===
 Dump Contexts: current context = 1
-Context[1] log src/mv-bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
+Context[1] log tmparch/mv-bar: mode=INTERP profile=NOT_SENT tifd=N mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 1 origin SAME TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
@@ -272,11 +272,11 @@ desc: type=0 indom=0x7800002 sem=3 units=none
   instance id: 0x320 bin-800 (== bin-800?)
   instance id: 0x384 bin-900 (== bin-900?)
 
-Archive src/noti-foo
+Archive tmparch/noti-foo
 
 === Context 0 ===
 Dump Contexts: current context = 0
-Context[0] log src/noti-foo: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
+Context[0] log tmparch/noti-foo: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
@@ -314,7 +314,7 @@ desc: type=6 indom=0xffffffff sem=4 units=none
 
 === Context 1 ===
 Dump Contexts: current context = 1
-Context[1] log src/noti-foo: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
+Context[1] log tmparch/noti-foo: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin SAME TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
@@ -350,11 +350,11 @@ desc: type=0 indom=0xffffffff sem=3 units=none
 pmid: 0x740002e name: sample.lights indom: 0xffffffff
 desc: type=6 indom=0xffffffff sem=4 units=none
 
-Archive src/noti-bar
+Archive tmparch/noti-bar
 
 === Context 0 ===
 Dump Contexts: current context = 0
-Context[0] log src/noti-bar: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
+Context[0] log tmparch/noti-bar: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown
@@ -382,7 +382,7 @@ desc: type=0 indom=0x7800002 sem=3 units=none
 
 === Context 1 ===
 Dump Contexts: current context = 1
-Context[1] log src/noti-bar: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
+Context[1] log tmparch/noti-bar: mode=INTERP profile=NOT_SENT tifd=N-1 mdfd=N mfd=N
 refcnt 2 vol 0 offset 132 (vol 0) serial 0 origin SAME TIME delta 5
 Dump Instance Profile state=INCLUDE, 0 profiles
 pmLookupName: Warning: some metrics unknown

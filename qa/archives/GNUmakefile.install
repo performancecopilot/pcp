@@ -6,6 +6,8 @@ endif
 PATH    = $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
+LDIRT = pmlogger.log
+
 default setup install:
 
 include $(BUILDRULES)

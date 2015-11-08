@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Script to recreate the tzshift series of archives
+# Script to recreate the tzchange- series of archives
 #
 
 . ../common.rc  # for $sudo, $tmp, $here and pcp.env

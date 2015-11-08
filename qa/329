@@ -37,7 +37,7 @@ do
     [ $samples -gt 50 ] && samples=50
     echo
     echo "interpolate $samples, $delta seconds appart"
-    _run_purify -a $here/src/interp -t 1 -s 50 \
+    _run_purify -a $here/tmparch/interp -t 1 -s 50 \
     | _filter
 done
 

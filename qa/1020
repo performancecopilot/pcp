@@ -13,7 +13,7 @@ _cleanup()
     if [ ! -f $tmp.done ]
     then
 	cd $here/pmdas/dynamic
-	$sudo ./Remove >>$here/src/$seq.full
+	$sudo ./Remove >>$here/$seq.full
 	cd $here
 	touch $tmp.done
     fi
@@ -52,9 +52,9 @@ _filter2()
     | uniq -c \
     | sed -e 's/  */ /g'
 
-    echo "*** Transactions ***" > $seq.full
-    echo >> $seq.full
-    cat $tmp.filtered >> $seq.full
+    echo "*** Transactions ***" > $here/$seq.full
+    echo >> $here/$seq.full
+    cat $tmp.filtered >> $here/$seq.full
 }
 
 # real QA test starts here

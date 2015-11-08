@@ -38,28 +38,28 @@ _filter()
 
 # real QA test starts here
 echo "small archive"
-src/eol -a src/foo | _filter
+src/eol -a tmparch/foo | _filter
 
 echo
 echo "large archive"
-src/eol -a src/bigbin | _filter
+src/eol -a tmparch/bigbin | _filter
 
 echo
 echo "truncated archive"
-src/eol -a src/truncbin | _filter
+src/eol -a tmparch/truncbin | _filter
 
 echo
 echo "empty archive"
-src/eol -a src/null | _filter
+src/eol -a tmparch/null | _filter
 
 echo
 echo "small multi-volume archive"
-src/eol -a src/mv-foo | _filter
+src/eol -a tmparch/mv-foo | _filter
 
 echo
 echo "large multi-volume archive"
-src/eol -a src/mv-bigbin | _filter
+src/eol -a tmparch/mv-bigbin | _filter
 
 echo
 echo "large no index archive"
-src/eol -a src/noti-bigbin | _filter
+src/eol -a tmparch/noti-bigbin | _filter

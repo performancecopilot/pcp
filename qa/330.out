@@ -1,6 +1,6 @@
 QA output created by 330
 
-=== archive src/foo ===
+=== archive tmparch/foo ===
 
 metric: sample.seconds
 ****  Purify instrumented TMP/interp1.pure (pid PID)  ****
@@ -77,7 +77,7 @@ Purify Heap Analysis (combining suppressed and unsuppressed blocks)
   * 0 access errors, 0 total occurrences.
 ...
 
-=== archive src/mv-foo ===
+=== archive tmparch/mv-foo ===
 
 metric: sample.seconds
 ****  Purify instrumented TMP/interp1.pure (pid PID)  ****
@@ -154,7 +154,7 @@ Purify Heap Analysis (combining suppressed and unsuppressed blocks)
   * 0 access errors, 0 total occurrences.
 ...
 
-=== archive src/noti-foo ===
+=== archive tmparch/noti-foo ===
 
 metric: sample.seconds
 ****  Purify instrumented TMP/interp1.pure (pid PID)  ****

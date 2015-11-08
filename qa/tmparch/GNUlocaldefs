@@ -1,0 +1,149 @@
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2012-2015 Red Hat.
+# Copyright (c) 2009 Aconex.  All Rights Reserved.
+# Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
+#
+
+MKARCH	= foo.0 mv-foo.0 noti-foo.0 noti-ok-foo.0 null.0 \
+	bar.0 mv-bar.0 noti-bar.0 \
+	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 \
+	interp.0 mv-interp.0 noti-interp.0 \
+	gap.0 gap2.0 reduce-gap.0 \
+	dodgey-some.0 dodgey-all.0 dodgey-mixed.0
+
+LDIRT = $(MKARCH) \
+	$(patsubst %.0,%.meta,$(MKARCH)) $(patsubst %.0,%.index,$(MKARCH)) \
+	mv-foo.[1-9] mv-bar.[1-9] mv-bigbin.[1-9] mv-interp.[1-9] \
+	big1.* pmlogger.log
+
+MYCONFIGS = config.foo config.bar config.bigbin \
+	config.dodgey-all config.dodgey-mixed config.dodgey-some \
+	config1.interp config2.interp
+
+MYSCRIPTS = make.dodgey mkbig1
+
+OTHERS = README
+
+ifeq ($(shell test -f ../localconfig && echo 1), 1)
+include ../localconfig
+else
+ifeq ($(shell cd ..; ( $(MAKE) localconfig >/dev/null && echo 1 )), 1)
+include ../localconfig
+else
+$(error Cannot make qa/localconfig)
+endif
+endif
+
+ifeq ($(shell test $(PCP_VER) -ge 3811 && echo 1), 1)
+CONFIG_INTERP = config2.interp
+else
+CONFIG_INTERP = config1.interp
+endif
+
+#
+# rules to make archives
+#
+
+foo.0:	config.foo
+	rm -f foo.index foo.meta foo.0
+	pmlogger -c config.foo -s 8 foo
+
+mv-foo.0:	config.foo
+	rm -f mv-foo.index mv-foo.meta mv-foo.?
+	pmlogger -c config.foo -s 8 -v 3 mv-foo
+
+noti-foo.0:	foo.0
+	cp foo.0 noti-foo.0
+	cp foo.meta noti-foo.meta
+
+noti-ok-foo.0:	../archives/ok-foo.0
+	cp ../archives/ok-foo.0 noti-ok-foo.0
+	cp ../archives/ok-foo.meta noti-ok-foo.meta
+
+# just the label record
+null.0:	foo.0
+	rm -f null.index null.meta null.0
+	ln foo.meta null.meta
+	ln foo.index null.index
+	dd ibs=132 count=1 if=foo.0 of=null.0
+
+bar.0:	config.bar
+	rm -f bar.index bar.meta bar.0
+	pmlogger -c config.bar -s 70 bar
+
+mv-bar.0:	config.bar
+	rm -f mv-bar.index mv-bar.meta mv-bar.?
+	pmlogger -c config.bar -s 70 -v 20 mv-bar
+
+noti-bar.0:	bar.0
+	cp bar.0 noti-bar.0
+	cp bar.meta noti-bar.meta
+
+bigbin.0:	config.bigbin
+	rm -f bigbin.index bigbin.meta bigbin.0
+	sync
+	sleep 3
+	pmlogger -c config.bigbin -s 1000 bigbin
+
+mv-bigbin.0:	config.bigbin
+	rm -f mv-bigbin.index mv-bigbin.meta mv-bigbin.?
+	sync
+	sleep 3
+	pmlogger -c config.bigbin -s 1000 -v 101 mv-bigbin
+
+noti-bigbin.0:	bigbin.0
+	cp bigbin.0 noti-bigbin.0
+	cp bigbin.meta noti-bigbin.meta
+
+truncbin.0:	bigbin.0
+	rm -f truncbin.index truncbin.meta truncbin.0
+	ln bigbin.meta truncbin.meta
+	ln bigbin.index truncbin.index
+	dd ibs=1024 count=200 if=bigbin.0 of=truncbin.0
+
+interp.0:	$(CONFIG_INTERP)
+	rm -f interp.index interp.meta interp.0
+	pmlogger -c $(CONFIG_INTERP) -s 30 interp
+
+mv-interp.0:	$(CONFIG_INTERP)
+	rm -f mv-interp.index mv-interp.meta mv-interp.?
+	pmlogger -c $(CONFIG_INTERP) -s 30 -v 10 mv-interp
+
+noti-interp.0:	interp.0
+	cp interp.0 noti-interp.0
+	cp interp.meta noti-interp.meta
+
+# gap: 10 sec data, 5 sec gap, 10 sec data
+# gap2: 10 sec data, 5 sec gap, 10 sec data, 5 sec gap, 10 sec data
+# sample.bin instances change across gaps
+#
+gap.0 gap2.0:
+	rm -rf tmp
+	mkdir tmp
+	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-200","bin-400"] }' >tmp/A.config
+	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-300","bin-400"] }' >tmp/B.config
+	echo 'log mandatory on 1sec { pmcd.pdu_in,pmcd.numagents,hinv.ncpu,sample.bin["bin-100","bin-400"] }' >tmp/C.config
+	pmlogger -s 10 -c tmp/A.config tmp/A
+	sleep 5
+	pmlogger -s 10 -c tmp/B.config tmp/B
+	sleep 5
+	pmlogger -s 10 -c tmp/C.config tmp/C
+	rm -f gap.index gap.meta gap.0
+	pmlogextract tmp/A tmp/B gap
+	rm -f gap2.index gap2.meta gap2.0
+	pmlogextract tmp/A tmp/B tmp/C gap2
+	rm -rf tmp
+
+reduce-gap.0:	../archives/reduce-1.0 ../archives/reduce-2.0
+	rm -f reduce-gap.*
+	pmlogextract ../archives/reduce-1 ../archives/reduce-2 reduce-gap
+
+dodgey-some.0:	make.dodgey config.dodgey-some
+	./make.dodgey some 50
+
+dodgey-all.0:	make.dodgey config.dodgey-all
+	./make.dodgey all 50
+
+dodgey-mixed.0:	make.dodgey config.dodgey-mixed
+	./make.dodgey mixed 150

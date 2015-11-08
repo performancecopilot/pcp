@@ -58,7 +58,7 @@ cat $tmp.out
 _filter
 echo
 echo "PM_CONTEXT_ARCHIVE, PM_NS_DEFAULT case ..."
-src/eol -Dpmns -a src/foo >$tmp.out 2>$tmp.err
+src/eol -Dpmns -a tmparch/foo >$tmp.out 2>$tmp.err
 grep required $tmp.out
 _filter
 echo

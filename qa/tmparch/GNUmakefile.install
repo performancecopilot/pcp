@@ -1,9 +1,7 @@
-#!/usr/bin/env make
+#!gmake
 #
-# Copyright (c) 2014 Joseph White.
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
 #
-
-FAKEFS=fakefs.tar.gz
 
 ifdef PCP_CONF
 include $(PCP_CONF)
@@ -13,10 +11,11 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-default default_pcp setup: $(FAKEFS)
-	tar xf $(FAKEFS)
+TESTDIR = $(PCP_VAR_DIR)/testsuite/tmparch
 
-LDIRT = fakefs
+include GNUlocaldefs
+
+default default_pcp setup: $(MKARCH)
 
 install install_pcp:
 

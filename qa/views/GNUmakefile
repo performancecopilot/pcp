@@ -3,7 +3,7 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/views
 VIEWFILES = 006-01 006-02 006-03 006-04 006-05 \
-	    AntiAliasing NoSuchHost RotateColors ScaleManual
+	    AntiAliasing NoSuchHost RotateColors ScaleManual SpotInstances
 
 default default_pcp setup:
 

@@ -32,7 +32,7 @@ $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-for arch in src/foo src/mv-foo src/noti-foo
+for arch in tmparch/foo tmparch/mv-foo tmparch/noti-foo
 do
     echo | tee -a $seq.full
     echo "=== archive $arch ===" | tee -a $seq.full

@@ -38,7 +38,7 @@ trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 # real QA test starts here
 _setup_purify src/interp3
 
-for arch in src/bigbin
+for arch in tmparch/bigbin
 do
     for delta in 2 0.012
     do
@@ -48,7 +48,7 @@ do
     done
 done
 
-for arch in src/noti-foo
+for arch in tmparch/noti-foo
 do
     for delta in 0.5 1.0 2.0
     do

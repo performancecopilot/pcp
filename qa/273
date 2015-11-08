@@ -91,7 +91,7 @@ _wait_for_pmlogger
 #
 $sudo pminfo -t -L sampledso
 $sudo pminfo -T -L sampledso
-pminfo -T -a src/foo sample
+pminfo -T -a tmparch/foo sample
 $sudo pminfo -T -L -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init simple.now
 
 # instance.c

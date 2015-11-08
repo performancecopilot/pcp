@@ -4,7 +4,7 @@ interpolate 15, 1 seconds appart
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/interp0 -a src/interp -t 1 -s 15
+Command: src/interp0 -a tmparch/interp -t 1 -s 15
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -14,7 +14,7 @@ interpolate 15, 4 seconds appart
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/interp0 -a src/interp -t 4 -s 15
+Command: src/interp0 -a tmparch/interp -t 4 -s 15
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -24,7 +24,7 @@ interpolate 15, 5 seconds appart
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/interp0 -a src/interp -t 5 -s 15
+Command: src/interp0 -a tmparch/interp -t 5 -s 15
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -34,7 +34,7 @@ interpolate 10, 8 seconds appart
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/interp0 -a src/interp -t 8 -s 10
+Command: src/interp0 -a tmparch/interp -t 8 -s 10
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -44,7 +44,7 @@ interpolate 8, 10 seconds appart
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/interp0 -a src/interp -t 10 -s 8
+Command: src/interp0 -a tmparch/interp -t 10 -s 8
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

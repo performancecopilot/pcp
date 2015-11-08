@@ -1,19 +1,19 @@
 QA output created by 195
 
-=== src/mv-bigbin ===
+=== tmparch/mv-bigbin ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/foo ===
+=== tmparch/foo ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/null ===
-pmdumplog: Cannot locate end of archive src/null: Corrupted record in a PCP archive log
+=== tmparch/null ===
+pmdumplog: Cannot locate end of archive tmparch/null: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -23,98 +23,98 @@ Performance metrics from host HOST
   commencing DATE
   ending     UNKNOWN
 
-=== src/mv-bigbin.0 ===
+=== tmparch/mv-bigbin.0 ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/mv-bigbin.1 ===
+=== tmparch/mv-bigbin.1 ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/mv-bigbin.2 ===
+=== tmparch/mv-bigbin.2 ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/mv-bigbin.3 ===
+=== tmparch/mv-bigbin.3 ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/mv-bigbin.4 ===
+=== tmparch/mv-bigbin.4 ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/mv-bigbin.5 ===
+=== tmparch/mv-bigbin.5 ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/mv-bigbin.6 ===
+=== tmparch/mv-bigbin.6 ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/mv-bigbin.7 ===
+=== tmparch/mv-bigbin.7 ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/mv-bigbin.8 ===
+=== tmparch/mv-bigbin.8 ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/mv-bigbin.9 ===
+=== tmparch/mv-bigbin.9 ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/mv-bigbin.index ===
+=== tmparch/mv-bigbin.index ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/mv-bigbin.meta ===
+=== tmparch/mv-bigbin.meta ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/foo.0 ===
+=== tmparch/foo.0 ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/foo.index ===
+=== tmparch/foo.index ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/foo.meta ===
+=== tmparch/foo.meta ===
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE
   ending     DATE
 
-=== src/null.0 ===
-pmdumplog: Cannot locate end of archive src/null.0: Corrupted record in a PCP archive log
+=== tmparch/null.0 ===
+pmdumplog: Cannot locate end of archive tmparch/null.0: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -124,8 +124,8 @@ Performance metrics from host HOST
   commencing DATE
   ending     UNKNOWN
 
-=== src/null.index ===
-pmdumplog: Cannot locate end of archive src/null.index: Corrupted record in a PCP archive log
+=== tmparch/null.index ===
+pmdumplog: Cannot locate end of archive tmparch/null.index: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.
@@ -135,8 +135,8 @@ Performance metrics from host HOST
   commencing DATE
   ending     UNKNOWN
 
-=== src/null.meta ===
-pmdumplog: Cannot locate end of archive src/null.meta: Corrupted record in a PCP archive log
+=== tmparch/null.meta ===
+pmdumplog: Cannot locate end of archive tmparch/null.meta: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.

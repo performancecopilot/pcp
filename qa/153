@@ -19,7 +19,7 @@ trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 
 rm -rf $tmp
 mkdir $tmp
-cp src/bar.* $tmp
+cp tmparch/bar.* $tmp
 cd $tmp
 mkdir foo
 cp bar.* foo
