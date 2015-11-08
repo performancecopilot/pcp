@@ -694,6 +694,7 @@ Summary: Performance Co-Pilot (PCP) metrics for Elasticsearch
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Requires: perl(LWP::UserAgent)
+BuildRequires: perl(LWP::UserAgent)
 
 %description pmda-elasticsearch
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
