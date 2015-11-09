@@ -30,11 +30,11 @@ Hosts: None
 Archives: ['archives/pcp-atop']
 pass
 
-== Archive list, expect fail:
+== Archive list, expect pass:
 == Test ==
 Hosts: None
-Archives: ['archives/pcp-atop', 'archives/rattle']
-fail
+Archives: ['archives/pcp-atop,archives/rattle']
+pass
 
 == Folio, expect pass:
 == Test ==

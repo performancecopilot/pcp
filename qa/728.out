@@ -510,8 +510,8 @@ Options structure dump:
 End of option processing
 Options structure dump:
     version: 2
-    flags: 0xb (init,done,usage_err)
-    errors: 1
+    flags: 0x3 (init,done)
+    errors: 0
     context: 0x2 (archive)
     nhosts: 0
     narchives: 1
