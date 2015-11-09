@@ -60,11 +60,11 @@ do
     mkdir -p $tmp.$host
     for ext in 0 meta index
     do
-	cp src/foo.$ext $tmp.$host/$PAST.00.10.$ext
+	cp tmparch/foo.$ext $tmp.$host/$PAST.00.10.$ext
 	touch -t "${PAST}0010" $tmp.$host/$PAST.00.10.$ext
 	if [ "$host" = "two" ]
 	then
-	    cp src/foo.$ext $tmp.$host/$PAST.13.13.$ext
+	    cp tmparch/foo.$ext $tmp.$host/$PAST.13.13.$ext
 	    touch -t "${PAST}1313" $tmp.$host/$PAST.13.13.$ext
 	fi
     done

@@ -17,11 +17,11 @@ rm -f $seq.out $seq.full
 if [ $PCP_VER -lt 30600 ]
 then
     # V1 archives supported
-    LIST="archives/951127.23.01.0 archives/960624.08.17.0 archives/ace.0 src/bar.0 archives/bigace.0 src/bigbin.0 archives/bug.0 src/dodgey-all.0 src/dodgey-mixed.0 src/dodgey-some.0 src/foo.0 src/interp.0 archives/mirage.0 src/mv-bar.0 src/mv-bigbin.0 src/mv-foo.0 src/mv-interp.0 src/truncbin.0"
+    LIST="archives/951127.23.01.0 archives/960624.08.17.0 archives/ace.0 tmparch/bar.0 archives/bigace.0 tmparch/bigbin.0 archives/bug.0 tmparch/dodgey-all.0 tmparch/dodgey-mixed.0 tmparch/dodgey-some.0 tmparch/foo.0 tmparch/interp.0 archives/mirage.0 tmparch/mv-bar.0 tmparch/mv-bigbin.0 tmparch/mv-foo.0 tmparch/mv-interp.0 tmparch/truncbin.0"
     ln $seq.out.1 $seq.out
 else
     # no support for V1 archives
-    LIST="archives/951127.23.01_v2.0 archives/960624.08.17_v2.0 archives/ace_v2.0 src/bar.0 archives/bigace_v2.0 src/bigbin.0 archives/bug_v2.0 src/dodgey-all.0 src/dodgey-mixed.0 src/dodgey-some.0 src/foo.0 src/interp.0 archives/mirage.0 src/mv-bar.0 src/mv-bigbin.0 src/mv-foo.0 src/mv-interp.0 src/truncbin.0"
+    LIST="archives/951127.23.01_v2.0 archives/960624.08.17_v2.0 archives/ace_v2.0 tmparch/bar.0 archives/bigace_v2.0 tmparch/bigbin.0 archives/bug_v2.0 tmparch/dodgey-all.0 tmparch/dodgey-mixed.0 tmparch/dodgey-some.0 tmparch/foo.0 tmparch/interp.0 archives/mirage.0 tmparch/mv-bar.0 tmparch/mv-bigbin.0 tmparch/mv-foo.0 tmparch/mv-interp.0 tmparch/truncbin.0"
     ln $seq.out.2 $seq.out
 fi
 
@@ -99,7 +99,7 @@ cd ..
 echo
 echo "=== absolute pathnames ==="
 echo $ABSLIST | sed -e 's/ /\
-/g' | sed -e 's;/archives/;/src/;' >$tmp.tmp
+/g' | sed -e 's;/archives/;/src/;' -e 's;/tmparch/;/src/;' >$tmp.tmp
 mkaf `cat $tmp.tmp` >tmp.af
 rm -f $tmp.tmp
 _filter <tmp.af

@@ -29,7 +29,7 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 # Note below that n[i] is not incremented on its 1st occurrence
 # => expect values of 53, 9, 5
 
-for arch in src/bar src/mv-bar src/noti-bar
+for arch in tmparch/bar tmparch/mv-bar tmparch/noti-bar
 do
     echo
     echo "=== $arch ==="

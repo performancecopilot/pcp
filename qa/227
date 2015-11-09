@@ -16,7 +16,7 @@ status=0
 trap "rm -f $tmp; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-cd src
+cd tmparch
 mkaf foo.0 >$tmp
 
 echo '/dev/null ...'

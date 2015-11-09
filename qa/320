@@ -62,7 +62,7 @@ echo "SPECIAL=pmlogcheck" >>$HOME/.pcp/pmafm/qa.$seq
 # real QA test starts here
 
 echo "Running pmlogcheck ... expect no errors"
-mkaf `pwd`/src/foo.* >$tmp
+mkaf `pwd`/tmparch/foo.* >$tmp
 pmafm $tmp run pmlogcheck 2>&1 | _filter
 rm -f $tmp
 
