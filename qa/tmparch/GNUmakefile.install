@@ -17,8 +17,8 @@ default default_pcp:
 
 install install_pcp:
 
-setup: $(MKARCH)
-
 include GNUlocaldefs
+
+setup: $(MKARCH)
 
 include $(BUILDRULES)
