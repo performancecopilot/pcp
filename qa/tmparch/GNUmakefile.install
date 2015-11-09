@@ -13,10 +13,12 @@ include $(PCP_INC_DIR)/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/tmparch
 
-include GNUlocaldefs
-
-default default_pcp setup: $(MKARCH)
+default default_pcp:
 
 install install_pcp:
+
+setup: $(MKARCH)
+
+include GNUlocaldefs
 
 include $(BUILDRULES)
