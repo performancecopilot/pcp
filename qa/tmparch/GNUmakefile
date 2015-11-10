@@ -17,9 +17,9 @@ install install_pcp:
 	$(INSTALL) -m 644 $(MYCONFIGS) $(OTHERS) $(TESTDIR)
 	$(INSTALL) -m 755 $(MYSCRIPTS) $(TESTDIR)
 
-setup: $(MKARCH)
-
 include GNUlocaldefs
+
+setup: $(MKARCH)
 
 LDIRT += mkbig1.log
 
