@@ -1127,6 +1127,7 @@ cgroups
 995 python local
 996 pmdiff local
 997 pmlogextract local
+998 threads libpcp local
 999 pmns local
 1000 pmdumptext local
 1001 pmchart local
