@@ -41,15 +41,16 @@ definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
-pmParseHostAttrsSpec("unix://tmp/holey.sock?compress", ...)
+pmParseHostAttrsSpec("unix://tmp/holey.sock?compress&exclusive", ...)
 host[0]: "/tmp/holey.sock"
+exclusive
 compress
 unixsock
-pmUnparseHostAttrsSpec("unix://tmp/holey.sock?compress") -> "unix://tmp/holey.sock?compress"
+pmUnparseHostAttrsSpec("unix://tmp/holey.sock?compress&exclusive") -> "unix://tmp/holey.sock?exclusive&compress"
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/parsehostattrs unix://tmp/holey.sock?compress
+Command: src/parsehostattrs unix://tmp/holey.sock?compress&exclusive
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

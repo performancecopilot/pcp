@@ -529,6 +529,7 @@ typedef enum {
     PCP_ATTR_LOCAL	= 13,	/* AF_UNIX socket with localhost fallback */
     PCP_ATTR_PROCESSID	= 14,	/* pid - process identifier (posix) */
     PCP_ATTR_CONTAINER	= 15,	/* container name (linux) */
+    PCP_ATTR_EXCLUSIVE	= 16,	/* exclusive socket tied to this context */
 } __pmAttrKey;
 
 PCP_CALL extern __pmAttrKey __pmLookupAttrKey(const char *, size_t);
