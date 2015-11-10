@@ -57,7 +57,7 @@ BEGIN	{ s = '$1'
 }
 
 # real QA test starts here
-for arch in tmparch/interp tmparch/mv-interp tmparch/noti-interp
+for arch in archives/ok-interp archives/ok-mv-interp archives/ok-noti-interp
 do
     echo
     echo "=== $arch ==="
