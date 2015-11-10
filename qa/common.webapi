@@ -11,6 +11,22 @@
 unset http_proxy
 unset HTTP_PROXY
 
+_check_pmwebd()
+{
+    [ -f ${PCP_BINADM_DIR}/pmwebd ] || _notrun "pmwebd package not installed"
+}
+
+_check_requests_json()
+{
+    version=`$python --version 2>&1 | sed -e 's/Python //'`
+    case "$version"
+    in
+	2.7.3|2.7.4)
+	    _notrun "requests.json() broken in Python $version"
+	    ;;
+    esac
+}
+
 _webapi_header_filter()
 {
     tee -a $here/$seq.full \
@@ -68,7 +84,12 @@ _wait_for_pmwebd()
 {
     webport=$1
 
-    [ -z "$webport" ] && webport=44323
+    if [ -z "$webport" ]
+    then
+	echo "Must specify a web port (system default 44323)"
+	status=1
+	exit
+    fi
 
     count=0
     while ! $PCP_BINADM_DIR/telnet-probe -c localhost $webport
@@ -89,9 +110,17 @@ _wait_for_pmwebd()
 _wait_for_pmwebd_logfile()
 {
     logfile="$1"
+    webport="$2"
+
+    if [ -z "$logfile" ]
+    then
+	echo "Must specify log (system default $PCP_LOG_DIR/pmwebd/pmwebd.log)"
+	status=1
+	exit
+    fi
 
     # let it start up
-    _wait_for_pmwebd
+    _wait_for_pmwebd $webport
 
     count=0
     while [ ! -f "$logfile" ]

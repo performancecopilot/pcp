@@ -912,7 +912,7 @@ cgroups
 657 pmda.dm local
 660 pmwebapi local
 661 pmwebapi local
-662 pmwebapi local
+662 pmwebapi pmda.sample local
 666 pmmgr local slow
 667 python local
 668 pmmgr local containers
@@ -1156,6 +1156,7 @@ cgroups
 1029 libqmc local pmstore
 1030 pmda.linux local
 1031 pmda.slurm perl local
+1032 pmwebapi containers local
 1044 pmie local pmieconf sanity
 1045 pmie local pmieconf
 1046 pmie local pmieconf

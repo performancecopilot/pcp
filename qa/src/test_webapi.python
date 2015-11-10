@@ -17,8 +17,7 @@
 import requests, argparse, subprocess, os, time
 
 parser = argparse.ArgumentParser(description='test_webapi.py pmwebapi check')
-parser.add_argument('--version', action='version', version='1')
-parser.add_argument('--host', required=True)
+parser.add_argument('--host', default='localhost')
 parser.add_argument('--port', default=44323)
 args = parser.parse_args()
 
@@ -219,6 +218,53 @@ test_indom(ctx_host,'indom=0x7400008&iname=i-2,,,i-3') # sample.many.int
 test_indom(ctx_host,'name=pmcd.client.whoami')
 test_indom(ctx_local,'names=keepalive')
 
+# ------------------------------------------------------------------------
+
+def test_store(ctx, suffix):
+# some stores of real values
+  req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_store?'+suffix)
+  print('context #'+str(ctx_host)+' store '+suffix+' response code ' + str(req.status_code))
+  if (req.status_code != 200):
+      return
+  print('store: success')
+
+def check_vals(ctx, metric):
+# dump values after a store
+  req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_fetch?names='+metric)
+  if (req.status_code != 200):
+      return
+  result = req.json()
+  for metric in sorted(result['values'], key=lambda x: x['name']):
+      for inst in sorted(metric['instances'], key=lambda x: x['instance']):
+          print('  ' + metric['name'] + '[' + str(inst['value']) + ']')
+
+# use both contexts so neither times out, verify values reflect stored change
+test_store(ctx_local, 'name=') # no metric
+test_store(ctx_host, 'name=sample.write_me') # no values
+test_store(ctx_host, 'name=sample.write_me&value=42')
+test_store(ctx_local, 'name=sample.write_me&value=bad')
+
+test_store(ctx_host, 'name=sample.long.write_me&value=42')
+check_vals(ctx_host, 'sample.long.write_me')
+test_store(ctx_local, 'name=sample.long.write_me&value=bad')
+test_store(ctx_host, 'name=sample.ulong.write_me&value=42')
+check_vals(ctx_host, 'sample.ulong.write_me')
+test_store(ctx_local, 'name=sample.ulong.write_me&value=bad')
+test_store(ctx_host, 'name=sample.float.write_me&value=42.0')
+check_vals(ctx_host, 'sample.float.write_me')
+test_store(ctx_host, 'name=sample.string.write_me&value=good')
+check_vals(ctx_host, 'sample.string.write_me')
+test_store(ctx_local, 'name=sample.double.write_me&value=bad')
+test_store(ctx_local, 'name=sample.aggregate.write_me&value=bad')
+
+test_store(ctx_host, 'name=sample.colour&value=10&instance=0')
+check_vals(ctx_host, 'sample.colour')
+test_store(ctx_host, 'name=sample.colour&value=20&instance=0,1')
+check_vals(ctx_host, 'sample.colour')
+test_store(ctx_host, 'name=sample.colour&value=30&iname=blue')
+check_vals(ctx_host, 'sample.colour')
+test_store(ctx_host, 'name=sample.colour&value=40&iname=red,blue')
+check_vals(ctx_host, 'sample.colour')
 
 # ------------------------------------------------------------------------
 

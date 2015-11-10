@@ -948,7 +948,7 @@ pmwebapi_respond_instance_list (struct MHD_Connection *connection,
         }
 
         iid = pmLookupInDom (inDom, iname);
-        if (iid > 0) {
+        if (iid >= 0) {
             assert (num_instances < max_num_instances);
             instances[num_instances++] = iid;
         }
@@ -1058,13 +1058,14 @@ pmwebapi_respond_metric_store (struct MHD_Connection *connection,
     const char *val_iname;
     struct MHD_Response *resp;
     int rc = 0;
+    int num_values = 0;
     int max_num_instances;
     int num_instances;
     int *instances;
     pmID metric_id = PM_ID_NULL;
     pmDesc metric_desc;
     pmResult *result;
-    pmValueSet *valueset;
+    pmValueSet *vset;
     pmAtomValue atom;
     ostringstream output;
 
@@ -1088,7 +1089,9 @@ pmwebapi_respond_metric_store (struct MHD_Connection *connection,
     }
     val_value = MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "value");
     if (val_value == NULL) {
-        val_value = "";
+        connstamp (cerr, connection) << "store with no metric value" << endl;
+        rc = PM_ERR_VALUE;
+        goto out;
     }
 
     /* Extract target metric identifier from name or pmid. */
@@ -1107,6 +1110,11 @@ pmwebapi_respond_metric_store (struct MHD_Connection *connection,
         }
     }
 
+    if (metric_id == PM_ID_NULL) {
+        connstamp (cerr, connection) << "store with no metric given" << endl;
+        rc = PM_ERR_TOOSMALL;
+        goto out;
+    }
     rc = pmLookupDesc (metric_id, &metric_desc);
     if (rc != 0) {
         connstamp (cerr, connection) << "store failed to lookup desc" << endl;
@@ -1175,7 +1183,7 @@ pmwebapi_respond_metric_store (struct MHD_Connection *connection,
         }
 
         iid = pmLookupInDom (metric_desc.indom, iname);
-        if (iid > 0) {
+        if (iid >= 0) {
             assert (num_instances < max_num_instances);
             instances[num_instances++] = iid;
         }
@@ -1191,22 +1199,38 @@ pmwebapi_respond_metric_store (struct MHD_Connection *connection,
             goto out;
         }
         free (instances);
+	num_values = num_instances;
+    } else {
+	num_values = 1;
     }
 
-    /* Setup the result structure with new value and send it */
-    valueset = (pmValueSet *) calloc (1, sizeof(pmValueSet));
-    result = (pmResult *) calloc (1, sizeof(pmResult));
-    result->vset[0] = valueset;
-    result->numpmid = 1;
-
-    rc = __pmStuffValue (&atom, &valueset->vlist[0], metric_desc.type);
-    if (rc < 0) {
-        connstamp (cerr, connection) << "stuff value failed " << endl;
+    /* Setup the result structure with new value(s) and send it */
+    if ((vset = (pmValueSet *) calloc (1, sizeof(pmValueSet) + sizeof(pmValue) * (num_values - 1))) == NULL) {
+        connstamp (cerr, connection) << "store vset allocation failed" << endl;
+        rc = -ENOMEM;
         goto out;
     }
-    valueset->valfmt = rc;
-    valueset->numval = 1;
-    valueset->pmid = metric_id;
+    if ((result = (pmResult *) calloc (1, sizeof(pmResult))) == NULL) {
+        connstamp (cerr, connection) << "store result allocation failed" << endl;
+        free (vset);
+        rc = -ENOMEM;
+        goto out;
+    }
+    result->vset[0] = vset;
+    result->numpmid = 1;
+
+    for (int vi = 0; vi < num_values; vi++) {
+        rc = __pmStuffValue (&atom, &vset->vlist[vi], metric_desc.type);
+        if (rc < 0) {
+            connstamp (cerr, connection) << "stuff value failed " << endl;
+            free (result);
+            free (vset);
+            goto out;
+        }
+    }
+    vset->valfmt = rc;
+    vset->numval = num_values;
+    vset->pmid = metric_id;
 
     rc = pmStore (result);
     pmFreeResult (result);

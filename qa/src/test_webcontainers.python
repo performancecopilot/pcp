@@ -1,0 +1,66 @@
+#!/usr/bin/pcp python
+""" Test PCP web daemon accessing container metrics -*- python -*- """
+#
+# Copyright (C) 2015 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import requests, argparse, os
+
+parser = argparse.ArgumentParser(description='test_webcontainers.py store check')
+parser.add_argument('--host', default='localhost')
+parser.add_argument('--port', default=44323)
+parser.add_argument('container', nargs='+')
+args = parser.parse_args()
+
+url = 'http://' + args.host + ':' + str(args.port) + '/pmapi/'
+os.unsetenv('http_proxy')
+os.unsetenv('HTTP_PROXY')
+
+# ------------------------------------------------------------------------
+
+def test_fetch(ctx, metrics):
+    req = requests.get(url=url + str(ctx)+'/_fetch?'+metrics)
+    print('context #'+str(ctx_host)+' fetch '+metrics+' response code ' + str(req.status_code))
+    if (req.status_code != 200):
+        return
+    # print req.content
+    result = req.json()
+    # print(result)
+    for metric in sorted(result['values'], key=lambda x: x['name']):
+        for inst in sorted(metric['instances'], key=lambda x: x['instance']):
+            print('  ' + metric['name'] + '[' + inst['value'] + ']')
+    print('  => successfully fetched.')
+
+# ------------------------------------------------------------------------
+
+def test_store(ctx, metric, value):
+    req = requests.get(url=url + str(ctx)+'/_store?name='+metric+'&value='+value)
+    print('context #'+str(ctx_host)+' store '+metric+' response code ' + str(req.status_code))
+    if (req.status_code != 200):
+        return
+    print('  ' + str(metric) + '[' + str(value) + ']')
+    print('  => successfully stored.')
+
+# ------------------------------------------------------------------------
+
+# create a context to test with
+req = requests.get(url=url + 'context?exclusive&hostname=' + args.host + '&polltimeout=2')
+resp = req.json()
+ctx_host = resp['context']
+print('Received PM_CONTEXT_HOST #' + str(ctx_host))
+
+test_fetch(ctx_host,'names=pmcd.hostname,pmcd.client.container')
+for container in args.container:
+    test_store(ctx_host,'pmcd.client.container',container)
+    test_fetch(ctx_host,'names=pmcd.hostname,pmcd.client.container')
+

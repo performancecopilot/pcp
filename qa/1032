@@ -1,0 +1,78 @@
+#!/bin/sh
+# PCP QA Test No. 1032
+# Exercise container switching using the webapi _store method.
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.webapi
+. ./common.python
+. ./common.docker
+
+_check_containers
+_check_docker_images busybox
+
+_check_pmwebd
+_check_requests_json
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+pyscript=src/test_webcontainers.py
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+username=`id -u -n`
+webargs="-U $username"
+webport=`_find_free_port`
+
+_cleanup()
+{
+    if [ -n "$container" ]
+    then
+        echo "== removing container" | tee -a $seq.full
+        _remove_docker_containers $container
+        container=""
+    fi
+    if [ "X$webpid" != "X" ]; then
+	$signal -s TERM $webpid
+	webpid=""
+    fi
+    $sudo rm -f $tmp.*
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/\#[0-9][0-9]*/#CONTEXT/g' \
+	-e "s/$container/CONTAINER ID/g" \
+	-e "s/$container_hostname/CONTAINER HOST/g" \
+	-e "s/$localhost_hostname/LOCALHOST HOST/g" \
+	-e "/  pmcd.client.container\[\]/d" \
+    # end
+}
+
+# real QA test starts here
+$PCP_BINADM_DIR/pmwebd $webargs -p $webport -l $tmp.out -v -t5 &
+webpid=$!
+echo "pid=$webpid" >>$seq.full
+
+container=`$docker run -d busybox sleep 15`
+echo "container=$container" >> $seq.full
+
+pmprobe --values --container=$container pmcd.hostname > $tmp.cont
+pmprobe --values pmcd.hostname > $tmp.host
+eval container_hostname=`awk '{ print $3 }' $tmp.cont`
+eval localhost_hostname=`awk '{ print $3 }' $tmp.host`
+echo "localhost_hostname=$localhost_hostname" >> $seq.full
+echo "container_hostname=$container_hostname" >> $seq.full
+
+_wait_for_pmwebd_logfile $tmp.out $webport
+$python $pyscript --port $webport $container | _filter
+
+# success, all done
+status=0
+exit
