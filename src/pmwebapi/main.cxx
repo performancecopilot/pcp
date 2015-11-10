@@ -28,6 +28,7 @@ string uriprefix = "pmapi";
 string resourcedir;		/* set by -R option */
 string archivesdir = ".";	/* set by -A option */
 unsigned verbosity;		/* set by -v option */
+unsigned permissive;            /* set by -P option */
 unsigned maxtimeout = 300;	/* set by -t option */
 int dumpstats = 300;            /* set by -d option */
 map<string,unsigned> clients_usage;
@@ -354,6 +355,10 @@ server_dump_configuration ()
     // don't have to repeat.
 
     clog << "\tVerbosity level " << verbosity << endl;
+    if (permissive)
+        clog << "\tPermissive mode enabled" << endl;
+    else
+        clog << "\tPermissive mode disabled" << endl;
     clog << "\tUsing libmicrohttpd " << MHD_get_version () << endl;
 
     cwd = getcwd (cwdpath, sizeof (cwdpath));
@@ -471,6 +476,7 @@ longopts[] = {
     {"host", 1, 'h', "HOST", "permanent-bind next context to PMCD on host"},
     {"archive", 1, 'a', "FILE", "permanent-bind next context to archive"},
     {"local-PMDA", 0, 'L', 0, "permanent-bind next context to local PMDAs"},
+    {"permissive", 0, 'P', 0, "allow unix: and local-context modes"},
     {"", 0, 'N', 0, "disable remote new-context requests"},
     {"", 1, 'A', "DIR", "permit remote new-archive-context under dir [default CWD]"},
     PMAPI_OPTIONS_HEADER ("Other"),
@@ -498,6 +504,7 @@ main (int argc, char *argv[])
     int     ctx;
     int     mhd_ipv4 = 1;
     int     mhd_ipv6 = 1;
+    int     localmode = 0;
     int    port = PMWEBD_PORT;
     char   utc_timezone[] = "TZ=UTC";
     char *   endptr;
@@ -514,12 +521,16 @@ main (int argc, char *argv[])
     char * username_str;
     __pmGetUsername (&username_str);
 
-    opts.short_options = "A:a:c:D:h:Ll:NM:p:R:Gi:It:U:vx:d:46?";
+    opts.short_options = "A:a:c:D:h:Ll:NM:Pp:R:Gi:It:U:vx:d:46?";
     opts.long_options = longopts;
     opts.override = option_overrides;
 
     while ((c = pmGetOptions (argc, argv, &opts)) != EOF) {
         switch (c) {
+        case 'P':
+            permissive = 1;
+            break;
+
         case 'p':
             port = (int) strtol (opts.optarg, &endptr, 0);
             if (*endptr != '\0' || port < 0 || port > 65535) {
@@ -590,6 +601,9 @@ main (int argc, char *argv[])
             break;
 
         case 'h':
+            if (strstr(opts.optarg, "unix:") != NULL ||
+                strstr(opts.optarg, "local:") != NULL)
+                localmode = 1;	// complete this check after arg parsing
             if ((ctx = pmNewContext (PM_CONTEXT_HOST, opts.optarg)) < 0) {
                 __pmNotifyErr (LOG_ERR, "new context failed\n");
                 exit (EXIT_FAILURE);
@@ -616,6 +630,7 @@ main (int argc, char *argv[])
             break;
 
         case 'L':
+            localmode = 1;	// complete this check after arg parsing
             if ((ctx = pmNewContext (PM_CONTEXT_LOCAL, NULL)) < 0) {
                 __pmNotifyErr (LOG_ERR, "new context failed\n");
                 exit (EXIT_FAILURE);
@@ -650,6 +665,11 @@ main (int argc, char *argv[])
             fatalfile = opts.optarg;
             break;
         }
+    }
+
+    if (!permissive && localmode) {
+        pmprintf ( "%s: non-permissive and local-context modes are mutually exclusive\n", pmProgname);
+        opts.errors++;
     }
 
     if (opts.errors) {

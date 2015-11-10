@@ -26,6 +26,7 @@
 [\f3\-c\f1 \f2number\f1]
 [\f3\-h\f1 \f2hostname\f1]
 [\f3\-a\f1 \f2archive\f1]
+[\f3\-P\f1]
 [\f3\-L\f1]
 [\f3\-N\f1]
 [\f3\-G\f1]
@@ -115,7 +116,7 @@ graphite-api clients.
 .TP
 \f3\-t\f1 \f2timeout\f1
 Set the maximum timeout (in seconds) after the last operation on a pmapi web
-context, before it is closed by pwmebd.  A smaller timeout may be requested
+context, before it is closed by pmwebd.  A smaller timeout may be requested
 by the web client.
 .TP
 \f3\-c\f1 \f2number\f1
@@ -127,6 +128,22 @@ Assign the next permanent PMWEBAPI context identifier to a PMAPI connection
 to the given host (with an extended syntax as given in 
 .BR PCPIntro (1)),
 or archive file, or the PM_CONTEXT_LOCAL.
+.TP
+\f3\-P\f1
+Run in permissive mode (deprecated), allowing Unix domain socket connections
+and/or local PMDA contexts.
+By default these are not allowed due to the automatic authentication that
+is performed on the server in these modes.
+If enabled, unauthenticated remote
+.B PMWEBAPI (3)
+clients will be able to access
+potentially sensitive performance metric values which an unauthenticated
+.B PMAPI (3)
+client usually would not be able to.
+Only enable this option if you understand the risks involved, and are sure
+that all remote
+.B pmwebd
+accesses will be from benevolent users.
 .TP
 \f3\-N\f1
 Disable creation of new PMWEBAPI contexts via HTTP requests, leaving only

@@ -58,16 +58,6 @@ Creates a PM_CONTEXT_HOST PMAPI context with the given host name and/or extended
 specification.  If the host specification contains a userid/password combination,
 then the corresponding PMAPI context operations will require HTTP Basic authentication
 credentials with matching userid/password.
-
-Note that most command line pcp tools default to
-.BR "-h local:" ,
-which maps to
-.B /pmapi/context?hostname=local: 
-in the pmwebapi.
-.TP
-.B /pmapi/context?local=ANYTHING
-Creates a PM_CONTEXT_LOCAL PMAPI context, corresponding to \f3-L\fR for 
-most command line pcp tools.  Fewer metrics are normally available this way.
 .TP
 .B /pmapi/context?archivefile=ARCHIVE
 Creates a PM_CONTEXT_ARCHIVE PMAPI context with the given file name.  Only

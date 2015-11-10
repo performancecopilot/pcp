@@ -1,0 +1,20 @@
+QA output created by 1042
+== "permissive" mode (deprecated behaviour)
+Received PM_CONTEXT_LOCAL #CONTEXT
+local context context fetch names=proc.memory.maps response code 400
+Received PM_CONTEXT_HOST(UNIX:) #CONTEXT
+unix domain context fetch names=proc.memory.maps response code 200
+timestamps fields:2 len(values[]):1
+  metric:proc.memory.maps
+  with instances
+Create: http://localhost:WEBPORT/pmapi/context?hostspec=localhost&polltimeout=2
+Received PM_CONTEXT_HOST(LOCALHOST) #CONTEXT
+localhost context fetch names=proc.memory.maps response code 200
+timestamps fields:2 len(values[]):0
+== enforcing mode (no unauthenticated proc access)
+No PM_CONTEXT_LOCAL available status=400
+No PM_CONTEXT_HOST(UNIX:) available status=400
+Create: http://localhost:WEBPORT/pmapi/context?hostspec=localhost&polltimeout=2
+Received PM_CONTEXT_HOST(LOCALHOST) #CONTEXT
+localhost context fetch names=proc.memory.maps response code 200
+timestamps fields:2 len(values[]):0

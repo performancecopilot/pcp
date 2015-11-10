@@ -47,6 +47,7 @@ extern std::string uriprefix;			/* hard-coded */
 extern std::string archivesdir;			/* set by -A option */
 extern std::string resourcedir;			/* set by -R option */
 extern unsigned verbosity;			/* set by -v option */
+extern unsigned permissive;			/* set by -P option */
 extern unsigned new_contexts_p;		/* cleared by -N option */
 extern unsigned exit_p;			/* counted by SIG* handler */
 extern unsigned maxtimeout;			/* set by -t option */

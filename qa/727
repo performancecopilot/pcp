@@ -22,7 +22,7 @@ trap "avahi_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 service=pmwebd
 avahi_service
-_wait_for_pmwebd_logfile $PCP_LOG_DIR/pmwebd/pmwebd.log
+_wait_for_pmwebd_logfile $PCP_LOG_DIR/pmwebd/pmwebd.log 44323
 avahi_verify
 status=0
 exit

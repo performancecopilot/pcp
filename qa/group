@@ -1157,6 +1157,7 @@ cgroups
 1030 pmda.linux local
 1031 pmda.slurm perl local
 1032 pmwebapi containers local
+1042 pmwebapi pmda.proc local
 1044 pmie local pmieconf sanity
 1045 pmie local pmieconf
 1046 pmie local pmieconf

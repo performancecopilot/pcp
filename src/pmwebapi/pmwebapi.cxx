@@ -199,6 +199,14 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection,
         char *hostAttrsError;
         __pmHashInit (&hostAttrs);
 
+        if ((strstr(val.c_str (), "unix:") != NULL ||
+            strstr(val.c_str (), "local:") != NULL) &&
+            !permissive) {
+            connstamp (cerr, connection) << "local mode requested, denied" << endl;
+            rc = -EPERM;
+            goto out;
+        }
+
         rc = __pmParseHostAttrsSpec (val.c_str (), &hostSpec, &hostSpecCount, &hostAttrs,
                                      &hostAttrsError);
         if (rc == 0) {
@@ -236,6 +244,11 @@ pmwebapi_respond_new_context (struct MHD_Connection *connection,
             context = pmNewContext (PM_CONTEXT_ARCHIVE, archivefile.c_str ());
             context_description = string ("PM_CONTEXT_ARCHIVE ") + archivefile;
         } else if (MHD_lookup_connection_value (connection, MHD_GET_ARGUMENT_KIND, "local")) {
+            if (!permissive) {
+                connstamp (cerr, connection) << "local context requested, denied" << endl;
+                rc = -EPERM;
+                goto out;
+            }
             /* Note we need to use a dummy parameter to local=FOO,
                since the MHD_lookup* API does not differentiate
                between an absent argument vs. an argument given

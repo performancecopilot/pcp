@@ -35,6 +35,7 @@ $sudo cp $PCP_PMWEBDOPTIONS_PATH $tmp.backup
 # create an old-format configuration file
 cat <<EOF >$tmp.config
 -p $webport
+-P
 EOF
 $sudo cp $tmp.config $PCP_PMWEBDOPTIONS_PATH
 

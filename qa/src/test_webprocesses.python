@@ -1,0 +1,83 @@
+#!/usr/bin/pcp python
+""" Test access to pmdaproc metrics from PCP web daemon -*- python -*- """
+#
+# Copyright (C) 2015 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import requests, argparse, os
+
+parser = argparse.ArgumentParser(description='test_webprocesses.py proc check')
+parser.add_argument('--host', default='localhost')
+parser.add_argument('--port', default=44323)
+args = parser.parse_args()
+
+url = 'http://' + args.host + ':' + str(args.port) + '/pmapi/'
+timeout = '&polltimeout=2'
+os.unsetenv('http_proxy')
+os.unsetenv('HTTP_PROXY')
+
+# ------------------------------------------------------------------------
+
+def test_processes_fetch(ctx,src):
+    metric = "names=proc.memory.maps"
+    req = requests.get(url=url + str(ctx) + '/_fetch?' + metric)
+    print(src+' context fetch '+metric+' response code '+str(req.status_code))
+    if (req.status_code != 200):
+        return
+    # print req.content
+    result = req.json()
+    print('timestamps fields:'+str(len(result['timestamp']))+' len(values[]):'+str(len(result['values'])))
+    for metric in sorted(result['values'], key=lambda x: x['name']):
+        print('  metric:'+metric['name'])
+        if (len(metric['instances']) > 0):
+            print('  with instances')
+        else:
+            print('  no instances')
+        # don't need to instances/values, seeing some/none returned is enough
+
+# ------------------------------------------------------------------------
+# local-ctx/unix should fail when pmwebd started without -P (else pass)
+# localhost should always fail (no authentication, so no proc.* access)
+
+req = requests.get(url=url + 'context?local=bad' + timeout)
+if req.status_code == 200:
+    have_local = 1
+    resp = req.json()
+    ctx_local = resp['context']
+    print('Received PM_CONTEXT_LOCAL #' + str(ctx_local))
+    test_processes_fetch(ctx_local, 'local context')
+else:
+    status = 'status=' + str(req.status_code)
+    print('No PM_CONTEXT_LOCAL available ' + status)
+
+req = requests.get(url=url + 'context?hostspec=unix:' + timeout)
+if req.status_code == 200:
+    resp = req.json()
+    ctx_unix = resp['context']
+    print('Received PM_CONTEXT_HOST(UNIX:) #' + str(ctx_unix))
+    test_processes_fetch(ctx_unix, 'unix domain')
+else:
+    status = 'status=' + str(req.status_code)
+    print('No PM_CONTEXT_HOST(UNIX:) available ' + status)
+
+print('Create: ' + url + 'context?hostspec=localhost' + timeout)
+req = requests.get(url=url + 'context?hostspec=localhost' + timeout)
+if req.status_code == 200:
+    resp = req.json()
+    ctx_host = resp['context']
+    print('Received PM_CONTEXT_HOST(LOCALHOST) #' + str(ctx_host))
+    test_processes_fetch(ctx_host, 'localhost')
+else:
+    status = 'status=' + str(req.status_code)
+    print('No PM_CONTEXT_HOST(LOCALHOST) available ' + status)
+
