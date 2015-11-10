@@ -1011,6 +1011,7 @@ cgroups
 792 libpcp local
 793 logutil local
 794 containers pmcd pmda.pmcd local
+795 pmimport local pmdumplog perl local
 798 pmda.nfsclient local
 799:retired pmda.papi local
 800 pmda.proc local
@@ -1045,6 +1046,7 @@ cgroups
 843 pmda local python
 844 pmda.linux local
 845 pmda.mounts local
+846 pmimport local pmdumplog perl local
 850 python local
 853 pmcpp local
 860 pmda pmda.proc ostest local
@@ -1114,6 +1116,8 @@ cgroups
 982 pmda.proc pmda.hotproc local
 983 pmie local
 984 cgroups local
+985 pmimport local pmdumplog perl local
+986 pmimport local pmdumplog perl local
 987 pmda.xfs local
 988 pmda.xfs local valgrind
 991 pcp python local
