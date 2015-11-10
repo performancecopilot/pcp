@@ -131,10 +131,18 @@ container_t *
 root_container_search(const char *query)
 {
     int inst, fuzzy, best = 0;
-    char *name = NULL;
+    char *name = (char *)query;
     container_t *cp = NULL, *found = NULL;
     container_engine_t *dp;
     pmInDom indom = INDOM(CONTAINERS_INDOM);
+
+    /* fast path - full instance name, always the best possible match */
+    if (query && PMDA_CACHE_ACTIVE ==
+	pmdaCacheLookupName(indom, name, &inst, (void **)&cp) &&
+	root_refresh_container_values(name, cp) >= 0) {
+	found = cp;
+	goto out;
+    }
 
     for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
 	if ((inst = pmdaCacheOp(indom, PMDA_CACHE_WALK_NEXT)) < 0)
@@ -154,6 +162,7 @@ root_container_search(const char *query)
 	}
     }
 
+out:
     if (pmDebug & DBG_TRACE_ATTR) {
 	if (found) /* query must be non-NULL */
 	    __pmNotifyErr(LOG_DEBUG, "found container: %s (%s/%d) pid=%d\n",
