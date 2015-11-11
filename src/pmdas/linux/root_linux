@@ -112,6 +112,8 @@ kernel.all.cpu {
     steal		60:0:55
     guest		60:0:60
     vuser		60:0:78
+    guest_nice		60:0:81
+    vnice		60:0:82
 }
 
 kernel.all.cpu.wait {
@@ -139,6 +141,8 @@ kernel.percpu.cpu {
     steal		60:0:58
     guest		60:0:61
     vuser		60:0:76
+    guest_nice		60:0:83
+    vnice		60:0:84
 }
 
 kernel.percpu.cpu.wait {
@@ -165,6 +169,8 @@ kernel.pernode.cpu {
     steal		60:0:67
     guest		60:0:68
     vuser		60:0:77
+    guest_nice		60:0:85
+    vnice		60:0:86
 }
 
 kernel.pernode.cpu.wait {

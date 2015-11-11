@@ -70,7 +70,8 @@ For example:
 
 @ kernel.percpu.cpu.user percpu user CPU time metric from /proc/stat, including guest CPU time
 @ kernel.percpu.cpu.vuser percpu user CPU time metric from /proc/stat, excluding guest CPU time
-@ kernel.percpu.cpu.nice percpu nice user CPU time metric from /proc/stat
+@ kernel.percpu.cpu.nice percpu nice user CPU time metric from /proc/stat, including guest CPU time
+@ kernel.percpu.cpu.vnice percpu nice user CPU time metric from /proc/stat, excluding guest CPU time
 @ kernel.percpu.cpu.sys percpu sys CPU time metric from /proc/stat
 @ kernel.percpu.cpu.idle percpu idle CPU time metric from /proc/stat
 @ kernel.percpu.cpu.wait.total percpu wait CPU time
@@ -96,6 +97,9 @@ Per-CPU time when the CPU had a runnable process, but the hypervisor
 
 @ kernel.percpu.cpu.guest percpu guest CPU time
 Per-CPU time spent running (virtual) guest operating systems.
+
+@ kernel.percpu.cpu.guest_nice percpu nice guest CPU time
+Per-CPU nice time spent running (virtual) guest operating systems.
 
 @ kernel.all.interrupts.errors interrupt error count from /proc/interrupts
 This is a global counter (normally converted to a count/second)
@@ -823,7 +827,8 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 Total time spent processing interrupts on all CPUs.
 This value includes both soft and hard interrupt processing time.
 @ kernel.all.cpu.wait.total total wait CPU time from /proc/stat for all CPUs
-@ kernel.all.cpu.nice total nice user CPU time from /proc/stat for all CPUs
+@ kernel.all.cpu.nice total nice user CPU time from /proc/stat for all CPUs, including guest time
+@ kernel.all.cpu.vnice total nice user CPU time from /proc/stat for all CPUs, excluding guest time
 @ kernel.all.cpu.sys total sys CPU time from /proc/stat for all CPUs
 @ kernel.all.cpu.idle total idle CPU time from /proc/stat for all CPUs
 @ kernel.all.cpu.irq.soft soft interrupt CPU time from /proc/stat for all CPUs
@@ -839,17 +844,21 @@ Total CPU time when a CPU had a runnable process, but the hypervisor
 (virtualisation layer) chose to run something else instead.
 @ kernel.all.cpu.guest total virtual guest CPU time for all CPUs
 Total CPU time spent running virtual guest operating systems.
+@ kernel.all.cpu.guest_nice total virtual guest CPU nice time for all CPUs
+Total CPU nice time spent running virtual guest operating systems.
 @ kernel.pernode.cpu.user total user CPU time from /proc/stat for each node, including guest CPU time
 @ kernel.pernode.cpu.vuser total user CPU time from /proc/stat for each node, excluding guest CPU time
 @ kernel.pernode.cpu.intr total interrupt CPU time from /proc/stat for each node
 @ kernel.pernode.cpu.wait.total total wait CPU time from /proc/stat for each node
-@ kernel.pernode.cpu.nice total nice user CPU time from /proc/stat for each node
+@ kernel.pernode.cpu.nice total nice user CPU time from /proc/stat for each node, including guest time
+@ kernel.pernode.cpu.vnice total nice user CPU time from /proc/stat for each node, excluding guest time
 @ kernel.pernode.cpu.sys total sys CPU time from /proc/stat for each node
 @ kernel.pernode.cpu.idle total idle CPU time from /proc/stat for each node
 @ kernel.pernode.cpu.irq.soft soft interrupt CPU time from /proc/stat for each node
 @ kernel.pernode.cpu.irq.hard hard interrupt CPU time from /proc/stat for each node
 @ kernel.pernode.cpu.steal total virtualisation CPU steal time for each node
 @ kernel.pernode.cpu.guest total virtual guest CPU time for each node
+@ kernel.pernode.cpu.guest_nice total virtual nice guest CPU time for each node
 
 @ hinv.ninterface number of active (up) network interfaces
 @ network.interface.in.bytes network recv read bytes from /proc/net/dev per network interface
