@@ -16,7 +16,7 @@ TESTDIR = $(PCP_VAR_DIR)/testsuite/archives
 # volumes other than .0
 SRCPART = ok-mv-bigbin.[1-9] ok-mv-foo.[12]
 # archives with no .index
-SRCNOTI	= ok-noti-bigbin.0
+SRCNOTI	= ok-noti-bigbin.0 ok-noti-interp.0
 # other .meta files
 SRCOTHER = bozo.client_v2.meta.bad.1 bozo.client_v2.meta.bad.2 \
 	   $(patsubst %.0,%.meta,$(SRCNOTI))
