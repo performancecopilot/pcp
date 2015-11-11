@@ -1,0 +1,48 @@
+#!/bin/sh
+# PCP QA Test No. 998
+# Exercise libpcp: unlock context before returning
+# See https://github.com/performancecopilot/pcp/pull/50
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "=== -x (no context) ==="
+src/github-50 -x
+
+echo
+echo "=== no args, default context ==="
+src/github-50
+
+echo
+echo "=== -h local: ==="
+src/github-50 -h 'local:'
+
+echo
+echo '=== -h `hostname` ==='
+src/github-50 -h `hostname`
+
+echo
+echo '=== -L ==='
+src/github-50 -L
+
+echo
+echo '=== -a archives/ok-foo ==='
+src/github-50 -a archives/ok-foo
+
+# success, all done
+status=0
+
+exit

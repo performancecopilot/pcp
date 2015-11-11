@@ -1,0 +1,29 @@
+QA output created by 998
+=== -x (no context) ===
+github-50: Cannot get archive label record: Attempt to use an illegal context
+github-50: __pmHandleToPtr botch: for context=-12376
+
+=== no args, default context ===
+github-50: Cannot get archive label record: Attempt to use an illegal context
+Unlock OK
+Unlock Fail: Operation not permitted
+
+=== -h local: ===
+github-50: Cannot get archive label record: Attempt to use an illegal context
+Unlock OK
+Unlock Fail: Operation not permitted
+
+=== -h `hostname` ===
+github-50: Cannot get archive label record: Attempt to use an illegal context
+Unlock OK
+Unlock Fail: Operation not permitted
+
+=== -L ===
+github-50: Cannot get archive label record: Attempt to use an illegal context
+Unlock OK
+Unlock Fail: Operation not permitted
+
+=== -a archives/ok-foo ===
+github-50: archive label record: magic=50052602 host=gonzo
+Unlock OK
+Unlock Fail: Operation not permitted

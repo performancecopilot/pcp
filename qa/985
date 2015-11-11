@@ -1,6 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 372
-# simple exerciser for sheet2pcp - base CSV variant
+# simple exerciser for sheet2pcp - XL variant
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
@@ -17,8 +16,8 @@ which sheet2pcp >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "sheet2pcp not installed"
 perl -e "use XML::TokeParser" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl XML::TokeParser module not installed"
-perl -e "use Spreadsheet::Read" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "perl Spreadsheet::Read module not installed"
+perl -e "use Spreadsheet::ParseExcel" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl Spreadsheet::ParseExcel module not installed"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -44,21 +43,9 @@ cat <<'End-of-File' >$tmp.mapfile
 </sheet>
 End-of-File
 
-echo "=== CSV ==="
+echo "=== XLS ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src/simple.csv $tmp.mapfile $tmp 2>&1
-[ -f $tmp.0 ] && pmdumplog -az $tmp
-
-echo
-echo "=== resaved CSV ==="
-rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src/simple-resave.csv $tmp.mapfile $tmp 2>&1
-[ -f $tmp.0 ] && pmdumplog -az $tmp
-
-echo
-echo "=== /dev/null ==="
-rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp /dev/null $tmp.mapfile $tmp 2>&1
+sheet2pcp src/simple.xls $tmp.mapfile $tmp 2>&1
 [ -f $tmp.0 ] && pmdumplog -az $tmp
 
 # success, all done
