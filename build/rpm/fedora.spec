@@ -911,6 +911,7 @@ URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
 %if 0%{?fedora} > 16 || 0%{?rhel} > 5
 Requires: postfix-perl-scripts
+BuildRequires: postfix-perl-scripts
 %endif
 %if 0%{?rhel} <= 5
 Requires: postfix
