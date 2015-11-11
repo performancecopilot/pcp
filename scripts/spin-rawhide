@@ -93,6 +93,8 @@ if [ ! -z $VECTOR ]; then
     npm install || fail_and_bail "npm install failed in" `pwd`
     bower install || fail_and_bail "bower install failed in" `pwd`
     gulp build || fail_and_bail "gulp build failed in" `pwd`
+    VECTOR_GIT_DESCRIBE=`git describe | rev | cut -f1 -d"g" | rev`
+    VECTOR=`echo vector-${TAG_DATE}git${VECTOR_GIT_DESCRIBE}.tar.gz`
     cd dist && tar czf ../../pcp/$VECTOR *
     cd ..
 fi
@@ -103,6 +105,8 @@ if [ ! -z $PCP_WEB_JS ]; then
     # git clone git@github.com:performancecopilot/pcp-webjs.git pcp-webjs
     git clone git://sourceware.org/git/pcpfans.git --branch=webjs pcp-webjs
     cd pcp-webjs
+    WEB_GIT_DESCRIBE=`git describe --always | rev | cut -f1 -d"g" | rev`
+    PCP_WEB_JS=`echo pcp-webjs-${TAG_DATE}git${WEB_GIT_DESCRIBE}.src.tar.gz`
     git archive --prefix=pcp-webjs/ -o ../pcp/$PCP_WEB_JS HEAD
 fi
 
@@ -111,6 +115,8 @@ cd ../pcp
 
 sed -i "s/Release:.*/Release: $GIT_VERSION_TAG\%\{\?dist\}/" pcp.spec
 sed -i "s/^Source0:.*/Source0: %{name}-%{version}-$GIT_VERSION_TAG.tar.gz/" pcp.spec
+sed -i "s/^Source1:.*/Source1: $PCP_WEB_JS/" pcp.spec
+sed -i "s/^Source2:.*/Source2: $VECTOR/" pcp.spec
 sed -i "s/%global buildversion.*/%global buildversion 0/" pcp.spec
 sed -i "s/^Version:.*/Version: $PCP_FULL_VERSION/" pcp.spec
 
