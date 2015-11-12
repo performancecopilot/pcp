@@ -58,8 +58,7 @@ typedef struct {
 	unsigned long long	ctxt;
 	unsigned long		btime;
 	unsigned long		processes;
-	pmdaIndom   		 *cpu_indom;
-	unsigned int		hz;
+	pmdaIndom		*cpu_indom;
 } proc_stat_t;
 
 extern int refresh_proc_stat(proc_cpuinfo_t *, proc_stat_t *);

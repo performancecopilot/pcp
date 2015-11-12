@@ -87,6 +87,7 @@ static proc_net_softnet_t	proc_net_softnet;
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static int		rootfd = -1;	/* af_unix pmdaroot */
 static char		*username;
+static int		hz;
 
 /* globals */
 size_t _pm_system_pagesize; /* for hinv.pagesize and used elsewhere */
@@ -4762,113 +4763,113 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	switch (idp->item) {
 	case 0: /* kernel.percpu.cpu.user */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_user[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.p_user[inst] / hz);
 	    break;
 	case 1: /* kernel.percpu.cpu.nice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_nice[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.p_nice[inst] / hz);
 	    break;
 	case 2: /* kernel.percpu.cpu.sys */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_sys[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.p_sys[inst] / hz);
 	    break;
 	case 3: /* kernel.percpu.cpu.idle */
 	    _pm_assign_utype(_pm_idletime_size, atom,
-			1000 * (double)proc_stat.p_idle[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.p_idle[inst] / hz);
 	    break;
 	case 30: /* kernel.percpu.cpu.wait.total */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_wait[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.p_wait[inst] / hz);
 	    break;
 	case 31: /* kernel.percpu.cpu.intr */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * ((double)proc_stat.p_irq[inst] +
-				(double)proc_stat.p_sirq[inst]) / proc_stat.hz);
+				(double)proc_stat.p_sirq[inst]) / hz);
 	    break;
 	case 56: /* kernel.percpu.cpu.irq.soft */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_sirq[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.p_sirq[inst] / hz);
 	    break;
 	case 57: /* kernel.percpu.cpu.irq.hard */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_irq[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.p_irq[inst] / hz);
 	    break;
 	case 58: /* kernel.percpu.cpu.steal */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_steal[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.p_steal[inst] / hz);
 	    break;
 	case 61: /* kernel.percpu.cpu.guest */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_guest[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.p_guest[inst] / hz);
 	    break;
 	case 76: /* kernel.percpu.cpu.vuser */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * ((double)proc_stat.p_user[inst] - (double)proc_stat.p_guest[inst])
-			/ proc_stat.hz);
+			/ hz);
 	    break;
 	case 83: /* kernel.percpu.cpu.guest_nice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_guest_nice[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.p_guest_nice[inst] / hz);
 	    break;
 	case 84: /* kernel.percpu.cpu.vnice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * ((double)proc_stat.p_nice[inst] - (double)proc_stat.p_guest_nice[inst])
-			/ proc_stat.hz);
+			/ hz);
 	    break;
 	case 62: /* kernel.pernode.cpu.user */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_user[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.n_user[inst] / hz);
 	    break;
 	case 63: /* kernel.pernode.cpu.nice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_nice[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.n_nice[inst] / hz);
 	    break;
 	case 64: /* kernel.pernode.cpu.sys */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_sys[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.n_sys[inst] / hz);
 	    break;
 	case 65: /* kernel.pernode.cpu.idle */
 	    _pm_assign_utype(_pm_idletime_size, atom,
-			1000 * (double)proc_stat.n_idle[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.n_idle[inst] / hz);
 	    break;
 	case 69: /* kernel.pernode.cpu.wait.total */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_wait[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.n_wait[inst] / hz);
 	    break;
 	case 66: /* kernel.pernode.cpu.intr */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * ((double)proc_stat.n_irq[inst] +
-				(double)proc_stat.n_sirq[inst]) / proc_stat.hz);
+				(double)proc_stat.n_sirq[inst]) / hz);
 	    break;
 	case 70: /* kernel.pernode.cpu.irq.soft */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_sirq[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.n_sirq[inst] / hz);
 	    break;
 	case 71: /* kernel.pernode.cpu.irq.hard */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_irq[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.n_irq[inst] / hz);
 	    break;
 	case 67: /* kernel.pernode.cpu.steal */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_steal[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.n_steal[inst] / hz);
 	    break;
 	case 68: /* kernel.pernode.cpu.guest */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_guest[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.n_guest[inst] / hz);
 	    break;
 	case 77: /* kernel.pernode.cpu.vuser */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * ((double)proc_stat.n_user[inst] - (double)proc_stat.n_guest[inst])
-			/ proc_stat.hz);
+			/ hz);
 	    break;
 	case 85: /* kernel.pernode.cpu.guest_nice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_guest_nice[inst] / proc_stat.hz);
+			1000 * (double)proc_stat.n_guest_nice[inst] / hz);
 	    break;
 	case 86: /* kernel.pernode.cpu.vnice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * ((double)proc_stat.n_nice[inst] - (double)proc_stat.n_guest_nice[inst])
-			/ proc_stat.hz);
+			/ hz);
 	    break;
 
 	case 8: /* swap.pagesin */
@@ -4907,58 +4908,58 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	case 20: /* kernel.all.cpu.user */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.user / proc_stat.hz);
+			1000 * (double)proc_stat.user / hz);
 	    break;
 	case 21: /* kernel.all.cpu.nice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.nice / proc_stat.hz);
+			1000 * (double)proc_stat.nice / hz);
 	    break;
 	case 22: /* kernel.all.cpu.sys */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.sys / proc_stat.hz);
+			1000 * (double)proc_stat.sys / hz);
 	    break;
 	case 23: /* kernel.all.cpu.idle */
 	    _pm_assign_utype(_pm_idletime_size, atom,
-			1000 * (double)proc_stat.idle / proc_stat.hz);
+			1000 * (double)proc_stat.idle / hz);
 	    break;
 	case 34: /* kernel.all.cpu.intr */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * ((double)proc_stat.irq +
-			      	(double)proc_stat.sirq) / proc_stat.hz);
+			      	(double)proc_stat.sirq) / hz);
 	    break;
 	case 35: /* kernel.all.cpu.wait.total */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.wait / proc_stat.hz);
+			1000 * (double)proc_stat.wait / hz);
 	    break;
 	case 53: /* kernel.all.cpu.irq.soft */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.sirq / proc_stat.hz);
+			1000 * (double)proc_stat.sirq / hz);
 	    break;
 	case 54: /* kernel.all.cpu.irq.hard */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.irq / proc_stat.hz);
+			1000 * (double)proc_stat.irq / hz);
 	    break;
 	case 55: /* kernel.all.cpu.steal */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.steal / proc_stat.hz);
+			1000 * (double)proc_stat.steal / hz);
 	    break;
 	case 60: /* kernel.all.cpu.guest */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.guest / proc_stat.hz);
+			1000 * (double)proc_stat.guest / hz);
 	    break;
 	case 78: /* kernel.all.cpu.vuser */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * ((double)proc_stat.user - (double)proc_stat.guest)
-				/ proc_stat.hz);
+				/ hz);
 	    break;
 	case 81: /* kernel.all.cpu.guest_nice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.guest_nice / proc_stat.hz);
+			1000 * (double)proc_stat.guest_nice / hz);
 	    break;
 	case 82: /* kernel.all.cpu.vnice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
 			1000 * ((double)proc_stat.nice - (double)proc_stat.guest_nice)
-				/ proc_stat.hz);
+				/ hz);
 	    break;
 	case 19: /* hinv.nnode */
 	    atom->ul = indomtab[NODE_INDOM].it_numinst;
@@ -4971,7 +4972,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 
 	case 48: /* kernel.all.hz */
-	    atom->ul = proc_stat.hz;
+	    atom->ul = hz;
 	    break;
 
 	default:
@@ -6503,6 +6504,10 @@ linux_init(pmdaInterface *dp)
     __pmID_int	*idp;
 
     /* optional overrides of some globals for testing */
+    if ((envpath = getenv("LINUX_HERTZ")) != NULL)
+	hz = atoi(envpath);
+    else
+	hz = sysconf(_SC_CLK_TCK);
     if ((envpath = getenv("LINUX_PAGESIZE")) != NULL)
 	_pm_system_pagesize = atoi(envpath);
     else
