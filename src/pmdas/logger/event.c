@@ -325,9 +325,13 @@ multiread:
 		      logfile->pathname, strerror(errno));
 	return -1;
     }
+    /*
+     * good read ... data up to buffer + offset + bytes is all OK
+     * so mark end of data
+     */
+    buffer[offset+bytes] = '\0';
 
     gettimeofday(&timestamp, NULL);
-    buffer[bufsize-1] = '\0';
     for (s = p = buffer, j = 0; *s != '\0' && j < bufsize-1; s++, j++) {
 	if (*s != '\n')
 	    continue;
