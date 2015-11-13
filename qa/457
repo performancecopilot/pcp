@@ -18,6 +18,8 @@ _cleanup()
 {
     if $_needclean
     then
+	[ -f $PCP_VAR_DIR/config/logger/logger.conf.$seq ] && \
+	_restore_config $PCP_VAR_DIR/config/logger/logger.conf
 	_restore_pmda_install logger
 	if $install_on_cleanup
 	then
@@ -101,6 +103,8 @@ read book
 chmod 755 $tmp.pipe
 
 [ -d $PCP_VAR_DIR/config/logger ] || $sudo mkdir -p $PCP_VAR_DIR/config/logger
+[ -f $PCP_VAR_DIR/config/logger/logger.conf ] && \
+_save_config $PCP_VAR_DIR/config/logger/logger.conf
 $sudo cp $tmp.conf $PCP_VAR_DIR/config/logger/logger.conf
 
 # install PMDA accepting the defaults (esp config file)
