@@ -263,7 +263,9 @@ logger_store(pmResult *result, pmdaExt *pmda)
 	    return PM_ERR_PERMISSION;
 	queueid = event_queueid(pinfo->handle);
 
-	if (vsp->numval != 1 || vsp->valfmt != PM_VAL_SPTR)
+	if (vsp->numval != 1)
+	    return PM_ERR_BADSTORE;
+	if (vsp->valfmt != PM_VAL_SPTR && vsp->valfmt != PM_VAL_DPTR)
 	    return PM_ERR_BADSTORE;
 
 	sts = event_regex_alloc(vsp->vlist[0].value.pval->vbuf, &filter);
