@@ -1,0 +1,99 @@
+#!/bin/sh
+# PCP QA Test No. 796
+# Exercise elasticsearch PMDA - install, remove and values.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/elasticsearch/pmdaelasticsearch.pl ] || \
+	_notrun "elasticsearch pmda not installed"
+
+port=9200
+$PCP_BINADM_DIR/telnet-probe -c localhost $port || \
+    _notrun "Noones home on the default elasticsearch port $port"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_filter_elasticsearch()
+{
+    # cull message resulting from no running httpd
+    grep -v 'Information not currently available'
+}
+
+_filter_colour()
+{
+    sed \
+	-e 's/"red"/COLOUR/g' \
+	-e 's/"green"/COLOUR/g' \
+	-e 's/"yellow"/COLOUR/g' \
+    #end
+}
+
+_filter_code()
+{
+    sed -e 's/[0-2]$/CODE/g'
+}
+
+pmdaelasticsearch_remove()
+{
+    echo
+    echo "=== remove elasticsearch agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdaelasticsearch_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/elasticsearch
+    $sudo ./Remove >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
+
+    echo
+    echo "=== elasticsearch agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    # Check elasticsearch metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check elasticsearch metrics have appeared/ { if ($7 >= 90 && $7 <= 250) $7 = "X"
+                                              if ($10 >= 0 && $10 <= 500) $10 = "Y"
+                                            }
+                                            { print }'
+}
+
+_prepare_pmda elasticsearch
+trap "_cleanup_pmda elasticsearch; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmdaelasticsearch_install
+
+# pmcd should have been started by the Install process - check
+# a sub-tree that is known-good for all elasticsearch versions
+# and setup states.
+if pminfo -v elasticsearch.cluster > $tmp.info 2> $tmp.err
+then
+    echo "Checking cluster state values"
+    pmprobe -v elasticsearch.cluster.status.code | _filter_code
+    pmprobe -v elasticsearch.cluster.status.colour | _filter_colour
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err | _filter_elasticsearch
+
+pmdaelasticsearch_remove
+status=0
+exit
