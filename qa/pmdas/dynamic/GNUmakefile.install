@@ -26,8 +26,8 @@ CFLAGS		= $(TMP)
 endif
 
 CFILES	= dynamic.c
-CMDTARGET = pmdadynamic
-TARGETS = $(CMDTARGET)
+INSTALLED_CMDTARGET = pmdadynamic
+TARGETS = $(INSTALLED_CMDTARGET)
 LDIRT	= *.log help.dir help.pag
 
 LLDLIBS = -lpcp_pmda -lpcp $(LIB_FOR_MATH) $(LIB_FOR_DLOPEN) $(LIB_FOR_PTHREADS)

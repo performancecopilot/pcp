@@ -28,16 +28,13 @@ endif
 CFILES		= broken_pmda.c
 CFILES_TARGETS	= $(CFILES)
 
-TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
+TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS)))
+INSTALLED_TARGETS = \
 	broken_pmda_2_0 broken_v2.dir broken_pmda_2_1 broken_pmda_2_2 \
 	broken_pmda_2_3 broken_pmda_2_4 broken_pmda_2_5 
 
 LLDLIBS = -lpcp $(LIB_FOR_MATH) $(LIB_FOR_DLOPEN) $(LIB_FOR_PTHREADS)
 
-
-# all archives, except the ones checked into the source tree,
-# then add executables beyond $(TARGETS)
-#
 LDIRT	= *.log help.pag help.dir $(subst .c,.o,$(CFILES)) \
 	broken_pmda_*.c real_broken_pmns broken_v?.dir broken_v?.pag \
 	$(TARGETS)
@@ -49,7 +46,7 @@ MYSCRIPTS = broken_Install broken_Remove
 
 include $(PCP_INC_DIR)/buildrules
 
-$(TARGETS):
+$(TARGETS) $(INSTALLED_TARGETS):
 
 install install_pcp:
 

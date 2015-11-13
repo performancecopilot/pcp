@@ -26,8 +26,8 @@ CFLAGS          = $(TMP)
 endif
 
 CFILES = bigun.c
-LIBTARGET = bigun.$(DSOSUFFIX)
-TARGETS = $(LIBTARGET)
+INSTALL_LIBTARGET = bigun.$(DSOSUFFIX)
+TARGETS = $(INSTALL_LIBTARGET)
 MYFILES = domain.h help pmns root
 MYSCRIPTS = Install Remove
 LDIRT = help.pag help.dir
@@ -36,7 +36,7 @@ LLDLIBS = -lpcp_pmda -lpcp $(LIB_FOR_MATH) $(LIB_FOR_DLOPEN) $(LIB_FOR_PTHREADS)
 
 default default_pcp setup:
 
-$(LIBTARGET):	bigun.o
+$(INSTALL_LIBTARGET):	bigun.o
 
 install install_pcp:
 
