@@ -37,3 +37,6 @@ default default_pcp setup: $(TARGETS)
 install install_pcp: default
 
 include $(PCP_INC_DIR)/buildrules
+
+pmdadynamic: dynamic.o
+	$(CCF) -o $@ $(LDFLAGS) $< $(LDLIBS)
