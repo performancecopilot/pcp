@@ -20,7 +20,15 @@ pminfo -f pmcd.numclients | tee $here/$seq.full | sed -e '/^$/d' >$tmp.out
 N=`sed -n '/value/s/    value //p' $tmp.out`
 echo "N=$N" >>$here/$seq.full
 sed "s/$N/N/" $tmp.out
+# expect N+4, but pmie processes come and go, so N+4 +/- 1 seems
+# aout right
+#
 N=`expr $N + 4`
+PAT="($N"
+X=`expr $N - 1`
+PAT="$PAT|$X"
+X=`expr $N + 1`
+PAT="$PAT|$X)"
 
 for i in 1 2 3 4
 do
@@ -41,7 +49,7 @@ done
 pminfo -f pmcd.numclients | tee -a $here/$seq.full | sed -e '/^$/d' >$tmp.out
 ( date; pminfo -f pmcd.client ) >$tmp.after
 
-if grep "value $N" $tmp.out >/dev/null
+if egrep "value $PAT" $tmp.out >/dev/null
 then
     sed "s/$N/N+4/" $tmp.out
 else
