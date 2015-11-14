@@ -334,7 +334,7 @@ $1 != last	{ if (last != "---") {
 			      printf " %2.2s",fail[i]
 			  }
 			  printf " %4.4s ",last
-			  cmd = "grep \"^" last " \" $HOME/src/pcp/qa/group | sed -e \"s/^[0-9]* //\""
+			  cmd = "( grep \"^" last " \" $HOME/src/pcp/qa/group || echo \"??? missing in QA group file\" ) | sed -e \"s/^[0-9]* //\""
 			  system(cmd)
 		      }
 		  }
