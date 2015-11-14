@@ -1144,6 +1144,10 @@ __pmGetAddrInfo(const char *hostName)
 
 	sts = getaddrinfo(hostName, NULL, &hints, &hostEntry->addresses);
 	if (sts != 0) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_DESPERATE)
+		fprintf(stderr, "%s:__pmGetAddrInfo: getaddrinfo(%s, ...) -> %d %s\n", __FILE__, hostName, sts, gai_strerror(sts));
+#endif
 	    __pmHostEntFree(hostEntry);
 	    hostEntry = NULL;
 	}
