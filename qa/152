@@ -21,14 +21,13 @@ N=`sed -n '/value/s/    value //p' $tmp.out`
 echo "N=$N" >>$here/$seq.full
 sed "s/$N/N/" $tmp.out
 # expect N+4, but pmie processes come and go, so N+4 +/- 1 seems
-# aout right
+# about right
 #
 N=`expr $N + 4`
-PAT="($N"
-X=`expr $N - 1`
-PAT="$PAT|$X"
-X=`expr $N + 1`
-PAT="$PAT|$X)"
+MIN=`expr $N - 1`
+MAX=`expr $N + 1`
+PAT="($MIN|$N|$MAX)"
+echo "PAT=$PAT" >>$here/$seq.full
 
 for i in 1 2 3 4
 do
@@ -51,7 +50,10 @@ pminfo -f pmcd.numclients | tee -a $here/$seq.full | sed -e '/^$/d' >$tmp.out
 
 if egrep "value $PAT" $tmp.out >/dev/null
 then
-    sed "s/$N/N+4/" $tmp.out
+    sed <$tmp.out \
+	-e "s/$MIN/N+4/" \
+	-e "s/$N/N+4/" \
+	-e "s/$MAX/N+4/"
 else
     echo
     echo "Error: expected value $N"
