@@ -270,7 +270,7 @@ fi
 _echo ""
 _echo "Now wait for pmcd to timeout..."
 _echo ""
-sleep 6
+sleep 8
 
 ps $PCP_PS_ALL_FLAGS >$tmp.ps
 egrep '[P]ID|[p]m' $tmp.ps >>$seq.full
