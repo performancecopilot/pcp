@@ -51,7 +51,7 @@ for inst in "bin-100" "bin-100,bin-500,bin-900"
 do
     echo
     echo "All volumes present ... $inst ..."
-    pmval -O $offset -D128 -t2 -a ok-mv-bar -i $inst sampledso.bin 2>err >out
+    pmval -z -O $offset -D128 -t2 -a ok-mv-bar -i $inst sampledso.bin 2>err >out
     egrep 'Skip|Change' err
     _filter <out
     [ -f die ] && exit
@@ -59,7 +59,7 @@ do
     echo
     echo "First volume missing ... $inst ..."
     mv ok-mv-bar.0 foo.0
-    pmval -O $offset -D128 -t2 -a ok-mv-bar -i $inst sampledso.bin 2>err >out
+    pmval -z -O $offset -D128 -t2 -a ok-mv-bar -i $inst sampledso.bin 2>err >out
     egrep 'Skip|Change' err
     _filter <out
     [ -f die ] && exit
@@ -68,7 +68,7 @@ do
     echo
     echo "Last volume missing ... $inst ..."
     mv ok-mv-bar.3 foo.3
-    pmval -O $offset -D128 -t2 -a ok-mv-bar -i $inst sampledso.bin 2>err >out
+    pmval -z -O $offset -D128 -t2 -a ok-mv-bar -i $inst sampledso.bin 2>err >out
     egrep 'Skip|Change' err
     _filter <out
     [ -f die ] && exit
@@ -77,7 +77,7 @@ do
     echo
     echo "Second volume missing ... $inst ..."
     mv ok-mv-bar.1 foo.1
-    pmval -O $offset -D128 -t2 -a ok-mv-bar -i $inst sampledso.bin 2>err >out
+    pmval -z -O $offset -D128 -t2 -a ok-mv-bar -i $inst sampledso.bin 2>err >out
     egrep 'Skip|Change' err
     _filter <out
     [ -f die ] && exit
@@ -86,7 +86,7 @@ do
     echo
     echo "Second last volume missing ... $inst ..."
     mv ok-mv-bar.2 foo.2
-    pmval -O $offset -D128 -t2 -a ok-mv-bar -i $inst sampledso.bin 2>err >out
+    pmval -z -O $offset -D128 -t2 -a ok-mv-bar -i $inst sampledso.bin 2>err >out
     egrep 'Skip|Change' err
     _filter <out
     [ -f die ] && exit
@@ -97,7 +97,7 @@ do
     mv ok-mv-bar.0 foo.0
     mv ok-mv-bar.2 foo.2
     mv ok-mv-bar.3 foo.3
-    pmval -O $offset -D128 -t2 -a ok-mv-bar -i $inst sampledso.bin 2>err >out
+    pmval -z -O $offset -D128 -t2 -a ok-mv-bar -i $inst sampledso.bin 2>err >out
     egrep 'Skip|Change' err
     _filter <out
     [ -f die ] && exit
