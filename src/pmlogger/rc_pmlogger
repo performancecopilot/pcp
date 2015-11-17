@@ -277,25 +277,21 @@ case "$1" in
 	    # issue a warning if there's no chkconfig/crontab support
 	    if is_chkconfig_on pmlogger
 	    then
-		_start_pmlogger
+		:
 	    elif [ "$0" = "$pmprog" -o "$0" = "$rcprog" ]
 	    then
 		echo "$prog: Warning: Performance Co-Pilot archive logger(s) not permanently enabled."
 		chkconfig_on_msg pmlogger
 	    fi
 
+	    _start_pmlogger
 	fi
 
 	status=0
         ;;
 
   'stop')
-	if is_chkconfig_on pmlogger
-	then
-	    _shutdown verbose
-	else
-	    _shutdown quietly
-	fi
+	_shutdown verbose
 	status=0
         ;;
 
