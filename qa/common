@@ -749,7 +749,7 @@ else
 	# running QA in the tree
 	${MAKE:-make} -f GNUmakefile.install setup
 	cd pmdas
-	if ${MAKE:-make} setup >$tmp.tmp 2>&1
+	if ${MAKE:-make} -f GNUmakefile.install setup >$tmp.tmp 2>&1
 	then
 	    :
 	else

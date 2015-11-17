@@ -78,6 +78,7 @@ if [ -z "$current" ]
 then
     echo "Arrgh ... cannot get current primary pmlogger timestamp from"
     pminfo -f pmcd.pmlogger.archive
+    ls -l $PCP_RUN_DIR/pmlogger*
     status=1
     exit
 fi
