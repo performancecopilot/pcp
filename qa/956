@@ -71,7 +71,7 @@ do
 	break
     fi
     pmsleep 0.2
-    i=`expr i + 1`
+    i=`expr $i + 1`
 done
 if [ -f $tmp.tmp ]
 then
