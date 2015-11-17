@@ -64,7 +64,7 @@ else
     echo "Error: unable to read $PCP_DIR/etc/pcp.env!" >&2
     exit 1
 fi
-rm -f /tmp/$$.*
+sudo rm -rf /tmp/$$ /tmp/$$.*
 echo "log mandatory on once { hinv.ncpu }" >/tmp/$$.config
 echo >>/tmp/$$.config
 echo "[access]" >>/tmp/$$.config
@@ -105,6 +105,9 @@ End-of-File
 	    if [ $i = 10 ]
 	    then
 		echo "Arrgh ... pmlogger (pid=$pid) on host $host failed to start after 20 seconds"
+		ssh -q pcpqa@$host "ps | grep $pid"
+		ssh -q pcpqa@$host "ls -l /tmp/$base.*"
+		ssh -q pcpqa@$host "cat /tmp/$base.log"
 		exit 1
 	    fi
 	fi
@@ -136,11 +139,21 @@ End-of-File
     #
     sleep 2
 
+    echo "after first pmlc session ..." >>$seq.full
+    ssh -q pcpqa@$host "ps | grep $pid" >>$seq.full 2>&1
+    ssh -q pcpqa@$host "ls -l /tmp/$base.*" >>$seq.full 2>&1
+    ssh -q pcpqa@$host "cat /tmp/$base.log" >>$seq.full 2>&1
+
     cat <<End-of-File | pmlc 2>&1 | _filter
 connect $pid@$host
 log mandatory off pmcd.agent.type ["sampledso"]
 query pmcd.agent.type ["sample" "pmcd" "sampledso"]
 End-of-File
+
+    echo "after second pmlc session ..." >>$seq.full
+    ssh -q pcpqa@$host "ps | grep $pid" >>$seq.full 2>&1
+    ssh -q pcpqa@$host "ls -l /tmp/$base.*" >>$seq.full 2>&1
+    ssh -q pcpqa@$host "cat /tmp/$base.log" >>$seq.full 2>&1
 
     # the failures
     #
