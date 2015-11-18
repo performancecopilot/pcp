@@ -326,6 +326,9 @@ _test_pmda()
     cat $tmp.pminfo >>$here/$seq.full
 
     cat $tmp.pminfo | _filter_openfds_value
+
+    echo "=== pmcd.log from _test_pmda ===" >>$here/$seq.full
+    cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
 }
 
 _test_client()
@@ -350,6 +353,9 @@ _test_client()
     cat $tmp.pminfo >>$here/$seq.full
     
     cat $tmp.pminfo | _filter_openfds_value
+
+    echo "=== pmcd.log from _test_client ===" >>$here/$seq.full
+    cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
 }
 
 _test_client

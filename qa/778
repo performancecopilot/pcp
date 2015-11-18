@@ -105,7 +105,7 @@ NR >= 3	{ for (i = 1; i <= NF; i++) print NR "|" name[i] "|" $i }'
 #
 _match()
 {
-    rm -f $tmp.match
+    rm -f $tmp.match $tmp.nomatch
     pat="$1"
     egrep "\\|$pat\\|" $tmp.db >$tmp.val.db
     if [ ! -s $tmp.val.db ]
@@ -178,6 +178,9 @@ NR == 2	{ # PCP values
 		  print "$3" >"'$tmp.match'"
 		  exit
 	      }
+	      else {
+		  print "pcp[" j "]=\"" pcp[j] "\" : db=\"" $3 "\"" >"'$tmp.nomatch'"
+	      }
 	  }
 	}'
 
@@ -185,7 +188,8 @@ NR == 2	{ # PCP values
     then
 	echo "$1: match"
     else
-	echo "$1: no match"
+	echo "$1: no match" | tee -a $here/$seq.full
+	cat $tmp.nomatch >>$here/$seq.full
     fi
    
 }
