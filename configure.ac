@@ -287,14 +287,15 @@ then
     AC_DEFINE(IS_FREEBSD, [1], [Platform is FreeBSD])
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
-    if $target_os = kfreebsd
+    if test $target_os = kfreebsd
     then
-	pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
 	pcp_ps_all_flags=-efw
     else
-	pcp_platform_paths='/usr/bin/X11:/usr/bsd'
 	pcp_ps_all_flags=auxww
     fi
+    pcp_platform_paths='/usr/bin/X11'
+    test -d /usr/local/bin && pcp_platform_paths="$pcp_platform_paths:/usr/local/bin"
+    test -d /usr/bsd && pcp_platform_paths="$pcp_platform_paths:/usr/bsd"
 elif test $target_os = gnu
 then
     AC_DEFINE(IS_GNU, [1], [Platform is GNU Hurd])
