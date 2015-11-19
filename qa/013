@@ -27,7 +27,7 @@ trap "rm -f $tmp.* /tmp/bogus.* /tmp/fungus.* /tmp/fungus /tmp/bogus; exit 0" 0 
 
 # real QA test starts here
 echo "For PCP 1.1 Expect cannot open archive error message, and no core file ..."
-echo "For PCP 2.0 -l src/foo.meta is a synonym for -l src/foo, so this works ..."
+echo "For PCP 2.0 -l tmparch/foo.meta is a synonym for -l src/foo, so this works ..."
 
 $sudo rm -f /tmp/bogus.* /tmp/fungus.* /tmp/fungus
 touch /tmp/bogus.verylongsuffix /tmp/fungus
@@ -38,7 +38,7 @@ do
     break
 done
 
-for bad in src/foo.meta /tmp/fungus /tmp/bogus
+for bad in tmparch/foo.meta /tmp/fungus /tmp/bogus
 do
     echo
     if [ -f $bad ]

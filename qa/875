@@ -31,7 +31,7 @@ _run_valgrind src/parsehostattrs local:where/am/i.sock
 _run_valgrind src/parsehostattrs local://tmp/holey.sock?user=pcpqa\&compress
 _run_valgrind src/parsehostattrs local:? | _filter_socket
 
-_run_valgrind src/parsehostattrs unix://tmp/holey.sock?compress
+_run_valgrind src/parsehostattrs unix://tmp/holey.sock?compress\&exclusive
 _run_valgrind src/parsehostattrs unix://?compress | _filter_socket
 
 # success, all done

@@ -30,7 +30,7 @@ unset HTTP_PROXY
 webport=`_find_free_port`
 
 # real QA test starts here
-pmwebd -U $username -l $tmp.out -p $webport 2>$tmp.err &
+pmwebd -U $username -P -l $tmp.out -p $webport 2>$tmp.err &
 webpid=$!
 _wait_for_pmwebd $webport
 

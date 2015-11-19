@@ -694,6 +694,7 @@ Summary: Performance Co-Pilot (PCP) metrics for Elasticsearch
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Requires: perl(LWP::UserAgent)
+BuildRequires: perl(LWP::UserAgent)
 
 %description pmda-elasticsearch
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -800,8 +801,8 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for MySQL
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
-Requires: perl(DBI)
-Requires: perl(DBD::mysql)
+Requires: perl(DBI) perl(DBD::mysql)
+BuildRequires: perl(DBI) perl(DBD::mysql)
 
 %description pmda-mysql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -862,6 +863,7 @@ Summary: Performance Co-Pilot (PCP) metrics for the Nginx Webserver
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Requires: perl(LWP::UserAgent)
+BuildRequires: perl(LWP::UserAgent)
 
 %description pmda-nginx
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -909,12 +911,15 @@ URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
 %if 0%{?fedora} > 16 || 0%{?rhel} > 5
 Requires: postfix-perl-scripts
+BuildRequires: postfix-perl-scripts
 %endif
 %if 0%{?rhel} <= 5
 Requires: postfix
+BuildRequires: postfix
 %endif
 %if "%{_vendor}" == "suse"
 Requires: postfix-doc
+BuildRequires: postfix-doc
 %endif
 
 %description pmda-postfix
@@ -931,8 +936,8 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for PostgreSQL
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
-Requires: perl(DBI)
-Requires: perl(DBD::Pg)
+Requires: perl(DBI) perl(DBD::Pg)
+BuildRequires: perl(DBI) perl(DBD::Pg)
 
 %description pmda-postgresql
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1130,12 +1135,12 @@ Summary: Performance Co-Pilot (PCP) metrics for JSON data
 URL: http://www.pcp.io
 %if !%{disable_python3}
 Requires: python3-pcp
-Requires: python3-jsonpointer
-Requires: python3-six
+Requires: python3-jsonpointer python3-six
+BuildRequires: python3-jsonpointer python3-six
 %else
 Requires: python-pcp
-Requires: python-jsonpointer
-Requires: python-six
+Requires: python-jsonpointer python-six
+BuildRequires: python-jsonpointer python-six
 %endif
 %description pmda-json
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for

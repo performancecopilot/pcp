@@ -2281,6 +2281,7 @@ cd
 @pcp_share_dir@/webapps/*.png
 @pcp_share_dir@/webapps/*.ico
 @pcp_share_dir@/webapps/*.html
+@pcp_share_dir@/webapps/*.txt
 @pcp_share_dir@/webapps/blinkenlights
 
 %files webapp-grafana

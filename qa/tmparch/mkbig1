@@ -9,15 +9,15 @@
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 #
 
-[ -f ../common.rc ] && cd ..	# from src directory
+[ -f ../common.rc ] && cd ..	# from tmparch directory
 . ./common.rc	# for $sudo, $tmp, $here and pcp.env
 . ./common.check
 
-# cleanup any archives in the old location (not src)
+# cleanup any archives in the old location (not tmparch)
 $sudo rm -f big1.*
 
 # don't recreate the archive unless we really have to
-[ -s src/big1.0 -a -s src/big1.1 -a -s src/big1.index -a -s src/big1.meta ] && exit 0
+[ -s tmparch/big1.0 -a -s tmparch/big1.1 -a -s tmparch/big1.index -a -s tmparch/big1.meta ] && exit 0
 
 # 10GB should keep us out of trouble
 free=`_check_freespace 10240`
@@ -37,25 +37,25 @@ _cleanup()
     if [ ! -f $tmp.done ]
     then
 	cd $here/pmdas/bigun
-	$sudo ./Remove >>$here/src/$iam.log
+	$sudo ./Remove >>$here/tmparch/$iam.log
 	cd $here
 	touch $tmp.done
     fi
 }
 
 cd $here/pmdas/bigun
-make >$here/src/$iam.log 2>&1
-$sudo ./Install </dev/null >>$here/src/$iam.log
+make >$here/tmparch/$iam.log 2>&1
+$sudo ./Install </dev/null >>$here/tmparch/$iam.log
 if [ $? != 0 ]
 then
-    echo "bigun pmda Install failed ... see $here/src/$iam.log"
+    echo "bigun pmda Install failed ... see $here/tmparch/$iam.log"
     exit
 fi
-if pmprobe bigun 2>&1 | tee -a $here/src/$iam.log | grep ' [0-9]$'
+if pmprobe bigun 2>&1 | tee -a $here/tmparch/$iam.log | grep ' [0-9]$'
 then
     :
 else
-    echo "bigun pmda Install failed ... see $here/src/$iam.log"
+    echo "bigun pmda Install failed ... see $here/tmparch/$iam.log"
     exit
 fi
 cd $here
@@ -68,11 +68,11 @@ log mandatory on default {
 End-of-File
 
 $sudo rm -f big1.*
-pmlogger -r -c $tmp.config -l $tmp.out -t 10msec -s 2049 src/big1
-echo >>$here/src/$iam.log
-cat $tmp.out >>$here/src/$iam.log
-echo >>$here/src/$iam.log
-ls -l src/big1.* >>$here/src/$iam.log
+pmlogger -r -c $tmp.config -l $tmp.out -t 10msec -s 2049 tmparch/big1
+echo >>$here/tmparch/$iam.log
+cat $tmp.out >>$here/tmparch/$iam.log
+echo >>$here/tmparch/$iam.log
+ls -l tmparch/big1.* >>$here/tmparch/$iam.log
 
 status=0
 exit

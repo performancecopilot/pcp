@@ -261,6 +261,41 @@ context #### indom name=pmcd.client.whoami response code 200
 indom:8388614
   with instances
 context #### indom names=keepalive response code 400
+context #### store name= response code 400
+context #### store name=sample.write_me response code 400
+context #### store name=sample.write_me&value=42 response code 200
+store: success
+context #### store name=sample.write_me&value=bad response code 400
+context #### store name=sample.long.write_me&value=42 response code 200
+store: success
+  sample.long.write_me[42]
+context #### store name=sample.long.write_me&value=bad response code 400
+context #### store name=sample.ulong.write_me&value=42 response code 200
+store: success
+  sample.ulong.write_me[42]
+context #### store name=sample.ulong.write_me&value=bad response code 400
+context #### store name=sample.float.write_me&value=42.0 response code 200
+store: success
+  sample.float.write_me[42]
+context #### store name=sample.string.write_me&value=good response code 200
+store: success
+  sample.string.write_me[good]
+context #### store name=sample.double.write_me&value=bad response code 400
+context #### store name=sample.aggregate.write_me&value=bad response code 400
+context #### store name=sample.colour&value=10&instance=0 response code 200
+store: success
+  sample.colour[111]
+context #### store name=sample.colour&value=20&instance=0,1 response code 200
+store: success
+  sample.colour[121]
+  sample.colour[222]
+context #### store name=sample.colour&value=30&iname=blue response code 200
+store: success
+  sample.colour[331]
+context #### store name=sample.colour&value=40&iname=red,blue response code 200
+store: success
+  sample.colour[141]
+  sample.colour[342]
 sleeping briefly to expire contexts
 context #### metadata names=kernel.all.nprocs response code 400
 context #### indom names=kernel.all.nprocs response code 400

@@ -75,6 +75,29 @@ jsmnstrdup(const char *js, jsmntok_t *tok, char **name)
 }
 
 /*
+ * Heuristic to determine if systemd cgroup names will be used,
+ * or not.  Uglee, but appears to be no better way (previously,
+ * we tested for /sys/fs/cgroup/systemd existance but turns out
+ * the partial systemd installations of some distributions also
+ * satisfy that test).
+ */
+static int
+test_systemd_init(void)
+{
+    FILE *fp = fopen("/proc/1/cmdline", "r");
+    char line[64];
+    int	count;
+
+    if (!fp)
+	return 0;
+    count = fscanf(fp, "%63s", line);
+    fclose(fp);
+    if (count == 1 && strstr(line, "systemd") != NULL)
+	return 1;
+    return 0;
+}
+
+/*
  * Container implementation for the Docker engine
  *
  * Currently uses direct access to the /var/lib/docker/container state
@@ -90,8 +113,7 @@ void
 docker_setup(container_engine_t *dp)
 {
     static const char *docker_default = "/var/lib/docker";
-    static const char *systemd_cgroup = "/sys/fs/cgroup/systemd";
-    const char *cgroup = getenv("PCP_SYSTEMD_CGROUP");
+    const char *systemd_cgroup = getenv("PCP_SYSTEMD_CGROUP");
     const char *docker = getenv("PCP_DOCKER_DIR");
 
     /* determine the location of docker container config.json files */
@@ -101,9 +123,7 @@ docker_setup(container_engine_t *dp)
     dp->path[sizeof(dp->path)-1] = '\0';
 
     /* heuristic to determine which cgroup naming convention in use */
-    if (!cgroup)
-	cgroup = systemd_cgroup;
-    if (access(cgroup, F_OK) == 0)
+    if (systemd_cgroup || test_systemd_init())
 	dp->state |= CONTAINER_STATE_SYSTEMD;
 
     if (pmDebug & DBG_TRACE_ATTR)

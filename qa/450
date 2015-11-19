@@ -18,9 +18,9 @@ status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmlogger -c src/config.foo -s 8 -v 3 $tmp
+pmlogger -c tmparch/config.foo -s 8 -v 3 $tmp
 
-pmlogextract src/mv-foo $tmp $tmp.out
+pmlogextract tmparch/mv-foo $tmp $tmp.out
 
 pmval -U $tmp.out sample.drift 2>&1 \
 | sed \

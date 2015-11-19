@@ -1,0 +1,67 @@
+#!/bin/sh
+# PCP QA Test No. 1042
+# Check that unauthenticated access to proc.* no longer
+# possible using the (deprecated) local pmwebapi methods.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.webapi
+. ./common.python
+
+_check_pmwebd
+_check_requests_json
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+pyscript=src/test_webprocesses.py
+signal=$PCP_BINADM_DIR/pmsignal
+username=`id -u -n`
+webport=`_find_free_port`
+webargs="-U $username -p $webport -v -t5"
+
+_cleanup()
+{
+    if [ "X$webpid" != "X" ]; then
+        $signal -s TERM $webpid
+        webpid=""
+    fi
+    $sudo rm -f $tmp.*
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e 's/\#[0-9][0-9]*/#CONTEXT/g' \
+	-e "s/:$webport/:WEBPORT/g" \
+    # end
+}
+
+# real QA test starts here
+echo '== "permissive" mode (deprecated behaviour)'
+$PCP_BINADM_DIR/pmwebd $webargs -l $tmp.out -P &
+webpid=$!
+echo "permissive webpid=$webpid" >>$seq.full
+_wait_for_pmwebd_logfile $tmp.out $webport
+$python $pyscript --port $webport | _filter
+
+# shut it down, then wait for it
+$signal -s TERM $webpid
+pmsleep 1.25
+
+echo '== enforcing mode (no unauthenticated proc access)'
+$PCP_BINADM_DIR/pmwebd $webargs -l $tmp.out &
+webpid=$!
+echo "enforcing webpid=$webpid" >>$seq.full
+_wait_for_pmwebd_logfile $tmp.out $webport
+$python $pyscript --port $webport | _filter
+
+# success, all done
+status=0
+exit

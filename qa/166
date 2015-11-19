@@ -26,10 +26,10 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
-pmlogreduce -A 1m -t 1m src/reduce-gap $tmp
+pmlogreduce -A 1m -t 1m tmparch/reduce-gap $tmp
 
 echo "--- mark records in input archive ---"
-pmdumplog -z src/reduce-gap | grep '<mark>'
+pmdumplog -z tmparch/reduce-gap | grep '<mark>'
 echo "--- mark records in reduced archive ---"
 pmdumplog -z $tmp | grep '<mark>'
 
@@ -38,12 +38,12 @@ do
     echo
     echo "=== $metric ==="
     echo "--- pmval using input archive ---"
-    pmval -z -A 1m -t 15sec -a src/reduce-gap $metric
+    pmval -z -A 1m -t 15sec -a tmparch/reduce-gap $metric
     if [ $metric = sample.milliseconds ]
     then
 	echo
 	echo "--- raw pmval using input archive ---"
-	pmval -r -f 0 -z -A 1m -t 15sec -a src/reduce-gap $metric
+	pmval -r -f 0 -z -A 1m -t 15sec -a tmparch/reduce-gap $metric
     fi
     echo
     echo "--- pmval -U using reduced archive ---"

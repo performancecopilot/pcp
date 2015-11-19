@@ -1,0 +1,46 @@
+#!/usr/bin/python
+
+from cpmapi import PM_TYPE_U32, PM_TYPE_FLOAT, PM_TYPE_STRING, PM_TYPE_U64
+from pcp import pmapi
+
+import json
+import sys
+import time
+
+class Prototype(object):
+
+    def __init__(self):
+	self.context = None
+	self.opts = pmapi.pmOptions()
+	self.opts.pmSetShortOptions("V?")
+	self.opts.pmSetLongOptionHeader("Options")
+	self.opts.pmSetLongOptionVersion()
+	self.opts.pmSetLongOptionHelp()
+
+    def execute(self):
+	metrics = ('proc.psinfo.pid', 'proc.psinfo.cmd', 'proc.psinfo.nice')
+	pmids = self.context.pmLookupName(metrics)
+	descs = self.context.pmLookupDescs(pmids)
+	result = self.context.pmFetch(pmids)
+	process_list = []
+	for inst in range(result.contents.get_numval(0)):
+	    pid_value = self.context.pmExtractValue(
+			result.contents.get_valfmt(0),
+			result.contents.get_vlist(0, inst),
+			descs[0].contents.type, descs[0].contents.type)
+	    pid =  pid_value.ull
+	    process_list.append(pid)
+
+	self.context.pmFreeResult(result)
+	print json.dumps(process_list)
+
+    def connect(self):
+	self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
+
+
+if __name__ == '__main__':
+    testApp = Prototype()
+    testApp.connect()
+    while True:
+	testApp.execute()
+	time.sleep(1)

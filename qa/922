@@ -120,9 +120,9 @@ else
 End-of-File
 
 pminfo -d sample.step_counter delta.step_counter rate.step_counter
-pmval -z -f3 -w12 -t 60sec -a src/reduce-gap sample.step_counter
-pmval -z -f3 -w12 -r -t 60sec -a src/reduce-gap sample.step_counter
-pmie -z -v -c $tmp.pmie -t 60sec -a src/reduce-gap 2>&1 \
+pmval -z -f3 -w12 -t 60sec -a tmparch/reduce-gap sample.step_counter
+pmval -z -f3 -w12 -r -t 60sec -a tmparch/reduce-gap sample.step_counter
+pmie -z -v -c $tmp.pmie -t 60sec -a tmparch/reduce-gap 2>&1 \
 | _filter_pmie_log
 
 echo

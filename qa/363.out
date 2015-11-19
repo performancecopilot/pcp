@@ -127,7 +127,7 @@ sampledso.bucket ["bin-700"] 700.000 none
 sampledso.bucket ["bin-800"] 800.000 none
 sampledso.bucket ["bin-900"] 900.000 none
 pmcd.pmlogger.port [PID] PORT none
-pmlogsummary: Cannot locate end of archive src/null: Corrupted record in a PCP archive log
+pmlogsummary: Cannot locate end of archive tmparch/null: Corrupted record in a PCP archive log
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
          produce complete information.  Continuing and hoping for the best.

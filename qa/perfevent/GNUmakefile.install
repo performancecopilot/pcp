@@ -16,6 +16,8 @@ include $(PCP_INC_DIR)/builddefs
 default default_pcp setup: $(FAKEFS)
 	tar xf $(FAKEFS)
 
+LDIRT = fakefs
+
 install install_pcp:
 
 include $(BUILDRULES)

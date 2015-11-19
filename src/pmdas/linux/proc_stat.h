@@ -3,6 +3,7 @@
  *
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2008 Aconex.  All Rights Reserved.
+ * Copyright (c) 2015 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,10 +14,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 typedef struct {
@@ -29,6 +26,7 @@ typedef struct {
 	unsigned long long	sirq;
 	unsigned long long	steal;
 	unsigned long long	guest;
+	unsigned long long	guest_nice;
 	unsigned int		ncpu;
 	/* per-cpu */
 	unsigned long long	*p_user;
@@ -40,6 +38,7 @@ typedef struct {
 	unsigned long long	*p_sirq;
 	unsigned long long	*p_steal;
 	unsigned long long	*p_guest;
+	unsigned long long	*p_guest_nice;
 	/* per-node */
 	unsigned long long	*n_user;
 	unsigned long long	*n_sys;
@@ -50,6 +49,7 @@ typedef struct {
 	unsigned long long	*n_sirq;
 	unsigned long long	*n_steal;
 	unsigned long long	*n_guest;
+	unsigned long long	*n_guest_nice;
 
 	unsigned int		ndisk;
 	unsigned int		page[2]; /* unused in 2.6 now in /proc/vmstat */
@@ -58,8 +58,7 @@ typedef struct {
 	unsigned long long	ctxt;
 	unsigned long		btime;
 	unsigned long		processes;
-	pmdaIndom   		 *cpu_indom;
-	unsigned int		hz;
+	pmdaIndom		*cpu_indom;
 } proc_stat_t;
 
 extern int refresh_proc_stat(proc_cpuinfo_t *, proc_stat_t *);

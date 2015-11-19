@@ -112,7 +112,7 @@ _filter <$tmp.trace
 
 echo | tee -a $seq.full
 echo "== pmlogger ==" | tee -a $seq.full
-sed -e 's/1 sec/50 msec/' <src/config.foo >$tmp.config
+sed -e 's/1 sec/50 msec/' <tmparch/config.foo >$tmp.config
 _pre $SRC/pmlogger/src pmlogger
 $SRC/pmlogger/src/pmlogger.debug -Dlock -c $tmp.config -s 20 -l $tmp.log $tmp
 _post $SRC/pmlogger/src pmlogger
@@ -124,7 +124,7 @@ for arch in a b c
 do
     for i in 0 index meta
     do
-	cp src/foo.$i $tmp-$arch.$i
+	cp tmparch/foo.$i $tmp-$arch.$i
     done
 done
 _pre $SRC/pmlogextract pmlogextract

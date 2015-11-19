@@ -23,7 +23,7 @@ for i in 20140417.00.25 20140417.00.55
 do
     for ext in 0 index meta
     do
-	cp src/foo.$ext $tmp.mv/$i.$ext
+	cp tmparch/foo.$ext $tmp.mv/$i.$ext
     done
 done
 

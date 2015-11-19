@@ -1,0 +1,52 @@
+#!/bin/sh
+# simple exerciser for sheet2pcp - XLSX variant
+#
+# Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which sheet2pcp >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "sheet2pcp not installed"
+perl -e "use XML::TokeParser" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl XML::TokeParser module not installed"
+perl -e "use Spreadsheet::XLSX" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl Spreadsheet::XLSX module not installed"
+
+status=0	# success is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+cat <<'End-of-File' >$tmp.mapfile
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- For PCP QA 372 -->
+<sheet heading="1" hostname="time.greenwich.com" datefmt="DMY">
+    <metric sem="PM_SEM_COUNTER">metric.a</metric>
+    <metric sem="PM_SEM_COUNTER">metric.b</metric>
+    <metric>metric.c</metric>
+    <metric type="PM_TYPE_32">metric.d</metric>
+    <metric type="PM_TYPE_STRING">metric.e</metric>
+    <datetime></datetime>
+    <data>metric.a</data>
+    <data>metric.b</data>
+    <data>metric.c</data>
+    <data>metric.d</data>
+    <data>metric.e</data>
+</sheet>
+End-of-File
+
+echo "=== XLSX ==="
+rm -f $tmp.0 $tmp.index $tmp.meta
+sheet2pcp src/simple-resave.xlsx $tmp.mapfile $tmp 2>&1
+[ -f $tmp.0 ] && pmdumplog -az $tmp
+
+# success, all done
+exit

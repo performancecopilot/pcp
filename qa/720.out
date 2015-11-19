@@ -84,14 +84,15 @@ definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
-pmParseHostAttrsSpec("pcp://?compress", ...)
+pmParseHostAttrsSpec("pcp://?compress&exclusive", ...)
+exclusive
 compress
 protocol=pcp
-pmUnparseHostAttrsSpec("pcp://?compress") -> "pcp://?compress"
+pmUnparseHostAttrsSpec("pcp://?compress&exclusive") -> "pcp://?exclusive&compress"
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/parsehostattrs pcp://?compress
+Command: src/parsehostattrs pcp://?compress&exclusive
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

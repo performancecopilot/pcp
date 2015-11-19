@@ -25,27 +25,27 @@ _filter()
 
 echo
 echo "Every metric, every instance"
-pmlogsummary src/bar | _filter
+pmlogsummary tmparch/bar | _filter
 echo
 
 echo "Single noindom metric, no instances"
-pmlogsummary src/bar 'sampledso.milliseconds'
+pmlogsummary tmparch/bar 'sampledso.milliseconds'
 echo
 
 echo "Single noindom metric, bad instances"
-pmlogsummary src/bar 'sampledso.milliseconds[bad]'
+pmlogsummary tmparch/bar 'sampledso.milliseconds[bad]'
 echo
 
 echo "Single indom metric, all instances"
-pmlogsummary src/bar 'sampledso.bin'
+pmlogsummary tmparch/bar 'sampledso.bin'
 echo
 
 echo "Single indom metric, one instance"
-pmlogsummary src/bar 'sampledso.bin[bin-900]'
+pmlogsummary tmparch/bar 'sampledso.bin[bin-900]'
 echo
 
 echo "Single indom metric, bad instance"
-pmlogsummary src/bar 'sampledso.bin[bad]'
+pmlogsummary tmparch/bar 'sampledso.bin[bad]'
 echo
 
 # success, all done

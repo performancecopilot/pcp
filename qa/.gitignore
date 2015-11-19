@@ -17,6 +17,8 @@ big1.*
 check.out
 check.log
 pmlogger.log
+webapi-pmcd-*
+webapi-webd-*
 check.time
 localconfig
 localconfig.h

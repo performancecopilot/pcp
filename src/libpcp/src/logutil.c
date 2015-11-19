@@ -2312,8 +2312,12 @@ pmGetArchiveLabel(pmLogLabel *lp)
 {
     __pmContext		*ctxp;
     ctxp = __pmHandleToPtr(pmWhichContext());
-    if (ctxp == NULL || ctxp->c_type != PM_CONTEXT_ARCHIVE)
+    if (ctxp == NULL) 
 	return PM_ERR_NOCONTEXT;
+    if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_NOCONTEXT;
+    }
     else {
 	__pmLogLabel	*rlp;
 	/*

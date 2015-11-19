@@ -246,7 +246,7 @@ rate.step_counter
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    sample.step_counter
-archive:   src/reduce-gap
+archive:   tmparch/reduce-gap
 host:      kenj-pc
 start:     Wed Jan 19 21:56:48 2005
 end:       Wed Jan 19 22:10:26 2005
@@ -273,7 +273,7 @@ pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    sample.step_counter
-archive:   src/reduce-gap
+archive:   tmparch/reduce-gap
 host:      kenj-pc
 start:     Wed Jan 19 21:56:48 2005
 end:       Wed Jan 19 22:10:26 2005
@@ -295,7 +295,7 @@ interval:  60.00 sec
 22:07:48.422        2700
 22:08:48.422        2740
 22:09:48.422        2780
-pmie: timezone set to local timezone from src/reduce-gap
+pmie: timezone set to local timezone from tmparch/reduce-gap
 raw (DATE): ?
 delta.step_counter (DATE): ?
 rate.step_counter (DATE): ?

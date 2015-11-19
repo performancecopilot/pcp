@@ -404,6 +404,9 @@ ctxflags(__pmHashCtl *attrs, int *flags)
 	*flags |= PM_CTXFLAG_CONTAINER;
     }
 
+    if (__pmHashSearch(PCP_ATTR_EXCLUSIVE, attrs) != NULL)
+	*flags |= PM_CTXFLAG_EXCLUSIVE;
+
     return 0;
 }
 

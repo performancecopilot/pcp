@@ -56,25 +56,25 @@ _filter_pass0()
 # real QA test starts here
 export LC_COLLATE=POSIX
 echo "=== directory traversal and file checks ===" | tee -a $here/$seq.full
-cp src/foo.index $tmp
+cp tmparch/foo.index $tmp
 ( echo; echo "TMP/foo.index alone:" ) | tee -a $here/$seq.full
 pmlogcheck -z -v $tmp/foo >$tmp.out 2>$tmp.err
 _filter
-cp src/foo.0 $tmp
+cp tmparch/foo.0 $tmp
 ( echo; echo "TMP/foo.meta missing:" ) | tee -a $here/$seq.full
 pmlogcheck -z -v $tmp/foo >$tmp.out 2>$tmp.err
 _filter
 rm $tmp/foo.0
-cp src/foo.meta $tmp
+cp tmparch/foo.meta $tmp
 ( echo; echo "TMP/foo.0 missing:" ) | tee -a $here/$seq.full
 pmlogcheck -z -v $tmp/foo >$tmp.out 2>$tmp.err
 _filter
 rm $tmp/foo.index
-cp src/foo.0 $tmp
+cp tmparch/foo.0 $tmp
 ( echo; echo "TMP/foo.index missing:" ) | tee -a $here/$seq.full
 pmlogcheck -z -v $tmp/foo >$tmp.out 2>$tmp.err
 _filter
-cp src/foo.index $tmp
+cp tmparch/foo.index $tmp
 
 touch $tmp/foo
 touch $tmp/foo.

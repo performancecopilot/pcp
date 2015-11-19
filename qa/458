@@ -13,10 +13,11 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ -d $PCP_PMDAS_DIR/logger ] || _notrun "No pmdalogger installed"
-[ $PCP_VER -ge 30610 ] || _notrun "Installed pmdalogger is too old"
 
 _cleanup()
 {
+    [ -f $PCP_VAR_DIR/config/logger/logger.conf.$seq ] && \
+    _restore_config $PCP_VAR_DIR/config/logger/logger.conf
     _restore_pmda_install logger
     if $_needclean
     then
@@ -70,6 +71,8 @@ reg	n	$tmp.reg
 fifo	n	$tmp.fifo
 " > $tmp.conf
 [ -d $PCP_VAR_DIR/config/logger ] || $sudo mkdir -p $PCP_VAR_DIR/config/logger
+[ -f $PCP_VAR_DIR/config/logger/logger.conf ] && \
+_save_config $PCP_VAR_DIR/config/logger/logger.conf
 $sudo cp $tmp.conf $PCP_VAR_DIR/config/logger/logger.conf
 
 # install PMDA accepting the defaults (esp config file)

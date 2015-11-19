@@ -21,6 +21,7 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 root=$tmp.root
+export LINUX_HERTZ=100
 export LINUX_STATSPATH=$root
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 
@@ -32,9 +33,22 @@ do
     tar xzf $tgz
     base=`basename $tgz`
 
-    echo "== Checking metric values - $base"
+    echo "== Checking hinv metric values - $base"
     pminfo -L -K clear -K add,60,$pmda -f hinv.cpu.online hinv.node.online
     echo && echo "== done" && echo
+
+    echo "== Checking aggregate CPU metric values - $base"
+    pminfo -L -K clear -K add,60,$pmda -f kernel.all.cpu
+    echo && echo "== done" && echo
+
+    echo "== Checking per-CPU metric values - $base"
+    pminfo -L -K clear -K add,60,$pmda -f kernel.percpu.cpu
+    echo && echo "== done" && echo
+
+    echo "== Checking per-node CPU metric values - $base"
+    pminfo -L -K clear -K add,60,$pmda -f kernel.pernode.cpu
+    echo && echo "== done" && echo
+
     cd $here
 done
 

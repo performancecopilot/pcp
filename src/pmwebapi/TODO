@@ -2,7 +2,6 @@
 - ssl
 - -A generalization (multiple options?  search subdirectories?)
 - discovery API for hosts, archives
-- pmStore ?
 - missing APIs
   - time control
   - or _metric&intervals=STARTTIME&count=COUNT

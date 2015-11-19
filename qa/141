@@ -16,21 +16,21 @@ trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
 echo "=== bar bar ==="
-cd src
-./badloglabel bar bar
+cd tmparch
+../src/badloglabel bar bar
 
 echo
 echo "=== bar ./bar ==="
-./badloglabel bar ./bar
+../src/badloglabel bar ./bar
 
 echo
 echo "=== ./bar ./bar ==="
-./badloglabel ./bar ./bar
+../src/badloglabel ./bar ./bar
 
 echo
 echo "=== bar ...fullpath.../bar ==="
-./badloglabel bar `pwd`/bar
+../src/badloglabel bar `pwd`/bar
 
 echo
 echo "=== ...fullpath.../bar ...fullpath.../bar ==="
-./badloglabel `pwd`/bar `pwd`/bar
+../src/badloglabel `pwd`/bar `pwd`/bar

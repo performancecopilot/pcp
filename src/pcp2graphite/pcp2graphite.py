@@ -77,8 +77,8 @@ network.""")
         self.opts.pmSetLongOption("text-port", 1, 'P', '',
                                   "graphite plaintext port (usually 2003)")
         self.opts.pmSetLongOption("units", 1, 'u', '',
-                                  "rescale all metric units " +
-                                  "(e.g., \"mbytes/5 sec\")")
+                                  "rescale units " +
+                                  "(e.g. \"MB\", will omit incompatible units)")
         self.opts.pmSetLongOption("prefix", 1, 'm', '',
                                   "prefix for metric names (default \"pcp.\")")
         self.opts.pmSetLongOptionHelp()

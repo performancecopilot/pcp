@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 372
-# simple exerciser for sheet2pcp
+# simple exerciser for sheet2pcp - base CSV variant
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
@@ -53,30 +53,6 @@ echo
 echo "=== resaved CSV ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
 sheet2pcp src/simple-resave.csv $tmp.mapfile $tmp 2>&1
-[ -f $tmp.0 ] && pmdumplog -az $tmp
-
-echo
-echo "=== ODS ==="
-rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src/simple.ods $tmp.mapfile $tmp 2>&1
-[ -f $tmp.0 ] && pmdumplog -az $tmp
-
-echo
-echo "=== SXC ==="
-rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src/simple.sxc $tmp.mapfile $tmp 2>&1
-[ -f $tmp.0 ] && pmdumplog -az $tmp
-
-echo
-echo "=== XLSX ==="
-rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src/simple-resave.xlsx $tmp.mapfile $tmp 2>&1
-[ -f $tmp.0 ] && pmdumplog -az $tmp
-
-echo
-echo "=== XLS ==="
-rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src/simple.xls $tmp.mapfile $tmp 2>&1
 [ -f $tmp.0 ] && pmdumplog -az $tmp
 
 echo

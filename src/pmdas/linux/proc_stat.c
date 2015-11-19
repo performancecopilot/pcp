@@ -94,9 +94,6 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	started = 1;
 	memset(proc_stat, 0, sizeof(*proc_stat));
 
-	/* hz of running kernel */
-	proc_stat->hz = sysconf(_SC_CLK_TCK);
-
 	/* scan ncpus */
 	for (i=0; i < nbufindex; i++) {
 	    if (strncmp("cpu", bufindex[i], 3) == 0 && isdigit((int)bufindex[i][3]))
@@ -129,6 +126,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	proc_stat->p_sirq = (unsigned long long *)calloc(1, n);
 	proc_stat->p_steal = (unsigned long long *)calloc(1, n);
 	proc_stat->p_guest = (unsigned long long *)calloc(1, n);
+	proc_stat->p_guest_nice = (unsigned long long *)calloc(1, n);
 
 	n = proc_cpuinfo->node_indom->it_numinst * sizeof(unsigned long long);
 	proc_stat->n_user = calloc(1, n);
@@ -140,6 +138,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	proc_stat->n_sirq = calloc(1, n);
 	proc_stat->n_steal = calloc(1, n);
 	proc_stat->n_guest = calloc(1, n);
+	proc_stat->n_guest_nice = calloc(1, n);
     }
     else {
 	/* reset per-node stats */
@@ -153,25 +152,27 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	memset(proc_stat->n_sirq, 0, n);
 	memset(proc_stat->n_steal, 0, n);
 	memset(proc_stat->n_guest, 0, n);
+	memset(proc_stat->n_guest_nice, 0, n);
     }
     /*
      * cpu  95379 4 20053 6502503
      * 2.6 kernels have 3 additional fields
      * for wait, irq and soft_irq.
      */
-    strcpy(fmt, "cpu %llu %llu %llu %llu %llu %llu %llu %llu %llu");
+    strcpy(fmt, "cpu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu");
     n = sscanf((const char *)bufindex[0], fmt,
 	&proc_stat->user, &proc_stat->nice,
 	&proc_stat->sys, &proc_stat->idle,
 	&proc_stat->wait, &proc_stat->irq,
 	&proc_stat->sirq, &proc_stat->steal,
-	&proc_stat->guest);
+	&proc_stat->guest, &proc_stat->guest_nice);
 
     /*
      * per-cpu stats
      * e.g. cpu0 95379 4 20053 6502503
      * 2.6 kernels have 3 additional fields for wait, irq and soft_irq.
-     * More recent (2008) 2.6 kernels have an extra field for guest.
+     * More recent (2008) 2.6 kernels have an extra field for guest and
+     * also (since 2009) guest_nice.
      */
     if (proc_stat->ncpu == 1) {
 	/*
@@ -189,9 +190,10 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	proc_stat->p_sirq[0] = proc_stat->n_sirq[0] = proc_stat->sirq;
 	proc_stat->p_steal[0] = proc_stat->n_steal[0] = proc_stat->steal;
     	proc_stat->p_guest[0] = proc_stat->n_guest[0] = proc_stat->guest;
+    	proc_stat->p_guest_nice[0] = proc_stat->n_guest_nice[0] = proc_stat->guest_nice;
     }
     else {
-	strcpy(fmt, "cpu%d %llu %llu %llu %llu %llu %llu %llu %llu %llu");
+	strcpy(fmt, "cpu%d %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu");
 	for (i=0; i < proc_stat->ncpu; i++) {
 	    for (j=0; j < nbufindex; j++) {
 		if (strncmp("cpu", bufindex[j], 3) == 0 && isdigit((int)bufindex[j][3])) {
@@ -208,7 +210,8 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 			    &proc_stat->p_irq[cpunum],
 			    &proc_stat->p_sirq[cpunum],
 			    &proc_stat->p_steal[cpunum],
-			    &proc_stat->p_guest[cpunum]);
+			    &proc_stat->p_guest[cpunum],
+			    &proc_stat->p_guest_nice[cpunum]);
 			if ((node = proc_cpuinfo->cpuinfo[cpunum].node) != -1) {
 			    proc_stat->n_user[node] += proc_stat->p_user[cpunum];
 			    proc_stat->n_nice[node] += proc_stat->p_nice[cpunum];
@@ -219,6 +222,7 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 			    proc_stat->n_sirq[node] += proc_stat->p_sirq[cpunum];
 			    proc_stat->n_steal[node] += proc_stat->p_steal[cpunum];
 			    proc_stat->n_guest[node] += proc_stat->p_guest[cpunum];
+			    proc_stat->n_guest_nice[node] += proc_stat->p_guest_nice[cpunum];
 			}
 		    }
 		}

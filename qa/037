@@ -39,7 +39,7 @@ $1 == "refcnt" && $11 == "origin"	{ if (t == 0) {
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # real QA test starts here
-for arch in src/foo src/bar src/mv-foo src/mv-bar src/noti-foo src/noti-bar
+for arch in tmparch/foo tmparch/bar tmparch/mv-foo tmparch/mv-bar tmparch/noti-foo tmparch/noti-bar
 do
     echo
     echo "Archive $arch"

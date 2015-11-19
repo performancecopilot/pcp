@@ -4,9 +4,10 @@ All volumes present ... bin-100 ...
 __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 1
 __pmLogChangeVol: change to volume 2
+Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    sampledso.bin
-archive:   mv-bar
+archive:   ok-mv-bar
 host:      HOST
 start:     DATE
 end:       DATE
@@ -22,9 +23,10 @@ TIMESTAMP           100
 First volume missing ... bin-100 ...
 __pmLogChangeVol: change to volume 1
 __pmLogChangeVol: change to volume 2
+Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    sampledso.bin
-archive:   mv-bar
+archive:   ok-mv-bar
 host:      HOST
 start:     DATE
 end:       DATE
@@ -41,9 +43,10 @@ Last volume missing ... bin-100 ...
 __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 1
 __pmLogChangeVol: change to volume 2
+Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    sampledso.bin
-archive:   mv-bar
+archive:   ok-mv-bar
 host:      HOST
 start:     DATE
 end:       DATE
@@ -63,9 +66,10 @@ __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 2
 __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 2
+Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    sampledso.bin
-archive:   mv-bar
+archive:   ok-mv-bar
 host:      HOST
 start:     DATE
 end:       DATE
@@ -82,9 +86,10 @@ Second last volume missing ... bin-100 ...
 __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 1
 __pmLogChangeVol: change to volume 3
+Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    sampledso.bin
-archive:   mv-bar
+archive:   ok-mv-bar
 host:      HOST
 start:     DATE
 end:       DATE
@@ -99,9 +104,10 @@ TIMESTAMP           100
 
 All volumes but second missing ... bin-100 ...
 __pmLogChangeVol: change to volume 1
+Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    sampledso.bin
-archive:   mv-bar
+archive:   ok-mv-bar
 host:      HOST
 start:     DATE
 end:       DATE
@@ -118,9 +124,10 @@ __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 1
 __pmLogChangeVol: change to volume 2
 __pmLogChangeVol: change to volume 3
+Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    sampledso.bin
-archive:   mv-bar
+archive:   ok-mv-bar
 host:      HOST
 start:     DATE
 end:       DATE
@@ -137,9 +144,10 @@ First volume missing ... bin-100,bin-500,bin-900 ...
 __pmLogChangeVol: change to volume 1
 __pmLogChangeVol: change to volume 2
 __pmLogChangeVol: change to volume 3
+Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    sampledso.bin
-archive:   mv-bar
+archive:   ok-mv-bar
 host:      HOST
 start:     DATE
 end:       DATE
@@ -156,9 +164,10 @@ Last volume missing ... bin-100,bin-500,bin-900 ...
 __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 1
 __pmLogChangeVol: change to volume 2
+Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    sampledso.bin
-archive:   mv-bar
+archive:   ok-mv-bar
 host:      HOST
 start:     DATE
 end:       DATE
@@ -179,9 +188,10 @@ __pmLogChangeVol: change to volume 2
 __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 2
 __pmLogChangeVol: change to volume 3
+Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    sampledso.bin
-archive:   mv-bar
+archive:   ok-mv-bar
 host:      HOST
 start:     DATE
 end:       DATE
@@ -198,9 +208,10 @@ Second last volume missing ... bin-100,bin-500,bin-900 ...
 __pmLogChangeVol: change to volume 0
 __pmLogChangeVol: change to volume 1
 __pmLogChangeVol: change to volume 3
+Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    sampledso.bin
-archive:   mv-bar
+archive:   ok-mv-bar
 host:      HOST
 start:     DATE
 end:       DATE
@@ -215,9 +226,10 @@ TIMESTAMP           100         500         900
 
 All volumes but second missing ... bin-100,bin-500,bin-900 ...
 __pmLogChangeVol: change to volume 1
+Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    sampledso.bin
-archive:   mv-bar
+archive:   ok-mv-bar
 host:      HOST
 start:     DATE
 end:       DATE

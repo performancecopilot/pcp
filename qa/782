@@ -35,6 +35,7 @@ $sudo cp $PCP_PMWEBDOPTIONS_PATH $tmp.backup
 # create an old-format configuration file
 cat <<EOF >$tmp.config
 -p $webport
+-P
 EOF
 $sudo cp $tmp.config $PCP_PMWEBDOPTIONS_PATH
 
@@ -49,7 +50,7 @@ curl -s -S "http://localhost:$webport/pmapi/context?local=anything" -D- 2>&1 | _
 $sudo cp $tmp.backup $PCP_PMWEBDOPTIONS_PATH
 $sudo rm -f $tmp.backup
 $sudo $PCP_RC_DIR/pmwebd restart
-_wait_for_pmwebd
+_wait_for_pmwebd 44323
 
 # success, all done
 status=0

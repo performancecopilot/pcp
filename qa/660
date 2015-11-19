@@ -77,14 +77,14 @@ echo "ipv6local=$ipv6local" >>$seq.full
 $sudo $PCP_RC_DIR/pmwebd stop >/dev/null 2>&1
 $sudo $signal -a pmwebd >/dev/null 2>&1
 
-webargs="-U $username"
+webargs="-U $username -P"
 
 echo | tee -a $seq.full
 echo "=== pmwebd default startup  ===" | tee -a $seq.full
 $PCP_BINADM_DIR/pmwebd $webargs -l $tmp.out -v -t10 &
 
 echo "pid=$!" >>$seq.full
-_wait_for_pmwebd_logfile $tmp.out
+_wait_for_pmwebd_logfile $tmp.out 44323
 
 # prepare the expected output file based on detected mode
 rm -f $seq.out
