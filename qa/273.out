@@ -1216,7 +1216,6 @@ sample.long.one:
 pm*InDom: inst=[0] {Unknown or illegal instance domain identifier}
 pmGetInDom: {Unknown or illegal instance domain identifier}
 Error: Unknown or illegal instance domain identifier
-
 pmval: instance bin-123 not available
 __pmFetchLocal: calling ???_profile(domain: 30), context: 0
 __pmFetchLocal: [0] PMID=30.0.54 nval=Unknown or illegal metric identifier

@@ -84,11 +84,9 @@ No values available
 Semantic error: derived metric d: DELTA(sample.string.hullo): Non-arithmetic operand for function
 Semantic error: derived metric r: RATE(sample.string.hullo): Non-arithmetic operand for function
 pmval: pmLookupDesc: Unknown or illegal metric identifier
-
 Semantic error: derived metric d: DELTA(sample.string.hullo): Non-arithmetic operand for function
 Semantic error: derived metric r: RATE(sample.string.hullo): Non-arithmetic operand for function
 pmval: pmLookupDesc: Unknown or illegal metric identifier
-
 
 --- sample.kbyte_rate ---
 Semantic error: derived metric r: RATE(sample.kbyte_rate): Incorrect time dimension for operand
@@ -102,4 +100,3 @@ No values available
 abs(N) < 4096
 Semantic error: derived metric r: RATE(sample.kbyte_rate): Incorrect time dimension for operand
 pmval: pmLookupDesc: Unknown or illegal metric identifier
-

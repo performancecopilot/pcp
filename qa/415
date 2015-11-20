@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 415
-# check various tools with PM_TYPE_EVENT metrics
+# check pmstore with incompatible (EVENT/AGGR) metrics
 #
 # Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
 #
@@ -26,9 +26,9 @@ _do()
 }
 
 # real QA test starts here
-_do pmval -s 1 sample.event.records
-_do pmval -s 1 -a archives/eventrec-old sample.event.records
 _do pmstore sample.event.records 1
+_do pmstore sample.aggregate.write_me 1
+_do pmstore sample.event.highres_records 1
 
 # success, all done
 exit

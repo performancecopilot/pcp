@@ -56,7 +56,6 @@ OTHER_SUBDIRS = \
 	pmdumplog \
 	pmdumptext \
 	pmerr \
-	pmevent \
 	pmgenmap \
 	pmgetopt \
 	pmhostname \

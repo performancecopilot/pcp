@@ -104,7 +104,7 @@ sampledso.event.records[bogus]: 2 event records
   TIMESTAMP --- event record [1] flags 0x1 (point) ---
     sampledso.event.param_string "bingo!"
 
-=== -t 0.1 -s 4 sampledso.event.records[fungus] sampledso.event.records[bogus] ===
+=== -t 0.1 -s 4 -i fungus,bogus sampledso.event.records ===
 host:      localhost
 samples:   4
 interval:  0.10 sec

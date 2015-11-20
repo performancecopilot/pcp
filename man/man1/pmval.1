@@ -1,6 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2015 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -16,12 +17,13 @@
 .\"
 .TH PMVAL 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmval\f1 \- performance metrics value dumper
+\f3pmval\f1,
+\f3pmevent\f1 \- arbitrary performance metrics value dumper
 .\" literals use .B or \f3
 .\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3pmval\f1
-[\f3\-dgrz\f1]
+[\f3\-dgLrvz\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-f\f1 \f2N\f1]
@@ -37,6 +39,7 @@
 [\f3\-t\f1 \f2interval\f1]
 [\f3\-U\f1 \f2archive\f1]
 [\f3\-w\f1 \f2width\f1]
+[\f3\-x\f1 \f2pattern\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 \f2metricname\f1
 .SH DESCRIPTION
@@ -300,6 +303,33 @@ Set the width of each column of output to be
 columns.
 If not specified columns are wide
 enough to accommodate the largest value of the type being printed.
+.RE
+.TP
+.B \-x
+The given
+.I filter
+is sent to the performance metric domain agent for the requested
+.I metricname
+before any values are requested.
+This serves two purposes.
+Firstly, it provides a mechanism for server-side event filtering
+that is customisable for individual event streams.
+In addition, some performance metrics domain agents also use the
+PMCD store mechanism to provide a basic security model (e.g. for
+sensitive log files, only a client host with
+.BR pmStore (3)
+access would be able to access the event stream).
+.RE
+.TP
+.B \-Z
+By default,
+.B pmevent
+reports the time of day according to the local timezone on the
+system where
+.B pmevent
+is run.
+The
+.B \-Z
 .TP
 .B \-Z
 By default,
@@ -367,6 +397,7 @@ as described in
 .BR pmlogger (1),
 .BR pmtime (1),
 .BR PMAPI (3),
+.BR pmStore (3),
 .BR __pmSpecLocalPMDA (3),
 .BR pcp.conf (5)
 and
