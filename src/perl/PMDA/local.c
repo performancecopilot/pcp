@@ -412,9 +412,9 @@ multiread:
 	    bytes = __pmRead(fd, buffer + offset, sizeof(buffer)-1 - offset);
 	    if (bytes < 0) {
 		if ((files[i].type == FILE_TAIL) &&
-		    (oserror() == EINTR) ||
-		    (oserror() == EAGAIN) ||
-		    (oserror() == EWOULDBLOCK))
+		    ((oserror() == EINTR) ||
+		     (oserror() == EAGAIN) ||
+		     (oserror() == EWOULDBLOCK)))
 		    continue;
 		if (files[i].type == FILE_SOCK) {
 		    close(files[i].fd);
