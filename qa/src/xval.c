@@ -468,7 +468,7 @@ error_cases:
 
     pv.value.pval = vbp;
     vbp->vlen = PM_VAL_HDR_SIZE + sizeof(bv.ll);
-    vbp->vtype = PM_TYPE_NOSUPPORT;
+    vbp->vtype = (PM_TYPE_NOSUPPORT & 0xff);
     avp = (void *)vbp->vbuf;
     bv.ll = 12345;
     memcpy(avp, (void *)&bv.ll, sizeof(bv.ll));
