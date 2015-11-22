@@ -73,7 +73,7 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0,0,0,0,0,0) } },
     { (void *)"hinv.physmem",
       { PMDA_PMID(CL_SYSCTL,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
-	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+	PMDA_PMUNITS(1,0,0,PM_SPACE_MBYTE,0,0) } },
     { (void *)"kernel.all.load",
       { PMDA_PMID(CL_SYSCTL,2), PM_TYPE_FLOAT, LOADAV_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) } },
@@ -505,7 +505,8 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 1:		/* hinv.physmem */
 		sts = do_sysctl(mp, sizeof(long));
 		if (sts > 0) {
-		    atom->ull = *((long *)mp->m_data);
+		    /* stsctl() returns bytes, convert to MBYTES */
+		    atom->ull = (*((long *)mp->m_data))/(1024*1024);
 		    sts = 1;
 		}
 		break;
