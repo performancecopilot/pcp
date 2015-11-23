@@ -62,21 +62,19 @@ _webapi_response_filter()
 
 _webapi_json_pretty()
 {
-    # python 2.6+:  python -mjson.tool
-    # python 2.5-:
-    python -c 'from simplejson.tool import main; main()' \
+    $python -c "from json.tool import main; main()" \
     | sed -e 's/, $/,/g'
 }
 
 _webapi_img_pretty()
 {
-    python -c "
+    imgname=$1
+
+    $python -c "
 import sys
 from PIL import Image
-from StringIO import StringIO
-data = sys.stdin.read()
-img = Image.open(StringIO(data))
-print 'size=%dx%d\n' % (img.size[0], img.size[1])
+img = Image.open('$imgname')
+print('size=%dx%d\n' % (img.size[0], img.size[1]))
 "
 }
 
