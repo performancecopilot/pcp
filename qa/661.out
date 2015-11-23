@@ -60,49 +60,49 @@ metric tree iteration
     {
         "allowChildren": 1,
         "expandable": 1,
-        "id": "src-2F-naslog-2E-meta.disk",
+        "id": "archives-2F-naslog-2E-meta.disk",
         "leaf": 0,
         "text": "disk"
     },
     {
         "allowChildren": 1,
         "expandable": 1,
-        "id": "src-2F-naslog-2E-meta.hinv",
+        "id": "archives-2F-naslog-2E-meta.hinv",
         "leaf": 0,
         "text": "hinv"
     },
     {
         "allowChildren": 1,
         "expandable": 1,
-        "id": "src-2F-naslog-2E-meta.kernel",
+        "id": "archives-2F-naslog-2E-meta.kernel",
         "leaf": 0,
         "text": "kernel"
     },
     {
         "allowChildren": 1,
         "expandable": 1,
-        "id": "src-2F-naslog-2E-meta.network",
+        "id": "archives-2F-naslog-2E-meta.network",
         "leaf": 0,
         "text": "network"
     },
     {
         "allowChildren": 1,
         "expandable": 1,
-        "id": "src-2F-naslog-2E-meta.pmcd",
+        "id": "archives-2F-naslog-2E-meta.pmcd",
         "leaf": 0,
         "text": "pmcd"
     },
     {
         "allowChildren": 1,
         "expandable": 1,
-        "id": "src-2F-naslog-2E-meta.swap",
+        "id": "archives-2F-naslog-2E-meta.swap",
         "leaf": 0,
         "text": "swap"
     },
     {
         "allowChildren": 1,
         "expandable": 1,
-        "id": "src-2F-naslog-2E-meta.xfs",
+        "id": "archives-2F-naslog-2E-meta.xfs",
         "leaf": 0,
         "text": "xfs"
     }
@@ -112,37 +112,37 @@ metric tree iteration
         {
             "is_leaf": 0,
             "name": "disk",
-            "path": "src-2F-naslog-2E-meta.disk."
+            "path": "archives-2F-naslog-2E-meta.disk."
         },
         {
             "is_leaf": 0,
             "name": "hinv",
-            "path": "src-2F-naslog-2E-meta.hinv."
+            "path": "archives-2F-naslog-2E-meta.hinv."
         },
         {
             "is_leaf": 0,
             "name": "kernel",
-            "path": "src-2F-naslog-2E-meta.kernel."
+            "path": "archives-2F-naslog-2E-meta.kernel."
         },
         {
             "is_leaf": 0,
             "name": "network",
-            "path": "src-2F-naslog-2E-meta.network."
+            "path": "archives-2F-naslog-2E-meta.network."
         },
         {
             "is_leaf": 0,
             "name": "pmcd",
-            "path": "src-2F-naslog-2E-meta.pmcd."
+            "path": "archives-2F-naslog-2E-meta.pmcd."
         },
         {
             "is_leaf": 0,
             "name": "swap",
-            "path": "src-2F-naslog-2E-meta.swap."
+            "path": "archives-2F-naslog-2E-meta.swap."
         },
         {
             "is_leaf": 0,
             "name": "xfs",
-            "path": "src-2F-naslog-2E-meta.xfs."
+            "path": "archives-2F-naslog-2E-meta.xfs."
         }
     ]
 }
@@ -151,7 +151,7 @@ metric tree iteration
         {
             "is_leaf": 0,
             "name": "all",
-            "path": "src-2F-naslog-2E-meta.kernel.all."
+            "path": "archives-2F-naslog-2E-meta.kernel.all."
         }
     ]
 }
@@ -160,7 +160,7 @@ metric tree iteration
         {
             "is_leaf": 0,
             "name": "all",
-            "path": "src-2F-naslog-2E-meta.kernel.all."
+            "path": "archives-2F-naslog-2E-meta.kernel.all."
         }
     ]
 }
@@ -169,99 +169,99 @@ metric tree iteration
         {
             "is_leaf": 0,
             "name": "cpu",
-            "path": "src-2F-naslog-2E-meta.kernel.all.cpu."
+            "path": "archives-2F-naslog-2E-meta.kernel.all.cpu."
         },
         {
             "is_leaf": 1,
             "name": "kpreempt",
-            "path": "src-2F-naslog-2E-meta.kernel.all.kpreempt"
+            "path": "archives-2F-naslog-2E-meta.kernel.all.kpreempt"
         },
         {
             "is_leaf": 1,
             "name": "kswitch",
-            "path": "src-2F-naslog-2E-meta.kernel.all.kswitch"
+            "path": "archives-2F-naslog-2E-meta.kernel.all.kswitch"
         },
         {
             "is_leaf": 0,
             "name": "load",
-            "path": "src-2F-naslog-2E-meta.kernel.all.load."
+            "path": "archives-2F-naslog-2E-meta.kernel.all.load."
         },
         {
             "is_leaf": 1,
             "name": "pswitch",
-            "path": "src-2F-naslog-2E-meta.kernel.all.pswitch"
+            "path": "archives-2F-naslog-2E-meta.kernel.all.pswitch"
         },
         {
             "is_leaf": 1,
             "name": "syscall",
-            "path": "src-2F-naslog-2E-meta.kernel.all.syscall"
+            "path": "archives-2F-naslog-2E-meta.kernel.all.syscall"
         },
         {
             "is_leaf": 1,
             "name": "sysexec",
-            "path": "src-2F-naslog-2E-meta.kernel.all.sysexec"
+            "path": "archives-2F-naslog-2E-meta.kernel.all.sysexec"
         },
         {
             "is_leaf": 1,
             "name": "sysfork",
-            "path": "src-2F-naslog-2E-meta.kernel.all.sysfork"
+            "path": "archives-2F-naslog-2E-meta.kernel.all.sysfork"
         },
         {
             "is_leaf": 1,
             "name": "sysioctl",
-            "path": "src-2F-naslog-2E-meta.kernel.all.sysioctl"
+            "path": "archives-2F-naslog-2E-meta.kernel.all.sysioctl"
         },
         {
             "is_leaf": 1,
             "name": "sysread",
-            "path": "src-2F-naslog-2E-meta.kernel.all.sysread"
+            "path": "archives-2F-naslog-2E-meta.kernel.all.sysread"
         },
         {
             "is_leaf": 1,
             "name": "syswrite",
-            "path": "src-2F-naslog-2E-meta.kernel.all.syswrite"
+            "path": "archives-2F-naslog-2E-meta.kernel.all.syswrite"
         },
         {
             "is_leaf": 1,
             "name": "users",
-            "path": "src-2F-naslog-2E-meta.kernel.all.users"
+            "path": "archives-2F-naslog-2E-meta.kernel.all.users"
         }
     ]
 }
 
 metric regex grep 1
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d1
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d2
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d3
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d4
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d1
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d2
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d3
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d4
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d1
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d2
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d3
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d4
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d1
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d2
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d3
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d4
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d1
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d2
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d3
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d4
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d1
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d2
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d3
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d4
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d1
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d2
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d3
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d4
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d1
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d2
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d3
-src-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d4
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d1
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d2
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d3
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.active.dks131d4
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d1
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d2
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d3
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkread.dks131d4
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d1
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d2
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d3
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blktotal.dks131d4
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d1
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d2
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d3
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.blkwrite.dks131d4
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d1
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d2
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d3
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.read.dks131d4
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d1
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d2
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d3
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.response.dks131d4
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d1
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d2
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d3
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.total.dks131d4
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d1
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d2
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d3
+archives-2F-960624-2E-08-2E-17_v2-2E-meta.disk.dev.write.dks131d4
 
 metric regex grep 2
 archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.bogomips.cpu0,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.bogomips.cpu1,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.bogomips.cpu2,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.bogomips.cpu3,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.cache.cpu0,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.cache.cpu1,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.cache.cpu2,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.cache.cpu3,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.cache_alignment.cpu0,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.cache_alignment.cpu1,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.cache_alignment.cpu2,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.cache_alignment.cpu3,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.clock.cpu0,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.clock.cpu1,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.clock.cpu2,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.clock.cpu3,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.online.cpu0,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.online.cpu1,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.online.cpu2,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.cpu.online.cpu3,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.map.cpu_node.cpu0,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.map.cpu_node.cpu1,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.map.cpu_node.cpu2,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.map.cpu_node.cpu3,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.map.cpu_num.cpu0,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.map.cpu_num.cpu1,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.map.cpu_num.cpu2,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.map.cpu_num.cpu3,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.ncpu,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.ndisk,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.nfilesys,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.ninterface,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.nnode,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.node.online.node0,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.pagesize,archives-2F-archive-2D-20141125-2D-000009-2E-meta.hinv.physmem
@@ -671,7 +671,7 @@ metric value dump 1
                 1385585715
             ]
         ],
-        "target": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001472 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F--2E--2F-wait_launcher-2E-py"
+        "target": "archives-2F-node_archive-2E-meta.proc.psinfo.pid.001472 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F--2E--2F-wait_launcher-2E-py"
     },
     {
         "datapoints": [
@@ -1076,7 +1076,7 @@ metric value dump 1
                 1385585715
             ]
         ],
-        "target": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001503 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py"
+        "target": "archives-2F-node_archive-2E-meta.proc.psinfo.pid.001503 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py"
     },
     {
         "datapoints": [
@@ -1481,7 +1481,7 @@ metric value dump 1
                 1385585715
             ]
         ],
-        "target": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001516 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py"
+        "target": "archives-2F-node_archive-2E-meta.proc.psinfo.pid.001516 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py"
     },
     {
         "datapoints": [
@@ -1886,7 +1886,7 @@ metric value dump 1
                 1385585715
             ]
         ],
-        "target": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001533 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py"
+        "target": "archives-2F-node_archive-2E-meta.proc.psinfo.pid.001533 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py"
     }
 ]
 
@@ -2196,7 +2196,7 @@ metric value dump 2
             null
         ],
         "end": 1385683200,
-        "name": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001472 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F--2E--2F-wait_launcher-2E-py",
+        "name": "archives-2F-node_archive-2E-meta.proc.psinfo.pid.001472 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F--2E--2F-wait_launcher-2E-py",
         "start": 1385510400,
         "step": 577
     },
@@ -2504,7 +2504,7 @@ metric value dump 2
             null
         ],
         "end": 1385683200,
-        "name": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001503 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py",
+        "name": "archives-2F-node_archive-2E-meta.proc.psinfo.pid.001503 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py",
         "start": 1385510400,
         "step": 577
     },
@@ -2812,7 +2812,7 @@ metric value dump 2
             null
         ],
         "end": 1385683200,
-        "name": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001516 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py",
+        "name": "archives-2F-node_archive-2E-meta.proc.psinfo.pid.001516 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py",
         "start": 1385510400,
         "step": 577
     },
@@ -3120,7 +3120,7 @@ metric value dump 2
             null
         ],
         "end": 1385683200,
-        "name": "src-2F-node_archive-2E-meta.proc.psinfo.pid.001533 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py",
+        "name": "archives-2F-node_archive-2E-meta.proc.psinfo.pid.001533 -2F-usr-2F-bin-2F-python -2F-ifs-2F-user-2F-tyearke-2F-test-2F-wait-2E-py",
         "start": 1385510400,
         "step": 577
     }
