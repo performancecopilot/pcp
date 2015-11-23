@@ -443,6 +443,20 @@ Requires: pcp-libs >= %{version}-%{release}
 Performance Co-Pilot (PCP) front-end tools for importing collectl data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
+#
+# pcp-export-pcp2zabbix
+#
+%package export-pcp2zabbix
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Zabbix
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+
+%description export-pcp2zabbix
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+to Zabbix (http://www.zabbix.com).
+
 %if "@have_python@" == "true"
 #
 # pcp-export-pcp2graphite
@@ -1691,6 +1705,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'mrtg2pcp' >import_mrtg2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'ganglia2pcp' >import_ganglia2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2graphite' >export_pcp2graphite_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'zabbix' >export_pcp2zabbix_files
 %if "@pmda_infiniband@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files
 %endif
@@ -1880,6 +1895,7 @@ BEGIN {
     while( getline < "pmda_mic_files") pmda_mic[$0]=1;
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
 %endif
+    while( getline < "export_pcp2zabbix_files") export_pcp2zabbix[$0]=1;
 %if "@pmda_json@" == "true"
     while( getline < "pmda_json_files") pmda_json[$0]=1;
 %endif
@@ -1970,6 +1986,7 @@ BEGIN {
     else if (pmda_mic[$NF]) f="pmda_mic_files.rpm";
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
 %endif
+    else if (export_pcp2zabbix[$NF]) f="export_pcp2zabbix_files.rpm";
 %if "@pmda_json@" == "true"
     else if (pmda_json[$NF]) f="pmda_json_files.rpm";
 %endif
@@ -2395,6 +2412,8 @@ cd
 
 %files export-pcp2graphite -f export_pcp2graphite_files.rpm
 %endif
+
+%files export-pcp2zabbix -f export_pcp2zabbix_files.rpm
 
 %if "@pmda_json@" == "true"
 %files pmda-json -f pmda_json_files.rpm

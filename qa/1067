@@ -1,0 +1,70 @@
+#!/bin/sh
+# PCP QA Test No. 1067
+# Exercise the zbxpcp Zabbix integration module.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which zabbix_agentd >/dev/null 2>&1 || \
+	_notrun "No zabbix_agentd binary found"
+test -f /etc/zabbix/zabbix_agentd.conf || \
+	_notrun "No configuration for the Zabbix agent daemon"
+grep -q zbxpcp /etc/zabbix/zabbix_agentd.conf || \
+	_notrun "No configuration of the Zabbix PCP module"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_values()
+{
+    # expect lines like:
+# pcp.sample.dodgey.control    [u|5]
+# pcp.sample.dodgey.value[d1]  [u|35]
+# pcp.sample.bad.novalues      [m|ZBX_NOTSUPPORTED] [No value available.]
+    # d|u|s -> zabbix types;
+    # m is error encodings -> allow through
+
+    sed \
+	-e 's/\[[dus]|.*\]$/VALUE/g' \
+	-e '/sample\.scramble/d' \
+    #end
+}
+
+# real QA test starts here
+echo "== request specific values"
+
+# verify values for single metrics/instances
+zabbix_agentd -t pcp.sample.long.one
+zabbix_agentd -t 'pcp.sample.long.bin[bin-100]'
+zabbix_agentd -t pcp.sample.ulonglong.million
+zabbix_agentd -t pcp.sample.float.hundred
+zabbix_agentd -t pcp.sample.double.ten
+
+# string metrics
+zabbix_agentd -t pcp.sample.string.null
+zabbix_agentd -t pcp.sample.string.hullo
+
+# aggregate/event metrics
+zabbix_agentd -t pcp.sample.aggregate.hullo
+zabbix_agentd -t 'pcp.sample.event.records[fungus]'
+
+# other error cases
+zabbix_agentd -t pcp.sample.bad.nosupport
+zabbix_agentd -t pcp.sample.bad.novalues
+
+# verify enumeration of all metrics
+echo "== enumerated names and filtered values"
+zabbix_agentd -p | fgrep pcp.sample. | _filter_values
+
+# success, all done
+status=0
+exit
