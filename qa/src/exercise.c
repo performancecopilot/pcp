@@ -71,12 +71,12 @@ dometric(const char *name)
 	else {
 	    if (result->vset[0]->valfmt == PM_VAL_INSITU) {
 		_insitu++;
-		if (pmDebug && DBG_TRACE_APPL0)
+		if (pmDebug & DBG_TRACE_APPL0)
 		    printf("%s: insitu type=%s\n", name, pmTypeStr(desc.type));
 	    }
 	    else {
 		_ptr++;
-		if (pmDebug && DBG_TRACE_APPL0)
+		if (pmDebug & DBG_TRACE_APPL0)
 		    printf("%s: ptr size=%d valtype=%d descrtype=%s\n",
 			    name,
 			    result->vset[0]->vlist[0].value.pval->vlen,

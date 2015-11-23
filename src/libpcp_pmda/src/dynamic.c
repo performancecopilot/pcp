@@ -36,14 +36,6 @@ static struct dynamic {
 
 static int dynamic_count;
 
-static inline unsigned int
-dynamic_pmid_cluster(int index, pmID pmid)
-{
-    if (dynamic[index].clustermask)
-	return pmid_cluster(pmid) & dynamic[index].clustermask;
-    return pmid_cluster(pmid);
-}
-
 int
 pmdaDynamicSetClusterMask(const char *prefix, unsigned int mask)
 {

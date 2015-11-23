@@ -65,6 +65,10 @@ $sudo cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 $sudo cp $tmp.new $PCP_PMCDCONF_PATH
 
 # ensure we have pmcd ready for the first iteration.
+# just doing a start may race and find the pmcd socket busy,
+# so stop, wait a little, and start
+$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+sleep 2
 $sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
 _wait_for_pmcd
 _wait_for_pmlogger
