@@ -19,7 +19,6 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES	= mmv_stats.c
 VERSION_SCRIPT = exports
-LSRCFILES = $(VERSION_SCRIPT)
 
 STATICLIBTARGET	= libpcp_mmv.a
 DSOVERSION = 1
