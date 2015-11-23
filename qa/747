@@ -24,6 +24,12 @@ root=$tmp.root
 export LINUX_HERTZ=100
 export LINUX_STATSPATH=$root
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
+local="-L -K clear -K add,60,$pmda"
+
+hinv_metrics="hinv.cpu.online hinv.node.online"
+allcpu_metrics=`pminfo $local kernel.all.cpu | LC_COLLATE=POSIX sort`
+percpu_metrics=`pminfo $local kernel.percpu.cpu | LC_COLLATE=POSIX sort`
+pernode_metrics=`pminfo $local kernel.pernode.cpu | LC_COLLATE=POSIX sort`
 
 for tgz in $here/linux/sysdev-*.tgz
 do
@@ -34,19 +40,19 @@ do
     base=`basename $tgz`
 
     echo "== Checking hinv metric values - $base"
-    pminfo -L -K clear -K add,60,$pmda -f hinv.cpu.online hinv.node.online
+    pminfo $local -f $hinv_metrics
     echo && echo "== done" && echo
 
     echo "== Checking aggregate CPU metric values - $base"
-    pminfo -L -K clear -K add,60,$pmda -f kernel.all.cpu
+    pminfo $local -f $allcpu_metrics
     echo && echo "== done" && echo
 
     echo "== Checking per-CPU metric values - $base"
-    pminfo -L -K clear -K add,60,$pmda -f kernel.percpu.cpu
+    pminfo $local -f $percpu_metrics
     echo && echo "== done" && echo
 
     echo "== Checking per-node CPU metric values - $base"
-    pminfo -L -K clear -K add,60,$pmda -f kernel.pernode.cpu
+    pminfo $local -f $pernode_metrics
     echo && echo "== done" && echo
 
     cd $here
