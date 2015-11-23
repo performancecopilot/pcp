@@ -1,0 +1,64 @@
+#!/bin/sh
+# PCP QA Test No. 868
+# Some error cases for pmdaproc.sh
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# test for-some-thing || _notrun No support for some-thing
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+cat >$tmp.sh <<'End-of-File'
+#!/bin/sh
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=sample
+forced_restart=false
+pmda_dir=$PCP_VAR_DIR/pmdas/sample
+
+pmdaSetup
+pmdaInstall
+End-of-File
+
+echo
+echo "=== Duplicate names in the PMNS ==="
+$sudo sh $tmp.sh -N
+
+cat >$tmp.sh <<'End-of-File'
+#!/bin/sh
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=sample
+forced_restart=false
+pmda_dir=/really/bad/directory
+pmns_dupok=true
+
+pmdaSetup
+pmdaInstall
+End-of-File
+
+echo
+echo "=== Bad path for pmda_dir ==="
+$sudo sh $tmp.sh -N
+
+# success, all done
+status=0
+
+exit

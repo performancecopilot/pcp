@@ -45,13 +45,25 @@ _make_helptext nvidia
 
 # real QA test starts here
 echo
-echo "== Testing behaviour with no nvidia library available"
+echo "== Testing behaviour with no nvidia library available" | tee -a $here/$seq.full
 pminfo -L -K clear -K add,120,$pmda -dfmtT -n $pmns nvidia 2>&1 | _filter
 
+if [ -f nvidia.log ]
+then
+    $sudo cat nvidia.log >>$here/$seq.full
+    $sudo rm -f nvidia.log
+fi
+
 echo
-echo "== Testing behaviour with QA wrapper nvidia library"
+echo "== Testing behaviour with QA wrapper nvidia library" | tee -a $here/$seq.full
 export LD_LIBRARY_PATH=$here/src
 pminfo -L -K clear -K add,120,$pmda -dfmtT -n $pmns nvidia 2>&1 | _filter
+
+if [ -f nvidia.log ]
+then
+    $sudo cat nvidia.log >>$here/$seq.full
+    $sudo rm -f nvidia.log
+fi
 
 # success, all done
 status=0

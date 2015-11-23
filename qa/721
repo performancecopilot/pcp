@@ -18,7 +18,8 @@ trap "rm -f $tmp.* sample.log; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    sed \
+    tee -a $here/$seq.full \
+    | sed \
 	-e '/dbpmda([0-9][0-9]*)/s//dbpmda(PID)/' \
 	-e '/pmdasample([0-9][0-9]*)/s//pmdasample(PID)/' \
 	-e 's/^\[[A-Z].. [A-Z]..  *[0-9][0-9]* ..:..:..]/[DATETIME]/'
@@ -29,6 +30,7 @@ cd "$PCP_PMDAS_DIR/sample"
 echo .
 
 # pipe PMDA variant of test
+echo "=== pipe PMDA ===" >>$here/$seq.full
 $sudo rm -f sample.log
 $sudo dbpmda -n root -ie <<End-of-File 2>&1 | _filter
 debug AUTH
@@ -39,12 +41,20 @@ attr "username" "pcpqa"
 attr 0 "no-such-attr"
 attr "no-such-attr"
 End-of-File
-echo Checking log file, pipe mode
+
+# need to pause here to make sure pmdasample has seen the pipe close,
+# and flushed the log before exiting
+#
+sleep 2
+
+echo Checking log file, pipe mode | tee -a $here/$seq.full
+cat sample.log >>$here/$seq.full
 grep -i attribute sample.log | _filter
 $sudo rm -f sample.log
 echo .
 
 # DSO PMDA variant of test
+echo "=== DSO PMDA ===" >>$here/$seq.full
 $sudo dbpmda -n root -ie <<End-of-File 2>&1 | _filter
 debug AUTH
 open dso pmda_sample.so sample_init

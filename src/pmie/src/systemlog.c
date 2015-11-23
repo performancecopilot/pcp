@@ -28,9 +28,9 @@
  * based on source for logger(1)
  */
 static int
-decode(char *name, CODE *codetab)
+decode(char *name, const CODE *codetab)
 {
-    CODE *c;
+    const CODE *c;
 
     if (isdigit((int)*name))
 	return (atoi(name));

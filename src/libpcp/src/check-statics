@@ -350,7 +350,7 @@ units.o
     exponent_keywords           # const
     space_keywords              # const
     time_keywords               # const
-    time_scales                 # const
+    ?time_scales                # const
     ?pmParseUnitsStr.time_scales	# const
 util.o
     idbuf			# pmIDStr deprecated by pmIDStr_r

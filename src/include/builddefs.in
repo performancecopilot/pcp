@@ -650,6 +650,8 @@ PYTHON_INSTALL = \
 PYTHON3_INSTALL = \
 	$(AWK) '{print} /.pyc$$/ {sub(/.pyc$$/,".pyo"); print}' \
 		< $(TOPDIR)/python3-pcp.list > $(TOPDIR)/python3-pcp.list.rpm; \
+	$(AWK) '{print} /.pyc$$/ {sub(/.pyc$$/,".opt-1.pyc"); print}' \
+		< $(TOPDIR)/python3-pcp.list >> $(TOPDIR)/python3-pcp.list.rpm; \
 	cat $(TOPDIR)/python3-pcp.list.rpm | while read f; do \
 	    touch $${DIST_ROOT-/}$$f; \
 	done

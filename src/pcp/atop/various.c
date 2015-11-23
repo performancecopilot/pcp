@@ -455,7 +455,7 @@ ptrverify(const void *ptr, const char *errormsg, ...)
 ** signal catcher for cleanup before exit
 */
 void
-cleanstop(exitcode)
+cleanstop(int exitcode)
 {
 	acctswoff();
 	netatop_signoff();

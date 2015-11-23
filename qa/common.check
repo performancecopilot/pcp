@@ -1466,11 +1466,8 @@ _change_config()
 			exit 1
 			;;
 		esac
-		if [ -z "`$sudo rc-update show default | grep $pat`" ]
-		then
-		    $sudo rc-update $act $pat >$tmp._tmp 2>&1
-		    [ $? -eq 0 ] || cat $tmp._tmp
-		fi
+		$sudo rc-update $act $pat default >$tmp._tmp 2>&1
+		[ $? -eq 0 ] || cat $tmp._tmp
 	    fi
 	else
 	    # I have no clue!
