@@ -33,6 +33,7 @@ static pmLongOptions longopts[] = {
     PMOPT_ORIGIN,
     PMOPT_TIMEZONE,
     PMOPT_HOSTZONE,
+    PMOPT_VERSION,
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Protocol options"),
     { "batch",    1, 'b', "N", "fetch N metrics at a time for -f and -v [20]" },
@@ -52,7 +53,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:b:c:dD:Ffh:K:LMmN:n:O:tTvxzZ:?",
+    .short_options = "a:b:c:dD:Ffh:K:LMmN:n:O:tTvVxzZ:?",
     .long_options = longopts,
     .short_usage = "[options] [metricname ...]",
     .override = myoverrides,
@@ -594,9 +595,10 @@ main(int argc, char **argv)
 		break;
 	}
     }
-    if (opts.errors) {
+    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
+	exitsts = !(opts.flags & PM_OPTFLAG_EXIT);
 	pmUsageMessage(&opts);
-	exit(1);
+	exit(exitsts);
     }
 
     if (opts.context)

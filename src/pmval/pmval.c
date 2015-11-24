@@ -817,7 +817,10 @@ main(int argc, char *argv[])
 	    break;
 	}
     }
-
+    if (opts.flags & PM_OPTFLAG_EXIT) {
+	pmUsageMessage(&opts);
+	exit(0);
+    }
     if (!opts.errors && opts.optind >= argc) {
 	pmprintf("Error: no metricname specified\n\n");
 	opts.errors++;
