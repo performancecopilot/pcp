@@ -62,7 +62,7 @@ pmieconf.static$(EXECSUFFIX): $(OBJECTS)
 local: $(SUBDIRS) pmieconf.static$(EXECSUFFIX)
 	@rm -fr rules; mkdir rules
 	$(SUBDIRS_MAKERULE)
-	$(PMIECONF) -F -r rules -f local
+	HOME=`pwd` $(PMIECONF) -F -r rules -f local
 
 
 pmlogconf: $(SUBDIRS)
