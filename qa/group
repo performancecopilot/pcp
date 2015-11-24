@@ -1065,6 +1065,7 @@ cgroups
 874 valgrind pmval libpcp local
 875 libpcp local valgrind
 876 pmda.xfs local
+877 libpcp local
 885 pmda.linux local
 888 pmda.linux local
 892 pmcd libpcp local

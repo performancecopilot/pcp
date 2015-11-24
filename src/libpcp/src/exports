@@ -503,5 +503,9 @@ PCP_3.12 {
 
 PCP_3.13 {
   global:
+    __pmConnectTimeout;
+    __pmRequestTimeout;
+    __pmSetConnectTimeout;
+    __pmSetRequestTimeout;
     __pmStringValue;
 } PCP_3.12;

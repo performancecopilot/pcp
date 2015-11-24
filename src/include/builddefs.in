@@ -303,16 +303,7 @@ DIST_DIR = $(TOPDIR)/dist
 #
 # default, then special case for different platforms
 #
-RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LD_LIBRARY_PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$LD_LIBRARY_PATH HOME=`pwd` PCP_ALT_CPP=$(TOPDIR)/src/pmcpp/pmcpp
-ifeq "$(TARGET_OS)" "darwin"
-RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf DYLD_LIBRARY_PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$DYLD_LIBRARY_PATH HOME=`pwd` PCP_ALT_CPP=$(TOPDIR)/src/pmcpp/pmcpp
-endif
-ifeq "$(TARGET_OS)" "aix"
-RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf LIBPATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$LIBPATH HOME=`pwd` PCP_ALT_CPP=$(TOPDIR)/src/pmcpp/pmcpp
-endif
-ifeq "$(TARGET_OS)" "mingw"
-RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf PATH=$(TOPDIR)/src/libpcp/src:$(TOPDIR)/src/libpcp_pmda/src:$$PATH USERPROFILE=`pwd` PCP_ALT_CPP=`pwd`/$(TOPDIR)/src/pmcpp/pmcpp
-endif
+RUN_IN_BUILD_ENV = PCP_CONF=$(TOPDIR)/src/include/pcp.conf PCP_ALT_CPP=$(TOPDIR)/src/pmcpp/pmcpp.static$(EXECSUFFIX)
 
 # when cross-compiling, we cannot use RUN_IN_BUILD_ENV, so any binaries
 # from PCP we need in the build must be installed on the build machine.
@@ -323,10 +314,10 @@ PMIECONF = . $$PCP_DIR/etc/pcp.conf && $$PCP_BIN_DIR/pmieconf
 PMGENMAP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BIN_DIR/pmgenmap
 PMCPP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BINADM_DIR/pmcpp
 else
-NEWHELP = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp
-PMIECONF = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmieconf/pmieconf
+NEWHELP = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp.static
+PMIECONF = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmieconf/pmieconf.static
 PMGENMAP = $(RUN_IN_BUILD_ENV) sh ./pmgenmap.sh
-PMCPP = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp
+PMCPP = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp.static
 endif
 
 SUBDIRS_MAKERULE = \
@@ -797,11 +788,12 @@ PCP_USER_INSTALL = @pcp_user_install@
 PCP_GROUP_INSTALL = @pcp_group_install@
 
 PCPLIB = -lpcp
+PCPLIB_EXTRAS = $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) $(LIB_FOR_DLOPEN) $(LIB_FOR_RT)
 ifneq "$(PCPLIB)" "$(LIB_FOR_BASENAME)"
-PCPLIB += $(LIB_FOR_BASENAME)
+PCPLIB_EXTRAS += $(LIB_FOR_BASENAME)
 endif
 ifeq "$(ENABLE_SHARED)" "no"
-PCPLIB += $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) $(LIB_FOR_DLOPEN) $(LIB_FOR_RT)
+PCPLIB += $(PCPLIB_EXTRAS)
 endif
 PCP_GUILIB = -lpcp_gui $(PCPLIB)
 PCP_PMDALIB = -lpcp_pmda $(PCPLIB)

@@ -25,7 +25,8 @@
 #include "internal.h"
 
 /* default connect timeout is 5 seconds */
-static struct timeval	canwait = { 5, 000000 };
+static struct timeval	conn_wait = { 5, 0 };
+static int		conn_wait_done;
 
 __pmHostEnt *
 __pmHostEntAlloc(void)
@@ -718,36 +719,44 @@ __pmConnectRestoreFlags(int fd, int fdFlags)
     return fd;
 }
 
-const struct timeval *
-__pmConnectTimeout(void)
+int
+__pmSetConnectTimeout(double timeout)
 {
-    static int		first_time = 1;
+    if (timeout < 0.0)
+	return -EINVAL;
 
-    /*
-     * get optional stuff from environment ...
-     * 	PMCD_CONNECT_TIMEOUT
-     *	PMCD_PORT
-     */
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if (first_time) {
-	char	*env_str;
-	first_time = 0;
+    __pmtimevalFromReal(timeout, &conn_wait);
+    conn_wait_done = 1;
+    PM_UNLOCK(__pmLock_libpcp);
+    return 0;
+}
 
-	if ((env_str = getenv("PMCD_CONNECT_TIMEOUT")) != NULL) {
-	    char	*end_ptr;
-	    double	timeout = strtod(env_str, &end_ptr);
+double
+__pmConnectTimeout(void)
+{
+    char	*timeout_str, *end_ptr;
+    double	timeout;
+
+    /* get optional PMCD connection timeout from the environment */
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if (!conn_wait_done) {
+	if ((timeout_str = getenv("PMCD_CONNECT_TIMEOUT")) != NULL) {
+	    timeout = strtod(timeout_str, &end_ptr);
 	    if (*end_ptr != '\0' || timeout < 0.0)
 		__pmNotifyErr(LOG_WARNING, "%s:__pmAuxConnectPMCDPort: "
 			      "ignored bad PMCD_CONNECT_TIMEOUT = '%s'\n",
-			      __FILE__, env_str);
-	    else {
-		__pmtimevalFromReal(timeout, &canwait);
-	    }
+			      __FILE__, timeout_str);
+	    else
+		__pmtimevalFromReal(timeout, &conn_wait);
 	}
+	conn_wait_done = 1;
     }
+    timeout = __pmtimevalToReal(&conn_wait);
     PM_UNLOCK(__pmLock_libpcp);
-    return (&canwait);
+    return timeout;
 }
  
 int
@@ -877,7 +886,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	}
 
 	/* FNDELAY and we're in progress - wait on select */
-	struct timeval stv = canwait;
+	struct timeval stv = conn_wait;
 	struct timeval *pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
 	__pmFdSet wfds;
 	int rc;
@@ -988,7 +997,7 @@ __pmAuxConnectPMCDUnixSocket(const char *sock_path)
     }
 
     /* FNDELAY and we're in progress - wait on select */
-    stv = canwait;
+    stv = conn_wait;
     pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
     __pmFD_ZERO(&wfds);
     __pmFD_SET(fd, &wfds);

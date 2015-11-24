@@ -93,8 +93,8 @@ AF.o
     ?afsetup			# guarded by __pmLock_libpcp mutex
     ?aftimer			# guarded by __pmLock_libpcp mutex
 auxconnect.o
-    canwait			# guarded by __pmLock_libpcp mutex
-    first_time			# guarded by __pmLock_libpcp mutex
+    conn_wait			# guarded by __pmLock_libpcp mutex
+    conn_wait_done		# guarded by __pmLock_libpcp mutex
     pmcd_ports			# guarded by __pmLock_libpcp mutex
     pmcd_socket			# guarded by __pmLock_libpcp mutex
 auxserver.o
@@ -264,9 +264,8 @@ pdubuf.o
     pdu_bufcnt_need		# guarded by __pmLock_libpcp mutex
     pdu_bufcnt			# guarded by __pmLock_libpcp mutex
 pdu.o
-    done_default		# guarded by __pmLock_libpcp mutex
-    ?def_timeout		# guarded by __pmLock_libpcp mutex
-    def_wait			# guarded by __pmLock_libpcp mutex
+    req_wait			# guarded by __pmLock_libpcp mutex
+    req_wait_done		# guarded by __pmLock_libpcp mutex
     pmDebug			# set-once in main(), read-only elsewhere
     ceiling			# no unsafe side-effects
     ?sigpipe_done		# no unsafe side-effects

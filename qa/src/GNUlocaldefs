@@ -12,7 +12,7 @@ DEBUG   = $(DBG)
 HAVE_64	= $(shell test `uname -m | sed -e 's/.*64/64/g'` = "64" && echo 1 || echo 0)
 
 CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
-	xval.c xxx.c chkopenlog.c chkconnect.c t_fetch.c \
+	xval.c xxx.c chkopenlog.c chkconnect.c t_fetch.c clienttimeout.c \
 	hp-mib.c agenttimeout.c chkctx2.c pmcdgone.c chkhelp.c \
 	scale.c chktrim.c store.c torture_api.c logcontrol.c xlog.c \
 	hex2nbo.c chknumval.c xarch.c eofarch.c defctx.c chkacc1.c chkacc2.c \
