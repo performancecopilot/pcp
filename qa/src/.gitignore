@@ -37,6 +37,7 @@ chkputlogresult
 chktrim
 churnctx
 clientid
+clienttimeout
 compare
 context_fd_leak
 context_test

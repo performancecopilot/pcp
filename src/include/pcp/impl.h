@@ -815,6 +815,11 @@ PCP_CALL extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 /*#define TIMEOUT_ASYNC -2*/
 #define TIMEOUT_CONNECT	-3
 
+PCP_CALL extern double __pmConnectTimeout(void);
+PCP_CALL extern int __pmSetConnectTimeout(double);
+PCP_CALL extern double __pmRequestTimeout(void);
+PCP_CALL extern int __pmSetRequestTimeout(double);
+
 /* mode options for __pmGetPDU */
 #define ANY_SIZE	0	/* replacement for old PDU_BINARY */
 #define LIMIT_SIZE	2	/* replacement for old PDU_CLIENT */

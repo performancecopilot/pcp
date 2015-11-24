@@ -252,30 +252,26 @@ pmWhichContext(void)
 int
 __pmConvertTimeout(int timeo)
 {
-    int tout_msec;
-    const struct timeval *tv;
+    double tout_msec;
 
     switch (timeo) {
     case TIMEOUT_NEVER:
-        tout_msec = -1;
-        break;
+        return -1;
 
     case TIMEOUT_DEFAULT:
-        tv = __pmDefaultRequestTimeout();
-        tout_msec = tv->tv_sec *1000 + tv->tv_usec / 1000;
+        tout_msec = __pmRequestTimeout() * 1000.0;
         break;
 
     case TIMEOUT_CONNECT:
-        tv = __pmConnectTimeout();
-        tout_msec = tv->tv_sec *1000 + tv->tv_usec / 1000;
+        tout_msec = __pmConnectTimeout() * 1000.0;
         break;
 
     default:
-        tout_msec = timeo  * 1000;
+        tout_msec = timeo * 1000.0;
         break;
     }
 
-    return tout_msec;
+    return (int)tout_msec;
 }
 
 #ifdef PM_MULTI_THREAD

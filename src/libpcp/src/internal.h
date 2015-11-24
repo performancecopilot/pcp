@@ -24,8 +24,6 @@
 #include "derive.h"
 
 extern int __pmConvertTimeout(int) _PCP_HIDDEN;
-extern const struct timeval *__pmConnectTimeout(void) _PCP_HIDDEN;
-extern const struct timeval * __pmDefaultRequestTimeout(void) _PCP_HIDDEN;
 extern int __pmConnectWithFNDELAY(int, void *, __pmSockLen) _PCP_HIDDEN;
 
 extern int __pmPtrToHandle(__pmContext *) _PCP_HIDDEN;
