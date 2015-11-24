@@ -15,6 +15,7 @@
 
 TOPDIR = ../..
 include	$(TOPDIR)/src/include/builddefs
+include $(TOPDIR)/src/libpcp/src/GNUlibrarydefs
 
 MKFILE_SUBDIRS = cpu filesys memory percpu pernetif global
 
@@ -26,8 +27,6 @@ HFILES = rules.h
 
 PMLOGCONF_TOOLS = $(PCP_VAR_DIR)/config/pmlogconf/tools
 
-LSRCFILES = GNUmakefile.rules check-rules pmie_email xtractnames $(RFILES)
-
 LLDLIBS = $(PCPLIB)
 LCFLAGS = -I$(TOPDIR)/src/pmie/src
 LDIRT = local $(CMDTARGET) rate-syscalls \
@@ -36,7 +35,10 @@ LDIRT = local $(CMDTARGET) rate-syscalls \
 	percpu/GNUmakefile pernetif/GNUmakefile
 LDIRDIRT = rules .pcp
 
-default: $(CMDTARGET) makefiles local pmlogconf
+STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
+STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
+
+default: $(CMDTARGET) pmieconf.static$(EXECSUFFIX) makefiles local pmlogconf
 
 # for src-link-pcp target from buildrules
 $(SUBDIRS):	makefiles
@@ -54,10 +56,14 @@ makefiles:
 	    cd ..; \
 	done
 
-local: $(SUBDIRS)
+pmieconf.static$(EXECSUFFIX): $(OBJECTS)
+	$(CCF) -o $@ $(LDFLAGS) $(OBJECTS) $(STATIC_LIBPCP) $(STATIC_LDLIBS)
+
+local: $(SUBDIRS) pmieconf.static$(EXECSUFFIX)
 	@rm -fr rules; mkdir rules
 	$(SUBDIRS_MAKERULE)
 	$(PMIECONF) -F -r rules -f local
+
 
 pmlogconf: $(SUBDIRS)
 	@rm -f pmlogconf

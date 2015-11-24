@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2015 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -14,12 +15,15 @@
 
 TOPDIR = ../..
 include	$(TOPDIR)/src/include/builddefs
+include	$(TOPDIR)/src/libpcp/src/GNUlibrarydefs
 
-TARGETS = newhelp$(EXECSUFFIX) chkhelp$(EXECSUFFIX)
+TARGETS = newhelp$(EXECSUFFIX) chkhelp$(EXECSUFFIX) newhelp.static$(EXECSUFFIX)
 CFILES = newhelp.c chkhelp.c
 
 LLDFLAGS = $(WARN_OFF)
 LLDLIBS = $(PCP_PMDALIB)
+STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
+STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
 LDIRT = $(TARGETS)
 
 default:	$(TARGETS)
@@ -31,6 +35,9 @@ include $(BUILDRULES)
 
 newhelp$(EXECSUFFIX):	newhelp.o
 	$(CCF) -o $@ $(LDFLAGS) newhelp.o $(LDLIBS)
+
+newhelp.static$(EXECSUFFIX):	newhelp.o
+	$(CCF) -o $@ $(LDFLAGS) newhelp.o $(STATIC_LIBPCP) $(STATIC_LDLIBS)
 
 chkhelp$(EXECSUFFIX):	chkhelp.o
 	$(CCF) -o $@ $(LDFLAGS) chkhelp.o $(LDLIBS)

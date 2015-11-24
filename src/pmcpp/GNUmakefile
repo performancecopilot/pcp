@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2015 Red Hat.
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -14,12 +15,15 @@
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
+include	$(TOPDIR)/src/libpcp/src/GNUlibrarydefs
 
 CFILES	= pmcpp.c
 LLDLIBS = $(PCPLIB)
 CMDTARGET = pmcpp$(EXECSUFFIX)
+STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
+STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
 
-default:	$(CMDTARGET)
+default:	$(CMDTARGET) pmcpp.static$(EXECSUFFIX)
 
 include $(BUILDRULES)
 
@@ -29,3 +33,6 @@ install:	$(CMDTARGET)
 default_pcp:	default
 
 install_pcp:	install
+
+pmcpp.static$(EXECSUFFIX):	$(OBJECTS)
+	$(CCF) -o $@ $(LDFLAGS) $(OBJECTS) $(STATIC_LIBPCP) $(STATIC_LDLIBS)

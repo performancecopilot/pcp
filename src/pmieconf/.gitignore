@@ -6,6 +6,7 @@ memory/GNUmakefile
 percpu/GNUmakefile
 pernetif/GNUmakefile
 pmieconf
+pmieconf.static
 pmlogconf
 pmlogconf.tmp
 rate-syscalls
