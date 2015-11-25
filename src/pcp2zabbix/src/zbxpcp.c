@@ -38,6 +38,7 @@
 
 /* PCP includes.  */
 #include "pmapi.h"
+#include "impl.h"
 
 /* Zabbix includes.  */
 #include "module.h"
@@ -98,8 +99,7 @@ ZBX_METRIC *zbx_module_item_list()
 
 void zbx_module_item_timeout(int timeout)
 {
-    /* PCP will handle timeouts.  */
-    (void)timeout;
+    __pmSetRequestTimeout((double)timeout);
 }
 
 int zbx_module_uninit()
