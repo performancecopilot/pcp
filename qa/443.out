@@ -98,7 +98,7 @@ pmevent: pmLookupDesc: No PMCD agent for domain of request
 pmevent: sample.event.no_indom_records: singular metrics do not have instances
 
 --- should be ok ---
-=== -t 10msec -s 1 sample.event.records sample.event.records ===
+=== -t 10msec -s 1 sample.event.records ===
 host:      localhost
 samples:   1
 sample.event.records[fungus]: 0 event records
@@ -299,7 +299,7 @@ Note: timezone set to local timezone of host "bozo" from archive
 
 archive:   archives/eventrec-old
 host:      bozo
-start:     Sat Dec  4 15:26:09 2010
+start:     Sat Dec  4 15:26:11 2010
 end:       Sat Dec  4 15:26:13 2010
 samples:   all
 15:26:12.074  sample.event.records: 1 event records

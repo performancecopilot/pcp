@@ -115,6 +115,7 @@ _run -Dappl0 "sample.event.no_indom_records[red]"
 
 echo
 echo "--- should be ok ---"
+_run_ok -t 10msec -s 1 sample.event.records
 _run_ok -t 10msec -s 8 sample.event.records
 _run_ok -t 10msec -s 3 'sample.event.records[bogus]'
 

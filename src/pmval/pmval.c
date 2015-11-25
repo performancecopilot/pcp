@@ -241,6 +241,8 @@ getvals(Context *x,		/* in - full pm description */
 	 */
 	for ( ; ; ) {
 	    e = pmFetchArchive(&r);
+	    if (e == PM_ERR_EOL)
+		exit(EXIT_SUCCESS);
 	    if (e < 0)
 		break;
 
@@ -1078,7 +1080,7 @@ main(int argc, char *argv[])
 	delta  = __pmtimevalToReal(&opts.interval);
 
 	opts.samples = (int) ((finish - origin) / delta);
-	if (opts.samples < 0) 
+	if (opts.samples < 0)
 	    opts.samples = 0;	/* if end is before start, no samples thanks */
 	else {
 	    /*
@@ -1168,6 +1170,7 @@ main(int argc, char *argv[])
 			printf("  ");
 		    }
 		    printevents(&context, rslt2->vset[idx2], cols);
+		    continue;
 		}
 		else if (rawCounter || (context.desc.sem != PM_SEM_COUNTER)) {
 		    /* not doing rate conversion, report this value immediately */

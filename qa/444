@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 444
-# pmid and desc cacheing in pmevent
+# pmid and desc caching in pmevent
 #
 # Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 #

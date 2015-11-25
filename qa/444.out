@@ -427,13 +427,3 @@ sample.event.records[fungus]: 5 event records
 sample.event.records[bogus]: 1 event records
   TIMESTAMP --- event record [0] flags 0x1 (point) ---
     sample.event.param_string "fetch #19"
-pmXmitPDU: FETCH fd=<fd> len=32
-pmGetPDU: RESULT fd=<fd> len=104 from=0
-pmResult ... numpmid: 1
-  29.0.136 (sample.event.records): numval: 2 valfmt: 2 vlist[]:
-    inst [0 or "fungus"] value [0 event records]
-    inst [1 or "bogus"] value [1 event record timestamp TIMESTAMP]
-sample.event.records[fungus]: 0 event records
-sample.event.records[bogus]: 1 event records
-  TIMESTAMP --- event record [0] flags 0x1 (point) ---
-    sample.event.param_string "fetch #20"
