@@ -29,16 +29,20 @@ PMLOGCONF_TOOLS = $(PCP_VAR_DIR)/config/pmlogconf/tools
 
 LLDLIBS = $(PCPLIB)
 LCFLAGS = -I$(TOPDIR)/src/pmie/src
-LDIRT = local $(CMDTARGET) rate-syscalls \
+
+ifneq "$(TARGET_OS)" "mingw"
+STATICTARGETS = pmieconf.static
+STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
+STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
+endif
+
+LDIRT = local $(CMDTARGET) $(STATICTARGETS) rate-syscalls \
 	pmlogconf.tmp pmlogconf \
 	cpu/GNUmakefile filesys/GNUmakefile memory/GNUmakefile \
 	percpu/GNUmakefile pernetif/GNUmakefile
 LDIRDIRT = rules .pcp
 
-STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
-STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
-
-default: $(CMDTARGET) pmieconf.static$(EXECSUFFIX) makefiles local pmlogconf
+default: $(CMDTARGET) $(STATICTARGETS) makefiles local pmlogconf
 
 # for src-link-pcp target from buildrules
 $(SUBDIRS):	makefiles
@@ -56,10 +60,10 @@ makefiles:
 	    cd ..; \
 	done
 
-pmieconf.static$(EXECSUFFIX): $(OBJECTS)
+pmieconf.static: $(OBJECTS)
 	$(CCF) -o $@ $(LDFLAGS) $(OBJECTS) $(STATIC_LIBPCP) $(STATIC_LDLIBS)
 
-local: $(SUBDIRS) pmieconf.static$(EXECSUFFIX)
+local: $(STATICTARGETS) $(SUBDIRS)
 	@rm -fr rules; mkdir rules
 	$(SUBDIRS_MAKERULE)
 	HOME=`pwd` $(PMIECONF) -F -r rules -f local

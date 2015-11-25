@@ -17,16 +17,21 @@ TOPDIR = ../..
 include	$(TOPDIR)/src/include/builddefs
 include	$(TOPDIR)/src/libpcp/src/GNUlibrarydefs
 
-TARGETS = newhelp$(EXECSUFFIX) chkhelp$(EXECSUFFIX) newhelp.static$(EXECSUFFIX)
+TARGETS = newhelp$(EXECSUFFIX) chkhelp$(EXECSUFFIX)
 CFILES = newhelp.c chkhelp.c
 
 LLDFLAGS = $(WARN_OFF)
 LLDLIBS = $(PCP_PMDALIB)
+
+ifneq "$(TARGET_OS)" "mingw"
+STATICTARGETS = newhelp.static
 STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
 STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
-LDIRT = $(TARGETS)
+endif
 
-default:	$(TARGETS)
+LDIRT = $(TARGETS) $(STATICTARGETS)
+
+default:	$(TARGETS) $(STATICTARGETS)
 
 install:	default
 	$(INSTALL) -m 755 $(TARGETS) $(PCP_BINADM_DIR)
@@ -36,7 +41,7 @@ include $(BUILDRULES)
 newhelp$(EXECSUFFIX):	newhelp.o
 	$(CCF) -o $@ $(LDFLAGS) newhelp.o $(LDLIBS)
 
-newhelp.static$(EXECSUFFIX):	newhelp.o
+newhelp.static:	newhelp.o
 	$(CCF) -o $@ $(LDFLAGS) newhelp.o $(STATIC_LIBPCP) $(STATIC_LDLIBS)
 
 chkhelp$(EXECSUFFIX):	chkhelp.o
