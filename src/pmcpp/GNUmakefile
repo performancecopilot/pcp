@@ -20,10 +20,16 @@ include	$(TOPDIR)/src/libpcp/src/GNUlibrarydefs
 CFILES	= pmcpp.c
 LLDLIBS = $(PCPLIB)
 CMDTARGET = pmcpp$(EXECSUFFIX)
+
+ifneq "$(TARGET_OS)" "mingw"
+STATICTARGETS = pmcpp.static
 STATIC_LIBPCP = $(TOPDIR)/src/libpcp/src/libpcp.a
 STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS)
+endif
 
-default:	$(CMDTARGET) pmcpp.static$(EXECSUFFIX)
+LDIRT = $(CMDTARGET) $(STATICTARGETS)
+
+default:	$(CMDTARGET) $(STATICTARGETS)
 
 include $(BUILDRULES)
 
@@ -34,5 +40,5 @@ default_pcp:	default
 
 install_pcp:	install
 
-pmcpp.static$(EXECSUFFIX):	$(OBJECTS)
+pmcpp.static:	$(OBJECTS)
 	$(CCF) -o $@ $(LDFLAGS) $(OBJECTS) $(STATIC_LIBPCP) $(STATIC_LDLIBS)
