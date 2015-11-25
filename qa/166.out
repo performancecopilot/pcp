@@ -169,8 +169,6 @@ samples:   all
 22:09:00.000               1.000 
 22:10:00.000               1.000 
 
-pmval: pmFetchArchive: End of PCP archive log
-
 --- raw pmval -U using reduced archive ---
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
@@ -197,8 +195,6 @@ samples:   all
 22:08:00.000              4054854
 22:09:00.000              4114854
 22:10:00.000              4174854
-
-pmval: pmFetchArchive: End of PCP archive log
 
 --- pmval using reduced archive ---
 Note: timezone set to local timezone of host "kenj-pc" from archive
@@ -427,8 +423,6 @@ samples:   all
 22:08:00.000        319
 22:09:00.000        360
 22:10:00.000        314
-
-pmval: pmFetchArchive: End of PCP archive log
 
 --- pmval using reduced archive ---
 Note: timezone set to local timezone of host "kenj-pc" from archive

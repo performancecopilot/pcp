@@ -32,8 +32,6 @@ TIME VALUE
 TIME VALUE
 TIME VALUE
 
-pmval: pmFetchArchive: End of PCP archive log
-
 pmval args: -a -r
 
 metric:    hinv.ncpu
@@ -109,8 +107,6 @@ TIME VALUE
 TIME VALUE
 TIME VALUE
 TIME VALUE
-
-pmval: pmFetchArchive: End of PCP archive log
 
 pmval args: -a -r
 
@@ -188,8 +184,6 @@ TIME VALUE
 TIME VALUE
 TIME VALUE
 TIME VALUE
-
-pmval: pmFetchArchive: End of PCP archive log
 
 pmval args: -a -r
 
@@ -267,8 +261,6 @@ TIME VALUE
 TIME VALUE
 TIME VALUE
 TIME VALUE
-
-pmval: pmFetchArchive: End of PCP archive log
 
 pmval args: -a -r
 
@@ -349,8 +341,6 @@ TIME VALUE           ?         300         400           ?           ?          
 TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
 TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
 TIME VALUE           ?         300         400           ?           ?           ?           ?           ? 
-
-pmval: pmFetchArchive: End of PCP archive log
 
 pmval args: -a -r
 

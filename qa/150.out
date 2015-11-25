@@ -1,7 +1,5 @@
 QA output created by 150
 === input archive ===
-
-pmval: pmFetchArchive: End of PCP archive log
 Note: timezone set to local timezone of host "snort" from archive
 
 metric: hinv.ncpu
@@ -13,8 +11,6 @@ units: none
 samples: all
 16:11:10.106 10
 === reduced archive ===
-
-pmval: pmFetchArchive: End of PCP archive log
 Note: timezone set to local timezone of host "snort" from archive
 
 metric: hinv.ncpu

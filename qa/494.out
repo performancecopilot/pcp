@@ -660,10 +660,6 @@ disk.dev.read
 disk.dev.read
     Data Type: 64-bit unsigned int  InDom: 1.2 0x400002
     Semantics: counter  Units: count
-
-pmval: pmFetchArchive: End of PCP archive log
-
-pmval: pmFetchArchive: End of PCP archive log
 pmval diffs ...
 --- TMP.in
 +++ TMP.out
@@ -686,10 +682,6 @@ disk.dev.write
 disk.dev.write
     Data Type: 64-bit unsigned int  InDom: 1.2 0x400002
     Semantics: counter  Units: count
-
-pmval: pmFetchArchive: End of PCP archive log
-
-pmval: pmFetchArchive: End of PCP archive log
 pmval diffs ...
 --- TMP.in
 +++ TMP.out
@@ -712,10 +704,6 @@ disk.dev.total
 disk.dev.total
     Data Type: 64-bit unsigned int  InDom: 1.2 0x400002
     Semantics: counter  Units: count
-
-pmval: pmFetchArchive: End of PCP archive log
-
-pmval: pmFetchArchive: End of PCP archive log
 pmval diffs ...
 --- TMP.in
 +++ TMP.out
