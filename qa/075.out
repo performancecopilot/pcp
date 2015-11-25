@@ -162,8 +162,7 @@ interval:  1.00 sec
         300         400         500 
 
 $ pmval -s 2 -t 0.3 -i bin-300 bin-400 bin-500 sample.bin
-Error: pmval can only process one metricname at a time
-
+pmval: error - too many arguments
 Usage: pmval [options] metricname
 
 General options:
