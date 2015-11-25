@@ -2012,13 +2012,19 @@ $2 == "bozo"	{ t = $1
 
 dnl printf type for pid_t
 AC_MSG_CHECKING([printf type for pid_t])
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$printf_fmt_pid
+    echo "cross-compile -> \"$ans\"" >&5
+    fmt_pid="$ans"
+else
+    cat <<End-of-File >conftest.c
 #include <sys/types.h>
 #include <unistd.h>
 pid_t bozo;
 End-of-File
-_do_type
-fmt_pid="$_fmt"
+    _do_type
+    fmt_pid="$_fmt"
+fi
 AC_MSG_RESULT($fmt_pid)
 AC_SUBST(fmt_pid)
 rm -rf conftest.c conftest.debug
