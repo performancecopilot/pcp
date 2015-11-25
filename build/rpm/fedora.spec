@@ -2421,6 +2421,9 @@ cd
 
 %changelog
 * Wed Dec 16 2015 Lukas Berk <lberk@redhat.com> - 3.10.9-1
+- Add -V/--version support to several more commands (BZ 1284411)
+- Resolve a pcp-iostat(1) transient device exception (BZ 1249572)
+- Provides pmdapipe, an output-capturing domain agent (BZ 1163413)
 - Work in progress [see http://pcp.io/roadmap]
 
 * Fri Oct 30 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.8-1
