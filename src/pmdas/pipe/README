@@ -14,16 +14,16 @@ The parameters are specified using ordinal shell notation ($1, $2,
 ... $N), for example:
 
 $ cat $PCP_PMDAS_DIR/pipe/pipe.conf
-# instance      user      commands
+# instance      user      command
 rw_syscalls     root      perf script rw-by-file $1
 bdev_trace      root      btrace -w $1 /dev/$2
 
 [access]
-allow user bob : all;
+allow user bob : *;
 allow user jane : bdev_trace;
 allow group perf : rw_syscalls;
 
-bob$ pmevent -i bdev_trace -x '5 sda' pipe.firehose 
+bob$ pmval -i bdev_trace -x '5 sda' pipe.firehose 
  8,2  5  1  0.000000000 25227  A  WS 734332384 + 24 <- (253,2) 734330336
  8,0  5  2  0.000000414 25227  A  WS 735358432 + 24 <- (8,2) 734332384
  8,0  5  3  0.000000756 25227  Q  WS 735358432 + 24 [qemu-kvm]
