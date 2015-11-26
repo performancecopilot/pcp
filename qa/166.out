@@ -74,8 +74,6 @@ interval:  15.00 sec
 22:10:00.000               1.000 
 22:10:15.000               1.000 
 
-pmval: pmFetch: End of PCP archive log
-
 --- raw pmval using input archive ---
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
@@ -260,8 +258,6 @@ interval:  15.00 sec
 22:09:30.000               1.000 
 22:09:45.000               1.000 
 22:10:00.000               1.000 
-
-pmval: pmFetch: End of PCP archive log
 
 --- raw pmval using reduced archive ---
 Note: timezone set to local timezone of host "kenj-pc" from archive

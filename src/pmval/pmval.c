@@ -241,8 +241,6 @@ getvals(Context *x,		/* in - full pm description */
 	 */
 	for ( ; ; ) {
 	    e = pmFetchArchive(&r);
-	    if (e == PM_ERR_EOL)
-		exit(EXIT_SUCCESS);
 	    if (e < 0)
 		break;
 
@@ -269,9 +267,12 @@ getvals(Context *x,		/* in - full pm description */
     }
 
     if (e < 0) {
-	if (e == PM_ERR_EOL && opts.guiflag) {
-	    pmTimeStateBounds(&controls, pmtime);
-	    return -1;
+	if (e == PM_ERR_EOL) {
+	    if (opts.guiflag) {
+		pmTimeStateBounds(&controls, pmtime);
+		return -1;
+	    }
+	    exit(EXIT_SUCCESS);
 	}
 	if (rawArchive)
 	    fprintf(stderr, "\n%s: pmFetchArchive: %s\n", pmProgname, pmErrStr(e));

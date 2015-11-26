@@ -12,26 +12,13 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-rm -f $seq.out
-if [ $PCP_VER -lt 30600 ]
-then
-    # V1 archives supported
-    arch=archives/ace
-    ln $seq.out.1 $seq.out
-else
-    # no support for V1 archives
-    arch=archives/ace_v2
-    ln $seq.out.2 $seq.out
-fi
-
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # deal with an annoying libc error ... using TZ=:Australia/Melbourne
 # causes the -z option to report the wrong time, at least for some
 # times of the year
 #
-TZ=EST-10
-export TZ
+export TZ=EST-10
 
 # real QA test starts here
 cat >$tmp.pmns <<'End-of-File'
@@ -48,6 +35,7 @@ sybase.SYBASE {
 }
 End-of-File
 
+arch=archives/ace_v2
 pmval -z -n $tmp.pmns -a $arch sybase.SYBASE.disk_read 2>$tmp.err
 cat $tmp.err
 

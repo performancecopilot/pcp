@@ -22,5 +22,3 @@ interval:  1.00 sec
 14:25:18.043    34.00  
 14:25:19.043    29.00  
 14:25:20.043    29.00  
-
-pmval: pmFetch: End of PCP archive log

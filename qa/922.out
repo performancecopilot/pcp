@@ -26,8 +26,6 @@ interval:  300.00 sec
 15:28:46.349       2.849
 15:33:46.349       2.982
 15:38:46.349       2.791
-
-pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "brutus.corp" from archive
 
 metric:    kernel.all.cpu.user
@@ -97,8 +95,6 @@ interval:  3.00 sec
 21:52:44.647       1.000
 21:52:47.647       1.000
 21:52:50.647       1.000
-
-pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "ha2" from archive
 
 metric:    sample.milliseconds
@@ -184,8 +180,6 @@ interval:  2.00 sec
 04:34:36.257       1.000
 04:34:38.257       1.000
 04:34:40.257       1.000
-
-pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "gonzo" from archive
 
 metric:    sample.seconds
@@ -268,8 +262,6 @@ interval:  60.00 sec
 22:07:48.422       0.667
 22:08:48.422       0.667
 22:09:48.422       0.667
-
-pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "kenj-pc" from archive
 
 metric:    sample.step_counter

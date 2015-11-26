@@ -466,7 +466,7 @@ cgroups
 161 pmlogger local
 162 pmda pmda.proc local pmda.shping pmda.install
 163 archive local
-164 diskstat local pmval pmdumplog
+164:retired diskstat local pmval pmdumplog
 165 pmval local
 166 pmlogreduce local pmval pmdumplog archive
 167 pmda.pmcd pmval local
@@ -1066,6 +1066,7 @@ cgroups
 875 libpcp local valgrind
 876 pmda.xfs local
 877 libpcp local
+878 pmda.pipe local
 885 pmda.linux local
 888 pmda.linux local
 892 pmcd libpcp local
