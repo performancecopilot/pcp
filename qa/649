@@ -13,57 +13,21 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out
-if [ $PCP_VER -lt 30600 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    ln $seq.out.2 $seq.out || exit 1
-fi
-
 status=1
 username=`id -u -n`
-done_clean=false
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
+
+# for QA the default install for mmv PMDA is as a dso, not a daemon
+( echo b && echo dso ) >$tmp.input
 
 _cleanup()
 {
-    if $done_clean
-    then
-	:
-    else
-	_restore_config $PCP_PMCDCONF_PATH
-	if [ -d $tmp.mmv.dir ]
-	then
-	    $sudo rm -fr "$MMV_STATS_DIR"
-	    $sudo mv $tmp.mmv.dir $MMV_STATS_DIR
-	fi
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
-	_wait_for_pmcd
-	_wait_for_pmlogger
-	if $install_on_cleanup
-	then
-	    ( cd $PCP_PMDAS_DIR/mmv; $sudo ./Install <$tmp.input >/dev/null 2>&1 )
-	else
-	    ( cd $PCP_PMDAS_DIR/mmv; $sudo ./Remove </dev/null >/dev/null 2>&1 )
-	fi
-	rm -f $tmp.*
-	done_clean=true
-    fi
-    exit $status
+    [ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
+    _cleanup_pmda mmv $tmp.input
 }
 
-install_on_cleanup=false
-pminfo mmv >/dev/null 2>&1 && install_on_cleanup=true
-
-trap "_cleanup" 0 1 2 3 15
-
-# for QA the default install for mmv PMDA is as a dso, not a daemon
-#
-cat <<End-of-File >$tmp.input
-b
-dso
-End-of-File
+_prepare_pmda mmv
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -79,15 +43,14 @@ iam=mmv
 cd "$home/$iam"
 unset ROOT MAKEFLAGS
 
-# copy the pmcd config file to restore state later.
-_save_config $PCP_PMCDCONF_PATH
 # move the MMV directory to restore contents later.
-[ -d $MMV_STATS_DIR ] && $sudo mv -f $MMV_STATS_DIR $tmp.mmv.dir
+[ -d $MMV_STATS_DIR ] && _save_config $MMV_STATS_DIR
 
 # start from a known starting point
 $sudo ./Remove >/dev/null 2>&1
 
 # create a directory we can write and pcp group can read
+$sudo rm -rf "$MMV_STATS_DIR"
 $sudo mkdir -m 755 "$MMV_STATS_DIR"
 $sudo chown $username "$MMV_STATS_DIR"
 $sudo chgrp pcp "$MMV_STATS_DIR"
