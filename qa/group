@@ -613,7 +613,7 @@ cgroups
 308 pmlc pmlogger #452417 remote pmdumplog pmda.proc
 309 libpcp pmcd pmda.linux pmda.simple local
 310 pmie local
-311 archive compat #509592 pminfo local pmstore pmdumplog
+311:retired archive compat #509592 pminfo local pmstore pmdumplog
 312 pmie local
 313 pmval archive local pmdumplog
 314 pmie local pmieutil
