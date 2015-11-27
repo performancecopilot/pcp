@@ -53,6 +53,7 @@ extern void event_client_shutdown(int);
 extern void event_child_shutdown(void);
 extern void event_capture(fd_set *);
 extern int event_config(const char *);
+extern int event_config_dir(const char *);
 extern void event_indom(pmInDom);
 extern int event_queueid(int, unsigned int);
 extern int event_qactive(int, unsigned int);

@@ -26,7 +26,6 @@ pmID *paramline;
 
 static int maxfd;
 static fd_set fds;
-static int numpipes;
 
 #define INDOM(serial)	(indomtab[serial].it_indom)
 enum {
@@ -228,12 +227,34 @@ pipe_end_contextCallBack(int context)
 static void 
 pipe_init(pmdaInterface *dp, const char *configfile, int checkonly)
 {
+    char	confdir[MAXPATHLEN], config[MAXPATHLEN];
+    int		numpipes, sep = __pmPathSeparator();
+
     /* Global pointer to line parameter for event record encoder. */
     paramline = &metrictab[PIPE_LINE].m_desc.pmid;
 
-    /* Read and parse config file. */
-    if ((numpipes = event_config(configfile)) < 0)
-	dp->status = numpipes;
+    /*
+     * Read and parse config file(s).
+     * If not pointed at a specific file, use the system locations.
+     * This includes an optional directory-based configuration too.
+     */
+    if (configfile) {
+	if ((numpipes = event_config(configfile)) < 0)
+	    dp->status = numpipes;
+    } else {
+	snprintf(config, sizeof(config), "%s%c" "pipe" "%c" "pipe.conf",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	config[sizeof(config)-1] = '\0';
+	snprintf(confdir, sizeof(confdir), "%s%c" "pipe.conf.d",
+		pmGetConfig("PCP_SYSCONF_DIR"), sep);
+	confdir[sizeof(confdir)-1] = '\0';
+
+	if ((numpipes = event_config(config)) < 0)
+	    dp->status = numpipes;
+	else if ((numpipes = event_config_dir(confdir)) < 0)
+	    dp->status = numpipes;
+    }
+
     if (checkonly)
 	exit(numpipes <= 0);
 
@@ -374,7 +395,7 @@ int
 main(int argc, char **argv)
 {
     static char		helppath[MAXPATHLEN];
-    static char		config[MAXPATHLEN];
+    char		*config = NULL;
     char		*endnum;
     pmdaInterface	desc;
     long		minmem;
@@ -385,8 +406,6 @@ main(int argc, char **argv)
 
     minmem = getpagesize();
     maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;
-    snprintf(config, sizeof(config), "%s%c" "pipe" "%c" "pipe.conf",
-		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     snprintf(helppath, sizeof(helppath), "%s%c" "pipe" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&desc, PMDA_INTERFACE_6, pmProgname, PIPE,
@@ -395,8 +414,7 @@ main(int argc, char **argv)
     while ((c = pmdaGetOptions(argc, argv, &opts, &desc)) != EOF) {
 	switch (c) {
 	case 'c':
-	    strncpy(config, opts.optarg, sizeof(config)-1);
-	    config[sizeof(config)-1] = '\0';
+	    config = opts.optarg;
 	    break;
 	case 'C':
 	    Cflag = 1;
@@ -415,7 +433,7 @@ main(int argc, char **argv)
     }
 
     if (opts.errors) {
-    	pmdaUsageMessage(&opts);
+	pmdaUsageMessage(&opts);
 	exit(1);
     }
 

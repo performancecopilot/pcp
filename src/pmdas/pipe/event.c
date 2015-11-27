@@ -67,23 +67,25 @@ enlarge_cmdtab(void)
     return pc;
 }
 
-static void
+static int
 add_parameter(const char *start, const char *end,
 		int *nparams, char ***paramtab)
 {
-    int		count = (*nparams + 1);
+    int		size, count = (*nparams + 1);
     char	*param = strndup(start, end - start);
     char	**params = *paramtab;
     size_t	length = count * sizeof(char **);
 
+    size = end - start + 1;
     if (param == NULL)
-	__pmNoMem("param", end - start + 1, PM_FATAL_ERR);
+	__pmNoMem("param", size, PM_FATAL_ERR);
     if ((params = realloc(params, length)) == NULL)
 	__pmNoMem("param table", length, PM_FATAL_ERR);
     params[count-1] = param;
 
     *paramtab = params;
     *nparams = count;
+    return size - 1;
 }
 
 static void
@@ -99,22 +101,30 @@ static char *
 setup_cmdline(pipe_client *pc, pipe_command *cmd, char *params)
 {
     static char		buffer[MAXPATHLEN];
+    size_t		paramlen, total = 0;
     char		*start, *end, *p, *q;
     char		**paramtab = NULL;
-    int			i, n, nparams = 0;
-    size_t		paramlen;
+    int			i, j, n, len, nparams = 0;
 
     memset(buffer, 0, sizeof(buffer));
     /* step 1: split params into the separate parameters */
     for (p = start = params; *p != '\0'; p++) {
+	if (*p == ',')	/* accept comma as whitespace alternative */
+	    *p = ' ';
 	if (isspace(*p)) {
 	    if (!isspace(*start) && start != p)
-		add_parameter(start, p, &nparams, &paramtab);
+		total += add_parameter(start, p, &nparams, &paramtab);
 	    start = p + 1;
+	} else if (!isalnum(*p)) {
+	    if (pmDebug & DBG_TRACE_APPL2)
+		fprintf(stderr, "invalid parameter string at '%c'", *p);
+	    goto fail;
 	} else if (*(p + 1) == '\0') {
-	    add_parameter(start, p + 1, &nparams, &paramtab);
+	    total += add_parameter(start, p + 1, &nparams, &paramtab);
 	}
     }
+    if (nparams)
+	total += nparams - 1;	/* whitespace separators, in $0 expansion */
 
     /* step 2: build command buffer replacing each $1..N */
     q = &buffer[0];
@@ -126,14 +136,17 @@ setup_cmdline(pipe_client *pc, pipe_command *cmd, char *params)
 		    fprintf(stderr, "invalid configuration file parameter");
 		goto fail;
 	    }
-	    if (n > nparams || n <= 0) {
+	    if (n > nparams) {
 		if (pmDebug & DBG_TRACE_APPL2)
 		    fprintf(stderr, "too few parameters passed (%d >= %d)",
 				n, nparams);
 		goto fail;
 	    }
 	    /* check that the result will fit in the buffer */
-	    paramlen = strlen(paramtab[n-1]);
+	    if (n > 0)
+		paramlen = strlen(paramtab[n-1]);
+	    else
+		paramlen = total;
 	    if (paramlen + (q - buffer) >= sizeof(buffer) - 1) {
 		if (pmDebug & DBG_TRACE_APPL2)
 		    fprintf(stderr, "insufficient space for substituting "
@@ -141,7 +154,21 @@ setup_cmdline(pipe_client *pc, pipe_command *cmd, char *params)
 		goto fail;
 	    }
 	    /* copy into the buffer and adjust our position */
-	    strncat(q, paramtab[n-1], paramlen);
+	    if (n)
+		strncat(q, paramtab[n-1], paramlen);
+	    else {	/* expand $0 */
+		paramlen = 0;
+		for (j = 0; j < nparams; j++) {
+		    if (j != 0) {
+			strncat(q, " ", 1);
+			paramlen++;
+		    }
+		    len = strlen(paramtab[j]);
+		    strncat(q, paramtab[j], len);
+		    paramlen += len;
+		}
+		assert(paramlen == total);
+	    }
 	    q += paramlen;
 	    p = end - 1;
 	} else {
@@ -161,7 +188,7 @@ int
 event_init(int context, pipe_command *cmd, char *params)
 {
     struct pipe_client	*client;
-    struct pipe_groot	*groot;
+    struct pipe_groot	*groot = NULL;
     char		*comm;
     int			i, sts;
 
@@ -458,7 +485,7 @@ event_decoder(int eventarray, void *buffer, size_t size,
 	flag |= PM_EVENT_FLAG_START;
     else if (!groot->exited)
 	flag |= PM_EVENT_FLAG_POINT;
-    else
+    if (groot->exited)
 	flag |= PM_EVENT_FLAG_END;
 
     sts = pmdaEventAddRecord(eventarray, timestamp, flag);
@@ -475,9 +502,70 @@ event_decoder(int eventarray, void *buffer, size_t size,
 }
 
 static int 
-event_acl(const char *buffer, int linenum)
+event_parse_acl(const char *fname, char *p, int linenum)
 {
     /* TODO */
+    return 0;
+}
+
+static int
+event_parse_cmd(const char *fname, char *p, int linenum)
+{
+    pipe_command	*pc;
+
+    /*
+     * split out instance, username, and command fields
+     */
+    pc = enlarge_cmdtab();
+    pc->identifier = p;
+    while (!isspace(*p) && *p != '\0')
+	p++;
+    *p = '\0';
+    pc->identifier = strdup(pc->identifier);
+    if (*(p+1) == '\0')
+	goto done;
+    p++;
+
+    while (isspace(*p))
+	p++;
+    pc->user = p;
+    while (!isspace(*p) && *p != '\0')
+	p++;
+    *p = '\0';
+    pc->user = strdup(pc->user);
+    if (*(p+1) == '\0')
+	goto done;
+    p++;
+
+    while (isspace(*p))
+	p++;
+    pc->command = p;
+    while (*p != '\n' && *p != '\r' && *p != '\0')
+	p++;
+    *p = '\0';
+    pc->command = strdup(pc->command);
+
+done:
+    /* verify contents from this line now that it's completely parsed */
+    if (pc->identifier == NULL || *pc->identifier == '\0') {
+	fprintf(stderr, "event_config: %s line %d missing identifier\n",
+			fname, linenum);
+	return -1;
+    }
+    if (pc->user == NULL || *pc->user == '\0') {
+	fprintf(stderr, "event_config: %s line %d missing user name\n",
+			fname, linenum);
+	return -1;
+    }
+    if (pc->command == NULL || *pc->command == '\0') {
+	fprintf(stderr, "event_config: %s line %d missing a command\n",
+			fname, linenum);
+	return -1;
+    }
+
+    if (pmDebug & DBG_TRACE_APPL0)
+	fprintf(stderr, "[name=%s user=%s line=%d] command: %s\n",
+		pc->identifier, pc->user, linenum, pc->command);
     return 0;
 }
 
@@ -487,9 +575,9 @@ event_acl(const char *buffer, int linenum)
 int
 event_config(const char *fname)
 {
-    pipe_command	*pc;
     FILE		*config;
     char		*p, line[MAXPATHLEN * 2];
+    int			initial_size = cmdtab_size;
     int			access_control = 0;
     int			linenum = 0;
     int			sts = 0;
@@ -526,51 +614,52 @@ event_config(const char *fname)
 	    access_control = 1;
 	    continue;
 	}
-	if (access_control) {
-	    event_acl(p, linenum);
-	    continue;
-	}
 
-	/*
-	 * split out instance, username, and command fields
-	 */
-	pc = enlarge_cmdtab();
-	pc->identifier = p;
-	while (!isspace(*p))
-	    p++;
-	*p++ = '\0';
-	pc->identifier = strdup(pc->identifier);
-
-	while (isspace(*p))
-	    p++;
-	pc->user = p;
-	while (!isspace(*p))
-	    p++;
-	*p++ = '\0';
-	pc->user = strdup(pc->user);
-
-	while (isspace(*p))
-	    p++;
-	pc->command = p;
-	while (*p != '\n' && *p != '\0')
-	    p++;
-	*p = '\0';
-	pc->command = strdup(pc->command);
-
-	if (pmDebug & DBG_TRACE_APPL0)
-	    fprintf(stderr, "[name=%s user=%s line=%d] command: %s\n",
-		pc->identifier, pc->user, linenum, pc->command);
+	sts = access_control?
+		event_parse_acl(fname, p, linenum) :
+		event_parse_cmd(fname, p, linenum);
+	if (sts < 0)
+	    break;
     }
     fclose(config);
     if (sts < 0) {
 	free(cmdtab);
 	return sts;
     }
-    if (cmdtab_size == 0) {
-	__pmNotifyErr(LOG_ERR, "event_config: no valid pipe commands found");
+    if (cmdtab_size == initial_size) {
+	__pmNotifyErr(LOG_ERR, "event_config: no commands found in %s", fname);
+	free(cmdtab);
 	return -1;
     }
     return cmdtab_size;
+}
+
+int
+event_config_dir(const char *dname)
+{
+    struct dirent	**list;
+    char		path[MAXPATHLEN];
+    int			sep = __pmPathSeparator();
+    int			i, n, sts = 0;
+
+    if ((n = scandir(dname, &list, NULL, NULL)) < 0) {
+	__pmNotifyErr(LOG_ERR, "event_config_dir: %s - %s",
+			dname, osstrerror());
+	return n;
+    }
+    for (i = 0; i < n; i++) {
+	if (list[i]->d_name[0] == '.')
+	    continue;
+	snprintf(path, sizeof(path), "%s%c%s", dname, sep, list[i]->d_name);
+	path[sizeof(path)-1] = '\0';
+	if ((sts = event_config(path)) < 0)
+	    break;
+    }
+    for (i = 0; i < n; i++)
+	free(list[n]);
+    free(list);
+
+    return sts;
 }
 
 /*

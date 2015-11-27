@@ -16,6 +16,31 @@ Updating the PMCD control file, and notifying PMCD ...
 Starting pmcd ... 
 Starting pmlogger ... 
 Check pipe metrics have appeared ... X metrics and Y values
+== basic empty line (ok) ==
+host:      slick
+samples:   5
+interval:  0.50 sec
+pipe.firehose[empty-line]: 1 event records
+  HH:MM:SS.MSEC --- event record [0] flags 0x6 (start,end) ---
+    pipe.line ""
+== basic echo mirror (ok) ==
+host:      slick
+samples:   5
+interval:  0.50 sec
+pipe.firehose[echo-all]: 1 event records
+  HH:MM:SS.MSEC --- event record [0] flags 0x6 (start,end) ---
+    pipe.line "hello"
+== extra parameters (ok) ==
+host:      slick
+samples:   5
+interval:  0.50 sec
+pipe.firehose[echo-two]: 1 event records
+  HH:MM:SS.MSEC --- event record [0] flags 0x6 (start,end) ---
+    pipe.line "1 two"
+== bad parameters (expect failure) ==
+pmval: store value "1;2" failed: Bad input to pmstore
+== insufficient parameters (expect failure) ==
+pmval: store value "one" failed: Bad input to pmstore
 
 === remove pipe agent ===
 Culling the Performance Metrics Name Space ...

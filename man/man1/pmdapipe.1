@@ -51,7 +51,9 @@ command line options follows:
 specifies an alternate configuration file for the PMDA.
 By default, a file named
 .I $PCP_PMDAS_DIR/pipe/pipe.conf
-is used.
+and any files below the
+.I $PCP_SYSCONF_DIR/pipe.conf.d/
+directory are used.
 .TP
 .B \-d
 It is absolutely crucial that the performance metrics
@@ -288,6 +290,9 @@ agent
 .B $PCP_LOG_DIR/pmcd/pipe.log
 default log file for error messages and other information from
 .B pmdapipe
+.TP 10
+.B $PCP_SYSCONF_DIR/pipe.conf.d
+directory containing additional configuration files for the pipe metrics
 .PD
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
