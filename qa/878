@@ -22,6 +22,7 @@ PIPE_INDOM_CACHE=$PCP_VAR_DIR/config/pmda/128.0
 
 status=1	# failure is the default!
 username=`id -u -n`
+hostname=`hostname`
 $sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
@@ -60,7 +61,8 @@ EOF1
 _filter_pmval()
 {
     sed \
-	-e "s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9]/HH:MM:SS.MSEC/g;s/`hostname`/HOST/g" \
+	-e "s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9].[0-9][0-9][0-9]/HH:MM:SS.MSEC/g"\
+	-e "s/$hostname/HOST/g" \
     #end
 }
 
