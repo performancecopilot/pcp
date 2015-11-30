@@ -71,29 +71,7 @@ done
 echo >$tmp.7
 
 bytes=`cat $tmp.? | wc -c | sed -e 's/ //g'`
-
-if [ $PCP_PLATFORM = irix ]
-then
-    # V1 support deprecated in PCP 2.3 and/or IRIX 6.5.19
-    #
-    if [ $PCP_VER -ge 20300 -o $PCP_EOE_VER -ge 60519 ]
-    then
-	vlist="2"
-	rm -f $seq.out && ln $seq.linux $seq.out
-    else
-	vlist="1 2"
-	rm -f $seq.out && ln $seq.irix $seq.out
-    fi
-elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd ]
-then
-    # same output for Linux and Mac OS X and Solaris and FreeBSD and NetBSD
-    #
-    vlist="2"
-    rm -f $seq.out && ln $seq.linux $seq.out
-else
-    echo bozo!
-    exit
-fi
+vlist="2"
 
 for version in $vlist
 do
