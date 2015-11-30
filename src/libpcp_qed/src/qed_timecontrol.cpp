@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2015, Red Hat.
  * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -13,9 +13,9 @@
  * License for more details.
  */
 
-#include <QtGui/QMessageBox>
-#include <QtGui/QApplication>
-#include <QtNetwork/QHostAddress>
+#include <QMessageBox>
+#include <QApplication>
+#include <QHostAddress>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 

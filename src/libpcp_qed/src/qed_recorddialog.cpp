@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2015, Red Hat.
  * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -14,10 +14,10 @@
  */
 
 #include "qed_recorddialog.h"
-#include <QtCore/QDateTime>
-#include <QtCore/QTextStream>
-#include <QtGui/QMessageBox>
-#include <QtGui/QDoubleValidator>
+#include <QDateTime>
+#include <QTextStream>
+#include <QMessageBox>
+#include <QDoubleValidator>
 
 #include "qed_app.h"
 #include "qed_console.h"

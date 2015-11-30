@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2015, Red Hat.
  * Copyright (c) 2008, Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -15,9 +15,9 @@
 #ifndef QED_STATUSBAR_H
 #define QED_STATUSBAR_H
 
-#include <QtGui/QLabel>
-#include <QtGui/QStatusBar>
-#include <QtGui/QGridLayout>
+#include <QLabel>
+#include <QStatusBar>
+#include <QGridLayout>
 #include "qed_timebutton.h"
 
 class QedStatusBar : public QStatusBar

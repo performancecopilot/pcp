@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2015, Red Hat.
  * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
@@ -14,8 +14,8 @@
  * License for more details.
  */
 
-#include <QtGui/QMenu>
-#include <QtGui/QMessageBox>
+#include <QMenu>
+#include <QMessageBox>
 #include "qed_console.h"
 #include "qed_viewcontrol.h"
 #include "qed_recorddialog.h"

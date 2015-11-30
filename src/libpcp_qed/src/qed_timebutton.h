@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2015, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -15,8 +15,8 @@
 #ifndef QED_TIMEBUTTON_H
 #define QED_TIMEBUTTON_H
 
-#include <QtGui/QIcon>
-#include <QtGui/QToolButton>
+#include <QIcon>
+#include <QToolButton>
 
 class QedTimeButton : public QToolButton
 {
