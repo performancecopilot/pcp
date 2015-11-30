@@ -256,7 +256,7 @@ PCP_CALL extern FILE *__pmOpenLog(const char *, const char *, FILE *, int *);
 PCP_CALL extern FILE *__pmRotateLog(const char *, const char *, FILE *, int *);
 /* make __pmNotifyErr also add entries to syslog */
 PCP_CALL extern void __pmSyslog(int);
-/* standard error, warning and info wrapper for syslog(3C) */
+/* standard error, warning and info wrapper for syslog(3) */
 PCP_CALL extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
 
 /*

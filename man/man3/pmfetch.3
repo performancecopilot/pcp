@@ -252,13 +252,13 @@ structure returned by
 .B pmFetch
 is dynamically allocated using
 a combination of 
-.BR malloc (3C)
+.BR malloc (3)
 calls
 and specialized allocation strategies,
 and should be released when no longer required by calling
 .BR pmFreeResult (3)
 \- under no circumstances should 
-.BR free (3C)
+.BR free (3)
 be called directly to release this space.
 .PP
 As common error conditions are encoded

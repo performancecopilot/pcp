@@ -328,7 +328,7 @@ allocation schemes in the called routine, with the caller
 responsible for subsequently releasing the storage when
 no longer required.
 In some cases this simply involves calls to
-.BR free (3C),
+.BR free (3),
 but in others (most notably for the result from
 .BR pmFetch (3)),
 special routines (e.g. \c
@@ -357,7 +357,7 @@ values are assumed to be negated versions of the Unix error codes as defined
 in
 .B <errno.h>
 and the strings returned are as per
-.BR strerror (3C).
+.BR strerror (3).
 The larger, negative error codes are PMAPI error conditions.
 .PP
 One error, common to all PMAPI routines that interact with

@@ -323,7 +323,7 @@ prior to the call.
 .SH CAVEAT
 .P
 Applications that use
-.BR gethostbyname (3N)
+.BR gethostbyname (3)
 should exercise caution because the static fields in
 .I "struct hostent"
 may not be preserved across some
@@ -337,5 +337,5 @@ In particular,
 and
 .B pmtraceobs
 may all call
-.BR gethostbyname (3N)
+.BR gethostbyname (3)
 internally.
