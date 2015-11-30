@@ -26,7 +26,11 @@ LLDLIBS = $(PCPLIB)
 ZABBIX_DIR = $(PCP_LIB_DIR)/zabbix
 MODULE_DIR = $(ZABBIX_DIR)/agent
 
-default: $(LIBTARGET)
+MAN_SECTION = 3
+MAN_PAGES = $(TARGET).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
+
+default: $(LIBTARGET) $(MAN_PAGES)
 
 include $(BUILDRULES)
 
@@ -34,6 +38,7 @@ install: default
 	$(INSTALL) -m 755 -d $(ZABBIX_DIR)
 	$(INSTALL) -m 755 -d $(MODULE_DIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(MODULE_DIR)/$(LIBTARGET)
+	@$(INSTALL_MAN)
 
 default_pcp: default
 
