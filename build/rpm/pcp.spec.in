@@ -1767,8 +1767,8 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/unbound' > pmda_unbound_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mic' > pmda_mic_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmatop|pmcollectl|pmiostat' |\
-egrep -e 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' | \
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmatop|pmcollectl|pmiostat|pmrep' |\
+egrep -e 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping|pmrep' | \
 egrep -v 'testsuite|pmlogconf|pmieconf' \
 	    > system_tools_files
 %endif
