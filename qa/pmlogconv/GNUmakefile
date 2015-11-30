@@ -11,17 +11,24 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-# for cc replace all the -I<path> options with -I<run-time-include-dir>
-# (need /.. at the end so #include <pcp/foo.h> works)
+# strip -I and -L options
 #
 TMP             := $(CFLAGS:-I%=)
-CFLAGS          = $(TMP) -I$(PCP_INC_DIR)/..
+CFLAGS          = $(TMP)
+PCP_LIBS	=
 
-# for ld replace -L<build-time-dirs> with -L<run-time-lib-dir>
-# and include -rpath in case $(PCP_LIB_DIR) is not on the
-# default ld search path, e.g. for NetBSD
+ifneq "$(PCP_INC_DIR)" "/usr/include/pcp"
+# for cc add -I<run-time-include-dir> (need /.. at the end so
+# #include <pcp/foo.h> works) when $(PCP_INC_DIR) may not be on
+# the default cpp include search path.
+CFLAGS		+= -I$(PCP_INC_DIR)/..
+endif
+ifneq "$(PCP_LIB_DIR)" "/usr/lib"
+# for ld add -L<run-time-lib-dir> and include -rpath when
+# $(PCP_LIB_DIR) may not be on the default ld search path.
 #
-PCP_LIBS         = -L$(PCP_LIB_DIR) -rpath=$(PCP_LIB_DIR)
+PCP_LIBS	+= -L$(PCP_LIB_DIR) -Wl,-rpath=$(PCP_LIB_DIR)
+endif
 
 CFILES = pmlogconv.c logio.c libpcp.c
 LLDLIBS = -lpcp
