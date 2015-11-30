@@ -18,11 +18,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-/*
- * TODO
- *   +  ...
- */
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"

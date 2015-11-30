@@ -4,7 +4,7 @@
  * Note on NetBSD - at least in NetBSD 6.1.5 (vm09) circa Nov 2015,
  * statfs() is defined in libc.so but there is no prototype anywhere
  * below /usr/include ... I suspect this is some sort of backwards
- * compatibility hook for statfs() as per the stavfs(3) man page ...
+ * compatibility hook for statfs() as per the statvfs(3) man page ...
  *	The statvfs(), statvfs1(), fstatvfs(), and fstatvfs1()
  *	functions first appeared in NetBSD 3.0 to replace the
  *	statfs() family of functions which first appeared in 4.4BSD.
