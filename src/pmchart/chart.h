@@ -17,10 +17,10 @@
 #ifndef CHART_H
 #define CHART_H
 
-#include <QtCore/QString>
-#include <QtCore/QDateTime>
-#include <QtGui/QColor>
-#include <QtGui/QTreeWidget>
+#include <QString>
+#include <QDateTime>
+#include <QColor>
+#include <QTreeWidget>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_picker.h>

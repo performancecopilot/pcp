@@ -15,7 +15,7 @@
 #define TIMEZONE_H
 
 #include <string.h>
-#include <QtGui/QAction>
+#include <QAction>
 
 class TimeZone
 {

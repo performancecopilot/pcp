@@ -127,14 +127,14 @@ void InfoDialog::quit()
 void InfoDialog::pmvalStdout()
 {
     QString s(my.pmvalProc->readAllStandardOutput());
-    s.trimmed();
+    s = s.trimmed();
     pmvalTextEdit->append(s);
 }
 
 void InfoDialog::pmvalStderr()
 {
     QString s(my.pmvalProc->readAllStandardError());
-    s.trimmed();
+    s = s.trimmed();
     s.prepend("<b>");
     s.append("</b>");
     pmvalTextEdit->append(s);

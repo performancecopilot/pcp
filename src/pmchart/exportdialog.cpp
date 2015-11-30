@@ -12,10 +12,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtCore/QDir>
-#include <QtGui/QPainter>
-#include <QtGui/QMessageBox>
-#include <QtGui/QImageWriter>
+#include <QDir>
+#include <QPainter>
+#include <QMessageBox>
+#include <QImageWriter>
 #include "main.h"
 #include "exportdialog.h"
 

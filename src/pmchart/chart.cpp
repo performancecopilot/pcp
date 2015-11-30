@@ -19,11 +19,11 @@
 #include "sampling.h"
 #include "saveviewdialog.h"
 
-#include <QtCore/QPoint>
-#include <QtCore/QRegExp>
-#include <QtGui/QApplication>
-#include <QtGui/QWhatsThis>
-#include <QtGui/QCursor>
+#include <QPoint>
+#include <QRegExp>
+#include <QApplication>
+#include <QWhatsThis>
+#include <QCursor>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_picker.h>
 #include <qwt_plot_renderer.h>

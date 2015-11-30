@@ -14,7 +14,7 @@
  */
 #include "defaultobj.h"
 #include "colorlist.h"
-#include <QtCore/QSettings>
+#include <QSettings>
 
 #include <iostream>
 using namespace std;

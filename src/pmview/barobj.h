@@ -18,7 +18,7 @@
 #include "barmod.h"
 #include "modobj.h"
 #include "metriclist.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 class SoNode;
 class SoTranslation;

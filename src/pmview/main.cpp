@@ -11,8 +11,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
+#include <QSettings>
+#include <QTextStream>
 #include <QtGui/QMessageBox>
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoBaseColor.h>

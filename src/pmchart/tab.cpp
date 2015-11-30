@@ -13,7 +13,7 @@
  * for more details.
  */
 #include "main.h"
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 #include "openviewdialog.h"
 #include "recorddialog.h"
 

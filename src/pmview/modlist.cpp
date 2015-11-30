@@ -12,7 +12,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtCore/QSettings>
+#include <QSettings>
 #include <Inventor/SoPath.h>
 #include <Inventor/SoPickedPoint.h>
 #include <Inventor/events/SoLocation2Event.h>

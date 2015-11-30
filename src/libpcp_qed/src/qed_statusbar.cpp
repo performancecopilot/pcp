@@ -30,18 +30,16 @@ QedStatusBar::QedStatusBar()
 
     my.timeButton = new QedTimeButton(this);
     my.timeButton->setFixedSize(QSize(buttonSize(), buttonSize()));
-    my.timeButton->setWhatsThis(QApplication::translate("PmChart",
-	"VCR state button, also used to display the time control window.",
-	0, 0));
+    my.timeButton->setWhatsThis(
+	"VCR state button, also used to display the time control window.");
     my.timeFrame = new QToolButton(this);
     my.timeFrame->setMinimumSize(QSize(buttonSize(), buttonSize()));
     my.timeFrame->setSizePolicy(
 			QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-    my.timeFrame->setWhatsThis(QApplication::translate("PmChart",
+    my.timeFrame->setWhatsThis(
 	"Unified time axis, displaying the current time position at the "
 	"rightmost point, and either status information or the timeframe "
-	"covering all Visible Points to the left",
-	0, 0));
+	"covering all Visible Points to the left");
 
     delete layout();
     QHBoxLayout *box = new QHBoxLayout;

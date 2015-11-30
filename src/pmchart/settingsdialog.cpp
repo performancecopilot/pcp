@@ -13,10 +13,10 @@
  * for more details.
  */
 #include "settingsdialog.h"
-#include <QtGui/QCompleter>
-#include <QtGui/QMessageBox>
-#include <QtGui/QFontDatabase>
-#include <QtGui/QListWidgetItem>
+#include <QCompleter>
+#include <QMessageBox>
+#include <QFontDatabase>
+#include <QListWidgetItem>
 #include "main.h"
 #include "hostdialog.h"
 

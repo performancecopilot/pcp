@@ -15,9 +15,9 @@
  */
 #include "pmtimearch.h"
 
-#include <QtCore/QTimer>
-#include <QtGui/QValidator>
-#include <QtGui/QMessageBox>
+#include <QTimer>
+#include <QValidator>
+#include <QMessageBox>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include "aboutdialog.h"

@@ -12,9 +12,9 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtCore/QString>
-#include <QtGui/QMessageBox>
-#include <QtGui/QColor>
+#include <QString>
+#include <QMessageBox>
+#include <QColor>
 
 #include <string.h>
 #include <sys/time.h>

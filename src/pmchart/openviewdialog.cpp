@@ -13,9 +13,9 @@
  * for more details.
  */
 #include "openviewdialog.h"
-#include <QtGui/QCompleter>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
+#include <QCompleter>
+#include <QFileDialog>
+#include <QMessageBox>
 #include "main.h"
 #include "hostdialog.h"
 

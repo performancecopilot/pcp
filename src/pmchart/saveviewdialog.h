@@ -16,7 +16,7 @@
 #define SAVEVIEWDIALOG_H
 
 #include "ui_saveviewdialog.h"
-#include <QtGui/QDirModel>
+#include <QDirModel>
 
 class Chart;
 

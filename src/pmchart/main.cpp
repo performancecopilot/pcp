@@ -13,10 +13,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtCore/QSettings>
-#include <QtGui/QStatusBar>
-#include <QtGui/QApplication>
-#include <QtGui/QDesktopWidget>
+#include <QSettings>
+#include <QStatusBar>
+#include <QApplication>
+#include <QDesktopWidget>
 #include "main.h"
 #include "openviewdialog.h"
 

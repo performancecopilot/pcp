@@ -12,7 +12,7 @@
  * for more details.
  */
 #include "showboundsdialog.h"
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include "pmtime.h"

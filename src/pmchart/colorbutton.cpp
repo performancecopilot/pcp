@@ -12,9 +12,9 @@
  * for more details.
  */
 #include "colorbutton.h"
-#include <QtGui/QPainter>
-#include <QtGui/QColorDialog>
-#include <QtGui/QPaintEvent>
+#include <QPainter>
+#include <QColorDialog>
+#include <QPaintEvent>
 
 ColorButton::ColorButton(QWidget* parent) : QToolButton(parent)
 {

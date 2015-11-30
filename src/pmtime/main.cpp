@@ -13,7 +13,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include "timelord.h"

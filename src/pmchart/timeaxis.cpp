@@ -11,9 +11,9 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtCore/QEvent>
-#include <QtCore/QDateTime>
-#include <QtGui/QResizeEvent>
+#include <QEvent>
+#include <QDateTime>
+#include <QResizeEvent>
 #include <qwt_plot_renderer.h>
 #include <qwt_scale_draw.h>
 #include <qwt_scale_widget.h>

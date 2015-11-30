@@ -15,7 +15,7 @@
 #ifndef _TEXT_H_
 #define _TEXT_H_
 
-#include <QtCore/QTextStream>
+#include <QTextStream>
 #include <Inventor/nodes/SoFont.h>
 #include <Inventor/nodes/SoText3.h>
 #include <Inventor/nodes/SoTranslation.h>

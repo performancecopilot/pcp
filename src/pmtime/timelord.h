@@ -14,13 +14,13 @@
 #ifndef TIMELORD_H
 #define TIMELORD_H
 
-#include <QtCore/QVariant>
-#include <QtCore/QTimer>
-#include <QtCore/QList>
-#include <QtCore/QTextStream>
-#include <QtNetwork/QTcpSocket>
-#include <QtNetwork/QTcpServer>
-#include <QtGui/QApplication>
+#include <QVariant>
+#include <QTimer>
+#include <QList>
+#include <QTextStream>
+#include <QTcpSocket>
+#include <QTcpServer>
+#include <QApplication>
 
 #include "console.h"
 #include "pmtimelive.h"

@@ -15,9 +15,9 @@
  */
 #include "pmtimelive.h"
 
-#include <QtCore/QTimer>
-#include <QtGui/QValidator>
-#include <QtGui/QActionGroup>
+#include <QTimer>
+#include <QValidator>
+#include <QActionGroup>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include "pmtime.h"

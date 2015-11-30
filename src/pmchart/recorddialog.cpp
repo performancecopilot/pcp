@@ -12,9 +12,9 @@
  * for more details.
  */
 #include "recorddialog.h"
-#include <QtCore/QTextStream>
-#include <QtGui/QMessageBox>
-#include <QtGui/QDoubleValidator>
+#include <QTextStream>
+#include <QMessageBox>
+#include <QDoubleValidator>
 #include "main.h"
 #include "tab.h"
 #include "saveviewdialog.h"

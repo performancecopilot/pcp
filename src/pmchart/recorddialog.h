@@ -15,8 +15,8 @@
 #define RECORDDIALOG_H
 
 #include "ui_recorddialog.h"
-#include <QtCore/QProcess>
-#include <QtGui/QFileDialog>
+#include <QProcess>
+#include <QFileDialog>
 #include <qmc_time.h>
 
 class Tab;

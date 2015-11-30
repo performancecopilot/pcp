@@ -20,8 +20,6 @@ HEADERS = aboutdialog.h chartdialog.h exportdialog.h hostdialog.h \
 	  statusbar.h timeaxis.h timecontrol.h \
 	  groupcontrol.h gadget.h sampling.h tracing.h
 SOURCES = $(HEADERS:.h=.cpp) view.cpp
-LSRCFILES = $(QRCFILE) $(RCFILE) $(UIFILES) $(HEADERS) $(SOURCES) \
-	  $(PROJECT) $(DESKTOP) $(WRAPPER).in $(XMLFILE).in
 LDIRT = $(COMMAND) $(ICONLINKS) $(WRAPPER) $(XMLFILE) images
 
 SUBDIRS = views

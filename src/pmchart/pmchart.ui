@@ -525,7 +525,6 @@
   <include location="local" >exportdialog.h</include>
   <include location="local" >recorddialog.h</include>
   <include location="local" >settingsdialog.h</include>
-  <include location="local" >qprinter.h</include>
   <include location="local" >qfiledialog.h</include>
   <include location="local" >timeaxis.h</include>
   <include location="local" >qed_timebutton.h</include>

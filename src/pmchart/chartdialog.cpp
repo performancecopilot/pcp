@@ -12,9 +12,9 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtGui/QHeaderView>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
+#include <QHeaderView>
+#include <QFileDialog>
+#include <QMessageBox>
 #include "chartdialog.h"
 #include "qed_colorpicker.h"
 #include "hostdialog.h"

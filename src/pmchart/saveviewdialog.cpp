@@ -13,9 +13,9 @@
  * for more details.
  */
 #include "saveviewdialog.h"
-#include <QtCore/QDir>
-#include <QtGui/QCompleter>
-#include <QtGui/QMessageBox>
+#include <QDir>
+#include <QCompleter>
+#include <QMessageBox>
 #include "main.h"
 
 SaveViewDialog::SaveViewDialog(QWidget* parent) : QDialog(parent)

@@ -12,9 +12,9 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtCore/QUrl>
-#include <QtCore/QTimer>
-#include <QtCore/QLibraryInfo>
+#include <QUrl>
+#include <QTimer>
+#include <QLibraryInfo>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QApplication>
 #include <QtGui/QPrintDialog>

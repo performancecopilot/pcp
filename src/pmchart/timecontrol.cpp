@@ -14,8 +14,8 @@
  */
 #include "main.h"
 #include <qmc_time.h>
-#include <QtGui/QMessageBox>
-#include <QtGui/QApplication>
+#include <QMessageBox>
+#include <QApplication>
 #include <QtNetwork/QHostAddress>
 
 TimeControl::TimeControl() : QProcess(NULL)

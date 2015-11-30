@@ -14,11 +14,11 @@
  * for more details.
  */
 
-#include <QtCore/QList>
-#include <QtCore/QString>
-#include <QtGui/QApplication>
-#include <QtGui/QMessageBox>
-#include <QtGui/QListView>
+#include <QList>
+#include <QString>
+#include <QApplication>
+#include <QMessageBox>
+#include <QListView>
 #include "namespace.h"
 #include "chart.h"
 #include "main.h"

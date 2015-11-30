@@ -15,9 +15,9 @@
 #ifndef TAB_H
 #define TAB_H
 
-#include <QtCore/QList>
-#include <QtGui/QSplitter>
-#include <QtGui/QTabWidget>
+#include <QList>
+#include <QSplitter>
+#include <QTabWidget>
 #include "groupcontrol.h"
 #include "gadget.h"
 
