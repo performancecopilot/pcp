@@ -23,8 +23,8 @@ VERSION_SCRIPT = exports
 
 LIBTARGET = zbxpcp.$(DSOSUFFIX)
 LLDLIBS = $(PCPLIB)
-ZABBIX_DIR = /var/lib/zabbix
-MODULE_DIR = $(ZABBIX_DIR)/modules
+ZABBIX_DIR = $(PCP_LIB_DIR)/zabbix
+MODULE_DIR = $(ZABBIX_DIR)/agent
 
 default: $(LIBTARGET)
 

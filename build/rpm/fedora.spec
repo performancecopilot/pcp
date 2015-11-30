@@ -2321,7 +2321,7 @@ cd
 %endif # !%{disable_python2} || !%{disable_python3}
 
 %files export-pcp2zabbix
-%{_localstatedir}/lib/zabbix
+%{_libdir}/zabbix
 
 %if !%{disable_json}
 %files pmda-json
