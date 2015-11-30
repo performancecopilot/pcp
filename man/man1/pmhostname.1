@@ -26,7 +26,7 @@
 reports the name of the host
 .I hostname
 as returned by
-.BR gethostbyname (3N).
+.BR gethostbyname (3).
 .PP
 If
 .I hostname
@@ -34,7 +34,7 @@ is not specified, then the local host name
 is retrieved using
 .BR gethostname (2)
 and this is than passed to
-.BR gethostbyname (3N).
+.BR gethostbyname (3).
 .PP
 .B pmhostname
 provides a service for shell scripts that
@@ -44,7 +44,7 @@ no longer use DNS-based heuristics, and therefore this command is
 .IR deprecated .
 .PP
 If
-.BR gethostbyname (3N)
+.BR gethostbyname (3)
 fails, the input host name (either
 .I hostname
 or the result from calling
@@ -69,7 +69,7 @@ as described in
 .BR nsd (1),
 .BR nslookup (1),
 .BR gethostname (2),
-.BR gethostbyname (3N),
+.BR gethostbyname (3),
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and

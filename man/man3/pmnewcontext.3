@@ -234,7 +234,7 @@ where routines may return the error code
 if the library detects calls from more than one thread.
 .P
 Applications that use
-.BR gethostbyname (3N)
+.BR gethostbyname (3)
 should exercise caution because the static fields in
 .I "struct hostent"
 may not be preserved across some
@@ -245,7 +245,7 @@ In particular,
 and
 .BR pmReconnectContext (3)
 both may call
-.BR gethostbyname (3N)
+.BR gethostbyname (3)
 internally.
 .SH SEE ALSO
 .BR pmcd (1),
