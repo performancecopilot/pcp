@@ -521,16 +521,16 @@ Performance Co-Pilot (PCP) front-end tools for importing ganglia data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
 #
-# pcp-export-pcp2zabbix
+# pcp-export-zabbix-agent
 #
-%package export-pcp2zabbix
+%package export-zabbix-agent
 License: GPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for exporting PCP metrics to Zabbix
 URL: http://www.pcp.io
 Requires: pcp-libs >= %{version}-%{release}
 
-%description export-pcp2zabbix
+%description export-zabbix-agent
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to Zabbix (http://www.zabbix.com).
 
@@ -1743,7 +1743,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 
 # all base pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E -v 'pmiostat|pmcollectl|pmatop|pcp2graphite|zabbix' |\
+  grep -E -v 'pmiostat|pmcollectl|pmatop|pcp2graphite|zabbix|zbxpcp' |\
   sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 #
 # Separate the pcp-system-tools package files.
@@ -2320,7 +2320,7 @@ cd
 %{_bindir}/pcp2graphite
 %endif # !%{disable_python2} || !%{disable_python3}
 
-%files export-pcp2zabbix
+%files export-zabbix-agent
 %{_libdir}/zabbix
 
 %if !%{disable_json}
