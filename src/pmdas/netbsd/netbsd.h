@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2012 Ken McDonell  All Rights Reserved.
+ * Copyright (c) 2012,2015 Ken McDonell  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,13 +24,26 @@
 #define CPU_INDOM	1
 #define DISK_INDOM	2
 #define NETIF_INDOM	3
+#define FILESYS_INDOM	4
 extern pmdaIndom indomtab[];
 
 extern void	refresh_disk_metrics(void);
 extern int	do_disk_metrics(pmdaMetric *, unsigned int, pmAtomValue *);
 
+extern void	refresh_percpu_metrics(void);
+extern int	do_percpu_metrics(pmdaMetric *, unsigned int, pmAtomValue *);
+
 extern void	refresh_netif_metrics(void);
 extern int	do_netif_metrics(pmdaMetric *, unsigned int, pmAtomValue *);
+
+extern void	refresh_filesys_metrics(void);
+extern int	do_filesys_metrics(pmdaMetric *, unsigned int, pmAtomValue *);
+
+extern void	refresh_swap_metrics(void);
+extern int	do_swap_metrics(pmdaMetric *, unsigned int, pmAtomValue *);
+
+extern void	refresh_vm_uvmexp_metrics(void);
+extern int	do_vm_uvmexp_metrics(pmdaMetric *, unsigned int, pmAtomValue *);
 
 /*
  * kernel memory reader pieces
@@ -42,3 +55,7 @@ extern kvm_t	*kvmp;
 
 #define KERN_IFNET	0
 extern struct nlist	symbols[];
+
+/* miscellaneous useful values */
+extern int	cpuhz;
+extern int	ncpu;

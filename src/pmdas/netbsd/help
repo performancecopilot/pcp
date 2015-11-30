@@ -27,6 +27,8 @@ Microseconds per "hz" tick.
 
 @ hinv.ncpu number of CPUs in the system
 @ hinv.ndisk number of disks in the system
+@ hinv.nfilesys number of (local) file systems currently mounted
+@ hinv.ninterface number of active (up) network interfaces
 @ hinv.physmem total system memory
 @ hinv.pagesize kernel page size
 @ hinv.cpu.vendor system's CPU vendor
@@ -50,31 +52,29 @@ indication severe demand for physical memory.
 @ disk.dev.read_bytes Count of bytes read from each disk
 @ disk.dev.write_bytes Count of bytes written to each disk
 @ disk.dev.total_bytes Count of bytes transferred to or from each disk
-@ disk.dev.blkread Count of blocks read from each disk
-@ disk.dev.blkwrite Count of blocks written to each disk
-@ disk.dev.blktotal Count of blocks transferred to or from each disk
 @ disk.all.read Count of read operations across all disks
 @ disk.all.write Count of write operations across all disks
 @ disk.all.total Count of read or write operations (IOPs) across all disks
 @ disk.all.read_bytes Count of bytes read from all disks
 @ disk.all.write_bytes Count of bytes written to all disks
 @ disk.all.total_bytes Count of bytes transferred to or from all disks
-@ disk.all.blkread Count of blocks read from all disks
-@ disk.all.blkwrite Count of blocks written to all disks
-@ disk.all.blktotal Count of blocks transferred to or from all disks
 
 @ mem.util.all Total memory managed by the system
 @ mem.util.used Memory that is actively in use
 Equals "all" minus "free" minus "inactive" minus "cached".
 @ mem.util.free Unallocated and free memory
-@ mem.util.bufmem Memory associated with active buffer I/O
+@ mem.util.paging Memory associated with active page out operations
 @ mem.util.cached Cached memory
-Unmodified (clean and cached) pages from files in filesystems.
+Sum of file data pages and exec data pages.
 @ mem.util.wired Wired or pinned memory that cannot be paged out
 @ mem.util.active Recently accessed memory
 @ mem.util.inactive Memory that is in use, but has not be accessed recently
-@ mem.util.avail Available memory
-Free plus inactive plus cached.
+@ mem.util.zeropages Zero filled pages
+@ mem.util.pagedaemonpages Pages reserved for the pagedaemon
+@ mem.util.kernelpages Pages reserved for the kernel
+@ mem.util.anonpages Anonymous pages
+@ mem.util.filepages Pages used for file data
+@ mem.util.execpages Pages used for executable code
 
 @ network.interface.mtu Maximum Transfer Unit for each network interface
 @ network.interface.up "UP" state for each network interface
@@ -93,3 +93,52 @@ Free plus inactive plus cached.
 @ network.interface.total.packets Packets received or transmitted on each network interface
 @ network.interface.total.mcasts Multicast packets received or transmitted on each network interface
 @ network.interface.total.errors Input or output errors on each network interface
+@ filesys.capacity Total capacity of mounted filesystem (Kbytes)
+@ filesys.used Total space used on mounted filesystem (Kbytes)
+@ filesys.free Total space free on mounted filesystem (Kbytes)
+@ filesys.maxfiles Inodes capacity of mounted filesystem
+@ filesys.usedfiles Number of inodes allocated on mounted filesystem
+@ filesys.freefiles Number of unallocated inodes on mounted filesystem
+@ filesys.mountdir File system mount point
+@ filesys.full Percentage of filesystem in use
+@ filesys.blocksize Size of each block on mounted filesystem (Bytes)
+@ filesys.avail Total space free to non-superusers on mounted filesystem (Kbytes)
+@ filesys.readonly Indicates whether a filesystem is mounted readonly
+
+@ kernel.uname.release release level of the running kernel
+Release level of the running kernel as reported via the release[]
+value returned from uname(2) or uname -r.
+
+See also pmda.uname.
+
+@ kernel.uname.version version level (build number) and build date of the running kernel
+Version level of the running kernel as reported by the version[]
+value returned from uname(2) or uname -v.  Usually a NetBSD release
+number.
+
+See also pmda.uname.
+@ kernel.uname.sysname name of the implementation of the operating system
+Name of the implementation of the running operating system as reported
+by the sysname[] value returned from uname(2) or uname -s.  Usually
+"NetBSD".
+
+See also pmda.uname.
+@ kernel.uname.machine name of the hardware type the system is running on
+Name of the hardware type the system is running on as reported by
+the machine[] value returned from uname(2) or uname -m, e.g. "i686".
+
+See also pmda.uname.
+@ kernel.uname.nodename host name of this node on the network
+Name of this node on the network as reported by the nodename[]
+value returned from uname(2) or uname -n.  Usually a synonym for
+the host name.
+
+See also pmda.uname.
+@ kernel.uname.distro NetBSD distribution name
+An alias for kernel.uname.version.
+@ pmda.uname identity and type of current system
+Identity and type of current system.  The concatenation of the values
+returned from utsname(2), also similar to uname -a.
+
+See also the kernel.uname.* metrics
+@ pmda.version build version of NetBSD PMDA
