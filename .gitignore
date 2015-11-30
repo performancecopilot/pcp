@@ -12,6 +12,7 @@ Logs
 .gitcensus
 .bintrayrc
 .bintrayrc.*
+.qmake.stash
 autom4te.cache
 config.status
 pcp.lsm
