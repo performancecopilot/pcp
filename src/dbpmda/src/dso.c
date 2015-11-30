@@ -70,7 +70,9 @@ opendso(char *dso, char *init, int domain)
 	     */
 	    challenge = 0xff;
 	    dispatch.comm.pmda_interface = challenge;
-	    dispatch.comm.pmapi_version = ~PMAPI_VERSION;
+	    /* set in 2 steps to avoid int to bitfield truncation warnings */
+	    dispatch.comm.pmapi_version = PMAPI_VERSION;
+	    dispatch.comm.pmapi_version = ~dispatch.comm.pmapi_version;
 	    dispatch.comm.flags = 0;
 	    dispatch.status = 0;
 #ifdef PCP_DEBUG

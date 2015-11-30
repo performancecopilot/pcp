@@ -29,7 +29,7 @@ cc ... \-lpcp
 .SH DESCRIPTION
 .B __pmParseCtime
 reverses the
-.BR asctime (3C)
+.BR asctime (3)
 function.  It accepts a
 .B string
 specifying a time, and fills in the given
@@ -37,7 +37,7 @@ specifying a time, and fills in the given
 structure.
 .PP
 Either a fully specified
-.BR asctime (3C)
+.BR asctime (3)
 string like "Mon Mar  4 13:07:47 1996" or a partially specified time
 like '1996", "Mar 1996", "Mar 4 1996", "Mar", "13:07:47", "13:07",
 "Mar 4 13:07:47",... is accepted.  In addition, the seconds component
@@ -51,7 +51,7 @@ error message string in
 if the given
 .B string
 does not parse.  Be sure to
-.BR free (3C)
+.BR free (3)
 the error message string.
 .PP
 The

@@ -1,0 +1,46 @@
+#
+# Copyright (c) 2015 Red Hat.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# pipe PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help test goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ PIPE.1 Instance domain of pipe commands
+
+@ pipe.numclients The number of attached clients
+@ pipe.maxmemory Maximum number of queued event bytes for each client
+@ pipe.commands Command line string for each pipe instance
+
+@ pipe.line Command output string event data
+@ pipe.firehose Captures command output event records
+Individual lines of output from each command.  Use pmStore to set
+any parameter(s) and launch a new command for the current client.
+
+@ pipe.queue.count Number of lines of string event data
+@ pipe.queue.bytes Bytes of string event data observed
+@ pipe.queue.memused Memory used to hold in-core event data
+@ pipe.queue.numclients Number of clients for each queue
+
+

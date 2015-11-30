@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2015 Red Hat.
 .\" Copyright (c) 2011-2012 Nathan Scott.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -20,6 +21,7 @@
 \f3pmdaEventNewActiveQueue\f1,
 \f3pmdaEventQueueHandle\f1,
 \f3pmdaEventQueueAppend\f1,
+\f3pmdaEventQueueShutdown\f1,
 \f3pmdaEventQueueRecords\f1,
 \f3pmdaEventQueueClients\f1,
 \f3pmdaEventQueueCounter\f1,
@@ -31,7 +33,6 @@
 .ft 3
 .nf
 #include <pcp/pmapi.h>
-#include <pcp/impl.h>
 #include <pcp/pmda.h>
 .fi
 .sp
@@ -49,6 +50,9 @@ int pmdaEventQueueHandle(const char *\fIname\fP);
 .br
 .ti -8n
 int pmdaEventQueueAppend(int \fIhandle\fP, void *\fIbuffer\fP, size_t \fIbytes\fP, struct timeval *\fItv\fP);
+.br
+.ti -8n
+int pmdaEventQueueShutdown(int \fIhandle\fP);
 .br
 .sp
 .in

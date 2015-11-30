@@ -11,7 +11,6 @@
 .\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
-.\" 
 .\"
 .TH PMWEBD 1 "PCP" "Performance Co-Pilot"
 .SH NAME
@@ -39,61 +38,77 @@
 [\f3\-x\f1 \f2file\f1]
 [\f3\-v\f1]
 [\f3\-?\f1]
-.\" see also ../../src/pmwebapi/main.c options[] et al.
-
 .SH DESCRIPTION
 .B pmwebd
 is a network daemon that binds a subset of the
-Performance Co-Pilot (PCP) client API (PMAPI) to RESTful web
-applications using the HTTP (PMWEBAPI) protocol.  Web
-clients request a URI with the prefix
+Performance Co-Pilot (PCP) client API (\c
+.BR PMAPI (3))
+to RESTful web
+applications using the HTTP (\c
+.BR PMWEBAPI (3))
+protocol.
+Web clients request a URI with the prefix
 .B /pmapi
-to access the bindings.  pmwebd creates PCP contexts as requested
+to access the bindings.
+.B pmwebd
+creates PCP contexts as requested
 by a dynamic pool of remote clients, and maintains them as long as the
 clients regularly reconnect to request PMAPI operations.  Otherwise,
 PCP contexts are closed after a timeout.  Permanent contexts may be
 requested on the command line.
 .PP
-In addition to the API binding, pmwebd may be optionally configured as a
+In addition to the API binding,
+.B pmwebd
+may be optionally configured as a
 simple HTTP file server, in order to feed the web application itself
 to a web browser.  URIs not matching the 
 .B /pmapi
 prefix are mapped to files under the configured resource directory, if
 the \f3\-R\f1 option was given.
 .PP
-In addition, pmwebd may be optionally configured as a server of a subset
+In addition,
+.B pmwebd
+may be optionally configured as a server of a subset
 of the graphite 0.9.12 web API, for URLs with the
 .B /graphite
 prefix, in order to expose PCP archives to interactive data-graphing web
 applications.
-
 .PP
-The options to pmwebd are as follows.
+The options to
+.B pmwebd
+are as follows.
 .TP
 \f3\-p\f1 \f2port\f1
-Set the TCP port number on which pmwebd will listen for HTTP requests.
+Set the TCP port number on which
+.B pmwebd
+will listen for HTTP requests.
 The default is 44323.
 .TP
 \f3\-4\f1 or \f3\-6\f1
-Listen only on IPv4 or IPv6.  By default, pmwebd will listen on both
+Listen only on IPv4 or IPv6.  By default,
+.B pmwebd
+will listen on both
 protocols, if possible.
 .TP
 \f3\-A\f1 \f2archdir\f1
 Limit remote access to archives to only those beneath the given directory.
-By default, only files beneath the initial pmwebd working directory may
+By default, only files beneath the initial
+.B pmwebd
+working directory may
 be accessed.
 .TP
 \f3\-R\f1 \f2resdir\f1
 Activate file serving beneath the given resource directory.  All regular
-files there may be read & transcribed to remote clients.  By default,
+files there may be read and transcribed to remote clients.  By default,
 file serving is disabled.
 .TP
 \f3\-G\f1
 Activate servicing of a subset of the graphite webapi.  This exposes all
-PCP archives under the \-A directory to remote clients.  By default,
+PCP archives under the \f3\-A\f1 directory to remote clients.  By default,
 graphite webapi serving is disabled.  To use the graphite and/or grafana
-web applications included with pmwebd, use both \-G and \-R, and connect
-your web browser to
+web applications included with
+.BR pmwebd ,
+use both \f3\-G\f1 and \f3\-R\f1, and connect your web browser to
 .nh
 .B http://127.0.0.1:43323/
 .hy
@@ -101,22 +116,27 @@ your web browser to
 \f3\-i\f1 \f2min-interval\f1
 Set the minimum sampling interval for graphite time series in seconds.
 The default is 60.  Smaller values give higher precision (but not
-necessarily accuracy) data, but may cost extra processing time at pmwebd
+necessarily accuracy) data, but may cost extra processing time at
+.B pmwebd
 or the web browser; and vice versa.
 .TP
 \f3\-I\f1
 Attempt to open an entire directory as an archive when traversing the
-\-A DIR paths to serve graphite-api metrics.  If successful, it can make the
+\f3\-A\f1 DIR paths to serve graphite-api metrics.  If successful, it can make the
 metric names much shorter (omitting individual encoded file names) and span
-across time.  If the attempt fails, pmwebd will recurse to each individual
-archive file, just as though \-I were not given.  The difference is that if
-the \-I attempt succeeds, a subdirectory is not recursed further, so if any
+across time.  If the attempt fails,
+.B pmwebd
+will recurse to each individual
+archive file, just as though \f3\-I\f1 were not given.  The difference is that if
+the \f3\-I\f1 attempt succeeds, a subdirectory is not recursed further, so if any
 other archives or subdirectories are present, they won't be exposed to
 graphite-api clients.
 .TP
 \f3\-t\f1 \f2timeout\f1
 Set the maximum timeout (in seconds) after the last operation on a pmapi web
-context, before it is closed by pmwebd.  A smaller timeout may be requested
+context, before it is closed by
+.BR pmwebd .
+A smaller timeout may be requested
 by the web client.
 .TP
 \f3\-c\f1 \f2number\f1
@@ -135,10 +155,10 @@ and/or local PMDA contexts.
 By default these are not allowed due to the automatic authentication that
 is performed on the server in these modes.
 If enabled, unauthenticated remote
-.B PMWEBAPI (3)
+.BR PMWEBAPI (3)
 clients will be able to access
 potentially sensitive performance metric values which an unauthenticated
-.B PMAPI (3)
+.BR PMAPI (3)
 client usually would not be able to.
 Only enable this option if you understand the risks involved, and are sure
 that all remote
@@ -151,8 +171,7 @@ permanent ones accessible.
 .TP
 \f3\-K\f1 \f2spec\f1
 When
-fetching metrics from a local context, the
-.B \-K
+fetching metrics from a local context, the \f3\-K\f1
 option may be used to control the DSO PMDAs that should be
 made accessible.  The
 .I spec
@@ -164,7 +183,7 @@ option may be used.
 .TP
 \f3\-l\f1 \f2logfile\f1
 By default, logging goes to standard output/error file handles.
-The verbosity flag \-v affects the amount of traffic.  The
+The verbosity flag \f3\-v\f1 affects the amount of traffic.  The
 .B \-l
 option causes the log file to be written to
 .I logfile
@@ -178,9 +197,11 @@ If invoked as root, assume the identity of
 before starting to accept incoming requests from web clients.
 .TP
 \f3\-x\f1 \f2file\f1
-Before the pmwebd
+Before the
+.B pmwebd
 .I logfile
-can be opened, pmwebd
+can be opened,
+.B pmwebd
 may encounter a fatal error which prevents it from starting.  By default, the
 output describing this error is sent to
 .B /dev/tty
@@ -189,22 +210,29 @@ but it may redirected to
 .TP
 \f3\-v\f1
 Increase the verbosity of the
-pmwebd program as it logs to its standard output/error.
+.B pmwebd
+program as it logs to its standard output/error.
 .TP
 \f3\-?\f1
-Show pmwebd invocation help and exit.
-
+Show
+.B pmwebd
+invocation help and exit.
 .SH SECURITY
 .PP
-The current release of pmwebd is suitable for direct exposure to
+The current release of
+.B pmwebd
+is suitable for direct exposure to
 trusted networks only, due to several security limitations.  Most or
 all of these limitations may be worked around by use of a web
 application firewall (for example, an Apache HTTPD proxy), which would
-add the constraints and capabilities absent within pmwebd.  Such
-configuration is beyond the scope of this document.
+add the constraints and capabilities absent within
+.BR pmwebd .
+Such configuration is beyond the scope of this document.
 .TP
 encryption/confidentiality
-The pmwebd program is does not currently support HTTPS (SSL/TLS), so
+The
+.BR pmwebd
+program is does not currently support HTTPS (SSL/TLS), so
 the HTTP traffic is not protected against network-level attacks.
 .TP
 authentication
@@ -217,19 +245,28 @@ Use of resulting pmwebapi contexts later requires matching HTTP PLAIN
 authentication; see below.
 .TP
 inbound admission control
-The pmwebd program does not impose ACLs on the origin or rate of its
+The
+.B pmwebd
+program does not impose ACLs on the origin or rate of its
 incoming requests.  It may be possible for some clients to starve others.
 .TP
 outbound admission control
-The pmwebd program does not impose ACLs on outbound connections 
+The
+.B pmwebd
+program does not impose ACLs on outbound connections 
 when a new PMAPI context is created for a remote third-party PMCD.
 For an archive type context, the files must be located under the
-pmwebd current directory, or another directory specified by 
+.B pmwebd
+current directory, or another directory specified by 
 .BR \-A .
 One may entirely disable remotely specified PMAPI context creation using the 
 .B \-N
 option; in this case, specify a static set of contexts using the
-.B \-h ", " \-a ", and/or " \-L " options."
+.BR \-h ,
+.BR \-a ,
+and/or
+.B \-L
+options.
 You may assign them arbitrary context numbers with the
 .B \-c
 option.
@@ -247,51 +284,61 @@ option to reset their starting web context identifiers to a number
 much different from 1.  On the other hand, context ownership is not
 that precious, since there exist no state-destructive operations for
 them, except perhaps metric store or instance profile settings.
-
 .SH "STARTING AND STOPPING PMWEBD"
-
-The pmwebd server may be started automatically at boot time and
+The
+.B pmwebd
+server may be started automatically at boot time and
 stopped when the system is being brought down.  Users may also run
-customized pmwebd instances (under separate \-p PORT numbers), for
+customized
+.B pmwebd
+instances (under separate \f3\-p\f1 PORT numbers), for
 example for their own archive farms.
-
-For management fo the system pmwebd, become superuser and type
+.B
+For management fo the system
+.BR pmwebd ,
+become superuser and type
 .PP
 .ft CS
 # $PCP_RC_DIR/pmwebd start
 .ft
 .PP
-to start pmwebd, or
+to start
+.BR pmwebd ,
+or
 .PP
 .ft CS
 # $PCP_RC_DIR/pmwebd stop
 .ft
 .PP
-to stop pmwebd.
-Starting pmwebd when it is already running is the same as stopping
+to stop
+.BR pmwebd .
+Starting
+.B pmwebd
+when it is already running is the same as stopping
 it and then starting it again.
-
 .SH FILES
 .PD 0
 .TP
 .B $PCP_PMWEBDOPTIONS_PATH
 command line options
 and environment variable settings for
-pmwebd when launched from
+.B pmwebd
+when launched from
 .B $PCP_RC_DIR/pmwebd
 This file is interpreted as a Bourne Shell script, expecting
 variable settings of the form "OPTIONS=value" and possibly others.
 .TP
 .B $PCP_LOG_DIR/pmwebd/pmwebd.log
-Log file for system pmwebd service. 
+Log file for system
+.B pmwebd
+service. 
 .TP
 .B $PCP_LOG_DIR
-Default directory for \-A option: a base directory containing PCP archives.
+Default directory for \f3\-A\f1 option: a base directory containing PCP archives.
 .TP
 .B $PCP_SHARE_DIR/webapps
-Default directory for \-R option: a base directory containing web applications.
+Default directory for \f3\-R\f1 option: a base directory containing web applications.
 .br
-
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
@@ -306,7 +353,6 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (5).
-
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR PMAPI (3),

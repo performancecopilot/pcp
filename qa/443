@@ -111,13 +111,11 @@ echo "--- problems at source of metrics ---"
 _run -h no.such.host.pcp.io sample.event.records
 _run -a /no/such/archive sample.event.records
 _run_sudo -L sample.event.records
-_run sample.event.records sample.colour
-_run -Dappl0 "sample.colour[red]"
 _run -Dappl0 "sample.event.no_indom_records[red]"
 
 echo
 echo "--- should be ok ---"
-_run_ok -t 10msec -s 1 sample.event.records sample.event.records
+_run_ok -t 10msec -s 1 sample.event.records
 _run_ok -t 10msec -s 8 sample.event.records
 _run_ok -t 10msec -s 3 'sample.event.records[bogus]'
 

@@ -74,6 +74,7 @@ s/=/= /g
 s/)$/ )/
 }' \
     -e 's/rules)$/rule)/' \
+| tee $tmp.dbg.1 \
 | $PCP_AWK_PROG '
 /pmie: .* rule\)/		{ state=1 }
 '$debug' == "true"		{ print "state=" state " want=" want ": " $0 }
@@ -86,6 +87,7 @@ state==1 && / \(actions=/	{ if ($3 == $5 && $5 == $9) {
 				}
 state==1 && / rule\)/		{ want = 0 }
 want==1		{ print }' \
+| tee $tmp.dbg.2 \
 | sed \
     -e '/^evaluations / {
 s/= /=/g
@@ -100,8 +102,18 @@ s/.*:/HOST:/
 
 wait
 
+echo >>$seq.full
+echo "=== pmie stdout ===" >>$seq.full
 cat $tmp.out >>$seq.full
+echo >>$seq.full
+echo "=== pmie stderr ===" >>$seq.full
 cat $tmp.err >>$seq.full
+echo >>$seq.full
+echo "=== filter after sed ===" >>$seq.full
+cat $tmp.dbg.1 >>$seq.full
+echo >>$seq.full
+echo "=== filter after awk ===" >>$seq.full
+cat $tmp.dbg.2 >>$seq.full
 
 status=0
 exit

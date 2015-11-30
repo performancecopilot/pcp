@@ -37,28 +37,34 @@ _getnetworkaddr()
 	host=`hostname`
 	if `which host >/dev/null 2>&1`
 	then
-	    addr=`host $host | sed -e 's/.*address //'`
-	    if `which ifconfig >/dev/null 2>&1`
+	    host_out=`host $host`
+	    if echo "$host_out" | grep ' has address ' >/dev/null
 	    then
-		mask=`ifconfig | grep $addr | sed -e 's/.*Mask://' -e 's/.*netmask \([^ ][^ ]*\).*/\1/'`
-		case "$mask"
-		in
-		    255.255.255.0|0xffffff00)	# /24 network
-			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
-			;;
-		    # pmcd's [access] is not smart enough to handle other
-		    # than /24 networks, so map the other likely options
-		    # to the broader /24 network
-		    #
-		    255.255.255.128|255.255.255.192|255.255.255.224|255.255.255.240|255.255.255.248|255.255.255.252|255.255.255.254)
-			echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
-			;;
-		    *)
-			echo >&2 "_getnetworkaddr: Warning: cannot handle network mask: $mask"
-			;;
-		esac
+		addr=`echo "$host_out" | sed -e 's/.*address //'`
+		if `which ifconfig >/dev/null 2>&1`
+		then
+		    mask=`ifconfig | grep $addr | sed -e 's/.*Mask://' -e 's/.*netmask \([^ ][^ ]*\).*/\1/'`
+		    case "$mask"
+		    in
+			255.255.255.0|0xffffff00)	# /24 network
+			    echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
+			    ;;
+			# pmcd's [access] is not smart enough to handle other
+			# than /24 networks, so map the other likely options
+			# to the broader /24 network
+			#
+			255.255.255.128|255.255.255.192|255.255.255.224|255.255.255.240|255.255.255.248|255.255.255.252|255.255.255.254)
+			    echo "$addr" | sed -e 's/\.[0-9]*$/.*/'
+			    ;;
+			*)
+			    echo >&2 "_getnetworkaddr: Warning: cannot handle network mask: $mask"
+			    ;;
+		    esac
+		else
+		    echo >&2 "No ifconfig(1)? Not sure how to get primary ip addr and netmask"
+		fi
 	    else
-		echo >&2 "No ifconfig(1)? Not sure how to get primary ip addr and netmask"
+		echo >&2 "Unexpected host(1) output: $host_out ... cannot get ip addr and netmask"
 	    fi
 	else
 	    echo >&2 "No host(1)? Not sure how to get primary ip addr and netmask"
@@ -163,6 +169,7 @@ bison
 gdb
 mktemp
 gawk
+pkg-config
 cpan				[perl-CPAN (rpm) (QA optional)]
 # optional executables
 dpkg?	dpkg-buildpackage	[dpkg-dev]
@@ -296,6 +303,8 @@ emerge?	DBD::Pg			[dev-perl/DBD-Pg (postgresql QA optional)]
 dpkg?	DBD::mysql		[libdbd-mysql-perl (mysql QA optional)]
 rpm?	DBD::mysql		[perl-DBD-mysql or 'perl(DBD::mysql)' (mysql QA optional)]
 emerge?	DBD::mysql		[dev-perl/DBD-mysql (mysql QA optional)]
+dpkg?	mkfs.gfs2		[gfs2-utils (gfs2 QA optional)]
+rpm?	mkfs.gfs2		[gfs2-utils (gfs2 QA optional)]
 # pcp-gui
 dpkg?	qmake			[qt4-qmake (build optional)]
 rpm?	qmake|/usr/lib*/qt4/bin/qmake		[qt4-devel (build optional)]

@@ -536,8 +536,6 @@ samples:   all
 13:34:23.239         93         492           ?           ?           ?        1291        1390        1489 
 13:34:26.240         88         487           ?           ?           ?        1286        1385        1484 
 13:34:29.240         83         482           ?           ?           ?        1281        1380        1479 
-
-pmval: pmFetchArchive: End of PCP archive log
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 metric:    sample.many.int
@@ -565,8 +563,6 @@ samples:   all
 13:34:23.239          0           1           2           3           4           5           6           7           8           9          10 
 13:34:26.240          0           1           2           3           4           5           6           7           8           9          10 
 13:34:29.240          0           1           2           3           4           5           6           7           8           9          10 
-
-pmval: pmFetchArchive: End of PCP archive log
 
 === mirage-2 ===
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
@@ -983,8 +979,6 @@ samples:   all
 13:33:57.622         44         443         942        1041           ?        1240 
 13:33:58.622         39         438         937        1036           ?        1235 
 13:33:59.622         29         428         927        1026           ?        1225 
-
-pmval: pmFetchArchive: End of PCP archive log
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 metric:    sample.many.int
@@ -1007,8 +1001,6 @@ samples:   all
 13:33:57.622          0           1           2           3           4           5           6           7           8           9          10 
 13:33:58.622          0           1           2           3           4           5           6           7           8           9          10 
 13:33:59.622          0           1           2           3           4           5           6           7           8           9          10 
-
-pmval: pmFetchArchive: End of PCP archive log
 
 === merged archive ===
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
@@ -1922,8 +1914,6 @@ samples:   all
 13:34:23.239         93         492           ?           ?           ?        1291        1390        1489 
 13:34:26.240         88         487           ?           ?           ?        1286        1385        1484 
 13:34:29.240         83         482           ?           ?           ?        1281        1380        1479 
-
-pmval: pmFetchArchive: End of PCP archive log
 Note: timezone set to local timezone of host "ken.engr.acx" from archive
 
 metric:    sample.many.int
@@ -1964,5 +1954,3 @@ samples:   all
 13:34:23.239          0           1           2           3           4           5           6           7           8           9          10 
 13:34:26.240          0           1           2           3           4           5           6           7           8           9          10 
 13:34:29.240          0           1           2           3           4           5           6           7           8           9          10 
-
-pmval: pmFetchArchive: End of PCP archive log

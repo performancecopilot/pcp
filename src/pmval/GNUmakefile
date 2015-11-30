@@ -15,11 +15,13 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES = pmval.c
+CFILES = pmval.c event.c
+HFILES = pmval.h
 LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
 LLDLIBS = $(PCP_GUILIB) $(LIB_FOR_MATH)
 
 CMDTARGET = pmval$(EXECSUFFIX)
+LNKTARGET = pmevent$(EXECSUFFIX)
 
 default:	$(CMDTARGET)
 
@@ -27,6 +29,7 @@ include $(BUILDRULES)
 
 install:	$(CMDTARGET)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
+	$(INSTALL) -S $(PCP_BIN_DIR)/$(CMDTARGET) $(PCP_BIN_DIR)/$(LNKTARGET)
 
 default_pcp:	default
 

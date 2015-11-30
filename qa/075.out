@@ -162,8 +162,7 @@ interval:  1.00 sec
         300         400         500 
 
 $ pmval -s 2 -t 0.3 -i bin-300 bin-400 bin-500 sample.bin
-Error: pmval can only process one metricname at a time
-
+pmval: error - too many arguments
 Usage: pmval [options] metricname
 
 General options:
@@ -201,10 +200,12 @@ Reporting options:
   -r, --raw             output raw counter values (no rate conversion)
   -U FILE, --nointerp=FILE
                         non-interpolated fetching; ignores interval
+  -v, --verbose         increase diagnostic output
   -w N, --width=N       set the width of each column of output
+  -x VALUE, --filter=VALUE
+                        store to the metric before fetching (filter)
 
 $ pmval -s 2 -t 0.3 -i bin-300.bin-400.bin-500 sample.bin
-
 pmval: instance bin-300.bin-400.bin-500 not available
 
 $ pmval -i bin-300,bin-400 -s 2 sample.bin

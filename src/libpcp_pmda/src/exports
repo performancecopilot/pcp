@@ -135,5 +135,9 @@ PCP_PMDA_3.4 {
 PCP_PMDA_3.5 {
   global:
     pmdaCacheResize;
-
 } PCP_PMDA_3.4;
+
+PCP_PMDA_3.6 {
+  global:
+    pmdaEventQueueShutdown;
+} PCP_PMDA_3.5;

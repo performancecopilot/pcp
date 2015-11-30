@@ -162,7 +162,7 @@ allocated by
 or
 .B __pmDiscoverServicesWithOptions
 with a single call to
-.BR malloc (3C),
+.BR malloc (3),
 and it is the
 responsibility of the
 .B pmDiscoverServices
@@ -178,7 +178,7 @@ When an error occurs, or no services are discovered,
 .I urls
 is undefined (no space will have been
 allocated, and so calling
-.BR free (3C)
+.BR free (3)
 is a singularly bad idea).
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix

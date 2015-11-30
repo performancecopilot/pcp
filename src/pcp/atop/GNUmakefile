@@ -76,7 +76,7 @@ default_pcp: default
 install_pcp: install
 
 $(DISTLINKS):	$(CMDTARGET)
-	@$(LN_S) $(CMDTARGET) $@
+	@$(LN_S) -f $(CMDTARGET) $@
 
 pmgenmap.sh:
 	sed -e "s;^\. .PCP_DIR.etc.pcp.env;. $(TOPDIR)/src/include/pcp.env;" \

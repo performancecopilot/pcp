@@ -50,37 +50,50 @@ static int		mypid = -1;
 #endif
 static int              ceiling = PDU_CHUNK * 64;
 
-static struct timeval	def_wait = { 10, 0 };
-static double		def_timeout = 10.0;
+static struct timeval	req_wait = { 10, 0 };
+static int		req_wait_done;
 
 #define HEADER	-1
 #define BODY	0
 
-const struct timeval *
-__pmDefaultRequestTimeout(void)
+int
+__pmSetRequestTimeout(double timeout)
 {
-    static int		done_default = 0;
+    if (timeout < 0.0)
+	return -EINVAL;
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    if (!done_default) {
-	char	*timeout_str;
-	char	*end_ptr;
+    __pmtimevalFromReal(timeout, &req_wait);
+    req_wait_done = 1;
+    PM_UNLOCK(__pmLock_libpcp);
+    return 0;
+}
+
+double
+__pmRequestTimeout(void)
+{
+    char	*timeout_str, *end_ptr;
+    double	timeout;
+
+    /* get optional PMCD request timeout from the environment */
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
+    if (!req_wait_done) {
 	if ((timeout_str = getenv("PMCD_REQUEST_TIMEOUT")) != NULL) {
-	    def_timeout = strtod(timeout_str, &end_ptr);
-	    if (*end_ptr != '\0' || def_timeout < 0.0) {
+	    timeout = strtod(timeout_str, &end_ptr);
+	    if (*end_ptr != '\0' || timeout < 0.0)
 		__pmNotifyErr(LOG_WARNING,
 			      "ignored bad PMCD_REQUEST_TIMEOUT = '%s'\n",
 			      timeout_str);
-	    }
-	    else {
-		__pmtimevalFromReal(def_timeout, &def_wait);
-	    }
+	    else
+		__pmtimevalFromReal(timeout, &req_wait);
 	}
-	done_default = 1;
+	req_wait_done = 1;
     }
+    timeout = __pmtimevalToReal(&req_wait);
     PM_UNLOCK(__pmLock_libpcp);
-    return (&def_wait);
+    return timeout;
 }
 
 static int
@@ -117,7 +130,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 	    if (timeout != TIMEOUT_NEVER)
 		cwait.ReadTotalTimeoutConstant = timeout * 1000.0;
 	    else
-		cwait.ReadTotalTimeoutConstant = def_timeout * 1000.0;
+		cwait.ReadTotalTimeoutConstant = __pmRequestTimeout() * 1000.0;
 	    SetCommTimeouts((HANDLE)_get_osfhandle(fd), &cwait);
 	}
 	else
@@ -132,7 +145,7 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		wait.tv_usec = 0;
 	    }
 	    else
-		wait = def_wait;
+		wait = req_wait;
 	    if (onetrip) {
 		/*
 		 * Need all parts of the PDU to be received by dead_hand
@@ -173,8 +186,8 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 			tosec = (int)timeout;
 			tomsec = 0;
 		    } else {
-			tosec = (int)def_wait.tv_sec;
-			tomsec = 1000*(int)def_wait.tv_usec;
+			tosec = (int)req_wait.tv_sec;
+			tomsec = 1000*(int)req_wait.tv_usec;
 		    }
 
 		    __pmNotifyErr(LOG_WARNING, 

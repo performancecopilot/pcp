@@ -256,7 +256,7 @@ PCP_CALL extern FILE *__pmOpenLog(const char *, const char *, FILE *, int *);
 PCP_CALL extern FILE *__pmRotateLog(const char *, const char *, FILE *, int *);
 /* make __pmNotifyErr also add entries to syslog */
 PCP_CALL extern void __pmSyslog(int);
-/* standard error, warning and info wrapper for syslog(3C) */
+/* standard error, warning and info wrapper for syslog(3) */
 PCP_CALL extern void __pmNotifyErr(int, const char *, ...) __PM_PRINTFLIKE(2,3);
 
 /*
@@ -823,6 +823,11 @@ PCP_CALL extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
 #define TIMEOUT_DEFAULT	-1
 /*#define TIMEOUT_ASYNC -2*/
 #define TIMEOUT_CONNECT	-3
+
+PCP_CALL extern double __pmConnectTimeout(void);
+PCP_CALL extern int __pmSetConnectTimeout(double);
+PCP_CALL extern double __pmRequestTimeout(void);
+PCP_CALL extern int __pmSetRequestTimeout(double);
 
 /* mode options for __pmGetPDU */
 #define ANY_SIZE	0	/* replacement for old PDU_BINARY */

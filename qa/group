@@ -291,6 +291,10 @@ pcp.py
 # Uses avahi
 avahi
 
+# Zabbix exporting
+zabbix
+zbxpcp
+
 # pcp-atop and related commands
 atop
 
@@ -462,7 +466,7 @@ cgroups
 161 pmlogger local
 162 pmda pmda.proc local pmda.shping pmda.install
 163 archive local
-164 diskstat local pmval pmdumplog
+164:retired diskstat local pmval pmdumplog
 165 pmval local
 166 pmlogreduce local pmval pmdumplog archive
 167 pmda.pmcd pmval local
@@ -609,7 +613,7 @@ cgroups
 308 pmlc pmlogger #452417 remote pmdumplog pmda.proc
 309 libpcp pmcd pmda.linux pmda.simple local
 310 pmie local
-311 archive compat #509592 pminfo local pmstore pmdumplog
+311:retired archive compat #509592 pminfo local pmstore pmdumplog
 312 pmie local
 313 pmval archive local pmdumplog
 314 pmie local pmieutil
@@ -1054,12 +1058,15 @@ cgroups
 861 pmcd pmda.pmcd local
 862 pmie local
 864 pcp python local
+868 pmda.install local
 869 pmda.linux local
 872 pmda.linux local
 873 pmda.linux local
 874 valgrind pmval libpcp local
 875 libpcp local valgrind
 876 pmda.xfs local
+877 libpcp local
+878 pmda.pipe local
 885 pmda.linux local
 888 pmda.linux local
 892 pmcd libpcp local
@@ -1175,6 +1182,7 @@ cgroups
 1053 pmda.json pmda.install local python
 1054 pmlogger pmcpp local
 1065 libpcp valgrind local
+1067 zabbix zbxpcp local
 1079 pcp atop local
 1080 valgrind pcp atop local
 1081 python pcp local

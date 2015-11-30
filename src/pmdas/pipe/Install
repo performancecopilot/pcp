@@ -1,5 +1,6 @@
+#! /bin/sh
 #
-# Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -10,26 +11,18 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
+# 
+# Install the pipe PMDA and/or PMNS
 #
 
-TOPDIR = ../..
-include $(TOPDIR)/src/include/builddefs
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-CFILES = pmevent.c doargs.c
-HFILES = pmevent.h
-LLDFLAGS = -L$(TOPDIR)/src/libpcp_gui/src
-LLDLIBS = $(PCP_GUILIB) $(LIB_FOR_MATH)
+iam=pipe
+pmda_interface=5
+forced_restart=true
 
-CMDTARGET = pmevent$(EXECSUFFIX)
+pmdaSetup
+pmdaInstall
 
-default:	$(CMDTARGET)
-
-include $(BUILDRULES)
-
-install:	$(CMDTARGET)
-	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
-
-default_pcp:	default
-
-install_pcp:	install
-
+exit 0

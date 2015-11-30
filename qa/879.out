@@ -1,0 +1,17 @@
+QA output created by 879
+
+== checking instance name with special characters
+[1] ;34@#bleurg  root        /bin/true
+[name=;34@#bleurg user=root line=1] command: /bin/true
+sts=0
+
+== checking missing user and command fields
+[1] instance
+event_config: CONFIG line 1 missing user name
+sts=1
+
+== checking missing command field
+[1] instance user 
+event_config: CONFIG line 1 missing a command
+sts=1
+

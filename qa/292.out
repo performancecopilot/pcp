@@ -11,8 +11,6 @@ Found at least one "-01" suffix
 
 merge 'em together ...
 
-pmval: pmFetchArchive: End of PCP archive log
-
 metric:    pmcd.control.debug
 archive:   out
 host:      HOST

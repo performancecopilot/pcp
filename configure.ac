@@ -287,14 +287,15 @@ then
     AC_DEFINE(IS_FREEBSD, [1], [Platform is FreeBSD])
     test -f /etc/debian_version && target_distro=debian
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
-    if $target_os = kfreebsd
+    if test $target_os = kfreebsd
     then
-	pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
 	pcp_ps_all_flags=-efw
     else
-	pcp_platform_paths='/usr/bin/X11:/usr/bsd'
 	pcp_ps_all_flags=auxww
     fi
+    pcp_platform_paths='/usr/bin/X11'
+    test -d /usr/local/bin && pcp_platform_paths="$pcp_platform_paths:/usr/local/bin"
+    test -d /usr/bsd && pcp_platform_paths="$pcp_platform_paths:/usr/bsd"
 elif test $target_os = gnu
 then
     AC_DEFINE(IS_GNU, [1], [Platform is GNU Hurd])
@@ -2011,13 +2012,19 @@ $2 == "bozo"	{ t = $1
 
 dnl printf type for pid_t
 AC_MSG_CHECKING([printf type for pid_t])
-cat <<End-of-File >conftest.c
+if test "$cross_compiling" = "yes"; then
+    ans=$printf_fmt_pid
+    echo "cross-compile -> \"$ans\"" >&5
+    fmt_pid="$ans"
+else
+    cat <<End-of-File >conftest.c
 #include <sys/types.h>
 #include <unistd.h>
 pid_t bozo;
 End-of-File
-_do_type
-fmt_pid="$_fmt"
+    _do_type
+    fmt_pid="$_fmt"
+fi
 AC_MSG_RESULT($fmt_pid)
 AC_SUBST(fmt_pid)
 rm -rf conftest.c conftest.debug

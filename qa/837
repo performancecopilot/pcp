@@ -23,7 +23,8 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    grep -i attribute | \
+    tee -a $here/$seq.full \
+    | grep -i attribute | \
     sed \
 	-e "s/processid=[0-9][0-9]*/processid=PID/" \
 	-e "s/groupid=$gid/groupid=GID/" \

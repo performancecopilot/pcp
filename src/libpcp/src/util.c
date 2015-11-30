@@ -83,7 +83,7 @@ __pmSyslog(int onoff)
 }
 
 /*
- * This is a wrapper around syslog(3C) that writes similar messages to stderr,
+ * This is a wrapper around syslog(3) that writes similar messages to stderr,
  * but if __pmSyslog(1) is called, the messages will really go to syslog
  */
 void
@@ -1731,7 +1731,7 @@ strchrnul(const char *s, int c)
 #ifndef HAVE_SCANDIR
 /*
  * Scan the directory dirname, building an array of pointers to
- * dirent entries using malloc(3C).  select() and compare() are
+ * dirent entries using malloc(3).  select() and compare() are
  * used to optionally filter and sort directory entries.
  */
 int

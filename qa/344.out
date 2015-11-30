@@ -51,6 +51,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -88,6 +89,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -125,6 +127,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -162,6 +165,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -199,6 +203,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -236,6 +241,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -273,6 +279,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -310,6 +317,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -347,6 +355,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -384,6 +393,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -421,6 +431,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -458,6 +469,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -495,6 +507,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -532,6 +545,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -569,6 +583,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -606,6 +621,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -654,6 +670,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -691,6 +708,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -740,6 +758,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -787,6 +806,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -824,6 +844,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:
@@ -861,6 +882,7 @@ General options:
                         initial sample time within the time window
   -Z TZ, --timezone=TZ  set reporting timezone
   -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Protocol options:

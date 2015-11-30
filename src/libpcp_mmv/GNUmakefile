@@ -20,8 +20,6 @@ TOPDIR = ../..
 
 include $(TOPDIR)/src/include/builddefs
 
-BASE	= libpcp_mmv.a
-
 SUBDIRS = src
 
 default install: $(SUBDIRS)

@@ -29,12 +29,12 @@ _get_libpcp_config
 target="-h localhost"
 $unix_domain_sockets && target="-h unix:"
 
+$sudo rm -f $seq.full
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-debug=false
-#debug=true
 host=`hostname`
+mypid=$$
 
 _filter()
 {
@@ -46,19 +46,18 @@ _filter()
 
 # real QA test starts here
 
-mypid=$$
-$debug && echo "mypid = $mypid"
+echo "mypid = $mypid" >> $seq.full
 
 pid_len=`ls /proc | head -1 | wc -c`
 pid_len=`expr $pid_len - 1`
-$debug && echo "pid_len = $pid_len"
+echo "pid_len = $pid_len" >> $seq.full
 
 mypid_len=`echo $mypid | wc -c`
 mypid_len=`expr $mypid_len - 1`
-$debug && echo "mypid_len = $mypid_len"
+echo "mypid_len = $mypid_len" >> $seq.full
 
 gap=`expr $pid_len - $mypid_len`
-$debug && echo "gap = $gap"
+echo "gap = $gap" >> $seq.full
 
 # create a zeroes string for the leading zeroes
 # to fill up a pid as seen in /proc
@@ -72,12 +71,12 @@ done
 
 # should all succeed
 args="$target -w 30 -s1"
-pmval $args -i "$mypid" proc.psinfo.pid | _filter
-pmval $args -i "${zeroes}$mypid" proc.psinfo.pid | _filter
-pmval $args -i "${zeroes}${mypid}hi" proc.psinfo.pid | _filter
+pmval $args -i "$mypid" proc.psinfo.pid 2>&1 | _filter
+pmval $args -i "${zeroes}$mypid" proc.psinfo.pid 2>&1 | _filter
+pmval $args -i "${zeroes}${mypid}hi" proc.psinfo.pid 2>&1 | _filter
 
 # should now fail - passed previously
-pmval $args -i "${zeroes}${mypid}12345" proc.psinfo.pid | _filter
+pmval $args -i "${zeroes}${mypid}12345" proc.psinfo.pid 2>&1 | _filter
 
 # success, all done
 status=0

@@ -520,6 +520,20 @@ Requires: perl-PCP-LogImport = %{version}-%{release}
 Performance Co-Pilot (PCP) front-end tools for importing ganglia data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
+#
+# pcp-export-pcp2zabbix
+#
+%package export-pcp2zabbix
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to Zabbix
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+
+%description export-pcp2zabbix
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+to Zabbix (http://www.zabbix.com).
+
 %if !%{disable_python2} || !%{disable_python3}
 #
 # pcp-export-pcp2graphite
@@ -1729,7 +1743,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 
 # all base pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E -v 'pmiostat|pmcollectl|pmatop|pcp2graphite' |\
+  grep -E -v 'pmiostat|pmcollectl|pmatop|pcp2graphite|zabbix' |\
   sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 #
 # Separate the pcp-system-tools package files.
@@ -2299,12 +2313,15 @@ cd
 %files pmda-unbound
 %{_pmdasdir}/unbound
 
-%files export-pcp2graphite
-%{_bindir}/pcp2graphite
-
 %files pmda-mic
 %{_pmdasdir}/mic
+
+%files export-pcp2graphite
+%{_bindir}/pcp2graphite
 %endif # !%{disable_python2} || !%{disable_python3}
+
+%files export-pcp2zabbix
+%{_localstatedir}/lib/zabbix
 
 %if !%{disable_json}
 %files pmda-json
@@ -2404,6 +2421,9 @@ cd
 
 %changelog
 * Wed Dec 16 2015 Lukas Berk <lberk@redhat.com> - 3.10.9-1
+- Add -V/--version support to several more commands (BZ 1284411)
+- Resolve a pcp-iostat(1) transient device exception (BZ 1249572)
+- Provides pmdapipe, an output-capturing domain agent (BZ 1163413)
 - Work in progress [see http://pcp.io/roadmap]
 
 * Fri Oct 30 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.8-1

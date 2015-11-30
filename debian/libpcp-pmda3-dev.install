@@ -43,6 +43,7 @@ usr/share/man/man3/pmdaEventQueueCounter.3.gz
 usr/share/man/man3/pmdaEventQueueHandle.3.gz
 usr/share/man/man3/pmdaEventQueueMemory.3.gz
 usr/share/man/man3/pmdaEventQueueRecords.3.gz
+usr/share/man/man3/pmdaEventQueueShutdown.3.gz
 usr/share/man/man3/pmdaEventReleaseArray.3.gz
 usr/share/man/man3/pmdaEventReleaseHighResArray.3.gz
 usr/share/man/man3/pmdaEventResetArray.3.gz

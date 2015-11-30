@@ -67,9 +67,6 @@ then
 elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ]
 then
     ln $seq.darwin $seq.out
-elif [ $PCP_PLATFORM = irix ]
-then
-    ln $seq.irix $seq.out
 else
     echo "Warning: no validated output for $PCP_PLATFORM"
 fi

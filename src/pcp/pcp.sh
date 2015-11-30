@@ -27,7 +27,7 @@ done
 
 # usage spec for pmgetopt, note posix flag (commands mean no reordering)
 cat > $tmp/usage << EOF
-# getopts: A:a:D:gh:Ln:O:p:PS:s:T:t:Z:z?
+# getopts: A:a:D:gh:Ln:O:p:PS:s:T:t:VZ:z?
 # Usage: [options] [[...] command [...]]
 
 Summary Options:
@@ -52,6 +52,7 @@ Command Options:
    --interval
    --timezone
    --hostzone
+   --version
 # end
 EOF
 
@@ -76,7 +77,8 @@ _usage()
 		&& sort -u < $tmp/cmds ) | _fmt >> $tmp/usage
 	pmgetopt --progname=$progname --usage --config=$tmp/usage
     fi
-    exit 1
+    sts=1
+    exit
 }
 
 _fmt()
@@ -168,6 +170,11 @@ do
 	Zflag=true
 	pcp_timezone="$2"
 	shift
+	;;
+      -V)
+	$PCP_BINADM_DIR/pmconfig -L pcp_version | sed -e 's/[_=]/ /g'
+	sts=0
+	exit
 	;;
       -z)
 	zflag=true

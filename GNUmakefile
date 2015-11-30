@@ -60,19 +60,17 @@ pack_pcp : default_pcp
 
 install_pcp :  default_pcp
 	# install the common directories _once_
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)
+	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)
 ifneq "$(findstring $(TARGET_OS),darwin mingw)" ""
-	# for Linux, this one comes from the chkconfig package
 	$(INSTALL) -m 755 -d $(PCP_RC_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SASLCONF_DIR)
-endif
-ifeq ($(TARGET_OS),mingw)
-	# for Linux, this group comes from the filesystem package
 	$(INSTALL) -m 755 -d $(PCP_BIN_DIR)
 	$(INSTALL) -m 755 -d $(PCP_LIB_DIR)
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)
-else
-	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)
-	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)
+	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man1
+	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man3
+	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man5
 endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)
 ifeq "$(findstring $(PACKAGE_DISTRIBUTION), debian redhat fedora)" ""

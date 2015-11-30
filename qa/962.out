@@ -2560,8 +2560,6 @@ interval:  60.00 sec
 18:40:00.000             122.9   
 18:41:00.000             127.6   
 18:42:00.000             312.9   
-
-pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "bozo-vm" from archive
 
 metric:    kernel.all.pswitch
@@ -2742,8 +2740,6 @@ interval:  900.00 sec
 18:00:00.000             133.9   
 18:15:00.000             126.0   
 18:30:00.000             132.9   
-
-pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "bozo-vm" from archive
 
 metric:    kernel.all.pswitch
@@ -2796,8 +2792,6 @@ interval:  3600.00 sec
 16:00:00.000             129.3   
 17:00:00.000             129.1   
 18:00:00.000             132.0   
-
-pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "bozo-vm" from archive
 
 metric:    kernel.all.pswitch
@@ -2818,8 +2812,6 @@ interval:  14400.00 sec
 07:00:00.000             128.0   
 11:00:00.000             131.4   
 15:00:00.000              82.74  
-
-pmval: pmFetch: End of PCP archive log
 Note: timezone set to local timezone of host "bozo-vm" from archive
 
 metric:    kernel.all.pswitch
@@ -2833,5 +2825,3 @@ samples:   3
 interval:  43200.00 sec
 23:00:00.000              10.40  
 11:00:00.000             129.5   
-
-pmval: pmFetch: End of PCP archive log

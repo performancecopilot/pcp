@@ -106,8 +106,6 @@ TIMESTAMP        100         300         500
 TIMESTAMP        100         300         500 
 TIMESTAMP        100         300         500 
 
-pmval: pmFetchArchive: End of PCP archive log
-
 === hinv.ndisk, then bin.sample ===
 Performance Co-Pilot Logger Control (pmlc), Version VERSION
 
@@ -241,5 +239,3 @@ TIMESTAMP        100         300         500
 TIMESTAMP        100         300         500 
 TIMESTAMP        100         300         500 
 TIMESTAMP        100         300         500 
-
-pmval: pmFetchArchive: End of PCP archive log

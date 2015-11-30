@@ -54,8 +54,6 @@ samples:   all
 16:49:59.037    3.223E-02             ?        0.0    
 16:50:04.037    2.734E-02             ?        0.0    
 
-pmval: pmFetchArchive: End of PCP archive log
-
 -- -z -S @16:49:20 -T @16:49:40 -a ... --
 Note: timezone set to local timezone of host "omen" from archive
 

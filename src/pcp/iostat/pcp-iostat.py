@@ -91,10 +91,10 @@ class IostatReport(pmcc.MetricGroupPrinter):
         c_avactive = self.curVals(group, subtree + '.avactive')
         p_avactive = self.prevVals(group, subtree + '.avactive')
 
-        # check availability
-        if p_rrqm == {} or p_wrqm == {} or p_r == {} or p_w == {} or p_rkb == {} \
-           or p_wkb == {} or p_ractive == {} or p_wactive == {} or p_avactive == {}:
-            # no values (near start of archive?)
+        if p_rrqm == {} or p_wrqm == {} or p_r == {} or p_w == {} or \
+           p_ractive == {} or p_wactive == {} or p_avactive == {} or \
+           p_rkb == {} or p_wkb == {}:
+            # no values for some metric (e.g. near start of archive)
             return
 
         if "h" not in IostatOptions.xflag:
@@ -111,54 +111,57 @@ class IostatReport(pmcc.MetricGroupPrinter):
                                'avgrq-sz', 'avgqu-sz', 'await', 'r_await', 'w_await', '%util')
                     print("%-12s %7s %7s %6s %6s %8s %8s %8s %8s %7s %7s %7s %5s" % heading)
 
-        for inst in sorted(instlist):
-            # basic stats
-            rrqm = (c_rrqm[inst] - p_rrqm[inst]) / dt
-            wrqm = (c_wrqm[inst] - p_wrqm[inst]) / dt
-            r = (c_r[inst] - p_r[inst]) / dt
-            w = (c_w[inst] - p_w[inst]) / dt
-            rkb = (c_rkb[inst] - p_rkb[inst]) / dt
-            wkb = (c_wkb[inst] - p_wkb[inst]) / dt
+        try:
+            for inst in sorted(instlist):
+                # basic stats
+                rrqm = (c_rrqm[inst] - p_rrqm[inst]) / dt
+                wrqm = (c_wrqm[inst] - p_wrqm[inst]) / dt
+                r = (c_r[inst] - p_r[inst]) / dt
+                w = (c_w[inst] - p_w[inst]) / dt
+                rkb = (c_rkb[inst] - p_rkb[inst]) / dt
+                wkb = (c_wkb[inst] - p_wkb[inst]) / dt
 
-            # totals
-            tot_rios = (float)(c_r[inst] - p_r[inst])
-            tot_wios = (float)(c_w[inst] - p_w[inst])
-            tot_ios = (float)(tot_rios + tot_wios)
+                # totals
+                tot_rios = (float)(c_r[inst] - p_r[inst])
+                tot_wios = (float)(c_w[inst] - p_w[inst])
+                tot_ios = (float)(tot_rios + tot_wios)
 
-            # total active time in seconds (same units as dt)
-            tot_active = (float)(c_avactive[inst] - p_avactive[inst]) / 1000.0
+                # total active time in seconds (same units as dt)
+                tot_active = (float)(c_avactive[inst] - p_avactive[inst]) / 1000.0
 
-            avgrqsz = avgqsz = await = r_await = w_await = util = 0.0
+                avgrqsz = avgqsz = await = r_await = w_await = util = 0.0
 
-            # average request size units are KB (sysstat reports in units of sectors)
-            if tot_ios:
-                avgrqsz = (float)((c_rkb[inst] - p_rkb[inst]) + (c_wkb[inst] - p_wkb[inst])) / tot_ios
+                # average request size units are KB (sysstat reports in units of sectors)
+                if tot_ios:
+                    avgrqsz = (float)((c_rkb[inst] - p_rkb[inst]) + (c_wkb[inst] - p_wkb[inst])) / tot_ios
 
-            # average queue length
-            avgqsz = (float)((c_ractive[inst] - p_ractive[inst]) + (c_wactive[inst] - p_wactive[inst])) / dt / 1000.0
+                # average queue length
+                avgqsz = (float)((c_ractive[inst] - p_ractive[inst]) + (c_wactive[inst] - p_wactive[inst])) / dt / 1000.0
 
-            # await, r_await, w_await
-            if tot_ios:
-                await = ((c_ractive[inst] - p_ractive[inst]) + (c_wactive[inst] - p_wactive[inst])) / tot_ios
+                # await, r_await, w_await
+                if tot_ios:
+                    await = ((c_ractive[inst] - p_ractive[inst]) + (c_wactive[inst] - p_wactive[inst])) / tot_ios
 
-            if tot_rios:
-                r_await = (c_ractive[inst] - p_ractive[inst]) / tot_rios
+                if tot_rios:
+                    r_await = (c_ractive[inst] - p_ractive[inst]) / tot_rios
 
-            if tot_wios:
-                w_await = (c_wactive[inst] - p_wactive[inst]) / tot_wios
+                if tot_wios:
+                    w_await = (c_wactive[inst] - p_wactive[inst]) / tot_wios
 
-            # device utilization (percentage of active time / interval)
-            if tot_active:
+                # device utilization (percentage of active time / interval)
+                if tot_active:
                     util = 100.0 * tot_active / dt
 
-            device = inst	# prepare name for printing
-            if "t" in IostatOptions.xflag:
-                print("%-24s %-12s %7.1f %7.1f %6.1f %6.1f %8.1f %8.1f %8.2f %8.2f %7.1f %7.1f %7.1f %5.1f" \
-                % (timestamp, device, rrqm, wrqm, r, w, rkb, wkb, avgrqsz, avgqsz, await, r_await, w_await, util))
-            else:
-                print("%-12s %7.1f %7.1f %6.1f %6.1f %8.1f %8.1f %8.2f %8.2f %7.1f %7.1f %7.1f %5.1f" \
-                % (device, rrqm, wrqm, r, w, rkb, wkb, avgrqsz, avgqsz, await, r_await, w_await, util))
-
+                device = inst	# prepare name for printing
+                if "t" in IostatOptions.xflag:
+                    print("%-24s %-12s %7.1f %7.1f %6.1f %6.1f %8.1f %8.1f %8.2f %8.2f %7.1f %7.1f %7.1f %5.1f" \
+                    % (timestamp, device, rrqm, wrqm, r, w, rkb, wkb, avgrqsz, avgqsz, await, r_await, w_await, util))
+                else:
+                    print("%-12s %7.1f %7.1f %6.1f %6.1f %8.1f %8.1f %8.2f %8.2f %7.1f %7.1f %7.1f %5.1f" \
+                    % (device, rrqm, wrqm, r, w, rkb, wkb, avgrqsz, avgqsz, await, r_await, w_await, util))
+        except KeyError:
+            # instance missing from previous sample
+            pass
 
 class IostatOptions(pmapi.pmOptions):
     # class attributes

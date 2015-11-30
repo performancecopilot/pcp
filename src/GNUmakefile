@@ -42,6 +42,7 @@ OTHER_SUBDIRS = \
 	newhelp \
 	pcp \
 	pcp2graphite \
+	pcp2zabbix \
 	pmafm \
 	pmfind \
 	pmcpp \
@@ -56,7 +57,6 @@ OTHER_SUBDIRS = \
 	pmdumplog \
 	pmdumptext \
 	pmerr \
-	pmevent \
 	pmgenmap \
 	pmgetopt \
 	pmhostname \

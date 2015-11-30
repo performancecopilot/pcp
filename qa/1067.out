@@ -1,0 +1,172 @@
+QA output created by 1067
+== request specific values
+pcp.sample.long.one                           [u|1]
+pcp.sample.long.bin[bin-100]                  [u|100]
+pcp.sample.ulonglong.million                  [u|1000000]
+pcp.sample.float.hundred                      [d|100.000000]
+pcp.sample.double.ten                         [d|10.000000]
+pcp.sample.string.null                        [s|]
+pcp.sample.string.hullo                       [s|hullo world!]
+pcp.sample.aggregate.hullo                    [m|ZBX_NOTSUPPORTED] [Unsupported metric value type.]
+pcp.sample.event.records[fungus]              [m|ZBX_NOTSUPPORTED] [Unknown error.]
+pcp.sample.bad.nosupport                      [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.bad.novalues                       [m|ZBX_NOTSUPPORTED] [No value available.]
+== enumerated names and filtered values
+pcp.sample.control                            VALUE
+pcp.sample.daemon_pid                         VALUE
+pcp.sample.seconds                            VALUE
+pcp.sample.milliseconds                       VALUE
+pcp.sample.load                               VALUE
+pcp.sample.colour[red]                        VALUE
+pcp.sample.darkness[red]                      [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.bin[bin-100]                       VALUE
+pcp.sample.bucket[bin-100]                    VALUE
+pcp.sample.part_bin[bin-100]                  VALUE
+pcp.sample.bogus_bin[bin-100]                 VALUE
+pcp.sample.drift                              VALUE
+pcp.sample.step                               VALUE
+pcp.sample.step_counter                       VALUE
+pcp.sample.mirage[m-00]                       VALUE
+pcp.sample.mirage_longlong[m-00]              VALUE
+pcp.sample.write_me                           VALUE
+pcp.sample.lights                             VALUE
+pcp.sample.magnitude                          VALUE
+pcp.sample.sysinfo                            [m|ZBX_NOTSUPPORTED] [Unsupported metric value type.]
+pcp.sample.pdu                                VALUE
+pcp.sample.recv_pdu                           VALUE
+pcp.sample.xmit_pdu                           VALUE
+pcp.sample.noinst                             [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.needprofile[colleen]               [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.not_ready                          VALUE
+pcp.sample.rapid                              VALUE
+pcp.sample.error_code                         VALUE
+pcp.sample.error_check                        VALUE
+pcp.sample.bigid                              VALUE
+pcp.sample.byte_ctr                           VALUE
+pcp.sample.byte_rate                          VALUE
+pcp.sample.kbyte_ctr                          VALUE
+pcp.sample.kbyte_rate                         VALUE
+pcp.sample.byte_rate_perhour                  VALUE
+pcp.sample.datasize                           VALUE
+pcp.sample.secret.foo.bar.max.redirect[root]  VALUE
+pcp.sample.secret.bar                         VALUE
+pcp.sample.secret.foo.one                     VALUE
+pcp.sample.secret.foo.two                     VALUE
+pcp.sample.secret.foo.bar.three               VALUE
+pcp.sample.secret.foo.bar.four                VALUE
+pcp.sample.secret.foo.bar.grunt.five          VALUE
+pcp.sample.secret.foo.bar.grunt.snort.six     VALUE
+pcp.sample.secret.foo.bar.grunt.snort.huff.puff.seven VALUE
+pcp.sample.long.one                           VALUE
+pcp.sample.long.ten                           VALUE
+pcp.sample.long.hundred                       VALUE
+pcp.sample.long.million                       VALUE
+pcp.sample.long.write_me                      VALUE
+pcp.sample.long.bin[bin-100]                  VALUE
+pcp.sample.long.bin_ctr[bin-100]              VALUE
+pcp.sample.ulong.one                          VALUE
+pcp.sample.ulong.ten                          VALUE
+pcp.sample.ulong.hundred                      VALUE
+pcp.sample.ulong.million                      VALUE
+pcp.sample.ulong.write_me                     VALUE
+pcp.sample.ulong.bin[bin-100]                 VALUE
+pcp.sample.ulong.bin_ctr[bin-100]             VALUE
+pcp.sample.ulong.count.base                   VALUE
+pcp.sample.ulong.count.deca                   VALUE
+pcp.sample.ulong.count.hecto                  VALUE
+pcp.sample.ulong.count.kilo                   VALUE
+pcp.sample.ulong.count.mega                   VALUE
+pcp.sample.longlong.one                       VALUE
+pcp.sample.longlong.ten                       VALUE
+pcp.sample.longlong.hundred                   VALUE
+pcp.sample.longlong.million                   VALUE
+pcp.sample.longlong.write_me                  VALUE
+pcp.sample.longlong.bin[bin-100]              VALUE
+pcp.sample.longlong.bin_ctr[bin-100]          VALUE
+pcp.sample.ulonglong.one                      VALUE
+pcp.sample.ulonglong.ten                      VALUE
+pcp.sample.ulonglong.hundred                  VALUE
+pcp.sample.ulonglong.million                  VALUE
+pcp.sample.ulonglong.write_me                 VALUE
+pcp.sample.ulonglong.bin[bin-100]             VALUE
+pcp.sample.ulonglong.bin_ctr[bin-100]         VALUE
+pcp.sample.float.one                          VALUE
+pcp.sample.float.ten                          VALUE
+pcp.sample.float.hundred                      VALUE
+pcp.sample.float.million                      VALUE
+pcp.sample.float.write_me                     VALUE
+pcp.sample.float.bin[bin-100]                 VALUE
+pcp.sample.float.bin_ctr[bin-100]             VALUE
+pcp.sample.double.one                         VALUE
+pcp.sample.double.ten                         VALUE
+pcp.sample.double.hundred                     VALUE
+pcp.sample.double.million                     VALUE
+pcp.sample.double.write_me                    VALUE
+pcp.sample.double.bin[bin-100]                VALUE
+pcp.sample.double.bin_ctr[bin-100]            VALUE
+pcp.sample.string.null                        VALUE
+pcp.sample.string.hullo                       VALUE
+pcp.sample.string.write_me                    VALUE
+pcp.sample.aggregate.null                     [m|ZBX_NOTSUPPORTED] [Unsupported metric value type.]
+pcp.sample.aggregate.hullo                    [m|ZBX_NOTSUPPORTED] [Unsupported metric value type.]
+pcp.sample.aggregate.write_me                 [m|ZBX_NOTSUPPORTED] [Unsupported metric value type.]
+pcp.sample.hordes.one[0]                      VALUE
+pcp.sample.hordes.two[0]                      VALUE
+pcp.sample.bad.nosupport                      [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.bad.novalues                       [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.wrap.long                          VALUE
+pcp.sample.wrap.ulong                         VALUE
+pcp.sample.wrap.longlong                      VALUE
+pcp.sample.wrap.ulonglong                     VALUE
+pcp.sample.dodgey.control                     VALUE
+pcp.sample.dodgey.value[d1]                   VALUE
+pcp.sample.dynamic.counter[one]               VALUE
+pcp.sample.dynamic.discrete[one]              VALUE
+pcp.sample.dynamic.instant[one]               VALUE
+pcp.sample.dynamic.meta.metric                VALUE
+pcp.sample.dynamic.meta.pmdesc.type           VALUE
+pcp.sample.dynamic.meta.pmdesc.indom          VALUE
+pcp.sample.dynamic.meta.pmdesc.sem            VALUE
+pcp.sample.dynamic.meta.pmdesc.units          VALUE
+pcp.sample.scale_step.bytes_up                VALUE
+pcp.sample.scale_step.bytes_down              VALUE
+pcp.sample.scale_step.count_up                VALUE
+pcp.sample.scale_step.count_down              VALUE
+pcp.sample.scale_step.time_up_secs            VALUE
+pcp.sample.scale_step.time_up_nanosecs        VALUE
+pcp.sample.scale_step.none_up                 VALUE
+pcp.sample.const_rate.value                   VALUE
+pcp.sample.const_rate.gradient                VALUE
+pcp.sample.many.count                         VALUE
+pcp.sample.many.int[i-0]                      VALUE
+pcp.sample.percontext.pdu                     VALUE
+pcp.sample.percontext.recv_pdu                VALUE
+pcp.sample.percontext.xmit_pdu                VALUE
+pcp.sample.percontext.control.ctx             VALUE
+pcp.sample.percontext.control.active          VALUE
+pcp.sample.percontext.control.start           VALUE
+pcp.sample.percontext.control.end             VALUE
+pcp.sample.event.records[fungus]              [m|ZBX_NOTSUPPORTED] [Unknown error.]
+pcp.sample.event.highres_records[fungus]      [m|ZBX_NOTSUPPORTED] [Unknown error.]
+pcp.sample.event.no_indom_records             [m|ZBX_NOTSUPPORTED] [Unknown error.]
+pcp.sample.event.reset                        VALUE
+pcp.sample.event.reset_highres                VALUE
+pcp.sample.event.type                         [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.event.param_32                     [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.event.param_u32                    [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.event.param_64                     [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.event.param_u64                    [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.event.param_float                  [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.event.param_double                 [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.event.param_string                 [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.event.param_aggregate              [m|ZBX_NOTSUPPORTED] [No value available.]
+pcp.sample.dupnames.daemon_pid                VALUE
+pcp.sample.dupnames.pid_daemon                VALUE
+pcp.sample.dupnames.two.seconds               VALUE
+pcp.sample.dupnames.two.bin[bin-100]          VALUE
+pcp.sample.dupnames.two.write_me              VALUE
+pcp.sample.dupnames.two.lights                VALUE
+pcp.sample.dupnames.two.float.ten             VALUE
+pcp.sample.dupnames.two.double.ten            VALUE
+pcp.sample.dupnames.three.bin[bin-100]        VALUE
+pcp.sample.dupnames.three.write_me            VALUE

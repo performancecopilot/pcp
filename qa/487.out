@@ -176,7 +176,7 @@ Archive "TMP.new" creation truncated.
 pmval diffs ...
 --- TMP.in
 +++ TMP.out
-@@ -1,32 +1,24 @@
+@@ -1,30 +1,22 @@
  Note: timezone set to local timezone of host "gonzo" from archive
  
  metric: sample.drift
@@ -222,5 +222,3 @@ pmval diffs ...
 +10:55:07.409 1572864000
 +10:56:07.409 1604321280
 +10:57:07.409 1981808640
- 
- pmval: pmFetchArchive: End of PCP archive log

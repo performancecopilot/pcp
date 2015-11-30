@@ -39,7 +39,7 @@ _run()
 # real QA test starts here
 _run -t 0.1 -s 4 sampledso.event.records
 _run -t 0.1 -s 4 'sampledso.event.records[fungus,bogus]'
-_run -t 0.1 -s 4 'sampledso.event.records[fungus]' 'sampledso.event.records[bogus]'
+_run -t 0.1 -s 4 -i fungus,bogus sampledso.event.records
 _run -t 0.1 -s 4 sampledso.event.no_indom_records
 
 # success, all done

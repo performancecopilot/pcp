@@ -32,8 +32,6 @@ interval:  1.00 sec
 07:45:58.422     1.000 
 07:45:59.422     1.000 
 
-pmval: pmFetch: End of PCP archive log
-
 === delta=1sec counter in the 2nd section only ===
 Note: timezone set to local timezone of host "gonzo" from archive
 
@@ -65,8 +63,6 @@ interval:  1.00 sec
 07:45:57.422  No values available
 07:45:58.422  No values available
 07:45:59.422  No values available
-
-pmval: pmFetch: End of PCP archive log
 
 === delta=1sec instantaneous in 1st and 3rd sections ===
 Note: timezone set to local timezone of host "gonzo" from archive
@@ -139,7 +135,7 @@ interval:  1.00 sec
   yes     no      yes     3
 Note: timezone set to local timezone of host "gonzo" from archive
 
-metric:    network.interface.total.packets
+metric:    irix.network.interface.total.packets
 archive:   archives/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
@@ -171,8 +167,6 @@ interval:  1.00 sec
 07:45:57.422  No values available
 07:45:58.422          ?     35.00       28.00   
 07:45:59.422          ?     44.00        8.000  
-
-pmval: pmFetch: End of PCP archive log
 
 === delta=1sec instantaneous and indom all over the place ===
   bin-100 bin-200 bin-300 bin-400 bin-500 section
@@ -229,17 +223,17 @@ units:     none
 samples:   19
 interval:  1.00 sec
 
-                   1368        1342        1318 
-07:45:41.422          ?           ?        4331 
-07:45:42.422          ?           ?        4331 
-07:45:43.422          ?           ?        4331 
-07:45:44.422          ?           ?        4331 
-07:45:45.422          ?           ?        4331 
+                   1318        1342        1368 
+07:45:41.422       4331           ?           ? 
+07:45:42.422       4331           ?           ? 
+07:45:43.422       4331           ?           ? 
+07:45:44.422       4331           ?           ? 
+07:45:45.422       4331           ?           ? 
 07:45:46.422  No values available
 07:45:47.422  No values available
 07:45:48.422  No values available
 
-                   1368        1342        1318 
+                   1318        1342        1368 
 07:45:49.422          ?        4331           ? 
 07:45:50.422          ?        4331           ? 
 07:45:51.422          ?        4331           ? 
@@ -248,11 +242,11 @@ interval:  1.00 sec
 07:45:54.422  No values available
 07:45:55.422  No values available
 
-                   1368        1342        1318 
-07:45:56.422       4331           ?           ? 
-07:45:57.422       4331           ?           ? 
-07:45:58.422       4331           ?           ? 
-07:45:59.422       4331           ?           ? 
+                   1318        1342        1368 
+07:45:56.422          ?           ?        4331 
+07:45:57.422          ?           ?        4331 
+07:45:58.422          ?           ?        4331 
+07:45:59.422          ?           ?        4331 
 
 === delta=0.5sec counter in each non-preamble result in all 3 sections ===
 Note: timezone set to local timezone of host "gonzo" from archive
@@ -304,8 +298,6 @@ interval:  0.50 sec
 07:45:58.922     0.0   
 07:45:59.422     2.000 
 
-pmval: pmFetch: End of PCP archive log
-
 === delta=0.5sec counter in the 2nd section only ===
 Note: timezone set to local timezone of host "gonzo" from archive
 
@@ -355,8 +347,6 @@ interval:  0.50 sec
 07:45:58.422  No values available
 07:45:58.922  No values available
 07:45:59.422  No values available
-
-pmval: pmFetch: End of PCP archive log
 
 === delta=0.5sec instantaneous in 1st and 3rd sections ===
 Note: timezone set to local timezone of host "gonzo" from archive
@@ -465,7 +455,7 @@ interval:  0.50 sec
   yes     no      yes     3
 Note: timezone set to local timezone of host "gonzo" from archive
 
-metric:    network.interface.total.packets
+metric:    irix.network.interface.total.packets
 archive:   archives/changeinst
 host:      gonzo
 start:     Tue Aug  5 07:45:41 1997
@@ -515,8 +505,6 @@ interval:  0.50 sec
 07:45:58.422          ?     40.00        8.000  
 07:45:58.922          ?     40.00        8.000  
 07:45:59.422          ?     48.00        8.000  
-
-pmval: pmFetch: End of PCP archive log
 
 === delta=0.5sec instantaneous and indom all over the place ===
   bin-100 bin-200 bin-300 bin-400 bin-500 section
@@ -591,16 +579,16 @@ units:     none
 samples:   37
 interval:  0.50 sec
 
-                   1368        1342        1318 
-07:45:41.422          ?           ?        4331 
-07:45:41.922          ?           ?        4331 
-07:45:42.422          ?           ?        4331 
-07:45:42.922          ?           ?        4331 
-07:45:43.422          ?           ?        4331 
-07:45:43.922          ?           ?        4331 
-07:45:44.422          ?           ?        4331 
-07:45:44.922          ?           ?        4331 
-07:45:45.422          ?           ?        4331 
+                   1318        1342        1368 
+07:45:41.422       4331           ?           ? 
+07:45:41.922       4331           ?           ? 
+07:45:42.422       4331           ?           ? 
+07:45:42.922       4331           ?           ? 
+07:45:43.422       4331           ?           ? 
+07:45:43.922       4331           ?           ? 
+07:45:44.422       4331           ?           ? 
+07:45:44.922       4331           ?           ? 
+07:45:45.422       4331           ?           ? 
 07:45:45.922  No values available
 07:45:46.422  No values available
 07:45:46.922  No values available
@@ -608,7 +596,7 @@ interval:  0.50 sec
 07:45:47.922  No values available
 07:45:48.422  No values available
 
-                   1368        1342        1318 
+                   1318        1342        1368 
 07:45:48.922          ?        4331           ? 
 07:45:49.422          ?        4331           ? 
 07:45:49.922          ?        4331           ? 
@@ -624,15 +612,15 @@ interval:  0.50 sec
 07:45:54.922  No values available
 07:45:55.422  No values available
 
-                   1368        1342        1318 
-07:45:55.922       4331           ?           ? 
-07:45:56.422       4331           ?           ? 
-07:45:56.922       4331           ?           ? 
-07:45:57.422       4331           ?           ? 
-07:45:57.922       4331           ?           ? 
-07:45:58.422       4331           ?           ? 
-07:45:58.922       4331           ?           ? 
-07:45:59.422       4331           ?           ? 
+                   1318        1342        1368 
+07:45:55.922          ?           ?        4331 
+07:45:56.422          ?           ?        4331 
+07:45:56.922          ?           ?        4331 
+07:45:57.422          ?           ?        4331 
+07:45:57.922          ?           ?        4331 
+07:45:58.422          ?           ?        4331 
+07:45:58.922          ?           ?        4331 
+07:45:59.422          ?           ?        4331 
 
 === the whole shooting match ===
 Note: timezone set to local timezone of host "gonzo" from archive
@@ -732,9 +720,9 @@ Temporal Index
 07:45:56.912       0         1352         1804
 07:45:56.912       0         1416         1804
 
-07:45:41.422  2.3.3 (pmcd.pmlogger.host):  inst [1318 or "1318"] value "gonzo.melbourne.sgi.com"
-              2.3.0 (pmcd.pmlogger.port):  inst [1318 or "1318"] value 4331
-              2.3.2 (pmcd.pmlogger.archive):  inst [1318 or "1318"] value "/tmp/1306.A"
+07:45:41.422  2.3.3 (pmcd.pmlogger.host): inst [1318 or "1318"] value "gonzo.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port): inst [1318 or "1318"] value 4331
+              2.3.2 (pmcd.pmlogger.archive): inst [1318 or "1318"] value "/tmp/1306.A"
 
 07:45:41.435  1.18.2 (hinv.ncpu): value 1
 
@@ -784,11 +772,11 @@ Temporal Index
 
 07:45:45.423  <mark>
 
-07:45:48.643  2.3.3 (pmcd.pmlogger.host):  inst [1342 or "1342"] value "gonzo.melbourne.sgi.com"
-              2.3.0 (pmcd.pmlogger.port):  inst [1342 or "1342"] value 4331
-              2.3.2 (pmcd.pmlogger.archive):  inst [1342 or "1342"] value "/tmp/1306.B"
+07:45:48.643  2.3.3 (pmcd.pmlogger.host): inst [1342 or "1342"] value "gonzo.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port): inst [1342 or "1342"] value 4331
+              2.3.2 (pmcd.pmlogger.archive): inst [1342 or "1342"] value "/tmp/1306.B"
 
-07:45:48.657  29.0.6 (sample.bin):  inst [500 or "bin-500"] value 500
+07:45:48.657  29.0.6 (sample.bin): inst [500 or "bin-500"] value 500
 
 07:45:49.641  29.0.6 (sample.bin):
                 inst [100 or "bin-100"] value 100
@@ -820,9 +808,9 @@ Temporal Index
 
 07:45:52.642  <mark>
 
-07:45:55.913  2.3.3 (pmcd.pmlogger.host):  inst [1368 or "1368"] value "gonzo.melbourne.sgi.com"
-              2.3.0 (pmcd.pmlogger.port):  inst [1368 or "1368"] value 4331
-              2.3.2 (pmcd.pmlogger.archive):  inst [1368 or "1368"] value "/tmp/1306.C"
+07:45:55.913  2.3.3 (pmcd.pmlogger.host): inst [1368 or "1368"] value "gonzo.melbourne.sgi.com"
+              2.3.0 (pmcd.pmlogger.port): inst [1368 or "1368"] value 4331
+              2.3.2 (pmcd.pmlogger.archive): inst [1368 or "1368"] value "/tmp/1306.C"
 
 07:45:55.928  1.18.2 (hinv.ncpu): value 1
 

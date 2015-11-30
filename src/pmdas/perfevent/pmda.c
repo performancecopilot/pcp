@@ -20,6 +20,7 @@
 #include <pcp/pmda.h>
 #include "domain.h"
 #include <sys/stat.h>
+#include <ctype.h>
 
 #include "perfmanager.h"
 #include "perfinterface.h"

@@ -713,6 +713,7 @@ PMDA_CALL extern pmHighResEventArray *pmdaEventHighResGetAddr(int);
  */
 PMDA_CALL extern int pmdaEventNewQueue(const char *, size_t);
 PMDA_CALL extern int pmdaEventNewActiveQueue(const char *, size_t, unsigned int);
+PMDA_CALL extern int pmdaEventQueueShutdown(int);
 PMDA_CALL extern int pmdaEventQueueHandle(const char *);
 PMDA_CALL extern int pmdaEventQueueAppend(int, void *, size_t, struct timeval *);
 PMDA_CALL extern int pmdaEventQueueClients(int, pmAtomValue *);

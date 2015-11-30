@@ -16,6 +16,7 @@
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
+include ./GNUlibrarydefs
 -include ./GNUlocaldefs
 
 CFILES = connect.c context.c desc.c err.c fetch.c freeresult.c \
@@ -32,47 +33,24 @@ HFILES = derive.h internal.h avahi.h probe.h compiler.h
 YFILES = getdate.y
 VERSION_SCRIPT = exports
 
-LSRCFILES = check-statics $(VERSION_SCRIPT)
+LCFLAGS = -DPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
+	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
+LCFLAGS += $(LIBPCP_CFLAGS)
+LLDLIBS += $(LIBPCP_LDLIBS)
 
 ifeq "$(ENABLE_SECURE)" "true"
-LLDLIBS += $(LIB_FOR_SSL) $(LIB_FOR_NSS) $(LIB_FOR_NSPR) $(LIB_FOR_SASL)
-LCFLAGS += $(NSSCFLAGS) $(NSPRCFLAGS) $(SASLCFLAGS)
 CFILES += secureserver.c secureconnect.c
-else
-LSRCFILES += secureserver.c secureconnect.c
 endif
 
 ifeq "$(ENABLE_AVAHI)" "true"
-LLDLIBS += $(LIB_FOR_AVAHI)
-LCFLAGS += $(AVAHICFLAGS)
 CFILES += avahi.c
-else
-LSRCFILES += avahi.c
 endif
 
 ifneq "$(TARGET_OS)" "mingw"
 CFILES += accounts.c
-LSRCFILES += win32.c
 else
 CFILES += win32.c
-LSRCFILES += accounts.c
-LLDLIBS	+= -lpsapi -lws2_32
 endif
-
-ifeq "$(TARGET_OS)" "solaris"
-# enables standards compliant thread-safe interfaces (accounts.c)
-LCFLAGS += -D_POSIX_PTHREAD_SEMANTICS
-endif
-
-ifeq "$(LIB_FOR_BASENAME)" "-lpcp"
-# don't need to be linked to myself in this case!
-LIB_FOR_BASENAME =
-endif
-
-LLDLIBS	+= $(LIB_FOR_MATH) $(LIB_FOR_PTHREADS) $(LIB_FOR_RT)
-
-LCFLAGS += -DPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
-	'-DDSO_SUFFIX="$(DSOSUFFIX)"'
 
 DSOVERSION = 3
 STATICLIBTARGET = libpcp.a
