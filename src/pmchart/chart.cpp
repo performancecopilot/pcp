@@ -954,7 +954,7 @@ Chart::addToTree(QTreeWidget *treeview, const QString &metric,
     int depth, index;
 
     console->post("Chart::addToTree src=%s metric=%s, isInst=%d",
-		(const char *)source.toAscii(), (const char *)metric.toAscii(),
+		(const char *)source.toLatin1(), (const char *)metric.toLatin1(),
 		isInst);
 
     depth = name.indexOf(regexInstance);

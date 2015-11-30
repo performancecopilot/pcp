@@ -95,7 +95,7 @@ bool QedViewControl::stopRecording(QString &errmsg)
 	    error = true;
 	}
 	else {
-	    my.loggerList.at(i)->write(msg.toAscii());
+	    my.loggerList.at(i)->write(msg.toLatin1());
 	    my.loggerList.at(i)->terminate();
 	}
     }
@@ -127,14 +127,14 @@ bool QedViewControl::queryRecording(QString &errmsg)
 	    error = true;
 	}
 	else {
-	    my.loggerList.at(i)->write(msg.toAscii());
+	    my.loggerList.at(i)->write(msg.toLatin1());
 	}
     }
 
     if (error) {
 	msg = "Q\n";    // if one fails, we shut down all loggers
 	for (i = 0; i < count; i++)
-	    my.loggerList.at(i)->write(msg.toAscii());
+	    my.loggerList.at(i)->write(msg.toLatin1());
 	cleanupRecording();
     }
 
@@ -157,7 +157,7 @@ bool QedViewControl::detachLoggers(QString &errmsg)
 	    error = true;
 	}
 	else {
-	    my.loggerList.at(i)->write(msg.toAscii());
+	    my.loggerList.at(i)->write(msg.toLatin1());
 	}
     }
     if (error)

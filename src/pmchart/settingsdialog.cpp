@@ -724,7 +724,7 @@ void SettingsDialog::hostButton_clicked()
 	} else {
 	    console->post(PmChart::DebugUi,
 			"OpenViewDialog::newHost: %s (flags=0x%x)",
-			(const char *)hostspec.toAscii(), flags);
+			(const char *)hostspec.toLatin1(), flags);
 	    setupHostComboBox(hostname);
 	    if (globalSettings.savedHosts.contains(hostname) == false) {
 		globalSettings.savedHostsModified = true;

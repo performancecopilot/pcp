@@ -166,7 +166,7 @@ Text::Text(const QString &theString,
 	}
 
 	theText->parts = SoText3::FRONT;
-	theText->string.setValue((const char *)theString.toAscii());
+	theText->string.setValue((const char *)theString.toLatin1());
 	_root->addChild(theText);
 
 	_root->ref();
@@ -190,7 +190,7 @@ Text::Text(const QString &theString,
 	_width = (int)ceilf(x);
 	_depth = (int)ceilf(z);
 
-	const char *hasLow = strpbrk((const char *)theString.toAscii(), theHeightStr);
+	const char *hasLow = strpbrk((const char *)theString.toLatin1(), theHeightStr);
 
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL1) {
@@ -255,7 +255,7 @@ Text::Text(const QString &theString,
 	height = 0;
 
 	for (int i = 0; i < theString.length(); i++) {
-	    c[0] = ((const char *)theString.toAscii())[i];
+	    c[0] = ((const char *)theString.toLatin1())[i];
 	    sep = new SoSeparator;
 	    tran = new SoTranslation;
 	    rot = new SoRotation;

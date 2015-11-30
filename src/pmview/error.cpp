@@ -22,7 +22,7 @@ yywarn(const char *s)
 {
     const char * fmt =  theConfigName.length() ? "%s: warning - %s(%d): %s\n":
 					   "%s: warning - line %3$d: %4$s\n";
-    const char * config = (const char *)theConfigName.toAscii();
+    const char * config = (const char *)theConfigName.toLatin1();
 
     pmprintf(fmt, pmProgname, config, lineNum+1, s);
     pmflush();
@@ -33,7 +33,7 @@ yyerror(const char *s)
 {
     const char * fmt =  theConfigName.length() ? "%s: error - %s(%d): %s\n":
 					   "%s: error - line %3$d: %4$s\n";
-    const char * config = (const char *)theConfigName.toAscii();
+    const char * config = (const char *)theConfigName.toLatin1();
     const char badeof[] = "unexpected end of file";
 
     markpos();

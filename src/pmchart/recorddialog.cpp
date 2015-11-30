@@ -266,7 +266,7 @@ void RecordDialog::buttonOk_clicked()
     }
 
     console->post("RecordDialog verifying paths view=%s folio=%s",
-	(const char *)folio.toAscii(), (const char *)view.toAscii());
+	(const char *)folio.toLatin1(), (const char *)view.toLatin1());
 
     my.view  = view;
     my.folio = folio;
@@ -351,7 +351,7 @@ void RecordDialog::startLoggers()
 	control << "F" << my.folio << "\n";
 	control << "Ppmchart\n" << "R\n";
 	for (int i = 0; i < control.size(); i++)
-	    process->write(control.at(i).toAscii());
+	    process->write(control.at(i).toLatin1());
     }
 }
 

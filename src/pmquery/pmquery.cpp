@@ -119,7 +119,7 @@ void PmQuery::addButtons(char *string) // comma-separated label:exitcode string
 	QString code = (*it).section(":", 1, 1);
 	if (!name.isEmpty()) {
 	    int sts = code.isEmpty() ? ++next : code.toInt();
-	    if ((n = strdup(name.toAscii().data())) == NULL)
+	    if ((n = strdup(name.toLatin1().data())) == NULL)
 		nomem();
 	    addButton(n, FALSE, sts);
 	}

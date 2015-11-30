@@ -113,7 +113,7 @@ PipeObj::finishedAdd ()
 				    cellHeight*0.8);
 	stacksp->addChild(scale);
 
-	if ((colSpec = theColorLists.list((const char *)_colors.toAscii()))) {
+	if ((colSpec = theColorLists.list((const char *)_colors.toLatin1()))) {
 	    if (colSpec->_scale)
 		pmprintf(
 		    "%s: Warning: Color scale cannot be applied to pipe\n",
@@ -132,7 +132,7 @@ PipeObj::finishedAdd ()
 	StackMod * _stack = new StackMod(&_metrics, ViewObj::object (cylinder),
 						 StackMod::fixed);
 	_stack->setFillColor(_color);
-	_stack->setFillText((const char *)_tag.toAscii());
+	_stack->setFillText((const char *)_tag.toLatin1());
 
 	stacksp->addChild(_stack->root());
 	sceneSp->addChild(stacksp);
@@ -159,7 +159,7 @@ PipeObj::finishedAdd ()
     // In theory, something like "StaticMod", i.e no metrics, no
     // nothing should be provided, but togglemod seems to be
     // working Ok, so....
-    ToggleMod * m = new ToggleMod (_cyl, (const char *)_tag.toAscii());
+    ToggleMod * m = new ToggleMod (_cyl, (const char *)_tag.toLatin1());
     sceneSp->addChild (m->root());
 }
 

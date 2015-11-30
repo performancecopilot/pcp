@@ -116,7 +116,7 @@ Modulate::record(Record &rec) const
 	for (i = 0; i < _metrics->numMetrics(); i++) {
 	    const QmcMetric &metric = _metrics->metric(i);
 	    rec.add(metric.context()->source().sourceAscii(), 
-		    (const char *)metric.spec(false, true).toAscii());
+		    (const char *)metric.spec(false, true).toLatin1());
 	}
 #endif
 }

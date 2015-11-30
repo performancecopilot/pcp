@@ -88,8 +88,8 @@ public:
 public slots:
     void print()
 	{
-	    noprint(); puts(my.l ? my.l->text().toAscii().data() : (my.t?
-	    my.t->toPlainText().toAscii().data() : text().toAscii().data()));
+	    noprint(); puts(my.l ? my.l->text().toLatin1().data() : (my.t?
+	    my.t->toPlainText().toLatin1().data() : text().toLatin1().data()));
 	}
     void noprint() { my.k->setStatus(my.s); }
 

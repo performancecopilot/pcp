@@ -76,7 +76,7 @@ void SceneGroup::updateTimeAxis(void)
     if (console->logLevel(QedApp::DebugProtocol)) {
 	console->post(QedApp::DebugProtocol,
 		"SceneGroup::updateTimeAxis: tz=%s",
-		(const char *)tz.toAscii());
+		(const char *)tz.toLatin1());
     }
 }
 

@@ -22,7 +22,7 @@ QedActionList::QedActionList(const char *id) : QString(id)
 const char *
 QedActionList::identity(void) const
 {
-    return this->toAscii();
+    return this->toLatin1();
 }
 
 void

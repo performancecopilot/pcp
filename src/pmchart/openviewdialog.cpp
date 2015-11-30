@@ -117,7 +117,7 @@ void OpenViewDialog::setPathUi(const QString &path)
 void OpenViewDialog::setPath(const QModelIndex &index)
 {
     console->post("OpenViewDialog::setPath QModelIndex path=%s",
-			(const char *)my.dirModel->filePath(index).toAscii());
+			(const char *)my.dirModel->filePath(index).toLatin1());
     my.dirIndex = index;
     my.dirModel->refresh(index);
     dirListView->setRootIndex(index);
@@ -127,7 +127,7 @@ void OpenViewDialog::setPath(const QModelIndex &index)
 void OpenViewDialog::setPath(const QString &path)
 {
     console->post("OpenViewDialog::setPath QString path=%s",
-			(const char *)path.toAscii());
+			(const char *)path.toLatin1());
     my.dirIndex = my.dirModel->index(path);
     my.dirModel->refresh(my.dirIndex);
     dirListView->setRootIndex(my.dirIndex);
@@ -292,7 +292,7 @@ void OpenViewDialog::hostAdd()
 	} else {
 	    console->post(PmChart::DebugUi,
 			"OpenViewDialog::newHost: %s (flags=0x%x)",
-			(const char *)hostspec.toAscii(), flags);
+			(const char *)hostspec.toLatin1(), flags);
 	    setupComboBoxes(false);
 	}
     }
@@ -401,7 +401,7 @@ bool OpenViewDialog::openViewFiles(const QStringList &fl)
 	return false;
     QStringList files = fl;
     for (QStringList::Iterator it = files.begin(); it != files.end(); ++it)
-	if (openView((const char *)(*it).toAscii()) == false)
+	if (openView((const char *)(*it).toLatin1()) == false)
 	    result = false;
     pmchart->enableUi();
     return result;

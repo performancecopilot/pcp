@@ -50,7 +50,7 @@ NameSpace::NameSpace(NameSpace *parent, const QString &name, bool inst)
     }
     else {
 	console->post(PmChart::DebugUi, "Added non-root namespace node %s (inst=%d)",
-		  (const char *)my.basename.toAscii(), inst);
+		  (const char *)my.basename.toLatin1(), inst);
     }
 #endif
 }
@@ -86,7 +86,7 @@ NameSpace::NameSpace(QTreeWidget *list, const QmcContext *context)
     setIcon(0, my.icon);
 
     console->post(PmChart::DebugUi, "Added root namespace node %s",
-		  (const char *)my.basename.toAscii());
+		  (const char *)my.basename.toLatin1());
 }
 
 QString NameSpace::sourceTip()
@@ -155,7 +155,7 @@ void NameSpace::setExpanded(bool expand, bool show)
 #if DESPERATE
     console->post(PmChart::DebugUi, "NameSpace::setExpanded "
 		  "on %p %s (type=%d expanded=%s, expand=%s, show=%s)",
-		  this, (const char *)metricName().toAscii(),
+		  this, (const char *)metricName().toLatin1(),
 		  my.type,
 		  my.expanded? "y" : "n", expand? "y" : "n", show? "y" : "n");
 #endif
@@ -195,7 +195,7 @@ void NameSpace::setExpandable(bool expandable)
 {
     console->post(PmChart::DebugUi, "NameSpace::setExpandable "
 		  "on %p %s (expanded=%s, expandable=%s)",
-		  this, (const char *)metricName().toAscii(),
+		  this, (const char *)metricName().toLatin1(),
 		  my.expanded ? "y" : "n", expandable ? "y" : "n");
 
     // NOTE: QT4.3 has setChildIndicatorPolicy for this workaround, but we want
@@ -245,7 +245,7 @@ void NameSpace::expandMetricNames(QString parent, bool show)
     int		i, nleaf = 0;
     int		sts, noffspring;
     NameSpace	*m, **leaflist = NULL;
-    char	*name = strdup(parent.toAscii());
+    char	*name = strdup(parent.toLatin1());
     int		sort_done, fail_count = 0;
     QString	failmsg;
 
@@ -256,7 +256,7 @@ void NameSpace::expandMetricNames(QString parent, bool show)
 	QString msg = QString();
 	if (isRoot())
 	    msg.sprintf("Cannot get metric names from source\n%s: %s.\n\n",
-		(const char *)my.basename.toAscii(), pmErrStr(sts));
+		(const char *)my.basename.toLatin1(), pmErrStr(sts));
 	else
 	    msg.sprintf("Cannot get children of node\n\"%s\".\n%s.\n\n",
 		name, pmErrStr(sts));
@@ -409,7 +409,7 @@ void NameSpace::expandInstanceNames(bool show)
 	    goto done;
 	QString msg = QString();
 	msg.sprintf("Error fetching instance domain at node \"%s\".\n%s.\n\n",
-		(const char *)metricName().toAscii(), pmErrStr(sts));
+		(const char *)metricName().toLatin1(), pmErrStr(sts));
 	QMessageBox::warning(NULL, pmProgname, msg,
 		QMessageBox::Ok | QMessageBox::Default |
 			QMessageBox::Escape,
@@ -474,7 +474,7 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree,
 
     if (my.type == NoType || my.type == ChildMinder) {
 	console->post("NameSpace::dup bad type=%d on %p %s)",
-		  my.type, this, (const char *)metricName().toAscii());
+		  my.type, this, (const char *)metricName().toLatin1());
 	abort();
     }
     else if (!isLeaf()) {

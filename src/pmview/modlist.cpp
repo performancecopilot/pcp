@@ -85,7 +85,7 @@ ModList::setRoot(SoSeparator *root)
                               &ModList::motionCB, this);
     _selection->addChild(_motion);
 
-    root->setName((SbName)(const char *)theBogusId.toAscii());
+    root->setName((SbName)(const char *)theBogusId.toLatin1());
     _selection->addChild(root);
 
     SoBoxHighlightRenderAction *rendAct = new SoBoxHighlightRenderAction;

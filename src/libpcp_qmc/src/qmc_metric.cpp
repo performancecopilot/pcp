@@ -549,7 +549,7 @@ void
 QmcMetric::dumpErr() const
 {
     pmprintf("%s: Error: %s: %s\n", pmProgname,
-	     (const char *)spec(true).toAscii(), pmErrStr(my.status));
+	     (const char *)spec(true).toLatin1(), pmErrStr(my.status));
 }
 
 // Instance list may not be valid, so pass inst as a string rather than
@@ -559,7 +559,7 @@ void
 QmcMetric::dumpErr(const char *inst) const
 {
     pmprintf("%s: Error: %s[%s]: %s\n", pmProgname,
-	     (const char *)spec(true).toAscii(), inst, pmErrStr(my.status));
+	     (const char *)spec(true).toLatin1(), inst, pmErrStr(my.status));
 }
 
 const char *

@@ -241,7 +241,7 @@ void QedRecordDialog::buttonOk_clicked()
     }
 
     console->post("RecordDialog verifying paths view=%s folio=%s",
-	(const char *)folioName.toAscii(), (const char *)viewName.toAscii());
+	(const char *)folioName.toLatin1(), (const char *)viewName.toLatin1());
 
     my.viewName = viewName;
     my.folioName = folioName;
@@ -307,7 +307,7 @@ void QedRecordDialog::startLoggers()
 	control << "F" << my.folioName << "\n";
 	control << "Ppmchart\n" << "R\n";
 	for (int i = 0; i < control.size(); i++)
-	    process->write(control.at(i).toAscii());
+	    process->write(control.at(i).toLatin1());
     }
 }
 

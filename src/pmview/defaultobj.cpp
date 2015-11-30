@@ -132,7 +132,7 @@ static void
 getColorResource(const char *name, QString label, float &r, float &g, float &b)
 {
     if (label != QString::null && label.compare("default") != 0) {
-	const char *str = (const char *)label.toAscii();
+	const char *str = (const char *)label.toLatin1();
 	if (ColorList::findColor(str, r, g, b) == false) {
 	    pmprintf("%s: Unable to map color resource \"%s\" to \"%s\", "
 		     "using default color rgbi:%f/%f/%f\n",

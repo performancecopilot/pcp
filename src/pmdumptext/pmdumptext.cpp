@@ -174,7 +174,7 @@ dometric(const char *name)
     }
     fullname.append(name);
 
-    QmcMetric* metric = group->addMetric((const char *)fullname.toAscii(),
+    QmcMetric* metric = group->addMetric((const char *)fullname.toLatin1(),
 						doMetricScale);
     if (metric->status() >= 0) {
 	checkUnits(metric);
@@ -268,7 +268,7 @@ parseConfig(QString const& configName, FILE *configFile)
 	last = &buf[len-1];
 	if (*last != '\n' && !feof(configFile)) {
 	    pmprintf("%s: Line %d of %s was too long, skipping.\n",
-	    	     pmProgname, line, (const char *)configName.toAscii());
+	    	     pmProgname, line, (const char *)configName.toLatin1());
 	    while(buf[len-1] != '\n') {
 	    	if (fgets(buf, sizeof(buf), configFile) == NULL)
 		    break;
@@ -298,7 +298,7 @@ parseConfig(QString const& configName, FILE *configFile)
 
 	    if (*msg != '\0') {
 	    	pmprintf("%s: Line %d of %s has an illegal scaling factor, assuming 0.\n",
-			 pmProgname, line, (const char *)configName.toAscii());
+			 pmProgname, line, (const char *)configName.toLatin1());
 		err++;
 		scale = 0.0;
 	    }
@@ -341,7 +341,7 @@ dumpTime(struct timeval const &curPos)
 
     if (timeFormat.length() > 0)
 	strftime(p, sizeof(buffer) - (p-buffer),
-		 (const char *)(timeFormat.toAscii()), localtime(&curTime));
+		 (const char *)(timeFormat.toLatin1()), localtime(&curTime));
     else {
 	// Use ctime as we have put the timezone into the environment
 	strncpy(p, ctime(&curTime), 20);
@@ -426,7 +426,7 @@ dumpHeader()
 	for (m = 0, v = 1; m < metrics.size(); m++) {
 	    metric = metrics[m];
 	    QString const& str = metric->context()->source().host();
-	    strncpy(buffer, (const char *)str.toAscii(), width);
+	    strncpy(buffer, (const char *)str.toLatin1(), width);
 	    buffer[width] = '\0';
 	    for (i = 0; i < metric->numValues(); i++) {
 		cout << qSetFieldWidth(width) << buffer << qSetFieldWidth(0);
@@ -470,11 +470,11 @@ dumpHeader()
 			}
 			if (c < str.length())
 			    cout << qSetFieldWidth(width)
-				 << ((const char *)str.toAscii() + c)
+				 << ((const char *)str.toLatin1() + c)
 				 << qSetFieldWidth(0);
 			else
 			    cout << qSetFieldWidth(width)
-				 << ((const char *)str.toAscii() + p)
+				 << ((const char *)str.toLatin1() + p)
 				 << qSetFieldWidth(0);
 		    }
 		    else {
@@ -513,7 +513,7 @@ dumpHeader()
 	    for (i = 0; i < metric->numValues(); i++) {
 	    	if (metric->hasInstances()) {
 		    QString const &str = metric->instName(i);
-		    strncpy(buffer, (const char *)str.toAscii(), width);
+		    strncpy(buffer, (const char *)str.toLatin1(), width);
 		    buffer[width] = '\0';
 		    cout << qSetFieldWidth(width) << buffer
 			 << qSetFieldWidth(0);
@@ -592,7 +592,7 @@ dumpHeader()
 	    	if (niceFlag) 
 		    if (str.length() > width)
 			cout << qSetFieldWidth(width)
-			     << ((const char *)str.toAscii() + str.length() - width)
+			     << ((const char *)str.toLatin1() + str.length() - width)
 			     << qSetFieldWidth(0);
 		    else
 			cout << qSetFieldWidth(width) << str
@@ -977,10 +977,10 @@ main(int argc, char *argv[])
 	    configName = "(stdin)";
 	}
 	else {
-	    configFile = fopen((const char *)configName.toAscii(), "r");
+	    configFile = fopen((const char *)configName.toLatin1(), "r");
 	    if (configFile == NULL) {
 		pmprintf("%s: Unable to open %s: %s\n", pmProgname,
-			(const char *)configName.toAscii(), strerror(errno));
+			(const char *)configName.toLatin1(), strerror(errno));
 	    	pmflush();
 		exit(1);
 	    }
@@ -1048,7 +1048,7 @@ main(int argc, char *argv[])
     //
     if (group->defaultTZ() != QmcGroup::localTZ) {
 	tzEnv.append(tzString);
-	sts = putenv(strdup((const char *)tzEnv.toAscii()));
+	sts = putenv(strdup((const char *)tzEnv.toLatin1()));
 	if (sts < 0) {
 	    pmprintf("%s: Warning: Unable to set timezone in environment\n",
 		     pmProgname);
@@ -1186,7 +1186,7 @@ main(int argc, char *argv[])
 		    buffer[0] = '\"';
 		    if (niceFlag) {
 			if (l > width - 2) {
-			    strncpy(buffer+1, (const char *)metric->stringValue(i).toAscii(), 
+			    strncpy(buffer+1, (const char *)metric->stringValue(i).toLatin1(), 
 				    width - 2);
 			    buffer[width - 1] = '\"';
 			    buffer[width] = '\0';
@@ -1194,7 +1194,7 @@ main(int argc, char *argv[])
 				 << qSetFieldWidth(0);
 			}
 			else {
-			    strcpy(buffer+1, (const char *)metric->stringValue(i).toAscii());
+			    strcpy(buffer+1, (const char *)metric->stringValue(i).toLatin1());
 			    buffer[l + 1] = '\"';
 			    buffer[l + 2] = '\0';
 			    cout << qSetFieldWidth(width) << buffer;
@@ -1202,7 +1202,7 @@ main(int argc, char *argv[])
 		    }
 		    else if (widthFlag) {
 			if (l > width - 2 && width > 5) {
-			    strncpy(buffer+1, (const char *)metric->stringValue(i).toAscii(),
+			    strncpy(buffer+1, (const char *)metric->stringValue(i).toLatin1(),
 				    width - 5);
 			    strcpy(buffer + width - 4, "...\"");
 			    buffer[width] = '\0';
@@ -1210,7 +1210,7 @@ main(int argc, char *argv[])
 				 << qSetFieldWidth(0);
 			}
 			else {
-			    strncpy(buffer+1, (const char *)metric->stringValue(i).toAscii(),
+			    strncpy(buffer+1, (const char *)metric->stringValue(i).toLatin1(),
 				    width - 2);
 			    buffer[width - 1] = '\"';
 			    buffer[width] = '\0';

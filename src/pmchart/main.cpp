@@ -127,7 +127,7 @@ void setupEnvironment(void)
     confirm.prepend("PCP_XCONFIRM_PROG=");
     confirm.append(QChar(__pmPathSeparator()));
     confirm.append("pmquery");
-    if ((value = strdup((const char *)confirm.toAscii())) != NULL)
+    if ((value = strdup((const char *)confirm.toLatin1())) != NULL)
 	putenv(value);
     if (getenv("PCP_STDERR") == NULL &&	// do not overwrite, for QA
 	((value = strdup("PCP_STDERR=DISPLAY")) != NULL))
@@ -382,7 +382,7 @@ static void readSchemes(void)
 
     QFileInfo fi(schemes);
     if (fi.exists())
-	OpenViewDialog::openView(schemes.toAscii());
+	OpenViewDialog::openView(schemes.toLatin1());
 }
 
 // Get next color from given scheme or from default colors for #-cycle
@@ -533,7 +533,7 @@ main(int argc, char ** argv)
 	if (!Hflag) {
 	    for (c = 0; c < globalSettings.savedHosts.size(); c++) {
 		const QString &host = globalSettings.savedHosts.at(c);
-		char *name = strdup((const char *)host.toAscii());
+		char *name = strdup((const char *)host.toLatin1());
 		if (name)
 		    __pmAddOptHost(&opts, name);
 	    }
@@ -700,7 +700,7 @@ main(int argc, char ** argv)
 
     readSchemes();
     for (c = 0; c < configs.size(); c++)
-	if (!OpenViewDialog::openView((const char *)configs[c].toAscii()))
+	if (!OpenViewDialog::openView((const char *)configs[c].toLatin1()))
 	    opts.errors++;
     if (opts.errors)
 	exit(1);
