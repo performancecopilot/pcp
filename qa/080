@@ -55,7 +55,7 @@ echo "sum of $ARCH ..."
 if [ $PCP_PLATFORM = darwin ]
 then
     SUM=sum
-elif [ $PCP_PLATFORM = freebsd ]
+elif [ $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd ]
 then
     # defaults to cksum -o1 - historic BSD algorithm
     SUM=sum

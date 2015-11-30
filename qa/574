@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    irix|linux|darwin|solaris|freebsd)
+    irix|linux|darwin|solaris|freebsd|netbsd)
 	ln $seq.out.$PCP_PLATFORM $seq.out || exit 1
 	;;
     *)

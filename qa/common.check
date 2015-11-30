@@ -179,27 +179,25 @@ _prepare_pmda()
 _cleanup_pmda()
 {
     __agent=$1
-    __iopts=$2
 
     if $done_clean
     then
 	:
     else
 	_restore_config $PCP_PMCDCONF_PATH
+	rm -f $tmp.*
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	if $install_on_cleanup
 	then
-	    [ "X$__iopts" = "X" ] && __iopts=/dev/null
-	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Install <$__iopts >/dev/null 2>&1 )
+	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Install </dev/null >/dev/null 2>&1 )
 	else
 	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Remove >/dev/null 2>&1 )
 	fi
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_clean=true
-	rm -f $tmp.*
     fi
 }
 
@@ -1554,6 +1552,10 @@ p
     then
 	# no control for FreeBSD
 	:
+    elif [ $PCP_PLATFORM = netbsd ]
+    then
+	# no control for NetBSD
+	:
     else
 	# I have no idea what to do for this platform!
 	#
@@ -1743,6 +1745,14 @@ p
 		exit 1
 	    fi
 	fi
+    elif [ $PCP_PLATFORM = freebsd ]
+    then
+	# no control for FreeBSD
+	:
+    elif [ $PCP_PLATFORM = netbsd ]
+    then
+	# no control for NetBSD
+	:
     else
 	echo "_change_config: Error: cannot \"$1 $2\" for $PCP_PLATFORM"
     fi

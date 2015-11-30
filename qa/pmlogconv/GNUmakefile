@@ -11,18 +11,17 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-# remove -Lpath and -Ipath options from builddefs CFLAGS value
+# for cc replace all the -I<path> options with -I<run-time-include-dir>
+# (need /.. at the end so #include <pcp/foo.h> works)
 #
-PCP_LIBS        =
 TMP             := $(CFLAGS:-I%=)
-ifdef PCP_DIR
-# put -Ipath and -Lpath back but use paths for run-time environment
-#
 CFLAGS          = $(TMP) -I$(PCP_INC_DIR)/..
-LDFLAGS         = -L$(PCP_LIB_DIR)
-else
-CFLAGS          = $(TMP)
-endif
+
+# for ld replace -L<build-time-dirs> with -L<run-time-lib-dir>
+# and include -rpath in case $(PCP_LIB_DIR) is not on the
+# default ld search path, e.g. for NetBSD
+#
+PCP_LIBS         = -L$(PCP_LIB_DIR) -rpath=$(PCP_LIB_DIR)
 
 CFILES = pmlogconv.c logio.c libpcp.c
 LLDLIBS = -lpcp
