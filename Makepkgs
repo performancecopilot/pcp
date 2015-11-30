@@ -118,17 +118,15 @@ then
     # most of the required configure settings in $(configure_paths)
     #
     configopts=''
-elif [ "$target" = "darwin" ]
+elif [ `uname` = NetBSD ]
 then
-    # On Mac OS X platforms, we install away from /usr/bin, /usr/lib
-    # and so on because of security requirements in recent versions.
+    # Try to mimic where pkgsrc/pkgin place things
     #
-    configopts="--prefix=/usr/local --sysconfdir=/etc --localstatedir=/var"
+    configopts="--prefix=/usr/pkg --exec-prefix=/usr/pkg --mandir=/usr/pkg/man --with-rcdir=/etc/rc.d --localstatedir=/usr/pkg --with-rundir=/var/run --with-tmpdir=/var/tmp --with-logdir=/var/log/pcp"
 else
     # Bog-standard options suitable for a package on any platform.
     # Command line can be used to extend this set, and any unusual
     # platform-specific requirements are also appended later on.
-    #
     configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
 fi
 
