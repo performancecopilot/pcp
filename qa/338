@@ -33,7 +33,7 @@ fi
 _filter()
 {
     # NetBSD's version of fmt is different ...
-    if fmt --help 2>&1 | grep '.-g' >/dev/null
+    if "$PCP_PLATFORM" = netbsd
     then
 	cmd="fmt -m 76"
     else
