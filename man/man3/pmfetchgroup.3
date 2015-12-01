@@ -20,8 +20,7 @@
 \f3pmExtendFetchGroup_indom\f1,
 \f3pmFetchGroup\f1,
 \f3pmFetchGroupSetMode\f1,
-\f3pmDestroyFetchGroup\f1
-        \- simplified fetch/convert for performance metrics
+\f3pmDestroyFetchGroup\f1  \- simplified fetch/convert for performance metrics
 .SH "C SYNOPSIS"
 
 .ft 3
@@ -61,12 +60,13 @@ classic Performance Metrics Application Programming Interface (PMAPI)
 sequence of separate lookup, check, fetch, iterate, extract, and
 convert functions.
 
-The general idea is to identify desired metrics by name with desired
+The general idea consists of two stages.  In the setup stage, the
+applications identifies metrics of interest by name and with desired
 conversions, and register a \fBpmAtomValue\fP output location where
-the fetchgroup system is to deposit the result.  It is also possible
-to identify a metric with an instance domain, and register a
-\fIvector\fP of pmAtomValue objects for them.  After that setup, one
-simple \fBpmFetchGroup\fP function fetches, decodes, converts, and
+the fetchgroup system is to later deposit the result.  It is also
+possible to identify a metric with an instance domain, and register a
+\fIvector\fP of pmAtomValue objects for them.  In the operation stage,
+one simple \fBpmFetchGroup\fP function fetches, decodes, converts, and
 stores all metrics to their destinations, where the application can
 \fIread\fP them directly.  This function may be called repeatedly, and
 each time new \fBpmAtomValue\fP values will be stored in the same
@@ -96,10 +96,16 @@ A fetchgroup client application must create a PMAPI context (see
 a Performance Metrics Collector Daemon (PMCD) or an archive.
 
 This function creates a new fetchgroup, and associates it with a
-private \fBpmDupContext\fP copy of the current PMAPI context.  The
-fetchgroup identifier is returned upon success through the \fIptr\fP
-pointer.  This object is later used as a parameter to all other
-fetchgroup functions.
+private copy of the current PMAPI context.  The fetchgroup identifier
+is returned upon success through the \fIptr\fP pointer.  This object
+is later used as a parameter to all other fetchgroup functions.
+
+Due to a libpcp problem (PR1129), this private copy of the PMAPI
+context may not actually be a proper \fBpmDupContext\fP copy, but
+simply shared with the calling application.  This means that the
+application should not destroy it, nor make any use of it, until
+\fBpmDestroyFetchGroup\fP is called.  Even after PR1129 is fixed, such
+application logic will continue to work.
 
 The normal function return code is zero.  This function may fail in
 case of \fBpmDupContext\fP or memory allocation errors.  Those are
@@ -313,9 +319,10 @@ int pmDestroyFetchGroup(pmFG \fIpmfg\fP);
 
 When the fetchgroup is no longer needed, it may be explicitly freed
 with this function.  It releases any dynamically stored state, as well
-as the private PMAPI context.  It clears frees any pointers such as
-indom instance names or strings that may have been stored in output
-variables.
+as the private PMAPI context copy (if any).  It clears frees any
+pointers such as indom instance names or strings that may have been
+stored in output variables.
+
 
 .SH "EXAMPLE"
 
