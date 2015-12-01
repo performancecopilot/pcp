@@ -145,7 +145,7 @@ class PMReporter(object):
                 return None
             if arg == '-c' or arg == '--config':
                 try:
-                    config = args.next()
+                    config = next(args)
                     if not os.path.isfile(config) or not os.access(config, os.R_OK):
                         raise IOError("Failed to read configuration file '%s'." % config)
                 except StopIteration:
