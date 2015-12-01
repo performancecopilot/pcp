@@ -1,0 +1,38 @@
+QA output created by 1068
+== Zabbix server input ===
+header: 0000000   Z   B   X   D 001 300 002  \0  \0  \0  \0  \0  \0  \n
+body:
+{
+	"request":"sender data",
+	"data":[
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.seconds",
+			"value":"380432",
+			"clock":957177405.578},
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.milliseconds",
+			"value":"380432147.45",
+			"clock":957177405.578},
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.seconds",
+			"value":"380434",
+			"clock":957177407.587},
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.milliseconds",
+			"value":"380434156.658",
+			"clock":957177407.587},
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.seconds",
+			"value":"380436",
+			"clock":957177409.597},
+		{
+			"host":"HOSTNAME",
+			"key":"pcp.sample.milliseconds",
+			"value":"380436166.949",
+			"clock":957177409.597}]
+}

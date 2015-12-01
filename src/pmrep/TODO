@@ -1,0 +1,29 @@
+-  versioned configuration
+-  fix get_cmd_line_metrics
+-  allow defining instances to display
+-  possibly default to %c/%X for CSV/stdout
+-  opt to write cols per row with stdout output
+-  adjust unit/scale handling to ~match fetchgroup
+-  -Q/-B/-Y/-W to override per-metric unit/scale/width
+-  shorten unit display count / sec -> count/s -> c/s if needed
+-  -g to output in shortest and/or scientific format (see pmdumptext -G)
+-  -X to support pmdumptext -X like output (or shorten inst names if needed)
+-  bash/zsh completion with short help (allow description for sets?)
+-  handle derived metrics with archives
+-  enable counter wrap logic
+-  containers support
+-  verify CSV format
+-  add JSON output support
+-  add XML output support (like sadf)
+-  add XLS output support (like sar2xls)
+-  look for config in ./, ~/.pcp, ~/, /etc/pcp or so
+-  possibly add more command line switch sanity checking
+-  modularize code to allow creating custom output plugins
+-    (e.g. pcp2graphite type socket, top-like output, separate pcp2zabbix)
+-  per-metrics decimals (?)
+-  copy metric set spec support (?)
+-  includedir config file support (?)
+-  generalised daemon startup support (?)
+-  provide percentage metrics (e.g. CPU/:vmstat) (?)
+-  add option to prevent truncating string output (?)
+-  optionally ignore incompatible/unsupported metrics rather than abort (?)

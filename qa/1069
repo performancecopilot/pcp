@@ -1,0 +1,73 @@
+#!/bin/sh
+# PCP QA Test No. 1069
+# Exercise pmrep configuration and various reporting modes.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_live_filter()
+{
+    sed \
+	-e "s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/HH:MM:SS/g" \
+    #end
+}
+
+log="--archive $here/archives/sample-secs -z"
+
+# real QA test starts here
+echo "== basic live mode reporting"
+pmrep -p -s 2 -t 0.25 sample.long.one | _live_filter
+
+echo "== basic archive mode reporting"
+pmrep -p -s 5 -t 2 -f 2 --archive $here/archives/sample-secs \
+	sample.seconds sample.milliseconds
+
+echo "== basic configuration file handling"
+echo > $tmp.config <<EOF
+secs = sample.seconds
+msecs = sample.milliseconds
+EOF
+pmrep -s 5 -t 2 $log -c $tmp.config sample
+
+echo "== exercise raw counter mode "
+pmrep -s 5 -t 2 $log -c $tmp.config -r sample
+
+echo "== exercise CSV and alternate delimiters"
+pmrep -s 5 -t 2 $log -c $tmp.config -o csv -p -f 1 sample
+pmrep -s 5 -t 2 $log -c $tmp.config -o csv --delimiter '|' sample
+
+echo "== exercise repeated headers option"
+pmrep -s 5 -t 2 $log -E 2 sample.seconds
+
+echo "== exercise units conversion options"
+pmrep -s 5 -t 2 $log -p -y microsec sample
+
+#echo "== derived metrics configuration file"
+#echo > $tmp.derived <<EOF
+#sample.combo = sample.seconds + (sample.milliseconds / 1000)
+#EOF
+#pmrep -s 5 -t 2 $log -e $tmp.derived sample.combo
+
+#echo "== extended existing sample configuration"
+#echo >> $tmp.config <<EOF
+#combo = sample.combo
+#EOF
+#pmrep -s 5 -t 2 $log -e $tmp.derived -c $tmp.config sample
+
+# success, all done
+status=0
+exit
