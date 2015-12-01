@@ -142,7 +142,11 @@ metric name is given in the mandatory \fImetric\fP parameter, which is
 checked immediately via \fBpmLookupName\fP and other calls.  Iff the
 metric has an instance domain, the specific instance of interest may
 be named by the \fIinstance\fP parameter, which is checked immediately
-via \fBpmNameInDom\fP; otherwise pass NULL.
+via \fBpmNameInDom\fP; otherwise pass NULL.  If the fetchgroup context
+is an archive, it is possible that the metric / instance pair is not
+yet defined at the current time origin.  Therefore, this function may
+attempt to seek to the \fIend\fP of the current archive
+\fItemporarily\fP to retry the metric / instance lookup.
 
 The optional \fIscale\fP parameter specifies desired unit/scale/rate
 conversions for the metric value.  It can take the following values:

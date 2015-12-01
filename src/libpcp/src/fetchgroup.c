@@ -1004,8 +1004,38 @@ pmExtendFetchGroup_item(pmFG pmfg, const char *metric, const char *instance, con
     item->type = pmfg_item;
 
     sts = pmfg_lookup_item(metric, instance, item);
-    if (sts != 0)
-	goto out1;
+    if (sts != 0) {
+        /* If this was an archive, the instance/indom pair may not be present
+           as of the current moment.  Seek to the end of the archive temporarily
+           to try again there. */
+        __pmContext *ctxp = __pmHandleToPtr(pmfg->ctx);
+        assert(ctxp);
+        if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {
+            struct timeval saved_origin;
+            struct timeval archive_end;
+            int saved_mode, saved_delta;
+            saved_origin.tv_sec = ctxp->c_origin.tv_sec;
+            saved_origin.tv_usec = ctxp->c_origin.tv_usec;
+            saved_mode = ctxp->c_mode;
+            saved_delta = ctxp->c_delta;
+            PM_UNLOCK(ctxp->c_lock);
+            sts = pmGetArchiveEnd(&archive_end);
+            if (sts < 0)
+                goto out1;
+            sts = pmSetMode (PM_MODE_BACK, &archive_end, 0);
+            if (sts < 0)
+                goto out1;
+            /* try again */
+            sts = pmfg_lookup_item(metric, instance, item);
+            /* go back to saved position */
+            (void) pmSetMode (saved_mode, &saved_origin, saved_delta);
+            if (sts < 0)
+                goto out1;
+        } else { /* not archive */
+            PM_UNLOCK(ctxp->c_lock);
+            goto out1;
+        }
+    }
 
     sts = pmfg_prep_conversion(&item->u.item.metric_desc, scale, &item->u.item.conv, out_type);
     if (sts != 0)

@@ -91,6 +91,10 @@ get_sample()
             exit(1);
         }
 
+        /* Because om pmfg_item's willingness to scan to the end of an
+           archive to do metric/instance resolution, we don't have to
+           specially handle the PM_CONTEXT_ARCHIVE case here. */
+
         if ((sts = pmExtendFetchGroup_item(pmfg, "kernel.all.load", "1 minute", NULL,
                                            &info.load1, PM_TYPE_DOUBLE, NULL)) < 0) {
             fprintf(stderr, "%s: Failed kernel.all.load[1] ExtendFetchGroup: %s\n",
@@ -141,7 +145,11 @@ get_sample()
     /* fetch the current metrics; fill many info.* fields.  Since we
        passed NULLs to most fetchgroup status int*'s, we'll get
        PM_TYPE_DOUBLE fetch/conversion errors represented by NaN's. */
-    (void) pmFetchGroup(pmfg);
+    sts = pmFetchGroup(pmfg);
+    if (sts < 0) {
+        fprintf(stderr, "%s: pmFetchGroup: %s\n", pmProgname, pmErrStr(sts));
+        exit(1);
+    }
 
     /* compute rate-converted values */
     info.cpu_util = 0;
