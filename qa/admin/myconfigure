@@ -38,6 +38,11 @@ then
 	echo "Botch: cannot get configopts from configure_paths in debian/rules"
 	exit 1
     fi
+elif [ `uname` = NetBSD ]
+then
+    # Try to mimic where pkgsrc/pkgin place things
+    #
+    configopts="--prefix=/usr/pkg --exec-prefix=/usr/pkg --mandir=/usr/pkg/man --with-rcdir=/etc/rc.d --localstatedir=/usr/pkg --with-rundir=/var/run --with-tmpdir=/var/tmp --with-logdir=/var/log/pcp"
 else
     # default case, we know no better
     #
@@ -81,6 +86,8 @@ then
     echo "Arrgh, src/include/pcp.conf not found"
     exit 1
 fi
+
+#debug# exit 0
 
 . src/include/pcp.conf
 

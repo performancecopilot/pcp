@@ -42,7 +42,6 @@ OTHER_SUBDIRS = \
 	newhelp \
 	pcp \
 	pcp2graphite \
-	pcp2zabbix \
 	pmafm \
 	pmfind \
 	pmcpp \
@@ -100,6 +99,7 @@ OTHER_SUBDIRS = \
 	sheet2pcp \
 	ganglia2pcp \
 	win32ctl \
+	zabbix-agent \
 	#
 
 SUBDIRS = \

@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 case "$PCP_PLATFORM"
 in
-    linux|darwin|solaris)
+    linux|darwin|solaris|freebsd|netbsd)
 	;;
     *)
 	echo "Need to hand-craft the exceptions list in ./003 for this platform"
@@ -246,6 +246,22 @@ do
 	    -e "/xfs\..*: $unavailable/d"
     elif [ "$PCP_PLATFORM" = darwin ]
     then
+	  # do nothing at the moment
+	  sed <$tmp.tmp \
+	    -e 's/a/a/'
+    elif [ "$PCP_PLATFORM" = solaris ]
+    then
+	  # do nothing at the moment
+	  sed <$tmp.tmp \
+	    -e 's/a/a/'
+    elif [ "$PCP_PLATFORM" = freebsd ]
+    then
+	  # do nothing at the moment
+	  sed <$tmp.tmp \
+	    -e 's/a/a/'
+    elif [ "$PCP_PLATFORM" = netbsd ]
+    then
+	  # do nothing at the moment
 	  sed <$tmp.tmp \
 	    -e 's/a/a/'
     fi

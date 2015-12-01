@@ -30,6 +30,9 @@ start_cmd(const char *cmd, pid_t *ppid)
 {
     pid_t	child_pid;
     int		i, pipe_fds[2];
+#if !defined(HAVE_PIPE2)
+    int		sts;
+#endif
 
     if (pmDebug & DBG_TRACE_APPL0)
 	__pmNotifyErr(LOG_INFO, "%s: Trying to run command: %s", __FUNCTION__,

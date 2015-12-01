@@ -72,7 +72,7 @@ s/).*//
 s/=0*/=/g
 p
 }'`
-	elif [ $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = darwin ]
+	elif [ $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = netbsd ]
 	then
 	    # stat line of interest ...
 	    # _mode=-rw-r--r-- _user=kenj _group=kenj

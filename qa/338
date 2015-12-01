@@ -32,24 +32,32 @@ fi
 
 _filter()
 {
+    # NetBSD's version of fmt is different ...
+    if fmt --help 2>&1 | grep '.-g' >/dev/null
+    then
+	cmd="fmt -m 76"
+    else
+	cmd="fmt -76"
+    fi
     tee -a $seq.full \
     | $PCP_AWK_PROG '
-/^Archive files older than/	{ eatlines=1; longone="   "; print; next; }
+BEGIN				{ cmd = "'"`echo $cmd`"'" }
+/^Archive files older than/	{ eatlines=1; longone="   "; print; next }
 eatlines			{ if ( match ($0, "^    ") ) {
 				    for ( i=1; i <=NF; i++ ) {
-					longone = sprintf ("%s %s",longone,$i);
+					longone = sprintf ("%s %s",longone,$i)
 				    }
 				  } else {
-				    print longone | "fmt -76";
-				    close ("fmt -76"); 
-				    longone = ""; eatlines = 0; 
-				    print;  
+				    print longone | cmd
+				    close (cmd)
+				    longone = ""; eatlines = 0 
+				    print  
 				  }
-				  next;
+				  next
 				}
 END				{ if ( eatlines ) {
-				    print longone | "fmt -76";
-				    close ("fmt -76"); 
+				    print longone | cmd
+				    close (cmd)
 				  }
 				}
 				{ print }' \

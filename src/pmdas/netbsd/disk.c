@@ -1,7 +1,7 @@
 /*
  * NetBSD Kernel PMDA - disk metrics
  *
- * Copyright (c) 2012,2013 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,126 +18,137 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+/*
+ * TODO
+ *   +  time_sec and time_usec from io_sysctl seems to be device
+ *	busy time, so a possible source for disk.dev.avactive
+ */
+
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
 #include "netbsd.h"
+#include <sys/param.h>
+#include <sys/sysctl.h>
+#include <sys/iostat.h>
+#include <errno.h>
+#include <string.h>
 
-#if 0
-#include <devstat.h>
-struct devinfo	devinfo = { 0 };
-struct statinfo	statinfo;
-#endif
+static int		ndisk = -1;
+static struct io_sysctl	*stats;
+static int		valid;
 
 void
 refresh_disk_metrics(void)
 {
-#if 0
-    static int	init_done = 0;
-    int		i;
     int		sts;
+    static int	name[] = { CTL_HW, HW_IOSTATS, sizeof(struct io_sysctl) };
+    u_int	namelen = sizeof(name) / sizeof(name[0]);
+    size_t	buflen;
+    int		i;
 
-    if (!init_done) {
-	sts = devstat_checkversion(NULL);
-	if (sts != 0) {
-	    fprintf(stderr, "refresh_disk_metrics: devstat_checkversion: failed! %s\n", devstat_errbuf);
-	    exit(1);
-	}
-	statinfo.dinfo = &devinfo;
-	init_done = 1;
+    /* get number of io_sysctl structs available */
+    if ((sts = sysctl(name, namelen, NULL, &buflen, NULL, 0)) != 0) {
+	fprintf(stderr, "refresh_disk_metrics: ndisk sysctl(): %s\n", strerror(errno));
+	valid = 0;
+	return;
     }
 
-    sts = devstat_getdevs(NULL, &statinfo);
-    if (sts < 0) {
-	fprintf(stderr, "refresh_disk_metrics: devstat_getdevs: %s\n", strerror(errno));
-	exit(1);
-    }
-    else if (sts == 1) {
-	/*
-	 * First call, else devstat[] list has changed
-	 */
-	struct devstat	*dsp;
-	char		iname[DEVSTAT_NAME_LEN+6];
-	pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_INACTIVE);
-	for (i = 0; i < devinfo.numdevs; i++) {
-	    dsp = &devinfo.devices[i];
-	    /*
-	     * Skip entries that are not interesting ... only include
-	     * "da" (direct access) disks at this stage
-	     */
-	    if (strcmp(dsp->device_name, "da") != 0)
-		continue;
-	    snprintf(iname, sizeof(iname), "%s%d", dsp->device_name, dsp->unit_number);
-	    sts = pmdaCacheLookupName(indomtab[DISK_INDOM].it_indom, iname, NULL, NULL);
-	    if (sts == PMDA_CACHE_ACTIVE) {
-		int	j;
-		fprintf(stderr, "refresh_disk_metrics: Warning: duplicate name (%s) in disk indom\n", iname);
-		for (j = 0; j < devinfo.numdevs; j++) {
-		    dsp = &devinfo.devices[j];
-		    fprintf(stderr, "  devinfo[%d]: %s%d\n", j, dsp->device_name, dsp->unit_number);
-		}
-		continue;
-	    }
-	    else {
-		/* new entry or reactivate an existing one */
-		pmdaCacheStore(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_ADD, iname, (void *)dsp);
-	    }
-	}
-    }
+    if (ndisk != buflen / sizeof(struct io_sysctl)) {
+	/* initialization or something has changed */
+	if (ndisk == -1) {
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_APPL0)
+		fprintf(stderr, "Info: refresh_disk_metrics: initial ndisk=%d\n", buflen / sizeof(struct io_sysctl));
 #endif
+	    pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_LOAD);
+	}
+	else {
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL0)
+	    fprintf(stderr, "Info: refresh_disk_metrics: ndisk changed from %d to %d\n", ndisk, buflen / sizeof(struct io_sysctl));
+#endif
+	    pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_INACTIVE);
+	}
+	ndisk = buflen / sizeof(struct io_sysctl);
+	if (stats != NULL)
+	    free(stats);
+	stats = (struct io_sysctl *)malloc(buflen);
+	if (stats == NULL) {
+	    __pmNoMem("refresh_disk_metrics: stats", buflen, PM_FATAL_ERR);
+	    /* NOTREACHED */
+	}
+	/* fetch all the available data */
+	if ((sts = sysctl(name, namelen, stats, &buflen, NULL, 0)) != 0) {
+	    fprintf(stderr, "refresh_disk_metrics: stats sysctl(): %s\n", strerror(errno));
+	    valid = 0;
+	    return;
+	}
+	for (i = 0; i < ndisk; i++) {
+	    if (stats[i].type != IOSTAT_DISK) continue;
+	    if ((sts = pmdaCacheStore(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_ADD, stats[i].name, (void **)&stats[i])) < 0) {
+		fprintf(stderr, "refresh_disk_metrics: pmdaCacheStore(%s) failed: %s\n", stats[i].name, pmErrStr(sts));
+		continue;
+	    }
+	}
+	pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_SAVE);
+    }
+    else {
+	/*
+	 * no change in the number of io_sysctl structs avaiable,
+	 * assume the order remains the same, so just get 'em
+	 */
+	if ((sts = sysctl(name, namelen, stats, &buflen, NULL, 0)) != 0) {
+	    fprintf(stderr, "refresh_disk_metrics: stats sysctl(): %s\n", strerror(errno));
+	    valid = 0;
+	    return;
+	}
+    }
 
+    valid = 1;
 }
 
 int
 do_disk_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-#if 0
-    struct devstat	*dsp;
     int			sts;
+    int			l_inst;
+    struct io_sysctl	*sp;
+
+    if (!valid)
+	return 0;
 
     if (inst != PM_IN_NULL) {
 	/*
 	 * per-disk metrics
 	 */
-	sts = pmdaCacheLookup(indomtab[DISK_INDOM].it_indom, inst, NULL, (void **)&dsp);
+	sts = pmdaCacheLookup(indomtab[DISK_INDOM].it_indom, inst, NULL, (void **)&sp);
 	if (sts == PMDA_CACHE_ACTIVE) {
 	    sts = 1;
 	    /* cluster and domain already checked, just need item ... */
 	    switch (pmid_item(mdesc->m_desc.pmid)) {
 		case 0:		/* disk.dev.read */
-		    atom->ull = dsp->operations[DEVSTAT_READ];
+		    atom->ull = sp->rxfer;
 		    break;
 
 		case 1:		/* disk.dev.write */
-		    atom->ull = dsp->operations[DEVSTAT_WRITE];
+		    atom->ull = sp->wxfer;
 		    break;
 
 		case 2:		/* disk.dev.total */
-		    atom->ull = dsp->operations[DEVSTAT_READ] + dsp->operations[DEVSTAT_WRITE];
+		    atom->ull = sp->xfer;
 		    break;
 
 		case 3:		/* disk.dev.read_bytes */
-		    atom->ull = dsp->bytes[DEVSTAT_READ];
+		    atom->ull = sp->rbytes;
 		    break;
 
 		case 4:		/* disk.dev.write_bytes */
-		    atom->ull = dsp->bytes[DEVSTAT_WRITE];
+		    atom->ull = sp->wbytes;
 		    break;
 
 		case 5:		/* disk.dev.total_bytes */
-		    atom->ull = dsp->bytes[DEVSTAT_READ] + dsp->bytes[DEVSTAT_WRITE];
-		    break;
-
-		case 12:	/* disk.dev.blkread */
-		    atom->ull = dsp->block_size == 0 ? 0 : dsp->bytes[DEVSTAT_READ] / dsp->block_size;
-		    break;
-
-		case 13:	/* disk.dev.blkwrite */
-		    atom->ull = dsp->block_size == 0 ? 0 : dsp->bytes[DEVSTAT_WRITE] / dsp->block_size;
-		    break;
-
-		case 14:	/* disk.dev.blktotal */
-		    atom->ull = dsp->block_size == 0 ? 0 : (dsp->bytes[DEVSTAT_READ] + dsp->bytes[DEVSTAT_WRITE]) / dsp->block_size;
+		    atom->ull = sp->bytes;
 		    break;
 
 		default:
@@ -152,65 +163,45 @@ do_disk_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	/*
 	 * all-disk summary metrics
 	 */
-	int	i;
 	atom->ull = 0;
 	sts = 1;
-	pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_WALK_REWIND);
-	while (sts == 1 && (i = pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_WALK_NEXT)) >= 0) {
-	    int		lsts;
-	    lsts = pmdaCacheLookup(indomtab[DISK_INDOM].it_indom, i, NULL, (void **)&dsp);
-	    if (lsts == PMDA_CACHE_ACTIVE) {
-		/* cluster and domain already checked, just need item ... */
-		switch (pmid_item(mdesc->m_desc.pmid)) {
-		    case 6:		/* disk.all.read */
-			atom->ull += dsp->operations[DEVSTAT_READ];
-			break;
+	for (pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_WALK_REWIND);;) {
+	    if ((l_inst = pmdaCacheOp(indomtab[DISK_INDOM].it_indom, PMDA_CACHE_WALK_NEXT)) < 0)
+		break;
+	    if (!pmdaCacheLookup(indomtab[DISK_INDOM].it_indom, l_inst, NULL, (void **)&sp))
+		continue;
+	    /* cluster and domain already checked, just need item ... */
+	    switch (pmid_item(mdesc->m_desc.pmid)) {
+		case 6:		/* disk.all.read */
+		    atom->ull += sp->rxfer;
+		    break;
 
-		    case 7:		/* disk.all.write */
-			atom->ull += dsp->operations[DEVSTAT_WRITE];
-			break;
+		case 7:		/* disk.all.write */
+		    atom->ull += sp->wxfer;
+		    break;
 
-		    case 8:		/* disk.all.total */
-			atom->ull += dsp->operations[DEVSTAT_READ] + dsp->operations[DEVSTAT_WRITE];
-			break;
+		case 8:		/* disk.all.total */
+		    atom->ull += sp->xfer;
+		    break;
 
-		    case 9:		/* disk.all.read_bytes */
-			atom->ull += dsp->bytes[DEVSTAT_READ];
-			break;
+		case 9:		/* disk.all.read_bytes */
+		    atom->ull += sp->rbytes;
+		    break;
 
-		    case 10:		/* disk.all.write_bytes */
-			atom->ull += dsp->bytes[DEVSTAT_WRITE];
-			break;
+		case 10:	/* disk.all.write_bytes */
+		    atom->ull += sp->wbytes;
+		    break;
 
-		    case 11:		/* disk.all.total_bytes */
-			atom->ull += dsp->bytes[DEVSTAT_READ] + dsp->bytes[DEVSTAT_WRITE];
-			break;
+		case 11:	/* disk.all.total_bytes */
+		    atom->ull += sp->bytes;
+		    break;
 
-		    case 15:		/* disk.all.blkread */
-			atom->ull += dsp->block_size == 0 ? 0 : dsp->bytes[DEVSTAT_READ] / dsp->block_size;
-			break;
-
-		    case 16:		/* disk.all.blkwrite */
-			atom->ull += dsp->block_size == 0 ? 0 : dsp->bytes[DEVSTAT_WRITE] / dsp->block_size;
-			break;
-
-		    case 17:		/* disk.all.blktotal */
-			atom->ull += dsp->block_size == 0 ? 0 : (dsp->bytes[DEVSTAT_READ] + dsp->bytes[DEVSTAT_WRITE]) / dsp->block_size;
-			break;
-
-		    default:
-			sts = PM_ERR_PMID;
-			break;
-		}
+		default:
+		    sts = PM_ERR_PMID;
+		    break;
 	    }
 	}
-	if (i < 0 && i != -1)
-	    /* not end of indom from cache walk, some other error */
-	    sts = i;
     }
 
     return sts;
-#else
-    return PM_ERR_PMID;
-#endif
 }

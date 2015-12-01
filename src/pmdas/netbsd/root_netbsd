@@ -27,12 +27,16 @@ root {
     disk
     mem
     network
+    filesys
     swap
+    pmda
 }
 
 hinv {
     ncpu	NETBSD:0:0
     ndisk	NETBSD:1:0
+    nfilesys	NETBSD:7:0
+    ninterface	NETBSD:3:17
     physmem	NETBSD:0:1
     pagesize	NETBSD:1:3
     cpu
@@ -47,14 +51,15 @@ hinv.cpu {
 kernel {
     all
     percpu
+    uname
 }
 
 kernel.all {
-    pswitch	NETBSD:0:22
-    syscall	NETBSD:0:23
-    intr	NETBSD:0:24
+    pswitch	NETBSD:5:1
+    syscall	NETBSD:5:2
+    intr	NETBSD:5:3
     hz		NETBSD:0:13
-    load	NETBSD:0:2
+    load	NETBSD:1:2
     cpu
 }
 
@@ -71,11 +76,20 @@ kernel.percpu {
 }
 
 kernel.percpu.cpu {
-    user	NETBSD:0:8
-    nice	NETBSD:0:9
-    sys		NETBSD:0:10
-    intr	NETBSD:0:11
-    idle	NETBSD:0:12
+    user	NETBSD:6:3
+    nice	NETBSD:6:4
+    sys		NETBSD:6:5
+    intr	NETBSD:6:6
+    idle	NETBSD:6:7
+}
+
+kernel.uname {
+    release	NETBSD:1:14
+    version	NETBSD:1:15
+    sysname	NETBSD:1:16
+    machine	NETBSD:1:17
+    nodename	NETBSD:1:18
+    distro	NETBSD:1:15	/* alias for version on NetBSD */
 }
 
 disk {
@@ -90,9 +104,6 @@ disk.dev {
     read_bytes	NETBSD:2:3
     write_bytes	NETBSD:2:4
     total_bytes	NETBSD:2:5
-    blkread	NETBSD:2:12
-    blkwrite	NETBSD:2:13
-    blktotal	NETBSD:2:14
 }
 
 disk.all {
@@ -102,9 +113,6 @@ disk.all {
     read_bytes	NETBSD:2:9
     write_bytes	NETBSD:2:10
     total_bytes	NETBSD:2:11
-    blkread	NETBSD:2:15
-    blkwrite	NETBSD:2:16
-    blktotal	NETBSD:2:17
 }
 
 mem {
@@ -112,15 +120,20 @@ mem {
 }
 
 mem.util {
-    all		NETBSD:1:4
-    used	NETBSD:1:5
-    free	NETBSD:1:6
-    bufmem	NETBSD:1:7
-    cached	NETBSD:1:8
-    wired	NETBSD:1:9
-    active	NETBSD:1:10
-    inactive	NETBSD:1:11
-    avail	NETBSD:1:12
+    all		NETBSD:5:4
+    used	NETBSD:5:5
+    free	NETBSD:5:6
+    paging	NETBSD:5:7
+    cached	NETBSD:5:8
+    wired	NETBSD:5:9
+    active	NETBSD:5:10
+    inactive	NETBSD:5:11
+    zeropages	NETBSD:5:12
+    pagedaemonpages	NETBSD:5:13
+    kernelpages	NETBSD:5:14
+    anonpages	NETBSD:5:15
+    filepages	NETBSD:5:16
+    execpages	NETBSD:5:17
 }
 
 network {
@@ -160,13 +173,32 @@ network.interface.total {
 }
 
 swap {
-    pagesin	NETBSD:0:18
-    pagesout	NETBSD:0:19
-    in		NETBSD:0:20
-    out		NETBSD:0:21
-    length	NETBSD:0:25
-    used	NETBSD:0:26
-    free	NETBSD:1:1
+    length	NETBSD:4:1
+    used	NETBSD:4:2
+    free	NETBSD:4:3
+    in		NETBSD:4:4
+    out		NETBSD:4:5
+    pagesin	NETBSD:4:6
+    pagesout	NETBSD:4:7
+}
+
+filesys {
+    capacity	NETBSD:7:1
+    used	NETBSD:7:2
+    free	NETBSD:7:3
+    maxfiles	NETBSD:7:4
+    usedfiles	NETBSD:7:5
+    freefiles	NETBSD:7:6
+    mountdir	NETBSD:7:7
+    full	NETBSD:7:8
+    blocksize	NETBSD:7:9
+    avail	NETBSD:7:10
+    readonly	NETBSD:7:11
+}
+
+pmda {
+    uname	NETBSD:1:20
+    version	NETBSD:1:21
 }
 
 #undef NETBSD

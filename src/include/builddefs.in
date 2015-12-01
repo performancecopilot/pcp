@@ -105,6 +105,7 @@ DSOSUFFIX = so
 endif
 ifeq "$(TARGET_OS)" "netbsd"
 DSOSUFFIX = so
+LDFLAGS += -Wl,-rpath=/usr/pkg/lib
 endif
 
 CFLAGS_ABI = @cflags_abi@

@@ -33,11 +33,19 @@ include $(BUILDRULES)
 install :: default_pcp install_pcp
 
 install_pcp : $(SUBDIRS) default_pcp
-	$(INSTALL) -m 644 pcp.conf $(PCP_ETC_DIR)/pcp.conf
 ifeq "$(TARGET_OS)" "mingw"
+	$(INSTALL) -m 644 pcp.conf $(PCP_ETC_DIR)/pcp.conf
 	$(INSTALL) -m 644 pcp.mingw $(PCP_ETC_DIR)/pcp.env
 else
+ifeq "$(TARGET_OS)" "netbsd"
+	# $(PCP_ETC_DIR) is likely to be /usr/pkg/etc ... need
+	# a more visible place for these two
+	$(INSTALL) -m 644 pcp.conf /etc/pcp.conf
+	$(INSTALL) -m 644 pcp.env /etc/pcp.env
+else
+	$(INSTALL) -m 644 pcp.conf $(PCP_ETC_DIR)/pcp.conf
 	$(INSTALL) -m 644 pcp.env $(PCP_ETC_DIR)/pcp.env
+endif
 endif
 	$(INSTALL) -m 644 buildrules $(PCP_INC_DIR)/buildrules
 	$(INSTALL) -m 644 builddefs.install $(PCP_INC_DIR)/builddefs

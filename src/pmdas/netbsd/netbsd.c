@@ -26,6 +26,7 @@
 #include <sys/resource.h>
 #include <sys/time.h>
 #include <uvm/uvm_param.h>
+#include <sys/utsname.h>
 
 #include "domain.h"
 #include "netbsd.h"
@@ -41,6 +42,7 @@ pmdaIndom indomtab[] = {
     { CPU_INDOM, 0, NULL },
     { DISK_INDOM, 0, NULL },
     { NETIF_INDOM, 0, NULL },
+    { FILESYS_INDOM, 0, NULL },
 };
 static int indomtablen = sizeof(indomtab) / sizeof(indomtab[0]);
 
@@ -48,6 +50,10 @@ static int indomtablen = sizeof(indomtab) / sizeof(indomtab[0]);
 #define CL_SPECIAL	1
 #define CL_DISK		2
 #define CL_NETIF	3
+#define CL_SWAP		4
+#define CL_VM_UVMEXP	5
+#define CL_CPUTIME	6
+#define CL_FILESYS	7
 
 /*
  * All the PCP metrics.
@@ -64,7 +70,10 @@ static int indomtablen = sizeof(indomtab) / sizeof(indomtab[0]);
  * CL_SPECIAL	trickier sysctl() metrics involving synthesis or arithmetic
  *		or other methods
  * CL_DISK	disk metrics
+ * CL_CPUTIME	percpu cpu time metrics
  * CL_NETIF	network interface metrics
+ * CL_FILESYS	filesys metrics
+ * CL_VM_UVMEXP	vm stats
  */
 
 static pmdaMetric metrictab[] = {
@@ -73,9 +82,9 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0,0,0,0,0,0) } },
     { (void *)"hinv.physmem",
       { PMDA_PMID(CL_SYSCTL,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
-	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
-    { (void *)"kernel.all.load",
-      { PMDA_PMID(CL_SYSCTL,2), PM_TYPE_FLOAT, LOADAV_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_MBYTE,0,0) } },
+    { NULL,	/* kernel.all.load */
+      { PMDA_PMID(CL_SPECIAL,2), PM_TYPE_FLOAT, LOADAV_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) } },
     { (void *)"kernel.all.cpu.user",
       { PMDA_PMID(CL_SYSCTL,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
@@ -92,20 +101,20 @@ static pmdaMetric metrictab[] = {
     { (void *)"kernel.all.cpu.idle",
       { PMDA_PMID(CL_SYSCTL,7), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
-    { (void *)"kernel.percpu.cpu.user",
-      { PMDA_PMID(CL_SYSCTL,8), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
+    { NULL, 	/* kernel.percpu.cpu.user */
+      { PMDA_PMID(CL_CPUTIME,3), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
-    { (void *)"kernel.percpu.cpu.nice",
-      { PMDA_PMID(CL_SYSCTL,9), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
+    { NULL, 	/* kernel.percpu.cpu.nice */
+      { PMDA_PMID(CL_CPUTIME,4), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
-    { (void *)"kernel.percpu.cpu.sys",
-      { PMDA_PMID(CL_SYSCTL,10), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
+    { NULL, 	/* kernel.percpu.cpu.sys */
+      { PMDA_PMID(CL_CPUTIME,5), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
-    { (void *)"kernel.percpu.cpu.intr",
-      { PMDA_PMID(CL_SYSCTL,11), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
+    { NULL, 	/* kernel.percpu.cpu.intr */
+      { PMDA_PMID(CL_CPUTIME,6), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
-    { (void *)"kernel.percpu.cpu.idle",
-      { PMDA_PMID(CL_SYSCTL,12), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
+    { NULL, 	/* kernel.percpu.cpu.idle */
+      { PMDA_PMID(CL_CPUTIME,7), PM_TYPE_U64, CPU_INDOM, PM_SEM_COUNTER, 
 	PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
     { (void *)"kernel.all.hz",
       { PMDA_PMID(CL_SYSCTL,13), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
@@ -119,84 +128,86 @@ static pmdaMetric metrictab[] = {
     { (void *)"hinv.cpu.arch",
       { PMDA_PMID(CL_SYSCTL,17), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0,0,0,0,0,0) } },
-    { (void *)"swap.pagesin",
-      { PMDA_PMID(CL_SYSCTL,18), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    { NULL, 	/* kernel.all.pswitch */
+      { PMDA_PMID(CL_VM_UVMEXP,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-    { (void *)"swap.pagesout",
-      { PMDA_PMID(CL_SYSCTL,19), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    { NULL, 	/* kernel.all.syscall */
+      { PMDA_PMID(CL_VM_UVMEXP,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-    { (void *)"swap.in",
-      { PMDA_PMID(CL_SYSCTL,20), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    { NULL, 	/* kernel.all.intr */
+      { PMDA_PMID(CL_VM_UVMEXP,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-    { (void *)"swap.in",
-      { PMDA_PMID(CL_SYSCTL,21), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    { NULL, 	/* swap.length */
+      { PMDA_PMID(CL_SWAP,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    { NULL, 	/* swap.used */
+      { PMDA_PMID(CL_SWAP,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    { NULL, 	/* swap.free */
+      { PMDA_PMID(CL_SWAP,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    { NULL, 	/* swap.in */
+      { PMDA_PMID(CL_SWAP,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-    { (void *)"kernel.all.pswitch",
-      { PMDA_PMID(CL_SYSCTL,22), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    { NULL, 	/* swap.out */
+      { PMDA_PMID(CL_SWAP,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-    { (void *)"kernel.all.syscall",
-      { PMDA_PMID(CL_SYSCTL,23), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    { NULL, 	/* swap.pagesin */
+      { PMDA_PMID(CL_SWAP,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-    { (void *)"kernel.all.intr",
-      { PMDA_PMID(CL_SYSCTL,24), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+    { NULL,	/* swap.pagesout */
+      { PMDA_PMID(CL_SWAP,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-    { (void *)"swap.length",
-      { PMDA_PMID(CL_SYSCTL,25), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
-    { (void *)"swap.used",
-      { PMDA_PMID(CL_SYSCTL,26), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
-
-    { NULL,	/* hinv.ndisk */
+    { NULL, 	/* hinv.ndisk */
       { PMDA_PMID(CL_SPECIAL,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0,0,0,0,0,0) } },
-    /*
-     * swap.free is the difference between sysctl variables vm.swap_total
-     * and vm.swap_reserved, so it is important they are kept together
-     * in mib[] below
-     */
-    { (void *)"swap.length",	/* swap.free */
-      { PMDA_PMID(CL_SPECIAL,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
-	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
     { NULL,	/* hinv.pagesize */
       { PMDA_PMID(CL_SPECIAL,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
-    { (void *)"mem.util.all",
-      { PMDA_PMID(CL_SPECIAL,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { NULL, 	/* mem.util.all */
+      { PMDA_PMID(CL_VM_UVMEXP,4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    /*
-     * mem.util.used is computed from several of the vm.stats.vm.v_*_count
-     * sysctl metrics, so it is important they are kept together in mib[]
-     * below
-     */
-    { (void *)"mem.util.all",	/* mem.util.used */
-      { PMDA_PMID(CL_SPECIAL,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { NULL, 	/* mem.util.used */
+      { PMDA_PMID(CL_VM_UVMEXP,5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    { (void *)"mem.util.free",
-      { PMDA_PMID(CL_SPECIAL,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { NULL, 	/* mem.util.free */
+      { PMDA_PMID(CL_VM_UVMEXP,6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    { (void *)"mem.util.bufmem",
-      { PMDA_PMID(CL_SPECIAL,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { NULL, 	/* mem.util.paging */
+      { PMDA_PMID(CL_VM_UVMEXP,7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    { (void *)"mem.util.cached",
-      { PMDA_PMID(CL_SPECIAL,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { NULL, 	/* mem.util.cached */
+      { PMDA_PMID(CL_VM_UVMEXP,8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    { (void *)"mem.util.wired",
-      { PMDA_PMID(CL_SPECIAL,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { NULL, 	/* mem.util.wired */
+      { PMDA_PMID(CL_VM_UVMEXP,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    { (void *)"mem.util.active",
-      { PMDA_PMID(CL_SPECIAL,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { NULL, 	/* mem.util.active */
+      { PMDA_PMID(CL_VM_UVMEXP,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    { (void *)"mem.util.inactive",
-      { PMDA_PMID(CL_SPECIAL,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { NULL, 	/* mem.util.inactive */
+      { PMDA_PMID(CL_VM_UVMEXP,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    /*
-     * mem.util.avail is computed from several of the vm.stats.vm.v_*_count
-     * sysctl metrics, so it is important they are kept together in mib[]
-     * below
-     */
-    { (void *)"mem.util.all",	/* mem.util.avail */
-      { PMDA_PMID(CL_SPECIAL,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    { NULL, 	/* mem.util.avail */
+      { PMDA_PMID(CL_VM_UVMEXP,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    { NULL,	/* mem.util.zeropages */
+      { PMDA_PMID(CL_VM_UVMEXP,13), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    { NULL,	/* mem.util.pagedaemonpages */
+      { PMDA_PMID(CL_VM_UVMEXP,14), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    { NULL,	/* mem.util.kernelpages */
+      { PMDA_PMID(CL_VM_UVMEXP,15), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    { NULL,	/* mem.util.anonpages */
+      { PMDA_PMID(CL_VM_UVMEXP,16), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    { NULL,	/* mem.util.filepages */
+      { PMDA_PMID(CL_VM_UVMEXP,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    { NULL,	/* mem.util.execpages */
+      { PMDA_PMID(CL_VM_UVMEXP,18), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
 
     { NULL,	/* disk.dev.read */
@@ -235,27 +246,9 @@ static pmdaMetric metrictab[] = {
     { NULL,	/* disk.all.total_bytes */
       { PMDA_PMID(CL_DISK,11), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
-    { NULL,	/* disk.dev.blkread */
-      { PMDA_PMID(CL_DISK,12), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-    { NULL,	/* disk.dev.blkwrite */
-      { PMDA_PMID(CL_DISK,13), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-    { NULL,	/* disk.dev.blktotal */
-      { PMDA_PMID(CL_DISK,14), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-    { NULL,	/* disk.all.blkread */
-      { PMDA_PMID(CL_DISK,15), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-    { NULL,	/* disk.all.blkwrite */
-      { PMDA_PMID(CL_DISK,16), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
-    { NULL,	/* disk.all.blktotal */
-      { PMDA_PMID(CL_DISK,17), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
     { NULL,	/* network.interface.mtu */
-      { PMDA_PMID(CL_NETIF,0), PM_TYPE_U32, NETIF_INDOM, PM_SEM_INSTANT,
+      { PMDA_PMID(CL_NETIF,0), PM_TYPE_U64, NETIF_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) } },
     { NULL,	/* network.interface.up */
       { PMDA_PMID(CL_NETIF,1), PM_TYPE_U32, NETIF_INDOM, PM_SEM_INSTANT,
@@ -305,6 +298,69 @@ static pmdaMetric metrictab[] = {
     { NULL,	/* network.interface.total.errors */
       { PMDA_PMID(CL_NETIF,16), PM_TYPE_U64, NETIF_INDOM, PM_SEM_COUNTER,
 	PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { NULL,	/* hinv.ninterface */
+      { PMDA_PMID(CL_NETIF,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+    { NULL,	/* hinv.nfilesys */
+      { PMDA_PMID(CL_FILESYS,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+        PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { NULL, 	/* filesys.capacity */
+      { PMDA_PMID(CL_FILESYS,1), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_DISCRETE,
+        PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    { NULL,	/* filesys.used */
+      { PMDA_PMID(CL_FILESYS,2), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    { NULL,	/* filesys.free */
+       { PMDA_PMID(CL_FILESYS,3), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_INSTANT,
+         PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    { NULL,	/* filesys.maxfiles */
+       { PMDA_PMID(CL_FILESYS,4), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_INSTANT,
+         PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* filesys.usedfiles */
+       { PMDA_PMID(CL_FILESYS,5), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_INSTANT,
+         PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* filesys.freefiles */
+       { PMDA_PMID(CL_FILESYS,6), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_INSTANT,
+         PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* filesys.mountdir */
+       { PMDA_PMID(CL_FILESYS,7), PM_TYPE_STRING, FILESYS_INDOM, PM_SEM_DISCRETE,
+         PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* filesys.full */
+       { PMDA_PMID(CL_FILESYS,8), PM_TYPE_DOUBLE, FILESYS_INDOM, PM_SEM_INSTANT,
+         PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* filesys.blocksize */
+      { PMDA_PMID(CL_FILESYS,9), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+    { NULL,	/* filesys.avail */
+      { PMDA_PMID(CL_FILESYS,10), PM_TYPE_U64, FILESYS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+    { NULL,	/* filesys.readonly */
+      { PMDA_PMID(CL_FILESYS,11), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+    { NULL,	/* kernel.uname.release */
+      { PMDA_PMID(CL_SPECIAL,14), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* kernel.uname.version */
+      { PMDA_PMID(CL_SPECIAL,15), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* kernel.uname.sysname */
+      { PMDA_PMID(CL_SPECIAL,16), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* kernel.uname.machine */
+      { PMDA_PMID(CL_SPECIAL,17), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* kernel.uname.nodename */
+      { PMDA_PMID(CL_SPECIAL,18), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* pmda.uname */
+      { PMDA_PMID(CL_SPECIAL,20), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,	/* pmda.version */
+      { PMDA_PMID(CL_SPECIAL,21), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
+      PMDA_PMUNITS(0,0,0,0,0,0) } },
+
 };
 static int metrictablen = sizeof(metrictab) / sizeof(metrictab[0]);
 
@@ -325,47 +381,25 @@ typedef struct {
 } mib_t;
 static mib_t map[] = {
     { "hinv.ncpu",		"hw.ncpu" },
-    { "hinv.physmem",		"hw.physmem" },
+    { "hinv.physmem",		"hw.physmem64" },
     { "hinv.cpu.vendor",	"hw.machine" },
     { "hinv.cpu.model",		"hw.model" },
     { "hinv.cpu.arch",		"hw.machine_arch" },
-    { "kernel.all.load",	"vm.loadavg" },
     { "kernel.all.hz",		"kern.clockrate" },
     { "kernel.all.cpu.*",	"kern.cp_time" },
-    // need special logic for kern.cp_time.0 ? { "kernel.percpu.cpu.*",	"kern.cp_times." },
-    // not here? { "swap.pagesin",		"vm.stats.vm.v_swappgsin" },
-    // not here? { "swap.pagesout",		"vm.stats.vm.v_swappgsout" },
-    // not here? { "swap.in",		"vm.stats.vm.v_swapin" },
-    { "swap.out",		"vm.swapout" },
-    // not here? { "kernel.all.pswitch",	"vm.stats.sys.v_swtch" },
-    // not here? { "kernel.all.syscall",	"vm.stats.sys.v_syscall" },
-    // not here? { "kernel.all.intr",	"vm.stats.sys.v_intr" },
     { "mem.util.bufmem",	"vfs.bufspace" },
-/*
- * DO NOT MOVE next 2 entries ... see note above for swap.free
- */
-    // not here? { "swap.length",		"vm.swap_total" },
-    // not here? { "swap.used",		"vm.swap_reserved" },
-/*
- * DO NOT MOVE next 6 entries ... see note above for mem.util.avail
- * and mem.util.used
- */
-    // not here? { "mem.util.all",		"vm.stats.vm.v_page_count" },
-    // not here? { "mem.util.free",		"vm.stats.vm.v_free_count" },
-    // not here? { "mem.util.cached",	"vm.stats.vm.v_cache_count" },
-    // not here? { "mem.util.wired",		"vm.stats.vm.v_wire_count" },
-    // not here? { "mem.util.active",	"vm.stats.vm.v_active_count" },
-    // not here? { "mem.util.inactive",	"vm.stats.vm.v_inactive_count" },
-
 };
 static int maplen = sizeof(map) / sizeof(map[0]);
 static mib_t bad_mib = { "bad.mib", "bad.mib", 0, NULL, 0, 0, NULL };
 
 static char	*username;
 static int	isDSO = 1;	/* =0 I am a daemon */
-static int	cpuhz;		/* frequency for CPU time metrics */
-static int	ncpu;		/* number of cpus in kern.cp_times.* data */
 static int	pagesize;	/* vm page size */
+static struct utsname		kernel_uname;
+
+/* used elsewhere */
+int	cpuhz;			/* frequency for CPU time metrics */
+int	ncpu;			/* number of cpus in kern.cp_times.* data */
 
 /*
  * Fetch values from sysctl()
@@ -384,7 +418,10 @@ do_sysctl(mib_t *mp, size_t xpect)
     for ( ; mp->m_fetched == 0; ) {
 	int	sts;
 	sts = sysctl(mp->m_mib, (u_int)mp->m_miblen, mp->m_data, &mp->m_datalen, NULL, 0);
-	fprintf(stderr, "sysctl(%s%s) -> %d (datalen=%d)\n", mp->m_name, mp->m_data == NULL ? " firstcall" : "", sts, (int)mp->m_datalen);
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_APPL0)
+	fprintf(stderr, "Info: sysctl(%s%s) -> %d (datalen=%d)\n", mp->m_name, mp->m_data == NULL ? " firstcall" : "", sts, (int)mp->m_datalen);
+#endif
 	if (sts == 0 && mp->m_data != NULL) {
 	    mp->m_fetched = 1;
 	    break;
@@ -466,6 +503,7 @@ netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int			sts = PM_ERR_PMID;
     __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
     mib_t		*mp;
+    int			i;
 
     mp = (mib_t *)mdesc->m_user;
     if (idp->cluster == CL_SYSCTL) {
@@ -473,13 +511,6 @@ netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	switch (idp->item) {
 	    /* 32-bit integer values */
 	    case 0:		/* hinv.ncpu */
-	    case 18:		/* swap.pagesin */
-	    case 19:		/* swap.pagesout */
-	    case 20:		/* swap.in */
-	    case 21:		/* swap.out */
-	    case 22:		/* kernel.all.pswitch */
-	    case 23:		/* kernel.all.syscall */
-	    case 24:		/* kernel.all.intr */
 		sts = do_sysctl(mp, sizeof(atom->ul));
 		if (sts > 0) {
 		    atom->ul = *((__uint32_t *)mp->m_data);
@@ -489,11 +520,10 @@ netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    /* 64-bit integer values */
 	    case 1:		/* hinv.physmem */
-	    case 25:		/* swap.length */
-	    case 26:		/* swap.used */
 		sts = do_sysctl(mp, sizeof(atom->ull));
 		if (sts > 0) {
 		    atom->ull = *((__uint64_t *)mp->m_data);
+		    atom->ull /= 1024*1024;
 		    sts = 1;
 		}
 		break;
@@ -510,24 +540,6 @@ netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 
 	    /* structs and aggregates */
-	    case 2:		/* kernel.all.load */
-		sts = do_sysctl(mp, 3*sizeof(atom->d));
-		if (sts > 0) {
-		    int			i;
-		    struct loadavg	*lp = (struct loadavg *)mp->m_data;
-		    if (inst == 1)
-			i = 0;
-		    else if (inst == 5)
-			i = 1;
-		    else if (inst == 15)
-			i = 2;
-		    else
-			return PM_ERR_INST;
-		    atom->f = (float)((double)lp->ldavg[i] / lp->fscale);
-		    sts = 1;
-		}
-		break;
-
 	    case 3:		/* kernel.all.cpu.user */
 	    case 4:		/* kernel.all.cpu.nice */
 	    case 5:		/* kernel.all.cpu.sys */
@@ -547,27 +559,6 @@ netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		}
 		break;
 
-	    case 8:		/* kernel.percpu.cpu.user */
-	    case 9:		/* kernel.percpu.cpu.nice */
-	    case 10:		/* kernel.percpu.cpu.sys */
-	    case 11:		/* kernel.percpu.cpu.intr */
-	    case 12:		/* kernel.percpu.cpu.idle */
-		sts = do_sysctl(mp, ncpu*CPUSTATES*sizeof(atom->ull));
-		if (sts > 0) {
-		    /*
-		     * PMID assignment is important in the "-8" below so
-		     * that metrics map to consecutive elements of the
-		     * returned value in the order defined for CPUSTATES,
-		     * i.e. CP_USER, CP_NICE, CP_SYS, CP_INTR and
-		     * CP_IDLE, and then there is one such set for each
-		     * CPU up to the maximum number of CPUs installed in
-		     * the system.
-		     */
-		    atom->ull = 1000*((__uint64_t *)mp->m_data)[inst * CPUSTATES + idp->item-8]/cpuhz;
-		    sts = 1;
-		}
-		break;
-
 	    case 13:		/* kernel.all.hz */
 		sts = do_sysctl(mp, sizeof(struct clockinfo));
 		if (sts > 0) {
@@ -581,6 +572,9 @@ netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     }
     else if (idp->cluster == CL_SPECIAL) {
 	/* special cases */
+	double	loadavg[3];
+	char 	uname_string[sizeof(kernel_uname)];
+
 	switch (idp->item) {
 	    case 0:	/* hinv.ndisk */
 		refresh_disk_metrics();
@@ -588,22 +582,22 @@ netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		sts = 1;
 		break;
 
-	    case 1:	/* swap.free */
-		/* first vm.swap_total */
-		sts = do_sysctl(mp, sizeof(atom->ull));
-		if (sts > 0) {
-		    atom->ull = *((__uint64_t *)mp->m_data);
-		    /*
-		     * now subtract vm.swap_reserved ... assumes consecutive
-		     * mib[] entries
-		     */
-		    mp++;
-		    sts = do_sysctl(mp, sizeof(atom->ull));
-		    if (sts > 0) {
-			atom->ull -= *((__uint64_t *)mp->m_data);
-			sts = 1;
-		    }
+	    case 2:		/* kernel.all.load */
+		sts = getloadavg(loadavg, 3);
+		if (sts == 3) {
+		    if (inst == 1)
+			i = 0;
+		    else if (inst == 5)
+			i = 1;
+		    else if (inst == 15)
+			i = 2;
+		    else
+			return PM_ERR_INST;
+		    atom->f = (float)loadavg[i];
+		    sts = 1;
 		}
+		else
+		    return PM_ERR_INST;
 		break;
 
 	    case 3:	/* hinv.pagesize */
@@ -611,86 +605,67 @@ netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		sts = 1;
 		break;
 
-	    case 4:	/* mem.util.all */
-	    case 6:	/* mem.util.free */
-	    case 8:	/* mem.util.cached */
-	    case 9:	/* mem.util.wired */
-	    case 10:	/* mem.util.active */
-	    case 11:	/* mem.util.inactive */
-		sts = do_sysctl(mp, sizeof(atom->ul));
-		if (sts > 0) {
-		    atom->ul = *((__uint32_t *)mp->m_data) * (pagesize / 1024);
-		    sts = 1;
-		}
+	    case 14:	/* kernel.uname.release */
+		atom->cp = kernel_uname.release;
+		sts = 1;
 		break;
 
-	    case 7:	/* mem.util.bufmem */
-		sts = do_sysctl(mp, sizeof(atom->ul));
-		if (sts > 0) {
-		    atom->ul = *((__uint32_t *)mp->m_data) / 1024;
-		    sts = 1;
-		}
+	    case 15:	/* kernel.uname.version */
+		atom->cp = kernel_uname.version;
+		sts = 1;
 		break;
 
-	    case 5:	/* mem.util.used */
-		/*
-		 * mp-> v_page_count entry in mib[]
-		 * assuming consecutive mib[] entries, we want
-		 * v_page_count mp[0] - v_free_count mp[1] -
-		 * v_cache_count mp[2] - v_inactive_count mp[5]
-		 */
-		sts = do_sysctl(mp, sizeof(atom->ul));
-		if (sts > 0) {
-		    atom->ul = *((__uint32_t *)mp->m_data);
-		    sts = do_sysctl(&mp[1], sizeof(atom->ul));
-		    if (sts > 0) {
-			atom->ul -= *((__uint32_t *)mp[1].m_data);
-			sts = do_sysctl(&mp[2], sizeof(atom->ul));
-			if (sts > 0) {
-			    atom->ul -= *((__uint32_t *)mp[2].m_data);
-			    sts = do_sysctl(&mp[5], sizeof(atom->ul));
-			    if (sts > 0) {
-				atom->ul -= *((__uint32_t *)mp[5].m_data);
-				atom->ul *= (pagesize / 1024);
-				sts = 1;
-			    }
-			}
-		    }
-		}
+	    case 16:	/* kernel.uname.sysname */
+		atom->cp = kernel_uname.sysname;
+		sts = 1;
 		break;
 
-	    case 12:	/* mem.util.avail */
-		/*
-		 * mp-> v_page_count entry in mib[]
-		 * assuming consecutive mib[] entries, we want
-		 * v_free_count mp[1] + v_cache_count mp[2] +
-		 * v_inactive_count mp[5]
-		 */
-		sts = do_sysctl(&mp[1], sizeof(atom->ul));
-		if (sts > 0) {
-		    atom->ul = *((__uint32_t *)mp[1].m_data);
-		    sts = do_sysctl(&mp[2], sizeof(atom->ul));
-		    if (sts > 0) {
-			atom->ul += *((__uint32_t *)mp[2].m_data);
-			sts = do_sysctl(&mp[5], sizeof(atom->ul));
-			if (sts > 0) {
-			    atom->ul += *((__uint32_t *)mp[5].m_data);
-			    atom->ul *= (pagesize / 1024);
-			    sts = 1;
-			}
-		    }
-		}
+	    case 17:	/* kernel.uname.machine */
+		atom->cp = kernel_uname.machine;
+		sts = 1;
+		break;
+
+	    case 18:	/* kernel.uname.nodename */
+		atom->cp = kernel_uname.nodename;
+		sts = 1;
+		break;
+
+	    case 20: /* pmda.uname */
+		sprintf(uname_string, "%s %s %s %s %s",
+		    kernel_uname.sysname, 
+		    kernel_uname.nodename,
+		    kernel_uname.release,
+		    kernel_uname.version,
+		    kernel_uname.machine);
+		atom->cp = uname_string;
+		sts = 1;
+		break;
+
+	    case 21: /* pmda.version */
+		atom->cp = pmGetConfig("PCP_VERSION");
+		sts = 1;
 		break;
 
 	}
     }
     else if (idp->cluster == CL_DISK) {
-	/* disk metrics */
 	sts = do_disk_metrics(mdesc, inst, atom);
     }
+    else if (idp->cluster == CL_CPUTIME) {
+	sts = do_percpu_metrics(mdesc, inst, atom);
+    }
     else if (idp->cluster == CL_NETIF) {
-	/* network interface metrics */
 	sts = do_netif_metrics(mdesc, inst, atom);
+    }
+    else if (idp->cluster == CL_FILESYS) {
+	sts = do_filesys_metrics(mdesc, inst, atom);
+    }
+    else if (idp->cluster == CL_SWAP) {
+	sts = do_swap_metrics(mdesc, inst, atom);
+    }
+    else if (idp->cluster == CL_VM_UVMEXP) {
+	/* vm.uvmexp sysctl metrics */
+	sts = do_vm_uvmexp_metrics(mdesc, inst, atom);
     }
 
     return sts;
@@ -705,7 +680,11 @@ netbsd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
     int		i;
     int		done_disk = 0;
+    int		done_percpu = 0;
     int		done_netif = 0;
+    int		done_filesys = 0;
+    int		done_swap = 0;
+    int		done_vm_uvmexp = 0;
 
     for (i = 0; i < maplen; i++) {
 	map[i].m_fetched = 0;
@@ -715,14 +694,42 @@ netbsd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
      * pre-fetch all metrics if needed, and update instance domains if
      * they have changed
      */
-    for (i = 0; !done_disk && !done_netif && i < numpmid; i++) {
+    for (i = 0; i < numpmid; i++) {
 	if (pmid_cluster(pmidlist[i]) == CL_DISK) {
-	    refresh_disk_metrics();
-	    done_disk = 1;
+	    if (!done_disk) {
+		refresh_disk_metrics();
+		done_disk = 1;
+	    }
+	}
+	else if (pmid_cluster(pmidlist[i]) == CL_CPUTIME) {
+	    if (!done_percpu) {
+		refresh_percpu_metrics();
+		done_percpu = 1;
+	    }
 	}
 	else if (pmid_cluster(pmidlist[i]) == CL_NETIF) {
-	    refresh_netif_metrics();
-	    done_netif = 1;
+	    if (!done_netif) {
+		refresh_netif_metrics();
+		done_netif = 1;
+	    }
+	}
+	else if (pmid_cluster(pmidlist[i]) == CL_FILESYS) {
+	    if (!done_filesys) {
+		refresh_filesys_metrics();
+		done_netif = 1;
+	    }
+	}
+	else if (pmid_cluster(pmidlist[i]) == CL_SWAP) {
+	    if (!done_swap) {
+		refresh_swap_metrics();
+		done_swap = 1;
+	    }
+	}
+	else if (pmid_cluster(pmidlist[i]) == CL_VM_UVMEXP) {
+	    if (!done_vm_uvmexp) {
+		refresh_vm_uvmexp_metrics();
+		done_vm_uvmexp = 1;
+	    }
 	}
     }
 
@@ -741,8 +748,12 @@ netbsd_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmda
      */
     if (indom == indomtab[DISK_INDOM].it_indom)
 	refresh_disk_metrics();
-    if (indom == indomtab[NETIF_INDOM].it_indom)
+    else if (indom == indomtab[CPU_INDOM].it_indom)
+	refresh_percpu_metrics();
+    else if (indom == indomtab[NETIF_INDOM].it_indom)
 	refresh_netif_metrics();
+    else if (indom == indomtab[FILESYS_INDOM].it_indom)
+	refresh_filesys_metrics();
 
     return pmdaInstance(indom, inst, name, result, pmda);
 }
@@ -818,7 +829,7 @@ netbsd_init(pmdaInterface *dp)
      * also translate the sysctl(3) name to a mib
      */
     for (m = 0; m < metrictablen; m++) {
-	if (metrictab[m].m_user == NULL) {
+	if (pmid_cluster(metrictab[m].m_desc.pmid) != CL_SYSCTL) {
 	    /* not using sysctl(3) */
 	    continue;
 	}
@@ -901,6 +912,8 @@ netbsd_init(pmdaInterface *dp)
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "Info: VM pagesize = %d\n", pagesize);
 #endif
+
+    uname(&kernel_uname);
 
     /*
      * Build some instance domains ...
