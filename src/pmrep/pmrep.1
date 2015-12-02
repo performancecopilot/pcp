@@ -663,11 +663,11 @@ $ pmrep -a ./20150921.09.13 -S @15:00 -T @17:00 :sar-w :sar-W
 Record all 389 Directory Server, XFS file system and CPU/disk/memory
 related metrics every five seconds for the next five minutes to the PCP
 archive folio
-.IR ./folio :
+.IR ./a :
 .RS +1
 .ft CW
 .nf
-$ pmrep -o archive -F ./folio -t 5s -R 5m ds389 xfs kernel.all.cpu disk mem
+$ pmrep -o archive -F ./a -t 5s -R 5m ds389 xfs kernel.all.cpu disk mem
 .fi
 .ft P
 .RE
