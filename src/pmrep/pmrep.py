@@ -607,11 +607,26 @@ class PMReporter(object):
         # Check the metrics against PMNS, resolve non-leaf metrics
         if self.derived:
             if self.derived.startswith("/") or self.derived.startswith("."):
-                self.context.pmLoadDerivedConfig(self.derived)
+                try:
+                    self.context.pmLoadDerivedConfig(self.derived)
+                except pmapi.pmErr as error:
+                    sys.stderr.write("Failed to register derived metric: %s.\n" % str(error))
+                    sys.exit(1)
             else:
                 for definition in self.derived.split(","):
-                    name, expr = definition.split("=")
-                    self.context.pmRegisterDerived(name.strip(), expr.strip())
+                    err = ""
+                    try:
+                        name, expr = definition.split("=")
+                        self.context.pmRegisterDerived(name.strip(), expr.strip())
+                    except ValueError as error:
+                        err = "Invalid syntax (expected metric=expression)"
+                    except Exception as error:
+                        #err = self.context.pmDerivedErrStr() # RHBZ#1286733
+                        err = "Unknown reason"
+                    finally:
+                        if err:
+                            sys.stderr.write("Failed to register derived metric: %s.\n" % err)
+                            sys.exit(1)
         # Prepare for non-leaf metrics
         metrics = self.metrics
         self.metrics = OrderedDict()
@@ -762,7 +777,7 @@ class PMReporter(object):
         if not self.timefmt:
             self.timestamp = 0
 
-        if self.context.type == PM_CONTEXT_HOST:
+        if self.context.type != PM_CONTEXT_ARCHIVE:
             self.delay = 1
             self.interpol = 1
 
@@ -989,7 +1004,7 @@ class PMReporter(object):
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
             host = self.context.pmGetArchiveLabel().hostname
-            if not self.interpol:
+            if not self.interpol and not self.opts.pmGetOptionFinish():
                 endtime = self.context.pmGetArchiveEnd()
         if self.context.type == PM_CONTEXT_HOST:
             host = self.source

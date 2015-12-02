@@ -1,12 +1,12 @@
 -  versioned configuration
 -  fix get_cmd_line_metrics
 -  allow defining instances to display
--  possibly default to %c/%X for CSV/stdout
 -  opt to write cols per row with stdout output
 -  adjust unit/scale handling to ~match fetchgroup
 -  -Q/-B/-Y/-W to override per-metric unit/scale/width
 -  shorten unit display count / sec -> count/s -> c/s if needed
--  -g to output in shortest and/or scientific format (see pmdumptext -G)
+-  -g to output in short format (see pmdumptext -F / pmNumberStr)
+-  switch using logimport instead pmgui for archive writing (no folios)
 -  -X to support pmdumptext -X like output (or shorten inst names if needed)
 -  bash/zsh completion with short help (allow description for sets?)
 -  handle derived metrics with archives
