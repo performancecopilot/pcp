@@ -303,7 +303,8 @@ branch_miss = new Node(function() {return 0;}, 'Branch misprediction');
 addChild(cpu, branch_miss);
 
 
-mem = new Node(function() {return 0;}, 'memory limited');
+mem = new Node(function() {
+    return (1-(fetch_metric("mem.util.available",0)/fetch_metric("mem.physmem",0)));}, 'memory limited');
 addChild(tree._root, mem);
 
 net = new Node(function(value) {return 0;}, 'network limited');
