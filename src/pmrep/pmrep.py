@@ -11,7 +11,33 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
+
+# [zbxsend] Copyright (C) 2014 Sergey Kirillov <sergey.kirillov@gmail.com>
+# All rights reserved.
 #
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright
+# notice, this list of conditions and the following disclaimer in the
+# documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+# TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 # pylint: disable=fixme, line-too-long, bad-whitespace, invalid-name
 # pylint: disable=superfluous-parens
 """ Performance Metrics Reporter """
@@ -22,6 +48,12 @@ try:
     import ConfigParser
 except ImportError:
     import configparser as ConfigParser
+try:
+    import json
+except:
+    import simplejson as json
+import socket
+import struct
 import time
 import copy
 import sys
@@ -29,7 +61,7 @@ import os
 import re
 
 from pcp import pmapi, pmgui, pmi
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET, PM_DEBUG_APPL1
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
 from cpmgui import PM_REC_ON, PM_REC_OFF, PM_REC_SETARG
 
@@ -54,6 +86,75 @@ OUTPUT_ARCHIVE = "archive"
 OUTPUT_CSV     = "csv"
 OUTPUT_STDOUT  = "stdout"
 OUTPUT_ZABBIX  = "zabbix"
+
+class ZabbixMetric(object):
+    def __init__(self, host, key, value, clock=None):
+        self.host = host
+        self.key = key
+        self.value = value
+        self.clock = clock
+
+    def __repr__(self):
+        if self.clock is None:
+            return 'Metric(%r, %r, %r)' % (self.host, self.key, self.value)
+        return 'Metric(%r, %r, %r, %r)' % (self.host, self.key, self.value, self.clock)
+
+def recv_from_zabbix(sock, count):
+    """ Receive a response from a Zabbix server. """
+    buf = ''
+    while len(buf) < count:
+        chunk = sock.recv(count - len(buf))
+        if not chunk:
+            return buf
+        buf += chunk
+    return buf
+
+def send_to_zabbix(metrics, zabbix_host, zabbix_port, timeout=15):
+    """ Send a set of metrics to a Zabbix server. """
+
+    j = json.dumps
+    # Zabbix has a very fragile JSON parser, so we cannot use json to
+    # dump the whole packet
+    metrics_data = []
+    for m in metrics:
+        clock = m.clock or time.time()
+        metrics_data.append(('\t\t{\n'
+                             '\t\t\t"host":%s,\n'
+                             '\t\t\t"key":%s,\n'
+                             '\t\t\t"value":%s,\n'
+                             '\t\t\t"clock":%s}') % (j(m.host), j(m.key), j(m.value), clock))
+    json_data = ('{\n'
+                 '\t"request":"sender data",\n'
+                 '\t"data":[\n%s]\n'
+                 '}') % (',\n'.join(metrics_data))
+
+    data_len = struct.pack('<Q', len(json_data))
+    packet = 'ZBXD\1' + data_len + json_data
+    try:
+        zabbix = socket.socket()
+        zabbix.connect((zabbix_host, zabbix_port))
+        zabbix.settimeout(timeout)
+        # send metrics to zabbix
+        zabbix.sendall(packet)
+        # get response header from zabbix
+        resp_hdr = recv_from_zabbix(zabbix, 13)
+        if not resp_hdr.startswith('ZBXD\1') or len(resp_hdr) != 13:
+            sys.stderr.write('Invalid Zabbix response')
+            return False
+        resp_body_len = struct.unpack('<Q', resp_hdr[5:])[0]
+        # get response body from zabbix
+        resp_body = zabbix.recv(resp_body_len)
+        resp = json.loads(resp_body)
+        # debug: write('Got response from Zabbix: %s' % resp)
+        if resp.get('response') != 'success':
+            sys.stderr.write('Error response from Zabbix: %s', resp)
+            return False
+        return True
+    except socket.timeout as err:
+        sys.stderr.write("Zabbix connection timed out: " + str(err))
+        return False
+    finally:
+        zabbix.close()
 
 class PMReporter(object):
     """ Report PCP metrics """
@@ -1191,12 +1292,10 @@ class PMReporter(object):
 
     def write_zabbix(self, timestamp, values):
         """ Write (send) metrics to a Zabbix server """
-        import zbxsend # XXX
-
         if timestamp == None and values == None:
             # Send any remaining buffered values
             if self.zabbix_metrics:
-                zbxsend.send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
+                send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
                 self.zabbix_metrics = []
             return
 
@@ -1211,14 +1310,14 @@ class PMReporter(object):
                 if self.insts[i][1][j]:
                     key += "[" + str(self.insts[i][1][j]) + "]"
                 val = str(list(values[i])[j][2])
-                self.zabbix_metrics.append(zbxsend.Metric(self.zabbix_host, key, val, ts))
+                self.zabbix_metrics.append(ZabbixMetric(self.zabbix_host, key, val, ts))
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
             if len(self.zabbix_metrics) >= self.zabbix_interval:
-                zbxsend.send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
+                send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
                 self.zabbix_metrics = []
         elif ts - self.zabbix_prevsend > self.zabbix_interval:
-            zbxsend.send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
+            send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
             self.zabbix_metrics = []
             self.zabbix_prevsend = ts
 
