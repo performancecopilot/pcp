@@ -88,6 +88,7 @@ OUTPUT_STDOUT  = "stdout"
 OUTPUT_ZABBIX  = "zabbix"
 
 class ZabbixMetric(object):
+    """ A Zabbix metric """
     def __init__(self, host, key, value, clock):
         self.host = host
         self.key = key
@@ -99,7 +100,7 @@ class ZabbixMetric(object):
 
 def recv_from_zabbix(sock, count):
     """ Receive a response from a Zabbix server. """
-    buf = ''
+    buf = b''
     while len(buf) < count:
         chunk = sock.recv(count - len(buf))
         if not chunk:
@@ -127,7 +128,7 @@ def send_to_zabbix(metrics, zabbix_host, zabbix_port, timeout=15):
                  '}') % (',\n'.join(metrics_data))
 
     data_len = struct.pack('<Q', len(json_data))
-    packet = b'ZBXD\1' + data_len + json_data.encode()
+    packet = b'ZBXD\1' + data_len + json_data.encode('utf-8')
     try:
         zabbix = socket.socket()
         zabbix.connect((zabbix_host, zabbix_port))
@@ -136,13 +137,13 @@ def send_to_zabbix(metrics, zabbix_host, zabbix_port, timeout=15):
         zabbix.sendall(packet)
         # get response header from zabbix
         resp_hdr = recv_from_zabbix(zabbix, 13)
-        if not resp_hdr.startswith('ZBXD\1') or len(resp_hdr) != 13:
+        if not bytes.decode(resp_hdr).startswith('ZBXD\1') or len(resp_hdr) != 13:
             # debug: write('Invalid Zabbix response len=%d' % len(resp_hdr))
             return False
         resp_body_len = struct.unpack('<Q', resp_hdr[5:])[0]
         # get response body from zabbix
         resp_body = zabbix.recv(resp_body_len)
-        resp = json.loads(resp_body)
+        resp = json.loads(bytes.decode(resp_body))
         # debug: write('Got response from Zabbix: %s' % resp)
         if resp.get('response') != 'success':
             sys.stderr.write('Error response from Zabbix: %s', resp)
