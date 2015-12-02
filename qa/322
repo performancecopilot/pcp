@@ -217,17 +217,10 @@ fi
 # output version depends on the PCP version at the _remote_ host
 # not the local host as is normally the case
 #
-rm -f $seq.out
 REMOTE_VER=`pmprobe -v -h $host pmcd.version \
     | sed -e 's/"$//' -e 's/.*"//' \
     | $PCP_AWK_PROG -F. '{printf "%02d%02d%02d\n",$1,$2,$3}'`
 echo "host=$host REMOTE_VER=$REMOTE_VER" >>$seq.full
-if [ $REMOTE_VER -lt 30800 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    ln $seq.out.2 $seq.out || exit 1
-fi
 
 # success, all done
 status=0
