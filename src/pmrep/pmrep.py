@@ -811,11 +811,10 @@ class PMReporter(object):
             try:
                 result = self.context.pmFetch(self.pmids_to_ctypes(self.pmids))
             except pmapi.pmErr as error:
-                if str(error).find("PM_ERR_EOL") == -1:
+                if error.args[0] == PM_ERR_EOL:
                     self.samples = 0
                     continue
-                else:
-                    raise error
+                raise error
             self.context.pmSortInstances(result) # XXX Is this really needed?
             values = self.extract(result)
             if self.ctstamp == 0:
@@ -1335,14 +1334,11 @@ if __name__ == '__main__':
         P.validate_metrics()
         P.execute()
 
+    except pmapi.pmErr as error:
+        sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
     except pmapi.pmUsageErr as usage:
         usage.message()
     except IOError as error:
         sys.stderr.write("%s\n" % str(error))
     except KeyboardInterrupt:
         sys.stdout.write("\n")
-    except Exception as error:
-        if str(error).find("PM_ERR_EOL") == -1:
-            import traceback
-            sys.stderr.write(str(error) + "\n")
-            sys.stderr.write(traceback.format_exc() + "\n")
