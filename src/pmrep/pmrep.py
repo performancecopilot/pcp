@@ -88,15 +88,13 @@ OUTPUT_STDOUT  = "stdout"
 OUTPUT_ZABBIX  = "zabbix"
 
 class ZabbixMetric(object):
-    def __init__(self, host, key, value, clock=None):
+    def __init__(self, host, key, value, clock):
         self.host = host
         self.key = key
         self.value = value
         self.clock = clock
 
     def __repr__(self):
-        if self.clock is None:
-            return 'Metric(%r, %r, %r)' % (self.host, self.key, self.value)
         return 'Metric(%r, %r, %r, %r)' % (self.host, self.key, self.value, self.clock)
 
 def recv_from_zabbix(sock, count):
@@ -122,14 +120,14 @@ def send_to_zabbix(metrics, zabbix_host, zabbix_port, timeout=15):
                              '\t\t\t"host":%s,\n'
                              '\t\t\t"key":%s,\n'
                              '\t\t\t"value":%s,\n'
-                             '\t\t\t"clock":%s}') % (j(m.host), j(m.key), j(m.value), clock))
+                             '\t\t\t"clock":%.5f}') % (j(m.host), j(m.key), j(m.value), clock))
     json_data = ('{\n'
                  '\t"request":"sender data",\n'
                  '\t"data":[\n%s]\n'
                  '}') % (',\n'.join(metrics_data))
 
     data_len = struct.pack('<Q', len(json_data))
-    packet = 'ZBXD\1' + data_len + json_data
+    packet = b'ZBXD\1' + data_len + json_data.encode()
     try:
         zabbix = socket.socket()
         zabbix.connect((zabbix_host, zabbix_port))
@@ -139,7 +137,7 @@ def send_to_zabbix(metrics, zabbix_host, zabbix_port, timeout=15):
         # get response header from zabbix
         resp_hdr = recv_from_zabbix(zabbix, 13)
         if not resp_hdr.startswith('ZBXD\1') or len(resp_hdr) != 13:
-            sys.stderr.write('Invalid Zabbix response')
+            # debug: write('Invalid Zabbix response len=%d' % len(resp_hdr))
             return False
         resp_body_len = struct.unpack('<Q', resp_hdr[5:])[0]
         # get response body from zabbix

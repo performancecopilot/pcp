@@ -17,6 +17,7 @@ which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
 which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
 
 status=1	# failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
@@ -30,6 +31,19 @@ _seq_store()
     cat $tmp.socat.out >>$seq.full
     echo "--- socat stderr --" >>$seq.full
     cat $tmp.socat.err >>$seq.full
+}
+
+_zbx_header()
+{
+    output=$1
+
+    # extract the (partially binary) header, preceding the JSON response
+    # and make it into a deterministic string
+    sed -n 1p $output | \
+    sed -e 's/{//g' | \
+    od -c | \
+    sed -n 1p | \
+    sed -e 's/001 [0-9][0-9][0-9] 002/001 NNN 002/g'
 }
 
 zabbix_port=`_find_free_port`
@@ -60,7 +74,7 @@ _seq_store
 
 echo "== Zabbix server input ==="
 # check the first line has the initial ZBXD preamble (before JSON)
-header=`sed -n 1p $tmp.socat.out | sed -e 's/{//g' | od -c | sed -n 1p`
+header=`_zbx_header $tmp.socat.out`
 echo "header: $header"
 echo "body:"
 echo '{' # ate this from the header
