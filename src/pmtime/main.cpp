@@ -52,7 +52,8 @@ int main(int argc, char **argv)
     QApplication a(argc, argv);
     setupEnvironment();
 
-    opts.short_options = "D:p:V?";
+    /* -a/-h ignored, back-compat for time control from libpcp_gui */
+    opts.short_options = "ahD:p:V?";
     opts.long_options = longopts;
     (void)pmGetOptions(argc, argv, &opts);
     if (opts.errors || opts.optind != argc) {
