@@ -2424,6 +2424,11 @@ cd
 - Add -V/--version support to several more commands (BZ 1284411)
 - Resolve a pcp-iostat(1) transient device exception (BZ 1249572)
 - Provides pmdapipe, an output-capturing domain agent (BZ 1163413)
+- Python PMAPI pmSetMode allows None timeval parameter (BZ 1284417)
+- Python PMI pmiPutValue now supports singular metrics (BZ 1285371)
+- Fix python PMAPI pmRegisterDerived wrapper interface (BZ 1286733)
+- Fix pmstat SEGV when run with graphical time control (BZ 1287678)
+- Make pmNonOptionsFromList error message less cryptic (BZ 1287778)
 - Work in progress [see http://pcp.io/roadmap]
 
 * Fri Oct 30 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.8-1
