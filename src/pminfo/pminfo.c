@@ -658,7 +658,13 @@ main(int argc, char **argv)
 	ctxid = sts;
 
 	if (opts.context == PM_CONTEXT_ARCHIVE) {
-	    pmTrimNameSpace();
+	    if (opts.nsflag) {
+		/*
+		 * loaded -n (or -N) namespace from the command line,
+		 * so cull metrics not in the archive
+		 */
+		pmTrimNameSpace();
+	    }
 	    /* complete TZ and time window option (origin) setup */
 	    if (pmGetContextOptions(ctxid, &opts)) {
 		pmflush();

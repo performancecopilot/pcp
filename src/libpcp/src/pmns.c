@@ -2703,21 +2703,26 @@ pmTrimNameSpace(void)
     else if (pmns_location == PMNS_REMOTE)
 	return 0;
 
-    /* for PMNS_LOCAL ... */
+    /* for PMNS_LOCAL (or PMNS_ARCHIVE) ... */
     PM_INIT_LOCKS();
 
     if ((ctxp = __pmHandleToPtr(pmWhichContext())) == NULL)
 	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
-	/* unset all of the marks */
-	mark_all(PM_TPD(curr_pmns), 0);
+	if (havePmLoadCall) {
+	    /*
+	     * unset all of the marks, this will undo the effects of
+	     * any previous pmTrimNameSpace call
+	     */
+	    mark_all(PM_TPD(curr_pmns), 0);
+	}
 	PM_UNLOCK(ctxp->c_lock);
 	return 0;
     }
 
-    /* Don't do any trimming for archives.
-     * Exception: if an explicit load PMNS call was made.
+    /*
+     * archive, so trim, but only if an explicit load PMNS call was made.
      */
     if (havePmLoadCall) {
 	/*
