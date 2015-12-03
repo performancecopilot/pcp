@@ -534,7 +534,8 @@ option uninterpolated reporting is enabled, every recorded value for the
 selected metrics is reported and the requested sample interval (\c
 .BR \-t )
 is ignored.
-.P
+.RS
+.PP
 So for example, if a PCP archive contains recorded values for every 10
 seconds and the requested sample interval is 1 hour, by default
 .B pmrep
@@ -547,6 +548,7 @@ every record every 10 seconds are used as such (the reported values
 are still subject to rate conversion, use
 .B \-r
 to disable).
+.RE
 .TP
 .B \-U
 Omit unit information from of headers.
