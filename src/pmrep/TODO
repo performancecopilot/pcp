@@ -1,6 +1,5 @@
 -  after first release: drop all compat code
 -  after first release: check all code marked with BZ references
--  versioned configuration
 -  fix get_cmd_line_metrics
 -  allow defining instances to display
 -  opt to write cols per row with stdout output

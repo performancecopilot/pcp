@@ -71,7 +71,7 @@ if sys.version_info[0] >= 3:
 # Default config
 DEFAULT_CONFIG = "./pmrep.conf"
 
-# Default field separators, time formats, missing/truncated values
+# Default field separators, config/time formats, missing/truncated values
 CSVSEP  = ","
 CSVTIME = "%Y-%m-%d %H:%M:%S"
 OUTSEP  = "  "
@@ -80,6 +80,7 @@ ZBXPORT = 10051
 ZBXPRFX = "pcp."
 NO_VAL  = "N/A"
 TRUNC   = "xxx"
+VERSION = 1
 
 # Output targets
 OUTPUT_ARCHIVE = "archive"
@@ -161,7 +162,6 @@ class PMReporter(object):
     def __init__(self):
         """ Construct object, prepare for command line handling """
         self.context = None
-        self.version = 1
         self.check = 0
         self.format = None # output format
         self.opts = self.options()
@@ -183,6 +183,7 @@ class PMReporter(object):
         # 2 - parameters from configuration file(s)
         # 3 - built-in defaults defined below
         self.config = self.set_config_file()
+        self.version = VERSION
         self.source = "local:"
         self.output = OUTPUT_STDOUT
         self.archive = None # output archive
@@ -563,6 +564,10 @@ class PMReporter(object):
 
     def validate_config(self):
         """ Validate configuration parameters """
+        if self.version != VERSION:
+            sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, VERSION))
+            sys.exit(1)
+
         if self.context.type == PM_CONTEXT_ARCHIVE:
             self.source = self.opts.pmGetOptionArchives()[0] # RHBZ#1262723
         if self.context.type == PM_CONTEXT_HOST:
