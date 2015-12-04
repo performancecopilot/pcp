@@ -63,11 +63,24 @@ pmrep -s 5 -t 2 $log -p -y microsec sample
 #pmrep -s 5 -t 2 $log -e $tmp.derived sample.combo
 
 #echo "== extended existing sample configuration"
-#echo >> $tmp.config <<EOF
+#cp $tmp.config $tmp.dconfig
+#echo >> $tmp.dconfig <<EOF
 #combo = sample.combo
 #EOF
-#pmrep -s 5 -t 2 $log -e $tmp.derived -c $tmp.config sample
+#pmrep -s 5 -t 2 $log -e $tmp.derived -c $tmp.dconfig sample
+
+echo "== exercise good config version"
+echo '[options]' > $tmp.vconfig
+echo 'version = 1' >> $tmp.vconfig
+cat $tmp.config >> $tmp.vconfig 
+pmrep -s 5 -t 2 $log -c $tmp.vconfig sample
+echo "== exercise bad config version"
+echo '[options]' > $tmp.vconfig
+echo 'version = 99' >> $tmp.vconfig
+cat $tmp.config >> $tmp.vconfig
+pmrep -s 5 -t 2 $log -c $tmp.vconfig sample
 
 # success, all done
+echo "== done"
 status=0
 exit
