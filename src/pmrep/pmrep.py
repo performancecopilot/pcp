@@ -1245,12 +1245,12 @@ class PMReporter(object):
 
                 # Raw or rate
                 if not self.metrics[metric][3] and \
-                  (self.prevvals == None or self.prevvals[i][j][2] == NO_VAL):
+                  (self.prevvals == None or list(self.prevvals[i])[j][2] == NO_VAL):
                     # Rate not yet possible
                     value = NO_VAL
                 elif self.metrics[metric][3] or \
                   self.descs[i].sem != PM_SEM_COUNTER or \
-                  values[i][j][2] == NO_VAL:
+                  list(values[i])[j][2] == NO_VAL:
                     # Raw
                     value = list(values[i])[j][2]
                 else:
@@ -1262,7 +1262,7 @@ class PMReporter(object):
                         else:
                             scale = pow(1000, (PM_TIME_SEC - self.descs[i].contents.units.scaleTime))
                     delta = scale * (float(self.ctstamp) - float(self.ptstamp))
-                    value = (values[i][j][2] - self.prevvals[i][j][2]) / delta if delta else 0
+                    value = (list(values[i])[j][2] - list(self.prevvals[i])[j][2]) / delta if delta else 0
 
                 # Make sure the value fits
                 if type(value) is int or type(value) is long:
