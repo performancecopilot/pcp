@@ -751,7 +751,7 @@ class PMReporter(object):
             else:
                 step = self.interval.tv_sec*1000 + self.interval.tv_usec/1000
                 mode |= PM_XTB_SET(PM_TIME_MSEC)
-        return (mode, step)
+        return (mode, int(step))
 
     def execute(self):
         """ Using a PMAPI context (could be either host or archive),
