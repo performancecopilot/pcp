@@ -61,7 +61,7 @@ import os
 import re
 
 from pcp import pmapi, pmgui, pmi
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
 from cpmgui import PM_REC_ON, PM_REC_OFF, PM_REC_SETARG
 
@@ -208,6 +208,7 @@ class PMReporter(object):
         self.count_scale = None
         self.space_scale = None
         self.time_scale = None
+        self.can_scale = None # PCP 3.9 compat
 
         # Performance metrics store
         # key - metric name
@@ -259,10 +260,14 @@ class PMReporter(object):
         if value in ('false', 'False', 'n', 'no', 'No'):
             value = 0
         if name == 'source':
-            if '/' in value:
-                self.opts.pmSetOptionArchive(value)
-            else:
-                self.opts.pmSetOptionHost(value)
+            try: # RHBZ#1270176 / PCP < 3.10.8
+                if '/' in value:
+                    self.opts.pmSetOptionArchive(value)
+                else:
+                    self.opts.pmSetOptionHost(value)
+            except:
+                sys.stderr.write("PCP 3.10.8 or later required for the 'source' directive.\n")
+                sys.exit(1)
         elif name == 'samples':
             self.opts.pmSetOptionSamples(value)
             self.samples = self.opts.pmGetOptionSamples()
@@ -602,6 +607,8 @@ class PMReporter(object):
             else:
                 self.zabbix_interval = int(self.interval)
 
+        self.can_scale = "pmParseUnitsStr" in dir(self.context)
+
     def validate_metrics(self):
         """ Validate the metrics set """
         # Check the metrics against PMNS, resolve non-leaf metrics
@@ -700,7 +707,7 @@ class PMReporter(object):
                     self.metrics[metric][2] = unitstr
             # Set unit/scale for non-raw numeric metrics
             try:
-                if self.metrics[metric][3] == 0 and \
+                if self.metrics[metric][3] == 0 and self.can_scale and \
                    self.descs[i].contents.type != PM_TYPE_STRING:
                     (unitstr, mult) = self.context.pmParseUnitsStr(self.metrics[metric][2])
                     label = self.metrics[metric][2]
@@ -781,7 +788,8 @@ class PMReporter(object):
             self.delay = 1
             self.interpol = 1
 
-        if self.context.pmDebug(PM_DEBUG_APPL1):
+        # DBG_TRACE_APPL1 == 4096
+        if "pmDebug" in dir(self.context) and self.context.pmDebug(4096):
             print("Known config file keywords: " + str(self.keys))
             print("Known metric spec keywords: " + str(self.metricspec))
 
@@ -904,14 +912,15 @@ class PMReporter(object):
                         vtype)
 
                     if self.metrics[metric][3] != 1 and rescale and \
-                       self.descs[i].contents.type != PM_TYPE_STRING:
+                       self.descs[i].contents.type != PM_TYPE_STRING and \
+                       self.can_scale:
                         atom = self.context.pmConvScale(
                             vtype,
                             atom, self.descs, i,
                             self.metrics[metric][2][1])
 
                     val = atom.dref(vtype)
-                    if rescale and \
+                    if rescale and self.can_scale and \
                        self.descs[i].contents.type != PM_TYPE_STRING:
                         val *= self.metrics[metric][2][2]
                         val = int(val) if val == int(val) else val
