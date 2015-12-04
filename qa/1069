@@ -33,7 +33,7 @@ echo "== basic live mode reporting"
 pmrep -p -s 2 -t 0.25 sample.long.one | _live_filter
 
 echo "== basic archive mode reporting"
-pmrep -p -s 5 -t 2 -f 2 --archive $here/archives/sample-secs \
+pmrep -z -p -s 5 -t 2 -f 2 --archive $here/archives/sample-secs \
 	sample.seconds sample.milliseconds
 
 echo "== basic configuration file handling"
