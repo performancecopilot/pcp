@@ -25,7 +25,7 @@ done
 for x in qmc_*
 do
     [ -x $x/$x ] && continue
-    echo -n "Hunting for $x executable ... "
+    $PCP_ECHO_PROG $PCP_ECHO_N "Hunting for $x executable ... $PCP_ECHO_C"
     if [ -z "$builddir" ]
     then
 	echo "no build dir, not found"

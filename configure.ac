@@ -1399,7 +1399,15 @@ AC_CHECK_HEADERS(libgen.h sys/param.h sys/mman.h sys/un.h)
 AC_CHECK_HEADERS(values.h stdint.h ieeefp.h math.h)
 AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
 AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h sys/socket.h)
-AC_CHECK_HEADERS(netdb.h net/if.h netinet/in.h netinet/tcp.h arpa/inet.h)
+AC_CHECK_HEADERS(netdb.h)
+if test $target_os = darwin
+then
+    AC_CHECK_HEADERS(net/if.h, [], [], [#include <sys/types.h>
+#include <sys/socket.h>])
+else
+    AC_CHECK_HEADERS(net/if.h)
+fi
+AC_CHECK_HEADERS(netinet/in.h netinet/tcp.h arpa/inet.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
 AC_CHECK_HEADERS(execinfo.h bits/wordsize.h)
 AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])
