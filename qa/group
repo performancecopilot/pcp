@@ -1017,6 +1017,7 @@ cgroups
 794 containers pmcd pmda.pmcd local
 795 pmimport local pmdumplog perl local
 796 pmda.elasticsearch local
+797 pmlogrewrite local
 798 pmda.nfsclient local
 799:retired pmda.papi local
 800 pmda.proc local

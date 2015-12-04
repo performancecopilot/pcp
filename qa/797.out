@@ -1,0 +1,78 @@
+QA output created by 797
+===511.0.1 case ===
+Warning [TMP.rewrite, line 1]
+Dynamic metric domain field (511) for pmid
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+11:35:37.398  2.3.3 (pmcd.pmlogger.host): inst [23861 or "23861"] value "bozo.localdomain"
+              2.3.0 (pmcd.pmlogger.port): inst [23861 or "23861"] value 4331
+              2.3.2 (pmcd.pmlogger.archive): inst [23861 or "23861"] value "/home/kenj/src/pcp/qa/archives/log-derived"
+
+11:35:37.419  510.0.1 (mem.util.allcache): value 10498592
+              60.1.25 (mem.util.slab): value 1903168
+              60.1.5 (mem.util.cached): value 8595424
+
+11:35:40.419  510.0.1 (mem.util.allcache): value 10498668
+              60.1.25 (mem.util.slab): value 1903192
+              60.1.5 (mem.util.cached): value 8595476
+
+11:35:43.419  510.0.1 (mem.util.allcache): value 10498656
+              60.1.25 (mem.util.slab): value 1903192
+              60.1.5 (mem.util.cached): value 8595464
+
+11:35:46.419  510.0.1 (mem.util.allcache): value 10498668
+              60.1.25 (mem.util.slab): value 1903192
+              60.1.5 (mem.util.cached): value 8595476
+
+===511.0.* case ===
+Warning [TMP.rewrite, line 1]
+Dynamic metric domain field (511) for pmid
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+11:35:37.398  2.3.3 (pmcd.pmlogger.host): inst [23861 or "23861"] value "bozo.localdomain"
+              2.3.0 (pmcd.pmlogger.port): inst [23861 or "23861"] value 4331
+              2.3.2 (pmcd.pmlogger.archive): inst [23861 or "23861"] value "/home/kenj/src/pcp/qa/archives/log-derived"
+
+11:35:37.419  510.0.1 (mem.util.allcache): value 10498592
+              60.1.25 (mem.util.slab): value 1903168
+              60.1.5 (mem.util.cached): value 8595424
+
+11:35:40.419  510.0.1 (mem.util.allcache): value 10498668
+              60.1.25 (mem.util.slab): value 1903192
+              60.1.5 (mem.util.cached): value 8595476
+
+11:35:43.419  510.0.1 (mem.util.allcache): value 10498656
+              60.1.25 (mem.util.slab): value 1903192
+              60.1.5 (mem.util.cached): value 8595464
+
+11:35:46.419  510.0.1 (mem.util.allcache): value 10498668
+              60.1.25 (mem.util.slab): value 1903192
+              60.1.5 (mem.util.cached): value 8595476
+
+===511.*.* case ===
+Warning [TMP.rewrite, line 1]
+Dynamic metric domain field (511) for pmid
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+11:35:37.398  2.3.3 (pmcd.pmlogger.host): inst [23861 or "23861"] value "bozo.localdomain"
+              2.3.0 (pmcd.pmlogger.port): inst [23861 or "23861"] value 4331
+              2.3.2 (pmcd.pmlogger.archive): inst [23861 or "23861"] value "/home/kenj/src/pcp/qa/archives/log-derived"
+
+11:35:37.419  510.0.1 (mem.util.allcache): value 10498592
+              60.1.25 (mem.util.slab): value 1903168
+              60.1.5 (mem.util.cached): value 8595424
+
+11:35:40.419  510.0.1 (mem.util.allcache): value 10498668
+              60.1.25 (mem.util.slab): value 1903192
+              60.1.5 (mem.util.cached): value 8595476
+
+11:35:43.419  510.0.1 (mem.util.allcache): value 10498656
+              60.1.25 (mem.util.slab): value 1903192
+              60.1.5 (mem.util.cached): value 8595464
+
+11:35:46.419  510.0.1 (mem.util.allcache): value 10498668
+              60.1.25 (mem.util.slab): value 1903192
+              60.1.5 (mem.util.cached): value 8595476
