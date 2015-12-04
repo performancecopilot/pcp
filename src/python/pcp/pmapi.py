@@ -523,7 +523,7 @@ LIBPCP.pmTraversePMNS.argtypes = [c_char_p, traverseCB_type]
 LIBPCP.pmUnloadNameSpace.restype = c_int
 LIBPCP.pmUnloadNameSpace.argtypes = []
 
-LIBPCP.pmRegisterDerived.restype = c_int
+LIBPCP.pmRegisterDerived.restype = c_char_p
 LIBPCP.pmRegisterDerived.argtypes = [c_char_p, c_char_p]
 
 LIBPCP.pmLoadDerivedConfig.restype = c_int
@@ -793,6 +793,10 @@ class pmOptions(object):
         """ Set sampling interval (pmParseInterval string) """
         return c_api.pmSetOptionInterval(interval)
 
+    def pmGetNonOptionsFromList(self, argv):
+        return c_api.pmGetNonOptionsFromList(argv)
+
+    # Deprecated, use pmGetNonOptionsFromList() above instead
     def pmNonOptionsFromList(self, argv):
         return c_api.pmGetNonOptionsFromList(argv)
 
@@ -1274,13 +1278,14 @@ class pmContext(object):
             name = name.encode('utf-8')
         if type(expr) != type(b''):
             expr = expr.encode('utf-8')
-        status = LIBPCP.pmRegisterDerived(name, expr)
-        if status != 0:
-            raise pmErr(status)
+        string = LIBPCP.pmRegisterDerived(name, expr)
+        if string != None:
+            failure = ['@', string.decode()]
+            raise pmErr(c_api.PM_ERR_GENERIC, failure)
         status = LIBPCP.pmReconnectContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        
+
     def pmLoadDerivedConfig(self, fname):
         """PMAPI - Register derived metric names and definitions from a file
         pm.pmLoadDerivedConfig("FileName")
@@ -1301,7 +1306,9 @@ class pmContext(object):
         pm.pmRegisterDerived()
         """
         result = LIBPCP.pmDerivedErrStr()
-        return str(result.decode())
+        if result != None:
+            return str(result.decode())
+        return None
 
     ##
     # PMAPI Metrics Description Services
@@ -1551,7 +1558,10 @@ class pmContext(object):
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmSetMode(mode, pointer(timeVal), delta)
+        when = None
+        if timeVal != None:
+            when = pointer(timeVal)
+        status = LIBPCP.pmSetMode(mode, when, delta)
         if status < 0:
             raise pmErr(status)
         return status

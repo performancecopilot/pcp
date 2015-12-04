@@ -15,7 +15,7 @@
 #ifndef _STACKMOD_H_
 #define _STACKMOD_H_
 
-#include <QtCore/QVector>
+#include <QVector>
 #include "modulate.h"
 
 class SoBaseColor;

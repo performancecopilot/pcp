@@ -28,7 +28,7 @@ QedLegend::QedLegend(const char *name) : QString(name)
 const char *
 QedLegend::identity(void) const
 {
-    return this->toAscii();
+    return this->toLatin1();
 }
 
 void

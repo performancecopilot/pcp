@@ -41,7 +41,7 @@ QedApp::QedApp(int &argc, char **argv) : QApplication(argc, argv)
     QString confirm = pmGetConfig("PCP_BIN_DIR");
     confirm.prepend("PCP_XCONFIRM_PROG=");
     confirm.append("/pmquery");
-    putenv(strdup((const char *)confirm.toAscii()));
+    putenv(strdup((const char *)confirm.toLatin1()));
     if (getenv("PCP_STDERR") == NULL)   // do not overwrite, for QA
 	putenv(strdup("PCP_STDERR=DISPLAY"));
 }

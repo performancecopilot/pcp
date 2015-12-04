@@ -12,12 +12,12 @@
  * for more details.
  */
 #include "pmtime.h"
-#include <QtCore/QUrl>
-#include <QtCore/QLibraryInfo>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QWhatsThis>
-#include <QtGui/QMessageBox>
-#include <QtGui/QCloseEvent>
+#include <QUrl>
+#include <QLibraryInfo>
+#include <QDesktopServices>
+#include <QWhatsThis>
+#include <QMessageBox>
+#include <QCloseEvent>
 #include "console.h"
 #include "aboutdialog.h"
 #include "seealsodialog.h"

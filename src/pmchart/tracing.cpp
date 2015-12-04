@@ -335,10 +335,10 @@ TracingItem::updateEventRecords(TracingEngine *engine, QmcMetric *metric, int in
 	    QString timestamp = QmcSource::timeStringBrief(record.timestamp());
 	    console->post(PmChart::DebugForce, "TracingItem::updateEventRecords: "
 		"[%s] span: %s (slot=%d) id=%s, root: %s (slot=%d,id=%s), start=%s end=%s",
-		(const char *)timestamp.toAscii(),
-		(const char *)event.spanID().toAscii(), slot,
+		(const char *)timestamp.toLatin1(),
+		(const char *)event.spanID().toLatin1(), slot,
 		event.hasIdentifier() ? "y" : "n",
-		(const char *)event.rootID().toAscii(), parentSlot,
+		(const char *)event.rootID().toLatin1(), parentSlot,
 		event.hasParent() ? "y" : "n",
 		event.hasStartFlag() ? "y" : "n", event.hasEndFlag() ? "y" : "n");
 #endif
@@ -584,7 +584,7 @@ TracingScaleDraw::label(double value) const
 #if DESPERATE
     console->post(PmChart::DebugForce,
 		"TracingScaleDraw::label: lookup ID %d (=>\"%s\")",
-		slot, (const char *)label.toAscii());
+		slot, (const char *)label.toLatin1());
 #endif
 
     // ensure label is not too long to fit
@@ -671,7 +671,7 @@ TracingEngine::addTraceSpan(const QString &spanID, int slot)
 {
     Q_ASSERT(spanID != QString::null && spanID != "");
     console->post("TracingEngine::addTraceSpan: \"%s\" <=> slot %d (%d/%d span/label)",
-			(const char *)spanID.toAscii(), slot,
+			(const char *)spanID.toLatin1(), slot,
 			my.traceSpanMapping.size(), my.labelSpanMapping.size());
     my.traceSpanMapping.insert(spanID, slot);
     my.labelSpanMapping.insert(slot, spanID);

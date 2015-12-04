@@ -45,11 +45,11 @@ public:
     QString hostLabel() const;
 
     QString source() const { return my.source; }
-    char *sourceAscii() const { return strdup((const char*)my.source.toAscii()); }
+    char *sourceAscii() const { return strdup((const char*)my.source.toLatin1()); }
     QString host() const { return my.host; }
-    char *hostAscii() const { return strdup((const char *)my.host.toAscii()); }
+    char *hostAscii() const { return strdup((const char *)my.host.toLatin1()); }
     QString proxy() const { return my.proxy; }
-    char *proxyAscii() const { return strdup((const char *)my.proxy.toAscii()); }
+    char *proxyAscii() const { return strdup((const char *)my.proxy.toLatin1()); }
     int tzHandle() const { return my.tz; }
     QString attributes() const { return my.attrs; }
     QString timezone() const { return my.timezone; }
@@ -58,7 +58,7 @@ public:
     struct timeval end() const { return my.end; }
     QString endTime() { return timeString(&my.end); }
     QString desc() const { return my.desc; }
-    char *descAscii() const { return strdup((const char *)my.desc.toAscii()); }
+    char *descAscii() const { return strdup((const char *)my.desc.toLatin1()); }
 
     // Number of active contexts to this source
     uint numContexts() const { return my.handles.size(); }

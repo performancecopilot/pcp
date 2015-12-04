@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Red Hat.
+ * Copyright (C) 2014-2015 Red Hat.
  * Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
  * Contact: http://www.qt-project.org/legal
  *
@@ -20,6 +20,7 @@
 
 #include <QFrame>
 #include <QLabel>
+#include <QWidget>
 #include <QSpinBox>
 #include <QLineEdit>
 #include <QValidator>

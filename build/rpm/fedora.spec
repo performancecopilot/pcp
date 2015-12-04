@@ -526,13 +526,13 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 %package export-zabbix-agent
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot tools for exporting PCP metrics to Zabbix
+Summary: Module for exporting from PCP into a Zabbix agent daemon
 URL: http://www.pcp.io
 Requires: pcp-libs >= %{version}-%{release}
 
 %description export-zabbix-agent
-Performance Co-Pilot (PCP) front-end tools for exporting metric values
-to Zabbix (http://www.zabbix.com).
+Performance Co-Pilot (PCP) module for exporting data from PCP via a
+designated Zabbix agent daemon - see zbxpcp(3) for further details.
 
 %if !%{disable_python2} || !%{disable_python3}
 #
@@ -1743,7 +1743,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 
 # all base pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E -v 'pmiostat|pmcollectl|pmatop|pcp2graphite|zabbix|zbxpcp' |\
+  grep -E -v 'pmiostat|pmcollectl|pmatop|pmrep|pcp2graphite|zabbix|zbxpcp' |\
   sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 #
 # Separate the pcp-system-tools package files.
@@ -1752,7 +1752,7 @@ ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
 # pcp(1) sub-command variants so must also be in pcp-system-tools.
 %if !%{disable_python2} || !%{disable_python3}
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E 'pmiostat|pmcollectl|pmatop' |\
+  grep -E 'pmiostat|pmcollectl|pmatop|pmrep' |\
   sed -e 's#^#'%{_bindir}'\/#' >pcp_system_tools.list
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
   grep -E 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' |\
@@ -2424,6 +2424,11 @@ cd
 - Add -V/--version support to several more commands (BZ 1284411)
 - Resolve a pcp-iostat(1) transient device exception (BZ 1249572)
 - Provides pmdapipe, an output-capturing domain agent (BZ 1163413)
+- Python PMAPI pmSetMode allows None timeval parameter (BZ 1284417)
+- Python PMI pmiPutValue now supports singular metrics (BZ 1285371)
+- Fix python PMAPI pmRegisterDerived wrapper interface (BZ 1286733)
+- Fix pmstat SEGV when run with graphical time control (BZ 1287678)
+- Make pmNonOptionsFromList error message less cryptic (BZ 1287778)
 - Work in progress [see http://pcp.io/roadmap]
 
 * Fri Oct 30 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.8-1

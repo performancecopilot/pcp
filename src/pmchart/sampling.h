@@ -16,7 +16,7 @@
 #ifndef SAMPLING_H
 #define SAMPLING_H
 
-#include <QtCore/QVariant>
+#include <QVariant>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_scale_engine.h>

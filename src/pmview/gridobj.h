@@ -17,7 +17,7 @@
 
 #include "baseobj.h"
 #include "defaultobj.h"
-#include <QtCore/QVector>
+#include <QVector>
 
 struct GridItem
 {

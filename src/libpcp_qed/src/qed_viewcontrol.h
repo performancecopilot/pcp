@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2015, Red Hat.
  * Copyright (c) 2006-2009, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
@@ -16,8 +16,8 @@
 #ifndef QED_VIEWCONTROL_H
 #define QED_VIEWCONTROL_H
 
-#include <QtCore/QList>
-#include <QtGui/QAction>
+#include <QList>
+#include <QAction>
 #include "qed_groupcontrol.h"
 
 class PmLogger;

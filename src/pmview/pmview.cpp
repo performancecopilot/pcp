@@ -12,9 +12,9 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtCore/QUrl>
-#include <QtCore/QTimer>
-#include <QtCore/QLibraryInfo>
+#include <QUrl>
+#include <QTimer>
+#include <QLibraryInfo>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QApplication>
 #include <QtGui/QPrintDialog>
@@ -626,7 +626,7 @@ bool View::stopRecording()
 	int sts;
 
 	console->post("View::stopRecording opening archive %s",
-			(const char *)archive.toAscii());
+			(const char *)archive.toLatin1());
 	if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, archive)) < 0) {
 	    errmsg.append(QApplication::tr("Cannot open PCP archive: "));
 	    errmsg.append(archive);
@@ -666,7 +666,7 @@ bool View::stopRecording()
 	// TODO: may need to update archive samples/visible?
 	view->init(archiveGroup, pmview->viewMenu(), "Record");
 	pmview->addActiveView(view);
-	OpenViewDialog::openView((const char *)ViewControl::view().toAscii());
+	OpenViewDialog::openView((const char *)ViewControl::view().toLatin1());
 	cleanupRecording();
     }
     return error;

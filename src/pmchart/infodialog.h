@@ -15,7 +15,7 @@
 #define INFODIALOG_H
 
 #include "ui_infodialog.h"
-#include <QtCore/QProcess>
+#include <QProcess>
 
 class InfoDialog : public QDialog, public Ui::InfoDialog
 {

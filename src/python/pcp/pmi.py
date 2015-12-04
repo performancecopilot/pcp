@@ -260,12 +260,15 @@ class pmiLogImport(object):
             raise pmiErr(status)
         if type(name) != type(b''):
             name = name.encode('utf-8')
-        if type(inst) != type(b''):
-            inst = inst.encode('utf-8')
+        instance = None
+        if inst != None:
+            if type(inst) != type(b''):
+                inst = inst.encode('utf-8')
+            instance = c_char_p(inst)
         if type(value) != type(b''):
             value = value.encode('utf-8')
         status = LIBPCP_IMPORT.pmiPutValue(c_char_p(name),
-                                        c_char_p(inst), c_char_p(value))
+                                        instance, c_char_p(value))
         if status < 0:
             raise pmiErr(status)
         return status
@@ -277,9 +280,12 @@ class pmiLogImport(object):
             raise pmiErr(status)
         if type(name) != type(b''):
             name = name.encode('utf-8')
-        if type(inst) != type(b''):
-            inst = inst.encode('utf-8')
-        status = LIBPCP_IMPORT.pmiGetHandle(c_char_p(name), c_char_p(inst))
+        instance = None
+        if inst != None:
+            if type(inst) != type(b''):
+                inst = inst.encode('utf-8')
+            instance = c_char_p(inst)
+        status = LIBPCP_IMPORT.pmiGetHandle(c_char_p(name), instance)
         if status < 0:
             raise pmiErr(status)
         return status

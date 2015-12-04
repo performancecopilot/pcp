@@ -65,7 +65,7 @@ StackObj::finishedAdd()
 	_root->addChild(blockScale);
 
 	if (_metrics.numMetrics()) {
-	    const char *colName = (const char *)_colors.toAscii();
+	    const char *colName = (const char *)_colors.toLatin1();
 	    const ColorSpec *colSpec = theColorLists.list(colName);
 	    if (colSpec != NULL) {
 		if (colSpec->_scale)
@@ -100,7 +100,7 @@ StackObj::finishedAdd()
 	    _root->addChild(_stack->root());
 
 	    if (_text.length())
-		_stack->setFillText((const char *)_text.toAscii());
+		_stack->setFillText((const char *)_text.toLatin1());
 
 	    BaseObj::add(_stack);
 	    ViewObj::theNumModObjects++;

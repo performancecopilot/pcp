@@ -1,0 +1,8 @@
+QA output created by 968
+== options error message
+RuntimeError: pmGetOptions must be called first
+== check setmode
+== check import
+== check derive
+Generic error, already reported above ['@', '(disk.dev.read)']
+== done

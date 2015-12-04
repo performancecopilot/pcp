@@ -11,8 +11,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtCore/QSettings>
-#include <QtCore/QTextStream>
+#include <QSettings>
+#include <QTextStream>
 #include <QtGui/QMessageBox>
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoBaseColor.h>
@@ -248,7 +248,7 @@ genInventor(void)
     QTextStream cerr(stderr);
 
     if (theConfigName.length()) {
-	configfile = strdup((const char *)theConfigName.toAscii());
+	configfile = strdup((const char *)theConfigName.toLatin1());
 	if (!(yyin = fopen(configfile, "r"))) {
 	    pmprintf(
 		"%s: Error: Unable to open configuration file \"%s\": %s\n",
@@ -315,7 +315,7 @@ genInventor(void)
     }
     else if (sts < 0) {
 	pmprintf("%s: Unrecoverable errors in the configuration file %s\n",
-	    pmProgname, (const char *)theConfigName.toAscii());
+	    pmProgname, (const char *)theConfigName.toLatin1());
     }
 
     return sts;

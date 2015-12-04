@@ -13,7 +13,7 @@
  * for more details.
  */
 #include "main.h"
-#include <QtGui/QMessageBox>
+#include <QMessageBox>
 #include "openviewdialog.h"
 #include "recorddialog.h"
 
@@ -192,7 +192,7 @@ void Tab::stopRecording(void)
 	    error++;
 	}
 	else {
-	    my.loggerList.at(i)->write(msg.toAscii());
+	    my.loggerList.at(i)->write(msg.toLatin1());
 	    my.loggerList.at(i)->terminate();
 	}
     }
@@ -201,7 +201,7 @@ void Tab::stopRecording(void)
 	QString archive = my.archiveList.at(i);
 
 	console->post("Tab::stopRecording opening archive %s",
-			(const char *)archive.toAscii());
+			(const char *)archive.toLatin1());
 	if ((sts = archiveGroup->use(PM_CONTEXT_ARCHIVE, archive)) < 0) {
 	    errmsg.append(tr("Cannot open PCP archive: "));
 	    errmsg.append(archive);
@@ -241,7 +241,7 @@ void Tab::stopRecording(void)
 	// TODO: may need to update archive samples/visible?
 	tab->init(pmchart->tabWidget(), archiveGroup, "Record");
 	pmchart->addActiveTab(tab);
-	OpenViewDialog::openView((const char *)my.view.toAscii());
+	OpenViewDialog::openView((const char *)my.view.toLatin1());
 	cleanupRecording();
     }
 }
@@ -269,14 +269,14 @@ void Tab::queryRecording(void)
 	    error++;
 	}
 	else {
-	    my.loggerList.at(i)->write(msg.toAscii());
+	    my.loggerList.at(i)->write(msg.toLatin1());
 	}
     }
 
     if (error) {
 	msg = "Q\n";	// if one fails, we shut down all loggers
 	for (i = 0; i < count; i++)
-	    my.loggerList.at(i)->write(msg.toAscii());
+	    my.loggerList.at(i)->write(msg.toLatin1());
 	cleanupRecording();
 	pmchart->setRecordState(false);
 	QMessageBox::warning(this, pmProgname, errmsg,
@@ -299,7 +299,7 @@ void Tab::detachLoggers(void)
 	    error++;
 	}
 	else {
-	    my.loggerList.at(i)->write(msg.toAscii());
+	    my.loggerList.at(i)->write(msg.toLatin1());
 	}
     }
 

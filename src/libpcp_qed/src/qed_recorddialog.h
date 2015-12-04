@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2015, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -16,8 +16,8 @@
 #define QED_RECORDDIALOG_H
 
 #include "ui_qed_recorddialog.h"
-#include <QtCore/QProcess>
-#include <QtGui/QFileDialog>
+#include <QProcess>
+#include <QFileDialog>
 #include "qmc_time.h"
 
 class QedViewControl;

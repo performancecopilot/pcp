@@ -13,9 +13,9 @@
  * for more details.
  */
 #include "saveviewdialog.h"
-#include <QtCore/QDir>
-#include <QtGui/QCompleter>
-#include <QtGui/QMessageBox>
+#include <QDir>
+#include <QCompleter>
+#include <QMessageBox>
 #include "main.h"
 
 SaveViewDialog::SaveViewDialog(QWidget* parent) : QDialog(parent)
@@ -94,7 +94,7 @@ void SaveViewDialog::setPathUi(const QString &path)
 void SaveViewDialog::setPath(const QModelIndex &index)
 {
     console->post("SaveViewDialog::setPath QModelIndex path=%s",
-			(const char *)my.dirModel->filePath(index).toAscii());
+			(const char *)my.dirModel->filePath(index).toLatin1());
     my.dirIndex = index;
     my.dirModel->refresh(index);
     dirListView->setRootIndex(index);
@@ -104,7 +104,7 @@ void SaveViewDialog::setPath(const QModelIndex &index)
 void SaveViewDialog::setPath(const QString &path)
 {
     console->post("SaveViewDialog::setPath QString path=%s",
-			(const char *)path.toAscii());
+			(const char *)path.toLatin1());
     my.dirIndex = my.dirModel->index(path);
     my.dirModel->refresh(my.dirIndex);
     dirListView->setRootIndex(my.dirIndex);

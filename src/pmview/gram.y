@@ -1335,7 +1335,7 @@ stack_item	: metric_list
 			    }
 			    if (i == str.length())
 				str.append(QChar('\n'));
-			    so->setFillText((const char *)str.toAscii());
+			    so->setFillText((const char *)str.toLatin1());
 			} else {
 			    yyerror("_stackLabel may only be applied to "
 				    "filled stacks");

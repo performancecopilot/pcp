@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2015, Red Hat.
  * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -13,9 +13,9 @@
  * License for more details.
  */
 
-#include <QtGui/QMessageBox>
-#include <QtGui/QApplication>
-#include <QtNetwork/QHostAddress>
+#include <QMessageBox>
+#include <QApplication>
+#include <QHostAddress>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 
@@ -107,8 +107,8 @@ void QedTimeControl::init(int port, bool live,
 	my.livePacket->start = now;
 	my.livePacket->end = now;
     }
-    strncpy(my.tzData, (const char *)tzstring.toAscii(), tzlen+1);
-    strncpy(my.tzData + tzlen+1, (const char *)tzlabel.toAscii(), lablen+1);
+    strncpy(my.tzData, (const char *)tzstring.toLatin1(), tzlen+1);
+    strncpy(my.tzData + tzlen+1, (const char *)tzlabel.toLatin1(), lablen+1);
 
     if (port < 0) {
 	startTimeServer();
@@ -140,9 +140,9 @@ void QedTimeControl::addArchive(
     message->length = sz;
     message->start = starttime;
     message->end = endtime;
-    strncpy((char *)message->data, (const char *)tzstring.toAscii(), tzlen+1);
+    strncpy((char *)message->data, (const char *)tzstring.toLatin1(), tzlen+1);
     strncpy((char *)message->data + tzlen+1,
-				(const char *)tzlabel.toAscii(), lablen+1);
+				(const char *)tzlabel.toLatin1(), lablen+1);
     if (my.archiveSocket->write((const char *)message, sz) < 0)
 	QMessageBox::warning(0,
 		QApplication::tr("Error"),

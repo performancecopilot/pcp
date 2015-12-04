@@ -14,9 +14,9 @@
 #ifndef TABWIDGET_H
 #define TABWIDGET_H
 
-#include <QtCore/QList>
-#include <QtGui/QTabBar>
-#include <QtGui/QTabWidget>
+#include <QList>
+#include <QTabBar>
+#include <QTabWidget>
 
 class Tab;
 

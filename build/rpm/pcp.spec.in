@@ -449,13 +449,13 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 %package export-zabbix-agent
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot tools for exporting PCP metrics to Zabbix
+Summary: Module for exporting from PCP into a Zabbix agent daemon
 URL: http://www.pcp.io
 Requires: pcp-libs >= %{version}-%{release}
 
 %description export-zabbix-agent
-Performance Co-Pilot (PCP) front-end tools for exporting metric values
-to Zabbix (http://www.zabbix.com).
+Performance Co-Pilot (PCP) module for exporting data from PCP via a
+designated Zabbix agent daemon - see zbxpcp(3) for further details.
 
 %if "@have_python@" == "true"
 #
@@ -1767,8 +1767,8 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/unbound' > pmda_unbound_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mic' > pmda_mic_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmatop|pmcollectl|pmiostat' |\
-egrep -e 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' | \
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmatop|pmcollectl|pmiostat|pmrep' |\
+egrep -e 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping|pmrep' | \
 egrep -v 'testsuite|pmlogconf|pmieconf' \
 	    > system_tools_files
 %endif

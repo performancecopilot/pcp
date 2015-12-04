@@ -1,0 +1,72 @@
+#!/bin/sh
+# PCP QA Test No. 968
+# Exercise several corner cases in the Python PMAPI wrappers.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo "== options error message" | tee -a $seq.full
+cat > $tmp.opts <<EOF
+from pcp import pmapi
+import sys
+opts = pmapi.pmOptions()
+nops = opts.pmNonOptionsFromList(sys.argv)
+ctx = pmapi.pmContext.fromOptions(opts, sys.argv)
+EOF
+cat $tmp.opts >> $seq.full
+$python $tmp.opts 2>&1 | tee -a $seq.full | grep Error
+
+echo "== check setmode" | tee -a $seq.full
+cat > $tmp.mode <<EOF
+from pcp import pmapi
+import cpmapi as api
+import sys
+ctx = pmapi.pmContext(api.PM_CONTEXT_ARCHIVE, '$here/archives/src-rattle')
+try:
+    ctx.pmSetMode(api.PM_MODE_INTERP, None, 0)	# no exception
+except pmapi.pmErr as error:
+    sys.stderr.write("Unexpected pmSetMode error: ", error)
+EOF
+cat $tmp.mode >> $seq.full
+$python $tmp.mode 2>&1 | tee -a $seq.full
+
+echo "== check import" | tee -a $seq.full
+cat > $tmp.pmi <<EOF
+from pcp import pmi
+import cpmapi as api
+log = pmi.pmiLogImport('$tmp.log', 0)
+log.pmiAddMetric("hinv.ncpu", api.PM_ID_NULL,
+                 api.PM_TYPE_U32, api.PM_INDOM_NULL,
+                 api.PM_SEM_DISCRETE, log.pmiUnits(0, 0, 0, 0, 0, 0))
+log.pmiPutValue("hinv.ncpu", None, "42")
+EOF
+cat $tmp.pmi >> $seq.full
+$python $tmp.pmi 2>&1 | tee -a $seq.full
+
+echo "== check derive" | tee -a $seq.full
+cat > $tmp.derive <<EOF
+from pcp import pmapi
+import sys
+ctx = pmapi.pmContext()
+try:
+    ctx.pmRegisterDerived("fuu", "rat(disk.dev.read)")
+except pmapi.pmErr as error:
+    print(error.message())
+EOF
+cat $tmp.derive >> $seq.full
+$python $tmp.derive 2>&1 | tee -a $seq.full
+
+# success, all done
+echo "== done"
+status=0
+exit

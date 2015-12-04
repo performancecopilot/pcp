@@ -205,7 +205,7 @@ if __name__ == '__main__':
         sts = manager.run()
         sys.exit(sts)
     except pmapi.pmErr as error:
-        print('%s: %s\n' % (error.progname(), error.message()))
+        sys.write.stderr('%s: %s\n' % (error.progname(), error.message()))
     except pmapi.pmUsageErr as usage:
         usage.message()
         sys.exit(1)

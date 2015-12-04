@@ -15,7 +15,7 @@
 #ifndef _VIEWOBJ_H_
 #define _VIEWOBJ_H_
 
-#include <QtCore/QTextStream>
+#include <QTextStream>
 
 class SoNode;
 class SoSeparator;

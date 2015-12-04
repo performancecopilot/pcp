@@ -12,10 +12,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtCore/QDir>
-#include <QtGui/QPainter>
-#include <QtGui/QMessageBox>
-#include <QtGui/QImageWriter>
+#include <QDir>
+#include <QPainter>
+#include <QMessageBox>
+#include <QImageWriter>
 #include "main.h"
 #include "exportdialog.h"
 
@@ -130,7 +130,7 @@ void ExportDialog::filePushButton_clicked()
 
 void ExportDialog::formatComboBox_currentIndexChanged(QString suffix)
 {
-    char *format = strdup((const char *)suffix.toAscii());
+    char *format = strdup((const char *)suffix.toLatin1());
     QString file = fileLineEdit->text().trimmed();
     QString regex = my.format;
 
@@ -186,7 +186,7 @@ bool ExportDialog::exportFile(QString &file, const char *format, int quality,
     QPainter qp(&image);
 
     console->post("ExportDialog::exportFile file=%s fmt=%s qual=%d w=%d h=%d trans=%d every=%d\n",
-	(const char *)file.toAscii(), format, quality, width, height, transparent, everything);
+	(const char *)file.toLatin1(), format, quality, width, height, transparent, everything);
 
     if (transparent) {
 	image.fill(qRgba(255, 255, 255, 0));
@@ -201,8 +201,8 @@ bool ExportDialog::exportFile(QString &file, const char *format, int quality,
     bool sts = writer.write(image);
     if (!sts)
 	fprintf(stderr, "%s: error writing %s (%s): %s\n",
-		pmProgname, (const char *) file.toAscii(), format,
-		(const char *) writer.errorString().toAscii());
+		pmProgname, (const char *) file.toLatin1(), format,
+		(const char *) writer.errorString().toLatin1());
     return sts;
 }
 
@@ -224,7 +224,7 @@ int ExportDialog::exportFile(char *outfile, char *geometry, bool transparent)
 	format = regex.cap(1);
 	QList<QByteArray> array = QImageWriter::supportedImageFormats();
 	for (i = 0; i < array.size(); i++) {
-	    if (strcmp(array.at(i), (const char *)format.toAscii()) == 0)
+	    if (strcmp(array.at(i), (const char *)format.toLatin1()) == 0)
 		break;
 	}
 	if (i == array.size())
@@ -234,7 +234,7 @@ int ExportDialog::exportFile(char *outfile, char *geometry, bool transparent)
 	file.append(".png");
 	format = QString("png");
     }
-    strncpy(suffix, (const char *)format.toAscii(), sizeof(suffix));
+    strncpy(suffix, (const char *)format.toLatin1(), sizeof(suffix));
     suffix[sizeof(suffix)-1] = '\0';
 
     regex.setPattern("(\\d+)x(\\d+)");

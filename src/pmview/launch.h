@@ -16,7 +16,7 @@
 #define _LAUNCH_H_
 
 #include "main.h"
-#include <QtCore/QStringList>
+#include <QStringList>
 
 class SbColor;
 class ColorScale;

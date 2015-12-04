@@ -314,13 +314,11 @@ if __name__ == '__main__':
         while True:
             G.execute()
 
+    except pmapi.pmErr as error:
+        if error.args[0] == c_api.PM_ERR_EOL:
+            pass
+        sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
     except pmapi.pmUsageErr as usage:
-        sys.stderr.write("\n")
         usage.message()
     except KeyboardInterrupt:
         pass
-    except Exception as error:
-        if str(error).find("PM_ERR_EOL") == -1:
-            import traceback
-            sys.stderr.write(str(error) + "\n") # init error: stop now
-            sys.stderr.write(traceback.format_exc() + "\n")

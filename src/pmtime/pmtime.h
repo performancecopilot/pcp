@@ -15,7 +15,7 @@
 #ifndef PMTIME_H
 #define PMTIME_H
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 #include <qmc_time.h>
 
 class PmTime : public QMainWindow, public QmcTime

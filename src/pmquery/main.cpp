@@ -11,10 +11,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtCore/QFile>
-#include <QtCore/QTextStream>
-#include <QtGui/QDesktopWidget>
-#include <QtGui/QCursor>
+#include <QFile>
+#include <QTextStream>
+#include <QDesktopWidget>
+#include <QCursor>
 #include "pmquery.h"
 
 static char usage[] =
@@ -105,14 +105,14 @@ int main(int argc, char ** argv)
 		fprintf(stderr, "The -b option requires an argument\n");
 		errflag++;
 	    }
-	    PmQuery::addButton(option, FALSE, 0);
+	    PmQuery::addButton(option, false, 0);
 	}
 	else if (strcmp(option, "-B") == 0) {
 	    if ((option = getoption(argc, argv)) == NULL) {
 		fprintf(stderr, "The -B option requires an argument\n");
 		errflag++;
 	    }
-	    PmQuery::addButton(option, TRUE, 0);
+	    PmQuery::addButton(option, true, 0);
 	}
 	else if (strcmp(option, "-default") == 0) {
 	    if ((option = getoption(argc, argv)) == NULL) {
@@ -237,7 +237,7 @@ int main(int argc, char ** argv)
 	    file = new QFile(filename);
 	    if (!file->open(QIODevice::ReadOnly)) {
 		fprintf(stderr, "Cannot open %s: %s\n", filename,
-			(char *)file->errorString().toAscii().data());
+			(char *)file->errorString().toLatin1().data());
 		exit(1);
 	    }
 	    stream = new QTextStream(file);
@@ -246,7 +246,7 @@ int main(int argc, char ** argv)
 	    QString line = stream->readLine();
 	    if (line.isNull())
 		break;
-	    if ((option = strdup(line.toAscii())) == NULL) {
+	    if ((option = strdup(line.toLatin1())) == NULL) {
 		fputs("Insufficient memory reading message stream\n", stderr);
 		exit(1);
 	    }
@@ -258,7 +258,7 @@ int main(int argc, char ** argv)
     }
 
     if (!PmQuery::buttonCount())
-	PmQuery::addButton("Continue", TRUE, 0);
+	PmQuery::addButton("Continue", true, 0);
 
     PmQuery q(inputflag, printflag, noframeflag,
 	      nosliderflag, usesliderflag, exclusiveflag);

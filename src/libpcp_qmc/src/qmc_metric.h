@@ -167,7 +167,7 @@ public:
     int status() const { return my.status; }
     pmID metricID() const { return my.pmid; }
     const QString name() const { return my.name; }
-    char *nameAscii() const { return strdup((const char *)my.name.toAscii()); }
+    char *nameAscii() const { return strdup((const char *)my.name.toLatin1()); }
     QmcContext *context() const
 	{ return my.group->context(my.contextIndex); }
     const QmcDesc &desc() const

@@ -94,7 +94,7 @@ QIcon QedFileIconProvider::icon(const QFileInfo &fi) const
 {
 #if DESPERATE
     console->post("QedFileIconProvider::icon - %s",
-			(const char *)fi.filePath().toAscii());
+			(const char *)fi.filePath().toLatin1());
 #endif
 
     if (fi.isFile()) {
@@ -119,7 +119,7 @@ QIcon QedFileIconProvider::icon(const QFileInfo &fi) const
 	}
 #if DESPERATE
 	console->post("  Got %d bytes from %s: \"%c%c%c%c%c%c%c%c\"", count,
-		(const char *) fi.filePath().toAscii(), block[0], block[1],
+		(const char *) fi.filePath().toLatin1(), block[0], block[1],
 		block[2], block[3], block[4], block[5], block[6], block[7]);
 #endif
 	QString ext = fi.suffix();

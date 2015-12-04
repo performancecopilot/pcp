@@ -35,7 +35,7 @@ fetch PCP metrics when requested.
 A typical PCP installation on Linux offers over 1000 metrics by default
 and is in turn extensible with its own plugins, or PMDAs (``Performance
 Metrics Domain Agents''). In addition to very complete
-.I proc
+.I /proc
 based statistics, readily available PCP PMDAs provide support for such
 system and application level components as Apache, CIFS, 389 Directory
 Server, GFS2, Gluster, InfiniBand, KVM, MySQL, NFS, Postfix, PostgreSQL,
@@ -95,6 +95,7 @@ $ zabbix_get -s 127.0.0.1 -p 10050 -k pcp.kernel.all.sysfork
 .fi
 .ft P
 .RE
+.PP
 Then to collect PCP metrics from Zabbix agents, the Zabbix server side
 configuration is as usual (see Zabbix documentation if needed).
 .PP
