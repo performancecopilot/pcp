@@ -418,19 +418,8 @@ class PMReporter(object):
 
     def get_cmd_line_metrics(self):
         """ Get metric set specifications from the command line """
-        metrics = []
-        for arg in sys.argv[1:]:
-            if arg in self.arghelp:
-                return 0
-        for arg in reversed(sys.argv[1:]):
-            if arg.startswith('-'):
-                if len(metrics):
-                    if arg not in self.argless and '=' not in arg:
-                        del metrics[-1]
-                break
-            metrics.append(arg)
-        metrics.reverse()
-        return metrics
+        pmapi.c_api.pmGetOptionsFromList(sys.argv) # RHBZ#1287778
+        return self.opts.pmNonOptionsFromList(sys.argv)
 
     def parse_metric_info(self, metrics, key, value):
         """ Parse metric information """
