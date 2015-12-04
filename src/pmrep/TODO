@@ -21,7 +21,7 @@
 -  possibly add more command line switch sanity checking
 -  modularize code to allow creating custom output plugins
 -    (e.g. pcp2graphite type socket, top-like output, separate pcp2zabbix)
--  per-metrics decimals (?)
+-  per-metric precision (?)
 -  copy metric set spec support (?)
 -  includedir config file support (?)
 -  generalised daemon startup support (?)

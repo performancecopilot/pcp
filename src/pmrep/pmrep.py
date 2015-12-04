@@ -169,7 +169,7 @@ class PMReporter(object):
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'unitinfo',
                      'globals', 'timestamp', 'samples', 'interval', 'runtime',
-                     'delay', 'raw', 'width', 'decimals', 'delimiter',
+                     'delay', 'raw', 'width', 'precision', 'delimiter',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval')
@@ -200,7 +200,7 @@ class PMReporter(object):
         self.delay = 0
         self.raw = 0
         self.width = 0
-        self.decimals = 3 # .3f
+        self.precision = 3 # .3f
         self.delimiter = None
         self.extheader = 0
         self.repeat_header = 0
@@ -396,7 +396,7 @@ class PMReporter(object):
         elif opt == 'w':
             self.width = int(optarg)
         elif opt == 'f':
-            self.decimals = int(optarg)
+            self.precision = int(optarg)
         elif opt == 'l':
             self.delimiter = optarg
         elif opt == 'x':
@@ -1284,7 +1284,7 @@ class PMReporter(object):
                         fmt[k] = "{X:" + str(l) + "d}"
 
                 if type(value) is float:
-                    c = self.decimals
+                    c = self.precision
                     s = len(str(int(value)))
                     if s > l:
                         c = -1
