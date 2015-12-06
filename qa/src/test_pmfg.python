@@ -1,0 +1,95 @@
+#!/usr/bin/pcp python
+#
+# Copyright (C) 2015 Red Hat Inc.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import sys
+import unittest
+import time
+
+from pcp import pmapi
+import cpmapi as c_api
+
+
+def test_pmfg_live(self, ctx):
+    # Any errors hereabouts trigger pmErr exceptions -> implicit fail
+    pmfg = pmapi.fetchgroup(ctx)
+    tt = pmfg.extend_timestamp()
+    v1 = pmfg.extend_item("hinv.ncpu", c_api.PM_TYPE_U32)
+    v2 = pmfg.extend_item("kernel.all.load", c_api.PM_TYPE_FLOAT, instance="1 minute")
+
+    pmfg.fetch() # to get a cpu count into v1
+    vv1 = pmfg.extend_indom("kernel.percpu.cpu.idle", c_api.PM_TYPE_64, scale="s/100s", maxnum=v1()-1)
+    vv2 = pmfg.extend_indom("kernel.percpu.cpu.idle", c_api.PM_TYPE_64, scale="s/100s", maxnum=v1())
+    vv3 = pmfg.extend_indom("sample.bogus_bin", c_api.PM_TYPE_32, scale="instant")
+
+    for i in range(0, 4):
+        pmfg.fetch()
+        print ("time: %s" % tt())
+        print ("cpus: %d" % v1())
+        self.assertTrue(v1() >= 0)
+        print ("load average: %f" % v2())
+        self.assertTrue(v2() >= 0)
+
+        self.assertRaises(pmapi.pmErr, vv1) # PM_ERR_TOOBIG
+
+        if i > 0: # rate conversion eats first value
+            for icode, iname, value in vv2():
+                print ("cpu idle %s: %d %%" % (iname, value()))
+                self.assertTrue(value() >= 0 and value() <= 100)
+
+        for icode, iname, value in vv3():
+            print ("bin %d %s: %d" % (icode, iname, value()))
+            self.assertTrue(value() == icode)
+
+        time.sleep(1.5)
+
+    # garbage collector will take care of it
+    #del pmfg
+
+
+
+def test_pmfg_pmns(self, ctx):
+
+    metrics = []
+    def callback(pmfg, name, metrics):
+        vv = pmfg.extend_indom(name, c_api.PM_TYPE_STRING, scale="instant") # no rate conversion
+        metrics.append((name, vv))
+
+    pmfg = pmapi.fetchgroup(ctx)
+    ctx.pmTraversePMNS("sample.long",
+                       (lambda name: callback(pmfg, name, metrics)))
+    self.assertTrue(len(metrics) == 7)
+
+    for _ in range(3):
+        pmfg.fetch()
+        for name, vv in metrics:
+            print("metric %s" % name)
+            for icode, iname, ival in vv():
+                print ("icode %d iname %s ival %s" % (icode, iname, ival()))
+                # a few random assertions
+                if name == 'sample.long.ten':
+                    self.assertTrue(ival() == '10') # string conversion
+                elif name == 'sample.long.bin_ctr':
+                    self.assertTrue(ival() == ('%s' % icode)) # no rate conversion
+
+class TestSequenceFunctions(unittest.TestCase):
+    def test_pmfg(self):
+        ctx = pmapi.pmContext(c_api.PM_CONTEXT_HOST, "local:")
+        test_pmfg_live(self, ctx)
+        test_pmfg_pmns(self, ctx)
+
+if __name__ == '__main__':
+    STS = unittest.main()
+    sys.exit(STS)
+    

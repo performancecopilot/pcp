@@ -1024,6 +1024,7 @@ cgroups
 800 pmda.proc local
 801 pmda.netfilter local
 802 pmda valgrind dbpmda local
+803 python libpcp fetch local
 805 pmda.postfix local
 807 pcp local
 808 pmlogger local
