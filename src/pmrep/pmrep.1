@@ -110,21 +110,21 @@ to list all the leaf nodes and their descriptions.)
 .P
 A
 .I metricspec
-has three different forms. On the command line it can start with a colon
-(``:'') to indicate a
+has three different forms. First, on the command line it can start with
+a colon (``:'') to indicate a
 .I metricset
 to be read from a
 .B pmrep
 configuration file (see
 .BR pmrep.conf (5))
 which can then consist of any number of metricspecs.
-Alternatively, a
+Second, a
 .I metricspec
 starting with non-colon specifies a PMNS node as described above,
 optionally followed by metric formatting definitions (applicable only to
 leaf nodes).
 This so-called
-.I compact mode
+.I compact form
 of a metricspec is defined as follows:
 .P
 .in 1.5i
@@ -180,7 +180,7 @@ converting to the default rate count/s in an
 .B 8
 wide column.
 Although the definitions in this
-.I compact mode
+.I compact form
 are optional, they must always be provided in the order specified above.
 .P
 .in 1.5i
