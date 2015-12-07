@@ -2724,3 +2724,28 @@ __pmArchCtlFree(__pmArchCtl *acp)
     /* Now we can free it. */
     free(acp);
 }
+
+__pmLogMarkRecord *
+__pmLogCreateMark(const __pmTimeval *current)
+{
+    __pmLogMarkRecord	*markp;
+
+    /*
+     * add space for trailer in case __pmLogPutResult2() is called with
+     * this PDU buffer
+     */
+    markp = (__pmLogMarkRecord *)malloc(sizeof(__pmLogMarkRecord)+sizeof(int));
+    if (markp == NULL)
+	return NULL;
+
+    markp->len = (int)sizeof(__pmLogMarkRecord);
+    markp->type = markp->from = 0;
+    markp->timestamp = *current;
+    markp->timestamp.tv_usec += 1000;	/* + 1msec */
+    if (markp->timestamp.tv_usec > 1000000) {
+	markp->timestamp.tv_usec -= 1000000;
+	markp->timestamp.tv_sec++;
+    }
+    markp->numpmid = 0;
+    return(markp);
+}

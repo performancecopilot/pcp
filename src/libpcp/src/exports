@@ -509,3 +509,8 @@ PCP_3.13 {
     __pmSetRequestTimeout;
     __pmStringValue;
 } PCP_3.12;
+
+PCP_3.14 {
+  global:
+    __pmLogCreateMark;
+} PCP_3.13;

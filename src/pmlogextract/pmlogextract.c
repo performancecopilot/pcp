@@ -246,18 +246,6 @@ typedef struct {
 } vlist_t;
 
 /*
- *  Mark record
- */
-typedef struct {
-    __pmPDU		len;
-    __pmPDU		type;
-    __pmPDU		from;
-    __pmTimeval		timestamp;	/* when returned */
-    int			numpmid;	/* zero PMIDs to follow */
-} mark_t;
-
-
-/*
  *  Global variables
  */
 static int	exit_status = 0;
@@ -1066,34 +1054,25 @@ write_metareclist(pmResult *result, int *needti)
 __pmPDU *
 _createmark(void)
 {
-    mark_t	*markp;
+    __pmLogMarkRecord	*markp;
 
     /*
      * add space for trailer in case __pmLogPutResult2() is called with
      * this PDU buffer
      */
-    markp = (mark_t *)malloc(sizeof(mark_t)+sizeof(int));
+    markp = __pmLogCreateMark(&current);
     if (markp == NULL) {
-	fprintf(stderr, "%s: Error: mark_t malloc: %s\n",
+	fprintf(stderr, "%s: Error: __pmLogMarkRecord malloc: %s\n",
 		pmProgname, osstrerror());
 	abandon_extract();
     }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0) {
-        totalmalloc += sizeof(mark_t);
-        fprintf(stderr, "_createmark : allocated %d\n", (int)sizeof(mark_t));
+        totalmalloc += sizeof(markp);
+        fprintf(stderr, "_createmark : allocated %d\n", (int)sizeof(markp));
     }
 #endif
 
-    markp->len = (int)sizeof(mark_t);
-    markp->type = markp->from = 0;
-    markp->timestamp = current;
-    markp->timestamp.tv_usec += 1000;	/* + 1msec */
-    if (markp->timestamp.tv_usec > 1000000) {
-	markp->timestamp.tv_usec -= 1000000;
-	markp->timestamp.tv_sec++;
-    }
-    markp->numpmid = 0;
     return((__pmPDU *)markp);
 }
 
@@ -1747,8 +1726,8 @@ fprintf(stderr, " break!\n");
 void
 writemark(inarch_t *iap)
 {
-    int		sts;
-    mark_t      *p = (mark_t *)iap->pb[LOG];
+    int			sts;
+    __pmLogMarkRecord	*p = (__pmLogMarkRecord *)iap->pb[LOG];
 
     if (!iap->mark) {
 	fprintf(stderr, "%s: Fatal Error!\n", pmProgname);

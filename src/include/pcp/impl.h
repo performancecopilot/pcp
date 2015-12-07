@@ -234,7 +234,6 @@ typedef struct __pmnsTree {
     int			mark_state;   /* the total mark value for trimming */
 } __pmnsTree;
 
-
 /* used by pmnsmerge... */
 PCP_CALL extern __pmnsTree *__pmExportPMNS(void); 
 
@@ -1441,6 +1440,19 @@ PCP_CALL extern int __pmControlLog(int, const pmResult *, int, int, int, pmResul
         (val) = ((val) & 0xf) | ((delta) << 4)
 #define PMLC_GET_DELTA(val) \
         ((((val) & ~0xf) >> 4) & PMLC_MAX_DELTA)
+
+/*
+ *  Archive Mark record
+ */
+typedef struct __pmLogMarkRecord {
+    __pmPDU		len;
+    __pmPDU		type;
+    __pmPDU		from;
+    __pmTimeval		timestamp;	/* when returned */
+    int			numpmid;	/* zero PMIDs to follow */
+} __pmLogMarkRecord;
+
+__pmLogMarkRecord *__pmLogCreateMark(const __pmTimeval *);
 
 /*
  * helper functions to register client identity with pmcd for export
