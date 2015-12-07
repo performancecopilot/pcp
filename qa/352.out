@@ -57,21 +57,21 @@ Log finished DATE
 	...
 	...
 
-TIMESTAMP  511.0.3 (sample.long.lots): value 999900
-              511.0.2 (sample.long.ninety_nine): value 99
-              511.0.1 (sample.long.nine): value 9
+TIMESTAMP  511.2048.3 (sample.long.lots): value 999900
+              511.2048.2 (sample.long.ninety_nine): value 99
+              511.2048.1 (sample.long.nine): value 9
               29.0.11 (sample.long.ten): value 10
               29.0.10 (sample.long.one): value 1
 
-TIMESTAMP  511.0.3 (sample.long.lots): value 999900
-              511.0.2 (sample.long.ninety_nine): value 99
-              511.0.1 (sample.long.nine): value 9
+TIMESTAMP  511.2048.3 (sample.long.lots): value 999900
+              511.2048.2 (sample.long.ninety_nine): value 99
+              511.2048.1 (sample.long.nine): value 9
               29.0.11 (sample.long.ten): value 10
               29.0.10 (sample.long.one): value 1
 
-TIMESTAMP  511.0.3 (sample.long.lots): value 999900
-              511.0.2 (sample.long.ninety_nine): value 99
-              511.0.1 (sample.long.nine): value 9
+TIMESTAMP  511.2048.3 (sample.long.lots): value 999900
+              511.2048.2 (sample.long.ninety_nine): value 99
+              511.2048.1 (sample.long.nine): value 9
               29.0.11 (sample.long.ten): value 10
               29.0.10 (sample.long.one): value 1
 
