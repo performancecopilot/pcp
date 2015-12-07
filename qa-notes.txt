@@ -104,3 +104,4 @@ bonus:
   should show up
 - resize window; graphs should resize
 - test out embed mode ..../vector/index.html#/embed?host=....&hostspec=localhost&widgets=kernel.all.cpu
+- check pmwebd logs (-v -v) that traffic is sensible (good rate, needed metrics only)

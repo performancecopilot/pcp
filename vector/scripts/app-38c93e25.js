@@ -134,7 +134,7 @@ function(){"use strict";function e(e,t,i,a){function r(){i.get(t.properties.prot
  *     limitations under the License.
  *
  */
-function(){"use strict";function e(e,t,i,a,r,n,o,s,c,l){function d(){C&&(i.cancel(C),a.info("Interval canceled."))}function u(e){e?x=0:x+=1,x>5&&(d(C),x=0,s.to("alert-dashboard-error").error="Consistently failed fetching metrics from host (>5). Aborting loop. Please make sure PCP is running correctly.")}function p(){o.updateMetrics(u),o.updateDerivedMetrics()}function m(){d(C),e.properties.host&&(e.properties.context&&e.properties.context>0?C=i(p,1e3*e.properties.interval):s.to("alert-dashboard-error").error="Invalid context. Please update host to resume operation.",a.info("Interval updated."))}function g(t){e.properties.hostname=t.values[0].instances[0].value,a.info("Hostname updated: "+e.properties.hostname)}function h(){e.properties.hostname="Hostname not available.",a.error("Error fetching hostname.")}function f(t){e.flags.contextAvailable=!0,e.properties.context=t,m()}function v(){e.flags.contextAvailable=!1,a.error("Error fetching context.")}function y(t){a.info("Context updated.");var i=e.properties.hostspec,r=null;t&&""!==t&&(e.flags.contextUpdating=!0,e.flags.contextAvailable=!1,r=t.match("(.*):([0-9]*)"),null!==r?(e.properties.host=r[1],e.properties.port=r[2]):e.properties.host=t,n.getHostspecContext(i,600).then(function(t){e.flags.contextUpdating=!1,f(t),n.getMetrics(t,["pmcd.hostname"]).then(function(e){g(e)},function(){h()})},function(){s.to("alert-dashboard-error").error="Failed fetching context from host. Try updating the hostname.",e.flags.contextUpdating=!1,v()}))}function b(t){a.info("Host updated."),r.search("host",t),r.search("hostspec",e.properties.hostspec),e.properties.context=-1,e.properties.hostname=null,e.properties.port=c.port,o.clearMetricList(),o.clearDerivedMetricList(),y(t)}function M(){a.log("Window updated.")}function k(e){a.log("Global Filter updated."),l.setGlobalFilter(e)}function w(){e.properties?(e.properties.interval||(e.properties.interval=c.interval),e.properties.window||(e.properties.window=c.window),e.properties.protocol||(e.properties.protocol=c.protocol),e.properties.host||(e.properties.host=""),e.properties.hostspec||(e.properties.hostspec=c.hostspec),e.properties.port||(e.properties.port=c.port),!e.properties.context||e.properties.context<0?y():m()):e.properties={protocol:c.protocol,host:"",hostspec:c.hostspec,port:c.port,context:-1,hostname:null,window:c.window,interval:c.interval},e.flags={contextAvailable:!1,contextUpdating:!1},l.initContainerCgroups()}var C,x=0;return{updateContext:y,cancelInterval:d,updateInterval:m,updateHost:b,updateWindow:M,updateGlobalFilter:k,initializeProperties:w}}e.$inject=["$rootScope","$http","$interval","$log","$location","PMAPIService","MetricListService","flash","vectorConfig","ContainerMetadataService"],angular.module("app.services").factory("DashboardService",e)}(),/**!
+function(){"use strict";function e(e,t,i,a,r,n,o,s,c,l){function d(){C&&(i.cancel(C),a.info("Interval canceled."))}function u(e){e?x=0:x+=1,x>5&&(d(C),x=0,s.to("alert-dashboard-error").error="Consistently failed fetching metrics from host (>5). Aborting loop. Please make sure PCP is running correctly.")}function p(){o.updateMetrics(u),o.updateDerivedMetrics()}function m(){d(C),e.properties.host&&(e.properties.context&&e.properties.context>0?C=i(p,1e3*e.properties.interval):s.to("alert-dashboard-error").error="Invalid context. Please update host to resume operation.",a.info("Interval updated."))}function g(t){e.properties.hostname=t.values[0].instances[0].value,a.info("Hostname updated: "+e.properties.hostname)}function h(){e.properties.hostname="Hostname not available.",a.error("Error fetching hostname.")}function f(t){e.flags.contextAvailable=!0,e.properties.context=t,m()}function v(){e.flags.contextAvailable=!1,a.error("Error fetching context.")}function y(t){a.info("Context updated.");var i=e.properties.hostspec,r=null;t&&""!==t&&(e.flags.contextUpdating=!0,e.flags.contextAvailable=!1,r=t.match("(.*):([0-9]*)"),null!==r?(e.properties.host=r[1],e.properties.port=r[2]):e.properties.host=t,n.getHostspecContext(i,600).then(function(t){e.flags.contextUpdating=!1,f(t),n.getMetrics(t,["pmcd.hostname"]).then(function(e){g(e)},function(){h()})},function(){s.to("alert-dashboard-error").error="Failed fetching context from host. Try updating the hostname.",e.flags.contextUpdating=!1,v()}))}function b(t){a.info("Host updated."),r.search("host",t),r.search("hostspec",e.properties.hostspec),e.properties.context=-1,e.properties.hostname=null,e.properties.port=c.port,o.clearMetricList(),o.clearDerivedMetricList(),y(t)}function M(){a.log("Window updated.")}function k(e){a.log("Global Filter updated."),l.setGlobalFilter(e)}function w(){e.properties?(e.properties.interval||(e.properties.interval=c.interval),e.properties.window||(e.properties.window=c.window),e.properties.protocol||(e.properties.protocol=c.protocol),e.properties.host||(e.properties.host=""),e.properties.hostspec||(e.properties.hostspec=c.hostspec),e.properties.port||(e.properties.port=c.port),!e.properties.context||e.properties.context<0?y():m()):e.properties={protocol:c.protocol,host:"",hostspec:c.hostspec,port:c.port,context:-1,hostname:null,window:c.window,interval:c.interval},e.flags={contextAvailable:!1,contextUpdating:!1},c.enableContainerWidgets&&l.initContainerCgroups()}var C,x=0;return{updateContext:y,cancelInterval:d,updateInterval:m,updateHost:b,updateWindow:M,updateGlobalFilter:k,initializeProperties:w}}e.$inject=["$rootScope","$http","$interval","$log","$location","PMAPIService","MetricListService","flash","vectorConfig","ContainerMetadataService"],angular.module("app.services").factory("DashboardService",e)}(),/**!
  *
  *  Copyright 2015 Netflix, Inc.
  *
@@ -152,6 +152,91 @@ function(){"use strict";function e(e,t,i,a,r,n,o,s,c,l){function d(){C&&(i.cance
  *
  */
 function(){"use strict";function e(){function e(){return function(e){return d3.time.format("%X")(new Date(e))}}function t(){return function(e){return d3.format(".02f")(e)}}function i(){return function(e){return d3.format("f")(e)}}function a(){return function(e){return d3.format("%")(e)}}function r(){return function(e){return e.x}}function n(){return function(e){return e.y}}function o(){return"chart_"+Math.floor(65536*(1+Math.random())).toString(16).substring(1)}return{xAxisTickFormat:e,yAxisTickFormat:t,yAxisIntegerTickFormat:i,yAxisPercentageTickFormat:a,xFunction:r,yFunction:n,getId:o}}angular.module("app.services").factory("D3Service",e)}(),function(){"use strict";function e(e,t,i,a,r,n){function o(e){return y[s(e)]}function s(e){return-1!==e.indexOf("docker/")?e=e.split("/")[2]:-1!==e.indexOf("/docker-")&&(e=e.split("-")[1].split(".")[0]),e}function c(){y={}}function l(e){r.externalAPI||o(e,e)}function d(e){return void 0!==y[s(e)]}function u(){v=n.getOrCreateMetric("containers.cgroup"),a(p,1e3*t.properties.interval)}function p(){y=v.data.reduce(function(e,t){return f(t.values[t.values.length-1].x)?e[t.key]=t.key.substring(0,12):delete e[t.key],e},{})}function m(e){b=e}function g(e){return""===b||-1!==e.indexOf(b)}function h(e){e>M&&(M=e)}function f(e){var t=M-e;return 6e3>t}var v,y={},b="",M=0;return{idDictionary:o,clearIdDictionary:c,resolveId:l,setGlobalFilter:m,checkGlobalFilter:g,setCurrentTime:h,isTimeCurrent:f,containerIdExist:d,initContainerCgroups:u}}e.$inject=["$http","$rootScope","$q","$interval","containerConfig","MetricListService"],angular.module("app.services").factory("ContainerMetadataService",e)}(),/**!
+ *
+ *  Copyright 2015 Netflix, Inc.
+ *
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ *
+ */
+function(){"use strict";function e(e){var t=function(e){this.name=e||null,this.data=[],this.subscribers=1};return t.prototype.toString=function(){return this.name},t.prototype.pushValue=function(t,i,a,r){var n,o,s=this;n=_.find(s.data,function(e){return e.iid===i}),angular.isDefined(n)&&null!==n?(n.values.push({x:t,y:r}),o=n.values.length-60*e.properties.window/e.properties.interval,o>0&&n.values.splice(0,o)):(n={key:angular.isDefined(a)?a:this.name,iid:i,values:[{x:t,y:r},{x:t+1,y:r}]},s.data.push(n))},t.prototype.clearData=function(){this.data.length=0},t}e.$inject=["$rootScope"],angular.module("app.metrics").factory("SimpleMetric",e)}(),/**!
+ *
+ *  Copyright 2015 Netflix, Inc.
+ *
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ *
+ */
+function(){"use strict";function e(e){var t=function(e,t){this.name=e,this.data=[],this.subscribers=1,this.derivedFunction=t};return t.prototype.updateValues=function(){var t,i=this;t=i.derivedFunction(),t.length!==i.data.length&&(i.data.length=0),angular.forEach(t,function(t){var a,r=_.find(i.data,function(e){return e.key===t.key});angular.isUndefined(r)?(r={key:t.key,values:[{x:t.timestamp,y:t.value},{x:t.timestamp+1,y:t.value}]},i.data.push(r)):(r.values.push({x:t.timestamp,y:t.value}),a=r.values.length-60*e.properties.window/e.properties.interval,a>0&&r.values.splice(0,a))})},t.prototype.clearData=function(){this.data.length=0},t}e.$inject=["$rootScope"],angular.module("app.metrics").factory("DerivedMetric",e)}(),/**!
+ *
+ *  Copyright 2015 Netflix, Inc.
+ *
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ *
+ */
+function(){"use strict";function e(e,t,i){var a=function(e,t){this.base=a,this.base(e),this.conversionFunction=t};return a.prototype=new i,a.prototype.pushValue=function(t,i,a,r){var n,o,s,c,l=this;n=_.find(l.data,function(e){return e.iid===i}),angular.isUndefined(n)?(n={key:angular.isDefined(a)?a:this.name,iid:i,values:[],previousValue:r,previousTimestamp:t},l.data.push(n)):(s=(r-n.previousValue)/(t-n.previousTimestamp),c=l.conversionFunction(s),n.values.push({x:t,y:c}),n.previousValue=r,n.previousTimestamp=t,o=n.values.length-60*e.properties.window/e.properties.interval,o>0&&n.values.splice(0,o))},a}e.$inject=["$rootScope","$log","SimpleMetric"],angular.module("app.metrics").factory("CumulativeConvertedMetric",e)}(),/**!
+ *
+ *  Copyright 2015 Netflix, Inc.
+ *
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ *
+ */
+function(){"use strict";function e(e,t,i){var a=function(e){this.base=i,this.base(e)};return a.prototype=new i,a.prototype.pushValue=function(t,i,a,r){var n,o,s,c=this;n=_.find(c.data,function(e){return e.iid===i}),angular.isUndefined(n)?(n={key:angular.isDefined(a)?a:this.name,iid:i,values:[],previousValue:r,previousTimestamp:t},c.data.push(n)):(s=(r-n.previousValue)/((t-n.previousTimestamp)/1e3),n.values.length<1?n.values.push({x:t,y:s},{x:t+1,y:s}):n.values.push({x:t,y:s}),n.previousValue=r,n.previousTimestamp=t,o=n.values.length-60*e.properties.window/e.properties.interval,o>0&&n.values.splice(0,o))},a}e.$inject=["$rootScope","$log","SimpleMetric"],angular.module("app.metrics").factory("CumulativeMetric",e)}(),/**!
+ *
+ *  Copyright 2015 Netflix, Inc.
+ *
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ *
+ */
+function(){"use strict";function e(e,t,i){var a=function(e,t){this.base=i,this.base(e),this.conversionFunction=t};return a.prototype=new i,a.prototype.pushValue=function(t,i,a,r){var n,o,s,c=this;s=c.conversionFunction(r),n=_.find(c.data,function(e){return e.iid===i}),angular.isDefined(n)&&null!==n?(n.values.push({x:t,y:s}),o=n.values.length-60*e.properties.window/e.properties.interval,o>0&&n.values.splice(0,o)):(n={key:angular.isDefined(a)?a:this.name,iid:i,values:[{x:t,y:s},{x:t+1,y:s}]},c.data.push(n))},a}e.$inject=["$rootScope","$log","SimpleMetric"],angular.module("app.metrics").factory("ConvertedMetric",e)}(),/**!
  *
  *  Copyright 2015 Netflix, Inc.
  *
@@ -389,109 +474,7 @@ function(){"use strict";function e(e,t,i){var a=function(){return this};return a
  *     limitations under the License.
  *
  */
-function(){"use strict";function e(e,t,i){var a=function(){return this};return a.prototype=Object.create(e.prototype),a.prototype.init=function(){e.prototype.init.call(this),this.name=this.dataModelOptions?this.dataModelOptions.name:"metric_"+i.getGuid();var a,r=function(e){return e/1024},n=t.getOrCreateConvertedMetric("mem.util.cached",r),o=t.getOrCreateConvertedMetric("mem.util.used",r),s=t.getOrCreateConvertedMetric("mem.freemem",r),c=t.getOrCreateConvertedMetric("mem.util.bufmem",r),l=t.getOrCreateCumulativeMetric("cgroup.memory.usage");a=function(){var e,t,i,a,r,d,u=[];return e=function(){if(o.data.length>0){var e=o.data[o.data.length-1];if(e.values.length>0)return e.values[e.values.length-1]}}(),t=function(){if(n.data.length>0){var e=n.data[n.data.length-1];if(e.values.length>0)return e.values[e.values.length-1]}}(),i=function(){if(s.data.length>0){var e=s.data[s.data.length-1];if(e.values.length>0)return d=e.values[e.values.length-1].x,e.values[e.values.length-1]}}(),a=function(){if(c.data.length>0){var e=c.data[c.data.length-1];if(e.values.length>0)return e.values[e.values.length-1]}}(),r=function(){var e=0;return angular.forEach(l.data,function(t){var i=d-t.previousTimestamp;t.values.length>0&&-1!==t.key.indexOf("docker/")&&5500>i&&(e+=t.previousValue/1024/1024)}),Math.round(e)}(),angular.isDefined(e)&&angular.isDefined(r)&&u.push({timestamp:e.x,key:"System used mem",value:e.y-r}),angular.isDefined(i)&&u.push({timestamp:e.x,key:"System free (unused)",value:i.y}),angular.isDefined(r)&&angular.isDefined(e)&&u.push({timestamp:e.x,key:"Container used mem",value:r}),u},this.metric=t.getOrCreateDerivedMetric(this.name,a),this.updateScope(this.metric.data)},a.prototype.destroy=function(){t.destroyDerivedMetric(this.name),t.destroyMetric("mem.util.used"),t.destroyMetric("mem.freemem"),t.destroyMetric("cgroup.memory.usage"),e.prototype.destroy.call(this)},a}e.$inject=["WidgetDataModel","MetricListService","VectorService"],angular.module("app.datamodels").factory("ContainerMemoryUtilizationMetricDataModel",e)}(),function(){"use strict";function e(e,t,i,a,r){var n=function(){return this};return n.prototype=Object.create(i.prototype),n.prototype.init=function(){i.prototype.init.call(this),this.name=this.dataModelOptions?this.dataModelOptions.name:"metric_"+r.getGuid();var t,n=a.getOrCreateCumulativeMetric("cgroup.memory.usage");t=function(){var t,i=[];return angular.forEach(n.data,function(a){if(a.values.length>0&&e.containerIdExist(a.key)){e.resolveId(a.key),t=a.values[a.values.length-1];var r=e.idDictionary(a.key)||a.key;e.checkGlobalFilter(r)&&i.push({timestamp:t.x,key:r,value:a.previousValue/1024/1024})}}),i},this.metric=a.getOrCreateDerivedMetric(this.name,t),this.updateScope(this.metric.data)},n.prototype.destroy=function(){a.destroyDerivedMetric(this.name),a.destroyMetric("cgroup.memory.usage"),i.prototype.destroy.call(this)},n}e.$inject=["ContainerMetadataService","$rootScope","WidgetDataModel","MetricListService","VectorService"],angular.module("app.datamodels").factory("ContainerMemoryBytesMetricTimeSeriesDataModel",e)}(),function(){"use strict";function e(e,t,i,a){var r=function(){return this};return r.prototype=Object.create(t.prototype),r.prototype.init=function(){t.prototype.init.call(this),this.name=this.dataModelOptions?this.dataModelOptions.name:"metric_"+a.getGuid();var r,n=i.getOrCreateCumulativeMetric("cgroup.cpuacct.stat.user"),o=i.getOrCreateCumulativeMetric("cgroup.cpuacct.stat.system");r=function(){var t=[],i=[];return n.data.length>0&&o.data.length>0&&(angular.forEach(n.data,function(t){e.setCurrentTime(t.previousTimestamp),t.values.length>0&&e.containerIdExist(t.key)&&(i.push(t.previousValue),e.resolveId(t.key))}),angular.forEach(o.data,function(a){if(a.values.length>0&&e.containerIdExist(a.key)){var r=a.values[a.values.length-1],n=e.idDictionary(a.key)||a.key;e.checkGlobalFilter(n)&&t.push({timestamp:r.x,key:n,value:a.previousValue/i.shift()/100})}})),t},this.metric=i.getOrCreateDerivedMetric(this.name,r),this.updateScope(this.metric.data)},r.prototype.destroy=function(){i.destroyDerivedMetric(this.name),i.destroyMetric("cgroup.cpuacct.stat.user"),i.destroyMetric("cgroup.cpuacct.stat.system"),t.prototype.destroy.call(this)},r}e.$inject=["ContainerMetadataService","WidgetDataModel","MetricListService","VectorService"],angular.module("app.datamodels").factory("ContainerCPUstatMetricTimeSeriesDataModel",e)}(),/**!
- *
- *  Copyright 2015 Netflix, Inc.
- *
- *     Licensed under the Apache License, Version 2.0 (the "License");
- *     you may not use this file except in compliance with the License.
- *     You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *     Unless required by applicable law or agreed to in writing, software
- *     distributed under the License is distributed on an "AS IS" BASIS,
- *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *     See the License for the specific language governing permissions and
- *     limitations under the License.
- *
- */
-function(){"use strict";function e(e){var t=function(e){this.name=e||null,this.data=[],this.subscribers=1};return t.prototype.toString=function(){return this.name},t.prototype.pushValue=function(t,i,a,r){var n,o,s=this;n=_.find(s.data,function(e){return e.iid===i}),angular.isDefined(n)&&null!==n?(n.values.push({x:t,y:r}),o=n.values.length-60*e.properties.window/e.properties.interval,o>0&&n.values.splice(0,o)):(n={key:angular.isDefined(a)?a:this.name,iid:i,values:[{x:t,y:r},{x:t+1,y:r}]},s.data.push(n))},t.prototype.clearData=function(){this.data.length=0},t}e.$inject=["$rootScope"],angular.module("app.metrics").factory("SimpleMetric",e)}(),/**!
- *
- *  Copyright 2015 Netflix, Inc.
- *
- *     Licensed under the Apache License, Version 2.0 (the "License");
- *     you may not use this file except in compliance with the License.
- *     You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *     Unless required by applicable law or agreed to in writing, software
- *     distributed under the License is distributed on an "AS IS" BASIS,
- *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *     See the License for the specific language governing permissions and
- *     limitations under the License.
- *
- */
-function(){"use strict";function e(e){var t=function(e,t){this.name=e,this.data=[],this.subscribers=1,this.derivedFunction=t};return t.prototype.updateValues=function(){var t,i=this;t=i.derivedFunction(),t.length!==i.data.length&&(i.data.length=0),angular.forEach(t,function(t){var a,r=_.find(i.data,function(e){return e.key===t.key});angular.isUndefined(r)?(r={key:t.key,values:[{x:t.timestamp,y:t.value},{x:t.timestamp+1,y:t.value}]},i.data.push(r)):(r.values.push({x:t.timestamp,y:t.value}),a=r.values.length-60*e.properties.window/e.properties.interval,a>0&&r.values.splice(0,a))})},t.prototype.clearData=function(){this.data.length=0},t}e.$inject=["$rootScope"],angular.module("app.metrics").factory("DerivedMetric",e)}(),/**!
- *
- *  Copyright 2015 Netflix, Inc.
- *
- *     Licensed under the Apache License, Version 2.0 (the "License");
- *     you may not use this file except in compliance with the License.
- *     You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *     Unless required by applicable law or agreed to in writing, software
- *     distributed under the License is distributed on an "AS IS" BASIS,
- *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *     See the License for the specific language governing permissions and
- *     limitations under the License.
- *
- */
-function(){"use strict";function e(e,t,i){var a=function(e,t){this.base=a,this.base(e),this.conversionFunction=t};return a.prototype=new i,a.prototype.pushValue=function(t,i,a,r){var n,o,s,c,l=this;n=_.find(l.data,function(e){return e.iid===i}),angular.isUndefined(n)?(n={key:angular.isDefined(a)?a:this.name,iid:i,values:[],previousValue:r,previousTimestamp:t},l.data.push(n)):(s=(r-n.previousValue)/(t-n.previousTimestamp),c=l.conversionFunction(s),n.values.push({x:t,y:c}),n.previousValue=r,n.previousTimestamp=t,o=n.values.length-60*e.properties.window/e.properties.interval,o>0&&n.values.splice(0,o))},a}e.$inject=["$rootScope","$log","SimpleMetric"],angular.module("app.metrics").factory("CumulativeConvertedMetric",e)}(),/**!
- *
- *  Copyright 2015 Netflix, Inc.
- *
- *     Licensed under the Apache License, Version 2.0 (the "License");
- *     you may not use this file except in compliance with the License.
- *     You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *     Unless required by applicable law or agreed to in writing, software
- *     distributed under the License is distributed on an "AS IS" BASIS,
- *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *     See the License for the specific language governing permissions and
- *     limitations under the License.
- *
- */
-function(){"use strict";function e(e,t,i){var a=function(e){this.base=i,this.base(e)};return a.prototype=new i,a.prototype.pushValue=function(t,i,a,r){var n,o,s,c=this;n=_.find(c.data,function(e){return e.iid===i}),angular.isUndefined(n)?(n={key:angular.isDefined(a)?a:this.name,iid:i,values:[],previousValue:r,previousTimestamp:t},c.data.push(n)):(s=(r-n.previousValue)/((t-n.previousTimestamp)/1e3),n.values.length<1?n.values.push({x:t,y:s},{x:t+1,y:s}):n.values.push({x:t,y:s}),n.previousValue=r,n.previousTimestamp=t,o=n.values.length-60*e.properties.window/e.properties.interval,o>0&&n.values.splice(0,o))},a}e.$inject=["$rootScope","$log","SimpleMetric"],angular.module("app.metrics").factory("CumulativeMetric",e)}(),/**!
- *
- *  Copyright 2015 Netflix, Inc.
- *
- *     Licensed under the Apache License, Version 2.0 (the "License");
- *     you may not use this file except in compliance with the License.
- *     You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *     Unless required by applicable law or agreed to in writing, software
- *     distributed under the License is distributed on an "AS IS" BASIS,
- *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *     See the License for the specific language governing permissions and
- *     limitations under the License.
- *
- */
-function(){"use strict";function e(e,t,i){var a=function(e,t){this.base=i,this.base(e),this.conversionFunction=t};return a.prototype=new i,a.prototype.pushValue=function(t,i,a,r){var n,o,s,c=this;s=c.conversionFunction(r),n=_.find(c.data,function(e){return e.iid===i}),angular.isDefined(n)&&null!==n?(n.values.push({x:t,y:s}),o=n.values.length-60*e.properties.window/e.properties.interval,o>0&&n.values.splice(0,o)):(n={key:angular.isDefined(a)?a:this.name,iid:i,values:[{x:t,y:s},{x:t+1,y:s}]},c.data.push(n))},a}e.$inject=["$rootScope","$log","SimpleMetric"],angular.module("app.metrics").factory("ConvertedMetric",e)}(),/**!
- *
- *  Copyright 2015 Netflix, Inc.
- *
- *     Licensed under the Apache License, Version 2.0 (the "License");
- *     you may not use this file except in compliance with the License.
- *     You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *     Unless required by applicable law or agreed to in writing, software
- *     distributed under the License is distributed on an "AS IS" BASIS,
- *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *     See the License for the specific language governing permissions and
- *     limitations under the License.
- *
- */
-function(){"use strict";function e(e,t,i,a,r,n,o,s,c,l,d){function u(){e[0].hidden||e[0].webkitHidden||e[0].mozHidden||e[0].msHidden?l.cancelInterval():l.updateInterval()}function p(){l.initializeProperties(),r.protocol&&(t.properties.protocol=r.protocol,i.info("Protocol: "+r.protocol)),r.host&&(m.inputHost=r.host,i.info("Host: "+r.host),r.hostspec&&(t.properties.hostspec=r.hostspec,i.info("Hostspec: "+r.hostspec)),l.updateHost(m.inputHost)),e[0].addEventListener("visibilitychange",u,!1),e[0].addEventListener("webkitvisibilitychange",u,!1),e[0].addEventListener("msvisibilitychange",u,!1),e[0].addEventListener("mozvisibilitychange",u,!1),i.info("Dashboard controller initialized with "+g+" view.")}var m=this,g=a.current.$$route.originalPath,h=s;if(void 0!==r.widgets){var f=r.widgets.split(",")||[];h=f.reduce(function(e,t){return e.concat(o.filter(function(e){return e.name===t}))},[])}else{var v=s.reduce(function(e,t){return e.push(t.name),e},[]).join();n.search("widgets",v)}m.dashboardOptions={hideToolbar:!0,widgetButtons:!1,hideWidgetName:!0,hideWidgetSettings:!0,widgetDefinitions:o,defaultWidgets:h},m.version=d.id,m.embed=c,m.addWidgetToURL=function(e){var t="";void 0===r.widgets?r.widgets="":t=",",e.length?(r.widgets="",t=e.reduce(function(e,t){return e.push(t.name),e},[]).join()):t+=e.name,n.search("widgets",r.widgets+t)},m.removeWidgetFromURL=function(e){for(var t=r.widgets.split(",")||[],i=0;i<t.length;i++)if(t[i]===e.name){t.splice(i,1);break}t.length<1?n.search("widgets",null):n.search("widgets",t.toString())},m.removeAllWidgetFromURL=function(){n.search("widgets",null)},m.updateGlobalFilter=function(){l.updateGlobalFilter(m.globalFilter)},m.updateInterval=l.updateInterval,m.updateHost=function(){l.updateHost(m.inputHost)},m.updateWindow=l.updateWindow,m.globalFilter="",m.isHostnameExpanded=!1,m.inputHost="",p()}e.$inject=["$document","$rootScope","$log","$route","$routeParams","$location","widgetDefinitions","widgets","embed","DashboardService","vectorVersion"],angular.module("app.controllers",[]).controller("DashboardController",e)}(),nv.models.tooltip=function(){function e(){if(!u){var e=document.body;u=d3.select(e).append("div").attr("class","nvtooltip "+(s?s:"xy-tooltip")).attr("id",i),u.style("top",0).style("left",0),u.style("opacity",0),u.style("position","fixed"),u.selectAll("div, table, td, tr").classed(f,!0),u.classed(f,!0)}}function t(){return m&&w(a)?(nv.dom.write(function(){e();var t=k(a);t&&(u.node().innerHTML=t),x()}),t):void 0}var i="nvtooltip-"+Math.floor(1e5*Math.random()),a=null,r="w",n=25,o=0,s=null,c=null,l=!0,d=200,u=null,p={left:null,top:null},m=!0,g=100,h=!0,f="nv-pointer-events-none",v=function(){return{left:d3.event.clientX,top:d3.event.clientY}},y=function(e){return e},b=function(e){return e},M=function(e){return e},k=function(e){if(null===e)return"";var t=d3.select(document.createElement("table"));if(h){var i=t.selectAll("thead").data([e]).enter().append("thead");i.append("tr").append("td").attr("colspan",3).append("strong").classed("x-value",!0).html(b(e.value))}var a=t.selectAll("tbody").data([e]).enter().append("tbody"),r=a.selectAll("tr").data(function(e){return e.series}).enter().append("tr").classed("highlight",function(e){return e.highlight});r.append("td").classed("legend-color-guide",!0).append("div").style("background-color",function(e){return e.color}),r.append("td").classed("key",!0).classed("total",function(e){return!!e.total}).html(function(e,t){return M(e.key,t)}),r.append("td").classed("value",!0).html(function(e,t){return y(e.value,t)}),r.selectAll("td").each(function(e){if(e.highlight){var t=d3.scale.linear().domain([0,1]).range(["#fff",e.color]),i=.6;d3.select(this).style("border-bottom-color",t(i)).style("border-top-color",t(i))}});var n=t.node().outerHTML;return void 0!==e.footer&&(n+='<div class="footer">'+e.footer+"</div>"),n},w=function(e){if(e&&e.series){if(e.series instanceof Array)return!!e.series.length;if(e.series instanceof Object)return e.series=[e.series],!0}return!1},C=function(e){var t,i,a,o=u.node().offsetHeight,s=u.node().offsetWidth,c=document.documentElement.clientWidth,l=document.documentElement.clientHeight;switch(r){case"e":t=-s-n,i=-(o/2),e.left+t<0&&(t=n),(a=e.top+i)<0&&(i-=a),(a=e.top+i+o)>l&&(i-=a-l);break;case"w":t=n,i=-(o/2),e.left+t+s>c&&(t=-s-n),(a=e.top+i)<0&&(i-=a),(a=e.top+i+o)>l&&(i-=a-l);break;case"n":t=-(s/2)-5,i=n,e.top+i+o>l&&(i=-o-n),(a=e.left+t)<0&&(t-=a),(a=e.left+t+s)>c&&(t-=a-c);break;case"s":t=-(s/2),i=-o-n,e.top+i<0&&(i=n),(a=e.left+t)<0&&(t-=a),(a=e.left+t+s)>c&&(t-=a-c);break;case"center":t=-(s/2),i=-(o/2);break;default:t=0,i=0}return{left:t,top:i}},x=function(){nv.dom.read(function(){var e=v(),t=C(e),i=e.left+t.left,a=e.top+t.top;if(l)u.interrupt().transition().delay(d).duration(0).style("opacity",0);else{var r="translate("+p.left+"px, "+p.top+"px)",n="translate("+i+"px, "+a+"px)",o=d3.interpolateString(r,n),s=u.style("opacity")<.1;u.interrupt().transition().duration(s?0:g).styleTween("transform",function(){return o},"important").styleTween("-webkit-transform",function(){return o}).style("-ms-transform",n).style("opacity",1)}p.left=i,p.top=a})};return t.nvPointerEventsClass=f,t.options=nv.utils.optionsFunc.bind(t),t._options=Object.create({},{duration:{get:function(){return g},set:function(e){g=e}},gravity:{get:function(){return r},set:function(e){r=e}},distance:{get:function(){return n},set:function(e){n=e}},snapDistance:{get:function(){return o},set:function(e){o=e}},classes:{get:function(){return s},set:function(e){s=e}},chartContainer:{get:function(){return c},set:function(e){c=e}},enabled:{get:function(){return m},set:function(e){m=e}},hideDelay:{get:function(){return d},set:function(e){d=e}},contentGenerator:{get:function(){return k},set:function(e){k=e}},valueFormatter:{get:function(){return y},set:function(e){y=e}},headerFormatter:{get:function(){return b},set:function(e){b=e}},keyFormatter:{get:function(){return M},set:function(e){M=e}},headerEnabled:{get:function(){return h},set:function(e){h=e}},position:{get:function(){return v},set:function(e){v=e}},hidden:{get:function(){return l},set:function(e){l!==e&&(l=!!e,t())}},data:{get:function(){return a},set:function(e){e.point&&(e.value=e.point.x,e.series=e.series||{},e.series.value=e.point.y,e.series.color=e.point.color||e.series.color),a=e}},node:{get:function(){return u.node()},set:function(){}},id:{get:function(){return i},set:function(){}}}),nv.utils.initOptions(t),t},/**!
+function(){"use strict";function e(e,t,i){var a=function(){return this};return a.prototype=Object.create(e.prototype),a.prototype.init=function(){e.prototype.init.call(this),this.name=this.dataModelOptions?this.dataModelOptions.name:"metric_"+i.getGuid();var a,r=function(e){return e/1024},n=t.getOrCreateConvertedMetric("mem.util.cached",r),o=t.getOrCreateConvertedMetric("mem.util.used",r),s=t.getOrCreateConvertedMetric("mem.freemem",r),c=t.getOrCreateConvertedMetric("mem.util.bufmem",r),l=t.getOrCreateCumulativeMetric("cgroup.memory.usage");a=function(){var e,t,i,a,r,d,u=[];return e=function(){if(o.data.length>0){var e=o.data[o.data.length-1];if(e.values.length>0)return e.values[e.values.length-1]}}(),t=function(){if(n.data.length>0){var e=n.data[n.data.length-1];if(e.values.length>0)return e.values[e.values.length-1]}}(),i=function(){if(s.data.length>0){var e=s.data[s.data.length-1];if(e.values.length>0)return d=e.values[e.values.length-1].x,e.values[e.values.length-1]}}(),a=function(){if(c.data.length>0){var e=c.data[c.data.length-1];if(e.values.length>0)return e.values[e.values.length-1]}}(),r=function(){var e=0;return angular.forEach(l.data,function(t){var i=d-t.previousTimestamp;t.values.length>0&&-1!==t.key.indexOf("docker/")&&5500>i&&(e+=t.previousValue/1024/1024)}),Math.round(e)}(),angular.isDefined(e)&&angular.isDefined(r)&&u.push({timestamp:e.x,key:"System used mem",value:e.y-r}),angular.isDefined(i)&&u.push({timestamp:e.x,key:"System free (unused)",value:i.y}),angular.isDefined(r)&&angular.isDefined(e)&&u.push({timestamp:e.x,key:"Container used mem",value:r}),u},this.metric=t.getOrCreateDerivedMetric(this.name,a),this.updateScope(this.metric.data)},a.prototype.destroy=function(){t.destroyDerivedMetric(this.name),t.destroyMetric("mem.util.used"),t.destroyMetric("mem.freemem"),t.destroyMetric("cgroup.memory.usage"),e.prototype.destroy.call(this)},a}e.$inject=["WidgetDataModel","MetricListService","VectorService"],angular.module("app.datamodels").factory("ContainerMemoryUtilizationMetricDataModel",e)}(),function(){"use strict";function e(e,t,i,a,r){var n=function(){return this};return n.prototype=Object.create(i.prototype),n.prototype.init=function(){i.prototype.init.call(this),this.name=this.dataModelOptions?this.dataModelOptions.name:"metric_"+r.getGuid();var t,n=a.getOrCreateCumulativeMetric("cgroup.memory.usage");t=function(){var t,i=[];return angular.forEach(n.data,function(a){if(a.values.length>0&&e.containerIdExist(a.key)){e.resolveId(a.key),t=a.values[a.values.length-1];var r=e.idDictionary(a.key)||a.key;e.checkGlobalFilter(r)&&i.push({timestamp:t.x,key:r,value:a.previousValue/1024/1024})}}),i},this.metric=a.getOrCreateDerivedMetric(this.name,t),this.updateScope(this.metric.data)},n.prototype.destroy=function(){a.destroyDerivedMetric(this.name),a.destroyMetric("cgroup.memory.usage"),i.prototype.destroy.call(this)},n}e.$inject=["ContainerMetadataService","$rootScope","WidgetDataModel","MetricListService","VectorService"],angular.module("app.datamodels").factory("ContainerMemoryBytesMetricTimeSeriesDataModel",e)}(),function(){"use strict";function e(e,t,i,a){var r=function(){return this};return r.prototype=Object.create(t.prototype),r.prototype.init=function(){t.prototype.init.call(this),this.name=this.dataModelOptions?this.dataModelOptions.name:"metric_"+a.getGuid();var r,n=i.getOrCreateCumulativeMetric("cgroup.cpuacct.stat.user"),o=i.getOrCreateCumulativeMetric("cgroup.cpuacct.stat.system");r=function(){var t=[],i=[];return n.data.length>0&&o.data.length>0&&(angular.forEach(n.data,function(t){e.setCurrentTime(t.previousTimestamp),t.values.length>0&&e.containerIdExist(t.key)&&(i.push(t.previousValue),e.resolveId(t.key))}),angular.forEach(o.data,function(a){if(a.values.length>0&&e.containerIdExist(a.key)){var r=a.values[a.values.length-1],n=e.idDictionary(a.key)||a.key;e.checkGlobalFilter(n)&&t.push({timestamp:r.x,key:n,value:a.previousValue/i.shift()/100})}})),t},this.metric=i.getOrCreateDerivedMetric(this.name,r),this.updateScope(this.metric.data)},r.prototype.destroy=function(){i.destroyDerivedMetric(this.name),i.destroyMetric("cgroup.cpuacct.stat.user"),i.destroyMetric("cgroup.cpuacct.stat.system"),t.prototype.destroy.call(this)},r}e.$inject=["ContainerMetadataService","WidgetDataModel","MetricListService","VectorService"],angular.module("app.datamodels").factory("ContainerCPUstatMetricTimeSeriesDataModel",e)}(),nv.models.tooltip=function(){function e(){if(!u){var e=document.body;u=d3.select(e).append("div").attr("class","nvtooltip "+(s?s:"xy-tooltip")).attr("id",i),u.style("top",0).style("left",0),u.style("opacity",0),u.style("position","fixed"),u.selectAll("div, table, td, tr").classed(f,!0),u.classed(f,!0)}}function t(){return m&&w(a)?(nv.dom.write(function(){e();var t=k(a);t&&(u.node().innerHTML=t),x()}),t):void 0}var i="nvtooltip-"+Math.floor(1e5*Math.random()),a=null,r="w",n=25,o=0,s=null,c=null,l=!0,d=200,u=null,p={left:null,top:null},m=!0,g=100,h=!0,f="nv-pointer-events-none",v=function(){return{left:d3.event.clientX,top:d3.event.clientY}},y=function(e){return e},b=function(e){return e},M=function(e){return e},k=function(e){if(null===e)return"";var t=d3.select(document.createElement("table"));if(h){var i=t.selectAll("thead").data([e]).enter().append("thead");i.append("tr").append("td").attr("colspan",3).append("strong").classed("x-value",!0).html(b(e.value))}var a=t.selectAll("tbody").data([e]).enter().append("tbody"),r=a.selectAll("tr").data(function(e){return e.series}).enter().append("tr").classed("highlight",function(e){return e.highlight});r.append("td").classed("legend-color-guide",!0).append("div").style("background-color",function(e){return e.color}),r.append("td").classed("key",!0).classed("total",function(e){return!!e.total}).html(function(e,t){return M(e.key,t)}),r.append("td").classed("value",!0).html(function(e,t){return y(e.value,t)}),r.selectAll("td").each(function(e){if(e.highlight){var t=d3.scale.linear().domain([0,1]).range(["#fff",e.color]),i=.6;d3.select(this).style("border-bottom-color",t(i)).style("border-top-color",t(i))}});var n=t.node().outerHTML;return void 0!==e.footer&&(n+='<div class="footer">'+e.footer+"</div>"),n},w=function(e){if(e&&e.series){if(e.series instanceof Array)return!!e.series.length;if(e.series instanceof Object)return e.series=[e.series],!0}return!1},C=function(e){var t,i,a,o=u.node().offsetHeight,s=u.node().offsetWidth,c=document.documentElement.clientWidth,l=document.documentElement.clientHeight;switch(r){case"e":t=-s-n,i=-(o/2),e.left+t<0&&(t=n),(a=e.top+i)<0&&(i-=a),(a=e.top+i+o)>l&&(i-=a-l);break;case"w":t=n,i=-(o/2),e.left+t+s>c&&(t=-s-n),(a=e.top+i)<0&&(i-=a),(a=e.top+i+o)>l&&(i-=a-l);break;case"n":t=-(s/2)-5,i=n,e.top+i+o>l&&(i=-o-n),(a=e.left+t)<0&&(t-=a),(a=e.left+t+s)>c&&(t-=a-c);break;case"s":t=-(s/2),i=-o-n,e.top+i<0&&(i=n),(a=e.left+t)<0&&(t-=a),(a=e.left+t+s)>c&&(t-=a-c);break;case"center":t=-(s/2),i=-(o/2);break;default:t=0,i=0}return{left:t,top:i}},x=function(){nv.dom.read(function(){var e=v(),t=C(e),i=e.left+t.left,a=e.top+t.top;if(l)u.interrupt().transition().delay(d).duration(0).style("opacity",0);else{var r="translate("+p.left+"px, "+p.top+"px)",n="translate("+i+"px, "+a+"px)",o=d3.interpolateString(r,n),s=u.style("opacity")<.1;u.interrupt().transition().duration(s?0:g).styleTween("transform",function(){return o},"important").styleTween("-webkit-transform",function(){return o}).style("-ms-transform",n).style("opacity",1)}p.left=i,p.top=a})};return t.nvPointerEventsClass=f,t.options=nv.utils.optionsFunc.bind(t),t._options=Object.create({},{duration:{get:function(){return g},set:function(e){g=e}},gravity:{get:function(){return r},set:function(e){r=e}},distance:{get:function(){return n},set:function(e){n=e}},snapDistance:{get:function(){return o},set:function(e){o=e}},classes:{get:function(){return s},set:function(e){s=e}},chartContainer:{get:function(){return c},set:function(e){c=e}},enabled:{get:function(){return m},set:function(e){m=e}},hideDelay:{get:function(){return d},set:function(e){d=e}},contentGenerator:{get:function(){return k},set:function(e){k=e}},valueFormatter:{get:function(){return y},set:function(e){y=e}},headerFormatter:{get:function(){return b},set:function(e){b=e}},keyFormatter:{get:function(){return M},set:function(e){M=e}},headerEnabled:{get:function(){return h},set:function(e){h=e}},position:{get:function(){return v},set:function(e){v=e}},hidden:{get:function(){return l},set:function(e){l!==e&&(l=!!e,t())}},data:{get:function(){return a},set:function(e){e.point&&(e.value=e.point.x,e.series=e.series||{},e.series.value=e.point.y,e.series.color=e.point.color||e.series.color),a=e}},node:{get:function(){return u.node()},set:function(){}},id:{get:function(){return i},set:function(){}}}),nv.utils.initOptions(t),t},/**!
  *
  *  Copyright 2015 Netflix, Inc.
  *
@@ -560,6 +543,23 @@ function(){"use strict";function e(e,t,i,a){function r(r){r.host=e.properties.ho
  *
  */
 function(){"use strict";function e(e,t,i){function a(t){t.id=i.getId(),t.flags=e.flags,t.legend=!0;var a;nv.addGraph(function(){var e=i.yAxisTickFormat(),r=250;return a=nv.models.stackedAreaChart().options({duration:0,useInteractiveGuideline:!0,interactive:!1,showLegend:!0,showXAxis:!0,showYAxis:!0,showControls:!1}),a.margin({left:35,right:35}),a.height(r),t.forcey&&a.yDomain([0,t.forcey]),a.x(i.xFunction()),a.y(i.yFunction()),a.xAxis.tickFormat(i.xAxisTickFormat()),t.percentage?(e=i.yAxisPercentageTickFormat(),a.yAxis.tickFormat()):t.integer&&(e=i.yAxisIntegerTickFormat(),a.yAxis.tickFormat()),a.yAxis.tickFormat(e),a.interactiveLayer.tooltip.contentGenerator(function(t){var i=t.value,a='<thead><tr><td colspan="3"><strong class="x-value">'+i+"</strong></td></tr></thead>",r="<tbody>",n=t.series;return n.forEach(function(t){r=r+'<tr><td class="legend-color-guide"><div style="background-color: '+t.color+';"></div></td><td class="key">'+t.key+'</td><td class="value">'+e(t.value)+"</td></tr>"}),r+="</tbody>","<table>"+a+r+"</table>"}),nv.utils.windowResize(a.update),d3.select("#"+t.id+" svg").datum(t.data).style("height",r+"px").transition().duration(0).call(a),a}),t.$on("updateMetrics",function(){a.update()})}return{restrict:"A",templateUrl:"app/charts/nvd3-chart.html",scope:{data:"=",percentage:"=",integer:"=",forcey:"="},link:a}}e.$inject=["$rootScope","$log","D3Service"],angular.module("app.charts").directive("areaStackedTimeSeries",e)}(),/**!
+ *
+ *  Copyright 2015 Netflix, Inc.
+ *
+ *     Licensed under the Apache License, Version 2.0 (the "License");
+ *     you may not use this file except in compliance with the License.
+ *     You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *     Unless required by applicable law or agreed to in writing, software
+ *     distributed under the License is distributed on an "AS IS" BASIS,
+ *     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *     See the License for the specific language governing permissions and
+ *     limitations under the License.
+ *
+ */
+function(){"use strict";function e(e,t,i,a,r,n,o,s,c,l,d){function u(){e[0].hidden||e[0].webkitHidden||e[0].mozHidden||e[0].msHidden?l.cancelInterval():l.updateInterval()}function p(){l.initializeProperties(),r.protocol&&(t.properties.protocol=r.protocol,i.info("Protocol: "+r.protocol)),r.host&&(m.inputHost=r.host,i.info("Host: "+r.host),r.hostspec&&(t.properties.hostspec=r.hostspec,i.info("Hostspec: "+r.hostspec)),l.updateHost(m.inputHost)),e[0].addEventListener("visibilitychange",u,!1),e[0].addEventListener("webkitvisibilitychange",u,!1),e[0].addEventListener("msvisibilitychange",u,!1),e[0].addEventListener("mozvisibilitychange",u,!1),i.info("Dashboard controller initialized with "+g+" view.")}var m=this,g=a.current.$$route.originalPath,h=s;if(void 0!==r.widgets){var f=r.widgets.split(",")||[];h=f.reduce(function(e,t){return e.concat(o.filter(function(e){return e.name===t}))},[])}else{var v=s.reduce(function(e,t){return e.push(t.name),e},[]).join();n.search("widgets",v)}m.dashboardOptions={hideToolbar:!0,widgetButtons:!1,hideWidgetName:!0,hideWidgetSettings:!0,widgetDefinitions:o,defaultWidgets:h},m.version=d.id,m.embed=c,m.addWidgetToURL=function(e){var t="";void 0===r.widgets?r.widgets="":t=",",e.length?(r.widgets="",t=e.reduce(function(e,t){return e.push(t.name),e},[]).join()):t+=e.name,n.search("widgets",r.widgets+t)},m.removeWidgetFromURL=function(e){for(var t=r.widgets.split(",")||[],i=0;i<t.length;i++)if(t[i]===e.name){t.splice(i,1);break}t.length<1?n.search("widgets",null):n.search("widgets",t.toString())},m.removeAllWidgetFromURL=function(){n.search("widgets",null)},m.updateGlobalFilter=function(){l.updateGlobalFilter(m.globalFilter)},m.updateInterval=l.updateInterval,m.updateHost=function(){l.updateHost(m.inputHost)},m.updateWindow=l.updateWindow,m.globalFilter="",m.isHostnameExpanded=!1,m.inputHost="",p()}e.$inject=["$document","$rootScope","$log","$route","$routeParams","$location","widgetDefinitions","widgets","embed","DashboardService","vectorVersion"],angular.module("app.controllers",[]).controller("DashboardController",e)}(),/**!
  *
  *  Copyright 2015 Netflix, Inc.
  *
