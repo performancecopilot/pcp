@@ -210,7 +210,7 @@ Monitor live disk write operations per partition with two second interval using 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor live CPU load, memory usage, and disk write operations per partition with two second interval using fixed width columns:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -i -l 'kernel.all.load[1]' mem.util.used disk.partitions.write -h acme.com</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -Xlimu -t 2sec 'kernel.all.load[1]' mem.util.used disk.partitions.write -h acme.com</B>
 </TD></TR>
 </TABLE>
 
@@ -306,7 +306,7 @@ Calculate average values of performance metrics in an archive between 9 AM / 10 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Dump past CPU load, memory usage, and disk write operations per partition in an archive averaged over 10 minute interval with fixed columns between 9 AM and 10 AM:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -t 10m -i -l -S @09:00 -T @10:00 'kernel.all.load[1]' 'mem.util.used' 'disk.partitions.write' -a acme.com/20140902</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -Xlimu -t 10m -S @09:00 -T @10:00 'kernel.all.load[1]' 'mem.util.used' 'disk.partitions.write' -a acme.com/20140902</B>
 </TD></TR>
 </TABLE>
 
@@ -408,7 +408,7 @@ Monitor the number of open file descriptors of the process 1234:<BR><B>
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor the CPU time, memory usage (RSS), and the number of threads of the process 1234 (<EM>-h local:</EM> is a workaround needed for the time being):<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -h local: -t 2sec 'proc.psinfo.utime[1234]' 'proc.memory.rss[1234]' 'proc.psinfo.threads[1234]'</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmdumptext.1.html">pmdumptext</a> -Xlimu -t 2sec 'proc.psinfo.utime[1234]' 'proc.memory.rss[1234]' 'proc.psinfo.threads[1234]' -h local:</B>
 </TD></TR>
 </TABLE>
 
