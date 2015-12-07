@@ -136,9 +136,10 @@ class pmErr(Exception):
     def message(self):
         errStr = create_string_buffer(c_api.PM_MAXERRMSGLEN)
         errStr = LIBPCP.pmErrStr_r(self.args[0], errStr, c_api.PM_MAXERRMSGLEN)
+        result = str(errStr.decode())
         for index in range(1, len(self.args)):
-            errStr += b" " + str(self.args[index]).encode('utf-8')
-        return str(errStr.decode())
+            result += " " + str(self.args[index])
+        return result
 
     def progname(self):
         return str(c_char_p.in_dll(LIBPCP, "pmProgname").value.decode())
@@ -1280,7 +1281,7 @@ class pmContext(object):
             expr = expr.encode('utf-8')
         string = LIBPCP.pmRegisterDerived(name, expr)
         if string != None:
-            failure = ['@', string.decode()]
+            failure = ['@', str(string.decode())]
             raise pmErr(c_api.PM_ERR_GENERIC, failure)
         status = LIBPCP.pmReconnectContext(self.ctx)
         if status < 0:
