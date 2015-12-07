@@ -43,7 +43,7 @@ _zbx_header()
     sed -e 's/{//g' | \
     od -c | \
     sed -n 1p | \
-    sed -e 's/001 [0-9][0-9][0-9] 002/001 NNN 002/g'
+    sed -e 's/ D 001.*/ D/g'
 }
 
 zabbix_port=`_find_free_port`

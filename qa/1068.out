@@ -1,6 +1,6 @@
 QA output created by 1068
 == Zabbix server input ===
-header: 0000000   Z   B   X   D 001 NNN 002  \0  \0  \0  \0  \0  \0  \n
+header: 0000000   Z   B   X   D
 body:
 {
 	"request":"sender data",
