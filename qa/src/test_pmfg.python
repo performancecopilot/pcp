@@ -62,13 +62,12 @@ def test_pmfg_live(self, ctx):
 def test_pmfg_pmns(self, ctx):
 
     metrics = []
-    def callback(pmfg, name, metrics):
+    pmfg = pmapi.fetchgroup(ctx)
+    def callback(name):
         vv = pmfg.extend_indom(name, c_api.PM_TYPE_STRING, scale="instant") # no rate conversion
         metrics.append((name, vv))
 
-    pmfg = pmapi.fetchgroup(ctx)
-    ctx.pmTraversePMNS("sample.long",
-                       (lambda name: callback(pmfg, name, metrics)))
+    ctx.pmTraversePMNS("sample.long", callback)
     self.assertTrue(len(metrics) == 7)
 
     for _ in range(3):
