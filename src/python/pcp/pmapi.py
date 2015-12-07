@@ -2170,9 +2170,9 @@ class fetchgroup(object):
             raise pmErr(-errno.EINVAL)
         v = fetchgroup.fetchgroup_item(mtype)
         sts = LIBPCP.pmExtendFetchGroup_item(self.pmfg,
-                                             c_char_p(metric.encode("utf-8") if metric else None),
-                                             c_char_p(instance.encode("utf-8") if instance else None),
-                                             c_char_p(scale.encode("utf-8") if scale else None),
+                                             c_char_p(metric.encode('utf-8') if metric else None),
+                                             c_char_p(instance.encode('utf-8') if instance else None),
+                                             c_char_p(scale.encode('utf-8') if scale else None),
                                              pointer(v.value), c_int(mtype),
                                              pointer(v.sts))
         if sts < 0:
@@ -2191,8 +2191,8 @@ class fetchgroup(object):
             raise pmErr(-errno.EINVAL)
         vv = fetchgroup.fetchgroup_indom(mtype, maxnum)
         sts = LIBPCP.pmExtendFetchGroup_indom(self.pmfg,
-                                              c_char_p(metric.encode("utf-8") if metric else None),
-                                              c_char_p(scale.encode("utf-8") if scale else None),
+                                              c_char_p(metric.encode('utf-8') if metric else None),
+                                              c_char_p(scale.encode('utf-8') if scale else None),
                                               cast(pointer(vv.icodes), POINTER(c_int)),
                                               cast(pointer(vv.inames), POINTER(c_char_p)),
                                               cast(pointer(vv.values), POINTER(pmAtomValue)),
