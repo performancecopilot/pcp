@@ -1806,7 +1806,7 @@ class pmContext(object):
 
     @staticmethod
     def pmErrStr(code):
-        """PMAPI - Return value from environment or pcp config file """
+        """PMAPI - Convert an error code to a readable string  """
         errstr = ctypes.create_string_buffer(c_api.PM_MAXERRMSGLEN)
         result = LIBPCP.pmErrStr_r(code, errstr, c_api.PM_MAXERRMSGLEN)
         return str(result.decode())
