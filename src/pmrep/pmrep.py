@@ -1132,7 +1132,10 @@ class PMReporter(object):
         # Derived metrics need to be passed to pmlogger(1) via env/file
         if self.derived:
             if self.derived.startswith("/") or self.derived.startswith("."):
-                os.environ['PCP_DERIVED_CONFIG'] = self.derived
+                if not os.environ.get('PCP_DERIVED_CONFIG'):
+                    os.environ['PCP_DERIVED_CONFIG'] = self.derived
+                else:
+                    os.environ['PCP_DERIVED_CONFIG'] = os.environ['PCP_DERIVED_CONFIG'] + ":" + self.derived
             else:
                 drvf = self.archive + ".derived"
                 if os.path.exists(drvf):
@@ -1142,7 +1145,10 @@ class PMReporter(object):
                 for definition in self.derived.split(","):
                     drv.write(definition.strip() + "\n")
                 drv.close()
-                os.environ['PCP_DERIVED_CONFIG'] = drvf
+                if not os.environ.get('PCP_DERIVED_CONFIG'):
+                    os.environ['PCP_DERIVED_CONFIG'] = drvf
+                else:
+                    os.environ['PCP_DERIVED_CONFIG'] = os.environ['PCP_DERIVED_CONFIG'] + ":" + drvf
 
         # Create the archive folio using pmgui
         context = pmgui.GuiClient()
