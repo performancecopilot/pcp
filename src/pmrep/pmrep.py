@@ -1124,6 +1124,21 @@ class PMReporter(object):
         # We're not a graphical app, disable popups
         os.environ['PCP_XCONFIRM_PROG'] = '/bin/true'
 
+        # Derived metrics need to be passed to pmlogger(1) via env/file
+        if self.derived:
+            if self.derived.startswith("/") or self.derived.startswith("."):
+                os.environ['PCP_DERIVED_CONFIG'] = self.derived
+            else:
+                drvf = self.archive + ".derived"
+                if os.path.exists(drvf):
+                    sys.stderr.write("Derived metrics configuration file %s already exists.\n" % drvf)
+                    sys.exit(1)
+                drv = open(drvf, "a+")
+                for definition in self.derived.split(","):
+                    drv.write(definition.strip() + "\n")
+                drv.close()
+                os.environ['PCP_DERIVED_CONFIG'] = drvf
+
         # Create the archive folio using pmgui
         context = pmgui.GuiClient()
         config = "log mandatory on every " + str(int(self.interval)) + " sec {\n"
