@@ -1125,7 +1125,7 @@ class PMReporter(object):
                 sys.stdout.write("...\n(Ctrl-C to stop)\n")
 
     def write_archive_pmgui(self):
-        """ Write an archive entry using pmgui """
+        """ Write archive using pmgui """
         # We're not a graphical app, disable popups
         os.environ['PCP_XCONFIRM_PROG'] = '/bin/true'
 
@@ -1185,7 +1185,7 @@ class PMReporter(object):
         sys.stdout.write("\rComplete: 100%.\n")
 
     def write_archive_pmi(self, timestamp, values):
-        """ Write an archive entry using pmi """
+        """ Write an archive record using pmi """
         if timestamp == None and values == None:
             # Complete and close
             self.log.pmiEnd()
@@ -1232,12 +1232,12 @@ class PMReporter(object):
             self.log.pmiWrite(self.ctstamp.tv_sec, self.ctstamp.tv_usec)
 
     def write_csv(self, timestamp, values):
-        """ Write a line in CSV format """
+        """ Write results in CSV format """
         if timestamp == None and values == None:
             # Silent goodbye
             return
 
-        # CSV is always raw not rate
+        # Print the results
         for i, metric in enumerate(self.metrics):
             ins = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
             for j in range(ins):
@@ -1249,7 +1249,11 @@ class PMReporter(object):
                     line += timestamp + self.delimiter
                 line += str(self.metrics[metric][0]) + self.delimiter
                 line += str(self.metrics[metric][2][0]) + self.delimiter
-                line += str(list(values[i])[j][2])
+                if type(list(values[i])[j][2]) is float:
+                    fmt = "." + str(self.precision) + "f"
+                    line += format(list(values[i])[j][2], fmt)
+                else:
+                    line += str(list(values[i])[j][2])
                 print(line)
 
     def write_stdout(self, timestamp, values):
@@ -1347,7 +1351,7 @@ class PMReporter(object):
                 self.zabbix_metrics = []
             return
 
-        # Zabbix is always raw not rate
+        # Collect the results
         ts = float(self.ctstamp)
         if self.zabbix_prevsend == None:
             self.zabbix_prevsend = ts
@@ -1360,6 +1364,7 @@ class PMReporter(object):
                 val = str(list(values[i])[j][2])
                 self.zabbix_metrics.append(ZabbixMetric(self.zabbix_host, key, val, ts))
 
+        # Send when need
         if self.context.type == PM_CONTEXT_ARCHIVE:
             if len(self.zabbix_metrics) >= self.zabbix_interval:
                 send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
