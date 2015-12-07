@@ -482,8 +482,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
      * separately with the help of the PMDA, if possible
      */
     for (i = 0; i < numids; i++) {
-	if (idlist[i] == PM_ID_NULL ||
-	    pmid_domain(idlist[i]) != DYNAMIC_PMID || pmid_item(idlist[i]) != 0)
+	if (idlist[i] == PM_ID_NULL || !IS_DYNAMIC_ROOT(idlist[i]))
 	    continue;
 	lsts = 0;
 	domain = pmid_cluster(idlist[i]);
@@ -611,7 +610,7 @@ DoPMNSChild(ClientInfo *cp, __pmPDU *pb)
 
     namelist[0] = name;
     sts = pmLookupName(1, namelist, idlist);
-    if (sts == 1 && pmid_domain(idlist[0]) == DYNAMIC_PMID && pmid_item(idlist[0]) == 0) {
+    if (sts == 1 && IS_DYNAMIC_ROOT(idlist[0])) {
 	int		domain = pmid_cluster(idlist[0]);
 	AgentInfo	*ap = NULL;
 	if ((ap = FindDomainAgent(domain)) == NULL) {
@@ -788,7 +787,7 @@ traverse_dynamic(ClientInfo *cp, char *start, int *num_names, char ***names)
 	sts = pmLookupName(1, namelist, idlist);
 	if (sts < 1)
 	    continue;
-	if (pmid_domain(idlist[0]) == DYNAMIC_PMID && pmid_item(idlist[0]) == 0) {
+	if (IS_DYNAMIC_ROOT(idlist[0])) {
 	    int		domain = pmid_cluster(idlist[0]);
 	    AgentInfo	*ap;
 	    if ((ap = FindDomainAgent(domain)) == NULL)
