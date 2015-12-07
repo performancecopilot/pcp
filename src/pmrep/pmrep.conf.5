@@ -15,10 +15,8 @@
 .\"
 .\"
 .TH PMREP.CONF 5 "PCP" "Performance Co-Pilot"
-
 .SH NAME
 \f3pmrep.conf\f1 \- pmrep configuration file
-
 .SH DESCRIPTION
 .B pmrep
 is a customizable performance metrics reporting tool. Any available
@@ -54,13 +52,11 @@ See below for the \fImetricset\fR specification.
 Configuration file parameters override the corresponding built-in
 default values (if any). Command line parameters override the
 corresponding configuration file parameters (if any).
-
 .SH FILE FORMAT
 The file has an ini-style syntax and consists of sections and
 parameters. A section begins with the name of the section in square
 brackets and continues until the next section begins. An example section
 with two parameters follows:
-
 .sp
 .if n \{\
 .RS 4
@@ -73,7 +69,6 @@ with two parameters follows:
 .if n \{\
 .RE
 .\}
-
 .P
 The data types used are string (no quotes needed), integer, and bool
 (with values of
@@ -91,7 +86,6 @@ must be readable by the user invoking
 Any parameter described below with a corresponding command line
 parameter contains additional description in
 .BR pmrep (1).
-
 .SH SPECIAL SECTIONS
 .SS The [options] section
 The
@@ -270,7 +264,6 @@ parameter is \fB-y\fR. For supported syntax, see
 .BR pmrep (1).
 Undefined (no scaling) by default.
 .RE
-
 .P
 \fBOutput target specific parameters\fR
 .P
@@ -310,7 +303,6 @@ Defaults to the generic \fIinterval\fR. Zabbix tools send at most 250
 metrics at a time. Ignored when reading metrics from PCP archives,
 in which case metrics will be sent roughly at 250 metric batches.
 .RE
-
 .SS The [global] section
 The
 .B [global]
@@ -326,7 +318,6 @@ parameter \fBglobals\fR can be used to disable global metrics.
 No predefined parameters, only \fImetricspecs\fR allowed in this
 section. See below for the metricspec specification.
 .RE
-
 .SH CUSTOM SECTIONS
 Any other section than \fB[options]\fR or \fB[global]\fR will be
 interpreted as a new \fImetricset\fR specification. The section name is
@@ -347,7 +338,6 @@ custom section. Any option or metric defined in the custom section will
 override the same option or metric possibly defined earlier in the
 \fB[options]\fR section. See below for the metricspec specification.
 .RE
-
 .SH METRICSET SPECIFICATION
 There are three forms of the
 .IR metricspec .
@@ -407,7 +397,6 @@ disabled.
 .I width
 Defines the width of the output column for the metric.
 .RE
-
 .SH EXAMPLE
 The following example contains a short \fB[options]\fR section setting
 some locally wanted default values. It then goes on to define the global
@@ -471,14 +460,12 @@ pswitch.width = 8
 .RE
 .\}
 .sp
-
 .SH FILES
 .PD 0
 .TP 10
 .BI ./pmrep.conf
 Default configuration file.
 .PD
-
 .SH SEE ALSO
 .BR PCPIntro (1)
 and
