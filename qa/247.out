@@ -38,13 +38,21 @@ pmRegisterDerived: register metric[4] myname.e = sample.pdu / sample.long.hundre
 pmRegisterDerived: register metric[5] myname.f = 1024 * sample.byte_ctr
 pmRegisterDerived: register metric[6] myname.g = sample.bin + 100 - sample.bin - 100
 pmRegisterDerived: register metric[7] myname.h = sample.seconds + sample.milliseconds / 1000
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 __dmopencontext: bind metric[0] myname.a
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
 __dmopencontext: bind metric[1] myname.b
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.c
+__dmgetpmid: metric "myname.d" -> PMID 511.0.4
 __dmopencontext: bind metric[3] myname.d
+__dmgetpmid: metric "myname.e" -> PMID 511.0.5
 __dmopencontext: bind metric[4] myname.e
+__dmgetpmid: metric "myname.f" -> PMID 511.0.6
 __dmopencontext: bind metric[5] myname.f
+__dmgetpmid: metric "myname.g" -> PMID 511.0.7
 __dmopencontext: bind metric[6] myname.g
+__dmgetpmid: metric "myname.h" -> PMID 511.0.8
 __dmopencontext: bind metric[7] myname.h
 __dmgetpmid: metric "myname.a" -> PMID 511.0.1
 __dmgetpmid: metric "myname.b" -> PMID 511.0.2
@@ -105,22 +113,38 @@ pmRegisterDerived: register metric[12] myname.gcov.a = 42 + sample.bad.unknown
 pmRegisterDerived: register metric[13] myname.gcov.b = (disk.all.total + disk.dev.total) + 42 
 pmRegisterDerived: register metric[14] myname.gcov.c = 42 - (disk.all.total + disk.dev.total)
 pmRegisterDerived: register metric[15] myname.gcov.d = (sample.bin + sample.darkness)+42
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 __dmgetpmid: metric "no.such.metric" -> Unknown metric name
 bind_expr: error: derived metric myname.a: operand: no.such.metric: Unknown metric name
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
 bind_expr: error: derived metric myname.b: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 Semantic error: derived metric myname.c: disk.dev.read * disk.dev.write: Illegal operator for counters
+__dmgetpmid: metric "myname.d" -> PMID 511.0.4
 Semantic error: derived metric myname.d: sample.byte_ctr + sample.long.hundred: Illegal operator for counter and non-counter
+__dmgetpmid: metric "myname.e" -> PMID 511.0.5
 Semantic error: derived metric myname.e: 100 / sample.byte_ctr: Illegal operator for non-counter and counter
+__dmgetpmid: metric "myname.f" -> PMID 511.0.6
 Semantic error: derived metric myname.f: 3 + sample.lights: Non-arithmetic type for right operand
+__dmgetpmid: metric "myname.g" -> PMID 511.0.7
 Semantic error: derived metric myname.g: sample.sysinfo - 42: Non-arithmetic type for left operand
+__dmgetpmid: metric "myname.h" -> PMID 511.0.8
 Semantic error: derived metric myname.h: disk.dev.total + sample.long.hundred: Illegal operator for counter and non-counter
+__dmgetpmid: metric "myname.i" -> PMID 511.0.9
 Semantic error: derived metric myname.i: sample.long.hundred - disk.dev.total: Illegal operator for non-counter and counter
+__dmgetpmid: metric "myname.j" -> PMID 511.0.10
 Semantic error: derived metric myname.j: sample.mirage * sample.step_counter: Non-counter and not dimensionless for left operand
+__dmgetpmid: metric "myname.k" -> PMID 511.0.11
 Semantic error: derived metric myname.k: sample.step_counter / sample.mirage_longlong: Non-counter and not dimensionless for right operand
+__dmgetpmid: metric "myname.l" -> PMID 511.0.12
 Semantic error: derived metric myname.l: sample.bin + sample.darkness: Operands should have the same instance domain
+__dmgetpmid: metric "myname.gcov.a" -> PMID 511.0.13
 bind_expr: error: derived metric myname.gcov.a: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
+__dmgetpmid: metric "myname.gcov.b" -> PMID 511.0.14
 Semantic error: derived metric myname.gcov.b: <expr> + 42: Illegal operator for counter and non-counter
+__dmgetpmid: metric "myname.gcov.c" -> PMID 511.0.15
 Semantic error: derived metric myname.gcov.c: 42 - <expr>: Illegal operator for non-counter and counter
+__dmgetpmid: metric "myname.gcov.d" -> PMID 511.0.16
 Semantic error: derived metric myname.gcov.d: sample.bin + sample.darkness: Operands should have the same instance domain
 __dmgetpmid: metric "myname.a" -> PMID 511.0.1
 __dmgetpmid: metric "myname.b" -> PMID 511.0.2
