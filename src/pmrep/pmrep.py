@@ -944,7 +944,11 @@ class PMReporter(object):
     def report(self, tstamp, values):
         """ Report the metric values """
         if tstamp != None:
-            tstamp = datetime.fromtimestamp(tstamp).strftime(self.timefmt)
+            ts = self.context.pmLocaltime(tstamp.tv_sec)
+            us = int(tstamp.tv_usec)
+            dt = datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
+                          ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
+            tstamp = dt.strftime(self.timefmt)
 
         if self.output == OUTPUT_ARCHIVE:
             self.write_archive_pmi(tstamp, values)
