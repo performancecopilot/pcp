@@ -417,6 +417,8 @@ class PMReporter(object):
 
     def get_cmd_line_metrics(self):
         """ Get metric set specifications from the command line """
+        if any(x in self.arghelp for x in sys.argv):
+            return 0
         pmapi.c_api.pmGetOptionsFromList(sys.argv) # RHBZ#1287778
         return self.opts.pmNonOptionsFromList(sys.argv)
 
@@ -458,7 +460,7 @@ class PMReporter(object):
             sys.stderr.write("No metrics specified.\n")
             raise pmapi.pmUsageErr()
 
-        # Ugly, but we haven't read our command line via PMAPI yet
+        # Don't rely on what get_cmd_line_metrics() might do
         if '-G' in sys.argv:
             self.globals = 0
 
