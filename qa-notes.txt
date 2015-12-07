@@ -103,3 +103,4 @@ bonus:
   ("hostspec") and/or another pmwebd ("hostname"); actual pmcd.hostname
   should show up
 - resize window; graphs should resize
+- test out embed mode ..../vector/index.html#/embed?host=....&hostspec=localhost&widgets=kernel.all.cpu
