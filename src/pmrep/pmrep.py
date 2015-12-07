@@ -428,7 +428,7 @@ class PMReporter(object):
             # Compact / one-line definition
             metrics[key] = (key + "," + value).split(",")
         else:
-            # Chatty / multi-line definition
+            # Verbose / multi-line definition
             if not '.' in key or key.rsplit(".", 1)[1] not in self.metricspec:
                 # New metric
                 metrics[key] = value.split()
@@ -668,7 +668,8 @@ class PMReporter(object):
                 self.metrics[metric][0] = name[:-2] + m
 
             # Rawness
-            if self.metrics[metric][3] == 'r' or self.raw == 1:
+            if self.metrics[metric][3] == 'r' or \
+               self.metrics[metric][3] == 'yes' or self.raw == 1:
                 self.metrics[metric][3] = 1
             else:
                 self.metrics[metric][3] = 0
