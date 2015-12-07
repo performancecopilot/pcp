@@ -20,11 +20,18 @@
 #include <ctype.h>
 #include <assert.h>
 
+/* table of attached PMAPI client programs */
 static struct pipe_client *ctxtab;
 static int ctxtab_size;
 
+/* table of configured pipe commands */
 static struct pipe_command *cmdtab;
 static int cmdtab_size;
+
+/* table of instance access permissions */
+static struct pipe_acl *acltab;
+static int acltab_size;
+#define MAX_ACL_OPS 32
 
 static void
 enlarge_ctxtab(int context)
@@ -55,16 +62,28 @@ static pipe_command *
 enlarge_cmdtab(void)
 {
     /* Grow the command table */
-    size_t needed = (cmdtab_size + 1) * sizeof(pipe_command);
+    size_t	needed = (cmdtab_size + 1) * sizeof(pipe_command);
     pipe_command *pc;
 
     if ((cmdtab = realloc(cmdtab, needed)) == NULL)
 	__pmNoMem("command table", needed, PM_FATAL_ERR);
     pc = &cmdtab[cmdtab_size++];
-
-
     memset(pc, 0, sizeof(*pc));
     return pc;
+}
+
+static pipe_acl *
+enlarge_acltab(void)
+{
+    /* Grow the access control table */
+    size_t	needed = (acltab_size + 1) * sizeof(pipe_acl);
+    pipe_acl	*pa;
+
+    if ((acltab = realloc(acltab, needed)) == NULL)
+	__pmNoMem("access control table", needed, PM_FATAL_ERR);
+    pa = &acltab[acltab_size++];
+    memset(pa, 0, sizeof(*pa));
+    return pa;
 }
 
 static int
@@ -131,11 +150,12 @@ setup_cmdline(pipe_client *pc, pipe_command *cmd, char *params)
     for (i = 0, p = cmd->command; i < sizeof(buffer)-2 && *p != '\0'; p++) {
 	if (*p == '$') {
 	    n = (int)strtol(++p, &end, 10);
-	    if (!isspace(*end) && *end != '\0')	{	/* bad config? */
+	    if (p+1 != end && *end != '\0')	{	/* bad config? */
 		if (pmDebug & DBG_TRACE_APPL2)
 		    fprintf(stderr, "invalid configuration file parameter");
 		goto fail;
 	    }
+	    p = end - 1;
 	    if (n > nparams) {
 		if (pmDebug & DBG_TRACE_APPL2)
 		    fprintf(stderr, "too few parameters passed (%d >= %d)",
@@ -184,8 +204,35 @@ fail:
     return NULL;
 }
 
+static int
+check_access(pmInDom aclops, pipe_client *client, pipe_command *cmd)
+{
+    unsigned int denyops = 0;
+    int		sts, operation = 0;
+
+    if (acltab_size == 0)
+	return 0;
+
+    if ((sts = pmdaCacheLookupName(aclops, cmd->identifier, &operation, NULL)) < 0)
+	return 0;	/* not a controlled operation, allow */
+
+    if ((sts = __pmAccAddAccount(client->uid, client->gid, &denyops)) < 0)
+	return sts;
+
+    if (pmDebug & DBG_TRACE_AUTH) {
+	__pmNotifyErr(LOG_DEBUG, "check_access: access %s for %s"
+				 " (uid=%s,gid=%s operation=%d denyops=%u)",
+		(denyops & operation) ? "denied":"granted", cmd->identifier,
+		client->uid, client->gid, operation, denyops);
+    }
+
+    if (denyops & operation)
+	return PM_ERR_PERMISSION;
+    return 0;
+}
+
 int
-event_init(int context, pipe_command *cmd, char *params)
+event_init(int context, pmInDom aclops, pipe_command *cmd, char *params)
 {
     struct pipe_client	*client;
     struct pipe_groot	*groot = NULL;
@@ -206,10 +253,13 @@ event_init(int context, pipe_command *cmd, char *params)
     }
     assert(i != cmdtab_size);		/* pipe_indom ensures this */
 
+    if ((sts = check_access(aclops, client, cmd)) < 0)
+	return sts;
+
     if ((comm = setup_cmdline(client, cmd, params)) == NULL)
 	return PM_ERR_BADSTORE;
 
-    if ((sts = start_cmd(comm, &groot->pid)) < 0)
+    if ((sts = start_cmd(comm, cmd->user, &groot->pid)) < 0)
 	return sts;
     groot->fd = pipe_setfd(sts);
 
@@ -337,9 +387,9 @@ event_capture(fd_set *readyfds)
 	client = &ctxtab[i];
 	for (j = 0; j < cmdtab_size; j++) {
 	    groot = &client->pipes[j];
-	    if (!groot->active)
-		continue;
-	    if (FD_ISSET(groot->fd, readyfds))
+	    if (groot->active &&
+	        groot->fd > 0 &&
+		FD_ISSET(groot->fd, readyfds))
 		event_create(groot);
 	}
     }
@@ -367,9 +417,14 @@ event_client_shutdown(int context)
 	if (groot->fd > 0) {
 	    pipe_clearfd(groot->fd);
 	    close(groot->fd);
+	    groot->fd = 0;
 	}
 	pmdaEventQueueShutdown(groot->queueid);
     }
+    if (client->uid)
+	free(client->uid);
+    if (client->gid)
+	free(client->gid);
 
     extra = sizeof(struct pipe_groot) * cmdtab_size;
     memset(client, 0, sizeof(struct pipe_client) + extra);
@@ -429,6 +484,24 @@ event_qactive(int context, unsigned int inst)
 	    return groot->active;
     }
     return PM_ERR_INST;
+}
+
+int
+event_userid(int context, const char *user)
+{
+    if (context < 0 || context >= ctxtab_size)
+	return PM_ERR_INST;
+    ctxtab[context].uid = strdup(user);
+    return 0;
+}
+
+int
+event_groupid(int context, const char *group)
+{
+    if (context < 0 || context >= ctxtab_size)
+	return PM_ERR_INST;
+    ctxtab[context].gid = strdup(group);
+    return 0;
 }
 
 int
@@ -504,7 +577,79 @@ event_decoder(int eventarray, void *buffer, size_t size,
 static int 
 event_parse_acl(const char *fname, char *p, int linenum)
 {
-    /* TODO */
+    pipe_acl	*pa;
+    char	*token;
+
+    pa = enlarge_acltab();
+
+    /* positioned at start of allow/disallow directive */
+    token = p;
+    while (!isspace(*p) && *p != '\0')
+	p++;
+
+    if (strncmp(token, "disallow", sizeof("disallow")-1) == 0)
+	pa->disallow = 1;
+    else if (strncmp(token, "allow", sizeof("allow")-1) == 0)
+	pa->allow = 1;
+    if (!pa->disallow && !pa->allow) {
+	fprintf(stderr, "event_config: %s line %d, bad access directive '%s'\n",
+			fname, linenum, token);
+	return -1;
+    }
+    while (isspace(*p) && *p != '\0')
+	p++;
+
+    /* positioned at start of user/group directive */
+    token = p;
+    while (!isspace(*p) && *p != '\0')
+	p++;
+    if (strncmp(token, "group", sizeof("group")-1) == 0)
+	pa->group = 1;
+    else if (strncmp(token, "user", sizeof("user")-1) == 0)
+	pa->user = 1;
+    if (!pa->user && !pa->group) {
+	fprintf(stderr, "event_config: %s line %d, bad access entity '%s'\n",
+			fname, linenum, token);
+	return -1;
+    }
+    while (isspace(*p) && *p != '\0')
+	p++;
+
+    /* positioned at start of the actual user/group name */
+    pa->name = p;
+    while (!isspace(*p) && *p != '\0' && *p != ':')
+	p++;
+    *p++ = '\0';
+    if (!pa->name || !*pa->name) {
+	fprintf(stderr, "event_config: %s line %d, bad %s name '%s'\n",
+			fname, linenum, pa->user ? "user" : "group", pa->name);
+	return -1;
+    }
+    while (isspace(*p) && *p != '\0')
+	p++;
+    if (*p == ':') {
+	p++;
+	while (isspace(*p) && *p != '\0')
+	    p++;
+    }
+    pa->name = strdup(pa->name);
+
+    /* positioned at start of the pipe instance name */
+    pa->identifier = p;
+    while (!isspace(*p) && *p != '\0')
+	p++;
+    *p++ = '\0';
+    if (!pa->identifier || !*pa->identifier) {
+	fprintf(stderr, "event_config: %s line %d, bad instance '%s'\n",
+			fname, linenum, pa->identifier);
+	return -1;
+    }
+    pa->identifier = strdup(pa->identifier);
+
+    if (pmDebug & DBG_TRACE_APPL0)
+	fprintf(stderr, "[%s %s=%s line=%d] instance: %s\n",
+		pa->allow? "allow":"disallow", pa->user? "user":"group",
+		pa->name, linenum, pa->identifier);
     return 0;
 }
 
@@ -623,11 +768,13 @@ event_config(const char *fname)
     }
     fclose(config);
     if (sts < 0) {
+	cmdtab_size = 0;
 	free(cmdtab);
 	return sts;
     }
     if (cmdtab_size == initial_size) {
 	__pmNotifyErr(LOG_ERR, "event_config: no commands found in %s", fname);
+	cmdtab_size = 0;
 	free(cmdtab);
 	return -1;
     }
@@ -656,10 +803,100 @@ event_config_dir(const char *dname)
 	    break;
     }
     for (i = 0; i < n; i++)
-	free(list[n]);
+	free(list[i]);
     free(list);
 
     return sts;
+}
+
+/*
+ * Setup the libpcp access control list operations cache;
+ * we need one operation ID for each instance configured
+ * to be under access control.
+ */
+void
+event_acl(pmInDom aclops)
+{
+    pipe_acl		*pa;
+    int			i, allops = 0, sts = 0;
+    int			nusers = 0, ngroups = 0;
+
+    pmdaCacheOp(aclops, PMDA_CACHE_CULL);
+    pmdaCacheResize(aclops, MAX_ACL_OPS - 1);
+
+    /*
+     * Stash each identifier (instance name) into the ACL operation cache.
+     * This assigns the operation identifiers we'll use for checks, later.
+     */
+    for (i = 0; i < acltab_size; i++) {
+	pa = &acltab[i];
+
+	if (strcmp(pa->identifier, "*") == 0)
+	    continue;
+	pmdaCacheStore(aclops, PMDA_CACHE_ADD, pa->identifier, NULL);
+	pmdaCacheLookupName(aclops, pa->identifier, &pa->operation, NULL);
+
+	if (pa->user)
+	    nusers++;
+	if (pa->group)
+	    ngroups++;
+
+	if (pmDebug & DBG_TRACE_APPL0)
+	    __pmNotifyErr(LOG_DEBUG, "event_acl: added op %s[%u]",
+			pa->identifier, pa->operation);
+    }
+
+    /* walk the indom (hash) and add each op via __pmAccAddOp */
+    for (pmdaCacheOp(aclops, PMDA_CACHE_WALK_REWIND);;) {
+	if ((i = pmdaCacheOp(aclops, PMDA_CACHE_WALK_NEXT)) < 0)
+	    break;
+	if ((sts = __pmAccAddOp(1 << i)) < 0) {
+	    __pmNotifyErr(LOG_ERR, "event_acl: __pmAccAddOp[%d] - %s",
+			i, pmErrStr(sts));
+	    exit(1);
+	}
+	allops |= (1 << i);
+    }
+
+    /* walk ACLs once more to setup libpcp user/group deny/allow mappings */
+    for (i = 0; i < acltab_size; i++) {
+	int	denyOps = 0, specOps = 0;
+
+	pa = &acltab[i];
+
+	if (strcmp(pa->identifier, "*") != 0) {
+	    specOps = (1 << pa->operation);
+	} else {
+	    denyOps = pa->allow ? 0 : allops;
+	    specOps = allops;
+	}
+	if (pa->allow)
+	    denyOps &= ~(1 << pa->operation);
+	else
+	    denyOps |= (1 << pa->operation);
+
+	if (pa->user) {
+	    if ((sts = __pmAccAddUser(pa->name, specOps, denyOps, 0)) < 0) {
+		__pmNotifyErr(LOG_ERR, "event_acl: __pmAccAddUser[%s] - %s",
+				pa->name, pmErrStr(sts));
+		exit(1);
+	    }
+	}
+	if (pa->group) {
+	    if ((sts = __pmAccAddGroup(pa->name, specOps, denyOps, 0)) < 0) {
+		__pmNotifyErr(LOG_ERR, "event_acl: __pmAccAddGroup[%s] - %s",
+				pa->name, pmErrStr(sts));
+		exit(1);
+	    }
+	}
+    }
+
+    if (pmDebug & DBG_TRACE_APPL1) {
+	if (nusers)
+	    __pmAccDumpUsers(stderr);
+	if (ngroups)
+	    __pmAccDumpGroups(stderr);
+    }
 }
 
 /*

@@ -16,7 +16,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-extern int start_cmd(const char *, pid_t *);
+extern int start_cmd(const char *, const char *, pid_t *);
 extern int stop_cmd(pid_t);
 extern int wait_cmd(pid_t);
 

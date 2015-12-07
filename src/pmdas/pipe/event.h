@@ -21,15 +21,14 @@
 typedef struct pipe_command {
     char		*identifier;
     char		*command;
-    char		*user;
+    char		*user;	/* run command as this user */
     int			inst;	/* internal instance ID */
-    int			uid;	/* run command as this user */
 } pipe_command;
 
 /* per-client-context structure */
 typedef struct pipe_client {
-    int			uid;	/* authenticated user ID */
-    int			gid;	/* authenticated group ID */
+    char		*uid;	/* authenticated user ID */
+    char		*gid;	/* authenticated group ID */
     struct pipe_groot {
 	int		fd;	/* command output pipe fd */
 	int		pid;	/* process ID of command */
@@ -43,22 +42,36 @@ typedef struct pipe_client {
     } pipes[0];
 } pipe_client;
 
+typedef struct pipe_acl {
+    char	*identifier;	/* pipe instance name */
+    char	*name;		/* user or group name */
+    int		operation;	/* instance operation ID */
+    int		disallow : 1;
+    int		allow : 1;
+    int		user : 1;
+    int		group : 1;
+} pipe_acl;
+
 extern size_t maxmem;
 extern long numcommands;
 extern pmID *paramline;
 
-extern int event_init(int, pipe_command *, char *);
+extern void event_acl(pmInDom);
+extern void event_indom(pmInDom);
+
+extern int event_init(int, pmInDom, pipe_command *, char *);
 extern void event_client_access(int);
 extern void event_client_shutdown(int);
 extern void event_child_shutdown(void);
 extern void event_capture(fd_set *);
 extern int event_config(const char *);
 extern int event_config_dir(const char *);
-extern void event_indom(pmInDom);
 extern int event_queueid(int, unsigned int);
 extern int event_qactive(int, unsigned int);
 extern void *event_qdata(int, unsigned int);
 extern int event_decoder(int, void *, size_t, struct timeval *, void *);
+extern int event_groupid(int, const char *);
+extern int event_userid(int, const char *);
 
 extern int pipe_setfd(int);
 extern int pipe_clearfd(int);

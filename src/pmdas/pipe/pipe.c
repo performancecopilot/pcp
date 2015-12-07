@@ -30,9 +30,11 @@ static fd_set fds;
 #define INDOM(serial)	(indomtab[serial].it_indom)
 enum {
     PIPE_INDOM,
+    ACL_INDOM,
 };
 static pmdaIndom indomtab[] = {
     { PIPE_INDOM, 0, NULL },
+    { ACL_INDOM, 0, NULL },
 };
 static const int numindoms = sizeof(indomtab)/sizeof(indomtab[0]);
 
@@ -208,7 +210,7 @@ pipe_store(pmResult *result, pmdaExt *pmda)
 		return sts;
 	    if (sts == 1)	/* already running case */
 		return PM_ERR_ISCONN;
-	    if ((sts = event_init(pmda->e_context, pc, p)) < 0)
+	    if ((sts = event_init(pmda->e_context, INDOM(ACL_INDOM), pc, p)) < 0)
 		return sts;
 	}
     }
@@ -222,6 +224,27 @@ pipe_end_contextCallBack(int context)
 
     /* client context exited, mark inactive and cleanup */
     event_client_shutdown(context);
+}
+
+static int
+pipe_attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
+{
+    int	sts;
+
+    if ((sts = pmdaAttribute(ctx, attr, value, length, pmda)) < 0)
+	return sts;
+
+    switch (attr) {
+    case PCP_ATTR_USERID:
+	event_userid(ctx, value);
+	break;
+    case PCP_ATTR_GROUPID:
+	event_groupid(ctx, value);
+	break;
+    default:
+	break;
+    }
+    return 0;
 }
 
 static void 
@@ -260,16 +283,20 @@ pipe_init(pmdaInterface *dp, const char *configfile, int checkonly)
 
     if (dp->status != 0)
 	return;
+    dp->comm.flags |= PDU_FLAG_AUTH;
 
     dp->version.six.fetch = pipe_fetch;
     dp->version.six.store = pipe_store;
     dp->version.six.profile = pipe_profile;
     dp->version.six.instance = pipe_instance;
+    dp->version.six.attribute = pipe_attribute;
 
     pmdaSetFetchCallBack(dp, pipe_fetchCallBack);
     pmdaSetEndContextCallBack(dp, pipe_end_contextCallBack);
 
     pmdaInit(dp, indomtab, numindoms, metrictab, nummetrics);
+
+    event_acl(INDOM(ACL_INDOM));
     event_indom(INDOM(PIPE_INDOM));
 }
 

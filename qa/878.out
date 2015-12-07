@@ -41,6 +41,8 @@ pipe.firehose[echo-two]: 1 event records
 pmval: store value "1;2" failed: Bad input to pmstore
 == insufficient parameters (expect failure) ==
 pmval: store value "one" failed: Bad input to pmstore
+== disallowed access (expect failure) ==
+pmval: store value "" failed: No permission to perform requested operation
 
 === remove pipe agent ===
 Culling the Performance Metrics Name Space ...
