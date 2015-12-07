@@ -27,7 +27,7 @@
 [\f3\-e\f1 \f2derived\f1]
 [\f3\-E\f1 \f2lines\f1]
 [\f3\-f\f1 \f2precision\f1]
-[\f3\-F\f1 \f2folio\f1]
+[\f3\-F\f1 \f2archive\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-l\f1 \f2delimiter\f1]
@@ -212,14 +212,9 @@ See also
 .TP
 .B \-\-archive\-folio
 Read metric source archives from the PCP archive
-.IR folio .
-Archive folios are created by
-.BR mkaf (1)
-or by
-.B pmrep
-when using the
-.I archive
-output mode described below.
+.IR folio
+(see
+.BR mkaf (1)).
 .TP
 .B \-A
 When reporting archived metrics, force the initial sample to be
@@ -296,8 +291,8 @@ does not.
 The default is to use 3 decimal places (when applicable).
 .TP
 .B \-F
-Specify the output archive
-.IR folio .
+Specify the output
+.IR archive .
 See
 .BR \-o .
 .TP
@@ -362,7 +357,7 @@ The available target alternatives are:
 .RS
 .TP 2
 .I archive
-Record metrics into PCP archives which can later be replayed with PCP
+Record metrics into a PCP archive which can later be replayed with PCP
 tools, including
 .B pmrep
 itself. See
@@ -664,7 +659,7 @@ $ pmrep -a ./20150921.09.13 -S @15:00 -T @17:00 :sar-w :sar-W
 .PP
 Record all 389 Directory Server, XFS file system and CPU/disk/memory
 related metrics every five seconds for the next five minutes to the PCP
-archive folio
+archive
 .IR ./a :
 .RS +1
 .ft CW
