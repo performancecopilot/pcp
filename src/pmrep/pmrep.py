@@ -1194,8 +1194,9 @@ class PMReporter(object):
         if self.log == None:
             # Create a new archive
             self.log = pmi.pmiLogImport(self.archive)
-            self.log.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
-            self.log.pmiSetTimezone(self.context.pmGetArchiveLabel().tz)
+            if self.context.type == PM_CONTEXT_ARCHIVE:
+                self.log.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
+                self.log.pmiSetTimezone(self.context.pmGetArchiveLabel().tz)
             for i, metric in enumerate(self.metrics):
                 self.log.pmiAddMetric(metric,
                                       self.pmids[i],
