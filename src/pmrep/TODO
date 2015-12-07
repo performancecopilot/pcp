@@ -9,7 +9,6 @@
 -  switch using logimport instead pmgui for archive writing (no folios)
 -  -X to support pmdumptext -X like output (or shorten inst names if needed)
 -  bash/zsh completion with short help (allow description for sets?)
--  handle derived metrics with archives
 -  enable counter wrap logic
 -  containers support
 -  verify CSV format

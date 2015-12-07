@@ -61,7 +61,7 @@ import os
 import re
 
 from pcp import pmapi, pmgui, pmi
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_ERR_NAME, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
 from cpmgui import PM_REC_ON, PM_REC_OFF, PM_REC_SETARG
 
@@ -618,7 +618,12 @@ class PMReporter(object):
                     err = ""
                     try:
                         name, expr = definition.split("=")
-                        self.context.pmRegisterDerived(name.strip(), expr.strip())
+                        self.context.pmLookupName(name.strip())
+                    except pmapi.pmErr as error:
+                        if error.args[0] == PM_ERR_NAME:
+                            self.context.pmRegisterDerived(name.strip(), expr.strip())
+                            continue
+                        err = error.message()
                     except ValueError as error:
                         err = "Invalid syntax (expected metric=expression)"
                     except Exception as error:
