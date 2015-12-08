@@ -71,6 +71,7 @@ function fetch_metric_min(name) {
 function Node(exp, desc) {
     this.exp = exp; // the test to determine whether to check this tree
     this.desc = desc; // the description of what it is doing
+    this.id = null; // node number
     this.score = 0; // the current value of the node
     this.parent = null;
     this.children = []; // list of possible contributors
@@ -412,23 +413,25 @@ function updateChecklist() {
 	// do the search to find out the likely problem
 	search(tree._root);
 
-	$("#content").html(
-	    tree.traverseDF(
-		function(node, level, o) { return (o + "<ul><li>" + node.score + " " + node.desc + "\n");},
-		function(node, level, o) { return (o + "</li></ul>\n");},
-		""));
+	tree.traverseDF(
+	    function(node, level, o) { return (o);},
+	    function(node, level, o) { $(node.id).html(node.score); return(o); },
+	    "");
 
     }).error(function() {
 	$("#checklist").html("<b>error accessing server, retrying...</b>");
 	pm_context = -1; });
 }
 
+var node_id = 0;
 
 function loadChecklist() {
     $("#header").html("pcp checklist demo");
     $("#content").html(
     tree.traverseDF(
-	function(node, level, o) { return (o + "<ul><li>" + node.score + " " + node.desc + "\n");},
+	function(node, level, o) {
+	    var n = "node" + node_id++; node.id = "#" + n;
+	    return (o + "<ul><li><p><em id=\"" + n + "\"></em> " + node.desc + "</p>\n");},
 	function(node, level, o) { return (o + "</li></ul>\n");},
 	""));
 
