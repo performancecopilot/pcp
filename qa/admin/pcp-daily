@@ -779,8 +779,8 @@ End-of-File
 		#
 		[ X"$what" = Xall ] && check_what='$check_what -x remote'
 		;;
-	    vm06|vm10)
-		# Only -g sanity at this stage for FreeBSD
+	    vm06|vm10|vm09)
+		# Only -g sanity at this stage for FreeBSD or NetBSD
 		#
 		[ X"$what" = Xall ] && check_what='-g sanity'
 		;;
