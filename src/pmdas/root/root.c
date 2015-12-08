@@ -362,9 +362,9 @@ typedef struct {
     int		fd;
 } root_client_t;
 
-static root_client_t *client;
-static int client_size;	/* highwater allocation mark */
-static int nclients;
+static root_client_t *root_client;
+static int root_client_size;	/* highwater allocation mark */
+static int nrootclients;
 static const int MIN_CLIENTS_ALLOC = 8;
 
 static int
@@ -372,24 +372,27 @@ root_new_client(void)
 {
     int i, sz;
 
-    for (i = 0; i < nclients; i++)
-	if (client[i].fd < 0)
+    for (i = 0; i < nrootclients; i++)
+	if (root_client[i].fd < 0)
 	    break;
 
-    if (i == client_size) {
-	client_size = client_size ? client_size * 2 : MIN_CLIENTS_ALLOC;
-	sz = sizeof(root_client_t) * client_size;
-	client = (root_client_t *)realloc(client, sz);
-	if (client == NULL) {
+    if (i == root_client_size) {
+	if (root_client_size == 0)
+	    root_client_size = MIN_CLIENTS_ALLOC;
+	else
+	    root_client_size *= 2;
+	sz = sizeof(root_client_t) * root_client_size;
+	root_client = (root_client_t *)realloc(root_client, sz);
+	if (root_client == NULL) {
 	    __pmNoMem("root_new_client", sz, PM_RECOV_ERR);
 	    root_close_socket();
 	    exit(1);
 	}
 	sz -= (sizeof(root_client_t) * i);
-	memset(&client[i], 0, sz);
+	memset(&root_client[i], 0, sz);
     }
-    if (i >= nclients)
-	nclients = i + 1;
+    if (i >= nrootclients)
+	nrootclients = i + 1;
     return i;
 }
 
@@ -398,8 +401,8 @@ root_delete_client(root_client_t *cp)
 {
     int		i;
 
-    for (i = 0; i < nclients; i++) {
-	if (cp == &client[i])
+    for (i = 0; i < nrootclients; i++) {
+	if (cp == &root_client[i])
 	    break;
     }
 
@@ -407,13 +410,13 @@ root_delete_client(root_client_t *cp)
 	__pmFD_CLR(cp->fd, &connected_fds);
 	__pmCloseSocket(cp->fd);
     }
-    if (i >= nclients - 1)
-	nclients = i;
+    if (i >= nrootclients - 1)
+	nrootclients = i;
     if (cp->fd == maximum_fd) {
 	maximum_fd = (pmcd_fd > socket_fd) ? pmcd_fd : socket_fd;
-	for (i = 0; i < nclients; i++) {
-	    if (client[i].fd > maximum_fd)
-		maximum_fd = client[i].fd;
+	for (i = 0; i < nrootclients; i++) {
+	    if (root_client[i].fd > maximum_fd)
+		maximum_fd = root_client[i].fd;
 	}
     }
     cp->fd = -1;
@@ -431,8 +434,8 @@ root_accept_client(void)
 	if (neterror() == EPERM) {
 	    __pmNotifyErr(LOG_NOTICE, "root_accept_client(%d): %s\n",
 			fd, osstrerror());
-	    client[i].fd = -1;
-	    root_delete_client(&client[i]);
+	    root_client[i].fd = -1;
+	    root_delete_client(&root_client[i]);
 	    return NULL;
 	} else {
 	    __pmNotifyErr(LOG_ERR, "root_accept_client(%d): accept: %s\n",
@@ -445,8 +448,8 @@ root_accept_client(void)
 	maximum_fd = fd;
     __pmFD_SET(fd, &connected_fds);
 
-    client[i].fd = fd;
-    return &client[i];
+    root_client[i].fd = fd;
+    return &root_client[i];
 }
 
 static void
@@ -642,8 +645,8 @@ root_handle_client_input(__pmFdSet *fds)
     root_client_t	*cp;
     int			i, sts;
 
-    for (i = 0; i < nclients; i++) {
-	cp = &client[i];
+    for (i = 0; i < nrootclients; i++) {
+	cp = &root_client[i];
 	if (cp->fd == -1 || !__pmFD_ISSET(cp->fd, fds))
 	    continue;
 
