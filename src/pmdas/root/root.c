@@ -17,6 +17,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "pmdaroot.h"
 #include <sys/stat.h>
 #include "root.h"
 #include "lxc.h"

@@ -1,4 +1,5 @@
 usr/include/pcp/pmda.h
+usr/include/pcp/pmdaroot.h
 usr/lib/libpcp_pmda.a
 usr/lib/libpcp_pmda.so
 usr/share/man/man3/PMDA.3.gz
