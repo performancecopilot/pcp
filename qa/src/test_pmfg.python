@@ -25,7 +25,7 @@ def test_pmfg_live(self, ctx):
     # Any errors hereabouts trigger pmErr exceptions -> implicit fail
     pmfg = pmapi.fetchgroup(ctx)
     tt = pmfg.extend_timestamp()
-    v1 = pmfg.extend_item("hinv.ncpu", c_api.PM_TYPE_U32)
+    v1 = pmfg.extend_item("hinv.ncpu") # infer type
     v2 = pmfg.extend_item("kernel.all.load", c_api.PM_TYPE_FLOAT, instance="1 minute")
 
     # some type errors
@@ -36,7 +36,7 @@ def test_pmfg_live(self, ctx):
 
     pmfg.fetch() # to get a cpu count into v1
     vv1 = pmfg.extend_indom("kernel.percpu.cpu.idle", c_api.PM_TYPE_64, scale="s/100s", maxnum=v1()-1)
-    vv2 = pmfg.extend_indom("kernel.percpu.cpu.idle", c_api.PM_TYPE_64, scale="s/100s", maxnum=v1())
+    vv2 = pmfg.extend_indom("kernel.percpu.cpu.idle", scale="s/100s", maxnum=v1()) # infer type
     vv3 = pmfg.extend_indom("sample.bogus_bin", c_api.PM_TYPE_32, scale="instant")
 
     for i in range(0, 4):

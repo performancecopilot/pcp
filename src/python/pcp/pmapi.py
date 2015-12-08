@@ -2163,11 +2163,20 @@ class fetchgroup(object):
                 raise pmErr(sts)
         del self.items[:]
 
-    def extend_item(self, metric=None, mtype=None, instance=None, scale=None):
-        """Extend the fetchgroup with a single metric. """
+    def extend_item(self, metric=None, mtype=None, scale=None, instance=None):
+        """Extend the fetchgroup with a single metric.  Infer type if
+        necessary.  Convert scale/rate if appropriate/requested.
+        Requires a specified instance if metric has an instance
+        domain.
 
-        if metric is None or mtype is None:
+        """
+
+        if metric is None:
             raise pmErr(-errno.EINVAL)
+        if mtype is None: # a special service to dynamically-typed python; not accepted at the C level
+            pmids = self.ctx.pmLookupName(metric)
+            descs = self.ctx.pmLookupDescs(pmids)
+            mtype = descs[0].type
         v = fetchgroup.fetchgroup_item(mtype)
         sts = LIBPCP.pmExtendFetchGroup_item(self.pmfg,
                                              c_char_p(metric.encode('utf-8') if metric else None),
@@ -2182,13 +2191,18 @@ class fetchgroup(object):
 
 
     def extend_indom(self, metric=None, mtype=None, scale=None, maxnum=100):
-        """
-        Extend the fetchgroup with an indom metric, with up to @maxnum
-        (default 100) instances.
+        """Extend the fetchgroup with up to @maxnum instances of a metric.
+        (Metrics without instances are also accepted.)  Infer type if
+        necessary.  Convert scale/rate if appropriate/requested.
+
         """
 
-        if metric is None or mtype is None or maxnum < 0:
+        if metric is None or maxnum < 0:
             raise pmErr(-errno.EINVAL)
+        if mtype is None: # a special service to dynamically-typed python; not accepted at the C level
+            pmids = self.ctx.pmLookupName(metric)
+            descs = self.ctx.pmLookupDescs(pmids)
+            mtype = descs[0].type
         vv = fetchgroup.fetchgroup_indom(mtype, maxnum)
         sts = LIBPCP.pmExtendFetchGroup_indom(self.pmfg,
                                               c_char_p(metric.encode('utf-8') if metric else None),
