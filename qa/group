@@ -1187,8 +1187,8 @@ cgroups
 1054 pmlogger pmcpp local
 1065 libpcp valgrind local
 1067 zabbix zbxpcp local
-1068 zabbix pmrep local
-1069 pmrep local
+1068 pmrep python zabbix local
+1069 pmrep python local
 1079 pcp atop local
 1080 valgrind pcp atop local
 1081 python pcp local
