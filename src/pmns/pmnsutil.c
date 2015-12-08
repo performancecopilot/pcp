@@ -83,7 +83,7 @@ output(__pmnsNode *p, int depth, char *path)
     if (p->first != NULL)
 	fprintf(outf, "\t%s\n", p->name);
     else {
-	if (pmid_domain(p->pmid) == DYNAMIC_PMID && pmid_item(p->pmid) == 0)
+	if (IS_DYNAMIC_ROOT(p->pmid))
 	    fprintf(outf, "\t%s\t%d:*:*\n", p->name, pmid_cluster(p->pmid));
 	else
 	    fprintf(outf, "\t%s\t%d:%d:%d\n", p->name, pmid_domain(p->pmid), pmid_cluster(p->pmid), pmid_item(p->pmid));

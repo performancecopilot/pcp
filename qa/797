@@ -23,10 +23,10 @@ _filter()
 }
 
 # real QA test starts here
-echo "===511.0.1 case ==="
+echo "===511.2048.1 case ==="
 cat <<End-of-File >$tmp.rewrite
-metric 511.0.1 {
-    pmid -> 510.0.1
+metric 511.2048.1 {
+    pmid -> 510.2048.1
 }
 End-of-File
 rm -f $tmp.0 $tmp.index $tmp.meta
@@ -34,10 +34,10 @@ pmlogrewrite -c $tmp.rewrite archives/log-derived $tmp 2>&1 | _filter
 pmdumplog -z $tmp
 
 echo
-echo "===511.0.* case ==="
+echo "===511.2048.* case ==="
 cat <<End-of-File >$tmp.rewrite
-metric 511.0.* {
-    pmid -> 510.0.*
+metric 511.2048.* {
+    pmid -> 510.2048.*
 }
 End-of-File
 rm -f $tmp.0 $tmp.index $tmp.meta

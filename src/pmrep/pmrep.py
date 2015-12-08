@@ -60,10 +60,9 @@ import sys
 import os
 import re
 
-from pcp import pmapi, pmgui, pmi
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET
+from pcp import pmapi, pmi
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_ERR_NAME, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
-from cpmgui import PM_REC_ON, PM_REC_OFF, PM_REC_SETARG
 
 if sys.version_info[0] >= 3:
     long = int
@@ -313,7 +312,7 @@ class PMReporter(object):
         opts.pmSetLongOption("config", 1, "c", "FILE", "config file path")
         opts.pmSetLongOption("check", 0, "C", "", "check config and metrics and exit")
         opts.pmSetLongOption("output", 1, "o", "OUTPUT", "output target, one of: archive, csv, stdout (default), zabbix")
-        opts.pmSetLongOption("output-archive", 1, "F", "ARCHIVE", "output archive/folio (with -o archive)")
+        opts.pmSetLongOption("output-archive", 1, "F", "ARCHIVE", "output archive (with -o archive)")
         opts.pmSetLongOption("derived", 1, "e", "FILE|DFNT", "derived metrics definitions")
         opts.pmSetLongOptionDebug()        # -D/--debug
         opts.pmSetLongOptionVersion()      # -V/--version
@@ -373,8 +372,8 @@ class PMReporter(object):
                 sys.stderr.write("Invalid output target %s specified.\n" % optarg)
                 sys.exit(1)
         elif opt == 'F':
-            if os.path.exists(optarg) or os.path.exists(optarg + ".index"):
-                sys.stderr.write("Archive/folio %s already exists.\n" % optarg)
+            if os.path.exists(optarg + ".index"):
+                sys.stderr.write("Archive %s already exists.\n" % optarg)
                 sys.exit(1)
             self.archive = optarg
         elif opt == 'e':
@@ -418,6 +417,8 @@ class PMReporter(object):
 
     def get_cmd_line_metrics(self):
         """ Get metric set specifications from the command line """
+        if any(x in self.arghelp for x in sys.argv):
+            return 0
         pmapi.c_api.pmGetOptionsFromList(sys.argv) # RHBZ#1287778
         return self.opts.pmNonOptionsFromList(sys.argv)
 
@@ -428,7 +429,7 @@ class PMReporter(object):
             # Compact / one-line definition
             metrics[key] = (key + "," + value).split(",")
         else:
-            # Chatty / multi-line definition
+            # Verbose / multi-line definition
             if not '.' in key or key.rsplit(".", 1)[1] not in self.metricspec:
                 # New metric
                 metrics[key] = value.split()
@@ -459,7 +460,7 @@ class PMReporter(object):
             sys.stderr.write("No metrics specified.\n")
             raise pmapi.pmUsageErr()
 
-        # Ugly, but we haven't read our command line via PMAPI yet
+        # Don't rely on what get_cmd_line_metrics() might do
         if '-G' in sys.argv:
             self.globals = 0
 
@@ -565,7 +566,7 @@ class PMReporter(object):
             self.source = "@" # PCPIntro(1), RHBZ#1272082
 
         if self.output == OUTPUT_ARCHIVE and not self.archive:
-            sys.stderr.write("Archive/folio must be defined with archive output.\n")
+            sys.stderr.write("Archive must be defined with archive output.\n")
             sys.exit(1)
 
         if self.output == OUTPUT_ZABBIX and (not self.zabbix_server or \
@@ -618,7 +619,12 @@ class PMReporter(object):
                     err = ""
                     try:
                         name, expr = definition.split("=")
-                        self.context.pmRegisterDerived(name.strip(), expr.strip())
+                        self.context.pmLookupName(name.strip())
+                    except pmapi.pmErr as error:
+                        if error.args[0] == PM_ERR_NAME:
+                            self.context.pmRegisterDerived(name.strip(), expr.strip())
+                            continue
+                        err = error.message()
                     except ValueError as error:
                         err = "Invalid syntax (expected metric=expression)"
                     except Exception as error:
@@ -668,7 +674,8 @@ class PMReporter(object):
                 self.metrics[metric][0] = name[:-2] + m
 
             # Rawness
-            if self.metrics[metric][3] == 'r' or self.raw == 1:
+            if self.metrics[metric][3] == 'r' or \
+               self.metrics[metric][3] == 'yes' or self.raw == 1:
                 self.metrics[metric][3] = 1
             else:
                 self.metrics[metric][3] = 0
@@ -804,12 +811,6 @@ class PMReporter(object):
         # Just checking
         if self.check == 1:
             return
-
-        # Archive recording from non-archive is handled separately
-        if self.output == OUTPUT_ARCHIVE:
-            if self.context.type != PM_CONTEXT_ARCHIVE:
-                self.write_archive_pmgui()
-                return
 
         # Archive fetching mode
         if self.context.type == PM_CONTEXT_ARCHIVE:
@@ -951,7 +952,7 @@ class PMReporter(object):
             tstamp = dt.strftime(self.timefmt)
 
         if self.output == OUTPUT_ARCHIVE:
-            self.write_archive_pmi(tstamp, values)
+            self.write_archive(tstamp, values)
         if self.output == OUTPUT_CSV:
             self.write_csv(tstamp, values)
         if self.output == OUTPUT_STDOUT:
@@ -1053,12 +1054,12 @@ class PMReporter(object):
     def write_header(self):
         """ Write metrics header """
         if self.output == OUTPUT_ARCHIVE:
-            sys.stdout.write("Recording archive/folio %s" % self.archive)
+            sys.stdout.write("Recording archive %s" % self.archive)
             if self.runtime != -1:
-                sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), self.runtime + 1))
+                sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), self.runtime))
             elif self.samples:
                 duration = (self.samples - 1) * int(self.interval)
-                sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), duration + 1))
+                sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), duration))
             else:
                 if self.context.type != PM_CONTEXT_ARCHIVE:
                     sys.stdout.write("... (Ctrl-C to stop)")
@@ -1118,47 +1119,8 @@ class PMReporter(object):
             else:
                 sys.stdout.write("...\n(Ctrl-C to stop)\n")
 
-    def write_archive_pmgui(self):
-        """ Write an archive entry using pmgui """
-        # We're not a graphical app, disable popups
-        os.environ['PCP_XCONFIRM_PROG'] = '/bin/true'
-
-        # Create the archive folio using pmgui
-        context = pmgui.GuiClient()
-        config = "log mandatory on every " + str(int(self.interval)) + " sec {\n"
-        for metric in self.metrics:
-            config += metric + "\n"
-        config += "}\n"
-        context.pmRecordSetup(self.archive, ' '.join(sys.argv), 0)
-        context.pmRecordAddHost(self.source, 1, config)
-        duration = 0
-        if self.runtime != -1:
-            duration = self.runtime
-        elif self.samples:
-            if self.samples < 2:
-                self.samples = 2
-            duration = (self.samples - 1) * int(self.interval)
-        if duration:
-            endtime = "-T" + str(duration) + "sec"
-            context.pmRecordControl(0, PM_REC_SETARG, endtime)
-        context.pmRecordControl(0, PM_REC_ON, "")
-        if not duration:
-            time.sleep(0xFFFFFFFF) # A very long time
-            context.pmRecordControl(0, PM_REC_OFF, "") # Non-mandatory
-            return
-        for i in range(duration):
-            sys.stdout.write("\rProgress: %3d%%" % int(float(i) / duration * 100))
-            sys.stdout.flush()
-            time.sleep(1)
-        sys.stdout.write("\rProgress:  99%")
-        sys.stdout.flush()
-        time.sleep(1) # Make sure the last record gets there
-        # For cleanliness only, -T should have stopped recording by now
-        context.pmRecordControl(0, PM_REC_OFF, "")
-        sys.stdout.write("\rComplete: 100%.\n")
-
-    def write_archive_pmi(self, timestamp, values):
-        """ Write an archive entry using pmi """
+    def write_archive(self, timestamp, values):
+        """ Write an archive record """
         if timestamp == None and values == None:
             # Complete and close
             self.log.pmiEnd()
@@ -1167,8 +1129,9 @@ class PMReporter(object):
         if self.log == None:
             # Create a new archive
             self.log = pmi.pmiLogImport(self.archive)
-            self.log.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
-            self.log.pmiSetTimezone(self.context.pmGetArchiveLabel().tz)
+            if self.context.type == PM_CONTEXT_ARCHIVE:
+                self.log.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
+                self.log.pmiSetTimezone(self.context.pmGetArchiveLabel().tz)
             for i, metric in enumerate(self.metrics):
                 self.log.pmiAddMetric(metric,
                                       self.pmids[i],
@@ -1204,12 +1167,12 @@ class PMReporter(object):
             self.log.pmiWrite(self.ctstamp.tv_sec, self.ctstamp.tv_usec)
 
     def write_csv(self, timestamp, values):
-        """ Write a line in CSV format """
+        """ Write results in CSV format """
         if timestamp == None and values == None:
             # Silent goodbye
             return
 
-        # CSV is always raw not rate
+        # Print the results
         for i, metric in enumerate(self.metrics):
             ins = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
             for j in range(ins):
@@ -1221,7 +1184,11 @@ class PMReporter(object):
                     line += timestamp + self.delimiter
                 line += str(self.metrics[metric][0]) + self.delimiter
                 line += str(self.metrics[metric][2][0]) + self.delimiter
-                line += str(list(values[i])[j][2])
+                if type(list(values[i])[j][2]) is float:
+                    fmt = "." + str(self.precision) + "f"
+                    line += format(list(values[i])[j][2], fmt)
+                else:
+                    line += str(list(values[i])[j][2])
                 print(line)
 
     def write_stdout(self, timestamp, values):
@@ -1319,7 +1286,7 @@ class PMReporter(object):
                 self.zabbix_metrics = []
             return
 
-        # Zabbix is always raw not rate
+        # Collect the results
         ts = float(self.ctstamp)
         if self.zabbix_prevsend == None:
             self.zabbix_prevsend = ts
@@ -1332,6 +1299,7 @@ class PMReporter(object):
                 val = str(list(values[i])[j][2])
                 self.zabbix_metrics.append(ZabbixMetric(self.zabbix_host, key, val, ts))
 
+        # Send when need
         if self.context.type == PM_CONTEXT_ARCHIVE:
             if len(self.zabbix_metrics) >= self.zabbix_interval:
                 send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)

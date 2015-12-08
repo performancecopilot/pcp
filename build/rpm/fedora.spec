@@ -111,6 +111,8 @@ Source2: vector.tar.gz
 Conflicts: librapi
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+# https://fedoraproject.org/wiki/Packaging:C_and_C%2B%2B
+BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
 BuildRequires: nss-devel
 BuildRequires: rpm-devel
@@ -2061,7 +2063,6 @@ cd
 %config(noreplace) %{_sysconfdir}/sysconfig/pmcd
 %config %{_sysconfdir}/bash_completion.d/pcp
 %config %{_sysconfdir}/pcp.env
-%config %{_sysconfdir}/pcp.sh
 %dir %{_confdir}/pmcd
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf
 %config(noreplace) %{_confdir}/pmcd/pmcd.options

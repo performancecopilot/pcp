@@ -36,7 +36,8 @@ typedef struct task_s {
     fetchctl_t		*t_fetch;
     int			t_afid;
     int			t_alarm;	/* set when log_callback() called for this task */
-    int			t_size;
+    int			t_size;		/* pdu size for -r flag reporting */
+    int			t_dm;		/* 1 if derived metrics included */
 } task_t;
 
 extern task_t		*tasklist;	/* master list of tasks */

@@ -22,20 +22,35 @@ myname.m = 3*sample.bin
 myname.n = sample.bin + sample.bucket*2 - (sample.bin + 100) - sample.bucket
 
 === myname.const ===
+__dmgetpmid: metric "myname.const" -> PMID 511.0.1
 __dmopencontext: bind metric[0] myname.const
+__dmgetpmid: metric "myname.a" -> PMID 511.0.2
 __dmopencontext: bind metric[1] myname.a
+__dmgetpmid: metric "myname.b" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.b
+__dmgetpmid: metric "myname.c" -> PMID 511.0.4
 __dmopencontext: bind metric[3] myname.c
+__dmgetpmid: metric "myname.d" -> PMID 511.0.5
 __dmopencontext: bind metric[4] myname.d
+__dmgetpmid: metric "myname.e" -> PMID 511.0.6
 __dmopencontext: bind metric[5] myname.e
+__dmgetpmid: metric "myname.f" -> PMID 511.0.7
 __dmopencontext: bind metric[6] myname.f
+__dmgetpmid: metric "myname.g" -> PMID 511.0.8
 __dmopencontext: bind metric[7] myname.g
+__dmgetpmid: metric "myname.h" -> PMID 511.0.9
 __dmopencontext: bind metric[8] myname.h
+__dmgetpmid: metric "myname.i" -> PMID 511.0.10
 __dmopencontext: bind metric[9] myname.i
+__dmgetpmid: metric "myname.j" -> PMID 511.0.11
 __dmopencontext: bind metric[10] myname.j
+__dmgetpmid: metric "myname.k" -> PMID 511.0.12
 __dmopencontext: bind metric[11] myname.k
+__dmgetpmid: metric "myname.l" -> PMID 511.0.13
 __dmopencontext: bind metric[12] myname.l
+__dmgetpmid: metric "myname.m" -> PMID 511.0.14
 __dmopencontext: bind metric[13] myname.m
+__dmgetpmid: metric "myname.n" -> PMID 511.0.15
 __dmopencontext: bind metric[14] myname.n
 __dmgetpmid: metric "myname.const" -> PMID 511.0.1
 __dmpostfetch: [0] root node 511.0.1: numval=1 vset[0]: inst=-1 u=123456
@@ -53,20 +68,35 @@ myname.const
     value 123456
 
 === myname.a ===
+__dmgetpmid: metric "myname.const" -> PMID 511.0.1
 __dmopencontext: bind metric[0] myname.const
+__dmgetpmid: metric "myname.a" -> PMID 511.0.2
 __dmopencontext: bind metric[1] myname.a
+__dmgetpmid: metric "myname.b" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.b
+__dmgetpmid: metric "myname.c" -> PMID 511.0.4
 __dmopencontext: bind metric[3] myname.c
+__dmgetpmid: metric "myname.d" -> PMID 511.0.5
 __dmopencontext: bind metric[4] myname.d
+__dmgetpmid: metric "myname.e" -> PMID 511.0.6
 __dmopencontext: bind metric[5] myname.e
+__dmgetpmid: metric "myname.f" -> PMID 511.0.7
 __dmopencontext: bind metric[6] myname.f
+__dmgetpmid: metric "myname.g" -> PMID 511.0.8
 __dmopencontext: bind metric[7] myname.g
+__dmgetpmid: metric "myname.h" -> PMID 511.0.9
 __dmopencontext: bind metric[8] myname.h
+__dmgetpmid: metric "myname.i" -> PMID 511.0.10
 __dmopencontext: bind metric[9] myname.i
+__dmgetpmid: metric "myname.j" -> PMID 511.0.11
 __dmopencontext: bind metric[10] myname.j
+__dmgetpmid: metric "myname.k" -> PMID 511.0.12
 __dmopencontext: bind metric[11] myname.k
+__dmgetpmid: metric "myname.l" -> PMID 511.0.13
 __dmopencontext: bind metric[12] myname.l
+__dmgetpmid: metric "myname.m" -> PMID 511.0.14
 __dmopencontext: bind metric[13] myname.m
+__dmgetpmid: metric "myname.n" -> PMID 511.0.15
 __dmopencontext: bind metric[14] myname.n
 __dmgetpmid: metric "myname.a" -> PMID 511.0.2
 derived metrics prefetch added 1 metrics: 29.0.13
@@ -85,20 +115,35 @@ myname.a
     value 1000000
 
 === myname ===
+__dmgetpmid: metric "myname.const" -> PMID 511.0.1
 __dmopencontext: bind metric[0] myname.const
+__dmgetpmid: metric "myname.a" -> PMID 511.0.2
 __dmopencontext: bind metric[1] myname.a
+__dmgetpmid: metric "myname.b" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.b
+__dmgetpmid: metric "myname.c" -> PMID 511.0.4
 __dmopencontext: bind metric[3] myname.c
+__dmgetpmid: metric "myname.d" -> PMID 511.0.5
 __dmopencontext: bind metric[4] myname.d
+__dmgetpmid: metric "myname.e" -> PMID 511.0.6
 __dmopencontext: bind metric[5] myname.e
+__dmgetpmid: metric "myname.f" -> PMID 511.0.7
 __dmopencontext: bind metric[6] myname.f
+__dmgetpmid: metric "myname.g" -> PMID 511.0.8
 __dmopencontext: bind metric[7] myname.g
+__dmgetpmid: metric "myname.h" -> PMID 511.0.9
 __dmopencontext: bind metric[8] myname.h
+__dmgetpmid: metric "myname.i" -> PMID 511.0.10
 __dmopencontext: bind metric[9] myname.i
+__dmgetpmid: metric "myname.j" -> PMID 511.0.11
 __dmopencontext: bind metric[10] myname.j
+__dmgetpmid: metric "myname.k" -> PMID 511.0.12
 __dmopencontext: bind metric[11] myname.k
+__dmgetpmid: metric "myname.l" -> PMID 511.0.13
 __dmopencontext: bind metric[12] myname.l
+__dmgetpmid: metric "myname.m" -> PMID 511.0.14
 __dmopencontext: bind metric[13] myname.m
+__dmgetpmid: metric "myname.n" -> PMID 511.0.15
 __dmopencontext: bind metric[14] myname.n
 __dmgetpmid: metric "myname.const" -> PMID 511.0.1
 __dmgetpmid: metric "myname.a" -> PMID 511.0.2
@@ -637,20 +682,35 @@ myname.n
     inst [900 or "bin-900"] value 800
 
 === myname.a sample.long ===
+__dmgetpmid: metric "myname.const" -> PMID 511.0.1
 __dmopencontext: bind metric[0] myname.const
+__dmgetpmid: metric "myname.a" -> PMID 511.0.2
 __dmopencontext: bind metric[1] myname.a
+__dmgetpmid: metric "myname.b" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.b
+__dmgetpmid: metric "myname.c" -> PMID 511.0.4
 __dmopencontext: bind metric[3] myname.c
+__dmgetpmid: metric "myname.d" -> PMID 511.0.5
 __dmopencontext: bind metric[4] myname.d
+__dmgetpmid: metric "myname.e" -> PMID 511.0.6
 __dmopencontext: bind metric[5] myname.e
+__dmgetpmid: metric "myname.f" -> PMID 511.0.7
 __dmopencontext: bind metric[6] myname.f
+__dmgetpmid: metric "myname.g" -> PMID 511.0.8
 __dmopencontext: bind metric[7] myname.g
+__dmgetpmid: metric "myname.h" -> PMID 511.0.9
 __dmopencontext: bind metric[8] myname.h
+__dmgetpmid: metric "myname.i" -> PMID 511.0.10
 __dmopencontext: bind metric[9] myname.i
+__dmgetpmid: metric "myname.j" -> PMID 511.0.11
 __dmopencontext: bind metric[10] myname.j
+__dmgetpmid: metric "myname.k" -> PMID 511.0.12
 __dmopencontext: bind metric[11] myname.k
+__dmgetpmid: metric "myname.l" -> PMID 511.0.13
 __dmopencontext: bind metric[12] myname.l
+__dmgetpmid: metric "myname.m" -> PMID 511.0.14
 __dmopencontext: bind metric[13] myname.m
+__dmgetpmid: metric "myname.n" -> PMID 511.0.15
 __dmopencontext: bind metric[14] myname.n
 __dmgetpmid: metric "myname.a" -> PMID 511.0.2
 __dmpostfetch: [0] root node 511.0.2: numval=1 vset[0]: inst=-1 l=1000000
@@ -735,20 +795,35 @@ sample.long.bin_ctr
     inst [900 or "bin-900"] value 900
 
 === sample.long myname.a ===
+__dmgetpmid: metric "myname.const" -> PMID 511.0.1
 __dmopencontext: bind metric[0] myname.const
+__dmgetpmid: metric "myname.a" -> PMID 511.0.2
 __dmopencontext: bind metric[1] myname.a
+__dmgetpmid: metric "myname.b" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.b
+__dmgetpmid: metric "myname.c" -> PMID 511.0.4
 __dmopencontext: bind metric[3] myname.c
+__dmgetpmid: metric "myname.d" -> PMID 511.0.5
 __dmopencontext: bind metric[4] myname.d
+__dmgetpmid: metric "myname.e" -> PMID 511.0.6
 __dmopencontext: bind metric[5] myname.e
+__dmgetpmid: metric "myname.f" -> PMID 511.0.7
 __dmopencontext: bind metric[6] myname.f
+__dmgetpmid: metric "myname.g" -> PMID 511.0.8
 __dmopencontext: bind metric[7] myname.g
+__dmgetpmid: metric "myname.h" -> PMID 511.0.9
 __dmopencontext: bind metric[8] myname.h
+__dmgetpmid: metric "myname.i" -> PMID 511.0.10
 __dmopencontext: bind metric[9] myname.i
+__dmgetpmid: metric "myname.j" -> PMID 511.0.11
 __dmopencontext: bind metric[10] myname.j
+__dmgetpmid: metric "myname.k" -> PMID 511.0.12
 __dmopencontext: bind metric[11] myname.k
+__dmgetpmid: metric "myname.l" -> PMID 511.0.13
 __dmopencontext: bind metric[12] myname.l
+__dmgetpmid: metric "myname.m" -> PMID 511.0.14
 __dmopencontext: bind metric[13] myname.m
+__dmgetpmid: metric "myname.n" -> PMID 511.0.15
 __dmopencontext: bind metric[14] myname.n
 __dmgetpmid: metric "myname.a" -> PMID 511.0.2
 __dmpostfetch: [7] root node 511.0.2: numval=1 vset[0]: inst=-1 l=1000000
@@ -833,20 +908,35 @@ myname.a
     value 1000000
 
 === sample.longlong myname.a myname.b sample.long ===
+__dmgetpmid: metric "myname.const" -> PMID 511.0.1
 __dmopencontext: bind metric[0] myname.const
+__dmgetpmid: metric "myname.a" -> PMID 511.0.2
 __dmopencontext: bind metric[1] myname.a
+__dmgetpmid: metric "myname.b" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.b
+__dmgetpmid: metric "myname.c" -> PMID 511.0.4
 __dmopencontext: bind metric[3] myname.c
+__dmgetpmid: metric "myname.d" -> PMID 511.0.5
 __dmopencontext: bind metric[4] myname.d
+__dmgetpmid: metric "myname.e" -> PMID 511.0.6
 __dmopencontext: bind metric[5] myname.e
+__dmgetpmid: metric "myname.f" -> PMID 511.0.7
 __dmopencontext: bind metric[6] myname.f
+__dmgetpmid: metric "myname.g" -> PMID 511.0.8
 __dmopencontext: bind metric[7] myname.g
+__dmgetpmid: metric "myname.h" -> PMID 511.0.9
 __dmopencontext: bind metric[8] myname.h
+__dmgetpmid: metric "myname.i" -> PMID 511.0.10
 __dmopencontext: bind metric[9] myname.i
+__dmgetpmid: metric "myname.j" -> PMID 511.0.11
 __dmopencontext: bind metric[10] myname.j
+__dmgetpmid: metric "myname.k" -> PMID 511.0.12
 __dmopencontext: bind metric[11] myname.k
+__dmgetpmid: metric "myname.l" -> PMID 511.0.13
 __dmopencontext: bind metric[12] myname.l
+__dmgetpmid: metric "myname.m" -> PMID 511.0.14
 __dmopencontext: bind metric[13] myname.m
+__dmgetpmid: metric "myname.n" -> PMID 511.0.15
 __dmopencontext: bind metric[14] myname.n
 __dmgetpmid: metric "myname.a" -> PMID 511.0.2
 __dmgetpmid: metric "myname.b" -> PMID 511.0.3
@@ -1010,20 +1100,35 @@ sample.long.bin_ctr
     inst [900 or "bin-900"] value 900
 
 === sample.string myname.f sample.bin myname ===
+__dmgetpmid: metric "myname.const" -> PMID 511.0.1
 __dmopencontext: bind metric[0] myname.const
+__dmgetpmid: metric "myname.a" -> PMID 511.0.2
 __dmopencontext: bind metric[1] myname.a
+__dmgetpmid: metric "myname.b" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.b
+__dmgetpmid: metric "myname.c" -> PMID 511.0.4
 __dmopencontext: bind metric[3] myname.c
+__dmgetpmid: metric "myname.d" -> PMID 511.0.5
 __dmopencontext: bind metric[4] myname.d
+__dmgetpmid: metric "myname.e" -> PMID 511.0.6
 __dmopencontext: bind metric[5] myname.e
+__dmgetpmid: metric "myname.f" -> PMID 511.0.7
 __dmopencontext: bind metric[6] myname.f
+__dmgetpmid: metric "myname.g" -> PMID 511.0.8
 __dmopencontext: bind metric[7] myname.g
+__dmgetpmid: metric "myname.h" -> PMID 511.0.9
 __dmopencontext: bind metric[8] myname.h
+__dmgetpmid: metric "myname.i" -> PMID 511.0.10
 __dmopencontext: bind metric[9] myname.i
+__dmgetpmid: metric "myname.j" -> PMID 511.0.11
 __dmopencontext: bind metric[10] myname.j
+__dmgetpmid: metric "myname.k" -> PMID 511.0.12
 __dmopencontext: bind metric[11] myname.k
+__dmgetpmid: metric "myname.l" -> PMID 511.0.13
 __dmopencontext: bind metric[12] myname.l
+__dmgetpmid: metric "myname.m" -> PMID 511.0.14
 __dmopencontext: bind metric[13] myname.m
+__dmgetpmid: metric "myname.n" -> PMID 511.0.15
 __dmopencontext: bind metric[14] myname.n
 __dmgetpmid: metric "myname.f" -> PMID 511.0.7
 __dmgetpmid: metric "myname.const" -> PMID 511.0.1
@@ -1639,33 +1744,61 @@ arith.eval.div.l_zero_f_r_f = 0 / sample.float.ten
 arith.eval.div.l_zero_d_r_d = 0 / sample.double.ten
 arith.eval.op.l_err = sample.needprofile + 1
 arith.eval.op.r_err = 1 + sample.needprofile
+__dmgetpmid: metric "arith.l" -> PMID 511.0.1
 __dmopencontext: bind metric[0] arith.l
+__dmgetpmid: metric "arith.ul" -> PMID 511.0.2
 __dmopencontext: bind metric[1] arith.ul
+__dmgetpmid: metric "arith.ll" -> PMID 511.0.3
 __dmopencontext: bind metric[2] arith.ll
+__dmgetpmid: metric "arith.ull" -> PMID 511.0.4
 __dmopencontext: bind metric[3] arith.ull
+__dmgetpmid: metric "arith.f" -> PMID 511.0.5
 __dmopencontext: bind metric[4] arith.f
+__dmgetpmid: metric "arith.d" -> PMID 511.0.6
 __dmopencontext: bind metric[5] arith.d
+__dmgetpmid: metric "arith.promote.l_l_r_ll" -> PMID 511.0.7
 __dmopencontext: bind metric[6] arith.promote.l_l_r_ll
+__dmgetpmid: metric "arith.promote.l_ll_r_l" -> PMID 511.0.8
 __dmopencontext: bind metric[7] arith.promote.l_ll_r_l
+__dmgetpmid: metric "arith.promote.l_ll_r_ul" -> PMID 511.0.9
 __dmopencontext: bind metric[8] arith.promote.l_ll_r_ul
+__dmgetpmid: metric "arith.promote.l_ull_r_l" -> PMID 511.0.10
 __dmopencontext: bind metric[9] arith.promote.l_ull_r_l
+__dmgetpmid: metric "arith.promote.l_l_r_ull" -> PMID 511.0.11
 __dmopencontext: bind metric[10] arith.promote.l_l_r_ull
+__dmgetpmid: metric "arith.promote.l_ul_r_ull" -> PMID 511.0.12
 __dmopencontext: bind metric[11] arith.promote.l_ul_r_ull
+__dmgetpmid: metric "arith.promote.l_ull_r_ul" -> PMID 511.0.13
 __dmopencontext: bind metric[12] arith.promote.l_ull_r_ul
+__dmgetpmid: metric "arith.promote.l_l_r_f" -> PMID 511.0.14
 __dmopencontext: bind metric[13] arith.promote.l_l_r_f
+__dmgetpmid: metric "arith.promote.l_ul_r_f" -> PMID 511.0.15
 __dmopencontext: bind metric[14] arith.promote.l_ul_r_f
+__dmgetpmid: metric "arith.promote.l_ll_r_f" -> PMID 511.0.16
 __dmopencontext: bind metric[15] arith.promote.l_ll_r_f
+__dmgetpmid: metric "arith.promote.l_ull_r_f" -> PMID 511.0.17
 __dmopencontext: bind metric[16] arith.promote.l_ull_r_f
+__dmgetpmid: metric "arith.promote.l_f_r_l" -> PMID 511.0.18
 __dmopencontext: bind metric[17] arith.promote.l_f_r_l
+__dmgetpmid: metric "arith.promote.l_f_r_ul" -> PMID 511.0.19
 __dmopencontext: bind metric[18] arith.promote.l_f_r_ul
+__dmgetpmid: metric "arith.promote.l_f_r_ll" -> PMID 511.0.20
 __dmopencontext: bind metric[19] arith.promote.l_f_r_ll
+__dmgetpmid: metric "arith.promote.l_f_r_ull" -> PMID 511.0.21
 __dmopencontext: bind metric[20] arith.promote.l_f_r_ull
+__dmgetpmid: metric "arith.eval.mul.l_l_r_l" -> PMID 511.0.22
 __dmopencontext: bind metric[21] arith.eval.mul.l_l_r_l
+__dmgetpmid: metric "arith.eval.mul.l_ull_r_ull" -> PMID 511.0.23
 __dmopencontext: bind metric[22] arith.eval.mul.l_ull_r_ull
+__dmgetpmid: metric "arith.eval.div.l_f_r_f" -> PMID 511.0.24
 __dmopencontext: bind metric[23] arith.eval.div.l_f_r_f
+__dmgetpmid: metric "arith.eval.div.l_zero_f_r_f" -> PMID 511.0.25
 __dmopencontext: bind metric[24] arith.eval.div.l_zero_f_r_f
+__dmgetpmid: metric "arith.eval.div.l_zero_d_r_d" -> PMID 511.0.26
 __dmopencontext: bind metric[25] arith.eval.div.l_zero_d_r_d
+__dmgetpmid: metric "arith.eval.op.l_err" -> PMID 511.0.27
 __dmopencontext: bind metric[26] arith.eval.op.l_err
+__dmgetpmid: metric "arith.eval.op.r_err" -> PMID 511.0.28
 __dmopencontext: bind metric[27] arith.eval.op.r_err
 __dmgetpmid: metric "arith.l" -> PMID 511.0.1
 __dmgetpmid: metric "arith.ul" -> PMID 511.0.2
@@ -2475,11 +2608,17 @@ myname.e = sample.noinst
 myname.f = ( sample.long.hundred + sample.long.one ) * ( sample.noinst - 1 )
 
 === myname ===
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 __dmopencontext: bind metric[0] myname.a
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
 __dmopencontext: bind metric[1] myname.b
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.c
+__dmgetpmid: metric "myname.d" -> PMID 511.0.4
 __dmopencontext: bind metric[3] myname.d
+__dmgetpmid: metric "myname.e" -> PMID 511.0.5
 __dmopencontext: bind metric[4] myname.e
+__dmgetpmid: metric "myname.f" -> PMID 511.0.6
 __dmopencontext: bind metric[5] myname.f
 __dmgetpmid: metric "myname.a" -> PMID 511.0.1
 __dmgetpmid: metric "myname.b" -> PMID 511.0.2

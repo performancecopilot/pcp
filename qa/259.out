@@ -10,7 +10,9 @@ Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: register metric[0] derived.inst = delta(sample.longlong.million)
 pmRegisterDerived: register metric[1] derived.ctr = delta(sampledso.recv_pdu)
+__dmgetpmid: metric "derived.inst" -> PMID 511.0.1
 __dmopencontext: bind metric[0] derived.inst
+__dmgetpmid: metric "derived.ctr" -> PMID 511.0.2
 __dmopencontext: bind metric[1] derived.ctr
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
@@ -96,7 +98,9 @@ Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: register metric[0] derived.inst = delta(sample.longlong.million)
 pmRegisterDerived: register metric[1] derived.ctr = delta(sampledso.recv_pdu)
+__dmgetpmid: metric "derived.inst" -> PMID 511.0.1
 __dmopencontext: bind metric[0] derived.inst
+__dmgetpmid: metric "derived.ctr" -> PMID 511.0.2
 __dmopencontext: bind metric[1] derived.ctr
 pmFetch returns ...
 TIMESTAMP ... numpmid: 1
@@ -198,6 +202,7 @@ pmRegisterDerived: register metric[0] myname.b = delta + 3
 [TMP.config:4] Error: pmRegisterDerived(myname.d, ...) syntax error
  delta(12345)
        ^     
+__dmgetpmid: metric "myname.b" -> PMID 511.0.1
 __dmgetpmid: metric "delta" -> Unknown metric name
 bind_expr: error: derived metric myname.b: operand: delta: Unknown metric name
 pmFetch returns ...
