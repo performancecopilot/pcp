@@ -1891,9 +1891,26 @@ __dmopencontext(__pmContext *ctxp)
 	/* NOTREACHED */
     }
     for (i = 0; i < cp->nmetric; i++) {
+	pmID	pmid;
 	cp->mlist[i].name = registered.mlist[i].name;
 	cp->mlist[i].pmid = registered.mlist[i].pmid;
 	assert(registered.mlist[i].expr != NULL);
+	/*
+	 * Derived metric names must not clash with real metric names ...
+	 * and if this happens, the real metric wins!
+	 * Logic here depends on pmLookupName() returning before any
+	 * derived metric searching is performed if the name is valid
+	 * for a real metric in the current context.
+	 */
+	sts = pmLookupName(1, &registered.mlist[i].name, &pmid);
+	if (sts >= 0 && !IS_DERIVED(pmid)) {
+	    char	strbuf[20];
+	    pmprintf("Warning: %s: derived name matches metric %s: derived ignored\n",
+		    registered.mlist[i].name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
+	    pmflush();
+	    cp->mlist[i].expr = NULL;
+	    continue;
+	}
 	/* failures must be reported in bind_expr() or below */
 	cp->mlist[i].expr = bind_expr(i, registered.mlist[i].expr);
 	if (cp->mlist[i].expr != NULL) {

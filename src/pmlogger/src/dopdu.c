@@ -277,6 +277,9 @@ add_metric(pmValueSet *vsp, task_t **result)
     tp->t_pmidlist[i] = pmid;
     tp->t_namelist[i] = name;
     tp->t_desclist[i] = *dp;	/* struct assignment */
+    /* is this a derived metric? */
+    if (IS_DERIVED(pmid))
+	tp->t_dm++;
 
     rqp = (optreq_t *)calloc(1, sizeof(optreq_t));
     if (rqp == NULL) {

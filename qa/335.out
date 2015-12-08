@@ -33,7 +33,9 @@ Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: register metric[0] my.scramble.bin = sample.scramble.bin
 pmRegisterDerived: register metric[1] my.scramble.delta = delta(sample.scramble.bin)
+__dmgetpmid: metric "my.scramble.bin" -> PMID 511.0.1
 __dmopencontext: bind metric[0] my.scramble.bin
+__dmgetpmid: metric "my.scramble.delta" -> PMID 511.0.2
 __dmopencontext: bind metric[1] my.scramble.delta
 __dmgetpmid: metric "my.scramble.delta" -> PMID 511.0.2
 derived metrics prefetch added 1 metrics: 29.0.121

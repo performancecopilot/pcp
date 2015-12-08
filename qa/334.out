@@ -13,10 +13,15 @@ pmRegisterDerived: register metric[1] my.x2 = sample.part_bin + sample.bin
 pmRegisterDerived: register metric[2] my.x3 = 2 * sample.part_bin
 pmRegisterDerived: register metric[3] my.x4 = sample.part_bin * 2
 pmRegisterDerived: register metric[4] my.x5 = (sample.bin + sample.part_bin) - (sample.part_bin + sample.bin)
+__dmgetpmid: metric "my.x1" -> PMID 511.0.1
 __dmopencontext: bind metric[0] my.x1
+__dmgetpmid: metric "my.x2" -> PMID 511.0.2
 __dmopencontext: bind metric[1] my.x2
+__dmgetpmid: metric "my.x3" -> PMID 511.0.3
 __dmopencontext: bind metric[2] my.x3
+__dmgetpmid: metric "my.x4" -> PMID 511.0.4
 __dmopencontext: bind metric[3] my.x4
+__dmgetpmid: metric "my.x5" -> PMID 511.0.5
 __dmopencontext: bind metric[4] my.x5
 __dmgetpmid: metric "my.x1" -> PMID 511.0.1
 __dmgetpmid: metric "my.x2" -> PMID 511.0.2
