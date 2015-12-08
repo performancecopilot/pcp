@@ -68,13 +68,17 @@ function fetch_metric_min(name) {
 // ----------------------------------------------------------------------
 
 
-function Node(exp, desc) {
+function Node(exp, desc, vector) {
     this.exp = exp; // the test to determine whether to check this tree
     this.desc = desc; // the description of what it is doing
     this.id = null; // node number
     this.score = 0; // the current value of the node
     this.parent = null;
     this.children = []; // list of possible contributors
+    if (vector)
+	    this.vector = vector;
+	else
+	    this.vector = null;
 }
 
 function Tree(exp,desc) {
@@ -271,14 +275,14 @@ function search(root)
 
 var tree = new Tree(function() {return 1.0}, 'toplev of checklist');
 
-cpu = new Node(function() {return (1- fetch_metric_min("kernel.percpu.cpu.idle")); }, 'cpu limited');
+cpu = new Node(function() {return (1- fetch_metric_min("kernel.percpu.cpu.idle")); }, 'cpu limited', "http://localhost:44323/vector/index.html#/embed?widgets=kernel.percpu.cpu,kernel.all.runnable&host=localhost:44323&hostspec=localhost");
 addChild(tree._root, cpu);
 
 serialization = new Node(function() {return 0;}, 'poor explotation of parallelism')
 addChild(cpu, serialization);
 thread_limited = new Node(
     function() { return Math.min(1.0, fetch_metric("kernel.all.load",0)/fetch_metric("hinv.ncpu",0));},
-    'runnable threads > processors');
+    'runnable threads > processors', "http://localhost:44323/vector/index.html#/embed?widgets=kernel.all.load&host=localhost:44323&hostspec=localhost");
 addChild(cpu, thread_limited);
 cpu_mem = new Node(function() {return 0;}, 'poor memory system performance');
 addChild(cpu, cpu_mem);
@@ -431,7 +435,11 @@ function loadChecklist() {
     tree.traverseDF(
 	function(node, level, o) {
 	    var n = "node" + node_id++; node.id = "#" + n;
-	    return (o + "<ul><li><p><em id=\"" + n + "\"></em> " + node.desc + "</p>\n");},
+	    var h = o + "<ul><li><p><em id=\"" + n + "\"></em> " + node.desc + "</p>\n";
+	    if (node.vector) {
+		h += ("<iframe src=\"" + node.vector + "\"></iframe>\n");
+	    }
+	    return (h);},
 	function(node, level, o) { return (o + "</li></ul>\n");},
 	""));
 
