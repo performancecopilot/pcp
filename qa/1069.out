@@ -71,6 +71,22 @@ sample.milliseconds|s.milliseconds|util|380439679.413
 20:36:49  1000000.0        1000.033
 20:36:51  1000000.0        1000.001
 20:36:53  1000000.0        1000.016
+== derived metrics configuration file
+  s.combo
+     util
+      N/A
+      N/A
+    1.001
+    1.001
+    1.001
+== extended existing sample configuration
+  s.combo  s.seconds  s.milliseconds
+     util       util            util
+      N/A        N/A             N/A
+      N/A        N/A             N/A
+    1.001      1.000           1.000
+    1.001      1.000           1.000
+    1.001      1.000           1.000
 == exercise good config version
   s.seconds  s.milliseconds
        util            util

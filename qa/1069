@@ -56,18 +56,19 @@ pmrep -s 5 -t 2 $log -E 2 sample.seconds
 echo "== exercise units conversion options"
 pmrep -s 5 -t 2 $log -p -y microsec sample
 
-#echo "== derived metrics configuration file"
-#echo > $tmp.derived <<EOF
-#sample.combo = sample.seconds + (sample.milliseconds / 1000)
-#EOF
-#pmrep -s 5 -t 2 $log -e $tmp.derived sample.combo
+echo "== derived metrics configuration file"
+cat > $tmp.derived <<EOF
+sample.combo = sample.seconds + (sample.milliseconds / 1000)
+EOF
+pmrep -s 5 -t 2 $log -e $tmp.derived sample.combo
 
-#echo "== extended existing sample configuration"
-#cp $tmp.config $tmp.dconfig
-#echo >> $tmp.dconfig <<EOF
-#combo = sample.combo
-#EOF
-#pmrep -s 5 -t 2 $log -e $tmp.derived -c $tmp.dconfig sample
+echo "== extended existing sample configuration"
+cp $tmp.config $tmp.dconfig
+cat >> $tmp.dconfig <<EOF
+[global]
+combo = sample.combo
+EOF
+pmrep -s 5 -t 2 $log -e $tmp.derived -c $tmp.dconfig sample
 
 echo "== exercise good config version"
 echo '[options]' > $tmp.vconfig
