@@ -33,13 +33,13 @@ metric,timestamp,name,unit,value
 sample.seconds,2000-05-01 20:36:45,s.seconds,util,N/A
 sample.milliseconds,2000-05-01 20:36:45,s.milliseconds,util,N/A
 sample.seconds,2000-05-01 20:36:47,s.seconds,util,380434
-sample.milliseconds,2000-05-01 20:36:47,s.milliseconds,util,380433679.314
+sample.milliseconds,2000-05-01 20:36:47,s.milliseconds,util,380433679.3
 sample.seconds,2000-05-01 20:36:49,s.seconds,util,380436
-sample.milliseconds,2000-05-01 20:36:49,s.milliseconds,util,380435679.381
+sample.milliseconds,2000-05-01 20:36:49,s.milliseconds,util,380435679.4
 sample.seconds,2000-05-01 20:36:51,s.seconds,util,380438
-sample.milliseconds,2000-05-01 20:36:51,s.milliseconds,util,380437679.382
+sample.milliseconds,2000-05-01 20:36:51,s.milliseconds,util,380437679.4
 sample.seconds,2000-05-01 20:36:53,s.seconds,util,380440
-sample.milliseconds,2000-05-01 20:36:53,s.milliseconds,util,380439679.413
+sample.milliseconds,2000-05-01 20:36:53,s.milliseconds,util,380439679.4
 metric|name|unit|value
 sample.seconds|s.seconds|util|N/A
 sample.milliseconds|s.milliseconds|util|N/A
