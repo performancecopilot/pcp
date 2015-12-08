@@ -111,6 +111,8 @@ Source2: vector.tar.gz
 Conflicts: librapi
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+# https://fedoraproject.org/wiki/Packaging:C_and_C%2B%2B
+BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
 BuildRequires: nss-devel
 BuildRequires: rpm-devel
