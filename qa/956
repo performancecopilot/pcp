@@ -81,7 +81,7 @@ then
 fi
 
 # and a bit more for pmcd to notice the PMDA has exited
-pmsleep 0.2
+pmsleep 1.25
 
 echo "Tickle access to the failed PMDA, must see 'Try Again'"
 pmprobe -h unix: -i hinv.ncpu
