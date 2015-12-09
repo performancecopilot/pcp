@@ -2430,7 +2430,8 @@ cd
 - Fix python PMAPI pmRegisterDerived wrapper interface (BZ 1286733)
 - Fix pmstat SEGV when run with graphical time control (BZ 1287678)
 - Make pmNonOptionsFromList error message less cryptic (BZ 1287778)
-- Work in progress [see http://pcp.io/roadmap]
+- Drop unimplemented pmdumptext options from usage, man page (BZ 1289909)
+- Update to latest PCP sources.
 
 * Fri Oct 30 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.8-1
 - Update pmlogger to log an immediate sample first (BZ 1269921)

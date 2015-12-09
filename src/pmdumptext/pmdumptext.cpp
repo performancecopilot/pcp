@@ -65,7 +65,21 @@ static int sampleCount;
 static int repeatLines;
 
 static pmLongOptions longopts[] = {
-    PMAPI_GENERAL_OPTIONS,
+    PMAPI_OPTIONS_HEADER("General options"), \
+    PMOPT_ALIGN,
+    PMOPT_ARCHIVE,
+    PMOPT_DEBUG,
+    PMOPT_HOST,
+    PMOPT_NAMESPACE,
+    PMOPT_ORIGIN,
+    PMOPT_START,
+    PMOPT_SAMPLES,
+    PMOPT_FINISH,
+    PMOPT_INTERVAL,
+    PMOPT_TIMEZONE,
+    PMOPT_HOSTZONE,
+    PMOPT_VERSION,
+    PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "config", 1, 'c', "FILE", "read list of metrics from FILE" },
     { "check", 0, 'C', 0, "exit before dumping any values" },
@@ -707,7 +721,8 @@ main(int argc, char *argv[])
     pmOptions opts;
     memset(&opts, 0, sizeof(opts));
     opts.flags = PM_OPTFLAG_MULTI;
-    opts.short_options = PMAPI_OPTIONS "c:Cd:f:FGHilmMNoP:rR:uU:w:X";
+    opts.short_options = "A:a:D:h:n:O:S:s:T:t:VZ:z?"
+			 "c:Cd:f:FGHilmMNoP:rR:uU:w:X";
     opts.long_options = longopts;
     opts.short_usage = "[options] [metrics ...]";
     opts.override = override;

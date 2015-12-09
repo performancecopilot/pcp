@@ -6,7 +6,7 @@
 .\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3pmdumptext\f1
-[\f3\-CFgGHilmMNoruXz\f1]
+[\f3\-CFGHilmMNoruXz\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-a\f1 \f2archive\f1[\f3,\f2archive\f3,\f1...]]
 [\f3\-c\f1 \f2config\f1]
@@ -15,7 +15,6 @@
 [\f3\-h\f1 \f2host\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-O\f1 \f2offset\f1]
-[\f3\-p\f1 \f2port\f1]
 [\f3\-P\f1 \f2precision\f1]
 [\f3\-R\f1 \f2lines\f1]
 [\f3\-s\f1 \f2sample\f1]
@@ -194,10 +193,6 @@ are bytes.
 .IP \f3\-G\f1
 Output the values using the shortest of a scientific format or a decimal
 notation.
-.IP \f3\-g\f1
-Run in graphical user interface (GUI) mode, with
-.B pmtime
-being used for VCR-alike time control functionality.
 .IP \f3\-h\f1
 Fetch performance metrics from
 .BR pmcd (1)
@@ -247,11 +242,6 @@ the start of the archive or the beginning of the execution of
 .BR pmdumptext .
 .IP \f3\-N\f1
 Output the normalization factors before the metric values.
-.IP \f3\-p\f1
-Connect to
-.BR pmtime (1)
-on the specified
-.IR port .
 .IP \f3\-P\f1
 Set the
 .I precision
