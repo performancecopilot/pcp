@@ -173,8 +173,7 @@ class PMReporter(object):
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval')
 
-        # Command line switches without arguments
-        self.argless = ('-C', '-L', '-H', '-U', '-G', '-p', '-d', '--delay', '-r', '--raw', '-x', '--extended-header', '-u')
+        # Special command line switches
         self.arghelp = ('-?', '--help', '-V', '--version')
 
         # The order of preference for parameters (as present):
@@ -300,7 +299,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:R:Z:zdrw:f:l:xE:P:uq:b:y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:R:Z:zdrw:P:l:xE:f:uq:b:y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -335,11 +334,11 @@ class PMReporter(object):
         opts.pmSetLongOption("delay", 0, "d", "", "delay, pause between updates for archive replay")
         opts.pmSetLongOption("raw", 0, "r", "", "output raw counter values (no rate conversion)")
         opts.pmSetLongOption("width", 1, "w", "N", "default column width")
-        opts.pmSetLongOption("fixed-point", 1, "f", "N", "N digits after the decimal separator (if width enough)")
+        opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (if width enough)")
         opts.pmSetLongOption("delimiter", 1, "l", "STR", "delimiter to separate csv/stdout columns")
         opts.pmSetLongOption("extended-header", 0, "x", "", "display extended header")
         opts.pmSetLongOption("repeat-header", 1, "E", "N", "repeat stdout headers every N lines")
-        opts.pmSetLongOption("timestamp-format", 1, "P", "STR", "strftime string for timestamp format")
+        opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "strftime string for timestamp format")
         opts.pmSetLongOption("no-interpolation", 0, "u", "", "disable interpolation mode with archives")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
         opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
@@ -394,7 +393,7 @@ class PMReporter(object):
             self.raw = 1
         elif opt == 'w':
             self.width = int(optarg)
-        elif opt == 'f':
+        elif opt == 'P':
             self.precision = int(optarg)
         elif opt == 'l':
             self.delimiter = optarg
@@ -402,7 +401,7 @@ class PMReporter(object):
             self.extheader = 1
         elif opt == 'E':
             self.repeat_header = int(optarg)
-        elif opt == 'P':
+        elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'u':
             self.interpol = 0

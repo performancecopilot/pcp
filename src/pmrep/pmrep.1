@@ -26,14 +26,14 @@
 [\f3\-c\f1 \f2config\f1]
 [\f3\-e\f1 \f2derived\f1]
 [\f3\-E\f1 \f2lines\f1]
-[\f3\-f\f1 \f2precision\f1]
+[\f3\-f\f1 \f2format\f1]
 [\f3\-F\f1 \f2archive\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-l\f1 \f2delimiter\f1]
 [\f3\-o\f1 \f2output\f1]
 [\f3\-O\f1 \f2origin\f1]
-[\f3\-P\f1 \f2timefmt\f1]
+[\f3\-P\f1 \f2precision\f1]
 [\f3\-q\f1 \f2count-scale\f1]
 [\f3\-R\f1 \f2runtime\f1]
 [\f3\-s\f1 \f2samples\f1]
@@ -281,14 +281,19 @@ Repeat the header every
 of output.
 .TP
 .B \-f
-Use
-.I precision
-for numeric non-integer output values.
-If the value is too wide for its column width,
-.I precision
-is reduced one by one until the value fits, or not printed at all if it
-does not.
-The default is to use 3 decimal places (when applicable).
+Use the
+.I format
+string for formatting the timestamp.
+The format will be used with
+Python's
+.B datetime.strftime
+method which is mostly the same as that described in
+.BR strftime (3).
+An empty
+.I format
+string (i.e., '') will remove the timestamps from the output.
+The default is
+.BR %H:%M:%S .
 .TP
 .B \-F
 Specify the output
@@ -400,19 +405,14 @@ Print timestamps.
 By default no timestamps are printed.
 .TP
 .B \-P
-Use the
-.I timefmt
-format string for formatting the timestamp.
-The format will be used with
-Python's
-.B datetime.strftime
-method which is mostly the same as that described in
-.BR strftime (3).
-An empty
-.I timefmt
-string (i.e., '') will remove the timestamps from the output.
-The default is
-.BR %H:%M:%S .
+Use
+.I precision
+for numeric non-integer output values.
+If the value is too wide for its column width,
+.I precision
+is reduced one by one until the value fits, or not printed at all if it
+does not.
+The default is to use 3 decimal places (when applicable).
 .TP
 .B \-q
 .I Unit/scale

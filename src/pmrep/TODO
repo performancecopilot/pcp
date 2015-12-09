@@ -1,12 +1,12 @@
 -  after first release: drop all compat code
 -  after first release: check all code marked with BZ references
--  allow defining instances to display
--  opt to write cols per row with stdout output
--  -Q/-B/-Y/-W to override per-metric unit/scale/width
+-  allow defining instances to display [-i]
+-  opt to write cols per row with stdout output [-k]
+-  -Q/-B/-Y/-r/-W to override per-metric unit/scale/raw/width
 -  maybe adjust unit/scale handling to ~match fetchgroup
 -  shorten unit display count / sec -> count/s -> c/s if needed
--  opt to output in short format (see pmdumptext -F / pmNumberStr)
--  -X to support pmdumptext -X like output (or shorten inst names if needed)
+-  opt to output in short format (see pmdumptext -F / pmNumberStr) [-m/-M]
+-  opt to support pmdumptext -X like output (or shorten inst names if needed)
 -  bash/zsh completion with short help (allow description for sets?)
 -  containers support
 -  verify CSV format
@@ -23,4 +23,15 @@
 -  generalised daemon startup support (?)
 -  provide percentage metrics (e.g. CPU/:vmstat) (?)
 -  add option to prevent truncating string output (?)
--  optionally ignore incompatible/unsupported metrics rather than abort (?)
+-  optionally ignore incompatible/unsupported metrics rather than abort [-I] (?)
+
+-----
+
+In use / "reserved" cmd line options:
+AaBbcCdDeEGhHKLloOqQrRsStTuUVwWxyYzZ
+
+Tentatively reserved:
+iIgkmMpv
+
+Available:
+jJnNX

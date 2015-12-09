@@ -33,7 +33,7 @@ echo "== basic live mode reporting"
 pmrep -p -s 2 -t 0.25 sample.long.one | _live_filter
 
 echo "== basic archive mode reporting"
-pmrep -z -p -s 5 -t 2 -f 2 --archive $here/archives/sample-secs \
+pmrep -z -p -s 5 -t 2 -P 2 --archive $here/archives/sample-secs \
 	sample.seconds sample.milliseconds
 
 echo "== basic configuration file handling"
@@ -47,7 +47,7 @@ echo "== exercise raw counter mode "
 pmrep -s 5 -t 2 $log -c $tmp.config -r sample
 
 echo "== exercise CSV and alternate delimiters"
-pmrep -s 5 -t 2 $log -c $tmp.config -o csv -p -f 1 sample
+pmrep -s 5 -t 2 $log -c $tmp.config -o csv -p -P 1 sample
 pmrep -s 5 -t 2 $log -c $tmp.config -o csv --delimiter '|' sample
 
 echo "== exercise repeated headers option"
