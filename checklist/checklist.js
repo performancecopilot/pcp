@@ -275,7 +275,7 @@ function search(root)
 
 var tree = new Tree(function() {return 1.0}, 'toplev of checklist');
 
-cpu = new Node(function() {return (1- fetch_metric_min("kernel.percpu.cpu.idle")); }, 'cpu limited', "http://localhost:44323/vector/index.html#/embed?widgets=kernel.percpu.cpu,kernel.all.runnable&host=localhost:44323&hostspec=localhost");
+cpu = new Node(function() {return (1- fetch_metric_min("kernel.percpu.cpu.idle")); }, 'cpu limited', "http://localhost:44323/vector/index.html#/embed?widgets=kernel.percpu.cpu,kernel&host=localhost:44323&hostspec=localhost");
 addChild(tree._root, cpu);
 
 serialization = new Node(function() {return 0;}, 'poor explotation of parallelism')
