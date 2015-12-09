@@ -79,6 +79,14 @@ sample.milliseconds|s.milliseconds|util|380439679.413
     1.001
     1.001
     1.001
+== derived metrics directly on command line
+  s.combo
+     util
+      N/A
+      N/A
+    1.001
+    1.001
+    1.001
 == extended existing sample configuration
   s.combo  s.seconds  s.milliseconds
      util       util            util

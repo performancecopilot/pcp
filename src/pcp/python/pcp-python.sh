@@ -23,4 +23,4 @@ then
    echo "No python interpreter configured in $PCP_DIR/etc/pcp.env (PCP_PYTHON_PROG)" 1>&2
    exit 1
 fi
-exec $PCP_PYTHON_PROG $@
+exec $PCP_PYTHON_PROG "$@"
