@@ -1,4 +1,6 @@
 var pm_root = "http://" + location.hostname + ":" + location.port + "/pmapi";
+var vector_root = "http://" + location.hostname + ":" + location.port + "/vector/index.html";
+var vector_host = "&host=" + location.hostname + ":" + location.port + "&hostspec=" + location.hostname;
 var pm_context = -1;
 
 // ----------------------------------------------------------------------
@@ -76,7 +78,7 @@ function Node(exp, desc, vector) {
     this.parent = null;
     this.children = []; // list of possible contributors
     if (vector)
-	    this.vector = vector;
+	    this.vector = vector_root + vector + vector_host;
 	else
 	    this.vector = null;
 }
@@ -275,14 +277,14 @@ function search(root)
 
 var tree = new Tree(function() {return 1.0}, 'toplev of checklist');
 
-cpu = new Node(function() {return (1- fetch_metric_min("kernel.percpu.cpu.idle")); }, 'cpu limited', "http://localhost:44323/vector/index.html#/embed?widgets=kernel.percpu.cpu,kernel&host=localhost:44323&hostspec=localhost");
+cpu = new Node(function() {return (1- fetch_metric_min("kernel.percpu.cpu.idle")); }, 'cpu limited', "#/embed?widgets=kernel.percpu.cpu,kernel");
 addChild(tree._root, cpu);
 
 serialization = new Node(function() {return 0;}, 'poor explotation of parallelism')
 addChild(cpu, serialization);
 thread_limited = new Node(
     function() { return Math.min(1.0, fetch_metric("kernel.all.load",0)/fetch_metric("hinv.ncpu",0));},
-    'runnable threads > processors', "http://localhost:44323/vector/index.html#/embed?widgets=kernel.all.load&host=localhost:44323&hostspec=localhost");
+    'runnable threads > processors', "#/embed?widgets=kernel.all.load");
 addChild(cpu, thread_limited);
 cpu_mem = new Node(function() {return 0;}, 'poor memory system performance');
 addChild(cpu, cpu_mem);
