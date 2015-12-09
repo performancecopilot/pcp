@@ -432,7 +432,7 @@ space_scale = MB
 [global]
 kernel.all.sysfork = fork/s,,,,8
 allcache = mem.util.allcache
-allcache.formula = mem.util.cached+mem.util.slab
+allcache.formula = mem.util.bufmem + mem.util.cached + mem.util.slab
 
 [db1]
 source = db-host1.example.com

@@ -1299,7 +1299,7 @@ class PMReporter(object):
                 val = str(list(values[i])[j][2])
                 self.zabbix_metrics.append(ZabbixMetric(self.zabbix_host, key, val, ts))
 
-        # Send when need
+        # Send when needed
         if self.context.type == PM_CONTEXT_ARCHIVE:
             if len(self.zabbix_metrics) >= self.zabbix_interval:
                 send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
@@ -1311,7 +1311,7 @@ class PMReporter(object):
 
     def connect(self):
         """ Establish a PMAPI context to archive, host or local, via args """
-        self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
+        self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv, self.opts.pmGetOptionContext())
 
 if __name__ == '__main__':
     try:

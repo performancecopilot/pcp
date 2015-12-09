@@ -217,7 +217,7 @@ Monitor live CPU load, memory usage, and disk write operations per partition wit
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Monitor live process creation rate and free/used memory with two second interval printing timestamps and using GBs for output values in CSV format:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -p -b GB -t 2sec -o csv kernel.all.sysfork mem.util.free mem.util.used -h acme.com</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -h acme.com -p -b GB -t 2sec -o csv kernel.all.sysfork mem.util.free mem.util.used</B>
 </TD></TR>
 </TABLE>
 
@@ -320,7 +320,7 @@ Dump past CPU load, memory usage, and disk write operations per partition in an 
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Dump past CPU load, memory usage, and disk write operations per partition in an archive with extended header using MBs but without interpolation between 9 AM and 10 AM:<BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -p -u -b MB -x -S @09:00 -T @10:00 kernel.all.load mem.util.used disk.partitions.write -a acme.com/20140902</B>
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -a acme.com/20140902 -p -u -b MB -x -S @09:00 -T @10:00 kernel.all.load mem.util.used disk.partitions.write</B>
 </TD></TR>
 </TABLE>
 
@@ -490,7 +490,7 @@ Create a file containing definitions of derived metrics and point PCP_DERIVED_CO
 <TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
         <TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;
 Define a derived metric on the command line and monitor it with regular metrics:</BR><B>
-<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -t 2sec -p -b MB -e "mem.util.allcache = mem.util.cached + mem.util.slab + mem.util.bufmem" mem.util.free mem.util.allcache mem.util.used
+<BR> $ <a href="http://man7.org/linux/man-pages/man1/pmrep.1.html">pmrep</a> -t 2sec -p -b MB -e "mem.util.allcache = mem.util.bufmem + mem.util.cached + mem.util.slab" mem.util.free mem.util.allcache mem.util.used
 </TD></TR>
 </TABLE>
 
