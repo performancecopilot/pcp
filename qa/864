@@ -13,8 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-pcp collectl --version >/dev/null 2>&1
-[ $? -eq 2 ] && _notrun "pcp-collectl not installed"
+pcp collectl --version >$tmp.out 2>&1
+grep 'collectl version' $tmp.out >/dev/null || _notrun "pcp-collectl not installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

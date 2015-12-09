@@ -241,7 +241,7 @@ event_init(int context, pmInDom aclops, pipe_command *cmd, char *params)
 
     if (pmDebug & DBG_TRACE_APPL0)
         __pmNotifyErr(LOG_DEBUG, "event_init: %s[%d] starting: %s [%s] maxmem=%ld",
-		cmd->identifier, cmd->inst, cmd->command, params, maxmem);
+		cmd->identifier, cmd->inst, cmd->command, params, (long)maxmem);
 
     assert(ctxtab_size > context);	/* event_client_access ensures this */
     client = &ctxtab[context];

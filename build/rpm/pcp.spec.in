@@ -1704,7 +1704,9 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'sheet2pcp' >import_sheet2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'mrtg2pcp' >import_mrtg2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'ganglia2pcp' >import_ganglia2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_files
+%if "@have_python@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2graphite' >export_pcp2graphite_files
+%endif
 awk '{print $NF}' $DIST_MANIFEST | egrep 'zabbix|zbxpcp' >export_zabbix_agent_files
 %if "@pmda_infiniband@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'infiniband|pmdaib|pmdas/ib' >pmda_infiniband_files

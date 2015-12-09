@@ -8,7 +8,8 @@
 . ./common.filter
 . ./common.check
 
-python=${PCP_PYTHON_PROG:-python}
+python=${PCP_PYTHON_PROG}
+[ -n "$python" ] || _notrun "No python interpreter configured in \$PCP_PYTHON_PROG"
 eval $python -c exit 2>/dev/null || _notrun "$python unavailable"
 
 # verify output from unittest indicates successful testing
