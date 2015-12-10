@@ -25,6 +25,7 @@ PMID(s): 137.0.0
 dbpmda> children json
 dbpmda> children json.s1
 fetch json.nsources
+leaf counter
 leaf debug
 leaf nsources
 leaf string
@@ -32,7 +33,11 @@ leaf value
 non-leaf s1
 pmResult ... numpmid: 1
 value 1
-fetch json.s1.string
+desc json.s1.counter
+PMID: 137.1.2
+Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+Semantics: counter  Units: none
+dbpmda> fetch json.s1.string
 PMID(s): 137.1.0
 pmResult ... numpmid: 1
 137.1.0 (<noname>): numval: 1 valfmt: 1 vlist[]:
@@ -42,6 +47,11 @@ PMID(s): 137.1.1
 pmResult ... numpmid: 1
 137.1.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
 value 0
+dbpmda> fetch json.s1.counter
+PMID(s): 137.1.2
+pmResult ... numpmid: 1
+137.1.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 5
 
 fetch json.nsources
 PMID(s): 137.0.0
@@ -58,6 +68,11 @@ PMID(s): 137.1.1
 pmResult ... numpmid: 1
 137.1.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
 value 99
+dbpmda> fetch json.s1.counter
+PMID(s): 137.1.2
+pmResult ... numpmid: 1
+137.1.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
+value 10
 
 fetch json.nsources
 PMID(s): 137.0.0
@@ -72,6 +87,7 @@ Metric: json.s2
 children json
 dbpmda> children json.s1
 dbpmda> children json.s2
+leaf counter
 leaf debug
 leaf nsources
 leaf string
@@ -84,6 +100,10 @@ pmInDom: 137.0
 [  0] inst: 0 name: "__internal__"
 [  1] inst: 1 name: "s1"
 [  2] inst: 2 name: "s2"
+dbpmda> desc json.s2.array_data.counter
+PMID: 137.2.2
+Data Type: double  InDom: 137.4 0x22400004
+Semantics: counter  Units: none
 dbpmda> fetch json.s2.array_data.count
 PMID(s): 137.2.0
 pmResult ... numpmid: 1
@@ -96,6 +116,12 @@ pmResult ... numpmid: 1
 137.2.1 (<noname>): numval: 2 valfmt: 1 vlist[]:
 inst [0 or ???] value 1024
 inst [1 or ???] value 2048
+dbpmda> fetch json.s2.array_data.counter
+PMID(s): 137.2.2
+pmResult ... numpmid: 1
+137.2.2 (<noname>): numval: 2 valfmt: 1 vlist[]:
+inst [0 or ???] value 3
+inst [1 or ???] value 5
 
 2 0 2147483647
 0 TIMESTAMP first
@@ -117,6 +143,12 @@ pmResult ... numpmid: 1
 137.2.1 (<noname>): numval: 2 valfmt: 1 vlist[]:
 inst [1 or ???] value 2049
 inst [2 or ???] value 3072
+dbpmda> fetch json.s2.array_data.counter
+PMID(s): 137.2.2
+pmResult ... numpmid: 1
+137.2.2 (<noname>): numval: 2 valfmt: 1 vlist[]:
+inst [1 or ???] value 10
+inst [2 or ???] value 7
 dbpmda> instance 137.4
 pmInDom: 137.4
 [  0] inst: 1 name: "second"
@@ -137,6 +169,12 @@ pmResult ... numpmid: 1
 137.2.1 (<noname>): numval: 2 valfmt: 1 vlist[]:
 inst [0 or ???] value 1025
 inst [3 or ???] value 999
+dbpmda> fetch json.s2.array_data.counter
+PMID(s): 137.2.2
+pmResult ... numpmid: 1
+137.2.2 (<noname>): numval: 2 valfmt: 1 vlist[]:
+inst [0 or ???] value 6
+inst [3 or ???] value 13
 dbpmda> instance 137.4
 pmInDom: 137.4
 [  0] inst: 0 name: "first"
@@ -157,6 +195,11 @@ PMID(s): 137.2.1
 pmResult ... numpmid: 1
 137.2.1 (<noname>): numval: 1 valfmt: 1 vlist[]:
 inst [0 or ???] value 1026
+dbpmda> fetch json.s2.array_data.counter
+PMID(s): 137.2.2
+pmResult ... numpmid: 1
+137.2.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
+inst [0 or ???] value 9
 dbpmda> instance 137.4
 pmInDom: 137.4
 [  0] inst: 0 name: "first"
@@ -181,6 +224,7 @@ children json
 dbpmda> children json.ceph
 dbpmda> children json.s1
 dbpmda> children json.s2
+leaf counter
 leaf debug
 leaf nsources
 leaf string
