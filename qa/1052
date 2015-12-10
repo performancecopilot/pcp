@@ -153,7 +153,8 @@ cat > ${SRC1_METADATA} <<EOF
       "name": "value",
       "pointer": "/value",
       "type": "integer",
-      "description": "Integer value"
+      "description": "Integer value",
+      "semanatics": "instantaneous"
     },
     {
       "name": "counter",
@@ -161,6 +162,13 @@ cat > ${SRC1_METADATA} <<EOF
       "type": "double",
       "description": "double counter",
       "semantics": "counter"
+    },
+    {
+      "name": "discrete",
+      "pointer": "/discrete",
+      "type": "integer",
+      "description": "discrete integer",
+      "semantics": "discrete"
     }
   ]
 }
@@ -169,14 +177,16 @@ cat > ${SRC1_DATA1} <<EOF
 {
   "string": "original value",
   "value": 0,
-  "counter": 5
+  "counter": 5,
+  "discrete": 7
 }
 EOF
 cat > ${SRC1_DATA2} <<EOF
 {
   "string": "new value",
   "value": 99,
-  "counter": 10
+  "counter": 10,
+  "discrete": 14
 }
 EOF
 
@@ -332,9 +342,11 @@ _drain_output_sorted
 
 cat >&3 <<EOF
 desc json.s1.counter
+desc json.s1.discrete
 fetch json.s1.string
 fetch json.s1.value
 fetch json.s1.counter
+fetch json.s1.discrete
 EOF
 _drain_output
 
@@ -347,6 +359,7 @@ fetch json.nsources
 fetch json.s1.string
 fetch json.s1.value
 fetch json.s1.counter
+fetch json.s1.discrete
 EOF
 _drain_output
 
