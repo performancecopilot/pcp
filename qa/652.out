@@ -23,7 +23,7 @@ systemd.journal.field.string 0
 systemd.journal.field.blob 0
 
 === 2. journald.records  ===
-    systemd.journal.field.string "MESSAGE=yo"
+    systemd.journal.field.string "MESSAGE=yo-652-2"
 
 === 3. journald.records  ===
-    systemd.journal.field.blob [4d4553534147453d796f]
+    systemd.journal.field.blob [4d4553534147453d796f2d3635322d33]
