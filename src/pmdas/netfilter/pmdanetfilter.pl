@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012, 2015 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@ use warnings;
 use PCP::PMDA;
 
 my $pmda = PCP::PMDA->new('netfilter', 97);
-my $procfs = '/proc/sys/net/ipv4/';
+my ($procfs) = @ARGV;
 
 sub netfilter_fetch_callback
 {
@@ -30,6 +30,9 @@ sub netfilter_fetch_callback
     if (!defined($metric_name))	{ return (PM_ERR_PMID, 0); }
 
     $metric_name =~ s/\./\//;
+    if (index($procfs, "ipv4") == -1){
+        $metric_name =~ s/ip/nf/;
+    }
     $name = $procfs . $metric_name;
     open($fh, $name) || 	return (PM_ERR_APPVERSION, 0);
     $value = <$fh>;
