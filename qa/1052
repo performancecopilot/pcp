@@ -154,6 +154,13 @@ cat > ${SRC1_METADATA} <<EOF
       "pointer": "/value",
       "type": "integer",
       "description": "Integer value"
+    },
+    {
+      "name": "counter",
+      "pointer": "/counter",
+      "type": "double",
+      "description": "double counter",
+      "semantics": "counter"
     }
   ]
 }
@@ -161,13 +168,15 @@ EOF
 cat > ${SRC1_DATA1} <<EOF
 {
   "string": "original value",
-  "value": 0
+  "value": 0,
+  "counter": 5
 }
 EOF
 cat > ${SRC1_DATA2} <<EOF
 {
   "string": "new value",
-  "value": 99
+  "value": 99,
+  "counter": 10
 }
 EOF
 
@@ -195,6 +204,12 @@ cat > ${SRC2_METADATA} <<EOF
           "name": "value",
           "pointer": "/value",
           "type": "integer"
+        },
+        {
+          "name": "counter",
+          "pointer": "/counter",
+          "type": "double",
+          "semantics": "counter"
         }
       ]
     }
@@ -207,12 +222,14 @@ cat > ${SRC2_DATA1} <<EOF
     {
       "__id": "first",
       "count": 0,
-      "value": 1024
+      "value": 1024,
+      "counter": 3
     },
     {
       "__id": "second",
       "count": 99,
-      "value": 2048
+      "value": 2048,
+      "counter": 5
     }
   ]
 }
@@ -223,12 +240,14 @@ cat > ${SRC2_DATA2} <<EOF
     {
       "__id": "third",
       "count": 3,
-      "value": 3072
+      "value": 3072,
+      "counter": 7
     },
     {
       "__id": "second",
       "count": 100,
-      "value": 2049
+      "value": 2049,
+      "counter": 10
     }
   ]
 }
@@ -239,12 +258,14 @@ cat > ${SRC2_DATA3} <<EOF
     {
       "__id": "first",
       "count": 1,
-      "value": 1025
+      "value": 1025,
+      "counter": 6
     },
     {
       "__id": "fourth",
       "count": 4,
-      "value": 999
+      "value": 999,
+      "counter": 13
     }
   ]
 }
@@ -255,7 +276,8 @@ cat > ${SRC2_DATA4} <<EOF
     {
       "__id": "first",
       "count": 2,
-      "value": 1026
+      "value": 1026,
+      "counter": 9
     }
   ]
 }
@@ -309,8 +331,10 @@ EOF
 _drain_output_sorted
 
 cat >&3 <<EOF
+desc json.s1.counter
 fetch json.s1.string
 fetch json.s1.value
+fetch json.s1.counter
 EOF
 _drain_output
 
@@ -322,6 +346,7 @@ cat >&3 <<EOF
 fetch json.nsources
 fetch json.s1.string
 fetch json.s1.value
+fetch json.s1.counter
 EOF
 _drain_output
 
@@ -346,8 +371,10 @@ _drain_output_sorted
 
 cat >&3 <<EOF
 instance $domain.0
+desc json.s2.array_data.counter
 fetch json.s2.array_data.count
 fetch json.s2.array_data.value
+fetch json.s2.array_data.counter
 EOF
 _drain_output
 
@@ -365,6 +392,7 @@ cp $SRC2_DATA2 ${tmp}/s2/data.json
 cat >&3 <<EOF
 fetch json.s2.array_data.count
 fetch json.s2.array_data.value
+fetch json.s2.array_data.counter
 instance $domain.4
 EOF
 _drain_output
@@ -377,6 +405,7 @@ cp $SRC2_DATA3 ${tmp}/s2/data.json
 cat >&3 <<EOF
 fetch json.s2.array_data.count
 fetch json.s2.array_data.value
+fetch json.s2.array_data.counter
 instance $domain.4
 EOF
 _drain_output
@@ -389,6 +418,7 @@ cp $SRC2_DATA4 ${tmp}/s2/data.json
 cat >&3 <<EOF
 fetch json.s2.array_data.count
 fetch json.s2.array_data.value
+fetch json.s2.array_data.counter
 instance $domain.4
 EOF
 _drain_output
