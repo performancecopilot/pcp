@@ -1641,14 +1641,21 @@ error:
 static pid_t
 CreateRootAgentPOSIX(AgentInfo *aPtr)
 {
-    int sts, inFd, outFd = -1;
-    char *args = NULL;
-    pid_t pid;
+    int		sts, inFd, outFd = -1;
+    char	*args = NULL;
+    pid_t	pid;
 
-    /* TODO: add a command line flag to disable this all completely */
-    /* TODO: for now, fail always - to test for any new regressions */
-    if (aPtr)
-	return -EOPNOTSUPP;
+    /* = by default, disable this feature for pcp-3.10.9 = */
+    static int	enabled;
+    if (!enabled) {
+	/* once-off initialisation */
+	enabled = -EOPNOTSUPP;
+	if (getenv("PCP_ROOT_AGENT") != NULL)
+	    enabled = 1;
+    }
+    if (enabled < 0)
+	return enabled;
+    /* === remove this code once some soak time passes === */
 
     if (aPtr->ipcType == AGENT_PIPE)
 	args = aPtr->ipc.pipe.commandLine;
