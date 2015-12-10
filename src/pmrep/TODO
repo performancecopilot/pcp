@@ -2,7 +2,7 @@
 -  after first release: check all code marked with BZ references
 -  allow defining instances to display [-i]
 -  opt to write cols per row with stdout output [-k]
--  -Q/-B/-Y/-r/-W to override per-metric unit/scale/raw/width
+-  -Q/-B/-Y to override per-metric settings unit/scale
 -  maybe adjust unit/scale handling to ~match fetchgroup
 -  shorten unit display count / sec -> count/s -> c/s if needed
 -  opt to output in short format (see pmdumptext -F / pmNumberStr) [-m/-M]
@@ -17,6 +17,7 @@
 -  possibly add more command line switch sanity checking
 -  modularize code to allow creating custom output plugins
 -    (e.g. pcp2graphite type socket, top-like output, separate pcp2zabbix)
+-  pmtime support (?) [-g]
 -  per-metric precision (?)
 -  copy metric set spec support (?)
 -  includedir config file support (?)
@@ -27,11 +28,11 @@
 
 -----
 
-In use / "reserved" cmd line options:
-AaBbcCdDeEGhHKLloOqQrRsStTuUVwWxyYzZ
+In use / reserved cmd line options:
+AaBbcCdDeEfFGhHKLloOpPqQrRsStTuUVwxyYzZ
 
-Tentatively reserved:
-iIgkmMpv
+Tentatively planned:
+IigkMm
 
 Available:
-jJnNX
+JjNnXvW
