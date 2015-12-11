@@ -1,0 +1,98 @@
+#!/bin/sh
+# PCP QA Test No. 855
+# Exercise adding/removing the netfilter PMDA, reading values
+#
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/netfilter/pmdanetfilter.pl ] || _notrun "netfilter pmda not installed"
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+#setup the tmp proc file system for newer config
+pmdanetfilter_prepare()
+{
+    mkdir -p $tmp/proc/sys/net/netfilter/
+    touch $tmp/proc/sys/net/netfilter/nf_conntrack_{max,count}
+    $PCP_ECHO_PROG 15 > $tmp/proc/sys/net/netfilter/nf_conntrack_max
+    $PCP_ECHO_PROG 34 > $tmp/proc/sys/net/netfilter/nf_conntrack_count 
+}
+
+pmdanetfilter_remove()
+{
+    echo
+    echo "=== remove netfilter agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+    $sudo rm -rf $tmp $tmp.*
+}
+
+pmdanetfilter_install()
+{
+    # start from known starting points
+    cd $PCP_PMDAS_DIR/netfilter
+    $sudo ./Remove >/dev/null 2>&1
+    $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
+
+    echo
+    echo "=== netfilter agent installation ==="
+    $sudo ./Install <$tmp.input >$tmp.out 2>&1
+    cat $tmp.out >>$here/$seq.full
+    # Check netfilter metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check netfilter metrics have appeared/    { if ($7 >= 0 && $7 <= 2) $7 = "X"
+                                          if ($10 >= 0 && $10 <= 80) $10 = "Y"
+                                        }
+                                        { print }'
+}
+# use a temp config file to point at the fake /proc system (newer heirarchy)
+cat >$tmp.input <<EOF
+b
+$tmp/proc/sys/net/
+EOF
+
+# load newer proc heirarchy
+pmdanetfilter_prepare
+_prepare_pmda netfilter
+trap "_cleanup_pmda netfilter; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmdanetfilter_install
+
+# avoid a possible race condition if the pmda is slow starting
+sleep 3
+
+# test netfilter values
+pminfo -f netfilter.ip_conntrack_count
+pminfo -f netfilter.ip_conntrack_max
+
+# re-install pmdanetfilter with old heirarchy
+pmdanetfilter_remove
+
+# success, all done
+status=0
+
+exit
+pminfo -f netfilter
+
+pmdanetfilter_remove
+# success, all done
+status=0
+
+exit

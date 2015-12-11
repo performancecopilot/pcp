@@ -642,10 +642,12 @@ class JsonSource(object):
                              % metric_info.name)
                     del metric_info
                     continue
-                if value == "instant":
+                if value == "instant" or value == "instantaneous":
                    metric_info.sem = c_api.PM_SEM_INSTANT
-                elif value == "counter" and metric_info.type != c_api.PM_TYPE_STRING:
+                elif value == "counter":
                     metric_info.sem = c_api.PM_SEM_COUNTER
+                elif value == "discrete":
+                    metric_info.sem = c_api.PM_SEM_DISCRETE
                 else:
                     del metric_info
                     continue
@@ -907,10 +909,12 @@ class JsonSource(object):
                              % metric_info.name)
                     del metric_info
                     continue
-                if value == "instant":
-                    metric_info.sem = c_api.PM_SEM_INSTANT
-                elif value == "counter" and metric_info.type != c_api.PM_TYPE_STRING:
+                if value == "instant" or value == "instantaneous":
+                   metric_info.sem = c_api.PM_SEM_INSTANT
+                elif value == "counter":
                     metric_info.sem = c_api.PM_SEM_COUNTER
+                elif value == "discrete":
+                    metric_info.sem = c_api.PM_SEM_DISCRETE
                 else:
                     del metric_info
                     continue
