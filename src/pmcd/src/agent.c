@@ -176,8 +176,11 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
     MarkStateChanges(PMCD_DROP_AGENT);
 }
 
-static int
-HarvestAgentByParent(unsigned int *total, int root)
+/* Wait up to total secs for agents to terminate.
+ * Return 0 if all terminate, else -1
+ */
+int 
+HarvestAgents(unsigned int total)
 {
     int		i;
     int		sts;
@@ -185,19 +188,46 @@ HarvestAgentByParent(unsigned int *total, int root)
     pid_t	pid;
     AgentInfo	*ap;
 
+    /* Check for pmdaroot child process termination first. */
+    do {
+	found = 0;
+	pid = waitpid_pmdaroot(&sts);
+	for (i = 0; i < nAgents; i++) {
+	    ap = &agent[i];
+	    if (!ap->status.connected || !ap->status.isRootChild)
+		continue;
+	    found = 1;
+	    if (pid <= (pid_t)0) {
+		if (total--) {
+		    sleep(1);
+		    break;
+		} else {
+		    goto children;
+		}
+	    }
+	    if (pid == ((ap->ipcType == AGENT_SOCKET) 
+			? ap->ipc.socket.agentPid 
+			: ap->ipc.pipe.agentPid)) {
+		CleanupAgent(ap, AT_EXIT, sts);
+		break;
+	    }
+	}
+    } while (found);
+
+children:
     /* Check for child process termination.  Be careful, and ignore any
      * non-agent processes found.
      */
     do {
 	found = 0;
-	pid = root ? waitpid_pmdaroot(&sts) : waitpid_pmcd(&sts);
+	pid = waitpid_pmcd(&sts);
 	for (i = 0; i < nAgents; i++) {
 	    ap = &agent[i];
 	    if (!ap->status.connected || !ap->status.isChild)
 		continue;
 	    found = 1;
 	    if (pid <= (pid_t)0) {
-		if (total && *total--) {
+		if (total--) {
 		    sleep(1);
 		    break;
 		} else {
@@ -214,23 +244,4 @@ HarvestAgentByParent(unsigned int *total, int root)
     } while (found);
 
     return 0;
-}
-
-/* Wait up to total secs for agents to terminate.
- * Return 0 if all terminate, else -1
- */
-int
-HarvestAgents(unsigned int total)
-{
-    unsigned	*tp = total ? &total : NULL;
-    int		sts = 0;
-
-    /*
-     * Check for pmdaroot child process termination first because
-     * pmdaroot itself (a direct child of pmcd) is involved there.
-     * If we harvest it before any others, we'd struggle.
-     */
-    sts |= HarvestAgentByParent(tp, 1);
-    sts |= HarvestAgentByParent(tp, 0);
-    return sts;
 }

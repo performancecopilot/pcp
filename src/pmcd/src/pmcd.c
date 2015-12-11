@@ -432,30 +432,30 @@ ShutdownAgent(AgentInfo *ap)
 }
 
 void
-TerminateAgent(AgentInfo *ap)
+killpid_pmcd(pid_t pid)
 {
-    pid_t pid;
+    __pmProcessTerminate(pid, 1);
+}
 
-    if (!ap->status.connected)
+void
+killpid_pmdaroot(pid_t pid)
+{
+    if (pmdarootfd <= 0)
 	return;
-    pid = (ap->ipcType == AGENT_SOCKET) ?
-	   ap->ipc.socket.agentPid : ap->ipc.pipe.agentPid;
-    if (ap->status.isRootChild && pmdarootfd > 0)
-	pmdaRootProcessTerminate(pmdarootfd, pid);
-    else
-	__pmProcessTerminate(pid, 1);
+    pmdaRootProcessTerminate(pmdarootfd, pid);
 }
 
 void
 Shutdown(void)
 {
-    AgentInfo	*ap, *root = NULL;
+    AgentInfo	*ap, *rootap = NULL;
+    pid_t	pid;
     int		i;
 
     for (i = 0; i < nAgents; i++) {
 	ap = &agent[i];
 	if (ap->pmDomainId == PMDROOT)
-	    root = ap;
+	    rootap = ap;
 	if (ap->status.isRootChild)
 	    ShutdownAgent(ap);
     }
@@ -470,14 +470,20 @@ Shutdown(void)
 	/* terminate with prejudice any still remaining non-root PMDAs */
 	for (i = 0; i < nAgents; i++) {
 	    ap = &agent[i];
-	    if (ap == root)
+	    if (ap == rootap)
 		continue;
-	    TerminateAgent(ap);
+	    pid = (ap->ipcType == AGENT_SOCKET) ?
+		   ap->ipc.socket.agentPid : ap->ipc.pipe.agentPid;
+	    if (!ap->status.connected)
+		continue;
+	    if (ap->status.isRootChild)
+		killpid_pmdaroot(pid);
+	    else
+		killpid_pmcd(pid);
 	}
     }
-    if (root) {
-	TerminateAgent(root);
-	ShutdownAgent(root);
+    if (rootap) {
+	ShutdownAgent(rootap);
 	HarvestAgents(0);
     }
     for (i = 0; i < nClients; i++) {
