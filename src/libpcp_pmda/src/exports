@@ -140,15 +140,4 @@ PCP_PMDA_3.5 {
 PCP_PMDA_3.6 {
   global:
     pmdaEventQueueShutdown;
-
-    pmdaRootProcessStart;
-    pmdaRootProcessWait;
-    pmdaRootProcessTerminate;
-
-    __pmdaSendRootPDUStart;
-    __pmdaRecvRootPDUStart;
-    __pmdaDecodeRootPDUStart;
-    __pmdaSendRootPDUStop;
-    __pmdaRecvRootPDUStop;
-    __pmdaDecodeRootPDUStop;
 } PCP_PMDA_3.5;

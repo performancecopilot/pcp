@@ -18,7 +18,6 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-#define PMDROOT		1	/* domain identifier for pmdaroot(1) */
 #define SHUTDOWNWAIT	12	/* < PMDAs wait previously used in rc_pcp */
 #define MAXPENDING	5	/* maximum number of pending connections */
 #define FDNAMELEN	40	/* maximum length of a fd description */
@@ -403,93 +402,49 @@ HandleClientInput(__pmFdSet *fdsPtr)
     }
 }
 
-/*
- * Shutdown (and ShutdownAgent helper) shut pmcd down in an orderly manner
- */
-
-static void
-ShutdownAgent(AgentInfo *ap)
-{
-    if (!ap->status.connected)
-	return;
-    if (ap->inFd != -1) {
-	if (__pmSocketIPC(ap->inFd))
-	    __pmCloseSocket(ap->inFd);
-	else
-	    close(ap->inFd);
-    }
-    if (ap->outFd != -1) {
-	if (__pmSocketIPC(ap->outFd))
-	    __pmCloseSocket(ap->outFd);
-	else
-	    close(ap->outFd);
-    }
-    if (ap->ipcType == AGENT_SOCKET &&
-	ap->ipc.socket.addrDomain == AF_UNIX) {
-	/* remove the Unix domain socket */
-	unlink(ap->ipc.socket.name);
-    }
-}
-
-void
-killpid_pmcd(pid_t pid)
-{
-    __pmProcessTerminate(pid, 1);
-}
-
-void
-killpid_pmdaroot(pid_t pid)
-{
-    if (pmdarootfd <= 0)
-	return;
-    pmdaRootProcessTerminate(pmdarootfd, pid);
-}
+/* Called to shutdown pmcd in an orderly manner */
 
 void
 Shutdown(void)
 {
-    AgentInfo	*ap, *rootap = NULL;
-    pid_t	pid;
-    int		i;
+    int	i;
 
     for (i = 0; i < nAgents; i++) {
-	ap = &agent[i];
-	if (ap->pmDomainId == PMDROOT)
-	    rootap = ap;
-	if (ap->status.isRootChild)
-	    ShutdownAgent(ap);
-    }
-    for (i = 0; i < nAgents; i++) {
-	ap = &agent[i];
-	if (ap->pmDomainId == PMDROOT)
+	AgentInfo *ap = &agent[i];
+	if (!ap->status.connected)
 	    continue;
-	if (!ap->status.isRootChild)
-	    ShutdownAgent(ap);
-    }
-    if (HarvestAgents(SHUTDOWNWAIT) < 0) {
-	/* terminate with prejudice any still remaining non-root PMDAs */
-	for (i = 0; i < nAgents; i++) {
-	    ap = &agent[i];
-	    if (ap == rootap)
-		continue;
-	    pid = (ap->ipcType == AGENT_SOCKET) ?
-		   ap->ipc.socket.agentPid : ap->ipc.pipe.agentPid;
-	    if (!ap->status.connected)
-		continue;
-	    if (ap->status.isRootChild)
-		killpid_pmdaroot(pid);
+	if (ap->inFd != -1) {
+	    if (__pmSocketIPC(ap->inFd))
+		__pmCloseSocket(ap->inFd);
 	    else
-		killpid_pmcd(pid);
+		close(ap->inFd);
+	}
+	if (ap->outFd != -1) {
+	    if (__pmSocketIPC(ap->outFd))
+		__pmCloseSocket(ap->outFd);
+	    else
+		close(ap->outFd);
+	}
+	if (ap->ipcType == AGENT_SOCKET &&
+	    ap->ipc.socket.addrDomain == AF_UNIX) {
+	    /* remove the Unix domain socket */
+	    unlink(ap->ipc.socket.name);
 	}
     }
-    if (rootap) {
-	ShutdownAgent(rootap);
-	HarvestAgents(0);
+    if (HarvestAgents(SHUTDOWNWAIT) < 0) {
+	/* terminate with prejudice any still remaining */
+	for (i = 0; i < nAgents; i++) {
+	    AgentInfo *ap = &agent[i];
+	    if (ap->status.connected) {
+		pid_t pid = ap->ipcType == AGENT_SOCKET ?
+			    ap->ipc.socket.agentPid : ap->ipc.pipe.agentPid;
+		__pmProcessTerminate(pid, 1);
+	    }
+	}
     }
-    for (i = 0; i < nClients; i++) {
+    for (i = 0; i < nClients; i++)
 	if (client[i].status.connected)
 	    __pmCloseSocket(client[i].fd);
-    }
     __pmServerCloseRequestPorts();
     __pmSecureServerShutdown();
     __pmNotifyErr(LOG_INFO, "pmcd Shutdown\n");

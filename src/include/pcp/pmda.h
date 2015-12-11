@@ -748,10 +748,6 @@ PMDA_CALL extern void pmdaRootShutdown(int);
 PMDA_CALL extern int pmdaRootContainerHostName(int, const char *, int, char *, int);
 PMDA_CALL extern int pmdaRootContainerProcessID(int, const char *, int);
 PMDA_CALL extern int pmdaRootContainerCGroupName(int, const char *, int, char *, int);
-PMDA_CALL extern int pmdaRootProcessStart(int, int, const char *, int labellen,
-			const char *, int, int *, int *, int *);
-PMDA_CALL extern int pmdaRootProcessWait(int, int, int *);
-PMDA_CALL extern int pmdaRootProcessTerminate(int, int);
 
 #ifdef __cplusplus
 }
