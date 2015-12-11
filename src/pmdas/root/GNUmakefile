@@ -31,8 +31,7 @@ HELPTARGETS	= help.dir help.pag
 LDIRT		= $(HELPTARGETS) pmns domain.h $(VERSION_SCRIPT)
 
 LCFLAGS		= -DJSMN_PARENT_LINKS
-LLDLIBS		= $(PCP_PMDALIB) $(LIB_FOR_DLOPEN) -lpcp_pmcd
-PCPLIB_LDFLAGS	+= -L$(TOPDIR)/src/libpcp_pmcd/src
+LLDLIBS		= $(PCP_PMDALIB)
 
 default:	$(CMDTARGET) $(HELPTARGETS) pmns
 	@if [ -f ../pmcd.conf ]; then \

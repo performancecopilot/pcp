@@ -72,20 +72,21 @@ typedef struct {
 } __pmdaRootPDUContainer;
 
 /*
- * PDUs requesting pmdaroot start and stop PMDAs on behald of
+ * PDUs requesting pmdaroot start and stop PMDAs on behalf of
  * an unprivileged PMCD parent process.
  */
 #define MAXPMDALEN	64			/* max label length */
 
 typedef struct {
     __pmdaRootPDUHdr	hdr;
-    int			infd;
-    int			outfd;
-    int			ipctype;
-    int			labellen;
-    char		label[MAXPMDALEN];
-    int			argvlen;
-    char		argv[MAXPATHLEN];
+    int			pid;			/* out: process ID */
+    int			infd;			/* out: process stdin */
+    int			outfd;			/* out: process stdout */
+    int			ipctype;		/* in: socket/pipe */
+    int			namelen;		/* in: name length */
+    int			argslen;		/* in: args length */
+    char		name[MAXPMDALEN];	/* in: process label */
+    char		args[MAXPATHLEN];	/* in: process args */
 } __pmdaRootPDUStart;
 
 typedef struct {
@@ -101,9 +102,11 @@ PMDA_CALL extern int __pmdaRecvRootPDUInfo(int, int *, int *);
 PMDA_CALL extern int __pmdaSendRootPDUContainer(int, int, int, const char *, int, int);
 PMDA_CALL extern int __pmdaRecvRootPDUContainer(int, int, void *, int);
 PMDA_CALL extern int __pmdaDecodeRootPDUContainer(void *, int, int *, char *, int);
-PMDA_CALL extern int __pmdaSendRootPDUStart(int, int, int, int, int, int, const char *, int, const char*, int);
-PMDA_CALL extern int __pmdaRecvRootPDUStart(int, int, void *, int);
-PMDA_CALL extern int __pmdaDecodeRootPDUStart(void *, int, int *, int *, int *, char *, int, char*, int);
+PMDA_CALL extern int __pmdaSendRootPDUStartReq(int, int, const char *, int, const char*, int);
+PMDA_CALL extern int __pmdaRecvRootPDUStartReq(int, void *, int);
+PMDA_CALL extern int __pmdaSendRootPDUStart(int, int, int, int, const char *, int, int);
+PMDA_CALL extern int __pmdaRecvRootPDUStart(int, void *, int);
+PMDA_CALL extern int __pmdaDecodeRootPDUStart(void *, int, int *, int *, int *, int *, char *, int, char*, int);
 PMDA_CALL extern int __pmdaSendRootPDUStop(int, int, int, int, int, int);
 PMDA_CALL extern int __pmdaRecvRootPDUStop(int, int, void *, int);
 PMDA_CALL extern int __pmdaDecodeRootPDUStop(void *, int, int *, int *, int *);

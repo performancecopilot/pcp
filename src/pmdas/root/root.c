@@ -606,24 +606,24 @@ root_cgroupname_request(root_client_t *cp, void *pdu, int pdulen)
 static int
 root_startpmda_request(root_client_t *cp, void *pdu, int pdulen)
 {
+    size_t	len;
     pid_t	pid;
-    int		sts;
     int		infd, outfd;
-    char	label[MAXPMDALEN];
+    int		sts, ipc, bad = 0;
+    char	name[MAXPMDALEN];
     char	args[MAXPATHLEN];	/* TODO: size checks */
 
-    /* TODO: check status propogation into PDUs */
-    /* TODO: error checking */
-    sts = __pmdaDecodeRootPDUStart(pdu, pdulen, &pid, &infd, &outfd,
-			label, sizeof(label), args, sizeof(args));
+    if ((sts = __pmdaDecodeRootPDUStart(pdu, pdulen, NULL, NULL, NULL,
+			&ipc, name, sizeof(name), args, sizeof(args))) < 0)
+	return sts;
+    len = strlen(name);
 
-    pid = root_create_agent(pid, args, label, &infd, &outfd);
+    if ((pid = root_create_agent(ipc, args, name, &infd, &outfd)) < 0)
+	bad = PM_ERR_GENERIC;
 
-
-    sts = __pmdaSendRootPDUStart(cp->fd, PDUROOT_STARTPMDA, (int)pid,
-		infd, outfd, 0, NULL, 0, NULL, 0);
-    close(infd);
+    sts = __pmdaSendRootPDUStart(cp->fd, pid, infd, outfd, name, len, bad);
     close(outfd);
+    close(infd);
     return sts;
 }
 
@@ -633,8 +633,9 @@ root_stoppmda_request(root_client_t *cp, void *pdu, int pdulen)
     int		sts, force, code;
     pid_t	pid = (pid_t)-1;
  
-    /* TODO: error checking */
-    __pmdaDecodeRootPDUStop(pdu, pdulen, &pid, NULL, &force);
+    if ((sts = __pmdaDecodeRootPDUStop(pdu, pdulen, &pid, NULL, &force)) < 0)
+	return sts;
+
     if (force || pid <= (pid_t)1) {
 	if (pid == (pid_t)-1)
 	    sts = -EINVAL;
@@ -644,7 +645,7 @@ root_stoppmda_request(root_client_t *cp, void *pdu, int pdulen)
 	pid = root_agent_wait(&code);
 	sts = 0;
     }
-    return __pmdaSendRootPDUStop(cp->fd, PDUROOT_STOPPMDA, sts, pid, code, 0);
+    return __pmdaSendRootPDUStop(cp->fd, PDUROOT_STOPPMDA, pid, code, 0, sts);
 }
 
 static int
@@ -723,10 +724,11 @@ root_handle_client_input(__pmFdSet *fds)
 
 	default:
 	    sts = PM_ERR_IPC;
-	} 
+	}
 
 	if (sts < 0) {
-	    __pmNotifyErr(LOG_ERR, "bad protocol exchange (fd=%d)\n", cp->fd);
+	    __pmNotifyErr(LOG_ERR, "bad protocol exchange (fd=%d,type=%x)\n",
+				cp->fd, php->type);
 	    root_delete_client(cp);
 	}
     }

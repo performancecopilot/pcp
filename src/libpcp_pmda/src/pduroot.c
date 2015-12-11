@@ -19,6 +19,10 @@
 #include "pmda.h"
 #include "pmdaroot.h"
 
+#ifndef MSG_NOSIGNAL
+# define MSG_NOSIGNAL	0
+#endif
+
 /* Server sends __pmdaRootPDUInfo PDUs */
 int
 __pmdaSendRootPDUInfo(int fd, int features, int status)
@@ -34,7 +38,7 @@ __pmdaSendRootPDUInfo(int fd, int features, int status)
     pduinfo.zeroed = 0;
 
     __pmIgnoreSignalPIPE();
-    return send(fd, (const char *)&pduinfo, sizeof(pduinfo), 0);
+    return send(fd, (const char *)&pduinfo, sizeof(pduinfo), MSG_NOSIGNAL);
 }
 
 /* Client recvs __pmdaRootPDUInfo PDUs */
@@ -82,13 +86,12 @@ __pmdaSendRootPDUContainer(int fd, int pdutype,
 
     pdu.pid = pid;
     pdu.namelen = len;
+    memset(pdu.name, 0, sizeof(pdu.name));
     if (len > 0)
 	strncpy(pdu.name, name, len);
-    else
-	memset(pdu.name, 0, sizeof(pdu.name));
 
     __pmIgnoreSignalPIPE();
-    return send(fd, (const char *)&pdu, length, 0);
+    return send(fd, (const char *)&pdu, length, MSG_NOSIGNAL);
 }
 
 /* Client and server recv __pmdaRootPDUContainer PDUs */
@@ -139,17 +142,71 @@ __pmdaDecodeRootPDUContainer(void *buf, int blen, int *pid, char *name, int nlen
     return length;
 }
 
-#ifndef IS_MINGW
-/* PMCD sends __pmdaRootPDUStart PDUs */
+/* PMCD sends __pmdaRootPDUStartReq PDUs */
 int
-__pmdaSendRootPDUStart(int fd, int status,
-		int pdutype, int ipctype, int infd, int outfd,
-		const char *label, int labellen, const char* argv, int argvlen)
+__pmdaSendRootPDUStartReq(int fd, int ipctype,
+		const char *name, int namelen, const char* args, int argslen)
+{
+    __pmdaRootPDUStart	pdu;
+    size_t		length;
+
+    memset(&pdu, 0, sizeof(pdu));
+    if (namelen <= 0 || argslen <= 0)
+	return -EINVAL;
+    if (namelen >= MAXPMDALEN || argslen >= MAXPATHLEN)
+	return -E2BIG;
+    length = sizeof(__pmdaRootPDUStart) - sizeof(pdu.args) + argslen;
+
+    pdu.hdr.type = PDUROOT_STARTPMDA_REQ;
+    pdu.hdr.length = length;
+    pdu.hdr.version = ROOT_PDU_VERSION;
+
+    pdu.ipctype = ipctype;
+    pdu.namelen = namelen;
+    if (namelen > 0)
+	strncpy(pdu.name, name, namelen);
+    pdu.argslen = argslen;
+    if (argslen > 0)
+	strncpy(pdu.args, args, argslen);
+
+    __pmIgnoreSignalPIPE();
+    return send(fd, (const char *)&pdu, length, MSG_NOSIGNAL);
+}
+
+/* Server recvs __pmdaRootPDUStartReq PDUs */
+int
+__pmdaRecvRootPDUStartReq(int fd, void *buffer, int buflen)
+{
+    __pmdaRootPDUStart *pdu = (__pmdaRootPDUStart *)buffer;
+    size_t		minlength = sizeof(*pdu) - sizeof(pdu->args);
+    int			sts;
+
+    if ((sts = recv(fd, (char *)&pdu, sizeof(pdu), 0)) < 0)
+	return -oserror();
+    if (sts < minlength)
+	return -EINVAL;
+    if (pdu->hdr.type != PDUROOT_STARTPMDA_REQ)
+	return -ESRCH;
+    if (pdu->hdr.version > ROOT_PDU_VERSION)
+	return -ENOTSUP;
+    if (pdu->hdr.status != 0)
+	return pdu->hdr.status;
+    if (pdu->hdr.length < minlength + pdu->argslen)
+	return -E2BIG;
+    if (pdu->namelen > MAXPMDALEN)
+	return -E2BIG;
+    return sts;
+}
+
+#ifndef IS_MINGW
+/* Server sends __pmdaRootPDUStart PDUs (with PID and open FDs) */
+int
+__pmdaSendRootPDUStart(int fd, int pid, int infd, int outfd,
+		const char *name, int namelen, int status)
 {
     __pmdaRootPDUStart	pdu;
     struct iovec	iov;
     struct msghdr	msgh;
-    int			length;
     int			iofds[2];
     int			*ioptr = 0;
     union {
@@ -158,34 +215,30 @@ __pmdaSendRootPDUStart(int fd, int status,
     } control_un;
     struct cmsghdr	*cmhp;
 
-    if (labellen < 0 || argvlen < 0)
+    if (namelen <= 0)
 	return -EINVAL;
-    if (labellen >= MAXPATHLEN || argvlen >= MAXPATHLEN)
+    if (namelen >= MAXPMDALEN)
 	return -E2BIG;
 
-    length = sizeof(__pmdaRootPDUStart) - sizeof(pdu.label) + labellen + argvlen;
-    pdu.hdr.type = pdutype;
-    pdu.hdr.length = length;
+    memset(&pdu, 0, sizeof(pdu));
+    pdu.hdr.type = PDUROOT_STARTPMDA;
+    pdu.hdr.length = sizeof(pdu) - sizeof(pdu.args);
     pdu.hdr.status = status;
     pdu.hdr.version = ROOT_PDU_VERSION;
 
-    pdu.labellen = labellen;
-    if (labellen > 0)
-	strncpy(pdu.label, label, labellen);
-    else
-	memset(pdu.label, 0, sizeof(pdu.label));
-
-    if (argvlen > 0)
-	strncpy(pdu.argv, argv, argvlen);
-    else
-	memset(pdu.argv, 0, sizeof(pdu.argv));
-    pdu.argvlen = argvlen;
-    pdu.ipctype = ipctype;
+    pdu.pid = pid;
+    /*
+     * FDs passed via control message, PDU fields are filled in by
+     * the __pmdaRecvRootPDUStart code (i.e. client/pmcd side).
+     */
+    pdu.namelen = namelen;
+    if (namelen > 0)
+	strncpy(pdu.name, name, namelen);
 
     msgh.msg_iov = &iov;
     msgh.msg_iovlen = 1;
     iov.iov_base = &pdu;
-    iov.iov_len = length;
+    iov.iov_len = sizeof(pdu) - sizeof(pdu.args);
 
     msgh.msg_name = NULL;
     msgh.msg_namelen = 0;
@@ -203,18 +256,17 @@ __pmdaSendRootPDUStart(int fd, int status,
     memcpy(ioptr, iofds, sizeof(iofds));
 
     __pmIgnoreSignalPIPE();
-    return sendmsg(fd, &msgh, 0);
+    return sendmsg(fd, &msgh, MSG_NOSIGNAL);
 }
 
-/* Server recvs __pmdaRootPDUStart PDUs */
+/* PMCD recvs __pmdaRootPDUStart PDUs (with PID and open FDs) */
 int
-__pmdaRecvRootPDUStart(int fd, int type, void *buffer, int buflen)
+__pmdaRecvRootPDUStart(int fd, void *buffer, int buflen)
 {
     __pmdaRootPDUStart	*pdu = (__pmdaRootPDUStart *)buffer;
     struct msghdr	msgh;
     struct iovec	iov;
     int			sts;
-//  size_t			minlength;	/* TODO - length? */
     int			iofds[2];
     int			*ioptr;
     union {
@@ -227,48 +279,49 @@ __pmdaRecvRootPDUStart(int fd, int type, void *buffer, int buflen)
     control_un.cmh.cmsg_level = SOL_SOCKET;
     control_un.cmh.cmsg_type = SCM_RIGHTS;
 
-    /* Set 'msgh' fields to describe 'control_un' */
+    /*
+     * Set 'msgh' control fields to describe 'control_un'
+     * Set 'msgh' iov (I/O vector) to point to buffer used
+     * to receive the "real" data read by recvmsg()
+     */
     msgh.msg_control = control_un.control;
     msgh.msg_controllen = sizeof(control_un.control);
-
-    /* Set fields of 'msgh' to point to buffer used to receive (real)
-     * data read by recvmsg()
-     */
     msgh.msg_iov = &iov;
     msgh.msg_iovlen = 1;
     iov.iov_len = sizeof(__pmdaRootPDUStart);
     iov.iov_base = buffer;
-
     msgh.msg_name = NULL;               /* We don't need address of peer */
     msgh.msg_namelen = 0;
  
-    if ((sts = recvmsg(fd, &msgh, 0)) < 0) {
-	__pmNotifyErr(LOG_DEBUG, "from: %d %s\n", errno, strerror(errno));
+    if ((sts = recvmsg(fd, &msgh, MSG_NOSIGNAL)) < 0) {
+	__pmNotifyErr(LOG_DEBUG, "recvmsg: %d %s\n", errno, strerror(errno));
 	return -oserror();
     }
 
-/* TODO:
-    minlength = sizeof(*pdu) - sizeof(pdu->pmDomainLabel) - sizeof(pdu->argv);
-    if (pdu->hdr.type != type)
+    if (pdu->hdr.type != PDUROOT_STARTPMDA)
 	return -ESRCH;
     if (pdu->hdr.status != 0)
 	return pdu->hdr.status;
-    if (sts < minlength)
+    if (sts < sizeof(*pdu))
 	return -EINVAL;
-    if (pdu->hdr.length < minlength + pdu->pmDomainLabelLength + pdu->argvLength)
+    if (pdu->hdr.length < sizeof(*pdu))
 	return -E2BIG;
-*/
+
     cmhp = CMSG_FIRSTHDR(&msgh);
     if (cmhp == NULL || cmhp->cmsg_len != CMSG_LEN(sizeof(iofds))) {
-	__pmNotifyErr(LOG_DEBUG, "bad cmsg header / message length %ld",
-			cmhp->cmsg_len);	/* TODO */
+	__pmNotifyErr(LOG_DEBUG, "bad cmsg header / message length");
+	return -EINVAL;
     }
-    if (cmhp->cmsg_level != SOL_SOCKET)
-        __pmNotifyErr(LOG_DEBUG,"cmsg_level != SOL_SOCKET");	/* TODO */
-    if (cmhp->cmsg_type != SCM_RIGHTS)
-        __pmNotifyErr(LOG_DEBUG,"cmsg_type != SCM_RIGHTS");	/* TODO */
+    if (cmhp->cmsg_level != SOL_SOCKET) {
+        __pmNotifyErr(LOG_DEBUG,"unexpected cmsg_level, not SOL_SOCKET");
+	return -EINVAL;
+    }
+    if (cmhp->cmsg_type != SCM_RIGHTS) {
+        __pmNotifyErr(LOG_DEBUG,"unexpected cmsg_type, not SCM_RIGHTS");
+	return -EINVAL;
+    }
 
-    ioptr = (int *) CMSG_DATA(cmhp);
+    ioptr = (int *)CMSG_DATA(cmhp);
     memcpy(iofds, ioptr, sizeof(iofds));
     pdu->infd = iofds[0];
     pdu->outfd = iofds[1];
@@ -277,24 +330,20 @@ __pmdaRecvRootPDUStart(int fd, int type, void *buffer, int buflen)
 }
 #else
 int
-__pmdaSendRootPDUStart(int fd, int status,
-		int pdutype, int ipctype, int infd, int outfd,
-		const char *label, int labellen, const char* argv, int argvlen)
+__pmdaSendRootPDUStart(int fd, int pid, int infd, int outfd,
+		const char *name, int namelen, int status)
 {
     (void)fd;
-    (void)status;
-    (void)pdutype;
-    (void)ipctype;
+    (void)pid;
     (void)infd;
     (void)outfd;
-    (void)label;
-    (void)labellen;
-    (void)argv;
-    (void)argvlen;
+    (void)name;
+    (void)namelen;
+    (void)status;
     return -EOPNOTSUPP;
 }
 int
-__pmdaRecvRootPDUStart(int fd, int type, void *buffer, int buflen)
+__pmdaRecvRootPDUStart(int fd, void *buffer, int buflen)
 {
     (void)fd;
     (void)type;
@@ -304,37 +353,35 @@ __pmdaRecvRootPDUStart(int fd, int type, void *buffer, int buflen)
 }
 #endif
 
-/* Server decodes __pmdaRootPDUStart PDUs */
+/* Server and PMCD decode __pmdaRootPDUStart PDUs */
 int
-__pmdaDecodeRootPDUStart(void *buf, int blen, int *ipctype,
-	int *infd, int *outfd, char *label, int labellen,
-	char* argv, int argvlen)
+__pmdaDecodeRootPDUStart(void *buf, int blen, int *pid, int *infd, int *outfd,
+		int *ipctype, char *name, int namelen, char *args, int argslen)
 {
     __pmdaRootPDUStart	*pdu = (__pmdaRootPDUStart *)buf;
 
-/* TODO - labellen? argvlen? */
-    /* TODO: check length */
-
-    if (ipctype)
-	*ipctype = pdu->ipctype;
+    if (pid)
+	*pid = pdu->pid;
     if (infd)
 	*infd = pdu->infd;
     if (outfd)
 	*outfd = pdu->outfd;
-    if (argvlen) {
-	strncpy(argv, pdu->argv, pdu->argvlen);
-	argv[pdu->argvlen] = '\0';
+    if (ipctype)
+	*ipctype = pdu->ipctype;
+    if (namelen) {
+	strncpy(name, pdu->name, pdu->namelen);
+	name[pdu->namelen] = '\0';
     }
-    if (labellen) {
-	strncpy(label, pdu->label, pdu->labellen);
-	label[pdu->labellen] = '\0';
+    if (argslen) {
+	strncpy(args, pdu->args, pdu->argslen);
+	args[pdu->argslen] = '\0';
     }
-    return (sizeof(int) * 4) + pdu->labellen + pdu->argvlen;
+    return 0;
 }
 
 /* PMCD sends __pmdaRootPDUStop PDUs */
 int
-__pmdaSendRootPDUStop(int fd, int pdutype, int status, int pid, int code, int force)
+__pmdaSendRootPDUStop(int fd, int pdutype, int pid, int code, int force, int status)
 {
     __pmdaRootPDUStop	pdu;
 
@@ -348,28 +395,27 @@ __pmdaSendRootPDUStop(int fd, int pdutype, int status, int pid, int code, int fo
     pdu.zeroed = 0;
 
     __pmIgnoreSignalPIPE();
-    return send(fd, (const char *)&pdu, sizeof(pdu), 0);
+    return send(fd, (const char *)&pdu, sizeof(pdu), MSG_NOSIGNAL);
 }
 
 /* Server recvs __pmdaRootPDUStop PDUs */
 int
 __pmdaRecvRootPDUStop(int fd, int pdutype, void* buffer, int buflen)
 {
-//    __pmdaRootPDUStop	*pdu = (__pmdaRootPDUStop *)buffer;
-//    int			minlength = sizeof(*pdu);
+    __pmdaRootPDUStop	*pdu = (__pmdaRootPDUStop *)buffer;
     int			sts;
 
     if ((sts = recv(fd, (char *)buffer, buflen, 0)) < 0)
 	return -oserror();
-    /* TODO:
-    if (sts < minlength)
+
+    if (sts < sizeof(*pdu))
 	return -EINVAL;
     if (pdu->hdr.type != pdutype)
 	return -ESRCH;
     if (pdu->hdr.version > ROOT_PDU_VERSION)
 	return -ENOTSUP;
     if (pdu->hdr.status != 0)
-	return pdu->hdr.status;*/
+	return pdu->hdr.status;
     return sts;
 }
 
@@ -379,12 +425,11 @@ __pmdaDecodeRootPDUStop(void *buf, int buflen, int *pid, int *code, int *force)
 {
     __pmdaRootPDUStop *pdu = (__pmdaRootPDUStop *)buf;
 
-    /* TODO: check length */
     if (pid)
 	*pid = pdu->pid;
     if (code)
 	*code = pdu->code;
     if (force)
 	*force = pdu->force;
-    return sizeof(__pmdaRootPDUStop);
+    return 0;
 }

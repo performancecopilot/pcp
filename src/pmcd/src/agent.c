@@ -193,7 +193,11 @@ HarvestAgentByParent(unsigned int *total, int root)
 	pid = root ? waitpid_pmdaroot(&sts) : waitpid_pmcd(&sts);
 	for (i = 0; i < nAgents; i++) {
 	    ap = &agent[i];
-	    if (!ap->status.connected || !ap->status.isChild)
+	    if (!ap->status.connected)
+		continue;
+	    if (root && !ap->status.isRootChild)
+		continue;
+	    if (!root && ap->status.isChild)
 		continue;
 	    found = 1;
 	    if (pid <= (pid_t)0) {

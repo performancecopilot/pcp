@@ -145,9 +145,11 @@ PCP_PMDA_3.6 {
     pmdaRootProcessWait;
     pmdaRootProcessTerminate;
 
+    __pmdaSendRootPDUStartReq;
+    __pmdaRecvRootPDUStartReq;
+    __pmdaDecodeRootPDUStart;
     __pmdaSendRootPDUStart;
     __pmdaRecvRootPDUStart;
-    __pmdaDecodeRootPDUStart;
     __pmdaSendRootPDUStop;
     __pmdaRecvRootPDUStop;
     __pmdaDecodeRootPDUStop;
