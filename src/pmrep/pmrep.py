@@ -164,6 +164,7 @@ class PMReporter(object):
         self.check = 0
         self.format = None # output format
         self.opts = self.options()
+        pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_POSIX) # RHBZ#1289912
 
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'unitinfo',

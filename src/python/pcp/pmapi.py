@@ -1083,7 +1083,7 @@ class pmContext(object):
             the typed/index parameters can be used to setup several
             contexts based on the given command line parameters.
         """
-        if (typed <= 0):
+        if typed == None or typed <= 0:
             options.need_reset = True
             if c_api.pmGetOptionsFromList(argv):
                 raise pmUsageErr
