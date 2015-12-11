@@ -88,4 +88,13 @@ enum {
 
 extern int root_stat_time_differs(struct stat *, struct stat *);
 
+enum {
+    ROOT_AGENT_SOCKET	= 1,
+    ROOT_AGENT_PIPE	= 2,
+};
+
+extern int root_create_agent(int, char *, char *, int *, int *);
+extern int root_agent_wait(int *);
+extern int root_maximum_fd;
+
 #endif
