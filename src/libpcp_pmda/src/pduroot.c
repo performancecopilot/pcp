@@ -139,7 +139,6 @@ __pmdaDecodeRootPDUContainer(void *buf, int blen, int *pid, char *name, int nlen
     return length;
 }
 
-#ifndef IS_MINGW
 /* PMCD sends __pmdaRootPDUStart PDUs */
 int
 __pmdaSendRootPDUStart(int fd, int status,
@@ -275,34 +274,6 @@ __pmdaRecvRootPDUStart(int fd, int type, void *buffer, int buflen)
 
     return sts;
 }
-#else
-int
-__pmdaSendRootPDUStart(int fd, int status,
-		int pdutype, int ipctype, int infd, int outfd,
-		const char *label, int labellen, const char* argv, int argvlen)
-{
-    (void)fd;
-    (void)status;
-    (void)pdutype;
-    (void)ipctype;
-    (void)infd;
-    (void)outfd;
-    (void)label;
-    (void)labellen;
-    (void)argv;
-    (void)argvlen;
-    return -EOPNOTSUPP;
-}
-int
-__pmdaRecvRootPDUStart(int fd, int type, void *buffer, int buflen)
-{
-    (void)fd;
-    (void)type;
-    (void)buffer;
-    (void)buflen;
-    return -EOPNOTSUPP;
-}
-#endif
 
 /* Server decodes __pmdaRootPDUStart PDUs */
 int
