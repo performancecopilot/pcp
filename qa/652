@@ -113,7 +113,7 @@ pmevent -T 5 systemd.journal.records_raw | tee -a $here/$seq.full | _filter_even
 # remove PMDA to ensure proper cleanup (in case it wasnt already installed beforehand)
 $sudo ./Remove </dev/null >>$here/$seq.full 2>&1
 
-$sudo journalctl --lines-4 MESSAGE=yo-$seq-2 MESSAGE=yo-$seq-3 >>$here/$seq.full
+$sudo journalctl --lines=4 MESSAGE=yo-$seq-2 MESSAGE=yo-$seq-3 >>$here/$seq.full
 cat $PCP_LOG_DIR/pmcd/systemd.log >>$here/$seq.full
 
 status=0
