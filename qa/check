@@ -12,7 +12,8 @@ try=0
 n_bad=0
 bad=""
 notrun=""
-interrupt=true
+seq=''
+aborted=true
 myname=`basename $0`
 iam=$myname  #  a synonym
 
@@ -88,7 +89,15 @@ END	{ if (NR > 0) {
 	    echo "" >>check.log
 	    date >>check.log
 	    echo $list | fmt | sed -e 's/^/    /' >>check.log
-	    $interrupt && echo "Interrupted! [running $seq]" >>check.log
+	    if $aborted
+	    then
+		if [ -z "$seq" ]
+		then
+		    echo "Aborted! [during setup]" >>check.log
+		else
+		    echo "Aborted! [running $seq]" >>check.log
+		fi
+	    fi
 
 	    if [ ! -z "$notrun" ]
 	    then
@@ -340,7 +349,8 @@ then
     	    #  There should be a BIG FAT WARNING here if QA is trying to
     	    #  run tests twice!
     	    echo "$myname: a check.pid file already exists... are you already running tests?!" >&2
-    	    exit 1
+    	    status=1
+	    exit
     	fi
     fi
     [ ! -f "$CHECKPID" ] && echo "$mypid" >"$CHECKPID"
@@ -358,7 +368,8 @@ then
     	    $sudo rm -f "$CHECKSTS"
     	else
     	    echo "$myname: a check.sts file already exists... are you already running tests?!" >&2
-    	    exit 1
+    	    status=1
+	    exit
     	fi
     fi
     [ ! -f "$CHECKSTS" ] && echo "preamble" >"$CHECKSTS"
@@ -425,7 +436,10 @@ do
     	# acquire lock
     	_get_lock
     	if [ $? != 0 ]
-    	then echo "$myname: could not acquire lock; exiting" 2>&1
+    	then
+	    echo "$myname: could not acquire lock; exiting" 2>&1
+	    status=1
+	    exit
     	fi
 
 	if $check_config
@@ -572,6 +586,6 @@ do
     [ -x check.callback ] && check.callback $seq
 done
 
-interrupt=false
+aborted=false
 status=$n_bad
 exit
