@@ -13,20 +13,20 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ -f $PCP_DIR/usr/include/pcp/config.h ]
+if [ -f $PCP_INC_DIR/config.h ]
 then
     # PCP 3.8.3 or later
-    defs=$PCP_DIR/usr/include/pcp/config.h
-elif [ -f $PCP_DIR/usr/include/pcp/platform_header.h ]
+    defs=$PCP_INC_DIR/config.h
+elif [ -f $PCP_INC_DIR/platform_header.h ]
 then
     # PCP 3.6 or later
-    defs=$PCP_DIR/usr/include/pcp/platform_header.h
-elif [ -f $PCP_DIR/usr/include/pcp/platform_defs.h ]
+    defs=$PCP_INC_DIR/platform_header.h
+elif [ -f $PCP_INC_DIR/platform_defs.h ]
 then
     # older PCP versions
-    defs=$PCP_DIR/usr/include/pcp/platform_defs.h
+    defs=$PCP_INC_DIR/platform_defs.h
 else
-    _notrun "No $PCP_DIR/usr/include/pcp headers found"
+    _notrun "No $PCP_INC_DIR headers found"
 fi
 grep '#define HAVE_BITFIELDS_LTOR' $defs >/dev/null 2>&1 || \
     _notrun "HAVE_BITFIELDS_LTOR is false"

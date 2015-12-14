@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if grep -q 'pmRegisterDerived' $PCP_DIR/usr/include/pcp/pmapi.h
+if grep -q 'pmRegisterDerived' $PCP_INC_DIR/pmapi.h
 then
     :
 else
