@@ -5,8 +5,6 @@ VIEWS	= CPU Disk Diskbytes Loadavg NFS2 NFS3 Filesystem Memory Netbytes \
 	  Netpackets PMCD Syscalls Paging Overview Schemes Sockets Swap \
 	  ApacheServer ElasticsearchServer vCPU MemAvailable
 
-LSRCFILES = $(VIEWS)
-
 default build-me:
 
 include $(BUILDRULES)
