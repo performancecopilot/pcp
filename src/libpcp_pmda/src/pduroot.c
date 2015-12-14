@@ -264,6 +264,7 @@ int
 __pmdaRecvRootPDUStart(int fd, void *buffer, int buflen)
 {
     __pmdaRootPDUStart	*pdu = (__pmdaRootPDUStart *)buffer;
+    size_t		minlength = sizeof(*pdu) - sizeof(pdu->args);
     struct msghdr	msgh;
     struct iovec	iov;
     int			sts;
@@ -302,9 +303,9 @@ __pmdaRecvRootPDUStart(int fd, void *buffer, int buflen)
 	return -ESRCH;
     if (pdu->hdr.status != 0)
 	return pdu->hdr.status;
-    if (sts < sizeof(*pdu))
+    if (sts < minlength)
 	return -EINVAL;
-    if (pdu->hdr.length < sizeof(*pdu))
+    if (pdu->hdr.length < minlength)
 	return -E2BIG;
 
     cmhp = CMSG_FIRSTHDR(&msgh);
