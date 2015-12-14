@@ -410,7 +410,7 @@ event_client_shutdown(int context)
     client = &ctxtab[context];
     for (i = 0; i < cmdtab_size; i++) {
 	groot = &client->pipes[i];
-	if (groot->active) {
+	if (groot->pid > 0) {
 	    stop_cmd(groot->pid);
 	    groot->pid = 0;
 	}
