@@ -1059,7 +1059,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	    sts = PM_ERR_LABEL;
 	    goto cleanup;
     }
-    
+
     lcp->l_refcnt = 0;
     lcp->l_physend = -1;
 
@@ -2541,45 +2541,29 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
     return sts;
 }
 
-void
-__pmLogInitialState(__pmArchCtl *acp)
-{
-    /* start after header + label record + trailer */
-    acp->ac_offset = sizeof(__pmLogLabel) + 2*sizeof(int);
-    acp->ac_vol = acp->ac_log->l_curvol;
-}
-
 int
 __pmLogChangeArchive(__pmContext *ctxp, int arch)
 {
-    __pmArchCtl	*acp = ctxp->c_archctl;
-    __pmLogCtl	*lcp = acp->ac_log_list[arch];
-    int		sts = 0;
+    __pmArchCtl		*acp = ctxp->c_archctl;
+    __pmMultiLogCtl	*mlcp = acp->ac_log_list[arch];
+    int			sts = 0;
 
-    /* Make sure that this archive is open. */
-    acp->ac_log = lcp;
-    if (lcp->l_refcnt == 0) {
+    /*
+     * If we're already using the requested archive, then we don't need to
+     * switch.
+     */
+    if (arch != acp->ac_cur_log) {
 	/*
-	 * __pmLogOpen() will overwrite lcp->l_name, so free it
-	 * here in order to plug the resulting leak.
+	 * Obtain a handle for the named archive.
+	 * __pmFindOrOpenArchive() will take care of closing the active archive,
+	 * if necessary.
 	 */
-	char *tmp = lcp->l_name;
-	sts = __pmLogOpen(tmp, ctxp);
-	free(tmp);
+	sts = __pmFindOrOpenArchive(ctxp, mlcp->ml_name);
 	if (sts < 0)
 	    return sts;
-	lcp->l_refcnt = 1;
-    }
-    else {
-	/*
-	 * Set default starting state as per __pmLogOpen.
-	 */
-	ctxp->c_origin.tv_sec = (__int32_t)lcp->l_label.ill_start.tv_sec;
-	ctxp->c_origin.tv_usec = (__int32_t)lcp->l_label.ill_start.tv_usec;
-	ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
-    }
 
-    __pmLogInitialState(acp);
+	acp->ac_cur_log = arch;
+    }
 
     return sts;
 }
@@ -2592,41 +2576,45 @@ __pmLogChangeToNextArchive(__pmLogCtl *lcp)
     __pmArchCtl	*acp;
     __pmTimeval	save_origin;
     int		save_mode;
-    int		i;
 
     /* Get the current context. It must be an archive context. */
     ctxp = __pmHandleToPtr(pmWhichContext());
-    if (ctxp == NULL || ctxp->c_type != PM_CONTEXT_ARCHIVE)
+    if (ctxp == NULL)
 	return NULL;
+    if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
+	PM_UNLOCK(ctxp->c_lock);
+	return NULL;
+    }
 
     /*
-     * Now identify the current archive in the list of archives. Don't bother
-     * to check the last one because, even if it is a match, there will be no
-     * subsequent archive to switch to.
+     * Check whether there is a subsequent archive to switch to.
      */
     acp = ctxp->c_archctl;
-    for (i = 0; i < acp->ac_num_logs - 1; i++) {
-	if (acp->ac_log_list[i] == lcp)
-	    break; /* found it */
-    }
-    if (i >= acp->ac_num_logs - 1)
+    if (acp->ac_cur_log >= acp->ac_num_logs - 1)
 	lcp = NULL; /* no more archives */
     else {
 	/*
 	 * We're changing to the next archive because we have reached the end of
 	 * the current one while reading forward. __pmLogChangeArchive() will
-	 * update the c_origin and c_mode fields of the current context, either
-	 * via __pmLogOpen() or directly if the new archive is already open.
-	 * However, we don't want that here, so save this information and
+	 * update the c_origin and c_mode fields of the current context
+	 * via __pmLogOpen(). However, we don't want that here, so save this
+	 * information and
 	 * restore it after switching to the new archive.
 	 */
 	save_origin = ctxp->c_origin;
 	save_mode = ctxp->c_mode;
 	/* Switch to the next archive. */
-	__pmLogChangeArchive(ctxp, i + 1);
+	__pmLogChangeArchive(ctxp, acp->ac_cur_log + 1);
 	lcp = acp->ac_log;
 	ctxp->c_origin = save_origin;
 	ctxp->c_mode = save_mode;
+
+	/*
+	 * We want to reposition to the start of the archive.
+	 * start after header + label record + trailer
+	 */
+	acp->ac_offset = sizeof(__pmLogLabel) + 2*sizeof(int);
+	acp->ac_vol = acp->ac_log->l_curvol;
     }
 
     PM_UNLOCK(ctxp->c_lock);
@@ -2641,24 +2629,21 @@ __pmLogChangeToPreviousArchive(__pmLogCtl *lcp)
     __pmArchCtl		*acp;
     __pmTimeval		save_origin;
     int			save_mode;
-    int			i;
 
     /* Get the current context. It must be an archive context. */
     ctxp = __pmHandleToPtr(pmWhichContext());
-    if (ctxp == NULL || ctxp->c_type != PM_CONTEXT_ARCHIVE)
+    if (ctxp == NULL)
 	return NULL;
+    if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
+	PM_UNLOCK(ctxp->c_lock);
+	return NULL;
+    }
 
     /*
-     * Now identify the current archive in the list of archives. Don't bother
-     * to check the first one because, even if it is a match, there will be no
-     * previous archive to switch to.
+     * Check whether there is a previous archive to switch to.
      */
     acp = ctxp->c_archctl;
-    for (i = 1; i < acp->ac_num_logs; i++) {
-	if (acp->ac_log_list[i] == lcp)
-	    break; /* found it */
-    }
-    if (i >= acp->ac_num_logs) {
+    if (acp->ac_cur_log == 0) {
 	PM_UNLOCK(ctxp->c_lock);
 	return NULL;  /* no more archives */
     }
@@ -2675,11 +2660,10 @@ __pmLogChangeToPreviousArchive(__pmLogCtl *lcp)
     save_origin = ctxp->c_origin;
     save_mode = ctxp->c_mode;
     /* Switch to the next archive. */
-    __pmLogChangeArchive(ctxp, i - 1);
+    __pmLogChangeArchive(ctxp, acp->ac_cur_log - 1);
     lcp = acp->ac_log;
     ctxp->c_origin = save_origin;
     ctxp->c_mode = save_mode;
-    PM_UNLOCK(ctxp->c_lock);
 
     /* Set up to scan backwards from the end of the archive. */
     __pmLogChangeVol(lcp, lcp->l_maxvol);
@@ -2687,6 +2671,7 @@ __pmLogChangeToPreviousArchive(__pmLogCtl *lcp)
     ctxp->c_archctl->ac_offset = ftell(lcp->l_mfp);
     assert(ctxp->c_archctl->ac_offset >= 0);
     ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
+    PM_UNLOCK(ctxp->c_lock);
 
     return lcp;
 }
@@ -2694,25 +2679,30 @@ __pmLogChangeToPreviousArchive(__pmLogCtl *lcp)
 __pmTimeval *
 __pmLogStartTime(__pmArchCtl *acp)
 {
-    return &acp->ac_log_list[0]->l_label.ill_start;
+    return &acp->ac_log_list[0]->ml_starttime;
 }
 
 void
 __pmArchCtlFree(__pmArchCtl *acp)
 {
-    /* We need to clean up the archive list first. */
+    /*
+     * If this is the last ref, then close the archive.
+     * refcnt == 0 means the log is not open.
+     */
+    __pmLogCtl *lcp = acp->ac_log;
+    if (lcp != NULL) {
+	if (--lcp->l_refcnt == 0) {
+	    __pmLogClose(lcp);
+	    free(lcp);
+	}
+    }
+
+    /* We need to clean up the archive list. */
     if (acp->ac_log_list != NULL) {
-	int logix = acp->ac_num_logs;
-	while (--logix >= 0) {
-	    /*
-	     * If this is the last ref, then close the archive.
-	     * refcnt == 0 means the log is not open.
-	     */
-	    __pmLogCtl *lcp = acp->ac_log_list[logix];
-	    if (--lcp->l_refcnt == 0) {
-		__pmLogClose(lcp);
-		free(lcp);
-	    }
+	while (--acp->ac_num_logs >= 0) {
+	    assert (acp->ac_log_list[acp->ac_num_logs] != NULL);
+	    free(acp->ac_log_list[acp->ac_num_logs]->ml_name);
+	    free(acp->ac_log_list[acp->ac_num_logs]);
 	}
 	free(acp->ac_log_list);
     }

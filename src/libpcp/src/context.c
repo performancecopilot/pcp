@@ -406,6 +406,77 @@ ctxflags(__pmHashCtl *attrs, int *flags)
     return 0;
 }
 
+int
+__pmFindOrOpenArchive(__pmContext *ctxp, const char *name)
+{
+    __pmArchCtl *acp;
+    __pmLogCtl	*lcp;
+    __pmContext	*ctxp2;
+    __pmArchCtl *acp2;
+    __pmLogCtl	*lcp2;
+    int		i;
+    int		sts;
+    /*
+     * We're done with the current archive, if any. Close it, if necessary.
+     * If we do close it, keep the __pmLogCtl block for possible re-use.
+     */
+    acp = ctxp->c_archctl;
+    lcp = acp->ac_log;
+    if (lcp) {
+	if (--lcp->l_refcnt == 0)
+	    __pmLogClose(lcp);
+	else
+	    lcp = NULL;
+    }
+
+    /* See if an archive by this name is already open in another context. */
+    lcp2 = NULL;
+    for (i = 0; i < contexts_len; i++) {
+	if (i == PM_TPD(curcontext))
+	    continue;
+
+	/* See if there is already an archive opened with this name. */
+	ctxp2 = contexts[i];
+	if (ctxp2->c_type == PM_CONTEXT_ARCHIVE) {
+	    acp2 = ctxp2->c_archctl;
+	    if (strcmp (name, acp2->ac_log->l_name) == 0) {
+		lcp2 = acp2->ac_log;
+		break;
+	    }
+	}
+    }
+
+    /*
+     * If we found an active archive with the same name, then use it.
+     * Free the current archive controls, if necessary.
+     */
+    if (lcp2 != NULL) {
+	if (lcp)
+	    free(lcp);
+	++lcp2->l_refcnt;
+	acp->ac_log = lcp2;
+	return 0;
+    }
+    /*
+     * No active archive with this name was found. Open one.
+     * Allocate a new log control block, if necessary.
+     */
+    if (lcp == NULL) {
+	if ((lcp = (__pmLogCtl *)malloc(sizeof(*lcp))) == NULL)
+	    __pmNoMem("__pmFindOrOpenArchive", sizeof(*lcp), PM_FATAL_ERR);
+	acp->ac_log = lcp;
+    }
+    sts = __pmLogOpen(name, ctxp);
+    if (sts < 0) {
+	free(lcp);
+	acp->ac_log = NULL;
+    }
+    else
+	lcp->l_refcnt = 1;
+
+    return sts;
+}
+
 /*
  * Initialize the given archive(s) for this context.
  *
@@ -420,18 +491,17 @@ ctxflags(__pmHashCtl *attrs, int *flags)
 static int
 initarchive(__pmContext	*ctxp, const char *name)
 {
-    int			i, j;
+    int			i;
     int			sts;
     char		*namelist = NULL;
     const char		*current;
     char		*end;
     __pmArchCtl		*acp = NULL;
-    __pmLogCtl		**loglist = NULL;
+    __pmMultiLogCtl	**loglist = NULL;
+    __pmMultiLogCtl	*mlcp;
     int			numlogs = 0;
-    const __pmContext	*ctxp2;
-    const __pmArchCtl	*acp2;
-    __pmLogCtl		**loglist2;
-    int			numlogs2;
+    double		tdiff;
+    pmLogLabel		label;
 
     /*
      * Catch these early. Formerly caught by __pmLogLoadLabel(), but with
@@ -457,12 +527,14 @@ initarchive(__pmContext	*ctxp, const char *name)
     }
 
     /*
-     * Initialize a __pmLogCtl structure for each of the named archives.
+     * Initialize a __pmMultiLogCtl structure for each of the named archives.
+     * sort them in order of start time and check for overlaps. Keep the final
+     * archive open.
      */
     loglist = NULL;
     current = namelist;
     while (*current) {
-	/* Allocate a element in the archive list. */
+	/* Allocate an element in the archive list. */
 	loglist = realloc(loglist, (numlogs + 1) * sizeof(*loglist));
 	if (loglist == NULL) {
 	    sts = -oserror();
@@ -475,105 +547,125 @@ initarchive(__pmContext	*ctxp, const char *name)
 	if (end)
 	    *end = '\0';
 
-	/* See if an archive by this name is already open. */
-	for (i = 0; i < contexts_len; i++) {
-	    if (i == PM_TPD(curcontext))
-		continue;
+	/*
+	 * Obtain a handle for the named archive.
+	 * __pmFindOrOpenArchive() will take care of closing the active archive,
+	 * if necessary
+	 */
+	sts = __pmFindOrOpenArchive(ctxp, current);
+	if (sts < 0)
+	    goto error;
 
-	    /* See if there is already an archive opened with this name. */
-	    ctxp2 = contexts[i];
-	    if (ctxp2->c_type == PM_CONTEXT_ARCHIVE) {
-		acp2 = ctxp2->c_archctl;
-		numlogs2 = acp2->ac_num_logs;
-		loglist2 = acp2->ac_log_list;
-		for (j = 0; j < numlogs2; j++) {
-		    if (strcmp(current, loglist2[j]->l_name) == 0)
-			break;
-		}
-		if (j < numlogs2) {
-		    /* Found a matching open archive. Use it. */
-		    loglist[numlogs] = loglist2[j];
-		    loglist[numlogs]->l_refcnt++;
-		    break;
-		}
-	    }
+	/* Initialize a new ac_log_list entry for this archive. */
+	if ((mlcp = (__pmMultiLogCtl *)malloc(sizeof(__pmMultiLogCtl))) == NULL) {
+	    sts = -oserror();
+	    goto error;
+	}
+	/*
+	 * Store the name and the start and end times.
+	 */
+	if ((mlcp->ml_name = strdup(current)) == NULL) {
+	    sts = -oserror();
+	    goto error;
 	}
 
 	/*
-	 * If we did not find an existing archive with the same name, then
-	 * initialize a new one.
+	 * Obtain the start time of this archive. The end time could change
+	 * on the fly and needs to be re-checked as needed.
 	 */
-	if (loglist[numlogs] == NULL) {
-	    if ((loglist[numlogs] = (__pmLogCtl *)malloc(sizeof(__pmLogCtl))) == NULL) {
-		sts = -oserror();
+	if ((sts = pmGetArchiveLabel(&label)) < 0)
+	    goto error;
+	mlcp->ml_starttime.tv_sec = (__uint32_t)label.ll_start.tv_sec;
+	mlcp->ml_starttime.tv_usec = (__uint32_t)label.ll_start.tv_usec;
+
+	/*
+	 * Insert this new entry into the list in sequence by time. Check for
+	 * overlaps.
+	 */
+	loglist[numlogs] = mlcp;
+	for (i = 0; i < numlogs; i++) {
+	    tdiff = __pmTimevalSub(&mlcp->ml_starttime,
+				   &loglist[i]->ml_starttime);
+	    if (tdiff < 0.0) /* found insertion point */
+		break;
+	    if (tdiff == 0) { /* overlap */
+		sts = PM_ERR_LOGREC;
 		goto error;
 	    }
-	    /*
-	     * Store the name and set the reference count to zero, but don't
-	     * attempt to open this archive yet.
-	     */
-	    if ((loglist[numlogs]->l_name = strdup(current)) == NULL) {
-		sts = -oserror();
-		goto error;
-	    }
-	    loglist[numlogs]->l_refcnt = 0;
+	    /* Keep checking */
+	}
+
+	/*
+	 * If we found the insertion point, then insert the current archive
+	 * into that slot. Otherwise it is already in the correct slot.
+	 */
+	if (i < numlogs) {
+	    __pmMultiLogCtl *tmp = loglist[numlogs];
+	    memmove (&loglist[i + 1], &loglist[i], (numlogs - i) * sizeof(*loglist));
+	    loglist[i] = tmp;
 	}
 
 	/* Set up to process the next name. */
 	++numlogs;
 	if (! end)
 	    break;
-
 	*end = ',';
 	current = end + 1;
     }
+    free(namelist);
+    namelist = NULL;
+    acp->ac_num_logs = numlogs;
+    acp->ac_cur_log = numlogs - 1;
+    acp->ac_log_list = loglist;
 
-    if (loglist != NULL) {
-	/* Set the archive controls to refer to the first archive in the list. */
-	acp->ac_num_logs = numlogs;
-	acp->ac_log_list = loglist;
-	acp->ac_log = acp->ac_log_list[0];
-
-	/* Initialize the archive controls. */
-	__pmLogInitialState(acp);
-	acp->ac_serial = 0;		/* not serial access, yet */
-	acp->ac_pmid_hc.nodes = 0;	/* empty hash list */
-	acp->ac_pmid_hc.hsize = 0;
-	acp->ac_end = 0.0;
-	acp->ac_want = NULL;
-	acp->ac_unbound = NULL;
-	acp->ac_cache = NULL;
-
+    if (numlogs > 1) {
 	/*
 	 * In order to maintain API semantics with the old single archive
-	 * implementation, open the current archive (first archive in the list).
+	 * implementation, open the first archive and switch to the first volume.
 	 */
 	sts = __pmLogChangeArchive(ctxp, 0);
 	if (sts < 0) {
 	    --numlogs;
 	    goto error;
 	}
+	sts = __pmLogChangeVol(acp->ac_log, acp->ac_log->l_minvol);
+	if (sts < 0) {
+	    --numlogs;
+	    goto error;
+	}
     }
 
-    free(namelist);
+    /* start after header + label record + trailer */
+    ctxp->c_origin.tv_sec = (__int32_t)acp->ac_log->l_label.ill_start.tv_sec;
+    ctxp->c_origin.tv_usec = (__int32_t)acp->ac_log->l_label.ill_start.tv_usec;
+    ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
+    acp->ac_offset = sizeof(__pmLogLabel) + 2*sizeof(int);
+    acp->ac_vol = acp->ac_log->l_curvol;
+    acp->ac_serial = 0;		/* not serial access, yet */
+    acp->ac_pmid_hc.nodes = 0;	/* empty hash list */
+    acp->ac_pmid_hc.hsize = 0;
+    acp->ac_end = 0.0;
+    acp->ac_want = NULL;
+    acp->ac_unbound = NULL;
+    acp->ac_cache = NULL;
+
     return 0; /* success */
 
  error:
-    if (acp)
+    if (acp) {
+	if (acp->ac_log && --acp->ac_log->l_refcnt == 0)
+	    free(acp->ac_log);
 	free(acp);
+    }
     if (namelist)
 	free(namelist);
     if (loglist) {
-	/* numlongs has not yet been incremented if we are here, but entries
-	   have been allocated. */
+	/* numlongs has not yet been incremented if we are here, but the new entry
+	   may have been allocated. */
 	while (numlogs >= 0) {
 	    if (loglist[numlogs]) {
-		if (loglist[numlogs]->l_refcnt == 0) {
-		    free(loglist[numlogs]->l_name);
-		    free(loglist[numlogs]); /* newly allocated */
-		}
-		else
-		    --loglist[numlogs]->l_refcnt; /* reused */
+		free(loglist[numlogs]->ml_name);
+		free(loglist[numlogs]);
 	    }
 	    --numlogs;
 	}
@@ -890,6 +982,7 @@ pmDupContext(void)
     int			old, new = -1;
     char		hostspec[4096];
     __pmContext		*newcon, *oldcon;
+    __pmMultiLogCtl	*newmlcp, *oldmlcp;
     __pmInDomProfile	*q, *p, *p_end;
     __pmProfile		*save;
     void		*save_dm;
@@ -998,15 +1091,23 @@ pmDupContext(void)
 		free(newcon->c_archctl);
 		goto done;
 	    }
-	    memcpy(newcon->c_archctl->ac_log_list,
-		   oldcon->c_archctl->ac_log_list,
-		   size);
+	    /* We need to duplicate each ac_log_list entry. */
 	    for (i = 0; i < newcon->c_archctl->ac_num_logs; i++) {
-		if (newcon->c_archctl->ac_log_list[i]->l_refcnt != 0) {
-		    /* The archive is open, so we have a new reference. */
-		    ++newcon->c_archctl->ac_log_list[i]->l_refcnt;
+		newcon->c_archctl->ac_log_list[i] =
+		    malloc(sizeof(*newcon->c_archctl->ac_log_list[i]));
+		newmlcp = newcon->c_archctl->ac_log_list[i];
+		oldmlcp = oldcon->c_archctl->ac_log_list[i];
+		*newmlcp = *oldmlcp;
+		/* We need to duplicate the ml_name of each archive in the
+		   list. */
+		if ((newmlcp->ml_name = strdup (newmlcp->ml_name)) == NULL) {
+		    sts = -oserror();
+		    goto done;
 		}
 	    }
+	    /* We need to bump up the reference count of the ac_log. */
+	    if (newcon->c_archctl->ac_log != NULL)
+		++newcon->c_archctl->ac_log->l_refcnt;
 	}
     }
 
@@ -1181,19 +1282,23 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 	    }
 	    else {
 		for (j = 0; j < con->c_archctl->ac_num_logs; j++) {
-		    fprintf(f, " log %s:", con->c_archctl->ac_log_list[j]->l_name);
-		    if (con->c_archctl->ac_log_list[j]->l_refcnt == 0) {
+		    fprintf(f, " log %s:",
+			    con->c_archctl->ac_log_list[j]->ml_name);
+		    if (con->c_archctl->ac_log == NULL ||
+			con->c_archctl->ac_log->l_refcnt == 0 ||
+			strcmp (con->c_archctl->ac_log_list[j]->ml_name,
+				con->c_archctl->ac_log->l_name) != 0) {
 			fprintf(f, " not open\n");
 			continue;
 		    }
 		    fprintf(f, " mode=%s", _mode[con->c_mode & __PM_MODE_MASK]);
 		    fprintf(f, " profile=%s tifd=%d mdfd=%d mfd=%d\nrefcnt=%d vol=%d",
 			    con->c_sent ? "SENT" : "NOT_SENT",
-			    con->c_archctl->ac_log_list[j]->l_tifp == NULL ? -1 : fileno(con->c_archctl->ac_log_list[j]->l_tifp),
-			    fileno(con->c_archctl->ac_log_list[j]->l_mdfp),
-			    fileno(con->c_archctl->ac_log_list[j]->l_mfp),
-			    con->c_archctl->ac_log_list[j]->l_refcnt,
-			    con->c_archctl->ac_log_list[j]->l_curvol);
+			    con->c_archctl->ac_log->l_tifp == NULL ? -1 : fileno(con->c_archctl->ac_log->l_tifp),
+			    fileno(con->c_archctl->ac_log->l_mdfp),
+			    fileno(con->c_archctl->ac_log->l_mfp),
+			    con->c_archctl->ac_log->l_refcnt,
+			    con->c_archctl->ac_log->l_curvol);
 		    fprintf(f, " offset=%ld (vol=%d) serial=%d",
 			    (long)con->c_archctl->ac_offset,
 			    con->c_archctl->ac_vol,

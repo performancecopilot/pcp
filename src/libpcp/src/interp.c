@@ -1095,7 +1095,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-	    t_this = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log_list[0]->l_label.ill_start);
+	    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    if (ctxp->c_delta > 0 && t_this <= t_req) {
 		/* going forwards, and not up to t_req yet */
 		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);

@@ -682,6 +682,14 @@ PCP_CALL extern __pmServerPresence *__pmServerAdvertisePresence(const char *, in
 PCP_CALL extern void __pmServerUnadvertisePresence(__pmServerPresence *);
 
 /*
+ * Minimal information to retain for each archive in a multi-archive context
+ */
+typedef struct {
+    char		*ml_name;	/* external log base name */
+    __pmTimeval		ml_starttime;	/* start time of the archive */
+} __pmMultiLogCtl;
+
+/*
  * Per-context controls for archives and logs
  */
 typedef struct {
@@ -701,9 +709,9 @@ typedef struct {
      * in a single context. In order to maintain ABI compatibility they must
      * be at the end of this structure.
      */
-    int			ac_num_logs;	/* The number of logs in ac_log_list. */
-    __pmLogCtl		**ac_log_list;	/* List of active logging and archive
-					   controls */
+    int			ac_num_logs;	/* The number of archives */
+    int			ac_cur_log;	/* The currently open archive */
+    __pmMultiLogCtl	**ac_log_list;	/* Current set of archives */
 } __pmArchCtl;
 
 /*
@@ -747,6 +755,9 @@ PCP_CALL extern void __pmDumpContext(FILE *, int, pmInDom);
 PCP_CALL extern int __pmPrepareFetch(__pmContext *, int, const pmID *, pmID **);
 PCP_CALL extern int __pmFinishResult(__pmContext *, int, pmResult **);
 PCP_CALL extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **);
+
+/* Archive context helper. */
+int __pmFindOrOpenArchive(__pmContext *, const char *);
 
 /*
  * Protocol data unit support
@@ -1060,7 +1071,6 @@ PCP_CALL extern void __pmLogClose(__pmLogCtl *);
 PCP_CALL extern void __pmLogCacheClear(FILE *);
 PCP_CALL extern char *__pmLogBaseName(char *);
 
-PCP_CALL extern void __pmLogInitialState(__pmArchCtl *);
 PCP_CALL extern __pmTimeval *__pmLogStartTime(__pmArchCtl *);
 PCP_CALL extern int __pmLogChangeArchive(__pmContext *, int);
 PCP_CALL extern __pmLogCtl *__pmLogChangeToNextArchive(__pmLogCtl *);
