@@ -16,24 +16,24 @@ echo "QA output created by $seq"
 src/check_fault_injection >/dev/null 2>&1 || \
     _notrun "libpcp not built with fault injection enabled"
 
-if [ -f $PCP_DIR/usr/include/pcp/configsz.h ]
+if [ -f $PCP_INC_DIR/configsz.h ]
 then
     # PCP 3.9.0 or later
-    defs="$PCP_DIR/usr/include/pcp/configsz.h $PCP_DIR/usr/include/pcp/config32.h $PCP_DIR/usr/include/pcp/config64.h"
-elif [ -f $PCP_DIR/usr/include/pcp/config.h ]
+    defs="$PCP_INC_DIR/configsz.h $PCP_INC_DIR/config32.h $PCP_INC_DIR/config64.h"
+elif [ -f $PCP_INC_DIR/config.h ]
 then
     # PCP 3.8.3 or later
-    defs=$PCP_DIR/usr/include/pcp/config.h
-elif [ -f $PCP_DIR/usr/include/pcp/platform_header.h ]
+    defs=$PCP_INC_DIR/config.h
+elif [ -f $PCP_INC_DIR/platform_header.h ]
 then
     # PCP 3.6 or later
-    defs=$PCP_DIR/usr/include/pcp/platform_header.h
-elif [ -f $PCP_DIR/usr/include/pcp/platform_defs.h ]
+    defs=$PCP_INC_DIR/platform_header.h
+elif [ -f $PCP_INC_DIR/platform_defs.h ]
 then
     # older PCP versions
-    defs=$PCP_DIR/usr/include/pcp/platform_defs.h
+    defs=$PCP_INC_DIR/platform_defs.h
 else
-    _notrun "No $PCP_DIR/usr/include/pcp header files found"
+    _notrun "No $PCP_INC_DIR header files found"
 fi
 
 rm -f $seq.out

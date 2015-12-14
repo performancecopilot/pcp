@@ -13,11 +13,11 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ -f $PCP_DIR/usr/include/pcp/pmdbg.h ]
+if [ -f $PCP_INC_DIR/pmdbg.h ]
 then
     :
 else
-    echo "$PCP_DIR/usr/include/pcp/pmdbg.h not installed?" >$seq.notrun
+    echo "$PCP_INC_DIR/pmdbg.h not installed?" >$seq.notrun
     echo "$seq: [not run] `cat $seq.notrun`"
     exit 0
 fi
@@ -33,8 +33,8 @@ pmdbg -l \
 | LC_COLLATE=POSIX sort >$tmp.dbg
 
 echo "------" >>$seq.full
-cat $PCP_DIR/usr/include/pcp/pmdbg.h >>$seq.full
-sed -n <$PCP_DIR/usr/include/pcp/pmdbg.h \
+cat $PCP_INC_DIR/pmdbg.h >>$seq.full
+sed -n <$PCP_INC_DIR/pmdbg.h \
     -e '/DBG_/{
 s/.*DBG_/DBG_/
 s/[ 	].*//
