@@ -323,7 +323,7 @@ main(int argc, char **argv)
      * create the shm segment, and install exit() handler to remove it
      */
     if ((shmid = shmget(KEY, shm_size, IPC_CREAT|0666)) < 0) {
-	fprintf(stderr, "shmid: %s\n", osstrerror());
+	fprintf(stderr, "shmget: %s\n", osstrerror());
 	exit(1);
     }
     atexit(done);
