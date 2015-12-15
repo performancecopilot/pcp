@@ -1,13 +1,15 @@
 -  after first release: drop all compat code
+-  after first release: check/fix get_cmd_line_metrics for good
 -  after first release: check all code marked with BZ references
 -  allow defining instances to display [-i]
 -  opt to write cols per row with stdout output [-k]
 -  -Q/-B/-Y to override per-metric settings unit/scale
--  maybe adjust unit/scale handling to ~match fetchgroup
 -  shorten unit display count / sec -> count/s -> c/s if needed
 -  opt to output in short format (see pmdumptext -F / pmNumberStr) [-m/-M]
 -  opt to support pmdumptext -X like output (or shorten inst names if needed)
 -  bash/zsh completion with short help (allow description for sets?)
+-  support rate display also for non-cumulative counters
+-  support displaying raw/rate as per given unit
 -  containers support
 -  verify CSV format
 -  add JSON output support
@@ -22,8 +24,9 @@
 -  copy metric set spec support (?)
 -  includedir config file support (?)
 -  generalised daemon startup support (?)
--  provide percentage metrics (e.g. CPU/:vmstat) (?)
 -  add option to prevent truncating string output (?)
+-  generalized zabbix_interval (limit writes to archive) (?)
+-  support for multiple output targets (e.g. archive+stdout) (?)
 -  optionally ignore incompatible/unsupported metrics rather than abort [-I] (?)
 
 -----

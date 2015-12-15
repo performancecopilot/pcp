@@ -35,7 +35,6 @@
 [\f3\-O\f1 \f2origin\f1]
 [\f3\-P\f1 \f2precision\f1]
 [\f3\-q\f1 \f2count-scale\f1]
-[\f3\-R\f1 \f2runtime\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-S\f1 \f2starttime\f1]
 [\f3\-t\f1 \f2interval\f1]
@@ -130,7 +129,7 @@ of a metricspec is defined as follows:
 .in 1.5i
 .ft CW
 .nf
-metric[,label[,instance[,unit/scale[,raw[,width]]]]]
+metric[,label[,instance[,unit/scale[,type[,width]]]]]
 .fi
 .ft R
 .in
@@ -150,17 +149,18 @@ The optional
 definition is currently unimplemented.
 An optional
 .I unit/scale
-is applicable for dimension-comptatible, non-string, non-raw metrics.
+is applicable for dimension-compatible, non-string, and (currently)
+non-raw metrics.
 (See below for supported
 .I unit/scale
 specifications.)
 By default, cumulative counter metrics are converted to rates.
 If the optional
-.I raw
-field is
-.B r
-then the rate conversion is disabled and raw values are reported
-instead.
+.I type
+field is set to
+.B raw
+then this rate conversion is disabled, unit/scale specification is
+(currently) ignored and raw values are reported instead.
 Finally, for supporting output targets (currently:
 .IR stdout )
 a numeric
@@ -175,7 +175,7 @@ The following
 requests the metric
 .B kernel.all.sysfork
 to be reported under the label
-.BR fork/s ,
+.BR forks ,
 converting to the default rate count/s in an
 .B 8
 wide column.
@@ -186,7 +186,7 @@ are optional, they must always be provided in the order specified above.
 .in 1.5i
 .ft CW
 .nf
-kernel.all.sysfork,fork/s,,,,8
+kernel.all.sysfork,forks,,,,8
 .fi
 .ft R
 .in
@@ -436,39 +436,6 @@ See also
 Output raw metric values, do not convert cumulative counters to rates.
 This option \fIwill\fR override possible per-metric specifications.
 .TP
-.B \-R
-The argument
-.I runtime
-defines the time
-.B pmrep
-will run before exiting.
-If no
-.I samples
-is given (see
-.BR \-s )
-then the number of reported samples depends on
-.I interval
-(see
-.BR \-t ).
-If
-.I samples
-is given then
-.I interval
-will be adjusted to allow reporting of
-.I samples
-during
-.IR runtime .
-In case all of
-.BR \-R ,
-.BR \-s ,
-and
-.B \-t
-are given,
-.I runtime
-determines the actual time
-.B pmrep
-will run.
-.TP
 .B \-s
 The argument
 .I samples
@@ -482,7 +449,7 @@ is not specified,
 will sample and report continuously (in real time mode) or until the end
 of the PCP archive (in archive mode).
 See also
-.BR \-R .
+.BR \-T .
 .TP
 .B \-S
 When reporting archived metrics, the report will be restricted to those
@@ -504,7 +471,7 @@ argument follows the syntax described in
 and in the simplest form may be an unsigned integer (the implied units
 in this case are seconds).
 See also the
-.B \-R
+.B \-T
 option.
 .TP
 .B \-T
@@ -515,6 +482,29 @@ Refer to
 .BR PCPIntro (1)
 for a complete description of the syntax for
 .IR endtime .
+.RS
+.PP
+When used to define the runtime before \fBpmrep\fR will exit,
+if no \fIsamples\fR is given (see \fB-s\fR) then the number of
+reported samples depends on \fIinterval\fR (see \fB-t\fR).
+If
+.I samples
+is given then
+.I interval
+will be adjusted to allow reporting of
+.I samples
+during runtime.
+In case all of
+.BR \-T ,
+.BR \-s ,
+and
+.B \-t
+are given,
+.I endtime
+determines the actual time
+.B pmrep
+will run.
+.RE
 .TP
 .B \-u
 When reporting archived metrics, by default values are reported
@@ -664,7 +654,7 @@ archive
 .RS +1
 .ft CW
 .nf
-$ pmrep -o archive -F ./a -t 5s -R 5m ds389 xfs kernel.all.cpu disk mem
+$ pmrep -o archive -F ./a -t 5s -T 5m ds389 xfs kernel.all.cpu disk mem
 .fi
 .ft P
 .RE
@@ -675,6 +665,8 @@ $ pmrep -o archive -F ./a -t 5s -R 5m ds389 xfs kernel.all.cpu disk mem
 Default configuration file.
 .PD
 .SH BUGS
+No command line option can follow metrics.
+
 Specifying instances is not yet supported.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix

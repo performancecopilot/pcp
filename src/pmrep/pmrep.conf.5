@@ -169,17 +169,6 @@ parameter is \fB-o\fR. Follows the time syntax described in
 Defaults to \fB1s\fR.
 .RE
 .P
-runtime (string)
-.RS 4
-Indicates the time
-.B pmrep
-will run before exiting. Corresponding command line parameter is
-\fB-R\fR. Follows the time syntax described in
-.BR PCPIntro (1).
-Undefined by default (thus runtime will be determined by the number of
-samples and interval).
-.RE
-.P
 delay (bool)
 .RS 4
 Indicates whether to pause between samples when replaying from an
@@ -187,11 +176,12 @@ archive rather than replaying at full speed. Corresponding command line
 parameter is \fB-d\fR. Defaults to \fBno\fR.
 .RE
 .P
-raw (bool)
+type (string)
 .RS 4
 Indicates whether to output raw metric values by disabling all rate
-conversions. Corresponding command line parameter is \fB-r\fR. Defaults
-to \fBno\fR.
+conversions or convert cumulative counters to rates (default).
+Corresponding command line parameter is \fB-r\fR. Allowed values are
+\fBdefault\fR or \fBraw\fR.
 .RE
 .P
 width (integer)
@@ -386,13 +376,13 @@ This specifier is currently recognized but not implemented.
 .TP 2
 .I unit
 Defines the unit/scale conversion for the metric. Needs to be
-dimension-comptatible and is used with non-string, non-raw metrics.
+dimension-compatible and is used with non-string and (currently)
+non-raw metrics.
 For allowed values, see
 .BR pmrep (3).
 .TP 2
-.I raw
-If set to \fByes\fR or \fBr\fR rate conversion for the metric will be
-disabled.
+.I type
+If set to \fBraw\fR rate conversion for the metric will be disabled.
 .TP 2
 .I width
 Defines the width of the output column for the metric.
@@ -430,7 +420,7 @@ repeat_header = 20
 space_scale = MB
 
 [global]
-kernel.all.sysfork = fork/s,,,,8
+kernel.all.sysfork = forks,,,,8
 allcache = mem.util.allcache
 allcache.formula = mem.util.bufmem + mem.util.cached + mem.util.slab
 
@@ -448,6 +438,7 @@ unitinfo = no
 globals = no
 timestamp = yes
 interval = 1s
+extheader = no
 precision = 2
 sysfork = kernel.all.sysfork
 sysfork.label = proc/s

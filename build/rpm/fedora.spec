@@ -2418,6 +2418,8 @@ cd
 
 %if !%{disable_python2} || !%{disable_python3}
 %files -n pcp-system-tools -f pcp_system_tools.list
+%dir %{_sysconfdir}/pmrep
+%config(noreplace) %{_sysconfdir}/pmrep/pmrep.conf
 %endif
 
 %changelog
@@ -2431,6 +2433,7 @@ cd
 - Fix pmstat SEGV when run with graphical time control (BZ 1287678)
 - Make pmNonOptionsFromList error message less cryptic (BZ 1287778)
 - Drop unimplemented pmdumptext options from usage, man page (BZ 1289909)
+- Stop creating configuration files in tmp_t locations (BZ 1256125)
 - Update to latest PCP sources.
 
 * Fri Oct 30 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.8-1

@@ -16,6 +16,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TARGET = pmrep
+CONFIG = pmrep.conf
 MAN_PAGES = pmrep.1 pmrep.conf.5
 
 default: $(TARGET).py $(MAN_PAGES)
@@ -27,6 +28,8 @@ include $(BUILDRULES)
 install: default
 ifeq "$(HAVE_PYTHON)" "true"
 	$(INSTALL) -m 755 $(TARGET).py $(PCP_BIN_DIR)/$(TARGET)
+	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/$(TARGET)
+	$(INSTALL) -m 644 $(CONFIG) $(PCP_SYSCONF_DIR)/$(TARGET)/$(CONFIG)
 	@$(INSTALL_MAN)
 endif
 

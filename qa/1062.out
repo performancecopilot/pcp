@@ -1,0 +1,12 @@
+QA output created by 1062
+== exercise vmstat config section, live
+    r    b  swpd      free      buff     cache   si   so    bi    bo      in      cs   us   sy   id   wa   st
+  N/A  N/A   N/A       N/A       N/A       N/A  N/A  N/A   N/A   N/A     N/A     N/A  N/A  N/A  N/A  N/A  N/A
+    xxx    xxx   xxx    xxx    xxx   xxx    xxx    xxx    xxx  xxx    xxx    xxx    xxx    xxx    xxx    xxx    xxx
+== exercise vmstat config section, archive
+    r    b  swpd      free      buff     cache   si   so    bi    bo      in      cs   us   sy   id   wa   st
+  N/A  N/A   N/A       N/A       N/A       N/A  N/A  N/A   N/A   N/A     N/A     N/A  N/A  N/A  N/A  N/A  N/A
+  N/A  N/A   N/A       N/A       N/A       N/A  N/A  N/A   N/A   N/A     N/A     N/A  N/A  N/A  N/A  N/A  N/A
+    3    0   xxx    174408    158736   2058616    0    0     0     0     307     938    0    0    4    0    0
+    2    0   xxx    176640    158736   2056020    0    0     0     0     278     868    0    0    4    0    0
+    2    0   xxx    176640    158736   2056020    0    0     0   163     264     843    0    0    4    0    0

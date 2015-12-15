@@ -168,13 +168,14 @@ class PMReporter(object):
 
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'unitinfo',
-                     'globals', 'timestamp', 'samples', 'interval', 'runtime',
-                     'delay', 'raw', 'width', 'precision', 'delimiter',
+                     'globals', 'timestamp', 'samples', 'interval',
+                     'delay', 'type', 'width', 'precision', 'delimiter',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval')
 
         # Special command line switches
+        self.argless = ('-C', '--check', '-L', '--local-PMDA', '-H', '--no-header', '-U', '--no-unit-info', '-G', '--no-globals', '-p', '--timestamps', '-d', '--delay', '-r', '--raw', '-x', '--extended-header', '-u', '--no-interpol', '-z', '--hostzone')
         self.arghelp = ('-?', '--help', '-V', '--version')
 
         # The order of preference for parameters (as present):
@@ -197,7 +198,7 @@ class PMReporter(object):
         self.opts.pmSetOptionInterval(str(1))
         self.runtime = -1
         self.delay = 0
-        self.raw = 0
+        self.type = 0
         self.width = 0
         self.precision = 3 # .3f
         self.delimiter = None
@@ -212,11 +213,11 @@ class PMReporter(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:label, 1:instance(s), 2:unit/scale, 3:rawness, 4:width
+        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width
         self.metrics = OrderedDict()
 
         # Corresponding config file metric specifiers
-        self.metricspec = ('label', 'instance', 'unit', 'raw', 'width', 'formula')
+        self.metricspec = ('label', 'instance', 'unit', 'type', 'width', 'formula')
 
         self.prevvals = None
         self.currvals = None
@@ -274,6 +275,11 @@ class PMReporter(object):
         elif name == 'interval':
             self.opts.pmSetOptionInterval(value)
             self.interval = self.opts.pmGetOptionInterval()
+        elif name == 'type':
+            if value == 'raw':
+                self.type = 1
+            else:
+                self.type = 0
         else:
             try:
                 setattr(self, name, int(value))
@@ -300,7 +306,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:R:Z:zdrw:P:l:xE:f:uq:b:y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrw:P:l:xE:f:uq:b:y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -311,7 +317,7 @@ class PMReporter(object):
         opts.pmSetLongOptionSpecLocal()    # -K/--spec-local
         opts.pmSetLongOption("config", 1, "c", "FILE", "config file path")
         opts.pmSetLongOption("check", 0, "C", "", "check config and metrics and exit")
-        opts.pmSetLongOption("output", 1, "o", "OUTPUT", "output target, one of: archive, csv, stdout (default), zabbix")
+        opts.pmSetLongOption("output", 1, "o", "OUTPUT", "output target: archive, csv, stdout (default), or zabbix")
         opts.pmSetLongOption("output-archive", 1, "F", "ARCHIVE", "output archive (with -o archive)")
         opts.pmSetLongOption("derived", 1, "e", "FILE|DFNT", "derived metrics definitions")
         opts.pmSetLongOptionDebug()        # -D/--debug
@@ -329,7 +335,6 @@ class PMReporter(object):
         opts.pmSetLongOptionOrigin()       # -O/--origin
         opts.pmSetLongOptionSamples()      # -s/--samples
         opts.pmSetLongOptionInterval()     # -t/--interval
-        opts.pmSetLongOption("runtime", 1, "R", "N", "runtime duration (overrides -t or -s)")
         opts.pmSetLongOptionTimeZone()     # -Z/--timezone
         opts.pmSetLongOptionHostZone()     # -z/--hostzone
         opts.pmSetLongOption("delay", 0, "d", "", "delay, pause between updates for archive replay")
@@ -340,7 +345,7 @@ class PMReporter(object):
         opts.pmSetLongOption("extended-header", 0, "x", "", "display extended header")
         opts.pmSetLongOption("repeat-header", 1, "E", "N", "repeat stdout headers every N lines")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "strftime string for timestamp format")
-        opts.pmSetLongOption("no-interpolation", 0, "u", "", "disable interpolation mode with archives")
+        opts.pmSetLongOption("no-interpol", 0, "u", "", "disable interpolation mode with archives")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
         opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
         opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
@@ -386,12 +391,10 @@ class PMReporter(object):
             self.globals = 0
         elif opt == 'p':
             self.timestamp = 1
-        elif opt == 'R':
-            self.runtime = optarg
         elif opt == 'd':
             self.delay = 1
         elif opt == 'r':
-            self.raw = 1
+            self.type = 1
         elif opt == 'w':
             self.width = int(optarg)
         elif opt == 'P':
@@ -417,10 +420,19 @@ class PMReporter(object):
 
     def get_cmd_line_metrics(self):
         """ Get metric set specifications from the command line """
-        if any(x in self.arghelp for x in sys.argv):
-            return 0
-        pmapi.c_api.pmGetOptionsFromList(sys.argv) # RHBZ#1287778
-        return self.opts.pmNonOptionsFromList(sys.argv)
+        for arg in sys.argv[1:]:
+            if arg in self.arghelp:
+                return 0
+        metrics = []
+        for arg in reversed(sys.argv[1:]):
+            if arg.startswith('-'):
+                if len(metrics):
+                    if arg not in self.argless and '=' not in arg:
+                        del metrics[-1]
+                break
+            metrics.append(arg)
+        metrics.reverse()
+        return metrics
 
     def parse_metric_info(self, metrics, key, value):
         """ Parse metric information """
@@ -478,8 +490,6 @@ class PMReporter(object):
                 for metric in parsemet:
                     name = parsemet[metric][:1][0]
                     globmet[name] = parsemet[metric][1:]
-                    if globmet[name][0] == None:
-                        globmet[name][0] = metric
 
         # Add command line and configuration file metric sets
         tempmet = OrderedDict()
@@ -504,8 +514,6 @@ class PMReporter(object):
                             for metric in parsemet:
                                 name = parsemet[metric][:1][0]
                                 confmet[name] = parsemet[metric][1:]
-                                if confmet[name][0] == None:
-                                    confmet[name][0] = metric
                             tempmet[spec] = confmet
                 else:
                     raise IOError("Metric set definition '%s' not found." % metric)
@@ -574,9 +582,9 @@ class PMReporter(object):
             sys.stderr.write("zabbix_server, zabbix_port, and zabbix_host must be defined with Zabbix.\n")
             sys.exit(1)
 
-        # Runtime overrides samples/interval/endtime
-        if self.runtime != -1:
-            self.runtime = int(pmapi.timeval.fromInterval(self.runtime))
+        # Runtime overrides samples/interval
+        if self.opts.pmGetOptionFinishOptarg():
+            self.runtime = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionStart()))
             if self.opts.pmGetOptionSamples():
                 self.samples = self.opts.pmGetOptionSamples()
                 if self.samples < 2:
@@ -586,6 +594,9 @@ class PMReporter(object):
                 self.interval = self.opts.pmGetOptionInterval()
             else:
                 self.interval = self.opts.pmGetOptionInterval()
+                if int(self.interval) == 0:
+                    sys.stderr.write("Interval can't be less than 1 second.\n")
+                    sys.exit(1)
                 self.samples = self.runtime / int(self.interval) + 1
             if int(self.interval) > self.runtime:
                 sys.stderr.write("Interval can't be longer than runtime.\n")
@@ -674,8 +685,7 @@ class PMReporter(object):
                 self.metrics[metric][0] = name[:-2] + m
 
             # Rawness
-            if self.metrics[metric][3] == 'r' or \
-               self.metrics[metric][3] == 'yes' or self.raw == 1:
+            if self.metrics[metric][3] == 'raw' or self.type == 1:
                 self.metrics[metric][3] = 1
             else:
                 self.metrics[metric][3] = 0
@@ -1311,7 +1321,7 @@ class PMReporter(object):
 
     def connect(self):
         """ Establish a PMAPI context to archive, host or local, via args """
-        self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv, self.opts.pmGetOptionContext())
+        self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
 
 if __name__ == '__main__':
     try:
