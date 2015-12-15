@@ -419,7 +419,7 @@ repeat_header = 20
 space_scale = MB
 
 [global]
-kernel.all.sysfork = fork/s,,,,8
+kernel.all.sysfork = forks,,,,8
 allcache = mem.util.allcache
 allcache.formula = mem.util.bufmem + mem.util.cached + mem.util.slab
 
@@ -437,6 +437,7 @@ unitinfo = no
 globals = no
 timestamp = yes
 interval = 1s
+extheader = no
 precision = 2
 sysfork = kernel.all.sysfork
 sysfork.label = proc/s

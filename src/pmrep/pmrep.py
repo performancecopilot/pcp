@@ -475,8 +475,6 @@ class PMReporter(object):
                 for metric in parsemet:
                     name = parsemet[metric][:1][0]
                     globmet[name] = parsemet[metric][1:]
-                    if globmet[name][0] == None:
-                        globmet[name][0] = metric
 
         # Add command line and configuration file metric sets
         tempmet = OrderedDict()
@@ -501,8 +499,6 @@ class PMReporter(object):
                             for metric in parsemet:
                                 name = parsemet[metric][:1][0]
                                 confmet[name] = parsemet[metric][1:]
-                                if confmet[name][0] == None:
-                                    confmet[name][0] = metric
                             tempmet[spec] = confmet
                 else:
                     raise IOError("Metric set definition '%s' not found." % metric)
