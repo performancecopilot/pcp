@@ -168,7 +168,7 @@ class PMReporter(object):
 
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'unitinfo',
-                     'globals', 'timestamp', 'samples', 'interval', 'runtime',
+                     'globals', 'timestamp', 'samples', 'interval',
                      'delay', 'raw', 'width', 'precision', 'delimiter',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
@@ -300,7 +300,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:R:Z:zdrw:P:l:xE:f:uq:b:y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrw:P:l:xE:f:uq:b:y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -329,7 +329,6 @@ class PMReporter(object):
         opts.pmSetLongOptionOrigin()       # -O/--origin
         opts.pmSetLongOptionSamples()      # -s/--samples
         opts.pmSetLongOptionInterval()     # -t/--interval
-        opts.pmSetLongOption("runtime", 1, "R", "N", "runtime duration (overrides -t or -s)")
         opts.pmSetLongOptionTimeZone()     # -Z/--timezone
         opts.pmSetLongOptionHostZone()     # -z/--hostzone
         opts.pmSetLongOption("delay", 0, "d", "", "delay, pause between updates for archive replay")
@@ -386,8 +385,6 @@ class PMReporter(object):
             self.globals = 0
         elif opt == 'p':
             self.timestamp = 1
-        elif opt == 'R':
-            self.runtime = optarg
         elif opt == 'd':
             self.delay = 1
         elif opt == 'r':
@@ -574,9 +571,9 @@ class PMReporter(object):
             sys.stderr.write("zabbix_server, zabbix_port, and zabbix_host must be defined with Zabbix.\n")
             sys.exit(1)
 
-        # Runtime overrides samples/interval/endtime
-        if self.runtime != -1:
-            self.runtime = int(pmapi.timeval.fromInterval(self.runtime))
+        # Runtime overrides samples/interval
+        if self.opts.pmGetOptionFinishOptarg():
+            self.runtime = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionStart()))
             if self.opts.pmGetOptionSamples():
                 self.samples = self.opts.pmGetOptionSamples()
                 if self.samples < 2:
