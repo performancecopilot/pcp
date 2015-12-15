@@ -149,17 +149,18 @@ The optional
 definition is currently unimplemented.
 An optional
 .I unit/scale
-is applicable for dimension-comptatible, non-string, non-raw metrics.
+is applicable for dimension-comptatible, non-string, and (currently)
+non-raw metrics.
 (See below for supported
 .I unit/scale
 specifications.)
 By default, cumulative counter metrics are converted to rates.
 If the optional
 .I raw
-field is
-.B r
-then the rate conversion is disabled and raw values are reported
-instead.
+field is set to
+.B raw
+then this rate conversion is disabled, unit/scale specification is
+(currently) ignored and raw values are reported instead.
 Finally, for supporting output targets (currently:
 .IR stdout )
 a numeric
@@ -174,7 +175,7 @@ The following
 requests the metric
 .B kernel.all.sysfork
 to be reported under the label
-.BR fork/s ,
+.BR forks ,
 converting to the default rate count/s in an
 .B 8
 wide column.
@@ -185,7 +186,7 @@ are optional, they must always be provided in the order specified above.
 .in 1.5i
 .ft CW
 .nf
-kernel.all.sysfork,fork/s,,,,8
+kernel.all.sysfork,forks,,,,8
 .fi
 .ft R
 .in
