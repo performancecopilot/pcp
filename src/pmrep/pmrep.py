@@ -583,6 +583,9 @@ class PMReporter(object):
                 self.interval = self.opts.pmGetOptionInterval()
             else:
                 self.interval = self.opts.pmGetOptionInterval()
+                if int(self.interval) == 0:
+                    sys.stderr.write("Interval can't be less than 1 second.\n")
+                    sys.exit(1)
                 self.samples = self.runtime / int(self.interval) + 1
             if int(self.interval) > self.runtime:
                 sys.stderr.write("Interval can't be longer than runtime.\n")
