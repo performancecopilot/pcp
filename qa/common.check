@@ -233,9 +233,14 @@ _make_helptext()
 #
 _host_to_ipv6addrs()
 {
-    pminfo -f -h "$1" network.interface.ipv6_addr | \
-    sed -e '/^$/d' -e '/^network/d' -e '/"lo"/d' -e 's/\/[0-9][0-9]*//g' | \
-    awk -F\" '{ printf "%s%%%s\n", $4, $2 }'
+    ADDRESS=`pminfo -f -h "$1" network.interface.ipv6_addr | \
+    sed -e '/^$/d' -e '/^network/d' -e '/"lo"/d' -e 's/\/[0-9][0-9]*//g'`
+    LOCAL_LINK=`echo $ADDRESS | awk -F\" '{ printf "%s\n", $4 }' | grep -i "^fe80::"`
+    if [ ! -z "$LOCAL_LINK" ]; then
+        echo $ADDRESS | awk -F\" '{ printf "%s%%%s\n", $4, $2 }'
+    else
+        echo $ADDRESS | awk -F\" '{ printf "%s\n", $4 }'
+    fi
 }
 
 _host_to_ipaddr()
