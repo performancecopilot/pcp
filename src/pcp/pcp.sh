@@ -85,7 +85,7 @@ _fmt()
 {
     if [ "$PCP_PLATFORM" = netbsd ]
     then
-	fmt -g 64
+	fmt -m 64
     else
 	fmt -w 64
     fi \

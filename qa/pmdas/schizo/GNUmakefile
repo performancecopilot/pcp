@@ -14,7 +14,7 @@ TARGETS = pmda$(IAM)-A pmda$(IAM)-B
 MYFILES = domain.h help-A help-B pmns-A pmns-B root-A root-B
 MYSCRIPTS = Install Remove
 LSRCFILES = $(MYSCRIPTS) $(MYFILES) GNUmakefile.install
-LDIRT = help help.pag help.dir root pmns pmda$(IAM) pmda$(IAM)-A pmda$(IAM)-B
+LDIRT = help help.pag help.dir root pmns pmda$(IAM) pmda$(IAM)-A pmda$(IAM)-B $(IAM).log
 
 LLDFLAGS = $(PCP_LIBS)
 LLDLIBS = $(PCP_PMDALIB)
