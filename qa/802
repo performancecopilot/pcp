@@ -19,6 +19,17 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+cd pmdas/github-56
+if make >$tmp.out 2>&1
+then
+    :
+else
+    cat $tmp.out
+    echo "Arrgh, make in pmdas/github-56 failed"
+    exit
+fi
+cd $here
+
 # real QA test starts here
 
 VALGRIND=`which valgrind`
