@@ -129,7 +129,7 @@ of a metricspec is defined as follows:
 .in 1.5i
 .ft CW
 .nf
-metric[,label[,instance[,unit/scale[,raw[,width]]]]]
+metric[,label[,instance[,unit/scale[,type[,width]]]]]
 .fi
 .ft R
 .in
@@ -156,7 +156,7 @@ non-raw metrics.
 specifications.)
 By default, cumulative counter metrics are converted to rates.
 If the optional
-.I raw
+.I type
 field is set to
 .B raw
 then this rate conversion is disabled, unit/scale specification is

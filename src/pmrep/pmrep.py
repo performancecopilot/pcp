@@ -169,7 +169,7 @@ class PMReporter(object):
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'unitinfo',
                      'globals', 'timestamp', 'samples', 'interval',
-                     'delay', 'raw', 'width', 'precision', 'delimiter',
+                     'delay', 'type', 'width', 'precision', 'delimiter',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval')
@@ -197,7 +197,7 @@ class PMReporter(object):
         self.opts.pmSetOptionInterval(str(1))
         self.runtime = -1
         self.delay = 0
-        self.raw = 0
+        self.type = 0
         self.width = 0
         self.precision = 3 # .3f
         self.delimiter = None
@@ -212,11 +212,11 @@ class PMReporter(object):
 
         # Performance metrics store
         # key - metric name
-        # values - 0:label, 1:instance(s), 2:unit/scale, 3:rawness, 4:width
+        # values - 0:label, 1:instance(s), 2:unit/scale, 3:type, 4:width
         self.metrics = OrderedDict()
 
         # Corresponding config file metric specifiers
-        self.metricspec = ('label', 'instance', 'unit', 'raw', 'width', 'formula')
+        self.metricspec = ('label', 'instance', 'unit', 'type', 'width', 'formula')
 
         self.prevvals = None
         self.currvals = None
@@ -274,6 +274,11 @@ class PMReporter(object):
         elif name == 'interval':
             self.opts.pmSetOptionInterval(value)
             self.interval = self.opts.pmGetOptionInterval()
+        elif name == 'type':
+            if value == 'raw':
+                self.type = 1
+            else:
+                self.type = 0
         else:
             try:
                 setattr(self, name, int(value))
@@ -388,7 +393,7 @@ class PMReporter(object):
         elif opt == 'd':
             self.delay = 1
         elif opt == 'r':
-            self.raw = 1
+            self.type = 1
         elif opt == 'w':
             self.width = int(optarg)
         elif opt == 'P':
@@ -670,8 +675,7 @@ class PMReporter(object):
                 self.metrics[metric][0] = name[:-2] + m
 
             # Rawness
-            if self.metrics[metric][3] == 'raw' or \
-               self.metrics[metric][3] == 'yes' or self.raw == 1:
+            if self.metrics[metric][3] == 'raw' or self.type == 1:
                 self.metrics[metric][3] = 1
             else:
                 self.metrics[metric][3] = 0

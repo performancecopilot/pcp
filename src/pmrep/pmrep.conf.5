@@ -176,11 +176,12 @@ archive rather than replaying at full speed. Corresponding command line
 parameter is \fB-d\fR. Defaults to \fBno\fR.
 .RE
 .P
-raw (bool)
+type (string)
 .RS 4
 Indicates whether to output raw metric values by disabling all rate
-conversions. Corresponding command line parameter is \fB-r\fR. Defaults
-to \fBno\fR.
+conversions or convert cumulative counters to rates (default).
+Corresponding command line parameter is \fB-r\fR. Allowed values are
+\fBdefault\fR or \fBraw\fR.
 .RE
 .P
 width (integer)
@@ -380,8 +381,8 @@ non-raw metrics.
 For allowed values, see
 .BR pmrep (3).
 .TP 2
-.I raw
-If set to \fByes\fR rate conversion for the metric will be disabled.
+.I type
+If set to \fBraw\fR rate conversion for the metric will be disabled.
 .TP 2
 .I width
 Defines the width of the output column for the metric.
