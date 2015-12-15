@@ -6,7 +6,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-TESTDIR = $(PCP_VAR_DIR)/testsuite/pmdas/github-58
+TESTDIR = $(PCP_VAR_DIR)/testsuite/pmdas/github-56
 
 IAM	  = trivial
 DOMAIN    = TRIVIAL
