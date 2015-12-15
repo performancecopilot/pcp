@@ -22,8 +22,9 @@
 -  copy metric set spec support (?)
 -  includedir config file support (?)
 -  generalised daemon startup support (?)
--  provide percentage metrics (e.g. CPU/:vmstat) (?)
 -  add option to prevent truncating string output (?)
+-  generalized zabbix_interval (limit writes to archive) (?)
+-  support for multiple output targets (e.g. archive+stdout) (?)
 -  optionally ignore incompatible/unsupported metrics rather than abort [-I] (?)
 
 -----
