@@ -25,11 +25,8 @@ typedef struct pipe_command {
     int			inst;	/* internal instance ID */
 } pipe_command;
 
-/* per-client-context structure */
-typedef struct pipe_client {
-    char		*uid;	/* authenticated user ID */
-    char		*gid;	/* authenticated group ID */
-    struct pipe_groot {
+/* per-client-context structures */
+typedef struct pipe_groot {
 	int		fd;	/* command output pipe fd */
 	int		pid;	/* process ID of command */
 	int		inst;	/* internal instance ID */
@@ -39,7 +36,12 @@ typedef struct pipe_client {
 	int		status;	/* commands exit status */
 	int		queueid;	/* event queue ID */
 	char		qname[64];	/* event queue name */
-    } pipes[0];
+} pipe_groot;
+
+typedef struct pipe_client {
+    char		*uid;	/* authenticated user ID */
+    char		*gid;	/* authenticated group ID */
+    struct pipe_groot	*pipes;
 } pipe_client;
 
 typedef struct pipe_acl {

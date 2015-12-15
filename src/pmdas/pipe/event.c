@@ -38,17 +38,26 @@ enlarge_ctxtab(int context)
 {
     /* Grow the context table if needed */
     if (ctxtab_size <= context) {
-	size_t	extra = sizeof(struct pipe_groot) * cmdtab_size;
-	size_t	needs = (context + 1) * (sizeof(struct pipe_client) + extra);
-	int	i;
+	size_t		needs;
+	int		i;
 
+	needs = (context + 1) * sizeof(struct pipe_client);
 	ctxtab = realloc(ctxtab, needs);
 	if (ctxtab == NULL)
 	    __pmNoMem("client ctx table", needs, PM_FATAL_ERR);
+
 	/* Initialise new entries to zero, esp. "active" field */
 	while (ctxtab_size <= context) {
 	    pipe_client	*client = &ctxtab[ctxtab_size];
-	    memset(client, 0, sizeof(pipe_client) + extra);
+	    pipe_groot	*groots;
+
+	    needs = cmdtab_size * sizeof(struct pipe_groot);
+	    groots = calloc(cmdtab_size, sizeof(struct pipe_groot));
+	    if (groots == NULL)
+		__pmNoMem("client groots", needs, PM_FATAL_ERR);
+
+	    memset(client, 0, sizeof(pipe_client));
+	    client->pipes = groots;
 	    for (i = 0; i < cmdtab_size; i++) {
 		client->pipes[i].inst = cmdtab[i].inst;
 		client->pipes[i].queueid = -1;
@@ -401,7 +410,6 @@ event_client_shutdown(int context)
 {
     struct pipe_client	*client;
     struct pipe_groot	*groot;
-    size_t		extra;
     int			i;
 
     if (ctxtab_size <= context)
@@ -423,12 +431,12 @@ event_client_shutdown(int context)
     }
     if (client->uid)
 	free(client->uid);
+    client->uid = NULL;
     if (client->gid)
 	free(client->gid);
-
-    extra = sizeof(struct pipe_groot) * cmdtab_size;
-    memset(client, 0, sizeof(struct pipe_client) + extra);
+    client->gid = NULL;
     for (i = 0; i < cmdtab_size; i++) {
+	memset(&client->pipes[i], 0, sizeof(pipe_groot));
 	client->pipes[i].inst = cmdtab[i].inst;
 	client->pipes[i].queueid = -1;
     }

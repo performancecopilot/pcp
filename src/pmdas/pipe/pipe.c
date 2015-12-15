@@ -220,6 +220,9 @@ pipe_store(pmResult *result, pmdaExt *pmda)
 static void
 pipe_end_contextCallBack(int context)
 {
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_DEBUG, "end_context on ctx-%d", context);
+
     pmdaEventEndClient(context);
 
     /* client context exited, mark inactive and cleanup */
@@ -230,6 +233,8 @@ static int
 pipe_attribute(int ctx, int attr, const char *value, int length, pmdaExt *pmda)
 {
     int	sts;
+
+    event_client_access(ctx);
 
     if ((sts = pmdaAttribute(ctx, attr, value, length, pmda)) < 0)
 	return sts;
