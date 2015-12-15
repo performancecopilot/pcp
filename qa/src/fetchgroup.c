@@ -11,6 +11,9 @@
 #include <stdio.h>
 
 
+int ctx;  /* global ctx, unused except to check pmfg ctx# save/restore. */
+
+
 void
 __pcp_assert(int sts, const char *FILE, int LINE)
 {
@@ -35,8 +38,8 @@ test_indoms ()
     char *values_inst_names[almost_bins];
     int values_sts;
     int i;
-    
-    sts = pmCreateFetchGroup(& fg);
+
+    sts = pmCreateFetchGroup(& fg, PM_CONTEXT_HOST, "local:");
     pcp_assert(sts);
     assert (fg != NULL);
 
@@ -46,11 +49,13 @@ test_indoms ()
                                    values_stss, almost_bins, NULL,
                                    &values_sts);
     pcp_assert(sts);
-
+    assert (pmWhichContext() == ctx);
+    
     for (i=0; i<3; i++) {
         int j;
         sts = pmFetchGroup(fg);
         pcp_assert(sts);
+        assert (pmWhichContext() == ctx);
         assert (values_sts == PM_ERR_TOOBIG); /* 5 < 9 */
         for (j=0; j<almost_bins; j++) {
             pcp_assert((i>0) ^ (values_stss == 0));
@@ -65,9 +70,10 @@ test_indoms ()
                         values_inst_codes[j]);
         }
     }
-    
+
     sts = pmDestroyFetchGroup(fg);
     pcp_assert(sts);
+    assert (pmWhichContext() == ctx);
 }
 
 
@@ -86,20 +92,25 @@ test_counter ()
     int constant_rate_counter_sts;
     unsigned constant_rate_counter_count;
     unsigned i;
-    
-    sts = pmCreateFetchGroup(& fg);
+
+    assert (pmWhichContext() == ctx);
+    sts = pmCreateFetchGroup(& fg, PM_CONTEXT_HOST, "local:");
     pcp_assert(sts);
     assert (fg != NULL);
 
+    assert (pmWhichContext() == ctx);
     sts = pmExtendFetchGroup_item(fg, "sample.rapid", NULL, NULL,
                                   &rapid_counter, PM_TYPE_FLOAT, &rapid_counter_sts);
     pcp_assert(sts);
+    assert (pmWhichContext() == ctx);
     sts = pmExtendFetchGroup_item(fg, "sample.rapid", NULL, "instant",
                                   &rapid_counter2, PM_TYPE_U32, &rapid_counter2_sts);
     pcp_assert(sts);
+    assert (pmWhichContext() == ctx);
     sts = pmExtendFetchGroup_item(fg, "sample.rapid", NULL, "instant",
                                   &rapid_counter3, PM_TYPE_DOUBLE, NULL);
     pcp_assert(sts);
+    assert (pmWhichContext() == ctx);
 
     sts = pmExtendFetchGroup_indom(fg, "sample.const_rate.value", "count/24 hours",
                                    constant_rate_counter_codes, constant_rate_counter_names,
@@ -107,10 +118,13 @@ test_counter ()
                                    constant_rate_counter_stss, 2, &constant_rate_counter_count,
                                    &constant_rate_counter_sts);
     pcp_assert(sts);
+    assert (pmWhichContext() == ctx);
+
 
     for (i=0; i<3; i++) {
         sts = pmFetchGroup(fg);
         pcp_assert (sts);
+        assert (pmWhichContext() == ctx);
         assert (rapid_counter2_sts == 0);
         assert (constant_rate_counter_count == 1); /* only one instance */
         assert ((i > 0) ^ (rapid_counter_sts < 0));
@@ -124,32 +138,30 @@ test_counter ()
         /* assert (rapid_counter.f > 0.0); ... but wraparound can make rate < 0.0 */
         sleep (3);
     }
-    
+
     sts = pmDestroyFetchGroup(fg);
     pcp_assert(sts);
+    assert (pmWhichContext() == ctx);
 }
-
-
 
 
 
 int
 main()
 {
-    int ctx, sts;
-    
+    int sts;
     ctx = pmNewContext(PM_CONTEXT_HOST, "local:");
     pcp_assert(ctx);
     test_counter();
     test_indoms();
-    sts = pmDestroyContext(ctx); 
+    sts = pmDestroyContext(ctx);
     pcp_assert(sts);
 
 #if 0
     ctx = pmNewContext(PM_CONTEXT_ARCHIVE, "archives/kenj-pc-1");
     pcp_assert (ctx);
     test ();
-    sts = pmDestroyContext (ctx); 
+    sts = pmDestroyContext (ctx);
     pcp_assert (sts);
 #endif
 

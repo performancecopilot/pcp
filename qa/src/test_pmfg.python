@@ -21,9 +21,9 @@ from pcp import pmapi
 import cpmapi as c_api
 
 
-def test_pmfg_live(self, ctx):
+def test_pmfg_live(self, typed, target):
     # Any errors hereabouts trigger pmErr exceptions -> implicit fail
-    pmfg = pmapi.fetchgroup(ctx)
+    pmfg = pmapi.fetchgroup(typed, target)
     tt = pmfg.extend_timestamp()
     v1 = pmfg.extend_item("hinv.ncpu") # infer type
     v2 = pmfg.extend_item("kernel.all.load", c_api.PM_TYPE_FLOAT, instance="1 minute")
@@ -52,28 +52,27 @@ def test_pmfg_live(self, ctx):
         if i > 0: # rate conversion eats first value
             for icode, iname, value in vv2():
                 print ("cpu idle %s: %d %%" % (iname, value()))
-                self.assertTrue(value() >= 0 and value() <= 100)
+                self.assertTrue(value() >= 0 and value() <= 125) # >100% sometimes seen at short intervals
 
         for icode, iname, value in vv3():
             print ("bin %d %s: %d" % (icode, iname, value()))
             self.assertTrue(value() == icode)
 
-        time.sleep(1.5)
+        time.sleep(0.5)
 
     # garbage collector will take care of it
     #del pmfg
 
 
 
-def test_pmfg_pmns(self, ctx):
-
+def test_pmfg_pmns(self, typed, target):
     metrics = []
-    pmfg = pmapi.fetchgroup(ctx)
+    pmfg = pmapi.fetchgroup(typed, target)
     def callback(name):
         vv = pmfg.extend_indom(name, c_api.PM_TYPE_STRING, scale="instant") # no rate conversion
         metrics.append((name, vv))
 
-    ctx.pmTraversePMNS("sample.long", callback)
+    pmfg.get_context().pmTraversePMNS("sample.long", callback)
     self.assertTrue(len(metrics) == 7)
 
     for _ in range(3):
@@ -88,11 +87,32 @@ def test_pmfg_pmns(self, ctx):
                 elif name == 'sample.long.bin_ctr':
                     self.assertTrue(ival() == ('%s' % icode)) # no rate conversion
 
+
+def test_pmfg_interleaved(self):
+    # check that interleaved fetches to pmfgs of different archives don't interfere
+    
+    archives = ["archives/multi-vm00", "archives/multi-vm01", "archives/multi-vm02"]
+    pmfgs = [pmapi.fetchgroup(c_api.PM_CONTEXT_ARCHIVE, a) for a in archives]
+    timestamps = [fg.extend_timestamp() for fg in pmfgs]
+    # not actually used; for non-PM_ERR_TOOSMALL pmFetch
+    metrics = [fg.extend_item("hinv.ncpu") for fg in pmfgs]
+    
+    for _ in range(5):
+        for (archive,fg,ts) in zip(archives,pmfgs,timestamps):
+            fg.fetch()
+            print ('archive %s timestamp %s' % (archive, ts()))
+            for (fg2,ts2) in zip(pmfgs,timestamps):
+                if fg == fg2:
+                    self.assertTrue(ts() == ts2()) # same archive - same timestamp!
+                else:
+                    self.assertFalse(ts() == ts2()) # no two archive timestamps are identical
+            
+
 class TestSequenceFunctions(unittest.TestCase):
     def test_pmfg(self):
-        ctx = pmapi.pmContext(c_api.PM_CONTEXT_HOST, "local:")
-        test_pmfg_live(self, ctx)
-        test_pmfg_pmns(self, ctx)
+        test_pmfg_live(self, c_api.PM_CONTEXT_HOST, "local:")
+        test_pmfg_pmns(self, c_api.PM_CONTEXT_HOST, "local:")
+        test_pmfg_interleaved(self)
 
 if __name__ == '__main__':
     STS = unittest.main()

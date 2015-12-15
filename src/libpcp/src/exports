@@ -512,7 +512,7 @@ PCP_3.13 {
 
 PCP_3.14 {
     pmCreateFetchGroup;
-    pmSetFetchGroupMode;
+    pmGetFetchGroupContext;
     pmExtendFetchGroup_item;
     pmExtendFetchGroup_indom;
     pmExtendFetchGroup_timestamp;

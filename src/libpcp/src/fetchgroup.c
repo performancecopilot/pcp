@@ -679,7 +679,7 @@ pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst, const pm
 	    value = delta;
 	}
 	else {			/* no previous result */
-	    sts = PM_ERR_VALUE;
+	    sts = PM_ERR_AGAIN;
 	    goto out;
 	}
     }
@@ -753,7 +753,7 @@ pmfg_fetch_timestamp(pmFG pmfg, pmFGI item, pmResult * newResult)
 static void
 pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult * newResult)
 {
-    int sts;
+    int sts = 0;
     int i;
     unsigned j;
     int need_indom_refresh;
@@ -895,11 +895,18 @@ out:
  * Return 0 & set *ptr on success.
  */
 int
-pmCreateFetchGroup(pmFG * ptr)
+pmCreateFetchGroup(pmFG * ptr, int type, const char *name)
 {
     int sts;
     pmFG pmfg;
     int saved_ctx = pmWhichContext();
+
+    if (ptr == NULL) {
+        sts = -EINVAL;
+        goto out0;
+    }
+
+    *ptr = NULL; /* preset it to NULL */
 
     pmfg = calloc(1, sizeof(*pmfg));
     if (pmfg == NULL) {
@@ -907,16 +914,11 @@ pmCreateFetchGroup(pmFG * ptr)
 	goto out1;
     }
 
-#if PR1129_FIXED
-    sts = pmDupContext();
-    if (sts < 0)
-	goto out1;
+    sts = pmNewContext(type, name);
     /* NB: implicitly pmUseContext()'d! */
-
+    if (sts < 0)
+        goto out1;
     pmfg->ctx = sts;
-#else
-    pmfg->ctx = saved_ctx;
-#endif
 
     /* Wipe clean all instances; we'll add them back incrementally as
        the fetchgroup is extended. */
@@ -930,13 +932,12 @@ pmCreateFetchGroup(pmFG * ptr)
     goto out;
 
 out2:
-#if PR1129_FIXED
     (void) pmDestroyContext(pmfg->ctx);
-#endif
 out1:
     free(pmfg);
 out:
     (void) pmUseContext(saved_ctx);
+out0:
     return sts;
 }
 
@@ -973,13 +974,27 @@ out:
 }
 
 
+/*
+ * Return our private context.  Caveat emptor!
+ */
+int
+pmGetFetchGroupContext(pmFG pmfg)
+{
+    if (pmfg == NULL)
+        return -EINVAL;
+
+    return pmfg->ctx;
+}
+
+
 /* 
  * Fetchgroup extend operations: add one metric (or a whole indom of metrics)
  * to the group.  Check types, parse rescale parameters, store away pointers
  * where results are to be written later - during a pmFetchGroup().
  */
 int
-pmExtendFetchGroup_item(pmFG pmfg, const char *metric, const char *instance, const char *scale, pmAtomValue * out_value,
+pmExtendFetchGroup_item(pmFG pmfg, const char *metric, const char *instance,
+                        const char *scale, pmAtomValue * out_value,
 			int out_type, int *out_sts)
 {
     int sts;
@@ -1153,6 +1168,8 @@ pmExtendFetchGroup_indom(pmFG pmfg, const char *metric, const char *scale, int o
     /* ensure no stale pointers/content before first reinit */
     if (out_values)
 	memset(out_values, 0, sizeof(pmAtomValue) * out_maxnum);
+    if (out_num)
+        *out_num = 0;
     pmfg_reinit_indom(item);
 
     /* link in */
@@ -1301,9 +1318,7 @@ pmDestroyFetchGroup(pmFG pmfg)
     if (pmfg->prevResult)
 	pmFreeResult(pmfg->prevResult);
 
-#if PR1129_FIXED
     (void) pmDestroyContext(pmfg->ctx);
-#endif
     free(pmfg->unique_pmids);
     free(pmfg);
     sts = 0;

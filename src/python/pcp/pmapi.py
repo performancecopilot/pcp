@@ -74,8 +74,7 @@
     from pcp import pmapi
     import cpmapi as c_api
 
-    ctx = pmapi.pmContext(c_api.PM_CONTEXT_HOST, "local:")
-    pmfg = pmapi.fetchgroup(ctx)
+    pmfg = pmapi.fetchgroup(c_api.PM_CONTEXT_HOST, "local:")
     v = pmfg.extend_item("hinv.ncpu", c_api.PM_TYPE_U32)
     vv = pmfg.extend_indom("kernel.all.load", c_api.PM_TYPE_FLOAT)
     t = pmfg.extend_timestamp()
@@ -2011,7 +2010,9 @@ class pmContext(object):
 # ----- fetchgroup API
 
 LIBPCP.pmCreateFetchGroup.restype = c_int
-LIBPCP.pmCreateFetchGroup.argtypes = [POINTER(c_void_p)]
+LIBPCP.pmCreateFetchGroup.argtypes = [POINTER(c_void_p), c_int, c_char_p]
+LIBPCP.pmGetFetchGroupContext.restype = c_int
+LIBPCP.pmGetFetchGroupContext.argtypes = [c_void_p]
 LIBPCP.pmDestroyFetchGroup.restype = c_int
 LIBPCP.pmDestroyFetchGroup.argtypes = [c_void_p]
 LIBPCP.pmExtendFetchGroup_item.restype = c_int
@@ -2140,19 +2141,35 @@ class fetchgroup(object):
             return vv
 
 
-    def __init__(self, ctx):
+    class pmContext_borrowed(pmContext):
+        """
+        An internal class for accessing the private PMAPI context
+        belonging to a fetchgroup.  It works just like a pmContext,
+        except it overrides the constructor/destructor to reflect
+        the "borrowed" state of the context.
+        """
+        def __init__(self, ctx, typed, target):
+            """Override pmContext ctor to eschew pmNewContext."""
+            self._ctx = ctx
+            self._type = typed
+            self._target = target
+            # NB: don't call pmContext.__init__!
+
+        def __del__(self):
+            """Override pmContext ctor to eschew pmDestroyContext."""
+            self._ctx = c_api.PM_ERR_NOCONTEXT
+            
+    def __init__(self, typed=c_api.PM_CONTEXT_HOST, target="local:"):
         """Create a fetchgroup from a pmContext."""
 
-        sts = LIBPCP.pmUseContext(ctx.ctx)
-        if sts < 0:
-            raise pmErr(sts)
-        self.ctx = ctx # hold a reference for gc and timestamp
         self.pmfg = c_void_p()
         self.items = []
-        sts = LIBPCP.pmCreateFetchGroup(byref(self.pmfg))
+        sts = LIBPCP.pmCreateFetchGroup(byref(self.pmfg), typed, target.encode('utf-8'))
         if sts < 0:
             raise pmErr(sts)
-
+        self.ctx = fetchgroup.pmContext_borrowed(LIBPCP.pmGetFetchGroupContext(self.pmfg),
+                                                 typed, target)
+        
     def __del__(self):
         """Destroy the fetchgroup.  Drop references to fetchgroup_* items."""
 
@@ -2163,6 +2180,15 @@ class fetchgroup(object):
                 raise pmErr(sts)
         del self.items[:]
 
+    def get_context(self):
+        """
+        Return the private pmContext used by the fetchgroup.
+        WARNING: mutation of this context by other PMAPI functions
+        may disrupt fetchgroup functionality.
+        """
+        
+        return self.ctx
+        
     def extend_item(self, metric=None, mtype=None, scale=None, instance=None):
         """Extend the fetchgroup with a single metric.  Infer type if
         necessary.  Convert scale/rate if appropriate/requested.

@@ -19,7 +19,7 @@
 \f3pmExtendFetchGroup_item\f1,
 \f3pmExtendFetchGroup_indom\f1,
 \f3pmFetchGroup\f1,
-\f3pmFetchGroupSetMode\f1,
+\f3pmGetFetchGroupContext\f1,
 \f3pmDestroyFetchGroup\f1  \- simplified fetch/convert for performance metrics
 .SH "C SYNOPSIS"
 
@@ -27,9 +27,7 @@
 #include <pcp/pmapi.h>
 .sp
 .nf
-int pmCreateFetchGroup(pmFG* \fIptr\fP);
-int pmFetchGroupSetMode(pmFG \fIpmfg\fP, int \fImode\fP,
-                        const struct timeval *\fIwhen\fP, int \fIdelta\fP);
+int pmCreateFetchGroup(pmFG* \fIptr\fP, int \fItype\fP, const char *\fIname\fP);
 int pmExtendFetchGroup_item(pmFG \fIpmfg\fP, const char* \fImetric\fP,
                             const char* \fIinstance\fP, const char *\fIscale\fP,
                             pmAtomValue *\fIout_value\fP, int \fIout_type\fP,
@@ -76,8 +74,7 @@ requested.
 Each fetchgroup is associated with a private PMAPI context, so it can
 manipulate instance profiles and other such state without disrupting
 other contexts.  This private PMAPI context belongs to the fetchgroup,
-to be used for all of its internal operations, and will be destroyed
-automatically when appropriate.
+is used for all of its internal operations, and will be destroyed.
 
 Multiple fetchgroups may be used concurrently, independently.  An
 opaque type \fBpmFG\fP is used to identify a fetchgroup, which is
@@ -87,50 +84,40 @@ passed to all related function calls.
 
 .ft 3
 .nf
-int pmCreateFetchGroup(pmFG* \fIptr\fP);
+int pmCreateFetchGroup(pmFG* \fIptr\fP, int \fItype\fP, const char *\fIname\fP);
 .fi
 .ft 1
 
-A fetchgroup client application must create a PMAPI context (see
-\fBpmNewContext\fP) to establish a connection to a data source such as
-a Performance Metrics Collector Daemon (PMCD) or an archive.
+This function creates a new fetchgroup, associated with a new PMAPI
+context.  The \fItype\fP and \fIname\fP parameters are relayed to
+\fBpmNewContext\fP for creation of the context.  The fetchgroup
+identifier is returned upon success through the \fIptr\fP pointer.
+This object is later used as a parameter to all other fetchgroup
+functions.  The private PMAPI context may be accessed with
+\fBpmGetFetchGroupContext\fP, if required.
 
-This function creates a new fetchgroup, and associates it with a
-private copy of the current PMAPI context.  The fetchgroup identifier
-is returned upon success through the \fIptr\fP pointer.  This object
-is later used as a parameter to all other fetchgroup functions.
+The normal function return code is zero, and \fIptr\fP is set.
+This function may fail in case of \fBpmNewContext\fP or memory
+allocation errors.  Those are indicated with a negative return
+code and a cleared \fIptr\fP value.
 
-Due to a libpcp problem (PR1129), this private copy of the PMAPI
-context may not actually be a proper \fBpmDupContext\fP copy, but
-simply shared with the calling application.  This means that the
-application should not destroy it, nor make any use of it, until
-\fBpmDestroyFetchGroup\fP is called.  Even after PR1129 is fixed, such
-application logic will continue to work.
-
-The normal function return code is zero.  This function may fail in
-case of \fBpmDupContext\fP or memory allocation errors.  Those are
-indicated with a negative return code.
-
-.SS setting collection time parameters for fetchgroup
+.SS getting the private PMAPI context
 
 .ft 3
 .nf
-int pmFetchGroupSetMode(pmFG \fIpmfg\fP, int \fImode\fP,
-                        const struct timeval *\fIwhen\fP, int \fIdelta\fP);
+int pmGetFetchGroupContext(pmFG \fIpmfg\fP);
 .fi
 .ft 1
 
-This function is a thin wrapper on \fBpmSetMode\fP, and takes the same
-\fImode\fP / \fIwhen\fP / \fIdelta\fP parameters, only it applies to
-the fetchgroup's PMAPI context.  As it may involve jumping across
-time, rate conversions are interrupted.
+This function returns the private PMAPI context used by the given
+fetchgroup.  It may be used to adjust some configuration parameters of
+the context, such as via \fBpmSetMode\fP, but only before fetchgroup
+extension and fetching begins.
 
-This function is optional.  Without it, the fetchgroup uses inherited
-time parameters from the initial context.
+\fBWARNING:\fP \fIMutation\fP of this context by other PMAPI
+functions after this time may disrupt fetchgroup functionality.
 
-The normal function return code is zero.  This function may fail in
-case of \fBpmSetMode\fP errors.  Those are indicated with a negative
-return code.
+The normal function return code is the context number.
 
 .SS extending a fetchgroup with a metric instance of interest
 
@@ -252,7 +239,8 @@ elements of the vectors above.  In other words, it tells the
 fetchgroup the maximum number of instances which are expected.  The
 optional \fIout_num\fP parameter specifies an integer where the the
 actual number of instances should later be stored.  It will range
-between 0 and \fIout_maxnum\fP.
+between 0 and \fIout_maxnum\fP.  It is initialized to 0 by this
+function.
 
 Finally, the optional \fIout_sts\fP parameter specifies a single
 location where an integer status code for the overall fetch for this
@@ -319,9 +307,9 @@ int pmDestroyFetchGroup(pmFG \fIpmfg\fP);
 
 When the fetchgroup is no longer needed, it may be explicitly freed
 with this function.  It releases any dynamically stored state, as well
-as the private PMAPI context copy (if any).  It clears frees any
-pointers such as indom instance names or strings that may have been
-stored in output variables.
+as the private PMAPI context.  It clears frees any pointers such as
+indom instance names or strings that may have been stored in output
+variables.
 
 
 .SH "EXAMPLE"
@@ -348,9 +336,7 @@ int main() {
     char *diskunits = getenv("PCP_DISK_UNITS");
     struct timeval t;
     
-    int c = pmNewContext(PM_CONTEXT_HOST, "local:");
-    pcpassert(c);
-    sts = pmCreateFetchGroup(&fg);
+    sts = pmCreateFetchGroup(&fg, PM_CONTEXT_HOST, "local:");
     pcpassert(sts);
     sts = pmExtendFetchGroup_item(fg, "kernel.all.load", "1 minute",
                                   NULL, &v, PM_TYPE_FLOAT, NULL);
@@ -384,7 +370,6 @@ int main() {
 
     sts = pmDestroyFetchGroup(fg);
     pcpassert(sts);
-    pmDestroyContext(c);
     return (0);
 }
 
@@ -416,6 +401,10 @@ thread at a time uses these calls \fIand\fP the registered output
 variables.  On the other hand, concurrency between different
 \fBpmFG\fP instances is unrestricted, because they share no global
 data.
+
+Any pointers passed to a successful \fBpmFetchGroupExtent_*\fP call
+must stay valid throughout the lifetime of the fetchgroup, since
+future \fBpmFetchGroup\fP calls may write into them.
 
 .SH "DIAGNOSTICS"
 

@@ -35,8 +35,7 @@
 
 struct statsrc_t
 {
-    int ctx;
-    pmFG pmfg;
+    pmFG pmfg; /* might become NULL once host dies / archive ends */
     char *sname;
     struct timeval timestamp;
     int fetched_p;
@@ -115,17 +114,10 @@ getNewContext(int type, char *host, int quiet)
     if (s == NULL)
 	goto out;
 
-    s->ctx = pmNewContext(type, host);
-    if (s->ctx < 0) {
-	if (!quiet)
-	    fprintf(stderr, "%s: Cannot create context to get data from %s: %s\n", pmProgname, host, pmErrStr(s->ctx));
-	goto out1;
-    }
-
-    sts = pmCreateFetchGroup(&s->pmfg);
+    sts = pmCreateFetchGroup(&s->pmfg, type, host);
     if (sts < 0) {
 	fprintf(stderr, "%s: Cannot create fetchgroup: %s\n", pmProgname, pmErrStr(sts));
-	goto out2;
+	goto out1;
     }
 
     /* Register all metrics with desired conversions/types; some with fallbacks. */
@@ -203,15 +195,13 @@ getNewContext(int type, char *host, int quiet)
 	&& s->kernel_pswitch_sts && s->kernel_cpunice_sts && s->kernel_cpuuser_sts && s->kernel_cpuintr_sts
 	&& s->kernel_cpusys_sts && s->kernel_cpuidle_sts && s->kernel_cpuwait_sts && s->kernel_cpusteal_sts) {
 	fprintf(stderr, "%s: %s: Cannot resolve any metrics.\n", pmProgname, host);
-	goto out3;
+	goto out2;
     }
 
     goto out;
 
-out3:
-    pmDestroyFetchGroup(s->pmfg);
 out2:
-    pmDestroyContext(s->ctx);
+    pmDestroyFetchGroup(s->pmfg);
 out1:
     free(s);
     s = NULL;
@@ -220,9 +210,10 @@ out:
 }
 
 static char *
-saveContextHostName(int ctx)
+saveContextHostName(struct statsrc_t *s)
 {
     char hostname[MAXHOSTNAMELEN];
+    int ctx = pmGetFetchGroupContext(s->pmfg);
     char *name = pmGetContextHostName_r(ctx, hostname, sizeof(hostname));
     size_t length;
 
@@ -236,13 +227,11 @@ saveContextHostName(int ctx)
 static void
 destroyContext(struct statsrc_t *s)
 {
-    if (s != NULL && s->ctx >= 0) {
+    if (s != NULL && s->pmfg != NULL) {
 	if (!s->sname)
-	    s->sname = saveContextHostName(s->ctx);
+	    s->sname = saveContextHostName(s);
 	pmDestroyFetchGroup(s->pmfg);
 	s->pmfg = NULL;
-	pmDestroyContext(s->ctx);
-	s->ctx = -1;
     }
 }
 
@@ -422,7 +411,7 @@ main(int argc, char *argv[])
 		if ((pd = getNewContext(opts.context, nameList[ct], 0)) != NULL) {
 		    ctxList[ctxCount++] = pd;
 		    if (tzh < 0)
-			tzh = setupTimeOptions(pd->ctx, &opts, &tzlabel);
+			tzh = setupTimeOptions(pmGetFetchGroupContext(pd->pmfg), &opts, &tzlabel);
 		    pmUseZone(tzh);
 		}
 	    }
@@ -442,7 +431,7 @@ main(int argc, char *argv[])
 	    pd = getNewContext(opts.context, NULL, 0);
 	}
 	if (pd) {
-	    tzh = setupTimeOptions(pd->ctx, &opts, &tzlabel);
+	    tzh = setupTimeOptions(pmGetFetchGroupContext(pd->pmfg), &opts, &tzlabel);
 	    ctxCount = 1;
 	}
     }
@@ -495,12 +484,11 @@ main(int argc, char *argv[])
     for (j = 0; j < ctxCount; j++) {
 	struct statsrc_t *pd = ctxList[j];
 
-	pmUseContext(pd->ctx);
+	pmUseContext(pmGetFetchGroupContext(pd->pmfg));
 	if (!opts.guiflag && opts.context == PM_CONTEXT_ARCHIVE)
 	    pmTimeStateMode(PM_MODE_INTERP, opts.interval, &opts.origin);
 
-	if (pd->pmfg)
-	    pmFetchGroup(pd->pmfg);
+        pmFetchGroup(pd->pmfg);
     }
 
     for (iteration = 0; !opts.samples || iteration < opts.samples; iteration++) {
@@ -555,7 +543,7 @@ main(int argc, char *argv[])
 		const char *fn;
 
 		if (!s->sname)
-		    s->sname = saveContextHostName(s->ctx);
+		    s->sname = saveContextHostName(s);
 		fn = s->sname;
 
 		if (printTail)
@@ -563,19 +551,17 @@ main(int argc, char *argv[])
 		else
 		    printf("%-7.7s", fn);
 
-		if (s->ctx < 0) {
+		if (s->pmfg == NULL) {
 		    putchar('\n');
 		    continue;
 		}
-
-		pmUseContext(s->ctx);
 	    }
 
 	    sts = pmFetchGroup(s->pmfg);
 	    if (sts < 0) {
 		if (opts.context == PM_CONTEXT_HOST && (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT)) {
 		    puts(" Fetch failed. Reconnecting ...");
-		    pmReconnectContext(s->ctx);	/* XXX: safe, reusing pm* lookups? */
+		    pmReconnectContext(pmGetFetchGroupContext(s->pmfg));	/* XXX: safe, reusing pm* lookups? */
 		}
 		else if ((opts.context == PM_CONTEXT_ARCHIVE) && (sts == PM_ERR_EOL) && opts.guiflag) {
 		    pmTimeStateBounds(&controls, pmtime);
@@ -593,7 +579,7 @@ main(int argc, char *argv[])
 
 		    destroyContext(s);
 		    for (k = 0; k < ctxCount; k++)
-			valid += (ctxList[k]->ctx >= 0);
+			valid += (ctxList[k]->pmfg != NULL);
 		    if (!valid)
 			exit(1);
 		}

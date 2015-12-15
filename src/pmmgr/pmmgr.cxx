@@ -233,12 +233,8 @@ pmmgr_job_spec::parse_metric_spec (const string& spec)
 pmmgr_hostid
 pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
 {
-  int pmc = pmNewContext (PM_CONTEXT_HOST, ctx.c_str()); // $PMCD_CONNECT_TIMEOUT
-  if (pmc < 0)
-    return "";
-
   pmFG fg;
-  int sts = pmCreateFetchGroup (&fg);
+  int sts = pmCreateFetchGroup (&fg, PM_CONTEXT_HOST, ctx.c_str());
   if (sts < 0)
     return "";
 
@@ -261,7 +257,7 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
       pmMetricSpec* pms = parse_metric_spec (hostid_specs[i]);
       
       if (pms->ninst)
-        for (unsigned j=0; j<pms->ninst && j<max_instances_per_metric; j++)
+        for (unsigned j=0; j<(unsigned)pms->ninst && j<max_instances_per_metric; j++)
           (void) pmExtendFetchGroup_item (fg, pms->metric, pms->inst[j], NULL,
                                           & values[values_idx++], PM_TYPE_STRING, NULL);
       else {
@@ -281,9 +277,6 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
       hostid_fields.push_back (values[i].cp);
 
   (void) pmDestroyFetchGroup (fg);
-
-  (void) pmDestroyContext (pmc); // a dup copy is saved in the fetch group ... but see PR1129
-
 
   // Sanitize the host-id metric values into a single string that is
   // suitable for posix-portable-filenames, and not too ugly for
@@ -320,54 +313,36 @@ set<string>
 pmmgr_job_spec::find_containers (const pcp_context_spec& ctx)
 {
     set<string> result;
-    int rc;
-    const char* names[1] = { "containers.state.running" };
+    enum { max_num_containers = 10000 }; /* large enough? */
+    pmAtomValue running[max_num_containers];
+    char* names[max_num_containers];
+    unsigned num_containers = 0;
+    pmFG pmfg;
 
-    int pmc = pmNewContext (PM_CONTEXT_HOST, ctx.c_str());
-    if (pmc < 0)
+    int sts = pmCreateFetchGroup (&pmfg, PM_CONTEXT_HOST, ctx.c_str());
+    if (sts < 0)
         goto out;
 
-    pmID pmid[1];
-    rc = pmLookupName (1, (char **) &names, &pmid[0]);
-    if (rc < 1) // 1: we want this single name resolved
+    sts = pmExtendFetchGroup_indom (pmfg, "containers.state.running", NULL,
+                                    NULL, names, running,
+                                    PM_TYPE_32, NULL,
+                                    max_num_containers, &num_containers, NULL);
+    if (sts < 0)
         goto out2;
 
-    pmDesc desc;
-    rc = pmLookupDesc (pmid[0], &desc);
-    if (rc < 0)
+    sts = pmFetchGroup (pmfg);
+    if (sts < 0)
         goto out2;
 
-    pmResult *r;
-    rc = pmFetch (1, &pmid[0], &r);
-    if (rc < 0)
-        goto out2;
-
-    // only vset[0] will be set
-    if (r->vset[0]->numval > 0)
-        for (int j=0; j<r->vset[0]->numval; j++) { // iterate over instances
-            // fetch the number value
-            pmAtomValue av;
-            rc = pmExtractValue(r->vset[0]->valfmt,
-                                & r->vset[0]->vlist[j],
-                                desc.type, & av, PM_TYPE_32);
-            if (rc < 0) // type error or absent value or something
-		continue;
-
-            if (av.l == 0) // container not running
-                continue;
-
-            char *instance;
-            rc = pmNameInDom(desc.indom, r->vset[0]->vlist[j].inst, & instance);
-            if (rc < 0)
-                continue;
-            result.insert (string(instance));
-            free (instance);
-        }
-
-    (void) pmFreeResult (r);
+    for (unsigned i=0; i<num_containers; i++) {
+      if (running[i].l == 0) // not running or value unavailable
+        continue;
+      if (names[i])
+        result.insert (string(names[i]));
+    }
 
  out2:
-    (void) pmDestroyContext (pmc);
+    (void) pmDestroyFetchGroup (pmfg);
 
  out:
     return result;

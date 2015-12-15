@@ -42,39 +42,16 @@ typedef struct {
     pmAtomValue		dkiops;		/* aggregate disk I/O's per second */
     pmAtomValue		load1;		/* 1 minute load average */
     pmAtomValue		load15;		/* 15 minute load average */
+    pmAtomValue         ncpu;           /* number of cpus */
 } info_t;
 
 static info_t           info;
-static int 	        ncpu;
-
-
-static int
-get_ncpu(void)
-{
-    int		sts;
-    pmFG        fg;
-    pmAtomValue ncpu_val;
-    
-    sts = pmCreateFetchGroup(& fg);
-    if (sts)
-        goto out;
-    sts = pmExtendFetchGroup_item(fg, "hinv.ncpu", NULL, NULL, &ncpu_val, PM_TYPE_32, &sts);
-    pmFetchGroup(fg);
-    if (sts >= 0)
-        ncpu = ncpu_val.l;
-    pmDestroyFetchGroup(fg);
-
- out:
-    if (sts)
-        fprintf(stderr, "%s: Cannot fetch hinv.ncpu: %s\n", pmProgname, pmErrStr(sts));
-    return sts;
-}
+static pmFG             pmfg;
 
 
 static void
 get_sample()
 {
-    static pmFG         pmfg = NULL;
     enum { indom_maxnum = 1024 };
     static int          cpu_user_inst[indom_maxnum]; 
     static pmAtomValue  cpu_user[indom_maxnum];
@@ -84,13 +61,18 @@ get_sample()
     static unsigned     num_cpu_sys;
     int			sts;
     int                 i;
+    static int          init_p = 0;
 
-    if (pmfg == NULL) {
-        if ((sts = pmCreateFetchGroup(& pmfg) < 0)) {
-            fprintf(stderr, "%s: Failed CreateFetchGroup: %s\n", pmProgname, pmErrStr(sts));
+    if (init_p == 0) {
+        init_p = 1;
+
+        if ((sts = pmExtendFetchGroup_item(pmfg, "hinv.ncpu", NULL, NULL,
+                                           &info.ncpu, PM_TYPE_32, &sts)) < 0) {
+            fprintf(stderr, "%s: Failed hinv.ncpu ExtendFetchGroup: %s\n",
+                    pmProgname, pmErrStr(sts));
             exit(1);
         }
-
+        
         /* Because om pmfg_item's willingness to scan to the end of an
            archive to do metric/instance resolution, we don't have to
            specially handle the PM_CONTEXT_ARCHIVE case here. */
@@ -172,8 +154,8 @@ get_sample()
             info.peak_cpu = cpu_user_inst[i]; /* indom instance, not mere result index! */
         }
     }
-    assert (ncpu != 0);
-    info.cpu_util /= ncpu;
+    assert (info.ncpu.l != 0);
+    info.cpu_util /= info.ncpu.l;
 }
 
 int
@@ -220,7 +202,8 @@ main(int argc, char **argv)
 	source = "local:";
     }
 
-    if ((sts = c = pmNewContext(opts.context, source)) < 0) {
+    sts = pmCreateFetchGroup(& pmfg, opts.context, source);
+    if (sts < 0) {
 	if (opts.context == PM_CONTEXT_HOST)
 	    fprintf(stderr, "%s: Cannot connect to PMCD on host \"%s\": %s\n",
 		    pmProgname, source, pmErrStr(sts));
@@ -229,7 +212,8 @@ main(int argc, char **argv)
 		    pmProgname, source, pmErrStr(sts));
 	exit(1);
     }
-
+    c = pmGetFetchGroupContext(pmfg);
+    
     /* complete TZ and time window option (origin) setup */
     if (pmGetContextOptions(c, &opts)) {
 	pmflush();
@@ -237,7 +221,6 @@ main(int argc, char **argv)
     }
 
     host = pmGetContextHostName(c);
-    (void) get_ncpu();
 
     if ((opts.context == PM_CONTEXT_ARCHIVE) &&
 	(opts.start.tv_sec != 0 || opts.start.tv_usec != 0)) {
@@ -262,7 +245,7 @@ main(int argc, char **argv)
 	    if (opts.context == PM_CONTEXT_ARCHIVE)
 		printf("Archive: %s, ", opts.archives[0]);
 	    printf("Host: %s, %d cpu(s), %s",
-                    host, ncpu,
+                    host, info.ncpu.l,
 		    pmCtime(&info.timestamp.tv_sec, timebuf));
 /* - report format
   CPU  Busy    Busy  Free Mem   Disk     Load Average
@@ -270,11 +253,11 @@ main(int argc, char **argv)
 X.XXX   XXX   X.XXX XXXXX.XXX XXXXXX  XXXX.XX XXXX.XX
 */
 	    printf("  CPU");
-	    if (ncpu > 1)
+	    if (info.ncpu.l > 1)
 		printf("  Busy    Busy");
 	    printf("  Free Mem   Disk     Load Average\n");
 	    printf(" Util");
-	    if (ncpu > 1)
+	    if (info.ncpu.l > 1)
 		printf("   CPU    Util");
 	    printf("  (Mbytes)   IOPS    1 Min  15 Min\n");
 	}
@@ -282,7 +265,7 @@ X.XXX   XXX   X.XXX XXXXX.XXX XXXXXX  XXXX.XX XXXX.XX
 	    __pmtimevalSleep(opts.interval);
 	get_sample(&info);
 	printf("%5.2f", info.cpu_util);
-	if (ncpu > 1)
+	if (info.ncpu.l > 1)
 	    printf("   %3d   %5.2f", info.peak_cpu, info.peak_cpu_util);
 	printf(" %9.3f", info.freemem.d);
 	printf(" %6d", info.dkiops.l);
