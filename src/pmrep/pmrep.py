@@ -175,6 +175,7 @@ class PMReporter(object):
                      'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval')
 
         # Special command line switches
+        self.argless = ('-C', '--check', '-L', '--local-PMDA', '-H', '--no-header', '-U', '--no-unit-info', '-G', '--no-globals', '-p', '--timestamps', '-d', '--delay', '-r', '--raw', '-x', '--extended-header', '-u', '--no-interpol', '-z', '--hostzone')
         self.arghelp = ('-?', '--help', '-V', '--version')
 
         # The order of preference for parameters (as present):
@@ -316,7 +317,7 @@ class PMReporter(object):
         opts.pmSetLongOptionSpecLocal()    # -K/--spec-local
         opts.pmSetLongOption("config", 1, "c", "FILE", "config file path")
         opts.pmSetLongOption("check", 0, "C", "", "check config and metrics and exit")
-        opts.pmSetLongOption("output", 1, "o", "OUTPUT", "output target, one of: archive, csv, stdout (default), zabbix")
+        opts.pmSetLongOption("output", 1, "o", "OUTPUT", "output target: archive, csv, stdout (default), or zabbix")
         opts.pmSetLongOption("output-archive", 1, "F", "ARCHIVE", "output archive (with -o archive)")
         opts.pmSetLongOption("derived", 1, "e", "FILE|DFNT", "derived metrics definitions")
         opts.pmSetLongOptionDebug()        # -D/--debug
@@ -344,7 +345,7 @@ class PMReporter(object):
         opts.pmSetLongOption("extended-header", 0, "x", "", "display extended header")
         opts.pmSetLongOption("repeat-header", 1, "E", "N", "repeat stdout headers every N lines")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "strftime string for timestamp format")
-        opts.pmSetLongOption("no-interpolation", 0, "u", "", "disable interpolation mode with archives")
+        opts.pmSetLongOption("no-interpol", 0, "u", "", "disable interpolation mode with archives")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
         opts.pmSetLongOption("space-scale", 1, "b", "SCALE", "default space unit")
         opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
@@ -419,10 +420,19 @@ class PMReporter(object):
 
     def get_cmd_line_metrics(self):
         """ Get metric set specifications from the command line """
-        if any(x in self.arghelp for x in sys.argv):
-            return 0
-        pmapi.c_api.pmGetOptionsFromList(sys.argv) # RHBZ#1287778
-        return self.opts.pmNonOptionsFromList(sys.argv)
+        for arg in sys.argv[1:]:
+            if arg in self.arghelp:
+                return 0
+        metrics = []
+        for arg in reversed(sys.argv[1:]):
+            if arg.startswith('-'):
+                if len(metrics):
+                    if arg not in self.argless and '=' not in arg:
+                        del metrics[-1]
+                break
+            metrics.append(arg)
+        metrics.reverse()
+        return metrics
 
     def parse_metric_info(self, metrics, key, value):
         """ Parse metric information """
@@ -1311,7 +1321,7 @@ class PMReporter(object):
 
     def connect(self):
         """ Establish a PMAPI context to archive, host or local, via args """
-        self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv, self.opts.pmGetOptionContext())
+        self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
 
 if __name__ == '__main__':
     try:
