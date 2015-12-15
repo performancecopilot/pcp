@@ -2418,8 +2418,8 @@ cd
 
 %if !%{disable_python2} || !%{disable_python3}
 %files -n pcp-system-tools -f pcp_system_tools.list
-%dir %{_sysconfdir}/pmrep
-%config(noreplace) %{_sysconfdir}/pmrep/pmrep.conf
+%dir %{_confdir}/pmrep
+%config(noreplace) %{_confdir}/pmrep/pmrep.conf
 %endif
 
 %changelog
