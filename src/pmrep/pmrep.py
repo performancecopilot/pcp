@@ -265,7 +265,7 @@ class PMReporter(object):
                 if '/' in value:
                     self.opts.pmSetOptionArchive(value)
                 else:
-                    self.opts.pmSetOptionHost(value)
+                    self.opts.pmSetOptionHost(value) # RHBZ#1289911
             except:
                 sys.stderr.write("PCP 3.10.8 or later required for the 'source' directive.\n")
                 sys.exit(1)
@@ -320,6 +320,7 @@ class PMReporter(object):
         opts.pmSetLongOption("output", 1, "o", "OUTPUT", "output target: archive, csv, stdout (default), or zabbix")
         opts.pmSetLongOption("output-archive", 1, "F", "ARCHIVE", "output archive (with -o archive)")
         opts.pmSetLongOption("derived", 1, "e", "FILE|DFNT", "derived metrics definitions")
+        #opts.pmSetLongOptionGuiMode()     # -g/--guimode # RHBZ#1289910
         opts.pmSetLongOptionDebug()        # -D/--debug
         opts.pmSetLongOptionVersion()      # -V/--version
         opts.pmSetLongOptionHelp()         # -?/--help
@@ -571,7 +572,7 @@ class PMReporter(object):
         if self.context.type == PM_CONTEXT_HOST:
             self.source = self.context.pmGetContextHostName()
         if self.context.type == PM_CONTEXT_LOCAL:
-            self.source = "@" # PCPIntro(1), RHBZ#1272082
+            self.source = "@" # PCPIntro(1), RHBZ#1289911
 
         if self.output == OUTPUT_ARCHIVE and not self.archive:
             sys.stderr.write("Archive must be defined with archive output.\n")
