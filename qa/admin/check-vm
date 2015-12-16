@@ -378,7 +378,7 @@ emerge?	/usr/lib*/sasl2/libplain.so	[dev-libs/cyrus-sasl (QA optional)]
 pkgin?	/usr/pkg/lib*/sasl2/libplain.so	[cy2-plain (QA optional)]
 # -- DBI
 dpkg?	DBI::			[libclass-dbi-perl (postgresql QA optional)]
-rpm?	DBI::			[perl-DBI or 'perl(DBI::)' (postgresql QA optional)]
+rpm?	DBI::			[perl-DBI or 'perl(DBI)' (postgresql QA optional)]
 emerge?	DBI::			[dev-perl/DBI (postgresql QA optional)]
 pkgin?	DBI::			[p5-DBI (postgresql QA optional)]
 # -- DBD::Pg

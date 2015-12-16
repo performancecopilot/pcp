@@ -45,6 +45,11 @@ LDIRT	  = *.o $(IAM).log $(CMDTARGET)
 
 default default_pcp setup:: $(CMDTARGET)
 
+$(OBJECTS): domain.h
+
 install install_pcp:
 
 include $(PCP_INC_DIR)/buildrules
+
+domain.h: $(PCP_VAR_DIR)/pmns/stdpmid
+	$(DOMAIN_MAKERULE)
