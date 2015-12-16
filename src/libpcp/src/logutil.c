@@ -1434,6 +1434,67 @@ paranoidLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result)
 }
 
 /*
+ * We've reached the beginning or the end of an archive. If we will
+ * be switching to another archive, then generate a MARK record to represent
+ * the gap in recording between the archives.
+ */
+static int
+generateMark(__pmLogCtl *lcp, int mode, pmResult **result)
+{
+    pmResult		*pr;
+    int			sts;
+    struct timeval	end;
+
+    if ((pr = (pmResult *)malloc(sizeof(pmResult))) == NULL)
+	__pmNoMem("generateMark", sizeof(pmResult), PM_FATAL_ERR);
+
+    /*
+     * A mark record has numpmid == 0 and the timestamp set to one millisecond
+     * after the end, or before the beginning of the archive.
+     */
+    pr->numpmid = 0;
+    if (mode == PM_MODE_FORW) {
+	if ((sts = pmGetArchiveEnd(&end)) < 0)
+	    return sts;
+	pr->timestamp.tv_sec = lcp->l_endtime.tv_sec;
+	pr->timestamp.tv_usec = lcp->l_endtime.tv_usec;
+	pr->timestamp.tv_usec += 1000;
+	if (pr->timestamp.tv_usec > 1000000) {
+	    pr->timestamp.tv_usec -= 1000000;
+	    pr->timestamp.tv_sec++;
+	}
+    }
+    else {
+	pr->timestamp.tv_sec = lcp->l_label.ill_start.tv_sec;
+	pr->timestamp.tv_usec = lcp->l_label.ill_start.tv_usec;
+	if (pr->timestamp.tv_usec >= 1000)
+	    pr->timestamp.tv_usec -= 1000;
+	else {
+	    pr->timestamp.tv_usec = 1000000 - 1000 + pr->timestamp.tv_usec;;
+	    pr->timestamp.tv_sec--;
+	}
+    }
+    *result = pr;
+    return 0;
+}
+
+static void
+clearMarkDone(void)
+{
+    __pmContext		*ctxp;
+    __pmArchCtl		*acp;
+
+    /* Get the current context. It must be an archive context. */
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_ARCHIVE) {
+	acp = ctxp->c_archctl;
+	acp->ac_log_list[acp->ac_cur_log]->ml_markdone = 0;
+    }
+
+    PM_UNLOCK(ctxp->c_lock);
+}
+
+/*
  * read next forward or backward from the log
  *
  * by default (peekf == NULL) use lcp->l_mfp and roll volume or archive
@@ -1502,20 +1563,34 @@ __pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result, int optio
 		    if (vol >= lcp->l_minvol)
 			continue; /* Try this volume */
 
-		    /* No more volumes. Try the previous archive, if any. */
-		    if ((lcp = __pmLogChangeToPreviousArchive(lcp)) != NULL) {
-			f = lcp->l_mfp;
-			offset = ftell(f);
-			assert(offset >= 0);
+		    /*
+		     * No more volumes. See if there is a previous archive to
+		     * switch to.
+		     */
+		    sts = __pmLogCheckForNextArchive(lcp, PM_MODE_BACK, result);
+		    if (sts == 0) {
+			/* There is a next archive to change to. */
+			if (*result != NULL)
+			    return 0; /* A mark record was generated */
+
+			/*
+			 * Mark was previously generated. Try the previous
+			 * archive, if any.
+			 */
+			if ((lcp = __pmLogChangeToPreviousArchive(lcp)) != NULL) {
+			    f = lcp->l_mfp;
+			    offset = ftell(f);
+			    assert(offset >= 0);
 #ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_LOG) {
-			    fprintf(stderr, "arch=%s vol=%d posn=%ld ",
-				    lcp->l_name, lcp->l_curvol, (long)offset);
-			}
+			    if (pmDebug & DBG_TRACE_LOG) {
+				fprintf(stderr, "arch=%s vol=%d posn=%ld ",
+					lcp->l_name, lcp->l_curvol, (long)offset);
+			    }
 #endif
-			continue; /* Try this archive */
+			    continue; /* Try this archive */
+			}
+			/* No more archives */
 		    }
-		    /* No more archives */
 		}
 		return PM_ERR_EOL;
 	   }
@@ -1538,6 +1613,7 @@ again:
 		fprintf(stderr, "AFTER end\n");
 #endif
 	    fseek(f, offset, SEEK_SET);
+	    sts = PM_ERR_EOL;
 	    if (peekf == NULL) {
 		/* Try the next volume. */
 		int	vol = lcp->l_curvol+1;
@@ -1548,21 +1624,32 @@ again:
 		    }
 		    vol++;
 		}
-		/* No more volumes. Try the next archive, if any. */
-		if ((lcp = __pmLogChangeToNextArchive(lcp)) != NULL) {
-		    f = lcp->l_mfp;
-		    offset = ftell(f);
-		    assert(offset >= 0);
+		/*
+		 * No more volumes. See if there is another archive to switch
+		 * to.
+		 */
+		sts = __pmLogCheckForNextArchive(lcp, PM_MODE_FORW, result);
+		if (sts == 0) {
+		    /* There is a next archive to change to. */
+		    if (*result != NULL)
+			return 0; /* A mark record was generated */
+
+		    /* Mark was previously generated. Try the next archive. */
+		    if ((lcp = __pmLogChangeToNextArchive(lcp)) != NULL) {
+			f = lcp->l_mfp;
+			offset = ftell(f);
+			assert(offset >= 0);
 #ifdef PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_LOG) {
-			fprintf(stderr, "arch=%s vol=%d posn=%ld ",
-				lcp->l_name, lcp->l_curvol, (long)offset);
-		    }
+			if (pmDebug & DBG_TRACE_LOG) {
+			    fprintf(stderr, "arch=%s vol=%d posn=%ld ",
+				    lcp->l_name, lcp->l_curvol, (long)offset);
+			}
 #endif
-		    goto again;
+			goto again;
+		    }
 		}
 	    }
-	    return PM_ERR_EOL;
+	    return sts;
 	}
 
 #ifdef PCP_DEBUG
@@ -1578,6 +1665,13 @@ again:
 	    /* corrupted archive */
 	    return PM_ERR_LOGREC;
     }
+
+    /*
+     * If we're here, then we're not at a multi-archive boundary. Clearing the
+     * ml_markdone flag here automatically handles changes in direction which
+     * happen right at the boundary.
+     */
+    clearMarkDone();
 
     /*
      * This is pretty ugly (forward case shown backwards is similar) ...
@@ -2546,25 +2640,74 @@ __pmLogChangeArchive(__pmContext *ctxp, int arch)
 {
     __pmArchCtl		*acp = ctxp->c_archctl;
     __pmMultiLogCtl	*mlcp = acp->ac_log_list[arch];
-    int			sts = 0;
+    int			sts;
 
     /*
      * If we're already using the requested archive, then we don't need to
      * switch.
      */
-    if (arch != acp->ac_cur_log) {
-	/*
-	 * Obtain a handle for the named archive.
-	 * __pmFindOrOpenArchive() will take care of closing the active archive,
-	 * if necessary.
-	 */
-	sts = __pmFindOrOpenArchive(ctxp, mlcp->ml_name);
-	if (sts < 0)
-	    return sts;
+    if (arch == acp->ac_cur_log)
+	return 0;
 
-	acp->ac_cur_log = arch;
+    /*
+     * Obtain a handle for the named archive.
+     * __pmFindOrOpenArchive() will take care of closing the active archive,
+     * if necessary.
+     */
+    sts = __pmFindOrOpenArchive(ctxp, mlcp->ml_name);
+    if (sts < 0)
+	return sts;
+
+    acp->ac_cur_log = arch;
+    mlcp->ml_markdone = 0;
+
+    return sts;
+}
+
+/*
+ * Check whether there is a next archive to switch to. Generate a MARK
+ * record if one has not already been generated.
+ */
+int
+__pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
+{
+    __pmContext		*ctxp;
+    __pmArchCtl		*acp;
+    __pmMultiLogCtl	*mlcp;
+    int		sts = 0;
+
+    /* Get the current context. It must be an archive context. */
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL)
+	return PM_ERR_EOL;
+    if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_EOL;
     }
 
+    /*
+     * Check whether there is a subsequent archive to switch to.
+     */
+    acp = ctxp->c_archctl;
+    if ((mode == PM_MODE_FORW && acp->ac_cur_log >= acp->ac_num_logs - 1) ||
+	(mode == PM_MODE_BACK && acp->ac_cur_log == 0))
+	sts = PM_ERR_EOL; /* no more archives */
+    else {
+	/*
+	 * Check whether we need to generate a mark record.
+	 */
+	mlcp = acp->ac_log_list[acp->ac_cur_log];
+	if (! mlcp->ml_markdone) {
+	    sts = generateMark(lcp, mode, result);
+	    mlcp->ml_markdone = 1;
+	}
+	else {
+	    *result = NULL;
+	    sts = 0;
+	}
+    }
+
+    PM_UNLOCK(ctxp->c_lock);
     return sts;
 }
 
@@ -2671,8 +2814,8 @@ __pmLogChangeToPreviousArchive(__pmLogCtl *lcp)
     ctxp->c_archctl->ac_offset = ftell(lcp->l_mfp);
     assert(ctxp->c_archctl->ac_offset >= 0);
     ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
-    PM_UNLOCK(ctxp->c_lock);
 
+    PM_UNLOCK(ctxp->c_lock);
     return lcp;
 }
 
@@ -2725,9 +2868,10 @@ __pmLogCreateMark(const __pmTimeval *current)
      * this PDU buffer
      */
     markp = (__pmLogMarkRecord *)malloc(sizeof(__pmLogMarkRecord)+sizeof(int));
-    if (markp == NULL)
-	return NULL;
-
+    if (markp == NULL) {
+	__pmNoMem("__pmLogCreateMark", sizeof(__pmLogMarkRecord)+sizeof(int),
+		  PM_FATAL_ERR);
+    }
     markp->len = (int)sizeof(__pmLogMarkRecord);
     markp->type = markp->from = 0;
     markp->timestamp = *current;

@@ -687,6 +687,7 @@ PCP_CALL extern void __pmServerUnadvertisePresence(__pmServerPresence *);
 typedef struct {
     char		*ml_name;	/* external log base name */
     __pmTimeval		ml_starttime;	/* start time of the archive */
+    int			ml_markdone;	/* mark record has been generated */
 } __pmMultiLogCtl;
 
 /*
@@ -1073,6 +1074,8 @@ PCP_CALL extern char *__pmLogBaseName(char *);
 
 PCP_CALL extern __pmTimeval *__pmLogStartTime(__pmArchCtl *);
 PCP_CALL extern int __pmLogChangeArchive(__pmContext *, int);
+PCP_CALL extern int __pmLogCheckForNextArchive(__pmLogCtl *, int, pmResult **);
+
 PCP_CALL extern __pmLogCtl *__pmLogChangeToNextArchive(__pmLogCtl *);
 PCP_CALL extern __pmLogCtl *__pmLogChangeToPreviousArchive(__pmLogCtl *);
 PCP_CALL extern void __pmArchCtlFree (__pmArchCtl *);
