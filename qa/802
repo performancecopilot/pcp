@@ -45,7 +45,7 @@ sleep 1
 # from _run_valgrind() ...
 #
 echo "=== std out ==="
-sed -e "s@$tmp@TMP@g" <$tmp._valgrind.out
+sed -e "s@$tmp@TMP@g" -e "s@$VALGRIND@VALGRIND@"<$tmp._valgrind.out
 echo "=== std err ==="
 sed < $tmp._valgrind.err \
     -e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
