@@ -63,6 +63,7 @@ import re
 from pcp import pmapi, pmi
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_ERR_NAME, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
+from cpmi import PMI_ERR_DUPINSTNAME
 
 if sys.version_info[0] >= 3:
     long = int
@@ -1152,8 +1153,12 @@ class PMReporter(object):
                                       self.descs[i].contents.sem,
                                       self.descs[i].contents.units)
                 ins = 0 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
-                for j in range(ins):
-                    self.log.pmiAddInstance(self.descs[i].contents.indom, self.insts[i][1][j], self.insts[i][0][j])
+                try:
+                    for j in range(ins):
+                        self.log.pmiAddInstance(self.descs[i].contents.indom, self.insts[i][1][j], self.insts[i][0][j])
+                except pmi.pmiErr as error:
+                    if error.args[0] == PMI_ERR_DUPINSTNAME:
+                        continue
 
         # Add current values
         data = 0
