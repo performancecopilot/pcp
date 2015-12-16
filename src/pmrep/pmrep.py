@@ -1135,6 +1135,7 @@ class PMReporter(object):
         if timestamp == None and values == None:
             # Complete and close
             self.log.pmiEnd()
+            self.log = None
             return
 
         if self.log == None:
@@ -1324,6 +1325,12 @@ class PMReporter(object):
         """ Establish a PMAPI context to archive, host or local, via args """
         self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
 
+    def finalize(self):
+        """ Finalize and clean up """
+        if self.log:
+            self.log.pmiEnd()
+            self.log = None
+
 if __name__ == '__main__':
     try:
         P = PMReporter()
@@ -1333,6 +1340,7 @@ if __name__ == '__main__':
         P.validate_config()
         P.validate_metrics()
         P.execute()
+        P.finalize()
 
     except pmapi.pmErr as error:
         sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
@@ -1342,3 +1350,4 @@ if __name__ == '__main__':
         sys.stderr.write("%s\n" % str(error))
     except KeyboardInterrupt:
         sys.stdout.write("\n")
+        P.finalize()
