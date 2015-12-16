@@ -409,15 +409,17 @@ emerge?	/usr/lib*/qt4/libQtCore.so	[dev-qt/qtcore (build optional)]
 pkgin?	/usr/pkg/qt4/lib/libQtCore.so	[qt4-libs (build optional)]
 # -- Inventor stuff
 dpkg?	/usr/include/Inventor/Qt/SoQt.h	[libsoqt-dev-common (build optional)]
+rpm?	/usr/include/Coin3/Inventor/Qt/SoQt.h	[SoQt-devel (build optional)]
 emerge?	/usr/include/coin/Inventor/Qt/SoQt.h	[media-libs/SoQt (build optional)]
 pkgin?	/usr/pkg/include/coin/Inventor/Qt/SoQt.h	[? (build optional)]
 dpkg?	/usr/include/Inventor/SoPath.h	[libcoin60-dev or libcoin80-dev (build optional)]
+rpm?	/usr/include/Coin3/Inventor/SoPath.h	[Coin3-devel (build optional)]
 emerge?	/usr/include/coin/Inventor/SoPath.h	[media-libs/coin (build optional)]
 pkgin?	/usr/pkg/include/Inventor/SoPath.h	[Coin (build optional)]
 dpkg?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[libsoqt4-dev or libsoqt-dev (build optional)]
-rpm?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
+rpm?	/usr/lib*/libSoQt.so		[SoQt-devel (build optional)]
 emerge?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
-dpkg?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
+pkgin?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
 #
 # python
 #
