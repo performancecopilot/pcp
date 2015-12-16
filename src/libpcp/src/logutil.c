@@ -1482,14 +1482,11 @@ static void
 clearMarkDone(void)
 {
     __pmContext		*ctxp;
-    __pmArchCtl		*acp;
 
     /* Get the current context. It must be an archive context. */
     ctxp = __pmHandleToPtr(pmWhichContext());
-    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_ARCHIVE) {
-	acp = ctxp->c_archctl;
-	acp->ac_log_list[acp->ac_cur_log]->ml_markdone = 0;
-    }
+    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_ARCHIVE)
+	ctxp->c_archctl->ac_mark_done = 0;
 
     PM_UNLOCK(ctxp->c_lock);
 }
@@ -1668,7 +1665,7 @@ again:
 
     /*
      * If we're here, then we're not at a multi-archive boundary. Clearing the
-     * ml_markdone flag here automatically handles changes in direction which
+     * ac_mark_done flag here automatically handles changes in direction which
      * happen right at the boundary.
      */
     clearMarkDone();
@@ -2659,7 +2656,7 @@ __pmLogChangeArchive(__pmContext *ctxp, int arch)
 	return sts;
 
     acp->ac_cur_log = arch;
-    mlcp->ml_markdone = 0;
+    acp->ac_mark_done = 0;
 
     return sts;
 }
@@ -2673,7 +2670,6 @@ __pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
 {
     __pmContext		*ctxp;
     __pmArchCtl		*acp;
-    __pmMultiLogCtl	*mlcp;
     int		sts = 0;
 
     /* Get the current context. It must be an archive context. */
@@ -2696,10 +2692,9 @@ __pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
 	/*
 	 * Check whether we need to generate a mark record.
 	 */
-	mlcp = acp->ac_log_list[acp->ac_cur_log];
-	if (! mlcp->ml_markdone) {
+	if (! acp->ac_mark_done) {
 	    sts = generateMark(lcp, mode, result);
-	    mlcp->ml_markdone = 1;
+	    acp->ac_mark_done = 1;
 	}
 	else {
 	    *result = NULL;

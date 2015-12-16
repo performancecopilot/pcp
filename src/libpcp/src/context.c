@@ -519,6 +519,7 @@ initarchive(__pmContext	*ctxp, const char *name)
     acp->ac_num_logs = 0;
     acp->ac_log_list = NULL;
     acp->ac_log = NULL;
+    acp->ac_mark_done = 0;
 
     /* We need a copy of the names to work with. */
     if ((namelist = strdup(name)) == NULL) {
@@ -577,7 +578,6 @@ initarchive(__pmContext	*ctxp, const char *name)
 	    goto error;
 	mlcp->ml_starttime.tv_sec = (__uint32_t)label.ll_start.tv_sec;
 	mlcp->ml_starttime.tv_usec = (__uint32_t)label.ll_start.tv_usec;
-	mlcp->ml_markdone = 0;
 
 	/*
 	 * Insert this new entry into the list in sequence by time. Check for

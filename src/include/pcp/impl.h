@@ -687,7 +687,6 @@ PCP_CALL extern void __pmServerUnadvertisePresence(__pmServerPresence *);
 typedef struct {
     char		*ml_name;	/* external log base name */
     __pmTimeval		ml_starttime;	/* start time of the archive */
-    int			ml_markdone;	/* mark record has been generated */
 } __pmMultiLogCtl;
 
 /*
@@ -710,6 +709,8 @@ typedef struct {
      * in a single context. In order to maintain ABI compatibility they must
      * be at the end of this structure.
      */
+    int			ac_mark_done;	/* mark record between archives */
+					/*   has been generated */
     int			ac_num_logs;	/* The number of archives */
     int			ac_cur_log;	/* The currently open archive */
     __pmMultiLogCtl	**ac_log_list;	/* Current set of archives */
