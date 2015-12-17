@@ -119,20 +119,30 @@ __pmBoundaryOptions(
 	save_vol = ctxp->c_archctl->ac_vol;
 	save_offset = ctxp->c_archctl->ac_offset;
 #endif
+	/*
+	 * The archives have already been sorted by timeline. So just extract
+	 * the beginning and end times from the first and last archives
+	 * respectively.
+	 */
 	acp = ctxp->c_archctl;
-	for (i = 0; i < acp->ac_num_logs; i++) {
-	    /* Open this archive, if it is not already open. */
+	i = 0;
+	if ((sts = __pmLogChangeArchive(ctxp, i)) < 0) {
+	    pmprintf("%s: Cannot open archive %s: %s\n",
+		     pmProgname, acp->ac_log_list[i]->ml_name,
+		     pmErrStr(sts));
+	    return sts;
+	}
+	if ((sts = __pmUpdateBounds(opts, i, begin, end)) < 0)
+	    return sts;
+	if (acp->ac_num_logs > 1) {
+	    i = acp->ac_num_logs - 1;
 	    if ((sts = __pmLogChangeArchive(ctxp, i)) < 0) {
 		pmprintf("%s: Cannot open archive %s: %s\n",
 			 pmProgname, acp->ac_log_list[i]->ml_name,
 			 pmErrStr(sts));
-		break;
+		return sts;
 	    }
-
-	    /* Get the time span of this archive, as if it is the only one. */
-	    if ((sts = __pmUpdateBounds(opts, i, begin, end)) < 0)
-		break;
-
+	    sts = __pmUpdateBounds(opts, i, begin, end);
 	}
 #if 0 /* Not needed? XXXXXX */
 	/* Restore to the initial state. */
