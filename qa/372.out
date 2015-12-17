@@ -123,3 +123,7 @@ Temporal Index
 
 === /dev/null ===
 sheet2pcp: Error: No clue how to deduce format of spreadsheet /dev/null
+File extension must be one of: .csv, .ods, .xls, .xlsx
+
+=== bad datetime CSV ===
+sheet2pcp: Failed to verify time formatted as 2010-13-34T13:02:03 (UTC)

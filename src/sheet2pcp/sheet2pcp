@@ -102,7 +102,7 @@ sub dodate($)
 
     my $tstr = $yy . "-" . $mm . "-" . $dd . "T" . $field[3] . ":" . $field[4] . ":" . $field[5];
     if (!defined(str2time($tstr, $zone))) {
-        print "sheet2pcp: Failed to parse the time format\n";
+        print "sheet2pcp: Failed to verify time formatted as $tstr ($zone)\n";
         exit(1);
     }
     return $tstr;
