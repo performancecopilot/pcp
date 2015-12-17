@@ -100,7 +100,12 @@ sub dodate($)
 	else { $yy += 1900; }
     }
 
-    return $yy . "-" . $mm . "-" . $dd . "T" . $field[3] . ":" . $field[4] . ":" . $field[5];
+    my $tstr = $yy . "-" . $mm . "-" . $dd . "T" . $field[3] . ":" . $field[4] . ":" . $field[5];
+    if (!defined(str2time($tstr, $zone))) {
+        print "sheet2pcp: Failed to parse the time format\n";
+        exit(1);
+    }
+    return $tstr;
 }
 
 # process the mapfile and set up the metadata and handles needed
@@ -519,6 +524,7 @@ elsif ($ARGV[0] =~ /\.xlsx$/) {
 }
 else {
     print "sheet2pcp: Error: No clue how to deduce format of spreadsheet $ARGV[0]\n";
+    print "File extension must be one of: .csv, .ods, .xls, .xlsx\n";
     exit(1);
 }
 
