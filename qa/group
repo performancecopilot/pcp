@@ -1024,7 +1024,6 @@ cgroups
 800 pmda.proc local
 801 pmda.netfilter local
 802 pmda valgrind dbpmda local
-803 python libpcp fetch local
 805 pmda.postfix local
 807 pcp local
 808 pmlogger local
@@ -1060,7 +1059,8 @@ cgroups
 850 python local
 853 pmcpp local
 855 pmda.netfilter local
-858 libpcp fetch local
+858 libpcp local fetch
+859 python libpcp local fetch
 860 pmda pmda.proc ostest local
 861 pmcd pmda.pmcd local
 862 pmie local
