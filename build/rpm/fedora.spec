@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.10.9
+Version: 3.11.0
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -2423,6 +2423,9 @@ cd
 %endif
 
 %changelog
+* Fri Jan 29 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.0-1
+- Work-in-progress [see http://pcp.io/roadmap]
+
 * Wed Dec 16 2015 Lukas Berk <lberk@redhat.com> - 3.10.9-1
 - Add -V/--version support to several more commands (BZ 1284411)
 - Resolve a pcp-iostat(1) transient device exception (BZ 1249572)

@@ -35,28 +35,18 @@ Interval can't be less than 1 second.
      380438   380437679.382
      380440   380439679.413
 == exercise CSV and alternate delimiters
-metric,timestamp,name,unit,value
-sample.seconds,2000-05-01 20:36:45,s.seconds,util,N/A
-sample.milliseconds,2000-05-01 20:36:45,s.milliseconds,util,N/A
-sample.seconds,2000-05-01 20:36:47,s.seconds,util,380434
-sample.milliseconds,2000-05-01 20:36:47,s.milliseconds,util,380433679.3
-sample.seconds,2000-05-01 20:36:49,s.seconds,util,380436
-sample.milliseconds,2000-05-01 20:36:49,s.milliseconds,util,380435679.4
-sample.seconds,2000-05-01 20:36:51,s.seconds,util,380438
-sample.milliseconds,2000-05-01 20:36:51,s.milliseconds,util,380437679.4
-sample.seconds,2000-05-01 20:36:53,s.seconds,util,380440
-sample.milliseconds,2000-05-01 20:36:53,s.milliseconds,util,380439679.4
-metric|name|unit|value
-sample.seconds|s.seconds|util|N/A
-sample.milliseconds|s.milliseconds|util|N/A
-sample.seconds|s.seconds|util|380434
-sample.milliseconds|s.milliseconds|util|380433679.314
-sample.seconds|s.seconds|util|380436
-sample.milliseconds|s.milliseconds|util|380435679.381
-sample.seconds|s.seconds|util|380438
-sample.milliseconds|s.milliseconds|util|380437679.382
-sample.seconds|s.seconds|util|380440
-sample.milliseconds|s.milliseconds|util|380439679.413
+Time,sample.seconds,sample.milliseconds
+2000-05-01 20:36:45,N/A,N/A
+2000-05-01 20:36:47,380434,380433679.3
+2000-05-01 20:36:49,380436,380435679.4
+2000-05-01 20:36:51,380438,380437679.4
+2000-05-01 20:36:53,380440,380439679.4
+Time|sample.seconds|sample.milliseconds
+2000-05-01 20:36:45|N/A|N/A
+2000-05-01 20:36:47|380434|380433679.314
+2000-05-01 20:36:49|380436|380435679.381
+2000-05-01 20:36:51|380438|380437679.382
+2000-05-01 20:36:53|380440|380439679.413
 == exercise repeated headers option
   s.seconds
        util
