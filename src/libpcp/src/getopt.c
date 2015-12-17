@@ -89,6 +89,13 @@ __pmBoundaryOptions(
 ) {
     int			i;
     int			ctx, sts = 0;
+    __pmContext		*ctxp;
+    __pmArchCtl		*acp;
+#if 0 /* Not needed? XXXXXX */
+    int			save_arch;
+    int			save_vol;
+    long		save_offset;
+#endif
 
     if (opts->context != PM_CONTEXT_ARCHIVE) {
 	/* live/local context, open ended - start now, never end */
@@ -96,10 +103,47 @@ __pmBoundaryOptions(
 	end->tv_sec = INT_MAX;
 	end->tv_usec = 0;
     } else if (opts->narchives == 1) {
-	/* singular archive context, make use of current context */
-	sts = __pmUpdateBounds(opts, 0, begin, end);
+	/*
+	 * Singular archive context, which may contain more than one archive.
+	 * Make use of current context. Check the time span of each archive
+	 * in the context.
+	 */
+	if ((ctxp = __pmHandleToPtr(ctxid)) == NULL) {
+	    sts =  PM_ERR_NOCONTEXT;
+	    return sts;
+	}
+#if 0 /* Not needed? XXXXXX */
+
+	/* Save the initial state. */
+	save_arch = ctxp->c_archctl->ac_cur_log;
+	save_vol = ctxp->c_archctl->ac_vol;
+	save_offset = ctxp->c_archctl->ac_offset;
+#endif
+	acp = ctxp->c_archctl;
+	for (i = 0; i < acp->ac_num_logs; i++) {
+	    /* Open this archive, if it is not already open. */
+	    if ((sts = __pmLogChangeArchive(ctxp, i)) < 0) {
+		pmprintf("%s: Cannot open archive %s: %s\n",
+			 pmProgname, acp->ac_log_list[i]->ml_name,
+			 pmErrStr(sts));
+		break;
+	    }
+
+	    /* Get the time span of this archive, as if it is the only one. */
+	    if ((sts = __pmUpdateBounds(opts, i, begin, end)) < 0)
+		break;
+
+	}
+#if 0 /* Not needed? XXXXXX */
+	/* Restore to the initial state. */
+	if ((sts = __pmLogChangeArchive(ctxp, save_arch)) < 0)
+	    return sts;
+	if ((sts = __pmLogChangeVol(ctxp->c_archctl->ac_log, save_vol)) < 0)
+	    return sts;
+	fseek(ctxp->c_archctl->ac_log->l_mfp, save_offset, SEEK_SET);
+#endif
     } else {
-	/* Multiple archive contexts - figure out combined start and end */
+	/* More than one archive context - figure out combined start and end */
 	for (i = 0; i < opts->narchives; i++) {
 	    sts = pmNewContext(PM_CONTEXT_ARCHIVE, opts->archives[i]);
 	    if (sts < 0) {

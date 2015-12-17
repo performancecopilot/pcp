@@ -130,8 +130,9 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     cache_t	*cp;
     cache_t	*lfup;
     cache_t	*cache;
-    __pmLogCtl	*save_curlog;
+    char	*save_curlog_name;
     int		save_curvol;
+    int		archive_changed;
 
     if (acp->ac_vol == acp->ac_log->l_curvol) {
 	posn = ftell(acp->ac_log->l_mfp);
@@ -201,16 +202,33 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     if (lfup->rp != NULL)
 	pmFreeResult(lfup->rp);
 
-    save_curlog = acp->ac_log;
+    /*
+     * We need to know when we change archive or volume boundaries.
+     * The only way to know if the archive has changed is to check whether the
+     * archive name has changed.
+     */
+    if ((save_curlog_name = strdup(acp->ac_log->l_name)) == NULL) {
+	__pmNoMem("__pmLogFetchInterp.save_curlog_name",
+		  strlen(acp->ac_log->l_name) + 1, PM_FATAL_ERR);
+    }
     save_curvol = acp->ac_log->l_curvol;
 
     lfup->sts = __pmLogRead(acp->ac_log, mode, NULL, &lfup->rp, PMLOGREAD_NEXT);
     if (lfup->sts < 0)
 	lfup->rp = NULL;
     *rp = lfup->rp;
+    archive_changed = strcmp(save_curlog_name, acp->ac_log->l_name) != 0;
+    free(save_curlog_name);
 
-    if (posn == 0 || save_curlog != acp->ac_log ||
-	save_curvol != acp->ac_log->l_curvol) {
+    /*
+     * Don't cache this result if any of:
+     *  The archive has changed
+     *  The volume has changed
+     *  A virtual MARK record has been generated (just before changing archives)
+     *  New vol/arch, stdio stream and we don't know where we started from
+     */
+    if (posn == 0 || save_curvol != acp->ac_log->l_curvol ||
+	acp->ac_mark_done || archive_changed) {
 	/*
 	 * vol/arch switch since last time, or vol/arch switch in
 	 * __pmLogRead() ...
@@ -686,8 +704,8 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	__pmTimeval	tmp;
 
 	/*
-	 * Past end of archive ... see if it has grown since we last looked,
-	 * or if we can switch to the next archive in the context.
+	 * Past end of the current archive ... see if it has grown since we
+	 * last looked, or if we can switch to the next archive in the context.
 	 */
 	for (;;) {
 	    if (pmGetArchiveEnd(&end) >= 0) {
@@ -698,14 +716,12 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    if (t_req <= ctxp->c_archctl->ac_end)
 		break; /* request time is before the end of this archive */
 
-	    /*
-	     * The request time is still past the end of this archive.
-	     * Try to switch to the next archive, if any.
-	     */
-	    if (__pmLogChangeToNextArchive(ctxp->c_archctl->ac_log) == NULL) {
-		sts = PM_ERR_EOL;
-		goto all_done;
-	    }
+	    if (ctxp->c_archctl->ac_cur_log < ctxp->c_archctl->ac_num_logs - 1)
+		break; /* there are subsequent archives */
+
+	    /* No more archive data. */
+	    sts = PM_ERR_EOL;
+	    goto all_done;
 	}
     }
 
