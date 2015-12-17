@@ -5,6 +5,11 @@
 	 <simpara>
 		<revhistory>
 			<revision>
+				<revnumber>3.11</revnumber>
+				<date>December 2015</date>
+				<revremark>Revised to include the fetchgroup API.</revremark>
+			</revision>
+			<revision>
 				<revnumber>4.0-2</revnumber>
 				<date>September 2013</date>
 				<revremark>Revised to include event metrics and the MMV PMDA coverage.</revremark>
