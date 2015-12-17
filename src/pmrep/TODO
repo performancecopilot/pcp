@@ -24,6 +24,7 @@
 -  copy metric set spec support (?)
 -  includedir config file support (?)
 -  generalised daemon startup support (?)
+-  multi-sheet support for xlsx output (?)
 -  add option to prevent truncating string output (?)
 -  generalized zabbix_interval (limit writes to archive) (?)
 -  support for multiple output targets (e.g. archive+stdout) (?)
@@ -32,10 +33,10 @@
 -----
 
 In use / reserved cmd line options:
-AaBbcCdDeEfFGhHKLloOpPqQrRsStTuUVwxyYzZ
+AaBbcCdDeEfFGhHKLloOpPqQrsStTuUVwxyYzZ
 
 Tentatively planned:
-IigkMm
+IigkMmR
 
 Available:
 JjNnXvW
