@@ -64,6 +64,8 @@ echo
 echo "=== pmcd not running, -h localhost case ==="
 pmdumptext -s 1 -h localhost 'proc.psinfo.utime[12345]'
 $sudo $PCP_RC_DIR/pcp start >/dev/null
+_wait_for_pmcd
+_wait_for_pmlogger
 
 # success, all done
 status=0
