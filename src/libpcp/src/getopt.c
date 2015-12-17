@@ -91,11 +91,9 @@ __pmBoundaryOptions(
     int			ctx, sts = 0;
     __pmContext		*ctxp;
     __pmArchCtl		*acp;
-#if 0 /* Not needed? XXXXXX */
     int			save_arch;
     int			save_vol;
     long		save_offset;
-#endif
 
     if (opts->context != PM_CONTEXT_ARCHIVE) {
 	/* live/local context, open ended - start now, never end */
@@ -112,13 +110,12 @@ __pmBoundaryOptions(
 	    sts =  PM_ERR_NOCONTEXT;
 	    return sts;
 	}
-#if 0 /* Not needed? XXXXXX */
 
 	/* Save the initial state. */
 	save_arch = ctxp->c_archctl->ac_cur_log;
 	save_vol = ctxp->c_archctl->ac_vol;
 	save_offset = ctxp->c_archctl->ac_offset;
-#endif
+
 	/*
 	 * The archives have already been sorted by timeline. So just extract
 	 * the beginning and end times from the first and last archives
@@ -144,14 +141,13 @@ __pmBoundaryOptions(
 	    }
 	    sts = __pmUpdateBounds(opts, i, begin, end);
 	}
-#if 0 /* Not needed? XXXXXX */
+
 	/* Restore to the initial state. */
 	if ((sts = __pmLogChangeArchive(ctxp, save_arch)) < 0)
 	    return sts;
 	if ((sts = __pmLogChangeVol(ctxp->c_archctl->ac_log, save_vol)) < 0)
 	    return sts;
 	fseek(ctxp->c_archctl->ac_log->l_mfp, save_offset, SEEK_SET);
-#endif
     } else {
 	/* More than one archive context - figure out combined start and end */
 	for (i = 0; i < opts->narchives; i++) {
