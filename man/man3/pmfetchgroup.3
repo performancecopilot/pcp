@@ -60,16 +60,16 @@ convert functions.
 
 The general idea consists of two stages.  In the setup stage, the
 applications identifies metrics of interest by name and with desired
-conversions, and register a \fBpmAtomValue\fP output location where
-the fetchgroup system is to later deposit the result.  It is also
-possible to identify a metric with an instance domain, and register a
-\fIvector\fP of pmAtomValue objects for them.  In the operation stage,
-one simple \fBpmFetchGroup\fP function fetches, decodes, converts, and
-stores all metrics to their destinations, where the application can
-\fIread\fP them directly.  This function may be called repeatedly, and
-each time new \fBpmAtomValue\fP values will be stored in the same
-destinations.  Rate conversions between consecutive samples may be
-requested.
+conversions, and register a unique \fBpmAtomValue\fP output location
+where the fetchgroup system is to later deposit the result.  It is
+also possible to identify a metric with an instance domain, and
+register a unique \fIvector\fP of pmAtomValue objects for them.  In
+the operation stage, one simple \fBpmFetchGroup\fP function fetches,
+decodes, converts, and stores all metrics to their destinations, where
+the application can \fIread\fP them directly.  This function may be
+called repeatedly, and each time new \fBpmAtomValue\fP values will be
+stored in the same destinations.  Rate conversions between consecutive
+samples may be requested.
 
 Each fetchgroup is associated with a private PMAPI context, so it can
 manipulate instance profiles and other such state without disrupting
