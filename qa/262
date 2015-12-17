@@ -15,6 +15,8 @@ echo "QA output created by $seq"
 
 . ./common.config
 
+[ -n "$PCPQA_SOCKS_SERVER" ] || _notrun 'PCPQA_SOCKS_SERVER is not set in ./common.config'
+
 if [ "`pmsocks echo ok 2>&1`" != ok ]
 then
     _notrun "pmsocks is not installed and/or not configured"
