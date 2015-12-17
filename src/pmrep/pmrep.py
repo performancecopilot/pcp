@@ -1079,13 +1079,10 @@ class PMReporter(object):
             return
 
         if self.output == OUTPUT_CSV:
-            header = "metric" + self.delimiter
-            if self.timestamp == 1:
-                header += "timestamp" + self.delimiter
-            for f in "name", "unit", "value":
-                header += f + self.delimiter
-            header = header[:-len(self.delimiter)]
-            print(header)
+            sys.stdout.write("Time")
+            for metric in self.metrics:
+                sys.stdout.write(self.delimiter + metric)
+            sys.stdout.write("\n")
 
         if self.output == OUTPUT_STDOUT:
             names = ["", self.delimiter] # no timestamp on header line
@@ -1190,23 +1187,18 @@ class PMReporter(object):
             return
 
         # Print the results
+        line = timestamp
         for i, metric in enumerate(self.metrics):
             ins = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
             for j in range(ins):
-                line = metric
-                if self.insts[i][1][j]:
-                    line += "." + str(self.insts[i][1][j])
                 line += self.delimiter
-                if self.timestamp == 1:
-                    line += timestamp + self.delimiter
-                line += str(self.metrics[metric][0]) + self.delimiter
-                line += str(self.metrics[metric][2][0]) + self.delimiter
                 if type(list(values[i])[j][2]) is float:
                     fmt = "." + str(self.precision) + "f"
                     line += format(list(values[i])[j][2], fmt)
                 else:
                     line += str(list(values[i])[j][2])
-                print(line)
+        sys.stdout.write(line)
+        sys.stdout.write("\n")
 
     def write_stdout(self, timestamp, values):
         """ Write a line to stdout """
