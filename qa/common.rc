@@ -62,7 +62,7 @@ in
 esac
 
 sudo=`which sudo`
-if $sudo -E true >/dev/null 2>&1
+if $sudo -h | grep '.-E[, 	]' >/dev/null 2>&1
 then
     # sudo has -E to preserve the environment
     #
