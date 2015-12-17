@@ -7,13 +7,14 @@
 
 tmp=/var/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+rm -rf $tmp.*
 
 PMCD_CONNECT_TIMEOUT=10
 export PMCD_CONNECT_TIMEOUT
 
 _fail_check()
 {
-    echo "... check failed!"
+    echo "... check failed, and this is fatal!"
     exit 1
 }
 
@@ -83,31 +84,29 @@ _check_pmdas()
 
 # files in the PCP distribution
 #
-fail=false
+rm -f $tmp.fail $tmp.warning
 for file in $PCP_DIR/etc/pcp.env
 do
     if [ ! -f "$file" ]
     then
-	echo "$0: Error: cannot file \"$file\" from the PCP distribution"
-	fail=true
+	echo "$0: Error: cannot find the file \"$file\" from the PCP distribution"
+	touch $tmp.fail
     fi
 done
+[ -f $tmp.fail ] && _fail_check
 
 # files in the PCP QA distribution
 #
-for file in mk.localconfig common.rc common.setup common.product \
-    common.check common.config
+for file in ./mk.localconfig ./common.rc ./common.setup ./common.product \
+    ./common.check ./common.config
 do
     if [ ! -f "$file" ]
     then
-	echo "$0: Error: cannot file \"$file\" from the PCP QA distribution"
-	fail=true
+	echo "$0: Error: cannot find the file \"$file\" from the PCP QA distribution"
+	touch $tmp.fail
     fi
 done
-
-# no point proceeding if any of these files are missing
-#
-$fail && _fail_check
+[ -f $tmp.fail ] && _fail_check
 
 if [ ! -f localconfig ]
 then
@@ -115,22 +114,29 @@ then
     #
     if ./mk.localconfig
     then
-	if [ -f GNUmakefile.install ]
+	makefile='GNUmakefile'
+	# may be running QA in the tree
+	[ -f GNUmakefile.install ] && makefile='GNUmakefile.install'
+	echo "Running ${MAKE:-make} -f $makefile setup"
+	echo "(this may take some minutes the first time) ..."
+	if ${MAKE:-make} -f $makefile setup >$tmp.out 2>&1
 	then
-	    # running QA in the tree
-	    ${MAKE:-make} -f GNUmakefile.install setup | egrep -v 'Entering|Leaving|Nothing'
+	    echo "make OK"
 	else
-	    ${MAKE:-make} setup | egrep -v 'Entering|Leaving|Nothing'
+	    cat $tmp.out
+	    echo "Error: make failed"
+	    touch $tmp.fail
 	fi
     else
-	echo "$0: Error: need to fix failure in mk.localconfig"
-	_fail_check
+	echo "$0: Error: need to fix failure in ./mk.localconfig"
+	touch $tmp.fail
     fi
     if [ ! -f localconfig ]
     then
 	echo "$0: Error: mk.localconfig failed to create the file \"localconfig\""
-	_fail_check
+	touch $tmp.fail
     fi
+    [ -f $tmp.fail ] && _fail_check
 fi
 
 # source hierarchy
@@ -158,13 +164,13 @@ do
     eval file=\$$var
     if [ -z "$file" ]
     then
-	echo "$0: Error: variable \$$var is not set from $PCP_DIR/etc/pcp.env"
-	fail=true
+	echo "$0: Error: variable \$$var is not set from $PCP_DIR/etc/pcp.conf"
+	touch $tmp.fail
     else
 	if [ ! -f "$file" ]
 	then
-	    echo "$0: Error: cannot find file \"$file\" (\$$var from $PCP_DIR/etc/pcp.env)"
-	    fail=true
+	    echo "$0: Error: cannot find file \"$file\" (\$$var from $PCP_DIR/etc/pcp.conf)"
+	    touch $tmp.fail
 	fi
     fi
 done
@@ -178,15 +184,15 @@ do
     prog=`echo $prog | sed -e 's/ .*//'`
     if [ -z "$prog" ]
     then
-	echo "$0: Error: variable \$$var is not set from $PCP_DIR/etc/pcp.env"
-	fail=true
+	echo "$0: Error: variable \$$var is not set from $PCP_DIR/etc/pcp.conf"
+	touch $tmp.fail
     else
-	if which $prog >/dev/null 2>&1
+	if which "$prog" >/dev/null 2>&1
 	then
 	    :
 	else
-	    echo "$0: Error: cannot find executable program \"$prog\" (\$$var from $PCP_DIR/etc/pcp.env)"
-	    fail=true
+	    echo "$0: Error: cannot find executable program \"$prog\" (\$$var from $PCP_DIR/etc/pcp.conf)"
+	    touch $tmp.fail
 	fi
     fi
 done
@@ -205,11 +211,13 @@ do
     eval dir=\$$var
     if [ -z "$dir" ]
     then
-	echo "$0: Warning: variable \$$var is not set from $PCP_DIR/etc/pcp.env"
+	echo "$0: Error: variable \$$var is not set from $PCP_DIR/etc/pcp.conf"
+	touch $tmp.fail
     else
 	if [ ! -d "$dir" ]
 	then
-	    echo "$0: Warning: cannot find directory \"$prog\" (\$$var from $PCP_DIR/etc/pcp.env)"
+	    echo "$0: Error: cannot find directory \"$dir\" (\$$var from $PCP_DIR/etc/pcp.conf)"
+	    touch $tmp.fail
 	fi
     fi
 done
@@ -232,37 +240,40 @@ do
     eval file=\$$var
     if [ -z "$file" ]
     then
-	echo "$0: Error: variable \$$var is not set from common.product"
-	fail=true
+	echo "$0: Error: variable \$$var is not set from ./common.product"
+	touch $tmp.fail
     else
 	if [ ! -f "$file" ]
 	then
-	    echo "$0: Error: cannot find file \"$file\" (\$$var from common.product)"
-	    fail=true
+	    echo "$0: Error: cannot find file \"$file\" (\$$var from ./common.product)"
+	    touch $tmp.fail
 	fi
     fi
 done
 
-# no point proceeding if any of these files are missing
+# no point proceeding if any of these directories or files are missing,
+# or if any of these variables are not set
 #
-$fail && _fail_check
+[ -f $tmp.fail ] && _fail_check
 
 if [ $# -eq 0 ]
 then
     # down to the common.config things ... these are the most contentious
     # and the ones that need local tuning ...
     #
-    #   $PCPQA_CLOSE_X_SERVER is set here, but is hard to check so skip that one.
+    #   $PCPQA_CLOSE_X_SERVER is set in common.config, but is hard to
+    #   check so skip that one.
+    #   $PCPQA_SOCKS_SERVER and $PCPQA_CISCO_ROUTER have outlived their
+    #   usefulness so skip these also.
     #
     for var in PCPQA_FAR_PMCD PCPQA_HYPHEN_HOST
     do
 	eval host=\$$var
 	if [ -z "$host" ]
 	then
-	    echo "$0: Warning: variable \$$var is not set from common.config"
-	elif [ "$host" = "some-host" -o "$host" = "far_away_pmcd" ]
-	then
-	    echo "$0: Warning: variable \$$var using bogus default from common.config"
+	    echo "$0: Warning: variable \$$var is not set from ./common.config"
+	    echo "... this is not fatal, some QA tests may be skipped"
+	    touch $tmp.warning
 	else
 	    # try to contact pmcd ...
 	    #
@@ -274,24 +285,26 @@ then
 		_check_pmlogger $host
 		_check_pmdas $host
 	    else
-		echo "no response (warning)"
+		echo "Warning: no response"
+		touch $tmp.warning
 	    fi
 	fi
     done
 fi
 
-# no point proceeding if any of these variables are not set
-#
-$fail && _fail_check
-
 # the other pmcd's we think we can talk to ...
 #
-if [ -f GNUmakefile.install ]
+makefile='GNUmakefile'
+# may be running QA in the tree
+[ -f GNUmakefile.install ] && makefile='GNUmakefile.install'
+$PCP_ECHO_PROG $PCP_ECHO_N "Running ${MAKE:-make} -f $makefile qa_hosts ... $PCP_ECHO_C"
+if ${MAKE:-make} -f $makefile qa_hosts >$tmp.out 2>&1
 then
-    # running QA in the tree
-    ${MAKE:-make} -f GNUmakefile.instll qa_hosts >/dev/null 2>&1
+    echo "OK"
 else
-    ${MAKE:-make} qa_hosts >/dev/null 2>&1
+    echo "Error: failed"
+    cat $tmp.out
+    _fail_check
 fi
 if [ ! -f qa_hosts ]
 then
@@ -332,8 +345,8 @@ do
 	then
 	    echo "OK"
 	else
-	    echo "failed"
-	    fail=true
+	    echo "Error: failed"
+	    touch $tmp.fail
 	    echo "Expected output: \"`cat $tmp.hullo`\""
 	    echo "Actual output: \"`cat $tmp.ans`\""
 	    echo "Diagnostic Log:"
@@ -347,12 +360,13 @@ do
 	then
 	    echo "OK"
 	else
-	    echo "failed"
-	    fail=true
+	    echo "Warning: remote command failed"
+	    touch $tmp.warning
 	    cat $tmp.out
 	fi
     else
-	echo "no response (warning)"
+	echo "Warning: no response"
+	touch $tmp.warning
     fi
 done
 
@@ -369,13 +383,13 @@ do
 	echo "OK"
     else
 	echo "no response (fatal)"
-	fail=true
+	touch $tmp.fail
     fi
 done
 
 # no point proceeding if any of these cannot be contacted
 #
-$fail && _fail_check
+[ -f $tmp.fail ] && _fail_check
 
 echo "Check the sanity of these:"
 $PCP_ECHO_PROG $PCP_ECHO_N "  \$PCP_PLATFORM=$PCP_PLATFORM [y] ? ""$PCP_ECHO_C"
@@ -384,5 +398,10 @@ read ans
 $PCP_ECHO_PROG $PCP_ECHO_N "  \$PCP_VERSION=$PCP_VERSION [y] ? ""$PCP_ECHO_C"
 read ans
 [ ! -z "$ans" -a "$ans" != y ] && _fail_check
+
+if [ -f $tmp.warning ]
+then
+    echo "Checks completed, but with Warnings.  You may wish to review these."
+fi
 
 exit 0

@@ -783,13 +783,18 @@ _check_purify()
 _check_display()
 {
     # note: non-X systems (MacOSX, Windows) must pass here unchallenged
+    if [ -z "$PCPQA_CLOSE_X_SERVER" ]
+    then
+	_notrun "\$PCPQA_CLOSE_X_SERVER not set in ./common.config"
+	# NOTREACHED
+    fi
     which xdpyinfo >/dev/null 2>&1
-    if test $? -eq 0
+    if [ $? -eq 0 ]
     then
 	DISPLAY=$PCPQA_CLOSE_X_SERVER xdpyinfo >/dev/null 2>&1 || \
 	    _notrun "Failed sanity check on DISPLAY $PCPQA_CLOSE_X_SERVER"
-	export DISPLAY=$PCPQA_CLOSE_X_SERVER
     fi
+    export DISPLAY=$PCPQA_CLOSE_X_SERVER
 }
 
 _check_containers()
