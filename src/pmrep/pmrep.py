@@ -1071,6 +1071,7 @@ class PMReporter(object):
         self.writer.write(comm + " timezone: " + timezone + "\n")
         self.writer.write(comm + "    start: " + time.asctime(time.localtime(self.opts.pmGetOptionStart())) + "\n")
         self.writer.write(comm + "      end: " + time.asctime(time.localtime(endtime)) + "\n")
+        self.writer.write(comm + "  metrics: " + str(len(self.pmids)) + "\n")
         self.writer.write(comm + "  samples: " + str(samples) + "\n")
         if not (self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol):
             self.writer.write(comm + " interval: " + str(float(self.interval)) + " sec\n")
@@ -1083,7 +1084,7 @@ class PMReporter(object):
     def write_header(self):
         """ Write metrics header """
         if self.output == OUTPUT_ARCHIVE:
-            self.writer.write("Recording %s (%d metrics)" % (self.outfile, len(self.metrics)))
+            self.writer.write("Recording %d metrics to %s" % (len(self.pmids), self.outfile))
             if self.runtime != -1:
                 self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), self.runtime))
             elif self.samples:
@@ -1134,10 +1135,10 @@ class PMReporter(object):
                 self.delay = 0
                 self.interpol = 0
                 self.zabbix_interval = 250 # See zabbix_sender(8)
-                self.writer.write("Sending archived metrics to Zabbix server %s...\n(Ctrl-C to stop)\n" % self.zabbix_server)
+                self.writer.write("Sending %d archived metrics to Zabbix server %s...\n(Ctrl-C to stop)\n" % (len(self.pmids), self.zabbix_server))
                 return
 
-            self.writer.write("Sending metrics to Zabbix server %s every %d sec" % (self.zabbix_server, self.zabbix_interval))
+            self.writer.write("Sending %d metrics to Zabbix server %s every %d sec" % (len(self.pmids), self.zabbix_server, self.zabbix_interval))
             if self.runtime != -1:
                 self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), self.runtime))
             elif self.samples:
