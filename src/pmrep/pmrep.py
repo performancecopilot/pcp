@@ -187,7 +187,7 @@ class PMReporter(object):
         self.version = VERSION
         self.source = "local:"
         self.output = OUTPUT_STDOUT
-        self.archive = None # output archive
+        self.outfile = None
         self.pmi = None
         self.derived = None
         self.header = 1
@@ -319,7 +319,7 @@ class PMReporter(object):
         opts.pmSetLongOption("config", 1, "c", "FILE", "config file path")
         opts.pmSetLongOption("check", 0, "C", "", "check config and metrics and exit")
         opts.pmSetLongOption("output", 1, "o", "OUTPUT", "output target: archive, csv, stdout (default), or zabbix")
-        opts.pmSetLongOption("output-archive", 1, "F", "ARCHIVE", "output archive (with -o archive)")
+        opts.pmSetLongOption("output-file", 1, "F", "OUTFILE", "output file (with -o archive)")
         opts.pmSetLongOption("derived", 1, "e", "FILE|DFNT", "derived metrics definitions")
         #opts.pmSetLongOptionGuiMode()     # -g/--guimode # RHBZ#1289910
         opts.pmSetLongOptionDebug()        # -D/--debug
@@ -382,7 +382,7 @@ class PMReporter(object):
             if os.path.exists(optarg + ".index"):
                 sys.stderr.write("Archive %s already exists.\n" % optarg)
                 sys.exit(1)
-            self.archive = optarg
+            self.outfile = optarg
         elif opt == 'e':
             self.derived = optarg
         elif opt == 'H':
@@ -575,7 +575,7 @@ class PMReporter(object):
         if self.context.type == PM_CONTEXT_LOCAL:
             self.source = "@" # PCPIntro(1), RHBZ#1289911
 
-        if self.output == OUTPUT_ARCHIVE and not self.archive:
+        if self.output == OUTPUT_ARCHIVE and not self.outfile:
             sys.stderr.write("Archive must be defined with archive output.\n")
             sys.exit(1)
 
@@ -1066,15 +1066,16 @@ class PMReporter(object):
     def write_header(self):
         """ Write metrics header """
         if self.output == OUTPUT_ARCHIVE:
-            sys.stdout.write("Recording archive %s" % self.archive)
+            sys.stdout.write("Recording %s (%d metrics)" % (self.outfile, len(self.metrics)))
             if self.runtime != -1:
                 sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), self.runtime))
             elif self.samples:
                 duration = (self.samples - 1) * int(self.interval)
                 sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), duration))
             else:
+                sys.stdout.write("...")
                 if self.context.type != PM_CONTEXT_ARCHIVE:
-                    sys.stdout.write("... (Ctrl-C to stop)")
+                    sys.stdout.write(" (Ctrl-C to stop)")
                 sys.stdout.write("\n")
             return
 
@@ -1138,7 +1139,7 @@ class PMReporter(object):
 
         if self.pmi == None:
             # Create a new archive
-            self.pmi = pmi.pmiLogImport(self.archive)
+            self.pmi = pmi.pmiLogImport(self.outfile)
             if self.context.type == PM_CONTEXT_ARCHIVE:
                 self.pmi.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
                 self.pmi.pmiSetTimezone(self.context.pmGetArchiveLabel().tz)
