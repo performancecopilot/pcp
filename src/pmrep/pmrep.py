@@ -808,7 +808,7 @@ class PMReporter(object):
 
         # Printing format and headers
         if self.format == None:
-            self.define_format()
+            self.prepare_stdout()
 
         if self.extheader == 1:
             self.extheader = 0
@@ -972,8 +972,8 @@ class PMReporter(object):
         if self.output == OUTPUT_ZABBIX:
             self.write_zabbix(tstamp, values)
 
-    def define_format(self):
-        """ Define stdout format string """
+    def prepare_stdout(self):
+        """ Prepare stdout format string """
         index = 0
         if self.timestamp == 0:
             #self.format = "{:}{}"
