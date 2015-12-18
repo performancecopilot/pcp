@@ -188,7 +188,7 @@ class PMReporter(object):
         self.source = "local:"
         self.output = OUTPUT_STDOUT
         self.archive = None # output archive
-        self.log = None # pmi handle
+        self.pmi = None
         self.derived = None
         self.header = 1
         self.unitinfo = 1
@@ -1132,18 +1132,18 @@ class PMReporter(object):
         """ Write an archive record """
         if timestamp == None and values == None:
             # Complete and close
-            self.log.pmiEnd()
-            self.log = None
+            self.pmi.pmiEnd()
+            self.pmi = None
             return
 
-        if self.log == None:
+        if self.pmi == None:
             # Create a new archive
-            self.log = pmi.pmiLogImport(self.archive)
+            self.pmi = pmi.pmiLogImport(self.archive)
             if self.context.type == PM_CONTEXT_ARCHIVE:
-                self.log.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
-                self.log.pmiSetTimezone(self.context.pmGetArchiveLabel().tz)
+                self.pmi.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
+                self.pmi.pmiSetTimezone(self.context.pmGetArchiveLabel().tz)
             for i, metric in enumerate(self.metrics):
-                self.log.pmiAddMetric(metric,
+                self.pmi.pmiAddMetric(metric,
                                       self.pmids[i],
                                       self.descs[i].contents.type,
                                       self.descs[i].contents.indom,
@@ -1152,7 +1152,7 @@ class PMReporter(object):
                 ins = 0 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
                 try:
                     for j in range(ins):
-                        self.log.pmiAddInstance(self.descs[i].contents.indom, self.insts[i][1][j], self.insts[i][0][j])
+                        self.pmi.pmiAddInstance(self.descs[i].contents.indom, self.insts[i][1][j], self.insts[i][0][j])
                 except pmi.pmiErr as error:
                     if error.args[0] == PMI_ERR_DUPINSTNAME:
                         continue
@@ -1168,17 +1168,17 @@ class PMReporter(object):
                     if inst == None: # RHBZ#1285371
                         inst = ""
                     if self.descs[i].contents.type == PM_TYPE_STRING:
-                        self.log.pmiPutValue(metric, inst, str(values[i][j][2]))
+                        self.pmi.pmiPutValue(metric, inst, str(values[i][j][2]))
                     elif self.descs[i].contents.type == PM_TYPE_FLOAT or \
                          self.descs[i].contents.type == PM_TYPE_DOUBLE:
-                        self.log.pmiPutValue(metric, inst, "%f" % values[i][j][2])
+                        self.pmi.pmiPutValue(metric, inst, "%f" % values[i][j][2])
                     else:
-                        self.log.pmiPutValue(metric, inst, "%d" % values[i][j][2])
+                        self.pmi.pmiPutValue(metric, inst, "%d" % values[i][j][2])
 
         # Flush
         if data:
             # pylint: disable=maybe-no-member
-            self.log.pmiWrite(self.ctstamp.tv_sec, self.ctstamp.tv_usec)
+            self.pmi.pmiWrite(self.ctstamp.tv_sec, self.ctstamp.tv_usec)
 
     def write_csv(self, timestamp, values):
         """ Write results in CSV format """
@@ -1324,9 +1324,9 @@ class PMReporter(object):
 
     def finalize(self):
         """ Finalize and clean up """
-        if self.log:
-            self.log.pmiEnd()
-            self.log = None
+        if self.pmi:
+            self.pmi.pmiEnd()
+            self.pmi = None
 
 if __name__ == '__main__':
     try:
