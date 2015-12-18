@@ -61,8 +61,15 @@ in
 	;;
 esac
 
+# does sudo support -E?
+#
+# sudo usage in two forms ...
+#	sudo ... [-AbEHknPS] ...
+# or
+#	-E, --preserve-env
+#
 sudo=`which sudo`
-if $sudo -h | grep '.-E[, 	]' >/dev/null 2>&1
+if $sudo -h | egrep '(\[-[a-zA-DF-Z]*E[a-zA-Z]*\])|(.-E[, 	])' >/dev/null 2>&1
 then
     # sudo has -E to preserve the environment
     #
