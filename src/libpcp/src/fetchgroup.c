@@ -706,10 +706,25 @@ pmfg_fetch_item(pmFG pmfg, pmFGI item, pmResult * newResult)
 {
     int sts;
     pmAtomValue v;
+    int i;
 
     assert(item != NULL);
     assert(item->type == pmfg_item);
     assert(newResult != NULL);
+
+    /* If we have some values, then DISCRETE preserved values should
+       be cleared now. */
+    if (item->u.item.metric_desc.sem == PM_SEM_DISCRETE)
+        for (i = 0; i < newResult->numpmid; i++) {
+            if (newResult->vset[i]->pmid == item->u.item.metric_pmid) {
+                if (newResult->vset[i]->numval > 0) {
+                    pmfg_reinit_item(item);
+                    break;
+                } else if (newResult->vset[i]->numval == 0) {
+                    return; /* NB: leave outputs alone. */
+                }
+            }
+        }
 
     if (item->u.item.conv.rate_convert_p || item->u.item.conv.unit_convert_p) {
 	sts =
@@ -779,6 +794,15 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult * newResult)
     if (iv->numval < 0) {
 	sts = iv->numval;
 	goto out;
+    }
+
+    /* If we have some values, the DISCRETE preserved values should be
+       cleared now. */
+    if (item->u.indom.metric_desc.sem == PM_SEM_DISCRETE) {
+        if (iv->numval > 0)
+            pmfg_reinit_indom(item);
+        else /* = 0 */
+            return; /* NB: leave outputs alone. */
     }
 
     /* Analyze newResult to see whether it only contains instances we
@@ -1212,10 +1236,12 @@ pmFetchGroup(pmFG pmfg)
 		pmfg_reinit_timestamp(item);
 		break;
 	    case pmfg_item:
-		pmfg_reinit_item(item);
+                if (item->u.item.metric_desc.sem != PM_SEM_DISCRETE)
+                    pmfg_reinit_item(item); /* preserve DISCRETE */
 		break;
 	    case pmfg_indom:
-		pmfg_reinit_indom(item);
+                if (item->u.indom.metric_desc.sem != PM_SEM_DISCRETE)
+                    pmfg_reinit_indom(item); /* preserve DISCRETE */
 		break;
 	    default:
 		assert(0);	/* can't happen */

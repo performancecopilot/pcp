@@ -110,12 +110,13 @@ int pmGetFetchGroupContext(pmFG \fIpmfg\fP);
 .ft 1
 
 This function returns the private PMAPI context used by the given
-fetchgroup.  It may be used to adjust some configuration parameters of
-the context, such as via \fBpmSetMode\fP, but only before fetchgroup
-extension and fetching begins.
+fetchgroup.  It may be safely used to adjust some configuration
+parameters of the context, such as via \fBpmSetMode\fP, before
+fetchgroup extension and fetching begins.
 
-\fBWARNING:\fP \fIMutation\fP of this context by other PMAPI
-functions after this time may disrupt fetchgroup functionality.
+\fBWARNING:\fP \fIMutation\fP of this context by PMAPI functions after
+this time may disrupt fetchgroup functionality.  For example, a
+\fBpmSetMode\fP could invalidate one rate-conversion time-step.
 
 The normal function return code is the context number.
 
@@ -294,8 +295,19 @@ variables.
 
 The normal function return code is zero.  This function may fail in
 case of severe fetch errors, which are indicated with a negative
-return code.  Even in this case, the output variables will be reset to
-sentinel values with individual error codes set.
+return code.
+
+In the case of per-metric availability or conversion errors, or severe
+fetch errors, output variables are reset to sentinel values and
+individual error codes are set.  \fIPM_ERR_AGAIN\fP signals
+rate-conversion failure due to lack of a previous value.
+
+However, temporarily absent metrics with discrete semantics are exempt
+from some sentinel/error processing: if a \fBpmFetchGroup\fP fails to
+collect a result for a discrete metric (pmResult
+pmValueSet.numval==0), then the last seen valid value (if any) is
+retained.  This is intended to ease the processing of archives with a
+mixture of once- and repeatedly-sampled metrics.
 
 .SS destroying a fetchgroup
 

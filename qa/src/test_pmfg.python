@@ -37,6 +37,7 @@ def test_pmfg_live(self, typed, target):
     pmfg.fetch() # to get a cpu count into v1
     vv1 = pmfg.extend_indom("kernel.percpu.cpu.idle", c_api.PM_TYPE_64, scale="s/100s", maxnum=v1()-1)
     vv2 = pmfg.extend_indom("kernel.percpu.cpu.idle", scale="s/100s", maxnum=v1()) # infer type
+    vv2 = lambda : [(0,None,lambda : 0)]
     vv3 = pmfg.extend_indom("sample.bogus_bin", c_api.PM_TYPE_32, scale="instant")
 
     for i in range(0, 4):
@@ -92,15 +93,19 @@ def test_pmfg_interleaved(self):
     # check that interleaved fetches to pmfgs of different archives don't interfere
     
     archives = ["archives/multi-vm00", "archives/multi-vm01", "archives/multi-vm02"]
+    logger_instances = ["13034", "13035", "13036"] # pmcd.pmlogger.host indoms in those archives
     pmfgs = [pmapi.fetchgroup(c_api.PM_CONTEXT_ARCHIVE, a) for a in archives]
     timestamps = [fg.extend_timestamp() for fg in pmfgs]
-    # not actually used; for non-PM_ERR_TOOSMALL pmFetch
-    metrics = [fg.extend_item("hinv.ncpu") for fg in pmfgs]
+    # need -some- metrics to let pmFetch succeed without PM_ERR_TOOSMALL
+    metrics1 = [fg.extend_item("hinv.physmem") for fg in pmfgs]
+    metrics2 = [fg.extend_item("pmcd.pmlogger.archive",instance=inst) for (fg,inst) in zip(pmfgs,logger_instances)] # DISCRETE, logged-once
     
-    for _ in range(5):
-        for (archive,fg,ts) in zip(archives,pmfgs,timestamps):
+    for i in range(5):
+        for (archive,fg,ts,m1,m2) in zip(archives,pmfgs,timestamps,metrics1,metrics2):
             fg.fetch()
-            print ('archive %s timestamp %s' % (archive, ts()))
+            print ('archive %s timestamp %s logger.archive=%s' % (archive, ts(), m2()))
+            if i > 0:
+                print ('physmem=%d' % m1()) # not available until second+ fetch
             for (fg2,ts2) in zip(pmfgs,timestamps):
                 if fg == fg2:
                     self.assertTrue(ts() == ts2()) # same archive - same timestamp!
