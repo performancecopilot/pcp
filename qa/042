@@ -33,10 +33,10 @@ _filter_pminfo()
     # filter ip_vti tunnel type connections that may exist on (some) machines
     tee -a $here/$seq.full |
     sed \
+	-e '/ip_vti/d' \
 	-e 's/\[[0-9][0-9]* or ".*"\]/[INST or NAME]/' \
 	-e 's/value [-?0-9.e+][-?0-9.e+]*/value NUMBER/' \
 	-e 's/value ".*"$/value STRING/' \
-	-e '/ip_vti/d' \
     #end
 }
 
