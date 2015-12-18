@@ -50,7 +50,12 @@ pmrep -s 5 -t 2 $log -c $tmp.config -r sample
 
 echo "== exercise CSV and alternate delimiters"
 pmrep -s 5 -t 2 $log -c $tmp.config -o csv -p -P 1 sample
-pmrep -s 5 -t 2 $log -c $tmp.config -o csv --delimiter '|' sample
+pmrep -s 5 -t 2 $log -c $tmp.config -o csv --delimiter '|' sample | \
+    tee -a $tmp.out1
+echo "== compare output-to-file versus stdout"
+pmrep -s 5 -t 2 $log -c $tmp.config -o csv --delimiter '|' -F $tmp.out2 sample
+diff $tmp.out1 $tmp.out2
+test $? -eq 0 && echo ok
 
 echo "== exercise repeated headers option"
 pmrep -s 5 -t 2 $log -E 2 sample.seconds

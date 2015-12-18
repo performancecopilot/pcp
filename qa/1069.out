@@ -47,6 +47,8 @@ Time|sample.seconds|sample.milliseconds
 2000-05-01 20:36:49|380436|380435679.381
 2000-05-01 20:36:51|380438|380437679.382
 2000-05-01 20:36:53|380440|380439679.413
+== compare output-to-file versus stdout
+ok
 == exercise repeated headers option
   s.seconds
        util

@@ -986,7 +986,7 @@ class PMReporter(object):
                self.outfile == None:
                 self.writer = sys.stdout
             else:
-                self.writer = open(self.outfile, 'wb')
+                self.writer = open(self.outfile, 'wt')
         return self.writer
 
     def prepare_stdout(self):
@@ -1342,6 +1342,8 @@ class PMReporter(object):
 
     def finalize(self):
         """ Finalize and clean up """
+        if self.writer:
+            self.writer.flush()
         if self.pmi:
             self.pmi.pmiEnd()
             self.pmi = None
