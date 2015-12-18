@@ -442,6 +442,12 @@ s/\.\.\.[. ]*failed/.../
 s/Performance Co-Pilot starting PMCD (logfile is [^)]*) .../Starting pmcd ... /
 s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
 }' \
+	-e '/^Starting pmcd/{
+s/\.\.\. \.\.done/... /
+}' \
+	-e '/^Starting pmlogger/{
+s/\.\.\. \.\.done/... /
+}' \
 	-e '/^Performance Co-Pilot installing/s//Installing/' \
         -e '/^\.[. ]*done$/d' \
         -e '/^\.[. ]*failed$/d' \
