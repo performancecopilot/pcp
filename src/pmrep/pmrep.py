@@ -188,6 +188,7 @@ class PMReporter(object):
         self.source = "local:"
         self.output = OUTPUT_STDOUT
         self.outfile = None
+        self.writer = None
         self.pmi = None
         self.derived = None
         self.header = 1
@@ -319,7 +320,7 @@ class PMReporter(object):
         opts.pmSetLongOption("config", 1, "c", "FILE", "config file path")
         opts.pmSetLongOption("check", 0, "C", "", "check config and metrics and exit")
         opts.pmSetLongOption("output", 1, "o", "OUTPUT", "output target: archive, csv, stdout (default), or zabbix")
-        opts.pmSetLongOption("output-file", 1, "F", "OUTFILE", "output file (with -o archive)")
+        opts.pmSetLongOption("output-file", 1, "F", "OUTFILE", "output file")
         opts.pmSetLongOption("derived", 1, "e", "FILE|DFNT", "derived metrics definitions")
         #opts.pmSetLongOptionGuiMode()     # -g/--guimode # RHBZ#1289910
         opts.pmSetLongOptionDebug()        # -D/--debug
@@ -381,6 +382,9 @@ class PMReporter(object):
         elif opt == 'F':
             if os.path.exists(optarg + ".index"):
                 sys.stderr.write("Archive %s already exists.\n" % optarg)
+                sys.exit(1)
+            if os.path.exists(optarg):
+                sys.stderr.write("File %s already exists.\n" % optarg)
                 sys.exit(1)
             self.outfile = optarg
         elif opt == 'e':
@@ -801,15 +805,17 @@ class PMReporter(object):
             self.delay = 1
             self.interpol = 1
 
-        # DBG_TRACE_APPL1 == 4096
-        if "pmDebug" in dir(self.context) and self.context.pmDebug(4096):
-            print("Known config file keywords: " + str(self.keys))
-            print("Known metric spec keywords: " + str(self.metricspec))
-
-        # Printing format and headers
-        if self.format == None:
+        # Print preparation
+        self.prepare_writer()
+        if self.output == OUTPUT_STDOUT:
             self.prepare_stdout()
 
+        # DBG_TRACE_APPL1 == 4096
+        if "pmDebug" in dir(self.context) and self.context.pmDebug(4096):
+            self.writer.write("Known config file keywords: " + str(self.keys) + "\n")
+            self.writer.write("Known metric spec keywords: " + str(self.metricspec) + "\n")
+
+        # Headers
         if self.extheader == 1:
             self.extheader = 0
             self.write_ext_header()
@@ -972,8 +978,19 @@ class PMReporter(object):
         if self.output == OUTPUT_ZABBIX:
             self.write_zabbix(tstamp, values)
 
+    def prepare_writer(self):
+        """ Prepare generic stdout writer """
+        if not self.writer:
+            if self.output == OUTPUT_ARCHIVE or \
+               self.output == OUTPUT_ZABBIX or \
+               self.outfile == None:
+                self.writer = sys.stdout
+            else:
+                self.writer = open(self.outfile, 'wb')
+        return self.writer
+
     def prepare_stdout(self):
-        """ Prepare stdout format string """
+        """ Prepare stdout output """
         index = 0
         if self.timestamp == 0:
             #self.format = "{:}{}"
@@ -1047,43 +1064,43 @@ class PMReporter(object):
                 timezone = self.context.pmGetArchiveLabel().tz
                 timezone += " (creation, current is " + currtz + ")"
 
-        print(comm)
+        self.writer.write(comm + "\n")
         if self.context.type == PM_CONTEXT_ARCHIVE:
-            print(comm + "  archive: " + self.source)
-        print(comm + "     host: " + host)
-        print(comm + " timezone: " + timezone)
-        print(comm + "    start: " + time.asctime(time.localtime(self.opts.pmGetOptionStart())))
-        print(comm + "      end: " + time.asctime(time.localtime(endtime)))
-        print(comm + "  samples: " + str(samples))
+            self.writer.write(comm + "  archive: " + self.source + "\n")
+        self.writer.write(comm + "     host: " + host + "\n")
+        self.writer.write(comm + " timezone: " + timezone + "\n")
+        self.writer.write(comm + "    start: " + time.asctime(time.localtime(self.opts.pmGetOptionStart())) + "\n")
+        self.writer.write(comm + "      end: " + time.asctime(time.localtime(endtime)) + "\n")
+        self.writer.write(comm + "  samples: " + str(samples) + "\n")
         if not (self.context.type == PM_CONTEXT_ARCHIVE and not self.interpol):
-            print(comm + " interval: " + str(float(self.interval)) + " sec")
-            print(comm + " duration: " + str(duration) + " sec")
+            self.writer.write(comm + " interval: " + str(float(self.interval)) + " sec\n")
+            self.writer.write(comm + " duration: " + str(duration) + " sec\n")
         else:
-            print(comm + " interval: N/A")
-            print(comm + " duration: N/A")
-        print(comm)
+            self.writer.write(comm + " interval: N/A\n")
+            self.writer.write(comm + " duration: N/A\n")
+        self.writer.write(comm + "\n")
 
     def write_header(self):
         """ Write metrics header """
         if self.output == OUTPUT_ARCHIVE:
-            sys.stdout.write("Recording %s (%d metrics)" % (self.outfile, len(self.metrics)))
+            self.writer.write("Recording %s (%d metrics)" % (self.outfile, len(self.metrics)))
             if self.runtime != -1:
-                sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), self.runtime))
+                self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), self.runtime))
             elif self.samples:
                 duration = (self.samples - 1) * int(self.interval)
-                sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), duration))
+                self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), duration))
             else:
-                sys.stdout.write("...")
+                self.writer.write("...")
                 if self.context.type != PM_CONTEXT_ARCHIVE:
-                    sys.stdout.write(" (Ctrl-C to stop)")
-                sys.stdout.write("\n")
+                    self.writer.write(" (Ctrl-C to stop)")
+                self.writer.write("\n")
             return
 
         if self.output == OUTPUT_CSV:
-            sys.stdout.write("Time")
+            self.writer.write("Time")
             for metric in self.metrics:
-                sys.stdout.write(self.delimiter + metric)
-            sys.stdout.write("\n")
+                self.writer.write(self.delimiter + metric)
+            self.writer.write("\n")
 
         if self.output == OUTPUT_STDOUT:
             names = ["", self.delimiter] # no timestamp on header line
@@ -1106,28 +1123,28 @@ class PMReporter(object):
             del names[-1]
             del units[-1]
             del insts[-1]
-            print(self.format.format(*tuple(names)))
+            self.writer.write(self.format.format(*tuple(names)) + "\n")
             if prnti == 1:
-                print(self.format.format(*tuple(insts)))
+                self.writer.write(self.format.format(*tuple(insts)) + "\n")
             if self.unitinfo:
-                print(self.format.format(*tuple(units)))
+                self.writer.write(self.format.format(*tuple(units)) + "\n")
 
         if self.output == OUTPUT_ZABBIX:
             if self.context.type == PM_CONTEXT_ARCHIVE:
                 self.delay = 0
                 self.interpol = 0
                 self.zabbix_interval = 250 # See zabbix_sender(8)
-                sys.stdout.write("Sending archived metrics to Zabbix server %s...\n(Ctrl-C to stop)\n" % self.zabbix_server)
+                self.writer.write("Sending archived metrics to Zabbix server %s...\n(Ctrl-C to stop)\n" % self.zabbix_server)
                 return
 
-            sys.stdout.write("Sending metrics to Zabbix server %s every %d sec" % (self.zabbix_server, self.zabbix_interval))
+            self.writer.write("Sending metrics to Zabbix server %s every %d sec" % (self.zabbix_server, self.zabbix_interval))
             if self.runtime != -1:
-                sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), self.runtime))
+                self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), self.runtime))
             elif self.samples:
                 duration = (self.samples - 1) * int(self.interval)
-                sys.stdout.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), duration))
+                self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), duration))
             else:
-                sys.stdout.write("...\n(Ctrl-C to stop)\n")
+                self.writer.write("...\n(Ctrl-C to stop)\n")
 
     def write_archive(self, timestamp, values):
         """ Write an archive record """
@@ -1198,8 +1215,7 @@ class PMReporter(object):
                     line += format(list(values[i])[j][2], fmt)
                 else:
                     line += str(list(values[i])[j][2])
-        sys.stdout.write(line)
-        sys.stdout.write("\n")
+        self.writer.write(line + "\n")
 
     def write_stdout(self, timestamp, values):
         """ Write a line to stdout """
@@ -1275,7 +1291,7 @@ class PMReporter(object):
                 line.append(self.delimiter)
 
         del line[-1]
-        #print('{}'.join(fmt).format(*tuple(line)))
+        #self.writer.write('{}'.join(fmt).format(*tuple(line)) + "\n")
         index = 0
         nfmt = ""
         for f in fmt:
@@ -1285,7 +1301,7 @@ class PMReporter(object):
             index += 1
         l = len(str(index-1)) + 2
         nfmt = nfmt[:-l]
-        print(nfmt.format(*tuple(line)))
+        self.writer.write(nfmt.format(*tuple(line)) + "\n")
 
     def write_zabbix(self, timestamp, values):
         """ Write (send) metrics to a Zabbix server """
