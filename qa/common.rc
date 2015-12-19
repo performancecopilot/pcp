@@ -69,7 +69,7 @@ esac
 #	-E, --preserve-env
 #
 sudo=`which sudo`
-if $sudo -h | egrep '(\[-[a-zA-DF-Z]*E[a-zA-Z]*\])|(.-E[, 	])' >/dev/null 2>&1
+if $sudo -h 2>&1 | egrep '(\[-[a-zA-DF-Z]*E[a-zA-Z]*\])|(.-E[, 	])' >/dev/null 2>&1
 then
     # sudo has -E to preserve the environment
     #
