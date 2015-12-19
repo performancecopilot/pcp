@@ -412,6 +412,7 @@ then
 else
     echo "Error: QA $what failed!" | tee -a \$HOME/daily.log
 fi
+date >>\$HOME/daily.log
 End-of-File
 }
 
