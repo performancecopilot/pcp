@@ -107,6 +107,11 @@ End-of-File
 	    if [ $i = 10 ]
 	    then
 		echo "Arrgh ... pmlogger (pid=$pid) on host $host failed to start after 20 seconds"
+		ssh -q pcpqa@$host ps -ef | grep pmlogger
+		ssh -q pcpqa@$host ls -l /tmp/$base.*
+		ssh -q pcpqa@$host pmdumplog -a /tmp/$base
+		ssh -q pcpqa@$host cat /tmp/$base.log
+		sleep 60
 		exit 1
 	    fi
 	fi

@@ -76,7 +76,8 @@ Basic getting started
         executable without full pathnames.  Of most concern would be
         auxilliary directory (usually /usr/pcp/bin, /usr/share/pcp/bin or
         /usr/libexec/pcp/bin) where commands like pmlogger(1), pmhostname(1),
-        mkaf(1), etc.) are installed.
+        mkaf(1), etc.) are installed. And finally, the "pcpqa" user needs
+	to be included in the group "pcp".
 
     Once you've modified common.config and qa_hosts.master, then run
     "chk.setup" to validate the settings.
