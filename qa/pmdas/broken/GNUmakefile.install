@@ -40,8 +40,7 @@ endif
 CFILES		= broken_pmda.c
 CFILES_TARGETS	= $(CFILES)
 
-TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS)))
-INSTALLED_TARGETS = \
+TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
 	broken_pmda_2_0 broken_v2.dir broken_pmda_2_1 broken_pmda_2_2 \
 	broken_pmda_2_3 broken_pmda_2_4 broken_pmda_2_5 
 
@@ -51,14 +50,13 @@ LDIRT	= *.log help.pag help.dir $(subst .c,.o,$(CFILES)) \
 	broken_pmda_*.c real_broken_pmns broken_v?.dir broken_v?.pag \
 	$(TARGETS)
 
-default default_pcp setup:
+default default_pcp setup: $(TARGETS)
 
 MYFILES = broken_help broken_pmns
 MYSCRIPTS = broken_Install broken_Remove
 
 include $(PCP_INC_DIR)/buildrules
 
-$(TARGETS) $(INSTALLED_TARGETS):
 
 install install_pcp:
 
