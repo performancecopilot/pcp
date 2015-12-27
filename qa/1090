@@ -17,6 +17,7 @@ which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
 _cleanup()
 {
     cd $here
+    $sudo $PCP_RC_DIR/pmwebd stop >>$here/$seq.full 2>&1
     $sudo $PCP_RC_DIR/pcp start >>$here/$seq.full 2>&1
     _wait_for_pmcd
     _wait_for_pmlogger
@@ -66,6 +67,10 @@ _get_metrics()
 	cat $tmp.out; echo
     fi
 }
+
+$sudo $PCP_RC_DIR/pmwebd stop >>$here/$seq.full 2>&1
+$sudo $PCP_RC_DIR/pmwebd start
+_wait_for_pmwebd 44323
 
 # real QA test starts here
 ctx1=`_get_context`
