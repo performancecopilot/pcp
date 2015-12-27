@@ -101,6 +101,16 @@ curl -s -S "http://localhost:$webport/graphite/render?width=999&height=999&hideL
 _webapi_img_pretty $tmp.png
 curl -s -S "http://localhost:$webport/graphite/render?width=999&height=999&target=*archive*20150417*.proc.nprocs&from=09:30_20150417&until=23:00_20150417" > $tmp.png
 _webapi_img_pretty $tmp.png
+# until=now should trigger redirect
+curl -s -S "http://localhost:$webport/graphite/render?width=999&height=999&target=*archive*20150417*.proc.nprocs&from=09:30_20150417&until=now" > $tmp.png
+if [ -s $tmp.png ]; then
+    echo unexpected png
+    _webapi_img_pretty $tmp.png
+else
+    echo expected empty/absent png
+fi
+curl -L -s -S "http://localhost:$webport/graphite/render?width=999&height=999&target=*archive*20150417*.proc.nprocs&from=09:30_20150417&until=now" > $tmp.png
+_webapi_img_pretty $tmp.png
 
 # tidy up
 cat $tmp.out >> $seq.full

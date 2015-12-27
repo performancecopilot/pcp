@@ -88,9 +88,9 @@ pmwebres_respond (struct MHD_Connection *connectio, const http_params &,
 // pmgraphite.cxx
 extern int
 pmgraphite_respond (struct MHD_Connection *connection, const http_params &,
-                    const std::vector <std::string> &url);
+                    const std::vector <std::string> &url, const std::string& url0);
 #else
-#define pmgraphite_respond(conn,params,url) mhd_notify_error(conn, -EOPNOTSUPP)
+#define pmgraphite_respond(conn,params,url,url0) mhd_notify_error(conn, -EOPNOTSUPP)
 #endif
 
 // util.cxx

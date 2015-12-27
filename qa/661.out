@@ -230,38 +230,38 @@ metric tree iteration
 }
 
 metric regex grep 1
-archives/960624%2E08%2E17_v2.disk.dev.active.dks131d1
-archives/960624%2E08%2E17_v2.disk.dev.active.dks131d2
-archives/960624%2E08%2E17_v2.disk.dev.active.dks131d3
-archives/960624%2E08%2E17_v2.disk.dev.active.dks131d4
-archives/960624%2E08%2E17_v2.disk.dev.blkread.dks131d1
-archives/960624%2E08%2E17_v2.disk.dev.blkread.dks131d2
-archives/960624%2E08%2E17_v2.disk.dev.blkread.dks131d3
-archives/960624%2E08%2E17_v2.disk.dev.blkread.dks131d4
-archives/960624%2E08%2E17_v2.disk.dev.blktotal.dks131d1
-archives/960624%2E08%2E17_v2.disk.dev.blktotal.dks131d2
-archives/960624%2E08%2E17_v2.disk.dev.blktotal.dks131d3
-archives/960624%2E08%2E17_v2.disk.dev.blktotal.dks131d4
-archives/960624%2E08%2E17_v2.disk.dev.blkwrite.dks131d1
-archives/960624%2E08%2E17_v2.disk.dev.blkwrite.dks131d2
-archives/960624%2E08%2E17_v2.disk.dev.blkwrite.dks131d3
-archives/960624%2E08%2E17_v2.disk.dev.blkwrite.dks131d4
-archives/960624%2E08%2E17_v2.disk.dev.read.dks131d1
-archives/960624%2E08%2E17_v2.disk.dev.read.dks131d2
-archives/960624%2E08%2E17_v2.disk.dev.read.dks131d3
-archives/960624%2E08%2E17_v2.disk.dev.read.dks131d4
-archives/960624%2E08%2E17_v2.disk.dev.response.dks131d1
-archives/960624%2E08%2E17_v2.disk.dev.response.dks131d2
-archives/960624%2E08%2E17_v2.disk.dev.response.dks131d3
-archives/960624%2E08%2E17_v2.disk.dev.response.dks131d4
-archives/960624%2E08%2E17_v2.disk.dev.total.dks131d1
-archives/960624%2E08%2E17_v2.disk.dev.total.dks131d2
-archives/960624%2E08%2E17_v2.disk.dev.total.dks131d3
-archives/960624%2E08%2E17_v2.disk.dev.total.dks131d4
-archives/960624%2E08%2E17_v2.disk.dev.write.dks131d1
-archives/960624%2E08%2E17_v2.disk.dev.write.dks131d2
-archives/960624%2E08%2E17_v2.disk.dev.write.dks131d3
-archives/960624%2E08%2E17_v2.disk.dev.write.dks131d4
+archives/960624~2E08~2E17_v2.disk.dev.active.dks131d1
+archives/960624~2E08~2E17_v2.disk.dev.active.dks131d2
+archives/960624~2E08~2E17_v2.disk.dev.active.dks131d3
+archives/960624~2E08~2E17_v2.disk.dev.active.dks131d4
+archives/960624~2E08~2E17_v2.disk.dev.blkread.dks131d1
+archives/960624~2E08~2E17_v2.disk.dev.blkread.dks131d2
+archives/960624~2E08~2E17_v2.disk.dev.blkread.dks131d3
+archives/960624~2E08~2E17_v2.disk.dev.blkread.dks131d4
+archives/960624~2E08~2E17_v2.disk.dev.blktotal.dks131d1
+archives/960624~2E08~2E17_v2.disk.dev.blktotal.dks131d2
+archives/960624~2E08~2E17_v2.disk.dev.blktotal.dks131d3
+archives/960624~2E08~2E17_v2.disk.dev.blktotal.dks131d4
+archives/960624~2E08~2E17_v2.disk.dev.blkwrite.dks131d1
+archives/960624~2E08~2E17_v2.disk.dev.blkwrite.dks131d2
+archives/960624~2E08~2E17_v2.disk.dev.blkwrite.dks131d3
+archives/960624~2E08~2E17_v2.disk.dev.blkwrite.dks131d4
+archives/960624~2E08~2E17_v2.disk.dev.read.dks131d1
+archives/960624~2E08~2E17_v2.disk.dev.read.dks131d2
+archives/960624~2E08~2E17_v2.disk.dev.read.dks131d3
+archives/960624~2E08~2E17_v2.disk.dev.read.dks131d4
+archives/960624~2E08~2E17_v2.disk.dev.response.dks131d1
+archives/960624~2E08~2E17_v2.disk.dev.response.dks131d2
+archives/960624~2E08~2E17_v2.disk.dev.response.dks131d3
+archives/960624~2E08~2E17_v2.disk.dev.response.dks131d4
+archives/960624~2E08~2E17_v2.disk.dev.total.dks131d1
+archives/960624~2E08~2E17_v2.disk.dev.total.dks131d2
+archives/960624~2E08~2E17_v2.disk.dev.total.dks131d3
+archives/960624~2E08~2E17_v2.disk.dev.total.dks131d4
+archives/960624~2E08~2E17_v2.disk.dev.write.dks131d1
+archives/960624~2E08~2E17_v2.disk.dev.write.dks131d2
+archives/960624~2E08~2E17_v2.disk.dev.write.dks131d3
+archives/960624~2E08~2E17_v2.disk.dev.write.dks131d4
 
 metric regex grep 2
 archives/archive-20141125-000009.hinv.cpu.bogomips.cpu0,archives/archive-20141125-000009.hinv.cpu.bogomips.cpu1,archives/archive-20141125-000009.hinv.cpu.bogomips.cpu2,archives/archive-20141125-000009.hinv.cpu.bogomips.cpu3,archives/archive-20141125-000009.hinv.cpu.cache.cpu0,archives/archive-20141125-000009.hinv.cpu.cache.cpu1,archives/archive-20141125-000009.hinv.cpu.cache.cpu2,archives/archive-20141125-000009.hinv.cpu.cache.cpu3,archives/archive-20141125-000009.hinv.cpu.cache_alignment.cpu0,archives/archive-20141125-000009.hinv.cpu.cache_alignment.cpu1,archives/archive-20141125-000009.hinv.cpu.cache_alignment.cpu2,archives/archive-20141125-000009.hinv.cpu.cache_alignment.cpu3,archives/archive-20141125-000009.hinv.cpu.clock.cpu0,archives/archive-20141125-000009.hinv.cpu.clock.cpu1,archives/archive-20141125-000009.hinv.cpu.clock.cpu2,archives/archive-20141125-000009.hinv.cpu.clock.cpu3,archives/archive-20141125-000009.hinv.cpu.online.cpu0,archives/archive-20141125-000009.hinv.cpu.online.cpu1,archives/archive-20141125-000009.hinv.cpu.online.cpu2,archives/archive-20141125-000009.hinv.cpu.online.cpu3,archives/archive-20141125-000009.hinv.map.cpu_node.cpu0,archives/archive-20141125-000009.hinv.map.cpu_node.cpu1,archives/archive-20141125-000009.hinv.map.cpu_node.cpu2,archives/archive-20141125-000009.hinv.map.cpu_node.cpu3,archives/archive-20141125-000009.hinv.map.cpu_num.cpu0,archives/archive-20141125-000009.hinv.map.cpu_num.cpu1,archives/archive-20141125-000009.hinv.map.cpu_num.cpu2,archives/archive-20141125-000009.hinv.map.cpu_num.cpu3,archives/archive-20141125-000009.hinv.ncpu,archives/archive-20141125-000009.hinv.ndisk,archives/archive-20141125-000009.hinv.nfilesys,archives/archive-20141125-000009.hinv.ninterface,archives/archive-20141125-000009.hinv.nnode,archives/archive-20141125-000009.hinv.node.online.node0,archives/archive-20141125-000009.hinv.pagesize,archives/archive-20141125-000009.hinv.physmem
@@ -671,7 +671,7 @@ metric value dump 1
                 1385585715
             ]
         ],
-        "target": "archives/node_archive.proc.psinfo.pid.001472 /usr/bin/python /ifs/user/tyearke/test/%2E/wait_launcher%2Epy"
+        "target": "archives/node_archive.proc.psinfo.pid.001472 /usr/bin/python /ifs/user/tyearke/test/~2E/wait_launcher~2Epy"
     },
     {
         "datapoints": [
@@ -1076,7 +1076,7 @@ metric value dump 1
                 1385585715
             ]
         ],
-        "target": "archives/node_archive.proc.psinfo.pid.001503 /usr/bin/python /ifs/user/tyearke/test/wait%2Epy"
+        "target": "archives/node_archive.proc.psinfo.pid.001503 /usr/bin/python /ifs/user/tyearke/test/wait~2Epy"
     },
     {
         "datapoints": [
@@ -1481,7 +1481,7 @@ metric value dump 1
                 1385585715
             ]
         ],
-        "target": "archives/node_archive.proc.psinfo.pid.001516 /usr/bin/python /ifs/user/tyearke/test/wait%2Epy"
+        "target": "archives/node_archive.proc.psinfo.pid.001516 /usr/bin/python /ifs/user/tyearke/test/wait~2Epy"
     },
     {
         "datapoints": [
@@ -1886,7 +1886,7 @@ metric value dump 1
                 1385585715
             ]
         ],
-        "target": "archives/node_archive.proc.psinfo.pid.001533 /usr/bin/python /ifs/user/tyearke/test/wait%2Epy"
+        "target": "archives/node_archive.proc.psinfo.pid.001533 /usr/bin/python /ifs/user/tyearke/test/wait~2Epy"
     }
 ]
 
@@ -2196,7 +2196,7 @@ metric value dump 2
             null
         ],
         "end": 1385683200,
-        "name": "archives/node_archive.proc.psinfo.pid.001472 /usr/bin/python /ifs/user/tyearke/test/%2E/wait_launcher%2Epy",
+        "name": "archives/node_archive.proc.psinfo.pid.001472 /usr/bin/python /ifs/user/tyearke/test/~2E/wait_launcher~2Epy",
         "start": 1385510400,
         "step": 577
     },
@@ -2504,7 +2504,7 @@ metric value dump 2
             null
         ],
         "end": 1385683200,
-        "name": "archives/node_archive.proc.psinfo.pid.001503 /usr/bin/python /ifs/user/tyearke/test/wait%2Epy",
+        "name": "archives/node_archive.proc.psinfo.pid.001503 /usr/bin/python /ifs/user/tyearke/test/wait~2Epy",
         "start": 1385510400,
         "step": 577
     },
@@ -2812,7 +2812,7 @@ metric value dump 2
             null
         ],
         "end": 1385683200,
-        "name": "archives/node_archive.proc.psinfo.pid.001516 /usr/bin/python /ifs/user/tyearke/test/wait%2Epy",
+        "name": "archives/node_archive.proc.psinfo.pid.001516 /usr/bin/python /ifs/user/tyearke/test/wait~2Epy",
         "start": 1385510400,
         "step": 577
     },
@@ -3120,7 +3120,7 @@ metric value dump 2
             null
         ],
         "end": 1385683200,
-        "name": "archives/node_archive.proc.psinfo.pid.001533 /usr/bin/python /ifs/user/tyearke/test/wait%2Epy",
+        "name": "archives/node_archive.proc.psinfo.pid.001533 /usr/bin/python /ifs/user/tyearke/test/wait~2Epy",
         "start": 1385510400,
         "step": 577
     }
@@ -3133,8 +3133,11 @@ size=999x999
 
 size=999x999
 
+expected empty/absent png
+size=999x999
 
-metric value dump 1 without X
+
+metric value dump 1 without -X
 [
     {
         "datapoints": [
