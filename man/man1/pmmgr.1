@@ -30,9 +30,9 @@ manages a collection of PCP daemons for a set of discovered local and
 remote hosts running the Performance Metrics Collection Daemon (PMCD),
 according to zero or more configuration directories.  It keeps a
 matching set of
-.BR pmlogger " and/or " pmie
-daemons running, and their archives/logs merged/rotated.  It supplants
-the older
+.BR pmlogger ", " pmie ","
+and other clients/daemons running, and their archives/logs merged/rotated.  It
+supplants the older
 .BR pmlogger_* " and " pmie_*
 check/daily management shell scripts.
 .P
@@ -47,9 +47,10 @@ follows:
 .B \-c
 .I directory
 adds a given configuration directory to pmmgr.  pmmgr can supervise
-multiple different configurations at the same time.  Errors in the
-configuration may be noted to standard error, but pmmgr will fill in
-missing information with built-in defaults.  The default directory is
+multiple different configurations at the same time, so this option may
+be repeated.  Errors in the configuration may be noted to standard
+error, but pmmgr will fill in missing information with built-in
+defaults.  The default directory is
 .I $PCP_SYSCONF_DIR/pmmgr
 .TP
 .B \-p
@@ -156,11 +157,10 @@ five seconds each time).
 subtarget\-containers
 If this file exists, pmmgr will scan each host that is found for
 running containers.  For each running container, it will create
-independent subtargets for running pmlogger instances.
+independent subtargets for running requested daemons.
 The host-id string for these subtargets is the host's host-id
 string, followed by a double-hyphen, then the full unique container
-instance-name string.  (Temporarily, pmie instances are not attempted
-for these subtargets, due to PCP bug PR1105.)
+instance-name string.
 
 .TP
 log\-subdirectory\-gc
@@ -330,6 +330,24 @@ default is
 .BR "no pmieconf" ,
 so instead, the pmie file above should probably contain a \-c option, to
 specify a fixed pmie configuration.
+
+.SS MONITOR DAEMON MANAGEMENT
+
+In addition to pmlogger and pmie, pmmgr may be used to invoke arbitrary pcp client
+programs for each target pmcd.  This can enable automated invocation of reporting
+or relaying tools, such as
+.BR pmrep " or " pcp2graphite ", "
+without needing a specialized system service.
+
+.TP
+monitor
+If this file exists, then for each line in this file, a new background process will
+be invoked.  (It is restarted if it exits.)  The line specifies the beginning of the
+command line (including the program name); pmmgr appends a \-h HOSTSPEC, and arranges
+to collect the standard output and standard error into separate
+.BR monitor-NN.out " and " monitor-NN.err
+files under the log directory.
+
 
 .SH FILES
 .PD 0
