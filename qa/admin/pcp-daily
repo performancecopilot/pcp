@@ -129,6 +129,10 @@ else
     echo "Error: pcp git checkout $pcp_branch failed!" | tee -a \$HOME/daily.log
     exit 1
 fi
+# on some VMs, there is a problem with the shutdown that deletes
+# some files which causes the subsequent Makepkgs to fail ... try
+# to recover from this
+git status -s | awk '\$1 == "D" { print \$2 }' | xargs git checkout
 if git pull >>\$HOME/daily.log 2>&1
 then
     echo "Info: pcp git pull" | tee -a \$HOME/daily.log
