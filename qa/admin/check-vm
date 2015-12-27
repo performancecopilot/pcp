@@ -180,17 +180,20 @@ pkgin?	gmake			[gmake]
 
 # optional executables
 #
-dpkg?	dpkg-buildpackage	[dpkg-dev]
-dpkg?	dh			[debhelper]
 dpkg?	chrpath			[chrpath]
 dpkg?	sysv-rc-conf		[sysv-rc-conf]
 rpm?	rpmbuild		[rpm-build]
 
 # other build prerequisites
 #
+dpkg?	dpkg-buildpackage		[dpkg-dev]
+dpkg?	dh_autotools-dev_updateconfig	[autotools-dev]
+dpkg?	/usr/share/doc/build-essential	[build-essential]
+dpkg?	dh				[debhelper]
+dpkg?	/usr/share/doc/python-all-dev	[python-all-dev]
+# -- pkg-config
 dpkg?	/usr/share/doc/pkg-config	[pkg-config]
 pkgin?	/usr/pkg/share/doc/pkg-config	[pkg-config]
-dpkg?	/usr/share/doc/python-all-dev	[python-all-dev]
 # -- libmicrohttpd
 dpkg?	/usr/include/microhttpd.h	[libmicrohttpd-dev (build optional)]
 rpm?	/usr/include/microhttpd.h	[libmicrohttpd-devel (build optional)]
@@ -312,7 +315,7 @@ rpm?	Spreadsheet::XLSX	[perl-Spreadsheet-XLSX or 'perl(Spreadsheet::XLSX)' or fr
 emerge?	Spreadsheet::XLSX	[from cpan (QA optional)]
 pkgin?	Spreadsheet::XLSX	[p5-Spreadsheet-XLSX]
 # -- Text::CSV_XS
-dpkg?	Text::CSV_XS		[Text-CSV_XS (QA optional)]
+dpkg?	Text::CSV_XS		[from cpan (QA optional)]
 rpm?	Text::CSV_XS		[perl-Text-CSV_XS or 'perl(Text::CSV_XS)'] (QA optional)]
 emerge?	Text::CSV_XS		[dev-perl/Text-CSV_XS (QA optional)]
 pkgin?	Text::CSV_XS		[p5-Text-CSV_XS]
@@ -324,7 +327,7 @@ pkgin?	JSON::			[p5-JSON]
 # -- LWP::UserAgent
 dpkg?	LWP::UserAgent		[libwww-perl]
 rpm?	LWP::UserAgent		[perl-libwww-perl or 'perl(LWP::UserAgent)']
-emerge?	LWP::UserAgent		[?]
+emerge?	LWP::UserAgent		[from cpan]
 pkgin?	LWP::UserAgent		[?]
 #
 # other run-time
@@ -403,7 +406,7 @@ dpkg?	qmake			[qt4-qmake (build optional)]
 rpm?	qmake|/usr/lib*/qt4/bin/qmake		[qt4-devel (build optional)]
 emerge?	qmake|/usr/lib*/qt4/bin/qmake		[dev-qt/qtchooser (build optional)]
 pkgin?	/usr/pkg/qt4/bin/qmake		[qt4-tools (build optional)]
-dpkg?	/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[? (build optional)]
+dpkg?	/usr/lib/*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[libqt4-dev (build optional)]
 rpm?	/usr/lib*/libQtCore.so|/usr/lib/qt4/lib/libQtCore.so	[qt4-devel (build optional)]
 emerge?	/usr/lib*/qt4/libQtCore.so	[dev-qt/qtcore (build optional)]
 pkgin?	/usr/pkg/qt4/lib/libQtCore.so	[qt4-libs (build optional)]
@@ -416,7 +419,7 @@ dpkg?	/usr/include/Inventor/SoPath.h	[libcoin60-dev or libcoin80-dev (build opti
 rpm?	/usr/include/Coin3/Inventor/SoPath.h	[Coin3-devel (build optional)]
 emerge?	/usr/include/coin/Inventor/SoPath.h	[media-libs/coin (build optional)]
 pkgin?	/usr/pkg/include/Inventor/SoPath.h	[Coin (build optional)]
-dpkg?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[libsoqt4-dev or libsoqt-dev (build optional)]
+dpkg?	/usr/lib*/libSoQt4.so|/usr/lib/*/libSoQt4.so	[libsoqt4-dev or libsoqt-dev (build optional)]
 rpm?	/usr/lib*/libSoQt.so		[SoQt-devel (build optional)]
 emerge?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
 pkgin?	/usr/lib/libSoQt4.so|/usr/lib/*/libSoQt4.so	[? (build optional)]
