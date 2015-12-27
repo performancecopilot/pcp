@@ -116,7 +116,7 @@ pmgraphite_metric_encode (const string & foo)
             if (isalnum (c) || (c == '_') || (c == ' ')) {
                 output << c;
             } else {
-                output << "-" << hex[ (c >> 4) & 15] << hex[ (c >> 0) & 15] << "-";
+                output << "-" << hex[(c >> 4) & 15] << hex[(c >> 0) & 15] << "-";
             }
         }
         // Newer graphite/grafana support more characters
@@ -124,7 +124,7 @@ pmgraphite_metric_encode (const string & foo)
             if (isalnum (c) || (c == '_') || (c == ' ') || (c == '-') || (c == '/') ) {
                 output << c;
             } else {
-                output << "%" << hex[ (c >> 4) & 15] << hex[ (c >> 0) & 15];
+                output << "%" << hex[(c >> 4) & 15] << hex[(c >> 0) & 15];
             }
         }
     }
@@ -365,9 +365,8 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
         // Remove the .meta part
         if (!graphite_encode) {
             string metastring = ".meta";
-            string::size_type metaidx = archivepart.find( metastring );
-
-            if (metaidx != std::string::npos)
+            string::size_type metaidx = archivepart.rfind(metastring);
+            if (metaidx != std::string::npos) // unlikely to fail, due to fnmatch glob pattern
                archivepart.erase(metaidx, metastring.length());
         }
 
@@ -866,6 +865,10 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
         archive = spec->archive;
     } else {
         archive = archivesdir + (char) __pmPathSeparator () + spec->archive;
+    }
+
+    if (! graphite_encode) { // need to restore .meta for cursed_path_p processing
+        archive += ".meta";
     }
 
     if (cursed_path_p (archivesdir, archive)) {

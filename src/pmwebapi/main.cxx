@@ -384,6 +384,7 @@ server_dump_configuration ()
     }
 
     clog << "\tGraphite API " << (graphite_p ? "enabled" : "disabled") << endl;
+    clog << "\tGraphite API name encoding " << (graphite_encode ? "long" : "short") << endl;
     clog << "\tGraphite API Cairo graphics rendering "
 #ifdef HAVE_CAIRO
          << "compiled-in"
@@ -517,14 +518,14 @@ main (int argc, char *argv[])
 
     // NB: important to standardize on a single default timezone, since
     // we'll be interacting with web clients from anywhere, and dealing
-    // with pcp servers/archvies from anywhere else.
+    // with pcp servers/archives from anywhere else.
     (void) putenv (utc_timezone);
 
     umask (022);
     char * username_str;
     __pmGetUsername (&username_str);
 
-    opts.short_options = "A:a:c:D:h:Ll:NM:Pp:R:Gi:It:U:vx:d:46?";
+    opts.short_options = "A:a:c:D:h:Ll:NM:Pp:R:Gi:It:U:vx:d:X46?";
     opts.long_options = longopts;
     opts.override = option_overrides;
 
