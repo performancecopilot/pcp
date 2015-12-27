@@ -710,6 +710,7 @@ struct timestamped_float {
 // parameters for fetching a series
 struct fetch_series_jobspec {
     vector<vector<timestamped_float>*> outputs;
+    vector<pmDesc*> output_descs;
     vector<string> targets;
     string archive; // common first part of targets[]
     time_t t_start, t_end, t_step;
@@ -1086,6 +1087,9 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
                         if (result->vset[j]->pmid != pmids[i])
                             continue;
 
+                        // supply the pmDesc to caller
+                        *(spec->output_descs[i]) = pmdescs[i];
+
                         for (int k=0; k<result->vset[j]->numval; k++) {
                             if (result->vset[j]->vlist[k].inst != pminsts[i])
                                 continue;
@@ -1190,10 +1194,12 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
 void
 pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<string>& targets,
                              vector<vector <timestamped_float> >& outputs,
+                             vector<pmDesc>& output_descs,
                              time_t t_start, time_t t_end, time_t t_step)
 {
     // create some jobspecs, one per archive
     outputs.resize(targets.size()); // with many little empty vectors inside
+    output_descs.resize(targets.size());
     map <string, fetch_series_jobspec> jobmap;
     for (unsigned i = 0; i < targets.size (); i++) {
         const string& target = targets[i];
@@ -1216,6 +1222,7 @@ pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<str
 
         it->second.targets.push_back (target);
         it->second.outputs.push_back (& outputs[i]);
+        it->second.output_descs.push_back (& output_descs[i]);
     }
 
     // copy into a jobqueue vector (since the execution loop wants a vector)
@@ -1835,6 +1842,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     cairo_surface_t *sfc;
     cairo_t *cr;
     vector<vector<timestamped_float> > all_results;
+    vector<pmDesc> all_result_descs;
     string colorList;
     vector<string> colors;
     string bgcolor;
@@ -1951,7 +1959,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     cairo_restore (cr);
 
     // Gather up all the data.  We need several passes over it, so gather it into a vector<vector<> >.
-    (void) pmgraphite_fetch_all_series (connection, targets, all_results, t_start, t_end, t_step);
+    (void) pmgraphite_fetch_all_series (connection, targets, all_results, all_result_descs, t_start, t_end, t_step);
 
     if (exit_p) {
         return MHD_NO;
@@ -2141,7 +2149,19 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         double leftedge = 10.0;
 
         for (unsigned i=0; i<visibility_rank.size (); i++) {
-            const string& name = targets[visibility_rank[i]];
+            // compute legend string
+            const string& metric_name = targets[visibility_rank[i]];
+            const char* metric_units = pmUnitsStr(&all_result_descs[visibility_rank[i]].units);
+            string name;
+
+            if (metric_units && metric_units[0]) // likely
+                name = metric_name + " (" + string(metric_units) + ")";
+            else
+                name = metric_name;
+
+            if (all_result_descs[visibility_rank[i]].sem == PM_SEM_COUNTER)
+                name += " rate";
+
             double r, g, b;
 
             // don't even bother put this on the legend if it has zero information
@@ -2183,9 +2203,10 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     }
 
     if (params["hideGrid"] != "true") {
-        // Shrink the graph to make room for axis labels
-        graphxlow = width * 0.03;
-        graphxhigh = width * 0.98;
+        // Shrink the graph to make room for axis labels; match apprx. layout to
+        // grafana's javascript-side rendering engine
+        graphxlow = 5 * 8.0; // some digits of axis-label width
+        graphxhigh = width * 0.96;
         graphyhigh -= 10.;
 
         double r, g, b;
@@ -2457,8 +2478,9 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
         return mhd_notify_error (connection, rc);
     }
 
-    vector <vector <timestamped_float> > all_results;
-    pmgraphite_fetch_all_series (connection, targets, all_results, t_start, t_end, t_step);
+    vector <vector <timestamped_float> > all_results; // indexed as targets[]
+    vector <pmDesc> all_result_descs; // indexed as targets[]
+    pmgraphite_fetch_all_series (connection, targets, all_results, all_result_descs, t_start, t_end, t_step);
 
     stringstream output;
     output << "[";
