@@ -37,8 +37,9 @@ def test_pmfg_live(self, typed, target):
     pmfg.fetch() # to get a cpu count into v1
     vv1 = pmfg.extend_indom("kernel.percpu.cpu.idle", c_api.PM_TYPE_64, scale="s/100s", maxnum=v1()-1)
     vv2 = pmfg.extend_indom("kernel.percpu.cpu.idle", scale="s/100s", maxnum=v1()) # infer type
-    vv2 = lambda : [(0,None,lambda : 0)]
     vv3 = pmfg.extend_indom("sample.bogus_bin", c_api.PM_TYPE_32, scale="instant")
+    # would be nice if there were a non-sample useful event source available by default
+    vv4 = pmfg.extend_event("sample.event.records", instance="fungus", field="sample.event.param_double")
 
     for i in range(0, 4):
         pmfg.fetch()
@@ -58,6 +59,10 @@ def test_pmfg_live(self, typed, target):
         for icode, iname, value in vv3():
             print ("bin %d %s: %d" % (icode, iname, value()))
             self.assertTrue(value() == icode)
+
+        for ts, num in vv4():
+            print ("sample.event.param_double @%s : %s" % (ts, num()))
+            self.assertTrue(num() == 8 or num() == -9)
 
         time.sleep(0.5)
 
@@ -91,7 +96,7 @@ def test_pmfg_pmns(self, typed, target):
 
 def test_pmfg_interleaved(self):
     # check that interleaved fetches to pmfgs of different archives don't interfere
-    
+
     archives = ["archives/multi-vm00", "archives/multi-vm01", "archives/multi-vm02"]
     logger_instances = ["13034", "13035", "13036"] # pmcd.pmlogger.host indoms in those archives
     pmfgs = [pmapi.fetchgroup(c_api.PM_CONTEXT_ARCHIVE, a) for a in archives]
@@ -99,7 +104,7 @@ def test_pmfg_interleaved(self):
     # need -some- metrics to let pmFetch succeed without PM_ERR_TOOSMALL
     metrics1 = [fg.extend_item("hinv.physmem") for fg in pmfgs]
     metrics2 = [fg.extend_item("pmcd.pmlogger.archive",instance=inst) for (fg,inst) in zip(pmfgs,logger_instances)] # DISCRETE, logged-once
-    
+
     for i in range(5):
         for (archive,fg,ts,m1,m2) in zip(archives,pmfgs,timestamps,metrics1,metrics2):
             fg.fetch()
@@ -111,7 +116,7 @@ def test_pmfg_interleaved(self):
                     self.assertTrue(ts() == ts2()) # same archive - same timestamp!
                 else:
                     self.assertFalse(ts() == ts2()) # no two archive timestamps are identical
-            
+
 
 class TestSequenceFunctions(unittest.TestCase):
     def test_pmfg(self):
@@ -122,4 +127,4 @@ class TestSequenceFunctions(unittest.TestCase):
 if __name__ == '__main__':
     STS = unittest.main()
     sys.exit(STS)
-    
+

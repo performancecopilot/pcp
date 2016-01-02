@@ -18,6 +18,8 @@
 \f3pmCreateFetchGroup\f1,
 \f3pmExtendFetchGroup_item\f1,
 \f3pmExtendFetchGroup_indom\f1,
+\f3pmExtendFetchGroup_event\f1,
+\f3pmExtendFetchGroup_timestamp\f1,
 \f3pmFetchGroup\f1,
 \f3pmGetFetchGroupContext\f1,
 \f3pmDestroyFetchGroup\f1  \- simplified fetch/convert for performance metrics
@@ -38,6 +40,14 @@ int pmExtendFetchGroup_indom(pmFG \fIpmfg\fP, const char* \fImetric\fP,
                              char *\fIout_inst_names\fP[],
                              pmAtomValue \fIout_values\fP[], int \fIout_type\fP,
                              int \fIout_stss\fP[],
+                             unsigned \fIout_maxnum\fP, unsigned *\fIout_num\fP,
+                             int *\fIout_sts\fP);
+int pmExtendFetchGroup_event(pmFG \fIpmfg\fP, const char *\fImetric\fP,
+                             const char *\fIinstance\fP, const char *\fIfield\fP,
+                             const char *\fIscale\fP,
+                             struct timeval \fIout_times\fP[],
+                             pmAtomValue \fIout_values\fP[],
+                             int \fIout_type\fP, int \fIout_stss\fP[],
                              unsigned \fIout_maxnum\fP, unsigned *\fIout_num\fP,
                              int *\fIout_sts\fP);
 int pmExtendFetchGroup_timestamp(pmFG \fIpmfg\fP, struct timeval *\fIout_value\fP);
@@ -233,7 +243,7 @@ stored.  The mandatory \fIout_type\fP parameter specifies the
 \fBPM_TYPE_*\fP requested for the all output values, same as above.
 
 The optional \fIout_stss\fP parameter specifies a vector of integers
-where per-instance error codes may be stored.
+where per-instance error codes should be stored.
 
 The mandatory \fIout_maxnum\fP parameter specifies the number of
 elements of the vectors above.  In other words, it tells the
@@ -245,7 +255,7 @@ function.
 
 Finally, the optional \fIout_sts\fP parameter specifies a single
 location where an integer status code for the overall fetch for this
-metric may be stored.  Normally, this will be zero.  Other than a
+metric should be stored.  Normally, this will be zero.  Other than a
 severe fetch error, one may see a \fBPM_ERR_TOOBIG\fP here if the
 number of instances actually encountered was larger than
 \fIout_maxnum\fP.
@@ -254,12 +264,90 @@ Any errors subsequently encountered during fetching, unit/scale/rate
 conversion, or casting, will result in the assignment of a sentinel
 value to the appropriate output \fBpmAtomValue\fP (see the UNUSUAL
 SITUATIONS section below).  In addition, if the optional
-\fIout_stss\fP parameter was specified, an appropriate PMAPI
-error code will be stored in the appropriate position.
+\fIout_stss\fP parameter was specified, a PMAPI error code will be
+stored in the appropriate position.
 
 As a review, only the \fIpmfg\fP, \fImetric\fP, \fIout_type\fP, and
 \fIout_maxnum\fP parameters are mandatory.  Others may be NULL to
 indicate applicaton disinterest.
+
+The normal function return code is zero.  This function may fail in
+case of various lookup, type- and conversion- checking errors.  Those
+are indicated with a negative return code.
+
+.SS extending a fetchgroup with an event field
+
+.ft 3
+.nf
+int pmExtendFetchGroup_event(pmFG \fIpmfg\fP, const char *\fImetric\fP,
+                             const char *\fIinstance\fP, const char *\fIfield\fP,
+                             const char *\fIscale\fP,
+                             struct timeval \fIout_times\fP[],
+                             pmAtomValue \fIout_values\fP[],
+                             int \fIout_type\fP, int \fIout_stss\fP[],
+                             unsigned \fIout_maxnum\fP, unsigned *\fIout_num\fP,
+                             int *\fIout_sts\fP);
+.fi
+.ft 1
+
+This function registers interest in all instances of one field of all
+records of an event metric.  Since event metrics may return multiple
+records per fetch, and each record may have multiple fields of a given
+field metric type, this function registers preallocated \fIvectors\fP
+for output variables, similarly to \fBpmExtendFetchGroup_indom\fP.
+They are filled in temporal/sequential order.
+
+The metric name is specified by the mandatory \fImetric\fP parameter.
+It must be of \fBPM_TYPE_EVENT\fP.  If the metric has an instance
+domain, the \fIinstance\fP parameter is mandatory to identify the
+instance of interest.
+
+The field to extract from event records is specified by the mandatory
+\fIfield\fP parameter, which is a metric name of normal scalar type.
+(As typical for event field metrics, it should not have an instance
+domain.)  The optional \fIscale\fP parameter specifies desired
+unit/scale conversions on this metric value.  Rate conversions are
+\fBnot available\fP, because of ambiguity about which previous value
+to compute rates from.
+
+The optional \fIout_times\fP parameter specifies a vector of
+\fBtimeval\fP structs, which will receive a copy of the timestamp
+of the event record where each particular field was found.
+
+The optional \fIout_values\fP parameter specifies a vector of
+\fBpmAtomValue\fP objects where the converted result should later
+be stored.  The mandatory \fIout_type\fP parameter specifies the
+\fBPM_TYPE_*\fP requested for the output values.
+
+The optional \fIout_stss\fP parameter specifies a vector of integers
+where per-field error codes should be stored.
+
+The mandatory \fIout_maxnum\fP parameter specifies the number of
+elements of the vectors above.  In other words, it tells the
+fetchgroup the maximum number of instances which are expected.  The
+optional \fIout_num\fP parameter specifies an integer where the the
+actual number of instances should later be stored.  It will range
+between 0 and \fIout_maxnum\fP.  It is initialized to 0 by this
+function.
+
+Finally, the optional \fIout_sts\fP parameter specifies a single
+location where an integer status code for the overall fetch for this
+metric should be stored.  Normally, this will be zero, even if no
+event field values were found (\fIout_num\fP would then be zero).
+Other than a severe fetch error, one may see a \fBPM_ERR_TOOBIG\fP
+here if the number of fields actually encountered was larger than
+\fIout_maxnum\fP.
+
+Any errors subsequently encountered during fetching, unit/scale
+conversion, or casting, will result in the assignment of a sentinel
+value to the appropriate output \fBpmAtomValue\fP (see the UNUSUAL
+SITUATIONS section below).  In addition, if the optional
+\fIout_stss\fP parameter was specified, a PMAPI error code will be
+stored in the appropriate position.
+
+As a review, only the \fIpmfg\fP, \fImetric\fP, \fIfield\fP,
+\fIout_type\fP, and \fIout_maxnum\fP parameters are mandatory.
+Others may be NULL to indicate applicaton disinterest.
 
 The normal function return code is zero.  This function may fail in
 case of various lookup, type- and conversion- checking errors.  Those

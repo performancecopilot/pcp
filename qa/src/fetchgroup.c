@@ -50,7 +50,7 @@ test_indoms ()
                                    &values_sts);
     pcp_assert(sts);
     assert (pmWhichContext() == ctx);
-    
+
     for (i=0; i<3; i++) {
         int j;
         sts = pmFetchGroup(fg);
@@ -58,7 +58,7 @@ test_indoms ()
         assert (pmWhichContext() == ctx);
         assert (values_sts == PM_ERR_TOOBIG); /* 5 < 9 */
         for (j=0; j<almost_bins; j++) {
-            pcp_assert((i>0) ^ (values_stss == 0));
+            assert ((i==0) ^ (values_stss[j] == 0));
             if (i>0) assert(values[j].l == 0);
             assert (values_inst_codes[j] >= 0);
             /* validate bogus indom names */
@@ -75,7 +75,6 @@ test_indoms ()
     pcp_assert(sts);
     assert (pmWhichContext() == ctx);
 }
-
 
 
 void
@@ -120,7 +119,6 @@ test_counter ()
     pcp_assert(sts);
     assert (pmWhichContext() == ctx);
 
-
     for (i=0; i<3; i++) {
         sts = pmFetchGroup(fg);
         pcp_assert (sts);
@@ -145,6 +143,89 @@ test_counter ()
 }
 
 
+void
+test_events ()
+{
+    int sts;
+    pmFG fg;
+
+    enum { max_fields = 4 }; /* max. number of unpacked event records in sample.event.records fetch */
+    struct timeval times[max_fields];
+    pmAtomValue values[max_fields];
+    int values_stss[max_fields];
+    int values_sts;
+    unsigned values_num;
+
+    enum { max_fields2 = 2 }; /* less than max. number of param_string fields in sample.event.records fetch */
+    struct timeval times2[max_fields2];
+    pmAtomValue values2[max_fields2];
+    int values2_stss[max_fields2];
+    int values2_sts;
+    unsigned values2_num;
+
+    int i;
+    int too_bigs;
+
+    sts = pmCreateFetchGroup(& fg, PM_CONTEXT_HOST, "local:");
+    pcp_assert(sts);
+    assert (fg != NULL);
+
+    sts = pmExtendFetchGroup_event(fg, "sample.event.records", "fungus", "sample.event.type", NULL,
+                                   times, values, PM_TYPE_STRING, values_stss, max_fields, &values_num,
+                                   &values_sts);
+    pcp_assert(sts);
+    assert (pmWhichContext() == ctx);
+
+    sts = pmExtendFetchGroup_event(fg, "sample.event.records", "fungus", "sample.event.param_string", NULL,
+                                   times2, values2, PM_TYPE_STRING, values2_stss, max_fields2, &values2_num,
+                                   &values2_sts);
+    pcp_assert(sts);
+    assert (pmWhichContext() == ctx);
+
+    too_bigs = 0;
+    for (i=0; i<5; i++) { /* enough to generate at least one PM_ERR_TOOBIG */
+        int j;
+        sts = pmFetchGroup(fg);
+        pcp_assert(sts);
+        assert (pmWhichContext() == ctx);
+
+        assert (values_sts != PM_ERR_TOOBIG);
+        if (values2_sts == PM_ERR_TOOBIG) /* sometimes too many param_strings */
+            too_bigs ++;
+
+        for (j=0; j<values_num; j++) {
+            int k;
+            pcp_assert(values_stss[j]);
+            assert(values[j].cp != NULL);
+            k = atoi(values[j].cp);
+            assert(0 <= k && k <= 16); /* sample.event.type value range */
+            assert (times[j].tv_sec > 0);
+            if (j > 0) /* assert time ordering */
+                assert (times[j-1].tv_sec < times[j].tv_sec ||
+                        (times[j-1].tv_sec == times[j].tv_sec &&
+                         times[j-1].tv_usec <= times[j].tv_usec));
+        }
+
+        for (j=0; j<values2_num; j++) {
+            pcp_assert(values2_stss[j]);
+            assert (values2[j].cp != NULL);
+            assert (strcmp(values2[j].cp, "6") == 0 || /* the sole literals; not from [bogus] */
+                    strcmp(values2[j].cp, "twelve") == 0 ||
+                    strcmp(values2[j].cp, "thirteen"));
+            assert (times2[j].tv_sec > 0);
+            if (j > 0) /* assert time ordering */
+                assert (times2[j-1].tv_sec < times2[j].tv_sec ||
+                        (times2[j-1].tv_sec == times2[j].tv_sec &&
+                         times2[j-1].tv_usec <= times2[j].tv_usec));
+        }
+    }
+    assert (too_bigs > 0);
+
+    sts = pmDestroyFetchGroup(fg);
+    pcp_assert(sts);
+    assert (pmWhichContext() == ctx);
+}
+
 
 int
 main()
@@ -154,16 +235,10 @@ main()
     pcp_assert(ctx);
     test_counter();
     test_indoms();
+    test_events();
     sts = pmDestroyContext(ctx);
     pcp_assert(sts);
 
-#if 0
-    ctx = pmNewContext(PM_CONTEXT_ARCHIVE, "archives/kenj-pc-1");
-    pcp_assert (ctx);
-    test ();
-    sts = pmDestroyContext (ctx);
-    pcp_assert (sts);
-#endif
 
     printf("complete\n");
 

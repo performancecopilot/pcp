@@ -1,14 +1,14 @@
 /*
  * Copyright (c) 2014-2015 Red Hat, Inc.  All Rights Reserved.
- * 
+ *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU Lesser General Public
  * License for more details.
  */
 
@@ -40,7 +40,7 @@
 
 /*
  * An individual fetch-group is a linked list of requests tied to a
- * particular pcp context (which the fetchgroup owns).  NB: This is
+ * particular pcp context (which the fetchgroup owns).	NB: This is
  * opaque to the PMAPI client.
  */
 struct __pmFetchGroup
@@ -79,8 +79,9 @@ struct __pmFetchGroupItem
     struct __pmFetchGroupItem *next;
     enum
     { pmfg_item,
-	pmfg_indom,
-	pmfg_timestamp
+      pmfg_indom,
+      pmfg_event,
+      pmfg_timestamp
     } type;
 
     union
@@ -112,6 +113,23 @@ struct __pmFetchGroupItem
 	    unsigned output_maxnum;
 	    unsigned *output_num;	/* NB: may be NULL */
 	} indom;
+	struct
+	{
+	    pmID metric_pmid;
+	    pmDesc metric_desc;
+	    int metric_inst;
+	    pmID field_pmid;
+	    pmDesc field_desc;
+	    struct __pmFetchGroupConversionSpec conv;
+	    struct timeval *output_times; /* NB: may be NULL */
+	    pmAtomValue *output_values;	/* NB: may be NULL */
+	    pmResult **unpacked_events;
+	    int output_type;
+	    int *output_stss;	/* NB: may be NULL */
+	    int *output_sts;	/* NB: may be NULL */
+	    unsigned output_maxnum;
+	    unsigned *output_num;	/* NB: may be NULL */
+	} event;
 	struct
 	{
 	    struct timeval *output_value;	/* NB: may be NULL */
@@ -183,7 +201,6 @@ pmfg_lookup_item(const char *metric, const char *instance, pmFGI item)
     sts = pmLookupDesc(item->u.item.metric_pmid, &item->u.item.metric_desc);
     if (sts < 0)
 	goto out;
-
     /* Validate domain instance */
     if (((item->u.item.metric_desc.indom == PM_INDOM_NULL) && (instance != NULL))
 	|| ((item->u.item.metric_desc.indom != PM_INDOM_NULL) && (instance == NULL))) {
@@ -229,12 +246,60 @@ out:
 }
 
 
+/* Same for an event field.  */
+static int
+pmfg_lookup_event(const char *metric, const char *instance, const char *field, pmFGI item)
+{
+    int sts;
+
+    assert(item != NULL);
+    assert(item->type == pmfg_event);
+
+    sts = pmLookupName(1, (char **) &metric, &item->u.event.metric_pmid);
+    if (sts != 1)
+	goto out;
+    sts = pmLookupDesc(item->u.event.metric_pmid, &item->u.event.metric_desc);
+    if (sts < 0)
+	goto out;
+
+    /* Validate domain instance */
+    if (((item->u.event.metric_desc.indom == PM_INDOM_NULL) && (instance != NULL))
+	|| ((item->u.event.metric_desc.indom != PM_INDOM_NULL) && (instance == NULL))) {
+	sts = PM_ERR_INDOM;
+	goto out;
+    }
+    if (item->u.event.metric_desc.indom != PM_INDOM_NULL) {
+	sts = pmLookupInDom(item->u.event.metric_desc.indom, instance);
+	if (sts < 0)
+	    goto out;
+	item->u.event.metric_inst = sts;
+	sts = pmAddProfile(item->u.event.metric_desc.indom, 1, &item->u.event.metric_inst);
+    }
+
+    /* Look up event field. */
+    sts = pmLookupName(1, (char **) &field, &item->u.event.field_pmid);
+    if (sts != 1)
+	goto out;
+    sts = pmLookupDesc(item->u.event.field_pmid, &item->u.event.field_desc);
+    if (sts < 0)
+	goto out;
+
+    /* We don't support event fields with their own indoms. */
+    if (item->u.event.field_desc.indom != PM_INDOM_NULL)
+	sts = PM_ERR_INDOM;
+
+out:
+    return sts;
+}
+
+
+
 /*
  * Parse & type-check the given pmDesc for conversion to given scale
  * units.  Fill in conversion specification.
  */
 static int
-pmfg_prep_conversion(const pmDesc * desc, const char *scale, pmFGC conv, int otype)
+pmfg_prep_conversion(const pmDesc *desc, const char *scale, pmFGC conv, int otype)
 {
     int sts = 0;
 
@@ -340,12 +405,12 @@ out:
 }
 
 
-/* 
+/*
  * Extract value from pmResult interior.  Extends pmExtractValue/pmAtomStr with
  * string<->numeric conversion support.
  */
 static int
-__pmExtractValue2(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, int otype)
+__pmExtractValue2(int valfmt, const pmValue *ival, int itype, pmAtomValue *oval, int otype)
 {
     int sts;
 
@@ -410,7 +475,7 @@ out:
  * marking it "empty".
  */
 void
-__pmReinitValue(pmAtomValue * oval, int otype)
+__pmReinitValue(pmAtomValue *oval, int otype)
 {
     switch (otype) {
 	case PM_TYPE_32:
@@ -446,7 +511,7 @@ __pmReinitValue(pmAtomValue * oval, int otype)
  * Detect overflow/sign errors similarly to pmExtractValue().
  */
 int
-__pmStuffDoubleValue(double val, pmAtomValue * oval, int otype)
+__pmStuffDoubleValue(double val, pmAtomValue *oval, int otype)
 {
     int sts = 0;
 
@@ -572,14 +637,46 @@ pmfg_reinit_indom(pmFGI item)
 }
 
 
-/* 
+static void
+pmfg_reinit_event(pmFGI item)
+{
+    unsigned i;
+
+    assert(item != NULL);
+    assert(item->type == pmfg_event);
+
+    if (item->u.event.output_values)
+	for (i = 0; i < item->u.event.output_maxnum; i++)
+	    __pmReinitValue(&item->u.event.output_values[i], item->u.event.output_type);
+
+    if (item->u.event.output_times)
+	for (i = 0; i < item->u.event.output_maxnum; i++)
+	    memset(& item->u.event.output_times[i], 0, sizeof(struct timeval));
+
+    if (item->u.event.output_stss)
+	for (i = 0; i < item->u.event.output_maxnum; i++)
+	    item->u.event.output_stss[i] = PM_ERR_VALUE;
+
+    if (item->u.event.output_num)
+	*item->u.event.output_num = 0;
+
+    if (item->u.event.unpacked_events) {
+	pmFreeEventResult(item->u.event.unpacked_events);
+	item->u.event.unpacked_events = NULL;
+    }
+}
+
+
+
+/*
  * Find the pmValue corresponding to the item within the given
  * pmResult.  Convert it to given output type, including possible
  * string<->number conversions.
  */
 static int
-pmfg_extract_item(pmID metric_pmid, int metric_inst, const pmDesc * metric_desc, const pmResult * result,
-		  pmAtomValue * value, int otype)
+pmfg_extract_item(pmID metric_pmid, int metric_inst, int first_vset,
+		  const pmDesc *metric_desc, const pmResult *result,
+		  pmAtomValue *value, int otype)
 {
     int i;
 
@@ -587,7 +684,7 @@ pmfg_extract_item(pmID metric_pmid, int metric_inst, const pmDesc * metric_desc,
     assert(result != NULL);
     assert(value != NULL);
 
-    for (i = 0; i < result->numpmid; i++) {
+    for (i = first_vset; i < result->numpmid; i++) {
 	const pmValueSet *iv = result->vset[i];
 	if (iv->pmid == metric_pmid) {
 	    int j;
@@ -611,7 +708,7 @@ pmfg_extract_item(pmID metric_pmid, int metric_inst, const pmDesc * metric_desc,
  * conversion may be done by caller.
  */
 static int
-pmfg_convert_double(const pmDesc * desc, const pmFGC conv, double *value)
+pmfg_convert_double(const pmDesc *desc, const pmFGC conv, double *value)
 {
     pmAtomValue v, v_scaled;
     int sts;
@@ -636,8 +733,9 @@ out:
 
 
 static int
-pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst, const pmDesc * desc, const pmFGC conv,
-			  const pmResult * result, pmAtomValue * oval, int otype)
+pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst, int first_vset,
+			  const pmDesc *desc, const pmFGC conv,
+			  const pmResult *result, pmAtomValue *oval, int otype)
 {
     pmAtomValue v;
     int sts;
@@ -646,7 +744,7 @@ pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst, const pm
     assert(result != NULL);
     assert(oval != NULL);
 
-    sts = pmfg_extract_item(metric_pmid, metric_inst, desc, result, &v, PM_TYPE_DOUBLE);
+    sts = pmfg_extract_item(metric_pmid, metric_inst, first_vset, desc, result, &v, PM_TYPE_DOUBLE);
     if (sts)
 	goto out;
 
@@ -661,7 +759,8 @@ pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst, const pm
 		deltaT = epsilon;	/* XXX: or PM_ERR_CONV? */
 	    /* XXX: deal with math_error facilities? */
 
-	    sts = pmfg_extract_item(metric_pmid, metric_inst, desc, pmfg->prevResult, &prev_v, PM_TYPE_DOUBLE);
+	    sts = pmfg_extract_item(metric_pmid, metric_inst, first_vset,
+				    desc, pmfg->prevResult, &prev_v, PM_TYPE_DOUBLE);
 	    if (sts)
 		goto out;
 
@@ -702,7 +801,7 @@ out:
 
 
 static void
-pmfg_fetch_item(pmFG pmfg, pmFGI item, pmResult * newResult)
+pmfg_fetch_item(pmFG pmfg, pmFGI item, pmResult *newResult)
 {
     int sts;
     pmAtomValue v;
@@ -715,20 +814,20 @@ pmfg_fetch_item(pmFG pmfg, pmFGI item, pmResult * newResult)
     /* If we have some values, then DISCRETE preserved values should
        be cleared now. */
     if (item->u.item.metric_desc.sem == PM_SEM_DISCRETE)
-        for (i = 0; i < newResult->numpmid; i++) {
-            if (newResult->vset[i]->pmid == item->u.item.metric_pmid) {
-                if (newResult->vset[i]->numval > 0) {
-                    pmfg_reinit_item(item);
-                    break;
-                } else if (newResult->vset[i]->numval == 0) {
-                    return; /* NB: leave outputs alone. */
-                }
-            }
-        }
+	for (i = 0; i < newResult->numpmid; i++) {
+	    if (newResult->vset[i]->pmid == item->u.item.metric_pmid) {
+		if (newResult->vset[i]->numval > 0) {
+		    pmfg_reinit_item(item);
+		    break;
+		} else if (newResult->vset[i]->numval == 0) {
+		    return; /* NB: leave outputs alone. */
+		}
+	    }
+	}
 
     if (item->u.item.conv.rate_convert_p || item->u.item.conv.unit_convert_p) {
 	sts =
-	    pmfg_extract_convert_item(pmfg, item->u.item.metric_pmid, item->u.item.metric_inst,
+	    pmfg_extract_convert_item(pmfg, item->u.item.metric_pmid, item->u.item.metric_inst, 0,
 				      &item->u.item.metric_desc, &item->u.item.conv, newResult, &v,
 				      item->u.item.output_type);
 	if (sts < 0)
@@ -736,8 +835,8 @@ pmfg_fetch_item(pmFG pmfg, pmFGI item, pmResult * newResult)
     }
     else {
 	sts =
-	    pmfg_extract_item(item->u.item.metric_pmid, item->u.item.metric_inst, &item->u.item.metric_desc, newResult,
-			      &v, item->u.item.output_type);
+	    pmfg_extract_item(item->u.item.metric_pmid, item->u.item.metric_inst, 0,
+			      &item->u.item.metric_desc, newResult, &v, item->u.item.output_type);
 	if (sts < 0)
 	    goto out;
     }
@@ -754,7 +853,7 @@ out:
 
 
 static void
-pmfg_fetch_timestamp(pmFG pmfg, pmFGI item, pmResult * newResult)
+pmfg_fetch_timestamp(pmFG pmfg, pmFGI item, pmResult *newResult)
 {
     assert(item->type == pmfg_timestamp);
     assert(newResult != NULL);
@@ -766,7 +865,7 @@ pmfg_fetch_timestamp(pmFG pmfg, pmFGI item, pmResult * newResult)
 
 
 static void
-pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult * newResult)
+pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult *newResult)
 {
     int sts = 0;
     int i;
@@ -778,7 +877,7 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult * newResult)
     assert(item->type == pmfg_indom);
     assert(newResult != NULL);
 
-    /* Find our pmid in the newResult.  (If rate-converting, we'll need to find
+    /* Find our pmid in the newResult.	(If rate-converting, we'll need to find
        the corresponding pmid (and each instance) anew in the previous pmResult. */
     for (i = 0; i < newResult->numpmid; i++) {
 	if (newResult->vset[i]->pmid == item->u.indom.metric_pmid)
@@ -799,10 +898,10 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult * newResult)
     /* If we have some values, the DISCRETE preserved values should be
        cleared now. */
     if (item->u.indom.metric_desc.sem == PM_SEM_DISCRETE) {
-        if (iv->numval > 0)
-            pmfg_reinit_indom(item);
-        else /* = 0 */
-            return; /* NB: leave outputs alone. */
+	if (iv->numval > 0)
+	    pmfg_reinit_indom(item);
+	else /* = 0 */
+	    return; /* NB: leave outputs alone. */
     }
 
     /* Analyze newResult to see whether it only contains instances we
@@ -840,7 +939,7 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult * newResult)
 	sts = 0;
     }
 
-    /* Process each instance element in the pmValueSet.  We persevere
+    /* Process each instance element in the pmValueSet.	 We persevere
        in the face of per-item errors (including conversion errors),
        since we signal individual errors, except once we run out of
        output space. */
@@ -864,7 +963,7 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult * newResult)
 	    unsigned k;
 	    for (k = 0; k < item->u.indom.indom_size; k++)
 		if (item->u.indom.indom_codes[k] == jv->inst) {
-		    /* NB: copy the indom name char* by value.  The user is not
+		    /* NB: copy the indom name char* by value.	The user is not
 		       supposed to modify / free this pointer, or use it after a
 		       a subsequent fetch or delete operation. */
 		    item->u.indom.output_inst_names[j] = item->u.indom.indom_names[k];
@@ -875,15 +974,17 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult * newResult)
 	/* Fetch & convert the actual value. */
 	if (item->u.indom.conv.rate_convert_p || item->u.indom.conv.unit_convert_p) {
 	    stss =
-		pmfg_extract_convert_item(pmfg, item->u.indom.metric_pmid, jv->inst, &item->u.indom.metric_desc,
-					  &item->u.indom.conv, newResult, &v, item->u.indom.output_type);
+		pmfg_extract_convert_item(pmfg, item->u.indom.metric_pmid, jv->inst, 0,
+					  &item->u.indom.metric_desc, &item->u.indom.conv,
+					  newResult, &v, item->u.indom.output_type);
 
 	    if (stss < 0)
 		goto out1;
 	}
 	else {
 	    stss =
-		pmfg_extract_item(item->u.indom.metric_pmid, jv->inst, &item->u.indom.metric_desc, newResult, &v,
+		pmfg_extract_item(item->u.indom.metric_pmid, jv->inst, 0,
+				  &item->u.indom.metric_desc, newResult, &v,
 				  item->u.indom.output_type);
 
 	    if (stss < 0)
@@ -908,26 +1009,154 @@ out:
 }
 
 
+static void
+pmfg_fetch_event(pmFG pmfg, pmFGI item, pmResult *newResult)
+{
+    int sts = 0;
+    int i;
+    int j;
+    /* const */ pmValueSet *iv;
+    /* const */ pmResult **event_ptr;
+    unsigned output_num = 0; /* to be copied into caller space at end */
+
+    assert(item != NULL);
+    assert(item->type == pmfg_event);
+    assert(newResult != NULL);
+
+    /* Find our pmid in the newResult. */
+    for (i = 0; i < newResult->numpmid; i++) {
+	if (newResult->vset[i]->pmid == item->u.event.metric_pmid)
+	    break;
+    }
+    if (i >= newResult->numpmid) {
+	sts = PM_ERR_VALUE;
+	goto out;
+    }
+    iv = newResult->vset[i];
+
+    /* Pass error code, if any. */
+    if (iv->numval < 0) {
+	sts = iv->numval;
+	goto out;
+    }
+
+    /* Locate the event record for the requested instance (if any). */
+    for (j = 0; j < iv->numval; j++) {
+	if ((item->u.event.metric_desc.indom == PM_INDOM_NULL) ||
+	    (iv->vlist[j].inst == item->u.event.metric_inst))
+	    break;
+    }
+    if (j >= iv->numval) {
+	sts = 0; /* No events => no problem. */
+	goto out;
+    }
+
+    /* Unpack the event records. */
+    assert (item->u.event.metric_desc.type == PM_TYPE_EVENT); /* not HIGHRES */
+    assert (item->u.event.unpacked_events == NULL);
+    sts = pmUnpackEventRecords (iv, (int) j, & item->u.event.unpacked_events);
+    if ((sts < 0) || (item->u.event.unpacked_events == NULL))
+	goto out;
+    sts = 0;
+
+    /* Process each event record, and each matching field within it.
+       We persevere in the face of per-record and per-field errors
+       (including conversion errors), since we signal individual
+       errors, except once we run out of output space. */
+
+    for (event_ptr = item->u.event.unpacked_events; *event_ptr != NULL; event_ptr++) {
+	const pmResult *event = *event_ptr;
+
+	for (j = 0; j < event->numpmid; j++) {
+	    const pmValueSet *field = event->vset[j];
+	    pmAtomValue v;
+	    int stss = 0;
+
+	    /* Is this our field of interest?  NB: it may be repeated, if the PMDA
+	       emits the same field-name/pmid multiple times within the event records.
+	       See e.g. systemd.journal.records repeats systemd.journal.field.string.
+	       These have multiple pmValueSet numval=1 records.	 (Hypothetically, we
+	       could observe a pmValueSet with numval=N instead, with each pmValue
+	       having the same instance number, but that does not seem to happen in the
+	       wild.) */
+
+	    if (field->pmid != item->u.event.field_pmid)
+		continue;
+	    if (field->numval != 1)
+		continue;
+
+	    /* Got one! */
+	    if (output_num >= item->u.event.output_maxnum) {	/* too many! */
+		sts = PM_ERR_TOOBIG;
+		goto out;
+	    }
+
+	    /* Fetch & convert the actual value.  We pass -1 as the instance code,
+	       as an unused value, since the field_desc.indom == PM_INDOM_NULL already.
+	       We pass `j' as the first_vset parameter, to skip prior instances of the
+	       same field/pmid in the same pmResult. */
+	    if (item->u.event.conv.rate_convert_p || item->u.event.conv.unit_convert_p) {
+		stss =
+		    pmfg_extract_convert_item(pmfg, item->u.event.field_pmid, -1, j, &item->u.event.field_desc,
+					      &item->u.event.conv, event, &v, item->u.event.output_type);
+
+		if (stss < 0)
+		    goto out1;
+	    }
+	    else {
+		stss =
+		    pmfg_extract_item(item->u.event.field_pmid, -1, j, &item->u.event.field_desc,
+				      event, &v, item->u.event.output_type);
+
+		if (stss < 0)
+		    goto out1;
+	    }
+
+	    /* Pass the output value. */
+	    if (item->u.event.output_values)
+		item->u.event.output_values[output_num] = v;
+
+	    /* Pass the output timestamp. */
+	    if (item->u.event.output_times)
+		memcpy(&item->u.event.output_times[output_num], &event->timestamp,
+		       sizeof(struct timeval));
+
+	out1:
+	    if (item->u.event.output_stss)
+		item->u.event.output_stss[output_num] = stss;
+
+	    output_num ++;
+	} /* iterate over fields */
+    } /* iterate over unpacked events */
+
+out:
+    if (item->u.event.output_num)
+	*item->u.event.output_num = output_num;
+
+    if (item->u.event.output_sts)
+	*item->u.event.output_sts = sts;
+}
+
 
 
 /* ------------------------------------------------------------------------ */
 /* Public functions exported in pmapi.h */
 
 
-/* 
+/*
  * Create a new fetchgroup.  Take a duplicate of the incoming pcp context.
  * Return 0 & set *ptr on success.
  */
 int
-pmCreateFetchGroup(pmFG * ptr, int type, const char *name)
+pmCreateFetchGroup(pmFG *ptr, int type, const char *name)
 {
     int sts;
     pmFG pmfg;
     int saved_ctx = pmWhichContext();
 
     if (ptr == NULL) {
-        sts = -EINVAL;
-        goto out0;
+	sts = -EINVAL;
+	goto out0;
     }
 
     *ptr = NULL; /* preset it to NULL */
@@ -941,7 +1170,7 @@ pmCreateFetchGroup(pmFG * ptr, int type, const char *name)
     sts = pmNewContext(type, name);
     /* NB: implicitly pmUseContext()'d! */
     if (sts < 0)
-        goto out1;
+	goto out1;
     pmfg->ctx = sts;
 
     /* Wipe clean all instances; we'll add them back incrementally as
@@ -999,26 +1228,26 @@ out:
 
 
 /*
- * Return our private context.  Caveat emptor!
+ * Return our private context.	Caveat emptor!
  */
 int
 pmGetFetchGroupContext(pmFG pmfg)
 {
     if (pmfg == NULL)
-        return -EINVAL;
+	return -EINVAL;
 
     return pmfg->ctx;
 }
 
 
-/* 
+/*
  * Fetchgroup extend operations: add one metric (or a whole indom of metrics)
  * to the group.  Check types, parse rescale parameters, store away pointers
  * where results are to be written later - during a pmFetchGroup().
  */
 int
 pmExtendFetchGroup_item(pmFG pmfg, const char *metric, const char *instance,
-                        const char *scale, pmAtomValue * out_value,
+			const char *scale, pmAtomValue *out_value,
 			int out_type, int *out_sts)
 {
     int sts;
@@ -1044,36 +1273,36 @@ pmExtendFetchGroup_item(pmFG pmfg, const char *metric, const char *instance,
 
     sts = pmfg_lookup_item(metric, instance, item);
     if (sts != 0) {
-        /* If this was an archive, the instance/indom pair may not be present
-           as of the current moment.  Seek to the end of the archive temporarily
-           to try again there. */
-        __pmContext *ctxp = __pmHandleToPtr(pmfg->ctx);
-        assert(ctxp);
-        if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {
-            struct timeval saved_origin;
-            struct timeval archive_end;
-            int saved_mode, saved_delta;
-            saved_origin.tv_sec = ctxp->c_origin.tv_sec;
-            saved_origin.tv_usec = ctxp->c_origin.tv_usec;
-            saved_mode = ctxp->c_mode;
-            saved_delta = ctxp->c_delta;
-            PM_UNLOCK(ctxp->c_lock);
-            sts = pmGetArchiveEnd(&archive_end);
-            if (sts < 0)
-                goto out1;
-            sts = pmSetMode (PM_MODE_BACK, &archive_end, 0);
-            if (sts < 0)
-                goto out1;
-            /* try again */
-            sts = pmfg_lookup_item(metric, instance, item);
-            /* go back to saved position */
-            (void) pmSetMode (saved_mode, &saved_origin, saved_delta);
-            if (sts < 0)
-                goto out1;
-        } else { /* not archive */
-            PM_UNLOCK(ctxp->c_lock);
-            goto out1;
-        }
+	/* If this was an archive, the instance/indom pair may not be present
+	   as of the current moment.  Seek to the end of the archive temporarily
+	   to try again there. */
+	__pmContext *ctxp = __pmHandleToPtr(pmfg->ctx);
+	assert(ctxp);
+	if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {
+	    struct timeval saved_origin;
+	    struct timeval archive_end;
+	    int saved_mode, saved_delta;
+	    saved_origin.tv_sec = ctxp->c_origin.tv_sec;
+	    saved_origin.tv_usec = ctxp->c_origin.tv_usec;
+	    saved_mode = ctxp->c_mode;
+	    saved_delta = ctxp->c_delta;
+	    PM_UNLOCK(ctxp->c_lock);
+	    sts = pmGetArchiveEnd(&archive_end);
+	    if (sts < 0)
+		goto out1;
+	    sts = pmSetMode (PM_MODE_BACK, &archive_end, 0);
+	    if (sts < 0)
+		goto out1;
+	    /* try again */
+	    sts = pmfg_lookup_item(metric, instance, item);
+	    /* go back to saved position */
+	    (void) pmSetMode (saved_mode, &saved_origin, saved_delta);
+	    if (sts < 0)
+		goto out1;
+	} else { /* not archive */
+	    PM_UNLOCK(ctxp->c_lock);
+	    goto out1;
+	}
     }
 
     sts = pmfg_prep_conversion(&item->u.item.metric_desc, scale, &item->u.item.conv, out_type);
@@ -1193,7 +1422,7 @@ pmExtendFetchGroup_indom(pmFG pmfg, const char *metric, const char *scale, int o
     if (out_values)
 	memset(out_values, 0, sizeof(pmAtomValue) * out_maxnum);
     if (out_num)
-        *out_num = 0;
+	*out_num = 0;
     pmfg_reinit_indom(item);
 
     /* link in */
@@ -1210,8 +1439,120 @@ out:
 }
 
 
-/* 
- * Call pmFetch() for the whole group.  Unpack/convert/store results
+int
+pmExtendFetchGroup_event(pmFG pmfg, const char *metric, const char *instance, const char *field, const char *scale,
+			 struct timeval out_times[], pmAtomValue out_values[], int out_type, int out_stss[],
+			 unsigned out_maxnum, unsigned *out_num, int *out_sts)
+{
+    int sts;
+    pmFGI item;
+    int saved_ctx = pmWhichContext();
+
+    if (pmfg == NULL || metric == NULL) {
+	sts = -EINVAL;
+	goto out;
+    }
+
+    sts = pmUseContext(pmfg->ctx);
+    if (sts != 0)
+	goto out;
+
+    item = calloc(1, sizeof(*item));
+    if (item == NULL) {
+	sts = -ENOMEM;
+	goto out;
+    }
+
+    item->type = pmfg_event;
+
+    sts = pmfg_lookup_event(metric, instance, field, item);
+    if (sts != 0) {
+	/* If this was an archive, the instance/indom pair may not be present
+	   as of the current moment.  Seek to the end of the archive temporarily
+	   to try again there. */
+	__pmContext *ctxp = __pmHandleToPtr(pmfg->ctx);
+	assert(ctxp);
+	if (ctxp->c_type == PM_CONTEXT_ARCHIVE) {
+	    struct timeval saved_origin;
+	    struct timeval archive_end;
+	    int saved_mode, saved_delta;
+	    saved_origin.tv_sec = ctxp->c_origin.tv_sec;
+	    saved_origin.tv_usec = ctxp->c_origin.tv_usec;
+	    saved_mode = ctxp->c_mode;
+	    saved_delta = ctxp->c_delta;
+	    PM_UNLOCK(ctxp->c_lock);
+	    sts = pmGetArchiveEnd(&archive_end);
+	    if (sts < 0)
+		goto out1;
+	    sts = pmSetMode (PM_MODE_BACK, &archive_end, 0);
+	    if (sts < 0)
+		goto out1;
+	    /* try again */
+	    sts = pmfg_lookup_event(metric, instance, field, item);
+	    /* go back to saved position */
+	    (void) pmSetMode (saved_mode, &saved_origin, saved_delta);
+	    if (sts < 0)
+		goto out1;
+	} else { /* not archive */
+	    PM_UNLOCK(ctxp->c_lock);
+	    goto out1;
+	}
+    }
+
+    if (item->u.event.metric_desc.type != PM_TYPE_EVENT
+	/* && item->u.event.metric_desc.type != PM_TYPE_HIGHRES_EVENT */) {
+	sts = PM_ERR_TYPE;
+	goto out1;
+    }
+
+    sts = pmfg_prep_conversion(&item->u.event.field_desc, scale, &item->u.event.conv, out_type);
+    if (sts != 0)
+	goto out1;
+
+    /* Reject rate conversion requests, since it's not clear what to
+       refer to; (which field of) previous event record?  which
+       previous field in the same record?  */
+    if (item->u.event.conv.rate_convert_p) {
+	sts = PM_ERR_CONV;
+	goto out1;
+    }
+
+    sts = pmfg_add_pmid(pmfg, item->u.event.metric_pmid);
+    if (sts < 0)
+	goto out1;
+
+    item->u.event.output_values = out_values;
+    item->u.event.output_times = out_times;
+    item->u.event.output_type = out_type;
+    item->u.event.output_stss = out_stss;
+    item->u.event.output_sts = out_sts;
+    item->u.event.output_maxnum = out_maxnum;
+    item->u.event.output_num = out_num;
+
+    /* ensure no stale pointers/content before first reinit */
+    if (out_values)
+	memset(out_values, 0, sizeof(pmAtomValue) * out_maxnum);
+    if (out_num)
+	*out_num = 0;
+    pmfg_reinit_event(item);
+
+    /* link in */
+    item->next = pmfg->items;
+    pmfg->items = item;
+    sts = 0;
+    goto out;
+
+out1:
+    free(item);
+out:
+    (void) pmUseContext(saved_ctx);
+    return sts;
+}
+
+
+
+/*
+ * Call pmFetch() for the whole group.	Unpack/convert/store results
  * and error codes for all items that requested it.
  */
 int
@@ -1236,12 +1577,16 @@ pmFetchGroup(pmFG pmfg)
 		pmfg_reinit_timestamp(item);
 		break;
 	    case pmfg_item:
-                if (item->u.item.metric_desc.sem != PM_SEM_DISCRETE)
-                    pmfg_reinit_item(item); /* preserve DISCRETE */
+		if (item->u.item.metric_desc.sem != PM_SEM_DISCRETE)
+		    pmfg_reinit_item(item); /* preserve DISCRETE */
 		break;
 	    case pmfg_indom:
-                if (item->u.indom.metric_desc.sem != PM_SEM_DISCRETE)
-                    pmfg_reinit_indom(item); /* preserve DISCRETE */
+		if (item->u.indom.metric_desc.sem != PM_SEM_DISCRETE)
+		    pmfg_reinit_indom(item); /* preserve DISCRETE */
+		break;
+	    case pmfg_event:
+		/* DISCRETE mode doesn't make sense for an event vector */
+		pmfg_reinit_event(item);
 		break;
 	    default:
 		assert(0);	/* can't happen */
@@ -1281,12 +1626,15 @@ pmFetchGroup(pmFG pmfg)
 	    case pmfg_indom:
 		pmfg_fetch_indom(pmfg, item, newResult);
 		break;
+	    case pmfg_event:
+		pmfg_fetch_event(pmfg, item, newResult);
+		break;
 	    default:
 		assert(0);	/* can't happen */
 	}
     }
 
-    /* Store new result as previous, if there was one.  If we
+    /* Store new result as previous, if there was one.	If we
        encountered a pmFetch error this time, retain the previous
        results, as a rate-conversion reference for a future successful
        pmFetch. */
@@ -1331,7 +1679,10 @@ pmDestroyFetchGroup(pmFG pmfg)
 		free(item->u.indom.indom_codes);
 		free(item->u.indom.indom_names);
 		break;
-	    case pmfg_timestamp:
+	    case pmfg_event:
+		pmfg_reinit_event(item);
+		break;
+	case pmfg_timestamp:
 		/* no dynamically allocated content. */
 		break;
 	    default:

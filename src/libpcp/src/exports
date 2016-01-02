@@ -515,6 +515,7 @@ PCP_3.14 {
     pmGetFetchGroupContext;
     pmExtendFetchGroup_item;
     pmExtendFetchGroup_indom;
+    pmExtendFetchGroup_event;
     pmExtendFetchGroup_timestamp;
     pmFetchGroup;
     pmDestroyFetchGroup;
