@@ -29,6 +29,7 @@
 [\f3\-L\f1]
 [\f3\-N\f1]
 [\f3\-G\f1]
+[\f3\-X\f1]
 [\f3\-i\f1 \f2min-interval\f1]
 [\f3\-I\f1
 [\f3\-K\f1 \f2spec\f1]
@@ -113,6 +114,10 @@ use both \f3\-G\f1 and \f3\-R\f1, and connect your web browser to
 .B http://127.0.0.1:43323/
 .hy
 .TP
+\f3\-X\f1
+Disable encoding of common characters for metric names, which allows
+shorter graphite metric names.
+.TP
 \f3\-i\f1 \f2min-interval\f1
 Set the minimum sampling interval for graphite time series in seconds.
 The default is 60.  Smaller values give higher precision (but not
@@ -150,7 +155,7 @@ to the given host (with an extended syntax as given in
 or archive file, or the PM_CONTEXT_LOCAL.
 .TP
 \f3\-P\f1
-Run in permissive mode (deprecated), allowing Unix domain socket connections
+Run in permissive mode, allowing Unix domain socket connections
 and/or local PMDA contexts.
 By default these are not allowed due to the automatic authentication that
 is performed on the server in these modes.
@@ -160,10 +165,6 @@ clients will be able to access
 potentially sensitive performance metric values which an unauthenticated
 .BR PMAPI (3)
 client usually would not be able to.
-Only enable this option if you understand the risks involved, and are sure
-that all remote
-.B pmwebd
-accesses will be from benevolent users.
 .TP
 \f3\-N\f1
 Disable creation of new PMWEBAPI contexts via HTTP requests, leaving only
@@ -253,8 +254,13 @@ incoming requests.  It may be possible for some clients to starve others.
 outbound admission control
 The
 .B pmwebd
-program does not impose ACLs on outbound connections 
-when a new PMAPI context is created for a remote third-party PMCD.
+program does not impose serious ACLs on outbound connections
+when a new PMAPI context is created for a PMCD.
+(Without the
+.BR \-P
+option, connections to UNIX-domain / local PMCDs are blocked.)
+This enables hypothetical use of a pmwebd instance to be used as
+a network proxy/scanner.
 For an archive type context, the files must be located under the
 .B pmwebd
 current directory, or another directory specified by 

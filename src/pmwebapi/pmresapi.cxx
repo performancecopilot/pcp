@@ -122,7 +122,7 @@ pmwebres_respond (struct MHD_Connection *connection, const http_params& params, 
 
     /* XXX: handle if-modified-since */
 
-    if (S_ISDIR (fds.st_mode)) {
+    if (S_ISDIR (fds.st_mode)) { // http level redirect to index.html
 
         string new_file = url;
         // NB: don't add a redundant / -- unlike in UNIX paths, // are not harmless in URLs

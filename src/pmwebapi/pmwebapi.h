@@ -54,6 +54,7 @@ extern unsigned maxtimeout;			/* set by -t option */
 extern unsigned multithread;			/* set by -M option */
 extern unsigned graphite_timestep;              /* set by -i option */
 extern unsigned graphite_archivedir;            /* set by -I option */
+extern unsigned graphite_encode;                /* set by -X option */
 
 struct http_params: public std::multimap <std::string, std::string> {
     std::string operator [] (const std::string &) const;
@@ -87,9 +88,9 @@ pmwebres_respond (struct MHD_Connection *connectio, const http_params &,
 // pmgraphite.cxx
 extern int
 pmgraphite_respond (struct MHD_Connection *connection, const http_params &,
-                    const std::vector <std::string> &url);
+                    const std::vector <std::string> &url, const std::string& url0);
 #else
-#define pmgraphite_respond(conn,params,url) mhd_notify_error(conn, -EOPNOTSUPP)
+#define pmgraphite_respond(conn,params,url,url0) mhd_notify_error(conn, -EOPNOTSUPP)
 #endif
 
 // util.cxx

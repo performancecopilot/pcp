@@ -50,8 +50,6 @@ protected:
 };
 
 
-
-
 // Instances of pmmgr_daemon represent a possibly-live, restartable daemon.
 class pmmgr_daemon: public pmmgr_configurable 
 {
@@ -80,6 +78,7 @@ protected:
   std::string daemon_command_line();
 };
 
+
 class pmmgr_pmie_daemon: public pmmgr_daemon
 {
 public:
@@ -88,6 +87,19 @@ public:
 protected:
   std::string daemon_command_line();
 };
+
+
+class pmmgr_monitor_daemon: public pmmgr_daemon
+{
+public:
+  pmmgr_monitor_daemon(const std::string& config_directory, const std::string& config_line, unsigned config_index,
+                       const pmmgr_hostid& hostid, const pcp_context_spec& spec);
+protected:
+  std::string config_line;
+  unsigned config_index;
+  std::string daemon_command_line();
+};
+
 
 
 
