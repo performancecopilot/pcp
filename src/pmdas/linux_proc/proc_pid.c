@@ -859,19 +859,19 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 
 	    snprintf(buf, sizeof(buf), "%s/proc/%d/cmdline", proc_statspath, pids->pids[i]);
 	    if ((fd = open(buf, O_RDONLY)) >= 0) {
-		sprintf(buf, "%06d ", pids->pids[i]);
-		if ((k = read(fd, buf+7, sizeof(buf)-8)) > 0) {
-		    p = buf + k +7;
+		int numlen = sprintf(buf, "%06d ", pids->pids[i]);
+		if ((k = read(fd, buf+numlen, sizeof(buf)-numlen)) > 0) {
+		    p = buf + k + numlen;
 		    *p-- = '\0';
 		    /* Skip trailing nils, i.e. don't replace them */
-		    while (buf+7 < p) {
+		    while (buf+numlen < p) {
 			if (*p-- != '\0') {
 				break;
 			}
 		    }
 		    /* Remove NULL terminators from cmdline string array */
 		    /* Suggested by Mike Mason <mmlnx@us.ibm.com> */
-		    while (buf+7 < p) {
+		    while (buf+numlen < p) {
 			if (*p == '\0') *p = ' ';
 			p--;
 		    }
