@@ -1014,6 +1014,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Simple Network Management Protocol
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(Net::SNMP)
 
 %description pmda-snmp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for

@@ -897,6 +897,19 @@ AC_SUBST(pcp_perl_prog)
 AC_SUBST(have_perl)
 AC_MSG_RESULT($pcp_perl_prog)
 
+AC_MSG_CHECKING([if the SNMP PMDA should be included])
+pmda_snmp=false
+if test "$have_perl" = true
+then
+    dnl rpm built for SNMP PMDA needs Perl Net::SNMP
+    if $pcp_perl_prog -e "use Net::SNMP" >/dev/null 2>&1
+    then
+	pmda_snmp=true
+    fi
+fi
+AC_SUBST(PMDA_SNMP, $pmda_snmp)
+if $pmda_snmp; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
 AC_MSG_CHECKING([if the mysql PMDA should be included])
 pmda_mysql=false
 if test "$have_perl" = true
