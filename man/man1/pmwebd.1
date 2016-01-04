@@ -155,10 +155,14 @@ to the given host (with an extended syntax as given in
 or archive file, or the PM_CONTEXT_LOCAL.
 .TP
 \f3\-P\f1
-Run in permissive mode, allowing Unix domain socket connections
+Run in permissive mode (deprecated), allowing Unix domain socket connections
 and/or local PMDA contexts.
 By default these are not allowed due to the automatic authentication that
 is performed on the server in these modes.
+Only enable this option if you understand the risks involved, and are sure
+that all remote
+.B pmwebd
+accesses will be from benevolent users.
 If enabled, unauthenticated remote
 .BR PMWEBAPI (3)
 clients will be able to access
@@ -248,19 +252,20 @@ authentication; see below.
 inbound admission control
 The
 .B pmwebd
-program does not impose ACLs on the origin or rate of its
+program does not impose access control on the origin or rate of its
 incoming requests.  It may be possible for some clients to starve others.
 .TP
 outbound admission control
 The
 .B pmwebd
-program does not impose serious ACLs on outbound connections
+program does not impose access control on outbound connections
 when a new PMAPI context is created for a PMCD.
 (Without the
 .BR \-P
 option, connections to UNIX-domain / local PMCDs are blocked.)
-This enables hypothetical use of a pmwebd instance to be used as
-a network proxy/scanner.
+This enables hypothetical use of a
+.B pmwebd
+instance to be used as a network proxy/scanner.
 For an archive type context, the files must be located under the
 .B pmwebd
 current directory, or another directory specified by 
