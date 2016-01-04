@@ -657,8 +657,8 @@ pmmgr_job_spec::poll()
 	      (void) wrap_system(cleanup_cmd);
 	    }
 	}
+      globfree (& the_blob);
     }
-  globfree (& the_blob);
 }
 
 
@@ -1169,6 +1169,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
                 }
             }
         }
+      globfree (& the_blob);
 
       string timestr = "archive";
       time_t now2 = time(NULL);
