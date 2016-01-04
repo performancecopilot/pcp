@@ -1,0 +1,86 @@
+#!/bin/sh
+# PCP QA Test No. 1068
+# Exercise pmrep Zabbix export reporting modes.
+#
+# Copyright (c) 2015 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+status=1	# failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_seq_store()
+{
+    echo "--- pmrep stdout --" >>$seq.full
+    cat $tmp.pmrep.out >>$seq.full
+    echo "--- pmrep stderr --" >>$seq.full
+    cat $tmp.pmrep.err >>$seq.full
+    echo "--- socat stdout --" >>$seq.full
+    cat $tmp.socat.out >>$seq.full
+    echo "--- socat stderr --" >>$seq.full
+    cat $tmp.socat.err >>$seq.full
+}
+
+_zbx_header()
+{
+    output=$1
+
+    # extract the (partially binary) header, preceding the JSON response
+    # and make it into a deterministic string
+    sed -n 1p $output | \
+    sed -e 's/{//g' | \
+    od -c | \
+    sed -n 1p | \
+    sed -e 's/ D 001.*/ D/g'
+}
+
+zabbix_port=`_find_free_port`
+log="-z --archive $here/archives/sample-secs"
+
+# real QA test starts here
+cat <<EOF >$tmp.config
+[options]
+zabbix_port = $zabbix_port
+zabbix_host = HOSTNAME
+zabbix_server = localhost
+[globals]
+secs = sample.seconds
+msecs = sample.milliseconds
+EOF
+
+cat $tmp.config >>$seq.full
+
+socat tcp-listen:$zabbix_port,reuseaddr - >$tmp.socat.out 2>$tmp.socat.err &
+pid=$!
+sleep 2
+pmrep -t 2 -s 3 $log -c $tmp.config -o zabbix sample >$tmp.pmrep.out 2>$tmp.pmrep.err &   # will error out after socket cat dies
+pmpid=$!
+sleep 2
+$signal $pid $pmpid 2>/dev/null
+wait
+_seq_store
+
+echo "== Zabbix server input ==="
+# check the first line has the initial ZBXD preamble (before JSON)
+header=`_zbx_header $tmp.socat.out`
+echo "header: $header"
+echo "body:"
+echo '{' # ate this from the header
+sed -n '1!p' $tmp.socat.out
+echo #}
+
+# success, all done
+status=0
+exit

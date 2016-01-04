@@ -16,7 +16,6 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CMDTARGET = pmdapipe$(EXECSUFFIX)
-OTHERS 	= README pipe.conf
 CFILES	= event.c util.c pipe.c
 HFILES	= event.h util.h
 LLDLIBS = $(PCP_PMDALIB)
@@ -37,8 +36,9 @@ build-me: $(CMDTARGET)
 install:	build-me
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 $(OTHERS) root help pmns $(PMDADIR)
-	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
+	$(INSTALL) -m 644 README root help pmns domain.h $(PMDADIR)
+	$(INSTALL) -m 644 pipe.conf $(PMDADIR)/sample.conf
+	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/pipe.conf.d
 	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
 else
 build-me:

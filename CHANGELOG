@@ -1,5 +1,37 @@
+pcp-3.11.0 (29 January 2016)
+    - Work-in-progress [see http://pcp.io/roadmap]
+
 pcp-3.10.9 (16 December 2015)
-    - Work in progress [see http://pcp.io/roadmap]
+    - pmrep: swiss-army-chainsaw metric reporting utility
+    - pmstat: fix sigsegv from uninit'd var use in gui mode
+    - pcp-iostat: handle transient devices more cleanly
+    - pmwebd: deprecate local context and unix: access
+    - pmwebd: add _store protocol support as in pmwebapi(3)
+    - pmlogrewrite: change severity of DYNAMIC_PMID checks
+    - pmlogger: improvements to derived metric handling
+    - libpcp: fix a missed context unlock case
+    - libpcp: allow exclusive flag to be passed via hostspec
+    - python api: resolve series of corner cases in python APIs
+    - libpcp: finer-grained manipulation of pmcd timeouts
+    - libpcp_pmda: plug memory leak with dynamic metric names
+    - pmdajson: support counter and discrete metrics
+    - pmdanetfilter: update to use current /proc hierarchy
+    - pmdaroot: optimised name lookup for direct match case
+    - pmdaroot: rework partial-systemd-install detection logic
+    - pmdalinux: add support for guest nice CPU time 
+    - pmchart: update vCPU view to account for guest_nice time
+    - pmdalogger: fix buffer overrun after read()
+    - pmevent: consolidate code, merge into pmval sources
+    - pmdapipe: command output event capture PMDA
+    - sar2pcp: add support for sysstat-11.0.1 commands
+    - pmdafreebsd: numerous updates and new kernel metrics
+    - zbxpcp: Zabbix Agent loadable module for pcp metrics
+    - build: remove all dynamic library loading during build
+    - build: switch Mac OS X packaging to /usr/local over /usr
+    - build: FreeBSD porting and QA work across the whole tree
+    - build: add gcc/gcc-c++ build requires for Fedora packages
+    - build: refactor pmda.h to separate out pmdaroot internals
+    - rc scripts: ensure no tmp_t selinux context on configs
 
 pcp-3.10.8 (30 October 2015)
     - pmdaslurm: new PMDA exporting HPC scheduler metrics

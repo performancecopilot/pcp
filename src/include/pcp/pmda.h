@@ -749,44 +749,6 @@ PMDA_CALL extern int pmdaRootContainerHostName(int, const char *, int, char *, i
 PMDA_CALL extern int pmdaRootContainerProcessID(int, const char *, int);
 PMDA_CALL extern int pmdaRootContainerCGroupName(int, const char *, int, char *, int);
 
-/*
- * Local PDU exchange details for elevated privilege operations.
- * Only the PMDAs and pmcd need to know about this.
- */
-#define ROOT_PDU_VERSION1	1
-#define ROOT_PDU_VERSION	ROOT_PDU_VERSION1
-
-#define PDUROOT_INFO		0x9000
-#define PDUROOT_HOSTNAME_REQ	0x9001
-#define PDUROOT_HOSTNAME	0x9002
-#define PDUROOT_PROCESSID_REQ	0x9003
-#define PDUROOT_PROCESSID	0x9004
-#define PDUROOT_CGROUPNAME_REQ	0x9005
-#define PDUROOT_CGROUPNAME	0x9006
-/*#define PDUROOT_STARTPMDA_REQ	0x9007*/
-/*#define PDUROOT_STARTPMDA	0x9008*/
-/*#define PDUROOT_SASLAUTH_REQ	0x9009*/
-/*#define PDUROOT_SASLAUTH	0x900a*/
-
-typedef enum {
-    PDUROOT_FLAG_HOSTNAME	= (1<<0),
-    PDUROOT_FLAG_PROCESSID	= (1<<1),
-    PDUROOT_FLAG_CGROUPNAME	= (1<<2),
-} __pmdaRootServerFeature;
-
-typedef struct {
-    int		type;
-    int		length;
-    int		status;
-    int		version;
-} __pmdaRootPDUHdr;
-
-PMDA_CALL extern int __pmdaSendRootPDUInfo(int, int, int);
-PMDA_CALL extern int __pmdaRecvRootPDUInfo(int, int *, int *);
-PMDA_CALL extern int __pmdaSendRootPDUContainer(int, int, int, const char *, int, int);
-PMDA_CALL extern int __pmdaRecvRootPDUContainer(int, int, void *, int);
-PMDA_CALL extern int __pmdaDecodeRootPDUContainer(void *, int, int *, char *, int);
-
 #ifdef __cplusplus
 }
 #endif

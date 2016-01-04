@@ -12,9 +12,9 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtCore/QString>
-#include <QtGui/QMessageBox>
-#include <QtGui/QColor>
+#include <QString>
+#include <QMessageBox>
+#include <QColor>
 
 #include <string.h>
 #include <sys/time.h>
@@ -98,7 +98,7 @@ static void err(int severity, int do_where, QString msg)
 	// else do nothing for E_INFO
 	msg.append("\n");
 	fflush(stderr);
-	pmprintf("%s", (const char *)msg.toAscii());
+	pmprintf("%s", (const char *)msg.toLatin1());
 	pmflush();
     }
     else {
@@ -283,7 +283,7 @@ bool OpenViewDialog::openView(const char *path)
 	    // try user's pmchart dir ...
 	    snprintf(_fname, sizeof(_fname),
 			"%s%c" ".pcp%c" "pmchart%c" "%s",
-			(const char *)homepath.toAscii(), sep, sep, sep, path);
+			(const char *)homepath.toLatin1(), sep, sep, sep, path);
 	    if ((f = fopen(_fname, "r")) == NULL) {
 		// try system pmchart dir
 		snprintf(_fname, sizeof(_fname),
@@ -293,7 +293,7 @@ bool OpenViewDialog::openView(const char *path)
 		    // try user's kmchart dir
 		    snprintf(_fname, sizeof(_fname),
 				"%s%c" ".pcp%c" "kmchart%c" "%s",
-				(const char *)homepath.toAscii(),
+				(const char *)homepath.toLatin1(),
 				sep, sep, sep, path);
 		    if ((f = fopen(_fname, "r")) == NULL) {
 			// try system kmchart dir
@@ -971,7 +971,7 @@ done_tab:
 		    // no explicit host, use current default source
 		    QmcSource source = activeGroup->context()->source();
 		    pms.source = strdup((const char *)
-					source.source().toAscii());
+					source.source().toLatin1());
 		}
 		// expand instances when not specified for metrics
 		// with instance domains and all instances required,
@@ -1175,9 +1175,9 @@ static void saveScheme(FILE *f, QString scheme)
     int		m;
 
     if (cs) {
-	fprintf(f, "scheme %s", (const char *)cs->name().toAscii());
+	fprintf(f, "scheme %s", (const char *)cs->name().toLatin1());
 	for (m = 0; m < cs->size(); m++)
-	    fprintf(f, " %s", (const char *)cs->colorName(m).toAscii());
+	    fprintf(f, " %s", (const char *)cs->colorName(m).toLatin1());
 	fprintf(f, "\n\n");
     }
 }
@@ -1190,7 +1190,7 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 
     fprintf(f, "chart");
     if (cp->title() != QString::null)
-	fprintf(f, " title \"%s\"", (const char*)cp->title().toAscii());
+	fprintf(f, " title \"%s\"", (const char*)cp->title().toLatin1());
     switch (cp->style()) {
 	case Chart::LineStyle:
 	    s = "plot";
@@ -1233,15 +1233,15 @@ void SaveViewDialog::saveChart(FILE *f, Chart *cp, bool hostDynamic)
 	fprintf(f, "\tplot");
 	legend = cp->legend(m);
 	if (legend != QString::null)
-	    fprintf(f, " legend \"%s\"", (const char *)legend.toAscii());
-	fprintf(f, " color %s", (const char *)cp->color(m).name().toAscii());
+	    fprintf(f, " legend \"%s\"", (const char *)legend.toLatin1());
+	fprintf(f, " color %s", (const char *)cp->color(m).name().toLatin1());
 	if (hostDynamic == false)
 	    fprintf(f, " host %s", (const char *)
-			cp->metricContext(m)->source().host().toAscii());
+			cp->metricContext(m)->source().host().toLatin1());
         fprintf(f, " metric %s", (const char *)
-                cp->metricName(m).toAscii());
+                cp->metricName(m).toLatin1());
 	if (cp->metricPtr(m)->explicitInsts())
-            fprintf(f, " instance \"%s\"", (const char*)cp->metricInstance(m).toAscii());
+            fprintf(f, " instance \"%s\"", (const char*)cp->metricInstance(m).toLatin1());
 	fputc('\n', f);
     }
 }
@@ -1253,7 +1253,7 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
     int		c, t;
     Tab		*tab;
     Gadget	*gadget;
-    char	*path = strdup((const char *)file.toAscii());
+    char	*path = strdup((const char *)file.toLatin1());
     QStringList	schemes;
 
     if ((f = fopen(path, "w")) == NULL)
@@ -1284,7 +1284,7 @@ bool SaveViewDialog::saveView(QString file, bool hostDynamic,
 	for (t = 0; t < tabWidget->size(); t++) {
 	    tab = tabWidget->at(t);
 	    fprintf(f, "\ntab \"%s\"\n\n",
-		    (const char *) tabWidget->tabText(t).toAscii());
+		    (const char *) tabWidget->tabText(t).toLatin1());
 	    for (c = 0; c < tab->gadgetCount(); c++)
 		tab->gadget(c)->save(f, hostDynamic);
 	}

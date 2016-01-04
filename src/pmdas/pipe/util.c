@@ -26,10 +26,13 @@
 #define STDOUT_FD 1			/* stdout fd */
 
 int
-start_cmd(const char *cmd, pid_t *ppid)
+start_cmd(const char *cmd, const char *usr, pid_t *ppid)
 {
     pid_t	child_pid;
     int		i, pipe_fds[2];
+#if !defined(HAVE_PIPE2)
+    int		sts;
+#endif
 
     if (pmDebug & DBG_TRACE_APPL0)
 	__pmNotifyErr(LOG_INFO, "%s: Trying to run command: %s", __FUNCTION__,
@@ -85,6 +88,9 @@ start_cmd(const char *cmd, pid_t *ppid)
 	    if (i != STDOUT_FD)
 		close(i);
 	}
+
+	/* Switch to user account under which command is to run. */
+	__pmSetProcessIdentity(usr);
 
 	/* Actually run the command. */
 	execl("/bin/sh", "sh", "-c", cmd, (char *)NULL);

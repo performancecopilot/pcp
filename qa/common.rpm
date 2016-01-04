@@ -142,8 +142,10 @@ _rpm_package_install()
 	else
 	    echo "Installing $rpm_name" | tee -a $here/$seq.full
 	    echo "RPM pathname: $rpm_bin_pkg" >> $here/$seq.full
+	    echo "count before from rpm(1): `$sudo rpm -qa | wc -l | sed -e 's/  *//g'`" >> $seq.full
 	    $sudo rpm -i $rpm_bin_pkg >> $here/$seq.full 2>&1
 	    $sudo rpm -qa >> $seq.full 2>&1
+	    echo "count after from rpm(1): `$sudo rpm -qa | wc -l | sed -e 's/  *//g'`" >> $seq.full
 	fi
     fi
 }

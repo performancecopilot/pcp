@@ -17,7 +17,7 @@
 
 #include "colorscale.h"
 #include "modulate.h"
-#include <QtCore/QVector>
+#include <QVector>
 
 class SoBaseColor;
 class SoScale;

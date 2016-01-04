@@ -1,0 +1,103 @@
+QA output created by 031
+
+pmid: 116.2.8 name: disk.all.total
+
+pmid: PM_ID_NULL name: pmcd
+children of "pmcd" ...
+    agent               <s = 1>
+    buf                 <s = 1>
+    build               <s = 0>
+    client              <s = 1>
+    control             <s = 1>
+    cputime             <s = 1>
+    datasize            <s = 0>
+    numagents           <s = 0>
+    numclients          <s = 0>
+    openfds             <s = 0>
+    pdu_in              <s = 1>
+    pdu_out             <s = 1>
+    pmie                <s = 1>
+    pmlogger            <s = 1>
+    simabi              <s = 0>
+    timezone            <s = 0>
+    version             <s = 0>
+
+pmid: 116.5.1 name: kernel.all.pswitch
+
+pmid: 116.0.3 name: kernel.all.cpu.user
+
+pmid: PM_ID_NULL name: kernel.all.cpu.wait.total
+pmGetChildren: Unknown metric name
+pmGetChildrenStatus: Unknown metric name
+
+pmid: 116.0.0 name: hinv.ncpu
+
+pmid: PM_ID_NULL name: pmcd.control
+children of "pmcd.control" ...
+    debug               <s = 0>
+    dumpconn            <s = 0>
+    dumptrace           <s = 0>
+    register            <s = 0>
+    sighup              <s = 0>
+    timeout             <s = 0>
+    tracebufs           <s = 0>
+    traceconn           <s = 0>
+    tracenobuf          <s = 0>
+    tracepdu            <s = 0>
+
+pmid: 30.0.34 name: sampledso.aggregate.hullo
+
+pmid: 29.0.2 name: sample.seconds
+
+pmid: 29.0.5 name: sample.colour
+
+pmid: PM_ID_NULL name: sample.longlong
+children of "sample.longlong" ...
+    bin                 <s = 0>
+    bin_ctr             <s = 0>
+    hundred             <s = 0>
+    million             <s = 0>
+    one                 <s = 0>
+    ten                 <s = 0>
+    write_me            <s = 0>
+
+pmid: PM_ID_NULL name: bozo.the.clown
+
+children of "" ...
+    disk                <s = 1>
+    filesys             <s = 1>
+    hinv                <s = 1>
+    kernel              <s = 1>
+    mem                 <s = 1>
+    network             <s = 1>
+    pmcd                <s = 1>
+    pmda                <s = 1>
+    sample              <s = 1>
+    sampledso           <s = 1>
+    swap                <s = 1>
+
+Real-time result ...
+pmResult ... numpmid: 12
+  116.2.8 (disk.all.total): numval: 1 valfmt: 1 vlist[]:
+   value NUMBER
+  PM_ID_NULL (<noname>): No PMDA, no values [filtered]
+  116.5.1 (kernel.all.pswitch): numval: 1 valfmt: 0-or-1 vlist[]:
+   value NUMBER
+  116.0.3 (kernel.all.cpu.user): numval: 1 valfmt: 0-or-1 vlist[]:
+   value NUMBER
+  PM_ID_NULL (<noname>): No PMDA, no values [filtered]
+  116.0.0 (hinv.ncpu): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  PM_ID_NULL (<noname>): No PMDA, no values [filtered]
+  30.0.34 (sampledso.aggregate.hullo): numval: 1 valfmt: 1 vlist[]:
+   value STRING AGGREGATE
+  29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER
+  29.0.5 (sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+  PM_ID_NULL (<noname>): No PMDA, no values [filtered]
+  PM_ID_NULL (<noname>): No PMDA, no values [filtered]
+
+Unexpected failure for 2 of N PMAPI operations

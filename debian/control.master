@@ -1,7 +1,7 @@
 Source: pcp
 Section: utils
 Priority: extra
-Homepage: http://www.pcp.io
+Homepage: http://pcp.io
 Maintainer: PCP Development Team <pcp@oss.sgi.com>
 Uploaders: Nathan Scott <nathans@debian.org>, Anibal Monsalve Salazar <anibal@debian.org>
 Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, libqt4-dev, autotools-dev, autoconf
@@ -336,6 +336,21 @@ Description: Tool for importing data from collectl into PCP archive logs
  into standard PCP archive logs for replay with any PCP monitoring tool.
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
+Package: pcp-export-pcp2graphite
+Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, python-pcp
+Breaks: pcp (<< 3.9.0)
+Architecture: any
+Description: Tool for exporting data from PCP to Graphite
+ Performance Co-Pilot (PCP) front-end tool for exporting data from PCP
+ into designated Graphite (Carbon/Whisper) databases.
+
+Package: pcp-export-zabbix-agent
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Architecture: any
+Description: Module for exporting from PCP into a Zabbix agent daemon
+ Performance Co-Pilot (PCP) module for exporting data from PCP via a
+ designated Zabbix agent daemon - see zbxpcp(3) for further details.
+
 Package: pcp-doc
 Section: doc
 Depends: ${misc:Depends}
@@ -351,7 +366,7 @@ Description: Documentation and tutorial for the Performance Co-Pilot
  PCP utilities and daemons, and the PCP graphical tools.
 
 Package: pcp-testsuite
-Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
+Depends: ${misc:Depends}, ${shlibs:Depends}, time, pcp (= ${binary:Version})
 Architecture: any
 Suggests: valgrind
 Provides: pcpqa, pcp-gui-testsuite

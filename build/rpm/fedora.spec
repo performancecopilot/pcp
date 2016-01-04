@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.10.9
+Version: 3.11.0
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -111,6 +111,8 @@ Source2: vector.tar.gz
 Conflicts: librapi
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+# https://fedoraproject.org/wiki/Packaging:C_and_C%2B%2B
+BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
 BuildRequires: nss-devel
 BuildRequires: rpm-devel
@@ -521,18 +523,18 @@ Performance Co-Pilot (PCP) front-end tools for importing ganglia data
 into standard PCP archive logs for replay with any PCP monitoring tool.
 
 #
-# pcp-export-pcp2zabbix
+# pcp-export-zabbix-agent
 #
-%package export-pcp2zabbix
+%package export-zabbix-agent
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot tools for exporting PCP metrics to Zabbix
+Summary: Module for exporting from PCP into a Zabbix agent daemon
 URL: http://www.pcp.io
-Requires: pcp-libs >= %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 
-%description export-pcp2zabbix
-Performance Co-Pilot (PCP) front-end tools for exporting metric values
-to Zabbix (http://www.zabbix.com).
+%description export-zabbix-agent
+Performance Co-Pilot (PCP) module for exporting data from PCP via a
+designated Zabbix agent daemon - see zbxpcp(3) for further details.
 
 %if !%{disable_python2} || !%{disable_python3}
 #
@@ -1012,6 +1014,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Simple Network Management Protocol
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(Net::SNMP)
 
 %description pmda-snmp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1743,7 +1746,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 
 # all base pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E -v 'pmiostat|pmcollectl|pmatop|pcp2graphite|zabbix' |\
+  grep -E -v 'pmiostat|pmcollectl|pmatop|pmrep|pcp2graphite|zabbix|zbxpcp' |\
   sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 #
 # Separate the pcp-system-tools package files.
@@ -1752,7 +1755,7 @@ ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
 # pcp(1) sub-command variants so must also be in pcp-system-tools.
 %if !%{disable_python2} || !%{disable_python3}
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E 'pmiostat|pmcollectl|pmatop' |\
+  grep -E 'pmiostat|pmcollectl|pmatop|pmrep' |\
   sed -e 's#^#'%{_bindir}'\/#' >pcp_system_tools.list
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
   grep -E 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' |\
@@ -2061,7 +2064,6 @@ cd
 %config(noreplace) %{_sysconfdir}/sysconfig/pmcd
 %config %{_sysconfdir}/bash_completion.d/pcp
 %config %{_sysconfdir}/pcp.env
-%config %{_sysconfdir}/pcp.sh
 %dir %{_confdir}/pmcd
 %config(noreplace) %{_confdir}/pmcd/pmcd.conf
 %config(noreplace) %{_confdir}/pmcd/pmcd.options
@@ -2320,8 +2322,8 @@ cd
 %{_bindir}/pcp2graphite
 %endif # !%{disable_python2} || !%{disable_python3}
 
-%files export-pcp2zabbix
-%{_localstatedir}/lib/zabbix
+%files export-zabbix-agent
+%{_libdir}/zabbix
 
 %if !%{disable_json}
 %files pmda-json
@@ -2417,14 +2419,26 @@ cd
 
 %if !%{disable_python2} || !%{disable_python3}
 %files -n pcp-system-tools -f pcp_system_tools.list
+%dir %{_confdir}/pmrep
+%config(noreplace) %{_confdir}/pmrep/pmrep.conf
 %endif
 
 %changelog
+* Fri Jan 29 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.0-1
+- Work-in-progress [see http://pcp.io/roadmap]
+
 * Wed Dec 16 2015 Lukas Berk <lberk@redhat.com> - 3.10.9-1
 - Add -V/--version support to several more commands (BZ 1284411)
 - Resolve a pcp-iostat(1) transient device exception (BZ 1249572)
 - Provides pmdapipe, an output-capturing domain agent (BZ 1163413)
-- Work in progress [see http://pcp.io/roadmap]
+- Python PMAPI pmSetMode allows None timeval parameter (BZ 1284417)
+- Python PMI pmiPutValue now supports singular metrics (BZ 1285371)
+- Fix python PMAPI pmRegisterDerived wrapper interface (BZ 1286733)
+- Fix pmstat SEGV when run with graphical time control (BZ 1287678)
+- Make pmNonOptionsFromList error message less cryptic (BZ 1287778)
+- Drop unimplemented pmdumptext options from usage, man page (BZ 1289909)
+- Stop creating configuration files in tmp_t locations (BZ 1256125)
+- Update to latest PCP sources.
 
 * Fri Oct 30 2015 Mark Goodwin <mgoodwin@redhat.com> - 3.10.8-1
 - Update pmlogger to log an immediate sample first (BZ 1269921)

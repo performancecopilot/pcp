@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, Red Hat.
+ * Copyright (c) 2013-2015, Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -15,6 +15,7 @@
 #define QED_GADGET_H
 
 #include <QtGui>
+#include <QWidget>
 
 class QedGadget : public QWidget
 {

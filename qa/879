@@ -26,12 +26,21 @@ _log()
     echo $@ | tee -a $seq.full 
 }
 
+_filter()
+{
+    sed \
+	-e "s,$tmp.config,CONFIG,g" \
+	-e "s,$groupname,NAME,g" \
+	-e "s,$username,NAME,g" \
+    #end
+}
+
 _check_config()
 {
     debug="APPL0,APPL1,APPL2"
     $PCP_PMDAS_DIR/pipe/pmdapipe -C -c $tmp.config -D $debug >$tmp.log 2>&1
     sts=$?
-    cat $tmp.log | tee -a $seq.full | sed -e "s,$tmp.config,CONFIG,g"
+    cat $tmp.log | tee -a $seq.full | _filter
     echo "sts=$sts" && echo
 }
 
@@ -48,9 +57,6 @@ _check_config
 _log "== checking missing command field"
 echo 'instance user ' > $tmp.config
 _check_config
-
-status=0
-exit
 
 _log "== checking valid access control section"
 echo 'instance user command and parameters' > $tmp.config
@@ -77,16 +83,6 @@ _check_config
 _log "== checking invalid access control line (no instance)"
 cp $tmp.valid $tmp.config
 echo "allow group $groupname : " >> $tmp.config
-_check_config
-
-_log "== checking invalid access control line (bad instance)"
-cp $tmp.valid $tmp.config
-echo "allow group $groupname : no-such-instance" >> $tmp.config
-_check_config
-
-_log "== checking invalid access control line (bad username)"
-cp $tmp.valid $tmp.config
-echo "allow user no-such-user : instance" >> $tmp.config
 _check_config
 
 status=0

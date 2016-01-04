@@ -178,6 +178,7 @@ pmda.memcache
 pmda.mmv
 pmda.mounts
 pmda.mpi
+pmda.netfilter
 pmda.news
 pmda.nvidia
 pmda.papi
@@ -1017,9 +1018,12 @@ cgroups
 794 containers pmcd pmda.pmcd local
 795 pmimport local pmdumplog perl local
 796 pmda.elasticsearch local
+797 pmlogrewrite local
 798 pmda.nfsclient local
 799:retired pmda.papi local
 800 pmda.proc local
+801 pmda.netfilter local
+802 pmda valgrind dbpmda local
 805 pmda.postfix local
 807 pcp local
 808 pmlogger local
@@ -1054,6 +1058,7 @@ cgroups
 846 pmimport local pmdumplog perl local
 850 python local
 853 pmcpp local
+855 pmda.netfilter local
 860 pmda pmda.proc ostest local
 861 pmcd pmda.pmcd local
 862 pmie local
@@ -1067,8 +1072,10 @@ cgroups
 876 pmda.xfs local
 877 libpcp local
 878 pmda.pipe local
+879 pmda.pipe local
 885 pmda.linux local
 888 pmda.linux local
+889 pmda.proc local
 892 pmcd libpcp local
 897 pmlc pmlogger local
 898 pmlogmv local 
@@ -1111,6 +1118,7 @@ cgroups
 965 derive local
 966 secure local
 967 pmda.papi local
+968 python local
 972 pmda.zswap dbpmda local
 973 pmda.zswap pmda.install local
 974 pmda.proc local
@@ -1128,6 +1136,7 @@ cgroups
 986 pmimport local pmdumplog perl local
 987 pmda.xfs local
 988 pmda.xfs local valgrind
+989 archive local
 991 pcp python local
 992 pmcpp pmlogger local
 993 pmlogger pmdumplog local
@@ -1183,10 +1192,13 @@ cgroups
 1054 pmlogger pmcpp local
 1065 libpcp valgrind local
 1067 zabbix zbxpcp local
+1068 pmrep python zabbix local
+1069 pmrep python local
 1079 pcp atop local
 1080 valgrind pcp atop local
 1081 python pcp local
 1082 python local
+1090 webapi local context
 1091 pmns libpcp context local
 1092 libpcp local
 1093 pmcpp local

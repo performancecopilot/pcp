@@ -50,7 +50,7 @@ export PCPQA_NO_RC_STATUS
 
 case $PCP_PLATFORM
 in
-    linux|freebsd|solaris|aix)
+    linux|freebsd|netbsd|solaris|aix)
     	DSO_SUFFIX=so
 	;;
     darwin)
@@ -61,8 +61,15 @@ in
 	;;
 esac
 
+# does sudo support -E?
+#
+# sudo usage in two forms ...
+#	sudo ... [-AbEHknPS] ...
+# or
+#	-E, --preserve-env
+#
 sudo=`which sudo`
-if $sudo -E true >/dev/null 2>&1
+if $sudo -h 2>&1 | egrep '(\[-[a-zA-DF-Z]*E[a-zA-Z]*\])|(.-E[, 	])' >/dev/null 2>&1
 then
     # sudo has -E to preserve the environment
     #

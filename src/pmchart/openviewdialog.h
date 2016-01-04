@@ -15,7 +15,7 @@
 #define OPENVIEWDIALOG_H
 
 #include "ui_openviewdialog.h"
-#include <QtGui/QDirModel>
+#include <QDirModel>
 
 class OpenViewDialog : public QDialog, public Ui::OpenViewDialog
 {

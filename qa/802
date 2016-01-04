@@ -1,0 +1,50 @@
+#!/bin/sh
+# PCP QA Test No. 802
+# github-#56 - memleak in libpcp_pmda with dynamic metrics
+#
+# Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+VALGRIND=`which valgrind`
+
+dbpmda 2>$tmp._valgrind.err >$tmp._valgrind.out <<End-of-File
+open pipe $VALGRIND --log-file=$tmp._valgrind --leak-check=full pmdas/github-56/pmdatrivial
+children trivial
+exit
+End-of-File
+
+sleep 1
+
+# from _run_valgrind() ...
+#
+echo "=== std out ==="
+sed -e "s@$tmp@TMP@g" -e "s@$VALGRIND@VALGRIND@"<$tmp._valgrind.out
+echo "=== std err ==="
+sed < $tmp._valgrind.err \
+    -e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+    -e 's/trivial([0-9]*)/trivial(PID)/'
+echo "=== valgrind report ===" >>$here/$seq.full
+cat $tmp._valgrind >>$here/$seq.full
+echo "=== filtered valgrind report ==="
+_filter_valgrind <$tmp._valgrind
+
+# success, all done
+status=0
+
+exit

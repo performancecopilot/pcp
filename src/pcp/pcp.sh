@@ -58,7 +58,7 @@ EOF
 
 _usage()
 {
-    [ ! -z "$@" ] && echo $@ 1>&2
+    [ ! -z "$@" ] && echo "$@" 1>&2
 
     ls $PCP_BINADM_DIR/pcp-* $HOME/.pcp/bin/pcp-* 2>/dev/null | \
     while read command
@@ -85,7 +85,7 @@ _fmt()
 {
     if [ "$PCP_PLATFORM" = netbsd ]
     then
-	fmt -g 64
+	fmt -m 64
     else
 	fmt -w 64
     fi \
@@ -230,4 +230,4 @@ $Zflag && export PCP_TIMEZONE="$pcp_timezone"
 $zflag && export PCP_HOSTZONE=true
 
 rm -rf $tmp	# cleanup now, no trap handler post-exec
-exec $command $opts $@
+exec $command $opts "$@"

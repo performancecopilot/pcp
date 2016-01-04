@@ -10,8 +10,6 @@ PNGFILES = $(shell echo *.svg | sed -e 's/\.svg/.png/g')
 PNGFILES += $(DESKTOP_ICONS)
 ICNFILES = $(shell echo *.icns *.ico)
 
-LSRCFILES = $(SVGFILES) $(PNGFILES) $(ICNFILES) $(HTMLDOC_ICONS)
-
 # use checked in files by default, so no default build rule
 default:
 

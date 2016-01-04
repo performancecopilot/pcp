@@ -16,7 +16,7 @@
 #define _DEFAULTOBJ_H_
 
 #include "main.h"
-#include <QtCore/QTextStream>
+#include <QTextStream>
 
 class DefaultObj
 {

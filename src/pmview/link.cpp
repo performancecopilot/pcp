@@ -174,7 +174,7 @@ Link::finishedAdd ()
     }
 
 
-    ToggleMod * m = new ToggleMod (mainsep, (const char *)_tag.toAscii());
+    ToggleMod * m = new ToggleMod (mainsep, (const char *)_tag.toLatin1());
     _root->addChild (m->root());
 }
 

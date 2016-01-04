@@ -126,7 +126,7 @@ BarObj::finishedAdd()
     // Determine color mapping
 
     if (_colors.size())
-	colSpec = theColorLists.list((const char *)_colors.toAscii());
+	colSpec = theColorLists.list((const char *)_colors.toLatin1());
 
     if (colSpec != NULL) {
         if (colSpec->_scale) {
@@ -342,7 +342,7 @@ BarObj::name() const
 	}
     }
 
-    return (const char *)myName.toAscii();
+    return (const char *)myName.toLatin1();
 }
 
 Text **

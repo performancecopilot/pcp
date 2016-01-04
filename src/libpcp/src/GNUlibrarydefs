@@ -14,12 +14,13 @@ LIBPCP_CFLAGS += $(AVAHICFLAGS)
 endif
 
 ifeq "$(TARGET_OS)" "mingw"
-LIBPCP_LDLIBS	+= -lpsapi -lws2_32
+LIBPCP_LDLIBS += -lpsapi -lws2_32
 endif
 
 ifeq "$(TARGET_OS)" "solaris"
 # enables standards compliant thread-safe interfaces (accounts.c)
 LIBPCP_CFLAGS += -D_POSIX_PTHREAD_SEMANTICS
+LIBPCP_LDLIBS += $(PLDLIBS)
 endif
 
 ifeq "$(LIB_FOR_BASENAME)" "-lpcp"

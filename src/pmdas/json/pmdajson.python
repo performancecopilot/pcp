@@ -633,6 +633,26 @@ class JsonSource(object):
                 metric_info.units = value
 
             #
+            # 'semantics' (optional): Type check and save it.
+            #
+            if 'semantics' in item:
+                value = item['semantics']
+                if not isinstance(value, text_type):
+                    self.log("Invalid schema 'semantics' value for metric '%s'"
+                             % metric_info.name)
+                    del metric_info
+                    continue
+                if value == "instant" or value == "instantaneous":
+                   metric_info.sem = c_api.PM_SEM_INSTANT
+                elif value == "counter":
+                    metric_info.sem = c_api.PM_SEM_COUNTER
+                elif value == "discrete":
+                    metric_info.sem = c_api.PM_SEM_DISCRETE
+                else:
+                    del metric_info
+                    continue
+
+            #
             # Silently ignore unknown key values.
             #
 
@@ -878,6 +898,26 @@ class JsonSource(object):
                     del metric_info
                     continue
                 metric_info.units = value
+
+            #
+            # 'semantics' (optional): Type check and save it.
+            #
+            if 'semantics' in item:
+                value = item['semantics']
+                if not isinstance(value, text_type):
+                    self.log("Invalid schema 'semantics' value for metric '%s'"
+                             % metric_info.name)
+                    del metric_info
+                    continue
+                if value == "instant" or value == "instantaneous":
+                   metric_info.sem = c_api.PM_SEM_INSTANT
+                elif value == "counter":
+                    metric_info.sem = c_api.PM_SEM_COUNTER
+                elif value == "discrete":
+                    metric_info.sem = c_api.PM_SEM_DISCRETE
+                else:
+                    del metric_info
+                    continue
 
             #
             # Silently ignore unknown key values.

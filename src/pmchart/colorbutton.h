@@ -14,7 +14,7 @@
 #ifndef COLORBUTTON_H
 #define COLORBUTTON_H
 
-#include <QtGui/QToolButton>
+#include <QToolButton>
 
 class ColorButton : public QToolButton
 {

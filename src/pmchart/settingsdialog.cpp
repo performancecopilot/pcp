@@ -13,10 +13,10 @@
  * for more details.
  */
 #include "settingsdialog.h"
-#include <QtGui/QCompleter>
-#include <QtGui/QMessageBox>
-#include <QtGui/QFontDatabase>
-#include <QtGui/QListWidgetItem>
+#include <QCompleter>
+#include <QMessageBox>
+#include <QFontDatabase>
+#include <QListWidgetItem>
 #include "main.h"
 #include "hostdialog.h"
 
@@ -724,7 +724,7 @@ void SettingsDialog::hostButton_clicked()
 	} else {
 	    console->post(PmChart::DebugUi,
 			"OpenViewDialog::newHost: %s (flags=0x%x)",
-			(const char *)hostspec.toAscii(), flags);
+			(const char *)hostspec.toLatin1(), flags);
 	    setupHostComboBox(hostname);
 	    if (globalSettings.savedHosts.contains(hostname) == false) {
 		globalSettings.savedHostsModified = true;

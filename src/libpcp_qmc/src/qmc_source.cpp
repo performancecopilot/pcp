@@ -112,7 +112,7 @@ QmcSource::retryConnect(int type, QString &source)
 
     oldContext = pmWhichContext();
     hostSpec = source;
-    my.status = pmNewContext(type | my.flags, (const char *)hostSpec.toAscii());
+    my.status = pmNewContext(type | my.flags, (const char *)hostSpec.toLatin1());
     if (my.status >= 0) {
 	my.handles.append(my.status);
 
@@ -126,7 +126,7 @@ QmcSource::retryConnect(int type, QString &source)
 	    sts = pmGetArchiveLabel(&lp);
 	    if (sts < 0) {
 		pmprintf("%s: Unable to obtain log label for \"%s\": %s\n",
-			 pmProgname, (const char *)my.desc.toAscii(),
+			 pmProgname, (const char *)my.desc.toLatin1(),
 			 pmErrStr(sts));
 		my.host = "unknown?";
 		my.status = sts;
@@ -139,7 +139,7 @@ QmcSource::retryConnect(int type, QString &source)
 	    sts = pmGetArchiveEnd(&my.end);
 	    if (sts < 0) {
 		pmprintf("%s: Unable to determine end of \"%s\": %s\n",
-			 pmProgname, (const char *)my.desc.toAscii(),
+			 pmProgname, (const char *)my.desc.toLatin1(),
 			 pmErrStr(sts));
 		my.status = sts;
 		goto done;
@@ -160,7 +160,7 @@ QmcSource::retryConnect(int type, QString &source)
 	my.tz = pmNewContextZone();
 	if (my.tz < 0)
 	    pmprintf("%s: Warning: Unable to obtain timezone for %s: %s\n",
-		     pmProgname, (const char *)my.desc.toAscii(),
+		     pmProgname, (const char *)my.desc.toLatin1(),
 		     pmErrStr(my.tz));
 	else {
 	    sts = pmWhichZone(&tzs);
@@ -168,7 +168,7 @@ QmcSource::retryConnect(int type, QString &source)
 		my.timezone = tzs;
 	    else
 		pmprintf("%s: Warning: Unable to obtain timezone for %s: %s\n",
-			 pmProgname, (const char *)my.desc.toAscii(),
+			 pmProgname, (const char *)my.desc.toLatin1(),
 			 pmErrStr(sts));
 	}
 
@@ -177,7 +177,7 @@ QmcSource::retryConnect(int type, QString &source)
 	    if (sts < 0) {
 		pmprintf("%s: Warning: Unable to switch timezones."
 			 " Using timezone for %s: %s\n",
-			 pmProgname, (const char *)my.desc.toAscii(),
+			 pmProgname, (const char *)my.desc.toLatin1(),
 			 pmErrStr(sts));
 	    }	
 	}
@@ -196,7 +196,7 @@ QmcSource::retryConnect(int type, QString &source)
 	if (sts < 0) {
 	    pmprintf("%s: Warning: Unable to switch contexts."
 		     " Using context to %s: %s\n",
-		     pmProgname, (const char *)my.desc.toAscii(),
+		     pmProgname, (const char *)my.desc.toLatin1(),
 		     pmErrStr(sts));
 	}
     }
@@ -334,7 +334,7 @@ QmcSource::dupContext()
 	}
 	else
 	    pmprintf("%s: Error: Unable to switch to context for \"%s\": %s\n",
-		     pmProgname, (const char *)my.desc.toAscii(),
+		     pmProgname, (const char *)my.desc.toLatin1(),
 		     pmErrStr(sts));
     }
     else if (my.handles.size()) {
@@ -353,12 +353,12 @@ QmcSource::dupContext()
 	    else
 		pmprintf("%s: Error: "
 			 "Unable to duplicate context to \"%s\": %s\n",
-			 pmProgname, (const char *)my.desc.toAscii(),
+			 pmProgname, (const char *)my.desc.toLatin1(),
 			 pmErrStr(sts));
 	}
 	else
 	    pmprintf("%s: Error: Unable to switch to context for \"%s\": %s\n",
-		     pmProgname, (const char *)my.desc.toAscii(),
+		     pmProgname, (const char *)my.desc.toLatin1(),
 		     pmErrStr(sts));
     }
     // No active contexts, create a new context

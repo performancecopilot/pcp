@@ -65,6 +65,7 @@ then
     echo "$seq: [not run] `cat $seq.notrun`"
     exit
 fi
+[ -n "$PCPQA_SOCKS_SERVER" ] || _notrun 'PCPQA_SOCKS_SERVER is not set in ./common.config'
 
 SOCKS_SERVER=$PCPQA_SOCKS_SERVER
 SOCKS_NS=`_host_to_ipaddr $SOCKS_SERVER`

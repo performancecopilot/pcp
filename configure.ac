@@ -897,6 +897,19 @@ AC_SUBST(pcp_perl_prog)
 AC_SUBST(have_perl)
 AC_MSG_RESULT($pcp_perl_prog)
 
+AC_MSG_CHECKING([if the SNMP PMDA should be included])
+pmda_snmp=false
+if test "$have_perl" = true
+then
+    dnl rpm built for SNMP PMDA needs Perl Net::SNMP
+    if $pcp_perl_prog -e "use Net::SNMP" >/dev/null 2>&1
+    then
+	pmda_snmp=true
+    fi
+fi
+AC_SUBST(PMDA_SNMP, $pmda_snmp)
+if $pmda_snmp; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
 AC_MSG_CHECKING([if the mysql PMDA should be included])
 pmda_mysql=false
 if test "$have_perl" = true
@@ -976,7 +989,7 @@ AS_IF([test "x$do_qt" != "xno"], [
     
     if test -z "$QMAKE"
     then
-	AC_PATH_PROGS(QMAKE, [qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
+	AC_PATH_PROGS(QMAKE, [qmake-qt5 qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
 	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
@@ -1399,7 +1412,15 @@ AC_CHECK_HEADERS(libgen.h sys/param.h sys/mman.h sys/un.h)
 AC_CHECK_HEADERS(values.h stdint.h ieeefp.h math.h)
 AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
 AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h sys/socket.h)
-AC_CHECK_HEADERS(netdb.h net/if.h netinet/in.h netinet/tcp.h arpa/inet.h)
+AC_CHECK_HEADERS(netdb.h)
+if test $target_os = darwin
+then
+    AC_CHECK_HEADERS(net/if.h, [], [], [#include <sys/types.h>
+#include <sys/socket.h>])
+else
+    AC_CHECK_HEADERS(net/if.h)
+fi
+AC_CHECK_HEADERS(netinet/in.h netinet/tcp.h arpa/inet.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
 AC_CHECK_HEADERS(execinfo.h bits/wordsize.h)
 AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])

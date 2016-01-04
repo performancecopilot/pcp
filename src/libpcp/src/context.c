@@ -406,6 +406,42 @@ ctxflags(__pmHashCtl *attrs, int *flags)
     return 0;
 }
 
+static int
+ping_pmcd(int ctx)
+{
+    /*
+     * We're going to leveraging an existing host context, just make sure
+     * pmcd is still alive at the other end ... we don't have a "ping"
+     * pdu, but sending a pmDesc request for PM_ID_NULL is pretty much
+     * the same thing ... expect a PM_ERR_PMID error PDU back.
+     * The code here is based on pmLookupDesc() with some short cuts
+     * because we know it is a host context and we already hold the
+     * __pmLock_libpcp lock
+     */
+    __pmContext	*ctxp = contexts[ctx];
+    int		sts;
+
+    PM_LOCK(ctxp->c_pmcd->pc_lock);
+    if ((sts = __pmSendDescReq(ctxp->c_pmcd->pc_fd, ctx, PM_ID_NULL)) >= 0) {
+	int	pinpdu;
+	__pmPDU	*pb;
+	pinpdu = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
+				    ctxp->c_pmcd->pc_tout_sec, &pb);
+	if (pinpdu == PDU_ERROR)
+	    __pmDecodeError(pb, &sts);
+	if (pinpdu > 0)
+	    __pmUnpinPDUBuf(pb);
+    }
+    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
+
+    if (sts != PM_ERR_PMID) {
+	/* pmcd is not well on this context ... */
+	return 0;
+    }
+    return 1;
+}
+
+
 int
 __pmFindOrOpenArchive(__pmContext *ctxp, const char *name)
 {
@@ -794,8 +830,11 @@ INIT_CONTEXT:
                     for (j=0; j<hosts[0].nports; j++)
                         if (contexts[i]->c_pmcd->pc_hosts[0].ports[j] != hosts[0].ports[j])
                             ports_same = 0;
-                    if (ports_same)
-                        new->c_pmcd = contexts[i]->c_pmcd;
+                    if (ports_same) {
+			/* ports match, just make sure pmcd is alive */
+			if (ping_pmcd(i))
+			    new->c_pmcd = contexts[i]->c_pmcd;
+		    }
 		}
 	    }
 	}

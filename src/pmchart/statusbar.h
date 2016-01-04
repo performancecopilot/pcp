@@ -14,9 +14,9 @@
 #ifndef STATUSBAR_H
 #define STATUSBAR_H
 
-#include <QtGui/QLabel>
-#include <QtGui/QStatusBar>
-#include <QtGui/QGridLayout>
+#include <QLabel>
+#include <QStatusBar>
+#include <QGridLayout>
 #include "qed_timebutton.h"
 #include "timeaxis.h"
 

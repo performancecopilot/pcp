@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# Recipe to recreate the log-derived archive
+#
+# Note: this was before pmlogger knew how to re-write the PMIDs for
+#       derived metrics
+
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat >$tmp.derived <<End-of-File
+mem.util.allcache = mem.util.cached + mem.util.slab
+mem.util.bin = sample.part_bin + 13
+End-of-File
+
+cat >$tmp.config <<End-of-File
+log mandatory on default {
+    mem.util.allcache
+    mem.util.cached
+    mem.util.slab
+    mem.util.bin
+    sample.dynamic
+    sample.bin
+}
+End-of-File
+
+rm -f log-derived.*
+PCP_DERIVED_CONFIG=$tmp.derived pmlogger -r -t 3sec -s 4 -l $tmp.log -c $tmp.config log-derived
+
+echo "pmlogger log ..."
+cat $tmp.log
+
+pmdumplog log-derived

@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
+# Copyright (c) 2015 Red Hat.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,13 +22,29 @@
 iam=netfilter
 perl_opt=true
 daemon_opt=false
-forced_restart=false
-
-if ! test -d /proc/sys/net/ipv4/netfilter; then
-    echo "IP connection tracking not enabled in your kernel"
-    exit 1
-fi
+forced_restart=true
 
 pmdaSetup
+
+if [ -z "$args" ]; then
+    $PCP_ECHO_PROG $PCP_ECHO_N "Please specify parent proc netfilter directory[/proc/sys/net/]: ""$PCP_ECHO_C"
+    read value
+    if [ "X$value" = "X" ]; then
+	if test -d /proc/sys/net/ipv4/netfilter; then
+	    args="/proc/sys/net/ipv4/"
+	elif test -d /proc/sys/net/netfilter; then
+	    args="/proc/sys/net/"
+	else
+	    echo "IP connection tracking not enabled in your kernel"
+	    exit 1
+	fi
+    elif test -d "$value"; then
+	args="$value"
+    else
+	echo "IP connection tracking not enabled in your kernel"
+	exit 1
+    fi
+fi
+
 pmdaInstall
 exit 0

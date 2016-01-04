@@ -128,7 +128,7 @@ GroupControl::updateTimeAxis(void)
 	int i = my.visible - 1;
 	console->post(PmChart::DebugProtocol,
 		"GroupControl::updateTimeAxis: tz=%s; visible points=%d",
-		(const char *)tz.toAscii(), i);
+		(const char *)tz.toLatin1(), i);
 	console->post(PmChart::DebugProtocol,
 		"GroupControl::updateTimeAxis: first time is %.3f (%s)",
 		my.timeData[i], timeString(my.timeData[i]));

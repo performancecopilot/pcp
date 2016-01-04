@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2015, Red Hat.
  * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -14,10 +14,10 @@
  */
 
 #include "qed_recorddialog.h"
-#include <QtCore/QDateTime>
-#include <QtCore/QTextStream>
-#include <QtGui/QMessageBox>
-#include <QtGui/QDoubleValidator>
+#include <QDateTime>
+#include <QTextStream>
+#include <QMessageBox>
+#include <QDoubleValidator>
 
 #include "qed_app.h"
 #include "qed_console.h"
@@ -241,7 +241,7 @@ void QedRecordDialog::buttonOk_clicked()
     }
 
     console->post("RecordDialog verifying paths view=%s folio=%s",
-	(const char *)folioName.toAscii(), (const char *)viewName.toAscii());
+	(const char *)folioName.toLatin1(), (const char *)viewName.toLatin1());
 
     my.viewName = viewName;
     my.folioName = folioName;
@@ -307,7 +307,7 @@ void QedRecordDialog::startLoggers()
 	control << "F" << my.folioName << "\n";
 	control << "Ppmchart\n" << "R\n";
 	for (int i = 0; i < control.size(); i++)
-	    process->write(control.at(i).toAscii());
+	    process->write(control.at(i).toLatin1());
     }
 }
 

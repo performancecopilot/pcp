@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2015, Red Hat.
  * Copyright (c) 2008, Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -14,6 +14,8 @@
  */
 
 #include <QtGui>
+#include <QStyle>
+#include <QStyleOption>
 #include <QHBoxLayout>
 #include "qed_statusbar.h"
 #include "qed_app.h"
@@ -28,18 +30,16 @@ QedStatusBar::QedStatusBar()
 
     my.timeButton = new QedTimeButton(this);
     my.timeButton->setFixedSize(QSize(buttonSize(), buttonSize()));
-    my.timeButton->setWhatsThis(QApplication::translate("PmChart",
-	"VCR state button, also used to display the time control window.",
-	0, QApplication::UnicodeUTF8));
+    my.timeButton->setWhatsThis(
+	"VCR state button, also used to display the time control window.");
     my.timeFrame = new QToolButton(this);
     my.timeFrame->setMinimumSize(QSize(buttonSize(), buttonSize()));
     my.timeFrame->setSizePolicy(
 			QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-    my.timeFrame->setWhatsThis(QApplication::translate("PmChart",
+    my.timeFrame->setWhatsThis(
 	"Unified time axis, displaying the current time position at the "
 	"rightmost point, and either status information or the timeframe "
-	"covering all Visible Points to the left",
-	0, QApplication::UnicodeUTF8));
+	"covering all Visible Points to the left");
 
     delete layout();
     QHBoxLayout *box = new QHBoxLayout;

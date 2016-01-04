@@ -13,13 +13,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out
-if [ $PCP_VER -lt 30600 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    ln $seq.out.2 $seq.out || exit 1
-fi
+# may need to "ipcrm -M 0xdeadbeef" if this happens:
+$sudo ipcs -m | grep -iq deadbeef && \
+    _notrun "Cannot run with SHM key 0xdeadbeef already in use"
 
 echo >$tmp.input 'b
 pigs

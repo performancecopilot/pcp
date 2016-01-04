@@ -9,10 +9,7 @@ export PCP_STDERR=""
 
 host=`hostname`
 
-if [ -z "$DISPLAY" ]
-then
-    export DISPLAY=$PCPQA_CLOSE_X_SERVER
-fi
+_check_display
 
 # hackery for dbus-based environments
 #

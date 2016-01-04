@@ -12,17 +12,27 @@ include $(PCP_DIR)/etc/pcp.conf
 endif
 include $(PCP_INC_DIR)/builddefs
 
-# remove -Lpath and -Ipath options from builddefs CFLAGS value
+# strip -I and -L options
 #
+TMP             := $(CFLAGS:-I%=)
+CFLAGS          = $(TMP)
 PCP_LIBS	=
-TMP		:= $(CFLAGS:-I%=)
-ifdef PCP_DIR
-# put -Ipath and -Lpath back but use paths for run-time environment
+
+ifneq "$(PCP_INC_DIR)" "/usr/include/pcp"
+# for cc add -I<run-time-include-dir> (need /.. at the end so
+# #include <pcp/foo.h> works) when $(PCP_INC_DIR) may not be on
+# the default cpp include search path.
+CFLAGS		+= -I$(PCP_INC_DIR)/..
+endif
+ifneq "$(PCP_LIB_DIR)" "/usr/lib"
+# for ld add -L<run-time-lib-dir> and include -rpath when
+# $(PCP_LIB_DIR) may not be on the default ld search path.
 #
-CFLAGS		= $(TMP) -I$(PCP_INC_DIR)/..
-LDFLAGS		= -L$(PCP_LIB_DIR)
+ifeq "$(PCP_PLATFORM)" "darwin"
+PCP_LIBS	+= -L$(PCP_LIB_DIR) -Wl,-rpath $(PCP_LIB_DIR)
 else
-CFLAGS		= $(TMP)
+PCP_LIBS	+= -L$(PCP_LIB_DIR) -Wl,-rpath=$(PCP_LIB_DIR)
+endif
 endif
 
 IAM = schizo

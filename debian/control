@@ -336,6 +336,21 @@ Description: Tool for importing data from collectl into PCP archive logs
  into standard PCP archive logs for replay with any PCP monitoring tool.
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
+Package: pcp-export-pcp2graphite
+Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, python-pcp
+Breaks: pcp (<< 3.9.0)
+Architecture: any
+Description: Tool for exporting data from PCP to Graphite
+ Performance Co-Pilot (PCP) front-end tool for exporting data from PCP
+ into designated Graphite (Carbon/Whisper) databases.
+
+Package: pcp-export-zabbix-agent
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Architecture: any
+Description: Module for exporting from PCP into a Zabbix agent daemon
+ Performance Co-Pilot (PCP) module for exporting data from PCP via a
+ designated Zabbix agent daemon - see zbxpcp(3) for further details.
+
 Package: pcp-doc
 Section: doc
 Depends: ${misc:Depends}

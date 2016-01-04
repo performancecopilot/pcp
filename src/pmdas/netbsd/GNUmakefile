@@ -25,7 +25,8 @@ LIBTARGET	= pmda_netbsd.so
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "netbsd	116	dso	netbsd_init	$(PMDADIR)/$(LIBTARGET)"
 
-CFILES		= netbsd.c disk.c netif.c
+CFILES		= netbsd.c disk.c percpu.c netif.c swap.c vm_uvmexp.c \
+		  filesys.c
 
 HFILES		= netbsd.h
 

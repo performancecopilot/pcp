@@ -22,7 +22,7 @@ QedColorList::QedColorList(const char *id) : QString(id)
 const char *
 QedColorList::identity(void) const
 {
-    return this->toAscii();
+    return this->toLatin1();
 }
 
 void

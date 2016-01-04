@@ -19,11 +19,11 @@
 #include "sampling.h"
 #include "saveviewdialog.h"
 
-#include <QtCore/QPoint>
-#include <QtCore/QRegExp>
-#include <QtGui/QApplication>
-#include <QtGui/QWhatsThis>
-#include <QtGui/QCursor>
+#include <QPoint>
+#include <QRegExp>
+#include <QApplication>
+#include <QWhatsThis>
+#include <QCursor>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_picker.h>
 #include <qwt_plot_renderer.h>
@@ -954,7 +954,7 @@ Chart::addToTree(QTreeWidget *treeview, const QString &metric,
     int depth, index;
 
     console->post("Chart::addToTree src=%s metric=%s, isInst=%d",
-		(const char *)source.toAscii(), (const char *)metric.toAscii(),
+		(const char *)source.toLatin1(), (const char *)metric.toLatin1(),
 		isInst);
 
     depth = name.indexOf(regexInstance);

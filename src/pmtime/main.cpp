@@ -13,7 +13,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include "timelord.h"
@@ -35,7 +35,7 @@ static void setupEnvironment(void)
     confirm.prepend("PCP_XCONFIRM_PROG=");
     confirm.append(QChar(__pmPathSeparator()));
     confirm.append("pmquery");
-    if ((value = strdup((const char *)confirm.toAscii())) != NULL)
+    if ((value = strdup((const char *)confirm.toLatin1())) != NULL)
 	putenv(value);
     if (getenv("PCP_STDERR") == NULL &&	// do not overwrite, for QA
 	((value = strdup("PCP_STDERR=DISPLAY")) != NULL))
@@ -52,7 +52,8 @@ int main(int argc, char **argv)
     QApplication a(argc, argv);
     setupEnvironment();
 
-    opts.short_options = "D:p:V?";
+    /* -a/-h ignored, back-compat for time control from libpcp_gui */
+    opts.short_options = "ahD:p:V?";
     opts.long_options = longopts;
     (void)pmGetOptions(argc, argv, &opts);
     if (opts.errors || opts.optind != argc) {

@@ -14,7 +14,7 @@
 #ifndef SCENEGROUP_H
 #define SCENEGROUP_H
 
-#include <QtCore/QList>
+#include <QList>
 #include <QtGui/QColor>
 #include <QtGui/QPainter>
 #include <QtGui/QDockWidget>

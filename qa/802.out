@@ -1,0 +1,14 @@
+QA output created by 802
+=== std out ===
+Start valgrind PMDA: VALGRIND --log-file=TMP._valgrind --leak-check=full pmdas/github-56/pmdatrivial
+Metric: trivial
+       leaf foo
+=== std err ===
+[DATE] pmdatrivial(PID) Warning: pmdaInit: PMDA pmdatrivial: No help text file specified for pmdaText
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmdas/github-56/pmdatrivial
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

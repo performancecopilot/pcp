@@ -119,9 +119,9 @@ void PmQuery::addButtons(char *string) // comma-separated label:exitcode string
 	QString code = (*it).section(":", 1, 1);
 	if (!name.isEmpty()) {
 	    int sts = code.isEmpty() ? ++next : code.toInt();
-	    if ((n = strdup(name.toAscii().data())) == NULL)
+	    if ((n = strdup(name.toLatin1().data())) == NULL)
 		nomem();
-	    addButton(n, FALSE, sts);
+	    addButton(n, false, sts);
 	}
     }
 }
@@ -245,12 +245,12 @@ PmQuery::PmQuery(bool inputflag, bool printflag, bool noframeflag,
 	for (int m = 0; m < messagecount; m++)
 	    textEdit->append(tr(messages[m]));
 	if (inputflag)
-	    textEdit->setReadOnly(FALSE);
+	    textEdit->setReadOnly(false);
 	else {
 	    textEdit->setLineWidth(1);
 	    textEdit->setFrameStyle(noframeflag ? QFrame::NoFrame :
 				    QFrame::Box | QFrame::Sunken);
-	    textEdit->setReadOnly(TRUE);
+	    textEdit->setReadOnly(true);
 	}
 	if (usesliderflag)
 	    height = DEFAULT_EDIT_HEIGHT;

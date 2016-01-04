@@ -17,6 +17,10 @@
 
 int	last_log_offset;
 
+#define IS_DERIVED_LOGGED(x) (pmid_domain(x) == DYNAMIC_PMID && (pmid_cluster(x) & 2048) == 2048 && pmid_item(x) != 0)
+#define SET_DERIVED_LOGGED(x) pmid_build(pmid_domain(x), 2048 | pmid_cluster(x), pmid_item(x))
+#define CLEAR_DERIVED_LOGGED(x) pmid_build(pmid_domain(x), ~2048 & pmid_cluster(x), pmid_item(x))
+
 /*
  * pro tem, we have a single context with the pmcd providing the
  * results, hence need to send the profile each time
@@ -520,7 +524,7 @@ do_work(task_t *tp)
 
 	/*
 	 * hook to rewrite PDU buffer ...
-	lfp */
+	 */
 	pb = rewrite_pdu(pb, archive_version);
 
 	if (rflag) {
@@ -550,18 +554,23 @@ do_work(task_t *tp)
 	}
 
 	/*
-	 * would prefer to save this up until after any meta data and/or
+	 * Would prefer to save this up until after any meta data and/or
 	 * temporal index writes, but __pmDecodeResult changes the pointers
 	 * in the pdu buffer for the non INSITU values ... sigh
+	 * Unfortunately, if we have derived metrics we need to rewrite
+	 * the PMIDs, and this can't be done until after the pmResult
+	 * is decoded ... so we have 2 "write" paths for the PDU buffer
+	 * ... more sighing
 	 */
 	last_log_offset = ftell(logctl.l_mfp);
 	assert(last_log_offset >= 0);
-	if ((sts = __pmLogPutResult2(&logctl, pb)) < 0) {
-	    fprintf(stderr, "__pmLogPutResult2: %s\n", pmErrStr(sts));
-	    exit(1);
+	if (tp->t_dm == 0) {
+	    if ((sts = __pmLogPutResult2(&logctl, pb)) < 0) {
+		fprintf(stderr, "__pmLogPutResult2: %s\n", pmErrStr(sts));
+		exit(1);
+	    }
+	    __pmOverrideLastFd(fileno(logctl.l_mfp));
 	}
-
-	__pmOverrideLastFd(fileno(logctl.l_mfp));
 	resp = NULL; /* silence coverity */
 	if ((sts = __pmDecodeResult(pb, &resp)) < 0) {
 	    fprintf(stderr, "__pmDecodeResult: %s\n", pmErrStr(sts));
@@ -570,6 +579,39 @@ do_work(task_t *tp)
 	setavail(resp);
 	resp_tval.tv_sec = resp->timestamp.tv_sec;
 	resp_tval.tv_usec = resp->timestamp.tv_usec;
+
+	if (tp->t_dm != 0) {
+	    /*
+	     * pmResult contains at least one derived metric, rewrite
+	     * the cluster field of the PMID(s) (set the top bit), then
+	     * then output the buffer then restore the PMID(s).
+	     *
+	     * This forces the PMID in the archive to NOT look like
+	     * the PMID of a derived metric, which is need to replay
+	     * the archive correctly.
+	     */
+	    __pmPDU	*pdubuf;
+	    for (i = 0; i < resp->numpmid; i++) {
+		pmValueSet	*vsp = resp->vset[i];
+		if (IS_DERIVED(vsp->pmid))
+		    vsp->pmid = SET_DERIVED_LOGGED(vsp->pmid);
+	    }
+	    if ((sts == __pmEncodeResult(fileno(logctl.l_mfp), resp, &pdubuf)) < 0) {
+		fprintf(stderr, "__pmEncodeResult: %s\n", pmErrStr(sts));
+		exit(1);
+	    }
+	    if ((sts = __pmLogPutResult2(&logctl, pdubuf)) < 0) {
+		fprintf(stderr, "__pmLogPutResult2: %s\n", pmErrStr(sts));
+		exit(1);
+	    }
+	    __pmUnpinPDUBuf(pdubuf);
+	    __pmOverrideLastFd(fileno(logctl.l_mfp));
+	    for (i = 0; i < resp->numpmid; i++) {
+		pmValueSet	*vsp = resp->vset[i];
+		if (IS_DERIVED_LOGGED(vsp->pmid))
+		    vsp->pmid = CLEAR_DERIVED_LOGGED(vsp->pmid);
+	    }
+	}
 
 	needti = 0;
 	old_meta_offset = ftell(logctl.l_mdfp);
@@ -595,10 +637,16 @@ do_work(task_t *tp)
 		    fprintf(stderr, "lookupTaskCacheNames(%s, ...): %s\n", pmIDStr(vsp->pmid), pmErrStr(sts));
 		    exit(1);
 		}
+		if (IS_DERIVED(desc.pmid))
+		    /* derived metric, rewrite cluster field ... */
+		    desc.pmid = SET_DERIVED_LOGGED(desc.pmid);
 		if ((sts = __pmLogPutDesc(&logctl, &desc, numnames, names)) < 0) {
 		    fprintf(stderr, "__pmLogPutDesc: %s\n", pmErrStr(sts));
 		    exit(1);
 		}
+		if (IS_DERIVED_LOGGED(desc.pmid))
+		    /* derived metric, restore cluster field ... */
+		    desc.pmid = CLEAR_DERIVED_LOGGED(desc.pmid);
 		if (numnames > 0) {
 		    free(names);
 		}
@@ -734,8 +782,12 @@ do_work(task_t *tp)
 
 	tp->t_size = pdu_bytes;
 
-	if (pdu_metrics > 1)
-	    fprintf(stderr, "\nGroup [%d metrics] {\n", pdu_metrics);
+	if (pdu_metrics > 1) {
+	    fprintf(stderr, "\nGroup [%d metrics", pdu_metrics);
+	    if (tp->t_dm > 0)
+		fprintf(stderr, ", %d derived", tp->t_dm);
+	    fprintf(stderr, "] {\n");
+	}
 	else
 	    fprintf(stderr, "\nMetric ");
         

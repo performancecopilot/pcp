@@ -17,7 +17,10 @@
  */
 
 #include <QApplication>
+#include <QMimeData>
 #include <QPainter>
+#include <QDrag>
+#include <qdrawutil.h>
 #include "qed_colorpicker.h"
 
 static int pWidth = 172;
@@ -167,7 +170,7 @@ void QedColorPicker::setCol(int h, int s)
 	return;
     QRect r(colPt(), QSize(20,20));
     hue = nhue; sat = nsat;
-    r = r.unite(QRect(colPt(), QSize(20,20)));
+    r = r.united(QRect(colPt(), QSize(20,20)));
     r.translate(contentsRect().x()-9, contentsRect().y()-9);
     //    update(r);
     repaint(r);

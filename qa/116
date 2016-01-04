@@ -15,8 +15,7 @@ echo "QA output created by $seq"
 
 . ./common.config
 
-[ -z "$PCPQA_HYPHEN_HOST" -o "$PCPQA_HYPHEN_HOST" = "some-host" ] && \
-    _notrun 'PCPQA_HYPHEN_HOST is not set in ./common.config'
+[ -z "$PCPQA_HYPHEN_HOST" ] && _notrun 'PCPQA_HYPHEN_HOST is not set in ./common.config'
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.*

@@ -40,6 +40,22 @@ from the next archive record,
 consequently there is no notion of a list of desired metrics,
 and the instance profile of the PMAPI context is ignored.
 .PP
+.B pmFetchArchive
+may return a
+.I result
+in which
+.I numpmid
+is zero.  This is a
+.B <mark>
+record that indicates a temporal discontinuity in the time series
+of performance metrics.  This can happen if the archive log associated
+with the current PMAPI context was created using
+.BR pmlogextract (1)
+to concatenate two or more PCP archive logs, and the
+.B <mark>
+record marks a point in time between the end of one input archive and
+the start of the next input archive.
+.PP
 It is expected that 
 .B pmFetchArchive
 would be used to create utilities that scan archive logs,

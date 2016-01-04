@@ -25,56 +25,92 @@ int pmTrimNameSpace(void);
 cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
-If the current
+In some (rare) cases it is helpful to prune the
+Performance Metrics Name Space (PMNS) to match the available
+metrics.
+.PP
+The default PMNS that is accessible
+to a
 Performance Metrics Application Programming Interface (PMAPI)
-context
-corresponds to a version 1 archive log of Performance Co-Pilot (PCP)
-performance metrics (as collected
-by
-.BR pmlogger (1)
-.BR -V1 ),
-then the currently loaded
-Performance Metrics Name Space (PMNS), is trimmed to exclude
-metrics for which no description can
-be found in the archive.
-The PMNS is further trimmed to remove empty subtrees that do not contain any
-performance metric.
+client is provided by the current PMAPI context:
+.IP \(bu 3n
+for a PMAPI context of type
+.B PM_CONTEXT_HOST
+the PMNS is provided by
+.BR pmcd (1)
+on the associated host and no pruning is required
+.IP \(bu 3n
+for a PMAPI context of type
+.B PM_CONTEXT_ARCHIVE
+the PMNS is stored within the associated
+Performance Co-Pilot (PCP) archive log and no pruning is required
+.IP \(bu 3n
+for a PMAPI context of type
+.B PM_CONTEXT_LOCAL
+at the first PMAPI call requiring access to the PMNS it
+is loaded from the default local location
+.B $PCP_VAR_DIR/pmns/root
+(or
+.BR $PMNS_DEFAULT )
+and no pruning is required.
 .PP
-Since PCP archives usually contain some subset
-of all metrics named in the default PMNS,
+If the default PMNS is in effect then calling
 .B pmTrimNameSpace
-effectively trims the application's PMNS to contain only the
-names of the metrics in the archive.
+is a no-op and returns zero with no change to the PMNS.
 .PP
-Since PCP 2.0, 
-.B pmTrimNameSpace 
-is only needed for dealing with version 1 archives.
-Version 2 archives actually store the "trimmed" PMNS. 
+PMAPI clients also have the option of over-riding the default PMNS
+by loading a
+.I local
+PMNS from a file (see
+.BR pmns (5)
+for the format) by calling
+.BR pmLoadASCIINameSpace (3)
+or
+.BR pmLoadNameSpace (3)
+and this is when some PMNS pruning
+.I may
+be useful.
 .PP
-Prior to any trimming,
-the PMNS is restored to the state as of the completion of the last
+If a
+.I local
+PMNS is in effect when
+.B pmTrimNameSpace
+is called then the first action
+is to restore the PMNS to the state as of the completion of the last
 .BR pmLoadASCIINameSpace (3)
 or
 .BR pmLoadNameSpace (3),
-so the effects of consecutive calls to
+so that the effects of consecutive calls to
 .B pmTrimNameSpace
-with archive contexts are
+are
 .B not
 additive.
 .PP
-If the current PMAPI context
-corresponds to a host
-and a
-.BR pmLoadASCIINameSpace (3) 
+The subsequent
+actions of
+.B pmTrimNameSpace
+depend on the type of the current PMAPI context.
+.IP \(bu 3n
+For a context of type
+.B PM_CONTEXT_ARCHIVE
+the
+.I local
+PMNS is trimmed to exclude
+metrics for which no description can
+be found in the PCP archive log.
+The PMNS is further trimmed to remove empty subtrees that do not contain any
+performance metric.
+Since PCP archives usually contain some subset
+of all metrics named in a PMNS,
+.B pmTrimNameSpace
+effectively prunes the application's PMNS to contain only the
+names of the metrics in the archive.
+.IP \(bu 3n
+For a context of type
+.B PM_CONTEXT_HOST
 or
-.BR pmLoadNameSpace (3) 
-call was made,
-then the PMNS reverts to all names loaded into the PMNS
-at the completion of the last
-.BR pmLoadASCIINameSpace (3)
-or
-.BR pmLoadNameSpace (3),
-i.e. any trimming is undone.
+.B PM_CONTEXT_LOCAL
+no further action is required.
 .PP
 On success,
 .B pmTrimNameSpace
@@ -89,12 +125,6 @@ and
 .BR pmns (5).
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOPMNS\f1
-you must have loaded a PMNS using
-.BR pmLoadASCIINameSpace (3)
-or
-.BR pmLoadNameSpace (3)
-before calling
-.B pmTrimNameSpace
+there has been some earlier problem with establishing the relevant PMNS
 .IP \f3PM_ERR_NOCONTEXT\f1
-the current PMAPI context
-is invalid
+the current PMAPI context is invalid

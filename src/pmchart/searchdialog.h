@@ -15,7 +15,7 @@
 #define SEARCHDIALOG_H
 
 #include "ui_searchdialog.h"
-#include <QtCore/QProcess>
+#include <QProcess>
 
 class NameSpace;
 class QTreeWidget;

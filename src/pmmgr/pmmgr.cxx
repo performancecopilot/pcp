@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 extern "C" {
 #include <fcntl.h>
@@ -343,10 +344,11 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
 	  else if (c== '-' || c == '.' || c == '_')
 	    sanitized += c;
 	  else
-	    // drop other non-portable characters NB: this can mean
-	    // unintentional duplication in IDs, which a user can work
-	    // around by configuring additional hostid metrics.
-	    ;
+            {
+              // drop other non-portable characters NB: this can mean
+              // unintentional duplication in IDs, which a user can work
+              // around by configuring additional hostid metrics.
+            }
 	}
     }
 
@@ -655,8 +657,8 @@ pmmgr_job_spec::poll()
 	      (void) wrap_system(cleanup_cmd);
 	    }
 	}
+      globfree (& the_blob);
     }
-  globfree (& the_blob);
 }
 
 
@@ -673,6 +675,10 @@ pmmgr_job_spec::note_new_hostid(const pmmgr_hostid& hid, const pcp_context_spec&
 
   if (get_config_exists("pmie"))
     daemons.insert(make_pair(hid, new pmmgr_pmie_daemon(config_directory, hid, spec)));
+
+  vector<string> lines = get_config_multi ("monitor");
+  for (unsigned i=0; i<lines.size(); i++)
+    daemons.insert(make_pair(hid, new pmmgr_monitor_daemon(config_directory, lines[i], i, hid, spec)));
 }
 
 
@@ -718,9 +724,19 @@ pmmgr_pmlogger_daemon::pmmgr_pmlogger_daemon(const std::string& config_directory
 
 
 pmmgr_pmie_daemon::pmmgr_pmie_daemon(const std::string& config_directory,
-					 const pmmgr_hostid& hostid,
-					 const pcp_context_spec& spec):
+                                     const pmmgr_hostid& hostid,
+                                     const pcp_context_spec& spec):
   pmmgr_daemon(config_directory, hostid, spec)
+{
+}
+
+
+pmmgr_monitor_daemon::pmmgr_monitor_daemon(const std::string& config_directory,
+                                           const std::string& config_line,
+                                           unsigned config_index,
+                                           const pmmgr_hostid& hostid,
+                                           const pcp_context_spec& spec):
+  pmmgr_daemon(config_directory, hostid, spec), config_line(config_line), config_index(config_index)
 {
 }
 
@@ -1139,7 +1155,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
               if (pmDebug & DBG_TRACE_APPL0)
                 timestamp(cout) << "contemplating deletion of archive " << base_name
                                 << " (" << foo.st_mtime << "+" << reduced_retention_tv.tv_sec
-                                << "  < " << now_tv.tv_sec << ")"
+                                << " < " << now_tv.tv_sec << ")"
                                 << endl;
 	      if ((foo.st_mtime + reduced_retention_tv.tv_sec) < now_tv.tv_sec)
 		{
@@ -1153,6 +1169,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
                 }
             }
         }
+      globfree (& the_blob);
 
       string timestr = "archive";
       time_t now2 = time(NULL);
@@ -1287,6 +1304,29 @@ pmmgr_pmie_daemon::daemon_command_line()
 }
 
 
+std::string
+pmmgr_monitor_daemon::daemon_command_line()
+{
+  string default_log_dir =
+    string(pmGetConfig("PCP_LOG_DIR")) + (char)__pmPathSeparator() + "pmmgr";
+  string log_dir = get_config_single ("log-directory");
+  if (log_dir == "") log_dir = default_log_dir;
+  else if(log_dir[0] != '/') log_dir = config_directory + (char)__pmPathSeparator() + log_dir;
+
+  (void) mkdir2 (log_dir.c_str(), 0777); // implicitly consults umask(2)
+
+  string host_log_dir = log_dir + (char)__pmPathSeparator() + hostid;
+  (void) mkdir2 (host_log_dir.c_str(), 0777);
+
+  stringstream monitor_command;
+  monitor_command << config_line
+                  << " -h " << sh_quote(spec)
+                  << " >" << sh_quote(host_log_dir) << "/monitor-"  << config_index << ".out"
+                  << " 2>" << sh_quote(host_log_dir) << "/monitor-"  << config_index << ".err";
+                                                       
+  return monitor_command.str();
+}
+
 
 // ------------------------------------------------------------------------
 
@@ -1294,6 +1334,8 @@ pmmgr_pmie_daemon::daemon_command_line()
 extern "C"
 void handle_interrupt (int sig)
 {
+  (void) sig;
+
   // Propagate signal to inferior processes (just once, to prevent
   // recursive signals or whatnot, despite sa_mask in
   // setup_signals()).
@@ -1352,7 +1394,7 @@ static pmLongOptions longopts[] =
   {
     PMAPI_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
-    { "config", 1, 'c', "DIR", "configuration directory [default $PCP_SYSCONF_DIR/pmmgr]" },
+    { "config", 1, 'c', "DIR", "add configuration directory [default $PCP_SYSCONF_DIR/pmmgr]" },
     { "poll", 1, 'p', "NUM", "set pmcd polling interval [default 60]" },
     { "username", 1, 'U', "USER", "switch to named user account [default pcp]" },
     { "log", 1, 'l', "PATH", "redirect diagnostics and trace output" },

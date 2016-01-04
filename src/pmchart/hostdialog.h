@@ -16,7 +16,7 @@
 #define HOSTDIALOG_H
 
 #include "ui_hostdialog.h"
-#include <QtCore/QProcess>
+#include <QProcess>
 
 class HostDialog : public QDialog, public Ui::HostDialog
 {

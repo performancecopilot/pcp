@@ -630,9 +630,13 @@ pmid_int	: TOK_PMID_INT
 			int	sts;
 			sts = sscanf($1, "%d.%d.%d", &domain, &cluster, &item);
 			assert(sts == 3);
-			if (domain < 1 || domain >= DYNAMIC_PMID) {
+			if (domain < 1 || domain > DYNAMIC_PMID) {
 			    snprintf(mess, sizeof(mess), "Illegal domain field (%d) for pmid", domain);
 			    yyerror(mess);
+			}
+			else if (domain == DYNAMIC_PMID) {
+			    snprintf(mess, sizeof(mess), "Dynamic metric domain field (%d) for pmid", domain);
+			    yywarn(mess);
 			}
 			if (cluster < 0 || cluster >= 4096) {
 			    snprintf(mess, sizeof(mess), "Illegal cluster field (%d) for pmid", cluster);
@@ -652,9 +656,13 @@ pmid_int	: TOK_PMID_INT
 			int	cluster;
 			int	sts;
 			sts = sscanf($1, "%d.%d.", &domain, &cluster);
-			if (domain < 1 || domain >= DYNAMIC_PMID) {
+			if (domain < 1 || domain > DYNAMIC_PMID) {
 			    snprintf(mess, sizeof(mess), "Illegal domain field (%d) for pmid", domain);
 			    yyerror(mess);
+			}
+			else if (domain == DYNAMIC_PMID) {
+			    snprintf(mess, sizeof(mess), "Dynamic metric domain field (%d) for pmid", domain);
+			    yywarn(mess);
 			}
 			if (sts == 2) {
 			    if (cluster >= 4096) {

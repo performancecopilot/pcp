@@ -89,9 +89,9 @@ void SearchDialog::search()
 
     console->post(PmChart::DebugUi,
 	 "SearchDialog::search host=\"%s\" metric=\"%s\" instance=\"%s\"",
-	 (const char *)hostPattern->text().toAscii(),
-	 (const char *)metricPattern->text().toAscii(),
-	 (const char *)instancePattern->text().toAscii());
+	 (const char *)hostPattern->text().toLatin1(),
+	 (const char *)metricPattern->text().toLatin1(),
+	 (const char *)instancePattern->text().toLatin1());
 
     if (hostPattern->text() == QString::null &&
 	metricPattern->text() == QString::null &&
@@ -124,7 +124,7 @@ void SearchDialog::search()
 	    if (h_match >= 0) {
 		console->post(PmChart::DebugUi, "SearchDialog::search "
 		    "host=\"%s\" h_match=%d",
-		    (const char *)item->sourceName().toAscii(), h_match);
+		    (const char *)item->sourceName().toLatin1(), h_match);
 	    }
 	    item->setExpanded(true, false);
 	    m_match = -2;
@@ -147,8 +147,8 @@ void SearchDialog::search()
 
 		    console->post(PmChart::DebugUi, "SearchDialog::search "
 			"host=%s h_match=%d metric=%s m_match=%d",
-			(const char *)item->sourceName().toAscii(), h_match,
-			(const char *)item->metricName().toAscii(), m_match);
+			(const char *)item->sourceName().toLatin1(), h_match,
+			(const char *)item->metricName().toLatin1(), m_match);
 		}
 		if (item->isLeaf() == false) {
 		    // has instance domain
@@ -173,9 +173,9 @@ void SearchDialog::search()
 
 		console->post(PmChart::DebugUi, "SearchDialog::search "
 		    "host=%s h_match=%d metric=%s m_match=%d inst=%s i_match=%d",
-		    (const char *)item->sourceName().toAscii(), h_match,
-		    (const char *)item->metricName().toAscii(), m_match,
-		    (const char *)item->metricInstance().toAscii(), i_match);
+		    (const char *)item->sourceName().toLatin1(), h_match,
+		    (const char *)item->metricName().toLatin1(), m_match,
+		    (const char *)item->metricInstance().toLatin1(), i_match);
 	    }
 	}
 	else if (item->isNonLeaf()) {
@@ -205,16 +205,16 @@ void SearchDialog::ok()
 	row = matchList->row(selected[i]);
 #if DESPERATE
 	fprintf(stderr, "[%d] %s:%s[%s]\n",
-	    row, (const char *)my.pmnsList[row]->sourceName().toAscii(),
-	    (const char *)my.pmnsList[row]->metricName().toAscii(),
-	    (const char *)my.pmnsList[row]->metricInstance().toAscii());
+	    row, (const char *)my.pmnsList[row]->sourceName().toLatin1(),
+	    (const char *)my.pmnsList[row]->metricName().toLatin1(),
+	    (const char *)my.pmnsList[row]->metricInstance().toLatin1());
 #endif
 	my.pmnsList[row]->setSelected(true);
 	parent = (NameSpace *)my.pmnsList[row]->parent();
 	while (parent->isRoot() == false) {
 #if DESPERATE
 	    fprintf(stderr, "SearchDialog::ok expand: %s\n",
-			(const char *)parent->metricName().toAscii());
+			(const char *)parent->metricName().toLatin1());
 #endif
 	    parent->QTreeWidgetItem::setExpanded(true);
 	    parent = (NameSpace *)parent->parent();

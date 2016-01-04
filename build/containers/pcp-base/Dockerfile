@@ -21,10 +21,22 @@ MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 # (normally disabled during development)
 RUN dnf -y install createrepo.noarch && dnf -y update && dnf clean all
 
-# Set up a repo for the packages to be installed. This is only for use
-# during development. Production builds would use the Fedora packages.
-# The build expects $(TOPDIR)/build/rpm to have the PCP RPMS to be
-# installed in the container, i.e. from the current Makepkgs build.
+# Set up a repo for latest bintray packages to be installed. This is the
+# default. Note that this repo specifies enabled=1. All container images
+# based on pcp-base will use the default enabled repo to install pcp
+# packages, so to use e.g. the pcp-devel repo instead, just edit the
+# appropriate enabled flag to specify the repo you want to use by default.
+# You only need to change this in the pcp-base Dockerfile since all
+# others are based on pcp-base and thus inherit the default repo settings.
+RUN fver=`awk '{print $3}' /etc/redhat-release`;\
+echo -e '[pcp-bintray]\nname=PCP Bintray Yum Repository\n\
+baseurl=https://dl.bintray.com/pcp/f'$fver'\ngpgcheck = 0\nenabled = 1'\
+>/etc/yum.repos.d/pcp-bintray.repo
+
+# Set up a repo for local packages to be installed. This is only for use
+# during development. To use this repo, change enabled=0 to enabled=1.
+# Here we expect $(TOPDIR)/build/rpm to have the PCP RPMS to be
+# installed in the container image, i.e. from the current Makepkgs build.
 RUN mkdir -p /tmp/RPMS; \
 echo -e '[pcp-devel]\nname=PCP Development Yum Repository\n\
 baseurl=file:///tmp/RPMS\ngpgcheck = 0\nenabled = 0'\
@@ -34,8 +46,9 @@ RUN createrepo /tmp/RPMS
 
 #
 # install minimal pcp (i.e. pcp-conf) and it's dependencies, clean the cache.
-# This is intended as the base image for all other PCP containers.
-RUN dnf --enablerepo=pcp-devel -y install pcp-conf && dnf clean all
+# This is intended as the base image for all other PCP containers. The
+# bintray repo is enabled by default, see comments above.
+RUN dnf -y install pcp-conf && dnf clean all
 
 #
 # Run in the container as root - avoids PCP_USER mismatches

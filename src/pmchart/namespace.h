@@ -16,9 +16,9 @@
 #ifndef NAMESPACE_H
 #define NAMESPACE_H
 
-#include <QtCore/QString>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QTreeWidgetItem>
+#include <QString>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
 #include <pcp/pmapi.h>
 
 class Chart;

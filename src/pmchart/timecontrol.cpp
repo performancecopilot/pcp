@@ -14,8 +14,8 @@
  */
 #include "main.h"
 #include <qmc_time.h>
-#include <QtGui/QMessageBox>
-#include <QtGui/QApplication>
+#include <QMessageBox>
+#include <QApplication>
 #include <QtNetwork/QHostAddress>
 
 TimeControl::TimeControl() : QProcess(NULL)
@@ -107,8 +107,8 @@ void TimeControl::init(int port, bool live,
 	my.livePacket->start = now;
 	my.livePacket->end = now;
     }
-    strncpy(my.tzData, (const char *)tzstring.toAscii(), tzlen+1);
-    strncpy(my.tzData + tzlen+1, (const char *)tzlabel.toAscii(), lablen+1);
+    strncpy(my.tzData, (const char *)tzstring.toLatin1(), tzlen+1);
+    strncpy(my.tzData + tzlen+1, (const char *)tzlabel.toLatin1(), lablen+1);
 
     if (port <= 0) {
 	startTimeServer();
@@ -140,9 +140,9 @@ void TimeControl::addArchive(
     message->length = sz;
     message->start = starttime;
     message->end = endtime;
-    strncpy((char *)message->data, (const char *)tzstring.toAscii(), tzlen+1);
+    strncpy((char *)message->data, (const char *)tzstring.toLatin1(), tzlen+1);
     strncpy((char *)message->data + tzlen+1,
-				(const char *)tzlabel.toAscii(), lablen+1);
+				(const char *)tzlabel.toLatin1(), lablen+1);
     if (my.archiveSocket->write((const char *)message, sz) < 0)
 	QMessageBox::warning(0,
 		QApplication::tr("Error"),

@@ -12,7 +12,7 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-SUBDIRS = broken bigun dynamic slow
+SUBDIRS = broken bigun dynamic slow github-56
 ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += slow_python memory_python
 endif

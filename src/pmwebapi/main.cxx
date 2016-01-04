@@ -35,6 +35,7 @@ map<string,unsigned> clients_usage;
 unsigned perm_context = 1;	/* set by -c option, changed by -h/-a/-L */
 unsigned new_contexts_p = 1;	/* cleared by -N option */
 unsigned graphite_p;		/* set by -G option */
+unsigned graphite_encode = 1;	/* unset by -X option */
 unsigned exit_p;		/* counted by SIG* handler */
 static __pmServerPresence *presence;
 unsigned multithread = 0;       /* set by -M option */
@@ -246,7 +247,7 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
         else if (graphite_p && (method == "GET" || method == "POST") && (url1 == "graphite")
                  && ((url2 == "render") || (url2 == "metrics") || (url2 == "rawdata")
                      || (url2 == "browser") || (url2 == "graphlot" && url3 == "findmetric"))) {
-            return pmgraphite_respond (connection, mhd_cc->params, url_tokens);
+            return pmgraphite_respond (connection, mhd_cc->params, url_tokens, url);
         }
         // graphite dashboard idiosyncracy; note absence of /graphite top level
         else if (graphite_p && (method == "GET" || method == "POST") && 
@@ -254,7 +255,7 @@ mhd_respond (void *cls, struct MHD_Connection *connection, const char *url0,
                   (url1 == "render"))) {
             url_tokens.insert (url_tokens.begin() + 1 /* empty #0 */,
                                string("graphite"));
-            return pmgraphite_respond (connection, mhd_cc->params, url_tokens);
+            return pmgraphite_respond (connection, mhd_cc->params, url_tokens, url);
         }
 
         /* pmresapi? */
@@ -383,6 +384,7 @@ server_dump_configuration ()
     }
 
     clog << "\tGraphite API " << (graphite_p ? "enabled" : "disabled") << endl;
+    clog << "\tGraphite API name encoding " << (graphite_encode ? "long" : "short") << endl;
     clog << "\tGraphite API Cairo graphics rendering "
 #ifdef HAVE_CAIRO
          << "compiled-in"
@@ -455,6 +457,7 @@ option_overrides (int opt, pmOptions * opts)
     case 't':
     case 'i':
     case 'I':
+    case 'X':
         return 1;
     }
     return 0;
@@ -468,6 +471,7 @@ longopts[] = {
     {"ipv6", 0, '6', 0, "listen on IPv6 only"},
     PMAPI_OPTIONS_HEADER ("Graphite options"),
     {"graphite", 0, 'G', 0, "enable graphite 0.9 API/backend emulation"},
+    {"graphite-noencode", 0, 'X', 0, "don't encode special characters that are now allowed by graphite"},
     {"graphite-timestamp", 1, 'i', "SEC", "minimum graphite timestep (s) [default 60]"},
     {"graphite-archivedir", 0, 'I', 0, "prefer archive directories [default OFF]"},
     PMAPI_OPTIONS_HEADER ("Context options"),
@@ -514,14 +518,14 @@ main (int argc, char *argv[])
 
     // NB: important to standardize on a single default timezone, since
     // we'll be interacting with web clients from anywhere, and dealing
-    // with pcp servers/archvies from anywhere else.
+    // with pcp servers/archives from anywhere else.
     (void) putenv (utc_timezone);
 
     umask (022);
     char * username_str;
     __pmGetUsername (&username_str);
 
-    opts.short_options = "A:a:c:D:h:Ll:NM:Pp:R:Gi:It:U:vx:d:46?";
+    opts.short_options = "A:a:c:D:h:Ll:NM:Pp:R:Gi:It:U:vx:d:X46?";
     opts.long_options = longopts;
     opts.override = option_overrides;
 
@@ -553,6 +557,10 @@ main (int argc, char *argv[])
 
         case 'G':
             graphite_p = 1;
+            break;
+
+        case 'X':
+            graphite_encode = 0;
             break;
 
         case 'i':

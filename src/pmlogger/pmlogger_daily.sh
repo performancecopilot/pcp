@@ -864,14 +864,14 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 	#
 	if [ X"$CULLAFTER" != X"forever" ]
 	then
-	    if [ "$PCP_PLATFORM" = freebsd ]
+	    if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd ]
 	    then
-		# FreeBSD semantics for find(1) -mtime +N are "rounded up to
-		# the next full 24-hour period", compared to GNU/Linux semantics
-		# "any fractional part is ignored".  So, these are almost always
-		# off by one day in terms of the files selected.
-		# For consistency, try to match the GNU/Linux semantics by using
-		# one MORE day.
+		# FreeBSD/NetBSD semantics for find(1) -mtime +N are "rounded
+		# up to the next full 24-hour period", compared to GNU/Linux
+		# semantics "any fractional part is ignored".  So, these are
+		# almost always off by one day in terms of the files selected.
+		# For consistency, try to match the GNU/Linux semantics by
+		# using one MORE day.
 		#
 		mtime=`expr $CULLAFTER + 1`
 	    else
@@ -903,9 +903,9 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 	#
 	if [ ! -z "$COMPRESSAFTER" ]
 	then
-	    if [ "$PCP_PLATFORM" = freebsd ]
+	    if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd ]
 	    then
-		# See note above re. find(1) on FreeBSD
+		# See note above re. find(1) on FreeBSD/NetBSD
 		#
 		mtime=`expr $COMPRESSAFTER - 1`
 	    else
@@ -937,9 +937,9 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 	#
 	if [ "$TRACE" -gt 0 ]
 	then
-	    if [ "$PCP_PLATFORM" = freebsd ]
+	    if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd ]
 	    then
-		# See note above re. find(1) on FreeBSD
+		# See note above re. find(1) on FreeBSD/NetBSD
 		#
 		mtime=`expr $TRACE - 1`
 	    else

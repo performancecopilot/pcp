@@ -76,7 +76,7 @@ $failed=0;
 $cases = 0;
 open(TEST, './cvalue u |') || die "cannot run test program 'cvalue'";
 while (<TEST>) {
-    /^pmUnits: {(\d+),}5(\d) = (.*)$/;
+    /^pmUnits: (\d+),(\d+),(\d+),(\d+),(\d+),(\d+) = (.*)$/;
     $cvalue = $7;
     $perlvalue = pmda_units($1, $2, $3, $4, $5, $6);
     unless ($perlvalue == $cvalue) {

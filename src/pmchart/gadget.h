@@ -15,9 +15,9 @@
 #ifndef GADGET_H
 #define GADGET_H
 
-#include <QtGui/QColor>
-#include <QtGui/QWidget>
-#include <QtGui/QPainter>
+#include <QColor>
+#include <QWidget>
+#include <QPainter>
 #include "qmc_metric.h"
 
 class Gadget

@@ -17,7 +17,7 @@ MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 
 #
 # install pcp and it's dependencies, clean the cache.
-RUN dnf --enablerepo=pcp-devel -y install pcp && dnf clean all
+RUN dnf -y install pcp && dnf clean all
 
 #
 # pmie start script complains if pmie.service is not enabled.

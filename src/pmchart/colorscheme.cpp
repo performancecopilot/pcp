@@ -62,7 +62,7 @@ QColor ColorScheme::colorSpec(QString name)
 	color.setNamedColor(name);
     else {
 	float fr, fg, fb;
-	if (sscanf((const char *)rgbi.toAscii(), "rgbi:%f/%f/%f", &fr, &fg, &fb) == 3)
+	if (sscanf((const char *)rgbi.toLatin1(), "rgbi:%f/%f/%f", &fr, &fg, &fb) == 3)
 	    color.setRgb(hexval(fr), hexval(fg), hexval(fb));
 	// else return color as-is, i.e. invalid.
     }

@@ -136,9 +136,10 @@ class pmErr(Exception):
     def message(self):
         errStr = create_string_buffer(c_api.PM_MAXERRMSGLEN)
         errStr = LIBPCP.pmErrStr_r(self.args[0], errStr, c_api.PM_MAXERRMSGLEN)
+        result = str(errStr.decode())
         for index in range(1, len(self.args)):
-            errStr += b" " + str(self.args[index]).encode('utf-8')
-        return str(errStr.decode())
+            result += " " + str(self.args[index])
+        return result
 
     def progname(self):
         return str(c_char_p.in_dll(LIBPCP, "pmProgname").value.decode())
@@ -523,7 +524,7 @@ LIBPCP.pmTraversePMNS.argtypes = [c_char_p, traverseCB_type]
 LIBPCP.pmUnloadNameSpace.restype = c_int
 LIBPCP.pmUnloadNameSpace.argtypes = []
 
-LIBPCP.pmRegisterDerived.restype = c_int
+LIBPCP.pmRegisterDerived.restype = c_char_p
 LIBPCP.pmRegisterDerived.argtypes = [c_char_p, c_char_p]
 
 LIBPCP.pmLoadDerivedConfig.restype = c_int
@@ -793,6 +794,10 @@ class pmOptions(object):
         """ Set sampling interval (pmParseInterval string) """
         return c_api.pmSetOptionInterval(interval)
 
+    def pmGetNonOptionsFromList(self, argv):
+        return c_api.pmGetNonOptionsFromList(argv)
+
+    # Deprecated, use pmGetNonOptionsFromList() above instead
     def pmNonOptionsFromList(self, argv):
         return c_api.pmGetNonOptionsFromList(argv)
 
@@ -1078,7 +1083,7 @@ class pmContext(object):
             the typed/index parameters can be used to setup several
             contexts based on the given command line parameters.
         """
-        if (typed <= 0):
+        if typed == None or typed <= 0:
             options.need_reset = True
             if c_api.pmGetOptionsFromList(argv):
                 raise pmUsageErr
@@ -1274,13 +1279,14 @@ class pmContext(object):
             name = name.encode('utf-8')
         if type(expr) != type(b''):
             expr = expr.encode('utf-8')
-        status = LIBPCP.pmRegisterDerived(name, expr)
-        if status != 0:
-            raise pmErr(status)
+        string = LIBPCP.pmRegisterDerived(name, expr)
+        if string != None:
+            failure = ['@', str(string.decode())]
+            raise pmErr(c_api.PM_ERR_GENERIC, failure)
         status = LIBPCP.pmReconnectContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        
+
     def pmLoadDerivedConfig(self, fname):
         """PMAPI - Register derived metric names and definitions from a file
         pm.pmLoadDerivedConfig("FileName")
@@ -1301,7 +1307,9 @@ class pmContext(object):
         pm.pmRegisterDerived()
         """
         result = LIBPCP.pmDerivedErrStr()
-        return str(result.decode())
+        if result != None:
+            return str(result.decode())
+        return None
 
     ##
     # PMAPI Metrics Description Services
@@ -1551,7 +1559,10 @@ class pmContext(object):
         status = LIBPCP.pmUseContext(self.ctx)
         if status < 0:
             raise pmErr(status)
-        status = LIBPCP.pmSetMode(mode, pointer(timeVal), delta)
+        when = None
+        if timeVal != None:
+            when = pointer(timeVal)
+        status = LIBPCP.pmSetMode(mode, when, delta)
         if status < 0:
             raise pmErr(status)
         return status
@@ -1795,7 +1806,7 @@ class pmContext(object):
 
     @staticmethod
     def pmErrStr(code):
-        """PMAPI - Return value from environment or pcp config file """
+        """PMAPI - Convert an error code to a readable string  """
         errstr = ctypes.create_string_buffer(c_api.PM_MAXERRMSGLEN)
         result = LIBPCP.pmErrStr_r(code, errstr, c_api.PM_MAXERRMSGLEN)
         return str(result.decode())

@@ -14,8 +14,8 @@
 #ifndef TIMECONTROL_H
 #define TIMECONTROL_H
 
-#include <QtCore/QString>
-#include <QtCore/QProcess>
+#include <QString>
+#include <QProcess>
 #include <QtNetwork/QTcpSocket>
 #include <qmc_time.h>
 

@@ -97,6 +97,10 @@ Here's a description of metadata file syntax. First the "global" options:
   - 'units' (optional): Metric unit description as a string. Values
     include the standard PCP unit names.
 
+  - 'semantics' (optional): Metric semantic description as a string.
+     Values include the standard PCP semantic types.
+
+
 ARRAY METADATA FILE SYNTAX
 
 Here's an example of a metadata file with an array to make how an

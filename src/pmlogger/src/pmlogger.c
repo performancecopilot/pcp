@@ -324,9 +324,12 @@ do_dialog(char cmd)
 
     snprintf(lbuf, sizeof(lbuf), "PCP recording for the archive folio \"%s\" and the host", folio_name);
     nchar = add_msg(&p, nchar, lbuf);
-    snprintf(lbuf, sizeof(lbuf), " \"%s\" has been in progress for %ld %s",
-	pmcd_host,
-	now < 240 ? now : now/60, now < 240 ? "seconds" : "minutes");
+    if (now < 240)
+	snprintf(lbuf, sizeof(lbuf), " \"%s\" has been in progress for %ld seconds",
+	pmcd_host, (long)now);
+    else
+	snprintf(lbuf, sizeof(lbuf), " \"%s\" has been in progress for %ld minutes",
+	pmcd_host, (long)((now + 30)/60));
     nchar = add_msg(&p, nchar, lbuf);
     nchar = add_msg(&p, nchar, " and in that time the pmlogger process has created an");
     nchar = add_msg(&p, nchar, " archive of ");
@@ -880,7 +883,7 @@ main(int argc, char **argv)
 		PMLC_GET_MAND(tp->t_state) ? "mand" : "adv",
 		PMLC_GET_ON(tp->t_state) ? "on" : "off");
 	    fprintf(stderr, " delta: %ld usec", 
-			(long)1000 * tp->t_delta.tv_sec + tp->t_delta.tv_usec);
+			(long)(1000 * tp->t_delta.tv_sec + tp->t_delta.tv_usec));
 	    fprintf(stderr, " numpmid: %d\n", tp->t_numpmid);
 	    for (i = 0; i < tp->t_numpmid; i++) {
 		fprintf(stderr, "  %s (%s):\n", pmIDStr(tp->t_pmidlist[i]), tp->t_namelist[i]);

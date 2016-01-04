@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014-2015, Red Hat.
  * Copyright (c) 2009, Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -15,9 +15,9 @@
 #ifndef QED_APP_H
 #define QED_APP_H
 
-#include <QtGui/QApplication>
-#include <QtGui/QPixmapCache>
-#include <QtGui/QFont>
+#include <QApplication>
+#include <QPixmapCache>
+#include <QFont>
 #include <qmc_time.h>
 
 class QedApp : public QApplication

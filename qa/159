@@ -12,11 +12,10 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-if [ -z "$PCP_CISCO_ROUTER" ]
+if [ -z "$PCPQA_CISCO_ROUTER" ]
 then
-    echo "No cisco router set via PCP_CISCO_ROUTER" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
+    _notrun "No cisco router set via \$PCPQA_CISCO_ROUTER in ./common.config" >$seq.notrun
+    # NOTREACHED
 fi
 
 # New cisco metrics in pcp2.2 
@@ -134,7 +133,7 @@ $PCP_BINADM_DIR/pmpost "end watching for qa/159"
 
 cat <<End-of-File >$tmp.in
 both
-$PCP_CISCO_ROUTER
+$PCPQA_CISCO_ROUTER
 
 End-of-File
 if [ $PCP_VER -gt 20200 ]
@@ -145,7 +144,7 @@ cat <<End-of-File >>$tmp.in
 s2/3
 e1/0
 quit
-$PCP_CISCO_ROUTER
+$PCPQA_CISCO_ROUTER
 
 End-of-File
 if [ $PCP_VER -gt 20200 ]

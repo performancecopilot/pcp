@@ -33,13 +33,13 @@ LLDFLAGS= -L$(TOPDIR)/src/libpcp/src -L$(TOPDIR)/src/libpcp_trace/src
 LLDLIBS = $(PCP_TRACELIB)
 
 LDIRT	= *.log *.dir *.pag *.o $(APPS) tmp.c \
-	  pmtrace.c Makefile.demos
+	  pmtrace.c Makefile.demos Makefile.stub
 
 LSRCFILES= $(SCRIPTS) $(OTHERS) $(DEMOS) $(DEMOFILES) $(DFILES)
 
 SUBDIRS	= src
 
-default:	$(SUBDIRS) Makefile.demos build-me
+default:	$(SUBDIRS) Makefile.demos Makefile.stub build-me
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
@@ -47,15 +47,15 @@ include $(BUILDRULES)
 ifneq "$(TARGET_OS)" "mingw"
 build-me:	demos
 
-install:	$(SUBDIRS) Makefile.demos
+install:	$(SUBDIRS) Makefile.demos Makefile.stub
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(SCRIPTS) $(PMDADIR)
 	$(INSTALL) -m 644 $(OTHERS) $(DFILES) $(PMDADIR)
 	$(INSTALL) -m 755 -d $(DEMODIR)
 	$(INSTALL) -m 644 Makefile.demos $(DEMODIR)/Makefile
+	$(INSTALL) -m 644 Makefile.stub $(DEMODIR)/Makefile.stub
 	$(INSTALL) -m 644 README.demos $(DEMODIR)/README
-	$(INSTALL) -m 644 GNUmakefile.stub $(DEMODIR)/Makefile.stub
 	$(INSTALL) -m 644 stub.c pmtrace.c $(DEMOS) $(DEMODIR)
 
 else
@@ -103,7 +103,14 @@ install_pcp:	install
 Makefile.demos:	Makefile.proto
 	rm -f $@
 	sed \
+		-e 's@PCP_INC_DIR@$(PCP_INC_DIR)@' \
 		-e 's/PTHREAD_LIB/$(LIB_FOR_PTHREADS)/' \
 		-e 's/DLOPEN_LIB/$(LIB_FOR_DLOPEN)/' \
 		-e 's/MATH_LIB/$(LIB_FOR_MATH)/' \
+		<$^ >$@
+
+Makefile.stub:	GNUmakefile.stub
+	rm -f $@
+	sed \
+		-e 's@\$$(PCP_ETC_DIR)@$(PCP_ETC_DIR)@' \
 		<$^ >$@

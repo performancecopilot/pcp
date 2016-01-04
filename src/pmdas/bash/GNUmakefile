@@ -26,7 +26,7 @@ LDIRT		= domain.h *.log *.dir *.pag so_locations $(TARGETS)
 
 CFILES		= event.c bash.c util.c
 HFILES		= event.h
-SCRIPTS		= bashproc.sh pcp.sh
+SCRIPTS		= bashproc.sh
 SAMPLES		= test-child.sh test-trace.sh
 LSRCFILES	= Install Remove pmns help root $(SCRIPTS) $(SAMPLES)
 
@@ -47,7 +47,6 @@ install:	default
 	$(INSTALL) -m 644 root help pmns $(PMDADIR)
 	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
 	$(INSTALL) -m 644 bashproc.sh $(PCP_SHARE_DIR)/lib/bashproc.sh
-	$(INSTALL) -m 644 pcp.sh $(PCP_ETC_DIR)/pcp.sh
 endif
 
 $(IAM)$(EXECSUFFIX):	$(OBJECTS)

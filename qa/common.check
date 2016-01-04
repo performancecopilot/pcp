@@ -233,9 +233,14 @@ _make_helptext()
 #
 _host_to_ipv6addrs()
 {
-    pminfo -f -h "$1" network.interface.ipv6_addr | \
-    sed -e '/^$/d' -e '/^network/d' -e '/"lo"/d' -e 's/\/[0-9][0-9]*//g' | \
-    awk -F\" '{ printf "%s%%%s\n", $4, $2 }'
+    ADDRESS=`pminfo -f -h "$1" network.interface.ipv6_addr | \
+    sed -e '/^$/d' -e '/^network/d' -e '/"lo"/d' -e 's/\/[0-9][0-9]*//g'`
+    LOCAL_LINK=`echo $ADDRESS | awk -F\" '{ printf "%s\n", $4 }' | grep -i "^fe80::"`
+    if [ ! -z "$LOCAL_LINK" ]; then
+        echo $ADDRESS | awk -F\" '{ printf "%s%%%s\n", $4, $2 }'
+    else
+        echo $ADDRESS | awk -F\" '{ printf "%s\n", $4 }'
+    fi
 }
 
 _host_to_ipaddr()
@@ -350,7 +355,9 @@ _wait_for_pmcd()
 	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients
 	case $_host
 	in
-	    localhost)
+	    localhost|unix:|local:|`hostname`)
+		# these are all local PMCD's
+		#
 		echo "=== pmcd.log ==="
 		cat $PCP_LOG_DIR/pmcd/pmcd.log
 
@@ -358,6 +365,8 @@ _wait_for_pmcd()
 		ps "$PCP_PS_ALL_FLAGS" | egrep "[p]m|[P]ID"
 		;;
 	    *)
+		# assume a remote PMCD
+		#
 		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | egrep \"[p]m|[P]ID\" )'" </dev/null
 		;;
 	esac
@@ -774,13 +783,18 @@ _check_purify()
 _check_display()
 {
     # note: non-X systems (MacOSX, Windows) must pass here unchallenged
+    if [ -z "$PCPQA_CLOSE_X_SERVER" ]
+    then
+	_notrun "\$PCPQA_CLOSE_X_SERVER not set in ./common.config"
+	# NOTREACHED
+    fi
     which xdpyinfo >/dev/null 2>&1
-    if test $? -eq 0
+    if [ $? -eq 0 ]
     then
 	DISPLAY=$PCPQA_CLOSE_X_SERVER xdpyinfo >/dev/null 2>&1 || \
 	    _notrun "Failed sanity check on DISPLAY $PCPQA_CLOSE_X_SERVER"
-	export DISPLAY=$PCPQA_CLOSE_X_SERVER
     fi
+    export DISPLAY=$PCPQA_CLOSE_X_SERVER
 }
 
 _check_containers()
@@ -1554,6 +1568,10 @@ p
     then
 	# no control for FreeBSD
 	:
+    elif [ $PCP_PLATFORM = netbsd ]
+    then
+	# no control for NetBSD
+	:
     else
 	# I have no idea what to do for this platform!
 	#
@@ -1743,6 +1761,14 @@ p
 		exit 1
 	    fi
 	fi
+    elif [ $PCP_PLATFORM = freebsd ]
+    then
+	# no control for FreeBSD
+	:
+    elif [ $PCP_PLATFORM = netbsd ]
+    then
+	# no control for NetBSD
+	:
     else
 	echo "_change_config: Error: cannot \"$1 $2\" for $PCP_PLATFORM"
     fi

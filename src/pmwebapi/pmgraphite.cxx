@@ -112,10 +112,23 @@ pmgraphite_metric_encode (const string & foo)
         char c = foo[i];
         // Pass through enough characters to make the metric names relatively
         // human-readable in the javascript guis
-        if (isalnum (c) || (c == '_') || (c == ' ')) {
-            output << c;
-        } else {
-            output << "-" << hex[ (c >> 4) & 15] << hex[ (c >> 0) & 15] << "-";
+        if (graphite_encode) {
+            if (isalnum (c) || (c == '_') || (c == ' ')) {
+                output << c;
+            } else {
+                output << "-" << hex[(c >> 4) & 15] << hex[(c >> 0) & 15] << "-";
+            }
+        }
+        // Newer graphite/grafana support more characters
+        else {
+            if (isalnum (c) || (c == '_') || (c == ' ') || (c == '-') || (c == '/') ) {
+                output << c;
+            } else {
+                // NB: ~hex rather than %hex to reduce likelihood of
+                // triggering latent url-quoting bugs in webapps (graphite->graphlot),
+                // and to avoid necessitating urlencoding of the ~hex code itself.
+                output << "~" << hex[(c >> 4) & 15] << hex[(c >> 0) & 15];
+            }
         }
     }
     return output.str ();
@@ -130,25 +143,45 @@ pmgraphite_metric_decode (const string & foo)
     static const char hex[] = "0123456789ABCDEF";
     for (unsigned i = 0; i < foo.size (); i++) {
         char c = foo[i];
-        if (c == '-') {
-            if (i + 3 >= foo.size ()) {
-                return "";
+        if (graphite_encode) {
+            if (c == '-') {
+                if (i + 3 >= foo.size ()) {
+                    return "";
+                }
+                const char *p = lower_bound (hex, hex + 16, foo[i + 1]);
+                if (*p != foo[i + 1]) {
+                    return "";
+                }
+                const char *q = lower_bound (hex, hex + 16, foo[i + 2]);
+                if (*q != foo[i + 2]) {
+                    return "";
+                }
+                if ('-' != foo[i + 3]) {
+                    return "";
+                }
+                output += (char) (((p - hex) << 4) | (q - hex));
+                i += 3;		// skip over hex bytes
+            } else {
+                output += c;
             }
-            const char *p = lower_bound (hex, hex + 16, foo[i + 1]);
-            if (*p != foo[i + 1]) {
-                return "";
-            }
-            const char *q = lower_bound (hex, hex + 16, foo[i + 2]);
-            if (*q != foo[i + 2]) {
-                return "";
-            }
-            if ('-' != foo[i + 3]) {
-                return "";
-            }
-            output += (char) (((p - hex) << 4) | (q - hex));
-            i += 3;		// skip over hex bytes
         } else {
-            output += c;
+            if (c == '~') {
+                if (i + 2 >= foo.size ()) {
+                    return "";
+                }
+                const char *p = lower_bound (hex, hex + 16, foo[i + 1]);
+                if (*p != foo[i + 1]) {
+                    return "";
+                }
+                const char *q = lower_bound (hex, hex + 16, foo[i + 2]);
+                if (*q != foo[i + 2]) {
+                    return "";
+                }
+                output += (char) (((p - hex) << 4) | (q - hex));
+                i += 2;		// skip over hex bytes
+            } else {
+                output += c;
+            }
         }
     }
     return output;
@@ -331,6 +364,15 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
                 (char) __pmPathSeparator ())) {
             archivepart = archivepart.substr (archivesdir.size () + 1);
         }
+
+        // Remove the .meta part
+        if (!graphite_encode) {
+            string metastring = ".meta";
+            string::size_type metaidx = archivepart.rfind(metastring);
+            if (metaidx != std::string::npos) // unlikely to fail, due to fnmatch glob pattern
+               archivepart.erase(metaidx, metastring.length());
+        }
+
         archivepart = pmgraphite_metric_encode (archivepart);
 
         // Filter out mismatches of the first pattern component.
@@ -668,6 +710,7 @@ struct timestamped_float {
 // parameters for fetching a series
 struct fetch_series_jobspec {
     vector<vector<timestamped_float>*> outputs;
+    vector<pmDesc*> output_descs;
     vector<string> targets;
     string archive; // common first part of targets[]
     time_t t_start, t_end, t_step;
@@ -826,6 +869,10 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
         archive = spec->archive;
     } else {
         archive = archivesdir + (char) __pmPathSeparator () + spec->archive;
+    }
+
+    if (! graphite_encode) { // need to restore .meta for cursed_path_p processing
+        archive += ".meta";
     }
 
     if (cursed_path_p (archivesdir, archive)) {
@@ -1040,6 +1087,9 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
                         if (result->vset[j]->pmid != pmids[i])
                             continue;
 
+                        // supply the pmDesc to caller
+                        *(spec->output_descs[i]) = pmdescs[i];
+
                         for (int k=0; k<result->vset[j]->numval; k++) {
                             if (result->vset[j]->vlist[k].inst != pminsts[i])
                                 continue;
@@ -1144,10 +1194,12 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
 void
 pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<string>& targets,
                              vector<vector <timestamped_float> >& outputs,
+                             vector<pmDesc>& output_descs,
                              time_t t_start, time_t t_end, time_t t_step)
 {
     // create some jobspecs, one per archive
     outputs.resize(targets.size()); // with many little empty vectors inside
+    output_descs.resize(targets.size());
     map <string, fetch_series_jobspec> jobmap;
     for (unsigned i = 0; i < targets.size (); i++) {
         const string& target = targets[i];
@@ -1170,6 +1222,7 @@ pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<str
 
         it->second.targets.push_back (target);
         it->second.outputs.push_back (& outputs[i]);
+        it->second.output_descs.push_back (& output_descs[i]);
     }
 
     // copy into a jobqueue vector (since the execution loop wants a vector)
@@ -1210,7 +1263,8 @@ pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<str
 
 // Attempt to parse a graphite time-specification value, such as the parameter
 // to the /graphite/rawdata/from=*&until=* parameters.  Negative values are
-// relative to "now"; non-negative values are considered absolute.
+// relative to "now" (=> set relative_p); non-negative values
+// are considered absolute (=> leave relative_p alone).
 //
 // The exact syntax permitted is tricky.  It's only partially documented
 // http://graphite.readthedocs.org/en/latest/render_api.html#data-display-formats
@@ -1220,7 +1274,7 @@ pmgraphite_fetch_all_series (struct MHD_Connection* connection, const vector<str
 // Return the absolute seconds value, or "now" in case of error.
 
 time_t
-pmgraphite_parse_timespec (struct MHD_Connection *connection, string value)
+pmgraphite_parse_timespec (struct MHD_Connection *connection, string value, int &relative_p)
 {
     // just delegate to __pmParseTime()
     struct timeval now;
@@ -1251,6 +1305,11 @@ pmgraphite_parse_timespec (struct MHD_Connection *connection, string value)
         return mktime (&parsed);
     }
 
+    // We can't unambiguously detect whether the input string is
+    // relative or not; __pmParseTime doesn't tell us whether 'now'
+    // was mentioned, for example.  So we presume relativeness.
+    relative_p = 1;
+
     // don't parse YYYYMMDD, since it's not syntactically separable from EPOCH
 
     if (value[0] != '-') {
@@ -1258,6 +1317,7 @@ pmgraphite_parse_timespec (struct MHD_Connection *connection, string value)
         // (this is why we take string value instead of const string& parameter)
         value = string ("@") + value;
     }
+
     // XXX: graphite permits time units of "weeks", "months", "years",
     // even though the latter two can't refer to a fixed number of seconds.
     // That's OK, heuristics and approximations are acceptable; __pmParseTime()
@@ -1277,7 +1337,8 @@ pmgraphite_parse_timespec (struct MHD_Connection *connection, string value)
 /* ------------------------------------------------------------------------ */
 
 // Decode graphite URL pieces toward data gathering: specifically enough
-// to identify validated metrics and time bounds.
+// to identify validated metrics and time bounds.  Set t_relative_p if
+// any time coordinates were relative.
 
 int
 pmgraphite_gather_data (struct MHD_Connection *connection,
@@ -1286,7 +1347,8 @@ pmgraphite_gather_data (struct MHD_Connection *connection,
                         vector<string>& targets,
                         time_t& t_start,
                         time_t& t_end,
-                        time_t& t_step)
+                        time_t& t_step,
+                        int &t_relative_p)
 {
     int rc = 0;
 
@@ -1321,8 +1383,9 @@ pmgraphite_gather_data (struct MHD_Connection *connection,
         until = "-0hour";
     }
 
-    t_start = pmgraphite_parse_timespec (connection, from);
-    t_end = pmgraphite_parse_timespec (connection, until);
+    t_relative_p = 0;
+    t_start = pmgraphite_parse_timespec (connection, from, t_relative_p);
+    t_end = pmgraphite_parse_timespec (connection, until, t_relative_p);
 
     // sanity-check time interval
     if (t_start >= t_end) {
@@ -1770,7 +1833,7 @@ private:
 
 int
 pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
-                               const http_params & params, const vector <string> &url)
+                               const http_params & params, const vector <string> &url, const string& url0)
 {
     int rc;
     struct MHD_Response *resp;
@@ -1779,6 +1842,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     cairo_surface_t *sfc;
     cairo_t *cr;
     vector<vector<timestamped_float> > all_results;
+    vector<pmDesc> all_result_descs;
     string colorList;
     vector<string> colors;
     string bgcolor;
@@ -1801,9 +1865,62 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
 
     vector <string> targets;
     time_t t_start, t_end, t_step;
-    rc = pmgraphite_gather_data (connection, params, url, targets, t_start, t_end, t_step);
+    int t_relative_p;
+    rc = pmgraphite_gather_data (connection, params, url, targets, t_start, t_end, t_step, t_relative_p);
     if (rc) {
         return mhd_notify_error (connection, rc);
+    }
+
+    // If this had relative timestamps, return a redirect HTTP
+    // request, so that the IMG URL is absolute, thus the PNG results
+    // are cachable.
+    //
+    if (t_relative_p) {
+        stringstream new_url;
+
+        // Send back the EPOCH absolute-times
+        new_url << url0 << "?from=" << t_start << "&until=" << t_end;
+
+        // Propagate other incoming query-string parameters.
+        if (! params.empty ()) {
+            for (http_params::const_iterator it = params.begin ();
+                 it != params.end ();
+                 it++) {
+
+                // skip these incoming parameters; we're replacing them
+                if (it->first == "from" || it->first == "until")
+                    continue;
+
+                new_url << "&" << it->first << "=";
+                if (it->second != "") {
+                    new_url << urlencode (it->second);
+                }
+            }
+        }
+
+        static char blank[] = "";
+        resp = MHD_create_response_from_buffer (strlen (blank), blank, MHD_RESPMEM_PERSISTENT);
+        if (resp) {
+            rc = MHD_add_response_header (resp, "Location", new_url.str ().c_str ());
+            if (rc != MHD_YES) {
+                connstamp (cerr, connection) << "MHD_add_response_header Location: failed" << endl;
+            }
+
+            /* Adding ACAO header */
+            (void) MHD_add_response_header (resp, "Access-Control-Allow-Origin", "*");
+
+            rc = MHD_queue_response (connection, MHD_HTTP_FOUND /* 302 */ , resp);
+            if (rc != MHD_YES) {
+                connstamp (cerr, connection) << "MHD_queue_response failed" << endl;
+            }
+            MHD_destroy_response (resp);
+            return MHD_YES;
+        }
+        return MHD_NO;		// general 500 error
+
+        // NB: we could fall through to non-redirected handling as in previous versions
+        // of pmwebd, but if MHD_create_response_from_buffer failed, chances are the
+        // following will fail too.
     }
 
     int width = atoi (params["width"].c_str ());
@@ -1842,7 +1959,7 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     cairo_restore (cr);
 
     // Gather up all the data.  We need several passes over it, so gather it into a vector<vector<> >.
-    (void) pmgraphite_fetch_all_series (connection, targets, all_results, t_start, t_end, t_step);
+    (void) pmgraphite_fetch_all_series (connection, targets, all_results, all_result_descs, t_start, t_end, t_step);
 
     if (exit_p) {
         return MHD_NO;
@@ -2032,7 +2149,19 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         double leftedge = 10.0;
 
         for (unsigned i=0; i<visibility_rank.size (); i++) {
-            const string& name = targets[visibility_rank[i]];
+            // compute legend string
+            const string& metric_name = targets[visibility_rank[i]];
+            const char* metric_units = pmUnitsStr(&all_result_descs[visibility_rank[i]].units);
+            string name;
+
+            if (metric_units && metric_units[0]) // likely
+                name = metric_name + " (" + string(metric_units) + ")";
+            else
+                name = metric_name;
+
+            if (all_result_descs[visibility_rank[i]].sem == PM_SEM_COUNTER)
+                name += " rate";
+
             double r, g, b;
 
             // don't even bother put this on the legend if it has zero information
@@ -2074,9 +2203,10 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     }
 
     if (params["hideGrid"] != "true") {
-        // Shrink the graph to make room for axis labels
-        graphxlow = width * 0.10;
-        graphxhigh = width * 0.95;
+        // Shrink the graph to make room for axis labels; match apprx. layout to
+        // grafana's javascript-side rendering engine
+        graphxlow = 5 * 8.0; // some digits of axis-label width
+        graphxhigh = width * 0.96;
         graphyhigh -= 10.;
 
         double r, g, b;
@@ -2342,13 +2472,15 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
 
     vector <string> targets;
     time_t t_start, t_end, t_step;
-    rc = pmgraphite_gather_data (connection, params, url, targets, t_start, t_end, t_step);
+    int t_relative_p;
+    rc = pmgraphite_gather_data (connection, params, url, targets, t_start, t_end, t_step, t_relative_p);
     if (rc) {
         return mhd_notify_error (connection, rc);
     }
 
-    vector <vector <timestamped_float> > all_results;
-    pmgraphite_fetch_all_series (connection, targets, all_results, t_start, t_end, t_step);
+    vector <vector <timestamped_float> > all_results; // indexed as targets[]
+    vector <pmDesc> all_result_descs; // indexed as targets[]
+    pmgraphite_fetch_all_series (connection, targets, all_results, all_result_descs, t_start, t_end, t_step);
 
     stringstream output;
     output << "[";
@@ -2447,7 +2579,7 @@ out1:
 
 int
 pmgraphite_respond (struct MHD_Connection *connection, const http_params & params,
-                    const vector <string> &url)
+                    const vector <string> &url, const string& url0)
 {
     string url1 = (url.size () >= 2) ? url[1] : "";
     assert (url1 == "graphite");
@@ -2471,8 +2603,9 @@ pmgraphite_respond (struct MHD_Connection *connection, const http_params & param
         return pmgraphite_respond_metrics_grep (connection, params, url, false);
 #ifdef HAVE_CAIRO
     } else if (url2 == "render") {
-        return pmgraphite_respond_render_gfx (connection, params, url);
+        return pmgraphite_respond_render_gfx (connection, params, url, url0);
 #else
+        (void) url0;
         // XXX: it would be nice to inform the user why we're failing
 #endif
     }

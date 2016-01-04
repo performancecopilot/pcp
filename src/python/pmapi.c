@@ -675,8 +675,10 @@ getNonOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
     char *keyword_list[] = {"argv", NULL};
 
     /* Caller must perform pmGetOptions before running this, check */
-    if (!(options.flags & PM_OPTFLAG_DONE))
+    if (!(options.flags & PM_OPTFLAG_DONE)) {
+	PyErr_SetString(PyExc_RuntimeError, "pmGetOptions must be called first");
 	return NULL;
+    }
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
 			"O:pmGetNonOptionsFromList", keyword_list, &pyargv))

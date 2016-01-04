@@ -585,8 +585,8 @@ lex(int reset)
 	     * this node is the base of a dynamic subtree in the PMNS
 	     * ... identified by setting the domain field to the reserved
 	     * value DYNAMIC_PMID and storing the real domain of the PMDA
-	     * that can enumerate the subtree in the cluster field, while
-	     * the item field is not used (and set to zero)
+	     * that can enumerate the subtree in the cluster field, and
+	     * the item field is set to zero
 	     */
 	    pmid_int.flag = 0;
 	    pmid_int.domain = DYNAMIC_PMID;
@@ -1605,8 +1605,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 		lsts = 0;
 		np = locate(xname, PM_TPD(curr_pmns)->root);
 		if (np != NULL && np->first == NULL &&
-		    pmid_domain(np->pmid) == DYNAMIC_PMID &&
-		    pmid_item(np->pmid) == 0) {
+		    IS_DYNAMIC_ROOT(np->pmid)) {
 		    /* root of dynamic subtree */
 		    if (c_type == PM_CONTEXT_LOCAL) {
 			/* have PM_CONTEXT_LOCAL ... try to ship request to PMDA */
@@ -1989,8 +1988,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 		    *xp = '\0';
 		    np = locate(xname, PM_TPD(curr_pmns)->root);
 		    if (np != NULL && np->first == NULL &&
-			pmid_domain(np->pmid) == DYNAMIC_PMID &&
-			pmid_item(np->pmid) == 0) {
+			IS_DYNAMIC_ROOT(np->pmid)) {
 			int		domain = ((__pmID_int *)&np->pmid)->cluster;
 			__pmDSO		*dp;
 			if ((dp = __pmLookupDSO(domain)) == NULL) {
@@ -2039,8 +2037,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	     * of type PM_CONTEXT_LOCAL than we should chase the
 	     * relevant PMDA to provide the details
 	     */
-	    if (pmid_domain(np->pmid) == DYNAMIC_PMID &&
-		pmid_item(np->pmid) == 0) {
+	    if (IS_DYNAMIC_ROOT(np->pmid)) {
 		if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_LOCAL) {
 		    int		domain = ((__pmID_int *)&np->pmid)->cluster;
 		    __pmDSO	*dp;
@@ -2116,8 +2113,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 		     * they are not a leaf node of the PMNS
 		     */
 		    if (statuslist != NULL) {
-			if (pmid_domain(tnp->pmid) == DYNAMIC_PMID &&
-			    pmid_item(tnp->pmid) == 0) {
+			if (IS_DYNAMIC_ROOT(tnp->pmid)) {
 			    status[i] = PMNS_NONLEAF_STATUS;
 			}
 			else
@@ -2306,7 +2302,7 @@ pmNameID(pmID pmid, char **name)
 
 	if (ctxp != NULL)
 	    PM_UNLOCK(ctxp->c_lock);
-	if (pmid_domain(pmid) == DYNAMIC_PMID && pmid_item(pmid) == 0) {
+	if (IS_DYNAMIC_ROOT(pmid)) {
 	    /* cannot return name for dynamic PMID from local PMNS */
 	    return PM_ERR_PMID;
 	}
@@ -2416,7 +2412,7 @@ pmNameAll(pmID pmid, char ***namelist)
 
 	if (ctxp != NULL)
 	    PM_UNLOCK(ctxp->c_lock);
-	if (pmid_domain(pmid) == DYNAMIC_PMID && pmid_item(pmid) == 0) {
+	if (IS_DYNAMIC_ROOT(pmid)) {
 	    /* cannot return name(s) for dynamic PMID from local PMNS */
 	    return PM_ERR_PMID;
 	}
@@ -2703,21 +2699,26 @@ pmTrimNameSpace(void)
     else if (pmns_location == PMNS_REMOTE)
 	return 0;
 
-    /* for PMNS_LOCAL ... */
+    /* for PMNS_LOCAL (or PMNS_ARCHIVE) ... */
     PM_INIT_LOCKS();
 
     if ((ctxp = __pmHandleToPtr(pmWhichContext())) == NULL)
 	return PM_ERR_NOCONTEXT;
 
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
-	/* unset all of the marks */
-	mark_all(PM_TPD(curr_pmns), 0);
+	if (havePmLoadCall) {
+	    /*
+	     * unset all of the marks, this will undo the effects of
+	     * any previous pmTrimNameSpace call
+	     */
+	    mark_all(PM_TPD(curr_pmns), 0);
+	}
 	PM_UNLOCK(ctxp->c_lock);
 	return 0;
     }
 
-    /* Don't do any trimming for archives.
-     * Exception: if an explicit load PMNS call was made.
+    /*
+     * archive, so trim, but only if an explicit load PMNS call was made.
      */
     if (havePmLoadCall) {
 	/*

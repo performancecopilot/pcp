@@ -15,10 +15,10 @@
 #ifndef GROUPCONTROL_H
 #define GROUPCONTROL_H
 
-#include <QtCore/QList>
-#include <QtGui/QLabel>
-#include <QtGui/QLayout>
-#include <QtGui/QPixmap>
+#include <QList>
+#include <QLabel>
+#include <QLayout>
+#include <QPixmap>
 #include <qwt_plot.h>
 #include <qwt_scale_draw.h>
 #include <qmc_group.h>

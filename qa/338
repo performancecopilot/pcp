@@ -32,24 +32,37 @@ fi
 
 _filter()
 {
+    if fmt --help 2>&1 | grep '.-w, ' >/dev/null
+    then
+	# GNU-style fmt(1)
+	cmd="fmt -w 76"
+    elif fmt --help 2>&1 | grep '.-m ' >/dev/null
+    then
+	# NetBSD's version of fmt is different (may apply to other variants) ...
+	cmd="fmt -m 76"
+    else
+	echo "Warning: no clue how to set max line length for fmt(1)"
+	cmd="fmt"
+    fi
     tee -a $seq.full \
     | $PCP_AWK_PROG '
-/^Archive files older than/	{ eatlines=1; longone="   "; print; next; }
+BEGIN				{ cmd = "'"`echo $cmd`"'" }
+/^Archive files older than/	{ eatlines=1; longone="   "; print; next }
 eatlines			{ if ( match ($0, "^    ") ) {
 				    for ( i=1; i <=NF; i++ ) {
-					longone = sprintf ("%s %s",longone,$i);
+					longone = sprintf ("%s %s",longone,$i)
 				    }
 				  } else {
-				    print longone | "fmt -76";
-				    close ("fmt -76"); 
-				    longone = ""; eatlines = 0; 
-				    print;  
+				    print longone | cmd
+				    close (cmd)
+				    longone = ""; eatlines = 0 
+				    print  
 				  }
-				  next;
+				  next
 				}
 END				{ if ( eatlines ) {
-				    print longone | "fmt -76";
-				    close ("fmt -76"); 
+				    print longone | cmd
+				    close (cmd)
 				  }
 				}
 				{ print }' \

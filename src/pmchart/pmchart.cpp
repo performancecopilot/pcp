@@ -13,16 +13,17 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtCore/QUrl>
-#include <QtCore/QTimer>
-#include <QtCore/QLibraryInfo>
-#include <QtGui/QDesktopServices>
-#include <QtGui/QDesktopWidget>
-#include <QtGui/QApplication>
-#include <QtGui/QPrintDialog>
-#include <QtGui/QMessageBox>
-#include <QtGui/QWhatsThis>
-#include <QtGui/QPainter>
+#include <QUrl>
+#include <QTimer>
+#include <QLibraryInfo>
+#include <QDesktopServices>
+#include <QDesktopWidget>
+#include <QApplication>
+#include <QPrintDialog>
+#include <QMessageBox>
+#include <QWhatsThis>
+#include <QPainter>
+#include <QPrinter>
 
 #include "main.h"
 #include "pmchart.h"

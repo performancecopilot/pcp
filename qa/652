@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ -d $PCP_VAR_DIR/pmdas/systemd ] || _notrun "systemd PMDA not installed"
-which logger >/dev/null 2>&1 || _notrun no logger
+which systemd-cat >/dev/null 2>&1 || _notrun no systemd-cat
 which journalctl >/dev/null 2>&1 || _notrun no journalctl
 journal_version=`journalctl --version | grep ^systemd | awk '{print $2}'`
 [ "$journal_version" -ge 193 ] || _notrun journalctl too old "$journal_version"
@@ -79,24 +79,41 @@ _wait_for_pmcd
 cat $tmp.out >>$here/$seq.full
 cat $tmp.out | _filter_pmda_install | _filter_pmda_warning | _filter
 
+# want to make sure PMDA is really healthy ... on vm02 we got
+# this far but the PMDA was dead ...
+#
+numval=`pmprobe -v systemd.numclients | tee -a $here/$seq.full | $PCP_AWK_PROG '{print $2}'`
+if [ "$numval" -lt 0 ]
+then
+    echo "Arrgh ... PMDA is not well!"
+    pminfo -f systemd
+    ps "$PCP_PS_ALL_FLAGS" | egrep "[p]m[cd]|[P]ID"
+    echo "=== PMDA's log ==="
+    cat $PCP_LOG_DIR/pmcd/systemd.log
+    echo "=== ==="
+    echo "=== pmcd's log ==="
+    cat $PCP_LOG_DIR/pmcd/pmcd.log
+    exit
+fi
+
 echo | tee -a $here/$seq.full
 echo "=== 1. scalar metrics  ===" | tee -a $here/$seq.full
 pmprobe -v systemd | tee -a $here/$seq.full | _filter_probe
 
 echo | tee -a $here/$seq.full
 echo "=== 2. journald.records  ===" | tee -a $here/$seq.full
-(pmsleep 2.5; logger yo) &
+(pmsleep 2.5; echo yo-$seq-2 | systemd-cat) &
 pmevent -T 5 systemd.journal.records | tee -a $here/$seq.full | _filter_events
 
 echo | tee -a $here/$seq.full
 echo "=== 3. journald.records  ===" | tee -a $here/$seq.full
-(pmsleep 2.5; logger yo) &
+(pmsleep 2.5; echo yo-$seq-3 | systemd-cat) &
 pmevent -T 5 systemd.journal.records_raw | tee -a $here/$seq.full | _filter_events_raw
 
 # remove PMDA to ensure proper cleanup (in case it wasnt already installed beforehand)
 $sudo ./Remove </dev/null >>$here/$seq.full 2>&1
 
-$sudo journalctl MESSAGE=yo >>$here/$seq.full
+$sudo journalctl --lines=4 MESSAGE=yo-$seq-2 MESSAGE=yo-$seq-3 >>$here/$seq.full
 cat $PCP_LOG_DIR/pmcd/systemd.log >>$here/$seq.full
 
 status=0

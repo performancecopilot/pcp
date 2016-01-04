@@ -1,0 +1,438 @@
+QA output created by 797
+===511.2048.1 case ===
+Warning [TMP.rewrite, line 1]
+Dynamic metric domain field (511) for pmid
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+08:56:31.432  2.3.3 (pmcd.pmlogger.host): inst [28019 or "28019"] value "bozo.localdomain"
+              2.3.0 (pmcd.pmlogger.port): inst [28019 or "28019"] value 4331
+              2.3.2 (pmcd.pmlogger.archive): inst [28019 or "28019"] value "/home/kenj/src/pcp/qa/archives/log-derived"
+
+08:56:31.452  511.2048.2 (mem.util.bin):
+                inst [100 or "bin-100"] value 113
+                inst [300 or "bin-300"] value 313
+                inst [500 or "bin-500"] value 513
+                inst [700 or "bin-700"] value 713
+                inst [900 or "bin-900"] value 913
+              510.2048.1 (mem.util.allcache): value 10607260
+              60.1.25 (mem.util.slab): value 1613856
+              60.1.5 (mem.util.cached): value 8993404
+              29.0.90 (sample.dynamic.meta.pmdesc.units): value 520105984
+              29.0.89 (sample.dynamic.meta.pmdesc.sem): value 4
+              29.0.88 (sample.dynamic.meta.pmdesc.indom): value 4294967295
+              29.0.87 (sample.dynamic.meta.pmdesc.type): value 0
+              29.0.86 (sample.dynamic.meta.metric): value 42
+              29.0.78 (sample.dynamic.instant):
+                inst [1 or "one"] value 8
+                inst [2 or "two"] value 8
+              29.0.77 (sample.dynamic.discrete):
+                inst [1 or "one"] value 8
+                inst [2 or "two"] value 8
+              29.0.76 (sample.dynamic.counter):
+                inst [1 or "one"] value 8
+                inst [2 or "two"] value 8
+              29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+
+08:56:34.452  511.2048.2 (mem.util.bin):
+                inst [100 or "bin-100"] value 113
+                inst [300 or "bin-300"] value 313
+                inst [500 or "bin-500"] value 513
+                inst [700 or "bin-700"] value 713
+                inst [900 or "bin-900"] value 913
+              510.2048.1 (mem.util.allcache): value 10607308
+              60.1.25 (mem.util.slab): value 1613856
+              60.1.5 (mem.util.cached): value 8993452
+              29.0.90 (sample.dynamic.meta.pmdesc.units): value 520105984
+              29.0.89 (sample.dynamic.meta.pmdesc.sem): value 4
+              29.0.88 (sample.dynamic.meta.pmdesc.indom): value 4294967295
+              29.0.87 (sample.dynamic.meta.pmdesc.type): value 0
+              29.0.86 (sample.dynamic.meta.metric): value 42
+              29.0.78 (sample.dynamic.instant):
+                inst [1 or "one"] value 11
+                inst [2 or "two"] value 11
+              29.0.77 (sample.dynamic.discrete):
+                inst [1 or "one"] value 11
+                inst [2 or "two"] value 11
+              29.0.76 (sample.dynamic.counter):
+                inst [1 or "one"] value 11
+                inst [2 or "two"] value 11
+              29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+
+08:56:37.452  511.2048.2 (mem.util.bin):
+                inst [100 or "bin-100"] value 113
+                inst [300 or "bin-300"] value 313
+                inst [500 or "bin-500"] value 513
+                inst [700 or "bin-700"] value 713
+                inst [900 or "bin-900"] value 913
+              510.2048.1 (mem.util.allcache): value 10607324
+              60.1.25 (mem.util.slab): value 1613864
+              60.1.5 (mem.util.cached): value 8993460
+              29.0.90 (sample.dynamic.meta.pmdesc.units): value 520105984
+              29.0.89 (sample.dynamic.meta.pmdesc.sem): value 4
+              29.0.88 (sample.dynamic.meta.pmdesc.indom): value 4294967295
+              29.0.87 (sample.dynamic.meta.pmdesc.type): value 0
+              29.0.86 (sample.dynamic.meta.metric): value 42
+              29.0.78 (sample.dynamic.instant):
+                inst [1 or "one"] value 12
+                inst [2 or "two"] value 12
+              29.0.77 (sample.dynamic.discrete):
+                inst [1 or "one"] value 12
+                inst [2 or "two"] value 12
+              29.0.76 (sample.dynamic.counter):
+                inst [1 or "one"] value 12
+                inst [2 or "two"] value 12
+              29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+
+08:56:40.452  511.2048.2 (mem.util.bin):
+                inst [100 or "bin-100"] value 113
+                inst [300 or "bin-300"] value 313
+                inst [500 or "bin-500"] value 513
+                inst [700 or "bin-700"] value 713
+                inst [900 or "bin-900"] value 913
+              510.2048.1 (mem.util.allcache): value 10607388
+              60.1.25 (mem.util.slab): value 1613864
+              60.1.5 (mem.util.cached): value 8993524
+              29.0.90 (sample.dynamic.meta.pmdesc.units): value 520105984
+              29.0.89 (sample.dynamic.meta.pmdesc.sem): value 4
+              29.0.88 (sample.dynamic.meta.pmdesc.indom): value 4294967295
+              29.0.87 (sample.dynamic.meta.pmdesc.type): value 0
+              29.0.86 (sample.dynamic.meta.metric): value 42
+              29.0.78 (sample.dynamic.instant):
+                inst [1 or "one"] value 13
+                inst [2 or "two"] value 13
+              29.0.77 (sample.dynamic.discrete):
+                inst [1 or "one"] value 13
+                inst [2 or "two"] value 13
+              29.0.76 (sample.dynamic.counter):
+                inst [1 or "one"] value 13
+                inst [2 or "two"] value 13
+              29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+
+===511.2048.* case ===
+Warning [TMP.rewrite, line 1]
+Dynamic metric domain field (511) for pmid
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+08:56:31.432  2.3.3 (pmcd.pmlogger.host): inst [28019 or "28019"] value "bozo.localdomain"
+              2.3.0 (pmcd.pmlogger.port): inst [28019 or "28019"] value 4331
+              2.3.2 (pmcd.pmlogger.archive): inst [28019 or "28019"] value "/home/kenj/src/pcp/qa/archives/log-derived"
+
+08:56:31.452  510.2048.2 (mem.util.bin):
+                inst [100 or "bin-100"] value 113
+                inst [300 or "bin-300"] value 313
+                inst [500 or "bin-500"] value 513
+                inst [700 or "bin-700"] value 713
+                inst [900 or "bin-900"] value 913
+              510.2048.1 (mem.util.allcache): value 10607260
+              60.1.25 (mem.util.slab): value 1613856
+              60.1.5 (mem.util.cached): value 8993404
+              29.0.90 (sample.dynamic.meta.pmdesc.units): value 520105984
+              29.0.89 (sample.dynamic.meta.pmdesc.sem): value 4
+              29.0.88 (sample.dynamic.meta.pmdesc.indom): value 4294967295
+              29.0.87 (sample.dynamic.meta.pmdesc.type): value 0
+              29.0.86 (sample.dynamic.meta.metric): value 42
+              29.0.78 (sample.dynamic.instant):
+                inst [1 or "one"] value 8
+                inst [2 or "two"] value 8
+              29.0.77 (sample.dynamic.discrete):
+                inst [1 or "one"] value 8
+                inst [2 or "two"] value 8
+              29.0.76 (sample.dynamic.counter):
+                inst [1 or "one"] value 8
+                inst [2 or "two"] value 8
+              29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+
+08:56:34.452  510.2048.2 (mem.util.bin):
+                inst [100 or "bin-100"] value 113
+                inst [300 or "bin-300"] value 313
+                inst [500 or "bin-500"] value 513
+                inst [700 or "bin-700"] value 713
+                inst [900 or "bin-900"] value 913
+              510.2048.1 (mem.util.allcache): value 10607308
+              60.1.25 (mem.util.slab): value 1613856
+              60.1.5 (mem.util.cached): value 8993452
+              29.0.90 (sample.dynamic.meta.pmdesc.units): value 520105984
+              29.0.89 (sample.dynamic.meta.pmdesc.sem): value 4
+              29.0.88 (sample.dynamic.meta.pmdesc.indom): value 4294967295
+              29.0.87 (sample.dynamic.meta.pmdesc.type): value 0
+              29.0.86 (sample.dynamic.meta.metric): value 42
+              29.0.78 (sample.dynamic.instant):
+                inst [1 or "one"] value 11
+                inst [2 or "two"] value 11
+              29.0.77 (sample.dynamic.discrete):
+                inst [1 or "one"] value 11
+                inst [2 or "two"] value 11
+              29.0.76 (sample.dynamic.counter):
+                inst [1 or "one"] value 11
+                inst [2 or "two"] value 11
+              29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+
+08:56:37.452  510.2048.2 (mem.util.bin):
+                inst [100 or "bin-100"] value 113
+                inst [300 or "bin-300"] value 313
+                inst [500 or "bin-500"] value 513
+                inst [700 or "bin-700"] value 713
+                inst [900 or "bin-900"] value 913
+              510.2048.1 (mem.util.allcache): value 10607324
+              60.1.25 (mem.util.slab): value 1613864
+              60.1.5 (mem.util.cached): value 8993460
+              29.0.90 (sample.dynamic.meta.pmdesc.units): value 520105984
+              29.0.89 (sample.dynamic.meta.pmdesc.sem): value 4
+              29.0.88 (sample.dynamic.meta.pmdesc.indom): value 4294967295
+              29.0.87 (sample.dynamic.meta.pmdesc.type): value 0
+              29.0.86 (sample.dynamic.meta.metric): value 42
+              29.0.78 (sample.dynamic.instant):
+                inst [1 or "one"] value 12
+                inst [2 or "two"] value 12
+              29.0.77 (sample.dynamic.discrete):
+                inst [1 or "one"] value 12
+                inst [2 or "two"] value 12
+              29.0.76 (sample.dynamic.counter):
+                inst [1 or "one"] value 12
+                inst [2 or "two"] value 12
+              29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+
+08:56:40.452  510.2048.2 (mem.util.bin):
+                inst [100 or "bin-100"] value 113
+                inst [300 or "bin-300"] value 313
+                inst [500 or "bin-500"] value 513
+                inst [700 or "bin-700"] value 713
+                inst [900 or "bin-900"] value 913
+              510.2048.1 (mem.util.allcache): value 10607388
+              60.1.25 (mem.util.slab): value 1613864
+              60.1.5 (mem.util.cached): value 8993524
+              29.0.90 (sample.dynamic.meta.pmdesc.units): value 520105984
+              29.0.89 (sample.dynamic.meta.pmdesc.sem): value 4
+              29.0.88 (sample.dynamic.meta.pmdesc.indom): value 4294967295
+              29.0.87 (sample.dynamic.meta.pmdesc.type): value 0
+              29.0.86 (sample.dynamic.meta.metric): value 42
+              29.0.78 (sample.dynamic.instant):
+                inst [1 or "one"] value 13
+                inst [2 or "two"] value 13
+              29.0.77 (sample.dynamic.discrete):
+                inst [1 or "one"] value 13
+                inst [2 or "two"] value 13
+              29.0.76 (sample.dynamic.counter):
+                inst [1 or "one"] value 13
+                inst [2 or "two"] value 13
+              29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+
+===511.*.* case ===
+Warning [TMP.rewrite, line 1]
+Dynamic metric domain field (511) for pmid
+Note: timezone set to local timezone of host "bozo" from archive
+
+
+08:56:31.432  2.3.3 (pmcd.pmlogger.host): inst [28019 or "28019"] value "bozo.localdomain"
+              2.3.0 (pmcd.pmlogger.port): inst [28019 or "28019"] value 4331
+              2.3.2 (pmcd.pmlogger.archive): inst [28019 or "28019"] value "/home/kenj/src/pcp/qa/archives/log-derived"
+
+08:56:31.452  510.2048.2 (mem.util.bin):
+                inst [100 or "bin-100"] value 113
+                inst [300 or "bin-300"] value 313
+                inst [500 or "bin-500"] value 513
+                inst [700 or "bin-700"] value 713
+                inst [900 or "bin-900"] value 913
+              510.2048.1 (mem.util.allcache): value 10607260
+              60.1.25 (mem.util.slab): value 1613856
+              60.1.5 (mem.util.cached): value 8993404
+              29.0.90 (sample.dynamic.meta.pmdesc.units): value 520105984
+              29.0.89 (sample.dynamic.meta.pmdesc.sem): value 4
+              29.0.88 (sample.dynamic.meta.pmdesc.indom): value 4294967295
+              29.0.87 (sample.dynamic.meta.pmdesc.type): value 0
+              29.0.86 (sample.dynamic.meta.metric): value 42
+              29.0.78 (sample.dynamic.instant):
+                inst [1 or "one"] value 8
+                inst [2 or "two"] value 8
+              29.0.77 (sample.dynamic.discrete):
+                inst [1 or "one"] value 8
+                inst [2 or "two"] value 8
+              29.0.76 (sample.dynamic.counter):
+                inst [1 or "one"] value 8
+                inst [2 or "two"] value 8
+              29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+
+08:56:34.452  510.2048.2 (mem.util.bin):
+                inst [100 or "bin-100"] value 113
+                inst [300 or "bin-300"] value 313
+                inst [500 or "bin-500"] value 513
+                inst [700 or "bin-700"] value 713
+                inst [900 or "bin-900"] value 913
+              510.2048.1 (mem.util.allcache): value 10607308
+              60.1.25 (mem.util.slab): value 1613856
+              60.1.5 (mem.util.cached): value 8993452
+              29.0.90 (sample.dynamic.meta.pmdesc.units): value 520105984
+              29.0.89 (sample.dynamic.meta.pmdesc.sem): value 4
+              29.0.88 (sample.dynamic.meta.pmdesc.indom): value 4294967295
+              29.0.87 (sample.dynamic.meta.pmdesc.type): value 0
+              29.0.86 (sample.dynamic.meta.metric): value 42
+              29.0.78 (sample.dynamic.instant):
+                inst [1 or "one"] value 11
+                inst [2 or "two"] value 11
+              29.0.77 (sample.dynamic.discrete):
+                inst [1 or "one"] value 11
+                inst [2 or "two"] value 11
+              29.0.76 (sample.dynamic.counter):
+                inst [1 or "one"] value 11
+                inst [2 or "two"] value 11
+              29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+
+08:56:37.452  510.2048.2 (mem.util.bin):
+                inst [100 or "bin-100"] value 113
+                inst [300 or "bin-300"] value 313
+                inst [500 or "bin-500"] value 513
+                inst [700 or "bin-700"] value 713
+                inst [900 or "bin-900"] value 913
+              510.2048.1 (mem.util.allcache): value 10607324
+              60.1.25 (mem.util.slab): value 1613864
+              60.1.5 (mem.util.cached): value 8993460
+              29.0.90 (sample.dynamic.meta.pmdesc.units): value 520105984
+              29.0.89 (sample.dynamic.meta.pmdesc.sem): value 4
+              29.0.88 (sample.dynamic.meta.pmdesc.indom): value 4294967295
+              29.0.87 (sample.dynamic.meta.pmdesc.type): value 0
+              29.0.86 (sample.dynamic.meta.metric): value 42
+              29.0.78 (sample.dynamic.instant):
+                inst [1 or "one"] value 12
+                inst [2 or "two"] value 12
+              29.0.77 (sample.dynamic.discrete):
+                inst [1 or "one"] value 12
+                inst [2 or "two"] value 12
+              29.0.76 (sample.dynamic.counter):
+                inst [1 or "one"] value 12
+                inst [2 or "two"] value 12
+              29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900
+
+08:56:40.452  510.2048.2 (mem.util.bin):
+                inst [100 or "bin-100"] value 113
+                inst [300 or "bin-300"] value 313
+                inst [500 or "bin-500"] value 513
+                inst [700 or "bin-700"] value 713
+                inst [900 or "bin-900"] value 913
+              510.2048.1 (mem.util.allcache): value 10607388
+              60.1.25 (mem.util.slab): value 1613864
+              60.1.5 (mem.util.cached): value 8993524
+              29.0.90 (sample.dynamic.meta.pmdesc.units): value 520105984
+              29.0.89 (sample.dynamic.meta.pmdesc.sem): value 4
+              29.0.88 (sample.dynamic.meta.pmdesc.indom): value 4294967295
+              29.0.87 (sample.dynamic.meta.pmdesc.type): value 0
+              29.0.86 (sample.dynamic.meta.metric): value 42
+              29.0.78 (sample.dynamic.instant):
+                inst [1 or "one"] value 13
+                inst [2 or "two"] value 13
+              29.0.77 (sample.dynamic.discrete):
+                inst [1 or "one"] value 13
+                inst [2 or "two"] value 13
+              29.0.76 (sample.dynamic.counter):
+                inst [1 or "one"] value 13
+                inst [2 or "two"] value 13
+              29.0.6 (sample.dupnames.three.bin or sample.dupnames.two.bin or sample.bin):
+                inst [100 or "bin-100"] value 100
+                inst [200 or "bin-200"] value 200
+                inst [300 or "bin-300"] value 300
+                inst [400 or "bin-400"] value 400
+                inst [500 or "bin-500"] value 500
+                inst [600 or "bin-600"] value 600
+                inst [700 or "bin-700"] value 700
+                inst [800 or "bin-800"] value 800
+                inst [900 or "bin-900"] value 900

@@ -66,7 +66,7 @@ BaseObj::addBase(SoSeparator *sep)
 	cubeSep->addChild(_cube);
     }
 
-    _mod = new ToggleMod(cubeSep, (const char *)_label.toAscii());
+    _mod = new ToggleMod(cubeSep, (const char *)_label.toLatin1());
     sep->addChild(_mod->root());
 
     if (_on) {

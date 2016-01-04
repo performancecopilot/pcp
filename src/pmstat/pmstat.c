@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2015 Red Hat.
  * Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -479,7 +479,7 @@ main(int argc, char *argv[])
     }
 
     if (opts.guiflag != 0 || opts.guiport != 0) {
-	char *timezone;
+	char *timezone = NULL;
 
 	pmWhichZone(&timezone);
 	if (!opts.guiport)

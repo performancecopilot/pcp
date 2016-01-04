@@ -16,8 +16,8 @@
 #define _COLORSCALE_H
 
 #include <Inventor/SbColor.h>
-#include <QtCore/QTextStream>
-#include <QtCore/QList>
+#include <QTextStream>
+#include <QList>
 
 class ColorStep
 {

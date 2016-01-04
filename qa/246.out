@@ -3,16 +3,46 @@ pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: register metric[0] myname.a = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million + sample.longlong.one + sample.longlong.ten + sample.longlong.hundred + sample.longlong.million
 pmRegisterDerived: register metric[1] myname.b = sample.long.one + sample.long.ten + sample.long.hundred + sample.long.million - sample.longlong.one - sample.longlong.ten - sample.longlong.hundred - sample.longlong.million
 pmRegisterDerived: register metric[2] myname.c = sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten + sample.long.hundred * sample.longlong.hundred + sample.long.million * sample.longlong.million
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -23,16 +53,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -43,16 +103,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -63,16 +153,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -83,16 +203,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -103,16 +253,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -123,16 +303,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -143,16 +353,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -163,16 +403,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -183,16 +453,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -203,16 +503,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -223,16 +553,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -243,16 +603,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -263,16 +653,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -283,16 +703,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -303,16 +753,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -323,16 +803,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -343,16 +853,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -363,16 +903,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -383,16 +953,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -403,16 +1003,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -423,16 +1053,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -443,16 +1103,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -463,16 +1153,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -483,16 +1203,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -503,16 +1253,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -523,16 +1303,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -543,16 +1353,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -563,16 +1403,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -583,16 +1453,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -603,16 +1503,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -623,16 +1553,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -643,16 +1603,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -663,16 +1653,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -683,16 +1703,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -703,16 +1753,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -723,16 +1803,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -743,16 +1853,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -763,16 +1903,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -783,16 +1953,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -803,16 +2003,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -823,16 +2053,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -843,16 +2103,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -863,16 +2153,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -883,16 +2203,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -903,16 +2253,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -923,16 +2303,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -943,16 +2353,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -963,16 +2403,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -983,16 +2453,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1003,16 +2503,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1023,16 +2553,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1043,16 +2603,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1063,16 +2653,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1083,16 +2703,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1103,16 +2753,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1123,16 +2803,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1143,16 +2853,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1163,16 +2903,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1183,16 +2953,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1203,16 +3003,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1223,16 +3053,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1243,16 +3103,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1263,16 +3153,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1283,16 +3203,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1303,16 +3253,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1323,16 +3303,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1343,16 +3353,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1363,16 +3403,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1383,16 +3453,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1403,16 +3503,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1423,16 +3553,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1443,16 +3603,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1463,16 +3653,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1483,16 +3703,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1503,16 +3753,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1523,16 +3803,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1543,16 +3853,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1563,16 +3903,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1583,16 +3953,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1603,16 +4003,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1623,16 +4053,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1643,16 +4103,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1663,16 +4153,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1683,16 +4203,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1703,16 +4253,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1723,16 +4303,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1743,16 +4353,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1763,16 +4403,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1783,16 +4453,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1803,16 +4503,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1823,16 +4553,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1843,16 +4603,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1863,16 +4653,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1883,16 +4703,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1903,16 +4753,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1923,16 +4803,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1943,16 +4853,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1963,16 +4903,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
@@ -1983,16 +4953,46 @@ close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
+__dmgetpmid: metric "myname.a" -> PMID 511.0.1
 open myname.a ...
+__dmgetpmid: metric "myname.b" -> PMID 511.0.2
+__dmgetpmid: metric "myname.c" -> PMID 511.0.3
 close <addr> 3 metrics
 close <addr> 3 metrics
 close <addr> 3 metrics

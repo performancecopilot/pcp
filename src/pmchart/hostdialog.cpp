@@ -12,8 +12,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include <QtCore/QDir>
-#include <QtGui/QMessageBox>
+#include <QDir>
+#include <QMessageBox>
 #include "hostdialog.h"
 #include "main.h"
 

@@ -14,9 +14,9 @@
 #ifndef COLORSCHEME_H
 #define COLORSCHEME_H
 
-#include <QtCore/QString>
-#include <QtCore/QStringList>
-#include <QtGui/QColor>
+#include <QString>
+#include <QStringList>
+#include <QColor>
 
 class ColorScheme
 {

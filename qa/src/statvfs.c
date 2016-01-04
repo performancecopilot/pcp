@@ -1,29 +1,38 @@
 /*
  * Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
+ *
+ * Note on NetBSD - at least in NetBSD 6.1.5 (vm09) circa Nov 2015,
+ * statfs() is defined in libc.so but there is no prototype anywhere
+ * below /usr/include ... I suspect this is some sort of backwards
+ * compatibility hook for statfs() as per the statvfs(3) man page ...
+ *	The statvfs(), statvfs1(), fstatvfs(), and fstatvfs1()
+ *	functions first appeared in NetBSD 3.0 to replace the
+ *	statfs() family of functions which first appeared in 4.4BSD.
  */
 
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
 #include <pcp/pmapi.h>
+#define build_me
 #if defined(HAVE_SYS_STATVFS_H)
 #include <sys/statvfs.h>
+#else
+#undef build_me
+#endif
+
 #if defined(HAVE_SYS_STATFS_H)
 /* Linux and Solaris style */
 #include <sys/statfs.h>
-#elif defined(HAVE_SYS_PARAM_H) && defined(HAVE_SYS_MOUNT_H)
-/* BSD style */
+#elif defined(HAVE_SYS_PARAM_H) && defined(HAVE_SYS_MOUNT_H) && !defined(IS_NETBSD)
+/* FreeBSD style */
 #include <sys/param.h>
 #include <sys/mount.h>
 #else
-int
-main(int argc, char **argv)
-{
-    printf("No statfs() on this platform!\n");
-    return(1);
-}
+#undef build_me
 #endif
 
+#ifdef build_me
 int
 main(int argc, char **argv)
 {
@@ -96,7 +105,7 @@ main(int argc, char **argv)
 int
 main(int argc, char **argv)
 {
-    printf("No statvfs() on this platform!\n");
+    printf("No statvfs() and/or statfs() on this platform\n");
     return(1);
 }
 #endif

@@ -8,7 +8,7 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/pmdas
 SUBDIRS = broken bigun dynamic slow test_perl \
-	  schizo
+	  schizo github-56
 
 ifeq "$(HAVE_PYTHON)" "true"
 SUBDIRS += slow_python memory_python

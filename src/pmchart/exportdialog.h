@@ -15,7 +15,7 @@
 #define EXPORTDIALOG_H
 
 #include "ui_exportdialog.h"
-#include <QtGui/QFileDialog>
+#include <QFileDialog>
 
 class ExportDialog : public QDialog, public Ui::ExportDialog
 {

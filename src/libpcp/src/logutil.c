@@ -1870,14 +1870,12 @@ check_all_derived(int numpmid, pmID pmidlist[])
      * Special case ... if we ONLY have derived metrics in the input
      * pmidlist then all the derived metrics must be constant
      * expressions, so skip all the processing.
-     * Derived metrics have domain == DYNAMIC_PMID and item != 0.
      * This rare, but avoids reading to the end of an archive
      * for no good reason.
      */
 
     for (i = 0; i < numpmid; i++) {
-	if (pmid_domain(pmidlist[i]) != DYNAMIC_PMID ||
-	    pmid_item(pmidlist[i]) == 0)
+	if (!IS_DERIVED(pmidlist[i]))
 	    return 0;
     }
     return 1;

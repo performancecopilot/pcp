@@ -17,7 +17,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
-#include "pduroot.h"
+#include "pmdaroot.h"
 
 /* Server sends __pmdaRootPDUInfo PDUs */
 int

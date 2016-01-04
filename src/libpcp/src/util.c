@@ -332,20 +332,19 @@ __pmRotateLog(const char *progname, const char *logname, FILE *oldstream,
 char *
 pmIDStr_r(pmID pmid, char *buf, int buflen)
 {
-    __pmID_int*	p = (__pmID_int*)&pmid;
     if (pmid == PM_ID_NULL)
 	snprintf(buf, buflen, "%s", "PM_ID_NULL");
-    else if (p->domain == DYNAMIC_PMID && p->item == 0)
+    else if (IS_DYNAMIC_ROOT(pmid))
 	/*
 	 * this PMID represents the base of a dynamic subtree in the PMNS
 	 * ... identified by setting the domain field to the reserved
 	 * value DYNAMIC_PMID and storing the real domain of the PMDA
 	 * that can enumerate the subtree in the cluster field, while
-	 * the item field is not used
+	 * the item field is zero
 	 */
-	snprintf(buf, buflen, "%d.*.*", p->cluster);
+	snprintf(buf, buflen, "%d.*.*", pmid_cluster(pmid));
     else
-	snprintf(buf, buflen, "%d.%d.%d", p->domain, p->cluster, p->item);
+	snprintf(buf, buflen, "%d.%d.%d", pmid_domain(pmid), pmid_cluster(pmid), pmid_item(pmid));
     return buf;
 }
 

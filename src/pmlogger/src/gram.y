@@ -425,6 +425,9 @@ activate_cached_metric(const char *name, int index)
 		    "Metric \"%s\" is unknown ... not logged", name);
 	    goto snarf;
 	}
+	/* is this a derived metric? */
+	if (IS_DERIVED(pmid))
+	    tp->t_dm++;
 	if ((sts = pmLookupDesc(pmid, dp)) < 0) {
 	    snprintf(emess, sizeof(emess),
 		    "Description unavailable for metric \"%s\" ... not logged",

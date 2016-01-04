@@ -108,8 +108,17 @@ do
 		continue
 		;;
 	esac
+    elif [ $PCP_PLATFORM = netbsd ]
+    then
+	# some of the metrics just aren't there on FreeBSD
+	case $metric
+	in
+	    hinv.map.cpu_num|hinv.map.dmname|disk.partitions.total|hinv.map.scsi|mem.slabinfo.objects.total|swapdev.length|nfs.*|nfs3.*|nfs4.*|tmpfs.capacity|kernel.pernode.cpu.nice)
+		continue
+		;;
+	esac
     fi
-    if [ $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
+    if [ $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd ]
     then
 	# need to be root to open /dev/kmem
 	$sudo $here/src/torture_indom $metric >$tmp.out 2>&1

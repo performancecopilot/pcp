@@ -129,6 +129,10 @@ else
     echo "Error: pcp git checkout $pcp_branch failed!" | tee -a \$HOME/daily.log
     exit 1
 fi
+# on some VMs, there is a problem with the shutdown that deletes
+# some files which causes the subsequent Makepkgs to fail ... try
+# to recover from this
+git status -s | awk '\$1 == "D" { print \$2 }' | xargs git checkout
 if git pull >>\$HOME/daily.log 2>&1
 then
     echo "Info: pcp git pull" | tee -a \$HOME/daily.log
@@ -393,19 +397,26 @@ _script_qa()
     cat <<End-of-File
 rm -f *.out.bad
 ./changeversion >/dev/null 2>&1
-if ./check -l $check_what >>\$HOME/daily.log 2>&1
-then
-    echo "Info: QA $what" | tee -a \$HOME/daily.log
-else
-    echo "Error: QA $what failed!" | tee -a \$HOME/daily.log
-    sed -e '/^    [0-9 ]*\$/d' <check.log \
-    | awk '
+echo "Info: QA $check_what starting"
+./check -l $check_what >>\$HOME/daily.log 2>&1
+sts=\$?
+# get last block from check.log ... then get the summary on
+# stdout (not needed in the daily.log, already there)
+sed -e '/^    [0-9 ]*\$/d' <check.log \
+| awk '
 NF == 0	{ txt = ""; next }
 	{ if (txt == "") txt = \$0
 	  else txt = txt "\n" \$0
 	}
-END	{ print txt }' | tee -a \$HOME/daily.log
+END	{ print txt }' \
+| egrep '^(Failures:|Failed|Passed)'
+if [ "\$sts" = 0 ]
+then
+    echo "Info: QA $check_what done" | tee -a \$HOME/daily.log
+else
+    echo "Error: QA $what failed!" | tee -a \$HOME/daily.log
 fi
+date >>\$HOME/daily.log
 End-of-File
 }
 
@@ -779,8 +790,8 @@ End-of-File
 		#
 		[ X"$what" = Xall ] && check_what='$check_what -x remote'
 		;;
-	    vm06|vm10)
-		# Only -g sanity at this stage for FreeBSD
+	    vm06|vm10|vm09)
+		# Only -g sanity at this stage for FreeBSD or NetBSD
 		#
 		[ X"$what" = Xall ] && check_what='-g sanity'
 		;;

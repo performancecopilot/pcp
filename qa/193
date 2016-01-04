@@ -18,7 +18,11 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.*
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-$sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+sleep 2
+$sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
+_wait_for_pmcd
+_wait_for_pmlogger
 
 # real QA test starts here
 src/crashpmcd
