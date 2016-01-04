@@ -459,8 +459,17 @@ AC_SUBST(INVISIBILITY)
 AC_PROG_CXX
 cxx=$CXX
 AC_SUBST(cxx)
+AC_MSG_CHECKING([for working C++ compiler])
+AC_LANG_PUSH([C++])
+AC_COMPILE_IFELSE(
+   [AC_LANG_PROGRAM([[#include <cstdio>]],
+                    [[const char gday[] = "G'day, world\n";]])],
+   [AC_MSG_RESULT([yes])],
+   [AC_MSG_RESULT([no])
+    cxx=""])
+AC_LANG_POP([C++])
 
-# Prevent shared libaries from being built for libpcp and other core libraries
+# Prevent shared libraries from being built for libpcp and other core libraries
 AC_ARG_ENABLE([shared],
   [AS_HELP_STRING([--disable-shared], [disable core shared libary generation])],
   [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"])
