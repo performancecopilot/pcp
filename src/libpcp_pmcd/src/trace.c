@@ -166,9 +166,9 @@ pmcd_dump_trace(FILE *f)
 		    break;
 
 		case TR_DEL_CLIENT:
-		    fprintf(f, "End client: fd=%d", trace[p].t_who);
-		    if (trace[p].t_p1 != 0)
-			fprintf(f, ", err=%d: %s", trace[p].t_p1, pmErrStr(trace[p].t_p1));
+		    fprintf(f, "End client: [%d] fd=%d", trace[p].t_who, trace[p].t_p1);
+		    if (trace[p].t_p2 != 0)
+			fprintf(f, ", err=%d: %s", trace[p].t_p2, pmErrStr(trace[p].t_p2));
 		    fputc('\n', f);
 		    break;
 

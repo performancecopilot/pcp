@@ -806,6 +806,13 @@ main(int argc, char *argv[])
 #endif
 
     umask(022);
+    /*
+     * open log as soon as possible so any early messages are
+     * not lost, if this fails don't worry as messages will still
+     * go to stderr
+     */
+    __pmOpenLog(pmProgname, logfile, stderr, &sts);
+
     __pmProcessDataSize(NULL);
     __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
@@ -858,7 +865,6 @@ main(int argc, char *argv[])
 	DontStart();
     maxReqPortFd = maxClientFd = sts;
 
-    __pmOpenLog(pmProgname, logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
     close(fileno(stdout));
@@ -997,7 +1003,7 @@ CleanupClient(ClientInfo *cp, int sts)
     if (sts != PM_ERR_PERMISSION && sts != PM_ERR_CONNLIMIT)
         __pmAccDelClient(cp->addr);
 
-    pmcd_trace(TR_DEL_CLIENT, cp->fd, sts, 0);
+    pmcd_trace(TR_DEL_CLIENT, cp-client, cp->fd, sts);
     DeleteClient(cp);
 
     if (maxClientFd < maxReqPortFd)
