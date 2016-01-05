@@ -806,13 +806,6 @@ main(int argc, char *argv[])
 #endif
 
     umask(022);
-    /*
-     * open log as soon as possible so any early messages are
-     * not lost, if this fails don't worry as messages will still
-     * go to stderr
-     */
-    __pmOpenLog(pmProgname, logfile, stderr, &sts);
-
     __pmProcessDataSize(NULL);
     __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
@@ -826,7 +819,24 @@ main(int argc, char *argv[])
 	    __pmServerSetFeature(PM_SERVER_FEATURE_LOCAL);
     if ((envstr = getenv("PMCD_MAXPENDING")) != NULL)
 	maxpending = atoi(envstr);
+
     ParseOptions(argc, argv, &nport);
+
+    /*
+     * would prefer open log earlier so any messages up to this point
+     * are not lost, but that's not possible ... it has to be after the
+     * command line arguments have been parsed.
+     * Note that if this fails don't worry as messages will still
+     * go to stderr.
+     */
+    __pmOpenLog(pmProgname, logfile, stderr, &sts);
+    /* close old stdout, and force stdout into same stream as stderr */
+    fflush(stdout);
+    close(fileno(stdout));
+    sts = dup(fileno(stderr));
+    /* if this fails beware of the sky falling in */
+    assert(sts >= 0);
+
     if (localhost)
 	__pmServerAddInterface("INADDR_LOOPBACK");
     if (nport == 0)
@@ -864,13 +874,6 @@ main(int argc, char *argv[])
     if ((sts = __pmServerOpenRequestPorts(&clientFds, maxpending)) < 0)
 	DontStart();
     maxReqPortFd = maxClientFd = sts;
-
-    /* close old stdout, and force stdout into same stream as stderr */
-    fflush(stdout);
-    close(fileno(stdout));
-    sts = dup(fileno(stderr));
-    /* if this fails beware of the sky falling in */
-    assert(sts >= 0);
 
     sts = pmLoadASCIINameSpace(pmnsfile, dupok);
     if (sts < 0) {
