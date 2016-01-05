@@ -2263,6 +2263,8 @@ NET | p2p1    ---- | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
    677  0.00s  0.00s -47.0M -2212K     0K     0K --   -    0%                
  12870  0.00s  0.00s     0K     0K     0K     0K --   - S   0% kworker/u16:2  
  22844  0.00s  0.00s     0K     0K     0K     0K --   - S   0% kworker/u16:1  
+Checking sample count and interval
+OK
 Recording an archive using atop
 Replaying an archive using atop
 done
