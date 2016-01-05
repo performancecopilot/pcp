@@ -811,6 +811,7 @@ main(int argc, char *argv[])
      * not lost, if this fails don't worry as messages will still
      * go to stderr
      */
+    __pmSetProgname(argv[0]);
     __pmOpenLog(pmProgname, logfile, stderr, &sts);
 
     __pmProcessDataSize(NULL);
