@@ -27,7 +27,9 @@ refresh_proc_net_softnet(proc_net_softnet_t *proc_net_softnet)
     FILE *fp;
     uint64_t filler;
     proc_net_softnet_t sn;
-    static char fmt[11*7] = { '\0' };	/* 7 == strlen("%08llx ") */
+
+    /* size > (11*7)+1 bytes, where 7 == strlen("%08llx "), and +1 for '\0' */
+    static char fmt[128] = { '\0' };
 
     if (fmt[0] == '\0') {
 	int i;
