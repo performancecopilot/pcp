@@ -806,13 +806,6 @@ main(int argc, char *argv[])
 #endif
 
     umask(022);
-    /*
-     * open log as soon as possible so any early messages are
-     * not lost, if this fails don't worry as messages will still
-     * go to stderr
-     */
-    __pmOpenLog(pmProgname, logfile, stderr, &sts);
-
     __pmProcessDataSize(NULL);
     __pmGetUsername(&username);
     __pmSetInternalState(PM_STATE_PMCS);
@@ -865,6 +858,15 @@ main(int argc, char *argv[])
 	DontStart();
     maxReqPortFd = maxClientFd = sts;
 
+    /*
+     * would prefer open log earlier so any messages up to this point
+     * are not lost, but that's not possible ... it has to be after the
+     * command line arguments have been parsed and after the request
+     * port has been successfully established.
+     * Note that if this fails don't worry as messages will still
+     * go to stderr.
+     */
+    __pmOpenLog(pmProgname, logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
     close(fileno(stdout));
