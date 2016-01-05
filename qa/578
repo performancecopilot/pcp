@@ -41,7 +41,7 @@ fi
 
 _start_client()
 {
-    pmval -T 10sec kernel.all.load >$tmp.tmp 2>&1 &
+    pmval -T 10sec pmcd.client.whoami >$tmp.tmp 2>&1 &
     echo "=== Started client ===" | tee -a $here/$seq.full
     sleep 3
 }
@@ -59,7 +59,7 @@ _cleanup()
         _restore_config $PCP_VAR_DIR/pmns/root
     	echo "=== Restart PMCD ==="
 	unset PMCD_PORT
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
 	_wait_for_pmcd
     fi
     
@@ -137,6 +137,12 @@ then
 fi
 PMCD_PORT=$port
 export PMCD_PORT
+
+# don't want these guys trying to connect to pmcd either ...
+#
+$sudo $PCP_RC_DIR/pmlogger stop >>$here/$seq.full 2>&1
+$sudo $PCP_RC_DIR/pmie stop >>$here/$seq.full 2>&1
+$sudo $PCP_RC_DIR/pmmgr stop >>$here/$seq.full 2>&1
 
 # Build simple agent
 #
@@ -292,7 +298,7 @@ fi
 # need to do this indirectly because system sudo cleanses the environment
 #
 echo "export PMCD_PORT=$PMCD_PORT" >$tmp.start
-echo "$PCP_RC_DIR/pcp restart" >>$tmp.start
+echo "$PCP_RC_DIR/pmcd start" >>$tmp.start
 $sudo sh $tmp.start | _filter_pcp_start | _filter_init 2>&1
 _wait_for_pmcd
 
