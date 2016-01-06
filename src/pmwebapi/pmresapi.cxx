@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2014 Red Hat Inc.
+ * Copyright (c) 2011-2016 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -123,6 +123,7 @@ pmwebres_respond (struct MHD_Connection *connection, const http_params& params, 
     /* XXX: handle if-modified-since */
 
     if (S_ISDIR (fds.st_mode)) { // http level redirect to index.html
+        close (fd); // don't leak directory fd
 
         string new_file = url;
         // NB: don't add a redundant / -- unlike in UNIX paths, // are not harmless in URLs
