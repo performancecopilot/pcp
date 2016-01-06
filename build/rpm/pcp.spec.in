@@ -451,7 +451,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Module for exporting from PCP into a Zabbix agent daemon
 URL: http://www.pcp.io
-Requires: pcp-libs >= %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 
 %description export-zabbix-agent
 Performance Co-Pilot (PCP) module for exporting data from PCP via a
