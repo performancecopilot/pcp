@@ -57,7 +57,7 @@ exercise
 exercise_fault
 exerlock
 exertz
-fetchpdu
+fetchloop
 fetchrate
 fetchrate_lite
 fetchrate_lite.c
