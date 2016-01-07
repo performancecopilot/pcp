@@ -1,7 +1,7 @@
 /*
  * PMWEBD graphite-api emulation
  *
- * Copyright (c) 2014-2015 Red Hat Inc.
+ * Copyright (c) 2014-2016 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -558,9 +558,7 @@ pmgraphite_respond_metrics_find (struct MHD_Connection *connection,
 
 
     // wrap it up in mhd response ribbons
-    string s = output.str ();
-    resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
-                                            MHD_RESPMEM_MUST_COPY);
+    resp = NOTMHD_compressible_response (connection, output.str());
     if (resp == NULL) {
         connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
         rc = -ENOMEM;
@@ -659,9 +657,7 @@ pmgraphite_respond_metrics_grep (struct MHD_Connection *connection,
     }
 
     // wrap it up in mhd response ribbons
-    string s = output.str ();
-    resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
-                                            MHD_RESPMEM_MUST_COPY);
+    resp = NOTMHD_compressible_response (connection, output.str());
     if (resp == NULL) {
         connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
         rc = -ENOMEM;
@@ -2399,6 +2395,7 @@ render_done:
         goto out3;
     }
 
+    /* NB: no point trying to compress the PNG via NOTMHD_compressible_response. */
     resp = MHD_create_response_from_buffer (imgbuf.size (), (void*) imgbuf.c_str (),
                                             MHD_RESPMEM_MUST_COPY);
     if (resp == NULL) {
@@ -2422,15 +2419,15 @@ render_done:
         goto out4;
     }
 
-    // NB: without emitting some caching-suppression, web browsers
-    // luuuooohh-ve to cache this image file, since e.g. grafana
-    // doesn't send along a varying junk parameter.  So we need to
-    // suppress caching here ... messily too, since different browsers are
-    // inconsistent.
+    // NB: we used to emit some caching-suppression headers,
+    // but with the 302 absolute-time redirects, it should not be
+    // necessary.
+#if 0
     (void) MHD_add_response_header (resp, "Cache-Control", "no-cache");
     (void) MHD_add_response_header (resp, "Cache-Directive", "no-cache");
     (void) MHD_add_response_header (resp, "Pragma", "no-cache");
     (void) MHD_add_response_header (resp, "Expires", "0");
+#endif
 
     rc = MHD_queue_response (connection, MHD_HTTP_OK, resp);
     if (rc != MHD_YES) {
@@ -2536,9 +2533,7 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
     output << "]";
 
     // wrap it up in mhd response ribbons
-    string s = output.str ();
-    resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
-                                            MHD_RESPMEM_MUST_COPY);
+    resp = NOTMHD_compressible_response (connection, output.str());
     if (resp == NULL) {
         connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
         rc = -ENOMEM;

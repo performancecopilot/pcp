@@ -622,6 +622,9 @@ ac_includes_default="\
 ac_subst_vars='PACKAGE_CONFIGURE
 have_webjs
 have_vector
+HAVE_ZLIB
+zlib_LIBS
+zlib_CFLAGS
 lib_for_curses
 lib_for_readline
 pcp_mpi_dirs
@@ -994,7 +997,9 @@ libmicrohttpd_CFLAGS
 libmicrohttpd_LIBS
 cairo_CFLAGS
 cairo_LIBS
-XMKMF'
+XMKMF
+zlib_CFLAGS
+zlib_LIBS'
 
 
 # Initialize some variables set by options.
@@ -1717,6 +1722,8 @@ Some influential environment variables:
               C compiler flags for cairo, overriding pkg-config
   cairo_LIBS  linker flags for cairo, overriding pkg-config
   XMKMF       Path to xmkmf, Makefile generator for X Window System
+  zlib_CFLAGS C compiler flags for zlib, overriding pkg-config
+  zlib_LIBS   linker flags for zlib, overriding pkg-config
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -14879,6 +14886,80 @@ fi
 
 
 LIBS=$savedLIBS
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for zlib" >&5
+$as_echo_n "checking for zlib... " >&6; }
+
+if test -n "$zlib_CFLAGS"; then
+    pkg_cv_zlib_CFLAGS="$zlib_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"zlib >= 1.0.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "zlib >= 1.0.0") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_zlib_CFLAGS=`$PKG_CONFIG --cflags "zlib >= 1.0.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$zlib_LIBS"; then
+    pkg_cv_zlib_LIBS="$zlib_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"zlib >= 1.0.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "zlib >= 1.0.0") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_zlib_LIBS=`$PKG_CONFIG --libs "zlib >= 1.0.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        zlib_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "zlib >= 1.0.0" 2>&1`
+        else
+	        zlib_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "zlib >= 1.0.0" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$zlib_PKG_ERRORS" >&5
+
+	have_zlib=false
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_zlib=false
+else
+	zlib_CFLAGS=$pkg_cv_zlib_CFLAGS
+	zlib_LIBS=$pkg_cv_zlib_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_zlib=true
+fi
+HAVE_ZLIB=$have_zlib
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for AI_ADDRCONFIG" >&5
 $as_echo_n "checking for AI_ADDRCONFIG... " >&6; }

@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2015 Red Hat.
+ * Copyright (c) 2011-2016 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -392,7 +392,13 @@ server_dump_configuration ()
          << "unavailable"
 #endif
          << endl;
-
+    clog << "\tHTTP compression "
+#ifdef HAVE_ZLIB
+         << "compiled-in"
+#else
+         << "unavailable"
+#endif
+         << endl;
     if (dumpstats > 0) {
         clog << "\tPeriodic client statistics dumped roughly every " << dumpstats << "s" << endl;
     } else {
@@ -510,7 +516,7 @@ main (int argc, char *argv[])
     int     mhd_ipv6 = 1;
     int     localmode = 0;
     int    port = PMWEBD_PORT;
-    char   utc_timezone[] = "TZ=UTC";
+    static char utc_timezone[] = "TZ=UTC"; /* static for putenv safety through shutdown */
     char *   endptr;
     struct MHD_Daemon * d4 = NULL;
     struct MHD_Daemon * d6 = NULL;

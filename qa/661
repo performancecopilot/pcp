@@ -2,7 +2,7 @@
 # PCP QA Test No. 661
 # checks pmwebd graphite (web application) functionality
 #
-# Copyright (c) 2014-2015 Red Hat.
+# Copyright (c) 2014-2016 Red Hat.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -67,19 +67,19 @@ curl -s -S "http://localhost:$webport/graphite/index.html?foo=bar&ectoplasm=egon
 echo
 echo "metric name breakage" 
 curl -s -S "http://localhost:$webport/graphite/render?format=json&target=.." | _webapi_json_pretty
-curl -s -S "http://localhost:$webport/graphite/render?format=json&target=foo-XX-bar" | _webapi_json_pretty
+curl --compressed -s -S "http://localhost:$webport/graphite/render?format=json&target=foo-XX-bar" | _webapi_json_pretty
 
 echo
 echo "metric tree iteration" 
 curl -s -S "http://localhost:$webport/graphite/metrics/find?query=archives*naslog*.*" | _webapi_json_pretty
-curl -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.*" | _webapi_json_pretty
+curl --compressed -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.*" | _webapi_json_pretty
 curl -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*." | _webapi_json_pretty
-curl -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*.all" | _webapi_json_pretty
+curl --compressed -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*.all" | _webapi_json_pretty
 curl -s -S "http://localhost:$webport/graphite/metrics/find?format=completer&query=archives*naslog*.k*.all." | _webapi_json_pretty
 
 echo
 echo "metric regex grep 1" 
-curl -s -S "http://localhost:$webport/graphite/graphlot/findmetric?q=.*960624.*disk.*dks131.*"
+curl --compressed -s -S "http://localhost:$webport/graphite/graphlot/findmetric?q=.*960624.*disk.*dks131.*"
 echo
 echo "metric regex grep 2"
 curl -s -S "http://localhost:$webport/graphite/browser/search?query=2014+hinv+n.*"
@@ -90,7 +90,7 @@ echo "metric value dump 1"
 curl -s -S "http://localhost:$webport/graphite/render?format=json&target=*/node_archive.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100" | _webapi_json_pretty
 echo
 echo "metric value dump 2" 
-curl -s -S "http://localhost:$webport/graphite/rawdata?target=*/node_archive.proc.psinfo.pid.*&from=00:00_20131127&until=00:00_20131129&maxDataPoints=300" | _webapi_json_pretty
+curl --compressed -s -S "http://localhost:$webport/graphite/rawdata?target=*/node_archive.proc.psinfo.pid.*&from=00:00_20131127&until=00:00_20131129&maxDataPoints=300" | _webapi_json_pretty
 
 echo PR1099 workaround, expect empty result
 curl -s -S "http://localhost:$webport/graphite/rawdata?target=*20130706.kernel.all.nprocs&from=00:00_20130705&until=23:59_20130705" | _webapi_json_pretty
@@ -102,7 +102,7 @@ _webapi_img_pretty $tmp.png
 curl -s -S "http://localhost:$webport/graphite/render?width=999&height=999&target=*archive*20150417*.proc.nprocs&from=09:30_20150417&until=23:00_20150417" > $tmp.png
 _webapi_img_pretty $tmp.png
 # until=now should trigger redirect
-curl -s -S "http://localhost:$webport/graphite/render?width=999&height=999&target=*archive*20150417*.proc.nprocs&from=09:30_20150417&until=now" > $tmp.png
+curl --compressed -s -S "http://localhost:$webport/graphite/render?width=999&height=999&target=*archive*20150417*.proc.nprocs&from=09:30_20150417&until=now" > $tmp.png
 if [ -s $tmp.png ]; then
     echo unexpected png
     _webapi_img_pretty $tmp.png

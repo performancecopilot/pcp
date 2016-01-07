@@ -19,6 +19,7 @@ BuildRequires: readline-devel
 %if "@enable_avahi@" == "true"
 BuildRequires: avahi-devel
 %endif
+BuildRequires: zlib-devel
 %if "@enable_secure@" == "true"
 %if "%{_vendor}" == "suse"
 BuildRequires: mozilla-nss-devel
