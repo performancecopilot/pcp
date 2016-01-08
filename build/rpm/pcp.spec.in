@@ -395,7 +395,7 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing spreadsheet data into PCP archive logs
 URL: http://www.pcp.io
-Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@
+Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@
 
 %description import-sheet2pcp
 Performance Co-Pilot (PCP) front-end tools for importing spreadsheet data
@@ -409,7 +409,7 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing MTRG data into PCP archive logs
 URL: http://www.pcp.io
-Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@
+Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@
 
 %description import-mrtg2pcp
 Performance Co-Pilot (PCP) front-end tools for importing MTRG data
@@ -423,7 +423,7 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing ganglia data into PCP archive logs
 URL: http://www.pcp.io
-Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@
+Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@
 
 %description import-ganglia2pcp
 Performance Co-Pilot (PCP) front-end tools for importing ganglia data
@@ -437,7 +437,7 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing collectl log files into PCP archive logs
 URL: http://www.pcp.io
-Requires: pcp-libs >= %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 
 %description import-collectl2pcp
 Performance Co-Pilot (PCP) front-end tools for importing collectl data
