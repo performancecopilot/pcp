@@ -14,13 +14,6 @@ Source1: pcp-webjs.src.tar.gz
 # https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
 Source2: vector.tar.gz
 
-# Compat check for distros that already have single install pmda's
-%if 0%{?fedora} > 22 || 0%{?rhel} > 7
-%global with_compat 0
-%else
-%global with_compat 1
-%endif
-
 # There are no papi/libpfm devel packages for s390 nor for some rhels, disable
 %ifarch s390 s390x
 %global disable_papi 1
@@ -167,9 +160,9 @@ Requires: python-pcp = %{version}-%{release}
 Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-pmda-nvidia
 
-%if %{with_compat}
-Requires: pcp-compat
-%endif
+# Obsoletes for distros that already have single install pmda's with compat package
+Obsoletes: pcp-compat
+
 Requires: pcp-libs = %{version}-%{release}
 Obsoletes: pcp-gui-debuginfo
 
@@ -1430,41 +1423,6 @@ collecting metrics about web server logs.
 # end pcp-pmda-weblog
 # end C pmdas
 
-#
-# pcp-compat
-#
-%if %{with_compat}
-%package compat
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) compat package for existing systems
-URL: http://www.pcp.io
-Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
-Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
-Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
-Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
-Requires: pcp-pmda-dm pcp-pmda-apache
-Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping pcp-pmda-logger
-Requires: pcp-pmda-lustrecomm
-%if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
-Requires: pcp-system-tools pcp-export-pcp2graphite
-%endif
-%if !%{disable_json}
-Requires: pcp-pmda-json
-%endif
-%if !%{disable_rpm}
-Requires: pcp-pmda-rpm
-%endif
-Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
-Requires: pcp-doc
-%description compat
-This package contains the PCP compatibility dependencies for existing PCP
-installations.  This is not a package that should be depended on, and will
-be removed in future releases.
-%endif #compat
-
 # pcp-collector metapackage
 %package collector
 License: GPLv2+
@@ -2091,11 +2049,6 @@ cd
 
 %if !%{disable_sdt}
 %{tapsetdir}/pmcd.stp
-%endif
-
-%if %{with_compat}
-%files compat
-#empty
 %endif
 
 %files monitor
