@@ -67,6 +67,13 @@ metric tree iteration
     {
         "allowChildren": 1,
         "expandable": 1,
+        "id": "archives/naslog.event",
+        "leaf": 0,
+        "text": "event"
+    },
+    {
+        "allowChildren": 1,
+        "expandable": 1,
         "id": "archives/naslog.hinv",
         "leaf": 0,
         "text": "hinv"
@@ -113,6 +120,11 @@ metric tree iteration
             "is_leaf": 0,
             "name": "disk",
             "path": "archives/naslog.disk."
+        },
+        {
+            "is_leaf": 0,
+            "name": "event",
+            "path": "archives/naslog.event."
         },
         {
             "is_leaf": 0,

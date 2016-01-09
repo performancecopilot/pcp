@@ -3,6 +3,8 @@ QA output created by 143
 x.x.x.y
 x.x.y
 x.y
+event.flags
+event.missed
 === remove x.x.x ===
 ----------
   root
@@ -44,6 +46,8 @@ x.x.x {
 === PMNS from pminfo ===
 x.x.y
 x.y
+event.flags
+event.missed
 === remove x.x ===
 ----------
   root
@@ -79,6 +83,8 @@ x.x.x {
 }
 === PMNS from pminfo ===
 x.y
+event.flags
+event.missed
 === remove x ===
 ----------
   root
@@ -108,4 +114,5 @@ x.x.x {
     y	3:3:3
 }
 === PMNS from pminfo ===
-PMNS appears to be empty!
+event.flags
+event.missed

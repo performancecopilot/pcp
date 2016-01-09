@@ -1,5 +1,7 @@
 QA output created by 432
 Initial archive ...
+event.flags
+event.missed
 pmcd.pmlogger.archive
 pmcd.pmlogger.host
 pmcd.pmlogger.port
@@ -31,6 +33,8 @@ pmlogreduce: sample.aggregate.write_me: Warning: skipping AGGREGATE metric
 pmlogreduce: sample.event.param_aggregate: Warning: skipping AGGREGATE metric
 pmlogreduce: sample.event.records: Warning: skipping EVENT metric
 pmlogreduce: sample.event.no_indom_records: Warning: skipping EVENT metric
+event.flags
+event.missed
 pmcd.pmlogger.archive
 pmcd.pmlogger.host
 pmcd.pmlogger.port

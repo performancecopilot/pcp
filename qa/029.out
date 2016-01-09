@@ -1128,6 +1128,8 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.xmit_pdu
 
 +++ Using this PMNS via -n ... +++
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
 sampledso.bin PMID: 30.0.6
 sampledso.dupnames.three.slime PMID: 10.11.12
 sampledso.dupnames.two.bin PMID: 30.0.6

@@ -36,7 +36,7 @@ echo "Dumping test archive metric names and IDs"
 pminfo -m -a test-limit | \
 	LC_COLLATE=POSIX sort -n -k 2 | \
 	tee -a $seq.full | \
-	head -20
+	head -22
 
 # success, all done
 status=0

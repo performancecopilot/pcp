@@ -103,11 +103,13 @@ _filter_openfds_value()
 {
     $PCP_AWK_PROG '
 BEGIN { fst_fds = "fst_fds"; sec_fds = "sec_fds"; thr_fds = "thr_fds"; step = 0 }
-$1 == "value" && step == 0 { 
+$1 == "pmcd.openfds"	{ want = 1; next }
+NF == 0			{ want = 0; next }
+want == 1 && $1 == "value" && step == 0 { 
 	fst_fds = $2; step = 1; next }
-$1 == "value" && step == 1 { 
+want == 1 && $1 == "value" && step == 1 { 
 	sec_fds = $2; step = 2; next }
-$1 == "value" && step == 2 { 
+want == 1 && $1 == "value" && step == 2 { 
 	thr_fds = $2; 
 	if (sec_fds > fst_fds)
 	    printf("=== Info: After install, openfds has increased as expected ===\n");
@@ -313,8 +315,7 @@ _test_pmda()
 
     rm -f $tmp.pminfo
 
-    pminfo -f pmcd.openfds >$tmp.pminfo
-    fst_openfds=$openfds_value
+    pminfo -f pmcd.openfds pmcd.client.whoami >$tmp.pminfo
 
     if [ "$pmda_type" != PIPE ]
     then
@@ -323,10 +324,10 @@ _test_pmda()
 	_agent_install simple $simple_domain true
     fi
     
-    pminfo -f pmcd.openfds >>$tmp.pminfo
+    pminfo -f pmcd.openfds pmcd.client.whoami >>$tmp.pminfo
     
     _agent_remove simple
-    pminfo -f pmcd.openfds >>$tmp.pminfo
+    pminfo -f pmcd.openfds pmcd.client.whoami >>$tmp.pminfo
 
     echo "=== pminfo output ===" >>$here/$seq.full
     cat $tmp.pminfo >>$here/$seq.full
@@ -345,13 +346,13 @@ _test_client()
 
     rm -f $tmp.pminfo
 
-    pminfo -f pmcd.openfds >$tmp.pminfo
+    pminfo -f pmcd.openfds pmcd.client.whoami >$tmp.pminfo
 
     _start_client
-    pminfo -f pmcd.openfds >>$tmp.pminfo
+    pminfo -f pmcd.openfds pmcd.client.whoami >>$tmp.pminfo
 
     wait
-    pminfo -f pmcd.openfds >>$tmp.pminfo
+    pminfo -f pmcd.openfds pmcd.client.whoami >>$tmp.pminfo
 
     echo "=== pmval output ===" >>$here/$seq.full
     cat $tmp.tmp >>$here/$seq.full

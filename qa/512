@@ -59,7 +59,7 @@ _filter()
 {
     tee -a $seq.full \
     | sed -n \
-	-e '/count=/s/^[^ ][^ ]* //p' \
+	-e '/lock(/s/^[^ ][^ ]* //p' \
     | LC_COLLATE=POSIX sort \
     | uniq
 }
