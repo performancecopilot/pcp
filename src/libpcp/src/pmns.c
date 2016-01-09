@@ -1858,7 +1858,6 @@ stitch_list(int *num, char ***offspring, int **statuslist, int x_num, char **x_o
 	    if (strcmp(x_offspring[i], (*offspring)[j]) == 0) {
 		/* duplicate ... bugger */
 		n_num--;
-		free(x_offspring[i]);
 		x_offspring[i] = NULL;
 		break;
 	    }
