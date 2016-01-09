@@ -2613,16 +2613,10 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 		                      &namelist, NULL);
 		if (sts > 0) {
 		    for (i=0; i<numnames; i++) {
-			/*
-			 * Do not process anonymous metrics here, we'll
-			 * pick them up with the derived metrics later on
-			 */
-			if (strncmp(namelist[i], "anon.", 5) != 0) {
-			    if (func_r == NULL)
-				(*func)(namelist[i]);
-			    else
-				(*func_r)(namelist[i], closure);
-			}
+			if (func_r == NULL)
+			    (*func)(namelist[i]);
+			else
+			    (*func_r)(namelist[i], closure);
 		    }
 		    numnames = sts;
 		    free(namelist);

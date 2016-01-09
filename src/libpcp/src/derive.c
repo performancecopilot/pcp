@@ -339,14 +339,39 @@ __dminit_parse(const char *path, int recover)
 }
 
 /*
- * initialization for Derived Metrics ...
+ * Initialization for Derived Metrics (and Anonymous Metrics for event
+ * records) ...
  */
 static void
 __dminit(void)
 {
+    /*
+     * no derived metrics for PMCD or PMDAs
+     */
+    if (need_init && __pmGetInternalState() == PM_STATE_PMCS)
+	need_init = 0;
+
     if (need_init) {
 	char	*configpath;
+	int	sts;
 
+	/* anon metrics for event record unpacking */
+PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_PMAPI);
+	sts = __pmRegisterAnon("event.flags", PM_TYPE_U32);
+	if (sts < 0) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s: Warning: failed to register event.flags: %s\n",
+		    pmProgname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_PMAPI);
+	sts = __pmRegisterAnon("event.missed", PM_TYPE_U32);
+	if (sts < 0) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s: Warning: failed to register event.missed: %s\n",
+		    pmProgname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+
+	/* next user-defined derived metrics */
 	if ((configpath = getenv("PCP_DERIVED_CONFIG")) != NULL) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
@@ -1531,6 +1556,11 @@ pmRegisterDerived(const char *name, const char *expr)
 int
 pmLoadDerivedConfig(const char *fname)
 {
+    PM_INIT_LOCKS();
+    initialize_mutex();
+    PM_LOCK(registered.mutex);
+    __dminit();
+
     return __dminit_parse(fname, 0 /*non-recovering*/);
 }
 
@@ -1803,6 +1833,7 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 	return PM_ERR_NAME;
     }
 
+    /* TODO - need pmGetCHildren allocation plan here */
     *offspring = children;
     if (statuslist != NULL)
 	*statuslist = status;

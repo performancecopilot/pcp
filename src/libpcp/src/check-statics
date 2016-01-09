@@ -178,9 +178,6 @@ err.o
     unknown			# guarded by __pmLock_libpcp mutex or const (MinGW)
     errmsg			# pmErrStr deprecated by pmErrStr_r
 events.o
-    first			# guarded by __pmLock_libpcp mutex
-    name_flags			# guarded by __pmLock_libpcp mutex
-    name_missed			# guarded by __pmLock_libpcp mutex
     pmid_flags			# no unsafe side-effects
     pmid_missed			# no unsafe side-effects
     ?caller                     # const
