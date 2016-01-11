@@ -1,6 +1,6 @@
 QA output created by 443
 === -a foo -a bar ===
-pmevent: too many archives requested: bar
+pmevent: error - no metricname specified
 Usage: pmevent [options] metricname
 === -h foo -h bar ===
 pmevent: too many hosts requested: bar
