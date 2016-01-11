@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -1485,10 +1485,11 @@ clearMarkDone(void)
 
     /* Get the current context. It must be an archive context. */
     ctxp = __pmHandleToPtr(pmWhichContext());
-    if (ctxp != NULL && ctxp->c_type == PM_CONTEXT_ARCHIVE)
-	ctxp->c_archctl->ac_mark_done = 0;
-
-    PM_UNLOCK(ctxp->c_lock);
+    if (ctxp != NULL) {
+	if (ctxp->c_type == PM_CONTEXT_ARCHIVE)
+	    ctxp->c_archctl->ac_mark_done = 0;
+	PM_UNLOCK(ctxp->c_lock);
+    }
 }
 
 /*
@@ -2436,8 +2437,12 @@ pmGetArchiveEnd(struct timeval *tp)
     int		sts;
 
     ctxp = __pmHandleToPtr(pmWhichContext());
-    if (ctxp == NULL || ctxp->c_type != PM_CONTEXT_ARCHIVE)
+    if (ctxp == NULL)
 	return PM_ERR_NOCONTEXT;
+    if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_NOCONTEXT;
+    }
     sts = __pmGetArchiveEnd(ctxp->c_archctl->ac_log, tp);
     PM_UNLOCK(ctxp->c_lock);
     return sts;

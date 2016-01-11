@@ -1,7 +1,7 @@
 /*
  * Common argument parsing for all PMAPI client tools.
  *
- * Copyright (c) 2014-2015 Red Hat.
+ * Copyright (c) 2014-2016 Red Hat.
  * Copyright (C) 1987-2014 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -127,6 +127,7 @@ __pmBoundaryOptions(
 	    pmprintf("%s: Cannot open archive %s: %s\n",
 		     pmProgname, acp->ac_log_list[i]->ml_name,
 		     pmErrStr(sts));
+	    PM_UNLOCK(ctxp->c_lock);
 	    return sts;
 	}
 	if ((sts = __pmUpdateBounds(opts, i, begin, end)) < 0)
@@ -137,17 +138,23 @@ __pmBoundaryOptions(
 		pmprintf("%s: Cannot open archive %s: %s\n",
 			 pmProgname, acp->ac_log_list[i]->ml_name,
 			 pmErrStr(sts));
+		PM_UNLOCK(ctxp->c_lock);
 		return sts;
 	    }
 	    sts = __pmUpdateBounds(opts, i, begin, end);
 	}
 
 	/* Restore to the initial state. */
-	if ((sts = __pmLogChangeArchive(ctxp, save_arch)) < 0)
+	if ((sts = __pmLogChangeArchive(ctxp, save_arch)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
 	    return sts;
-	if ((sts = __pmLogChangeVol(ctxp->c_archctl->ac_log, save_vol)) < 0)
+	}
+	if ((sts = __pmLogChangeVol(ctxp->c_archctl->ac_log, save_vol)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
 	    return sts;
+	}
 	fseek(ctxp->c_archctl->ac_log->l_mfp, save_offset, SEEK_SET);
+	PM_UNLOCK(ctxp->c_lock);
     } else {
 	/* More than one archive context - figure out combined start and end */
 	for (i = 0; i < opts->narchives; i++) {
