@@ -347,9 +347,9 @@ Description: Tool for exporting data from PCP to Graphite
 Package: pcp-export-zabbix-agent
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Architecture: any
-Description: Module for exporting from PCP into a Zabbix agent daemon
- Performance Co-Pilot (PCP) module for exporting data from PCP via a
- designated Zabbix agent daemon - see zbxpcp(3) for further details.
+Description: Module for exporting PCP metrics to Zabbix agent
+ Performance Co-Pilot (PCP) module for exporting metrics from PCP to
+ Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 
 Package: pcp-doc
 Section: doc

@@ -443,13 +443,13 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 %package export-zabbix-agent
 License: GPLv2+
 Group: Applications/System
-Summary: Module for exporting from PCP into a Zabbix agent daemon
+Summary: Module for exporting PCP metrics to Zabbix agent
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 
 %description export-zabbix-agent
-Performance Co-Pilot (PCP) module for exporting data from PCP via a
-designated Zabbix agent daemon - see zbxpcp(3) for further details.
+Performance Co-Pilot (PCP) module for exporting metrics from PCP to
+Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 
 %if "@have_python@" == "true"
 #
