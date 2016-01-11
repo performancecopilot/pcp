@@ -6,6 +6,8 @@ pmcd.agent.status
 pmcd.pmlogger.archive
 pmcd.pmlogger.port
 pmcd.pmlogger.host
+event.flags
+event.missed
 = archive contents...
 Log Label (Log Format Version 2)
 Performance metrics from host ...
@@ -72,6 +74,8 @@ pmcd.agent.status
 pmcd.pmlogger.archive
 pmcd.pmlogger.port
 pmcd.pmlogger.host
+event.flags
+event.missed
 = archive contents...
 Log Label (Log Format Version 2)
 Performance metrics from host ...
@@ -138,6 +142,8 @@ pmcd.agent.status
 pmcd.pmlogger.archive
 pmcd.pmlogger.port
 pmcd.pmlogger.host
+event.flags
+event.missed
 = archive contents...
 Log Label (Log Format Version 2)
 Performance metrics from host ...

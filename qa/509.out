@@ -3,7 +3,7 @@ QA output created by 509
 sample.secret.foo.one PMID: 29.0.1001
     value 1
 
-my.derived PMID: 511.0.1
+my.derived PMID: 511.0.3
     inst [100 or "bin-100"] value 100
     inst [200 or "bin-200"] value 200
     inst [300 or "bin-300"] value 300
@@ -17,6 +17,18 @@ my.derived PMID: 511.0.1
 sample.secret.foo.two PMID: 29.0.1002
     value 2
 pmGetPMNSLocation() -> Remote
+pmLookupName: request_names -> [0] event.flags
+__pmSendNameList
+namelist dump: numnames = 1
+  name[0]: "event.flags"
+pmLookupName: receive_names <- Unknown metric name
+pmLookupName(1, ...) -> 1
+pmLookupName: request_names -> [0] event.missed
+__pmSendNameList
+namelist dump: numnames = 1
+  name[0]: "event.missed"
+pmLookupName: receive_names <- Unknown metric name
+pmLookupName(1, ...) -> 1
 pmLookupName: request_names -> [0] my.derived
 __pmSendNameList
 namelist dump: numnames = 1
@@ -59,11 +71,11 @@ pmLookupName(3, ...) -> 3
 dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
 Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29
 dbpmda> fetch sample.secret.foo.one, my.derived, sample.secret.foo.two
-PMID(s): 29.0.1001 511.0.1 29.0.1002
+PMID(s): 29.0.1001 511.0.3 29.0.1002
 pmResult dump from ADDR timestamp: 0.000000 HH:00:00.000 numpmid: 3
   29.0.1001 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 1 1.4012985e-45 ADDR
-  511.0.1 (my.derived): No values returned!
+  511.0.3 (my.derived): No values returned!
   29.0.1002 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 2 2.8025969e-45 ADDR
 dbpmda> 
@@ -224,6 +236,12 @@ pmLoadNameSpace: xmit_pdu -> 29.0.42
 pmLoadNameSpace: xmit_pdu -> 29.0.45
 Loaded ASCII PMNS
 pmGetPMNSLocation() -> Local
+pmLookupName(1, ...) using local PMNS returns 0 and ...
+  name[0]: "event.flags" PMID: ADDR PM_ID_NULL
+pmLookupName(1, ...) -> 1
+pmLookupName(1, ...) using local PMNS returns 0 and ...
+  name[0]: "event.missed" PMID: ADDR PM_ID_NULL
+pmLookupName(1, ...) -> 1
 pmLookupName(1, ...) using local PMNS returns 0 and ...
   name[0]: "my.derived" PMID: ADDR PM_ID_NULL
 pmLookupName(1, ...) -> 1

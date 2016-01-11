@@ -63,6 +63,7 @@ children of "" ...
     buffer_cache        <s = 1>
     disk                <s = 1>
     efs                 <s = 1>
+    event               <s = 1>
     filesys             <s = 1>
     gfx                 <s = 1>
     hinv                <s = 1>

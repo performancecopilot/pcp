@@ -9,6 +9,8 @@ hpux.both_irix PMID: 1.10.1
 hpux.hub.nasid PMID: 1.44.8
 hpux.new_irix PMID: 1.10.2
 foo.bar PMID: 1.2.0
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
 
 === Rebuild -u ===
 foo.bar PMID: 1.2.0
@@ -17,3 +19,5 @@ hw.new_hw PMID: 1.44.2
 hw.hub.nasid PMID: 1.44.8
 hpux.both_irix PMID: 1.10.1
 hpux.new_irix PMID: 1.10.2
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2

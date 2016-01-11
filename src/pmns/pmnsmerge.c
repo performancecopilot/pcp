@@ -210,6 +210,9 @@ main(int argc, char **argv)
 
     umask((mode_t)022);		/* anything else is pretty silly */
 
+    /* no derived or anon metrics, please */
+    __pmSetInternalState(PM_STATE_PMCS);
+
     while ((c = pmgetopt_r(argc, argv, &opts)) != EOF) {
 	switch (c) {
 

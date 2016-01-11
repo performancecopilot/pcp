@@ -55,8 +55,9 @@ pmprobe -h unix: -i hinv.ncpu
 
 pmsleep 0.2
 
-echo "Terminate a PMDA needing attributes"
-$sudo $signal -a pmdadynamic >> $seq.full 2>&1
+echo "Terminate a PMDA needing attributes" | tee -a $here/$seq.full
+date >>$here/$seq.full
+$sudo $signal -a pmdadynamic >> $here/$seq.full 2>&1
 
 # wait up to 2 seconds for dynamic PMDA to die
 i=0
@@ -65,8 +66,14 @@ do
     ps "$PCP_PS_ALL_FLAGS" >$tmp.tmp
     echo "ps probe #$i" >>$here/$seq.full
     egrep '[P]ID|[p]mdadynamic' $tmp.tmp >>$here/$seq.full
-    if grep "[p]mdadynamic" $tmp.tmp >/dev/null
+    if grep "pmdadynamic.*defunct" $tmp.tmp >/dev/null
     then
+	rm -f $tmp.tmp
+	break
+    elif grep "pmdadynamic" $tmp.tmp >/dev/null
+    then
+	:
+    else
 	rm -f $tmp.tmp
 	break
     fi
@@ -79,12 +86,23 @@ then
     egrep '[P]ID|[p]mdadynamic' $tmp.tmp
     exit
 fi
+date >>$here/$seq.full
 
 # and a bit more for pmcd to notice the PMDA has exited
-pmsleep 1.25
+pmsleep 3.75
 
 echo "Tickle access to the failed PMDA, must see 'Try Again'"
-pmprobe -h unix: -i hinv.ncpu
+pmprobe -h unix: -i hinv.ncpu | tee $tmp.tmp
+nval=`$PCP_AWK_PROG <$tmp.tmp '{print $2}'`
+if [ "$nval" -ge 0 ]
+then
+    # this is not expected
+    #
+    echo "Error: nval=$nval not as expected ... see $seq.full"
+    echo "+++ Tickle failed `date` +++" >>$here/$seq.full
+    cat $PCP_LOG_DIR/pmcd/pmcd.log >>$here/$seq.full
+    cat $PCP_LOG_DIR/pmcd/dynamic.log >>$here/$seq.full
+fi
 
 echo "Verify subsequent return to healthy state"
 pmprobe -h unix: -i hinv.ncpu

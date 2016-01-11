@@ -44,6 +44,8 @@ loadascii(dupok=1, use_cpp=1) fname=PCP_VAR_DIR/pmns/root
 
 PM_CONTEXT_LOCAL, test PMNS ...
 test PMID: 29.0.0
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
 load(name=TMP.pmns, dupok=1, use_cpp=1) lic case=0 fname=TMP.pmns
 loadascii(dupok=1, use_cpp=1) fname=TMP.pmns
 

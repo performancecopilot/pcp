@@ -1,5 +1,7 @@
 QA output created by 930
 --- DELETE sample.bin
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
 pmcd.pmlogger.archive PMID: 2.3.2
 pmcd.pmlogger.host PMID: 2.3.3
 pmcd.pmlogger.port PMID: 2.3.0
@@ -37,6 +39,8 @@ sampledso.event.type PMID: 30.0.127
 
 --- change NAME for sample.dupnames.two.lights
 alias.for.lights PMID: 29.0.46
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
 pmcd.pmlogger.archive PMID: 2.3.2
 pmcd.pmlogger.host PMID: 2.3.3
 pmcd.pmlogger.port PMID: 2.3.0
@@ -75,6 +79,8 @@ sampledso.event.records PMID: 30.0.136
 sampledso.event.type PMID: 30.0.127
 
 --- change PMID for sample.dupnames.three.bin
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
 pmcd.pmlogger.archive PMID: 2.3.2
 pmcd.pmlogger.host PMID: 2.3.3
 pmcd.pmlogger.port PMID: 2.3.0

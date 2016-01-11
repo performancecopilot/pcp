@@ -361,47 +361,6 @@ __pmCheckHighResEventRecords(pmValueSet *vsp, int idx)
     return check_event_records(vsp, idx, 1);
 }
 
-    static char		*name_flags = "event.flags";
-    static char		*name_missed = "event.missed";
-
-static int
-register_event_metrics(const char *caller)
-{
-    static int		first = 1;
-
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if (first) {
-	int	sts;
-
-PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_PMAPI);
-	if (first == 1) {
-	    sts = __pmRegisterAnon(name_flags, PM_TYPE_U32);
-	    if (sts < 0) {
-		char	errmsg[PM_MAXERRMSGLEN];
-		fprintf(stderr, "%s: Warning: failed to register %s: %s\n",
-			caller, name_flags, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		PM_UNLOCK(__pmLock_libpcp);
-		return sts;
-	    }
-	    first = 2;
-	}
-
-PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_PMAPI);
-	sts = __pmRegisterAnon(name_missed, PM_TYPE_U32);
-	if (sts < 0) {
-	    char	errmsg[PM_MAXERRMSGLEN];
-	    fprintf(stderr, "%s: Warning: failed to register %s: %s\n",
-			caller, name_missed, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-	    PM_UNLOCK(__pmLock_libpcp);
-	    return sts;
-	}
-	first = 0;
-    }
-    PM_UNLOCK(__pmLock_libpcp);
-    return 0;
-}
-
 /*
  * flags is optionally unpacked into an extra anon events.flags metric
  * before all the event record parameters, and for PM_EVENT_FLAG_MISSED
@@ -439,9 +398,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	static pmID	pmid_flags = 0;
 
 	if (pmid_flags == 0) {
-	    if ((sts = pmLookupName(1, &name_flags, &pmid_flags)) < 0) {
+	    char	*name = "event.flags";
+	    if ((sts = pmLookupName(1, &name, &pmid_flags)) < 0) {
 		fprintf(stderr, "%s: Warning: failed to get PMID for %s: %s\n",
-			caller, name_flags, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+			caller, name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		__pmid_int(&pmid_flags)->item = 1;
 	    }
 	}
@@ -458,9 +418,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	static pmID	pmid_missed = 0;
 
 	if (pmid_missed == 0) {
-	    if ((sts = pmLookupName(1, &name_missed, &pmid_missed)) < 0) {
+	    char	*name = "event.missed";
+	    if ((sts = pmLookupName(1, &name, &pmid_missed)) < 0) {
 		fprintf(stderr, "%s: Warning: failed to get PMID for %s: %s\n",
-			caller, name_missed, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+			caller, name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 		__pmid_int(&pmid_missed)->item = 1;
 	    }
 	}
@@ -539,9 +500,6 @@ pmUnpackEventRecords(pmValueSet *vsp, int idx, pmResult ***rap)
     int			p;		/* parameters in a record ... */
     int			numpmid;	/* metrics in a pmResult */
     int			sts;
-
-    if ((sts = register_event_metrics(caller)) < 0)
-	return sts;
 
     if ((sts = __pmCheckEventRecords(vsp, idx)) < 0) {
 	__pmDumpEventRecords(stderr, vsp, idx);
@@ -633,9 +591,6 @@ pmUnpackHighResEventRecords(pmValueSet *vsp, int idx, pmHighResResult ***rap)
     int			p;		/* parameters in a record ... */
     int			numpmid;	/* metrics in a pmResult */
     int			sts;
-
-    if ((sts = register_event_metrics(caller)) < 0)
-	return sts;
 
     if ((sts = __pmCheckHighResEventRecords(vsp, idx)) < 0) {
 	__pmDumpHighResEventRecords(stderr, vsp, idx);

@@ -1,6 +1,8 @@
 QA output created by 537
 Generating test archive
 Dumping test archive metric names and IDs
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
 t_1020 PMID: 245.0.1021
 t_1021 PMID: 245.0.1022
 t_1022 PMID: 245.0.1023

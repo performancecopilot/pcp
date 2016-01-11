@@ -110,6 +110,9 @@ main(int argc, char **argv)
     char	outfname[MAXPATHLEN];
     struct stat	sbuf;
 
+    /* no derived or anon metrics, please */
+    __pmSetInternalState(PM_STATE_PMCS);
+
     if ((p = getenv("PMNS_DEFAULT")) != NULL) {
 	strncpy(pmnsfile, p, MAXPATHLEN);
         pmnsfile[MAXPATHLEN-1]= '\0';

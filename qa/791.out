@@ -28,6 +28,8 @@ sample.longlong.million
 sample.longlong.write_me
 sample.longlong.bin
 sample.longlong.bin_ctr
+event.flags
+event.missed
 
 Note: timezone set to local timezone of host "bozo" from archive
 

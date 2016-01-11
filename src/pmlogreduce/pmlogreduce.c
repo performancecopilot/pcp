@@ -210,6 +210,9 @@ main(int argc, char **argv)
     struct timeval	unused;
     unsigned long	peek_offset;
 
+    /* no derived or anon metrics, please */
+    __pmSetInternalState(PM_STATE_PMCS);
+
     /* process cmd line args */
     if (parseargs(argc, argv) < 0) {
 	pmUsageMessage(&opts);
