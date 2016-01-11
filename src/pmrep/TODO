@@ -3,6 +3,7 @@
 -  after first release: check all code marked with BZ references
 -  allow defining instances to display [-i]
 -  opt to write cols per row with stdout output [-k]
+-  opt to switch cols / rows (e.g., compare ps vs sar)
 -  -Q/-B/-Y to override per-metric settings unit/scale
 -  shorten unit display count / sec -> count/s -> c/s if needed
 -  opt to output in short format (see pmdumptext -F / pmNumberStr) [-m/-M]
@@ -12,7 +13,6 @@
 -  support displaying raw/rate as per given unit
 -  (re)add runtime directive to config file
 -  containers support
--  verify CSV format
 -  add JSON output support
 -  add XML output support (like sadf)
 -  add XLS output support (like sar2xls)
