@@ -11,6 +11,7 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
 [ -z "$PCPQA_CISCO_ROUTER" ] && \
 _notrun "No cisco router set via \$PCPQA_CISCO_ROUTER in ./common.config"
