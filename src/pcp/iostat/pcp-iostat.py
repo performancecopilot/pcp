@@ -91,11 +91,12 @@ class IostatReport(pmcc.MetricGroupPrinter):
         c_avactive = self.curVals(group, subtree + '.avactive')
         p_avactive = self.prevVals(group, subtree + '.avactive')
 
-        if p_rrqm == {} or p_wrqm == {} or p_r == {} or p_w == {} or \
-           p_ractive == {} or p_wactive == {} or p_avactive == {} or \
-           p_rkb == {} or p_wkb == {}:
-            # no values for some metric (e.g. near start of archive)
-            return
+        if "t" in IostatOptions.xflag:
+            headfmt = "%-24s %-12s %7s %7s %6s %6s %8s %8s %8s %8s %7s %7s %7s %5s"
+            valfmt = "%-24s %-12s %7.1f %7.1f %6.1f %6.1f %8.1f %8.1f %8.2f %8.2f %7.1f %7.1f %7.1f %5.1f"
+        else:
+            headfmt = "%-12s %7s %7s %6s %6s %8s %8s %8s %8s %7s %7s %7s %5s"
+            valfmt = "%-12s %7.1f %7.1f %6.1f %6.1f %8.1f %8.1f %8.2f %8.2f %7.1f %7.1f %7.1f %5.1f"
 
         if "h" not in IostatOptions.xflag:
             self.Hcount += 1
@@ -105,11 +106,18 @@ class IostatReport(pmcc.MetricGroupPrinter):
                 if "t" in IostatOptions.xflag:
                     heading = ('# Timestamp', 'Device', 'rrqm/s', 'wrqm/s', 'r/s', 'w/s', 'rkB/s', 'wkB/s',
                                'avgrq-sz', 'avgqu-sz', 'await', 'r_await', 'w_await', '%util')
-                    print("%-24s %-12s %7s %7s %6s %6s %8s %8s %8s %8s %7s %7s %7s %5s" % heading)
                 else:
                     heading = ('# Device', 'rrqm/s', 'wrqm/s', 'r/s', 'w/s', 'rkB/s', 'wkB/s',
                                'avgrq-sz', 'avgqu-sz', 'await', 'r_await', 'w_await', '%util')
-                    print("%-12s %7s %7s %6s %6s %8s %8s %8s %8s %7s %7s %7s %5s" % heading)
+                print(headfmt % heading)
+
+        if p_rrqm == {} or p_wrqm == {} or p_r == {} or p_w == {} or \
+           p_ractive == {} or p_wactive == {} or p_avactive == {} or \
+           p_rkb == {} or p_wkb == {}:
+            # no values for some metric (e.g. near start of archive)
+            if "t" in IostatOptions.xflag:
+                print(headfmt % (timestamp, 'NODATA', '?', '?', '?', '?', '?', '?','?', '?', '?', '?', '?', '?'))
+            return
 
         try:
             for inst in sorted(instlist):
@@ -153,12 +161,18 @@ class IostatReport(pmcc.MetricGroupPrinter):
                     util = 100.0 * tot_active / dt
 
                 device = inst	# prepare name for printing
+                badcounters = rrqm < 0 or wrqm < 0 or r < 0 or w < 0 or await < 0 or avgrqsz < 0 or avgqsz < 0 or util < 0
+
                 if "t" in IostatOptions.xflag:
-                    print("%-24s %-12s %7.1f %7.1f %6.1f %6.1f %8.1f %8.1f %8.2f %8.2f %7.1f %7.1f %7.1f %5.1f" \
-                    % (timestamp, device, rrqm, wrqm, r, w, rkb, wkb, avgrqsz, avgqsz, await, r_await, w_await, util))
+                    if badcounters:
+                        print(headfmt % (timestamp, device, '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?'))
+                    else:
+                        print(valfmt % (timestamp, device, rrqm, wrqm, r, w, rkb, wkb, avgrqsz, avgqsz, await, r_await, w_await, util))
                 else:
-                    print("%-12s %7.1f %7.1f %6.1f %6.1f %8.1f %8.1f %8.2f %8.2f %7.1f %7.1f %7.1f %5.1f" \
-                    % (device, rrqm, wrqm, r, w, rkb, wkb, avgrqsz, avgqsz, await, r_await, w_await, util))
+                    if badcounters:
+                        print(headfmt % (device, '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?'))
+                    else:
+                        print(valfmt % (device, rrqm, wrqm, r, w, rkb, wkb, avgrqsz, avgqsz, await, r_await, w_await, util))
         except KeyError:
             # instance missing from previous sample
             pass
@@ -210,4 +224,6 @@ if __name__ == '__main__':
         usage.message()
         sys.exit(1)
     except KeyboardInterrupt:
+        pass
+    except BrokenPipeError:
         pass

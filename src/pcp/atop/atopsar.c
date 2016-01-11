@@ -235,9 +235,6 @@ atopsar(int argc, char *argv[])
 		{
 			char	*endnum, *arg;
 
-			if (rawreadflag)
-				pratopsaruse(pmProgname);
-
 			arg = argv[opts.optind++];
 			if (!numeric(arg))
 				pratopsaruse(pmProgname);
@@ -250,9 +247,7 @@ atopsar(int argc, char *argv[])
 				free(endnum);
 				opts.errors++;
 			}
-			else
-				interval = opts.interval;
-	
+
 			if (opts.optind < argc)
 			{
 				arg = argv[opts.optind];
@@ -260,7 +255,6 @@ atopsar(int argc, char *argv[])
 					pratopsaruse(pmProgname);
 				if ((opts.samples = atoi(arg)) < 1)
 					pratopsaruse(pmProgname);
-				nsamples = opts.samples;
 			}
 		}
 		/* if no interval specified, read from logfile */
@@ -281,6 +275,12 @@ atopsar(int argc, char *argv[])
 
 	if (opts.errors)
 		prusage(pmProgname);
+
+	if (opts.samples)
+		nsamples = opts.samples;
+
+	if (opts.interval.tv_sec || opts.interval.tv_usec)
+		interval = opts.interval;
 
 	/*
 	** if no report-flags have been specified, take the first

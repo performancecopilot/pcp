@@ -918,6 +918,7 @@ cgroups
 660 pmwebapi local
 661 pmwebapi local
 662 pmwebapi pmda.sample local
+663 pmwebapi local
 666 pmmgr local slow
 667 python local
 668 pmmgr local containers
@@ -1075,6 +1076,7 @@ cgroups
 879 pmda.pipe local
 885 pmda.linux local
 888 pmda.linux local
+889 pmda.proc local
 892 pmcd libpcp local
 897 pmlc pmlogger local
 898 pmlogmv local 

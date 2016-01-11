@@ -49,6 +49,15 @@ atop "Scheduling option" -s
 echo "Replay with atop-style time window"
 PCP_HOSTZONE=1 $ATOP -r $here/archives/pcp-atop -b 11:03 -e 11:04 1 5 
 
+echo "Checking sample count and interval"
+export PCP_ARCHIVE=$here/archives/pcp-atop
+pcp -z atop -m 2 3 > $tmp.mem1
+pcp -z -t 2 -s 3 atop -m > $tmp.mem2
+unset PCP_ARCHIVE
+test -s $tmp.mem1 || echo "Unexpected empty file 1"
+test -s $tmp.mem2 || echo "Unexpected empty file 2"
+diff $tmp.mem1 $tmp.mem2 && echo OK
+
 # write a new archive, replay with pcp-atop
 echo "Recording an archive using atop"
 $ATOP -w $tmp.atop 1 5

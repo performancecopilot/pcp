@@ -8,17 +8,13 @@ Group: Applications/System
 Source: @package_name@-@package_version@.src.tar.gz
 BuildRoot: @build_root@ 
 Distribution: @package_distribution@
-%if 0%{?fedora} > 22 || 0%{?rhel} > 7
-%global with_compat 0
-%else
-%global with_compat 0%{!?_without_compat:1}
-%endif
 BuildRequires: procps bison flex
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
 %if "@enable_avahi@" == "true"
 BuildRequires: avahi-devel
 %endif
+BuildRequires: zlib-devel
 %if "@enable_secure@" == "true"
 %if "%{_vendor}" == "suse"
 BuildRequires: mozilla-nss-devel
@@ -106,11 +102,9 @@ Requires: initscripts
 # slip our filter into place
 %define __find_requires %{_builddir}/%{?buildsubdir}/build/rpm/filter-requires -v %{_vendor} -f 0%{?fedora} -r 0%{?rhel} %{__find_requires_save}
 
-%if %{with_compat}
-Requires: pcp-compat
-%endif
 Requires: pcp-libs = @package_version@
 Obsoletes: pcp-gui-debuginfo
+Obsoletes: pcp-compat
 
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
@@ -395,7 +389,7 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing spreadsheet data into PCP archive logs
 URL: http://www.pcp.io
-Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@
+Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@
 
 %description import-sheet2pcp
 Performance Co-Pilot (PCP) front-end tools for importing spreadsheet data
@@ -409,7 +403,7 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing MTRG data into PCP archive logs
 URL: http://www.pcp.io
-Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@
+Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@
 
 %description import-mrtg2pcp
 Performance Co-Pilot (PCP) front-end tools for importing MTRG data
@@ -423,7 +417,7 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing ganglia data into PCP archive logs
 URL: http://www.pcp.io
-Requires: pcp-libs >= @package_version@ perl-PCP-LogImport >= @package_version@
+Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@
 
 %description import-ganglia2pcp
 Performance Co-Pilot (PCP) front-end tools for importing ganglia data
@@ -437,7 +431,7 @@ License: LGPLv2+
 Group: Applications/System
 Summary: Performance Co-Pilot tools for importing collectl log files into PCP archive logs
 URL: http://www.pcp.io
-Requires: pcp-libs >= %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 
 %description import-collectl2pcp
 Performance Co-Pilot (PCP) front-end tools for importing collectl data
@@ -451,7 +445,7 @@ License: GPLv2+
 Group: Applications/System
 Summary: Module for exporting from PCP into a Zabbix agent daemon
 URL: http://www.pcp.io
-Requires: pcp-libs >= %{version}-%{release}
+Requires: pcp-libs = %{version}-%{release}
 
 %description export-zabbix-agent
 Performance Co-Pilot (PCP) module for exporting data from PCP via a
@@ -1035,6 +1029,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from the SLURM Workload Manager.
 #end pcp-pmda-slurm
 
+%if "@pmda_snmp@" == "true"
 #
 # pcp-pmda-snmp
 #
@@ -1044,11 +1039,13 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Simple Network Management Protocol
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = @package_version@
+Requires: perl(Net::SNMP)
 
 %description pmda-snmp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about SNMP.
 #end pcp-pmda-snmp
+%endif
 
 #
 # pcp-pmda-vmware
@@ -1458,56 +1455,6 @@ collecting metrics about web server logs.
 # end pcp-pmda-weblog
 # end C pmdas
 
-# pcp-compat
-%if %{with_compat}
-%package compat
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) compat package for existing systems
-URL: http://www.pcp.io
-Requires: pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
-Requires: pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
-Requires: pcp-pmda-memcache pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
-Requires: pcp-pmda-nfsclient pcp-pmda-pdns
-Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
-Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
-Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
-Requires: pcp-pmda-lustrecomm
-%if "@have_python@" == "true"
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-system-tools 
-%endif
-%if "@pmda_json@" == "true"
-Requires: pcp-pmda-json
-%endif
-%if "@pmda_rpm@" == "true"
-Requires: pcp-pmda-rpm
-%endif
-%if "@pmda_mysql@" == "true"
-Requires: pcp-pmda-mysql
-%endif
-%if "@pmda_postgresql@" == "true"
-Requires: pcp-pmda-postgresql
-%endif
-%if "@pmda_nginx@" == "true"
-Requires: pcp-pmda-nginx
-%endif
-%if "@pmda_activemq@" == "true"
-Requires: pcp-pmda-activemq
-%endif
-%if "@pmda_elasticsearch@" == "true"
-Requires: pcp-pmda-elasticsearch
-%endif
-%if "@pmda_postfix@" == "true"
-Requires: pcp-pmda-postfix
-%endif
-Requires: pcp-pmda-summary pcp-pmda-trace pcp-pmda-weblog
-Requires: pcp-doc
-%description compat
-This package contains the PCP compatibility dependencies for existing PCP
-installations.  This is not a package that should be depended on, and will
-be removed in future releases.
-%endif #compat
-
 # pcp-collector metapackage
 %package collector
 License: GPLv2+
@@ -1518,7 +1465,7 @@ Requires: pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
 Requires: pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nfsclient pcp-pmda-pdns
-Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
+Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
 Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
@@ -1531,6 +1478,9 @@ Requires: pcp-pmda-json
 %endif
 %if "@pmda_rpm@" == "true"
 Requires: pcp-pmda-rpm
+%endif
+%if "@pmda_snmp@" == "true"
+Requires: pcp-pmda-snmp
 %endif
 %if "@pmda_mysql@" == "true"
 Requires: pcp-pmda-mysql
@@ -1757,7 +1707,9 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/postgresql' > pmda_postgresql
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/rsyslog' > pmda_rsyslog_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/samba' > pmda_samba_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/slurm' > pmda_slurm_files
+%if "@pmda_snmp@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/snmp' > pmda_snmp_files
+%endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/vmware' > pmda_vmware_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zimbra' > pmda_zimbra_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dm' > pmda_dm_files
@@ -1801,7 +1753,7 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
       pmda_memcache_files pmda_named_files \
       pmda_netfilter_files pmda_news_files pmda_nfsclient_files \
       pmda_pdns_files \
-      pmda_rsyslog_files pmda_samba_files pmda_slurm_files pmda_snmp_files \
+      pmda_rsyslog_files pmda_samba_files pmda_slurm_files \
       pmda_vmware_files pmda_zimbra_files pmda_apache_files pmda_bash_files \
       pmda_cifs_files pmda_cisco_files pmda_gfs2_files \
       pmda_lmsensors_files pmda_logger_files \
@@ -1815,6 +1767,9 @@ touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
 %endif
 %if "@pmda_json@" == "true"
 touch pmda_json_files
+%endif
+%if "@pmda_snmp@" == "true"
+touch pmda_snmp_files
 %endif
 %if "@pmda_mysql@" == "true"
 touch pmda_mysql_files
@@ -1885,7 +1840,9 @@ BEGIN {
     while( getline < "pmda_rsyslog_files") pmda_rsyslog[$0]=1;
     while( getline < "pmda_samba_files") pmda_samba[$0]=1;
     while( getline < "pmda_slurm_files") pmda_slurm[$0]=1;
+%if "@pmda_snmp@" == "true"
     while( getline < "pmda_snmp_files") pmda_snmp[$0]=1;
+%endif
     while( getline < "pmda_vmware_files") pmda_vmware[$0]=1;
     while( getline < "pmda_zimbra_files") pmda_zimbra[$0]=1;
     while( getline < "pmda_dm_files") pmda_dm[$0]=1;
@@ -1976,7 +1933,9 @@ BEGIN {
     else if (pmda_rsyslog[$NF]) f="pmda_rsyslog_files.rpm";
     else if (pmda_samba[$NF]) f="pmda_samba_files.rpm";
     else if (pmda_slurm[$NF]) f="pmda_slurm_files.rpm";
+%if "@pmda_snmp@" == "true"
     else if (pmda_snmp[$NF]) f="pmda_snmp_files.rpm";
+%endif
     else if (pmda_vmware[$NF]) f="pmda_vmware_files.rpm";
     else if (pmda_zimbra[$NF]) f="pmda_zimbra_files.rpm";
     else if (pmda_dm[$NF]) f="pmda_dm_files.rpm";
@@ -2396,7 +2355,9 @@ cd
 
 %files pmda-slurm -f pmda_slurm_files.rpm
 
+%if "@pmda_snmp@" == "true"
 %files pmda-snmp -f pmda_snmp_files.rpm
+%endif
 
 %files pmda-vmware -f pmda_vmware_files.rpm
 
@@ -2492,10 +2453,6 @@ cd
 
 %if "@have_python@" == "true"
 %files -n pcp-system-tools -f system_tools_files.rpm
-%endif
-
-%if %{with_compat}
-%files -n pcp-compat
 %endif
 
 %files -n pcp-collector

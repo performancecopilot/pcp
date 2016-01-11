@@ -26,6 +26,9 @@ extern "C"
 #include <sys/stat.h>
 #include <stdarg.h>
 #include <microhttpd.h>
+#ifdef HAVE_ZLIB
+#include <zlib.h>
+#endif
 }
 using namespace std;
 
@@ -190,4 +193,71 @@ std::string urlencode (const std::string &foo)
         }
     }
     return output.str ();
+}
+
+
+/* Compress given input string via libz into a new malloc()-allocated buffer.
+   Return compressed data length via *output_length.  Return NULL in case
+   of compression or other failure. */
+static void *compress_string(const std::string& input, size_t& output_length)
+{
+#if HAVE_ZLIB
+    uLong buf_needed = compressBound (input.length ());
+    void *buf = malloc (buf_needed);
+    if (buf == NULL)
+        return NULL;
+
+    int rc = compress ((Bytef *) buf, &buf_needed, (const Bytef*) input.c_str (), input.length ());
+    if (rc != Z_OK) {
+        free (buf);
+        return NULL;
+    }
+    output_length = (size_t) buf_needed;
+    return buf;
+#else
+    (void) input;
+    (void) output_length;
+    return NULL;
+#endif
+}
+
+
+
+/* Create and return MHD_Request with the given string buffer content.
+   Compress it if requested & possible.  Return NULL on error.  */
+struct MHD_Response *NOTMHD_compressible_response(struct MHD_Connection *connection,
+                                                  const std::string& buf)
+{
+    struct MHD_Response* resp = NULL;
+
+    /* Did the client request compression? */
+    const char *encodings = MHD_lookup_connection_value (connection,
+                                                         MHD_HEADER_KIND,
+                                                         MHD_HTTP_HEADER_ACCEPT_ENCODING);
+    if (encodings == NULL) encodings = "";
+    if (strstr (encodings, "deflate") != NULL) {
+        size_t heap_buf_len;
+        void *heap_buf = compress_string (buf, heap_buf_len);
+        if (heap_buf != NULL) {
+            resp = MHD_create_response_from_buffer (heap_buf_len, heap_buf,
+                                                    MHD_RESPMEM_MUST_FREE);
+            if (resp == NULL)
+                free (heap_buf); /* throw away zlib output */
+
+            int rc = MHD_add_response_header(resp, "Content-encoding", "deflate");
+            if (rc != MHD_YES) {
+                /* without that header, the client can't make sense of the data;
+                   we must try again without compression */
+                MHD_destroy_response (resp);
+                resp = NULL;
+            }
+        }
+    }
+
+    if (resp == NULL) { /* e.g., if compression failed or not requested. */
+        resp = MHD_create_response_from_buffer (buf.length (), (void *) buf.c_str (),
+                                                MHD_RESPMEM_MUST_COPY);
+    }
+
+    return resp;
 }

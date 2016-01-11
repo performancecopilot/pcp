@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2011-2015 Red Hat.
+# Copyright (c) 2011-2016 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -30,6 +30,10 @@ LLDFLAGS += $(PIELDFLAGS)
 ifeq "$(HAVE_CAIRO)" "true"
 LLDLIBS += $(LIB_FOR_CAIRO)
 LCFLAGS += -DHAVE_CAIRO $(CAIROCFLAGS)
+endif
+ifeq "$(HAVE_ZLIB)" "true"
+LLDLIBS += $(LIB_FOR_ZLIB)
+LCFLAGS += -DHAVE_ZLIB $(ZLIBCFLAGS)
 endif
 ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lws2_32

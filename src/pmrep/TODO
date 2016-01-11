@@ -10,6 +10,7 @@
 -  bash/zsh completion with short help (allow description for sets?)
 -  support rate display also for non-cumulative counters
 -  support displaying raw/rate as per given unit
+-  (re)add runtime directive to config file
 -  containers support
 -  verify CSV format
 -  add JSON output support

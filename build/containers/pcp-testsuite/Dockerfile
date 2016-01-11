@@ -20,7 +20,7 @@ MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 
 #
 # install everything and dependencies, clean the cache.
-RUN dnf --enablerepo=pcp-devel -y install pcp pcp-collector pcp-monitor pcp-testsuite && dnf clean all
+RUN dnf -y install pcp pcp-collector pcp-monitor pcp-testsuite && dnf clean all
 
 #
 # Disable service advertising - no avahi daemon in the container

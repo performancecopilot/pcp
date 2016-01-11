@@ -1344,6 +1344,7 @@ class PMReporter(object):
         """ Finalize and clean up """
         if self.writer:
             self.writer.flush()
+            self.writer = None
         if self.pmi:
             self.pmi.pmiEnd()
             self.pmi = None

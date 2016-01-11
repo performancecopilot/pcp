@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2015 Red Hat Inc.
+ * Copyright (c) 2011-2016 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -101,6 +101,8 @@ extern std::string urlencode (const std::string &);
 extern std::vector <std::string> split (const std::string & s, char sep);
 extern bool cursed_path_p (const std::string & blessed, const std::string & questionable);
 extern void json_quote (std::ostream & o, const std::string & value);
+extern struct MHD_Response *NOTMHD_compressible_response(struct MHD_Connection *connection,
+                                                         const std::string& buf);
 
 
 // inlined right here

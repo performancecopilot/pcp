@@ -459,8 +459,17 @@ AC_SUBST(INVISIBILITY)
 AC_PROG_CXX
 cxx=$CXX
 AC_SUBST(cxx)
+AC_MSG_CHECKING([for working C++ compiler])
+AC_LANG_PUSH([C++])
+AC_COMPILE_IFELSE(
+   [AC_LANG_PROGRAM([[#include <cstdio>]],
+                    [[const char gday[] = "G'day, world\n";]])],
+   [AC_MSG_RESULT([yes])],
+   [AC_MSG_RESULT([no])
+    cxx=""])
+AC_LANG_POP([C++])
 
-# Prevent shared libaries from being built for libpcp and other core libraries
+# Prevent shared libraries from being built for libpcp and other core libraries
 AC_ARG_ENABLE([shared],
   [AS_HELP_STRING([--disable-shared], [disable core shared libary generation])],
   [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"])
@@ -896,6 +905,19 @@ fi
 AC_SUBST(pcp_perl_prog)
 AC_SUBST(have_perl)
 AC_MSG_RESULT($pcp_perl_prog)
+
+AC_MSG_CHECKING([if the SNMP PMDA should be included])
+pmda_snmp=false
+if test "$have_perl" = true
+then
+    dnl rpm built for SNMP PMDA needs Perl Net::SNMP
+    if $pcp_perl_prog -e "use Net::SNMP" >/dev/null 2>&1
+    then
+	pmda_snmp=true
+    fi
+fi
+AC_SUBST(PMDA_SNMP, $pmda_snmp)
+if $pmda_snmp; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the mysql PMDA should be included])
 pmda_mysql=false
@@ -3105,6 +3127,10 @@ fi
 AC_SUBST(lib_for_readline)
 AC_SUBST(lib_for_curses)
 LIBS=$savedLIBS
+
+dnl Look for zlib
+PKG_CHECK_MODULES([zlib], [zlib >= 1.0.0], [have_zlib=true], [have_zlib=false])
+AC_SUBST(HAVE_ZLIB, [$have_zlib])
 
 dnl Check if we have AI_ADDRCONFIG
 AC_MSG_CHECKING([for AI_ADDRCONFIG])

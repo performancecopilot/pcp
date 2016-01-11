@@ -35,6 +35,12 @@ program is interrupted.  Temporary errors are ignored.  Multiple
 copies of this program may be run in parallel, to populate different
 Graphite databases or subtrees, with different scaling or sampling
 intervals.
+.PP
+The
+.BR pmmgr (1)
+daemon can be used to ensure one or more
+.B pcp2grapite
+instances start at system boot time.
 .SH OPTIONS
 .TP
 .B \-h \f2hostspec\f1
@@ -92,42 +98,12 @@ The default is \f3pcp.\f1 (note the period at the end).
 Relay all numeric metrics nested at or below the given name in the PMNS.
 This option may be repeated.  This is a compulsory option, having no
 default.
-.SH DAEMON SETUP
-.PP
-An example of a Linux
-.BR systemd (1)
-service file that can be used to have
-.B systemd 
-managing a single instance of
-.BR pcp2graphite
-follows:
-.PP
-.sp
-.if n \{\
-.RS 4
-.\}
-.nf
-[Unit]
-Description=Performance Co-Pilot data pump to Graphite
-Documentation=man:pcp2graphite(1)
-After=pmcd.service
-
-[Service]
-ExecStart=/usr/bin/pcp2graphite <OPTIONS>
-
-[Install]
-WantedBy=multi\-user\&.target
-.fi
-.if n \{\
-.RE
-.\}
-.PP
 .SH "SEE ALSO"
 .BR PCPIntro (1),
 .BR pmcd (1),
-.BR systemd (1),
 .BR pmParseUnitsStr (3),
 .BR http://graphite.wikidot.com/ ,
+.BR pmmgr (1),
 .BR pmval (1),
 .BR PMAPI (3),
 .BR pcp.conf (5)
