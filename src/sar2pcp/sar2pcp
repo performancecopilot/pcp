@@ -84,12 +84,10 @@ my %warning_tags;	# XML tags we do not know and will issue warnings about
 
 # sort these ones to help keep track of 'em
 my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
-	'active' => 1,
 	'boot' => 1,
 	'bufpg' => 1,
 	'campg' => 1,
 	'comments' => 1,
-	'commit' => 1,
 	'commit-percent' => 1,
 	'cpu' => 1,
 	'cpufreq' => 1,
@@ -99,6 +97,8 @@ my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
 	'disk' => 1,
 	'dquot-sz' => 1,
 	'dquot-sz-percent' => 1,
+	'fan' => 1,
+	'fan-speed' => 1,
 	'file-date' => 1,
 	'filesystems' => 1,
 	'file-utc-time' => 1,
@@ -117,12 +117,14 @@ my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
 	'memused-percent' => 1,
 	'network' => 1,
 	'power-management' => 1,
+	'pgtbl' => 1,
 	'pty-nr' => 1,
 	'release' => 1,
 	'restarts' => 1,
 	'rtsig-sz' => 1,
 	'rtsig-sz-percent' => 1,
 	'serial' => 1,
+	'slab' => 1,
 	'statistics' => 1,
 	'super-sz' => 1,
 	'super-sz-percent' => 1,
@@ -137,6 +139,7 @@ my %skipped_tags = (	# XML tags we know about, but have no metric to map yet
 	'tty' => 1,
 	'usb' => 1,
 	'usb-devices' => 1,
+	'vmused' => 1,
 );
 
 # Register metrics with a singular value.
@@ -456,10 +459,32 @@ while (defined(my $token = $parser->get_token())) {
 	    $snarf_name = 'mem.util.cached';
 	    $snarf_text = 1;
 	}
-	# pro tem skip <commit>
-	# pro tem skip <commit-percent>
-	# pro tem skip <active>
-	# pro tem skip <inactive>
+	elsif ($token->tag eq 'anonpg') {
+	    # <anonpg>1903776</anonpg>
+	    $snarf_name = 'mem.util.anonpages';
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq 'kstack') {
+	    # <kstack>10544</kstack>
+	    $snarf_name = 'mem.util.kernelStack';
+	    $snarf_text = 1;
+	}
+	# pro tem skip <commit-percent> (see pminfo -tT mem.util.commitLimit|committed_AS)
+	elsif ($token->tag eq 'commit') {
+	    # <commit>5947956</commit>
+	    $snarf_name = 'mem.util.commit';
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq 'active') {
+	    # <active>6444892</active>
+	    $snarf_name = 'mem.util.active';
+	    $snarf_text = 1;
+	}
+	elsif ($token->tag eq 'inactive') {
+	    # <inactive>3885484</inactive>
+	    $snarf_name = 'mem.util.inactive';
+	    $snarf_text = 1;
+	}
 	elsif ($token->tag eq 'dirty') {
 	    # <dirty>208</dirty>
 	    $snarf_name = 'mem.util.dirty';
