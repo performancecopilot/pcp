@@ -49,6 +49,7 @@ typedef struct node {		/* expression tree node */
 
 typedef struct {		/* one derived metric */
     char	*name;
+    int		anon;		/* 1 for anonymous derived metrics */
     pmID	pmid;
     node_t	*expr;
 } dm_t;
