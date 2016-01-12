@@ -40,9 +40,7 @@ pmRegisterDerived: register metric[6] myname.e = sample.pdu / sample.long.hundre
 pmRegisterDerived: register metric[7] myname.f = 1024 * sample.byte_ctr
 pmRegisterDerived: register metric[8] myname.g = sample.bin + 100 - sample.bin - 100
 pmRegisterDerived: register metric[9] myname.h = sample.seconds + sample.milliseconds / 1000
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.a
@@ -121,9 +119,7 @@ pmRegisterDerived: register metric[14] myname.gcov.a = 42 + sample.bad.unknown
 pmRegisterDerived: register metric[15] myname.gcov.b = (disk.all.total + disk.dev.total) + 42 
 pmRegisterDerived: register metric[16] myname.gcov.c = 42 - (disk.all.total + disk.dev.total)
 pmRegisterDerived: register metric[17] myname.gcov.d = (sample.bin + sample.darkness)+42
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
 __dmgetpmid: metric "no.such.metric" -> Unknown metric name

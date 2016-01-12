@@ -742,7 +742,6 @@ pmRegisterDerived: register metric[7] derived.tree.b.cmillion = sample.long.mill
 pmRegisterDerived: register metric[8] sample.long.derived = sample.long.one
 pmRegisterDerived: register metric[9] sample.long.foo.bar.derived = sample.long.one
 __dmopencontext(->ctx 0) called
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
@@ -753,7 +752,6 @@ expr node <addr-1> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] 
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0

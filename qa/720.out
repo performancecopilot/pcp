@@ -98,8 +98,6 @@ definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
-event.flags
-event.missed
 === std err ===
 Error: Authentication - authentication failure
 === filtered valgrind report ===
