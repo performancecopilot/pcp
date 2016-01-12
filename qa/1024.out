@@ -358,3 +358,219 @@ disk.partitions.write_rawactive
 
 == done
 
+== Checking metric values - blkdev-root-002.tgz
+
+disk.all.avactive
+    value 15012258
+
+disk.all.aveq
+    value 532718191
+
+disk.all.blkread
+    value 95561506
+
+disk.all.blktotal
+    value 274561194
+
+disk.all.blkwrite
+    value 178999688
+
+disk.all.read
+    value 1132650
+
+disk.all.read_bytes
+    value 47780753
+
+disk.all.read_merge
+    value 127645
+
+disk.all.read_rawactive
+    value 12125397
+
+disk.all.total
+    value 2708367
+
+disk.all.total_bytes
+    value 137280597
+
+disk.all.total_rawactive
+    value 532652928
+
+disk.all.write
+    value 1575717
+
+disk.all.write_bytes
+    value 89499844
+
+disk.all.write_merge
+    value 2624333
+
+disk.all.write_rawactive
+    value 520527531
+
+disk.dev.avactive
+    inst [N or "sda"] value 15011617
+    inst [N or "cciss/c12d11"] value 641
+
+disk.dev.aveq
+    inst [N or "sda"] value 532716500
+    inst [N or "cciss/c12d11"] value 1691
+
+disk.dev.blkread
+    inst [N or "sda"] value 95048962
+    inst [N or "cciss/c12d11"] value 512544
+
+disk.dev.blktotal
+    inst [N or "sda"] value 274048394
+    inst [N or "cciss/c12d11"] value 512800
+
+disk.dev.blkwrite
+    inst [N or "sda"] value 178999432
+    inst [N or "cciss/c12d11"] value 256
+
+disk.dev.read
+    inst [N or "sda"] value 1132105
+    inst [N or "cciss/c12d11"] value 545
+
+disk.dev.read_bytes
+    inst [N or "sda"] value 47524481
+    inst [N or "cciss/c12d11"] value 256272
+
+disk.dev.read_merge
+    inst [N or "sda"] value 127625
+    inst [N or "cciss/c12d11"] value 20
+
+disk.dev.read_rawactive
+    inst [N or "sda"] value 12125298
+    inst [N or "cciss/c12d11"] value 99
+
+disk.dev.scheduler
+    inst [N or "sda"] value "unknown"
+    inst [N or "cciss/c12d11"] value "unknown"
+
+disk.dev.total
+    inst [N or "sda"] value 2673436
+    inst [N or "cciss/c12d11"] value 34931
+
+disk.dev.total_bytes
+    inst [N or "sda"] value 137024197
+    inst [N or "cciss/c12d11"] value 256400
+
+disk.dev.total_rawactive
+    inst [N or "sda"] value 532651954
+    inst [N or "cciss/c12d11"] value 974
+
+disk.dev.write
+    inst [N or "sda"] value 1541331
+    inst [N or "cciss/c12d11"] value 34386
+
+disk.dev.write_bytes
+    inst [N or "sda"] value 89499716
+    inst [N or "cciss/c12d11"] value 128
+
+disk.dev.write_merge
+    inst [N or "sda"] value 2624311
+    inst [N or "cciss/c12d11"] value 22
+
+disk.dev.write_rawactive
+    inst [N or "sda"] value 520526656
+    inst [N or "cciss/c12d11"] value 875
+
+disk.dm.avactive
+    inst [N or "docker-8:7-1974438-pool"] value 9601
+
+disk.dm.aveq
+    inst [N or "docker-8:7-1974438-pool"] value 16196
+
+disk.dm.blkread
+    inst [N or "docker-8:7-1974438-pool"] value 125544
+
+disk.dm.blktotal
+    inst [N or "docker-8:7-1974438-pool"] value 181800
+
+disk.dm.blkwrite
+    inst [N or "docker-8:7-1974438-pool"] value 56256
+
+disk.dm.read
+    inst [N or "docker-8:7-1974438-pool"] value 5454
+
+disk.dm.read_bytes
+    inst [N or "docker-8:7-1974438-pool"] value 62772
+
+disk.dm.read_merge
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
+disk.dm.read_rawactive
+    inst [N or "docker-8:7-1974438-pool"] value 8299
+
+disk.dm.total
+    inst [N or "docker-8:7-1974438-pool"] value 6800
+
+disk.dm.total_bytes
+    inst [N or "docker-8:7-1974438-pool"] value 90900
+
+disk.dm.total_rawactive
+    inst [N or "docker-8:7-1974438-pool"] value 16194
+
+disk.dm.write
+    inst [N or "docker-8:7-1974438-pool"] value 1346
+
+disk.dm.write_bytes
+    inst [N or "docker-8:7-1974438-pool"] value 28128
+
+disk.dm.write_merge
+    inst [N or "docker-8:7-1974438-pool"] value 0
+
+disk.dm.write_rawactive
+    inst [N or "docker-8:7-1974438-pool"] value 7895
+
+disk.partitions.avactive
+    inst [N or "sr0"] value 0
+
+disk.partitions.aveq
+    inst [N or "sr0"] value 0
+
+disk.partitions.blkread
+    inst [N or "sr0"] value 0
+
+disk.partitions.blktotal
+    inst [N or "sr0"] value 0
+
+disk.partitions.blkwrite
+    inst [N or "sr0"] value 0
+
+disk.partitions.read
+    inst [N or "sr0"] value 0
+
+disk.partitions.read_bytes
+    inst [N or "sr0"] value 0
+
+disk.partitions.read_merge
+    inst [N or "sr0"] value 0
+
+disk.partitions.read_rawactive
+    inst [N or "sr0"] value 0
+
+disk.partitions.total
+    inst [N or "sr0"] value 0
+
+disk.partitions.total_bytes
+    inst [N or "sr0"] value 0
+
+disk.partitions.total_rawactive
+    inst [N or "sr0"] value 0
+
+disk.partitions.write
+    inst [N or "sr0"] value 0
+
+disk.partitions.write_bytes
+    inst [N or "sr0"] value 0
+
+disk.partitions.write_merge
+    inst [N or "sr0"] value 0
+
+disk.partitions.write_rawactive
+    inst [N or "sr0"] value 0
+
+== done
+
