@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -800,6 +800,7 @@ pmDupContext(void)
 #ifdef PM_MULTI_THREAD
     pthread_mutex_t	save_lock;
 #endif
+    __pmHashCtl		save_attrs;
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -828,6 +829,7 @@ pmDupContext(void)
     newcon = contexts[new];
     save = newcon->c_instprof;	/* need this later */
     save_dm = newcon->c_dm;	/* need this later */
+    save_attrs = newcon->c_attrs; /* need this later */
 #ifdef PM_MULTI_THREAD
     save_lock = newcon->c_lock;	/* need this later */
 #endif
@@ -839,6 +841,7 @@ pmDupContext(void)
 #ifdef PM_MULTI_THREAD
     newcon->c_lock = save_lock;	/* restore saved lock with initialized state also */
 #endif
+    newcon->c_attrs = save_attrs; /* restore saved attributes hash as well */
 
     /* clone the per-domain profiles (if any) */
     if (oldcon->c_instprof->profile_len > 0) {
