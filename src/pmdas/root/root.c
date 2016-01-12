@@ -636,7 +636,7 @@ root_stoppmda_request(root_client_t *cp, void *pdu, int pdulen)
     if ((sts = __pmdaDecodeRootPDUStop(pdu, pdulen, &pid, NULL, &force)) < 0)
 	return sts;
 
-    if (force || pid <= (pid_t)1) {
+    if (force || pid >= (pid_t)1) {
 	if (pid == (pid_t)-1)
 	    sts = -EINVAL;
 	else
