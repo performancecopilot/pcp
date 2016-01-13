@@ -146,9 +146,6 @@ MYFILES += \
 	root_irix root_pmns tiny.pmns sgi.bf versiondefs \
 	simple.csv simple.ods simple-resave.csv simple-resave.xlsx \
 	simple.sxc simple.xls simple.xlsx \
-	iostat iostat-c iostat-d iostat-d-k iostat-d-m iostat-p-ALL \
-	iostat-t iostat-t.ISO iostat-x iostat-z iostat-z-p-ALL \
-	iostat-t-x-bud \
 	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
 	permslist \
 	qa_shmctl.c
