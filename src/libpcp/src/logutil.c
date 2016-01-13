@@ -1438,8 +1438,8 @@ paranoidLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result)
  * be switching to another archive, then generate a MARK record to represent
  * the gap in recording between the archives.
  */
-static int
-generateMark(__pmLogCtl *lcp, int mode, pmResult **result)
+int
+__pmLogGenerateMark(__pmLogCtl *lcp, int mode, pmResult **result)
 {
     pmResult		*pr;
     int			sts;
@@ -2696,12 +2696,11 @@ __pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
 	 * Check whether we need to generate a mark record.
 	 */
 	if (! acp->ac_mark_done) {
-	    sts = generateMark(lcp, mode, result);
-	    acp->ac_mark_done = 1;
+	    sts = __pmLogGenerateMark(lcp, mode, result);
+	    acp->ac_mark_done = mode;
 	}
 	else {
 	    *result = NULL;
-	    sts = 0;
 	}
     }
 

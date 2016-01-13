@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Red Hat.
+ * Copyright (c) 2015-2016 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -131,9 +131,21 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     cache_t	*lfup;
     cache_t	*cache;
     char	*save_curlog_name;
+    int		sts;
     int		save_curvol;
     int		archive_changed;
 
+    /*
+     * If the previous __pmLogRead generated a virtual MARK record and we have
+     * changed direction, then we need to generate that record again.
+     */
+    if (acp->ac_mark_done != 0 && acp->ac_mark_done != mode) {
+	sts = __pmLogGenerateMark(acp->ac_log, acp->ac_mark_done, rp);
+	acp->ac_mark_done = 0;
+	return sts;
+    }
+
+    /* Look for a cache hit. */
     if (acp->ac_vol == acp->ac_log->l_curvol) {
 	posn = ftell(acp->ac_log->l_mfp);
 	assert(posn >= 0);
@@ -169,7 +181,6 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 	    ((mode == PM_MODE_FORW && cp->head_posn == posn) ||
 	     (mode == PM_MODE_BACK && cp->tail_posn == posn)) &&
 	    cp->rp != NULL) {
-	    int		sts;
 	    *rp = cp->rp;
 	    cp->used++;
 	    if (mode == PM_MODE_FORW)
@@ -188,6 +199,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 		nr_cache[mode]++;
 	    }
 #endif
+	    acp->ac_mark_done = 0;
 	    sts = cp->sts;
 	    return sts;
 	}
@@ -203,7 +215,7 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 	pmFreeResult(lfup->rp);
 
     /*
-     * We need to know when we change archive or volume boundaries.
+     * We need to know when we cross archive or volume boundaries.
      * The only way to know if the archive has changed is to check whether the
      * archive name has changed.
      */
@@ -217,24 +229,18 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     if (lfup->sts < 0)
 	lfup->rp = NULL;
     *rp = lfup->rp;
+
     archive_changed = strcmp(save_curlog_name, acp->ac_log->l_name) != 0;
     free(save_curlog_name);
 
     /*
-     * Don't cache this result if any of:
-     *  The archive has changed
-     *  The volume has changed
-     *  A virtual MARK record has been generated (just before changing archives)
-     *  New vol/arch, stdio stream and we don't know where we started from
+     * vol/arch switch since last time, or vol/arch switch or virtual mark
+     * record generated in __pmLogRead() ...
+     * new vol/arch, stdio stream and we don't know where we started from
+     * ... don't cache
      */
-    if (posn == 0 || save_curvol != acp->ac_log->l_curvol ||
-	acp->ac_mark_done || archive_changed) {
-	/*
-	 * vol/arch switch since last time, or vol/arch switch in
-	 * __pmLogRead() ...
-	 * new vol/arch, stdio stream and we don't know where we started from
-	 * ... don't cache
-	 */
+    if (posn == 0 || save_curvol != acp->ac_log->l_curvol || archive_changed ||
+	acp->ac_mark_done) {
 	lfup->mfp = NULL;
 #ifdef PCP_DEBUG
 	if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_DESPERATE))

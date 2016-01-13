@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -1089,6 +1089,7 @@ PCP_CALL extern char *__pmLogBaseName(char *);
 PCP_CALL extern __pmTimeval *__pmLogStartTime(__pmArchCtl *);
 PCP_CALL extern int __pmLogChangeArchive(__pmContext *, int);
 PCP_CALL extern int __pmLogCheckForNextArchive(__pmLogCtl *, int, pmResult **);
+PCP_CALL extern int __pmLogGenerateMark(__pmLogCtl *, int, pmResult **);
 
 PCP_CALL extern __pmLogCtl *__pmLogChangeToNextArchive(__pmLogCtl *);
 PCP_CALL extern __pmLogCtl *__pmLogChangeToPreviousArchive(__pmLogCtl *);
