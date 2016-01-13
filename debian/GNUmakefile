@@ -301,8 +301,8 @@ pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail
 	rm -f $@
 	cat pcp.postrm.head configversions pcp.postrm.tail > $@
 
-control:	control.master control.webapi control.pcpgui
-	cat control.master >control
+control:	control.master control.webapi control.pcpgui fixcontrol.master
+	./fixcontrol.master >control
 ifeq ($(ENABLE_WEBAPI), true)
 	cat control.webapi >>control
 endif
