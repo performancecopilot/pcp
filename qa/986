@@ -46,7 +46,7 @@ End-of-File
 
 echo "=== ODS ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src/simple.ods $tmp.mapfile $tmp 2>&1
+sheet2pcp sheet/simple.ods $tmp.mapfile $tmp 2>&1
 [ -f $tmp.0 ] && pmdumplog -az $tmp
 
 # success, all done
