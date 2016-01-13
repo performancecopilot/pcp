@@ -232,7 +232,7 @@ binary-arch: checkroot build-stamp
 	dh_perl -p $(pcp_import_iostat)
 	dh_installdeb
 	dh_shlibdeps 2>/dev/null	# qmake doesn't allow a library list
-	dh_gencontrol 2>/dev/null	# squash the python:Versions warning
+	dh_gencontrol $(SUBSTVARS) 2>/dev/null	# squash the python:Versions warning
 	dh_md5sums
 
 	dh_builddeb
