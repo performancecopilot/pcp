@@ -142,7 +142,7 @@ MYFILES += $(POSIXFILES) $(TRACEFILES)
 endif
 
 MYFILES += \
-	pmatop-log.folio err_v1.dump \
+	err_v1.dump \
 	root_irix root_pmns tiny.pmns sgi.bf versiondefs \
 	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
 	permslist \
