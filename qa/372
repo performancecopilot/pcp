@@ -46,13 +46,13 @@ End-of-File
 
 echo "=== CSV ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src/simple.csv $tmp.mapfile $tmp 2>&1
+sheet2pcp sheet/simple.csv $tmp.mapfile $tmp 2>&1
 [ -f $tmp.0 ] && pmdumplog -az $tmp
 
 echo
 echo "=== resaved CSV ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
-sheet2pcp src/simple-resave.csv $tmp.mapfile $tmp 2>&1
+sheet2pcp sheet/simple-resave.csv $tmp.mapfile $tmp 2>&1
 [ -f $tmp.0 ] && pmdumplog -az $tmp
 
 echo
@@ -64,7 +64,7 @@ sheet2pcp /dev/null $tmp.mapfile $tmp 2>&1
 echo
 echo "=== bad datetime CSV ==="
 rm -f $tmp.0 $tmp.index $tmp.meta
-cp src/simple.csv $tmp.baddate.csv
+cp sheet/simple.csv $tmp.baddate.csv
 echo '34/13/2010 13:02:03;13;20;27;4;"bad-date"' >>$tmp.baddate.csv
 sheet2pcp $tmp.baddate.csv $tmp.mapfile $tmp 2>&1
 

@@ -142,22 +142,14 @@ MYFILES += $(POSIXFILES) $(TRACEFILES)
 endif
 
 MYFILES += \
-	pmatop-log.folio err_v1.dump \
+	err_v1.dump \
 	root_irix root_pmns tiny.pmns sgi.bf versiondefs \
-	simple.csv simple.ods simple-resave.csv simple-resave.xlsx \
-	simple.sxc simple.xls simple.xlsx \
-	iostat iostat-c iostat-d iostat-d-k iostat-d-m iostat-p-ALL \
-	iostat-t iostat-t.ISO iostat-x iostat-z iostat-z-p-ALL \
-	iostat-t-x-bud \
 	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
-	sa-sysstat-9.0.4 sa-sysstat-9.0.6 sa-sysstat-9.0.6.1 \
-	sa-sysstat-10.0.1 sa-sysstat-10.0.5 sa-sysstat-10.2.0 \
-	sa-sysstat-9.0.4_rh6.5 sa-sysstat-9.1.7 \
 	permslist \
 	qa_shmctl.c
 
-MYSCRIPTS = grind-tools ipcs_clear mksa-sysstat show-args fixhosts \
-	    mkpermslist memcachestats.pl
+MYSCRIPTS = grind-tools ipcs_clear show-args fixhosts mkpermslist \
+	memcachestats.pl
 
 PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 
