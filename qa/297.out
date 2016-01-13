@@ -4,7 +4,6 @@ re-starting pmproxy ...
 killing pmcd ...
 re-starting pmcd ...
 __pmConnectPMCD(MY_HOST): proxy connection host=MY_HOST port=N fd=N version=N
-__pmDecodeError: got error PDU (code=-12357, fromversion=2)
 pmNewContext(1, MY_HOST) -> 0
 Dump Contexts: current context = 0
 Context[N] host MY_HOST: pmcd=CONNECTED profile=NOT_SENT fd=N refcnt=N origin=N.N delta=N
@@ -15,12 +14,10 @@ DATE	N	N	N	N	N	N	N	N	N
 DATE	?	?	?	?	?	?	?	?	?
 __pmConnectPMCD(MY_HOST): proxy connection host=MY_HOST port=N fd=N version=N
 pmReconnectContext(0), done
-__pmDecodeError: got error PDU (code=-12357, fromversion=2)
 pmReconnectContext(0) -> 0
 DATE	N	N	N	N	N	N	N	N	N
 DATE	?	?	?	?	?	?	?	?	?
 __pmConnectPMCD(MY_HOST): proxy connection host=MY_HOST port=N fd=N version=N
 pmReconnectContext(0), done
-__pmDecodeError: got error PDU (code=-12357, fromversion=2)
 pmReconnectContext(0) -> 0
 DATE	N	N	N	N	N	N	N	N	N
