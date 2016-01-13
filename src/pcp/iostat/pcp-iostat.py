@@ -16,6 +16,7 @@
 """ Display disk and device-mapper I/O statistics """
 
 import sys
+import socket
 from pcp import pmapi, pmcc
 from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE, PM_SPACE_KBYTE
 
@@ -225,5 +226,5 @@ if __name__ == '__main__':
         sys.exit(1)
     except KeyboardInterrupt:
         pass
-    except BrokenPipeError:
+    except socket.error:
         pass
