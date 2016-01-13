@@ -178,6 +178,7 @@ pmda.memcache
 pmda.mmv
 pmda.mounts
 pmda.mpi
+pmda.named
 pmda.netfilter
 pmda.news
 pmda.nvidia
@@ -1180,6 +1181,8 @@ cgroups
 1030 pmda.linux local
 1031 pmda.slurm perl local
 1032 pmwebapi containers local
+1033 pmda.named local
+1034 pmda.named local
 1042 pmwebapi pmda.proc local
 1044 pmie local pmieconf sanity
 1045 pmie local pmieconf

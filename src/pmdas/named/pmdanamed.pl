@@ -20,15 +20,16 @@ use PCP::PMDA;
 my $pmda = PCP::PMDA->new('named', 100);
 my @paths = ( '/var/named/chroot/var/named/data', '/var/named/data' );
 my $filename = 'named_stats.txt';
-my $statscmd = 'rdnc stats';	# writes to $paths/$filename
 my ( $statsdir, $statsfile );
-my $interval = 10;		# time (in seconds) between runs of $statscmd
+my $statsprog = 'rndc';
+my $statsuser = 'named';
+my $interval = 10;		# time (in seconds) between "rndc stats" runs
 my %values;			# hash with all values mapped to metric names
 
 sub named_update
 {
     #$pmda->log('Updating values in named statistics file');
-    system 'rndc', 'stats';
+    system $statsprog, 'stats';
 }
 
 # Parser formats (PMDA internal numbering scheme):
@@ -119,13 +120,27 @@ foreach $statsdir ( @paths ) {
     $statsfile = $statsdir . '/' . $filename;
     last if ( -f $statsfile );
 }
+$statsfile = $ENV{NAMED_STATS_FILE} if (defined($ENV{NAMED_STATS_FILE}));
+$statsuser = $ENV{NAMED_STATS_USER} if (defined($ENV{NAMED_STATS_USER}));
+$statsprog = $ENV{NAMED_STATS_PROG} if (defined($ENV{NAMED_STATS_PROG}));
 die "Cannot find a valid named statistics file\n" unless -f $statsfile;
-named_update();		# push some values into the statistics file
+
+# Perform the namespace and domain evaluation earlier than usual.
+# This must be done to ensure we do not execute "rndc stats" with
+# our stdout set to either of these locations (SElinux AVC denial
+# results otherwise).
+if (defined($ENV{PCP_PERL_PMNS}) || defined($ENV{PCP_PERL_DOMAIN})) {
+    named_metrics();
+    $pmda->run;
+    exit(0);
+}
+
+named_update();		# push latest values into the statistics file
 
 $pmda->set_fetch_callback(\&named_fetch_callback);
 $pmda->add_tail($statsfile, \&named_parser, 0);
 $pmda->add_timer($interval, \&named_update, 0);
-$pmda->set_user('named');
+$pmda->set_user($statsuser);
 
 named_metrics();	# fetch/parse the stats file, create metrics
 $pmda->run;
