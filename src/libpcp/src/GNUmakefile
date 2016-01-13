@@ -82,7 +82,7 @@ endif
 
 include $(BUILDRULES)
 
-*.o: internal.h compiler.h
+*.o: internal.h compiler.h derive.h
 rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h

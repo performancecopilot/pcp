@@ -578,8 +578,6 @@ pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
 Warning: derived metrics path component: /no/such/file: No such file or directory
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 Error: no.such.metric: Unknown metric name

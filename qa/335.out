@@ -35,9 +35,7 @@ Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: register metric[2] my.scramble.bin = sample.scramble.bin
 pmRegisterDerived: register metric[3] my.scramble.delta = delta(sample.scramble.bin)
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "my.scramble.bin" -> PMID 511.0.3
 __dmopencontext: bind metric[2] my.scramble.bin

@@ -618,7 +618,6 @@ Derived metric expr dump from <addr-97>...
 expr node <addr-97> type=COUNT left=<addr-98> right=(nil) save_last=0
 expr node <addr-98> type=NAME left=(nil) right=(nil) save_last=1 [sample.sysinfo] master=1
 __dmopencontext(->ctx 0) called
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
 Derived metric expr dump from <addr-99>...
 expr node <addr-99> type=ANON left=<addr-100> right=(nil) save_last=0
@@ -629,7 +628,6 @@ expr node <addr-100> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 Derived metric expr dump from <addr-101>...
 expr node <addr-101> type=ANON left=<addr-102> right=(nil) save_last=0
@@ -1339,7 +1337,6 @@ Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=MAX left=<addr-5> right=(nil) save_last=0
 expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=1 [sample.lights] master=1
 __dmopencontext(->ctx 0) called
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
 Derived metric expr dump from <addr-6>...
 expr node <addr-6> type=ANON left=<addr-7> right=(nil) save_last=0
@@ -1350,7 +1347,6 @@ expr node <addr-7> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] 
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 Derived metric expr dump from <addr-8>...
 expr node <addr-8> type=ANON left=<addr-9> right=(nil) save_last=0

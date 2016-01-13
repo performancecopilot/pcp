@@ -22,9 +22,7 @@ myname.m = 3*sample.bin
 myname.n = sample.bin + sample.bucket*2 - (sample.bin + 100) - sample.bucket
 
 === myname.const ===
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.const
@@ -72,9 +70,7 @@ myname.const
     value 123456
 
 === myname.a ===
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.const
@@ -123,9 +119,7 @@ myname.a
     value 1000000
 
 === myname ===
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.const
@@ -694,9 +688,7 @@ myname.n
     inst [900 or "bin-900"] value 800
 
 === myname.a sample.long ===
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.const
@@ -811,9 +803,7 @@ sample.long.bin_ctr
     inst [900 or "bin-900"] value 900
 
 === sample.long myname.a ===
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.const
@@ -928,9 +918,7 @@ myname.a
     value 1000000
 
 === sample.longlong myname.a myname.b sample.long ===
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.const
@@ -1124,9 +1112,7 @@ sample.long.bin_ctr
     inst [900 or "bin-900"] value 900
 
 === sample.string myname.f sample.bin myname ===
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.const
@@ -1772,9 +1758,7 @@ arith.eval.div.l_zero_f_r_f = 0 / sample.float.ten
 arith.eval.div.l_zero_d_r_d = 0 / sample.double.ten
 arith.eval.op.l_err = sample.needprofile + 1
 arith.eval.op.r_err = 1 + sample.needprofile
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "arith.l" -> PMID 511.0.3
 __dmopencontext: bind metric[2] arith.l
@@ -2640,9 +2624,7 @@ myname.e = sample.noinst
 myname.f = ( sample.long.hundred + sample.long.one ) * ( sample.noinst - 1 )
 
 === myname ===
-__dmgetpmid: metric "event.flags" -> PMID 511.0.1
 __dmopencontext: bind metric[0] event.flags
-__dmgetpmid: metric "event.missed" -> PMID 511.0.2
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
 __dmopencontext: bind metric[2] myname.a

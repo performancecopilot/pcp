@@ -17,18 +17,6 @@ my.derived PMID: 511.0.3
 sample.secret.foo.two PMID: 29.0.1002
     value 2
 pmGetPMNSLocation() -> Remote
-pmLookupName: request_names -> [0] event.flags
-__pmSendNameList
-namelist dump: numnames = 1
-  name[0]: "event.flags"
-pmLookupName: receive_names <- Unknown metric name
-pmLookupName(1, ...) -> 1
-pmLookupName: request_names -> [0] event.missed
-__pmSendNameList
-namelist dump: numnames = 1
-  name[0]: "event.missed"
-pmLookupName: receive_names <- Unknown metric name
-pmLookupName(1, ...) -> 1
 pmLookupName: request_names -> [0] my.derived
 __pmSendNameList
 namelist dump: numnames = 1
@@ -236,12 +224,6 @@ pmLoadNameSpace: xmit_pdu -> 29.0.42
 pmLoadNameSpace: xmit_pdu -> 29.0.45
 Loaded ASCII PMNS
 pmGetPMNSLocation() -> Local
-pmLookupName(1, ...) using local PMNS returns 0 and ...
-  name[0]: "event.flags" PMID: ADDR PM_ID_NULL
-pmLookupName(1, ...) -> 1
-pmLookupName(1, ...) using local PMNS returns 0 and ...
-  name[0]: "event.missed" PMID: ADDR PM_ID_NULL
-pmLookupName(1, ...) -> 1
 pmLookupName(1, ...) using local PMNS returns 0 and ...
   name[0]: "my.derived" PMID: ADDR PM_ID_NULL
 pmLookupName(1, ...) -> 1

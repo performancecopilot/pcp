@@ -185,44 +185,6 @@ initialize_mutex(void)
 # define initialize_mutex() do { } while (0)
 #endif
 
-/* Register an anonymous metric */
-int
-__pmRegisterAnon(const char *name, int type)
-{
-    char	*msg;
-    char	buf[21];	/* anon(PM_TYPE_XXXXXX) */
-
-PM_FAULT_CHECK(PM_FAULT_PMAPI);
-    switch (type) {
-	case PM_TYPE_32:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_32)");
-	    break;
-	case PM_TYPE_U32:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_U32)");
-	    break;
-	case PM_TYPE_64:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_64)");
-	    break;
-	case PM_TYPE_U64:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_U64)");
-	    break;
-	case PM_TYPE_FLOAT:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_FLOAT)");
-	    break;
-	case PM_TYPE_DOUBLE:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_DOUBLE)");
-	    break;
-	default:
-	    return PM_ERR_TYPE;
-    }
-    if ((msg = pmRegisterDerived(name, buf)) != NULL) {
-	pmprintf("__pmRegisterAnon(%s, %d): @ \"%s\" Error: %s\n", name, type, msg, pmDerivedErrStr());
-	pmflush();
-	return PM_ERR_GENERIC;
-    }
-    return 0;
-}
-
 /*
  * Handle one component of the ':' separated derived config spec.
  * Used for $PCP_DERIVED_CONFIG evaluation and pmLoadDerivedConfig.
@@ -1488,8 +1450,8 @@ checkname(char *p)
     return 0;
 }
 
-char *
-pmRegisterDerived(const char *name, const char *expr)
+static char *
+registerderived(const char *name, const char *expr, int isanon)
 {
     node_t		*np;
     static __pmID_int	pmid;
@@ -1537,6 +1499,7 @@ pmRegisterDerived(const char *name, const char *expr)
 	pmid.cluster = 0;
     }
     registered.mlist[registered.nmetric-1].name = strdup(name);
+    registered.mlist[registered.nmetric-1].anon = isanon;
     pmid.item = registered.nmetric;
     registered.mlist[registered.nmetric-1].pmid = *((pmID *)&pmid);
     registered.mlist[registered.nmetric-1].expr = np;
@@ -1551,6 +1514,50 @@ pmRegisterDerived(const char *name, const char *expr)
 
     PM_UNLOCK(registered.mutex);
     return NULL;
+}
+
+char *
+pmRegisterDerived(const char *name, const char *expr)
+{
+    return registerderived(name, expr, 0);
+}
+
+/* Register an anonymous metric */
+int
+__pmRegisterAnon(const char *name, int type)
+{
+    char	*msg;
+    char	buf[21];	/* anon(PM_TYPE_XXXXXX) */
+
+PM_FAULT_CHECK(PM_FAULT_PMAPI);
+    switch (type) {
+	case PM_TYPE_32:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_32)");
+	    break;
+	case PM_TYPE_U32:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_U32)");
+	    break;
+	case PM_TYPE_64:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_64)");
+	    break;
+	case PM_TYPE_U64:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_U64)");
+	    break;
+	case PM_TYPE_FLOAT:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_FLOAT)");
+	    break;
+	case PM_TYPE_DOUBLE:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_DOUBLE)");
+	    break;
+	default:
+	    return PM_ERR_TYPE;
+    }
+    if ((msg = registerderived(name, buf, 1)) != NULL) {
+	pmprintf("__pmRegisterAnon(%s, %d): @ \"%s\" Error: %s\n", name, type, msg, pmDerivedErrStr());
+	pmflush();
+	return PM_ERR_GENERIC;
+    }
+    return 0;
 }
 
 int
@@ -1952,21 +1959,24 @@ __dmopencontext(__pmContext *ctxp)
 	cp->mlist[i].name = registered.mlist[i].name;
 	cp->mlist[i].pmid = registered.mlist[i].pmid;
 	assert(registered.mlist[i].expr != NULL);
-	/*
-	 * Derived metric names must not clash with real metric names ...
-	 * and if this happens, the real metric wins!
-	 * Logic here depends on pmLookupName() returning before any
-	 * derived metric searching is performed if the name is valid
-	 * for a real metric in the current context.
-	 */
-	sts = pmLookupName(1, &registered.mlist[i].name, &pmid);
-	if (sts >= 0 && !IS_DERIVED(pmid)) {
-	    char	strbuf[20];
-	    pmprintf("Warning: %s: derived name matches metric %s: derived ignored\n",
-		    registered.mlist[i].name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
-	    pmflush();
-	    cp->mlist[i].expr = NULL;
-	    continue;
+	if (!registered.mlist[i].anon) {
+	    /*
+	     * Assume anonymous derived metric names are unique, but otherwise
+	     * derived metric names must not clash with real metric names ...
+	     * and if this happens, the real metric wins!
+	     * Logic here depends on pmLookupName() returning before any
+	     * derived metric searching is performed if the name is valid
+	     * for a real metric in the current context.
+	     */
+	    sts = pmLookupName(1, &registered.mlist[i].name, &pmid);
+	    if (sts >= 0 && !IS_DERIVED(pmid)) {
+		char	strbuf[20];
+		pmprintf("Warning: %s: derived name matches metric %s: derived ignored\n",
+			registered.mlist[i].name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
+		pmflush();
+		cp->mlist[i].expr = NULL;
+		continue;
+	    }
 	}
 	/* failures must be reported in bind_expr() or below */
 	cp->mlist[i].expr = bind_expr(i, registered.mlist[i].expr);
