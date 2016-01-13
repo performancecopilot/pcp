@@ -596,7 +596,7 @@ do_work(task_t *tp)
 		if (IS_DERIVED(vsp->pmid))
 		    vsp->pmid = SET_DERIVED_LOGGED(vsp->pmid);
 	    }
-	    if ((sts == __pmEncodeResult(fileno(logctl.l_mfp), resp, &pdubuf)) < 0) {
+	    if ((sts = __pmEncodeResult(fileno(logctl.l_mfp), resp, &pdubuf)) < 0) {
 		fprintf(stderr, "__pmEncodeResult: %s\n", pmErrStr(sts));
 		exit(1);
 	    }
