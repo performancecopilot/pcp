@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2014,2016 Red Hat.
  * Copyright (c) 2011 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -103,7 +103,7 @@ extract_values(char *buffer, unsigned long long *values, int ncolumns)
 
     for (i = 0; i < ncolumns; i++) {
 	value = strtoull(s, &end, 10);
-	if (*end != ' ')
+	if (!isspace(*end))
 	    return NULL;
 	s = end;
 	cpuid = column_to_cpuid(i);
@@ -172,9 +172,15 @@ extract_interrupt_name(char *buffer, char **suffix)
 
     while (isspace((int)*s))		/* find start of name */
 	s++;
-    for (end = s; *end && isalnum((int)*end); end++) { }
-    *end = '\0';		/* mark end of name */
-    *suffix = end + 1;		/* mark values start */
+    for (end = s; *end && !isspace((int)*end); end++) {
+	if (!isalnum((int)*end))	/* check valid PMNS entry here; */
+	    *end = '_';			/* e.g. s390x has an "I/O" line */
+    }
+    if (*(end-1) == '_')		/* overwrite final non-name char */
+	*(--end) = '\0';		/* and then mark end of name */
+    else
+	*end = '\0';			/* mark end of name */
+    *suffix = end + 1;			/* mark values start */
     return s;
 }
 
@@ -232,14 +238,13 @@ refresh_interrupt_values(void)
 {
     FILE *fp;
     char buf[4096];
-    int i, ncolumns;
+    int i, j, ncolumns;
 
-    if (cpu_count == 0) {
-	long ncpus = sysconf(_SC_NPROCESSORS_CONF);
-	online_cpumap = malloc(ncpus * sizeof(int));
+    if (cpu_count != _pm_ncpus) {
+	online_cpumap = realloc(online_cpumap, _pm_ncpus * sizeof(int));
 	if (!online_cpumap)
 	    return -oserror();
-	cpu_count = ncpus;
+	cpu_count = _pm_ncpus;
     }
     memset(online_cpumap, 0, cpu_count * sizeof(int));
 
@@ -254,20 +259,17 @@ refresh_interrupt_values(void)
 	return -EINVAL;		/* unrecognised file format */
     }
 
-    /* next we parse each interrupt line row (starting with a digit) */
-    i = 0;
-    while (fgets(buf, sizeof(buf), fp))
-	if (!extract_interrupt_lines(buf, ncolumns, i++))
-	    break;
-
-    /* parse other per-CPU interrupt counter rows (starts non-digit) */
-    i = 0;
+    i = j = 0;
     while (fgets(buf, sizeof(buf), fp) != NULL) {
+	/* next we parse each interrupt line row (starting with a digit) */
+	if (extract_interrupt_lines(buf, ncolumns, i++))
+	    continue;
 	if (extract_interrupt_errors(buf))
 	    continue;
 	if (extract_interrupt_misses(buf))
 	    continue;
-	if (!extract_interrupt_other(buf, ncolumns, i++))
+	/* parse other per-CPU interrupt counter rows (starts non-digit) */
+	if (!extract_interrupt_other(buf, ncolumns, j++))
 	    break;
     }
 
@@ -363,21 +365,24 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 {
     int item = pmid_item(pmid);
     int cluster = pmid_cluster(pmid);
+    char *text;
 
     switch (cluster) {
 	case CLUSTER_INTERRUPT_LINES:
 	    if (item > lines_count)
 		return PM_ERR_PMID;
-	    if (interrupt_lines[item].text == NULL)
+	    text = interrupt_lines[item].text;
+	    if (text == NULL || text[0] == '\0')
 		return PM_ERR_TEXT;
-	    *buf = interrupt_lines[item].text;
+	    *buf = text;
 	    return 0;
 	case CLUSTER_INTERRUPT_OTHER:
 	    if (item > other_count)
 		return PM_ERR_PMID;
-	    if (interrupt_other[item].text == NULL)
+	    text = interrupt_other[item].text;
+	    if (text == NULL || text[0] == '\0')
 		return PM_ERR_TEXT;
-	    *buf = interrupt_other[item].text;
+	    *buf = text;
 	    return 0;
     }
     return PM_ERR_PMID;

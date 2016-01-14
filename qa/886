@@ -1,8 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 885
-# Verify /proc/cpuinfo parsing for various architectures.
+# PCP QA Test No. 886
+# Verify /proc/interrupts parsing for various architectures.
 #
-# Copyright (c) 2014 Red Hat.  All Rights Reserved.
+# Copyright (c) 2016 Red Hat.
 #
 
 seq=`basename $0`
@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_PLATFORM = linux ] || _notrun "Linux cpuinfo test, only works with Linux"
+[ $PCP_PLATFORM = linux ] || _notrun "Linux interrupts test, only works with Linux"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -37,21 +37,24 @@ proc_stat()
 root=$tmp.root
 export LINUX_STATSPATH=$root
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
-files=`echo $here/linux/cpuinfo-* | LC_COLLATE=POSIX sort`
-metrics=`pminfo hinv.cpu | grep -v hinv.cpu.online`
+files=`echo $here/linux/interrupts-* | LC_COLLATE=POSIX sort`
 
 for file in $files
 do
     rm -fr $root
     mkdir -p $root/proc || _fail "root in use when processing $file"
 
-    cp $file $root/proc/cpuinfo
+    cp $file $root/proc/interrupts
     base=`basename $file`
     ncpu=`echo $base | sed -e 's/.*-\([0-9][0-9]*\)cpu-.*/\1/'`
     proc_stat $root/proc/stat $ncpu
+    export LINUX_NCPUS=$ncpu
 
-    echo "== Checking CPU hardware metrics from $base ($ncpu CPU)"
-    pminfo -f -L -K clear -K add,60,$pmda $metrics
+    echo "== Checking interrupts metrics from $base ($ncpu CPU)"
+    pminfo -f -L -K clear -K add,60,$pmda kernel.percpu.interrupts
+    echo && echo "== done" && echo
+    echo "== Checking interrupts helptext from $base ($ncpu CPU)"
+    pminfo -tT -L -K clear -K add,60,$pmda kernel.percpu.interrupts
     echo && echo "== done" && echo
     cd $here
 done
