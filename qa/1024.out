@@ -1206,7 +1206,6 @@ disk.partitions.aveq
 Error: Metric not supported by this version of monitored application
 
 disk.partitions.blkread
-    inst [30 or "md0"] value 0
     inst [N or "cciss/c0d0p1"] value 896
     inst [N or "cciss/c0d0p2"] value 896
     inst [N or "cciss/c0d0p3"] value 896
@@ -1215,6 +1214,7 @@ disk.partitions.blkread
     inst [N or "cciss/c0d3p1"] value 850
     inst [N or "cciss/c0d3p2"] value 850
     inst [N or "cciss/c0d3p3"] value 850
+    inst [N or "md0"] value 0
     inst [N or "sda1"] value 2160
     inst [N or "sda2"] value 13958
     inst [N or "sdb1"] value 880
@@ -1239,7 +1239,6 @@ disk.partitions.blkread
     inst [N or "sr1"] value 0
 
 disk.partitions.blktotal
-    inst [30 or "md0"] value 0
     inst [N or "cciss/c0d0p1"] value 896
     inst [N or "cciss/c0d0p2"] value 896
     inst [N or "cciss/c0d0p3"] value 896
@@ -1248,6 +1247,7 @@ disk.partitions.blktotal
     inst [N or "cciss/c0d3p1"] value 850
     inst [N or "cciss/c0d3p2"] value 850
     inst [N or "cciss/c0d3p3"] value 850
+    inst [N or "md0"] value 0
     inst [N or "sda1"] value 2164
     inst [N or "sda2"] value 139266
     inst [N or "sdb1"] value 880
@@ -1272,7 +1272,6 @@ disk.partitions.blktotal
     inst [N or "sr1"] value 0
 
 disk.partitions.blkwrite
-    inst [30 or "md0"] value 0
     inst [N or "cciss/c0d0p1"] value 0
     inst [N or "cciss/c0d0p2"] value 0
     inst [N or "cciss/c0d0p3"] value 0
@@ -1281,6 +1280,7 @@ disk.partitions.blkwrite
     inst [N or "cciss/c0d3p1"] value 0
     inst [N or "cciss/c0d3p2"] value 0
     inst [N or "cciss/c0d3p3"] value 0
+    inst [N or "md0"] value 0
     inst [N or "sda1"] value 4
     inst [N or "sda2"] value 125308
     inst [N or "sdb1"] value 0
@@ -1305,7 +1305,6 @@ disk.partitions.blkwrite
     inst [N or "sr1"] value 0
 
 disk.partitions.read
-    inst [30 or "md0"] value 0
     inst [N or "cciss/c0d0p1"] value 34
     inst [N or "cciss/c0d0p2"] value 34
     inst [N or "cciss/c0d0p3"] value 34
@@ -1314,6 +1313,7 @@ disk.partitions.read
     inst [N or "cciss/c0d3p1"] value 36
     inst [N or "cciss/c0d3p2"] value 45
     inst [N or "cciss/c0d3p3"] value 45
+    inst [N or "md0"] value 0
     inst [N or "sda1"] value 74
     inst [N or "sda2"] value 14085
     inst [N or "sdb1"] value 32
@@ -1338,7 +1338,6 @@ disk.partitions.read
     inst [N or "sr1"] value 0
 
 disk.partitions.read_bytes
-    inst [30 or "md0"] value 0
     inst [N or "cciss/c0d0p1"] value 448
     inst [N or "cciss/c0d0p2"] value 448
     inst [N or "cciss/c0d0p3"] value 448
@@ -1347,6 +1346,7 @@ disk.partitions.read_bytes
     inst [N or "cciss/c0d3p1"] value 425
     inst [N or "cciss/c0d3p2"] value 425
     inst [N or "cciss/c0d3p3"] value 425
+    inst [N or "md0"] value 0
     inst [N or "sda1"] value 1080
     inst [N or "sda2"] value 6979
     inst [N or "sdb1"] value 440
@@ -1377,7 +1377,6 @@ disk.partitions.read_rawactive
 Error: Metric not supported by this version of monitored application
 
 disk.partitions.total
-    inst [30 or "md0"] value 0
     inst [N or "cciss/c0d0p1"] value 34
     inst [N or "cciss/c0d0p2"] value 34
     inst [N or "cciss/c0d0p3"] value 34
@@ -1386,6 +1385,7 @@ disk.partitions.total
     inst [N or "cciss/c0d3p1"] value 36
     inst [N or "cciss/c0d3p2"] value 45
     inst [N or "cciss/c0d3p3"] value 45
+    inst [N or "md0"] value 0
     inst [N or "sda1"] value 76
     inst [N or "sda2"] value 910031
     inst [N or "sdb1"] value 32
@@ -1410,7 +1410,6 @@ disk.partitions.total
     inst [N or "sr1"] value 0
 
 disk.partitions.total_bytes
-    inst [30 or "md0"] value 0
     inst [N or "cciss/c0d0p1"] value 448
     inst [N or "cciss/c0d0p2"] value 448
     inst [N or "cciss/c0d0p3"] value 448
@@ -1419,6 +1418,7 @@ disk.partitions.total_bytes
     inst [N or "cciss/c0d3p1"] value 425
     inst [N or "cciss/c0d3p2"] value 425
     inst [N or "cciss/c0d3p3"] value 425
+    inst [N or "md0"] value 0
     inst [N or "sda1"] value 1082
     inst [N or "sda2"] value 69633
     inst [N or "sdb1"] value 440
@@ -1446,7 +1446,6 @@ disk.partitions.total_rawactive
 Error: Metric not supported by this version of monitored application
 
 disk.partitions.write
-    inst [30 or "md0"] value 0
     inst [N or "cciss/c0d0p1"] value 0
     inst [N or "cciss/c0d0p2"] value 0
     inst [N or "cciss/c0d0p3"] value 0
@@ -1455,6 +1454,7 @@ disk.partitions.write
     inst [N or "cciss/c0d3p1"] value 0
     inst [N or "cciss/c0d3p2"] value 0
     inst [N or "cciss/c0d3p3"] value 0
+    inst [N or "md0"] value 0
     inst [N or "sda1"] value 2
     inst [N or "sda2"] value 895946
     inst [N or "sdb1"] value 0
@@ -1479,7 +1479,6 @@ disk.partitions.write
     inst [N or "sr1"] value 0
 
 disk.partitions.write_bytes
-    inst [30 or "md0"] value 0
     inst [N or "cciss/c0d0p1"] value 0
     inst [N or "cciss/c0d0p2"] value 0
     inst [N or "cciss/c0d0p3"] value 0
@@ -1488,6 +1487,7 @@ disk.partitions.write_bytes
     inst [N or "cciss/c0d3p1"] value 0
     inst [N or "cciss/c0d3p2"] value 0
     inst [N or "cciss/c0d3p3"] value 0
+    inst [N or "md0"] value 0
     inst [N or "sda1"] value 2
     inst [N or "sda2"] value 62654
     inst [N or "sdb1"] value 0
