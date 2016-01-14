@@ -18,7 +18,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-#define PMDROOT		1	/* domain identifier for pmdaroot(1) */
+#define PMDAROOT	1	/* domain identifier for pmdaroot(1) */
 #define SHUTDOWNWAIT	12	/* < PMDAs wait previously used in rc_pcp */
 #define MAXPENDING	5	/* maximum number of pending connections */
 #define FDNAMELEN	40	/* maximum length of a fd description */
@@ -454,14 +454,14 @@ Shutdown(void)
 
     for (i = 0; i < nAgents; i++) {
 	ap = &agent[i];
-	if (ap->pmDomainId == PMDROOT)
+	if (ap->pmDomainId == PMDAROOT)
 	    root = ap;
 	if (ap->status.isRootChild)
 	    ShutdownAgent(ap);
     }
     for (i = 0; i < nAgents; i++) {
 	ap = &agent[i];
-	if (ap->pmDomainId == PMDROOT)
+	if (ap->pmDomainId == PMDAROOT)
 	    continue;
 	if (!ap->status.isRootChild)
 	    ShutdownAgent(ap);
