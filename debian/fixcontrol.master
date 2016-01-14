@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# generate control preamble from control.master
+#
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+
+# dh-python not always available
+#
+rm -f $tmp.no
+if [ -f /etc/os-release ]
+then
+    if grep "Ubuntu 13.04" /etc/os-release >/dev/null
+    then
+	touch $tmp.no
+    fi
+fi
+
+if [ -f $tmp.no ]
+then
+    echo "s/?{dh-python}//" >>$tmp.sed
+else
+    echo "s/?{dh-python}/, dh-python/" >>$tmp.sed
+fi
+
+sed -f $tmp.sed <control.master
