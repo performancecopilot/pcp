@@ -39,7 +39,7 @@ pmdazswap_install()
     # start from a known starting point
     cd $PCP_PMDAS_DIR/zswap
     $sudo ./Remove >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmcd stop
+    $sudo $PCP_RC_DIR/pmcd stop | _filter_pcp_stop
 
     echo
     echo "=== $iam agent installation ==="

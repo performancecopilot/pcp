@@ -32,7 +32,7 @@ _cleanup()
 	echo "Resetting system state"
 	_restore_loggers
 	_change_config pmlogger on
-	_restore_pmda_install simple
+	_restore_pmda_install xfs
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
@@ -74,17 +74,17 @@ _count_pmloggers()
     return $count
 }
 
-_filter_root_install()
+_filter_xfs_install()
 {
-    _filter_pmda_install | $PCP_AWK_PROG '
-/Check containers metrics have appeared/ { if ($7 >= 0) $7 = "X"
+    _filter_pmda_install | _filter_pcp_stop | $PCP_AWK_PROG '
+/Check xfs metrics have appeared/ { if ($7 >= 0) $7 = "X"
                                            if ($10 >= 0) $10 = "Y"
                                          }
                                          { print }'
 }
 
 # real QA test starts here
-_prepare_pmda_install root
+_prepare_pmda_install xfs
 _disable_loggers
 _change_config pmlogger off
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
@@ -99,8 +99,8 @@ echo
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 
 # install a PMDA, which should restart only pmcd
-cd $PCP_PMDAS_DIR/root
-$sudo ./Install < /dev/null 2>&1 | _filter_root_install
+cd $PCP_PMDAS_DIR/xfs
+$sudo ./Install < /dev/null 2>&1 | _filter_xfs_install
 
 # verify no pmloggers running
 _count_pmloggers
@@ -112,8 +112,8 @@ _restore_loggers
 _change_config pmlogger on
 
 # install a PMDA, should restart both pmcd and pmlogger
-cd $PCP_PMDAS_DIR/root
-$sudo ./Install < /dev/null 2>&1 | _filter_root_install
+cd $PCP_PMDAS_DIR/xfs
+$sudo ./Install < /dev/null 2>&1 | _filter_xfs_install
 
 # verify pmlogger is running
 _count_pmloggers

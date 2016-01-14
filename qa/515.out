@@ -16,11 +16,11 @@ pmie: note - evaluator exiting
       1 DATE: some_inst match_inst falling: control[10]=0 control[11]=0 control[12]=0 control[13]=0 control[14]=0 control[15]=0
       1 DATE: some_inst match_inst rising: control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
       1 DATE: some_inst match_inst rising: control[10]=4 control[11]=4
-    4-6 DATE: some_inst match_inst: control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
-    4-6 DATE: some_inst match_inst: control[10]=4 control[11]=4
+    4-7 DATE: some_inst match_inst: control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
+    4-7 DATE: some_inst match_inst: control[10]=4 control[11]=4
       1 DATE: some_inst rising match_inst: control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
       1 DATE: some_inst rising match_inst: control[10]=4 control[11]=4
       1 DATE: some_inst rising: control[0]=1 control[1]=1 control[2]=1 control[3]=1 control[4]=1 control[5]=1 control[6]=1 control[7]=1 control[8]=1 control[9]=1 control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
       1 DATE: some_inst rising: control[8]=4 control[9]=4 control[10]=4 control[11]=4
-    4-6 DATE: some_inst: control[0]=1 control[1]=1 control[2]=1 control[3]=1 control[4]=1 control[5]=1 control[6]=1 control[7]=1 control[8]=1 control[9]=1 control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
-    4-6 DATE: some_inst: control[8]=4 control[9]=4 control[10]=4 control[11]=4
+    4-7 DATE: some_inst: control[0]=1 control[1]=1 control[2]=1 control[3]=1 control[4]=1 control[5]=1 control[6]=1 control[7]=1 control[8]=1 control[9]=1 control[10]=1 control[11]=1 control[12]=1 control[13]=1 control[14]=1 control[15]=1
+    4-7 DATE: some_inst: control[8]=4 control[9]=4 control[10]=4 control[11]=4
