@@ -11,9 +11,16 @@ trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 rm -f $tmp.no
 if [ -f /etc/os-release ]
 then
-    if grep "Ubuntu 13.04" /etc/os-release >/dev/null
+    NAME=`sed -n -e 's/"//'g -e '/^NAME=/s/NAME=//p' </etc/os-release`
+    if [ "$NAME" = "Ubuntu" ]
     then
-	touch $tmp.no
+	VERSION_ID=`sed -n -e 's/"//'g -e '/^VERSION_ID=/s/VERSION_ID=//p' </etc/os-release`
+	case "$VERSION_ID"
+	in
+	    12.04|12.10|13.04)
+		touch $tmp.no
+		;;
+	esac
     fi
 fi
 
