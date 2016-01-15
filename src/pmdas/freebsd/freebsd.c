@@ -412,53 +412,6 @@ do_sysctl(mib_t *mp, size_t xpect)
     return mp->m_datalen;
 }
 
-/*
- * kernel memory reader setup
- */
-struct nlist	symbols[] = {
-	{ .n_name = "_ifnet" },
-	{ .n_name = NULL }
-};
-kvm_t	*kvmp;
-
-static void
-kmemread_init(void)
-{
-    int		sts;
-    int		i;
-    char	errmsg[_POSIX2_LINE_MAX];
-
-    /*
-     * If we're running as a daemon PMDA, assume we're setgid kmem,
-     * so we can open /dev/kmem, and downgrade privileges after the
-     * kvm_open().
-     * For a DSO PMDA, we have to assume pmcd has the required
-     * privileges and don't dink with them.
-     */
-    kvmp = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errmsg);
-    if (!isDSO)
-	setgid(getgid());
-    if (kvmp == NULL) {
-	fprintf(stderr, "kmemread_init: kvm_openfiles failed: %s\n", errmsg);
-	return;
-    }
-
-    sts = kvm_nlist(kvmp, symbols);
-    if (sts < 0) {
-	fprintf(stderr, "kmemread_init: kvm_nlist failed: %s\n", pmErrStr(-errno));
-	for (i = 0; i < sizeof(symbols)/sizeof(symbols[0])-1; i++)
-	    symbols[i].n_value = 0;
-	return;
-    }
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_APPL0) {
-	for (i = 0; i < sizeof(symbols)/sizeof(symbols[0])-1; i++) {
-	    fprintf(stderr, "Info: kernel symbol %s found at 0x%08lx\n", symbols[i].n_name, symbols[i].n_value);
-	}
-    }
-#endif
-
-}
 
 /*
  * Callback provided to pmdaFetch ... come here once per metric-instance
@@ -944,8 +897,6 @@ freebsd_init(pmdaInterface *dp)
 	    /*NOTREACHED*/
 	}
     }
-
-    kmemread_init();
 }
 
 static void
