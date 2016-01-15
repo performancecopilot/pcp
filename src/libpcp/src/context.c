@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -534,10 +534,12 @@ initarchive(__pmContext	*ctxp, const char *name)
     char		*end;
     __pmArchCtl		*acp = NULL;
     __pmMultiLogCtl	**loglist = NULL;
-    __pmMultiLogCtl	*mlcp;
+    __pmMultiLogCtl	*mlcp = NULL;
     int			numlogs = 0;
+    int			ignore;
     double		tdiff;
     pmLogLabel		label;
+    __pmTimeval		tmpTime;
 
     /*
      * Catch these early. Formerly caught by __pmLogLoadLabel(), but with
@@ -571,14 +573,6 @@ initarchive(__pmContext	*ctxp, const char *name)
     loglist = NULL;
     current = namelist;
     while (*current) {
-	/* Allocate an element in the archive list. */
-	loglist = realloc(loglist, (numlogs + 1) * sizeof(*loglist));
-	if (loglist == NULL) {
-	    sts = -oserror();
-	    goto error;
-	}
-	loglist[numlogs] = NULL;
-
 	/* Find the end of the current archive name. */
 	end = strchr(current, ',');
 	if (end)
@@ -593,60 +587,71 @@ initarchive(__pmContext	*ctxp, const char *name)
 	if (sts < 0)
 	    goto error;
 
-	/* Initialize a new ac_log_list entry for this archive. */
-	if ((mlcp = (__pmMultiLogCtl *)malloc(sizeof(__pmMultiLogCtl))) == NULL) {
-	    sts = -oserror();
-	    goto error;
-	}
-	/*
-	 * Store the name and the start and end times.
-	 */
-	if ((mlcp->ml_name = strdup(current)) == NULL) {
-	    sts = -oserror();
-	    goto error;
-	}
-
 	/*
 	 * Obtain the start time of this archive. The end time could change
 	 * on the fly and needs to be re-checked as needed.
 	 */
 	if ((sts = pmGetArchiveLabel(&label)) < 0)
 	    goto error;
-	mlcp->ml_starttime.tv_sec = (__uint32_t)label.ll_start.tv_sec;
-	mlcp->ml_starttime.tv_usec = (__uint32_t)label.ll_start.tv_usec;
 
 	/*
 	 * Insert this new entry into the list in sequence by time. Check for
-	 * overlaps.
+	 * overlaps. Also check for duplicates.
 	 */
-	loglist[numlogs] = mlcp;
+	tmpTime.tv_sec = (__uint32_t)label.ll_start.tv_sec;
+	tmpTime.tv_usec = (__uint32_t)label.ll_start.tv_usec;
+	ignore = 0;
 	for (i = 0; i < numlogs; i++) {
-	    tdiff = __pmTimevalSub(&mlcp->ml_starttime,
-				   &loglist[i]->ml_starttime);
+	    tdiff = __pmTimevalSub(&tmpTime, &loglist[i]->ml_starttime);
 	    if (tdiff < 0.0) /* found insertion point */
 		break;
-	    if (tdiff == 0) { /* overlap */
+	    if (tdiff == 0.0) {
+		/* Is it a duplicate? */
+		if (strcmp (current, loglist[i]->ml_name) == 0) {
+		    ignore = 1;
+		    break;
+		}
+		/* timespan overlap */
 		sts = PM_ERR_LOGREC;
 		goto error;
 	    }
 	    /* Keep checking */
 	}
 
-	/*
-	 * If we found the insertion point, then insert the current archive
-	 * into that slot. Otherwise it is already in the correct slot.
-	 */
-	if (i < numlogs) {
-	    __pmMultiLogCtl *tmp = loglist[numlogs];
-	    memmove (&loglist[i + 1], &loglist[i], (numlogs - i) * sizeof(*loglist));
-	    loglist[i] = tmp;
+	if (! ignore) {
+	    /* Initialize a new ac_log_list entry for this archive. */
+	    loglist = realloc(loglist, (numlogs + 1) * sizeof(*loglist));
+	    if (loglist == NULL) {
+		sts = -oserror();
+		goto error;
+	    }
+	    if ((mlcp = (__pmMultiLogCtl *)malloc(sizeof(__pmMultiLogCtl))) == NULL) {
+		sts = -oserror();
+		goto error;
+	    }
+	    if ((mlcp->ml_name = strdup(current)) == NULL) {
+		sts = -oserror();
+		goto error;
+	    }
+	    mlcp->ml_starttime = tmpTime;
+
+	    /*
+	     * If we found the insertion point, then make room for the current
+	     * archive in that slot. Otherwise, i refers to the end of the list,
+	     * which is the correct slot.
+	     */
+	    if (i < numlogs) {
+		memmove (&loglist[i + 1], &loglist[i],
+			 (numlogs - i) * sizeof(*loglist));
+	    }
+	    loglist[i] = mlcp;
+	    mlcp = NULL;
+	    ++numlogs;
 	}
 
 	/* Set up to process the next name. */
-	++numlogs;
 	if (! end)
 	    break;
-	*end = ',';
 	current = end + 1;
     }
     free(namelist);
@@ -693,6 +698,11 @@ initarchive(__pmContext	*ctxp, const char *name)
 	if (acp->ac_log && --acp->ac_log->l_refcnt == 0)
 	    free(acp->ac_log);
 	free(acp);
+    }
+    if (mlcp) {
+	if (mlcp->ml_name)
+	    free (mlcp->ml_name);
+	free(mlcp);
     }
     if (namelist)
 	free(namelist);
