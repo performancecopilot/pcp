@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2016 Red Hat.
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,8 @@ PMDAINIT	= $(IAM)_init
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "xfs	11	pipe	binary		$(PMDADIR)/$(CMDTARGET) -d 11"
 
-CFILES		= proc_fs_xfs.c filesys.c pmda.c
-HFILES		= proc_fs_xfs.h filesys.h clusters.h indom.h
+CFILES		= sysfs_xfs.c filesys.c pmda.c
+HFILES		= sysfs_xfs.h filesys.h clusters.h indom.h
 
 SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
@@ -78,6 +78,6 @@ domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
 $(OBJECTS): domain.h
-pmda.o proc_fs_xfs.o:	proc_fs_xfs.h
+pmda.o sysfs_xfs.o:	sysfs_xfs.h
 filesys.o pmda.o:	filesys.h
 pmda.o: $(VERSION_SCRIPT)

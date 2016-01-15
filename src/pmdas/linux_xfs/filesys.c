@@ -1,7 +1,7 @@
 /*
  * XFS Filesystems Cluster
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2016 Red Hat.
  * Copyright (c) 2004,2007 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "filesys.h"
-#include "proc_fs_xfs.h"
+#include "sysfs_xfs.h"
 
 static void 
 refresh_filesys_projects(pmInDom qindom, filesys_t *fs)

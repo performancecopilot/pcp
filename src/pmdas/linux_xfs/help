@@ -29,13 +29,13 @@
 #
 
 @ xfs.allocs.alloc_extent XFS extents allocated
-Number of file system extents allocated over all XFS filesystems
+Number of file system extents allocated over XFS filesystems
 @ xfs.allocs.alloc_block XFS blocks allocated
-Number of file system blocks allocated over all XFS filesystems
+Number of file system blocks allocated over XFS filesystems
 @ xfs.allocs.free_extent XFS extents freed
-Number of file system extents freed over all XFS filesystems
+Number of file system extents freed over XFS filesystems
 @ xfs.allocs.free_block XFS blocks freed
-Number of file system blocks freed over all XFS filesystems
+Number of file system blocks freed over XFS filesystems
 
 @ xfs.alloc_btree.lookup lookups in XFS alloc btrees
 Number of lookup operations in XFS filesystem allocation btrees
@@ -162,13 +162,13 @@ inode's owner, the inode's size, or the inode's timestamps.
 
 @ xfs.log.writes number of buffer writes going to the disk from the log
 This variable counts the number of log buffer writes going to the
-physical log partitions of all XFS filesystems. Log data traffic is
+physical log partitions of XFS filesystems. Log data traffic is
 proportional to the level of meta-data updating. Log buffer writes get
 generated when they fill up or external syncs occur.
 
 @ xfs.log.blocks write throughput to the physical XFS log
 This variable counts the number of Kbytes of information being written
-to the physical log partitions of all XFS filesystems. Log data traffic
+to the physical log partitions of XFS filesystems. Log data traffic
 is proportional to the level of meta-data updating. The rate with which
 log data gets written depends on the size of internal log buffers and
 disk write speed. Therefore, filesystems with very high meta-data

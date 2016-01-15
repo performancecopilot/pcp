@@ -1,7 +1,7 @@
 /* 
- * Linux /proc/fs/xfs metrics cluster
+ * Linux /sys/fs/xfs metrics cluster
  *
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2016 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -16,8 +16,9 @@
  * for more details.
  */
 
-typedef struct {
+typedef struct sysfs_xfs {
     int			errcode;	/* error from previous refresh */
+    int			uptodate;	/* values up-to-date this fetch */
     unsigned int	xs_allocx;		/* allocs.alloc_extent */
     unsigned int	xs_allocb;		/* allocs.alloc_block */
     unsigned int	xs_freex;		/* allocs.free_extent */
@@ -183,7 +184,11 @@ typedef struct {
 	__uint64_t	xs_read_bytes;		/* read_bytes */
 	__uint64_t	xs_xstrat_bytes;	/* xstrat_bytes */
     } xpc;
-} proc_fs_xfs_t;
+} sysfs_xfs_t;
 
 extern FILE *xfs_statsfile(const char *, const char *);
-extern int refresh_proc_fs_xfs(proc_fs_xfs_t *);
+extern char *xfs_statspath;
+
+extern int refresh_devices(pmInDom);
+extern sysfs_xfs_t *refresh_device(pmInDom, int);
+extern int refresh_sysfs_xfs(sysfs_xfs_t *);
