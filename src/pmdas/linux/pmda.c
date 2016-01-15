@@ -4258,6 +4258,31 @@ static pmdaMetric metrictab[] = {
     {PMDA_PMID(28,100), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+    /* mem.vmstat.thp_zero_page_alloc */
+    { &_pm_proc_vmstat.thp_zero_page_alloc,
+    {PMDA_PMID(28,101), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.thp_zero_page_alloc_failed */
+    { &_pm_proc_vmstat.thp_zero_page_alloc_failed,
+    {PMDA_PMID(28,102), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.balloon_inflate */
+    { &_pm_proc_vmstat.balloon_inflate,
+    {PMDA_PMID(28,103), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.balloon_deflate */
+    { &_pm_proc_vmstat.balloon_deflate,
+    {PMDA_PMID(28,104), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.balloon_migrate */
+    { &_pm_proc_vmstat.balloon_migrate,
+    {PMDA_PMID(28,105), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /*
  * sysfs_kernel cluster
  */

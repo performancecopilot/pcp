@@ -1,7 +1,7 @@
 /*
  * Linux /proc/vmstat metrics cluster
  *
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2016 Red Hat.
  * Copyright (c) 2007,2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -22,6 +22,9 @@
 typedef struct {
 	/* sorted by name to make maintenance easier */
 	__uint64_t allocstall;
+	__uint64_t balloon_deflate;
+	__uint64_t balloon_inflate;
+	__uint64_t balloon_migrate;
 	__uint64_t compact_blocks_moved;
 	__uint64_t compact_fail;
 	__uint64_t compact_pagemigrate_failed;
@@ -113,6 +116,8 @@ typedef struct {
 	__uint64_t thp_collapse_alloc;
 	__uint64_t thp_collapse_alloc_failed;
 	__uint64_t thp_split;
+	__uint64_t thp_zero_page_alloc;
+	__uint64_t thp_zero_page_alloc_failed;
 	__uint64_t unevictable_pgs_cleared;
 	__uint64_t unevictable_pgs_culled;
 	__uint64_t unevictable_pgs_mlocked;

@@ -2,7 +2,7 @@
 # Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
-# Portions Copyright (c) 2013-2015 Red Hat.
+# Portions Copyright (c) 2013-2016 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -805,6 +805,8 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ mem.vmstat.thp_collapse_alloc transparent huge page collapse allocations
 @ mem.vmstat.thp_collapse_alloc_failed transparent huge page collapse failures
 @ mem.vmstat.thp_split count of transparent huge page splits
+@ mem.vmstat.thp_zero_page_alloc count of transparent huge page zeroed page allocations
+@ mem.vmstat.thp_zero_page_alloc_failed count of transparent huge page zeroed page allocation failures
 @ mem.vmstat.unevictable_pgs_cleared count of unevictable pages cleared
 @ mem.vmstat.unevictable_pgs_culled count of unevictable pages culled
 @ mem.vmstat.unevictable_pgs_mlocked count of mlocked unevictable pages
@@ -814,7 +816,9 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ mem.vmstat.unevictable_pgs_scanned count of unevictable pages scanned
 @ mem.vmstat.unevictable_pgs_stranded count of unevictable pages stranded
 @ mem.vmstat.zone_reclaim_failed number of zone reclaim failures
-
+@ mem.vmstat.balloon_inflate count of virt guest balloon page inflations
+@ mem.vmstat.balloon_deflate number of virt guest balloon page deflations
+@ mem.vmstat.balloon_migrate number of virt guest balloon page migrations
 
 @ swap.length total swap available metric from /proc/meminfo
 @ swap.used swap used metric from /proc/meminfo
