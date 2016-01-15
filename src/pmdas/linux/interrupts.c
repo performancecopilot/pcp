@@ -139,8 +139,7 @@ initialise_interrupt(interrupt_t *ip, unsigned int id, char *s, char *end)
 {
     ip->id = id;
     ip->name = strdup(s);
-    if (end)
-	ip->text = strdup(oneline_reformat(end));
+    ip->text = end ? strdup(oneline_reformat(end)) : NULL;
 }
 
 static int
