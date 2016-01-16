@@ -509,3 +509,15 @@ PCP_3.13 {
     __pmSetRequestTimeout;
     __pmStringValue;
 } PCP_3.12;
+
+PCP_3.14 {
+    pmCreateFetchGroup;
+    pmGetFetchGroupContext;
+    pmExtendFetchGroup_item;
+    pmExtendFetchGroup_indom;
+    pmExtendFetchGroup_event;
+    pmExtendFetchGroup_timestamp;
+    pmFetchGroup;
+    pmDestroyFetchGroup;
+} PCP_3.13;
+

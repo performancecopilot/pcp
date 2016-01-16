@@ -89,7 +89,10 @@ and
 .BR pmNameID (3)
 translate between names in a PMNS and PMIDs, and vice versa.
 The PMNS may be traversed using
-.BR pmGetChildren (3).
+.BR pmGetChildren "(3) and" pmTraversePMNS .
+The
+.BR pmFetchGroup (3)
+functions combine metric name lookup, fetch, and conversion operations.
 .SH "PMAPI CONTEXT"
 An application using the PMAPI may manipulate several concurrent contexts,
 each associated with a source of performance metrics, e.g. \c
@@ -249,7 +252,11 @@ structures that defines the dimensionality and scale of the values for a
 particular performance metric as returned from
 .BR pmFetch (3),
 and the desired dimensionality and scale of
-the value the PMAPI client wishes to manipulate.
+the value the PMAPI client wishes to manipulate.  Alternatively, the
+.BR pmFetchGroup (3)
+functions can perform data format and unit conversion operations, 
+specified by textual descriptions of desired unit / scales.
+
 .SH "INSTANCE PROFILE"
 The set of instances for performance metrics returned from a
 .BR pmFetch (3)
@@ -447,7 +454,6 @@ function.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR PCPIntro (3),
-.BR PMAPI (3),
 .BR pmda (3),
 .BR pmGetConfig (3),
 .BR pcp.conf (5)

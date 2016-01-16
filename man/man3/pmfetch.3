@@ -315,13 +315,13 @@ and
 Note that
 .B pmFetch
 is the most primitive method of fetching metric values from the PMCS.
-More user friendly interfaces to the PMCS are available or currently
-under development \- these higher level fetch methods insulate
-the user from the intricacies of context creation,
+See the
+.BR pmFetchGroup (3)
+API for a higher level method that insulates
+the user from the intricacies of looking metric names & metadata,
 setting up instance profiles, 
 .CW pmResult
-traversal, and splitting fetches into batches to minimize PDU traffic
-or according to other optimization criteria.
+traversal, conversions, and scaling.
 .SH DIAGNOSTICS
 As mentioned above,
 .B pmFetch
