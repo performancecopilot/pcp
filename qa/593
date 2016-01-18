@@ -13,13 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ $PCP_VER -lt 20200 -o \( $PCP_EOE_VER -ge 60500 -a $PCP_EOE_VER -lt 60508 \) -o $PCP_EOE_VER -lt 20200 ]
-then
-    echo "needs sample.many metrics & new pmlogger (pv#779495)" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 cleanup()
 {
 	pmstore sample.many.count 5
