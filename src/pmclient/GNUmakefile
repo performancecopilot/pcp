@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2016 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES	= pmclient.c pmclient_fg.c
-PYFILES = pmclient_fg.py
+PYFILES = pmclient_fg.python
 TARGETS = pmclient$(EXECSUFFIX) pmclient_fg$(EXECSUFFIX)
 LLDLIBS	= $(PCPLIB)
 LDIRT	= pmnsmap.h mylog.* runme.sh pmclient.o pmclient_fg.o pmclient$(EXECSUFFIX) pmclient_fg$(EXECSUFFIX)
@@ -34,7 +34,8 @@ install:	$(TARGETS)
 	$(INSTALL) -m 755 $(CMDTARGET2) $(PCP_BIN_DIR)/$(CMDTARGET2)
 	$(INSTALL) -m 755 -d $(DEMODIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(DEMODIR)/Makefile
-	$(INSTALL) -m 644 $(PYFILES) $(CFILES) $(CONFIGS) README $(DEMODIR)
+	$(INSTALL) -m 644 $(CFILES) $(CONFIGS) README $(DEMODIR)
+	$(INSTALL) -m 755 $(PYFILES) $(DEMODIR)/$(PYFILES)
 
 pmclient.o:	pmnsmap.h
 
