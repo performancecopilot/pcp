@@ -96,6 +96,7 @@ typedef struct pmidcntl {		/* metric control */
     pmDesc		desc;
     int			valfmt;		/* used to build result */
     int			numval;		/* number of instances in this result */
+    int			last_numval;	/* number of instances in previous result */
     struct instcntl	*first;		/* first metric-instace control */
 } pmidcntl_t;
 
@@ -343,7 +344,7 @@ dumpicp(const char *tag, instcntl_t *icp)
  * UPD_MARK_BACK, &done - specifically looking for upper bound
  */
 static int
-update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int *done)
+update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int *done, int *seen_mark)
 {
     /*
      * for every metric in the result from the log
@@ -382,6 +383,15 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			SET_SCANNED(icp->s_prior);
 		    }
 		}
+		else {
+		    if (seen_mark != NULL)
+			*seen_mark = 1;
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE)) {
+fprintf(stderr, "<mark> rolling forwards\n");
+}
+#endif
+		}
 
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
 		    if (icp->v_prior.pval != NULL)
@@ -407,6 +417,15 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 			/* don't need to scan again to this <mark> */
 			SET_SCANNED(icp->s_next);
 		    }
+		}
+		else {
+		    if (seen_mark != NULL)
+			*seen_mark = 1;
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE)) {
+fprintf(stderr, "<mark> rolling backwards\n");
+}
+#endif
 		}
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
 		    if (icp->v_next.pval != NULL)
@@ -549,7 +568,7 @@ next_inst:
 }
 
 static int
-do_roll(__pmContext *ctxp, double t_req)
+do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 {
     pmResult	*logrp;
     __pmTimeval	tmp;
@@ -576,7 +595,7 @@ do_roll(__pmContext *ctxp, double t_req)
 	    ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 	    assert(ctxp->c_archctl->ac_offset >= 0);
 	    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
-	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, NULL);
+	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, NULL, seen_mark);
 	    if (sts < 0)
 		return sts;
 	}
@@ -597,7 +616,7 @@ do_roll(__pmContext *ctxp, double t_req)
 	    ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 	    assert(ctxp->c_archctl->ac_offset >= 0);
 	    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
-	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, NULL);
+	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, NULL, seen_mark);
 	    if (sts < 0)
 		return sts;
 	}
@@ -637,6 +656,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     int		forw = 0;
     int		done;
     int		done_roll;
+    int		seen_mark;
     static int	dowrap = -1;
     __pmTimeval	tmp;
     struct timeval delta_tv;
@@ -730,6 +750,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 	    pcp->valfmt = -1;
 	    pcp->first = NULL;
+	    pcp->last_numval = -1;
 	    sts = __pmHashAdd((int)pmidlist[j], (void *)pcp, hcp);
 	    if (sts < 0) {
 		rp->numpmid = j;
@@ -835,7 +856,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
-		sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL);
+		sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL, NULL);
 		if (sts < 0) {
 		    free(rp);
 		    return sts;
@@ -853,7 +874,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
-		sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL);
+		sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL, NULL);
 		if (sts < 0) {
 		    free(rp);
 		    return sts;
@@ -861,11 +882,24 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 	}
 	ctxp->c_archctl->ac_serial = 1;
+	/*
+	 * forget "previous" numval's
+	 */
+	for (j = 0; j < numpmid; j++) {
+	    if (pmidlist[j] == PM_ID_NULL)
+		continue;
+	    hp = __pmHashSearch((int)pmidlist[j], hcp);
+	    assert(hp != NULL);
+	    pcp = (pmidcntl_t *)hp->data;
+	    pcp->last_numval = -1;
+	}
     }
 
     /* get to the last remembered place */
     __pmLogChangeVol(ctxp->c_archctl->ac_log, ctxp->c_archctl->ac_vol);
     fseek(ctxp->c_archctl->ac_log->l_mfp, ctxp->c_archctl->ac_offset, SEEK_SET);
+
+    seen_mark = 0;	/* interested in <mark> records seen from here on */
 
     /*
      * optimization to supress roll forwards unless really needed ...
@@ -899,7 +933,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 			done_roll = 1;
 			if (ctxp->c_delta > 0)  {
 			    /* forwards before scanning back */
-			    sts = do_roll(ctxp, t_req);
+			    sts = do_roll(ctxp, t_req, &seen_mark);
 			    if (sts < 0) {
 				free(rp);
 				return sts;
@@ -965,7 +999,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 	    }
-	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, &done);
+	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, &done, &seen_mark);
 	    if (sts < 0) {
 		free(rp);
 		return sts;
@@ -1021,7 +1055,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 			done_roll = 1;
 			if (ctxp->c_delta < 0)  {
 			    /* backwards before scanning forwards */
-			    sts = do_roll(ctxp, t_req);
+			    sts = do_roll(ctxp, t_req, &seen_mark);
 			    if (sts < 0) {
 				free(rp);
 				return sts;
@@ -1087,7 +1121,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 	    }
-	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, &done);
+	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, &done, &seen_mark);
 	    if (sts < 0) {
 		free(rp);
 		return sts;
@@ -1164,6 +1198,19 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 			pcp->desc.type != PM_TYPE_FLOAT &&
 			pcp->desc.type != PM_TYPE_DOUBLE)
 			    pcp->numval = PM_ERR_TYPE;
+		    else if (seen_mark && pcp->last_numval > 0) {
+			/*
+			 * Counter metric and immediately previous
+			 * __pmLogFetchInterp() returned some values, but
+			 * found a <mark> record scanning archive, return
+			 * "no values" this time so PMAPI clients do not
+			 * assume last inst-values and this inst-values are
+			 * part of a continuous data stream, so for example
+			 * rate conversion should not happen.
+			 */
+			pcp->numval--;
+			icp->inresult = 0;
+		    }
 		}
 	    }
 	}
@@ -1599,6 +1646,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		}
 	    }
 	}
+	pcp->last_numval = pcp->numval;
     }
 
     *result = rp;

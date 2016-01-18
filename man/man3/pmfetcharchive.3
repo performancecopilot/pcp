@@ -46,13 +46,13 @@ may return a
 in which
 .I numpmid
 is zero.  This is a
-.B <mark>
+.I <mark>
 record that indicates a temporal discontinuity in the time series
 of performance metrics.  This can happen if the archive log associated
 with the current PMAPI context was created using
 .BR pmlogextract (1)
 to concatenate two or more PCP archive logs, and the
-.B <mark>
+.I <mark>
 record marks a point in time between the end of one input archive and
 the start of the next input archive.
 .PP

@@ -53,14 +53,17 @@ more PCP archive logs are specified as
 the logs are merged (or concatenated) and written to
 .IR output .
 .PP
-In the output archive log a ``mark'' record will be inserted at a time
+In the output archive log a
+.I <mark>
+record will be inserted at a time
 just past the end of each of the input archive logs to indicate
 a possible temporal discontinuity between the end of one input
 archive log and the start of the next input archive log.
 See the
 .B "MARK RECORDS"
 section below for more information.
-There is no ``mark''
+There is no
+.I <mark>
 record after the end of the
 .I last
 (in temporal order) of the input archive logs.
@@ -192,7 +195,9 @@ to 3pm on each day.  When
 .B \-w
 is used, the
 .I output
-archive log will contain ``mark'' records to indicate the temporal
+archive log will contain
+.I <mark>
+records to indicate the temporal
 discontinuity between the end of one time window and the start of
 the next.
 .PP
@@ -264,10 +269,14 @@ This is an example of a valid
         disk.dev ["dks0d1"]
 .SH MARK RECORDS
 When more than one input archive log contributes performance data to the
-output archive log, then ``mark'' records are inserted to indicate a possible
+output archive log, then
+.I <mark>
+records are inserted to indicate a possible
 discontinuity in the performance data.
 .PP
-A ``mark'' record contains a timestamp and no performance data and
+A
+.I <mark>
+record contains a timestamp and no performance data and
 is used to indicate that there is a time period
 in the PCP archive log where we do not know the values of
 .B any
@@ -279,16 +288,20 @@ often associated with the restart of a service or
 or a system, there may be considerable doubt as to the continuity of
 performance data across this time period.
 .PP
-The rationale behind ``mark'' records may be demonstrated with an example.
+The rationale behind
+.I <mark>
+records may be demonstrated with an example.
 Consider one input archive log that starts at 00:10 and ends at 09:15 on the
 same day, and another input archive log that starts at 09:20 on the
-same day and ends at 00:10 the following morning.  The would be a very
+same day and ends at 00:10 the following morning.  This would be a very
 common case for archives managed and rotated by
 .BR pmlogger_check (1)
 and
 .BR pmlogger_daily (1).
 .PP
-The output archive log would contain:
+The output archive log created by
+.B pmlogextract
+would contain:
 .ta 12n
 .br
 00:10.000	first record from first input archive log
@@ -297,7 +310,7 @@ The output archive log would contain:
 .br
 09:15.000	last record from first input archive log
 .br
-09:15.001	<mark record>
+09:15.001	<mark> record
 .br
 09:20.000	first record from second input archive log
 .br
@@ -308,18 +321,33 @@ The output archive log would contain:
 The time period where the performance data is missing starts just after
 09:15 and ends just before 09:20.
 When the output archive log is processed with any of the PCP reporting
-tools, the ``mark'' record is used to indicate a period of missing
-data.  For example in the archive above, if one was reporting the average
-I/O rate at 30 minute intervals, aligned on the hour, then there would be
-data for the intervals ending at 09:00 and 10:00 but no data reported for
-the interval ending at 09:30 as this spans a ``mark'' record.
+tools, the
+.I <mark>
+record is used to indicate a period of missing
+data.  For example using the output archive above, imagine one was reporting the average
+I/O rate at 30 minute intervals
+aligned on the hour and half-hour.
+The I/O count metric is a counter, so the
+average I/O rate requires two valid values from
+consecutive sample times.
+There would be
+values for all the intervals ending at 09:00,
+then no values at 09:30 because of the
+.I <mark>
+record, then no values at 10:00 because the ``prior'' value at 09:30 is not
+available, then the rate would be reported again at 10:30 and continue
+every 30 minutes until the last reported value at 01:00.
 .PP
-The presence of ``mark'' records in a PCP archive log can be established
+The presence of
+.I <mark>
+records in a PCP archive log can be established
 using
 .BR pmdumplog (1)
 where a timestamp and the annotation
 .B <mark>
-is used to indicate a ``mark'' record.
+is used to indicate a
+.I <mark>
+record.
 .SH METADATA CHECKS
 When more than one
 .I input
