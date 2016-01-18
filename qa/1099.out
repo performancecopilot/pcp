@@ -1,0 +1,50 @@
+QA output created by 1099
+# Timestamp              Device        rrqm/s  wrqm/s    r/s    w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await %util
+Tue Dec  1 17:45:00 2015 mmcblk0          0.0     0.0    0.0    0.0      0.0      0.0     0.00     0.00     0.0     0.0     0.0   0.0
+Tue Dec  1 17:45:00 2015 sda              0.0     4.1    0.3    6.1      1.6     73.8    11.84     0.01     1.6     0.8     1.7   0.4
+Tue Dec  1 18:15:00 2015 NODATA             ?       ?      ?      ?        ?        ?        ?        ?       ?       ?       ?     ?
+Tue Dec  1 18:30:00 2015 mmcblk0          0.0     0.0    0.0    0.0      0.0      0.0     0.00     0.00     0.0     0.0     0.0   0.0
+Tue Dec  1 18:30:00 2015 sda              0.0     1.7    0.4    3.6      2.5     37.3     9.90     0.01     1.7     0.6     1.8   0.3
+Tue Dec  1 18:45:00 2015 mmcblk0          0.0     0.0    0.0    0.0      0.0      0.0     0.00     0.00     0.0     0.0     0.0   0.0
+Tue Dec  1 18:45:00 2015 sda              0.0     0.6    0.1    1.5      0.3      8.3     5.47     0.00     2.0     1.5     2.1   0.1
+
+Note: timezone set to local timezone of host "kilcunda" from archive
+
+metric:    disk.dev.read
+archive:   archives/pmiostat_mark
+host:      kilcunda
+start:     Tue Dec  1 17:30:00 2015
+end:       Tue Dec  1 18:59:41 2015
+semantics: cumulative counter (converting to rate)
+units:     count (converting to count / sec)
+samples:   6
+interval:  900.00 sec
+
+                              sda               mmcblk0 
+17:45:00.000               0.2822                0.0000 
+18:00:00.000  No values available
+
+                              sda               mmcblk0 
+18:15:00.000  No values available
+18:30:00.000               0.3767                0.0000 
+18:45:00.000               0.0689                0.0000 
+
+pmie: timezone set to local timezone from archives/pmiostat_mark
+v_instant (Tue Dec  1 17:30:00 2015): 34.6 54 62
+v_counter (Tue Dec  1 17:30:00 2015): ? ? ? ? ? ? ?
+
+v_instant (Tue Dec  1 17:45:00 2015): 34.6 54 62
+v_counter (Tue Dec  1 17:45:00 2015): 0 0 0 0 0 13.8 0.82
+
+v_instant (Tue Dec  1 18:00:00 2015): 34.6 54 62
+v_counter (Tue Dec  1 18:00:00 2015): ?
+
+v_instant (Tue Dec  1 18:15:00 2015): 34.6 54 61
+v_counter (Tue Dec  1 18:15:00 2015): ? ? ? ? ? ?
+
+v_instant (Tue Dec  1 18:30:00 2015): 34.6 54 61
+v_counter (Tue Dec  1 18:30:00 2015): 0 0 0 0 0 7.6
+
+v_instant (Tue Dec  1 18:45:00 2015): 34.6 54 61
+v_counter (Tue Dec  1 18:45:00 2015): 0 0 0 0 0 0.67
+
