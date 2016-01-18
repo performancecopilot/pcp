@@ -4,8 +4,8 @@ dbpmda> open pipe /usr/bin/perl $PCP_PMDAS_DIR/named/pmdanamed.pl
 Start perl PMDA: /usr/bin/perl $PCP_PMDAS_DIR/named/pmdanamed.pl
 dbpmda> children named
 Metric: named
-   non-leaf nameserver
        leaf interval
+   non-leaf nameserver
 dbpmda> desc named.interval
 PMID: 100.0.0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
