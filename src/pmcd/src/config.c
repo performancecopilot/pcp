@@ -1650,7 +1650,7 @@ CreateRootAgentPOSIX(AgentInfo *aPtr)
     if (!enabled) {
 	/* once-off initialisation */
 	enabled = -EOPNOTSUPP;
-	if (getenv("PCP_ROOT_AGENT") != NULL)
+	if (getenv("PMCD_ROOT_AGENT") != NULL)
 	    enabled = 1;
     }
     if (enabled < 0)

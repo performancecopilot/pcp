@@ -1193,6 +1193,15 @@ The
 .B PMCD_MAXPENDING
 variable can be set to indicate the maximum length to which the queue
 of pending client connections may grow.
+.PP
+The
+.B PMCD_ROOT_AGENT
+variable controls whether or not
+.B pmcd
+or
+.B pmdaroot
+(when available), start subsequent pmdas.  When set to a non-null value,
+pmcd will opt to have pmdaroot start, and stop, pmdas.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
