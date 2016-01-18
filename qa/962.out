@@ -1,4 +1,11 @@
 QA output created by 962
+<mark> records ...
+Fri Jan 17 00:09:13.492 2014  60.0.13 (kernel.all.pswitch): value 13339783
+Fri Jan 17 00:09:13.621 2014  60.0.13 (kernel.all.pswitch): value 13339837
+Fri Jan 17 00:09:13.622 2014  <mark>
+Fri Jan 17 00:11:12.573 2014  60.0.13 (kernel.all.pswitch): value 13365180
+Fri Jan 17 00:11:12.895 2014  60.0.13 (kernel.all.pswitch): value 13365260
+
 Note: timezone set to local timezone of host "bozo-vm" from archive
 
 metric:    kernel.all.pswitch
@@ -2666,8 +2673,8 @@ interval:  900.00 sec
 23:30:00.000             130.6   
 23:45:00.000             123.8   
 00:00:00.000             131.5   
-00:15:00.000             141.5   
-00:30:00.000             131.5   
+00:15:00.000  No values available
+00:30:00.000  No values available
 00:45:00.000             124.0   
 01:00:00.000             131.7   
 01:15:00.000             124.7   
@@ -2774,8 +2781,8 @@ interval:  3600.00 sec
 22:00:00.000               0.3828
 23:00:00.000             120.5   
 00:00:00.000             127.7   
-01:00:00.000             132.2   
-02:00:00.000             128.2   
+01:00:00.000  No values available
+02:00:00.000  No values available
 03:00:00.000             128.1   
 04:00:00.000             127.9   
 05:00:00.000             128.1   
@@ -2808,8 +2815,8 @@ interval:  14400.00 sec
 15:00:00.000               0.3828
 19:00:00.000               0.3828
 23:00:00.000              30.42  
-03:00:00.000             129.1   
-07:00:00.000             128.0   
+03:00:00.000  No values available
+07:00:00.000  No values available
 11:00:00.000             131.4   
 15:00:00.000              82.74  
 Note: timezone set to local timezone of host "bozo-vm" from archive
@@ -2824,4 +2831,4 @@ units:     count (converting to count / sec)
 samples:   3
 interval:  43200.00 sec
 23:00:00.000              10.40  
-11:00:00.000             129.5   
+11:00:00.000  No values available

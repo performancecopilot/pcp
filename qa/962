@@ -19,6 +19,16 @@ $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
+echo "<mark> records ..."
+pmdumplog -z -x archives/count-mark | grep '^[^ ]' >$tmp.out
+for line in `$PCP_AWK_PROG <$tmp.out '/\<mark\>/ { print NR }'`
+do
+    a=`expr $line - 2`
+    b=`expr $line + 2`
+    sed -n -e "${a},${b}p" <$tmp.out
+done
+echo
+
 for delta in 1min 15min 1hr 4hr 12hr
 do
     pmval -a archives/count-mark -z -A $delta -t $delta kernel.all.pswitch
