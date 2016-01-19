@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_VER -ge 30801 ] || _notrun "Too-old libpcp_import version"
 [ -f ${PCP_LIB_DIR}/libpcp_import.${DSO_SUFFIX} ] || \
         _notrun "No support for libpcp_import"
 perl -e "use PCP::LogImport" 2>/dev/null || \
