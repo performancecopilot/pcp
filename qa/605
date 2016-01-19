@@ -13,18 +13,12 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out
-if [ $PCP_VER -lt 20200 ]; then
-    cat $seq.in >>$seq.out
-else
-    # tweak output for PCP 2.2...
-    cat $seq.in | perl -e '
+cat $seq.in | perl -e '
 	@in=<>;
 	$"="";
 	print "@in[0..$#in-1]";
 	print "pmtracecounter: counter '\'counter\'', value=101.100000\n";
-	print "$in[$#in]";' >>$seq.out
-fi
+	print "$in[$#in]";' >$seq.out
 
 _cleanup()
 {
