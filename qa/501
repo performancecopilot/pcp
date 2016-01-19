@@ -12,9 +12,6 @@ echo "QA output created by $seq"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    irix)
-	ln $seq-irix.out $seq.out || exit 1
-	;;
     linux|darwin|solaris)
 	ln $seq-linux.out $seq.out || exit 1
 	;;
