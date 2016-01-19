@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 1997,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -893,19 +893,19 @@ PCP_CALL extern int pmDiscoverServices(const char *, const char *, char ***);
 
 PCP_CALL extern int pmParseUnitsStr(const char *, pmUnits *, double *, char **);
 
-typedef struct __pmFetchGroup* pmFG; /* black-box */
+typedef struct __pmFetchGroup *pmFG;	/* opaque handle */
 PCP_CALL extern int pmCreateFetchGroup(pmFG *, int, const char *);
 PCP_CALL extern int pmGetFetchGroupContext(pmFG);
-PCP_CALL extern int pmExtendFetchGroup_item(pmFG, const char*, const char *, const char *,
-                                            pmAtomValue *, int, int*);
-PCP_CALL extern int pmExtendFetchGroup_indom(pmFG, const char*, const char *,
-                                             int[], char *[], pmAtomValue [], int, int[],
-                                             unsigned, unsigned *, int*);
-PCP_CALL extern int pmExtendFetchGroup_event(pmFG, const char*, const char *, const char *,
-                                             const char *,
-                                             struct timeval[], pmAtomValue [], int, int[],
-                                             unsigned, unsigned *, int*);
-PCP_CALL extern int pmExtendFetchGroup_timestamp(pmFG, struct timeval*);
+PCP_CALL extern int pmExtendFetchGroup_item(pmFG, const char *, const char *,
+			const char *, pmAtomValue *, int, int *);
+PCP_CALL extern int pmExtendFetchGroup_indom(pmFG, const char *, const char *,
+			int[], char *[], pmAtomValue[], int, int[],
+			unsigned int, unsigned int *, int *);
+PCP_CALL extern int pmExtendFetchGroup_event(pmFG, const char *, const char *,
+			const char *, const char *,
+			struct timeval[], pmAtomValue[], int, int[],
+			unsigned int, unsigned int *, int *);
+PCP_CALL extern int pmExtendFetchGroup_timestamp(pmFG, struct timeval *);
 PCP_CALL extern int pmFetchGroup(pmFG);
 PCP_CALL extern int pmDestroyFetchGroup(pmFG);
 
