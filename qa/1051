@@ -20,7 +20,7 @@ which pmieconf >/dev/null 2>&1 || _notrun "No pmieconf binary installed"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    irix|linux|darwin|solaris)
+    linux|darwin|solaris)
 	ln $seq.out.$PCP_PLATFORM $seq.out || exit 1
 	;;
     *)
