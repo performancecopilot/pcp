@@ -16,9 +16,8 @@
  */
 
 #include "pmapi.h"
-#include "impl.h"  /* bogus: just for pmProgname */
+#include "impl.h"
 #include <assert.h>
-
 
 pmLongOptions longopts[] = {
     PMAPI_GENERAL_OPTIONS,
@@ -42,120 +41,146 @@ typedef struct {
     pmAtomValue		dkiops;		/* aggregate disk I/O's per second */
     pmAtomValue		load1;		/* 1 minute load average */
     pmAtomValue		load15;		/* 15 minute load average */
-    pmAtomValue         ncpu;           /* number of cpus */
-    unsigned            last_ncpu;      /* last seen number of cpus */
+    pmAtomValue		ncpu;		/* number of cpus */
+    unsigned int	last_ncpu;	/* last seen number of cpus */
 } info_t;
 
-static info_t           info;
-static pmFG             pmfg;
-
+static info_t		info;
+static pmFG		pmfg;
 
 static void
-get_sample()
+get_sample(void)
 {
     enum { indom_maxnum = 1024 };
-    static int          cpu_user_inst[indom_maxnum]; 
-    static pmAtomValue  cpu_user[indom_maxnum];
-    static unsigned     num_cpu_user;
-    static int          cpu_sys_inst[indom_maxnum];
-    static pmAtomValue  cpu_sys[indom_maxnum];
-    static unsigned     num_cpu_sys;
+    static int		cpu_user_inst[indom_maxnum]; 
+    static pmAtomValue 	cpu_user[indom_maxnum];
+    static unsigned	num_cpu_user;
+    static int		cpu_sys_inst[indom_maxnum];
+    static pmAtomValue	cpu_sys[indom_maxnum];
+    static unsigned	num_cpu_sys;
+    static int		setup;
     int			sts;
-    int                 i;
-    static int          init_p = 0;
+    int			i;
 
-    if (init_p == 0) {
-        init_p = 1;
+    if (!setup) {
+	setup = 1;
 
-        if ((sts = pmExtendFetchGroup_item(pmfg, "hinv.ncpu", NULL, NULL,
-                                           &info.ncpu, PM_TYPE_32, &sts)) < 0) {
-            fprintf(stderr, "%s: Failed hinv.ncpu ExtendFetchGroup: %s\n",
-                    pmProgname, pmErrStr(sts));
-            exit(1);
-        }
-        
-        /* Because om pmfg_item's willingness to scan to the end of an
-           archive to do metric/instance resolution, we don't have to
-           specially handle the PM_CONTEXT_ARCHIVE case here. */
+	if ((sts = pmExtendFetchGroup_item(pmfg, "hinv.ncpu", NULL, NULL,
+					   &info.ncpu, PM_TYPE_32, &sts)) < 0) {
+	    fprintf(stderr, "%s: Failed hinv.ncpu ExtendFetchGroup: %s\n",
+		    pmProgname, pmErrStr(sts));
+	    exit(1);
+	}
+	
+	/*
+	 * Because of pmfg_item's willingness to scan to the end of an
+	 * archive to do metric/instance resolution, we don't have to
+	 * specially handle the PM_CONTEXT_ARCHIVE case here.
+	 */
 
-        if ((sts = pmExtendFetchGroup_item(pmfg, "kernel.all.load", "1 minute", NULL,
-                                           &info.load1, PM_TYPE_DOUBLE, NULL)) < 0) {
-            fprintf(stderr, "%s: Failed kernel.all.load[1] ExtendFetchGroup: %s\n",
-                    pmProgname, pmErrStr(sts));
-            exit(1);
-        }
-        if ((sts = pmExtendFetchGroup_item(pmfg, "kernel.all.load", "15 minute", NULL,
-                                           &info.load15, PM_TYPE_DOUBLE, NULL)) < 0) {
-            fprintf(stderr, "%s: Failed kernel.all.load[15] ExtendFetchGroup: %s\n",
-                    pmProgname, pmErrStr(sts));
-            exit(1);
-        }
-        if ((sts = pmExtendFetchGroup_indom(pmfg, "kernel.percpu.cpu.user", "second/second",
-                                            cpu_user_inst, NULL, cpu_user, PM_TYPE_DOUBLE, NULL,
-                                            indom_maxnum, &num_cpu_user, NULL)) < 0) {
-            fprintf(stderr, "%s: Failed kernel.percpu.cpu.user ExtendFetchGroup: %s\n",
-                    pmProgname, pmErrStr(sts));
-            exit(1);
-        }
+	if ((sts = pmExtendFetchGroup_item(pmfg,
+				"kernel.all.load", "1 minute", NULL,
+				&info.load1, PM_TYPE_DOUBLE, NULL)) < 0) {
+	    fprintf(stderr, "%s: Failed kernel.all.load[1] "
+			    "ExtendFetchGroup: %s\n",
+		    pmProgname, pmErrStr(sts));
+	    exit(1);
+	}
+	if ((sts = pmExtendFetchGroup_item(pmfg,
+				"kernel.all.load", "15 minute", NULL,
+				&info.load15, PM_TYPE_DOUBLE, NULL)) < 0) {
+	    fprintf(stderr, "%s: Failed kernel.all.load[15] "
+			    "ExtendFetchGroup: %s\n",
+		    pmProgname, pmErrStr(sts));
+	    exit(1);
+	}
+	if ((sts = pmExtendFetchGroup_indom(pmfg,
+				"kernel.percpu.cpu.user", "second/second",
+				cpu_user_inst, NULL, cpu_user, PM_TYPE_DOUBLE,
+				NULL, indom_maxnum, &num_cpu_user, NULL)) < 0) {
+	    fprintf(stderr, "%s: Failed kernel.percpu.cpu.user "
+				"ExtendFetchGroup: %s\n",
+		    pmProgname, pmErrStr(sts));
+	    exit(1);
+	}
 
-        if ((sts = pmExtendFetchGroup_indom(pmfg, "kernel.percpu.cpu.sys", "second/second",
-                                            cpu_sys_inst, NULL, cpu_sys, PM_TYPE_DOUBLE, NULL,
-                                            indom_maxnum, &num_cpu_sys, NULL)) < 0) {
-            fprintf(stderr, "%s: Failed kernel.percpu.cpu.sys ExtendFetchGroup: %s\n",
-                    pmProgname, pmErrStr(sts));
-            exit(1);
-        }
-        if ((sts = pmExtendFetchGroup_item(pmfg, "mem.freemem", NULL, "Mbyte",
-                                           &info.freemem, PM_TYPE_DOUBLE, NULL)) < 0) {
-            fprintf(stderr, "%s: Failed mem.freemem ExtendFetchGroup: %s\n", pmProgname, pmErrStr(sts));
-            exit(1);
-        }
-        if ((sts = pmExtendFetchGroup_item(pmfg, "disk.all.total", NULL, "count/second",
-                                           &info.dkiops, PM_TYPE_32, NULL)) < 0) {
-            fprintf(stderr, "%s: Failed disk.all.total ExtendFetchGroup: %s\n", pmProgname, pmErrStr(sts));
-            exit(1);
-        }
-        if ((sts = pmExtendFetchGroup_timestamp(pmfg, &info.timestamp)) < 0) {
-            fprintf(stderr, "%s: Failed ExtendFetchGroup: %s\n", pmProgname, pmErrStr(sts));
-            exit(1);
-        }
+	if ((sts = pmExtendFetchGroup_indom(pmfg,
+				"kernel.percpu.cpu.sys", "second/second",
+				cpu_sys_inst, NULL, cpu_sys, PM_TYPE_DOUBLE,
+				NULL, indom_maxnum, &num_cpu_sys, NULL)) < 0) {
+	    fprintf(stderr, "%s: Failed kernel.percpu.cpu.sys "
+				"ExtendFetchGroup: %s\n",
+		    pmProgname, pmErrStr(sts));
+	    exit(1);
+	}
+	if ((sts = pmExtendFetchGroup_item(pmfg,
+				"mem.freemem", NULL, "Mbyte",
+				&info.freemem, PM_TYPE_DOUBLE, NULL)) < 0) {
+	    fprintf(stderr, "%s: Failed mem.freemem "
+				"ExtendFetchGroup: %s\n",
+		    pmProgname, pmErrStr(sts));
+	    exit(1);
+	}
+	if ((sts = pmExtendFetchGroup_item(pmfg,
+				"disk.all.total", NULL, "count/second",
+				&info.dkiops, PM_TYPE_32, NULL)) < 0) {
+	    fprintf(stderr, "%s: Failed disk.all.total "
+				"ExtendFetchGroup: %s\n",
+		    pmProgname, pmErrStr(sts));
+	    exit(1);
+	}
+	if ((sts = pmExtendFetchGroup_timestamp(pmfg, &info.timestamp)) < 0) {
+	    fprintf(stderr, "%s: Failed ExtendFetchGroup: %s\n",
+		    pmProgname, pmErrStr(sts));
+	    exit(1);
+	}
 
-        /* NB: since we don't have a "last" call, we will have some
-           unfreed some memory at exit, namely the cpu_sys* and
-           cpu_user* arrays, and the object hiding behind pmfg. */
+	/*
+	 * Since we don't have a "last" call, we will have some
+	 * some memory at exit, namely the cpu_sys and cpu_user
+	 * arrays, and the object hiding behind pmfg.
+	 */
     }
 
-    /* fetch the current metrics; fill many info.* fields.  Since we
-       passed NULLs to most fetchgroup status int*'s, we'll get
-       PM_TYPE_DOUBLE fetch/conversion errors represented by NaN's. */
+    /*
+     * Fetch the current metrics; fill many info.* fields.  Since we
+     * passed NULLs to most fetchgroup status int*'s, we'll get
+     * PM_TYPE_DOUBLE fetch/conversion errors represented by NaN's.
+     */
     sts = pmFetchGroup(pmfg);
     if (sts < 0) {
-        fprintf(stderr, "%s: pmFetchGroup: %s\n", pmProgname, pmErrStr(sts));
-        exit(1);
+	fprintf(stderr, "%s: pmFetchGroup: %s\n", pmProgname, pmErrStr(sts));
+	exit(1);
     }
 
     /* compute rate-converted values */
     info.cpu_util = 0;
     info.peak_cpu_util = -1;	/* force re-assignment at first CPU */
 
-    /* we're assuming that the cpu_user and cpu_sys indoms are identical
-       and that each has a corresponding set of values, so we zip them
-       up pairwise with one iteration and no auxiliary data structures. */
-    assert (num_cpu_user == num_cpu_sys);
-    for (i = 0; i<num_cpu_user; i++) {
-        double u; /* w */
-        assert (cpu_user_inst[i] == cpu_sys_inst[i]); /* corresponding instances */
-        u = cpu_user[i].d + cpu_sys[i].d; /* already rate-converted */
-        if (u > 1.0)
-            /* small errors are possible, so clip the utilization at 1.0 */
-            u = 1.0;
-        info.cpu_util += u;
-        if (u > info.peak_cpu_util) {
-            info.peak_cpu_util = u;
-            info.peak_cpu = cpu_user_inst[i]; /* indom instance, not mere result index! */
-        }
+    /*
+     * Safely assume that the cpu_user and cpu_sys indoms are identical
+     * and that each has a corresponding set of values, so we zip them
+     * up pairwise with one iteration and no auxiliary data structures.
+     */
+    assert(num_cpu_user == num_cpu_sys);
+    for (i = 0; i < num_cpu_user; i++) {
+	double util;
+
+	/* corresponding instances */
+	assert(cpu_user_inst[i] == cpu_sys_inst[i]);
+
+	util = cpu_user[i].d + cpu_sys[i].d; /* already rate-converted */
+	if (util > 1.0)
+	    /* small errors are possible, so clip the utilization at 1.0 */
+	    util = 1.0;
+	info.cpu_util += util;
+	if (util > info.peak_cpu_util) {
+	    info.peak_cpu_util = util;
+	    /* NB: i is indom instance, not result index */
+	    info.peak_cpu = cpu_user_inst[i];
+	}
     }
-    assert (info.ncpu.l != 0);
+    assert(info.ncpu.l != 0);
     info.cpu_util /= info.ncpu.l;
 }
 
@@ -233,9 +258,9 @@ main(int argc, char **argv)
     }
 
     if (opts.context == PM_CONTEXT_ARCHIVE)
-        get_sample(); /* fetch the separate early ncpu record */
+	get_sample(); /* fetch the separate early ncpu record */
     get_sample(); /* fetch other rate metrics */
-        
+
     /* set a default sampling interval if none has been requested */
     if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
 	opts.interval.tv_sec = 5;
@@ -248,8 +273,8 @@ main(int argc, char **argv)
 	    if (opts.context == PM_CONTEXT_ARCHIVE)
 		printf("Archive: %s, ", opts.archives[0]);
 	    printf("Host: %s, %d cpu(s), %s",
-                    host, info.ncpu.l,
-		    pmCtime(&info.timestamp.tv_sec, timebuf));
+		   host, info.ncpu.l,
+		   pmCtime(&info.timestamp.tv_sec, timebuf));
 /* - report format
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min

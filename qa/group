@@ -365,7 +365,7 @@ cgroups
 053 local pmprobe ostest pmlogger pmclient
 054 pmlogger archive ostest remote pmdumplog
 055 pmie ostest local sanity
-056 local pmprobe ostest pmlogger pmclient
+056 local pmprobe ostest pmlogger pmclient python
 057 pmns local ostest
 058 pmval local ostest
 059 archive local ostest sanity pmdumplog
@@ -381,7 +381,7 @@ cgroups
 070 other ostest remote
 071 context_local local ostest
 072 pmlogger ostest remote pmdumplog
-073 pmclient local pmprobe
+073 pmclient local pmprobe python
 074 pmda pmda.cisco pmda.pmcd local ostest sanity
 075 pmval pmstore ostest remote
 076 pmda.pmcd local ostest

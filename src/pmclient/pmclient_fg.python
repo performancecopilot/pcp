@@ -2,12 +2,12 @@
 #
 # Copyright (c) 2013-2015 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
-
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -24,14 +24,14 @@ class sampler(object):
     def __init__(self, fg):
         self.fg = fg
         self.load1 = fg.extend_item('kernel.all.load', instance='1 minute')
-        self.load15 = fg.extend_item('kernel.all.load', instance='15 minute')        
+        self.load15 = fg.extend_item('kernel.all.load', instance='15 minute')
         self.cpu_user = fg.extend_indom('kernel.percpu.cpu.user', scale='second/second')
         self.cpu_sys = fg.extend_indom('kernel.percpu.cpu.sys', scale='second/second')
         self.freemem = fg.extend_item('mem.freemem', scale='Mbyte', mtype=c_api.PM_TYPE_DOUBLE)
         self.dkiops = fg.extend_item('disk.all.total', scale='count/second')
         self.timestamp = fg.extend_timestamp()
         self.ncpu = fg.extend_item('hinv.ncpu')
-        
+
     def get_sample(self):
         self.fg.fetch()
 
@@ -40,17 +40,19 @@ class sampler(object):
         self.peak_cpu_util = -1
         self.peak_cpu = 0
         for (ucode, uname, uvalue), (scode, sname, svalue) in zip(self.cpu_user(), self.cpu_sys()):
-            assert (ucode == scode) # indoms should match
+            assert ucode == scode	# indoms should match
             try:
-                u = uvalue() + svalue()
-                if u > 1.0: # small errors are possible, so clip the utilization at 1.0
-                    u = 1.0
+                util = uvalue() + svalue()
+                # small errors are possible, so clip the utilization at 1.0
+                if util > 1.0:
+                    util = 1.0
             except:
-                u = 0 # suspect PM_ERR_AGAIN from first-step rate-calculation
-                
-            self.cpu_util += u
-            if u > self.peak_cpu_util:
-                self.peak_cpu_util = u
+                # suspect PM_ERR_AGAIN from first-step rate-calculation
+                util = 0
+
+            self.cpu_util += util
+            if util > self.peak_cpu_util:
+                self.peak_cpu_util = util
                 self.peak_cpu = ucode
 
         self.cpu_util /= self.ncpu()
@@ -79,7 +81,7 @@ class pmclient_fg(object):
         opts.pmSetOverrideCallback(lambda opt: self.option_override(opt))
         # .... etc; the python pmOptions should have a function for the PMAPI_OPTIONS common set
         self.opts = opts
-    
+
         c_api.pmGetOptionsFromList(argv)
         self.typed = opts.pmGetOptionContext()
         if self.typed == c_api.PM_CONTEXT_ARCHIVE:
@@ -94,7 +96,7 @@ class pmclient_fg(object):
 
         self.fg = pmapi.fetchgroup(self.typed, target)
         self.ctx = self.fg.get_context()
-        
+
         # for other pmOptions related to archive time offsets, etc.:
         # opts.pmSetContextOptions(ctx, ....) ?
 
@@ -111,19 +113,19 @@ class pmclient_fg(object):
         if self.opts.pmGetOptionInterval():
             interval = self.opts.pmGetOptionInterval()
         else:
-            interval = pmapi.timeval(5,0)
+            interval = pmapi.timeval(5, 0)
 
         if self.typed == c_api.PM_CONTEXT_ARCHIVE:
             info.get_sample() # fetch the separate early ncpu record
         info.get_sample() # fetch other rate metrics
-        
+
         lines = 0
         while True:
             if samples >= 0:
                 samples -= 1
                 if samples == 0:
                     break
-                
+
             if lines % 15 == 0:
                 if self.typed == c_api.PM_CONTEXT_ARCHIVE:
                     print ('Archive: %s, ' % self.opts.pmGetOptionArchives()[0], end='')
@@ -133,12 +135,12 @@ class pmclient_fg(object):
                 #  CPU  Busy    Busy  Free Mem   Disk     Load Average
                 # Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
                 #X.XXX   XXX   X.XXX XXXXX.XXX XXXXXX  XXXX.XX XXXX.XX
-                
+
                 print('  CPU', end='')
                 if info.ncpu() > 1:
                     print('  Busy    Busy', end='')
                     print('  Free Mem   Disk     Load Average')
-                    print(' Util', end='');
+                    print(' Util', end='')
                     if info.ncpu() > 1:
                         print('   CPU    Util', end='')
                     print('  (Mbytes)   IOPS    1 Min  15 Min')
@@ -157,8 +159,8 @@ class pmclient_fg(object):
 
 if __name__ == '__main__':
     try:
-        p = pmclient_fg(sys.argv)
-        p.run()
+        pmclient = pmclient_fg(sys.argv)
+        pmclient.run()
     except pmapi.pmErr as error:
         sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
     except KeyboardInterrupt:
