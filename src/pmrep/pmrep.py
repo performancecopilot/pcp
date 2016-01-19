@@ -263,14 +263,10 @@ class PMReporter(object):
         if value in ('false', 'False', 'n', 'no', 'No'):
             value = 0
         if name == 'source':
-            try: # RHBZ#1270176 / PCP < 3.10.8
-                if '/' in value:
-                    self.opts.pmSetOptionArchive(value)
-                else:
-                    self.opts.pmSetOptionHost(value) # RHBZ#1289911
-            except:
-                sys.stderr.write("PCP 3.10.8 or later required for the 'source' directive.\n")
-                sys.exit(1)
+            if '/' in value:
+                self.opts.pmSetOptionArchive(value)
+            else:
+                self.opts.pmSetOptionHost(value) # RHBZ#1289911
         elif name == 'samples':
             self.opts.pmSetOptionSamples(value)
             self.samples = self.opts.pmGetOptionSamples()
