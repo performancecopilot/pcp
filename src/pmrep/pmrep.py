@@ -1177,8 +1177,6 @@ class PMReporter(object):
                 if str(list(values[i])[j][2]) != NO_VAL:
                     data = 1
                     inst = self.insts[i][1][j]
-                    if inst == None: # RHBZ#1285371
-                        inst = ""
                     if self.descs[i].contents.type == PM_TYPE_STRING:
                         self.pmi.pmiPutValue(metric, inst, str(values[i][j][2]))
                     elif self.descs[i].contents.type == PM_TYPE_FLOAT or \
