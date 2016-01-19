@@ -902,9 +902,11 @@ class PMReporter(object):
                 # Extract and scale the value
                 try:
                     # Use native type if no rescaling needed
-                    if self.metrics[metric][2][2] == 1 and \
-                       str(self.descs[i].contents.units) == \
-                       str(self.metrics[metric][2][1]):
+                    if self.descs[i].contents.type == PM_TYPE_STRING or \
+                       self.metrics[metric][3] == 1 or \
+                       (self.metrics[metric][2][2] == 1 and \
+                        str(self.descs[i].contents.units) == \
+                        str(self.metrics[metric][2][1])):
                         rescale = 0
                         vtype = self.descs[i].contents.type
                     else:
@@ -917,16 +919,15 @@ class PMReporter(object):
                         self.descs[i].contents.type,
                         vtype)
 
-                    if self.metrics[metric][3] != 1 and rescale and \
-                       self.descs[i].contents.type != PM_TYPE_STRING:
+                    if rescale:
                         atom = self.context.pmConvScale(
                             vtype,
                             atom, self.descs, i,
                             self.metrics[metric][2][1])
 
                     val = atom.dref(vtype)
-                    if rescale and \
-                       self.descs[i].contents.type != PM_TYPE_STRING:
+
+                    if rescale:
                         val *= self.metrics[metric][2][2]
                         val = int(val) if val == int(val) else val
 
