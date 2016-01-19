@@ -26,9 +26,6 @@ rm -f $seq.out
 if [ $PCP_PLATFORM = linux ]
 then
     ln $seq.out.linux $seq.out
-elif [ $PCP_PLATFORM = irix ]
-then
-    ln $seq.out.irix $seq.out
 else
     echo "Warning: no validated output for $PCP_PLATFORM"
 fi
