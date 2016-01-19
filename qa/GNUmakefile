@@ -77,7 +77,6 @@ qa_hosts:	qa_hosts.master mk.qa_hosts
 localconfig:
 	@echo PCP_PLATFORM=$(PCP_PLATFORM) > localconfig
 	./mk.pcpversion $(PCP_VERSION) >> localconfig
-	@echo 'PCP_PRO_VER=0' >> localconfig
 
 install_pcp install: $(SUBDIRS)
 ifeq (, $(filter mingw darwin freebsd solaris, $(TARGET_OS)))
