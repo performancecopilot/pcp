@@ -77,15 +77,7 @@ trap "_interrupt; _cleanup" 1 2 3 15
 
 # get to a known starting state, esp for pmcd.log
 #
-if [ $PCP_PLATFORM = irix ]
-then
-    cat <<End-of-File >$tmp.conf
-# temporary pmcd.conf for qa/$seq
-irix	1	dso	irix_init	libirixpmda.so
-pmcd	2	dso	pmcd_init	pmda_pmcd.so
-proc	3	dso	proc_init	pmda_proc.so
-End-of-File
-elif [ $PCP_PLATFORM = linux ]
+if [ $PCP_PLATFORM = linux ]
 then
     cat <<End-of-File >$tmp.conf
 # temporary pmcd.conf for qa/$seq
@@ -107,7 +99,7 @@ solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
 else
-    echo "Arrgh ... need pmcd.conf for $PCP_PLATFORM"
+    echo "Arrgh ... need pmcd.conf for PCP_PLATFORM $PCP_PLATFORM"
     exit 1
 fi
 echo "=== initial pmcd.conf ===" >>$seq.full
