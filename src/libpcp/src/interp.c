@@ -387,9 +387,10 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		    if (seen_mark != NULL)
 			*seen_mark = 1;
 #ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE)) {
-fprintf(stderr, "<mark> rolling forwards\n");
-}
+		    if ((pmDebug & DBG_TRACE_INTERP) &&
+			(pmDebug & DBG_TRACE_DESPERATE)) {
+			fprintf(stderr, "<mark> rolling forwards\n");
+		    }
 #endif
 		}
 
@@ -422,9 +423,10 @@ fprintf(stderr, "<mark> rolling forwards\n");
 		    if (seen_mark != NULL)
 			*seen_mark = 1;
 #ifdef PCP_DEBUG
-    if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE)) {
-fprintf(stderr, "<mark> rolling backwards\n");
-}
+		    if ((pmDebug & DBG_TRACE_INTERP) &&
+			(pmDebug & DBG_TRACE_DESPERATE)) {
+			fprintf(stderr, "<mark> rolling backwards\n");
+		    }
 #endif
 		}
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
