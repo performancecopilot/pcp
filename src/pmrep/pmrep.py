@@ -1233,15 +1233,15 @@ class PMReporter(object):
                 k += 1
 
                 # Raw or rate
-                if not self.metrics[metric][3] and \
-                  (self.prevvals == None or list(self.prevvals[i])[j][2] == NO_VAL):
-                    # Rate not yet possible
-                    value = NO_VAL
-                elif self.metrics[metric][3] or \
+                if self.metrics[metric][3] or \
                   self.descs[i].sem != PM_SEM_COUNTER or \
                   list(values[i])[j][2] == NO_VAL:
                     # Raw
                     value = list(values[i])[j][2]
+                elif not self.metrics[metric][3] and \
+                  (self.prevvals == None or list(self.prevvals[i])[j][2] == NO_VAL):
+                    # Rate not yet possible
+                    value = NO_VAL
                 else:
                     # Rate
                     scale = 1
