@@ -54,7 +54,7 @@ Log finished ...
 stderr:
 Starting with oldstream (stdout) fd=1, nextfd=3
 chkopenlog: cannot open log "tmp.log" for writing : Permission denied
-__pmOpenLog -> sts=0, log tmp.log newstream fd=1, nextfd=3
+__pmOpenLog -> sts=0, log tmp.log newstream (stdout) fd=1, nextfd=3
 log file:
 THIS SHOULD NOT BE OVERWRITTEN
 
@@ -63,8 +63,10 @@ stdout:
 stderr:
 This message on oldstream before __pmOpenLog() called
 Starting with oldstream (stderr) fd=2, nextfd=3
+chkopenlog: cannot open log "tmp.log" for writing : Permission denied
 Log for chkopenlog on MYHOST started ...
 
+__pmOpenLog -> sts=0, log tmp.log newstream (stderr) fd=2, nextfd=3
 [a helpful little message]
 
 Log finished ...
