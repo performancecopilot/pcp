@@ -1,6 +1,6 @@
 #!/usr/bin/pcp python
 #
-# Copyright (C) 2015 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2016 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -211,7 +211,6 @@ class PMReporter(object):
         self.count_scale = None
         self.space_scale = None
         self.time_scale = None
-        self.can_scale = None # PCP 3.9 compat
 
         # Performance metrics store
         # key - metric name
@@ -615,8 +614,6 @@ class PMReporter(object):
             else:
                 self.zabbix_interval = int(self.interval)
 
-        self.can_scale = "pmParseUnitsStr" in dir(self.context)
-
     def validate_metrics(self):
         """ Validate the metrics set """
         # Check the metrics against PMNS, resolve non-leaf metrics
@@ -720,7 +717,7 @@ class PMReporter(object):
                     self.metrics[metric][2] = unitstr
             # Set unit/scale for non-raw numeric metrics
             try:
-                if self.metrics[metric][3] == 0 and self.can_scale and \
+                if self.metrics[metric][3] == 0 and \
                    self.descs[i].contents.type != PM_TYPE_STRING:
                     (unitstr, mult) = self.context.pmParseUnitsStr(self.metrics[metric][2])
                     label = self.metrics[metric][2]
@@ -921,15 +918,14 @@ class PMReporter(object):
                         vtype)
 
                     if self.metrics[metric][3] != 1 and rescale and \
-                       self.descs[i].contents.type != PM_TYPE_STRING and \
-                       self.can_scale:
+                       self.descs[i].contents.type != PM_TYPE_STRING:
                         atom = self.context.pmConvScale(
                             vtype,
                             atom, self.descs, i,
                             self.metrics[metric][2][1])
 
                     val = atom.dref(vtype)
-                    if rescale and self.can_scale and \
+                    if rescale and \
                        self.descs[i].contents.type != PM_TYPE_STRING:
                         val *= self.metrics[metric][2][2]
                         val = int(val) if val == int(val) else val
