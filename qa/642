@@ -17,20 +17,6 @@ echo "QA output created by $seq"
 [ -f $PCP_PMDAS_DIR/trace/pmdatrace ] || _notrun "trace pmda not installed"
 [ -f $PCP_PMDAS_DIR/sendmail/pmdasendmail ] || _notrun "sendmail pmda not installed"
 
-rm -f $seq.out $seq.full
-if [ $PCP_VER -ge 30813 ]
-then
-    ln $seq.out.4 $seq.out || exit 1
-elif [ $PCP_VER -ge 30801 ]
-then
-    ln $seq.out.3 $seq.out || exit 1
-elif [ $PCP_VER -ge 30600 ]
-then
-    ln $seq.out.2 $seq.out || exit 1
-else
-    ln $seq.out.1 $seq.out || exit 1
-fi
-
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
 done_clean=false
