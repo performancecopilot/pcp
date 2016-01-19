@@ -49,14 +49,8 @@ $sudo ./Rebuild -v \
 | sed \
     -e 's;/private/;/;' \
     -e "s;$tmp.dir;TMPDIR;" 2>&1
-if [ $PCP_VER -lt 30600 ]
-then
-    pminfo -mn root.bin
-    status=$?
-else
-    pminfo -mn root
-    status=$?
-fi
+pminfo -mn root
+status=$?
 
 # success, all done
 cd $here
