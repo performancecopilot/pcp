@@ -12,8 +12,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_VER -ge 30611 ] || _notrun "Needs a more recent libpcp version"
-
 _cleanup()
 {
     $sudo rm -f $tmp.*
