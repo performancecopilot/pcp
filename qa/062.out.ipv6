@@ -1,6 +1,5 @@
 QA output created by 062
 testing single op for all ops...
-may dump core for IRIX 6.1 ... bug in gethostbyname()
 
 
 Host access list:
@@ -79,7 +78,6 @@ Host access list:
 
 
 testing all except one op for all ops...
-may dump core for IRIX 6.1 ... bug in gethostbyname()
 
 
 Host access list:
@@ -158,7 +156,6 @@ Host access list:
 
 
 testing all combinations of ops in a range...
-may dump core for IRIX 6.1 ... bug in gethostbyname()
 set 001 for host 0.0.0.0
 set 002 for host 0.0.0.1
 set 003 for host 0.0.0.127
