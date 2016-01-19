@@ -519,7 +519,7 @@ cgroups
 209 pmval local
 210 pmns local pmval pmie sanity pmdumplog
 211 pmns local pmval pmie pmdumplog
-212 pmda pmda.cisco local
+212:retired pmda pmda.cisco local
 213 dbpmda pmns local pmda.sample pmda.mmv
 214 pmlogextract local pmdumplog
 215 other pmsocks pmval remote

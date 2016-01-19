@@ -13,12 +13,14 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ $PCP_PLATFORM != irix ]
-then
-    echo "This version of cisco PMDA does not use sprocs" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
+case $PCP_PLATFORM
+in
+    *)
+	echo "This version of cisco PMDA does not use sprocs" >$seq.notrun
+	echo "$seq: [not run] `cat $seq.notrun`"
+	exit 0
+	;;
+esac
 
 status=0
 _needclean=true
