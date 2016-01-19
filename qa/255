@@ -63,7 +63,6 @@ _filter_pmcd()
     	-e "/^simple.*bin/s/$simple_domain[ 	]*[0-9]*[ 	]*[0-9]*[ 	]*[0-9]*/SIMPLE PID FD FD/" \
     	-e "/^simple.*dso/s/$simple_domain/SIMPLE/" \
     	-e "/^broken.*bin/s/$broken_domain[ 	]*[0-9]*[ 	]*[0-9]*[ 	]*[0-9]*/BROKEN PID FD FD/" \
-	-e "s/[1-2][ 	]dso.*irix_init/LIBIRIXPMDA DSO/" \
 	-e "s/[1-2][ 	]dso.*linux_init/LINUX DSO/" \
 	-e "s;$PCP_PMDAS_DIR;PCP_PMDAS_DIR;g" \
 	-e "s/ISA\.//g" \
@@ -244,10 +243,8 @@ _agent_install()
 $agent	$domain	pipe	binary	$path/pmda$agent -d $domain
 end-of-file
     else
-	prefix=
-	[ $PCP_PLATFORM = irix ] && prefix=`pmobjstyle`.
     	cat << end-of-file >> $tmp.latest
-$agent	$domain	dso	${agent}_init	$path/${prefix}pmda_$agent.$DSO_SUFFIX
+$agent	$domain	dso	${agent}_init	$path/pmda_$agent.$DSO_SUFFIX
 end-of-file
     fi
 
@@ -329,14 +326,7 @@ cat << end-of-file > $tmp.newconf
 #
 end-of-file
 
-if [ $PCP_PLATFORM = irix ]
-then
-    cat >>$tmp.newconf  <<End-of-File
-# from qa/$seq
-irix    1       dso     irix_init       libirixpmda.so
-pmcd    2       dso     pmcd_init       pmda_pmcd.so
-End-of-File
-elif [ $PCP_PLATFORM = linux ]
+if [ $PCP_PLATFORM = linux ]
 then
     cat >>$tmp.newconf  <<End-of-File
 # from qa/$seq
