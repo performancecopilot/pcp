@@ -13,25 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out
-if [ $PCP_EOE_VER -ge 60512 -o \
-     \( $PCP_EOE_VER -ge 20200 -a $PCP_EOE_VER -lt 60500 \) ]
-then
-    ln $seq.out.1 $seq.out
-else
-    ln $seq.out.2 $seq.out
-fi
-
-if [ $PCP_VER -lt 30600 ]
-then
-    # V1 archives supported
-    arch=archives/bigace
-else
-    # no support for V1 archives
-    arch=archives/bigace_v2
-    rm -f $seq.out
-    ln $seq.out.3 $seq.out
-fi
+arch=archives/bigace_v2
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 

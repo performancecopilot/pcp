@@ -27,9 +27,21 @@ _cleanup()
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# PMNS order is non-deterministic
+# Metric: named
+#    non-leaf nameserver	<--- sort
+#        leaf interval		<--- sort
+# dbpmda> desc named.interval
+#
 _filter()
 {
-    sed \
+    $PCP_AWK_PROG '
+BEGIN				{ state = 0 }
+state == 1 && $1 == "dbpmda>"	{ state = 2 }
+				{ print >"'$tmp'." state }
+$1 == "Metric:"			{ state = 1 }'
+    ( cat $tmp.0 ; LC_COLLATE=POSIX sort $tmp.1; cat $tmp.2 ) \
+    | sed \
         -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
         -e "s;$script;pmdanamed.pl;" \
     | _filter_dumpresult

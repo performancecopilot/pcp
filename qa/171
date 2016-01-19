@@ -12,16 +12,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-if [ $PCP_VER -lt 30600 ]
-then
-    # V1 archives supported
-    arch=archives/bug
-    pmns="-n src/root_irix"
-else
-    # no support for V1 archives
-    arch=archives/bug_v2
-    pmns=
-fi
+arch=archives/bug_v2
+pmns=
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 

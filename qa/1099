@@ -1,0 +1,36 @@
+#!/bin/sh
+# PCP QA Test No. 1099
+# Check changed semantics for interpolation in the region of <mark>
+# records.
+#
+# Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmiostat -a archives/pmiostat_mark -S @17:30 -t 15m -A 15m -z -x t
+
+echo
+pmval -a archives/pmiostat_mark -S @17:30 -t 15m -A 15m -z -f4 disk.dev.read
+
+echo
+cat <<End-of-File | pmie -a archives/pmiostat_mark -S @17:30 -t 15m -A 15m -z -v 2>/dev/null
+v_instant = filesys.full;
+v_counter = network.interface.in.packets;
+End-of-File
+
+# success, all done
+status=0
+
+exit

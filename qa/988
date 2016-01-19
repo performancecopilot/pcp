@@ -20,6 +20,13 @@ status=1
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+_filter()
+{
+    $here/src/sortinst \
+    | sed -e '/inst /s/\[[01] /[0-or-1 /'
+}
+
+
 root=$tmp.root
 export XFS_STATSPATH=$root
 pmda=$PCP_PMDAS_DIR/xfs/pmda_xfs,xfs_init
@@ -35,7 +42,8 @@ do
     base=`basename $tgz`
 
     echo "== Valgrind checking metric descriptors and values - $base"
-    _run_valgrind pminfo -L -K clear -K add,11,$pmda -dfmtT xfs 2>&1
+    _run_valgrind pminfo -L -K clear -K add,11,$pmda -dfmtT xfs 2>&1 \
+    | _filter
     echo && echo "== done" && echo
     cd $here
 done

@@ -139,10 +139,6 @@ done
 echo
 echo "=== all leaves ==="
 cp foo mypmns
-if [ $PCP_VER -lt 30600 ]
-then
-    pmnscomp -f -n mypmns mypmns.bin
-fi
 metric=`pminfo -n mypmns | sed -e '/^event\./d' | tr '\012' ' '`
 echo "delete: $metric"
 pmnsdel -n mypmns $metric

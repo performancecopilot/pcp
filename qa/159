@@ -123,10 +123,7 @@ both
 $PCPQA_CISCO_ROUTER
 
 End-of-File
-if [ $PCP_VER -gt 20200 ]
-then
-    echo >>$tmp.in
-fi
+echo >>$tmp.in
 cat <<End-of-File >>$tmp.in
 s2/3
 e1/0
@@ -134,10 +131,7 @@ quit
 $PCPQA_CISCO_ROUTER
 
 End-of-File
-if [ $PCP_VER -gt 20200 ]
-then
-    echo >>$tmp.in
-fi
+echo >>$tmp.in
 cat <<End-of-File >>$tmp.in
 s2/0
 quit

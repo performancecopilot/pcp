@@ -12,16 +12,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-if [ $PCP_VER -lt 30600 ]
-then
-    # V1 archives supported
-    arch=archives/bozo.client
-    pmns="-n src/root_irix"
-else
-    # no support for V1 archives
-    arch=archives/bozo.client_v2
-    pmns=
-fi
+arch=archives/bozo.client_v2
+pmns=
 
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

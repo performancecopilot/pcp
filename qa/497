@@ -17,15 +17,6 @@ echo "QA output created by $seq"
 [ -f $PCP_BINADM_DIR/pmlogconf-setup ] || \
     _notrun "pmlogconf version 2.0 not installed"
 
-rm -f $seq.out
-if [ $PCP_VER -ge 30901 ]
-then
-    suffix=2
-else
-    suffix=1
-fi
-ln $seq.out.$suffix $seq.out || exit 1
-
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15

@@ -13,17 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out
-if [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -le 60510 ]
-then
-	ln $seq.out.1 $seq.out
-elif [ $PCP_EOE_VER -lt 20704 ]
-then
-	ln $seq.out.2 $seq.out
-else
-	ln $seq.out.3 $seq.out
-fi
-
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

@@ -14,19 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ $PCP_PLATFORM != irix -a $PCP_VER -ge 20200 ]
-then
-    : PCP 2.2 or later
-elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -ge 60512 ]
-then
-    : IRIX 6.5.12 or later
-elif [ $PCP_PLATFORM = irix -a $PCP_EOE_VER -lt 60500 -a $PCP_EOE_VER -ge 20200 ]
-then
-    : IRIX 6.2 and PCP 2.2
-else
-    _notrun "need fix for pv #809111 and multiple DSO PMDAs"
-fi
-
 status=1	# failure is the default!
 
 _cleanup()
