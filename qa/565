@@ -19,9 +19,6 @@ echo "QA output created by $seq"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    irix)
-	ln $seq.irix $seq.out || exit 1
-	;;
     linux|darwin|solaris)
 	# same output for Linux, Mac OS X and OpenSolaris
 	ln $seq.out.1 $seq.out || exit 1
