@@ -137,14 +137,7 @@ do
     $PCP_ECHO_PROG $PCP_ECHO_N "$t================""$PCP_ECHO_C"
     $PCP_ECHO_PROG "$t================" >>$here/$seq.full
     cat $t >>$here/$seq.full
-    case $t
-    in
-	die.029|die.035|die.036|die.043)
-	    echo " may dump core for IRIX 6.1 ... bug in gethostbyname()"
-	    ;;
-	*)
-	    echo
-    esac
+    echo
     if [ "X$t" = "Xdie.029" -o "X$t" = "Xdie.043" ]
     then
 	echo "(config for $t is host-specific)"
