@@ -13,13 +13,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-rm -f $seq.out $seq.full
-if [ $PCP_VER -ge 30810 ]
-then
-    ln $seq.out.2 $seq.out
-else
-    ln $seq.out.1 $seq.out
-fi
+rm -f $seq.full
 
 status=1	# failure by default
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
