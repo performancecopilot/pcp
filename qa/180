@@ -17,16 +17,6 @@ arch=archives/bigace_v2
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
-# On linux, there are some annoying differences in arithemtic values
-# from printf() and friends ... map the know ones back to the IRIX
-# values
-_filter()
-{
-    sed \
-	-e '/^16:07:51.554/s/0.1164/0.1163/' \
-	-e '/^16:09:51.554/s/0.1033/0.1032/'
-}
-
 _do_cpu()
 {
     $PCP_AWK_PROG	'
@@ -58,7 +48,7 @@ else
     echo "Warning: no time(1) executable found ...."
     pmval -z -n $tmp.pmns -a $arch -t $DELTA foo >$tmp.out 2>$tmp.err
 fi
-_filter <$tmp.out
+cat $tmp.out
 echo
 echo "samples: `grep '^[0-9][0-9]:' $tmp.out | wc -l | sed -e 's/  *//g'`"
 egrep '^(user|sys)' $tmp.err | _do_cpu
@@ -73,7 +63,7 @@ then
 else
     pmval -z -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo >$tmp.out 2>$tmp.err
 fi
-_filter <$tmp.out
+cat $tmp.out
 echo
 echo "samples: `grep '^[0-9][0-9]:' $tmp.out | wc -l | sed -e 's/  *//g'`"
 egrep '^(user|sys)' $tmp.err | _do_cpu
