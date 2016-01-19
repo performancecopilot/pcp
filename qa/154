@@ -16,14 +16,6 @@ echo "QA output created by $seq"
 
 [ -f $PCP_PMDAS_DIR/cisco/pmdacisco ] || _notrun "cisco pmda not installed"
 
-# New cisco metrics in pcp2.2 
-if [ $PCP_VER -ge 20200 ]
-then
-    rm -f $seq.out && ln $seq.out.2 $seq.out
-else
-    rm -f $seq.out && ln $seq.out.1 $seq.out
-fi
-
 _filter_illegal()
 {
     sed \
