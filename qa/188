@@ -13,7 +13,9 @@ echo "QA output created by $seq"
 . ./common.filter
 
 rm -f $seq.out
-if [ $PCP_PLATFORM = linux ] ; then
+if [ $PCP_PLATFORM = irix ] ; then
+    ln $seq.irix $seq.out
+elif [ $PCP_PLATFORM = linux ] ; then
     # Linux is all over the shop here!
     #
     # History (linux version of $seq.out)
