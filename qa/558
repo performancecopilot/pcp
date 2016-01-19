@@ -26,8 +26,7 @@ DEBUG="-v -Dappl1,appl2"
 DEBUG=
 HOST=`hostname`
 
-target=""
-test $PCP_VER -ge 30803 && target="-h $HOST"
+target="-h $HOST"
 
 PMCD_RECONNECT_TIMEOUT=1; export PMCD_RECONNECT_TIMEOUT
 
