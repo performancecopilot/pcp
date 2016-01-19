@@ -40,11 +40,6 @@ root {
 }
 End-of-File
 
-if [ $PCP_VER -lt 30600 ]
-then
-    pmnscomp -n root root.bin
-fi
-
 cat <<End-of-File >foo
 foo {
     bar		1:0:0
