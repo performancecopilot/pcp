@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -32,51 +32,38 @@
 #endif
 #include <assert.h>
 
+enum {
+    load_avg,
+    swap_used,
+    mem_free,
+    mem_buf,
+    mem_cached,
+    swap_in,
+    swap_out,
+    blk_read,
+    blk_write,
+    interrupts,
+    pswitch,
+    cpu_nice,
+    cpu_user,
+    cpu_intr,
+    cpu_sys,
+    cpu_idle,
+    cpu_wait,
+    cpu_steal,
 
-struct statsrc_t
-{
-    pmFG pmfg; /* might become NULL once host dies / archive ends */
-    char *sname;
-    struct timeval timestamp;
-    int fetched_p;
-    pmAtomValue load_average;
-    int load_average_sts;
-    pmAtomValue swap_used;
-    int swap_used_sts;
-    pmAtomValue mem_free;
-    int mem_free_sts;
-    pmAtomValue mem_buf;
-    int mem_buf_sts;
-    pmAtomValue mem_cached;
-    int mem_cached_sts;
-    pmAtomValue swap_in;
-    int swap_in_sts;
-    pmAtomValue swap_out;
-    int swap_out_sts;
-    pmAtomValue blkread;
-    int blkread_sts;
-    pmAtomValue blkwrite;
-    int blkwrite_sts;
-    pmAtomValue kernel_intr;
-    int kernel_intr_sts;
-    pmAtomValue kernel_pswitch;
-    int kernel_pswitch_sts;
-    pmAtomValue kernel_cpunice;
-    int kernel_cpunice_sts;
-    pmAtomValue kernel_cpuuser;
-    int kernel_cpuuser_sts;
-    pmAtomValue kernel_cpuintr;
-    int kernel_cpuintr_sts;
-    pmAtomValue kernel_cpusys;
-    int kernel_cpusys_sts;
-    pmAtomValue kernel_cpuidle;
-    int kernel_cpuidle_sts;
-    pmAtomValue kernel_cpuwait;
-    int kernel_cpuwait_sts;
-    pmAtomValue kernel_cpusteal;
-    int kernel_cpusteal_sts;
+    num_items
 };
 
+struct statsrc {
+    pmFG		pmfg;
+    char		*sname;
+    struct timeval	timestamp;
+    int			fetched;
+
+    pmAtomValue		val[num_items];
+    int			sts[num_items];
+};
 
 pmLongOptions longopts[] = {
     PMAPI_GENERAL_OPTIONS,
@@ -84,9 +71,9 @@ pmLongOptions longopts[] = {
     PMOPT_HOSTSFILE,
     PMOPT_LOCALPMDA,
     PMAPI_OPTIONS_HEADER("Reporting options"),
-    {"suffix", 0, 'l', 0, "print last 7 charcters of the host name(s)"},
-    {"pause", 0, 'P', 0, "pause between updates for archive replay"},
-    {"xcpu", 0, 'x', 0, "extended CPU statistics reporting"},
+    { "suffix", 0, 'l', 0, "print last 7 charcters of the host name(s)" },
+    { "pause", 0, 'P', 0, "pause between updates for archive replay" },
+    { "xcpu", 0, 'x', 0, "extended CPU statistics reporting" },
     PMAPI_OPTIONS_END
 };
 
@@ -104,113 +91,124 @@ static float period;
 static pmTimeControls defaultcontrols;
 
 
-static struct statsrc_t *
+static struct statsrc *
 getNewContext(int type, char *host, int quiet)
 {
-    struct statsrc_t *s;
-    int sts;
+    struct statsrc *s;
+    int i, sts;
 
-    s = calloc(1, sizeof(struct statsrc_t));
+    s = calloc(1, sizeof(struct statsrc));
     if (s == NULL)
-	goto out;
+	return NULL;
 
     sts = pmCreateFetchGroup(&s->pmfg, type, host);
     if (sts < 0) {
-	fprintf(stderr, "%s: Cannot create fetchgroup: %s\n", pmProgname, pmErrStr(sts));
-	goto out1;
+	fprintf(stderr, "%s: Cannot create fetchgroup: %s\n",
+		pmProgname, pmErrStr(sts));
+	goto fail;
     }
 
-    /* Register all metrics with desired conversions/types; some with fallbacks. */
-    (void) pmExtendFetchGroup_timestamp(s->pmfg, &s->timestamp);
-    s->load_average_sts =
-	pmExtendFetchGroup_item(s->pmfg, "kernel.all.load", "1 minute", NULL, &s->load_average, PM_TYPE_FLOAT,
-				&s->load_average_sts);
-    s->swap_used_sts =
-	pmExtendFetchGroup_item(s->pmfg, "swap.used", NULL, "kbyte", &s->swap_used, PM_TYPE_U32, &s->swap_used_sts);
-    s->mem_free_sts =
-	pmExtendFetchGroup_item(s->pmfg, "mem.util.free", NULL, "kbyte", &s->mem_free, PM_TYPE_U32, &s->mem_free_sts);
-    s->mem_buf_sts =
-	pmExtendFetchGroup_item(s->pmfg, "mem.util.bufmem", NULL, "kbyte", &s->mem_buf, PM_TYPE_U32, &s->mem_buf_sts);
-    if (s->mem_buf_sts < 0)
-	s->mem_buf_sts =
-	    pmExtendFetchGroup_item(s->pmfg, "mem.bufmem", NULL, "kbyte", &s->mem_buf, PM_TYPE_U32, &s->mem_buf_sts);
-    s->mem_cached_sts =
-	pmExtendFetchGroup_item(s->pmfg, "mem.util.cached", NULL, "kbyte", &s->mem_cached, PM_TYPE_U32,
-				&s->mem_cached_sts);
-    s->swap_in_sts =
-	pmExtendFetchGroup_item(s->pmfg, "swap.pagesin", NULL, NULL, &s->swap_in, PM_TYPE_U32, &s->swap_in_sts);
-    if (s->swap_in_sts < 0) {
-	swapOp = 's';
-	s->swap_in_sts =
-	    pmExtendFetchGroup_item(s->pmfg, "swap.in", NULL, NULL, &s->swap_in, PM_TYPE_U32, &s->swap_in_sts);
+    /* Register metrics with desired conversions/types; some with fallbacks. */
+    pmExtendFetchGroup_timestamp(s->pmfg, &s->timestamp);
+    s->sts[load_avg] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.load", "1 minute", NULL,
+			&s->val[load_avg], PM_TYPE_FLOAT, &s->sts[load_avg]);
+    s->sts[swap_used] = pmExtendFetchGroup_item(s->pmfg,
+				"swap.used", NULL, "kbyte",
+				&s->val[swap_used], PM_TYPE_U32,
+				&s->sts[swap_used]);
+    s->sts[mem_free] = pmExtendFetchGroup_item(s->pmfg,
+				"mem.util.free", NULL, "kbyte",
+				&s->val[mem_free], PM_TYPE_U32,
+				&s->sts[mem_free]);
+    s->sts[mem_buf] = pmExtendFetchGroup_item(s->pmfg,
+			"mem.util.bufmem", NULL, "kbyte",
+			&s->val[mem_buf], PM_TYPE_U32, &s->sts[mem_buf]);
+    if (s->sts[mem_buf] < 0) {
+	s->sts[mem_buf] = pmExtendFetchGroup_item(s->pmfg,
+			"mem.bufmem", NULL, "kbyte",
+			&s->val[mem_buf], PM_TYPE_U32, &s->sts[mem_buf]);
     }
-    s->swap_out_sts =
-	pmExtendFetchGroup_item(s->pmfg, "swap.pagesout", NULL, NULL, &s->swap_out, PM_TYPE_U32, &s->swap_out_sts);
-    if (s->swap_out_sts < 0) {
+    s->sts[mem_cached] = pmExtendFetchGroup_item(s->pmfg,
+			"mem.util.cached", NULL, "kbyte",
+			&s->val[mem_cached], PM_TYPE_U32, &s->sts[mem_cached]);
+    s->sts[swap_in] = pmExtendFetchGroup_item(s->pmfg,
+			"swap.pagesin", NULL, NULL,
+			&s->val[swap_in], PM_TYPE_U32, &s->sts[swap_in]);
+    if (s->sts[swap_in] < 0) {
 	swapOp = 's';
-	s->swap_out_sts =
-	    pmExtendFetchGroup_item(s->pmfg, "swap.out", NULL, NULL, &s->swap_out, PM_TYPE_U32, &s->swap_out_sts);
+	s->sts[swap_in] = pmExtendFetchGroup_item(s->pmfg,
+			"swap.in", NULL, NULL,
+			&s->val[swap_in], PM_TYPE_U32, &s->sts[swap_in]);
     }
-    s->blkread_sts =
-	pmExtendFetchGroup_item(s->pmfg, "disk.all.blkread", NULL, NULL, &s->blkread, PM_TYPE_U32, &s->blkread_sts);
-    if (s->blkread_sts < 0)
-	s->blkread_sts =
-	    pmExtendFetchGroup_item(s->pmfg, "disk.all.read", NULL, NULL, &s->blkread, PM_TYPE_U32, &s->blkread_sts);
-    s->blkwrite_sts =
-	pmExtendFetchGroup_item(s->pmfg, "disk.all.blkwrite", NULL, NULL, &s->blkwrite, PM_TYPE_U32, &s->blkwrite_sts);
-    if (s->blkwrite_sts < 0)
-	s->blkwrite_sts =
-	    pmExtendFetchGroup_item(s->pmfg, "disk.all.write", NULL, NULL, &s->blkwrite, PM_TYPE_U32, &s->blkwrite_sts);
-    s->kernel_intr_sts =
-	pmExtendFetchGroup_item(s->pmfg, "kernel.all.intr", NULL, NULL, &s->kernel_intr, PM_TYPE_U32,
-				&s->kernel_intr_sts);
-    s->kernel_pswitch_sts =
-	pmExtendFetchGroup_item(s->pmfg, "kernel.all.pswitch", NULL, NULL, &s->kernel_pswitch, PM_TYPE_U32,
-				&s->kernel_pswitch_sts);
-    s->kernel_cpunice_sts =
-	pmExtendFetchGroup_item(s->pmfg, "kernel.all.cpu.nice", NULL, NULL, &s->kernel_cpunice, PM_TYPE_U64,
-				&s->kernel_cpunice_sts);
-    s->kernel_cpuuser_sts =
-	pmExtendFetchGroup_item(s->pmfg, "kernel.all.cpu.user", NULL, NULL, &s->kernel_cpuuser, PM_TYPE_U64,
-				&s->kernel_cpuuser_sts);
-    s->kernel_cpuintr_sts =
-	pmExtendFetchGroup_item(s->pmfg, "kernel.all.cpu.intr", NULL, NULL, &s->kernel_cpuintr, PM_TYPE_U64,
-				&s->kernel_cpuintr_sts);
-    s->kernel_cpusys_sts =
-	pmExtendFetchGroup_item(s->pmfg, "kernel.all.cpu.sys", NULL, NULL, &s->kernel_cpusys, PM_TYPE_U64,
-				&s->kernel_cpusys_sts);
-    s->kernel_cpuidle_sts =
-	pmExtendFetchGroup_item(s->pmfg, "kernel.all.cpu.idle", NULL, NULL, &s->kernel_cpuidle, PM_TYPE_U64,
-				&s->kernel_cpuidle_sts);
-    s->kernel_cpuwait_sts =
-	pmExtendFetchGroup_item(s->pmfg, "kernel.all.cpu.wait.total", NULL, NULL, &s->kernel_cpuwait, PM_TYPE_U64,
-				&s->kernel_cpuwait_sts);
-    s->kernel_cpusteal_sts =
-	pmExtendFetchGroup_item(s->pmfg, "kernel.all.cpu.steal", NULL, NULL, &s->kernel_cpusteal, PM_TYPE_U64,
-				&s->kernel_cpusteal_sts);
+    s->sts[swap_out] = pmExtendFetchGroup_item(s->pmfg,
+			"swap.pagesout", NULL, NULL,
+			&s->val[swap_out], PM_TYPE_U32, &s->sts[swap_out]);
+    if (s->sts[swap_out] < 0) {
+	swapOp = 's';
+	s->sts[swap_out] = pmExtendFetchGroup_item(s->pmfg,
+			"swap.out", NULL, NULL,
+			&s->val[swap_out], PM_TYPE_U32, &s->sts[swap_out]);
+    }
+    s->sts[blk_read] = pmExtendFetchGroup_item(s->pmfg,
+			"disk.all.blkread", NULL, NULL,
+			&s->val[blk_read], PM_TYPE_U32, &s->sts[blk_read]);
+    if (s->sts[blk_read] < 0)
+	s->sts[blk_read] = pmExtendFetchGroup_item(s->pmfg,
+			"disk.all.read", NULL, NULL,
+			&s->val[blk_read], PM_TYPE_U32, &s->sts[blk_read]);
+    s->sts[blk_write] = pmExtendFetchGroup_item(s->pmfg,
+			"disk.all.blkwrite", NULL, NULL,
+			&s->val[blk_write], PM_TYPE_U32, &s->sts[blk_write]);
+    if (s->sts[blk_write] < 0)
+	s->sts[blk_write] = pmExtendFetchGroup_item(s->pmfg,
+			"disk.all.write", NULL, NULL,
+			&s->val[blk_write], PM_TYPE_U32, &s->sts[blk_write]);
+    s->sts[interrupts] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.intr", NULL, NULL,
+			&s->val[interrupts], PM_TYPE_U32, &s->sts[interrupts]);
+    s->sts[pswitch] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.pswitch", NULL, NULL,
+			&s->val[pswitch], PM_TYPE_U32, &s->sts[pswitch]);
+    s->sts[cpu_nice] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.nice", NULL, NULL,
+			&s->val[cpu_nice], PM_TYPE_U64, &s->sts[cpu_nice]);
+    s->sts[cpu_user] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.user", NULL, NULL,
+			&s->val[cpu_user], PM_TYPE_U64, &s->sts[cpu_user]);
+    s->sts[cpu_intr] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.intr", NULL, NULL,
+			&s->val[cpu_intr], PM_TYPE_U64, &s->sts[cpu_intr]);
+    s->sts[cpu_sys] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.sys", NULL, NULL,
+			&s->val[cpu_sys], PM_TYPE_U64, &s->sts[cpu_sys]);
+    s->sts[cpu_idle] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.idle", NULL, NULL,
+			&s->val[cpu_idle], PM_TYPE_U64, &s->sts[cpu_idle]);
+    s->sts[cpu_wait] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.wait.total", NULL, NULL,
+			&s->val[cpu_wait], PM_TYPE_U64, &s->sts[cpu_wait]);
+    s->sts[cpu_steal] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.steal", NULL, NULL,
+			&s->val[cpu_steal], PM_TYPE_U64, &s->sts[cpu_steal]);
 
     /* Let's mandate at least one metric having been resolved. */
-    if (s->load_average_sts && s->swap_used_sts && s->mem_free_sts && s->mem_buf_sts && s->mem_cached_sts
-	&& s->swap_in_sts && s->swap_out_sts && s->blkread_sts && s->blkwrite_sts && s->kernel_intr_sts
-	&& s->kernel_pswitch_sts && s->kernel_cpunice_sts && s->kernel_cpuuser_sts && s->kernel_cpuintr_sts
-	&& s->kernel_cpusys_sts && s->kernel_cpuidle_sts && s->kernel_cpuwait_sts && s->kernel_cpusteal_sts) {
-	fprintf(stderr, "%s: %s: Cannot resolve any metrics.\n", pmProgname, host);
-	goto out2;
-    }
+    for (i = 0; i < num_items; i++)
+	if (s->sts[i] == 0)
+	    break;
+    if (i != num_items)
+	return s;
 
-    goto out;
-
-out2:
+    fprintf(stderr, "%s: %s: Cannot resolve any metrics.\n", pmProgname, host);
     pmDestroyFetchGroup(s->pmfg);
-out1:
+
+fail:
     free(s);
-    s = NULL;
-out:
-    return s;
+    return NULL;
 }
 
 static char *
-saveContextHostName(struct statsrc_t *s)
+saveContextHostName(struct statsrc *s)
 {
     char hostname[MAXHOSTNAMELEN];
     int ctx = pmGetFetchGroupContext(s->pmfg);
@@ -218,14 +216,15 @@ saveContextHostName(struct statsrc_t *s)
     size_t length;
 
     if ((length = strlen(name)) == 0)
-	fprintf(stderr, "%s: Warning: pmGetContextHostName(%d) failed\n", pmProgname, ctx);
+	fprintf(stderr, "%s: Warning: pmGetContextHostName(%d) failed\n",
+		pmProgname, ctx);
     if ((name = strdup(name)) == NULL)
 	__pmNoMem("context name", length + 1, PM_FATAL_ERR);
     return name;
 }
 
 static void
-destroyContext(struct statsrc_t *s)
+destroyContext(struct statsrc *s)
 {
     if (s != NULL && s->pmfg != NULL) {
 	if (!s->sname)
@@ -236,41 +235,44 @@ destroyContext(struct statsrc_t *s)
 }
 
 static void
-scalePrint(int sts, long value)
+scalePrint(struct statsrc *s, int m)
 {
-    if (sts)
+    unsigned long value = s->val[m].ul;
+
+    if (s->sts[m])
 	printf(" %4.4s", "?");
     else if (value < 10000)
-	printf(" %4ld", value);
+	printf(" %4lu", value);
     else {
-	value /= 1000;		/* '000s */
+	value /= 1000;	/* '000s */
 	if (value < 1000)
-	    printf(" %3ldK", value);
+	    printf(" %3luK", value);
 	else {
 	    value /= 1000;	/* '000,000s */
-	    printf(" %3ldM", value);
+	    printf(" %3luM", value);
 	}
     }
 }
 
 static void
-scaleKPrint(int sts, unsigned value)
+scaleKPrint(struct statsrc *s, int m)
 {
-    if (sts)
+    unsigned long value = s->val[m].ul;
+
+    if (s->sts[m])
 	printf(" %6.6s", "?");
     else if (value < 1000000)
-	printf(" %6u", value);
+	printf(" %6lu", value);
     else {
 	value /= 1024;
 	if (value < 100000)
-	    printf(" %5um", value);
+	    printf(" %5lum", value);
 	else {
 	    value /= 1024;
-	    printf(" %5ug", value);
+	    printf(" %5lug", value);
 	}
     }
 }
-
 
 static void
 timeinterval(struct timeval delta)
@@ -321,9 +323,9 @@ resize(int sig)
 #endif
 
 static int
-setupTimeOptions(int ctx, pmOptions * opts, char **tzlabel)
+setupTimeOptions(int ctx, pmOptions *opts, char **tzlabel)
 {
-    char *label = (char *) pmGetContextHostName(ctx);
+    char *label = (char *)pmGetContextHostName(ctx);
     char *zone;
 
     if (pmGetContextOptions(ctx, opts)) {
@@ -343,8 +345,8 @@ main(int argc, char *argv[])
     time_t now;
     pmTime *pmtime = NULL;
     pmTimeControls controls;
-    struct statsrc_t *pd;
-    struct statsrc_t **ctxList = &pd;
+    struct statsrc *pd;
+    struct statsrc **ctxList = &pd;
     int ctxCount = 0;
     int sts, j;
     int pauseFlag = 0;
@@ -359,18 +361,18 @@ main(int argc, char *argv[])
 
     while ((sts = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (sts) {
-	    case 'l':		/* print last 7 characters of hostname(s) */
-		printTail++;
-		break;
-	    case 'P':		/* pause between updates when replaying an archive */
-		pauseFlag++;
-		break;
-	    case 'x':		/* extended CPU reporting */
-		extraCpuStats = 1;
-		break;
-	    default:
-		opts.errors++;
-		break;
+	case 'l':	/* print last 7 characters of hostname(s) */
+	    printTail++;
+	    break;
+	case 'P':	/* pause between updates when replaying an archive */
+	    pauseFlag++;
+	    break;
+	case 'x':	/* extended CPU reporting */
+	    extraCpuStats = 1;
+	    break;
+	default:
+	    opts.errors++;
+	    break;
 	}
     }
 
@@ -395,8 +397,7 @@ main(int argc, char *argv[])
     if (opts.context == PM_CONTEXT_ARCHIVE) {
 	nameCount = opts.narchives;
 	nameList = opts.archives;
-    }
-    else {
+    } else {
 	if (opts.context == 0)
 	    opts.context = PM_CONTEXT_HOST;
 	nameCount = opts.nhosts;
@@ -404,23 +405,23 @@ main(int argc, char *argv[])
     }
 
     if (nameCount) {
-	if ((ctxList = calloc(nameCount, sizeof(struct statsrc_t *))) != NULL) {
-	    int ct;
+	if ((ctxList = calloc(nameCount, sizeof(struct statsrc *))) != NULL) {
+	    int ct, fgc;
 
 	    for (ct = 0; ct < nameCount; ct++) {
 		if ((pd = getNewContext(opts.context, nameList[ct], 0)) != NULL) {
 		    ctxList[ctxCount++] = pd;
-		    if (tzh < 0)
-			tzh = setupTimeOptions(pmGetFetchGroupContext(pd->pmfg), &opts, &tzlabel);
+		    if (tzh < 0) {
+			fgc = pmGetFetchGroupContext(pd->pmfg);
+			tzh = setupTimeOptions(fgc, &opts, &tzlabel);
+		    }
 		    pmUseZone(tzh);
 		}
 	    }
+	} else {
+	    __pmNoMem("contexts", nameCount * sizeof(struct statsrc *), PM_FATAL_ERR);
 	}
-	else {
-	    __pmNoMem("contexts", nameCount * sizeof(struct statsrc_t *), PM_FATAL_ERR);
-	}
-    }
-    else {
+    } else {
 	/*
 	 * Read metrics from the local host.  Note that context can be 
 	 * either LOCAL or HOST, but not ARCHIVE here.  If we fail to
@@ -442,20 +443,21 @@ main(int argc, char *argv[])
     }
 
 #if defined(TIOCGWINSZ)
-#if defined(SIGWINCH)
+# if defined(SIGWINCH)
     __pmSetSignalHandler(SIGWINCH, resize);
-#endif
+# endif
     resize(0);
 #endif
 
     /* calculate the number of samples needed, if given an end time */
     period = (opts.interval.tv_sec * 1.0e6 + opts.interval.tv_usec) / 1e6;
-    now = (time_t) (opts.start.tv_sec + 0.5 + opts.start.tv_usec / 1.0e6);
+    now = (time_t)(opts.start.tv_sec + 0.5 + opts.start.tv_usec / 1.0e6);
     if (opts.finish_optarg) {
-	double win = opts.finish.tv_sec - opts.origin.tv_sec + (opts.finish.tv_usec - opts.origin.tv_usec) / 1e6;
+	double win = opts.finish.tv_sec - opts.origin.tv_sec + 
+		    (opts.finish.tv_usec - opts.origin.tv_usec) / 1e6;
 	win /= period;
 	if (win > opts.samples)
-	    opts.samples = (int) win;
+	    opts.samples = (int)win;
     }
 
     if (opts.guiflag != 0 || opts.guiport != 0) {
@@ -464,9 +466,9 @@ main(int argc, char *argv[])
 	pmWhichZone(&timezone);
 	if (!opts.guiport)
 	    opts.guiport = -1;
-	pmtime =
-	    pmTimeStateSetup(&controls, opts.context, opts.guiport, opts.interval, opts.origin, opts.start, opts.finish,
-			     timezone, tzlabel);
+	pmtime = pmTimeStateSetup(&controls, opts.context,
+			opts.guiport, opts.interval, opts.origin,
+			opts.start, opts.finish, timezone, tzlabel);
 
 	/* keep pointers to some default time control functions */
 	defaultcontrols = controls;
@@ -482,13 +484,13 @@ main(int argc, char *argv[])
 
     /* Do first fetch */
     for (j = 0; j < ctxCount; j++) {
-	struct statsrc_t *pd = ctxList[j];
+	struct statsrc *pd = ctxList[j];
 
 	pmUseContext(pmGetFetchGroupContext(pd->pmfg));
 	if (!opts.guiflag && opts.context == PM_CONTEXT_ARCHIVE)
 	    pmTimeStateMode(PM_MODE_INTERP, opts.interval, &opts.origin);
 
-        pmFetchGroup(pd->pmfg);
+	pmFetchGroup(pd->pmfg);
     }
 
     for (iteration = 0; !opts.samples || iteration < opts.samples; iteration++) {
@@ -498,32 +500,35 @@ main(int argc, char *argv[])
 	if (header) {
 	    char tbuf[26];
 
-	    assert(ctxList[0] != NULL);
-	    now = (time_t) (ctxList[0]->timestamp.tv_sec + 0.5 + ctxList[0]->timestamp.tv_usec / 1.0e6);
+	    now = (time_t)(ctxList[0]->timestamp.tv_sec + 0.5 +
+			   ctxList[0]->timestamp.tv_usec / 1.0e6);
 	    printf("@ %s", pmCtime(&now, tbuf));
 
 	    if (ctxCount > 1) {
-		printf("%-7s%8s%21s%10s%10s%10s%*s\n", "node", "loadavg", "memory", "swap", "io", "system",
-		       extraCpuStats ? 20 : 12, "cpu");
+		printf("%-7s%8s%21s%10s%10s%10s%*s\n",
+			"node", "loadavg","memory","swap","io","system",
+			extraCpuStats ? 20 : 12, "cpu");
 		if (extraCpuStats)
-		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s\n", "", "1 min",
-			   "swpd", "buff", "cache", swapOp, "i", swapOp, "o", "bi", "bo", "in", "cs", "us", "sy", "id",
-			   "wa", "st");
+		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s\n",
+			"", "1 min","swpd","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
+			"in","cs","us","sy","id","wa","st");
 		else
-		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n", "", "1 min", "swpd",
-			   "buff", "cache", swapOp, "i", swapOp, "o", "bi", "bo", "in", "cs", "us", "sy", "id");
+		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n",
+			"", "1 min","swpd","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
+			"in","cs","us","sy","id");
 
-	    }
-	    else {
-		printf("%8s%28s%10s%10s%10s%*s\n", "loadavg", "memory", "swap", "io", "system", extraCpuStats ? 20 : 12,
-		       "cpu");
+	    } else {
+		printf("%8s%28s%10s%10s%10s%*s\n",
+		       "loadavg","memory","swap","io","system",
+			extraCpuStats ? 20 : 12, "cpu");
 		if (extraCpuStats)
-		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s\n", "1 min",
-			   "swpd", "free", "buff", "cache", swapOp, "i", swapOp, "o", "bi", "bo", "in", "cs", "us",
-			   "sy", "id", "wa", "st");
+		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s\n",
+			"1 min","swpd","free","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
+			"in","cs","us","sy","id","wa","st");
 		else
-		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n", "1 min", "swpd",
-			   "free", "buff", "cache", swapOp, "i", swapOp, "o", "bi", "bo", "in", "cs", "us", "sy", "id");
+		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n",
+			"1 min","swpd","free","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
+			"in","cs","us","sy","id");
 	    }
 	    header = 0;
 	}
@@ -537,7 +542,7 @@ main(int argc, char *argv[])
 
 	for (j = 0; j < ctxCount; j++) {
 	    unsigned long long dtot = 0;
-	    struct statsrc_t *s = ctxList[j];
+	    struct statsrc *s = ctxList[j];
 
 	    if (ctxCount > 1) {
 		const char *fn;
@@ -559,19 +564,19 @@ main(int argc, char *argv[])
 
 	    sts = pmFetchGroup(s->pmfg);
 	    if (sts < 0) {
-		if (opts.context == PM_CONTEXT_HOST && (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT)) {
+		if (opts.context == PM_CONTEXT_HOST &&
+		    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT)) {
 		    puts(" Fetch failed. Reconnecting ...");
-		    pmReconnectContext(pmGetFetchGroupContext(s->pmfg));	/* XXX: safe, reusing pm* lookups? */
-		}
-		else if ((opts.context == PM_CONTEXT_ARCHIVE) && (sts == PM_ERR_EOL) && opts.guiflag) {
+		    pmReconnectContext(pmGetFetchGroupContext(s->pmfg));
+		} else if ((opts.context == PM_CONTEXT_ARCHIVE) &&
+			 (sts == PM_ERR_EOL) && opts.guiflag) {
 		    pmTimeStateBounds(&controls, pmtime);
-		}
-		else if ((opts.context == PM_CONTEXT_ARCHIVE) && (sts == PM_ERR_EOL) && (!s->fetched_p)) {
+		} else if ((opts.context == PM_CONTEXT_ARCHIVE) &&
+			 (sts == PM_ERR_EOL) && (!s->fetched)) {
 		    /* I'm yet to see something from this archive - don't
 		     * discard it just yet */
 		    puts(" No data in the archive");
-		}
-		else {
+		} else {
 		    int k;
 		    int valid = 0;
 
@@ -583,73 +588,84 @@ main(int argc, char *argv[])
 		    if (!valid)
 			exit(1);
 		}
-	    }
-	    else {
-		s->fetched_p = 1;
+	    } else {
+		s->fetched = 1;
 
-		if (s->load_average_sts)
+		if (s->sts[load_avg])
 		    printf(" %7.7s", "?");
 		else
-		    printf(" %7.2f", s->load_average.f);
+		    printf(" %7.2f", s->val[load_avg].f);
 
 		/* Memory state */
-		scaleKPrint(s->swap_used_sts, s->swap_used.ul);
-		scaleKPrint(s->mem_free_sts, s->mem_free.ul);
+		scaleKPrint(s, swap_used);
+		scaleKPrint(s, mem_free);
 		if (ctxCount <= 1)	/* Report only for single host case */
-		    scaleKPrint(s->mem_buf_sts, s->mem_buf.ul);
-		scaleKPrint(s->mem_cached_sts, s->mem_cached.ul);
+		    scaleKPrint(s, mem_buf);
+		scaleKPrint(s, mem_cached);
 
 		/* Swap in/out */
-		scalePrint(s->swap_in_sts, s->swap_in.ul);
-		scalePrint(s->swap_out_sts, s->swap_out.ul);
+		scalePrint(s, swap_in);
+		scalePrint(s, swap_out);
 
 		/* io in/out */
-		scalePrint(s->blkread_sts, s->blkread.ul);
-		scalePrint(s->blkwrite_sts, s->blkwrite.ul);
+		scalePrint(s, blk_read);
+		scalePrint(s, blk_write);
 
 		/* system interrupts */
-		scalePrint(s->kernel_intr_sts, s->kernel_intr.ul);
-		scalePrint(s->kernel_pswitch_sts, s->kernel_pswitch.ul);
+		scalePrint(s, interrupts);
+		scalePrint(s, pswitch);
 
-		/* CPU utilization - report percentage of total.  pmfg
-		   guarantees that unavailable metrics get value 0,
-		   but only after a successful pmExtendFetchGroup_*
-		   call.  However, because we used calloc on the
-		   statsrc_t, unavailable metrics will be 0 even in
-		   the unsuccessful pmExtendFetchGroup_* case.  */
+		/*
+		 * CPU utilization - report percentage of total.  pmfg
+		 * guarantees that unavailable metrics get value 0,
+		 * but only after a successful pmExtendFetchGroup_*
+		 * call.  However, because we used calloc on the
+		 * statsrc, unavailable metrics will be 0 even in
+		 * the unsuccessful pmExtendFetchGroup_* case.
+		 */
 		dtot = 0;
-		dtot += s->kernel_cpunice.ull;
-		dtot += s->kernel_cpuuser.ull;
-		dtot += s->kernel_cpuintr.ull;
-		dtot += s->kernel_cpusys.ull;
-		dtot += s->kernel_cpuidle.ull;
-		dtot += s->kernel_cpuwait.ull;
-		dtot += s->kernel_cpusteal.ull;
+		dtot += s->val[cpu_nice].ull;
+		dtot += s->val[cpu_user].ull;
+		dtot += s->val[cpu_intr].ull;
+		dtot += s->val[cpu_sys].ull;
+		dtot += s->val[cpu_idle].ull;
+		dtot += s->val[cpu_wait].ull;
+		dtot += s->val[cpu_steal].ull;
 
 		if (extraCpuStats) {
 		    if (dtot == 0) {
-			printf(" %3.3s %3.3s %3.3s %3.3s %3.3s", "?", "?", "?", "?", "?");
-		    }
-		    else {
+			printf(" %3.3s %3.3s %3.3s %3.3s %3.3s",
+			       "?", "?", "?", "?", "?");
+		    } else {
 			unsigned long long fill = dtot / 2;
+			unsigned long long user, kernel, idle, iowait, steal;
+
+			user = s->val[cpu_nice].ull + s->val[cpu_user].ull;
+			kernel = s->val[cpu_intr].ull + s->val[cpu_sys].ull;
+			idle = s->val[cpu_idle].ull;
+			iowait = s->val[cpu_wait].ull;
+			steal = s->val[cpu_steal].ull;
 			printf(" %3u %3u %3u %3u %3u",
-			       (unsigned int) ((100 * (s->kernel_cpunice.ull + s->kernel_cpuuser.ull) + fill) / dtot),
-			       (unsigned int) ((100 * (s->kernel_cpuintr.ull + s->kernel_cpusys.ull) + fill) / dtot),
-			       (unsigned int) ((100 * s->kernel_cpuidle.ull + fill) / dtot),
-			       (unsigned int) ((100 * s->kernel_cpuwait.ull + fill) / dtot),
-			       (unsigned int) ((100 * s->kernel_cpusteal.ull + fill) / dtot));
+			       (unsigned int)((100 * user + fill) / dtot),
+			       (unsigned int)((100 * kernel + fill) / dtot),
+			       (unsigned int)((100 * idle + fill) / dtot),
+			       (unsigned int)((100 * iowait + fill) / dtot),
+			       (unsigned int)((100 * steal + fill) / dtot));
 		    }
-		}
-		else if (dtot == 0) {
+		} else if (dtot == 0) {
 		    printf(" %3.3s %3.3s %3.3s", "?", "?", "?");
-		}
-		else {
-		    /* NB: dtot will include contributions from wait/steal too. */
+		} else {
 		    unsigned long long fill = dtot / 2;
+		    unsigned long long user, kernel, idle;
+
+		    user = s->val[cpu_nice].ull + s->val[cpu_user].ull;
+		    kernel = s->val[cpu_intr].ull + s->val[cpu_sys].ull
+			   + s->val[cpu_steal].ull;
+		    idle = s->val[cpu_idle].ull + s->val[cpu_wait].ull;
 		    printf(" %3u %3u %3u",
-			   (unsigned int) ((100 * (s->kernel_cpunice.ull + s->kernel_cpuuser.ull) + fill) / dtot),
-			   (unsigned int) ((100 * (s->kernel_cpuintr.ull + s->kernel_cpusys.ull) + fill) / dtot),
-			   (unsigned int) ((100 * s->kernel_cpuidle.ull + fill) / dtot));
+			   (unsigned int) ((100 * user + fill) / dtot),
+			   (unsigned int) ((100 * kernel + fill) / dtot),
+			   (unsigned int) ((100 * idle + fill) / dtot));
 		}
 
 		putchar('\n');
@@ -660,7 +676,7 @@ next:
 	if (opts.guiflag)
 	    pmTimeStateAck(&controls, pmtime);
 
-	now += (time_t) period;
+	now += (time_t)period;
     }
 
     exit(EXIT_SUCCESS);
