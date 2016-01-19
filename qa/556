@@ -13,14 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ $PCP_VER -lt 30600 ]
-then
-    # V1 archives supported
-    arch=archives/ace
-else
-    # no support for V1 archives
-    arch=archives/ace_v2
-fi
+arch=archives/ace_v2
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
