@@ -18,9 +18,11 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES	= pmclient.c pmclient_fg.c
 PYFILES = pmclient_fg.python
-TARGETS = pmclient$(EXECSUFFIX) pmclient_fg$(EXECSUFFIX)
+CMDTARGET1 = pmclient$(EXECSUFFIX)
+CMDTARGET2 = pmclient_fg$(EXECSUFFIX)
+TARGETS = $(CMDTARGET1) $(CMDTARGET2)
 LLDLIBS	= $(PCPLIB)
-LDIRT	= pmnsmap.h mylog.* runme.sh pmclient.o pmclient_fg.o pmclient$(EXECSUFFIX) pmclient_fg$(EXECSUFFIX)
+LDIRT	= pmnsmap.h mylog.* runme.sh *.o $(TARGETS)
 CONFIGS	= pmnsmap.spec pmlogger.config
 LSRCFILES = README GNUmakefile.install $(CONFIGS)
 DEMODIR	= $(PCP_DEMOS_DIR)/pmclient
@@ -30,7 +32,7 @@ default:	$(TARGETS)
 include $(BUILDRULES)
 
 install:	$(TARGETS)
-	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
+	$(INSTALL) -m 755 $(CMDTARGET1) $(PCP_BIN_DIR)/$(CMDTARGET1)
 	$(INSTALL) -m 755 $(CMDTARGET2) $(PCP_BIN_DIR)/$(CMDTARGET2)
 	$(INSTALL) -m 755 -d $(DEMODIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(DEMODIR)/Makefile

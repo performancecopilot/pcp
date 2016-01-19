@@ -13,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
@@ -25,5 +24,6 @@ pmstore sample.const_rate.value 0 >/dev/null 2>&1 # minimize likelihood of rollo
 pmstore sample.const_rate.gradient 10 # time must flow
 _run_valgrind ./src/fetchgroup
 
-# if error
+# success, all done
+status=0
 exit

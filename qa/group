@@ -89,6 +89,8 @@ pmpost
 pmdate
 # pcp and sub-commands
 pcp
+# pmclient demo apps
+pmclient
 
 # general PDU encode/decode
 pdu
@@ -360,9 +362,10 @@ cgroups
 050 archive local ostest
 051 pmcd ostest remote
 052 pmns local ostest
-053 other local pmprobe ostest pmlogger
+053 local pmprobe ostest pmlogger pmclient
 054 pmlogger archive ostest remote pmdumplog
 055 pmie ostest local sanity
+056 local pmprobe ostest pmlogger pmclient
 057 pmns local ostest
 058 pmval local ostest
 059 archive local ostest sanity pmdumplog
@@ -378,6 +381,7 @@ cgroups
 070 other ostest remote
 071 context_local local ostest
 072 pmlogger ostest remote pmdumplog
+073 pmclient local pmprobe
 074 pmda pmda.cisco pmda.pmcd local ostest sanity
 075 pmval pmstore ostest remote
 076 pmda.pmcd local ostest
@@ -413,7 +417,7 @@ cgroups
 106 pmlc pmlogger local pmdumplog
 107 pmlc local sanity
 108 pmda.cisco pmda.sample local
-109 other local pmprobe
+109 pmclient local pmprobe
 110 pmda.simple pmda.proc local pmda.install
 111 pmda.proc pmval local
 112 pmns local sanity
