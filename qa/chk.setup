@@ -231,7 +231,6 @@ done
 # I can do here!
 #	$PCP_PLATFORM	(redundant, copied from $PCP_DIR/etc/pcp.conf)
 #	$PCP_VER
-#	$PCP_EOE_VER
 
 # files from common.product
 #
