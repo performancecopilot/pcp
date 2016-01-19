@@ -24,13 +24,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ $PCP_PLATFORM = irix ]
-then
-   BINFMT=`/usr/pcp/bin/pmobjstyle`
-   sampledso=/var/pcp/lib/$BINFMT.pmda_sample.so
-else
-   sampledso=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX
-fi
+sampledso=$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX
 
 status=1	# failure is the default!
 username=`id -u -n`
