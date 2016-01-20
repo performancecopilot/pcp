@@ -31,16 +31,6 @@ logging=0
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 case "$PCP_PLATFORM" in
-irix)
-    TRACELOG=$PCP_LOG_DIR/trace.log
-    cat >> $tmp.conf << EOF
-# temporary pmcd.conf for qa/$seq
-irix	1	dso	irix_init	libirixpmda.so
-pmcd    2       dso     pmcd_init       pmda_pmcd.so
-trace	10	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 10 -l ${TRACELOG}1
-trace	99	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 99 -l ${TRACELOG}2
-EOF
-    ;;
 
 linux)
     TRACELOG=$PCP_LOG_DIR/pmcd/trace.log
