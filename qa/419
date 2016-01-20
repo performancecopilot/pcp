@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    irix|linux|darwin)
+    linux|darwin)
 	ln $seq.$PCP_PLATFORM $seq.out || exit 1
 	;;
     solaris)
@@ -24,7 +24,7 @@ in
 	ln $seq.darwin $seq.out || exit 1
 	;;
     *)
-	_notrun "Need qualified output for $PCP_PLATFORM"
+	_notrun "Need qualified output for PCP_PLATFORM $PCP_PLATFORM"
 	;;
 esac
 
