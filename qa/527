@@ -24,8 +24,12 @@ perl -e "use PCP::LogImport" 2>/dev/null || \
 
 _filter()
 {
+    # make deterministic tmp file names
+    # dodge buglet in die() line# handling for some perl versions
     sed \
-	-e "s;$tmp;TMP;g"
+	-e "s;$tmp;TMP;g" \
+	-e "s;line 0.000.*$;line 2.;g" \
+    #end
 }
 
 status=1	# failure is the default!
