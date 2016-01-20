@@ -638,8 +638,9 @@ class PMReporter(object):
                     except ValueError as error:
                         err = "Invalid syntax (expected metric=expression)"
                     except Exception as error:
-                        #err = self.context.pmDerivedErrStr() # RHBZ#1286733
-                        err = "Unknown reason"
+                        err = self.context.pmDerivedErrStr()
+                        if not err:
+                            err = "Unidentified error"
                     finally:
                         if err:
                             sys.stderr.write("Failed to register derived metric: %s.\n" % err)
