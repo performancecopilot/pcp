@@ -3,9 +3,7 @@
 # Test out wrapping on libpcp/interp
 #
 #  Test the creation and reading of an archive created using pmlogger(1) and
-#  and pmval(1).  On IRIX 6.2 and earlier, this test purposely sets the TZ
-#  variable to specify daylight savings using the extended format, in a way
-#  that does not break libc.so.
+#  and pmval(1).
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -35,25 +33,6 @@ _wrap_on()
     PCP_COUNTER_WRAP=
     export PCP_COUNTER_WRAP
     echo "--- Wrapping ON ---"
-}
-
-_isLaterThanIRIX62 () {
-    if [ "$PCP_PLATFORM" = irix ]
-    then
-    	STAT=`uname -a | $PCP_AWK_PROG '
-BEGIN	{ status = 0 }
-1   	{
-    	    x = $3
-    	    if (x > 6.2) status = "0"
-    	    else status = "1"
-    	}
-END 	{ print status }
-'`
-    else
-    	STAT=2	#  not an IRIX platform
-    fi
-
-    return $STAT
 }
 
 _setTimeZone () {
@@ -188,13 +167,6 @@ rm -f $seq.full
 
 delta=2
 half_delta=1
-
-_isLaterThanIRIX62
-if [ $? = 1 ]
-then
-    TZ=`_setTimeZone`	    #  this forces the timezone to be correct and
-    export TZ	    	    #  problem-free on IRIX 6.2 and earlier.
-fi
 
 _reset
 cat <<EOF >$tmp.config
