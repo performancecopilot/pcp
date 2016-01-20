@@ -2,11 +2,11 @@ QA output created by 1069
 == basic live mode reporting
           s.l.one
                  
-HH:MM:SS      N/A
+HH:MM:SS        1
 HH:MM:SS        1
           s.l.one
                  
-HH:MM:SS      N/A
+HH:MM:SS        1
 HH:MM:SS        1
 HH:MM:SS        1
 Interval can't be less than 1 second.

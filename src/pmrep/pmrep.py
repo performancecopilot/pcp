@@ -844,7 +844,6 @@ class PMReporter(object):
                     self.samples = 0
                     continue
                 raise error
-            self.context.pmSortInstances(result) # XXX Is this really needed?
             self.extract(result)
             if self.ctstamp == 0:
                 self.ctstamp = copy.copy(result.contents.timestamp)
