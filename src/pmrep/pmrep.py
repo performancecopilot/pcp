@@ -844,7 +844,7 @@ class PMReporter(object):
                     continue
                 raise error
             self.context.pmSortInstances(result) # XXX Is this really needed?
-            values = self.extract(result)
+            self.extract(result)
             if self.ctstamp == 0:
                 self.ctstamp = copy.copy(result.contents.timestamp)
             self.ptstamp = self.ctstamp
@@ -857,7 +857,7 @@ class PMReporter(object):
                 if float(self.ctstamp) > float(self.opts.pmGetOptionFinish()):
                     return
 
-            self.report(self.ctstamp, values)
+            self.report(self.ctstamp, self.currvals)
             self.context.pmFreeResult(result)
             if self.samples and self.samples > 0:
                 self.samples -= 1
@@ -950,8 +950,6 @@ class PMReporter(object):
         # Output modules need to handle non-existing self.prevvals
         self.prevvals = self.currvals
         self.currvals = values
-
-        return values # XXX Redundant now
 
     def report(self, tstamp, values):
         """ Report the metric values """
