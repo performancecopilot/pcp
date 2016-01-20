@@ -1,6 +1,4 @@
--  after first release: drop all compat code
--  after first release: check/fix get_cmd_line_metrics for good
--  after first release: check all code marked with BZ references
+-  check/fix get_cmd_line_metrics for good
 -  allow defining instances to display [-i]
 -  opt to write cols per row with stdout output [-k]
 -  opt to switch cols / rows (e.g., compare ps vs sar)
