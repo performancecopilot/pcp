@@ -150,14 +150,14 @@ test_events ()
     pmFG fg;
 
     enum { max_fields = 4 }; /* max. number of unpacked event records in sample.event.records fetch */
-    struct timeval times[max_fields];
+    struct timespec times[max_fields];
     pmAtomValue values[max_fields];
     int values_stss[max_fields];
     int values_sts;
     unsigned values_num;
 
     enum { max_fields2 = 2 }; /* less than max. number of param_string fields in sample.event.records fetch */
-    struct timeval times2[max_fields2];
+    struct timespec times2[max_fields2];
     pmAtomValue values2[max_fields2];
     int values2_stss[max_fields2];
     int values2_sts;
@@ -203,7 +203,7 @@ test_events ()
             if (j > 0) /* assert time ordering */
                 assert (times[j-1].tv_sec < times[j].tv_sec ||
                         (times[j-1].tv_sec == times[j].tv_sec &&
-                         times[j-1].tv_usec <= times[j].tv_usec));
+                         times[j-1].tv_nsec <= times[j].tv_nsec));
         }
 
         for (j=0; j<values2_num; j++) {
@@ -216,7 +216,7 @@ test_events ()
             if (j > 0) /* assert time ordering */
                 assert (times2[j-1].tv_sec < times2[j].tv_sec ||
                         (times2[j-1].tv_sec == times2[j].tv_sec &&
-                         times2[j-1].tv_usec <= times2[j].tv_usec));
+                         times2[j-1].tv_nsec <= times2[j].tv_nsec));
         }
     }
     assert (too_bigs > 0);

@@ -40,7 +40,7 @@ int pmExtendFetchGroup_item(pmFG \fIpmfg\fP, const char *\fImetric\fP, const cha
 int pmExtendFetchGroup_indom(pmFG \fIpmfg\fP, const char *\fImetric\fP, const char *\fIscale\fP, int \fIout_inst_codes\fP[], char *\fIout_inst_names\fP[], pmAtomValue \fIout_values\fP[], int \fIout_type\fP, int \fIout_stss\fP[], unsigned int \fIout_maxnum\fP, unsigned int *\fIout_num\fP, int *\fIout_sts\fP);
 .br
 .ti -8n
-int pmExtendFetchGroup_event(pmFG \fIpmfg\fP, const char *\fImetric\fP, const char *\fIinstance\fP, const char *\fIfield\fP, const char *\fIscale\fP, struct timeval \fIout_times\fP[], pmAtomValue \fIout_values\fP[], int \fIout_type\fP, int \fIout_stss\fP[], unsigned int \fIout_maxnum\fP, unsigned int *\fIout_num\fP, int *\fIout_sts\fP);
+int pmExtendFetchGroup_event(pmFG \fIpmfg\fP, const char *\fImetric\fP, const char *\fIinstance\fP, const char *\fIfield\fP, const char *\fIscale\fP, struct timespec \fIout_times\fP[], pmAtomValue \fIout_values\fP[], int \fIout_type\fP, int \fIout_stss\fP[], unsigned int \fIout_maxnum\fP, unsigned int *\fIout_num\fP, int *\fIout_sts\fP);
 .br
 .ti -8n
 int pmExtendFetchGroup_timestamp(pmFG \fIpmfg\fP, struct timeval *\fIout_value\fP);
@@ -328,7 +328,7 @@ Those are indicated with a negative return code.
 .hy 0
 .in +8n
 .ti -8n
-int pmExtendFetchGroup_event(pmFG \fIpmfg\fP, const char *\fImetric\fP, const char *\fIinstance\fP, const char *\fIfield\fP, const char *\fIscale\fP, struct timeval \fIout_times\fP[], pmAtomValue \fIout_values\fP[], int \fIout_type\fP, int \fIout_stss\fP[], unsigned int \fIout_maxnum\fP, unsigned int *\fIout_num\fP, int *\fIout_sts\fP);
+int pmExtendFetchGroup_event(pmFG \fIpmfg\fP, const char *\fImetric\fP, const char *\fIinstance\fP, const char *\fIfield\fP, const char *\fIscale\fP, struct timespec \fIout_times\fP[], pmAtomValue \fIout_values\fP[], int \fIout_type\fP, int \fIout_stss\fP[], unsigned int \fIout_maxnum\fP, unsigned int *\fIout_num\fP, int *\fIout_sts\fP);
 .sp
 .in
 .hy
@@ -359,7 +359,7 @@ Rate conversions are
 to compute rates from.
 .PP
 The optional \fIout_times\fP parameter specifies a vector of
-\fBtimeval\fP structs, which will receive a copy of the timestamp
+\fBtimespec\fP structs, which will receive a copy of the timestamp
 of the event record where each particular field was found.
 .PP
 The optional \fIout_values\fP parameter specifies a vector of

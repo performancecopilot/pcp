@@ -103,7 +103,7 @@ struct __pmFetchGroupItem {
 	    pmID field_pmid;
 	    pmDesc field_desc;
 	    struct __pmFetchGroupConversionSpec conv;
-	    struct timeval *output_times; /* NB: may be NULL */
+	    struct timespec *output_times; /* NB: may be NULL */
 	    pmAtomValue *output_values;	/* NB: may be NULL */
 	    pmResult **unpacked_events;
 	    int output_type;
@@ -596,7 +596,7 @@ pmfg_reinit_event(pmFGI item)
 
     if (item->u.event.output_times)
 	for (i = 0; i < item->u.event.output_maxnum; i++)
-	    memset(& item->u.event.output_times[i], 0, sizeof(struct timeval));
+	    memset(& item->u.event.output_times[i], 0, sizeof(struct timespec));
 
     if (item->u.event.output_stss)
 	for (i = 0; i < item->u.event.output_maxnum; i++)
@@ -1081,9 +1081,12 @@ pmfg_fetch_event(pmFG pmfg, pmFGI item, pmResult *newResult)
 		item->u.event.output_values[output_num] = v;
 
 	    /* Pass the output timestamp. */
-	    if (item->u.event.output_times)
-		memcpy(&item->u.event.output_times[output_num],
-			&event->timestamp, sizeof(struct timeval));
+	    if (item->u.event.output_times) {
+                item->u.event.output_times[output_num].tv_sec =
+                    event->timestamp.tv_sec;
+                item->u.event.output_times[output_num].tv_nsec =
+                    event->timestamp.tv_usec * 1000;
+            }
 
 	out1:
 	    if (item->u.event.output_stss)
@@ -1395,7 +1398,7 @@ int
 pmExtendFetchGroup_event(pmFG pmfg,
 		const char *metric, const char *instance,
 		const char *field, const char *scale,
-		struct timeval out_times[], pmAtomValue out_values[],
+		struct timespec out_times[], pmAtomValue out_values[],
 		int out_type, int out_stss[],
 		unsigned int out_maxnum, unsigned int *out_num, int *out_sts)
 {

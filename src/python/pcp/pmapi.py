@@ -226,6 +226,15 @@ class timeval(Structure):
         time.sleep(float(self))
         return None
 
+class timespec(Structure):
+    _fields_ = [("tv_sec", c_long),
+                ("tv_nsec", c_long)]
+
+    def __init__(self, sec = 0, nsec = 0):
+        Structure.__init__(self)
+        self.tv_sec = sec
+        self.tv_nsec = usec
+
 class tm(Structure):
     _fields_ = [("tm_sec", c_int),
                 ("tm_min", c_int),
@@ -2033,7 +2042,7 @@ LIBPCP.pmExtendFetchGroup_indom.argtypes = [c_void_p, c_char_p, c_char_p,
                                             POINTER(c_int)]
 LIBPCP.pmExtendFetchGroup_event.restype = c_int
 LIBPCP.pmExtendFetchGroup_event.argtypes = [c_void_p, c_char_p, c_char_p, c_char_p, c_char_p,
-                                            POINTER(timeval),
+                                            POINTER(timespec),
                                             POINTER(pmAtomValue),
                                             c_int,
                                             POINTER(c_int),
@@ -2167,11 +2176,11 @@ class fetchgroup(object):
             """Allocate a single instance to receive a fetchgroup item."""
             stss_t = c_int * num
             values_t = pmAtomValue * num
-            timeval_t = timeval * num
+            timespec_t = timespec * num
             self.sts = c_int(c_api.PM_ERR_VALUE)
             self.stss = stss_t(c_api.PM_ERR_VALUE)
             self.pmtype = pmtype
-            self.times = timeval_t()
+            self.times = timespec_t()
             self.values = values_t()
             self.num = c_uint()
             self.ctx = ctx
@@ -2192,7 +2201,7 @@ class fetchgroup(object):
                         return self.values[i].dref(self.pmtype)
 
                 ts = self.ctx.pmLocaltime(self.times[i].tv_sec)
-                us = int(self.times[i].tv_usec)
+                us = int(self.times[i].tv_nsec)//1000
                 dt = datetime.datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
                                        ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
                 # nested lambda for proper i capture
@@ -2335,7 +2344,7 @@ class fetchgroup(object):
                                               c_char_p(instance.encode('utf-8') if instance else None),
                                               c_char_p(field.encode('utf-8') if field else None),
                                               c_char_p(scale.encode('utf-8') if scale else None),
-                                              cast(pointer(vv.times), POINTER(timeval)),
+                                              cast(pointer(vv.times), POINTER(timespec)),
                                               cast(pointer(vv.values), POINTER(pmAtomValue)),
                                               c_int(ftype),
                                               cast(pointer(vv.stss), POINTER(c_int)),

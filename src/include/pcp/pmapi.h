@@ -903,7 +903,7 @@ PCP_CALL extern int pmExtendFetchGroup_indom(pmFG, const char *, const char *,
 			unsigned int, unsigned int *, int *);
 PCP_CALL extern int pmExtendFetchGroup_event(pmFG, const char *, const char *,
 			const char *, const char *,
-			struct timeval[], pmAtomValue[], int, int[],
+			struct timespec[], pmAtomValue[], int, int[],
 			unsigned int, unsigned int *, int *);
 PCP_CALL extern int pmExtendFetchGroup_timestamp(pmFG, struct timeval *);
 PCP_CALL extern int pmFetchGroup(pmFG);
