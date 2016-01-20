@@ -446,10 +446,10 @@ __pmReinitValue(pmAtomValue *oval, int otype)
 	    oval->ull = 0;
 	    break;
 	case PM_TYPE_FLOAT:
-	    oval->f = nanf("");
+	    oval->f = (float)0.0 / (float)0.0; /* nanf(""); */
 	    break;
 	case PM_TYPE_DOUBLE:
-	    oval->d = nan("");
+	    oval->d = (double)0.0 / (double)0.0; /* nan(""); */
 	    break;
 	case PM_TYPE_STRING:
 	    free(oval->cp);
