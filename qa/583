@@ -30,8 +30,8 @@ echo "other2=$other2" >>$here/$seq.full
 
 case $PCP_PLATFORM
 in
-    irix|linux|solaris)
-	# same syslog options for Irix, Linux and OpenSolaris
+    linux|solaris)
+	# same syslog options for Linux and OpenSolaris
 	SYSLOG_OPT='"-p daemon.info"'
 	;;
     darwin)
