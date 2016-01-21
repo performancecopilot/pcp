@@ -387,8 +387,6 @@ main(int argc, char *argv[])
 				free(endnum);
 				opts.errors++;
 			}
-			else
-				interval = opts.interval;
 	
 			if (opts.optind < argc)
 			{
@@ -397,7 +395,6 @@ main(int argc, char *argv[])
 					prusage(pmProgname);
 				if ((opts.samples = atoi(arg)) < 1)
 					prusage(pmProgname);
-				nsamples = opts.samples;
 			}
 		}
 	}
@@ -406,6 +403,12 @@ main(int argc, char *argv[])
 
 	if (opts.errors)
 		prusage(pmProgname);
+
+	if (opts.samples)
+		nsamples = opts.samples;
+
+	if (opts.interval.tv_sec || opts.interval.tv_usec)
+		interval = opts.interval;
 
 	/*
 	** find local host details (no privileged access required)

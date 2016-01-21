@@ -1,6 +1,6 @@
 #!/usr/bin/pcp python
 #
-# Copyright (C) 2015 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2016 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -211,7 +211,6 @@ class PMReporter(object):
         self.count_scale = None
         self.space_scale = None
         self.time_scale = None
-        self.can_scale = None # PCP 3.9 compat
 
         # Performance metrics store
         # key - metric name
@@ -263,14 +262,10 @@ class PMReporter(object):
         if value in ('false', 'False', 'n', 'no', 'No'):
             value = 0
         if name == 'source':
-            try: # RHBZ#1270176 / PCP < 3.10.8
-                if '/' in value:
-                    self.opts.pmSetOptionArchive(value)
-                else:
-                    self.opts.pmSetOptionHost(value) # RHBZ#1289911
-            except:
-                sys.stderr.write("PCP 3.10.8 or later required for the 'source' directive.\n")
-                sys.exit(1)
+            if '/' in value:
+                self.opts.pmSetOptionArchive(value)
+            else:
+                self.opts.pmSetOptionHost(value) # RHBZ#1289911
         elif name == 'samples':
             self.opts.pmSetOptionSamples(value)
             self.samples = self.opts.pmGetOptionSamples()
@@ -619,8 +614,6 @@ class PMReporter(object):
             else:
                 self.zabbix_interval = int(self.interval)
 
-        self.can_scale = "pmParseUnitsStr" in dir(self.context)
-
     def validate_metrics(self):
         """ Validate the metrics set """
         # Check the metrics against PMNS, resolve non-leaf metrics
@@ -645,8 +638,9 @@ class PMReporter(object):
                     except ValueError as error:
                         err = "Invalid syntax (expected metric=expression)"
                     except Exception as error:
-                        #err = self.context.pmDerivedErrStr() # RHBZ#1286733
-                        err = "Unknown reason"
+                        err = self.context.pmDerivedErrStr()
+                        if not err:
+                            err = "Unidentified error"
                     finally:
                         if err:
                             sys.stderr.write("Failed to register derived metric: %s.\n" % err)
@@ -724,7 +718,7 @@ class PMReporter(object):
                     self.metrics[metric][2] = unitstr
             # Set unit/scale for non-raw numeric metrics
             try:
-                if self.metrics[metric][3] == 0 and self.can_scale and \
+                if self.metrics[metric][3] == 0 and \
                    self.descs[i].contents.type != PM_TYPE_STRING:
                     (unitstr, mult) = self.context.pmParseUnitsStr(self.metrics[metric][2])
                     label = self.metrics[metric][2]
@@ -850,8 +844,7 @@ class PMReporter(object):
                     self.samples = 0
                     continue
                 raise error
-            self.context.pmSortInstances(result) # XXX Is this really needed?
-            values = self.extract(result)
+            self.extract(result)
             if self.ctstamp == 0:
                 self.ctstamp = copy.copy(result.contents.timestamp)
             self.ptstamp = self.ctstamp
@@ -864,7 +857,7 @@ class PMReporter(object):
                 if float(self.ctstamp) > float(self.opts.pmGetOptionFinish()):
                     return
 
-            self.report(self.ctstamp, values)
+            self.report(self.ctstamp, self.currvals)
             self.context.pmFreeResult(result)
             if self.samples and self.samples > 0:
                 self.samples -= 1
@@ -909,9 +902,11 @@ class PMReporter(object):
                 # Extract and scale the value
                 try:
                     # Use native type if no rescaling needed
-                    if self.metrics[metric][2][2] == 1 and \
-                       str(self.descs[i].contents.units) == \
-                       str(self.metrics[metric][2][1]):
+                    if self.descs[i].contents.type == PM_TYPE_STRING or \
+                       self.metrics[metric][3] == 1 or \
+                       (self.metrics[metric][2][2] == 1 and \
+                        str(self.descs[i].contents.units) == \
+                        str(self.metrics[metric][2][1])):
                         rescale = 0
                         vtype = self.descs[i].contents.type
                     else:
@@ -924,17 +919,15 @@ class PMReporter(object):
                         self.descs[i].contents.type,
                         vtype)
 
-                    if self.metrics[metric][3] != 1 and rescale and \
-                       self.descs[i].contents.type != PM_TYPE_STRING and \
-                       self.can_scale:
+                    if rescale:
                         atom = self.context.pmConvScale(
                             vtype,
                             atom, self.descs, i,
                             self.metrics[metric][2][1])
 
                     val = atom.dref(vtype)
-                    if rescale and self.can_scale and \
-                       self.descs[i].contents.type != PM_TYPE_STRING:
+
+                    if rescale:
                         val *= self.metrics[metric][2][2]
                         val = int(val) if val == int(val) else val
 
@@ -957,8 +950,6 @@ class PMReporter(object):
         # Output modules need to handle non-existing self.prevvals
         self.prevvals = self.currvals
         self.currvals = values
-
-        return values # XXX Redundant now
 
     def report(self, tstamp, values):
         """ Report the metric values """
@@ -1184,8 +1175,6 @@ class PMReporter(object):
                 if str(list(values[i])[j][2]) != NO_VAL:
                     data = 1
                     inst = self.insts[i][1][j]
-                    if inst == None: # RHBZ#1285371
-                        inst = ""
                     if self.descs[i].contents.type == PM_TYPE_STRING:
                         self.pmi.pmiPutValue(metric, inst, str(values[i][j][2]))
                     elif self.descs[i].contents.type == PM_TYPE_FLOAT or \
@@ -1242,15 +1231,15 @@ class PMReporter(object):
                 k += 1
 
                 # Raw or rate
-                if not self.metrics[metric][3] and \
-                  (self.prevvals == None or list(self.prevvals[i])[j][2] == NO_VAL):
-                    # Rate not yet possible
-                    value = NO_VAL
-                elif self.metrics[metric][3] or \
+                if self.metrics[metric][3] or \
                   self.descs[i].sem != PM_SEM_COUNTER or \
                   list(values[i])[j][2] == NO_VAL:
                     # Raw
                     value = list(values[i])[j][2]
+                elif not self.metrics[metric][3] and \
+                  (self.prevvals == None or list(self.prevvals[i])[j][2] == NO_VAL):
+                    # Rate not yet possible
+                    value = NO_VAL
                 else:
                     # Rate
                     scale = 1

@@ -203,9 +203,8 @@ values for a requested metric are `unavailable' if
 .CW numval
 is less than, or equal to, zero.
 A performance metric's value may be `unavailable'
-for any of the following reasons;
-.IP "+" 3n
-The metric is not supported in this version
+for a number of reasons; the following list is illustrative but
+not exhaustive:
 of the software for the associated Performance Metric Domain
 .IP "+"
 Collection is not currently activated
@@ -221,6 +220,14 @@ The metric is one for which an instance profile is required,
 and none was provided (there are a small number of metrics in this category,
 typically ones with very large, and/or very 
 dynamic instance domains, and/or expensive metric instantiation methods).
+.IP "+"
+If the current context involves fetching metrics from an archive log,
+values may be unavailable in the region around a
+.I <mark>
+record (see
+.BR pmlogextract (1))
+that indicate a temporal discontinuity in the time-series of
+metric values.
 .PP
 In general, we may not be able to differentiate between the various cases,
 and if differentiation is not possible, 
@@ -315,13 +322,13 @@ and
 Note that
 .B pmFetch
 is the most primitive method of fetching metric values from the PMCS.
-More user friendly interfaces to the PMCS are available or currently
-under development \- these higher level fetch methods insulate
-the user from the intricacies of context creation,
+See the
+.BR pmFetchGroup (3)
+API for a higher level method that insulates
+the user from the intricacies of looking up metric names and metadata,
 setting up instance profiles, 
 .CW pmResult
-traversal, and splitting fetches into batches to minimize PDU traffic
-or according to other optimization criteria.
+traversal, conversions, and scaling.
 .SH DIAGNOSTICS
 As mentioned above,
 .B pmFetch

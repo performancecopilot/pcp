@@ -11,9 +11,6 @@
 . ./common.check
 
 seq=`basename $0`
-
-[ $PCP_VER -lt 30809 ] && _notrun "pmlogextract fix in PCP 3.8.9"
-
 echo "QA output created by $seq"
 
 status=1	# failure is the default!

@@ -722,7 +722,7 @@ pmval diffs ...
 pmns diffs ...
 --- TMP.in
 +++ TMP.out
-@@ -128,90 +128,90 @@
+@@ -130,90 +130,90 @@
  pmcd.pmlogger.archive PMID: 2.3.2
  pmcd.pmlogger.host PMID: 2.3.3
  pmcd.pmlogger.port PMID: 2.3.0

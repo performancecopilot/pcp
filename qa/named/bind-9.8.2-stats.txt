@@ -1,0 +1,1924 @@
++++ Statistics Dump +++ (1452654011)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                   3 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                   4 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654011)
++++ Statistics Dump +++ (1452654018)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                   4 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                   5 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654018)
++++ Statistics Dump +++ (1452654028)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                   5 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                   6 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654028)
++++ Statistics Dump +++ (1452654038)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                   6 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                   7 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654038)
++++ Statistics Dump +++ (1452654048)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                   7 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                   8 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654048)
++++ Statistics Dump +++ (1452654058)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                   8 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                   9 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654058)
++++ Statistics Dump +++ (1452654068)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                   9 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  10 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654068)
++++ Statistics Dump +++ (1452654078)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  10 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  11 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654078)
++++ Statistics Dump +++ (1452654088)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  11 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  12 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654088)
++++ Statistics Dump +++ (1452654098)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  12 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  13 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654098)
++++ Statistics Dump +++ (1452654108)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  13 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  14 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654108)
++++ Statistics Dump +++ (1452654118)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  14 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  15 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654118)
++++ Statistics Dump +++ (1452654128)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  15 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  16 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654128)
++++ Statistics Dump +++ (1452654138)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  16 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  17 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654138)
++++ Statistics Dump +++ (1452654148)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  17 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  18 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654148)
++++ Statistics Dump +++ (1452654158)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  18 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  19 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654158)
++++ Statistics Dump +++ (1452654168)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  19 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  20 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654168)
++++ Statistics Dump +++ (1452654178)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  20 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  21 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654178)
++++ Statistics Dump +++ (1452654188)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  21 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  22 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654188)
++++ Statistics Dump +++ (1452654198)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  22 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  23 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654198)
++++ Statistics Dump +++ (1452654208)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  23 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  24 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654208)
++++ Statistics Dump +++ (1452654218)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  24 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  25 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654218)
++++ Statistics Dump +++ (1452654228)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  25 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  26 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654228)
++++ Statistics Dump +++ (1452654238)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  26 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  27 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654238)
++++ Statistics Dump +++ (1452654248)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  27 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  28 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654248)
++++ Statistics Dump +++ (1452654258)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  28 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  29 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654258)
++++ Statistics Dump +++ (1452654268)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  29 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  30 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654268)
++++ Statistics Dump +++ (1452654278)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  30 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  31 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654278)
++++ Statistics Dump +++ (1452654288)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  31 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  32 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654288)
++++ Statistics Dump +++ (1452654298)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  32 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  33 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654298)
++++ Statistics Dump +++ (1452654308)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  33 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  34 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654308)
++++ Statistics Dump +++ (1452654318)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  34 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  35 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654318)
++++ Statistics Dump +++ (1452654328)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  35 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  36 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654328)
++++ Statistics Dump +++ (1452654338)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  36 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  37 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654338)
++++ Statistics Dump +++ (1452654348)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  37 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  38 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654348)
++++ Statistics Dump +++ (1452654358)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  38 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  39 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654358)
++++ Statistics Dump +++ (1452654368)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  39 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  40 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654368)
++++ Statistics Dump +++ (1452654378)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  40 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  41 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654378)
++++ Statistics Dump +++ (1452654388)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  41 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  42 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654388)
++++ Statistics Dump +++ (1452654398)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  42 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  43 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654398)
++++ Statistics Dump +++ (1452654408)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  43 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  44 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654408)
++++ Statistics Dump +++ (1452654418)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  44 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  45 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654418)
++++ Statistics Dump +++ (1452654428)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  45 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  46 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654428)
++++ Statistics Dump +++ (1452654438)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  46 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  47 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654438)
++++ Statistics Dump +++ (1452654448)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  47 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  48 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654448)
++++ Statistics Dump +++ (1452654458)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  48 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  49 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654458)
++++ Statistics Dump +++ (1452654468)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  49 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  50 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654468)
++++ Statistics Dump +++ (1452654478)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  50 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  51 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654478)
++++ Statistics Dump +++ (1452654488)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  51 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  52 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654488)
++++ Statistics Dump +++ (1452654498)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  52 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  53 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654498)
++++ Statistics Dump +++ (1452654508)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  53 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  54 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654508)
++++ Statistics Dump +++ (1452654518)
+++ Incoming Requests ++
+                   3 QUERY
+++ Incoming Queries ++
+                   3 A
+++ Outgoing Queries ++
+[View: default]
+                   3 A
+[View: _bind]
+++ Name Server Statistics ++
+                   3 IPv4 requests received
+                   3 responses sent
+                   3 queries resulted in successful answer
+                   3 queries resulted in non authoritative answer
+                   3 queries caused recursion
+++ Zone Maintenance Statistics ++
+++ Resolver Statistics ++
+[Common]
+[View: default]
+                   3 IPv4 queries sent
+                   3 IPv4 responses received
+                   3 queries with RTT < 10ms
+[View: _bind]
+++ Cache DB RRsets ++
+[View: default]
+[View: _bind (Cache: _bind)]
+++ Socket I/O Statistics ++
+                   4 UDP/IPv4 sockets opened
+                   1 UDP/IPv6 sockets opened
+                   2 TCP/IPv4 sockets opened
+                   2 TCP/IPv6 sockets opened
+                   3 UDP/IPv4 sockets closed
+                  54 TCP/IPv4 sockets closed
+                   3 UDP/IPv4 connections established
+                  55 TCP/IPv4 connections accepted
+++ Per Zone Query Statistics ++
+--- Statistics Dump --- (1452654518)

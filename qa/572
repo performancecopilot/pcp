@@ -51,12 +51,6 @@ cat >$tmp.pmcd.conf << EOF
 # from QA $seq
 pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 EOF
-elif [ $PCP_PLATFORM = irix ]
-then
-cat >$tmp.pmcd.conf << EOF
-# from QA $seq
-pmcd	2	dso	pmcd_init	pmda_pmcd.so
-EOF
 elif [ $PCP_PLATFORM = darwin ]
 then
 cat >$tmp.pmcd.conf << EOF

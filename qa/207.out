@@ -18,6 +18,8 @@ set.first PMID: 0.0.1
 set.last PMID: 510.4095.1022
 dynamic.first PMID: 0.*.*
 dynamic.last PMID: 510.*.*
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
 
 === Error cases ===
 [TMP.pmns:2] Error Parsing ASCII PMNS: Illegal domain field in PMID

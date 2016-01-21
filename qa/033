@@ -16,25 +16,17 @@ echo "QA output created by $seq"
 [ $PCP_PLATFORM = solaris ] && _notrun "No filesys metrics for Solaris"
 
 rm -f $seq.out
-if [ $PCP_PLATFORM = irix ]
-then
-    ln $seq.out.2 $seq.out
-elif [ $PCP_PLATFORM = darwin ]
+if [ $PCP_PLATFORM = darwin ]
 then
     ln $seq.out.4 $seq.out
 else
     # assume linux-like
     #
-    if [ $PCP_EOE_VER -ge 20300 ]
+    if pmprobe filesys.readonly >/dev/null
     then
-	if pmprobe filesys.readonly >/dev/null
-	then
-	    ln $seq.out.3 $seq.out
-	else
-	    ln $seq.out.1 $seq.out
-	fi
+	ln $seq.out.3 $seq.out
     else
-	ln $seq.out.0 $seq.out
+	ln $seq.out.1 $seq.out
     fi
 fi
 

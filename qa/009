@@ -12,12 +12,14 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-if [ $PCP_PLATFORM != irix ]
-then
-    echo "Missing some ipc/shm/sem metrics on $PCP_PLATFORM" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
+case $PCP_PLATFORM
+in
+    *)
+	echo "Missing some ipc/shm/sem metrics on PCP_PLATFORM $PCP_PLATFORM" >$seq.notrun
+	echo "$seq: [not run] `cat $seq.notrun`"
+	exit 0
+	;;
+esac
 
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 

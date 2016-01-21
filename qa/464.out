@@ -3,18 +3,26 @@ no error cases ...
 one PMID: 1.2.3
 two.three PMID: 4.5.6
 four.five.six PMID: 7.8.9
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
 
 one PMID: 1.2.3
 two.three PMID: 4.5.6
 four.five.six PMID: 7.8.9
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
 
 one PMID: 1.2.3
 two.three PMID: 4.5.6
 four.five.six PMID: 7.8.9
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
 
 two PMID: 2.2.2
 foo.two.eek PMID: 3.4.5
 foo.three.urk PMID: 5.4.3
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
 
 #include errors ...
 pmcpp: TMP.root[2]: #include TMP.1
@@ -54,7 +62,8 @@ pmcpp: TMP.root[3]: #define
 pmcpp: Error: Missing macro name
 Error Parsing ASCII PMNS: pmcpp returned non-zero exit status
 pminfo: Cannot load namespace from "TMP.root": Problems parsing PMNS definitions
-PMNS appears to be empty!
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
 pmcpp: TMP.root[2]: #define bad_123_macro!name
 pmcpp: Error: Illegal character in macro name
 Error Parsing ASCII PMNS: pmcpp returned non-zero exit status

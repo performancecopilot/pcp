@@ -308,6 +308,7 @@ __pmInitContextLock(pthread_mutex_t *lock)
 		contexts_len-1, errmsg);
 	exit(4);
     }
+    pthread_mutexattr_destroy(&attr);
 }
 
 static void
@@ -1040,6 +1041,7 @@ pmDupContext(void)
 #ifdef PM_MULTI_THREAD
     pthread_mutex_t	save_lock;
 #endif
+    __pmHashCtl		save_attrs;
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -1068,6 +1070,7 @@ pmDupContext(void)
     newcon = contexts[new];
     save = newcon->c_instprof;	/* need this later */
     save_dm = newcon->c_dm;	/* need this later */
+    save_attrs = newcon->c_attrs; /* need this later */
 #ifdef PM_MULTI_THREAD
     save_lock = newcon->c_lock;	/* need this later */
 #endif
@@ -1079,6 +1082,7 @@ pmDupContext(void)
 #ifdef PM_MULTI_THREAD
     newcon->c_lock = save_lock;	/* restore saved lock with initialized state also */
 #endif
+    newcon->c_attrs = save_attrs; /* restore saved attributes hash as well */
 
     /* clone the per-domain profiles (if any) */
     if (oldcon->c_instprof->profile_len > 0) {

@@ -1,7 +1,7 @@
 /*
  * Linux /proc/vmstat metrics cluster
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2014,2016 Red Hat.
  * Copyright (c) 2007,2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -29,6 +29,12 @@ static struct {
     /* sorted by name to make maintenance easier */
     { .field = "allocstall",
      .offset = &_pm_proc_vmstat.allocstall },
+    { .field = "balloon_deflate",
+     .offset = &_pm_proc_vmstat.balloon_deflate },
+    { .field = "balloon_inflate",
+     .offset = &_pm_proc_vmstat.balloon_inflate },
+    { .field = "balloon_migrate",
+     .offset = &_pm_proc_vmstat.balloon_migrate },
     { .field = "compact_blocks_moved",
      .offset = &_pm_proc_vmstat.compact_blocks_moved },
     { .field = "compact_fail",
@@ -211,6 +217,10 @@ static struct {
      .offset = &_pm_proc_vmstat.thp_fault_fallback },
     { .field = "thp_split",
      .offset = &_pm_proc_vmstat.thp_split },
+    { .field = "thp_zero_page_alloc",
+     .offset = &_pm_proc_vmstat.thp_zero_page_alloc },
+    { .field = "thp_zero_page_alloc_failed",
+     .offset = &_pm_proc_vmstat.thp_zero_page_alloc_failed },
     { .field = "unevictable_pgs_cleared",
      .offset = &_pm_proc_vmstat.unevictable_pgs_cleared },
     { .field = "unevictable_pgs_culled",

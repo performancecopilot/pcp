@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2016 Red Hat.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -21,8 +21,9 @@
  * linux -> linux + xfs PMDAs split, these need to match the enum
  * assigned values for CLUSTER_* from the original Linux PMDA.
  */
-#define CLUSTER_XFS	16 /* /proc/fs/xfs/stat */
-#define CLUSTER_XFSBUF	17 /* /proc/fs/pagebuf/stat */
+#define CLUSTER_XFS	16 /* sysfs/procfs global stats */
+#define CLUSTER_XFSBUF	17 /* sysfs/procfs global buffer stats */
+#define CLUSTER_PERDEV	18 /* sysfs per-mounted-device stats */
 #define CLUSTER_QUOTA	30 /* quotactl() */
 
 #define MIN_CLUSTER	16 /* first cluster number we use here */

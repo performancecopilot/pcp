@@ -56,3 +56,9 @@ pmcd.pmlogger.port
 
 pmcd.pmlogger.host
         inst blah, blah, blah
+
+event.flags
+No value(s) available!
+
+event.missed
+No value(s) available!

@@ -31,7 +31,7 @@ _filter()
 	-e "s/$rem_host/REMOTE-HOST/" \
 	-e "s/$myhost/LOCAL-HOST/" \
 	-e "s/local:/LOCAL-HOST/" \
-	-e "s/port $port /port QA-PMLOGGER-PORT /" \
+	-e "s/port $port /port PORT /" \
 	-e 's/logging metrics from host .*/logging metrics from host .../' \
 	-e '/^log started/d' \
 	-e '/^last log entry/d' \
@@ -40,14 +40,17 @@ _filter()
 	-e '/^log size/s/.*/... status output .../'
 }
 
-# _speak_to_me <host> <pid>
+# _speak_to_me <host> <pid> [<port>]
 #
 _speak_to_me()
 {
     echo
+    # default
+    _port=4330
+    [ -n "$3" ] && _port="$3"
     echo "=== _host=$1 _logger_id=$2 ===" >$tmp.out
     echo >>$seq.full
-    echo "=== _host=$1 _logger_id=$2 ===" >>$seq.full
+    echo "=== _host=$1 _logger_id=$2 _port=$_port ===" >>$seq.full
     # allow pmlogger socket to be closed and ready to accept()
     #
     sleep 2
@@ -55,7 +58,7 @@ _speak_to_me()
 connect primary $1
 status
 query sample.drift
-connect port 4330 $1
+connect port $_port $1
 status
 flush
 connect $2 $1
@@ -63,7 +66,8 @@ status
 flush
 End-of-File
     cat $tmp.out >>$seq.full
-    _filter <$tmp.out
+    _filter <$tmp.out \
+    | sed -e "s/port $_port/port PORT/g"
 }
 
 _cleanup()
@@ -77,7 +81,12 @@ _cleanup()
 	    pid=''
 	fi
 	echo
-	_filter_pmlogger_log <$tmp.log
+	if [ -f $tmp.log ]
+	then
+	    _filter_pmlogger_log <$tmp.log
+	else
+	    echo "Warning: $tmp.log missing"
+	fi
 	echo
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
@@ -99,28 +108,40 @@ pid=''
 
 $sudo rm -f $tmp.*
 
-rem_pid=`pminfo -f -h $rem_host pmcd.pmlogger.port \
-	 | sed -n -e '/primary/d' -e '/ value 4330 *$/{
+_start_up_pmlogger -h $rem_host -L -c /dev/null -l $tmp.log $tmp >/dev/null 2>&1
+_wait_for_pmlogger $pid $tmp.log
+
+pminfo -f -h $rem_host pmcd.pmlogger.port >$tmp.tmp
+rem_port=`cat $tmp.tmp | sed -n -e '/"primary"/{
+s/.*value *//
+p
+q
+}'`
+if [ -z "$rem_port" ]
+then
+    cat $tmp.tmp
+    echo "Error: cannot find port for remote primary logger!"
+    exit
+fi
+
+rem_pid=`cat $tmp.tmp | sed -n -e '/"primary"/d' -e '/ value '$rem_port' *$/{
 s/.* "//
 s/".*//p
 }'`
 if [ -z "$rem_pid" ]
 then
-    pminfo -f -h $rem_host pmcd.pmlogger.port
-    echo "Error: cannot find pid for remote primary logger!"
+    cat $tmp.tmp
+    echo "Error: cannot find pid for remote primary logger on port $rem_port!"
     exit
 fi
 
-_start_up_pmlogger -h $rem_host -L -c /dev/null -l $tmp.log $tmp >/dev/null 2>&1
-_wait_for_pmlogger $pid $tmp.log
-
 port=`pminfo -f pmcd.pmlogger.port \
-      | sed -n -e '/primary/d' -e '/\['$pid' /{
+      | sed -n -e '/"primary"/d' -e '/\['$pid' /{
 s/.* value //p
 }'`
 
 rm -f $seq.full
-echo "Remote host: $rem_host [pid: $rem_pid]" >>$seq.full
+echo "Remote host: $rem_host [pid: $rem_pid port: $rem_port]" >>$seq.full
 echo "Local host: $myhost [pid: $pid port: $port]" >>$seq.full
 
 # real QA test starts here
@@ -131,7 +152,7 @@ _speak_to_me "" "port $port"
 _speak_to_me @$myhost $pid
 _speak_to_me @$myhost "port $port"
 
-_speak_to_me @$rem_host $rem_pid
+_speak_to_me @$rem_host $rem_pid $rem_port
 
 # make sure the primary logger is terminated and stop pmcd
 #
@@ -143,7 +164,7 @@ echo
 _speak_to_me "" $pid
 _speak_to_me "" "port $port"
 #debug# DEBUG="-D all"
-_speak_to_me @$rem_host $rem_pid
+_speak_to_me @$rem_host $rem_pid $rem_port
 
 # success, all done
 status=0

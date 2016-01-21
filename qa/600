@@ -45,14 +45,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ $PCP_EOE_VER -le 20100 \
-    -o \( $PCP_EOE_VER -ge 60500 -a $PCP_EOE_VER -le 60508 \) ]
-then
-    echo "needs libpcp.so with TZ changes" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 rm -f $seq.out
 if [ $PCP_PLATFORM = linux ]
 then
@@ -164,7 +156,7 @@ elif [ $PCP_PLATFORM = solaris  ]
 then
     ln $seq.out.solaris $seq.out
 else
-    ln $seq.out.irix $seq.out
+    _notrun "No qualified output for PCP_PLATFORM=$PCP_PLATFORM"
 fi
 
 status=1	# failure is the default!

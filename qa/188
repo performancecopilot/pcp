@@ -13,16 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 
 rm -f $seq.out
-if [ $PCP_PLATFORM = irix ] ; then
-    ln $seq.irix $seq.out
-elif [ $PCP_PLATFORM = linux ] ; then
+if [ $PCP_PLATFORM = linux ] ; then
     # Linux is all over the shop here!
-    #
-    # History (linux version of $seq.out)
-    # 	glibc-2.3.3-98.*	SuSE SLES9
-    #
-    # History (irix version of $seq.out)
-    #	glibc-2.3.3-27		RedHat Fedora Core 2
     #
     if [ -f /etc/SuSE-release ]
     then
@@ -41,7 +33,7 @@ elif [ $PCP_PLATFORM = linux ] ; then
 	case `cat /etc/redhat-release`
 	in
 	    'Fedora Core release 2 '*)
-		ln $seq.irix $seq.out
+		ln $seq.linux.fc2 $seq.out
 		;;
 	    'Fedora Core release 6 '*)
 		ln $seq.linux.fc6 $seq.out
@@ -70,7 +62,7 @@ elif [ $PCP_PLATFORM = linux ] ; then
 		    ln $seq.linux $seq.out
 		    ;;
 		*)
-		    ln $seq.irix $seq.out
+		    ln $seq.linux.fc2 $seq.out
 		    ;;
 	    esac
 	elif which emerge >/dev/null 2>&1

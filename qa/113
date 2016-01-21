@@ -226,22 +226,7 @@ cat $tmp.1 >>$seq.full
 
 (for f in $filesystems
 do
-    if [ $PCP_PLATFORM = irix ]
-    then
-	df -lki $f \
-	| $PCP_AWK_PROG '
-/^Filesystem/	{next}
-		{
-		  dev="'$f'"
-		  printf "%s_%s %d\n", "filesys.capacity",  dev, $3
-		  printf "%s_%s %d\n", "filesys.used", dev, $4
-		  printf "%s_%s %d\n", "filesys.free", dev, $5
-		  printf "%s_%s %d\n", "filesys.maxfiles", dev, $7+$8
-		  printf "%s_%s %d\n", "filesys.usedfiles", dev, $7
-		  printf "%s_%s %d\n", "filesys.freefiles", dev, $8
-		  printf "%s_%s %d\n", "filesys.mountdir", dev, $10
-		}' 
-    elif [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin ]
+    if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin ]
     then
 	$sudo df -lk \
 	| grep $f \
@@ -276,7 +261,7 @@ NF == 9		{ printf "%s_%s %d\n", "filesys.maxfiles",  dev, $6+$7
 		  printf "%s_%s %d\n", "filesys.freefiles", dev, $7
 		}'
     else
-	echo "Blah, what sort df magic is needed for a \"$PCP_PLATFORM\" system?" >&2
+	echo "Blah, what sort df magic is needed for a PCP_PLATFORM $PCP_PLATFORM system?" >&2
 	status=1
 	exit
     fi

@@ -858,6 +858,14 @@ main(int argc, char *argv[])
 	DontStart();
     maxReqPortFd = maxClientFd = sts;
 
+    /*
+     * would prefer open log earlier so any messages up to this point
+     * are not lost, but that's not possible ... it has to be after the
+     * command line arguments have been parsed and after the request
+     * port has been successfully established.
+     * Note that if this fails don't worry as messages will still
+     * go to stderr.
+     */
     __pmOpenLog(pmProgname, logfile, stderr, &sts);
     /* close old stdout, and force stdout into same stream as stderr */
     fflush(stdout);
@@ -997,7 +1005,7 @@ CleanupClient(ClientInfo *cp, int sts)
     if (sts != PM_ERR_PERMISSION && sts != PM_ERR_CONNLIMIT)
         __pmAccDelClient(cp->addr);
 
-    pmcd_trace(TR_DEL_CLIENT, cp->fd, sts, 0);
+    pmcd_trace(TR_DEL_CLIENT, cp-client, cp->fd, sts);
     DeleteClient(cp);
 
     if (maxClientFd < maxReqPortFd)

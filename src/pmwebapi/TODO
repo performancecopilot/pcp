@@ -21,4 +21,4 @@
 - old config.options style detection/support
 - dashboard generator
 - a mechanism to control a nested pmmgr to target hosts & metrics for spontaneous loggitude
-- response compression for Accept-Encoding: gzip
+

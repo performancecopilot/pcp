@@ -48,19 +48,9 @@ _wait_for_pmcd
 _wait_for_pmlogger
 
 #
-# tty filtering per host
+# tty filtering per PCP_PLATFORM
 #
-if [ $PCP_PLATFORM = irix ]
-then
-	# handle stupid /dev/tablet as controlling tty!
-	ls -lr /dev | grep '^c.* 0,  1' \
-	| $PCP_AWK_PROG '
-	NR == 1	{ good=$NF; next }
-		{ print "s/" $NF "/" good "/" }' >$tmp.sed
-	ps -e | tee -a $seq.full |\
-	  sed -e 's#pts/#ttyq#' |
-	  sed -f $tmp.sed > $tmp.ps
-elif [ $PCP_PLATFORM = linux ]
+if [ $PCP_PLATFORM = linux ]
 then
 	ps -e | tee -a $seq.full | sed \
 		-e 's#ttyS#tts/#' \
@@ -68,7 +58,7 @@ then
 	/<defunct>/ { print $1, "?" }
         {print}' >$tmp.ps  
 else
-    echo "Arrgh ... Need to know how to do tty filtering for $PCP_PLATFORM"
+    echo "Arrgh ... Need to know how to do tty filtering for PCP_PLATFORM $PCP_PLATFORM"
     exit 1
 fi
 

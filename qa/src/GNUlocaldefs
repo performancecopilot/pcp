@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2015 Red Hat.
+# Copyright (c) 2012-2016 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -39,7 +39,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c \
 	churnctx.c badUnitsStr_r.c units-parse.c rootclient.c \
 	lookupnametest.c getversion.c pdubufbounds.c statvfs.c storepmcd.c \
-	github-50.c archfetch.c
+	github-50.c archfetch.c fetchloop.c sortinst.c fetchgroup.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -126,7 +126,8 @@ PYTHONFILES = \
 	test_pcp_time.python test_pmnswalk.python \
 	pmapi_exceptions.python fsstats.python procpid.python \
 	test_set_source.python test_pmda_memleak.python \
-	test_webcontainers.python test_webprocesses.python
+	test_webcontainers.python test_webprocesses.python \
+        test_pmfg.python
 # not installed:
 PYFILES = $(shell echo $(PYTHONFILES) | sed -e 's/\.python/.py/g')
 LDIRT += $(PYFILES)
@@ -142,22 +143,14 @@ MYFILES += $(POSIXFILES) $(TRACEFILES)
 endif
 
 MYFILES += \
-	pmatop-log.folio err_v1.dump \
+	err_v1.dump \
 	root_irix root_pmns tiny.pmns sgi.bf versiondefs \
-	simple.csv simple.ods simple-resave.csv simple-resave.xlsx \
-	simple.sxc simple.xls simple.xlsx \
-	iostat iostat-c iostat-d iostat-d-k iostat-d-m iostat-p-ALL \
-	iostat-t iostat-t.ISO iostat-x iostat-z iostat-z-p-ALL \
-	iostat-t-x-bud \
 	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
-	sa-sysstat-9.0.4 sa-sysstat-9.0.6 sa-sysstat-9.0.6.1 \
-	sa-sysstat-10.0.1 sa-sysstat-10.0.5 sa-sysstat-10.2.0 \
-	sa-sysstat-9.0.4_rh6.5 sa-sysstat-9.1.7 \
 	permslist \
 	qa_shmctl.c
 
-MYSCRIPTS = grind-tools ipcs_clear mksa-sysstat show-args fixhosts \
-	    mkpermslist memcachestats.pl
+MYSCRIPTS = grind-tools ipcs_clear show-args fixhosts mkpermslist \
+	memcachestats.pl
 
 PSCRIPTS = $(PERLFILES) $(PYTHONFILES)
 

@@ -12,14 +12,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-if [ $PCP_VER -lt 30600 ]
-then
-    # V1 archives supported
-    arch=archives/babylon.percpu
-else
-    # no support for V1 archives
-    arch=archives/babylon.percpu_v2
-fi
+arch=archives/babylon.percpu_v2
 
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

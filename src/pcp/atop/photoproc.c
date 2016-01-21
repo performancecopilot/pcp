@@ -26,10 +26,11 @@
 static void
 update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp)
 {
+	char *nametail = name;
 	memset(task, 0, sizeof(struct tstat));
 
-	strsep(&name, " ");	/* remove process identifier prefix */
-	strncpy(task->gen.cmdline, name, CMDLEN);
+	strsep(&nametail, " ");	/* remove process identifier prefix; might fail */
+	strncpy(task->gen.cmdline, nametail ? nametail : name, CMDLEN);
 	task->gen.cmdline[CMDLEN] = '\0';
 	task->gen.isproc = 1;		/* thread/process marker */
 	task->gen.nthr = 1;		/* for compat with 2.4 */

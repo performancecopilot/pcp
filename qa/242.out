@@ -8,6 +8,8 @@ Archive basename: ARCHIVE
 pmlogger: End of run time, exiting
 
 Log finished DATE
+event.flags
+event.missed
 pmcd.pmlogger.archive
 pmcd.pmlogger.host
 pmcd.pmlogger.port
@@ -22,6 +24,8 @@ Archive basename: ARCHIVE
 pmlogger: End of run time, exiting
 
 Log finished DATE
+event.flags
+event.missed
 kernel.all.load
 pmcd.pmlogger.archive
 pmcd.pmlogger.host
@@ -36,6 +40,8 @@ Archive basename: ARCHIVE
 pmlogger: End of run time, exiting
 
 Log finished DATE
+event.flags
+event.missed
 kernel.all.load
 pmcd.pmlogger.archive
 pmcd.pmlogger.host

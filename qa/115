@@ -99,9 +99,7 @@ _count_pmies()
 # create a basic pmcd config file
 cat >$tmp.pmcd.conf << EOF
 # from QA $seq
-irix	1	dso	irix_init	libirixpmda.so
 pmcd	2	dso	pmcd_init	pmda_pmcd.so
-proc	3	dso	proc_init	pmda_proc.so
 EOF
 
 # create a pmie config file

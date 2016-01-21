@@ -50,18 +50,21 @@ pmnsmerge: Warning: performance metric "me" has multiple PMIDs.
 ... using PMID 1.2.3 and ignoring PMID 4.5.6
 
 +++ Null operations +++
-PMNS appears to be empty!
+event.flags
+event.missed
 
 === single null input PMNS ===
 null:
 root {
 }
-PMNS appears to be empty!
+event.flags
+event.missed
 
 === multiple null input PMNSs ===
 root {
 }
-PMNS appears to be empty!
+event.flags
+event.missed
 
 === 3 have _DATESTAMPS, 3 do not ===
 arg[0] null _DATESTAMP=(null)
@@ -78,4 +81,5 @@ four:
 five:
 root {
 }
-PMNS appears to be empty!
+event.flags
+event.missed

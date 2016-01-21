@@ -261,7 +261,7 @@ QA output created by 488
 --- pmns diffs ---
 --- TMP.in
 +++ TMP.out
-@@ -13,16 +13,6 @@
+@@ -13,18 +13,8 @@
  kernel.all.ipc.msg PMID: 1.10.53
  kernel.all.ipc.sema PMID: 1.10.54
  kernel.all.load PMID: 1.18.3
@@ -278,6 +278,8 @@ QA output created by 488
 -40.0.5 PMID: 40.0.5
 -40.0.7 PMID: 40.0.7
 -40.0.8 PMID: 40.0.8
+ event.flags PMID: 511.0.1
+ event.missed PMID: 511.0.2
 --- pmdumplog diffs ---
 --- TMP.in
 +++ TMP.out

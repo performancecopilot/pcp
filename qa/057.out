@@ -1,0 +1,23 @@
+QA output created by 057
+Expect fred, bear and foo.bar ...
+fred
+bear
+foo.bar
+event.flags
+event.missed
+Expect fred and bear ...
+fred
+bear
+event.flags
+event.missed
+Expect fred, bear and foo.bar ...
+fred
+bear
+foo.bar
+event.flags
+event.missed
+Expect fred and bear ...
+fred
+bear
+event.flags
+event.missed

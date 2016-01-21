@@ -28,29 +28,11 @@ _slice_sort_reassemble()
 {
     sed \
 	-e 's/\([0-9][0-9]*\) or "docker/N or "docker/' \
+	-e 's/\([0-9][0-9]*\) or "cciss/N or "cciss/' \
+	-e 's/\([0-9][0-9]*\) or "md/N or "md/' \
 	-e 's/\([0-9][0-9]*\) or "sd/N or "sd/' \
 	-e 's/\([0-9][0-9]*\) or "sr/N or "sr/' \
-    | $PCP_AWK_PROG '
-BEGIN	{ part = 0; suffix = sprintf("%03d", part) }
-part > 0 && NF == 0 {
-	    part++; suffix = sprintf("%03d", part)
-	}
-	{ print >"'"$tmp"'.part." suffix }
-/^disk\.partitions/ {
-	    part++; suffix = sprintf("%03d.sort", part)
-	}'
-    for part in $tmp.part.*
-    do
-	case $part
-	in
-	    *.sort)
-		LC_COLLATE=POSIX sort $part
-		;;
-	    *)
-		cat $part
-		;;
-	esac
-    done
+    | $here/src/sortinst
 }
 
 # real QA test starts here

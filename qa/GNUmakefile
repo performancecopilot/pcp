@@ -14,9 +14,9 @@ include $(TOPDIR)/src/include/builddefs
 TESTDIR = $(PCP_VAR_DIR)/testsuite
 TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9]/s/:reserved//' -e '/^[0-9]/s/[        ].*//' -e '/^[0-9]/p' <group)
 
-SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient \
+SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
 	  archives views qt linux unbound cifs gpfs lustre ganglia \
-	  postfix perl json slurm tmparch
+	  postfix perl json slurm tmparch sheet
 ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
 endif
@@ -77,8 +77,6 @@ qa_hosts:	qa_hosts.master mk.qa_hosts
 localconfig:
 	@echo PCP_PLATFORM=$(PCP_PLATFORM) > localconfig
 	./mk.pcpversion $(PCP_VERSION) >> localconfig
-	@echo 'PCP_EOE_VER=0' >> localconfig
-	@echo 'PCP_PRO_VER=0' >> localconfig
 
 install_pcp install: $(SUBDIRS)
 ifeq (, $(filter mingw darwin freebsd solaris, $(TARGET_OS)))

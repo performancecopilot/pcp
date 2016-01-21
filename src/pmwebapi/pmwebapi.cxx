@@ -1,7 +1,7 @@
 /*
  * JSON web bridge for PMAPI.
  *
- * Copyright (c) 2011-2015 Red Hat Inc.
+ * Copyright (c) 2011-2016 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -471,8 +471,7 @@ pmwebapi_respond_metric_list (struct MHD_Connection *connection,
     string s = mltc.mhdb->str ();
     delete mltc.mhdb;
     mltc.mhdb = 0;
-    resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
-                                            MHD_RESPMEM_MUST_COPY);
+    resp = NOTMHD_compressible_response (connection, s);
     if (resp == NULL) {
         connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
         rc = -ENOMEM;
@@ -803,8 +802,7 @@ pmwebapi_respond_metric_fetch (struct MHD_Connection *connection,
 
     {
         string s = output.str ();
-        resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
-                                                MHD_RESPMEM_MUST_COPY);
+        resp = NOTMHD_compressible_response (connection, s);
     }
     if (resp == NULL) {
         connstamp (cerr, connection) << "MHDB_create_response_from_buffer failed" << endl;
@@ -1018,8 +1016,7 @@ pmwebapi_respond_instance_list (struct MHD_Connection *connection,
     }
     {
         string s = output.str ();
-        resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
-                                                MHD_RESPMEM_MUST_COPY);
+        resp = NOTMHD_compressible_response (connection, s);
     }
     if (resp == NULL) {
         connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;
@@ -1259,8 +1256,7 @@ pmwebapi_respond_metric_store (struct MHD_Connection *connection,
 
     {
         string s = output.str ();
-        resp = MHD_create_response_from_buffer (s.length (), (void *) s.c_str (),
-                                                MHD_RESPMEM_MUST_COPY);
+        resp = NOTMHD_compressible_response (connection, s);
     }
     if (resp == NULL) {
         connstamp (cerr, connection) << "MHD_create_response_from_buffer failed" << endl;

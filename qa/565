@@ -19,17 +19,9 @@ echo "QA output created by $seq"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    irix)
-	ln $seq.irix $seq.out || exit 1
-	;;
     linux|darwin|solaris)
 	# same output for Linux, Mac OS X and OpenSolaris
-	if [ $PCP_VER -lt 30600 ]
-	then
-	    ln $seq.linux $seq.out || exit 1
-	else
-	    ln $seq.out.2 $seq.out || exit 1
-	fi
+	ln $seq.out.1 $seq.out || exit 1
 	;;
     *)
 	_notrun "Need qualified output for $PCP_PLATFORM"

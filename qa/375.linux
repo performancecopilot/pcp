@@ -69,9 +69,6 @@ pmcd.pdu_in.text
 pmcd.pdu_in.control_req
     adv  off nl             
 
-pmcd.pdu_in.datax
-    adv  off nl             
-
 pmcd.pdu_in.creds
     adv  off nl             
 
@@ -88,6 +85,9 @@ pmcd.pdu_in.total
     adv  off nl             
 
 pmcd.pdu_in.pmns_traverse
+    adv  off nl             
+
+pmcd.pdu_in.auth
     adv  off nl             
 
 pmcd.agent.type
@@ -165,9 +165,6 @@ pmcd.pdu_in.text
 pmcd.pdu_in.control_req
     adv  off nl             
 
-pmcd.pdu_in.datax
-    adv  off nl             
-
 pmcd.pdu_in.creds
     adv  off nl             
 
@@ -184,6 +181,9 @@ pmcd.pdu_in.total
     adv  off nl             
 
 pmcd.pdu_in.pmns_traverse
+    adv  off nl             
+
+pmcd.pdu_in.auth
     adv  off nl             
 
 pmcd.agent.type

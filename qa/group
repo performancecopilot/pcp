@@ -89,6 +89,8 @@ pmpost
 pmdate
 # pcp and sub-commands
 pcp
+# pmclient demo apps
+pmclient
 
 # general PDU encode/decode
 pdu
@@ -178,6 +180,7 @@ pmda.memcache
 pmda.mmv
 pmda.mounts
 pmda.mpi
+pmda.named
 pmda.netfilter
 pmda.news
 pmda.nvidia
@@ -299,6 +302,9 @@ zbxpcp
 # pcp-atop and related commands
 atop
 
+# pcp-iostat
+pmiostat
+
 # Uses Linux kernel cgroups
 cgroups
 
@@ -359,9 +365,10 @@ cgroups
 050 archive local ostest
 051 pmcd ostest remote
 052 pmns local ostest
-053 other local pmprobe ostest pmlogger
+053 local pmprobe ostest pmlogger pmclient
 054 pmlogger archive ostest remote pmdumplog
 055 pmie ostest local sanity
+056 local pmprobe ostest pmlogger pmclient python
 057 pmns local ostest
 058 pmval local ostest
 059 archive local ostest sanity pmdumplog
@@ -377,6 +384,7 @@ cgroups
 070 other ostest remote
 071 context_local local ostest
 072 pmlogger ostest remote pmdumplog
+073 pmclient local pmprobe python
 074 pmda pmda.cisco pmda.pmcd local ostest sanity
 075 pmval pmstore ostest remote
 076 pmda.pmcd local ostest
@@ -412,7 +420,7 @@ cgroups
 106 pmlc pmlogger local pmdumplog
 107 pmlc local sanity
 108 pmda.cisco pmda.sample local
-109 other local pmprobe
+109 pmclient local pmprobe
 110 pmda.simple pmda.proc local pmda.install
 111 pmda.proc pmval local
 112 pmns local sanity
@@ -515,7 +523,7 @@ cgroups
 209 pmval local
 210 pmns local pmval pmie sanity pmdumplog
 211 pmns local pmval pmie pmdumplog
-212 pmda pmda.cisco local
+212:retired pmda pmda.cisco local
 213 dbpmda pmns local pmda.sample pmda.mmv
 214 pmlogextract local pmdumplog
 215 other pmsocks pmval remote
@@ -838,7 +846,7 @@ cgroups
 533 dbpmda local pmda.sample
 534 pmie local
 535 pmie local pmprobe
-536 pmimport local
+536 pmimport local pmiostat
 537 pmimport perl local
 538 pmie local pmstore
 539 pmpost local flakey
@@ -918,6 +926,7 @@ cgroups
 660 pmwebapi local
 661 pmwebapi local
 662 pmwebapi pmda.sample local
+663 pmwebapi local
 666 pmmgr local slow
 667 python local
 668 pmmgr local containers
@@ -1051,7 +1060,7 @@ cgroups
 839 pcp python local
 840 avahi local
 841 pmda local
-842 python local
+842 python local pmiostat
 843 pmda local python
 844 pmda.linux local
 845 pmda.mounts local
@@ -1059,6 +1068,8 @@ cgroups
 850 python local
 853 pmcpp local
 855 pmda.netfilter local
+858 libpcp local fetch
+859 python libpcp local fetch
 860 pmda pmda.proc ostest local
 861 pmcd pmda.pmcd local
 862 pmie local
@@ -1179,6 +1190,8 @@ cgroups
 1030 pmda.linux local
 1031 pmda.slurm perl local
 1032 pmwebapi containers local
+1033 pmda.named local
+1034 pmda.named local
 1042 pmwebapi pmda.proc local
 1044 pmie local pmieconf sanity
 1045 pmie local pmieconf
@@ -1203,4 +1216,5 @@ cgroups
 1092 libpcp local
 1093 pmcpp local
 1094 logutil local
+1099 archive pmiostat local pmval pmie
 1108 logutil local folio pmlogextract

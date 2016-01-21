@@ -55,7 +55,7 @@ _filter
 # first pmRegisterAnon() fails
 echo
 cat >$tmp.control <<End-of-File
-libpcp/events.c:5	<3
+libpcp/derive.c:7	==1
 End-of-File
 pmstore sample.event.reset 0 >/dev/null 2>&1
 pmevent -Dfault -t 0.2 -s 2 sample.event.records >$tmp.out 2>$tmp.err
@@ -64,7 +64,7 @@ _filter
 # second pmRegisterAnon() fails
 echo
 cat >$tmp.control <<End-of-File
-libpcp/events.c:6	<3
+libpcp/derive.c:8	==1
 End-of-File
 pmstore sample.event.reset 0 >/dev/null 2>&1
 pmevent -Dfault -t 0.2 -s 2 sample.event.records >$tmp.out 2>$tmp.err

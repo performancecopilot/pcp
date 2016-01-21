@@ -26,7 +26,7 @@ echo "QA output created by $seq"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    irix|linux)
+    linux)
 	ln $seq.$PCP_PLATFORM $seq.out || exit 1
 	SYSLOG_OPT='"-p daemon.info"'
 	;;

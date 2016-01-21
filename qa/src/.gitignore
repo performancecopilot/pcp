@@ -57,6 +57,8 @@ exercise
 exercise_fault
 exerlock
 exertz
+fetchgroup
+fetchloop
 fetchpdu
 fetchrate
 fetchrate_lite
@@ -158,6 +160,7 @@ rootclient
 rtimetest
 scale
 slow_af
+sortinst
 statvfs
 store
 storepast

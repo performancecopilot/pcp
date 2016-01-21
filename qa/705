@@ -13,8 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_VER -ge 30700 ] || _notrun "Installed libpcp lacks hash iterators"
-
 trap "rm -f $tmp.* $tmp; exit" 0 1 2 3 15
 
 # real QA test starts here

@@ -603,7 +603,7 @@ pmcd config[line 9]: Error: allow or disallow statement expected
 Log finished DATE
 die.028 endlog ----------------
 
-die.029================ may dump core for IRIX 6.1 ... bug in gethostbyname()
+die.029================
 (config for die.029 is host-specific)
 die.029 logfile----------------
 Log for pmcd on HOST started DATE
@@ -717,7 +717,7 @@ pmcd config[line 9]: Error: allow or disallow statement expected
 Log finished DATE
 die.034 endlog ----------------
 
-die.035================ may dump core for IRIX 6.1 ... bug in gethostbyname()
+die.035================
 # Test various levels of wildcarding
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
@@ -739,7 +739,7 @@ pmcd config[line 12]: Error: allow or disallow statement expected
 Log finished DATE
 die.035 endlog ----------------
 
-die.036================ may dump core for IRIX 6.1 ... bug in gethostbyname()
+die.036================
 # Test various levels of wildcarding with several similar setups
 
 sample		254	socket	inet 2077	$PCP_PMDAS_DIR/sample/pmdasample -i 2077
@@ -889,7 +889,7 @@ pmcd config[line 9]: Error: allow or disallow statement expected
 Log finished DATE
 die.042 endlog ----------------
 
-die.043================ may dump core for IRIX 6.1 ... bug in gethostbyname()
+die.043================
 (config for die.043 is host-specific)
 die.043 logfile----------------
 Log for pmcd on HOST started DATE

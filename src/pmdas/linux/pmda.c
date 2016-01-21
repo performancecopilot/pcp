@@ -1,7 +1,7 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
@@ -91,6 +91,7 @@ static int		hz;
 
 /* globals */
 size_t _pm_system_pagesize; /* for hinv.pagesize and used elsewhere */
+int _pm_ncpus; /* number of processors at pmda startup time */
 int _pm_have_proc_vmstat; /* if /proc/vmstat is available */
 int _pm_intr_size; /* size in bytes of interrupt sum count metric */
 int _pm_ctxt_size; /* size in bytes of context switch count metric */
@@ -4257,6 +4258,31 @@ static pmdaMetric metrictab[] = {
     {PMDA_PMID(28,100), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+    /* mem.vmstat.thp_zero_page_alloc */
+    { &_pm_proc_vmstat.thp_zero_page_alloc,
+    {PMDA_PMID(28,101), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.thp_zero_page_alloc_failed */
+    { &_pm_proc_vmstat.thp_zero_page_alloc_failed,
+    {PMDA_PMID(28,102), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.balloon_inflate */
+    { &_pm_proc_vmstat.balloon_inflate,
+    {PMDA_PMID(28,103), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.balloon_deflate */
+    { &_pm_proc_vmstat.balloon_deflate,
+    {PMDA_PMID(28,104), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.balloon_migrate */
+    { &_pm_proc_vmstat.balloon_migrate,
+    {PMDA_PMID(28,105), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /*
  * sysfs_kernel cluster
  */
@@ -6508,6 +6534,10 @@ linux_init(pmdaInterface *dp)
 	hz = atoi(envpath);
     else
 	hz = sysconf(_SC_CLK_TCK);
+    if ((envpath = getenv("LINUX_NCPUS")) != NULL)
+	_pm_ncpus = atoi(envpath);
+    else
+	_pm_ncpus = sysconf(_SC_NPROCESSORS_CONF);
     if ((envpath = getenv("LINUX_PAGESIZE")) != NULL)
 	_pm_system_pagesize = atoi(envpath);
     else

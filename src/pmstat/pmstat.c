@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -30,70 +30,40 @@
 #include <sys/termios.h>
 #endif
 #endif
+#include <assert.h>
 
-struct statsrc_t {
-    int		ctx;
-    int		flip;
-    char *	sname;
-    pmID *	pmids;
-    pmDesc *	pmdesc;
-    pmResult *	res[2];
+enum {
+    load_avg,
+    swap_used,
+    mem_free,
+    mem_buf,
+    mem_cached,
+    swap_in,
+    swap_out,
+    blk_read,
+    blk_write,
+    interrupts,
+    pswitch,
+    cpu_nice,
+    cpu_user,
+    cpu_intr,
+    cpu_sys,
+    cpu_idle,
+    cpu_wait,
+    cpu_steal,
+
+    num_items
 };
 
-static char * metrics[] = {
-#define LOADAVG 0
-    "kernel.all.load",   
-#define MEM 1
-    "swap.used",            
-    "mem.util.free",        
-    "mem.util.bufmem",      
-    "mem.util.cached",      
-#define SWAP 5
-    "swap.pagesin",              
-    "swap.pagesout",             
-#define IO 7
-    "disk.all.blkread",     
-    "disk.all.blkwrite",    
-#define SYSTEM 9
-    "kernel.all.intr",      
-    "kernel.all.pswitch",   
-#define CPU 11
-    "kernel.all.cpu.nice",  
-    "kernel.all.cpu.user",  
-    "kernel.all.cpu.intr",
-    "kernel.all.cpu.sys",
-    "kernel.all.cpu.idle",
-    "kernel.all.cpu.wait.total",
-    "kernel.all.cpu.steal",
-};
+struct statsrc {
+    pmFG		pmfg;
+    char		*sname;
+    struct timeval	timestamp;
+    int			fetched;
 
-static char * metricSubst[] = {
-    NULL,
-/*Memory*/
-    NULL,
-    NULL,
-    "mem.bufmem",
-    NULL,
-/*Swap*/
-    "swap.in",              
-    "swap.out",             
-/*IO*/
-    "disk.all.read",
-    "disk.all.write",
-/*System*/
-    NULL,
-    NULL,
-/*CPU*/
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    pmAtomValue		val[num_items];
+    int			sts[num_items];
 };
-
-static const int nummetrics = sizeof(metrics)/sizeof (metrics[0]);
 
 pmLongOptions longopts[] = {
     PMAPI_GENERAL_OPTIONS,
@@ -121,110 +91,129 @@ static float period;
 static pmTimeControls defaultcontrols;
 
 
-static struct statsrc_t *
-getNewContext(int type, char * host, int quiet)
+static struct statsrc *
+getNewContext(int type, char *host, int quiet)
 {
-    struct statsrc_t *s;
+    struct statsrc *s;
+    int i, sts;
 
-    if ((s = (struct statsrc_t *)malloc(sizeof (struct statsrc_t))) != NULL) {
-	if ((s->ctx = pmNewContext(type, host)) < 0 ) {
-	    if (!quiet)
-		fprintf(stderr,
-			"%s: Cannot create context to get data from %s: %s\n",
-			pmProgname, host, pmErrStr(s->ctx));
-	    free(s);
-	    s = NULL;
-	} else {
-	    int sts;
-	    int i;
-	    
-	    if ((s->pmids = calloc(nummetrics, sizeof(pmID))) == NULL) {
-		free(s);
-		return NULL;
-	    }
+    s = calloc(1, sizeof(struct statsrc));
+    if (s == NULL)
+	return NULL;
 
-	    if ((sts = pmLookupName(nummetrics, metrics, s->pmids)) != nummetrics) {
-		if (sts >= 0) {
-		    for (i = 0; i < nummetrics; i++) {
-			if (s->pmids[i] != PM_ID_NULL)
-			    continue;
-			if (metricSubst[i] == NULL) {
-			    /* skip these, as archives may not contain 'em */
-			    if (i != CPU+2 && i != CPU+5 && i != CPU+6) {
-				int e2 = pmLookupName(1,metrics+i, s->pmids+i);
-				if (e2 != 1)
-				    fprintf(stderr, 
-					"%s: %s: no metric \"%s\": %s\n",
-					pmProgname, host, metrics[i],
-					pmErrStr(e2));
-			    }
-			} else {
-			    int e2 = pmLookupName(1,metricSubst+i, s->pmids+i);
-			    if (e2 != 1) {
-				fprintf (stderr,
-					 "%s: %s: no metric \"%s\" nor \"%s\": %s\n",
-					 pmProgname, host, metrics[i], 
-					 metricSubst[i], pmErrStr(e2));
-			    }
-			    else {
-				fprintf (stderr,
-					 "%s: %s: Warning: using metric \"%s\" instead of \"%s\"\n",
-					 pmProgname, host,
-					 metricSubst[i], metrics[i]);
-				if (i == SWAP || i == SWAP+1)
-				    swapOp = 's';
-			    }
-			}
-		    }
-		}
-		else {
-		    fprintf(stderr, "%s: pmLookupName: %s\n",
-			    pmProgname, pmErrStr(sts));
-		    free(s->pmids);
-		    free(s);
-		    return NULL;
-		}
-	    }
-	    
-	    if ((s->pmdesc = calloc(nummetrics, sizeof (pmDesc))) == NULL) {
-		free(s->pmids);
-		free(s);
-		return NULL;
-	    }
-
-	    for (i = 0; i < nummetrics; i++) {
-		if (s->pmids[i] == PM_ID_NULL) {
-		    s->pmdesc[i].indom = PM_INDOM_NULL;
-		    s->pmdesc[i].pmid = PM_ID_NULL;
-		} else {
-		    if ((sts = pmLookupDesc(s->pmids[i], s->pmdesc+i)) < 0) {
-			fprintf(stderr, 
-				"%s: %s: Warning: cannot retrieve description for "
-				"metric \"%s\" (PMID: %s)\nReason: %s\n",
-				pmProgname, host, metrics[i], pmIDStr(s->pmids[i]),
-				pmErrStr(sts));
-			s->pmdesc[i].indom = PM_INDOM_NULL;
-			s->pmdesc[i].pmid = PM_ID_NULL;
-			
-		    }
-		}
-	    }
-
-	    s->flip = 0;
-	    s->sname = NULL;
-	    s->res[0] = s->res[1] = NULL;
-	}
+    sts = pmCreateFetchGroup(&s->pmfg, type, host);
+    if (sts < 0) {
+	fprintf(stderr, "%s: Cannot create fetchgroup: %s\n",
+		pmProgname, pmErrStr(sts));
+	goto fail;
     }
 
-    return s;
+    /* Register metrics with desired conversions/types; some with fallbacks. */
+    pmExtendFetchGroup_timestamp(s->pmfg, &s->timestamp);
+    s->sts[load_avg] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.load", "1 minute", NULL,
+			&s->val[load_avg], PM_TYPE_FLOAT, &s->sts[load_avg]);
+    s->sts[swap_used] = pmExtendFetchGroup_item(s->pmfg,
+				"swap.used", NULL, "kbyte",
+				&s->val[swap_used], PM_TYPE_U32,
+				&s->sts[swap_used]);
+    s->sts[mem_free] = pmExtendFetchGroup_item(s->pmfg,
+				"mem.util.free", NULL, "kbyte",
+				&s->val[mem_free], PM_TYPE_U32,
+				&s->sts[mem_free]);
+    s->sts[mem_buf] = pmExtendFetchGroup_item(s->pmfg,
+			"mem.util.bufmem", NULL, "kbyte",
+			&s->val[mem_buf], PM_TYPE_U32, &s->sts[mem_buf]);
+    if (s->sts[mem_buf] < 0) {
+	s->sts[mem_buf] = pmExtendFetchGroup_item(s->pmfg,
+			"mem.bufmem", NULL, "kbyte",
+			&s->val[mem_buf], PM_TYPE_U32, &s->sts[mem_buf]);
+    }
+    s->sts[mem_cached] = pmExtendFetchGroup_item(s->pmfg,
+			"mem.util.cached", NULL, "kbyte",
+			&s->val[mem_cached], PM_TYPE_U32, &s->sts[mem_cached]);
+    s->sts[swap_in] = pmExtendFetchGroup_item(s->pmfg,
+			"swap.pagesin", NULL, NULL,
+			&s->val[swap_in], PM_TYPE_U32, &s->sts[swap_in]);
+    if (s->sts[swap_in] < 0) {
+	swapOp = 's';
+	s->sts[swap_in] = pmExtendFetchGroup_item(s->pmfg,
+			"swap.in", NULL, NULL,
+			&s->val[swap_in], PM_TYPE_U32, &s->sts[swap_in]);
+    }
+    s->sts[swap_out] = pmExtendFetchGroup_item(s->pmfg,
+			"swap.pagesout", NULL, NULL,
+			&s->val[swap_out], PM_TYPE_U32, &s->sts[swap_out]);
+    if (s->sts[swap_out] < 0) {
+	swapOp = 's';
+	s->sts[swap_out] = pmExtendFetchGroup_item(s->pmfg,
+			"swap.out", NULL, NULL,
+			&s->val[swap_out], PM_TYPE_U32, &s->sts[swap_out]);
+    }
+    s->sts[blk_read] = pmExtendFetchGroup_item(s->pmfg,
+			"disk.all.blkread", NULL, NULL,
+			&s->val[blk_read], PM_TYPE_U32, &s->sts[blk_read]);
+    if (s->sts[blk_read] < 0)
+	s->sts[blk_read] = pmExtendFetchGroup_item(s->pmfg,
+			"disk.all.read", NULL, NULL,
+			&s->val[blk_read], PM_TYPE_U32, &s->sts[blk_read]);
+    s->sts[blk_write] = pmExtendFetchGroup_item(s->pmfg,
+			"disk.all.blkwrite", NULL, NULL,
+			&s->val[blk_write], PM_TYPE_U32, &s->sts[blk_write]);
+    if (s->sts[blk_write] < 0)
+	s->sts[blk_write] = pmExtendFetchGroup_item(s->pmfg,
+			"disk.all.write", NULL, NULL,
+			&s->val[blk_write], PM_TYPE_U32, &s->sts[blk_write]);
+    s->sts[interrupts] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.intr", NULL, NULL,
+			&s->val[interrupts], PM_TYPE_U32, &s->sts[interrupts]);
+    s->sts[pswitch] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.pswitch", NULL, NULL,
+			&s->val[pswitch], PM_TYPE_U32, &s->sts[pswitch]);
+    s->sts[cpu_nice] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.nice", NULL, NULL,
+			&s->val[cpu_nice], PM_TYPE_U64, &s->sts[cpu_nice]);
+    s->sts[cpu_user] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.user", NULL, NULL,
+			&s->val[cpu_user], PM_TYPE_U64, &s->sts[cpu_user]);
+    s->sts[cpu_intr] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.intr", NULL, NULL,
+			&s->val[cpu_intr], PM_TYPE_U64, &s->sts[cpu_intr]);
+    s->sts[cpu_sys] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.sys", NULL, NULL,
+			&s->val[cpu_sys], PM_TYPE_U64, &s->sts[cpu_sys]);
+    s->sts[cpu_idle] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.idle", NULL, NULL,
+			&s->val[cpu_idle], PM_TYPE_U64, &s->sts[cpu_idle]);
+    s->sts[cpu_wait] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.wait.total", NULL, NULL,
+			&s->val[cpu_wait], PM_TYPE_U64, &s->sts[cpu_wait]);
+    s->sts[cpu_steal] = pmExtendFetchGroup_item(s->pmfg,
+			"kernel.all.cpu.steal", NULL, NULL,
+			&s->val[cpu_steal], PM_TYPE_U64, &s->sts[cpu_steal]);
+
+    /* Let's mandate at least one metric having been resolved. */
+    for (i = 0; i < num_items; i++)
+	if (s->sts[i] == 0)
+	    break;
+    if (i != num_items)
+	return s;
+
+    fprintf(stderr, "%s: %s: Cannot resolve any metrics.\n", pmProgname, host);
+    pmDestroyFetchGroup(s->pmfg);
+
+fail:
+    free(s);
+    return NULL;
 }
 
 static char *
-saveContextHostName(int ctx)
+saveContextHostName(struct statsrc *s)
 {
-    char	hostname[MAXHOSTNAMELEN];
-    char	*name = pmGetContextHostName_r(ctx, hostname, sizeof(hostname));
-    size_t	length;
+    char hostname[MAXHOSTNAMELEN];
+    int ctx = pmGetFetchGroupContext(s->pmfg);
+    char *name = pmGetContextHostName_r(ctx, hostname, sizeof(hostname));
+    size_t length;
 
     if ((length = strlen(name)) == 0)
 	fprintf(stderr, "%s: Warning: pmGetContextHostName(%d) failed\n",
@@ -235,61 +224,52 @@ saveContextHostName(int ctx)
 }
 
 static void
-destroyContext(struct statsrc_t *s)
+destroyContext(struct statsrc *s)
 {
-    if (s != NULL && s->ctx >= 0) {
-	int	index;
-
+    if (s != NULL && s->pmfg != NULL) {
 	if (!s->sname)
-	    s->sname = saveContextHostName(s->ctx);
-	pmDestroyContext(s->ctx);
-	s->ctx = -1;
-	free(s->pmdesc);
-	s->pmdesc = NULL;
-	free(s->pmids);
-	s->pmids = NULL;
-	index = 1 - s->flip;
-	if (s->res[index] != NULL)
-	    pmFreeResult(s->res[index]);
-	s->res[index] = NULL;
+	    s->sname = saveContextHostName(s);
+	pmDestroyFetchGroup(s->pmfg);
+	s->pmfg = NULL;
     }
-}
-
-static long long
-countDiff(pmDesc *d, pmValueSet *now, pmValueSet *was)
-{
-    long long diff = 0;
-    pmAtomValue a;
-    pmAtomValue b;
-
-    pmExtractValue(was->valfmt, &was->vlist[0], d->type, &a, d->type);
-    pmExtractValue(now->valfmt, &now->vlist[0], d->type, &b, d->type);
-    switch (d->type) {
-    case PM_TYPE_32:
-	diff = b.l - a.l;
-	break;
-    case PM_TYPE_U32:
-	diff = b.ul - a.ul;
-	break;
-    case PM_TYPE_U64:
-	diff = b.ull - a.ull;
-	break;
-    }
-    return diff;
 }
 
 static void
-scalePrint(long value)
+scalePrint(struct statsrc *s, int m)
 {
-    if (value < 10000)
-	printf (" %4ld", value);
+    unsigned long value = s->val[m].ul;
+
+    if (s->sts[m])
+	printf(" %4.4s", "?");
+    else if (value < 10000)
+	printf(" %4lu", value);
     else {
 	value /= 1000;	/* '000s */
 	if (value < 1000)
-	    printf(" %3ldK", value);
+	    printf(" %3luK", value);
 	else {
 	    value /= 1000;	/* '000,000s */
-	    printf(" %3ldM", value);
+	    printf(" %3luM", value);
+	}
+    }
+}
+
+static void
+scaleKPrint(struct statsrc *s, int m)
+{
+    unsigned long value = s->val[m].ul;
+
+    if (s->sts[m])
+	printf(" %6.6s", "?");
+    else if (value < 1000000)
+	printf(" %6lu", value);
+    else {
+	value /= 1024;
+	if (value < 100000)
+	    printf(" %5lum", value);
+	else {
+	    value /= 1024;
+	    printf(" %5lug", value);
 	}
     }
 }
@@ -360,21 +340,21 @@ setupTimeOptions(int ctx, pmOptions *opts, char **tzlabel)
 }
 
 int
-main(int argc, char *argv[]) 
+main(int argc, char *argv[])
 {
     time_t now;
     pmTime *pmtime = NULL;
     pmTimeControls controls;
-    struct statsrc_t *pd;
-    struct statsrc_t **ctxList = &pd;
+    struct statsrc *pd;
+    struct statsrc **ctxList = &pd;
     int ctxCount = 0;
     int sts, j;
-    int iteration;
     int pauseFlag = 0;
     int printTail = 0;
     int tzh = -1;
     char *tzlabel = NULL;
     char **nameList;
+    int iteration;
     int nameCount;
 
     setlinebuf(stdout);
@@ -425,19 +405,21 @@ main(int argc, char *argv[])
     }
 
     if (nameCount) {
-	if ((ctxList = calloc(nameCount, sizeof(struct statsrc_t *))) != NULL) {
-	    int ct;
+	if ((ctxList = calloc(nameCount, sizeof(struct statsrc *))) != NULL) {
+	    int ct, fgc;
 
 	    for (ct = 0; ct < nameCount; ct++) {
 		if ((pd = getNewContext(opts.context, nameList[ct], 0)) != NULL) {
 		    ctxList[ctxCount++] = pd;
-		    if (tzh < 0)
-			tzh = setupTimeOptions(pd->ctx, &opts, &tzlabel);
+		    if (tzh < 0) {
+			fgc = pmGetFetchGroupContext(pd->pmfg);
+			tzh = setupTimeOptions(fgc, &opts, &tzlabel);
+		    }
 		    pmUseZone(tzh);
 		}
 	    }
 	} else {
-	    __pmNoMem("contexts", nameCount * sizeof(struct statsrc_t *), PM_FATAL_ERR);
+	    __pmNoMem("contexts", nameCount * sizeof(struct statsrc *), PM_FATAL_ERR);
 	}
     } else {
 	/*
@@ -450,7 +432,7 @@ main(int argc, char *argv[])
 	    pd = getNewContext(opts.context, NULL, 0);
 	}
 	if (pd) {
-	    tzh = setupTimeOptions(pd->ctx, &opts, &tzlabel);
+	    tzh = setupTimeOptions(pmGetFetchGroupContext(pd->pmfg), &opts, &tzlabel);
 	    ctxCount = 1;
 	}
     }
@@ -502,19 +484,13 @@ main(int argc, char *argv[])
 
     /* Do first fetch */
     for (j = 0; j < ctxCount; j++) {
-	struct statsrc_t *pd = ctxList[j];
+	struct statsrc *pd = ctxList[j];
 
-	pmUseContext(pd->ctx);
-
+	pmUseContext(pmGetFetchGroupContext(pd->pmfg));
 	if (!opts.guiflag && opts.context == PM_CONTEXT_ARCHIVE)
 	    pmTimeStateMode(PM_MODE_INTERP, opts.interval, &opts.origin);
 
-	if (pd->ctx >= 0) {
-	    if ((sts = pmFetch(nummetrics, pd->pmids, pd->res + pd->flip)) < 0)
-		pd->res[pd->flip] = NULL;
-	    else
-		pd->flip = 1 - pd->flip;
-	}
+	pmFetchGroup(pd->pmfg);
     }
 
     for (iteration = 0; !opts.samples || iteration < opts.samples; iteration++) {
@@ -522,12 +498,10 @@ main(int argc, char *argv[])
 	    header = 1;
 
 	if (header) {
-	    pmResult *r = ctxList[0]->res[1 - ctxList[0]->flip];
 	    char tbuf[26];
 
-	    if (r != NULL)
-		now = (time_t)(r->timestamp.tv_sec + 0.5 + 
-			       r->timestamp.tv_usec/ 1.0e6);
+	    now = (time_t)(ctxList[0]->timestamp.tv_sec + 0.5 +
+			   ctxList[0]->timestamp.tv_usec / 1.0e6);
 	    printf("@ %s", pmCtime(&now, tbuf));
 
 	    if (ctxCount > 1) {
@@ -567,17 +541,14 @@ main(int argc, char *argv[])
 	    goto next;
 
 	for (j = 0; j < ctxCount; j++) {
-	    int i;
 	    unsigned long long dtot = 0;
-	    unsigned long long diffs[7];
-	    pmAtomValue la;
-	    struct statsrc_t *s = ctxList[j];
+	    struct statsrc *s = ctxList[j];
 
 	    if (ctxCount > 1) {
 		const char *fn;
 
 		if (!s->sname)
-		    s->sname = saveContextHostName(s->ctx);
+		    s->sname = saveContextHostName(s);
 		fn = s->sname;
 
 		if (printTail)
@@ -585,30 +556,23 @@ main(int argc, char *argv[])
 		else
 		    printf("%-7.7s", fn);
 
-		if (s->ctx < 0) {
+		if (s->pmfg == NULL) {
 		    putchar('\n');
 		    continue;
 		}
-
-		pmUseContext(s->ctx);
 	    }
 
-	    if ((sts = pmFetch(nummetrics, s->pmids, s->res + s->flip)) < 0) {
+	    sts = pmFetchGroup(s->pmfg);
+	    if (sts < 0) {
 		if (opts.context == PM_CONTEXT_HOST &&
 		    (sts == PM_ERR_IPC || sts == PM_ERR_TIMEOUT)) {
 		    puts(" Fetch failed. Reconnecting ...");
-		    i = 1 - s->flip;
-		    if (s->res[i] != NULL) {
-			pmFreeResult(s->res[i]);
-			s->res[i] = NULL;
-		    }
-		    pmReconnectContext(s->ctx);
-		} else if ((opts.context == PM_CONTEXT_ARCHIVE) && 
-			   (sts == PM_ERR_EOL) && opts.guiflag) {
+		    pmReconnectContext(pmGetFetchGroupContext(s->pmfg));
+		} else if ((opts.context == PM_CONTEXT_ARCHIVE) &&
+			 (sts == PM_ERR_EOL) && opts.guiflag) {
 		    pmTimeStateBounds(&controls, pmtime);
-		} else if ((opts.context == PM_CONTEXT_ARCHIVE) && 
-			   (sts == PM_ERR_EOL) &&
-			   (s->res[0] == NULL) && (s->res[1] == NULL)) {
+		} else if ((opts.context == PM_CONTEXT_ARCHIVE) &&
+			 (sts == PM_ERR_EOL) && (!s->fetched)) {
 		    /* I'm yet to see something from this archive - don't
 		     * discard it just yet */
 		    puts(" No data in the archive");
@@ -616,138 +580,93 @@ main(int argc, char *argv[])
 		    int k;
 		    int valid = 0;
 
-		    printf(" pmFetch: %s\n", pmErrStr(sts));
+		    printf(" pmFetchGroup: %s\n", pmErrStr(sts));
 
 		    destroyContext(s);
 		    for (k = 0; k < ctxCount; k++)
-			valid += (ctxList[k]->ctx >= 0);
+			valid += (ctxList[k]->pmfg != NULL);
 		    if (!valid)
 			exit(1);
 		}
 	    } else {
-		pmResult *cur = s->res[s->flip];
-		pmResult *prev = s->res[1 - s->flip];
+		s->fetched = 1;
 
-
-		/* LoadAvg - Assume that 1min is the first one */
-		if (s->pmdesc[LOADAVG].pmid == PM_ID_NULL ||
-		    cur->vset[LOADAVG]->numval < 1) 
+		if (s->sts[load_avg])
 		    printf(" %7.7s", "?");
-		else {
-		    pmExtractValue(cur->vset[LOADAVG]->valfmt,
-				   &cur->vset[LOADAVG]->vlist[0], 
-				   s->pmdesc[LOADAVG].type,
-				   &la, PM_TYPE_FLOAT);
-		    
-		    printf(" %7.2f", la.f);
-		}
-	    
+		else
+		    printf(" %7.2f", s->val[load_avg].f);
+
 		/* Memory state */
-		for (i = 0; i < 4; i++) {
-		    if (i == 2 && ctxCount > 1) 
-			continue; /* Don't report free mem for multiple hosts */
-
-		    if (cur->vset[MEM+i]->numval == 1) {
-			pmUnits kb = PMDA_PMUNITS(1, 0, 0, 
-						  PM_SPACE_KBYTE, 0, 0);
-
-			pmExtractValue(cur->vset[MEM+i]->valfmt,
-				       &cur->vset[MEM+i]->vlist[0], 
-				       s->pmdesc[MEM+i].type,
-				       &la, PM_TYPE_U32);
-			pmConvScale(s->pmdesc[MEM+i].type, & la, 
-				     & s->pmdesc[MEM+i].units, &la, &kb);
-
-			if (la.ul < 1000000)
-			    printf(" %6u", la.ul);
-			else {
-			    la.ul /= 1024;	/* PM_SPACE_MBYTE now */
-			    if (la.ul < 100000)
-				printf(" %5um", la.ul);
-			    else {
-				la.ul /= 1024;      /* PM_SPACE_GBYTE now */
-				printf(" %5ug", la.ul);
-			    }
-			}
-		    } else 
-			printf(" %6.6s", "?");
-		}
+		scaleKPrint(s, swap_used);
+		scaleKPrint(s, mem_free);
+		if (ctxCount <= 1)	/* Report only for single host case */
+		    scaleKPrint(s, mem_buf);
+		scaleKPrint(s, mem_cached);
 
 		/* Swap in/out */
-		for (i = 0; i < 2; i++) {
-		    if (s->pmdesc[SWAP+i].pmid == PM_ID_NULL || prev == NULL ||
-			prev->vset[SWAP+i]->numval != 1 ||
-			cur->vset[SWAP+i]->numval != 1) 
-			printf(" %4.4s", "?");
-		    else
-			scalePrint(countDiff(s->pmdesc+SWAP+i, cur->vset[SWAP+i], prev->vset[SWAP+i])/period);
-		}
+		scalePrint(s, swap_in);
+		scalePrint(s, swap_out);
 
 		/* io in/out */
-		for (i = 0; i < 2; i++) {
-		    if (s->pmdesc[IO+i].pmid == PM_ID_NULL || prev == NULL ||
-			prev->vset[IO+i]->numval != 1 ||
-			cur->vset[IO+i]->numval != 1) 
-			printf(" %4.4s", "?");
-		    else 
-			scalePrint(countDiff(s->pmdesc+IO+i, cur->vset[IO+i], prev->vset[IO+i])/period);
-		}
+		scalePrint(s, blk_read);
+		scalePrint(s, blk_write);
 
 		/* system interrupts */
-		for (i = 0; i < 2; i++) {
-		    if (s->pmdesc[SYSTEM+i].pmid == PM_ID_NULL || 
-			prev == NULL ||
-			prev->vset[SYSTEM+i]->numval != 1 ||
-			cur->vset[SYSTEM+i]->numval != 1) 
-			printf(" %4.4s", "?");
-		    else
-			scalePrint(countDiff(s->pmdesc+SYSTEM+i, cur->vset[SYSTEM+i], prev->vset[SYSTEM+i])/period);
-		}
+		scalePrint(s, interrupts);
+		scalePrint(s, pswitch);
 
-		/* CPU utilization - report percentage */
-		for (i = 0; i < 7; i++) {
-		    if (s->pmdesc[CPU+i].pmid == PM_ID_NULL || prev == NULL ||
-			cur->vset[CPU+i]->numval != 1 ||
-			prev->vset[CPU+i]->numval != 1) {
-			if (i > 0 && i < 4 && i != 2) {
-			    break;
-			} else { /* Nice, intr, iowait, steal are optional */
-			    diffs[i] = 0;
-			}
-		    } else {
-			diffs[i] = countDiff(s->pmdesc + CPU+i,
-					cur->vset[CPU+i], prev->vset[CPU+i]);
-			dtot += diffs[i];
-		    }
-		}
+		/*
+		 * CPU utilization - report percentage of total.  pmfg
+		 * guarantees that unavailable metrics get value 0,
+		 * but only after a successful pmExtendFetchGroup_*
+		 * call.  However, because we used calloc on the
+		 * statsrc, unavailable metrics will be 0 even in
+		 * the unsuccessful pmExtendFetchGroup_* case.
+		 */
+		dtot = 0;
+		dtot += s->val[cpu_nice].ull;
+		dtot += s->val[cpu_user].ull;
+		dtot += s->val[cpu_intr].ull;
+		dtot += s->val[cpu_sys].ull;
+		dtot += s->val[cpu_idle].ull;
+		dtot += s->val[cpu_wait].ull;
+		dtot += s->val[cpu_steal].ull;
 
 		if (extraCpuStats) {
-		    if (i != 7 || dtot == 0) {
+		    if (dtot == 0) {
 			printf(" %3.3s %3.3s %3.3s %3.3s %3.3s",
-				"?", "?", "?", "?", "?");
+			       "?", "?", "?", "?", "?");
 		    } else {
-			unsigned long long fill = dtot/2;
+			unsigned long long fill = dtot / 2;
+			unsigned long long user, kernel, idle, iowait, steal;
+
+			user = s->val[cpu_nice].ull + s->val[cpu_user].ull;
+			kernel = s->val[cpu_intr].ull + s->val[cpu_sys].ull;
+			idle = s->val[cpu_idle].ull;
+			iowait = s->val[cpu_wait].ull;
+			steal = s->val[cpu_steal].ull;
 			printf(" %3u %3u %3u %3u %3u",
-			   (unsigned int)((100*(diffs[0]+diffs[1])+fill)/dtot),
-			   (unsigned int)((100*(diffs[2]+diffs[3])+fill)/dtot),
-			   (unsigned int)((100*diffs[4]+fill)/dtot),
-			   (unsigned int)((100*diffs[5]+fill)/dtot),
-			   (unsigned int)((100*diffs[6]+fill)/dtot));
+			       (unsigned int)((100 * user + fill) / dtot),
+			       (unsigned int)((100 * kernel + fill) / dtot),
+			       (unsigned int)((100 * idle + fill) / dtot),
+			       (unsigned int)((100 * iowait + fill) / dtot),
+			       (unsigned int)((100 * steal + fill) / dtot));
 		    }
-		} else if (i != 7 || dtot == 0) {
+		} else if (dtot == 0) {
 		    printf(" %3.3s %3.3s %3.3s", "?", "?", "?");
 		} else {
-		    unsigned long long fill = dtot/2;
-		    printf(" %3u %3u %3u",
-			   (unsigned int)((100*(diffs[0]+diffs[1])+fill)/dtot),
-			   (unsigned int)((100*(diffs[2]+diffs[3])+fill)/dtot),
-			   (unsigned int)((100*diffs[4]+fill)/dtot));
-		}
+		    unsigned long long fill = dtot / 2;
+		    unsigned long long user, kernel, idle;
 
-		if (prev != NULL)
-		    pmFreeResult(prev);
-		s->flip = 1 - s->flip;
-		s->res[s->flip] = NULL;
+		    user = s->val[cpu_nice].ull + s->val[cpu_user].ull;
+		    kernel = s->val[cpu_intr].ull + s->val[cpu_sys].ull
+			   + s->val[cpu_steal].ull;
+		    idle = s->val[cpu_idle].ull + s->val[cpu_wait].ull;
+		    printf(" %3u %3u %3u",
+			   (unsigned int) ((100 * user + fill) / dtot),
+			   (unsigned int) ((100 * kernel + fill) / dtot),
+			   (unsigned int) ((100 * idle + fill) / dtot));
+		}
 
 		putchar('\n');
 	    }

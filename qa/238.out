@@ -1,0 +1,19 @@
+QA output created by 238
+root {
+	foo
+}
+
+foo {
+	bar
+}
+
+foo.bar {
+	mumble
+}
+
+foo.bar.mumble {
+	fumble	1:2:3
+}
+foo.bar.mumble.fumble
+event.flags
+event.missed

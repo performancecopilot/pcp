@@ -18,14 +18,6 @@ then
     _notrun "weblog PMDA won't work for Solaris Apache install"
 fi
 
-rm -f $seq.out
-if [ $PCP_VER -lt 30600 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-else
-    ln $seq.out.2 $seq.out || exit 1
-fi
-
 status=1	# failure is the default!
 
 _cleanup()

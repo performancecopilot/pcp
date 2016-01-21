@@ -30,7 +30,7 @@ Context 0 has 3 metric names for source:
 *** Bad Context ***
 QmcSource::getSource: Creating new source for no-such-host
 QmcSource::QmcSource: Context to no-such-host failed: No route to host
-Context -148 has 0 metric names for source:
+Context -EHOSTUNREACH has 0 metric names for source:
   sts = -148, type = 1, source = no-such-host
   host = no-such-host, timezone = , tz hndl = HANDLE
 

@@ -24,18 +24,7 @@ $sudo rm -f core* $seq.core*
 
 echo
 echo "Test 1"
-if [ $PCP_PLATFORM = irix ]
-then
-
-cat >$tmp.conf <<'End-of-File'
-dsk = "disk.dev";
-total0 = $delta * $dsk.total@0;
-total1 = $delta * $dsk.total@1;
-iops = $delta * ($dsk.total@0 - $dsk.total@1);
-resp = $delta * 1000 * ($dsk.response@0 - $dsk.response@1);
-End-of-File
-
-elif [ $PCP_PLATFORM = linux ]
+if [ $PCP_PLATFORM = linux ]
 then
 
 cat >$tmp.conf <<'End-of-File'
@@ -69,19 +58,7 @@ _check_core
 
 echo
 echo "Test 2"
-if [ $PCP_PLATFORM = irix ]
-then
-
-cat >$tmp.conf <<'End-of-File'
-dsk = "disk.dev";
-total0 = $delta * $dsk.total@0;
-total1 = $delta * $dsk.total@1;
-iops = $delta * ($dsk.total@0 - $dsk.total@1);
-resp = $delta * 1000 * ($dsk.response@0 - $dsk.response@1);
-avg = $delta * 1000 * ($dsk.response@0 - $dsk.response@1) / ($dsk.total@0 - $dsk.total@1);
-End-of-File
-
-elif [ $PCP_PLATFORM = linux ]
+if [ $PCP_PLATFORM = linux ]
 then
 
 cat >$tmp.conf <<'End-of-File'

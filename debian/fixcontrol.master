@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# generate control preamble from control.master
+#
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+
+# dh-python not always available
+#
+rm -f $tmp.no
+if [ -f /etc/os-release ]
+then
+    NAME=`sed -n -e 's/"//'g -e '/^NAME=/s/NAME=//p' </etc/os-release`
+    if [ "$NAME" = "Debian GNU/Linux" ]
+    then
+	VERSION_ID=`sed -n -e 's/"//'g -e '/^VERSION_ID=/s/VERSION_ID=//p' </etc/os-release`
+	case "$VERSION_ID"
+	in
+	    7)
+		touch $tmp.no
+		;;
+	esac
+    elif [ "$NAME" = "Ubuntu" ]
+    then
+	VERSION_ID=`sed -n -e 's/"//'g -e '/^VERSION_ID=/s/VERSION_ID=//p' </etc/os-release`
+	case "$VERSION_ID"
+	in
+	    12.04|12.10|13.04)
+		touch $tmp.no
+		;;
+	esac
+    fi
+elif [ -f /etc/debian_version ]
+then
+    VERSION_ID=`cat /etc/debian_version`
+    case "$VERSION_ID"
+    in
+	6.*)
+	    touch $tmp.no
+	    ;;
+    esac
+fi
+
+if [ -f $tmp.no ]
+then
+    echo "s/?{dh-python}//" >>$tmp.sed
+else
+    echo "s/?{dh-python}/, dh-python/" >>$tmp.sed
+fi
+
+sed -f $tmp.sed <control.master

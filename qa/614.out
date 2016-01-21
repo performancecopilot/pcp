@@ -4,3 +4,5 @@ QA output created by 614
     ^
 pminfo: Cannot load namespace from "TMP.pmns_hyphen": Problems parsing PMNS definitions
 proc_nprocs
+event.flags
+event.missed

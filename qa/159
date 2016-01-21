@@ -11,23 +11,10 @@ echo "QA output created by $seq"
 # get standard filters
 . ./common.product
 . ./common.filter
+. ./common.check
 
-if [ -z "$PCPQA_CISCO_ROUTER" ]
-then
-    _notrun "No cisco router set via \$PCPQA_CISCO_ROUTER in ./common.config" >$seq.notrun
-    # NOTREACHED
-fi
-
-# New cisco metrics in pcp2.2 
-if [ $PCP_VER -ge 20300 ]
-then
-    rm -f $seq.out && ln $seq.out.3 $seq.out
-elif [ $PCP_VER -ge 20200 ]
-then
-    rm -f $seq.out && ln $seq.out.2 $seq.out
-else
-    rm -f $seq.out && ln $seq.out.1 $seq.out
-fi
+[ -z "$PCPQA_CISCO_ROUTER" ] && \
+_notrun "No cisco router set via \$PCPQA_CISCO_ROUTER in ./common.config"
 
 status=1
 signal=$PCP_BINADM_DIR/pmsignal
@@ -136,10 +123,7 @@ both
 $PCPQA_CISCO_ROUTER
 
 End-of-File
-if [ $PCP_VER -gt 20200 ]
-then
-    echo >>$tmp.in
-fi
+echo >>$tmp.in
 cat <<End-of-File >>$tmp.in
 s2/3
 e1/0
@@ -147,10 +131,7 @@ quit
 $PCPQA_CISCO_ROUTER
 
 End-of-File
-if [ $PCP_VER -gt 20200 ]
-then
-    echo >>$tmp.in
-fi
+echo >>$tmp.in
 cat <<End-of-File >>$tmp.in
 s2/0
 quit

@@ -26,6 +26,8 @@ irix.disk.dev.write
 irix.disk.dev.total
 irix.network.interface.in.bytes
 irix.network.interface.out.bytes
+event.flags
+event.missed
 
 === pminfo -f irix ===
 pminfo: Cannot locate end of archive bad: Corrupted record in a PCP archive log

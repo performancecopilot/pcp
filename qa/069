@@ -51,7 +51,6 @@ _filter_log()
     fixed_width_ip="                        "
     sed <$log \
 	-e 's/$/ /' \
-	-e '/^irix/s/\/var\//\/usr\//' \
 	-e '/^00[08]:/d' \
 	-e 's/ \[0x[0-9a-f]*]//' \
 	-e 's/ \[(nil)]//' \
@@ -204,7 +203,7 @@ echo "host1: ip=$other1_ip hex_ip=$other1_xip" >>$seq.full
 echo "host2: ip=$other2_ip hex_ip=$other2_xip" >>$seq.full
 
 echo "# from qa/$seq" >$nconfig
-egrep '^(linux|irix|darwin|solaris)' $config >>$nconfig
+egrep '^(linux|darwin|solaris)' $config >>$nconfig
 grep '^pmcd' $config >>$nconfig
 
 $sudo cp $config $oconfig

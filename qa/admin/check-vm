@@ -190,6 +190,7 @@ dpkg?	dpkg-buildpackage		[dpkg-dev]
 dpkg?	dh_autotools-dev_updateconfig	[autotools-dev]
 dpkg?	/usr/share/doc/build-essential	[build-essential]
 dpkg?	dh				[debhelper]
+dpkg?	/usr/bin/dh_pypy		[dh-python]
 dpkg?	/usr/share/doc/python-all-dev	[python-all-dev]
 # -- pkg-config
 dpkg?	/usr/share/doc/pkg-config	[pkg-config]
@@ -204,6 +205,11 @@ dpkg?	/usr/include/cairo/cairo.h	[libcairo2-dev (build optional)]
 rpm?	/usr/include/cairo/cairo.h	[cairo-devel (build optional)]
 emerge?	/usr/include/cairo/cairo.h	[x11-libs/cairo (build optional)]
 pkgin?	/usr/pkg/include/cairo/cairo.h	[cairo (build optional)]
+# -- zlib
+dpkg?	/usr/include/zlib.h 		[zlib1g-dev (build optional)]
+rpm?	/usr/include/cairo/cairo.h	[zlib-devel (build optional)]
+emerge?	/usr/include/zlib.h		[? (build optional)]
+pkgin?	/usr/pkg/include/zlib.h 	[? (build optional)]
 # -- libsasl
 dpkg?	/usr/include/sasl/sasl.h	[libsasl2-dev (build optional)]
 rpm?	/usr/include/sasl/sasl.h	[cyrus-sasl-devel (build optional)]
@@ -329,6 +335,11 @@ dpkg?	LWP::UserAgent		[libwww-perl]
 rpm?	LWP::UserAgent		[perl-libwww-perl or 'perl(LWP::UserAgent)']
 emerge?	LWP::UserAgent		[from cpan]
 pkgin?	LWP::UserAgent		[?]
+# -- Net::SNMP
+dpkg?	Net::SNMP		[libnet-snmp-perl]
+rpm?	Net::SNMP		[perl-Net-SNMP or 'perl(Net::SNMP)']
+emerge?	Net::SNMP		[from cpan]
+pkgin?	Net::SNMP		[?]
 #
 # other run-time
 #

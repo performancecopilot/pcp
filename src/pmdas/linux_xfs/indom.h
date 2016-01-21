@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat, Inc. All Rights Reserved.
+ * Copyright (c) 2013,2016 Red Hat.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,6 +23,7 @@
  * the xfs indom table is sparse.
  */
 #define FILESYS_INDOM		5  /* mounted filesystems */
+#define DEVICES_INDOM		6  /* mounted filesystem devices (sysfs) */
 #define QUOTA_PRJ_INDOM		16 /* project quota */
 
 #define MIN_INDOM 		5  /* first indom number we use here */

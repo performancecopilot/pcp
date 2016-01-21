@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_PLATFORM = irix ] || _notrun "tests the IRIX Rebuild script"
+_notrun "tests the IRIX Rebuild script"
 
 _copy_Rebuild()
 {

@@ -131,37 +131,42 @@ libpcp/events.c:4: guard trip%9, 19 trips, 3 faults
 host:      localhost
 samples:   2
 interval:  0.20 sec
-sample.event.records[fungus]: pmUnpackEventRecords: QA fault injected
-sample.event.records[bogus]: pmUnpackEventRecords: QA fault injected
+sample.event.records[fungus]: 0 event records
+sample.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0]	511.4095.1: pmNameID: No PMCD agent for domain of request
+    sample.event.param_string "fetch #0"
+  TIMESTAMP --- event record [1]	511.4095.1: pmNameID: No PMCD agent for domain of request
+    sample.event.param_string "bingo!"
 sample.event.records[fungus]: 1 event records
-  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+  TIMESTAMP --- event record [0]	511.4095.1: pmNameID: No PMCD agent for domain of request
 sample.event.records[bogus]: 1 event records
-  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+  TIMESTAMP --- event record [0]	511.4095.1: pmNameID: No PMCD agent for domain of request
     sample.event.param_string "fetch #1"
 
-__pmFaultInject(libpcp/events.c:5) ntrip=1 INJECT
-pmUnpackEventRecords: Warning: failed to register event.flags: QA fault injected
-__pmFaultInject(libpcp/events.c:5) ntrip=2 INJECT
-pmUnpackEventRecords: Warning: failed to register event.flags: QA fault injected
-__pmFaultInject(libpcp/events.c:5) ntrip=3 SKIP
+__pmFaultInject(libpcp/derive.c:7) ntrip=1 INJECT
+pmevent: Warning: failed to register event.flags: QA fault injected
+Warning: cannot get PMID for event.flags: Unknown metric name
+pmUnpackEventRecords: Warning: failed to get PMID for event.flags: Unknown metric name
 === Fault Injection Summary Report ===
-libpcp/events.c:5: guard trip<3, 3 trips, 2 faults
+libpcp/derive.c:7: guard trip==1, 1 trips, 1 faults
 
 host:      localhost
 samples:   2
 interval:  0.20 sec
-sample.event.records[fungus]: pmUnpackEventRecords: QA fault injected
-sample.event.records[bogus]: pmUnpackEventRecords: QA fault injected
+sample.event.records[fungus]: 0 event records
+sample.event.records[bogus]: 2 event records
+  TIMESTAMP --- event record [0] flags 0x1 (point) ---
+    sample.event.param_string "fetch #0"
+  TIMESTAMP --- event record [1] flags 0x1 (point) ---
+    sample.event.param_string "bingo!"
 sample.event.records[fungus]: 1 event records
   TIMESTAMP --- event record [0] flags 0x1 (point) ---
 sample.event.records[bogus]: 1 event records
   TIMESTAMP --- event record [0] flags 0x1 (point) ---
     sample.event.param_string "fetch #1"
 
-__pmFaultInject(libpcp/events.c:6) ntrip=1 INJECT
-pmUnpackEventRecords: Warning: failed to register event.missed: QA fault injected
-__pmFaultInject(libpcp/events.c:6) ntrip=2 INJECT
-pmUnpackEventRecords: Warning: failed to register event.missed: QA fault injected
-__pmFaultInject(libpcp/events.c:6) ntrip=3 SKIP
+__pmFaultInject(libpcp/derive.c:8) ntrip=1 INJECT
+pmevent: Warning: failed to register event.missed: QA fault injected
+Warning: cannot get PMID for event.missed: Unknown metric name
 === Fault Injection Summary Report ===
-libpcp/events.c:6: guard trip<3, 3 trips, 2 faults
+libpcp/derive.c:8: guard trip==1, 1 trips, 1 faults

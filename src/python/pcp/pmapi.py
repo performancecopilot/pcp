@@ -67,10 +67,33 @@
                 print "load average 1=",atom.f
             elif results.contents.get_inst(i, j) == inst5:
                 print "load average 5=",atom.f
+
+
+    # ... or, using the fetchgroup interface:
+
+    from pcp import pmapi
+    import cpmapi as c_api
+
+    pmfg = pmapi.fetchgroup(c_api.PM_CONTEXT_HOST, "local:")
+    v = pmfg.extend_item("hinv.ncpu")
+    vv = pmfg.extend_indom("kernel.all.load", c_api.PM_TYPE_FLOAT)
+    vvv = pmfg.extend_event("systemd.journal.records", field="systemd.journal.field.string")
+    t = pmfg.extend_timestamp()
+
+    pmfg.fetch()
+    print ("time: %s" % t())
+    print ("number of cpus: %d" % v())
+    for icode, iname, value in vv():
+        print ("load average %s: %f" % (iname, value()))
+    for ts, line in vvv():
+        print ("%s : %s" % (ts, line()))
+
 """
 
 import sys
 import time
+import errno
+import datetime
 
 # constants adapted from C header file <pcp/pmapi.h>
 import cpmapi as c_api
@@ -202,6 +225,15 @@ class timeval(Structure):
         """ Delay for the amount of time specified by this timeval. """
         time.sleep(float(self))
         return None
+
+class timespec(Structure):
+    _fields_ = [("tv_sec", c_long),
+                ("tv_nsec", c_long)]
+
+    def __init__(self, sec = 0, nsec = 0):
+        Structure.__init__(self)
+        self.tv_sec = sec
+        self.tv_nsec = usec
 
 class tm(Structure):
     _fields_ = [("tm_sec", c_int),
@@ -1986,3 +2018,346 @@ class pmContext(object):
             return True
         return False
 
+
+# ----- fetchgroup API
+
+LIBPCP.pmCreateFetchGroup.restype = c_int
+LIBPCP.pmCreateFetchGroup.argtypes = [POINTER(c_void_p), c_int, c_char_p]
+LIBPCP.pmGetFetchGroupContext.restype = c_int
+LIBPCP.pmGetFetchGroupContext.argtypes = [c_void_p]
+LIBPCP.pmDestroyFetchGroup.restype = c_int
+LIBPCP.pmDestroyFetchGroup.argtypes = [c_void_p]
+LIBPCP.pmExtendFetchGroup_item.restype = c_int
+LIBPCP.pmExtendFetchGroup_item.argtypes = [c_void_p, c_char_p, c_char_p, c_char_p,
+                                           POINTER(pmAtomValue), c_int, POINTER(c_int)]
+LIBPCP.pmExtendFetchGroup_indom.restype = c_int
+LIBPCP.pmExtendFetchGroup_indom.argtypes = [c_void_p, c_char_p, c_char_p,
+                                            POINTER(c_int),
+                                            POINTER(c_char_p),
+                                            POINTER(pmAtomValue),
+                                            c_int,
+                                            POINTER(c_int),
+                                            c_uint,
+                                            POINTER(c_uint),
+                                            POINTER(c_int)]
+LIBPCP.pmExtendFetchGroup_event.restype = c_int
+LIBPCP.pmExtendFetchGroup_event.argtypes = [c_void_p, c_char_p, c_char_p, c_char_p, c_char_p,
+                                            POINTER(timespec),
+                                            POINTER(pmAtomValue),
+                                            c_int,
+                                            POINTER(c_int),
+                                            c_uint,
+                                            POINTER(c_uint),
+                                            POINTER(c_int)]
+LIBPCP.pmExtendFetchGroup_timestamp.restype = c_int
+LIBPCP.pmExtendFetchGroup_timestamp.argtypes = [c_void_p, POINTER(timeval)]
+LIBPCP.pmFetchGroup.restype = c_int
+LIBPCP.pmFetchGroup.argtypes = [c_void_p]
+
+
+class fetchgroup(object):
+    """Defines a PMAPI fetchgroup.
+
+    This class wraps the pmFetchGroup set of C PMAPI functions (q.v.)
+    in an object-oriented manner.
+
+    Each instance of this class represents one fetchgroup, in which
+    interest in several metrics (individual or indoms) is registered.
+    Each registration results in an function-like object that may be
+    called to decode that metric's value(s).  Errors are signalled
+    with exceptions rather than result integers.  Strings are all
+    UTF-8 encoded.
+    """
+
+    class fetchgroup_item(object):
+        """
+        An internal class to receive value/status for a single item.
+        It may be called as if it were a function object to decode
+        the embedded pmAtomValue, which was set at the most recent
+        .fetch() call.
+        """
+
+        def __init__(self, pmtype):
+            """Allocate a single instance to receive a fetchgroup item."""
+            self.sts = c_int(c_api.PM_ERR_VALUE)
+            self.pmtype = pmtype
+            self.value = pmAtomValue()
+
+        def __call__(self):
+            """Retrieve a converted value of a fetchgroup item, if available."""
+            if self.sts.value < 0:
+                raise pmErr(self.sts.value)
+            elif self.pmtype == c_api.PM_TYPE_STRING:
+                return self.value.dref(self.pmtype).decode('utf-8')
+            else:
+                return self.value.dref(self.pmtype)
+
+
+    class fetchgroup_timestamp(object):
+        """
+        An internal class to receive value for a single timestamp.
+        It may be called as if it were a function object to decode
+        the timestamp, which was set at the most recent
+        .fetch() call, into a datetime object.
+        """
+
+        def __init__(self, ctx):
+            """Allocate a single instance to receive a fetchgroup timestamp."""
+            self.value = timeval()
+            self.ctx = ctx
+
+        def __call__(self):
+            """
+            Retrieve a converted value of a timestamp, if available.  Use
+            pmLocaltime() to convert to a datetime object.
+            """
+            ts = self.ctx.pmLocaltime(self.value.tv_sec)
+            us = int(self.value.tv_usec)
+            dt = datetime.datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
+                                   ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
+            return dt
+
+
+    class fetchgroup_indom(object):
+        """
+        An internal class to receive value/status for an indom of
+        items.  It may be called as if it were a function object to
+        create an list of tuples containing instance-code/-name/value
+        information.  Each value is a function object that decodes
+        the embedded pmAtomValue, which was set at the most recent
+        fetch() call.
+        """
+
+        def __init__(self, pmtype, num):
+            """Allocate a single instance to receive a fetchgroup item."""
+            stss_t = c_int * num
+            values_t = pmAtomValue * num
+            icodes_t = c_int * num
+            inames_t = c_char_p * num
+            self.sts = c_int(c_api.PM_ERR_VALUE)
+            self.stss = stss_t(c_api.PM_ERR_VALUE)
+            self.pmtype = pmtype
+            self.values = values_t()
+            self.icodes = icodes_t()
+            self.inames = inames_t()
+            self.num = c_uint()
+
+        def __call__(self):
+            """Retrieve a converted value of a fetchgroup item, if available."""
+            vv = []
+            if self.sts.value < 0:
+                raise pmErr(self.sts.value)
+            for i in range(self.num.value):
+                def decode_one(self, i):
+                    if self.stss[i] < 0:
+                        raise pmErr(self.stss[i])
+                    elif self.pmtype == c_api.PM_TYPE_STRING:
+                        return self.values[i].dref(self.pmtype).decode('utf-8')
+                    else:
+                        return self.values[i].dref(self.pmtype)
+                vv.append((self.icodes[i],
+                           self.inames[i].decode('utf-8') if self.inames[i] else None,
+                           # nested lambda for proper i capture
+                           (lambda i: (lambda: decode_one(self, i)))(i)))
+            return vv
+
+
+    class fetchgroup_event(object):
+        """
+        An internal class to receive value/status for an
+        event record field.  It may be called as if it were a function
+        object to create an list of tuples containing timestamp/value
+        information.  Each value is a function object that decodes
+        the embedded pmAtomValue, which was set at the most recent
+        fetch() call.
+        """
+
+        def __init__(self, pmtype, num, ctx):
+            """Allocate a single instance to receive a fetchgroup item."""
+            stss_t = c_int * num
+            values_t = pmAtomValue * num
+            timespec_t = timespec * num
+            self.sts = c_int(c_api.PM_ERR_VALUE)
+            self.stss = stss_t(c_api.PM_ERR_VALUE)
+            self.pmtype = pmtype
+            self.times = timespec_t()
+            self.values = values_t()
+            self.num = c_uint()
+            self.ctx = ctx
+
+        def __call__(self):
+            """Retrieve a converted value of a fetchgroup item, if available."""
+            vv = []
+            if self.sts.value < 0:
+                raise pmErr(self.sts.value)
+            # print ([self.values[i].dref(self.pmtype) for i in range(self.num.value)])
+            for i in range(self.num.value):
+                def decode_one(self, i):
+                    if self.stss[i] < 0:
+                        raise pmErr(self.stss[i])
+                    if self.pmtype == c_api.PM_TYPE_STRING:
+                        return self.values[i].dref(self.pmtype).decode('utf-8')
+                    else:
+                        return self.values[i].dref(self.pmtype)
+
+                ts = self.ctx.pmLocaltime(self.times[i].tv_sec)
+                us = int(self.times[i].tv_nsec)//1000
+                dt = datetime.datetime(ts.tm_year+1900, ts.tm_mon+1, ts.tm_mday,
+                                       ts.tm_hour, ts.tm_min, ts.tm_sec, us, None)
+                # nested lambda for proper i capture
+                vv.append((dt,
+                           (lambda i: (lambda: decode_one(self, i)))(i)))
+            return vv
+
+
+    class pmContext_borrowed(pmContext):
+        """
+        An internal class for accessing the private PMAPI context
+        belonging to a fetchgroup.  It works just like a pmContext,
+        except it overrides the constructor/destructor to reflect
+        the "borrowed" state of the context.
+        """
+        def __init__(self, ctx, typed, target):
+            """Override pmContext ctor to eschew pmNewContext."""
+            self._ctx = ctx
+            self._type = typed
+            self._target = target
+            # NB: don't call pmContext.__init__!
+
+        def __del__(self):
+            """Override pmContext ctor to eschew pmDestroyContext."""
+            self._ctx = c_api.PM_ERR_NOCONTEXT
+            
+    def __init__(self, typed=c_api.PM_CONTEXT_HOST, target="local:"):
+        """Create a fetchgroup from a pmContext."""
+
+        self.pmfg = c_void_p()
+        self.items = []
+        sts = LIBPCP.pmCreateFetchGroup(byref(self.pmfg), typed, target.encode('utf-8'))
+        if sts < 0:
+            raise pmErr(sts)
+        self.ctx = fetchgroup.pmContext_borrowed(LIBPCP.pmGetFetchGroupContext(self.pmfg),
+                                                 typed, target)
+        
+    def __del__(self):
+        """Destroy the fetchgroup.  Drop references to fetchgroup_* items."""
+
+        assert self.pmfg.value != None
+        if LIBPCP != None: # might be called late during python3 shutdown; moot then
+            sts = LIBPCP.pmDestroyFetchGroup(self.pmfg)
+            if sts < 0:
+                raise pmErr(sts)
+        del self.items[:]
+
+    def get_context(self):
+        """
+        Return the private pmContext used by the fetchgroup.
+        WARNING: mutation of this context by other PMAPI functions
+        may disrupt fetchgroup functionality.
+        """
+        
+        return self.ctx
+        
+    def extend_item(self, metric=None, mtype=None, scale=None, instance=None):
+        """Extend the fetchgroup with a single metric.  Infer type if
+        necessary.  Convert scale/rate if appropriate/requested.
+        Requires a specified instance if metric has an instance
+        domain.
+
+        """
+
+        if metric is None:
+            raise pmErr(-errno.EINVAL)
+        if mtype is None: # a special service to dynamically-typed python; not accepted at the C level
+            pmids = self.ctx.pmLookupName(metric)
+            descs = self.ctx.pmLookupDescs(pmids)
+            mtype = descs[0].type
+        v = fetchgroup.fetchgroup_item(mtype)
+        sts = LIBPCP.pmExtendFetchGroup_item(self.pmfg,
+                                             c_char_p(metric.encode('utf-8') if metric else None),
+                                             c_char_p(instance.encode('utf-8') if instance else None),
+                                             c_char_p(scale.encode('utf-8') if scale else None),
+                                             pointer(v.value), c_int(mtype),
+                                             pointer(v.sts))
+        if sts < 0:
+            raise pmErr(sts)
+        self.items.append(v) # remember to keep registered pmAtomValue/etc. alive
+        return v
+
+
+    def extend_indom(self, metric=None, mtype=None, scale=None, maxnum=100):
+        """Extend the fetchgroup with up to @maxnum instances of a metric.
+        (Metrics without instances are also accepted.)  Infer type if
+        necessary.  Convert scale/rate if appropriate/requested.
+
+        """
+
+        if metric is None or maxnum < 0:
+            raise pmErr(-errno.EINVAL)
+        if mtype is None: # a special service to dynamically-typed python; not accepted at the C level
+            pmids = self.ctx.pmLookupName(metric)
+            descs = self.ctx.pmLookupDescs(pmids)
+            mtype = descs[0].type
+        vv = fetchgroup.fetchgroup_indom(mtype, maxnum)
+        sts = LIBPCP.pmExtendFetchGroup_indom(self.pmfg,
+                                              c_char_p(metric.encode('utf-8') if metric else None),
+                                              c_char_p(scale.encode('utf-8') if scale else None),
+                                              cast(pointer(vv.icodes), POINTER(c_int)),
+                                              cast(pointer(vv.inames), POINTER(c_char_p)),
+                                              cast(pointer(vv.values), POINTER(pmAtomValue)),
+                                              c_int(mtype),
+                                              cast(pointer(vv.stss), POINTER(c_int)),
+                                              c_uint(maxnum), pointer(vv.num), pointer(vv.sts))
+        if sts < 0:
+            raise pmErr(sts)
+        self.items.append(vv) # remember to keep registered pmAtomValue/etc. alive
+        return vv
+
+
+    def extend_timestamp(self):
+        """Extend the fetchgroup with a timestamp query. """
+
+        v = fetchgroup.fetchgroup_timestamp(self.ctx)
+        sts = LIBPCP.pmExtendFetchGroup_timestamp(self.pmfg,
+                                                  pointer(v.value))
+        if sts < 0:
+            raise pmErr(sts)
+        self.items.append(v) # remember to keep registered timeval alive
+        return v
+
+
+    def extend_event(self, metric=None, field=None, ftype=None, scale=None, instance=None, maxnum=100):
+        """Extend the fetchgroup with up to @maxnum instances of the given field of
+        the given event metric's records.  Infer type if necessary.  Convert scale
+        if appropriate/requested.
+        """
+
+        if metric is None or maxnum < 0:
+            raise pmErr(-errno.EINVAL)
+        if ftype is None: # a special service to dynamically-typed python; not accepted at the C level
+            pmids = self.ctx.pmLookupName(field)
+            descs = self.ctx.pmLookupDescs(pmids)
+            ftype = descs[0].type
+        vv = fetchgroup.fetchgroup_event(ftype, maxnum, self.ctx)
+        sts = LIBPCP.pmExtendFetchGroup_event(self.pmfg,
+                                              c_char_p(metric.encode('utf-8') if metric else None),
+                                              c_char_p(instance.encode('utf-8') if instance else None),
+                                              c_char_p(field.encode('utf-8') if field else None),
+                                              c_char_p(scale.encode('utf-8') if scale else None),
+                                              cast(pointer(vv.times), POINTER(timespec)),
+                                              cast(pointer(vv.values), POINTER(pmAtomValue)),
+                                              c_int(ftype),
+                                              cast(pointer(vv.stss), POINTER(c_int)),
+                                              c_uint(maxnum), pointer(vv.num), pointer(vv.sts))
+        if sts < 0:
+            raise pmErr(sts)
+        self.items.append(vv) # remember to keep registered pmAtomValue/etc. alive
+        return vv
+
+
+    def fetch(self):
+        """Fetch all the metrics in this fetchgroup and update all values."""
+
+        sts = LIBPCP.pmFetchGroup(self.pmfg)
+        if sts < 0:
+            raise pmErr(sts)

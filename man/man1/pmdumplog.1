@@ -135,6 +135,14 @@ option forces
 records to be reported, even when
 .I metricname
 arguments are specified.
+.RS +5n
+.P
+.I <mark>
+records are inserted into a PCP archive log by
+.BR pmlogextract (1)
+to indicate a temporal discontinuity in the time-series of
+metric values.
+.RE
 .TP
 .B \-r
 Process the archive in reverse order, from most recent to oldest

@@ -30,7 +30,6 @@ _filter1()
     sed \
 	-e "s/$host [:A-Z][A-Z]*[-A-Za-z0-9,/:\.]*/HOST TIMEZONE/" \
 	-e "s/localhost [:A-Z][A-Z]*[-A-Za-z0-9,/:\.]*/LOCALHOST TIMEZONE/" \
-	-e "s/irix\.//g" \
 	-e "s/^\- [0-9][0-9]*\.[0-9][0-9]*$/- NUM/" \
 	-e "s/^\- [0-9][0-9]*$/- NUM/" \
 	-e "s/: Line [0-9][0-9]* /: Line <N> /" \

@@ -26,7 +26,7 @@ in
 	    ln $seq.out.$PCP_PLATFORM.noproc $seq.out || exit 1
 	fi
 	;;
-    irix|darwin)
+    darwin)
 	ln $seq.out.$PCP_PLATFORM $seq.out || exit 1
 	;;
     solaris)

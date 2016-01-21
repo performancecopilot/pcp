@@ -56,6 +56,14 @@ my.metric.string PMID: 245.0.5
 my.metric.strung PMID: 245.0.7
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
+
+event.flags PMID: 511.0.1
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+event.missed PMID: 511.0.2
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
 Log Label (Log Format Version 2)
 Performance metrics from host HOST
   commencing DATE

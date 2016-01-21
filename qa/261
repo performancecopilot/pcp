@@ -14,17 +14,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out
-if [ $PCP_VER -lt 30602 ]
-then
-    ln $seq.out.1 $seq.out || exit 1
-elif [ $PCP_VER -lt 30809 ]
-then
-    ln $seq.out.2 $seq.out || exit 1
-else
-    ln $seq.out.3 $seq.out || exit 1
-fi
-
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

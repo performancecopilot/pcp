@@ -173,6 +173,7 @@ initialize_mutex(void)
 	    fprintf(stderr, "initialize_mutex: pthread_mutex_init failed: %s", errmsg);
 	    exit(4);
 	}
+	pthread_mutexattr_destroy(&attr);
 	done = 1;
     }
     if ((psts = pthread_mutex_unlock(&init)) != 0) {
@@ -184,44 +185,6 @@ initialize_mutex(void)
 #else
 # define initialize_mutex() do { } while (0)
 #endif
-
-/* Register an anonymous metric */
-int
-__pmRegisterAnon(const char *name, int type)
-{
-    char	*msg;
-    char	buf[21];	/* anon(PM_TYPE_XXXXXX) */
-
-PM_FAULT_CHECK(PM_FAULT_PMAPI);
-    switch (type) {
-	case PM_TYPE_32:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_32)");
-	    break;
-	case PM_TYPE_U32:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_U32)");
-	    break;
-	case PM_TYPE_64:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_64)");
-	    break;
-	case PM_TYPE_U64:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_U64)");
-	    break;
-	case PM_TYPE_FLOAT:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_FLOAT)");
-	    break;
-	case PM_TYPE_DOUBLE:
-	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_DOUBLE)");
-	    break;
-	default:
-	    return PM_ERR_TYPE;
-    }
-    if ((msg = pmRegisterDerived(name, buf)) != NULL) {
-	pmprintf("__pmRegisterAnon(%s, %d): @ \"%s\" Error: %s\n", name, type, msg, pmDerivedErrStr());
-	pmflush();
-	return PM_ERR_GENERIC;
-    }
-    return 0;
-}
 
 /*
  * Handle one component of the ':' separated derived config spec.
@@ -339,14 +302,39 @@ __dminit_parse(const char *path, int recover)
 }
 
 /*
- * initialization for Derived Metrics ...
+ * Initialization for Derived Metrics (and Anonymous Metrics for event
+ * records) ...
  */
 static void
 __dminit(void)
 {
+    /*
+     * no derived metrics for PMCD or PMDAs
+     */
+    if (need_init && __pmGetInternalState() == PM_STATE_PMCS)
+	need_init = 0;
+
     if (need_init) {
 	char	*configpath;
+	int	sts;
 
+	/* anon metrics for event record unpacking */
+PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_PMAPI);
+	sts = __pmRegisterAnon("event.flags", PM_TYPE_U32);
+	if (sts < 0) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s: Warning: failed to register event.flags: %s\n",
+		    pmProgname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_PMAPI);
+	sts = __pmRegisterAnon("event.missed", PM_TYPE_U32);
+	if (sts < 0) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s: Warning: failed to register event.missed: %s\n",
+		    pmProgname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+
+	/* next user-defined derived metrics */
 	if ((configpath = getenv("PCP_DERIVED_CONFIG")) != NULL) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
@@ -1463,8 +1451,8 @@ checkname(char *p)
     return 0;
 }
 
-char *
-pmRegisterDerived(const char *name, const char *expr)
+static char *
+registerderived(const char *name, const char *expr, int isanon)
 {
     node_t		*np;
     static __pmID_int	pmid;
@@ -1512,6 +1500,7 @@ pmRegisterDerived(const char *name, const char *expr)
 	pmid.cluster = 0;
     }
     registered.mlist[registered.nmetric-1].name = strdup(name);
+    registered.mlist[registered.nmetric-1].anon = isanon;
     pmid.item = registered.nmetric;
     registered.mlist[registered.nmetric-1].pmid = *((pmID *)&pmid);
     registered.mlist[registered.nmetric-1].expr = np;
@@ -1528,9 +1517,58 @@ pmRegisterDerived(const char *name, const char *expr)
     return NULL;
 }
 
+char *
+pmRegisterDerived(const char *name, const char *expr)
+{
+    return registerderived(name, expr, 0);
+}
+
+/* Register an anonymous metric */
+int
+__pmRegisterAnon(const char *name, int type)
+{
+    char	*msg;
+    char	buf[21];	/* anon(PM_TYPE_XXXXXX) */
+
+PM_FAULT_CHECK(PM_FAULT_PMAPI);
+    switch (type) {
+	case PM_TYPE_32:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_32)");
+	    break;
+	case PM_TYPE_U32:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_U32)");
+	    break;
+	case PM_TYPE_64:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_64)");
+	    break;
+	case PM_TYPE_U64:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_U64)");
+	    break;
+	case PM_TYPE_FLOAT:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_FLOAT)");
+	    break;
+	case PM_TYPE_DOUBLE:
+	    snprintf(buf, sizeof(buf), "anon(PM_TYPE_DOUBLE)");
+	    break;
+	default:
+	    return PM_ERR_TYPE;
+    }
+    if ((msg = registerderived(name, buf, 1)) != NULL) {
+	pmprintf("__pmRegisterAnon(%s, %d): @ \"%s\" Error: %s\n", name, type, msg, pmDerivedErrStr());
+	pmflush();
+	return PM_ERR_GENERIC;
+    }
+    return 0;
+}
+
 int
 pmLoadDerivedConfig(const char *fname)
 {
+    PM_INIT_LOCKS();
+    initialize_mutex();
+    PM_LOCK(registered.mutex);
+    __dminit();
+
     return __dminit_parse(fname, 0 /*non-recovering*/);
 }
 
@@ -1713,14 +1751,17 @@ __dmtraverse(const char *name, char ***namelist)
 int
 __dmchildren(const char *name, char ***offspring, int **statuslist)
 {
-    int		sts = 0;
     int		i;
     int		j;
     char	**children = NULL;
     int		*status = NULL;
+    char	**n_children;
+    char	*q;
     int		matchlen = strlen(name);
     int		start;
     int		len;
+    int		num_chn = 0;
+    size_t	need = 0;
 
     initialize_mutex();
     PM_LOCK(registered.mutex);
@@ -1739,53 +1780,54 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 		 * leaf node
 		 * assert is for coverity, name uniqueness means we
 		 * should only ever come here after zero passes through
-		 * the block below where sts is incremented and children[]
+		 * the block below where num_chn is incremented and children[]
 		 * and status[] are realloc'd
 		 */
-		assert(sts == 0 && children == NULL && status == NULL);
+		assert(num_chn == 0 && children == NULL && status == NULL);
 		PM_UNLOCK(registered.mutex);
 		return 0;
 	    }
 	    start = matchlen > 0 ? matchlen + 1 : 0;
-	    for (j = 0; j < sts; j++) {
+	    for (j = 0; j < num_chn; j++) {
 		len = strlen(children[j]);
 		if (strncmp(&registered.mlist[i].name[start], children[j], len) == 0 &&
 		    registered.mlist[i].name[start+len] == '.')
 		    break;
 	    }
-	    if (j == sts) {
+	    if (j == num_chn) {
 		/* first time for this one */
-		sts++;
-		if ((children = (char **)realloc(children, sts*sizeof(children[0]))) == NULL) {
+		num_chn++;
+		if ((children = (char **)realloc(children, num_chn*sizeof(children[0]))) == NULL) {
 		    PM_UNLOCK(registered.mutex);
-		    __pmNoMem("__dmchildren: children", sts*sizeof(children[0]), PM_FATAL_ERR);
+		    __pmNoMem("__dmchildren: children", num_chn*sizeof(children[0]), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
 		for (len = 0; registered.mlist[i].name[start+len] != '\0' && registered.mlist[i].name[start+len] != '.'; len++)
 		    ;
-		if ((children[sts-1] = (char *)malloc(len+1)) == NULL) {
+		if ((children[num_chn-1] = (char *)malloc(len+1)) == NULL) {
 		    PM_UNLOCK(registered.mutex);
 		    __pmNoMem("__dmchildren: name", len+1, PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
-		strncpy(children[sts-1], &registered.mlist[i].name[start], len);
-		children[sts-1][len] = '\0';
+		strncpy(children[num_chn-1], &registered.mlist[i].name[start], len);
+		children[num_chn-1][len] = '\0';
+		need += len+1;
 #ifdef PCP_DEBUG
 		if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
-		    fprintf(stderr, "__dmchildren: offspring[%d] %s", sts-1, children[sts-1]);
+		    fprintf(stderr, "__dmchildren: offspring[%d] %s", num_chn-1, children[num_chn-1]);
 		}
 #endif
 
 		if (statuslist != NULL) {
-		    if ((status = (int *)realloc(status, sts*sizeof(status[0]))) == NULL) {
+		    if ((status = (int *)realloc(status, num_chn*sizeof(status[0]))) == NULL) {
 			PM_UNLOCK(registered.mutex);
-			__pmNoMem("__dmchildren: statrus", sts*sizeof(status[0]), PM_FATAL_ERR);
+			__pmNoMem("__dmchildren: statrus", num_chn*sizeof(status[0]), PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
-		    status[sts-1] = registered.mlist[i].name[start+len] == '\0' ? PMNS_LEAF_STATUS : PMNS_NONLEAF_STATUS;
+		    status[num_chn-1] = registered.mlist[i].name[start+len] == '\0' ? PMNS_LEAF_STATUS : PMNS_NONLEAF_STATUS;
 #ifdef PCP_DEBUG
 		    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
-			fprintf(stderr, " (status=%d)", status[sts-1]);
+			fprintf(stderr, " (status=%d)", status[num_chn-1]);
 		}
 #endif
 		}
@@ -1798,17 +1840,40 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 	}
     }
 
-    if (sts == 0) {
+    if (num_chn == 0) {
 	PM_UNLOCK(registered.mutex);
 	return PM_ERR_NAME;
     }
 
-    *offspring = children;
+    /*
+     * children[] is complete, but to ensure correct free()ing of
+     * allocated space, we need to restructure this so that
+     * n_children[] and all the names are allocated in a single
+     * block, as per the pmGetChildren() semantics ... even though
+     * n_children[] is never handed back to the caller, the stitch
+     * and cleanup logic in pmGetChildrenStatus() assumes that
+     * free(n_children) is all that is needed.
+     */
+    need += num_chn * sizeof(char *);
+    if ((n_children = (char **)malloc(need)) == NULL) {
+	__pmNoMem("__dmchildren: n_children", need, PM_FATAL_ERR);
+	/*NOTREACHED*/
+    }
+    q = (char *)&n_children[num_chn];
+    for (j = 0; j < num_chn; j++) {
+	n_children[j] = q;
+	strcpy(q, children[j]);
+	q += strlen(children[j]) + 1;
+	free(children[j]);
+    }
+    free(children);
+
+    *offspring = n_children;
     if (statuslist != NULL)
 	*statuslist = status;
 
     PM_UNLOCK(registered.mutex);
-    return sts;
+    return num_chn;
 }
 
 int
@@ -1895,21 +1960,24 @@ __dmopencontext(__pmContext *ctxp)
 	cp->mlist[i].name = registered.mlist[i].name;
 	cp->mlist[i].pmid = registered.mlist[i].pmid;
 	assert(registered.mlist[i].expr != NULL);
-	/*
-	 * Derived metric names must not clash with real metric names ...
-	 * and if this happens, the real metric wins!
-	 * Logic here depends on pmLookupName() returning before any
-	 * derived metric searching is performed if the name is valid
-	 * for a real metric in the current context.
-	 */
-	sts = pmLookupName(1, &registered.mlist[i].name, &pmid);
-	if (sts >= 0 && !IS_DERIVED(pmid)) {
-	    char	strbuf[20];
-	    pmprintf("Warning: %s: derived name matches metric %s: derived ignored\n",
-		    registered.mlist[i].name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
-	    pmflush();
-	    cp->mlist[i].expr = NULL;
-	    continue;
+	if (!registered.mlist[i].anon) {
+	    /*
+	     * Assume anonymous derived metric names are unique, but otherwise
+	     * derived metric names must not clash with real metric names ...
+	     * and if this happens, the real metric wins!
+	     * Logic here depends on pmLookupName() returning before any
+	     * derived metric searching is performed if the name is valid
+	     * for a real metric in the current context.
+	     */
+	    sts = pmLookupName(1, &registered.mlist[i].name, &pmid);
+	    if (sts >= 0 && !IS_DERIVED(pmid)) {
+		char	strbuf[20];
+		pmprintf("Warning: %s: derived name matches metric %s: derived ignored\n",
+			registered.mlist[i].name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
+		pmflush();
+		cp->mlist[i].expr = NULL;
+		continue;
+	    }
 	}
 	/* failures must be reported in bind_expr() or below */
 	cp->mlist[i].expr = bind_expr(i, registered.mlist[i].expr);

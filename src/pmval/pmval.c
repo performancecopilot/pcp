@@ -62,6 +62,7 @@ static char *		tzlabel;
 static pmTime *		pmtime;
 static pmTimeControls	controls;
 static Context		context;
+static int		reporting;	/* set once reporting values starts */
 
 /*
  * Compare two InstPair's on their id fields.
@@ -248,6 +249,7 @@ getvals(Context *x,		/* in - full pm description */
 		if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE)
 		    __pmPrintStamp(stdout, &r->timestamp);
 		printf("  Archive logging suspended\n");
+		reporting = 0;
 		pmFreeResult(r);
 		return -1;
 	    }
@@ -1171,6 +1173,7 @@ main(int argc, char *argv[])
 			printf("  ");
 		    }
 		    printevents(&context, rslt2->vset[idx2], cols);
+		    reporting = 1;
 		    continue;
 		}
 		else if (rawCounter || (context.desc.sem != PM_SEM_COUNTER)) {
@@ -1178,9 +1181,10 @@ main(int argc, char *argv[])
 		    if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE)
 			__pmPrintStamp(stdout, &rslt2->timestamp);
 		    printvals(&context, rslt2->vset[idx2], cols);
+		    reporting = 1;
 		    continue;
 		}
-		else if (no_values) {
+		else if (no_values || reporting) {
 		    if (opts.guiflag || opts.context == PM_CONTEXT_ARCHIVE) {
 			__pmPrintStamp(stdout, &rslt2->timestamp);
 			printf("  ");
@@ -1243,6 +1247,7 @@ main(int argc, char *argv[])
 	else
 	    printrates(&context, rslt1->vset[idx1], rslt1->timestamp,
 		       rslt2->vset[idx2], rslt2->timestamp, cols);
+	reporting = 1;
 
 	/*
 	 * discard previous and save current result, so this value

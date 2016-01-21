@@ -47,11 +47,7 @@ PMCD_CONNECT_TIMEOUT=30
 PMCD_REQUEST_TIMEOUT=30
 
 rm -f  $seq.out
-if [ $PCP_PLATFORM = irix ]
-then
-    PROG=pmkstat
-    cp $seq.irix $seq.out
-elif [ $PCP_PLATFORM = linux ]
+if [ $PCP_PLATFORM = linux ]
 then
     PROG=pmstat
     cp $seq.linux $seq.out

@@ -106,6 +106,7 @@ __pmInitLocks(void)
 	    fprintf(stderr, "__pmInitLocks: pthread_mutex_init failed: %s", errmsg);
 	    exit(4);
 	}
+	pthread_mutexattr_destroy(&attr);
 #endif
 #ifndef HAVE___THREAD
 	/* first thread here creates the thread private data key */

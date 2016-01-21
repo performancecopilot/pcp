@@ -19,16 +19,9 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # real QA test starts here
 echo "Expect no output ..."
 
-# on IRIX 6.5m should report Warning: cihb_getstats: ... ENOTSUP (1008)
-# on IRIX 6.5f should report Warning: cihb_getstats: ... EINVAL or nothing
-# on Linux shuld report nothing
-#
 src/pminfo_lite -L pmcd.control.debug 2>&1 \
 | grep 'No such PMAPI error code'
 
-# for IRIX this is ENOATTR, elsewhere should be No suchcPMAPI error code
-# (assuming strerror(1009) does not return anything useful).
-#
 pmerr -1009 2>&1 \
 | grep 'PCP 1.x?'
 

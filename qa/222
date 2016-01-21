@@ -28,11 +28,6 @@ cd $PCP_PMDAS_DIR
 
 for dir in *
 do
-    if [ $dir = "irix" ]
-    then
-	continue
-    fi
-
     if [ -L $dir ]
     then
 	if [ ! -d $dir ]

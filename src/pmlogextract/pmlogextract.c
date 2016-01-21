@@ -1782,6 +1782,8 @@ main(int argc, char **argv)
     rindom = NULL;	/* list of meta indom records to write */
     rlready = NULL;
 
+    /* no derived or anon metrics, please */
+    __pmSetInternalState(PM_STATE_PMCS);
 
     /* process cmd line args */
     if (parseargs(argc, argv) < 0) {

@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 353
-# check pmsocks for IRIX o32, n32, 64 object styles
+# check pmsocks
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -37,11 +37,5 @@ PMCD_CONNECT_TIMEOUT=30
 PMCD_REQUEST_TIMEOUT=30
 export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT SOCKS_SERVER
 pmsocks src/pmsocks_objstyle -h $EXTERNAL_HOST | _filter
-if [ "$PCP_PLATFORM" = "irix" ]
-then
-    pmsocks src/pmsocks_objstyle_32 -h $EXTERNAL_HOST | _filter
-    pmsocks src/pmsocks_objstyle_n32 -h $EXTERNAL_HOST | _filter
-    pmsocks src/pmsocks_objstyle_64 -h $EXTERNAL_HOST | _filter
-fi
 
 exit

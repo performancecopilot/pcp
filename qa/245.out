@@ -25,6 +25,8 @@ pmnsdel: Error: cannot open PMNS file "mypmns.new" for writing: Permission denie
 pmnsdel: Error: pmLoadASCIINameSpace(mypmns, 1): Problems parsing PMNS definitions
 
 +++ Common starting PMNS for all remaing tests ...
+event.flags PMID: 511.0.1
+event.missed PMID: 511.0.2
 one PMID: 1.1.1
 sub0.five PMID: 5.5.5
 sub0.four PMID: 4.4.4
@@ -48,60 +50,60 @@ pmnsdel: Error: metricpath "sub0.sub2.sub4.sub6.no_nonleaf.no_leaf" not defined 
 === single metric ===
 one:
 diffs ...
-1d0
+3d2
 < one PMID: 1.1.1
 sub0.sub2.sub4.sub6.nine:
 diffs ...
-5d4
+7d6
 < sub0.sub2.sub4.sub6.nine PMID: 9.9.9
 sub0.sub2.seven:
 diffs ...
-4d3
+6d5
 < sub0.sub2.seven PMID: 7.7.7
 
 === multiple metrics ===
 delete: one sub0.sub2.sub4.sub6.nine sub0.sub2.seven
 diffs ...
-1d0
+3d2
 < one PMID: 1.1.1
-4,5d2
+6,7d4
 < sub0.sub2.seven PMID: 7.7.7
 < sub0.sub2.sub4.sub6.nine PMID: 9.9.9
 
 === non-leaves ===
 delete: sub0
 diffs ...
-2,5d1
+4,7d3
 < sub0.five PMID: 5.5.5
 < sub0.four PMID: 4.4.4
 < sub0.sub2.seven PMID: 7.7.7
 < sub0.sub2.sub4.sub6.nine PMID: 9.9.9
 delete: sub1
 diffs ...
-6,7d5
+8,9d7
 < sub1.eight PMID: 8.8.8
 < sub1.six PMID: 6.6.6
 delete: sub0.sub2
 diffs ...
-4,5d3
+6,7d5
 < sub0.sub2.seven PMID: 7.7.7
 < sub0.sub2.sub4.sub6.nine PMID: 9.9.9
 delete: sub0.sub2.sub4
 diffs ...
-5d4
+7d6
 < sub0.sub2.sub4.sub6.nine PMID: 9.9.9
 delete: sub0.sub2.sub4.sub6
 diffs ...
-5d4
+7d6
 < sub0.sub2.sub4.sub6.nine PMID: 9.9.9
 delete: sub0.sub2
 diffs ...
-4,5d3
+6,7d5
 < sub0.sub2.seven PMID: 7.7.7
 < sub0.sub2.sub4.sub6.nine PMID: 9.9.9
 delete: sub1 sub0.sub2.sub4.sub6 sub0 
 diffs ...
-2,7d1
+4,9d3
 < sub0.five PMID: 5.5.5
 < sub0.four PMID: 4.4.4
 < sub0.sub2.seven PMID: 7.7.7
@@ -112,7 +114,7 @@ diffs ...
 === all leaves ===
 delete: one sub0.four sub0.sub2.seven sub0.sub2.sub4.sub6.nine sub0.five two three sub1.six sub1.eight 
 diffs ...
-1,9c1
+3,11d2
 < one PMID: 1.1.1
 < sub0.five PMID: 5.5.5
 < sub0.four PMID: 4.4.4
@@ -122,5 +124,3 @@ diffs ...
 < sub1.six PMID: 6.6.6
 < three PMID: 3.3.3
 < two PMID: 2.2.2
----
-> PMNS appears to be empty!
