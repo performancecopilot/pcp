@@ -103,7 +103,7 @@ typedef struct pmidcntl {		/* metric control */
 typedef struct {
     pmResult	*rp;		/* cached pmResult from __pmLogRead */
     int		sts;		/* from __pmLogRead */
-    FILE	*mfp;		/* log stream */
+    char	*l_name;	/* log name */
     int		vol;		/* log volume */
     long	head_posn;	/* posn in file before forwards __pmLogRead */
     long	tail_posn;	/* posn in file after forwards __pmLogRead */
@@ -177,7 +177,8 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     acp->ac_cache_idx = (acp->ac_cache_idx + 1) % NUMCACHE;
     lfup = &cache[acp->ac_cache_idx];
     for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
-	if (cp->mfp == acp->ac_log->l_mfp && cp->vol == acp->ac_vol &&
+	if (cp->l_name != NULL && strcmp(cp->l_name, acp->ac_log->l_name) == 0 &&
+	    cp->vol == acp->ac_vol &&
 	    ((mode == PM_MODE_FORW && cp->head_posn == posn) ||
 	     (mode == PM_MODE_BACK && cp->tail_posn == posn)) &&
 	    cp->rp != NULL) {
@@ -241,7 +242,10 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
      */
     if (posn == 0 || save_curvol != acp->ac_log->l_curvol || archive_changed ||
 	acp->ac_mark_done) {
-	lfup->mfp = NULL;
+	if (lfup->l_name) {
+	    free(lfup->l_name);
+	    lfup->l_name = NULL;
+	}
 #ifdef PCP_DEBUG
 	if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_DESPERATE))
 	    fprintf(stderr, "cache_read: reload vol switch, mark cache[%d] unused\n",
@@ -251,8 +255,18 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     else {
 	lfup->mode = mode;
 	lfup->vol = acp->ac_vol;
-	lfup->mfp = acp->ac_log->l_mfp;
 	lfup->used = 1;
+	/* Try to avoid excessive copying/freeing of the archive name. */
+	if (lfup->l_name != NULL && strcmp(lfup->l_name, acp->ac_log->l_name) != 0) {
+	    free(lfup->l_name);
+	    lfup->l_name = NULL;
+	}
+	if (lfup->l_name == NULL) {
+	    if ((lfup->l_name = strdup(acp->ac_log->l_name)) == NULL) {
+		__pmNoMem("__pmLogFetchInterp.l_name",
+			  strlen(acp->ac_log->l_name) + 1, PM_FATAL_ERR);
+	    }
+	}
 	if (mode == PM_MODE_FORW) {
 	    lfup->head_posn = posn;
 	    lfup->tail_posn = ftell(acp->ac_log->l_mfp);
@@ -1812,16 +1826,22 @@ __pmFreeInterpData(__pmContext *ctxp)
 	for (cp = cache; cp < &cache[NUMCACHE]; cp++) {
 #ifdef PCP_DEBUG
 	    if ((pmDebug & DBG_TRACE_LOG) && (pmDebug & DBG_TRACE_INTERP)) {
-		fprintf(stderr, "read cache entry " PRINTF_P_PFX "%p: mfp=" PRINTF_P_PFX "%p rp=" PRINTF_P_PFX "%p\n", cp, cp->mfp, cp->rp);
+		fprintf(stderr, "read cache entry "
+			PRINTF_P_PFX "%p: l_name=%s rp="
+			PRINTF_P_PFX "%p\n",
+			cp, cp->l_name ? cp->l_name : "(none)",
+			cp->rp);
 	    }
 #endif
-	    if (cp->mfp == ctxp->c_archctl->ac_log->l_mfp) {
-		if (cp->rp != NULL)
-		    pmFreeResult(cp->rp);
-		cp->rp = NULL;
-		cp->mfp = NULL;
-		cp->used = 0;
+	    if (cp->l_name != NULL) {
+		free(cp->l_name);
+		cp->l_name = NULL;
 	    }
+	    if (cp->rp != NULL) {
+		pmFreeResult(cp->rp);
+		cp->rp = NULL;
+	    }
+	    cp->used = 0;
 	}
     }
 }
