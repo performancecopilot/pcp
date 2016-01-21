@@ -29,12 +29,12 @@ os.unsetenv('HTTP_PROXY')
 # ------------------------------------------------------------------------
 
 # test - create contexts
-req = requests.get(url=url + 'pmapi/context?local=foo&polltimeout=2')
+req = requests.get(url=url + 'pmapi/context?local=foo&polltimeout=5')
 resp = req.json()
 ctx_local = resp['context']
 print('Received PM_CONTEXT_LOCAL #' + str(ctx_local))
 
-req = requests.get(url=url + 'pmapi/context?hostname=' + args.host + '&polltimeout=2')
+req = requests.get(url=url + 'pmapi/context?hostname=' + args.host + '&polltimeout=5')
 resp = req.json()
 ctx_host = resp['context']
 print('Received PM_CONTEXT_HOST #' + str(ctx_host))
@@ -108,6 +108,7 @@ def test_metric_enumeration(ctx, prefix):
     try:
         resp = req.json()
     except Exception as e:
+	print(url)
         print("ERROR: %s" % e)
         print(testprefix + 'error JSON-decoding ' + req.text)
     print(testprefix + ' enumeration with pmwebinfo #'+str(len(resp['metrics'])))
@@ -269,7 +270,7 @@ check_vals(ctx_host, 'sample.colour')
 # ------------------------------------------------------------------------
 
 print('sleeping briefly to expire contexts')
-time.sleep(5) # >> polltimeout=2
+time.sleep(7) # >> polltimeout=5
 
 test_metadata(ctx_local,'names=kernel.all.nprocs')  # expect status 400ish
 test_indom(ctx_host,'names=kernel.all.nprocs')
