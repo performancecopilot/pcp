@@ -308,6 +308,7 @@ __pmInitContextLock(pthread_mutex_t *lock)
 		contexts_len-1, errmsg);
 	exit(4);
     }
+    pthread_mutexattr_destroy(&attr);
 }
 
 static void

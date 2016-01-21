@@ -173,6 +173,7 @@ initialize_mutex(void)
 	    fprintf(stderr, "initialize_mutex: pthread_mutex_init failed: %s", errmsg);
 	    exit(4);
 	}
+	pthread_mutexattr_destroy(&attr);
 	done = 1;
     }
     if ((psts = pthread_mutex_unlock(&init)) != 0) {
