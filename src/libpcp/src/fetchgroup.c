@@ -446,18 +446,6 @@ void
 __pmReinitValue(pmAtomValue *oval, int otype)
 {
     switch (otype) {
-	case PM_TYPE_32:
-	    oval->l = 0;
-	    break;
-	case PM_TYPE_U32:
-	    oval->ul = 0;
-	    break;
-	case PM_TYPE_64:
-	    oval->ll = 0;
-	    break;
-	case PM_TYPE_U64:
-	    oval->ull = 0;
-	    break;
 	case PM_TYPE_FLOAT:
 	    oval->f = (float)0.0 / (float)0.0; /* nanf(""); */
 	    break;
@@ -468,8 +456,13 @@ __pmReinitValue(pmAtomValue *oval, int otype)
 	    free(oval->cp);
 	    oval->cp = NULL;
 	    break;
+	case PM_TYPE_32:
+	case PM_TYPE_U32:
+	case PM_TYPE_64:
+	case PM_TYPE_U64:
 	default:
-	    assert(0);		/* prevented at pmfg_prep_conversion */
+	    memset(oval, -1, sizeof(*oval));
+	    break;
     }
 }
 

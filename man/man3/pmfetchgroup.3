@@ -593,14 +593,15 @@ signalled by setting the corresponding pmAtomValue to a sentinel
 value.
 If unambiguous and precise error detection is not required, this
 may be sufficient.
-The sentinel value is 0 for integers, \fBNaN\fP
+The sentinel value is negative one for all integers (including unsigned
+integers \- i.e. all bits are set), \fBNaN\fP
 for floating point types, a NULL pointer for strings, and 0.0s for the
-a timestamp.
-The fetchgroup system guarantees that once an output
+timestamp.
+The fetchgroup API guarantees that once an output
 pmAtomValue is registered (during a successful
 \fBpmExtendFetchGroup_*\fP call), it will be cleared to the sentinel
 value or to a valid converted metric value, from the time of
-registration until the \fBpmDestroyFetchGroup\fP.
+registration until the \fBpmDestroyFetchGroup\fP call.
 .SH "SEE ALSO"
 .BR PMAPI (3),
 .BR pmLookupName (3),
