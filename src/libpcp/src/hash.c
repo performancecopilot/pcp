@@ -21,6 +21,8 @@ void
 __pmHashInit(__pmHashCtl *hcp)
 {
     memset(hcp, 0, sizeof(*hcp));
+    /* NB: some __pmHash* clients rely on this to eschew explicit
+       initialization for .bss / .data-resident __pmHashCtl structs. */
 }
 
 __pmHashNode *

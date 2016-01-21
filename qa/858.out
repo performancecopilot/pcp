@@ -1,0 +1,12 @@
+QA output created by 858
+sample.const_rate.gradient old value=0 new value=10
+=== std out ===
+complete
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: ./src/fetchgroup
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

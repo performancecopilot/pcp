@@ -256,7 +256,7 @@ main(int argc, char **argv)
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
-	case 'p':
+	case 'P':
 	    pauseFlag++;
 	    break;
 	default:
