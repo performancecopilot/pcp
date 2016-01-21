@@ -21,12 +21,11 @@ CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "root	1	pipe	binary		$(PMDADIR)/$(CMDTARGET)"
 
-CFILES		= root.c
+CFILES		= root.c agent.c
 ifeq "$(TARGET_OS)" "linux"
 CFILES		+= jsmn.c docker.c lxc.c
 endif
 
-SCRIPTS		= Install Remove
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
 LDIRT		= $(HELPTARGETS) pmns domain.h $(VERSION_SCRIPT)
@@ -46,7 +45,7 @@ include $(BUILDRULES)
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 domain.h help help.dir help.pag root $(PMDADIR)
-	$(INSTALL) -m 755 $(CMDTARGET) $(SCRIPTS) $(PMDADIR)
+	$(INSTALL) -m 755 $(CMDTARGET) $(PMDADIR)/$(CMDTARGET)
 	$(INSTALL) -m 644 pmns $(PMDADIR)/root_root
 	$(INSTALL) -m 644 root_root $(PCP_VAR_DIR)/pmns/root_root
 

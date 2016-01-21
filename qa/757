@@ -31,7 +31,7 @@ perfevent_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/perfevent
     $sudo ./Remove >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmcd stop
+    $sudo $PCP_RC_DIR/pmcd stop | _filter_pcp_stop
 
     [ -f $PCP_PMDAS_DIR/perfevent/perfevent.conf ] && \
     $sudo cp $PCP_PMDAS_DIR/perfevent/perfevent.conf $tmp.backup

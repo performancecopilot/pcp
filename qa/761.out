@@ -1,21 +1,7 @@
 QA output created by 761
-
-=== root agent installation ===
-You will need to choose an appropriate configuration for installation of
-the "root" Performance Metrics Domain Agent (PMDA).
-
-  collector	collect performance statistics on this system
-  monitor	allow this system to monitor local and/or remote systems
-  both		collector and monitor configuration for this system
-
-Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
-Terminate PMDA if already installed ...
-[...install files, make output...]
-Updating the PMCD control file, and notifying PMCD ...
-Waiting for pmcd to terminate DOTS
+Waiting for pmcd to terminate ...
 Starting pmcd ... 
 Starting pmlogger ... 
-Check containers metrics have appeared ... 7 metrics and 0 values
 === Checking empty containers configuration, no values
 containers.engine 0
 containers.name 0
@@ -143,13 +129,3 @@ containers.state.restarting
 
 == done
 
-
-=== remove root agent ===
-Culling the Performance Metrics Name Space ...
-containers ... done
-Updating the PMCD control file, and notifying PMCD ...
-[...removing files...]
-Check containers metrics have gone away ... OK
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
-Starting pmlogger ... 

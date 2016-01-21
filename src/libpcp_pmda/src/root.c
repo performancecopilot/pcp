@@ -162,3 +162,52 @@ pmdaRootContainerCGroupName(int clientfd, const char *name, int namelen,
 	return sts;
     return __pmdaDecodeRootPDUContainer(pdubuf, sts, &pid, buffer, buflen);
 }
+
+int
+pmdaRootProcessStart(int clientfd, int ipctype, const char *name,
+			int namelen, const char *args, int argslen,
+			int *pid, int *infd, int *outfd)
+{
+    char pdubuf[sizeof(__pmdaRootPDUStart) + MAXPATHLEN];
+    int sts;
+
+    if ((sts = __pmdaSendRootPDUStartReq(clientfd, ipctype, name, namelen,
+				args, argslen)) < 0)
+	return sts;
+    if ((sts = __pmdaRecvRootPDUStart(clientfd, pdubuf, sizeof(pdubuf))) < 0)
+	return sts;
+    return __pmdaDecodeRootPDUStart(pdubuf, sts, pid, infd, outfd,
+				NULL, NULL, 0, NULL, 0);
+}
+
+int
+pmdaRootProcessWait(int clientfd, int pid, int *status)
+{
+    char pdubuf[sizeof(__pmdaRootPDUStop)];
+    int	sts;
+
+    if ((sts = __pmdaSendRootPDUStop(clientfd, PDUROOT_STOPPMDA_REQ,
+			pid, 0, 0, 0)) < 0)
+	return sts;
+    if ((sts = __pmdaRecvRootPDUStop(clientfd, PDUROOT_STOPPMDA,
+			pdubuf, sizeof(pdubuf))) < 0)
+	return sts;
+    if ((sts = __pmdaDecodeRootPDUStop(pdubuf, sts, &pid, status, NULL)) < 0)
+	return sts;
+    return pid;
+}
+
+int
+pmdaRootProcessTerminate(int clientfd, int pid)
+{
+    char pdubuf[sizeof(__pmdaRootPDUStop)];
+    int	sts;
+
+    if ((sts = __pmdaSendRootPDUStop(clientfd, PDUROOT_STOPPMDA_REQ,
+			pid, 0, 1, 0)) < 0)
+	return sts;
+    if ((sts = __pmdaRecvRootPDUStop(clientfd, PDUROOT_STOPPMDA,
+			pdubuf, sizeof(pdubuf))) < 0)
+	return sts;
+    return __pmdaDecodeRootPDUStop(pdubuf, sts, NULL, NULL, NULL);
+}

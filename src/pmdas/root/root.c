@@ -39,7 +39,7 @@ static int socket_fd = -1;
 static int pmcd_fd = -1;
 
 static __pmFdSet connected_fds;
-static int maximum_fd;
+int root_maximum_fd;
 
 static const int features = PDUROOT_FLAG_HOSTNAME | \
 			    PDUROOT_FLAG_PROCESSID | \
@@ -330,8 +330,8 @@ root_setup_socket(void)
 	exit(1);
     }
 
-    if (fd > maximum_fd)
-	maximum_fd = fd;
+    if (fd > root_maximum_fd)
+	root_maximum_fd = fd;
 
     __pmFD_ZERO(&connected_fds);
     __pmFD_SET(fd, &connected_fds);
@@ -413,11 +413,11 @@ root_delete_client(root_client_t *cp)
     }
     if (i >= nrootclients - 1)
 	nrootclients = i;
-    if (cp->fd == maximum_fd) {
-	maximum_fd = (pmcd_fd > socket_fd) ? pmcd_fd : socket_fd;
+    if (cp->fd == root_maximum_fd) {
+	root_maximum_fd = (pmcd_fd > socket_fd) ? pmcd_fd : socket_fd;
 	for (i = 0; i < nrootclients; i++) {
-	    if (root_client[i].fd > maximum_fd)
-		maximum_fd = root_client[i].fd;
+	    if (root_client[i].fd > root_maximum_fd)
+		root_maximum_fd = root_client[i].fd;
 	}
     }
     cp->fd = -1;
@@ -445,8 +445,8 @@ root_accept_client(void)
 	    exit(1);
 	}
     }
-    if (fd > maximum_fd)
-	maximum_fd = fd;
+    if (fd > root_maximum_fd)
+	root_maximum_fd = fd;
     __pmFD_SET(fd, &connected_fds);
 
     root_client[i].fd = fd;
@@ -604,6 +604,51 @@ root_cgroupname_request(root_client_t *cp, void *pdu, int pdulen)
 }
 
 static int
+root_startpmda_request(root_client_t *cp, void *pdu, int pdulen)
+{
+    size_t	len;
+    pid_t	pid;
+    int		infd, outfd;
+    int		sts, ipc, bad = 0;
+    char	name[MAXPMDALEN];
+    char	args[MAXPATHLEN];	/* TODO: size checks */
+
+    if ((sts = __pmdaDecodeRootPDUStart(pdu, pdulen, NULL, NULL, NULL,
+			&ipc, name, sizeof(name), args, sizeof(args))) < 0)
+	return sts;
+    len = strlen(name);
+
+    if ((pid = root_create_agent(ipc, args, name, &infd, &outfd)) < 0)
+	bad = PM_ERR_GENERIC;
+
+    sts = __pmdaSendRootPDUStart(cp->fd, pid, infd, outfd, name, len, bad);
+    close(outfd);
+    close(infd);
+    return sts;
+}
+
+static int
+root_stoppmda_request(root_client_t *cp, void *pdu, int pdulen)
+{
+    int		sts, force, code;
+    pid_t	pid = (pid_t)-1;
+ 
+    if ((sts = __pmdaDecodeRootPDUStop(pdu, pdulen, &pid, NULL, &force)) < 0)
+	return sts;
+
+    if (force || pid >= (pid_t)1) {
+	if (pid == (pid_t)-1)
+	    sts = -EINVAL;
+	else
+	    sts = __pmProcessTerminate(pid, force);
+    } else {
+	pid = root_agent_wait(&code);
+	sts = 0;
+    }
+    return __pmdaSendRootPDUStop(cp->fd, PDUROOT_STOPPMDA, pid, code, 0, sts);
+}
+
+static int
 root_recvpdu(int fd, __pmdaRootPDUHdr **hdr)
 {
     static char		buffer[BUFSIZ];
@@ -669,18 +714,21 @@ root_handle_client_input(__pmFdSet *fds)
 	    sts = root_cgroupname_request(cp, (void *)php, sts);
 	    break;
 
-	/*
-	 * We expect to add functionality here over time, e.g.:
-	 * - PDU for (re)starting a PMDA & pass back fds;
-	 * - authentication requests via SASL;
-	 */
+	case PDUROOT_STARTPMDA_REQ:
+	    sts = root_startpmda_request(cp, (void *)php, sts);
+	    break;
+
+	case PDUROOT_STOPPMDA_REQ:
+	    sts = root_stoppmda_request(cp, (void *)php, sts);
+	    break;
 
 	default:
 	    sts = PM_ERR_IPC;
-	} 
+	}
 
 	if (sts < 0) {
-	    __pmNotifyErr(LOG_ERR, "bad protocol exchange (fd=%d)\n", cp->fd);
+	    __pmNotifyErr(LOG_ERR, "bad protocol exchange (fd=%d,type=%x)\n",
+				cp->fd, php->type);
 	    root_delete_client(cp);
 	}
     }
@@ -696,11 +744,11 @@ root_main(pmdaInterface *dp)
 
     pmcd_fd = __pmdaInFd(dp);
     __pmFD_SET(pmcd_fd, &connected_fds);
-    maximum_fd = (socket_fd > pmcd_fd) ? socket_fd : pmcd_fd;
+    root_maximum_fd = (socket_fd > pmcd_fd) ? socket_fd : pmcd_fd;
 
     for (;;) {
 	readable_fds = connected_fds;
-	maxfd = maximum_fd + 1;
+	maxfd = root_maximum_fd + 1;
 
 	sts = __pmSelectRead(maxfd, &readable_fds, NULL);
 	if (sts > 0) {
