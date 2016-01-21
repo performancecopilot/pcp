@@ -5,6 +5,11 @@
 	 <simpara>
 		<revhistory>
 			<revision>
+				<revnumber>4.0-3</revnumber>
+				<date>December 2015</date>
+				<revremark>Revised to include the fetchgroup API.</revremark>
+			</revision>
+			<revision>
 				<revnumber>4.0-2</revnumber>
 				<date>September 2013</date>
 				<revremark>Revised to include event metrics and the MMV PMDA coverage.</revremark>
@@ -15,7 +20,7 @@
 				<revremark>Revised to support the Performance Co-Pilot 3.8 release.</revremark>
 			</revision>
 			<revision>
-				<revnumber>3,0-1</revnumber>
+				<revnumber>3.0-1</revnumber>
 				<date>December 2002</date>
 				<revremark>Revised to support the Performance Co-Pilot 2.3 release.</revremark>
 			</revision>

@@ -15,7 +15,8 @@
 .\"
 .TH PMCLIENT 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmclient\f1 \- a simple performance metrics client
+\f3pmclient\f1,
+\f3pmclient_fg\f1 \- a simple performance metrics client
 .\" literals use .B or \f3
 .\" arguments use .I or \f2
 .SH SYNOPSIS
@@ -23,7 +24,7 @@
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
-[\f3\-p\f1]
+[\f3\-P\f1]
 [\f3\-S\f1 \f2numsec\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-t\f1 \f2interval\f1]
@@ -31,13 +32,14 @@
 [\f3\-z\f1]
 .SH DESCRIPTION
 .B pmclient
-is a simple client that uses the Performance Metrics Application
+and
+.B pmclient_fg
+are simple clients that use the Performance Metrics Application
 Programming Interface (PMAPI) to report some high-level system
 performance metrics.
 .PP
-The real value of
-.B pmclient
-is as a sample client using the
+The real value of these tools 
+is as sample clients using the
 .BR PMAPI (3),
 interfaces and to this end the source
 code is included with
@@ -45,6 +47,15 @@ the Performance Co-Pilot (PCP) package (see
 .BR PCPIntro (1)),
 and is typically installed in
 .IR /usr/share/pcp/demos/pmclient .
+.PP
+The
+.B pmclient_fg
+program
+differs to
+.B pmclient
+in that it uses the fetchgroup API extension to the PMAPI,
+see
+.BR pmFetchGroup (3).
 .PP
 Normally
 .B pmclient
@@ -92,10 +103,10 @@ options.
 .PP
 Other options control the specific information to be reported.
 .TP
-\f3\-p\f1
+\f3\-P\f1
 The default behavior for replaying an archive, is to replay at
 full speed.  The
-.B \-p
+.B \-P
 option may be used in conjunction with an archive, to request that
 the prevailing real-time delay be applied between samples (see
 .BR \-t )
@@ -179,6 +190,7 @@ as described in
 .BR pmstat (1),
 .BR pmval (1),
 .BR PMAPI (3),
+.BR pmFetchGroup (3),
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).

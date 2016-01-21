@@ -1,7 +1,8 @@
 #! /bin/sh
 # PCP QA Test No. 053
-# Verify the good stuff happens with pmclient
+# Verify the good stuff happens with pmclient and pmclient_fg
 #
+# Copyright (c) 2016 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
@@ -14,8 +15,8 @@ echo "QA output created by $seq"
 
 _filter()
 {
-
     tee -a $seq.full \
+    | sed -e 's/pmFetchGroup/pmFetch/g' \
     | $PCP_AWK_PROG '
 /^Archive: /		{ print "... title ..."; next }
 /^[0-9. 	]*$/	{ print "... " NF " numbers ..."; next }
@@ -50,17 +51,21 @@ ncpu=`pmprobe -v hinv.ncpu 2>&1 \
 NF == 3 && $2 == 1	{ print $3; exit }
 			{ print "0"; exit }'`
 
-#
-# output is sensitive to SP/MP ... so do the one that is real, and fake
-# the other
+run()
+{
+    pmclient=$1
+    echo "== $pmclient variant =="
 
-if [ "$ncpu" -eq 1 ]
-then
-    echo "real SP case" >>$here/$seq.full
-    pmclient -a $tmp | _filter
-    echo "..."
-    # fake MP output
-    cat <<End-of-File
+    # output is sensitive to SP/MP ... so do the one that is real,
+    # and fake the other
+    #
+    if [ "$ncpu" -eq 1 ]
+    then
+	echo "real SP case" >>$here/$seq.full
+	$pmclient -a $tmp | _filter 2>&1
+	echo "..."
+	# fake MP output
+	cat <<End-of-File
 pmclient: pmFetch: End of PCP archive log
 ... title ...
   CPU  Busy    Busy  Free Mem   Disk     Load Average
@@ -68,9 +73,9 @@ pmclient: pmFetch: End of PCP archive log
 ... 7 numbers ...
 ... 7 numbers ...
 End-of-File
-else
-    # fake SP output
-    cat <<End-of-File
+    else
+	# fake SP output
+	cat <<End-of-File
 pmclient: pmFetch: End of PCP archive log
 ... title ...
   CPU  Free Mem   Disk     Load Average
@@ -78,7 +83,13 @@ pmclient: pmFetch: End of PCP archive log
 ... 5 numbers ...
 ... 5 numbers ...
 End-of-File
-    echo "..."
-    echo "real MP case" >>$here/$seq.full
-    pmclient -a $tmp | _filter
-fi
+	echo "..."
+	echo "real MP case" >>$here/$seq.full
+	$pmclient -a $tmp | _filter 2>&1
+    fi
+
+    echo "== $pmclient done ==" && echo
+}
+
+run pmclient
+run pmclient_fg
