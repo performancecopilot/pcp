@@ -12,9 +12,6 @@
  * License for more details.
  */
 
-#define _XOPEN_SOURCE 600
-
-
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
@@ -1192,44 +1189,32 @@ pmCreateFetchGroup(pmFG *ptr, int type, const char *name)
 {
     int sts;
     pmFG pmfg;
-    int saved_ctx;
 
     if (ptr == NULL)
 	return -EINVAL;
-
     *ptr = NULL; /* preset it to NULL */
 
     pmfg = calloc(1, sizeof(*pmfg));
     if (pmfg == NULL)
 	return -ENOMEM;
 
-    saved_ctx = pmWhichContext();
     sts = pmNewContext(type, name);
-    /* NB: implicitly pmUseContext()'d! */
-    if (sts < 0)
-	goto out1;
+    if (sts < 0) {
+	free(pmfg);
+	return sts;
+    }
     pmfg->ctx = sts;
 
     /*
      * Wipe clean all instances; we'll add them back incrementally as
-     * the fetchgroup is extended.
+     * the fetchgroup is extended.  This cannot fail for the manner in
+     * which we call it - see pmDelProfile(3) man page discussion.
      */
-    sts = pmDelProfile(PM_INDOM_NULL, 0, NULL);
-    if (sts < 0)
-	goto out2;
+    pmDelProfile(PM_INDOM_NULL, 0, NULL);
 
     /* Other fields may be left 0-initialized. */
     *ptr = pmfg;
-    sts = 0;
-    goto out;
-
-out2:
-    pmDestroyContext(pmfg->ctx);
-out1:
-    free(pmfg);
-out:
-    pmUseContext(saved_ctx);
-    return sts;
+    return 0;
 }
 
 /*
@@ -1240,15 +1225,13 @@ int
 pmFetchGroupSetMode(pmFG pmfg, int mode, const struct timeval *when, int delta)
 {
     int sts;
-    int saved_ctx;
 
     if (pmfg == NULL)
 	return -EINVAL;
 
-    saved_ctx = pmWhichContext();
     sts = pmUseContext(pmfg->ctx);
     if (sts < 0)
-	goto out;
+	return sts;
 
     /*
      * Delete prevResult, since we can't use it for rate conversion across
@@ -1258,11 +1241,7 @@ pmFetchGroupSetMode(pmFG pmfg, int mode, const struct timeval *when, int delta)
 	pmFreeResult(pmfg->prevResult);
     pmfg->prevResult = NULL;
 
-    sts = pmSetMode(mode, when, delta);
-
-out:
-    pmUseContext(saved_ctx);
-    return sts;
+    return pmSetMode(mode, when, delta);
 }
 
 /*
@@ -1290,21 +1269,17 @@ pmExtendFetchGroup_item(pmFG pmfg,
 {
     int sts;
     pmFGI item;
-    int saved_ctx;
 
     if (pmfg == NULL || metric == NULL)
 	return -EINVAL;
 
-    saved_ctx = pmWhichContext();
     sts = pmUseContext(pmfg->ctx);
     if (sts != 0)
-	goto out;
+	return sts;
 
     item = calloc(1, sizeof(*item));
-    if (item == NULL) {
-	sts = -ENOMEM;
-	goto out;
-    }
+    if (item == NULL)
+	return -ENOMEM;
 
     item->type = pmfg_item;
 
@@ -1329,30 +1304,30 @@ pmExtendFetchGroup_item(pmFG pmfg,
 	    PM_UNLOCK(ctxp->c_lock);
 	    sts = pmGetArchiveEnd(&archive_end);
 	    if (sts < 0)
-		goto out1;
+		goto out;
 	    sts = pmSetMode(PM_MODE_BACK, &archive_end, 0);
 	    if (sts < 0)
-		goto out1;
+		goto out;
 	    /* try again */
 	    sts = pmfg_lookup_item(metric, instance, item);
 	    /* go back to saved position */
 	    pmSetMode(saved_mode, &saved_origin, saved_delta);
 	    if (sts < 0)
-		goto out1;
+		goto out;
 	} else { /* not an archive */
 	    PM_UNLOCK(ctxp->c_lock);
-	    goto out1;
+	    goto out;
 	}
     }
 
     sts = pmfg_prep_conversion(&item->u.item.metric_desc, scale,
 				&item->u.item.conv, out_type);
     if (sts != 0)
-	goto out1;
+	goto out;
 
     sts = pmfg_add_pmid(pmfg, item->u.item.metric_pmid);
-    if (sts < 0)
-	goto out1;
+    if (sts != 0)
+	goto out;
 
     item->u.item.output_value = out_value;
     item->u.item.output_type = out_type;
@@ -1366,13 +1341,10 @@ pmExtendFetchGroup_item(pmFG pmfg,
     /* link in */
     item->next = pmfg->items;
     pmfg->items = item;
-    sts = 0;
-    goto out;
+    return 0;
 
-out1:
-    free(item);
 out:
-    pmUseContext(saved_ctx);
+    free(item);
     return sts;
 }
 
@@ -1409,37 +1381,32 @@ pmExtendFetchGroup_indom(pmFG pmfg,
 {
     int sts;
     pmFGI item;
-    int saved_ctx = pmWhichContext();
 
-    if (pmfg == NULL || metric == NULL) {
-	sts = -EINVAL;
-	goto out;
-    }
+    if (pmfg == NULL || metric == NULL)
+	return -EINVAL;
 
     sts = pmUseContext(pmfg->ctx);
     if (sts != 0)
-	goto out;
+	return sts;
 
     item = calloc(1, sizeof(*item));
-    if (item == NULL) {
-	sts = -ENOMEM;
-	goto out;
-    }
+    if (item == NULL)
+	return -ENOMEM;
 
     item->type = pmfg_indom;
 
     sts = pmfg_lookup_indom(metric, item);
     if (sts != 0)
-	goto out1;
+	goto out;
 
     sts = pmfg_prep_conversion(&item->u.indom.metric_desc, scale,
 				&item->u.indom.conv, out_type);
     if (sts != 0)
-	goto out1;
+	goto out;
 
     sts = pmfg_add_pmid(pmfg, item->u.indom.metric_pmid);
     if (sts < 0)
-	goto out1;
+	goto out;
 
     item->u.indom.output_inst_codes = out_inst_codes;
     item->u.indom.output_inst_names = out_inst_names;
@@ -1460,13 +1427,10 @@ pmExtendFetchGroup_indom(pmFG pmfg,
     /* link in */
     item->next = pmfg->items;
     pmfg->items = item;
-    sts = 0;
-    goto out;
+    return 0;
 
-out1:
-    free(item);
 out:
-    (void) pmUseContext(saved_ctx);
+    free(item);
     return sts;
 }
 
@@ -1480,22 +1444,17 @@ pmExtendFetchGroup_event(pmFG pmfg,
 {
     int sts;
     pmFGI item;
-    int saved_ctx = pmWhichContext();
 
-    if (pmfg == NULL || metric == NULL) {
-	sts = -EINVAL;
-	goto out;
-    }
+    if (pmfg == NULL || metric == NULL)
+	return -EINVAL;
 
     sts = pmUseContext(pmfg->ctx);
     if (sts != 0)
-	goto out;
+	return sts;
 
     item = calloc(1, sizeof(*item));
-    if (item == NULL) {
-	sts = -ENOMEM;
-	goto out;
-    }
+    if (item == NULL)
+	return -ENOMEM;
 
     item->type = pmfg_event;
 
@@ -1520,32 +1479,32 @@ pmExtendFetchGroup_event(pmFG pmfg,
 	    PM_UNLOCK(ctxp->c_lock);
 	    sts = pmGetArchiveEnd(&archive_end);
 	    if (sts < 0)
-		goto out1;
+		goto out;
 	    sts = pmSetMode (PM_MODE_BACK, &archive_end, 0);
 	    if (sts < 0)
-		goto out1;
+		goto out;
 	    /* try again */
 	    sts = pmfg_lookup_event(metric, instance, field, item);
 	    /* go back to saved position */
 	    pmSetMode(saved_mode, &saved_origin, saved_delta);
 	    if (sts < 0)
-		goto out1;
+		goto out;
 	} else { /* not archive */
 	    PM_UNLOCK(ctxp->c_lock);
-	    goto out1;
+	    goto out;
 	}
     }
 
     if (item->u.event.metric_desc.type != PM_TYPE_EVENT &&
 	item->u.event.metric_desc.type != PM_TYPE_HIGHRES_EVENT) {
 	sts = PM_ERR_TYPE;
-	goto out1;
+	goto out;
     }
 
     sts = pmfg_prep_conversion(&item->u.event.field_desc, scale,
 				&item->u.event.conv, out_type);
     if (sts != 0)
-	goto out1;
+	goto out;
 
     /*
      * Reject rate conversion requests, since it's not clear what to
@@ -1554,12 +1513,12 @@ pmExtendFetchGroup_event(pmFG pmfg,
      */
     if (item->u.event.conv.rate_convert) {
 	sts = PM_ERR_CONV;
-	goto out1;
+	goto out;
     }
 
     sts = pmfg_add_pmid(pmfg, item->u.event.metric_pmid);
     if (sts < 0)
-	goto out1;
+	goto out;
 
     item->u.event.output_values = out_values;
     item->u.event.output_times = out_times;
@@ -1579,13 +1538,10 @@ pmExtendFetchGroup_event(pmFG pmfg,
     /* link in */
     item->next = pmfg->items;
     pmfg->items = item;
-    sts = 0;
-    goto out;
+    return 0;
 
-out1:
-    free(item);
 out:
-    pmUseContext(saved_ctx);
+    free(item);
     return sts;
 }
 
@@ -1597,15 +1553,12 @@ int
 pmFetchGroup(pmFG pmfg)
 {
     int sts;
-    int saved_ctx = pmWhichContext();
-    pmResult *newResult;
     pmFGI item;
+    pmResult *newResult;
     pmResult dummyResult;
 
-    if (pmfg == NULL) {
-	sts = -EINVAL;
-	goto out;
-    }
+    if (pmfg == NULL)
+	return -EINVAL;
 
     /*
      * Walk the fetchgroup, reinitializing every output spot, regardless of
@@ -1635,7 +1588,7 @@ pmFetchGroup(pmFG pmfg)
 
     sts = pmUseContext(pmfg->ctx);
     if (sts != 0)
-	goto out;
+	return sts;
 
     sts = pmFetch((int) pmfg->num_unique_pmids, pmfg->unique_pmids, &newResult);
     if (sts < 0 || newResult == NULL) {
@@ -1688,8 +1641,6 @@ pmFetchGroup(pmFG pmfg)
     }
 
     /* NB: we pass through the pmFetch() sts. */
-out:
-    pmUseContext(saved_ctx);
     return sts;
 }
 
@@ -1699,14 +1650,10 @@ out:
 int
 pmDestroyFetchGroup(pmFG pmfg)
 {
-    int sts;
-    int saved_ctx = pmWhichContext();
     pmFGI item;
 
-    if (pmfg == NULL) {
-	sts = -EINVAL;
-	goto out;
-    }
+    if (pmfg == NULL)
+	return -EINVAL;
 
     /* Walk the items carefully since we're deleting them. */
     item = pmfg->items;
@@ -1740,9 +1687,5 @@ pmDestroyFetchGroup(pmFG pmfg)
     pmDestroyContext(pmfg->ctx);
     free(pmfg->unique_pmids);
     free(pmfg);
-    sts = 0;
-
-out:
-    pmUseContext(saved_ctx);
-    return sts;
+    return 0;
 }
