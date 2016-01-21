@@ -42,7 +42,7 @@
  * opaque to the PMAPI client.
  */
 struct __pmFetchGroup {
-    int ctx;			/* our pcp context */
+    int	ctx;			/* our pcp context */
     pmResult *prevResult;
     struct __pmFetchGroupItem *items;
     pmID *unique_pmids;
@@ -105,7 +105,8 @@ struct __pmFetchGroupItem {
 	    struct __pmFetchGroupConversionSpec conv;
 	    struct timespec *output_times; /* NB: may be NULL */
 	    pmAtomValue *output_values;	/* NB: may be NULL */
-	    pmResult **unpacked_events;
+	    pmResult **unpacked_usec_events; /* NB: may be NULL */
+	    pmHighResResult **unpacked_nsec_events; /* NB: may be NULL */
 	    int output_type;
 	    int *output_stss;	/* NB: may be NULL */
 	    int *output_sts;	/* NB: may be NULL */
@@ -121,6 +122,21 @@ typedef struct __pmFetchGroupItem *pmFGI;
 
 /* ------------------------------------------------------------------------ */
 /* Internal functions for finding, converting data. */
+
+static inline struct timespec *
+pmfg_timespec_from_timeval(const struct timeval *tv, struct timespec *ts)
+{
+    ts->tv_sec = tv->tv_sec;
+    ts->tv_nsec = tv->tv_usec * 1000;
+    return ts;
+}
+
+static inline double
+pmfg_timespec_delta(const struct timespec *ap, const struct timespec *bp)
+{
+     return (double)(ap->tv_sec - bp->tv_sec) +
+	    (long double)(ap->tv_nsec - bp->tv_nsec) / (long double)1000000000;
+}
 
 /*
  * Update the accumulated set of unique pmIDs sought by given pmFG, so
@@ -194,7 +210,7 @@ pmfg_lookup_indom(const char *metric, pmFGI item)
     assert(item != NULL);
     assert(item->type == pmfg_indom);
 
-    sts = pmLookupName(1, (char **) &metric, &item->u.indom.metric_pmid);
+    sts = pmLookupName(1, (char **)&metric, &item->u.indom.metric_pmid);
     if (sts != 1)
 	return sts;
     sts = pmLookupDesc(item->u.indom.metric_pmid, &item->u.indom.metric_desc);
@@ -221,7 +237,7 @@ pmfg_lookup_event(const char *metric, const char *instance, const char *field, p
     assert(item != NULL);
     assert(item->type == pmfg_event);
 
-    sts = pmLookupName(1, (char **) &metric, &item->u.event.metric_pmid);
+    sts = pmLookupName(1, (char **)&metric, &item->u.event.metric_pmid);
     if (sts != 1)
 	return sts;
     sts = pmLookupDesc(item->u.event.metric_pmid, &item->u.event.metric_desc);
@@ -244,7 +260,7 @@ pmfg_lookup_event(const char *metric, const char *instance, const char *field, p
     }
 
     /* Look up event field. */
-    sts = pmLookupName(1, (char **) &field, &item->u.event.field_pmid);
+    sts = pmLookupName(1, (char **)&field, &item->u.event.field_pmid);
     if (sts != 1)
 	return sts;
     sts = pmLookupDesc(item->u.event.field_pmid, &item->u.event.field_desc);
@@ -605,9 +621,13 @@ pmfg_reinit_event(pmFGI item)
     if (item->u.event.output_num)
 	*item->u.event.output_num = 0;
 
-    if (item->u.event.unpacked_events) {
-	pmFreeEventResult(item->u.event.unpacked_events);
-	item->u.event.unpacked_events = NULL;
+    if (item->u.event.unpacked_nsec_events) {
+	pmFreeHighResEventResult(item->u.event.unpacked_nsec_events);
+	item->u.event.unpacked_nsec_events = NULL;
+    }
+    if (item->u.event.unpacked_usec_events) {
+	pmFreeEventResult(item->u.event.unpacked_usec_events);
+	item->u.event.unpacked_usec_events = NULL;
     }
 }
 
@@ -618,17 +638,17 @@ pmfg_reinit_event(pmFGI item)
  */
 static int
 pmfg_extract_item(pmID metric_pmid, int metric_inst, int first_vset,
-		  const pmDesc *metric_desc, const pmResult *result,
-		  pmAtomValue *value, int otype)
+		  const pmDesc *metric_desc, pmValueSet **vsets,
+		  int numpmid, pmAtomValue *value, int otype)
 {
     int i;
 
     assert(metric_desc != NULL);
-    assert(result != NULL);
+    assert(vsets != NULL);
     assert(value != NULL);
 
-    for (i = first_vset; i < result->numpmid; i++) {
-	const pmValueSet *iv = result->vset[i];
+    for (i = first_vset; i < numpmid; i++) {
+	const pmValueSet *iv = vsets[i];
 	if (iv->pmid == metric_pmid) {
 	    int j;
 
@@ -676,33 +696,39 @@ pmfg_convert_double(const pmDesc *desc, const pmFGC conv, double *value)
 static int
 pmfg_extract_convert_item(pmFG pmfg, pmID metric_pmid, int metric_inst,
 			  int first_vset, const pmDesc *desc, const pmFGC conv,
-			  const pmResult *result, pmAtomValue *oval, int otype)
+			  pmValueSet **vsets, int numpmid,
+			  const struct timespec *timestamp,
+			  pmAtomValue *oval, int otype)
 {
     pmAtomValue v;
-    int sts;
     double value;
+    int sts;
 
-    assert(result != NULL);
     assert(oval != NULL);
 
-    sts = pmfg_extract_item(metric_pmid, metric_inst,
-			    first_vset, desc, result, &v, PM_TYPE_DOUBLE);
+    sts = pmfg_extract_item(metric_pmid, metric_inst, first_vset, desc,
+			    vsets, numpmid, &v, PM_TYPE_DOUBLE);
     if (sts)
 	return sts;
 
     if (conv->rate_convert) {
 	if (pmfg->prevResult) {
+	    pmResult *prev_r;
 	    pmAtomValue prev_v;
-	    double deltaT = __pmtimevalSub(&result->timestamp,
-					   &pmfg->prevResult->timestamp);
-	    const double epsilon = 0.000001;	/* 1 us */
-	    double delta;
+	    struct timespec prev_t;
+	    double deltaT, delta;
+	    const double epsilon = 0.000000001;	/* 1 nanosecond */
+
+	    prev_r = pmfg->prevResult;
+	    pmfg_timespec_from_timeval(&prev_r->timestamp, &prev_t);
+	    deltaT = pmfg_timespec_delta(timestamp, &prev_t);
+
 	    if (deltaT < epsilon)	/* avoid division by zero */
 		deltaT = epsilon;	/* (chose not to PM_ERR_CONV here) */
 
-	    sts = pmfg_extract_item(metric_pmid, metric_inst,
-				    first_vset, desc,
-				    pmfg->prevResult, &prev_v, PM_TYPE_DOUBLE);
+	    sts = pmfg_extract_item(metric_pmid, metric_inst, first_vset,
+				    desc, prev_r->vset, prev_r->numpmid,
+				    &prev_v, PM_TYPE_DOUBLE);
 	    if (sts)
 		return sts;
 
@@ -769,18 +795,23 @@ pmfg_fetch_item(pmFG pmfg, pmFGI item, pmResult *newResult)
     }
 
     if (item->u.item.conv.rate_convert || item->u.item.conv.unit_convert) {
+	struct timespec timestamp;
+
+	pmfg_timespec_from_timeval(&newResult->timestamp, &timestamp),
 	sts = pmfg_extract_convert_item(pmfg,
 			item->u.item.metric_pmid, item->u.item.metric_inst, 0,
 		 	&item->u.item.metric_desc, &item->u.item.conv,
-			newResult, &v, item->u.item.output_type);
+			newResult->vset, newResult->numpmid, &timestamp,
+			&v, item->u.item.output_type);
 	if (sts < 0)
 	    goto out;
     }
     else {
 	sts = pmfg_extract_item(item->u.item.metric_pmid,
-				item->u.item.metric_inst, 0,
-				&item->u.item.metric_desc,
-				newResult, &v, item->u.item.output_type);
+			item->u.item.metric_inst, 0,
+			&item->u.item.metric_desc,
+			newResult->vset, newResult->numpmid,
+			&v, item->u.item.output_type);
 	if (sts < 0)
 	    goto out;
     }
@@ -911,8 +942,10 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult *newResult)
 	if (item->u.indom.output_inst_codes)
 	    item->u.indom.output_inst_codes[j] = jv->inst;
 
-	/* Look up the instance name for the user, searching the
-	   cached pmGetIndom results. */
+	/*
+	 * Look up the instance name for the user, searching the cached
+	 * results from pmGetIndom.
+	 */
 	if (item->u.indom.output_inst_names) {
 	    unsigned k;
 
@@ -933,16 +966,21 @@ pmfg_fetch_indom(pmFG pmfg, pmFGI item, pmResult *newResult)
 	/* Fetch & convert the actual value. */
 	if (item->u.indom.conv.rate_convert ||
 	    item->u.indom.conv.unit_convert) {
+	    struct timespec timestamp;
+
+	    pmfg_timespec_from_timeval(&newResult->timestamp, &timestamp);
 	    stss = pmfg_extract_convert_item(pmfg, item->u.indom.metric_pmid,
 				jv->inst, 0, &item->u.indom.metric_desc,
-				&item->u.indom.conv, newResult, &v,
-				item->u.indom.output_type);
+				&item->u.indom.conv,
+				newResult->vset, newResult->numpmid, &timestamp,
+				&v, item->u.indom.output_type);
 	    if (stss < 0)
 		goto out1;
 	}
 	else {
-	    stss = pmfg_extract_item(item->u.indom.metric_pmid, jv->inst, 0,
-				&item->u.indom.metric_desc, newResult, &v,
+	    stss = pmfg_extract_item(item->u.indom.metric_pmid, jv->inst,
+				0, &item->u.indom.metric_desc,
+				newResult->vset, newResult->numpmid, &v,
 				item->u.indom.output_type);
 	    if (stss < 0)
 		goto out1;
@@ -965,14 +1003,90 @@ out:
 	*item->u.indom.output_sts = sts;
 }
 
+static int
+pmfg_fetch_event_field(pmFG pmfg, pmFGI item, unsigned int *output_num,
+		pmValueSet **vsets, int numpmid, const struct timespec *timestamp)
+{
+    int i;
+    unsigned int count = *output_num;
+
+    for (i = 0; i < numpmid; i++) {
+	const pmValueSet *field = vsets[i];
+	pmAtomValue v;
+	int stss = 0;
+
+	/*
+	 * Is this our field of interest?
+	 * NB: it may be repeated, if the PMDA emits the same
+	 * field-name/pmid multiple times within the event records.
+	 * See e.g. systemd.journal.records which repeats
+	 * systemd.journal.field.string.
+	 * These have multiple pmValueSet numval=1 records.
+	 * (Hypothetically, we could observe a pmValueSet with
+	 * numval=N instead, with each pmValue having the same
+	 * instance number, but that does not seem to happen in the
+	 * wild.)
+	 */
+	if (field->pmid != item->u.event.field_pmid)
+	    continue;
+	if (field->numval != 1)
+	    continue;
+
+	/* Got one! */
+	if (count >= item->u.event.output_maxnum)	/* too many! */
+	    return PM_ERR_TOOBIG;
+
+	/*
+	 * Fetch and convert the actual value.
+	 * We pass -1 as the instance code, as an unused value, since
+	 * the field_desc.indom == PM_INDOM_NULL already.
+	 * We pass `i' as the first_vset parameter, to skip prior
+	 * instances of the same field/pmid in the same pmResult.
+	 */
+	if (item->u.event.conv.rate_convert ||
+	    item->u.event.conv.unit_convert) {
+	    stss = pmfg_extract_convert_item(pmfg,
+				item->u.event.field_pmid, -1, i,
+				&item->u.event.field_desc, &item->u.event.conv,
+				vsets, numpmid, timestamp,
+				&v, item->u.event.output_type);
+	    if (stss < 0)
+		goto out;
+	}
+	else {
+	    stss = pmfg_extract_item(item->u.event.field_pmid, -1,
+				i, &item->u.event.field_desc, vsets, numpmid,
+				&v, item->u.event.output_type);
+	    if (stss < 0)
+		goto out;
+	}
+
+	/* Pass the output value. */
+	if (item->u.event.output_values)
+	    item->u.event.output_values[count] = v;
+
+	/* Pass the output timestamp. */
+	if (item->u.event.output_times) {
+	    item->u.event.output_times[count].tv_sec = timestamp->tv_sec;
+	    item->u.event.output_times[count].tv_nsec = timestamp->tv_nsec;
+        }
+
+    out:
+	if (item->u.event.output_stss)
+	    item->u.event.output_stss[count] = stss;
+
+	*output_num = ++count;
+    }
+
+    return 0;
+}
+
 static void
 pmfg_fetch_event(pmFG pmfg, pmFGI item, pmResult *newResult)
 {
     int sts = 0;
     int i;
-    int j;
-    /* const */ pmValueSet *iv;
-    /* const */ pmResult **event_ptr;
+    pmValueSet *iv;
     unsigned output_num = 0; /* to be copied into caller space at end */
 
     assert(item != NULL);
@@ -997,23 +1111,32 @@ pmfg_fetch_event(pmFG pmfg, pmFGI item, pmResult *newResult)
     }
 
     /* Locate the event record for the requested instance (if any). */
-    for (j = 0; j < iv->numval; j++) {
+    for (i = 0; i < iv->numval; i++) {
 	if ((item->u.event.metric_desc.indom == PM_INDOM_NULL) ||
-	    (iv->vlist[j].inst == item->u.event.metric_inst))
+	    (iv->vlist[i].inst == item->u.event.metric_inst))
 	    break;
     }
-    if (j >= iv->numval) {
+    if (i >= iv->numval) {
 	sts = 0; /* No events => no problem. */
 	goto out;
     }
 
     /* Unpack the event records. */
-    assert(item->u.event.metric_desc.type == PM_TYPE_EVENT); /* not HIGHRES */
-    assert(item->u.event.unpacked_events == NULL);
-    sts = pmUnpackEventRecords (iv, (int) j, & item->u.event.unpacked_events);
-    if ((sts < 0) || (item->u.event.unpacked_events == NULL))
-	goto out;
-    sts = 0;
+    if (item->u.event.metric_desc.type == PM_TYPE_HIGHRES_EVENT) {
+	assert(item->u.event.unpacked_nsec_events == NULL);
+	sts = pmUnpackHighResEventRecords(iv, i,
+				&item->u.event.unpacked_nsec_events);
+	if (sts < 0 || item->u.event.unpacked_nsec_events == NULL)
+	    goto out;
+    }
+    else {
+	assert(item->u.event.metric_desc.type == PM_TYPE_EVENT);
+	assert(item->u.event.unpacked_usec_events == NULL);
+	sts = pmUnpackEventRecords(iv, i,
+				&item->u.event.unpacked_usec_events);
+	if (sts < 0 || item->u.event.unpacked_usec_events == NULL)
+	    goto out;
+    }
 
     /*
      * Process each event record, and each matching field within it.
@@ -1021,80 +1144,33 @@ pmfg_fetch_event(pmFG pmfg, pmFGI item, pmResult *newResult)
      * (including conversion errors), since we signal individual
      * errors, except once we run out of output space.
      */
-    for (event_ptr = item->u.event.unpacked_events; *event_ptr; event_ptr++) {
-	const pmResult *event = *event_ptr;
+    sts = 0;
 
-	for (j = 0; j < event->numpmid; j++) {
-	    const pmValueSet *field = event->vset[j];
-	    pmAtomValue v;
-	    int stss = 0;
+    if (item->u.event.metric_desc.type == PM_TYPE_HIGHRES_EVENT) {
+	pmHighResResult **nresp, *event;
 
-	    /*
-	     * Is this our field of interest?
-	     * NB: it may be repeated, if the PMDA emits the same
-	     * field-name/pmid multiple times within the event records.
-	     * See e.g. systemd.journal.records which repeats
-	     * systemd.journal.field.string.
-	     * These have multiple pmValueSet numval=1 records.
-	     * (Hypothetically, we could observe a pmValueSet with
-	     * numval=N instead, with each pmValue having the same
-	     * instance number, but that does not seem to happen in the
-	     * wild.)
-	     */
-	    if (field->pmid != item->u.event.field_pmid)
-		continue;
-	    if (field->numval != 1)
-		continue;
-
-	    /* Got one! */
-	    if (output_num >= item->u.event.output_maxnum) {	/* too many! */
-		sts = PM_ERR_TOOBIG;
+	for (nresp = item->u.event.unpacked_nsec_events; *nresp; nresp++) {
+	    event = *nresp;
+	    sts = pmfg_fetch_event_field(pmfg, item, &output_num,
+			event->vset, event->numpmid, &event->timestamp);
+	    if (sts < 0)
 		goto out;
-	    }
+	}
+    }
+    else {
+	assert(item->u.event.metric_desc.type == PM_TYPE_EVENT);
+	struct timespec timestamp;
+	pmResult **uresp, *event;
 
-	    /*
-	     * Fetch and convert the actual value.
-	     * We pass -1 as the instance code, as an unused value, since
-	     * the field_desc.indom == PM_INDOM_NULL already.
-	     * We pass `j' as the first_vset parameter, to skip prior
-	     * instances of the same field/pmid in the same pmResult.
-	     */
-	    if (item->u.event.conv.rate_convert ||
-		item->u.event.conv.unit_convert) {
-		stss = pmfg_extract_convert_item(pmfg,
-				item->u.event.field_pmid, -1, j,
-				&item->u.event.field_desc, &item->u.event.conv,
-				event, &v, item->u.event.output_type);
-		if (stss < 0)
-		    goto out1;
-	    }
-	    else {
-		stss = pmfg_extract_item(item->u.event.field_pmid, -1, j,
-				&item->u.event.field_desc, event, &v,
-				item->u.event.output_type);
-		if (stss < 0)
-		    goto out1;
-	    }
-
-	    /* Pass the output value. */
-	    if (item->u.event.output_values)
-		item->u.event.output_values[output_num] = v;
-
-	    /* Pass the output timestamp. */
-	    if (item->u.event.output_times) {
-                item->u.event.output_times[output_num].tv_sec =
-                    event->timestamp.tv_sec;
-                item->u.event.output_times[output_num].tv_nsec =
-                    event->timestamp.tv_usec * 1000;
-            }
-
-	out1:
-	    if (item->u.event.output_stss)
-		item->u.event.output_stss[output_num] = stss;
-
-	    output_num ++;
-	} /* iterate over fields */
-    } /* iterate over unpacked events */
+	for (uresp = item->u.event.unpacked_usec_events; *uresp; uresp++) {
+	    event = *uresp;
+	    pmfg_timespec_from_timeval(&event->timestamp, &timestamp);
+	    sts = pmfg_fetch_event_field(pmfg, item, &output_num,
+			event->vset, event->numpmid, &timestamp);
+	    if (sts < 0)
+		goto out;
+	}
+    }
 
 out:
     if (item->u.event.output_num)
@@ -1460,8 +1536,8 @@ pmExtendFetchGroup_event(pmFG pmfg,
 	}
     }
 
-    if (item->u.event.metric_desc.type != PM_TYPE_EVENT
-	/* && item->u.event.metric_desc.type != PM_TYPE_HIGHRES_EVENT */) {
+    if (item->u.event.metric_desc.type != PM_TYPE_EVENT &&
+	item->u.event.metric_desc.type != PM_TYPE_HIGHRES_EVENT) {
 	sts = PM_ERR_TYPE;
 	goto out1;
     }
