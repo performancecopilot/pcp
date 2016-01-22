@@ -348,7 +348,7 @@ main(int argc, char *argv[])
     struct statsrc *pd;
     struct statsrc **ctxList = &pd;
     int ctxCount = 0;
-    int sts, j;
+    int sts, i, j;
     int pauseFlag = 0;
     int printTail = 0;
     int tzh = -1;
@@ -541,7 +541,6 @@ main(int argc, char *argv[])
 	    goto next;
 
 	for (j = 0; j < ctxCount; j++) {
-	    unsigned long long dtot = 0;
 	    struct statsrc *s = ctxList[j];
 
 	    if (ctxCount > 1) {
@@ -573,22 +572,26 @@ main(int argc, char *argv[])
 		    pmTimeStateBounds(&controls, pmtime);
 		} else if ((opts.context == PM_CONTEXT_ARCHIVE) &&
 			 (sts == PM_ERR_EOL) && (!s->fetched)) {
-		    /* I'm yet to see something from this archive - don't
-		     * discard it just yet */
+		    /*
+		     * We are yet to see something from this archive - so
+		     * don't discard it just yet.
+		     */
 		    puts(" No data in the archive");
 		} else {
-		    int k;
 		    int valid = 0;
 
 		    printf(" pmFetchGroup: %s\n", pmErrStr(sts));
 
 		    destroyContext(s);
-		    for (k = 0; k < ctxCount; k++)
-			valid += (ctxList[k]->pmfg != NULL);
+		    for (i = 0; i < ctxCount; i++)
+			valid += (ctxList[i]->pmfg != NULL);
 		    if (!valid)
 			exit(1);
 		}
 	    } else {
+		unsigned long long dtot = 0;
+		int failed = 0;
+
 		s->fetched = 1;
 
 		if (s->sts[load_avg])
@@ -616,24 +619,38 @@ main(int argc, char *argv[])
 		scalePrint(s, pswitch);
 
 		/*
-		 * CPU utilization - report percentage of total.  pmfg
-		 * guarantees that unavailable metrics get value 0,
-		 * but only after a successful pmExtendFetchGroup_*
-		 * call.  However, because we used calloc on the
-		 * statsrc, unavailable metrics will be 0 even in
-		 * the unsuccessful pmExtendFetchGroup_* case.
+		 * CPU utilization - report percentage of total.
+		 * Some columns are optional on some platforms, and values
+		 * for these *must* be present (else no data reported) but
+		 * some are optional (platform-specific).  An extended set
+		 * of columns is available for Linux hosts.
+		 * NB: cannot rely on any individual metric always existing
+		 * here, as archives may show any combination of one, some,
+		 * or all metrics logged.
 		 */
-		dtot = 0;
-		dtot += s->val[cpu_nice].ull;
-		dtot += s->val[cpu_user].ull;
-		dtot += s->val[cpu_intr].ull;
-		dtot += s->val[cpu_sys].ull;
-		dtot += s->val[cpu_idle].ull;
-		dtot += s->val[cpu_wait].ull;
-		dtot += s->val[cpu_steal].ull;
+
+		if (s->sts[cpu_user])	/* mandatory */
+		    failed = 1;
+		if (s->sts[cpu_sys])	/* mandatory */
+		    failed = 1;
+		if (s->sts[cpu_idle])	/* mandatory */
+		    failed = 1;
+
+		if (s->sts[cpu_nice])	/* optional */
+		    s->val[cpu_nice].ull = 0;
+		if (s->sts[cpu_intr])	/* optional */
+		    s->val[cpu_intr].ull = 0;
+		if (s->sts[cpu_wait])	/* optional */
+		    s->val[cpu_wait].ull = 0;
+		if (s->sts[cpu_steal])	/* optional */
+		    s->val[cpu_steal].ull = 0;
+
+		if (!failed)
+		    for (i = cpu_nice; i <= cpu_steal; i++)
+			dtot += s->val[i].ull;
 
 		if (extraCpuStats) {
-		    if (dtot == 0) {
+		    if (failed) { 
 			printf(" %3.3s %3.3s %3.3s %3.3s %3.3s",
 			       "?", "?", "?", "?", "?");
 		    } else {
@@ -652,7 +669,7 @@ main(int argc, char *argv[])
 			       (unsigned int)((100 * iowait + fill) / dtot),
 			       (unsigned int)((100 * steal + fill) / dtot));
 		    }
-		} else if (dtot == 0) {
+		} else if (failed) {
 		    printf(" %3.3s %3.3s %3.3s", "?", "?", "?");
 		} else {
 		    unsigned long long fill = dtot / 2;
