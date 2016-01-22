@@ -60,5 +60,9 @@ if grep -q IPv6 $tmp.out; then
     $python $pyscript --host $ipv6local --port $webport | _webapi_response_filter
 fi
 
+echo >>$here/$seq.full
+echo "=== pmwebd log ===" >>$here/$seq.full
+cat $tmp.out >>$here/$seq.full
+
 status=0
 exit
