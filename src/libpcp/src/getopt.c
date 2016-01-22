@@ -447,8 +447,12 @@ __pmAddOptArchive(pmOptions *opts, char *arg)
 	     */
 	    if ((base = strdup(direntp->d_name)) == NULL)
 		__pmNoMem("pmGetOptions(archive)", strlen(direntp->d_name), PM_FATAL_ERR);
-	    if ((logBase = __pmLogBaseName(base)) != NULL)
-		addArchive(opts, logBase);
+	    if ((logBase = __pmLogBaseName(base)) != NULL) {
+		char full[MAXPATHLEN];
+		snprintf(full, sizeof(full), "%s%c%s",
+			 arg, __pmPathSeparator(), logBase);
+		addArchive(opts, full);
+	    }
 	    free(base);
 	}
 	closedir(dirp);
