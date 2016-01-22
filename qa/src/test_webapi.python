@@ -108,7 +108,7 @@ def test_metric_enumeration(ctx, prefix):
     try:
         resp = req.json()
     except Exception as e:
-	print(url)
+        print(url)
         print("ERROR: %s" % e)
         print(testprefix + 'error JSON-decoding ' + req.text)
     print(testprefix + ' enumeration with pmwebinfo #'+str(len(resp['metrics'])))
