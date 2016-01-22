@@ -37,7 +37,7 @@ root_agent_wait(int *status)
 pid_t
 root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 {
-    int		i;
+    int		i = 0;
     int		inPipe[2];	/* Pipe for input to child */
     int		outPipe[2];	/* For output to child */
     pid_t	childPid = (pid_t)-1;
@@ -47,11 +47,6 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
     char*      transfer_args;
     char argv1[MAXPATHLEN] = "";
     const char* delim = " ";
-
-    int k = 1;
-
-/* TODO: double check all this args handling */
-/* TODO: move into separate function */
 
     strcpy(argv1, argv);
     transfer_argv = strtok(argv1, delim);
@@ -67,8 +62,8 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 	    if (transfer_args == NULL) {
 		break;
 	    } else {
-		k++;
-		transfer_final[k] = transfer_args;
+		i++;
+		transfer_final[i] = transfer_args;
 	    }
 	}
     }

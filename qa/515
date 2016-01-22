@@ -54,15 +54,16 @@ pmstore pmcd.control.register 0 >>$seq.full
 # and sample frequency has to be small enough to ensure several evaluations
 # within each sleep period
 #
+#pmie -v -e -c $tmp.rules >$tmp.out 2>$tmp.err -t 0.4sec -T 10sec &
 pmie -c $tmp.rules >$tmp.out 2>$tmp.err -t 0.4sec -T 10sec &
 
-sleep 3
+sleep 2
 pmstore pmcd.control.register 1 >>$seq.full
-sleep 3
+sleep 2
 pmstore pmcd.control.register 0 >>$seq.full
-sleep 3
+sleep 2
 pmstore -i 8,9,10,11 pmcd.control.register 4 >>$seq.full
-sleep 3
+sleep 2
 pmstore pmcd.control.register 0 >>$seq.full
 wait
 

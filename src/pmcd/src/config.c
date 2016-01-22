@@ -1645,7 +1645,7 @@ CreateRootAgentPOSIX(AgentInfo *aPtr)
     char	*args = NULL;
     pid_t	pid;
 
-    /* = by default, disable this feature for pcp-3.10.9 = */
+    /* = by default, disable this feature for pcp-3.11.0 = */
     static int	enabled;
     if (!enabled) {
 	/* once-off initialisation */
