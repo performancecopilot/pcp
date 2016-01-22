@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013,2015 Red Hat.
+ * Copyright (c) 2012-2013,2015-2016 Red Hat.
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -44,6 +44,16 @@ waitpid_pmdaroot(int *status)
     if (pmdarootfd <= 0)
 	return (pid_t)-1;
     return pmdaRootProcessWait(pmdarootfd, (pid_t)-1, status);
+}
+
+static void
+short_delay(int milliseconds)
+{
+    struct timespec delay;
+
+    delay.tv_sec = 0;
+    delay.tv_nsec = milliseconds * 1000000;
+    (void)nanosleep(&delay, NULL);
 }
 
 /* Return a pointer to the agent that is reposible for a given domain.
@@ -141,7 +151,7 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 		if (slept)
 		    break;
 		/* give PMDA a chance to notice the close() and exit */
-		sleep(1);
+		short_delay(10);
 		slept = 1;
 	    }
 	}
@@ -202,7 +212,7 @@ HarvestAgentByParent(unsigned int *total, int root)
 	    found = 1;
 	    if (pid <= (pid_t)0) {
 		if (total && *total--) {
-		    sleep(1);
+		    short_delay(10);
 		    break;
 		} else {
 		    return -1;
