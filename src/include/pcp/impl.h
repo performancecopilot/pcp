@@ -1470,19 +1470,6 @@ PCP_CALL extern int __pmControlLog(int, const pmResult *, int, int, int, pmResul
         ((((val) & ~0xf) >> 4) & PMLC_MAX_DELTA)
 
 /*
- *  Archive Mark record
- */
-typedef struct __pmLogMarkRecord {
-    __pmPDU		len;
-    __pmPDU		type;
-    __pmPDU		from;
-    __pmTimeval		timestamp;	/* when returned */
-    int			numpmid;	/* zero PMIDs to follow */
-} __pmLogMarkRecord;
-
-__pmLogMarkRecord *__pmLogCreateMark(const __pmTimeval *);
-
-/*
  * helper functions to register client identity with pmcd for export
  * via pmcd.client.whoami
  */

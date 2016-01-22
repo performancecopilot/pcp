@@ -511,8 +511,6 @@ PCP_3.13 {
 } PCP_3.12;
 
 PCP_3.14 {
-  global:
-    __pmLogCreateMark;
     pmCreateFetchGroup;
     pmGetFetchGroupContext;
     pmExtendFetchGroup_item;
@@ -522,3 +520,4 @@ PCP_3.14 {
     pmFetchGroup;
     pmDestroyFetchGroup;
 } PCP_3.13;
+
