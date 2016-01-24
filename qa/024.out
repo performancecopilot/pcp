@@ -2,7 +2,7 @@ QA output created by 024
 === expected to pass ===
 __pmSetSocketIPC: fd=<n>
 IPC table fd(PDU version):
-__pmDecodeXtendError: got error PDU (code=0, datum=1459618050, version=2)
+__pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
 __pmSetVersionIPC: fd=<n> version=2
 IPC table fd(PDU version): <n>(2,1)
 __pmSendCreds: #0 = 1020000
@@ -23,7 +23,7 @@ pmUseContext(0) -> 0
 
 __pmSetSocketIPC: fd=<n>
 IPC table fd(PDU version):
-__pmDecodeXtendError: got error PDU (code=0, datum=1459618050, version=2)
+__pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
 __pmSetVersionIPC: fd=<n> version=2
 IPC table fd(PDU version): <n>(2,1)
 __pmSendCreds: #0 = 1020000
@@ -44,7 +44,7 @@ pmUseContext(0) -> 0
 
 __pmSetSocketIPC: fd=<n>
 IPC table fd(PDU version):
-__pmDecodeXtendError: got error PDU (code=0, datum=1459618050, version=2)
+__pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
 __pmSetVersionIPC: fd=<n> version=2
 IPC table fd(PDU version): <n>(2,1)
 __pmSendCreds: #0 = 1020000
@@ -56,7 +56,7 @@ Context[0] host <localhost>: pmcd=CONNECTED profile=NOT_SENT fd=<n> refcnt=1 ori
 Dump Instance Profile state=INCLUDE, 0 profiles
 __pmSetSocketIPC: fd=<n>
 IPC table fd(PDU version): <n>(2,1)
-__pmDecodeXtendError: got error PDU (code=0, datum=1459618050, version=2)
+__pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
 __pmSetVersionIPC: fd=<n> version=2
 IPC table fd(PDU version): <n>(2,1) <n>(2,1)
 __pmSendCreds: #0 = 1020000
@@ -72,7 +72,7 @@ pmUseContext(0) -> 0
 
 __pmSetSocketIPC: fd=<n>
 IPC table fd(PDU version):
-__pmDecodeXtendError: got error PDU (code=0, datum=1459618050, version=2)
+__pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
 __pmSetVersionIPC: fd=<n> version=2
 IPC table fd(PDU version): <n>(2,1)
 __pmSendCreds: #0 = 1020000
@@ -84,7 +84,7 @@ Context[0] host <localhost>: pmcd=CONNECTED profile=NOT_SENT fd=<n> refcnt=1 ori
 Dump Instance Profile state=INCLUDE, 0 profiles
 __pmSetSocketIPC: fd=<n>
 IPC table fd(PDU version): <n>(2,1)
-__pmDecodeXtendError: got error PDU (code=0, datum=1459618050, version=2)
+__pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
 __pmSetVersionIPC: fd=<n> version=2
 IPC table fd(PDU version): <n>(2,1) <n>(2,1)
 __pmSendCreds: #0 = 1020000
@@ -102,7 +102,7 @@ pmUseContext(0) -> 0
 === try CONTEXT_LOCAL ===
 __pmSetSocketIPC: fd=<n>
 IPC table fd(PDU version):
-__pmDecodeXtendError: got error PDU (code=0, datum=1459618050, version=2)
+__pmDecodeXtendError: got error PDU (code=0, datum=DATA, version=2)
 __pmSetVersionIPC: fd=<n> version=2
 IPC table fd(PDU version): <n>(2,1)
 __pmSendCreds: #0 = 1020000
