@@ -278,6 +278,7 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
       hostid_fields.push_back (values[i].cp);
 
   (void) pmDestroyFetchGroup (fg);
+  delete[] values;
 
   // Sanitize the host-id metric values into a single string that is
   // suitable for posix-portable-filenames, and not too ugly for
