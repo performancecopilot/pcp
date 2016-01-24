@@ -2134,8 +2134,8 @@ class fetchgroup(object):
             values_t = pmAtomValue * num
             icodes_t = c_int * num
             inames_t = c_char_p * num
-            self.sts = c_int(c_api.PM_ERR_VALUE)
-            self.stss = stss_t(c_api.PM_ERR_VALUE)
+            self.sts = c_int()
+            self.stss = stss_t()
             self.pmtype = pmtype
             self.values = values_t()
             self.icodes = icodes_t()
@@ -2177,8 +2177,8 @@ class fetchgroup(object):
             stss_t = c_int * num
             values_t = pmAtomValue * num
             timespec_t = timespec * num
-            self.sts = c_int(c_api.PM_ERR_VALUE)
-            self.stss = stss_t(c_api.PM_ERR_VALUE)
+            self.sts = c_int()
+            self.stss = stss_t()
             self.pmtype = pmtype
             self.times = timespec_t()
             self.values = values_t()
