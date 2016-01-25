@@ -37,36 +37,33 @@ root_agent_wait(int *status)
 pid_t
 root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 {
-    int		i = 0;
+    int		i = 0, j;
     int		inPipe[2];	/* Pipe for input to child */
     int		outPipe[2];	/* For output to child */
     pid_t	childPid = (pid_t)-1;
+    char	*transfer_argv;
+    char	*transfer_final[MAXPATHLEN] = { "" };
+    const char	*delim = " ";
 
-    char* transfer_argv;
-    char*      transfer_final[MAXPATHLEN] = { "" };
-    char*      transfer_args;
-    char argv1[MAXPATHLEN] = "";
-    const char* delim = " ";
+    __pmNotifyErr(LOG_INFO, "Starting %s agent: %s", label, argv);
 
-    strcpy(argv1, argv);
-    transfer_argv = strtok(argv1, delim);
+    transfer_argv = strtok(argv, delim);
     if (transfer_argv == NULL)
 	return (pid_t)-1;
 
-    transfer_final[0] = transfer_argv;
-    transfer_args = strtok(NULL, delim);
-    if (transfer_args != NULL) {
-	transfer_final[1] = transfer_args;
-	while (transfer_args != NULL) {
-	    transfer_args = strtok(NULL, delim);
-	    if (transfer_args == NULL) {
-		break;
-	    } else {
-		i++;
-		transfer_final[i] = transfer_args;
-	    }
-	}
+    transfer_final[i++] = transfer_argv;
+    do {
+	transfer_argv = strtok(NULL, delim);
+	if (transfer_argv == NULL)
+	    break;
+	transfer_final[i++] = transfer_argv;
+    } while (transfer_argv != NULL);
+
+    if (pmDebug & DBG_TRACE_APPL1) {
+	for (j = 0; j < i; j++)
+	    __pmNotifyErr(LOG_DEBUG, "arg[%d] %s", j, transfer_final[j]);
     }
+
     if (ipctype == ROOT_AGENT_PIPE) {
 	if (pipe1(inPipe) < 0) {
 	    fprintf(stderr,

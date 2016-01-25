@@ -611,7 +611,7 @@ root_startpmda_request(root_client_t *cp, void *pdu, int pdulen)
     int		infd, outfd;
     int		sts, ipc, bad = 0;
     char	name[MAXPMDALEN];
-    char	args[MAXPATHLEN];	/* TODO: size checks */
+    char	args[MAXPATHLEN];
 
     if ((sts = __pmdaDecodeRootPDUStart(pdu, pdulen, NULL, NULL, NULL,
 			&ipc, name, sizeof(name), args, sizeof(args))) < 0)
