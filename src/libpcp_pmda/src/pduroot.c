@@ -347,7 +347,6 @@ int
 __pmdaRecvRootPDUStart(int fd, void *buffer, int buflen)
 {
     (void)fd;
-    (void)type;
     (void)buffer;
     (void)buflen;
     return -EOPNOTSUPP;
