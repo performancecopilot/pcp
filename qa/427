@@ -26,7 +26,9 @@ needclean=true
 
 [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
+PCP_PMDAROOT_LOG="$PCP_LOG_DIR/pmcd/root.log"
 
+$sudo rm -f $tmp.* $seq.full
 trap "_cleanup" 0 1 2 3 15
 
 _cleanup()
@@ -47,6 +49,16 @@ _cleanup()
     fi
     $sudo rm -f $tmp.*
     exit $status
+}
+
+_filter()
+{
+    grep bogus | \
+    sed \
+	-e 's/^pmdaroot:/PMCD:/g' \
+	-e 's/^pmcd:/PMCD:/g' \
+	-e "s#$tmp\.##" \
+    #end
 }
 
 # real QA test starts here
@@ -85,13 +97,19 @@ $sudo cp $tmp.pmcd.new $PCP_PMCDCONF_PATH
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
+echo == $PCP_PMCDCONF_PATH >> $seq.full
+cat $PCP_PMCDCONF_PATH >> $seq.full
+echo == $PCP_PMDAROOT_LOG >> $seq.full
+cat $PCP_PMDAROOT_LOG >> $seq.full
+echo == $PCP_PMCDLOG_PATH >> $seq.full
+cat $PCP_PMCDLOG_PATH >> $seq.full
+
 # check that pmcd reported the agent as an error
 echo
-echo "errors for bogus in $PCP_PMCDLOG_PATH:" \
-| sed -e"s|$PCP_PMCDLOG_PATH|/var/adm/pcplog/pmcd.log|"
-egrep "^pmcd:" $PCP_PMCDLOG_PATH \
-| grep bogus \
-| sed -e "s#$tmp\.##"
+echo "errors for bogus in pmcd related log file(s):"
+[ -f $PCP_PMDAROOT_LOG ] && \
+egrep "^pmdaroot:" $PCP_PMDAROOT_LOG | _filter
+egrep "^pmcd:" $PCP_PMCDLOG_PATH | _filter
 
 # check that the pmcd.agent.status metric is correct
 echo
