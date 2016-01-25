@@ -1454,7 +1454,7 @@ __pmLogGenerateMark(__pmLogCtl *lcp, int mode, pmResult **result)
      */
     pr->numpmid = 0;
     if (mode == PM_MODE_FORW) {
-	if ((sts = pmGetArchiveEnd(&end)) < 0)
+	if ((sts = __pmGetArchiveEnd(lcp, &end)) < 0)
 	    return sts;
 	pr->timestamp.tv_sec = lcp->l_endtime.tv_sec;
 	pr->timestamp.tv_usec = lcp->l_endtime.tv_usec;
@@ -2714,6 +2714,7 @@ __pmLogChangeToNextArchive(__pmLogCtl *lcp)
 {
     __pmContext	*ctxp;
     __pmArchCtl	*acp;
+    __pmTimeval prev_endtime;
     __pmTimeval	save_origin;
     int		save_mode;
 
@@ -2735,11 +2736,22 @@ __pmLogChangeToNextArchive(__pmLogCtl *lcp)
     else {
 	/*
 	 * We're changing to the next archive because we have reached the end of
-	 * the current one while reading forward. __pmLogChangeArchive() will
-	 * update the c_origin and c_mode fields of the current context
-	 * via __pmLogOpen(). However, we don't want that here, so save this
-	 * information and
-	 * restore it after switching to the new archive.
+	 * the current one while reading forward.
+	 * We will need to check for temporal overlap between the current
+	 * archive and the next archive. We do this at the time of the attempted
+	 * transtition because archives can be 'live' and their ranges
+	 * in time can change dynamically.
+	 *
+	 * l_endtime for the current archive was updated when the <mark>
+	 * record was generated. Save it.
+	 */
+	prev_endtime = lcp->l_endtime;
+	       
+	/*
+	 * __pmLogChangeArchive() will update the c_origin and c_mode fields of
+	 * the current context via __pmLogOpen(). However, we don't want that
+	 * here, so save this information and restore it after switching to the
+	 * new archive.
 	 */
 	save_origin = ctxp->c_origin;
 	save_mode = ctxp->c_mode;
@@ -2749,12 +2761,17 @@ __pmLogChangeToNextArchive(__pmLogCtl *lcp)
 	ctxp->c_origin = save_origin;
 	ctxp->c_mode = save_mode;
 
-	/*
-	 * We want to reposition to the start of the archive.
-	 * start after header + label record + trailer
-	 */
-	acp->ac_offset = sizeof(__pmLogLabel) + 2*sizeof(int);
-	acp->ac_vol = acp->ac_log->l_curvol;
+	/* Check for temporal overlap here. */
+	if (__pmTimevalSub(&prev_endtime, &lcp->l_label.ill_start) > 0)
+	    lcp = NULL; /* overlap! */
+	else {
+	    /*
+	     * We want to reposition to the start of the archive.
+	     * Start after the header + label record + trailer
+	     */
+	    acp->ac_offset = sizeof(__pmLogLabel) + 2*sizeof(int);
+	    acp->ac_vol = acp->ac_log->l_curvol;
+	}
     }
 
     PM_UNLOCK(ctxp->c_lock);
@@ -2767,6 +2784,8 @@ __pmLogChangeToPreviousArchive(__pmLogCtl *lcp)
 {
     __pmContext		*ctxp;
     __pmArchCtl		*acp;
+    struct timeval	current_endtime;
+    __pmTimeval		prev_starttime;
     __pmTimeval		save_origin;
     int			save_mode;
 
@@ -2791,6 +2810,16 @@ __pmLogChangeToPreviousArchive(__pmLogCtl *lcp)
     /*
      * We're changing to the previous archive because we have reached the
      * beginning of the current one while reading backward.
+     * We will need to check for temporal overlap between the current
+     * archive and the next archive. We do this at the time of the attempted
+     * transtition because archives can be 'live' and their ranges
+     * in time can change dynamically.
+     *
+     * Save the start time of the current archive.
+     */
+    prev_starttime = lcp->l_label.ill_start;
+
+    /*
      * __pmLogChangeArchive() will update the c_origin and c_mode fields of
      * the current context, either via __pmLogOpen() or directly, if the
      * new archive is already open. However, we don't want that here, so
@@ -2804,6 +2833,19 @@ __pmLogChangeToPreviousArchive(__pmLogCtl *lcp)
     lcp = acp->ac_log;
     ctxp->c_origin = save_origin;
     ctxp->c_mode = save_mode;
+
+    /*
+     * We need the current end time of the new archive in order to compare
+     * with the start time of the previous one.
+     */
+    if (__pmGetArchiveEnd(lcp, &current_endtime) < 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return NULL;
+    }
+    if (__pmTimevalSub(&lcp->l_endtime, &prev_starttime) > 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return NULL;  /* temporal overlap */
+    }
 
     /* Set up to scan backwards from the end of the archive. */
     __pmLogChangeVol(lcp, lcp->l_maxvol);
