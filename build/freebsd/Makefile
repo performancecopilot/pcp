@@ -1,7 +1,7 @@
 # Created by: Markiyan Kushnir <markiyan.kushnir@gmail.com>
 # $FreeBSD:$
 PORTNAME=	pcp
-PORTVERSION=	3.11.0.1-snapshot
+PORTVERSION=	3.11.0.1
 PORTREVISION=	1
 CATEGORIES=	sysutils
 
