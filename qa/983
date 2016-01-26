@@ -33,7 +33,10 @@ _cleanup() {
     $sudo rm -f $tmp.*
     [ -z "$pmcd_pid" ] || sudo $signal $pmcd_pid
     [ -z "$socat_pid" ] || sudo $signal $socat_pid
-    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    $sudo $PCP_RC_DIR/pcp stop >/dev/null
+    $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
