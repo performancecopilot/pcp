@@ -1202,6 +1202,8 @@ parse(int level)
     node_t	*curr = NULL;
     node_t	*np;
 
+    lexpeek = 0;	/* reset in case of error in previous parse() call */
+
     for ( ; ; ) {
 	type = lex();
 #ifdef PCP_DEBUG
