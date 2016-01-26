@@ -584,7 +584,7 @@ parse(1) state=P_BINOP type=L_PLUS "+"
  sum(sample.bin) - +1
                    ^ 
 Terminal element or function name or '(' expected
-pmRegisterDerived: name="myname.bad.d" expr="sum(sample.bin) - min(1+sample.bin)"
+pmRegisterDerived: name="myname.bad.d" expr="sum(sample.bin) - min(1*sample.bin)"
 parse(1) state=P_INIT type=L_SUM "sum("
 parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
 parse(1) state=P_FUNC_END type=L_RPAREN ")"
@@ -592,8 +592,19 @@ parse(1) state=P_LEAF type=L_MINUS "-"
 parse(1) state=P_BINOP type=L_MIN "min("
 parse(1) state=P_FUNC_OP type=L_NUMBER "1"
 [TMP.config:30] Error: pmRegisterDerived(myname.bad.d, ...) syntax error
- sum(sample.bin) - min(1+sample.bin)
+ sum(sample.bin) - min(1*sample.bin)
                        ^            
+Metric name expected
+pmRegisterDerived: name="myname.bad.e" expr="sum(sample.bin) - min((sample.bin)"
+parse(1) state=P_INIT type=L_SUM "sum("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_MIN "min("
+parse(1) state=P_FUNC_OP type=L_LPAREN "("
+[TMP.config:31] Error: pmRegisterDerived(myname.bad.e, ...) syntax error
+ sum(sample.bin) - min((sample.bin)
+                       ^           
 Metric name expected
 pmGetChildren(name="") 1 regular children, 2 derived children
 pmGetChildren(name="local_pmns_no_pmcd_connection") 0 regular children, no derived children (Unknown metric name)
