@@ -209,9 +209,11 @@ pmRegisterDerived: register metric[2] myname.b = delta + 3
 [TMP.config:3] Error: pmRegisterDerived(myname.c, ...) syntax error
  delta(sample.long.one + sample.long.hundred)
                        ^                     
+')' expected
 [TMP.config:4] Error: pmRegisterDerived(myname.d, ...) syntax error
  delta(12345)
        ^     
+Metric name expected
 __dmopencontext: bind metric[0] event.flags
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "myname.b" -> PMID 511.0.3
