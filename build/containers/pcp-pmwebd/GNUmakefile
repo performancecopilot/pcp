@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2016 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,16 +12,18 @@
 # for more details.
 #
 
-TOPDIR = ../..
-BUILDDEFS = $(TOPDIR)/src/include/builddefs
-
-include $(BUILDDEFS)
+TOPDIR = ../../..
+include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-SUBDIRS = pcp-base pcp-collector pcp-monitor pcp-pmlogger pcp-pmie pcp-testsuite pcp-pmwebd
+CONTAINER = pcp-pmwebd
+LDIRT = $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz
 
-default default_pcp install install_pcp pack_pcp: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+default default_pcp install install_pcp:
+
+pack pack_pcp: $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz
+
+# rule to build $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz from Dockerfile
+include ../GNUlocalrules
 
 include $(BUILDRULES)
-
