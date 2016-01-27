@@ -556,14 +556,11 @@ LIBPCP.pmTraversePMNS.argtypes = [c_char_p, traverseCB_type]
 LIBPCP.pmUnloadNameSpace.restype = c_int
 LIBPCP.pmUnloadNameSpace.argtypes = []
 
-LIBPCP.pmRegisterDerived.restype = c_char_p
-LIBPCP.pmRegisterDerived.argtypes = [c_char_p, c_char_p]
+LIBPCP.pmRegisterDerivedMetric.restype = c_int
+LIBPCP.pmRegisterDerivedMetric.argtypes = [c_char_p, c_char_p, POINTER(c_char_p)]
 
 LIBPCP.pmLoadDerivedConfig.restype = c_int
 LIBPCP.pmLoadDerivedConfig.argtypes = [c_char_p]
-
-LIBPCP.pmDerivedErrStr.restype = c_char_p
-LIBPCP.pmDerivedErrStr.argtypes = []
 
 ##
 # PMAPI Metrics Description Services
@@ -1311,10 +1308,12 @@ class pmContext(object):
             name = name.encode('utf-8')
         if type(expr) != type(b''):
             expr = expr.encode('utf-8')
-        string = LIBPCP.pmRegisterDerived(name, expr)
-        if string != None:
-            failure = ['@', str(string.decode())]
-            raise pmErr(c_api.PM_ERR_GENERIC, failure)
+        errmsg = c_char_p()
+        result = LIBPCP.pmRegisterDerivedMetric(name, expr, byref(errmsg))
+        if result != 0:
+            text = str(errmsg.value.decode())
+            LIBC.free(errmsg)
+            raise pmErr(c_api.PM_ERR_CONV, text)
         status = LIBPCP.pmReconnectContext(self.ctx)
         if status < 0:
             raise pmErr(status)
@@ -1332,9 +1331,11 @@ class pmContext(object):
         if status < 0:
             raise pmErr(status)
 
+    # Deprecated, no longer needed, py wrapper uses pmRegisterDerivedMetric(3)
+    # and the exception encodes a more complete error message as a result.
     @staticmethod
     def pmDerivedErrStr():
-        """PMAPI - Return an error message if the pmRegisterDerived metric
+        """PMAPI - Return an error message if the pmRegisterDerived(3) metric
         definition cannot be parsed
         pm.pmRegisterDerived()
         """

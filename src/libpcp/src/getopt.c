@@ -163,7 +163,7 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
 			&first_boundary, &last_boundary,
 			&opts->start, &opts->finish, &opts->origin,
 			&msg) < 0) {
-	    pmprintf("%s: invalid time window: %s\n", pmProgname, msg);
+	    pmprintf("%s: invalid time window.\n%s\n", pmProgname, msg);
 	    opts->errors++;
 	    free(msg);
 	}
