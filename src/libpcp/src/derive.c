@@ -1202,6 +1202,8 @@ parse(int level)
     node_t	*curr = NULL;
     node_t	*np;
 
+    lexpeek = 0;	/* reset in case of error in previous parse() call */
+
     for ( ; ; ) {
 	type = lex();
 #ifdef PCP_DEBUG
@@ -1287,6 +1289,7 @@ parse(int level)
 		    state = P_FUNC_OP;
 		}
 		else {
+		    PM_TPD(derive_errmsg) = "Terminal element or function name or '(' expected";
 		    free_expr(expr);
 		    return NULL;
 		}
@@ -1324,6 +1327,7 @@ parse(int level)
 		}
 		else {
 		    free_expr(expr);
+		    PM_TPD(derive_errmsg) = "Arithmetic operator expected";
 		    return NULL;
 		}
 		break;
@@ -1365,6 +1369,7 @@ parse(int level)
 		    state = P_FUNC_OP;
 		}
 		else {
+		    PM_TPD(derive_errmsg) = "Terminal element or function name or '(' expected";
 		    free_expr(expr);
 		    return NULL;
 		}
@@ -1416,12 +1421,19 @@ parse(int level)
 		    state = P_FUNC_END;
 		}
 		else {
+		    PM_TPD(derive_errmsg) = "Metric name expected";
 		    free_expr(expr);
 		    return NULL;
 		}
 		break;
 
+	    case P_FUNC_END:
+		PM_TPD(derive_errmsg) = "')' expected";
+		free_expr(expr);
+		return NULL;
+
 	    default:
+		PM_TPD(derive_errmsg) = "Parser botch";
 		free_expr(expr);
 		return NULL;
 	}
