@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 Red Hat.
+ * Copyright (c) 2014-2016 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,6 +13,8 @@
  */
 #ifndef _ROOT_H
 #define _ROOT_H
+
+#include <sys/stat.h>
 
 enum {
     CONTAINERS_INDOM,
@@ -41,7 +43,6 @@ enum {
  * "engines" which are then instantiated one-per-container-technology.
  */
 
-struct stat;
 struct container;
 struct container_engine;
 

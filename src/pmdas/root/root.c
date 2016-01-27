@@ -1,7 +1,7 @@
 /*
  * PMCD privileged co-process (root) PMDA.
  *
- * Copyright (c) 2014-2015 Red Hat.
+ * Copyright (c) 2014-2016 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,6 @@
 #include "impl.h"
 #include "pmda.h"
 #include "pmdaroot.h"
-#include <sys/stat.h>
 #include "root.h"
 #include "lxc.h"
 #include "docker.h"
@@ -630,14 +629,13 @@ root_startpmda_request(root_client_t *cp, void *pdu, int pdulen)
 static int
 root_stoppmda_request(root_client_t *cp, void *pdu, int pdulen)
 {
-    int		sts, force, code;
-    pid_t	pid = (pid_t)-1;
+    int		sts, force, code, pid = -1;
  
     if ((sts = __pmdaDecodeRootPDUStop(pdu, pdulen, &pid, NULL, &force)) < 0)
 	return sts;
 
-    if (force || pid >= (pid_t)1) {
-	if (pid == (pid_t)-1)
+    if (force || pid >= 1) {
+	if (pid == -1)
 	    sts = -EINVAL;
 	else
 	    sts = __pmProcessTerminate(pid, force);
@@ -655,7 +653,7 @@ root_recvpdu(int fd, __pmdaRootPDUHdr **hdr)
     __pmdaRootPDUHdr	*pdu = (__pmdaRootPDUHdr *)buffer;
     int			bytes;
 
-    if ((bytes = recv(fd, &buffer, sizeof(buffer), 0)) < 0) {
+    if ((bytes = recv(fd, (void *)&buffer, sizeof(buffer), 0)) < 0) {
 	__pmNotifyErr(LOG_ERR, "root_recvpdu: recv - %s\n", osstrerror());
 	return bytes;
     }

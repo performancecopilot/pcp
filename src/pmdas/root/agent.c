@@ -1,7 +1,7 @@
 /*
  * Create privileged PMDAs on behalf of PMCD.
  *
- * Copyright (c) 2015 Red Hat.
+ * Copyright (c) 2015-2016 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 #include <sys/wait.h>
 #endif
 
-pid_t
+int
 root_agent_wait(int *status)
 {
 #if defined(HAVE_WAIT3)
@@ -34,7 +34,7 @@ root_agent_wait(int *status)
 }
 
 #ifndef IS_MINGW
-pid_t
+int
 root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 {
     int		i = 0, j;
@@ -143,7 +143,7 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
     return childPid;
 }
 #else
-pid_t
+int
 root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 {
     (void)ipctype;
