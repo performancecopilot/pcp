@@ -20,7 +20,7 @@ cat > $tmp.opts <<EOF
 from pcp import pmapi
 import sys
 opts = pmapi.pmOptions()
-nops = opts.pmNonOptionsFromList(sys.argv)
+nops = opts.pmGetNonOptionsFromList(sys.argv)
 ctx = pmapi.pmContext.fromOptions(opts, sys.argv)
 EOF
 cat $tmp.opts >> $seq.full
