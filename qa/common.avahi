@@ -34,7 +34,11 @@ avahi_service()
 
 avahi_verify()
 {
-    echo "Verify $service avahi service advertising"
+    msg="$@"
+
+    [ "X$msg" = "X" ] && msg="Verify $service avahi service advertising"
+    echo $msg
+
     # strip any domain part ... e.g. if hostname is vm08.localdomain,
     # avahi reports this as vm08.local
     #
