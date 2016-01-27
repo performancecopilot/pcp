@@ -16,12 +16,12 @@ GH_ACCOUNT=	performancecopilot
 GH_TAGNAME=	cf5e23a93d88420bca29b5be206b800845e55546
 
 GNU_CONFIGURE=	yes
-CONFIGURE_ARGS=	--localstatedir=${LOCALBASE} \
+CONFIGURE_ARGS=	--localstatedir=${PREFIX} \
 		    --with-logdir=/var/log/pcp \
 		    --with-rundir=/var/run/pcp \
 		    --with-tmpdir=/var/tmp \
-		    --with-configdir=${LOCALBASE}/etc/pcp \
-		    --with-rcdir=${LOCALBASE}/etc/rc.d
+		    --with-configdir=${PREFIX}/etc/pcp \
+		    --with-rcdir=${PREFIX}/etc/rc.d
 
 USES=		libtool gmake python bison
 
