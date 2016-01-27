@@ -25,7 +25,7 @@ EXPOSE 44323
 
 #
 # Disable service advertising with -S option to the daemon
-# TODO make appropriate changes to /etc/pcp/pmwebd/pmwebd.options
+RUN . /etc/pcp.conf && echo "OPTIONS=\$OPTIONS -S" >> $PCP_PMWEBDOPTIONS_PATH
 
 #
 # denote this as a container environment, for rc scripts
