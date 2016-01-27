@@ -32,7 +32,8 @@ die 'VMware server not setup, stopped' unless defined($server);
 die 'VMware username not setup, stopped' unless defined($username);
 die 'VMware password not setup, stopped' unless defined($password);
 
-my %opts = ('server' => $server,
+my %opts = ('host' => $host,
+	    'server' => $server,
 	    'username' => $username,
 	    'password' => $password );
 Opts::add_options(%opts);
@@ -409,8 +410,9 @@ pmcd.conf file) or via a vmware.conf file in the PMDA directory.
 	# cd $PCP_PMDAS_DIR/vmware
 	# [ edit vmware.conf ]
 
-This file should contain three lines, such as:
+This file should contain connection information, such as:
 
+	$host = 'vm.host.net';
 	$server = 'vm.server.net';
 	$username = 'XXXX';
 	$password  = 'YYYY';
