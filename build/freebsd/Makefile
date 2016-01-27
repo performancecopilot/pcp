@@ -33,6 +33,8 @@ MAKEFILE=	GNUmakefile
 ALL_TARGET=	default
 MAKE_ENV=	DIST_ROOT=${STAGEDIR}
 
+USE_LDCONFIG=	yes
+
 NO_MTREE=	yes
 
 .include <bsd.port.mk>
