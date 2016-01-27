@@ -256,8 +256,8 @@ tolower($3) == "socket" && NF > 5	{ $1=$2=$3=$4=$5=""; print $0; next }
     done
     wait
 
-    # Give all PMDAs 2 seconds after a SIGTERM to die, then SIGKILL
-    sleep 2
+    # Give PMDAs some time after SIGTERM to exit cleanly, then SIGKILL
+    pmsleep 0.1
 
     cat $tmp/pmdas | while read pmda
     do
