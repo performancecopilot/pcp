@@ -629,7 +629,7 @@ root_startpmda_request(root_client_t *cp, void *pdu, int pdulen)
 static int
 root_stoppmda_request(root_client_t *cp, void *pdu, int pdulen)
 {
-    int		sts, force, code, pid = -1;
+    int		sts, force = 0, code = 0, pid = -1;
  
     if ((sts = __pmdaDecodeRootPDUStop(pdu, pdulen, &pid, NULL, &force)) < 0)
 	return sts;
