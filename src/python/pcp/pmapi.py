@@ -518,6 +518,14 @@ class pmLogLabel(Structure):
                  ("hostname", c_char * c_api.PM_LOG_MAXHOSTLEN),
                  ("tz", c_char * c_api.PM_TZ_MAXLEN) ]
 
+    def get_hostname(self):
+        """ Return the hostname from the structure as native str """
+        return str(self.hostname.decode())
+
+    def get_timezone(self):
+        """ Return the timezone from the structure as native str """
+        return str(self.tz.decode())
+
 
 ##############################################################################
 #

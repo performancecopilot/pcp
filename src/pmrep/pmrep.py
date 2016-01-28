@@ -1033,7 +1033,7 @@ class PMReporter(object):
         endtime = float(self.opts.pmGetOptionStart()) + duration
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
-            host = self.context.pmGetArchiveLabel().hostname
+            host = self.context.pmGetArchiveLabel().get_hostname()
             if not self.interpol and not self.opts.pmGetOptionFinish():
                 endtime = self.context.pmGetArchiveEnd()
         if self.context.type == PM_CONTEXT_HOST:
@@ -1053,8 +1053,9 @@ class PMReporter(object):
         timezone = currtz
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
-            if self.context.pmGetArchiveLabel().tz != timezone:
-                timezone = self.context.pmGetArchiveLabel().tz
+            labeltz = self.context.pmGetArchiveLabel().get_timezone()
+            if labeltz != timezone:
+                timezone = labeltz
                 timezone += " (creation, current is " + currtz + ")"
 
         self.writer.write(comm + "\n")
