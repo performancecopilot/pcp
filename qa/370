@@ -74,8 +74,9 @@ in
     10.1.6)
 	ln $seq.out.11 $seq.out || exit 1
 	;;
-    10.2.0)
+    10.2.0|10.2.1)
 	ln $seq.out.7 $seq.out || exit 1
+	file_version=10.2.0
 	;;
     11.0.0|11.0.1)
 	ln $seq.out.9 $seq.out || exit 1
