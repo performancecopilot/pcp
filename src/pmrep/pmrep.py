@@ -1049,7 +1049,9 @@ class PMReporter(object):
             offset = time.altzone if dst else time.timezone
             currtz = time.tzname[dst]
             if offset:
-                currtz += str(offset/3600)
+                offset = offset/3600
+                offset = int(offset) if offset == int(offset) else offset
+                currtz += str(offset)
         timezone = currtz
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
