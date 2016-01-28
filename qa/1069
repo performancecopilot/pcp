@@ -29,6 +29,7 @@ _live_filter()
 }
 
 log="--archive $here/archives/sample-secs -z"
+log2="--archive $here/archives/20130706 -z -O30m"
 
 # real QA test starts here
 echo "== basic live mode reporting"
@@ -42,13 +43,26 @@ pmrep -z -p -s 5 -t 2 -P 2 --archive $here/archives/sample-secs \
 
 echo "== basic configuration file handling"
 echo > $tmp.config <<EOF
-secs = sample.seconds
-msecs = sample.milliseconds
+[options]
+version = 1
+source = www.example.com
+samples = 1
+interval = 1
 EOF
 pmrep -s 5 -t 2 $log -c $tmp.config sample
 
+echo "== exercise various output options "
+pmrep -s 5 -t 2 $log -c $tmp.config -o stdout -p -w 20 sample
+echo "---"
+pmrep -s 5 -t 2 $log -c $tmp.config -C -x sample
+echo "---"
+pmrep -s 5 -t 2 $log -c $tmp.config -G -H -U sample
+
 echo "== exercise raw counter mode "
 pmrep -s 5 -t 2 $log -c $tmp.config -r sample
+
+echo "== exercise timezone setting "
+pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -Z UTC sample
 
 echo "== exercise CSV and alternate delimiters"
 pmrep -s 5 -t 2 $log -c $tmp.config -o csv -p -P 1 sample
@@ -63,7 +77,9 @@ echo "== exercise repeated headers option"
 pmrep -s 5 -t 2 $log -E 2 sample.seconds
 
 echo "== exercise units conversion options"
-pmrep -s 5 -t 2 $log -p -y microsec sample
+pmrep -s 5 -t 2 $log2 -p -b MB -P 0 mem.util.free mem.util.used
+pmrep -s 5 -t 2 $log2 -p -q "count x 10^-2" -P 0 -w 15 disk.dev.read
+pmrep -s 5 -t 2 $log  -p -y microsec sample
 
 echo "== derived metrics configuration file"
 cat > $tmp.derived <<EOF
@@ -93,6 +109,10 @@ echo '[options]' > $tmp.vconfig
 echo 'version = 99' >> $tmp.vconfig
 cat $tmp.config >> $tmp.vconfig
 pmrep -s 5 -t 2 $log -c $tmp.vconfig sample
+
+echo "== un/interpolated archive mode reporting"
+pmrep -s 5 -t 2 $log2 -p    mem.util.free
+pmrep -s 5 -t 2 $log2 -p -u mem.util.free
 
 # success, all done
 echo "== done"
