@@ -3,6 +3,7 @@ pcp-3.11.0 (29 January 2016)
     - pmcd: start PMDAs via pmdaroot, allowing restart on PMDA
       failure without restarting pmcd itself
     - pmcd: tenfold speed up of the shutdown process
+    - pmcd: ensure startup before zabbix-agent, with systemd
     - pmdafreebsd: use getifaddrs() for network interface
     - pmdalinux: fix /proc/interrupts parsing on s390x platforms
     - pmdalinux: fix i386 buffer overflow in softnet stats
@@ -25,6 +26,7 @@ pcp-3.11.0 (29 January 2016)
     - pmmgr: add general monitor-program launching option
     - pmmgr: resolved a couple of small memory leaks
     - pmrep: fix first sample reporting, instant/discrete metrics
+    - pmrep: fix string valued metric reporting, with python3
     - pmval: improve reporting in the region of <mark> records
     - pmwebd: add an option to disable service advertising
     - pmwebd: support for http compression
