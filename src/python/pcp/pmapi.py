@@ -279,9 +279,11 @@ class pmAtomValue(Union):
                   c_api.PM_TYPE_U64 : lambda x: x.ull,
                   c_api.PM_TYPE_FLOAT : lambda x: x.f,
                   c_api.PM_TYPE_DOUBLE : lambda x: x.d,
-                  c_api.PM_TYPE_STRING : lambda x: x.cp,
+                  c_api.PM_TYPE_STRING : lambda x: str(x.cp.decode('utf-8')),
                   c_api.PM_TYPE_AGGREGATE : lambda x: None,
                   c_api.PM_TYPE_AGGREGATE_STATIC : lambda x: None,
+                  c_api.PM_TYPE_EVENT : lambda x: None,
+                  c_api.PM_TYPE_HIGHRES_EVENT : lambda x: None,
                   c_api.PM_TYPE_NOSUPPORT : lambda x: None,
                   c_api.PM_TYPE_UNKNOWN : lambda x: None
             }
@@ -2101,10 +2103,7 @@ class fetchgroup(object):
             """Retrieve a converted value of a fetchgroup item, if available."""
             if self.sts.value < 0:
                 raise pmErr(self.sts.value)
-            elif self.pmtype == c_api.PM_TYPE_STRING:
-                return self.value.dref(self.pmtype).decode('utf-8')
-            else:
-                return self.value.dref(self.pmtype)
+            return self.value.dref(self.pmtype)
 
 
     class fetchgroup_timestamp(object):
@@ -2165,10 +2164,7 @@ class fetchgroup(object):
                 def decode_one(self, i):
                     if self.stss[i] < 0:
                         raise pmErr(self.stss[i])
-                    elif self.pmtype == c_api.PM_TYPE_STRING:
-                        return self.values[i].dref(self.pmtype).decode('utf-8')
-                    else:
-                        return self.values[i].dref(self.pmtype)
+                    return self.values[i].dref(self.pmtype)
                 vv.append((self.icodes[i],
                            self.inames[i].decode('utf-8') if self.inames[i] else None,
                            # nested lambda for proper i capture
@@ -2209,10 +2205,7 @@ class fetchgroup(object):
                 def decode_one(self, i):
                     if self.stss[i] < 0:
                         raise pmErr(self.stss[i])
-                    if self.pmtype == c_api.PM_TYPE_STRING:
-                        return self.values[i].dref(self.pmtype).decode('utf-8')
-                    else:
-                        return self.values[i].dref(self.pmtype)
+                    return self.values[i].dref(self.pmtype)
 
                 ts = self.ctx.pmLocaltime(self.times[i].tv_sec)
                 us = int(self.times[i].tv_nsec)//1000

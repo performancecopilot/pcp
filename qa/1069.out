@@ -169,4 +169,8 @@ Incompatible configuration file version (read v99, need v1).
 00:50:01     37932
 00:51:01     37836
 00:52:01     38744
+== basic string value reporting
+  p.version
+           
+     PCP_VERSION
 == done
