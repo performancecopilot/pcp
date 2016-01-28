@@ -784,6 +784,9 @@ class PMReporter(object):
                 self.delimiter = OUTSEP
 
         # Time
+        if self.opts.pmGetOptionHostZone():
+            os.environ['TZ'] = self.context.pmWhichZone()
+            time.tzset()
         if self.opts.pmGetOptionTimezone():
             os.environ['TZ'] = self.opts.pmGetOptionTimezone()
             time.tzset()
@@ -1044,8 +1047,6 @@ class PMReporter(object):
         # Figure out the current timezone using the PCP convention
         if self.opts.pmGetOptionTimezone():
             currtz = self.opts.pmGetOptionTimezone()
-        elif self.opts.pmGetOptionHostZone():
-            currtz = "[" + self.context.pmGetContextHostName() + "]"
         else:
             dst = time.localtime().tm_isdst
             offset = time.altzone if dst else time.timezone
