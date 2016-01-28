@@ -17,7 +17,7 @@ MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 
 #
 # install pcp-pmwebd and it's dependencies, clean the cache.
-RUN dnf -y install pcp pcp-webapi && dnf clean all
+RUN dnf -y install pcp pcp-webapi pcp-webjs && dnf clean all
 
 #
 # Expose pmwebd's main port on the host interfaces.
@@ -25,7 +25,7 @@ EXPOSE 44323
 
 #
 # Disable service advertising with -S option to the daemon
-RUN . /etc/pcp.conf && echo "OPTIONS=\$OPTIONS -S" >> $PCP_PMWEBDOPTIONS_PATH
+RUN . /etc/pcp.conf && echo OPTIONS=\"\$OPTIONS -S\" >> $PCP_PMWEBDOPTIONS_PATH
 
 #
 # denote this as a container environment, for rc scripts
