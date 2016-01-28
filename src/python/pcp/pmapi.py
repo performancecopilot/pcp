@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """ Wrapper module for LIBPCP - the core Performace Co-Pilot API """
 #
-# Copyright (C) 2012-2015 Red Hat
+# Copyright (C) 2012-2016 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -1016,6 +1016,11 @@ class pmOptions(object):
 
     def pmGetOptionSamples(self):	# int
         return c_api.pmGetOptionSamples()
+
+    def pmGetOptionHostZone(self):	# boolean
+        if c_api.pmGetOptionHostZone() == 0:
+            return False
+        return True
 
     def pmGetOptionTimezone(self):	# str
         return c_api.pmGetOptionTimezone()

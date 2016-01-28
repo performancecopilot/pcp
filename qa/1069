@@ -58,17 +58,17 @@ interval = 1
 EOF
 pmrep -s 5 -t 2 $log -c $tmp.config sample
 
-echo "== exercise various output options "
+echo "== exercise various output options"
 pmrep -s 5 -t 2 $log -c $tmp.config -o stdout -p -w 20 sample
 echo "---"
 pmrep -s 5 -t 2 $log -c $tmp.config -C -x sample | _path_filter
 echo "---"
 pmrep -s 5 -t 2 $log -c $tmp.config -G -H -U sample
 
-echo "== exercise raw counter mode "
+echo "== exercise raw counter mode"
 pmrep -s 5 -t 2 $log -c $tmp.config -r sample
 
-echo "== exercise timezone setting "
+echo "== exercise timezone setting"
 pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -Z UTC sample
 
 echo "== exercise CSV and alternate delimiters"

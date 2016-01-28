@@ -38,9 +38,9 @@ Interval can't be less than 1 second.
 
   archive: QAPATH/archives/sample-secs
      host: rattle
- timezone: :Australia/Melbourne (creation, current is EET-2)
-    start: Mon May  1 13:36:45 2000
-      end: Mon May  1 13:36:53 2000
+ timezone: :Australia/Melbourne (creation, current is [rattle])
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:36:53 2000
   metrics: 2
   samples: 5
  interval: 2.0 sec
@@ -54,7 +54,7 @@ Interval can't be less than 1 second.
       1.000           1.000
       1.000           1.000
       1.000           1.000
-== exercise raw counter mode 
+== exercise raw counter mode
   s.seconds  s.milliseconds
         sec        millisec
         N/A             N/A
