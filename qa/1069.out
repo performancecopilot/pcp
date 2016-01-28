@@ -36,7 +36,7 @@ Interval can't be less than 1 second.
 20:36:53                 1.000                 1.000
 ---
 
-  archive: /tmp/pcp/var/lib/pcp/testsuite/archives/sample-secs
+  archive: QAPATH/archives/sample-secs
      host: rattle
  timezone: :Australia/Melbourne (creation, current is EET-2.0)
     start: Mon May  1 13:36:45 2000

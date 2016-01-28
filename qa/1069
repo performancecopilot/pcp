@@ -2,7 +2,7 @@
 # PCP QA Test No. 1069
 # Exercise pmrep configuration and various reporting modes.
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015-2016 Red Hat.
 #
 
 seq=`basename $0`
@@ -25,6 +25,13 @@ _live_filter()
 {
     sed \
 	-e "s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/HH:MM:SS/g" \
+    #end
+}
+
+_path_filter()
+{
+    sed \
+	-e "s#$here#QAPATH#g" \
     #end
 }
 
@@ -54,7 +61,7 @@ pmrep -s 5 -t 2 $log -c $tmp.config sample
 echo "== exercise various output options "
 pmrep -s 5 -t 2 $log -c $tmp.config -o stdout -p -w 20 sample
 echo "---"
-pmrep -s 5 -t 2 $log -c $tmp.config -C -x sample
+pmrep -s 5 -t 2 $log -c $tmp.config -C -x sample | _path_filter
 echo "---"
 pmrep -s 5 -t 2 $log -c $tmp.config -G -H -U sample
 
