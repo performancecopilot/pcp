@@ -17,7 +17,7 @@ MAINTAINER PCP Development Team <pcp@oss.sgi.com>
 
 #
 # install pcp-pmwebd and it's dependencies, clean the cache.
-RUN dnf -y install pcp pcp-webapi && dnf clean all
+RUN dnf -y install pcp pcp-webapi pcp-webjs pcp-webapp-graphite pcp-webapp-grafana pcp-webapp-vector && dnf clean all
 
 #
 # Expose pmwebd's main port on the host interfaces.
