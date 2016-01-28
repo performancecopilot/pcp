@@ -631,16 +631,18 @@ class PMReporter(object):
                         name, expr = definition.split("=")
                         self.context.pmLookupName(name.strip())
                     except pmapi.pmErr as error:
-                        if error.args[0] == PM_ERR_NAME:
-                            self.context.pmRegisterDerived(name.strip(), expr.strip())
-                            continue
-                        err = error.message()
+                        if error.args[0] != PM_ERR_NAME:
+                            err = error.message()
+                        else:
+                            try:
+                                self.context.pmRegisterDerived(name.strip(), expr.strip())
+                                continue
+                            except pmapi.pmErr as error:
+                                err = error.message()
                     except ValueError as error:
                         err = "Invalid syntax (expected metric=expression)"
                     except Exception as error:
-                        err = self.context.pmDerivedErrStr()
-                        if not err:
-                            err = "Unidentified error"
+                        err = "Unidentified error"
                     finally:
                         if err:
                             sys.stderr.write("Failed to register derived metric: %s.\n" % err)
