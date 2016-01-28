@@ -35,6 +35,12 @@ _filter()
     if fmt --help 2>&1 | grep '.-w, ' >/dev/null
     then
 	# GNU-style fmt(1)
+	# -w, --width=WIDTH         maximum line width (default of 75 columns)
+	cmd="fmt -w 76"
+    elif fmt --help 2>&1 | grep '.-w .* width' >/dev/null
+    then
+	# FreeBSD-style fmt
+        # -w <n> set maximum width to <n>
 	cmd="fmt -w 76"
     elif fmt --help 2>&1 | grep '.-m ' >/dev/null
     then
