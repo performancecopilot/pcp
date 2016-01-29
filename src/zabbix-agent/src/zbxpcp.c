@@ -19,7 +19,6 @@
 
 /*
  * TODO
- * - reconnection interval support
  * - derived metrics support
  * - config file support
  *   - conn type
