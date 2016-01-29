@@ -1066,6 +1066,7 @@ cgroups
 844 pmda.linux local
 845 pmda.mounts local
 846 pmimport local pmdumplog perl local
+847 containers local
 850 python local
 853 pmcpp local
 855 pmda.netfilter local
