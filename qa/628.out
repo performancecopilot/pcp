@@ -1,7 +1,7 @@
 QA output created by 628
 
 simple.numfetch PMID: 253.0.0
-    value 1
+    value 3
 
 idiot.numfetch PMID: 177.0.0
     value 3
@@ -13,7 +13,7 @@ idiot.numfetch PMID: 177.0.0
     value 5
 
 simple.numfetch PMID: 253.0.0
-    value 2
+    value 4
 
 idiot.numfetch PMID: 177.0.0
     value 6
