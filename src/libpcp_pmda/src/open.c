@@ -160,6 +160,9 @@ __pmdaOpenIPv6(char *sockname, int port, int *infd, int *outfd)
  * pmcd must be able to talk to us on this channel, and it may be running
  * as an unprivileged user by the time the PMDA runs this code - so, need
  * to set permissions such that PCP_USER can access this file too.
+ *
+ * Note when run from dbpmda and/or QA these permissions might be fine to
+ * stay as regular users, so we do not fail here and simply charge ahead.
  */
 static void
 socket_ownership(char *sockname)
@@ -181,17 +184,13 @@ socket_ownership(char *sockname)
     }
 
     sts = chmod(sockname, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-    if (sts == -1) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix chmod on %s: %s\n",
-			sockname, netstrerror());
-	exit(1);
-    }
+    if (sts == -1 && (pmDebug & DBG_TRACE_LIBPMDA))
+	__pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: unix chmod on %s: %s\n",
+			sockname, osstrerror());
     sts = chown(sockname, pw->pw_uid, pw->pw_gid);
-    if (sts == -1) {
-	__pmNotifyErr(LOG_CRIT, "__pmdaOpenUnix: unix chown on %s: %s\n",
-			sockname, netstrerror());
-	exit(1);
-    }
+    if (sts == -1 && (pmDebug & DBG_TRACE_LIBPMDA))
+	__pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: unix chown on %s: %s\n",
+			sockname, osstrerror());
 }
 
 /*
