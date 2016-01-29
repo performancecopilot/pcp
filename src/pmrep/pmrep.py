@@ -61,7 +61,7 @@ import os
 import re
 
 from pcp import pmapi, pmi
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_ERR_NAME, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_ERR_NAME, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET, PM_DEBUG_APPL1
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
 from cpmi import PMI_ERR_DUPINSTNAME
 
@@ -809,8 +809,7 @@ class PMReporter(object):
         if self.output == OUTPUT_STDOUT:
             self.prepare_stdout()
 
-        # DBG_TRACE_APPL1 == 4096
-        if "pmDebug" in dir(self.context) and self.context.pmDebug(4096):
+        if self.context.pmDebug(PM_DEBUG_APPL1):
             self.writer.write("Known config file keywords: " + str(self.keys) + "\n")
             self.writer.write("Known metric spec keywords: " + str(self.metricspec) + "\n")
 
