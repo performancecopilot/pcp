@@ -21,7 +21,13 @@
 
 iam=simple
 pmda_interface=2
-forced_restart=false
+
+# Not really required for most installations, _except_ for Unix domain
+# sockets (access control to FIFO issue), and we can't tell what IPC
+# options are selected from here, so we have to ask for a pmcd restart
+# always
+#
+forced_restart=true
 
 dso_opt=true
 perl_opt=true
