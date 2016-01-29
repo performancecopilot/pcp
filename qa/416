@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+[ -f $PCP_PMDAS_DIR/news/pmdanews.pl ] || _notrun "news pmda not installed"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
