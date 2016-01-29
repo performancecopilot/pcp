@@ -134,7 +134,7 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 
 	    execvp(transfer_final[0], transfer_final);
 	    /* botch if reach here */
-	    __pmNotifyErr(LOG_ERR, "%s: error starting %s: %s\n",
+	    fprintf(stderr, "%s: error starting %s: %s\n",
 		    pmProgname, transfer_final[0], osstrerror());
 	    /* avoid atexit() processing, so _exit not exit */
 	    _exit(1);
