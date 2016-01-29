@@ -27,6 +27,7 @@ root_cleanup()
     cd $here
     [ -d $root ] && sudo rm -fr $root
     [ -f $tmp.conf.backup ] && sudo cp $tmp.conf.backup $PCP_DIR/etc/pcp.conf
+    rm -f $tmp.*
 }
 
 # do metrics one at a time, map all internal instance ids to N and sort
