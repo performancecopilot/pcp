@@ -36,7 +36,7 @@ value NUMBER
 simple.numfetch: pmLookupDesc: Unknown or illegal metric identifier
 
 === simple PMDA ===
-sample.string.write_me old value="trivial" new value="simple"
+sample.string.write_me old value="13" new value="simple"
 
 pmcd.numagents
     value 5
