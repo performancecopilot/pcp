@@ -45,6 +45,8 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
     char	*transfer_final[MAXPATHLEN] = { "" };
     const char	*delim = " ";
 
+    *infd = -1;
+    *outfd = -1;
     __pmNotifyErr(LOG_INFO, "Starting %s agent: %s", label, argv);
 
     transfer_argv = strtok(argv, delim);
@@ -66,13 +68,13 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 
     if (ipctype == ROOT_AGENT_PIPE) {
 	if (pipe1(inPipe) < 0) {
-	    fprintf(stderr,
+	    __pmNotifyErr(LOG_ERR,
 		    "%s: input pipe create failed for \"%s\" agent: %s\n",
 		    pmProgname, label, osstrerror());
 	    return (pid_t)-1;
 	}
 	if (pipe1(outPipe) < 0) {
-	    fprintf(stderr,
+	    __pmNotifyErr(LOG_ERR,
 		    "%s: output pipe create failed for \"%s\" agent: %s\n",
 		    pmProgname, label, osstrerror());
 	    close(inPipe[0]);
@@ -85,8 +87,6 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
     if (transfer_final != NULL) { /* Start a new agent if required */
 	childPid = fork();
 	if (childPid == (pid_t)-1) {
-	    fprintf(stderr, "%s: creating child for \"%s\" agent: %s\n",
-		    pmProgname, label, osstrerror());
 	    if (ipctype == ROOT_AGENT_PIPE) {
 		close(inPipe[0]);
 		close(inPipe[1]);
@@ -134,11 +134,15 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 
 	    execvp(transfer_final[0], transfer_final);
 	    /* botch if reach here */
-	    fprintf(stderr, "%s: error starting %s: %s\n",
+	    __pmNotifyErr(LOG_ERR, "%s: error starting %s: %s\n",
 		    pmProgname, transfer_final[0], osstrerror());
 	    /* avoid atexit() processing, so _exit not exit */
 	    _exit(1);
 	}
+    }
+    if (pmDebug & DBG_TRACE_APPL0) {
+	__pmNotifyErr(LOG_DEBUG, "Started %s agent pid=%d infd=%d outfd=%d\n",
+			label, childPid, *infd, *outfd);
     }
     return childPid;
 }

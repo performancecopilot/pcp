@@ -621,8 +621,15 @@ root_startpmda_request(root_client_t *cp, void *pdu, int pdulen)
 	bad = PM_ERR_GENERIC;
 
     sts = __pmdaSendRootPDUStart(cp->fd, pid, infd, outfd, name, len, bad);
-    close(outfd);
-    close(infd);
+    if (pmDebug & DBG_TRACE_APPL0) {
+	__pmNotifyErr(LOG_DEBUG, "Sent %s PMDA process to pmcd: "
+			"pid=%d infd=%d outfd=%d sts=%d\n",
+			name, pid, infd, outfd, bad);
+    }
+    if (outfd >= 0)
+	close(outfd);
+    if (infd >= 0)
+	close(infd);
     return sts;
 }
 
@@ -748,6 +755,7 @@ root_main(pmdaInterface *dp)
 	readable_fds = connected_fds;
 	maxfd = root_maximum_fd + 1;
 
+	setoserror(0);
 	sts = __pmSelectRead(maxfd, &readable_fds, NULL);
 	if (sts > 0) {
 	    if (__pmFD_ISSET(pmcd_fd, &readable_fds)) {
@@ -760,9 +768,9 @@ root_main(pmdaInterface *dp)
 		root_check_new_client(&readable_fds);
 	    root_handle_client_input(&readable_fds);
 	}
-	else if (sts == -1 && neterror() != EINTR) {
-	    __pmNotifyErr(LOG_ERR, "root_main select: %s\n", netstrerror());
-	    break;
+	else if (sts == -1 && oserror() != EINTR) {
+	    __pmNotifyErr(LOG_ERR, "root_main select: %s\n", osstrerror());
+	    continue;
 	}
     }
 }
