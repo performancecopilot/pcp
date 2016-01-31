@@ -122,9 +122,9 @@ class pmclient_fg(object):
         lines = 0
         while True:
             if samples >= 0:
-                samples -= 1
                 if samples == 0:
                     break
+                samples -= 1
 
             if lines % 15 == 0:
                 if self.typed == c_api.PM_CONTEXT_ARCHIVE:
@@ -139,11 +139,11 @@ class pmclient_fg(object):
                 print('  CPU', end='')
                 if info.ncpu() > 1:
                     print('  Busy    Busy', end='')
-                    print('  Free Mem   Disk     Load Average')
-                    print(' Util', end='')
-                    if info.ncpu() > 1:
-                        print('   CPU    Util', end='')
-                    print('  (Mbytes)   IOPS    1 Min  15 Min')
+		print('  Free Mem   Disk     Load Average')
+		print(' Util', end='')
+		if info.ncpu() > 1:
+		    print('   CPU    Util', end='')
+		print('  (Mbytes)   IOPS    1 Min  15 Min')
 
             if self.typed != c_api.PM_CONTEXT_ARCHIVE or self.pause:
                 self.ctx.pmtimevalSleep(interval)
