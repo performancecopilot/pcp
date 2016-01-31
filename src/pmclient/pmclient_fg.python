@@ -122,9 +122,9 @@ class pmclient_fg(object):
         lines = 0
         while True:
             if samples >= 0:
-                samples -= 1
                 if samples == 0:
                     break
+                samples -= 1
 
             if lines % 15 == 0:
                 if self.typed == c_api.PM_CONTEXT_ARCHIVE:
