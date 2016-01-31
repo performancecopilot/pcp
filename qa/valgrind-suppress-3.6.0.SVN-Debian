@@ -246,3 +246,27 @@
    fun:_dl_catch_error
    fun:_dl_open
 }
+
+# seen in qa/731 on vm11 ... seems wrong
+# at 0x4023F50: malloc (vg_replace_malloc.c:236)
+# by 0x40592D0: loadascii (pmns.c:1149)
+# by 0x40598DD: load (pmns.c:1371)
+# by 0x4056DE8: LoadDefault (pmns.c:176)
+# by 0x405701A: pmGetPMNSLocation (pmns.c:240)
+# by 0x405722B: GetLocation (pmns.c:304)
+# by 0x405C97E: TraversePMNS (pmns.c:2570)
+# by 0x405CD66: pmTraversePMNS (pmns.c:2672)
+# by 0x804AAE4: ??? (in /usr/bin/pminfo)
+# by 0x40D5C95: (below main) (libc-start.c:228)
+{
+   loadascii looks OK
+   Memcheck:Leak
+   fun:malloc
+   fun:loadascii
+   fun:load
+   fun:LoadDefault
+   fun:pmGetPMNSLocation
+   fun:GetLocation
+   fun:TraversePMNS
+   fun:pmTraversePMNS
+}
