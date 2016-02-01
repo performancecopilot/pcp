@@ -2379,7 +2379,9 @@ cd
 
 %changelog
 * Fri Jan 29 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.0-1
-- Work-in-progress [see http://pcp.io/roadmap]
+- Significant speedups to elapsed time stopping pmcd (BZ 1292027)
+- Fix python derived metric exception handling issues (BZ 1299806)
+- Update to latest PCP sources.
 
 * Wed Dec 16 2015 Lukas Berk <lberk@redhat.com> - 3.10.9-1
 - Add -V/--version support to several more commands (BZ 1284411)

@@ -21,6 +21,8 @@ _filter()
 {
     # unfortunatley, -D16 maps to an internal debug flag for some PMDAs
     # for nodes et al
+    # filter for __pmDecodeXtendError diag because datum is not
+    # invariant
     #
     sed \
 	-e '/using .* kmem interface/d' \
@@ -35,6 +37,7 @@ _filter()
 	-e '/ Debug: node_init: /d' \
 	-e '/ Debug: reload_hubs: /d' \
 	-e '/ Debug: handle_entry: /d' \
+	-e '/^__pmDecodeXtendError: got error PDU/s/datum=[0-9][0-9]*/datum=DATA/' \
 	-e '/^pmWhichContext() -> /d' \
 	-e '/__pmSendCreds: #0/s/= 201/= 1020000/' \
 	-e '/^__pmDataIPC: /d' \

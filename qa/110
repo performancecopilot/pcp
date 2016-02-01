@@ -16,6 +16,7 @@ echo "QA output created by $seq"
 signal=$PCP_BINADM_DIR/pmsignal
 status=1
 
+ROOT_LOG_PATH=`echo $PCP_PMCDLOG_PATH | sed -e 's/pmcd.log/root.log/'`
 PMDA_LOG_PATH=`echo $PCP_PMCDLOG_PATH | sed -e 's/pmcd.log/simple.log/'`
 
 _cleanup()
@@ -56,6 +57,9 @@ _failed()
     echo "... and the tail of the pmcd log ..."
     tail -20 $PCP_PMCDLOG_PATH
     echo
+    echo "... and the root PMDA log ..."
+    cat $ROOT_LOG_PATH
+    echo
     echo "...and the PMDA log ..."
     cat $PMDA_LOG_PATH
 }
@@ -77,6 +81,13 @@ _full()
     cat $PCP_PMCDCONF_PATH >>$here/$seq.full
     echo "--- pmcd.log ---" >>$here/$seq.full
     cat $PCP_PMCDLOG_PATH >>$here/$seq.full
+    echo "--- root.log ---" >>$here/$seq.full
+    if [ -f $ROOT_LOG_PATH ]
+    then
+	cat $ROOT_LOG_PATH >>$here/$seq.full
+    else
+	echo "$ROOT_LOG_PATH: file not found" >>$here/$seq.full
+    fi
     echo "--- simple.log ---" >>$here/$seq.full
     if [ -f $PMDA_LOG_PATH ]
     then

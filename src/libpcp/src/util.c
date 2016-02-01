@@ -92,11 +92,11 @@ __pmNotifyErr(int priority, const char *message, ...)
     va_list		arg;
     char		*p;
     char		*level;
-    time_t		now;
+    struct timeval	tv;
 
     va_start(arg, message);
 
-    time(&now);
+    gettimeofday(&tv, NULL);
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -146,7 +146,10 @@ __pmNotifyErr(int priority, const char *message, ...)
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    pmprintf("[%.19s] %s(%" FMT_PID ") %s: ", ctime(&now), pmProgname, getpid(), level);
+    /* when profiling use "[%.19s.%lu]" for extra precision */
+    pmprintf("[%.19s] %s(%" FMT_PID ") %s: ", ctime(&tv.tv_sec),
+		/* (unsigned long)tv.tv_usec, */
+		pmProgname, getpid(), level);
     PM_UNLOCK(__pmLock_libpcp);
     vpmprintf(message, arg);
     va_end(arg);

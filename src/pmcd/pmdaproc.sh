@@ -1474,7 +1474,7 @@ ipc_prot=binary
 #	Need to force a restart of pmcd?
 forced_restart=true
 #	Delay after install before checking (sec)
-check_delay=0.3
+check_delay=1
 #	Delay after sending a signal to pmcd (sec)
 signal_delay=1
 #	Additional command line args to go in $PCP_PMCDCONF_PATH

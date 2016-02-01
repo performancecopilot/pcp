@@ -1,7 +1,6 @@
-#!/bin/sh
 #
-# Copyright (c) 2014 Red Hat.
-#
+# Copyright (c) 2016 Red Hat.
+# 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
@@ -12,14 +11,19 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Remove the PMCD privileged co-process (root) PMDA.
-#
 
-. $PCP_DIR/etc/pcp.env
-. $PCP_SHARE_DIR/lib/pmdaproc.sh
+TOPDIR = ../../..
+include $(TOPDIR)/src/include/builddefs
+-include ./GNUlocaldefs
 
-iam=root
-pmns_name="containers"
-pmdaSetup
-pmdaRemove
-exit 0
+CONTAINER = pcp-pmwebd
+LDIRT = $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz
+
+default default_pcp install install_pcp:
+
+pack pack_pcp: $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz
+
+# rule to build $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz from Dockerfile
+include ../GNUlocalrules
+
+include $(BUILDRULES)

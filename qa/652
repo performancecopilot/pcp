@@ -77,7 +77,7 @@ $sudo ./Remove </dev/null >>$here/$seq.full 2>&1
 $sudo ./Install </dev/null >$tmp.out 2>&1
 _wait_for_pmcd
 cat $tmp.out >>$here/$seq.full
-cat $tmp.out | _filter_pmda_install | _filter_pmda_warning | _filter
+cat $tmp.out | _filter_pcp_stop | _filter_pmda_install | _filter_pmda_warning | _filter
 
 # want to make sure PMDA is really healthy ... on vm02 we got
 # this far but the PMDA was dead ...

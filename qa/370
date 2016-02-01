@@ -71,11 +71,19 @@ in
 	ln $seq.out.6 $seq.out || exit 1
 	file_version=10.0.5
 	;;
-    10.2.0)
-	ln $seq.out.7 $seq.out || exit 1
+    10.1.5)
+	ln $seq.out.12 $seq.out || exit 1
 	;;
-    11.0.1)
+    10.1.6)
+	ln $seq.out.11 $seq.out || exit 1
+	;;
+    10.2.0|10.2.1)
+	ln $seq.out.7 $seq.out || exit 1
+	file_version=10.2.0
+	;;
+    11.0.0|11.0.1)
 	ln $seq.out.9 $seq.out || exit 1
+	file_version=11.0.1
 	;;
     11.1.5)
 	ln $seq.out.10 $seq.out || exit 1
@@ -201,7 +209,7 @@ NR == 1		{ next }
 		}'
 
 echo
-echo "check user disk iops ..."
+echo "check disk iops ..."
 # units are iops, so within 0.01 iop is ok
 pmval -f 8 -t 5 -a $tmp disk.all.total \
 | sed -n '/^[0-2][0-9]:/{
@@ -215,9 +223,9 @@ $PCP_AWK_PROG <$tmp.both '
 { if ($2-$NF > 0.01 || $2-$NF < -0.01) print "[",NR,"] mismatch:",$1,$2,$NF }'
 
 echo
-echo "check user disk write thruput ..."
+echo "check disk write thruput ..."
 # units are iops, so within 0.01 iop is ok
-pmval -f 8 -t 5 -a $tmp disk.all.write_bytes \
+pmval -f 8 -w 16 -t 5 -a $tmp disk.all.write_bytes \
 | sed -n '/^[0-2][0-9]:/{
 s/\.[0-9][0-9][0-9]//
 p

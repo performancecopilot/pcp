@@ -18,14 +18,10 @@ BUILDDEFS = $(TOPDIR)/src/include/builddefs
 include $(BUILDDEFS)
 -include ./GNUlocaldefs
 
-SUBDIRS = pcp-base pcp-collector pcp-monitor pcp-pmlogger pcp-pmie pcp-testsuite
+SUBDIRS = pcp-base pcp-collector pcp-monitor pcp-pmlogger pcp-pmie pcp-testsuite pcp-pmwebd
 
-default default_pcp install install_pcp pack_pcp: $(BUILDDEFS) $(SUBDIRS)
+default default_pcp install install_pcp pack_pcp: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
-
-$(BUILDDEFS) : $(BUILDDEFS).in
-	@echo; echo Please run configure in $(TOPDIR) with the appropriate options to generate $@.
-	@false
 
 include $(BUILDRULES)
 

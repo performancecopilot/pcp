@@ -1033,6 +1033,7 @@ cgroups
 800 pmda.proc local
 801 pmda.netfilter local
 802 pmda valgrind dbpmda local
+803 libpcp derive local
 805 pmda.postfix local
 807 pcp local
 808 pmlogger local
@@ -1065,6 +1066,7 @@ cgroups
 844 pmda.linux local
 845 pmda.mounts local
 846 pmimport local pmdumplog perl local
+847 containers local
 850 python local
 853 pmcpp local
 855 pmda.netfilter local
@@ -1085,6 +1087,7 @@ cgroups
 878 pmda.pipe local
 879 pmda.pipe local
 885 pmda.linux local
+886 pmda.linux local
 888 pmda.linux local
 889 pmda.proc local
 892 pmcd libpcp local

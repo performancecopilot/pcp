@@ -54,6 +54,7 @@ pmstore pmcd.control.register 0 >>$seq.full
 # and sample frequency has to be small enough to ensure several evaluations
 # within each sleep period
 #
+#pmie -v -e -c $tmp.rules >$tmp.out 2>$tmp.err -t 0.4sec -T 10sec &
 pmie -c $tmp.rules >$tmp.out 2>$tmp.err -t 0.4sec -T 10sec &
 
 sleep 2
@@ -74,7 +75,7 @@ cat $tmp.out >>$seq.full
 _filter <$tmp.out \
 | LC_COLLATE=POSIX sort \
 | uniq -c \
-| sed -e 's/  [456] DATE/4-6 DATE/'
+| sed -e 's/  [4567] DATE/4-7 DATE/'
 
 # success, all done
 status=0

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2013,2015-2016 Red Hat.
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -26,6 +26,36 @@
 #include <sys/resource.h>
 #endif
 
+static pid_t
+waitpid_pmcd(int *status)
+{
+#if defined(HAVE_WAIT3)
+    return wait3(status, WNOHANG, NULL);
+#elif defined(HAVE_WAITPID)
+    return waitpid((pid_t)-1, status, WNOHANG);
+#else
+    return (pid_t)-1;
+#endif
+}
+
+static pid_t
+waitpid_pmdaroot(int *status)
+{
+    if (pmdarootfd <= 0)
+	return (pid_t)-1;
+    return pmdaRootProcessWait(pmdarootfd, (pid_t)-1, status);
+}
+
+static void
+short_delay(int milliseconds)
+{
+    struct timespec delay;
+
+    delay.tv_sec = 0;
+    delay.tv_nsec = milliseconds * 1000000;
+    (void)nanosleep(&delay, NULL);
+}
+
 /* Return a pointer to the agent that is reposible for a given domain.
  * Note that the agent may not be in a connected state!
  */
@@ -42,10 +72,7 @@ FindDomainAgent(int domain)
 void
 CleanupAgent(AgentInfo* aPtr, int why, int status)
 {
-    extern int	AgentDied;
-#ifndef IS_MINGW
     int		exit_status = status;
-#endif
     int		reason = 0;
 
     if (aPtr->ipcType == AGENT_DSO) {
@@ -97,11 +124,9 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 	} else {
 	    reason = REASON_PROTOCOL;
 	    fprintf(stderr, " protocol failure for fd=%d", status);
-#ifndef IS_MINGW
 	    exit_status = -1;
-#endif
 	}
-	if (aPtr->status.isChild == 1) {
+	if (aPtr->status.isChild || aPtr->status.isRootChild) {
 	    pid_t	pid = (pid_t)-1;
 	    pid_t	done;
 	    int 	wait_status;
@@ -112,47 +137,39 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
 	    else if (aPtr->ipcType == AGENT_SOCKET)
 		pid = aPtr->ipc.socket.agentPid;
 	    for ( ; ; ) {
-
-#if defined(HAVE_WAIT3)
-		done = wait3(&wait_status, WNOHANG, NULL);
-#elif defined(HAVE_WAITPID)
-		done = waitpid((pid_t)-1, &wait_status, WNOHANG);
-#else
-		wait_status = 0;
-		done = 0;
-#endif
-		if (done == pid) {
-#ifndef IS_MINGW
+		done = (aPtr->status.isRootChild) ?
+			waitpid_pmdaroot(&wait_status):
+			waitpid_pmcd(&wait_status);
+		if (done < (pid_t)0)
+		    wait_status = 0;
+		else if (done == pid) {
 		    exit_status = wait_status;
-#endif
 		    break;
 		}
-		if (done > 0) {
+		else if (done > 0)
 		    continue;
-		}
-		if (slept) {
+		if (slept)
 		    break;
-		}
 		/* give PMDA a chance to notice the close() and exit */
-		sleep(1);
+		short_delay(10);
 		slept = 1;
 	    }
 	}
     }
 #ifndef IS_MINGW
     if (exit_status != -1) {
-	    if (WIFEXITED(exit_status)) {
-		fprintf(stderr, ", exit(%d)", WEXITSTATUS(exit_status));
-		reason = (WEXITSTATUS(exit_status) << 8) | reason;
-	    }
-	    else if (WIFSIGNALED(exit_status)) {
-		fprintf(stderr, ", signal(%d)", WTERMSIG(exit_status));
+	if (WIFEXITED(exit_status)) {
+	    fprintf(stderr, ", exit(%d)", WEXITSTATUS(exit_status));
+	    reason = (WEXITSTATUS(exit_status) << 8) | reason;
+	}
+	else if (WIFSIGNALED(exit_status)) {
+	    fprintf(stderr, ", signal(%d)", WTERMSIG(exit_status));
 #ifdef WCOREDUMP
-		if (WCOREDUMP(exit_status))
-		    fprintf(stderr, ", dumped core");
+	    if (WCOREDUMP(exit_status))
+		fprintf(stderr, ", dumped core");
 #endif
-		reason = (WTERMSIG(exit_status) << 16) | reason;
-	    }
+	    reason = (WTERMSIG(exit_status) << 16) | reason;
+	}
     }
 #endif
     fputc('\n', stderr);
@@ -169,11 +186,8 @@ CleanupAgent(AgentInfo* aPtr, int why, int status)
     MarkStateChanges(PMCD_DROP_AGENT);
 }
 
-/* Wait up to total secs for agents to terminate.
- * Return 0 if all terminate, else -1
- */
-int 
-HarvestAgents(unsigned int total)
+static int
+HarvestAgentByParent(unsigned int *total, int root)
 {
     int		i;
     int		sts;
@@ -181,28 +195,24 @@ HarvestAgents(unsigned int total)
     pid_t	pid;
     AgentInfo	*ap;
 
-    /*
-     * Check for child process termination.  Be careful, and ignore any
+    /* Check for child process termination.  Be careful, and ignore any
      * non-agent processes found.
      */
     do {
-#if defined(HAVE_WAIT3)
-	pid = wait3(&sts, WNOHANG, NULL);
-#elif defined(HAVE_WAITPID)
-	pid = waitpid((pid_t)-1, &sts, WNOHANG);
-#else
-	break;
-#endif
 	found = 0;
-	for ( i = 0; i < nAgents; i++) {
+	pid = root ? waitpid_pmdaroot(&sts) : waitpid_pmcd(&sts);
+	for (i = 0; i < nAgents; i++) {
 	    ap = &agent[i];
 	    if (!ap->status.connected || ap->ipcType == AGENT_DSO)
 		continue;
-
+	    if (root && !ap->status.isRootChild)
+		continue;
+	    if (!root && !ap->status.isChild)
+		continue;
 	    found = 1;
 	    if (pid <= (pid_t)0) {
-		if (total--) {
-		    sleep(1);
+		if (total && *total--) {
+		    short_delay(10);
 		    break;
 		} else {
 		    return -1;
@@ -218,4 +228,23 @@ HarvestAgents(unsigned int total)
     } while (found);
 
     return 0;
+}
+
+/* Wait up to total secs for agents to terminate.
+ * Return 0 if all terminate, else -1
+ */
+int
+HarvestAgents(unsigned int total)
+{
+    unsigned	*tp = total ? &total : NULL;
+    int		sts = 0;
+
+    /*
+     * Check for pmdaroot child process termination first because
+     * pmdaroot itself (a direct child of pmcd) is involved there.
+     * If we harvest it before any others, we'd struggle.
+     */
+    sts |= HarvestAgentByParent(tp, 1);
+    sts |= HarvestAgentByParent(tp, 0);
+    return sts;
 }

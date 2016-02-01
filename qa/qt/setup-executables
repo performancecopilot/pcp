@@ -11,9 +11,9 @@
 
 if [ -z "$PCP_DIR" ]
 then
-    . /etc/pcp.conf
+    . /etc/pcp.env
 else
-    . "$PCP_DIR"/etc/pcp.conf
+    . "$PCP_DIR"/etc/pcp.env
 fi
 
 builddir=''

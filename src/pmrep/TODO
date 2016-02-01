@@ -1,7 +1,7 @@
 -  check/fix get_cmd_line_metrics for good
 -  allow defining instances to display [-i]
 -  opt to write cols per row with stdout output [-k]
--  opt to switch cols / rows (e.g., compare ps vs sar)
+-  opt to swap cols and rows (e.g., compare ps vs sar)
 -  -Q/-B/-Y to override per-metric settings unit/scale
 -  shorten unit display count / sec -> count/s -> c/s if needed
 -  opt to output in short format (see pmdumptext -F / pmNumberStr) [-m/-M]

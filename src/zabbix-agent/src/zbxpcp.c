@@ -1,7 +1,7 @@
 /*
  * Zabbix loadable PCP module
  *
- * Copyright (C) 2015 Marko Myllynen <myllynen@redhat.com>
+ * Copyright (C) 2015-2016 Marko Myllynen <myllynen@redhat.com>
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -48,13 +48,13 @@
  */
 static int ctx = -1;
 
-int zbx_module_pcp_init()
+int zbx_module_pcp_connect()
 {
     ctx = pmNewContext(PM_CONTEXT_HOST, "localhost");
     return ctx;
 }
 
-int zbx_module_pcp_uninit()
+int zbx_module_pcp_disconnect()
 {
     return pmDestroyContext(ctx);
 }
@@ -64,7 +64,7 @@ int zbx_module_pcp_uninit()
  */
 int zbx_module_init()
 {
-    if (zbx_module_pcp_init() < 0)
+    if (zbx_module_pcp_connect() < 0)
         return ZBX_MODULE_FAIL;
     return ZBX_MODULE_OK;
 }
@@ -104,7 +104,7 @@ void zbx_module_item_timeout(int timeout)
 
 int zbx_module_uninit()
 {
-    if (zbx_module_pcp_uninit() != 0)
+    if (zbx_module_pcp_disconnect() != 0)
         return ZBX_MODULE_FAIL;
     return ZBX_MODULE_OK;
 }
@@ -186,8 +186,18 @@ int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT *result)
             break;
     }
 
-    /* Preparations and sanity checks.  */
+    /* Try to reconnect if the initial lookup fails.  */
     sts = pmLookupName(1, metric, pmid);
+    if (sts < 0 && (sts == PM_ERR_IPC || sts == -ECONNRESET)) {
+        ctx = pmReconnectContext(ctx);
+        if (ctx < 0) {
+            SET_MSG_RESULT(result, strdup("Not connected to pmcd."));
+            return SYSINFO_RET_FAIL;
+        }
+        sts = pmLookupName(1, metric, pmid);
+    }
+
+    /* Preparations and sanity checks.  */
     if (sts < 0) return SYSINFO_RET_FAIL;
     sts = pmLookupDesc(pmid[0], desc);
     if (sts < 0) return SYSINFO_RET_FAIL;

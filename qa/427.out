@@ -3,9 +3,9 @@ Waiting for pmcd to terminate ...
 Starting pmcd ... 
 Starting pmlogger ... 
 
-errors for bogus in /var/adm/pcplog/pmcd.log:
-pmcd: error starting bogus.pmda: No such file or directory
-pmcd: unexpected end-of-file at initial exchange with bogus PMDA
+errors for bogus in pmcd related log file(s):
+PMCD: error starting bogus.pmda: No such file or directory
+PMCD: unexpected end-of-file at initial exchange with bogus PMDA
 
 pmcd agent metrics for bogus:
 pmcd.agent.type

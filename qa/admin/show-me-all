@@ -13,19 +13,23 @@ _usage()
     echo "Usage: $0 [options] seq ..."
     echo "Options:"
     echo "  -f    show me seq.full if it exists"
+    echo "  -l    run show-me -l"
     sts=1
     exit
 }
 
 full=false
 verbose=false
-while getopts 'f?' p
+show_me_opts=''
+while getopts 'fl?' p
 do
     case "$p"
     in
 	f)	full=true
 		;;
 
+	l)	show_me_opts="$show_me_opts -l"
+		;;
 	?)	_usage
 		# NOTREACHED
     esac
@@ -101,7 +105,7 @@ do
 		fi
 	    done
 	    echo -n "$host-"
-	    show-me $seq
+	    show-me $show_me_opts $seq
 	    $full && [ -f $seq.full ] && less $seq.full </dev/tty
 	fi
 	echo $host $sum >>$tmp.sum

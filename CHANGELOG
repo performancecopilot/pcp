@@ -1,5 +1,42 @@
 pcp-3.11.0 (29 January 2016)
-    - Work-in-progress [see http://pcp.io/roadmap]
+    - containers: add a pcp-pmwebd container image
+    - pmcd: start PMDAs via pmdaroot, allowing restart on PMDA
+      failure without restarting pmcd itself
+    - pmcd: tenfold speed up of the shutdown process
+    - pmcd: ensure startup before zabbix-agent, with systemd
+    - pmdafreebsd: use getifaddrs() for network interface
+    - pmdalinux: fix /proc/interrupts parsing on s390x platforms
+    - pmdalinux: fix i386 buffer overflow in softnet stats
+    - pmdalinux: support additional vmstat kernel metrics (virt
+      balloon, transparent-huge-page zero page alloc counters)
+    - pmdaxfs: support the per-device XFS metrics
+    - pmdanamed: fix SELinux AVC denials during Install
+    - pmdavmware: updates to work with current VMWare perl API
+    - libpcp: improvements to derived metrics error handling
+    - libpcp: rework interp logic arond <mark> records
+    - libpcp: fix bug in interp mode record caching
+    - libpcp: pthread_mutexattr_destroy, pthread_mutex_destroy calls
+    - libpcp: added a new fetchgroup API
+    - libpcp: fix dup-context-with-attrs memory corruption bug
+    - libpcp: fix derived metric PMNS navigation mem leak
+    - libpcp: unconditional registration of anon (event.*) metrics
+    - pcp-iostat: use py3 and py3 compatible pipe exception handlers
+    - pcp-iostat: improve incorrect counter rate conversion
+    - pcp-iostat: improve BrokenPipeError exception handling
+    - pmmgr: add general monitor-program launching option
+    - pmmgr: resolved a couple of small memory leaks
+    - pmrep: fix first sample reporting, instant/discrete metrics
+    - pmrep: fix string valued metric reporting, with python3
+    - pmval: improve reporting in the region of <mark> records
+    - pmwebd: add an option to disable service advertising
+    - pmwebd: support for http compression
+    - pmwebd: add units/sem to legend in graphite/png mode
+    - pmwebd: enable graphite image-mode caching via redirection
+    - pmwebd: add an option for alternative name encodings
+    - sar2pcp: support additional mem.util metrics
+    - docs: updates to the system CPU performance tutorial
+    - packaging: add missing dependencies on some perl modules
+    - packaging: drop the pcp-compat subpackage
 
 pcp-3.10.9 (16 December 2015)
     - pmrep: swiss-army-chainsaw metric reporting utility

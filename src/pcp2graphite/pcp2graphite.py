@@ -99,7 +99,7 @@ network.""")
         self.metrics = []
         self.pmids = []
         self.descs = []
-        metrics = self.opts.pmNonOptionsFromList(sys.argv)
+        metrics = self.opts.pmGetNonOptionsFromList(sys.argv)
         if metrics:
             for m in metrics:
                 try:

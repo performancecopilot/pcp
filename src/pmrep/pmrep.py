@@ -61,7 +61,7 @@ import os
 import re
 
 from pcp import pmapi, pmi
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_ERR_NAME, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_ERR_NAME, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET, PM_DEBUG_APPL1
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
 from cpmi import PMI_ERR_DUPINSTNAME
 
@@ -631,16 +631,18 @@ class PMReporter(object):
                         name, expr = definition.split("=")
                         self.context.pmLookupName(name.strip())
                     except pmapi.pmErr as error:
-                        if error.args[0] == PM_ERR_NAME:
-                            self.context.pmRegisterDerived(name.strip(), expr.strip())
-                            continue
-                        err = error.message()
+                        if error.args[0] != PM_ERR_NAME:
+                            err = error.message()
+                        else:
+                            try:
+                                self.context.pmRegisterDerived(name.strip(), expr.strip())
+                                continue
+                            except pmapi.pmErr as error:
+                                err = error.message()
                     except ValueError as error:
                         err = "Invalid syntax (expected metric=expression)"
                     except Exception as error:
-                        err = self.context.pmDerivedErrStr()
-                        if not err:
-                            err = "Unidentified error"
+                        err = "Unidentified error"
                     finally:
                         if err:
                             sys.stderr.write("Failed to register derived metric: %s.\n" % err)
@@ -782,6 +784,9 @@ class PMReporter(object):
                 self.delimiter = OUTSEP
 
         # Time
+        if self.opts.pmGetOptionHostZone():
+            os.environ['TZ'] = self.context.pmWhichZone()
+            time.tzset()
         if self.opts.pmGetOptionTimezone():
             os.environ['TZ'] = self.opts.pmGetOptionTimezone()
             time.tzset()
@@ -804,8 +809,7 @@ class PMReporter(object):
         if self.output == OUTPUT_STDOUT:
             self.prepare_stdout()
 
-        # DBG_TRACE_APPL1 == 4096
-        if "pmDebug" in dir(self.context) and self.context.pmDebug(4096):
+        if self.context.pmDebug(PM_DEBUG_APPL1):
             self.writer.write("Known config file keywords: " + str(self.keys) + "\n")
             self.writer.write("Known metric spec keywords: " + str(self.metricspec) + "\n")
 
@@ -1031,7 +1035,7 @@ class PMReporter(object):
         endtime = float(self.opts.pmGetOptionStart()) + duration
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
-            host = self.context.pmGetArchiveLabel().hostname
+            host = self.context.pmGetArchiveLabel().get_hostname()
             if not self.interpol and not self.opts.pmGetOptionFinish():
                 endtime = self.context.pmGetArchiveEnd()
         if self.context.type == PM_CONTEXT_HOST:
@@ -1047,12 +1051,15 @@ class PMReporter(object):
             offset = time.altzone if dst else time.timezone
             currtz = time.tzname[dst]
             if offset:
-                currtz += str(offset/3600)
+                offset = offset/3600
+                offset = int(offset) if offset == int(offset) else offset
+                currtz += str(offset)
         timezone = currtz
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
-            if self.context.pmGetArchiveLabel().tz != timezone:
-                timezone = self.context.pmGetArchiveLabel().tz
+            labeltz = self.context.pmGetArchiveLabel().get_timezone()
+            if labeltz != timezone:
+                timezone = labeltz
                 timezone += " (creation, current is " + currtz + ")"
 
         self.writer.write(comm + "\n")

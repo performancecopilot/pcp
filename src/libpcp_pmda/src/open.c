@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 1995-2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -17,6 +17,10 @@
 #include "impl.h"
 #include "pmda.h"
 #include "libdefs.h"
+#include <sys/stat.h>
+#ifdef HAVE_PWD_H
+#include <pwd.h>
+#endif
 #ifdef HAVE_SYS_UN_H
 #include <sys/un.h>
 #endif
@@ -151,6 +155,45 @@ __pmdaOpenIPv6(char *sockname, int port, int *infd, int *outfd)
 
 #ifdef HAVE_STRUCT_SOCKADDR_UN
 /*
+ * Setup appropriate permissions for the Unix domain socket file
+ *
+ * pmcd must be able to talk to us on this channel, and it may be running
+ * as an unprivileged user by the time the PMDA runs this code - so, need
+ * to set permissions such that PCP_USER can access this file too.
+ *
+ * Note when run from dbpmda and/or QA these permissions might be fine to
+ * stay as regular users, so we do not fail here and simply charge ahead.
+ */
+static void
+socket_ownership(char *sockname)
+{
+    char		*username = pmGetConfig("PCP_USER");
+    char		errmsg[128];
+    struct passwd	*pw;
+    int			sts;
+
+    setoserror(0);
+    if ((pw = getpwnam(username)) == 0) {
+	__pmNotifyErr(LOG_CRIT,
+		"cannot find the %s user to change ownership to\n", username);
+	exit(1);
+    } else if (oserror() != 0) {
+	__pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
+		username, pmErrStr_r(oserror(), errmsg, sizeof(errmsg)));
+	exit(1);
+    }
+
+    sts = chmod(sockname, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+    if (sts == -1 && (pmDebug & DBG_TRACE_LIBPMDA))
+	__pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: unix chmod on %s: %s\n",
+			sockname, osstrerror());
+    sts = chown(sockname, pw->pw_uid, pw->pw_gid);
+    if (sts == -1 && (pmDebug & DBG_TRACE_LIBPMDA))
+	__pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: unix chown on %s: %s\n",
+			sockname, osstrerror());
+}
+
+/*
  * Open a unix port to PMCD
  */
 static void
@@ -195,6 +238,7 @@ __pmdaOpenUnix(char *sockname, int *infd, int *outfd)
 			netstrerror());
 	exit(1);
     }
+    socket_ownership(sockname);
 
     sts = listen(sfd, 5);	/* Max. of 5 pending connection requests */
     if (sts == -1) {

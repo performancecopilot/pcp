@@ -87,11 +87,12 @@ typedef struct {
 	    connected : 1,		/* Agent connected to pmcd */
 	    busy : 1,			/* Processing a request */
 	    isChild : 1,		/* Is a child process of pmcd */
+	    isRootChild : 1,		/* Is a child process of pmdaroot */
 	    madeDsoResult : 1,		/* Pmcd made a "bad" pmResult (DSO only) */
 	    restartKeep : 1,		/* Keep agent if set during restart */
 	    notReady : 1,		/* Agent not ready to process PDUs */
 	    startNotReady : 1,		/* Agent starts in non-ready state */
-	    unused : 9,			/* Zero-padded, unused space */
+	    unused : 8,			/* Zero-padded, unused space */
 	    flags : 16;			/* Agent-supplied connection flags */
     } status;
     int		reason;			/* if ! connected */
@@ -112,6 +113,7 @@ PMCD_DATA extern int		nAgents;	/* Number of agents in array */
  */
 #define MAXDOMID	510
 extern int		mapdom[];	/* the map */
+extern int		AgentDied;	/* for updating mapdom[] */
 
 /* Domain agent-PMCD connection types (AgentInfo.ipcType) */
 
@@ -145,6 +147,9 @@ extern int		mapdom[];	/* the map */
 extern AgentInfo *FindDomainAgent(int);
 extern void CleanupAgent(AgentInfo *, int, int);
 extern int HarvestAgents(unsigned int);
+
+/* pmdaroot file descriptor */
+extern int	pmdarootfd;
 
 /* timeout to PMDAs (secs) */
 PMCD_DATA extern int	_pmcd_timeout;

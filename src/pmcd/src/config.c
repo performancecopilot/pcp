@@ -52,6 +52,7 @@ static time_t   	configFileTime;
 int		szAgents;		/* Number currently allocated */
 int		mapdom[MAXDOMID+2];	/* The DomainId-to-AgentIndex map */
 					/* Don't use it during parsing! */
+int		pmdarootfd;		/* fd for pmdaroot(1) services */
 
 static FILE	*inputStream;		/* Input stream for scanner */
 static int	scanInit;
@@ -1638,6 +1639,49 @@ error:
 
 #ifndef IS_MINGW
 static pid_t
+CreateRootAgentPOSIX(AgentInfo *aPtr)
+{
+    int		sts, inFd, outFd = -1;
+    char	*args;
+    pid_t	pid;
+    static int	enabled;
+
+    if (!enabled) {
+	/* once-off initialisation */
+	enabled = -EOPNOTSUPP;
+	if ((args = getenv("PMCD_ROOT_AGENT")) != NULL)
+	    if (strcmp(args, "0") != 0)
+		enabled = 1;
+	/* enabled is non-zero now */
+    }
+    if (enabled < 0)
+	return enabled;
+
+    if (aPtr->ipcType == AGENT_PIPE)
+	args = aPtr->ipc.pipe.commandLine;
+    else if (aPtr->ipcType == AGENT_SOCKET)
+	args = aPtr->ipc.socket.commandLine;
+    else
+	return -EINVAL;
+
+    if (pmdarootfd <= 0) {
+	if ((pmdarootfd = pmdaRootConnect(NULL)) <= 0)
+	    return pmdarootfd;
+    }
+
+    if ((sts = pmdaRootProcessStart(pmdarootfd, aPtr->ipcType,
+			aPtr->pmDomainLabel, strlen(aPtr->pmDomainLabel),
+			args, strlen(args), &pid, &inFd, &outFd)) < 0) {
+	return sts;
+    }
+
+    pmcd_openfds_sethi(outFd);
+    aPtr->outFd = outFd;
+    aPtr->inFd = inFd;
+    return pid;
+}
+
+static pid_t
 CreateAgentPOSIX(AgentInfo *aPtr)
 {
     int		i;
@@ -1827,14 +1871,19 @@ CreateAgent(AgentInfo *aPtr)
     fflush(stdout);
 
 #ifdef IS_MINGW
-    childPid = CreateAgentWin32(aPtr);
-#else
-    childPid = CreateAgentPOSIX(aPtr);
-#endif
-    if (childPid < 0)
+    if ((childPid = CreateAgentWin32(aPtr)) < 0)
 	return (int)childPid;
-
     aPtr->status.isChild = 1;
+#else
+    if ((childPid = CreateRootAgentPOSIX(aPtr)) < 0) {
+	if ((childPid = CreateAgentPOSIX(aPtr)) < 0)
+	    return (int)childPid;
+	aPtr->status.isChild = 1;
+    } else {
+	aPtr->status.isRootChild = 1;
+    }
+#endif
+
     if (aPtr->ipcType == AGENT_PIPE) {
 	aPtr->ipc.pipe.agentPid = childPid;
 	/* ready for version negotiation */

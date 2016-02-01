@@ -276,7 +276,7 @@ __pmConvertTimeout(int timeo)
 
 #ifdef PM_MULTI_THREAD
 static void
-__pmInitContextLock(pthread_mutex_t *lock)
+initcontextlock(pthread_mutex_t *lock)
 {
     pthread_mutexattr_t	attr;
     int			sts;
@@ -312,7 +312,7 @@ __pmInitContextLock(pthread_mutex_t *lock)
 }
 
 static void
-__pmInitChannelLock(pthread_mutex_t *lock)
+initchannellock(pthread_mutex_t *lock)
 {
     int		sts;
     char	errmsg[PM_MAXERRMSGLEN];
@@ -325,9 +325,33 @@ __pmInitChannelLock(pthread_mutex_t *lock)
 	exit(4);
     }
 }
+
+static void
+destroylock(pthread_mutex_t *lock, char *which)
+{
+    int		psts;
+    char	errmsg[PM_MAXERRMSGLEN];
+
+    if ((psts = pthread_mutex_destroy(lock)) != 0) {
+	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
+	fprintf(stderr, "pmDestroyContext: pthread_mutex_destroy(%s) failed: %s\n", which, errmsg);
+	/*
+	 * Most likely cause is the mutex still being locked ... this is a
+	 * a library bug, but potentially recoverable ...
+	 */
+	while (PM_UNLOCK(lock) >= 0) {
+	    fprintf(stderr, "pmDestroyContext: extra %s unlock?\n", which);
+	}
+	if ((psts = pthread_mutex_destroy(lock)) != 0) {
+	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
+	    fprintf(stderr, "pmDestroyContext: pthread_mutex_destroy(%s) failed second try: %s\n", which, errmsg);
+	}
+    }
+}
 #else
-#define __pmInitContextLock(x)	do { } while (1)
-#define __pmInitChannelLock(x)	do { } while (1)
+#define initcontextlock(x)	do { } while (1)
+#define initchannellock(x)	do { } while (1)
+#define destroylock(x,y)	do { } while (1)
 #endif
 
 static int
@@ -777,7 +801,7 @@ INIT_CONTEXT:
      * Set up the default state
      */
     memset(new, 0, sizeof(__pmContext));
-    __pmInitContextLock(&new->c_lock);
+    initcontextlock(&new->c_lock);
     new->c_type = (type & PM_CONTEXT_TYPEMASK);
     new->c_flags = (type & ~PM_CONTEXT_TYPEMASK);
     if ((new->c_instprof = (__pmProfile *)calloc(1, sizeof(__pmProfile))) == NULL) {
@@ -874,7 +898,7 @@ INIT_CONTEXT:
 	    new->c_pmcd->pc_hosts = hosts;
 	    new->c_pmcd->pc_nhosts = nhosts;
 	    new->c_pmcd->pc_tout_sec = __pmConvertTimeout(TIMEOUT_DEFAULT) / 1000;
-	    __pmInitChannelLock(&new->c_pmcd->pc_lock);
+	    initchannellock(&new->c_pmcd->pc_lock);
 	}
 	else {
 	    /* duplicate of an existing context, don't need the __pmHostSpec */
@@ -1213,10 +1237,6 @@ pmDestroyContext(int handle)
 {
     __pmContext		*ctxp;
     struct linger       dolinger = {0, 1};
-#ifdef PM_MULTI_THREAD
-    int			psts;
-    char		errmsg[PM_MAXERRMSGLEN];
-#endif
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -1241,6 +1261,7 @@ pmDestroyContext(int handle)
 		__pmCloseSocket(ctxp->c_pmcd->pc_fd);
 	    }
 	    __pmFreeHostSpec(ctxp->c_pmcd->pc_hosts, ctxp->c_pmcd->pc_nhosts);
+	    destroylock(&ctxp->c_pmcd->pc_lock, "c_pmcd->pc_lock");
 	    free(ctxp->c_pmcd);
 	}
     }
@@ -1266,24 +1287,7 @@ pmDestroyContext(int handle)
 
 
     PM_UNLOCK(ctxp->c_lock);
-#ifdef PM_MULTI_THREAD
-    if ((psts = pthread_mutex_destroy(&ctxp->c_lock)) != 0) {
-	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "pmDestroyContext(context=%d): pthread_mutex_destroy failed: %s\n", handle, errmsg);
-	/*
-	 * Most likely cause is the mutex still being locked ... this is a
-	 * a library bug, but potentially recoverable ...
-	 */
-	while (PM_UNLOCK(ctxp->c_lock) >= 0) {
-	    fprintf(stderr, "pmDestroyContext(context=%d): extra unlock?\n", handle);
-	}
-	if ((psts = pthread_mutex_destroy(&ctxp->c_lock)) != 0) {
-	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
-	    fprintf(stderr, "pmDestroyContext(context=%d): pthread_mutex_destroy failed second try: %s\n", handle, errmsg);
-	}
-	/* keep going, rather than exit ... */
-    }
-#endif
+    destroylock(&ctxp->c_lock, "c_lock");
 
     PM_UNLOCK(__pmLock_libpcp);
     return 0;

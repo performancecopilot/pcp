@@ -44,6 +44,7 @@ context_fd_leak
 context_test
 crashpmcd
 defctx
+derived
 descreqX2
 disk_test
 domain.h
