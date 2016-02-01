@@ -465,6 +465,7 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: perl-PCP-LogImport = %{version}-%{release}
 Requires: sysstat
+Requires: perl(XML::TokeParser)
 
 %description import-sar2pcp
 Performance Co-Pilot (PCP) front-end tools for importing sar data
