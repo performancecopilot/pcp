@@ -27,7 +27,7 @@ CONFIGURE_ARGS=	--prefix=${GNU_CONFIGURE_PREFIX} \
 		    --with-configdir=${PREFIX}/etc/pcp \
 		    --with-rcdir=${PREFIX}/etc/rc.d
 
-USES=		libtool gmake python bison shebangfix
+USES=		libtool gmake python bison shebangfix pkgconfig
 
 MAKEFILE=	GNUmakefile
 ALL_TARGET=	default
