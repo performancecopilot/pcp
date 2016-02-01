@@ -11,6 +11,7 @@ Distribution: @package_distribution@
 BuildRequires: procps bison flex
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
+BuildRequires: rpm-build
 %if "@enable_avahi@" == "true"
 BuildRequires: avahi-devel
 %endif
