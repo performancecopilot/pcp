@@ -26,6 +26,9 @@ BuildRequires: cyrus-sasl-devel
 %if "@enable_probes@" == "true"
 BuildRequires: systemtap-sdt-devel
 %endif
+%if "@enable_qt@" == "true" || "@enable_webapi@" == "true"
+BuildRequires: gcc-c++
+%endif
 %if "@enable_qt@" == "true"
 %if "%{_vendor}" == "suse"
 BuildRequires: qt-devel >= 4.4
