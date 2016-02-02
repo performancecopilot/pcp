@@ -366,7 +366,11 @@ Group: Applications/System
 Summary: Performance Co-Pilot tools for importing sar data into PCP archive logs
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@ sysstat
+%if "%{_vendor}" == "suse"
+%else
 Requires: perl(XML::TokeParser)
+%endif
+
 
 %description import-sar2pcp
 Performance Co-Pilot (PCP) front-end tools for importing sar data
@@ -395,7 +399,10 @@ Group: Applications/System
 Summary: Performance Co-Pilot tools for importing spreadsheet data into PCP archive logs
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@ perl-PCP-LogImport = @package_version@
+%if "%{_vendor}" == "suse"
+%else
 Requires: perl(XML::TokeParser)
+%endif
 
 %description import-sheet2pcp
 Performance Co-Pilot (PCP) front-end tools for importing spreadsheet data
