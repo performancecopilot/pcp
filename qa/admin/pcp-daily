@@ -465,7 +465,7 @@ sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22 vm24"
-list_2="fuji grundy vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23"
+list_2="fuji vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23"
 
 args="$*"
 pcp_branch=master
@@ -618,7 +618,6 @@ in
 	echo "bozo-vm" >>$tmp.domains
 	echo "bozo-laptop" >>$tmp.domains
 	echo "fuji" >>$tmp.domains
-	echo "grundy.sgi.com" >>$tmp.domains
 	# and open up the X server
 	#
 	# Ubuntu up to 15.04
@@ -784,12 +783,6 @@ End-of-File
 	[ X"$what" = Xall ] && check_what=''
 	case "$domain"
 	in
-	    *grundy*)
-		# Need to add
-		# -x remote default for grundy.sgi.com if running all tests
-		#
-		[ X"$what" = Xall ] && check_what='$check_what -x remote'
-		;;
 	    vm06|vm10|vm09)
 		# Only -g sanity at this stage for FreeBSD or NetBSD
 		#
