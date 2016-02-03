@@ -24,6 +24,22 @@ s/.* //
 p
 }'`
 
+_fuzzy()
+{
+    case "$version"
+    in
+	11.1.5)
+	    sed \
+		-e '/kernel.all.cpu.sys/s/0.001[78]/0.0017 or 0.0018/' \
+		-e '/diskdev8-2/s/0.3[78]/0.37 or 0.38/' \
+	    # end
+	    ;;
+	*)	# no fuzziness required
+	    cat
+	    ;;
+    esac
+}
+
 rm -f $seq.out
 file_version=$version
 case "$version"
@@ -245,7 +261,8 @@ echo "full dump ..."
 pmdumplog -lm -z $tmp 2>&1 \
 | sed \
 	-e 's/245\.0\.[0-9][0-9]*/245.0.NN/g' \
-	-e 's/(proc.nprocs)/(proc.nproc)/'
+	-e 's/(proc.nprocs)/(proc.nproc)/' \
+| _fuzzy
 
 # success, all done
 exit
