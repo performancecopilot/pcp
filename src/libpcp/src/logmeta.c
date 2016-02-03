@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -76,7 +76,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 /*
  * Load _all_ of the hashed pmDesc and __pmLogInDom structures from the metadata
  * log file -- used at the initialization (NewContext) of an archive.
- * Also load all the metric names from the metadata log file and create l_pmns.
+ * Also load all the metric names from the metadata log file and create l_pmns,
+ * if it does not already exist.
  */
 int
 __pmLogLoadMeta(__pmLogCtl *lcp)
@@ -90,8 +91,10 @@ __pmLogLoadMeta(__pmLogCtl *lcp)
     int		numpmid = 0;
     int		n;
     
-    if ((sts = __pmNewPMNS(&(lcp->l_pmns))) < 0)
-      goto end;
+    if (lcp->l_pmns == NULL) {
+	if ((sts = __pmNewPMNS(&(lcp->l_pmns))) < 0)
+	    goto end;
+    }
 
     fseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
     for ( ; ; ) {

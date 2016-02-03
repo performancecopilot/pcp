@@ -665,6 +665,15 @@ __pmLogCreate(const char *host, const char *base, int log_version,
     return oserror() ? -oserror() : -EPERM;
 }
 
+static void
+logFreePMNS(__pmLogCtl *lcp)
+{
+    if (lcp->l_pmns != NULL) {
+	__pmFreePMNS(lcp->l_pmns);
+	lcp->l_pmns = NULL;
+    }
+}
+
 /*
  * Close the log files.
  * Free up the space used by __pmLogCtl.
@@ -673,6 +682,11 @@ __pmLogCreate(const char *host, const char *base, int log_version,
 void
 __pmLogClose(__pmLogCtl *lcp)
 {
+    /*
+     * We no longer free l_pmns here. It may be needed by the next archive
+     * of a multi-archive context.
+     * It is now freed as needed using logFreePMNS().
+     */
     if (lcp->l_tifp != NULL) {
 	__pmResetIPC(fileno(lcp->l_tifp));
 	fclose(lcp->l_tifp);
@@ -697,11 +711,6 @@ __pmLogClose(__pmLogCtl *lcp)
 	lcp->l_seen = NULL;
 	lcp->l_numseen = 0;
     }
-    if (lcp->l_pmns != NULL) {
-	__pmFreePMNS(lcp->l_pmns);
-	lcp->l_pmns = NULL;
-    }
-
     if (lcp->l_ti != NULL)
 	free(lcp->l_ti);
 
@@ -890,7 +899,6 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = 0;
     lcp->l_hashindom.nodes = lcp->l_hashindom.hsize = 0;
     lcp->l_numseen = 0; lcp->l_seen = NULL;
-    lcp->l_pmns = NULL;
 
     blen = (int)strlen(base);
     PM_LOCK(__pmLock_libpcp);
@@ -1000,6 +1008,7 @@ cleanup:
     if (dirp != NULL)
 	closedir(dirp);
     __pmLogClose(lcp);
+    logFreePMNS(lcp);
     free(tbuf);
     free(base);
     return sts;
@@ -1069,6 +1078,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 
 cleanup:
     __pmLogClose(lcp);
+    logFreePMNS(lcp);
     return sts;
 }
 
@@ -2654,7 +2664,7 @@ __pmLogChangeArchive(__pmContext *ctxp, int arch)
      * __pmFindOrOpenArchive() will take care of closing the active archive,
      * if necessary.
      */
-    sts = __pmFindOrOpenArchive(ctxp, mlcp->ml_name);
+    sts = __pmFindOrOpenArchive(ctxp, mlcp->ml_name, 1/*multi_arch*/);
     if (sts < 0)
 	return sts;
 
@@ -2875,6 +2885,7 @@ __pmArchCtlFree(__pmArchCtl *acp)
     if (lcp != NULL) {
 	if (--lcp->l_refcnt == 0) {
 	    __pmLogClose(lcp);
+	    logFreePMNS(lcp);
 	    free(lcp);
 	}
     }

@@ -426,6 +426,12 @@ typedef struct {
     int		l_numti;	/* (when reading) no. temporal index entries */
     __pmLogTI	*l_ti;		/* (when reading) temporal index */
     __pmnsTree	*l_pmns;        /* namespace from meta data */
+    /*
+     * This was added to the ABI in order to support multiple archives
+     * in a single context. In order to maintain ABI compatibility it must
+     * be at the end of this structure.
+     */
+    int		l_multi;	/* part of a multi-archive context */
 } __pmLogCtl;
 
 /* l_state values */
@@ -772,7 +778,7 @@ PCP_CALL extern int __pmFinishResult(__pmContext *, int, pmResult **);
 PCP_CALL extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **);
 
 /* Archive context helper. */
-int __pmFindOrOpenArchive(__pmContext *, const char *);
+int __pmFindOrOpenArchive(__pmContext *, const char *, int);
 
 /*
  * Protocol data unit support

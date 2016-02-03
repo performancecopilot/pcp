@@ -468,7 +468,7 @@ ping_pmcd(int ctx)
 
 
 int
-__pmFindOrOpenArchive(__pmContext *ctxp, const char *name)
+__pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 {
     __pmArchCtl *acp;
     __pmLogCtl	*lcp;
@@ -477,9 +477,10 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name)
     __pmLogCtl	*lcp2;
     int		i;
     int		sts;
+
     /*
      * We're done with the current archive, if any. Close it, if necessary.
-     * If we do close it, keep the __pmLogCtl block for possible re-use.
+     * If we do close it, keep the __pmLogCtl block for re-use of the l_pmns.
      */
     acp = ctxp->c_archctl;
     lcp = acp->ac_log;
@@ -490,41 +491,55 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name)
 	    lcp = NULL;
     }
 
-    /* See if an archive by this name is already open in another context. */
+    /*
+     * See if an archive by this name is already open in another context.
+     * We can't share archive control structs for multi-archive contexts
+     * because, for those, there is a global l_pmns which is shared among the
+     * archives in the context.
+     */
     lcp2 = NULL;
-    for (i = 0; i < contexts_len; i++) {
-	if (i == PM_TPD(curcontext))
-	    continue;
+    if (! multi_arch) {
+	for (i = 0; i < contexts_len; i++) {
+	    if (i == PM_TPD(curcontext))
+		continue;
 
-	/* See if there is already an archive opened with this name. */
-	ctxp2 = contexts[i];
-	if (ctxp2->c_type == PM_CONTEXT_ARCHIVE) {
-	    acp2 = ctxp2->c_archctl;
-	    if (strcmp (name, acp2->ac_log->l_name) == 0) {
-		lcp2 = acp2->ac_log;
-		break;
+	    /*
+	     * See if there is already an archive opened with this name and
+	     * not part of a multi-archive context.
+	     */
+	    ctxp2 = contexts[i];
+	    if (ctxp2->c_type == PM_CONTEXT_ARCHIVE) {
+		acp2 = ctxp2->c_archctl;
+		if (! acp2->ac_log->l_multi &&
+		    strcmp (name, acp2->ac_log->l_name) == 0) {
+		    lcp2 = acp2->ac_log;
+		    break;
+		}
 	    }
+	}
+
+	/*
+	 * If we found an active archive with the same name, then use it.
+	 * Free the current archive controls, if necessary.
+	 */
+	if (lcp2 != NULL) {
+	    if (lcp)
+		free(lcp);
+	    ++lcp2->l_refcnt;
+	    acp->ac_log = lcp2;
+	    return 0;
 	}
     }
 
     /*
-     * If we found an active archive with the same name, then use it.
-     * Free the current archive controls, if necessary.
-     */
-    if (lcp2 != NULL) {
-	if (lcp)
-	    free(lcp);
-	++lcp2->l_refcnt;
-	acp->ac_log = lcp2;
-	return 0;
-    }
-    /*
-     * No active archive with this name was found. Open one.
+     * No usable, active archive with this name was found. Open one.
      * Allocate a new log control block, if necessary.
      */
     if (lcp == NULL) {
 	if ((lcp = (__pmLogCtl *)malloc(sizeof(*lcp))) == NULL)
 	    __pmNoMem("__pmFindOrOpenArchive", sizeof(*lcp), PM_FATAL_ERR);
+	lcp->l_pmns = NULL;
+	lcp->l_multi = multi_arch;
 	acp->ac_log = lcp;
     }
     sts = __pmLogOpen(name, ctxp);
@@ -561,6 +576,7 @@ initarchive(__pmContext	*ctxp, const char *name)
     __pmMultiLogCtl	**loglist = NULL;
     __pmMultiLogCtl	*mlcp = NULL;
     int			numlogs = 0;
+    int			multi_arch = 0;
     int			ignore;
     double		tdiff;
     pmLogLabel		label;
@@ -600,15 +616,17 @@ initarchive(__pmContext	*ctxp, const char *name)
     while (*current) {
 	/* Find the end of the current archive name. */
 	end = strchr(current, ',');
-	if (end)
+	if (end) {
+	    multi_arch = 1;
 	    *end = '\0';
+	}
 
 	/*
 	 * Obtain a handle for the named archive.
 	 * __pmFindOrOpenArchive() will take care of closing the active archive,
 	 * if necessary
 	 */
-	sts = __pmFindOrOpenArchive(ctxp, current);
+	sts = __pmFindOrOpenArchive(ctxp, current, multi_arch);
 	if (sts < 0)
 	    goto error;
 
