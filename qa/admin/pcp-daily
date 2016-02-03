@@ -795,12 +795,26 @@ End-of-File
 	$hflag && _script_harvest >>$tmp.script
 
 	chmod 755 $tmp.script
-	if scp $tmp.script $host:daily.script >$tmp.out 2>&1
+	# we've sometimes seen the scp fail because we get here a
+	# bit too soon after a VM has been rebooted ... be a little
+	# more patient
+	#
+	rm -f $tmp.ok
+	for i in 1 2 3
+	do
+	    if scp $tmp.script $host:daily.script >$tmp.out 2>&1
+	    then
+		touch $tmp.ok
+		break
+	    else
+		cat $tmp.out
+		echo "Warning: scp failed!"
+		sleep 2
+	    fi
+	done
+	if [ ! -f $tmp.ok ]
 	then
-	    :
-	else
-	    cat $tmp.out
-	    echo "Error: scp failed!"
+	    echo "Error: cannot copy daily.script to $host ... giving up"
 	    continue
 	fi
 
