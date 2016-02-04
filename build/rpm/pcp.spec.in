@@ -11,7 +11,11 @@ Distribution: @package_distribution@
 BuildRequires: procps bison flex
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel
+%if 0%{?sles_version} == 11
+# rpmbuild is in the rpm (not rpm-build) package for SLES11
+%else
 BuildRequires: rpm-build
+%endif
 %if "@enable_avahi@" == "true"
 BuildRequires: avahi-devel
 %endif
@@ -617,7 +621,7 @@ Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 %if "%{_vendor}" == "suse"
-%if "%{sles_version}" == "11"
+%if 0%{sles_version} == 11
 Requires: libibmad1 >= 1.1.7 libibumad1 >= 1.1.7
 %else
 Requires: libibmad5 >= 1.1.7 libibumad3 >= 1.1.7
