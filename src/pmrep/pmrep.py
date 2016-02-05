@@ -859,7 +859,8 @@ class PMReporter(object):
                     self.context.pmFreeResult(result)
                     continue
                 if float(self.ctstamp) > float(self.opts.pmGetOptionFinish()):
-                    return
+                    self.context.pmFreeResult(result)
+                    break
 
             self.report(self.ctstamp, self.currvals)
             self.context.pmFreeResult(result)
