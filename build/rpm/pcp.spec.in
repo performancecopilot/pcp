@@ -114,10 +114,10 @@ Requires: initscripts
 if [ "%1" -eq 0 ]
 then
     PCP_PMDAS_DIR=@pcp_pmdas_dir@
-    if [ -d "$PCP_PMDAS_DIR/%2/" ]
+    PCP_ETC_DIR=@pcp_etc_dir@
+    if [ -f "$PCP_ETC_DIR/pcp/pmcd/pmcd.conf" ] && [ -f "$PCP_PMDAS_DIR/%2/domain.h" ]
     then
 	cd $PCP_PMDAS_DIR/%2/ && ./Remove >/dev/null 2>&1
-	cd
     fi
 fi
 }

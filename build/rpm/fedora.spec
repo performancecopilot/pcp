@@ -222,10 +222,9 @@ Obsoletes: pcp-gui-debuginfo
 %global pmda_remove() %{expand:
 if [ "%1" -eq 0 ]
 then
-    if [ -d "%{_pmdasdir}/%2/" ]
+    if [ -f "%{_confdir}/pmcd/pmcd.conf" ] && [ -f "%{_pmdasdir}/%2/domain.h" ]
     then
 	cd %{_pmdasdir}/%2/ && ./Remove >/dev/null 2>&1
-	cd
     fi
 fi
 }
