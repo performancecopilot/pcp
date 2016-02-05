@@ -602,7 +602,7 @@ class PMReporter(object):
                 if int(self.interval) == 0:
                     sys.stderr.write("Interval can't be less than 1 second.\n")
                     sys.exit(1)
-                self.samples = self.runtime / int(self.interval) + 1
+                self.samples = int(self.runtime / int(self.interval) + 1)
             if int(self.interval) > self.runtime:
                 sys.stderr.write("Interval can't be longer than runtime.\n")
                 sys.exit(1)
@@ -1031,7 +1031,7 @@ class PMReporter(object):
                         samples = str(samples) + " (requested)"
             else:
                 duration = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin()))
-                samples = (duration / int(self.interval)) + 1
+                samples = int((duration / int(self.interval)) + 1)
                 duration = (samples - 1) * int(self.interval)
                 if self.context.type == PM_CONTEXT_ARCHIVE:
                     if not self.interpol:
