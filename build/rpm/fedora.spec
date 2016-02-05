@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.11.0
+Version: 3.11.1
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -465,6 +465,7 @@ URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: perl-PCP-LogImport = %{version}-%{release}
 Requires: sysstat
+Requires: perl(XML::TokeParser)
 
 %description import-sar2pcp
 Performance Co-Pilot (PCP) front-end tools for importing sar data
@@ -2378,6 +2379,9 @@ cd
 %endif
 
 %changelog
+* Fri Feb 18 2016 Dave Brolley <brolley@redhat.com> - 3.11.1-1
+- Work-in-progress, see http://pcp.io/roadmap
+
 * Fri Jan 29 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.0-1
 - Significant speedups to elapsed time stopping pmcd (BZ 1292027)
 - Fix python derived metric exception handling issues (BZ 1299806)

@@ -27,11 +27,11 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 _control_service_discovery
 
 echo "-m avahi" | tee -a $here/$seq.full
-pmfind -m avahi | _filter_discovery_unresolved
+pmfind -m avahi | tee -a $here/$seq.full | _filter_discovery_unresolved
 echo "Exit status: $?"
 
 echo "-s pmcd -m avahi -r" | tee -a $here/$seq.full
-pmfind -s pmcd -m avahi -r | _filter_discovery_resolved
+pmfind -s pmcd -m avahi -r | tee -a $here/$seq.full | _filter_discovery_resolved
 echo "Exit status: $?"
 
 echo "-q -m avahi"
@@ -53,11 +53,11 @@ AVAHI_DISCOVERY_TIMEOUT=5 pmfind -q -s pmcd -m avahi
 echo "Exit status: $?"
 
 echo "-m all" | tee -a $here/$seq.full
-pmfind -m all | _filter_discovery_unresolved
+pmfind -m all | tee -a $here/$seq.full | _filter_discovery_unresolved
 echo "Exit status: $?"
 
 echo "-m all --resolve" | tee -a $here/$seq.full
-pmfind -m all --resolve | _filter_discovery_resolved
+pmfind -m all --resolve | tee -a $here/$seq.full | _filter_discovery_resolved
 echo "Exit status: $?"
 
 # success, all done

@@ -29,7 +29,7 @@ avahi_cleanup()
 
 avahi_service()
 {
-    $sudo "$PCP_RC_DIR/$service" restart > $here/$seq.full 2>&1
+    $sudo "$PCP_RC_DIR/$service" restart >>$here/$seq.full 2>&1
 }
 
 avahi_verify()
@@ -37,13 +37,14 @@ avahi_verify()
     msg="$@"
 
     [ "X$msg" = "X" ] && msg="Verify $service avahi service advertising"
-    echo $msg
+    echo $msg | tee -a $here/$seq.full
 
     # strip any domain part ... e.g. if hostname is vm08.localdomain,
     # avahi reports this as vm08.local
     #
     hostname=`hostname | sed -e 's/\..*//'`
-    avahi-browse -rt -d local "_$service._tcp" | \
+    echo "hostname=$hostname" >>$here/$seq.full
+    avahi-browse -rt -d local "_$service._tcp" 2>&1 | \
 	tee -a $here/$seq.full | \
 	grep -m1 "hostname = .$hostname.local]" | \
 	sed -e "s/$hostname/HOSTNAME/g"

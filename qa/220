@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+which netstat >/dev/null 2>&1 || _notrun "netstat not installed"
+
 status=0
 clean=false
 LOCALHOST=`hostname`

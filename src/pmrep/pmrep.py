@@ -530,6 +530,10 @@ class PMReporter(object):
                 for m in tempmet[metric]:
                     self.metrics[m] = confmet[m]
 
+    def connect(self):
+        """ Establish a PMAPI context to archive, host or local, via args """
+        self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
+
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
         try:
@@ -585,7 +589,7 @@ class PMReporter(object):
 
         # Runtime overrides samples/interval
         if self.opts.pmGetOptionFinishOptarg():
-            self.runtime = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionStart()))
+            self.runtime = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin()))
             if self.opts.pmGetOptionSamples():
                 self.samples = self.opts.pmGetOptionSamples()
                 if self.samples < 2:
@@ -598,7 +602,7 @@ class PMReporter(object):
                 if int(self.interval) == 0:
                     sys.stderr.write("Interval can't be less than 1 second.\n")
                     sys.exit(1)
-                self.samples = self.runtime / int(self.interval) + 1
+                self.samples = int(self.runtime / int(self.interval) + 1)
             if int(self.interval) > self.runtime:
                 sys.stderr.write("Interval can't be longer than runtime.\n")
                 sys.exit(1)
@@ -845,8 +849,7 @@ class PMReporter(object):
                 result = self.context.pmFetch(self.pmids_to_ctypes(self.pmids))
             except pmapi.pmErr as error:
                 if error.args[0] == PM_ERR_EOL:
-                    self.samples = 0
-                    continue
+                    break
                 raise error
             self.extract(result)
             if self.ctstamp == 0:
@@ -855,11 +858,12 @@ class PMReporter(object):
             self.ctstamp = copy.copy(result.contents.timestamp)
 
             if self.context.type == PM_CONTEXT_ARCHIVE:
-                if float(self.ctstamp) < float(self.opts.pmGetOptionStart()):
+                if float(self.ctstamp) < float(self.opts.pmGetOptionOrigin()):
                     self.context.pmFreeResult(result)
                     continue
                 if float(self.ctstamp) > float(self.opts.pmGetOptionFinish()):
-                    return
+                    self.context.pmFreeResult(result)
+                    break
 
             self.report(self.ctstamp, self.currvals)
             self.context.pmFreeResult(result)
@@ -1026,13 +1030,13 @@ class PMReporter(object):
                     if not self.interpol:
                         samples = str(samples) + " (requested)"
             else:
-                duration = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionStart()))
-                samples = (duration / int(self.interval)) + 1
+                duration = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin()))
+                samples = int((duration / int(self.interval)) + 1)
                 duration = (samples - 1) * int(self.interval)
                 if self.context.type == PM_CONTEXT_ARCHIVE:
                     if not self.interpol:
                         samples = "N/A"
-        endtime = float(self.opts.pmGetOptionStart()) + duration
+        endtime = float(self.opts.pmGetOptionOrigin()) + duration
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
             host = self.context.pmGetArchiveLabel().get_hostname()
@@ -1067,7 +1071,7 @@ class PMReporter(object):
             self.writer.write(comm + "  archive: " + self.source + "\n")
         self.writer.write(comm + "     host: " + host + "\n")
         self.writer.write(comm + " timezone: " + timezone + "\n")
-        self.writer.write(comm + "    start: " + time.asctime(time.localtime(self.opts.pmGetOptionStart())) + "\n")
+        self.writer.write(comm + "    start: " + time.asctime(time.localtime(self.opts.pmGetOptionOrigin())) + "\n")
         self.writer.write(comm + "      end: " + time.asctime(time.localtime(endtime)) + "\n")
         self.writer.write(comm + "  metrics: " + str(len(self.pmids)) + "\n")
         self.writer.write(comm + "  samples: " + str(samples) + "\n")
@@ -1331,10 +1335,6 @@ class PMReporter(object):
             send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
             self.zabbix_metrics = []
             self.zabbix_prevsend = ts
-
-    def connect(self):
-        """ Establish a PMAPI context to archive, host or local, via args """
-        self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
 
     def finalize(self):
         """ Finalize and clean up """

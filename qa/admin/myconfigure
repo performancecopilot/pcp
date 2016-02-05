@@ -98,13 +98,13 @@ cd src/include
 $PCP_MAKE_PROG
 cd ../libpcp
 $PCP_MAKE_PROG
+cd ../libpcp_pmda
+$PCP_MAKE_PROG
 cd ../pmns
 $PCP_MAKE_PROG
 cd ../pmcpp
 $PCP_MAKE_PROG
 cd ../newhelp
-$PCP_MAKE_PROG
-cd ../libpcp_pmda
 $PCP_MAKE_PROG
 cd $here
 

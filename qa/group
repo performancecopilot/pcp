@@ -855,7 +855,7 @@ cgroups
 543 logutil remote pmlogextract
 544 pmimport local
 545 pmsocks local
-546 pmcd local
+546 pmcd local secure
 547 libpcp pmcd local
 548 pmie local sanity
 549 pmie local

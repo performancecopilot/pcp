@@ -1,3 +1,6 @@
+pcp-3.11.1 (18 March 2016)
+    - [Work-in-progress, see http://pcp.io/roadmap]
+
 pcp-3.11.0 (29 January 2016)
     - containers: add a pcp-pmwebd container image
     - pmcd: start PMDAs via pmdaroot, allowing restart on PMDA

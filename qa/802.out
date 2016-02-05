@@ -1,6 +1,6 @@
 QA output created by 802
 === std out ===
-Start valgrind PMDA: VALGRIND --log-file=TMP._valgrind --leak-check=full pmdas/github-56/pmdatrivial
+Start valgrind PMDA: VALGRIND pmdas/github-56/pmdatrivial
 Metric: trivial
        leaf foo
 === std err ===
