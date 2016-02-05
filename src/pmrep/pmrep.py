@@ -530,6 +530,10 @@ class PMReporter(object):
                 for m in tempmet[metric]:
                     self.metrics[m] = confmet[m]
 
+    def connect(self):
+        """ Establish a PMAPI context to archive, host or local, via args """
+        self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
+
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
         try:
@@ -845,8 +849,7 @@ class PMReporter(object):
                 result = self.context.pmFetch(self.pmids_to_ctypes(self.pmids))
             except pmapi.pmErr as error:
                 if error.args[0] == PM_ERR_EOL:
-                    self.samples = 0
-                    continue
+                    break
                 raise error
             self.extract(result)
             if self.ctstamp == 0:
@@ -1332,10 +1335,6 @@ class PMReporter(object):
             send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
             self.zabbix_metrics = []
             self.zabbix_prevsend = ts
-
-    def connect(self):
-        """ Establish a PMAPI context to archive, host or local, via args """
-        self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
 
     def finalize(self):
         """ Finalize and clean up """
