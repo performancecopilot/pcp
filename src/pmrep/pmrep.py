@@ -585,7 +585,7 @@ class PMReporter(object):
 
         # Runtime overrides samples/interval
         if self.opts.pmGetOptionFinishOptarg():
-            self.runtime = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionStart()))
+            self.runtime = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin()))
             if self.opts.pmGetOptionSamples():
                 self.samples = self.opts.pmGetOptionSamples()
                 if self.samples < 2:
@@ -855,7 +855,7 @@ class PMReporter(object):
             self.ctstamp = copy.copy(result.contents.timestamp)
 
             if self.context.type == PM_CONTEXT_ARCHIVE:
-                if float(self.ctstamp) < float(self.opts.pmGetOptionStart()):
+                if float(self.ctstamp) < float(self.opts.pmGetOptionOrigin()):
                     self.context.pmFreeResult(result)
                     continue
                 if float(self.ctstamp) > float(self.opts.pmGetOptionFinish()):
@@ -1026,13 +1026,13 @@ class PMReporter(object):
                     if not self.interpol:
                         samples = str(samples) + " (requested)"
             else:
-                duration = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionStart()))
+                duration = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin()))
                 samples = (duration / int(self.interval)) + 1
                 duration = (samples - 1) * int(self.interval)
                 if self.context.type == PM_CONTEXT_ARCHIVE:
                     if not self.interpol:
                         samples = "N/A"
-        endtime = float(self.opts.pmGetOptionStart()) + duration
+        endtime = float(self.opts.pmGetOptionOrigin()) + duration
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
             host = self.context.pmGetArchiveLabel().get_hostname()
@@ -1067,7 +1067,7 @@ class PMReporter(object):
             self.writer.write(comm + "  archive: " + self.source + "\n")
         self.writer.write(comm + "     host: " + host + "\n")
         self.writer.write(comm + " timezone: " + timezone + "\n")
-        self.writer.write(comm + "    start: " + time.asctime(time.localtime(self.opts.pmGetOptionStart())) + "\n")
+        self.writer.write(comm + "    start: " + time.asctime(time.localtime(self.opts.pmGetOptionOrigin())) + "\n")
         self.writer.write(comm + "      end: " + time.asctime(time.localtime(endtime)) + "\n")
         self.writer.write(comm + "  metrics: " + str(len(self.pmids)) + "\n")
         self.writer.write(comm + "  samples: " + str(samples) + "\n")
