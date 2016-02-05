@@ -1876,8 +1876,10 @@ fi
 %{pmda_remove "$1" "infiniband"}
 %endif #preun pmda-infiniband
 
+%if !%{disable_perfevent}
 %preun pmda-perfevent
 %{pmda_remove "$1" "perfevent"}
+%endif #preun pmda-perfevent
 
 %if !%{disable_json}
 %preun pmda-json
