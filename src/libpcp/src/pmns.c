@@ -731,7 +731,10 @@ backlink(__pmnsTree *tree, __pmnsNode *root, int dupok)
 	    __pmnsNode	*xp;
 	    i = np->pmid % tree->htabsize;
 	    for (xp = tree->htab[i]; xp != NULL; xp = xp->hash) {
-		if (xp->pmid == np->pmid && dupok == NO_DUPS) {
+		if (xp->pmid == np->pmid && dupok == NO_DUPS && !IS_DYNAMIC_ROOT(xp->pmid)) {
+		    /*
+		     * Duplicate PMID and not root of a dynamic subtree
+		     */
 		    char	*nn, *xn;
 		    char	strbuf[20];
 		    backname(np, &nn);
