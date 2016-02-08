@@ -53,6 +53,7 @@ try:
 except:
     import simplejson as json
 import socket
+import signal
 import struct
 import time
 import copy
@@ -64,6 +65,8 @@ from pcp import pmapi, pmi
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_ERR_NAME, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET, PM_DEBUG_APPL1
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
 from cpmi import PMI_ERR_DUPINSTNAME
+
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 if sys.version_info[0] >= 3:
     long = int
@@ -1338,12 +1341,26 @@ class PMReporter(object):
 
     def finalize(self):
         """ Finalize and clean up """
-        if self.writer:
-            self.writer.flush()
-            self.writer = None
-        if self.pmi:
-            self.pmi.pmiEnd()
-            self.pmi = None
+        try:
+            if self.writer:
+                self.writer.flush()
+                if self.writer != sys.stdout:
+                   self.writer.close()
+                self.writer = None
+            if self.pmi:
+                self.pmi.pmiEnd()
+                self.pmi = None
+        finally:
+           try:
+               sys.stdout.flush()
+           finally:
+               try:
+                   sys.stdout.close()
+               finally:
+                   try:
+                       sys.stderr.flush()
+                   finally:
+                       sys.stderr.close()
 
 if __name__ == '__main__':
     try:
