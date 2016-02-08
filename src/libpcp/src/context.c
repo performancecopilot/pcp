@@ -709,10 +709,8 @@ initarchive(__pmContext	*ctxp, const char *name)
 	return PM_ERR_LOGFILE;
 
     /* Allocate the structure for overal control of the archive(s). */
-    if ((ctxp->c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL) {
-	sts = -oserror();
-	goto error;
-    }
+    if ((ctxp->c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL)
+	__pmNoMem("initArchive", sizeof(__pmArchCtl), PM_FATAL_ERR);
     acp = ctxp->c_archctl;
     acp->ac_num_logs = 0;
     acp->ac_log_list = NULL;
@@ -724,7 +722,7 @@ initarchive(__pmContext	*ctxp, const char *name)
      * list and replace the directories with the archives contained within.
      */
     if ((namelist = expandArchiveList(name)) == NULL) {
-	sts = -oserror();
+	sts = PM_ERR_LOGFILE;
 	goto error;
     }
 
@@ -787,17 +785,13 @@ initarchive(__pmContext	*ctxp, const char *name)
 	    /* Initialize a new ac_log_list entry for this archive. */
 	    loglist = realloc(loglist, (numlogs + 1) * sizeof(*loglist));
 	    if (loglist == NULL) {
-		sts = -oserror();
-		goto error;
+		__pmNoMem("initArchive", (numlogs + 1) * sizeof(*loglist),
+			  PM_FATAL_ERR);
 	    }
-	    if ((mlcp = (__pmMultiLogCtl *)malloc(sizeof(__pmMultiLogCtl))) == NULL) {
-		sts = -oserror();
-		goto error;
-	    }
-	    if ((mlcp->ml_name = strdup(current)) == NULL) {
-		sts = -oserror();
-		goto error;
-	    }
+	    if ((mlcp = (__pmMultiLogCtl *)malloc(sizeof(__pmMultiLogCtl))) == NULL)
+		__pmNoMem("initArchive", sizeof(__pmMultiLogCtl), PM_FATAL_ERR);
+	    if ((mlcp->ml_name = strdup(current)) == NULL)
+		__pmNoMem("initArchive", strlen(current) + 1, PM_FATAL_ERR);
 	    mlcp->ml_starttime = tmpTime;
 
 	    /*
