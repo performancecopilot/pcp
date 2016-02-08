@@ -52,6 +52,16 @@ End-of-File
 cat <<End-of-File >$tmp.root3
 root {
 	white
+	goat	7:0:2
+}
+white {
+	dyno	4:*:*
+}
+End-of-File
+
+cat <<End-of-File >$tmp.root4
+root {
+	white
 }
 white {
 	dyno	4:*:*
@@ -142,6 +152,17 @@ not=''
 [ -f $tmp.tmp ] || not=' not'
 echo "output PMNS$not created"
 cp $tmp.tmp $tmp.merged
+
+echo
+echo "only dynamic dups - 3 input files"
+rm -f $tmp.tmp
+pmnsmerge $tmp.root $tmp.root2 $tmp.root4 $tmp.tmp >$tmp.out 2>&1
+xit=$?
+_filter <$tmp.out
+echo "exit status: $xit"
+not=''
+[ -f $tmp.tmp ] || not=' not'
+echo "output PMNS$not created"
 
 echo
 echo "merged"
