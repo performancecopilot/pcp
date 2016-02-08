@@ -553,6 +553,126 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
     return sts;
 }
 
+static char *
+addName(
+  const char *dirname,
+  char *list,
+  size_t *listsize,
+  const char *item,
+  size_t itemsize
+) {
+    size_t dirsize;
+
+    /* Was there a directory specified? */
+    if (dirname != NULL )
+	dirsize = strlen(dirname) + 1; /* room for the path separator */
+    else
+	dirsize = 0;
+
+    /* Allocate more space */
+    if (list == NULL) {
+	if ((list = malloc(dirsize + itemsize + 1)) == NULL)
+	    __pmNoMem("initArchive", itemsize + 1, PM_FATAL_ERR);
+	*listsize = 0;
+    }
+    else {
+	/* The comma goes where the previous nul was */
+	if ((list = realloc(list, dirsize + *listsize + itemsize + 1)) == NULL)
+	    __pmNoMem("initArchive", *listsize + itemsize + 1, PM_FATAL_ERR);
+	list[*listsize - 1] = ',';
+    }
+
+    /* Add the new name */
+    if (dirname != NULL) {
+	strcpy(list + *listsize, dirname);
+	*listsize += dirsize;
+	list[*listsize - 1] = __pmPathSeparator();
+    }
+    memcpy(list + *listsize, item, itemsize);
+    *listsize += itemsize + 1;
+    list[*listsize - 1] = '\0';
+    return list;
+}
+
+/*
+ * The list of names may contain one or more directories. Examine the
+ * list and replace the directories with the archives contained within.
+ */
+static char *
+expandArchiveList(const char *names)
+{
+    const char	*current;
+    const char	*end;
+    size_t	length = 0;
+    char	*newlist = NULL;
+    size_t	newlistsize = 0;
+    char	*dirname;
+    const char	*suffix;
+    DIR		*dirp = NULL;
+#if defined(HAVE_READDIR64)
+    struct dirent64	*direntp;
+#else
+    struct dirent	*direntp;
+#endif
+ 
+    current = names;
+    while (*current) {
+	/* Find the end of the current archive name. */
+	end = strchr(current, ',');
+	if (end)
+	    length = end - current;
+	else
+	    length = strlen (current);
+
+	/*
+	 * If newname specifies a directory, then add each archive in the
+	 * directory. Use opendir(3) directly instead of stat(3) or fstat(3) 
+	 * in order to avoid a TOCTOU race between checking and opening the
+	 * directory.
+	 * We need nul terminated copy of the name fpr opendir(3).
+	 */
+	if ((dirname = malloc(length + 1)) == NULL)
+	    __pmNoMem("initArchive", length + 1, PM_FATAL_ERR);
+	memcpy(dirname, current, length);
+	dirname[length] = '\0';
+
+	PM_INIT_LOCKS();
+	PM_LOCK(__pmLock_libpcp);
+	if ((dirp = opendir(dirname)) != NULL) {
+#if defined(HAVE_READDIR64)
+	    while ((direntp = readdir64(dirp)) != NULL) {
+#else
+	    while ((direntp = readdir(dirp)) != NULL) {
+#endif
+		/*
+		 * If this file is part of an archive, then add it.
+		 * Look for names ending in .meta. These are unique to
+		 * each archive.
+		 */
+		suffix = strrchr(direntp->d_name, '.');
+		if (suffix == NULL || strcmp(suffix, ".meta") != 0)
+		    continue;
+		newlist = addName(dirname, newlist, &newlistsize,
+				   direntp->d_name, suffix - direntp->d_name);
+	    }
+	    closedir(dirp);
+	    PM_UNLOCK(__pmLock_libpcp);
+	}
+        else {
+	    PM_UNLOCK(__pmLock_libpcp);
+	    newlist = addName(NULL, newlist, &newlistsize, current, length);
+	}
+	free(dirname);
+
+	/* Reset for the next iteration. */
+	current += length;
+	if (*current == ',')
+	    ++current;
+    }
+
+    return newlist;
+}
+
 /*
  * Initialize the given archive(s) for this context.
  *
@@ -560,7 +680,6 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
  * commas.
  *
  * Coming soon:
- * - name can be name of a directory containing the archives of interest.
  * - name can be one or more glob expressions specifying the archives of
  *   interest.
  */
@@ -600,8 +719,11 @@ initarchive(__pmContext	*ctxp, const char *name)
     acp->ac_log = NULL;
     acp->ac_mark_done = 0;
 
-    /* We need a copy of the names to work with. */
-    if ((namelist = strdup(name)) == NULL) {
+    /*
+     * The list of names may contain one or more directories. Examine the
+     * list and replace the directories with the archives contained within.
+     */
+    if ((namelist = expandArchiveList(name)) == NULL) {
 	sts = -oserror();
 	goto error;
     }
@@ -752,12 +874,12 @@ initarchive(__pmContext	*ctxp, const char *name)
     if (loglist) {
 	/* numlongs has not yet been incremented if we are here, but the new entry
 	   may have been allocated. */
-	while (numlogs >= 0) {
+	while (numlogs > 0) {
+	    --numlogs;
 	    if (loglist[numlogs]) {
 		free(loglist[numlogs]->ml_name);
 		free(loglist[numlogs]);
 	    }
-	    --numlogs;
 	}
 	free(loglist);
     }

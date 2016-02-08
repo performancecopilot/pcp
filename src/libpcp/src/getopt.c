@@ -416,56 +416,13 @@ addArchive(pmOptions *opts, char *arg)
 void
 __pmAddOptArchive(pmOptions *opts, char *arg)
 {
-    char	*base;
-    char	*logBase;
-    DIR		*dirp = NULL;
-#if defined(HAVE_READDIR64)
-    struct dirent64	*direntp;
-#else
-    struct dirent	*direntp;
-#endif
-
     if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
 	pmprintf("%s: only one host or archive allowed\n", pmProgname);
 	opts->errors++;
 	return;
     }
 
-    /* If 'arg' specifies a directory, then add each archive in the directory. */
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if ((dirp = opendir(arg)) != NULL) {
-#if defined(HAVE_READDIR64)
-	while ((direntp = readdir64(dirp)) != NULL) {
-#else
-	while ((direntp = readdir(dirp)) != NULL) {
-#endif
-	    /*
-	     * If this file is part of an archive, then add it. addArchive()
-	     * will filter out duplicates caused by the discovery of more than
-	     * one component of the same archive -  i.e. .meta and .index files. 
-	     */
-	    if ((base = strdup(direntp->d_name)) == NULL)
-		__pmNoMem("pmGetOptions(archive)", strlen(direntp->d_name), PM_FATAL_ERR);
-	    if ((logBase = __pmLogBaseName(base)) != NULL) {
-		char full[MAXPATHLEN];
-		snprintf(full, sizeof(full), "%s%c%s",
-			 arg, __pmPathSeparator(), logBase);
-		addArchive(opts, full);
-	    }
-	    free(base);
-	}
-	closedir(dirp);
-	PM_UNLOCK(__pmLock_libpcp);
-    }
-    else {
-	PM_UNLOCK(__pmLock_libpcp);
-	/*
-	 *  It's ok if 'arg' cannot be opened as a directory. Treat it as an
-	 * archive name.
-	 */
-	addArchive(opts, arg);
-    }
+    addArchive(opts, arg);
 }
 
 static char *
