@@ -27,3 +27,23 @@ pmInDom: 253.0
 [  1] inst: 1 name: "green"
 [  2] inst: 2 name: "blue"
 dbpmda> 
+
+.dbpmdarc test ...
+.dbpmdarc> open dso $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX simple_init 253
+.dbpmdarc> fetch simple.numfetch
+PMID(s): 253.0.0
+pmResult ... numpmid: 1
+  253.0.0 (simple.numfetch): numval: 1 valfmt: 0 vlist[]:
+   value NUMBER NUMBER HEXNUMBER
+.dbpmdarc> dbpmda> quit
+
+-f test ...
+dbpmda> open dso $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX simple_init 253
+dbpmda> fetch simple.color
+PMID(s): 253.0.1
+pmResult ... numpmid: 1
+  253.0.1 (simple.color): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or ???] value NUMBER NUMBER HEXNUMBER
+    inst [1 or ???] value NUMBER NUMBER HEXNUMBER
+    inst [2 or ???] value NUMBER NUMBER HEXNUMBER
+dbpmda> quit

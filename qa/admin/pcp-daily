@@ -22,6 +22,7 @@ _usage()
     fi
     echo >&2 "  -h          harvest QA failures"
     echo >&2 "  -i          install built pcp packages"
+    echo >&2 "  -l          harvest daily.log after aborted run"
     echo >&2 "  -m          build (Makepkgs) for pcp"
     echo >&2 "  -p          git pull for pcp"
     echo >&2 "  -q          run qa"
@@ -53,9 +54,17 @@ fi
 
 tmp=/var/tmp/\$\$
 trap "rm -f \$tmp.*; exit 0" 0 1 2 3 15
+End-of-File
+    if $lflag
+    then
+	:
+    else
+	cat <<End-of-File
 rm -f \$HOME/daily.log
 touch \$HOME/daily.log
-
+End-of-File
+    fi
+    cat <<End-of-File
 case "$pcp_tree"
 in
     pcpfans)
@@ -474,6 +483,7 @@ cflag=false
 fflag=false
 hflag=false
 iflag=false
+lflag=false
 mflag=false
 pflag=false
 qflag=false
@@ -486,7 +496,7 @@ options=false
 work=false
 efile=''
 debug=false
-while getopts "ab:B:cde:fg:himpqrsSt:T:?" c
+while getopts "ab:B:cde:fg:hilmpqrsSt:T:?" c
 do
     case $c
     in
@@ -536,6 +546,11 @@ do
 	    options=true
 	    work=true
 	    iflag=true
+	    ;;
+	l)
+	    options=true
+	    work=true
+	    lflag=true
 	    ;;
 	m)
 	    options=true

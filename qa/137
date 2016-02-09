@@ -12,7 +12,7 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+trap "rm -rf $tmp $tmp.*; exit" 0 1 2 3 15
 
 $sudo rm -rf $tmp $tmp.* $seq.full
 
@@ -40,6 +40,26 @@ fetch simple.numfetch
 desc simple.color
 fetch simple.color
 instance 253.0
+End-of-File
+
+echo
+echo ".dbpmdarc test ..."
+mkdir $tmp
+cd $tmp
+cat <<End-of-File >.dbpmdarc
+open dso $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX simple_init 253
+fetch simple.numfetch
+End-of-File
+$sudo dbpmda -ie -n $PCP_PMDAS_DIR/simple/root -ie <<End-of-File 2>&1 | _filter
+quit
+End-of-File
+
+echo
+echo "-f test ..."
+$sudo dbpmda -f -ie -n $PCP_PMDAS_DIR/simple/root -ie <<End-of-File 2>&1 | _filter
+open dso $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX simple_init 253
+fetch simple.color
+quit
 End-of-File
 
 exit 0
