@@ -1578,7 +1578,7 @@ static pmdaMetric metrictab[] = {
 /* swapdev.priority */
   { NULL,
     { PMDA_PMID(CLUSTER_SWAPDEV,4), PM_TYPE_32, SWAPDEV_INDOM, PM_SEM_INSTANT,
-    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /*
  * socket stat cluster
