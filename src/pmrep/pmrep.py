@@ -201,6 +201,7 @@ class PMReporter(object):
         self.samples = None # forever
         self.interval = pmapi.timeval(1) # 1 sec
         self.opts.pmSetOptionInterval(str(1))
+        self.localtz = None
         self.runtime = -1
         self.delay = 0
         self.type = 0
@@ -779,6 +780,19 @@ class PMReporter(object):
                 mode |= PM_XTB_SET(PM_TIME_MSEC)
         return (mode, int(step))
 
+    def get_current_tz(self):
+        """ Figure out the current timezone using the PCP convention """
+        dst = time.localtime().tm_isdst
+        offset = time.altzone if dst else time.timezone
+        currtz = time.tzname[dst]
+        if offset:
+           offset = offset/3600
+           offset = int(offset) if offset == int(offset) else offset
+           if offset >= 0:
+               offset = "+" + str(offset)
+           currtz += str(offset)
+        return currtz
+
     def execute(self):
         """ Using a PMAPI context (could be either host or archive),
             fetch and report the requested set of values on stdout.
@@ -791,9 +805,14 @@ class PMReporter(object):
                 self.delimiter = OUTSEP
 
         # Time
+        self.localtz = self.get_current_tz()
         if self.opts.pmGetOptionHostZone():
             os.environ['TZ'] = self.context.pmWhichZone()
             time.tzset()
+        else:
+            os.environ['TZ'] = self.localtz
+            time.tzset()
+            self.context.pmNewZone(self.localtz)
         if self.opts.pmGetOptionTimezone():
             os.environ['TZ'] = self.opts.pmGetOptionTimezone()
             time.tzset()
@@ -1050,24 +1069,9 @@ class PMReporter(object):
         if self.context.type == PM_CONTEXT_LOCAL:
             host = "localhost, using DSO PMDAs"
 
-        # Figure out the current timezone using the PCP convention
-        if self.opts.pmGetOptionTimezone():
-            currtz = self.opts.pmGetOptionTimezone()
-        else:
-            dst = time.localtime().tm_isdst
-            offset = time.altzone if dst else time.timezone
-            currtz = time.tzname[dst]
-            if offset:
-                offset = offset/3600
-                offset = int(offset) if offset == int(offset) else offset
-                currtz += str(offset)
-        timezone = currtz
-
-        if self.context.type == PM_CONTEXT_ARCHIVE:
-            labeltz = self.context.pmGetArchiveLabel().get_timezone()
-            if labeltz != timezone:
-                timezone = labeltz
-                timezone += " (creation, current is " + currtz + ")"
+        timezone = self.get_current_tz()
+        if timezone != self.localtz:
+            timezone += " (reporting, local is " + self.localtz + ")"
 
         self.writer.write(comm + "\n")
         if self.context.type == PM_CONTEXT_ARCHIVE:
