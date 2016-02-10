@@ -58,6 +58,8 @@ typedef struct {
 	unsigned long long	ctxt;
 	unsigned long		btime;
 	unsigned long		processes;
+	unsigned long		procs_running;
+	unsigned long		procs_blocked;
 	pmdaIndom		*cpu_indom;
 } proc_stat_t;
 

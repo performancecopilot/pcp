@@ -1034,6 +1034,7 @@ cgroups
 801 pmda.netfilter local
 802 pmda valgrind dbpmda local
 803 libpcp derive local
+804 pcp pmstat local
 805 pmda.postfix local
 807 pcp local
 808 pmlogger local

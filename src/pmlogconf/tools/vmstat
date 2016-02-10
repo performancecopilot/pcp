@@ -30,8 +30,8 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
         kernel.all.sysfork		# forks
 
 # -a --------------------------------------------------
-	proc.runq.runnable		# r: The number of processes waiting for run time.
-	proc.runq.blocked		# b: The number of processes in uninterruptible sleep.
+	kernel.all.running		# r: processes running or waiting for run time.
+	kernel.all.blocked		# b: processes in uninterruptible sleep.
 	mem.vmstat.nr_mapped		# swpd: the amount of virtual memory used.
 	mem.util.free			# free: the amount of idle memory.
 	mem.util.bufmem			# buff: the amount of memory used as buffers.
