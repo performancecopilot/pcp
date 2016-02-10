@@ -198,10 +198,10 @@ mmv_stats_init(name,cl,fl,metrics,indoms)
 	SV *			indoms
     PREINIT:
 	int			i, j;
-	int			mcount;
-	int			icount;
-	mmv_metric_t *		mlist;
-	mmv_indom_t *		ilist;
+	int			mcount = 0;
+	int			icount = 0;
+	mmv_metric_t *		mlist = NULL;
+	mmv_indom_t *		ilist = NULL;
     CODE:
 	i = list_to_metrics(metrics, &mlist, &mcount);
 	j = list_to_indoms(indoms, &ilist, &icount);

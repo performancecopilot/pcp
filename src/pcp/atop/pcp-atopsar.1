@@ -4,26 +4,10 @@
 - Advanced System Activity Report (pcp-atop related)
 .SH SYNOPSIS
 .P
-.B pcp\ atopsar
-[\-flags...]
-[\-r
-.I file|date
-] [\-h
-.I host
-] [\-R
-.I cnt
-] [\-b
-.I hh:mm
-] [\-e
-.I hh:mm
-]
+\f3pcp\f1 [\f2pcp\ options\f1] \f3atopsar\f1 [\f2atop\ options\f1]
+[\-r \f2file|date\f1] [\-h \f2host\f1] [\-R \f2cnt\f1] [\-b \f2hh:mm\f1] [\-e \f2hh:mm\f1]
 .br
-.B pcp-atopsar
-[\-flags...]
-.I interval
-[
-.I samples
-]
+\f3pcp\f1 [\f2pcp\ options\f1] \f3atopsar\f1 [\f2atop\ options\f1] \f2interval\f1 [\f2samples\f1]
 .P
 .SH DESCRIPTION
 The
@@ -109,7 +93,9 @@ options
 .BR \-\-interval ,
 .BR \-Z /\c
 .BR \-\-timezone
-and several other options become indirectly available.
+and several other
+.I pcp options
+become indirectly available.
 .PP
 Some generic flags can be specified to influence the behaviour of the
 .B pcp-atopsar

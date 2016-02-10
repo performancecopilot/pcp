@@ -15,10 +15,13 @@
 .\"
 .TH PMSTAT 1 "PCP" "Performance Co-Pilot"
 .SH NAME
+\f3pcp\-vmstat\f1,
 \f3pmstat\f1 \- high-level system performance overview
 .\" literals use .B or \f3
 .\" arguments use .I or \f2
 .SH SYNOPSIS
+\f3pcp\f1 [\f2pcp\ options\f1] \f3vmstat\f1 [\f2interval\f1 [\f2samples\f1]]
+.P
 \f3pmstat\f1
 [\f3\-gLlPxz\f1]
 [\f3\-A\f1 \f2align\f1]
@@ -42,6 +45,15 @@ unit of time (the default is 5 seconds).
 is intended to monitor system performance at the highest level,
 after which other tools may be used to examine subsystems in which
 potential performance problems may be observed in greater detail.
+.P
+.B pcp-vmstat
+is a simple wrapper for use with the
+.BR pcp (1)
+command, providing a more familiar command line format for some
+users.
+It also enables the extended reporting option by default, see the
+.I \-x
+option below.
 .P
 Multiple hosts may be monitored by supplying more than
 one host with multiple

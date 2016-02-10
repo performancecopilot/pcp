@@ -20,22 +20,45 @@
 %{
 #include "configparser.h"
 
-static void new_pmctype(configuration_t *conf)
+static int is_derived(char *name)
 {
-    if(NULL == conf)
+    char *str = NULL;
+
+    str = strchr(name, ':');
+    if (!str)
+         return 0;
+    if (!strcmp(str, ":derived"))
+         return 1;
+    return 0;
+}
+
+static void add_derived(configuration_t *config, char *name)
+{
+    pmcderived_t *entry;
+    char *ptr;
+
+    if (!name)
+         return;
+    ++config->nDerivedEntries;
+
+    config->derivedArr = realloc(config->derivedArr, config->nDerivedEntries * sizeof *config->derivedArr);
+
+    if(NULL == config->derivedArr)
     {
+        config->nDerivedEntries = 0;
         return;
     }
 
-    ++conf->nConfigEntries;
-    conf->configArr = realloc(conf->configArr, conf->nConfigEntries * sizeof *conf->configArr);
+    ptr = strchr(name, ':');
+    *ptr = '\0';
+    memset(&config->derivedArr[config->nDerivedEntries-1], 0, sizeof *config->derivedArr);
 
-    if(NULL == conf->configArr) 
-    {
-        conf->nConfigEntries = 0;
-        return;
-    }
-    memset(&conf->configArr[conf->nConfigEntries-1], 0, sizeof *conf->configArr);
+    entry = &config->derivedArr[config->nDerivedEntries-1];
+
+    entry->name = strdup(name);
+    entry->nsettings = 0;
+    entry->derivedSettingList = NULL;
+    context_derived = 1;
 }
 
 static void add_pmctype(configuration_t *config, char *name)
@@ -47,16 +70,59 @@ static void add_pmctype(configuration_t *config, char *name)
     {
         return;
     }
-    if(0 == config->nConfigEntries) 
+    if (is_derived(name))
+        return add_derived(config, name);
+
+    if (context_newpmc)
     {
+        ++config->nConfigEntries;
+        config->configArr = realloc(config->configArr, config->nConfigEntries * sizeof *config->configArr);
+        memset(&config->configArr[config->nConfigEntries-1], 0, sizeof *config->configArr);
+    }
+    if(NULL == config->configArr)
+    {
+        config->nConfigEntries = 0;
         return;
     }
-    entry = &config->configArr[config->nConfigEntries-1];
 
+    entry = &config->configArr[config->nConfigEntries-1];
     newpmctype = malloc(sizeof *newpmctype);
     newpmctype->name = strdup(name);
     newpmctype->next = entry->pmcTypeList;
     entry->pmcTypeList = newpmctype;
+    context_derived = 0;
+    context_newpmc = 0;
+}
+
+static void add_pmc_setting_name_derived(configuration_t *config, char *name)
+{
+    pmcderived_t *entry;
+    pmcsetting_t *slist, *newpmcderivedsetting;
+
+    if (0 == config->nDerivedEntries)
+    {
+        return;
+    }
+    entry = &config->derivedArr[config->nDerivedEntries - 1];
+    newpmcderivedsetting = calloc(1, sizeof *newpmcderivedsetting);
+    newpmcderivedsetting->name = strdup(name);
+    newpmcderivedsetting->cpuConfig = CPUCONFIG_EACH_CPU;
+    newpmcderivedsetting->next = NULL;
+
+    slist = entry->derivedSettingList;
+    if (slist == NULL)
+    {
+        entry->derivedSettingList = newpmcderivedsetting;
+    }
+    else
+    {
+        while(slist->next)
+        {
+            slist = slist->next;
+        }
+        slist->next = newpmcderivedsetting;
+    }
+    entry->nsettings++;
 }
 
 static void add_pmcsetting_name(configuration_t *config, char *name)
@@ -72,6 +138,10 @@ static void add_pmcsetting_name(configuration_t *config, char *name)
     {
         return;
     }
+
+    if (context_derived)
+         return add_pmc_setting_name_derived(config, name);
+
     entry = &config->configArr[config->nConfigEntries-1];
 
     newpmcsetting = malloc(sizeof *newpmcsetting);
@@ -90,7 +160,19 @@ static void set_pmcsetting_cpuconfig(configuration_t *config, int cpuconfig)
         return;
     }
 
-    pmcsetting = config->configArr[config->nConfigEntries-1].pmcSettingList;
+    if (context_derived)
+    {
+        pmcsetting = config->derivedArr[config->nDerivedEntries-1].derivedSettingList;
+        while(pmcsetting->next)
+        {
+            pmcsetting = pmcsetting->next;
+        }
+    }
+    else
+    {
+        pmcsetting = config->configArr[config->nConfigEntries-1].pmcSettingList;
+    }
+
 
     if( NULL == pmcsetting )
     {
@@ -144,7 +226,7 @@ void free_configuration(configuration_t *config)
 {
     int i;
     pmctype_t *pmcTypeDel;
-    pmcsetting_t *pmcSettingDel;
+    pmcsetting_t *pmcSettingDel, *tmp;
 
     if(NULL == config)
     {
@@ -170,7 +252,22 @@ void free_configuration(configuration_t *config)
             free(pmcSettingDel);
         }
     }
+
+    for(i = 0; i < config->nDerivedEntries; ++i)
+    {
+        tmp = pmcSettingDel = config->derivedArr[i].derivedSettingList;
+        while(tmp != NULL)
+        {
+            tmp = tmp->next;
+            free(pmcSettingDel);
+            pmcSettingDel = tmp;
+        }
+
+        if (config->derivedArr[i].name)
+            free(config->derivedArr[i].name);
+    }
     free(config->configArr);
+    free(config->derivedArr);
     free(config);
 }
 
@@ -190,7 +287,7 @@ void free_configuration(configuration_t *config)
 [ \t\r]                               ; /* ignore whitespace */
 \n                                    BEGIN(INITIAL); /* new-line always resets state machine */
 
-^\[                                   { BEGIN(PMCTYPELIST); new_pmctype(yyextra); /* a '[' char at beginning of line signals start of a list of PMC types */ }
+^\[                                   { BEGIN(PMCTYPELIST); context_newpmc = 1;/* a '[' char at beginning of line signals start of a list of PMC types */ }
 
 <PMCTYPELIST>{
 \"[^\"]*\"                            { /* strip quotes */ yytext[strlen(yytext)-1] = '\0'; add_pmctype(yyextra, &yytext[1] ); /* allow any char in quotes except the quote char */  }
@@ -233,6 +330,8 @@ configuration_t *parse_configfile(const char *filename)
     config = malloc(sizeof *config);
     config->configArr = NULL;
     config->nConfigEntries = 0;
+    config->derivedArr = NULL;
+    config->nDerivedEntries = 0;
 
     yylex_init(&scanner);
     yyset_extra(config, scanner);

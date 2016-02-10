@@ -581,6 +581,16 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,14), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* kernel.all.running */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,15), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* kernel.all.blocked */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,16), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /* kernel.all.cpu.user */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,20), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -4930,6 +4940,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 14: /* kernel.all.sysfork */
 	    _pm_assign_ulong(atom, proc_stat.processes);
+	    break;
+	case 15: /* kernel.all.running */
+	    _pm_assign_ulong(atom, proc_stat.procs_running);
+	    break;
+	case 16: /* kernel.all.blocked */
+	    _pm_assign_ulong(atom, proc_stat.procs_blocked);
 	    break;
 
 	case 20: /* kernel.all.cpu.user */

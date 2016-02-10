@@ -31,7 +31,9 @@ configured events. If multiple PMUs are available, the
 perfevent PMDA uses the order of the entries in the configuration file to
 determine which PMU settings to use. The entries at the top of the
 configuration file have higher precedence.  Only one PMU configuration setting
-is used.
+is used. The configuration file may also contain perf derived events. A derived
+event has a list of events which must be listed as base events. The values for
+the counters in the derived events are aggregated and displayed.
 .SH FILE FORMAT
 The file consists of one or more groups of PMUs and the events that go with them.
 .PP
@@ -42,6 +44,21 @@ The PMU identification string is enclosed in brackets and one or more events are
 .RE
 .RS
 .B EVENT_NAME [CPU OPTION]
+.RE
+.RS
+.B ...
+.RE
+.PP
+For derived events, the derived perf event is enclosed in brackets along with
+:derived as a suffix. Note that the EVENT_NAME listed under derived event must
+be present as a base event in the configuration file. And, all the events under
+a particular derived perf event must have the same CPU_OPTION. The syntax is :
+.PP
+.RS
+.B [event:derived]
+.RE
+.RS
+.B EVENT_NAME [CPU_OPTION]
 .RE
 .RS
 .B ...

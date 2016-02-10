@@ -53,6 +53,7 @@ try:
 except:
     import simplejson as json
 import socket
+import signal
 import struct
 import time
 import copy
@@ -64,6 +65,8 @@ from pcp import pmapi, pmi
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_ERR_NAME, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET, PM_DEBUG_APPL1
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
 from cpmi import PMI_ERR_DUPINSTNAME
+
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 if sys.version_info[0] >= 3:
     long = int
@@ -198,6 +201,7 @@ class PMReporter(object):
         self.samples = None # forever
         self.interval = pmapi.timeval(1) # 1 sec
         self.opts.pmSetOptionInterval(str(1))
+        self.localtz = None
         self.runtime = -1
         self.delay = 0
         self.type = 0
@@ -776,6 +780,19 @@ class PMReporter(object):
                 mode |= PM_XTB_SET(PM_TIME_MSEC)
         return (mode, int(step))
 
+    def get_current_tz(self):
+        """ Figure out the current timezone using the PCP convention """
+        dst = time.localtime().tm_isdst
+        offset = time.altzone if dst else time.timezone
+        currtz = time.tzname[dst]
+        if offset:
+           offset = offset/3600
+           offset = int(offset) if offset == int(offset) else offset
+           if offset >= 0:
+               offset = "+" + str(offset)
+           currtz += str(offset)
+        return currtz
+
     def execute(self):
         """ Using a PMAPI context (could be either host or archive),
             fetch and report the requested set of values on stdout.
@@ -788,9 +805,14 @@ class PMReporter(object):
                 self.delimiter = OUTSEP
 
         # Time
+        self.localtz = self.get_current_tz()
         if self.opts.pmGetOptionHostZone():
             os.environ['TZ'] = self.context.pmWhichZone()
             time.tzset()
+        else:
+            os.environ['TZ'] = self.localtz
+            time.tzset()
+            self.context.pmNewZone(self.localtz)
         if self.opts.pmGetOptionTimezone():
             os.environ['TZ'] = self.opts.pmGetOptionTimezone()
             time.tzset()
@@ -1047,24 +1069,9 @@ class PMReporter(object):
         if self.context.type == PM_CONTEXT_LOCAL:
             host = "localhost, using DSO PMDAs"
 
-        # Figure out the current timezone using the PCP convention
-        if self.opts.pmGetOptionTimezone():
-            currtz = self.opts.pmGetOptionTimezone()
-        else:
-            dst = time.localtime().tm_isdst
-            offset = time.altzone if dst else time.timezone
-            currtz = time.tzname[dst]
-            if offset:
-                offset = offset/3600
-                offset = int(offset) if offset == int(offset) else offset
-                currtz += str(offset)
-        timezone = currtz
-
-        if self.context.type == PM_CONTEXT_ARCHIVE:
-            labeltz = self.context.pmGetArchiveLabel().get_timezone()
-            if labeltz != timezone:
-                timezone = labeltz
-                timezone += " (creation, current is " + currtz + ")"
+        timezone = self.get_current_tz()
+        if timezone != self.localtz:
+            timezone += " (reporting, local is " + self.localtz + ")"
 
         self.writer.write(comm + "\n")
         if self.context.type == PM_CONTEXT_ARCHIVE:
@@ -1338,12 +1345,26 @@ class PMReporter(object):
 
     def finalize(self):
         """ Finalize and clean up """
-        if self.writer:
-            self.writer.flush()
-            self.writer = None
-        if self.pmi:
-            self.pmi.pmiEnd()
-            self.pmi = None
+        try:
+            if self.writer:
+                self.writer.flush()
+                if self.writer != sys.stdout:
+                   self.writer.close()
+                self.writer = None
+            if self.pmi:
+                self.pmi.pmiEnd()
+                self.pmi = None
+        finally:
+           try:
+               sys.stdout.flush()
+           finally:
+               try:
+                   sys.stdout.close()
+               finally:
+                   try:
+                       sys.stderr.flush()
+                   finally:
+                       sys.stderr.close()
 
 if __name__ == '__main__':
     try:

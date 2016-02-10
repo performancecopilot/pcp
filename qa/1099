@@ -73,6 +73,20 @@ v_instant = filesys.full;
 v_counter = network.interface.in.packets;
 End-of-File
 
+echo '== testing pmiostat -u option incompatible with -t'
+pmiostat -u -xt -t 1m -a archives/pmiostat_mark 2>/dev/null
+echo expecting exit 1, got $?
+
+echo '== testing pmiostat -u option requires -a'
+pmiostat -u -xt 2>/dev/null
+echo expecting exit 1, got $?
+
+echo '== testing pmiostat -u for native (non-interpolating) replay'
+pmiostat -u -xt -a archives/pmiostat_mark | tail -5
+
+echo '== testing pmiostat -u with -O offset and -s samples'
+pmiostat -u -xt -O'@18:58:41' -s 2 -a archives/pmiostat_mark
+
 # success, all done
 status=0
 

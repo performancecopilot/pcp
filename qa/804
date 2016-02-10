@@ -1,0 +1,28 @@
+#!/bin/sh
+# PCP QA Test No. 804
+# Exercise the pcp-vmstat(1) wrapper command.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -x $PCP_BINADM_DIR/pcp-vmstat ] || _notrun "pcp vmstat wrapper not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+args="-z -a $here/archives/pcp-vmstat"
+pcp $args vmstat 1 4
+
+# success, all done
+status=0
+exit

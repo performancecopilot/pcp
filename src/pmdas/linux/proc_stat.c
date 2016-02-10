@@ -303,6 +303,28 @@ refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)
 	}
     }
 
+    /*
+     * procs_running 1
+     */
+    strcpy(fmt, "procs_running %lu");
+    for (j=0; j < nbufindex; j++) {
+    	if (strncmp(fmt, bufindex[j], 10) == 0) {
+	    sscanf((const char *)bufindex[j], fmt, &proc_stat->procs_running);
+	    break;
+	}
+    }
+
+    /*
+     * procs_blocked 0
+     */
+    strcpy(fmt, "procs_blocked %lu");
+    for (j=0; j < nbufindex; j++) {
+    	if (strncmp(fmt, bufindex[j], 10) == 0) {
+	    sscanf((const char *)bufindex[j], fmt, &proc_stat->procs_blocked);
+	    break;
+	}
+    }
+
     /* success */
     return 0;
 }

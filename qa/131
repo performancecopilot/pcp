@@ -26,6 +26,10 @@ farhost=$PCPQA_FAR_PMCD
 PMCD_CONNECT_TIMEOUT=0.00001
 export PMCD_CONNECT_TIMEOUT
 
+# check basic connectivity to avoid false failures (non-timeout errors)
+$PCP_BINADM_DIR/pmcd_wait -h $farhost -v 2>&1 | egrep -q 'No route to host'
+[ $? -ne 0 ] || _notrun "Cannot connect to far away host \"$farhost\""
+
 echo "Expect: Connection timed out"
 echo "The far host is $farhost" >$seq.full
 pminfo -f -h $farhost pmcd 2>&1 \

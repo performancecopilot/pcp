@@ -30,7 +30,7 @@ typedef struct {
     unsigned int	id;		/* becomes PMID item number */
     char		*name;		/* becomes PMNS sub-component */
     char		*text;		/* one-line metric help text */
-    unsigned long long	*values;	/* per-CPU values for this counter */
+    unsigned long	*values;	/* per-CPU values for this counter */
 } interrupt_t;
 
 static unsigned int cpu_count;
@@ -95,14 +95,13 @@ column_to_cpuid(int column)
 }
 
 static char *
-extract_values(char *buffer, unsigned long long *values, int ncolumns)
+extract_values(char *buffer, unsigned long *values, int ncolumns)
 {
-    unsigned long i, cpuid;
-    unsigned long long value;
+    unsigned long i, cpuid, value;
     char *s = buffer, *end = NULL;
 
     for (i = 0; i < ncolumns; i++) {
-	value = strtoull(s, &end, 10);
+	value = strtoul(s, &end, 10);
 	if (!isspace(*end))
 	    return NULL;
 	s = end;
@@ -145,8 +144,8 @@ initialise_interrupt(interrupt_t *ip, unsigned int id, char *s, char *end)
 static int
 extend_interrupts(interrupt_t **interp, unsigned int *countp)
 {
-    int cnt = cpu_count * sizeof(unsigned long long);
-    unsigned long long *values = malloc(cnt);
+    int cnt = cpu_count * sizeof(unsigned long);
+    unsigned long *values = malloc(cnt);
     interrupt_t *interrupt = *interp;
     int count = *countp + 1;
 
@@ -313,12 +312,12 @@ interrupts_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
 	case CLUSTER_INTERRUPT_LINES:
 	    if (item > lines_count)
 		return PM_ERR_PMID;
-	    atom->ull = interrupt_lines[item].values[inst];
+	    atom->ul = interrupt_lines[item].values[inst];
 	    return 1;
 	case CLUSTER_INTERRUPT_OTHER:
 	    if (item > other_count)
 		return PM_ERR_PMID;
-	    atom->ull = interrupt_other[item].values[inst];
+	    atom->ul = interrupt_other[item].values[inst];
 	    return 1;
     }
     return PM_ERR_PMID;

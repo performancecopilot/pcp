@@ -1034,6 +1034,7 @@ cgroups
 801 pmda.netfilter local
 802 pmda valgrind dbpmda local
 803 libpcp derive local
+804 pcp pmstat local
 805 pmda.postfix local
 807 pcp local
 808 pmlogger local
@@ -1086,6 +1087,7 @@ cgroups
 877 libpcp local
 878 pmda.pipe local
 879 pmda.pipe local
+880 pmrep python local
 885 pmda.linux local
 886 pmda.linux local
 888 pmda.linux local
@@ -1210,6 +1212,7 @@ cgroups
 1067 zabbix zbxpcp local
 1068 pmrep python zabbix local
 1069 pmrep python local
+1070 pmrep pmimport python perl local
 1079 pcp atop local
 1080 valgrind pcp atop local
 1081 python pcp local
