@@ -2,16 +2,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/perfevent
-ROOTFILES =     config/syntax_error.txt \
-		config/test_event_programming.txt\
-		config/test_lots_of_counters.txt\
-		config/test_rapl.txt \
-		config/test_config.txt \
-		config/test_init.txt \
-		config/empty.txt \
-		config/test_node_rr.txt \
-		perfevent.conf \
-		fakefs.tar.gz
+MYFILES = $(shell echo config/*.txt) perfevent.conf fakefs.tar.gz
 
 TESTHARNESS = perfevent_test perfevent_coverage
 LDIRT += $(TESTHARNESS) fakefs $(OUTDIR)
@@ -19,10 +10,10 @@ LDIRT += $(TESTHARNESS) fakefs $(OUTDIR)
 ifeq "$(PMDA_PERFEVENT)" "true"
 default setup default_pcp: $(TESTHARNESS)
 
-install install_pcp: default $(ROOTFILES)
+install install_pcp: default $(MYFILES)
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 755 -d $(TESTDIR)/config
-	$(INSTALL) -m 644 $(ROOTFILES) $(TESTDIR)
+	$(INSTALL) -m 644 $(MYFILES) $(TESTDIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
 	$(INSTALL) -m 755 $(TESTHARNESS) $(TESTDIR)
 else
