@@ -101,7 +101,7 @@ $(OBJECTS): domain.h
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-linux_kernel_ulong.conf:	mk.rewrite
+linux_kernel_ulong.conf linux_kernel_fixups.conf:	mk.rewrite
 	CPP="$(CPP)" INCDIR="$(TOPDIR)/src/include" ./mk.rewrite
 
 interrupts.o pmda.o proc_partitions.o:	clusters.h
