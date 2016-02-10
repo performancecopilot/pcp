@@ -3,30 +3,30 @@
 # Recipe for creating the rep archive, with the following matrix
 # of metric type / semantics / units ...
 #
-#    string / instant  / none        - kernel.uname.sysname
-#    string / discrete / none        - hinv.machine
+#    string / instant  / none    - kernel.uname.sysname
+#    string / discrete / none    - hinv.machine
 #
 #    int / instant / none        - kernel.all.lastpid
 #    int / instant / byte        - mem.util.used
-#    int / instant / count        - network.tcpconn.close
-#    int / instant / sec        - kernel.all.uptime
+#    int / instant / count       - network.tcpconn.close
+#    int / instant / sec         - kernel.all.uptime
 #
-#    int / discrete / none        - hinv.ncpu
-#    int / discrete / byte        - mem.physmem
-#    int / discrete / count        - hinv.nfilesys
+#    int / discrete / none       - hinv.ncpu
+#    int / discrete / byte       - mem.physmem
+#    int / discrete / count      - hinv.nfilesys
 #    int / discrete / sec        - proc.psinfo.start_time
 #    int / discrete / b/s        - network.interface.baudrate
 #    int / discrete / c/s        - kernel.all.hz
 #
 #    int / counter / byte        - disk.all.read_bytes
-#    int / counter / count        - kernel.all.sysfork
-#    int / counter / sec        - kernel.percpu.cpu.user
+#    int / counter / count       - kernel.all.sysfork
+#    int / counter / sec         - kernel.percpu.cpu.user
 #
-#    float / instant / none        - kernel.all.load
+#    float / instant / none      - kernel.all.load
 #
-#    float / discrete / none        - hinv.cpu.bogomips
-#    float / discrete / count        - hinv.cpu.clock
-#    float / discrete / b/s        - network.interface.speed
+#    float / discrete / none     - hinv.cpu.bogomips
+#    float / discrete / count    - hinv.cpu.clock
+#    float / discrete / b/s      - network.interface.speed
 #
 
 . $PCP_DIR/etc/pcp.env
