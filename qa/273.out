@@ -161,6 +161,18 @@ sampledso.dupnames.two.float.ten [10 as a 32-bit floating point value]
 sampledso.dupnames.two.double.ten [10 as a 64-bit floating point value]
 sampledso.dupnames.three.bin [Several constant instances]
 sampledso.dupnames.three.write_me [Modifiable, but otherwise constant.]
+sampledso.negative.ctr.m_32 [32-bit integer counter metric with negative value]
+sampledso.negative.ctr.m_64 [64-bit integer counter metric with negative value]
+sampledso.negative.ctr.m_float [float counter metric with negative value]
+sampledso.negative.ctr.m_double [double counter metric with negative value]
+sampledso.negative.instant.m_32 [32-bit integer instantaneous metric with negative value]
+sampledso.negative.instant.m_64 [64-bit integer instantaneous metric with negative value]
+sampledso.negative.instant.m_float [float instantaneous metric with negative value]
+sampledso.negative.instant.m_double [double instantaneous metric with negative value]
+sampledso.negative.discrete.m_32 [32-bit integer discrete metric with negative value]
+sampledso.negative.discrete.m_64 [64-bit integer discrete metric with negative value]
+sampledso.negative.discrete.m_float [float discrete metric with negative value]
+sampledso.negative.discrete.m_double [double discrete metric with negative value]
 
 sampledso.control
 Help:

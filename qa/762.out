@@ -282,6 +282,30 @@ PMID 29.0.139 sample.event.highres_records: Dummy highres timestamp event record
 
 PMID 29.0.140 sample.event.reset_highres: reset highres event record state
 
+PMID 29.0.141 sample.negative.ctr.m_32: 32-bit integer counter metric with negative value
+
+PMID 29.0.142 sample.negative.ctr.m_64: 64-bit integer counter metric with negative value
+
+PMID 29.0.143 sample.negative.ctr.m_float: float counter metric with negative value
+
+PMID 29.0.144 sample.negative.ctr.m_double: double counter metric with negative value
+
+PMID 29.0.145 sample.negative.instant.m_32: 32-bit integer instantaneous metric with negative value
+
+PMID 29.0.146 sample.negative.instant.m_64: 64-bit integer instantaneous metric with negative value
+
+PMID 29.0.147 sample.negative.instant.m_float: float instantaneous metric with negative value
+
+PMID 29.0.148 sample.negative.instant.m_double: double instantaneous metric with negative value
+
+PMID 29.0.149 sample.negative.discrete.m_32: 32-bit integer discrete metric with negative value
+
+PMID 29.0.150 sample.negative.discrete.m_64: 64-bit integer discrete metric with negative value
+
+PMID 29.0.151 sample.negative.discrete.m_float: float discrete metric with negative value
+
+PMID 29.0.152 sample.negative.discrete.m_double: double discrete metric with negative value
+
 PMID 29.0.1000: dynamic *.secret.bar metric
 
 PMID 29.0.1001: dynamic *.secret.foo.one metric
