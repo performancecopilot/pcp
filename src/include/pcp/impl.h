@@ -1097,8 +1097,8 @@ PCP_CALL extern int __pmLogChangeArchive(__pmContext *, int);
 PCP_CALL extern int __pmLogCheckForNextArchive(__pmLogCtl *, int, pmResult **);
 PCP_CALL extern int __pmLogGenerateMark(__pmLogCtl *, int, pmResult **);
 
-PCP_CALL extern __pmLogCtl *__pmLogChangeToNextArchive(__pmLogCtl *);
-PCP_CALL extern __pmLogCtl *__pmLogChangeToPreviousArchive(__pmLogCtl *);
+PCP_CALL extern int __pmLogChangeToNextArchive(__pmLogCtl **);
+PCP_CALL extern int __pmLogChangeToPreviousArchive(__pmLogCtl **);
 PCP_CALL extern void __pmArchCtlFree (__pmArchCtl *);
 
 PCP_CALL extern int __pmLogPutDesc(__pmLogCtl *, const pmDesc *, int, char **);

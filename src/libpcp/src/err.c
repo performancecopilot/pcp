@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -150,6 +150,8 @@ static const struct {
         "Container not found" },
     { PM_ERR_BADSTORE,		"PM_ERR_BADSTORE",
         "Bad input to pmstore" },
+    { PM_ERR_LOGOVERLAP,	"PM_ERR_LOGOVERLAP",
+        "Archives overlap in time" },
     /* insert new libpcp error codes here */
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },

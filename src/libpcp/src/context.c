@@ -775,7 +775,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 		    break;
 		}
 		/* timespan overlap */
-		sts = PM_ERR_LOGREC;
+		sts = PM_ERR_LOGOVERLAP;
 		goto error;
 	    }
 	    /* Keep checking */
