@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sheet heading="1" hostname="billing02" timezone="+1000" datefmt="YMD">
+  <metric pmid="60.18.7" indom="PM_INDOM_NULL" units="0,0,0,0,0,0"              type="PM_TYPE_STRING" sem="PM_SEM_DISCRETE">hinv.machine</metric>
+  <metric pmid="60.1.1"  indom="PM_INDOM_NULL" units="1,0,0,PM_SPACE_KBYTE,0,0" type="PM_TYPE_U64"    sem="PM_SEM_INSTANT">mem.util.used</metric>
+  <metric pmid="60.0.14" indom="PM_INDOM_NULL" units="0,0,1,0,0,PM_COUNT_ONE"   type="PM_TYPE_U64"    sem="PM_SEM_COUNTER">kernel.all.sysfork</metric>
+  <metric pmid="60.18.0" indom="60.0"          units="0,0,1,0,-6,0"             type="PM_TYPE_FLOAT"  sem="PM_SEM_DISCRETE">hinv.cpu.clock</metric>
+  <datetime></datetime>
+  <data>hinv.machine</data>
+  <data>mem.util.used</data>
+  <data>kernel.all.sysfork</data>
+  <data>hinv.cpu.clock[cpu0]</data>
+  <data>hinv.cpu.clock[cpu1]</data>
+</sheet>
