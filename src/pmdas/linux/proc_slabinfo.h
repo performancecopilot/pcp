@@ -2,6 +2,7 @@
  * Linux /proc/slabinfo metrics cluster
  *
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 2016 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,6 +44,7 @@ typedef struct {
 
 typedef struct {
     int			ncaches;
+    int                 permission;
     slab_cache_t	*caches;
     pmdaIndom		*indom;
 } proc_slabinfo_t;
