@@ -126,7 +126,7 @@ static void monitor_destroy(monitor_t *del)
     free(del);
 }
 
-int perf_get_r(perfmanagerhandle_t *inst, perf_counter **data, int *size)
+int perf_get_r(perfmanagerhandle_t *inst, perf_counter **data, int *size, perf_derived_counter **derived_counter, int *derived_size)
 {
     monitor_t *m = ((manager_t *)inst)->monitor;
     int res = 0;
@@ -137,7 +137,7 @@ int perf_get_r(perfmanagerhandle_t *inst, perf_counter **data, int *size)
      * first call regardless of the enable/disable state */
     if(m->counter_state == PERF_COUNTER_ENABLE || m->first_time) 
     {
-        res = perf_get(m->perf, data, size);
+        res = perf_get(m->perf, data, size, derived_counter, derived_size);
         m->first_time = 0;
 
         if(m->has_been_disabled)

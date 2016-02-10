@@ -57,6 +57,8 @@
 static perfmanagerhandle_t *perfif;
 static perf_counter *hwcounters;
 static int nhwcounters;
+static perf_derived_counter *derived_counters;
+static int nderivedcounters;
 static int activecounters;
 
 /*
@@ -79,6 +81,7 @@ static __pmnsTree *pmns;
 typedef struct dynamic_metric_info
 {
     perf_counter *hwcounter;
+    perf_derived_counter *derived_counter;
     int		pmid_index;
     const char *help_text;
 } dynamic_metric_info_t;
@@ -118,11 +121,21 @@ static pmdaMetric default_metric_settings[] =
     },
 };
 
+static pmdaMetric derived_metric_settings[] =
+    {
+        /* perfevent.derived.{DERIVEDCOUNTER} */
+        {   NULL, /* m_user */ { 0 /*pmid */, PM_TYPE_DOUBLE, 0 /* instance domain */,
+                                 PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
+            },
+        },
+    };
+
 #define METRICSPERCOUNTER (sizeof(default_metric_settings)/sizeof(default_metric_settings[0]))
+#define METRICSPERDERIVED (sizeof(derived_metric_settings)/sizeof(derived_metric_settings[0]))
 
 static const char *dynamic_nametab[] =
 {
-    /* perfevent.hwcounters.{HWCOUNTER}.value */
+    /* perfevent.hwcounters.{HWCOUNTER,DERIVED}.value */
     "value",
     /* perfevent.hwcounters.{HWCOUNTER}.dutycycle */
     "dutycycle"
@@ -134,6 +147,12 @@ static const char *dynamic_helptab[] =
     "The values of the counter",
     /* perfevent.hwcounters.{HWCOUNTER}.dutycycle */
     "The ratio of the time that the hardware counter was enabled to the total run time"
+};
+
+static const char *dynamic_derived_helptab[] =
+{
+    /* perfevent.hwcounters.{DERIVED}.value */
+    "The values of the derived events"
 };
 
 static char mypath[MAXPATHLEN];
@@ -172,7 +191,7 @@ static int perfevent_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomV
             return PM_ERR_PMID;
         }
     }
-    else if(idp->cluster >= (nhwcounters + NUM_STATIC_CLUSTERS)  )
+    else if(idp->cluster >= (nderivedcounters + nhwcounters + NUM_STATIC_CLUSTERS)  )
     {
         return PM_ERR_PMID;
     }
@@ -184,12 +203,22 @@ static int perfevent_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomV
         return PM_ERR_PMID;
     }
 
-    const perf_data *pdata = &(pinfo->hwcounter->data[inst]);
+    const perf_data *pdata = NULL;
+    const perf_derived_data *pddata = NULL;
+
+    if (idp->cluster >= NUM_STATIC_CLUSTERS + nhwcounters) {
+        pddata = &(pinfo->derived_counter->data[inst]);
+    } else {
+        pdata = &(pinfo->hwcounter->data[inst]);
+    }
 
     switch(pinfo->pmid_index)
     {
     case 0:
-        atom->ll = pdata->value;
+        if (idp->cluster >= nhwcounters + NUM_STATIC_CLUSTERS)
+            atom->d = pddata->value;
+        else
+            atom->ll = pdata->value;
         break;
     case 1:
         if(pdata->time_enabled > 0)
@@ -219,7 +248,7 @@ static int perfevent_profile(__pmProfile *prof, pmdaExt *pmda)
  */
 static int perfevent_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    activecounters = perf_get_r(perfif, &hwcounters, &nhwcounters);
+    activecounters = perf_get_r(perfif, &hwcounters, &nhwcounters, &derived_counters, &nderivedcounters);
 
     pmdaEventNewClient(pmda->e_context);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
@@ -299,6 +328,23 @@ static void config_indom(pmdaIndom *pindom, int index, perf_counter *counter)
     }
 }
 
+static void config_indom_derived(pmdaIndom *pindom, int index, perf_derived_counter *derived_counter)
+{
+    int i;
+    char cpuname[32];
+
+    pindom->it_indom = index;
+    pindom->it_numinst = derived_counter->ninstances;
+    pindom->it_set = calloc(derived_counter->ninstances, sizeof(pmdaInstid) );
+
+    for(i = 0; i < derived_counter->ninstances; ++i)
+    {
+        sprintf(cpuname, "cpu%d", derived_counter->counter_list->counter->data[i].id);
+        pindom->it_set[i].i_inst = i;
+        pindom->it_set[i].i_name = strdup(cpuname);
+    }
+}
+
 /* \brief Initialise the perf events interface and read the counters
  *
  * Note this function needs the correct OS permissions to succeed. Either
@@ -321,7 +367,7 @@ static int setup_perfevents()
         return -1;
     }
 
-    ret = perf_get_r(perfif, &hwcounters, &nhwcounters);
+    ret = perf_get_r(perfif, &hwcounters, &nhwcounters, &derived_counters, &nderivedcounters);
     if( ret < 0 )
     {
         err_desc = perf_strerror(ret);
@@ -336,7 +382,7 @@ static void teardown_perfevents()
 {
     manager_destroy(perfif);
     perfif = 0;
-    perf_counter_destroy(hwcounters, nhwcounters);
+    perf_counter_destroy(hwcounters, nhwcounters, derived_counters, nderivedcounters);
     hwcounters = 0;
     nhwcounters = 0;
 }
@@ -355,9 +401,12 @@ static int setup_metrics()
     int index;
 
     nummetrics = (nhwcounters * METRICSPERCOUNTER) + NUM_STATIC_METRICS;
-    numindoms = nhwcounters + NUM_STATIC_INDOMS;
+    nummetrics += (nderivedcounters * METRICSPERDERIVED);
+    numindoms = nderivedcounters + nhwcounters + NUM_STATIC_INDOMS;
 
-    dynamic_metric_infotab = malloc( nhwcounters * METRICSPERCOUNTER * sizeof(*dynamic_metric_infotab) );
+    dynamic_metric_infotab = malloc( ((nhwcounters * METRICSPERCOUNTER)
+                                      + (nderivedcounters * METRICSPERDERIVED))
+                                     * sizeof(*dynamic_metric_infotab) );
     metrictab              = malloc( nummetrics * sizeof(*metrictab) );
     indomtab               = malloc( numindoms * sizeof(*indomtab) );
 
@@ -401,6 +450,29 @@ static int setup_metrics()
             pmetric->m_desc.indom = indom;
             pmetric->m_user = pinfo;
 
+            ++pinfo;
+            ++pmetric;
+        }
+    }
+
+    for (i = 0; i < nderivedcounters; i++)
+    {
+        cluster = i + nhwcounters + NUM_STATIC_CLUSTERS;
+        indom = i + nhwcounters + NUM_STATIC_INDOMS;
+
+        config_indom_derived( &indomtab[indom], indom, &derived_counters[i]);
+
+        memcpy(pmetric, derived_metric_settings, sizeof(derived_metric_settings));
+        for(index = 0; index < METRICSPERDERIVED; index++)
+        {
+            /* Setup metrics info (used within this PMDA) */
+            pinfo->derived_counter = &derived_counters[i];
+            pinfo->pmid_index = index;
+            pinfo->help_text = dynamic_derived_helptab[index];
+            /* Initialize pmdaMetric settings (required by API) */
+            pmetric->m_desc.pmid = PMDA_PMID( cluster, index);
+            pmetric->m_desc.indom = indom;
+            pmetric->m_user = pinfo;
             ++pinfo;
             ++pmetric;
         }
@@ -475,7 +547,19 @@ static int setup_pmns()
             __pmAddPMNSNode(pmns, pmetric[j].m_desc.pmid, name);
         }
         pmetric += METRICSPERCOUNTER;
+        free(id);
+    }
 
+    for (i = 0; i < nderivedcounters; ++i)
+    {
+        char *id = normalize_metric_name(derived_counters[i].name);
+        for (j = 0; j < METRICSPERDERIVED; j++)
+        {
+            snprintf(name, sizeof(name),
+                     PMDANAME ".derived.%s.%s", id, dynamic_nametab[j]);
+            __pmAddPMNSNode(pmns, pmetric[j].m_desc.pmid, name);
+        }
+        pmetric += METRICSPERDERIVED;
         free(id);
     }
 
@@ -530,7 +614,7 @@ perfevent_init(pmdaInterface *dp)
     pmdaSetFetchCallBack(dp, perfevent_fetchCallBack);
     pmdaSetEndContextCallBack(dp, perfevent_end_contextCallBack);
 
-    pmdaInit(dp, indomtab, nhwcounters, metrictab, nummetrics);
+    pmdaInit(dp, indomtab, nhwcounters + nderivedcounters, metrictab, nummetrics);
 
     if(setup_pmns() < 0)
     {

@@ -26,7 +26,7 @@ perfmanagerhandle_t *manager_init(const char *configfilename);
 
 void manager_destroy(perfmanagerhandle_t *mgr);
 
-int perf_get_r(perfmanagerhandle_t *inst, perf_counter **data, int *size);
+int perf_get_r(perfmanagerhandle_t *inst, perf_counter **data, int *size, perf_derived_counter **derived_counter, int *derived_size);
 
 int perf_enabled(perfmanagerhandle_t *inst);
 
