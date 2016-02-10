@@ -2774,18 +2774,21 @@ __pmLogChangeToNextArchive(__pmLogCtl **lcp)
     ctxp->c_origin = save_origin;
     ctxp->c_mode = save_mode;
 
-    /* Check for temporal overlap here. */
-    if (__pmTimevalSub(&prev_endtime, &(*lcp)->l_label.ill_start) > 0) {
-	PM_UNLOCK(ctxp->c_lock);
-	return PM_ERR_LOGOVERLAP;
-    }
-
     /*
      * We want to reposition to the start of the archive.
      * Start after the header + label record + trailer
      */
     acp->ac_offset = sizeof(__pmLogLabel) + 2*sizeof(int);
     acp->ac_vol = acp->ac_log->l_curvol;
+
+    /*
+     * Check for temporal overlap here. Do this last in case the API client
+     * chooses to keep reading anyway.
+     */
+    if (__pmTimevalSub(&prev_endtime, &(*lcp)->l_label.ill_start) > 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_LOGOVERLAP;
+    }
 
     PM_UNLOCK(ctxp->c_lock);
     return 0;
@@ -2856,10 +2859,6 @@ __pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
 	PM_UNLOCK(ctxp->c_lock);
 	return sts;
     }
-    if (__pmTimevalSub(&(*lcp)->l_endtime, &prev_starttime) > 0) {
-	PM_UNLOCK(ctxp->c_lock);
-	return PM_ERR_LOGOVERLAP;  /* temporal overlap */
-    }
 
     /* Set up to scan backwards from the end of the archive. */
     __pmLogChangeVol(*lcp, (*lcp)->l_maxvol);
@@ -2867,6 +2866,15 @@ __pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
     ctxp->c_archctl->ac_offset = ftell((*lcp)->l_mfp);
     assert(ctxp->c_archctl->ac_offset >= 0);
     ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
+
+    /*
+     * Check for temporal overlap here. Do this last in case the API client
+     * chooses to keep reading anyway.
+     */
+    if (__pmTimevalSub(&(*lcp)->l_endtime, &prev_starttime) > 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_LOGOVERLAP;  /* temporal overlap */
+    }
 
     PM_UNLOCK(ctxp->c_lock);
     return 0;
