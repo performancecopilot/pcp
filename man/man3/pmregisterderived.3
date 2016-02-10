@@ -72,6 +72,28 @@ a formatted message is returned via the
 .I errmsg
 parameter.
 .PP
+Syntactic checking is performed at the time
+.B pmRegisterDerived
+is called, but semantic checking is deferred until each new context
+is created with
+.BR pmNewContext (3)
+or re-established with
+.BR pmReconnectContext (3),
+at which time the PMNS and metadata is available to
+allow semantic checking and the metadata of the derived metrics
+to be established.
+This means
+.B pmRegisterDerived
+does not apply retrospectively to any open contexts, so the normal
+use would be to make all calls to
+.B pmRegisterDerived
+(possibly via
+.BR pmLoadDerivedConfig (3))
+or
+.B pmRegisterDerivedMetric
+and then call
+.BR pmNewContext (3).
+.PP
 .I name
 should follow the syntactic rules for the names of performance metrics,
 namely one or more components separated with a dot (``.''), and each
@@ -219,17 +241,6 @@ T}
 .TE
 .IP * 2n
 White space is ignored.
-.PP
-Syntactic checking is performed at the time
-.B pmRegisterDerived
-is called, but semantic checking is deferred until each new context
-is created with
-.BR pmNewContext (3)
-or re-established with
-.BR pmReconnectContext (3),
-at which time the PMNS and metadata is available to
-allow semantic checking and the metadata of the derived metrics
-to be established.
 .SH "SEMANTIC CHECKS AND RULES"
 .PP
 There are a number of conversions required to determine the
@@ -406,15 +417,6 @@ as this routine does not use a target list of PMIDs that could be
 remapped (as is done for
 .BR pmFetch (3)).
 .PP
-.B pmRegisterDerived
-does not apply retrospectively to any open contexts, so the normal
-use would be to make all calls to
-.B pmRegisterDerived
-(possibly via
-.BR pmLoadDerivedConfig (3))
-and then call
-.BR pmNewContext (3).
-.PP
 There is no
 .B pmUnregisterDerived
 method, so once registered a derived metric persists for the life
@@ -439,7 +441,9 @@ the error was, the application should call
 to retrieve the corresponding parser error message.
 .PP
 .B pmRegisterDerivedMetric
-returns 0 and errmsg is undefined if the parsing is successful.
+returns 0 and
+.I errmsg
+is undefined if the parsing is successful.
 .PP
 If the given
 .I expr
