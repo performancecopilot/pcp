@@ -19,6 +19,9 @@ which sar >/dev/null 2>&1 || _notrun "sar not installed"
 which sadf >/dev/null 2>&1 || _notrun "sadf not installed"
 which sar2pcp >/dev/null 2>&1 || _notrun "sar2pcp not installed"
 
+platform=`uname -p`
+[ $platform = "x86_64" ] || _notrun "No qualified input data for $platform"
+
 version=`sar -V 2>&1 | sed -n -e '/sysstat version /{
 s/.* //
 p
@@ -132,7 +135,6 @@ sar2pcp sadist/sa-sysstat-$file_version $tmp
 sar $sar_opt -f sadist/sa-sysstat-$file_version -u \
 | tee -a $seq.full \
 | sed -n '/^[0-2][0-9]:/{
-s/^00\(:..:..\) PM/12\1/
 s/^01\(:..:..\) PM/13\1/
 s/^02\(:..:..\) PM/14\1/
 s/^03\(:..:..\) PM/15\1/
@@ -144,6 +146,7 @@ s/^08\(:..:..\) PM/20\1/
 s/^09\(:..:..\) PM/21\1/
 s/^10\(:..:..\) PM/22\1/
 s/^11\(:..:..\) PM/23\1/
+s/^12\(:..:..\) AM/00\1/
 s/^\(..:..:..\) AM/\1/
 p
 }' \
@@ -236,7 +239,7 @@ p
 cat $tmp.pcp >>$seq.full
 paste $tmp.sar $tmp.pcp >$tmp.both
 $PCP_AWK_PROG <$tmp.both '
-{ if ($2-$NF > 0.01 || $2-$NF < -0.01) print "[",NR,"] mismatch:",$1,$2,$NF }'
+{ if ($2-$NF > 0.02 || $2-$NF < -0.02) print "[",NR,"] mismatch:",$1,$2,$NF }'
 
 echo
 echo "check disk write thruput ..."
@@ -250,7 +253,7 @@ p
 cat $tmp.pcp >>$seq.full
 paste $tmp.sar $tmp.pcp >$tmp.both
 $PCP_AWK_PROG <$tmp.both '
-{ if ($6-$NF > 0.01 || $6-$NF < -0.01) print "[",NR,"] mismatch:",$1,$6,$NF }'
+{ if ($6-$NF > 0.02 || $6-$NF < -0.02) print "[",NR,"] mismatch:",$1,$6,$NF }'
 
 echo
 echo "full dump ..."
