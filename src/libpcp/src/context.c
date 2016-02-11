@@ -754,7 +754,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 	 * Obtain the start time of this archive. The end time could change
 	 * on the fly and needs to be re-checked as needed.
 	 */
-	if ((sts = pmGetArchiveLabel(&label)) < 0)
+	if ((sts = __pmGetArchiveLabel(ctxp->c_archctl->ac_log, &label)) < 0)
 	    goto error;
 
 	/*

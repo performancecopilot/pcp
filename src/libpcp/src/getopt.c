@@ -74,7 +74,7 @@ __pmUpdateBounds(pmOptions *opts, int index, struct timeval *begin, struct timev
 
 /*
  * Calculate time window boundaries depending on context type.
- * In multi-archive context, this means opening all of them and
+ * For multiple contexts, this means opening all of them and
  * defining the boundary as being from the start of the earliest
  * through to the end of the last-written archive.
  *
@@ -83,17 +83,11 @@ __pmUpdateBounds(pmOptions *opts, int index, struct timeval *begin, struct timev
 static int
 __pmBoundaryOptions(
   pmOptions *opts,
-  int ctxid,
   struct timeval *begin,
   struct timeval *end
 ) {
-    int			i;
-    int			ctx, sts = 0;
-    __pmContext		*ctxp;
-    __pmArchCtl		*acp;
-    int			save_arch;
-    int			save_vol;
-    long		save_offset;
+    int	i;
+    int	ctx, sts = 0;
 
     if (opts->context != PM_CONTEXT_ARCHIVE) {
 	/* live/local context, open ended - start now, never end */
@@ -101,60 +95,9 @@ __pmBoundaryOptions(
 	end->tv_sec = INT_MAX;
 	end->tv_usec = 0;
     } else if (opts->narchives == 1) {
-	/*
-	 * Singular archive context, which may contain more than one archive.
-	 * Make use of current context. Check the time span of each archive
-	 * in the context.
-	 */
-	if ((ctxp = __pmHandleToPtr(ctxid)) == NULL) {
-	    sts =  PM_ERR_NOCONTEXT;
+	/* Singular archive context, which may contain more than one archive. */
+	if ((sts = __pmUpdateBounds(opts, 0, begin, end)) < 0)
 	    return sts;
-	}
-
-	/* Save the initial state. */
-	save_arch = ctxp->c_archctl->ac_cur_log;
-	save_vol = ctxp->c_archctl->ac_vol;
-	save_offset = ctxp->c_archctl->ac_offset;
-
-	/*
-	 * The archives have already been sorted by timeline. So just extract
-	 * the beginning and end times from the first and last archives
-	 * respectively.
-	 */
-	acp = ctxp->c_archctl;
-	i = 0;
-	if ((sts = __pmLogChangeArchive(ctxp, i)) < 0) {
-	    pmprintf("%s: Cannot open archive %s: %s\n",
-		     pmProgname, acp->ac_log_list[i]->ml_name,
-		     pmErrStr(sts));
-	    PM_UNLOCK(ctxp->c_lock);
-	    return sts;
-	}
-	if ((sts = __pmUpdateBounds(opts, i, begin, end)) < 0)
-	    return sts;
-	if (acp->ac_num_logs > 1) {
-	    i = acp->ac_num_logs - 1;
-	    if ((sts = __pmLogChangeArchive(ctxp, i)) < 0) {
-		pmprintf("%s: Cannot open archive %s: %s\n",
-			 pmProgname, acp->ac_log_list[i]->ml_name,
-			 pmErrStr(sts));
-		PM_UNLOCK(ctxp->c_lock);
-		return sts;
-	    }
-	    sts = __pmUpdateBounds(opts, i, begin, end);
-	}
-
-	/* Restore to the initial state. */
-	if ((sts = __pmLogChangeArchive(ctxp, save_arch)) < 0) {
-	    PM_UNLOCK(ctxp->c_lock);
-	    return sts;
-	}
-	if ((sts = __pmLogChangeVol(ctxp->c_archctl->ac_log, save_vol)) < 0) {
-	    PM_UNLOCK(ctxp->c_lock);
-	    return sts;
-	}
-	fseek(ctxp->c_archctl->ac_log->l_mfp, save_offset, SEEK_SET);
-	PM_UNLOCK(ctxp->c_lock);
     } else {
 	/* More than one archive context - figure out combined start and end */
 	for (i = 0; i < opts->narchives; i++) {
@@ -219,7 +162,7 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
 	struct timeval first_boundary, last_boundary;
 	char *msg;
 
-	if (__pmBoundaryOptions(opts, ctxid, &first_boundary, &last_boundary) < 0)
+	if (__pmBoundaryOptions(opts, &first_boundary, &last_boundary) < 0)
 	    opts->errors++;
 	else if (pmParseTimeWindow(
 			opts->start_optarg, opts->finish_optarg,

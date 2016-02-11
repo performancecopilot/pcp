@@ -2408,57 +2408,89 @@ __pmLogSetTime(__pmContext *ctxp)
     ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 }
 
+/* Read the label of the current archive. */
+int
+__pmGetArchiveLabel(__pmLogCtl *lcp, pmLogLabel *lp)
+{
+    __pmLogLabel	*rlp;
+
+    /*
+     * we have to copy the structure to hide the differences
+     * between the internal __pmTimeval and the external struct timeval
+     */
+    rlp = &lcp->l_label;
+    lp->ll_magic = rlp->ill_magic;
+    lp->ll_pid = (pid_t)rlp->ill_pid;
+    lp->ll_start.tv_sec = rlp->ill_start.tv_sec;
+    lp->ll_start.tv_usec = rlp->ill_start.tv_usec;
+    memcpy(lp->ll_hostname, rlp->ill_hostname, PM_LOG_MAXHOSTLEN);
+    memcpy(lp->ll_tz, rlp->ill_tz, sizeof(lp->ll_tz));
+    return 0;
+}
+
+/* Read the label of the first archive in the context. */
 int
 pmGetArchiveLabel(pmLogLabel *lp)
 {
-    __pmContext		*ctxp;
+    int		save_arch;
+    int		save_vol;
+    long	save_offset;
+    int		sts;
+    int		restore = 0;
+    __pmContext	*ctxp;
+    __pmArchCtl	*acp;
+    __pmLogCtl	*lcp;
+
     ctxp = __pmHandleToPtr(pmWhichContext());
     if (ctxp == NULL) 
 	return PM_ERR_NOCONTEXT;
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	PM_UNLOCK(ctxp->c_lock);
-	return PM_ERR_NOCONTEXT;
+	return PM_ERR_NOTARCHIVE;
     }
-    else {
-	__pmLogLabel	*rlp;
-	/*
-	 * we have to copy the structure to hide the differences
-	 * between the internal __pmTimeval and the external struct timeval
-	 */
-	rlp = &ctxp->c_archctl->ac_log->l_label;
-	lp->ll_magic = rlp->ill_magic;
-	lp->ll_pid = (pid_t)rlp->ill_pid;
-	lp->ll_start.tv_sec = rlp->ill_start.tv_sec;
-	lp->ll_start.tv_usec = rlp->ill_start.tv_usec;
-	memcpy(lp->ll_hostname, rlp->ill_hostname, PM_LOG_MAXHOSTLEN);
-	memcpy(lp->ll_tz, rlp->ill_tz, sizeof(lp->ll_tz));
-	PM_UNLOCK(ctxp->c_lock);
-	return 0;
-    }
-}
+    acp = ctxp->c_archctl;
+    lcp = acp->ac_log;
 
-int
-pmGetArchiveEnd(struct timeval *tp)
-{
-    /*
-     * set l_physend and l_endtime
-     * at the end of ... ctxp->c_archctl->ac_log
-     */
-    __pmContext	*ctxp;
-    int		sts;
+    /* If necessary, switch to the first archive in the context. */
+    if (acp->ac_cur_log != 0) {
+	/* Save the initial state. */
+	save_arch = ctxp->c_archctl->ac_cur_log;
+	save_vol = ctxp->c_archctl->ac_vol;
+	save_offset = ctxp->c_archctl->ac_offset;
 
-    ctxp = __pmHandleToPtr(pmWhichContext());
-    if (ctxp == NULL)
-	return PM_ERR_NOCONTEXT;
-    if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
-	PM_UNLOCK(ctxp->c_lock);
-	return PM_ERR_NOCONTEXT;
+	if ((sts = __pmLogChangeArchive(ctxp, 0)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
+	    return sts;
+	}
+	lcp = acp->ac_log;
+	restore = 1;
     }
-    sts = __pmGetArchiveEnd(ctxp->c_archctl->ac_log, tp);
+
+    /* Get the label. */
+    if ((sts = __pmGetArchiveLabel(lcp, lp)) < 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return sts;
+    }
+
+    if (restore) {
+	/* Restore to the initial state. */
+	if ((sts = __pmLogChangeArchive(ctxp, save_arch)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
+	    return sts;
+	}
+	lcp = ctxp->c_archctl->ac_log;
+	if ((sts = __pmLogChangeVol(lcp, save_vol)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
+	    return sts;
+	}
+	fseek(lcp->l_mfp, save_offset, SEEK_SET);
+    }
+
     PM_UNLOCK(ctxp->c_lock);
-    return sts;
+    return 0;
 }
 
+/* Get the end time of the current archive. */
 int
 __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 {
@@ -2646,6 +2678,71 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
     return sts;
 }
 
+/* Get the end time of the final archive in the context. */
+int
+pmGetArchiveEnd(struct timeval *tp)
+{
+    int		save_arch;
+    int		save_vol;
+    long	save_offset;
+    int		sts;
+    int		restore = 0;
+    __pmContext	*ctxp;
+    __pmArchCtl	*acp;
+    __pmLogCtl	*lcp;
+
+    /*
+     * set l_physend and l_endtime
+     * at the end of ... ctxp->c_archctl->ac_log
+     */
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL)
+	return PM_ERR_NOCONTEXT;
+    if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_NOTARCHIVE;
+    }
+    acp = ctxp->c_archctl;
+    lcp = acp->ac_log;
+
+    /* If necessary, switch to the last archive in the context. */
+    if (acp->ac_cur_log != acp->ac_num_logs - 1) {
+	/* Save the initial state. */
+	save_arch = ctxp->c_archctl->ac_cur_log;
+	save_vol = ctxp->c_archctl->ac_vol;
+	save_offset = ctxp->c_archctl->ac_offset;
+
+	if ((sts = __pmLogChangeArchive(ctxp, acp->ac_num_logs - 1)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
+	    return sts;
+	}
+	lcp = acp->ac_log;
+	restore = 1;
+    }
+
+    if ((sts = __pmGetArchiveEnd(lcp, tp)) < 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return sts;
+    }
+
+    if (restore) {
+	/* Restore to the initial state. */
+	if ((sts = __pmLogChangeArchive(ctxp, save_arch)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
+	    return sts;
+	}
+	lcp = ctxp->c_archctl->ac_log;
+	if ((sts = __pmLogChangeVol(lcp, save_vol)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
+	    return sts;
+	}
+	fseek(lcp->l_mfp, save_offset, SEEK_SET);
+    }
+
+    PM_UNLOCK(ctxp->c_lock);
+    return sts;
+}
+
 int
 __pmLogChangeArchive(__pmContext *ctxp, int arch)
 {
@@ -2692,7 +2789,7 @@ __pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
 	return PM_ERR_EOL;
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	PM_UNLOCK(ctxp->c_lock);
-	return PM_ERR_EOL;
+	return PM_ERR_NOTARCHIVE;
     }
 
     /*

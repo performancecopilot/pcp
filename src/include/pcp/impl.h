@@ -1118,6 +1118,7 @@ PCP_CALL extern void __pmFreeInterpData(__pmContext *);
 
 PCP_CALL extern int __pmLogChangeVol(__pmLogCtl *, int);
 PCP_CALL extern int __pmLogChkLabel(__pmLogCtl *, FILE *, __pmLogLabel *, int);
+PCP_CALL extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *);
 PCP_CALL extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
 
 /* struct for maintaining information about pmlogger ports */

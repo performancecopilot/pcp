@@ -750,7 +750,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	 * last looked, or if we can switch to the next archive in the context.
 	 */
 	for (;;) {
-	    if (pmGetArchiveEnd(&end) >= 0) {
+	    if (__pmGetArchiveEnd(ctxp->c_archctl->ac_log, &end) >= 0) {
 		tmp.tv_sec = (__int32_t)end.tv_sec;
 		tmp.tv_usec = (__int32_t)end.tv_usec;
 		ctxp->c_archctl->ac_end = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
