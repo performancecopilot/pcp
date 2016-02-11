@@ -1217,7 +1217,7 @@ cgroups
 1080 valgrind pcp atop local
 1081 python pcp local
 1082 python local
-1090 webapi local context
+1090 pmwebapi local context
 1091 pmns libpcp context local
 1092 libpcp local
 1093 pmcpp local
