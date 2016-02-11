@@ -117,7 +117,7 @@ then
     PCP_ETC_DIR=@pcp_etc_dir@
     if [ -f "$PCP_ETC_DIR/pcp/pmcd/pmcd.conf" ] && [ -f "$PCP_PMDAS_DIR/%2/domain.h" ]
     then
-	cd $PCP_PMDAS_DIR/%2/ && ./Remove >/dev/null 2>&1
+	(cd $PCP_PMDAS_DIR/%2/ && ./Remove >/dev/null 2>&1)
     fi
 fi
 }
