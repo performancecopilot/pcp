@@ -16,9 +16,12 @@
 """ Display disk and device-mapper I/O statistics """
 
 import sys
-import socket
+import signal
 from pcp import pmapi, pmcc
 from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE, PM_SPACE_KBYTE, PM_MODE_FORW
+
+# use default SIGPIPE handler to avoid broken pipe exceptions
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 IOSTAT_SD_METRICS = [ 'disk.dev.read', 'disk.dev.read_bytes',
                  'disk.dev.write', 'disk.dev.write_bytes',
@@ -183,7 +186,7 @@ class IostatOptions(pmapi.pmOptions):
     xflag = [] 
     uflag = None
 
-    def checkOptions(manager):
+    def checkOptions(self, manager):
         if IostatOptions.uflag:
             if manager._options.pmGetOptionInterval():
                 print("Error: -t incompatible with -u")
@@ -225,8 +228,9 @@ class IostatOptions(pmapi.pmOptions):
 
 if __name__ == '__main__':
     try:
-        manager = pmcc.MetricGroupManager.builder(IostatOptions(), sys.argv)
-        if not IostatOptions.checkOptions(manager):
+        opts = IostatOptions()
+        manager = pmcc.MetricGroupManager.builder(opts, sys.argv)
+        if not opts.checkOptions(manager):
             raise pmapi.pmUsageErr
 
         if IostatOptions.uflag:
@@ -246,6 +250,4 @@ if __name__ == '__main__':
         usage.message()
         sys.exit(1)
     except KeyboardInterrupt:
-        pass
-    except socket.error:
         pass
