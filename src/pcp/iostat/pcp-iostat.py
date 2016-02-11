@@ -183,7 +183,7 @@ class IostatOptions(pmapi.pmOptions):
     xflag = [] 
     uflag = None
 
-    def checkOptions(manager):
+    def checkOptions(self, manager):
         if IostatOptions.uflag:
             if manager._options.pmGetOptionInterval():
                 print("Error: -t incompatible with -u")
@@ -225,8 +225,9 @@ class IostatOptions(pmapi.pmOptions):
 
 if __name__ == '__main__':
     try:
-        manager = pmcc.MetricGroupManager.builder(IostatOptions(), sys.argv)
-        if not IostatOptions.checkOptions(manager):
+        opts = IostatOptions()
+        manager = pmcc.MetricGroupManager.builder(opts, sys.argv)
+        if not opts.checkOptions(manager):
             raise pmapi.pmUsageErr
 
         if IostatOptions.uflag:
