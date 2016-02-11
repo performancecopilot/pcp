@@ -349,8 +349,14 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
             continue;
 
         // Skip if uninteresting directory
-        if ((ent->fts_info == FTS_D) && !graphite_archivedir)
-            continue;
+        // NB: fts(3) may traverse-callback directories several times,
+        // with different fts_info codes.  We want up to one.
+        if (S_ISDIR(ent->fts_statp->st_mode)) {
+            if (! graphite_archivedir) // zero
+                continue;
+            if (graphite_archivedir && ent->fts_info != FTS_D) // one
+                continue;
+        }
 
         // Skip if uninteresting file
         if ((ent->fts_info == FTS_F) &&
@@ -867,11 +873,8 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
         archive = archivesdir + (char) __pmPathSeparator () + spec->archive;
     }
 
-    if (! graphite_encode) { // need to restore .meta for cursed_path_p processing
-        archive += ".meta";
-    }
-
-    if (cursed_path_p (archivesdir, archive)) {
+    if (cursed_path_p (archivesdir, archive) &&
+        (!graphite_encode) && cursed_path_p (archivesdir, archive + ".meta")) {
         message << "invalid archive path " << archive;
         goto out0;
     }
@@ -1063,12 +1066,14 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
 
             // fetch all unique metrics
             int sts = pmFetch (unique_pmids.size(), & unique_pmids[0], &result);
-            if (sts >= 0) {
-                if (verbosity > 4) {
-                    message << "@" << result->timestamp.tv_sec
-                            << result->vset[0]->numval << " ";
-                }
+            if (verbosity > 4) {
+                message << "\n@" << iteration_time; // also == result->timestamp.tv_sec
+                if (sts < 0)
+                    message << "?";
+                message << " ";
+            }
 
+            if (sts >= 0) {
                 assert ((size_t)result->numpmid == unique_pmids.size()); // PMAPI guarantee?
 
                 // search them all for matching pmid/inst tuples
@@ -1099,6 +1104,8 @@ void pmgraphite_fetch_series (fetch_series_jobspec *spec)
                             if (sts == 0) {
                                 x.when = result->timestamp;	// should generally match iteration_time
                                 x.what = value.f;
+                                if (verbosity > 4)
+                                    message << value.f << " ";
                                 entries_good++;
                             }
 
