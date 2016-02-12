@@ -42,6 +42,7 @@ _archive_filter()
 {
     sed \
 	-e '/timezone/s/current is .*)/current is ...)/' \
+        -e '/timezone/s/ (reporting.*)//' \
     #end
 }
 
