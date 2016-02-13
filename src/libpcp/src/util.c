@@ -1375,13 +1375,13 @@ vpmprintf(const char *msg, va_list arg)
 #endif /* HAVE_MKSTEMP */
 
 	    if (fd < 0) goto fail;
+	    unlink(fname);
 	    if ((fptr = fdopen(fd, "a")) == NULL) {
 		char	errmsg[PM_MAXERRMSGLEN];
 fail:
 		if (fname != NULL) {
 		    fprintf(stderr, "%s: vpmprintf: failed to create \"%s\": %s\n",
 			pmProgname, fname, osstrerror_r(errmsg, sizeof(errmsg)));
-		    unlink(fname);
 		    free(fname);
 		}
 		else {
@@ -1490,7 +1490,6 @@ pmflush(void)
 	}
 	fclose(fptr);
 	fptr = NULL;
-	unlink(fname);
 	free(fname);
 	if (sts >= 0)
 	    sts = msgsize;
