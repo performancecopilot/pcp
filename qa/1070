@@ -34,20 +34,35 @@ _path_filter()
     #end
 }
 
+# deal with ...
+# timezone: PCP-10 (reporting, local is AEDT-11)
+#
+_filter()
+{
+    sed \
+	-e '/timezone:/s/local is .*)/local is TIMEZONE)/'
+    #end
+}
+
 log="--archive $here/archives/20130706 -z -O 30m"
 
 # real QA test starts here
 echo "== pmrep csv / sheet2pcp / pmrep csv roundtrip compatibility"
 echo "Test data to be used:"
-pmrep -s 5 -t 2 $log -p -o stdout -x hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock | _path_filter
-pmrep -s 5 -t 2 $log -p -o csv -F 1070.csv hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock
+pmrep -s 5 -t 2 $log -p -o stdout -x hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock 2>&1 \
+| _path_filter \
+| _filter
+pmrep -s 5 -t 2 $log -p -o csv -F 1070.csv hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock 2>&1 \
+| _filter
 sheet2pcp 1070.csv 1070.map 1070-archive
-pmrep -s 5 -t 2 -a 1070-archive -z -p -o csv -F 1070.csv2 hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock
+pmrep -s 5 -t 2 -a 1070-archive -z -p -o csv -F 1070.csv2 hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock 2>&1 \
+| _filter
 echo "Diff of CSV files start (no output expected)"
 diff 1070.csv 1070.csv2
 echo "Diff of CSV files end"
 echo "Test data from temp archive:"
-pmrep -s 5 -t 2 -a 1070-archive -z -p -o stdout -x hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock
+pmrep -s 5 -t 2 -a 1070-archive -z -p -o stdout -x hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock 2>&1 \
+| _filter
 rm -f 1070-archive* 1070.csv*
 
 # success, all done
