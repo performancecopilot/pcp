@@ -511,10 +511,6 @@ pmdaEventNewClient(int context)
 	if (!clients)
 	    __pmNoMem("pmdaEventNewClient", size, PM_FATAL_ERR);
 	numclients++;
-
-	if (pmDebug & DBG_TRACE_LIBPMDA)
-	    __pmNotifyErr(LOG_INFO, "%s: new client, slot=%d (total=%d)\n",
-		      __FUNCTION__, i, numclients);
     }
 
     /* "i" now indexes into a free slot */
@@ -522,6 +518,11 @@ pmdaEventNewClient(int context)
     memset(client, 0, sizeof(*client));
     client->context = context;
     client->inuse = 1;
+
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	fprintf(stderr, "%s: new client, slot=%d (total=%d) context=%d\n",
+		  __FUNCTION__, i, numclients, context);
+
     return i;
 }
 
