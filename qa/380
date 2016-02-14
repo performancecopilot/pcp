@@ -94,6 +94,3 @@ $1 == "E"	{ delta = $2 - start
 
 # success, all done
 exit
-
-# success, all done
-exit
