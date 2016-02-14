@@ -25,11 +25,7 @@ _cleanup()
 {
     $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
     unset PMCD_PORT
-    if [ -f $tmp.options ]
-    then
-	$sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
-	$sudo rm -f $tmp.options
-    fi
+    _restore_config $PCP_PMCDOPTIONS_PATH
     $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
@@ -56,7 +52,7 @@ then
     exit 1
 fi
 echo "port=$port" >>$seq.full
-$sudo cp $PCP_PMCDOPTIONS_PATH $tmp.options
+_save_config $PCP_PMCDOPTIONS_PATH
 cat <<End-of-File >$tmp.newoptions
 # New pmcd.options file created by QA $seq
 #
