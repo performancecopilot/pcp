@@ -365,6 +365,7 @@ util.o
     nfilelog			# guarded by __pmLock_libpcp mutex
     dosyslog			# guarded by __pmLock_libpcp mutex
     done_exit			# guarded by __pmLock_libpcp mutex
+    ?pmprintf_atexit_installed	# guarded by __pmLock_libpcp mutex
     ferr			# guarded by __pmLock_libpcp mutex
     errtype			# guarded by __pmLock_libpcp mutex
     fptr			# guarded by __pmLock_libpcp mutex
