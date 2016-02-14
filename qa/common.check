@@ -199,7 +199,6 @@ _cleanup_pmda()
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_clean=true
-	rm -f $tmp.*
     fi
 }
 
