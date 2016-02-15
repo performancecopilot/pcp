@@ -41,7 +41,6 @@ e1: -995
 
 
 metric:    sample.negative.instant.m_32
-host:      bozo
 semantics: instantaneous value
 units:     none
 samples:   2
@@ -70,7 +69,6 @@ e1: -995
 
 
 metric:    sample.negative.discrete.m_32
-host:      bozo
 semantics: discrete instantaneous value
 units:     none
 samples:   2
@@ -127,7 +125,6 @@ e1: -995
 
 
 metric:    sample.negative.instant.m_64
-host:      bozo
 semantics: instantaneous value
 units:     none
 samples:   2
@@ -156,7 +153,6 @@ e1: -995
 
 
 metric:    sample.negative.discrete.m_64
-host:      bozo
 semantics: discrete instantaneous value
 units:     none
 samples:   2
@@ -213,7 +209,6 @@ e1: -995
 
 
 metric:    sample.negative.instant.m_float
-host:      bozo
 semantics: instantaneous value
 units:     none
 samples:   2
@@ -242,7 +237,6 @@ e1: -995
 
 
 metric:    sample.negative.discrete.m_float
-host:      bozo
 semantics: discrete instantaneous value
 units:     none
 samples:   2
@@ -299,7 +293,6 @@ e1: -995
 
 
 metric:    sample.negative.instant.m_double
-host:      bozo
 semantics: instantaneous value
 units:     none
 samples:   2
@@ -328,7 +321,6 @@ e1: -995
 
 
 metric:    sample.negative.discrete.m_double
-host:      bozo
 semantics: discrete instantaneous value
 units:     none
 samples:   2
