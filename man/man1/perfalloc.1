@@ -29,14 +29,23 @@ to disable hardware counter allocation.
 .B perfalloc
 is a command that notifies the 
 .BR pmdaperfevent (1)
-to disable hardware counter event collection. This allow unpriviledged processes
-to use the hardware counters.
-
-If the reservation request fails, then perfalloc exits immediately with exit code EXIT_FAILURE.
-If successful, the perfalloc will run until a kill signal is received. The
-reservation request persists while perfalloc is running.
-
-If a commandline is given, this is executed as a subprocess of the agent. When the command dies, so does the agent.
+to disable hardware counter event collection.
+This allow unprivileged processes to use the hardware counters.
+.PP
+If the reservation request fails, then perfalloc exits immediately with
+exit code EXIT_FAILURE.
+If successful, the perfalloc will run until a kill signal is received.
+The reservation request persists while perfalloc is running.
+.PP
+Note that
+.B pmdaperfevent
+is affected by the value of the
+.I kernel.perf_event_paranoid
+setting, which can be adjusted by
+.BR sysctl (8).
+.PP
+If a commandline is given, this is executed as a subprocess of the agent.
+When the command dies, so does the agent.
 .PP
 A brief description of the command line options follows:
 .TP 5
@@ -54,15 +63,15 @@ display a help message and exit
 .TP
 .B \-v
 output version number and exit
-
 .PD
 .SH BUGS
 There may be a delay of up to 100 miliseconds between perfalloc requesting the
 hardware counter disabling and the perfevent pmda processing the request.
-
+.PP
 The perfalloc process does not check the status of the request and therefore is not able to
 provide a positive confirmation that the request succeeded and the hardware counters are disabled.
 .SH SEE ALSO
 .BR pmdaperfevent (1),
+.BR perfevent.conf (3)
 and
-.BR perfevent.conf (3),
+.BR sysctl (8).

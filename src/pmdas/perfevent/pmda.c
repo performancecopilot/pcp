@@ -1,8 +1,8 @@
 /*
  * perfevent PMDA
  *
- * Copyright (c) 2013 
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2013 Joe White
+ * Copyright (c) 2012,2016 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,6 +32,9 @@
  *	perfevent.version
  *	        version number of this pmda
  *
+ *	perfevent.active
+ *	        number of active hardware counters
+ *
  *	perfevent.hwcounters.{HWCOUNTER}.value
  *	        the value of the counter. Per-cpu counters have mulitple instances,
  *	        one for each CPU. Uncore/Northbridge counters only have one
@@ -42,6 +45,13 @@
  *	        active. This value will typically be 1.00, but could be less if
  *	        more counters were configured than available in the hardware and
  *	        the kernel module is time-multiplexing them.
+ *
+ *	perfevent.derived.active
+ *	        number of derived counters
+ *
+ *	perfevent.derived.{DHWCOUNTER}.value
+ *		similar to the above, but derivations based on values of the
+ *		HWCOUNTER metrics as (optionally) specified in perfevent.conf
  *
  */
 
@@ -74,7 +84,7 @@ static int numindoms;
 static pmdaIndom *indomtab;
 
 /*
- * PM namespace
+ * Performance metrics namespace
  */
 static __pmnsTree *pmns;
 
@@ -132,13 +142,13 @@ static pmdaMetric static_derived_metrictab[] =
 #define NUM_STATIC_DERIVED_CLUSTERS 1
 
 static pmdaMetric derived_metric_settings[] =
-    {
-        /* perfevent.derived.{DERIVEDCOUNTER} */
-        {   NULL, /* m_user */ { 0 /*pmid */, PM_TYPE_DOUBLE, 0 /* instance domain */,
-                                 PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
-            },
+{
+    /* perfevent.derived.{DERIVEDCOUNTER} */
+    {   NULL, /* m_user */ { 0 /*pmid */, PM_TYPE_DOUBLE, 0 /* instance domain */,
+            PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)
         },
-    };
+    },
+};
 
 #define METRICSPERCOUNTER (sizeof(default_metric_settings)/sizeof(default_metric_settings[0]))
 #define METRICSPERDERIVED (sizeof(derived_metric_settings)/sizeof(derived_metric_settings[0]))
@@ -494,10 +504,12 @@ static int setup_metrics()
             pinfo->derived_counter = &derived_counters[i];
             pinfo->pmid_index = index;
             pinfo->help_text = dynamic_derived_helptab[index];
+
             /* Initialize pmdaMetric settings (required by API) */
             pmetric->m_desc.pmid = PMDA_PMID( cluster, index);
             pmetric->m_desc.indom = indom;
             pmetric->m_user = pinfo;
+
             ++pinfo;
             ++pmetric;
         }
