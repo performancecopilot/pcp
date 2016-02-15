@@ -26,6 +26,7 @@ log mandatory on 1 sec {
 	kernel.all.running
 	kernel.all.blocked
 	kernel.all.cpu
+	hinv.ncpu
 }
 End-of-File
 
