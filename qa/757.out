@@ -15,7 +15,7 @@ Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Starting pmcd ... 
 Starting pmlogger ... 
-Check perfevent metrics have appeared ... 8 metrics and Y values
+Check perfevent metrics have appeared ... X metrics and Y values
 perfevent.version
 perfevent.active
 perfevent.hwcounters.perf__PERF_COUNT_SW_CPU_CLOCK.dutycycle
@@ -24,6 +24,7 @@ perfevent.hwcounters.perf__PERF_COUNT_SW_TASK_CLOCK.dutycycle
 perfevent.hwcounters.perf__PERF_COUNT_SW_TASK_CLOCK.value
 perfevent.hwcounters.perf__PERF_COUNT_SW_PAGE_FAULTS.dutycycle
 perfevent.hwcounters.perf__PERF_COUNT_SW_PAGE_FAULTS.value
+perfevent.derived.active
 
 === remove perfevent agent ===
 Culling the Performance Metrics Name Space ...
