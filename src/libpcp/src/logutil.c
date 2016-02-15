@@ -672,47 +672,6 @@ logFreePMNS(__pmLogCtl *lcp)
 	__pmFreePMNS(lcp->l_pmns);
 	lcp->l_pmns = NULL;
     }
-}
-
-/*
- * Close the log files.
- * Free up the space used by __pmLogCtl.
- */
-
-void
-__pmLogClose(__pmLogCtl *lcp)
-{
-    /*
-     * We no longer free l_pmns here. It may be needed by the next archive
-     * of a multi-archive context.
-     * It is now freed as needed using logFreePMNS().
-     */
-    if (lcp->l_tifp != NULL) {
-	__pmResetIPC(fileno(lcp->l_tifp));
-	fclose(lcp->l_tifp);
-	lcp->l_tifp = NULL;
-    }
-    if (lcp->l_mdfp != NULL) {
-	__pmResetIPC(fileno(lcp->l_mdfp));
-	fclose(lcp->l_mdfp);
-	lcp->l_mdfp = NULL;
-    }
-    if (lcp->l_mfp != NULL) {
-	__pmResetIPC(fileno(lcp->l_mfp));
-	fclose(lcp->l_mfp);
-	lcp->l_mfp = NULL;
-    }
-    if (lcp->l_name != NULL) {
-	free(lcp->l_name);
-	lcp->l_name = NULL;
-    }
-    if (lcp->l_seen != NULL) {
-	free(lcp->l_seen);
-	lcp->l_seen = NULL;
-	lcp->l_numseen = 0;
-    }
-    if (lcp->l_ti != NULL)
-	free(lcp->l_ti);
 
     if (lcp->l_hashpmid.hsize != 0) {
 	__pmHashCtl	*hcp = &lcp->l_hashpmid;
@@ -765,7 +724,47 @@ __pmLogClose(__pmLogCtl *lcp)
 	}
 	free(hcp->hash);
     }
+}
 
+/*
+ * Close the log files.
+ * Free up the space used by __pmLogCtl.
+ */
+
+void
+__pmLogClose(__pmLogCtl *lcp)
+{
+    /*
+     * We no longer free l_pmns here or clear l_cachepmid or l_cacheindom here.
+     * They may be needed by the next archive of a multi-archive context.
+     * They are now now freed as needed using logFreePMNS().
+     */
+    if (lcp->l_tifp != NULL) {
+	__pmResetIPC(fileno(lcp->l_tifp));
+	fclose(lcp->l_tifp);
+	lcp->l_tifp = NULL;
+    }
+    if (lcp->l_mdfp != NULL) {
+	__pmResetIPC(fileno(lcp->l_mdfp));
+	fclose(lcp->l_mdfp);
+	lcp->l_mdfp = NULL;
+    }
+    if (lcp->l_mfp != NULL) {
+	__pmResetIPC(fileno(lcp->l_mfp));
+	fclose(lcp->l_mfp);
+	lcp->l_mfp = NULL;
+    }
+    if (lcp->l_name != NULL) {
+	free(lcp->l_name);
+	lcp->l_name = NULL;
+    }
+    if (lcp->l_seen != NULL) {
+	free(lcp->l_seen);
+	lcp->l_seen = NULL;
+	lcp->l_numseen = 0;
+    }
+    if (lcp->l_ti != NULL)
+	free(lcp->l_ti);
 }
 
 /*
