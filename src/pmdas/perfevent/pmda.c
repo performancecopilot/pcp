@@ -121,6 +121,16 @@ static pmdaMetric default_metric_settings[] =
     },
 };
 
+static pmdaMetric static_derived_metrictab[] =
+{
+    /* perfevent.derived.active */
+    { NULL, { PMDA_PMID(1,0), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) } }
+};
+
+#define NUM_STATIC_DERIVED_METRICS (sizeof(static_derived_metrictab)/sizeof(static_derived_metrictab))
+#define NUM_STATIC_DERIVED_INDOMS 0
+#define NUM_STATIC_DERIVED_CLUSTERS 1
+
 static pmdaMetric derived_metric_settings[] =
     {
         /* perfevent.derived.{DERIVEDCOUNTER} */
@@ -191,7 +201,19 @@ static int perfevent_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomV
             return PM_ERR_PMID;
         }
     }
-    else if(idp->cluster >= (nderivedcounters + nhwcounters + NUM_STATIC_CLUSTERS)  )
+    if (idp->cluster == 1)
+    {
+        if (idp->item == 0)
+        {
+            atom->l = nderivedcounters;
+            return 1;
+        }
+        else
+        {
+            return PM_ERR_PMID;
+        }
+    }
+    else if(idp->cluster >= (nderivedcounters + nhwcounters + NUM_STATIC_CLUSTERS + NUM_STATIC_DERIVED_CLUSTERS)  )
     {
         return PM_ERR_PMID;
     }
@@ -206,7 +228,7 @@ static int perfevent_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomV
     const perf_data *pdata = NULL;
     const perf_derived_data *pddata = NULL;
 
-    if (idp->cluster >= NUM_STATIC_CLUSTERS + nhwcounters) {
+    if (idp->cluster >= NUM_STATIC_DERIVED_CLUSTERS + NUM_STATIC_CLUSTERS + nhwcounters) {
         pddata = &(pinfo->derived_counter->data[inst]);
     } else {
         pdata = &(pinfo->hwcounter->data[inst]);
@@ -215,7 +237,7 @@ static int perfevent_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomV
     switch(pinfo->pmid_index)
     {
     case 0:
-        if (idp->cluster >= nhwcounters + NUM_STATIC_CLUSTERS)
+        if (idp->cluster >= nhwcounters + NUM_STATIC_CLUSTERS + NUM_STATIC_DERIVED_CLUSTERS)
             atom->d = pddata->value;
         else
             atom->ll = pdata->value;
@@ -401,8 +423,8 @@ static int setup_metrics()
     int index;
 
     nummetrics = (nhwcounters * METRICSPERCOUNTER) + NUM_STATIC_METRICS;
-    nummetrics += (nderivedcounters * METRICSPERDERIVED);
-    numindoms = nderivedcounters + nhwcounters + NUM_STATIC_INDOMS;
+    nummetrics += (nderivedcounters * METRICSPERDERIVED) + NUM_STATIC_DERIVED_METRICS;
+    numindoms = nderivedcounters + nhwcounters + NUM_STATIC_INDOMS + NUM_STATIC_DERIVED_INDOMS;
 
     dynamic_metric_infotab = malloc( ((nhwcounters * METRICSPERCOUNTER)
                                       + (nderivedcounters * METRICSPERDERIVED))
@@ -421,17 +443,20 @@ static int setup_metrics()
     }
 
     memcpy(metrictab, static_metrictab, sizeof(static_metrictab) );
+    pmdaMetric *pmetric = &metrictab[NUM_STATIC_METRICS];
+
+    memcpy(pmetric, static_derived_metrictab, sizeof(static_derived_metrictab));
+    pmetric += NUM_STATIC_DERIVED_METRICS;
 
     dynamic_metric_info_t *pinfo = dynamic_metric_infotab;
-    pmdaMetric *pmetric = &metrictab[NUM_STATIC_METRICS];
 
     for(i = 0; i < nhwcounters; ++i)
     {
-        cluster = i + NUM_STATIC_CLUSTERS;
+        cluster = i + NUM_STATIC_CLUSTERS + NUM_STATIC_DERIVED_CLUSTERS;
 
         /* For simplicity, a separate instance domain is setup for each hardware
          * counter */
-        indom = i + NUM_STATIC_INDOMS;
+        indom = i + NUM_STATIC_INDOMS + NUM_STATIC_DERIVED_INDOMS;
 
         config_indom( &indomtab[indom], indom, &hwcounters[i]);
 
@@ -457,8 +482,8 @@ static int setup_metrics()
 
     for (i = 0; i < nderivedcounters; i++)
     {
-        cluster = i + nhwcounters + NUM_STATIC_CLUSTERS;
-        indom = i + nhwcounters + NUM_STATIC_INDOMS;
+        cluster = i + nhwcounters + NUM_STATIC_CLUSTERS + NUM_STATIC_DERIVED_CLUSTERS;
+        indom = i + nhwcounters + NUM_STATIC_INDOMS + NUM_STATIC_DERIVED_INDOMS;
 
         config_indom_derived( &indomtab[indom], indom, &derived_counters[i]);
 
@@ -536,6 +561,14 @@ static int setup_pmns()
     }
 
     pmetric = &metrictab[NUM_STATIC_METRICS];
+
+    /* Setup for derived static metrics */
+    snprintf(name, sizeof(name), PMDANAME ".derived.%s", "active");
+    __pmAddPMNSNode(pmns, pmetric[0].m_desc.pmid, name);
+
+    pmetric += NUM_STATIC_DERIVED_METRICS;
+
+    /* Now setup the dynamic metrics */
     for (i = 0; i < nhwcounters; ++i)
     {
         char *id = normalize_metric_name(hwcounters[i].name);
