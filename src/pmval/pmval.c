@@ -480,7 +480,7 @@ printlabels(Context *x)
 }
 
 void
-printreal(double v, int minwidth)
+printreal(double v, int sem, int minwidth)
 {
     char	*fmt;
 
@@ -498,12 +498,12 @@ printreal(double v, int minwidth)
      *           x.xxxE+xx	> 9999
      */
 
-    if (fixed != -1) {
-	printf("%*.*f", minwidth, fixed, v);
-    }
+    if (v < 0.0 && sem == PM_SEM_COUNTER)
+	printf("%*s", minwidth, "!");
     else {
-	if (v < 0.0)
-	    printf("%*s", minwidth, "!");
+	if (fixed != -1) {
+	    printf("%*.*f", minwidth, fixed, v);
+	}
 	else {
 	    if (v == 0) {
 		fmt = "%*.0f.0   ";
@@ -549,8 +549,13 @@ printvals(Context *x, pmValueSet *vset, int cols)
     if (x->desc.indom == PM_INDOM_NULL) {
 	if (vset->numval == 1) {
 	    if (doreal) {
-		pmExtractValue(vset->valfmt, &vset->vlist[0], x->desc.type, &av, PM_TYPE_DOUBLE);
-		printreal(av.d, cols);
+		int	sts;
+		sts = pmExtractValue(vset->valfmt, &vset->vlist[0], x->desc.type, &av, PM_TYPE_DOUBLE);
+		if (sts < 0) {
+		    fprintf(stderr, "%s:printvals pmExtractValue: %s\n", pmProgname, pmErrStr(sts));
+		    exit(EXIT_FAILURE);
+		}
+		printreal(av.d, x->desc.sem, cols);
 	    }
 	    else
 		pmPrintValue(stdout, vset->valfmt, x->desc.type, &vset->vlist[0], cols);
@@ -570,8 +575,13 @@ printvals(Context *x, pmValueSet *vset, int cols)
 	    }
 	    if (j < vset->numval) {
 		if (doreal) {
-		    pmExtractValue(vset->valfmt, &vset->vlist[j], x->desc.type, &av, PM_TYPE_DOUBLE);
-		    printreal(av.d, cols);
+		    int		sts;
+		    sts = pmExtractValue(vset->valfmt, &vset->vlist[j], x->desc.type, &av, PM_TYPE_DOUBLE);
+		    if (sts < 0) {
+			fprintf(stderr, "%s:printvals[%d] pmExtractValue: %s\n", pmProgname, j, pmErrStr(sts));
+			exit(EXIT_FAILURE);
+		    }
+		    printreal(av.d, x->desc.sem, cols);
 		}
 		else
 		    pmPrintValue(stdout, vset->valfmt, x->desc.type, &vset->vlist[j], cols);
@@ -590,8 +600,13 @@ printvals(Context *x, pmValueSet *vset, int cols)
 	    if (x->iall == 1 && i == x->inum) {
 		printf("Warning: value=");
 		if (doreal) {
-		    pmExtractValue(vset->valfmt, &vset->vlist[j], x->desc.type, &av, PM_TYPE_DOUBLE);
-		    printreal(av.d, 1);
+		    int 	sts;
+		    sts = pmExtractValue(vset->valfmt, &vset->vlist[j], x->desc.type, &av, PM_TYPE_DOUBLE);
+		    if (sts < 0) {
+			fprintf(stderr, "%s:printvals[%d] pmExtractValue: %s\n", pmProgname, j, pmErrStr(sts));
+			exit(EXIT_FAILURE);
+		    }
+		    printreal(av.d, x->desc.sem, 1);
 		}
 		else
 		    pmPrintValue(stdout, vset->valfmt, x->desc.type, &vset->vlist[j], 1);
@@ -613,9 +628,18 @@ printrate(int     valfmt,	/* from pmValueSet */
     pmAtomValue a, b;
     double	v;
     static int	dowrap = -1;
+    int		sts;
 
-    pmExtractValue(valfmt, val1, type, &a, PM_TYPE_DOUBLE);
-    pmExtractValue(valfmt, val2, type, &b, PM_TYPE_DOUBLE);
+    sts = pmExtractValue(valfmt, val1, type, &a, PM_TYPE_DOUBLE);
+    if (sts < 0) {
+	fprintf(stderr, "%s:printrate prev pmExtractValue: %s\n", pmProgname, pmErrStr(sts));
+	exit(EXIT_FAILURE);
+    }
+    sts = pmExtractValue(valfmt, val2, type, &b, PM_TYPE_DOUBLE);
+    if (sts < 0) {
+	fprintf(stderr, "%s:printrate this pmExtractValue: %s\n", pmProgname, pmErrStr(sts));
+	exit(EXIT_FAILURE);
+    }
     v = a.d - b.d;
     if (v < 0.0) {
 	if (dowrap == -1) {
@@ -639,7 +663,7 @@ printrate(int     valfmt,	/* from pmValueSet */
 	}
     }
     v /= delta;
-    printreal(v, minwidth);
+    printreal(v, PM_SEM_COUNTER, minwidth);
 }
 
 /* Print performance metric rates */

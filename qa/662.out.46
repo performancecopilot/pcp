@@ -81,7 +81,7 @@ len(metrics[]):0
 context #### metadata prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4 response code 200
 len(metrics[]):0
 context #### metadata prefix=sample response code 200
-len(metrics[]):160
+len(metrics[]):172
   metric:sample.aggregate.hullo metadata:7
   metric:sample.aggregate.null metadata:7
   metric:sample.aggregate.write_me metadata:7
@@ -179,6 +179,18 @@ len(metrics[]):160
   metric:sample.mirage metadata:8
   metric:sample.mirage_longlong metadata:8
   metric:sample.needprofile metadata:8
+  metric:sample.negative.ctr.m_32 metadata:7
+  metric:sample.negative.ctr.m_64 metadata:7
+  metric:sample.negative.ctr.m_double metadata:7
+  metric:sample.negative.ctr.m_float metadata:7
+  metric:sample.negative.discrete.m_32 metadata:7
+  metric:sample.negative.discrete.m_64 metadata:7
+  metric:sample.negative.discrete.m_double metadata:7
+  metric:sample.negative.discrete.m_float metadata:7
+  metric:sample.negative.instant.m_32 metadata:7
+  metric:sample.negative.instant.m_64 metadata:7
+  metric:sample.negative.instant.m_double metadata:7
+  metric:sample.negative.instant.m_float metadata:7
   metric:sample.noinst metadata:7
   metric:sample.not_ready metadata:7
   metric:sample.part_bin metadata:8
@@ -381,7 +393,7 @@ len(metrics[]):0
 context #### metadata prefix=no.such.metric3,pmcd.client.whoami,no.such.metric4 response code 200
 len(metrics[]):0
 context #### metadata prefix=sample response code 200
-len(metrics[]):160
+len(metrics[]):172
   metric:sample.aggregate.hullo metadata:7
   metric:sample.aggregate.null metadata:7
   metric:sample.aggregate.write_me metadata:7
@@ -479,6 +491,18 @@ len(metrics[]):160
   metric:sample.mirage metadata:8
   metric:sample.mirage_longlong metadata:8
   metric:sample.needprofile metadata:8
+  metric:sample.negative.ctr.m_32 metadata:7
+  metric:sample.negative.ctr.m_64 metadata:7
+  metric:sample.negative.ctr.m_double metadata:7
+  metric:sample.negative.ctr.m_float metadata:7
+  metric:sample.negative.discrete.m_32 metadata:7
+  metric:sample.negative.discrete.m_64 metadata:7
+  metric:sample.negative.discrete.m_double metadata:7
+  metric:sample.negative.discrete.m_float metadata:7
+  metric:sample.negative.instant.m_32 metadata:7
+  metric:sample.negative.instant.m_64 metadata:7
+  metric:sample.negative.instant.m_double metadata:7
+  metric:sample.negative.instant.m_float metadata:7
   metric:sample.noinst metadata:7
   metric:sample.not_ready metadata:7
   metric:sample.part_bin metadata:8

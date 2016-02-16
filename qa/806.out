@@ -1,0 +1,337 @@
+QA output created by 806
+=== ctr.m_32 ===
+sample.negative.ctr.m_32 old value=OLD new value=-1000
+
+sample.negative.ctr.m_32
+    value -999
+sample.negative.ctr.m_32 1 -998
+e1: ?
+
+e1: OK
+
+e1: OK
+
+
+metric:    sample.negative.ctr.m_32
+semantics: cumulative counter (converting to rate)
+units:     none (converting to / sec)
+samples:   2
+interval:  1.00 sec
+OK
+OK
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
+dbpmda> getdesc on
+dbpmda> fetch sampledso.negative.ctr.m_32
+PMID(s): 30.0.141
+pmResult ... numpmid: 1
+  30.0.141 (sampledso.negative.ctr.m_32): numval: 1 valfmt: 0 vlist[]:
+   value -9999
+dbpmda> 
+=== instant.m_32 ===
+sample.negative.instant.m_32 old value=OLD new value=-1000
+
+sample.negative.instant.m_32
+    value -999
+sample.negative.instant.m_32 1 -998
+e1: -997
+
+e1: -996
+
+e1: -995
+
+
+metric:    sample.negative.instant.m_32
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  0.10 sec
+       -994
+       -993
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
+dbpmda> getdesc on
+dbpmda> fetch sampledso.negative.instant.m_32
+PMID(s): 30.0.145
+pmResult ... numpmid: 1
+  30.0.145 (sampledso.negative.instant.m_32): numval: 1 valfmt: 0 vlist[]:
+   value -9999
+dbpmda> 
+=== discrete.m_32 ===
+sample.negative.discrete.m_32 old value=OLD new value=-1000
+
+sample.negative.discrete.m_32
+    value -999
+sample.negative.discrete.m_32 1 -998
+e1: -997
+
+e1: -996
+
+e1: -995
+
+
+metric:    sample.negative.discrete.m_32
+semantics: discrete instantaneous value
+units:     none
+samples:   2
+interval:  0.10 sec
+       -994
+       -993
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
+dbpmda> getdesc on
+dbpmda> fetch sampledso.negative.discrete.m_32
+PMID(s): 30.0.149
+pmResult ... numpmid: 1
+  30.0.149 (sampledso.negative.discrete.m_32): numval: 1 valfmt: 0 vlist[]:
+   value -9999
+dbpmda> 
+=== ctr.m_64 ===
+sample.negative.ctr.m_64 old value=OLD new value=-1000
+
+sample.negative.ctr.m_64
+    value -999
+sample.negative.ctr.m_64 1 -998
+e1: ?
+
+e1: OK
+
+e1: OK
+
+
+metric:    sample.negative.ctr.m_64
+semantics: cumulative counter (converting to rate)
+units:     none (converting to / sec)
+samples:   2
+interval:  1.00 sec
+OK
+OK
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
+dbpmda> getdesc on
+dbpmda> fetch sampledso.negative.ctr.m_64
+PMID(s): 30.0.142
+pmResult ... numpmid: 1
+  30.0.142 (sampledso.negative.ctr.m_64): numval: 1 valfmt: 1 vlist[]:
+   value -9999
+dbpmda> 
+=== instant.m_64 ===
+sample.negative.instant.m_64 old value=OLD new value=-1000
+
+sample.negative.instant.m_64
+    value -999
+sample.negative.instant.m_64 1 -998
+e1: -997
+
+e1: -996
+
+e1: -995
+
+
+metric:    sample.negative.instant.m_64
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  0.10 sec
+                 -994
+                 -993
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
+dbpmda> getdesc on
+dbpmda> fetch sampledso.negative.instant.m_64
+PMID(s): 30.0.146
+pmResult ... numpmid: 1
+  30.0.146 (sampledso.negative.instant.m_64): numval: 1 valfmt: 1 vlist[]:
+   value -9999
+dbpmda> 
+=== discrete.m_64 ===
+sample.negative.discrete.m_64 old value=OLD new value=-1000
+
+sample.negative.discrete.m_64
+    value -999
+sample.negative.discrete.m_64 1 -998
+e1: -997
+
+e1: -996
+
+e1: -995
+
+
+metric:    sample.negative.discrete.m_64
+semantics: discrete instantaneous value
+units:     none
+samples:   2
+interval:  0.10 sec
+                 -994
+                 -993
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
+dbpmda> getdesc on
+dbpmda> fetch sampledso.negative.discrete.m_64
+PMID(s): 30.0.150
+pmResult ... numpmid: 1
+  30.0.150 (sampledso.negative.discrete.m_64): numval: 1 valfmt: 1 vlist[]:
+   value -9999
+dbpmda> 
+=== ctr.m_float ===
+sample.negative.ctr.m_float old value=OLD new value=-1000
+
+sample.negative.ctr.m_float
+    value -999
+sample.negative.ctr.m_float 1 -998
+e1: ?
+
+e1: OK
+
+e1: OK
+
+
+metric:    sample.negative.ctr.m_float
+semantics: cumulative counter (converting to rate)
+units:     none (converting to / sec)
+samples:   2
+interval:  1.00 sec
+OK
+OK
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
+dbpmda> getdesc on
+dbpmda> fetch sampledso.negative.ctr.m_float
+PMID(s): 30.0.143
+pmResult ... numpmid: 1
+  30.0.143 (sampledso.negative.ctr.m_float): numval: 1 valfmt: 1 vlist[]:
+   value -9999
+dbpmda> 
+=== instant.m_float ===
+sample.negative.instant.m_float old value=OLD new value=-1000
+
+sample.negative.instant.m_float
+    value -999
+sample.negative.instant.m_float 1 -998
+e1: -997
+
+e1: -996
+
+e1: -995
+
+
+metric:    sample.negative.instant.m_float
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  0.10 sec
+   -9.940E+02
+   -9.930E+02
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
+dbpmda> getdesc on
+dbpmda> fetch sampledso.negative.instant.m_float
+PMID(s): 30.0.147
+pmResult ... numpmid: 1
+  30.0.147 (sampledso.negative.instant.m_float): numval: 1 valfmt: 1 vlist[]:
+   value -9999
+dbpmda> 
+=== discrete.m_float ===
+sample.negative.discrete.m_float old value=OLD new value=-1000
+
+sample.negative.discrete.m_float
+    value -999
+sample.negative.discrete.m_float 1 -998
+e1: -997
+
+e1: -996
+
+e1: -995
+
+
+metric:    sample.negative.discrete.m_float
+semantics: discrete instantaneous value
+units:     none
+samples:   2
+interval:  0.10 sec
+   -9.940E+02
+   -9.930E+02
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
+dbpmda> getdesc on
+dbpmda> fetch sampledso.negative.discrete.m_float
+PMID(s): 30.0.151
+pmResult ... numpmid: 1
+  30.0.151 (sampledso.negative.discrete.m_float): numval: 1 valfmt: 1 vlist[]:
+   value -9999
+dbpmda> 
+=== ctr.m_double ===
+sample.negative.ctr.m_double old value=OLD new value=-1000
+
+sample.negative.ctr.m_double
+    value -999
+sample.negative.ctr.m_double 1 -998
+e1: ?
+
+e1: OK
+
+e1: OK
+
+
+metric:    sample.negative.ctr.m_double
+semantics: cumulative counter (converting to rate)
+units:     none (converting to / sec)
+samples:   2
+interval:  1.00 sec
+OK
+OK
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
+dbpmda> getdesc on
+dbpmda> fetch sampledso.negative.ctr.m_double
+PMID(s): 30.0.144
+pmResult ... numpmid: 1
+  30.0.144 (sampledso.negative.ctr.m_double): numval: 1 valfmt: 1 vlist[]:
+   value -9999
+dbpmda> 
+=== instant.m_double ===
+sample.negative.instant.m_double old value=OLD new value=-1000
+
+sample.negative.instant.m_double
+    value -999
+sample.negative.instant.m_double 1 -998
+e1: -997
+
+e1: -996
+
+e1: -995
+
+
+metric:    sample.negative.instant.m_double
+semantics: instantaneous value
+units:     none
+samples:   2
+interval:  0.10 sec
+           -9.940E+02
+           -9.930E+02
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
+dbpmda> getdesc on
+dbpmda> fetch sampledso.negative.instant.m_double
+PMID(s): 30.0.148
+pmResult ... numpmid: 1
+  30.0.148 (sampledso.negative.instant.m_double): numval: 1 valfmt: 1 vlist[]:
+   value -9999
+dbpmda> 
+=== discrete.m_double ===
+sample.negative.discrete.m_double old value=OLD new value=-1000
+
+sample.negative.discrete.m_double
+    value -999
+sample.negative.discrete.m_double 1 -998
+e1: -997
+
+e1: -996
+
+e1: -995
+
+
+metric:    sample.negative.discrete.m_double
+semantics: discrete instantaneous value
+units:     none
+samples:   2
+interval:  0.10 sec
+           -9.940E+02
+           -9.930E+02
+dbpmda> open dso $PCP_PMDAS_DIR/sample/pmda_sample.DSO_SUFFIX sample_init 30
+dbpmda> getdesc on
+dbpmda> fetch sampledso.negative.discrete.m_double
+PMID(s): 30.0.152
+pmResult ... numpmid: 1
+  30.0.152 (sampledso.negative.discrete.m_double): numval: 1 valfmt: 1 vlist[]:
+   value -9999
+dbpmda> 
