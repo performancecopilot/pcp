@@ -1,0 +1,45 @@
+QA output created by 1070
+== pmrep csv / sheet2pcp / pmrep csv roundtrip compatibility
+Test data to be used:
+
+  archive: QAPATH/archives/20130706
+     host: billing02
+ timezone: EST-10 (reporting, local is TIMEZONE)
+    start: Sat Jul  6 00:47:01 2013
+      end: Sat Jul  6 00:47:09 2013
+  metrics: 4
+  samples: 5
+ interval: 2.0 sec
+ duration: 8 sec
+
+          h.machine  m.u.used  k.a.sysfork  h.c.clock  h.c.clock
+                                                 cpu0       cpu1
+                        Kbyte      count/s      count      count
+00:47:01      linux   6068648          N/A   2399.318   2399.318
+00:47:03      linux   6068648        0.000   2399.318   2399.318
+00:47:05      linux   6068648        0.500   2399.318   2399.318
+00:47:07      linux   6068648        0.000   2399.318   2399.318
+00:47:09      linux   6068648        0.500   2399.318   2399.318
+Diff of CSV files start (no output expected)
+Diff of CSV files end
+Test data from temp archive:
+
+  archive: 1070-archive
+     host: billing02
+ timezone: PCP-10 (reporting, local is TIMEZONE)
+    start: Sat Jul  6 00:47:01 2013
+      end: Sat Jul  6 00:47:09 2013
+  metrics: 4
+  samples: 5
+ interval: 2.0 sec
+ duration: 8 sec
+
+          h.machine  m.u.used  k.a.sysfork  h.c.clock  h.c.clock
+                                                 cpu0       cpu1
+                        Kbyte      count/s      count      count
+00:47:01      linux   6068648          N/A   2399.318   2399.318
+00:47:03      linux   6068648        0.000   2399.318   2399.318
+00:47:05      linux   6068648        0.500   2399.318   2399.318
+00:47:07      linux   6068648        0.000   2399.318   2399.318
+00:47:09      linux   6068648        0.500   2399.318   2399.318
+== done

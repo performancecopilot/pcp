@@ -110,6 +110,18 @@ Requires: initscripts
 # slip our filter into place
 %define __find_requires %{_builddir}/%{?buildsubdir}/build/rpm/filter-requires -v %{_vendor} -f 0%{?fedora} -r 0%{?rhel} %{__find_requires_save}
 
+%global pmda_remove() %{expand:
+if [ "%1" -eq 0 ]
+then
+    PCP_PMDAS_DIR=@pcp_pmdas_dir@
+    PCP_ETC_DIR=@pcp_etc_dir@
+    if [ -f "$PCP_ETC_DIR/pcp/pmcd/pmcd.conf" ] && [ -f "$PCP_PMDAS_DIR/%2/domain.h" ]
+    then
+	(cd $PCP_PMDAS_DIR/%2/ && ./Remove >/dev/null 2>&1)
+    fi
+fi
+}
+
 Requires: pcp-libs = @package_version@
 Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-compat
@@ -2153,6 +2165,193 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
     /sbin/service pmcd condrestart
     /sbin/service pmlogger condrestart
 %endif
+
+%if "@pmda_rpm@" == "true"
+%preun pmda-rpm
+%{pmda_remove "$1" "rpm"}
+%endif #preun pmda-rpm
+
+%if "@pmda_papi@" == "true"
+%preun pmda-papi
+%{pmda_remove "$1" "papi"}
+%endif #preun pmda-papi
+
+%if "@pmda_systemd@" == "true"
+%preun pmda-systemd
+%{pmda_remove "$1" "systemd"}
+%endif #preun pmda-systemd
+
+%if "@pmda_infiniband@" == "true"
+%preun pmda-infiniband
+%{pmda_remove "$1" "infiniband"}
+%endif #preun pmda-infiniband
+
+%if "@pmda_perfevent@" == "true"
+%preun pmda-perfevent
+%{pmda_remove "$1" "perfevent"}
+%endif #preun pmda-perfevent
+
+%if "@pmda_json@" == "true"
+%preun pmda-json
+%{pmda_remove "$1" "json"}
+%endif #preun pmda-json
+
+%if "@pmda_nginx@" == "true"
+%preun pmda-nginx
+%{pmda_remove "$1" "nginx"}
+%endif #preun pmda-nginx
+
+%if "@pmda_postgresql@" == "true"
+%preun pmda-postgresql
+%{pmda_remove "$1" "postgresql"}
+%endif #preun pmda-postgresql
+
+%if "@pmda_postfix@" == "true"
+%preun pmda-postfix
+%{pmda_remove "$1" "postfix"}
+%endif #preun pmda-postfix
+
+%if "@pmda_elasticsearch@" == "true"
+%preun pmda-elasticsearch
+%{pmda_remove "$1" "elasticsearch"}
+%endif #preun pmda-elasticsearch
+
+%if "@pmda_snmp@" == "true"
+%preun pmda-snmp
+%{pmda_remove "$1" "snmp"}
+%endif #preun pmda-snmp
+
+%if "@pmda_mysql@" == "true"
+%preun pmda-mysql
+%{pmda_remove "$1" "mysql"}
+%endif #preun pmda-mysql
+
+%if "@pmda_activemq@" == "true"
+%preun pmda-activemq
+%{pmda_remove "$1" "activemq"}
+%endif #preun pmda-activemq
+
+%preun pmda-bonding
+%{pmda_remove "$1" "bonding"}
+
+%preun pmda-dbping
+%{pmda_remove "$1" "dbping"}
+
+%preun pmda-ds389
+%{pmda_remove "$1" "ds389"}
+
+%preun pmda-ds389log
+%{pmda_remove "$1" "ds389log"}
+
+%preun pmda-gpfs
+%{pmda_remove "$1" "gpfs"}
+
+%preun pmda-gpsd
+%{pmda_remove "$1" "gpsd"}
+
+%preun pmda-kvm
+%{pmda_remove "$1" "kvm"}
+
+%preun pmda-lustre
+%{pmda_remove "$1" "lustre"}
+
+%preun pmda-lustrecomm
+%{pmda_remove "$1" "lustrecomm"}
+
+%preun pmda-memcache
+%{pmda_remove "$1" "memcache"}
+
+%preun pmda-named
+%{pmda_remove "$1" "named"}
+
+%preun pmda-netfilter
+%{pmda_remove "$1" "netfilter"}
+
+%preun pmda-news
+%{pmda_remove "$1" "news"}
+
+%preun pmda-nfsclient
+%{pmda_remove "$1" "nfsclient"}
+
+%preun pmda-pdns
+%{pmda_remove "$1" "pdns"}
+
+%preun pmda-rsyslog
+%{pmda_remove "$1" "rsyslog"}
+
+%preun pmda-samba
+%{pmda_remove "$1" "samba"}
+
+%preun pmda-vmware
+%{pmda_remove "$1" "vmware"}
+
+%preun pmda-zimbra
+%{pmda_remove "$1" "zimbra"}
+
+%preun pmda-dm
+%{pmda_remove "$1" "dm"}
+
+%if "@have_python@" == "true"
+%preun pmda-gluster
+%{pmda_remove "$1" "gluster"}
+
+%preun pmda-zswap
+%{pmda_remove "$1" "zswap"}
+
+%preun pmda-unbound
+%{pmda_remove "$1" "unbound"}
+
+%preun pmda-mic
+%{pmda_remove "$1" "mic"}
+%endif #@have_python@
+
+%preun pmda-apache
+%{pmda_remove "$1" "apache"}
+
+%preun pmda-bash
+%{pmda_remove "$1" "bash"}
+
+%preun pmda-cifs
+%{pmda_remove "$1" "cifs"}
+
+%preun pmda-cisco
+%{pmda_remove "$1" "cisco"}
+
+%preun pmda-gfs2
+%{pmda_remove "$1" "gfs2"}
+
+%preun pmda-lmsensors
+%{pmda_remove "$1" "lmsensors"}
+
+%preun pmda-logger
+%{pmda_remove "$1" "logger"}
+
+%preun pmda-mailq
+%{pmda_remove "$1" "mailq"}
+
+%preun pmda-mounts
+%{pmda_remove "$1" "mounts"}
+
+%preun pmda-nvidia-gpu
+%{pmda_remove "$1" "nvidia"}
+
+%preun pmda-roomtemp
+%{pmda_remove "$1" "roomtemp"}
+
+%preun pmda-sendmail
+%{pmda_remove "$1" "sendmail"}
+
+%preun pmda-shping
+%{pmda_remove "$1" "shping"}
+
+%preun pmda-summary
+%{pmda_remove "$1" "summary"}
+
+%preun pmda-trace
+%{pmda_remove "$1" "trace"}
+
+%preun pmda-weblog
+%{pmda_remove "$1" "weblog"}
 
 %preun
 if [ "$1" -eq 0 ]

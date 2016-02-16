@@ -161,6 +161,18 @@ sampledso.dupnames.two.float.ten [10 as a 32-bit floating point value]
 sampledso.dupnames.two.double.ten [10 as a 64-bit floating point value]
 sampledso.dupnames.three.bin [Several constant instances]
 sampledso.dupnames.three.write_me [Modifiable, but otherwise constant.]
+sampledso.negative.ctr.m_32 [32-bit integer counter metric with negative value]
+sampledso.negative.ctr.m_64 [64-bit integer counter metric with negative value]
+sampledso.negative.ctr.m_float [float counter metric with negative value]
+sampledso.negative.ctr.m_double [double counter metric with negative value]
+sampledso.negative.instant.m_32 [32-bit integer instantaneous metric with negative value]
+sampledso.negative.instant.m_64 [64-bit integer instantaneous metric with negative value]
+sampledso.negative.instant.m_float [float instantaneous metric with negative value]
+sampledso.negative.instant.m_double [double instantaneous metric with negative value]
+sampledso.negative.discrete.m_32 [32-bit integer discrete metric with negative value]
+sampledso.negative.discrete.m_64 [64-bit integer discrete metric with negative value]
+sampledso.negative.discrete.m_float [float discrete metric with negative value]
+sampledso.negative.discrete.m_double [double discrete metric with negative value]
 
 sampledso.control
 Help:
@@ -1053,6 +1065,127 @@ sampledso.dupnames.three.write_me
 Help:
 This metric has a 32-bit integer value of 2, unless changed via pmStore.
 The metric has semantics of rate, and units of events per second.
+
+sampledso.negative.ctr.m_32
+Help:
+A metric with the semantics of PM_SEM_COUNTER, a type of PM_TYPE_32
+and negative values that by default start at -10000 and are incremented
+each time one of the sampledso.negative.*.m_32 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sampledso.negative.*.m_32 metrics (they share the same underlying
+counter).
+
+sampledso.negative.ctr.m_64
+Help:
+A metric with the semantics of PM_SEM_COUNTER, a type of PM_TYPE_64
+and negative values that by default start at -10000 and are incremented
+each time one of the sampledso.negative.*.m_64 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sampledso.negative.*.m_64 metrics (they share the same underlying
+counter).
+
+sampledso.negative.ctr.m_float
+Help:
+A metric with the semantics of PM_SEM_COUNTER, a type of PM_TYPE_FLOAT
+and negative values that by default start at -10000 and are incremented
+each time one of the sampledso.negative.*.m_float metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sampledso.negative.*.m_float metrics (they share the same underlying
+counter).
+
+sampledso.negative.ctr.m_double
+Help:
+A metric with the semantics of PM_SEM_COUNTER, a type of PM_TYPE_DOUBLE
+and negative values that by default start at -10000 and are incremented
+each time one of the sampledso.negative.*.m_double metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sampledso.negative.*.m_double metrics (they share the same underlying
+counter).
+
+sampledso.negative.instant.m_32
+Help:
+A metric with the semantics of PM_SEM_INSTANT, a type of PM_TYPE_32
+and negative values that by default start at -10000 and are incremented
+each time one of the sampledso.negative.*.m_32 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sampledso.negative.*.m_32 metrics (they share the same underlying
+counter).
+
+sampledso.negative.instant.m_64
+Help:
+A metric with the semantics of PM_SEM_INSTANT, a type of PM_TYPE_64
+and negative values that by default start at -10000 and are incremented
+each time one of the sampledso.negative.*.m_64 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sampledso.negative.*.m_64 metrics (they share the same underlying
+counter).
+
+sampledso.negative.instant.m_float
+Help:
+A metric with the semantics of PM_SEM_INSTANT, a type of PM_TYPE_FLOAT
+and negative values that by default start at -10000 and are incremented
+each time one of the sampledso.negative.*.m_float metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sampledso.negative.*.m_float metrics (they share the same underlying
+counter).
+
+sampledso.negative.instant.m_double
+Help:
+A metric with the semantics of PM_SEM_INSTANT, a type of PM_TYPE_DOUBLE
+and negative values that by default start at -10000 and are incremented
+each time one of the sampledso.negative.*.m_double metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sampledso.negative.*.m_double metrics (they share the same underlying
+counter).
+
+sampledso.negative.discrete.m_32
+Help:
+A metric with the semantics of PM_SEM_DISCRETE, a type of PM_TYPE_32
+and negative values that by default start at -10000 and are incremented
+each time one of the sampledso.negative.*.m_32 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sampledso.negative.*.m_32 metrics (they share the same underlying
+counter).
+
+sampledso.negative.discrete.m_64
+Help:
+A metric with the semantics of PM_SEM_DISCRETE, a type of PM_TYPE_64
+and negative values that by default start at -10000 and are incremented
+each time one of the sampledso.negative.*.m_64 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sampledso.negative.*.m_64 metrics (they share the same underlying
+counter).
+
+sampledso.negative.discrete.m_float
+Help:
+A metric with the semantics of PM_SEM_DISCRETE, a type of PM_TYPE_FLOAT
+and negative values that by default start at -10000 and are incremented
+each time one of the sampledso.negative.*.m_float metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sampledso.negative.*.m_float metrics (they share the same underlying
+counter).
+
+sampledso.negative.discrete.m_double
+Help:
+A metric with the semantics of PM_SEM_DISCRETE, a type of
+PM_TYPE_DOUBLE and negative values that by default start at -10000
+and are incremented each time one of the sampledso.negative.*.m_double
+metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sampledso.negative.*.m_double metrics (they share the same underlying
+counter).
 
 sample.seconds
 Full Help: Error: Operation requires context with host source of metrics

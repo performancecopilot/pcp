@@ -1,0 +1,31 @@
+#!/bin/sh
+# PCP QA Test No. 880
+# check pmrep broken pipe signal handling and 'Exception Ignored' errors
+#
+# Copyright (c) 2016 Mark Goodwin <mgoodwin@redhat.com> All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+A=$here/archives/20130706
+
+echo expect no broken pipe exceptions or Exception Ignored errors
+pmrep -a $A -o csv -u -S @10:00 kernel.all.sysfork | head -0
+pmrep -a $A -F $tmp.csv -o csv -u -S @10:00 kernel.all.sysfork | head -0
+pmrep -a $A -u -S @10:00 kernel.all.sysfork | head -0
+
+# success, all done
+status=0
+exit

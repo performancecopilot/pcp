@@ -60,4 +60,18 @@ metric kernel.all.sysfork { type -> $KERNEL_ULONG }
 metric disk.dm.total { type -> U64 }
 End-of-File
 
+cat <<End-of-File >linux_kernel_fixups.conf
+# These metrics are all exported from the linux PMDA and
+# parts of their metadata have changed over time to fix
+# previous errors.
+#
+# The rules here allow rewriting of old archives to produce
+# archives with metadata that matches the current PMDA
+# implementation.
+
+# swapdev.priority had the wrong Units:
+#
+metric swapdev.priority { units -> 0,0,0,0,0,0 }
+End-of-File
+
 exit 0

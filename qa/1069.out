@@ -38,7 +38,7 @@ Interval can't be less than 1 second.
 
   archive: QAPATH/archives/sample-secs
      host: rattle
- timezone: :Australia/Melbourne (creation, current is AEDT-11)
+ timezone: AEDT-11
     start: Mon May  1 20:36:45 2000
       end: Mon May  1 20:36:53 2000
   metrics: 2

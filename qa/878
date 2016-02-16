@@ -68,19 +68,19 @@ _filter_pmval()
 _exercise_pipe()
 {
     echo "== basic empty line (ok) =="
-    pmval -x '' -i empty-line -t 0.5 -s 8 pipe.firehose | _filter_pmval
+    pmval -x '' -i empty-line -t 0.75 -s 8 pipe.firehose | _filter_pmval
 
     echo "== basic echo mirror (ok) =="
-    pmval -x 'hello' -i echo-all -t 0.5 -s 8 pipe.firehose | _filter_pmval
+    pmval -x 'hello' -i echo-all -t 0.75 -s 8 pipe.firehose | _filter_pmval
 
     echo "== extra parameters (ok) =="
-    pmval -x '1 two 3' -i echo-two -t 0.5 -s 8 pipe.firehose | _filter_pmval
+    pmval -x '1 two 3' -i echo-two -t 0.75 -s 8 pipe.firehose | _filter_pmval
 
     echo "== bad parameters (expect failure) =="
-    pmval -x '1;2' -i echo-all -t 0.5 -s 3 pipe.firehose | _filter_pmval
+    pmval -x '1;2' -i echo-all -t 0.75 -s 3 pipe.firehose | _filter_pmval
 
     echo "== insufficient parameters (expect failure) =="
-    pmval -x 'one' -i echo-two -t 0.5 -s 3 pipe.firehose | _filter_pmval
+    pmval -x 'one' -i echo-two -t 0.75 -s 3 pipe.firehose | _filter_pmval
 
     echo "== disallowed access (expect failure) =="
     pmval -x '' -i noop -s 3 pipe.firehose | _filter_pmval
@@ -133,6 +133,9 @@ _filter_pipe()
 
 # real QA test starts here
 pmdapipe_install
+
+# additional time for PMDA to ready itself
+sleep 2
 
 # pmcd should have been started by the Install process - check
 # a sub-tree that is known-good for all pipe versions

@@ -6828,7 +6828,7 @@ waiting for factory capacity to become available).</para>
 data structures are directly comparable to PMDA data structures described earlier:</para>
         <itemizedlist>
           <listitem>
-            <para>mmv_metric_t maps to a pmDesc structure, as in <xref linkend="Z975964618sdc"/></para>
+            <para>mmv_metric_t maps to a pmDesc structure, as in <xref linkend="Z976548425sdc"/></para>
           </listitem>
           <listitem>
             <para>MMV_TYPE, MMV_SEM, and MMV_UNITS map to PMAPI constructs for type, semantics, dimensionality and scale, as in <xref linkend="Z1034792511tls"/></para>

@@ -23,27 +23,28 @@ void test_init()
 
     perf_counter *data = NULL;
     int nevents = 0;
+    perf_derived_counter *pdata = NULL;
+    int nderivedevents = 0;
 
-    int i = perf_get(h, &data, &nevents);
+    int i = perf_get(h, &data, &nevents, &pdata, &nderivedevents);
 
     assert(i > 0 );
     assert(nevents == 2);
     assert(data != NULL);
 
-    /* Check that the data buffer gets reused in the next call to perf_get */
+    /* Check that the data and pdata buffer gets reused in the next call to perf_get */
 
     perf_counter *olddata = data;
     int oldevents = nevents;
 
-    i = perf_get(h, &data, &nevents);
+    i = perf_get(h, &data, &nevents, &pdata, &nderivedevents);
 
     assert(i > 0 );
     assert(nevents == oldevents);
     assert(data == olddata);
 
-
     perf_event_destroy(h);
-    perf_counter_destroy(data, nevents);
+    perf_counter_destroy(data, nevents, pdata, nderivedevents);
 }
 
 void test_event_programming_fail()
@@ -71,8 +72,10 @@ void test_event_programming_fail()
 
     perf_counter *data = NULL;
     int nevents = 0;
+    perf_derived_counter *pdata = NULL;
+    int nderivedevents = 0;
 
-    int i = perf_get(h, &data, &nevents);
+    int i = perf_get(h, &data, &nevents, &pdata, &nderivedevents);
 
     assert(i > 0 );
     assert(nevents == 2);
@@ -81,7 +84,7 @@ void test_event_programming_fail()
     assert( 0 == strcmp("counter3", data[0].name) );
     assert( 0 == strcmp("counter0", data[1].name) );
 
-    perf_counter_destroy(data, nevents);
+    perf_counter_destroy(data, nevents, pdata, nderivedevents);
     perf_event_destroy(h);
 }
 
@@ -144,8 +147,10 @@ void test_lots_of_counters()
 
     perf_counter *data = NULL;
     int size = 0;
+    perf_derived_counter *pdata = NULL;
+    int derivedsize = 0;
 
-    int count = perf_get(h, &data, &size);
+    int count = perf_get(h, &data, &size, &pdata, &derivedsize);
 
     assert(count > 0 );
     assert(size > 0);
@@ -163,7 +168,7 @@ void test_lots_of_counters()
     }
 
     perf_event_destroy(h);
-    perf_counter_destroy(data, size);
+    perf_counter_destroy(data, size, pdata, derivedsize);
     wrap_sysconf_override = 0;
 }
 
@@ -182,8 +187,10 @@ void test_node_rr()
 
     perf_counter *data = NULL;
     int size = 0;
+    perf_derived_counter *pdata = NULL;
+    int derivedsize = 0;
 
-    int count = perf_get(h, &data, &size);
+    int count = perf_get(h, &data, &size, &pdata, &derivedsize);
 
     assert(count == (3 * 32 + 4 * 4)  );
     assert(size == (3 + 4) );
@@ -210,7 +217,7 @@ void test_node_rr()
     }
 
     perf_event_destroy(h);
-    perf_counter_destroy(data, size);
+    perf_counter_destroy(data, size, pdata, derivedsize);
 }
 
 void test_missing_pmu_config()
@@ -312,13 +319,15 @@ void test_api_safety()
     /* Check that it doesn't segfault if the user calls the api with null pointers. */
 
     perf_event_create(NULL);
-    perf_counter_destroy( NULL, 213);
+    perf_counter_destroy( NULL, 213, NULL, 0);
     perf_event_destroy( NULL );
     int tmp;
     perf_counter *data;
-    perf_get(NULL, &data, &tmp);
+    perf_derived_counter *pdata;
+    int derived_tmp;
+    perf_get(NULL, &data, &tmp, &pdata, &derived_tmp);
     perfhandle_t tmp1;
-    perf_get( &tmp1, NULL, &tmp);
+    perf_get( &tmp1, NULL, &tmp, &pdata, &derived_tmp);
 }
 
 void test_malloc_checking()
@@ -400,8 +409,10 @@ void test_rapl()
 
     perf_counter *data = NULL;
     int size = 0;
+    perf_derived_counter *pdata = NULL;
+    int derivedsize = 0;
 
-    int count = perf_get(h, &data, &size);
+    int count = perf_get(h, &data, &size, &pdata, &derivedsize);
 
     assert(count > 0 );
     assert(size > 0);
@@ -419,7 +430,7 @@ void test_rapl()
     }
 
     perf_event_destroy(h);
-    perf_counter_destroy(data, size);
+    perf_counter_destroy(data, size, pdata, derivedsize);
     wrap_sysconf_override = 0;
 }
 
@@ -510,6 +521,76 @@ void test_numa_parser_fail()
     free(inst);
 }
 
+void test_derived_counters()
+{
+    wrap_sysconf_override = 1;
+    wrap_sysconf_retcode = 1;
+
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+
+    const char *eventlist = "config/test_derived_counters.txt";
+
+    perfhandle_t *h = perf_event_create(eventlist);
+
+    assert( h != NULL );
+
+    perf_counter *data = NULL;
+    int size = 0;
+    perf_derived_counter *pddata = NULL;
+    int derivedsize = 0;
+
+    int count = perf_get(h, &data, &size, &pddata, &derivedsize);
+
+    assert(count > 0 );
+    assert(size > 0);
+    assert(data != NULL);
+    assert(pddata != NULL);
+    assert(derivedsize == 2);
+
+    int i;
+    int j;
+    for(i = 0; i < derivedsize; ++i)
+    {
+        printf("pddata[%d].name = %s pddata[%d].instances = %d\n", i, pddata[i].name, i, pddata[i].ninstances);
+        perf_counter_list *clist = pddata[i].counter_list;
+        while(clist)
+        {
+            printf("clist->name : %s\n", clist->counter->name);
+            clist = clist->next;
+        }
+        for(j = 0; j < pddata[i].ninstances; j++)
+        {
+            printf("\tvalue[%d] = %llu\n", j, (long long unsigned int)pddata[i].data[j].value);
+        }
+    }
+
+    perf_event_destroy(h);
+    perf_counter_destroy(data, size, pddata, derivedsize);
+    wrap_sysconf_override = 0;
+}
+
+void test_derived_counters_fail_mismatch()
+{
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+
+    const char *eventlist = "config/test_derived_counters_fail_mismatch.txt";
+
+    perfhandle_t *h = perf_event_create(eventlist);
+
+    assert( h == NULL );
+}
+
+void test_derived_counters_fail_missing()
+{
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+
+    const char *eventlist = "config/test_derived_counters_fail_missing.txt";
+
+    perfhandle_t *h = perf_event_create(eventlist);
+
+    assert( h == NULL );
+}
+
 int runtest(int n)
 {
     init_mock();
@@ -570,6 +651,15 @@ int runtest(int n)
             break;
         case 17:
             test_rapl();
+            break;
+        case 18:
+            test_derived_counters();
+            break;
+        case 19:
+            test_derived_counters_fail_mismatch();
+            break;
+        case 20:
+            test_derived_counters_fail_missing();
             break;
         default:
             ret = -1;

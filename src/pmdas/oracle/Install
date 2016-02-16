@@ -31,32 +31,34 @@ if test $? -ne 0; then
     exit 1
 fi
 
-perl -e "use DBD::Oracle" 2>/dev/null
-if test $? -ne 0; then
-    echo "Oracle database driver (DBD::Oracle) is not installed"
-    exit 1
-fi
-
 su -c id $user >/dev/null 2>&1
 if test $? -ne 0; then
     echo "Cannot change user to $user, sorry this is fatal"
     exit 1
 fi
 
-su -c mkdir -p "$PCP_VAR_DIR/config/pmda" 2>/dev/null
-indoms="0 1 2 3 4 5 6 7 8 9 10"
+su -c "perl -e 'use DBD::Oracle'" - $user #2>/dev/null
+if test $? -ne 0; then
+    echo "Oracle database driver (DBD::Oracle) is not installed"
+    exit 1
+fi
+
+mkdir -p "$PCP_VAR_DIR/config/pmda" 2>/dev/null
+indoms="0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15"
 for indom in $indoms
 do
+    failed=false
     touch "$PCP_VAR_DIR/config/pmda/$domain.$indom" >/dev/null 2>&1
-    if test $? -ne 0; then
-        echo "Cannot create indom persistance files as user $user"
-        echo "Failed on:  $PCP_VAR_DIR/config/pmda/$domain.$indom"
+    [ $? -ne 0 ] && failed=true
+    chown $user "$PCP_VAR_DIR/config/pmda/$domain.$indom"
+    [ $? -ne 0 ] && failed=true
+
+    if $failed; then
+        echo "Cannot create indom persistance files for user $user"
+        echo "Failed on: $PCP_VAR_DIR/config/pmda/$domain.$indom"
         exit 1
     fi
 done
-
-# TODO: need to ask for user/pass and SIDs, write $PCP_VAR_DIR/config/oracle/oracle.conf
-# (unless it exists)
 
 pmdaSetup
 pmdaInstall

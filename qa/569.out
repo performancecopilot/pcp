@@ -144,6 +144,18 @@ sample.dupnames.two.float.ten 1
 sample.dupnames.two.double.ten 1
 sample.dupnames.three.bin 9
 sample.dupnames.three.write_me 1
+sample.negative.ctr.m_32 1
+sample.negative.ctr.m_64 1
+sample.negative.ctr.m_float 1
+sample.negative.ctr.m_double 1
+sample.negative.instant.m_32 1
+sample.negative.instant.m_64 1
+sample.negative.instant.m_float 1
+sample.negative.instant.m_double 1
+sample.negative.discrete.m_32 1
+sample.negative.discrete.m_64 1
+sample.negative.discrete.m_float 1
+sample.negative.discrete.m_double 1
 
 === -i ===
 sample.control 1 PM_IN_NULL
@@ -319,6 +331,18 @@ sample.dupnames.two.float.ten 1 PM_IN_NULL
 sample.dupnames.two.double.ten 1 PM_IN_NULL
 sample.dupnames.three.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
 sample.dupnames.three.write_me 1 PM_IN_NULL
+sample.negative.ctr.m_32 1 PM_IN_NULL
+sample.negative.ctr.m_64 1 PM_IN_NULL
+sample.negative.ctr.m_float 1 PM_IN_NULL
+sample.negative.ctr.m_double 1 PM_IN_NULL
+sample.negative.instant.m_32 1 PM_IN_NULL
+sample.negative.instant.m_64 1 PM_IN_NULL
+sample.negative.instant.m_float 1 PM_IN_NULL
+sample.negative.instant.m_double 1 PM_IN_NULL
+sample.negative.discrete.m_32 1 PM_IN_NULL
+sample.negative.discrete.m_64 1 PM_IN_NULL
+sample.negative.discrete.m_float 1 PM_IN_NULL
+sample.negative.discrete.m_double 1 PM_IN_NULL
 
 === -I ===
 sample.control 1 PM_IN_NULL
@@ -500,6 +524,18 @@ sample.dupnames.two.float.ten 1 PM_IN_NULL
 sample.dupnames.two.double.ten 1 PM_IN_NULL
 sample.dupnames.three.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
 sample.dupnames.three.write_me 1 PM_IN_NULL
+sample.negative.ctr.m_32 1 PM_IN_NULL
+sample.negative.ctr.m_64 1 PM_IN_NULL
+sample.negative.ctr.m_float 1 PM_IN_NULL
+sample.negative.ctr.m_double 1 PM_IN_NULL
+sample.negative.instant.m_32 1 PM_IN_NULL
+sample.negative.instant.m_64 1 PM_IN_NULL
+sample.negative.instant.m_float 1 PM_IN_NULL
+sample.negative.instant.m_double 1 PM_IN_NULL
+sample.negative.discrete.m_32 1 PM_IN_NULL
+sample.negative.discrete.m_64 1 PM_IN_NULL
+sample.negative.discrete.m_float 1 PM_IN_NULL
+sample.negative.discrete.m_double 1 PM_IN_NULL
 
 === -v ===
 sample.control 1 0
@@ -667,6 +703,18 @@ sample.dupnames.two.float.ten 1 10
 sample.dupnames.two.double.ten 1 10
 sample.dupnames.three.bin 9 100 200 300 400 500 600 700 800 900
 sample.dupnames.three.write_me 1 NUMBER
+sample.negative.ctr.m_32 1 -9990
+sample.negative.ctr.m_64 1 -9990
+sample.negative.ctr.m_float 1 -9990
+sample.negative.ctr.m_double 1 -9990
+sample.negative.instant.m_32 1 -9989
+sample.negative.instant.m_64 1 -9989
+sample.negative.instant.m_float 1 -9989
+sample.negative.instant.m_double 1 -9989
+sample.negative.discrete.m_32 1 -9988
+sample.negative.discrete.m_64 1 -9988
+sample.negative.discrete.m_float 1 -9988
+sample.negative.discrete.m_double 1 -9988
 
 === -iI ===
 sample.control 1 PM_IN_NULL PM_IN_NULL
@@ -880,6 +928,18 @@ sample.dupnames.two.double.ten 1 PM_IN_NULL PM_IN_NULL
 sample.dupnames.three.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-90
 0"
 sample.dupnames.three.write_me 1 PM_IN_NULL PM_IN_NULL
+sample.negative.ctr.m_32 1 PM_IN_NULL PM_IN_NULL
+sample.negative.ctr.m_64 1 PM_IN_NULL PM_IN_NULL
+sample.negative.ctr.m_float 1 PM_IN_NULL PM_IN_NULL
+sample.negative.ctr.m_double 1 PM_IN_NULL PM_IN_NULL
+sample.negative.instant.m_32 1 PM_IN_NULL PM_IN_NULL
+sample.negative.instant.m_64 1 PM_IN_NULL PM_IN_NULL
+sample.negative.instant.m_float 1 PM_IN_NULL PM_IN_NULL
+sample.negative.instant.m_double 1 PM_IN_NULL PM_IN_NULL
+sample.negative.discrete.m_32 1 PM_IN_NULL PM_IN_NULL
+sample.negative.discrete.m_64 1 PM_IN_NULL PM_IN_NULL
+sample.negative.discrete.m_float 1 PM_IN_NULL PM_IN_NULL
+sample.negative.discrete.m_double 1 PM_IN_NULL PM_IN_NULL
 
 === -iv ===
 pmprobe: at most one of -v and (-i or -I) allowed

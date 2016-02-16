@@ -581,6 +581,16 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STAT,14), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_COUNTER, 
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* kernel.all.running */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,15), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* kernel.all.blocked */
+    { NULL, 
+      { PMDA_PMID(CLUSTER_STAT,16), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 /* kernel.all.cpu.user */
     { NULL, 
       { PMDA_PMID(CLUSTER_STAT,20), KERNEL_UTYPE, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -1578,7 +1588,7 @@ static pmdaMetric metrictab[] = {
 /* swapdev.priority */
   { NULL,
     { PMDA_PMID(CLUSTER_SWAPDEV,4), PM_TYPE_32, SWAPDEV_INDOM, PM_SEM_INSTANT,
-    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /*
  * socket stat cluster
@@ -4430,7 +4440,13 @@ static pmdaMetric metrictab[] = {
 };
 
 typedef struct {
+    int uid_flag; /* uid attribute received */
+    int uid;     /* uid receieved from PCP_ATTR_* */
+} linux_access_t;
+
+typedef struct {
     linux_container_t	container;
+    linux_access_t            access;
 } perctx_t;
 
 static perctx_t *ctxtab;
@@ -4446,6 +4462,14 @@ linux_statsfile(const char *path, char *buffer, int size)
     return fopen(buffer, "r");
 }
 
+static linux_access_t *
+access_ctx(int ctx)
+{
+    if (ctx < num_ctx && ctx >= 0)
+	return &ctxtab[ctx].access;
+    return NULL;
+}
+
 static linux_container_t *
 linux_ctx_container(int ctx)
 {
@@ -4458,6 +4482,7 @@ static int
 linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 {
     linux_container_t *cp = linux_ctx_container(context);
+    linux_access_t *access = access_ctx(context);
     int need_refresh_mtab = 0;
     int need_net_ioctl = 0;
     int ns_fds = 0;
@@ -4580,8 +4605,13 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_SCSI])
 	refresh_proc_scsi(INDOM(SCSI_INDOM));
 
-    if (need_refresh[CLUSTER_SLAB])
-	refresh_proc_slabinfo(&proc_slabinfo);
+    if (need_refresh[CLUSTER_SLAB]) {
+	if (access != NULL && (access->uid == 0 && access->uid_flag)) {
+	    proc_slabinfo.permission = 1;
+	    refresh_proc_slabinfo(&proc_slabinfo);
+	} else
+	    proc_slabinfo.permission = 0;
+    }
 
     if (need_refresh[CLUSTER_SEM_LIMITS])
 	refresh_sem_limits(&sem_limits);
@@ -4930,6 +4960,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 14: /* kernel.all.sysfork */
 	    _pm_assign_ulong(atom, proc_stat.processes);
+	    break;
+	case 15: /* kernel.all.running */
+	    _pm_assign_ulong(atom, proc_stat.procs_running);
+	    break;
+	case 16: /* kernel.all.blocked */
+	    _pm_assign_ulong(atom, proc_stat.procs_blocked);
 	    break;
 
 	case 20: /* kernel.all.cpu.user */
@@ -5744,6 +5780,9 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_SLAB:
+	if (proc_slabinfo.permission != 1)
+	    return 0;
+
 	if (proc_slabinfo.ncaches == 0)
 	    return 0; /* no values available */
 
@@ -6468,9 +6507,16 @@ linux_end_context(int ctx)
 static int
 linux_attribute(int ctx, int attr, const char *value, int len, pmdaExt *pmda)
 {
-    if (attr == PCP_ATTR_CONTAINER) {
+    int id = -1;
+    if (attr == PCP_ATTR_USERID || attr == PCP_ATTR_CONTAINER ) {
 	if (ctx >= num_ctx)
 	    linux_grow_ctxtab(ctx);
+    }
+    if (attr == PCP_ATTR_USERID) {
+	ctxtab[ctx].access.uid_flag = 1;
+	ctxtab[ctx].access.uid = id = atoi(value);
+    }
+    if (attr == PCP_ATTR_CONTAINER) {
 	if (ctxtab[ctx].container.name)
 	    free(ctxtab[ctx].container.name);
 	if ((ctxtab[ctx].container.name = strdup(value)) == NULL)
@@ -6558,7 +6604,7 @@ linux_init(pmdaInterface *dp)
 
     if (dp->status != 0)
 	return;
-    dp->comm.flags |= PDU_FLAG_CONTAINER;
+    dp->comm.flags |= (PDU_FLAG_AUTH|PDU_FLAG_CONTAINER);
 
     dp->version.six.instance = linux_instance;
     dp->version.six.fetch = linux_fetch;
