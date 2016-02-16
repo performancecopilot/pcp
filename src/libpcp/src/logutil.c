@@ -2211,8 +2211,13 @@ VolSkip(__pmLogCtl *lcp, int mode,  int j)
 void
 __pmLogSetTime(__pmContext *ctxp)
 {
-    __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
+    __pmArchCtl	*acp = ctxp->c_archctl;
+    __pmLogCtl	*lcp = acp->ac_log;
+    __pmTimeval	save_origin;
+    int		save_mode;
+    double	t_hi;
     int		mode;
+    int		i;
 
     mode = ctxp->c_mode & __PM_MODE_MASK; /* strip XTB data */
 
@@ -2227,9 +2232,41 @@ __pmLogSetTime(__pmContext *ctxp)
     }
 #endif
 
+    /*
+     * Ultra coarse positioning. Start within the correct archive.
+     * We're looking for the first archive which starts after the origin.
+     */
+    for (i = 0; i < acp->ac_num_logs; ++i) {
+	t_hi = __pmTimevalSub(&acp->ac_log_list[i]->ml_starttime, &ctxp->c_origin);
+	if (t_hi >= 0)
+	    break; /* found it! */
+    }
+    if (mode == PM_MODE_FORW) {
+	/* back up one archive, if possible. */
+	if (i > 0)
+	    --i;
+    }
+    else {
+	/* Use the final archive, if none start after the origin. */
+	if (i >= acp->ac_num_logs)
+	    --i;
+    }
+
+    /*
+     * __pmLogChangeArchive() will update the c_origin and c_mode fields of
+     * the current context via __pmLogOpen(). However, we don't want that
+     * here, so save this information and restore it after switching to the
+     * new archive.
+     */
+    save_origin = ctxp->c_origin;
+    save_mode = ctxp->c_mode;
+    __pmLogChangeArchive(ctxp, i);
+    lcp = acp->ac_log;
+    ctxp->c_origin = save_origin;
+    ctxp->c_mode = save_mode;
+
     if (lcp->l_numti) {
 	/* we have a temporal index, use it! */
-	int		i;
 	int		j = -1;
 	int		toobig = 0;
 	int		match = 0;
@@ -2237,7 +2274,6 @@ __pmLogSetTime(__pmContext *ctxp)
 	int		numti = lcp->l_numti;
 	FILE		*f;
 	__pmLogTI	*tip = lcp->l_ti;
-	double		t_hi;
 	double		t_lo;
 	struct stat	sbuf;
 
@@ -2279,7 +2315,7 @@ __pmLogSetTime(__pmContext *ctxp)
 	if (i == numti)
 	    j = numti;
 
-	ctxp->c_archctl->ac_serial = 1;
+	acp->ac_serial = 1;
 
 	if (match) {
 	    j = VolSkip(lcp, mode, j);
@@ -2287,7 +2323,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		return;
 	    fseek(lcp->l_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
 	    if (mode == PM_MODE_BACK)
-		ctxp->c_archctl->ac_serial = 0;
+		acp->ac_serial = 0;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG) {
 		fprintf(stderr, " at ti[%d]@", j);
@@ -2313,7 +2349,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		return;
 	    fseek(lcp->l_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
 	    if (mode == PM_MODE_BACK)
-		ctxp->c_archctl->ac_serial = 0;
+		acp->ac_serial = 0;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG) {
 		fprintf(stderr, " after end ti@");
@@ -2337,7 +2373,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		    return;
 		fseek(lcp->l_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
 		if (mode == PM_MODE_FORW)
-		    ctxp->c_archctl->ac_serial = 0;
+		    acp->ac_serial = 0;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG) {
 		    fprintf(stderr, " before ti[%d]@", j);
@@ -2351,7 +2387,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		    return;
 		fseek(lcp->l_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
 		if (mode == PM_MODE_BACK)
-		    ctxp->c_archctl->ac_serial = 0;
+		    acp->ac_serial = 0;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG) {
 		    fprintf(stderr, " after ti[%d]@", j);
@@ -2359,7 +2395,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		}
 #endif
 	    }
-	    if (ctxp->c_archctl->ac_serial && mode == PM_MODE_FORW) {
+	    if (acp->ac_serial && mode == PM_MODE_FORW) {
 		/*
 		 * back up one record ...
 		 * index points to the END of the record!
@@ -2398,13 +2434,13 @@ __pmLogSetTime(__pmContext *ctxp)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG)
 	fprintf(stderr, " vol=%d posn=%ld serial=%d\n",
-	    lcp->l_curvol, (long)ftell(lcp->l_mfp), ctxp->c_archctl->ac_serial);
+	    lcp->l_curvol, (long)ftell(lcp->l_mfp), acp->ac_serial);
 #endif
 
     /* remember your position in this context */
-    ctxp->c_archctl->ac_offset = ftell(lcp->l_mfp);
-    assert(ctxp->c_archctl->ac_offset >= 0);
-    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
+    acp->ac_offset = ftell(lcp->l_mfp);
+    assert(acp->ac_offset >= 0);
+    acp->ac_vol = acp->ac_log->l_curvol;
 }
 
 /* Read the label of the current archive. */
