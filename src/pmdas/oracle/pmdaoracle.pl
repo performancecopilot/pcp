@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2016 Intel, Inc.  All Rights Reserved.
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012,2016 Red Hat.
 # Copyright (c) 2009,2012 Aconex.  All Rights Reserved.
 # Copyright (c) 1998 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -50,13 +50,13 @@ my $session_indom	= 5;
 my $object_cache_indom	= 6;
 my $system_event_indom	= 7;
 my $librarycache_indom	= 8;
-my $wait_indom	        = 9;
+my $wait_indom		= 9;
 my $sid_indom		= 10;	
 my $license_indom	= 11;
 my $version_indom	= 12;
 my $sysstat_indom	= 13;
 my $bufferpool_indom    = 14;
-my $asm_indom           = 15;
+my $asm_indom		= 15;
 
 my @novalues = ();
 my %object_cache_instances = (
@@ -79,15 +79,15 @@ my %tables_by_name = (
 	fetch => 'SELECT statistic#, name, value FROM v$sysstat' },
     'license'	=> {
  	insts_handle => undef, fetch_handle => undef, values => {}, 
-        fetch => 'SELECT SESSIONS_MAX, SESSIONS_CURRENT, SESSIONS_WARNING,' .
-                 'SESSIONS_HIGHWATER, USERS_MAX from V$LICENSE'},
+	fetch => 'SELECT SESSIONS_MAX, SESSIONS_CURRENT, SESSIONS_WARNING,' .
+		 'SESSIONS_HIGHWATER, USERS_MAX from V$LICENSE'},
     'latch'	=> {
 	insts_handle => undef, fetch_handle => undef, values => {},
 	insts => 'SELECT latch#, name FROM v$latch',
 	fetch => 'SELECT latch#, name, gets, misses, sleeps,' .
-                 ' immediate_gets, immediate_misses, waiters_woken,' .
-                 ' waits_holding_latch, spin_gets' .
-                 ' FROM v$latch' },
+		 ' immediate_gets, immediate_misses, waiters_woken,' .
+		 ' waits_holding_latch, spin_gets' .
+		 ' FROM v$latch' },
     'filestat'	=> {
 	insts_handle => undef, fetch_handle => undef, values => {},
 	insts => 'SELECT file#, name FROM v$datafile',
@@ -131,7 +131,7 @@ my %tables_by_name = (
 		 ' FROM v$system_event' },
     'version'	=> {
 	insts_handle => undef, fetch_handle => undef, values => {},
-        insts => 'SELECT DISTINCT banner FROM v$version',
+	insts => 'SELECT DISTINCT banner FROM v$version',
 	fetch => 'SELECT DISTINCT banner' .
 		 ' FROM v$version WHERE banner LIKE \'Oracle%\'' },
     'librarycache' => {
@@ -141,23 +141,23 @@ my %tables_by_name = (
 		 '       pinhits, pinhitratio, reloads, invalidations' .
 		 ' FROM v$librarycache' },
     'waitstat' => {
-        insts_handle => undef, fetch_handle => undef, values => {},
-        fetch => 'SELECT class, count, time ' .
-                 ' FROM v$waitstat' },
+	insts_handle => undef, fetch_handle => undef, values => {},
+	fetch => 'SELECT class, count, time ' .
+		 ' FROM v$waitstat' },
     'bufferpool' => {
-        insts_handle => undef, fetch_handle => undef, values => {},
-        fetch => 'SELECT id, name, block_size, set_msize, free_buffer_wait,' .
-                 'write_complete_wait, buffer_busy_wait, physical_reads, physical_writes'.
-                 #',100 * (1-(physical_reads/(db_block_gets+consistent_gets))) hit_ratio'.
-                 ',100 * (1-(physical_reads/nullif((db_block_gets+consistent_gets),0))) hit_ratio'.
-                 ' FROM v$buffer_pool_statistics' },
+	insts_handle => undef, fetch_handle => undef, values => {},
+	fetch => 'SELECT id, name, block_size, set_msize, free_buffer_wait,' .
+		 'write_complete_wait, buffer_busy_wait, physical_reads, physical_writes'.
+		 #',100 * (1-(physical_reads/(db_block_gets+consistent_gets))) hit_ratio'.
+		 ',100 * (1-(physical_reads/nullif((db_block_gets+consistent_gets),0))) hit_ratio'.
+		 ' FROM v$buffer_pool_statistics' },
 
      'asm' => {
-        insts_handle => undef, fetch_handle => undef, values => {}, 
-        fetch => 'select group_number, disk_number, name, path,'.
-                 'reads, writes, read_errs, write_errs, read_time,'.
-                 'write_time, bytes_read, bytes_written'.
-                 ' from v$asm_disk_stat' },
+	insts_handle => undef, fetch_handle => undef, values => {}, 
+	fetch => 'select group_number, disk_number, name, path,'.
+		 'reads, writes, read_errs, write_errs, read_time,'.
+		 'write_time, bytes_read, bytes_written'.
+		 ' from v$asm_disk_stat' },
 );
 
 my %tables_by_cluster = (
@@ -221,7 +221,7 @@ my %tables_by_cluster = (
 	name	=> 'version',
 	setup	=> \&setup_version,
 	indom	=> $version_indom,
-        insts   => \&version_insts,
+	insts   => \&version_insts,
 	values	=> \&version_values },
     '12' => {
 	name	=> 'librarycache',
@@ -234,31 +234,17 @@ my %tables_by_cluster = (
 	indom	=> $wait_indom,
 	values	=> \&waitstat_values },
     '14' => {
-        name    => 'bufferpool',
-        setup   => \&setup_bufferpool,
-        indom   => $bufferpool_indom,
-        values  => \&bufferpool_values },
-    
+	name    => 'bufferpool',
+	setup   => \&setup_bufferpool,
+	indom   => $bufferpool_indom,
+	values  => \&bufferpool_values },
     '15' => {
-        name    => 'asm',
-        setup   => \&setup_asm,
-        indom   => $asm_indom,
-        values  => \&asm_values },
-
+	name    => 'asm',
+	setup   => \&setup_asm,
+	indom   => $asm_indom,
+	values  => \&asm_values },
 );
 
-my @system_event_map= (2, 3, 4, 5);
-my @waitstat_map= (1, 2);
-my @latch_map = (2, 3, 4, 5, 6, 7, 8, 9);
-my @filestat_map = (1, 2, 3, 4, 5, 6);
-my @rollstat_map = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
-my @reqdist_map = (1);
-my @backup_map = (1);
-my @rowcache_map = (4, 5, 6, 7, 8);
-my @object_cache_map = (1, 2, 3, 4);
-my @librarycache_map = (1, 2, 3, 4, 5, 6, 7, 8);
-my @bufferpool_map = (3,4,5, 6, 7, 8,9);
-my @asm_map = ( 4, 5, 6, 7, 8, 9, 10, 11 );
 
 sub oracle_connection_setup
 {
@@ -357,35 +343,21 @@ sub refresh_results
     return $handle->fetchall_arrayref();
 }
 
-sub cherrypick {
-    my $map = shift;
-    my $vlistp = shift;
-    my @vlist = @{$vlistp};
-    my @ret = ();
-
-    for my $j (0 .. $#{$map}){
-        my $pick=${$map}[$j];
-        $ret[$j] = defined($vlist[$pick]) ? $vlist[$pick] : '';
-    }  
-    return \@ret;
-}
-
 sub system_event_values
 {
     my ( $dbh, $sid, $handle ) = @_;
     my $result = refresh_results($dbh, $sid, $handle);
 
-    %system_event_instances = ();           # refresh indom too
+    %system_event_instances = ();	   # refresh indom too
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {  # for each row (instance) returned
-
-            my $eventid = $result->[$i][0];
-            my $eventname = $result->[$i][1];
-            my $instname = "$sid/$eventid $eventname";
+	for my $i (0 .. $#{$result}) {  # for each row (instance) returned
+	    my $eventid = $result->[$i][0];
+	    my $eventname = $result->[$i][1];
+	    my $instname = "$sid/$eventid $eventname";
 	    my $values = $result->[$i];
-            $values = cherrypick(\@system_event_map, $values);
-            $system_event_instances{$instname} = $values;
-        }
+	    splice(@$values, 0, 2);	# drop event_id, event columns
+	    $system_event_instances{$instname} = $values;
+	}
     }
     $pmda->replace_indom($system_event_indom, \%system_event_instances);
 }
@@ -397,12 +369,12 @@ sub system_event_insts
 
     %system_event_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {  # for each row (instance) returned
-            my $eventid = $result->[$i][0];
-            my $eventname = $result->[$i][1];
-            my $instname = "$sid/$eventid $eventname";
-            $system_event_instances{$instname} = \@novalues;
-        }
+	for my $i (0 .. $#{$result}) {  # for each row (instance) returned
+	    my $eventid = $result->[$i][0];
+	    my $eventname = $result->[$i][1];
+	    my $instname = "$sid/$eventid $eventname";
+	    $system_event_instances{$instname} = \@novalues;
+	}
     }
     $pmda->replace_indom($system_event_indom, \%system_event_instances);
 }
@@ -414,12 +386,12 @@ sub version_values
 
     %version_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {              
-            my $banner = $result->[$i][0];
-            my $instname = "$sid/$banner";
+	for my $i (0 .. $#{$result}) {
+	    my $banner = $result->[$i][0];
+	    my $instname = "$sid/$banner";
 	    my $values = $result->[$i];
 	    $version_instances{$instname} = $values;
-        }
+	}
     }
     $pmda->replace_indom($version_indom, \%version_instances);
 }
@@ -430,15 +402,15 @@ sub waitstat_values
     my $result = refresh_results($dbh, $sid, $handle);
     %wait_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {  
-            my $class = $result->[$i][0];
-            my $count = $result->[$i][1];
-            my $time = $result->[$i][2];
-            my $instname = "$sid/$class";
-            my $values = $result->[$i];
-	    $values = cherrypick(\@waitstat_map, $values);
+	for my $i (0 .. $#{$result}) {  
+	    my $class = $result->[$i][0];
+	    my $count = $result->[$i][1];
+	    my $time = $result->[$i][2];
+	    my $instname = "$sid/$class";
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 1);	# drop 'class' column
 	    $wait_instances{$instname} = $values;
-        }
+	}
     }
     $pmda->replace_indom($wait_indom, \%wait_instances);
 }
@@ -450,18 +422,16 @@ sub latch_values
 
     %latch_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $latch_num = $result->[$i][0];
-            my $latch_name = $result->[$i][1];
-            my $gets = $result->[$i][3];
-            my $misses = $result->[$i][4];
-            my $instname = "$sid/$latch_num $latch_name";
-
+	for my $i (0 .. $#{$result}) {
+	    my $latch_num = $result->[$i][0];
+	    my $latch_name = $result->[$i][1];
+	    my $gets = $result->[$i][3];
+	    my $misses = $result->[$i][4];
+	    my $instname = "$sid/$latch_num $latch_name";
 	    my $values = $result->[$i];
-	    $values = cherrypick(\@latch_map, $values);
+	    splice(@$values, 0, 2);	# drop latch#, name columns
 	    $latch_instances{$instname} = $values;
-
-        }
+	}
     }
     $pmda->replace_indom($latch_indom, \%latch_instances);
 }
@@ -473,11 +443,11 @@ sub license_values
 
     %license_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $instname = "$sid/license";
-            my $values = $result->[$i];
-            $license_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $instname = "$sid/license";
+	    my $values = $result->[$i];
+	    $license_instances{$instname} = $values;
+	}
     }
     $pmda->replace_indom($license_indom, \%license_instances);
 }
@@ -489,13 +459,13 @@ sub filestat_values
 
     %file_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $file_num = $result->[$i][0];
-            my $instname = "$sid/$file_num";
-            my $values = $result->[$i];
-            $values = cherrypick(\@filestat_map, $values);
-            $file_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $file_num = $result->[$i][0];
+	    my $instname = "$sid/$file_num";
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 1);	# drop file# column
+	    $file_instances{$instname} = $values;
+	}
     }
     $pmda->replace_indom($file_indom, \%file_instances);
 }
@@ -507,106 +477,107 @@ sub rollstat_values
 
     %rollback_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $usn = $result->[$i][0];
-            my $instname = "$sid/$usn";
-            my $values = $result->[$i];
-            $values = cherrypick(\@rollstat_map, $values);
-            $rollback_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $usn = $result->[$i][0];
+	    my $instname = "$sid/$usn";
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 1);	# drop usn column
+	    $rollback_instances{$instname} = $values;
+	}
     }
     $pmda->replace_indom($rollback_indom, \%rollback_instances);
 }
 
-sub backup_values { 
-
+sub backup_values
+{
     my ( $dbh, $sid, $handle ) = @_;
     my $result = refresh_results($dbh, $sid, $handle);
 
     %file_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $backfile_num = $result->[$i][0];
-            my $instname = "$sid/file$backfile_num";
-            my $values = $result->[$i];
-            $values = cherrypick(\@backup_map, $values);
-            $file_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $backfile_num = $result->[$i][0];
+	    my $instname = "$sid/file$backfile_num";
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 1);	# drop file# column
+	    $file_instances{$instname} = $values;
+	}
     }
     $pmda->replace_indom($file_indom, \%file_instances);
 }
 
-sub rowcache_values { 
-
+sub rowcache_values
+{
     my ( $dbh, $sid, $handle ) = @_;
     my $result = refresh_results($dbh, $sid, $handle);
 
     %rowcache_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $type = $result->[$i][0];
-            my $cache_num = $result->[$i][1];
-            my $subord_num = defined( $result->[$i][2]) ?  $result->[$i][2] : '';
-            my $parameter = $result->[$i][3];
-            my $instname = "$sid/$type $cache_num/$subord_num $parameter";
-            my $values = $result->[$i];
-            $values = cherrypick(\@rowcache_map, $values);
-            $rowcache_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $type = $result->[$i][0];
+	    my $cache_num = $result->[$i][1];
+	    my $subord_num = defined( $result->[$i][2]) ? $result->[$i][2] : '';
+	    my $parameter = $result->[$i][3];
+	    my $instname = "$sid/$type $cache_num/$subord_num $parameter";
+	    my $values = $result->[$i];
+	    # drop type, cache#, subordinate#, parameter columns
+	    splice(@$values, 0, 4);
+	    $rowcache_instances{$instname} = $values;
+	}
     }
     $pmda->replace_indom($rowcache_indom, \%rowcache_instances);
-
 }
 
-sub object_cache_values  { 
-
+sub object_cache_values
+{
     my ( $dbh, $sid, $handle ) = @_;
     my $result = refresh_results($dbh, $sid, $handle);
 
     %object_cache_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $type = $result->[$i][0];
-            my $instname = "$sid/$type";
-            my $values = $result->[$i];
-            $values = cherrypick(\@object_cache_map, $values);
-            $object_cache_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $type = $result->[$i][0];
+	    my $instname = "$sid/$type";
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 1);	# drop type column
+	    $object_cache_instances{$instname} = $values;
+	}
     }
     $pmda->replace_indom($object_cache_indom, \%object_cache_instances);
 }
 
-sub librarycache_values {
-
+sub librarycache_values
+{
     my ( $dbh, $sid, $handle ) = @_;
     my $result = refresh_results($dbh, $sid, $handle);
 
     %librarycache_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $name = $result->[$i][0];
-            my $instname = "$sid/$name";
-            my $values = $result->[$i];
-            $values = cherrypick(\@librarycache_map, $values);
-            $librarycache_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $name = $result->[$i][0];
+	    my $instname = "$sid/$name";
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 1);	# drop namespace column
+	    $librarycache_instances{$instname} = $values;
+	}
     }
     $pmda->replace_indom($librarycache_indom, \%librarycache_instances);
 }
 
-sub reqdist_values { 
+sub reqdist_values
+{
     my ( $dbh, $sid, $handle ) = @_;
     my $result = refresh_results($dbh, $sid, $handle);
 
     %reqdist_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $bucket = $result->[$i][0];
-            my $instname = "$sid/$bucket";
-            my $values = $result->[$i];
-            $values = cherrypick(\@reqdist_map, $values);
-            $reqdist_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $bucket = $result->[$i][0];
+	    my $instname = "$sid/$bucket";
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 1);	# drop bucket column
+	    $reqdist_instances{$instname} = $values;
+	}
     }
     $pmda->replace_indom($reqdist_indom, \%reqdist_instances);
 }
@@ -616,70 +587,69 @@ sub sysstat_values
     my ( $dbh, $sid, $handle ) = @_;
     my $result = refresh_results($dbh, $sid, $handle);
     my @varray;
-    my $instname;
+
     %sysstat_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $statistic_num = $result->[$i][0];
-            my $statistic_name = $result->[$i][1];
-            my $pmid_item_num = $sysstat_map{$statistic_name};
+	for my $i (0 .. $#{$result}) {
+	    my $statistic_num = $result->[$i][0];
+	    my $statistic_name = $result->[$i][1];
+	    my $pmid_item_num = $sysstat_map{$statistic_name};
 
-            if (defined($pmid_item_num)) {
-                #
-                # pull out the current array of values, and insert this value
-                # at the offset specific for the found PMID item number, such
-                # that a subsequent fetch callback can quickly look it up.
-                #
-                #my $values = $sysstat_instances{$sid};
-                #my @varray = @{$values};
+	    if (defined($pmid_item_num)) {
+		#
+		# pull out the current array of values, and insert this value
+		# at the offset specific to the mapped PMID item number, such
+		# that a subsequent fetch callback can quickly look it up.
+		#
 		$varray[$pmid_item_num] = $result->[$i][2];
-            }
-        }
-       $sysstat_instances{$sid} = \@varray;        
+	    }
+	}
+	$sysstat_instances{$sid} = \@varray;
     }
     $pmda->replace_indom($sysstat_indom, \%sysstat_instances);
 }
 
-sub bufferpool_values{
+sub bufferpool_values
+{
     my ( $dbh, $sid, $handle ) = @_;
     my $result = refresh_results($dbh, $sid, $handle);
 
     %bufferpool_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $id = $result->[$i][0];
-            my $name = $result->[$i][1];
-            my $blocksize  = $result->[$i][2];
-            my $instname = "$sid/$id $blocksize $name";
-            my $values = $result->[$i];
-            $values = cherrypick(\@bufferpool_map, $values);
-            $bufferpool_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $id = $result->[$i][0];
+	    my $name = $result->[$i][1];
+	    my $blocksize  = $result->[$i][2];
+	    my $instname = "$sid/$id $blocksize $name";
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 3);	# drop id, name, block_size columns
+	    $bufferpool_instances{$instname} = $values;
+	}
     }
     $pmda->replace_indom($bufferpool_indom, \%bufferpool_instances);
 }
 
-sub asm_values{
+sub asm_values
+{
     my ( $dbh, $sid, $handle ) = @_;
     my $result = refresh_results($dbh, $sid, $handle);
 
     %asm_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $name = $result->[$i][2];
-            my $disk_num = $result->[$i][1];
-            my $group_num = $result->[$i][0];
-            my $instname = "$sid/$disk_num $name";
-            my $values = $result->[$i];
-            $values = cherrypick(\@asm_map, $values);
-            $asm_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $name = $result->[$i][2];
+	    my $disk_num = $result->[$i][1];
+	    my $group_num = $result->[$i][0];
+	    my $instname = "$sid/$disk_num $name";
+	    my $values = $result->[$i];
+	    # drop group_number, disk_number, name, path columns
+	    splice(@$values, 0, 4);
+	    $asm_instances{$instname} = $values;
+	}
     }
     $pmda->replace_indom($asm_indom, \%asm_instances);
 }
 
-
-sub sesstat_values  { }
 
 sub oracle_indoms_setup
 {
@@ -751,30 +721,28 @@ log file I/O, timers.');
 'The system identifiers used by the RDBMS and monitored by this PMDA.');
 
     $pmda->add_indom($license_indom, \%license_instances,
-                'Instance domain "license" from Oracle PMDA','');
+		'Instance domain "license" from Oracle PMDA','');
 
     $pmda->add_indom($version_indom, \%version_instances,
-                'Instance domain "version" from Oracle PMDA','');
+		'Instance domain "version" from Oracle PMDA','');
 
     $pmda->add_indom($sysstat_indom, \%sysstat_instances,
-                'Instance domain "sysstat" from Oracle PMDA','');
+		'Instance domain "sysstat" from Oracle PMDA','');
 
     $pmda->add_indom($bufferpool_indom, \%bufferpool_instances,
-                'Instance domain "buffer_pool" from Oracle PMDA','');
+		'Instance domain "buffer_pool" from Oracle PMDA','');
 
     $pmda->add_indom($asm_indom, \%asm_instances,
-                'Instance domain "asm" from Oracle PMDA','');
+		'Instance domain "asm" from Oracle PMDA','');
 }
 
 sub oracle_metrics_setup
 {
-
     foreach my $cluster (sort (keys %tables_by_cluster)) {
-        my $setup = $tables_by_cluster{"$cluster"}{setup};
-        my $indom = $tables_by_cluster{"$cluster"}{indom};
-        &$setup($cluster, $indom, $tables_by_cluster{"$cluster"}{params});
+	my $setup = $tables_by_cluster{"$cluster"}{setup};
+	my $indom = $tables_by_cluster{"$cluster"}{indom};
+	&$setup($cluster, $indom, $tables_by_cluster{"$cluster"}{params});
     }
-
 }
 
 #
