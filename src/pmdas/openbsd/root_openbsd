@@ -1,0 +1,204 @@
+/*
+ * Metrics for OpenBSD kernel PMDA
+ *
+ * Copyright (c) 2012 Ken McDonell  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+/*
+ * the domain for the OPENBSD PMDA ...
+ */
+#ifndef OPENBSD
+#define OPENBSD 139
+#endif
+
+root {
+    hinv
+    kernel
+    disk
+    mem
+    network
+    filesys
+    swap
+    pmda
+}
+
+hinv {
+    ncpu	OPENBSD:0:0
+    ndisk	OPENBSD:1:0
+    nfilesys	OPENBSD:7:0
+    ninterface	OPENBSD:3:17
+    physmem	OPENBSD:0:1
+    pagesize	OPENBSD:1:3
+    cpu
+}
+
+hinv.cpu {
+    vendor	OPENBSD:0:15
+    model	OPENBSD:0:16
+    arch	OPENBSD:0:17
+}
+
+kernel {
+    all
+    percpu
+    uname
+}
+
+kernel.all {
+    pswitch	OPENBSD:5:1
+    syscall	OPENBSD:5:2
+    intr	OPENBSD:5:3
+    hz		OPENBSD:0:13
+    load	OPENBSD:1:2
+    cpu
+}
+
+kernel.all.cpu {
+    user	OPENBSD:0:3
+    nice	OPENBSD:0:4
+    sys		OPENBSD:0:5
+    intr	OPENBSD:0:6
+    idle	OPENBSD:0:7
+}
+
+kernel.percpu {
+    cpu
+}
+
+kernel.percpu.cpu {
+    user	OPENBSD:6:3
+    nice	OPENBSD:6:4
+    sys		OPENBSD:6:5
+    intr	OPENBSD:6:6
+    idle	OPENBSD:6:7
+}
+
+kernel.uname {
+    release	OPENBSD:1:14
+    version	OPENBSD:1:15
+    sysname	OPENBSD:1:16
+    machine	OPENBSD:1:17
+    nodename	OPENBSD:1:18
+    distro	OPENBSD:1:15	/* alias for version on OpenBSD */
+}
+
+disk {
+    dev
+    all
+}
+
+disk.dev {
+    read	OPENBSD:2:0
+    write	OPENBSD:2:1
+    total	OPENBSD:2:2
+    read_bytes	OPENBSD:2:3
+    write_bytes	OPENBSD:2:4
+    total_bytes	OPENBSD:2:5
+}
+
+disk.all {
+    read	OPENBSD:2:6
+    write	OPENBSD:2:7
+    total	OPENBSD:2:8
+    read_bytes	OPENBSD:2:9
+    write_bytes	OPENBSD:2:10
+    total_bytes	OPENBSD:2:11
+}
+
+mem {
+    util
+}
+
+mem.util {
+    all		OPENBSD:5:4
+    used	OPENBSD:5:5
+    free	OPENBSD:5:6
+    paging	OPENBSD:5:7
+    cached	OPENBSD:5:8
+    wired	OPENBSD:5:9
+    active	OPENBSD:5:10
+    inactive	OPENBSD:5:11
+    zeropages	OPENBSD:5:12
+    pagedaemonpages	OPENBSD:5:13
+    kernelpages	OPENBSD:5:14
+    anonpages	OPENBSD:5:15
+    filepages	OPENBSD:5:16
+    execpages	OPENBSD:5:17
+}
+
+network {
+    interface
+}
+
+network.interface {
+    mtu		OPENBSD:3:0
+    up		OPENBSD:3:1
+    baudrate	OPENBSD:3:2
+    in
+    out
+    total
+}
+
+network.interface.in {
+    bytes	OPENBSD:3:3
+    packets	OPENBSD:3:4
+    mcasts	OPENBSD:3:5
+    errors	OPENBSD:3:6
+    drops	OPENBSD:3:7
+}
+
+network.interface.out {
+    bytes	OPENBSD:3:8
+    packets	OPENBSD:3:9
+    mcasts	OPENBSD:3:10
+    errors	OPENBSD:3:11
+    collisions	OPENBSD:3:12
+}
+
+network.interface.total {
+    bytes	OPENBSD:3:13
+    packets	OPENBSD:3:14
+    mcasts	OPENBSD:3:15
+    errors	OPENBSD:3:16
+}
+
+swap {
+    length	OPENBSD:4:1
+    used	OPENBSD:4:2
+    free	OPENBSD:4:3
+    in		OPENBSD:4:4
+    out		OPENBSD:4:5
+    pagesin	OPENBSD:4:6
+    pagesout	OPENBSD:4:7
+}
+
+filesys {
+    capacity	OPENBSD:7:1
+    used	OPENBSD:7:2
+    free	OPENBSD:7:3
+    maxfiles	OPENBSD:7:4
+    usedfiles	OPENBSD:7:5
+    freefiles	OPENBSD:7:6
+    mountdir	OPENBSD:7:7
+    full	OPENBSD:7:8
+    blocksize	OPENBSD:7:9
+    avail	OPENBSD:7:10
+    readonly	OPENBSD:7:11
+}
+
+pmda {
+    uname	OPENBSD:1:20
+    version	OPENBSD:1:21
+}
+
+#undef OPENBSD
