@@ -22,6 +22,10 @@
 #include <ucred.h>
 #endif
 
+#ifdef IS_OPENBSD
+#define EPROTO ENOPROTOOPT
+#endif
+
 #define STRINGIFY(s)	#s
 #define TO_STRING(s)	STRINGIFY(s)
 

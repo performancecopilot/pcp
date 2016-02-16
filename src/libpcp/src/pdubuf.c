@@ -24,6 +24,7 @@
 #include "compiler.h"
 #include <assert.h>
 #include <search.h>
+#include <stdint.h>
 
 typedef struct bufctl
 {
