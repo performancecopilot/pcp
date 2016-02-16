@@ -1371,11 +1371,14 @@ if __name__ == '__main__':
 
     except pmapi.pmErr as error:
         sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
+        sys.exit(1)
     except pmapi.pmUsageErr as usage:
         usage.message()
+        sys.exit(1)
     except IOError as error:
         if error.errno != errno.EPIPE:
             sys.stderr.write("%s\n" % str(error))
+            sys.exit(1)
     except KeyboardInterrupt:
         sys.stdout.write("\n")
         P.finalize()
