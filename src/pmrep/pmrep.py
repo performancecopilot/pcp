@@ -786,11 +786,11 @@ class PMReporter(object):
         offset = time.altzone if dst else time.timezone
         currtz = time.tzname[dst]
         if offset:
-           offset = offset/3600
-           offset = int(offset) if offset == int(offset) else offset
-           if offset >= 0:
-               offset = "+" + str(offset)
-           currtz += str(offset)
+            offset = offset/3600
+            offset = int(offset) if offset == int(offset) else offset
+            if offset >= 0:
+                offset = "+" + str(offset)
+            currtz += str(offset)
         return currtz
 
     def execute(self):
