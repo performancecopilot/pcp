@@ -3099,6 +3099,15 @@ $as_echo "#define IS_NETBSD 1" >>confdefs.h
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"
     pcp_platform_paths='/usr/pkg/bin'
     pcp_ps_all_flags=auxww
+elif test $target_os = openbsd
+then
+    target_os=openbsd
+
+$as_echo "#define IS_OPENBSD 1" >>confdefs.h
+
+    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    pcp_platform_paths='/usr/local/bin'
+    pcp_ps_all_flags=auxww
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
@@ -3253,7 +3262,7 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 if test -n "$ac_tool_prefix"; then
-  for ac_prog in suncc gcc cc
+  for ac_prog in suncc egcc gcc cc
   do
     # Extract the first word of "$ac_tool_prefix$ac_prog", so it can be a program name with args.
 set dummy $ac_tool_prefix$ac_prog; ac_word=$2
@@ -3297,7 +3306,7 @@ fi
 fi
 if test -z "$CC"; then
   ac_ct_CC=$CC
-  for ac_prog in suncc gcc cc
+  for ac_prog in suncc egcc gcc cc
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -4052,7 +4061,7 @@ if test -z "$CXX"; then
     CXX=$CCC
   else
     if test -n "$ac_tool_prefix"; then
-  for ac_prog in g++ c++ gpp aCC CC cxx cc++ cl.exe FCC KCC RCC xlC_r xlC
+  for ac_prog in eg++ g++ c++
   do
     # Extract the first word of "$ac_tool_prefix$ac_prog", so it can be a program name with args.
 set dummy $ac_tool_prefix$ac_prog; ac_word=$2
@@ -4096,7 +4105,7 @@ fi
 fi
 if test -z "$CXX"; then
   ac_ct_CXX=$CXX
-  for ac_prog in g++ c++ gpp aCC CC cxx cc++ cl.exe FCC KCC RCC xlC_r xlC
+  for ac_prog in eg++ g++ c++
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -6949,6 +6958,7 @@ fi
 
   test -n "$PYTHON" && break
 done
+test -n "$PYTHON" || PYTHON="python2.7"
 
 
 
@@ -6993,6 +7003,7 @@ fi
 
   test -n "$PYTHON3" && break
 done
+test -n "$PYTHON3" || PYTHON3="python3.4"
 
 
 
@@ -9142,7 +9153,7 @@ fi
 
 done
 
-for ac_header in unistd.h stddef.h sched.h dlfcn.h dl.h
+for ac_header in unistd.h stddef.h stdlib.h sched.h dlfcn.h dl.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -9271,7 +9282,7 @@ fi
 
 done
 
-if test $target_os = darwin
+if test $target_os = darwin -o $target_os = openbsd
 then
     for ac_header in net/if.h
 do :
