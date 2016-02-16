@@ -185,6 +185,7 @@ class IostatOptions(pmapi.pmOptions):
     # class attributes
     xflag = [] 
     uflag = None
+    Pflag = 2
 
     def checkOptions(self, manager):
         if IostatOptions.uflag:
@@ -201,9 +202,11 @@ class IostatOptions(pmapi.pmOptions):
             IostatOptions.xflag += optarg.replace(',', ' ').split(' ')
         elif opt == "u":
             IostatOptions.uflag = True
+        elif opt == "P":
+            IostatOptions.Pflag = int(optarg)
 
     def __init__(self):
-        pmapi.pmOptions.__init__(self, "A:a:D:h:O:S:s:T:t:uVZ:z?x:")
+        pmapi.pmOptions.__init__(self, "A:a:D:h:O:P:S:s:T:t:uVZ:z?x:")
         self.pmSetOptionCallback(self.extraOptions)
         self.pmSetLongOptionHeader("General options")
         self.pmSetLongOptionAlign()
@@ -211,6 +214,7 @@ class IostatOptions(pmapi.pmOptions):
         self.pmSetLongOptionDebug()
         self.pmSetLongOptionHost()
         self.pmSetLongOptionOrigin()
+        self.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator")
         self.pmSetLongOptionStart()
         self.pmSetLongOptionSamples()
         self.pmSetLongOptionFinish()
