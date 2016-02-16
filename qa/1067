@@ -21,8 +21,16 @@ grep -q zbxpcp /etc/zabbix/zabbix_agentd.conf || \
 	_notrun "No configuration of the Zabbix PCP module"
 
 status=1	# failure is the default!
+control=$PCP_PMDAS_DIR/sample/dynamic.indom
 $sudo rm -rf $tmp $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    _restore_config $control
+    rm -f $tmp.*
+}
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_save_config $control
 
 _filter_values()
 {
@@ -63,6 +71,10 @@ zabbix_agentd -t pcp.sample.bad.novalues
 
 # verify enumeration of all metrics
 echo "== enumerated names and filtered values"
+$sudo rm -f $control	# control the dynamic indom
+echo '1 one' >$tmp.indom
+echo '2 two' >>$tmp.indom
+$sudo cp $tmp.indom $control
 zabbix_agentd -p | fgrep pcp.sample. | _filter_values
 
 # success, all done
