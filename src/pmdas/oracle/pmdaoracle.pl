@@ -300,11 +300,20 @@ sub oracle_sid_connection_setup
 sub oracle_refresh
 {
     my ($cluster) = @_;
+
     foreach my $sid (@sids) {
-        my $db = $sids_by_name{$sid}{db_handle};
-        my $name = $tables_by_cluster{"$cluster"}{name};
-        my $refresh = $tables_by_cluster{"$cluster"}{values};
-        &$refresh($db, $sid, $tables_by_name{$name}{fetch_handle});
+	my $db = $sids_by_name{$sid}{db_handle};
+	my $name = $tables_by_cluster{"$cluster"}{name};
+	my $refresh = $tables_by_cluster{"$cluster"}{values};
+
+	# attempt to reconnect if connection failed previously
+	unless (defined($db)) {
+	    $db = oracle_sid_connection_setup($sid, $db);
+	    $sids_by_name{$sid}{db_handle} = $db;
+	}
+	# execute query, marking the connection bad on failure
+	&$refresh($db, $sid, $tables_by_name{$name}{fetch_handle});
+	$sids_by_name{$sid}{db_handle} = undef if ($db->err);
     }
 }
 
@@ -336,10 +345,15 @@ sub oracle_fetch_callback
 #
 sub refresh_results
 {
-    my ( $dbh, $handle ) = @_;
+    my ( $dbh, $sid, $handle ) = @_;
 
-    return undef
-	unless (defined($dbh) && defined($handle) && defined($handle->execute()));
+    return undef unless (defined($dbh) && defined($handle));
+    unless (defined($handle->execute())) {
+	# generate a timestamped failure message to accompany automatically
+	# generated DBD error (PrintError is left as on - default setting).
+	$pmda->log("Failed SQL query execution on SID $sid");
+	return undef;
+    }
     return $handle->fetchall_arrayref();
 }
 
@@ -359,7 +373,7 @@ sub cherrypick {
 sub system_event_values
 {
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
 
     %system_event_instances = ();           # refresh indom too
     if (defined($result)) {
@@ -376,12 +390,10 @@ sub system_event_values
     $pmda->replace_indom($system_event_indom, \%system_event_instances);
 }
 
-
 sub system_event_insts
 {
-
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
 
     %system_event_instances = ();
     if (defined($result)) {
@@ -393,14 +405,12 @@ sub system_event_insts
         }
     }
     $pmda->replace_indom($system_event_indom, \%system_event_instances);
-
 }
-
 
 sub version_values
 {
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
 
     %version_instances = ();
     if (defined($result)) {
@@ -412,14 +422,12 @@ sub version_values
         }
     }
     $pmda->replace_indom($version_indom, \%version_instances);
-
 }
-
 
 sub waitstat_values
 {
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
     %wait_instances = ();
     if (defined($result)) {
         for my $i (0 .. $#{$result}) {  
@@ -430,8 +438,6 @@ sub waitstat_values
             my $values = $result->[$i];
 	    $values = cherrypick(\@waitstat_map, $values);
 	    $wait_instances{$instname} = $values;
-    
-
         }
     }
     $pmda->replace_indom($wait_indom, \%wait_instances);
@@ -440,7 +446,7 @@ sub waitstat_values
 sub latch_values
 {
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
 
     %latch_instances = ();
     if (defined($result)) {
@@ -463,7 +469,7 @@ sub latch_values
 sub license_values
 {
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
 
     %license_instances = ();
     if (defined($result)) {
@@ -479,7 +485,7 @@ sub license_values
 sub filestat_values
 {
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
 
     %file_instances = ();
     if (defined($result)) {
@@ -497,7 +503,7 @@ sub filestat_values
 sub rollstat_values
 {
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
 
     %rollback_instances = ();
     if (defined($result)) {
@@ -515,7 +521,7 @@ sub rollstat_values
 sub backup_values { 
 
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
 
     %file_instances = ();
     if (defined($result)) {
@@ -533,7 +539,7 @@ sub backup_values {
 sub rowcache_values { 
 
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
 
     %rowcache_instances = ();
     if (defined($result)) {
@@ -555,7 +561,7 @@ sub rowcache_values {
 sub object_cache_values  { 
 
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
 
     %object_cache_instances = ();
     if (defined($result)) {
@@ -573,7 +579,7 @@ sub object_cache_values  {
 sub librarycache_values {
 
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
 
     %librarycache_instances = ();
     if (defined($result)) {
@@ -590,7 +596,7 @@ sub librarycache_values {
 
 sub reqdist_values { 
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
 
     %reqdist_instances = ();
     if (defined($result)) {
@@ -608,7 +614,7 @@ sub reqdist_values {
 sub sysstat_values
 {
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
     my @varray;
     my $instname;
     %sysstat_instances = ();
@@ -636,7 +642,7 @@ sub sysstat_values
 
 sub bufferpool_values{
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
 
     %bufferpool_instances = ();
     if (defined($result)) {
@@ -655,7 +661,7 @@ sub bufferpool_values{
 
 sub asm_values{
     my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my $result = refresh_results($dbh, $sid, $handle);
 
     %asm_instances = ();
     if (defined($result)) {
