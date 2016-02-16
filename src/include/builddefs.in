@@ -107,6 +107,9 @@ ifeq "$(TARGET_OS)" "netbsd"
 DSOSUFFIX = so
 LDFLAGS += -Wl,-rpath=/usr/pkg/lib
 endif
+ifeq "$(TARGET_OS)" "openbsd"
+DSOSUFFIX = so
+endif
 
 CFLAGS_ABI = @cflags_abi@
 CFLAGS_OPT = @optimization@
@@ -600,6 +603,7 @@ ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
                 -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
                 -o '$(PACKAGE_DISTRIBUTION)' = solaris \
                 -o '$(PACKAGE_DISTRIBUTION)' = freebsd \
+                -o '$(PACKAGE_DISTRIBUTION)' = openbsd \
 	      ] && echo 1)" "1"
 # Gather installed Perl files before packaging
 PERL_INSTALL = \
@@ -657,6 +661,7 @@ ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
                 -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
                 -o '$(PACKAGE_DISTRIBUTION)' = solaris \
                 -o '$(PACKAGE_DISTRIBUTION)' = freebsd \
+                -o '$(PACKAGE_DISTRIBUTION)' = openbsd \
 	      ] && echo 1)" "1"
 # Gather installed Python files before packaging
 # Lines in python-pcp.list are like this
