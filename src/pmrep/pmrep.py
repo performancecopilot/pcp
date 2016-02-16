@@ -53,8 +53,8 @@ try:
 except:
     import simplejson as json
 import socket
-import signal
 import struct
+import errno
 import time
 import copy
 import sys
@@ -65,8 +65,6 @@ from pcp import pmapi, pmi
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_ERR_NAME, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET, PM_DEBUG_APPL1
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
 from cpmi import PMI_ERR_DUPINSTNAME
-
-signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 if sys.version_info[0] >= 3:
     long = int
@@ -151,10 +149,12 @@ def send_to_zabbix(metrics, zabbix_host, zabbix_port, timeout=15):
         # debug: write('Got response from Zabbix: %s' % resp)
         if resp.get('response') != 'success':
             sys.stderr.write('Error response from Zabbix: %s', resp)
+            sys.stderr.flush()
             return False
         return True
     except socket.timeout as err:
         sys.stderr.write("Zabbix connection timed out: " + str(err))
+        sys.stderr.flush()
         return False
     finally:
         zabbix.close()
@@ -1345,26 +1345,18 @@ class PMReporter(object):
 
     def finalize(self):
         """ Finalize and clean up """
-        try:
-            if self.writer:
+        if self.writer:
+            try:
                 self.writer.flush()
-                if self.writer != sys.stdout:
-                   self.writer.close()
-                self.writer = None
-            if self.pmi:
-                self.pmi.pmiEnd()
-                self.pmi = None
-        finally:
-           try:
-               sys.stdout.flush()
-           finally:
-               try:
-                   sys.stdout.close()
-               finally:
-                   try:
-                       sys.stderr.flush()
-                   finally:
-                       sys.stderr.close()
+            except BrokenPipeError:
+                pass
+            if self.writer != sys.stdout:
+                os.fsync(self.writer.fileno())
+            self.writer.close()
+            self.writer = None
+        if self.pmi:
+            self.pmi.pmiEnd()
+            self.pmi = None
 
 if __name__ == '__main__':
     try:
@@ -1382,7 +1374,8 @@ if __name__ == '__main__':
     except pmapi.pmUsageErr as usage:
         usage.message()
     except IOError as error:
-        sys.stderr.write("%s\n" % str(error))
+        if error.errno != errno.EPIPE:
+            sys.stderr.write("%s\n" % str(error))
     except KeyboardInterrupt:
         sys.stdout.write("\n")
         P.finalize()
