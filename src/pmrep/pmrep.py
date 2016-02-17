@@ -1350,8 +1350,6 @@ class PMReporter(object):
                 self.writer.flush()
             except BrokenPipeError:
                 pass
-            if self.writer != sys.stdout:
-                os.fsync(self.writer.fileno())
             self.writer.close()
             self.writer = None
         if self.pmi:
