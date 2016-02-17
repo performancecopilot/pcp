@@ -1355,6 +1355,9 @@ class PMReporter(object):
         if self.pmi:
             self.pmi.pmiEnd()
             self.pmi = None
+        if self.zabbix_metrics:
+            send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
+            self.zabbix_metrics = []
 
 if __name__ == '__main__':
     try:
