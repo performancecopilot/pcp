@@ -184,7 +184,9 @@ pmda.named
 pmda.netfilter
 pmda.news
 pmda.nvidia
+pmda.oracle
 pmda.papi
+pmda.perfevent
 pmda.pmcd
 pmda.postfix
 pmda.postgresql
@@ -1198,6 +1200,7 @@ cgroups
 1032 pmwebapi containers local
 1033 pmda.named local
 1034 pmda.named local
+1035 pmda.oracle local
 1042 pmwebapi pmda.proc local
 1044 pmie local pmieconf sanity
 1045 pmie local pmieconf

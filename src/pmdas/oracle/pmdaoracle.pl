@@ -20,6 +20,7 @@ use warnings;
 use PCP::PMDA;
 use DBI;
 
+my $os_user = 'oracle';
 my $username = 'SYSTEM';
 my $password = 'manager';
 my @sids = ( 'master' );
@@ -60,27 +61,27 @@ my $asm_indom		= 15;
 
 my @novalues = ();
 my %object_cache_instances = (
-        'INDEX' => \@novalues,          'TABLE' => \@novalues,
-        'CLUSTER' => \@novalues,        'VIEW' => \@novalues,
-        'SET' => \@novalues,            'SYNONYM' => \@novalues,
-        'SEQUENCE' => \@novalues,       'PROCEDURE' => \@novalues,
-        'FUNCTION' => \@novalues,       'PACKAGE' => \@novalues,
-        'PACKAGE_BODY' => \@novalues,   'TRIGGER' => \@novalues,
-        'CLASS' => \@novalues,          'OBJECT' => \@novalues,
-        'USER' => \@novalues,           'DBLINK' => \@novalues,
-        'NON-EXISTENT' => \@novalues,   'NOT_LOADED' => \@novalues,
-        'OTHER' => \@novalues );
+	'INDEX' => \@novalues,          'TABLE' => \@novalues,
+	'CLUSTER' => \@novalues,        'VIEW' => \@novalues,
+	'SET' => \@novalues,            'SYNONYM' => \@novalues,
+	'SEQUENCE' => \@novalues,       'PROCEDURE' => \@novalues,
+	'FUNCTION' => \@novalues,       'PACKAGE' => \@novalues,
+	'PACKAGE_BODY' => \@novalues,   'TRIGGER' => \@novalues,
+	'CLASS' => \@novalues,          'OBJECT' => \@novalues,
+	'USER' => \@novalues,           'DBLINK' => \@novalues,
+	'NON-EXISTENT' => \@novalues,   'NOT_LOADED' => \@novalues,
+	'OTHER' => \@novalues );
 
 my %sids_by_name;
 my %tables_by_name = (
     'sysstat'	=> {
 	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT sid FROM v$session',
-	fetch => 'SELECT statistic#, name, value FROM v$sysstat' },
+	# insts => sids is a static array
+	fetch => 'select statistic#, name, value from v$sysstat' },
     'license'	=> {
  	insts_handle => undef, fetch_handle => undef, values => {}, 
-	fetch => 'SELECT SESSIONS_MAX, SESSIONS_CURRENT, SESSIONS_WARNING,' .
-		 'SESSIONS_HIGHWATER, USERS_MAX from V$LICENSE'},
+	fetch => 'SELECT sessions_max, sessions_current, sessions_warning,' .
+		 'sessions_highwater, users_max from v$license'},
     'latch'	=> {
 	insts_handle => undef, fetch_handle => undef, values => {},
 	insts => 'SELECT latch#, name FROM v$latch',
@@ -102,22 +103,21 @@ my %tables_by_name = (
 		' FROM v$rollstat' },
     'reqdist'	=> {
 	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT bucket FROM v$reqdist',
-	fetch => 'SELECT bucket, count FROM v$reqdist' },
+	insts => 'select bucket from v$reqdist',
+	fetch => 'select bucket, count from v$reqdist' },
     'backup'	=> {
 	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT file# FROM v$backup',
-	fetch => 'SELECT file#, status FROM v$backup' },
+	insts => 'select file# from v$backup',
+	fetch => 'select file#, status from v$backup' },
     'rowcache'	=> {
 	insts_handle => undef, fetch_handle => undef, values => {},
 	insts => 'SELECT cache#, subordinate#, parameter FROM v$rowcache',
 	fetch => 'SELECT type, cache#, subordinate#, parameter,' .
 		' count, gets, getmisses,scans, scanmisses' .
 		' FROM v$rowcache' },
-    'sesstat'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT sid FROM v$session',
-	fetch => 'SELECT sid, statistic#, value FROM v$sesstat' },
+#    'sesstat'	=> {
+#	insts_handle => undef, fetch_handle => undef, values => {},
+#	fetch => 'SELECT sid, statistic#, value FROM v$sesstat' },
     'object_cache'	=> {
 	insts_handle => undef, fetch_handle => undef, values => {},
 	# insts => object_cache indom is a static array
@@ -125,13 +125,13 @@ my %tables_by_name = (
 		 ' FROM v$db_object_cache' },
     'system_event' => {
 	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT event#,name FROM v$event_name',
+	insts => 'SELECT event#, name FROM v$event_name',
 	fetch => 'SELECT event_id, event, total_waits, total_timeouts,' .
 		 '       time_waited, average_wait' .
 		 ' FROM v$system_event' },
     'version'	=> {
 	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT DISTINCT banner FROM v$version',
+	# insts => sids is a static array
 	fetch => 'SELECT DISTINCT banner' .
 		 ' FROM v$version WHERE banner LIKE \'Oracle%\'' },
     'librarycache' => {
@@ -142,8 +142,7 @@ my %tables_by_name = (
 		 ' FROM v$librarycache' },
     'waitstat' => {
 	insts_handle => undef, fetch_handle => undef, values => {},
-	fetch => 'SELECT class, count, time ' .
-		 ' FROM v$waitstat' },
+	fetch => 'select class, count, time from v$waitstat' },
     'bufferpool' => {
 	insts_handle => undef, fetch_handle => undef, values => {},
 	fetch => 'SELECT id, name, block_size, set_msize, free_buffer_wait,' .
@@ -268,7 +267,7 @@ sub oracle_sid_connection_setup
 		$insts_query = $tables_by_name{$key}{insts};
 		$fetch_query = $tables_by_name{$key}{fetch};
 		if (defined($insts_query)) {
-		    $query = $dbh->prepare($fetch_query);
+		    $query = $dbh->prepare($insts_query);
 		    $tables_by_name{$key}{insts_handle} = $query
 			unless (!defined($query));
 		}
@@ -388,9 +387,8 @@ sub version_values
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {
 	    my $banner = $result->[$i][0];
-	    my $instname = "$sid/$banner";
 	    my $values = $result->[$i];
-	    $version_instances{$instname} = $values;
+	    $version_instances{$sid} = $values;
 	}
     }
     $pmda->replace_indom($version_indom, \%version_instances);
@@ -406,8 +404,9 @@ sub waitstat_values
 	    my $class = $result->[$i][0];
 	    my $count = $result->[$i][1];
 	    my $time = $result->[$i][2];
-	    my $instname = "$sid/$class";
 	    my $values = $result->[$i];
+	    my $instname = "$sid/$class";
+	    $instname =~ s/ /_/g;	# follow inst name rules
 	    splice(@$values, 0, 1);	# drop 'class' column
 	    $wait_instances{$instname} = $values;
 	}
@@ -444,9 +443,8 @@ sub license_values
     %license_instances = ();
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {
-	    my $instname = "$sid/license";
 	    my $values = $result->[$i];
-	    $license_instances{$instname} = $values;
+	    $license_instances{$sid} = $values;
 	}
     }
     $pmda->replace_indom($license_indom, \%license_instances);
@@ -540,6 +538,7 @@ sub object_cache_values
 	    my $instname = "$sid/$type";
 	    my $values = $result->[$i];
 	    splice(@$values, 0, 1);	# drop type column
+	    $instname =~ s/ /_/g;	# follow inst name rules
 	    $object_cache_instances{$instname} = $values;
 	}
     }
@@ -558,6 +557,7 @@ sub librarycache_values
 	    my $instname = "$sid/$name";
 	    my $values = $result->[$i];
 	    splice(@$values, 0, 1);	# drop namespace column
+	    $instname =~ s/ /_/g;	# follow inst name rules
 	    $librarycache_instances{$instname} = $values;
 	}
     }
@@ -602,6 +602,8 @@ sub sysstat_values
 		# that a subsequent fetch callback can quickly look it up.
 		#
 		$varray[$pmid_item_num] = $result->[$i][2];
+	    } else {
+		# $pmda->log("New v\$sysstat statistic name: $statistic_name");
 	    }
 	}
 	$sysstat_instances{$sid} = \@varray;
@@ -2615,6 +2617,9 @@ sub setup_reqdist	## request time histogram from v$reqdist
 	'oracle.reqdist', 'Histogram of database operation request times',
 'A histogram of database request times divided into twelve buckets (time
 ranges).  This is extracted from the V$REQDIST table.
+The time ranges grow exponentially as a function of the bucket number,
+such that the maximum time for each bucket is (4 * 2^N) / 100 seconds,
+where N is the bucket number (and also the instance identifier).
 NOTE:
     The TIMED_STATISTICS database parameter must be TRUE or this metric
     will not return any values.');
@@ -2893,7 +2898,7 @@ WRITETIM column of the V$FILESTAT view.');
 }
 
 $pmda = PCP::PMDA->new('oracle', 32);
-$pmda->set_user('oracle');
+$pmda->set_user($os_user);
 
 oracle_metrics_setup();
 oracle_indoms_setup();

@@ -951,6 +951,19 @@ fi
 AC_SUBST(PMDA_POSTGRESQL, $pmda_postgresql)
 if $pmda_postgresql; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
+AC_MSG_CHECKING([if the oracle PMDA should be included])
+pmda_oracle=false
+if test "$have_perl" = true
+then
+    dnl rpm build for oracle PMDA needs Perl DBI
+    if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+    then
+	pmda_oracle=true
+    fi
+fi
+AC_SUBST(PMDA_ORACLE, $pmda_oracle)
+if $pmda_oracle; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
 AC_MSG_CHECKING([if the elasticsearch PMDA should be included])
 pmda_elasticsearch=false
 if test "$have_perl" = true
