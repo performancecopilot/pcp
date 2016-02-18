@@ -104,6 +104,7 @@ extern "C" {
 #undef HAVE_SYSLOG_H
 #undef HAVE_UNISTD_H
 #undef HAVE_STDDEF_H
+#undef HAVE_STDLIB_H
 #undef HAVE_SCHED_H
 #undef HAVE_DLFCN_H
 #undef HAVE_DL_H
@@ -159,8 +160,12 @@ extern "C" {
 
 #undef HAVE_AI_ADDRCONFIG
 
+#if defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#else
 #if defined(HAVE_MALLOC_H)
 #include <malloc.h>
+#endif
 #endif
 #if defined(HAVE_STDDEF_H)
 #include <stddef.h>
@@ -538,6 +543,9 @@ typedef void (*SIG_PF) (int);
 
 /* Determine if we are on a NetBSD box */
 #undef IS_NETBSD
+
+/* Determine if we are on an OpenBSD box */
+#undef IS_OPENBSD
 
 /* Determine if we are on a Mac OS X box */
 #undef IS_DARWIN

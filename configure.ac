@@ -310,6 +310,13 @@ then
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"
     pcp_platform_paths='/usr/pkg/bin'
     pcp_ps_all_flags=auxww
+elif test $target_os = openbsd
+then
+    target_os=openbsd
+    AC_DEFINE(IS_OPENBSD, [1], [Platform is OpenBSD])
+    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    pcp_platform_paths='/usr/local/bin'
+    pcp_ps_all_flags=auxww
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
@@ -341,7 +348,7 @@ fi
 
 dnl check if user wants their own C compiler
 cflags_abi=
-AC_PROG_CC(suncc gcc cc)
+AC_PROG_CC(suncc egcc gcc cc)
 if test $target_os = solaris
 then
     AC_PATH_PROG(CCPATH,$CC,$CC)
@@ -456,7 +463,7 @@ AS_IF([test "x$cc_is_gcc" = xyes -a "$enable_visibility" != no],[
 ])
 AC_SUBST(INVISIBILITY)
 
-AC_PROG_CXX
+AC_PROG_CXX(eg++ g++ c++)
 cxx=$CXX
 AC_SUBST(cxx)
 AC_MSG_CHECKING([for working C++ compiler])
@@ -742,11 +749,11 @@ AC_CHECK_PROGS(GIT, git)
 AC_SUBST(GIT)
 
 dnl check if python available for the build and runtime
-AC_CHECK_PROGS(PYTHON, python)
+AC_CHECK_PROGS(PYTHON, python, python2.7)
 AC_SUBST(PYTHON)
 
 dnl check if python3 available for the build and runtime
-AC_CHECK_PROGS(PYTHON3, python3)
+AC_CHECK_PROGS(PYTHON3, python3, python3.4)
 AC_SUBST(PYTHON3)
 
 dnl check if python tools/packages wanted (need python >= 2.6)
@@ -1425,7 +1432,7 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h syslog.h)
-AC_CHECK_HEADERS(unistd.h stddef.h sched.h dlfcn.h dl.h)
+AC_CHECK_HEADERS(unistd.h stddef.h stdlib.h sched.h dlfcn.h dl.h)
 AC_CHECK_HEADERS(sys/time.h sys/times.h)
 AC_CHECK_HEADERS(sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(sys/sysinfo.h sys/systeminfo.h)
@@ -1435,7 +1442,7 @@ AC_CHECK_HEADERS(values.h stdint.h ieeefp.h math.h)
 AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
 AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h sys/socket.h)
 AC_CHECK_HEADERS(netdb.h)
-if test $target_os = darwin
+if test $target_os = darwin -o $target_os = openbsd
 then
     AC_CHECK_HEADERS(net/if.h, [], [], [#include <sys/types.h>
 #include <sys/socket.h>])

@@ -1022,7 +1022,7 @@ simabi()
     } else {
 	return abi;
     }
-#elif defined(IS_FREEBSD) || defined(IS_NETBSD)
+#elif defined(IS_FREEBSD) || defined(IS_NETBSD) || defined(IS_OPENBSD)
     return "elf";
 #elif defined(IS_DARWIN)
     return "Mach-O " SIM_ABI;

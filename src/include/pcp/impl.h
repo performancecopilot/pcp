@@ -39,6 +39,9 @@
 #ifdef HAVE_NETDB_H
 #include <netdb.h>
 #endif
+#ifdef IS_OPENBSD
+#include <sys/select.h>
+#endif
 
 /*
  * Thread-safe support ... #define to enable thread-safe protection of

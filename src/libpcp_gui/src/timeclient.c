@@ -16,6 +16,10 @@
 #include "impl.h"
 #include "pmtime.h"
 
+#ifdef IS_OPENBSD
+#define EPROTO ENOPROTOOPT
+#endif
+
 static int
 pmServerExec(int fd, int livemode)
 {
