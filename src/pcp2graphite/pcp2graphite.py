@@ -211,15 +211,15 @@ network.""")
                 pickled_input = []
                 for (metric, value) in miv_tuples:
                     pickled_input.append((metric, (timestamp, value)))
-                # protocol=0 in case carbon is running under an
-                # older python version than we are
-                pickled_output = pickle.dumps(pickled_input, protocol=0)
-                header = struct.pack("!L", len(pickled_output))
-                msg = header + pickled_output
-                if self.context.pmDebug(c_api.PM_DEBUG_APPL0):
-                    print ("Sending %s #tuples %d" %
-                           (time.ctime(timestamp), len(pickled_input)))
-                self.socket.send(msg)
+                    # protocol=0 in case carbon is running under an
+                    # older python version than we are
+                    pickled_output = pickle.dumps(pickled_input, protocol=0)
+                    header = struct.pack("!L", len(pickled_output))
+                    msg = header + pickled_output
+                    if self.context.pmDebug(c_api.PM_DEBUG_APPL0):
+                        print ("Sending %s #tuples %d" %
+                               (time.ctime(timestamp), len(pickled_input)))
+                    self.socket.send(msg)
             else:
                 for (metric, value) in miv_tuples:
                     message = ("%s %s %s\n" % (metric, value, timestamp))
