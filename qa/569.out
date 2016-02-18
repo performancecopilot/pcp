@@ -1,4 +1,9 @@
 QA output created by 569
+=== reset ===
+sample.negative.ctr.m_32 new value=-10000
+sample.negative.ctr.m_64 new value=-10000
+sample.negative.ctr.m_float new value=-10000
+sample.negative.ctr.m_double new value=-10000
 
 ===  ===
 sample.control 1
