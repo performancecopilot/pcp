@@ -67,6 +67,13 @@ gnu_tool()
 		    echo $exec
 		    return 0
 		fi
+		# special cases
+		#
+		if [ "$target" = openbsd -a $command = gzip ]
+		then
+		    echo $exec
+		    return 0
+		fi
 	    fi
 	done
 	echo >&2 "$prefix: can't find GNU $oldcmd in the commands $oldcmd or $@"
@@ -89,6 +96,8 @@ gnu_tool()
     return 0
 }
 
+target=`uname -s | tr 'A-Z' 'a-z'`
+
 export MAKE=`gnu_tool Error "$MAKE" make gmake`
 export TAR=`gnu_tool Warning "$TAR" tar gtar gnutar`
 export ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`
@@ -100,7 +109,6 @@ tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp" 0 1 2 3 15
 
 configure=./configure
-target=`uname -s | tr 'A-Z' 'a-z'`
 
 if [ -x /usr/bin/rpmbuild ]
 then
