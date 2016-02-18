@@ -786,6 +786,7 @@ QMAKE
 PMDA_ACTIVEMQ
 PMDA_NGINX
 PMDA_ELASTICSEARCH
+PMDA_ORACLE
 PMDA_POSTGRESQL
 PMDA_MYSQL
 PMDA_SNMP
@@ -7314,6 +7315,22 @@ fi
 PMDA_POSTGRESQL=$pmda_postgresql
 
 if $pmda_postgresql; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the oracle PMDA should be included" >&5
+$as_echo_n "checking if the oracle PMDA should be included... " >&6; }
+pmda_oracle=false
+if test "$have_perl" = true
+then
+        if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+    then
+	pmda_oracle=true
+    fi
+fi
+PMDA_ORACLE=$pmda_oracle
+
+if $pmda_oracle; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 

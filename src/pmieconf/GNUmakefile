@@ -1,5 +1,5 @@
 # 
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013,2016 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@ TOPDIR = ../..
 include	$(TOPDIR)/src/include/builddefs
 include $(TOPDIR)/src/libpcp/src/GNUlibrarydefs
 
-MKFILE_SUBDIRS = cpu filesys memory percpu pernetif global
+MKFILE_SUBDIRS = cpu filesys memory percpu pernetif global pcp
 
 SUBDIRS	= $(MKFILE_SUBDIRS)
 

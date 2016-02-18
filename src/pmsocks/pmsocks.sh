@@ -1,5 +1,7 @@
+#!/bin/sh
 #
-# Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2016 Red Hat.
+# Copyright (c) 1995-1999,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -11,21 +13,22 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+# Dynamically sockify the argument program using the tsocks library
+# from http://tsocks.sourceforge.net/
 #
 
-TOPDIR = ../..
-include $(TOPDIR)/src/include/builddefs
+PROG=`basename $0`
+if [ $# -eq 0 -o "X$1" = "X-?" ]
+then
+    echo "Usage: $PROG [path]program [args ...]" 1>&2
+    exit 1
+fi
 
-default :
+TSOCKS=`which tsocks`
+if [ -z "$TSOCKS" ]
+then
+   echo "No tsocks wrapper script found - install the 'tsocks' package" 1>&2
+   exit 1
+fi
 
-include $(BUILDRULES)
-
-install : default
-	$(INSTALL) -m 755 pmsocks.sh $(PCP_BIN_DIR)/pmsocks
-
-default_pcp : default
-
-install_pcp : install
+exec "$TSOCKS" "$@"

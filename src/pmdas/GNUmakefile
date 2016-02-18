@@ -28,7 +28,7 @@ CPMDAS = root pmcd \
 	dm pipe openbsd
 
 PLPMDAS = bonding netfilter zimbra postgresql \
-	dbping memcache mysql vmware kvm \
+	dbping memcache mysql oracle vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
 	rsyslog elasticsearch snmp nginx nfsclient \
 	ds389 ds389log activemq lustre gpfs slurm

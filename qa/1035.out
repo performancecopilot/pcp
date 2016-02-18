@@ -1,0 +1,26 @@
+QA output created by 1035
+=== Fetching Oracle version metrics
+=== Fetching PCP version metrics
+Comparing Oracle to PCP
+OK
+
+=== Fetching Oracle license metrics
+=== Fetching PCP license metrics
+Comparing Oracle to PCP
+OK
+
+=== Fetching Oracle waitstat metrics
+=== Fetching PCP waitstat metrics with instances
+Comparing Oracle to PCP
+OK
+
+=== Fetching Oracle latch metrics
+=== Fetching PCP latch metrics with instances
+Comparing Oracle to PCP
+OK
+
+=== Fetching Oracle reqdist metrics
+=== Fetching PCP reqdist metrics with instances
+Comparing Oracle to PCP
+OK
+
