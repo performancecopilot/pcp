@@ -54,12 +54,16 @@ include $(BUILDRULES)
 
 install: default
 ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
-	$(call PERL_GET_FILELIST,$(TOPDIR)/perl-pcp-mmv.list,MMV)
+ifeq "$(PACKAGE_DISTRIBUTION)" "openbsd"
+	$(call PERL_GET_FILELIST,pure_perl_install,$(TOPDIR)/perl-pcp-mmv.list,MMV)
+else
+	$(call PERL_GET_FILELIST,install,$(TOPDIR)/perl-pcp-mmv.list,MMV)
+endif
 	find $$DIST_ROOT -name server.pl -exec chmod 755 '{}' ';'
 endif
 
 install_perl:
-	$(PERLMAKE) -f Makefile pure_install $(INSTALLER_OPTIONS)
+	$(PERLMAKE) -f Makefile pure_perl_install $(INSTALLER_OPTIONS)
 
 default_pcp: default
 

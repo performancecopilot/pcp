@@ -50,11 +50,15 @@ include $(BUILDRULES)
 
 install: default
 ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
+ifeq "$(PACKAGE_DISTRIBUTION)" "openbsd"
+	$(call PERL_GET_FILELIST,pure_perl_install,$(TOPDIR)/perl-pcp-logsummary.list,LogSummary)
+else
 	$(call PERL_GET_FILELIST,$(TOPDIR)/perl-pcp-logsummary.list,LogSummary)
+endif
 endif
 
 install_perl:
-	$(PERLMAKE) -f Makefile pure_install $(INSTALLER_OPTIONS)
+	$(PERLMAKE) -f Makefile pure_perl_install $(INSTALLER_OPTIONS)
 
 default_pcp: default
 
