@@ -206,14 +206,14 @@ network.""")
                 self.socket = socket.create_connection((self.graphite_host,
                                                         self.graphite_port))
             if self.pickle:
-                import pickle
+                import cPickle
                 import struct
                 pickled_input = []
                 for (metric, value) in miv_tuples:
                     pickled_input.append((metric, (timestamp, value)))
                 # protocol=0 in case carbon is running under an
                 # older python version than we are
-                pickled_output = pickle.dumps(pickled_input, protocol=0)
+                pickled_output = cPickle.dumps(pickled_input, protocol=0)
                 header = struct.pack("!L", len(pickled_output))
                 msg = header + pickled_output
                 if self.context.pmDebug(c_api.PM_DEBUG_APPL0):
