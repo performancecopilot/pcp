@@ -29,8 +29,9 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 # handle differences like ...
 # (S'pcp.sample.byte_rate' vs (Vpcp.sample.byte_rate
 # (I1192055500 vs (L1192055490L
-# ?(lp0 vs <(lp0
+# ?(lp0 vs <(lp0 vs :lp1
 # F222.0 vs F222
+# remove ^ttp*
 #
 _filter_strings()
 {
@@ -41,8 +42,9 @@ s/'"'"'$//
 s/(V/\(/
 s/(L\(.*\)L$/(I\1/
 }' \
-	-e 's/^.(lp0/?(lp0/' \
+	-e 's/^.(lp./?(lp0/' \
 	-e 's/^F\([0-9][0-9]*\)\.0$/F\1/' \
+	-e '/^ttp*/d' \
     # end
 }
 
