@@ -53,7 +53,7 @@ ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
 ifeq "$(PACKAGE_DISTRIBUTION)" "openbsd"
 	$(call PERL_GET_FILELIST,pure_perl_install,$(TOPDIR)/perl-pcp-logsummary.list,LogSummary)
 else
-	$(call PERL_GET_FILELIST,$(TOPDIR)/perl-pcp-logsummary.list,LogSummary)
+	$(call PERL_GET_FILELIST,install,$(TOPDIR)/perl-pcp-logsummary.list,LogSummary)
 endif
 endif
 
