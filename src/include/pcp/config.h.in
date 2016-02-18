@@ -145,6 +145,7 @@ extern "C" {
 #undef HAVE_EXECINFO_H
 #undef HAVE_IPTYPES_H
 #undef HAVE_IPHLPAPI_H
+#undef HAVE_SYS_SELECT_H
 #undef HAVE_SYS_SOCKET_H
 #undef HAVE_NETDB_H
 #undef HAVE_NET_IF_H
@@ -546,6 +547,9 @@ typedef void (*SIG_PF) (int);
 
 /* Determine if we are on an OpenBSD box */
 #undef IS_OPENBSD
+#ifdef IS_OPENBSD
+#define EPROTO		ENOPROTOOPT
+#endif
 
 /* Determine if we are on a Mac OS X box */
 #undef IS_DARWIN
