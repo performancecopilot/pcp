@@ -2059,7 +2059,7 @@ $1 == "f" {
 		printf ("%%%%doc ") >> f;
 	    }
 	    printf ("%%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $6) >> f }
-$1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
+$1 == "l" { print $3 >> f }'
 
 %pre testsuite
 test -d @pcp_var_dir@/testsuite || mkdir -p -m 755 @pcp_var_dir@/testsuite
