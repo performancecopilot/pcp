@@ -588,7 +588,7 @@ PERL_GET_FILELIST = \
 	    $(HAVE_LZMAED_MANPAGES) && _sfx=.lzma; \
 	    $(HAVE_XZED_MANPAGES) && _sfx=.xz; \
 	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&'"$$_sfx/" -e "s@^$$DIST_ROOT@@p" $(2) >$(2).tmp; \
-	    mv $(2).tmp $1; \
+	    mv $(2).tmp $(2); \
 	else echo "Arrgh ... no files to include in package via $(2)"; exit 1; \
 	fi; \
 	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name perllocal.pod -exec rm -f '{}' ';' ; \

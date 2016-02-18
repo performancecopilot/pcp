@@ -63,7 +63,7 @@ endif
 endif
 
 install_perl:
-	$(PERLMAKE) -f Makefile pure_perl_install $(INSTALLER_OPTIONS)
+	$(PERLMAKE) -f Makefile pure_install $(INSTALLER_OPTIONS)
 
 default_pcp: default
 
