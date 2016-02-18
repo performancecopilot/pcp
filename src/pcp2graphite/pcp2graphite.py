@@ -211,15 +211,12 @@ network.""")
                 self.socket = socket.create_connection((self.graphite_host,
                                                         self.graphite_port))
             if self.pickle:
-                try:
-                    import cPickle as pickle
-                except:
-                    import pickle
+                import cPickle
                 import struct
                 pickled_input = []
                 for (metric, value) in miv_tuples:
                     pickled_input.append((metric, (timestamp, value)))
-                pickled_output = pickle.dumps(pickled_input, protocol=self.pickle_protocol)
+                pickled_output = cPickle.dumps(pickled_input, protocol=self.pickle_protocol)
                 header = struct.pack("!L", len(pickled_output))
                 msg = header + pickled_output
                 if self.context.pmDebug(c_api.PM_DEBUG_APPL0):
