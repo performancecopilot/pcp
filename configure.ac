@@ -1124,7 +1124,7 @@ AC_SUBST(pcp_user_install)
 if test -z "$PCP_GROUP_INSTALL" ; then
     case "$target_os"
     in
-	darwin|freebsd|netbsd)
+	darwin|freebsd|netbsd|openbsd)
 	    pcp_group_install=wheel
 	    ;;
 	*)

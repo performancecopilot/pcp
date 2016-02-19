@@ -1,9 +1,17 @@
 QA output created by 569
 === reset ===
-sample.negative.ctr.m_32 new value=-10000
-sample.negative.ctr.m_64 new value=-10000
-sample.negative.ctr.m_float new value=-10000
-sample.negative.ctr.m_double new value=-10000
+sample.negative.ctr.m_32 old value=OLD new value=-10000
+sample.negative.instant.m_32 old value=OLD new value=-10000
+sample.negative.discrete.m_32 old value=OLD new value=-10000
+sample.negative.ctr.m_64 old value=OLD new value=-10000
+sample.negative.instant.m_64 old value=OLD new value=-10000
+sample.negative.discrete.m_64 old value=OLD new value=-10000
+sample.negative.ctr.m_float old value=OLD new value=-10000
+sample.negative.instant.m_float old value=OLD new value=-10000
+sample.negative.discrete.m_float old value=OLD new value=-10000
+sample.negative.ctr.m_double old value=OLD new value=-10000
+sample.negative.instant.m_double old value=OLD new value=-10000
+sample.negative.discrete.m_double old value=OLD new value=-10000
 
 ===  ===
 sample.control 1

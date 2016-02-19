@@ -2,7 +2,7 @@
  * OpenBSD Kernel PMDA
  *
  * Copyright (c) 2012 Red Hat.
- * Copyright (c) 2012,2013 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2012,2013,2016 Ken McDonell.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,7 +27,7 @@
 #include <sys/time.h>
 #include <uvm/uvm_param.h>
 #include <sys/utsname.h>
-#include <rpcsvc/rstat.h>
+#include <sys/sched.h>
 
 #include "domain.h"
 #include "openbsd.h"
@@ -125,9 +125,6 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0,0,0,0,0,0) } },
     { (void *)"hinv.cpu.model",
       { PMDA_PMID(CL_SYSCTL,16), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
-	PMDA_PMUNITS(0,0,0,0,0,0) } },
-    { (void *)"hinv.cpu.arch",
-      { PMDA_PMID(CL_SYSCTL,17), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0,0,0,0,0,0) } },
     { NULL, 	/* kernel.all.pswitch */
       { PMDA_PMID(CL_VM_UVMEXP,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -385,7 +382,6 @@ static mib_t map[] = {
     { "hinv.physmem",		"hw.physmem64" },
     { "hinv.cpu.vendor",	"hw.machine" },
     { "hinv.cpu.model",		"hw.model" },
-    { "hinv.cpu.arch",		"hw.machine_arch" },
     { "kernel.all.hz",		"kern.clockrate" },
     { "kernel.all.cpu.*",	"kern.cp_time" },
     { "mem.util.bufmem",	"vfs.bufspace" },
@@ -401,6 +397,48 @@ static struct utsname		kernel_uname;
 /* used elsewhere */
 int	cpuhz;			/* frequency for CPU time metrics */
 int	ncpu;			/* number of cpus in kern.cp_times.* data */
+
+/*
+ * Simulate sysclt name -> mib translation ... FreeBSD provides this
+ * as a system library call, here we have to fake it for the small set
+ * of sysctl metrics we use.
+ */
+static int
+sysctlnametomib(const char *name, int *mibp, size_t *sizep)
+{
+    int		sts = 0;	/* optimistic for success */
+
+    *sizep = 2;	/* default case */
+
+    if (strcmp(name, "hw.ncpu") == 0) {
+	mibp[0] = CTL_HW;
+	mibp[1] = HW_NCPU;
+    }
+    else if (strcmp(name, "hw.physmem64") == 0) {
+	mibp[0] = CTL_HW;
+	mibp[1] = HW_PHYSMEM64;
+    }
+    else if (strcmp(name, "kern.cp_time") == 0) {
+	mibp[0] = CTL_KERN;
+	mibp[1] = KERN_CPTIME;
+    }
+    else if (strcmp(name, "kern.clockrate") == 0) {
+	mibp[0] = CTL_KERN;
+	mibp[1] = KERN_CLOCKRATE;
+    }
+    else if (strcmp(name, "hw.machine") == 0) {
+	mibp[0] = CTL_HW;
+	mibp[1] = HW_MACHINE;
+    }
+    else if (strcmp(name, "hw.model") == 0) {
+	mibp[0] = CTL_HW;
+	mibp[1] = HW_MODEL;
+    }
+    else
+	sts = -1;
+
+    return sts;
+}
 
 /*
  * Fetch values from sysctl()
@@ -523,6 +561,7 @@ openbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    case 1:		/* hinv.physmem */
 		sts = do_sysctl(mp, sizeof(atom->ull));
 		if (sts > 0) {
+		    /* sysctl returns bytes, convert to Mbytes */
 		    atom->ull = *((__uint64_t *)mp->m_data);
 		    atom->ull /= 1024*1024;
 		    sts = 1;
@@ -532,7 +571,6 @@ openbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    /* string values */
 	    case 15:		/* hinv.cpu.vendor */
 	    case 16:		/* hinv.cpu.model */
-	    case 17:		/* hinv.cpu.arch */
 		sts = do_sysctl(mp, (size_t)0);
 		if (sts > 0) {
 		    atom->cp = (char *)mp->m_data;
@@ -632,7 +670,7 @@ openbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 
 	    case 20: /* pmda.uname */
-		sprintf(uname_string, "%s %s %s %s %s",
+		snprintf(uname_string, sizeof(uname_string), "%s %s %s %s %s",
 		    kernel_uname.sysname, 
 		    kernel_uname.nodename,
 		    kernel_uname.release,
@@ -882,10 +920,12 @@ openbsd_init(pmdaInterface *dp)
     /*
      * Collect some global constants needed later ...
      */
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_CLOCKRATE;
     sz = sizeof(clockrates);
-    sts = sysctlbyname("kern.clockrate", &clockrates, &sz, NULL, 0);
+    sts = sysctl(mib, 2, &clockrates, &sz, NULL, 0);
     if (sts < 0) {
-	fprintf(stderr, "Fatal Error: sysctlbyname(\"kern.clockrate\", ...) failed: %s\n", pmErrStr(-errno));
+	fprintf(stderr, "Fatal Error: sysctl(\"kern.clockrate\", ...) failed: %s\n", pmErrStr(-errno));
 	exit(1);
     }
     cpuhz = clockrates.stathz;
@@ -898,15 +938,21 @@ openbsd_init(pmdaInterface *dp)
     mib[1] = HW_NCPU;
     sz = sizeof(ncpu);
     sts = sysctl(mib, 2, &ncpu, &sz, NULL, 0);
+    if (sts < 0) {
+	fprintf(stderr, "Fatal Error: sysctl(\"hw.ncpu\", ...) failed: %s\n", pmErrStr(-errno));
+	exit(1);
+    }
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_APPL0)
 	fprintf(stderr, "Info: ncpu = %d\n", ncpu);
 #endif
 
+    mib[0] = CTL_HW;
+    mib[1] = HW_PAGESIZE;
     sz = sizeof(pagesize);
-    sts = sysctlbyname("hw.pagesize", &pagesize, &sz, NULL, 0);
+    sts = sysctl(mib, 2, &pagesize, &sz, NULL, 0);
     if (sts < 0) {
-	fprintf(stderr, "Fatal Error: sysctlbyname(\"hw.pagesize\", ...) failed: %s\n", pmErrStr(-errno));
+	fprintf(stderr, "Fatal Error: sysctl(\"hw.pagesize\", ...) failed: %s\n", pmErrStr(-errno));
 	exit(1);
     }
 #ifdef PCP_DEBUG

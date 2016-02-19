@@ -33,7 +33,6 @@ Microseconds per "hz" tick.
 @ hinv.pagesize kernel page size
 @ hinv.cpu.vendor system's CPU vendor
 @ hinv.cpu.model system's CPU model
-@ hinv.cpu.arch system's machine dependent CPU architecture type
 
 @ swap.length total swap space size
 @ swap.used reserved (or allocated) swap space

@@ -117,13 +117,26 @@ $3 ~ /^[0-9][0-9]*$/	{ $3 = "NUMBER" }
     | fold -w160
 }
 
-# real QA test starts here
+# sample.negative.ctr.m_32 old value=-9999 new value=-1000
+_filter_store()
+{
+    sed \
+	-e 's/old value=[^ ]* /old value=OLD /' \
+    # end
+}
+
 echo "=== reset ==="
-for ctr in m_32 m_64 m_float m_double
+# set sample.negative metrics to known initial values
+#
+for m in m_32 m_64 m_float m_double
 do
-    pmstore sample.negative.ctr.$ctr -10000 | sed -e 's/old value=.* new/new/g'
+    for sem in ctr instant discrete
+    do
+	pmstore sample.negative.$sem.$m -10000 | _filter_store
+    done
 done
 
+# real QA test starts here
 for arg in '' -i -I -v -iI -iv -iIv
 do
     echo

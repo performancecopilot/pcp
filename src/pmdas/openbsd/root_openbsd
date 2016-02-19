@@ -45,7 +45,6 @@ hinv {
 hinv.cpu {
     vendor	OPENBSD:0:15
     model	OPENBSD:0:16
-    arch	OPENBSD:0:17
 }
 
 kernel {
