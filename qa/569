@@ -125,6 +125,7 @@ _filter_store()
     # end
 }
 
+echo "=== reset ==="
 # set sample.negative metrics to known initial values
 #
 for m in m_32 m_64 m_float m_double
@@ -136,12 +137,6 @@ do
 done
 
 # real QA test starts here
-echo "=== reset ==="
-for ctr in m_32 m_64 m_float m_double
-do
-    pmstore sample.negative.ctr.$ctr -10000 | sed -e 's/old value=.* new/new/g'
-done
-
 for arg in '' -i -I -v -iI -iv -iIv
 do
     echo
