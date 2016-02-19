@@ -21,16 +21,21 @@ grep -q zbxpcp /etc/zabbix/zabbix_agentd.conf || \
 	_notrun "No configuration of the Zabbix PCP module"
 
 status=1	# failure is the default!
+need_restore=false
 control=$PCP_PMDAS_DIR/sample/dynamic.indom
 $sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
-    _restore_config $control
+    $need_restore && _restore_config $control
     rm -f $tmp.*
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
-_save_config $control
+if [ -f $control ]
+then
+    need_restore=true
+    _save_config $control
+fi
 
 _filter_values()
 {

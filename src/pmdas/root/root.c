@@ -32,10 +32,6 @@
 #define S_IRWXU 0700
 #endif
 
-#ifdef IS_OPENBSD
-#define EPROTO ENOPROTOOPT
-#endif
-
 static char socket_path[MAXPATHLEN];
 static __pmSockAddr *socket_addr;
 static int socket_fd = -1;

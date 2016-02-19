@@ -1,4 +1,5 @@
 QA output created by 569
+=== reset ===
 sample.negative.ctr.m_32 old value=OLD new value=-10000
 sample.negative.instant.m_32 old value=OLD new value=-10000
 sample.negative.discrete.m_32 old value=OLD new value=-10000

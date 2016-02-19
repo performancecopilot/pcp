@@ -1018,7 +1018,8 @@ AS_IF([test "x$do_qt" != "xno"], [
     
     if test -z "$QMAKE"
     then
-	AC_PATH_PROGS(QMAKE, [qmake-qt5 qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
+	dnl qmake-qt5 [/usr/lib64/qt5/bin:/usr/lib/qt5/bin]
+	AC_PATH_PROGS(QMAKE, [qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
 	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
@@ -1440,7 +1441,8 @@ AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h)
 AC_CHECK_HEADERS(libgen.h sys/param.h sys/mman.h sys/un.h)
 AC_CHECK_HEADERS(values.h stdint.h ieeefp.h math.h)
 AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
-AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h sys/socket.h)
+AC_CHECK_HEADERS(termio.h termios.h sys/termios.h)
+AC_CHECK_HEADERS(sys/ioctl.h sys/select.h sys/socket.h)
 AC_CHECK_HEADERS(netdb.h)
 if test $target_os = darwin -o $target_os = openbsd
 then
