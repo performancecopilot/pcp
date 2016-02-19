@@ -115,6 +115,14 @@ select group_number, disk_number, name, path, reads, writes, read_errs,
 	from v\$asm_disk_stat;
 EOF
 
+_filter()
+{
+    sed \
+	-e "s/$sids/ORACLE_SID/g" \
+	-e 's/"Oracle Database.*"/"ORACLE_VERSION"/g' \
+    #end
+}
+
 _query()
 {
     table=$1
@@ -248,6 +256,17 @@ _exact_match $tmp.ora $tmp.pcp
 #_query librarycache
 #_probe_insts librarycache oracle.librarycache.gets
 #_fuzzy_match $tmp.ora6 $tmp.pcp6
+
+
+# check connection state modification (up/down)
+echo === Checking connection state
+pminfo -f oracle.control.connected | _filter
+pmstore oracle.control.connected 0 | _filter
+pminfo -f oracle.version | _filter
+# and bring it back up
+pminfo -f oracle.control.connected | _filter
+pmstore oracle.control.connected 1 | _filter
+pminfo -f oracle.version | _filter
 
 # success, all done
 status=0

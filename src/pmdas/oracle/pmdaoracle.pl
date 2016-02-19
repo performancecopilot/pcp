@@ -39,8 +39,8 @@ use vars qw( %reqdist_instances %rowcache_instances %session_instances );
 use vars qw( %object_cache_instances %system_event_instances );
 use vars qw( %librarycache_instances %wait_instances );
 use vars qw( %version_instances %license_instances );
-use vars qw( %bufferpool_instances %asm_instances);
-use vars qw( %sysstat_map );
+use vars qw( %bufferpool_instances %asm_instances );
+use vars qw( %sysstat_map %control_map );
 
 my $latch_indom		= 0;
 my $file_indom		= 1;
@@ -150,7 +150,6 @@ my %tables_by_name = (
 		 #',100 * (1-(physical_reads/(db_block_gets+consistent_gets))) hit_ratio'.
 		 ',100 * (1-(physical_reads/nullif((db_block_gets+consistent_gets),0))) hit_ratio'.
 		 ' FROM v$buffer_pool_statistics' },
-
      'asm' => {
 	insts_handle => undef, fetch_handle => undef, values => {}, 
 	fetch => 'select group_number, disk_number, name, path,'.
@@ -242,22 +241,21 @@ my %tables_by_cluster = (
 	setup   => \&setup_asm,
 	indom   => $asm_indom,
 	values  => \&asm_values },
+    '16' => {
+	name    => 'control',
+	setup   => \&setup_control,
+	indom   => $sid_indom,
+	values  => \&control_values },
 );
 
-
-sub oracle_connection_setup
-{
-    foreach my $sid (@sids) {
-	my $db = $sids_by_name{$sid}{db_handle};
-	$db = oracle_sid_connection_setup($sid, $db);
-	$sids_by_name{$sid}{db_handle} = $db;
-    }
-}
 
 sub oracle_sid_connection_setup
 {
     my $sid = shift;
     my $dbh = shift;
+
+    # do not auto-connect if we were asked not to
+    if ($control_map{$sid} == 1) { return undef; }
 
     if (!defined($dbh)) {
 	$dbh = DBI->connect("dbi:Oracle:$sid", $username, $password);
@@ -282,6 +280,43 @@ sub oracle_sid_connection_setup
     return $dbh;
 }
 
+sub oracle_reconnect
+{
+    my $sid = shift;
+    my $db = $sids_by_name{$sid}{db_handle};
+
+    $db = oracle_sid_connection_setup($sid, $db);
+    $sids_by_name{$sid}{db_handle} = $db;
+    return 0;
+}
+
+sub oracle_disconnect
+{
+    my $sid = shift;
+    my $db = $sids_by_name{$sid}{db_handle};
+
+    if ($db) {
+	$db->disconnect();
+	$db = undef;
+	$sids_by_name{$sid}{db_handle} = undef;
+    }
+    return 0;
+}
+
+sub oracle_control_setup
+{
+    foreach my $sid (@sids) {
+	$control_map{$sid} = 0;	# mark as "want up"
+    }
+}
+
+sub oracle_connection_setup
+{
+    foreach my $sid (@sids) {
+	oracle_reconnect($sid);
+    }
+}
+
 sub oracle_refresh
 {
     my ($cluster) = @_;
@@ -298,7 +333,9 @@ sub oracle_refresh
 	}
 	# execute query, marking the connection bad on failure
 	&$refresh($db, $sid, $tables_by_name{$name}{fetch_handle});
-	$sids_by_name{$sid}{db_handle} = undef if ($db->err);
+	if (!defined($db) || $db->err) {
+	    $sids_by_name{$sid}{db_handle} = undef;
+	}
     }
 }
 
@@ -398,6 +435,7 @@ sub waitstat_values
 {
     my ( $dbh, $sid, $handle ) = @_;
     my $result = refresh_results($dbh, $sid, $handle);
+
     %wait_instances = ();
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {  
@@ -652,6 +690,56 @@ sub asm_values
     $pmda->replace_indom($asm_indom, \%asm_instances);
 }
 
+sub control_values
+{
+    my ( $dbh, $sid, undef ) = @_;
+    my $inst;
+
+    for ($inst = 0; $inst <= $#sids; $inst++) {
+	if ($sid eq $sids[$inst]) {
+	    my @values = $sid_instances{$sid};
+	    if (defined($dbh)) {
+		$values[0] = 1;
+	    } else {
+		$values[0] = 0;
+	    }
+	    $sid_instances{$sid} = \@values;
+	}
+    }
+    $pmda->replace_indom($sid_indom, \%sid_instances);
+}
+
+
+sub oracle_store_callback
+{
+    my ($cluster, $item, $inst, $val) = @_;
+
+    if ($cluster == 16) {	# oracle.control
+	if ($item == 0) {	# [...connected]
+	    if ($inst > $#sids) { return PM_ERR_INST; }
+	    my $sid = $sids[$inst];
+
+	    #
+	    # %control_map is used to determine whether a manual
+	    # disconnect/reconnect has been requested.  This is
+	    # distinct from our default preference of wanting to
+	    # be connected (Oracle may go up/down independently).
+	    #
+	    if ($val == 1) {
+		$control_map{$sid} = 0;	# mark as up
+		return oracle_reconnect($sid);
+	    }
+	    elsif ($val == 0) {
+		$control_map{$sid} = 1;	# mark as down
+		return oracle_disconnect($sid);
+	    }
+	    return PM_ERR_BADSTORE;
+	}
+    }
+    elsif ($cluster < 16) { return PM_ERR_PERMISSION; }
+    return PM_ERR_PMID;
+}
+
 
 sub oracle_indoms_setup
 {
@@ -880,22 +968,29 @@ from the BYTES_READ column of the V$ASM_DISK_STAT view.');
         'Total number of bytes read from the disk',
 'Total number of bytes read from the disk. This value is obtained
 from the BYTES_WRITTEN column of the V$ASM_DISK_STAT view.');
+}
 
+sub setup_control	# are we connected, manual disconnect/reconnect
+{
+    $pmda->add_metric(pmda_pmid(16,0), PM_TYPE_U32, $sid_indom,
+        PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+        'oracle.control.connected',
+        'Status of Oracle database connection for each SID',
+'A value of one or zero reflecting the state of the Oracle connection.
+This is a storable metric, allowing manual disconnect and reconnect, which
+allows an Oracle instance to be shutdown while the PMDA continues running.');
 }
 
 sub setup_version	# version data from the v$version view
 {
-
     $pmda->add_metric(pmda_pmid(11,0), PM_TYPE_STRING, $version_indom,
 	PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
 	'oracle.version',
 	'Oracle component name and version number', '');
-
 }
 
 sub setup_system_event	# statistics from v$system_event
 {
-
     $pmda->add_metric(pmda_pmid(10,0), PM_TYPE_U32, $system_event_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.event.waits',
@@ -925,7 +1020,6 @@ converted to units of milliseconds.');
 'The average time waited for various system events.  This value is
 obtained from the AVERAGE_WAIT column of the V$SYSTEM_EVENT view
 and converted to units of milliseconds.');
-
 }
 
 sub setup_sysstat	## statistics from v$sysstat
@@ -2900,10 +2994,12 @@ WRITETIM column of the V$FILESTAT view.');
 $pmda = PCP::PMDA->new('oracle', 32);
 $pmda->set_user($os_user);
 
+oracle_control_setup();
 oracle_metrics_setup();
 oracle_indoms_setup();
 
 $pmda->set_fetch_callback(\&oracle_fetch_callback);
+$pmda->set_store_callback(\&oracle_store_callback);
 $pmda->set_fetch(\&oracle_connection_setup);
 $pmda->set_refresh(\&oracle_refresh);
 $pmda->run;
