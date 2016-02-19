@@ -42,7 +42,7 @@ void
 refresh_disk_metrics(void)
 {
     int		sts;
-    static int	name[] = { CTL_HW, HW_DISKSTATS, sizeof(struct diskstats) };
+    static int	name[] = { CTL_HW, HW_DISKSTATS };
     u_int	namelen = sizeof(name) / sizeof(name[0]);
     size_t	buflen;
     int		i;

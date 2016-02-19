@@ -59,8 +59,3 @@ extern struct nlist	symbols[];
 /* miscellaneous useful values */
 extern int	cpuhz;
 extern int	ncpu;
-
-
-/* from FreeBSD */
-extern int	sysctlnametomib(const char *, int *, size_t *);
-extern int	sysctlbyname(const char *, void *, size_t *, void *, size_t);
