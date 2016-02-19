@@ -67,6 +67,42 @@ To uninstall, do the following as root:
 \fBpmdaoracle\fR is launched by \fIpmcd\fR(1) and should never be executed 
 directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
 agent is installed or removed.
+.SH "CONNECTION STATE"
+By default,
+.B pmdaoracle
+will aggressively attempt to maintain persistent connections to Oracle to
+ensure timely responses to its queries, and will automatically re-connect
+if a connection drops.
+.PP
+However, in certain circumstances this may be undesirable, so a manual
+.BR pmStore (3) 
+mechanism is provided to explicitly control disconnecting and reconnecting
+to an Oracle instance.
+This can be used, for example, to ensure that
+.B pmdaoracle
+is not connected at shutdown, to ensure a clean Oracle shutdown process.
+.PP
+The
+.B pmstore (1)
+command can be used to disconnect and reconnect.
+Using the individual instances of the oracle.control.connected
+metric, one can set the connection state to either up (1) or down (0).
+Additionally,
+.BR pminfo (1)
+can report on the current status of Oracle connections.
+.P
+.ft CW
+.nf
+.in +0.5i
+# pminfo \(hyf oracle.control.connected
+
+oracle.control.connected
+    inst [0 or "master"] value 1
+
+# pmstore oracle.control.connected 0
+oracle.control.connected inst [0 or "master"] old value=1 new value=0
+.in
+.fi
 .SH FILES
 .PD 0
 .IP "\fB/etc/pcpdbi.conf\fR" 4
@@ -92,6 +128,9 @@ The \fB$PCP_CONF\fR variable may be used to specify an alternative
 configuration file, as described in \fIpcp.conf\fR(5).
 .SH SEE ALSO
 .BR PCPIntro (1),
-.BR pmdadbping (1)
+.BR pmdadbping (1),
+.BR pminfo (1),
+.BR pmstore (1),
+.BR DBI (3)
 and
-.BR DBI (3).
+.BR pmStore (3).

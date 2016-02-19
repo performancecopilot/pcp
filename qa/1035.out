@@ -24,3 +24,18 @@ OK
 Comparing Oracle to PCP
 OK
 
+=== Checking connection state
+oracle.control.connected
+    inst [0 or "ORACLE_SID"] value 1
+oracle.control.connected inst [0 or "ORACLE_SID"] old value=1 new value=0
+
+oracle.version
+No value(s) available!
+
+oracle.control.connected
+    inst [0 or "ORACLE_SID"] value 0
+oracle.control.connected inst [0 or "ORACLE_SID"] old value=0 new value=1
+
+oracle.version
+    inst [0 or "ORACLE_SID"] value "ORACLE_VERSION"
+
