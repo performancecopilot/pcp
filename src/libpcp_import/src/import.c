@@ -678,6 +678,22 @@ pmiPutValueHandle(int handle, const char *value)
     return current->last_sts = _pmi_stuff_value(current, &current->handle[handle-1], value);
 }
 
+static int
+check_timestamp(void)
+{
+    if (current->result->timestamp.tv_sec < current->last_stamp.tv_sec ||
+        (current->result->timestamp.tv_sec == current->last_stamp.tv_sec &&
+	 current->result->timestamp.tv_usec < current->last_stamp.tv_usec)) {
+	fprintf(stderr, "Fatal Error: timestamp ");
+	printstamp(stderr, &current->result->timestamp);
+	fprintf(stderr, " not greater than previous valid timestamp ");
+	printstamp(stderr, &current->last_stamp);
+	fputc('\n', stderr);
+	return PMI_ERR_BADTIMESTAMP;
+    }
+    return 0;
+}
+
 int
 pmiWrite(int sec, int usec)
 {
@@ -695,17 +711,7 @@ pmiWrite(int sec, int usec)
 	current->result->timestamp.tv_sec = sec;
 	current->result->timestamp.tv_usec = usec;
     }
-    if (current->result->timestamp.tv_sec < current->last_stamp.tv_sec ||
-        (current->result->timestamp.tv_sec == current->last_stamp.tv_sec &&
-	 current->result->timestamp.tv_usec < current->last_stamp.tv_usec)) {
-	fprintf(stderr, "Fatal Error: timestamp ");
-	printstamp(stderr, &current->result->timestamp);
-	fprintf(stderr, " not greater than previous valid timestamp ");
-	printstamp(stderr, &current->last_stamp);
-	fputc('\n', stderr);
-	sts = PMI_ERR_BADTIMESTAMP;
-    }
-    else {
+    if ((sts = check_timestamp()) == 0) {
 	sts = _pmi_put_result(current, current->result);
 	current->last_stamp = current->result->timestamp;
     }
@@ -719,8 +725,17 @@ pmiWrite(int sec, int usec)
 int
 pmiPutResult(const pmResult *result)
 {
+    int		sts;
+
     if (current == NULL)
 	return PM_ERR_NOCONTEXT;
 
-    return  current->last_sts = _pmi_put_result(current, current->result);
+    current->result = (pmResult *)result;
+    if ((sts = check_timestamp()) == 0) {
+	sts = _pmi_put_result(current, current->result);
+	current->last_stamp = current->result->timestamp;
+    }
+    current->result = NULL;
+
+    return current->last_sts = sts;
 }
