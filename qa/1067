@@ -18,23 +18,31 @@ which zabbix_agentd >/dev/null 2>&1 || \
 test -f /etc/zabbix/zabbix_agentd.conf || \
 	_notrun "No configuration for the Zabbix agent daemon"
 grep -q zbxpcp /etc/zabbix/zabbix_agentd.conf || \
-	_notrun "No configuration of the Zabbix PCP module"
+	_notrun "No configuration of the Zabbix agent PCP module"
 
 status=1	# failure is the default!
-need_restore=false
+need_control=false
+need_derived=false
 control=$PCP_PMDAS_DIR/sample/dynamic.indom
+derived=/etc/zabbix/zbxpcp-derived-metrics.conf
 $sudo rm -rf $tmp $tmp.* $seq.full
 
 _cleanup()
 {
-    $need_restore && _restore_config $control
+    $need_control && _restore_config $control
+    $need_derived && _restore_config $derived
     rm -f $tmp.*
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 if [ -f $control ]
 then
-    need_restore=true
+    need_control=true
     _save_config $control
+fi
+if [ -f $derived ]
+then
+    need_derived=true
+    _save_config $derived
 fi
 
 _filter_values()
@@ -81,6 +89,16 @@ echo '1 one' >$tmp.indom
 echo '2 two' >>$tmp.indom
 $sudo cp $tmp.indom $control
 zabbix_agentd -p | fgrep pcp.sample. | _filter_values
+
+# derived metrics
+echo "== check derived metric configuration"
+echo mem.util.allcache = mem.util.cached + mem.util.slab | tee $tmp.derived
+echo sample.derived.hundredten = sample.float.hundred + sample.double.ten | tee -a $tmp.derived
+$sudo cp $tmp.derived $derived
+zabbix_agentd -t pcp.mem.util.allcache | _filter_values
+zabbix_agentd -t pcp.sample.derived.hundredten | _filter_values
+
+$sudo rm -f $control $derived
 
 # success, all done
 status=0
