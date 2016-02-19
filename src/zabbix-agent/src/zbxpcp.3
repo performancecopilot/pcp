@@ -117,6 +117,13 @@ the system.
 .BI /etc/zabbix/zabbix_agentd.conf
 Typical Zabbix agent configuration file location.
 .TP 10
+.BI /etc/zabbix/zbxpcp-derived-metrics.conf
+Optional PCP derived metrics configuration file for
+.BR zbxpcp .
+See
+.BR pmLoadDerivedConfig (3)
+for more info on derived metrics.
+.TP 10
 .BI $(PCP_LIB_DIR)/zabbix/agent/zbxpcp.so
 Zabbix agent loadable PCP module.
 .PD
@@ -124,6 +131,7 @@ Zabbix agent loadable PCP module.
 .BR PCPIntro (1),
 .BR pminfo (1),
 .BR pmrep (1),
-.BR zabbix_get (1)
+.BR zabbix_get (1),
+.BR pmLoadDerivedConfig (3)
 and
 .BR zabbix_agentd (8).
