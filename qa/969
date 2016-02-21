@@ -1,0 +1,66 @@
+#!/bin/sh
+# PCP QA Test No. 969
+# Error handling below pmLoadDerivedConfig.
+#
+# Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	# end
+}
+
+mkdir $tmp
+echo "x = no-such-metric" >$tmp/a
+echo "y = sample.lights" >>$tmp/a
+echo "z = hinv.ncpu + hinv.ndisk" >>$tmp/a
+
+echo "a = sample.lights" >$tmp/b
+echo "b = bozo!" >>$tmp/b
+echo "c=sample.bin*hinv.ncpu" >>$tmp/b
+echo "d = +" >>$tmp/b
+
+# real QA test starts here
+for debug in -Dderive  ""
+do
+    echo "+++ debug=$debug +++"
+    src/loadderived $debug no-such-file
+    echo
+    src/loadderived $debug $tmp/a 2>&1 | _filter
+    echo
+    src/loadderived $debug $tmp/b 2>&1 | _filter
+    echo
+    src/loadderived $debug $tmp/a:$tmp/b 2>&1 | _filter
+    echo
+    src/loadderived $debug $tmp 2>&1 | _filter | LC_COLLATE=POSIX sort
+    echo
+    src/loadderived $debug $tmp/a:no-such-file:$tmp/b 2>&1 | _filter
+    echo
+    chmod 0 $tmp
+    src/loadderived $debug $tmp 2>&1 | _filter | LC_COLLATE=POSIX sort
+    chmod 755 $tmp
+    echo
+    chmod 0 $tmp/b
+    src/loadderived $debug $tmp/a:$tmp/b:$tmp/c 2>&1 | _filter
+    chmod 644 $tmp/b
+    echo
+done
+
+# success, all done
+status=0
+
+exit
