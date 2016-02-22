@@ -16,6 +16,8 @@
 """ Display device mapper cache statistics for the system """
 
 import sys
+import re
+
 from pcp import pmapi, pmcc
 
 if sys.version >= '3':
@@ -27,12 +29,14 @@ CACHE_METRICS = ['dmcache.cache.used', 'dmcache.cache.total',
                  'dmcache.write_hits', 'dmcache.write_misses',
                  'disk.dm.read', 'disk.dm.write']
 
-HEADING = \
-    '---device--- ---%used--- ---------reads--------- --------writes---------'
+HEADING = ''
+COL_HEADING = \
+    ' ---%used--- ---------reads--------- --------writes---------'
+
 SUBHEAD_IOPS = \
-    '             meta  cache     hit    miss     ops     hit    miss     ops'
+    ' meta  cache     hit    miss     ops     hit    miss     ops'
 SUBHEAD_RATIO = \
-    '             meta  cache     hit    miss   ratio     hit    miss   ratio'
+    ' meta  cache     hit    miss   ratio     hit    miss   ratio'
 RATIO = True		# default to displaying cache hit ratios
 REPEAT = 10		# repeat heading after every N samples
 
@@ -72,6 +76,12 @@ def cache_dict(group, metric):
         return {}
     return dict(map(lambda x: (x[1], x[2]), values))
 
+def max_lv_length(group):
+    """ look at the observation group and return the max length of all the lvnames """
+    cache_used = cache_dict(group, 'dmcache.cache.used')
+    lv_names = cache_used.keys()
+    return len(max(lv_names, key=len))
+
 
 class DmCachePrinter(pmcc.MetricGroupPrinter):
     """ Report device mapper cache statistics """
@@ -82,7 +92,7 @@ class DmCachePrinter(pmcc.MetricGroupPrinter):
         self.hostname = None
         self.devices = devices
 
-    def report_values(self, group):
+    def report_values(self, group, width=12):
         """ Report values for one of more device mapper cache devices """
 
         # Build several dictionaries, keyed on cache names, with the values
@@ -100,40 +110,48 @@ class DmCachePrinter(pmcc.MetricGroupPrinter):
         devicelist = self.devices
         if not devicelist:
             devicelist = cache_used.keys()
-        if not devicelist:
+        if devicelist:
+	    for name in sorted(devicelist):
+		if RATIO:
+		    read_column = cache_percent(name, 7, read_hits, read_ops)
+		    write_column = cache_percent(name, 7, write_hits, write_ops)
+		else:
+		    read_column = cache_value(group, name, 7, read_ops)
+		    write_column = cache_value(group, name, 7, write_ops)
+
+                vgname, lvname = re.split(r'(?<=\w)-(?=\w)',name)
+
+		print('%s %s %s %s %s %s %s %s %s' % (name[:width],
+			cache_percent(name, 5, meta_used, meta_total),
+			cache_percent(name, 5, cache_used, cache_total),
+			cache_value(group, name, 7, read_hits),
+			cache_value(group, name, 7, read_misses),
+			read_column,
+			cache_value(group, name, 7, write_hits),
+			cache_value(group, name, 7, write_misses),
+			write_column))
+        else:
             print('No values available')
-        for name in sorted(devicelist):
-            if RATIO:
-                read_column = cache_percent(name, 7, read_hits, read_ops)
-                write_column = cache_percent(name, 7, write_hits, write_ops)
-            else:
-                read_column = cache_value(group, name, 7, read_ops)
-                write_column = cache_value(group, name, 7, write_ops)
-            print('%s %s %s %s %s %s %s %s %s' % (name.ljust(12),
-                    cache_percent(name, 5, meta_used, meta_total),
-                    cache_percent(name, 5, cache_used, cache_total),
-                    cache_value(group, name, 7, read_hits),
-                    cache_value(group, name, 7, read_misses),
-                    read_column,
-                    cache_value(group, name, 7, write_hits),
-                    cache_value(group, name, 7, write_misses),
-                    write_column))
 
     def report(self, groups):
         """ Report driver routine - headings, sub-headings and values """
         self.convert(groups)
         group = groups['dmcache']
+        max_lv = max_lv_length(group)
+        padding = " "*max_lv
         if groups.counter % REPEAT == 1:
             if not self.hostname:
                 self.hostname = group.contextCache.pmGetContextHostName()
             stamp = group.contextCache.pmCtime(long(group.timestamp))
             title = '@ %s (host %s)' % (stamp.rstrip(), self.hostname)
             if RATIO:
-                style = SUBHEAD_RATIO
+                style = "%s%s" % (padding, SUBHEAD_RATIO)
             else:
-                style = SUBHEAD_IOPS
+                style = "%s%s" % (padding, SUBHEAD_IOPS)
+            
+            HEADING = ' device '.center(max_lv,'-') + COL_HEADING
             print('%s\n%s\n%s' % (title, HEADING, style))
-        self.report_values(group)
+        self.report_values(group, width=max_lv)
 
 if __name__ == '__main__':
     try:
