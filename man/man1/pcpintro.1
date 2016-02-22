@@ -552,6 +552,19 @@ following day).
 For greater precision than afforded by
 .BR datetime (3),
 the seconds component may be a floating point number.
+.PP
+If a timezone is not included in a
+.I datetime
+then there ares several interpretations available depending
+on the other command line options used.
+The default is to use the local timezone on the system where
+the PCP tool is being run.
+A
+.B \-Z
+option specifies an explicit timezone, else a
+.B \-z
+option changes the timezone to the local timezone at the host
+that is the source of the performance metrics.
 .SH "PERFORMANCE METRICS \- NAMES AND IDENTIFIERS"
 The number of performance metric names supported by PCP on most
 platforms ranges from many hundreds to several thousand.
@@ -837,6 +850,12 @@ described in the
 .B "PCP ENVIRONMENT"
 section below,
 the following environment variables apply to all installations.
+.PP
+Note that most uses of these environment variables are optimized to
+check the environment only the first time the variable might be used.
+As the environment usually is not checked again, the only safe
+strategy is to ensure all PCP-related environment variables are
+set before the first call into any of the PCP libraries.
 .TP
 .B PCP_CONSOLE
 When set, this changes the default console from

@@ -156,25 +156,12 @@ and the adjustment is applied, even if the
 fails because the time origin is outside the range defined by
 the records in an archive log, i.e. returns
 .BR PM_ERR_EOL .
-The high-order bits of the
-.I mode
-parameter is also used to optionally set the units of time for the
-.I delta
-field. To specify the units of time use
-.B PM_XTB_SET 
-macro with one of the values
-.BR PM_TIME_NSEC ,
-.BR PM_TIME_MSEC ,
-.BR PM_TIME_SEC ,
-etc.
-as follows:
 .P
-.in +0.5i
-PM_MODE_INTERP | PM_XTB_SET(PM_TIME_XXXX)
-.P
-If no units are specified the default is to interpret
+.PP
+By default
 .I delta
-as milliseconds. 
+is interpreted as milliseconds (but see the LARGE DELTA VALUES
+section below).
 .PP
 Using these
 .I mode
@@ -195,8 +182,8 @@ and
 .I delta
 arguments are used as described above, but the current time in the archive
 is not altered.
-.PP
-For example, the following code fragment may be used to dump just those values
+.SH EXAMPLES
+The following code fragment may be used to dump just those values
 recorded in an archive in correct temporal sequence, for a selected set of
 performance metrics; this uses the default collection time mechanisms.
 .PP
@@ -242,6 +229,72 @@ while (pmFetch(numpmid, pmidlist, &result) != PM_ERR_EOL) {
 .in
 .fi
 .ft 1
+.SH LARGE DELTA VALUES
+Because
+.I delta
+is an
+.I int
+and treated as milliseconds by default there is a limit on the maximum
+absolute value of
+.I delta
+that can be specified with this default interpretation, namely about 24 days if a signed
+.I int
+has 31 bits of precision.
+To accommodate longer values of
+.I delta
+the high-order bits of the
+.I mode
+parameter is also used to optionally set the units of time for the
+.I delta
+parameter. To specify the units of time use the
+.B PM_XTB_SET 
+macro with one of the values
+.BR PM_TIME_NSEC ,
+.BR PM_TIME_MSEC ,
+.BR PM_TIME_SEC ,
+etc.
+to set the
+.I mode
+as follows:
+.P
+.in +0.5i
+PM_MODE_INTERP | PM_XTB_SET(PM_TIME_XXXX)
+.PP
+The following code shows how this could be done if the desired
+.I delta
+is initially encoded in
+.I interval
+(a struct timeval).
+.PP
+.ft CW
+.nf
+.in +0.5i
+struct timeval interval;
+int mode;
+
+mode = ...
+
+if (abs(interval.tv_sec / (3600*24)) <= 24) {
+    /* default encoding of milliseconds is fine */
+    mode = PM_MODE_INTERP;
+    delta = interval.tv_sec * 1000 + (interval.tv_usec + 500)/ 1000;
+}
+else {
+    /* encode delta in units of seconds */
+    mode = PM_MODE_INTERP | PM_XTB_SET(PM_TIME_SEC);
+    delta = interval.tv_sec + (interval.tv_usec + 500000)/ 1000000;
+}
+.in
+.fi
+.ft
+.PP
+For millisecond encoding of
+.IR delta ,
+using
+.B PM_XTB_SET(PM_TIME_MSEC)
+is functionally equivalent to not using
+.B PM_XTB_SET
+at all.
 .SH "SEE ALSO"
 .BR PMAPI (3),
 .BR pmFetch (3),
