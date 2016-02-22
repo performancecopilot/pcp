@@ -164,7 +164,7 @@ if __name__ == '__main__':
         options.pmSetLongOptionVersion()
         options.pmSetLongOptionHelp()
         manager = pmcc.MetricGroupManager.builder(options, sys.argv)
-        manager.printer = DmCachePrinter(options.pmNonOptionsFromList(sys.argv))
+        manager.printer = DmCachePrinter(options.pmGetNonOptionsFromList(sys.argv))
         manager['dmcache'] = CACHE_METRICS
         manager.run()
     except pmapi.pmErr as error:
