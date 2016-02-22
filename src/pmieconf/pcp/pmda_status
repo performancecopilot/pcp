@@ -22,6 +22,12 @@ string	rule
 	modify	= no
 	display	= no;
 
+string	delta
+	default = "5 sec";
+
+string	holdoff
+	default	= "1 min";
+
 string	action_expand
 	default	= "pmda%i[%v]"
 	display	= no
