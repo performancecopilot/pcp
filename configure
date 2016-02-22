@@ -3055,7 +3055,7 @@ then
 $as_echo "#define IS_SOLARIS 1" >>confdefs.h
 
     export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
-    export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
+    export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
 elif test $target_os = aix

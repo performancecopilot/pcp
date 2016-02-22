@@ -70,6 +70,9 @@
 #include "internal.h"
 #include "fault.h"
 #include <sys/stat.h>
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 #ifdef IS_MINGW
 extern const char *strerror_r(int, char *, size_t);
 #endif

@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2015 Red Hat.
+dnl Copyright (c) 2012-2016 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl 
@@ -273,7 +273,7 @@ elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS, [1], [Platform is Solaris])
     export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
-    export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
+    export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
 elif test $target_os = aix
