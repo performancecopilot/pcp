@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/pcp python
 #
-# Copyright (C) 2014-2015 Red Hat.
+# Copyright (C) 2014-2016 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,7 +16,6 @@
 """ Display device mapper cache statistics for the system """
 
 import sys
-import re
 
 from pcp import pmapi, pmcc
 
@@ -37,8 +36,8 @@ SUBHEAD_IOPS = \
     ' meta  cache     hit    miss     ops     hit    miss     ops'
 SUBHEAD_RATIO = \
     ' meta  cache     hit    miss   ratio     hit    miss   ratio'
-RATIO = True		# default to displaying cache hit ratios
-REPEAT = 10		# repeat heading after every N samples
+RATIO = True                # default to displaying cache hit ratios
+REPEAT = 10                # repeat heading after every N samples
 
 def option(opt, optarg, index):
     """ Perform setup for an individual command line option """
@@ -111,25 +110,23 @@ class DmCachePrinter(pmcc.MetricGroupPrinter):
         if not devicelist:
             devicelist = cache_used.keys()
         if devicelist:
-	    for name in sorted(devicelist):
-		if RATIO:
-		    read_column = cache_percent(name, 7, read_hits, read_ops)
-		    write_column = cache_percent(name, 7, write_hits, write_ops)
-		else:
-		    read_column = cache_value(group, name, 7, read_ops)
-		    write_column = cache_value(group, name, 7, write_ops)
+            for name in sorted(devicelist):
+                if RATIO:
+                    read_column = cache_percent(name, 7, read_hits, read_ops)
+                    write_column = cache_percent(name, 7, write_hits, write_ops)
+                else:
+                    read_column = cache_value(group, name, 7, read_ops)
+                    write_column = cache_value(group, name, 7, write_ops)
 
-                vgname, lvname = re.split(r'(?<=\w)-(?=\w)',name)
-
-		print('%s %s %s %s %s %s %s %s %s' % (name[:width],
-			cache_percent(name, 5, meta_used, meta_total),
-			cache_percent(name, 5, cache_used, cache_total),
-			cache_value(group, name, 7, read_hits),
-			cache_value(group, name, 7, read_misses),
-			read_column,
-			cache_value(group, name, 7, write_hits),
-			cache_value(group, name, 7, write_misses),
-			write_column))
+                print('%s %s %s %s %s %s %s %s %s' % (name[:width],
+                        cache_percent(name, 5, meta_used, meta_total),
+                        cache_percent(name, 5, cache_used, cache_total),
+                        cache_value(group, name, 7, read_hits),
+                        cache_value(group, name, 7, read_misses),
+                        read_column,
+                        cache_value(group, name, 7, write_hits),
+                        cache_value(group, name, 7, write_misses),
+                        write_column))
         else:
             print('No values available')
 
