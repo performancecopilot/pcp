@@ -850,6 +850,12 @@ described in the
 .B "PCP ENVIRONMENT"
 section below,
 the following environment variables apply to all installations.
+.PP
+Note that most uses of these environment variables are optimized to
+check the environment only the first time the variable might be used.
+As the environment usually is not checked again, the only safe
+strategy is to ensure all PCP-related environment variables are
+set before the first call into any of the PCP libraries.
 .TP
 .B PCP_CONSOLE
 When set, this changes the default console from
