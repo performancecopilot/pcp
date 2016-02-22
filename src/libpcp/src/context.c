@@ -792,6 +792,10 @@ initarchive(__pmContext	*ctxp, const char *name)
 		__pmNoMem("initArchive", sizeof(__pmMultiLogCtl), PM_FATAL_ERR);
 	    if ((mlcp->ml_name = strdup(current)) == NULL)
 		__pmNoMem("initArchive", strlen(current) + 1, PM_FATAL_ERR);
+	    if ((mlcp->ml_hostname = strdup(label.ll_hostname)) == NULL)
+		__pmNoMem("initArchive", strlen(label.ll_hostname) + 1, PM_FATAL_ERR);
+	    if ((mlcp->ml_tz = strdup(label.ll_tz)) == NULL)
+		__pmNoMem("initArchive", strlen(label.ll_tz) + 1, PM_FATAL_ERR);
 	    mlcp->ml_starttime = tmpTime;
 
 	    /*
@@ -861,6 +865,10 @@ initarchive(__pmContext	*ctxp, const char *name)
     if (mlcp) {
 	if (mlcp->ml_name)
 	    free (mlcp->ml_name);
+	if (mlcp->ml_hostname)
+	    free (mlcp->ml_hostname);
+	if (mlcp->ml_tz)
+	    free (mlcp->ml_tz);
 	free(mlcp);
     }
     if (namelist)
@@ -872,6 +880,8 @@ initarchive(__pmContext	*ctxp, const char *name)
 	    --numlogs;
 	    if (loglist[numlogs]) {
 		free(loglist[numlogs]->ml_name);
+		free(loglist[numlogs]->ml_hostname);
+		free(loglist[numlogs]->ml_tz);
 		free(loglist[numlogs]);
 	    }
 	}
@@ -1310,9 +1320,19 @@ pmDupContext(void)
 		newmlcp = newcon->c_archctl->ac_log_list[i];
 		oldmlcp = oldcon->c_archctl->ac_log_list[i];
 		*newmlcp = *oldmlcp;
-		/* We need to duplicate the ml_name of each archive in the
-		   list. */
+		/*
+		 * We need to duplicate the ml_name and the ml_hostname of each
+		 * archive in the list.
+		 */
 		if ((newmlcp->ml_name = strdup (newmlcp->ml_name)) == NULL) {
+		    sts = -oserror();
+		    goto done;
+		}
+		if ((newmlcp->ml_hostname = strdup (newmlcp->ml_hostname)) == NULL) {
+		    sts = -oserror();
+		    goto done;
+		}
+		if ((newmlcp->ml_tz = strdup (newmlcp->ml_tz)) == NULL) {
 		    sts = -oserror();
 		    goto done;
 		}

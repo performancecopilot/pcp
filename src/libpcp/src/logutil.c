@@ -94,6 +94,31 @@ dumpbuf(int nch, __pmPDU *pb)
 }
 #endif
 
+static int
+checkLabelConsistency (__pmContext *ctxp, const __pmLogLabel *lp)
+{
+    __pmArchCtl	*acp;
+
+    /* No checking to do if there are not multiple archives */
+    acp = ctxp->c_archctl;
+    if (acp->ac_num_logs <= 1)
+	return 0; /* ok */
+
+    /*
+     * When checking for consistency, it is sufficient to check vs the 
+     * first archive in the context.
+     * The version number is checked by __pmLogChkLabel.
+     * Check the hostname and the time zone.
+     */
+    if (strcmp(lp->ill_hostname, ctxp->c_archctl->ac_log_list[0]->ml_hostname) != 0)
+	return PM_ERR_LABEL; /* ok */
+    if (strcmp(lp->ill_tz, ctxp->c_archctl->ac_log_list[0]->ml_tz) != 0)
+	return PM_ERR_LOGTIMEZONE; /* ok */
+
+    /* All is ok */
+    return 0;
+}
+
 int
 __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 {
@@ -206,15 +231,14 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 #endif
 	return PM_ERR_LABEL;
     }
-    else {
-	if (__pmSetVersionIPC(fileno(f), version) < 0)
-	    return -oserror();
+
+    if (__pmSetVersionIPC(fileno(f), version) < 0)
+	return -oserror();
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, " [magic=%8x version=%d vol=%d pid=%d host=%s]\n",
+    if (pmDebug & DBG_TRACE_LOG)
+	fprintf(stderr, " [magic=%8x version=%d vol=%d pid=%d host=%s]\n",
 		lp->ill_magic, version, lp->ill_vol, lp->ill_pid, lp->ill_hostname);
 #endif
-    }
 
     if (vol >= 0 && vol < lcp->l_numseen)
 	lcp->l_seen[vol] = 1;
@@ -735,7 +759,7 @@ void
 __pmLogClose(__pmLogCtl *lcp)
 {
     /*
-     * We no longer free l_pmns here or clear l_cachepmid or l_cacheindom here.
+     * We no longer free l_pmns here or clear l_hashpmid or l_hashindom here.
      * They may be needed by the next archive of a multi-archive context.
      * They are now now freed as needed using logFreePMNS().
      */
@@ -1055,6 +1079,13 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	sts = PM_ERR_LABEL;
 	goto cleanup;
     }
+
+    /*
+     * Perform consistency chacks between this label and the labels of other
+     * archives possibly making up this context.
+     */
+    if ((sts = checkLabelConsistency(ctxp, &lcp->l_label)) < 0)
+	return goto cleanup;
 
     if ((sts = __pmLogLoadMeta(lcp)) < 0)
 	goto cleanup;
@@ -3039,6 +3070,8 @@ __pmArchCtlFree(__pmArchCtl *acp)
 	while (--acp->ac_num_logs >= 0) {
 	    assert (acp->ac_log_list[acp->ac_num_logs] != NULL);
 	    free(acp->ac_log_list[acp->ac_num_logs]->ml_name);
+	    free(acp->ac_log_list[acp->ac_num_logs]->ml_hostname);
+	    free(acp->ac_log_list[acp->ac_num_logs]->ml_tz);
 	    free(acp->ac_log_list[acp->ac_num_logs]);
 	}
 	free(acp->ac_log_list);

@@ -706,6 +706,8 @@ PCP_CALL extern void __pmServerUnadvertisePresence(__pmServerPresence *);
 typedef struct {
     char		*ml_name;	/* external log base name */
     __pmTimeval		ml_starttime;	/* start time of the archive */
+    char		*ml_hostname;	/* name of collection host */
+    char		*ml_tz;		/* $TZ at collection host */
 } __pmMultiLogCtl;
 
 /*

@@ -152,6 +152,8 @@ static const struct {
         "Bad input to pmstore" },
     { PM_ERR_LOGOVERLAP,	"PM_ERR_LOGOVERLAP",
         "Archives overlap in time" },
+    { PM_ERR_LOGTIMEZONE,	"PM_ERR_LOGTIMEZONE",
+        "Archives differ by time zone" },
     /* insert new libpcp error codes here */
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },
