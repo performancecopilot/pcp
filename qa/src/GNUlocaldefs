@@ -39,7 +39,8 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c \
 	churnctx.c badUnitsStr_r.c units-parse.c rootclient.c derived.c \
 	lookupnametest.c getversion.c pdubufbounds.c statvfs.c storepmcd.c \
-	github-50.c archfetch.c fetchloop.c sortinst.c fetchgroup.c
+	github-50.c archfetch.c fetchloop.c sortinst.c fetchgroup.c \
+	loadderived.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig

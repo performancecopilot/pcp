@@ -1138,6 +1138,7 @@ cgroups
 966 secure local
 967 pmda.papi local
 968 python local
+969 derive local
 972 pmda.zswap dbpmda local
 973 pmda.zswap pmda.install local
 974 pmda.proc local

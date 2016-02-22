@@ -253,8 +253,11 @@ __dminit_component(const char *name, int descend, int recover)
 	    if (strcmp(dp->d_name, ".") == 0) continue;
 	    if (strcmp(dp->d_name, "..") == 0) continue;
 	    snprintf(path, sizeof(path), "%s%c%s", name, __pmPathSeparator(), dp->d_name);
-	    if ((localsts = __dminit_component(path, descend, recover)) < 0)
+	    if ((localsts = __dminit_component(path, descend, recover)) < 0) {
 		sts = localsts;
+		goto finish;
+	    }
+	    sts += localsts;
 	}
 #ifdef PCP_DEBUG
 	/* error is most unlikely and ignore unless -Dderive specified */
@@ -289,16 +292,24 @@ __dminit_parse(const char *path, int recover)
     const char	*p = path;
     const char	*q;
     int		sts = 0;
+    int		lsts;
 
     while ((q = index(p, ':')) != NULL) {
 	char	*name = strndup(p, q-p+1);
 	name[q-p] = '\0';
-	sts = __dminit_component(name, 1, recover);
+	lsts = __dminit_component(name, 1, recover);
+	if (lsts < 0)
+	    return lsts;
+	sts += lsts;
 	free(name);
 	p = q+1;
     }
-    if (*p != '\0' && sts >= 0)
-	sts = __dminit_component(p, 1, recover);
+    if (*p != '\0') {
+	lsts = __dminit_component(p, 1, recover);
+	if (lsts < 0)
+	    return lsts;
+	sts += lsts;
+    }
     return sts;
 }
 
