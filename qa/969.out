@@ -58,13 +58,13 @@ Terminal element or function name or '(' expected
 pmLoadDerivedConfig("TMP/a")
 pmLoadDerivedConfig("TMP/b")
 pmLoadDerivedConfig(TMP) returns: 5
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[2] x = no-such-metric
-pmRegisterDerived: register metric[3] y = sample.lights
-pmRegisterDerived: register metric[4] z = hinv.ncpu + hinv.ndisk
-pmRegisterDerived: register metric[5] a = sample.lights
-pmRegisterDerived: register metric[6] c = sample.bin*hinv.ncpu
+pmRegisterDerived: register metric[N] a = sample.lights
+pmRegisterDerived: register metric[N] c = sample.bin*hinv.ncpu
+pmRegisterDerived: register metric[N] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[N] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[N] x = no-such-metric
+pmRegisterDerived: register metric[N] y = sample.lights
+pmRegisterDerived: register metric[N] z = hinv.ncpu + hinv.ndisk
 
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
@@ -77,8 +77,8 @@ pmLoadDerivedConfig(TMP/a:no-such-file:TMP/b) returns: No such file or directory
 
 Warning: derived metrics path directory component: TMP: Permission denied
 pmLoadDerivedConfig(TMP) returns: Permission denied
-pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
-pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[N] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[N] event.missed = anon(PM_TYPE_U32)
 
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
