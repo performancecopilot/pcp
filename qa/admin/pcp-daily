@@ -801,7 +801,7 @@ End-of-File
 	[ X"$what" = Xall ] && check_what=''
 	case "$domain"
 	in
-	    vm06|vm10|vm09)
+	    vm06|vm10|vm09|vm32|vm33)
 		# Only -g sanity at this stage for FreeBSD or NetBSD or OpenBSD
 		#
 		[ X"$what" = Xall ] && check_what='-g sanity'
