@@ -72,19 +72,23 @@ actShell(Expr *x)
      * one trip to get PATH for system(3)
      */
     if (path == NULL) {
-	char *all_platform_paths = pmGetConfig("PCP_PLATFORM_PATHS");
-	char *pcp_binadm_path = pmGetConfig("PCP_BINADM_DIR");
-	char *pcp_bin_path = pmGetConfig("PCP_BIN_DIR");
-	char paths[] = "PATH=/usr/sbin:/sbin:/usr/bin:/bin";
-	size_t size = sizeof(paths);
+	char	*all_platform_paths = pmGetConfig("PCP_PLATFORM_PATHS");
+	char	*pcp_binadm_path = pmGetConfig("PCP_BINADM_DIR");
+	char	*pcp_bin_path = pmGetConfig("PCP_BIN_DIR");
+	char	paths[] = "PATH=/usr/sbin:/sbin:/usr/bin:/bin";
+	int	i, size = sizeof(paths) + 1;
 
-	size += strlen(all_platform_paths) + 2;
-	size += strlen(pcp_binadm_path) + 2;
-	size += strlen(pcp_bin_path) + 2;
+	size += strlen(all_platform_paths) + 1;
+	size += strlen(pcp_binadm_path) + 1;
+	size += strlen(pcp_bin_path) + 1;
 	if ((path = malloc(size)) != NULL) {
-	    snprintf(path, size, "%s:%s:%s:%s\n", paths,
-		     pcp_bin_path, pcp_binadm_path, all_platform_paths);
-	    path[size-1] = '\0';
+	    if ((i = snprintf(path, size-1, "%s:%s:%s:%s\n", paths,
+			pcp_bin_path, pcp_binadm_path, all_platform_paths)) <= 0)
+		path = paths;	/* fallback to basic defaults */
+	    else if (path[i-2] == ':')
+		path[i-2] = '\0';	/* PCP_PLATFORM_PATHS may be null */
+	    else
+		path[i] = '\0';
 	} else {
 	    path = paths;	/* set a basic default anyway */
 	}
@@ -182,14 +186,14 @@ actAlarm(Expr *x)
     int     sts;
 
     if (alarmv[0] == NULL) {
-	    /*
-	     * one trip to get path for xconfirm(1)
-	     */
-	    alarmv[0] = pmGetConfig("PCP_XCONFIRM_PROG");
-	    if (strcmp(alarmv[0], "") == 0) {
-		__pmNotifyErr(LOG_ERR, "PCP_XCONFIRM_PROG not found, using echo(1)\n");
-		alarmv[0] = "/bin/echo";
-	    }
+	/*
+	 * one trip to get path for xconfirm(1)
+	 */
+	alarmv[0] = pmGetConfig("PCP_XCONFIRM_PROG");
+	if (strcmp(alarmv[0], "") == 0) {
+	    __pmNotifyErr(LOG_ERR, "PCP_XCONFIRM_PROG not found, using echo(1)\n");
+	    alarmv[0] = "/bin/echo";
+	}
     }
 
 #ifndef IS_MINGW
