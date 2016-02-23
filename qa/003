@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 case "$PCP_PLATFORM"
 in
-    linux|darwin|solaris|freebsd|netbsd)
+    linux|darwin|solaris|freebsd|netbsd|openbsd)
 	;;
     *)
 	echo "Need to hand-craft the exceptions list in ./003 for this platform"
@@ -260,6 +260,11 @@ do
 	  sed <$tmp.tmp \
 	    -e 's/a/a/'
     elif [ "$PCP_PLATFORM" = netbsd ]
+    then
+	  # do nothing at the moment
+	  sed <$tmp.tmp \
+	    -e 's/a/a/'
+    elif [ "$PCP_PLATFORM" = openbsd ]
     then
 	  # do nothing at the moment
 	  sed <$tmp.tmp \

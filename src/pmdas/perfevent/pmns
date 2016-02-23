@@ -18,5 +18,5 @@ perfevent {
     version    PERFEVENT:0:0
     active     PERFEVENT:0:1
     hwcounters PERFEVENT:*:*
+    derived    PERFEVENT:*:*
 }
-

@@ -29,6 +29,7 @@
 [\f3\-s\f1 \f2samples\f1 \f3--samples=\f2N\f1]
 [\f3\-T\f1 \f2endtime\f1 \f3--finish=\f2TIME\f1]
 [\f3\-t\f1 \f2interval\f1 \f3--interval=\f2DELTA\f1]
+[\f3\-u\f1 \f3--no-interpolate\f1]
 [\f3\-Z\f1 \f2timezone\f1 \f3--timezone=\f2TZ\f1]
 [\f3\-z\f1 \f3--hostzone\f1]
 [\f3\-?\f1 \f3--help\f1]
@@ -77,6 +78,8 @@ are as follows:
 Performance metric values are retrieved from the Performance Co-Pilot (PCP)
 archive log file identified by the base name
 .IR archive .
+See also
+.BR \-u .
 .TP
 .B \-h
 Current performance metric values are retrieved from the nominated
@@ -110,7 +113,41 @@ In this case specifying a large
 .I interval
 (e.g. 1h for 1 hour)
 will reduce the volume of data reported and the i/o statistics will be averaged (interpolated) over
-the reporting interval.
+the reporting interval (unless the
+.B \-u
+option is specified, see below).
+.TP
+.B \-u
+When replaying an archive, by default values are reported
+according to the selected sample interval (\c
+.B \-t
+option), not according to the actual record intervals in the archive.
+To this effect PCP interpolates the values to be reported based on the
+records in the archive, and is particularly useful when the
+.B \-t
+option is used to replay an archive with a longer sampling interval than
+the underlying interval the archive was originally recorded with.
+With the
+.B \-u
+option,
+uninterpolated reporting is enabled - every value is reported
+according to the native recording interval in the archive.
+When the
+.B \-u
+option is specified, the
+.B \-t
+option makes no sense and is incompatible because the replay interval
+is always the same as the recording interval in the archive.
+In addition,
+.B \-u
+only makes sense when replaying an archive, see
+.B \-a
+above,
+and so if
+.B \-u
+is specified then
+.B \-a
+must also be specified.
 .TP
 .B \-Z
 By default,

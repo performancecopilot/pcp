@@ -68,9 +68,9 @@ then
     # -s shell
     # command-line variations
     # do not create home directory
-    # 	-M for Linux, nothing for netbsd
+    # 	-M for Linux, nothing for netbsd or openbsd
     # system account (no aging, sys gid/uid range, no home dir creation)
-    #   -r for Linux, not supported for netbsd
+    #   -r for Linux, not supported for netbsd or openbsd
     #
     if [ $PCP_PLATFORM = netbsd ]
     then
@@ -78,6 +78,12 @@ then
 	sys_acc=''
 	nologin=/sbin/nologin
 	bash=/usr/pkg/bin/bash
+    elif [ $PCP_PLATFORM = openbsd ]
+    then
+	no_home_dir=''
+	sys_acc=''
+	nologin=/sbin/nologin
+	bash=`which bash`
     elif [ $PCP_PLATFORM = solaris ]
     then
 	no_home_dir=''
@@ -172,7 +178,7 @@ fi
 grp=root
 case $PCP_PLATFORM
 in
-    freebsd|netbsd)
+    freebsd|netbsd|openbsd)
 	    grp=wheel
 	    ;;
 esac
@@ -195,7 +201,11 @@ chmod 644 $PCP_SYSCONF_DIR/pmcd/pmcd.conf
 
 # Expect only root owned things below $PCP_SYSCONF_DIR
 #
-find $PCP_SYSCONF_DIR ! -user root | xargs chown root:$grp
+find $PCP_SYSCONF_DIR ! -user root \
+| while read f
+do
+    chown root:$grp $f
+done
 
 # pcp:pcp and mode 775 directories
 #

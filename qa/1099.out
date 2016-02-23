@@ -51,3 +51,19 @@ v_counter (Tue Dec  1 18:30:00 2015): 0 0 0 0 0 7.6
 v_instant (Tue Dec  1 18:45:00 2015): 34.6 54 61
 v_counter (Tue Dec  1 18:45:00 2015): 0 0 0 0 0 0.67
 
+== testing pmiostat -u option incompatible with -t
+Error: -t incompatible with -u
+expecting exit 1, got 1
+== testing pmiostat -u option requires -a
+Error: -u can only be specified with -a archive
+expecting exit 1, got 1
+== testing pmiostat -u for native (non-interpolating) replay
+Tue Dec  1 18:57:41 2015 sda              0.0     1.4    2.1    2.8     37.4     18.3    11.57     0.01     1.4     0.4     2.2   0.2
+Tue Dec  1 18:58:41 2015 mmcblk0          0.0     0.0    0.0    0.0      0.0      0.0     0.00     0.00     0.0     0.0     0.0   0.0
+Tue Dec  1 18:58:41 2015 sda              0.0     2.0    0.3    5.9      5.3     38.1     7.00     0.02     2.6     0.8     2.7   0.3
+Tue Dec  1 18:59:41 2015 mmcblk0          0.0     0.0    0.0    0.0      0.0      0.0     0.00     0.00     0.0     0.0     0.0   0.0
+Tue Dec  1 18:59:41 2015 sda              0.2     4.3   80.2    6.8   5430.3     59.9    63.15     0.05     0.5     0.4     2.4   2.9
+== testing pmiostat -u with -O offset and -s samples
+# Timestamp              Device        rrqm/s  wrqm/s    r/s    w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await %util
+Tue Dec  1 18:59:41 2015 mmcblk0          0.0     0.0    0.0    0.0      0.0      0.0     0.00     0.00     0.0     0.0     0.0   0.0
+Tue Dec  1 18:59:41 2015 sda              0.2     4.3   80.2    6.8   5430.3     59.9    63.15     0.05     0.5     0.4     2.4   2.9

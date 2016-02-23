@@ -189,7 +189,7 @@ NR == 2	{ # PCP values
 	echo "$1: match"
     else
 	echo "$1: no match" | tee -a $here/$seq.full
-	cat $tmp.nomatch >>$here/$seq.full
+	[ -f $tmp.nomatch ] && cat $tmp.nomatch >>$here/$seq.full
     fi
    
 }

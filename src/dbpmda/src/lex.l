@@ -200,6 +200,7 @@ static int	mark = -1;
 extern char	*configfile;
 
 extern int	eflag;
+extern int	fflag;
 extern int	iflag;
 
 #ifdef FLEX_SCANNER
@@ -284,7 +285,7 @@ dbpmdaFlexInput (char * inbuf, int ms)
     static int first = 1;
     static int save_iflag, save_eflag;
 
-    if (first) {
+    if (first && fflag == 0) {
 	first = 0;
 	if (!access (".dbpmdarc", R_OK)) {
 	    inf = yyin;

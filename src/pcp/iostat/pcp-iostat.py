@@ -16,9 +16,12 @@
 """ Display disk and device-mapper I/O statistics """
 
 import sys
-import socket
+import signal
 from pcp import pmapi, pmcc
-from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE, PM_SPACE_KBYTE
+from cpmapi import PM_TYPE_U64, PM_CONTEXT_ARCHIVE, PM_SPACE_KBYTE, PM_MODE_FORW
+
+# use default SIGPIPE handler to avoid broken pipe exceptions
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 IOSTAT_SD_METRICS = [ 'disk.dev.read', 'disk.dev.read_bytes',
                  'disk.dev.write', 'disk.dev.write_bytes',
@@ -181,13 +184,26 @@ class IostatReport(pmcc.MetricGroupPrinter):
 class IostatOptions(pmapi.pmOptions):
     # class attributes
     xflag = [] 
+    uflag = None
+
+    def checkOptions(self, manager):
+        if IostatOptions.uflag:
+            if manager._options.pmGetOptionInterval():
+                print("Error: -t incompatible with -u")
+                return False
+            if manager.type != PM_CONTEXT_ARCHIVE:
+                print("Error: -u can only be specified with -a archive")
+                return False
+        return True
 
     def extraOptions(self, opt, optarg, index):
         if opt == "x":
             IostatOptions.xflag += optarg.replace(',', ' ').split(' ')
+        elif opt == "u":
+            IostatOptions.uflag = True
 
     def __init__(self):
-        pmapi.pmOptions.__init__(self, "A:a:D:h:O:S:s:T:t:VZ:z?x:")
+        pmapi.pmOptions.__init__(self, "A:a:D:h:O:S:s:T:t:uVZ:z?x:")
         self.pmSetOptionCallback(self.extraOptions)
         self.pmSetLongOptionHeader("General options")
         self.pmSetLongOptionAlign()
@@ -199,6 +215,7 @@ class IostatOptions(pmapi.pmOptions):
         self.pmSetLongOptionSamples()
         self.pmSetLongOptionFinish()
         self.pmSetLongOptionInterval()
+        self.pmSetLongOption("no-interpolation", 0, "u", "", "disable interpolation mode with archives")
         self.pmSetLongOptionVersion()
         self.pmSetLongOptionTimeZone()
         self.pmSetLongOptionHostZone()
@@ -211,7 +228,15 @@ class IostatOptions(pmapi.pmOptions):
 
 if __name__ == '__main__':
     try:
-        manager = pmcc.MetricGroupManager.builder(IostatOptions(), sys.argv)
+        opts = IostatOptions()
+        manager = pmcc.MetricGroupManager.builder(opts, sys.argv)
+        if not opts.checkOptions(manager):
+            raise pmapi.pmUsageErr
+
+        if IostatOptions.uflag:
+            # -u turns off interpolation
+            manager.pmSetMode(PM_MODE_FORW, manager._options.pmGetOptionOrigin(), 0)
+
         if "dm" in IostatOptions.xflag :
             manager["iostat"] = IOSTAT_DM_METRICS
         else:
@@ -225,6 +250,4 @@ if __name__ == '__main__':
         usage.message()
         sys.exit(1)
     except KeyboardInterrupt:
-        pass
-    except socket.error:
         pass

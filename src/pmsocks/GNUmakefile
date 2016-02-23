@@ -18,14 +18,13 @@
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
-LSRCFILES = tsocks.sh
 
 default :
 
 include $(BUILDRULES)
 
 install : default
-	$(INSTALL) -m 755 tsocks.sh $(PCP_BIN_DIR)/pmsocks
+	$(INSTALL) -m 755 pmsocks.sh $(PCP_BIN_DIR)/pmsocks
 
 default_pcp : default
 

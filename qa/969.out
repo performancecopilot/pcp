@@ -1,0 +1,133 @@
+QA output created by 969
++++ debug=-Dderive +++
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+Warning: derived metrics path component: no-such-file: No such file or directory
+pmLoadDerivedConfig(no-such-file) returns: No such file or directory
+
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmLoadDerivedConfig("TMP/a")
+pmRegisterDerived: register metric[2] x = no-such-metric
+pmRegisterDerived: register metric[3] y = sample.lights
+pmRegisterDerived: register metric[4] z = hinv.ncpu + hinv.ndisk
+pmLoadDerivedConfig(TMP/a) returns: 3
+
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmLoadDerivedConfig("TMP/b")
+pmRegisterDerived: register metric[2] a = sample.lights
+[TMP/b:2] Error: pmRegisterDerived(b, ...) syntax error
+ bozo!
+     ^
+Illegal character
+pmRegisterDerived: register metric[3] c = sample.bin*hinv.ncpu
+[TMP/b:4] Error: pmRegisterDerived(d, ...) syntax error
+ +
+ ^
+Terminal element or function name or '(' expected
+pmLoadDerivedConfig(TMP/b) returns: 2
+
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmLoadDerivedConfig("TMP/a")
+pmRegisterDerived: register metric[2] x = no-such-metric
+pmRegisterDerived: register metric[3] y = sample.lights
+pmRegisterDerived: register metric[4] z = hinv.ncpu + hinv.ndisk
+pmLoadDerivedConfig("TMP/b")
+pmRegisterDerived: register metric[5] a = sample.lights
+[TMP/b:2] Error: pmRegisterDerived(b, ...) syntax error
+ bozo!
+     ^
+Illegal character
+pmRegisterDerived: register metric[6] c = sample.bin*hinv.ncpu
+[TMP/b:4] Error: pmRegisterDerived(d, ...) syntax error
+ +
+ ^
+Terminal element or function name or '(' expected
+pmLoadDerivedConfig(TMP/a:TMP/b) returns: 5
+
+     ^
+ +
+ ^
+ bozo!
+Illegal character
+Terminal element or function name or '(' expected
+[TMP/b:2] Error: pmRegisterDerived(b, ...) syntax error
+[TMP/b:4] Error: pmRegisterDerived(d, ...) syntax error
+pmLoadDerivedConfig("TMP/a")
+pmLoadDerivedConfig("TMP/b")
+pmLoadDerivedConfig(TMP) returns: 5
+pmRegisterDerived: register metric[N] a = sample.lights
+pmRegisterDerived: register metric[N] c = sample.bin*hinv.ncpu
+pmRegisterDerived: register metric[N] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[N] event.missed = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[N] x = no-such-metric
+pmRegisterDerived: register metric[N] y = sample.lights
+pmRegisterDerived: register metric[N] z = hinv.ncpu + hinv.ndisk
+
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmLoadDerivedConfig("TMP/a")
+pmRegisterDerived: register metric[2] x = no-such-metric
+pmRegisterDerived: register metric[3] y = sample.lights
+pmRegisterDerived: register metric[4] z = hinv.ncpu + hinv.ndisk
+Warning: derived metrics path component: no-such-file: No such file or directory
+pmLoadDerivedConfig(TMP/a:no-such-file:TMP/b) returns: No such file or directory
+
+Warning: derived metrics path directory component: TMP: Permission denied
+pmLoadDerivedConfig(TMP) returns: Permission denied
+pmRegisterDerived: register metric[N] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[N] event.missed = anon(PM_TYPE_U32)
+
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+pmLoadDerivedConfig("TMP/a")
+pmRegisterDerived: register metric[2] x = no-such-metric
+pmRegisterDerived: register metric[3] y = sample.lights
+pmRegisterDerived: register metric[4] z = hinv.ncpu + hinv.ndisk
+pmLoadDerivedConfig("TMP/b")
+pmLoadDerivedConfig(TMP/b): Permission denied
+pmLoadDerivedConfig(TMP/a:TMP/b:TMP/c) returns: Permission denied
+
++++ debug= +++
+pmLoadDerivedConfig(no-such-file) returns: No such file or directory
+
+pmLoadDerivedConfig(TMP/a) returns: 3
+
+[TMP/b:2] Error: pmRegisterDerived(b, ...) syntax error
+ bozo!
+     ^
+Illegal character
+[TMP/b:4] Error: pmRegisterDerived(d, ...) syntax error
+ +
+ ^
+Terminal element or function name or '(' expected
+pmLoadDerivedConfig(TMP/b) returns: 2
+
+[TMP/b:2] Error: pmRegisterDerived(b, ...) syntax error
+ bozo!
+     ^
+Illegal character
+[TMP/b:4] Error: pmRegisterDerived(d, ...) syntax error
+ +
+ ^
+Terminal element or function name or '(' expected
+pmLoadDerivedConfig(TMP/a:TMP/b) returns: 5
+
+     ^
+ +
+ ^
+ bozo!
+Illegal character
+Terminal element or function name or '(' expected
+[TMP/b:2] Error: pmRegisterDerived(b, ...) syntax error
+[TMP/b:4] Error: pmRegisterDerived(d, ...) syntax error
+pmLoadDerivedConfig(TMP) returns: 5
+
+pmLoadDerivedConfig(TMP/a:no-such-file:TMP/b) returns: No such file or directory
+
+pmLoadDerivedConfig(TMP) returns: Permission denied
+
+pmLoadDerivedConfig(TMP/a:TMP/b:TMP/c) returns: Permission denied
+

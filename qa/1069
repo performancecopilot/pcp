@@ -35,6 +35,17 @@ _path_filter()
     #end
 }
 
+#  timezone: :Australia/Melbourne (creation, current is AEDT-11)
+#  this is not deterministic .......................... ^^^^^^^
+#
+_archive_filter()
+{
+    sed \
+	-e '/timezone/s/current is .*)/current is ...)/' \
+        -e '/timezone/s/ (reporting.*)//' \
+    #end
+}
+
 log="--archive $here/archives/sample-secs -z"
 log2="--archive $here/archives/20130706 -z -O 30m"
 
@@ -61,7 +72,8 @@ pmrep -s 5 -t 2 $log -c $tmp.config sample
 echo "== exercise various output options"
 pmrep -s 5 -t 2 $log -c $tmp.config -o stdout -p -w 20 sample
 echo "---"
-pmrep -s 5 -t 2 $log -c $tmp.config -C -x sample | _path_filter
+pmrep -s 5 -t 2 $log -c $tmp.config -C -x sample | _path_filter \
+| _archive_filter
 echo "---"
 pmrep -s 5 -t 2 $log -c $tmp.config -G -H -U sample
 

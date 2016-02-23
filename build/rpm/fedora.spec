@@ -219,6 +219,16 @@ Obsoletes: pcp-gui-debuginfo
 %global _with_json --with-pmdajson=yes
 %endif
 
+%global pmda_remove() %{expand:
+if [ "%1" -eq 0 ]
+then
+    if [ -f "%{_confdir}/pmcd/pmcd.conf" ] && [ -f "%{_pmdasdir}/%2/domain.h" ]
+    then
+	(cd %{_pmdasdir}/%2/ && ./Remove >/dev/null 2>&1)
+    fi
+fi
+}
+
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
 system-level performance monitoring and performance management. 
@@ -897,6 +907,23 @@ collecting metrics for NFS Clients.
 #end pcp-pmda-nfsclient
 
 #
+# pcp-pmda-oracle
+#
+%package pmda-oracle
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for the Oracle database
+URL: http://www.pcp.io
+Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(DBI)
+BuildRequires: perl(DBI)
+
+%description pmda-oracle
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the Oracle database.
+#end pcp-pmda-oracle
+
+#
 # pcp-pmda-pdns
 #
 %package pmda-pdns
@@ -1434,7 +1461,7 @@ URL: http://www.pcp.io
 Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
 Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
-Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
+Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
@@ -1670,6 +1697,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^news' |\
   grep -E -v '^nfsclient' |\
   grep -E -v '^nginx' |\
+  grep -E -v '^oracle' |\
   grep -E -v '^pdns' |\
   grep -E -v '^postfix' |\
   grep -E -v '^postgresql' |\
@@ -1845,6 +1873,182 @@ then
     /sbin/chkconfig --del pmmgr >/dev/null 2>&1
 %endif
 fi
+
+%if !%{disable_rpm}
+%preun pmda-rpm
+%{pmda_remove "$1" "rpm"}
+%endif #preun pmda-rpm
+
+%if !%{disable_papi}
+%preun pmda-papi
+%{pmda_remove "$1" "papi"}
+%endif #preun pmda-papi
+
+%if !%{disable_systemd}
+%preun pmda-systemd
+%{pmda_remove "$1" "systemd"}
+%endif #preun pmda-systemd
+
+%if !%{disable_infiniband}
+%preun pmda-infiniband
+%{pmda_remove "$1" "infiniband"}
+%endif #preun pmda-infiniband
+
+%if !%{disable_perfevent}
+%preun pmda-perfevent
+%{pmda_remove "$1" "perfevent"}
+%endif #preun pmda-perfevent
+
+%if !%{disable_json}
+%preun pmda-json
+%{pmda_remove "$1" "json"}
+%endif #preun pmda-json
+
+%preun pmda-nginx
+%{pmda_remove "$1" "nginx"}
+
+%preun pmda-oracle
+%{pmda_remove "$1" "oracle"}
+
+%preun pmda-postgresql
+%{pmda_remove "$1" "postgresql"}
+
+%preun pmda-postfix
+%{pmda_remove "$1" "postfix"}
+
+%preun pmda-elasticsearch
+%{pmda_remove "$1" "elasticsearch"}
+
+%preun pmda-snmp
+%{pmda_remove "$1" "snmp"}
+
+%preun pmda-mysql
+%{pmda_remove "$1" "mysql"}
+
+%preun pmda-activemq
+%{pmda_remove "$1" "activemq"}
+
+%preun pmda-bonding
+%{pmda_remove "$1" "bonding"}
+
+%preun pmda-dbping
+%{pmda_remove "$1" "dbping"}
+
+%preun pmda-ds389
+%{pmda_remove "$1" "ds389"}
+
+%preun pmda-ds389log
+%{pmda_remove "$1" "ds389log"}
+
+%preun pmda-gpfs
+%{pmda_remove "$1" "gpfs"}
+
+%preun pmda-gpsd
+%{pmda_remove "$1" "gpsd"}
+
+%preun pmda-kvm
+%{pmda_remove "$1" "kvm"}
+
+%preun pmda-lustre
+%{pmda_remove "$1" "lustre"}
+
+%preun pmda-lustrecomm
+%{pmda_remove "$1" "lustrecomm"}
+
+%preun pmda-memcache
+%{pmda_remove "$1" "memcache"}
+
+%preun pmda-named
+%{pmda_remove "$1" "named"}
+
+%preun pmda-netfilter
+%{pmda_remove "$1" "netfilter"}
+
+%preun pmda-news
+%{pmda_remove "$1" "news"}
+
+%preun pmda-nfsclient
+%{pmda_remove "$1" "nfsclient"}
+
+%preun pmda-pdns
+%{pmda_remove "$1" "pdns"}
+
+%preun pmda-rsyslog
+%{pmda_remove "$1" "rsyslog"}
+
+%preun pmda-samba
+%{pmda_remove "$1" "samba"}
+
+%preun pmda-vmware
+%{pmda_remove "$1" "vmware"}
+
+%preun pmda-zimbra
+%{pmda_remove "$1" "zimbra"}
+
+%preun pmda-dm
+%{pmda_remove "$1" "dm"}
+
+%if !%{disable_python2} || !%{disable_python3}
+%preun pmda-gluster
+%{pmda_remove "$1" "gluster"}
+
+%preun pmda-zswap
+%{pmda_remove "$1" "zswap"}
+
+%preun pmda-unbound
+%{pmda_remove "$1" "unbound"}
+
+%preun pmda-mic
+%{pmda_remove "$1" "mic"}
+%endif # !%{disable_python[2,3]}
+
+%preun pmda-apache
+%{pmda_remove "$1" "apache"}
+
+%preun pmda-bash
+%{pmda_remove "$1" "bash"}
+
+%preun pmda-cifs
+%{pmda_remove "$1" "cifs"}
+
+%preun pmda-cisco
+%{pmda_remove "$1" "cisco"}
+
+%preun pmda-gfs2
+%{pmda_remove "$1" "gfs2"}
+
+%preun pmda-lmsensors
+%{pmda_remove "$1" "lmsensors"}
+
+%preun pmda-logger
+%{pmda_remove "$1" "logger"}
+
+%preun pmda-mailq
+%{pmda_remove "$1" "mailq"}
+
+%preun pmda-mounts
+%{pmda_remove "$1" "mounts"}
+
+%preun pmda-nvidia-gpu
+%{pmda_remove "$1" "nvidia"}
+
+%preun pmda-roomtemp
+%{pmda_remove "$1" "roomtemp"}
+
+%preun pmda-sendmail
+%{pmda_remove "$1" "sendmail"}
+
+%preun pmda-shping
+%{pmda_remove "$1" "shping"}
+
+%preun pmda-summary
+%{pmda_remove "$1" "summary"}
+
+%preun pmda-trace
+%{pmda_remove "$1" "trace"}
+
+%preun pmda-weblog
+%{pmda_remove "$1" "weblog"}
 
 %preun
 if [ "$1" -eq 0 ]
@@ -2229,6 +2433,9 @@ cd
 
 %files pmda-nfsclient
 %{_pmdasdir}/nfsclient
+
+%files pmda-oracle
+%{_pmdasdir}/oracle
 
 %files pmda-pdns
 %{_pmdasdir}/pdns

@@ -88,6 +88,7 @@ ipc
 keycache
 keycache2
 killparent
+loadderived
 logcontrol
 lookupnametest
 mark-bug
@@ -168,6 +169,7 @@ storepast
 storepdu
 storepmcd
 stripmark
+sum16
 tabort
 template
 t_fetch

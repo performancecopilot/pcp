@@ -54,6 +54,7 @@ except:
     import simplejson as json
 import socket
 import struct
+import errno
 import time
 import copy
 import sys
@@ -148,10 +149,12 @@ def send_to_zabbix(metrics, zabbix_host, zabbix_port, timeout=15):
         # debug: write('Got response from Zabbix: %s' % resp)
         if resp.get('response') != 'success':
             sys.stderr.write('Error response from Zabbix: %s', resp)
+            sys.stderr.flush()
             return False
         return True
     except socket.timeout as err:
         sys.stderr.write("Zabbix connection timed out: " + str(err))
+        sys.stderr.flush()
         return False
     finally:
         zabbix.close()
@@ -198,6 +201,7 @@ class PMReporter(object):
         self.samples = None # forever
         self.interval = pmapi.timeval(1) # 1 sec
         self.opts.pmSetOptionInterval(str(1))
+        self.localtz = None
         self.runtime = -1
         self.delay = 0
         self.type = 0
@@ -776,6 +780,19 @@ class PMReporter(object):
                 mode |= PM_XTB_SET(PM_TIME_MSEC)
         return (mode, int(step))
 
+    def get_current_tz(self):
+        """ Figure out the current timezone using the PCP convention """
+        dst = time.localtime().tm_isdst
+        offset = time.altzone if dst else time.timezone
+        currtz = time.tzname[dst]
+        if offset:
+            offset = offset/3600
+            offset = int(offset) if offset == int(offset) else offset
+            if offset >= 0:
+                offset = "+" + str(offset)
+            currtz += str(offset)
+        return currtz
+
     def execute(self):
         """ Using a PMAPI context (could be either host or archive),
             fetch and report the requested set of values on stdout.
@@ -788,9 +805,14 @@ class PMReporter(object):
                 self.delimiter = OUTSEP
 
         # Time
+        self.localtz = self.get_current_tz()
         if self.opts.pmGetOptionHostZone():
             os.environ['TZ'] = self.context.pmWhichZone()
             time.tzset()
+        else:
+            os.environ['TZ'] = self.localtz
+            time.tzset()
+            self.context.pmNewZone(self.localtz)
         if self.opts.pmGetOptionTimezone():
             os.environ['TZ'] = self.opts.pmGetOptionTimezone()
             time.tzset()
@@ -1047,24 +1069,9 @@ class PMReporter(object):
         if self.context.type == PM_CONTEXT_LOCAL:
             host = "localhost, using DSO PMDAs"
 
-        # Figure out the current timezone using the PCP convention
-        if self.opts.pmGetOptionTimezone():
-            currtz = self.opts.pmGetOptionTimezone()
-        else:
-            dst = time.localtime().tm_isdst
-            offset = time.altzone if dst else time.timezone
-            currtz = time.tzname[dst]
-            if offset:
-                offset = offset/3600
-                offset = int(offset) if offset == int(offset) else offset
-                currtz += str(offset)
-        timezone = currtz
-
-        if self.context.type == PM_CONTEXT_ARCHIVE:
-            labeltz = self.context.pmGetArchiveLabel().get_timezone()
-            if labeltz != timezone:
-                timezone = labeltz
-                timezone += " (creation, current is " + currtz + ")"
+        timezone = self.get_current_tz()
+        if timezone != self.localtz:
+            timezone += " (reporting, local is " + self.localtz + ")"
 
         self.writer.write(comm + "\n")
         if self.context.type == PM_CONTEXT_ARCHIVE:
@@ -1339,11 +1346,18 @@ class PMReporter(object):
     def finalize(self):
         """ Finalize and clean up """
         if self.writer:
-            self.writer.flush()
+            try:
+                self.writer.flush()
+            except BrokenPipeError:
+                pass
+            self.writer.close()
             self.writer = None
         if self.pmi:
             self.pmi.pmiEnd()
             self.pmi = None
+        if self.zabbix_metrics:
+            send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
+            self.zabbix_metrics = []
 
 if __name__ == '__main__':
     try:
@@ -1358,10 +1372,14 @@ if __name__ == '__main__':
 
     except pmapi.pmErr as error:
         sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
+        sys.exit(1)
     except pmapi.pmUsageErr as usage:
         usage.message()
+        sys.exit(1)
     except IOError as error:
-        sys.stderr.write("%s\n" % str(error))
+        if error.errno != errno.EPIPE:
+            sys.stderr.write("%s\n" % str(error))
+            sys.exit(1)
     except KeyboardInterrupt:
         sys.stdout.write("\n")
         P.finalize()
