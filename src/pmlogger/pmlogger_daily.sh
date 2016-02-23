@@ -737,7 +737,7 @@ END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
 	# pmlogrewrite if no -r on command line and
 	# (a) pmlogrewrite exists in the same directory that the input
 	#     archives are found, or
-	# (b) if $PCP_VAR_LIB/config/pmlogrewrite exists
+	# (b) if $PCP_VAR_DIR/config/pmlogrewrite exists
 	# "exists" => file, directory or symbolic link
 	#
 	rewrite=''
