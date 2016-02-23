@@ -79,7 +79,8 @@ pmResult ... numpmid: 1
    value NUMBER
 Fetch of kernel.all.pswitch:
 pmResult ... numpmid: 1
-  139.5.1 (kernel.all.pswitch): Try again. Information not currently available
+  139.5.1 (kernel.all.pswitch): numval: 1 valfmt: 0-or-1 vlist[]:
+   value NUMBER
 Fetch of kernel.all.cpu.user:
 pmResult ... numpmid: 1
   139.0.3 (kernel.all.cpu.user): numval: 1 valfmt: 0-or-1 vlist[]:
