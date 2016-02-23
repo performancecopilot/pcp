@@ -41,14 +41,19 @@ chmod 755 "$bindir/pcp-env"
 # invocation of pcp(1) with a sub-command and the standard PCP
 # command line options.
 #
-env | grep ^PCP_ > $tmp.baseline
+env \
+| grep ^PCP_ \
+| LC_COLLATE=posix sort >$tmp.baseline
 
 _verify()
 {
     echo && echo "$1"
-    diff $tmp.baseline $2 | sed \
+    LC_COLLATE=posix sort $2 \
+    | diff $tmp.baseline - \
+    | sed \
 	-e 's/^[0-9][0-9]*a[0-9][0-9]*/added:/g'
 }
+
 
 pcp env > $tmp.env.none
 _verify "no arguments" $tmp.env.none

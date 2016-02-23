@@ -38,14 +38,16 @@ _cleanup()
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
 	echo >>$seq.full
-	echo "--- pcp start ---" >>$seq.full
-	$sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full | _filter_pcp_start
-	echo >>$seq.full
-	echo "--- _wait_for_pmcd ---" >>$seq.full
-	_wait_for_pmcd | tee -a $seq.full
-	echo >>$seq.full
-	echo "--- _wait_for_pmlogger ---" >>$seq.full
-	_wait_for_pmlogger | tee -a $seq.full
+	echo "--- pcp stop ---" >>$here/$seq.full
+	$sudo $PCP_RC_DIR/pcp stop >>$here/$seq.full 2>&1
+	echo "--- pcp start ---" >>$here/$seq.full
+	$sudo $PCP_RC_DIR/pcp start 2>&1 | tee -a $here/$seq.full | _filter_pcp_start
+	echo >>$here/$seq.full
+	echo "--- _wait_for_pmcd ---" >>$here/$seq.full
+	_wait_for_pmcd | tee -a $here/$seq.full
+	echo >>$here/$seq.full
+	echo "--- _wait_for_pmlogger ---" >>$here/$seq.full
+	_wait_for_pmlogger | tee -a $here/$seq.full
     fi
     rm -f $tmp.*
     exit 0
@@ -54,8 +56,8 @@ _cleanup()
 rm -f $seq.full
 
 # real QA test starts here
-echo "--- pcp stop ---" >>$seq.full
-$sudo $PCP_RC_DIR/pcp stop | tee -a $seq.full | _filter_pcp_stop
-echo >>$seq.full
-echo "--- run pmcdgone ---" >>$seq.full
-$sudo src/pmcdgone | tee -a $seq.full
+echo "--- pcp stop ---" >>$here/$seq.full
+$sudo $PCP_RC_DIR/pcp stop | tee -a $here/$seq.full | _filter_pcp_stop
+echo >>$here/$seq.full
+echo "--- run pmcdgone ---" >>$here/$seq.full
+$sudo src/pmcdgone | tee -a $here/$seq.full
