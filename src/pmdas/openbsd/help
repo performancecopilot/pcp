@@ -64,16 +64,17 @@ Equals "all" minus "free" minus "inactive" minus "cached".
 @ mem.util.free Unallocated and free memory
 @ mem.util.paging Memory associated with active page out operations
 @ mem.util.cached Cached memory
-Sum of file data pages and exec data pages.
+Sum of pages for vnode page cache (file data) and vtext vnodes
+(executable data).
 @ mem.util.wired Wired or pinned memory that cannot be paged out
 @ mem.util.active Recently accessed memory
 @ mem.util.inactive Memory that is in use, but has not be accessed recently
-@ mem.util.zeropages Zero filled pages
-@ mem.util.pagedaemonpages Pages reserved for the pagedaemon
-@ mem.util.kernelpages Pages reserved for the kernel
-@ mem.util.anonpages Anonymous pages
-@ mem.util.filepages Pages used for file data
-@ mem.util.execpages Pages used for executable code
+@ mem.util.zeropages Memory for zero filled pages
+@ mem.util.pagedaemonpages Memory reserved for the pagedaemon
+@ mem.util.kernelpages Memory reserved for the kernel
+@ mem.util.anonpages Memory for anonymous pages
+@ mem.util.vnodepages Memory used by the vnode page cache
+@ mem.util.vtextpages Memory used by vtext vnodes
 
 @ network.interface.mtu Maximum Transfer Unit for each network interface
 @ network.interface.up "UP" state for each network interface

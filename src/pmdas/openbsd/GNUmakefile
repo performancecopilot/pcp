@@ -26,7 +26,7 @@ PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
 CONF_LINE	= "openbsd	139	dso	openbsd_init	$(PMDADIR)/$(LIBTARGET)"
 
 CFILES		= openbsd.c disk.c percpu.c netif.c swap.c vm_uvmexp.c \
-		  filesys.c freebsd.c
+		  filesys.c
 
 HFILES		= openbsd.h
 
