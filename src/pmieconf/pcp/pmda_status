@@ -40,7 +40,7 @@ string	email_expand
 
 shell	pmcd.sighup_action
 	enabled	= yes
-	default	= "pmsignal -s HUP -a pmcd"
+	default	= "pmsignal -s HUP -p pmcd"
 	help	=
 "The Performance Metrics Collector Daemon will be sent SIGHUP
 when the rule condition is true.";

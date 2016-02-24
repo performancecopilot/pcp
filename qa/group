@@ -1091,6 +1091,7 @@ cgroups
 878 pmda.pipe local pmval
 879 pmda.pipe local
 880 pmrep python local
+881 pmcd local
 885 pmda.linux local
 886 pmda.linux local
 888 pmda.linux local

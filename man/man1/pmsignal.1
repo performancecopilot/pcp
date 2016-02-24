@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2009 Aconex.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -17,8 +18,7 @@
 \f3pmsignal\f1 \- send a signal to one or more processes
 .SH SYNOPSIS
 \f3$PCP_BINADM_DIR/pmsignal\f1
-[\f3\-a\f1|\f3-l\f1]
-[\f3\-n\f1]
+[\f3\-alnp\f1]
 [\f3\-s\f1 \fIsignal\fR]
 [\f2PID\f1 ...|\f2name\f1 ...]
 .SH DESCRIPTION
@@ -29,13 +29,35 @@ It can be used to send a named
 .I signal
 (only HUP, USR1, TERM, and KILL are accepted)
 to one or more processes.
-The processes are specified using PID or the binary name (with
-.B \-a
-option).
+.PP
+The processes are specified directly using PIDs or as program names (with
+either the
+.BR \-a / \-\-all
+or
+.BR \-p / \-\-program
+options).
+In the
+.B all
+case, the set of all running processes is searched for a
+.BR basename (1)
+match on
+.IR name .
+In the
+.B program
+case, process identifiers are extracted from files in the $PCP_RUN_DIR
+directrory where file names are matched on \f2name\f1.pid.
+.PP
+The
+.BR \-n / \-\-dry-run
+option reports the list of process identifiers that would have been
+signalled, but no signals are actually sent.
 .PP
 If a
 .I signal
 is not specified, then the TERM signal will be sent.
+The list of supported signals is reported when using the
+.BR \-l / \-\-list
+option.
 .PP
 On Linux and UNIX platforms,
 .I pmsignal
@@ -60,6 +82,7 @@ configuration file,
 as described in
 .BR pcp.conf (5).
 .SH SEE ALSO
+.BR basename (1),
 .BR kill (1),
 .BR killall (1),
 .BR pcp.conf (5)
