@@ -101,7 +101,8 @@ sub slurm_update_cluster_jobs {
     #
     # This could take a while
     # Returns a hash ref where the main element we care about is the job_array array
-    my $jobmsg = $slurm->load_jobs($jobs_update_time, SHOW_DETAIL);
+    my $jobflags = Slurm::SHOW_DETAIL;
+    my $jobmsg = $slurm->load_jobs($jobs_update_time, $jobflags);
 
     unless($jobmsg) {
         # This can fail if the slurm controller has not come up yet
