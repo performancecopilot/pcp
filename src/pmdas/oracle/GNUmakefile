@@ -36,7 +36,6 @@ install_pcp install: default
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
 	$(INSTALL) -m 644 sample.conf $(PMDADIR)/sample.conf
 	@$(INSTALL_MAN)
-
 else
 build-me:
 install_pcp install:

@@ -17,15 +17,14 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = v1.0 platform disk sgi memory cpu kernel filesystem networking tools
 
-LSRCFILES = pmlogconf.sh pmlogconf-setup.sh GNUmakefile.groups
-
 default: makefiles pmlogconf.sh pmlogconf-setup.sh
 
 include $(BUILDRULES)
 
 install: default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
-	$(INSTALL) -m 755 pmlogconf.sh $(PCP_BINADM_DIR)/pmlogconf
+	$(INSTALL) -m 755 pmlogconf.sh $(PCP_BIN_DIR)/pmlogconf
+	$(INSTALL) -S $(PCP_BIN_DIR)/pmlogconf $(PCP_BINADM_DIR)/pmlogconf
 	$(INSTALL) -m 755 pmlogconf-setup.sh $(PCP_BINADM_DIR)/pmlogconf-setup
 
 default_pcp : default

@@ -128,7 +128,7 @@ is_chkconfig_on()
     _cmds_exist $_flag
     $_have_runlevel && _rl=`runlevel | $PCP_AWK_PROG '{print $2}'`
 
-    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd ]
+    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
     then
 	# unknown mechanism, just do it
 	$VERBOSE_CONFIG && echo "is_chkconfig_on: unconditionally on"
@@ -209,7 +209,7 @@ chkconfig_on()
     _cmds_exist $_flag
     $_have_flag || return 1 # fail
 
-    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd ]
+    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
     then
 	# unknown mechanism, just pretend
 	return 0
@@ -273,7 +273,7 @@ chkconfig_off()
     _cmds_exist $_flag
     $_have_flag || return 1 # fail
 
-    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd ]
+    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
     then
 	# unknown mechanism, just pretend
 	return 0
@@ -315,7 +315,7 @@ chkconfig_on_msg()
     _cmds_exist $_flag
     $_have_flag || return 1 # fail
 
-    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd ]
+    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
     then
 	# no mechanism, just pretend
 	#

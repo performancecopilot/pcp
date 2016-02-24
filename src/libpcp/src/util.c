@@ -2164,7 +2164,7 @@ __pmProcessExists(pid_t pid)
        return 0;
     return (len > 0);
 }
-#elif defined(IS_FREEBSD)
+#elif defined(IS_FREEBSD) || defined(IS_OPENBSD)
 int 
 __pmProcessExists(pid_t pid)
 {

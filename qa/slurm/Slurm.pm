@@ -11,6 +11,9 @@ sub new {
 sub IS_JOB_RUNNING {
     return 1;
 };
+sub SHOW_DETAIL {
+    return 1;
+};
 
 sub load_node {
 

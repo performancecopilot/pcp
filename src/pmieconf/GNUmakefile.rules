@@ -24,8 +24,6 @@ RULESDIR	= $(PCP_VAR_DIR)/config/pmieconf
 
 LDIRT	= GNUmakefile
 
-LSRCFILES = localdefs $(ALL_RULES)
-
 CONFIGS	= $(subst "./","",$(LOCAL_RULES))
 
 default_pcp: $(LOCAL_RULES)
@@ -44,9 +42,6 @@ local:
 	@for f in IGNORE_DUMMY_RULE $(LOCAL_RULES); do \
 	    [ $$f = IGNORE_DUMMY_RULE ] && continue; \
 	    cp ../$(GROUP)/$$f ../rules/$(GROUP)/$$f; \
-	    sed -e's|/usr/pcp/lib/pmie_email|$(PCP_BINADM_DIR)/pmie_email|' \
-		-e's|/usr/pcp/bin/pmpost|$(PCP_BINADM_DIR)/pmpost|' <$$f \
-		 >../rules/$(GROUP)/$$f; \
 	done
 
 pmlogconf:

@@ -79,7 +79,7 @@ localconfig:
 	./mk.pcpversion $(PCP_VERSION) >> localconfig
 
 install_pcp install: $(SUBDIRS)
-ifeq (, $(filter mingw darwin freebsd solaris, $(TARGET_OS)))
+ifeq (, $(filter mingw darwin freebsd netbsd openbsd solaris, $(TARGET_OS)))
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 755 $(TESTS) $(SCRIPTS) $(COMMON_SCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 644 $(COMMON) $(OTHERS) $(TESTDIR)

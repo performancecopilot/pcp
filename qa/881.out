@@ -1,0 +1,7 @@
+QA output created by 881
+=== all mode
+kill -TERM PMCDPID
+=== program mode
+kill -TERM PMCDPID
+=== list of signals
+HUP USR1 TERM KILL

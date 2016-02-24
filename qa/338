@@ -42,6 +42,11 @@ _filter()
 	# FreeBSD-style fmt
         # -w <n> set maximum width to <n>
 	cmd="fmt -w 76"
+    elif fmt --help 2>&1 | grep '.-w width' >/dev/null
+    then
+	# OpenBSD-style fmt
+        # -w width
+	cmd="fmt -w 76"
     elif fmt --help 2>&1 | grep '.-m ' >/dev/null
     then
 	# NetBSD's version of fmt is different (may apply to other variants) ...
