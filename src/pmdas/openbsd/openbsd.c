@@ -201,10 +201,10 @@ static pmdaMetric metrictab[] = {
     { NULL,	/* mem.util.anonpages */
       { PMDA_PMID(CL_VM_UVMEXP,16), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    { NULL,	/* mem.util.filepages */
+    { NULL,	/* mem.util.vnodepages */
       { PMDA_PMID(CL_VM_UVMEXP,17), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
-    { NULL,	/* mem.util.execpages */
+    { NULL,	/* mem.util.vtextpages */
       { PMDA_PMID(CL_VM_UVMEXP,18), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
 	PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
 

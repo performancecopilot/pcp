@@ -131,8 +131,8 @@ mem.util {
     pagedaemonpages	OPENBSD:5:13
     kernelpages	OPENBSD:5:14
     anonpages	OPENBSD:5:15
-    filepages	OPENBSD:5:16
-    execpages	OPENBSD:5:17
+    vnodepages	OPENBSD:5:16
+    vtextpages	OPENBSD:5:17
 }
 
 network {

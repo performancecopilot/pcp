@@ -9,20 +9,18 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard filters
+# get standard environment, filters and checks
 . ./common.product
 . ./common.filter
+. ./common.check
 
 rm -f $seq.out
-case $PCP_PLATFORM
-in
-    linux|darwin|solaris|freebsd|netbsd)
-	ln $seq.out.$PCP_PLATFORM $seq.out || exit 1
-	;;
-    *)
-	_notrun "Need qualified output for $PCP_PLATFORM"
-	;;
-esac
+if [ -f $seq.out.$PCP_PLATFORM ]
+then
+    ln $seq.out.$PCP_PLATFORM $seq.out || exit 1
+else
+    _notrun "Need qualified output for $PCP_PLATFORM"
+fi
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

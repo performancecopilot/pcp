@@ -24,36 +24,18 @@
 #include "openbsd.h"
 #include <sys/param.h>
 #include <sys/sysctl.h>
-#include <uvm/uvm_extern.h>
+#include <uvm/uvmexp.h>
 #include <errno.h>
 #include <string.h>
 
 static int valid;
-static struct {		/* TODO bogus! */
-    int64_t active;
-    int64_t anonpages;
-    int64_t execpages;
-    int64_t filepages;
-    int64_t free;
-    int64_t inactive;
-    int64_t intrs;
-    int64_t npages;
-    int64_t pagesize;
-    int64_t paging;
-    int64_t reserve_kernel;
-    int64_t reserve_pagedaemon;
-    int64_t swtch;;
-    int64_t syscalls;
-    int64_t wired;
-    int64_t zeropages;
-} stats;
+static struct uvmexp stats;
 
 void
 refresh_vm_uvmexp_metrics(void)
 {
-#if 0
     int		sts;
-    static int	name[] = { CTL_VM, VM_UVMEXP2 };
+    static int	name[] = { CTL_VM, VM_UVMEXP };
     u_int	namelen = sizeof(name) / sizeof(name[0]);
     size_t	buflen = sizeof(stats);
 
@@ -64,9 +46,6 @@ refresh_vm_uvmexp_metrics(void)
     }
     else
 	valid = 1;
-#else
-    valid = 0;
-#endif
 }
 
 int
@@ -111,7 +90,7 @@ do_vm_uvmexp_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 
 	    case 8:		/* mem.util.cached */
-		atom->ul = stats.filepages + stats.execpages;
+		atom->ul = stats.vnodepages + stats.vtextpages;
 		atom->ul = ((int64_t)atom->ul*stats.pagesize+512)/1024;
 		break;
 
@@ -143,12 +122,12 @@ do_vm_uvmexp_metrics(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		atom->ul = ((int64_t)stats.anonpages*stats.pagesize+512)/1024;
 		break;
 
-	    case 16:		/* mem.util.filepages */
-		atom->ul = ((int64_t)stats.filepages*stats.pagesize+512)/1024;
+	    case 16:		/* mem.util.vnodepages */
+		atom->ul = ((int64_t)stats.vnodepages*stats.pagesize+512)/1024;
 		break;
 
-	    case 17:		/* mem.util.execpages */
-		atom->ul = ((int64_t)stats.execpages*stats.pagesize+512)/1024;
+	    case 17:		/* mem.util.vtextpages */
+		atom->ul = ((int64_t)stats.vtextpages*stats.pagesize+512)/1024;
 		break;
 
 	    default:
