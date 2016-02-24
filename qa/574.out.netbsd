@@ -65,6 +65,7 @@ pmid: PM_ID_NULL name: bozo.the.clown
 
 children of "" ...
     disk                <s = 1>
+    event               <s = 1>
     hinv                <s = 1>
     kernel              <s = 1>
     pmcd                <s = 1>
