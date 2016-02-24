@@ -691,10 +691,8 @@ initarchive(__pmContext	*ctxp, const char *name)
     char		*namelist = NULL;
     const char		*current;
     char		*end;
-    __pmArchCtl		*acp = NULL;
-    __pmMultiLogCtl	**loglist = NULL;
+    __pmArchCtl		*acp;
     __pmMultiLogCtl	*mlcp = NULL;
-    int			numlogs = 0;
     int			multi_arch = 0;
     int			ignore;
     double		tdiff;
@@ -731,7 +729,7 @@ initarchive(__pmContext	*ctxp, const char *name)
      * sort them in order of start time and check for overlaps. Keep the final
      * archive open.
      */
-    loglist = NULL;
+    acp->ac_log_list = NULL;
     current = namelist;
     while (*current) {
 	/* Find the end of the current archive name. */
@@ -764,13 +762,13 @@ initarchive(__pmContext	*ctxp, const char *name)
 	tmpTime.tv_sec = (__uint32_t)label.ll_start.tv_sec;
 	tmpTime.tv_usec = (__uint32_t)label.ll_start.tv_usec;
 	ignore = 0;
-	for (i = 0; i < numlogs; i++) {
-	    tdiff = __pmTimevalSub(&tmpTime, &loglist[i]->ml_starttime);
+	for (i = 0; i < acp->ac_num_logs; i++) {
+	    tdiff = __pmTimevalSub(&tmpTime, &acp->ac_log_list[i]->ml_starttime);
 	    if (tdiff < 0.0) /* found insertion point */
 		break;
 	    if (tdiff == 0.0) {
 		/* Is it a duplicate? */
-		if (strcmp (current, loglist[i]->ml_name) == 0) {
+		if (strcmp (current, acp->ac_log_list[i]->ml_name) == 0) {
 		    ignore = 1;
 		    break;
 		}
@@ -783,9 +781,12 @@ initarchive(__pmContext	*ctxp, const char *name)
 
 	if (! ignore) {
 	    /* Initialize a new ac_log_list entry for this archive. */
-	    loglist = realloc(loglist, (numlogs + 1) * sizeof(*loglist));
-	    if (loglist == NULL) {
-		__pmNoMem("initArchive", (numlogs + 1) * sizeof(*loglist),
+	    acp->ac_log_list = realloc(acp->ac_log_list,
+				       (acp->ac_num_logs + 1) *
+				       sizeof(*acp->ac_log_list));
+	    if (acp->ac_log_list == NULL) {
+		__pmNoMem("initArchive",
+			  (acp->ac_num_logs + 1) * sizeof(*acp->ac_log_list),
 			  PM_FATAL_ERR);
 	    }
 	    if ((mlcp = (__pmMultiLogCtl *)malloc(sizeof(__pmMultiLogCtl))) == NULL)
@@ -803,13 +804,14 @@ initarchive(__pmContext	*ctxp, const char *name)
 	     * archive in that slot. Otherwise, i refers to the end of the list,
 	     * which is the correct slot.
 	     */
-	    if (i < numlogs) {
-		memmove (&loglist[i + 1], &loglist[i],
-			 (numlogs - i) * sizeof(*loglist));
+	    if (i < acp->ac_num_logs) {
+		memmove (&acp->ac_log_list[i + 1], &acp->ac_log_list[i],
+			 (acp->ac_num_logs - i) * sizeof(*acp->ac_log_list));
 	    }
-	    loglist[i] = mlcp;
+	    acp->ac_log_list[i] = mlcp;
 	    mlcp = NULL;
-	    ++numlogs;
+	    acp->ac_cur_log = acp->ac_num_logs;
+	    ++acp->ac_num_logs;
 	}
 
 	/* Set up to process the next name. */
@@ -819,25 +821,18 @@ initarchive(__pmContext	*ctxp, const char *name)
     }
     free(namelist);
     namelist = NULL;
-    acp->ac_num_logs = numlogs;
-    acp->ac_cur_log = numlogs - 1;
-    acp->ac_log_list = loglist;
 
-    if (numlogs > 1) {
+    if (acp->ac_num_logs > 1) {
 	/*
 	 * In order to maintain API semantics with the old single archive
 	 * implementation, open the first archive and switch to the first volume.
 	 */
 	sts = __pmLogChangeArchive(ctxp, 0);
-	if (sts < 0) {
-	    --numlogs;
+	if (sts < 0)
 	    goto error;
-	}
 	sts = __pmLogChangeVol(acp->ac_log, acp->ac_log->l_minvol);
-	if (sts < 0) {
-	    --numlogs;
+	if (sts < 0)
 	    goto error;
-	}
     }
 
     /* start after header + label record + trailer */
@@ -873,19 +868,17 @@ initarchive(__pmContext	*ctxp, const char *name)
     }
     if (namelist)
 	free(namelist);
-    if (loglist) {
-	/* numlongs has not yet been incremented if we are here, but the new entry
-	   may have been allocated. */
-	while (numlogs > 0) {
-	    --numlogs;
-	    if (loglist[numlogs]) {
-		free(loglist[numlogs]->ml_name);
-		free(loglist[numlogs]->ml_hostname);
-		free(loglist[numlogs]->ml_tz);
-		free(loglist[numlogs]);
+    if (acp->ac_log_list) {
+	while (acp->ac_num_logs > 0) {
+	    --acp->ac_num_logs;
+	    if (acp->ac_log_list[acp->ac_num_logs]) {
+		free(acp->ac_log_list[acp->ac_num_logs]->ml_name);
+		free(acp->ac_log_list[acp->ac_num_logs]->ml_hostname);
+		free(acp->ac_log_list[acp->ac_num_logs]->ml_tz);
+		free(acp->ac_log_list[acp->ac_num_logs]);
 	    }
 	}
-	free(loglist);
+	free(acp->ac_log_list);
     }
     return sts;
 }

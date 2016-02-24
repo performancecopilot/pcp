@@ -99,9 +99,9 @@ checkLabelConsistency (__pmContext *ctxp, const __pmLogLabel *lp)
 {
     __pmArchCtl	*acp;
 
-    /* No checking to do if there are not multiple archives */
+    /* No checking to do if there are no other archives */
     acp = ctxp->c_archctl;
-    if (acp->ac_num_logs <= 1)
+    if (acp->ac_num_logs < 1)
 	return 0; /* ok */
 
     /*
@@ -111,9 +111,9 @@ checkLabelConsistency (__pmContext *ctxp, const __pmLogLabel *lp)
      * Check the hostname and the time zone.
      */
     if (strcmp(lp->ill_hostname, ctxp->c_archctl->ac_log_list[0]->ml_hostname) != 0)
-	return PM_ERR_LABEL; /* ok */
+	return PM_ERR_LOGHOST;
     if (strcmp(lp->ill_tz, ctxp->c_archctl->ac_log_list[0]->ml_tz) != 0)
-	return PM_ERR_LOGTIMEZONE; /* ok */
+	return PM_ERR_LOGTIMEZONE;
 
     /* All is ok */
     return 0;
@@ -1085,7 +1085,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
      * archives possibly making up this context.
      */
     if ((sts = checkLabelConsistency(ctxp, &lcp->l_label)) < 0)
-	return goto cleanup;
+	goto cleanup;
 
     if ((sts = __pmLogLoadMeta(lcp)) < 0)
 	goto cleanup;

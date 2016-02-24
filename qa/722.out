@@ -34,7 +34,7 @@ pass
 == Test ==
 Hosts: None
 Archives: ['archives/pcp-atop,archives/rattle']
-pass
+fail
 
 == Folio, expect pass:
 == Test ==
