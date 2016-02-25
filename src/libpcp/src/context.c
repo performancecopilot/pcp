@@ -852,11 +852,6 @@ initarchive(__pmContext	*ctxp, const char *name)
     return 0; /* success */
 
  error:
-    if (acp) {
-	if (acp->ac_log && --acp->ac_log->l_refcnt == 0)
-	    free(acp->ac_log);
-	free(acp);
-    }
     if (mlcp) {
 	if (mlcp->ml_name)
 	    free (mlcp->ml_name);
@@ -879,6 +874,11 @@ initarchive(__pmContext	*ctxp, const char *name)
 	    }
 	}
 	free(acp->ac_log_list);
+    }
+    if (acp) {
+	if (acp->ac_log && --acp->ac_log->l_refcnt == 0)
+	    free(acp->ac_log);
+	free(acp);
     }
     return sts;
 }
