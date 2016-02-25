@@ -14,7 +14,7 @@ _usage()
     echo >&2 "  -e file     prerun script"
     echo >&2 "  -f          force shutdown"
     echo >&2 "  -g what     QA tests or groups to run, e.g. -g \"123 -g sanity -x remote\""
-    if [ "X$what" = Xall ]
+    if [ "$what" = all ]
     then
 	echo >&2 "              [default <nothing> => all tests]"
     else
@@ -49,7 +49,7 @@ if [ $debug = true ]
 then
     echo PATH=\$PATH
     echo MAKE=\$MAKE
-    which ${MAKE:-make}
+    which \${MAKE:-make}
 fi
 
 tmp=/var/tmp/\$\$
@@ -127,7 +127,7 @@ _script_git_pull()
 # need to clean before pulling in case unwanted files no longer removed,
 # e.g. in PCP 3.x -> PCP 4.0 migration of source base
 # not needed any longer - 26 Mar 2013
-#${MAKE:-make} clean >>\$HOME/daily.log 2>&1
+#\${MAKE:-make} clean >>\$HOME/daily.log 2>&1
 # only VERSION.pcp is expected to be modified, sometimes!
 rm -f VERSION.pcp
 git checkout -- VERSION.pcp
@@ -155,7 +155,7 @@ End-of-File
 _script_make()
 {
     # not needed - 4 Oct 2014
-    # echo "${MAKE:-make} clean >>\$HOME/daily.log 2>&1"
+    # echo "\${MAKE:-make} clean >>\$HOME/daily.log 2>&1"
     cat <<'End-of-File'
 ok=false
 # if needed, bump build number for pcp-daily
@@ -185,7 +185,7 @@ sudo rm -f /usr/lib*/libpcp[_.]*
 # clean up any build turds
 rm -f qa/qa_outfiles
 End-of-File
-    echo "if MAKE=$MAKE ./Makepkgs --clean >>\$HOME/daily.log 2>&1"
+    echo "if MAKE=\$MAKE ./Makepkgs --clean >>\$HOME/daily.log 2>&1"
     cat <<'End-of-File'
 then
     ok=true
