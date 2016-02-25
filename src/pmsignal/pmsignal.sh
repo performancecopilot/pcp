@@ -54,6 +54,7 @@ check()
 }
 
 signal=TERM
+pmsignal=""
 aflag=false
 lflag=false
 nflag=false
@@ -108,23 +109,18 @@ then
 else
     pids="$@"
 fi
-if $nflag
-then
-    echo "$pids"
-    status=0
-    exit
-fi
+$nflag && pmsignal=echo
 
 sts=0
 if [ "$PCP_PLATFORM" = mingw ]
 then
     for pid in $pids ; do
-	pcp-setevent $signal $pid
+	$pmsignal pcp-setevent $signal $pid
 	[ $? -eq 0 ] || sts=$?
     done
 else
     for pid in $pids ; do
-	kill -$signal $pid
+	$pmsignal kill -$signal $pid
 	[ $? -eq 0 ] || sts=$?
     done
 fi

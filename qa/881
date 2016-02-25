@@ -19,7 +19,11 @@ trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter_pid()
 {
-    sed -e "s/$pmcdpid/PMCDPID/g"
+    sed \
+	-e "s/$pmcdpid/PMCDPID/g" \
+	-e "s/pcp-setevent/kill/g" \
+	-e "s/ TERM/-TERM/g" \
+    #end
 }
 
 # real QA test starts here
