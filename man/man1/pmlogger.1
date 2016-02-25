@@ -146,7 +146,7 @@ instance),
 (command line options passed to the primary
 .BR pmlogger )
 and
-.I $PCP_VAR_LIB/config/pmlogger/config.default
+.I $PCP_VAR_DIR/config/pmlogger/config.default
 (the default initial configuration file for the primary
 .BR pmlogger ).
 .PP
@@ -458,17 +458,17 @@ input.
 If
 .I configfile
 does not exist, then a search is made in the directory
-.I $PCP_VAR_LIB/config/pmlogger
+.I $PCP_VAR_DIR/config/pmlogger
 for a file of the same name, and if found that file is used,
 e.g. if 
 .I config.mumble
 does not exist in the current directory and
 the file
-.I $PCP_VAR_LIB/config/pmlogger/config.mumble
+.I $PCP_VAR_DIR/config/pmlogger/config.mumble
 does exist, then
 .B "\-c config.mumble"
 and
-.B "\-c $PCP_VAR_LIB/config/pmlogger/config.mumble"
+.B "\-c $PCP_VAR_DIR/config/pmlogger/config.mumble"
 are equivalent.
 .PP
 The syntax for the configuration file is as follows.
@@ -644,12 +644,12 @@ is initially scanned by
 with the options
 .B \-rs
 and
-\fB\-I \fI$PCP_VAR_LIB/config/pmlogger\fR.
+\fB\-I \fI$PCP_VAR_DIR/config/pmlogger\fR.
 This extends the configuration file syntax with include file
 processing (\c
 .BR %include ),
 a common location to search for include files 
-(\fI$PCP_VAR_LIB/config/pmlogger\fR),
+(\fI$PCP_VAR_DIR/config/pmlogger\fR),
 macro definitions (\c
 .BR %define ),
 macro expansion (\c
@@ -668,7 +668,7 @@ metrics used by the tool).
 For a tool named
 .I foo
 this configuration file is located in
-.IR $PCP_VAR_LIB/config/pmlogger/config.foo .
+.IR $PCP_VAR_DIR/config/pmlogger/config.foo .
 .PP
 The following is a simple default configuration file for a primary
 .B pmlogger
@@ -733,12 +733,12 @@ instance and the IPC port that may be used to control each
 instance (as used by
 .BR pmlc (1))
 .TP
-.B $PCP_VAR_LIB/config/pmlogger/config.default
+.B $PCP_VAR_DIR/config/pmlogger/config.default
 default configuration file for the primary logger instance
 launched from
 .B $PCP_RC_DIR/pmlogger
 .TP
-.BR $PCP_VAR_LIB/config/pmlogger/config. *
+.BR $PCP_VAR_DIR/config/pmlogger/config. *
 assorted configuration files suitable for creating logs that may
 be subsequently replayed with the PCP visualization and monitoring
 tools
