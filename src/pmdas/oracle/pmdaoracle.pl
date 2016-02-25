@@ -81,56 +81,56 @@ my %object_cache_instances = (
 my %sids_by_name;
 my %tables_by_name = (
     'sysstat'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
+	insts_handle => undef, fetch_handle => undef,
 	# insts => sids is a static array
 	fetch => 'select statistic#, name, value from v$sysstat' },
     'license'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {}, 
+	insts_handle => undef, fetch_handle => undef,
 	fetch => 'select sessions_max, sessions_current, sessions_warning,' .
 		 'sessions_highwater, users_max from v$license'},
     'latch'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
+	insts_handle => undef, fetch_handle => undef,
 	insts => 'select latch#, name from v$latch',
 	fetch => 'select latch#, gets, misses, sleeps,' .
 		 '       immediate_gets, immediate_misses, waiters_woken,' .
 		 '       waits_holding_latch, spin_gets' .
 		 ' from v$latch' },
     'filestat'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
+	insts_handle => undef, fetch_handle => undef,
 	insts => 'select file#, name from v$datafile',
 	fetch => 'select file#, phyrds, phywrts, phyblkrd,' . 
 		'        phyblkwrt, readtim, writetim' .
 		' from v$filestat' },
     'rollstat'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
+	insts_handle => undef, fetch_handle => undef,
 	insts => 'select usn, name from v$rollname',
 	fetch => 'select usn, rssize, writes, xacts, gets, waits, hwmsize,' .
 		'        shrinks, wraps, extends, aveshrink, aveactive' .
 		' from v$rollstat' },
     'reqdist'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
+	insts_handle => undef, fetch_handle => undef,
 	insts => 'select bucket from v$reqdist',
 	fetch => 'select bucket, count from v$reqdist' },
     'backup'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
+	insts_handle => undef, fetch_handle => undef,
 	insts => 'select file#, name from v$datafile',
 	fetch => 'select file#, status from v$backup' },
     'rowcache'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
+	insts_handle => undef, fetch_handle => undef,
 	insts => 'select cache#, subordinate#, parameter from v$rowcache',
 	fetch => 'select cache#, subordinate#,' .
 		'        count, gets, getmisses, scans, scanmisses' .
 		' from v$rowcache' },
 #    'sesstat'	=> {
-#	insts_handle => undef, fetch_handle => undef, values => {},
+#	insts_handle => undef, fetch_handle => undef,
 #	fetch => 'select sid, statistic#, value from v$sesstat' },
     'object_cache'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
+	insts_handle => undef, fetch_handle => undef,
 	# insts => object_cache indom is a static array
 	fetch => 'select type, sharable_mem, loads, locks, pins' .
 		 ' from v$db_object_cache' },
     'system_event' => {
-	insts_handle => undef, fetch_handle => undef, values => {},
+	insts_handle => undef, fetch_handle => undef,
 	insts => 'select event#, v$event_name.event_id, name' .
 		 ' from v$event_name' .
 		 ' join v$system_event on' .
@@ -139,21 +139,21 @@ my %tables_by_name = (
 		 '       time_waited, average_wait' .
 		 ' from v$system_event' },
     'version'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
+	insts_handle => undef, fetch_handle => undef,
 	# insts => sids is a static array
 	fetch => 'select distinct banner' .
 		 ' from v$version where banner like \'Oracle%\'' },
     'librarycache' => {
-	insts_handle => undef, fetch_handle => undef, values => {},
+	insts_handle => undef, fetch_handle => undef,
 	insts => 'select namespace from v$librarycache',
 	fetch => 'select namespace, gets, gethits, gethitratio, pins,' .
 		 '       pinhits, pinhitratio, reloads, invalidations' .
 		 ' from v$librarycache' },
     'waitstat' => {
-	insts_handle => undef, fetch_handle => undef, values => {},
+	insts_handle => undef, fetch_handle => undef,
 	fetch => 'select class, count, time from v$waitstat' },
     'bufferpool' => {
-	insts_handle => undef, fetch_handle => undef, values => {},
+	insts_handle => undef, fetch_handle => undef,
 	insts => 'select id, name, block_size from v$buffer_pool_statistics',
 	fetch => 'select id, set_msize, free_buffer_wait,' .
 		 '       write_complete_wait, buffer_busy_wait,' .
@@ -163,7 +163,7 @@ my %tables_by_name = (
                  '       hit_ratio ' .
 		 ' from v$buffer_pool_statistics' },
      'asm' => {
-	insts_handle => undef, fetch_handle => undef, values => {}, 
+	insts_handle => undef, fetch_handle => undef,
 	insts => 'select group_number, disk_number, name from v$asm_disk_stat',
 	fetch => 'select disk_number' .
 		 '       reads, writes, read_errs, write_errs, read_time,' .
