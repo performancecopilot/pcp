@@ -111,7 +111,7 @@ dbpmda> fetch mmv.test.strings mmv.test.counter
 Warning: No PMDA currently opened
 dbpmda> text mmv.test.strings
 Warning: No PMDA currently opened
-dbpmda> store mmv.reload "1"
+dbpmda> store mmv.control.reload "1"
 Warning: No PMDA currently opened
 dbpmda> open pipe $PCP_PMDAS_DIR/mmv/pmdammv
 Start pmdammv PMDA: $PCP_PMDAS_DIR/mmv/pmdammv
@@ -131,7 +131,7 @@ dbpmda> text mmv.test.strings
 PMID: 70.1.6
 [test string metrics]
 Yes, this is a test string metric with instances
-dbpmda> store mmv.reload "1"
+dbpmda> store mmv.control.reload "1"
 PMID: 70.0.0
 Getting description...
 Getting Result Structure...
@@ -159,7 +159,7 @@ dbpmda> text mmv.test.strings
 PMID: 70.1.6
 [test string metrics]
 Yes, this is a test string metric with instances
-dbpmda> store mmv.reload "1"
+dbpmda> store mmv.control.reload "1"
 PMID: 70.0.0
 Getting description...
 Getting Result Structure...
