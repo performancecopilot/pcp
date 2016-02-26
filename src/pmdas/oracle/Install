@@ -50,7 +50,7 @@ fi
 #fi
 
 mkdir -p "$PCP_VAR_DIR/config/pmda" 2>/dev/null
-indoms="0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15"
+indoms="0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16"
 for indom in $indoms
 do
     failed=false

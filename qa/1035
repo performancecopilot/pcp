@@ -20,11 +20,6 @@ echo "QA output created by $seq"
 count=`pmprobe oracle.version | awk '{ print $2 }'`
 [ $count -ge 1 ] || _notrun "Oracle database PMDA is not setup and running"
 
-oraenv=`which oraenv 2>/dev/null`
-[ -n "$oraenv" -a -x "$oraenv" ] || _notrun "Cannot source the 'oraenv' script"
-export ORAENV_ASK=NO
-. $oraenv -s	# -s is silent
-
 $sudo rm -rf $tmp $tmp.* $seq.full
 perl $PCP_PMDAS_DIR/oracle/connect.pl >$seq.full 2>&1
 [ $? -eq 0 ] || _notrun "Oracle database connectivity unavailable"
@@ -35,9 +30,7 @@ eval `perl $PCP_PMDAS_DIR/oracle/connect.pl -c`
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-queries="sysstat license latch filestat rollstat reqdist \
-	backup rowcache sesstat object_cache system_event \
-	version librarycache waitstat bufferpool asm"
+queries="sysstat license latch filestat reqdist version"
 
 #
 # setup input files for sqlplus value extraction - focus on one metric
@@ -69,50 +62,9 @@ select v\$filestat.file#, v\$datafile.name,
 	inner join v\$datafile
 	on v\$filestat.file# = v\$datafile.file#;
 EOF
-cat >> $tmp.rollstat << EOF
-select v\$rollstat.usn, v\$rollname.name,
-	v\$rollstat.rssize, v\$rollstat.writes, v\$rollstat.xacts,
-	v\$rollstat.gets, v\$rollstat.waits, v\$rollstat.hwmsize,
-	v\$rollstat.shrinks, v\$rollstat.wraps, v\$rollstat.extends,
-	v\$rollstat.aveshrink, v\$rollstat.aveactive
-	from v\$rollstat
-	inner join v\$rollname
-	on v\$rollstat.usn = v\$rollname.usn;
-EOF
 echo 'select bucket, count from v$reqdist;' >> $tmp.reqdist
-echo 'select file#, status from v$backup;' >> $tmp.backup
-cat >> $tmp.rowcache << EOF
-select type, cache#, subordinate#, parameter, count, gets, getmisses, scans,
-	scanmisses from v\$rowcache;
-EOF
-cat >> $tmp.sesstat  << EOF
-select sid, statistic#, value from v\$sesstat;
-EOF
-echo 'select type, sharable_mem from v$db_object_cache;' >> $tmp.object_cache
-cat >> $tmp.system_event << EOF
-select v\$system_event.event#, v\$event_name.name,
-	v\$system_event.event_id, v\$system_event.event,
-	v\$system_event.total_waits, v\$system_event.total_timeouts,
-	v\$system_event.time_waited, v\$system_event.average_wait
-	from v\$system_event
-	inner join v\$event_name
-	on v\$system_event.event# = v\$event_name.event_id;
-EOF
 cat >> $tmp.version << EOF
 select distinct banner from v\$version where banner like 'Oracle%';
-EOF
-echo 'select namespace, gets from v$librarycache;' >> $tmp.librarycache
-echo 'select class, count from v$waitstat;' >> $tmp.waitstat
-cat >> $tmp.bufferpool  << EOF
-select id, name, block_size, set_msize, free_buffer_wait,
-	write_complete_wait, buffer_busy_wait, physical_reads, physical_writes,
-	100 * (1-(physical_reads/nullif((db_block_gets+consistent_gets),0))) hit_ratio
-	from v\$buffer_pool_statistics;
-EOF
-cat >> $tmp.asm << EOF
-select group_number, disk_number, name, path, reads, writes, read_errs,
-	write_errs, read_time, write_time, bytes_read, bytes_written
-	from v\$asm_disk_stat;
 EOF
 
 _filter()
@@ -237,26 +189,13 @@ sed -e 's/[^0-9|]//g' < $tmp.pcp | \
 	LC_COLLATE=POSIX sort -u -n > $tmp.pcp2
 _fuzzy_match $tmp.ora2 $tmp.pcp2
 
-# _query filestat
-# _probe_insts filestat oracle.file.phyblkwrt
-# _fuzzy_match $tmp.ora3 $tmp.pcp3
-
-# _query rollstat
-# _probe_insts rollstat oracle.file.phyblkwrt
-# _fuzzy_match $tmp.ora4 $tmp.pcp4
+ _query filestat
+ _probe_insts filestat oracle.file.phyblkwrt
+ _fuzzy_match $tmp.ora3 $tmp.pcp3
 
 _query reqdist
 _probe_insts reqdist oracle.reqdist n
 _exact_match $tmp.ora $tmp.pcp
-
-#_query object_cache
-#_probe_insts object_cache oracle.object_cache.sharemem
-#_fuzzy_match $tmp.ora5 $tmp.pcp5
-
-#_query librarycache
-#_probe_insts librarycache oracle.librarycache.gets
-#_fuzzy_match $tmp.ora6 $tmp.pcp6
-
 
 # check connection state modification (up/down)
 echo === Checking connection state

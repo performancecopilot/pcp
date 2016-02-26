@@ -50,17 +50,24 @@ Help:
 Yep, a test counter metric
     value NUMBER
 
-mmv.debug PMID: 70.0.1 [Debug flag]
+mmv.control.files PMID: 70.0.2 [Memory mapped file count]
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Count of currently mapped and exported statistics files.
+    value NUMBER
+
+mmv.control.debug PMID: 70.0.1 [Debug flag]
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 Help:
 See pmdbg(1).  pmstore into this metric to change the debug value.
     value NUMBER
 
-mmv.reload PMID: 70.0.0 [Control maps reloading]
+mmv.control.reload PMID: 70.0.0 [Control maps reloading]
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 Help:
 Writing anything other then 0 to this metric will result in
-re-reading directory and re-mapping files.
+re-reading the directory and re-mapping files.
     value NUMBER
