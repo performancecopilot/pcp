@@ -47,14 +47,14 @@ pmlogextract $IN $OUT 2>&1 >> $seq.full
 # Now run pmstat against the extracted archive.
 IN=$OUT
 OUTBASE=$OUT.$TOOL.txt
-echo "Running $TOOL -a $IN" | _filter
-$TOOL -a $IN 2>&1 | _filter | tee $OUTBASE
+echo "Running $TOOL -z -a $IN" | _filter
+$TOOL -z -a $IN 2>&1 | _filter | tee $OUTBASE
 
 # Now, run pmstat against the set of archives.
 IN=$DIR/20150508.11.44,$DIR/20150508.11.46,$DIR/20150508.11.50,$DIR/20150508.11.57
 OUT=$tmp.44+46+50+57.$TOOL.txt
-echo "Running $TOOL -a $IN" | _filter
-$TOOL -a $IN 2>&1 | _filter | tee $OUT
+echo "Running $TOOL -z -a $IN" | _filter
+$TOOL -z -a $IN 2>&1 | _filter | tee $OUT
 
 # Make sure the output is the same
 echo "Running diff $OUTBASE $OUT" | _filter | tee -a $seq.full
@@ -64,8 +64,8 @@ diff $OUTBASE $OUT 2>&1 >> $seq.full
 # Now do it again, specifying the set of archives using the directory name
 IN=$DIR
 OUT=$tmp.$DIR.$TOOL.txt
-echo "Running $TOOL -a $IN" | _filter
-$TOOL -a $IN 2>&1 | _filter | tee $OUT
+echo "Running $TOOL -z -a $IN" | _filter
+$TOOL -z -a $IN 2>&1 | _filter | tee $OUT
 
 # Make sure the output is the same
 echo "Running diff $OUTBASE $OUT" | _filter | tee -a $seq.full

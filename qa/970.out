@@ -1,6 +1,8 @@
 QA output created by 970
 Running pmlogextract archives/multi/20150508.11.44 archives/multi/20150508.11.46 archives/multi/20150508.11.50 archives/multi/20150508.11.57 TMP.44+46+50+57.pmlogextract
-Running pmclient -a TMP.44+46+50+57.pmlogextract
+Running pmclient -z -a TMP.44+46+50+57.pmlogextract
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
 ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:45:04 2015
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
@@ -18,7 +20,9 @@ ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:45:04 2015
  0.78     2    0.92   264.969      9     3.16    3.17
  0.76     2    0.89   215.113      5     2.98    3.15
 pmclient: pmFetch: End of PCP archive log
-Running pmclient -a archives/multi/20150508.11.44,archives/multi/20150508.11.46,archives/multi/20150508.11.50,archives/multi/20150508.11.57
+Running pmclient -z -a archives/multi/20150508.11.44,archives/multi/20150508.11.46,archives/multi/20150508.11.50,archives/multi/20150508.11.57
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
 ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:45:04 2015
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min
@@ -37,7 +41,9 @@ ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:45:04 2015
  0.76     2    0.89   215.113      5     2.98    3.15
 pmclient: pmFetch: End of PCP archive log
 Running diff TMP.44+46+50+57.pmlogextract.pmclient.txt TMP.44+46+50+57.pmclient.txt
-Running pmclient -a archives/multi
+Running pmclient -z -a archives/multi
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
 ARCHIVE: Host: brolley-t530, 4 cpu(s), Fri May  8 11:45:04 2015
   CPU  Busy    Busy  Free Mem   Disk     Load Average
  Util   CPU    Util  (Mbytes)   IOPS    1 Min  15 Min

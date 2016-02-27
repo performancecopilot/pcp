@@ -1,6 +1,7 @@
 QA output created by 818
 Running pmlogextract archives/multi/20150508.11.44 archives/multi/20150508.11.46 archives/multi/20150508.11.50 archives/multi/20150508.11.57 TMP.44+46+50+57.pmlogextract
-Running pmval -a TMP.44+46+50+57.pmlogextract
+Running pmval -z -a TMP.44+46+50+57.pmlogextract
+Note: timezone set to local timezone of host "brolley-t530" from archive
 
 metric:    network.interface.in.bytes
 archive: ARCHIVE
@@ -969,7 +970,8 @@ interval:  1.00 sec
 11:59:51.631             291.0                   0.0                   0.0                   0.0                  12.00   
 11:59:52.631             292.0                   0.0                   0.0                   0.0                  13.00   
 11:59:53.631             292.0                   0.0                   0.0                   0.0                  12.00   
-Running pmval -a archives/multi/20150508.11.44,archives/multi/20150508.11.46,archives/multi/20150508.11.50,archives/multi/20150508.11.57
+Running pmval -z -a archives/multi/20150508.11.44,archives/multi/20150508.11.46,archives/multi/20150508.11.50,archives/multi/20150508.11.57
+Note: timezone set to local timezone of host "brolley-t530" from archive
 
 metric:    network.interface.in.bytes
 archive: ARCHIVE
@@ -1939,7 +1941,8 @@ interval:  1.00 sec
 11:59:52.631             292.0                   0.0                   0.0                   0.0                  13.00   
 11:59:53.631             292.0                   0.0                   0.0                   0.0                  12.00   
 Running diff TMP.44+46+50+57.pmlogextract.pmval.txt TMP.44+46+50+57.pmval.txt
-Running pmval -a archives/multi
+Running pmval -z -a archives/multi
+Note: timezone set to local timezone of host "brolley-t530" from archive
 
 metric:    network.interface.in.bytes
 archive: ARCHIVE

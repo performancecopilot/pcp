@@ -1,6 +1,8 @@
 QA output created by 887
 Running pmlogextract archives/multi/20150508.11.44 archives/multi/20150508.11.46 archives/multi/20150508.11.50 archives/multi/20150508.11.57 TMP.44+46+50+57.pmlogextract
-Running pmlogsummary -a TMP.44+46+50+57.pmlogextract
+Running pmlogsummary -z -a TMP.44+46+50+57.pmlogextract
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
 Log Label (Log Format Version 2)
 Performance metrics from host brolley-t530
   commencing Fri May  8 11:44:04.631 2015
@@ -612,7 +614,9 @@ pmcd.pmlogger.port ["primary"] 4330.000 4330.000 4330.000 4330.000 4 none
 pmcd.pmlogger.port [2555] 4330.000 4330.000 4330.000 4330.000 2 none
 pmcd.pmlogger.port [4516] 4330.000 4330.000 4330.000 4330.000 2 none
 pmcd.pmlogger.port ["6819"] 4330.000 4330.000 4330.000 4330.000 2 none
-Running pmlogsummary -a archives/multi/20150508.11.44,archives/multi/20150508.11.46,archives/multi/20150508.11.50,archives/multi/20150508.11.57
+Running pmlogsummary -z -a archives/multi/20150508.11.44,archives/multi/20150508.11.46,archives/multi/20150508.11.50,archives/multi/20150508.11.57
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
 Log Label (Log Format Version 2)
 Performance metrics from host brolley-t530
   commencing Fri May  8 11:44:04.631 2015
@@ -1225,7 +1229,9 @@ pmcd.pmlogger.port [2555] 4330.000 4330.000 4330.000 4330.000 2 none
 pmcd.pmlogger.port [4516] 4330.000 4330.000 4330.000 4330.000 2 none
 pmcd.pmlogger.port ["6819"] 4330.000 4330.000 4330.000 4330.000 2 none
 Running diff TMP.44+46+50+57.pmlogextract.pmlogsummary.txt TMP.44+46+50+57.pmlogsummary.txt
-Running pmlogsummary -a archives/multi
+Running pmlogsummary -z -a archives/multi
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
 Log Label (Log Format Version 2)
 Performance metrics from host brolley-t530
   commencing Fri May  8 11:44:04.631 2015

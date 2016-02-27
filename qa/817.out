@@ -1,6 +1,8 @@
 QA output created by 817
 Running pmlogextract archives/multi/20150508.11.44 archives/multi/20150508.11.46 archives/multi/20150508.11.50 archives/multi/20150508.11.57 TMP.44+46+50+57.pmlogextract
-Running pmstat -a TMP.44+46+50+57.pmlogextract
+Running pmstat -z -a TMP.44+46+50+57.pmlogextract
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
 @ Fri May  8 11:44:05 2015
  loadavg                      memory      swap        io    system         cpu
    1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
@@ -221,7 +223,9 @@ Running pmstat -a TMP.44+46+50+57.pmlogextract
  loadavg                      memory      swap        io    system         cpu
    1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
  pmFetchGroup: End of PCP archive log
-Running pmstat -a archives/multi/20150508.11.44,archives/multi/20150508.11.46,archives/multi/20150508.11.50,archives/multi/20150508.11.57
+Running pmstat -z -a archives/multi/20150508.11.44,archives/multi/20150508.11.46,archives/multi/20150508.11.50,archives/multi/20150508.11.57
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
 @ Fri May  8 11:44:05 2015
  loadavg                      memory      swap        io    system         cpu
    1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
@@ -443,7 +447,9 @@ Running pmstat -a archives/multi/20150508.11.44,archives/multi/20150508.11.46,ar
    1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
  pmFetchGroup: End of PCP archive log
 Running diff TMP.44+46+50+57.pmlogextract.pmstat.txt TMP.44+46+50+57.pmstat.txt
-Running pmstat -a archives/multi
+Running pmstat -z -a archives/multi
+Note: timezone set to local timezone of host "brolley-t530" from archive
+
 @ Fri May  8 11:44:05 2015
  loadavg                      memory      swap        io    system         cpu
    1 min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
