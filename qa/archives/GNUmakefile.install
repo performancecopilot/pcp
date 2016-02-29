@@ -11,6 +11,6 @@ SUBDIRS = multi
 LDIRT = pmlogger.log
 
 default setup install: $(SUBDIRS)
-	$(SUBDIRS_MAKERULE)
+	$(QA_SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
