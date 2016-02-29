@@ -576,7 +576,7 @@ class PMReporter(object):
             sys.exit(1)
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
-            self.source = self.opts.pmGetOptionArchives()[0] # RHBZ#1262723
+            self.source = self.opts.pmGetOptionArchives()[0]
         if self.context.type == PM_CONTEXT_HOST:
             self.source = self.context.pmGetContextHostName()
         if self.context.type == PM_CONTEXT_LOCAL:
