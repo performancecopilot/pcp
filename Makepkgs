@@ -188,7 +188,7 @@ then
     [ -x /usr/bin/dpkg-buildpackage ] && dodeb=true
 fi
 
-# beware of double negatives here ...
+# Hmm ...
 #
 if $dodeb && $dorpm
 then
