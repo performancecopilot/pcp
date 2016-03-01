@@ -573,7 +573,7 @@ sub oracle_fetch_callback
     }
     $value = ${ $valueref }[$item];
 
-    return (PM_ERR_APPVERSION, 0) unless defined($value);
+    return (PM_ERR_AGAIN, 0) unless defined($value);
     return ($value, 1);
 }
 
@@ -646,6 +646,7 @@ sub version_values
     my ($dbh, $sid, $handle) = @_;
     my $result = refresh_results($dbh, $sid, $handle);
 
+    $version_instances{$sid} = \@novalues;
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {
 	    $version_instances{$sid} = $result->[$i];
@@ -700,6 +701,7 @@ sub latch_values
     my ($dbh, $sid, $handle) = @_;
     my $result = refresh_results($dbh, $sid, $handle);
 
+    $latch_instances{$sid} = \@novalues;
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {
 	    my $latch_num = $result->[$i][0];
@@ -725,6 +727,7 @@ sub license_values
     my ($dbh, $sid, $handle) = @_;
     my $result = refresh_results($dbh, $sid, $handle);
 
+    $license_instances{$sid} = \@novalues;
     if (defined($result)) {
 	for my $i (0 .. $#{$result}) {
 	    $license_instances{$sid} = $result->[$i];
@@ -3604,7 +3607,7 @@ values are obtained from the PHYBLKWRT column in the V$FILESTAT view.');
 	'oracle.file.readtim',
 	'Time spent reading from database files',
 'The number of milliseconds spent doing reads if the TIMED_STATISTICS
-database parameter is true.  If this parameter is false, then the
+database parameter is TRUE.  If this parameter is false, then the
 metric will have a value of zero.  This value is obtained from the
 READTIM column of the V$FILESTAT view.');
 
@@ -3613,7 +3616,7 @@ READTIM column of the V$FILESTAT view.');
 	'oracle.file.writetim',
 	'Time spent writing to database files',
 'The number of milliseconds spent doing writes if the TIMED_STATISTICS
-database parameter is true.  If this parameter is false, then the
+database parameter is TRUE.  If this parameter is false, then the
 metric will have a value of zero.  This value is obtained from the
 WRITETIM column of the V$FILESTAT view.');
 }
