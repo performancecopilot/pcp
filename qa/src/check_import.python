@@ -58,6 +58,9 @@ def check_import(archive, hostname, timezone):
     seconds = int(timetuple[1])
     log.pmiWrite(seconds, useconds)
 
+    # write a <mark>
+    log.pmiPutMark()
+
     del log
 
 if __name__ == '__main__':
