@@ -82,7 +82,7 @@ do
 	# some of the metrics just aren't there on Mac OS X
 	case $metric
 	in
-	    swapdev.length|nfs.client.reqs|nfs.server.reqs)
+	    swapdev.length|nfs.*|hinv.map.cpu_num|disk.partitions.total|hinv.map.scsi|mem.slabinfo.objects.total|nfs4.*|tmpfs.capacity|kernel.pernode.cpu.nice|hinv.map.dmname)
 		continue
 		;;
 	esac
