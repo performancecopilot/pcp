@@ -15,6 +15,10 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -d $PCP_PMDAS_DIR/sample ] || _notrun "sample PMDA directory is not installed"
+[ -d $PCP_PMDAS_DIR/simple ] || _notrun "simple PMDA directory is not installed"
+[ -d $PCP_PMDAS_DIR/trivial ] || _notrun "trivial PMDA directory is not installed"
+
 pmcdconf=$PCP_PMCDCONF_PATH
 rootconf=$PCP_VAR_DIR/pmns/root
 needclean=false

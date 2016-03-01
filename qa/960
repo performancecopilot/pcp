@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -d $PCP_PMDAS_DIR/ds389log ] || _notrun "ds389log PMDA directory is not installed"
+
 which logconv.pl >/dev/null 2>&1 || _notrun "No logconv.pl script installed"
 $sudo ls /var/log/dirsrv/slapd-*/access 2>&1 >/dev/null || \
     _notrun "No ds389 directory log files accessible"

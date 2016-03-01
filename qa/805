@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -f "$PCP_PMDAS_DIR/postfix/pmdapostfix.pl" ] || _notrun "No postfix PMDA"
+
 if which qshape >/dev/null 2>&1
 then
     :
@@ -22,7 +24,6 @@ else
     [ -f /usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl ] \
     || _notrun "No qshape binary installed"
 fi
-[ -f "$PCP_PMDAS_DIR/postfix/pmdapostfix.pl" ] || _notrun "No postfix PMDA"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

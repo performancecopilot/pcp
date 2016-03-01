@@ -15,10 +15,10 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -f $PCP_PMDAS_DIR/nginx/pmdanginx.pl ] || _notrun "nginx pmda not installed"
+
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
-
-[ -f $PCP_PMDAS_DIR/nginx/pmdanginx.pl ] || _notrun "nginx pmda not installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

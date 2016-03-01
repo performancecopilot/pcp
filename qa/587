@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -d $PCP_PMDAS_DIR/trivial ] || _notrun "trivial PMDA directory is not installed"
+
 rm -f $seq.out
 case $PCP_PLATFORM
 in

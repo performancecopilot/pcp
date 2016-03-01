@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -d $PCP_PMDAS_DIR/simple ] || _notrun "simple PMDA directory is not installed"
+
 _cleanup()
 {
     _restore_primary_logger

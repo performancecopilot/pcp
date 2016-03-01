@@ -14,6 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ $PCP_PLATFORM = linux ] || _notrun "JBD2 test, only works with Linux"
+[ -d $PCP_PMDAS_DIR/jbd2 ] || _notrun "jbd2 PMDA directory is not installed"
 
 status=1	# failure is the default!
 done_clean=false

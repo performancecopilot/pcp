@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -d $PCP_PMDAS_DIR/trivial ] || _notrun "trivial PMDA directory is not installed"
+
 signal=$PCP_BINADM_DIR/pmsignal
 status=0	# success is the default!
 $sudo rm -rf $tmp.*
