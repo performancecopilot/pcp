@@ -1,0 +1,82 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.  All Rights Reserved.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMIPUTMARK 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmiPutMark\f1 \- write a \f2<mark>\f1 record to a PCP archive
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/impl.h>
+.br
+#include <pcp/import.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmiPutMark(void);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_import \-lpcp
+.ft 1
+.SH "Perl SYNOPSIS"
+.ft 3
+use PCP::LogImport;
+.sp
+pmiPutMark();
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+.B pmiPutMark
+writes a
+.B <mark>
+record to the current PCP output archive.
+This is required when there is a temporal discontinuity between the
+current input source and the next input source, if any, and should be
+called after the final call to
+.BR pmiWrite (3)
+for the current input.
+If there is no next input to be processed or no temporal gap between sources,
+then the
+.B <mark>
+record is not required.
+.PP
+The
+.B <mark>
+record is used to signify a temporal gap, so that when replaying the output PCP archive,
+interpolation of metric values should not be performed between the last timestamp in
+the current input source to the first timestamp in the next input source, i.e. across the
+.B <mark>
+record.
+.SH DIAGNOSTICS
+.B pmiPutMark
+returns zero on success else a negative value that can be turned into an
+error message by calling
+.BR pmiErrStr (3).
+.SH SEE ALSO
+.BR LOGIMPORT (3),
+.BR pmiAddInstance (3),
+.BR pmiAddMetric (3),
+.BR pmiErrStr (3),
+.BR pmiPutResult (3),
+.BR pmiPutValue (3),
+.BR pmiPutValueHandle (3)
+and
+.BR pmiWrite (3).
