@@ -42,6 +42,7 @@ PMI_CALL extern int pmiGetHandle(const char *, const char *);
 PMI_CALL extern int pmiPutValueHandle(int, const char *);
 PMI_CALL extern int pmiWrite(int, int);
 PMI_CALL extern int pmiPutResult(const pmResult *);
+PMI_CALL extern int pmiPutMark(void);
 
 /* helper routines */
 PMI_CALL extern pmID pmiID(int, int, int);

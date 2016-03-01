@@ -1,5 +1,8 @@
 Revision history for Perl extension PCP::LogImport
 
+1.03 Mon Feb 29 17:39:40 AEDT 2016
+      - add pmiPutMark extension
+
 1.02  Thu May 23 15:30:53 EST 2013
       - add pmiBatch{PutValue,Write,End} extensions
       - additional API error codes (badname,badtime)
@@ -10,4 +13,3 @@ Revision history for Perl extension PCP::LogImport
 
 1.00  Tue Jul 13 16:41:17 EST 2010
       - initial version
-

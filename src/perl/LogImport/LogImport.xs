@@ -127,3 +127,6 @@ int
 pmiWrite(sec, usec)
 	int		sec;
 	int		usec;
+
+int
+pmiPutMark()

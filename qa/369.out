@@ -84,6 +84,7 @@ pmiWrite: OK
 pmiPutValue: OK
 pmiWrite: OK
 pmiWrite: Error: No data to output
+pmiPutMark: OK
 pmiEnd: OK
 pmiStart: OK ->2
 pmiAddInstance: Error: Internal instance identifer already defined
@@ -187,7 +188,7 @@ Temporal Index
              Log Vol    end(meta)     end(log)
 TIMESTAMP       0          132          132
 TIMESTAMP       0          531          132
-TIMESTAMP       0          531          516
+TIMESTAMP       0          531          536
 
 [228 bytes]
 TIMESTAMP  245.0.1 (my.metric.foo): value 123
@@ -205,6 +206,9 @@ TIMESTAMP  245.0.1 (my.metric.foo): value 4321
 
 [68 bytes]
 TIMESTAMP  245.0.5 (my.metric.string): value "a third string value"
+
+[20 bytes]
+TIMESTAMP  <mark>
 
 Perl wrapper version ...
 *PCP::LogImport::BEGIN
@@ -271,6 +275,7 @@ Perl wrapper version ...
 *PCP::LogImport::pmiGetHandle
 *PCP::LogImport::pmiID
 *PCP::LogImport::pmiInDom
+*PCP::LogImport::pmiPutMark
 *PCP::LogImport::pmiPutValue
 *PCP::LogImport::pmiPutValueHandle
 *PCP::LogImport::pmiSetHostname
@@ -346,6 +351,7 @@ pmiErrStr
 pmiGetHandle
 pmiID
 pmiInDom
+pmiPutMark
 pmiPutValue
 pmiPutValueHandle
 pmiSetHostname
@@ -441,6 +447,7 @@ pmiWrite: OK
 pmiPutValue: OK
 pmiWrite: OK
 pmiWrite: Error: No data to output
+pmiPutMark: OK
 pmiEnd: OK
 pmiStart: OK ->2
 pmiAddInstance: Error: Internal instance identifer already defined
@@ -544,7 +551,7 @@ Temporal Index
              Log Vol    end(meta)     end(log)
 TIMESTAMP       0          132          132
 TIMESTAMP       0          531          132
-TIMESTAMP       0          531          516
+TIMESTAMP       0          531          536
 
 [228 bytes]
 TIMESTAMP  245.0.1 (my.metric.foo): value 123
@@ -562,3 +569,6 @@ TIMESTAMP  245.0.1 (my.metric.foo): value 4321
 
 [68 bytes]
 TIMESTAMP  245.0.5 (my.metric.string): value "a third string value"
+
+[20 bytes]
+TIMESTAMP  <mark>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2016 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -738,4 +738,41 @@ pmiPutResult(const pmResult *result)
     current->result = NULL;
 
     return current->last_sts = sts;
+}
+
+int
+pmiPutMark(void)
+{
+    __pmLogCtl *lcp;
+    struct {
+	__pmPDU		hdr;
+	__pmTimeval	timestamp;	/* when returned */
+	int		numpmid;	/* zero PMIDs to follow */
+	__pmPDU		tail;
+    } mark;
+
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    if (current->last_stamp.tv_sec == 0 && current->last_stamp.tv_usec == 0)
+	/* no earlier pmResult, no point adding a mark record */
+	return 0;
+    lcp = &current->logctl;
+
+    mark.hdr = htonl((int)sizeof(mark));
+    mark.tail = mark.hdr;
+    mark.timestamp.tv_sec = current->last_stamp.tv_sec;
+    mark.timestamp.tv_usec = current->last_stamp.tv_usec + 1000;	/* + 1msec */
+    if (mark.timestamp.tv_usec > 1000000) {
+	mark.timestamp.tv_usec -= 1000000;
+	mark.timestamp.tv_sec++;
+    }
+    mark.timestamp.tv_sec = htonl(mark.timestamp.tv_sec);
+    mark.timestamp.tv_usec = htonl(mark.timestamp.tv_usec);
+    mark.numpmid = htonl(0);
+
+    if (fwrite(&mark, 1, sizeof(mark), lcp->l_mfp) != sizeof(mark))
+	return -oserror();
+
+    return 0;
 }

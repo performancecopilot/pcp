@@ -155,6 +155,9 @@ main(int argc, char **argv)
     sts = pmiWrite(-1, -1);
     check(sts, "pmiWrite");
 
+    sts = pmiPutMark();
+    check(sts, "pmiPutMark");
+
     sts = pmiEnd();
     check(sts, "pmiEnd");
 
