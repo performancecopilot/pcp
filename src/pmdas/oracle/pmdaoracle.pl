@@ -39,9 +39,9 @@ use vars qw(
 	%control_instances %sysstat_instances %latch_instances
 	%filestat_instances %rollstat_instances %reqdist_instances
 	%rowcache_instances %session_instances %object_cache_instances
-	%system_event_instances %librarycache_instances
+	%system_event_instances %librarycache_instances %asm_instances
 	%waitstat_instances %version_instances %license_instances
-	%backup_instances %bufferpool_instances %asm_instances
+	%backup_instances %bufferpool_instances %parameter_instances
 
 	%filestat_valuemap %system_event_valuemap %latch_valuemap
 	%rollstat_valuemap %backup_valuemap %rowcache_valuemap
@@ -65,6 +65,7 @@ my $sysstat_indom	= 13;
 my $bufferpool_indom    = 14;
 my $asm_indom		= 15;
 my $backup_indom	= 16;
+my $parameter_indom	= 17;
 
 my @novalues = ();
 my $object_cache_insts_set = 0;
@@ -98,6 +99,7 @@ my $waitstat_cluster	= 13;
 my $bufferpool_cluster	= 14;
 my $asm_cluster		= 15;
 my $control_cluster	= 16;
+my $parameter_cluster	= 17;
 
 my %sysstat_table = (
 	name		=> 'sysstat',
@@ -328,7 +330,7 @@ my %asm_table = (
 	values_query	=>
 		'select disk_number' .
 		'       reads, writes, read_errs, write_errs, read_time,' .
-		'       write_time, bytes_read, bytes_written'.
+		'       write_time, bytes_read, bytes_written' .
 		' from v$asm_disk_stat',
 );
 
@@ -339,6 +341,19 @@ my %controls = (
 	setup_callback	=> \&setup_control,
 	insts_callback	=> \&control_insts,
 	values_callback	=> \&control_values,
+);
+
+my %parameter_table = (
+	name		=> 'parameter',
+	indom		=> $parameter_indom,
+	cluster		=> $parameter_cluster,
+	setup_callback	=> \&setup_parameter,
+	insts_callback	=> \&parameter_insts,
+	values_callback	=> \&parameter_values,
+	values_query	=>
+		'select name, value from v$parameter' .
+		' where name = \'timed_statistics\'' .
+		' or    name = \'statistics_level\'',
 );
 
 my %tables_by_name = (
@@ -358,6 +373,7 @@ my %tables_by_name = (
 	'waitstat'	=> \%waitstat_table,
 	'bufferpool'	=> \%bufferpool_table,
 	'asm'		=> \%asm_table,
+	'parameter'	=> \%parameter_table,
 );
 
 my %tables_by_cluster = (
@@ -378,6 +394,7 @@ my %tables_by_cluster = (
 	$bufferpool_cluster	=> \%bufferpool_table,
 	$asm_cluster		=> \%asm_table,
 	$control_cluster	=> \%controls,
+	$parameter_cluster	=> \%parameter_table,
 );
 
 my %tables_by_indom = (
@@ -398,6 +415,7 @@ my %tables_by_indom = (
 	$bufferpool_indom	=> \%bufferpool_table,
 	$asm_indom		=> \%asm_table,
 	$backup_indom		=> \%backup_table,
+	$parameter_indom	=> \%parameter_table,
 );
 
 
@@ -532,6 +550,7 @@ sub oracle_fetch_callback
     my ($indom, $table, $key, $value, $valueref);
     my $metric_name = pmda_pmid_name($cluster, $item);
 
+    # $pmda->log("fetch callback $cluster.$item $inst");
     return (PM_ERR_PMID, 0) unless defined($metric_name);
     $table = $metric_name;
     $table =~ s/^oracle\.//;
@@ -1141,12 +1160,75 @@ sub control_values
     }
 }
 
+sub parameter_insts
+{
+    if ((my $count = keys(%parameter_instances)) == 0) {
+	foreach my $sid (@sids) {
+	    $parameter_instances{$sid} = \@novalues;
+	}
+	$pmda->replace_indom($parameter_indom, \%parameter_instances);
+    }
+}
+
+sub parameter_values
+{
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
+
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {
+	    my $valueref = $parameter_instances{$sid};
+	    my $value = $result->[$i][1];
+	    my $name = $result->[$i][0];
+	    if (defined($name)) {
+		if ($name eq 'timed_statistics') {
+		    ${ $valueref }[0] = "$value";
+		} elsif ($name eq 'statistics_level') {
+		    ${ $valueref }[1] = "$value";
+		}
+	    }
+	    $parameter_instances{$sid} = $valueref;
+	}
+    }
+}
+
+sub oracle_set_timed_statistics
+{
+    my ($sid, $val) = (@_);
+    my $db = $sids_by_name{$sid}{db_handle};
+    my $sth = $db->prepare("ALTER SYSTEM SET timed_statistics = $val scope=MEMORY");
+    $sth->execute();
+    return 0;
+}
+
+sub oracle_set_statistics_level
+{
+    my ($sid, $val) = (@_);
+    my $db = $sids_by_name{$sid}{db_handle};
+    my $sth = $db->prepare("ALTER SYSTEM SET statistics_level = $val scope=MEMORY");
+    $sth->execute();
+    return 0;
+}
 
 sub oracle_store_callback
 {
     my ($cluster, $item, $inst, $val) = @_;
 
-    if ($cluster == 16) {	# oracle.control
+    if ($cluster == 17) {	# oracle.parameter
+	if ($inst > $#sids) { return PM_ERR_INST; }
+	my $sid = $sids[$inst];
+
+	if ($val !~ /^[A-Za-z]+$/) {
+	    return PM_ERR_BADSTORE;
+	}
+	if ($item == 0) {
+	    return oracle_set_timed_statistics($sid, $val);	     
+	}
+	elsif ($item == 1) {
+	    return oracle_set_statistics_level($sid, $val);
+	}
+    }
+    elsif ($cluster == 16) {	# oracle.control
 	if ($item == 0) {	# [...connected]
 	    if ($inst > $#sids) { return PM_ERR_INST; }
 	    my $sid = $sids[$inst];
@@ -1262,6 +1344,10 @@ log file I/O, timers.');
 'The collection of backup files that are active for the database.  This
 instance domain may change during database operation as files are added
 to or removed.');
+
+    $pmda->add_indom($parameter_indom, \%parameter_instances,
+		'Instance domain "SID" from Oracle PMDA for parameter setting',
+'The system identifiers used by the RDBMS and parameterized by this PMDA.');
 }
 
 sub oracle_metrics_setup
@@ -1418,6 +1504,26 @@ sub setup_control	# are we connected, manual disconnect/reconnect
 'A value of one or zero reflecting the state of the Oracle connection.
 This is a storable metric, allowing manual disconnect and reconnect, which
 allows an Oracle instance to be shutdown while the PMDA continues running.');
+}
+
+sub setup_parameter
+{
+    $pmda->add_metric(pmda_pmid(17,0), PM_TYPE_STRING, $parameter_indom,
+        PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+        'oracle.parameter.timed_statistics',
+        'Value of the timed_statistics Oracle parameter',
+'A string value of TRUE or FALSE reflecting timed_statistics parameter.
+This is a storable metric, allowing modification of the global database
+"timed_statistics" parameter');
+
+    $pmda->add_metric(pmda_pmid(17,1), PM_TYPE_STRING, $parameter_indom,
+        PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+        'oracle.parameter.statistics_level',
+        'Value of the statistics_level Oracle parameter',
+'A string value of BASIC, TYPICAL or ALL reflecting the statistics_level
+parameter.
+This is a storable metric, allowing modification of the global database
+"statistics_level" parameter');
 }
 
 sub setup_version	# version data from the v$version view
@@ -3020,6 +3126,82 @@ Units are milliseconds of CPU user time.');
         'oracle.sysstat.OS.stime', 'OS System time used',
 'The "OS System time used" statistic from the V$SYSSTAT view.
 Units are milliseconds of CPU system time.');
+
+    $sysstat_map{'IM parallel scan rows'} = 179;
+    $pmda->add_metric(pmda_pmid(0,179), PM_TYPE_U32, $sysstat_indom,
+        PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+        'oracle.sysstat.IM.parallel.scanrows', '',
+'The "IM parallel scan rows" statistic from the V$SYSSTAT view.');
+
+    $sysstat_map{'IM parallel scans'} = 180;
+    $pmda->add_metric(pmda_pmid(0,180), PM_TYPE_U32, $sysstat_indom,
+        PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+        'oracle.sysstat.IM.parallel.scans', '',
+'The "IM parallel scans" statistic from the V$SYSSTAT view.');
+
+    $sysstat_map{'IM parallel scan degree'} = 181;
+    $pmda->add_metric(pmda_pmid(0,181), PM_TYPE_U32, $sysstat_indom,
+        PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+        'oracle.sysstat.IM.parallel.scandegree', '',
+'The "IM parallel scan degree" statistic from the V$SYSSTAT view.');
+
+    $sysstat_map{'IM parallel scan tasks by thread'} = 182;
+    $pmda->add_metric(pmda_pmid(0,182), PM_TYPE_U32, $sysstat_indom,
+        PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+        'oracle.sysstat.IM.parallel.thread', '',
+'The "IM parallel scan tasks by thread" statistic from the V$SYSSTAT view.');
+
+    $sysstat_map{'IM parallel scan tasks by parent'} = 183;
+    $pmda->add_metric(pmda_pmid(0,183), PM_TYPE_U32, $sysstat_indom,
+        PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+        'oracle.sysstat.IM.parallel.parent', '',
+'The "IM parallel scan tasks by parent" statistic from the V$SYSSTAT view.');
+
+    $sysstat_map{'IM parallel rowset 2 sets'} = 184;
+    $pmda->add_metric(pmda_pmid(0,184), PM_TYPE_U32, $sysstat_indom,
+        PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+        'oracle.sysstat.IM.parallel.rowset', '',
+'The "IM parallel rowset 2 sets" statistic from the V$SYSSTAT view.');
+
+    $sysstat_map{'IM scan rows'} = 185;
+    $pmda->add_metric(pmda_pmid(0,185), PM_TYPE_U32, $sysstat_indom,
+        PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+        'oracle.sysstat.IM.scan.rows', 'Number of rows scanned in all IMCUs',
+'The "IM scan rows" statistic from the V$SYSSTAT view.');
+
+    $sysstat_map{'IM scan CUs columns accessed'} = 186;
+    $pmda->add_metric(pmda_pmid(0,186), PM_TYPE_U32, $sysstat_indom,
+        PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+        'oracle.sysstat.IM.scan.colaccess', 'Number of columns accessed by a scan',
+'The "IM scan CUs columns accessed" statistic from the V$SYSSTAT view.');
+
+    $sysstat_map{'IM scan CUs pruned'} = 187;
+    $pmda->add_metric(pmda_pmid(0,187), PM_TYPE_U32, $sysstat_indom,
+        PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+        'oracle.sysstat.IM.scan.CUpruned', 'Number of IMCUs with no rows passing min/max',
+'The "IM scan CUs pruned" statistic from the V$SYSSTAT view.');
+
+    $sysstat_map{'IM scan segments minmax eligible'} = 188;
+    $pmda->add_metric(pmda_pmid(0,188), PM_TYPE_U32, $sysstat_indom,
+        PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+        'oracle.sysstat.IM.scan.segmentminmax', 'Number of IMCUs eligible for min/max pruning',
+'The "IM scan segments minmax eligible" statistic from the V$SYSSTAT view.');
+
+    $sysstat_map{'IM scan segments disk'} = 189;
+    $pmda->add_metric(pmda_pmid(0,189), PM_TYPE_U32, $sysstat_indom,
+        PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+        'oracle.sysstat.IM.scan.segmentdisk', 'In-memory scans accessed from buffer cache/direct read',
+'Number of times a segment marked for in-memory was accessed entirely
+from the buffer cache/direct read.
+The "IM scan segments disk" statistic from the V$SYSSTAT view.');
+
+    $sysstat_map{'IM scan rows optimized'} = 190;
+    $pmda->add_metric(pmda_pmid(0,190), PM_TYPE_U32, $sysstat_indom,
+        PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+        'oracle.sysstat.IM.scan.rowsoptimized', 'Number of rows skipped by optimization',
+'Number of rows that were skipped (because of storage index pruning) or
+that were not accessed due to aggregations with predicate push downs.
+The "IM scan rows optimized" statistic from the V$SYSSTAT view.');
 }
 
 sub setup_rowcache	## row cache statistics from v$rowcache
