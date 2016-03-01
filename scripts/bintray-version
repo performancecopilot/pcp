@@ -31,7 +31,7 @@ date=`date "+%Y-%m-%dT00:00:00.000Z"`
 
 version_update()
 {
-    distro="$1"; desc="$2"
+    distro="$1"; desc=`lookup_description "$1"`
 
     url="https://api.bintray.com/packages/pcp/${distro}/pcp/versions/${version}"
     echo "Updating ${distro} information for ${version}:" && echo "    ${url}"
@@ -46,18 +46,45 @@ version_update()
     echo
 }
 
-version_update source "Performance Co-Pilot source code, gzipped tarball"
-version_update el5 "Performance Co-Pilot builds for EL5"
-version_update el6 "Performance Co-Pilot builds for EL6"
-version_update el7 "Performance Co-Pilot builds for EL7"
-version_update f21 "Performance Co-Pilot builds for Fedora 21"
-version_update f22 "Performance Co-Pilot builds for Fedora 22"
-version_update f23 "Performance Co-Pilot builds for Fedora 23"
-version_update jessie "Performance Co-Pilot builds for Debian 7 (jessie)"
-version_update wheezy "Performance Co-Pilot builds for Debian 8 (wheezy)"
-version_update trusty "Performance Co-Pilot builds for Ubuntu 14.04 (trusty tahr)"
-version_update vivid "Performance Co-Pilot builds for Ubuntu 15.04 (vivid vervet)"
-version_update macosx "Performance Co-Pilot builds for Mac OS X"
-version_update solaris11 "Performance Co-Pilot builds for Solaris 11"
-version_update opensuse13 "Performance Co-Pilot builds for OpenSUSE 13"
+lookup_description()
+{
+    distro="$1"
 
+    awk </dev/null '
+	BEGIN {
+table["source"] = "Performance Co-Pilot source code, gzipped tarball"
+table["el5"] = "Performance Co-Pilot builds for EL5"
+table["el6"] = "Performance Co-Pilot builds for EL6"
+table["el7"] = "Performance Co-Pilot builds for EL7"
+table["f21"] = "Performance Co-Pilot builds for Fedora 21"
+table["f22"] = "Performance Co-Pilot builds for Fedora 22"
+table["f23"] = "Performance Co-Pilot builds for Fedora 23"
+table["jessie"] = "Performance Co-Pilot builds for Debian 7 (jessie)"
+table["wheezy"] = "Performance Co-Pilot builds for Debian 8 (wheezy)"
+table["precise"] = "Performance Co-Pilot builds for Ubuntu 12.04 (precise pangolin)"
+table["raring"] = "Performance Co-Pilot builds for Ubuntu 13.04 (raring ringtail)"
+table["trusty"] = "Performance Co-Pilot builds for Ubuntu 14.04 (trusty tahr)"
+table["vivid"] = "Performance Co-Pilot builds for Ubuntu 15.04 (vivid vervet)"
+table["wily"] = "Performance Co-Pilot builds for Ubuntu 15.10 (wily werewolf)"
+table["macosx"] = "Performance Co-Pilot builds for Mac OS X"
+table["opensuse13"] = "Performance Co-Pilot builds for OpenSUSE 13"
+table["solaris11"] = "Performance Co-Pilot builds for Solaris 11"
+	} END {
+	    print(table["'$distro'"])
+	}'
+}
+
+debian="jessie wheezy"
+ubuntu="precise raring trusty vivid wily"
+macosx="macosx"
+redhat="el5 el6 el7 f21 f22 f23"
+solaris="solaris11"
+suse="opensuse13"
+
+distributions="source $redhat $debian $ubuntu $macosx $solaris"
+[ $# -ge 1 ] && distributions="$@"
+
+for distro in $distributions
+do
+    version_update $distro
+done

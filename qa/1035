@@ -24,13 +24,19 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 perl $PCP_PMDAS_DIR/oracle/connect.pl >$seq.full 2>&1
 [ $? -eq 0 ] || _notrun "Oracle database connectivity unavailable"
 
+# pick a sensible sounding default SID for oraenv
+[ -n "$ORACLE_SID" ] && export ORACLE_SID=master
+oraenv=`which oraenv 2>/dev/null`
+[ $? -eq 0 ] || _notrun "Oracle environment setup script (oraenv) not found"
+. $oraenv </dev/null >/dev/null
+
 # extract configuration (os_user, username, password, sid) for sqlplus
 eval `perl $PCP_PMDAS_DIR/oracle/connect.pl -c`
 
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-queries="sysstat license latch filestat reqdist version"
+queries="sysstat license latch filestat reqdist version waitstat"
 
 #
 # setup input files for sqlplus value extraction - focus on one metric
@@ -55,13 +61,12 @@ echo 'select statistic#, name, value from v$sysstat;' >> $tmp.sysstat
 echo 'select sessions_highwater from v$license;' >> $tmp.license
 echo 'select latch#, name, gets from v$latch;' >> $tmp.latch
 cat >> $tmp.filestat << EOF
-select v\$filestat.file#, v\$datafile.name,
-	v\$filestat.phyrds, v\$filestat.phywrts, v\$filestat.phyblkrd,
-	v\$filestat.phyblkwrt, v\$filestat.readtim, v\$filestat.writetim
+select v\$filestat.file#, v\$datafile.name, v\$filestat.phyblkwrt
 	from v\$filestat
 	inner join v\$datafile
 	on v\$filestat.file# = v\$datafile.file#;
 EOF
+echo 'select class, count from v$waitstat;' >> $tmp.waitstat
 echo 'select bucket, count from v$reqdist;' >> $tmp.reqdist
 cat >> $tmp.version << EOF
 select distinct banner from v\$version where banner like 'Oracle%';
@@ -114,7 +119,6 @@ _probe_insts()
 {
     table=$1
     metric=$2
-    sortargs="-u$3"
 
     echo "=== Fetching PCP $table metrics with instances"
     pminfo -f $metric | \
@@ -123,8 +127,7 @@ _probe_insts()
 		-e "/^$metric/d" \
 		-e "s# .*inst \[.* or \"$sids/##g" \
 		-e 's/\"\] value /|/g' \
-		-e 's/_/ /g' \
-	    | LC_COLLATE=POSIX sort $sortargs > $tmp.pcp
+	    | LC_COLLATE=POSIX sort -u > $tmp.pcp
 
     echo === PCP Values: $table >> $seq.full
     cat $tmp.pcp >> $seq.full
@@ -134,7 +137,15 @@ _probe_insts()
 _exact_match()
 {
     echo "Comparing Oracle to PCP"
-    diff $1 $2 && echo OK
+    if [ ! -f "$1" ]
+    then
+	echo "$1 is missing"
+    elif [ ! -f "$2" ]
+    then
+	echo "$2 is missing"
+    else
+	diff $1 $2 && echo OK
+    fi
     echo
 }
 
@@ -178,7 +189,9 @@ _exact_match $tmp.ora $tmp.pcp
 
 _query waitstat
 _probe_insts waitstat oracle.waitstat.count
-_exact_match $tmp.ora $tmp.pcp
+sed -e 's/ /_/g' < $tmp.ora | \
+	LC_COLLATE=POSIX sort > $tmp.ora2
+_exact_match $tmp.ora2 $tmp.pcp
 
 _query latch
 _probe_insts latch oracle.latch.gets
@@ -191,11 +204,16 @@ _fuzzy_match $tmp.ora2 $tmp.pcp2
 
  _query filestat
  _probe_insts filestat oracle.file.phyblkwrt
- _fuzzy_match $tmp.ora3 $tmp.pcp3
+sed -e 's/|/ /' < $tmp.ora | \
+	LC_COLLATE=POSIX sort -u -n > $tmp.ora3
+ _fuzzy_match $tmp.ora3 $tmp.pcp
 
 _query reqdist
-_probe_insts reqdist oracle.reqdist n
-_exact_match $tmp.ora $tmp.pcp
+_probe_insts reqdist oracle.reqdist
+LC_COLLATE=POSIX sort -u -n < $tmp.ora > $tmp.ora4
+sed -e 's/bucket//g' -e 's/ - .*|/|/g' < $tmp.pcp | \
+	LC_COLLATE=POSIX sort -u -n > $tmp.pcp4
+_exact_match $tmp.ora4 $tmp.pcp4
 
 # check connection state modification (up/down)
 echo === Checking connection state

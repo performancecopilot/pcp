@@ -93,6 +93,7 @@ usr/share/man/man3/pmiID.3.gz
 usr/share/man/man3/pmiInDom.3.gz
 usr/share/man/man3/pmInDomStr.3.gz
 usr/share/man/man3/pmInDomStr_r.3.gz
+usr/share/man/man3/pmiPutMark.3.gz
 usr/share/man/man3/pmiPutResult.3.gz
 usr/share/man/man3/pmiPutValue.3.gz
 usr/share/man/man3/pmiPutValueHandle.3.gz

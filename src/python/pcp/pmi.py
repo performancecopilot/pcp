@@ -117,6 +117,9 @@ LIBPCP_IMPORT.pmiWrite.argtypes = [c_int, c_int]
 LIBPCP_IMPORT.pmiPutResult.restype = c_int
 LIBPCP_IMPORT.pmiPutResult.argtypes = [POINTER(pmResult)]
 
+LIBPCP_IMPORT.pmiPutMark.restype = c_int
+LIBPCP_IMPORT.pmiPutMark.argtypes = None
+
 #
 # definition of exception classes
 #
@@ -308,6 +311,16 @@ class pmiLogImport(object):
         if status < 0:
             raise pmiErr(status)
         status = LIBPCP_IMPORT.pmiWrite(sec, usec)
+        if status < 0:
+            raise pmiErr(status)
+        return status
+
+    def pmiPutMark(self):
+        """PMI - write a <mark> record to a Log Import archive """
+        status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
+        if status < 0:
+            raise pmiErr(status)
+        status = LIBPCP_IMPORT.pmiPutMark()
         if status < 0:
             raise pmiErr(status)
         return status

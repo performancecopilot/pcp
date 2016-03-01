@@ -248,10 +248,21 @@ main(int argc, char *argv[])
 	    fields_free(f);
 	}
 
-	/* final flush for this file */
+	/* final flush for this collectl input log */
 	if ((sts = timestamp_flush()) < 0) {
 	    fprintf(stderr, "Error: failed to write final timestamp: %s\n", pmiErrStr(sts));
 	    exit(1);
+	}
+
+	if (filenum < nfilelist-1) {
+	    /*
+	     * End of this collectl input log and there's more input files.
+	     * Emit a <mark> to signify a temporal gap since the output PCP
+	     * archive is effectively a merged archive.
+	     */
+	    if (vflag)
+		fprintf(stderr, "End of collectl input file '%s', <mark> record emitted\n", infile);
+	    pmiPutMark();
 	}
 
 	if (gzipped)
