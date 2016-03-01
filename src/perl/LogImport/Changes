@@ -1,6 +1,6 @@
 Revision history for Perl extension PCP::LogImport
 
-1.03 Mon Feb 29 17:39:40 AEDT 2016
+1.03  Mon Feb 29 17:39:40 EST 2016
       - add pmiPutMark extension
 
 1.02  Thu May 23 15:30:53 EST 2013
