@@ -15,11 +15,16 @@ result_instlist(pmResult *r, int **list)
     int *l;
     int i;
 
-    l = malloc(r->vset[0]->numval * sizeof(int));
-    for (i=0; i < r->vset[0]->numval; i++) {
-	l[i] = r->vset[0]->vlist[i].inst;
+    if (r->vset[0]->numval >= 0) {
+	l = malloc(r->vset[0]->numval * sizeof(int));
+	for (i=0; i < r->vset[0]->numval; i++) {
+	    l[i] = r->vset[0]->vlist[i].inst;
+	}
+	*list = l;
     }
-    *list = l;
+    else
+	*list = NULL;
+
     return r->vset[0]->numval;
 }
 
