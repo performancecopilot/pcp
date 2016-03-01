@@ -2498,9 +2498,9 @@ __pmGetArchiveLabel(__pmLogCtl *lcp, pmLogLabel *lp)
 int
 pmGetArchiveLabel(pmLogLabel *lp)
 {
-    int		save_arch;
-    int		save_vol;
-    long	save_offset;
+    int		save_arch = 0;		/* pander to gcc */
+    int		save_vol = 0;		/* pander to gcc */
+    long	save_offset = 0;	/* pander to gcc */
     int		sts;
     int		restore = 0;
     __pmContext	*ctxp;
@@ -2748,9 +2748,9 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 int
 pmGetArchiveEnd(struct timeval *tp)
 {
-    int		save_arch;
-    int		save_vol;
-    long	save_offset;
+    int		save_arch = 0;		/* pander to gcc */
+    int		save_vol = 0;		/* pander to gcc */
+    long	save_offset = 0;	/* pander to gcc */
     int		sts;
     int		restore = 0;
     __pmContext	*ctxp;
