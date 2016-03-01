@@ -146,7 +146,14 @@ nss_setup_collector()
 -P $collectorpw
 End-Of-File
     $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
-    $sudo chown root:root $PCP_PMCDOPTIONS_PATH
+    grp=root
+    case $PCP_PLATFORM
+    in
+	freebsd|netbsd|openbsd)
+		grp=wheel
+		;;
+    esac
+    $sudo chown root:$grp $PCP_PMCDOPTIONS_PATH
     echo "Start pmcd, modified \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $here/$seq.full
     $sudo $PCP_RC_DIR/pcp restart | tee -a $here/$seq.full >$tmp.out
     _wait_for_pmcd

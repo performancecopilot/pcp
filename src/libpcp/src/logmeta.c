@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -76,22 +76,31 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 /*
  * Load _all_ of the hashed pmDesc and __pmLogInDom structures from the metadata
  * log file -- used at the initialization (NewContext) of an archive.
- * Also load all the metric names from the metadata log file and create l_pmns.
+ * Also load all the metric names from the metadata log file and create l_pmns,
+ * if it does not already exist.
  */
 int
 __pmLogLoadMeta(__pmLogCtl *lcp)
 {
-    int		rlen;
-    int		check;
-    pmDesc	*dp;
-    int		sts = 0;
-    __pmLogHdr	h;
-    FILE	*f = lcp->l_mdfp;
-    int		numpmid = 0;
-    int		n;
+    __pmHashNode	*hp;
+    int			rlen;
+    int			check;
+    pmDesc		*dp;
+    pmDesc		*olddp;
+    int			sts = 0;
+    __pmLogHdr		h;
+    FILE		*f = lcp->l_mdfp;
+    int			numpmid = 0;
+    int			n;
+    int			numnames;
+    int			i;
+    int			len;
+    char		name[MAXPATHLEN];
     
-    if ((sts = __pmNewPMNS(&(lcp->l_pmns))) < 0)
-      goto end;
+    if (lcp->l_pmns == NULL) {
+	if ((sts = __pmNewPMNS(&(lcp->l_pmns))) < 0)
+	    goto end;
+    }
 
     fseek(f, (long)(sizeof(__pmLogLabel) + 2*sizeof(int)), SEEK_SET);
     for ( ; ; ) {
@@ -160,24 +169,72 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		dp->pmid = __ntohpmID(dp->pmid);
 	    }
 
-	    if ((sts = __pmHashAdd((int)dp->pmid, (void *)dp, &lcp->l_hashpmid)) < 0) {
+	    /* Add it to the hash pmid hash table. */
+	    if ((hp = __pmHashSearch((int)dp->pmid, &lcp->l_hashpmid)) != NULL) {
+		/*
+		 * This pmid is already in the hash table. Check for conflicts.
+		 */
+		olddp = (pmDesc *)hp->data;
+		if (dp->type != olddp->type) {
+		    sts = PM_ERR_LOGCHANGETYPE;
+		    free(dp);
+		    goto end;
+		}
+		if (dp->sem != olddp->sem) {
+		    sts = PM_ERR_LOGCHANGESEM;
+		    free(dp);
+		    goto end;
+		}
+		if (dp->indom != olddp->indom) {
+		    sts = PM_ERR_LOGCHANGEINDOM;
+		    free(dp);
+		    goto end;
+		}
+		if (dp->units.dimSpace != olddp->units.dimSpace ||
+		    dp->units.dimTime != olddp->units.dimTime ||
+		    dp->units.dimCount != olddp->units.dimCount ||
+		    dp->units.scaleSpace != olddp->units.scaleSpace ||
+		    dp->units.scaleTime != olddp->units.scaleTime ||
+		    dp->units.scaleCount != olddp->units.scaleCount) {
+		    sts = PM_ERR_LOGCHANGEUNITS;
+		    free(dp);
+		    goto end;
+		}
+	    }
+	    else if ((sts = __pmHashAdd((int)dp->pmid, (void *)dp, &lcp->l_hashpmid)) < 0) {
 		free(dp);
 		goto end;
 	    }
 
-            else {
-                char name[MAXPATHLEN];
-                int numnames;
-		int i;
-		int len;
+	    /* read in the names & store in PMNS tree ... */
+	    if ((n = (int)fread(&numnames, 1, sizeof(numnames), f)) != 
+		sizeof(numnames)) {
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_LOGMETA) {
+		    fprintf(stderr, "__pmLogLoadMeta: numnames read -> %d: expected: %d\n",
+			    n, (int)sizeof(numnames));
+		}
+#endif
+		if (ferror(f)) {
+		    clearerr(f);
+		    sts = -oserror();
+		}
+		else
+		    sts = PM_ERR_LOGREC;
+		goto end;
+	    }
+	    else {
+		/* swab numnames */
+		numnames = ntohl(numnames);
+	    }
 
-                /* read in the names & store in PMNS tree ... */
-		if ((n = (int)fread(&numnames, 1, sizeof(numnames), f)) != 
-                     sizeof(numnames)) {
+	    for (i = 0; i < numnames; i++) {
+		if ((n = (int)fread(&len, 1, sizeof(len), f)) != 
+		    sizeof(len)) {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_LOGMETA) {
-			fprintf(stderr, "__pmLogLoadMeta: numnames read -> %d: expected: %d\n",
-				n, (int)sizeof(numnames));
+			fprintf(stderr, "__pmLogLoadMeta: len name[%d] read -> %d: expected: %d\n",
+				i, n, (int)sizeof(len));
 		    }
 #endif
 		    if (ferror(f)) {
@@ -189,70 +246,48 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		    goto end;
 		}
 		else {
-		    /* swab numnames */
-		    numnames = ntohl(numnames);
+		    /* swab len */
+		    len = ntohl(len);
 		}
 
- 		for (i = 0; i < numnames; i++) {
-		    if ((n = (int)fread(&len, 1, sizeof(len), f)) != 
-			 sizeof(len)) {
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_LOGMETA) {
-			    fprintf(stderr, "__pmLogLoadMeta: len name[%d] read -> %d: expected: %d\n",
-				    i, n, (int)sizeof(len));
-			}
-#endif
-			if (ferror(f)) {
-			    clearerr(f);
-			    sts = -oserror();
-			}
-			else
-			    sts = PM_ERR_LOGREC;
-			goto end;
-		    }
-		    else {
-			/* swab len */
-			len = ntohl(len);
-		    }
-
-		    if ((n = (int)fread(name, 1, len, f)) != len) {
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_LOGMETA) {
-			    fprintf(stderr, "__pmLogLoadMeta: name[%d] read -> %d: expected: %d\n",
-				    i, n, len);
-			}
-#endif
-			if (ferror(f)) {
-			    clearerr(f);
-			    sts = -oserror();
-			}
-			else
-			    sts = PM_ERR_LOGREC;
-			goto end;
-		    }
-                    name[len] = '\0';
+		if ((n = (int)fread(name, 1, len, f)) != len) {
 #ifdef PCP_DEBUG
 		    if (pmDebug & DBG_TRACE_LOGMETA) {
-			char	strbuf[20];
-			fprintf(stderr, "__pmLogLoadMeta: PMID: %s name: %s\n",
-				pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)), name);
+			fprintf(stderr, "__pmLogLoadMeta: name[%d] read -> %d: expected: %d\n",
+				i, n, len);
 		    }
 #endif
-
-                    if ((sts = __pmAddPMNSNode(lcp->l_pmns, dp->pmid, name)) < 0) {
-			/*
-			 * If we see a duplicate PMID, its a recoverable error.
-			 * We wont be able to see all of the data in the log, but
-			 * its better to provide access to some rather than none,
-			 * esp. when only one or two metric IDs may be corrupted
-			 * in this way (which we may not be interested in anyway).
-			 */
-			if (sts != PM_ERR_PMID)
-			    goto end;
-			sts = 0;
-		    } 
-		}/*for*/
-            }
+		    if (ferror(f)) {
+			clearerr(f);
+			sts = -oserror();
+		    }
+		    else
+			sts = PM_ERR_LOGREC;
+		    goto end;
+		}
+		name[len] = '\0';
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_LOGMETA) {
+		    char	strbuf[20];
+		    fprintf(stderr, "__pmLogLoadMeta: PMID: %s name: %s\n",
+			    pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)), name);
+		}
+#endif
+		/* Add the new PMNS node */
+		if ((sts = __pmAddPMNSNode(lcp->l_pmns, dp->pmid, name)) < 0) {
+		    /*
+		     * If we see a duplicate name with a different PMID, its a
+		     * recoverable error.
+		     * We wont be able to see all of the data in the log, but
+		     * its better to provide access to some rather than none,
+		     * esp. when only one or two metric IDs may be corrupted
+		     * in this way (which we may not be interested in anyway).
+		     */
+		    if (sts != PM_ERR_PMID)
+			goto end;
+		    sts = 0;
+		} 
+	    }/*for*/
 	}
 	else if (h.type == TYPE_INDOM) {
 	    int			*tbuf;

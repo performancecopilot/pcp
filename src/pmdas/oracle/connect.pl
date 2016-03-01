@@ -18,6 +18,7 @@ use warnings;
 use PCP::PMDA;
 use DBI;
 
+my $os_user = 'oracle';
 my $username = 'SYSTEM';
 my $password = 'manager';
 my @sids = ( 'master' );
@@ -28,14 +29,26 @@ for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
 		pmda_config('PCP_VAR_DIR') . '/config/oracle/oracle.conf',
 		'./oracle.conf' ) {	# current directory (high priority)
     if ( -f $file ) {
-	print("Loading $file\n");
+	# print("Loading $file\n");
 	eval `cat $file`;
     }
 }
 
-print("sids: @sids\n");
-# print("path: $ENV{LD_LIBRARY_PATH}\n");
+if (defined($ARGV[0]) && ($ARGV[0] eq '-c' || $ARGV[0] eq '--config')) {
+    print("os_user=$os_user\n");
+    print("username=$username\n");
+    print("password=$password\n");
+    # print("path: $ENV{LD_LIBRARY_PATH}\n");
+    my $sidstr = '';
+    foreach my $sid (@sids) {
+	$sidstr .= $sid . ',';
+    }
+    chop($sidstr);
+    print("sids=$sidstr\n");
+    exit(0);
+}
 
+my $status = 0;
 foreach my $sid (@sids) {
     print("Attempting Oracle login SID=$sid ... ");
     my $db = DBI->connect("dbi:Oracle:$sid", $username, $password);
@@ -43,6 +56,8 @@ foreach my $sid (@sids) {
 	$db->disconnect();
 	print("OK\n");
     } else {
-	print("failed\n%s", $DBI::errstr);
+	print("Failed\n%s", $DBI::errstr);
+	$status = 1;
     }
 }
+exit($status);

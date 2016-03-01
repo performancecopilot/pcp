@@ -20,6 +20,7 @@
 #include <values.h>
 #endif
 #include <float.h>
+#include <math.h>
 
 #ifndef HAVE_STRTOLL
 static __int64_t

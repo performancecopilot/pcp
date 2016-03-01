@@ -170,3 +170,8 @@ pcp.sample.dupnames.two.float.ten             VALUE
 pcp.sample.dupnames.two.double.ten            VALUE
 pcp.sample.dupnames.three.bin[bin-100]        VALUE
 pcp.sample.dupnames.three.write_me            VALUE
+== check derived metric configuration
+mem.util.allcache = mem.util.cached + mem.util.slab
+sample.derived.hundredten = sample.float.hundred + sample.double.ten
+pcp.mem.util.allcache                         VALUE
+pcp.sample.derived.hundredten                 VALUE

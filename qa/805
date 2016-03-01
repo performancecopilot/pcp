@@ -29,7 +29,14 @@ $sudo rm -rf $tmp.* $seq.full
 
 # prepare the PMDAs test environment
 cp $here/postfix/qshape.sh $tmp.qshape
-$sudo chown root:root $tmp.qshape
+grp=root
+case $PCP_PLATFORM
+in
+    freebsd|netbsd|openbsd)
+	    grp=wheel
+	    ;;
+esac
+$sudo chown root:$grp $tmp.qshape
 $sudo chmod 755 $tmp.qshape
 touch $tmp.logfile
 

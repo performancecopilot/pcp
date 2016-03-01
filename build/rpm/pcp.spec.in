@@ -1013,6 +1013,24 @@ collecting metrics about the PostgreSQL database.
 #end pcp-pmda-postgresql
 %endif
 
+%if "@pmda_oracle@" == "true"
+#
+# pcp-pmda-oracle
+#
+%package pmda-oracle
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for Oracle
+URL: http://www.pcp.io
+Requires: perl-PCP-PMDA = @package_version@
+Requires: perl(DBI)
+
+%description pmda-oracle
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the Oracle database.
+#end pcp-pmda-oracle
+%endif
+
 #
 # pcp-pmda-rsyslog
 #
@@ -1514,6 +1532,9 @@ Requires: pcp-pmda-snmp
 %if "@pmda_mysql@" == "true"
 Requires: pcp-pmda-mysql
 %endif
+%if "@pmda_oracle@" == "true"
+Requires: pcp-pmda-oracle
+%endif
 %if "@pmda_postgresql@" == "true"
 Requires: pcp-pmda-postgresql
 %endif
@@ -1733,6 +1754,9 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/postfix' > pmda_postfix_files
 %if "@pmda_postgresql@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/postgresql' > pmda_postgresql_files
 %endif
+%if "@pmda_oracle@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/oracle' > pmda_oracle_files
+%endif
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/rsyslog' > pmda_rsyslog_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/samba' > pmda_samba_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/slurm' > pmda_slurm_files
@@ -1812,6 +1836,9 @@ touch pmda_activemq_files
 %if "@pmda_postgresql@" == "true"
 touch pmda_postgresql_files
 %endif
+%if "@pmda_oracle@" == "true"
+touch pmda_oracle_files
+%endif
 %if "@pmda_elasticsearch@" == "true"
 touch pmda_elasticsearch_files
 %endif
@@ -1865,6 +1892,9 @@ BEGIN {
 %endif
 %if "@pmda_postgresql@" == "true"
     while( getline < "pmda_postgresql_files") pmda_postgresql[$0]=1;
+%endif
+%if "@pmda_oracle@" == "true"
+    while( getline < "pmda_oracle_files") pmda_oracle[$0]=1;
 %endif
     while( getline < "pmda_rsyslog_files") pmda_rsyslog[$0]=1;
     while( getline < "pmda_samba_files") pmda_samba[$0]=1;
@@ -1959,6 +1989,9 @@ BEGIN {
 %if "@pmda_postgresql@" == "true"
     else if (pmda_postgresql[$NF]) f="pmda_postgresql_files.rpm";
 %endif
+%if "@pmda_oracle@" == "true"
+    else if (pmda_oracle[$NF]) f="pmda_oracle_files.rpm";
+%endif
     else if (pmda_rsyslog[$NF]) f="pmda_rsyslog_files.rpm";
     else if (pmda_samba[$NF]) f="pmda_samba_files.rpm";
     else if (pmda_slurm[$NF]) f="pmda_slurm_files.rpm";
@@ -2026,7 +2059,7 @@ $1 == "f" {
 		printf ("%%%%doc ") >> f;
 	    }
 	    printf ("%%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $6) >> f }
-$1 == "l" { print "%attr(0777,root,root)", $3 >> f }'
+$1 == "l" { print $3 >> f }'
 
 %pre testsuite
 test -d @pcp_var_dir@/testsuite || mkdir -p -m 755 @pcp_var_dir@/testsuite
@@ -2200,6 +2233,11 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
 %preun pmda-nginx
 %{pmda_remove "$1" "nginx"}
 %endif #preun pmda-nginx
+
+%if "@pmda_oracle@" == "true"
+%preun pmda-oracle
+%{pmda_remove "$1" "oracle"}
+%endif #preun pmda-oracle
 
 %if "@pmda_postgresql@" == "true"
 %preun pmda-postgresql
@@ -2563,6 +2601,10 @@ cd
 
 %if "@pmda_postgresql@" == "true"
 %files pmda-postgresql -f pmda_postgresql_files.rpm
+%endif
+
+%if "@pmda_oracle@" == "true"
+%files pmda-oracle -f pmda_oracle_files.rpm
 %endif
 
 %files pmda-rsyslog -f pmda_rsyslog_files.rpm

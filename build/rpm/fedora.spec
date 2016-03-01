@@ -907,6 +907,23 @@ collecting metrics for NFS Clients.
 #end pcp-pmda-nfsclient
 
 #
+# pcp-pmda-oracle
+#
+%package pmda-oracle
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for the Oracle database
+URL: http://www.pcp.io
+Requires: perl-PCP-PMDA = %{version}-%{release}
+Requires: perl(DBI)
+BuildRequires: perl(DBI)
+
+%description pmda-oracle
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the Oracle database.
+#end pcp-pmda-oracle
+
+#
 # pcp-pmda-pdns
 #
 %package pmda-pdns
@@ -1444,7 +1461,7 @@ URL: http://www.pcp.io
 Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-pmda-ds389log
 Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
-Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql
+Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
 Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
@@ -1680,6 +1697,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^news' |\
   grep -E -v '^nfsclient' |\
   grep -E -v '^nginx' |\
+  grep -E -v '^oracle' |\
   grep -E -v '^pdns' |\
   grep -E -v '^postfix' |\
   grep -E -v '^postgresql' |\
@@ -1888,6 +1906,9 @@ fi
 
 %preun pmda-nginx
 %{pmda_remove "$1" "nginx"}
+
+%preun pmda-oracle
+%{pmda_remove "$1" "oracle"}
 
 %preun pmda-postgresql
 %{pmda_remove "$1" "postgresql"}
@@ -2412,6 +2433,9 @@ cd
 
 %files pmda-nfsclient
 %{_pmdasdir}/nfsclient
+
+%files pmda-oracle
+%{_pmdasdir}/oracle
 
 %files pmda-pdns
 %{_pmdasdir}/pdns

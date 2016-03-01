@@ -14,14 +14,12 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.config
 
+[ -x "$PCP_BIN_DIR/pmsocks" ] || _notrun 'pmsocks is not installed'
+[ -f "$PCP_ETC_DIR/tsocks.conf" ] || _notrun 'pmsocks is not configured'
 [ -n "$PCPQA_SOCKS_SERVER" ] || _notrun 'PCPQA_SOCKS_SERVER is not set in ./common.config'
 
-if [ "`pmsocks echo ok 2>&1`" != ok ]
-then
-    _notrun "pmsocks is not installed and/or not configured"
-fi
-
-_filter() {
+_filter()
+{
     sed -e '/not QAing/d'
 }
 

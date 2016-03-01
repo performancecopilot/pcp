@@ -19,7 +19,6 @@
 
 /*
  * TODO
- * - derived metrics support
  * - config file support
  *   - conn type
  *   - conn target
@@ -36,6 +35,10 @@
 #define ZBX_PCP_METRIC_PREFIX "pcp."
 #endif
 
+#ifndef ZBX_PCP_DERIVED_CONFIG
+#define ZBX_PCP_DERIVED_CONFIG "/etc/zabbix/zbxpcp-derived-metrics.conf"
+#endif
+
 /* PCP includes.  */
 #include "pmapi.h"
 #include "impl.h"
@@ -50,6 +53,10 @@ static int ctx = -1;
 
 int zbx_module_pcp_connect()
 {
+    /* Load possible derived metric definitions.  */
+    if (access(ZBX_PCP_DERIVED_CONFIG, F_OK ) != -1)
+        pmLoadDerivedConfig(ZBX_PCP_DERIVED_CONFIG);
+
     ctx = pmNewContext(PM_CONTEXT_HOST, "localhost");
     return ctx;
 }
@@ -228,11 +235,9 @@ int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT *result)
     }
 
     /* Locate the correct instance.  */
-    for (i = 0; desc[0].indom != PM_INDOM_NULL && i < rp->vset[0]->numval; i++) {
-        if (rp->vset[0]->vlist[i].inst == iid) {
+    for (i = 0; desc[0].indom != PM_INDOM_NULL && i < rp->vset[0]->numval; i++)
+        if (rp->vset[0]->vlist[i].inst == iid)
             break;
-        }
-    }
     if (i == rp->vset[0]->numval) {
         pmFreeResult(rp);
         return SYSINFO_RET_FAIL;

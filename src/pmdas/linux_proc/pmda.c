@@ -4,7 +4,7 @@
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2002 International Business Machines Corp.
  * Portions Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
- * Portions Copyright (c) 2012-2015 Red Hat.
+ * Portions Copyright (c) 2012-2016 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2949,7 +2949,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 			    set_conf_buffer(savebuffer);
                         sts = PM_ERR_BADSTORE;
 		    }
-                    else if ( lsts == 0 ){
+                    else if (lsts == 0) {
                         /* Empty Config */
                         disable_hotproc();
                     }
@@ -2973,7 +2973,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
                     hotproc_init();
-                    reset_hotproc_timer();
+		    reset_hotproc_timer();
 		}
 		break;
 

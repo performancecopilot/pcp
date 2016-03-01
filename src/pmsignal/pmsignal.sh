@@ -1,6 +1,6 @@
 #!/bin/sh
 # 
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014,2016 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -32,6 +32,7 @@ Options:
   -a,--all          send signal to all named processes (killall mode)
   -l,--list         list available signals
   -n,--dry-run      list processes that would be affected
+  -p,--program      extract process identifiers from $PCP_RUN_DIR programs
   -s=N,--signal=N   signal to send ($sigs)"
   --help
 EOF
@@ -53,9 +54,11 @@ check()
 }
 
 signal=TERM
+pmsignal=""
 aflag=false
 lflag=false
 nflag=false
+pflag=false
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -68,6 +71,7 @@ do
 	-a)	aflag=true ;;
 	-l)	lflag=true ;;
 	-n)	nflag=true ;;
+	-p)	pflag=true ;;
 	-s)	signal=`check "$2"`
 		shift
 		;;
@@ -80,11 +84,13 @@ do
     shift
 done
 
-[ $lflag = true ] && echo "$sigs" && exit 0
+$lflag && echo "$sigs" && exit 0
 
+[ $aflag = true -a $pflag = true ] && \
+    usage "$prog: Cannot specify both \"all\" and \"program\" modes"
 [ $# -lt 1 ] && usage "$prog: Insufficient arguments"
 
-if [ $aflag = true ]
+if $aflag
 then
     pids=""
     for name in "$@"; do
@@ -92,26 +98,29 @@ then
 	pidlist=`_get_pids_by_name "$program"`
 	pids="$pids $pidlist"
     done
+elif $pflag
+then
+    pids=""
+    for name in "$@"; do
+	program=`basename "$name"`
+	pidlist=`cat "$PCP_RUN_DIR/${program}.pid" 2>/dev/null`
+	pids="$pids $pidlist"
+    done
 else
     pids="$@"
 fi
-if [ $nflag = true ]
-then
-    echo "$pids"
-    status=0
-    exit
-fi
+$nflag && pmsignal=echo
 
 sts=0
 if [ "$PCP_PLATFORM" = mingw ]
 then
     for pid in $pids ; do
-	pcp-setevent $signal $pid
+	$pmsignal pcp-setevent $signal $pid
 	[ $? -eq 0 ] || sts=$?
     done
 else
     for pid in $pids ; do
-	kill -$signal $pid
+	$pmsignal kill -$signal $pid
 	[ $? -eq 0 ] || sts=$?
     done
 fi

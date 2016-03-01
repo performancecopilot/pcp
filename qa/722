@@ -48,7 +48,7 @@ _check_stderr
 echo && echo == Archive list, expect pass:
 TEST_SET_ARCHIVELIST=archives/pcp-atop $script 2>$tmp.stderr
 _check_stderr
-echo && echo == Archive list, expect fail:
+echo && echo == Archive list, expect pass:
 TEST_SET_ARCHIVELIST=archives/pcp-atop,archives/rattle $script 2>$tmp.stderr
 _check_stderr
 

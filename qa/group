@@ -110,6 +110,9 @@ fetch
 # archive support in libpcp, includes interp.c
 archive
 
+# multi-archive support in libpcp, includes interp.c
+multi-archive
+
 # getopt support - libpcp, pmgetopt, python
 getopt
 
@@ -184,7 +187,9 @@ pmda.named
 pmda.netfilter
 pmda.news
 pmda.nvidia
+pmda.oracle
 pmda.papi
+pmda.perfevent
 pmda.pmcd
 pmda.postfix
 pmda.postgresql
@@ -1039,11 +1044,16 @@ cgroups
 806 pmstore pminfo pmie pmval pmprobe dbpmda local
 807 pcp local
 808 pmlogger local
+809 archive multi-archive local
+810 pmiostat archive multi-archive local
 811 pmlogger pmcpp local
 812 pmlogextract local
 813 pmda.papi local
+814 pmprobe archive multi-archive local
 815 pmie local
 816 libpcp local
+817 pmstat archive multi-archive local
+818 pmval archive multi-archive local
 822:reserved pmlogrewrite
 823 pmda.sample pmstore secure local
 824 pmlogsummary local #1132476
@@ -1089,8 +1099,10 @@ cgroups
 878 pmda.pipe local pmval
 879 pmda.pipe local
 880 pmrep python local
+881 pmcd local
 885 pmda.linux local
 886 pmda.linux local
+887 pmlogsummary archive multi-archive local
 888 pmda.linux local
 889 pmda.proc local
 892 pmcd libpcp local
@@ -1136,6 +1148,8 @@ cgroups
 966 secure local
 967 pmda.papi local
 968 python local
+969 derive local
+970 pmclient archive multi-archive local sanity
 972 pmda.zswap dbpmda local
 973 pmda.zswap pmda.install local
 974 pmda.proc local
@@ -1198,6 +1212,10 @@ cgroups
 1032 pmwebapi containers local
 1033 pmda.named local
 1034 pmda.named local
+1035 pmda.oracle local
+1036 pmclient archive multi-archive local
+1037 pminfo archive multi-archive local
+1038 pmrep archive multi-archive local
 1042 pmwebapi pmda.proc local
 1044 pmie local pmieconf sanity
 1045 pmie local pmieconf

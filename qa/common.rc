@@ -50,7 +50,7 @@ export PCPQA_NO_RC_STATUS
 
 case $PCP_PLATFORM
 in
-    linux|freebsd|netbsd|solaris|aix)
+    linux|freebsd|netbsd|openbsd|solaris|aix)
     	DSO_SUFFIX=so
 	;;
     darwin)

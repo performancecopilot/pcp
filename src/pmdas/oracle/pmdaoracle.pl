@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2016 Intel, Inc.  All Rights Reserved.
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012,2016 Red Hat.
 # Copyright (c) 2009,2012 Aconex.  All Rights Reserved.
 # Copyright (c) 1998 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -20,6 +20,7 @@ use warnings;
 use PCP::PMDA;
 use DBI;
 
+my $os_user = 'oracle';
 my $username = 'SYSTEM';
 my $password = 'manager';
 my @sids = ( 'master' );
@@ -32,263 +33,397 @@ for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
     eval `cat $file` unless ! -f $file;
 }
 
-use vars qw( $pmda %sid_instances %sysstat_instances );
-use vars qw( %latch_instances %file_instances %rollback_instances );
-use vars qw( %reqdist_instances %rowcache_instances %session_instances );
-use vars qw( %object_cache_instances %system_event_instances );
-use vars qw( %librarycache_instances %wait_instances );
-use vars qw( %version_instances %license_instances );
-use vars qw( %bufferpool_instances %asm_instances);
-use vars qw( %sysstat_map );
+use vars qw(
+	$pmda %sids_by_name %sysstat_map %control_map
+
+	%control_instances %sysstat_instances %latch_instances
+	%filestat_instances %rollstat_instances %reqdist_instances
+	%rowcache_instances %session_instances %object_cache_instances
+	%system_event_instances %librarycache_instances
+	%waitstat_instances %version_instances %license_instances
+	%backup_instances %bufferpool_instances %asm_instances
+
+	%filestat_valuemap %system_event_valuemap %latch_valuemap
+	%rollstat_valuemap %backup_valuemap %rowcache_valuemap
+	%reqdist_valuemap %bufferpool_valuemap %asm_valuemap
+);
 
 my $latch_indom		= 0;
-my $file_indom		= 1;
-my $rollback_indom	= 2;
+my $filestat_indom	= 1;
+my $rollstat_indom	= 2;
 my $reqdist_indom	= 3;
 my $rowcache_indom	= 4;
 my $session_indom	= 5;
 my $object_cache_indom	= 6;
 my $system_event_indom	= 7;
 my $librarycache_indom	= 8;
-my $wait_indom	        = 9;
-my $sid_indom		= 10;	
+my $waitstat_indom	= 9;
+my $control_indom	= 10;	
 my $license_indom	= 11;
 my $version_indom	= 12;
 my $sysstat_indom	= 13;
 my $bufferpool_indom    = 14;
-my $asm_indom           = 15;
+my $asm_indom		= 15;
+my $backup_indom	= 16;
 
 my @novalues = ();
+my $object_cache_insts_set = 0;
 my %object_cache_instances = (
-        'INDEX' => \@novalues,          'TABLE' => \@novalues,
-        'CLUSTER' => \@novalues,        'VIEW' => \@novalues,
-        'SET' => \@novalues,            'SYNONYM' => \@novalues,
-        'SEQUENCE' => \@novalues,       'PROCEDURE' => \@novalues,
-        'FUNCTION' => \@novalues,       'PACKAGE' => \@novalues,
-        'PACKAGE_BODY' => \@novalues,   'TRIGGER' => \@novalues,
-        'CLASS' => \@novalues,          'OBJECT' => \@novalues,
-        'USER' => \@novalues,           'DBLINK' => \@novalues,
-        'NON-EXISTENT' => \@novalues,   'NOT_LOADED' => \@novalues,
-        'OTHER' => \@novalues );
+	'INDEX'		=> \@novalues,	'TABLE'		=> \@novalues,
+	'CLUSTER'	=> \@novalues,	'VIEW'		=> \@novalues,
+	'SET'		=> \@novalues,	'SYNONYM'	=> \@novalues,
+	'SEQUENCE'	=> \@novalues,	'PROCEDURE'	=> \@novalues,
+	'FUNCTION'	=> \@novalues,	'PACKAGE'	=> \@novalues,
+	'PACKAGE_BODY'	=> \@novalues,	'TRIGGER'	=> \@novalues,
+	'CLASS'		=> \@novalues,	'OBJECT'	=> \@novalues,
+	'USER'		=> \@novalues,	'DBLINK'	=> \@novalues,
+	'NON-EXISTENT'	=> \@novalues,	'NOT_LOADED'	=> \@novalues,
+	'CURSOR'	=> \@novalues,	'OTHER'		=> \@novalues,
+);
 
-my %sids_by_name;
-my %tables_by_name = (
-    'sysstat'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT sid FROM v$session',
-	fetch => 'SELECT statistic#, name, value FROM v$sysstat' },
-    'license'	=> {
- 	insts_handle => undef, fetch_handle => undef, values => {}, 
-        fetch => 'SELECT SESSIONS_MAX, SESSIONS_CURRENT, SESSIONS_WARNING,' .
-                 'SESSIONS_HIGHWATER, USERS_MAX from V$LICENSE'},
-    'latch'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT latch#, name FROM v$latch',
-	fetch => 'SELECT latch#, name, gets, misses, sleeps,' .
-                 ' immediate_gets, immediate_misses, waiters_woken,' .
-                 ' waits_holding_latch, spin_gets' .
-                 ' FROM v$latch' },
-    'filestat'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT file#, name FROM v$datafile',
-	fetch => 'SELECT file#, phyrds, phywrts, phyblkrd,' . 
+my $sysstat_cluster	= 0;
+my $license_cluster	= 1;
+my $latch_cluster	= 2;
+my $filestat_cluster	= 3;
+my $rollstat_cluster	= 4;
+my $reqdist_cluster	= 5;
+my $backup_cluster	= 6;
+my $rowcache_cluster	= 7;
+#my $sesstat_cluster	= 8;
+my $object_cache_cluster= 9;
+my $system_event_cluster= 10;
+my $version_cluster	= 11;
+my $librarycache_cluster= 12;
+my $waitstat_cluster	= 13;
+my $bufferpool_cluster	= 14;
+my $asm_cluster		= 15;
+my $control_cluster	= 16;
+
+my %sysstat_table = (
+	name		=> 'sysstat',
+	indom		=> $sysstat_indom,
+	cluster		=> $sysstat_cluster,
+	setup_callback	=> \&setup_sysstat,
+	insts_callback	=> \&sysstat_insts,
+	values_callback	=> \&sysstat_values,
+	values_query	=>
+		'select statistic#, name, value from v$sysstat',
+);
+
+my %license_table = (
+	name		=> 'license',
+	indom		=> $license_indom,
+	cluster		=> $license_cluster,
+	setup_callback	=> \&setup_license,
+	insts_callback	=> \&license_insts,
+	values_callback	=> \&license_values,
+	values_query	=>
+		'select sessions_max, sessions_current, sessions_warning,' .
+		'       sessions_highwater, users_max' .
+		' from v$license',
+);
+
+my %latch_table = (
+	name		=> 'latch',
+	indom		=> $latch_indom,
+	cluster		=> $latch_cluster,
+	valuemap	=> \%latch_valuemap,
+	setup_callback	=> \&setup_latch,
+	insts_callback	=> \&latch_insts,
+	values_callback	=> \&latch_values,
+	insts_query	=>
+		'select latch#, name from v$latch',
+	values_query	=>
+		'select latch#, gets, misses, sleeps, immediate_gets, ' .
+		'       immediate_misses, waiters_woken,' .
+		'       waits_holding_latch, spin_gets' .
+		' from v$latch',
+);
+
+my %filestat_table = (
+	name		=> 'filestat',
+	indom		=> $filestat_indom,
+	cluster		=> $filestat_cluster,
+	valuemap	=> \%filestat_valuemap,
+	setup_callback	=> \&setup_filestat,
+	insts_callback	=> \&filestat_insts,
+	values_callback	=> \&filestat_values,
+	insts_query	=>
+		'select file#, name from v$datafile',
+	values_query	=>
+		'select file#, phyrds, phywrts, phyblkrd,' . 
 		'        phyblkwrt, readtim, writetim' .
-		' FROM v$filestat' },
-    'rollstat'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT usn, name FROM v$rollname',
-	fetch => 'SELECT usn, rssize, writes, xacts, gets, waits, hwmsize,' .
-		'        shrinks, wraps, extends, aveshrink, aveactive' .
-		' FROM v$rollstat' },
-    'reqdist'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT bucket FROM v$reqdist',
-	fetch => 'SELECT bucket, count FROM v$reqdist' },
-    'backup'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT file# FROM v$backup',
-	fetch => 'SELECT file#, status FROM v$backup' },
-    'rowcache'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT cache#, subordinate#, parameter FROM v$rowcache',
-	fetch => 'SELECT type, cache#, subordinate#, parameter,' .
-		' count, gets, getmisses,scans, scanmisses' .
-		' FROM v$rowcache' },
-    'sesstat'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT sid FROM v$session',
-	fetch => 'SELECT sid, statistic#, value FROM v$sesstat' },
-    'object_cache'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
-	# insts => object_cache indom is a static array
-	fetch => 'SELECT type, sharable_mem, loads, locks, pins' .
-		 ' FROM v$db_object_cache' },
-    'system_event' => {
-	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT event#,name FROM v$event_name',
-	fetch => 'SELECT event_id, event, total_waits, total_timeouts,' .
-		 '       time_waited, average_wait' .
-		 ' FROM v$system_event' },
-    'version'	=> {
-	insts_handle => undef, fetch_handle => undef, values => {},
-        insts => 'SELECT DISTINCT banner FROM v$version',
-	fetch => 'SELECT DISTINCT banner' .
-		 ' FROM v$version WHERE banner LIKE \'Oracle%\'' },
-    'librarycache' => {
-	insts_handle => undef, fetch_handle => undef, values => {},
-	insts => 'SELECT namespace FROM v$librarycache',
-	fetch => 'SELECT namespace, gets, gethits, gethitratio, pins,' .
-		 '       pinhits, pinhitratio, reloads, invalidations' .
-		 ' FROM v$librarycache' },
-    'waitstat' => {
-        insts_handle => undef, fetch_handle => undef, values => {},
-        fetch => 'SELECT class, count, time ' .
-                 ' FROM v$waitstat' },
-    'bufferpool' => {
-        insts_handle => undef, fetch_handle => undef, values => {},
-        fetch => 'SELECT id, name, block_size, set_msize, free_buffer_wait,' .
-                 'write_complete_wait, buffer_busy_wait, physical_reads, physical_writes'.
-                 #',100 * (1-(physical_reads/(db_block_gets+consistent_gets))) hit_ratio'.
-                 ',100 * (1-(physical_reads/nullif((db_block_gets+consistent_gets),0))) hit_ratio'.
-                 ' FROM v$buffer_pool_statistics' },
+		' from v$filestat',
+);
 
-     'asm' => {
-        insts_handle => undef, fetch_handle => undef, values => {}, 
-        fetch => 'select group_number, disk_number, name, path,'.
-                 'reads, writes, read_errs, write_errs, read_time,'.
-                 'write_time, bytes_read, bytes_written'.
-                 ' from v$asm_disk_stat' },
+my %rollstat_table = (
+	name		=> 'rollstat',
+	indom		=> $rollstat_indom,
+	cluster		=> $rollstat_cluster,
+	valuemap	=> \%rollstat_valuemap,
+	setup_callback	=> \&setup_rollstat,
+	insts_callback	=> \&rollstat_insts,
+	values_callback	=> \&rollstat_values,
+	insts_query	=>
+		'select usn, name from v$rollname',
+	values_query	=>
+		'select usn, rssize, writes, xacts, gets, waits, hwmsize,' .
+		'        shrinks, wraps, extends, aveshrink, aveactive' .
+		' from v$rollstat',
+);
+
+my %reqdist_table = (
+	name		=> 'reqdist',
+	indom		=> $reqdist_indom,
+	cluster		=> $reqdist_cluster,
+	valuemap	=> \%reqdist_valuemap,
+	setup_callback	=> \&setup_reqdist,
+	insts_callback	=> \&reqdist_insts,
+	values_callback	=> \&reqdist_values,
+	insts_query	=>
+		'select bucket from v$reqdist',
+	values_query	=>
+		'select bucket, count from v$reqdist',
+);
+
+my %backup_table = (
+	name		=> 'backup',
+	indom		=> $backup_indom,
+	cluster		=> $backup_cluster,
+	valuemap	=> \%backup_valuemap,
+	setup_callback	=> \&setup_backup,
+	insts_callback	=> \&backup_insts,
+	values_callback	=> \&backup_values,
+	insts_query	=>
+		'select file#, name from v$datafile',
+	values_query	=>
+		'select file#, status from v$backup',
+);
+
+my %rowcache_table = (
+	name		=> 'rowcache',
+	indom		=> $rowcache_indom,
+	cluster		=> $rowcache_cluster,
+	valuemap	=> \%rowcache_valuemap,
+	setup_callback	=> \&setup_rowcache,
+	insts_callback	=> \&rowcache_insts,
+	values_callback	=> \&rowcache_values,
+	insts_query	=>
+		'select cache#, subordinate#, parameter from v$rowcache',
+	values_query	=>
+		'select cache#, subordinate#,' .
+		'        count, gets, getmisses, scans, scanmisses' .
+		' from v$rowcache',
+);
+
+#my %sesstat_table = (
+#	name		=> 'sesstat',
+#	indom		=> $session_indom,
+#	cluster		=> $session_cluster,
+#	setup_callback	=> \&setup_sesstat,
+#	insts_callback	=> \&sesstat_insts,
+#	values_callback	=> \&sesstat_values,
+#	values_query	=>
+#		'select sid, statistic#, value from v$sesstat',
+#);
+
+my %object_cache_table = (
+	name		=> 'object_cache',
+	indom		=> $object_cache_indom,
+	cluster		=> $object_cache_cluster,
+	setup_callback	=> \&setup_object_cache,
+	insts_callback	=> \&object_cache_insts,
+	values_callback	=> \&object_cache_values,
+	values_query	=>
+		'select type, sharable_mem, loads, locks, pins' .
+		 ' from v$db_object_cache',
+);
+
+my %system_event_table = (
+	name		=> 'system_event',
+	indom		=> $system_event_indom,
+	cluster		=> $system_event_cluster,
+	valuemap	=> \%system_event_valuemap,
+	setup_callback	=> \&setup_system_event,
+	insts_callback	=> \&system_event_insts,
+	values_callback	=> \&system_event_values,
+	insts_query	=>
+		'select event#, v$event_name.event_id, name' .
+		' from v$event_name' .
+		' join v$system_event on' .
+		' v$event_name.event_id = v$system_event.event_id',
+	values_query	=>
+		'select event_id, total_waits, total_timeouts,' .
+		'       time_waited, average_wait' .
+		' from v$system_event',
+);
+
+my %version_table = (
+	name		=> 'version',
+	indom		=> $version_indom,
+	cluster		=> $version_cluster,
+	setup_callback	=> \&setup_version,
+	insts_callback	=> \&version_insts,
+	values_callback	=> \&version_values,
+	values_query	=>
+		'select distinct banner' .
+		' from v$version where banner like \'Oracle%\'',
+);
+
+my %librarycache_table = (
+	name		=> 'librarycache',
+	indom		=> $librarycache_indom,
+	cluster		=> $librarycache_cluster,
+	setup_callback	=> \&setup_librarycache,
+	insts_callback	=> \&librarycache_insts,
+	values_callback	=> \&librarycache_values,
+	insts_query	=>
+		'select namespace from v$librarycache',
+	values_query	=>
+		'select namespace, gets, gethits, gethitratio, pins,' .
+		'       pinhits, pinhitratio, reloads, invalidations' .
+		' from v$librarycache',
+);
+
+my %waitstat_table = (
+	name		=> 'waitstat',
+	indom		=> $waitstat_indom,
+	cluster		=> $waitstat_cluster,
+	setup_callback	=> \&setup_waitstat,
+	values_callback	=> \&waitstat_values,
+	values_query	=>
+		'select class, count, time from v$waitstat',
+);
+
+my %bufferpool_table = (
+	name		=> 'bufferpool',
+	indom		=> $bufferpool_indom,
+	cluster		=> $bufferpool_cluster,
+	valuemap	=> \%bufferpool_valuemap,
+	setup_callback	=> \&setup_bufferpool,
+	insts_callback	=> \&bufferpool_insts,
+	values_callback	=> \&bufferpool_values,
+	insts_query	=>
+		'select id, name, block_size from v$buffer_pool_statistics',
+	values_query	=>
+		'select id, set_msize, free_buffer_wait,' .
+		'       write_complete_wait, buffer_busy_wait,' .
+		'       physical_reads, physical_writes,' .
+		'       100 * (1 - (physical_reads / ' .
+		'             nullif((db_block_gets + consistent_gets), 0)))' .
+                '       hit_ratio ' .
+		' from v$buffer_pool_statistics',
+);
+
+my %asm_table = (
+	name		=> 'asm',
+	indom		=> $asm_indom,
+	cluster		=> $asm_cluster,
+	valuemap	=> \%asm_valuemap,
+	setup_callback	=> \&setup_asm,
+	insts_callback	=> \&asm_insts,
+	values_callback	=> \&asm_values,
+	insts_query	=>
+		'select group_number, disk_number, name from v$asm_disk_stat',
+	values_query	=>
+		'select disk_number' .
+		'       reads, writes, read_errs, write_errs, read_time,' .
+		'       write_time, bytes_read, bytes_written'.
+		' from v$asm_disk_stat',
+);
+
+my %controls = (
+	name		=> 'control',
+	indom		=> $control_indom,
+	cluster		=> $control_cluster,
+	setup_callback	=> \&setup_control,
+	insts_callback	=> \&control_insts,
+	values_callback	=> \&control_values,
+);
+
+my %tables_by_name = (
+	'sysstat'	=> \%sysstat_table,
+	'license'	=> \%license_table,
+	'latch'		=> \%latch_table,
+	'filestat'	=> \%filestat_table,
+	'rollstat'	=> \%rollstat_table,
+	'reqdist'	=> \%reqdist_table,
+	'backup'	=> \%backup_table,
+	'rowcache'	=> \%rowcache_table,
+#	'sesstat'	=> \%sesstat_table,
+	'object_cache'	=> \%object_cache_table,
+	'system_event'	=> \%system_event_table,
+	'version'	=> \%version_table,
+	'librarycache'	=> \%librarycache_table,
+	'waitstat'	=> \%waitstat_table,
+	'bufferpool'	=> \%bufferpool_table,
+	'asm'		=> \%asm_table,
 );
 
 my %tables_by_cluster = (
-    '0'  => {
-	name	=> 'sysstat',
-	setup	=> \&setup_sysstat,
-	indom	=> $sysstat_indom,
-	values	=> \&sysstat_values },
-    '1'  => {
-	name	=> 'license',
-	setup	=> \&setup_license,
-	indom	=> $license_indom,
-	values	=> \&license_values },
-    '2'  => {
-	name	=> 'latch',
-	setup	=> \&setup_latch,
-	indom	=> $latch_indom,
-	values	=> \&latch_values },
-    '3'  => {
-	name	=> 'filestat',
-	setup	=> \&setup_filestat,
-	indom	=> $file_indom,
-	values	=> \&filestat_values },
-    '4'  => {
-	name	=> 'rollstat',
-	setup	=> \&setup_rollstat,
-	indom	=> $rollback_indom,
-	values	=> \&rollstat_values },
-    '5'  => {
-	name	=> 'reqdist',
-	setup	=> \&setup_reqdist,
-	indom	=> $reqdist_indom,
-	values	=> \&reqdist_values },
-    '6'  => {
-	name	=> 'backup',
-	setup	=> \&setup_backup,
-	indom	=> $file_indom,
-	values	=> \&backup_values },
-    '7'  => {
-	name	=> 'rowcache',
-	setup	=> \&setup_rowcache,
-	indom	=> $rowcache_indom,
-	values	=> \&rowcache_values },
-#    '8'  => {
-#	name	=> 'sesstat',
-#	setup	=> \&setup_sesstat,
-#	indom	=> $session_indom,
-#	values	=> \&sesstat_values },
-    '9'  => {
-	name	=> 'object_cache',
-	setup	=> \&setup_object_cache,
-	indom	=> $object_cache_indom,
-	values	=> \&object_cache_values },
-    '10' => {
-	name	=> 'system_event',
-	setup	=> \&setup_system_event,
-	indom	=> $system_event_indom,
-	insts	=> \&system_event_insts,
-	values	=> \&system_event_values },
-    '11' => {
-	name	=> 'version',
-	setup	=> \&setup_version,
-	indom	=> $version_indom,
-        insts   => \&version_insts,
-	values	=> \&version_values },
-    '12' => {
-	name	=> 'librarycache',
-	setup	=> \&setup_librarycache,
-	indom	=> $librarycache_indom,
-	values	=> \&librarycache_values },
-    '13' => {
-	name	=> 'waitstat',
-	setup	=> \&setup_waitstat,
-	indom	=> $wait_indom,
-	values	=> \&waitstat_values },
-    '14' => {
-        name    => 'bufferpool',
-        setup   => \&setup_bufferpool,
-        indom   => $bufferpool_indom,
-        values  => \&bufferpool_values },
-    
-    '15' => {
-        name    => 'asm',
-        setup   => \&setup_asm,
-        indom   => $asm_indom,
-        values  => \&asm_values },
-
+	$sysstat_cluster	=> \%sysstat_table,
+	$license_cluster	=> \%license_table,
+	$latch_cluster		=> \%latch_table,
+	$filestat_cluster	=> \%filestat_table,
+	$rollstat_cluster	=> \%rollstat_table,
+	$reqdist_cluster	=> \%reqdist_table,
+	$backup_cluster		=> \%backup_table,
+	$rowcache_cluster	=> \%rowcache_table,
+#	$sesstat_cluster	=> \%sesstat_table,
+	$object_cache_cluster	=> \%object_cache_table,
+	$system_event_cluster	=> \%system_event_table,
+	$version_cluster	=> \%version_table,
+	$librarycache_cluster	=> \%librarycache_table,
+	$waitstat_cluster	=> \%waitstat_table,
+	$bufferpool_cluster	=> \%bufferpool_table,
+	$asm_cluster		=> \%asm_table,
+	$control_cluster	=> \%controls,
 );
 
-my @system_event_map= (2, 3, 4, 5);
-my @waitstat_map= (1, 2);
-my @latch_map = (2, 3, 4, 5, 6, 7, 8, 9);
-my @filestat_map = (1, 2, 3, 4, 5, 6);
-my @rollstat_map = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
-my @reqdist_map = (1);
-my @backup_map = (1);
-my @rowcache_map = (4, 5, 6, 7, 8);
-my @object_cache_map = (1, 2, 3, 4);
-my @librarycache_map = (1, 2, 3, 4, 5, 6, 7, 8);
-my @bufferpool_map = (3,4,5, 6, 7, 8,9);
-my @asm_map = ( 4, 5, 6, 7, 8, 9, 10, 11 );
+my %tables_by_indom = (
+	$latch_indom		=> \%latch_table,
+	$filestat_indom		=> \%filestat_table,
+	$rollstat_indom		=> \%rollstat_table,
+	$reqdist_indom		=> \%reqdist_table,
+	$rowcache_indom		=> \%rowcache_table,
+#	$session_indom		=> \%sesstat_table,
+	$object_cache_indom	=> \%object_cache_table,
+	$system_event_indom	=> \%system_event_table,
+	$librarycache_indom	=> \%librarycache_table,
+	$waitstat_indom		=> \%waitstat_table,
+	$control_indom		=> \%controls,
+	$license_indom		=> \%license_table,
+	$version_indom		=> \%version_table,
+	$sysstat_indom		=> \%sysstat_table,
+	$bufferpool_indom	=> \%bufferpool_table,
+	$asm_indom		=> \%asm_table,
+	$backup_indom		=> \%backup_table,
+);
 
-sub oracle_connection_setup
-{
-    foreach my $sid (@sids) {
-	my $db = $sids_by_name{$sid}{db_handle};
-	$db = oracle_sid_connection_setup($sid, $db);
-	$sids_by_name{$sid}{db_handle} = $db;
-    }
-}
 
 sub oracle_sid_connection_setup
 {
-    my $sid = shift;
-    my $dbh = shift;
+    my ($sid, $dbh) = @_;
+
+    # do not auto-connect if we were asked not to
+    if ($control_map{$sid} == 1) { return undef; }
 
     if (!defined($dbh)) {
 	$dbh = DBI->connect("dbi:Oracle:$sid", $username, $password);
 	if (defined($dbh)) {
 	    foreach my $key (keys %tables_by_name) {
-		my ( $query, $insts_query, $fetch_query );
-		$insts_query = $tables_by_name{$key}{insts};
-		$fetch_query = $tables_by_name{$key}{fetch};
-		if (defined($insts_query)) {
-		    $query = $dbh->prepare($fetch_query);
+		my ($query, $insts, $fetch);
+
+		$insts = $tables_by_name{$key}{insts_query};
+		$fetch = $tables_by_name{$key}{values_query};
+		if (defined($insts)) {
+		    $query = $dbh->prepare($insts);
 		    $tables_by_name{$key}{insts_handle} = $query
 			unless (!defined($query));
 		}
-		if (defined($fetch_query)) {
-		    $query = $dbh->prepare($fetch_query);
-		    $tables_by_name{$key}{fetch_handle} = $query
+		if (defined($fetch)) {
+		    $query = $dbh->prepare($fetch);
+		    $tables_by_name{$key}{values_handle} = $query
 			unless (!defined($query));
 		}
 	    }
@@ -297,34 +432,127 @@ sub oracle_sid_connection_setup
     return $dbh;
 }
 
+sub oracle_reconnect
+{
+    my $sid = shift;
+    my $db = $sids_by_name{$sid}{db_handle};
+
+    $db = oracle_sid_connection_setup($sid, $db);
+    $sids_by_name{$sid}{db_handle} = $db;
+    return 0;
+}
+
+sub oracle_disconnect
+{
+    my $sid = shift;
+    my $db = $sids_by_name{$sid}{db_handle};
+
+    if ($db) {
+	$db->disconnect();
+	$db = undef;
+	$sids_by_name{$sid}{db_handle} = undef;
+    }
+    return 0;
+}
+
+sub oracle_control_setup
+{
+    foreach my $sid (@sids) {
+	$control_map{$sid} = 0;	# mark as "want up"
+    }
+}
+
+sub oracle_connection_setup
+{
+    foreach my $sid (@sids) {
+	oracle_reconnect($sid);
+    }
+}
+
+sub oracle_fetch()
+{
+    # $pmda->log("oracle_fetch");
+    oracle_connection_setup();
+}
+
+sub oracle_instance
+{
+    my ($indom) = @_;
+
+    # $pmda->log("indom instances $indom");
+    foreach my $sid (@sids) {
+	my $db = $sids_by_name{$sid}{db_handle};
+	my $table = $tables_by_indom{"$indom"}{name};
+	my $insts = $tables_by_indom{"$indom"}{insts_callback};
+
+	# attempt to reconnect if connection failed previously
+	unless (defined($db)) {
+	    $db = oracle_sid_connection_setup($sid, $db);
+	    $sids_by_name{$sid}{db_handle} = $db;
+	}
+	if (defined($insts)) {
+	    &$insts($db, $sid, $tables_by_name{$table}{insts_handle});
+	}
+	if (!defined($db) || $db->err) {
+	    $sids_by_name{$sid}{db_handle} = undef;
+	}
+    }
+}
+
 sub oracle_refresh
 {
     my ($cluster) = @_;
+
+    # $pmda->log("cluster values $cluster");
     foreach my $sid (@sids) {
-        my $db = $sids_by_name{$sid}{db_handle};
-        my $name = $tables_by_cluster{"$cluster"}{name};
-        my $refresh = $tables_by_cluster{"$cluster"}{values};
-        &$refresh($db, $sid, $tables_by_name{$name}{fetch_handle});
+	my $db = $sids_by_name{$sid}{db_handle};
+	my $table = $tables_by_cluster{$cluster}{name};
+	my $insts = $tables_by_cluster{$cluster}{insts_callback};
+	my $refresh = $tables_by_cluster{$cluster}{values_callback};
+
+	# attempt to reconnect if connection failed previously
+	unless (defined($db)) {
+	    $db = oracle_sid_connection_setup($sid, $db);
+	    $sids_by_name{$sid}{db_handle} = $db;
+	}
+	# execute query, marking the connection bad on failure
+	if (defined($insts)) {
+	    &$insts($db, $sid, $tables_by_name{$table}{insts_handle});
+	}
+	&$refresh($db, $sid, $tables_by_name{$table}{values_handle});
+	if (!defined($db) || $db->err) {
+	    $sids_by_name{$sid}{db_handle} = undef;
+	}
     }
 }
 
 sub oracle_fetch_callback
 {
-    my ( $cluster, $item, $inst) = @_;
+    my ($cluster, $item, $inst) = @_;
+    my ($indom, $table, $key, $value, $valueref);
     my $metric_name = pmda_pmid_name($cluster, $item);
-    my ( $indom, $table, $value, $valueref, @columns );
 
     return (PM_ERR_PMID, 0) unless defined($metric_name);
     $table = $metric_name;
     $table =~ s/^oracle\.//;
     $table =~ s/\.*$//;
-    $indom = $tables_by_cluster{"$cluster"}{indom};
+    $indom = $tables_by_cluster{$cluster}{indom};
 
-    $valueref = pmda_inst_lookup($indom, $inst);
-    return (PM_ERR_INST, 0) unless defined($valueref);   
+    $key = pmda_inst_lookup($indom, $inst);
+    return (PM_ERR_INST, 0) unless defined($key);
 
-    @columns = @$valueref;
-    $value = $columns[$item];
+    # $key can either directly or indirectly point to an arrayref which
+    # contains the values (indexed on $item).  The indirect case occurs
+    # when a separate query for instances is required - i.e. there is a
+    # different query used for values to instances.
+    #
+    if (ref($key)) {
+	$valueref = $key;
+    } else {
+	my $vhashref = $tables_by_cluster{$cluster}{valuemap};
+	$valueref = $vhashref->{$key};
+    }
+    $value = ${ $valueref }[$item];
 
     return (PM_ERR_APPVERSION, 0) unless defined($value);
     return ($value, 1);
@@ -336,344 +564,613 @@ sub oracle_fetch_callback
 #
 sub refresh_results
 {
-    my ( $dbh, $handle ) = @_;
+    my ($dbh, $sid, $handle) = @_;
 
-    return undef
-	unless (defined($dbh) && defined($handle) && defined($handle->execute()));
+    return undef unless (defined($dbh) && defined($handle));
+    unless (defined($handle->execute())) {
+	# generate a timestamped failure message to accompany automatically
+	# generated DBD error (PrintError is left as on - default setting).
+	$pmda->log("Failed SQL query execution on SID $sid");
+	return undef;
+    }
     return $handle->fetchall_arrayref();
 }
 
-sub cherrypick {
-    my $map = shift;
-    my $vlistp = shift;
-    my @vlist = @{$vlistp};
-    my @ret = ();
+sub system_event_insts
+{
+    my ($dbh, $sid, $handle) = @_;
 
-    for my $j (0 .. $#{$map}){
-        my $pick=${$map}[$j];
-        $ret[$j] = defined($vlist[$pick]) ? $vlist[$pick] : '';
-    }  
-    return \@ret;
+    if ((my $count = keys(%system_event_instances)) == 0) {
+	my $result = refresh_results($dbh, $sid, $handle);
+
+	if (defined($result)) {
+	    for my $i (0 .. $#{$result}) {  # for each row (instance) returned
+		my $event = $result->[$i][0];
+		my $eventid = $result->[$i][1];
+		my $eventname = $result->[$i][2];
+		my $instname = "$sid/$event $eventname";
+		$system_event_valuemap{"$sid/$eventid"} = \@novalues;
+		$system_event_instances{$instname} = "$sid/$eventid";
+	    }
+	}
+	$pmda->replace_indom($system_event_indom, \%system_event_instances);
+    }
 }
 
 sub system_event_values
 {
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
 
-    %system_event_instances = ();           # refresh indom too
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {  # for each row (instance) returned
-
-            my $eventid = $result->[$i][0];
-            my $eventname = $result->[$i][1];
-            my $instname = "$sid/$eventid $eventname";
+	for my $i (0 .. $#{$result}) {  # for each row (instance) returned
+	    my $eventid = $result->[$i][0];
 	    my $values = $result->[$i];
-            $values = cherrypick(\@system_event_map, $values);
-            $system_event_instances{$instname} = $values;
-        }
+	    splice(@$values, 0, 1);	# drop event_id column
+	    $system_event_valuemap{"$sid/$eventid"} = $values;
+	}
     }
-    $pmda->replace_indom($system_event_indom, \%system_event_instances);
 }
 
-
-sub system_event_insts
+sub version_insts
 {
-
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
-
-    %system_event_instances = ();
-    if (defined($result)) {
-        for my $i (0 .. $#{$result}) {  # for each row (instance) returned
-            my $eventid = $result->[$i][0];
-            my $eventname = $result->[$i][1];
-            my $instname = "$sid/$eventid $eventname";
-            $system_event_instances{$instname} = \@novalues;
-        }
+    if ((my $count = keys(%version_instances)) == 0) {
+	foreach my $sid (@sids) {
+	    $version_instances{$sid} = \@novalues;
+	}
+	$pmda->replace_indom($version_indom, \%version_instances);
     }
-    $pmda->replace_indom($system_event_indom, \%system_event_instances);
-
 }
-
 
 sub version_values
 {
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
 
-    %version_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {              
-            my $banner = $result->[$i][0];
-            my $instname = "$sid/$banner";
-	    my $values = $result->[$i];
-	    $version_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    $version_instances{$sid} = $result->[$i];
+	}
     }
-    $pmda->replace_indom($version_indom, \%version_instances);
-
 }
-
 
 sub waitstat_values
 {
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
-    %wait_instances = ();
-    if (defined($result)) {
-        for my $i (0 .. $#{$result}) {  
-            my $class = $result->[$i][0];
-            my $count = $result->[$i][1];
-            my $time = $result->[$i][2];
-            my $instname = "$sid/$class";
-            my $values = $result->[$i];
-	    $values = cherrypick(\@waitstat_map, $values);
-	    $wait_instances{$instname} = $values;
-    
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
 
-        }
+    %waitstat_instances = ();
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {  
+	    my $class = $result->[$i][0];
+	    my $count = $result->[$i][1];
+	    my $time = $result->[$i][2];
+	    my $values = $result->[$i];
+	    my $instname = "$sid/$class";
+	    $instname =~ s/ /_/g;	# follow inst name rules
+	    splice(@$values, 0, 1);	# drop 'class' column
+	    $waitstat_instances{$instname} = $values;
+	}
     }
-    $pmda->replace_indom($wait_indom, \%wait_instances);
+    $pmda->replace_indom($waitstat_indom, \%waitstat_instances);
+}
+
+sub latch_insts
+{
+    my ($dbh, $sid, $handle) = @_;
+    
+    if ((my $count = keys(%latch_instances)) == 0) {
+	my $result = refresh_results($dbh, $sid, $handle);
+
+	if (defined($result)) {
+	    for my $i (0 .. $#{$result}) {
+                my $latchnum = $result->[$i][0];
+                my $latchname = $result->[$i][1];
+                my $instname = "$sid/$latchnum $latchname";
+
+                $latch_valuemap{"$sid/$latchnum"} = \@novalues;
+                $latch_instances{$instname} = "$sid/$latchnum";
+            }
+        }
+        $pmda->replace_indom($latch_indom, \%latch_instances);
+    }
 }
 
 sub latch_values
 {
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
 
-    %latch_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $latch_num = $result->[$i][0];
-            my $latch_name = $result->[$i][1];
-            my $gets = $result->[$i][3];
-            my $misses = $result->[$i][4];
-            my $instname = "$sid/$latch_num $latch_name";
-
+	for my $i (0 .. $#{$result}) {
+	    my $latch_num = $result->[$i][0];
 	    my $values = $result->[$i];
-	    $values = cherrypick(\@latch_map, $values);
-	    $latch_instances{$instname} = $values;
-
-        }
+	    splice(@$values, 0, 1);	# drop latch# column
+	    $latch_valuemap{"$sid/$latch_num"} = $values;
+	}
     }
-    $pmda->replace_indom($latch_indom, \%latch_instances);
+}
+
+sub license_insts
+{
+    if ((my $count = keys(%license_instances)) == 0) {
+	foreach my $sid (@sids) {
+	    $license_instances{$sid} = \@novalues;
+	}
+	$pmda->replace_indom($license_indom, \%license_instances);
+    }
 }
 
 sub license_values
 {
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
 
-    %license_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $instname = "$sid/license";
-            my $values = $result->[$i];
-            $license_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    $license_instances{$sid} = $result->[$i];
+	}
     }
-    $pmda->replace_indom($license_indom, \%license_instances);
+}
+
+sub filestat_insts
+{
+    my ($dbh, $sid, $handle) = @_;
+    
+    if ((my $count = keys(%filestat_instances)) == 0) {
+	my $result = refresh_results($dbh, $sid, $handle);
+
+	if (defined($result)) {
+	    for my $i (0 .. $#{$result}) {
+		my $filenum = $result->[$i][0];
+		my $filepath = $result->[$i][1];
+		my $instname = "$sid/$filenum $filepath";
+
+		$filestat_valuemap{"$sid/$filenum"} = \@novalues;
+		$filestat_instances{$instname} = "$sid/$filenum";
+	    }
+	}
+	$pmda->replace_indom($filestat_indom, \%filestat_instances);
+    }
 }
 
 sub filestat_values
 {
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
 
-    %file_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $file_num = $result->[$i][0];
-            my $instname = "$sid/$file_num";
-            my $values = $result->[$i];
-            $values = cherrypick(\@filestat_map, $values);
-            $file_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $filenum = $result->[$i][0];
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 1);	# drop file# column
+	    $filestat_valuemap{"$sid/$filenum"} = $values;
+	}
     }
-    $pmda->replace_indom($file_indom, \%file_instances);
+}
+
+sub rollstat_insts
+{
+    my ($dbh, $sid, $handle) = @_;
+
+    if ((my $count = keys(%rollstat_instances)) == 0) {
+	my $result = refresh_results($dbh, $sid, $handle);
+
+	if (defined($result)) {
+	    for my $i (0 .. $#{$result}) {  # for each row (instance) returned
+		my $usn = $result->[$i][0];
+		my $name = $result->[$i][1];
+		my $instname = "$sid/$usn $name";
+		$rollstat_valuemap{"$sid/$usn"} = \@novalues;
+		$rollstat_instances{$instname} = "$sid/$usn";
+	    }
+	}
+	$pmda->replace_indom($rollstat_indom, \%rollstat_instances);
+    }
+
 }
 
 sub rollstat_values
 {
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
 
-    %rollback_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $usn = $result->[$i][0];
-            my $instname = "$sid/$usn";
-            my $values = $result->[$i];
-            $values = cherrypick(\@rollstat_map, $values);
-            $rollback_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $usn = $result->[$i][0];
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 1);	# drop usn column
+	    $rollstat_valuemap{"$sid/$usn"} = $values;
+	}
     }
-    $pmda->replace_indom($rollback_indom, \%rollback_instances);
 }
 
-sub backup_values { 
+sub backup_insts
+{
+    my ($dbh, $sid, $handle) = @_;
+    
+    if ((my $count = keys(%backup_instances)) == 0) {
+	my $result = refresh_results($dbh, $sid, $handle);
 
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+	if (defined($result)) {
+	    for my $i (0 .. $#{$result}) {
+		my $filenum = $result->[$i][0];
+		my $filepath = $result->[$i][1];
+		my $instname = "$sid/$filenum $filepath";
 
-    %file_instances = ();
-    if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $backfile_num = $result->[$i][0];
-            my $instname = "$sid/file$backfile_num";
-            my $values = $result->[$i];
-            $values = cherrypick(\@backup_map, $values);
-            $file_instances{$instname} = $values;
-        }
+		$backup_valuemap{"$sid/$filenum"} = \@novalues;
+		$backup_instances{$instname} = "$sid/$filenum";
+	    }
+	}
+	$pmda->replace_indom($backup_indom, \%backup_instances);
     }
-    $pmda->replace_indom($file_indom, \%file_instances);
 }
 
-sub rowcache_values { 
+sub backup_values
+{
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
 
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
-
-    %rowcache_instances = ();
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $type = $result->[$i][0];
-            my $cache_num = $result->[$i][1];
-            my $subord_num = defined( $result->[$i][2]) ?  $result->[$i][2] : '';
-            my $parameter = $result->[$i][3];
-            my $instname = "$sid/$type $cache_num/$subord_num $parameter";
-            my $values = $result->[$i];
-            $values = cherrypick(\@rowcache_map, $values);
-            $rowcache_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $filenum = $result->[$i][0];
+	    my $status = $result->[$i][1];
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 1);	# drop file# column
+	    my $code = 63;	# ?
+	    if ($status eq 'NOT ACTIVE') {
+		$code = 45;	# -
+	    } elsif ($status eq 'ACTIVE') {
+		$code = 43;	# +
+	    } elsif ($status eq 'OFFLINE') {
+		$code = 111;	# o
+	    } elsif ($status eq 'NORMAL') {
+		$code = 110;	# n
+	    } elsif ($status eq 'ERROR') {
+		$code = 69;	# E
+	    }
+	    push @$values, ($code);
+	    $backup_valuemap{"$sid/$filenum"} = $values;
+	}
+    }
+}
+
+sub rowcache_insts
+{
+    my ($dbh, $sid, $handle) = @_;
+    
+    if ((my $count = keys(%rowcache_instances)) == 0) {
+	my $result = refresh_results($dbh, $sid, $handle);
+
+	if (defined($result)) {
+	    for my $i (0 .. $#{$result}) {
+		my $cache_num = $result->[$i][0];
+		my $subord_num = $result->[$i][1];
+		my $parameter = $result->[$i][2];
+		my ($instname, $cache_id);
+
+		if (defined($subord_num)) {
+		    $cache_id = "$sid/$cache_num/$subord_num";
+		} else {
+		    $cache_id = "$sid/$cache_num";
+		}
+		$instname = "$sid/$cache_id $parameter";
+		$rowcache_valuemap{"$sid/$cache_id"} = \@novalues;
+		$rowcache_instances{$instname} = "$sid/$cache_id";
+	    }
+	}
+	$pmda->replace_indom($rowcache_indom, \%rowcache_instances);
+    }
+}
+
+sub rowcache_values
+{
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
+
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {
+	    my $cache_num = $result->[$i][0];
+	    my $subord_num = $result->[$i][1];
+	    my $parameter = $result->[$i][2];
+	    my $values = $result->[$i];
+	    my $cache_id;
+
+	    if (defined($subord_num)) {
+		$cache_id = "$sid/$cache_num/$subord_num";
+	    } else {
+		$cache_id = "$sid/$cache_num";
+	    }
+	    splice(@$values, 0, 2);	# drop cache#, subordinate# columns
+	    $rowcache_valuemap{"$sid/$cache_id"} = $values;
+	}
     }
     $pmda->replace_indom($rowcache_indom, \%rowcache_instances);
-
 }
 
-sub object_cache_values  { 
-
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
-
-    %object_cache_instances = ();
-    if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $type = $result->[$i][0];
-            my $instname = "$sid/$type";
-            my $values = $result->[$i];
-            $values = cherrypick(\@object_cache_map, $values);
-            $object_cache_instances{$instname} = $values;
-        }
-    }
-    $pmda->replace_indom($object_cache_indom, \%object_cache_instances);
+sub object_cache_insts
+{
+    $pmda->replace_indom($object_cache_indom, \%object_cache_instances)
+	unless($object_cache_insts_set == 1);
+    $object_cache_insts_set = 1;
 }
 
-sub librarycache_values {
+sub object_cache_values
+{
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
 
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
-
-    %librarycache_instances = ();
-    if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $name = $result->[$i][0];
-            my $instname = "$sid/$name";
-            my $values = $result->[$i];
-            $values = cherrypick(\@librarycache_map, $values);
-            $librarycache_instances{$instname} = $values;
-        }
+    # clear all the (accumulated) counts at the start
+    foreach my $key (keys(%object_cache_instances)) {
+	# columns - sharable_mem, loads, locks, pins
+	my @zerovalues = (0, 0, 0, 0);
+	$object_cache_instances{$key} = \@zerovalues;
     }
-    $pmda->replace_indom($librarycache_indom, \%librarycache_instances);
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {
+	    my $type = $result->[$i][0];
+	    my $instname = "$sid/$type";
+	    my $values = $result->[$i];
+	    my $valueref = $object_cache_instances{$type};
+
+	    if (!defined($valueref)) {
+		$valueref = $object_cache_instances{'OTHER'};
+	    }
+	    # columns - sharable_mem, loads, locks, pins
+	    ${ $valueref }[0] += $result->[$i][1];
+	    ${ $valueref }[1] += $result->[$i][2];
+	    ${ $valueref }[2] += $result->[$i][3];
+	    ${ $valueref }[3] += $result->[$i][4];
+	}
+    }
 }
 
-sub reqdist_values { 
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+sub librarycache_insts
+{
+    my ($dbh, $sid, $handle) = @_;
+    
+    if ((my $count = keys(%librarycache_instances)) == 0) {
+	my $result = refresh_results($dbh, $sid, $handle);
 
-    %reqdist_instances = ();
-    if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $bucket = $result->[$i][0];
-            my $instname = "$sid/$bucket";
-            my $values = $result->[$i];
-            $values = cherrypick(\@reqdist_map, $values);
-            $reqdist_instances{$instname} = $values;
-        }
+	if (defined($result)) {
+	    for my $i (0 .. $#{$result}) {
+		my $namespace = $result->[$i][0];
+		my $instname = "$sid/$namespace";
+		$librarycache_instances{$instname} = \@novalues;
+	    }
+	}
+	$pmda->replace_indom($librarycache_indom, \%librarycache_instances);
     }
-    $pmda->replace_indom($reqdist_indom, \%reqdist_instances);
+}
+
+sub librarycache_values
+{
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
+
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {
+	    my $namespace = $result->[$i][0];
+	    my $instname = "$sid/$namespace";
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 1);	# drop namespace column
+	    $instname =~ s/ /_/g;	# follow inst name rules
+	    $librarycache_instances{$instname} = $values;
+	}
+    }
+}
+
+sub reqdist_insts
+{
+    my ($dbh, $sid, $handle) = @_;
+
+    if ((my $count = keys(%reqdist_instances)) == 0) {
+	my $result = refresh_results($dbh, $sid, $handle);
+
+        if (defined($result)) {
+	    for my $i (0 .. $#{$result}) {
+		my $bucket = $result->[$i][0];
+		my $lo = ($bucket == 0) ? 0.0 : (4 * (2 ** ($bucket-1))) / 100;
+		my $hi = ($bucket >= 11) ? 0.0 : 4 * (2 ** $bucket) / 100;
+		my $instname;
+
+		if ($bucket < 11) {
+		    $instname = "$sid/bucket$bucket - $lo to $hi seconds";
+		} else {
+		    $instname = "$sid/bucket$bucket - $lo seconds or above";
+		}
+
+		$reqdist_valuemap{"$sid/$bucket"} = \@novalues;
+		$reqdist_instances{$instname} = "$sid/$bucket";
+	    }
+	}
+	$pmda->replace_indom($reqdist_indom, \%reqdist_instances);
+    }
+}
+
+sub reqdist_values
+{
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
+
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {
+	    my $bucket = $result->[$i][0];
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 1);	# drop bucket column
+	    $reqdist_valuemap{"$sid/$bucket"} = $values;
+	}
+    }
+}
+
+sub sysstat_insts
+{
+    if ((my $count = keys(%sysstat_instances)) == 0) {
+	foreach my $sid (@sids) {
+	    $sysstat_instances{$sid} = \@novalues;
+	}
+	$pmda->replace_indom($sysstat_indom, \%sysstat_instances);
+    }
 }
 
 sub sysstat_values
 {
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
     my @varray;
-    my $instname;
-    %sysstat_instances = ();
-    if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $statistic_num = $result->[$i][0];
-            my $statistic_name = $result->[$i][1];
-            my $pmid_item_num = $sysstat_map{$statistic_name};
 
-            if (defined($pmid_item_num)) {
-                #
-                # pull out the current array of values, and insert this value
-                # at the offset specific for the found PMID item number, such
-                # that a subsequent fetch callback can quickly look it up.
-                #
-                #my $values = $sysstat_instances{$sid};
-                #my @varray = @{$values};
+    if (defined($result)) {
+	for my $i (0 .. $#{$result}) {
+	    my $statistic_num = $result->[$i][0];
+	    my $statistic_name = $result->[$i][1];
+	    my $pmid_item_num = $sysstat_map{$statistic_name};
+
+	    if (defined($pmid_item_num)) {
+		#
+		# pull out the current array of values, and insert this value
+		# at the offset specific to the mapped PMID item number, such
+		# that a subsequent fetch callback can quickly look it up.
+		#
 		$varray[$pmid_item_num] = $result->[$i][2];
-            }
-        }
-       $sysstat_instances{$sid} = \@varray;        
+	    } else {
+		#$pmda->log("New v\$sysstat statistic name: $statistic_name");
+	    }
+	}
+	$sysstat_instances{$sid} = \@varray;
     }
-    $pmda->replace_indom($sysstat_indom, \%sysstat_instances);
 }
 
-sub bufferpool_values{
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+sub bufferpool_insts
+{
+    my ($dbh, $sid, $handle) = @_;
 
-    %bufferpool_instances = ();
+    if ((my $count = keys(%bufferpool_instances)) == 0) {
+	my $result = refresh_results($dbh, $sid, $handle);
+
+	if (defined($result)) {
+	    for my $i (0 .. $#{$result}) {
+		my $id = $result->[$i][0];
+		my $name = $result->[$i][1];
+		my $blocksize  = $result->[$i][2];
+		my $instname = "$sid/$id $name/$blocksize";
+		$bufferpool_valuemap{"$sid/$id"} = \@novalues;
+		$bufferpool_instances{$instname} = "$sid/$id";
+	    }
+	}
+	$pmda->replace_indom($bufferpool_indom, \%bufferpool_instances);
+    }
+}
+
+sub bufferpool_values
+{
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
+
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $id = $result->[$i][0];
-            my $name = $result->[$i][1];
-            my $blocksize  = $result->[$i][2];
-            my $instname = "$sid/$id $blocksize $name";
-            my $values = $result->[$i];
-            $values = cherrypick(\@bufferpool_map, $values);
-            $bufferpool_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $id = $result->[$i][0];
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 1);	# drop id column
+	    $bufferpool_valuemap{"$sid/$id"} = $values;
+	}
     }
-    $pmda->replace_indom($bufferpool_indom, \%bufferpool_instances);
 }
 
-sub asm_values{
-    my ( $dbh, $sid, $handle ) = @_;
-    my $result = refresh_results($dbh, $handle);
+sub asm_insts
+{
+    my ($dbh, $sid, $handle) = @_;
 
-    %asm_instances = ();
+    if ((my $count = keys(%asm_instances)) == 0) {
+	my $result = refresh_results($dbh, $sid, $handle);
+
+	if (defined($result)) {
+	    for my $i (0 .. $#{$result}) {
+		my $group_num = $result->[$i][0];
+		my $disk_num = $result->[$i][1];
+		my $name = $result->[$i][2];
+		my $keyname = "$sid/$disk_num";
+		my $instname = "$keyname $group_num/$name";
+		$asm_valuemap{$keyname} = \@novalues;
+		$asm_instances{$instname} = $keyname;
+	    }
+	}
+	$pmda->replace_indom($asm_indom, \%asm_instances);
+    }
+}
+
+sub asm_values
+{
+    my ($dbh, $sid, $handle) = @_;
+    my $result = refresh_results($dbh, $sid, $handle);
+
     if (defined($result)) {
-        for my $i (0 .. $#{$result}) {
-            my $name = $result->[$i][2];
-            my $disk_num = $result->[$i][1];
-            my $group_num = $result->[$i][0];
-            my $instname = "$sid/$disk_num $name";
-            my $values = $result->[$i];
-            $values = cherrypick(\@asm_map, $values);
-            $asm_instances{$instname} = $values;
-        }
+	for my $i (0 .. $#{$result}) {
+	    my $disk_num = $result->[$i][0];
+	    my $values = $result->[$i];
+	    splice(@$values, 0, 1);	# drop disk_number column
+	    $asm_valuemap{"$sid/$disk_num"} = $values;
+	}
     }
-    $pmda->replace_indom($asm_indom, \%asm_instances);
+}
+
+sub control_insts
+{
+    if ((my $count = keys(%control_instances)) == 0) {
+	foreach my $sid (@sids) {
+	    $control_instances{$sid} = \@novalues;
+	}
+	$pmda->replace_indom($control_indom, \%control_instances);
+    }
+}
+
+sub control_values
+{
+    my ($dbh, $sid, undef) = @_;
+    my $inst;
+
+    for ($inst = 0; $inst <= $#sids; $inst++) {
+	if ($sid eq $sids[$inst]) {
+	    my @values = $control_instances{$sid};
+	    if (defined($dbh)) {
+		$values[0] = 1;
+	    } else {
+		$values[0] = 0;
+	    }
+	    $control_instances{$sid} = \@values;
+	}
+    }
 }
 
 
-sub sesstat_values  { }
+sub oracle_store_callback
+{
+    my ($cluster, $item, $inst, $val) = @_;
+
+    if ($cluster == 16) {	# oracle.control
+	if ($item == 0) {	# [...connected]
+	    if ($inst > $#sids) { return PM_ERR_INST; }
+	    my $sid = $sids[$inst];
+
+	    #
+	    # %control_map is used to determine whether a manual
+	    # disconnect/reconnect has been requested.  This is
+	    # distinct from our default preference of wanting to
+	    # be connected (Oracle may go up/down independently).
+	    #
+	    if ($val == 1) {
+		$control_map{$sid} = 0;	# mark as up
+		return oracle_reconnect($sid);
+	    }
+	    elsif ($val == 0) {
+		$control_map{$sid} = 1;	# mark as down
+		return oracle_disconnect($sid);
+	    }
+	    return PM_ERR_BADSTORE;
+	}
+    }
+    elsif ($cluster < 16) { return PM_ERR_PERMISSION; }
+    return PM_ERR_PMID;
+}
 
 sub oracle_indoms_setup
 {
@@ -683,13 +1180,13 @@ sub oracle_indoms_setup
 change.  Latches are simple, low-level serialization mechanisms which
 protect access to structures in the system global area (SGA).');
 
-    $pmda->add_indom($file_indom, \%file_instances,
-		'Instance domain "file" from Oracle PMDA',
+    $pmda->add_indom($filestat_indom, \%filestat_instances,
+		'Instance domain "filestat files" from Oracle PMDA',
 'The collection of data files that make up the database.  This instance
 domain may change during database operation as files are added to or
 removed.');
 
-    $pmda->add_indom($rollback_indom, \%rollback_instances,
+    $pmda->add_indom($rollstat_indom, \%rollstat_instances,
 		'Instance domain "rollback" from Oracle PMDA',
 'The collection of rollback segments for the database.  This instance
 domain may change during database operation as segments are added to or
@@ -737,38 +1234,43 @@ log file I/O, timers.');
     $pmda->add_indom($librarycache_indom, \%librarycache_instances,
 		'Instance domain "librarycache" from Oracle PMDA', '');
 
-    $pmda->add_indom($wait_indom, \%wait_instances,
+    $pmda->add_indom($waitstat_indom, \%waitstat_instances,
 		'Instance domain "wait statistics" from Oracle PMDA', '');
 
-    $pmda->add_indom($sid_indom, \%sid_instances,
+    $pmda->add_indom($control_indom, \%control_instances,
 		'Instance domain "SID" from Oracle PMDA',
 'The system identifiers used by the RDBMS and monitored by this PMDA.');
 
     $pmda->add_indom($license_indom, \%license_instances,
-                'Instance domain "license" from Oracle PMDA','');
+		'Instance domain "license" from Oracle PMDA','');
 
     $pmda->add_indom($version_indom, \%version_instances,
-                'Instance domain "version" from Oracle PMDA','');
+		'Instance domain "version" from Oracle PMDA','');
 
     $pmda->add_indom($sysstat_indom, \%sysstat_instances,
-                'Instance domain "sysstat" from Oracle PMDA','');
+		'Instance domain "sysstat" from Oracle PMDA','');
 
     $pmda->add_indom($bufferpool_indom, \%bufferpool_instances,
-                'Instance domain "buffer_pool" from Oracle PMDA','');
+		'Instance domain "buffer_pool" from Oracle PMDA','');
 
     $pmda->add_indom($asm_indom, \%asm_instances,
-                'Instance domain "asm" from Oracle PMDA','');
+		'Instance domain "asm" (Automated Storage Management) disks' .
+		' from Oracle PMDA','');
+
+    $pmda->add_indom($backup_indom, \%backup_instances,
+		'Instance domain "backup files" from Oracle PMDA',
+'The collection of backup files that are active for the database.  This
+instance domain may change during database operation as files are added
+to or removed.');
 }
 
 sub oracle_metrics_setup
 {
-
     foreach my $cluster (sort (keys %tables_by_cluster)) {
-        my $setup = $tables_by_cluster{"$cluster"}{setup};
-        my $indom = $tables_by_cluster{"$cluster"}{indom};
-        &$setup($cluster, $indom, $tables_by_cluster{"$cluster"}{params});
+	my $setup = $tables_by_cluster{$cluster}{setup_callback};
+	my $indom = $tables_by_cluster{$cluster}{indom};
+	&$setup($cluster, $indom);
     }
-
 }
 
 #
@@ -777,14 +1279,15 @@ sub oracle_metrics_setup
 
 sub setup_waitstat	# block contention stats from v$waitstat
 {
-    $pmda->add_metric(pmda_pmid(13,0), PM_TYPE_U32, $wait_indom,
+    my ($cluster, $indom) = @_;
+    $pmda->add_metric(pmda_pmid(13,0), PM_TYPE_U32, $waitstat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.waitstat.count',
 	'Number of waits for each block class',
 'The number of waits for each class of block.  This value is obtained
 from the COUNT column of the V$WAITSTAT view.');
 
-    $pmda->add_metric(pmda_pmid(13,1), PM_TYPE_U32, $wait_indom,
+    $pmda->add_metric(pmda_pmid(13,1), PM_TYPE_U32, $waitstat_indom,
 	PM_SEM_COUNTER, pmda_units(0,1,0,0,PM_TIME_MSEC,0),
 	'oracle.waitstat.time',
 	'Sum of all wait times for each block class',
@@ -904,22 +1407,29 @@ from the BYTES_READ column of the V$ASM_DISK_STAT view.');
         'Total number of bytes read from the disk',
 'Total number of bytes read from the disk. This value is obtained
 from the BYTES_WRITTEN column of the V$ASM_DISK_STAT view.');
+}
 
+sub setup_control	# are we connected, manual disconnect/reconnect
+{
+    $pmda->add_metric(pmda_pmid(16,0), PM_TYPE_U32, $control_indom,
+        PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+        'oracle.control.connected',
+        'Status of Oracle database connection for each SID',
+'A value of one or zero reflecting the state of the Oracle connection.
+This is a storable metric, allowing manual disconnect and reconnect, which
+allows an Oracle instance to be shutdown while the PMDA continues running.');
 }
 
 sub setup_version	# version data from the v$version view
 {
-
     $pmda->add_metric(pmda_pmid(11,0), PM_TYPE_STRING, $version_indom,
 	PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
 	'oracle.version',
 	'Oracle component name and version number', '');
-
 }
 
 sub setup_system_event	# statistics from v$system_event
 {
-
     $pmda->add_metric(pmda_pmid(10,0), PM_TYPE_U32, $system_event_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.event.waits',
@@ -949,7 +1459,6 @@ converted to units of milliseconds.');
 'The average time waited for various system events.  This value is
 obtained from the AVERAGE_WAIT column of the V$SYSTEM_EVENT view
 and converted to units of milliseconds.');
-
 }
 
 sub setup_sysstat	## statistics from v$sysstat
@@ -2555,47 +3064,47 @@ the SCANMISSES column of the V$ROWCACHE view.');
 
 sub setup_rollstat	## rollback I/O statistics from v$rollstat
 {
-    $pmda->add_metric(pmda_pmid(4,0), PM_TYPE_U32, $rollback_indom,
+    $pmda->add_metric(pmda_pmid(4,0), PM_TYPE_U32, $rollstat_indom,
 	PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 	'oracle.rollback.rssize', 'Size of rollback segment',
 'Size in bytes of the rollback segment.  This value is obtained from the
 RSSIZE column in the V$ROLLSTAT view.');
 
-    $pmda->add_metric(pmda_pmid(4,1), PM_TYPE_U32, $rollback_indom,
+    $pmda->add_metric(pmda_pmid(4,1), PM_TYPE_U32, $rollstat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.rollback.writes',
 	'Number of bytes written to rollback segment',
 'The total number of bytes written to rollback segment.  This value is
 obtained from the WRITES column of the V$ROLLSTAT view.');
 
-    $pmda->add_metric(pmda_pmid(4,2), PM_TYPE_U32, $rollback_indom,
+    $pmda->add_metric(pmda_pmid(4,2), PM_TYPE_U32, $rollstat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.rollback.xacts', 'Number of active transactions',
 'The number of active transactions.  This value is obtained from the
 XACTS column of the V$ROLLSTAT view.');
 
-    $pmda->add_metric(pmda_pmid(4,3), PM_TYPE_U32, $rollback_indom,
+    $pmda->add_metric(pmda_pmid(4,3), PM_TYPE_U32, $rollstat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.rollback.gets',
 	'Number of header gets for rollback segment',
 'The number of header gets for the rollback segment.  This value is
 obtained from the GETS column of the V$ROLLSTAT view.');
 
-    $pmda->add_metric(pmda_pmid(4,4), PM_TYPE_U32, $rollback_indom,
+    $pmda->add_metric(pmda_pmid(4,4), PM_TYPE_U32, $rollstat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.rollback.waits',
 	'Number of header waits for rollback segment',
 'The number of header gets for the rollback segment.  This value is
 obtained from the WAIT column of the V$ROLLSTAT view.');
 
-    $pmda->add_metric(pmda_pmid(4,5), PM_TYPE_U32, $rollback_indom,
+    $pmda->add_metric(pmda_pmid(4,5), PM_TYPE_U32, $rollstat_indom,
 	PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 	'oracle.rollback.hwmsize',
 	'High water mark of rollback segment size',
 'High water mark of rollback segment size.  This value is obtained from
 the HWMSIZE column of the V$ROLLSTAT view.');
 
-    $pmda->add_metric(pmda_pmid(4,6), PM_TYPE_U32, $rollback_indom,
+    $pmda->add_metric(pmda_pmid(4,6), PM_TYPE_U32, $rollstat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.rollback.shrinks',
 	'Number of times rollback segment shrank',
@@ -2603,7 +3112,7 @@ the HWMSIZE column of the V$ROLLSTAT view.');
 eliminating additional extents.  This value is obtained from the
 SHRINKS column of the V$ROLLSTAT view.');
 
-    $pmda->add_metric(pmda_pmid(4,7), PM_TYPE_U32, $rollback_indom,
+    $pmda->add_metric(pmda_pmid(4,7), PM_TYPE_U32, $rollstat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.rollback.wraps',
 	'Number of times rollback segment wrapped',
@@ -2611,7 +3120,7 @@ SHRINKS column of the V$ROLLSTAT view.');
 to another.  This value is obtained from the WRAPS column of the
 V$ROLLSTAT view.');
 
-    $pmda->add_metric(pmda_pmid(4,8), PM_TYPE_U32, $rollback_indom,
+    $pmda->add_metric(pmda_pmid(4,8), PM_TYPE_U32, $rollstat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.rollback.extends',
 	'Number of times rollback segment size extended',
@@ -2619,13 +3128,13 @@ V$ROLLSTAT view.');
 another extent.  This value is obtained from the EXTENDS column of the
 V$ROLLSTAT view.');
 
-    $pmda->add_metric(pmda_pmid(4,9), PM_TYPE_U32, $rollback_indom,
+    $pmda->add_metric(pmda_pmid(4,9), PM_TYPE_U32, $rollstat_indom,
 	PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 	'oracle.rollback.avshrink', 'Average shrink size',
 'Average of freed extent size for rollback segment.  This value is
 obtained from the AVESHRINK column of the V$ROLLSTAT view.');
 
-    $pmda->add_metric(pmda_pmid(4,10), PM_TYPE_U32, $rollback_indom,
+    $pmda->add_metric(pmda_pmid(4,10), PM_TYPE_U32, $rollstat_indom,
 	PM_SEM_INSTANT, pmda_units(1,0,0,PM_SPACE_BYTE,0,0),
 	'oracle.rollback.avactive',
 	'Current size of active entents averaged over time',
@@ -2641,6 +3150,9 @@ sub setup_reqdist	## request time histogram from v$reqdist
 	'oracle.reqdist', 'Histogram of database operation request times',
 'A histogram of database request times divided into twelve buckets (time
 ranges).  This is extracted from the V$REQDIST table.
+The time ranges grow exponentially as a function of the bucket number,
+such that the maximum time for each bucket is (4 * 2^N) / 100 seconds,
+where N is the bucket number (and also the instance identifier).
 NOTE:
     The TIMED_STATISTICS database parameter must be TRUE or this metric
     will not return any values.');
@@ -2852,11 +3364,16 @@ obtained from the SPIN_GETS column of the V$LATCH view.');
 
 sub setup_backup	## file backup status from v$backup
 {
-#    $pmda->add_metric(pmda_pmid(6,0), PM_TYPE_U32, $file_indom,
-#	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
-     $pmda->add_metric(pmda_pmid(6,0), PM_TYPE_STRING, $file_indom,
-        PM_SEM_DISCRETE, pmda_units(0,0,0,0,0,0),
+     $pmda->add_metric(pmda_pmid(6,0), PM_TYPE_STRING, $backup_indom,
+	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 	'oracle.backup.status',
+	'Backup status of online datafiles',
+'The backup status of online datafiles.
+This value is extracted from the STATUS column of the V$BACKUP view.');
+
+    $pmda->add_metric(pmda_pmid(6,1), PM_TYPE_U32, $backup_indom,
+	PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+	'oracle.backup.status_code',
 	'Backup status of online datafiles',
 'The Backup status of online datafiles.  The status is encoded as an
 ASCII character:
@@ -2865,19 +3382,20 @@ ASCII character:
 	offline         o  (111)
 	normal          n  (110)
 	error           E  ( 69)
+	unknown         ?  ( 63)
 This value is extracted from the STATUS column of the V$BACKUP view.');
 }
 
 sub setup_filestat	## file I/O statistics from v$filestat
 {
-    $pmda->add_metric(pmda_pmid(3,0), PM_TYPE_U32, $file_indom,
+    $pmda->add_metric(pmda_pmid(3,0), PM_TYPE_U32, $filestat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.file.phyrds',
 	'Physical reads from database files',
 'The number of physical reads from each database file.  These values
 are obtained from the PHYRDS column in the V$FILESTAT view.');
 
-    $pmda->add_metric(pmda_pmid(3,1), PM_TYPE_U32, $file_indom,
+    $pmda->add_metric(pmda_pmid(3,1), PM_TYPE_U32, $filestat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.file.phywrts',
 	'Physical writes to database files',
@@ -2885,21 +3403,21 @@ are obtained from the PHYRDS column in the V$FILESTAT view.');
 the database files.  These values are obtained from the PHYWRTS column
 in the V$FILESTAT view.');
 
-    $pmda->add_metric(pmda_pmid(3,2), PM_TYPE_U32, $file_indom,
+    $pmda->add_metric(pmda_pmid(3,2), PM_TYPE_U32, $filestat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.file.phyblkrd',
 	'Physical blocks read from database files',
 'The number of physical blocks read from each database file.  These
 values are obtained from the PHYBLKRDS column in the V$FILESTAT view.');
 
-    $pmda->add_metric(pmda_pmid(3,3), PM_TYPE_U32, $file_indom,
+    $pmda->add_metric(pmda_pmid(3,3), PM_TYPE_U32, $filestat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 	'oracle.file.phyblkwrt',
 	'Physical blocks written to database files',
 'The number of physical blocks written to each database file.  These
 values are obtained from the PHYBLKWRT column in the V$FILESTAT view.');
 
-    $pmda->add_metric(pmda_pmid(3,4), PM_TYPE_U32, $file_indom,
+    $pmda->add_metric(pmda_pmid(3,4), PM_TYPE_U32, $filestat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
 	'oracle.file.readtim',
 	'Time spent reading from database files',
@@ -2908,7 +3426,7 @@ database parameter is true.  If this parameter is false, then the
 metric will have a value of zero.  This value is obtained from the
 READTIM column of the V$FILESTAT view.');
 
-    $pmda->add_metric(pmda_pmid(3,5), PM_TYPE_U32, $file_indom,
+    $pmda->add_metric(pmda_pmid(3,5), PM_TYPE_U32, $filestat_indom,
 	PM_SEM_COUNTER, pmda_units(0,0,0,0,0,0),
 	'oracle.file.writetim',
 	'Time spent writing to database files',
@@ -2918,13 +3436,17 @@ metric will have a value of zero.  This value is obtained from the
 WRITETIM column of the V$FILESTAT view.');
 }
 
+# $ENV{PCP_PERL_DEBUG} = 'LIBPMDA';
 $pmda = PCP::PMDA->new('oracle', 32);
-$pmda->set_user('oracle');
+$pmda->set_user($os_user);
 
+oracle_control_setup();
 oracle_metrics_setup();
 oracle_indoms_setup();
 
 $pmda->set_fetch_callback(\&oracle_fetch_callback);
-$pmda->set_fetch(\&oracle_connection_setup);
+$pmda->set_store_callback(\&oracle_store_callback);
+$pmda->set_fetch(\&oracle_fetch);
+$pmda->set_instance(\&oracle_instance);
 $pmda->set_refresh(\&oracle_refresh);
 $pmda->run;

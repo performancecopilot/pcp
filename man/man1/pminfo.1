@@ -188,34 +188,6 @@ Refer to
 for a complete description of this option, and the syntax for the
 .I time
 argument.
-.RS
-.PP
-When the ``ctime'' format is used for the
-.I time
-argument in a
-.B \-O
-option, the timezone becomes an issue.
-The default is to use the
-local timezone on the
-system where
-.B pminfo
-is run.
-The
-.B \-Z
-option changes the timezone to
-.I timezone
-in the format of the environment variable
-.B TZ
-as described in
-.BR environ (7).
-The
-.B \-z
-option changes the timezone to the local timezone at the
-host that is the source of the performance metrics, as identified via
-the
-.B \-a
-option.
-.RE
 .TP
 .B \-t
 Print the ``one line'' help summary, if available.

@@ -109,19 +109,19 @@ cat <<End-of-File | dbpmda -ei -n $tmp.pmns 2>&1 | _filter
 desc mmv.test.strings
 fetch mmv.test.strings mmv.test.counter
 text mmv.test.strings
-store mmv.reload "1"
+store mmv.control.reload "1"
 open pipe $PCP_PMDAS_DIR/mmv/pmdammv $pipeargs
 desc mmv.test.strings
 fetch mmv.test.strings mmv.test.counter
 text mmv.test.strings
-store mmv.reload "1"
+store mmv.control.reload "1"
 desc mmv.no.such.metric
 close
 open dso $PCP_PMDAS_DIR/mmv/pmda_mmv.$DSO_SUFFIX mmv_init 70
 desc mmv.test.strings
 fetch mmv.test.strings mmv.test.counter
 text mmv.test.strings
-store mmv.reload "1"
+store mmv.control.reload "1"
 End-of-File
 
 # success, all done

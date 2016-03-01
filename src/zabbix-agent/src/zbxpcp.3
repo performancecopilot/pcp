@@ -33,17 +33,17 @@ As a loadable module (DSO)
 does not rely on any external programs but directly uses the PCP APIs to
 fetch PCP metrics when requested.
 .PP
-A typical PCP installation on Linux offers over 1000 metrics by default
+A typical Linux PCP installation offers over 1,000 metrics by default
 and is in turn extensible with its own plugins, or PMDAs (``Performance
 Metrics Domain Agents'').
 In addition to very complete
 .I /proc
 based statistics, readily available PCP PMDAs provide support for such
-system and application level components as Apache, CIFS, 389 Directory
-Server, GFS2, Gluster, InfiniBand, KVM, MySQL, NFS, Postfix, PostgreSQL,
+system and application level components as 389 Directory Server, Apache,
+containers, GFS2, Gluster, KVM, MySQL, NFS, Oracle, Postfix, PostgreSQL,
 Samba, and Sendmail, among others.
-In addition to Linux, PCP also runs on Mac OS X, FreeBSD, NetBSD,
-Solaris, and Windows.
+PCP also runs on many platforms, including Linux, Mac OS X, FreeBSD,
+NetBSD, Solaris, and Windows.
 .PP
 For PCP introduction, see
 .BR PCPIntro (1).
@@ -117,6 +117,13 @@ the system.
 .BI /etc/zabbix/zabbix_agentd.conf
 Typical Zabbix agent configuration file location.
 .TP 10
+.BI /etc/zabbix/zbxpcp-derived-metrics.conf
+Optional PCP derived metrics configuration file for
+.BR zbxpcp .
+See
+.BR pmLoadDerivedConfig (3)
+for more info on derived metrics.
+.TP 10
 .BI $(PCP_LIB_DIR)/zabbix/agent/zbxpcp.so
 Zabbix agent loadable PCP module.
 .PD
@@ -124,6 +131,7 @@ Zabbix agent loadable PCP module.
 .BR PCPIntro (1),
 .BR pminfo (1),
 .BR pmrep (1),
-.BR zabbix_get (1)
+.BR zabbix_get (1),
+.BR pmLoadDerivedConfig (3)
 and
 .BR zabbix_agentd (8).

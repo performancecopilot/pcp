@@ -2,7 +2,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" Copyright (c) 2015 Red Hat
+.\" Copyright (c) 2015-2016 Red Hat.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -1166,6 +1166,29 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (5).
+.PP
+When executing shell actions,
+.B pmie
+overrides two variables \- IFS and PATH \- in the environment
+of the child process.
+IFS is set to "\\t\\n".
+The PATH is set to a combination of a default path for all
+platforms ("/usr/sbin:/sbin:/usr/bin:/usr/sbin") and several
+configurable components.
+These are (in this order):
+.BR $PCP_BIN_DIR ,
+.B $PCP_BINADM_DIR
+and
+.BR $PCP_PLATFORM_PATHS .
+.PP
+When executing popup alarm actions,
+.B pmie
+will use the value of
+.B $PCP_XCONFIRM_PROG
+as the visual notification program to run.
+This is typically set to
+.BR pmconfirm (1),
+a cross-platform dialog box.
 .SH UNIX SEE ALSO
 .BR logger (1).
 .SH WINDOWS SEE ALSO
@@ -1173,6 +1196,7 @@ as described in
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmcd (1),
+.BR pmconfirm (1),
 .BR pmdumplog (1),
 .BR pmieconf (1),
 .BR pmie_check (1),
