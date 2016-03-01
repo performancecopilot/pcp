@@ -7,22 +7,34 @@
 # works without surprises
 #
 
-target=`uname -s | cut -c-5 | tr 'A-Z' 'a-z'`
+target=`uname -s | sed -e 's/ .*//' | tr 'A-Z' 'a-z'`
 
 # Note:	this logic needs to match the settings in Makepkgs at the
 # 	top of thes source tree
 #
-if [ -x /usr/bin/rpmbuild ]
+dorpm=unknown
+dodeb=unknown
+
+if [ $dorpm = unknown ]
 then
-    configopts=`rpmbuild --eval '--prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir}' 2>/dev/null`
-    eval `rpmbuild --eval 'vendor=%{_vendor}' 2>/dev/null`
-    if [ "$vendor" = suse ]
-    then
-	configopts="$configopts --with-rcdir=/etc/rc.d/init.d"
-    else
-	configopts="$configopts --with-rcdir=/etc/init.d"
-    fi
-elif [ -f /etc/debian_version ]
+    dorpm=false
+    [ -x /usr/bin/rpmbuild ] && dorpm=true
+fi
+if [ $dodeb = unknown ]
+then
+    dodeb=false
+    [ -x /usr/bin/dpkg-buildpackage ] && dodeb=true
+fi
+
+# Hmm ...
+#
+if $dodeb && $dorpm
+then
+    echo "Do not know how to build RPM and Debian packages at the same time!"
+    exit 1
+fi
+
+if $dodeb
 then
     # needs to match configure_paths in debian/rules ... so just get the
     # magic setting from there
@@ -38,7 +50,20 @@ then
 	echo "Botch: cannot get configopts from configure_paths in debian/rules"
 	exit 1
     fi
-elif [ `uname` = NetBSD ]
+elif $dorpm
+then
+    configopts=`rpmbuild --eval '--prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir}' 2>/dev/null`
+    # rpmbuild clears the environment, so force these settings into the
+    # rpm build configure
+    #
+    configopts="$configopts --with-make=$MAKE --with-tar=$TAR --with-zip=$ZIP"
+elif [ $target = darwin ]
+then
+    # On Mac OS X platforms, we install away from /usr/bin, /usr/lib
+    # and so on because of security requirements in recent versions.
+    #
+    configopts="--prefix=/usr/local --sysconfdir=/etc --localstatedir=/var"
+elif [ $target = netbsd ]
 then
     # Try to mimic where pkgsrc/pkgin place things
     #
@@ -79,6 +104,8 @@ in
 	;;
 esac
 
+echo "Using: configure $configopts ..."
+
 ./configure $configopts
 
 if [ ! -f src/include/pcp.conf ]
@@ -114,14 +141,16 @@ cd $here
 tmp=/var/tmp/$$
 trap "rm -rf $tmp.* $tmp; exit 0" 0 1 2 3 15
 
+eval `grep PCP_INC_DIR= src/include/pcp.conf`
+
 mkdir $tmp
 
 cat <<End-of-File | while read wa_file pkg_file
 src/include/pcp.conf		/etc/pcp.conf
-src/include/builddefs		/usr/include/pcp/builddefs
-src/include/pcp/config.h	/usr/include/pcp/config.h
-src/include/pcp/configsz.h	/usr/include/pcp/configsz.h
-src/include/pcp/platform_defs.h	/usr/include/pcp/platform_defs.h
+src/include/builddefs		$PCP_INC_DIR/builddefs
+src/include/pcp/config.h	$PCP_INC_DIR/config.h
+src/include/pcp/configsz.h	$PCP_INC_DIR/configsz.h
+src/include/pcp/platform_defs.h	$PCP_INC_DIR/platform_defs.h
 End-of-File
 do
     if [ -f "$wa_file" ]
