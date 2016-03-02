@@ -343,7 +343,7 @@ local_connection(files_t *file)
 {
     if (file->type == FILE_TAIL)
 	local_log_rotated(file);
-    else if (file->type == FILE_TAIL)
+    else if (file->type == FILE_SOCK)
 	local_reconnector(file);
 }
 
