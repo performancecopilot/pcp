@@ -432,7 +432,11 @@ multiread:
 				local_filetype(files[i].type));
 		exit(1);
 	    }
-	    buffer[sizeof(buffer)-1] = '\0';
+	    /*
+	     * good read ... data up to buffer + offset + bytes is all OK
+	     * so mark end of data
+	     */
+	    buffer[offset+bytes] = '\0';
 	    for (s = p = buffer, j = 0;
 		 *s != '\0' && j < sizeof(buffer)-1;
 		 s++, j++) {
