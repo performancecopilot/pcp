@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -d $PCP_PMDAS_DIR/trace ] || _notrun "trace PMDA directory is not installed"
+
 signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 

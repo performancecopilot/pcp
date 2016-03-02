@@ -9,6 +9,9 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 . ./common.python
+
+[ -d $PCP_PMDAS_DIR/mounts ] || _notrun "mounts PMDA directory is not installed"
+
 [ $PCP_PLATFORM = mingw -o $PCP_PLATFORM = darwin ] && \
     _notrun "Test only valid on platforms with a mount table"
 

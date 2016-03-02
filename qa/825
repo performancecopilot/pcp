@@ -18,6 +18,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -d $PCP_PMDAS_DIR/ds389 ] || _notrun "ds389 PMDA directory is not installed"
+
 $PCP_BINADM_DIR/telnet-probe -c localhost 389 || \
     _notrun "Noones home on the default DS 389 port"
 

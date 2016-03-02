@@ -12,6 +12,8 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
+[ -d $PCP_PMDAS_DIR/simple ] || _notrun "simple PMDA directory is not installed"
+
 trap "rm -rf $tmp $tmp.*; exit" 0 1 2 3 15
 
 $sudo rm -rf $tmp $tmp.* $seq.full

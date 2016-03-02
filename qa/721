@@ -10,6 +10,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -d $PCP_PMDAS_DIR/sample ] || _notrun "sample PMDA directory is not installed"
+
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.* sample.log; exit \$status" 0 1 2 3 15
