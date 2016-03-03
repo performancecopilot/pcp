@@ -1167,7 +1167,8 @@ sub parameter_insts
 {
     if ((my $count = keys(%parameter_instances)) == 0) {
 	foreach my $sid (@sids) {
-	    $parameter_instances{$sid} = \@novalues;
+	    my @empty_values = ('', '');
+	    $parameter_instances{$sid} = \@empty_values;
 	}
 	$pmda->replace_indom($parameter_indom, \%parameter_instances);
     }
