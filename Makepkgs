@@ -2,7 +2,7 @@
 #
 # Make whichever packages the system supports
 #
-# Copyright (c) 2012-2015 Red Hat.
+# Copyright (c) 2012-2016 Red Hat.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -599,6 +599,8 @@ packaging_rpm()
 
     rm -f $tmp/failed
     export DIST_ROOT=${topdir}/build/rpm/${source}
+    # sign if --signed and $RPM_SIGN_KEYID set in the environment
+    $signed && [ -z "$RPM_SIGN_KEYID" ] && unset RPM_SIGN_KEYID
     if $verbose ; then
 	($MAKE -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
     else

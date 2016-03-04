@@ -32,10 +32,15 @@ default install install_pcp default_pcp :
 # local build distro defaults do their jobs.
 pack_pcp : rpmmacros $(SPEC)
 	DEFS=`grep '^--define' rpmmacros`; \
-	eval $(RPMPROG) -ba $$DEFS \
-		--clean $(SPEC)
-	rm -f $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm \
-		rpmmacros 
+	eval $(RPMPROG) -ba $$DEFS --clean $(SPEC)
+	@if [ -n "$$RPM_SIGN_KEYID" ]; then \
+	    echo "Signing packages with key: $$RPM_SIGN_KEYID"; \
+	    RPMDIR=`sed -n -e "s,'$$,/,g" -e 's/.*_rpmdir *//p' < rpmmacros`; \
+	    RPMS=`rpmspec -q --rpms $(SPEC) | \
+		sed -e "s,^,$${RPMDIR},g" -e 's/$$/.rpm/g'`; \
+	    rpmsign --addsign --key-id=$${RPM_SIGN_KEYID} $${RPMS}; \
+	fi
+	rm -f $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm rpmmacros 
 
 rpmmacros : macros.template
 	@TREEROOT=`cd ${TOPDIR}; pwd`; \
