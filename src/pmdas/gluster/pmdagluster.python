@@ -1,4 +1,4 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 '''
 Performance Metrics Domain Agent exporting Gluster filesystem metrics.
 '''

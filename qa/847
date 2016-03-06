@@ -23,10 +23,10 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 echo "testing pcp-monitor container basic functionality (using local pmcd)"
-sudo atomic run pcp-monitor /usr/bin/pcp -h localhost >/dev/null 2>&1 || exit 1
+sudo atomic run pcp-monitor $PCP_BIN_DIR/pcp -h localhost >/dev/null 2>&1 || exit 1
 $docker rm `docker ps -aq` >/dev/null 2>&1
 
-sudo atomic run pcp-monitor /usr/bin/pcp iostat -s 2 -h localhost >/dev/null 2>&1 || exit 1
+sudo atomic run pcp-monitor $PCP_BIN_DIR/pcp iostat -s 2 -h localhost >/dev/null 2>&1 || exit 1
 $docker rm `docker ps -aq` >/dev/null 2>&1
 
 echo "testing pcp-pmwebd container basic functionality (using local pmcd)"

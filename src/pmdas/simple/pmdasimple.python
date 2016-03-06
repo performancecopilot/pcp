@@ -1,4 +1,4 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 '''
 Python implementation of the "simple" Performance Metrics Domain Agent.
 '''
