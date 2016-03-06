@@ -418,7 +418,10 @@ NF == 0	{ txt = ""; next }
 	  else txt = txt "\n" \$0
 	}
 END	{ print txt }' \
-| egrep '^(Failures:|Failed|Passed)'
+| awk '
+\$1 == "Failures:"	{ want = 1 }
+\$1 == "Passed"		{ want = 1 }
+want == 1		{ print }'
 if [ "\$sts" = 0 ]
 then
     echo "Info: QA $check_what done" | tee -a \$HOME/daily.log
