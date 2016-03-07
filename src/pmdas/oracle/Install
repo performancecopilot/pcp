@@ -21,7 +21,6 @@
 
 iam=oracle
 domain=32
-os_user=$iam
 perl_opt=true
 daemon_opt=false
 forced_restart=true
@@ -32,9 +31,10 @@ if test $? -ne 0; then
     exit 1
 fi
 
-eval `perl $PCP_PMDAS_DIR/oracle/connect.pl -c`
+# Get os_user definition
+eval `perl $PCP_PMDAS_DIR/oracle/connect.pl --config`
 
-id $os_user >/dev/null 2>&1
+id -g $os_user >/dev/null 2>&1
 if test $? -ne 0; then
     echo "Cannot change user to $os_user, sorry this is fatal"
     exit 1
