@@ -1,4 +1,4 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 """ Test PCP web daemon accessing container metrics -*- python -*- """
 #
 # Copyright (C) 2015 Red Hat.

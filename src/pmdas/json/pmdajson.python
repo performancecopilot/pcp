@@ -1,4 +1,4 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 # -*-Python-*-
 # pylint: disable=too-many-public-methods, too-many-instance-attributes
 '''

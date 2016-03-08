@@ -36,7 +36,9 @@ _filter_kernel()
 {
     sed \
 	-e "s/value $hertz$/value HZ/g" \
+	-e '/kernel.all.hz/s/[0-9][0-9.]* (/PMID (/' \
 	-e "s/value $pagesz$/value PAGESZ/g" \
+	-e '/hinv.pagesize/s/[0-9][0-9.]* (/PMID (/' \
 	-e 's/TIMESTAMP  /              /g' \
     #end
 }

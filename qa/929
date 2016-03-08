@@ -35,6 +35,7 @@ _filter()
     sed \
 	-e '/NOTICES/d' \
 	-e "s,$tmp,TMP,g" \
+	-e "s,/privateTMP,TMP,g" \
 	-e "s,$PCP_TMP_DIR,PCP_TMP_DIR,g" \
 	-e "s/$PAST/PAST/g"
 }

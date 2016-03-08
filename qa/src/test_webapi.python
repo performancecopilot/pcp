@@ -1,4 +1,4 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 """ Test creation of a PCP web daemon via the requests module -*- python -*- """
 #
 # Copyright (C) 2013-2015 Red Hat Inc.

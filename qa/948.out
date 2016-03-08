@@ -29,15 +29,15 @@ pmlogger: End of run time, exiting
 Log finished DATE
 verifying the archive
 PAGESZ samples:
-              60.1.11 (hinv.pagesize): value PAGESZ
-              60.1.11 (hinv.pagesize): value PAGESZ
-              60.1.11 (hinv.pagesize): value PAGESZ
-              60.1.11 (hinv.pagesize): value PAGESZ
+              PMID (hinv.pagesize): value PAGESZ
+              PMID (hinv.pagesize): value PAGESZ
+              PMID (hinv.pagesize): value PAGESZ
+              PMID (hinv.pagesize): value PAGESZ
 HZ samples:
-              60.0.48 (kernel.all.hz): value HZ
-              60.0.48 (kernel.all.hz): value HZ
-              60.0.48 (kernel.all.hz): value HZ
-              60.0.48 (kernel.all.hz): value HZ
+              PMID (kernel.all.hz): value HZ
+              PMID (kernel.all.hz): value HZ
+              PMID (kernel.all.hz): value HZ
+              PMID (kernel.all.hz): value HZ
 MILLION samples:
               30.0.13 (sampledso.long.million): value 1000000
               30.0.13 (sampledso.long.million): value 1000000

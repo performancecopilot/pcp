@@ -1087,6 +1087,7 @@ cgroups
 860 pmda pmda.proc ostest local pmval
 861 pmcd pmda.pmcd local
 862 pmie local
+863 python local
 864 pcp python local
 868 pmda.install local
 869 pmda.linux local
