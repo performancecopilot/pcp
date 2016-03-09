@@ -332,6 +332,7 @@ __dminit(void)
     if (need_init) {
 	char	*configpath;
 	int	sts;
+	char	global[MAXPATHLEN+1];
 
 	/* anon metrics for event record unpacking */
 PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_PMAPI);
@@ -349,11 +350,20 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_PMAPI);
 		    pmProgname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
 
-	/* next user-defined derived metrics */
-	if ((configpath = getenv("PCP_DERIVED_CONFIG")) != NULL) {
+	/*
+	 * Next, user-defined derived metrics if PCP_DERIVED_CONFIG is set,
+	 * or if not, global derived configs below $PCP_VAR_DIR/config/derived
+	 */
+	if ((configpath = getenv("PCP_DERIVED_CONFIG")) == NULL) {
+	    snprintf(global, sizeof(global), "%s/config/derived", pmGetConfig("PCP_VAR_DIR"));
+	    if (access(global, F_OK) == 0)
+		configpath = global;
+	}
+	if (configpath) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
-		fprintf(stderr, "Derived metric initialization from $PCP_DERIVED_CONFIG\n");
+		fprintf(stderr, "Derived metric initialization from %s\n",
+		    configpath == global ? global : "$PCP_DERIVED_CONFIG");
 	    }
 #endif
 	    __dminit_parse(configpath, 1 /*recovering*/);
