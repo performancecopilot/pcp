@@ -534,6 +534,13 @@ debian_build()
     prepare_debian_control
     sanity_check_settings
     debian_buildpackage
+
+    # success!
+    if ! $verbose ; then
+	grep ^dpkg-deb $LOGDIR/pcp | \
+	    sed -e 's,\.$,,g' -e "s,',,g" -e "s,\.\.,$topdir/build/deb,g" | \
+	    awk '{ print "Wrote:", $NF }'
+    fi
     exit 0
 }
 
