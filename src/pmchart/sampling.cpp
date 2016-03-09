@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Red Hat.
+ * Copyright (c) 2012-2016, Red Hat. All Rights Reserved.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
@@ -149,7 +149,7 @@ SamplingItem::rescaleValues(pmUnits *new_units)
     pmUnits	*old_units = &ChartItem::my.units;
     pmAtomValue	old_av, new_av;
 
-    console->post("Chart::update change units from %s to %s",
+    console->post("Chart::rescaleValues change units from %s to %s",
 			pmUnitsStr(old_units), pmUnitsStr(new_units));
 
     for (int i = my.dataCount - 1; i >= 0; i--) {
@@ -171,6 +171,7 @@ SamplingItem::replot(int history, double *timeData)
 {
     int count = qMin(history, my.dataCount);
     my.curve->setRawSamples(timeData, my.itemData, count);
+    console->post("SamplingItem::replot");
 }
 
 void
