@@ -2268,6 +2268,8 @@ cd
 %{_includedir}/pcp/builddefs
 %{_includedir}/pcp/buildrules
 %config %{_sysconfdir}/pcp.conf
+%dir %{_localstatedir}/lib/pcp/config/derived
+%config %{_localstatedir}/lib/pcp/config/derived/*
 
 %files libs
 %{_libdir}/libpcp.so.3
