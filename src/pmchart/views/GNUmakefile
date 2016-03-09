@@ -3,7 +3,7 @@ include $(TOPDIR)/src/include/builddefs
 
 VIEWS	= CPU Disk Diskbytes Loadavg NFS2 NFS3 Filesystem Memory Netbytes \
 	  Netpackets PMCD Syscalls Paging Overview Schemes Sockets Swap \
-	  ApacheServer ElasticsearchServer vCPU MemAvailable
+	  ApacheServer ElasticsearchServer vCPU MemAvailable Iostat
 
 default build-me:
 
