@@ -1224,7 +1224,6 @@ darwin_init(pmdaInterface *dp)
 	mach_hertz = 100;
     if ((sts = refresh_hinv()) != 0)
 	fprintf(stderr, "darwin_init: refresh_hinv failed: %s\n", pmErrStr(sts));
-    fprintf(stderr, "hw_model=%s\n", hw_model);
     init_network();
 }
 
