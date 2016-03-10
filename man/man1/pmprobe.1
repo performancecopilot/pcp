@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.  All Rights Reserved.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -67,7 +68,11 @@ The
 .B \-a
 option causes
 .B pmprobe
-to use the specified archive rather than connecting to a PMCD.  The
+to use the specified set of archives rather than connecting to a PMCD.
+The argument is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+The
 .B \-a
 and
 .B \-h
@@ -141,7 +146,7 @@ the
 option the
 .I time
 argument defines a time origin at which the metrics should be
-fetched from the archive.
+fetched from the archive(s).
 Refer to
 .BR PCPIntro (1)
 for a complete description of this option, and the syntax for the
@@ -152,7 +157,7 @@ argument.
 Report the value for each instance, as per the formatting
 rules of
 .BR pmPrintValue (3).
-When fetching from an archive, only
+When fetching from a set of archives, only
 those instances present in the first archive record for a metric will be
 displayed; see also the
 .B \-O

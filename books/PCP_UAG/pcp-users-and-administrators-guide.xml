@@ -26,6 +26,7 @@
 <copyright>
 <year>2013</year>
 <year>2015</year>
+<year>2016</year>
 <holder>Red Hat, Inc.</holder>
 </copyright>
 
@@ -479,15 +480,15 @@ has already negotiated to establish the context in which the request should
 be executed.</para>
 <para><indexterm id="IG3137188865"><primary>pmlogger tool</primary><secondary>current metric
 context</secondary></indexterm>A metric source may be the current performance
-data from a particular host (a live or real-time source), or an archive
-log of performance data collected by <command>pmlogger</command> at some
+data from a particular host (a live or real-time source), or a set of archive
+logs of performance data collected by <command>pmlogger</command> at some
 distant host or at an earlier time (a retrospective or archive source).
 </para>
 <para><indexterm id="ITch01-134"><primary>collection time</primary></indexterm>By
 default, the collection time for a performance metric is the current time
 of day for real-time sources, or current point within an archive source.
 For archives, the collection time may be reset to an arbitrary time within
-the bounds of the archive log.<indexterm id="ITch01-135"><primary>archive logs</primary>
+the bounds of the set of archive logs.<indexterm id="ITch01-135"><primary>archive logs</primary>
 <secondary>collection time</secondary></indexterm></para>
 </section>
 <section id="id5188562">
@@ -861,7 +862,7 @@ Python scripting interfaces.</para>
 <listitem><para><indexterm id="IG3137188800nat"><primary>pmchart tool</primary>
 <secondary>brief description</secondary></indexterm>Strip chart tool for
 arbitrary performance metrics. Interactive graphical utility that can display
-multiple charts simultaneously, from multiple hosts or archives, aligned on a
+multiple charts simultaneously, from multiple hosts or set of archives, aligned on a
 unified time axis (X-axis), or on multiple tabs.</para>
 </listitem></varlistentry>
 <varlistentry>
@@ -879,7 +880,7 @@ more complex functionality with relative ease, with PCP as a foundation.</para>
 <term><command>pmdumptext</command></term>
 <listitem><para><indexterm id="ITch01-22"><primary>pmdumptext tool</primary>
 <secondary>brief description</secondary></indexterm>Outputs the values
-of arbitrary performance metrics collected live or from a PCP archive, in
+of arbitrary performance metrics collected live or from a single PCP archive, in
 textual format.</para>
 </listitem></varlistentry>
 <varlistentry>
@@ -915,7 +916,7 @@ text with <literal>-T</literal>.</para>
 <term><command>pmlogsummary</command></term>
 <listitem><para><indexterm id="IG3137188831"><primary>pmlogsummary tool</primary></indexterm>Calculates
 and reports various statistical summaries of the performance metric values
-from a PCP archive.</para>
+from a set of PCP archives.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmprobe</command></term>
@@ -1138,8 +1139,8 @@ Scans Web-server logs to extract metrics characterizing.</para>
 <term><command>pmdumplog</command></term>
 <listitem><para><indexterm id="ITch01-66"><primary>pmdumplog tool</primary>
 <secondary>brief description</secondary></indexterm>Displays selected
-state information, control data, and metric values from a PCP archive
-log created by <command>pmlogger</command>.</para>
+state information, control data, and metric values from a set of PCP archive
+logs created by <command>pmlogger</command>.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmlc</command></term>
@@ -1152,7 +1153,7 @@ their values are logged.</para>
 <varlistentry>
 <term><command>pmlogcheck</command></term>
 <listitem><para><indexterm id="IG3137188844"><primary>pmlogcheck tool</primary></indexterm>Performs
-integrity check for PCP archives.</para>
+integrity check for individual PCP archives.</para>
 </listitem></varlistentry>
 <varlistentry>
 <term><command>pmlogconf</command></term>
@@ -2227,17 +2228,19 @@ and examples of use of these specifications can also be found in the
 </secondary></indexterm><indexterm id="ITch03-8"><primary>PCP</primary>
 <secondary>log file option</secondary></indexterm>The option <literal>-a</literal>
 <replaceable>archive</replaceable> directs the utility to
-treat the PCP archive logs with base name <replaceable>archive</replaceable>
-as the principal source of performance metrics and metadata.</para>
+treat the set of PCP archive logs designated by <replaceable>archive</replaceable>
+as the principal source of performance metrics and metadata.
+<replaceable>archive</replaceable> is a comma-sparated list of names, each of which may be the base name of an archive or the name of a directory containing
+archives.</para>
 <para><indexterm id="IG31371888117"><primary>pmlogger tool</primary><secondary>archive logs
 </secondary></indexterm>PCP archive logs are created with <command>pmlogger</command>.
 Most PCP utilities operate with equal facility for performance
 information coming from either a real-time feed via PMCD on some host,
-or for historical data from a PCP archive log. For more information on
+or for historical data from a set of PCP archive logs. For more information on
 archive logs and their use, see <xref linkend="LE93354-PARENT"/>.</para>
 <para><indexterm id="ITch03-9"><primary>archive logs</primary><secondary>
-physical filenames</secondary></indexterm>The base name (<filename>archive</filename>)
-of the PCP archive log used with the <literal>-a</literal>
+physical filenames</secondary></indexterm>The list of names (<filename>archive</filename>)
+used with the <literal>-a</literal>
 option implies the existence of the files created automatically by <command>pmlogger</command>,
 as listed in <xref linkend="id5193871"/>.</para>
 <table id="id5193871" frame="topbot">
@@ -2266,7 +2269,7 @@ metrics and instance domains appearing in the archive</para></entry></row>
 <entry align="left" valign="top"><para>Volumes of performance metrics
 values, for <filename>N</filename> = 0,1,2,...</para></entry></row></tbody>
 </tgroup></table>
-<para>Some tools are able to concurrently process multiple PCP archive
+<para>Most tools are able to concurrently process multiple PCP archive
 logs (for example, for retrospective analysis of performance across multiple
 hosts), and accept either multiple <command>-a</command> options or a
 comma separated list of archive names following the <command>-a</command>
@@ -2440,20 +2443,20 @@ to define a time window of interest.</para>
 <listitem><para>The start option may be used to request that the display
 start at the nominated time. By default, the first sample of performance
 data is retrieved immediately in real-time mode, or coincides with the
-first sample of data in a PCP archive log in archive mode. For archive
+first sample of data of the first archive in a set of PCP archive logs in archive mode. For archive
 mode, the <literal>-S</literal> option may be used to specify a later
 time for the start of sampling. By default, if <replaceable>duration</replaceable>
 is an integer, the units are assumed to be seconds.</para>
-<para>To specify an offset from the beginning of a PCP archive (in archive
+<para>To specify an offset from the beginning of a set of PCP archives (in archive
 mode) simply specify the offset as the <replaceable>duration</replaceable>.
 For example, the following entry retrieves the first sample of data at
-exactly 30 minutes from the beginning of a PCP archive.</para>
+exactly 30 minutes from the beginning of a set of PCP archives.</para>
 <para><literallayout class="monospaced">-S 30min </literallayout></para>
-<para>To specify an offset from the end of a PCP archive, prefix the
+<para>To specify an offset from the end of a set of PCP archives, prefix the
 <replaceable>duration</replaceable> with a minus sign. In this case, the first sample
 time precedes the end of archived data by the given <replaceable>duration</replaceable>.
 For example, the following entry retrieves the first sample
-exactly one hour preceding the last sample in a PCP archive.</para>
+exactly one hour preceding the last sample in a set of PCP archives.</para>
 <para><literallayout class="monospaced">-S -1hour </literallayout></para>
 <para>To specify the calendar date and time (local time in the reporting
 timezone) for the first sample, use the <literal>ctime(3)</literal> syntax
@@ -2471,13 +2474,13 @@ argument for the PCP tool.</para>
 <listitem><para>The terminate option may be used to request that the display
 stop at the time designated by <replaceable>duration</replaceable>. By
 default, the PCP tools keep sampling performance data indefinitely (in
-real-time mode) or until the end of a PCP archive (in archive mode). The <literal>-T</literal> option may be used to specify an earlier time to terminate
+real-time mode) or until the end of a set of PCP archives (in archive mode). The <literal>-T</literal> option may be used to specify an earlier time to terminate
 sampling.</para>
 <para>The interpretation for the <replaceable>duration</replaceable> argument
 in a <literal>-T</literal> option is the same as for the <literal>-S</literal>
 option, except for an unsigned time interval that is interpreted as being
 an offset from the start of the time window as defined by the default
-(now for real time, else start of archive) or by a <literal>-S</literal>
+(now for real time, else start of archive set) or by a <literal>-S</literal>
 option. For example, these options define a time window that spans 45
 minutes, after an initial offset (or delay) of 1 hour:<literallayout class="monospaced">-S 1hour -T 45mins</literallayout></para>
 </listitem></varlistentry>
@@ -3793,8 +3796,8 @@ PMCD</primary><secondary>collector host</secondary></indexterm>The performance
 metrics namespace (PMNS) provides a means of naming performance metrics,
 for example, <literal>disk.dev.read</literal>. 
 PCP allows an application to retrieve one or more values for a performance
-metric from a designated source (a collector host running PMCD, or a PCP archive
-log). To specify a single value for some performance metric requires the metric
+metric from a designated source (a collector host running PMCD, or a set of PCP archive
+logs). To specify a single value for some performance metric requires the metric
 name to be associated with all three of the following:</para>
 <itemizedlist>
 <listitem><para>A particular host (or source of metrics values)</para>
@@ -4229,7 +4232,7 @@ might be as shown in <xref linkend="Z983833442sdc"/>:</para>
                          [disk1] busy, 3.7 IOPS [disk2] busy, 0.3 IOPS</literallayout>
 </example>
 <note><para>When <command>pmie</command> is processing performance metrics
-from a PCP archive log, the <replaceable>actions</replaceable> will be processed
+from a set of PCP archive logs, the <replaceable>actions</replaceable> will be processed
 in the expected manner; however, the action methods are modified to report
 a textual facsimile of the <replaceable>action</replaceable> on the standard
 output.</para>
@@ -5013,9 +5016,9 @@ general issues involving archive logs and the PCP tools.</para>
 
 <title>Coordination between <command>pmlogger</command> and PCP tools</title>
 <para><indexterm id="IG31371888251"><primary>pmlogger tool</primary><secondary>PCP tool coordination
-</secondary></indexterm>Most commonly, a PCP tool would be invoked with the <literal>-a</literal> option to process an archive log some time after <command>pmlogger</command> had finished creating the archive. However, a tool such as
+</secondary></indexterm>Most commonly, a PCP tool would be invoked with the <literal>-a</literal> option to process sets of archive logs some time after <command>pmlogger</command> had finished creating the archive. However, a tool such as
 <command>pmchart</command> that uses a Time Control dialog (see <xref linkend="LE76997-PARENT"/>)
-stops when the end of archive is reached, but could resume if more data is
+stops when the end of a set of archives is reached, but could resume if more data is
 written to the PCP archive log.<note><para><indexterm id="IG31371888252"><primary>SIGUSR1 signal
 </primary></indexterm><indexterm id="IG31371888253"><primary>flush command</primary></indexterm><indexterm id="IG31371888254">
 <primary>pmlc tool</primary><secondary>flush command</secondary></indexterm><command>pmlogger</command>
@@ -5231,7 +5234,7 @@ Performance metrics from host www.sgi.com
      commencing Wed Jul 31 00:16:34.941 1996
      ending     Thu Aug  1 00:18:01.468 1996</literallayout>
 <para>The simplest way to discover what performance metrics are contained
-within an archive is to use <literal>pminfo</literal> as shown in <xref linkend="Z984165598sdc"/>:
+within a set of archives is to use <literal>pminfo</literal> as shown in <xref linkend="Z984165598sdc"/>:
 </para>
 <example id="Z984165598sdc">
 <title>Using <literal>pminfo</literal> to Obtain Archive Information</title>
@@ -5443,7 +5446,7 @@ manipulating archive logs, primary logger, and using <command>pmlc</command>.
 <primary>archive logs</primary><secondary>folios</secondary></indexterm><indexterm id="IG31371888292">
 <primary>pmchart tool</primary><secondary>record mode</secondary></indexterm><indexterm id="IG31371888293">
 <primary>pmcollectl tool</primary><secondary>record mode</secondary></indexterm>A
-collection of one or more PCP archive logs may be combined with a control
+collection of one or more sets of PCP archive logs may be combined with a control
 file to produce a PCP archive folio. Archive folios are created using either <literal>mkaf</literal> or the interactive record mode services of various PCP monitor tools (e.g. <command>pmchart</command> and <command>pmcollectl</command>).</para>
 <para><indexterm id="IG31371888294"><primary>pmlogger tool</primary><secondary>folios</secondary>
 </indexterm>The automated archive log management services also create an archive
@@ -5498,11 +5501,11 @@ full information on this command.</para>
 <para><indexterm id="ITch07-11"><primary>pmlogsummary tool</primary></indexterm>
 The <literal>pmlogsummary</literal> tool provides statistical summaries of
 archives, or specific metrics within archives, or specific time windows of
-interest in an archive.  These summaries include various averages, minima,
+interest in a set of archives.  These summaries include various averages, minima,
 maxima, sample counts, histogram bins, and so on.</para>
 <para>As an example, for Linux host <literal>pluto</literal>, report on its
 use of anonymous huge pages - average use, maximum, time at which maximum
-occured, total number of samples in the archive, and the units used for the
+occured, total number of samples in the set of archives, and the units used for the
 values - as shown in <xref linkend="Z984165598nat"/>:
 </para>
 <example id="Z984165598nat">

@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2015 Red Hat.
+.\" Copyright (c) 2015-2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -70,7 +70,7 @@ flag as described below.
 Unless directed to another host by the
 .B \-h
 option,
-or to an archive by the
+or to a set of archives by the
 .B \-a
 or
 .B \-U
@@ -103,7 +103,7 @@ causes
 to use a local context to collect metrics from PMDAs on the local host
 without PMCD.  Only some metrics are available in this mode.
 .PP
-When processing an archive,
+When processing a set of archives,
 .B pmval
 may relinquish its own timing control, and operate as a ``slave'' of
 a
@@ -143,12 +143,14 @@ reported by
 are as follows:
 .TP 5
 .B \-a
-Performance metric values are retrieved from the Performance Co-Pilot (PCP)
-archive log file identified by the base name
-.IR archive .
+Performance metric values are retrieved from the set of Performance Co-Pilot (PCP)
+archive logs identified. The argument is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives. See also
+.BR \-U .
 .TP
 .B \-d
-When replaying from an archive,
+When replaying from a set of archives,
 this option requests that the prevailing real-time delay be applied between
 samples (see
 .BR \-t )
@@ -265,7 +267,7 @@ is 0 or
 is not specified, 
 .B pmval
 will sample and report continuously (in real time mode) or until the end
-of the PCP archive (in archive mode).
+of the set of PCP archives (in archive mode).
 .TP
 .B \-t
 The default update \f2interval\f1 may be set to something other than the
@@ -278,16 +280,18 @@ and in the simplest form may be an unsigned integer (the implied
 units in this case are seconds).
 .TP
 .B \-U
-Performance metric values are retrieved from the Performance Co-Pilot (PCP)
-archive log file identified by the base name
-.IR archive ,
-although unlike
+Performance metric values are retrieved from the set of Performance Co-Pilot (PCP)
+archive logs identified. The argument is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+However, unlike
 .B \-a
 every recorded value in the archive for the selected metric
 and instances is reported (so no interpolation mode, and the sample
 interval (\c
 .B \-t
-option) is ignored.
+option) is ignored. See also
+.BR \-a .
 .RS +5n
 .PP
 At most one of the options
