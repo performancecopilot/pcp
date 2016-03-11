@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -63,7 +64,7 @@ each line contain one host name, with
 .B \-H,
 or multiple
 .B \-a
-flags (for retrospective monitoring from an archive).
+flags (for retrospective monitoring from sets of archives).
 .P
 The
 .B \-t
@@ -105,9 +106,12 @@ flags.
 Alternatively, if the
 .B \-a
 option is used, the metrics are retrieved from the Performance Co-Pilot
-archive log files identified by the base name
-.IR archive .
-Multiple archives may be replayed by supplying multiple
+archive log files identified by
+.IR archive ,
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+Multiple sets of archives may be replayed by supplying multiple
 .B \-a
 flags.
 When the
@@ -117,7 +121,7 @@ the
 .B \-P
 flag may also be used to pause the output after each interval.
 .PP
-Standalone mode can only connect to the local host, using an archive implies
+Standalone mode can only connect to the local host, using a set of archives implies
 a host name, and nominating a host precludes using an archive, so the options
 .BR \-L ,
 .B \-a 
@@ -147,7 +151,7 @@ is not specified,
 .B pmstat
 will sample and report continuously \- this is the default behavior.
 .PP
-When processing an archive,
+When processing a set of archives,
 .B pmstat
 may relinquish its own timing control, and operate as a ``slave'' of a
 .BR pmtime (1)

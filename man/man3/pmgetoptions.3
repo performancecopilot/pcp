@@ -1,5 +1,5 @@
 .\"
-.\" Copyright (c) 2014 Red Hat.
+.\" Copyright (c) 2014-2016 Red Hat.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -297,9 +297,10 @@ There may be other post-processing at this stage also, provided it does
 not require a PMAPI context.
 .TP
 .B PM_OPTFLAG_MULTI
-Allow more than one host or archive to be specified.
+Allow more than one host or set of archives to be specified.
 The default is to allow one source of metrics only, however some of the
-more sophisticated tools permit multiple metric sources.
+more sophisticated tools permit multiple metric sources, each of which is
+handled within a separate context.
 See also
 .BR PM_OPTFLAG_MIXED .
 .TP
