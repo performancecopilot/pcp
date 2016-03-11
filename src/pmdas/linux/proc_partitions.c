@@ -350,10 +350,10 @@ refresh_proc_partitions(pmInDom disk_indom, pmInDom partitions_indom,
     pmdaCacheOp(dm_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(md_indom, PMDA_CACHE_INACTIVE);
 
-    if ((fp = linux_statsfile("/proc/diskstats", buf, sizeof(buf))) != NULL)
+    if ((fp = linux_statsfile("/proc/diskstats", buf, sizeof(buf))))
 	/* 2.6 style disk stats */
 	have_proc_diskstats = 1;
-    else if (!(fp = linux_statsfile("/proc/partitions", buf, sizeof(buf))))
+    else if ((fp = linux_statsfile("/proc/partitions", buf, sizeof(buf))))
 	have_proc_diskstats = 0;
     else
 	return -oserror();
