@@ -339,6 +339,8 @@ QA output created by 366
 > 	hinv.ndisk
 > 	hinv.ninterface
 > 	hinv.pagesize
+> 	hinv.map.dmname
+> 	hinv.map.mdname
 > 	kernel.all.hz
 > 	kernel.uname.release
 > 	kernel.uname.version
