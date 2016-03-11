@@ -53,10 +53,12 @@ linux_filter()
 {
     sed \
 	-e "/disk\.dm\..*: $unavailable/d" \
+	-e "/disk\.md\..*: $unavailable/d" \
 	-e "/filesys\.readonly: $unknown/d" \
 	-e "/hinv\.cpu\..*: $unavailable/d" \
 	-e "/hinv\.hugepagesize: $unavailable/d" \
 	-e "/hinv\.map\.dmname: $unavailable/d" \
+	-e "/hinv\.map\.mdname: $unavailable/d" \
 	-e "/hinv\.nlv: $unavailable/d" \
 	-e "/hinv\.node\.online: $unavailable/d" \
 	-e "/kernel\.pernode..*: $unavailable/d" \
