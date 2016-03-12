@@ -68,7 +68,7 @@ End-of-File
 # Perl script
 #
 cat <<'End-of-File' >$tmp.pl
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 use strict;
 use warnings;

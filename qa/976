@@ -37,11 +37,11 @@ cd "$PCP_PMDAS_DIR/lustre"
 # create a root namespace file for dbpmda to use
 export LUSTRE_LLITE_PATH="$here/lustre/llite/"
 export LUSTRE_LNET_PATH="$here/lustre/lnet/"
-PCP_PERL_PMNS=root /usr/bin/perl $script > $tmp.root
+PCP_PERL_PMNS=root /usr/bin/env perl $script > $tmp.root
 
 # create a set of commands for dbpmda
 cat >$tmp.cmds <<End-of-File
-open pipe /usr/bin/perl $script
+open pipe /usr/bin/env perl $script
 getdesc on
 desc lustre.llite.superblock
 desc lustre.llite.volume
