@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -76,7 +77,7 @@ Any or all of these parameters may be NULL
 to indicate that the corresponding command line option was not
 present.
 .P
-If the application is using a PCP archive log as the source
+If the application is using a set of PCP archive logs as the source
 of performance metrics, you also
 need to supply the time of the first archive log entry as
 .BR logStart ,
@@ -147,7 +148,7 @@ parameter is not changed when
 returns 1.
 .P
 If the conversion is successful, but the requested alignment could not be
-performed (e.g. the PCP archive log is too short) the alignment is
+performed (e.g. the set of PCP archive logs is too short) the alignment is
 ignored,
 .BR rsltStart ,
 .B rsltEnd

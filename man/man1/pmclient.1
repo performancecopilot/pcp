@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -72,7 +73,13 @@ option, or to an archive by the
 option,
 .B pmclient
 will contact the Performance Metrics Collector Daemon (PMCD)
-on the local host to obtain the required information.  The
+on the local host to obtain the required information.
+The argument to
+.B \-a
+is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+The
 .B \-a
 and
 .B \-h
@@ -104,10 +111,10 @@ options.
 Other options control the specific information to be reported.
 .TP
 \f3\-P\f1
-The default behavior for replaying an archive, is to replay at
+The default behavior for replaying a set of archives, is to replay at
 full speed.  The
 .B \-P
-option may be used in conjunction with an archive, to request that
+option may be used in conjunction with a set of archives, to request that
 the prevailing real-time delay be applied between samples (see
 .BR \-t )
 to effect a pause.
@@ -115,10 +122,10 @@ to effect a pause.
 \f3\-S\f1 \f2numsec\f1
 The
 .B \-S
-option may be used in conjunction with an archive to request that
+option may be used in conjunction with a set of archives to request that
 display start at the time
 .I numsec
-seconds from the start of the archive.
+seconds from the start of the set of archives.
 .TP
 \f3\-s\f1 \f2samples\f1
 The argument
@@ -129,7 +136,7 @@ If samples is 0 or
 is not specified,
 .B pmclient
 will sample and report continuously (in real time mode)
-or until the end of the PCP archive (in archive mode).
+or until the end of the set of PCP archives (in archive mode).
 .TP
 \f3\-t\f1 \f2interval\f1
 The default update \f2interval\f1 may be set to something other than the

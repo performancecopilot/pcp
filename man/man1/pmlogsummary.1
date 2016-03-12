@@ -1,6 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -16,7 +17,7 @@
 .\"
 .TH PMLOGSUMMARY 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmlogsummary\f1 \- calculate averages of metrics stored in a PCP archive
+\f3pmlogsummary\f1 \- calculate averages of metrics stored in a set of PCP archives
 .SH SYNOPSIS
 \f3pmlogsummary\f1
 [\f3\-abfFHiIlmMNsvxyz\f1]
@@ -31,11 +32,14 @@
 .SH DESCRIPTION
 .B pmlogsummary
 prints statistical information about metrics of numeric type contained within
-the files of a Performance Co-Pilot (PCP) archive log.  The default output prints
+the files of a set of Performance Co-Pilot (PCP) archive logs.  The default output prints
 time averages for both counter and non-counter metrics.
-The archive log has the base name
+The set of archive logs is identified by
 .IR archive ,
-typically created using
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+The archive logs are typically created using
 .BR pmlogger (1).
 .PP
 The metrics of interest are named in the
@@ -145,7 +149,7 @@ Report (verbosely) on warnings resulting from individual archive fetches.
 Print stochastic averages instead of the default (time averages).
 .TP
 .B \-y
-Also print the number of samples encountered in the archive for each metric.
+Also print the number of samples encountered in the set of archives for each metric.
 .PP
 By default,
 .B pmlogsummary
@@ -253,7 +257,7 @@ the sum of the product of each sample value multiplied by the time difference
 between each sample, is divided by the total time over which
 that metric was logged.
 .PP
-Counter metrics whose measurements do not span 90% of the archive will be
+Counter metrics whose measurements do not span 90% of the set of archives will be
 printed with the metric name prefixed by an asterisk (*).
 .PP
 .SH EXAMPLE

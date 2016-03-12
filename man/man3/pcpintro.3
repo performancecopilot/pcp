@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -126,7 +127,7 @@ when trying to set the timezone via
 for a remote or archive context.
 .IP (b)
 Attempting to interpolate values for a metric with non-numeric data
-type from a PCP archive.
+type from a set of PCP archives.
 .IP (c)
 A bad
 .I result
@@ -405,10 +406,10 @@ cannot be opened for reading.
 .I "End of PCP archive log"
 .br
 An attempt is made to read past the end file of the last volume
-of a PCP archive, or past the
+of a set of PCP archives, or past the
 end of the time window (as specified with a 
 .B \-T
-option) for a PCP archive.
+option) for a set of PCP archives.
 .TP
 .B PM_ERR_NOTHOST
 .I "Operation requires context with host source of metrics"
@@ -455,13 +456,13 @@ A call to one of the archive variant routines, i.e. \c
 .BR pmLookupInDomArchive (3)
 or
 .BR pmNameInDomArchive (3),
-when the current context is not associated with a PCP archive.
+when the current context is not associated with a set of PCP archives.
 .TP
 .B PM_ERR_PMID_LOG
 .I "Metric not defined in the PCP archive log"
 .br
 A PCP client has requested information about a metric,
-and there is no corresponding information in the PCP archive.
+and there is no corresponding information in the set of PCP archives.
 This should not happen for well-behaved PCP clients.
 .TP
 .B PM_ERR_INDOM_LOG
@@ -469,8 +470,8 @@ This should not happen for well-behaved PCP clients.
 .br
 A PCP client has requested information about an instance domain
 for one or more performance metrics,
-and there is no corresponding information in the PCP archive.
-If the client is using metric descriptors from the archive
+and there is no corresponding information in the set of PCP archives.
+If the client is using metric descriptors from the set of archives
 to identify the instance domain, this is less likely to happen.
 .RS
 .PP
@@ -490,9 +491,9 @@ of an archive.
 .br
 A PCP client has requested information about a specific instance
 of a performance metric,
-and there is no corresponding information in the PCP archive.
+and there is no corresponding information in the set of PCP archives.
 If the client is using instance names from the instance
-domain in the archive
+domain in the set of archives
 (rather than hard-coded instance names) and instance identifiers
 from the results returned by
 .BR pmFetch (3)
@@ -509,6 +510,48 @@ or
 to manipulate the union of the instances in an instance domain over the life
 of an archive.
 .RE
+.TP
+.B PM_ERR_LOGOVERLAP
+.I "Archives overlap in time"
+.br
+When using a context associated with a set of archives, the archives in the
+set may not overlap in time.
+.TP
+.B PM_ERR_LOGHOST
+.I "Archives differ by host"
+.br
+When using a context associated with a set of archives, the archives in the
+set must all have been generated on the same host.
+.TP
+.B PM_ERR_LOGTIMEZONE
+.I "Archives differ by time zone"
+.br
+When using a context associated with a set of archives, the archives in the
+set must all have been generated using the same time zone.
+.TP
+.B PM_ERR_LOGCHANGETYPE
+.I "The type of a metric differs among archives"
+.br
+When using a context associated with a set of archives, the type of each metric
+must be same in all of the archives.
+.TP
+.B PM_ERR_LOGCHANGESEM
+.I "The semantics of a metric differs among archives"
+.br
+When using a context associated with a set of archives, the semantics of each
+metric must be same in all of the archives.
+.TP
+.B PM_ERR_LOGCHANGEINDOM
+.I "The instance domain of a metric differs among archives"
+.br
+When using a context associated with a set of archives, the instance domain
+of each metric must be same in all of the archives.
+.TP
+.B PM_ERR_LOGCHANGEUNITS
+.I "The units of a metric differs among archives"
+.br
+When using a context associated with a set of archives, the units
+of each metric must be same in all of the archives.
 .SH "TIME CONTROL ERRORS"
 These errors may occur in the interactions between a GUI PCP client and
 the time control services provided by

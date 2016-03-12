@@ -188,7 +188,7 @@ typedef struct pmDesc {
 #define PM_ERR_NOCONTAINER	(-PM_ERR_BASE-54)   /* Container not found */
 #define PM_ERR_BADSTORE		(-PM_ERR_BASE-55)   /* Bad input to pmstore */
 #define PM_ERR_LOGOVERLAP	(-PM_ERR_BASE-56)   /* Archives overlap in time */
-#define PM_ERR_LOGHOST		(-PM_ERR_BASE-57)   /* Archives differ in time zone */
+#define PM_ERR_LOGHOST		(-PM_ERR_BASE-57)   /* Archives differ by host */
 #define PM_ERR_LOGTIMEZONE	(-PM_ERR_BASE-58)   /* Archives differ in time zone */
 #define PM_ERR_LOGCHANGETYPE	(-PM_ERR_BASE-59)   /* The type of a metric has changed in an archive */
 #define PM_ERR_LOGCHANGESEM	(-PM_ERR_BASE-60)   /* The semantics of a metric has changed in an archive */

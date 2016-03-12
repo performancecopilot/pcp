@@ -2,6 +2,7 @@
  * Zabbix loadable PCP module
  *
  * Copyright (C) 2015-2016 Marko Myllynen <myllynen@redhat.com>
+ * Copyright (C) 2016 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -39,19 +40,31 @@
 #define ZBX_PCP_DERIVED_CONFIG "/etc/zabbix/zbxpcp-derived-metrics.conf"
 #endif
 
+/*
+ * We attempt to auto-detect the Zabbix agent version to deal
+ * with ABI/ABI breakage at the Zabbix v2/v3 boundary.
+ */
+#define ZBX_COMPAT_VERSION	2
+#define ZBX_RECENT_VERSION	3
+
 /* PCP includes.  */
 #include "pmapi.h"
 #include "impl.h"
+#if defined(HAVE_DLFCN_H)
+#include <dlfcn.h>
+#endif
 
 /* Zabbix includes.  */
 #include "module.h"
+
+static int zbx_version;
 
 /*
  * PCP connection
  */
 static int ctx = -1;
 
-int zbx_module_pcp_connect()
+static int zbx_module_pcp_connect()
 {
     /* Load possible derived metric definitions.  */
     if (access(ZBX_PCP_DERIVED_CONFIG, F_OK ) != -1)
@@ -61,9 +74,31 @@ int zbx_module_pcp_connect()
     return ctx;
 }
 
-int zbx_module_pcp_disconnect()
+static int zbx_module_pcp_disconnect()
 {
     return pmDestroyContext(ctx);
+}
+
+static int zbx_get_version()
+{
+    int version = ZBX_COMPAT_VERSION;
+#if defined(HAVE_DLOPEN)
+    void *handle = dlopen(NULL, RTLD_NOW);
+
+    if (!handle) {
+        fprintf(stderr, "dlopen failed, assuming zabbix-agent version=%d\n",
+                version);
+        return version;
+    }
+    /* lookup a symbol that should exist in all new versions, but not old */
+    if (dlsym(handle, "zbx_user_macro_parse") != NULL)
+        version = ZBX_RECENT_VERSION;
+    dlclose(handle);
+#else
+    fprintf(stderr, "dlopen unsupported, assuming zabbix-agent version=%d\n",
+                version);
+#endif
+    return version;
 }
 
 /*
@@ -71,6 +106,7 @@ int zbx_module_pcp_disconnect()
  */
 int zbx_module_init()
 {
+    zbx_version = zbx_get_version();
     if (zbx_module_pcp_connect() < 0)
         return ZBX_MODULE_FAIL;
     return ZBX_MODULE_OK;
@@ -81,9 +117,9 @@ int zbx_module_api_version()
     return ZBX_MODULE_API_VERSION_ONE;
 }
 
-static int metric_count = 0;
-static ZBX_METRIC *metrics = NULL;
-void zbx_module_pcp_add_metric(const char *name);
+static int metric_count;
+static ZBX_METRIC *metrics;
+static void zbx_module_pcp_add_metric(const char *);
 
 ZBX_METRIC *zbx_module_item_list()
 {
@@ -119,9 +155,10 @@ int zbx_module_uninit()
 /*
  * Zabbix/PCP connection
  */
-int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT *result);
+static int zbx_module2_pcp_fetch_metric(AGENT_REQUEST *, AGENT_RESULT_V2 *);
+static int zbx_module3_pcp_fetch_metric(AGENT_REQUEST *, AGENT_RESULT_V3 *);
 
-void zbx_module_pcp_add_metric(const char *name)
+static void zbx_module_pcp_add_metric(const char *name)
 {
     int sts;
     pmID pmid[1];
@@ -162,12 +199,15 @@ void zbx_module_pcp_add_metric(const char *name)
     if (metrics == NULL) { metrics = mptr; free(metric); free(param); return; }
     metrics[metric_count].key = metric;
     metrics[metric_count].flags = flags;
-    metrics[metric_count].function = zbx_module_pcp_fetch_metric;
+    if (zbx_version == ZBX_RECENT_VERSION)
+	metrics[metric_count].function = zbx_module3_pcp_fetch_metric;
+    else
+	metrics[metric_count].function = zbx_module2_pcp_fetch_metric;
     metrics[metric_count].test_param = param;
     metric_count++;
 }
 
-int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT *result)
+static int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, int *type, pmAtomValue *atom, char **errmsg)
 {
     int sts;
     char *metric[] = { request->key + strlen(ZBX_PCP_METRIC_PREFIX) };
@@ -175,7 +215,6 @@ int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT *result)
     pmID pmid[1];
     pmDesc desc[1];
     pmResult *rp;
-    pmAtomValue atom;
     int iid = 0;
     int i;
 
@@ -188,9 +227,8 @@ int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT *result)
             inst = get_rparam(request, 0);
             break;
         default:
-            SET_MSG_RESULT(result, strdup("Extraneous instance specification."));
+            *errmsg = "Extraneous instance specification.";
             return SYSINFO_RET_FAIL;
-            break;
     }
 
     /* Try to reconnect if the initial lookup fails.  */
@@ -198,7 +236,7 @@ int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT *result)
     if (sts < 0 && (sts == PM_ERR_IPC || sts == -ECONNRESET)) {
         ctx = pmReconnectContext(ctx);
         if (ctx < 0) {
-            SET_MSG_RESULT(result, strdup("Not connected to pmcd."));
+            *errmsg = "Not connected to pmcd.";
             return SYSINFO_RET_FAIL;
         }
         sts = pmLookupName(1, metric, pmid);
@@ -209,18 +247,18 @@ int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT *result)
     sts = pmLookupDesc(pmid[0], desc);
     if (sts < 0) return SYSINFO_RET_FAIL;
     if (inst != NULL && desc[0].indom == PM_INDOM_NULL) {
-        SET_MSG_RESULT(result, strdup("Extraneous instance specification."));
+        *errmsg = "Extraneous instance specification.";
         return SYSINFO_RET_FAIL;
     }
     if ((inst == NULL && desc[0].indom != PM_INDOM_NULL) ||
         (request->nparam == 1 && !strlen(inst))) {
-        SET_MSG_RESULT(result, strdup("Missing instance specification."));
+        *errmsg = "Missing instance specification.";
         return SYSINFO_RET_FAIL;
     }
     if (desc[0].indom != PM_INDOM_NULL) {
         iid = pmLookupInDom(desc[0].indom, inst);
         if (iid < 0) {
-            SET_MSG_RESULT(result, strdup("Instance not available."));
+            *errmsg = "Instance not available.";
             return SYSINFO_RET_FAIL;
         }
     }
@@ -230,7 +268,7 @@ int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT *result)
     if (sts < 0) return SYSINFO_RET_FAIL;
     if (rp->vset[0]->numval < 1) {
         pmFreeResult(rp);
-        SET_MSG_RESULT(result, strdup("No value available."));
+        *errmsg = "No value available.";
         return SYSINFO_RET_FAIL;
     }
 
@@ -245,12 +283,30 @@ int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT *result)
 
     /* Extract the wanted value.  */
     sts = pmExtractValue(rp->vset[0]->valfmt, &rp->vset[0]->vlist[i],
-                         desc[0].type, &atom, desc[0].type);
+                         desc[0].type, atom, desc[0].type);
     pmFreeResult(rp);
     if (sts < 0) return SYSINFO_RET_FAIL;
+    *type = desc[0].type;
 
-    /* Hand it to the caller.  */
-    switch(desc[0].type) {
+    /* Success.  */
+    return SYSINFO_RET_OK;
+}
+
+static int zbx_module3_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT_V3 *result)
+{
+    char *errmsg = NULL;
+    pmAtomValue atom;
+    int type;
+    int sts;
+
+    /* note: SET_*_RESULT macros evaluate to different code for v2/v3 */
+    sts = zbx_module_pcp_fetch_metric(request, &type, &atom, &errmsg);
+    if (sts < 0) {
+        if (errmsg)
+            SET_MSG_RESULT(result, strdup(errmsg));
+        return sts;
+    }
+    switch (type) {
         case PM_TYPE_32:
             SET_UI64_RESULT(result, atom.l);
             break;
@@ -274,10 +330,53 @@ int zbx_module_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT *result)
             break;
         default:
             SET_MSG_RESULT(result, strdup("Unsupported metric value type."));
-            return SYSINFO_RET_FAIL;
+            sts = SYSINFO_RET_FAIL;
             break;
     }
 
-    /* Success.  */
-    return SYSINFO_RET_OK;
+    return sts;
+}
+
+static int zbx_module2_pcp_fetch_metric(AGENT_REQUEST *request, AGENT_RESULT_V2 *result)
+{
+    char *errmsg = NULL;
+    pmAtomValue atom;
+    int type;
+    int sts;
+
+    /* note: SET_*_RESULT macros evaluate to different code for v2/v3 */
+    sts = zbx_module_pcp_fetch_metric(request, &type, &atom, &errmsg);
+    if (sts < 0) {
+        if (errmsg)
+            SET_MSG_RESULT(result, strdup(errmsg));
+        return sts;
+    }
+    switch (type) {
+        case PM_TYPE_32:
+            SET_UI64_RESULT(result, atom.l);
+            break;
+        case PM_TYPE_U32:
+            SET_UI64_RESULT(result, atom.ul);
+            break;
+        case PM_TYPE_64:
+            SET_UI64_RESULT(result, atom.ll);
+            break;
+        case PM_TYPE_U64:
+            SET_UI64_RESULT(result, atom.ull);
+            break;
+        case PM_TYPE_FLOAT:
+            SET_DBL_RESULT(result, atom.f);
+            break;
+        case PM_TYPE_DOUBLE:
+            SET_DBL_RESULT(result, atom.d);
+            break;
+        case PM_TYPE_STRING:
+            SET_STR_RESULT(result, strdup(atom.cp));
+            break;
+        default:
+            SET_MSG_RESULT(result, strdup("Unsupported metric value type."));
+            sts = SYSINFO_RET_FAIL;
+            break;
+    }
+    return sts;
 }

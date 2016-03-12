@@ -64,17 +64,19 @@ follows:
 .TP 5
 .B \-a
 .I archive
-is the base name of a PCP archive log written by
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives written by
 .BR pmlogger (1).
 Multiple instances of the
 .B \-a
-flag may appear on the command line to specify a set of archives.
-In this case, it is required that only one archive be present for any
+flag may appear on the command line to specify a list of sets of archives.
+In this case, it is required that only one set of archives be present for any
 one host.
 Also, any explicit host names occurring in a
 .B pmie
 expression must match the host name recorded in one of the archive labels.
-In the case of multiple archives, timestamps recorded in the archives are
+In the case of multiple sets of archives, timestamps recorded in the archives are
 used to ensure temporal consistency.
 .TP
 .B \-b
@@ -143,7 +145,7 @@ to be run in the foreground, independent of any other options.
 .TP
 .B \-h
 By default performance data is fetched from the local host (in real-time mode)
-or the host for the first named archive on the command line
+or the host for the first named set of archives on the command line
 (in archive mode).  The \f2host\f1 argument overrides this default.
 It does not override hosts explicitly named in the expressions
 being evaluated.  The \f2host\f1 argument is interpreted as a
@@ -256,7 +258,7 @@ as described in
 Change the reporting timezone to the timezone of the host that is the source
 of the performance metrics, as identified via either the
 .B \-h
-option or the first named archive (as described above for the
+option or the first named set of archives (as described above for the
 .B \-a
 option).
 .P

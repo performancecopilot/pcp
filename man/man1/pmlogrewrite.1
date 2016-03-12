@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.  All Rights Reserved.
 .\" Copyright (c) 2011 Ken McDonell.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -26,7 +27,7 @@
 \\f(BI\\$1\\fP\\$2
 ..
 .B pmlogrewrite
-reads a Performance Co-Pilot (PCP) archive log
+reads a set of Performance Co-Pilot (PCP) archive logs
 identified by
 .I inlog
 and creates a PCP archive log in
@@ -63,13 +64,17 @@ the resulting archives may be able to be merged with
 .PP
 The input
 .I inlog
-must be a PCP archive log
+must be a set of PCP archive logs
 created by
 .BR pmlogger (1),
 or possibly one of the tools that read and create PCP archives, e.g.
 .BR pmlogextract (1)
 and
 .BR pmlogreduce (1).
+.I inlog
+is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
 .PP
 If no
 .B \-c

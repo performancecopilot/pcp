@@ -28,13 +28,13 @@
 .SH DESCRIPTION
 .B pmdumptext
 outputs the values of performance metrics collected live or from a
-Performance Co-Pilot (PCP) archive.
+set of Performance Co-Pilot (PCP) archives.
 By default, the metric values are displayed in tab separated columns,
 prefixed by a timestamp.
 .PP
 Unless directed to another host by the
 .B \-h
-option, or to one or more archives by the
+option, or to one or more sets of archives by the
 .B \-a
 option, 
 .B pmdumptext
@@ -133,14 +133,15 @@ and are fully described in
 The other available options are:
 .PP
 .IP \f3\-a\f1
-Specify an 
+Specify a set of 
 .I archive
 from which metrics can be obtained for a particular host.  
 .I archive
-is the basename of an archive, previously created by
+is the name of a directory containing archives,
+or the basename of an archive, previously created by
 .BR pmlogger (1).
-Multiple archives (separated by commas or in different \f3\-a\f1 options)
-from different hosts may be given, but only one per host is
+Multiple sets of archives (separated by commas or in different \f3\-a\f1 options)
+from different hosts may be given, but only one set of archives per host is
 permitted.  Any metrics that are not associated with a specific host or archive
 will use the first archive as their source.
 .IP \f3\-C\f1
@@ -238,7 +239,7 @@ When a timestamp is being reported (ie. unless an empty format string is
 given with the
 .B \-f 
 option), the timestamp is prefixed with the offset in seconds from
-the start of the archive or the beginning of the execution of
+the start of the set of archives or the beginning of the execution of
 .BR pmdumptext .
 .IP \f3\-N\f1
 Output the normalization factors before the metric values.
@@ -305,7 +306,7 @@ as described in
 .BR environ (7).
 .SH MULTIPLE SOURCES
 .B pmdumptext
-supports the dumping of metrics from multiple hosts or archives.  The metrics
+supports the dumping of metrics from multiple hosts or set of archives.  The metrics
 listed on the command line or in the
 .I config
 file may have no specific source or come from different sources.
@@ -313,9 +314,9 @@ file may have no specific source or come from different sources.
 However, restrictions apply when archives
 are specified on the command line 
 .RB ( \-a )
-and/or in the configuration file.  Firstly, there may be only one archive 
-for any one host.  Secondly, the hosts of any metrics with host sources
-must correspond to the host of an archive, either on the command line or
+and/or in the configuration file.  Firstly, there may be only one set of
+archives for any one host.  Secondly, the hosts of any metrics with host sources
+must correspond to the host of a set of archives, either on the command line or
 previously as the source of another metric.
 .PP
 The options

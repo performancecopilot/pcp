@@ -6,6 +6,8 @@ delta	once
 	hinv.ndisk
 	hinv.ninterface
 	hinv.pagesize
+	hinv.map.dmname
+	hinv.map.mdname
 	kernel.all.hz
 	kernel.uname.release
 	kernel.uname.version
