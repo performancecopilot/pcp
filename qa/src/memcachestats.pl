@@ -1,10 +1,11 @@
-#!/usr/bin/env perl -w
+#!/usr/bin/env perl
 
 #
 # liberally borrowed from memcache-top at
 # https://code.google.com/p/memcache-top/
 #
 
+use warnings;
 use strict;
 use IO::Socket;
 use Getopt::Long;
