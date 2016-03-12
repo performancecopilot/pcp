@@ -1,7 +1,7 @@
 QA output created by 981
 === Testing precanned gpfs files
 dbpmda> open pipe /usr/bin/env perl pmdagpfs.pl
-Start perl PMDA: /usr/bin/env perl pmdagpfs.pl
+Start env PMDA: /usr/bin/env perl pmdagpfs.pl
 dbpmda> getdesc on
 dbpmda> desc gpfs.fsios.cluster
 PMID: 135.0.1
