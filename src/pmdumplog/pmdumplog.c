@@ -679,19 +679,19 @@ overrides(int opt, pmOptions *opts)
 }
 
 static int
-isSingleArchive (const char *name)
+isSingleArchive(const char *name)
 {
     struct stat	sbuf;
 
     /* Do not allow a comma within the name. */
-    if (strchr (name, ',') != NULL)
+    if (strchr(name, ',') != NULL)
 	return 0;
 
     /* No not allow a directory */
     if (stat(name, &sbuf) != 0)
 	return 1; /* Let pmNewContext(1) issue the error */
 
-    if (S_ISDIR (sbuf.st_mode))
+    if (S_ISDIR(sbuf.st_mode))
 	return 0; /* It's a directory */
 
     return 1; /* ok */
@@ -805,7 +805,7 @@ main(int argc, char *argv[])
     __pmEndOptions(&opts);
 
     /* For now, ensure that we have only a single archive. */
-    if (! isSingleArchive (opts.archives[0])) {
+    if (!isSingleArchive(opts.archives[0])) {
 	fprintf(stderr, "%s: Multiple archives are not supported\n",
 		pmProgname);
 	exit(1);
