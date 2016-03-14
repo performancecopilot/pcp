@@ -77,6 +77,7 @@ _filter()
 	-e '/^\[[0-9][0-9]*]/d' \
 	-e '/^__pmLocalPMDA(/d' \
 	-e '/^__pmSetSocketIPC:/d' \
+	-e '/NotifyEndLocalContext: .*pmda_linux/d' \
 	-e '/^IPC table fd(/d' \
     #end
 }
