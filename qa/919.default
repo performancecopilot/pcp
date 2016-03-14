@@ -1,0 +1,7 @@
+QA output created by 919
+@ DATE
+ loadavg                      memory      swap        io    system         cpu
+ N min   swpd   free   buff  cache   pi   po   bi   bo   in   cs  us  sy  id
+ N N N N N ? ? ? ? ? ? ? ? ?
+ N N N N N N N N N N N N N N
+ pmFetchGroup: End of PCP archive log
