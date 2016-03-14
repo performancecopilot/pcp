@@ -610,8 +610,11 @@ can be used to indicate that
 should finish anyhow before midnight.
 .PP
 A PCP archive can be read and visualized again with the flag
-.B \-r
-followed by the filename. If no filename is specified, the file
+.B \-r .
+The argument is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+If no argument is specified, the file
 .BI $PCP_LOG_DIR/pmlogger/HOST/YYYYMMDD
 is opened for input (where
 .I YYYYMMDD
