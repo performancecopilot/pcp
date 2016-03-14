@@ -39,7 +39,16 @@ _filter_date()
 {
     sed \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]$/DATE/' \
-    #end
+    # end
+}
+
+_filter_pmid()
+{
+    sed \
+	-e 's/^29\./xxx29./' \
+	-e 's/^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*:/PMID:/' \
+	-e 's/^xxx//' \
+    # end
 }
 
 status=1	# failure is the default!
@@ -58,12 +67,14 @@ echo
 echo "=== host context, and pmNewContext ... just to be sure ==="
 src/churnctx -s 10 -t 0.2sec kernel.all.load hinv.ncpu sample.byte_ctr 2>&1 \
 | _filter_pdu \
+| _filter_pmid \
 | _filter_date
 
 echo
 echo "=== local: context with attributes, and pmDupContext ==="
 src/churnctx -d -s 10 -t 0.2sec -h local: kernel.all.load hinv.ncpu sample.byte_ctr 2>&1 \
 | _filter_pdu \
+| _filter_pmid \
 | _filter_date
 
 # success, all done
