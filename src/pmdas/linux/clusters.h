@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -79,6 +79,8 @@ enum {
 	CLUSTER_SHM_INFO,       /* 56 shmctl(SHM_INFO) system call */
 	CLUSTER_NET_SOFTNET,	/* 57 /proc/net/softnet_stat */
 	CLUSTER_NET_SNMP6,	/* 58 /proc/net/snmp6 */
+	CLUSTER_MD,		/* 59 disk.md.* (not status) */
+	CLUSTER_MDADM,		/* 60 disk.md.status */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

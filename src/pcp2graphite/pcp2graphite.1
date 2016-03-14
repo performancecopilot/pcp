@@ -52,7 +52,10 @@ daemon, using a host specification as described on
 The default is \f3local:\f1.
 .TP
 .B \-a \f2archive\f1
-Extract metrics from given archive.
+Extract metrics from the given set of archives,
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
 .TP
 .B \-L
 Extract metrics from the local context PCP PMDAs.
@@ -62,10 +65,12 @@ Specify the polling interval in seconds.  If live, polling is aligned to
 natural multiples of this interval.  The default is \f360\f1 seconds.
 .TP
 .B \-O \f2origin\f1
-Set the time origin for archive scanning.  The default is the start of the archive.
+Set the time origin for archive scanning.  The default is the start of the
+set of archives.
 .TP
 .B \-T \f2finish\f1
-Set the time finish for archive scanning.  The default is the end of the archive.
+Set the time finish for archive scanning.  The default is the end of the
+set of archives.
 .TP
 .B \-s \f2samples\f1
 Set the maximum number of samples to relay.  The default is unlimited.

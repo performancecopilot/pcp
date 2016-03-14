@@ -307,6 +307,7 @@ static pmdaIndom indomtab[] = {
     { 0 }, /* deprecated LV_INDOM */
     { ICMPMSG_INDOM, NR_ICMPMSG_COUNTERS, _pm_proc_net_snmp_indom_id },
     { DM_INDOM, 0, NULL }, /* cached */
+    { MD_INDOM, 0, NULL }, /* cached */
 };
 
 
@@ -4321,122 +4322,174 @@ static pmdaMetric metrictab[] = {
  * disk.dm cluster
  */
     /* disk.dm.read */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,0), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,0), KERNEL_ULONG, DM_INDOM,
+      PM_SEM_COUNTER,  PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.write */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,1), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,1), KERNEL_ULONG, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.total */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,2), PM_TYPE_U64, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,2), PM_TYPE_U64, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.blkread */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,3), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,3), KERNEL_ULONG, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.blkwrite */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,4), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,4), KERNEL_ULONG, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.blktotal */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,5), PM_TYPE_U64, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,5), PM_TYPE_U64, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.read_bytes */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,6), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,6), PM_TYPE_U32, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
     /* disk.dm.write_bytes */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,7), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,7), PM_TYPE_U32, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
     /* disk.dm.total_bytes */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,8), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,8), PM_TYPE_U32, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
     /* disk.dm.read_merge */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,9), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,9), KERNEL_ULONG, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.write_merge */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,10), KERNEL_ULONG, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,10), KERNEL_ULONG, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* disk.dm.avactive */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,11), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,11), PM_TYPE_U32, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
     /* disk.dm.aveq */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,12), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,12), PM_TYPE_U32, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
     /* hinv.map.dmname */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,13), PM_TYPE_STRING, DM_INDOM, PM_SEM_DISCRETE,
-      PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,13), PM_TYPE_STRING, DM_INDOM,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* disk.dm.read_rawactive */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,14), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,14), PM_TYPE_U32, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
     /* disk.dm.write_rawactive */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,15), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,15), PM_TYPE_U32, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
 
     /* disk.dm.write_rawactive */
-    { NULL, 
-      { PMDA_PMID(CLUSTER_DM,16), PM_TYPE_U32, DM_INDOM, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+    { NULL, { PMDA_PMID(CLUSTER_DM,16), PM_TYPE_U32, DM_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+/*
+ * disk.md cluster
+ */
+    /* disk.md.read */
+    { NULL, { PMDA_PMID(CLUSTER_MD,0), KERNEL_ULONG, MD_INDOM,
+      PM_SEM_COUNTER,  PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.md.write */
+    { NULL, { PMDA_PMID(CLUSTER_MD,1), KERNEL_ULONG, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.md.total */
+    { NULL, { PMDA_PMID(CLUSTER_MD,2), PM_TYPE_U64, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.md.blkread */
+    { NULL, { PMDA_PMID(CLUSTER_MD,3), KERNEL_ULONG, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.md.blkwrite */
+    { NULL, { PMDA_PMID(CLUSTER_MD,4), KERNEL_ULONG, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.md.blktotal */
+    { NULL, { PMDA_PMID(CLUSTER_MD,5), PM_TYPE_U64, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.md.read_bytes */
+    { NULL, { PMDA_PMID(CLUSTER_MD,6), PM_TYPE_U32, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* disk.md.write_bytes */
+    { NULL, { PMDA_PMID(CLUSTER_MD,7), PM_TYPE_U32, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* disk.md.total_bytes */
+    { NULL, { PMDA_PMID(CLUSTER_MD,8), PM_TYPE_U32, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+    /* disk.md.read_merge */
+    { NULL, { PMDA_PMID(CLUSTER_MD,9), KERNEL_ULONG, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.md.write_merge */
+    { NULL, { PMDA_PMID(CLUSTER_MD,10), KERNEL_ULONG, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* disk.md.avactive */
+    { NULL, { PMDA_PMID(CLUSTER_MD,11), PM_TYPE_U32, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* disk.md.aveq */
+    { NULL, { PMDA_PMID(CLUSTER_MD,12), PM_TYPE_U32, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* hinv.map.mdname */
+    { NULL, { PMDA_PMID(CLUSTER_MD,13), PM_TYPE_STRING, MD_INDOM,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* disk.md.read_rawactive */
+    { NULL, { PMDA_PMID(CLUSTER_MD,14), PM_TYPE_U32, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* disk.md.write_rawactive */
+    { NULL, { PMDA_PMID(CLUSTER_MD,15), PM_TYPE_U32, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* disk.md.write_rawactive */
+    { NULL, { PMDA_PMID(CLUSTER_MD,16), PM_TYPE_U32, MD_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) }, },
+
+    /* disk.md.status */
+    { NULL, { PMDA_PMID(CLUSTER_MDADM,0), PM_TYPE_32, MD_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
  * network.softnet cluster
  */
     /* network.softnet.processed */
-    { NULL,
-      { PMDA_PMID(CLUSTER_NET_SOFTNET,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,0), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* network.softnet.dropped */
-    { NULL,
-      { PMDA_PMID(CLUSTER_NET_SOFTNET,1), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,1), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* network.softnet.time_squeeze */
-    { NULL,
-      { PMDA_PMID(CLUSTER_NET_SOFTNET,2), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,2), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* network.softnet.cpu_collision */
-    { NULL,
-      { PMDA_PMID(CLUSTER_NET_SOFTNET,3), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,3), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* network.softnet.received_rps */
-    { NULL,
-      { PMDA_PMID(CLUSTER_NET_SOFTNET,4), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,4), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* network.softnet.flow_limit_count */
-    { NULL,
-      { PMDA_PMID(CLUSTER_NET_SOFTNET,5), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER, 
-      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,5), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 };
 
 typedef struct {
@@ -4453,6 +4506,7 @@ static perctx_t *ctxtab;
 static int      num_ctx;
 
 char *linux_statspath = "";	/* optional path prefix for all stats files */
+char *linux_mdadm = "/sbin/mdadm"; /* program for extracting MD RAID status */
 
 FILE *
 linux_statsfile(const char *path, char *buffer, int size)
@@ -4494,7 +4548,7 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_PARTITIONS])
     	refresh_proc_partitions(INDOM(DISK_INDOM),
 				INDOM(PARTITIONS_INDOM),
-				INDOM(DM_INDOM));
+				INDOM(DM_INDOM), INDOM(MD_INDOM));
 
     if (need_refresh[CLUSTER_STAT])
 	refresh_proc_stat(&proc_cpuinfo, &proc_stat);
@@ -4658,6 +4712,7 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     case DISK_INDOM:
     case PARTITIONS_INDOM:
     case DM_INDOM:
+    case MD_INDOM:
 	need_refresh[CLUSTER_PARTITIONS]++;
 	break;
     case CPU_INDOM:
@@ -6317,6 +6372,8 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return interrupts_fetch(idp->cluster, idp->item, inst, atom);
 
     case CLUSTER_DM:
+    case CLUSTER_MD:
+    case CLUSTER_MDADM:
 	return proc_partitions_fetch(mdesc, inst, atom);
 
     case CLUSTER_NET_SOFTNET:
@@ -6379,6 +6436,8 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	switch (idp->cluster) {
 	case CLUSTER_STAT:
 	case CLUSTER_DM:
+	case CLUSTER_MD:
+	case CLUSTER_MDADM:
 	    if (need_refresh[CLUSTER_PARTITIONS] == 0 &&
 		is_partitions_metric(pmidlist[i]))
 		need_refresh[CLUSTER_PARTITIONS]++;
@@ -6590,6 +6649,8 @@ linux_init(pmdaInterface *dp)
 	_pm_system_pagesize = getpagesize();
     if ((envpath = getenv("LINUX_STATSPATH")) != NULL)
 	linux_statspath = envpath;
+    if ((envpath = getenv("LINUX_MDADM")) != NULL)
+	linux_mdadm = envpath;
 
     if (_isDSO) {
 	char helppath[MAXPATHLEN];

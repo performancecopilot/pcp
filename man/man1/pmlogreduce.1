@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -29,16 +30,20 @@
 \f2input\f1 \f2output\f1 
 .SH DESCRIPTION
 .B pmlogreduce
-reads one Performance Co-Pilot (PCP) archive
+reads one set of Performance Co-Pilot (PCP) archives
 identified by
 .I input
-(this must be a PCP archive created by
+(these must be a PCP archives created by
 .BR pmlogger (1),
 .BR pmlogextract (1)
 or
 .BR pmlogreduce (1)),
 and creates a temporally reduced PCP archive in
 .IR output .
+.I input
+is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
 The 
 data reduction involves statistical and temporal reduction of samples with
 an output sampling
@@ -48,7 +53,7 @@ option in the
 .I output
 archive (independent of the sampling intervals in the
 .I input
-archive), and is further controlled by
+archives), and is further controlled by
 other command line arguments.
 .PP
 For some metrics, temporal data reduction is not going to be helpful,
@@ -77,7 +82,7 @@ to
 Define the start of a time window to restrict the samples retrieved
 from the
 .I input
-archive; refer to
+archives; refer to
 .BR PCPIntro (1).
 .PP
 .TP 7
@@ -92,7 +97,7 @@ is 0 or
 .B -s
 is not specified,
 .B pmlogreduce
-will sample until the end of the PCP archive,
+will sample until the end of the set of PCP archives,
 or the end of the time window as specified by
 .BR -T ,
 whichever comes first.  The
@@ -106,7 +111,7 @@ option if it occurs sooner.
 Define the termination of a time window to restrict the samples
 retrieved from the
 .I input
-archive; refer to
+archives; refer to
 .BR PCPIntro (1).
 .PP
 .TP 7
@@ -162,7 +167,7 @@ as described in
 .B \-z
 Use the local timezone of the host from the
 .I input
-archive when displaying the date and time, or interpreting the
+archives when displaying the date and time, or interpreting the
 .B \-S
 and
 .B \-T
@@ -211,12 +216,12 @@ silently
 in the case where more than one counter wrap occurs between consecutive
 observations in the
 .I input
-archive, and silently
+archives, and silently
 .B overestimate
 in the case where a counter is reset occurs between consecutive
 observations in the
 .I input
-archive; unfortunately these situations cannot be detected, but
+archives; unfortunately these situations cannot be detected, but
 are believed to be rare events for the sort of production monitoring
 environments where
 .B pmlogreduce
@@ -230,7 +235,7 @@ Any changes in instance domains, and indeed all metadata, is preserved.
 5.
 Any ``mark'' records in the
 .I input
-archive (as created by
+archives (as created by
 .BR pmlogextract (1))
 will be preserved in the
 .I output
@@ -303,7 +308,7 @@ with textual (if sometimes terse) explanation.
 .PP
 Should the
 .I input
-archive be corrupted (this can happen
+archives be corrupted (this can happen
 if the
 .B pmlogger
 instance writing the archive suddenly dies), then
@@ -311,7 +316,7 @@ instance writing the archive suddenly dies), then
 will detect and report the position of the corruption in the file,
 and any subsequent information from the
 .I input
-archive will not be processed.
+archives will not be processed.
 .PP
 If any error is detected,
 .B pmlogreduce

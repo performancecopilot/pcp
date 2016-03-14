@@ -5,6 +5,11 @@
 	 <simpara>
 		<revhistory>
 			<revision>
+				<revnumber>2.0-2</revnumber>
+				<date>March 2016</date>
+				<revremark>Revised to include multi-archive context support.</revremark>
+			</revision>
+			<revision>
 				<revnumber>2.0-1</revnumber>
 				<date>August 2013</date>
 				<revremark>Revised to support the Performance Co-Pilot 3.8 release.</revremark>

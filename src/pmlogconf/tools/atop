@@ -12,6 +12,10 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	disk.dm.write
 	disk.dm.blkread
 	disk.dm.blkwrite
+	disk.md.read
+	disk.md.write
+	disk.md.blkread
+	disk.md.blkwrite
 
 	kernel.all.pswitch
 	kernel.all.intr

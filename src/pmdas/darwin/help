@@ -85,6 +85,11 @@
 @ filesys.type filesystem type name for each mounted filesystem
 
 @ hinv.ndisk number of disks in the system
+
+@ hinv.machine Machine model
+Same value as hw.model from sysctl, or Model Identifier from the
+"About This Mac" dialog.
+
 @ disk.dev.read per-disk read operations
 Cumulative number of disk read operations since system boot time (subject
 to counter wrap).

@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2014 Red Hat.
+.\" Copyright (c) 2013-2016 Red Hat.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -36,19 +36,23 @@
 .SH DESCRIPTION
 .B pmdiff
 compares the average values for every metric in either one
-or two archives, in a given time window, for changes that are
+or two sets of archives, in a given time window, for changes that are
 likely to be of interest when searching for performance regressions.
 .PP
-The archive log has the base name
-.I archive
-and must have been previously created using
+The archive specifiers
+.I archive1
+and
+.I archive2
+may be comma-separated lists of names, each of which may be the base name of
+an archive or the name of a directory containing one or more archives. Each
+archive in the resulting set of archives must have been previously created using
 .BR pmlogger (1).
 The
 .BR pmlogsummary (1)
 utility is used to obtain the average values used for comparison.
 .PP
 There are two sorts of invocation of the tool: with either one or
-two archives.
+two sets of archives.
 .PP
 In the first case, the only sensible command line requires use of
 all four time window arguments.  These are specified using the same
@@ -59,19 +63,19 @@ and are
 and
 .BR \-T / \-\-finish
 for the start and end times of the first time window of interest
-in the archive, and
+in the archive set, and
 .BR \-B / \-\-before
 and
 .BR \-E / \-\-end
 for the start and end times of the second time window of interest.
 .PP
-In the second case, with two archives, the 
+In the second case, with two sets of archives, the 
 .BR \-B / \-\-before
 and
 .BR \-E / \-\-end
 options might be unnecessary.  This might be the case, for example,
 when comparing the same time window of two consecutive days (usually
-two separate archives), or a time window on the same day of different
+two separate sets of archives), or a time window on the same day of different
 weeks.
 .PP
 In either case,
@@ -96,7 +100,7 @@ Reported metrics are sorted in ascending ratio order.
 .PP
 Should any metrics be present in one window but missing from the
 other, a diagnostic will be displayed listing each missing metric
-and the archive from which it was missing.
+and the archive set from which it was missing.
 .PP
 The remaining options control the specific information to be reported.
 Metrics with counter semantics are converted to rates before being
@@ -113,12 +117,12 @@ Cull the list of names of metrics being excluded from the output.
 .B \-\-skip-missing
 By default,
 .B pmdiff
-will report the names of any metrics that are in one archive but not
+will report the names of any metrics that are in one archive set but not
 the other.
 This option suppresses that reporting.
 .TP
 .B \-x
-Compare each metric in each archive in the time windows specified
+Compare each metric in each archive set in the time windows specified
 to a given
 .BR egrep (1)
 pattern, excluding those that match from the report output.
@@ -132,7 +136,7 @@ patterns which are applied to the metric names to optionally exclude
 some from the report.
 .TP
 .B \-z
-Use the local timezone from the given archives.
+Use the local timezone from the given archive set.
 .TP
 .BR \-Z / \-\-timezone
 Changes the timezone in the archive labels to

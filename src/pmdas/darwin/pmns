@@ -5,6 +5,7 @@ hinv {
     ncpu		DARWIN:8:71
     nfilesys		DARWIN:5:31
     ndisk		DARWIN:7:46
+    machine		DARWIN:0:2
 }
 
 pmda {

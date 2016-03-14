@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -30,7 +31,7 @@ Performance Metrics Application Programming Interface (PMAPI)
 may manipulate several concurrent contexts,
 each associated with a source of performance metrics, e.g. \c
 .BR pmcd (1)
-on some host, or an archive log of performance metrics as created by
+on some host, or a set of archive logs of performance metrics as created by
 .BR pmlogger (1),
 or a standalone connection on the local host that does not involve
 .BR pmcd (1).
@@ -43,10 +44,13 @@ and may be either a host name (\c
 .I type
 is
 .BR PM_CONTEXT_HOST ),
-or the base name common to all of the physical files of an archive log (\c
+or a comma-separated list of names referring to a set of archive logs (\c
 .I type
 is
 .BR PM_CONTEXT_ARCHIVE ).
+Each element of the list may either be the base name common to all of the
+physical files of an archive log or the name of a directory containing
+archive logs.
 .PP
 For a
 .I type
@@ -86,6 +90,7 @@ For a
 .I type
 of
 .BR PM_CONTEXT_ARCHIVE ,
+each element of the list of names in
 .I name
 may also be the name of any of the physical files of an
 archive, e.g.
@@ -116,6 +121,30 @@ or
 .IB myarchive .42.gz
 etc.
 .PP
+If more than one archive is specified for a
+.I type
+of
+.BR PM_CONTEXT_ARCHIVE ,
+there are some restrictions on the archives within the set:
+.IP \(bu 3n
+The archives must all have been generated on the same host.
+.IP \(bu 3n
+The archives must not overlap in time.
+.IP \(bu 3n
+The archives must all have been created using the same time zone.
+.IP \(bu 3n
+The \f2PMID\fP of each metric should be the same in all of the archives.
+Multiple \f2PMID\fPs are currently tolerated by using the first \f2PMID\fP
+defined for each metric and ignoring subsequent \f2PMID\fPs.
+.IP \(bu 3n
+The type of each metric must be the same in all of the archives.
+.IP \(bu 3n
+The semantics of each metric must be the same in all of the archives.
+.IP \(bu 3n
+The units of each metric must be the same in all of the archives.
+.IP \(bu 3n
+The instance domain of each metric must be the same in all of the archives.
+.PP
 In the case where
 .I type
 is
@@ -137,12 +166,12 @@ The \f3PM_CTXFLAG_SHALLOW\fP flag is now deprecated and ignored.
 .PP
 The initial instance
 profile is set up to select all instances in all instance domains. 
-In the case of an archive,
+In the case of a set of archives,
 the initial collection time is also set to zero,
 so that an initial
 .BR pmFetch (3)
 will result in the earliest set of metrics 
-being returned from the archive. 
+being returned from the set of archives. 
 .PP
 Once established, the association between a context and a source of metrics
 is fixed for the life of the context, however routines are provided to
@@ -280,3 +309,31 @@ Requested context type was not
 .B PM_CONTEXT_HOST 
 or 
 .BR PM_CONTEXT_ARCHIVE .
+.P
+.B PM_ERR_LOGOVERLAP
+.IP
+Archives overlap in time
+.P
+.B PM_ERR_LOGHOST
+.IP
+Archives differ by host
+.P
+.B PM_ERR_LOGTIMEZONE
+.IP
+Archives differ by time zone.
+.P
+.B PM_ERR_LOGCHANGETYPE
+.IP
+The type of a metric differs among archives
+.P
+.B PM_ERR_LOGCHANGESEM
+.IP
+The semantics of a metric differs among archives
+.P
+.B PM_ERR_LOGCHANGEINDOM
+.IP
+The instance domain of a metric differs among archives
+.P
+.B PM_ERR_LOGCHANGEUNITS
+.IP
+The units of a metric differs among archives

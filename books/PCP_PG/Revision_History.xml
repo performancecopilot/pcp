@@ -5,6 +5,11 @@
 	 <simpara>
 		<revhistory>
 			<revision>
+				<revnumber>4.0-4</revnumber>
+				<date>March 2016</date>
+				<revremark>Revised to include multi-archive context support.</revremark>
+			</revision>
+			<revision>
 				<revnumber>4.0-3</revnumber>
 				<date>December 2015</date>
 				<revremark>Revised to include the fetchgroup API.</revremark>

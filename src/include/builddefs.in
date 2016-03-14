@@ -695,6 +695,7 @@ PYTHON3_INSTALL = \
 		$(INSTALL) $$src $$f || exit 1; \
 	    done; \
 	fi
+else
 ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = openbsd \
 	      ] && echo 1)" "1"
 # similar to above, but files already installed in DIST_ROOT so
@@ -722,10 +723,11 @@ PYTHON3_INSTALL = \
 	    done; \
 	fi
 else
+# default case if all of the above tests fail
 PYTHON_INSTALL = 
-endif
-endif
-endif
+endif	# openbsd if
+endif	# cocoa ... freebsd if
+endif	# linux && !gentoo if
 
 # qmake botches the order of the -L arguments in the generated $(LIBS)
 # in the Makefile ... need to get the Qt libraries dir (begins with a /)

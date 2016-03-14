@@ -1,16 +1,17 @@
 /*
-** Copyright (C) 2001-2015 Zabbix SIA
-**
-** This program is free software; you can redistribute it and/or modify
-** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation; either version 2 of the License, or
-** (at your option) any later version.
-**
-** This program is distributed in the hope that it will be useful,
-** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-** GNU General Public License for more details.
-**/
+ * Copyright (C) 2001-2016 Zabbix SIA
+ * Copyright (C) 2016 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
 #ifndef ZABBIX_MODULE_H
 #define ZABBIX_MODULE_H
 
@@ -22,6 +23,8 @@ typedef __uint64_t zbx_uint64_t;
 
 #define ZBX_MODULE_API_VERSION_ONE	1
 
+#define get_rkey(request)		(request)->key
+#define get_rparams_num(request)	(request)->nparam
 #define get_rparam(request, num)	((request)->nparam > num ? (request)->params[num] : NULL)
 
 /* flags for command */
@@ -49,17 +52,17 @@ typedef struct
 }
 AGENT_REQUEST;
 
-typedef struct
-{
-	char		*value;
-	char		*source;
-	zbx_uint64_t	lastlogsize;
-	int		timestamp;
-	int		severity;
-	int		logeventid;
-	int		mtime;
-}
-zbx_log_t;
+struct zbx_log;
+typedef struct zbx_log zbx_log_t;
+
+/* agent result types */
+#define AR_UINT64	0x01
+#define AR_DOUBLE	0x02
+#define AR_STRING	0x04
+#define AR_TEXT		0x08
+#define AR_LOG		0x10
+#define AR_MESSAGE	0x20
+#define AR_META		0x40
 
 /* agent return structure */
 typedef struct
@@ -74,15 +77,21 @@ typedef struct
 	/* null-terminated list of pointers */
 	zbx_log_t	**logs;
 }
-AGENT_RESULT;
+AGENT_RESULT_V2;
 
-/* agent result types */
-#define AR_UINT64	0x01
-#define AR_DOUBLE	0x02
-#define AR_STRING	0x04
-#define AR_TEXT		0x08
-#define AR_LOG		0x10
-#define AR_MESSAGE	0x20
+typedef struct
+{
+	zbx_uint64_t	lastlogsize;	/* meta information */
+	zbx_uint64_t	ui64;
+	double		dbl;
+	char		*str;
+	char		*text;
+	char		*msg;		/* possible error message */
+	zbx_log_t	*log;
+	int	 	type;		/* flags: see AR_* above */
+	int		mtime;		/* meta information */
+}
+AGENT_RESULT_V3;
 
 /* SET RESULT */
 
@@ -110,13 +119,6 @@ AGENT_RESULT;
 (						\
 	(res)->type |= AR_TEXT,			\
 	(res)->text = (char *)(val)		\
-)
-
-/* NOTE: always allocate new memory for val! DON'T USE STATIC OR STACK MEMORY!!! */
-#define SET_LOG_RESULT(res, val)		\
-(						\
-	(res)->type |= AR_LOG,			\
-	(res)->logs = (zbx_log_t **)(val)	\
 )
 
 /* NOTE: always allocate new memory for val! DON'T USE STATIC OR STACK MEMORY!!! */

@@ -2147,7 +2147,7 @@ expr_2 =
 all_inst (sample.part_bin :LOCALHOST #bin-100 #bin-200 #bin-300 #bin-400 #bin-500 #bin-600 #bin-700 #bin-800 #bin-900 > 0) -> shell "echo 'all > 0:'" " [%i] %v";
 
 expr_3 =
-some_sample (hinv.ncpu :LOCALHOST @0..2 == hinv.ncpu :LOCALHOST) -> ([level=30 tag="pcp-pmie"] "PCP QA 514 - please ignore: some sample ncpu equal") syslog 10;
+some_sample (hinv.ncpu :LOCALHOST @0..2 == hinv.ncpu :LOCALHOST) -> ([level=N tag="pcp-pmie"] "PCP QA 514 - please ignore: some sample ncpu equal") syslog 10;
 
 expr_4 =
 ((((sample.long.million :LOCALHOST + sample.long.one :LOCALHOST) - sample.long.ten :LOCALHOST) * sample.long.hundred :LOCALHOST) / sample.long.ten :LOCALHOST) >= 0 -> print "arith %v";

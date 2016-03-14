@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -91,8 +92,8 @@ then, in the case of
 .BR pmFetch (3),
 the collection of recorded metric values will be scanned in a forwards
 direction in time, until values for at least one of the requested metrics is
-located after the time origin, and then all requested metrics stored in the log
-or archive at that time will be returned with the corresponding timestamp.
+located after the time origin, and then all requested metrics stored in the
+set of archives at that time will be returned with the corresponding timestamp.
 A
 .I mode
 of
@@ -122,8 +123,8 @@ is
 or
 .BR PM_MODE_BACK ,
 and no qualifying metrics can be found in the requested direction of searching
-before the end or start of the archive
-log is found, then
+before the end or start of the set of archive
+logs is found, then
 .BR pmFetch (3)
 returns the special error indicator,
 .BR PM_ERR_EOL .
@@ -154,7 +155,7 @@ is
 and the adjustment is applied, even if the
 .BR pmFetch (3)
 fails because the time origin is outside the range defined by
-the records in an archive log, i.e. returns
+the records in a set of archive logs, i.e. returns
 .BR PM_ERR_EOL .
 .P
 .PP
@@ -166,7 +167,7 @@ section below).
 Using these
 .I mode
 options, an application can implement replay, playback, fast forward, reverse,
-etc. for performance metric values held in the archive log by alternating calls
+etc. for performance metric values held in the set of archive logs by alternating calls
 to
 .B pmSetMode
 and

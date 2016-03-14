@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.  All Rights Reserved.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -34,9 +35,13 @@ identified by
 .I input
 and creates a temporally merged and/or reduced PCP archive log in
 .IR output .
+.I input
+is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
 The nature of merging is controlled by the number of input
 archive logs, while the nature of data reduction is controlled by
-the command line arguments.  The input(s) must be PCP archive logs
+the command line arguments.  The input(s) must be sets of PCP archive logs
 created by
 .BR pmlogger (1)
 with performance data collected from the
@@ -47,10 +52,10 @@ not usually) with different performance metrics being logged.
 If only one
 .I input
 is specified, then the default behavior simply copies the input
-PCP archive log, into the output PCP archive log.  When two or
-more PCP archive logs are specified as
+set of PCP archive logs, into the output PCP archive log.  When two or
+more sets of PCP archive logs are specified as
 .IR input ,
-the logs are merged (or concatenated) and written to
+the sets of logs are merged (or concatenated) and written to
 .IR output .
 .PP
 In the output archive log a
@@ -351,12 +356,12 @@ record.
 .SH METADATA CHECKS
 When more than one
 .I input
-archive is specified, 
+archive set is specified, 
 .B pmlogextract
 performs a number of checks to ensure the metadata is consistent for
 metrics appearing in more than one of the
 .I input
-archives.
+archive sets.
 These checks include:
 .IP * 2n
 metric data type is the same
