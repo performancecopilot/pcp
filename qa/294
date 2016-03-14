@@ -62,9 +62,10 @@ s//@ DATE/
 # pmstat header3
 s//   1 min   swpd   free   buff  cache   si   so   bi   bo   in   cs  us  sy  id/
 }' \
-	-e '/[0-9.]*[0-9Km]  *[0-9.]*[0-9Km]  *[0-9.]*[0-9Km]  *[0-9.]*[0-9Km]  *[0-9.]*[0-9Km]/{
+	-e '/[0-9?][0-9.Km]*  *[0-9?][0-9.Km]*  *[0-9?][0-9.Km]*  *[0-9?][0-9.Km]*  *[0-9?][0-9.Km]*/{
 # pmstat data
-s/  *[0-9.]*[0-9Km]/ N/g
+s/  *?/ ?/g
+s/  *[0-9][0-9.Km]*/ N/g
 }' \
     | _filter_me
 }
