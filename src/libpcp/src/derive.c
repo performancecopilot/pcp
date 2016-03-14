@@ -351,15 +351,22 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_PMAPI);
 	}
 
 	/*
-	 * Next, user-defined derived metrics if PCP_DERIVED_CONFIG is set,
-	 * or if not, global derived configs below $PCP_VAR_DIR/config/derived
+	 * If PCP_DERIVED_CONFIG is NOT set, then by default we load global
+	 * derived configs from the directory $PCP_VAR_DIR/config/derived.
+	 *
+	 * If PCP_DERIVED_CONFIG is set to a zero length string, then don't
+	 * load any derived metrics definitions.
+	 *
+	 * Else if PCP_DERIVED_CONFIG is set then load user-defined derived
+	 * metrics from one or more files or directories separated by ':'.
+	 *
 	 */
 	if ((configpath = getenv("PCP_DERIVED_CONFIG")) == NULL) {
 	    snprintf(global, sizeof(global), "%s/config/derived", pmGetConfig("PCP_VAR_DIR"));
 	    if (access(global, F_OK) == 0)
 		configpath = global;
 	}
-	if (configpath) {
+	if (configpath && strnlen(configpath, MAXPATHLEN) > 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
 		fprintf(stderr, "Derived metric initialization from %s\n",
