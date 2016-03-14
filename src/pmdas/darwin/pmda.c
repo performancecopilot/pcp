@@ -1213,7 +1213,7 @@ darwin_init(pmdaInterface *dp)
     dp->version.two.fetch = darwin_fetch;
     pmdaSetFetchCallBack(dp, darwin_fetchCallBack);
 
-    pmdaSetFlags(dp, PMDA_EXT_FLAG_DIRECT);
+    pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]),
 		metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 
