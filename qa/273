@@ -40,7 +40,6 @@ _filter2()
 {
     sed \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
-	-e '/Direct mapping for metrics disabled/d' \
 	-e '/build_dsotab/s/parsing .*/ parsing .../' \
 	-e '/^\[[0-9][0-9]*]/d' \
 	-e '/^0x[0-9a-f][0-9a-f]* \[[0-9][0-9]*]/d' \
@@ -86,13 +85,6 @@ _filter3()
     # end
 }
 
-_filter4()
-{
-    sed \
-	-e '/Direct mapping for metrics disabled/d' \
-    # end
-}
-
 # simple PMDA is using PMDA_INTERFACE_2
 #
 if [ ! -f $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX ]
@@ -109,26 +101,26 @@ _wait_for_pmlogger
 
 # help.c
 #
-$sudo pminfo -t -L sampledso 2>&1 | _filter4
-$sudo pminfo -T -L sampledso 2>&1 | _filter4
+$sudo pminfo -t -L sampledso 2>&1
+$sudo pminfo -T -L sampledso 2>&1
 pminfo -T -a tmparch/foo sample
-$sudo pminfo -T -L -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init simple.now 2>&1 | _filter4
+$sudo pminfo -T -L -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init simple.now 2>&1
 
 # instance.c
 #
-$sudo pminfo -L -f -Dfetch sampledso.bin 2>&1 | _filter4 | _filter_dumpresult
+$sudo pminfo -L -f -Dfetch sampledso.bin 2>&1 | _filter_dumpresult
 pminfo -f -Dindom sample.bin 2>&1 | _filter
 $sudo pminfo -fL -Dfetch,indom -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init simple 2>&1 \
 | _filter_dumpresult | _filter
 src/indom sample.bin
 src/indom sample.long.one
 pmval -s 1 -i "bin-123" sample.bin
-$sudo src/torture_indom -L sampledso.colour 2>&1 | _filter4
-$sudo src/torture_indom -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init -L simple.now 2>&1 | _filter4
+$sudo src/torture_indom -L sampledso.colour 2>&1
+$sudo src/torture_indom -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init -L simple.now 2>&1
 
 # fetchlocal.c
 #
-$sudo pminfo -f -L -Dfetch sampledso.bad.unknown 2>&1 | _filter4 | _filter_dumpresult
+$sudo pminfo -f -L -Dfetch sampledso.bad.unknown 2>&1 | _filter_dumpresult
 
 # spec.c
 #
