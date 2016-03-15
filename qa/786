@@ -19,9 +19,15 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 host=`hostname`
 
+# errno mapping -65 (EHOSTUNREACH on Mac OS X) -> -113 (EHOSTUNREACH on
+# Linux)
+#
 _filter()
 {
-    sed -e "s/$host/HOSTNAME/"
+    sed \
+	-e "s/$host/HOSTNAME/" \
+	-e 's/(-65\([,)]\)/(-113\1/' \
+    # end
 }
 
 # real QA test starts here
