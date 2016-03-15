@@ -34,7 +34,7 @@ echo .
 # pipe PMDA variant of test
 echo "=== pipe PMDA ===" >>$here/$seq.full
 $sudo rm -f sample.log
-$sudo dbpmda -n root -ie <<End-of-File 2>&1 | _filter
+$sudo TERM=ansi dbpmda -n root -ie <<End-of-File 2>&1 | _filter
 debug AUTH
 open pipe pmdasample -l sample.log -D AUTH
 attr
@@ -57,7 +57,7 @@ echo .
 
 # DSO PMDA variant of test
 echo "=== DSO PMDA ===" >>$here/$seq.full
-$sudo dbpmda -n root -ie <<End-of-File 2>&1 | _filter
+$sudo TERM=ansi dbpmda -n root -ie <<End-of-File 2>&1 | _filter
 debug AUTH
 open dso pmda_sample.$DSO_SUFFIX sample_init
 attr

@@ -53,7 +53,7 @@ End-of-File
 
 # iterate over our pre-canned gpfs files
 echo === Testing precanned gpfs files
-$sudo dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
+$sudo TERM=ansi dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
 
 status=0
 exit

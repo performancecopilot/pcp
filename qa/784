@@ -38,7 +38,7 @@ _filter()
 
 _traverse()
 {
-    $sudo -E dbpmda -n $tmp.root -ie <<EOF \
+    $sudo TERM=ansi dbpmda -n $tmp.root -ie <<EOF \
 	| grep "$1" | LC_COLLATE=POSIX sort -r
 open pipe $python_path $pmda_script
 traverse $1
@@ -53,7 +53,7 @@ echo "== Finding mic metrics" | tee -a $seq.full
 $sudo -E PCP_PYTHON_PMNS=root $python "$pmda_script" 2>/dev/null > $tmp.root
 
 echo "== Testing mic metrics" | tee -a $seq.full
-$sudo -E dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
+$sudo TERM=ansi dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
 open pipe $python_path $pmda_script
 getdesc on
 desc mic.mgmt.numcards

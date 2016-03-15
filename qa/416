@@ -99,7 +99,7 @@ cd $home/news
 
 # real QA test starts here
 
-cat <<End-of-File | $sudo sh -c ". /etc/pcp.env; dbpmda -ie -n $tmp.pmns" >$tmp.out 2>&1
+cat <<End-of-File | $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -ie -n $tmp.pmns" >$tmp.out 2>&1
 open pipe `which perl` `pwd`/pmdanews.pl
 traverse news
 children news.articles
