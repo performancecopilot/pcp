@@ -48,6 +48,11 @@ state == "1" && $1 != "pmLoadNameSpace:"	{ state = 2; outf = "'$tmp.tmp'.2" }
 }
 
 # real QA test starts here
+
+# Don't load any global derived metric configs by default
+# (except as overridden below)
+export PCP_DERIVED_CONFIG=""
+
 pminfo -D pmns -mf -c $tmp.def \
     sample.secret.foo.one my.derived foo.bar sample.secret.foo.two \
 	>$tmp.out 2>$tmp.err

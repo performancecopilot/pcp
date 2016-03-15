@@ -46,6 +46,10 @@ echo "c=sample.bin*hinv.ncpu" >>$tmp/b
 echo "d = +" >>$tmp/b
 
 # real QA test starts here
+
+# Don't load any global derived metric configs by default
+export PCP_DERIVED_CONFIG=""
+
 for debug in -Dderive  ""
 do
     echo "+++ debug=$debug +++"

@@ -120,6 +120,11 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
+# For this test, don't load any global derived metric configs by default. 
+# So the PCP_DERIVED_CONFIG environment variable is initially set to an
+# empty string, except below where PCP_DERIVED_CONFIG is used for sar's -u view
+export PCP_DERIVED_CONFIG=""
+
 echo "Using sa-sysstat-$file_version" >>$seq.full
 
 sar2pcp sadist/sa-sysstat-$file_version $tmp

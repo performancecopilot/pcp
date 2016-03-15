@@ -14,7 +14,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-unset PCP_DERIVED_CONFIG
+# For this test, don't load any global derived metric configs by default. 
+# So the PCP_DERIVED_CONFIG environment variable is set to an empty string.
+export PCP_DERIVED_CONFIG=""
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
