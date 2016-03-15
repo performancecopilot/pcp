@@ -29,9 +29,13 @@ trap "_cleanup" 0 1 2 3 15
 _filter()
 {
     sed \
-	-e 's/0x[0-9a-f][0-9a-f]*/HEX/g'
+	-e 's/0x[0-9a-f][0-9a-f]*/HEX/g' \
+    # end
 }
 
+# Note - sed at the end is because of non-determinism depending if the
+# 	 kernel PMDA is configured to use a dso or other IPC option
+#
 _filter2()
 {
     sed \
@@ -66,13 +70,19 @@ d
 	    if ($#saved == 1) { print $saved[1]; }
 	    @saved = undef;
 	    print;
-	}'
+	}' \
+    | sed \
+	-e '/^__pmSetSocketIPC:/d' \
+	-e '/^NotifyEndLocalContext/d' \
+	-e '/^IPC table fd/d' \
+    # end
 }
 
 _filter3()
 {
     sed \
-	-e 's/Connection timed out/No route to host/'
+	-e 's/Connection timed out/No route to host/' \
+    # end
 }
 
 # simple PMDA is using PMDA_INTERFACE_2
@@ -91,10 +101,10 @@ _wait_for_pmlogger
 
 # help.c
 #
-$sudo pminfo -t -L sampledso
-$sudo pminfo -T -L sampledso
+$sudo pminfo -t -L sampledso 2>&1
+$sudo pminfo -T -L sampledso 2>&1
 pminfo -T -a tmparch/foo sample
-$sudo pminfo -T -L -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init simple.now
+$sudo pminfo -T -L -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init simple.now 2>&1
 
 # instance.c
 #
@@ -105,8 +115,8 @@ $sudo pminfo -fL -Dfetch,indom -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253
 src/indom sample.bin
 src/indom sample.long.one
 pmval -s 1 -i "bin-123" sample.bin
-$sudo src/torture_indom -L sampledso.colour
-$sudo src/torture_indom -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init -L simple.now
+$sudo src/torture_indom -L sampledso.colour 2>&1
+$sudo src/torture_indom -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init -L simple.now 2>&1
 
 # fetchlocal.c
 #

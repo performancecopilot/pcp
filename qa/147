@@ -28,7 +28,7 @@ pipepmda=$PCP_PMDAS_DIR/sample/pmdasample
 [ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pipepmda\"" && exit 1
 [ ! -f $dsopmda ] && echo "FATAL ERROR Could not find \"$dsopmda\"" && exit 1
 
-$sudo dbpmda -ie <<End-of-File 2>&1 | _filter
+$sudo TERM=ansi dbpmda -ie <<End-of-File 2>&1 | _filter
 open pipe $pipepmda -d 29
 getdesc on
 fetch 29.0.6

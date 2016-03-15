@@ -50,15 +50,25 @@ _filter_darwin()
 	cat
     else
 	sed \
-	    -e '/disk.dev.avactive .* Unknown metric name/d' \
-	    -e '/network.icmp.* Unknown metric name/d' \
-	    -e '/network.igmp.* Unknown metric name/d' \
-	    -e '/network.ip.* Unknown metric name/d' \
-	    -e '/network.tcp.* Unknown metric name/d' \
-	    -e '/network.udp.* Unknown metric name/d' \
-	    -e '/swap .* Unknown metric name/d' \
-	    -e '/swap.pages.* Unknown metric name/d' \
-	    -e '/swapdev .* Unknown metric name/d' \
+	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.all\.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.partitions\..* Unknown metric name/d' \
+	    -e '/^hinv\.nnode .* Unknown metric name/d' \
+	    -e '/^network\.icmp .* Unknown metric name/d' \
+	    -e '/^network\.igmp .* Unknown metric name/d' \
+	    -e '/^network\.ip .* Unknown metric name/d' \
+	    -e '/^network\.tcp .* Unknown metric name/d' \
+	    -e '/^network\.udp .* Unknown metric name/d' \
+	    -e '/^network\.udplite .* Unknown metric name/d' \
+	    -e '/^swap .* Unknown metric name/d' \
+	    -e '/^swap\..* .* Unknown metric name/d' \
+	    -e '/^swapdev .* Unknown metric name/d' \
+	    -e '/^proc\..* Unknown metric name/d' \
+	    -e '/^kernel\.all\.intr .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.nusers .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pswitch .* Unknown metric name/d' \
+	    -e '/^mem\.util\.bufmem .* Unknown metric name/d' \
+	    -e '/^mem\.util\.cached .* Unknown metric name/d' \
 	# darwin
     fi
 }

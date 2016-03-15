@@ -14,8 +14,19 @@ echo "QA output created by $seq"
 . ./common.check
 
 which iostat >/dev/null || _notrun "No local iostat binary found"
-which sar >/dev/null 2>&1 || _notrun "sar not installed"
+# check iostat looks like right version
+#
+for opt in t x
+do
+    if iostat -\? 2>&1 | grep ".-[a-zA-Z]*$opt" >/dev/null
+    then
+	:
+    else
+	_notrun "installed iostat does not have a -$opt option"
+    fi
+done
 
+which sar >/dev/null 2>&1 || _notrun "sar not installed"
 version=`sar -V 2>&1 | sed -n -e '/sysstat version /{
 s/.* //
 p
@@ -24,6 +35,9 @@ case "$version"
 in
     7.0.*)	# too old
     	_notrun "sysstat version $version too old"
+	;;
+    '')		# not sysstat-based sar
+	_notrun "sar not from sysstat package"
 	;;
 esac
 

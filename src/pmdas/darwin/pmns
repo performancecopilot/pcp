@@ -81,6 +81,7 @@ mem.util {
     active		DARWIN:1:20
     inactive		DARWIN:1:21
     free		DARWIN:1:22
+    used		DARWIN:1:23
 }
 
 filesys {

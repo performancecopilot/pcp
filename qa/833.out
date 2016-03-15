@@ -384,103 +384,103 @@ churnctx: pmFetch failed: End of PCP archive log
 === host context, and pmNewContext ... just to be sure ===
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 
 === local: context with attributes, and pmDupContext ===
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
 __pmFindPDUBuf(DEBUG)
 DATE
-60.2.0: 3 values
-60.0.32: 1 values
+PMID: 3 values
+PMID: 1 values
 29.0.81: 1 values
