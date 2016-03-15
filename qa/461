@@ -80,7 +80,7 @@ cat $tmp.out | _filter_pmda_install | _filter
 
 echo "=== 1. store access control enabled ==="
 echo "Starting initial event watcher:"
-pmevent -x '' -s 5 -t 1 logger.perfile.reg.records > $tmp.event &
+pmevent -x '.' -s 5 -t 1 logger.perfile.reg.records > $tmp.event &
 sleep 2
 _testdata >> $tmp.reg
 wait

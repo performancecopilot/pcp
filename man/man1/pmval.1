@@ -307,11 +307,10 @@ Set the width of each column of output to be
 columns.
 If not specified columns are wide
 enough to accommodate the largest value of the type being printed.
-.RE
 .TP
 .B \-x
 The given
-.I filter
+.I pattern
 is sent to the performance metric domain agent for the requested
 .I metricname
 before any values are requested.
@@ -323,6 +322,14 @@ PMCD store mechanism to provide a basic security model (e.g. for
 sensitive log files, only a client host with
 .BR pmStore (3)
 access would be able to access the event stream).
+.RS
+.PP
+As
+.I pattern
+may be processed by
+.BR regcomp (3)
+it should be a non-empty string.  Use . (dot) for a \(lqmatch all\(rq
+.IR pattern .
 .RE
 .TP
 .B \-Z
