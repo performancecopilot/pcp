@@ -177,7 +177,7 @@ new/mv-foo.meta
 
 === error case for ln failing ===
 link mv-foo.0 -> new/mv-foo.0
-ln: failed to create hard link 'new/mv-foo.0' => 'mv-foo.0': Permission denied
+ln: mv-foo.0: Permission denied
 pmlogmv: Error: ln mv-foo.0 new/mv-foo.0 failed!
 ls: cannot access new/mv-foo*: No such file or directory
 ... ls data ... mv-foo.0
@@ -201,19 +201,19 @@ link mv-foo.2 -> new/mv-foo.2
 link mv-foo.index -> new/mv-foo.index
 link mv-foo.meta -> new/mv-foo.meta
 remove mv-foo.0
-rm: cannot remove 'mv-foo.0': Permission denied
+rm: mv-foo.0: Permission denied
 pmlogmv: Warning: rm mv-foo.0 failed!
 remove mv-foo.1
-rm: cannot remove 'mv-foo.1': Permission denied
+rm: mv-foo.1: Permission denied
 pmlogmv: Warning: rm mv-foo.1 failed!
 remove mv-foo.2
-rm: cannot remove 'mv-foo.2': Permission denied
+rm: mv-foo.2: Permission denied
 pmlogmv: Warning: rm mv-foo.2 failed!
 remove mv-foo.index
-rm: cannot remove 'mv-foo.index': Permission denied
+rm: mv-foo.index: Permission denied
 pmlogmv: Warning: rm mv-foo.index failed!
 remove mv-foo.meta
-rm: cannot remove 'mv-foo.meta': Permission denied
+rm: mv-foo.meta: Permission denied
 pmlogmv: Warning: rm mv-foo.meta failed!
 mv-foo.0
 mv-foo.1

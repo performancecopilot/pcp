@@ -21,15 +21,25 @@ trap "cd $here; rm -rf $tmp.* $tmp; exit \$status" 0 1 2 3 15
 
 _filter()
 {
-    # there are a lot of bizarre quoting variants for ln(1) error
-    # messages!
+    # there are a lot of bizarre quoting variants for ln(1) and rm(1)
+    # error messages!
     sed \
 	-e '/^[rwx.-]* /s/.* /... ls data ... /' \
 	-e 's/`'"/'/g" \
 	-e 's/‘'"/'/g" \
 	-e 's/’'"/'/g" \
-	-e 's/ln: creating hard link/ln: failed to create hard link/' \
-	-e "/ln: failed /s/' to '/' => '/" \
+	-e '/^ln: .*Permission/{
+s/creating hard link //
+s/failed to create hard link //
+'"s/' to '/' => '/"'
+'"s/'.* => '//"'
+'"s/'//g"'
+s@new/@@
+}' \
+	-e '/^rm: .*Permission/{
+s/cannot remove //
+'"s/'//g"'
+}' \
     | _filter_ls
 }
 
