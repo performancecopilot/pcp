@@ -200,6 +200,7 @@ _cleanup_pmda()
 	_wait_for_pmlogger
 	done_clean=true
     fi
+    $sudo rm -f $tmp.*
 }
 
 _make_helptext()

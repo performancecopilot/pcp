@@ -2586,8 +2586,13 @@ cd
 %endif
 
 %changelog
-* Fri Feb 18 2016 Dave Brolley <brolley@redhat.com> - 3.11.1-1
-- Work-in-progress, see http://pcp.io/roadmap
+* Fri Mar 18 2016 Dave Brolley <brolley@redhat.com> - 3.11.1-1
+- Call Remove script when uninstalling individual PMDAs (BZ 1304722)
+- Restrict pmcd.services to checking known pcp services (BZ 1286361)
+- Support for multi-archive contexts, across all clients (BZ 1262723)
+- Remove the default shotgun approach to stopping daemons (BZ 1210976)
+- Add mechanism for automatic recovery from PMDA timeouts (BZ 1065803)
+- Update to latest PCP sources.
 
 * Fri Jan 29 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.0-1
 - Significant speedups to elapsed time stopping pmcd (BZ 1292027)

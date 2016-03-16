@@ -2,7 +2,7 @@
 # PCP QA Test No. 1062
 # Exercise pmrep vmstat-style output.
 #
-# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+# Copyright (c) 2015-2016 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
 which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
 [ $PCP_PLATFORM = linux ] || _notrun "requires Linux kernel metrics"
 

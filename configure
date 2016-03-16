@@ -7406,7 +7406,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin"
+as_dummy="$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin"
 for as_dir in $as_dummy
 do
   IFS=$as_save_IFS

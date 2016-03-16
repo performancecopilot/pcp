@@ -10,6 +10,10 @@ sub create {
     return $self;
 };
 
+sub shift {
+    return undef;
+};
+
 sub count {
     return 1;
 };
