@@ -247,7 +247,7 @@ echo "=== syslog for pid $! ===" >>/tmp/syslog.full
 # (high-precision rsyslog timestamps, traditional-mode no longer enabled)
 # 2011-07-09T10:38:40+10:00 HOST pcp-pmie[PID]: 
 #
-$sudo grep '\['$!']:' /tmp/syslog.out \
+$sudo grep '[[]'$!']:' /tmp/syslog.out \
 | tee -a /tmp/syslog.full \
 | sed \
     -e 's/^[A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
