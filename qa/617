@@ -50,7 +50,7 @@ _filter()
 
 # real QA test starts here
 
-$sudo dbpmda -ie 2>&1 <<End-of-File | _filter
+$sudo TERM=ansi dbpmda -ie 2>&1 <<End-of-File | _filter
 help
 status
 #a comment, this should be ignored

@@ -38,12 +38,13 @@ _filter()
     $PCP_AWK_PROG '
 BEGIN				{ state = 0 }
 state == 1 && $1 == "dbpmda>"	{ state = 2 }
-				{ print >"'$tmp'." state }
+				{ outname = "'$tmp'." state; print >outname }
 $1 == "Metric:"			{ state = 1 }'
     ( cat $tmp.0 ; LC_COLLATE=POSIX sort $tmp.1; cat $tmp.2 ) \
     | sed \
         -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
         -e "s;$script;pmdanamed.pl;" \
+	-e '/Direct mapping for metrics disabled/d' \
     | _filter_dumpresult
 }
 
@@ -62,21 +63,21 @@ script=$PCP_PMDAS_DIR/named/pmdanamed.pl
 
 # create a set of commands for dbpmda
 cat >$tmp.cmds <<End-of-File
-open pipe /usr/bin/perl $script
+open pipe /usr/bin/env perl $script
 children named
 desc named.interval
 fetch named.interval
 End-of-File
 
 export NAMED_STATS_USER=`id -u -n`
-export NAMED_STATS_PROG=/bin/true
+export NAMED_STATS_PROG=`which true`
 
 # iterate over all of the pre-canned staticstics files
 test="$here/named"
 for file in $test/*.txt
 do
     export NAMED_STATS_FILE="$file"
-    PCP_PERL_PMNS=root /usr/bin/perl $script > $tmp.root
+    PCP_PERL_PMNS=root /usr/bin/env perl $script > $tmp.root
 
     echo === Test case: `basename $file`
     $sudo rm -f named.log

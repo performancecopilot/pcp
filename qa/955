@@ -49,7 +49,7 @@ pipepmda=$PCP_PMDAS_DIR/linux/pmdalinux
 
 # Test real regression that occured when updating dynamic metrics
 echo "=== Daemon PMDA linux static text then dynamic fetch test ==="
-$sudo dbpmda -ie <<EOF 2>&1 | _filter
+$sudo TERM=ansi dbpmda -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 60
 text hinv.ncpu
 fetch kernel.percpu.interrupts.line1
@@ -60,7 +60,7 @@ EOF
 
 # Static fetch then dynamic fetch
 echo "=== Daemon PMDA linux static fetch then dynamic fetch test ==="
-$sudo dbpmda -ie <<EOF 2>&1 | _filter
+$sudo TERM=ansi dbpmda -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 60
 fetch hinv.ncpu
 fetch kernel.percpu.interrupts.line1
@@ -68,7 +68,7 @@ EOF
 
 # Dynamic fetch then static fetch
 echo "=== Daemon PMDA linux dynamic then static fetch test ==="
-$sudo dbpmda -ie <<EOF 2>&1 | _filter
+$sudo TERM=ansi dbpmda -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 60
 fetch kernel.percpu.interrupts.line1
 fetch hinv.ncpu
@@ -76,7 +76,7 @@ EOF
 
 # Dump a dynamic tree
 echo "=== Daemon PMDA linux look for dynamic children ==="
-$sudo dbpmda -ie <<EOF 2>&1 | _filter | _count_leafs
+$sudo TERM=ansi dbpmda -ie <<EOF 2>&1 | _filter | _count_leafs
 open pipe $pipepmda -d 60
 children kernel.percpu.interrupts
 EOF

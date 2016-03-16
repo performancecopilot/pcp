@@ -34,7 +34,7 @@ _filter()
 ( cd $PCP_PMDAS_DIR/simple; $sudo ./Install ) </dev/null >/dev/null 2>&1
 
 # real QA test starts here
-$sudo dbpmda -n $PCP_PMDAS_DIR/simple/root -ie <<End-of-File 2>&1 | _filter
+$sudo TERM=ansi dbpmda -n $PCP_PMDAS_DIR/simple/root -ie <<End-of-File 2>&1 | _filter
 open dso $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX simple_init 253
 getdesc on
 desc simple.numfetch
@@ -52,13 +52,13 @@ cat <<End-of-File >.dbpmdarc
 open dso $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX simple_init 253
 fetch simple.numfetch
 End-of-File
-$sudo dbpmda -ie -n $PCP_PMDAS_DIR/simple/root -ie <<End-of-File 2>&1 | _filter
+$sudo TERM=ansi dbpmda -ie -n $PCP_PMDAS_DIR/simple/root -ie <<End-of-File 2>&1 | _filter
 quit
 End-of-File
 
 echo
 echo "-f test ..."
-$sudo dbpmda -f -ie -n $PCP_PMDAS_DIR/simple/root -ie <<End-of-File 2>&1 | _filter
+$sudo TERM=ansi dbpmda -f -ie -n $PCP_PMDAS_DIR/simple/root -ie <<End-of-File 2>&1 | _filter
 open dso $PCP_PMDAS_DIR/simple/pmda_simple.$DSO_SUFFIX simple_init 253
 fetch simple.color
 quit

@@ -36,7 +36,7 @@ _filter()
 	#
 	sed -e 's/MB RAM/ RAM/' \
 	| $PCP_AWK_PROG '
-$NF == "RAM"	{ x = $(NF-1); x = ((int)(x/128)+1)*128; $(NF-1) = x }
+$NF == "RAM"	{ x = $(NF-1); x = (int(x/128)+1)*128; $(NF-1) = x }
 		{ print }'
     else
 	cat

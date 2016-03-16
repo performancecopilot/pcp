@@ -26,7 +26,7 @@ Checking log file, pipe mode
 [DATETIME] pmdasample(PID) Info: Attribute: ctx=0 username=pcpqa
 .
 dbpmda> debug AUTH
-dbpmda> open dso pmda_sample.so sample_init
+dbpmda> open dso pmda_sample.DSO sample_init
 dbpmda> attr
 attr name [value]
 attr attr# [value]

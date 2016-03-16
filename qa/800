@@ -48,7 +48,7 @@ pipepmda=$PCP_PMDAS_DIR/proc/pmdaproc
 
 # By default, hotproc should be disabled
 echo "=== Hotproc disabled by default test ==="
-$sudo dbpmda -ie <<EOF 2>&1 | _filter
+$sudo TERM=ansi dbpmda -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 3
 getdesc on
 fetch hotproc.control.config_gen
@@ -57,7 +57,7 @@ EOF
 
 # After this, hotproc still disabled (and pmdaproc running)
 echo "=== Check that hotproc can have interval set early==="
-$sudo dbpmda -ie <<EOF 2>&1 | _filter
+$sudo TERM=ansi dbpmda -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 3
 getdesc on
 attr "username" "root"
@@ -68,7 +68,7 @@ fetch hotproc.nprocs
 EOF
 
 echo "=== Check that hotproc can be configured with UID==="
-$sudo dbpmda -ie <<EOF 2>&1 | _filter
+$sudo TERM=ansi dbpmda -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 3
 getdesc on
 attr "username" "root"
@@ -81,7 +81,7 @@ fetch hotproc.nprocs
 EOF
 
 echo "=== Check that hotproc can be configured with process name==="
-$sudo dbpmda -ie <<EOF 2>&1 | _filter
+$sudo TERM=ansi dbpmda -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 3
 getdesc on
 attr "username" "root"

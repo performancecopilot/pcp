@@ -60,7 +60,7 @@ _filter_indom()
     $PCP_AWK_PROG '
 BEGIN						{ part = 1 }
 part == 2 && $1 == "dbpmda>"			{ part = 3 }
-						{ print >"'$tmp'." part }
+						{ outname = "'$tmp'." part; print >outname }
 part == 1 && $1 == "pmInDom:" && $2 == "62.0"	{ part = 2 }'
 
     [ -f $tmp.1 ] && cat $tmp.1
@@ -77,11 +77,11 @@ script=pmdanfsclient.pl
 cd "$PCP_PMDAS_DIR/nfsclient"
 
 # create a root namespace file for dbpmda to use
-PCP_PERL_PMNS=root /usr/bin/perl $script > $tmp.root
+PCP_PERL_PMNS=root /usr/bin/env perl $script > $tmp.root
 
 # create a set of commands for dbpmda
 cat >$tmp.cmds <<End-of-File
-open pipe /usr/bin/perl $script
+open pipe /usr/bin/env perl $script
 getdesc on
 desc nfsclient.export
 desc nfsclient.mountpoint
@@ -104,7 +104,7 @@ do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log
-    $sudo dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter | _filter_indom
+    $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.cmds 2>&1 | _filter | _filter_indom
     _filter_pmda_log < nfsclient.log
 done
 

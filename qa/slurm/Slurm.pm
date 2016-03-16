@@ -141,4 +141,9 @@ my $jobmsg = {
     return $jobmsg;
 
 };
+
+sub sprint_job_info {
+    return "";
+}
+
 1;

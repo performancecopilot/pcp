@@ -485,10 +485,12 @@ int
 event_regex_alloc(const char *string, void **filter)
 {
     regex_t *regex = malloc(sizeof(regex_t));
+    int	 sts;
 
     if (regex == NULL)
 	return -ENOMEM;
-    if (regcomp(regex, string, REG_EXTENDED|REG_NOSUB) != 0) {
+    if ((sts = regcomp(regex, string, REG_EXTENDED|REG_NOSUB)) != 0) {
+	fprintf(stderr, "regcomp(..., \"%s\", ...) failed: error=%d\n", string, sts);
 	free(regex);
 	return PM_ERR_BADSTORE;
     }

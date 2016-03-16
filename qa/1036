@@ -24,7 +24,9 @@ _filter()
 {
     tmpx=`echo $tmp`
     sed -e 's/^Archive:.* Host:/ARCHIVE: Host:/' \
-	-e "s|$tmpx|TMP|g"
+	-e "s|$tmpx|TMP|g" \
+	-e 's/-nan/ nan/g' \
+    # end
 }
 
 # real QA test starts here
