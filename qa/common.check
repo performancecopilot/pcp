@@ -1531,6 +1531,9 @@ _change_config()
 	    pmcd)	pat=PMCD ;;
 	    pmlogger)	pat=PMLOGGER ;;
 	    pmie)	pat=PMIE ;;
+	    pmproxy)	pat=PMPROXY ;;
+	    pmmgr)	pat=PMMGR ;;
+	    pmwebd)	pat=PMWEBD ;;
 	    verbose)	pat="" ;;
 	    *)		pat=$1 ;;
 	esac
