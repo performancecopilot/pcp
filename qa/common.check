@@ -67,23 +67,11 @@ _check_freespace()
 
     # Filesystem           1M-blocks Used Available Use% Mounted on
     # /dev/sda5                57349     24838     29621  46% /
-    case "$PCP_PLATFORM"
-    in
-	linux)
-	    free=`df -mP . | $PCP_AWK_PROG 'NR == 2 { print $4 }'`
-	    ;;
-	darwin|freebsd|netbsd|openbsd)
-	    free=`df -m . | $PCP_AWK_PROG 'NR == 2 { print $4 }'`
-	    ;;
-	*)
-	    echo >&2 "_check_freespace: don't grok df(1) for $PCP_PLATFORM"
-	    free=''
-	    ;;
-    esac
+    free=`df -mP . | $PCP_AWK_PROG 'NR == 2 { print $4 }'`
 
     if [ -z "$free" ]
     then
-	echo "Cannot determine free space (df -m fails)"
+	echo "Cannot determine free space (df -mP fails)"
     elif [ "$free" -lt "$needspace" ]
     then
 	echo "Insufficient free space ($free MB, need $needspace MB)"
@@ -304,8 +292,8 @@ _ipv6_localhost()
 {
     if [ ! -f /etc/hosts ]
     then
-	echo "Arrgh ... cannot find /etc/hosts to determine IPv6 localhost name"
-	exit
+	echo >&2 "Arrgh ... cannot find /etc/hosts to determine IPv6 localhost name"
+	return
     fi
     for sniff in localhost6 ip6-localhost ipv6-localhost
     do
@@ -315,8 +303,8 @@ _ipv6_localhost()
 	    return
 	fi
     done
-    echo "Arrgh ... cannot determine IPv6 localhost name from /etc/hosts"
-    exit
+    echo >&2 "Arrgh ... cannot determine IPv6 localhost name from /etc/hosts"
+    return
 }
 
 _check_metric()
