@@ -15,6 +15,17 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+case "$PCP_PLATFORM"
+in
+    linux)
+    	;;
+    *)
+	_notrun "No container support for PCP_PLATFORM $PCP_PLATFORM"
+	# NOTREACHED
+	;;
+esac
+
+
 _get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 
