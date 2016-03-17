@@ -57,7 +57,7 @@ then
     cp $BINADM_DIR/install-pcp $BINADM_DIR/idb /tmp
     # create tidy up script
     echo '#!/bin/sh' > /tmp/_pcp_tidy.sh
-    echo '/tmp/install-pcp -v -r -l /var/log/pcp_inst.log /tmp/idb && /bin/rm -rf /Library/Receipts/pcp-*' >> /tmp/_pcp_tidy.sh
+    echo '/tmp/install-pcp -r -l /var/log/pcp_inst.log /tmp/idb && /bin/rm -rf /Library/Receipts/pcp-*' >> /tmp/_pcp_tidy.sh
     echo '/bin/rm -f /tmp/install-pcp /tmp/idb /tmp/_pcp_tidy.sh' >> /tmp/_pcp_tidy.sh
     echo 'echo Done' >> /tmp/_pcp_tidy.sh
     chmod u+x /tmp/_pcp_tidy.sh

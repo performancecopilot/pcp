@@ -70,6 +70,8 @@
 @ mem.util.wired wired memory
 @ mem.util.active active memory
 @ mem.util.inactive inactive memory
+@ mem.util.used used memory
+Equals mem.util.wired + mem.util.active + mem.util.inactive.
 @ mem.util.free free memory
 
 @ hinv.nfilesys number of file systems currently mounted
@@ -85,6 +87,11 @@
 @ filesys.type filesystem type name for each mounted filesystem
 
 @ hinv.ndisk number of disks in the system
+
+@ hinv.machine Machine model
+Same value as hw.model from sysctl, or Model Identifier from the
+"About This Mac" dialog.
+
 @ disk.dev.read per-disk read operations
 Cumulative number of disk read operations since system boot time (subject
 to counter wrap).

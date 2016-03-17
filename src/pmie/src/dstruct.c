@@ -263,7 +263,7 @@ sleepTight(Task *t, int type)
 	    for (;;) {	/* loop to catch early wakeup from nanosleep */
 		if (ts.tv_sec < 0 || ts.tv_nsec > 999999999) {
 		    fprintf(stderr, "sleepTight: invalid args: %ld %ld\n",
-			    ts.tv_sec, ts.tv_nsec);
+			    (long int)ts.tv_sec, (long int)ts.tv_nsec);
 		    break;
 		}
 		sts = nanosleep(&ts, &tleft);

@@ -135,6 +135,7 @@ __pmInitLocks(void)
 	    fprintf(stderr, "__pmInitLocks: pthread_setspecific failed: %s", errmsg);
 	    exit(4);
 	}
+	memset((void *)tpd, 0, sizeof(*tpd));
 	tpd->curcontext = PM_CONTEXT_UNDEF;
     }
 #endif

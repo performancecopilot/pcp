@@ -22,6 +22,8 @@
 #include "impl.h"
 #include "pmda.h"
 
+#include "darwin.h"
+
 extern mach_port_t	mach_host;
 extern int		mach_hertz;
 
@@ -171,11 +173,17 @@ refresh_filesys(struct statfs **filesys, pmdaIndom *indom)
     return 0;
 }
 
-#if 0
 int
-refresh_hinv()
+refresh_hinv(void)
 {
-sysctl...
+    int			mib[2] = { CTL_HW, HW_MODEL };
+    size_t		size = MODEL_SIZE;
+
+    if (sysctl(mib, 2, hw_model, &size, NULL, 0) == -1)
+	return -oserror();
+    return 0;
+#if 0
+sysctl...others
 hw.machine = Power Macintosh
 hw.model = PowerMac4,2
 hw.busfrequency = 99837332
@@ -185,5 +193,5 @@ hw.l1icachesize = 32768
 hw.l1dcachesize = 32768
 hw.l2settings = 2147483648
 hw.l2cachesize = 262144
-}
 #endif
+}

@@ -17,6 +17,17 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+rm -f $seq.out
+case $PCP_PLATFORM
+in
+    darwin)
+	ln $seq.darwin $seq.out || exit 1
+	;;
+    *)
+	ln $seq.default $seq.out || exit 1
+	;;
+esac
+
 _filter()
 {
     sed \

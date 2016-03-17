@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2015 Red Hat.
+# Copyright (c) 2012-2016 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -32,10 +32,15 @@ default install install_pcp default_pcp :
 # local build distro defaults do their jobs.
 pack_pcp : rpmmacros $(SPEC)
 	DEFS=`grep '^--define' rpmmacros`; \
-	eval $(RPMPROG) -ba $$DEFS \
-		--clean $(SPEC)
-	rm -f $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm \
-		rpmmacros 
+	eval $(RPMPROG) -ba $$DEFS --clean $(SPEC)
+	@if [ -n "$$RPM_SIGN_KEYID" ]; then \
+	    echo "Signing packages with key: $$RPM_SIGN_KEYID"; \
+	    RPMDIR=`sed -n -e "s,'$$,/,g" -e 's/.*_rpmdir *//p' < rpmmacros`; \
+	    RPMS=`rpmspec -q --rpms $(SPEC) | \
+		sed -e "s,^,$${RPMDIR},g" -e 's/$$/.rpm/g'`; \
+	    rpmsign --addsign --key-id=$${RPM_SIGN_KEYID} $${RPMS}; \
+	fi
+	rm -f $(TOPDIR)/install.manifest $(TOPDIR)/files.rpm rpmmacros 
 
 rpmmacros : macros.template
 	@TREEROOT=`cd ${TOPDIR}; pwd`; \
@@ -68,6 +73,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_perfevent@|$(PMDA_PERFEVENT)|g' \
 	    -e's|@pmda_json@|$(PMDA_JSON)|g' \
 	    -e's|@pmda_nginx@|$(PMDA_NGINX)|g' \
+	    -e's|@pmda_oracle@|$(PMDA_ORACLE)|g' \
 	    -e's|@pmda_postgresql@|$(PMDA_POSTGRESQL)|g' \
 	    -e's|@pmda_postfix@|$(PMDA_POSTFIX)|g' \
 	    -e's|@pmda_elasticsearch@|$(PMDA_ELASTICSEARCH)|g' \
@@ -94,6 +100,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \
 	    -e's|@pcp_var_dir@|$(PCP_VAR_DIR)|g' \
 	    -e's|@pcp_etc_dir@|$(PCP_ETC_DIR)|g' \
+	    -e's|@pcp_pmdas_dir@|$(PCP_PMDAS_DIR)|g' \
 	    -e's|@rpm_version@|$(RPM_VERSION)|g' \
 	    -e's|@make@|$(PCP_MAKE_PROG)|g' <$? >$@
 

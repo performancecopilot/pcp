@@ -5,6 +5,7 @@ hinv {
     ncpu		DARWIN:8:71
     nfilesys		DARWIN:5:31
     ndisk		DARWIN:7:46
+    machine		DARWIN:0:2
 }
 
 pmda {
@@ -80,6 +81,7 @@ mem.util {
     active		DARWIN:1:20
     inactive		DARWIN:1:21
     free		DARWIN:1:22
+    used		DARWIN:1:23
 }
 
 filesys {

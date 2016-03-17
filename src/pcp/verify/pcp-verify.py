@@ -1,4 +1,4 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 #
 # Copyright (C) 2015 Red Hat.
 #

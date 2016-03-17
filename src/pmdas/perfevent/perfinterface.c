@@ -53,10 +53,23 @@ typedef struct event_t_ {
     int ncpus;
 } event_t;
 
+typedef struct event_list_t_ {
+    event_t *event;
+    struct event_list_t_ *next;
+} event_list_t;
+
+typedef struct derived_event_t_ {
+    char *name;
+    event_list_t *event_list;
+} derived_event_t;
+
 typedef struct perfdata_t_
 {
     int nevents;
     event_t *events;
+
+    int nderivedevents;
+    derived_event_t *derived_events;
 
     /* information about the architecture (number of cpus, numa nodes etc) */
     archinfo_t *archinfo;
@@ -133,6 +146,91 @@ static void free_perfdata(perfdata_t *del)
 
     pfm_terminate();
 }
+
+/*
+ * Search an event from the event list
+ */
+static event_t *search_event(perfdata_t *inst, const char *event_name)
+{
+    int i;
+
+    for (i = 0; i < inst->nevents; i++) {
+        if (!strcmp(event_name, inst->events[i].name)) {
+            return ((inst->events) + i);
+        }
+    }
+
+    return NULL;
+}
+
+/*
+ * Setup a derived event
+ */
+static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
+{
+    derived_event_t *curr, *derived_events = inst->derived_events;
+    int nderivedevents = inst->nderivedevents;
+    event_t *event;
+    pmcsetting_t *derived_setting;
+    event_list_t *ptr, *tmp, *event_list;
+    int cpuconfig;
+
+    tmp = NULL;
+    event_list = NULL;
+    if (0 == derived_pmc->nsettings)
+        return -E_PERFEVENT_LOGIC;
+
+    derived_events = realloc(derived_events,
+                             (nderivedevents + 1) * sizeof(*derived_events));
+    if (NULL == derived_events) {
+        free(inst->derived_events);
+        inst->nderivedevents = 0;
+        inst->derived_events = NULL;
+        return -E_PERFEVENT_REALLOC;
+    }
+
+    derived_setting = derived_pmc->derivedSettingList;
+    if (derived_setting)
+        cpuconfig = derived_setting->cpuConfig;
+    while (derived_setting) {
+        if (cpuconfig != derived_setting->cpuConfig) {
+            fprintf(stderr, "Mismatch in cpu configuration\n");
+            return -E_PERFEVENT_LOGIC;
+        }
+        event = search_event(inst, derived_setting->name);
+        if (NULL == event) {
+            fprintf(stderr, "Derived setting %s not found\n", derived_setting->name);
+            return -E_PERFEVENT_LOGIC;
+        }
+        derived_setting = derived_setting->next;
+
+        tmp = calloc(1, sizeof(*tmp));
+        if (NULL == tmp) {
+            return -E_PERFEVENT_REALLOC;
+        }
+        tmp->event = event;
+        tmp->next = NULL;
+
+        if (NULL == event_list) {
+            event_list = tmp;
+            ptr = event_list;
+        } else {
+            ptr->next = tmp;
+            ptr = ptr->next;
+        }
+    }
+
+    tmp = event_list;
+
+    curr = derived_events + nderivedevents;
+    curr->name = strdup(derived_pmc->name);
+    curr->event_list = event_list;
+    (inst->nderivedevents)++;
+    inst->derived_events = derived_events;
+
+    return 0;
+}
+
 
 /* Setup an event
  */
@@ -483,7 +581,101 @@ int perf_counter_enable(perfhandle_t *inst, int enable)
     return n;
 }
 
-int perf_get(perfhandle_t *inst, perf_counter **counters, int *size)
+static perf_counter *get_counter(perf_counter **counters, int size, const char *str)
+{
+    perf_counter *pcounter = *counters;
+    int idx, ncounters = size;
+
+    for (idx = 0; idx < ncounters; idx++) {
+        if (!strcmp(pcounter[idx].name, str)) {
+            return (pcounter + idx);
+        }
+    }
+    return NULL;
+}
+
+static int perf_derived_get(perf_derived_counter **derived_counters,
+                            int *derived_size, perfdata_t *pdata,
+                            perf_counter **counters, int *size)
+{
+    int idx, cpuidx;
+
+    perf_derived_counter *pdcounter = *derived_counters;
+    int nderivedcounters = *derived_size;
+
+    if(NULL == pdcounter || nderivedcounters != pdata->nderivedevents)
+    {
+        pdcounter = malloc(pdata->nderivedevents * sizeof *pdcounter);
+        if (NULL == pdcounter) {
+            return -E_PERFEVENT_REALLOC;
+        }
+        memset(pdcounter, 0, pdata->nderivedevents * sizeof *pdcounter);
+        nderivedcounters = pdata->nderivedevents;
+
+        for (idx = 0; idx < pdata->nderivedevents; idx++) {
+            derived_event_t *derived_event = &pdata->derived_events[idx];
+            event_list_t *event_list = derived_event->event_list;
+            perf_counter_list *counter_list, *ptr, *curr;
+            perf_counter *counter;
+
+            counter_list = ptr =curr = NULL;
+            pdcounter[idx].name = derived_event->name;
+
+            while (event_list != NULL) {
+                counter = get_counter(counters, *size, event_list->event->name);
+                if (counter != NULL) {
+                    ptr = calloc(1, sizeof(*ptr));
+                    if (!ptr)
+                        return -E_PERFEVENT_REALLOC;
+                    ptr->counter = counter;
+                    ptr->next = NULL;
+                    if (counter_list == NULL) {
+                        counter_list = ptr;
+                        curr = ptr;
+                    } else {
+                        curr->next = ptr;
+                        curr = curr->next;
+                    }
+                }
+                event_list = event_list->next;
+            }
+            /*
+             * For every counter in a derived_event, we have ninstances and
+             * they should match
+             */
+            pdcounter[idx].counter_list = counter_list;
+            if (pdcounter[idx].counter_list != NULL)
+                pdcounter[idx].ninstances = (pdcounter[idx].counter_list)->counter->ninstances;
+            pdcounter[idx].data = calloc(pdcounter[idx].ninstances, sizeof(uint64_t));
+        }
+        *derived_counters = pdcounter;
+        *derived_size = nderivedcounters;
+    }
+
+    if (pdcounter) {
+        nderivedcounters = *derived_size;
+
+        for (idx = 0; idx < nderivedcounters; idx++) {
+            perf_counter_list *clist;
+            perf_counter *ctr;
+
+            for (cpuidx = 0; cpuidx < pdcounter[idx].ninstances; cpuidx++) {
+                pdcounter[idx].data[cpuidx].value = 0;
+                clist = pdcounter[idx].counter_list;
+                while(clist) {
+                    ctr = clist->counter;
+                    pdcounter[idx].data[cpuidx].value += ctr->data[cpuidx].value;
+                    clist = clist->next;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+int perf_get(perfhandle_t *inst, perf_counter **counters, int *size,
+             perf_derived_counter **derived_counters, int *derived_size)
 {
     int cpuidx, idx, events_read;
 
@@ -565,16 +757,19 @@ int perf_get(perfhandle_t *inst, perf_counter **counters, int *size)
     *counters = pcounter;
     *size = ncounters;
 
+    if (pcounter != 0)
+        perf_derived_get(derived_counters, derived_size, pdata, counters, size);
+
     return events_read;
 }
 
-
 perfhandle_t *perf_event_create(const char *config_file)
 {
-    int ret;
+    int ret, i;
     perfdata_t *inst = 0;
     configuration_t *perfconfig = 0;
     pmcsetting_t *pmcsetting = 0;
+    pmcderived_t *derivedpmc = 0;
 
     ret = pfm_initialize();
     if (ret != PFM_SUCCESS)
@@ -614,6 +809,18 @@ perfhandle_t *perf_event_create(const char *config_file)
         pmcsetting = pmcsetting->next;
     }
 
+    /* Setup the derived events */
+    if (inst && perfconfig && perfconfig->nDerivedEntries)
+    {
+        for (i = 0; i < perfconfig->nDerivedEntries; i++) {
+            int ret;
+            derivedpmc = &(perfconfig->derivedArr[i]);
+            ret = perf_setup_derived_event(inst, derivedpmc);
+            if (ret < 0)
+                return NULL;
+        }
+    }
+
     free_configuration(perfconfig);
 
 out:
@@ -628,7 +835,7 @@ out:
     return (perfhandle_t *)inst;
 }
 
-void perf_counter_destroy(perf_counter *data, int size)
+void perf_counter_destroy(perf_counter *data, int size, perf_derived_counter *derived_counters, int derived_size)
 {
     if(NULL == data)
     {
@@ -640,6 +847,24 @@ void perf_counter_destroy(perf_counter *data, int size)
     {
         free(data[i].data);
     }
+
+    if (NULL == derived_counters)
+    {
+        return;
+    }
+    for (i = 0; i < derived_size; ++i)
+        {
+            perf_counter_list *tmp, *clist = NULL;
+
+            free(derived_counters[i].name);
+            free(derived_counters[i].data);
+            tmp = clist = derived_counters[i].counter_list;
+            while (clist) {
+                clist = clist->next;
+                free(tmp);
+                tmp = clist;
+            }
+        }
 
     free(data);
 }

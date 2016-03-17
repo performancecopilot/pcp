@@ -28,7 +28,7 @@ default: build-me
 
 include $(TOPDIR)/src/include/buildrules
 
-ifneq "$(findstring $(PCP_PLATFORM),darwin freebsd netbsd)" ""
+ifneq "$(findstring $(PCP_PLATFORM),darwin freebsd netbsd openbsd)" ""
 build-me: $(CMDTARGET)
 
 install: build-me

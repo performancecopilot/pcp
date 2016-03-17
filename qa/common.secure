@@ -67,8 +67,8 @@ nss_backup()
 nss_filter_pminfo()
 {
     sed \
-	-e "s/$qahost/QAHOST/g" \
 	-e "s/$hostname/HOST/g" \
+	-e "s/$qahost/QAHOST/g" \
 	-e "/^SHA1 fingerprint is .*/d" \
 	-e 's/value [0-9][0-9]*/value NUMBER/' \
 	-e "/Cannot connect to PMCD on host/s/Unknown code ___f 13/Peer's Certificate issuer is not recognized./" \
@@ -99,11 +99,11 @@ nss_setup_certificates()
     # create self-signed (-x) server certificate locally
     echo "== Creating local certificates" | tee -a $here/$seq.full
     $sudo certutil $certopts -S -x \
-	-n "Local CA certificate" -s "cn=Local PCP Installation, $certdomain"  \
+	-n "Local CA certificate" -s "CN=\"Local PCP Installation, $certdomain\""  \
 	-t "CT,,"  >> $here/$seq.full 2>&1
     sleep 1 # so that the next cert does not get the same serial number
     $sudo certutil $certopts -S \
-	-n "PCP Collector certificate" -s "cn=PCP Collector" \
+	-n "PCP Collector certificate" -s "CN=\"PCP Collector\"" \
 	-c "Local CA certificate" -8 "$qahost,$hostname" \
 	-t "P,," >> $here/$seq.full 2>&1
     echo "== Certificate DB and local certificates created" | tee -a $here/$seq.full
@@ -146,7 +146,14 @@ nss_setup_collector()
 -P $collectorpw
 End-Of-File
     $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
-    $sudo chown root:root $PCP_PMCDOPTIONS_PATH
+    grp=root
+    case $PCP_PLATFORM
+    in
+	freebsd|netbsd|openbsd)
+		grp=wheel
+		;;
+    esac
+    $sudo chown root:$grp $PCP_PMCDOPTIONS_PATH
     echo "Start pmcd, modified \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $here/$seq.full
     $sudo $PCP_RC_DIR/pcp restart | tee -a $here/$seq.full >$tmp.out
     _wait_for_pmcd

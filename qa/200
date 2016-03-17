@@ -16,6 +16,20 @@ echo "QA output created by $seq"
 status=1
 rm -f $seq.full
 
+trap _cleanup 0 1 2 3 15
+
+_cleanup()
+{
+    [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+    [ "$PCP_PLATFORM" != "linux" ] && _change_config pmlogger on
+    $sudo $PCP_RC_DIR/pcp restart >/dev/null
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    $sudo rm -f $tmp.pmcd.conf
+    rm -f $tmp.*
+    exit $status
+}
+
 _filter()
 {
     $PCP_AWK_PROG '
@@ -41,22 +55,24 @@ $0 != last	{ print; last = $0 }' \
 	-e '/^pmWhichContext(/d' \
 	-e '/__pmConnect(fd=.*) ->/d' \
     | $PCP_AWK_PROG '
-/delay: 6 /	{ print "delay: 6-10 secs"; next }
-/delay: 7 /	{ print "delay: 6-10 secs"; next }
-/delay: 8 /	{ print "delay: 6-10 secs"; next }
-/delay: 9 /	{ print "delay: 6-10 secs"; next }
-/delay: 10 /	{ print "delay: 6-10 secs"; next }
-/delay: 14 /	{ print "delay: 14-16 secs"; next }
-/delay: 15 /	{ print "delay: 14-16 secs"; next }
-/delay: 16 /	{ print "delay: 14-16 secs"; next }
+/delay: 2 /	{ print "delay: 2-4 secs"; next }
+/delay: 3 /	{ print "delay: 2-4 secs"; next }
+/delay: 4 /	{ print "delay: 2-4 secs"; next }
+/delay: 5 /	{ print "delay: 5-7 secs"; next }
+/delay: 6 /	{ print "delay: 5-7 secs"; next }
+/delay: 7 /	{ print "delay: 5-7 secs"; next }
 		{ print }'
+    # note: now that pmcd starts and stops very quickly, we use a
+    # strategy in testing valid reconnect strings with less-than-
+    # five-seconds (alot less) and any errors fall back to using
+    # the defaults, which are 5,10,etc.
 }
 
 cat >$tmp.new <<End-of-File
 # From QA 200
 #
 # Name	Id	IPC	IPC Params 	File/Cmd
-pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
 sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
 End-of-File
 
@@ -69,26 +85,11 @@ $sudo cp $tmp.new $PCP_PMCDCONF_PATH
 # so stop, wait a little, and start
 $sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
 sleep 2
-$sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
+$sudo $PCP_RC_DIR/pmcd start >/dev/null 2>&1
 _wait_for_pmcd
-_wait_for_pmlogger
-
-_cleanup()
-{
-    [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-    [ "$PCP_PLATFORM" != "linux" ] && _change_config pmlogger on
-    $sudo $PCP_RC_DIR/pcp restart >/dev/null
-    _wait_for_pmcd
-    _wait_for_pmlogger
-    $sudo rm -f $tmp.pmcd.conf
-    rm -f $tmp.*
-    exit $status
-}
-
-trap _cleanup 0 1 2 3 15
 
 # real QA test starts here
-for xxx in "" "1,3,5" "2" "1-2" "1,2,foo"
+for xxx in "" "1,1,2,2" "2" "1-2" "1,2,foo"
 do
     if [ "X$xxx" = X ]
     then
@@ -107,15 +108,14 @@ do
     DEBUG=-D16
     src/recon $DEBUG >$tmp.out 2>&1 &
 
-    sleep 2
+    pmsleep 1.1
     echo "begin stop pmcd `date`" >>$seq.full
-    $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+    $sudo $PCP_RC_DIR/pmcd stop | _filter_pcp_stop
     echo "end stop pmcd `date`" >>$seq.full
-    sleep 4
+    pmsleep 1.1
     echo "begin start pmcd `date`" >>$seq.full
-    $sudo $PCP_RC_DIR/pcp start \
-    | _filter_pcp_start \
-    | sed -e '/starting archive loggers/d' -e '/Starting pmlogger/d'
+    $sudo $PCP_RC_DIR/pmcd start \
+    | _filter_pcp_start
     echo "end start pmcd `date`" >>$seq.full
 
     wait

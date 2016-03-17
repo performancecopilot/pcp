@@ -1,4 +1,4 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 #
 # Copyright (C) 2014 Red Hat.
 #
@@ -90,7 +90,7 @@ interval = options.pmGetOptionInterval()
 if interval != None:
     print("Interval: %s" % interval)
 
-nonoptions = options.pmNonOptionsFromList(system.argv)
+nonoptions = options.pmGetNonOptionsFromList(system.argv)
 if nonoptions != None:
     print("Non-option arguments: %s" % nonoptions)
 

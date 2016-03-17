@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2009,2014 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2009,2014-2016 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2016 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -69,6 +70,9 @@
 #include "internal.h"
 #include "fault.h"
 #include <sys/stat.h>
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
 #ifdef IS_MINGW
 extern const char *strerror_r(int, char *, size_t);
 #endif
@@ -252,8 +256,11 @@ __dminit_component(const char *name, int descend, int recover)
 	    if (strcmp(dp->d_name, ".") == 0) continue;
 	    if (strcmp(dp->d_name, "..") == 0) continue;
 	    snprintf(path, sizeof(path), "%s%c%s", name, __pmPathSeparator(), dp->d_name);
-	    if ((localsts = __dminit_component(path, descend, recover)) < 0)
+	    if ((localsts = __dminit_component(path, descend, recover)) < 0) {
 		sts = localsts;
+		goto finish;
+	    }
+	    sts += localsts;
 	}
 #ifdef PCP_DEBUG
 	/* error is most unlikely and ignore unless -Dderive specified */
@@ -288,16 +295,24 @@ __dminit_parse(const char *path, int recover)
     const char	*p = path;
     const char	*q;
     int		sts = 0;
+    int		lsts;
 
     while ((q = index(p, ':')) != NULL) {
 	char	*name = strndup(p, q-p+1);
 	name[q-p] = '\0';
-	sts = __dminit_component(name, 1, recover);
+	lsts = __dminit_component(name, 1, recover);
+	if (lsts < 0)
+	    return lsts;
+	sts += lsts;
 	free(name);
 	p = q+1;
     }
-    if (*p != '\0' && sts >= 0)
-	sts = __dminit_component(p, 1, recover);
+    if (*p != '\0') {
+	lsts = __dminit_component(p, 1, recover);
+	if (lsts < 0)
+	    return lsts;
+	sts += lsts;
+    }
     return sts;
 }
 
@@ -1202,6 +1217,8 @@ parse(int level)
     node_t	*curr = NULL;
     node_t	*np;
 
+    lexpeek = 0;	/* reset in case of error in previous parse() call */
+
     for ( ; ; ) {
 	type = lex();
 #ifdef PCP_DEBUG
@@ -1287,6 +1304,7 @@ parse(int level)
 		    state = P_FUNC_OP;
 		}
 		else {
+		    PM_TPD(derive_errmsg) = "Terminal element or function name or '(' expected";
 		    free_expr(expr);
 		    return NULL;
 		}
@@ -1324,6 +1342,7 @@ parse(int level)
 		}
 		else {
 		    free_expr(expr);
+		    PM_TPD(derive_errmsg) = "Arithmetic operator expected";
 		    return NULL;
 		}
 		break;
@@ -1365,6 +1384,7 @@ parse(int level)
 		    state = P_FUNC_OP;
 		}
 		else {
+		    PM_TPD(derive_errmsg) = "Terminal element or function name or '(' expected";
 		    free_expr(expr);
 		    return NULL;
 		}
@@ -1416,12 +1436,19 @@ parse(int level)
 		    state = P_FUNC_END;
 		}
 		else {
+		    PM_TPD(derive_errmsg) = "Metric name expected";
 		    free_expr(expr);
 		    return NULL;
 		}
 		break;
 
+	    case P_FUNC_END:
+		PM_TPD(derive_errmsg) = "')' expected";
+		free_expr(expr);
+		return NULL;
+
 	    default:
+		PM_TPD(derive_errmsg) = "Parser botch";
 		free_expr(expr);
 		return NULL;
 	}
@@ -1517,10 +1544,47 @@ registerderived(const char *name, const char *expr, int isanon)
     return NULL;
 }
 
+/* The original, and still the best. */
 char *
 pmRegisterDerived(const char *name, const char *expr)
 {
     return registerderived(name, expr, 0);
+}
+
+/* Variant including error handling. */
+int
+pmRegisterDerivedMetric(const char *name, const char *expr, char **errmsg)
+{
+    size_t	length;
+    char	*offset;
+    char	*error;
+    char	*dmsg;
+    char	fmt[] = "Error: pmRegisterDerivedMetric(\"%s\", ...) "
+			"syntax error\n%s\n%*s^\n";
+
+    *errmsg = NULL;
+    if ((offset = registerderived(name, expr, 0)) == NULL)
+	return 0;
+
+    /* failed to register name/expr - build an error string to pass back */
+    length = strlen(fmt);
+    length += strlen(name);
+    length += strlen(expr);
+    length += (offset - expr);
+    if ((dmsg = PM_TPD(derive_errmsg)) != NULL)
+	length += strlen(dmsg) + 2;
+
+    if ((error = malloc(length)) == NULL)
+	__pmNoMem("pmRegisterDerivedMetric", length, PM_FATAL_ERR);
+    snprintf(error, length, fmt, name, expr, (int)(expr - offset), " ");
+    if (dmsg) {
+	strcat(error, dmsg);
+	strcat(error, "\n");
+    }
+    error[length-1] = '\0';
+
+    *errmsg = error;
+    return -1;
 }
 
 /* Register an anonymous metric */

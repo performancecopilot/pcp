@@ -1,4 +1,4 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 #
 # Copyright (C) 2015-2016 Marko Myllynen <myllynen@redhat.com>
 #
@@ -54,6 +54,7 @@ except:
     import simplejson as json
 import socket
 import struct
+import errno
 import time
 import copy
 import sys
@@ -61,7 +62,7 @@ import os
 import re
 
 from pcp import pmapi, pmi
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_ERR_NAME, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_HOST, PM_CONTEXT_LOCAL, PM_MODE_FORW, PM_MODE_INTERP, PM_ERR_TYPE, PM_ERR_EOL, PM_ERR_NAME, PM_IN_NULL, PM_SEM_COUNTER, PM_TIME_MSEC, PM_TIME_SEC, PM_XTB_SET, PM_DEBUG_APPL1
 from cpmapi import PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE, PM_TYPE_STRING
 from cpmi import PMI_ERR_DUPINSTNAME
 
@@ -148,10 +149,12 @@ def send_to_zabbix(metrics, zabbix_host, zabbix_port, timeout=15):
         # debug: write('Got response from Zabbix: %s' % resp)
         if resp.get('response') != 'success':
             sys.stderr.write('Error response from Zabbix: %s', resp)
+            sys.stderr.flush()
             return False
         return True
     except socket.timeout as err:
         sys.stderr.write("Zabbix connection timed out: " + str(err))
+        sys.stderr.flush()
         return False
     finally:
         zabbix.close()
@@ -198,6 +201,7 @@ class PMReporter(object):
         self.samples = None # forever
         self.interval = pmapi.timeval(1) # 1 sec
         self.opts.pmSetOptionInterval(str(1))
+        self.localtz = None
         self.runtime = -1
         self.delay = 0
         self.type = 0
@@ -530,6 +534,10 @@ class PMReporter(object):
                 for m in tempmet[metric]:
                     self.metrics[m] = confmet[m]
 
+    def connect(self):
+        """ Establish a PMAPI context to archive, host or local, via args """
+        self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
+
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
         try:
@@ -568,7 +576,7 @@ class PMReporter(object):
             sys.exit(1)
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
-            self.source = self.opts.pmGetOptionArchives()[0] # RHBZ#1262723
+            self.source = self.opts.pmGetOptionArchives()[0]
         if self.context.type == PM_CONTEXT_HOST:
             self.source = self.context.pmGetContextHostName()
         if self.context.type == PM_CONTEXT_LOCAL:
@@ -585,7 +593,7 @@ class PMReporter(object):
 
         # Runtime overrides samples/interval
         if self.opts.pmGetOptionFinishOptarg():
-            self.runtime = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionStart()))
+            self.runtime = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin()))
             if self.opts.pmGetOptionSamples():
                 self.samples = self.opts.pmGetOptionSamples()
                 if self.samples < 2:
@@ -598,7 +606,7 @@ class PMReporter(object):
                 if int(self.interval) == 0:
                     sys.stderr.write("Interval can't be less than 1 second.\n")
                     sys.exit(1)
-                self.samples = self.runtime / int(self.interval) + 1
+                self.samples = int(self.runtime / int(self.interval) + 1)
             if int(self.interval) > self.runtime:
                 sys.stderr.write("Interval can't be longer than runtime.\n")
                 sys.exit(1)
@@ -631,16 +639,18 @@ class PMReporter(object):
                         name, expr = definition.split("=")
                         self.context.pmLookupName(name.strip())
                     except pmapi.pmErr as error:
-                        if error.args[0] == PM_ERR_NAME:
-                            self.context.pmRegisterDerived(name.strip(), expr.strip())
-                            continue
-                        err = error.message()
+                        if error.args[0] != PM_ERR_NAME:
+                            err = error.message()
+                        else:
+                            try:
+                                self.context.pmRegisterDerived(name.strip(), expr.strip())
+                                continue
+                            except pmapi.pmErr as error:
+                                err = error.message()
                     except ValueError as error:
                         err = "Invalid syntax (expected metric=expression)"
                     except Exception as error:
-                        err = self.context.pmDerivedErrStr()
-                        if not err:
-                            err = "Unidentified error"
+                        err = "Unidentified error"
                     finally:
                         if err:
                             sys.stderr.write("Failed to register derived metric: %s.\n" % err)
@@ -770,6 +780,19 @@ class PMReporter(object):
                 mode |= PM_XTB_SET(PM_TIME_MSEC)
         return (mode, int(step))
 
+    def get_current_tz(self):
+        """ Figure out the current timezone using the PCP convention """
+        dst = time.localtime().tm_isdst
+        offset = time.altzone if dst else time.timezone
+        currtz = time.tzname[dst]
+        if offset:
+            offset = offset/3600
+            offset = int(offset) if offset == int(offset) else offset
+            if offset >= 0:
+                offset = "+" + str(offset)
+            currtz += str(offset)
+        return currtz
+
     def execute(self):
         """ Using a PMAPI context (could be either host or archive),
             fetch and report the requested set of values on stdout.
@@ -782,6 +805,14 @@ class PMReporter(object):
                 self.delimiter = OUTSEP
 
         # Time
+        self.localtz = self.get_current_tz()
+        if self.opts.pmGetOptionHostZone():
+            os.environ['TZ'] = self.context.pmWhichZone()
+            time.tzset()
+        else:
+            os.environ['TZ'] = self.localtz
+            time.tzset()
+            self.context.pmNewZone(self.localtz)
         if self.opts.pmGetOptionTimezone():
             os.environ['TZ'] = self.opts.pmGetOptionTimezone()
             time.tzset()
@@ -804,8 +835,7 @@ class PMReporter(object):
         if self.output == OUTPUT_STDOUT:
             self.prepare_stdout()
 
-        # DBG_TRACE_APPL1 == 4096
-        if "pmDebug" in dir(self.context) and self.context.pmDebug(4096):
+        if self.context.pmDebug(PM_DEBUG_APPL1):
             self.writer.write("Known config file keywords: " + str(self.keys) + "\n")
             self.writer.write("Known metric spec keywords: " + str(self.metricspec) + "\n")
 
@@ -841,8 +871,7 @@ class PMReporter(object):
                 result = self.context.pmFetch(self.pmids_to_ctypes(self.pmids))
             except pmapi.pmErr as error:
                 if error.args[0] == PM_ERR_EOL:
-                    self.samples = 0
-                    continue
+                    break
                 raise error
             self.extract(result)
             if self.ctstamp == 0:
@@ -851,11 +880,12 @@ class PMReporter(object):
             self.ctstamp = copy.copy(result.contents.timestamp)
 
             if self.context.type == PM_CONTEXT_ARCHIVE:
-                if float(self.ctstamp) < float(self.opts.pmGetOptionStart()):
+                if float(self.ctstamp) < float(self.opts.pmGetOptionOrigin()):
                     self.context.pmFreeResult(result)
                     continue
                 if float(self.ctstamp) > float(self.opts.pmGetOptionFinish()):
-                    return
+                    self.context.pmFreeResult(result)
+                    break
 
             self.report(self.ctstamp, self.currvals)
             self.context.pmFreeResult(result)
@@ -1022,16 +1052,16 @@ class PMReporter(object):
                     if not self.interpol:
                         samples = str(samples) + " (requested)"
             else:
-                duration = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionStart()))
-                samples = (duration / int(self.interval)) + 1
+                duration = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin()))
+                samples = int((duration / int(self.interval)) + 1)
                 duration = (samples - 1) * int(self.interval)
                 if self.context.type == PM_CONTEXT_ARCHIVE:
                     if not self.interpol:
                         samples = "N/A"
-        endtime = float(self.opts.pmGetOptionStart()) + duration
+        endtime = float(self.opts.pmGetOptionOrigin()) + duration
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
-            host = self.context.pmGetArchiveLabel().hostname
+            host = self.context.pmGetArchiveLabel().get_hostname()
             if not self.interpol and not self.opts.pmGetOptionFinish():
                 endtime = self.context.pmGetArchiveEnd()
         if self.context.type == PM_CONTEXT_HOST:
@@ -1039,28 +1069,16 @@ class PMReporter(object):
         if self.context.type == PM_CONTEXT_LOCAL:
             host = "localhost, using DSO PMDAs"
 
-        # Figure out the current timezone using the PCP convention
-        if self.opts.pmGetOptionTimezone():
-            currtz = self.opts.pmGetOptionTimezone()
-        else:
-            dst = time.localtime().tm_isdst
-            offset = time.altzone if dst else time.timezone
-            currtz = time.tzname[dst]
-            if offset:
-                currtz += str(offset/3600)
-        timezone = currtz
-
-        if self.context.type == PM_CONTEXT_ARCHIVE:
-            if self.context.pmGetArchiveLabel().tz != timezone:
-                timezone = self.context.pmGetArchiveLabel().tz
-                timezone += " (creation, current is " + currtz + ")"
+        timezone = self.get_current_tz()
+        if timezone != self.localtz:
+            timezone += " (reporting, local is " + self.localtz + ")"
 
         self.writer.write(comm + "\n")
         if self.context.type == PM_CONTEXT_ARCHIVE:
             self.writer.write(comm + "  archive: " + self.source + "\n")
         self.writer.write(comm + "     host: " + host + "\n")
         self.writer.write(comm + " timezone: " + timezone + "\n")
-        self.writer.write(comm + "    start: " + time.asctime(time.localtime(self.opts.pmGetOptionStart())) + "\n")
+        self.writer.write(comm + "    start: " + time.asctime(time.localtime(self.opts.pmGetOptionOrigin())) + "\n")
         self.writer.write(comm + "      end: " + time.asctime(time.localtime(endtime)) + "\n")
         self.writer.write(comm + "  metrics: " + str(len(self.pmids)) + "\n")
         self.writer.write(comm + "  samples: " + str(samples) + "\n")
@@ -1325,18 +1343,21 @@ class PMReporter(object):
             self.zabbix_metrics = []
             self.zabbix_prevsend = ts
 
-    def connect(self):
-        """ Establish a PMAPI context to archive, host or local, via args """
-        self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
-
     def finalize(self):
         """ Finalize and clean up """
         if self.writer:
-            self.writer.flush()
+            try:
+                self.writer.flush()
+            except BrokenPipeError:
+                pass
+            self.writer.close()
             self.writer = None
         if self.pmi:
             self.pmi.pmiEnd()
             self.pmi = None
+        if self.zabbix_metrics:
+            send_to_zabbix(self.zabbix_metrics, self.zabbix_server, self.zabbix_port)
+            self.zabbix_metrics = []
 
 if __name__ == '__main__':
     try:
@@ -1351,10 +1372,14 @@ if __name__ == '__main__':
 
     except pmapi.pmErr as error:
         sys.stderr.write('%s: %s\n' % (error.progname(), error.message()))
+        sys.exit(1)
     except pmapi.pmUsageErr as usage:
         usage.message()
+        sys.exit(1)
     except IOError as error:
-        sys.stderr.write("%s\n" % str(error))
+        if error.errno != errno.EPIPE:
+            sys.stderr.write("%s\n" % str(error))
+            sys.exit(1)
     except KeyboardInterrupt:
         sys.stdout.write("\n")
         P.finalize()

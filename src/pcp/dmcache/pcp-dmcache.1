@@ -3,7 +3,7 @@
 \f3pcp-dmcache\f1,
 \f3pcp-lvmcache\f1 \- report on logical storage device caches
 .SH SYNOPSIS
-\f3pcp\ dmcache\f1
+\f3pcp\f1 [\f2pcp\ options\f1] \f3dmcache\f1
 [\f3\-i\f1/\f3--iops\f1]
 [\f3\-R\f1/\f3--repeat\f1 \f2N\f1]
 [\f2device\f1 ...]
@@ -34,7 +34,9 @@ command, the
 .BR \-\-interval ,
 .BR \-Z /\c
 .BR \-\-timezone
-and several other options become indirectly available.
+and several other
+.I pcp options
+become indirectly available.
 .PP
 By default,
 .B pcp-dmcache

@@ -100,6 +100,7 @@ OTHER_SUBDIRS = \
 	ganglia2pcp \
 	win32ctl \
 	zabbix-agent \
+	pmpython \
 	#
 
 SUBDIRS = \

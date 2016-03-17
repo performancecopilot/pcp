@@ -1,4 +1,4 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 """ Test access to pmdaproc metrics from PCP web daemon -*- python -*- """
 #
 # Copyright (C) 2015 Red Hat.

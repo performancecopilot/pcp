@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2014-2016 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -173,10 +174,10 @@ via
 .BR pmNameInDom (3);
 otherwise pass NULL.
 If the fetchgroup context
-is an archive, it is possible that the metric / instance pair is not
+is a set of archives, it is possible that the metric / instance pair is not
 yet defined at the current time origin.
 Therefore, this function may
-attempt to seek to the \fIend\fP of the current archive
+attempt to seek to the \fIend\fP of the current set of archives
 \fItemporarily\fP to retry the metric / instance lookup.
 .PP
 The optional \fIscale\fP parameter specifies desired unit/scale/rate
@@ -460,7 +461,7 @@ from some sentinel/error processing: if a \fBpmFetchGroup\fP fails to
 collect a result for a discrete metric (pmResult
 pmValueSet.numval==0), then the last seen valid value (if any) is
 retained.
-This is intended to ease the processing of archives with a
+This is intended to ease the processing of sets of archives with a
 mixture of once- and repeatedly-sampled metrics.
 .PP
 .SS Destroying a fetchgroup

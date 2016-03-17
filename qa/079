@@ -30,7 +30,11 @@ _filter()
 # plus Label fluff ... magic(4) + pid(4) + start(4)
 #
 echo "Dump hostname & TZ ..."
-dd bs=1 skip=24 count=104 if=$ARCH.0 2>/dev/null | od -c
+# od(1) format is not quite consistent, hence the final sed
+#
+dd bs=1 skip=24 count=104 if=$ARCH.0 2>/dev/null \
+| od -c \
+| sed -e 's/  */ /g' -e 's/  *$//'
 
 echo ""
 TZ=EST-10

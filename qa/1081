@@ -27,9 +27,9 @@ _filter_version()
 
 # real QA test starts here
 echo "Checking switch to python3:"
-PCP_PYTHON_PROG=python3 /usr/bin/pcp python --version 2>&1 | _filter_version
+PCP_PYTHON_PROG=python3 $PCP_BIN_DIR/pcp python --version 2>&1 | _filter_version
 echo "Checking switch to python2:"
-PCP_PYTHON_PROG=python2 /usr/bin/pcp python --version 2>&1 | _filter_version
+PCP_PYTHON_PROG=python2 $PCP_BIN_DIR/pcp python --version 2>&1 | _filter_version
 
 # success, all done
 status=0

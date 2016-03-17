@@ -620,3 +620,112 @@ be returned for the next fetch of event.highres_records.
 @ sample.event.param_string STRING parameter for event records
 
 @ sample.event.param_aggregate AGGREGATE parameter for event records
+
+@ sample.negative.ctr.m_32 32-bit integer counter metric with negative value
+A metric with the semantics of PM_SEM_COUNTER, a type of PM_TYPE_32
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_32 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sample.negative.*.m_32 metrics (they share the same underlying
+counter).
+
+@ sample.negative.ctr.m_64 64-bit integer counter metric with negative value
+A metric with the semantics of PM_SEM_COUNTER, a type of PM_TYPE_64
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_64 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sample.negative.*.m_64 metrics (they share the same underlying
+counter).
+
+@ sample.negative.ctr.m_float float counter metric with negative value
+A metric with the semantics of PM_SEM_COUNTER, a type of PM_TYPE_FLOAT
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_float metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sample.negative.*.m_float metrics (they share the same underlying
+counter).
+
+@ sample.negative.ctr.m_double double counter metric with negative value
+A metric with the semantics of PM_SEM_COUNTER, a type of PM_TYPE_DOUBLE
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_double metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sample.negative.*.m_double metrics (they share the same underlying
+counter).
+
+@ sample.negative.instant.m_32 32-bit integer instantaneous metric with negative value
+A metric with the semantics of PM_SEM_INSTANT, a type of PM_TYPE_32
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_32 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sample.negative.*.m_32 metrics (they share the same underlying
+counter).
+
+@ sample.negative.instant.m_64 64-bit integer instantaneous metric with negative value
+A metric with the semantics of PM_SEM_INSTANT, a type of PM_TYPE_64
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_64 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sample.negative.*.m_64 metrics (they share the same underlying
+counter).
+
+@ sample.negative.instant.m_float float instantaneous metric with negative value
+A metric with the semantics of PM_SEM_INSTANT, a type of PM_TYPE_FLOAT
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_float metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sample.negative.*.m_float metrics (they share the same underlying
+counter).
+
+@ sample.negative.instant.m_double double instantaneous metric with negative value
+A metric with the semantics of PM_SEM_INSTANT, a type of PM_TYPE_DOUBLE
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_double metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sample.negative.*.m_double metrics (they share the same underlying
+counter).
+
+@ sample.negative.discrete.m_32 32-bit integer discrete metric with negative value
+A metric with the semantics of PM_SEM_DISCRETE, a type of PM_TYPE_32
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_32 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sample.negative.*.m_32 metrics (they share the same underlying
+counter).
+
+@ sample.negative.discrete.m_64 64-bit integer discrete metric with negative value
+A metric with the semantics of PM_SEM_DISCRETE, a type of PM_TYPE_64
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_64 metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all
+of the sample.negative.*.m_64 metrics (they share the same underlying
+counter).
+
+@ sample.negative.discrete.m_float float discrete metric with negative value
+A metric with the semantics of PM_SEM_DISCRETE, a type of PM_TYPE_FLOAT
+and negative values that by default start at -10000 and are incremented
+each time one of the sample.negative.*.m_float metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sample.negative.*.m_float metrics (they share the same underlying
+counter).
+
+@ sample.negative.discrete.m_double double discrete metric with negative value
+A metric with the semantics of PM_SEM_DISCRETE, a type of
+PM_TYPE_DOUBLE and negative values that by default start at -10000
+and are incremented each time one of the sample.negative.*.m_double
+metrics are fetched.
+
+Maybe be reset with pmStore, but this will reset the value for all of
+the sample.negative.*.m_double metrics (they share the same underlying
+counter).

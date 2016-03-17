@@ -207,27 +207,16 @@ Count of read requests that were merged with an already queued read request.
 Count of write requests that were merged with an already queued write request.
 
 @ disk.dm.read per-device-mapper device read operations
-
 @ disk.dm.write per-device-mapper device write operations
-
 @ disk.dm.total per-device-mapper device total (read+write) operations
-
 @ disk.dm.blkread per-device-mapper device block read operations
-
 @ disk.dm.blkwrite per-device-mapper device block write operations
-
 @ disk.dm.blktotal per-device-mapper device total (read+write) block operations
-
 @ disk.dm.read_bytes per-device-mapper device count of bytes read
-
 @ disk.dm.write_bytes per-device-mapper device count of bytes written
-
 @ disk.dm.total_bytes per-device-mapper device count of total bytes read and written
-
 @ disk.dm.read_merge per-device-mapper device count of merged read requests
-
 @ disk.dm.write_merge per-device-mapper device count of merged write requests
-
 @ disk.dm.avactive per-device-mapper device count of active time
 Counts the number of milliseconds for which at least one I/O is in
 progresss for each device-mapper device.
@@ -287,6 +276,78 @@ e.g. mirroring the results from existing performance tools:
  iostat.dm.await = delta(disk.dm.total_rawactive) / delta(disk.dm.total)
 
 @ hinv.map.dmname per-device-mapper device persistent name mapping to dm-[0-9]*
+
+@ disk.md.read per-multi-device device read operations
+@ disk.md.write per-multi-device device write operations
+@ disk.md.total per-multi-device device total (read+write) operations
+@ disk.md.blkread per-multi-device device block read operations
+@ disk.md.blkwrite per-multi-device device block write operations
+@ disk.md.blktotal per-multi-device device total (read+write) block operations
+@ disk.md.read_bytes per-multi-device device count of bytes read
+@ disk.md.write_bytes per-multi-device device count of bytes written
+@ disk.md.total_bytes per-multi-device device count of total bytes read and written
+@ disk.md.read_merge per-multi-device device count of merged read requests
+@ disk.md.write_merge per-multi-device device count of merged write requests
+@ disk.md.avactive per-multi-device device count of active time
+Counts the number of milliseconds for which at least one I/O is in
+progresss for each multi-device device.
+
+When converted to a rate, this metric represents the average utilization
+of the device during the sampling interval.  A value of 0.5 (or 50%)
+means the device was active (i.e. busy) half the time.
+
+@ disk.md.aveq per-multi-device device time averaged count of request queue length
+
+@ disk.md.read_rawactive per-multi-device raw count of read response time
+For each completed read on each multi-device device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding reads for a multi-device device.
+When divided by the number of completed reads for a multi-device device
+(disk.md.read), the value represents the stochastic average of the read
+response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.md.r_await = delta(disk.md.read_rawactive) / delta(disk.md.read)
+
+@ disk.md.write_rawactive per-multi-device raw count of write response time
+For each completed write on each multi-device device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding writes for a multi-device device.
+When divided by the number of completed writes for a multi-device device
+(disk.md.write), the value represents the stochastic average of the
+write response (or wait) time for that device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.md.w_await = delta(disk.md.write_rawactive) / delta(disk.md.write)
+
+@ disk.md.total_rawactive per-multi-device raw count of I/O response time
+For each completed I/O on each multi-device device the response time
+(queue time plus service time) in milliseconds is added to the associated
+instance of this metric.
+
+When converted to a normalized rate, the value represents the time
+average of the number of outstanding I/Os for a multi-device device.
+When divided by the number of completed I/Os for a multi-device device
+(disk.md.total), the value represents the stochastic average of the I/O
+response (or wait) time for that multi-device device.
+
+It is suitable mainly for use in calculations with other metrics,
+e.g. mirroring the results from existing performance tools:
+
+ iostat.md.await = delta(disk.md.total_rawactive) / delta(disk.md.total)
+
+@ disk.md.status per-multi-device "mdadm --test --detail <device>" return code
+@ hinv.map.mdname per-multi-device device persistent name mapping to md[0-9]*
 
 @ disk.all.read_merge total count of merged read requests, summed for all disks
 Total count of read requests that were merged with an already queued read request.
@@ -480,6 +541,8 @@ the I/O response (or wait) time for that disk partition.
 @ swap.out number of swap out operations
 @ kernel.all.pswitch context switches metric from /proc/stat
 @ kernel.all.sysfork fork rate metric from /proc/stat
+@ kernel.all.running number of currently running processes from /proc/stat
+@ kernel.all.blocked number of currently blocked processes from /proc/stat
 @ kernel.all.intr intrrupt rate metric from /proc/stat
 The value is the first value from the intr field in /proc/stat,
 which is a counter of the total number of interrupts processed.

@@ -1,7 +1,7 @@
 /*
  * Create privileged PMDAs on behalf of PMCD.
  *
- * Copyright (c) 2015 Red Hat.
+ * Copyright (c) 2015-2016 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 #include <sys/wait.h>
 #endif
 
-pid_t
+int
 root_agent_wait(int *status)
 {
 #if defined(HAVE_WAIT3)
@@ -34,7 +34,7 @@ root_agent_wait(int *status)
 }
 
 #ifndef IS_MINGW
-pid_t
+int
 root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 {
     int		i = 0, j;
@@ -45,6 +45,8 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
     char	*transfer_final[MAXPATHLEN] = { "" };
     const char	*delim = " ";
 
+    *infd = -1;
+    *outfd = -1;
     __pmNotifyErr(LOG_INFO, "Starting %s agent: %s", label, argv);
 
     transfer_argv = strtok(argv, delim);
@@ -66,13 +68,13 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 
     if (ipctype == ROOT_AGENT_PIPE) {
 	if (pipe1(inPipe) < 0) {
-	    fprintf(stderr,
+	    __pmNotifyErr(LOG_ERR,
 		    "%s: input pipe create failed for \"%s\" agent: %s\n",
 		    pmProgname, label, osstrerror());
 	    return (pid_t)-1;
 	}
 	if (pipe1(outPipe) < 0) {
-	    fprintf(stderr,
+	    __pmNotifyErr(LOG_ERR,
 		    "%s: output pipe create failed for \"%s\" agent: %s\n",
 		    pmProgname, label, osstrerror());
 	    close(inPipe[0]);
@@ -85,8 +87,6 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
     if (transfer_final != NULL) { /* Start a new agent if required */
 	childPid = fork();
 	if (childPid == (pid_t)-1) {
-	    fprintf(stderr, "%s: creating child for \"%s\" agent: %s\n",
-		    pmProgname, label, osstrerror());
 	    if (ipctype == ROOT_AGENT_PIPE) {
 		close(inPipe[0]);
 		close(inPipe[1]);
@@ -140,10 +140,14 @@ root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 	    _exit(1);
 	}
     }
+    if (pmDebug & DBG_TRACE_APPL0) {
+	__pmNotifyErr(LOG_DEBUG, "Started %s agent pid=%d infd=%d outfd=%d\n",
+			label, childPid, *infd, *outfd);
+    }
     return childPid;
 }
 #else
-pid_t
+int
 root_create_agent(int ipctype, char *argv, char *label, int *infd, int *outfd)
 {
     (void)ipctype;

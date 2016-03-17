@@ -50,8 +50,10 @@ HFILES		= clusters.h indom.h convert.h \
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LSRCFILES 	= help root_linux proc_net_snmp_migrate.conf linux_kernel_ulong.conf
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) linux_kernel_ulong.conf
+LSRCFILES 	= help root_linux proc_net_snmp_migrate.conf linux_kernel_ulong.conf \
+		  linux_kernel_fixups.conf
+LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) linux_kernel_ulong.conf \
+		  linux_kernel_fixups.conf
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
@@ -78,7 +80,7 @@ install: default
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root_linux $(PCP_VAR_DIR)/pmns/root_linux
 	$(INSTALL) -m 644 proc_net_snmp_migrate.conf $(LOGREWRITEDIR)/linux_proc_net_snmp_migrate.conf
-	$(INSTALL) -m 644 linux_kernel_ulong.conf $(LOGREWRITEDIR)/linux_kernel_ulong.conf
+	$(INSTALL) -m 644 linux_kernel_ulong.conf linux_kernel_fixups.conf $(LOGREWRITEDIR)
 else
 build-me:
 install:
@@ -99,7 +101,7 @@ $(OBJECTS): domain.h
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-linux_kernel_ulong.conf:	mk.rewrite
+linux_kernel_ulong.conf linux_kernel_fixups.conf:	mk.rewrite
 	CPP="$(CPP)" INCDIR="$(TOPDIR)/src/include" ./mk.rewrite
 
 interrupts.o pmda.o proc_partitions.o:	clusters.h

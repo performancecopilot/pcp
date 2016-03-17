@@ -13,6 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -d $PCP_PMDAS_DIR/kvm ] || _notrun "KVM PMDA not installed"
 [ $PCP_PLATFORM = linux ] || _notrun "KVM only exists on Linux"
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
@@ -118,7 +119,8 @@ echo "=== check values ==="
 cat $tmp.all \
 | while read metric n1 vpcp n2 vsys
 do
-    if [ "$metric" = "kvm.halt_successful_poll" ] # version-specific metrics
+    if [ "$metric" = "kvm.halt_successful_poll" -o \
+	 "$metric" = "kvm.halt_attempted_poll" ] # version-specific metrics
     then
 	_within_tolerance $metric $vpcp $vsys 2%
 	[ $? -eq 0 ] || echo Platform $metric is out of range $vpcp vs $vsys

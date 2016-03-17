@@ -745,7 +745,7 @@ _setup()
 	then
 	    perl_pmns="${pmda_dir}/pmns.perl"
 	    perl_dom="${pmda_dir}/domain.h.perl"
-	    perl -e 'use PCP::PMDA' 2>/dev/null
+	    perl -e 'use PCP::PMDA' >$__tmp.out 2>&1
 	    if test $? -eq 0
 	    then
 		eval PCP_PERL_DOMAIN=1 perl "$perl_name" > "$perl_dom"
@@ -754,6 +754,7 @@ _setup()
 	    then
 		:	# we have an alternative, so continue on
 	    else
+		cat $__tmp.out
 		echo 'Perl PCP::PMDA module is not installed, install it and try again'
 		__sts=1
 		exit
@@ -964,9 +965,10 @@ _install()
 		    break
 		elif [ "X$pmda_type" = Xperl ]
 		then
-		    perl -e 'use PCP::PMDA' 2>/dev/null
+		    perl -e 'use PCP::PMDA' >$__tmp.out 2>&1
 		    if test $? -ne 0
 		    then
+			cat $__tmp.out
 			echo 'Perl PCP::PMDA module is not installed, install it and try again'
 		    else
 			break

@@ -30,7 +30,7 @@ in
 		    ;;
 	    esac
 	    ;;
-    freebsd|netbsd|solaris)
+    freebsd|netbsd|openbsd|solaris)
 	    ;;
     *)
 	    echo "Warning: check-statics skipped for PCP_PLATFORM=$PCP_PLATFORM"
@@ -170,6 +170,8 @@ derive.o
     ?promote			# const (MinGW)
     ?timefactor			# const (MinGW)
     ?type_c			# const (MinGW)
+    ?.LpmRegisterDerivedMetric.fmt	# static string (FreeBSD gcc)
+
 desc.o
 endian.o
 err.o
@@ -302,9 +304,11 @@ pmns.o
     tokbuf			# guarded by __pmLock_libpcp mutex
     tokpmid			# guarded by __pmLock_libpcp mutex
     ?useExtPMNS			# thread private (no __thread symbols for Mac OS X)
+    ?__emutls_t.useExtPMNS	# thread private for OpenBSD
     repname			# guarded by __pmLock_libpcp mutex
     main_pmns			# guarded by __pmLock_libpcp mutex
     ?curr_pmns			# thread private (no __thread symbols for Mac OS X)
+    ?__emutls_t.curr_pmns	# thread private for OpenBSD
     locerr			# no unsafe side-effects, see notes in pmns.c
 p_pmns.o
 p_profile.o
@@ -363,6 +367,7 @@ util.o
     nfilelog			# guarded by __pmLock_libpcp mutex
     dosyslog			# guarded by __pmLock_libpcp mutex
     done_exit			# guarded by __pmLock_libpcp mutex
+    ?pmprintf_atexit_installed	# guarded by __pmLock_libpcp mutex
     ferr			# guarded by __pmLock_libpcp mutex
     errtype			# guarded by __pmLock_libpcp mutex
     fptr			# guarded by __pmLock_libpcp mutex

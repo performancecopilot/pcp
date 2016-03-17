@@ -208,7 +208,7 @@ event_start(bash_process_t *bp, struct timeval *timestamp)
 
     if (pmDebug & DBG_TRACE_APPL0)
 	__pmNotifyErr(LOG_DEBUG, "check start event for %s (%d), %ld vs %ld",
-		bp->instance, start, bp->startstat.tv_sec, timestamp->tv_sec);
+		bp->instance, start, (long int)bp->startstat.tv_sec, (long int)timestamp->tv_sec);
 
     return start == 0;
 }

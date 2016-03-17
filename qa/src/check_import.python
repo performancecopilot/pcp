@@ -1,4 +1,4 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 """ Python test case for Log Import API wrapper module
 """
 #
@@ -57,6 +57,9 @@ def check_import(archive, hostname, timezone):
     useconds = int(timetuple[0] * 1000000)
     seconds = int(timetuple[1])
     log.pmiWrite(seconds, useconds)
+
+    # write a <mark>
+    log.pmiPutMark()
 
     del log
 

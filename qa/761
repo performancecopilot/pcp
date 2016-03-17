@@ -15,6 +15,17 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+case "$PCP_PLATFORM"
+in
+    linux)
+    	;;
+    *)
+	_notrun "No container support for PCP_PLATFORM $PCP_PLATFORM"
+	# NOTREACHED
+	;;
+esac
+
+
 _get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 
@@ -27,6 +38,7 @@ root_cleanup()
     cd $here
     [ -d $root ] && sudo rm -fr $root
     [ -f $tmp.conf.backup ] && sudo cp $tmp.conf.backup $PCP_DIR/etc/pcp.conf
+    rm -f $tmp.*
 }
 
 # do metrics one at a time, map all internal instance ids to N and sort

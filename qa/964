@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -d $PCP_PMDAS_DIR/xfs ] || _notrun "xfs PMDA directory is not installed"
+
 status=1	# failure is the default!
 LOCALHOST=`hostname`
 _needclean=true

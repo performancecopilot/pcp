@@ -11,6 +11,9 @@ sub new {
 sub IS_JOB_RUNNING {
     return 1;
 };
+sub SHOW_DETAIL {
+    return 1;
+};
 
 sub load_node {
 
@@ -138,4 +141,9 @@ my $jobmsg = {
     return $jobmsg;
 
 };
+
+sub sprint_job_info {
+    return "";
+}
+
 1;

@@ -33,7 +33,7 @@ fi
 
 if [ -d /Volumes/$base/$base.pkg ]
 then
-    if sudo installer -pkg /Volumes/$base/$base.pkg -target / >$tmp/out 2>&1
+    if sudo installer -verbose -pkg /Volumes/$base/$base.pkg -target / >$tmp/out 2>&1
     then
 	sts=0
     else

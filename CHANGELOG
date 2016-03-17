@@ -1,5 +1,105 @@
+pcp-3.11.1 (18 March 2016)
+    - libpcp: multi-archive contexts (directory or comma-separated)
+    - libpcp: fix corner case in loading PMNS causing duplicates
+    - libpcp: fix pmLoadDerivedConfig return code, man page updated
+    - libpcp: fix initialization error in roll-your-own TPD (MacOSX)
+    - libpcp_import: new pmiPutMark() API to write <mark> records
+    - libpcp_import: check timestamp ordering in pmiPutResult too
+    - pmieconf: rule to automate restarting of unresponsive PMDAs
+    - pmdadarwin: add a hinv.machine metric like other platforms have
+    - pmdaelasticsearch: adjust to deal with elasticsearch API change
+    - pmdaopenbsd: first working version, basic kernel metrics
+    - pmdaoracle: Oracle database metrics available and updated
+    - pmdaoracle: improve error handling on disconnect/reconnect
+    - pmdalinux: fix metric units for swapdev.priority metric
+    - pmdalinux: fix interrupts data types for big endian hosts
+    - pmdalinux: require privileged client for slabinfo metrics
+    - pmdalinux: support for MD driver statistics and status
+    - pmdammv: name mmv control metrics with standard convention
+    - pmdaperfevent: add extension for perf derived events
+    - pmdapmcd: restrict pmcd.services to checking known pcp services
+    - pmdaproc: fix possible sigsegv with unexpected refresh order
+    - pmdasample: add sample.negative metrics for test coverage
+    - pmdaslurm: add allocated cores metric
+    - pcp2graphite: add an option to specify pickle protocol
+    - pcp2graphite: use cPickle instead of pickle for speed
+    - pcp2graphite: send all metrics at once in pickled mode
+    - pcp-vmstat: wrapper for pmstat to be more vmstat-alike
+    - pcp-iostat: uninterpolated archive replay with -u option
+    - pcp-iostat: tweak syntax used for old python versions (2.6.6)
+    - pcp-iostat: signal handling improvements to dodge warnings
+    - pcp-iostat: add -P flag for setting precision (ala pmrep)
+    - pcp-dmcache: dynamic lvname width to avoid truncation
+    - pmie: updates to the PATH handling for pmie shell actions
+    - pmrep: fix extended header times with -O, and sample count
+    - pmrep: correctly handle the end of the time window
+    - pmrep: improve stdio flushing to avoid exception errors
+    - pmrep: fix timezone handling and reporting
+    - pmrep: adjust exit codes for consistency
+    - pmrep: do not issue fsync, makes no sense here
+    - pmrep: finalize zabbix transfers in all cases
+    - pmsignal: provide a targetted program mode, -p option
+    - pmsignal: make dry-run mode show the full command line
+    - pmsocks: use the wrapper script from the tsocks package
+    - pmval: correct handling of real negative values
+    - perl api: fix input-type-socket connection logic typo
+    - perl api: merge pmdalogger logic fix for input string handling
+    - zbxpcp: add derived metrics configuration support
+    - zbxpcp: support both Zabbix 2 and 3 versions simultaneously
+    - dbpmda: add -f option to skip .dbpmdarc processing
+    - collectl2pcp: write a <mark> record between each input source
+    - build: pmdasnmp is now conditionally built as nature intended
+    - build: install pmlogconf where it will be found, like pmieconf
+    - build: fix rpmbuild warnings about symlink attrs
+    - build: fix compiler warnings from perl PMDA module
+    - build: fix af_unix-related solaris build failure
+    - build: rework Makepkgs configopts logic for rpm/dpkg confusion
+    - build: allow rpm signing, bintray upload tweaks (gpgenabled=1)
+    - build: non-verbose reporting on Makepkgs deb packages too
+    - build: add /usr/local/bin to search path for new Mac OS X Qt
+    - packaging: several Debian build depencency corrections
+    - porting: numerous OpenBSD portability changes across the board
+    - porting: numerous Mac OS X fixes and testing (incl a pmpython)
+
 pcp-3.11.0 (29 January 2016)
-    - Work-in-progress [see http://pcp.io/roadmap]
+    - containers: add a pcp-pmwebd container image
+    - pmcd: start PMDAs via pmdaroot, allowing restart on PMDA
+      failure without restarting pmcd itself
+    - pmcd: tenfold speed up of the shutdown process
+    - pmcd: ensure startup before zabbix-agent, with systemd
+    - pmdafreebsd: use getifaddrs() for network interface
+    - pmdalinux: fix /proc/interrupts parsing on s390x platforms
+    - pmdalinux: fix i386 buffer overflow in softnet stats
+    - pmdalinux: support additional vmstat kernel metrics (virt
+      balloon, transparent-huge-page zero page alloc counters)
+    - pmdaxfs: support the per-device XFS metrics
+    - pmdanamed: fix SELinux AVC denials during Install
+    - pmdavmware: updates to work with current VMWare perl API
+    - libpcp: improvements to derived metrics error handling
+    - libpcp: rework interp logic arond <mark> records
+    - libpcp: fix bug in interp mode record caching
+    - libpcp: pthread_mutexattr_destroy, pthread_mutex_destroy calls
+    - libpcp: added a new fetchgroup API
+    - libpcp: fix dup-context-with-attrs memory corruption bug
+    - libpcp: fix derived metric PMNS navigation mem leak
+    - libpcp: unconditional registration of anon (event.*) metrics
+    - pcp-iostat: use py3 and py3 compatible pipe exception handlers
+    - pcp-iostat: improve incorrect counter rate conversion
+    - pcp-iostat: improve BrokenPipeError exception handling
+    - pmmgr: add general monitor-program launching option
+    - pmmgr: resolved a couple of small memory leaks
+    - pmrep: fix first sample reporting, instant/discrete metrics
+    - pmrep: fix string valued metric reporting, with python3
+    - pmval: improve reporting in the region of <mark> records
+    - pmwebd: add an option to disable service advertising
+    - pmwebd: support for http compression
+    - pmwebd: add units/sem to legend in graphite/png mode
+    - pmwebd: enable graphite image-mode caching via redirection
+    - pmwebd: add an option for alternative name encodings
+    - sar2pcp: support additional mem.util metrics
+    - docs: updates to the system CPU performance tutorial
+    - packaging: add missing dependencies on some perl modules
+    - packaging: drop the pcp-compat subpackage
 
 pcp-3.10.9 (16 December 2015)
     - pmrep: swiss-army-chainsaw metric reporting utility

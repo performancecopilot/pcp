@@ -1,7 +1,7 @@
 /*
  * Common argument parsing for all PMAPI client tools.
  *
- * Copyright (c) 2014-2015 Red Hat.
+ * Copyright (c) 2014-2016 Red Hat.
  * Copyright (C) 1987-2014 Free Software Foundation, Inc.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -19,6 +19,7 @@
 #include "impl.h"
 #include "internal.h"
 #include <ctype.h>
+#include <dirent.h>
 
 #if !defined(HAVE_UNDERBAR_ENVIRON)
 #define _environ environ
@@ -73,16 +74,20 @@ __pmUpdateBounds(pmOptions *opts, int index, struct timeval *begin, struct timev
 
 /*
  * Calculate time window boundaries depending on context type.
- * In multi-archive context, this means opening all of them and
+ * For multiple contexts, this means opening all of them and
  * defining the boundary as being from the start of the earliest
  * through to the end of the last-written archive.
  *
  * Note - called with an active context via pmGetContextOptions.
  */
 static int
-__pmBoundaryOptions(pmOptions *opts, struct timeval *begin, struct timeval *end)
-{
-    int i, ctx, sts = 0;
+__pmBoundaryOptions(
+  pmOptions *opts,
+  struct timeval *begin,
+  struct timeval *end
+) {
+    int	i;
+    int	ctx, sts = 0;
 
     if (opts->context != PM_CONTEXT_ARCHIVE) {
 	/* live/local context, open ended - start now, never end */
@@ -90,10 +95,11 @@ __pmBoundaryOptions(pmOptions *opts, struct timeval *begin, struct timeval *end)
 	end->tv_sec = INT_MAX;
 	end->tv_usec = 0;
     } else if (opts->narchives == 1) {
-	/* singular archive context, make use of current context */
-	sts = __pmUpdateBounds(opts, 0, begin, end);
+	/* Singular archive context, which may contain more than one archive. */
+	if ((sts = __pmUpdateBounds(opts, 0, begin, end)) < 0)
+	    return sts;
     } else {
-	/* multiple archives - figure out combined start and end */
+	/* More than one archive context - figure out combined start and end */
 	for (i = 0; i < opts->narchives; i++) {
 	    sts = pmNewContext(PM_CONTEXT_ARCHIVE, opts->archives[i]);
 	    if (sts < 0) {
@@ -108,6 +114,7 @@ __pmBoundaryOptions(pmOptions *opts, struct timeval *begin, struct timeval *end)
 		break;
 	}
     }
+
     return sts;
 }
 
@@ -163,7 +170,7 @@ pmGetContextOptions(int ctxid, pmOptions *opts)
 			&first_boundary, &last_boundary,
 			&opts->start, &opts->finish, &opts->origin,
 			&msg) < 0) {
-	    pmprintf("%s: invalid time window: %s\n", pmProgname, msg);
+	    pmprintf("%s: invalid time window.\n%s\n", pmProgname, msg);
 	    opts->errors++;
 	    free(msg);
 	}
@@ -284,25 +291,81 @@ __pmSetGuiPort(pmOptions *opts, char *arg)
     }
 }
 
+/*
+ * Add an archive name to the list. Ensure that there are no duplicates.
+ */
+static void
+addArchive(pmOptions *opts, char *arg)
+{
+    char	**archives = opts->archives;
+    char	*found;
+    size_t	size;
+    int		i;
+
+    if ((opts->flags & PM_OPTFLAG_MULTI)) {
+	/*
+	 * Multiple contexts for multiple archives. See pmstat(1).
+	 * We will maintain an array of archive names.
+	 */
+	for (i = 0; i < opts->narchives; ++i) {
+	    if (strcmp(arg, archives[i]) == 0)
+		return; /* duplicate */
+	}
+	size = sizeof(char *) * (opts->narchives + 1);
+	if ((archives = realloc(archives, size)) == NULL)
+	    goto noMem;
+	if ((archives[opts->narchives] = strdup(arg)) == NULL)
+	    goto noMem;
+	opts->narchives++;
+    }
+    else {
+	/*
+	 * One context for multiple archives. We will maintain a single,
+	 * comma-separated list of archive names.
+	 */
+	if (archives == NULL) {
+	    /* The initial name. */
+	    size = sizeof (*archives);
+	    if ((archives = malloc(size)) == NULL)
+		goto noMem;
+	    size = strlen(arg); /* for noMem below */
+	    if ((*archives = strdup(arg)) == NULL)
+		goto noMem;
+	    opts->narchives = 1;
+	}
+	else {
+	    if ((found = strstr(*archives, arg)) != NULL &&
+		(found == *archives || *(found - 1) == ',')) {
+		size = strlen(arg);
+		if (found[size] == ',' || found[size] == '\0')
+		    return; /* duplicate */
+	    }
+	    /* Add a comma plus the additional name. */
+	    size = strlen (*archives) + 1 + strlen (arg) + 1;
+	    if ((*archives = realloc(*archives, size)) == NULL)
+		goto noMem;
+	    strcat (*archives, ",");
+	    strcat (*archives, arg);
+	}
+    }
+
+    opts->archives = archives;
+    return;
+
+ noMem:
+    __pmNoMem("pmGetOptions(archive)", size, PM_FATAL_ERR);
+}
+
 void
 __pmAddOptArchive(pmOptions *opts, char *arg)
 {
-    char **archives = opts->archives;
-    size_t size = sizeof(char *) * (opts->narchives + 1);
-
-    if (opts->narchives && !(opts->flags & PM_OPTFLAG_MULTI)) {
-	pmprintf("%s: too many archives requested: %s\n", pmProgname, arg);
-	opts->errors++;
-    } else if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
+    if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
 	pmprintf("%s: only one host or archive allowed\n", pmProgname);
 	opts->errors++;
-    } else if ((archives = realloc(archives, size)) != NULL) {
-	archives[opts->narchives] = arg;
-	opts->archives = archives;
-	opts->narchives++;
-    } else {
-	__pmNoMem("pmGetOptions(archive)", size, PM_FATAL_ERR);
+	return;
     }
+
+    addArchive(opts, arg);
 }
 
 static char *
@@ -322,34 +385,30 @@ void
 __pmAddOptArchiveList(pmOptions *opts, char *arg)
 {
     char *start = arg, *end;
+    char saveend;
 
     if (opts->nhosts && !(opts->flags & PM_OPTFLAG_MIXED)) {
 	pmprintf("%s: only one of hosts or archives allowed\n", pmProgname);
 	opts->errors++;
-    } else {
-	while ((end = comma_or_end(start)) != NULL) {
-	    size_t size = sizeof(char *) * (opts->narchives + 1);
-	    size_t length = end - start;
-	    char **archives = opts->archives;
-	    char *archive;
+	return;
+    }
 
-	    if (length == 0)
-		goto next;
+    if (!(opts->flags & PM_OPTFLAG_MULTI)) {
+	/*
+	 * Add it all at once, since we're maintaining a single comma-separated
+	 * list of archive names anyway.
+	*/
+	__pmAddOptArchive(opts, arg);
+	return;
+    }
 
-	    if ((archives = realloc(archives, size)) != NULL) {
-		if ((archive = strndup(start, length)) != NULL) {
-		    archives[opts->narchives] = archive;
-		    opts->archives = archives;
-		    opts->narchives++;
-		} else {
-		    __pmNoMem("pmGetOptions(archive)", length, PM_FATAL_ERR);
-		}
-	    } else {
-		__pmNoMem("pmGetOptions(archives)", size, PM_FATAL_ERR);
-	    }
-	next:
-	    start = (*end == '\0') ? end : end + 1;
-	}
+    /* Add the names one at a time. */
+    while ((end = comma_or_end(start)) != NULL) {
+	saveend = *end;
+	*end = '\0';
+	__pmAddOptArchive(opts, start);
+	*end = saveend;
+	start = (*end == '\0') ? end : end + 1;
     }
     if (opts->narchives > 1 && !(opts->flags & PM_OPTFLAG_MULTI)) {
 	pmprintf("%s: too many archives requested: %s\n", pmProgname, arg);
@@ -470,6 +529,7 @@ __pmAddOptArchiveFolio(pmOptions *opts, char *arg)
 		__pmNoMem("pmGetOptions(archive)", length, PM_FATAL_ERR);
 	    snprintf(p, length, "%s%c%s", dir, sep, log);
 	    __pmAddOptArchive(opts, p);
+	    free(p);
 	}
 
 	fclose(fp);

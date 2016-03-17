@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2015 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2013-2016 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -34,6 +34,7 @@
 [\f3\-I\f1
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-A\f1 \f2archivesdir\f1]
+[\f3\-S\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-U\f1 \f2username\f1]
 [\f3\-x\f1 \f2file\f1]
@@ -200,6 +201,15 @@ written to the standard error instead.
 If invoked as root, assume the identity of
 .I username
 before starting to accept incoming requests from web clients.
+.TP
+\f3\-S\f1
+Disable service advertisement.
+By default,
+.B pmwebd
+will advertise its presence on the network using any available
+mechanisms (such as Avahi/DNS-SD), assisting remote monitoring
+tools with finding it.
+These mechanisms are disabled with this option.
 .TP
 \f3\-x\f1 \f2file\f1
 Before the

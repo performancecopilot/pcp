@@ -16,12 +16,17 @@
 .\"
 .TH PMREGISTERDERIVED 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3pmRegisterDerived\f1 \- register a derived metric name and definition
+\f3pmRegisterDerived\f1,
+\f3pmRegisterDerivedMetric\f1  \- register a derived metric name and definition
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
+.br
 char *pmRegisterDerived(char *\fIname\fP, char *\fIexpr\fP);
+.br
+int pmRegisterDerivedMetric(char *\fIname\fP, char *\fIexpr\fP, char **\fIerrmsg\fP);
+.fi
 .sp
 cc ... \-lpcp
 .ft 1
@@ -58,6 +63,36 @@ of the new derived metric and
 is an arithmetic expression defining how the values of
 .I name
 should be computed.
+.PP
+.B pmRegisterDerivedMetric
+is the exact functional equivalent to
+.B pmRegisterDerived
+except that it provides a simplified model of error handling, where
+a formatted message is returned via the
+.I errmsg
+parameter.
+.PP
+Syntactic checking is performed at the time
+.B pmRegisterDerived
+is called, but semantic checking is deferred until each new context
+is created with
+.BR pmNewContext (3)
+or re-established with
+.BR pmReconnectContext (3),
+at which time the PMNS and metadata is available to
+allow semantic checking and the metadata of the derived metrics
+to be established.
+This means
+.B pmRegisterDerived
+does not apply retrospectively to any open contexts, so the normal
+use would be to make all calls to
+.B pmRegisterDerived
+(possibly via
+.BR pmLoadDerivedConfig (3))
+or
+.B pmRegisterDerivedMetric
+and then call
+.BR pmNewContext (3).
 .PP
 .I name
 should follow the syntactic rules for the names of performance metrics,
@@ -206,17 +241,6 @@ T}
 .TE
 .IP * 2n
 White space is ignored.
-.PP
-Syntactic checking is performed at the time
-.B pmRegisterDerived
-is called, but semantic checking is deferred until each new context
-is created with
-.BR pmNewContext (3)
-or re-established with
-.BR pmReconnectContext (3),
-at which time the PMNS and metadata is available to
-allow semantic checking and the metadata of the derived metrics
-to be established.
 .SH "SEMANTIC CHECKS AND RULES"
 .PP
 There are a number of conversions required to determine the
@@ -393,15 +417,6 @@ as this routine does not use a target list of PMIDs that could be
 remapped (as is done for
 .BR pmFetch (3)).
 .PP
-.B pmRegisterDerived
-does not apply retrospectively to any open contexts, so the normal
-use would be to make all calls to
-.B pmRegisterDerived
-(possibly via
-.BR pmLoadDerivedConfig (3))
-and then call
-.BR pmNewContext (3).
-.PP
 There is no
 .B pmUnregisterDerived
 method, so once registered a derived metric persists for the life
@@ -424,8 +439,45 @@ the error was found.  To identify
 the error was, the application should call
 .BR pmDerivedErrStr (3)
 to retrieve the corresponding parser error message.
+.PP
+.B pmRegisterDerivedMetric
+returns 0 and
+.I errmsg
+is undefined if the parsing is successful.
+.PP
+If the given
+.I expr
+does not conform to the required syntax
+.B pmRegisterDerivedMetric
+returns \-1 and a dynamically allocated error message string in
+.IR errmsg .
+The error message is terminated with a newline
+and includes both the input
+.I name
+and
+.IR expr ,
+along with an indicator of the position at which the
+error was detected.
+e.g.
+.br
+.in +1i
+Error: pmRegisterDerivedMetric("my.disk.rates", ...) syntax error
+.br
+.CW "\&4rat(disk.dev.read)"
+.br
+.CW "\&    ^"
+.in -1i
+.PP
+The position indicator line may be followed by an additional
+diagnostic line describing the nature of the error, when available.
+.PP
+In the case of an error, the caller is responsible for calling
+.BR free (3)
+to release the space allocated for
+.IR errmsg .
 .SH SEE ALSO
 .BR PCPIntro (1),
+.BR free (3),
 .BR PMAPI (3),
 .BR pmDerivedErrStr (3),
 .BR pmFetch (3),

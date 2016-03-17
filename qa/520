@@ -28,9 +28,15 @@ _filter()
 	-e '/Performance Co-Pilot Inference Engine/s/Version .*/Version .../'
 }
 
+# mapping to 0x0 -> (nil) needed for C compilers that don't do the
+# (nil) translation automatically for a printf %p
+#
 _filter2()
 {
-    $PCP_AWK_PROG '
+    sed \
+	-e 's/0x0\([ (]\)/(nil)\1/g' \
+	-e 's/0x0$/(nil)/' \
+    | $PCP_AWK_PROG '
 $1 == "pmie:"		{ print; next }
 /failed: /		{ print; next }
 $1 == "bundle:"	{ skip=1 }
@@ -70,6 +76,20 @@ v
 End-of-File
 
 wait
+
+# strange but true ... sometimes don't need an echo here to deal
+# with the pmie> (and no newline) prompt ...
+#
+case $PCP_PLATFORM
+in
+    darwin)
+	: no
+	;;
+    *)
+	: yes
+	echo >>$tmp.out
+    ;;
+esac
 
 echo >>$seq.full
 echo "pmie PID $!" >>$seq.full

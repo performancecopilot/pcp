@@ -12,7 +12,7 @@ Please enter c(ollector) or m(onitor) or b(oth) [b] Install mmv as a daemon or d
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check mmv metrics have appeared ... 2 metrics and 2 values
+Check mmv metrics have appeared ... 3 metrics and 3 values
 
 === validate values ===
 
@@ -31,14 +31,21 @@ mmv.animals.tag PMID: 70.420.33 [Animal tag identifiers]
     value 0
 Help:
 See pmdbg(1).  pmstore into this metric to change the debug value.
-mmv.debug PMID: 70.0.1 [Debug flag]
+mmv.control.debug PMID: 70.0.1 [Debug flag]
+
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 3
+Count of currently mapped and exported statistics files.
+Help:
+mmv.control.files PMID: 70.0.2 [Memory mapped file count]
 
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
     value 0
 Help:
 Writing anything other then 0 to this metric will result in
-mmv.reload PMID: 70.0.0 [Control maps reloading]
+mmv.control.reload PMID: 70.0.0 [Control maps reloading]
 re-reading directory and re-mapping files.
 
 === remove mmv agent ===

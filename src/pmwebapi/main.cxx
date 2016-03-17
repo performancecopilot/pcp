@@ -433,7 +433,9 @@ pmweb_shutdown (struct MHD_Daemon *d4, struct MHD_Daemon *d6)
     }
 
     /* No longer advertise pmwebd presence on the network. */
-    __pmServerUnadvertisePresence (presence);
+    if (presence) {
+        __pmServerUnadvertisePresence (presence);
+    }
 
     /*
      * Let's politely clean up all the active contexts.
@@ -460,6 +462,7 @@ option_overrides (int opt, pmOptions * opts)
     case 'M':
     case 'p':
     case 'd':
+    case 'S':
     case 't':
     case 'i':
     case 'I':
@@ -493,6 +496,7 @@ longopts[] = {
     PMOPT_DEBUG,
     {"resources", 1, 'R', "DIR", "serve non-API files from given directory"},
     {"log", 1, 'l', "FILE", "redirect diagnostics and trace output"},
+    { "", 0, 'S', 0, "disable service advertisement" },
     {"verbose", 0, 'v', 0, "increase verbosity"},
 #ifdef HAVE_PTHREAD_H
     {"threads", 1, 'M', 0, "allow multiple threads [default 0]"},
@@ -530,8 +534,9 @@ main (int argc, char *argv[])
     umask (022);
     char * username_str;
     __pmGetUsername (&username_str);
+    __pmServerSetFeature (PM_SERVER_FEATURE_DISCOVERY);
 
-    opts.short_options = "A:a:c:D:h:Ll:NM:Pp:R:Gi:It:U:vx:d:X46?";
+    opts.short_options = "A:a:c:D:h:Ll:NM:Pp:R:Gi:It:U:vx:d:SX46?";
     opts.long_options = longopts;
     opts.override = option_overrides;
 
@@ -670,6 +675,10 @@ main (int argc, char *argv[])
             logfile = opts.optarg;
             break;
 
+	case 'S':	/* disable pmwebd service advertising */
+	    __pmServerClearFeature (PM_SERVER_FEATURE_DISCOVERY);
+	    break;
+
         case 'U':
             /* run as user username */
             username_str = opts.optarg;
@@ -721,7 +730,8 @@ main (int argc, char *argv[])
 
     /* tell the world we have arrived */
     __pmServerCreatePIDFile (PM_SERVER_WEBD_SPEC, 0);
-    presence = __pmServerAdvertisePresence (PM_SERVER_WEBD_SPEC, port);
+    if (__pmServerHasFeature (PM_SERVER_FEATURE_DISCOVERY))
+        presence = __pmServerAdvertisePresence (PM_SERVER_WEBD_SPEC, port);
 
     // (re)create log file, redirect stdout/stderr
     // NB: must be done after __pmSetProcessIdentity() for proper file permissions

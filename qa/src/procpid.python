@@ -1,4 +1,4 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 #
 # Copyright (C) 2015 Red Hat.
 #
@@ -55,7 +55,7 @@ if __name__ == '__main__':
             origin = options.pmGetOptionOrigin()
             manager.pmSetMode(PM_MODE_FORW, origin, 0)
         manager.printer = ProcReport()
-        METRICS = options.pmNonOptionsFromList(sys.argv)
+        METRICS = options.pmGetNonOptionsFromList(sys.argv)
         if METRICS == None:
             raise pmapi.pmUsageErr()
         manager['proc'] = METRICS

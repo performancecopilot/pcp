@@ -313,7 +313,14 @@ want == 1 && /^#----/	{ exit }'
 	    #
 	    echo
 	    was_onoff=$onoff
-	    echo "Group: $desc" | fmt -74 | sed -e '1!s/^/       /'
+	    echo "Group: $desc" \
+	    | if [ "$PCP_PLATFORM" = netbsd ]
+	    then
+		fmt -g 74 -m 75
+	    else
+		fmt -w 74
+	    fi \
+	    | sed -e '1!s/^/       /'
 	    while true
 	    do
 		$PCP_ECHO_PROG $PCP_ECHO_N "Log this group? [$onoff] ""$PCP_ECHO_C"

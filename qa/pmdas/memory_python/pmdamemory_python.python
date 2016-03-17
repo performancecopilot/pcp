@@ -1,4 +1,4 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 '''
 Python PMDA that checks for memory corruption in the PMDA python support.
 '''

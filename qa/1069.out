@@ -26,7 +26,35 @@ Interval can't be less than 1 second.
       1.000           1.000
       1.000           1.000
       1.000           1.000
-== exercise raw counter mode 
+== exercise various output options
+                     s.seconds        s.milliseconds
+                          util                  util
+20:36:45                   N/A                   N/A
+20:36:47                   N/A                   N/A
+20:36:49                 1.000                 1.000
+20:36:51                 1.000                 1.000
+20:36:53                 1.000                 1.000
+---
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: AEDT-11
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:36:53 2000
+  metrics: 2
+  samples: 5
+ interval: 2.0 sec
+ duration: 8 sec
+
+  s.seconds  s.milliseconds
+       util            util
+---
+        N/A             N/A
+        N/A             N/A
+      1.000           1.000
+      1.000           1.000
+      1.000           1.000
+== exercise raw counter mode
   s.seconds  s.milliseconds
         sec        millisec
         N/A             N/A
@@ -34,6 +62,14 @@ Interval can't be less than 1 second.
      380436   380435679.381
      380438   380437679.382
      380440   380439679.413
+== exercise timezone setting
+          s.seconds  s.milliseconds
+               util            util
+10:36:45        N/A             N/A
+10:36:47        N/A             N/A
+10:36:49      1.000           1.000
+10:36:51      1.000           1.000
+10:36:53      1.000           1.000
 == exercise CSV and alternate delimiters
 Time,sample.seconds,sample.milliseconds
 2000-05-01 20:36:45,N/A,N/A
@@ -62,6 +98,21 @@ ok
        util
       1.000
 == exercise units conversion options
+          m.u.free  m.u.used
+                MB        MB
+00:47:01        37      5926
+00:47:03        37      5926
+00:47:05        37      5926
+00:47:07        37      5926
+00:47:09        37      5926
+                 d.d.read         d.d.read         d.d.read         d.d.read         d.d.read         d.d.read
+                      sda              sdb              sdc              hdc              sdd              sde
+          count x 10^-2/s  count x 10^-2/s  count x 10^-2/s  count x 10^-2/s  count x 10^-2/s  count x 10^-2/s
+00:47:01              N/A              N/A              N/A              N/A              N/A              N/A
+00:47:03                0             3000               50                0                0              100
+00:47:05                0             3000                0                0                0              100
+00:47:07                0             3000               50                0                0              100
+00:47:09                0             3000               50                0                0               50
           s.seconds  s.milliseconds
                util            util
 20:36:45        N/A             N/A
@@ -103,4 +154,23 @@ ok
       1.000           1.000
 == exercise bad config version
 Incompatible configuration file version (read v99, need v1).
+== un/interpolated archive mode reporting
+          m.u.free
+             Kbyte
+00:47:01     38220
+00:47:03     38220
+00:47:05     38220
+00:47:07     38220
+00:47:09     38220
+          m.u.free
+             Kbyte
+00:48:01     36832
+00:49:01     38236
+00:50:01     37932
+00:51:01     37836
+00:52:01     38744
+== basic string value reporting
+  p.version
+           
+     PCP_VERSION
 == done

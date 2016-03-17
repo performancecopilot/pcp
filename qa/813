@@ -48,7 +48,7 @@ _check_papi
 
 # real QA test starts here
 echo "=== Daemon PMDA papi test ==="
-$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
+$sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 126 -l $tmp.log
 getdesc on
 attr "username" "root"

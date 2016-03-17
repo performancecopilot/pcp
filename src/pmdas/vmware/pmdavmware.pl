@@ -1,5 +1,5 @@
 # 
-# Copyright (c) 2012 Red Hat.
+# Copyright (c) 2012, 2016 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,6 +17,7 @@ use strict;
 use warnings;
 use PCP::PMDA;
 use VMware::VIRuntime;
+use VMware::VILib;
 
 use vars qw( $host $server $username $password );
 use vars qw( $pmda $entity $view $interval $metric_info %metric_values );
@@ -31,9 +32,11 @@ die 'VMware server not setup, stopped' unless defined($server);
 die 'VMware username not setup, stopped' unless defined($username);
 die 'VMware password not setup, stopped' unless defined($password);
 
-Opts::set_option('server' => $server);
-Opts::set_option('username' => $username);
-Opts::set_option('password' => $password);
+my %opts = ('host' => $host,
+	    'server' => $server,
+	    'username' => $username,
+	    'password' => $password );
+Opts::add_options(%opts);
 Opts::parse();
 
 sub vmware_connect
@@ -285,8 +288,7 @@ $pmda->add_metric(pmda_pmid(5,2), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'vmware.rescpu.throttled.fifteen_min_average',
 		  'CPU Throttled (15 min. average)',
-		  "Amount of CPU resources over the limit that were refused,\n"
-		  . "average over 15 minutes\n");
+		  'Amount of CPU resources over the limit that were refused, average over 15 minutes');
 $pmda->add_metric(pmda_pmid(5,3), PM_TYPE_U32, PM_INDOM_NULL,
 		  PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
 		  'vmware.rescpu.running.one_min_peak',
@@ -408,8 +410,9 @@ pmcd.conf file) or via a vmware.conf file in the PMDA directory.
 	# cd $PCP_PMDAS_DIR/vmware
 	# [ edit vmware.conf ]
 
-This file should contain three lines, such as:
+This file should contain connection information, such as:
 
+	$host = 'vm.host.net';
 	$server = 'vm.server.net';
 	$username = 'XXXX';
 	$password  = 'YYYY';

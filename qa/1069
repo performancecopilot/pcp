@@ -2,16 +2,18 @@
 # PCP QA Test No. 1069
 # Exercise pmrep configuration and various reporting modes.
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015-2016 Red Hat.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
 
 which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
 
@@ -26,7 +28,26 @@ _live_filter()
     #end
 }
 
+_path_filter()
+{
+    sed \
+	-e "s#$here#QAPATH#g" \
+    #end
+}
+
+#  timezone: :Australia/Melbourne (creation, current is AEDT-11)
+#  this is not deterministic .......................... ^^^^^^^
+#
+_archive_filter()
+{
+    sed \
+	-e '/timezone/s/current is .*)/current is ...)/' \
+        -e '/timezone/s/ (reporting.*)//' \
+    #end
+}
+
 log="--archive $here/archives/sample-secs -z"
+log2="--archive $here/archives/20130706 -z -O 30m"
 
 # real QA test starts here
 echo "== basic live mode reporting"
@@ -40,13 +61,27 @@ pmrep -z -p -s 5 -t 2 -P 2 --archive $here/archives/sample-secs \
 
 echo "== basic configuration file handling"
 echo > $tmp.config <<EOF
-secs = sample.seconds
-msecs = sample.milliseconds
+[options]
+version = 1
+source = www.example.com
+samples = 1
+interval = 1
 EOF
 pmrep -s 5 -t 2 $log -c $tmp.config sample
 
-echo "== exercise raw counter mode "
+echo "== exercise various output options"
+pmrep -s 5 -t 2 $log -c $tmp.config -o stdout -p -w 20 sample
+echo "---"
+pmrep -s 5 -t 2 $log -c $tmp.config -C -x sample | _path_filter \
+| _archive_filter
+echo "---"
+pmrep -s 5 -t 2 $log -c $tmp.config -G -H -U sample
+
+echo "== exercise raw counter mode"
 pmrep -s 5 -t 2 $log -c $tmp.config -r sample
+
+echo "== exercise timezone setting"
+pmrep -s 5 -t 2 --archive $here/archives/sample-secs -p -Z UTC sample
 
 echo "== exercise CSV and alternate delimiters"
 pmrep -s 5 -t 2 $log -c $tmp.config -o csv -p -P 1 sample
@@ -61,7 +96,9 @@ echo "== exercise repeated headers option"
 pmrep -s 5 -t 2 $log -E 2 sample.seconds
 
 echo "== exercise units conversion options"
-pmrep -s 5 -t 2 $log -p -y microsec sample
+pmrep -s 5 -t 2 $log2 -p -b MB -P 0 mem.util.free mem.util.used
+pmrep -s 5 -t 2 $log2 -p -q "count x 10^-2" -P 0 -w 15 disk.dev.read
+pmrep -s 5 -t 2 $log  -p -y microsec sample
 
 echo "== derived metrics configuration file"
 cat > $tmp.derived <<EOF
@@ -91,6 +128,15 @@ echo '[options]' > $tmp.vconfig
 echo 'version = 99' >> $tmp.vconfig
 cat $tmp.config >> $tmp.vconfig
 pmrep -s 5 -t 2 $log -c $tmp.vconfig sample
+
+echo "== un/interpolated archive mode reporting"
+pmrep -s 5 -t 2 $log2 -p    mem.util.free
+pmrep -s 5 -t 2 $log2 -p -u mem.util.free
+
+echo "== basic string value reporting"
+# sets variable named $pcp_version
+eval `pmprobe -v pmcd.version | sed -e 's/ 1 /=/g' -e 's/pmcd./pcp_/g'`
+pmrep -s 1 pmcd.version | sed -e "s/$pcp_version/PCP_VERSION/g"
 
 # success, all done
 echo "== done"

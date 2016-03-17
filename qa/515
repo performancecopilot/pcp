@@ -75,7 +75,7 @@ cat $tmp.out >>$seq.full
 _filter <$tmp.out \
 | LC_COLLATE=POSIX sort \
 | uniq -c \
-| sed -e 's/  [4567] DATE/4-7 DATE/'
+| sed -e 's/  [4567] DATE/4-7 DATE/' -e 's/  */ /g'
 
 # success, all done
 status=0

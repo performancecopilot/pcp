@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -150,6 +150,20 @@ static const struct {
         "Container not found" },
     { PM_ERR_BADSTORE,		"PM_ERR_BADSTORE",
         "Bad input to pmstore" },
+    { PM_ERR_LOGOVERLAP,	"PM_ERR_LOGOVERLAP",
+        "Archives overlap in time" },
+    { PM_ERR_LOGHOST,		"PM_ERR_LOGHOST",
+        "Archives differ by host" },
+    { PM_ERR_LOGTIMEZONE,	"PM_ERR_LOGTIMEZONE",
+        "Archives differ by time zone" },
+    { PM_ERR_LOGCHANGETYPE,	"PM_ERR_LOGCHANGETYPE",
+	"The type of a metric has changed in an archive" },
+    { PM_ERR_LOGCHANGESEM,	"PM_ERR_LOGCHANGESEM",
+	"The semantics of a metric has changed in an archive" },
+    { PM_ERR_LOGCHANGEINDOM,	"PM_ERR_LOGCHANGEINDOM",
+	"The instance domain of a metric has changed in an archive" },
+    { PM_ERR_LOGCHANGEUNITS,	"PM_ERR_LOGCHANGEUNITS",
+	"The units of a metric have changed in an archive" },
     /* insert new libpcp error codes here */
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },

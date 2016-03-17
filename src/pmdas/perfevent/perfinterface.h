@@ -33,11 +33,30 @@ typedef struct perf_counter_t_
     int ninstances;
 } perf_counter;
 
+typedef struct perf_derived_data_t_
+{
+    uint64_t value;
+} perf_derived_data;
+
+typedef struct perf_counter_list_t_
+{
+    perf_counter *counter;
+    struct perf_counter_list_t_ *next;
+} perf_counter_list;
+
+typedef struct perf_derived_counter_t_
+{
+    char *name;
+    perf_derived_data *data;
+    int ninstances;
+    perf_counter_list *counter_list;
+} perf_derived_counter;
+
 typedef intptr_t perfhandle_t;
 
 perfhandle_t *perf_event_create(const char *configfile);
 
-void perf_counter_destroy(perf_counter *data, int size);
+void perf_counter_destroy(perf_counter *data, int size, perf_derived_counter *derived_counter, int derived_size);
 
 void perf_event_destroy(perfhandle_t *inst);
 
@@ -45,7 +64,7 @@ void perf_event_destroy(perfhandle_t *inst);
 #define PERF_COUNTER_DISABLE 1
 int perf_counter_enable(perfhandle_t *inst, int enable);
 
-int perf_get(perfhandle_t *inst, perf_counter **data, int *size);
+int perf_get(perfhandle_t *inst, perf_counter **data, int *size, perf_derived_counter **derived_counter, int *derived_size);
 
 #define E_PERFEVENT_LOGIC 1
 #define E_PERFEVENT_REALLOC 2

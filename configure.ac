@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2015 Red Hat.
+dnl Copyright (c) 2012-2016 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl 
@@ -273,7 +273,7 @@ elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS, [1], [Platform is Solaris])
     export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
-    export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
+    export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
 elif test $target_os = aix
@@ -310,6 +310,13 @@ then
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"
     pcp_platform_paths='/usr/pkg/bin'
     pcp_ps_all_flags=auxww
+elif test $target_os = openbsd
+then
+    target_os=openbsd
+    AC_DEFINE(IS_OPENBSD, [1], [Platform is OpenBSD])
+    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    pcp_platform_paths='/usr/local/bin'
+    pcp_ps_all_flags=auxww
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
@@ -341,7 +348,7 @@ fi
 
 dnl check if user wants their own C compiler
 cflags_abi=
-AC_PROG_CC(suncc gcc cc)
+AC_PROG_CC(suncc egcc gcc cc)
 if test $target_os = solaris
 then
     AC_PATH_PROG(CCPATH,$CC,$CC)
@@ -456,7 +463,7 @@ AS_IF([test "x$cc_is_gcc" = xyes -a "$enable_visibility" != no],[
 ])
 AC_SUBST(INVISIBILITY)
 
-AC_PROG_CXX
+AC_PROG_CXX(eg++ g++ c++)
 cxx=$CXX
 AC_SUBST(cxx)
 AC_MSG_CHECKING([for working C++ compiler])
@@ -742,11 +749,11 @@ AC_CHECK_PROGS(GIT, git)
 AC_SUBST(GIT)
 
 dnl check if python available for the build and runtime
-AC_CHECK_PROGS(PYTHON, python)
+AC_CHECK_PROGS(PYTHON, python, python2.7)
 AC_SUBST(PYTHON)
 
 dnl check if python3 available for the build and runtime
-AC_CHECK_PROGS(PYTHON3, python3)
+AC_CHECK_PROGS(PYTHON3, python3, python3.4)
 AC_SUBST(PYTHON3)
 
 dnl check if python tools/packages wanted (need python >= 2.6)
@@ -951,6 +958,19 @@ fi
 AC_SUBST(PMDA_POSTGRESQL, $pmda_postgresql)
 if $pmda_postgresql; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
+AC_MSG_CHECKING([if the oracle PMDA should be included])
+pmda_oracle=false
+if test "$have_perl" = true
+then
+    dnl rpm build for oracle PMDA needs Perl DBI
+    if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+    then
+	pmda_oracle=true
+    fi
+fi
+AC_SUBST(PMDA_ORACLE, $pmda_oracle)
+if $pmda_oracle; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
 AC_MSG_CHECKING([if the elasticsearch PMDA should be included])
 pmda_elasticsearch=false
 if test "$have_perl" = true
@@ -998,7 +1018,8 @@ AS_IF([test "x$do_qt" != "xno"], [
     
     if test -z "$QMAKE"
     then
-	AC_PATH_PROGS(QMAKE, [qmake-qt5 qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
+	dnl qmake-qt5 [/usr/lib64/qt5/bin:/usr/lib/qt5/bin]
+	AC_PATH_PROGS(QMAKE, [qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
 	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
@@ -1103,7 +1124,7 @@ AC_SUBST(pcp_user_install)
 if test -z "$PCP_GROUP_INSTALL" ; then
     case "$target_os"
     in
-	darwin|freebsd|netbsd)
+	darwin|freebsd|netbsd|openbsd)
 	    pcp_group_install=wheel
 	    ;;
 	*)
@@ -1412,7 +1433,7 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h syslog.h)
-AC_CHECK_HEADERS(unistd.h stddef.h sched.h dlfcn.h dl.h)
+AC_CHECK_HEADERS(unistd.h stddef.h stdlib.h sched.h dlfcn.h dl.h)
 AC_CHECK_HEADERS(sys/time.h sys/times.h)
 AC_CHECK_HEADERS(sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(sys/sysinfo.h sys/systeminfo.h)
@@ -1420,9 +1441,10 @@ AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h)
 AC_CHECK_HEADERS(libgen.h sys/param.h sys/mman.h sys/un.h)
 AC_CHECK_HEADERS(values.h stdint.h ieeefp.h math.h)
 AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
-AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h sys/socket.h)
+AC_CHECK_HEADERS(termio.h termios.h sys/termios.h)
+AC_CHECK_HEADERS(sys/ioctl.h sys/select.h sys/socket.h)
 AC_CHECK_HEADERS(netdb.h)
-if test $target_os = darwin
+if test $target_os = darwin -o $target_os = openbsd
 then
     AC_CHECK_HEADERS(net/if.h, [], [], [#include <sys/types.h>
 #include <sys/socket.h>])

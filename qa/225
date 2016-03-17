@@ -101,6 +101,14 @@ myname.gcov.c = sample.longlong.million.sample.longlong.million.sample.longlong.
 myname.gcov.f = ( 1 + foo + ( ?
 myname.gcov.g = /
 
+# missing cases in parser
+myname.bad.a = rat(disk.dev.read)
+myname.bad.b = *
+myname.bad.c = sum(sample.bin) - +1
+myname.bad.d = sum(sample.bin) - min(1*sample.bin)
+myname.bad.e = sum(sample.bin) - min((sample.bin)
+
+
 End-of-File
 
 pminfo -Dderive,appl0 -c $tmp.config -n $tmp.pmns >$tmp.out 2>&1

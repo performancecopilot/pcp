@@ -27,6 +27,7 @@ main(int argc, char **argv)
     int		c;
     int		sts;
     int		errflag = 0;
+
     static const struct timeval delay = { 0, 10000 };
     /*
      * was sginap(10) ... I think this dated from the sgi days when this
@@ -39,9 +40,6 @@ main(int argc, char **argv)
 
     while ((c = getopt(argc, argv, "D:")) != EOF) {
 	switch (c) {
-
-#ifdef PCP_DEBUG
-
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
 	    if (sts < 0) {
@@ -52,7 +50,6 @@ main(int argc, char **argv)
 	    else
 		pmDebug |= sts;
 	    break;
-#endif
 
 	case '?':
 	default:
@@ -113,7 +110,8 @@ Options:\n\
 	if ((sts = pmReconnectContext(ctx)) >= 0) {
 	    fprintf(stderr, "pmReconnectContext: success\n");
 	    gettimeofday(&now, (struct timezone *)0);
-	    fprintf(stderr, "delay: %.0f secs\n", __pmtimevalSub(&now, &then));
+	    /* roundup to the nearest second, now that pmcd stop is much quicker */
+	    fprintf(stderr, "delay: %.0f secs\n", __pmtimevalSub(&now, &then) + 0.5);
 	    break;
 	}
 	__pmtimevalSleep(delay);

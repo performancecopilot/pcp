@@ -1642,20 +1642,20 @@ static pid_t
 CreateRootAgentPOSIX(AgentInfo *aPtr)
 {
     int		sts, inFd, outFd = -1;
-    char	*args = NULL;
+    char	*args;
     pid_t	pid;
-
-    /* = by default, disable this feature for pcp-3.11.0 = */
     static int	enabled;
+
     if (!enabled) {
 	/* once-off initialisation */
 	enabled = -EOPNOTSUPP;
-	if (getenv("PMCD_ROOT_AGENT") != NULL)
-	    enabled = 1;
+	if ((args = getenv("PMCD_ROOT_AGENT")) != NULL)
+	    if (strcmp(args, "0") != 0)
+		enabled = 1;
+	/* enabled is non-zero now */
     }
     if (enabled < 0)
 	return enabled;
-    /* === remove this code once some soak time passes === */
 
     if (aPtr->ipcType == AGENT_PIPE)
 	args = aPtr->ipc.pipe.commandLine;

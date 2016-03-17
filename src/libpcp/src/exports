@@ -519,5 +519,6 @@ PCP_3.14 {
     pmExtendFetchGroup_timestamp;
     pmFetchGroup;
     pmDestroyFetchGroup;
+    pmRegisterDerivedMetric;
 } PCP_3.13;
 

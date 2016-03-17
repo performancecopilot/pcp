@@ -28,6 +28,8 @@ _filter()
 }
 
 config=$PCP_VAR_DIR/config/pmlogrewrite/cgroup_units.conf
+[ -f "$config" ] || _notrun "$config not installed"
+
 log_in=$here/archives/cgroups-units
 log_out=$tmp.cgroups
 

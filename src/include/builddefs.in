@@ -107,6 +107,9 @@ ifeq "$(TARGET_OS)" "netbsd"
 DSOSUFFIX = so
 LDFLAGS += -Wl,-rpath=/usr/pkg/lib
 endif
+ifeq "$(TARGET_OS)" "openbsd"
+DSOSUFFIX = so
+endif
 
 CFLAGS_ABI = @cflags_abi@
 CFLAGS_OPT = @optimization@
@@ -292,6 +295,7 @@ PMDA_SYSTEMD = @PMDA_SYSTEMD@
 PMDA_PERFEVENT = @PMDA_PERFEVENT@
 PMDA_INFINIBAND = @PMDA_INFINIBAND@
 PMDA_MYSQL = @PMDA_MYSQL@
+PMDA_ORACLE = @PMDA_ORACLE@
 PMDA_POSTGRESQL = @PMDA_POSTGRESQL@
 PMDA_ELASTICSEARCH = @PMDA_ELASTICSEARCH@
 PMDA_SNMP = @PMDA_SNMP@
@@ -537,8 +541,9 @@ PERL_MAKE_MAKEFILE = \
 # the installed files to remove unwanted files and make the DSO
 # executable
 #
-# Usage is $(call PERL_GET_FILELIST,listfile,base)
-# where listfile is something like $(TOPDIR)/perl-pcp-pmda.list and
+# Usage is $(call PERL_GET_FILELIST,target,listfile,base)
+# where target is the Makefile target (install or install_perl),
+# listfile is something like $(TOPDIR)/perl-pcp-pmda.list and
 # base is the DSO basename like PMDA.
 #
 # We need different versions for the different installation and
@@ -552,15 +557,15 @@ ifeq "$(PACKAGE_DISTRIBUTION)" "gentoo"
 # Gentoo cannot rely on the .packlist files from the install, so create
 # a temporary pack.list file
 PERL_GET_FILELIST = \
-	$(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT \
+	$(PERLMAKE) -f Makefile $(1) DESTDIR=$$DIST_ROOT \
 	| tee pack.list; \
-	sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.gz/' -e "s@^Installing $$DIST_ROOT@@p" <pack.list >$(1) || exit 1; \
-	if [ -s $(1) ]; then rm -f pack.list; \
-	else echo "Arrgh ... no files to include in package via $(1), see pack.list"; exit 1; \
+	sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&.gz/' -e "s@^Installing $$DIST_ROOT@@p" <pack.list >$(2) || exit 1; \
+	if [ -s $(2) ]; then rm -f pack.list; \
+	else echo "Arrgh ... no files to include in package via $(2), see pack.list"; exit 1; \
 	fi; \
 	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name perllocal.pod -exec rm -f '{}' ';' ; \
 	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name \*.bs  -exec rm -f '{}' ';' ; \
-	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name $(2).so -exec chmod 755 '{}' ';'
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name $(3).so -exec chmod 755 '{}' ';'
 else
 ifeq "$(PACKAGE_DISTRIBUTION)" "freebsd"
 # FreeBSD Perl packaging is a broken mystery at this point in time
@@ -576,20 +581,20 @@ else
 	man_suffix=gz
 endif
 PERL_GET_FILELIST = \
-	$(PERLMAKE) -f Makefile install DESTDIR=$$DIST_ROOT; \
-	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name .packlist -exec mv '{}' $(1) ';' ; \
-	if [ -s $(1) ] ; then \
+	$(PERLMAKE) -f Makefile $(1) DESTDIR=$$DIST_ROOT; \
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name .packlist -exec mv '{}' $(2) ';' ; \
+	if [ -s $(2) ] ; then \
 	    _sfx=.gz; \
 	    $(HAVE_BZIP2ED_MANPAGES) && _sfx=.bz2; \
 	    $(HAVE_LZMAED_MANPAGES) && _sfx=.lzma; \
 	    $(HAVE_XZED_MANPAGES) && _sfx=.xz; \
-	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&'"$$_sfx/" -e "s@^$$DIST_ROOT@@p" $(1) >$(1).tmp; \
-	    mv $(1).tmp $1; \
-	else echo "Arrgh ... no files to include in package via $(1)"; exit 1; \
+	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&'"$$_sfx/" -e "s@^$$DIST_ROOT@@p" $(2) >$(2).tmp; \
+	    mv $(2).tmp $(2); \
+	else echo "Arrgh ... no files to include in package via $(2)"; exit 1; \
 	fi; \
 	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name perllocal.pod -exec rm -f '{}' ';' ; \
 	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name \*.bs  -exec rm -f '{}' ';' ; \
-	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name $(2).so -exec chmod 755 '{}' ';'
+	find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name $(3).so -exec chmod 755 '{}' ';'
 endif
 endif
 endif
@@ -600,6 +605,7 @@ ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
                 -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
                 -o '$(PACKAGE_DISTRIBUTION)' = solaris \
                 -o '$(PACKAGE_DISTRIBUTION)' = freebsd \
+                -o '$(PACKAGE_DISTRIBUTION)' = openbsd \
 	      ] && echo 1)" "1"
 # Gather installed Perl files before packaging
 PERL_INSTALL = \
@@ -690,9 +696,38 @@ PYTHON3_INSTALL = \
 	    done; \
 	fi
 else
+ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = openbsd \
+	      ] && echo 1)" "1"
+# similar to above, but files already installed in DIST_ROOT so
+# just append to the manifest
+PYTHON_INSTALL = \
+	if [ -n "$(DIST_MANIFEST)" ]; then \
+	    cat $(TOPDIR)/python-pcp.list \
+	    | while read f; do \
+		bn=`basename $$f`; \
+		dn=`dirname $$f`; \
+		$(INSTALL) -d $$dn || exit 1; \
+		src=`find $(DIST_ROOT)/usr/lib -name $$bn`; \
+		$(INSTALL) $$src $$f || exit 1; \
+	    done; \
+	fi
+PYTHON3_INSTALL = \
+	if [ -n "$(DIST_MANIFEST)" ]; then \
+	    cat $(TOPDIR)/python3-pcp.list \
+	    | while read f; do \
+		bn=`basename $$f`; \
+		dn=`dirname $$f`; \
+		$(INSTALL) -d $$dn || exit 1; \
+		src=`find $(DIST_ROOT)/usr/lib -name $$bn`; \
+		$(INSTALL) $$src $$f || exit 1; \
+	    done; \
+	fi
+else
+# default case if all of the above tests fail
 PYTHON_INSTALL = 
-endif
-endif
+endif	# openbsd if
+endif	# cocoa ... freebsd if
+endif	# linux && !gentoo if
 
 # qmake botches the order of the -L arguments in the generated $(LIBS)
 # in the Makefile ... need to get the Qt libraries dir (begins with a /)

@@ -1,7 +1,7 @@
 /*
  * PMCD privileged co-process (root) PMDA.
  *
- * Copyright (c) 2014-2015 Red Hat.
+ * Copyright (c) 2014-2016 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,6 @@
 #include "impl.h"
 #include "pmda.h"
 #include "pmdaroot.h"
-#include <sys/stat.h>
 #include "root.h"
 #include "lxc.h"
 #include "docker.h"
@@ -622,22 +621,28 @@ root_startpmda_request(root_client_t *cp, void *pdu, int pdulen)
 	bad = PM_ERR_GENERIC;
 
     sts = __pmdaSendRootPDUStart(cp->fd, pid, infd, outfd, name, len, bad);
-    close(outfd);
-    close(infd);
+    if (pmDebug & DBG_TRACE_APPL0) {
+	__pmNotifyErr(LOG_DEBUG, "Sent %s PMDA process to pmcd: "
+			"pid=%d infd=%d outfd=%d sts=%d\n",
+			name, pid, infd, outfd, bad);
+    }
+    if (outfd >= 0)
+	close(outfd);
+    if (infd >= 0)
+	close(infd);
     return sts;
 }
 
 static int
 root_stoppmda_request(root_client_t *cp, void *pdu, int pdulen)
 {
-    int		sts, force, code;
-    pid_t	pid = (pid_t)-1;
+    int		sts, force = 0, code = 0, pid = -1;
  
     if ((sts = __pmdaDecodeRootPDUStop(pdu, pdulen, &pid, NULL, &force)) < 0)
 	return sts;
 
-    if (force || pid >= (pid_t)1) {
-	if (pid == (pid_t)-1)
+    if (force || pid >= 1) {
+	if (pid == -1)
 	    sts = -EINVAL;
 	else
 	    sts = __pmProcessTerminate(pid, force);
@@ -655,7 +660,7 @@ root_recvpdu(int fd, __pmdaRootPDUHdr **hdr)
     __pmdaRootPDUHdr	*pdu = (__pmdaRootPDUHdr *)buffer;
     int			bytes;
 
-    if ((bytes = recv(fd, &buffer, sizeof(buffer), 0)) < 0) {
+    if ((bytes = recv(fd, (void *)&buffer, sizeof(buffer), 0)) < 0) {
 	__pmNotifyErr(LOG_ERR, "root_recvpdu: recv - %s\n", osstrerror());
 	return bytes;
     }
@@ -750,6 +755,7 @@ root_main(pmdaInterface *dp)
 	readable_fds = connected_fds;
 	maxfd = root_maximum_fd + 1;
 
+	setoserror(0);
 	sts = __pmSelectRead(maxfd, &readable_fds, NULL);
 	if (sts > 0) {
 	    if (__pmFD_ISSET(pmcd_fd, &readable_fds)) {
@@ -762,9 +768,9 @@ root_main(pmdaInterface *dp)
 		root_check_new_client(&readable_fds);
 	    root_handle_client_input(&readable_fds);
 	}
-	else if (sts == -1 && neterror() != EINTR) {
-	    __pmNotifyErr(LOG_ERR, "root_main select: %s\n", netstrerror());
-	    break;
+	else if (sts == -1 && oserror() != EINTR) {
+	    __pmNotifyErr(LOG_ERR, "root_main select: %s\n", osstrerror());
+	    continue;
 	}
     }
 }

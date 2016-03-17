@@ -18,7 +18,7 @@ BUILDDEFS = $(TOPDIR)/src/include/builddefs
 include $(BUILDDEFS)
 -include ./GNUlocaldefs
 
-SUBDIRS = pcp-base pcp-collector pcp-monitor pcp-pmlogger pcp-pmie pcp-testsuite
+SUBDIRS = pcp-base pcp-collector pcp-monitor pcp-pmlogger pcp-pmie pcp-testsuite pcp-pmwebd
 
 default default_pcp install install_pcp pack_pcp: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)

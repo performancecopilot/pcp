@@ -38,8 +38,9 @@ _slice_sort_reassemble()
 # real QA test starts here
 root=$tmp.root
 export LINUX_STATSPATH=$root
+export LINUX_MDADM=/bin/true
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
-metrics=`pminfo -L -K clear -K add,60,$pmda disk.all disk.dev disk.dm disk.partitions | LC_COLLATE=POSIX sort`
+metrics=`pminfo -L -K clear -K add,60,$pmda disk.all disk.dev disk.dm disk.md disk.partitions hinv.map.dmname hinv.map.mdname | LC_COLLATE=POSIX sort`
 
 for tgz in $here/linux/blkdev-root-*.tgz
 do

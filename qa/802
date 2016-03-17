@@ -23,8 +23,21 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 VALGRIND=`which valgrind`
 
-dbpmda 2>$tmp._valgrind.err >$tmp._valgrind.out <<End-of-File
-open pipe $VALGRIND --log-file=$tmp._valgrind --leak-check=full pmdas/github-56/pmdatrivial
+# copied from _run_valgrind() ...
+__version=`valgrind --version | sed -e 's/valgrind-//'`
+if [ -f valgrind-suppress-$__version ]
+then
+    __extra="--suppressions=valgrind-suppress-$__version"
+    echo "Warning: using extra $__extra" >>$here/$seq.full
+else
+    __extra=''
+fi
+
+# need -q 10 because valgrind with all these options sometimes takes
+# longer to startup than the default credentials timeout of 3 seconds
+#
+dbpmda -f -q 10 -ie 2>$tmp._valgrind.err >$tmp._valgrind.out <<End-of-File
+open pipe $VALGRIND --leak-check=full --read-var-info=yes --gen-suppressions=all --suppressions=valgrind-suppress $__extra --log-file=$tmp._valgrind pmdas/github-56/pmdatrivial
 children trivial
 exit
 End-of-File
@@ -33,9 +46,18 @@ sleep 1
 
 # from _run_valgrind() ...
 #
-echo "=== std out ==="
-sed -e "s@$tmp@TMP@g" -e "s@$VALGRIND@VALGRIND@"<$tmp._valgrind.out
-echo "=== std err ==="
+echo "=== std out ===" | tee -a $here/$seq.full
+cat $tmp._valgrind.out >>$here/$seq.full
+sed <$tmp._valgrind.out \
+    -e "s@$tmp@TMP@g" \
+    -e "s@$VALGRIND@VALGRIND@" \
+    -e '/VALGRIND/{
+s/ --[a-z][^ ]*//g
+s/  */ /g
+}' \
+    #end
+echo "=== std err ===" | tee -a $here/$seq.full
+cat $tmp._valgrind.err >>$here/$seq.full
 sed < $tmp._valgrind.err \
     -e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
     -e 's/trivial([0-9]*)/trivial(PID)/'

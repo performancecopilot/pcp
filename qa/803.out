@@ -1,0 +1,9 @@
+QA output created by 803
+derived: Error: pmRegisterDerivedMetric("bad.metric", ...) syntax error
+a $ bad @ expression
+  ^
+Illegal character
+derived: Error: pmRegisterDerivedMetric("new.metric", ...) syntax error
+rat(disk.dev.read)
+   ^
+Arithmetic operator expected

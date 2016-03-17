@@ -24,6 +24,8 @@
  *
  * base (in __pmProcessDataSize) - no real side-effects, don't bother
  *	locking
+ *
+ * pmprintf_atexit_installed is protected by the __pmLock_libpcp mutex.
  */
 
 #include <stdarg.h>
@@ -60,6 +62,9 @@ static int	nfilelog;
 static int	dosyslog;
 static int	pmState = PM_STATE_APPL;
 static int	done_exit;
+#ifdef HAVE_ATEXIT
+static int	pmprintf_atexit_installed = 0;
+#endif
 
 PCP_DATA char	*pmProgname = "pcp";		/* the real McCoy */
 
@@ -1340,6 +1345,19 @@ pmfstate(int state)
     return errtype;
 }
 
+#ifdef HAVE_ATEXIT
+static void
+pmprintf_cleanup(void)
+{
+    if (fptr != NULL) {
+	unlink(fname);
+	free(fname);
+	fclose(fptr);
+	fptr = NULL;
+    }
+}
+#endif
+
 static int
 vpmprintf(const char *msg, va_list arg)
 {
@@ -1350,6 +1368,14 @@ vpmprintf(const char *msg, va_list arg)
     if (fptr == NULL && msgsize == 0) {		/* create scratch file */
 	int	fd = -1;
 	char	*tmpdir = pmGetOptionalConfig("PCP_TMPFILE_DIR");
+
+#ifdef HAVE_ATEXIT
+	if (pmprintf_atexit_installed == 0) {
+	    /* install handler for temp file cleanup */
+	    atexit(pmprintf_cleanup);
+	    pmprintf_atexit_installed = 1;
+	}
+#endif
 
 	if (tmpdir && tmpdir[0] != '\0') {
 	    mode_t cur_umask;
@@ -1488,10 +1514,10 @@ pmflush(void)
 	    fclose(eptr);
 	    break;
 	}
-	fclose(fptr);
-	fptr = NULL;
 	unlink(fname);
 	free(fname);
+	fclose(fptr);
+	fptr = NULL;
 	if (sts >= 0)
 	    sts = msgsize;
     }
@@ -2138,7 +2164,7 @@ __pmProcessExists(pid_t pid)
        return 0;
     return (len > 0);
 }
-#elif defined(IS_FREEBSD)
+#elif defined(IS_FREEBSD) || defined(IS_OPENBSD)
 int 
 __pmProcessExists(pid_t pid)
 {

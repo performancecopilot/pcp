@@ -13,6 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -d $PCP_PMDAS_DIR/slurm ] || _notrun "slurm PMDA directory is not installed"
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
@@ -37,12 +38,12 @@ cd "$PCP_PMDAS_DIR/slurm"
 
 # create a root namespace file for dbpmda to use
 export PERL5LIB=$here/slurm
-PCP_PERL_PMNS=root /usr/bin/perl $script > $tmp.root
+PCP_PERL_PMNS=root /usr/bin/env perl $script > $tmp.root
 
 # create a set of commands for dbpmda
 # Need to wait a bit for the helper thread to run
 cat >$tmp.cmds <<End-of-File
-open pipe /usr/bin/perl $script
+open pipe /usr/bin/env perl $script
 getdesc on
 wait 3
 desc slurm.numnodes

@@ -148,6 +148,57 @@ disk.dm.write_merge
 disk.dm.write_rawactive
     inst [N or "docker-8:7-1974438-pool"] value 7895
 
+disk.md.avactive
+No value(s) available!
+
+disk.md.aveq
+No value(s) available!
+
+disk.md.blkread
+No value(s) available!
+
+disk.md.blktotal
+No value(s) available!
+
+disk.md.blkwrite
+No value(s) available!
+
+disk.md.read
+No value(s) available!
+
+disk.md.read_bytes
+No value(s) available!
+
+disk.md.read_merge
+No value(s) available!
+
+disk.md.read_rawactive
+No value(s) available!
+
+disk.md.status
+No value(s) available!
+
+disk.md.total
+No value(s) available!
+
+disk.md.total_bytes
+No value(s) available!
+
+disk.md.total_rawactive
+No value(s) available!
+
+disk.md.write
+No value(s) available!
+
+disk.md.write_bytes
+No value(s) available!
+
+disk.md.write_merge
+No value(s) available!
+
+disk.md.write_rawactive
+No value(s) available!
+
 disk.partitions.avactive
     inst [N or "sda1"] value 22942
     inst [N or "sda10"] value 21674
@@ -356,6 +407,12 @@ disk.partitions.write_rawactive
     inst [N or "sda9"] value 8768694
     inst [N or "sr0"] value 0
 
+hinv.map.dmname
+    inst [N or "docker-8:7-1974438-pool"] value "dm-0"
+
+hinv.map.mdname
+No value(s) available!
+
 == done
 
 == Checking metric values - blkdev-root-002.tgz
@@ -524,6 +581,57 @@ disk.dm.write_merge
 disk.dm.write_rawactive
     inst [N or "docker-8:7-1974438-pool"] value 7895
 
+disk.md.avactive
+No value(s) available!
+
+disk.md.aveq
+No value(s) available!
+
+disk.md.blkread
+No value(s) available!
+
+disk.md.blktotal
+No value(s) available!
+
+disk.md.blkwrite
+No value(s) available!
+
+disk.md.read
+No value(s) available!
+
+disk.md.read_bytes
+No value(s) available!
+
+disk.md.read_merge
+No value(s) available!
+
+disk.md.read_rawactive
+No value(s) available!
+
+disk.md.status
+No value(s) available!
+
+disk.md.total
+No value(s) available!
+
+disk.md.total_bytes
+No value(s) available!
+
+disk.md.total_rawactive
+No value(s) available!
+
+disk.md.write
+No value(s) available!
+
+disk.md.write_bytes
+No value(s) available!
+
+disk.md.write_merge
+No value(s) available!
+
+disk.md.write_rawactive
+No value(s) available!
+
 disk.partitions.avactive
     inst [N or "sr0"] value 0
 
@@ -571,6 +679,12 @@ disk.partitions.write_merge
 
 disk.partitions.write_rawactive
     inst [N or "sr0"] value 0
+
+hinv.map.dmname
+    inst [N or "docker-8:7-1974438-pool"] value "dm-0"
+
+hinv.map.mdname
+No value(s) available!
 
 == done
 
@@ -1199,6 +1313,57 @@ No value(s) available!
 disk.dm.write_rawactive
 No value(s) available!
 
+disk.md.avactive
+    inst [N or "md0"] value 0
+
+disk.md.aveq
+    inst [N or "md0"] value 0
+
+disk.md.blkread
+    inst [N or "md0"] value 0
+
+disk.md.blktotal
+    inst [N or "md0"] value 0
+
+disk.md.blkwrite
+    inst [N or "md0"] value 0
+
+disk.md.read
+    inst [N or "md0"] value 0
+
+disk.md.read_bytes
+    inst [N or "md0"] value 0
+
+disk.md.read_merge
+    inst [N or "md0"] value 0
+
+disk.md.read_rawactive
+    inst [N or "md0"] value 0
+
+disk.md.status
+    inst [N or "md0"] value 0
+
+disk.md.total
+    inst [N or "md0"] value 0
+
+disk.md.total_bytes
+    inst [N or "md0"] value 0
+
+disk.md.total_rawactive
+    inst [N or "md0"] value 0
+
+disk.md.write
+    inst [N or "md0"] value 0
+
+disk.md.write_bytes
+    inst [N or "md0"] value 0
+
+disk.md.write_merge
+    inst [N or "md0"] value 0
+
+disk.md.write_rawactive
+    inst [N or "md0"] value 0
+
 disk.partitions.avactive
 Error: Metric not supported by this version of monitored application
 
@@ -1214,7 +1379,6 @@ disk.partitions.blkread
     inst [N or "cciss/c0d3p1"] value 850
     inst [N or "cciss/c0d3p2"] value 850
     inst [N or "cciss/c0d3p3"] value 850
-    inst [N or "md0"] value 0
     inst [N or "sda1"] value 2160
     inst [N or "sda2"] value 13958
     inst [N or "sdb1"] value 880
@@ -1247,7 +1411,6 @@ disk.partitions.blktotal
     inst [N or "cciss/c0d3p1"] value 850
     inst [N or "cciss/c0d3p2"] value 850
     inst [N or "cciss/c0d3p3"] value 850
-    inst [N or "md0"] value 0
     inst [N or "sda1"] value 2164
     inst [N or "sda2"] value 139266
     inst [N or "sdb1"] value 880
@@ -1280,7 +1443,6 @@ disk.partitions.blkwrite
     inst [N or "cciss/c0d3p1"] value 0
     inst [N or "cciss/c0d3p2"] value 0
     inst [N or "cciss/c0d3p3"] value 0
-    inst [N or "md0"] value 0
     inst [N or "sda1"] value 4
     inst [N or "sda2"] value 125308
     inst [N or "sdb1"] value 0
@@ -1313,7 +1475,6 @@ disk.partitions.read
     inst [N or "cciss/c0d3p1"] value 36
     inst [N or "cciss/c0d3p2"] value 45
     inst [N or "cciss/c0d3p3"] value 45
-    inst [N or "md0"] value 0
     inst [N or "sda1"] value 74
     inst [N or "sda2"] value 14085
     inst [N or "sdb1"] value 32
@@ -1346,7 +1507,6 @@ disk.partitions.read_bytes
     inst [N or "cciss/c0d3p1"] value 425
     inst [N or "cciss/c0d3p2"] value 425
     inst [N or "cciss/c0d3p3"] value 425
-    inst [N or "md0"] value 0
     inst [N or "sda1"] value 1080
     inst [N or "sda2"] value 6979
     inst [N or "sdb1"] value 440
@@ -1385,7 +1545,6 @@ disk.partitions.total
     inst [N or "cciss/c0d3p1"] value 36
     inst [N or "cciss/c0d3p2"] value 45
     inst [N or "cciss/c0d3p3"] value 45
-    inst [N or "md0"] value 0
     inst [N or "sda1"] value 76
     inst [N or "sda2"] value 910031
     inst [N or "sdb1"] value 32
@@ -1418,7 +1577,6 @@ disk.partitions.total_bytes
     inst [N or "cciss/c0d3p1"] value 425
     inst [N or "cciss/c0d3p2"] value 425
     inst [N or "cciss/c0d3p3"] value 425
-    inst [N or "md0"] value 0
     inst [N or "sda1"] value 1082
     inst [N or "sda2"] value 69633
     inst [N or "sdb1"] value 440
@@ -1454,7 +1612,6 @@ disk.partitions.write
     inst [N or "cciss/c0d3p1"] value 0
     inst [N or "cciss/c0d3p2"] value 0
     inst [N or "cciss/c0d3p3"] value 0
-    inst [N or "md0"] value 0
     inst [N or "sda1"] value 2
     inst [N or "sda2"] value 895946
     inst [N or "sdb1"] value 0
@@ -1487,7 +1644,6 @@ disk.partitions.write_bytes
     inst [N or "cciss/c0d3p1"] value 0
     inst [N or "cciss/c0d3p2"] value 0
     inst [N or "cciss/c0d3p3"] value 0
-    inst [N or "md0"] value 0
     inst [N or "sda1"] value 2
     inst [N or "sda2"] value 62654
     inst [N or "sdb1"] value 0
@@ -1516,6 +1672,303 @@ Error: Metric not supported by this version of monitored application
 
 disk.partitions.write_rawactive
 Error: Metric not supported by this version of monitored application
+
+hinv.map.dmname
+No value(s) available!
+
+hinv.map.mdname
+    inst [N or "md0"] value "md0"
+
+== done
+
+== Checking metric values - blkdev-root-004.tgz
+
+disk.all.avactive
+    value 40023234
+
+disk.all.aveq
+    value 1165433000
+
+disk.all.blkread
+    value 180097924
+
+disk.all.blktotal
+    value 638096788
+
+disk.all.blkwrite
+    value 457998864
+
+disk.all.read
+    value 3264210
+
+disk.all.read_bytes
+    value 90048962
+
+disk.all.read_merge
+    value 355250
+
+disk.all.read_rawactive
+    value 34250596
+
+disk.all.total
+    value 7346872
+
+disk.all.total_bytes
+    value 319048394
+
+disk.all.total_rawactive
+    value 1175303908
+
+disk.all.write
+    value 4082662
+
+disk.all.write_bytes
+    value 228999432
+
+disk.all.write_merge
+    value 6248622
+
+disk.all.write_rawactive
+    value 1141053312
+
+disk.dev.avactive
+    inst [N or "sda"] value 15011617
+    inst [N or "sdb"] value 25011617
+
+disk.dev.aveq
+    inst [N or "sda"] value 532716500
+    inst [N or "sdb"] value 632716500
+
+disk.dev.blkread
+    inst [N or "sda"] value 95048962
+    inst [N or "sdb"] value 85048962
+
+disk.dev.blktotal
+    inst [N or "sda"] value 274048394
+    inst [N or "sdb"] value 364048394
+
+disk.dev.blkwrite
+    inst [N or "sda"] value 178999432
+    inst [N or "sdb"] value 278999432
+
+disk.dev.read
+    inst [N or "sda"] value 1132105
+    inst [N or "sdb"] value 2132105
+
+disk.dev.read_bytes
+    inst [N or "sda"] value 47524481
+    inst [N or "sdb"] value 42524481
+
+disk.dev.read_merge
+    inst [N or "sda"] value 127625
+    inst [N or "sdb"] value 227625
+
+disk.dev.read_rawactive
+    inst [N or "sda"] value 12125298
+    inst [N or "sdb"] value 22125298
+
+disk.dev.scheduler
+    inst [N or "sda"] value "unknown"
+    inst [N or "sdb"] value "unknown"
+
+disk.dev.total
+    inst [N or "sda"] value 2673436
+    inst [N or "sdb"] value 4673436
+
+disk.dev.total_bytes
+    inst [N or "sda"] value 137024197
+    inst [N or "sdb"] value 182024197
+
+disk.dev.total_rawactive
+    inst [N or "sda"] value 532651954
+    inst [N or "sdb"] value 642651954
+
+disk.dev.write
+    inst [N or "sda"] value 1541331
+    inst [N or "sdb"] value 2541331
+
+disk.dev.write_bytes
+    inst [N or "sda"] value 89499716
+    inst [N or "sdb"] value 139499716
+
+disk.dev.write_merge
+    inst [N or "sda"] value 2624311
+    inst [N or "sdb"] value 3624311
+
+disk.dev.write_rawactive
+    inst [N or "sda"] value 520526656
+    inst [N or "sdb"] value 620526656
+
+disk.dm.avactive
+No value(s) available!
+
+disk.dm.aveq
+No value(s) available!
+
+disk.dm.blkread
+No value(s) available!
+
+disk.dm.blktotal
+No value(s) available!
+
+disk.dm.blkwrite
+No value(s) available!
+
+disk.dm.read
+No value(s) available!
+
+disk.dm.read_bytes
+No value(s) available!
+
+disk.dm.read_merge
+No value(s) available!
+
+disk.dm.read_rawactive
+No value(s) available!
+
+disk.dm.total
+No value(s) available!
+
+disk.dm.total_bytes
+No value(s) available!
+
+disk.dm.total_rawactive
+No value(s) available!
+
+disk.dm.write
+No value(s) available!
+
+disk.dm.write_bytes
+No value(s) available!
+
+disk.dm.write_merge
+No value(s) available!
+
+disk.dm.write_rawactive
+No value(s) available!
+
+disk.md.avactive
+    inst [1 or "home"] value 8601
+    inst [N or "md0"] value 9601
+
+disk.md.aveq
+    inst [1 or "home"] value 26196
+    inst [N or "md0"] value 16196
+
+disk.md.blkread
+    inst [1 or "home"] value 225544
+    inst [N or "md0"] value 125544
+
+disk.md.blktotal
+    inst [1 or "home"] value 291800
+    inst [N or "md0"] value 181800
+
+disk.md.blkwrite
+    inst [1 or "home"] value 66256
+    inst [N or "md0"] value 56256
+
+disk.md.read
+    inst [1 or "home"] value 6454
+    inst [N or "md0"] value 5454
+
+disk.md.read_bytes
+    inst [1 or "home"] value 112772
+    inst [N or "md0"] value 62772
+
+disk.md.read_merge
+    inst [1 or "home"] value 1
+    inst [N or "md0"] value 0
+
+disk.md.read_rawactive
+    inst [1 or "home"] value 9299
+    inst [N or "md0"] value 8299
+
+disk.md.status
+    inst [1 or "home"] value 0
+    inst [N or "md0"] value 0
+
+disk.md.total
+    inst [1 or "home"] value 8800
+    inst [N or "md0"] value 6800
+
+disk.md.total_bytes
+    inst [1 or "home"] value 145900
+    inst [N or "md0"] value 90900
+
+disk.md.total_rawactive
+    inst [1 or "home"] value 18194
+    inst [N or "md0"] value 16194
+
+disk.md.write
+    inst [1 or "home"] value 2346
+    inst [N or "md0"] value 1346
+
+disk.md.write_bytes
+    inst [1 or "home"] value 33128
+    inst [N or "md0"] value 28128
+
+disk.md.write_merge
+    inst [1 or "home"] value 1
+    inst [N or "md0"] value 0
+
+disk.md.write_rawactive
+    inst [1 or "home"] value 8895
+    inst [N or "md0"] value 7895
+
+disk.partitions.avactive
+No value(s) available!
+
+disk.partitions.aveq
+No value(s) available!
+
+disk.partitions.blkread
+No value(s) available!
+
+disk.partitions.blktotal
+No value(s) available!
+
+disk.partitions.blkwrite
+No value(s) available!
+
+disk.partitions.read
+No value(s) available!
+
+disk.partitions.read_bytes
+No value(s) available!
+
+disk.partitions.read_merge
+No value(s) available!
+
+disk.partitions.read_rawactive
+No value(s) available!
+
+disk.partitions.total
+No value(s) available!
+
+disk.partitions.total_bytes
+No value(s) available!
+
+disk.partitions.total_rawactive
+No value(s) available!
+
+disk.partitions.write
+No value(s) available!
+
+disk.partitions.write_bytes
+No value(s) available!
+
+disk.partitions.write_merge
+No value(s) available!
+
+disk.partitions.write_rawactive
+No value(s) available!
+
+hinv.map.dmname
+No value(s) available!
+
+hinv.map.mdname
+    inst [1 or "home"] value "md1"
+    inst [N or "md0"] value "md0"
 
 == done
 

@@ -1,0 +1,109 @@
+#!/bin/sh
+# PCP QA Test No. 806
+# Check out clients for metrics with negative values.
+#
+# Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# sample.negative.ctr.m_32 old value=-9999 new value=-1000
+_filter_store()
+{
+    sed \
+	-e 's/old value=[^ ]* /old value=OLD /' \
+    # end
+}
+
+# e1: 1.00
+_filter_pmie()
+{
+    if [ "$1" = "ctr" ]
+    then
+	$PCP_AWK_PROG '
+$1 == "e1:" && $2 != "?"	{
+		  if ( $2 < 0.90 || $2 > 1.10)
+		    $2 = $2 " (bad)"
+		  else
+		    $2 = "OK"
+		}
+		{ print }'
+    else
+	cat
+    fi
+}
+
+#     0.998 
+_filter_pmval()
+{
+    if [ "$1" = "ctr" ]
+    then
+	$PCP_AWK_PROG '
+$1 == "host:"	{ next }
+NF == 1		{ if ( $1 < 0.90 || $1 > 1.10)
+		    $1 = $1 " (bad)"
+		  else
+		    $1 = "OK"
+		}
+		{ print }'
+    else
+	sed -e '/^host:/d'
+    fi
+}
+
+_filter_dbpmda()
+{
+    sed \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+	-e "s/\.$DSO_SUFFIX/.DSO_SUFFIX/g" \
+    # end
+}
+
+# real QA test starts here
+for m in m_32 m_64 m_float m_double
+do
+    for sem in ctr instant discrete
+    do
+	if [ "$sem" = ctr ]
+	then
+	    # for counters need longer sample interval to ensure rate
+	    # conversion is close to correct.
+	    #
+	    delta="1sec"
+	    end="2.5sec"
+	else
+	    delta="100msec"
+	    end="250msec"
+	fi
+	echo "=== $sem.$m ==="
+	pmstore sample.negative.$sem.$m -1000 | _filter_store
+	pminfo -f sample.negative.$sem.$m
+	pmprobe -v sample.negative.$sem.$m
+	echo "e1 = sample.negative.$sem.$m;" \
+	| pmie -t $delta -T $end -v 2>/dev/null \
+	| _filter_pmie $sem
+	pmval -t $delta -s 2 sample.negative.$sem.$m \
+	| _filter_pmval $sem
+	cat <<End-of-File | dbpmda -ei 2>&1 | _filter_dbpmda
+open dso $PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX sample_init 30
+getdesc on
+fetch sampledso.negative.$sem.$m
+End-of-File
+    done
+done
+
+# success, all done
+status=0
+
+exit

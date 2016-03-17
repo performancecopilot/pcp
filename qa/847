@@ -1,0 +1,46 @@
+#!/bin/sh
+# PCP QA Test No. 847
+# Basic tests for pcp-* containers
+#
+# Copyright (c) 2016 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.docker
+
+_check_containers
+which atomic >/dev/null 2>&1 || _notrun "no atomic command found"
+_check_docker_images pcp-collector pcp-pmlogger pcp-monitor pcp-pmie pcp-pmwebd
+
+status=0
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+echo "testing pcp-monitor container basic functionality (using local pmcd)"
+sudo atomic run pcp-monitor $PCP_BIN_DIR/pcp -h localhost >/dev/null 2>&1 || exit 1
+$docker rm `docker ps -aq` >/dev/null 2>&1
+
+sudo atomic run pcp-monitor $PCP_BIN_DIR/pcp iostat -s 2 -h localhost >/dev/null 2>&1 || exit 1
+$docker rm `docker ps -aq` >/dev/null 2>&1
+
+echo "testing pcp-pmwebd container basic functionality (using local pmcd)"
+sudo atomic run pcp-pmwebd >/dev/null 2>&1
+curl -Gs http://localhost:44323/pmapi/context?hostname=localhost >/dev/null 2>&1 || exit 1
+$docker kill `docker ps -aq` >/dev/null 2>&1
+$docker rm `docker ps -aq` >/dev/null 2>&1
+
+#
+# TODO launch pcp-collector and repeat above tests (i.e. using pmcd from pcp-collector)
+
+#
+# TODO similarily test pcp-pmlogger and pcp-pmie containers (using local pmcd and using pcp-collector)
+
+# success, all done
+status=0
+exit

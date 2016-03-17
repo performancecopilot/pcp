@@ -2,7 +2,7 @@
 #
 # Make whichever packages the system supports
 #
-# Copyright (c) 2012-2015 Red Hat.
+# Copyright (c) 2012-2016 Red Hat.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -20,8 +20,8 @@ topdir=`pwd`
 signed=false
 verbose=false
 srconly=false
-nonrpm=unknown
-nondeb=unknown
+dorpm=unknown
+dodeb=unknown
 vector=false
 webjs=false
 docker=false
@@ -67,6 +67,13 @@ gnu_tool()
 		    echo $exec
 		    return 0
 		fi
+		# special cases
+		#
+		if [ "$target" = openbsd -a $command = gzip ]
+		then
+		    echo $exec
+		    return 0
+		fi
 	    fi
 	done
 	echo >&2 "$prefix: can't find GNU $oldcmd in the commands $oldcmd or $@"
@@ -89,6 +96,8 @@ gnu_tool()
     return 0
 }
 
+target=`uname -s | tr 'A-Z' 'a-z'`
+
 export MAKE=`gnu_tool Error "$MAKE" make gmake`
 export TAR=`gnu_tool Warning "$TAR" tar gtar gnutar`
 export ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`
@@ -100,41 +109,7 @@ tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp" 0 1 2 3 15
 
 configure=./configure
-target=`uname -s | tr 'A-Z' 'a-z'`
-
-if [ -x /usr/bin/rpmbuild ]
-then
-    # On RPM-based platforms, rpm macros provide an excellent set of defaults.
-    # This set is based on Fedora 22 %configure macro from /usr/lib/rpm/macros,
-    # and is known to work as far back as RHEL5.
-    configopts=`rpmbuild --eval '--prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir}' 2>/dev/null`
-    # rpmbuild clears the environment, so force these settings into the
-    # rpm build configure
-    #
-    configopt="$configopts --with-make=$MAKE --with-tar=$TAR --with-zip=$ZIP"
-elif [ -f /etc/debian_version ]
-then
-    # On Debian-based platforms, the debian/rules file already captures
-    # most of the required configure settings in $(configure_paths)
-    #
-    configopts=''
-elif [ $target = darwin ]
-then
-    # On Mac OS X platforms, we install away from /usr/bin, /usr/lib
-    # and so on because of security requirements in recent versions.
-    #
-    configopts="--prefix=/usr/local --sysconfdir=/etc --localstatedir=/var"
-elif [ $target = netbsd ]
-then
-    # Try to mimic where pkgsrc/pkgin place things
-    #
-    configopts="--prefix=/usr/pkg --exec-prefix=/usr/pkg --mandir=/usr/pkg/man --with-rcdir=/etc/rc.d --localstatedir=/usr/pkg --with-rundir=/var/run --with-tmpdir=/var/tmp --with-logdir=/var/log/pcp"
-else
-    # Bog-standard options suitable for a package on any platform.
-    # Command line can be used to extend this set, and any unusual
-    # platform-specific requirements are also appended later on.
-    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
-fi
+cmdline_configopts=''
 
 for opt in $*
 do
@@ -148,11 +123,11 @@ do
 	shift
 	;;
     --nonrpm)
-	nonrpm=true
+	dorpm=false
 	shift
 	;;
     --nondeb)
-	nondeb=true
+	dodeb=false
 	shift
 	;;
     --signed)
@@ -169,12 +144,12 @@ do
 	shift
 	;;
     --with-vector)
-	configopts="$configopts $opt"
+	cmdline_configopts="$cmdline_configopts $opt"
 	vector=true
 	shift
 	;;
     --with-webjs)
-	configopts="$configopts $opt"
+	cmdline_configopts="$cmdline_configopts $opt"
 	webjs=true
 	shift
 	;;
@@ -196,43 +171,77 @@ do
 	;;
     *)
 	# Add remaining options to the ./configure command line
-	configopts="$configopts $opt"
+	cmdline_configopts="$cmdline_configopts $opt"
 	shift
 	;;
     esac
 done
 
-# now some specific QA/development hosts with special needs ...
+if [ $dorpm = unknown ]
+then
+    dorpm=false
+    [ -x /usr/bin/rpmbuild ] && dorpm=true
+fi
+if [ $dodeb = unknown ]
+then
+    dodeb=false
+    [ -x /usr/bin/dpkg-buildpackage ] && dodeb=true
+fi
+
+# Hmm ...
 #
-case `hostname`
-in
-    vm04|vm04.localdomain|vm11|vm11.localdomain)
-	# gcc -O2 is broken here (for the linux PMDA)
-	#
-	configopts="$configopts --with-optimization=no"
-	# over-ride the settings from dpkg-buildflags
-	#
-	export DEB_CFLAGS_SET=''
-	export DEB_CXXFLAGS_SET=''
-	;;
-esac
-
-if [ "$nonrpm" = "unknown" ]
+if $dodeb && $dorpm
 then
-    nonrpm=true
-    test -x /usr/bin/rpmbuild && nonrpm=false
-fi
-if [ "$nondeb" = "unknown" ]
-then
-    nondeb=true
-    test -x /usr/bin/dpkg-buildpackage && nondeb=false
+    echo >&2 "Do not know how to build RPM and Debian packages at the same time!"
+    echo >&2 "Suggest --nonrpm or --nondeb on the command line."
+    exit 1
 fi
 
+if $dodeb
+then
+    # On Debian-based platforms, the debian/rules file already captures
+    # most of the required configure settings in $(configure_paths)
+    #
+    configopts=''
+elif $dorpm
+then
+    # On RPM-based platforms, rpm macros provide an excellent set of defaults.
+    # This set is based on Fedora 22 %configure macro from /usr/lib/rpm/macros,
+    # and is known to work as far back as RHEL5.
+    configopts="`rpmbuild --eval '--prefix=%{_prefix} --exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir}' 2>/dev/null`"
+    # rpmbuild clears the environment, so force these settings into the
+    # rpm build configure
+    #
+    configopts="$configopts --with-make=$MAKE --with-tar=$TAR --with-zip=$ZIP"
+elif [ $target = darwin ]
+then
+    # On Mac OS X platforms, we install away from /usr/bin, /usr/lib
+    # and so on because of security requirements in recent versions.
+    #
+    configopts="--prefix=/usr/local --sysconfdir=/etc --localstatedir=/var"
+elif [ $target = netbsd ]
+then
+    # Try to mimic where pkgsrc/pkgin place things
+    #
+    configopts="--prefix=/usr/pkg --exec-prefix=/usr/pkg --mandir=/usr/pkg/man --with-rcdir=/etc/rc.d --localstatedir=/usr/pkg --with-rundir=/var/run --with-tmpdir=/var/tmp --with-logdir=/var/log/pcp"
+else
+    # Bog-standard options suitable for a package on any platform.
+    # Command line can be used to extend this set, and any unusual
+    # platform-specific requirements are also appended later on.
+    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+fi
+
+# Platform-specific variants ...
+#
 case "$target"
 in
     mingw|mingw64|windows)
 	target=mingw
-	nonrpm=true
+	if $dorpm
+	then
+	    echo >&2 "Warning: --dorpm ignored for Windows build"
+	fi
+	dorpm=false
 	configopts="$configopts --disable-ssp"
 	export configure="/usr/bin/mingw64-configure"
 	export MAKE="/usr/bin/mingw64-make"
@@ -250,6 +259,25 @@ in
 	export LEX=flex
 	;;
 esac
+
+# now some specific QA/development hosts with special needs ...
+#
+case `hostname`
+in
+    vm04|vm04.localdomain|vm11|vm11.localdomain)
+	# gcc -O2 is broken here (for the linux PMDA)
+	#
+	configopts="$configopts --with-optimization=no"
+	# over-ride the settings from dpkg-buildflags
+	#
+	export DEB_CFLAGS_SET=''
+	export DEB_CXXFLAGS_SET=''
+	;;
+esac
+
+# and finally add in any from the command line
+#
+[ -n "$cmdline_configopts" ] && configopts="$configopts $cmdline_configopts"
 
 . ./VERSION.pcp
 VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
@@ -506,6 +534,13 @@ debian_build()
     prepare_debian_control
     sanity_check_settings
     debian_buildpackage
+
+    # success!
+    if ! $verbose ; then
+	grep ^dpkg-deb $LOGDIR/pcp | \
+	    sed -e 's,\.$,,g' -e "s,',,g" -e "s,\.\.,$topdir/build/deb,g" | \
+	    awk '{ print "Wrote:", $NF }'
+    fi
     exit 0
 }
 
@@ -571,6 +606,8 @@ packaging_rpm()
 
     rm -f $tmp/failed
     export DIST_ROOT=${topdir}/build/rpm/${source}
+    # sign if --signed and $RPM_SIGN_KEYID set in the environment
+    $signed && [ -z "$RPM_SIGN_KEYID" ] && unset RPM_SIGN_KEYID
     if $verbose ; then
 	($MAKE -C build/rpm pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
     else
@@ -618,7 +655,7 @@ src_tar_build
 $srconly && exit 0
 
 # short-circuit for performing builds with dpkg-buildpackage
-$nondeb || debian_build
+$dodeb && debian_build
 
 prepare_build
 
@@ -632,12 +669,12 @@ configure_pcp
 
 # short-circuit for performing rpm-only builds with rpmbuild
 # (skips over the default_build stage as rpmbuild does that).
-if $nonrpm
+if $dorpm
 then
+    packaging_rpm
+else
     default_build	# perform a complete build in-situ
     packaging_pcp	# create all known package formats
-else
-    packaging_rpm
 fi
 
 #

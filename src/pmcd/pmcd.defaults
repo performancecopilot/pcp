@@ -14,5 +14,5 @@
 # In cases where pmdaroot is available, setting this variable to
 # 1, offloads starting and stopping of agents to pmdaroot.  This
 # allows pmcd to not require a restart when starting a new pmda.
-# PMCD_ROOT_AGENT=1
+PMCD_ROOT_AGENT=1
 

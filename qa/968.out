@@ -4,5 +4,9 @@ RuntimeError: pmGetOptions must be called first
 == check setmode
 == check import
 == check derive
-Generic error, already reported above ['@', '(disk.dev.read)']
+Impossible value or scale conversion Error: pmRegisterDerivedMetric("fuu", ...) syntax error
+rat(disk.dev.read)
+   ^
+Arithmetic operator expected
+
 == done

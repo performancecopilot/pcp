@@ -38,11 +38,13 @@ __pmEqualGroupIDs(__pmGroupID gid1, __pmGroupID gid2)
 int
 __pmValidUserID(__pmUserID uid)
 {
+    /* compiler may emit warning if uid is unsigned ... no known workaround */
     return uid >= 0;
 }
 
 int __pmValidGroupID(__pmGroupID gid)
 {
+    /* compiler may emit warning if gid is unsigned ... no known workaround */
     return gid >= 0;
 }
 

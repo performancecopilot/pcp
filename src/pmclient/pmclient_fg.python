@@ -1,6 +1,6 @@
-#! /usr/bin/pcp python
+#!/usr/bin/env pmpython
 #
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2016 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -122,14 +122,14 @@ class pmclient_fg(object):
         lines = 0
         while True:
             if samples >= 0:
-                samples -= 1
                 if samples == 0:
                     break
+                samples -= 1
 
             if lines % 15 == 0:
                 if self.typed == c_api.PM_CONTEXT_ARCHIVE:
-                    print ('Archive: %s, ' % self.opts.pmGetOptionArchives()[0], end='')
-                print ('Host: %s, %d cpu(s), %s' % (self.host, info.ncpu(), info.timestamp()))
+                    print('Archive: %s, ' % self.opts.pmGetOptionArchives()[0], end='')
+                print('Host: %s, %d cpu(s), %s' % (self.host, info.ncpu(), info.timestamp()))
 
                 # - report format
                 #  CPU  Busy    Busy  Free Mem   Disk     Load Average
@@ -139,11 +139,11 @@ class pmclient_fg(object):
                 print('  CPU', end='')
                 if info.ncpu() > 1:
                     print('  Busy    Busy', end='')
-                    print('  Free Mem   Disk     Load Average')
-                    print(' Util', end='')
-                    if info.ncpu() > 1:
-                        print('   CPU    Util', end='')
-                    print('  (Mbytes)   IOPS    1 Min  15 Min')
+                print('  Free Mem   Disk     Load Average')
+                print(' Util', end='')
+                if info.ncpu() > 1:
+                    print('   CPU    Util', end='')
+                print('  (Mbytes)   IOPS    1 Min  15 Min')
 
             if self.typed != c_api.PM_CONTEXT_ARCHIVE or self.pause:
                 self.ctx.pmtimevalSleep(interval)

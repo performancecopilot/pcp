@@ -187,6 +187,13 @@ typedef struct pmDesc {
 #define PM_ERR_THREAD		(-PM_ERR_BASE-53)   /* Operation not supported for multi-threaded applications */
 #define PM_ERR_NOCONTAINER	(-PM_ERR_BASE-54)   /* Container not found */
 #define PM_ERR_BADSTORE		(-PM_ERR_BASE-55)   /* Bad input to pmstore */
+#define PM_ERR_LOGOVERLAP	(-PM_ERR_BASE-56)   /* Archives overlap in time */
+#define PM_ERR_LOGHOST		(-PM_ERR_BASE-57)   /* Archives differ by host */
+#define PM_ERR_LOGTIMEZONE	(-PM_ERR_BASE-58)   /* Archives differ in time zone */
+#define PM_ERR_LOGCHANGETYPE	(-PM_ERR_BASE-59)   /* The type of a metric has changed in an archive */
+#define PM_ERR_LOGCHANGESEM	(-PM_ERR_BASE-60)   /* The semantics of a metric has changed in an archive */
+#define PM_ERR_LOGCHANGEINDOM	(-PM_ERR_BASE-61)   /* The instance domain of a metric has changed in an archive */
+#define PM_ERR_LOGCHANGEUNITS	(-PM_ERR_BASE-62)   /* The units of a metric have changed in an archive */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */
@@ -803,6 +810,7 @@ PCP_CALL extern void pmFreeOptions(pmOptions *);
  * Derived Metrics support
  */
 PCP_CALL extern int pmLoadDerivedConfig(const char *);
+PCP_CALL extern int pmRegisterDerivedMetric(const char *, const char *, char **);
 PCP_CALL extern char *pmRegisterDerived(const char *, const char *);
 PCP_CALL extern char *pmDerivedErrStr(void);
 

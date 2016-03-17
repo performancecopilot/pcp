@@ -1,6 +1,6 @@
 .\" Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
 .\" Copyright (c) 2008, Aconex.  All Rights Reserved.
-.\" Copyright (c) 2014, Red Hat.
+.\" Copyright (c) 2014-2016, Red Hat.
 .TH PMCHART 1 "" "Performance Co-Pilot"
 .SH NAME
 \f3pmchart\f1 \- strip chart tool for Performance Co-Pilot
@@ -34,7 +34,7 @@ on the unified time axis (X-axis), and through the use of multiple
 interface Tabs.
 .PP
 Metric values can be sourced from one or more live hosts
-(simultaneously).  Alternatively, one or more PCP archives
+(simultaneously).  Alternatively, one or more sets of PCP archives
 can be used as a source of historical data.
 See
 .BR PCPIntro (1)
@@ -49,7 +49,7 @@ In particular, the use of "views" (refer to the section describing
 VIEWS later in this document)
 allows predefined sets of metrics and charting parameters
 like colors, scaling, titles, legends, and so on to be stored for
-later use, or use with different hosts and archives.
+later use, or use with different hosts and sets of archives.
 In addition, the Preferences dialog allows customisations to the
 rest of the
 .B pmchart
@@ -70,14 +70,17 @@ Options which control the default source, timing and layout of the
 window are as follows:
 .TP 5
 .B \-a
-Performance metric values are retrieved from the Performance Co-Pilot
-(PCP) archive log file identified by the base name archive, by default.
+Performance metric values are retrieved from the set of Performance Co-Pilot
+(PCP) archive logs identified by this option, by default. The argument is
+a comma-separated list of names, each of which may be the base name of an
+archive or the name of a directory containing one or more archives. The
+resulting set of archives will be the source of the performance metrics.
 The initial Tab created will be an archive mode Tab.
 Multiple
 .B \-a
-options can be presented, and the list of archives is used for sourcing
-metric values.
-Any \f2sources\f1 listed on the command line are assumed to be archives
+options can be presented, and the resulting list of sets of archives is used
+for sourcing metric values.
+Any \f2sources\f1 listed on the command line are assumed to be sets of archives
 if this option is used.
 .TP
 .B \-c
@@ -147,7 +150,7 @@ if this option is used.
 Generate an image file named
 .IR outfile ,
 and then exit.
-This is most useful when run with an archive and one or more views.
+This is most useful when run with a set of archives and one or more views.
 The generated image will be in the format specified as the file
 extension (automatically determined from
 .IR outfile ).

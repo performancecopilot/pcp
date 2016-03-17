@@ -145,3 +145,6 @@ Sending Wed Oct 10 22:31:37 2007 #tuples 1
 Sending Wed Oct 10 22:31:38 2007 #tuples 1
 Sending Wed Oct 10 22:31:39 2007 #tuples 1
 Sending Wed Oct 10 22:31:40 2007 #tuples 1
+
+=== 6. pcp2graphite and latest pickle version ===
+Found pcp.hinv.ncpu in highest versioned pickled output

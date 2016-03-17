@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -43,6 +43,7 @@ enum {
 	LV_INDOM_DEPRECATED,	/* deprecated 22 - lvm devices. do not re-use. Use DM_INDOM instead */
 	ICMPMSG_INDOM,          /* 23 - icmp message types */
 	DM_INDOM,		/* 24 - device mapper devices */
+	MD_INDOM,		/* 25 - multi-device devices */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };
@@ -58,6 +59,7 @@ extern pmdaIndom *linux_pmda_indom(int);
  */
 extern char *linux_statspath;
 extern FILE *linux_statsfile(const char *, char *, int);
+extern char *linux_mdadm;
 
 /*
  * static string dictionary - one copy of oft-repeated strings;

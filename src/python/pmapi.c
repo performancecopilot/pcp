@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2015 Red Hat.
+ * Copyright (C) 2012-2016 Red Hat.
  * Copyright (C) 2009-2012 Michael T. Werner
  *
  * This file is part of the "pcp" module, the python interfaces for the
@@ -1073,6 +1073,12 @@ getOptionTimezone(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+static PyObject *
+getOptionHostZone(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("i", options.tzflag);
+}
+
 
 static PyMethodDef methods[] = {
     { .ml_name = "PM_XTB_SET",
@@ -1251,6 +1257,9 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmGetOptionTimezone",
 	.ml_meth = (PyCFunction) getOptionTimezone,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionHostZone",
+	.ml_meth = (PyCFunction) getOptionHostZone,
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetOptionArchive",
 	.ml_meth = (PyCFunction) setOptionArchive,

@@ -30,6 +30,7 @@ int             _creds_timeout = 3;     /* Timeout for agents credential PDU */
 int		connmode = NO_CONN;
 int		stmt_type;
 int		eflag;
+int		fflag;
 int		iflag;
 
 extern int yyparse(void);
@@ -38,7 +39,8 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("General options"),
     PMOPT_DEBUG,
     PMOPT_NAMESPACE,
-    { "creds-timeout", 1, 'q', "N", "initial negotiation timeout (seconds)" },
+    { "norc", 0, 'f', 0, "skip .dbpmdarc processing" },
+    { "creds-timeout", 1, 'q', "N", "initial negoptionsotiation timeout (seconds)" },
     { "username", 1, 'U', "USER", "run under named user account" },
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Input options"),
@@ -49,7 +51,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_POSIX,
-    .short_options = "q:D:ein:U:?",
+    .short_options = "q:D:efin:U:?",
     .long_options = longopts,
 };
 
@@ -91,6 +93,10 @@ main(int argc, char **argv)
 
 	case 'e':		/* echo input */
 	    eflag++;
+	    break;
+
+	case 'f':		/* skip .dbpmdarc processing */
+	    fflag++;
 	    break;
 
 	case 'i':		/* be interactive */

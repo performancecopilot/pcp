@@ -20,6 +20,7 @@
 #include <values.h>
 #endif
 #include <float.h>
+#include <math.h>
 
 #ifndef HAVE_STRTOLL
 static __int64_t
@@ -148,7 +149,7 @@ __pmStringValue(const char *buf, pmAtomValue *avp, int type)
 		}
 		else {
 		    d = strtod(buf, &endbuf);
-		    if (d < FLT_MIN || d > FLT_MAX) {
+		    if (fabs(d) < FLT_MIN || fabs(d) > FLT_MAX) {
 			setoserror(ERANGE);
 		    } else {
 			avp->f = (float)d;

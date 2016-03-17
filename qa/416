@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+[ -f $PCP_PMDAS_DIR/news/pmdanews.pl ] || _notrun "news pmda not installed"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -45,7 +46,9 @@ _filter2()
     rm -f $tmp.0 $tmp.1 $tmp.2 $tmp.3 $tmp.4
     ${PCP_AWK_PROG} '
 BEGIN		{ part=0 }
-		{ print $0 >"'$tmp.'" part }
+		{ outname = "'$tmp.'" part
+		  print $0 >outname
+		}
 part==0 && /^Metric: news$/			{ part=1; next }
 part==1 && /> children news.articles$/		{ part=2; next }
 part==2 && /^Metric: news.articles$/		{ part=3; next }
@@ -96,7 +99,7 @@ cd $home/news
 
 # real QA test starts here
 
-cat <<End-of-File | $sudo dbpmda -ie -n $tmp.pmns >$tmp.out 2>&1
+cat <<End-of-File | $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -ie -n $tmp.pmns" >$tmp.out 2>&1
 open pipe `which perl` `pwd`/pmdanews.pl
 traverse news
 children news.articles

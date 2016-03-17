@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014-2015 Red Hat.  All Rights Reserved.
+.\" Copyright (c) 2014-2016 Red Hat.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -29,6 +29,7 @@
 [\f3\-s\f1 \f2samples\f1 \f3--samples=\f2N\f1]
 [\f3\-T\f1 \f2endtime\f1 \f3--finish=\f2TIME\f1]
 [\f3\-t\f1 \f2interval\f1 \f3--interval=\f2DELTA\f1]
+[\f3\-u\f1 \f3--no-interpolate\f1]
 [\f3\-Z\f1 \f2timezone\f1 \f3--timezone=\f2TZ\f1]
 [\f3\-z\f1 \f3--hostzone\f1]
 [\f3\-?\f1 \f3--help\f1]
@@ -75,8 +76,12 @@ are as follows:
 .TP 5
 .B \-a
 Performance metric values are retrieved from the Performance Co-Pilot (PCP)
-archive log file identified by the base name
-.IR archive .
+archive log files identified by the argument
+.IR archive ,
+which is a comma-separated list of
+names, each of which may be the base name of an archive or the name of a
+directory containing one or more archives. See also
+.BR \-u .
 .TP
 .B \-h
 Current performance metric values are retrieved from the nominated
@@ -94,7 +99,7 @@ is 0 or
 is not specified, 
 .B pcp-iostat
 will sample and report continuously (in real time mode) or until the end
-of the PCP archive (in archive mode).
+of the set of PCP archives (in archive mode).
 .TP
 .B \-t
 The default update \f2interval\f1 may be set to something other than the
@@ -105,12 +110,47 @@ argument follows the syntax described in
 .BR PCPIntro (1),
 and in the simplest form may be an unsigned integer (the implied
 units in this case are seconds).
-The \f3-t\fP option is particularly useful when replaying large archives (\f3-a\fP option) that span several hours or even days.
+The \f3-t\fP option is particularly useful when replaying large sets of
+archives (\f3-a\fP option) that span several hours or even days.
 In this case specifying a large
 .I interval
 (e.g. 1h for 1 hour)
 will reduce the volume of data reported and the i/o statistics will be averaged (interpolated) over
-the reporting interval.
+the reporting interval (unless the
+.B \-u
+option is specified, see below).
+.TP
+.B \-u
+When replaying a set of archives, by default values are reported
+according to the selected sample interval (\c
+.B \-t
+option), not according to the actual record intervals in the set of archives.
+To this effect PCP interpolates the values to be reported based on the
+records in the set of archives, and is particularly useful when the
+.B \-t
+option is used to replay a set of archives with a longer sampling interval than
+the underlying interval the set of archives was originally recorded with.
+With the
+.B \-u
+option,
+uninterpolated reporting is enabled - every value is reported
+according to the native recording interval in the set of archives.
+When the
+.B \-u
+option is specified, the
+.B \-t
+option makes no sense and is incompatible because the replay interval
+is always the same as the recording interval in the set of archive.
+In addition,
+.B \-u
+only makes sense when replaying a set of archives, see
+.B \-a
+above,
+and so if
+.B \-u
+is specified then
+.B \-a
+must also be specified.
 .TP
 .B \-Z
 By default,

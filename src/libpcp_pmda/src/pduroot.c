@@ -235,26 +235,29 @@ __pmdaSendRootPDUStart(int fd, int pid, int infd, int outfd,
     if (namelen > 0)
 	strncpy(pdu.name, name, namelen);
 
+    memset(&msgh, 0, sizeof(msgh));
     msgh.msg_iov = &iov;
     msgh.msg_iovlen = 1;
     iov.iov_base = &pdu;
     iov.iov_len = sizeof(pdu) - sizeof(pdu.args);
 
-    msgh.msg_name = NULL;
-    msgh.msg_namelen = 0;
+    memset(&control_un, 0, sizeof(control_un));
     msgh.msg_control = control_un.control;
     msgh.msg_controllen = sizeof(control_un.control);
 
     cmhp = CMSG_FIRSTHDR(&msgh);
-    cmhp->cmsg_len = CMSG_LEN(sizeof(iofds));
     cmhp->cmsg_level = SOL_SOCKET;
     cmhp->cmsg_type = SCM_RIGHTS;
 
-    iofds[0] = infd;
-    iofds[1] = outfd;
-    ioptr = (int *)CMSG_DATA(cmhp);
-    memcpy(ioptr, iofds, sizeof(iofds));
-
+    if (infd < 0 || outfd < 0) {
+	cmhp->cmsg_len = CMSG_LEN(0);
+    } else {
+	cmhp->cmsg_len = CMSG_LEN(sizeof(iofds));
+	iofds[0] = infd;
+	iofds[1] = outfd;
+	ioptr = (int *)CMSG_DATA(cmhp);
+	memcpy(ioptr, iofds, sizeof(iofds));
+    }
     __pmIgnoreSignalPIPE();
     return sendmsg(fd, &msgh, MSG_NOSIGNAL);
 }
@@ -309,24 +312,18 @@ __pmdaRecvRootPDUStart(int fd, void *buffer, int buflen)
 	return -E2BIG;
 
     cmhp = CMSG_FIRSTHDR(&msgh);
-    if (cmhp == NULL || cmhp->cmsg_len != CMSG_LEN(sizeof(iofds))) {
-	__pmNotifyErr(LOG_DEBUG, "bad cmsg header / message length");
-	return -EINVAL;
+    if (cmhp == NULL ||
+	cmhp->cmsg_len != CMSG_LEN(sizeof(iofds)) ||
+	cmhp->cmsg_level != SOL_SOCKET ||
+	cmhp->cmsg_type != SCM_RIGHTS) {
+	pdu->infd = -1;
+	pdu->outfd = -1;
+    } else {
+	ioptr = (int *)CMSG_DATA(cmhp);
+	memcpy(iofds, ioptr, sizeof(iofds));
+	pdu->infd = iofds[0];
+	pdu->outfd = iofds[1];
     }
-    if (cmhp->cmsg_level != SOL_SOCKET) {
-        __pmNotifyErr(LOG_DEBUG,"unexpected cmsg_level, not SOL_SOCKET");
-	return -EINVAL;
-    }
-    if (cmhp->cmsg_type != SCM_RIGHTS) {
-        __pmNotifyErr(LOG_DEBUG,"unexpected cmsg_type, not SCM_RIGHTS");
-	return -EINVAL;
-    }
-
-    ioptr = (int *)CMSG_DATA(cmhp);
-    memcpy(iofds, ioptr, sizeof(iofds));
-    pdu->infd = iofds[0];
-    pdu->outfd = iofds[1];
-
     return sts;
 }
 #else

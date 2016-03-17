@@ -92,7 +92,7 @@ _shutdown()
     # connections and then exit.
     # Wait for pmwebd to terminate.
     #
-    pmsignal -a -s TERM pmwebd > /dev/null 2>&1
+    pmsignal -p -s TERM pmwebd > /dev/null 2>&1
     $ECHO $PCP_ECHO_N "Waiting for pmwebd to terminate ...""$PCP_ECHO_C"
     gone=0
     for i in 1 2 3 4 5 6

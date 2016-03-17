@@ -49,6 +49,7 @@ perfevent_install()
 	-e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
     | $PCP_AWK_PROG '
 /Check perfevent metrics have appeared/ { 
+                                          if ($7 >= 8) $7 = "X"
                                           if ($10 >= 8) $10 = "Y"
                                         }
                                         { print }'

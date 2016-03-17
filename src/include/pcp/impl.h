@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -26,6 +26,9 @@
 #include <sys/time.h>
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+#ifdef HAVE_SYS_SELECT_H
+#include <sys/select.h>
 #endif
 #ifdef HAVE_NETINET_TCP_H
 #include <netinet/tcp.h>
@@ -247,7 +250,6 @@ typedef struct __pmnsTree {
     int			mark_state;   /* the total mark value for trimming */
 } __pmnsTree;
 
-
 /* used by pmnsmerge... */
 PCP_CALL extern __pmnsTree *__pmExportPMNS(void); 
 
@@ -427,6 +429,12 @@ typedef struct {
     int		l_numti;	/* (when reading) no. temporal index entries */
     __pmLogTI	*l_ti;		/* (when reading) temporal index */
     __pmnsTree	*l_pmns;        /* namespace from meta data */
+    /*
+     * This was added to the ABI in order to support multiple archives
+     * in a single context. In order to maintain ABI compatibility it must
+     * be at the end of this structure.
+     */
+    int		l_multi;	/* part of a multi-archive context */
 } __pmLogCtl;
 
 /* l_state values */
@@ -696,10 +704,21 @@ PCP_CALL extern __pmServerPresence *__pmServerAdvertisePresence(const char *, in
 PCP_CALL extern void __pmServerUnadvertisePresence(__pmServerPresence *);
 
 /*
+ * Minimal information to retain for each archive in a multi-archive context
+ */
+typedef struct {
+    char		*ml_name;	/* external log base name */
+    __pmTimeval		ml_starttime;	/* start time of the archive */
+    char		*ml_hostname;	/* name of collection host */
+    char		*ml_tz;		/* $TZ at collection host */
+} __pmMultiLogCtl;
+
+/*
  * Per-context controls for archives and logs
  */
 typedef struct {
-    __pmLogCtl		*ac_log;	/* global logging and archive control */
+    __pmLogCtl		*ac_log;	/* Current global logging and archive
+					   control */
     long		ac_offset;	/* fseek ptr for archives */
     int			ac_vol;		/* volume for ac_offset */
     int			ac_serial;	/* serial access pattern for archives */
@@ -709,6 +728,16 @@ typedef struct {
     void		*ac_unbound;	/* used in interp.c */
     void		*ac_cache;	/* used in interp.c */
     int			ac_cache_idx;	/* used in interp.c */
+    /*
+     * These were added to the ABI in order to support multiple archives
+     * in a single context. In order to maintain ABI compatibility they must
+     * be at the end of this structure.
+     */
+    int			ac_mark_done;	/* mark record between archives */
+					/*   has been generated */
+    int			ac_num_logs;	/* The number of archives */
+    int			ac_cur_log;	/* The currently open archive */
+    __pmMultiLogCtl	**ac_log_list;	/* Current set of archives */
 } __pmArchCtl;
 
 /*
@@ -752,6 +781,9 @@ PCP_CALL extern void __pmDumpContext(FILE *, int, pmInDom);
 PCP_CALL extern int __pmPrepareFetch(__pmContext *, int, const pmID *, pmID **);
 PCP_CALL extern int __pmFinishResult(__pmContext *, int, pmResult **);
 PCP_CALL extern int __pmFetchLocal(__pmContext *, int, pmID *, pmResult **);
+
+/* Archive context helper. */
+int __pmFindOrOpenArchive(__pmContext *, const char *, int);
 
 /*
  * Protocol data unit support
@@ -1063,6 +1095,16 @@ PCP_CALL extern int __pmLogLoadIndex(__pmLogCtl *);
 PCP_CALL extern int __pmLogLoadMeta(__pmLogCtl *);
 PCP_CALL extern void __pmLogClose(__pmLogCtl *);
 PCP_CALL extern void __pmLogCacheClear(FILE *);
+PCP_CALL extern char *__pmLogBaseName(char *);
+
+PCP_CALL extern __pmTimeval *__pmLogStartTime(__pmArchCtl *);
+PCP_CALL extern int __pmLogChangeArchive(__pmContext *, int);
+PCP_CALL extern int __pmLogCheckForNextArchive(__pmLogCtl *, int, pmResult **);
+PCP_CALL extern int __pmLogGenerateMark(__pmLogCtl *, int, pmResult **);
+
+PCP_CALL extern int __pmLogChangeToNextArchive(__pmLogCtl **);
+PCP_CALL extern int __pmLogChangeToPreviousArchive(__pmLogCtl **);
+PCP_CALL extern void __pmArchCtlFree (__pmArchCtl *);
 
 PCP_CALL extern int __pmLogPutDesc(__pmLogCtl *, const pmDesc *, int, char **);
 PCP_CALL extern int __pmLogLookupDesc(__pmLogCtl *, pmID, pmDesc *);
@@ -1081,6 +1123,7 @@ PCP_CALL extern void __pmFreeInterpData(__pmContext *);
 
 PCP_CALL extern int __pmLogChangeVol(__pmLogCtl *, int);
 PCP_CALL extern int __pmLogChkLabel(__pmLogCtl *, FILE *, __pmLogLabel *, int);
+PCP_CALL extern int __pmGetArchiveLabel(__pmLogCtl *, pmLogLabel *);
 PCP_CALL extern int __pmGetArchiveEnd(__pmLogCtl *, struct timeval *);
 
 /* struct for maintaining information about pmlogger ports */
