@@ -59,6 +59,8 @@ walking queue#0 events for client#1
 end walk queue#0
 event queue#0 count=0, bytes=0, clients=1, mem=0
 [DATE] pmdaqueue(PID) Debug: pmdaEventEndClient ctx=1 slot=0
+[DATE] pmdaqueue(PID) Debug: queue_cleanup: queue0 numclients=1
+[DATE] pmdaqueue(PID) Debug: queue_cleanup: queue0 final shutdown=0
 end client(1) -> 0
 event queue#0 count=0, bytes=0, clients=0, mem=0
 
@@ -82,6 +84,8 @@ queue#0 client#1 event: 0xADDR, size=24 check=ok
 [DATE] pmdaqueue(PID) Debug: Removing queue0 event 0xADDR in fetch
 end walk queue#0
 [DATE] pmdaqueue(PID) Debug: pmdaEventEndClient ctx=1 slot=0
+[DATE] pmdaqueue(PID) Debug: queue_cleanup: queue0 numclients=1
+[DATE] pmdaqueue(PID) Debug: queue_cleanup: queue0 final shutdown=0
 end client(1) -> 0
 event queue#0 count=1, bytes=24, clients=0, mem=0
 
@@ -254,6 +258,8 @@ walking queue#2 events for client#21
 [DATE] pmdaqueue(PID) Debug: queue_fetch start, last event=(nil)
 end walk queue#2
 [DATE] pmdaqueue(PID) Debug: pmdaEventEndClient ctx=84 slot=0
+[DATE] pmdaqueue(PID) Debug: queue_cleanup: queue0 numclients=1
+[DATE] pmdaqueue(PID) Debug: queue_cleanup: queue0 final shutdown=0
 end client(84) -> 0
 [DATE] pmdaqueue(PID) Debug: Appending event: queue#2 "queue2" (328 bytes)
 [DATE] pmdaqueue(PID) Debug: Inserted queue2 event 0xADDR (328 bytes) clients = 1
@@ -271,6 +277,7 @@ add event(queue1,227) -> 0 [TIME]
 [DATE] pmdaqueue(PID) Debug: pmdaEventNewClient: slot=0 (total=3) context=84
 new client(84) -> 0
 [DATE] pmdaqueue(PID) Debug: pmdaEventEndClient ctx=42 slot=1
+[DATE] pmdaqueue(PID) Debug: queue_cleanup: queue1 numclients=2
 end client(42) -> 0
 new client(21) -> 2
 event queue#0 count=4, bytes=305, clients=0, mem=0
@@ -353,6 +360,8 @@ walking queue#2 events for client#21
 [DATE] pmdaqueue(PID) Debug: queue_fetch start, last event=(nil)
 end walk queue#2
 [DATE] pmdaqueue(PID) Debug: pmdaEventEndClient ctx=84 slot=0
+[DATE] pmdaqueue(PID) Debug: queue_cleanup: queue0 numclients=1
+[DATE] pmdaqueue(PID) Debug: queue_cleanup: queue0 final shutdown=0
 end client(84) -> 0
 [DATE] pmdaqueue(PID) Debug: Appending event: queue#2 "queue2" (328 bytes)
 [DATE] pmdaqueue(PID) Debug: Inserted queue2 event 0xADDR (328 bytes) clients = 1
@@ -370,6 +379,7 @@ add event(queue1,227) -> 0 [TIME]
 [DATE] pmdaqueue(PID) Debug: pmdaEventNewClient: slot=0 (total=3) context=84
 new client(84) -> 0
 [DATE] pmdaqueue(PID) Debug: pmdaEventEndClient ctx=42 slot=1
+[DATE] pmdaqueue(PID) Debug: queue_cleanup: queue1 numclients=2
 end client(42) -> 0
 new client(21) -> 2
 event queue#0 count=4, bytes=305, clients=0, mem=0

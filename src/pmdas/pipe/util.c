@@ -1,7 +1,7 @@
 /*
  * Utility functions for the pipe PMDA.
  *
- * Copyright (c) 2015 Red Hat.
+ * Copyright (c) 2015-2016 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -70,6 +70,8 @@ start_cmd(const char *cmd, const char *usr, pid_t *ppid)
     /* Create the new process. */
     child_pid = fork();
     if (child_pid == 0) {		/* child process */
+	struct timeval	short_delay = { 0, 500 };
+
 	/*
 	 * Duplicate our pipe fd onto stdout of the child. Note that
 	 * this clears O_CLOEXEC, so the new stdout should stay open
@@ -91,6 +93,13 @@ start_cmd(const char *cmd, const char *usr, pid_t *ppid)
 
 	/* Switch to user account under which command is to run. */
 	__pmSetProcessIdentity(usr);
+
+	/*
+	 * Insert a short delay to let the PMDA complete other PDU
+	 * processing after starting the child and be prepared for
+	 * events to arrive.
+	 */
+	__pmtimevalSleep(short_delay);
 
 	/* Actually run the command. */
 	execl("/bin/sh", "sh", "-c", cmd, (char *)NULL);
@@ -130,7 +139,10 @@ stop_cmd(pid_t pid)
     /* Wait for the process to go away. */
     do {
 	wait_pid = waitpid(pid, &wstatus, 0);
-	__pmNotifyErr(LOG_INFO, "stop_cmd: waitpid returned %d", (int)wait_pid);
+	wstatus = WIFEXITED(wstatus) ? WEXITSTATUS(wstatus) : 0;
+	if (pmDebug & DBG_TRACE_APPL0)
+	    __pmNotifyErr(LOG_INFO, "stop_cmd: waitpid pid=%d, sts=%d",
+			    (int)wait_pid, wstatus);
     } while (wait_pid == -1 && errno == EINTR);
 
     /* Return process exit status. */
@@ -148,9 +160,11 @@ wait_cmd(pid_t pid)
 
     /* Check whether the process has gone away. */
     wait_pid = waitpid(pid, &wstatus, WNOHANG);
+    wstatus = WIFEXITED(wstatus) ? WEXITSTATUS(wstatus) : 0;
 
     if (pmDebug & DBG_TRACE_APPL0)
-	__pmNotifyErr(LOG_INFO, "wait_cmd: waitpid returned %d", (int)wait_pid);
+	__pmNotifyErr(LOG_INFO, "wait_cmd: waitpid pid=%d, sts=%d",
+			(int)wait_pid, wstatus);
 
     /* Return process status. */
     return wait_pid == pid ? wstatus : -1;
