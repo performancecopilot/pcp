@@ -35,6 +35,8 @@ install_pcp install: default
 	$(INSTALL) -m 755 Install Remove connect.pl $(PMDADIR)
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
 	$(INSTALL) -m 644 sample.conf $(PMDADIR)/sample.conf
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
 	@$(INSTALL_MAN)
 else
 build-me:

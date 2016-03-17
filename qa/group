@@ -1134,6 +1134,7 @@ cgroups
 946 pmfind avahi local
 947 pmlogger local
 948 pmlogger context_local local 
+949 python local
 950 pmproxy avahi local
 951 pmie local pmval
 955 pmda.linux local

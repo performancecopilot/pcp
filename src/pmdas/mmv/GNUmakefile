@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013,2016 Red Hat.
 # Copyright (c) 2009-2010 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -58,6 +58,8 @@ install_pcp install :: $(SUBDIRS)
 	$(INSTALL) -m 644 Makefile.demos $(DEMODIR)/Makefile
 	$(INSTALL) -m 644 README.demos $(DEMODIR)/README
 	$(INSTALL) -m 644 $(CFILES) $(LCFILES) $(DEMODIR)
+	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+	$(INSTALL) -m 644 pmlogconf.summary $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)/summary
 
 # check-build only, binary not installed (but source is)
 $(LTARGET):	acme.c
