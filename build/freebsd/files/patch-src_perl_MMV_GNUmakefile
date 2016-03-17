@@ -1,10 +1,13 @@
+diff --git a/src/perl/MMV/GNUmakefile b/src/perl/MMV/GNUmakefile
+index ebeb208..1dd92de 100644
 --- src/perl/MMV/GNUmakefile
 +++ src/perl/MMV/GNUmakefile
-@@ -55,7 +55,6 @@ include $(BUILDRULES)
- install: default
- ifneq "$(PACKAGE_DISTRIBUTION)" "debian"
- 	$(call PERL_GET_FILELIST,$(TOPDIR)/perl-pcp-mmv.list,MMV)
+@@ -59,7 +59,7 @@ ifeq "$(PACKAGE_DISTRIBUTION)" "openbsd"
+ else
+ 	$(call PERL_GET_FILELIST,install,$(TOPDIR)/perl-pcp-mmv.list,MMV)
+ endif
 -	find $$DIST_ROOT -name server.pl -exec chmod 755 '{}' ';'
++	#find $$DIST_ROOT -name server.pl -exec chmod 755 '{}' ';'
  endif
  
  install_perl:
