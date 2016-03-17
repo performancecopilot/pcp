@@ -16,6 +16,9 @@ echo "QA output created by $seq"
 [ -d $PCP_PMDAS_DIR/slurm ] || _notrun "slurm PMDA directory is not installed"
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+perl -e "use threads::shared" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl threads::shared module not installed"
+
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
