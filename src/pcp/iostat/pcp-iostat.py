@@ -54,6 +54,11 @@ class IostatReport(pmcc.MetricGroupPrinter):
         return dict(map(lambda x: (x[1], x[2]), group[name].netPrevValues))
 
     def report(self, manager):
+        precision = IostatOptions.Pflag
+        if precision < 0 or precision > 10 :
+           print("Precision value must be between 0 and 10")
+           raise pmapi.pmUsageErr
+
         if 'dm' in IostatOptions.xflag:
             subtree = 'disk.dm'
         else:
@@ -94,13 +99,38 @@ class IostatReport(pmcc.MetricGroupPrinter):
 
         c_avactive = self.curVals(group, subtree + '.avactive')
         p_avactive = self.prevVals(group, subtree + '.avactive')
+        
+        if precision == 1:
+           utilspace=precision+5
+           avgrqszspace=precision+7
+           awaitspace=precision+6
+           rrqmspace=precision+5
+           wrqmspace=precision+5
+           headfmtavgspace=precision+7
+           headfmtquspace=precision+7
+        elif precision == 0:
+           utilspace=precision+5
+           avgrqszspace=precision+8
+           awaitspace=precision+7
+           rrqmspace=precision+6
+           wrqmspace=precision+6
+           headfmtavgspace=avgrqszspace
+           headfmtquspace=precision+8
+        else:
+           utilspace=precision+5
+           avgrqszspace=precision+6
+           awaitspace=precision+5
+           rrqmspace=precision+5
+           wrqmspace=precision+5
+           headfmtavgspace=avgrqszspace
+           headfmtquspace=precision+6
 
         if "t" in IostatOptions.xflag:
-            headfmt = "%-24s %-12s %7s %7s %6s %6s %8s %8s %8s %8s %7s %7s %7s %5s"
-            valfmt = "%-24s %-12s %7.1f %7.1f %6.1f %6.1f %8.1f %8.1f %8.2f %8.2f %7.1f %7.1f %7.1f %5.1f"
+            headfmt = "%-24s %-12s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s"
+            valfmt = "%-24s %-12s %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f"
         else:
-            headfmt = "%-12s %7s %7s %6s %6s %8s %8s %8s %8s %7s %7s %7s %5s"
-            valfmt = "%-12s %7.1f %7.1f %6.1f %6.1f %8.1f %8.1f %8.2f %8.2f %7.1f %7.1f %7.1f %5.1f"
+            headfmt = "%-12s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s"
+            valfmt = "%-12s %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f"
 
         if "h" not in IostatOptions.xflag:
             self.Hcount += 1
@@ -108,11 +138,13 @@ class IostatReport(pmcc.MetricGroupPrinter):
                 self.Hcount = 1
             if self.Hcount == 1:
                 if "t" in IostatOptions.xflag:
-                    heading = ('# Timestamp', 'Device', 'rrqm/s', 'wrqm/s', 'r/s', 'w/s', 'rkB/s', 'wkB/s',
-                               'avgrq-sz', 'avgqu-sz', 'await', 'r_await', 'w_await', '%util')
+                    heading = ('# Timestamp', 'Device',rrqmspace, 'rrqm/s',wrqmspace, 'wrqm/s',precision+5, 'r/s',precision+4,\
+                    'w/s',precision+6, 'rkB/s',precision+6, 'wkB/s', avgrqszspace,'avgrq-sz',precision+6, 'avgqu-sz',precision+5, \
+                    'await',precision+5, 'r_await', precision+5,'w_await',utilspace, '%util')
                 else:
-                    heading = ('# Device', 'rrqm/s', 'wrqm/s', 'r/s', 'w/s', 'rkB/s', 'wkB/s',
-                               'avgrq-sz', 'avgqu-sz', 'await', 'r_await', 'w_await', '%util')
+                    heading = ('# Device',rrqmspace, 'rrqm/s',wrqmspace, 'wrqm/s',precision+5, 'r/s',precision+4, 'w/s'\
+                    ,precision+6, 'rkB/s',precision+6, 'wkB/s', avgrqszspace,'avgrq-sz',precision+6, 'avgqu-sz',precision+5,\
+                    'await',awaitspace, 'r_await',awaitspace, 'w_await',utilspace, '%util')
                 print(headfmt % heading)
 
         if p_rrqm == {} or p_wrqm == {} or p_r == {} or p_w == {} or \
@@ -120,7 +152,9 @@ class IostatReport(pmcc.MetricGroupPrinter):
            p_rkb == {} or p_wkb == {}:
             # no values for some metric (e.g. near start of archive)
             if "t" in IostatOptions.xflag:
-                print(headfmt % (timestamp, 'NODATA', '?', '?', '?', '?', '?', '?','?', '?', '?', '?', '?', '?'))
+                print(headfmt % (timestamp, 'NODATA',rrqmspace, '?',wrqmspace, '?',precision+5, '?',precision+4, '?',precision+6,\
+               '?',precision+6, '?',headfmtavgspace, '?',headfmtquspace, '?', precision+5, '?',awaitspace, '?',awaitspace, '?',\
+                utilspace, '?'))
             return
 
         try:
@@ -169,14 +203,24 @@ class IostatReport(pmcc.MetricGroupPrinter):
 
                 if "t" in IostatOptions.xflag:
                     if badcounters:
-                        print(headfmt % (timestamp, device, '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?'))
+                        print(headfmt % (timestamp, device,rrqmspace, '?',wrqmspace, '?',precision+5, '?',precision+4, '?',precision+6,\
+                        '?',precision+6, '?',headfmtavgspace, '?',headfmtquspace, '?', precision+5, '?',awaitspace, '?',\
+                        awaitspace, '?',utilspace, '?'))
                     else:
-                        print(valfmt % (timestamp, device, rrqm, wrqm, r, w, rkb, wkb, avgrqsz, avgqsz, await, r_await, w_await, util))
+                        print(valfmt % (timestamp, device,rrqmspace, precision, rrqm,wrqmspace,precision, wrqm,precision+5,precision,\
+                        r,precision+4,precision, w,precision+6,precision, rkb,precision+6,precision, wkb, avgrqszspace,precision+1 ,avgrqsz,\
+                        avgrqszspace,precision+1, avgqsz,precision+5,precision, await,awaitspace,precision, r_await,awaitspace,precision,\
+                        w_await,utilspace,precision, util))
                 else:
                     if badcounters:
-                        print(headfmt % (device, '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?', '?'))
+                        print(headfmt % (device,rrqmspace, '?',wrqmspace, '?',precision+5, '?',precision+4, '?',precision+6, '?',precision+6,\
+                        '?',headfmtavgspace, '?',headfmtquspace, '?', precision+5, '?',awaitspace, '?',awaitspace, '?',utilspace, '?'))
                     else:
-                        print(valfmt % (device, rrqm, wrqm, r, w, rkb, wkb, avgrqsz, avgqsz, await, r_await, w_await, util))
+                        print(valfmt % (device,rrqmspace, precision, rrqm,wrqmspace,precision, wrqm,precision+5,precision, r,precision+4,\
+                        precision, w,precision+6,precision, rkb,precision+6,precision, wkb,\
+                        avgrqszspace,precision+1 ,avgrqsz,avgrqszspace,precision+1, avgqsz,precision+5,precision, await,awaitspace,precision,\
+                        r_await,awaitspace,precision, w_await,utilspace,precision, util))
+
         except KeyError:
             # instance missing from previous sample
             pass
