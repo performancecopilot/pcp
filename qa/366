@@ -85,6 +85,8 @@ elasticsearch/summary
 postgresql/summary
 sqlserver/summary
 mysql/summary
+oracle/summary
+mmv/summary
 memory/proc-linux
 disk/perpartition
 End-of-File
