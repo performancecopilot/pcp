@@ -29,6 +29,7 @@
 [\f3\-s\f1 \f2samples\f1 \f3--samples=\f2N\f1]
 [\f3\-T\f1 \f2endtime\f1 \f3--finish=\f2TIME\f1]
 [\f3\-t\f1 \f2interval\f1 \f3--interval=\f2DELTA\f1]
+[\f3\-P\f1 \f2precision\f1 \f3--precision=\f2N\f1]
 [\f3\-u\f1 \f3--no-interpolate\f1]
 [\f3\-Z\f1 \f2timezone\f1 \f3--timezone=\f2TZ\f1]
 [\f3\-z\f1 \f3--hostzone\f1]
@@ -119,6 +120,10 @@ will reduce the volume of data reported and the i/o statistics will be averaged 
 the reporting interval (unless the
 .B \-u
 option is specified, see below).
+.TP
+.B \-P
+This indicates the number of decimals to print. The default precision \f2N\f1 may be set to something other than the
+default 2 decimals.
 .TP
 .B \-u
 When replaying a set of archives, by default values are reported
