@@ -101,7 +101,7 @@ import cpmapi as c_api
 # for interfacing with LIBPCP - the client-side C API
 import ctypes
 from ctypes import c_char, c_int, c_uint, c_long, c_char_p, c_void_p
-from ctypes import c_longlong, c_ulonglong, c_float, c_double
+from ctypes import c_float, c_double, c_int32, c_uint32, c_int64, c_uint64
 from ctypes import CDLL, POINTER, CFUNCTYPE, Structure, Union
 from ctypes import addressof, pointer, sizeof, cast, byref
 from ctypes import create_string_buffer, memmove
@@ -187,10 +187,19 @@ class pmUsageErr(Exception):
 # Section 3.5 - Performance Metric Values
 #
 
-# these hardcoded decls should be derived from <sys/time.h>
+# These hardcoded decls should be derived from <sys/time.h>, but no such
+# ctypes facility exists.  Particularly problematic is the tv_usec field
+# (which POSIX defines as having type suseconds_t) - this can be 32 bits
+# on some 64 bit platforms (hence c_long is not always correct).
+
+if c_api.HAVE_32BIT_SUSECONDS_T:
+    c_suseconds_t = c_uint32
+else:
+    c_suseconds_t = c_long
+
 class timeval(Structure):
     _fields_ = [("tv_sec", c_long),
-                ("tv_usec", c_long)]
+                ("tv_usec", c_suseconds_t)]
 
     def __init__(self, sec = 0, usec = 0):
         Structure.__init__(self)
@@ -267,10 +276,10 @@ class pmAtomValue(Union):
 
     Constants for specifying metric types are defined in module pmapi
     """
-    _fields_ = [("l", c_int),
-                ("ul", c_uint),
-                ("ll", c_longlong),
-                ("ull", c_ulonglong),
+    _fields_ = [("l", c_int32),
+                ("ul", c_uint32),
+                ("ll", c_int64),
+                ("ull", c_uint64),
                 ("f", c_float),
                 ("d", c_double),
                 ("cp", c_char_p),

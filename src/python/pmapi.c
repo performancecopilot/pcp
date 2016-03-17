@@ -1312,6 +1312,11 @@ MOD_INIT(cpmapi)
     dict_add(dict, "HAVE_BITFIELDS_LTOR", 0);
     dict_add(dict, "HAVE_BITFIELDS_RTOL", 1);
 #endif
+#ifdef HAVE_32BIT_SUSECONDS_T
+    dict_add(dict, "HAVE_32BIT_SUSECONDS_T", 1);
+#else
+    dict_add(dict, "HAVE_32BIT_SUSECONDS_T", 0);
+#endif
 
     dict_add(dict, "PM_SPACE_BYTE", PM_SPACE_BYTE);
     dict_add(dict, "PM_SPACE_KBYTE", PM_SPACE_KBYTE);
