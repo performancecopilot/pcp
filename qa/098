@@ -105,13 +105,17 @@ _do_cmds()
 x=3
 
 # real QA test starts here
-$sudo rm -f $tmp.0 $tmp.meta $tmp.index
+$sudo rm -f $tmp.0 $tmp.meta $tmp.index $seq.full
 
 # start pmlogger with the expected number of samples plus a few more
 # to detect extra log output
 #
 _start_up_pmlogger -t 0.5sec -L -s 30 -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1
 logger_pid=$pid
+
+echo "logger_pid=$pid" >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$here/$seq.full
+pmlc $logger_pid </dev/null >>$here/$seq.full
 
 sleep 2
 _do_cmds $logger_pid >$tmp.out 2>&1
@@ -136,7 +140,7 @@ then
     | _filter_dump \
     | sed -e 's/TIMESTAMP//' -e 's/^  *//' \
     | LC_COLLATE=POSIX sort -u
-    pmdumplog $tmp >$seq.full 2>&1
+    pmdumplog $tmp >>$here/$seq.full 2>&1
 else
     echo "Archive log is empty"
 fi

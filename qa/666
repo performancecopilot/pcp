@@ -69,7 +69,7 @@ date >>$seq.full
 echo "=== 1. prepare blank pmmgr config directory  ===" | tee -a $seq.full
 $sudo rm -rf $tmp.dir
 mkdir $tmp.dir
-$sudo chown pcp.pcp $tmp.dir
+$sudo chown pcp:pcp $tmp.dir
 $sudo chmod 777 $tmp.dir
 ls -ld $tmp.dir >>$seq.full
 
@@ -104,7 +104,7 @@ echo $tmp.dir >$tmp.dir/log-directory  # same dir
 
 date >>$seq.full
 echo "=== 5. restart pmcd a few times to get a bunch of pmlogger archives ===" | tee -a $seq.full
-for x in `seq 4`
+for x in 1 2 3 4
 do
     echo restart $x `date` >>$seq.full
     $sudo rm -f $tmp.dir/$hostname/config.pmie $tmp.dir/$hostname/config.pmlogger

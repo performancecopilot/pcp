@@ -93,10 +93,10 @@ $sudo $signal -a pmdadynamic >> $here/$seq.full 2>&1
 i=0
 while [ $i -lt 10 ]
 do
-    ps "$PCP_PS_ALL_FLAGS" >$tmp.tmp
+    $PCP_PS_PROG "$PCP_PS_ALL_FLAGS" >$tmp.tmp
     echo "ps probe #$i" >>$here/$seq.full
     egrep '[P]ID|[p]mdadynamic' $tmp.tmp >>$here/$seq.full
-    if grep "pmdadynamic.*defunct" $tmp.tmp >/dev/null
+    if egrep '(pmdadynamic.*defunct)|( Z .*pmdadynamic)' $tmp.tmp >/dev/null
     then
 	rm -f $tmp.tmp
 	break
