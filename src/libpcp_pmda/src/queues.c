@@ -1,7 +1,7 @@
 /*
  * Generic event queue support for PMDAs
  *
- * Copyright (c) 2011,2015 Red Hat.
+ * Copyright (c) 2011,2015-2016 Red Hat.
  * Copyright (c) 2011 Nathan Scott.  All rights reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -38,6 +38,9 @@ queue_lookup(int handle)
 	return NULL;
     if (queues[handle].inuse)
 	return &queues[handle];
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	__pmNotifyErr(LOG_DEBUG, "Client queue %s lookup but not inuse",
+			queues[handle].name);
     return NULL;
 }
 
@@ -434,6 +437,10 @@ queue_cleanup(int handle, event_clientq_t *clientq)
     if (!queue || !clientq->active)
 	return;
 
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	__pmNotifyErr(LOG_DEBUG, "queue_cleanup: %s numclients=%d",
+			queue->name, queue->numclients);
+
     event = clientq->last;
     while (event) {
 	next = TAILQ_NEXT(event, events);
@@ -451,6 +458,9 @@ queue_cleanup(int handle, event_clientq_t *clientq)
     }
 
     if (--queue->numclients <= 0) {
+	if (pmDebug & DBG_TRACE_LIBPMDA)
+	    __pmNotifyErr(LOG_DEBUG, "queue_cleanup: %s final shutdown=%d",
+			    queue->name, queue->shutdown);
 	if (queue->shutdown)
 	    queue_release(queue);
     }
@@ -463,6 +473,11 @@ pmdaEventQueueShutdown(int handle)
 
     if (!queue)
 	return -EINVAL;
+
+    if (pmDebug & DBG_TRACE_LIBPMDA)
+	__pmNotifyErr(LOG_DEBUG, "queue_shutdown: %s numclients=%d",
+			queue->name, queue->numclients);
+
     if (queue->numclients > 0)
 	queue->shutdown = 1;	/* defer until last client disconnects */
     else

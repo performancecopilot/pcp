@@ -1,7 +1,7 @@
 /*
  * Event support for the pipe performance metrics domain agent.
  *
- * Copyright (c) 2015 Red Hat.
+ * Copyright (c) 2015-2016 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -304,6 +304,9 @@ event_create(struct pipe_groot *pipe)
     static char		*buffer;
     static int		bufsize;
 
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_INFO, "event_create: fd=%d", pipe->fd);
+
     /*
      * Using a static (global) event buffer to hold initial read.
      * The aim is to reduce memory allocation until we know we'll
@@ -335,6 +338,11 @@ multiread:
     if (pipe->fd < 0)
     	return 0;
     bytes = read(pipe->fd, buffer + offset, bufsize - 1 - offset);
+
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_INFO, "event_create: read %d bytes on fd=%d",
+			(int)bytes, pipe->fd);
+
     /*
      * Ignore the error if:
      * - we've got EOF (0 bytes read)
@@ -368,6 +376,11 @@ multiread:
 	    continue;
 	*s = '\0';
 	bytes = (s+1) - p;
+
+	if (pmDebug & DBG_TRACE_APPL0)
+	    __pmNotifyErr(LOG_INFO, "event_create: append %d bytes to queue=%d",
+			(int)bytes, (int)pipe->queueid);
+
 	pmdaEventQueueAppend(pipe->queueid, p, bytes, &timestamp);
 	p = s + 1;
     }
@@ -469,6 +482,7 @@ event_child_shutdown(void)
 		pipe_clearfd(groot->fd);
 		event_create(groot);
 		close(groot->fd);
+		groot->fd = 0;
 	    }
 	    pmdaEventQueueShutdown(groot->queueid);
 	    groot->active = 0;
