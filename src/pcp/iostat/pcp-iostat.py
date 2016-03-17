@@ -40,9 +40,10 @@ IOSTAT_DM_METRICS = [ 'disk.dm.read', 'disk.dm.read_bytes',
 class IostatReport(pmcc.MetricGroupPrinter):
     Hcount = 0
     def timeStampDelta(self, group):
-        c = 1000000.0 * group.timestamp.tv_sec + group.timestamp.tv_usec
-        p = 1000000.0 * group.prevTimestamp.tv_sec + group.prevTimestamp.tv_usec
-        return (c - p) / 1000000.0
+        s = group.timestamp.tv_sec - group.prevTimestamp.tv_sec
+        u = group.timestamp.tv_usec - group.prevTimestamp.tv_usec
+        # u may be negative here, calculation is still correct.
+        return (s + u / 1000000.0)
 
     def instlist(self, group, name):
         return dict(map(lambda x: (x[1], x[2]), group[name].netValues)).keys()
