@@ -6,6 +6,8 @@ pcp-3.11.1 (18 March 2016)
     - libpcp_import: new pmiPutMark() API to write <mark> records
     - libpcp_import: check timestamp ordering in pmiPutResult too
     - pmieconf: rule to automate restarting of unresponsive PMDAs
+    - pmlogconf: automatically record Oracle database metrics
+    - pmlogconf: automatically record application mmap'd metrics
     - pmdadarwin: add a hinv.machine metric like other platforms have
     - pmdaelasticsearch: adjust to deal with elasticsearch API change
     - pmdaopenbsd: first working version, basic kernel metrics

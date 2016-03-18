@@ -233,7 +233,10 @@ class timespec(Structure):
     def __init__(self, sec = 0, nsec = 0):
         Structure.__init__(self)
         self.tv_sec = sec
-        self.tv_nsec = usec
+        self.tv_nsec = nsec
+
+    def __str__(self):
+        return "%.3f" % (float(self.tv_sec)+(float(self.tv_nsec)/1000000000.0))
 
 class tm(Structure):
     _fields_ = [("tm_sec", c_int),
