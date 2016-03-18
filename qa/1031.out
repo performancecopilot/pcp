@@ -16,6 +16,10 @@ dbpmda> desc slurm.node.job.name
 PMID: 23.1.2
     Data Type: string  InDom: 23.1 0x5c00001
     Semantics: instant  Units: none
+dbpmda> desc slurm.node.job.job_alloc_cores
+PMID: 23.1.16
+    Data Type: string  InDom: 23.1 0x5c00001
+    Semantics: instant  Units: none
 dbpmda> fetch slurm.numnodes
 PMID(s): 23.0.0
 pmResult ... numpmid: 1
@@ -30,5 +34,10 @@ dbpmda> fetch slurm.node.job.name
 PMID(s): 23.1.2
 pmResult ... numpmid: 1
   23.1.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
+    inst [4452824 or ???] value STRING
+dbpmda> fetch slurm.node.job.job_alloc_cores
+PMID(s): 23.1.16
+pmResult ... numpmid: 1
+  23.1.16 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [4452824 or ???] value STRING
 dbpmda> 
