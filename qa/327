@@ -36,7 +36,7 @@ test_and_repair()
 # real QA test starts here
 mkdir $tmp
 
-if [ $PCP_PLATFORM = darwin ]
+if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = freebsd ]
 then
     convert="conv=notrunc"
 else
