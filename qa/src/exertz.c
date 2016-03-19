@@ -30,6 +30,7 @@ main(int argc, char **argv)
     char	s[28];
 
     __pmSetProgname(argv[0]);
+    setlinebuf(stdout);
 
     now = 24 * 60 * 60;		/* epoch + 1 day */
     putenv("TZ=UTC");		/* sane starting point */
