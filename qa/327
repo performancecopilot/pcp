@@ -36,12 +36,15 @@ test_and_repair()
 # real QA test starts here
 mkdir $tmp
 
-if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = freebsd ]
-then
-    convert="conv=notrunc"
-else
-    convert="conv=nocreat,notrunc"
-fi
+case "$PCP_PLATFORM"
+in
+    darwin|freebsd)
+	convert="conv=notrunc"
+	;;
+    *)
+	convert="conv=nocreat,notrunc"
+	;;
+esac
 
 for suffix in 0 1 meta index
 do
