@@ -1,3 +1,5 @@
+pcp-3.11.2 (29 April 2016)
+
 pcp-3.11.1 (18 March 2016)
     - libpcp: multi-archive contexts (directory or comma-separated)
     - libpcp: fix corner case in loading PMNS causing duplicates
