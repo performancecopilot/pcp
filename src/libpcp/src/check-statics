@@ -339,7 +339,6 @@ tz.o
     zone			# guarded by __pmLock_libpcp mutex
     nzone			# guarded by __pmLock_libpcp mutex
     savetz			# guarded by __pmLock_libpcp mutex
-    savetzp			# guarded by __pmLock_libpcp mutex
     tzbuffer			# guarded by __pmLock_libpcp mutex
     ?wildabbr			# const (MinGW)
 units.o

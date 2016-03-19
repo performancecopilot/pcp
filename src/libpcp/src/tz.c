@@ -14,7 +14,7 @@
  * Thread-safe notes
  *
  * These routines manipulate the environment and call lots of routines
- * like localtime(), asctime(), gmtime(), getenv(), putenv() ... all of
+ * like localtime(), asctime(), gmtime(), getenv(), setenv() ... all of
  * which are not thread-safe.
  *
  * We use the big lock to prevent concurrent execution.
@@ -30,8 +30,7 @@
 static char	*envtz;			/* buffer in env */
 static int	envtzlen;
 
-static char	*savetz;		/* real $TZ from env */
-static char	**savetzp;
+static char	*savetz = NULL;		/* real $TZ from env */
 
 static int	nzone;			/* table of zones */
 static int	curzone = -1;
@@ -46,30 +45,41 @@ extern char **_environ;
 static void
 _pushTZ(void)
 {
-    char	**p;
+    char	*p;
 
-    savetzp = NULL;
-    for (p = _environ; *p != NULL; p++) {
-	if (strncmp(*p, "TZ=", 3) == 0) {
-	    savetz = *p;
-	    *p = envtz;
-	    savetzp = p;
-	    break;
-	}
+    if (savetz) {
+	/* don't need previous saved value any more */
+	free(savetz);
+	savetz = NULL;
     }
-    if (*p == NULL)
-	putenv(envtz);
+
+    p = getenv("TZ");
+    if (p != NULL)
+	/* save current value */
+	savetz = strdup(p);
+
+    setenv("TZ", envtz, 1);
     tzset();
+
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE))
+	fprintf(stderr, "_pushTZ() envtz=\"%s\" savetz=\"%s\" after TZ=\"%s\"\n", envtz, savetz, getenv("TZ"));
+#endif
 }
 
 static void
 _popTZ(void)
 {
-    if (savetzp != NULL)
-	*savetzp = savetz;
+    if (savetz != NULL)
+	setenv("TZ", savetz, 1);
     else
-	putenv("TZ=");
+	unsetenv("TZ");
     tzset();
+
+#ifdef PCP_DEBUG
+    if ((pmDebug & DBG_TRACE_CONTEXT) && (pmDebug & DBG_TRACE_DESPERATE))
+	fprintf(stderr, "_popTZ() savetz=\"%s\" after TZ=\"%s\"\n", savetz, getenv("TZ"));
+#endif
 }
 
 /*
@@ -121,19 +131,19 @@ __pmSquashTZ(char *tzbuffer)
 	if (mins == 0) {
 	    /* -3 for +HH in worst case */
 	    if (len > PM_TZ_MAXLEN-3) len = PM_TZ_MAXLEN-3;
-	    snprintf(tzbuffer+3, PM_TZ_MAXLEN, "%*.*s%+d", len, len, tzn, hours);
+	    snprintf(tzbuffer, PM_TZ_MAXLEN, "%*.*s%+d", len, len, tzn, hours);
 	}
 	else {
 	    /* -6 for +HH:MM in worst case */
 	    if (len > PM_TZ_MAXLEN-6) len = PM_TZ_MAXLEN-6;
-	    snprintf(tzbuffer+3, PM_TZ_MAXLEN, "%*.*s%+d:%02d", len, len, tzn, hours, mins);
+	    snprintf(tzbuffer, PM_TZ_MAXLEN, "%*.*s%+d:%02d", len, len, tzn, hours, mins);
 	}
     }
     else {
-	strncpy(tzbuffer+3, tzn, PM_TZ_MAXLEN);
-	tzbuffer[PM_TZ_MAXLEN+4-1] = '\0';
+	strncpy(tzbuffer, tzn, PM_TZ_MAXLEN);
+	tzbuffer[PM_TZ_MAXLEN] = '\0';
     }
-    putenv(tzbuffer);
+    setenv("TZ", tzbuffer, 1);
 
     PM_UNLOCK(__pmLock_libpcp);
     return;
@@ -226,15 +236,15 @@ __pmSquashTZ(char *tzbuffer)
 	fprintf(stderr, "Win32 TZ=%s\n", tzbuf);
 #endif
 
-    snprintf(tzbuffer+3, PM_TZ_MAXLEN, "%s", tzbuf);
-    putenv(tzbuffer);
+    snprintf(tzbuffer, PM_TZ_MAXLEN, "%s", tzbuf);
+    setenv("TZ", tzbuffer, 1);
 
     tzset();
     t = localtime(&now);
     tzn = tzname[(t->tm_isdst > 0)];
 
-    snprintf(tzbuffer+3, PM_TZ_MAXLEN, "%s%s", tzn, tzoff);
-    putenv(tzbuffer);
+    snprintf(tzbuffer, PM_TZ_MAXLEN, "%s%s", tzn, tzoff);
+    setenv("TZ", tzbuffer, 1);
 
     PM_UNLOCK(__pmLock_libpcp);
     return;
@@ -257,15 +267,15 @@ __pmTimezone(void)
 
     if (tzbuffer == NULL) {
 	/*
-	 * size is PM_TZ_MAXLEN + length of "TZ=" + null byte terminator
+	 * size is PM_TZ_MAXLEN + null byte terminator
 	 */
-	tzbuffer = (char *)malloc(PM_TZ_MAXLEN+4);
+	tzbuffer = (char *)malloc(PM_TZ_MAXLEN+1);
 	if (tzbuffer == NULL) {
 	    /* not much we can do here ... */
 	    PM_UNLOCK(__pmLock_libpcp);
 	    return NULL;
 	}
-	strcpy(tzbuffer, "TZ=");
+	tzbuffer[0] = '\0';
     }
 
     if (tz == NULL || tz[0] == ':') {
@@ -273,7 +283,7 @@ __pmTimezone(void)
 	 * it's an Olson-style TZ and it does not supported on all IRIXes, so
 	 * squash it into a simple one (pv#788431). */
 	__pmSquashTZ(tzbuffer);
-	tz = &tzbuffer[3];
+	tz = tzbuffer;
     } else if (strlen(tz) > PM_TZ_MAXLEN) {
 	/* TZ is too long to fit into the internal PCP timezone structs
 	 * let's try to sqash it a bit */
@@ -282,7 +292,7 @@ __pmTimezone(void)
 	if ((tb = strdup(tz)) == NULL) {
 	    /* sorry state of affairs, go squash w/out copying buffer */
 	    __pmSquashTZ(tzbuffer);
-	    tz = &tzbuffer[3];
+	    tz = tzbuffer;
 	}
 	else {
 	    char *ptz = tz;
@@ -299,11 +309,11 @@ __pmTimezone(void)
 	    if (strlen(tb) > PM_TZ_MAXLEN) { 
 		/* Still too long - let's pretend it's Olson */
 		__pmSquashTZ(tzbuffer);
-		tz = &tzbuffer[3];
+		tz = tzbuffer;
 	    } else {
-		strcpy(tzbuffer+3, tb);
-		putenv(tzbuffer);
-		tz = tzbuffer+3;
+		strcpy(tzbuffer, tb);
+		setenv("TZ", tzbuffer, 1);
+		tz = tzbuffer;
 	    }
 
 	    free(tb);
@@ -339,7 +349,7 @@ pmUseZone(const int tz_handle)
     }
 
     curzone = tz_handle;
-    strcpy(&envtz[3], zone[curzone]);
+    strcpy(envtz, zone[curzone]);
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
@@ -380,17 +390,17 @@ pmNewZone(const char *tz)
 	envtz = (char *)malloc(envtzlen);
 	strcpy(envtz, "TZ=");
     }
-    strcpy(&envtz[3], tz);
+    strcpy(envtz, tz);
     if (hack)
 	/* see above */
-	strcpy(&envtz[6], "+0");
+	strcat(envtz, "+0");
 
     curzone = nzone++;
     zone = (char **)realloc(zone, nzone * sizeof(char *));
     if (zone == NULL) {
 	__pmNoMem("pmNewZone", nzone * sizeof(char *), PM_FATAL_ERR);
     }
-    zone[curzone] = strdup(&envtz[3]);
+    zone[curzone] = strdup(envtz);
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT)
