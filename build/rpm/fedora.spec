@@ -2587,6 +2587,9 @@ cd
 %endif
 
 %changelog
+* Fri Apr 29 2016 Nathan Scott <nathans@redhat.com> - 3.11.2-1
+- Work-in-progress, see http://pcp.io/roadmap
+
 * Fri Mar 18 2016 Dave Brolley <brolley@redhat.com> - 3.11.1-1
 - Call Remove script when uninstalling individual PMDAs (BZ 1304722)
 - Restrict pmcd.services to checking known pcp services (BZ 1286361)
