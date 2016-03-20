@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.11.1
+Version: 3.11.2
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -1037,6 +1037,7 @@ Summary: Performance Co-Pilot (PCP) metrics for Simple Network Management Protoc
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Requires: perl(Net::SNMP)
+BuildRequires: perl(Net::SNMP)
 
 %description pmda-snmp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for

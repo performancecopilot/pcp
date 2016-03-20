@@ -46,7 +46,7 @@ root_cleanup()
 #
 _check()
 {
-    pminfo containers \
+    pminfo containers | LC_COLLATE=POSIX sort \
     | while read metric
     do
 	pminfo -f $metric >$tmp.tmp
@@ -89,7 +89,7 @@ $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
 echo "=== Checking empty containers configuration, no values"
-pmprobe -v containers
+pmprobe -v containers | LC_COLLATE=POSIX sort
 echo "== done" && echo
 
 tarballs=`echo $here/linux/containers-*.tgz | LC_COLLATE=POSIX sort`
