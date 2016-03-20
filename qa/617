@@ -14,16 +14,18 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.product
 
-if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
-then
-   PMDADSO=$PCP_PMDAS_DIR/sample/pmda_sample.so
-elif [ $PCP_PLATFORM = darwin ]
-then
-   PMDADSO=$PCP_PMDAS_DIR/sample/pmda_sample.dylib
-else
-    echo "Arrgh ... need customization for $PCP_PLATFORM"
-    exit 1
-fi
+case "$PCP_PLATFORM"
+in
+    linux|solaris|freebsd)
+       PMDADSO=$PCP_PMDAS_DIR/sample/pmda_sample.so
+       ;;
+    darwin)
+       PMDADSO=$PCP_PMDAS_DIR/sample/pmda_sample.dylib
+       ;;
+    *)
+	echo "Arrgh ... need DSO name customization for $PCP_PLATFORM"
+	exit 1
+esac
 export PMDADSO
 
 status=1	# failure is the default!

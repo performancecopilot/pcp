@@ -52,9 +52,11 @@ wait 3
 desc slurm.numnodes
 desc slurm.node.job.id
 desc slurm.node.job.name
+desc slurm.node.job.job_alloc_cores
 fetch slurm.numnodes
 fetch slurm.node.job.id
 fetch slurm.node.job.name
+fetch slurm.node.job.job_alloc_cores
 End-of-File
 
 echo === Testing perl pmda

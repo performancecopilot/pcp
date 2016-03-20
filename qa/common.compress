@@ -16,6 +16,7 @@ _filter_compression()
     sed \
 	-e '/: Undefined error: 0/s//: Success/' \
 	-e '/: Error 0/s//: Success/' \
+	-e '/: No error: 0/s//: Success/' \
 	-e '/: No such file or directory/s//: Success/' \
 	-e '/null.0.gz/s/unrecognized file format/unexpected end of file/' \
 	-e '/^[ 	]*$/d'

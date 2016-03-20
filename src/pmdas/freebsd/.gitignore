@@ -1,5 +1,6 @@
 domain.h
 help.dir
 help.pag
+help.sed
 pmda_freebsd.so
 pmdafreebsd
