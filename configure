@@ -689,10 +689,6 @@ pcp_pmcdconf_path
 pcp_sysconf_dir
 pcp_saslconf_dir
 pcp_etc_dir
-pytype_timespec_nsec
-pytype_timespec_sec
-pytype_timeval_usec
-pytype_timeval_sec
 lib_for_math
 lib_for_dlopen
 lib_for_rt
@@ -12082,6 +12078,54 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
     fi
 fi
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking sizeof suseconds_t" >&5
+$as_echo_n "checking sizeof suseconds_t... " >&6; }
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_suseconds_t
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
+#include <sys/time.h>
+main() { printf("%d", (int)sizeof(suseconds_t)); }
+End-of-File
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+    rm -rf conftest conftest.*
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
+$as_echo "$ans" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define SIZEOF_SUSECONDS_T $ans
+_ACEOF
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking sizeof time_t" >&5
+$as_echo_n "checking sizeof time_t... " >&6; }
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_time_t
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
+#include <sys/time.h>
+main() { printf("%d", (int)sizeof(time_t)); }
+End-of-File
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+    rm -rf conftest conftest.*
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
+$as_echo "$ans" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define SIZEOF_TIME_T $ans
+_ACEOF
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking sizeof long" >&5
 $as_echo_n "checking sizeof long... " >&6; }
 if test "$cross_compiling" = "yes"; then
@@ -13035,171 +13079,6 @@ then
     rm -rf conftest conftest.*
     exit 1
 fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Python type for tv_sec in struct timeval " >&5
-$as_echo_n "checking Python type for tv_sec in struct timeval ... " >&6; }
-ans=''
-if test "$cross_compiling" = "yes"; then
-    ans=$pytype_timeval_sec
-    echo "cross-compile -> \"$ans\"" >&5
-else
-    cat <<End-of-File >conftest.c
-#include <stdio.h>
-#include <sys/time.h>
-int main()
-{
-    struct timeval tv;
-    if (sizeof(tv.tv_sec) == sizeof(long))
-	printf("c_long\n");
-    else if (sizeof(tv.tv_sec) == sizeof(int))
-	printf("c_int\n");
-    else
-	/* output nothing */
-	;
-    return(0);
-}
-End-of-File
-    (eval $ac_link) 2>&5
-    if test -x ./conftest
-    then
-	ans=`./conftest`
-	echo "./conftest -> \"$ans\"" >&5
-    fi
-fi
-if test -z "$ans"
-then
-    echo 'FATAL ERROR: Cannot determine type for tv_sec from struct timeval'
-    rm -rf conftest conftest.*
-    exit 1
-fi
-pytype_timeval_sec="$ans"
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: \"$pytype_timeval_sec\"" >&5
-$as_echo "\"$pytype_timeval_sec\"" >&6; };
-
-rm -rf conftest.* conftest
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Python type for tv_usec in struct timeval " >&5
-$as_echo_n "checking Python type for tv_usec in struct timeval ... " >&6; }
-ans=''
-if test "$cross_compiling" = "yes"; then
-    ans=$pytype_timeval_usec
-    echo "cross-compile -> \"$ans\"" >&5
-else
-    cat <<End-of-File >conftest.c
-#include <stdio.h>
-#include <sys/time.h>
-int main()
-{
-    struct timeval tv;
-    if (sizeof(tv.tv_usec) == sizeof(long))
-	printf("c_long\n");
-    else if (sizeof(tv.tv_usec) == sizeof(int))
-	printf("c_int\n");
-    else
-	/* output nothing */
-	;
-    return(0);
-}
-End-of-File
-    (eval $ac_link) 2>&5
-    if test -x ./conftest
-    then
-	ans=`./conftest`
-	echo "./conftest -> \"$ans\"" >&5
-    fi
-fi
-if test -z "$ans"
-then
-    echo 'FATAL ERROR: Cannot determine type for tv_usec from struct timeval'
-    rm -rf conftest conftest.*
-    exit 1
-fi
-pytype_timeval_usec="$ans"
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: \"$pytype_timeval_usec\"" >&5
-$as_echo "\"$pytype_timeval_usec\"" >&6; };
-
-rm -rf conftest.* conftest
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Python type for tv_sec in struct timespec " >&5
-$as_echo_n "checking Python type for tv_sec in struct timespec ... " >&6; }
-ans=''
-if test "$cross_compiling" = "yes"; then
-    ans=$pytype_timespec_sec
-    echo "cross-compile -> \"$ans\"" >&5
-else
-    cat <<End-of-File >conftest.c
-#include <stdio.h>
-#include <sys/stat.h>
-int main()
-{
-    struct timespec tv;
-    if (sizeof(tv.tv_sec) == sizeof(long))
-	printf("c_long\n");
-    else if (sizeof(tv.tv_sec) == sizeof(int))
-	printf("c_int\n");
-    else
-	/* output nothing */
-	;
-    return(0);
-}
-End-of-File
-    (eval $ac_link) 2>&5
-    if test -x ./conftest
-    then
-	ans=`./conftest`
-	echo "./conftest -> \"$ans\"" >&5
-    fi
-fi
-if test -z "$ans"
-then
-    echo 'FATAL ERROR: Cannot determine type for tv_sec from struct timespec'
-    rm -rf conftest conftest.*
-    exit 1
-fi
-pytype_timespec_sec="$ans"
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: \"$pytype_timespec_sec\"" >&5
-$as_echo "\"$pytype_timespec_sec\"" >&6; };
-
-rm -rf conftest.* conftest
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking Python type for tv_nsec in struct timespec " >&5
-$as_echo_n "checking Python type for tv_nsec in struct timespec ... " >&6; }
-ans=''
-if test "$cross_compiling" = "yes"; then
-    ans=$pytype_timespec_nsec
-    echo "cross-compile -> \"$ans\"" >&5
-else
-    cat <<End-of-File >conftest.c
-#include <stdio.h>
-#include <sys/stat.h>
-int main()
-{
-    struct timespec tv;
-    if (sizeof(tv.tv_nsec) == sizeof(long))
-	printf("c_long\n");
-    else if (sizeof(tv.tv_nsec) == sizeof(int))
-	printf("c_int\n");
-    else
-	/* output nothing */
-	;
-    return(0);
-}
-End-of-File
-    (eval $ac_link) 2>&5
-    if test -x ./conftest
-    then
-	ans=`./conftest`
-	echo "./conftest -> \"$ans\"" >&5
-    fi
-fi
-if test -z "$ans"
-then
-    echo 'FATAL ERROR: Cannot determine type for tv_nsec from struct timespec'
-    rm -rf conftest conftest.*
-    exit 1
-fi
-pytype_timespec_nsec="$ans"
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: \"$pytype_timespec_nsec\"" >&5
-$as_echo "\"$pytype_timespec_nsec\"" >&6; };
-
-rm -rf conftest.* conftest
 
 
 pcp_etc_dir=`eval echo $sysconfdir`
@@ -15221,7 +15100,7 @@ fi
 
 
 
-ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf pcp.lsm debian/pcp.preinst.head debian/pcp.postinst.head build/tar/preinstall.head build/tar/postinstall.head build/GNUlocaldefs build/mac/uninstall-pcp src/python/pcp/pmapi.py"
+ac_config_files="$ac_config_files src/include/builddefs src/include/pcp.conf pcp.lsm debian/pcp.preinst.head debian/pcp.postinst.head build/tar/preinstall.head build/tar/postinstall.head build/GNUlocaldefs build/mac/uninstall-pcp"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -15924,7 +15803,6 @@ do
     "build/tar/postinstall.head") CONFIG_FILES="$CONFIG_FILES build/tar/postinstall.head" ;;
     "build/GNUlocaldefs") CONFIG_FILES="$CONFIG_FILES build/GNUlocaldefs" ;;
     "build/mac/uninstall-pcp") CONFIG_FILES="$CONFIG_FILES build/mac/uninstall-pcp" ;;
-    "src/python/pcp/pmapi.py") CONFIG_FILES="$CONFIG_FILES src/python/pcp/pmapi.py" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

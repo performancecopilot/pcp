@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.11.1
+Version: 3.11.2
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -1037,6 +1037,7 @@ Summary: Performance Co-Pilot (PCP) metrics for Simple Network Management Protoc
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Requires: perl(Net::SNMP)
+BuildRequires: perl(Net::SNMP)
 
 %description pmda-snmp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -2588,6 +2589,9 @@ cd
 %endif
 
 %changelog
+* Fri Apr 29 2016 Nathan Scott <nathans@redhat.com> - 3.11.2-1
+- Work-in-progress, see http://pcp.io/roadmap
+
 * Fri Mar 18 2016 Dave Brolley <brolley@redhat.com> - 3.11.1-1
 - Call Remove script when uninstalling individual PMDAs (BZ 1304722)
 - Restrict pmcd.services to checking known pcp services (BZ 1286361)

@@ -2290,6 +2290,42 @@ __thread int x;], [],
     fi
 fi
 
+AC_MSG_CHECKING([sizeof suseconds_t])
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_suseconds_t
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
+#include <sys/time.h>
+main() { printf("%d", (int)sizeof(suseconds_t)); }
+End-of-File
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+    rm -rf conftest conftest.*
+fi
+AC_MSG_RESULT($ans)
+AC_DEFINE_UNQUOTED(SIZEOF_SUSECONDS_T, $ans, [sizeof suseconds_t])
+
+AC_MSG_CHECKING([sizeof time_t])
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_time_t
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
+#include <sys/time.h>
+main() { printf("%d", (int)sizeof(time_t)); }
+End-of-File
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+    rm -rf conftest conftest.*
+fi
+AC_MSG_RESULT($ans)
+AC_DEFINE_UNQUOTED(SIZEOF_TIME_T, $ans, [sizeof time_t])
+
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])
 if test "$cross_compiling" = "yes"; then
@@ -2649,167 +2685,6 @@ then
     rm -rf conftest conftest.*
     exit 1
 fi
-
-dnl
-dnl For Python we need to determine the correct data type for fields
-dnl of a struct timeval and a struct timespec
-dnl
-AC_MSG_CHECKING([Python type for tv_sec in struct timeval ])
-ans=''
-if test "$cross_compiling" = "yes"; then
-    ans=$pytype_timeval_sec
-    echo "cross-compile -> \"$ans\"" >&5
-else
-    cat <<End-of-File >conftest.c
-#include <stdio.h>
-#include <sys/time.h>
-int main()
-{
-    struct timeval tv;
-    if (sizeof(tv.tv_sec) == sizeof(long))
-	printf("c_long\n");
-    else if (sizeof(tv.tv_sec) == sizeof(int))
-	printf("c_int\n");
-    else
-	/* output nothing */
-	;
-    return(0);
-}
-End-of-File
-    (eval $ac_link) 2>&5
-    if test -x ./conftest
-    then
-	ans=`./conftest`
-	echo "./conftest -> \"$ans\"" >&5
-    fi
-fi
-if test -z "$ans"
-then
-    echo 'FATAL ERROR: Cannot determine type for tv_sec from struct timeval'
-    rm -rf conftest conftest.*
-    exit 1
-fi
-pytype_timeval_sec="$ans"
-AC_MSG_RESULT("$pytype_timeval_sec");
-AC_SUBST(pytype_timeval_sec)
-rm -rf conftest.* conftest
-AC_MSG_CHECKING([Python type for tv_usec in struct timeval ])
-ans=''
-if test "$cross_compiling" = "yes"; then
-    ans=$pytype_timeval_usec
-    echo "cross-compile -> \"$ans\"" >&5
-else
-    cat <<End-of-File >conftest.c
-#include <stdio.h>
-#include <sys/time.h>
-int main()
-{
-    struct timeval tv;
-    if (sizeof(tv.tv_usec) == sizeof(long))
-	printf("c_long\n");
-    else if (sizeof(tv.tv_usec) == sizeof(int))
-	printf("c_int\n");
-    else
-	/* output nothing */
-	;
-    return(0);
-}
-End-of-File
-    (eval $ac_link) 2>&5
-    if test -x ./conftest
-    then
-	ans=`./conftest`
-	echo "./conftest -> \"$ans\"" >&5
-    fi
-fi
-if test -z "$ans"
-then
-    echo 'FATAL ERROR: Cannot determine type for tv_usec from struct timeval'
-    rm -rf conftest conftest.*
-    exit 1
-fi
-pytype_timeval_usec="$ans"
-AC_MSG_RESULT("$pytype_timeval_usec");
-AC_SUBST(pytype_timeval_usec)
-rm -rf conftest.* conftest
-AC_MSG_CHECKING([Python type for tv_sec in struct timespec ])
-ans=''
-if test "$cross_compiling" = "yes"; then
-    ans=$pytype_timespec_sec
-    echo "cross-compile -> \"$ans\"" >&5
-else
-    cat <<End-of-File >conftest.c
-#include <stdio.h>
-#include <sys/stat.h>
-int main()
-{
-    struct timespec tv;
-    if (sizeof(tv.tv_sec) == sizeof(long))
-	printf("c_long\n");
-    else if (sizeof(tv.tv_sec) == sizeof(int))
-	printf("c_int\n");
-    else
-	/* output nothing */
-	;
-    return(0);
-}
-End-of-File
-    (eval $ac_link) 2>&5
-    if test -x ./conftest
-    then
-	ans=`./conftest`
-	echo "./conftest -> \"$ans\"" >&5
-    fi
-fi
-if test -z "$ans"
-then
-    echo 'FATAL ERROR: Cannot determine type for tv_sec from struct timespec'
-    rm -rf conftest conftest.*
-    exit 1
-fi
-pytype_timespec_sec="$ans"
-AC_MSG_RESULT("$pytype_timespec_sec");
-AC_SUBST(pytype_timespec_sec)
-rm -rf conftest.* conftest
-AC_MSG_CHECKING([Python type for tv_nsec in struct timespec ])
-ans=''
-if test "$cross_compiling" = "yes"; then
-    ans=$pytype_timespec_nsec
-    echo "cross-compile -> \"$ans\"" >&5
-else
-    cat <<End-of-File >conftest.c
-#include <stdio.h>
-#include <sys/stat.h>
-int main()
-{
-    struct timespec tv;
-    if (sizeof(tv.tv_nsec) == sizeof(long))
-	printf("c_long\n");
-    else if (sizeof(tv.tv_nsec) == sizeof(int))
-	printf("c_int\n");
-    else
-	/* output nothing */
-	;
-    return(0);
-}
-End-of-File
-    (eval $ac_link) 2>&5
-    if test -x ./conftest
-    then
-	ans=`./conftest`
-	echo "./conftest -> \"$ans\"" >&5
-    fi
-fi
-if test -z "$ans"
-then
-    echo 'FATAL ERROR: Cannot determine type for tv_nsec from struct timespec'
-    rm -rf conftest conftest.*
-    exit 1
-fi
-pytype_timespec_nsec="$ans"
-AC_MSG_RESULT("$pytype_timespec_nsec");
-AC_SUBST(pytype_timespec_nsec)
-rm -rf conftest.* conftest
 
 dnl
 dnl Work out where to install stuff for this package
@@ -3366,8 +3241,6 @@ dnl   Preamble for tar install scripts
 dnl   Build definitions for use in packaging
     build/GNUlocaldefs
     build/mac/uninstall-pcp
-dnl   Python types for structs timeval and timespec
-    src/python/pcp/pmapi.py
 )
 
 dnl verbose diagnostics

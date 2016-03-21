@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+which pmcollectl 2>&1 1>/dev/null || _notrun "pmcollectl not installed"
+
 _get_libpcp_config
 $multi_archive_contexts || _notrun "Multi-archive support is not available"
 
