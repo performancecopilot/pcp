@@ -1348,7 +1348,9 @@ class PMReporter(object):
         if self.writer:
             try:
                 self.writer.flush()
-            except BrokenPipeError:
+            except socket.error as error:
+                if error.errno != errno.EPIPE:
+                    raise
                 pass
             self.writer.close()
             self.writer = None
