@@ -12092,15 +12092,39 @@ End-of-File
     (eval $ac_link) 2>&5
     ans=`./conftest`
     echo "./conftest -> \"$ans\"" >&5
+    rm -rf conftest conftest.*
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
 $as_echo "$ans" >&6; }
-if test "$ans" = 4; then
 
-$as_echo "#define HAVE_32BIT_SUSECONDS_T 1" >>confdefs.h
+cat >>confdefs.h <<_ACEOF
+#define SIZEOF_SUSECONDS_T $ans
+_ACEOF
 
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking sizeof time_t" >&5
+$as_echo_n "checking sizeof time_t... " >&6; }
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_time_t
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
+#include <sys/time.h>
+main() { printf("%d", (int)sizeof(time_t)); }
+End-of-File
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+    rm -rf conftest conftest.*
 fi
-rm -rf conftest conftest.*
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ans" >&5
+$as_echo "$ans" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define SIZEOF_TIME_T $ans
+_ACEOF
+
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking sizeof long" >&5
 $as_echo_n "checking sizeof long... " >&6; }

@@ -2290,7 +2290,6 @@ __thread int x;], [],
     fi
 fi
 
-dnl check sizeof suseconds_t
 AC_MSG_CHECKING([sizeof suseconds_t])
 if test "$cross_compiling" = "yes"; then
     ans=$sizeof_suseconds_t
@@ -2304,12 +2303,28 @@ End-of-File
     (eval $ac_link) 2>&5
     ans=`./conftest`
     echo "./conftest -> \"$ans\"" >&5
+    rm -rf conftest conftest.*
 fi
 AC_MSG_RESULT($ans)
-if test "$ans" = 4; then
-    AC_DEFINE(HAVE_32BIT_SUSECONDS_T, [1], [sizeof suseconds_t])
+AC_DEFINE_UNQUOTED(SIZEOF_SUSECONDS_T, $ans, [sizeof suseconds_t])
+
+AC_MSG_CHECKING([sizeof time_t])
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_time_t
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
+#include <sys/time.h>
+main() { printf("%d", (int)sizeof(time_t)); }
+End-of-File
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+    rm -rf conftest conftest.*
 fi
-rm -rf conftest conftest.*
+AC_MSG_RESULT($ans)
+AC_DEFINE_UNQUOTED(SIZEOF_TIME_T, $ans, [sizeof time_t])
 
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])
