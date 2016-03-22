@@ -1,0 +1,21 @@
+--- src/libpcp/src/check-statics	2016-01-26 16:49:26.300621000 +0200
++++ build/freebsd/work/pcp-cf5e23a93d88420bca29b5be206b800845e55546/src/libpcp/src/check-statics	2016-02-01 14:38:40.660590000 +0200
+@@ -452,7 +452,7 @@
+ 		    -e '/ s .*_\.[0-9][0-9]*$/d' \
+ 		    -e '/ s LC[0-9][0-9]*$/d' \
+ 		    -e '/ s L_\.str[0-9][0-9]*$/d' -e '/ s L_\.str$/d' \
+-		    -e '/ r \.L\.str[0-9][0-9]*$/d' -e '/ r \.L\.str$/d' \
++		    -e '/ r \.L\.str\.[0-9][0-9]*$/d' -e '/ r \.L\.str[0-9][0-9]*$/d' -e '/ r \.L\.str$/d' \
+ 		    -e '/ s L___func__\./d' \
+ 		    -e '/ r \.LCPI./d' \
+ 		    -e '/ s l_switch\./d' \
+@@ -463,7 +463,9 @@
+ 		    -e 's/s _glib_relative_date\./s /' \
+ 		    -e '/ s EH_/d' \
+ 		    -e '/ b \.bss/d' \
++		    -e '/ b tbss/d' \
+ 		    -e '/ d \.data/d' \
++		    -e '/ d tdata/d' \
+ 		    -e '/ r \.rdata/d' \
+ 		    -e '/ r \.eh_frame/d' \
+ 		    -e '/ r __PRETTY_FUNCTION__.[0-9][0-9]*$/d' \
