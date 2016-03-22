@@ -21,7 +21,13 @@ from pcp import pmapi
 context = pmapi.pmContext()
 context.pmNewZone("UTC")
 
-# seconds-since-epoch for: "Mon Feb  3 15:46:19 2014 UTC"
+# seconds-since-epoch for: "Mon Feb  3 04:46:19 2014 UTC"
+# value determined as follows: 1 Jan 1970 -> 3 Feb 2014 is 16104 days
+# 16104 * 24 * 3600  	1391385600
+# + 4 * 3600		     14400
+# + 46 * 60 + 19	      2779
+# sum these		1391402779
+#
 sample_time_i = 1391402779	# integer
 sample_time_f = 1391402779.0	# float
 
