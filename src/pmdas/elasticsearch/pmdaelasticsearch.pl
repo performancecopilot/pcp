@@ -46,6 +46,7 @@ my @index_instance_ids;
 my @cluster_cache;		# time of last refresh for each cluster
 my $cache_interval = 2;		# min secs between refreshes for clusters
 my $http_timeout = 1;		# max secs for a request (*must* be small).
+my $all_node_stats = 0;		# fetch all node stats if true, local node only if false
 
 # Configuration files for overriding the above settings
 for my $file (pmda_config('PCP_PMDAS_DIR') . '/elasticsearch/es.conf', 'es.conf') {
@@ -179,10 +180,16 @@ sub es_refresh_cluster_nodes_stats_all
 {
     my $url = undef;
     if (es_rest_version_internal() == 1) {
-        $url = "_cluster/nodes/stats?all";
+        $url = "_cluster/nodes/";
     } else {
-        $url = "_nodes/stats?all";
+        $url = "_nodes/";
     }
+
+    if (not $all_node_stats) {
+        $url .= "_local/";
+    }
+
+    $url .= "stats";
 
     my $content = es_agent_get($baseurl . $url);
     if (defined($content)) {
