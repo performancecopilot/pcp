@@ -16,7 +16,9 @@ dnl
 
 dnl unpacking check - this file must exist
 AC_INIT(src/include/pcp/pmapi.h)
-AC_PREREQ([2.60])dnl
+
+dnl need 2.63 for AS_VAR_IF and AS_VAR_COPY
+AC_PREREQ([2.63])dnl
 
 dnl Irix build issue ... use the tools from the local filesystems
 unset ROOT TOOLROOT
@@ -248,7 +250,7 @@ then
     test -f /etc/mandriva-release && target_distro=mandriva
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
-    pcp_ps_all_flags=-efw
+    pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
 elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (Mac OS X)])
