@@ -71,11 +71,11 @@ NR == 1	{ if ($2 != "PID") {
 	    print
 	    exit(1)
 	  }
-	  if ($8 == "CMD")
-	    # Linux
+	  if ($8 == "CMD" || $8 == "COMMAND")
+	    # Linux-like
 	    cmd = 8
 	  else if ($11 == "COMMAND")
-	    # Darwin
+	    # old-style BSD
 	    cmd = 11
 	  else {
 	    print "CMD (or COMMAND) not in field 8 (or 11) of ps output!"
