@@ -250,7 +250,7 @@ then
     test -f /etc/mandriva-release && target_distro=mandriva
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
-    pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
+    pcp_ps_all_flags=-efw
 elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (Mac OS X)])
@@ -264,7 +264,7 @@ then
     fi
     export CFLAGS
     pcp_platform_paths='/usr/local/bin'
-    pcp_ps_all_flags=auxww
+    pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
 elif test $target_os = mingw
 then
     AC_DEFINE(IS_MINGW, [1], [Platform is MinGW (Windows)])
