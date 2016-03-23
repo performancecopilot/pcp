@@ -26,10 +26,10 @@ rm -f $seq.out
 case $PCP_PLATFORM
 in
     darwin)
-	ln $seq.darwin $seq.out || exit 1
+	ln $seq.out.darwin $seq.out || exit 1
 	;;
     *)
-	ln $seq.default $seq.out || exit 1
+	ln $seq.out.default $seq.out || exit 1
 	;;
 esac
 
