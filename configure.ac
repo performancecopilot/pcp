@@ -16,7 +16,9 @@ dnl
 
 dnl unpacking check - this file must exist
 AC_INIT(src/include/pcp/pmapi.h)
-AC_PREREQ([2.60])dnl
+
+dnl need 2.63 for AS_VAR_IF and AS_VAR_COPY
+AC_PREREQ([2.63])dnl
 
 dnl Irix build issue ... use the tools from the local filesystems
 unset ROOT TOOLROOT
@@ -262,7 +264,7 @@ then
     fi
     export CFLAGS
     pcp_platform_paths='/usr/local/bin'
-    pcp_ps_all_flags=auxww
+    pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
 elif test $target_os = mingw
 then
     AC_DEFINE(IS_MINGW, [1], [Platform is MinGW (Windows)])

@@ -2598,6 +2598,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+
 unset ROOT TOOLROOT
 
 
@@ -3040,7 +3041,7 @@ $as_echo "#define IS_DARWIN 1" >>confdefs.h
     fi
     export CFLAGS
     pcp_platform_paths='/usr/local/bin'
-    pcp_ps_all_flags=auxww
+    pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
 elif test $target_os = mingw
 then
 
