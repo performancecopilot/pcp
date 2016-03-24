@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat, Inc.  All Rights Reserved.
+ * Copyright (c) 2013-2016 Red Hat, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -198,22 +198,52 @@ std::string urlencode (const std::string &foo)
 
 /* Compress given input string via libz into a new malloc()-allocated buffer.
    Return compressed data length via *output_length.  Return NULL in case
-   of compression or other failure. */
+   of compression or other failure.
+
+   NB: Use http-compatible gzip encoding instead of deflate, for
+   better browser compatibility.  This means we can't use the zlib
+   default compress() wrapper.
+*/
 static void *compress_string(const std::string& input, size_t& output_length)
 {
 #if HAVE_ZLIB
-    uLong buf_needed = compressBound (input.length ());
+    const int gzip_header_size_delta = 32; /* overestimate from eyeballing RFC1952 and zlib */
+    uLong buf_needed = compressBound (input.length ()) + gzip_header_size_delta;
     void *buf = malloc (buf_needed);
     if (buf == NULL)
         return NULL;
 
-    int rc = compress ((Bytef *) buf, &buf_needed, (const Bytef*) input.c_str (), input.length ());
-    if (rc != Z_OK) {
-        free (buf);
-        return NULL;
-    }
-    output_length = (size_t) buf_needed;
+    /* from zlib compress2 */
+    z_stream stream;
+    stream.next_in = (Bytef*) input.c_str();
+    stream.avail_in = (uLong) input.length();
+    stream.next_out = (Bytef*) buf;
+    stream.avail_out = (uLong) buf_needed;
+    stream.zalloc = (alloc_func) 0;
+    stream.zfree = (free_func) 0;
+    stream.opaque = (voidpf) 0;
+
+    int rc = deflateInit2 (&stream, Z_DEFAULT_COMPRESSION, Z_DEFLATED,
+                           MAX_WBITS | 16 /*gzip*/,
+                           8 /*DEF_MEM_LEVEL*/, Z_DEFAULT_STRATEGY);
+    if (rc != Z_OK)
+        goto out;
+    rc = deflate (&stream, Z_FINISH);
+    if (rc != Z_STREAM_END)
+        goto out2;
+    output_length = (size_t) stream.total_out;
+
+    rc = deflateEnd (&stream);
+    if (rc != Z_OK)
+        goto out;
+
     return buf;
+
+ out2:
+    deflateEnd (& stream);
+ out:
+    free (buf);
+    return NULL;
 #else
     (void) input;
     (void) output_length;
@@ -234,8 +264,16 @@ struct MHD_Response *NOTMHD_compressible_response(struct MHD_Connection *connect
     const char *encodings = MHD_lookup_connection_value (connection,
                                                          MHD_HEADER_KIND,
                                                          MHD_HTTP_HEADER_ACCEPT_ENCODING);
+    const char *useragent = MHD_lookup_connection_value (connection,
+                                                         MHD_HEADER_KIND,
+                                                         MHD_HTTP_HEADER_USER_AGENT);
+
     if (encodings == NULL) encodings = "";
-    if (strstr (encodings, "deflate") != NULL) {
+
+    (void) useragent;
+    /* if (strstr (useragent, "Trident/") != NULL) encodings = ""; */ /* ?? disable on MSIE */
+
+    if (strstr (encodings, "gzip") != NULL) {
         size_t heap_buf_len;
         void *heap_buf = compress_string (buf, heap_buf_len);
         if (heap_buf != NULL) {
@@ -244,7 +282,7 @@ struct MHD_Response *NOTMHD_compressible_response(struct MHD_Connection *connect
             if (resp == NULL)
                 free (heap_buf); /* throw away zlib output */
 
-            int rc = MHD_add_response_header(resp, "Content-encoding", "deflate");
+            int rc = MHD_add_response_header(resp, "Content-Encoding", "gzip");
             if (rc != MHD_YES) {
                 /* without that header, the client can't make sense of the data;
                    we must try again without compression */

@@ -50,12 +50,12 @@ echo fetch some metrics via un/compressed modes, compare results | tee -a $seq.f
 url="http://localhost:$webport/graphite/render?format=json&target=*/node_archive.proc.psinfo.pid.*&from=15:50_20131127&until=1385585880&maxDataPoints=100"
 echo "fetching without compression requested"
 curl -v -D $tmp.hdr.1 -s -S "$url" > $tmp.out.1 2> $tmp.err.1
-grep deflate $tmp.hdr.1
-grep deflate $tmp.err.1
+egrep 'gzip|deflate' $tmp.hdr.1
+egrep 'gzip|deflate' $tmp.err.1
 echo "repeating with compression requested"
 curl -v -D $tmp.hdr.2 --compressed -s -S "$url" > $tmp.out.2 2> $tmp.err.2
-grep deflate $tmp.hdr.2
-grep deflate $tmp.err.2
+egrep 'gzip|deflate' $tmp.hdr.2
+egrep 'gzip|deflate' $tmp.err.2
 
 echo "comparing compressed vs uncompressed outputs"
 diff $tmp.out.1 $tmp.out.2 # should be empty result
