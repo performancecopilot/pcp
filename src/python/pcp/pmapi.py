@@ -81,12 +81,12 @@
     t = pmfg.extend_timestamp()
 
     pmfg.fetch()
-    print ("time: %s" % t())
-    print ("number of cpus: %d" % v())
+    print("time: %s" % t())
+    print("number of cpus: %d" % v())
     for icode, iname, value in vv():
-        print ("load average %s: %f" % (iname, value()))
+        print("load average %s: %f" % (iname, value()))
     for ts, line in vvv():
-        print ("%s : %s" % (ts, line()))
+        print("%s : %s" % (ts, line()))
 
 """
 
@@ -270,15 +270,22 @@ class tm(Structure):
                 ("tm_zone", c_char_p)]	# glibc/bsd extension
 
     def __str__(self):
-        timetuple = (self.tm_year+1900, self.tm_mon, self.tm_mday,
-                     self.tm_hour, self.tm_min, self.tm_sec,
-                     self.tm_wday, self.tm_yday, self.tm_isdst)
-        inseconds = 0.0
-        try:
-            inseconds = time.mktime(timetuple)
-        except:
-            pass
-        return "%s %s" % (inseconds.__str__(), timetuple)
+        # For debugging this, the timetuple is possibly more useful
+        # timetuple = (self.tm_year+1900, self.tm_mon, self.tm_mday,
+        #              self.tm_hour, self.tm_min, self.tm_sec,
+        #              self.tm_wday, self.tm_yday, self.tm_isdst)
+        # return str(timetuple)
+
+        # For regular users manipulating struct tm, pretty-print it
+        result = ctypes.create_string_buffer(32)
+        second = c_api.pmMktime(
+                     self.tm_sec, self.tm_min, self.tm_hour,
+                     self.tm_mday, self.tm_mon, self.tm_year,
+                     self.tm_wday, self.tm_yday, self.tm_isdst,
+                     self.tm_gmtoff, str(self.tm_zone))
+        timetp = c_long(long(second))
+        LIBPCP.pmCtime(byref(timetp), result)
+        return str(result.value.decode()).rstrip()
 
 class pmAtomValue(Union):
     """Union used for unpacking metric values according to type
@@ -593,6 +600,7 @@ LIBPCP.pmRegisterDerivedMetric.argtypes = [c_char_p, c_char_p, POINTER(c_char_p)
 LIBPCP.pmLoadDerivedConfig.restype = c_int
 LIBPCP.pmLoadDerivedConfig.argtypes = [c_char_p]
 
+
 ##
 # PMAPI Metrics Description Services
 
@@ -715,7 +723,6 @@ LIBPCP.pmFetchArchive.argtypes = [POINTER(POINTER(pmResult))]
 
 ##
 # PMAPI Ancilliary Support Services
-
 
 LIBPCP.pmGetOptionalConfig.restype = c_char_p
 LIBPCP.pmGetOptionalConfig.argtypes = [c_char_p]

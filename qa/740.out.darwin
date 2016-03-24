@@ -1,0 +1,6 @@
+QA output created by 740
+sample.control old value=0 new value=16777216
+sample.long.one
+[DATETIME] pmdasample(PID) Info: Attribute: ctx=N groupid=GID
+[DATETIME] pmdasample(PID) Info: Attribute: ctx=N userid=UID
+sample.control old value=16777216 new value=0

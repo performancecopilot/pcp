@@ -975,7 +975,7 @@ timezone
 734 libpcp pmstat remote
 735 pmda.proc local
 736 pmlogrewrite local
-737 python local
+737 python local timezone
 738 logutil local pmlogmv
 739 python getopt local timezone
 740 pmda.sample pmstore secure local
@@ -1137,6 +1137,7 @@ timezone
 946 pmfind avahi local
 947 pmlogger local
 948 pmlogger context_local local 
+949 python local timezone
 950 pmproxy avahi local
 951 pmie local pmval
 955 pmda.linux local

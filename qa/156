@@ -41,8 +41,8 @@ _check_pmda_gone()
 {
     sleep 2
     pminfo -v $1 && echo "Error: pminfo -v found some \"$1\" metrics"
-    ps $PCP_PS_ALL_FLAGS | grep pmda$1 >$tmp.tmp
-    if [ ! -z "`grep -v grep <$tmp.tmp`" ]
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "[p]mda$1" >$tmp.tmp
+    if [ -s $tmp.tmp ]
     then
 	echo "Error: some \"$1\" PMDAs still present"
 	cat $tmp.tmp
