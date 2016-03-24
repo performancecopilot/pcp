@@ -40,6 +40,9 @@ guess_content_type (const char *filename)
     if (0 == strcasecmp (extension, ".html")) {
         return "text/html";
     }
+    if (0 == strcasecmp (extension, ".css")) {
+        return "text/css";
+    }
     if (0 == strcasecmp (extension, ".js")) {
         return "text/javascript";
     }
