@@ -23,7 +23,7 @@ _pminfo_complete ()
         ;;
 
         pmevent)
-        opt_regex="-[AabcEeFfhKlOoPqSsTtwyZ]"
+        opt_regex="-[AafhinOpSsTtwZ]"
         curpos_expand=1
         ;;
 
