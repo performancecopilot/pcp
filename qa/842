@@ -30,6 +30,14 @@ echo 'Timestamps and no headers'
 $PMIOSTAT -z --samples 10 --archive archives/dm-io -x t,h
 echo
 
+echo 'Precision'
+for precision in `seq 0 8`; do
+    echo == Precision=$precision
+    $PMIOSTAT -P $precision --samples 3 --archive archives/dm-io -x t,h
+    echo
+done
+
+echo 'Checking reported values against pmval'
 t=1
 while [ $t -le 30 ]
 do
