@@ -122,8 +122,14 @@ the reporting interval (unless the
 option is specified, see below).
 .TP
 .B \-P
-This indicates the number of decimals to print. The default precision \f2N\f1 may be set to something other than the
-default 2 decimals.
+This indicates the number of decimals to print. The default precision \f2N\f1
+may be set to something other than the default 2 decimals.
+Note that the
+.B avgrq-sz
+and
+.B avgqu-sz
+fields are always reported with \f2N\f1+1 decimals of precision.
+These fields typically have values less than 1.0.
 .TP
 .B \-u
 When replaying a set of archives, by default values are reported
