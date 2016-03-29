@@ -351,6 +351,29 @@ again:
     return sts;
 }
 
+/* docker decided to not only change the config file json pointer layout, but
+ * also the filename in which the config resides.  Check which version is being used.
+ */
+int determine_docker_version(container_engine_t *dp, const char *name, char *buf, size_t bufsize)
+{
+    FILE *fp;
+
+    /* we go with version two first, because v1 config files may not
+     * always be cleaned up after the upgrade to v2.
+     */
+    snprintf(buf, bufsize, "%s/%s/config.v2.json", dp->path, name);
+    if ((fp = fopen(buf, "r")) != NULL) {
+	fclose(fp);
+	return 2;
+    }
+    snprintf(buf, bufsize, "%s/%s/config.json", dp->path, name);
+    if ((fp = fopen(buf, "r")) != NULL) {
+	fclose(fp);
+	return 1;
+    }
+    return -oserror();
+}
+
 /*
  * Extract critical information (PID1, state) for a named container.
  * Name here is the unique identifier we've chosen to use for Docker
@@ -364,7 +387,10 @@ docker_value_refresh(container_engine_t *dp,
     FILE	*fp;
     char	path[MAXPATHLEN];
 
-    snprintf(path, sizeof(path), "%s/%s/config.json", dp->path, name);
+    sts = determine_docker_version(dp, name, path, sizeof(path));
+    if (sts < 0)
+	return sts;
+
     if (!docker_values_changed(path, values))
 	return 0;
     if (pmDebug & DBG_TRACE_ATTR)
