@@ -135,9 +135,9 @@ sleep 3
 
 wait
 
-# if desperate!
-#echo >>$seq.full
-#cat $PCP_PMCDLOG_PATH >>$seq.full
+echo >>$seq.full
+echo "pmcd log ..." >>$seq.full
+cat $PCP_PMCDLOG_PATH >>$seq.full
 
 echo
 echo "Trace of observed state changes and PMDA count ..."
@@ -153,10 +153,9 @@ flush' \
 | pmlc
 sleep 2
 
-# if desperate!
-#echo >>$seq.full
-#echo "pmlogger log ..." >>$seq.full
-#_filter_pmlogger_log <$LOGGING_DIR/$LOCALHOST/pmlogger.log >>$seq.full
+echo >>$seq.full
+echo "pmlogger log ..." >>$seq.full
+cat $LOGGING_DIR/$LOCALHOST/pmlogger.log >>$seq.full
 
 echo "archive contents ..."
 pmafm $LOGGING_DIR/$LOCALHOST/Latest pmdumplog >$tmp.out 2>&1
@@ -173,15 +172,13 @@ pmafm $LOGGING_DIR/$LOCALHOST/Latest pmval -t 1 sample.milliseconds 2>&1 \
 | _filter_pmval \
 | sed -e 4q
 
-# if desperate!
-#echo >>$seq.full
-#echo "unfiltered pmval live output" >>$seq.full
-#cat $tmp.pmval >>$seq.full
+echo >>$seq.full
+echo "unfiltered pmval live output" >>$seq.full
+cat $tmp.pmval >>$seq.full
 
-# if desperate!
-#echo >>$seq.full
-#echo "unfiltered pmval archive output" >>$seq.full
-#pmafm $LOGGING_DIR/$LOCALHOST/Latest pmval -t 1 sample.milliseconds >>$seq.full 2>&1
+echo >>$seq.full
+echo "unfiltered pmval archive output" >>$seq.full
+pmafm $LOGGING_DIR/$LOCALHOST/Latest pmval -t 1 sample.milliseconds >>$seq.full 2>&1
 
 status=0
 exit

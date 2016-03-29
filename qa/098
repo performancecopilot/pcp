@@ -112,6 +112,7 @@ $sudo rm -f $tmp.0 $tmp.meta $tmp.index $seq.full
 #
 _start_up_pmlogger -t 0.5sec -L -s 30 -c /dev/null -l $tmp.log $tmp >$tmp.err 2>&1
 logger_pid=$pid
+_wait_for_pmlogger $pid $tmp.log
 
 echo "logger_pid=$pid" >>$here/$seq.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mlogger' >>$here/$seq.full

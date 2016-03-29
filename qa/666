@@ -82,8 +82,16 @@ echo 'localhost6' >>$tmp.dir/target-host
 echo 'pcp://localhost6:44321/' >>$tmp.dir/target-host
 # note -v -v here is the same as -D appl0,appl1
 $sudo $_valgrind_clean_assert $PCP_BINADM_DIR/pmmgr -v -v -p 5 -l $tmp.out -c $tmp.dir >$tmp.valout 2>$tmp.valerr &
-pid=$!
-echo "pid=$!" >>$seq.full
+# this is the sudo's pid
+ppid=$!
+echo "ppid=$ppid" >>$seq.full
+# it takes a while for valgrind to get into gear sometimes ...
+#
+sleep 5
+# this is the valgrind's pid
+pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$3 == '"$ppid"' { print $2 }'`
+echo "pid=$pid" >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep "$pid|$ppid" >>$seq.full
 
 date >>$seq.full
 echo "=== 3. look for pmmgr starting no daemons ===" | tee -a $seq.full
@@ -247,9 +255,18 @@ grep . $tmp.dir/$hostname/monitor-* >> $seq.full
 
 date >>$seq.full
 echo "=== ZZZ kill pmmgr ===" | tee -a $seq.full
-$sudo kill $pid
-pid=
+$sudo kill $pid $ppid
 sleep 2
+if $sudo kill -0 $pid >/dev/null 2>&1
+then
+    echo "valgrind pmmgr (pid=$pid ppid=$ppid) did not die, try harder ..." >>$seq.full
+    $sudo kill -KILL $pid $ppid >/dev/null 2>&1
+    if $sudo kill -0 $pid >/dev/null 2>&1
+    then
+	echo "valgrind pmmgr (pid=$pid ppid=$ppid) will not die!" >>$seq.full
+    fi
+fi
+pid=
 
 echo "=== valgrind stdout ===" | tee -a $seq.full
 # seen on bozo-laptop

@@ -67,7 +67,15 @@ _check_freespace()
 
     # Filesystem           1M-blocks Used Available Use% Mounted on
     # /dev/sda5                57349     24838     29621  46% /
-    free=`df -mP . | $PCP_AWK_PROG 'NR == 2 { print $4 }'`
+    case "$PCP_PLATFORM"
+    in
+	darwin)
+	    free=`df -m . | $PCP_AWK_PROG 'NR == 2 { print $4 }'`
+	    ;;
+	*)
+	    free=`df -mP . | $PCP_AWK_PROG 'NR == 2 { print $4 }'`
+	    ;;
+    esac
 
     if [ -z "$free" ]
     then
