@@ -295,15 +295,18 @@ probeForServices(
 	    /*
 	     * Our worker threads don't need much stack. PTHREAD_STACK_MIN is
 	     * enough except when resolving addresses, where twice that much is
-	     * sufficient.
+	     * sufficient.  Or it would be, except for error messages.  Those
+             * call __pmNotifyErr -> pmprintf -> pmGetConfig, which are
+             * stack-intensive due to multiple large local variables
+             * (char[MAXPATHLEN]).
 	     */
 	    if (options->globalOptions->resolve ||
 		(options->globalOptions->flags &&
 		 (*options->globalOptions->flags & PM_SERVICE_DISCOVERY_RESOLVE)
 		 != 0))
-		pthread_attr_setstacksize(&threadAttr, 2 * PTHREAD_STACK_MIN);
+		pthread_attr_setstacksize(&threadAttr, 2*PTHREAD_STACK_MIN + MAXPATHLEN*4);
 	    else
-		pthread_attr_setstacksize(&threadAttr, PTHREAD_STACK_MIN);
+		pthread_attr_setstacksize(&threadAttr, PTHREAD_STACK_MIN + MAXPATHLEN*4);
 
 	    /* Dispatch the threads. */
 	    for (nThreads = 0; nThreads < options->maxThreads; ++nThreads) {

@@ -13,3 +13,6 @@ Exit status: 0
 Exit status: 0
 -q -s pmcd -m probe=INET_ADDR/28,maxThreads=8
 Exit status: 0
+ulimit -n 10
+Discovered pmcd servers:
+Exit status: 0
