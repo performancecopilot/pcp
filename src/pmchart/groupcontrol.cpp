@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Red Hat.
+ * Copyright (c) 2012-2016, Red Hat.  All Rights Reserved.
  * Copyright (c) 2007-2008, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
@@ -379,7 +379,7 @@ GroupControl::adjustLiveWorldViewForward(QmcTime::Packet *packet)
 void
 GroupControl::adjustArchiveWorldViewForward(QmcTime::Packet *packet, bool setup)
 {
-    console->post("GroupControl::adjustArchiveWorldViewForward");
+    console->post("GroupControl::adjustArchiveWorldViewForward setup=%d", setup);
     my.timeState = ForwardState;
 
     int setmode = PM_MODE_INTERP;
@@ -422,8 +422,9 @@ GroupControl::adjustArchiveWorldViewForward(QmcTime::Packet *packet, bool setup)
 		      "setting time position[%d]=%.2f[%s] state=%s count=%d",
 			i, position, timeString(position),
 			timeState(), gadgetCount());
-	for (int j = 0; j < gadgetCount(); j++)
-	    my.gadgetsList.at(j)->updateValues(true, false, my.samples, my.visible,
+	int cnt = gadgetCount();
+	for (int j = 0; j < cnt; j++)
+	    my.gadgetsList.at(j)->updateValues(true, j < cnt-1 ? false : true, my.samples, my.visible,
 						left, right, interval);
     }
 
@@ -501,6 +502,7 @@ GroupControl::adjustArchiveWorldViewBackward(QmcTime::Packet *packet, bool setup
 void
 GroupControl::adjustArchiveWorldViewStopped(QmcTime::Packet *packet, bool needFetch)
 {
+    console->post("GroupControl::adjustArchiveWorldViewStopped needFetch=%d", needFetch);
     if (needFetch) {	// stopped, but VCR reposition event occurred
 	adjustArchiveWorldViewForward(packet, needFetch);
     } else {
@@ -573,6 +575,7 @@ GroupControl::VCRMode(QmcTime::Packet *packet, bool dragMode)
 {
     if (!dragMode)
 	adjustWorldView(packet, true);
+    console->post("GroupControl::VCRMode dragMode=%d\n", dragMode);
 }
 
 void

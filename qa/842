@@ -30,6 +30,14 @@ echo 'Timestamps and no headers'
 $PMIOSTAT -z --samples 10 --archive archives/dm-io -x t,h
 echo
 
+echo 'Precision'
+for precision in `seq 0 8`; do
+    echo == Precision=$precision
+    $PMIOSTAT -P $precision --samples 3 --archive archives/dm-io -x t,h
+    echo
+done
+
+echo 'Checking reported values against pmval'
 t=1
 while [ $t -le 30 ]
 do
@@ -45,7 +53,7 @@ do
 	| tee -a $here/$seq.full \
 	| sed -e 's/\.[0-9]*//' \
 	| $PCP_AWK_PROG '/^[0-9][0-9]:/ {print $1, $2}' >$tmp.pmval
-	$PMIOSTAT -t $t -a archives/dm-io -xt,h \
+	$PMIOSTAT -P 1 -t $t -a archives/dm-io -xt,h \
 	| tee -a $here/$seq.full \
 	| $PCP_AWK_PROG '/^#/ {skip} /sda/ {print $4, $'$field'}' >$tmp.pmiostat
 	if diff $tmp.pmval $tmp.pmiostat >>$here/$seq.full; then $PCP_ECHO_PROG OK; else $PCP_ECHO_PROG FAILED; fi

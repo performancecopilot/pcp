@@ -1,3 +1,4 @@
+.\" Copyright (c) 2016, Red Hat.  All Rights Reserved.
 .\" Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
 .\" Copyright (c) 2008, Aconex.  All Rights Reserved.
 .\" Copyright (c) 2014-2016, Red Hat.
@@ -13,7 +14,6 @@
 [\f3\-f\f1 \f2fontfamily\f1]
 [\f3\-F\f1 \f2fontsize\f1]
 [\f3\-g\f1 \f2geometry\f1]
-[\f3\-g\f1 \f2geometry\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-o\f1 \f2outfile\f1]
 [\f3\-O\f1 \f2offset\f1]
@@ -24,6 +24,7 @@
 [\f3\-t\f1 \f2interval\f1]
 [\f3\-v\f1 \f2visible\f1]
 [\f3\-Z\f1 \f2timezone\f1]
+[\f3\-geometry\f1 \f2geometry\f1]
 [\f2sources\f1...]
 .SH DESCRIPTION
 .B pmchart
@@ -134,6 +135,14 @@ option for generating an output image.
 The
 .I geometry
 argument takes the form "WxH" (e.g. 240x120).
+When NOT using the
+.B \-o
+flag, to specify the display window geometry, use
+.B \-geometry
+.I geometry
+where
+.I geometry
+specifies the desired window width, height and optional placement.
 .TP
 .B \-h
 Current performance metric values are retrieved from the nominated
