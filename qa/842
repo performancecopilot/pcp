@@ -33,7 +33,7 @@ echo
 echo 'Precision'
 for precision in `seq 0 8`; do
     echo == Precision=$precision
-    $PMIOSTAT -P $precision --samples 3 --archive archives/dm-io -x t,h
+    $PMIOSTAT -z -P $precision --samples 3 --archive archives/dm-io -x t,h
     echo
 done
 
