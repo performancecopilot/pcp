@@ -91,10 +91,10 @@ static ctl_t		registered = {
 	0, NULL, 0, 0 };
 
 /* parser and lexer variables */
-static char		*tokbuf = NULL;
+static char		*tokbuf;
 static int		tokbuflen;
 static const char	*this;		/* start of current lexicon */
-static int		lexpeek = 0;
+static int		lexpeek;
 static const char	*string;
 
 #ifdef PM_MULTI_THREAD
@@ -147,9 +147,10 @@ static void
 initialize_mutex(void)
 {
     static pthread_mutex_t	init = PTHREAD_MUTEX_INITIALIZER;
-    static int			done = 0;
+    static int			done;
     int				psts;
     char			errmsg[PM_MAXERRMSGLEN];
+
     if ((psts = pthread_mutex_lock(&init)) != 0) {
 	strerror_r(psts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "initialize_mutex: pthread_mutex_lock failed: %s", errmsg);
@@ -1576,8 +1577,9 @@ pmRegisterDerivedMetric(const char *name, const char *expr, char **errmsg)
     char	*offset;
     char	*error;
     char	*dmsg;
-    char	fmt[] = "Error: pmRegisterDerivedMetric(\"%s\", ...) "
-			"syntax error\n%s\n%*s^\n";
+
+    static const char	fmt[] = \
+	"Error: pmRegisterDerivedMetric(\"%s\", ...) syntax error\n%s\n%*s^\n";
 
     *errmsg = NULL;
     if ((offset = registerderived(name, expr, 0)) == NULL)

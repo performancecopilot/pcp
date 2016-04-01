@@ -148,6 +148,7 @@ context.o
     ?__emutls_v.curcontext	# thread private (MinGW)
 derive_fetch.o
 derive.o
+    ?fmt			# const
     ?func			# const
     ?init			# local initialize_mutex mutex
     ?done			# guarded by local initialize_mutex mutex
