@@ -919,8 +919,6 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     lcp->l_minvol = -1;
     lcp->l_tifp = lcp->l_mdfp = lcp->l_mfp = NULL;
     lcp->l_ti = NULL;
-    lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = 0;
-    lcp->l_hashindom.nodes = lcp->l_hashindom.hsize = 0;
     lcp->l_numseen = 0; lcp->l_seen = NULL;
 
     blen = (int)strlen(base);
