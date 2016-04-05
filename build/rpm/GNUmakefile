@@ -92,6 +92,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@have_libmicrohttpd@|$(have_libmicrohttpd)|g' \
 	    -e's|@have_cairo@|$(have_cairo)|g' \
 	    -e's|@have_python@|$(HAVE_PYTHON)|g' \
+	    -e's|@have_parfait@|$(HAVE_PARFAIT)|g' \
 	    -e's|@have_vector@|$(HAVE_VECTOR)|g' \
 	    -e's|@have_webjs@|$(HAVE_WEBJS)|g' \
 	    -e"s|@build_root@|$${DIST_ROOT}|g" \

@@ -22,6 +22,7 @@ verbose=false
 srconly=false
 dorpm=unknown
 dodeb=unknown
+parfait=false
 vector=false
 webjs=false
 docker=false
@@ -141,6 +142,11 @@ do
     --target)
 	shift
 	target=$1
+	shift
+	;;
+    --with-parfait)
+	cmdline_configopts="$cmdline_configopts $opt"
+	parfait=true
 	shift
 	;;
     --with-vector)
@@ -291,6 +297,7 @@ SRCDIR=$topdir/$source
 SRCTAR=$topdir/build/tar/$source.src.tar.gz
 SRCWEBJS=$topdir/build/tar/webjs.tar.gz
 SRCVECTOR=$topdir/build/tar/vector.tar.gz
+SRCPARFAIT=$topdir/build/tar/parfait.tar.gz
 
 build_failure()
 {
@@ -336,18 +343,34 @@ fix_version()
 #
 third_parties()
 {
+    if $parfait
+    then
+	if [ ! -f "$SRCPARFAIT" ]
+	then
+	    echo "== Downloading Parfait package"
+	    url=https://github.com/performancecopilot/parfait/archive/master.zip
+	    wget -H -q -O $tmp/java.zip "$url"
+	    [ $? -eq 0 ] && ./scripts/zip2tar $tmp/java.zip "$SRCPARFAIT"
+	fi
+	if [ -f "$SRCPARFAIT" ]
+	then
+	    DESTPARFAIT="$topdir/$source/build/tar/"`basename "$SRCPARFAIT"`
+	    cp "$SRCPARFAIT" "$DESTPARFAIT"
+	fi
+    fi
+
     if $vector
     then
 	if [ ! -f "$SRCVECTOR" ]
 	then
 	    echo "== Downloading Vector webapp"
-	    wget -q -O "$SRCVECTOR" \
-https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
+	    url=https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
+	    wget -H -q -O "$SRCVECTOR" "$url"
 	    [ $? -eq 0 ] && echo "Wrote: $SRCVECTOR"
 	fi
 	if [ -f "$SRCVECTOR" ]
 	then
-	    DESTVECTOR="$topdir/$source/build/tar/"`basename $SRCVECTOR`
+	    DESTVECTOR="$topdir/$source/build/tar/"`basename "$SRCVECTOR"`
 	    cp "$SRCVECTOR" "$DESTVECTOR"
 	fi
     fi
@@ -357,13 +380,13 @@ https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
 	if [ ! -f "$SRCWEBJS" ]
 	then
 	    echo "== Downloading webjs webapps"
-	    wget -q -O $tmp/js.zip \
-https://github.com/performancecopilot/pcp-webjs/archive/master.zip
-	    [ $? -eq 0 ] && ./scripts/zip2tar $tmp/js.zip $SRCWEBJS
+	    url=https://github.com/performancecopilot/pcp-webjs/archive/master.zip
+	    wget -H -q -O $tmp/js.zip "$url"
+	    [ $? -eq 0 ] && ./scripts/zip2tar $tmp/js.zip "$SRCWEBJS"
 	fi
 	if [ -f "$SRCWEBJS" ]
 	then
-	    DESTWEBJS="$topdir/$source/build/tar/"`basename $SRCWEBJS`
+	    DESTWEBJS="$topdir/$source/build/tar/"`basename "$SRCWEBJS"`
 	    cp "$SRCWEBJS" "$DESTWEBJS"
 	fi
     fi

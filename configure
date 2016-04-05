@@ -622,6 +622,7 @@ ac_includes_default="\
 ac_subst_vars='PACKAGE_CONFIGURE
 have_webjs
 have_vector
+have_parfait
 HAVE_ZLIB
 zlib_LIBS
 zlib_CFLAGS
@@ -948,6 +949,7 @@ with_manager
 with_webapi
 with_webjs
 with_vector
+with_parfait
 with_make
 with_tar
 with_zip
@@ -1658,6 +1660,7 @@ Optional Packages:
   --with-webapi           enable REST API daemon (default is on)
   --with-webjs            enable building of webjs packages (default is off)
   --with-vector           enable building of vector package (default is off)
+  --with-parfait          enable building of parfait package (default is off)
   --with-make             path to GNU compatible make(1) (default is empty for
                           auto discovery)
   --with-tar              path to GNU compatible tar(1) (default is empty for
@@ -2796,6 +2799,15 @@ if test "${with_vector+set}" = set; then :
   withval=$with_vector; do_vector=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-vector=$withval"
 else
   do_vector=no
+fi
+
+
+
+# Check whether --with-parfait was given.
+if test "${with_parfait+set}" = set; then :
+  withval=$with_parfait; do_parfait=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-parfait=$withval"
+else
+  do_parfait=no
 fi
 
 
@@ -15078,6 +15090,15 @@ else
 $as_echo "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+
+have_parfait=false
+if test -f ./build/tar/parfait.tar.gz
+then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: adding Parfait package to the build" >&5
+$as_echo "$as_me: adding Parfait package to the build" >&6;}
+    have_parfait=true
+fi
 
 
 have_vector=false

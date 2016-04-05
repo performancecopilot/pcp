@@ -166,6 +166,12 @@ AC_ARG_WITH([vector],
     [do_vector=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-vector=$withval"],
     [do_vector=no])
 
+AC_ARG_WITH([parfait],
+    [AC_HELP_STRING([--with-parfait],
+                    [enable building of parfait package (default is off)])],
+    [do_parfait=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-parfait=$withval"],
+    [do_parfait=no])
+
 dnl things set in the environment by Makepkgs never make it into an RPM
 dnl build where the environment is stripped ... use a --with-foo=path
 dnl construct to workaround this
@@ -3203,6 +3209,14 @@ AC_TRY_COMPILE(
 ], AC_DEFINE(HAVE_AI_ADDRCONFIG, [1], [AI_ADDRCONFIG macro]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl Find external source tarballs for packaging
+
+have_parfait=false
+if test -f ./build/tar/parfait.tar.gz
+then
+    AC_MSG_NOTICE([adding Parfait package to the build])
+    have_parfait=true
+fi
+AC_SUBST(have_parfait)
 
 have_vector=false
 if test -f ./build/tar/vector.tar.gz

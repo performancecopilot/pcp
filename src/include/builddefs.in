@@ -253,6 +253,7 @@ HAVE_PYTHON_SIX = @have_python_six@
 HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
 
 # for building packages from external sources
+HAVE_PARFAIT = @have_parfait@
 HAVE_VECTOR = @have_vector@
 HAVE_WEBJS = @have_webjs@
 
