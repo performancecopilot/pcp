@@ -430,7 +430,7 @@
   <action name="helpManualAction" >
    <property name="icon" >
     <iconset resource="pmchart.qrc" >
-     <normaloff>:/images/help-contents.png</normaloff>:/images/help-contents.png</iconset>
+     <normaloff>:/images/help-browser.png</normaloff>:/images/help-browser.png</iconset>
    </property>
    <property name="text" >
     <string>&amp;Manual</string>
