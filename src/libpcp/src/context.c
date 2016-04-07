@@ -539,6 +539,8 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	if ((lcp = (__pmLogCtl *)malloc(sizeof(*lcp))) == NULL)
 	    __pmNoMem("__pmFindOrOpenArchive", sizeof(*lcp), PM_FATAL_ERR);
 	lcp->l_pmns = NULL;
+	lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = 0;
+	lcp->l_hashindom.nodes = lcp->l_hashindom.hsize = 0;
 	lcp->l_multi = multi_arch;
 	acp->ac_log = lcp;
     }
@@ -863,19 +865,19 @@ initarchive(__pmContext	*ctxp, const char *name)
     }
     if (namelist)
 	free(namelist);
-    if (acp->ac_log_list) {
-	while (acp->ac_num_logs > 0) {
-	    --acp->ac_num_logs;
-	    if (acp->ac_log_list[acp->ac_num_logs]) {
-		free(acp->ac_log_list[acp->ac_num_logs]->ml_name);
-		free(acp->ac_log_list[acp->ac_num_logs]->ml_hostname);
-		free(acp->ac_log_list[acp->ac_num_logs]->ml_tz);
-		free(acp->ac_log_list[acp->ac_num_logs]);
-	    }
-	}
-	free(acp->ac_log_list);
-    }
     if (acp) {
+	if (acp->ac_log_list) {
+	    while (acp->ac_num_logs > 0) {
+		--acp->ac_num_logs;
+		if (acp->ac_log_list[acp->ac_num_logs]) {
+		    free(acp->ac_log_list[acp->ac_num_logs]->ml_name);
+		    free(acp->ac_log_list[acp->ac_num_logs]->ml_hostname);
+		    free(acp->ac_log_list[acp->ac_num_logs]->ml_tz);
+		    free(acp->ac_log_list[acp->ac_num_logs]);
+		}
+	    }
+	    free(acp->ac_log_list);
+	}
 	if (acp->ac_log && --acp->ac_log->l_refcnt == 0)
 	    free(acp->ac_log);
 	free(acp);
