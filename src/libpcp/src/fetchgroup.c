@@ -1211,33 +1211,6 @@ pmCreateFetchGroup(pmFG *ptr, int type, const char *name)
 }
 
 /*
- * Lightly wrap pmSetMode for the context handed over to this fetchgroup.
- * Drop previous result, so rate calculations will have to be restarted.
- */
-int
-pmFetchGroupSetMode(pmFG pmfg, int mode, const struct timeval *when, int delta)
-{
-    int sts;
-
-    if (pmfg == NULL)
-	return -EINVAL;
-
-    sts = pmUseContext(pmfg->ctx);
-    if (sts < 0)
-	return sts;
-
-    /*
-     * Delete prevResult, since we can't use it for rate conversion across
-     * time jumps.
-     */
-    if (pmfg->prevResult)
-	pmFreeResult(pmfg->prevResult);
-    pmfg->prevResult = NULL;
-
-    return pmSetMode(mode, when, delta);
-}
-
-/*
  * Return our private context.	Caveat emptor!
  */
 int
