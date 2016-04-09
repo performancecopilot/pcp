@@ -1605,7 +1605,7 @@ static pmLongOptions longopts[] =
     PMOPT_DEBUG,
     { "config", 1, 'c', "DIR", "add configuration directory [default $PCP_SYSCONF_DIR/pmmgr]" },
     { "poll", 1, 'p', "NUM", "set pmcd polling interval [default 60]" },
-    { "username", 1, 'U', "USER", "switch to named user account [default pcp]" },
+    { "username", 1, 'U', "USER", "decrease privilege from root to user [default pcp]" },
     { "log", 1, 'l', "PATH", "redirect diagnostics and trace output" },
     { "verbose", 0, 'v', 0, "verbose diagnostics to stderr" },
     PMOPT_HELP,
@@ -1697,8 +1697,11 @@ int main (int argc, char *argv[])
   // mere inability to write into /var/run/pcp.
   (void) __pmServerCreatePIDFile(pmProgname, 0);
 
-  // lose root privileges if we have them
-  __pmSetProcessIdentity(username.c_str());
+#ifndef IS_MINGW
+    /* lose root privileges if we have them */
+    if (geteuid () == 0)
+#endif
+      __pmSetProcessIdentity(username.c_str());
 
   // (re)create log file, redirect stdout/stderr
   // NB: must be done after __pmSetProcessIdentity() for proper file permissions
