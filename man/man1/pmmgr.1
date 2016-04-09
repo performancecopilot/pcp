@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013-2015 Red Hat, Inc.  All Rights Reserved.
+.\" Copyright (c) 2013-2016 Red Hat, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -57,7 +57,8 @@ defaults.  The default directory is
 .I polling-interval
 sets the host-discovery polling interval to the given number of seconds.
 The default is 60.  Daemons for a particular target host will be restarted
-no more frequently than this interval.
+no more frequently than this interval.  There may be a short-lived thread
+inside pmmgr for startup & shutdown of each daemon for each target host.
 .TP
 .B \-l
 .I log-file
@@ -144,14 +145,16 @@ This file contains one or more lines containing specifications for the
 .IR pmDiscoverServices
 PMAPI call, each of which may map onto a fluctuating set of local or remote
 pmcd servers.  Each poll interval, pmmgr will attempt to rerun discovery with
-all of the given specifications.  Again it is not a problem if more than one
+all of the given specifications.  Again, it is not a problem if more than one
 specification matches the same actual pmcd: one confirmed access path is
 arbitrarily selected.  The default is to do
 .BR "no discovery" .
 Consider including
 .IR avahi,timeout=5
 to rely in pmcd self-announcements on the local network (searching for up to
-five seconds each time).
+five seconds each time).  Consider including
+.IR probe=192.168.1.0/24
+to quickly scan the given IP address range.
 
 .TP
 subtarget\-containers
@@ -161,6 +164,17 @@ independent subtargets for running requested daemons.
 The host-id string for these subtargets is the host's host-id
 string, followed by a double-hyphen, then the full unique container
 instance-name string.
+
+.TP
+target\-threads
+This file contains a limit on the number of concurrent threads
+that analyze potential target pmcds for their hostids and/or
+containers.  The default is
+.BR "a few dozen threads per CPU core" ,
+if known.  Set this to zero if remote pmcds should be analyzed
+sequentially.  A small number of threads is not a good idea if any
+potential target pmcds are unreachable, since $PMCD_CONNECT_TIMEOUT
+may be several seconds long each.
 
 .TP
 log\-subdirectory\-gc
