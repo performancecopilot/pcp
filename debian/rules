@@ -30,7 +30,7 @@ pcp_pmda_infiniband = pcp-pmda-infiniband
 pcp_testsuite = pcp-testsuite
 pcp_manager = pcp-manager
 pcp_webapi = pcp-webapi
-pcp_python = python-pcp
+pcp_python = python3-pcp
 pcpgui = pcp-gui
 pcpdoc = pcp-doc
 
@@ -119,7 +119,7 @@ configure_tools = export DEBUG=-DNDEBUG;
 #       ... Makepkgs uses the latter mechanism to refine the configure
 #       options
 #
-configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-sysconfigdir=/etc/default --without-systemd --without-python3
+configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-sysconfigdir=/etc/default --without-systemd --without-python
 
 checkdir = test -f debian/rules
 uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
@@ -185,7 +185,7 @@ binary-arch: checkroot build-stamp
 	#$(pkgpcp_pmda_infiniband) $(MAKE) -C src/pmdas/infiniband install
 	# need the make clean when more than one version of Python installed
 	# to ensure make install after the first version works
-	for V in $(shell pyversions -vr); do \
+	for V in $(shell py3versions -vr); do \
 	    $(pkgpcp_python) $(MAKE) PYTHON=python$$V -C src/python install; \
 	    $(MAKE) -C src/python clean; \
 	done
@@ -220,7 +220,7 @@ binary-arch: checkroot build-stamp
 	dh_makeshlibs --package $(libpcp_gui)
 	dh_makeshlibs -N $(libpcp_mmv)
 	dh_makeshlibs --package $(libpcp_mmv)
-	dh_python2 --package $(pcp_python)
+	dh_python3 --package $(pcp_python)
 	dh_perl -p $(libpcp_mmv_perl)
 	dh_perl -p $(libpcp_pmda_perl)
 	dh_perl -p $(libpcp_import_perl)

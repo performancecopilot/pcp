@@ -4,13 +4,13 @@ Priority: extra
 Homepage: http://pcp.io
 Maintainer: PCP Development Team <pcp@oss.sgi.com>
 Uploaders: Nathan Scott <nathans@debian.org>, Anibal Monsalve Salazar <anibal@debian.org>
-Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, libqt4-dev, autotools-dev, zlib1g-dev, autoconf ?{dh-python}
+Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python3-all, python3-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, libqt4-dev, autotools-dev, zlib1g-dev, autoconf ?{dh-python}
 #Architecture-dependent -- Build-Depends: libibumad-dev, libibmad-dev
 Standards-Version: 3.9.3
 X-Python-Version: >= 2.6
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, python-pcp, python
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, python3-pcp, python3
 Conflicts: pgpool2
 Suggests: pcp-gui, libpcp-import-perl
 Architecture: any
@@ -212,7 +212,7 @@ Description: Performance Co-Pilot data import library
  client applications to easily retrieve and process any subset of
  that data.
 
-Package: python-pcp
+Package: python3-pcp
 Section: python
 Architecture: any
 Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, libpcp3 (= ${binary:Version})
@@ -337,7 +337,7 @@ Description: Tool for importing data from collectl into PCP archive logs
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
 Package: pcp-export-pcp2graphite
-Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, python-pcp
+Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, python3-pcp
 Breaks: pcp (<< 3.9.0)
 Architecture: any
 Description: Tool for exporting data from PCP to Graphite
