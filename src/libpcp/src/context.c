@@ -1126,9 +1126,6 @@ INIT_CONTEXT:
 	return PM_ERR_NOCONTEXT;
     }
 
-    /* bind defined metrics if any ... */
-    __dmopencontext(new);
-
     /* return the handle to the new (current) context */
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_CONTEXT) {
@@ -1138,11 +1135,14 @@ INIT_CONTEXT:
 #endif
     sts = PM_TPD(curcontext);
 
-    /* Take libpcp lock to update contexts[] with this fully operation
+    /* Take libpcp lock to update contexts[] with this fully operational
        battle station ^W context. */
     PM_LOCK(__pmLock_libpcp);
     contexts[PM_TPD(curcontext)] = new;
     PM_UNLOCK(__pmLock_libpcp);
+
+    /* bind defined metrics if any ..., after the new context is in place */
+    __dmopencontext(new);
 
     return sts;
 
