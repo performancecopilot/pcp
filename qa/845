@@ -79,7 +79,7 @@ then
     eval $python $here/src/fsstats.python $rootdev "/" | \
     while read metric filesys mounts
     do
-	_within_tolerance $metric $filesys $mounts 1 -v		# allow +/-1%
+	_within_tolerance $metric $filesys $mounts 1% -v 	# allow +/-1%
     done
 else
     echo "... failed! ... here is the Install log ..."
