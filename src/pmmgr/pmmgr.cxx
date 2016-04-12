@@ -167,7 +167,7 @@ pmmgr_daemon_poll_thread (void* a)
 int
 pmmgr_configurable::wrap_system(const std::string& cmd)
 {
-  if (pmDebug & DBG_TRACE_APPL0)
+  if (pmDebug & DBG_TRACE_APPL1)
     timestamp(obatched(cout)) << "running " << cmd << endl;
 
   int pid = fork();
@@ -710,7 +710,7 @@ pmmgr_job_spec::poll()
   t1.new_specs_iterator = new_specs.begin();
   t1.new_specs_end = new_specs.end();
 
-  parallel_do (num_threads, &pmmgr_pmcd_search_thread, &t1);
+  parallel_do (min(num_threads,(int)new_specs.size()), &pmmgr_pmcd_search_thread, &t1);
   assert (t1.new_specs_iterator == t1.new_specs_end);
 
   // phase 3b: map the winning hostids/context-specs to containers (if configured required)
@@ -723,7 +723,7 @@ pmmgr_job_spec::poll()
   t2.previous_output = & old_known_targets;
   t2.output = & known_targets;
 
-  parallel_do (num_threads, &pmmgr_pmcd_choice_container_search_thread, &t2);
+  parallel_do (min(num_threads, (int)t2.input->size()), &pmmgr_pmcd_choice_container_search_thread, &t2);
   assert (t2.input_iterator == t2.input_end);
 
   if (pmDebug & DBG_TRACE_APPL1)
@@ -974,7 +974,7 @@ pmmgr_daemon::~pmmgr_daemon() // NB: possibly launched in a detached thread
 	// not dead yet ... try again a little harder
 	(void) kill ((pid_t) pid, SIGKILL);
       }
-      if (pmDebug & DBG_TRACE_APPL0)
+      if (pmDebug & DBG_TRACE_APPL1)
 	timestamp(obatched(cout)) << "daemon pid " << pid << " killed" << endl;
     }
 }
@@ -1038,7 +1038,7 @@ void pmmgr_daemon::poll()
       // Enforce exec on even these shells.
       commandline = string("exec ") + commandline;
 
-      if (pmDebug & DBG_TRACE_APPL0)
+      if (pmDebug & DBG_TRACE_APPL1)
 	timestamp(obatched(cout)) << "fork/exec sh -c " << commandline << endl;
       pid = fork();
       if (pid == 0) // child process
@@ -1288,7 +1288,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
 		  if (label.ll_start.tv_sec >= prior_period_end) // archive too new?
 		    {
-		      if (pmDebug & DBG_TRACE_APPL0)
+		      if (pmDebug & DBG_TRACE_APPL1)
 			timestamp(obatched(cout)) << "skipping merge of too-new archive " << base_name << endl;
 		      pmDestroyContext (ctx);
 		      continue;
@@ -1304,7 +1304,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
 		  if (archive_end.tv_sec < prior_period_start) // archive too old?
 		    {
-		      if (pmDebug & DBG_TRACE_APPL0)
+		      if (pmDebug & DBG_TRACE_APPL1)
 			timestamp(obatched(cout)) << "skipping merge of too-old archive " << base_name << endl;
 		      pmDestroyContext (ctx);
 		      continue; // skip; gc later
@@ -1360,7 +1360,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 		  timestamp(obatched(cerr)) << "stat '" << the_blob.gl_pathv[i] << "' error; skipping cleanup" << endl;
 		  continue; // likely nothing can be done to this one
 		}
-              if (pmDebug & DBG_TRACE_APPL0)
+              if (pmDebug & DBG_TRACE_APPL1)
                 timestamp(obatched(cout)) << "contemplating deletion of archive " << base_name
                                 << " (" << foo.st_mtime << "+" << reduced_retention_tv.tv_sec
                                 << " < " << now_tv.tv_sec << ")"
