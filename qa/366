@@ -64,6 +64,7 @@ networking/nfs3-client
 networking/nfs3-server
 networking/nfs4-client
 networking/nfs4-server
+networking/softnet
 tools/atop
 tools/atop-httpstats
 tools/atop-proc
