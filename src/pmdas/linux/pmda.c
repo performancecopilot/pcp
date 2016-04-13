@@ -6381,32 +6381,38 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 0:	/* network.softnet.processed */
 	    if (!(proc_net_softnet.flags & SN_PROCESSED))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.processed;
+	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
+		atom->ull += proc_net_softnet.processed[i];
 	    break;
 	case 1: /* network.softnet.dropped */
 	    if (!(proc_net_softnet.flags & SN_DROPPED))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.dropped;
+	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
+		atom->ull += proc_net_softnet.dropped[i];
 	    break;
 	case 2: /* network.softnet.time_squeeze */
 	    if (!(proc_net_softnet.flags & SN_TIME_SQUEEZE))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.time_squeeze;
+	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
+		atom->ull += proc_net_softnet.time_squeeze[i];
 	    break;
 	case 3: /* network.softnet.cpu_collision */
 	    if (!(proc_net_softnet.flags & SN_CPU_COLLISION))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.cpu_collision;
+	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
+		atom->ull += proc_net_softnet.cpu_collision[i];
 	    break;
 	case 4: /* network.softnet.received_rps */
 	    if (!(proc_net_softnet.flags & SN_RECEIVED_RPS))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.received_rps;
+	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
+		atom->ull += proc_net_softnet.received_rps[i];
 	    break;
 	case 5: /* network.softnet.flow_limit_count */
 	    if (!(proc_net_softnet.flags & SN_FLOW_LIMIT_COUNT))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.flow_limit_count;
+	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
+		atom->ull += proc_net_softnet.flow_limit_count[i];
 	    break;
 	default:
 	    return PM_ERR_PMID;
