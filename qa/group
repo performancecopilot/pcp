@@ -1058,6 +1058,7 @@ timezone
 817 pmstat archive multi-archive local
 818 pmval archive multi-archive local
 819 pmda.elasticsearch local
+820 pmda.linux local
 822:reserved pmlogrewrite
 823 pmda.sample pmstore secure local
 824 pmlogsummary local #1132476
