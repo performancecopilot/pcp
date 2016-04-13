@@ -776,6 +776,16 @@ network.softnet {
     cpu_collision	60:57:3
     received_rps	60:57:4
     flow_limit_count	60:57:5
+    percpu
+}
+
+network.softnet.percpu {
+    processed		60:57:6
+    dropped		60:57:7
+    time_squeeze	60:57:8
+    cpu_collision	60:57:9
+    received_rps	60:57:10
+    flow_limit_count	60:57:11
 }
 
 network.ip6 {

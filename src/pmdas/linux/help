@@ -1023,6 +1023,12 @@ See also network.interface.speed for the Megabytes/second value.
 @ network.softnet.cpu_collision number of times that two cpus collided trying to get the device queue lock
 @ network.softnet.received_rps number of times rps_trigger_softirq has been called
 @ network.softnet.flow_limit_count softnet_data flow limit counter
+@ network.softnet.percpu.processed number of packets (not including netpoll) received by the interrupt handler
+@ network.softnet.percpu.dropped number of packets that were dropped because netdev_max_backlog was exceeded
+@ network.softnet.percpu.time_squeeze number of times ksoftirq ran out of netdev_budget or time slice with work remaining
+@ network.softnet.percpu.cpu_collision number of times that two cpus collided trying to get the device queue lock
+@ network.softnet.percpu.received_rps number of times rps_trigger_softirq has been called
+@ network.softnet.percpu.flow_limit_count softnet_data flow limit counter
 The network stack has to drop packets when a receive processing a CPUs
 backlog reaches netdev_max_backlog.  The flow_limit_count counter is
 the number of times very active flows have dropped their traffic earlier
