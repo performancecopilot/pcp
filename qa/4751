@@ -1,0 +1,97 @@
+#!/bin/sh
+# PCP QA Test No. 4751
+# multi-threaded context-creation
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_get_libpcp_config
+$multi_threaded || _notrun "No libpcp threading support"
+
+status=0	# success is the default!
+$sudo rm -f $tmp.* /tmp/func?.out $seq.full
+trap "rm -f $tmp.* /tmp/func?.out; exit \$status" 0 1 2 3 15
+
+# collect stderr as we go
+exec 2>> $seq.full
+
+_filter_ncpu()
+{
+  tee -a $seq.full | sed -e 's, [0-9]*$, NUMBER,'
+}
+
+# real QA test starts here
+echo "Only one context ..."
+date >> $seq.full
+src/multithread10 localhost | _filter_ncpu
+date >> $seq.full
+
+echo "A couple of localhosts ..."
+date >> $seq.full
+src/multithread10 localhost 127.0.0.1 localhost localhost local: local: localhost | _filter_ncpu
+date >> $seq.full
+
+echo "A couple of unreachable hosts ..."
+date >> $seq.full
+ips=""
+for i in 1 2 3 4; do
+    for j in 0 1 2 3 4 5 6 7 8 9; do
+        ips="$ips 192.0.2.${i}${j}"
+    done
+done
+src/multithread10 $ips | _filter_ncpu
+date >> $seq.full
+
+echo "A mixture of archives and hosts and unreachable hosts ..."
+ips="localhost local: localhost local: localhost local: 127.0.0.1 127.0.0.1 "
+for i in 1 2 1 2 ; do
+    for j in 0 1 2 3 4 5 6 7 8 9; do
+        ips="$ips 192.0.2.${i}${j}"
+    done
+done
+# a snapshot of archives as of our incept date, some of them repeated
+archives="
+./archives/tzchange-10-a.meta
+./archives/tzchange-10-b.meta
+./archives/tzchange-11-a.meta
+./archives/tzchange-11-b.meta
+./archives/tzchange-12-a.meta
+./archives/tzchange-12-b.meta
+./archives/pcp-vmstat.meta
+./archives/pmatop-log.meta
+./archives/pmiostat_mark.meta
+./archives/proc.meta
+./archives/procpid-encode2.meta
+./archives/procpid-encode.meta
+./archives/eventrec-old.meta
+./archives/fcsw_indom.meta
+./archives/foo+.meta
+./archives/gap2.meta
+./archives/gap.meta
+./archives/gmt-boring.meta
+./archives/instant-1.meta
+./archives/instant-base.meta
+./archives/interpmark.meta
+./archives/kenj-pc-1.meta
+./archives/kenj-pc-2.meta
+./archives/kenj-pc-diskstat.meta
+./archives/20041125.meta
+./archives/20071023-08-06-36.meta
+./archives/20101004-trunc.meta
+./archives/20130706.meta
+./archives/20150105.17.57-00.meta
+./archives/20150105.17.57.meta
+"
+date >> $seq.full
+src/multithread10 $archives $ips $archives $ips | _filter_ncpu
+date >> $seq.full
+
+
+
+# success, all done
+exit

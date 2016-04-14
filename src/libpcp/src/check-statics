@@ -137,6 +137,7 @@ connect.o
     proxy			# guarded by __pmLock_libpcp mutex
 context.o
     _mode			# const
+    being_initialized           # const
     def_backoff			# guarded by __pmLock_libpcp mutex
     backoff			# guarded by __pmLock_libpcp mutex
     n_backoff			# guarded by __pmLock_libpcp mutex

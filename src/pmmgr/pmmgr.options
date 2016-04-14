@@ -3,6 +3,8 @@
 # note: environment variables are *not* expanded - use full path
 
 # make log more verbose
+-v
+# even more verbose
 # -v
 
 # poll less frequently 

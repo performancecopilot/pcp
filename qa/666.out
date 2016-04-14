@@ -4,6 +4,7 @@ pmmgr ok
 === 2. pmmgr barenaked startup  ===
 === 3. look for pmmgr starting no daemons ===
 target-host
+target-threads
 === 4. add control files to start pmlogger and pmie ===
 === 5. restart pmcd a few times to get a bunch of pmlogger archives ===
 === 6. check the directories ===

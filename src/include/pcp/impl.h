@@ -746,7 +746,7 @@ typedef struct {
  */
 typedef struct {
     __pmMutex		c_lock;		/* mutex for multi-thread access */
-    int			c_type;		/* HOST, ARCHIVE, LOCAL or FREE */
+    int			c_type;		/* HOST, ARCHIVE, LOCAL or INIT or FREE */
     int			c_mode;		/* current mode PM_MODE_* */
     __pmPMCDCtl		*c_pmcd;	/* pmcd control for HOST contexts */
     __pmArchCtl		*c_archctl;	/* log control for ARCHIVE contexts */
@@ -761,7 +761,8 @@ typedef struct {
 
 #define __PM_MODE_MASK	0xffff
 
-#define PM_CONTEXT_FREE	-1		/* special type */
+#define PM_CONTEXT_FREE	-1		/* special type: free to reuse */
+#define PM_CONTEXT_INIT	-2		/* special type: being initialized, do not use */
 
 /*
  * Convert opaque context handle to __pmContext pointer

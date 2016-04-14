@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,10 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <cassert>
+
+// (to simulate non-pthreads build)
+// #undef HAVE_PTHREAD_H
 
 extern "C" {
 #include <fcntl.h>
@@ -70,6 +74,23 @@ sh_quote(const string& input)
 }
 
 
+// A little class that impersonates an ostream to the extent that it can
+// take << streaming operations.  It batches up the bits into an internal
+// stringstream until it is destroyed; then flushes to the original ostream.
+class obatched
+{
+private:
+  ostream& o;
+  stringstream stro;
+public:
+  obatched(ostream& oo): o(oo) {}
+  ~obatched() { o << stro.str(); }
+  operator ostream& () { return stro; }
+  template <typename T> ostream& operator << (const T& t) { stro << t; return stro; }
+};
+
+
+
 // Print a string to cout/cerr progress reports, similar to the
 // stuff produced by __pmNotifyErr
 ostream&
@@ -77,9 +98,10 @@ timestamp(ostream &o)
 {
   time_t now;
   time (&now);
-  char *now2 = ctime (&now);
+  char now2buf[30];
+  char *now2 = ctime_r (&now, now2buf);
   if (now2)
-    now2[19] = '\0'; // overwrite \n
+    now2[19] = '\0'; // overwrite " YYYY \n"
 
   return o << "[" << (now2 ? now2 : "") << "] " << pmProgname << "("
 	   << getpid()
@@ -92,6 +114,43 @@ timestamp(ostream &o)
 #endif
 	   << "): ";
 }
+
+// ------------------------------------------------------------------------
+
+
+// Lightweight wrapper for pthread_mutex_t, incl. nonlocking non-pthread backup implementation
+struct lock_t {
+#if HAVE_PTHREAD_H
+private:
+  pthread_mutex_t _lock;
+public:
+  lock_t() { pthread_mutex_init(& this->_lock, NULL); }
+  ~lock_t() { pthread_mutex_destroy (& this->_lock); }
+  void lock() { pthread_mutex_lock (& this->_lock); }
+  void unlock() { pthread_mutex_unlock (& this->_lock); }
+#else
+public:
+  lock_t() {}
+  ~lock_t() {}
+  void lock() {}
+  void unlock() {}
+#endif
+private:
+  lock_t(const lock_t&); // make uncopyable
+  lock_t& operator=(lock_t const&); // make unassignable
+};
+
+
+// RAII style mutex holder that matches { } block lifetime
+struct locker
+{
+public:
+  locker(lock_t *_m): m(_m) { m->lock(); }
+  ~locker() { m->unlock(); }
+private:
+  lock_t* m;
+};
+
 
 
 extern "C" void *
@@ -108,21 +167,21 @@ pmmgr_daemon_poll_thread (void* a)
 int
 pmmgr_configurable::wrap_system(const std::string& cmd)
 {
-  if (pmDebug & DBG_TRACE_APPL0)
-    timestamp(cout) << "running " << cmd << endl;
+  if (pmDebug & DBG_TRACE_APPL1)
+    timestamp(obatched(cout)) << "running " << cmd << endl;
 
   int pid = fork();
   if (pid == 0)
     {
       // child
       int rc = execl ("/bin/sh", "sh", "-c", cmd.c_str(), NULL);
-      timestamp(cerr) << "failed to execl sh -c " << cmd << " rc=" << rc << endl;
+      timestamp(obatched(cerr)) << "failed to execl sh -c " << cmd << " rc=" << rc << endl;
       _exit (1);
     }
   else if (pid < 0)
     {
       // error
-      timestamp(cerr) << "fork for " << cmd << " failed: errno=" << errno << endl;
+      timestamp(obatched(cerr)) << "fork for " << cmd << " failed: errno=" << errno << endl;
       return -1;
     }
   else
@@ -130,19 +189,19 @@ pmmgr_configurable::wrap_system(const std::string& cmd)
       // parent
       int status = -1;
       int rc;
-      //timestamp(cout) << "waiting for pid=" << pid << endl;
+      //timestamp(obatched(cout)) << "waiting for pid=" << pid << endl;
 
       do { rc = waitpid(pid, &status, 0); } while (!quit && rc == -1 && errno == EINTR); // TEMP_FAILURE_RETRY
       if (quit)
 	{
-	  // timestamp(cout) << "killing pid=" << pid << endl;
+	  // timestamp(obatched(cout)) << "killing pid=" << pid << endl;
 	  kill (pid, SIGTERM); // just to be on the safe side
 	  // it might linger a few seconds in zombie mode
 	}
 
-      //timestamp(cout) << "done status=" << status << endl;
+      //timestamp(obatched(cout)) << "done status=" << status << endl;
       if (status != 0)
-	timestamp(cerr) << "system(" << cmd << ") failed: rc=" << status << endl;
+	timestamp(obatched(cerr)) << "system(" << cmd << ") failed: rc=" << status << endl;
       return status;
     }
 }
@@ -197,8 +256,8 @@ pmmgr_configurable::get_config_single(const string& file) const
     return "";
 }
 
-ostream&
-pmmgr_configurable::timestamp(ostream& o)
+ostream& // NB: return by value!
+pmmgr_configurable::timestamp(ostream& o) const
 {
   return ::timestamp(o) << config_directory << ": ";
 }
@@ -207,10 +266,17 @@ pmmgr_configurable::timestamp(ostream& o)
 
 // ------------------------------------------------------------------------
 
+// This can be a global cache, shared amongst all threads & connections,
+// as it represents siply a parsing of a pcp metric-description string.
+
+static std::map<std::string,pmMetricSpec*> parsed_metric_cache;
+static lock_t parsed_metric_cache_lock;
 
 pmMetricSpec*
-pmmgr_job_spec::parse_metric_spec (const string& spec)
+pmmgr_job_spec::parse_metric_spec (const string& spec) const
 {
+  locker metric_cache_locking (& parsed_metric_cache_lock);
+
   if (parsed_metric_cache.find(spec) != parsed_metric_cache.end())
     return parsed_metric_cache[spec];
 
@@ -222,7 +288,7 @@ pmmgr_job_spec::parse_metric_spec (const string& spec)
 			      0, dummy_host, /* both ignored */
 			      & pms, & errmsg);
   if (rc < 0) {
-    timestamp(cerr) << "hostid-metrics '" << specstr << "' parse error: " << errmsg << endl;
+    timestamp(obatched(cerr)) << "hostid-metrics '" << specstr << "' parse error: " << errmsg << endl;
     free (errmsg);
   }
 
@@ -231,8 +297,11 @@ pmmgr_job_spec::parse_metric_spec (const string& spec)
 }
 
 
+// NB: note: this function needs to be reentrant/concurrency-aware, since
+// multiple threads may be running it at the same time against the same
+// pmmgr_job_spec object!
 pmmgr_hostid
-pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
+pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx) const
 {
   pmFG fg;
   int sts = pmCreateFetchGroup (&fg, PM_CONTEXT_HOST, ctx.c_str());
@@ -249,14 +318,14 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
   pmAtomValue *values = new pmAtomValue[max_instances_per_metric * hostid_specs.size()];
   memset (values, 0, sizeof(pmAtomValue)*max_instances_per_metric * hostid_specs.size());
   unsigned values_idx = 0; // index into values[]
-  
+
   // extend the fetchgroup with all the metrics
   // NB: even cursory error handling is skipped, relying on pmfgs' reliable representation
   // of missing/potential values as (char*) NULLs in the output pmAtomValue.
   for (unsigned i=0; i<hostid_specs.size(); i++)
     {
       pmMetricSpec* pms = parse_metric_spec (hostid_specs[i]);
-      
+
       if (pms->ninst)
         for (unsigned j=0; j<(unsigned)pms->ninst && j<max_instances_per_metric; j++)
           (void) pmExtendFetchGroup_item (fg, pms->metric, pms->inst[j], NULL,
@@ -311,9 +380,11 @@ pmmgr_job_spec::compute_hostid (const pcp_context_spec& ctx)
 }
 
 
-
+// NB: note: this function needs to be reentrant/concurrency-aware, since
+// multiple threads may be running it at the same time against the same
+// pmmgr_job_spec object!
 set<string>
-pmmgr_job_spec::find_containers (const pcp_context_spec& ctx)
+pmmgr_job_spec::find_containers (const pcp_context_spec& ctx) const
 {
     set<string> result;
     enum { max_num_containers = 10000 }; /* large enough? */
@@ -361,9 +432,13 @@ pmmgr_job_spec::pmmgr_job_spec(const std::string& config_directory):
 }
 
 
+// ------------------------------------------------------------------------
+
+
 pmmgr_job_spec::~pmmgr_job_spec()
 {
   // free any cached pmMetricSpec's
+  // locking not necessary; this dtor is not run in parallel with anything else
   for (map<string,pmMetricSpec*>::iterator it = parsed_metric_cache.begin();
        it != parsed_metric_cache.end();
        ++it)
@@ -373,11 +448,205 @@ pmmgr_job_spec::~pmmgr_job_spec()
   for (map<pmmgr_hostid,pcp_context_spec>::iterator it = known_targets.begin();
        it != known_targets.end();
        ++it)
-    note_dead_hostid (it->first);
+    note_dead_hostid (it->first); // shrinks daemons[] also
+
+  assert (daemons.size()==0);
 }
 
 
+
+
+
 // ------------------------------------------------------------------------
+// parallel pmcd searching
+//
+// (set<pcp_context_spec> => multimap<hostid,pcp_context_spec> mapping)
+
+struct pmcd_search_task
+{
+  // Single BKL to protect all shared data.  This should be sufficient
+  // since the bulk of the time of the search threads should be
+  // blocked in the network stack (attempting connections).
+  lock_t lock;
+
+  pmmgr_job_spec *job; // reentrant/const members called from multiple threads
+  set<pcp_context_spec>::const_iterator new_specs_iterator; // pointer into same
+  set<pcp_context_spec>::const_iterator new_specs_end; // pointer into same
+
+  multimap<pmmgr_hostid,pcp_context_spec> output;
+};
+
+
+extern "C" void *
+pmmgr_pmcd_search_thread (void *a)
+{
+  pmcd_search_task* t = (pmcd_search_task*) a;
+  assert (t != NULL);
+
+  while (1)
+    {
+      pcp_context_spec spec;
+
+      {
+        locker grab_next_piece_of_work (& t->lock);
+
+        if (t->new_specs_iterator == t->new_specs_end) // all done!
+          break;
+
+        spec = * (t->new_specs_iterator ++);
+      }
+
+      // NB: this may take seconds! $PMCD_CONNECT_TIMEOUT
+      pmmgr_hostid hostid = t->job->compute_hostid (spec);
+
+      if (hostid != "") // verified existence/liveness
+	{
+          locker update_output (& t->lock);
+
+          t->output.insert (make_pair (hostid, spec));
+        }
+    }
+
+  return 0;
+}
+
+
+
+// ------------------------------------------------------------------------
+// parallel pcp_context_spec selection and container searching
+//
+// multimap<hostid,pcp_context_spec> => map<hostid,pcp_context_spec> mapping
+
+struct pmcd_choice_container_search_task
+{
+  // Single BKL
+  lock_t lock;
+
+  bool subtarget_containers; // RO: cached spec->get_config_exists()
+
+  pmmgr_job_spec *job; // reentrant/const members called from multiple threads
+
+  multimap<pmmgr_hostid,pcp_context_spec>* input;
+  multimap<pmmgr_hostid,pcp_context_spec>::const_iterator input_iterator; // pointer into same
+  multimap<pmmgr_hostid,pcp_context_spec>::const_iterator input_end; // pointer into same
+
+  const map<pmmgr_hostid,pcp_context_spec>* previous_output;
+  map<pmmgr_hostid,pcp_context_spec>* output;
+};
+
+
+extern "C" void *
+pmmgr_pmcd_choice_container_search_thread (void *a)
+{
+  pmcd_choice_container_search_task* t = (pmcd_choice_container_search_task*) a;
+  assert (t != NULL);
+
+  while (1)
+    {
+      multimap<pmmgr_hostid,pcp_context_spec>::const_iterator work_begin;
+      multimap<pmmgr_hostid,pcp_context_spec>::const_iterator work_end;
+
+      {
+        locker grab_next_piece_of_work (& t->lock);
+
+        work_begin = t->input_iterator;
+        if (work_begin == t->input_end) // all done!
+          break;
+
+        // advance other threads to past this hostid
+        work_end = t->input->upper_bound(work_begin->first); // as opposed to ++work_begin
+        t->input_iterator = work_end;
+      }
+      // ... while we keep working on [work,work_end)
+
+      // Choose a pcp_context_spec from the set available for this hostid.
+      // Favour preexisting connection (from previous_output[]).
+
+      pmmgr_hostid host = work_begin->first;
+      assert (host != "");
+      pcp_context_spec spec; // the chosen one
+      map<pmmgr_hostid,pcp_context_spec>::const_iterator prev_spec_iter = t->previous_output->find(host);
+      if (prev_spec_iter == t->previous_output->end()) // new hostid?
+        spec = work_begin->second; // choose first (arbitrary); done
+      else
+        {
+          // search for a match; choose if it it exists
+          pcp_context_spec prev_spec = prev_spec_iter->second;
+          multimap<pmmgr_hostid,pcp_context_spec>::const_iterator work;
+          for (work = work_begin; work != work_end; work++)
+            {
+              if (work->second == prev_spec) // match found
+                {
+                  spec = work->second; // reconfirm previous choice; done
+                  break;
+                }
+            }
+          if (work == work_end) // no match found
+            spec = work_begin->second; // choose first (arbitrary); done
+        }
+      assert (spec != "");
+
+      // Enumerate running containers on the chosen spec, if appropriate.
+
+      set<string> containers;
+      if (t->subtarget_containers)
+        containers = t->job->find_containers(spec);
+
+      // Record all the pmcd instances (+containers) in the output
+      {
+        locker write_output (& t->lock);
+
+        t->output->insert(make_pair(host,spec));
+
+        for (set<string>::const_iterator it2 = containers.begin();
+             it2 != containers.end();
+             ++it2) {
+          // XXX: presuming that the container name is safe & needs no escape;
+          // on docker, this is ok because the container id is a long hex string,
+          // and we don't support nested containers.
+          pmmgr_hostid subtarget_hostid = host + string("--") + *it2;
+          // Choose ? or & for the hostspec suffix-prefix, depending
+          // on whether there's already a ?.  There can be only one (tm).
+          char pfx = (spec.find('?') == string::npos) ? '?' : '&';
+          pcp_context_spec subtarget_spec = spec + pfx + string("container=") + *it2;
+
+          t->output->insert(make_pair(subtarget_hostid,subtarget_spec));
+        }
+      }
+  }
+
+  return 0;
+}
+
+
+void
+pmmgr_job_spec::parallel_do(int num_threads, void * (*fn)(void *), void *data) const
+{
+#ifdef HAVE_PTHREAD_H
+  vector <pthread_t> threads;
+#endif
+
+  for (int i = 0; i<num_threads; i++)
+    {
+#ifdef HAVE_PTHREAD_H
+      pthread_t foo;
+      int rc = pthread_create(&foo, NULL, fn, data);
+      if (rc == 0)
+	threads.push_back (foo);
+      // No problem if we can't launch as many as the user suggested.
+#endif
+    }
+
+  // Race main thread with the worker function too, until it returns.
+  (void) (*fn) (data);
+
+  // All threads should shut themselves down shortly.
+#ifdef HAVE_PTHREAD_H
+  for (unsigned i=0; i<threads.size(); i++)
+    pthread_join (threads[i], NULL);
+#endif
+}
+
 
 
 void
@@ -399,6 +668,7 @@ pmmgr_job_spec::poll()
       const char *discovery = (target_discovery[i] == "")
 	? NULL
 	: target_discovery[i].c_str();
+      // NB: this call may take O(seconds).
       int numUrls = pmDiscoverServices (PM_SERVER_SERVICE_SPEC, discovery, &urls);
       if (numUrls <= 0)
 	continue;
@@ -417,72 +687,52 @@ pmmgr_job_spec::poll()
   const map<pmmgr_hostid,pcp_context_spec> old_known_targets = known_targets;
   known_targets.clear();
 
-  // phase 3: map the context-specs to hostids to find new hosts
-  map<pmmgr_hostid,double> known_target_scores;
-  for (set<pcp_context_spec>::iterator it = new_specs.begin();
-       it != new_specs.end() && !quit;
-       ++it)
-    {
-      struct timeval before, after;
-      __pmtimevalNow(& before);
-      pmmgr_hostid hostid = compute_hostid (*it);
-      __pmtimevalNow(& after);
-      double score = __pmtimevalSub(& after, & before); // the smaller, the preferreder
+  string num_threads_str = get_config_single("target-threads");
+#ifdef _SC_NPROCESSORS_ONLN
+  int num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+#else
+  int num_cpus = 1;
+#endif
+  int num_threads = num_cpus * 32;
+  if (num_threads_str != "")
+    num_threads = atoi(num_threads_str.c_str());
+  if (num_threads < 0)
+    num_threads = 0;
+  // Why * 32?  The pmcd-search function is not CPU hungry at all: it's
+  // just a socket connect and a few packets exchanged.  The scarce
+  // resources are file descriptors (1ish) and thread stack memory
+  // (2MBish) each.  We guesstimate that a reasonable server box can
+  // bear an extra 64MB of momentary RAM consumption.
 
-      if (hostid != "") // verified existence/liveness
-	{
-            // If we already have this connection to the same hostid,
-            // favour its preservation.  This way, an existing daemon connection
-            // won't be upset / flopped around.
-	    if ((old_known_targets.find(hostid) != old_known_targets.end()) && // known host
-		(*it == old_known_targets.find(hostid)->second)) // same connection
-		{
-		    known_targets[hostid] = *it;
-		    known_target_scores[hostid] = -1.; // better than other alternatives
-		}
-	    // Prefer the fastest (lowest-score) alternative connection to this hostid.
-	    else if ((known_target_scores.find(hostid) == known_target_scores.end()) ||
-		     (known_target_scores[hostid] > score))
-		{
-		    known_targets[hostid] = *it;
-		    known_target_scores[hostid] = score;
-		}
-	}
-    }
+  // phase 3a: map the context-specs to hostids to find new hosts via parallel threads
+  pmcd_search_task t1;
+  t1.job = this;
+  t1.new_specs_iterator = new_specs.begin();
+  t1.new_specs_end = new_specs.end();
 
-  // phase 3b: container subtargeting
-  if (get_config_exists("subtarget-containers")) {
-      // iterate over a copy (so we don't append and iterate at the same time)
-      const map<pmmgr_hostid,pcp_context_spec> known_plain_targets = known_targets;
-      for (map<pmmgr_hostid,pcp_context_spec>::const_iterator it = known_plain_targets.begin();
-           it != known_plain_targets.end();
-           ++it)
-          {
-              set<string> containers = find_containers(it->second);
-              for (set<string>::const_iterator it2 = containers.begin();
-                   it2 != containers.end();
-                   ++it2) {
-                  // XXX: presuming that the container name is safe & needs no escape;
-                  // on docker, this is ok because the container id is a long hex string.
-                  pmmgr_hostid subtarget_hostid = it->first + string("--") + *it2;
-                  // Choose ? or & for the hostspec suffix-prefix, depending
-                  // on whether there's already a ?.  There can be only one (tm).
-                  char pfx = (it->second.find('?') == string::npos) ? '?' : '&';
-                  pcp_context_spec subtarget_spec = it->second +
-                      pfx + string("container=") + *it2;
-                  known_targets[subtarget_hostid] = subtarget_spec;
-              }
-          }
-  }
+  parallel_do (min(num_threads,(int)new_specs.size()), &pmmgr_pmcd_search_thread, &t1);
+  assert (t1.new_specs_iterator == t1.new_specs_end);
 
+  // phase 3b: map the winning hostids/context-specs to containers (if configured required)
+  pmcd_choice_container_search_task t2;
+  t2.job = this;
+  t2.input = &t1.output;
+  t2.input_iterator = t1.output.begin();
+  t2.input_end = t1.output.end();
+  t2.subtarget_containers = get_config_exists("subtarget-containers");
+  t2.previous_output = & old_known_targets;
+  t2.output = & known_targets;
+
+  parallel_do (min(num_threads, (int)t2.input->size()), &pmmgr_pmcd_choice_container_search_thread, &t2);
+  assert (t2.input_iterator == t2.input_end);
 
   if (pmDebug & DBG_TRACE_APPL1)
       {
-	  timestamp(cout) << "poll results" << endl;
+	  timestamp(obatched(cout)) << "poll results" << endl;
 	  for (map<pmmgr_hostid,pcp_context_spec>::const_iterator it = known_targets.begin();
 	       it != known_targets.end();
 	       ++it)
-	      timestamp(cout) << it->first << " @ " << it->second << endl;
+	      timestamp(obatched(cout)) << it->first << " @ " << it->second << endl;
       }
 
   // phase 4a: compare old_known_targets vs. known_targets: look for any recently died
@@ -493,7 +743,7 @@ pmmgr_job_spec::poll()
       const pmmgr_hostid& hostid = it->first;
       if ((known_targets.find(hostid) == known_targets.end()) || // host disappeared?
 	  (known_targets[hostid] != it->second)) // reappeared at different address?
-	note_dead_hostid (hostid);
+	note_dead_hostid (hostid); // kills daemon pids; shrinks daemons[]; might take a fraction of a second
     }
 
   // phase 4b: compare new known_targets & old_known_targets: look for recently born
@@ -504,14 +754,14 @@ pmmgr_job_spec::poll()
       const pmmgr_hostid& hostid = it->first;
       if ((old_known_targets.find(hostid) == old_known_targets.end()) || // new host?
 	  (old_known_targets.find(hostid)->second != it->second)) // reappeared at different address?
-	note_new_hostid (hostid, known_targets[hostid]);
+	note_new_hostid (hostid, known_targets[hostid]); // grows daemons[]; doesn't start daemon pids; instant
     }
 
   // phase 5: poll all the live daemons
   // NB: there is a parallelism opportunity, as running many pmlogconf/etc.'s in series
   // is a possible bottleneck.
 #ifdef HAVE_PTHREAD_H
-  vector<pthread_t> threads;
+  vector<pthread_t> poll_threads;
 #endif
   for (multimap<pmmgr_hostid,pmmgr_daemon*>::iterator it = daemons.begin();
        it != daemons.end() && !quit;
@@ -521,17 +771,18 @@ pmmgr_job_spec::poll()
       pthread_t foo;
       int rc = pthread_create(&foo, NULL, &pmmgr_daemon_poll_thread, it->second);
       if (rc == 0)
-	threads.push_back (foo);
+	poll_threads.push_back (foo);
 #else
-      int rc = -ENOSUPP;
+      int rc = -1;
 #endif
       if (rc) // threading failed or running single-threaded
 	it->second->poll();
     }
 
 #ifdef HAVE_PTHREAD_H
-  for (unsigned i=0; i<threads.size(); i++)
-    pthread_join (threads[i], NULL);
+  for (unsigned i=0; i<poll_threads.size(); i++)
+    pthread_join (poll_threads[i], NULL);
+  poll_threads.clear();
 #endif
 
   // phase 6: garbage-collect ancient log-directory subdirs
@@ -543,7 +794,7 @@ pmmgr_job_spec::poll()
   int rc = pmParseInterval(subdir_gc.c_str(), & tv, & errmsg);
   if (rc < 0)
     {
-      timestamp(cerr) << "log-subdirectory-gc '" << subdir_gc << "' parse error: " << errmsg << endl;
+      timestamp(obatched(cerr)) << "log-subdirectory-gc '" << subdir_gc << "' parse error: " << errmsg << endl;
       free (errmsg);
       // default to 90days in another way
       tv.tv_sec = 60 * 60 * 24 * 90;
@@ -589,7 +840,7 @@ pmmgr_job_spec::poll()
 	      (foo.st_mtime + tv.tv_sec) < now)
 	    {
 	      // <Janine Melnitz>We've got one!!!!!</>
-	      timestamp(cout) << "gc subdirectory " << item_name << endl;
+	      timestamp(obatched(cout)) << "gc subdirectory " << item_name << endl;
 	      string cleanup_cmd = "/bin/rm -rf " + sh_quote(item_name);
 	      (void) wrap_system(cleanup_cmd);
 	    }
@@ -605,7 +856,7 @@ pmmgr_job_spec::poll()
 void
 pmmgr_job_spec::note_new_hostid(const pmmgr_hostid& hid, const pcp_context_spec& spec)
 {
-  timestamp(cout) << "new hostid " << hid << " at " << string(spec) << endl;
+  timestamp(obatched(cout)) << "new hostid " << hid << " at " << string(spec) << endl;
 
   if (get_config_exists("pmlogger"))
     daemons.insert(make_pair(hid, new pmmgr_pmlogger_daemon(config_directory, hid, spec)));
@@ -619,10 +870,19 @@ pmmgr_job_spec::note_new_hostid(const pmmgr_hostid& hid, const pcp_context_spec&
 }
 
 
+extern "C" void *
+pmmgr_daemon_dtor_thread (void *a)
+{
+  pmmgr_daemon *d = (pmmgr_daemon *) a;
+  delete d;
+  return 0;
+}
+
+
 void
 pmmgr_job_spec::note_dead_hostid(const pmmgr_hostid& hid)
 {
-  timestamp(cout) << "dead hostid " << hid << endl;
+  timestamp(obatched(cout)) << "dead hostid " << hid << endl;
 
   pair<multimap<pmmgr_hostid,pmmgr_daemon*>::iterator,
        multimap<pmmgr_hostid,pmmgr_daemon*>::iterator> range =
@@ -631,7 +891,18 @@ pmmgr_job_spec::note_dead_hostid(const pmmgr_hostid& hid)
   for (multimap<pmmgr_hostid,pmmgr_daemon*>::iterator it = range.first;
        it != range.second;
        ++it)
-    delete (it->second);
+    {
+#ifdef HAVE_PTHREAD_H
+      pthread_t tid;
+      int rc = pthread_create (&tid, NULL, & pmmgr_daemon_dtor_thread, it->second);
+      if (rc == 0)
+        pthread_detach (tid); // no need to wait for it
+      else
+        delete it->second; // no thread; run dtor function directly
+#else
+      delete it->second; // no thread; run dtor function directly
+#endif
+    }
 
   daemons.erase(range.first, range.second);
 }
@@ -678,7 +949,7 @@ pmmgr_monitor_daemon::pmmgr_monitor_daemon(const std::string& config_directory,
 }
 
 
-pmmgr_daemon::~pmmgr_daemon()
+pmmgr_daemon::~pmmgr_daemon() // NB: possibly launched in a detached thread
 {
   if (pid != 0)
     {
@@ -703,8 +974,8 @@ pmmgr_daemon::~pmmgr_daemon()
 	// not dead yet ... try again a little harder
 	(void) kill ((pid_t) pid, SIGKILL);
       }
-      if (pmDebug & DBG_TRACE_APPL0)
-	timestamp(cout) << "daemon pid " << pid << " killed" << endl;
+      if (pmDebug & DBG_TRACE_APPL1)
+	timestamp(obatched(cout)) << "daemon pid " << pid << " killed" << endl;
     }
 }
 
@@ -723,7 +994,7 @@ void pmmgr_daemon::poll()
       if (rc < 0)
 	{
 	  if (pmDebug & DBG_TRACE_APPL0)
-	    timestamp(cout) << "daemon pid " << pid << " found dead" << endl;
+	    timestamp(obatched(cout)) << "daemon pid " << pid << " found dead" << endl;
 	  pid = 0;
 	  // we will try again immediately
 	  sleep (1);
@@ -758,7 +1029,7 @@ void pmmgr_daemon::poll()
 
       if (commandline == "") // error in some intermediate processing stage
 	{
-	  timestamp(cerr) << "failed to prepare daemon command line" << endl;
+	  timestamp(obatched(cerr)) << "failed to prepare daemon command line" << endl;
 	  return;
 	}
 
@@ -767,26 +1038,26 @@ void pmmgr_daemon::poll()
       // Enforce exec on even these shells.
       commandline = string("exec ") + commandline;
 
-      if (pmDebug & DBG_TRACE_APPL0)
-	timestamp(cout) << "fork/exec sh -c " << commandline << endl;
+      if (pmDebug & DBG_TRACE_APPL1)
+	timestamp(obatched(cout)) << "fork/exec sh -c " << commandline << endl;
       pid = fork();
       if (pid == 0) // child process
 	{
 	  int rc = execl ("/bin/sh", "sh", "-c", commandline.c_str(), NULL);
-	  timestamp(cerr) << "failed to execl sh -c " << commandline << " rc=" << rc << endl;
+	  timestamp(obatched(cerr)) << "failed to execl sh -c " << commandline << " rc=" << rc << endl;
 	  _exit (1);
 	  // parent will try again at next poll
 	}
       else if (pid < 0) // failed fork
 	{
-	  timestamp(cerr) << "failed to fork for sh -c " << commandline << endl;
+	  timestamp(obatched(cerr)) << "failed to fork for sh -c " << commandline << endl;
 	  pid = 0;
 	  // we will try again at next poll
 	}
       else // congratulations!	we're apparently a parent
 	{
 	  if (pmDebug & DBG_TRACE_APPL0)
-	    timestamp(cout) << "daemon pid " << pid << " started: " << commandline << endl;
+	    timestamp(obatched(cout)) << "daemon pid " << pid << " started: " << commandline << endl;
 	}
     }
 }
@@ -865,7 +1136,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
       int rc = pmParseInterval(retention.c_str(), &retention_tv, &errmsg);
       if (rc)
 	{
-	  timestamp(cerr) << "pmlogmerge-retain '" << retention << "' parse error: " << errmsg << endl;
+	  timestamp(obatched(cerr)) << "pmlogmerge-retain '" << retention << "' parse error: " << errmsg << endl;
 	  free (errmsg);
 	  retention = "14days";
 	  retention_tv.tv_sec = 14*24*60*60;
@@ -879,7 +1150,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
       rc = pmParseInterval(reduced_retention.c_str(), &reduced_retention_tv, &errmsg);
       if (rc)
 	{
-	  timestamp(cerr) << "pmlogreduce-retain '" << reduced_retention << "' parse error: " << errmsg << endl;
+	  timestamp(obatched(cerr)) << "pmlogreduce-retain '" << reduced_retention << "' parse error: " << errmsg << endl;
 	  free (errmsg);
 	  reduced_retention = "90days";
 	  reduced_retention_tv.tv_sec = 90*24*60*60;
@@ -894,7 +1165,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
       rc = pmParseInterval(period.c_str(), &period_tv, &errmsg);
       if (rc)
 	{
-	  timestamp(cerr) << "pmlogmerge '" << period << "' parse error: " << errmsg << endl;
+	  timestamp(obatched(cerr)) << "pmlogmerge '" << period << "' parse error: " << errmsg << endl;
 	  free (errmsg);
 	  period = "24hours";
 	  period_tv.tv_sec = 24*60*60;
@@ -955,7 +1226,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	      if (rc)
 		{
 		  // this apprx. can't happen
-		  timestamp(cerr) << "stat '" << the_blob.gl_pathv[i] << "' error; skipping cleanup" << endl;
+		  timestamp(obatched(cerr)) << "stat '" << the_blob.gl_pathv[i] << "' error; skipping cleanup" << endl;
 		  continue; // likely nothing can be done to this one
 		}
 	      else if ((foo.st_mtime + retention_tv.tv_sec) < now_tv.tv_sec)
@@ -983,7 +1254,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
                       pmlogreduce_options += " " + sh_quote(base_name) + " " + sh_quote(output_file);
                       rc = wrap_system(pmlogreduce_options);
                       if (rc)
-                        timestamp(cerr) << "pmlogreduce error; keeping " << index_name << endl;
+                        timestamp(obatched(cerr)) << "pmlogreduce error; keeping " << index_name << endl;
                     }
 
 		  string cleanup_cmd = string("/bin/rm -f")
@@ -1017,8 +1288,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
 		  if (label.ll_start.tv_sec >= prior_period_end) // archive too new?
 		    {
-		      if (pmDebug & DBG_TRACE_APPL0)
-			timestamp(cout) << "skipping merge of too-new archive " << base_name << endl;
+		      if (pmDebug & DBG_TRACE_APPL1)
+			timestamp(obatched(cout)) << "skipping merge of too-new archive " << base_name << endl;
 		      pmDestroyContext (ctx);
 		      continue;
 		    }
@@ -1033,8 +1304,8 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
 		  if (archive_end.tv_sec < prior_period_start) // archive too old?
 		    {
-		      if (pmDebug & DBG_TRACE_APPL0)
-			timestamp(cout) << "skipping merge of too-old archive " << base_name << endl;
+		      if (pmDebug & DBG_TRACE_APPL1)
+			timestamp(obatched(cout)) << "skipping merge of too-old archive " << base_name << endl;
 		      pmDestroyContext (ctx);
 		      continue; // skip; gc later
 		    }
@@ -1055,7 +1326,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	      rc = wrap_system(pmlogcheck_options);
 	      if (rc != 0)
 		{
-		  timestamp(cerr) << "corrupt archive " << base_name << " preserved." << endl;
+		  timestamp(obatched(cerr)) << "corrupt archive " << base_name << " preserved." << endl;
 		  continue;
 		}
 
@@ -1086,11 +1357,11 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	      if (rc)
 		{
 		  // this apprx. can't happen
-		  timestamp(cerr) << "stat '" << the_blob.gl_pathv[i] << "' error; skipping cleanup" << endl;
+		  timestamp(obatched(cerr)) << "stat '" << the_blob.gl_pathv[i] << "' error; skipping cleanup" << endl;
 		  continue; // likely nothing can be done to this one
 		}
-              if (pmDebug & DBG_TRACE_APPL0)
-                timestamp(cout) << "contemplating deletion of archive " << base_name
+              if (pmDebug & DBG_TRACE_APPL1)
+                timestamp(obatched(cout)) << "contemplating deletion of archive " << base_name
                                 << " (" << foo.st_mtime << "+" << reduced_retention_tv.tv_sec
                                 << " < " << now_tv.tv_sec << ")"
                                 << endl;
@@ -1260,7 +1531,7 @@ pmmgr_monitor_daemon::daemon_command_line()
                   << " -h " << sh_quote(spec)
                   << " >" << sh_quote(host_log_dir) << "/monitor-"  << config_index << ".out"
                   << " 2>" << sh_quote(host_log_dir) << "/monitor-"  << config_index << ".err";
-                                                       
+
   return monitor_command.str();
 }
 
@@ -1326,6 +1597,7 @@ void setup_signals()
 
 // ------------------------------------------------------------------------
 
+
 static pmOptions opts;
 static pmLongOptions longopts[] =
   {
@@ -1333,7 +1605,7 @@ static pmLongOptions longopts[] =
     PMOPT_DEBUG,
     { "config", 1, 'c', "DIR", "add configuration directory [default $PCP_SYSCONF_DIR/pmmgr]" },
     { "poll", 1, 'p', "NUM", "set pmcd polling interval [default 60]" },
-    { "username", 1, 'U', "USER", "switch to named user account [default pcp]" },
+    { "username", 1, 'U', "USER", "decrease privilege from root to user [default pcp]" },
     { "log", 1, 'l', "PATH", "redirect diagnostics and trace output" },
     { "verbose", 0, 'v', 0, "verbose diagnostics to stderr" },
     PMOPT_HELP,
@@ -1425,8 +1697,11 @@ int main (int argc, char *argv[])
   // mere inability to write into /var/run/pcp.
   (void) __pmServerCreatePIDFile(pmProgname, 0);
 
-  // lose root privileges if we have them
-  __pmSetProcessIdentity(username.c_str());
+#ifndef IS_MINGW
+    /* lose root privileges if we have them */
+    if (geteuid () == 0)
+#endif
+      __pmSetProcessIdentity(username.c_str());
 
   // (re)create log file, redirect stdout/stderr
   // NB: must be done after __pmSetProcessIdentity() for proper file permissions
@@ -1436,25 +1711,25 @@ int main (int argc, char *argv[])
       (void) unlink (output_filename); // in case one's left over from a previous other-uid run
       fd = open (output_filename, O_WRONLY|O_APPEND|O_CREAT|O_TRUNC, 0666);
       if (fd < 0)
-	timestamp(cerr) << "Cannot re-create logfile " << output_filename << endl;
+	timestamp(obatched(cerr)) << "Cannot re-create logfile " << output_filename << endl;
       else
 	{
 	  int rc;
 	  // Move the new file descriptors on top of stdout/stderr
 	  rc = dup2 (fd, STDOUT_FILENO);
 	  if (rc < 0) // rather unlikely
-	    timestamp(cerr) << "Cannot redirect logfile to stdout" << endl;
+	    timestamp(obatched(cerr)) << "Cannot redirect logfile to stdout" << endl;
 	  rc = dup2 (fd, STDERR_FILENO);
 	  if (rc < 0) // rather unlikely
-	    timestamp(cerr) << "Cannot redirect logfile to stderr" << endl;
+	    timestamp(obatched(cerr)) << "Cannot redirect logfile to stderr" << endl;
 	  rc = close (fd);
 	  if (rc < 0) // rather unlikely
-	    timestamp(cerr) << "Cannot close logfile fd" << endl;
+	    timestamp(obatched(cerr)) << "Cannot close logfile fd" << endl;
 	}
 
     }
 
-  timestamp(cout) << "Log started" << endl;
+  timestamp(obatched(cout)) << "Log started" << endl;
   while (! quit)
     {
       // In this section, we must not fidget with SIGCHLD, due to use of system(3).
@@ -1480,7 +1755,9 @@ int main (int argc, char *argv[])
   for (unsigned i=0; i<js.size(); i++)
     delete js[i];
 
-  timestamp(cout) << "Log finished" << endl;
+  sleep (1); // apprx. wait for any detached daemon-killer threads to stop
+
+  timestamp(obatched(cout)) << "Log finished" << endl;
 
   // Send a last-gasp signal out, just in case daemons somehow missed
   kill(-getpid(), SIGTERM);
