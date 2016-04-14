@@ -932,7 +932,6 @@ pmNewContext(int type, const char *name)
 	list = (__pmContext **)realloc((void *)contexts, (1+contexts_len) * sizeof(__pmContext *));
     if (list == NULL) {
         sts = -oserror();
-        PM_UNLOCK(__pmLock_libpcp);
         goto FAILED_LOCKED;
     }
     contexts = list;
@@ -1122,7 +1121,6 @@ INIT_CONTEXT:
 		    type, name);
 	}
 #endif
-	PM_UNLOCK(__pmLock_libpcp);
 	return PM_ERR_NOCONTEXT;
     }
 
@@ -1239,8 +1237,8 @@ pmReconnectContext(int handle)
 	    /* mark profile as not sent for all contexts sharing this socket */
 	    for (i = 0; i < contexts_len; i++) {
 		if (contexts[i]->c_type != PM_CONTEXT_FREE &&
-                    contexts[i]->c_type != PM_CONTEXT_INIT &&
-                    contexts[i]->c_pmcd == ctl) {
+		    contexts[i]->c_type != PM_CONTEXT_INIT &&
+		    contexts[i]->c_pmcd == ctl) {
 		    contexts[i]->c_sent = 0;
 		}
 	    }
@@ -1296,8 +1294,7 @@ pmDupContext(void)
     }
     else if (oldcon->c_type == PM_CONTEXT_LOCAL)
 	new = pmNewContext(oldtype, NULL);
-    else
-	/* assume PM_CONTEXT_ARCHIVE */
+    else if (oldcon->c_type == PM_CONTEXT_ARCHIVE)
 	new = pmNewContext(oldtype, oldcon->c_archctl->ac_log->l_name);
     if (new < 0) {
 	/* failed to connect or out of memory */
@@ -1437,7 +1434,8 @@ pmUseContext(int handle)
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (handle < 0 || handle >= contexts_len ||
-	contexts[handle]->c_type == PM_CONTEXT_FREE) {
+	contexts[handle]->c_type == PM_CONTEXT_FREE ||
+        contexts[handle]->c_type == PM_CONTEXT_INIT) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		fprintf(stderr, "pmUseContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
@@ -1465,7 +1463,8 @@ pmDestroyContext(int handle)
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
     if (handle < 0 || handle >= contexts_len ||
-	contexts[handle]->c_type == PM_CONTEXT_FREE) {
+	contexts[handle]->c_type == PM_CONTEXT_FREE ||
+	contexts[handle]->c_type == PM_CONTEXT_INIT) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_CONTEXT)
 		fprintf(stderr, "pmDestroyContext(%d) -> %d\n", handle, PM_ERR_NOCONTEXT);
