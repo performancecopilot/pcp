@@ -469,6 +469,13 @@ queryCertificateDomain(PRFileDesc *sslsocket)
 }
 
 static SECStatus
+getClientCert(void *arg, PRFileDesc *ssl_fd, CERTDistNames *ca_names, CERTCertificate **out_return_cert, SECKEYPrivateKey **out_return_key)
+{
+    SECStatus ret = NSS_GetClientAuthData(0, ssl_fd, ca_names, out_return_cert, out_return_key);
+    return ret;
+}
+
+static SECStatus
 badCertificate(void *arg, PRFileDesc *sslsocket)
 {
     (void)arg;
@@ -869,6 +876,10 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *a
 				(SSLBadCertHandler)badCertificate, NULL);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
+	secsts = SSL_GetClientAuthDataHook(socket.sslFd,
+				(SSLGetClientAuthData)getClientCert, NULL);
+	if (secsts != SECSuccess)
+	    return __pmSecureSocketsError(PR_GetError());
     }
 
     if ((flags & PDU_FLAG_COMPRESS) != 0) {
@@ -1254,6 +1265,7 @@ __pmSecureServerIPCFlags(int fd, int flags)
 {
     __pmSecureSocket socket;
     SECStatus secsts;
+    PRBool RequestClientCert;
     int saslsts;
     int sts;
 
@@ -1297,13 +1309,16 @@ __pmSecureServerIPCFlags(int fd, int flags)
 	    sendSecureAck(fd, flags, sts);
 	    return sts;
 	}
-	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUEST_CERTIFICATE, PR_FALSE);
+
+	RequestClientCert = (getenv("PMCD_REQUIRE_CLIENT_CERT") != NULL )?PR_TRUE:PR_FALSE;
+
+	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUEST_CERTIFICATE, RequestClientCert);
 	if (secsts != SECSuccess) {
 	    sts = __pmSecureSocketsError(PR_GetError());
 	    sendSecureAck(fd, flags, sts);
 	    return sts;
 	}
-	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUIRE_CERTIFICATE, PR_FALSE);
+	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUIRE_CERTIFICATE, RequestClientCert);
 	if (secsts != SECSuccess) {
 	    sts = __pmSecureSocketsError(PR_GetError());
 	    sendSecureAck(fd, flags, sts);
