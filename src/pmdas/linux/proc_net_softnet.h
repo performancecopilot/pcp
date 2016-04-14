@@ -15,12 +15,12 @@
 /* extracted from /proc/net/softnet_stat */
 
 typedef struct {
-    uint64_t processed;
-    uint64_t dropped;
-    uint64_t time_squeeze;
-    uint64_t cpu_collision;
-    uint64_t received_rps;
-    uint64_t flow_limit_count;
+    uint64_t *processed;
+    uint64_t *dropped;
+    uint64_t *time_squeeze;
+    uint64_t *cpu_collision;
+    uint64_t *received_rps;
+    uint64_t *flow_limit_count;
 
     unsigned flags;
 } proc_net_softnet_t;
@@ -34,4 +34,5 @@ enum {
     SN_FLOW_LIMIT_COUNT	= 1<<5,
 };
 
+extern int _pm_ncpus;
 extern int refresh_proc_net_softnet(proc_net_softnet_t *);

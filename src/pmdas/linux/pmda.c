@@ -4490,6 +4490,30 @@ static pmdaMetric metrictab[] = {
     /* network.softnet.flow_limit_count */
     { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,5), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.percpu.processed */
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,6), PM_TYPE_U64, CPU_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.percpu.dropped */
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,7), PM_TYPE_U64, CPU_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.percpu.time_squeeze */
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,8), PM_TYPE_U64, CPU_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.percpu.cpu_collision */
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,9), PM_TYPE_U64, CPU_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.percpu.received_rps */
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,10), PM_TYPE_U64, CPU_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* network.softnet.percpu.flow_limit_count */
+    { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,11), PM_TYPE_U64, CPU_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 };
 
 typedef struct {
@@ -6381,32 +6405,68 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 0:	/* network.softnet.processed */
 	    if (!(proc_net_softnet.flags & SN_PROCESSED))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.processed;
+	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
+		atom->ull += proc_net_softnet.processed[i];
 	    break;
 	case 1: /* network.softnet.dropped */
 	    if (!(proc_net_softnet.flags & SN_DROPPED))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.dropped;
+	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
+		atom->ull += proc_net_softnet.dropped[i];
 	    break;
 	case 2: /* network.softnet.time_squeeze */
 	    if (!(proc_net_softnet.flags & SN_TIME_SQUEEZE))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.time_squeeze;
+	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
+		atom->ull += proc_net_softnet.time_squeeze[i];
 	    break;
 	case 3: /* network.softnet.cpu_collision */
 	    if (!(proc_net_softnet.flags & SN_CPU_COLLISION))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.cpu_collision;
+	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
+		atom->ull += proc_net_softnet.cpu_collision[i];
 	    break;
 	case 4: /* network.softnet.received_rps */
 	    if (!(proc_net_softnet.flags & SN_RECEIVED_RPS))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.received_rps;
+	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
+		atom->ull += proc_net_softnet.received_rps[i];
 	    break;
 	case 5: /* network.softnet.flow_limit_count */
 	    if (!(proc_net_softnet.flags & SN_FLOW_LIMIT_COUNT))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.flow_limit_count;
+	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
+		atom->ull += proc_net_softnet.flow_limit_count[i];
+	    break;
+	case 6:	/* network.softnet.percpu.processed */
+	    if (!(proc_net_softnet.flags & SN_PROCESSED))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.processed[inst];
+	    break;
+	case 7: /* network.softnet.percpu.dropped */
+	    if (!(proc_net_softnet.flags & SN_DROPPED))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.dropped[inst];
+	    break;
+	case 8: /* network.softnet.percpu.time_squeeze */
+	    if (!(proc_net_softnet.flags & SN_TIME_SQUEEZE))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.time_squeeze[inst];
+	    break;
+	case 9: /* network.softnet.percpu.cpu_collision */
+	    if (!(proc_net_softnet.flags & SN_CPU_COLLISION))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.cpu_collision[inst];
+	    break;
+	case 10: /* network.softnet.percpu.received_rps */
+	    if (!(proc_net_softnet.flags & SN_RECEIVED_RPS))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.received_rps[inst];
+	    break;
+	case 11: /* network.softnet.percpu.flow_limit_count */
+	    if (!(proc_net_softnet.flags & SN_FLOW_LIMIT_COUNT))
+		return PM_ERR_APPVERSION;
+	    atom->ull = proc_net_softnet.flow_limit_count[inst];
 	    break;
 	default:
 	    return PM_ERR_PMID;
