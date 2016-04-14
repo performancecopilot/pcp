@@ -81,7 +81,8 @@ _filter_linux()
 	cat
     else
 	sed \
-	    -e '/proc.namespaces.* Metric not supported/d' \
+	    -e '/^network.softnet.* Metric not supported/d' \
+	    -e '/^proc.namespaces.* Metric not supported/d' \
 	# linux
     fi
 }
