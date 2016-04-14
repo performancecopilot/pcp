@@ -44,7 +44,7 @@ root=$tmp.root
 mkdir $root
 export LINUX_STATSPATH=$root
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
-metrics=`pminfo network.softnet | LC_COLLATE=POSIX sort`
+metrics=`pminfo network.softnet | grep -v percpu | LC_COLLATE=POSIX sort`
 cd $here
 
 for file in el7 el6 el5
