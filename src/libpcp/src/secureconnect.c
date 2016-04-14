@@ -391,6 +391,9 @@ queryCertificateAuthority(PRFileDesc *sslsocket)
     int secsts = SECFailure;
     char *result;
     CERTCertificate *servercert;
+    int AllowSelfSignedCerts;
+
+    AllowSelfSignedCerts = (getenv("PCP_ALLOW_SERVER_SELF_CERT") != NULL );
 
     result = SSL_RevealURL(sslsocket);
     pmprintf("WARNING: "
@@ -401,7 +404,7 @@ queryCertificateAuthority(PRFileDesc *sslsocket)
     servercert = SSL_PeerCertificate(sslsocket);
     if (servercert) {
 	reportFingerprint(&servercert->derCert);
-	sts = queryCertificateOK("Do you want to accept and save this certificate locally anyway");
+	sts = AllowSelfSignedCerts || queryCertificateOK("Do you want to accept and save this certificate locally anyway");
 	if (sts == 1) {
 	    saveUserCertificate(servercert);
 	    secsts = SECSuccess;
