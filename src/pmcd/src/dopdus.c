@@ -1071,6 +1071,7 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
     int			i, sts, flags = 0, version = 0, sender = 0, credcount = 0;
     __pmCred		*credlist = NULL;
     __pmVersionCred	*vcp;
+    char                *hostName;
 
     if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0)
 	return sts;
@@ -1127,6 +1128,18 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 
     if (sts >= 0 && version)
 	sts = __pmSetVersionIPC(cp->fd, version);
+
+    if( ( (getenv("PMCD_REQUIRE_CLIENT_CERT") != NULL ) && (flags & PDU_FLAG_SECURE) == 0 )){
+	if( __pmSockAddrIsInet(cp->addr) || __pmSockAddrIsIPv6(cp->addr) ){
+	    hostName = __pmGetNameInfo(cp->addr);
+	    if (hostName != NULL) {
+		if( strstr(hostName, "localhost") == NULL ){
+		    return PM_ERR_PERMISSION;
+		}
+	    }
+	}
+    }
+
     if (sts >= 0 && flags) {
 	/*
 	 * new client has arrived; may want encryption, authentication, etc
