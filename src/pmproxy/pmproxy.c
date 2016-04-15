@@ -203,6 +203,7 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
     __pmPDUHdr *header = (__pmPDUHdr *)pb;
     __pmHashCtl attrs = { 0 }; /* TODO */
     __pmCred *credlist;
+    char *hostName;
 
     /* first check that this is a credentials PDU */
     if (header->type != PDU_CREDS)
@@ -221,6 +222,17 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
     }
     if (credlist != NULL)
 	free(credlist);
+
+    if( ( (getenv("PMPROXY_REQUIRE_CLIENT_CERT") != NULL ) && (flags & PDU_FLAG_SECURE) == 0 )){
+        if( __pmSockAddrIsInet(cp->addr) || __pmSockAddrIsIPv6(cp->addr) ){
+            hostName = __pmGetNameInfo(cp->addr);
+            if (hostName != NULL) {
+                if( strstr(hostName, "localhost") == NULL ){
+                    return PM_ERR_PERMISSION;
+                }
+            }
+        }
+    }
 
     /* need to ensure both the pmcd and client channel use flags */
 
