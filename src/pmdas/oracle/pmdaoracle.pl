@@ -3624,6 +3624,7 @@ WRITETIM column of the V$FILESTAT view.');
 
 # $ENV{PCP_PERL_DEBUG} = 'LIBPMDA';
 $pmda = PCP::PMDA->new('oracle', 32);
+$pmda->connect_pmcd;
 $pmda->set_user($os_user);
 
 oracle_control_setup();
