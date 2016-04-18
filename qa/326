@@ -3,6 +3,7 @@
 # Check PMCD state change notification, aka PMCD reset
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2016 Red Hat, Inc.
 #
 
 seq=`basename $0`
@@ -106,6 +107,8 @@ pmval -s 40 -t 0.5 -Z "$timezone" -D fetch pmcd.numagents >$tmp.pmval 2>&1 &
 sleep 3
 
 echo "=== kill sample PMDA process ==="
+$sudo $signal -a -s TERM pmdasample
+sleep 2 # enough time for pmcd to restart it - once only
 $sudo $signal -a -s TERM pmdasample
 pminfo -v sample >/dev/null 2>&1
 sleep 3

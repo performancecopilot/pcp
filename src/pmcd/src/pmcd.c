@@ -29,6 +29,7 @@ static char	*FdToString(int);
 static void	ResetBadHosts(void);
 
 int		AgentDied;		/* for updating mapdom[] */
+int		AgentPendingRestart;	/* for automatic restart */
 static int	timeToDie;		/* For SIGINT handling */
 static int	restart;		/* For SIGHUP restart */
 static int	maxReqPortFd;		/* Largest request port fd */
@@ -748,6 +749,19 @@ ClientLoop(void)
 	else if (sts == -1 && neterror() != EINTR) {
 	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n", netstrerror());
 	    break;
+	}
+	if (AgentDied) {
+	    AgentPendingRestart = 1;
+	}
+	if (AgentPendingRestart) {
+	    static time_t last_restart;
+	    time_t now = time(NULL);
+	    if ((now - last_restart) >= 60) {
+		AgentPendingRestart = 0;
+		last_restart = now;
+		__pmNotifyErr(LOG_INFO, "Auto-restarting agents.\n");
+		restart = 1;
+	    }
 	}
 	if (restart) {
 	    restart = 0;

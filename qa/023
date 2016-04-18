@@ -3,6 +3,7 @@
 # Test PMCD's PMDA timeout behaviour
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+# Copyright (c) 2016 Red Hat, Inc.
 #
 
 seq=`basename $0`
@@ -23,6 +24,16 @@ fi
 
 BINFMT=unknown-obj
 which pmobjstyle >/dev/null 2>&1 && BINFMT=`pmobjstyle`
+
+_filter_me()
+{
+    sed \
+        -e "s/`hostname`/MY_HOSTNAME/g" \
+        -e "s/`hostname | sed -e 's/\..*//'`/MY_HOSTNAME/" \
+        -e "s/local:/MY_HOSTNAME/" \
+        -e "s/localhost\.localdomain/MY_HOSTNAME/" \
+        -e "s/localhost/MY_HOSTNAME/"
+}
 
 _filter_log()
 {
@@ -77,7 +88,7 @@ $1 == "y" && $2 = "y" && $8 == "localhost" {
 			}
 /pipe cmd=/		{ $4 = "FD"; $5 = "FD" }
 			{ print	}' \
-    | sed -e '/^pmcd 2 A_PID /s/ A_PID .*/ A_PID .../'
+    | sed -e '/^pmcd 2 A_PID /s/ A_PID .*/ A_PID .../' | _filter_me
 }
 
 TMP_CONFIG=$tmp/conf.tmp
