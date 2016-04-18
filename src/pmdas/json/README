@@ -4,22 +4,41 @@ pmdajson is a Performance Metrics Domain Agent (PMDA) which exports
 metrics from arbitrary sources generating Javascript Object Notation
 (JSON) syntax, describing metric metadata and values.
 
+BASIC CONFIGURATION
+
+PCP_PMDAS_DIR/json/config.json is used to define the JSON data sources
+directories:
+
+JSON sources that come from "directory_list" config file option are not
+"trusted", and any command that needs to be run to get JSON data is run
+as user "nobody".
+
+JSON sources that come from "trusted_directory_list" config file option
+are trusted, and any command that needs to be run to get JSON data is
+run as user "root".
+
+Example config.json:
+
+  {
+    "trusted_directory_list" : [ "/var/lib/pcp/pmdas/json/trusted" ]
+  }
+
 JSON DATA SOURCES
 
 There are 2 sets of information needed for a particular JSON source: a
-JSON metadata file and the associated JSON data. The combination of
+JSON metadata file and the associated JSON data file. The combination of
 the JSON metadata file and JSON data is called a JSON source. pmdajson
 exports the metrics for each JSON source as a separate hierarchy under
 the JSON pmda.
 
-For example, let's assume the following simple JSON data file:
+For example, let us assume the following simple json.data file:
 
   {
     "string_value": "testing, 1, 2, 3",
     "read_count": 0
   }
 
-The associated metadata file would look like the following:
+The associated metadata.json file would look like the following:
 
   {
     "prefix" : "simple",
@@ -38,9 +57,9 @@ The associated metadata file would look like the following:
     ]
   }
 
-After pmdajson is installed and the config file points to the
-directory where the above JSON metadata and data files are, we can ask
-PCP for the all the metrics under 'json.simple':
+After pmdajson is installed and the config file points to the directory
+where the above JSON metadata and data files are, we can ask PCP for the
+all the metrics under 'json.simple':
 
   # pminfo -f json.simple
 
