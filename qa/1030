@@ -42,6 +42,7 @@ EOF
 # real QA test starts here
 root=$tmp.root
 mkdir $root
+export LINUX_NCPUS=4
 export LINUX_STATSPATH=$root
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 metrics=`pminfo network.softnet | grep -v percpu | LC_COLLATE=POSIX sort`
