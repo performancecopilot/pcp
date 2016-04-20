@@ -198,12 +198,12 @@ static pmdaMetric metrictab[] = {
 
 /* proc.psinfo.priority */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,17), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STAT,17), PM_TYPE_32, PROC_INDOM, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* proc.psinfo.nice */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,18), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STAT,18), PM_TYPE_32, PROC_INDOM, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 #if 0
@@ -1818,6 +1818,18 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		}
 		break;
 
+	    case PROC_PID_STAT_TTY_PGRP: /* proc.psinfo.tty_pgrp */
+		f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_TTY_PGRP);
+		if (f == NULL)
+		    return 0;
+		else {
+		    __int32_t value = (__int32_t)strtol(f, &tail, 0);
+		    if (value < 0)
+			return 0;
+		    atom->ul = (__uint32_t)value;
+		}
+		break;
+
 	    case PROC_PID_STAT_CMD: /* proc.psinfo.cmd */
 		f = _pm_getfield(entry->stat_buf, idp->item);
 		if (f == NULL)
@@ -1868,6 +1880,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    case PROC_PID_STAT_PRIORITY: /* proc.psinfo.priority */
 	    case PROC_PID_STAT_NICE: /* signed decimal int */ /* proc.psinfo.nice */
+		/* both are signed decimal integers in range [-20,20] */
 		f = _pm_getfield(entry->stat_buf, idp->item);
 		if (f == NULL)
 		    return 0;

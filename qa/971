@@ -1,0 +1,48 @@
+#!/bin/sh
+# PCP QA Test No. 971
+# Exercise pmlogrewrite of Linux proc scheduler metrics.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific pmdaproc testing"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# archive with the latest, fixed pmdaproc installed ...
+NEWARCHIVE=archives/procsched
+
+# real QA test starts here
+cat >$tmp.config <<End-of-File
+metric proc.psinfo.nice { sem -> discrete type -> U32 }
+metric proc.psinfo.priority { sem -> discrete type -> U32 }
+End-of-File
+
+pmlogrewrite -c $tmp.config -w $NEWARCHIVE $tmp.old
+
+pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite/proc_scheduler.conf -w $tmp.old $tmp.new
+
+pmdumplog -a $tmp.old >$tmp.old.dump
+pmdumplog -a $tmp.new >$tmp.new.dump
+pmdumplog -a $NEWARCHIVE >$tmp.ref.dump
+
+echo "old -> new changes"
+diff -u $tmp.old.dump $tmp.new.dump | sed -e '/^---/d' -e '/^+++/d'
+
+echo
+echo "new -> ref changes ... expect none"
+diff -u $tmp.new.dump $tmp.ref.dump | sed -e '/^---/d' -e '/^+++/d'
+
+# success, all done
+status=0
+exit

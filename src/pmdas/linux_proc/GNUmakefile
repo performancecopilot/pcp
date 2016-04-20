@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2016 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -35,7 +35,8 @@ LFILES		= lex.l
 YFILES		= gram.y
 
 SCRIPTS		= Install Remove
-LOGREWRITERS	= linux_proc_migrate.conf cgroup_units.conf proc_kernel_ulong.conf proc_jiffies.conf
+LOGREWRITERS	= linux_proc_migrate.conf cgroup_units.conf \
+		  proc_kernel_ulong.conf proc_jiffies.conf proc_scheduler.conf
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
 LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?) \
