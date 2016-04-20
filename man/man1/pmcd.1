@@ -1200,8 +1200,23 @@ variable controls whether or not
 .B pmcd
 or
 .B pmdaroot
-(when available), start subsequent pmdas.  When set to a non-null value,
-pmcd will opt to have pmdaroot start, and stop, pmdas.
+(when available), start subsequent pmdas.  When set to a non-zero value,
+.B pmcd
+will opt to have
+.B pmdaroot
+start, and stop, PMDAs.
+.PP
+The
+.B PMCD_RESTART_AGENTS
+variable determines the behaviour of
+.B pmcd
+in the presence of child PMDAs that have been observed to exit (this is a
+typical response in the presence of very large, usually domain-induced,
+PDU latencies).
+When set to a non-zero value,
+.B pmcd
+will attempt to restart such PMDAS once every minute.
+When set to zero, it uses the original behaviour of just logging the failure.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

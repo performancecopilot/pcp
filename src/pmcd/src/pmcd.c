@@ -704,6 +704,7 @@ ClientLoop(void)
     int		maxFd;
     int		checkAgents;
     int		reload_ns = 0;
+    int		restartAgents = -1;	/* initial state unknown */
     __pmFdSet	readableFds;
 
     for (;;) {
@@ -751,11 +752,20 @@ ClientLoop(void)
 	    break;
 	}
 	if (AgentDied) {
-	    AgentPendingRestart = 1;
+	    if (restartAgents == -1) {
+		char *args;
+
+		if ((args = getenv("PMCD_RESTART_AGENTS")) == NULL)
+		    restartAgents = 1;	/* unset, default to enabled */
+		else
+		    restartAgents = (strcmp(args, "0") != 0);
+	    }
+	    AgentPendingRestart = restartAgents;
 	}
 	if (AgentPendingRestart) {
 	    static time_t last_restart;
 	    time_t now = time(NULL);
+
 	    if ((now - last_restart) >= 60) {
 		AgentPendingRestart = 0;
 		last_restart = now;

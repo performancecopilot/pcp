@@ -10,9 +10,15 @@
 # A value of 5 is the default.
 # PMCD_MAXPENDING=5
 
-# Default behaviour regarding pmcd's approach to staring pmdas;
+# Default behaviour regarding pmcd's approach to starting PMDAs;
 # In cases where pmdaroot is available, setting this variable to
 # 1, offloads starting and stopping of agents to pmdaroot.  This
-# allows pmcd to not require a restart when starting a new pmda.
+# allows pmcd to not require a restart when starting a new PMDA.
 PMCD_ROOT_AGENT=1
 
+# Default behaviour regarding pmcd's approach to re-starting any
+# unresponsive PMDAs; this should only be used with pmdaroot and
+# PMCD_ROOT_AGENT=1 as it allows pmcd to attempt to automatically
+# restart any exited PMDA that it detects (which usually requires
+# privileges not available to pmcd itself).
+PMCD_RESTART_AGENTS=1
