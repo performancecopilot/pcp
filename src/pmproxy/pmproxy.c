@@ -224,14 +224,9 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
 	free(credlist);
 
     if( ( (getenv("PMPROXY_REQUIRE_CLIENT_CERT") != NULL ) && (flags & PDU_FLAG_SECURE) == 0 )){
-        if( __pmSockAddrIsInet(cp->addr) || __pmSockAddrIsIPv6(cp->addr) ){
-            hostName = __pmGetNameInfo(cp->addr);
-            if (hostName != NULL) {
-                if( strstr(hostName, "localhost") == NULL ){
-                    return PM_ERR_PERMISSION;
-                }
-            }
-        }
+	if( !__pmSockAddrIsLoopBack(cp->addr) && !__pmSockAddrIsUnix(cp->addr)){
+	    return PM_ERR_PERMISSION;
+	}
     }
 
     /* need to ensure both the pmcd and client channel use flags */

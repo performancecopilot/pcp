@@ -1071,7 +1071,6 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
     int			i, sts, flags = 0, version = 0, sender = 0, credcount = 0;
     __pmCred		*credlist = NULL;
     __pmVersionCred	*vcp;
-    char                *hostName;
 
     if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0)
 	return sts;
@@ -1130,13 +1129,8 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
 	sts = __pmSetVersionIPC(cp->fd, version);
 
     if( ( (getenv("PMCD_REQUIRE_CLIENT_CERT") != NULL ) && (flags & PDU_FLAG_SECURE) == 0 )){
-	if( __pmSockAddrIsInet(cp->addr) || __pmSockAddrIsIPv6(cp->addr) ){
-	    hostName = __pmGetNameInfo(cp->addr);
-	    if (hostName != NULL) {
-		if( strstr(hostName, "localhost") == NULL ){
-		    return PM_ERR_PERMISSION;
-		}
-	    }
+	if( !__pmSockAddrIsLoopBack(cp->addr) && !__pmSockAddrIsUnix(cp->addr)){
+	    return PM_ERR_PERMISSION;
 	}
     }
 
