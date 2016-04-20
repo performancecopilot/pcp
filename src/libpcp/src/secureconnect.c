@@ -425,6 +425,9 @@ queryCertificateDomain(PRFileDesc *sslsocket)
     SECStatus secstatus = SECFailure;
     PRArenaPool *arena = NULL;
     CERTCertificate *servercert = NULL;
+    int AllowBadCertDomain;
+
+    AllowBadCertDomain = (getenv("PCP_ALLOW_BAD_CERT_DOMAIN") != NULL );
 
     /*
      * Propagate a warning through to the client.  Show the expected
@@ -464,7 +467,7 @@ queryCertificateDomain(PRFileDesc *sslsocket)
     if (servercert)
 	CERT_DestroyCertificate(servercert);
 
-    sts = queryCertificateOK("Do you want to accept this certificate anyway");
+    sts = AllowBadCertDomain || queryCertificateOK("Do you want to accept this certificate anyway");
     return (sts == 1) ? SECSuccess : SECFailure;
 }
 
