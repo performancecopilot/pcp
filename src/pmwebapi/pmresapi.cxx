@@ -104,8 +104,11 @@ pmwebres_respond (struct MHD_Connection *connection, const http_params& params, 
 
     string resourcefile = resourcedir + url;	// pass through / path separators
 
-    if (cursed_path_p (resourcedir, resourcefile)) {
-        connstamp (cerr, connection) << "suspicious resource path " << resourcefile << endl;
+    rc = cursed_path_p (resourcedir, resourcefile);
+    if (rc) {
+        char pmmsg[PM_MAXERRMSGLEN];
+        connstamp (cerr, connection) << "suspicious resource path " << resourcefile << ": "
+                                     << pmErrStr_r (rc, pmmsg, sizeof (pmmsg)) << endl;
         goto error_response;
     }
 

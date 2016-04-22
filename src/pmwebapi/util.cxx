@@ -113,40 +113,41 @@ vector <string> split (const std::string & str, char sep)
 // Take two names of files/directories.  Resolve them both with
 // realpath(3), and check whether the latter is beneath the first.
 // This is intended to catch naughty people passing /../ in URLs.
-// Default to rejection (on errors).
-bool
+// Default to rejection (on errors).  Return 0 on OK, some -errno
+// on problem.
+int
 cursed_path_p (const string & blessed, const string & questionable)
 {
     char *rp1c = realpath (blessed.c_str (), NULL);
     if (rp1c == NULL) {
-        return true;
+        return -errno;
     }
     string rp1 = string (rp1c);
     free (rp1c);
 
     char *rp2c = realpath (questionable.c_str (), NULL);
     if (rp2c == NULL) {
-        return true;
+        return -errno;
     }
     string rp2 = string (rp2c);
     free (rp2c);
 
     if (rp1 == rp2) {
         // identical: OK
-        return false;
+        return 0;
     }
 
     if (rp2.size () < rp1.size () + 1) {
         // rp2 cannot be nested within rp1
-        return true;
+        return -EACCES;
     }
 
     if (rp2.substr (0, rp1.size () + 1) == (rp1 + '/')) {
         // rp2 nested beneath rp1/
-        return false;
+        return 0;
     }
 
-    return true;
+    return -EACCES;
 }
 
 
