@@ -1,6 +1,5 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2014-2016 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -445,7 +444,8 @@ It runs all the data extraction and
 conversion operations necessary to populate all the requested output
 variables.
 .PP
-The normal function return code is zero.
+The normal function return code is zero or positive, as per the
+underlying \fBpmFetch\fP function.
 This function may fail in
 case of severe fetch errors, which are indicated with a negative
 return code.

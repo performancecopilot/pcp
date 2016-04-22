@@ -1,5 +1,5 @@
 /* -*- C++ -*-
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,7 +45,7 @@ protected:
   // private: maybe?
   std::string config_directory;
 
-  std::ostream& timestamp(std::ostream&);
+  std::ostream& timestamp(std::ostream&) const;
   int wrap_system(const std::string& cmd);
 };
 
@@ -125,22 +125,19 @@ public:
   void poll(); // check targets, daemons
 
 private:
-  std::map<std::string,pmMetricSpec*> parsed_metric_cache;
-  pmMetricSpec* parse_metric_spec(const std::string&);
+  pmMetricSpec* parse_metric_spec(const std::string&) const;
 
-  pmmgr_hostid compute_hostid (const pcp_context_spec&);
-  std::set<std::string> find_containers (const pcp_context_spec&);
   std::map<pmmgr_hostid,pcp_context_spec> known_targets;
-
   void note_new_hostid(const pmmgr_hostid&, const pcp_context_spec&);
   void note_dead_hostid(const pmmgr_hostid&);
   std::multimap<pmmgr_hostid,pmmgr_daemon*> daemons;
+
+  void parallel_do(int num_threads, void * (*fn)(void *), void *data) const;
+
+public:
+  pmmgr_hostid compute_hostid (const pcp_context_spec&) const;
+  std::set<std::string> find_containers (const pcp_context_spec&) const;
 };
 
 
-
-
-
-
 #endif
-

@@ -80,6 +80,7 @@ echo 'localhost' >>$tmp.dir/target-host
 echo 'pcp://localhost:44321/' >>$tmp.dir/target-host
 echo 'localhost6' >>$tmp.dir/target-host
 echo 'pcp://localhost6:44321/' >>$tmp.dir/target-host
+echo 0 > $tmp.dir/target-threads
 # note -v -v here is the same as -D appl0,appl1
 $sudo $_valgrind_clean_assert $PCP_BINADM_DIR/pmmgr -v -v -p 5 -l $tmp.out -c $tmp.dir >$tmp.valout 2>$tmp.valerr &
 # this is the sudo's pid
@@ -204,6 +205,11 @@ echo "=== 9. how about some granular/reduced mode with some extra monitoring ===
 echo 20sec >$tmp.dir/pmlogmerge
 rm $tmp.dir/pmlogrewrite # separately tested
 touch $tmp.dir/pmlogmerge-granular
+rm $tmp.dir/target-threads
+# add some unreachable hosts too
+echo '192.0.2.1' >>$tmp.dir/target-host
+echo '192.0.2.1' >>$tmp.dir/target-host
+echo '192.0.2.2' >>$tmp.dir/target-host
 echo 40sec >$tmp.dir/pmlogmerge-retain
 echo '-t 10' >$tmp.dir/pmlogreduce  # compare to -t 2 for in /pmlogger
 echo 15sec >$tmp.dir/pmlogreduce-retain
@@ -256,7 +262,7 @@ grep . $tmp.dir/$hostname/monitor-* >> $seq.full
 date >>$seq.full
 echo "=== ZZZ kill pmmgr ===" | tee -a $seq.full
 $sudo kill $pid $ppid
-sleep 2
+sleep 4 # under valgrind this can take some time
 if $sudo kill -0 $pid >/dev/null 2>&1
 then
     echo "valgrind pmmgr (pid=$pid ppid=$ppid) did not die, try harder ..." >>$seq.full
