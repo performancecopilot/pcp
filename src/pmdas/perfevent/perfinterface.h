@@ -35,12 +35,13 @@ typedef struct perf_counter_t_
 
 typedef struct perf_derived_data_t_
 {
-    uint64_t value;
+    double value;
 } perf_derived_data;
 
 typedef struct perf_counter_list_t_
 {
     perf_counter *counter;
+    double scale;
     struct perf_counter_list_t_ *next;
 } perf_counter_list;
 

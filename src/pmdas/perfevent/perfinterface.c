@@ -55,6 +55,7 @@ typedef struct event_t_ {
 
 typedef struct event_list_t_ {
     event_t *event;
+    double scale;
     struct event_list_t_ *next;
 } event_list_t;
 
@@ -232,7 +233,6 @@ static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
                 free_event_list(event_list);
                 return -E_PERFEVENT_LOGIC;
             }
-            derived_setting = derived_setting->next;
 
             tmp = calloc(1, sizeof(*tmp));
             if (NULL == tmp) {
@@ -240,7 +240,9 @@ static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
                 return -E_PERFEVENT_REALLOC;
             }
             tmp->event = event;
+            tmp->scale = derived_setting->scale;
             tmp->next = NULL;
+            derived_setting = derived_setting->next;
 
             if (NULL == event_list) {
                 event_list = tmp;
@@ -673,6 +675,7 @@ static int perf_derived_get(perf_derived_counter **derived_counters,
                     if (!ptr)
                         return -E_PERFEVENT_REALLOC;
                     ptr->counter = counter;
+                    ptr->scale = event_list->scale;
                     ptr->next = NULL;
                     if (counter_list == NULL) {
                         counter_list = ptr;
@@ -709,7 +712,8 @@ static int perf_derived_get(perf_derived_counter **derived_counters,
                 clist = pdcounter[idx].counter_list;
                 while(clist) {
                     ctr = clist->counter;
-                    pdcounter[idx].data[cpuidx].value += ctr->data[cpuidx].value;
+                    pdcounter[idx].data[cpuidx].value += (ctr->data[cpuidx].value *
+                                                          clist->scale);
                     clist = clist->next;
                 }
             }

@@ -107,6 +107,7 @@ static void add_pmc_setting_name_derived(configuration_t *config, char *name)
     newpmcderivedsetting = calloc(1, sizeof *newpmcderivedsetting);
     newpmcderivedsetting->name = strdup(name);
     newpmcderivedsetting->cpuConfig = CPUCONFIG_EACH_CPU;
+    newpmcderivedsetting->scale = 1.0;
     newpmcderivedsetting->next = NULL;
 
     setting_lists = entry->setting_lists;
@@ -204,6 +205,32 @@ static void add_pmcsetting_name(configuration_t *config, char *name)
     newpmcsetting->cpuConfig = CPUCONFIG_EACH_CPU;
     newpmcsetting->next = entry->pmcSettingList;
     entry->pmcSettingList = newpmcsetting;
+}
+
+static void set_pmcsetting_derived_scale(configuration_t *config,  double scale)
+{
+    pmcsetting_t *pmcsetting;
+    pmcSettingLists_t *setting_lists;
+
+    if ((NULL == config) || (0 == config->nConfigEntries))
+    {
+        return;
+    }
+
+    if (context_derived)
+    {
+        setting_lists = config->derivedArr[config->nDerivedEntries-1].setting_lists;
+        while (setting_lists->next)
+        {
+            setting_lists = setting_lists->next;
+        }
+        pmcsetting = setting_lists->derivedSettingList;
+        while(pmcsetting->next)
+        {
+            pmcsetting = pmcsetting->next;
+        }
+        pmcsetting->scale = scale;
+    }
 }
 
 static void set_pmcsetting_cpuconfig(configuration_t *config, int cpuconfig)
@@ -374,6 +401,7 @@ cpu_rr        set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_ROUNDROBIN_CPU);
 node          set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_EACH_NUMANODE);
 node_rr       set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_ROUNDROBIN_NUMANODE);
 [0-9]*        set_pmcsetting_cpuconfig(yyextra, atoi(yytext) );
+([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)  set_pmcsetting_derived_scale(yyextra, strtod(yytext, NULL));
 }
 
 <*>.|\n { fprintf(stderr, "Syntax error on line: %d \n", yylineno); return -1; }

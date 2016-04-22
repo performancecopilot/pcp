@@ -34,6 +34,7 @@ typedef struct pmctype {
 typedef struct pmcsetting {
     char *name;
     int cpuConfig;
+    double scale;    /* Currently, only used by derived events */
     struct pmcsetting *next;
 } pmcsetting_t; 
 
