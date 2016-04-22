@@ -42,10 +42,16 @@ typedef struct pmcconfiguration {
     pmcsetting_t *pmcSettingList;
 } pmcconfiguration_t;
 
-typedef struct pmcderived {
-    char *name;
+typedef struct settingLists {
     int nsettings;
     pmcsetting_t *derivedSettingList;
+    struct settingLists *next;
+} pmcSettingLists_t;
+
+typedef struct pmcderived {
+    char *name;
+    pmcSettingLists_t *setting_lists;
+    /* pmcsetting_t *derivedSettingList; */
 } pmcderived_t;
 
 typedef struct configuration {

@@ -164,6 +164,21 @@ static event_t *search_event(perfdata_t *inst, const char *event_name)
 }
 
 /*
+ * Free up the event list "event_list"
+ */
+static void free_event_list(event_list_t *event_list)
+{
+    event_list_t *tmp;
+
+    tmp = event_list;
+    while(tmp) {
+        tmp = tmp->next;
+        free(event_list);
+        event_list = tmp;
+    }
+}
+
+/*
  * Setup a derived event
  */
 static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
@@ -172,13 +187,16 @@ static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
     int nderivedevents = inst->nderivedevents;
     event_t *event;
     pmcsetting_t *derived_setting;
+    pmcSettingLists_t *setting_list;
     event_list_t *ptr, *tmp, *event_list;
-    int cpuconfig;
+    int cpuconfig, clear_history = 0;
 
     tmp = NULL;
     event_list = NULL;
-    if (0 == derived_pmc->nsettings)
+    if (NULL == derived_pmc->setting_lists) {
+        fprintf(stderr, "No derived_pmc settings\n");
         return -E_PERFEVENT_LOGIC;
+    }
 
     derived_events = realloc(derived_events,
                              (nderivedevents + 1) * sizeof(*derived_events));
@@ -189,35 +207,63 @@ static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
         return -E_PERFEVENT_REALLOC;
     }
 
-    derived_setting = derived_pmc->derivedSettingList;
-    if (derived_setting)
-        cpuconfig = derived_setting->cpuConfig;
-    while (derived_setting) {
-        if (cpuconfig != derived_setting->cpuConfig) {
-            fprintf(stderr, "Mismatch in cpu configuration\n");
-            return -E_PERFEVENT_LOGIC;
-        }
-        event = search_event(inst, derived_setting->name);
-        if (NULL == event) {
-            fprintf(stderr, "Derived setting %s not found\n", derived_setting->name);
-            return -E_PERFEVENT_LOGIC;
-        }
-        derived_setting = derived_setting->next;
+    /*
+     * If a certain setting_list is not available, then we need to check if the
+     * next one is available.
+     */
+    setting_list = derived_pmc->setting_lists;
 
-        tmp = calloc(1, sizeof(*tmp));
-        if (NULL == tmp) {
-            return -E_PERFEVENT_REALLOC;
-        }
-        tmp->event = event;
-        tmp->next = NULL;
+    while (setting_list) {
+        event_list = NULL;
+        derived_setting = setting_list->derivedSettingList;
+        clear_history = 0;
+        if (derived_setting)
+            cpuconfig = derived_setting->cpuConfig;
+        while (derived_setting) {
+            event = search_event(inst, derived_setting->name);
+            if (NULL == event) {
+                fprintf(stderr, "Derived setting %s not found\n", derived_setting->name);
+                clear_history = 1;
+                break;
+            }
 
-        if (NULL == event_list) {
-            event_list = tmp;
-            ptr = event_list;
-        } else {
-            ptr->next = tmp;
-            ptr = ptr->next;
+            if (cpuconfig != derived_setting->cpuConfig) {
+                fprintf(stderr, "Mismatch in cpu configuration\n");
+                free_event_list(event_list);
+                return -E_PERFEVENT_LOGIC;
+            }
+            derived_setting = derived_setting->next;
+
+            tmp = calloc(1, sizeof(*tmp));
+            if (NULL == tmp) {
+                free_event_list(event_list);
+                return -E_PERFEVENT_REALLOC;
+            }
+            tmp->event = event;
+            tmp->next = NULL;
+
+            if (NULL == event_list) {
+                event_list = tmp;
+                ptr = event_list;
+            } else {
+                ptr->next = tmp;
+                ptr = ptr->next;
+            }
         }
+        /* There was a event mismatch in the curr list, so, discard this list */
+        if (clear_history)
+            free_event_list(event_list);
+
+        /* All the events in the curr list have been successfully found */
+        if (NULL == derived_setting)
+            break;
+        setting_list = setting_list->next;
+    }
+
+    /* If clear_history is still on, then, none of the events were found */
+    if (clear_history) {
+        fprintf(stderr, "None of the derived settings found\n");
+        return -E_PERFEVENT_LOGIC;
     }
 
     tmp = event_list;
@@ -248,7 +294,7 @@ static int perf_setup_event(perfdata_t *inst, const char *eventname, const int c
     events = realloc(events, (nevents + 1) * sizeof(*events) );
     if(NULL == events)
     {
-	free(inst->events);
+        free(inst->events);
         inst->nevents = 0;
         inst->events = NULL;
         return -E_PERFEVENT_REALLOC;
@@ -434,29 +480,28 @@ static void log_events_for_pmu(pfm_pmu_info_t *pinfo)
             fprintf(stderr, "\n");
         }
     }
-
 }
 
 static int enumerate_active_pmus(char **activepmus, int logevents)
 {
-	pfm_pmu_info_t pinfo;
+    pfm_pmu_info_t pinfo;
     pfm_pmu_t j;
     pfm_err_t ret;
     int nactive = 0;
 
-	memset(&pinfo, 0, sizeof(pinfo));
-	pinfo.size = sizeof(pinfo);
+    memset(&pinfo, 0, sizeof(pinfo));
+    pinfo.size = sizeof(pinfo);
 
-	/*
-	 * enumerate all detected PMU models
-	 */
-	pfm_for_all_pmus(j) 
+    /*
+     * enumerate all detected PMU models
+     */
+    pfm_for_all_pmus(j) 
     {
-		ret = pfm_get_pmu_info(j, &pinfo);
-		if (ret != PFM_SUCCESS)
-			continue;
+        ret = pfm_get_pmu_info(j, &pinfo);
+        if (ret != PFM_SUCCESS)
+            continue;
 
-		if (0 == pinfo.is_present)
+        if (0 == pinfo.is_present)
             continue;
 
         fprintf(stderr, "Found PMU: %s (%s) identification %d (%d events %d generic counters %d fixed counters)\n",

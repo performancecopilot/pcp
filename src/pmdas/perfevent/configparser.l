@@ -56,8 +56,7 @@ static void add_derived(configuration_t *config, char *name)
     entry = &config->derivedArr[config->nDerivedEntries-1];
 
     entry->name = strdup(name);
-    entry->nsettings = 0;
-    entry->derivedSettingList = NULL;
+    entry->setting_lists = NULL;
     context_derived = 1;
 }
 
@@ -98,6 +97,7 @@ static void add_pmc_setting_name_derived(configuration_t *config, char *name)
 {
     pmcderived_t *entry;
     pmcsetting_t *slist, *newpmcderivedsetting;
+    pmcSettingLists_t *setting_lists, *new_setting_list;
 
     if (0 == config->nDerivedEntries)
     {
@@ -109,10 +109,32 @@ static void add_pmc_setting_name_derived(configuration_t *config, char *name)
     newpmcderivedsetting->cpuConfig = CPUCONFIG_EACH_CPU;
     newpmcderivedsetting->next = NULL;
 
-    slist = entry->derivedSettingList;
+    setting_lists = entry->setting_lists;
+
+    if (NULL == setting_lists)
+    {
+        new_setting_list = calloc(1, sizeof *setting_lists);
+        if (NULL == new_setting_list)
+        {
+            fprintf(stderr, "Error in allocating memory\n");
+            return;
+        }
+        new_setting_list->nsettings = 0;
+        new_setting_list->next = NULL;
+        new_setting_list->derivedSettingList = NULL;
+        setting_lists = new_setting_list;
+        entry->setting_lists = setting_lists;
+    }
+    else
+    {
+        while (setting_lists->next)
+            setting_lists = setting_lists->next;
+    }
+
+    slist = setting_lists->derivedSettingList;
     if (slist == NULL)
     {
-        entry->derivedSettingList = newpmcderivedsetting;
+        setting_lists->derivedSettingList = newpmcderivedsetting;
     }
     else
     {
@@ -122,7 +144,40 @@ static void add_pmc_setting_name_derived(configuration_t *config, char *name)
         }
         slist->next = newpmcderivedsetting;
     }
-    entry->nsettings++;
+    setting_lists->nsettings++;
+}
+
+static void start_alternate_pmcsetting(configuration_t *config)
+{
+    pmcderived_t *entry;
+    pmcSettingLists_t *setting_lists, *new_setting_list;
+
+    if (!context_derived)
+        return;
+    if (0 == config->nDerivedEntries)
+    {
+        return;
+    }
+    entry = &config->derivedArr[config->nDerivedEntries - 1];
+
+    if (NULL == entry->setting_lists)
+        return;
+
+    setting_lists = entry->setting_lists;
+    new_setting_list = calloc(1, sizeof(*new_setting_list));
+    if (!new_setting_list)
+    {
+        fprintf(stderr, "Error in allocating memory\n");
+        return;
+    }
+    new_setting_list->nsettings = 0;
+    new_setting_list->derivedSettingList = NULL;
+    new_setting_list->next = NULL;
+
+    while(setting_lists->next)
+        setting_lists = setting_lists->next;
+
+    setting_lists->next = new_setting_list;
 }
 
 static void add_pmcsetting_name(configuration_t *config, char *name)
@@ -154,6 +209,7 @@ static void add_pmcsetting_name(configuration_t *config, char *name)
 static void set_pmcsetting_cpuconfig(configuration_t *config, int cpuconfig)
 {
     pmcsetting_t *pmcsetting;
+    pmcSettingLists_t *setting_lists;
 
     if( (NULL == config) || (0 == config->nConfigEntries) )
     {
@@ -162,7 +218,12 @@ static void set_pmcsetting_cpuconfig(configuration_t *config, int cpuconfig)
 
     if (context_derived)
     {
-        pmcsetting = config->derivedArr[config->nDerivedEntries-1].derivedSettingList;
+        setting_lists = config->derivedArr[config->nDerivedEntries-1].setting_lists;
+        while (setting_lists->next)
+        {
+            setting_lists = setting_lists->next;
+        }
+        pmcsetting = setting_lists->derivedSettingList;
         while(pmcsetting->next)
         {
             pmcsetting = pmcsetting->next;
@@ -227,6 +288,7 @@ void free_configuration(configuration_t *config)
     int i;
     pmctype_t *pmcTypeDel;
     pmcsetting_t *pmcSettingDel, *tmp;
+    pmcSettingLists_t *setting_lists, *tmp_list;
 
     if(NULL == config)
     {
@@ -255,12 +317,19 @@ void free_configuration(configuration_t *config)
 
     for(i = 0; i < config->nDerivedEntries; ++i)
     {
-        tmp = pmcSettingDel = config->derivedArr[i].derivedSettingList;
-        while(tmp != NULL)
+        tmp_list = setting_lists = config->derivedArr[i].setting_lists;
+        while(tmp_list != NULL)
         {
-            tmp = tmp->next;
-            free(pmcSettingDel);
-            pmcSettingDel = tmp;
+            tmp = pmcSettingDel = tmp_list->derivedSettingList;
+            while(tmp != NULL)
+            {
+                tmp = tmp->next;
+                free(pmcSettingDel);
+                pmcSettingDel = tmp;
+            }
+            tmp_list = tmp_list->next;
+            free(setting_lists);
+            setting_lists = tmp_list;
         }
 
         if (config->derivedArr[i].name)
@@ -296,6 +365,8 @@ void free_configuration(configuration_t *config)
 }
 
 ^([[:alpha:]]+[[:alnum:][:punct:]]*) { BEGIN(PMCSETTINGLIST); add_pmcsetting_name(yyextra, yytext ); }
+
+"||"                                 { start_alternate_pmcsetting(yyextra); }
 
 <PMCSETTINGLIST>{
 cpu           set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_EACH_CPU);
