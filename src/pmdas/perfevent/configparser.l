@@ -108,6 +108,7 @@ static void add_pmc_setting_name_derived(configuration_t *config, char *name)
     newpmcderivedsetting->name = strdup(name);
     newpmcderivedsetting->cpuConfig = CPUCONFIG_EACH_CPU;
     newpmcderivedsetting->scale = 1.0;
+    newpmcderivedsetting->need_perf_scale = 0;
     newpmcderivedsetting->next = NULL;
 
     setting_lists = entry->setting_lists;
@@ -207,7 +208,8 @@ static void add_pmcsetting_name(configuration_t *config, char *name)
     entry->pmcSettingList = newpmcsetting;
 }
 
-static void set_pmcsetting_derived_scale(configuration_t *config,  double scale)
+static void set_pmcsetting_derived_scale(configuration_t *config,  double scale,
+                                         int need_perf_scale)
 {
     pmcsetting_t *pmcsetting;
     pmcSettingLists_t *setting_lists;
@@ -229,7 +231,10 @@ static void set_pmcsetting_derived_scale(configuration_t *config,  double scale)
         {
             pmcsetting = pmcsetting->next;
         }
-        pmcsetting->scale = scale;
+        if (need_perf_scale)
+            pmcsetting->need_perf_scale = need_perf_scale;
+        else
+            pmcsetting->scale = scale;
     }
 }
 
@@ -400,8 +405,9 @@ cpu           set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_EACH_CPU);
 cpu_rr        set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_ROUNDROBIN_CPU);
 node          set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_EACH_NUMANODE);
 node_rr       set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_ROUNDROBIN_NUMANODE);
-[0-9]*        set_pmcsetting_cpuconfig(yyextra, atoi(yytext) );
-([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)  set_pmcsetting_derived_scale(yyextra, strtod(yytext, NULL));
+[0-9]*        set_pmcsetting_cpuconfig(yyextra, atoi(yytext));
+perf_scale    set_pmcsetting_derived_scale(yyextra, strtod(yytext, NULL), 1);
+([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)  set_pmcsetting_derived_scale(yyextra, strtod(yytext, NULL), 0);
 }
 
 <*>.|\n { fprintf(stderr, "Syntax error on line: %d \n", yylineno); return -1; }

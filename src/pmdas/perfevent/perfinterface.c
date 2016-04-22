@@ -27,6 +27,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <dirent.h>
+#include <sys/stat.h>
+
+#define SYSFS_DEVICES "/sys/bus/event_source/devices"
+#define BUF_SIZE 1024
+#define MAX_EVENT_NAME 1024
 
 #define EVENT_TYPE_PERF 0
 #define EVENT_TYPE_RAPL 1
@@ -180,6 +186,312 @@ static void free_event_list(event_list_t *event_list)
 }
 
 /*
+ * Utility function to fetch the contents of a
+ * file(in "path") to "buf"
+ */
+static int get_file_string(char *path, char *buf)
+{
+    FILE *fp;
+    int ret;
+    size_t size = BUF_SIZE;
+    char *ptr;
+
+    fp = fopen(path, "r");
+    if (NULL == fp)
+        return -1;
+
+    ret = getline(&buf, &size, fp);
+    if (ret < 0) {
+        fclose(fp);
+        return ret;
+    }
+
+    /* Strip off the new-line character (if found) */
+    ptr = strchr(buf, '\n');
+    if (ptr)
+        *ptr = '\0';
+
+    fclose(fp);
+
+    return 0;
+}
+
+/* Right now, only capable of parsing event and umask */
+static int parse_and_get_config(char *config_str, uint64_t *config)
+{
+    char *start_token, *end_token = NULL, *end_ptr = NULL, *value_ptr;
+    uint64_t event_sel = 0, umask = 0;
+
+    if (!config_str)
+        return -1;
+
+    /* Search for event= */
+    start_token = config_str;
+    /*
+     * Start looking for tokens.
+     * Currently, supported: "event" and "umask"
+     */
+    while (1) {
+        value_ptr = strchr(start_token, '=');
+        if (!value_ptr) {
+            fprintf(stderr, "Error in config string\n");
+            return -1;
+        }
+        end_token = strchr(start_token, ',');
+        if (!end_token)
+            end_ptr = end_token - 1;
+        else
+            end_ptr = config_str + strlen(config_str - 1);
+
+        if (!strncmp(start_token, "event=", strlen("event=")))
+            event_sel = strtoull(value_ptr + 1, &end_ptr, 16);
+        else if (!strncmp(start_token, "umask=", strlen("umask=")))
+            umask = strtoull(value_ptr + 1, &end_ptr, 16);
+        else
+            break;
+        /* No more token to parse after this */
+        if (!end_token)
+            break;
+        /* Point after ',' */
+        start_token = end_token + 1;
+    }
+
+    /*
+     * We have the event and umask fields, find the config value
+     * umask : config[15:8]
+     * event_sel : config[7:0]
+     */
+    if (event_sel && umask)
+        *config = (umask << 8) | event_sel;
+    else
+        return -1;
+    /* Search for umask= */
+    return 0;
+}
+
+static int search_for_config(char *device_path, uint64_t config, char *event_file)
+{
+    char events_path[PATH_MAX], event_path[PATH_MAX], *ptr, *buf = NULL;
+    DIR *events_dir;
+    struct dirent *entry;
+    uint64_t parsed_config = 0;
+    int ret = -1;
+
+    snprintf(events_path, PATH_MAX, "%s/events/", device_path);
+    events_dir = opendir(events_path);
+    if (NULL == events_dir) {
+        fprintf(stderr, "Error in opening %s\n", events_path);
+        return -1;
+    }
+
+    while ((entry = readdir(events_dir)) != NULL) {
+        if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+            continue;
+        snprintf(event_path, PATH_MAX, "%s/events/%s", device_path, entry->d_name);
+
+        buf = calloc(sizeof(char), BUF_SIZE);
+        if (NULL == buf) {
+            fprintf(stderr, "Error in allocating memory for buf\n");
+            ret = -E_PERFEVENT_REALLOC;
+            break;
+        }
+        ret = get_file_string(event_path, buf);
+        if (ret < 0) {
+            free(buf);
+            continue;
+        }
+
+        /* Check whether atleast "event=" is present */
+        ptr = strstr(buf, "event=");
+        if (!ptr) {
+            free(buf);
+            continue;
+        }
+
+        ret = parse_and_get_config(buf, &parsed_config);
+        if (ret < 0) {
+            fprintf(stderr, "parse_and_get_config failed\n");
+            free(buf);
+            break;
+        }
+        if (parsed_config == config) {
+            strncpy(event_file, entry->d_name, strlen(entry->d_name));
+            ret = 0;
+            break;
+        }
+        if (buf)
+            free(buf);
+    }
+
+    closedir(events_dir);
+    return ret;
+}
+
+static int find_and_fetch_scale(char *path_str, uint64_t config,
+                                double *scale)
+{
+    char *device_path, *event_file, scale_path[PATH_MAX], *buf;
+    int ret = -1;
+
+    device_path = calloc(PATH_MAX, sizeof(char));
+    if (NULL == device_path) {
+        fprintf(stderr, "Error in allocating memory\n");
+        return -E_PERFEVENT_REALLOC;
+    }
+    snprintf(device_path, PATH_MAX, "%s", path_str);
+
+    event_file = calloc(MAX_EVENT_NAME, sizeof(char));
+    if (!event_file) {
+        fprintf(stderr, "Error in allocating memory for event_file\n");
+        ret = -E_PERFEVENT_REALLOC;
+        goto free_dev;
+    }
+
+    /* Need to free up event_file after using this call */
+    ret = search_for_config(device_path, config, event_file);
+    if (ret) {
+        fprintf(stderr, "search_for_config failed\n");
+        goto free_event;
+    }
+
+    /* Got the right event name in event_file, fetch the scale */
+    snprintf(scale_path, PATH_MAX, "%s/events/%s.scale", device_path, event_file);
+    buf = calloc(BUF_SIZE, sizeof(char));
+    if (!buf) {
+        fprintf(stderr, "Error in allocating memory to buf\n");
+        ret = -E_PERFEVENT_REALLOC;
+        goto free_event;
+    }
+
+    ret = get_file_string(scale_path, buf);
+    if (ret) {
+        fprintf(stderr, "Couldn't read scale from get_file_string, %s\n", scale_path);
+        goto free_buf;
+    }
+    *scale = strtod(buf, NULL);
+
+ free_buf:
+    free(buf);
+ free_event:
+    free(event_file);
+ free_dev:
+    free(device_path);
+    return ret;
+}
+
+static int parse_sysfs_perf_event_scale(int type, uint64_t config,
+                                        double *scale)
+{
+    DIR *devices_dir;
+    struct dirent* entry;
+    char fullpath[PATH_MAX];
+    char *path_str, *buf = NULL;
+    int fetched_type = -1, ret = -1;
+
+    devices_dir = opendir(SYSFS_DEVICES);
+    if (NULL == devices_dir) {
+        fprintf(stderr, "Error in opening %s\n", SYSFS_DEVICES);
+        return ret;
+    }
+
+    path_str = calloc(PATH_MAX, sizeof(char));
+    if (!path_str) {
+        fprintf(stderr, "Error in allocating memory to path_str\n");
+        goto close_dir;
+    }
+
+    while ((entry = readdir(devices_dir)) != NULL) {
+        if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+            continue;
+
+        snprintf(fullpath, PATH_MAX, "%s/%s", SYSFS_DEVICES, entry->d_name);
+        snprintf(path_str, PATH_MAX, "%s/type", fullpath);
+
+        buf = calloc(BUF_SIZE, sizeof(char));
+        if (!buf) {
+            fprintf(stderr, "Error in allocating memory to buf\n");
+            ret = -1;
+            goto close_dir;
+        }
+
+        ret = get_file_string(path_str, buf);
+        if (ret < 0) {
+            free(buf);
+            goto close_dir;
+        }
+        fetched_type = (int)strtol(buf, NULL, 10);
+        free(buf);
+
+        if (fetched_type < 0) {
+            ret = -1;
+            goto close_dir;
+        }
+        if (fetched_type == type)
+            break;
+    }
+
+    if (fetched_type == type)
+        ret = find_and_fetch_scale(fullpath, config, scale);
+
+ close_dir:
+    closedir(devices_dir);
+    return ret;
+
+}
+
+static int fetch_perf_scale(char *event_name, double *scale)
+{
+    event_t *event;
+    eventcpuinfo_t *info;
+    pfm_perf_encode_arg_t arg;
+    int type, ret;
+    uint64_t config;
+
+    event = calloc(1, sizeof(event_t));
+    if (!event)
+        return -1;
+    event->name = strdup(event_name);
+    info = event->info;
+    info = calloc((sizeof *info),  1);
+    event->ncpus = 0;
+
+    info->type = EVENT_TYPE_PERF;
+
+    /* ABI compatibility, set before calling libpfm */
+    info->hw.size = sizeof(info->hw);
+
+    memset(&arg, 0, sizeof(arg));
+    arg.attr = &(info->hw);
+    arg.fstr = &(info->fstr); /* info->fstr is NULL */
+
+    ret = pfm_get_os_event_encoding(event_name, PFM_PLM0|PFM_PLM3, PFM_OS_PERF_EVENT_EXT, &arg);
+
+    if (ret != PFM_SUCCESS) {
+        fprintf(stderr, "pfm_get_os_event_encoding failed \"%s\": %s\n",
+                event_name, pfm_strerror(ret));
+        free_eventcpuinfo(info);
+        ret = -1;
+        goto free_all;
+    }
+
+    type = info->hw.type;
+    config = info->hw.config;
+
+    ret = parse_sysfs_perf_event_scale(type, config, scale);
+    if (ret) {
+        free_eventcpuinfo(info);
+        ret = -1 ;
+    }
+
+ free_all:
+    free_eventcpuinfo(event->info);
+    free(event->name);
+    free(event);
+
+    return ret;
+}
+
+/*
  * Setup a derived event
  */
 static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
@@ -190,7 +502,7 @@ static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
     pmcsetting_t *derived_setting;
     pmcSettingLists_t *setting_list;
     event_list_t *ptr, *tmp, *event_list;
-    int cpuconfig, clear_history = 0;
+    int cpuconfig, clear_history = 0, ret;
 
     tmp = NULL;
     event_list = NULL;
@@ -240,7 +552,19 @@ static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
                 return -E_PERFEVENT_REALLOC;
             }
             tmp->event = event;
-            tmp->scale = derived_setting->scale;
+
+            if (derived_setting->need_perf_scale) {
+                ret = fetch_perf_scale(event->name, &tmp->scale);
+                if (ret < 0) {
+                    fprintf(stderr, "Couldn't fetch perf_scale for the %s event\n",
+                            event->name);
+                    free_event_list(event_list);
+                    return ret;
+                }
+            }
+            else
+                tmp->scale = derived_setting->scale;
+
             tmp->next = NULL;
             derived_setting = derived_setting->next;
 
