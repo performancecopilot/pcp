@@ -1124,13 +1124,6 @@ INIT_CONTEXT:
 	return PM_ERR_NOCONTEXT;
     }
 
-    /* return the handle to the new (current) context */
-#ifdef PCP_DEBUG
-    if (pmDebug & DBG_TRACE_CONTEXT) {
-	fprintf(stderr, "pmNewContext(%d, %s) -> %d\n", type, name, PM_TPD(curcontext));
-	__pmDumpContext(stderr, PM_TPD(curcontext), PM_INDOM_NULL);
-    }
-#endif
     sts = PM_TPD(curcontext);
 
     /* Take libpcp lock to update contexts[] with this fully operational
@@ -1138,6 +1131,14 @@ INIT_CONTEXT:
     PM_LOCK(__pmLock_libpcp);
     contexts[PM_TPD(curcontext)] = new;
     PM_UNLOCK(__pmLock_libpcp);
+
+    /* return the handle to the new (current) context */
+#ifdef PCP_DEBUG
+    if (pmDebug & DBG_TRACE_CONTEXT) {
+	fprintf(stderr, "pmNewContext(%d, %s) -> %d\n", type, name, PM_TPD(curcontext));
+	__pmDumpContext(stderr, PM_TPD(curcontext), PM_INDOM_NULL);
+    }
+#endif
 
     /* bind defined metrics if any ..., after the new context is in place */
     __dmopencontext(new);
