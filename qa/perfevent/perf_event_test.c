@@ -591,6 +591,95 @@ void test_derived_counters_fail_missing()
     assert( h == NULL );
 }
 
+void test_derived_alternate_group()
+{
+    wrap_sysconf_override = 1;
+    wrap_sysconf_retcode = 1;
+
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+
+    const char *eventlist = "config/test_alternate_derived_groups.txt";
+
+    perfhandle_t *h = perf_event_create(eventlist);
+
+    assert( h != NULL );
+
+    perf_counter *data = NULL;
+    int size = 0;
+    perf_derived_counter *pddata = NULL;
+    int derivedsize = 0;
+
+    int count = perf_get(h, &data, &size, &pddata, &derivedsize);
+
+    assert(count > 0 );
+    assert(size > 0);
+    assert(data != NULL);
+    assert(pddata != NULL);
+    printf("derived size : %d\n", derivedsize);
+    assert(derivedsize == 1);
+
+    int i;
+    int j;
+    for(i = 0; i < derivedsize; ++i)
+    {
+        printf("pddata[%d].name = %s pddata[%d].instances = %d\n", i, pddata[i].name, i, pddata[i].ninstances);
+        perf_counter_list *clist = pddata[i].counter_list;
+        while(clist)
+        {
+            printf("clist->name : %s\n", clist->counter->name);
+            clist = clist->next;
+        }
+        for(j = 0; j < pddata[i].ninstances; j++)
+        {
+            printf("\tvalue[%d] = %llu\n", j, (long long unsigned int)pddata[i].data[j].value);
+        }
+    }
+
+    perf_event_destroy(h);
+    perf_counter_destroy(data, size, pddata, derivedsize);
+    wrap_sysconf_override = 0;
+}
+
+void test_derived_events_scale(void)
+{
+    wrap_sysconf_override = 1;
+    wrap_sysconf_retcode = 1;
+
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+
+    const char *eventlist = "config/test_derived_events_scale.txt";
+
+    perfhandle_t *h = perf_event_create(eventlist);
+
+    assert( h != NULL );
+
+    perf_counter *data = NULL;
+    int size = 0;
+    perf_derived_counter *pddata = NULL;
+    int derivedsize = 0;
+
+    int count = perf_get(h, &data, &size, &pddata, &derivedsize);
+
+    assert(count > 0 );
+    assert(size > 0);
+    assert(data != NULL);
+    assert(pddata != NULL);
+    printf("derived size : %d\n", derivedsize);
+    assert(derivedsize == 1);
+
+    printf("pddata[0].name = %s pddata[0].instances = %d\n", pddata[0].name, pddata[0].ninstances);
+    perf_counter_list *clist = pddata[0].counter_list;
+    assert(clist->scale == 0.1);
+    printf("clist->name : %s, scale : %f\n", clist->counter->name, clist->scale);
+    clist = clist->next;
+    assert(clist->scale == 1.0);
+    printf("clist->name : %s, scale : %f\n", clist->counter->name, clist->scale);
+
+    perf_event_destroy(h);
+    perf_counter_destroy(data, size, pddata, derivedsize);
+    wrap_sysconf_override = 0;
+}
+
 int runtest(int n)
 {
     init_mock();
@@ -660,6 +749,12 @@ int runtest(int n)
             break;
         case 20:
             test_derived_counters_fail_missing();
+            break;
+        case 21:
+            test_derived_alternate_group();
+            break;
+        case 22:
+            test_derived_events_scale();
             break;
         default:
             ret = -1;
