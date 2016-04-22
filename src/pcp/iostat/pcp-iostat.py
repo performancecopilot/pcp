@@ -1,5 +1,4 @@
 #!/usr/bin/env pmpython
-#
 # Copyright (C) 2014-2016 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -208,6 +207,9 @@ class IostatReport(pmcc.MetricGroupPrinter):
                         '?',precision+6, '?',headfmtavgspace, '?',headfmtquspace, '?', precision+5, '?',awaitspace, '?',\
                         awaitspace, '?',utilspace, '?'))
                     else:
+                        if "noidle" in IostatOptions.xflag:
+                            if rrqm == 0 and wrqm == 0 and r == 0 and w == 0 :
+                                continue
                         print(valfmt % (timestamp, device,rrqmspace, precision, rrqm,wrqmspace,precision, wrqm,precision+5,precision,\
                         r,precision+4,precision, w,precision+6,precision, rkb,precision+6,precision, wkb, avgrqszspace,precision+1 ,avgrqsz,\
                         avgrqszspace,precision+1, avgqsz,precision+5,precision, await,awaitspace,precision, r_await,awaitspace,precision,\
@@ -217,6 +219,9 @@ class IostatReport(pmcc.MetricGroupPrinter):
                         print(headfmt % (device,rrqmspace, '?',wrqmspace, '?',precision+5, '?',precision+4, '?',precision+6, '?',precision+6,\
                         '?',headfmtavgspace, '?',headfmtquspace, '?', precision+5, '?',awaitspace, '?',awaitspace, '?',utilspace, '?'))
                     else:
+                        if "noidle" in IostatOptions.xflag:
+                            if rrqm == 0 and wrqm == 0 and r == 0 and w == 0 :
+                                continue
                         print(valfmt % (device,rrqmspace, precision, rrqm,wrqmspace,precision, wrqm,precision+5,precision, r,precision+4,\
                         precision, w,precision+6,precision, rkb,precision+6,precision, wkb,\
                         avgrqszspace,precision+1 ,avgrqsz,avgrqszspace,precision+1, avgqsz,precision+5,precision, await,awaitspace,precision,\
@@ -270,10 +275,11 @@ class IostatOptions(pmapi.pmOptions):
         self.pmSetLongOptionHostZone()
         self.pmSetLongOptionHelp()
         self.pmSetLongOptionHeader("Extended options")
-        self.pmSetLongOption("", 1, 'x', "LIST", "comma separated extended options: [[dm],[t],[h]]")
+        self.pmSetLongOption("", 1, 'x', "LIST", "comma separated extended options: [[dm],[t],[h],[noidle]]")
         self.pmSetLongOptionText("\t\tdm\tshow device-mapper statistics (default is sd devices)")
         self.pmSetLongOptionText("\t\tt\tprecede every line with a timestamp in ctime format");
         self.pmSetLongOptionText("\t\th\tsuppress headings");
+        self.pmSetLongOptionText("\t\tnoidle\tdo not display idle devices");
 
 if __name__ == '__main__':
     try:
