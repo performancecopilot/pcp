@@ -17,7 +17,7 @@
  * like localtime(), asctime(), gmtime(), getenv(), setenv() ... all of
  * which are not thread-safe.
  *
- * We use the big lock to prevent concurrent execution.
+ * We use a private global lock to prevent concurrent execution.
  *
  * Need to call PM_INIT_LOCKS() in all the exposed routines because we
  * may be called before a context has been created, and missed the
@@ -41,6 +41,12 @@ static char	**zone;
 #endif
 
 extern char **_environ;
+
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t tz_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+static void* tz_lock;
+#endif
 
 static void
 _pushTZ(void)
@@ -98,7 +104,7 @@ __pmSquashTZ(char *tzbuffer)
     time_t	offset; 
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(tz_lock);
 
     tzset();
     t = localtime(&now);
@@ -145,7 +151,7 @@ __pmSquashTZ(char *tzbuffer)
     }
     setenv("TZ", tzbuffer, 1);
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(tz_lock);
     return;
 
 #else	/* IS_MINGW */
@@ -171,7 +177,7 @@ __pmSquashTZ(char *tzbuffer)
     div_t d;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(tz_lock);
 
     GetTimeZoneInformation(&tz);
     dst = cp = tzbuf;
@@ -246,7 +252,7 @@ __pmSquashTZ(char *tzbuffer)
     snprintf(tzbuffer, PM_TZ_MAXLEN, "%s%s", tzn, tzoff);
     setenv("TZ", tzbuffer, 1);
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(tz_lock);
     return;
 #endif
 }
@@ -261,7 +267,7 @@ __pmTimezone(void)
     char *tz;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(tz_lock);
 
     tz = getenv("TZ");
 
@@ -272,7 +278,7 @@ __pmTimezone(void)
 	tzbuffer = (char *)malloc(PM_TZ_MAXLEN+1);
 	if (tzbuffer == NULL) {
 	    /* not much we can do here ... */
-	    PM_UNLOCK(__pmLock_libpcp);
+	    PM_UNLOCK(tz_lock);
 	    return NULL;
 	}
 	tzbuffer[0] = '\0';
@@ -320,7 +326,7 @@ __pmTimezone(void)
 	}
     }
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(tz_lock);
     return tz;
 }
 
@@ -331,9 +337,9 @@ char *
 __pmTimezone_r(char *buf, int buflen)
 {
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(tz_lock);
     strcpy(buf, __pmTimezone());
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(tz_lock);
     return buf;
 }
 
@@ -341,10 +347,10 @@ int
 pmUseZone(const int tz_handle)
 {
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(tz_lock);
 
     if (tz_handle < 0 || tz_handle >= nzone) {
-	PM_UNLOCK(__pmLock_libpcp);
+	PM_UNLOCK(tz_lock);
 	return -1;
     }
 
@@ -356,7 +362,7 @@ pmUseZone(const int tz_handle)
 	fprintf(stderr, "pmUseZone(%d) tz=%s\n", curzone, zone[curzone]);
 #endif
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(tz_lock);
     return 0;
 }
 
@@ -368,7 +374,7 @@ pmNewZone(const char *tz)
     int		sts;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(tz_lock);
 
     len = (int)strlen(tz);
     if (len == 3) {
@@ -408,7 +414,7 @@ pmNewZone(const char *tz)
 #endif
     sts = curzone;
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(tz_lock);
     return sts;
 }
 
@@ -461,7 +467,7 @@ pmCtime(const time_t *clock, char *buf)
     struct tm	tbuf;
 #endif
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(tz_lock);
 
     if (curzone >= 0) {
 	_pushTZ();
@@ -480,7 +486,7 @@ pmCtime(const time_t *clock, char *buf)
 #endif
     }
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(tz_lock);
     return buf;
 }
 
@@ -492,7 +498,7 @@ pmLocaltime(const time_t *clock, struct tm *result)
 #endif
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(tz_lock);
 
     if (curzone >= 0) {
 	_pushTZ();
@@ -513,7 +519,7 @@ pmLocaltime(const time_t *clock, struct tm *result)
 #endif
     }
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(tz_lock);
     return result;
 }
 
@@ -523,7 +529,7 @@ __pmMktime(struct tm *timeptr)
     time_t	ans;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(tz_lock);
 
     if (curzone >= 0) {
 	_pushTZ();
@@ -533,7 +539,7 @@ __pmMktime(struct tm *timeptr)
     else
 	ans = mktime(timeptr);
 
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(tz_lock);
     return ans;
 }
 
@@ -542,10 +548,10 @@ pmWhichZone(char **tz)
 {
     int		sts;
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(tz_lock);
     if (curzone >= 0)
 	*tz = zone[curzone];
     sts = curzone;
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(tz_lock);
     return sts;
 }

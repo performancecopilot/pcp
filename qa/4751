@@ -55,6 +55,24 @@ done
 src/multithread10 $ips | _filter_ncpu | _filter_notreach
 date >> $seq.full
 
+echo "A small mixture of archives and hosts ..."
+archives="
+./archives/pmatop-log.meta
+./archives/pmiostat_mark.meta
+./archives/proc.meta
+./archives/procpid-encode2.meta
+./archives/procpid-encode.meta
+./archives/eventrec-old.meta
+"
+ips="localhost local: localhost local:"
+date >> $seq.full
+# the PCP_DEBUG is to enable tracing, which can interact badly (nest/deadlock) with locks
+# -2 excludes DBG_TRACE_PDU; __pmDump*Result invoke deadlockable nested locks
+PCP_DEBUG=-2 src/multithread10 $archives $ips $archives $ips | _filter_ncpu | _filter_notreach
+# -1 everything, but runnig one thread only to avoid deadlocks
+PCP_DEBUG=-1 src/multithread10 local: | _filter_ncpu
+date >> $seq.full
+
 echo "A mixture of archives and hosts and unreachable hosts ..."
 ips="localhost local: localhost local: localhost local: 127.0.0.1 127.0.0.1 "
 for i in 1 2 1 2 ; do
@@ -96,8 +114,7 @@ archives="
 ./archives/20150105.17.57.meta
 "
 date >> $seq.full
-# the PCP_DEBUG is to enable tracing, which can interact badly (nest/deadlock) with locks
-PCP_DEBUG=-1 src/multithread10 $archives $ips $archives $ips | _filter_ncpu | _filter_notreach
+src/multithread10 $archives $ips $archives $ips | _filter_ncpu | _filter_notreach
 date >> $seq.full
 
 

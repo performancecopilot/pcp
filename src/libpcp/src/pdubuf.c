@@ -169,11 +169,11 @@ __pmPinPDUBuf(void *handle)
     } else {
 	__pmNotifyErr(LOG_WARNING, "__pmPinPDUBuf: 0x%lx not in pool!",
 			(unsigned long)handle);
+	PM_UNLOCK(buf_tree_lock);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PDUBUF)
 	    pdubufdump();
 #endif
-	PM_UNLOCK(buf_tree_lock);
 	return;
     }
 
@@ -213,6 +213,7 @@ __pmUnpinPDUBuf(void *handle)
     if (likely(bcp != NULL)) {
 	pcp = *(bufctl_t **)bcp;
     } else {
+	PM_UNLOCK(buf_tree_lock);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PDUBUF) {
 	    fprintf(stderr, "__pmUnpinPDUBuf(" PRINTF_P_PFX "%p) -> fails\n",
@@ -220,7 +221,6 @@ __pmUnpinPDUBuf(void *handle)
 	    pdubufdump();
 	}
 #endif
-	PM_UNLOCK(buf_tree_lock);
 	return 0;
     }
 
