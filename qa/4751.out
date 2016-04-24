@@ -50,6 +50,28 @@ A couple of unreachable hosts ...
 192.0.2.47 NOTREACH
 192.0.2.48 NOTREACH
 192.0.2.49 NOTREACH
+A small mixture of archives and hosts ...
+./archives/pmatop-log.meta NUMBER
+./archives/pmiostat_mark.meta NUMBER
+./archives/proc.meta NUMBER
+./archives/procpid-encode2.meta -12357
+./archives/procpid-encode.meta -12357
+./archives/eventrec-old.meta -12357
+localhost NUMBER
+local: NUMBER
+localhost NUMBER
+local: NUMBER
+./archives/pmatop-log.meta NUMBER
+./archives/pmiostat_mark.meta NUMBER
+./archives/proc.meta NUMBER
+./archives/procpid-encode2.meta -12357
+./archives/procpid-encode.meta -12357
+./archives/eventrec-old.meta -12357
+localhost NUMBER
+local: NUMBER
+localhost NUMBER
+local: NUMBER
+local: NUMBER
 A mixture of archives and hosts and unreachable hosts ...
 ./archives/tzchange-10-a.meta -12357
 ./archives/tzchange-10-b.meta -12357
