@@ -96,7 +96,8 @@ archives="
 ./archives/20150105.17.57.meta
 "
 date >> $seq.full
-src/multithread10 $archives $ips $archives $ips | _filter_ncpu | _filter_notreach
+# the PCP_DEBUG is to enable tracing, which can interact badly (nest/deadlock) with locks
+PCP_DEBUG=-1 src/multithread10 $archives $ips $archives $ips | _filter_ncpu | _filter_notreach
 date >> $seq.full
 
 

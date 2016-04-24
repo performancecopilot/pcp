@@ -108,10 +108,10 @@ __pmSetVersionIPC(int fd, int version)
     __pmIPCTablePtr(fd)->version = version;
     __pmLastUsedFd = fd;
 
+    PM_UNLOCK(__pmIPCTable_lock);
     if (pmDebug & DBG_TRACE_CONTEXT)
 	__pmPrintIPC();
 
-    PM_UNLOCK(__pmIPCTable_lock);
     return sts;
 }
 
@@ -133,10 +133,10 @@ __pmSetSocketIPC(int fd)
     __pmIPCTablePtr(fd)->socket = 1;
     __pmLastUsedFd = fd;
 
+    PM_UNLOCK(__pmIPCTable_lock);
     if (pmDebug & DBG_TRACE_CONTEXT)
 	__pmPrintIPC();
 
-    PM_UNLOCK(__pmIPCTable_lock);
     return sts;
 }
 
@@ -168,10 +168,7 @@ __pmLastVersionIPC()
 {
     int		sts;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmIPCTable_lock);
     sts = __pmVersionIPC(__pmLastUsedFd);
-    PM_UNLOCK(__pmIPCTable_lock);
     return sts;
 }
 
@@ -213,10 +210,10 @@ __pmSetDataIPC(int fd, void *data)
     memcpy(dest, data, ipcentrysize - sizeof(__pmIPC));
     __pmLastUsedFd = fd;
 
+    PM_UNLOCK(__pmIPCTable_lock);
     if (pmDebug & DBG_TRACE_CONTEXT)
 	__pmPrintIPC();
 
-    PM_UNLOCK(__pmIPCTable_lock);
     return sts;
 }
 
