@@ -103,36 +103,63 @@ waitawhile(__pmPMCDCtl *ctl)
 __pmContext *
 __pmHandleToPtr(int handle)
 {
+    __pmContext		*ctxp;
+
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
+    ctxp = __pmHandleToPtr_unlocked(handle);
+    /* NB: Lock the context before unlocking contexts[], to avoid
+       a race condition whereby another thread destroys the
+       context in between. */
+    if (ctxp) PM_LOCK(ctxp->c_lock);
+    PM_UNLOCK(__pmLock_libpcp);
+    return ctxp;
+}
+
+
+/*
+ * Simple look up of the context by index.  Assume it is already
+ * locked by the transitive caller.  (The direct caller should not
+ * PM_UNLOCK its c_lock.)  It is possible that the libpcp lock is not
+ * taken while this lookup is in progress, which is a race.  But it's
+ * not so bad, because contexts_len only ever grows, and contexts[] is
+ * only replaced when it is fully initialized.  We are unlikely
+ * to see a freed/corrupt contexts[].
+ *
+ * A more proper solution would be to update the calling hierarchy of
+ * the functions that use this (logutil.c / multi-archive logic) to
+ * keep & pass the ctxp->c_archctl around.
+ */
+__pmContext *
+__pmHandleToPtr_unlocked(int handle)
+{
     if (handle < 0 || handle >= contexts_len ||
 	contexts[handle]->c_type == PM_CONTEXT_INIT ||
 	contexts[handle]->c_type == PM_CONTEXT_FREE) {
-	PM_UNLOCK(__pmLock_libpcp);
 	return NULL;
     }
     else {
-	__pmContext	*sts;
-	sts = contexts[handle];
-	PM_UNLOCK(__pmLock_libpcp);
-	PM_LOCK(sts->c_lock);
-	return sts;
+	return contexts[handle];
     }
 }
 
+
+/*
+ * Simple look up of the index by context.  Assume it is already
+ * locked by the transitive caller.
+ *
+ * A more proper solution would be to extend the __pmContext structure
+ * with a self-index field.
+ */
 int
-__pmPtrToHandle(__pmContext *ctxp)
+__pmPtrToHandle/*_unlocked*/ (__pmContext *ctxp)
 {
     int		i;
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     for (i = 0; i < contexts_len; i++) {
 	if (ctxp == contexts[i]) {
-	    PM_UNLOCK(__pmLock_libpcp);
 	    return i;
 	}
     }
-    PM_UNLOCK(__pmLock_libpcp);
     return PM_CONTEXT_UNDEF;
 }
 
@@ -234,8 +261,6 @@ pmWhichContext(void)
      */
     int		sts;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     if (PM_TPD(curcontext) > PM_CONTEXT_UNDEF)
 	sts = PM_TPD(curcontext);
     else
@@ -246,7 +271,6 @@ pmWhichContext(void)
 	fprintf(stderr, "pmWhichContext() -> %d, cur=%d\n",
 	    sts, PM_TPD(curcontext));
 #endif
-    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 
@@ -1058,7 +1082,7 @@ INIT_CONTEXT:
 		    }
 
 		    /* ports match, check that pmcd is alive too */
-		    if (ports_same && ping_pmcd(i, pmcd)) {
+		    if (ports_same && ping_pmcd(i, pmcd)) { /* grabs nested lock on c_pmcd */
 			new->c_pmcd = pmcd;
 			new->c_pmcd->pc_refcnt++;
 			break;
