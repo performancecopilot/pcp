@@ -407,6 +407,7 @@ typedef struct {
  * Log/Archive Control
  */
 typedef struct {
+    /* no       l_lock, even though this is a shared structure */
     int		l_refcnt;	/* number of contexts using this log */
     char	*l_name;	/* external log base name */
     FILE	*l_tifp;	/* temporal index */
@@ -770,6 +771,7 @@ typedef struct {
  * Convert opaque context handle to __pmContext pointer
  */
 PCP_CALL extern __pmContext *__pmHandleToPtr(int);
+PCP_CALL extern __pmContext *__pmHandleToPtr_unlocked(int);
 
 /*
  * Dump the current context (source details + instance profile),
