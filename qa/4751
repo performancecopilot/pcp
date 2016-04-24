@@ -25,10 +25,18 @@ _filter_ncpu()
   tee -a $seq.full | sed -e 's, [0-9]*$, NUMBER,'
 }
 
+# map different but similar errors together
+_filter_notreach()
+{
+    sed -e 's,-101$,NOTREACH,' \
+        -e 's,-110$,NOTREACH,'
+}
+
+
 # real QA test starts here
 echo "Only one context ..."
 date >> $seq.full
-src/multithread10 localhost | _filter_ncpu
+src/multithread10 localhost | _filter_ncpu | _filter_notreach
 date >> $seq.full
 
 echo "A couple of localhosts ..."
@@ -44,7 +52,7 @@ for i in 1 2 3 4; do
         ips="$ips 192.0.2.${i}${j}"
     done
 done
-src/multithread10 $ips | _filter_ncpu
+src/multithread10 $ips | _filter_ncpu | _filter_notreach
 date >> $seq.full
 
 echo "A mixture of archives and hosts and unreachable hosts ..."
@@ -88,7 +96,7 @@ archives="
 ./archives/20150105.17.57.meta
 "
 date >> $seq.full
-src/multithread10 $archives $ips $archives $ips | _filter_ncpu
+src/multithread10 $archives $ips $archives $ips | _filter_ncpu | _filter_notreach
 date >> $seq.full
 
 
