@@ -341,13 +341,14 @@ store.o
 stuffvalue.o
 tv.o
 tz.o
-    curzone			# guarded by __pmLock_libpcp mutex
-    envtz			# guarded by __pmLock_libpcp mutex
-    envtzlen			# guarded by __pmLock_libpcp mutex
-    zone			# guarded by __pmLock_libpcp mutex
-    nzone			# guarded by __pmLock_libpcp mutex
-    savetz			# guarded by __pmLock_libpcp mutex
-    tzbuffer			# guarded by __pmLock_libpcp mutex
+    tz_lock                     # mutex to guard ...
+    curzone			# this
+    envtz			# and this
+    envtzlen			# and this
+    zone			# and this
+    nzone			# and this
+    savetz			# and this
+    tzbuffer			# and even this
     ?wildabbr			# const (MinGW)
 units.o
     typename			# const
