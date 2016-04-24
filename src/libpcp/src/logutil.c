@@ -74,6 +74,21 @@ typedef struct {
  */
 static __pmHashCtl	pc_hc;
 
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t pc_hc_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+static void* pc_hc_lock;
+#endif
+
+/* A substitute for the l_lock field that belongs in __pmLogCtl. */
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t global_logctl_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+static void* global_logctl_lock;
+#endif
+
+
+
 #ifdef PCP_DEBUG
 static void
 dumpbuf(int nch, __pmPDU *pb)
@@ -885,8 +900,6 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
      */
     if ((tbuf = strdup(name)) == NULL)
 	return -oserror();
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     dir = dirname(tbuf);
 
     /*
@@ -897,10 +910,8 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     if ((base = strdup(basename(filename))) == NULL) {
 	sts = -oserror();
 	free(tbuf);
-	PM_UNLOCK(__pmLock_libpcp);
 	return sts;
     }
-    PM_UNLOCK(__pmLock_libpcp);
 
     if (access(name, R_OK) == 0) {
 	/* Strip the name down to its base, if it is a known archive
@@ -922,7 +933,8 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     lcp->l_numseen = 0; lcp->l_seen = NULL;
 
     blen = (int)strlen(base);
-    PM_LOCK(__pmLock_libpcp);
+    PM_INIT_LOCKS();
+    PM_LOCK(global_logctl_lock);
     if ((dirp = opendir(dir)) != NULL) {
 #if defined(HAVE_READDIR64)
 	while ((direntp = readdir64(dirp)) != NULL)
@@ -946,7 +958,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_tifp = fopen(filename, "r")) == NULL) {
 		    sts = -oserror();
-		    PM_UNLOCK(__pmLock_libpcp);
+		    PM_UNLOCK(global_logctl_lock);
 		    goto cleanup;
 		}
 	    }
@@ -955,7 +967,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_mdfp = fopen(filename, "r")) == NULL) {
 		    sts = -oserror();
-		    PM_UNLOCK(__pmLock_libpcp);
+		    PM_UNLOCK(global_logctl_lock);
 		    goto cleanup;
 		}
 	    }
@@ -999,12 +1011,12 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "__pmLogOpen: cannot scan directory \"%s\": %s\n", dir, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
-	PM_UNLOCK(__pmLock_libpcp);
+	PM_UNLOCK(global_logctl_lock);
 	goto cleanup;
 	
 #endif
     }
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(global_logctl_lock);
 
     if (lcp->l_minvol == -1 || lcp->l_mdfp == NULL) {
 #ifdef PCP_DEBUG
@@ -1522,11 +1534,10 @@ clearMarkDone(void)
     __pmContext		*ctxp;
 
     /* Get the current context. It must be an archive context. */
-    ctxp = __pmHandleToPtr(pmWhichContext());
+    ctxp = __pmHandleToPtr_unlocked(pmWhichContext());
     if (ctxp != NULL) {
 	if (ctxp->c_type == PM_CONTEXT_ARCHIVE)
 	    ctxp->c_archctl->ac_mark_done = 0;
-	PM_UNLOCK(ctxp->c_lock);
     }
 }
 
@@ -2083,7 +2094,7 @@ more:
 	    newres->timestamp = (*result)->timestamp;
 	    u = 0;
 	    PM_INIT_LOCKS();
-	    PM_LOCK(__pmLock_libpcp);
+	    PM_LOCK(pc_hc_lock);
 	    for (j = 0; j < numpmid; j++) {
 		hp = __pmHashSearch((int)pmidlist[j], &pc_hc);
 		if (hp == NULL) {
@@ -2095,7 +2106,7 @@ more:
 		    pcp->pc_numval = 0;
 		    sts = __pmHashAdd((int)pmidlist[j], (void *)pcp, &pc_hc);
 		    if (sts < 0) {
-			PM_UNLOCK(__pmLock_libpcp);
+			PM_UNLOCK(pc_hc_lock);
 			return sts;
 		    }
 		}
@@ -2117,7 +2128,7 @@ more:
 		    newres->vset[j] = (pmValueSet *)pcp;
 		}
 	    }
-	    PM_UNLOCK(__pmLock_libpcp);
+	    PM_UNLOCK(pc_hc_lock);
 	    if (u == 0 && !all_derived) {
 		/*
 		 * not one of our pmids was in the log record, try
@@ -2848,11 +2859,10 @@ __pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
     int		sts = 0;
 
     /* Get the current context. It must be an archive context. */
-    ctxp = __pmHandleToPtr(pmWhichContext());
+    ctxp = __pmHandleToPtr_unlocked(pmWhichContext());
     if (ctxp == NULL)
 	return PM_ERR_EOL;
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
-	PM_UNLOCK(ctxp->c_lock);
 	return PM_ERR_NOTARCHIVE;
     }
 
@@ -2876,7 +2886,6 @@ __pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
 	}
     }
 
-    PM_UNLOCK(ctxp->c_lock);
     return sts;
 }
 
