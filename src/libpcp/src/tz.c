@@ -93,6 +93,8 @@ _popTZ(void)
  * timezone part is not more than PM_TZ_MAXLEN bytes
  * Assumes TZ= is in the start of tzbuffer and this is not touched.
  * And finally set TZ in the environment.
+ *
+ * NB: assumes the tz_lock is already held.
  */
 static void
 __pmSquashTZ(char *tzbuffer)
@@ -102,9 +104,6 @@ __pmSquashTZ(char *tzbuffer)
     char	*tzn;
 #ifndef IS_MINGW
     time_t	offset; 
-
-    PM_INIT_LOCKS();
-    PM_LOCK(tz_lock);
 
     tzset();
     t = localtime(&now);
@@ -151,7 +150,6 @@ __pmSquashTZ(char *tzbuffer)
     }
     setenv("TZ", tzbuffer, 1);
 
-    PM_UNLOCK(tz_lock);
     return;
 
 #else	/* IS_MINGW */
@@ -336,10 +334,7 @@ __pmTimezone(void)
 char *
 __pmTimezone_r(char *buf, int buflen)
 {
-    PM_INIT_LOCKS();
-    PM_LOCK(tz_lock);
     strcpy(buf, __pmTimezone());
-    PM_UNLOCK(tz_lock);
     return buf;
 }
 
