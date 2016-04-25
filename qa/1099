@@ -87,6 +87,9 @@ pmiostat -z -u -xt -a archives/pmiostat_mark | tail -5
 echo '== testing pmiostat -u with -O offset and -s samples'
 pmiostat -z -u -xt -O'@18:58:41' -s 2 -a archives/pmiostat_mark
 
+echo '== testing pmiostat -x noidle'
+pmiostat -z -xt,noidle -t 30m -a archives/pmiostat_mark
+
 # success, all done
 status=0
 
