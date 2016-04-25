@@ -14,6 +14,7 @@
 # pylint: disable=C0103,R0914,R0902
 """ Display disk and device-mapper I/O statistics """
 
+import re
 import sys
 import signal
 from pcp import pmapi, pmcc
@@ -54,6 +55,7 @@ class IostatReport(pmcc.MetricGroupPrinter):
         return dict(map(lambda x: (x[1], x[2]), group[name].netPrevValues))
 
     def report(self, manager):
+        regex = IostatOptions.Rflag
         precision = IostatOptions.Pflag
         if precision < 0 or precision > 10 :
            print("Precision value must be between 0 and 10")
@@ -210,6 +212,8 @@ class IostatReport(pmcc.MetricGroupPrinter):
                         if "noidle" in IostatOptions.xflag:
                             if rrqm == 0 and wrqm == 0 and r == 0 and w == 0 :
                                 continue
+                        if IostatOptions.Rflag and re.search(regex,device) == None: 
+                            continue  
                         print(valfmt % (timestamp, device,rrqmspace, precision, rrqm,wrqmspace,precision, wrqm,precision+5,precision,\
                         r,precision+4,precision, w,precision+6,precision, rkb,precision+6,precision, wkb, avgrqszspace,precision+1 ,avgrqsz,\
                         avgrqszspace,precision+1, avgqsz,precision+5,precision, await,awaitspace,precision, r_await,awaitspace,precision,\
@@ -222,6 +226,8 @@ class IostatReport(pmcc.MetricGroupPrinter):
                         if "noidle" in IostatOptions.xflag:
                             if rrqm == 0 and wrqm == 0 and r == 0 and w == 0 :
                                 continue
+                        if IostatOptions.Rflag and re.search(regex,device) == None: 
+                            continue  
                         print(valfmt % (device,rrqmspace, precision, rrqm,wrqmspace,precision, wrqm,precision+5,precision, r,precision+4,\
                         precision, w,precision+6,precision, rkb,precision+6,precision, wkb,\
                         avgrqszspace,precision+1 ,avgrqsz,avgrqszspace,precision+1, avgqsz,precision+5,precision, await,awaitspace,precision,\
@@ -236,7 +242,7 @@ class IostatOptions(pmapi.pmOptions):
     xflag = [] 
     uflag = None
     Pflag = 2
-
+    Rflag = ""
     def checkOptions(self, manager):
         if IostatOptions.uflag:
             if manager._options.pmGetOptionInterval():
@@ -254,9 +260,11 @@ class IostatOptions(pmapi.pmOptions):
             IostatOptions.uflag = True
         elif opt == "P":
             IostatOptions.Pflag = int(optarg)
+        elif opt == "R":
+            IostatOptions.Rflag = optarg
 
     def __init__(self):
-        pmapi.pmOptions.__init__(self, "A:a:D:h:O:P:S:s:T:t:uVZ:z?x:")
+        pmapi.pmOptions.__init__(self, "A:a:D:h:O:P:R:S:s:T:t:uVZ:z?x:")
         self.pmSetOptionCallback(self.extraOptions)
         self.pmSetLongOptionHeader("General options")
         self.pmSetLongOptionAlign()
@@ -265,6 +273,7 @@ class IostatOptions(pmapi.pmOptions):
         self.pmSetLongOptionHost()
         self.pmSetLongOptionOrigin()
         self.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator")
+        self.pmSetLongOption("regex", 1, "R", "pattern", "only report for devices names matching pattern, e.g. 'sd[a-zA-Z]+'")
         self.pmSetLongOptionStart()
         self.pmSetLongOptionSamples()
         self.pmSetLongOptionFinish()
