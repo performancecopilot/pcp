@@ -51,7 +51,7 @@ typedef struct {		/* one derived metric */
     char	*name;
     int		anon;		/* 1 for anonymous derived metrics */
     pmID	pmid;
-    node_t	*expr;
+    node_t	*expr;		/* NULL => invalid, e.g. dup or missing operands */
 } dm_t;
 
 /*
@@ -89,8 +89,8 @@ typedef struct {
 #define L_RATE		16
 #define L_INSTANT	17
 
-extern int __dmtraverse(const char *, char ***) _PCP_HIDDEN;
-extern int __dmchildren(const char *, char ***, int **) _PCP_HIDDEN;
+extern int __dmtraverse(__pmContext *, const char *, char ***) _PCP_HIDDEN;
+extern int __dmchildren(__pmContext *, const char *, char ***, int **) _PCP_HIDDEN;
 extern int __dmgetpmid(const char *, pmID *) _PCP_HIDDEN;
 extern int __dmgetname(pmID, char **) _PCP_HIDDEN;
 extern void __dmopencontext(__pmContext *) _PCP_HIDDEN;

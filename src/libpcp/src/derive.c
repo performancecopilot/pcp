@@ -1796,33 +1796,81 @@ pmDerivedErrStr(void)
  * callbacks
  */
 
+static ctl_t *
+__dmctl(__pmContext *ctxp)
+{
+    ctl_t *cp;
+
+    if (__pmGetInternalState() == PM_STATE_PMCS) {
+	/* no derived metrics below PMCS, not even anon */
+    	cp = NULL;
+    }
+    else if (ctxp == NULL) {
+	/*
+	 * No context, but we still need to traverse globally registered anon
+	 * derived metrics using local pmns (but *only* anon, e.g. event.*).
+	 */
+    	cp = &registered;
+    }
+    else {
+        /*
+         * Else use the per-context control structure. Invalid derived metrics,
+         * e.g. with missing operands, have cp->mlist[i].expr == NULL, which we
+         * can check to effectively exclude them from the pmns for this context.
+         * Note that anon derived metrics are assumed to always be valid, so we
+         * can use the per-context control structure *or* the registered global
+         * control structure (as above) for anon derived metrics.
+         */
+	cp = (ctl_t *)ctxp->c_dm;
+    }
+
+    return cp;
+}
+
 int
-__dmtraverse(const char *name, char ***namelist)
+__dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
 {
     int		sts = 0;
     int		i;
     char	**list = NULL;
     int		matchlen = strlen(name);
+    ctl_t       *cp;
+    
+    if ((cp = __dmctl(ctxp)) == NULL)
+	/* no derived metrics below PMCS, not even anon */
+    	return PM_ERR_NAME;
 
     initialize_mutex();
     PM_LOCK(registered.mutex);
     __dminit();
 
-    for (i = 0; i < registered.nmetric; i++) {
+    for (i = 0; i < cp->nmetric; i++) {
+	/* skip invalid derived metrics, e.g. due to missing operands */
+	if (!cp->mlist[i].anon) {
+	    if (ctxp == NULL || cp->mlist[i].expr == NULL) {
+		if (pmDebug & DBG_TRACE_DERIVE) {
+		    fprintf(stderr, "__dmtraverse: name=\"%s\", omitting invalid child \"%s\"\n",
+		    	name, cp->mlist[i].name);
+		}
+		continue;
+	    }
+	}
 	/*
 	 * prefix match ... if name is "", then all names match
 	 */
 	if (matchlen == 0 ||
-	    (strncmp(name, registered.mlist[i].name, matchlen) == 0 &&
-	     (registered.mlist[i].name[matchlen] == '.' ||
-	      registered.mlist[i].name[matchlen] == '\0'))) {
+	    (strncmp(name, cp->mlist[i].name, matchlen) == 0 &&
+	     (cp->mlist[i].name[matchlen] == '.' ||
+	      cp->mlist[i].name[matchlen] == '\0'))) {
 	    sts++;
 	    if ((list = (char **)realloc(list, sts*sizeof(list[0]))) == NULL) {
 		PM_UNLOCK(registered.mutex);
 		__pmNoMem("__dmtraverse: list", sts*sizeof(list[0]), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
-	    list[sts-1] = registered.mlist[i].name;
+	    list[sts-1] = cp->mlist[i].name;
+	    if (pmDebug & DBG_TRACE_DERIVE)
+	    	fprintf(stderr, "__dmtraverse: name=\"%s\" added \"%s\"\n", name, list[sts-1]);
 	}
     }
     *namelist = list;
@@ -1832,7 +1880,7 @@ __dmtraverse(const char *name, char ***namelist)
 }
 
 int
-__dmchildren(const char *name, char ***offspring, int **statuslist)
+__dmchildren(__pmContext *ctxp, const char *name, char ***offspring, int **statuslist)
 {
     int		i;
     int		j;
@@ -1845,20 +1893,35 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
     int		len;
     int		num_chn = 0;
     size_t	need = 0;
+    ctl_t       *cp;
+    
+    if ((cp = __dmctl(ctxp)) == NULL)
+	/* no derived metrics below PMCS, not even anon */
+    	return PM_ERR_NAME;
 
     initialize_mutex();
     PM_LOCK(registered.mutex);
     __dminit();
 
-    for (i = 0; i < registered.nmetric; i++) {
+    for (i = 0; i < cp->nmetric; i++) {
+	/* skip invalid derived metrics, e.g. due to missing operands */
+	if (!cp->mlist[i].anon) {
+	    if (ctxp == NULL || cp->mlist[i].expr == NULL) {
+		if (pmDebug & DBG_TRACE_DERIVE) {
+		    fprintf(stderr, "__dmchildren: name=\"%s\", omitting invalid child \"%s\"\n",
+		    	name, cp->mlist[i].name);
+		}
+		continue;
+	    }
+	}
 	/*
 	 * prefix match ... pick off the unique next level names on match
 	 */
 	if (name[0] == '\0' ||
-	    (strncmp(name, registered.mlist[i].name, matchlen) == 0 &&
-	     (registered.mlist[i].name[matchlen] == '.' ||
-	      registered.mlist[i].name[matchlen] == '\0'))) {
-	    if (registered.mlist[i].name[matchlen] == '\0') {
+	    (strncmp(name, cp->mlist[i].name, matchlen) == 0 &&
+	     (cp->mlist[i].name[matchlen] == '.' ||
+	      cp->mlist[i].name[matchlen] == '\0'))) {
+	    if (cp->mlist[i].name[matchlen] == '\0') {
 		/*
 		 * leaf node
 		 * assert is for coverity, name uniqueness means we
@@ -1873,8 +1936,8 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 	    start = matchlen > 0 ? matchlen + 1 : 0;
 	    for (j = 0; j < num_chn; j++) {
 		len = strlen(children[j]);
-		if (strncmp(&registered.mlist[i].name[start], children[j], len) == 0 &&
-		    registered.mlist[i].name[start+len] == '.')
+		if (strncmp(&cp->mlist[i].name[start], children[j], len) == 0 &&
+		    cp->mlist[i].name[start+len] == '.')
 		    break;
 	    }
 	    if (j == num_chn) {
@@ -1885,14 +1948,14 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 		    __pmNoMem("__dmchildren: children", num_chn*sizeof(children[0]), PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
-		for (len = 0; registered.mlist[i].name[start+len] != '\0' && registered.mlist[i].name[start+len] != '.'; len++)
+		for (len = 0; cp->mlist[i].name[start+len] != '\0' && cp->mlist[i].name[start+len] != '.'; len++)
 		    ;
 		if ((children[num_chn-1] = (char *)malloc(len+1)) == NULL) {
 		    PM_UNLOCK(registered.mutex);
 		    __pmNoMem("__dmchildren: name", len+1, PM_FATAL_ERR);
 		    /*NOTREACHED*/
 		}
-		strncpy(children[num_chn-1], &registered.mlist[i].name[start], len);
+		strncpy(children[num_chn-1], &cp->mlist[i].name[start], len);
 		children[num_chn-1][len] = '\0';
 		need += len+1;
 #ifdef PCP_DEBUG
@@ -1907,7 +1970,7 @@ __dmchildren(const char *name, char ***offspring, int **statuslist)
 			__pmNoMem("__dmchildren: statrus", num_chn*sizeof(status[0]), PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
-		    status[num_chn-1] = registered.mlist[i].name[start+len] == '\0' ? PMNS_LEAF_STATUS : PMNS_NONLEAF_STATUS;
+		    status[num_chn-1] = cp->mlist[i].name[start+len] == '\0' ? PMNS_LEAF_STATUS : PMNS_NONLEAF_STATUS;
 #ifdef PCP_DEBUG
 		    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_APPL1)) {
 			fprintf(stderr, " (status=%d)", status[num_chn-1]);
@@ -2042,6 +2105,7 @@ __dmopencontext(__pmContext *ctxp)
 	pmID	pmid;
 	cp->mlist[i].name = registered.mlist[i].name;
 	cp->mlist[i].pmid = registered.mlist[i].pmid;
+	cp->mlist[i].anon = registered.mlist[i].anon;
 	assert(registered.mlist[i].expr != NULL);
 	if (!registered.mlist[i].anon) {
 	    /*
