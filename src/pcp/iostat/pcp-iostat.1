@@ -34,7 +34,7 @@
 [\f3\-Z\f1 \f2timezone\f1 \f3--timezone=\f2TZ\f1]
 [\f3\-z\f1 \f3--hostzone\f1]
 [\f3\-?\f1 \f3--help\f1]
-[\f3\-x\f1 [dm][,t][,h]\f1]
+[\f3\-x\f1 [dm][,t][,h][,noidle]\f1]
 .SH DESCRIPTION
 .de EX
 .in +0.5i
@@ -194,7 +194,9 @@ Specifies a comma separated list of one or more extended reporting options as fo
 .br
 \f3t\fP - prefix every line in the report with a timestamp in \f2ctime\fP(3) format,
 .br
-\f3H\fP - omit the heading, which is otherwise reported every 24 samples.
+\f3H\fP - omit the heading, which is otherwise reported every 24 samples,
+.br
+\f3noidle\fP - Do not display statistics for idle devices.
 .SH REPORT
 The columns in the
 .B pcp-iostat
