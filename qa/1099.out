@@ -73,3 +73,18 @@ Tue Dec  1 16:30:02 2015 sda             0.00    3.33    0.55   7.11     2.62   
 Tue Dec  1 17:00:02 2015 sda             0.00    8.10    3.04   8.19    12.48   142.76   13.827    0.016    1.39    0.39    1.77    0.58
 Tue Dec  1 17:30:02 2015 sda             0.00    2.21    0.03   3.71     0.15    42.19   11.323    0.007    1.96    1.06    1.96    0.27
 Tue Dec  1 18:30:02 2015 NODATA             ?       ?       ?      ?        ?        ?        ?        ?       ?       ?       ?       ?
+== testing pmiostat -R regex for sd devices
+# Timestamp              Device        rrqm/s  wrqm/s     r/s    w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await   %util
+Tue Dec  1 16:30:02 2015 sda             0.00    3.33    0.55   7.11     2.62    75.34   10.184    0.013    1.69    0.65    1.77    0.39
+Tue Dec  1 17:00:02 2015 sda             0.00    8.10    3.04   8.19    12.48   142.76   13.827    0.016    1.39    0.39    1.77    0.58
+Tue Dec  1 17:30:02 2015 sda             0.00    2.21    0.03   3.71     0.15    42.19   11.323    0.007    1.96    1.06    1.96    0.27
+Tue Dec  1 18:30:02 2015 NODATA             ?       ?       ?      ?        ?        ?        ?        ?       ?       ?       ?       ?
+== testing pmiostat -R regex for dm devices
+# Timestamp              Device        rrqm/s  wrqm/s     r/s    w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await   %util
+Tue Dec  1 16:30:02 2015 fedora-home     0.00    0.00    0.54   8.06     2.44    66.84    8.052    0.013    1.46    0.63    1.52    0.32
+Tue Dec  1 16:30:02 2015 fedora-swap     0.00    0.00    0.00   0.00     0.00     0.00    0.000    0.000    0.00    0.00    0.00    0.00
+Tue Dec  1 17:00:02 2015 fedora-home     0.00    0.00    3.04  14.37    12.41   136.41    8.547    0.021    1.20    0.39    1.37    0.52
+Tue Dec  1 17:00:02 2015 fedora-swap     0.00    0.00    0.00   0.00     0.00     0.00    0.000    0.000    0.00    0.00    0.00    0.00
+Tue Dec  1 17:30:02 2015 fedora-home     0.00    0.00    0.02   4.33     0.12    36.46    8.401    0.007    1.69    1.08    1.69    0.21
+Tue Dec  1 17:30:02 2015 fedora-swap     0.00    0.00    0.00   0.00     0.00     0.00    0.000    0.000    0.00    0.00    0.00    0.00
+Tue Dec  1 18:30:02 2015 NODATA             ?       ?       ?      ?        ?        ?        ?        ?       ?       ?       ?       ?

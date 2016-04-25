@@ -90,6 +90,12 @@ pmiostat -z -u -xt -O'@18:58:41' -s 2 -a archives/pmiostat_mark
 echo '== testing pmiostat -x noidle'
 pmiostat -z -xt,noidle -t 30m -a archives/pmiostat_mark
 
+echo '== testing pmiostat -R regex for sd devices'
+pmiostat -z -xt -t 30m -a archives/pmiostat_mark -R 'sd[a-z]'
+
+echo '== testing pmiostat -R regex for dm devices'
+pmiostat -z -xt,dm -t 30m -a archives/pmiostat_mark -R 'home|swap'
+
 # success, all done
 status=0
 
