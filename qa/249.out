@@ -54,6 +54,7 @@ __dmgetpmid: metric "myname.m" -> PMID 511.0.16
 __dmopencontext: bind metric[15] myname.m
 __dmgetpmid: metric "myname.n" -> PMID 511.0.17
 __dmopencontext: bind metric[16] myname.n
+__dmtraverse: name="myname.const" added "myname.const"
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
 __dmpostfetch: [0] root node 511.0.3: numval=1 vset[0]: inst=-1 u=123456
 expr node <addr-0> type=NUMBER left=(nil) right=(nil) save_last=0 [123456] master=0
@@ -102,6 +103,7 @@ __dmgetpmid: metric "myname.m" -> PMID 511.0.16
 __dmopencontext: bind metric[15] myname.m
 __dmgetpmid: metric "myname.n" -> PMID 511.0.17
 __dmopencontext: bind metric[16] myname.n
+__dmtraverse: name="myname.a" added "myname.a"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 derived metrics prefetch added 1 metrics: 29.0.13
 __dmpostfetch: [0] root node 511.0.4: numval=1 vset[0]: inst=-1 l=1000000
@@ -151,6 +153,21 @@ __dmgetpmid: metric "myname.m" -> PMID 511.0.16
 __dmopencontext: bind metric[15] myname.m
 __dmgetpmid: metric "myname.n" -> PMID 511.0.17
 __dmopencontext: bind metric[16] myname.n
+__dmtraverse: name="myname" added "myname.const"
+__dmtraverse: name="myname" added "myname.a"
+__dmtraverse: name="myname" added "myname.b"
+__dmtraverse: name="myname" added "myname.c"
+__dmtraverse: name="myname" added "myname.d"
+__dmtraverse: name="myname" added "myname.e"
+__dmtraverse: name="myname" added "myname.f"
+__dmtraverse: name="myname" added "myname.g"
+__dmtraverse: name="myname" added "myname.h"
+__dmtraverse: name="myname" added "myname.i"
+__dmtraverse: name="myname" added "myname.j"
+__dmtraverse: name="myname" added "myname.k"
+__dmtraverse: name="myname" added "myname.l"
+__dmtraverse: name="myname" added "myname.m"
+__dmtraverse: name="myname" added "myname.n"
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmgetpmid: metric "myname.b" -> PMID 511.0.5
@@ -720,6 +737,7 @@ __dmgetpmid: metric "myname.m" -> PMID 511.0.16
 __dmopencontext: bind metric[15] myname.m
 __dmgetpmid: metric "myname.n" -> PMID 511.0.17
 __dmopencontext: bind metric[16] myname.n
+__dmtraverse: name="myname.a" added "myname.a"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmpostfetch: [0] root node 511.0.4: numval=1 vset[0]: inst=-1 l=1000000
 expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
@@ -835,6 +853,7 @@ __dmgetpmid: metric "myname.m" -> PMID 511.0.16
 __dmopencontext: bind metric[15] myname.m
 __dmgetpmid: metric "myname.n" -> PMID 511.0.17
 __dmopencontext: bind metric[16] myname.n
+__dmtraverse: name="myname.a" added "myname.a"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmpostfetch: [7] root node 511.0.4: numval=1 vset[0]: inst=-1 l=1000000
 expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
@@ -950,6 +969,8 @@ __dmgetpmid: metric "myname.m" -> PMID 511.0.16
 __dmopencontext: bind metric[15] myname.m
 __dmgetpmid: metric "myname.n" -> PMID 511.0.17
 __dmopencontext: bind metric[16] myname.n
+__dmtraverse: name="myname.a" added "myname.a"
+__dmtraverse: name="myname.b" added "myname.b"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmgetpmid: metric "myname.b" -> PMID 511.0.5
 __dmpostfetch: [7] root node 511.0.4: numval=1 vset[0]: inst=-1 l=1000000
@@ -1144,6 +1165,22 @@ __dmgetpmid: metric "myname.m" -> PMID 511.0.16
 __dmopencontext: bind metric[15] myname.m
 __dmgetpmid: metric "myname.n" -> PMID 511.0.17
 __dmopencontext: bind metric[16] myname.n
+__dmtraverse: name="myname.f" added "myname.f"
+__dmtraverse: name="myname" added "myname.const"
+__dmtraverse: name="myname" added "myname.a"
+__dmtraverse: name="myname" added "myname.b"
+__dmtraverse: name="myname" added "myname.c"
+__dmtraverse: name="myname" added "myname.d"
+__dmtraverse: name="myname" added "myname.e"
+__dmtraverse: name="myname" added "myname.f"
+__dmtraverse: name="myname" added "myname.g"
+__dmtraverse: name="myname" added "myname.h"
+__dmtraverse: name="myname" added "myname.i"
+__dmtraverse: name="myname" added "myname.j"
+__dmtraverse: name="myname" added "myname.k"
+__dmtraverse: name="myname" added "myname.l"
+__dmtraverse: name="myname" added "myname.m"
+__dmtraverse: name="myname" added "myname.n"
 __dmgetpmid: metric "myname.f" -> PMID 511.0.9
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
@@ -1816,6 +1853,34 @@ __dmgetpmid: metric "arith.eval.op.l_err" -> PMID 511.0.29
 __dmopencontext: bind metric[28] arith.eval.op.l_err
 __dmgetpmid: metric "arith.eval.op.r_err" -> PMID 511.0.30
 __dmopencontext: bind metric[29] arith.eval.op.r_err
+__dmtraverse: name="arith" added "arith.l"
+__dmtraverse: name="arith" added "arith.ul"
+__dmtraverse: name="arith" added "arith.ll"
+__dmtraverse: name="arith" added "arith.ull"
+__dmtraverse: name="arith" added "arith.f"
+__dmtraverse: name="arith" added "arith.d"
+__dmtraverse: name="arith" added "arith.promote.l_l_r_ll"
+__dmtraverse: name="arith" added "arith.promote.l_ll_r_l"
+__dmtraverse: name="arith" added "arith.promote.l_ll_r_ul"
+__dmtraverse: name="arith" added "arith.promote.l_ull_r_l"
+__dmtraverse: name="arith" added "arith.promote.l_l_r_ull"
+__dmtraverse: name="arith" added "arith.promote.l_ul_r_ull"
+__dmtraverse: name="arith" added "arith.promote.l_ull_r_ul"
+__dmtraverse: name="arith" added "arith.promote.l_l_r_f"
+__dmtraverse: name="arith" added "arith.promote.l_ul_r_f"
+__dmtraverse: name="arith" added "arith.promote.l_ll_r_f"
+__dmtraverse: name="arith" added "arith.promote.l_ull_r_f"
+__dmtraverse: name="arith" added "arith.promote.l_f_r_l"
+__dmtraverse: name="arith" added "arith.promote.l_f_r_ul"
+__dmtraverse: name="arith" added "arith.promote.l_f_r_ll"
+__dmtraverse: name="arith" added "arith.promote.l_f_r_ull"
+__dmtraverse: name="arith" added "arith.eval.mul.l_l_r_l"
+__dmtraverse: name="arith" added "arith.eval.mul.l_ull_r_ull"
+__dmtraverse: name="arith" added "arith.eval.div.l_f_r_f"
+__dmtraverse: name="arith" added "arith.eval.div.l_zero_f_r_f"
+__dmtraverse: name="arith" added "arith.eval.div.l_zero_d_r_d"
+__dmtraverse: name="arith" added "arith.eval.op.l_err"
+__dmtraverse: name="arith" added "arith.eval.op.r_err"
 __dmgetpmid: metric "arith.l" -> PMID 511.0.3
 __dmgetpmid: metric "arith.ul" -> PMID 511.0.4
 __dmgetpmid: metric "arith.ll" -> PMID 511.0.5
@@ -2638,6 +2703,12 @@ __dmgetpmid: metric "myname.e" -> PMID 511.0.7
 __dmopencontext: bind metric[6] myname.e
 __dmgetpmid: metric "myname.f" -> PMID 511.0.8
 __dmopencontext: bind metric[7] myname.f
+__dmtraverse: name="myname" added "myname.a"
+__dmtraverse: name="myname" added "myname.b"
+__dmtraverse: name="myname" added "myname.c"
+__dmtraverse: name="myname" added "myname.d"
+__dmtraverse: name="myname" added "myname.e"
+__dmtraverse: name="myname" added "myname.f"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
 __dmgetpmid: metric "myname.b" -> PMID 511.0.4
 __dmgetpmid: metric "myname.c" -> PMID 511.0.5

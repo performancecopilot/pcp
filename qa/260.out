@@ -327,6 +327,12 @@ expr node <addr-81> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_r
     PMID: 29.0.72 (29.0.72 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
+__dmtraverse: name="delta" added "delta.m1"
+__dmtraverse: name="delta" added "delta.m2"
+__dmtraverse: name="delta" added "delta.m3"
+__dmtraverse: name="delta" added "delta.m4"
+__dmtraverse: name="delta" added "delta.m5"
+__dmtraverse: name="delta" added "delta.m6"
 __dmgetpmid: metric "delta.m1" -> PMID 511.0.3
 __dmgetpmid: metric "delta.m2" -> PMID 511.0.4
 __dmgetpmid: metric "delta.m3" -> PMID 511.0.5

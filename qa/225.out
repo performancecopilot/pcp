@@ -339,54 +339,68 @@ parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[19] myname.biggest.const = 4294967295
 Derived metric expr dump from <addr-119>...
 expr node <addr-119> type=NUMBER left=(nil) right=(nil) save_last=0 [4294967295] master=1
-pmGetChildren(name="") 1 regular children, 2 derived children
+__dmchildren: name="", omitting invalid child "myname.a"
+__dmchildren: name="", omitting invalid child "myname.b"
+__dmchildren: name="", omitting invalid child "myname.c"
+__dmchildren: name="", omitting invalid child "myname.d"
+__dmchildren: name="", omitting invalid child "myname.e"
+__dmchildren: name="", omitting invalid child "myname.f"
+__dmchildren: name="", omitting invalid child "myname.g"
+__dmchildren: name="", omitting invalid child "myname.h"
+__dmchildren: name="", omitting invalid child "myname.i"
+__dmchildren: name="", omitting invalid child "myname.j"
+__dmchildren: name="", omitting invalid child "myname.k"
+__dmchildren: name="", omitting invalid child "myname.l"
+__dmchildren: name="", omitting invalid child "myname.m"
+__dmchildren: name="", omitting invalid child "myname.n"
+__dmchildren: name="", omitting invalid child "myname.ABC.k42.x_1_3"
+__dmchildren: name="", omitting invalid child "myname.o"
+__dmchildren: name="", omitting invalid child "myname.p"
+__dmchildren: name="", omitting invalid child "myname.biggest.const"
+pmGetChildren(name="") 1 regular children, 1 derived children
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.a"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.b"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.c"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.d"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.e"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.f"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.g"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.h"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.i"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.j"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.k"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.l"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.m"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.n"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.ABC.k42.x_1_3"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.o"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.p"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.biggest.const"
 pmGetChildren(name="local_pmns_no_pmcd_connection") 0 regular children, no derived children (Unknown metric name)
+__dmchildren: name="event", omitting invalid child "myname.a"
+__dmchildren: name="event", omitting invalid child "myname.b"
+__dmchildren: name="event", omitting invalid child "myname.c"
+__dmchildren: name="event", omitting invalid child "myname.d"
+__dmchildren: name="event", omitting invalid child "myname.e"
+__dmchildren: name="event", omitting invalid child "myname.f"
+__dmchildren: name="event", omitting invalid child "myname.g"
+__dmchildren: name="event", omitting invalid child "myname.h"
+__dmchildren: name="event", omitting invalid child "myname.i"
+__dmchildren: name="event", omitting invalid child "myname.j"
+__dmchildren: name="event", omitting invalid child "myname.k"
+__dmchildren: name="event", omitting invalid child "myname.l"
+__dmchildren: name="event", omitting invalid child "myname.m"
+__dmchildren: name="event", omitting invalid child "myname.n"
+__dmchildren: name="event", omitting invalid child "myname.ABC.k42.x_1_3"
+__dmchildren: name="event", omitting invalid child "myname.o"
+__dmchildren: name="event", omitting invalid child "myname.p"
+__dmchildren: name="event", omitting invalid child "myname.biggest.const"
 pmGetChildren(name="event") no regular children (Unknown metric name), 2 derived children
 pmGetChildren(name="event.flags") no regular children (Unknown metric name), derived leaf
 pmGetChildren(name="event.missed") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname") no regular children (Unknown metric name), 18 derived children
-pmGetChildren(name="myname.a") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.b") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.c") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.d") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.e") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.f") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.g") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.h") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.i") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.j") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.k") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.l") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.m") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.n") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.ABC") no regular children (Unknown metric name), 1 derived children
-pmGetChildren(name="myname.ABC.k42") no regular children (Unknown metric name), 1 derived children
-pmGetChildren(name="myname.ABC.k42.x_1_3") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.o") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.p") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.biggest") no regular children (Unknown metric name), 1 derived children
-pmGetChildren(name="myname.biggest.const") no regular children (Unknown metric name), derived leaf
 local_pmns_no_pmcd_connection
 event.flags
 event.missed
-myname.a
-myname.b
-myname.c
-myname.d
-myname.e
-myname.f
-myname.g
-myname.h
-myname.i
-myname.j
-myname.k
-myname.l
-myname.m
-myname.n
-myname.ABC.k42.x_1_3
-myname.o
-myname.p
-myname.biggest.const
 
 Syntax errors ...
 pmRegisterDerived: name="event.flags" expr="anon(PM_TYPE_U32)"
@@ -606,22 +620,23 @@ parse(1) state=P_FUNC_OP type=L_LPAREN "("
  sum(sample.bin) - min((sample.bin)
                        ^           
 Metric name expected
-pmGetChildren(name="") 1 regular children, 2 derived children
+__dmchildren: name="", omitting invalid child "myname.a"
+__dmchildren: name="", omitting invalid child "myname.gcov.d"
+__dmchildren: name="", omitting invalid child "myname.gcov.e"
+pmGetChildren(name="") 1 regular children, 1 derived children
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.a"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.gcov.d"
+__dmchildren: name="local_pmns_no_pmcd_connection", omitting invalid child "myname.gcov.e"
 pmGetChildren(name="local_pmns_no_pmcd_connection") 0 regular children, no derived children (Unknown metric name)
+__dmchildren: name="event", omitting invalid child "myname.a"
+__dmchildren: name="event", omitting invalid child "myname.gcov.d"
+__dmchildren: name="event", omitting invalid child "myname.gcov.e"
 pmGetChildren(name="event") no regular children (Unknown metric name), 2 derived children
 pmGetChildren(name="event.flags") no regular children (Unknown metric name), derived leaf
 pmGetChildren(name="event.missed") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname") no regular children (Unknown metric name), 2 derived children
-pmGetChildren(name="myname.a") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.gcov") no regular children (Unknown metric name), 2 derived children
-pmGetChildren(name="myname.gcov.d") no regular children (Unknown metric name), derived leaf
-pmGetChildren(name="myname.gcov.e") no regular children (Unknown metric name), derived leaf
 local_pmns_no_pmcd_connection
 event.flags
 event.missed
-myname.a
-myname.gcov.d
-myname.gcov.e
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG

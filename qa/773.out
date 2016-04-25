@@ -156,6 +156,10 @@ __dmopencontext: bind metric[N] qa.A
 __dmopencontext: bind metric[N] qa.B
 __dmopencontext: bind metric[N] qa.C
 __dmopencontext: bind metric[N] qa.D
+__dmtraverse: name="qa.A" added "qa.A"
+__dmtraverse: name="qa.B" added "qa.B"
+__dmtraverse: name="qa.C" added "qa.C"
+__dmtraverse: name="qa.D" added "qa.D"
 pmLoadDerivedConfig("./A")
 pmLoadDerivedConfig("./B")
 pmLoadDerivedConfig("./D")
