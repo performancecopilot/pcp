@@ -23,6 +23,12 @@ Example config.json:
     "trusted_directory_list" : [ "/var/lib/pcp/pmdas/json/trusted" ]
   }
 
+Note that the config.json config file is read once when the JSON pmda
+starts. Every time metrics are refreshed, the directories listed in
+the 'directory_list' and 'trusted_directory_list' config file options
+are traversed, looking for new (and deleted) JSON data sources
+(described below).
+
 JSON DATA SOURCES
 
 There are 2 sets of information needed for a particular JSON source: a
@@ -68,6 +74,10 @@ all the metrics under 'json.simple':
 
   json.simple.string_value
       value "testing, 1, 2, 3"
+
+Note that the metadata.json file is read only once. If changes to a
+metadata.json file are needed, the JSON pmda will need to be restarted
+after the metadata.json changes are made.
 
 METADATA FILE SYNTAX
 
