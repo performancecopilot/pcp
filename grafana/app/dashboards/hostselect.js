@@ -36,8 +36,10 @@ function arrayize(field, defaults) {
 var metrics = arrayize("metric", [
     // roughly the set of the hard-coded default.json dashboard
     "kernel.all.load.1 minute",
-    "network.interface.*.bytes",
-    "disk.all.*_bytes",
+    "network.interface.in.bytes.*",
+    "network.interface.out.bytes.*",
+    "disk.dev.read_bytes.*",
+    "disk.dev.write_bytes.*",
     "mem.util.available",
     "filesys.full.*"
 ]);
