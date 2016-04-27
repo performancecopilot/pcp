@@ -15,14 +15,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if grep -q 'pmRegisterDerived' $PCP_INC_DIR/pmapi.h
-then
-    :
-else
-    echo "No derived metric support" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
+_check_valgrind
 
 # For this test, don't load any global derived metric configs by default.
 # So the PCP_DERIVED_CONFIG environment variable is set to an empty string.
@@ -32,49 +25,18 @@ status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-# Note
-#	addresses from malloc are obviously dependent on the implementation
-#	but if there is no memory leaks, we expect the SAME addresses to be
-#	allocated over and over ... we're arbitrarily picking a pool of
-#	up to the first 40 unique addresses we encounter (see the variable
-#	PICK in the awk below) and this works for glibc 2.10.1 ... this
-#	number may need to be increased for other malloc implementations.
-#	4 Sep 2014 Increased PICK to 50 for glibc-2.14.1 on openSuSE 12.1.
-#
 _filter()
 {
-    echo "--- stdout ---" >>$seq.full
-    cat $tmp.out >>$seq.full
-    echo "--- stderr ---" >>$seq.full
-    cat $tmp.err >>$seq.full
     # __dmclosecontext(->ctx 8) called dm->0x9216d58 3 metrics
-    cat $tmp.err \
-    | sed \
-	-e 's/(->ctx [0-9][0-9]*)//' \
-	-e 's/->/ /' \
-    | awk >$tmp.sed '
-BEGIN				{ n = 0; PICK = 50 }
-$1 == "__dmclosecontext"	{ if (map[$4] != "") next
-				  if (n >= PICK) next
-				  print "s/" $4 "/<addr>/"
-				  map[$4] = 1
-				  n++
-				}
-				{ next }'
-    echo "=== sed ===" >>$seq.full
-    cat $tmp.sed >>$seq.full
-    sed <$tmp.err \
+    sed \
 	-e '/bind metric\[[12]] myname.[bc]/d' \
 	-e '/bind metric\[0] myname.a/{
 s/bind metric... //
 s/$/ .../
 }' \
-	-e '/__dmopencontext/s/__dmopencontext:/open/' \
-	-e '/__dmclosecontext/s/__dmclosecontext(->ctx [0-9][0-9]*) called dm->/close /' \
+	-e '/__dmclosecontext/s/ called dm->0x[0-9a-z][0-9a-z]*//' \
 	-e "s;$tmp;TMP;" \
-    | sed -f $tmp.sed
-
-    cat $tmp.out
+    #end
 }
 
 # real QA test starts here
@@ -84,8 +46,11 @@ myname.b = sample.long.one + sample.long.ten + sample.long.hundred + sample.long
 myname.c= sample.long.one * sample.longlong.one + sample.long.ten * sample.longlong.ten + sample.long.hundred * sample.longlong.hundred + sample.long.million * sample.longlong.million
 End-of-File
 
-src/grind_ctx -D derive -c $tmp.config -s 100 >$tmp.out 2>$tmp.err
-_filter
+_run_valgrind src/grind_ctx -D derive -c $tmp.config -s 100 >$tmp.out 2>$tmp.err
+echo "--- stdout ---" >>$seq.full
+cat $tmp.out | tee -a $seq.full | _filter
+echo "--- stderr ---" >>$seq.full
+cat $tmp.err | tee -a $seq.full | _filter
 
 # success, all done
 exit

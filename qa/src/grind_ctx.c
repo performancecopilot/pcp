@@ -126,7 +126,7 @@ main(int argc, char **argv)
 	case 's':	/* iterations */
 	    iter = (int)strtol(optarg, &endnum, 10);
 	    if (*endnum != '\0' || iter < 0) {
-		fprintf(stderr, "%s: -s requires poisitive numeric argument\n", pmProgname);
+		fprintf(stderr, "%s: -s requires positive numeric argument\n", pmProgname);
 		errflag++;
 	    }
 	    break;

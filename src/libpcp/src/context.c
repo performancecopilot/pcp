@@ -257,19 +257,19 @@ __pmConvertTimeout(int timeo)
 
     switch (timeo) {
     case TIMEOUT_NEVER:
-        return -1;
+	return -1;
 
     case TIMEOUT_DEFAULT:
-        tout_msec = __pmRequestTimeout() * 1000.0;
-        break;
+	tout_msec = __pmRequestTimeout() * 1000.0;
+	break;
 
     case TIMEOUT_CONNECT:
-        tout_msec = __pmConnectTimeout() * 1000.0;
-        break;
+	tout_msec = __pmConnectTimeout() * 1000.0;
+	break;
 
     default:
-        tout_msec = timeo * 1000.0;
-        break;
+	tout_msec = timeo * 1000.0;
+	break;
     }
 
     return (int)tout_msec;
@@ -433,32 +433,30 @@ ctxflags(__pmHashCtl *attrs, int *flags)
 }
 
 static int
-ping_pmcd(int ctx)
+ping_pmcd(int handle, __pmPMCDCtl *pmcd)
 {
+    __pmPDU	*pb;
+    int		sts, pinpdu;
+
     /*
-     * We're going to leveraging an existing host context, just make sure
+     * We're going to leverage an existing host context, just make sure
      * pmcd is still alive at the other end ... we don't have a "ping"
-     * pdu, but sending a pmDesc request for PM_ID_NULL is pretty much
+     * PDU, but sending a pmDesc request for PM_ID_NULL is pretty much
      * the same thing ... expect a PM_ERR_PMID error PDU back.
      * The code here is based on pmLookupDesc() with some short cuts
      * because we know it is a host context and we already hold the
      * __pmLock_libpcp lock
      */
-    __pmContext	*ctxp = contexts[ctx];
-    int		sts;
 
-    PM_LOCK(ctxp->c_pmcd->pc_lock);
-    if ((sts = __pmSendDescReq(ctxp->c_pmcd->pc_fd, ctx, PM_ID_NULL)) >= 0) {
-	int	pinpdu;
-	__pmPDU	*pb;
-	pinpdu = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
-				    ctxp->c_pmcd->pc_tout_sec, &pb);
+    PM_LOCK(pmcd->pc_lock);
+    if ((sts = __pmSendDescReq(pmcd->pc_fd, handle, PM_ID_NULL)) >= 0) {
+	pinpdu = __pmGetPDU(pmcd->pc_fd, ANY_SIZE, pmcd->pc_tout_sec, &pb);
 	if (pinpdu == PDU_ERROR)
 	    __pmDecodeError(pb, &sts);
 	if (pinpdu > 0)
 	    __pmUnpinPDUBuf(pb);
     }
-    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
+    PM_UNLOCK(pmcd->pc_lock);
 
     if (sts != PM_ERR_PMID) {
 	/* pmcd is not well on this context ... */
@@ -531,8 +529,8 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 		free(lcp);
 	    ++lcp2->l_refcnt;
 	    acp->ac_log = lcp2;
-            PM_UNLOCK(__pmLock_libpcp);
-            return 0;
+	    PM_UNLOCK(__pmLock_libpcp);
+	    return 0;
 	}
     }
     PM_UNLOCK(__pmLock_libpcp);
@@ -666,7 +664,7 @@ expandArchiveList(const char *names)
 	    closedir(dirp);
 	    PM_UNLOCK(__pmLock_libpcp);
 	}
-        else {
+	else {
 	    PM_UNLOCK(__pmLock_libpcp);
 	    newlist = addName(NULL, newlist, &newlistsize, current, length);
 	}
@@ -920,7 +918,7 @@ pmNewContext(int type, const char *name)
 	if (contexts[i]->c_type == PM_CONTEXT_FREE) {
 	    PM_TPD(curcontext) = i;
 	    new = contexts[i];
-            contexts[i] = &being_initialized;
+	    contexts[i] = &being_initialized;
 	    goto INIT_CONTEXT;
 	}
     }
@@ -931,8 +929,8 @@ pmNewContext(int type, const char *name)
     else
 	list = (__pmContext **)realloc((void *)contexts, (1+contexts_len) * sizeof(__pmContext *));
     if (list == NULL) {
-        sts = -oserror();
-        goto FAILED_LOCKED;
+	sts = -oserror();
+	goto FAILED_LOCKED;
     }
     contexts = list;
     /*
@@ -1018,45 +1016,54 @@ INIT_CONTEXT:
 	 * in several situations - when pmproxy is in use, or when any
 	 * connection attribute(s) are set, or when exclusion has been
 	 * explicitly requested (i.e. PM_CTXFLAG_EXCLUSIVE in c_flags).
-         *
-         * NB: Take the libpcp lock while we search the contexts[].
-         * This is not great, as the ping_pmcd() can take some
-         * milliseconds, but necessary to avoid races between
-         * pmDestroyContext() and/or memory ordering.
+	 * A reference count greater than one indicates active sharing.
+	 *
+	 * Note the detection of connection-to-same-pmcd is flawed, as
+	 * hostname equality does not necessarily mean the connections
+	 * are equal; e.g., the IP address might have changed.
+	 *
+	 * It is the topic of some debate as to whether PMCD connection
+	 * sharing is of much value at all, especially considering the
+	 * number of subtle and nasty bugs it has caused over time.  Do
+	 * not rely on this behaviour, it may well be removed someday.
+	 *
+	 * NB: Take the libpcp lock while we search the contexts[].
+	 * This is not great, as the ping_pmcd() check can take some
+	 * milliseconds, but it is necessary to avoid races between
+	 * pmDestroyContext() and/or memory ordering.  For connections
+	 * being shared, the refcnt is incremented under libpcp lock.
+	 * Decrementing refcnt occurs in pmDestroyContext while holding
+	 * both the libpcp and context locks.
 	 */
-        PM_LOCK(__pmLock_libpcp);
+	PM_LOCK(__pmLock_libpcp);
 	if (nhosts == 1) { /* not proxied */
 	    for (i = 0; i < contexts_len; i++) {
+		__pmPMCDCtl *pmcd;
+
 		if (i == PM_TPD(curcontext))
 		    continue;
+		pmcd = contexts[i]->c_pmcd;
 		if (contexts[i]->c_type == new->c_type &&
 		    contexts[i]->c_flags == new->c_flags &&
 		    contexts[i]->c_flags == 0 &&
-                    /* NB: but hostname equality does not imply current connection equality;
-                       e.g., the IP address might have changed. */
-		    strcmp(contexts[i]->c_pmcd->pc_hosts[0].name, hosts[0].name) == 0 &&
-                    contexts[i]->c_pmcd->pc_hosts[0].nports == hosts[0].nports) {
-                    int j;
-                    int ports_same = 1;
-                    for (j=0; j<hosts[0].nports; j++)
-                        if (contexts[i]->c_pmcd->pc_hosts[0].ports[j] != hosts[0].ports[j])
-                            ports_same = 0;
-                    if (ports_same) {
-			/* ports match, just make sure pmcd is alive */
-			if (ping_pmcd(i)) {
-			    new->c_pmcd = contexts[i]->c_pmcd;
-                            /*
-                             * NB: increment refcnt of shared pmcd context here, while
-                             * still holding the libpcp lock.  Decrementing in pmDestroyContext
-                             * occurs while holding both the libpcp and context locks.
-                             */
-                            new->c_pmcd->pc_refcnt++;
-                        }
+		    strcmp(pmcd->pc_hosts[0].name, hosts[0].name) == 0 &&
+		    pmcd->pc_hosts[0].nports == hosts[0].nports) {
+		    int j, ports_same = 1;
+
+		    for (j = 0; j < hosts[0].nports; j++)
+			if (pmcd->pc_hosts[0].ports[j] != hosts[0].ports[j])
+			    ports_same = 0;
+
+		    /* ports match, check that pmcd is alive too */
+		    if (ports_same && ping_pmcd(i, pmcd)) {
+			new->c_pmcd = pmcd;
+			new->c_pmcd->pc_refcnt++;
+			break;
 		    }
 		}
 	    }
 	}
-        PM_UNLOCK(__pmLock_libpcp);
+	PM_UNLOCK(__pmLock_libpcp);
 
 	if (new->c_pmcd == NULL) {
 	    /*
@@ -1455,11 +1462,30 @@ pmUseContext(int handle)
     return 0;
 }
 
+static void
+__pmPMCDCtlFree(int handle, __pmPMCDCtl *cp)
+{
+    struct linger	dolinger = {0, 1};
+
+    /* NB: incrementing in pmNewContext holds only the BPL, not the c_lock. */
+    if (--cp->pc_refcnt != 0) {
+	return;
+    }
+    if (cp->pc_fd >= 0) {
+	/* before close, unsent data should be flushed */
+	__pmSetSockOpt(cp->pc_fd, SOL_SOCKET, SO_LINGER,
+			(char *)&dolinger, (__pmSockLen)sizeof(dolinger));
+	__pmCloseSocket(cp->pc_fd);
+    }
+    __pmFreeHostSpec(cp->pc_hosts, cp->pc_nhosts);
+    destroylock(&cp->pc_lock, "pc_lock");
+    free(cp);
+}
+
 int
 pmDestroyContext(int handle)
 {
     __pmContext		*ctxp;
-    struct linger       dolinger = {0, 1};
 
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -1477,18 +1503,7 @@ pmDestroyContext(int handle)
     ctxp = contexts[handle];
     PM_LOCK(ctxp->c_lock);
     if (ctxp->c_pmcd != NULL) {
-        /* NB: incrementing in pmNewContext holds only the BPL, not the c_lock. */
-	if (--ctxp->c_pmcd->pc_refcnt == 0) {
-	    if (ctxp->c_pmcd->pc_fd >= 0) {
-		/* before close, unsent data should be flushed */
-		__pmSetSockOpt(ctxp->c_pmcd->pc_fd, SOL_SOCKET,
-		    SO_LINGER, (char *) &dolinger, (__pmSockLen)sizeof(dolinger));
-		__pmCloseSocket(ctxp->c_pmcd->pc_fd);
-	    }
-	    __pmFreeHostSpec(ctxp->c_pmcd->pc_hosts, ctxp->c_pmcd->pc_nhosts);
-	    destroylock(&ctxp->c_pmcd->pc_lock, "c_pmcd->pc_lock");
-	    free(ctxp->c_pmcd);
-	}
+	__pmPMCDCtlFree(handle, ctxp->c_pmcd);
     }
     if (ctxp->c_archctl != NULL) {
 	__pmFreeInterpData(ctxp);
@@ -1509,7 +1524,6 @@ pmDestroyContext(int handle)
 	fprintf(stderr, "pmDestroyContext(%d) -> 0, curcontext=%d\n",
 		handle, PM_TPD(curcontext));
 #endif
-
 
     PM_UNLOCK(ctxp->c_lock);
     destroylock(&ctxp->c_lock, "c_lock");
