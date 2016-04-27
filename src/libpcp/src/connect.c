@@ -103,6 +103,13 @@ check_feature_flags(int ctxflags, int features)
 	 */
 	pduflags |= PDU_FLAG_CREDS_REQD;
 
+    if (features & PDU_FLAG_CERT_REQD)
+	/*
+	 * This is a mandatory connection feature - pmcd must be
+	 * sent a trusted certificate.
+	 */
+	pduflags |= PDU_FLAG_CERT_REQD;
+
     if (ctxflags) {
 	/*
 	 * If an optional connection feature (e.g. encryption) is

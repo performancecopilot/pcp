@@ -678,6 +678,7 @@ typedef enum {
     PM_SERVER_FEATURE_DISCOVERY,
     PM_SERVER_FEATURE_CONTAINERS,
     PM_SERVER_FEATURE_LOCAL,
+    PM_SERVER_FEATURE_CERT_REQD,
     PM_SERVER_FEATURES
 } __pmServerFeature;
 
@@ -830,6 +831,7 @@ typedef struct {
 #define PDU_FLAG_SECURE_ACK	(1U<<4)
 #define PDU_FLAG_NO_NSS_INIT	(1U<<5)
 #define PDU_FLAG_CONTAINER	(1U<<6)
+#define PDU_FLAG_CERT_REQD	(1U<<7)
 
 /* Credential CVERSION PDU elements look like this */
 typedef struct {

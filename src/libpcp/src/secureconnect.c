@@ -1313,7 +1313,8 @@ __pmSecureServerIPCFlags(int fd, int flags)
 	    return sts;
 	}
 
-	RequestClientCert = ( (getenv("PMCD_REQUIRE_CLIENT_CERT") != NULL) || (getenv("PMPROXY_REQUIRE_CLIENT_CERT") != NULL)  )?PR_TRUE:PR_FALSE;
+	//RequestClientCert = ( (getenv("PMCD_REQUIRE_CLIENT_CERT") != NULL) || (getenv("PMPROXY_REQUIRE_CLIENT_CERT") != NULL)  )?PR_TRUE:PR_FALSE;
+	RequestClientCert = __pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD);
 
 	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUEST_CERTIFICATE, RequestClientCert);
 	if (secsts != SECSuccess) {

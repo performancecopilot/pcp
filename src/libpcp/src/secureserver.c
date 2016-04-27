@@ -34,6 +34,8 @@ static struct {
     SSLKEAType		certificate_KEA;
     char		database_path[MAXPATHLEN];
 
+    unsigned int	secure_features;
+
     /* status flags (bitfields) */
     unsigned int	initialized : 1;
     unsigned int	init_failed : 1;
@@ -44,15 +46,22 @@ static struct {
 int
 __pmSecureServerSetFeature(__pmServerFeature wanted)
 {
-    (void)wanted;
-    return 0;	/* nothing dynamically enabled at this stage */
+    if (wanted == PM_SERVER_FEATURE_CERT_REQD){
+        secure_server.server_features |= (1 << wanted);
+        return 1;
+    }
+
+    return 0;
 }
 
 int
 __pmSecureServerClearFeature(__pmServerFeature clear)
 {
-    (void)clear;
-    return 0;	/* nothing dynamically disabled at this stage */
+    if (clear == PM_SERVER_FEATURE_CERT_REQD){
+    	server_features &= ~(1<<clear);
+	return 1;
+    }
+    return 0;
 }
 
 int
@@ -66,6 +75,9 @@ __pmSecureServerHasFeature(__pmServerFeature query)
     case PM_SERVER_FEATURE_COMPRESS:
     case PM_SERVER_FEATURE_AUTH:
 	sts = 1;
+	break;
+    case PM_SERVER_FEATURE_CERT_REQD:
+	sts = secure_server.server_features & (1 << PM_SERVER_FEATURE_CERT_REQD);
 	break;
     default:
 	break;
@@ -695,7 +707,8 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
 
     /* protect from unsupported requests from future/oddball clients */
     if (flags & ~(PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK | PDU_FLAG_COMPRESS |
-		  PDU_FLAG_AUTH | PDU_FLAG_CREDS_REQD | PDU_FLAG_CONTAINER))
+		  PDU_FLAG_AUTH | PDU_FLAG_CREDS_REQD | PDU_FLAG_CONTAINER |
+		  PDU_FLAG_CERT_REQD))
 	return PM_ERR_IPC;
 
     if (flags & PDU_FLAG_CREDS_REQD) {

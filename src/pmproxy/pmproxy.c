@@ -302,6 +302,20 @@ HandleInput(__pmFdSet *fdsPtr)
 	cp = &client[i];
 
 	sts = __pmGetPDU(cp->pmcd_fd, ANY_SIZE, 0, &pb);
+
+	//minnus
+	if( !cp->status.allowed ){
+		fprintf(stderr,"Got a server PDU for an uninited client. sts: %d\n", sts);	
+		//if sts == PDU_ERROR I gues this is the "features" message we need to unpack
+		// examine if it has PM_SERVER_FEATURE_CERT_REQD and modify our connection accordingly
+		// Probably can;t store this in the *Feature stuff because it could change by connection.
+		// store it in cp?
+		// And then to a set/clear around the secure handshake calls???
+	}
+	if( sts == PDU_ERROR){
+		fprintf(stderr,"Got an error PDU for an uninited client\n");	
+	}
+
 	if (sts <= 0) {
 	    CleanupClient(cp, sts);
 	    continue;

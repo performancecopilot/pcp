@@ -218,6 +218,10 @@ ParseOptions(int argc, char *argv[], int *nports)
 		}
 		break;
 
+	    case 'Q':	/* require clients to provide a trusted cert */
+		__pmServerSetFeature(PM_SERVER_FEATURE_CERT_REQD);
+		break;
+
 	    case 's':	/* path to local unix domain socket */
 		snprintf(sockpath, sizeof(sockpath), "%s", opts.optarg);
 		break;
@@ -659,6 +663,8 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 		cp->pduInfo.features |= PDU_FLAG_COMPRESS;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_AUTH))       /*optional*/
 		cp->pduInfo.features |= PDU_FLAG_AUTH;
+            if (__pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD))  /*required*/
+                cp->pduInfo.features |= PDU_FLAG_CERT_REQD;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) /*required*/
 		cp->pduInfo.features |= PDU_FLAG_CREDS_REQD;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CONTAINERS))

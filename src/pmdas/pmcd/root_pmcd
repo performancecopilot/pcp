@@ -142,15 +142,16 @@ pmcd.cputime {
 }
 
 pmcd.feature {
-    secure		PMCD:8:0
-    compress		PMCD:8:1
-    ipv6		PMCD:8:2
-    authentication	PMCD:8:3
-    creds_required	PMCD:8:4
-    unix_domain_sockets	PMCD:8:5
-    service_discovery	PMCD:8:6
-    containers		PMCD:8:7
-    local		PMCD:8:8
+    secure			PMCD:8:0
+    compress			PMCD:8:1
+    ipv6			PMCD:8:2
+    authentication		PMCD:8:3
+    creds_required		PMCD:8:4
+    unix_domain_sockets		PMCD:8:5
+    service_discovery		PMCD:8:6
+    containers			PMCD:8:7
+    local			PMCD:8:8
+    client_cert_required	PMCD:8:9
 }
 
 #undef PMCD

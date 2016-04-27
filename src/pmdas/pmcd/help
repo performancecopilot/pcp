@@ -547,3 +547,6 @@ A value of zero indicates no support, one indicates actively available.
 @ pmcd.feature.local status of localhost-only mode of operation in pmcd
 A value of zero indicates not enabled, one indicates the localhost-only
 mode of operation is active.
+
+@ pmcd.feature.client_cert_required status of required client certificate
+A value of zero indicates not required, one indicates required.
