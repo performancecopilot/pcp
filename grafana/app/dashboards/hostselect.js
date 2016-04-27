@@ -62,11 +62,13 @@ function assemble_multichart_url(target_prefix,dispname) {
     var suffix="";
     suffix = suffix + "&from=" + encodeURIComponent(from);
     suffix = suffix + "&to=" + encodeURIComponent(to);
+    var def_style = (target_prefix=="" ? "png" : "json");
+    var def_height = "250";
     for (var i=0; i<metrics.length; i++) {
         suffix = suffix + "&target=" + encodeURIComponent(target_prefix+"*."+metrics[i]);
         suffix = suffix + "&title=" + (titles[i]==null ? encodeURIComponent(metrics[i]) : encodeURIComponent(titles[i]));
-        suffix = suffix + "&style=" + (styles[i]==null ? "flot" : encodeURIComponent(styles[i]));
-        suffix = suffix + "&height=" + (heights[i]==null ? "250" : encodeURIComponent(heights[i]));
+        suffix = suffix + "&style=" + (styles[i]==null ? def_style : encodeURIComponent(styles[i]));
+        suffix = suffix + "&height=" + (heights[i]==null ? def_height : encodeURIComponent(heights[i]));
     }
     suffix = suffix + "&name=" + encodeURIComponent(dispname);
     return suffix;
@@ -161,13 +163,13 @@ return function(callback) {
             }
             markdown = markdown + "\n\n";
 
-            markdown = markdown + "### ... on all hosts\n";
+            markdown = markdown + "### ... on all hosts (png graphs)\n";
             markdown = markdown + "* [all hosts]("+multichart+assemble_multichart_url("","all hosts")+")";
             markdown = markdown + "\n\n";
             
             var target_suffix = ".proc.nprocs";
             var last_base_hostname = "";
-            markdown = markdown + "\n### ... on individual hosts\n\n";
+            markdown = markdown + "\n### ... on individual hosts (flot graphs)\n\n";
             for (var hostname in hosts) {
                 if (hosts.hasOwnProperty(hostname)) {
                     hostdispname = pmwebd_demangle(pmwebd_X_mode, hostname);
