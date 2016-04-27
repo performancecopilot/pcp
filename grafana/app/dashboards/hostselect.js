@@ -36,11 +36,10 @@ function arrayize(field, defaults) {
 var metrics = arrayize("metric", [
     // roughly the set of the hard-coded default.json dashboard
     "kernel.all.load.1 minute",
-    "network.interface.in.bytes.*",
-    "network.interface.out.bytes.*",
-    "disk.dev.read_bytes.*",
-    "disk.dev.write_bytes.*",
-    "mem.util.available",
+    "kernel.all.running,kernel.all.blocked",
+    "network.interface.in.bytes.*,network.interface.out.bytes.*",
+    "disk.dev.read_bytes.*,disk.dev.write_bytes.*",
+    "mem.util.available,mem.util.used",
     "filesys.full.*"
 ]);
 var titles = arrayize("title", new Array(metrics.length));
@@ -67,7 +66,12 @@ function assemble_multichart_url(target_prefix,dispname) {
     var def_style = (target_prefix=="" ? "png" : "json");
     var def_height = "250";
     for (var i=0; i<metrics.length; i++) {
-        suffix = suffix + "&target=" + encodeURIComponent(target_prefix+"*."+metrics[i]);
+        var m = metrics[i].split(','); // NB: possibly comma-separated; need to put target_prefix before each part
+        var submetrics = [];
+        for (s in m) {
+            submetrics.push (target_prefix+"*."+m[s]);
+        }
+        suffix = suffix + "&target=" + encodeURIComponent(submetrics.join(','));
         suffix = suffix + "&title=" + (titles[i]==null ? encodeURIComponent(metrics[i]) : encodeURIComponent(titles[i]));
         suffix = suffix + "&style=" + (styles[i]==null ? def_style : encodeURIComponent(styles[i]));
         suffix = suffix + "&height=" + (heights[i]==null ? def_height : encodeURIComponent(heights[i]));

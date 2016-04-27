@@ -77,13 +77,18 @@ for (var i = 0; i<targets.length; i++) {
         span: 12,
         fill: 1,
         linewidth: 2,
-        targets: [ { 'target' : TARGET } ],
+        targets: [],
         seriesOverrides: [ {
             yaxis: 2,
             fill: 0,
             linewidth: 5
         } ]
     };
+
+    var SUBTARGETS = TARGET.split(',');
+    for (j in SUBTARGETS) {
+        panel.targets.push({target: SUBTARGETS[j]});
+    }
     
     if (STYLE == "png") {
         panel.renderer = "png";
