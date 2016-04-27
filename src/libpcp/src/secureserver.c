@@ -34,7 +34,7 @@ static struct {
     SSLKEAType		certificate_KEA;
     char		database_path[MAXPATHLEN];
 
-    unsigned int	secure_features;
+    unsigned int	server_features;
 
     /* status flags (bitfields) */
     unsigned int	initialized : 1;
@@ -58,7 +58,7 @@ int
 __pmSecureServerClearFeature(__pmServerFeature clear)
 {
     if (clear == PM_SERVER_FEATURE_CERT_REQD){
-    	server_features &= ~(1<<clear);
+    	secure_server.server_features &= ~(1<<clear);
 	return 1;
     }
     return 0;
