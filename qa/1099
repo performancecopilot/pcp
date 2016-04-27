@@ -3,7 +3,10 @@
 # Check changed semantics for interpolation in the region of <mark>
 # records.
 #
+# Also tests various pcp-iostat features
+#
 # Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2016 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -95,6 +98,14 @@ pmiostat -z -xt -t 30m -a archives/pmiostat_mark -R 'sd[a-z]'
 
 echo '== testing pmiostat -R regex for dm devices'
 pmiostat -z -xt,dm -t 30m -a archives/pmiostat_mark -R 'home|swap'
+
+for method in sum avg min max; do
+    echo "== testing pmiostat -R regex -G $method for sd devices"
+    pmiostat -z -xt -t 30m -a archives/pmiostat_mark -R 'sd[a-z]' -G $method
+
+    echo "== testing pmiostat -R regex -G $method for dm devices"
+    pmiostat -z -xt,dm -t 30m -a archives/pmiostat_mark -R 'home|swap' -G $method
+done
 
 # success, all done
 status=0
