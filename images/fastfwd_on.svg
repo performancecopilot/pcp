@@ -14,9 +14,9 @@
    id="svg1307"
    sodipodi:version="0.32"
    inkscape:version="0.44.1"
-   sodipodi:docbase="/source/git/pcp-gui/images"
+   sodipodi:docbase="/source/git/pcp/images"
    sodipodi:docname="fastfwd_on.svg"
-   inkscape:export-filename="/source/git/pcp-gui/images/fastfwd_on.png"
+   inkscape:export-filename="/source/git/pcp/images/fastfwd_on.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
    version="1.0">
@@ -338,7 +338,7 @@
        d="M 2.6493727,31.332312 L 2.6493727,1.2149948 L 25.340985,16.273654 L 2.6493727,31.332312 z "
        id="path3375"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/git/pcp-gui/images/play_on.png"
+       inkscape:export-filename="/source/git/pcp/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -348,7 +348,7 @@
        inkscape:r_cx="true"
        inkscape:r_cy="true"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/git/pcp-gui/images/play_on.png"
+       inkscape:export-filename="/source/git/pcp/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -358,7 +358,7 @@
        d="M 27.291522,31.122745 L 27.291522,0.83875594 L 49.350628,15.98075 L 27.291522,31.122745 z "
        id="path1992"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/git/pcp-gui/images/play_on.png"
+       inkscape:export-filename="/source/git/pcp/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -368,7 +368,7 @@
        inkscape:r_cx="true"
        inkscape:r_cy="true"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/git/pcp-gui/images/play_on.png"
+       inkscape:export-filename="/source/git/pcp/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
   </g>

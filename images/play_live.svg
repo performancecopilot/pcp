@@ -2,7 +2,7 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
@@ -14,9 +14,9 @@
    id="svg1307"
    sodipodi:version="0.32"
    inkscape:version="0.44.1"
-   sodipodi:docbase="/source/git/pcp-gui/images"
+   sodipodi:docbase="/source/git/pcp/images"
    sodipodi:docname="play_live.svg"
-   inkscape:export-filename="/source/git/pcp-gui/images/play_live.png"
+   inkscape:export-filename="/source/git/pcp/images/play_live.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
    version="1.0">
@@ -195,43 +195,24 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title>Media Playback Start</dc:title>
-        <dc:creator>
-          <cc:Agent>
-            <dc:title>Lapo Calamandrei</dc:title>
-          </cc:Agent>
-        </dc:creator>
+        <dc:title />
         <cc:license
-           rdf:resource="http://creativecommons.org/licenses/by-sa/2.0/" />
-        <dc:subject>
-          <rdf:Bag>
-            <rdf:li>play</rdf:li>
-            <rdf:li>media</rdf:li>
-            <rdf:li>music</rdf:li>
-            <rdf:li>video</rdf:li>
-            <rdf:li>player</rdf:li>
-          </rdf:Bag>
-        </dc:subject>
-        <dc:contributor>
-          <cc:Agent>
-            <dc:title>Jakub Steiner</dc:title>
-          </cc:Agent>
-        </dc:contributor>
+           rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
       </cc:Work>
       <cc:License
-         rdf:about="http://creativecommons.org/licenses/by-sa/2.0/">
+         rdf:about="http://creativecommons.org/licenses/by-sa/3.0/">
         <cc:permits
-           rdf:resource="http://web.resource.org/cc/Reproduction" />
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
         <cc:permits
-           rdf:resource="http://web.resource.org/cc/Distribution" />
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
         <cc:requires
-           rdf:resource="http://web.resource.org/cc/Notice" />
+           rdf:resource="http://creativecommons.org/ns#Notice" />
         <cc:requires
-           rdf:resource="http://web.resource.org/cc/Attribution" />
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
         <cc:permits
-           rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
         <cc:requires
-           rdf:resource="http://web.resource.org/cc/ShareAlike" />
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
       </cc:License>
     </rdf:RDF>
   </metadata>
@@ -252,7 +233,7 @@
        d="M 22.786609,35.110991 L 22.786609,3.9831557 L 46.892893,19.547074 L 22.786609,35.110991 z "
        id="path2066"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/git/pcp-gui/images/play_on.png"
+       inkscape:export-filename="/source/git/pcp/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -262,7 +243,7 @@
        inkscape:r_cx="true"
        inkscape:r_cy="true"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/git/pcp-gui/images/play_on.png"
+       inkscape:export-filename="/source/git/pcp/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -271,7 +252,7 @@
        style="color:black;fill:white;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
        d="M 6.1042076,4.1329363 L 6.1042076,34.556273 L 20.273567,34.556273 L 20.273567,4.1329363 L 6.1042076,4.1329363 z "
        id="path2076"
-       inkscape:export-filename="/source/git/pcp-gui/images/stop_on.png"
+       inkscape:export-filename="/source/git/pcp/images/stop_on.png"
        inkscape:export-xdpi="77.538467"
        inkscape:export-ydpi="77.538467" />
     <path
@@ -280,7 +261,7 @@
        style="color:black;fill:url(#linearGradient3902);fill-opacity:1;fill-rule:evenodd;stroke:#646464;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
        d="M 6.7495121,4.3859403 L 6.7495121,34.421015 L 19.404401,34.421015 L 19.404401,4.3859403 L 6.7495121,4.3859403 z "
        id="path2080"
-       inkscape:export-filename="/source/git/pcp-gui/images/stop_on.png"
+       inkscape:export-filename="/source/git/pcp/images/stop_on.png"
        inkscape:export-xdpi="77.538467"
        inkscape:export-ydpi="77.538467" />
     <path

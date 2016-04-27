@@ -14,9 +14,9 @@
    id="svg1307"
    sodipodi:version="0.32"
    inkscape:version="0.44.1"
-   sodipodi:docbase="/source/git/pcp-gui/images"
+   sodipodi:docbase="/source/git/pcp/images"
    sodipodi:docname="fastfwd_archive.svg"
-   inkscape:export-filename="/source/git/pcp-gui/images/fastfwd_archive.png"
+   inkscape:export-filename="/source/git/pcp/images/fastfwd_archive.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
    version="1.0">
@@ -333,7 +333,7 @@
        d="M 13.221995,35.216096 L 13.221995,5.7886253 L 30.540964,20.502361 L 13.221995,35.216096 z "
        id="path3375"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/git/pcp-gui/images/play_on.png"
+       inkscape:export-filename="/source/git/pcp/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -343,7 +343,7 @@
        inkscape:r_cx="true"
        inkscape:r_cy="true"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/git/pcp-gui/images/play_on.png"
+       inkscape:export-filename="/source/git/pcp/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -352,7 +352,7 @@
        style="color:black;fill:url(#linearGradient3545);fill-opacity:1;fill-rule:evenodd;stroke:#505050;stroke-width:0.96370971;stroke-linecap:square;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
        d="M 3.29977,5.7915422 L 3.29977,35.238863 L 9.9125628,35.238863 L 9.9125628,5.7915422 L 3.29977,5.7915422 z "
        id="path2827"
-       inkscape:export-filename="/source/git/pcp-gui/images/stop_on.png"
+       inkscape:export-filename="/source/git/pcp/images/stop_on.png"
        inkscape:export-xdpi="77.538467"
        inkscape:export-ydpi="77.538467" />
     <path
@@ -383,7 +383,7 @@
        d="M 30.875076,35.789801 L 30.875076,6.0445924 L 48.18289,20.917197 L 30.875076,35.789801 z "
        id="path2017"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/git/pcp-gui/images/play_on.png"
+       inkscape:export-filename="/source/git/pcp/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
     <path
@@ -393,7 +393,7 @@
        inkscape:r_cx="true"
        inkscape:r_cy="true"
        sodipodi:nodetypes="cccc"
-       inkscape:export-filename="/source/git/pcp-gui/images/play_on.png"
+       inkscape:export-filename="/source/git/pcp/images/play_on.png"
        inkscape:export-xdpi="88.615387"
        inkscape:export-ydpi="88.615387" />
   </g>
