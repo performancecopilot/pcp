@@ -50,7 +50,7 @@ var name = ARGS["name"]; if (name == null) { name = "PCP+Grafana charts"; }
 
 dashboard.title = name;
 
-console.log(targets);
+// console.log(targets);
 
 for (var i = 0; i<targets.length; i++) {
     var TARGET = targets[i];

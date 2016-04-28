@@ -64,7 +64,7 @@ function assemble_multichart_url(target_prefix,dispname) {
     suffix = suffix + "&from=" + encodeURIComponent(from);
     suffix = suffix + "&to=" + encodeURIComponent(to);
     var def_style = (target_prefix=="" ? "png" : "json");
-    var def_height = "250";
+    var def_height = (target_prefix=="" ? "300" : "250");
     for (var i=0; i<metrics.length; i++) {
         var m = metrics[i].split(','); // NB: possibly comma-separated; need to put target_prefix before each part
         var submetrics = [];
@@ -145,11 +145,12 @@ return function(callback) {
 
                 var hostname, host_basename, host_contname;
                 if (pmwebd_X_mode) {
-                    hostname = target.replace(/\/(archive|reduced).*$/, "");
+                    //                            vv---pmmgr---vv vv--pmlogger--vv
+                    hostname = target.replace(/\/(archive|reduced|\d\d\d\d\d\d\d\d).*$/, "");
                     host_basename = hostname.replace(/--.*$/,"");
                     host_contname = hostname.replace(/^.*--/,"");
                 } else {
-                    hostname = target.replace(/-2F-(archive|reduced).*$/, "");
+                    hostname = target.replace(/-2F-(archive|reduced|\d\d\d\d\d\d\d\d).*$/, "");
                     host_basename = hostname.replace(/-2D--2D-.*$/,"");
                     host_contname = hostname.replace(/^.*-2D--2D-/,"");
                 }
@@ -163,9 +164,9 @@ return function(callback) {
             //console.log(hosts);
             var markdown = "";
 
-            markdown = "### metrics ...\n\n";
+            markdown = "### chart metrics ...\n\n";
             for (m in metrics) {
-                markdown = markdown + "* " + metrics[m] + "\n";
+                markdown = markdown + "* `" + metrics[m] + "`\n";
             }
             markdown = markdown + "\n\n";
 
