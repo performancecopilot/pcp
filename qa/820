@@ -24,10 +24,14 @@ echo expect no output
 
 for m in processed dropped time_squeeze cpu_collision received_rps flow_limit_count
 do
-    pmprobe -v network.softnet.$m network.softnet.percpu.$m | awk '
+    echo "=== $m ===" >> $seq.full
+    pmprobe -v network.softnet.$m network.softnet.percpu.$m | \
+    tee -a $seq.full | \
+    awk '
+    $2 < 1 { exit 0; }
     /softnet.'$m'/ { summed = $3; sum=0 }
     /softnet.percpu.'$m'/ { for(i=3; i <= NF; i++) sum += $i }
-    END { if(summed != sum) { print "FAILED"; exit 1 } }'
+    END { if(summed != sum) { printf "FAILED on '$m': "; exit 1 } }'
     status=$?
     [ $status != 0 ] && exit
 done
