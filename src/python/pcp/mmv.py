@@ -75,7 +75,7 @@ LIBPCP_MMV = ctypes.CDLL(ctypes.util.find_library("pcp_mmv"))
 #
 # This section defines the data structures for accessing and manuiplating
 # metric information and values.  Detailed information about these data
-# structures can be found in the MMV(4) manual page.
+# structures can be found in the MMV(5) manual page.
 #
 
 class mmv_instance(Structure):

@@ -1,5 +1,5 @@
 #pmieconf-rules 1
-# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
 # 
 
 instlist	global.webservers
@@ -32,4 +32,4 @@ the (double) quoted instance names are the required URLs.
 If the list is empty, all webping URLs will be checked.";
 
 # 
-# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

@@ -20,7 +20,7 @@
 .\" arguments use .I or \f2
 .SH SYNOPSIS
 \f3pmstore\f1
-[\f3\-L\f1]
+[\f3\-Lf\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-i\f1 \f2instances\f1]
 [\f3\-K\f1 \f2spec\f1]
@@ -73,6 +73,10 @@ The
 and
 .B \-L
 options are mutually exclusive.
+.PP
+The
+.B \-f
+option forces the given value to be stored, even if there is no current value set.
 .PP
 The interpretation of
 .I value

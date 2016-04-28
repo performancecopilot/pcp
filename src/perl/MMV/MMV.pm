@@ -100,7 +100,7 @@ available as PCP metrics using the MMV PMDA.
 =head1 SEE ALSO
 
 mmv_stats_init(3), mmv_inc_value(3), mmv_lookup_value_desc(3),
-mmv(4) and pmda(3).
+mmv(5) and PMDA(3).
 
 The PCP mailing list pcp@oss.sgi.com can be used for questions about
 this module.

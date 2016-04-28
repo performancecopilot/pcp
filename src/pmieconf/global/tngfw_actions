@@ -1,5 +1,5 @@
 #pmieconf-rules 1
-# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
 # 
 
 shell	global.tngfw_action
@@ -42,4 +42,4 @@ string	global.tngfw_category
 tngfw_node will associate each event.";
 
 # 
-# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

@@ -2590,7 +2590,11 @@ cd
 
 %changelog
 * Fri Apr 29 2016 Lukas Berk <lberk@redhat.com> - 3.11.2-1
-- Work-in-progress, see http://pcp.io/roadmap
+- Negative nice values reported incorrectly (BZ 1328432)
+- Multithreaded clients with concurrent pmNewContext improvements (BZ 1325363)
+- PMCD agent auto-restart (BZ 1323521)
+- Segv in libpcp during discovery error processing (BZ 1319288)
+- Update to latest PCP Sources.
 
 * Fri Mar 18 2016 Dave Brolley <brolley@redhat.com> - 3.11.1-1
 - Call Remove script when uninstalling individual PMDAs (BZ 1304722)

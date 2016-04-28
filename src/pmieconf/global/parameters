@@ -1,5 +1,5 @@
 #pmieconf-rules 1
-# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
 # 
 
 # variable definitions applicable to all rules
@@ -32,4 +32,4 @@ If the list is empty, the host will be the host named in the -h
 option to pmie(1) if specified, else the local host.";
 
 # 
-# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

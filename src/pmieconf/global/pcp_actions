@@ -1,5 +1,5 @@
 #pmieconf-rules 1
-# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
 # 
 
 # action definitions applicable to all rules follow
@@ -86,4 +86,4 @@ string	global.esp_prefix
 	default = "|\\\\$($esp_type$)";
 
 # 
-# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

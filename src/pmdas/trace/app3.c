@@ -21,8 +21,8 @@
  *
  * Parallel program to demonstrate use of the PCP trace performance metrics
  * domain agent (PMDA(3)).  This agent needs to be installed before metrics
- * can be made available via the performance metrics namespace (PMNS(4)),
- * and the Performance Metrics Collector Daemon (PMCD(1)).
+ * can be made available via the performance metrics namespace (pmns(5)),
+ * and the Performance Metrics Collector Daemon (pmcd(1)).
  *
  * Once this program is running, the trace PMDA metrics & instances can be
  * viewed through PCP monitor tools such as pmchart(1), pmgadgets(1), and
