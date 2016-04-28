@@ -1,5 +1,33 @@
 pcp-3.11.2 (29 April 2016)
-    - [Work-in-progress, see http://pcp.io/roadmap]
+    - pmdalinux: add per CPU network.softnet metrics
+    - pmdaoracle: connect to pmcd as early as possible
+    - pmdaperfevent: optional scaling of derived events
+    - pmdaperfevent: alternate event groups for derived events
+    - pmdaelasticsearch: restict to local node metrics by default
+    - pmdaproc: cgroup blkio throttle throughput+iops metrics
+    - pmdaproc: fix per-process scheduler metrics (type+semantics)
+    - pmdaroot: add check for config.v2.json Docker 1.10+ files
+    - pcp-collectl: fix missing network.interface metric handling
+    - pcp-iostat: add -R flag for device name regex matching
+    - pcp-iostat: add -G flag for sum, avg, min or max statistics
+    - pcp-iostat: add -x flag to skip idle devices
+    - libpcp: fix pmcd-context-sharing refcnt and memleak bug
+    - libpcp: add support for permanent, global derived metrics
+    - libpcp: fix a multi-archive context error path memory leak
+    - libpcp: increase discovery probe thread stack sizes
+    - libpcp: rework push and pop of TZ values into environment
+    - pmcd: usability improvements to pmda restart
+    - pmieconf: tweak pcp.pmda rule to detect persistent failures
+    - packaging: python3 debian package
+    - packaging: optional vector webapp debian package
+    - images: switch to DFSG-compliant licensing for GUI icons
+    - pcp_completion.sh: add pmrep support to bash completion
+    - derived metrics: add derived iostat metrics below disk.*
+    - pmchart: split out the Iostat view into SD, DM and MD
+    - pmwebd: better support for some older MSIE browsers
+    - python api: improve the to-string function for struct tm
+    - pmrep: handle Py3 BrokenPipeError in Py2 compatible manner
+    - docs: updates to the pmdajson README file
 
 pcp-3.11.1 (18 March 2016)
     - libpcp: multi-archive contexts (directory or comma-separated)
@@ -424,7 +452,7 @@ pcp-3.10.5 (15 June 2015)
     - libpcp: interp.c: massive performance improvement in archive replay
     - build: scripts to set up a buildbot 
     - libpcp: pmLookupName() error handling, especially for dynamic metrics
-    - hotproc: hotproc : fix an off by one error for fname configs
+    - hotproc: fix an off by one error for fname configs
     - rc scripts: Allow more than one .NeedInstall to occur at a time
     - pmie: remove unnecessary 2 second delay at live startup
     - pmiostat: usage message cleanup
