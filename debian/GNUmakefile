@@ -1,4 +1,5 @@
 TOPDIR = ..
+PWDDIR = $(shell pwd)
 include $(TOPDIR)/src/include/builddefs
 SCRIPTS = $(TOPDIR)/build
 
@@ -303,14 +304,18 @@ pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail
 	cat pcp.postrm.head configversions pcp.postrm.tail > $@
 
 VECTOR = $(shell echo $(PCP_SHARE_DIR)/webapps/vector | sed -e 's,^/,,g')
+VECTORTGZ = $(PWDDIR)/../build/tar/vector.tar.gz
+VECTORPKG = pcp-webapp-vector
+
 vector:
 ifeq ($(HAVE_VECTOR), true)
-	$(TAR) tvzf $(TOPDIR)/build/tar/vector.tar.gz | \
-	    $(AWK) '/^d/ { printf "$(VECTOR)/%s\n", $$NF }' > pcp-webapp-vector.dirs
-	$(TAR) tvzf $(TOPDIR)/build/tar/vector.tar.gz | \
-	    $(AWK) '/^-/ { printf "$(VECTOR)/%s\n", $$NF }' > pcp-webapp-vector.install
+	$(TAR) tvzf $(VECTORTGZ) | \
+	$(AWK) '/^d/ { printf "$(VECTOR)/%s\n", $$NF }' > $(VECTORPKG).dirs
+	$(TAR) tvzf $(VECTORTGZ) | \
+	$(AWK) '/^-/ { printf "$(VECTOR)/%s\n", $$NF }' > $(VECTORPKG).install
+	mkdir -p pcp/$(VECTOR) 2>/dev/null || exit 0
+	cd pcp/$(VECTOR) && $(TAR) xzf $(VECTORTGZ)
 endif
-
 
 control:	control.master control.webapi control.pcpgui fixcontrol.master
 	./fixcontrol.master >control

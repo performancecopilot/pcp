@@ -293,7 +293,8 @@ rm -rf "$LOGDIR"
 mkdir -p "$LOGDIR"
 
 source=pcp-${VERSION}
-SRCDIR=$topdir/$source
+SRCDIR="$topdir/$source"
+SRCTREE="$topdir/$source"
 SRCTAR=$topdir/build/tar/$source.src.tar.gz
 SRCWEBJS=$topdir/build/tar/webjs.tar.gz
 SRCVECTOR=$topdir/build/tar/vector.tar.gz
@@ -354,7 +355,7 @@ third_parties()
 	fi
 	if [ -f "$SRCPARFAIT" ]
 	then
-	    DESTPARFAIT="$topdir/$source/build/tar/"`basename "$SRCPARFAIT"`
+	    DESTPARFAIT="$SRCTREE/build/tar/"`basename "$SRCPARFAIT"`
 	    cp "$SRCPARFAIT" "$DESTPARFAIT"
 	fi
     fi
@@ -370,7 +371,7 @@ third_parties()
 	fi
 	if [ -f "$SRCVECTOR" ]
 	then
-	    DESTVECTOR="$topdir/$source/build/tar/"`basename "$SRCVECTOR"`
+	    DESTVECTOR="$SRCTREE/build/tar/"`basename "$SRCVECTOR"`
 	    cp "$SRCVECTOR" "$DESTVECTOR"
 	fi
     fi
@@ -386,7 +387,7 @@ third_parties()
 	fi
 	if [ -f "$SRCWEBJS" ]
 	then
-	    DESTWEBJS="$topdir/$source/build/tar/"`basename "$SRCWEBJS"`
+	    DESTWEBJS="$SRCTREE/build/tar/"`basename "$SRCWEBJS"`
 	    cp "$SRCWEBJS" "$DESTWEBJS"
 	fi
     fi
@@ -510,12 +511,15 @@ debian_buildpackage()
 prepare_debian_sources()
 {
     # shortcut for dpkg-buildpackage which does everything itself from here
-    SRCDIR="${topdir}/build/deb"
-    rm -rf "${SRCDIR}"
+    rm -rf "$SRCDIR"
     mkdir -p "$SRCDIR" 2>/dev/null
+
     cd "$SRCDIR" || exit 1
     $TAR -zxf "$SRCTAR" || exit 1
-    cd "$SRCDIR/$source" || exit 1
+
+    cd "$SRCTREE" || exit 1
+    third_parties
+
     fix_version ${topdir}/VERSION.pcp VERSION.pcp
 }
 
@@ -534,7 +538,10 @@ prepare_debian_control()
 
 debian_build()
 {
+    SRCDIR="${topdir}/build/deb"
+    SRCTREE="${topdir}/build/deb/$source"
     prepare_debian_sources
+
     # Note: we need to run configure here to get things like builddefs
     #       created, but configure will be run _again_ from
     #       debian_buildpackage, but we need to make sure the same
