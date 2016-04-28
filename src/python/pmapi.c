@@ -160,18 +160,17 @@ setIdentity(PyObject *self, PyObject *args, PyObject *keywords)
 static PyObject *
 makeTime(PyObject *self, PyObject *args, PyObject *keywords)
 {
-    struct tm tm;
+    struct tm tm = { 0 };
     char *keyword_list[] = {"tm_sec", "tm_min", "tm_hour",
 			    "tm_mday", "tm_mon", "tm_year",
 			    "tm_wday", "tm_yday", "tm_isdst",
-			    "tm_gmtoff", "tm_zone", NULL};
+			    NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
-			"iiiiiiiiils:pmMktime", keyword_list,
+			"iiiiiis:pmMktime", keyword_list,
 			&tm.tm_sec, &tm.tm_min, &tm.tm_hour,
 			&tm.tm_mday, &tm.tm_mon, &tm.tm_year,
-			&tm.tm_wday, &tm.tm_yday, &tm.tm_isdst,
-			&tm.tm_gmtoff, &tm.tm_zone))
+			&tm.tm_wday, &tm.tm_yday, &tm.tm_isdst))
 	return NULL;
     return Py_BuildValue("l", __pmMktime(&tm));
 }
