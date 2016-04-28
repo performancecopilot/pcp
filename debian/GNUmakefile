@@ -101,6 +101,7 @@ DEVIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1-dev
 SUBDIRS = source
 LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	pcp.preinst pcp.preinst.head pcp.postinst pcp.postinst.head \
+	pcp-webapp-vector.dirs pcp-webapp-vector.install \
 	$(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
@@ -108,7 +109,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL)
 
-default: pcp.preinst pcp.postinst pcp.postrm control
+default: pcp.preinst pcp.postinst pcp.postrm vector control
 
 include $(BUILDRULES)
 
@@ -301,8 +302,21 @@ pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail
 	rm -f $@
 	cat pcp.postrm.head configversions pcp.postrm.tail > $@
 
+VECTOR = $(shell echo $(PCP_SHARE_DIR)/webapps/vector | sed -e 's,^/,,g')
+vector:
+ifeq ($(HAVE_VECTOR), true)
+	$(TAR) tvzf $(TOPDIR)/build/tar/vector.tar.gz | \
+	    $(AWK) '/^d/ { printf "$(VECTOR)/%s\n", $$NF }' > pcp-webapp-vector.dirs
+	$(TAR) tvzf $(TOPDIR)/build/tar/vector.tar.gz | \
+	    $(AWK) '/^-/ { printf "$(VECTOR)/%s\n", $$NF }' > pcp-webapp-vector.install
+endif
+
+
 control:	control.master control.webapi control.pcpgui fixcontrol.master
 	./fixcontrol.master >control
+ifeq ($(HAVE_VECTOR), true)
+	cat control.vector >>control
+endif
 ifeq ($(ENABLE_WEBAPI), true)
 	cat control.webapi >>control
 endif
