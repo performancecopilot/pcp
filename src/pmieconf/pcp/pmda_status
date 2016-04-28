@@ -4,9 +4,12 @@
 
 rule	pmcd.pmda_status
 	default	= "$rule$"
+	enumerate = hosts
 	predicate =
-"some_inst (
-    pmcd.agent.status != 0
+"some_host (
+    some_inst (
+        pmcd.agent.status $hosts$ != 0
+    )
 )"
 	enabled	= yes
 	version	= 1
