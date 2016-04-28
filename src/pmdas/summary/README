@@ -78,12 +78,12 @@ New summary metrics may be added as follows.
 
  +  Choose new Performance Metric Name Space (PMNS) names for the new
     metrics.  These must begin with "summary." and follow the rules
-    described in pmns(4).
+    described in pmns(5).
 
     For example summary.fs.wr_cache_hit and summary.fs.rd_cache_hit
 
  +  Edit the file ./pmns to add the new PMNS names in the format
-    described in pmns(4).  You must choose a unique Performance Metric
+    described in pmns(5).  You must choose a unique Performance Metric
     Id (PMID) for each metric ... in the ./pmns file these will appear
     as SYSSUMMARY:0:x for some x that is arbitrary in the range 0 to
     1023 and unique in this file.

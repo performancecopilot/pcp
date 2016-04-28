@@ -1,5 +1,5 @@
 #pmieconf-rules 1
-# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
 #
 # Based on a rule originally developed by Kevin Wang at Silicon Graphics
 #
@@ -75,4 +75,4 @@ unsigned	enln_severity
 	default = 5;
 
 # 
-# --- DO NOT MODIFY THIS FILE --- see pmieconf(4)
+# --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

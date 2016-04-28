@@ -251,7 +251,7 @@ PCP internet resources, and the pmchart utility.
 
    There are many other optional PMDAs that you can configure, depending
    on which performance metrics you need to monitor, as follows:
-   Note: $PCP_PMDAS_DIR is normally /var/pcp/pmdas, see pcp.conf(4).
+   Note: $PCP_PMDAS_DIR is normally /var/pcp/pmdas, see pcp.conf(5).
 
    Web Server metrics
 

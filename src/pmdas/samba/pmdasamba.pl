@@ -195,4 +195,4 @@ default log file for error messages from B<pmdasamba>
 
 =head1 SEE ALSO
 
-pmcd(1), smbd(1) and samba(7).
+pmcd(1), samba(7) and smbd(8).
