@@ -37,6 +37,21 @@ IOSTAT_DM_METRICS = [ 'disk.dm.read', 'disk.dm.read_bytes',
                  'disk.dm.read_rawactive', 'disk.dm.write_rawactive',
                  'disk.dm.avactive']
 
+def aggregate(method, aggr_value, value):
+    if method == 'sum':
+        aggr_value += value
+    elif method == 'avg':
+        aggr_value += value
+    elif method == 'min':
+        if aggr_value > value:
+            aggr_value = value
+    elif method == 'max':
+        if aggr_value < value:
+            aggr_value = value
+    else:
+       raise pmapi.pmUsageErr
+    return aggr_value
+
 class IostatReport(pmcc.MetricGroupPrinter):
     Hcount = 0
     def timeStampDelta(self, group):
@@ -56,6 +71,14 @@ class IostatReport(pmcc.MetricGroupPrinter):
 
     def report(self, manager):
         regex = IostatOptions.Rflag
+        if regex == '':
+            regex = '.*'
+
+        aggr = IostatOptions.Gflag
+        if aggr and aggr not in ('sum', 'avg', 'min', 'max'):
+           print("Error, -G aggregation method must be one of 'sum', 'avg', 'min' or 'max'")
+           raise pmapi.pmUsageErr
+
         precision = IostatOptions.Pflag
         if precision < 0 or precision > 10 :
            print("Precision value must be between 0 and 10")
@@ -160,6 +183,11 @@ class IostatReport(pmcc.MetricGroupPrinter):
             return
 
         try:
+            if IostatOptions.Gflag:
+                aggr_rrqm = aggr_wrqm = aggr_r = aggr_w = aggr_rkb = aggr_wkb = aggr_avgrqsz = 0.0
+                aggr_avgqsz = aggr_await = aggr_r_await = aggr_w_await = aggr_util = 0.0
+                aggr_count = 0
+
             for inst in sorted(instlist):
                 # basic stats
                 rrqm = (c_rrqm[inst] - p_rrqm[inst]) / dt
@@ -209,29 +237,85 @@ class IostatReport(pmcc.MetricGroupPrinter):
                         '?',precision+6, '?',headfmtavgspace, '?',headfmtquspace, '?', precision+5, '?',awaitspace, '?',\
                         awaitspace, '?',utilspace, '?'))
                     else:
+                        if IostatOptions.Rflag and re.search(regex,device) == None: 
+                            continue  
+
+                        if IostatOptions.Gflag:
+                            aggr_count += 1
+
                         if "noidle" in IostatOptions.xflag:
                             if rrqm == 0 and wrqm == 0 and r == 0 and w == 0 :
                                 continue
-                        if IostatOptions.Rflag and re.search(regex,device) == None: 
-                            continue  
-                        print(valfmt % (timestamp, device,rrqmspace, precision, rrqm,wrqmspace,precision, wrqm,precision+5,precision,\
-                        r,precision+4,precision, w,precision+6,precision, rkb,precision+6,precision, wkb, avgrqszspace,precision+1 ,avgrqsz,\
-                        avgrqszspace,precision+1, avgqsz,precision+5,precision, await,awaitspace,precision, r_await,awaitspace,precision,\
-                        w_await,utilspace,precision, util))
+
+                        if not IostatOptions.Gflag:
+                            print(valfmt % (timestamp, device,rrqmspace, precision, rrqm,wrqmspace,precision, wrqm,precision+5,precision,\
+                            r,precision+4,precision, w,precision+6,precision, rkb,precision+6,precision, wkb, avgrqszspace,precision+1 ,avgrqsz,\
+                            avgrqszspace,precision+1, avgqsz,precision+5,precision, await,awaitspace,precision, r_await,awaitspace,precision,\
+                            w_await,utilspace,precision, util))
                 else:
                     if badcounters:
                         print(headfmt % (device,rrqmspace, '?',wrqmspace, '?',precision+5, '?',precision+4, '?',precision+6, '?',precision+6,\
                         '?',headfmtavgspace, '?',headfmtquspace, '?', precision+5, '?',awaitspace, '?',awaitspace, '?',utilspace, '?'))
                     else:
+                        if IostatOptions.Rflag and re.search(regex,device) == None: 
+                            continue  
+
+                        if IostatOptions.Gflag:
+                            aggr_count += 1
+
                         if "noidle" in IostatOptions.xflag:
                             if rrqm == 0 and wrqm == 0 and r == 0 and w == 0 :
                                 continue
-                        if IostatOptions.Rflag and re.search(regex,device) == None: 
-                            continue  
-                        print(valfmt % (device,rrqmspace, precision, rrqm,wrqmspace,precision, wrqm,precision+5,precision, r,precision+4,\
-                        precision, w,precision+6,precision, rkb,precision+6,precision, wkb,\
-                        avgrqszspace,precision+1 ,avgrqsz,avgrqszspace,precision+1, avgqsz,precision+5,precision, await,awaitspace,precision,\
-                        r_await,awaitspace,precision, w_await,utilspace,precision, util))
+
+                        if not IostatOptions.Gflag:
+                            print(valfmt % (device,rrqmspace, precision, rrqm,wrqmspace,precision, wrqm,precision+5,precision, r,precision+4,\
+                            precision, w,precision+6,precision, rkb,precision+6,precision, wkb,\
+                            avgrqszspace,precision+1 ,avgrqsz,avgrqszspace,precision+1, avgqsz,precision+5,precision, await,awaitspace,precision,\
+                            r_await,awaitspace,precision, w_await,utilspace,precision, util))
+
+                if IostatOptions.Gflag and not badcounters:
+                    aggr_rrqm = aggregate(aggr, aggr_rrqm, rrqm)
+                    aggr_wrqm = aggregate(aggr, aggr_wrqm, wrqm)
+                    aggr_r = aggregate(aggr, aggr_r, r)
+                    aggr_w = aggregate(aggr, aggr_w, w)
+                    aggr_rkb = aggregate(aggr, aggr_rkb, rkb)
+                    aggr_wkb = aggregate(aggr, aggr_wkb, wkb)
+                    aggr_avgrqsz = aggregate(aggr, aggr_avgrqsz, avgrqsz)
+                    aggr_avgqsz = aggregate(aggr, aggr_avgqsz, avgqsz)
+                    aggr_await = aggregate(aggr, aggr_await, await)
+                    aggr_r_await = aggregate(aggr, aggr_r_await, r_await)
+                    aggr_w_await = aggregate(aggr, aggr_w_await, w_await)
+                    aggr_util = aggregate(aggr, aggr_util, util)
+            # end of loop
+
+            if IostatOptions.Gflag:
+                if IostatOptions.Gflag == 'avg' and aggr_count > 0:
+                    aggr_rrqm /= aggr_count
+                    aggr_wrqm /= aggr_count
+                    aggr_r /= aggr_count
+                    aggr_w /= aggr_count
+                    aggr_rkb /= aggr_count
+                    aggr_wkb /= aggr_count
+                    aggr_avgrqsz /= aggr_count
+                    aggr_avgqsz /= aggr_count
+                    aggr_await /= aggr_count
+                    aggr_r_await /= aggr_count
+                    aggr_w_await /= aggr_count
+                    aggr_util /= aggr_count
+
+
+                # report aggregate values - the 'device' here is reported as the regex used for the aggregation
+                device = '%s(%s)' % (aggr, regex)
+                if "t" in IostatOptions.xflag:
+                    print(valfmt % (timestamp, device,rrqmspace, precision, aggr_rrqm,wrqmspace,precision, aggr_wrqm,precision+5,precision,\
+                    aggr_r,precision+4,precision, aggr_w,precision+6,precision, aggr_rkb,precision+6,precision, aggr_wkb, avgrqszspace,precision+1 ,aggr_avgrqsz,\
+                    avgrqszspace,precision+1, aggr_avgqsz,precision+5,precision, aggr_await,awaitspace,precision, aggr_r_await,awaitspace,precision,\
+                    aggr_w_await,utilspace,precision, aggr_util))
+                else:
+                    print(valfmt % (device,rrqmspace, precision, aggr_rrqm,wrqmspace,precision, aggr_wrqm,precision+5,precision, aggr_r,precision+4,\
+                    precision, aggr_w,precision+6,precision, aggr_rkb,precision+6,precision, aggr_wkb,\
+                    avgrqszspace,precision+1 ,aggr_avgrqsz,avgrqszspace,precision+1, aggr_avgqsz,precision+5,precision, aggr_await,awaitspace,precision,\
+                    aggr_r_await,awaitspace,precision, aggr_w_await,utilspace,precision, aggr_util))
 
         except KeyError:
             # instance missing from previous sample
@@ -243,6 +327,7 @@ class IostatOptions(pmapi.pmOptions):
     uflag = None
     Pflag = 2
     Rflag = ""
+    Gflag = ""
     def checkOptions(self, manager):
         if IostatOptions.uflag:
             if manager._options.pmGetOptionInterval():
@@ -262,18 +347,21 @@ class IostatOptions(pmapi.pmOptions):
             IostatOptions.Pflag = int(optarg)
         elif opt == "R":
             IostatOptions.Rflag = optarg
+        elif opt == "G":
+            IostatOptions.Gflag = optarg
 
     def __init__(self):
-        pmapi.pmOptions.__init__(self, "A:a:D:h:O:P:R:S:s:T:t:uVZ:z?x:")
+        pmapi.pmOptions.__init__(self, "A:a:D:G:h:O:P:R:S:s:T:t:uVZ:z?x:")
         self.pmSetOptionCallback(self.extraOptions)
         self.pmSetLongOptionHeader("General options")
         self.pmSetLongOptionAlign()
         self.pmSetLongOptionArchive()
         self.pmSetLongOptionDebug()
+        self.pmSetLongOption("aggregate", 1, "G", "method", "aggregate values for devices matching -R regex using 'method' (sum, avg, min or max)")
         self.pmSetLongOptionHost()
         self.pmSetLongOptionOrigin()
         self.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator")
-        self.pmSetLongOption("regex", 1, "R", "pattern", "only report for devices names matching pattern, e.g. 'sd[a-zA-Z]+'")
+        self.pmSetLongOption("regex", 1, "R", "pattern", "only report for devices names matching pattern, e.g. 'sd[a-zA-Z]+'. See also -G.")
         self.pmSetLongOptionStart()
         self.pmSetLongOptionSamples()
         self.pmSetLongOptionFinish()

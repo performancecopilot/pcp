@@ -23,6 +23,7 @@
 \f3pcp\ iostat\f1
 [\f3\-A\f1 \f2align\f1 \f3--align=\f2TIME\f1]
 [\f3\-a\f1 \f2archive\f1 \f3--archive=\f2FILE\f1]
+[\f3\-G\f1 \f2method\f1 \f3--aggregate=\f2method\f1]
 [\f3\-h\f1 \f2host\f1 \f3--host=\f2HOST\f1]
 [\f3\-O\f1 \f2offset\f1 \f3--origin=\f2TIME\f1]
 [\f3\-S\f1 \f2starttime\f1 \f3--start=\f2TIME\f1]
@@ -85,6 +86,60 @@ names, each of which may be the base name of an archive or the name of a
 directory containing one or more archives. See also
 .BR \-u .
 .TP
+.B \-G
+Specifies that statistics for device names matching the regular expression specified with the
+.B \-R
+.I regex
+option should be aggregated according to
+.IR method .
+Note this is aggregation based on matching device names (not temporal aggregation).
+When
+.B \-G
+is used,
+the device name column is reported as
+.IR method (\fIregex\fR),
+e.g.
+if
+.B \-G sum
+.B \-R 'sd(a|b)$'
+is specified, the device column will be
+.BR sum (\fBsd(a|b)$)\fR
+and
+summed statistics for
+.B sda
+and
+.B sdb
+will be reported in the remaining columns.
+If
+.B \-G
+is specified but
+.B \-R
+is not specified, then the default
+.I regex
+is
+.BR .* ,
+i.e. matching all device names.
+If
+.I method
+is
+.B sum
+then the statistics are summed.
+This includes the
+.B %util
+column, which may therefore exceed 100% if more than one device name matches.
+If
+.I method
+is
+.B avg
+then the statistics are summed and then averaged by dividing by the number of matching device names.
+If
+.I method
+is
+.B min
+or
+.BR max ,
+the minimum or maximum statistics for matching devices are reported, respectfully.
+.TP
 .B \-h
 Current performance metric values are retrieved from the nominated
 .I host
@@ -123,9 +178,17 @@ the reporting interval (unless the
 option is specified, see below).
 .TP
 .B \-R
-This indicates the pattern to search in the device name. The pattern is searched as a perl style
-regular expression. 
-For eg. 'sd[a-zA-Z]+' will match all device names starting with sd followed by one or more alphabets.
+This restricts the report to device names matching
+.IR regex .
+The
+.I regex
+pattern is searched as a perl style regular expression, and will match any portion of a device name.
+e.g. '^sd[a-zA-Z]+' will match all device names starting with 'sd' followed by one or more alphabetic characters.
+e.g. '^sd(a|b)$' will only match 'sda' and 'sdb'.
+e.g. 'sda$' will match 'sda' but not 'sdab'.
+See also the
+.B -G
+option for aggregation options.
 .TP
 .B \-P
 This indicates the number of decimals to print. The default precision \f2N\f1
@@ -192,6 +255,10 @@ the source of the performance metrics, as identified via either the
 or
 .B \-a
 options.
+When replaying a PCP archive that was captured in a foreign timezone, the
+.B \-z
+option would almost always be used (the default reporting timezone is the local timezone,
+which may not be the same as the timezone of the PCP archive).
 .TP
 .B \-x
 Specifies a comma separated list of one or more extended reporting options as follows:
@@ -213,6 +280,13 @@ When the \f3-x t\fP option is specified, this column is the timestamp in \f3ctim
 .TP
 .B Device
 Specifies the scsi device name, or if \f3-x dm\fP is specified, the device-mapper logical device name.
+When
+.B \-G
+is specified, this is replaced by the aggregation method and regular expression - see the
+.B \-G
+and
+.B \-R
+options above.
 .TP
 .B rrqm/s
 The number of read requests expressed as a rate per-second that were merged
