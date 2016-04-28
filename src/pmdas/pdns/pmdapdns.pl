@@ -38,7 +38,7 @@ sub pdns_fetch
         %vals = ();
         %vals_rec_answers = ();
 
-        # get the authorative server stats
+        # get the authoritative server stats
         if ($pdns_disable == 0 && open(PIPE, "$pdns_control list |")) {
             $_ = <PIPE>;
             close PIPE;
@@ -352,7 +352,7 @@ pmdapdns - PowerDNS performance metrics domain agent (PMDA)
 =head1 DESCRIPTION
 
 B<pmdapdns> is a Performance Metrics Domain Agent (PMDA) which exports
-metric values from the PowerDNS authorative daemon as well as the recursive
+metric values from the PowerDNS authoritative daemon as well as the recursive
 resolver.
 
 =head1 INSTALLATION

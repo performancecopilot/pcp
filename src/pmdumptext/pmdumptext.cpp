@@ -791,7 +791,7 @@ main(int argc, char *argv[])
 		opts.errors++;
 	    }
 	    else if (niceFlag) {
-		pmprintf("%s: -i and -G may not be used togther\n",
+		pmprintf("%s: -i and -G may not be used together\n",
 			 pmProgname);
 		opts.errors++;
 	    }
@@ -805,12 +805,12 @@ main(int argc, char *argv[])
 
 	case 'i':	// abbreviate metric names
 	    if (precFlag) {
-		pmprintf("%s: -i and -P may not be used togther\n",
+		pmprintf("%s: -i and -P may not be used together\n",
 			 pmProgname);
 		opts.errors++;
 	    }
 	    else if (shortFlag) {
-		pmprintf("%s: -i and -G may not be used togther\n",
+		pmprintf("%s: -i and -G may not be used together\n",
 			 pmProgname);
 		opts.errors++;
 	    }

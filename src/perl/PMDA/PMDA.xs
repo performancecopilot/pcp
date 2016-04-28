@@ -503,7 +503,7 @@ update_hash_indom(SV *insts, pmInDom indom)
 
     sts = pmdaCacheOp(indom, PMDA_CACHE_SAVE);
     if (sts < 0)
-	warn("pmda cache persistance failed: %s", pmErrStr(sts));
+	warn("pmda cache persistence failed: %s", pmErrStr(sts));
 
     return 0;
 }

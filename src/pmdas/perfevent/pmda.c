@@ -530,7 +530,7 @@ static char *normalize_metric_name(const char *name)
 
     /*
      * We can't control the names that libpfm returns. Replace any invalid
-     * characters with underscore. Allow the old way for backwards compatability
+     * characters with underscore. Allow the old way for backwards compatibility
      */
 
     if(compat_names)
@@ -673,7 +673,7 @@ static void usage(void)
 {
     fprintf(stderr, "Usage: %s [options]\n\n", pmProgname);
     fputs("Options:\n"
-          "  -C           maintain compatability to (possibly) nonconforming metric names\n"
+          "  -C           maintain compatibility to (possibly) nonconforming metric names\n"
           "  -d domain    use domain (numeric) for metrics domain of PMDA\n"
           "  -l logfile   write log into logfile rather than using default log name\n"
           "  -U username  user account to run under (default \"pcp\")\n"
