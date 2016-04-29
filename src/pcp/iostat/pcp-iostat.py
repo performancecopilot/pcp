@@ -151,8 +151,8 @@ class IostatReport(pmcc.MetricGroupPrinter):
            headfmtquspace=precision+6
 
         if "t" in IostatOptions.xflag:
-            headfmt = "%-24s %-12s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s"
-            valfmt = "%-24s %-12s %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f"
+            headfmt = "%-28s %-12s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s"
+            valfmt = "%-28s %-12s %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f"
         else:
             headfmt = "%-12s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s"
             valfmt = "%-12s %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f %*.*f"
