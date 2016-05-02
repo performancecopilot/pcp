@@ -2589,6 +2589,9 @@ cd
 %endif
 
 %changelog
+* Fri Jun 17 2016 Nathan Scott <nathans@redhat.com> - 3.11.3-1
+- Work in progress  [ see http://pcp.io/roadmap ]
+
 * Fri Apr 29 2016 Lukas Berk <lberk@redhat.com> - 3.11.2-1
 - Negative nice values reported incorrectly (BZ 1328432)
 - Multithreaded clients with concurrent pmNewContext improvements (BZ 1325363)
