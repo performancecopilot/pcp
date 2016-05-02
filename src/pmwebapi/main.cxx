@@ -707,13 +707,20 @@ main (int argc, char *argv[])
      * we could make use of MHD_USE_THREAD_PER_CONNECTION; we'd need
      * to add ample locking over pmwebd context structures etc.
      */
+#ifdef MHD_USE_EPOLL_TURBO
+#define MY_MHD_FLAGS MHD_USE_EPOLL_TURBO
+#else
+#define MY_MHD_FLAGS 0
+#endif
     if (mhd_ipv4)
-        d4 = MHD_start_daemon (0, port, NULL, NULL,	/* default accept policy */
+        d4 = MHD_start_daemon (MY_MHD_FLAGS,
+                               port, NULL, NULL,	/* default accept policy */
                                &mhd_respond, NULL,	/* handler callback */
                                MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout, MHD_OPTION_NOTIFY_COMPLETED,
                                &mhd_respond_completed, NULL, MHD_OPTION_END);
     if (mhd_ipv6)
-        d6 = MHD_start_daemon (MHD_USE_IPv6, port, NULL, NULL,	/* default accept policy */
+        d6 = MHD_start_daemon (MHD_USE_IPv6 | MY_MHD_FLAGS,
+                               port, NULL, NULL,	/* default accept policy */
                                &mhd_respond, NULL,	/* handler callback */
                                MHD_OPTION_CONNECTION_TIMEOUT, maxtimeout, MHD_OPTION_NOTIFY_COMPLETED,
                                &mhd_respond_completed, NULL, MHD_OPTION_END);
