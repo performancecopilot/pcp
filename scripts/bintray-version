@@ -66,6 +66,7 @@ table["raring"] = "Performance Co-Pilot builds for Ubuntu 13.04 (raring ringtail
 table["trusty"] = "Performance Co-Pilot builds for Ubuntu 14.04 (trusty tahr)"
 table["vivid"] = "Performance Co-Pilot builds for Ubuntu 15.04 (vivid vervet)"
 table["wily"] = "Performance Co-Pilot builds for Ubuntu 15.10 (wily werewolf)"
+table["xenial"] = "Performance Co-Pilot builds for Ubuntu 16.04 (xenial xerus)"
 table["macosx"] = "Performance Co-Pilot builds for Mac OS X"
 table["opensuse13"] = "Performance Co-Pilot builds for OpenSUSE 13"
 table["solaris11"] = "Performance Co-Pilot builds for Solaris 11"
@@ -75,7 +76,7 @@ table["solaris11"] = "Performance Co-Pilot builds for Solaris 11"
 }
 
 debian="jessie wheezy"
-ubuntu="precise raring trusty vivid wily"
+ubuntu="precise raring trusty vivid wily xenial"
 macosx="macosx"
 redhat="el5 el6 el7 f21 f22 f23"
 solaris="solaris11"
