@@ -945,6 +945,7 @@ with_books_brand
 with_papi
 with_perfevent
 with_pmdajson
+with_pmdasnmp
 with_manager
 with_webapi
 with_webjs
@@ -1656,6 +1657,7 @@ Optional Packages:
                           installation prefix, or a pkgconfig module name.
   --with-perfevent        enable perfevent pmda (default is on)
   --with-pmdajson         enable JSON pmda (default is on)
+  --with-pmdasnmp         enable SNMP pmda (default is on)
   --with-manager          enable daemon manager (default is on)
   --with-webapi           enable REST API daemon (default is on)
   --with-webjs            enable building of webjs packages (default is off)
@@ -2763,6 +2765,15 @@ if test "${with_pmdajson+set}" = set; then :
   withval=$with_pmdajson; do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"
 else
   do_pmdajson=check
+fi
+
+
+
+# Check whether --with-pmdasnmp was given.
+if test "${with_pmdasnmp+set}" = set; then :
+  withval=$with_pmdasnmp; do_pmdasnmp=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdasnmp=$withval"
+else
+  do_pmdasnmp=check
 fi
 
 
@@ -7280,12 +7291,16 @@ $as_echo "$pcp_perl_prog" >&6; }
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the SNMP PMDA should be included" >&5
 $as_echo_n "checking if the SNMP PMDA should be included... " >&6; }
 pmda_snmp=false
-if test "$have_perl" = true
-then
-        if $pcp_perl_prog -e "use Net::SNMP" >/dev/null 2>&1
+if test "x$do_pmdasnmp" = "xyes"; then :
+  pmda_snmp=true
+fi
+if test "x$do_pmdasnmp" = "xcheck"; then :
+
+        if $have_perl -a $pcp_perl_prog -e "use Net::SNMP" >/dev/null 2>&1
     then
 	pmda_snmp=true
     fi
+
 fi
 PMDA_SNMP=$pmda_snmp
 

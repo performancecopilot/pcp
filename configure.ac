@@ -142,6 +142,12 @@ AC_ARG_WITH([pmdajson],
     [do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"],
     [do_pmdajson=check])
 
+AC_ARG_WITH([pmdasnmp],
+    [AC_HELP_STRING([--with-pmdasnmp],
+		   [enable SNMP pmda (default is on)])],
+    [do_pmdasnmp=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdasnmp=$withval"],
+    [do_pmdasnmp=check])
+
 AC_ARG_WITH([manager],
     [AC_HELP_STRING([--with-manager],
 		   [enable daemon manager (default is on)])],
@@ -923,14 +929,14 @@ AC_MSG_RESULT($pcp_perl_prog)
 
 AC_MSG_CHECKING([if the SNMP PMDA should be included])
 pmda_snmp=false
-if test "$have_perl" = true
-then
-    dnl rpm built for SNMP PMDA needs Perl Net::SNMP
-    if $pcp_perl_prog -e "use Net::SNMP" >/dev/null 2>&1
+AS_IF([test "x$do_pmdasnmp" = "xyes"], [pmda_snmp=true])
+AS_IF([test "x$do_pmdasnmp" = "xcheck"], [
+    dnl SNMP PMDA needs perl and the Net::SNMP module
+    if $have_perl -a $pcp_perl_prog -e "use Net::SNMP" >/dev/null 2>&1
     then
 	pmda_snmp=true
     fi
-fi
+])
 AC_SUBST(PMDA_SNMP, $pmda_snmp)
 if $pmda_snmp; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 

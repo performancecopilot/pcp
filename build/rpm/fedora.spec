@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.11.2
+Version: 3.11.3
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -9,10 +9,10 @@ URL: http://www.pcp.io
 Group: Applications/System
 # https://bintray.com/artifact/download/pcp/source/pcp-%{version}.src.tar.gz
 Source0: pcp-%{version}.src.tar.gz
-# https://github.com/performancecopilot/pcp-webjs/archive/master.zip
-Source1: pcp-webjs.src.tar.gz
 # https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
-Source2: vector.tar.gz
+Source1: vector.tar.gz
+# https://github.com/performancecopilot/pcp-webjs/archive/x.y.z.tar.gz
+Source2: pcp-webjs.src.tar.gz
 
 # There are no papi/libpfm devel packages for s390 nor for some rhels, disable
 %ifarch s390 s390x
@@ -33,6 +33,7 @@ Source2: vector.tar.gz
 
 %global disable_microhttpd 0
 %global disable_cairo 0
+%global disable_snmp 0
 
 %global disable_python2 0
 # Default for epel5 is python24, so use the (optional) python26 packages
@@ -217,6 +218,12 @@ Obsoletes: pcp-gui-debuginfo
 %global _with_json --with-pmdajson=no
 %else
 %global _with_json --with-pmdajson=yes
+%endif
+
+%if %{disable_snmp}
+%global _with_snmp --with-pmdasnmp=no
+%else
+%global _with_snmp --with-pmdasnmp=yes
 %endif
 
 %global pmda_remove() %{expand:
@@ -1037,7 +1044,6 @@ Summary: Performance Co-Pilot (PCP) metrics for Simple Network Management Protoc
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
 Requires: perl(Net::SNMP)
-BuildRequires: perl(Net::SNMP)
 
 %description pmda-snmp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1607,8 +1613,8 @@ PCP utilities and daemons, and the PCP graphical tools.
 
 %prep
 %setup -q
-%setup -q -T -D -a 2 -c -n pcp-%{version}/vector
-%setup -q -T -D -a 1
+%setup -q -T -D -a 1 -c -n pcp-%{version}/vector
+%setup -q -T -D -a 2
 
 %clean
 rm -Rf $RPM_BUILD_ROOT
