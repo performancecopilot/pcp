@@ -1,7 +1,7 @@
 /*
  * pmlogextract - extract desired metrics from PCP archive logs
  *
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2016 Red Hat.
  * Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -167,7 +167,12 @@ matchnames(__pmPDU *a, __pmPDU *b)
 	p_b += len_b;
     }
 
-    if (num_a_eq == 0 && num_b_eq == 0) sts = MATCH_NONE;
+    if (num_a_eq == 0 && num_b_eq == 0)
+	sts = MATCH_NONE;
+    else if (num_a && num_a_eq == num_a && num_b  && num_b_eq == num_b) {
+	/* all names match but more occurrences in one log (i.e. dups) */
+	sts = MATCH_EQUAL;
+    }
     else if (num_a == num_b) {
 	if (num_a_eq == num_a && num_b_eq == num_b) sts = MATCH_EQUAL;
 	else sts = MATCH_SOME;

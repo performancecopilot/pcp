@@ -1124,6 +1124,7 @@ timezone
 909 libpcp pmns local
 914 pmda.papi local
 915 pmcd pmlogger pmproxy libpcp local
+916 pmlogextract pmlogcheck local
 919 pmlogger pmstat local
 921 pmdumplog local
 922 derive pmie pmval local
