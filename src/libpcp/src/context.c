@@ -1050,9 +1050,12 @@ INIT_CONTEXT:
 		    pmcd->pc_hosts[0].nports == hosts[0].nports) {
 		    int j, ports_same = 1;
 
-		    for (j = 0; j < hosts[0].nports; j++)
-			if (pmcd->pc_hosts[0].ports[j] != hosts[0].ports[j])
+		    for (j = 0; j < hosts[0].nports; j++) {
+			if (pmcd->pc_hosts[0].ports[j] != hosts[0].ports[j]) {
 			    ports_same = 0;
+			    break;
+			}
+		    }
 
 		    /* ports match, check that pmcd is alive too */
 		    if (ports_same && ping_pmcd(i, pmcd)) {
