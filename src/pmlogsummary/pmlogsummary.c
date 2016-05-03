@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2016 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -43,6 +43,7 @@ static pmLongOptions longopts[] = {
     { "samples", 0, 'y', "print sample count for each metric" },
     PMOPT_TIMEZONE,
     PMOPT_HOSTZONE,
+    PMOPT_VERSION,
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
@@ -50,7 +51,7 @@ static pmLongOptions longopts[] = {
 static int override(int, pmOptions *);
 static pmOptions opts = {
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "abB:D:fFHiIlmMNn:p:rsS:T:vxyzZ:?",
+    .short_options = "abB:D:fFHiIlmMNn:p:rsS:T:vVxyzZ:?",
     .long_options = longopts,
     .short_usage = "[options] archive [metricname ...]",
     .override = override,
@@ -1083,14 +1084,16 @@ main(int argc, char *argv[])
 	}
     }
 
-    if (!opts.errors && opts.optind >= argc && !opts.archives) {
+    if (!opts.errors && !(opts.flags & PM_OPTFLAG_EXIT) &&
+	opts.optind >= argc && !opts.archives) {
 	pmprintf("Error: no archive specified\n\n");
 	opts.errors++;
     }
 
-    if (opts.errors) {
+    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
+	exitstatus = !(opts.flags & PM_OPTFLAG_EXIT);
 	pmUsageMessage(&opts);
-	exit(1);
+	exit(exitstatus);
     }
 
     if (opts.narchives > 0) {

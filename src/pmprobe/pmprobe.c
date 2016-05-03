@@ -1,7 +1,7 @@
 /*
  * pmprobe - light-weight pminfo for configuring monitor apps
  *
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2000-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -37,6 +37,7 @@ static pmLongOptions longopts[] = {
     PMOPT_SPECLOCAL,
     PMOPT_NAMESPACE,
     PMOPT_ORIGIN,
+    { "version", 0, 'd', 0, "display version number and exit" },
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "force", 0, 'f', 0, "report all pmGetIndom or pmGetInDomArchive instances" },
@@ -47,11 +48,20 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_END
 };
 
+static int
+overrides(int opt, pmOptions *opts)
+{
+    if (opt == 'V')
+	return 1;	/* we've claimed this, inform pmGetOptions */
+    return 0;
+}
+
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:D:fh:IiK:Ln:O:VvZ:z?",
+    .short_options = "a:D:efh:IiK:Ln:O:VvZ:z?",
     .long_options = longopts,
     .short_usage = "[options] [metricname ...]",
+    .override = overrides,
 };
 
 static void
@@ -135,6 +145,11 @@ main(int argc, char **argv)
 	    Iflag++;
 	    break;
 
+	case 'd':	/* version (d'oh - 'V' already in use) */
+	    pmprintf("%s version %s\n", pmProgname, PCP_VERSION);
+	    opts.flags |= PM_OPTFLAG_EXIT;
+	    break;
+
 	case 'V':	/* verbose */
 	    Vflag++;
 	    break;
@@ -153,9 +168,10 @@ main(int argc, char **argv)
 	}
     }
 
-    if (opts.errors) {
+    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
+	sts = !(opts.flags & PM_OPTFLAG_EXIT);
 	pmUsageMessage(&opts);
-	exit(1);
+	exit(sts);
     }
 
     if (opts.context == PM_CONTEXT_ARCHIVE)

@@ -971,6 +971,7 @@ General options:
                         use an alternative PMNS
   -O TIME, --origin=TIME
                         initial sample time within the time window
+  -d, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Reporting options:
@@ -997,6 +998,7 @@ General options:
                         use an alternative PMNS
   -O TIME, --origin=TIME
                         initial sample time within the time window
+  -d, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Reporting options:

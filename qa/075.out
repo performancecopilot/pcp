@@ -48,6 +48,7 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Value options:
@@ -68,6 +69,7 @@ General options:
                         optional additional PMDA spec for local connection
   -n FILE, --namespace=FILE
                         use an alternative PMNS
+  -V, --version         display version number and exit
   -?, --help            show this usage message and exit
 
 Value options:

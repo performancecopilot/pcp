@@ -48,6 +48,7 @@ static pmLongOptions longopts[] = {
     { "", 0, 'x', 0, "include date in reported timestamps" },
     PMOPT_TIMEZONE,
     PMOPT_HOSTZONE,
+    PMOPT_VERSION,
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
@@ -778,10 +779,12 @@ main(int argc, char *argv[])
     }
 
     if (opts.errors ||
+	(opts.flags & PM_OPTFLAG_EXIT) ||
 	(vflag && opts.optind != argc) ||
 	(!vflag && opts.optind > argc - 1 && !opts.narchives)) {
+	sts = !(opts.flags & PM_OPTFLAG_EXIT);
 	pmUsageMessage(&opts);
-	exit(1);
+	exit(sts);
     }
 
     if (vflag) {

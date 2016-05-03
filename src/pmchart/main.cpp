@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014,2016, Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2007-2009, Aconex.  All Rights Reserved.
  * 
@@ -434,7 +434,7 @@ override(int opt, pmOptions *opts)
 {
     (void)opts;
     if (opt == 'g')
-        return 1;
+	return 1;
     if (opt == 'H')
 	Hflag = 1;
     if (opt == 'L')
@@ -469,7 +469,6 @@ main(int argc, char ** argv)
     opts.long_options = longopts;
     opts.short_usage = "[options] [sources]";
     opts.override = override;
-
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
@@ -544,9 +543,15 @@ main(int argc, char ** argv)
 
     if (opts.optind != argc)
 	opts.errors++;
-    if (opts.errors) {
+    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
+	if ((opts.flags & PM_OPTFLAG_EXIT)) {
+	    unsetenv("PCP_STDERR");
+	    sts = 0;
+	} else {
+	    sts = 1;
+	}
 	pmUsageMessage(&opts);
-	exit(1);
+	exit(sts);
     }
 
     /* set initial sampling interval from command line, else global setting */

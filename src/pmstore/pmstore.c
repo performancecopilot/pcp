@@ -1,7 +1,7 @@
 /*
  * pmstore [-h hostname ] [-i inst[,inst...]] [-n pmnsfile ] metric value
  *
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 1995,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@ static pmLongOptions longopts[] = {
     PMOPT_LOCALPMDA,
     PMOPT_SPECLOCAL,
     PMOPT_NAMESPACE,
+    PMOPT_VERSION,
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Value options"),
     { "force", 0, 'f', 0, "store the value even if there is no current value set" },
@@ -34,7 +35,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_POSIX,
-    .short_options = "D:fh:K:Li:n:?",
+    .short_options = "D:fh:K:Li:n:V?",
     .long_options = longopts,
     .short_usage = "[options] metricname value",
 };
@@ -110,9 +111,12 @@ main(int argc, char **argv)
 	}
     }
 
-    if (opts.errors || opts.optind != argc - 2) {
+    if (opts.errors ||
+	opts.optind != argc - 2 ||
+	(opts.flags & PM_OPTFLAG_EXIT)) {
+	sts = !(opts.flags & PM_OPTFLAG_EXIT);
 	pmUsageMessage(&opts);
-	exit(1);
+	exit(sts);
     }
 
     if (opts.context == PM_CONTEXT_HOST)
