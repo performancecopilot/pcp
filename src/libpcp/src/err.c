@@ -164,6 +164,8 @@ static const struct {
 	"The instance domain of a metric has changed in an archive" },
     { PM_ERR_LOGCHANGEUNITS,	"PM_ERR_LOGCHANGEUNITS",
 	"The units of a metric have changed in an archive" },
+    { PM_ERR_NEEDCLIENTCERT,	"PM_ERR_NEEDCLIENTCERT",
+	"PMCD requires a client certificate" },
     /* insert new libpcp error codes here */
     { PM_ERR_NYI,		"PM_ERR_NYI",
 	"Functionality not yet implemented" },

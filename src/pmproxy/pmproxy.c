@@ -203,15 +203,21 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
     __pmPDUHdr *header = (__pmPDUHdr *)pb;
     __pmHashCtl attrs = { 0 }; /* TODO */
     __pmCred *credlist;
-    char *hostName;
+    unsigned int toggle_cert_required=0;
+
+    fprintf(stderr, "Verify 1\n");
 
     /* first check that this is a credentials PDU */
     if (header->type != PDU_CREDS)
 	return PM_ERR_IPC;
 
+    fprintf(stderr, "Verify 2\n");
+
     /* now decode it and if secure connection requested, set it up */
     if ((sts = __pmDecodeCreds(pb, &sender, &credcount, &credlist)) < 0)
 	return sts;
+
+    fprintf(stderr, "Verify 3\n");
 
     for (i = 0; i < credcount; i++) {
 	if (credlist[i].c_type == CVERSION) {
@@ -220,19 +226,53 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
 	    break;
 	}
     }
+    fprintf(stderr, "Verify 4\n");
+
     if (credlist != NULL)
 	free(credlist);
 
-    if( ( (getenv("PMPROXY_REQUIRE_CLIENT_CERT") != NULL ) && (flags & PDU_FLAG_SECURE) == 0 )){
+    fprintf(stderr, "Verify 5: %d, %d, %d, %d\n", cp->server_features, PDU_FLAG_CERT_REQD, flags, PDU_FLAG_SECURE);
+
+    //if( ( (getenv("PMPROXY_REQUIRE_CLIENT_CERT") != NULL ) && (flags & PDU_FLAG_SECURE) == 0 )){
+    if( ( ( cp->server_features & PDU_FLAG_CERT_REQD ) && ( (flags & PDU_FLAG_SECURE) == 0) )){
+	    fprintf(stderr, "1 Server wants CERT but client doesn't\n");
 	if( !__pmSockAddrIsLoopBack(cp->addr) && !__pmSockAddrIsUnix(cp->addr)){
+	    fprintf(stderr, "2 Server wants CERT but client doesn't\n");
 	    return PM_ERR_PERMISSION;
 	}
     }
 
+    /* Does this connection require a cert, but the feature is not on by default? */
+    if( (cp->server_features & PDU_FLAG_CERT_REQD) && !__pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD) ){
+	toggle_cert_required = 1;
+    }
+
+    /*
+     * If the server advertises PDU_FLAG_CERT_REQD, add it to flags
+     * so we can setup the connection properly with the client.
+     * The client should have errored out in the initial handshake if it
+     * didn't support secure connections, so we should only end up
+     * here if both client and server support this.
+     */
+
+    if( (cp->server_features & PDU_FLAG_CERT_REQD) )
+	flags |= PDU_FLAG_CERT_REQD;
+
     /* need to ensure both the pmcd and client channel use flags */
 
-    if (sts >= 0 && flags)
+    if (sts >= 0 && flags){
+	if(toggle_cert_required){
+		fprintf(stderr, "Toggle ON\n");
+		__pmServerSetFeature(PM_SERVER_FEATURE_CERT_REQD);
+	}
+
 	sts = __pmSecureServerHandshake(cp->fd, flags, &attrs);
+
+	if(toggle_cert_required){
+		fprintf(stderr, "Toggle OFF\n");
+		__pmServerClearFeature(PM_SERVER_FEATURE_CERT_REQD);
+	}
+    }
 
     /* send credentials PDU through to pmcd now (order maintained) */
     if (sts >= 0)
@@ -248,6 +288,17 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
 					hostname, &attrs);
    
     return sts;
+}
+
+__pmPDUInfo
+__ntohpmPDUInfo(__pmPDUInfo info)
+{
+    unsigned int        x;
+
+    x = ntohl(*(unsigned int *)&info);
+    info = *(__pmPDUInfo *)&x;
+
+    return info;
 }
 
 /* Determine which clients (if any) have sent data to the server and handle it
@@ -275,6 +326,7 @@ HandleInput(__pmFdSet *fdsPtr)
 
 	/* We *must* see a credentials PDU as the first PDU */
 	if (!cp->status.allowed) {
+	    fprintf(stderr, "credentials PDU\n");
 	    sts = VerifyClient(cp, pb);
 	    __pmUnpinPDUBuf(pb);
 	    if (sts < 0) {
@@ -305,15 +357,34 @@ HandleInput(__pmFdSet *fdsPtr)
 
 	//minnus
 	if( !cp->status.allowed ){
-		fprintf(stderr,"Got a server PDU for an uninited client. sts: %d\n", sts);	
+				//cp->server_features |= PDU_FLAG_CERT_REQD;
+	    fprintf(stderr,"*Got a server PDU for an uninited client. sts: %d\n", sts);	
 		//if sts == PDU_ERROR I gues this is the "features" message we need to unpack
 		// examine if it has PM_SERVER_FEATURE_CERT_REQD and modify our connection accordingly
 		// Probably can;t store this in the *Feature stuff because it could change by connection.
 		// store it in cp?
 		// And then to a set/clear around the secure handshake calls???
-	}
-	if( sts == PDU_ERROR){
-		fprintf(stderr,"Got an error PDU for an uninited client\n");	
+	    if( /*0*/ sts == PDU_ERROR){
+		fprintf(stderr,"*Got an error pdu for an uninited client\n");	
+		int         version;
+		int         challenge;
+		__pmPDUInfo         pduinfo;
+		unsigned int server_features;
+		int		lsts;
+		version = __pmDecodeXtendError(pb, &lsts, &challenge);
+		if( version >= 0 && version == PDU_VERSION2  && lsts >=0 ){
+			pduinfo = __ntohpmPDUInfo(*(__pmPDUInfo *)&challenge);
+			server_features = pduinfo.features;
+			fprintf(stderr,"Got features: %d\n", server_features);
+			if( server_features & PDU_FLAG_CERT_REQD ){
+				/* Add as a server feature */
+				cp->server_features |= PDU_FLAG_CERT_REQD;
+				fprintf(stderr,"Setting PDU_FLAG_CERT_REQD for client connection\n");
+				
+			}
+		}
+
+	    }
 	}
 
 	if (sts <= 0) {

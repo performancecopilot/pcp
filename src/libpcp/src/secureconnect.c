@@ -279,8 +279,10 @@ saveUserCertificate(CERTCertificate *cert)
     PK11SlotInfo *slot = PK11_GetInternalKeySlot();
     CERTCertTrust *trust = NULL;
 
+fprintf(stderr, "Saving cert. Subject: %s\n", cert->subjectName);
+
     secsts = PK11_ImportCert(slot, cert, CK_INVALID_HANDLE,
-				SECURE_SERVER_CERTIFICATE, PR_FALSE);
+				/*SECURE_SERVER_CERTIFICATE*/cert->subjectName, PR_FALSE);
     if (secsts != SECSuccess)
 	goto done;
 
@@ -1314,7 +1316,11 @@ __pmSecureServerIPCFlags(int fd, int flags)
 	}
 
 	//RequestClientCert = ( (getenv("PMCD_REQUIRE_CLIENT_CERT") != NULL) || (getenv("PMPROXY_REQUIRE_CLIENT_CERT") != NULL)  )?PR_TRUE:PR_FALSE;
-	RequestClientCert = __pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD);
+	//RequestClientCert = __pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD);
+	//RequestClientCert = 1;
+	
+	RequestClientCert = (flags & PDU_FLAG_CERT_REQD);
+	// Need OR here with the has feature to support pmcd?
 
 	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUEST_CERTIFICATE, RequestClientCert);
 	if (secsts != SECSuccess) {
