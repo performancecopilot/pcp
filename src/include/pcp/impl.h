@@ -592,7 +592,7 @@ PCP_CALL extern void __pmConnectGetPorts(pmHostSpec *);
 /*
  * SSL/TLS/IPv6 support via NSS/NSPR.
  */
-PCP_CALL extern int __pmSecureServerSetup(const char *, const char *);
+PCP_CALL extern int __pmSecureServerSetup(const char *, const char *, const char *);
 PCP_CALL extern void __pmSecureServerShutdown(void);
 PCP_CALL extern int __pmSecureServerHandshake(int, int, __pmHashCtl *);
 PCP_CALL extern int __pmSecureClientHandshake(int, int, const char *, __pmHashCtl *);

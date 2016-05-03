@@ -33,6 +33,7 @@ static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*username;
 static char	*certdb;		/* certificate DB path (NSS) */
 static char	*dbpassfile;		/* certificate DB password file */
+static char     *cert_nickname;         /* Alternate nickname to use for server certificate */
 static char	*hostname;
 
 static void
@@ -127,6 +128,10 @@ ParseOptions(int argc, char *argv[], int *nports)
 	    /* log file name */
 	    logfile = opts.optarg;
 	    break;
+
+        case 'M':   /* nickname for the server cert. Use to query the nssdb */
+            cert_nickname = opts.optarg;
+            break;
 
 	case 'L': /* Maximum size for PDUs from clients */
 	    sts = (int)strtol(opts.optarg, NULL, 0);
@@ -615,7 +620,7 @@ main(int argc, char *argv[])
     /* lose root privileges if we have them */
     __pmSetProcessIdentity(username);
 
-    if (__pmSecureServerSetup(certdb, dbpassfile) < 0)
+    if (__pmSecureServerSetup(certdb, dbpassfile, cert_nickname) < 0)
 	DontStart();
 
     /* all the work is done here */

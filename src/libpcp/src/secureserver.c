@@ -25,6 +25,7 @@
 #include <sys/stat.h>
 
 #define MAX_NSSDB_PASSWORD_LENGTH	256
+#define MAX_CERT_NAME_LENGTH		256
 
 static struct {
     /* NSS certificate management */
@@ -35,6 +36,7 @@ static struct {
     char		database_path[MAXPATHLEN];
 
     unsigned int	server_features;
+    char		cert_nickname[MAX_CERT_NAME_LENGTH];
 
     /* status flags (bitfields) */
     unsigned int	initialized : 1;
@@ -233,7 +235,7 @@ serverdb(char *path, size_t size, char *db_method)
 }
 
 int
-__pmSecureServerSetup(const char *db, const char *passwd)
+__pmSecureServerSetup(const char *db, const char *passwd, const char *cert_nickname)
 {
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -252,6 +254,13 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 	strncpy(secure_server.database_path, db, MAXPATHLEN-2);
     }
 
+    if (cert_nickname) {
+	strncpy(secure_server.cert_nickname, cert_nickname, MAX_CERT_NAME_LENGTH-2);
+    }
+    else {
+	strncpy(secure_server.cert_nickname, SECURE_SERVER_CERTIFICATE, MAX_CERT_NAME_LENGTH-2);
+    }
+
     PM_UNLOCK(__pmLock_libpcp);
     return 0;
 }
@@ -259,7 +268,6 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 int
 __pmSecureServerInit(void)
 {
-    const char *nickname = SECURE_SERVER_CERTIFICATE;
     const PRUint16 *cipher;
     SECStatus secsts;
     int pathSpecified;
@@ -343,7 +351,7 @@ __pmSecureServerInit(void)
      */
     CERTCertList *certlist;
     CERTCertDBHandle *nssdb = CERT_GetDefaultCertDB();
-    CERTCertificate *dbcert = PK11_FindCertFromNickname(nickname, NULL);
+    CERTCertificate *dbcert = PK11_FindCertFromNickname(secure_server.cert_nickname, NULL);
 
     if (dbcert) {
 	PRTime now = PR_Now();
@@ -356,7 +364,7 @@ __pmSecureServerInit(void)
 		 !CERT_LIST_END(node, certlist);
 		 node = CERT_LIST_NEXT (node)) {
 		if (pmDebug & DBG_TRACE_CONTEXT)
-		    __pmDumpCertificate(stderr, nickname, node->cert);
+		    __pmDumpCertificate(stderr, secure_server.cert_nickname, node->cert);
 		if (!__pmValidCertificate(nssdb, node->cert, now))
 		    continue;
 		secure_server.certificate_verified = 1;
@@ -370,7 +378,7 @@ __pmSecureServerInit(void)
 	    secure_server.private_key = PK11_FindKeyByAnyCert(dbcert, NULL);
 	    if (!secure_server.private_key) {
 		__pmNotifyErr(LOG_ERR, "Unable to extract %s private key",
-				nickname);
+				secure_server.cert_nickname);
 		CERT_DestroyCertificate(dbcert);
 		secure_server.certificate_verified = 0;
 		sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
@@ -378,7 +386,7 @@ __pmSecureServerInit(void)
 		goto done;
 	    }
 	} else {
-	    __pmNotifyErr(LOG_ERR, "Unable to find a valid %s", nickname);
+	    __pmNotifyErr(LOG_ERR, "Unable to find a valid %s", secure_server.cert_nickname);
 	    CERT_DestroyCertificate(dbcert);
 	    sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
 	    secure_server.init_failed = 1;
@@ -389,7 +397,7 @@ __pmSecureServerInit(void)
     if (! secure_server.certificate_verified) {
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    __pmNotifyErr(LOG_INFO, "No valid %s in security database: %s",
-			  nickname, secure_server.database_path);
+			  secure_server.cert_nickname, secure_server.database_path);
 	}
 	sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
 	secure_server.init_failed = 1;

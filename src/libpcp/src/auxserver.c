@@ -865,10 +865,11 @@ __pmServerRequestPortString(int fd, char *buffer, size_t sz)
 #if !defined(HAVE_SECURE_SOCKETS)
 
 int
-__pmSecureServerSetup(const char *db, const char *passwd)
+__pmSecureServerSetup(const char *db, const char *passwd, const char *cert_nickname)
 {
     (void)db;
     (void)passwd;
+    (void)cert_nickname;
     return 0;
 }
 

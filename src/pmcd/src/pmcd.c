@@ -41,6 +41,7 @@ static char	*pmnsfile = PM_NS_DEFAULT;
 static char	*username;
 static char	*certdb;		/* certificate database path (NSS) */
 static char	*dbpassfile;		/* certificate database password file */
+static char	*cert_nickname;		/* Alternate nickname to use for server certificate */
 static int	dupok = 1;		/* set to 0 for -N pmnsfile */
 static char	sockpath[MAXPATHLEN];	/* local unix domain socket path */
 
@@ -114,7 +115,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_POSIX,
-    .short_options = "Ac:C:D:fH:i:l:L:N:n:p:P:q:Qs:St:T:U:x:?",
+    .short_options = "Ac:C:D:fH:i:l:L:MN:n:p:P:q:Qs:St:T:U:x:?",
     .long_options = longopts,
 };
 
@@ -183,6 +184,10 @@ ParseOptions(int argc, char *argv[], int *nports)
 		} else {
 		    __pmSetPDUCeiling(val);
 		}
+		break;
+
+	    case 'M':	/* nickname for the server cert. Use to query the nssdb */
+		cert_nickname = opts.optarg;
 		break;
 
 	    case 'N':
@@ -944,7 +949,7 @@ main(int argc, char *argv[])
 	    DontStart();
     }
 
-    if (__pmSecureServerSetup(certdb, dbpassfile) < 0)
+    if (__pmSecureServerSetup(certdb, dbpassfile, cert_nickname) < 0)
 	DontStart();
 
     PrintAgentInfo(stderr);
