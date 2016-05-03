@@ -1315,12 +1315,14 @@ __pmSecureServerIPCFlags(int fd, int flags)
 	    return sts;
 	}
 
-	//RequestClientCert = ( (getenv("PMCD_REQUIRE_CLIENT_CERT") != NULL) || (getenv("PMPROXY_REQUIRE_CLIENT_CERT") != NULL)  )?PR_TRUE:PR_FALSE;
-	//RequestClientCert = __pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD);
-	//RequestClientCert = 1;
-	
-	RequestClientCert = (flags & PDU_FLAG_CERT_REQD);
-	// Need OR here with the has feature to support pmcd?
+	/*
+ 	 * If called from pmcd, the server may have the feature set by a command line option.
+ 	 *
+ 	 * If called from pmproxy, "flags" is set if required by an upstream pmcd. Need 
+ 	 * to forward this through to the client.
+ 	 */
+
+	RequestClientCert = ( __pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD) || (flags & PDU_FLAG_CERT_REQD) );
 
 	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUEST_CERTIFICATE, RequestClientCert);
 	if (secsts != SECSuccess) {
