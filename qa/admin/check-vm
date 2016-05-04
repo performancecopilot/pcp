@@ -195,7 +195,7 @@ dpkg?	dh_autotools-dev_updateconfig	[autotools-dev]
 dpkg?	/usr/share/doc/build-essential	[build-essential]
 dpkg?	dh				[debhelper]
 dpkg?	/usr/bin/dh_pypy		[dh-python]
-dpkg?	/usr/share/doc/python-all-dev	[python-all-dev]
+dpkg?	/usr/share/doc/python3-all-dev	[python3-all-dev]
 # -- pkg-config
 dpkg?		/usr/share/doc/pkg-config		[pkg-config]
 pkgin?		/usr/pkg/share/doc/pkg-config		[pkg-config]
@@ -306,8 +306,10 @@ pkgin?	Date::Parse		[p5-TimeDate]
 pkg_add?	Date::Parse	[from cpan]
 # -- Getopt::Std
 Getopt::Std			[base Perl]
+# -- ExtUtils::AutoInstall
+dpkg?	ExtUtils::AutoInstall	[libextutils-autoinstall-perl]
 # -- ExtUtils::MakeMaker
-dpkg?	ExtUtils::MakeMaker	[libextutils-autoinstall-perl]
+dpkg?	ExtUtils::MakeMaker	[perl-modules]
 rpm?	ExtUtils::MakeMaker	[perl-ExtUtils-MakeMaker or 'perl(ExtUtils::MakeMaker)']
 emerge?	ExtUtils::MakeMaker	[dev-lang/perl]
 pkgin?	ExtUtils::MakeMaker	[perl]
@@ -694,7 +696,7 @@ then
     # Debian based
     #
     dpkg -l >$tmp.tmp
-    for pkg in python-all python-all-dev
+    for pkg in python3-all python3-all-dev
     do
 	if grep "^ii *$pkg" <$tmp.tmp >/dev/null
 	then
