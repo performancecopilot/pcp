@@ -83,7 +83,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "A:C:D:fi:l:L:p:P:U:x:?",
+    .short_options = "A:C:D:fi:l:L:M:p:P:U:x:?",
     .long_options = longopts,
 };
 

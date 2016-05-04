@@ -115,7 +115,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_POSIX,
-    .short_options = "Ac:C:D:fH:i:l:L:MN:n:p:P:q:Qs:St:T:U:x:?",
+    .short_options = "Ac:C:D:fH:i:l:L:M:N:n:p:P:q:Qs:St:T:U:x:?",
     .long_options = longopts,
 };
 
