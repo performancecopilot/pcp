@@ -668,8 +668,11 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 		cp->pduInfo.features |= PDU_FLAG_COMPRESS;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_AUTH))       /*optional*/
 		cp->pduInfo.features |= PDU_FLAG_AUTH;
-            if (__pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD))  /*required*/
-                cp->pduInfo.features |= PDU_FLAG_CERT_REQD;
+            if (__pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD)){  /*required for remote connections only*/
+		if( !__pmSockAddrIsLoopBack(cp->addr) && !__pmSockAddrIsUnix(cp->addr)){
+                    cp->pduInfo.features |= PDU_FLAG_CERT_REQD;
+		}
+	    }
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) /*required*/
 		cp->pduInfo.features |= PDU_FLAG_CREDS_REQD;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CONTAINERS))

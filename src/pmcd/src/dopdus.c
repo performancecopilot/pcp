@@ -1128,9 +1128,10 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
     if (sts >= 0 && version)
 	sts = __pmSetVersionIPC(cp->fd, version);
 
-    if( ( (getenv("PMCD_REQUIRE_CLIENT_CERT") != NULL ) && (flags & PDU_FLAG_SECURE) == 0 )){
+    /* Not sure if this will ever be hit. All cases checked during handshake? */
+    if( ( __pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD) && (flags & PDU_FLAG_SECURE) == 0 )){
 	if( !__pmSockAddrIsLoopBack(cp->addr) && !__pmSockAddrIsUnix(cp->addr)){
-	    return PM_ERR_PERMISSION;
+	    return PM_ERR_NEEDCLIENTCERT;
 	}
     }
 

@@ -111,7 +111,7 @@ check_feature_flags(int ctxflags, int features)
 	pduflags |= PDU_FLAG_CERT_REQD;
 	if( !(ctxflags & PM_CTXFLAG_SECURE) ){
 		/* PMCD requires a client cert, but we are not even setup for secure connections */
-		return -PM_ERR_NEEDCLIENTCERT;
+		return PM_ERR_NEEDCLIENTCERT;
 	}
      }
 
