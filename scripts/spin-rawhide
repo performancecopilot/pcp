@@ -89,10 +89,8 @@ if [ ! -z $VECTOR ]; then
     cd ..
     # git clone git@github.com:netflix/vector.git vector
     git clone https://github.com/Netflix/vector.git vector
-    cd vector && rm -rf node_modules/
-    npm install || fail_and_bail "npm install failed in" `pwd`
-    bower install || fail_and_bail "bower install failed in" `pwd`
-    gulp build || fail_and_bail "gulp build failed in" `pwd`
+    cd vector
+    ../pcp-git/scripts/build-vector
     VECTOR_GIT_DESCRIBE=`git describe | rev | cut -f1 -d"g" | rev`
     VECTOR=`echo vector-${TAG_DATE}git${VECTOR_GIT_DESCRIBE}.tar.gz`
     cd dist && tar czf ../../pcp/$VECTOR *

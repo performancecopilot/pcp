@@ -372,7 +372,10 @@ third_parties()
 	if [ -f "$SRCVECTOR" ]
 	then
 	    DESTVECTOR="$SRCTREE/build/tar/"`basename "$SRCVECTOR"`
-	    cp "$SRCVECTOR" "$DESTVECTOR"
+	    mkdir $tmp/vector && pushd $tmp/vector && $TAR -zxf "$SRCVECTOR"
+	    $topdir/scripts/build-vector
+	    cd dist && $TAR -czf "$DESTVECTOR" *
+	    popd
 	fi
     fi
 
