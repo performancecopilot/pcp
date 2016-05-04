@@ -8,6 +8,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+. ./common.check
+. ./common.setup
+[ -f common.python ] || _notrun "No python bindings installed"
+
 . ./common.python
 
 $python -c "from pcp import pmapi" >/dev/null 2>&1

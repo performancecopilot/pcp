@@ -10,6 +10,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+. ./common.check
+. ./common.setup
+[ -f common.python ] || _notrun "Testsuite built without python support"
+
 . ./common.python
 pyclient="$PCP_DEMOS_DIR/pmclient/pmclient_fg.python"
 [ -f $pyclient ] || _notrun "No $pyclient installed"
