@@ -900,7 +900,7 @@ pmNewContext(int type, const char *name)
     int		sts;
     int		old_curcontext;
     /* A pointer to this stub object is put in contexts[] while a real __pmContext is being built. */
-    static /*const*/ __pmContext being_initialized = { {}, PM_CONTEXT_INIT };
+    static /*const*/ __pmContext being_initialized = { .c_type = PM_CONTEXT_INIT };
 
     PM_INIT_LOCKS();
 
