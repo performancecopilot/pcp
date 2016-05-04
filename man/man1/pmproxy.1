@@ -24,6 +24,7 @@
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1 \f2bytes\f1]
+[\f3\-M\f1 \f2certname\f1]
 [\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]
 [\f3\-P\f1 \f2passfile\f1]
 [\f3\-U\f1 \f2username\f1]
@@ -154,6 +155,13 @@ Service attacks.  The
 option may be used to change the maximum incoming 
 .I PDU 
 size.
+.TP
+\f3\-M\f1 \f2certname\f1
+By default, pmproxy will try to use a certificate called
+.B "PCP Collector certificate"
+in its server role. The
+.B \-M
+option allows this to be changed.
 .TP
 \f3\-P\f1 \f2passfile\f1
 Specify the path to a file containing the Network Security Services certificate
