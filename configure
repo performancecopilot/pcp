@@ -5622,7 +5622,7 @@ pm_version_current=`awk </dev/null "BEGIN { print (${PACKAGE_MAJOR}*256+${PACKAG
 
 ac_config_headers="$ac_config_headers src/include/pcp/config.h src/include/pcp/configsz.h"
 
-ac_config_files="$ac_config_files src/include/pcp/platform_defs.h"
+ac_config_files="$ac_config_files src/include/pcp/platform_defs.h src/include/pcp/platformsz.h"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -6316,6 +6316,7 @@ do
     "src/include/pcp/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/config.h" ;;
     "src/include/pcp/configsz.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/configsz.h" ;;
     "src/include/pcp/platform_defs.h") CONFIG_FILES="$CONFIG_FILES src/include/pcp/platform_defs.h" ;;
+    "src/include/pcp/platformsz.h") CONFIG_FILES="$CONFIG_FILES src/include/pcp/platformsz.h" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
@@ -15818,6 +15819,7 @@ do
     "src/include/pcp/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/config.h" ;;
     "src/include/pcp/configsz.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/configsz.h" ;;
     "src/include/pcp/platform_defs.h") CONFIG_FILES="$CONFIG_FILES src/include/pcp/platform_defs.h" ;;
+    "src/include/pcp/platformsz.h") CONFIG_FILES="$CONFIG_FILES src/include/pcp/platformsz.h" ;;
     "src/include/builddefs") CONFIG_FILES="$CONFIG_FILES src/include/builddefs" ;;
     "src/include/pcp.conf") CONFIG_FILES="$CONFIG_FILES src/include/pcp.conf" ;;
     "pcp.lsm") CONFIG_FILES="$CONFIG_FILES pcp.lsm" ;;

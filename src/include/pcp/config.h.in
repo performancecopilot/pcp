@@ -639,6 +639,9 @@ enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
 #define netstrerror_r(buf, len)	pmErrStr_r(-WSAGetLastError(), buf, len)
 #define hoststrerror()	strerror(WSAGetLastError())
 
+PCP_CALL extern int setenv(const char *, const char *, int);
+PCP_CALL extern int unsetenv(const char *);
+
 #else /*!MINGW*/
 #define PCP_DATA
 #define PCP_CALL

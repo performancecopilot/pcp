@@ -243,10 +243,6 @@ case "$target"
 in
     mingw|mingw64|windows)
 	target=mingw
-	if $dorpm
-	then
-	    echo >&2 "Warning: --dorpm ignored for Windows build"
-	fi
 	dorpm=false
 	configopts="$configopts --disable-ssp"
 	export configure="/usr/bin/mingw64-configure"
