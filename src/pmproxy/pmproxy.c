@@ -290,7 +290,7 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
     if (sts >= 0 && flags)
 	sts = __pmSecureClientHandshake(cp->pmcd_fd,
 					flags | PDU_FLAG_NO_NSS_INIT,
-					hostname, &attrs);
+					cp->pmcd_hostname, &attrs);
    
     return sts;
 }
