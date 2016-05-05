@@ -123,7 +123,8 @@ discovery.o
 checksum.o
 config.o
     ?__pmNativeConfig		# const
-    state			# guarded by __pmLock_libpcp mutex
+    state_lock                  # guards
+    state			# ... this
     ?features			# const
 connectlocal.o
     atexit_installed		# guarded by __pmLock_libpcp mutex
@@ -231,8 +232,9 @@ lock.o
     ?init			# local __pmInitLocks mutex
     ?done			# guarded by local __pmInitLocks mutex
     ?__pmTPDKey			# one-trip initialization then read-only
-    ?multi_init			# guarded by __pmLock_libpcp mutex
-    ?multi_seen			# guarded by __pmLock_libpcp mutex
+    ?multi_lock			# guard for
+    ?multi_init			# ... this
+    ?multi_seen			# ... and this
     ?hashctl			# for lock debug tracing
     ?__pmTPDKey			# if don't have __thread support
 logconnect.o
