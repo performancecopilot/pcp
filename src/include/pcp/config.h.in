@@ -602,6 +602,7 @@ PCP_CALL extern long int lrand48(void);
 PCP_CALL extern void srand48(long int);
 PCP_CALL extern long int random(void);
 PCP_CALL extern void srandom(unsigned int);
+PCP_CALL extern int setenv(const char *, const char *, int);
 
 #ifdef HAVE_STRUCT_TIMESPEC
 /*

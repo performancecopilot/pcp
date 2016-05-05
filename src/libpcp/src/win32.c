@@ -780,3 +780,25 @@ __pmGetUserIdentity(const char *username, __pmUserID *uid, __pmGroupID *gid, int
 {
     return -ENOTSUP;	/* NYI */
 }
+
+int
+setenv(const char *name, const char *value, int overwrite)
+{
+    char	*ebuf;
+
+    if (getenv(name) != NULL) {
+	/* already in the environment */
+	if (!overwrite)
+	    return(0);
+    }
+
+    if ((ebuf = (char *)malloc(strlen(name) + strlen(value) + 2)) == NULL)
+	return -1;
+
+    strncpy(ebuf, name, strlen(name));
+    strncat(ebuf, "=", 1);
+    strncat(ebuf, value, strlen(value));
+
+    return _putenv(ebuf);
+}
+
