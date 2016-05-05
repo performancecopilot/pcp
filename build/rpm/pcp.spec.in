@@ -2425,6 +2425,7 @@ fi
 %post
 PCP_PMNS_DIR=@pcp_var_dir@/pmns
 PCP_LOG_DIR=@pcp_log_dir@
+PCP_CONFIG_DIR=@pcp_var_dir@/config
 # restore saved configs, if any
 test -s "$PCP_LOG_DIR/configs.sh" && source "$PCP_LOG_DIR/configs.sh"
 rm -f $PCP_LOG_DIR/configs.sh
