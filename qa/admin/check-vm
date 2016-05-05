@@ -195,6 +195,7 @@ dpkg?	dh_autotools-dev_updateconfig	[autotools-dev]
 dpkg?	/usr/share/doc/build-essential	[build-essential]
 dpkg?	dh				[debhelper]
 dpkg?	/usr/bin/dh_pypy		[dh-python]
+dpkg?	/usr/share/doc/python-all-dev	[python-all-dev]
 dpkg?	/usr/share/doc/python3-all-dev	[python3-all-dev]
 # -- pkg-config
 dpkg?		/usr/share/doc/pkg-config		[pkg-config]
@@ -378,6 +379,7 @@ pkg_add?	Net::SNMP	[p5-Net-SNMP]
 # other run-time
 #
 # -- time(1)
+dpkg?	time			[time]
 rpm?	time			[time]
 emerge?	time			[sys-process/time]
 pkgin?	time			[base NetBSD install]
@@ -696,7 +698,7 @@ then
     # Debian based
     #
     dpkg -l >$tmp.tmp
-    for pkg in python3-all python3-all-dev
+    for pkg in python-all python-all-dev python3-all python3-all-dev
     do
 	if grep "^ii *$pkg" <$tmp.tmp >/dev/null
 	then
