@@ -443,7 +443,7 @@ dohelp(int command, int full)
 		break;
 	    case WATCH:
 		puts(
-"A xwsh window is opened which tails the specified log file.  This window\n"
+"An xterm window is opened which tails the specified log file.  This window\n"
 "must be closed by the user when no longer required.\n");
 		break;
 	    case WAIT:

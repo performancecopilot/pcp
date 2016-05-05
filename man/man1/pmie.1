@@ -330,7 +330,7 @@ If the high context switch rate is sustained for 10 consecutive samples,
 then launch
 .BR top (1)
 in an
-.BR xwsh (1)
+.BR xterm (1)
 window to monitor processes, but do this at most once every 5 minutes:
 .P
 .ft CW
@@ -338,7 +338,7 @@ window to monitor processes, but do this at most once every 5 minutes:
 .in +0.5i
 all_sample (
     kernel.all.pswitch @0..9 > 10 Kcount/sec * hinv.ncpu
-) -> shell 5 min "xwsh \-e 'top'";
+) -> shell 5 min "xterm \-e 'top'";
 .in
 .fi
 .ft 1
