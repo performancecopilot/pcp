@@ -200,7 +200,11 @@ binary-arch: checkroot build-stamp
 	dh_installdocs
 	dh_installchangelogs
 	dh_link
-	dh_strip
+	# Note: --no-automatic-dbgsym not defined for all releases up to
+	# 	and including Debian 8 (jessie), but defined after that
+	# 	... expect a warning on older releases, but no other ill
+	# 	effects from the unknown option
+	dh_strip --no-automatic-dbgsym
 	dh_compress
 	dh_fixperms -X/tmp
 	dh_installdirs
