@@ -14,6 +14,13 @@ Source1: vector.tar.gz
 # https://github.com/performancecopilot/pcp-webjs/archive/x.y.z.tar.gz
 Source2: pcp-webjs.src.tar.gz
 
+# There are no perl-Net-SNMP packages in rhel, disable unless epel5
+%if 0%{?rhel} == 0 || 0%{?rhel} < 6
+%global disable_snmp 0
+%else
+%global disable_snmp 1
+%endif
+
 # There are no papi/libpfm devel packages for s390 nor for some rhels, disable
 %ifarch s390 s390x
 %global disable_papi 1
@@ -33,7 +40,6 @@ Source2: pcp-webjs.src.tar.gz
 
 %global disable_microhttpd 0
 %global disable_cairo 0
-%global disable_snmp 0
 
 %global disable_python2 0
 # Default for epel5 is python24, so use the (optional) python26 packages
@@ -1034,6 +1040,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from the SLURM Workload Manager.
 #end pcp-pmda-slurm
 
+%if !%{disable_snmp}
 #
 # pcp-pmda-snmp
 #
@@ -1049,6 +1056,7 @@ Requires: perl(Net::SNMP)
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about SNMP.
 #end pcp-pmda-snmp
+%endif
 
 #
 # pcp-pmda-vmware
@@ -1469,13 +1477,16 @@ Requires: pcp-pmda-activemq pcp-pmda-bonding pcp-pmda-dbping pcp-pmda-ds389 pcp-
 Requires: pcp-pmda-elasticsearch pcp-pmda-gpfs pcp-pmda-gpsd pcp-pmda-kvm pcp-pmda-lustre
 Requires: pcp-pmda-memcache pcp-pmda-mysql pcp-pmda-named pcp-pmda-netfilter pcp-pmda-news
 Requires: pcp-pmda-nginx pcp-pmda-nfsclient pcp-pmda-pdns pcp-pmda-postfix pcp-pmda-postgresql pcp-pmda-oracle
-Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-snmp pcp-pmda-vmware pcp-pmda-zimbra
+Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm pcp-pmda-logger
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
+%endif
+%if !%{disable_snmp}
+Requires: pcp-pmda-snmp
 %endif
 %if !%{disable_json}
 Requires: pcp-pmda-json
@@ -1623,7 +1634,7 @@ rm -Rf $RPM_BUILD_ROOT
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_json}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_json} %{?_with_snmp}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -1926,8 +1937,10 @@ fi
 %preun pmda-elasticsearch
 %{pmda_remove "$1" "elasticsearch"}
 
+%if !%{disable_snmp}
 %preun pmda-snmp
 %{pmda_remove "$1" "snmp"}
+%endif
 
 %preun pmda-mysql
 %{pmda_remove "$1" "mysql"}
@@ -2461,8 +2474,10 @@ cd
 %files pmda-samba 
 %{_pmdasdir}/samba 
 
+%if !%{disable_snmp}
 %files pmda-snmp
 %{_pmdasdir}/snmp
+%endif
 
 %files pmda-slurm
 %{_pmdasdir}/slurm

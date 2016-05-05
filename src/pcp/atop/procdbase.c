@@ -29,7 +29,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
-#include <malloc.h>
 
 #include "atop.h"
 #include "photoproc.h"

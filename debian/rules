@@ -189,12 +189,12 @@ binary-arch: checkroot build-stamp
 	# need the make clean when more than one version of Python installed
 	# to ensure make install after the first version works
 	for V in $(shell pyversions -vr); do \
-	    $(pkgpcp_python2) $(MAKE) PYTHON=python$$V -C src/python install; \
 	    $(MAKE) -C src/python clean; \
+	    $(pkgpcp_python2) $(MAKE) PYTHON=python$$V -C src/python install_python2; \
 	done
 	for V in $(shell py3versions -vr); do \
-	    $(pkgpcp_python3) $(MAKE) PYTHON=python$$V -C src/python install; \
 	    $(MAKE) -C src/python clean; \
+	    $(pkgpcp_python3) $(MAKE) PYTHON=python$$V -C src/python install_python3; \
 	done
 
 	dh_installdocs

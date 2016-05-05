@@ -9198,7 +9198,7 @@ fi
 
 done
 
-for ac_header in unistd.h stddef.h stdlib.h sched.h dlfcn.h dl.h
+for ac_header in stddef.h sched.h dlfcn.h dl.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -9211,20 +9211,7 @@ fi
 
 done
 
-for ac_header in sys/time.h sys/times.h
-do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in sys/resource.h sys/prctl.h
+for ac_header in sys/times.h sys/resource.h sys/prctl.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -9263,7 +9250,7 @@ fi
 
 done
 
-for ac_header in libgen.h sys/param.h sys/mman.h sys/un.h
+for ac_header in libgen.h sys/mman.h sys/un.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"

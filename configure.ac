@@ -1447,12 +1447,11 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h syslog.h)
-AC_CHECK_HEADERS(unistd.h stddef.h stdlib.h sched.h dlfcn.h dl.h)
-AC_CHECK_HEADERS(sys/time.h sys/times.h)
-AC_CHECK_HEADERS(sys/resource.h sys/prctl.h)
+AC_CHECK_HEADERS(stddef.h sched.h dlfcn.h dl.h)
+AC_CHECK_HEADERS(sys/times.h sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(sys/sysinfo.h sys/systeminfo.h)
 AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h)
-AC_CHECK_HEADERS(libgen.h sys/param.h sys/mman.h sys/un.h)
+AC_CHECK_HEADERS(libgen.h sys/mman.h sys/un.h)
 AC_CHECK_HEADERS(values.h stdint.h ieeefp.h math.h)
 AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
 AC_CHECK_HEADERS(termio.h termios.h sys/termios.h)

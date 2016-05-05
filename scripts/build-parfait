@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# Build helper script for https://github.com/performancecopilot/parfait
+# 
+
+fail_and_bail()
+{
+    echo "Error: $@"
+    exit 1
+}
+
+# sanity checks
+for command in mvn
+do
+    which $command >/dev/null 2>&1 || fail_and_bail "$command not installed"
+done
+
+test -f site/images/parfait-layers.png || fail_and_bail "Not in a Parfait tree"
+
+mvn clean package install || fail_and_bail "mvn build failed in" `pwd`
+pushd parfait-agent
+mvn assembly:single || fail_and_bail "mvn parfait-agent assembly failed in" `pwd`
+popd
+mkdir lib 2>/dev/null
+cp parfait-agent/target/parfait-agent-jar-with-dependencies.jar lib/parfait.jar
