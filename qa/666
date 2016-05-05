@@ -19,7 +19,6 @@ $sudo rm -fr $tmp.dir
 $sudo rm -f $tmp.*
 rm -f $seq.full
 
-signal=$PCP_BINADM_DIR/pmsignal
 status=1	# failure is the default!
 hostname=`hostname`
 trap "_cleanup" 0 1 2 3 15
@@ -32,11 +31,10 @@ export PMCD_WAIT_TIMEOUT PMCD_CONNECT_TIMEOUT PMCD_RECONNECT_TIMEOUT
 
 _cleanup()
 {
-    if [ -n "$pid" ]; then $sudo kill $pid; fi
+    if [ -n "$pid" ]; then kill $pid; fi
     # restart pmcd and primary pmlogger
     $sudo $PCP_RC_DIR/pcp restart >>$seq.full 2>&1
     _wait_for_pmcd
-    _wait_for_pmlogger
     $sudo rm -fr $tmp.dir
     $sudo rm -f $tmp.*
     exit $status
@@ -69,8 +67,7 @@ date >>$seq.full
 echo "=== 1. prepare blank pmmgr config directory  ===" | tee -a $seq.full
 $sudo rm -rf $tmp.dir
 mkdir $tmp.dir
-$sudo chown pcp:pcp $tmp.dir
-$sudo chmod 777 $tmp.dir
+chmod 777 $tmp.dir
 ls -ld $tmp.dir >>$seq.full
 
 date >>$seq.full
@@ -82,17 +79,12 @@ echo 'localhost6' >>$tmp.dir/target-host
 echo 'pcp://localhost6:44321/' >>$tmp.dir/target-host
 echo 0 > $tmp.dir/target-threads
 # note -v -v here is the same as -D appl0,appl1
-$sudo $_valgrind_clean_assert $PCP_BINADM_DIR/pmmgr -v -v -p 5 -l $tmp.out -c $tmp.dir >$tmp.valout 2>$tmp.valerr &
-# this is the sudo's pid
-ppid=$!
-echo "ppid=$ppid" >>$seq.full
+$_valgrind_clean_assert $PCP_BINADM_DIR/pmmgr -v -v -p 6 -l $tmp.out -c $tmp.dir >$tmp.valout 2>$tmp.valerr &
+pid=$!
+echo "pid=$pid" >>$seq.full
 # it takes a while for valgrind to get into gear sometimes ...
 #
 sleep 5
-# this is the valgrind's pid
-pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$3 == '"$ppid"' { print $2 }'`
-echo "pid=$pid" >>$seq.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep "$pid|$ppid" >>$seq.full
 
 date >>$seq.full
 echo "=== 3. look for pmmgr starting no daemons ===" | tee -a $seq.full
@@ -116,24 +108,23 @@ echo "=== 5. restart pmcd a few times to get a bunch of pmlogger archives ===" |
 for x in 1 2 3 4
 do
     echo restart $x `date` >>$seq.full
-    $sudo rm -f $tmp.dir/$hostname/config.pmie $tmp.dir/$hostname/config.pmlogger
+    rm -f $tmp.dir/$hostname/config.pmie $tmp.dir/$hostname/config.pmlogger
     $sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
     _wait_for_pmcd
     i=0;
-    # wait up to 60ish seconds for pm*conf to run
-    while [ $i -lt 19 ]; do
+    # wait up to 300ish seconds for pm*conf to run
+    while [ $i -lt 100 ]; do
 	rm -f $tmp.ok
         i=`expr $i + 1`
 	echo "pmlogger & pmie probe #$i `date`" >>$seq.full
-	if pminfo -f pmcd.pmlogger.archive | tee -a $seq.full | grep $tmp.dir/$hostname/archive- >/dev/null
-	then
-	    # our pmlogger has started ...
-	    if pminfo -f pmcd.pmie.configfile | tee -a $seq.full | grep $tmp.dir/$hostname/config.pmie >/dev/null
-	    then
-		# our pmie has started ...
-		touch $tmp.ok
-		break
-	    fi
+        ls -l $tmp.dir/$hostname/config.pmlogger $tmp.dir/$hostname/config.pmie >>$seq.full 2>/dev/null
+        # NB: shan't check through pminfo pmcd.*, since these daemons run unprivileged
+        # under the pcpqa userid and may not have permission to write into the
+        # pmcd-pmda pid directories.
+        if [ -s $tmp.dir/$hostname/config.pmlogger -a -s $tmp.dir/$hostname/config.pmie ]; then
+	    # our babies have been born ...
+	    touch $tmp.ok
+	    break
 	fi
         sleep 3
     done
@@ -141,13 +132,12 @@ do
     then
 	echo "Arrg, failed to start pmlogger and pmie at iteration $x"
 	ls -lR $tmp.dir
-	pminfo -f pmcd.pmlogger pmcd.pmie
     fi
 
     $sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
     sleep 10 # pmmgr daemon shutdown
-    [ -f $tmp.dir/$hostname/pmlogger.log ] && $sudo mv $tmp.dir/$hostname/pmlogger.log $tmp.dir/$hostname/pmlogger-$x.log
-    [ -f $tmp.dir/$hostname/pmie.log ] && $sudo mv $tmp.dir/$hostname/pmie.log $tmp.dir/$hostname/pmie-$x.log
+    [ -f $tmp.dir/$hostname/pmlogger.log ] && mv $tmp.dir/$hostname/pmlogger.log $tmp.dir/$hostname/pmlogger-$x.log
+    [ -f $tmp.dir/$hostname/pmie.log ] && mv $tmp.dir/$hostname/pmie.log $tmp.dir/$hostname/pmie-$x.log
 done
 
 date >>$seq.full
@@ -261,15 +251,15 @@ grep . $tmp.dir/$hostname/monitor-* >> $seq.full
 
 date >>$seq.full
 echo "=== ZZZ kill pmmgr ===" | tee -a $seq.full
-$sudo kill $pid $ppid
+kill $pid
 sleep 4 # under valgrind this can take some time
-if $sudo kill -0 $pid >/dev/null 2>&1
+if kill -0 $pid >/dev/null 2>&1
 then
-    echo "valgrind pmmgr (pid=$pid ppid=$ppid) did not die, try harder ..." >>$seq.full
-    $sudo kill -KILL $pid $ppid >/dev/null 2>&1
-    if $sudo kill -0 $pid >/dev/null 2>&1
+    echo "valgrind pmmgr (pid=$pid) did not die, try harder ..." >>$seq.full
+    kill -KILL $pid >/dev/null 2>&1
+    if kill -0 $pid >/dev/null 2>&1
     then
-	echo "valgrind pmmgr (pid=$pid ppid=$ppid) will not die!" >>$seq.full
+	echo "valgrind pmmgr (pid=$pid) will not die!" >>$seq.full
     fi
 fi
 pid=
