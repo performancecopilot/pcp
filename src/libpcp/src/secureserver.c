@@ -312,7 +312,19 @@ __pmSecureServerInit(void)
     else
 	pathSpecified = 1;
 
-    secsts = NSS_Init(secure_server.database_path);
+    /*
+     * pmproxy acts as both a client and server. Since the
+     * server init path happens first, the db previously
+     * got opened readonly.  Instead try to open RW.
+     * Any downside to doing this by default?
+     * Should this be conditional on something?
+     */
+
+    secsts = NSS_InitReadWrite(secure_server.database_path);
+
+    if( secsts != SECSuccess )
+    	secsts = NSS_Init(secure_server.database_path);
+
     if (secsts != SECSuccess && !pathSpecified) {
 	/* fallback, older versions of NSS do not support sql: */
 	serverdb(secure_server.database_path, MAXPATHLEN, "");
