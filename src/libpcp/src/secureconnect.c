@@ -185,6 +185,7 @@ dbpath(char *path, size_t size, char *db_method)
     const char *empty_homedir = "";
     char *homedir = getenv("HOME");
     char *nss_method = getenv("PCP_SECURE_DB_METHOD");
+    char *nss_dir = getenv("PCP_SECURE_DB_PATH");
 
     if (homedir == NULL)
 	homedir = (char *)empty_homedir;
@@ -196,8 +197,14 @@ dbpath(char *path, size_t size, char *db_method)
      * Return a pointer to the filesystem path component - without
      * the <method>:-prefix - for other routines to work with.
      */
-    snprintf(path, size, "%s%s" "%c" ".pki" "%c" "nssdb",
+    if (nss_dir == NULL){
+    	snprintf(path, size, "%s%s" "%c" ".pki" "%c" "nssdb",
 		nss_method, homedir, sep, sep);
+    }
+    else{
+    	snprintf(path, size, "%s%s", nss_method, nss_dir);
+
+    }
     return path + strlen(nss_method);
 }
 
