@@ -79,7 +79,7 @@ __pmSecureServerHasFeature(__pmServerFeature query)
 	sts = 1;
 	break;
     case PM_SERVER_FEATURE_CERT_REQD:
-	sts = secure_server.server_features & (1 << PM_SERVER_FEATURE_CERT_REQD);
+	sts = ( (secure_server.server_features & (1 << PM_SERVER_FEATURE_CERT_REQD)) != 0 );
 	break;
     default:
 	break;
