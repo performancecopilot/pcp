@@ -29,9 +29,6 @@ typedef struct {
 #define PM_LOCK_OP	1
 #define PM_UNLOCK_OP	2
 
-static int		multi_init[PM_SCOPE_MAX+1];
-static pthread_t	multi_seen[PM_SCOPE_MAX+1];
-
 /* the big libpcp lock */
 #ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 pthread_mutex_t	__pmLock_libpcp = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
@@ -146,8 +143,11 @@ __pmMultiThreaded(int scope)
 {
     int		sts = 0;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    static int		multi_init[PM_SCOPE_MAX+1];
+    static pthread_t	multi_seen[PM_SCOPE_MAX+1];
+    static pthread_mutex_t multi_lock = PTHREAD_MUTEX_INITIALIZER;
+
+    PM_LOCK(multi_lock);
     if (!multi_init[scope]) {
 	multi_init[scope] = 1;
 	multi_seen[scope] = pthread_self();
@@ -156,7 +156,7 @@ __pmMultiThreaded(int scope)
 	if (!pthread_equal(multi_seen[scope], pthread_self()))
 	    sts = 1;
     }
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(multi_lock);
     return sts;
 }
 
