@@ -286,10 +286,8 @@ saveUserCertificate(CERTCertificate *cert)
     PK11SlotInfo *slot = PK11_GetInternalKeySlot();
     CERTCertTrust *trust = NULL;
 
-fprintf(stderr, "Saving cert. Subject: %s\n", cert->subjectName);
-
     secsts = PK11_ImportCert(slot, cert, CK_INVALID_HANDLE,
-				/*SECURE_SERVER_CERTIFICATE*/cert->subjectName, PR_FALSE);
+				cert->subjectName, PR_FALSE);
     if (secsts != SECSuccess)
 	goto done;
 
