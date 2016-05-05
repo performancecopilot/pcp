@@ -602,7 +602,6 @@ PCP_CALL extern long int lrand48(void);
 PCP_CALL extern void srand48(long int);
 PCP_CALL extern long int random(void);
 PCP_CALL extern void srandom(unsigned int);
-PCP_CALL extern int setenv(const char *, const char *, int);
 
 #ifdef HAVE_STRUCT_TIMESPEC
 /*
@@ -639,6 +638,9 @@ enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
 #define netstrerror()		strerror(WSAGetLastError())
 #define netstrerror_r(buf, len)	pmErrStr_r(-WSAGetLastError(), buf, len)
 #define hoststrerror()	strerror(WSAGetLastError())
+
+PCP_CALL extern int setenv(const char *, const char *, int);
+PCP_CALL extern int unsetenv(const char *);
 
 #else /*!MINGW*/
 #define PCP_DATA

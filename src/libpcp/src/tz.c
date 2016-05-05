@@ -72,14 +72,8 @@ _popTZ(void)
 {
     if (savetz != NULL)
 	setenv("TZ", savetz, 1);
-    else {
-#ifndef IS_MINGW
+    else
 	unsetenv("TZ");
-#else
-	/* strange but true */
-	_putenv("TZ=");
-#endif
-    }
     tzset();
 
 #ifdef PCP_DEBUG

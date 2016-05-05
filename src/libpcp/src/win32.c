@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -802,3 +802,19 @@ setenv(const char *name, const char *value, int overwrite)
     return _putenv(ebuf);
 }
 
+int
+unsetenv(const char *name)
+{
+    char	*ebuf;
+    int		sts;
+
+    if ((ebuf = (char *)malloc(strlen(name) + 2)) == NULL)
+	return -1;
+
+    /* strange but true */
+    strncpy(ebuf, name, strlen(name));
+    strncat(ebuf, "=", 1);
+    sts = _putenv(ebuf);
+    free(ebuf);
+    return sts;
+}
