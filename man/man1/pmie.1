@@ -437,16 +437,17 @@ with your Oracle database:
 .in +0.5i
 // back to 30sec evaluations
 delta = 30 sec;
-db = "oracle.ptg1";
+sid = "ptg1";		# $ORACLE_SID setting
+lid = "223";		# latch ID from v$latch
+lru = "#'$sid/$lid cache buffers lru chain'";
 host = ":moomba.melbourne.sgi.com";
-lru = "#'cache buffers lru chain'";
-gets = "$db.latch.gets $host $lru";
-total = "$db.latch.gets $host $lru +
-         $db.latch.misses $host $lru +
-         $db.latch.immisses $host $lru";
+gets = "oracle.latch.gets $host $lru";
+total = "oracle.latch.gets $host $lru +
+         oracle.latch.misses $host $lru +
+         oracle.latch.immisses $host $lru";
 
 $total > 100 && $gets / $total < 0.2
--> alarm "high lru latch contention";
+-> alarm "high lru latch contention in database $sid";
 .in
 .fi
 .ft 1
