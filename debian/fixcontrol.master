@@ -6,9 +6,10 @@ tmp=/var/tmp/$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 
-# dh-python not always available
+# dh-python not always available, similarly for libpapi-dev and libpfm4-dev
 #
-rm -f $tmp.no
+rm -f $tmp.dh-python.no $tmp.libpapi-dev $tmp.libpfm4-dev
+
 if [ -f /etc/os-release ]
 then
     NAME=`sed -n -e 's/"//'g -e '/^NAME=/s/NAME=//p' </etc/os-release`
@@ -18,7 +19,7 @@ then
 	case "$VERSION_ID"
 	in
 	    7)
-		touch $tmp.no
+		touch $tmp.dh-python.no
 		;;
 	esac
     elif [ "$NAME" = "Ubuntu" ]
@@ -27,7 +28,9 @@ then
 	case "$VERSION_ID"
 	in
 	    12.04|12.10|13.04)
-		touch $tmp.no
+		touch $tmp.dh-python.no
+		touch $tmp.libpapi-dev.no
+		touch $tmp.libpfm4-dev.no
 		;;
 	esac
     fi
@@ -37,16 +40,19 @@ then
     case "$VERSION_ID"
     in
 	6.*)
-	    touch $tmp.no
+	    touch $tmp.dh-python.no
 	    ;;
     esac
 fi
 
-if [ -f $tmp.no ]
-then
-    echo "s/?{dh-python}//" >>$tmp.sed
-else
-    echo "s/?{dh-python}/, dh-python/" >>$tmp.sed
-fi
+for pkg in dh-python libpapi-dev libpfm4-dev
+do
+    if [ -f $tmp.$pkg.no ]
+    then
+	echo "s/?{$pkg}//" >>$tmp.sed
+    else
+	echo "s/?{$pkg}/$pkg,/" >>$tmp.sed
+    fi
+done
 
 sed -f $tmp.sed <control.master
