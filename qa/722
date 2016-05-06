@@ -9,6 +9,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+. ./common.check
+. ./common.setup
+[ -f common.python ] || _notrun "Testsuite built without python support"
+
 . ./common.python
 
 [ -n "$PCP_PYTHON_PROG" ] || _notrun "no acceptable python to run src/test_set_source.python"

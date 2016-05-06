@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -71,12 +71,13 @@ static pmLongOptions longopts[] = {
     { "timeout", 1, 't', "N.N", "timeout in seconds" },
     PMAPI_OPTIONS_HEADER("Reporting options"),
     { "quiet", 0, 'q', 0, "quiet mode, do not write to stdout" },
+    PMOPT_VERSION,
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
 
 static pmOptions opts = {
-    .short_options = "D:m:rs:t:q?",
+    .short_options = "D:m:rs:t:qV?",
     .long_options = longopts,
     .override = override,
 };
@@ -205,9 +206,12 @@ main(int argc, char **argv)
     if (opts.optind != argc)
 	opts.errors++;
 
-    if (opts.errors) {
+    if (opts.errors ||
+	opts.optind != argc -2 ||
+	(opts.flags & PM_OPTFLAG_EXIT)) {
+	sts = !(opts.flags & PM_OPTFLAG_EXIT);
 	pmUsageMessage(&opts);
-	exit(1);
+	exit(sts);
     }
 
     if (service)

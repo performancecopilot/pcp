@@ -80,8 +80,6 @@ usr/share/man/man3/pmGetInDomArchive.3.gz
 usr/share/man/man3/pmGetOptionalConfig.3.gz
 usr/share/man/man3/pmgetoptions.3.gz
 usr/share/man/man3/pmGetOptions.3.gz
-usr/share/man/man3/pmGetOptions.3.gz
-usr/share/man/man3/pmGetOptions.3.gz
 usr/share/man/man3/pmgetopt_r.3.gz
 usr/share/man/man3/pmGetPMNSLocation.3.gz
 usr/share/man/man3/pmGetVersion.3.gz
@@ -146,7 +144,6 @@ usr/share/man/man3/__pmParseHostSpec.3.gz
 usr/share/man/man3/pmParseInterval.3.gz
 usr/share/man/man3/pmparsemetricspec.3.gz
 usr/share/man/man3/pmParseMetricSpec.3.gz
-usr/share/man/man3/pmParseMetricSpec.3.gz
 usr/share/man/man3/pmparsetime.3.gz
 usr/share/man/man3/__pmParseTime.3.gz
 usr/share/man/man3/pmParseTimeWindow.3.gz
@@ -166,13 +163,11 @@ usr/share/man/man3/pmSortInstances.3.gz
 usr/share/man/man3/pmspeclocalpmda.3.gz
 usr/share/man/man3/__pmSpecLocalPMDA.3.gz
 usr/share/man/man3/pmStore.3.gz
-usr/share/man/man3/pmStore.3.gz
 usr/share/man/man3/pmTimeConnect.3.gz
 usr/share/man/man3/pmTimeDisconnect.3.gz
 usr/share/man/man3/pmTimeRecv.3.gz
 usr/share/man/man3/pmTimeSendAck.3.gz
 usr/share/man/man3/pmTimeShowDialog.3.gz
-usr/share/man/man3/pmTraversePMNS.3.gz
 usr/share/man/man3/pmTraversePMNS.3.gz
 usr/share/man/man3/pmTraversePMNS_r.3.gz
 usr/share/man/man3/pmTrimNameSpace.3.gz

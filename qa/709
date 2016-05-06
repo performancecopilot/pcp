@@ -8,6 +8,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+. ./common.check
+. ./common.setup
+[ -f common.python ] || _notrun "Testsuite built without python support"
+
 . ./common.python
 status=0	# success is the default!
 $sudo rm -fr $tmp.* $seq.full

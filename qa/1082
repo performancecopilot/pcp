@@ -11,6 +11,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+. ./common.check
+. ./common.setup
+[ -f common.python ] || _notrun "No python bindings installed"
+
 . ./common.python
 
 [ -n "$PCP_PYTHON_PROG" ] || _notrun "no acceptable python to run src/procpid.python"

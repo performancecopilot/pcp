@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2016 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -18,5 +18,8 @@
 /* #undef HAVE_32BIT_LONG */
 /* #undef HAVE_32BIT_PTR */
 #define HAVE_64BIT_PTR 1
+
+#define SIZEOF_SUSECONDS_T 8
+#define SIZEOF_TIME_T 8
 
 #endif /* PCP_CONFIG64_H */
