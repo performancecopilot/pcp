@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2016 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -19,5 +19,17 @@
 #undef HAVE_32BIT_LONG
 #undef HAVE_32BIT_PTR
 #undef HAVE_64BIT_PTR
+
+/* Check size of suseconds_t type (struct timeval) */
+#undef SIZEOF_SUSECONDS_T
+#ifndef SIZEOF_SUSECONDS_T
+#error Unknown suseconds_t size
+#endif
+
+/* Check size of time_t (struct timeval, timespec) */
+#undef SIZEOF_TIME_T
+#ifndef SIZEOF_TIME_T
+#error Unknown time_t size
+#endif
 
 #endif /* PCP_CONFIGSZ_H */

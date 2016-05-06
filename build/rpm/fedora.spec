@@ -14,12 +14,7 @@ Source1: vector.tar.gz
 # https://github.com/performancecopilot/pcp-webjs/archive/x.y.z.tar.gz
 Source2: pcp-webjs.src.tar.gz
 
-# There are no perl-Net-SNMP packages in rhel, disable unless epel5
-%if 0%{?rhel} == 0 || 0%{?rhel} < 6
 %global disable_snmp 0
-%else
-%global disable_snmp 1
-%endif
 
 # There are no papi/libpfm devel packages for s390 nor for some rhels, disable
 %ifarch s390 s390x
@@ -1050,7 +1045,10 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for Simple Network Management Protocol
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = %{version}-%{release}
+# There are no perl-Net-SNMP packages in rhel, disable unless non-rhel or epel5
+%if 0%{?rhel} == 0 || 0%{?rhel} < 6
 Requires: perl(Net::SNMP)
+%endif
 
 %description pmda-snmp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1650,8 +1648,9 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/*.a
 # remove sheet2pcp until BZ 830923 and BZ 754678 are resolved.
 rm -f $RPM_BUILD_ROOT/%{_bindir}/sheet2pcp $RPM_BUILD_ROOT/%{_mandir}/man1/sheet2pcp.1*
 
-# remove configsz.h as this is not multilib friendly.
+# remove {config,platform}sz.h as these are not multilib friendly.
 rm -f $RPM_BUILD_ROOT/%{_includedir}/pcp/configsz.h
+rm -f $RPM_BUILD_ROOT/%{_includedir}/pcp/platformsz.h
 
 %if %{disable_microhttpd}
 rm -fr $RPM_BUILD_ROOT/%{_confdir}/pmwebd
