@@ -932,9 +932,12 @@ pmda_snmp=false
 AS_IF([test "x$do_pmdasnmp" = "xyes"], [pmda_snmp=true])
 AS_IF([test "x$do_pmdasnmp" = "xcheck"], [
     dnl SNMP PMDA needs perl and the Net::SNMP module
-    if $have_perl -a $pcp_perl_prog -e "use Net::SNMP" >/dev/null 2>&1
+    if test "$have_perl" = true
     then
-	pmda_snmp=true
+	if $pcp_perl_prog -e "use Net::SNMP" >/dev/null 2>&1
+	then
+	    pmda_snmp=true
+	fi
     fi
 ])
 AC_SUBST(PMDA_SNMP, $pmda_snmp)
