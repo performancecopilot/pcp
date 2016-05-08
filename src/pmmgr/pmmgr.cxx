@@ -1580,18 +1580,20 @@ void setup_signals()
   sa.sa_handler = handle_interrupt;
   sigemptyset (&sa.sa_mask);
   sigaddset (&sa.sa_mask, SIGHUP);
-  sigaddset (&sa.sa_mask, SIGPIPE);
   sigaddset (&sa.sa_mask, SIGINT);
   sigaddset (&sa.sa_mask, SIGTERM);
   sigaddset (&sa.sa_mask, SIGXFSZ);
   sigaddset (&sa.sa_mask, SIGXCPU);
   sa.sa_flags = SA_RESTART;
   sigaction (SIGHUP, &sa, NULL);
-  sigaction (SIGPIPE, &sa, NULL);
   sigaction (SIGINT, &sa, NULL);
   sigaction (SIGTERM, &sa, NULL);
   sigaction (SIGXFSZ, &sa, NULL);
   sigaction (SIGXCPU, &sa, NULL);
+
+  // Not SIGPIPE - it can come from OS socket errors via __pmSend
+  // that may or may not be blocked completely.
+  signal (SIGPIPE, SIG_IGN);
 }
 
 
