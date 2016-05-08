@@ -84,7 +84,7 @@ private:
   stringstream stro;
 public:
   obatched(ostream& oo): o(oo) {}
-  ~obatched() { o << stro.str(); }
+  ~obatched() { o << stro.str(); o.flush(); }
   operator ostream& () { return stro; }
   template <typename T> ostream& operator << (const T& t) { stro << t; return stro; }
 };
@@ -1322,7 +1322,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	      // sic pmlogcheck on it; if it is broken, pmlogextract
 	      // will give up and make no progress
 	      string pmlogcheck_options = sh_quote(pmlogcheck_command);
-	      pmlogcheck_options += " " + sh_quote(base_name) + " >/dev/null";
+	      pmlogcheck_options += " " + sh_quote(base_name) + " >/dev/null 2>/dev/null";
 
 	      rc = wrap_system(pmlogcheck_options);
 	      if (rc != 0)
