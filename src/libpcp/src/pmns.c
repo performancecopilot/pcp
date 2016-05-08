@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -13,6 +13,8 @@
  * License for more details.
  *
  * Thread-safe notes
+ *
+ * Uses a simple static pmns_lock mutex to protect statics.
  *
  * locerr - no serious side-effects, most unlikely to be used, and
  * repeated calls are likely to produce the same result, so don't bother
@@ -55,6 +57,12 @@
 #define NO_CPP		0
 #define USE_CPP		1
 
+
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t pmns_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+static void* pmns_lock;
+#endif
 
 static int	lineno;
 static char	linebuf[256];
@@ -273,7 +281,7 @@ pmGetPMNSLocation(void)
 	    pmns_location = PMNS_LOCAL;
     }
 
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(pmns_lock);
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_PMNS) {
 	static int last_pmns_location = -1;
@@ -289,7 +297,7 @@ pmGetPMNSLocation(void)
     /* fix up curr_pmns for API ops */
     if (pmns_location == PMNS_LOCAL)
 	PM_TPD(curr_pmns) = main_pmns;
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(pmns_lock);
 
 done:
     return pmns_location;
@@ -717,6 +725,7 @@ backname(__pmnsNode *np, char **name)
  * Fixup the parent pointers of the tree.
  * Fill in the hash table with nodes from the tree.
  * Hashing is done on pmid.
+ * Assumes pmns_lock already held.
  */
 static int
 backlink(__pmnsTree *tree, __pmnsNode *root, int dupok)
@@ -905,6 +914,8 @@ __pmNewPMNS(__pmnsTree **pmns)
  * Go through the tree and build a hash table.
  * Fix up parent links while we're there.
  * Unmark all nodes.
+ *
+ * NB: assumes pmns_lock is already held if required.
  */
 int
 __pmFixPMNSHashTab(__pmnsTree *tree, int numpmid, int dupok)
@@ -924,14 +935,10 @@ __pmFixPMNSHashTab(__pmnsTree *tree, int numpmid, int dupok)
     if (tree->htab == NULL)
 	return -oserror();
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     if ((sts = backlink(tree, tree->root, dupok)) < 0) {
-	PM_UNLOCK(__pmLock_libpcp);
 	return sts;
     }
     mark_all(tree, 0);
-    PM_UNLOCK(__pmLock_libpcp);
     return 0;
 }
 
@@ -1235,7 +1242,7 @@ __pmHasPMNSFileChanged(const char *filename)
     int		sts;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(pmns_lock); /* protect last_mtim */
 
     f = getfname(filename);
     if (f == NULL) {
@@ -1308,10 +1315,11 @@ __pmHasPMNSFileChanged(const char *filename)
     sts = 1;
 
 done:
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(pmns_lock);
     return sts;
 }
 
+/* assumes pmns_lock already taken */
 static int
 load(const char *filename, int dupok, int use_cpp)
 {
@@ -1381,9 +1389,9 @@ __pmnsTree*
 __pmExportPMNS(void)
 {
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(pmns_lock);
     export = 1;
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(pmns_lock);
 
     /*
      * Warning: this is _not_ thread-safe, and cannot be guarded/protected
@@ -1436,10 +1444,10 @@ pmLoadNameSpace(const char *filename)
     int	sts;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(pmns_lock);
     havePmLoadCall = 1;
     sts = load(filename, DUPS_OK, NO_CPP);
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(pmns_lock);
     return sts;
 }
 
@@ -1449,10 +1457,10 @@ pmLoadASCIINameSpace(const char *filename, int dupok)
     int	sts;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(pmns_lock);
     havePmLoadCall = 1;
     sts = load(filename, dupok, USE_CPP);
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(pmns_lock);
     return sts;
 }
 
@@ -1501,11 +1509,11 @@ void
 pmUnloadNameSpace(void)
 {
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(pmns_lock);
     havePmLoadCall = 0;
     __pmFreePMNS(main_pmns);
     main_pmns = NULL;
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(pmns_lock);
 }
 
 int
@@ -2578,12 +2586,8 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
     if (name == NULL) 
 	return PM_ERR_NAME;
 
-    PM_INIT_LOCKS();
-
     if (pmns_location == PMNS_LOCAL) {
-	PM_LOCK(__pmLock_libpcp);
 	sts = TraversePMNS_local(name, func, func_r, closure);
-	PM_UNLOCK(__pmLock_libpcp);
     }
     else {
 	__pmPDU      *pb;
