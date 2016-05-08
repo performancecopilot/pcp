@@ -59,7 +59,7 @@ _filter_curl_i()
 }
 
 echo "the catalog"
-curl -s -i "http://localhost:$webport/?zoo=poo&phantasm" | _filter_curl_i
+curl -s -i "http://localhost:$webport/?zoo=goo&phantasm" | _filter_curl_i
 curl -s -i "http://localhost:$webport/blinkenlights" | _filter_curl_i
 curl -s -i "http://localhost:$webport/blinkenlights/" | _filter_curl_i
 curl -s -S "http://localhost:$webport/graphite/index.html?foo=bar&ectoplasm=egon"
@@ -92,7 +92,8 @@ echo
 echo "metric value dump 2" 
 curl --compressed -s -S "http://localhost:$webport/graphite/rawdata?target=*/node_archive.proc.psinfo.pid.*&from=00:00_20131127&until=00:00_20131129&maxDataPoints=300" | _webapi_json_pretty
 
-echo PR1099 workaround, expect empty result
+echo
+echo compressed archive, expect non-empty result
 curl -s -S "http://localhost:$webport/graphite/rawdata?target=*20130706.kernel.all.nprocs&from=00:00_20130705&until=23:59_20130705" | _webapi_json_pretty
 
 echo

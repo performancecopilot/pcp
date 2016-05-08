@@ -33,7 +33,6 @@ using namespace std;
 
 extern "C"
 {
-#include <unistd.h>
 #include <ctype.h>
 #ifdef HAVE_FTS_H
 #include <fts.h>
@@ -390,21 +389,6 @@ vector <string> pmgraphite_enumerate_metrics (struct MHD_Connection * connection
             continue;
         }
 
-        if (ent->fts_info == FTS_F) {
-            // PR1099: compressed archives can take too long to open &
-            // check, because libpcp completely decompresses them into a
-            // temporary directory ... every time a context is created for
-            // them.  Perhaps we could tolerate very small ones, but for
-            // now let's just skip them completely.
-            //
-            // We use a heuristic to determine whether the archive's
-            // compressed or not: simply whether there is a .0 file for a
-            // .meta.
-            string vol0 = archive.substr(0, archive.size()-strlen(".meta")) + ".0";
-            if (access (vol0.c_str(), R_OK) != 0) {
-                continue;
-            }
-        }
         int ctx = pmNewContext (PM_CONTEXT_ARCHIVE, archive.c_str ());
         if (ctx < 0) {
             continue;
