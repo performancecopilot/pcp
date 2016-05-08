@@ -275,13 +275,15 @@ pkgin?	/usr/pkg/include/ncurses/ncurses.h	[ncurses]
 pkg_add?	/usr/include/ncurses.h	[base OpenBSD install]
 # python modules
 # -- six
-dpkg?	/usr/lib/python*/*-packages/six.py	[python-six]
+dpkg?	/usr/lib/python2*/*-packages/six.py	[python-six]
+dpkg?	/usr/lib/python3*/*-packages/six.py	[python3-six]
 rpm?	/usr/lib/python*/*-packages/six.py	[python-six]
 emerge?	/usr/lib/python*/*-packages/six.py	[dev-python/six]
 pkgin?	/usr/pkg/lib/python*/*-packages/six.py	[py34-six]
 pkg_add?	/usr/local/lib/python*/*-packages/six.py	[py-six]
 # -- jsonpointer
-dpkg?	/usr/lib/python*/*-packages/jsonpointer.py	[python-json-pointer]
+dpkg?	/usr/lib/python2*/*-packages/jsonpointer.py	[python-json-pointer (build optional)]
+dpkg?	/usr/lib/python3*/*-packages/jsonpointer.py	[python3-json-pointer (build optional)]
 rpm?	/usr/lib/python*/*-packages/jsonpointer.py	[python-jsonpointer]
 emerge?	/usr/lib/python*/*-packages/jsonpointer.py	[dev-python/jsonpointer]
 pkgin?	/usr/pkg/lib/python*/*-packages/jsonpointer.py	[?]
