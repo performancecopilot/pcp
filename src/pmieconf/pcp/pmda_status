@@ -26,7 +26,7 @@ string	rule
 	display	= no;
 
 string	action_expand
-	default	= "pmda%i[%v]"
+	default	= "pmda%i[%v]@%h"
 	display	= no
 	modify	= no;
 
