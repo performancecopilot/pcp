@@ -690,6 +690,7 @@ pmmgr_job_spec::poll()
   string num_threads_str = get_config_single("target-threads");
 #ifdef _SC_NPROCESSORS_ONLN
   int num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+  if (num_cpus < 0) num_cpus = 1;
 #else
   int num_cpus = 1;
 #endif
