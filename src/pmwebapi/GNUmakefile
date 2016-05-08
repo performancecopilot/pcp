@@ -52,7 +52,8 @@ ifeq "$(ENABLE_WEBAPI)" "true"
 build-me:	$(CXXMDTARGET) pmwebd.service
 
 pmwebd.service:	pmwebd.service.in
-	$(SED) -e 's;@path@;'$(PCP_RC_DIR)';' $< > $@
+	$(SED) -e 's;@PCP_RC_DIR@;'$(PCP_RC_DIR)';' \
+	       -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' $< > $@
 
 install:	default
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMWEBDOPTIONS_PATH)`
