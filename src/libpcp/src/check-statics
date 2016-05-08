@@ -297,26 +297,27 @@ p_lcontrol.o
 p_lrequest.o
 p_lstatus.o
 pmns.o
-    lineno			# guarded by __pmLock_libpcp mutex
-    export			# guarded by __pmLock_libpcp mutex
-    fin				# guarded by __pmLock_libpcp mutex
-    first			# guarded by __pmLock_libpcp mutex
-    use_cpp			# guarded by __pmLock_libpcp mutex
-    fname			# guarded by __pmLock_libpcp mutex
-    havePmLoadCall		# guarded by __pmLock_libpcp mutex
-    last_mtim			# guarded by __pmLock_libpcp mutex
-    last_pmns_location		# guarded by __pmLock_libpcp mutex
-    linebuf			# guarded by __pmLock_libpcp mutex
-    linep			# guarded by __pmLock_libpcp mutex
-    lp				# guarded by __pmLock_libpcp mutex
-    seen			# guarded by __pmLock_libpcp mutex
-    seenpmid			# guarded by __pmLock_libpcp mutex
-    tokbuf			# guarded by __pmLock_libpcp mutex
-    tokpmid			# guarded by __pmLock_libpcp mutex
+    pmns_lock                   # the lock that guards ...
+    lineno			# this
+    export			# and this ...
+    fin				#
+    first			#
+    use_cpp			#
+    fname			#
+    havePmLoadCall		#
+    last_mtim			#
+    last_pmns_location		#
+    linebuf			#
+    linep			#
+    lp				#
+    seen			#
+    seenpmid			#
+    tokbuf			#
+    tokpmid			# ... through this
     ?useExtPMNS			# thread private (no __thread symbols for Mac OS X)
     ?__emutls_t.useExtPMNS	# thread private for OpenBSD
-    repname			# guarded by __pmLock_libpcp mutex
-    main_pmns			# guarded by __pmLock_libpcp mutex
+    repname			# guarded by pmns_lock
+    main_pmns			# guarded by pmns_lock
     ?curr_pmns			# thread private (no __thread symbols for Mac OS X)
     ?__emutls_t.curr_pmns	# thread private for OpenBSD
     locerr			# no unsafe side-effects, see notes in pmns.c
