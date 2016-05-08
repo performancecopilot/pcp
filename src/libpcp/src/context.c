@@ -1314,23 +1314,35 @@ pmDupContext(void)
 #endif
     __pmHashCtl		save_attrs;
 
+    /* NB: don't hold any locks while pmNewContext()ing the clone. */
     PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if ((old = pmWhichContext()) < 0) {
-	sts = old;
-	goto done;
+    old = pmWhichContext();
+    if ((oldcon = __pmHandleToPtr(old)) == NULL) {
+	return PM_ERR_NOCONTEXT;
     }
-    oldcon = contexts[old];
     oldtype = oldcon->c_type | oldcon->c_flags;
     if (oldcon->c_type == PM_CONTEXT_HOST) {
 	__pmUnparseHostSpec(oldcon->c_pmcd->pc_hosts,
 			oldcon->c_pmcd->pc_nhosts, hostspec, sizeof(hostspec));
+        PM_UNLOCK(oldcon->c_lock);
 	new = pmNewContext(oldtype, hostspec);
     }
-    else if (oldcon->c_type == PM_CONTEXT_LOCAL)
+    else if (oldcon->c_type == PM_CONTEXT_LOCAL) {
+        PM_UNLOCK(oldcon->c_lock);
 	new = pmNewContext(oldtype, NULL);
-    else if (oldcon->c_type == PM_CONTEXT_ARCHIVE)
-	new = pmNewContext(oldtype, oldcon->c_archctl->ac_log->l_name);
+    }
+    else if (oldcon->c_type == PM_CONTEXT_ARCHIVE) {
+        strncpy (hostspec, oldcon->c_archctl->ac_log->l_name, sizeof(hostspec));
+        PM_UNLOCK(oldcon->c_lock);
+	new = pmNewContext(oldtype, hostspec);
+    }
+    else {
+        /* can't happen */
+        PM_UNLOCK(oldcon->c_lock);
+    }
+
+    /* Now take big libpcp lock */
+    PM_LOCK(__pmLock_libpcp);
     if (new < 0) {
 	/* failed to connect or out of memory */
 	sts = new;

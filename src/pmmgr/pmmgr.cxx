@@ -84,7 +84,7 @@ private:
   stringstream stro;
 public:
   obatched(ostream& oo): o(oo) {}
-  ~obatched() { o << stro.str(); }
+  ~obatched() { o << stro.str(); o.flush(); }
   operator ostream& () { return stro; }
   template <typename T> ostream& operator << (const T& t) { stro << t; return stro; }
 };
@@ -690,6 +690,7 @@ pmmgr_job_spec::poll()
   string num_threads_str = get_config_single("target-threads");
 #ifdef _SC_NPROCESSORS_ONLN
   int num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
+  if (num_cpus < 0) num_cpus = 1;
 #else
   int num_cpus = 1;
 #endif
@@ -1321,7 +1322,7 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	      // sic pmlogcheck on it; if it is broken, pmlogextract
 	      // will give up and make no progress
 	      string pmlogcheck_options = sh_quote(pmlogcheck_command);
-	      pmlogcheck_options += " " + sh_quote(base_name) + " >/dev/null";
+	      pmlogcheck_options += " " + sh_quote(base_name) + " >/dev/null 2>/dev/null";
 
 	      rc = wrap_system(pmlogcheck_options);
 	      if (rc != 0)
@@ -1579,18 +1580,20 @@ void setup_signals()
   sa.sa_handler = handle_interrupt;
   sigemptyset (&sa.sa_mask);
   sigaddset (&sa.sa_mask, SIGHUP);
-  sigaddset (&sa.sa_mask, SIGPIPE);
   sigaddset (&sa.sa_mask, SIGINT);
   sigaddset (&sa.sa_mask, SIGTERM);
   sigaddset (&sa.sa_mask, SIGXFSZ);
   sigaddset (&sa.sa_mask, SIGXCPU);
   sa.sa_flags = SA_RESTART;
   sigaction (SIGHUP, &sa, NULL);
-  sigaction (SIGPIPE, &sa, NULL);
   sigaction (SIGINT, &sa, NULL);
   sigaction (SIGTERM, &sa, NULL);
   sigaction (SIGXFSZ, &sa, NULL);
   sigaction (SIGXCPU, &sa, NULL);
+
+  // Not SIGPIPE - it can come from OS socket errors via __pmSend
+  // that may or may not be blocked completely.
+  signal (SIGPIPE, SIG_IGN);
 }
 
 

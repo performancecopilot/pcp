@@ -206,9 +206,7 @@ main(int argc, char **argv)
     if (opts.optind != argc)
 	opts.errors++;
 
-    if (opts.errors ||
-	opts.optind != argc -2 ||
-	(opts.flags & PM_OPTFLAG_EXIT)) {
+    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
 	sts = !(opts.flags & PM_OPTFLAG_EXIT);
 	pmUsageMessage(&opts);
 	exit(sts);
