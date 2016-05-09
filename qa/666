@@ -200,9 +200,9 @@ rm $tmp.dir/target-threads
 echo '192.0.2.1' >>$tmp.dir/target-host
 echo '192.0.2.1' >>$tmp.dir/target-host
 echo '192.0.2.2' >>$tmp.dir/target-host
-echo 40sec >$tmp.dir/pmlogmerge-retain
+echo 50sec >$tmp.dir/pmlogmerge-retain
 echo '-t 10' >$tmp.dir/pmlogreduce  # compare to -t 2 for in /pmlogger
-echo 15sec >$tmp.dir/pmlogreduce-retain
+echo 30sec >$tmp.dir/pmlogreduce-retain
 echo 'pcp summary' > $tmp.dir/monitor # short-lived; will be restarted periodically
 echo 'pmstat' >> $tmp.dir/monitor # long-lived
 $sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
@@ -212,11 +212,11 @@ date >>$seq.full
 echo "=== 10. wait a bit ===" | tee -a $seq.full
 # long enough for all the old archives to age out, only new granular stuff to survive
 # not an exact multiple of the pmlogmerge period, to avoid testing the edge moments
-sleep 65 # much larger than pmlogmerge-retain
+sleep 170 # apprx. pmlogmerge + pmlogmerge-retain + 2* pmlogreduce-retain
 $sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1  # ensure daemons stop & no new ones are started
 sleep 10 # pmmgr daemon shutdown
 
-$date >>$seq.full
+date >>$seq.full
 echo "=== 11. admire grained / reduced / retained / monitor data ===" | tee -a $seq.full
 # there should be 3 archive-*, unless timing glitches
 count=`ls -1 $tmp.dir/$hostname/archive*.meta | wc -l`
@@ -227,10 +227,10 @@ else
     ls -l $tmp.dir/$hostname/archive*.meta
 fi
 count=`ls -1 $tmp.dir/$hostname/reduced*.meta | wc -l`
-if [ $count -gt 0 -a $count -lt 3 ]; then
-    echo more than zero and less than three reduced archives
+if [ $count -gt 0 -a $count -lt 4 ]; then
+    echo more than zero and less than four reduced archives
 else
-    echo "count=$count reduced archives created, expecting more than two and less than five"
+    echo "count=$count reduced archives created, expecting more than zero and less than four"
     ls -l $tmp.dir/$hostname/reduced*.meta
 fi
 
