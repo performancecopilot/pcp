@@ -573,7 +573,7 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     __pmID_int * id = (__pmID_int *)&(mdesc->m_desc.pmid);
 
     if (id->cluster == 0) {
-	if (id->item >= 0 && id->item <= 2) {
+	if (id->item <= 2) {
 	    atom->l = *(int *)mdesc->m_user;
 	    return 1;
 	}
