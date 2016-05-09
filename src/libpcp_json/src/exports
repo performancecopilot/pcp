@@ -1,0 +1,9 @@
+PCP_JSON_3.9 {
+  global:
+    jsmn_init;
+    jsmn_parse;
+    jsmneq;
+    jsmnflag;
+    jsmnint;
+    jsmnstrdup;
+};

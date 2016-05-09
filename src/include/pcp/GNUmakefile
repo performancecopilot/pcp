@@ -19,12 +19,13 @@ include $(TOPDIR)/src/include/builddefs
 
 HFILES = pmapi.h impl.h pmda.h pmtime.h pmdaroot.h pmafm.h \
 	 trace.h trace_dev.h mmv_stats.h mmv_dev.h import.h \
-	 config32.h config64.h platform32.h platform64.h
+	 config32.h config64.h platform32.h platform64.h jsmn.h pmjson.h
 INFILES = config.h.in configsz.h.in platform_defs.h.in platformsz.h.in
 CONFFILES = config.h configsz.h platform_defs.h platformsz.h
 GENERATED_HFILES = pmdbg.h $(CONFFILES)
 
 LDIRT = $(GENERATED_HFILES)
+LCFLAGS = -DJSMN_PARENT_LINKS
 
 default :: default_pcp
 
