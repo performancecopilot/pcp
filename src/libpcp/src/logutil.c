@@ -893,6 +893,11 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 #else
     struct dirent	*direntp;
 #endif
+#ifdef PM_MULTI_THREAD
+    static pthread_mutex_t basename_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+    static void* basename_lock;
+#endif
 
     /*
      * find directory name component ... copy as dirname() may clobber
@@ -900,6 +905,8 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
      */
     if ((tbuf = strdup(name)) == NULL)
 	return -oserror();
+    /* dirname(3) and basename(3) might internally copy into & use static vars */
+    PM_LOCK(basename_lock);
     dir = dirname(tbuf);
 
     /*
@@ -910,8 +917,10 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     if ((base = strdup(basename(filename))) == NULL) {
 	sts = -oserror();
 	free(tbuf);
+	PM_UNLOCK(basename_lock);
 	return sts;
     }
+    PM_UNLOCK(basename_lock);
 
     if (access(name, R_OK) == 0) {
 	/* Strip the name down to its base, if it is a known archive
