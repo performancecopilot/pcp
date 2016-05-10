@@ -238,22 +238,21 @@ static int perfevent_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomV
     const perf_data *pdata = NULL;
     const perf_derived_data *pddata = NULL;
 
-    if (idp->cluster >= NUM_STATIC_DERIVED_CLUSTERS + NUM_STATIC_CLUSTERS + nhwcounters) {
+    if (idp->cluster >= NUM_STATIC_DERIVED_CLUSTERS + NUM_STATIC_CLUSTERS + nhwcounters)
         pddata = &(pinfo->derived_counter->data[inst]);
-    } else {
+    else
         pdata = &(pinfo->hwcounter->data[inst]);
-    }
 
     switch(pinfo->pmid_index)
     {
     case 0:
-        if (idp->cluster >= nhwcounters + NUM_STATIC_CLUSTERS + NUM_STATIC_DERIVED_CLUSTERS)
+        if (pddata)
             atom->d = pddata->value;
         else
             atom->ll = pdata->value;
         break;
     case 1:
-        if(pdata->time_enabled > 0)
+        if (pdata && pdata->time_enabled > 0)
             atom->d = (pdata->time_running * 1.0) / pdata->time_enabled;
         else
             atom->d = 0.0;
