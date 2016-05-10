@@ -220,10 +220,10 @@ date >>$seq.full
 echo "=== 11. admire grained / reduced / retained / monitor data ===" | tee -a $seq.full
 # there should be 3 archive-*, unless timing glitches
 count=`ls -1 $tmp.dir/$hostname/archive*.meta | wc -l`
-if [ $count -gt 2 -a $count -lt 5 ]; then
-    echo more than two and less than five archives
+if [ $count -gt 0 -a $count -lt 5 ]; then
+    echo more than zero and less than five archives
 else
-    echo "count=$count archives created, expecting more than two and less than five"
+    echo "count=$count archives created, expecting more than zero and less than five"
     ls -l $tmp.dir/$hostname/archive*.meta
 fi
 count=`ls -1 $tmp.dir/$hostname/reduced*.meta | wc -l`
