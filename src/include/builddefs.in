@@ -67,6 +67,7 @@ PCP_LIBS = $(PCPLIB_LDFLAGS)
 #
 TARGET_OS = @target_os@
 CROSS_COMPILING = @cross_compiling@
+CASE_INSENSITIVE_FS = no
 PCFLAGS = @PCFLAGS@
 PLDFLAGS = @PLDFLAGS@
 ifneq (, $(filter linux kfreebsd gnu, $(TARGET_OS)))
@@ -74,7 +75,7 @@ DSOSUFFIX = so
 endif
 ifeq "$(TARGET_OS)" "darwin"
 DSOSUFFIX = dylib
-CASE_INSENSITIVE_FS=1
+CASE_INSENSITIVE_FS = yes
 endif
 ifeq "$(TARGET_OS)" "mingw"
 DSOSUFFIX = dll
@@ -503,8 +504,10 @@ state==1 { for (i=1;i<=NF;i++) { \
 		echo $(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 		$(INSTALL) -m 644 $${d}$$_tfx $${t}$$_sfx; \
 	    else \
-		if test ! -z $(CASE_INSENSITIVE_FS) -a $(CASE_INSENSITIVE_FS); then \
-		    if test "`echo $$u | tr 'a-z' 'A-Z'`" != "`basename $${t}$$_sfx | tr 'a-z' 'A-Z'`"; then \
+		if test "$(CASE_INSENSITIVE_FS)" = "yes"; then \
+		    _upper_u=`echo $$u | tr 'a-z' 'A-Z'`; \
+		    _upper_t=`basename $${t}$$_sfx | tr 'a-z' 'A-Z'`; \
+		    if test "$$_upper_u" != "$$_upper_t"; then \
 			echo $(INSTALL) -S $$u $${t}$$_sfx; \
 			$(INSTALL) -S $$u $${t}$$_sfx; \
 		    fi \
