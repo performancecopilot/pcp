@@ -37,6 +37,8 @@ static pmLongOptions longopts[] = {
     PMOPT_SPECLOCAL,
     PMOPT_NAMESPACE,
     PMOPT_ORIGIN,
+    PMOPT_TIMEZONE,
+    PMOPT_HOSTZONE,
     { "version", 0, 'd', 0, "display version number and exit" },
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Reporting options"),
