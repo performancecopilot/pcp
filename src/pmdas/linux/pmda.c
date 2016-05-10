@@ -1191,6 +1191,10 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,37), PM_TYPE_U64, NODE_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* mem.numa.max_bandwidth */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,38), PM_TYPE_DOUBLE, NODE_INDOM, PM_SEM_INSTANT,
+	PMDA_PMUNITS(1,-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0) }, },
 
 /* swap.length */
     { NULL,
@@ -6372,6 +6376,11 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 37: /* mem.numa.alloc.other_node */
 	    sts = linux_table_lookup("other_node", numa_meminfo.node_info[inst].memstat,
 		    &atom->ull);
+	    break;
+
+	case 38: /* mem.numa.max_bandwidth */
+	    atom->d = numa_meminfo.node_info[inst].bandwidth;
+	    sts = 1;
 	    break;
 
 	default:

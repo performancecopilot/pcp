@@ -35,7 +35,7 @@ CFILES		= pmda.c \
 		  proc_slabinfo.c proc_sys_fs.c proc_vmstat.c \
 		  sysfs_kernel.c linux_table.c numa_meminfo.c \
 		  proc_net_netstat.c namespaces.c proc_net_softnet.c \
-		  proc_net_snmp6.c
+		  proc_net_snmp6.c mem_bandwidth.c
 
 HFILES		= clusters.h indom.h convert.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
@@ -76,7 +76,7 @@ build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LSRCFILES)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help $(HELPTARGETS) $(PMDADIR)
+	$(INSTALL) -m 644 domain.h help bandwidth.conf $(HELPTARGETS) $(PMDADIR)
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root_linux $(PCP_VAR_DIR)/pmns/root_linux
 	$(INSTALL) -m 644 proc_net_snmp_migrate.conf $(LOGREWRITEDIR)/linux_proc_net_snmp_migrate.conf

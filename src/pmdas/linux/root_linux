@@ -412,6 +412,7 @@ mem.util {
 mem.numa {
     util
     alloc
+    max_bandwidth	60:36:38
 }
 
 mem.numa.util {

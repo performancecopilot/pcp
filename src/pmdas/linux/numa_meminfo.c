@@ -82,6 +82,7 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo, proc_cpuinfo_t *proc_cpui
     FILE *fp;
     pmdaIndom *idp = PMDAINDOM(NODE_INDOM);
     static int started;
+    int sep, ret;
 
     /* First time only */
     if (!started) {
@@ -110,6 +111,12 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo, proc_cpuinfo_t *proc_cpui
 	    }
 	}
 
+	sep = __pmPathSeparator();
+	snprintf(numa_meminfo->bandwidth_conf,
+		 sizeof(numa_meminfo->bandwidth_conf),
+		 "%s%c%s%c%s.conf", pmGetConfig("PCP_PMDAS_DIR"), sep, "linux",
+		 sep, "bandwidth");
+
 	numa_meminfo->node_indom = idp;
 	started = 1;
     }
@@ -131,6 +138,14 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo, proc_cpuinfo_t *proc_cpui
 	    linux_table_scan(fp, numa_meminfo->node_info[i].memstat);
 	    fclose(fp);
 	}
+    }
+
+    /* Read the bandwidth info from the bandwidth.conf file */
+    ret = get_memory_bandwidth_conf(numa_meminfo, idp->it_numinst);
+    if (ret < 0) {
+	fprintf(stderr, "%s: error in fetching bandwidth info\n",
+		__FUNCTION__);
+	return ret;
     }
 
     return 0;

@@ -703,6 +703,7 @@ User memory (Kbytes) in pages not backed by files, e.g. from malloc()
 @ mem.numa.alloc.interleave_hit count of times interleaving wanted to allocate on this node and succeeded
 @ mem.numa.alloc.local_node count of times a process ran on this node and got memory on this node
 @ mem.numa.alloc.other_node count of times a process ran on this node and got memory from another node
+@ mem.numa.max_bandwidth maximum memory bandwidth supported on each numa node
 @ mem.vmstat.nr_dirty number of pages in dirty state
 Instantaneous number of pages in dirty state, from /proc/vmstat
 @ mem.vmstat.nr_dirty_background_threshold background writeback threshold
