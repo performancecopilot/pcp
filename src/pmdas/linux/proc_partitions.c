@@ -286,7 +286,7 @@ static int
 persistent_md_name(char *namebuf, int namelen)
 {
     DIR *dp;
-    size_t size;
+    ssize_t size;
     int found = 0;
     struct dirent *dentry;
     char path[MAXPATHLEN];

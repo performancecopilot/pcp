@@ -749,18 +749,16 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	 * Past end of the current archive ... see if it has grown since we
 	 * last looked, or if we can switch to the next archive in the context.
 	 */
-	for (;;) {
-	    if (__pmGetArchiveEnd(ctxp->c_archctl->ac_log, &end) >= 0) {
-		tmp.tv_sec = (__int32_t)end.tv_sec;
-		tmp.tv_usec = (__int32_t)end.tv_usec;
-		ctxp->c_archctl->ac_end = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
-	    }
-	    if (t_req <= ctxp->c_archctl->ac_end)
-		break; /* request time is before the end of this archive */
-
-	    if (ctxp->c_archctl->ac_cur_log < ctxp->c_archctl->ac_num_logs - 1)
-		break; /* there are subsequent archives */
-
+	if (__pmGetArchiveEnd(ctxp->c_archctl->ac_log, &end) >= 0) {
+	    tmp.tv_sec = (__int32_t)end.tv_sec;
+	    tmp.tv_usec = (__int32_t)end.tv_usec;
+	    ctxp->c_archctl->ac_end = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
+	}
+	/* Check if request time is past the end of this archive
+	 * and there are no subsequent archives
+	 */
+	if ((t_req > ctxp->c_archctl->ac_end)
+	    && (ctxp->c_archctl->ac_cur_log >= ctxp->c_archctl->ac_num_logs - 1)) {
 	    /* No more archive data. */
 	    sts = PM_ERR_EOL;
 	    goto all_done;
