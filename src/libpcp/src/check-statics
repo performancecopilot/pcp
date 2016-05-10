@@ -256,6 +256,7 @@ logutil.o
     pc_hc_lock                  # guards ...
     pc_hc			# this
     global_logctl_lock          # guards all __pmLogCtl instaces
+    basename_lock               # guards basename(3)/dirname(3) internal statics
 secureserver.o
     secure_server		# guarded by __pmLock_libpcp mutex
 secureconnect.o
