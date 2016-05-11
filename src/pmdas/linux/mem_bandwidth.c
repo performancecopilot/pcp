@@ -33,7 +33,7 @@
 
 static void skim_through_whitespace(char *start_ptr, char *end_ptr)
 {
-    while((start_ptr != end_ptr) && isspace(*start_ptr))
+    while ((start_ptr != end_ptr) && isspace(*start_ptr))
 	start_ptr++;
 }
 
@@ -50,13 +50,13 @@ static int find_node_match(char *name, int nr_nodes)
     return -1;
 }
 
-static int validate_conf_version(char *start, char *end)
+static int validate_conf_version(const char *conf, char *start, char *end)
 {
     char *ptr;
 
     ptr = strchr(start, ':');
     if (!ptr) {
-	fprintf(stderr, "Version information missing in bandwidth.conf");
+	fprintf(stderr, "Version information missing in %s\n", conf);
 	return -1;
     }
     *ptr = '\0';
@@ -65,13 +65,14 @@ static int validate_conf_version(char *start, char *end)
     if (!strncmp(start, VERSION_STR, strlen(VERSION_STR)) &&
 	!(strncmp(ptr, SUPP_VERSION, strlen(SUPP_VERSION))))
 	return 0;
-    fprintf(stderr, "Unsupported bandwidth.conf version, expected version : %s",
-	    SUPP_VERSION);
+    fprintf(stderr, "Unsupported %s version '%s', current version: %s\n",
+	    conf, ptr, SUPP_VERSION);
     return -1;
 }
 
 int get_memory_bandwidth_conf(numa_meminfo_t *numa_meminfo, int nr_nodes)
 {
+    const char *config = numa_meminfo->bandwidth_conf;
     size_t len = 0;
     char *start_ptr, *end_ptr, *value_str, *line = NULL;
     FILE *fp;
@@ -80,13 +81,10 @@ int get_memory_bandwidth_conf(numa_meminfo_t *numa_meminfo, int nr_nodes)
     int nodes_found = 0, id;
     int version_found = 0;
 
-    fp = fopen(numa_meminfo->bandwidth_conf, "r");
-    if (NULL == fp) {
-	fprintf(stderr, "Error in opening %s\n", numa_meminfo->bandwidth_conf);
-	return -1;
-    }
+    if ((fp = fopen(config, "r")) == NULL)
+	return 0;
 
-    while(ret >= 0) {
+    while (ret >= 0) {
 	ret = getline(&line, &len, fp);
 	if (ret > 0) {
 	    /* Ignore the comments */
@@ -105,7 +103,7 @@ int get_memory_bandwidth_conf(numa_meminfo_t *numa_meminfo, int nr_nodes)
 
 	    /* Verify the version information */
 	    if (strstr(start_ptr, VERSION_STR)) {
-		ret = validate_conf_version(start_ptr, end_ptr);
+		ret = validate_conf_version(config, start_ptr, end_ptr);
 		if (ret < 0) {
 		    goto free_line;
 		} else {
@@ -116,7 +114,7 @@ int get_memory_bandwidth_conf(numa_meminfo_t *numa_meminfo, int nr_nodes)
 
 	    if (!version_found) {
 		ret = -1;
-		fprintf(stderr, "Version needs to be specified at the beginning of bandwidth.conf file\n");
+		fprintf(stderr, "Version missing at the start of %s\n", config);
 		goto free_line;
 	    }
 
@@ -133,8 +131,9 @@ int get_memory_bandwidth_conf(numa_meminfo_t *numa_meminfo, int nr_nodes)
 
 	    id = find_node_match(node_name, nr_nodes);
 	    if (id == -1) {
-		fprintf(stderr, "Unknown node name provided in bandwidth.conf\n");
-		return -1;
+		fprintf(stderr, "Unknown node '%s' in %s\n", node_name, config);
+		ret = -1;
+		goto free_line;
 	    }
 	    numa_meminfo->node_info[id].bandwidth = atof(value_str);
 	    nodes_found++;

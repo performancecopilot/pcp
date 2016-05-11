@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2016 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -76,7 +76,8 @@ build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LSRCFILES)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 644 domain.h help bandwidth.conf $(HELPTARGETS) $(PMDADIR)
+	$(INSTALL) -m 644 domain.h help $(HELPTARGETS) $(PMDADIR)
+	$(INSTALL) -m 644 bandwidth.conf $(PMDADIR)/samplebandwidth.conf
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root_linux $(PCP_VAR_DIR)/pmns/root_linux
 	$(INSTALL) -m 644 proc_net_snmp_migrate.conf $(LOGREWRITEDIR)/linux_proc_net_snmp_migrate.conf

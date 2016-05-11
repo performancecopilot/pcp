@@ -1193,7 +1193,7 @@ static pmdaMetric metrictab[] = {
 
 /* mem.numa.max_bandwidth */
     { NULL,
-      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,38), PM_TYPE_DOUBLE, NODE_INDOM, PM_SEM_INSTANT,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,38), PM_TYPE_DOUBLE, NODE_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1,-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0) }, },
 
 /* swap.length */
@@ -6380,7 +6380,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	case 38: /* mem.numa.max_bandwidth */
 	    atom->d = numa_meminfo.node_info[inst].bandwidth;
-	    sts = 1;
+	    sts = (atom->d > 0.0);
 	    break;
 
 	default:

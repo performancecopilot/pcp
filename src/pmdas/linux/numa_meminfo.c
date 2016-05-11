@@ -82,7 +82,7 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo, proc_cpuinfo_t *proc_cpui
     FILE *fp;
     pmdaIndom *idp = PMDAINDOM(NODE_INDOM);
     static int started;
-    int sep, ret;
+    int sep;
 
     /* First time only */
     if (!started) {
@@ -140,13 +140,8 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo, proc_cpuinfo_t *proc_cpui
 	}
     }
 
-    /* Read the bandwidth info from the bandwidth.conf file */
-    ret = get_memory_bandwidth_conf(numa_meminfo, idp->it_numinst);
-    if (ret < 0) {
-	fprintf(stderr, "%s: error in fetching bandwidth info\n",
-		__FUNCTION__);
-	return ret;
-    }
+    /* Read NUMA bandwidth info from the bandwidth.conf file (optional) */
+    get_memory_bandwidth_conf(numa_meminfo, idp->it_numinst);
 
     return 0;
 }

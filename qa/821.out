@@ -1,0 +1,1596 @@
+QA output created by 821
+== Checking all mem metric values - meminfo-root-001.tgz
+
+mem.freemem
+    value 4650860
+
+mem.numa.alloc.foreign
+    inst [0 or "node0"] value 0
+
+mem.numa.alloc.hit
+    inst [0 or "node0"] value 326385147
+
+mem.numa.alloc.interleave_hit
+    inst [0 or "node0"] value 23559
+
+mem.numa.alloc.local_node
+    inst [0 or "node0"] value 326385147
+
+mem.numa.alloc.miss
+    inst [0 or "node0"] value 0
+
+mem.numa.alloc.other_node
+    inst [0 or "node0"] value 0
+
+mem.numa.max_bandwidth
+No value(s) available!
+
+mem.numa.util.NFS_Unstable
+No value(s) available!
+
+mem.numa.util.active
+No value(s) available!
+
+mem.numa.util.active_anon
+No value(s) available!
+
+mem.numa.util.active_file
+No value(s) available!
+
+mem.numa.util.anonpages
+No value(s) available!
+
+mem.numa.util.bounce
+No value(s) available!
+
+mem.numa.util.dirty
+No value(s) available!
+
+mem.numa.util.filePages
+No value(s) available!
+
+mem.numa.util.free
+No value(s) available!
+
+mem.numa.util.highFree
+No value(s) available!
+
+mem.numa.util.highTotal
+No value(s) available!
+
+mem.numa.util.hugepagesFree
+No value(s) available!
+
+mem.numa.util.hugepagesSurp
+No value(s) available!
+
+mem.numa.util.hugepagesTotal
+No value(s) available!
+
+mem.numa.util.inactive
+No value(s) available!
+
+mem.numa.util.inactive_anon
+No value(s) available!
+
+mem.numa.util.inactive_file
+No value(s) available!
+
+mem.numa.util.kernelStack
+No value(s) available!
+
+mem.numa.util.lowFree
+No value(s) available!
+
+mem.numa.util.lowTotal
+No value(s) available!
+
+mem.numa.util.mapped
+No value(s) available!
+
+mem.numa.util.mlocked
+No value(s) available!
+
+mem.numa.util.pageTables
+No value(s) available!
+
+mem.numa.util.shmem
+No value(s) available!
+
+mem.numa.util.slab
+No value(s) available!
+
+mem.numa.util.slabReclaimable
+No value(s) available!
+
+mem.numa.util.slabUnreclaimable
+No value(s) available!
+
+mem.numa.util.total
+No value(s) available!
+
+mem.numa.util.unevictable
+No value(s) available!
+
+mem.numa.util.used
+No value(s) available!
+
+mem.numa.util.writeback
+No value(s) available!
+
+mem.numa.util.writebackTmp
+No value(s) available!
+
+mem.physmem
+    value 16022140
+
+mem.slabinfo.objects.active
+No value(s) available!
+
+mem.slabinfo.objects.size
+No value(s) available!
+
+mem.slabinfo.objects.total
+No value(s) available!
+
+mem.slabinfo.slabs.active
+No value(s) available!
+
+mem.slabinfo.slabs.objects_per_slab
+No value(s) available!
+
+mem.slabinfo.slabs.pages_per_slab
+No value(s) available!
+
+mem.slabinfo.slabs.total
+No value(s) available!
+
+mem.slabinfo.slabs.total_size
+No value(s) available!
+
+mem.util.NFS_Unstable
+    value 0
+
+mem.util.active
+    value 5836156
+
+mem.util.active_anon
+    value 1867924
+
+mem.util.active_file
+    value 3968232
+
+mem.util.anonhugepages
+    value 0
+
+mem.util.anonpages
+    value 1862688
+
+mem.util.available
+    value 12881060
+
+mem.util.bounce
+    value 0
+
+mem.util.bufmem
+    value 4500
+
+mem.util.cache_clean
+    value 7628056
+
+mem.util.cached
+    value 7628228
+
+mem.util.commitLimit
+    value 16071992
+
+mem.util.committed_AS
+    value 7345516
+
+mem.util.corrupthardware
+    value 0
+
+mem.util.directMap1G
+    value 6291456
+
+mem.util.directMap2M
+    value 9703424
+
+mem.util.directMap4k
+    value 398952
+
+mem.util.dirty
+    value 172
+
+mem.util.free
+    value 4650860
+
+mem.util.highFree
+No value(s) available!
+
+mem.util.highTotal
+No value(s) available!
+
+mem.util.hugepagesFree
+    value 0
+
+mem.util.hugepagesRsvd
+    value 0
+
+mem.util.hugepagesSurp
+    value 0
+
+mem.util.hugepagesTotal
+    value 0
+
+mem.util.inactive
+    value 3659244
+
+mem.util.inactive_anon
+    value 401036
+
+mem.util.inactive_file
+    value 3258208
+
+mem.util.kernelStack
+    value 13152
+
+mem.util.lowFree
+No value(s) available!
+
+mem.util.lowTotal
+No value(s) available!
+
+mem.util.mapped
+    value 544200
+
+mem.util.mlocked
+    value 16
+
+mem.util.mmap_copy
+No value(s) available!
+
+mem.util.other
+    value 3738552
+
+mem.util.pageTables
+    value 55928
+
+mem.util.quicklists
+No value(s) available!
+
+mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shared
+No value(s) available!
+
+mem.util.shmem
+    value 406288
+
+mem.util.slab
+    value 1339256
+
+mem.util.slabReclaimable
+    value 1063556
+
+mem.util.slabUnreclaimable
+    value 275700
+
+mem.util.swapCached
+    value 0
+
+mem.util.swapFree
+    value 8060924
+
+mem.util.swapTotal
+    value 8060924
+
+mem.util.unevictable
+    value 16
+
+mem.util.used
+    value 11371280
+
+mem.util.vmallocChunk
+    value 0
+
+mem.util.vmallocTotal
+    value 34359738367
+
+mem.util.vmallocUsed
+    value 0
+
+mem.util.writeback
+    value 0
+
+mem.vmstat.allocstall
+    value 0
+
+mem.vmstat.balloon_deflate
+    value 0
+
+mem.vmstat.balloon_inflate
+    value 0
+
+mem.vmstat.balloon_migrate
+    value 0
+
+mem.vmstat.compact_blocks_moved
+No value(s) available!
+
+mem.vmstat.compact_fail
+    value 0
+
+mem.vmstat.compact_pagemigrate_failed
+No value(s) available!
+
+mem.vmstat.compact_pages_moved
+No value(s) available!
+
+mem.vmstat.compact_stall
+    value 0
+
+mem.vmstat.compact_success
+    value 0
+
+mem.vmstat.htlb_buddy_alloc_fail
+    value 0
+
+mem.vmstat.htlb_buddy_alloc_success
+    value 0
+
+mem.vmstat.kswapd_high_wmark_hit_quickly
+    value 0
+
+mem.vmstat.kswapd_inodesteal
+    value 0
+
+mem.vmstat.kswapd_low_wmark_hit_quickly
+    value 0
+
+mem.vmstat.kswapd_skip_congestion_wait
+No value(s) available!
+
+mem.vmstat.kswapd_steal
+No value(s) available!
+
+mem.vmstat.nr_active_anon
+    value 469662
+
+mem.vmstat.nr_active_file
+    value 992120
+
+mem.vmstat.nr_anon_pages
+    value 468347
+
+mem.vmstat.nr_anon_transparent_hugepages
+    value 0
+
+mem.vmstat.nr_bounce
+    value 0
+
+mem.vmstat.nr_dirtied
+    value 5303591
+
+mem.vmstat.nr_dirty
+    value 112
+
+mem.vmstat.nr_dirty_background_threshold
+    value 294243
+
+mem.vmstat.nr_dirty_threshold
+    value 588487
+
+mem.vmstat.nr_free_pages
+    value 1159538
+
+mem.vmstat.nr_inactive_anon
+    value 100239
+
+mem.vmstat.nr_inactive_file
+    value 814770
+
+mem.vmstat.nr_isolated_anon
+    value 0
+
+mem.vmstat.nr_isolated_file
+    value 0
+
+mem.vmstat.nr_kernel_stack
+    value 827
+
+mem.vmstat.nr_mapped
+    value 136629
+
+mem.vmstat.nr_mlock
+    value 4
+
+mem.vmstat.nr_page_table_pages
+    value 14211
+
+mem.vmstat.nr_shmem
+    value 101558
+
+mem.vmstat.nr_slab
+    value 334774
+
+mem.vmstat.nr_slab_reclaimable
+    value 265944
+
+mem.vmstat.nr_slab_unreclaimable
+    value 68830
+
+mem.vmstat.nr_unevictable
+    value 4
+
+mem.vmstat.nr_unstable
+    value 0
+
+mem.vmstat.nr_vmscan_write
+    value 0
+
+mem.vmstat.nr_writeback
+    value 0
+
+mem.vmstat.nr_writeback_temp
+    value 0
+
+mem.vmstat.nr_written
+    value 4480980
+
+mem.vmstat.numa_foreign
+    value 0
+
+mem.vmstat.numa_hit
+    value 326893040
+
+mem.vmstat.numa_interleave
+    value 23559
+
+mem.vmstat.numa_local
+    value 326893040
+
+mem.vmstat.numa_miss
+    value 0
+
+mem.vmstat.numa_other
+    value 0
+
+mem.vmstat.pageoutrun
+    value 1
+
+mem.vmstat.pgactivate
+    value 3234263
+
+mem.vmstat.pgalloc_dma
+    value 24
+
+mem.vmstat.pgalloc_dma32
+    value 39733670
+
+mem.vmstat.pgalloc_high
+No value(s) available!
+
+mem.vmstat.pgalloc_movable
+    value 0
+
+mem.vmstat.pgalloc_normal
+    value 297889606
+
+mem.vmstat.pgdeactivate
+    value 63
+
+mem.vmstat.pgfault
+    value 414185127
+
+mem.vmstat.pgfree
+    value 338784916
+
+mem.vmstat.pginodesteal
+    value 0
+
+mem.vmstat.pgmajfault
+    value 9578
+
+mem.vmstat.pgpgin
+    value 5282454
+
+mem.vmstat.pgpgout
+    value 20759330
+
+mem.vmstat.pgrefill_dma
+    value 0
+
+mem.vmstat.pgrefill_dma32
+    value 0
+
+mem.vmstat.pgrefill_high
+No value(s) available!
+
+mem.vmstat.pgrefill_movable
+    value 0
+
+mem.vmstat.pgrefill_normal
+    value 0
+
+mem.vmstat.pgrotated
+    value 577
+
+mem.vmstat.pgscan_direct_dma
+    value 0
+
+mem.vmstat.pgscan_direct_dma32
+    value 0
+
+mem.vmstat.pgscan_direct_high
+No value(s) available!
+
+mem.vmstat.pgscan_direct_movable
+    value 0
+
+mem.vmstat.pgscan_direct_normal
+    value 0
+
+mem.vmstat.pgscan_kswapd_dma
+    value 0
+
+mem.vmstat.pgscan_kswapd_dma32
+    value 0
+
+mem.vmstat.pgscan_kswapd_high
+No value(s) available!
+
+mem.vmstat.pgscan_kswapd_movable
+    value 0
+
+mem.vmstat.pgscan_kswapd_normal
+    value 0
+
+mem.vmstat.pgsteal_dma
+No value(s) available!
+
+mem.vmstat.pgsteal_dma32
+No value(s) available!
+
+mem.vmstat.pgsteal_high
+No value(s) available!
+
+mem.vmstat.pgsteal_movable
+No value(s) available!
+
+mem.vmstat.pgsteal_normal
+No value(s) available!
+
+mem.vmstat.pswpin
+    value 0
+
+mem.vmstat.pswpout
+    value 0
+
+mem.vmstat.slabs_scanned
+    value 0
+
+mem.vmstat.thp_collapse_alloc
+    value 0
+
+mem.vmstat.thp_collapse_alloc_failed
+    value 0
+
+mem.vmstat.thp_fault_alloc
+    value 0
+
+mem.vmstat.thp_fault_fallback
+    value 0
+
+mem.vmstat.thp_split
+    value 0
+
+mem.vmstat.thp_zero_page_alloc
+    value 0
+
+mem.vmstat.thp_zero_page_alloc_failed
+    value 0
+
+mem.vmstat.unevictable_pgs_cleared
+    value 0
+
+mem.vmstat.unevictable_pgs_culled
+    value 11631
+
+mem.vmstat.unevictable_pgs_mlocked
+    value 14270
+
+mem.vmstat.unevictable_pgs_mlockfreed
+No value(s) available!
+
+mem.vmstat.unevictable_pgs_munlocked
+    value 14266
+
+mem.vmstat.unevictable_pgs_rescued
+    value 11466
+
+mem.vmstat.unevictable_pgs_scanned
+    value 0
+
+mem.vmstat.unevictable_pgs_stranded
+    value 0
+
+mem.vmstat.zone_reclaim_failed
+    value 0
+
+== done
+
+== Checking slabinfo metric values - meminfo-root-001.tgz
+
+mem.slabinfo.objects.active
+    inst [0 or "gfs2_quotad"] value 0
+    inst [1 or "gfs2_inode"] value 0
+    inst [2 or "gfs2_glock(aspace)"] value 0
+    inst [3 or "gfs2_glock"] value 0
+    inst [4 or "dlm_rsb"] value 0
+    inst [5 or "dlm_lkb"] value 0
+    inst [6 or "nf_conntrack_ffff88042bc32240"] value 0
+    inst [7 or "nf_conntrack_ffff88042185a240"] value 0
+    inst [8 or "fuse_request"] value 70
+    inst [9 or "fuse_inode"] value 26
+    inst [10 or "nf_conntrack_ffff880456c38000"] value 0
+    inst [11 or "nf_conntrack_ffffffff81f20800"] value 1000
+    inst [12 or "kvm_vcpu"] value 0
+    inst [13 or "ext4_groupinfo_1k"] value 64
+    inst [14 or "nfs4_layout_stateid"] value 0
+    inst [15 or "nfsd4_delegations"] value 0
+    inst [16 or "nfsd4_files"] value 0
+    inst [17 or "nfsd4_lockowners"] value 0
+    inst [18 or "nfsd4_openowners"] value 0
+    inst [19 or "rpc_inode_cache"] value 28
+    inst [20 or "xfs_dqtrx"] value 0
+    inst [21 or "xfs_dquot"] value 22
+    inst [22 or "xfs_inode"] value 257641
+    inst [23 or "xfs_efd_item"] value 300
+    inst [24 or "xfs_da_state"] value 272
+    inst [25 or "xfs_btree_cur"] value 312
+    inst [26 or "xfs_log_ticket"] value 2948
+    inst [27 or "ip6-frags"] value 46
+    inst [28 or "ip6_dst_cache"] value 168
+    inst [29 or "RAWv6"] value 200
+    inst [30 or "UDPLITEv6"] value 0
+    inst [31 or "UDPv6"] value 160
+    inst [32 or "tw_sock_TCPv6"] value 120
+    inst [33 or "request_sock_TCPv6"] value 168
+    inst [34 or "TCPv6"] value 110
+    inst [35 or "kcopyd_job"] value 0
+    inst [36 or "dm_uevent"] value 0
+    inst [37 or "cfq_queue"] value 3255
+    inst [38 or "bsg_cmd"] value 0
+    inst [39 or "mqueue_inode_cache"] value 22
+    inst [40 or "hugetlbfs_inode_cache"] value 120
+    inst [41 or "jbd2_journal_handle"] value 336
+    inst [42 or "jbd2_journal_head"] value 272
+    inst [43 or "jbd2_revoke_table_s"] value 256
+    inst [44 or "jbd2_revoke_record_s"] value 0
+    inst [45 or "ext4_inode_cache"] value 135
+    inst [46 or "ext4_free_data"] value 448
+    inst [47 or "ext4_allocation_context"] value 224
+    inst [48 or "ext4_prealloc_space"] value 144
+    inst [49 or "ext4_io_end"] value 392
+    inst [50 or "ext4_extent_status"] value 816
+    inst [51 or "dquot"] value 0
+    inst [52 or "userfaultfd_ctx_cache"] value 0
+    inst [53 or "fsnotify_mark"] value 224
+    inst [54 or "dio"] value 30380
+    inst [55 or "pid_namespace"] value 84
+    inst [56 or "posix_timers_cache"] value 0
+    inst [57 or "UNIX"] value 944
+    inst [58 or "UDP-Lite"] value 0
+    inst [59 or "flow_cache"] value 0
+    inst [60 or "UDP"] value 176
+    inst [61 or "tw_sock_TCP"] value 984
+    inst [62 or "request_sock_TCP"] value 168
+    inst [63 or "TCP"] value 276
+    inst [64 or "inotify_inode_mark"] value 194765
+    inst [65 or "sgpool-128"] value 120
+    inst [66 or "sgpool-64"] value 168
+    inst [67 or "sgpool-32"] value 300
+    inst [68 or "sgpool-16"] value 1576
+    inst [69 or "scsi_data_buffer"] value 128350
+    inst [70 or "blkdev_queue"] value 32
+    inst [71 or "blkdev_requests"] value 580
+    inst [72 or "blkdev_ioc"] value 333
+    inst [73 or "user_namespace"] value 190
+    inst [74 or "dmaengine-unmap-256"] value 15
+    inst [75 or "dmaengine-unmap-128"] value 30
+    inst [76 or "sock_inode_cache"] value 1505
+    inst [77 or "file_lock_cache"] value 240
+    inst [78 or "file_lock_ctx"] value 2195
+    inst [79 or "net_namespace"] value 18
+    inst [80 or "shmem_inode_cache"] value 3057
+    inst [81 or "taskstats"] value 192
+    inst [82 or "proc_inode_cache"] value 59669
+    inst [83 or "sigqueue"] value 200
+    inst [84 or "bdev_cache"] value 105
+    inst [85 or "kernfs_node_cache"] value 36624
+    inst [86 or "mnt_cache"] value 684
+    inst [87 or "inode_cache"] value 24256
+    inst [88 or "dentry"] value 802925
+    inst [89 or "avc_xperms_node"] value 511
+    inst [90 or "selinux_inode_security"] value 345243
+    inst [91 or "key_jar"] value 1220
+    inst [92 or "buffer_head"] value 960687
+    inst [93 or "mm_struct"] value 506
+    inst [94 or "files_cache"] value 507
+    inst [95 or "signal_cache"] value 901
+    inst [96 or "sighand_cache"] value 535
+    inst [97 or "task_struct"] value 843
+    inst [98 or "Acpi-ParseExt"] value 312
+    inst [99 or "Acpi-State"] value 612
+    inst [100 or "anon_vma"] value 15347
+    inst [101 or "numa_policy"] value 2990
+    inst [102 or "debug_objects_cache"] value 65808
+    inst [103 or "radix_tree_node"] value 153612
+    inst [104 or "trace_event_file"] value 2116
+    inst [105 or "ftrace_event_field"] value 5185
+    inst [106 or "idr_layer_cache"] value 705
+    inst [107 or "page->ptl"] value 21273
+    inst [108 or "dma-kmalloc-8192"] value 0
+    inst [109 or "dma-kmalloc-4096"] value 0
+    inst [110 or "dma-kmalloc-2048"] value 0
+    inst [111 or "dma-kmalloc-1024"] value 0
+    inst [112 or "dma-kmalloc-512"] value 32
+    inst [113 or "dma-kmalloc-256"] value 0
+    inst [114 or "dma-kmalloc-128"] value 0
+    inst [115 or "dma-kmalloc-64"] value 0
+    inst [116 or "dma-kmalloc-32"] value 0
+    inst [117 or "dma-kmalloc-16"] value 0
+    inst [118 or "dma-kmalloc-8"] value 0
+    inst [119 or "dma-kmalloc-192"] value 0
+    inst [120 or "dma-kmalloc-96"] value 0
+    inst [121 or "kmalloc-8192"] value 148
+    inst [122 or "kmalloc-4096"] value 985
+    inst [123 or "kmalloc-2048"] value 1664
+    inst [124 or "kmalloc-1024"] value 2130
+    inst [125 or "kmalloc-512"] value 17292
+    inst [126 or "kmalloc-256"] value 8797
+    inst [127 or "kmalloc-192"] value 122667
+    inst [128 or "kmalloc-128"] value 13288
+    inst [129 or "kmalloc-96"] value 20202
+    inst [130 or "kmalloc-64"] value 636212
+    inst [131 or "kmalloc-32"] value 155565
+    inst [132 or "kmalloc-16"] value 83398
+    inst [133 or "kmalloc-8"] value 94208
+    inst [134 or "kmem_cache_node"] value 352
+    inst [135 or "kmem_cache"] value 352
+
+mem.slabinfo.objects.size
+    inst [0 or "gfs2_quotad"] value 280
+    inst [1 or "gfs2_inode"] value 1424
+    inst [2 or "gfs2_glock(aspace)"] value 1056
+    inst [3 or "gfs2_glock"] value 648
+    inst [4 or "dlm_rsb"] value 440
+    inst [5 or "dlm_lkb"] value 672
+    inst [6 or "nf_conntrack_ffff88042bc32240"] value 440
+    inst [7 or "nf_conntrack_ffff88042185a240"] value 440
+    inst [8 or "fuse_request"] value 464
+    inst [9 or "fuse_inode"] value 1216
+    inst [10 or "nf_conntrack_ffff880456c38000"] value 440
+    inst [11 or "nf_conntrack_ffffffff81f20800"] value 440
+    inst [12 or "kvm_vcpu"] value 17280
+    inst [13 or "ext4_groupinfo_1k"] value 256
+    inst [14 or "nfs4_layout_stateid"] value 592
+    inst [15 or "nfsd4_delegations"] value 352
+    inst [16 or "nfsd4_files"] value 360
+    inst [17 or "nfsd4_lockowners"] value 504
+    inst [18 or "nfsd4_openowners"] value 560
+    inst [19 or "rpc_inode_cache"] value 1152
+    inst [20 or "xfs_dqtrx"] value 528
+    inst [21 or "xfs_dquot"] value 720
+    inst [22 or "xfs_inode"] value 1984
+    inst [23 or "xfs_efd_item"] value 400
+    inst [24 or "xfs_da_state"] value 480
+    inst [25 or "xfs_btree_cur"] value 208
+    inst [26 or "xfs_log_ticket"] value 184
+    inst [27 or "ip6-frags"] value 344
+    inst [28 or "ip6_dst_cache"] value 384
+    inst [29 or "RAWv6"] value 1600
+    inst [30 or "UDPLITEv6"] value 1600
+    inst [31 or "UDPv6"] value 1600
+    inst [32 or "tw_sock_TCPv6"] value 328
+    inst [33 or "request_sock_TCPv6"] value 376
+    inst [34 or "TCPv6"] value 2944
+    inst [35 or "kcopyd_job"] value 4392
+    inst [36 or "dm_uevent"] value 2632
+    inst [37 or "cfq_queue"] value 232
+    inst [38 or "bsg_cmd"] value 312
+    inst [39 or "mqueue_inode_cache"] value 1472
+    inst [40 or "hugetlbfs_inode_cache"] value 1088
+    inst [41 or "jbd2_journal_handle"] value 96
+    inst [42 or "jbd2_journal_head"] value 120
+    inst [43 or "jbd2_revoke_table_s"] value 16
+    inst [44 or "jbd2_revoke_record_s"] value 32
+    inst [45 or "ext4_inode_cache"] value 2072
+    inst [46 or "ext4_free_data"] value 64
+    inst [47 or "ext4_allocation_context"] value 128
+    inst [48 or "ext4_prealloc_space"] value 168
+    inst [49 or "ext4_io_end"] value 72
+    inst [50 or "ext4_extent_status"] value 40
+    inst [51 or "dquot"] value 448
+    inst [52 or "userfaultfd_ctx_cache"] value 384
+    inst [53 or "fsnotify_mark"] value 144
+    inst [54 or "dio"] value 704
+    inst [55 or "pid_namespace"] value 2272
+    inst [56 or "posix_timers_cache"] value 304
+    inst [57 or "UNIX"] value 1728
+    inst [58 or "UDP-Lite"] value 1472
+    inst [59 or "flow_cache"] value 112
+    inst [60 or "UDP"] value 1472
+    inst [61 or "tw_sock_TCP"] value 328
+    inst [62 or "request_sock_TCP"] value 376
+    inst [63 or "TCP"] value 2816
+    inst [64 or "inotify_inode_mark"] value 152
+    inst [65 or "sgpool-128"] value 5120
+    inst [66 or "sgpool-64"] value 2560
+    inst [67 or "sgpool-32"] value 1280
+    inst [68 or "sgpool-16"] value 640
+    inst [69 or "scsi_data_buffer"] value 24
+    inst [70 or "blkdev_queue"] value 3824
+    inst [71 or "blkdev_requests"] value 368
+    inst [72 or "blkdev_ioc"] value 216
+    inst [73 or "user_namespace"] value 424
+    inst [74 or "dmaengine-unmap-256"] value 2112
+    inst [75 or "dmaengine-unmap-128"] value 1088
+    inst [76 or "sock_inode_cache"] value 1088
+    inst [77 or "file_lock_cache"] value 272
+    inst [78 or "file_lock_ctx"] value 120
+    inst [79 or "net_namespace"] value 8768
+    inst [80 or "shmem_inode_cache"] value 1296
+    inst [81 or "taskstats"] value 328
+    inst [82 or "proc_inode_cache"] value 1064
+    inst [83 or "sigqueue"] value 160
+    inst [84 or "bdev_cache"] value 1536
+    inst [85 or "kernfs_node_cache"] value 168
+    inst [86 or "mnt_cache"] value 448
+    inst [87 or "inode_cache"] value 1008
+    inst [88 or "dentry"] value 320
+    inst [89 or "avc_xperms_node"] value 56
+    inst [90 or "selinux_inode_security"] value 200
+    inst [91 or "key_jar"] value 320
+    inst [92 or "buffer_head"] value 104
+    inst [93 or "mm_struct"] value 1408
+    inst [94 or "files_cache"] value 832
+    inst [95 or "signal_cache"] value 1472
+    inst [96 or "sighand_cache"] value 2240
+    inst [97 or "task_struct"] value 11008
+    inst [98 or "Acpi-ParseExt"] value 104
+    inst [99 or "Acpi-State"] value 80
+    inst [100 or "anon_vma"] value 200
+    inst [101 or "numa_policy"] value 136
+    inst [102 or "debug_objects_cache"] value 40
+    inst [103 or "radix_tree_node"] value 584
+    inst [104 or "trace_event_file"] value 88
+    inst [105 or "ftrace_event_field"] value 48
+    inst [106 or "idr_layer_cache"] value 2096
+    inst [107 or "page->ptl"] value 72
+    inst [108 or "dma-kmalloc-8192"] value 8192
+    inst [109 or "dma-kmalloc-4096"] value 4096
+    inst [110 or "dma-kmalloc-2048"] value 2048
+    inst [111 or "dma-kmalloc-1024"] value 1024
+    inst [112 or "dma-kmalloc-512"] value 512
+    inst [113 or "dma-kmalloc-256"] value 256
+    inst [114 or "dma-kmalloc-128"] value 128
+    inst [115 or "dma-kmalloc-64"] value 64
+    inst [116 or "dma-kmalloc-32"] value 32
+    inst [117 or "dma-kmalloc-16"] value 16
+    inst [118 or "dma-kmalloc-8"] value 8
+    inst [119 or "dma-kmalloc-192"] value 192
+    inst [120 or "dma-kmalloc-96"] value 96
+    inst [121 or "kmalloc-8192"] value 8192
+    inst [122 or "kmalloc-4096"] value 4096
+    inst [123 or "kmalloc-2048"] value 2048
+    inst [124 or "kmalloc-1024"] value 1024
+    inst [125 or "kmalloc-512"] value 512
+    inst [126 or "kmalloc-256"] value 256
+    inst [127 or "kmalloc-192"] value 192
+    inst [128 or "kmalloc-128"] value 128
+    inst [129 or "kmalloc-96"] value 96
+    inst [130 or "kmalloc-64"] value 64
+    inst [131 or "kmalloc-32"] value 32
+    inst [132 or "kmalloc-16"] value 16
+    inst [133 or "kmalloc-8"] value 8
+    inst [134 or "kmem_cache_node"] value 128
+    inst [135 or "kmem_cache"] value 256
+
+mem.slabinfo.objects.total
+    inst [0 or "gfs2_quotad"] value 0
+    inst [1 or "gfs2_inode"] value 0
+    inst [2 or "gfs2_glock(aspace)"] value 0
+    inst [3 or "gfs2_glock"] value 0
+    inst [4 or "dlm_rsb"] value 0
+    inst [5 or "dlm_lkb"] value 0
+    inst [6 or "nf_conntrack_ffff88042bc32240"] value 0
+    inst [7 or "nf_conntrack_ffff88042185a240"] value 0
+    inst [8 or "fuse_request"] value 70
+    inst [9 or "fuse_inode"] value 26
+    inst [10 or "nf_conntrack_ffff880456c38000"] value 0
+    inst [11 or "nf_conntrack_ffffffff81f20800"] value 1147
+    inst [12 or "kvm_vcpu"] value 0
+    inst [13 or "ext4_groupinfo_1k"] value 64
+    inst [14 or "nfs4_layout_stateid"] value 0
+    inst [15 or "nfsd4_delegations"] value 0
+    inst [16 or "nfsd4_files"] value 0
+    inst [17 or "nfsd4_lockowners"] value 0
+    inst [18 or "nfsd4_openowners"] value 0
+    inst [19 or "rpc_inode_cache"] value 28
+    inst [20 or "xfs_dqtrx"] value 0
+    inst [21 or "xfs_dquot"] value 22
+    inst [22 or "xfs_inode"] value 261088
+    inst [23 or "xfs_efd_item"] value 360
+    inst [24 or "xfs_da_state"] value 272
+    inst [25 or "xfs_btree_cur"] value 312
+    inst [26 or "xfs_log_ticket"] value 2948
+    inst [27 or "ip6-frags"] value 46
+    inst [28 or "ip6_dst_cache"] value 168
+    inst [29 or "RAWv6"] value 200
+    inst [30 or "UDPLITEv6"] value 0
+    inst [31 or "UDPv6"] value 160
+    inst [32 or "tw_sock_TCPv6"] value 120
+    inst [33 or "request_sock_TCPv6"] value 168
+    inst [34 or "TCPv6"] value 110
+    inst [35 or "kcopyd_job"] value 0
+    inst [36 or "dm_uevent"] value 0
+    inst [37 or "cfq_queue"] value 3255
+    inst [38 or "bsg_cmd"] value 0
+    inst [39 or "mqueue_inode_cache"] value 22
+    inst [40 or "hugetlbfs_inode_cache"] value 120
+    inst [41 or "jbd2_journal_handle"] value 336
+    inst [42 or "jbd2_journal_head"] value 272
+    inst [43 or "jbd2_revoke_table_s"] value 256
+    inst [44 or "jbd2_revoke_record_s"] value 0
+    inst [45 or "ext4_inode_cache"] value 135
+    inst [46 or "ext4_free_data"] value 448
+    inst [47 or "ext4_allocation_context"] value 224
+    inst [48 or "ext4_prealloc_space"] value 144
+    inst [49 or "ext4_io_end"] value 392
+    inst [50 or "ext4_extent_status"] value 816
+    inst [51 or "dquot"] value 0
+    inst [52 or "userfaultfd_ctx_cache"] value 0
+    inst [53 or "fsnotify_mark"] value 224
+    inst [54 or "dio"] value 30797
+    inst [55 or "pid_namespace"] value 84
+    inst [56 or "posix_timers_cache"] value 0
+    inst [57 or "UNIX"] value 1080
+    inst [58 or "UDP-Lite"] value 0
+    inst [59 or "flow_cache"] value 0
+    inst [60 or "UDP"] value 176
+    inst [61 or "tw_sock_TCP"] value 1056
+    inst [62 or "request_sock_TCP"] value 168
+    inst [63 or "TCP"] value 319
+    inst [64 or "inotify_inode_mark"] value 199056
+    inst [65 or "sgpool-128"] value 156
+    inst [66 or "sgpool-64"] value 204
+    inst [67 or "sgpool-32"] value 300
+    inst [68 or "sgpool-16"] value 1750
+    inst [69 or "scsi_data_buffer"] value 129030
+    inst [70 or "blkdev_queue"] value 32
+    inst [71 or "blkdev_requests"] value 660
+    inst [72 or "blkdev_ioc"] value 333
+    inst [73 or "user_namespace"] value 190
+    inst [74 or "dmaengine-unmap-256"] value 15
+    inst [75 or "dmaengine-unmap-128"] value 30
+    inst [76 or "sock_inode_cache"] value 1650
+    inst [77 or "file_lock_cache"] value 240
+    inst [78 or "file_lock_ctx"] value 2550
+    inst [79 or "net_namespace"] value 18
+    inst [80 or "shmem_inode_cache"] value 3425
+    inst [81 or "taskstats"] value 192
+    inst [82 or "proc_inode_cache"] value 64410
+    inst [83 or "sigqueue"] value 200
+    inst [84 or "bdev_cache"] value 105
+    inst [85 or "kernfs_node_cache"] value 36624
+    inst [86 or "mnt_cache"] value 684
+    inst [87 or "inode_cache"] value 24256
+    inst [88 or "dentry"] value 802925
+    inst [89 or "avc_xperms_node"] value 511
+    inst [90 or "selinux_inode_security"] value 349180
+    inst [91 or "key_jar"] value 1600
+    inst [92 or "buffer_head"] value 960687
+    inst [93 or "mm_struct"] value 506
+    inst [94 or "files_cache"] value 507
+    inst [95 or "signal_cache"] value 990
+    inst [96 or "sighand_cache"] value 588
+    inst [97 or "task_struct"] value 844
+    inst [98 or "Acpi-ParseExt"] value 312
+    inst [99 or "Acpi-State"] value 612
+    inst [100 or "anon_vma"] value 15580
+    inst [101 or "numa_policy"] value 3270
+    inst [102 or "debug_objects_cache"] value 73542
+    inst [103 or "radix_tree_node"] value 158508
+    inst [104 or "trace_event_file"] value 2116
+    inst [105 or "ftrace_event_field"] value 5185
+    inst [106 or "idr_layer_cache"] value 705
+    inst [107 or "page->ptl"] value 22848
+    inst [108 or "dma-kmalloc-8192"] value 0
+    inst [109 or "dma-kmalloc-4096"] value 0
+    inst [110 or "dma-kmalloc-2048"] value 0
+    inst [111 or "dma-kmalloc-1024"] value 0
+    inst [112 or "dma-kmalloc-512"] value 32
+    inst [113 or "dma-kmalloc-256"] value 0
+    inst [114 or "dma-kmalloc-128"] value 0
+    inst [115 or "dma-kmalloc-64"] value 0
+    inst [116 or "dma-kmalloc-32"] value 0
+    inst [117 or "dma-kmalloc-16"] value 0
+    inst [118 or "dma-kmalloc-8"] value 0
+    inst [119 or "dma-kmalloc-192"] value 0
+    inst [120 or "dma-kmalloc-96"] value 0
+    inst [121 or "kmalloc-8192"] value 164
+    inst [122 or "kmalloc-4096"] value 1120
+    inst [123 or "kmalloc-2048"] value 1760
+    inst [124 or "kmalloc-1024"] value 2816
+    inst [125 or "kmalloc-512"] value 19968
+    inst [126 or "kmalloc-256"] value 9952
+    inst [127 or "kmalloc-192"] value 123669
+    inst [128 or "kmalloc-128"] value 18496
+    inst [129 or "kmalloc-96"] value 20244
+    inst [130 or "kmalloc-64"] value 647040
+    inst [131 or "kmalloc-32"] value 163072
+    inst [132 or "kmalloc-16"] value 85504
+    inst [133 or "kmalloc-8"] value 96256
+    inst [134 or "kmem_cache_node"] value 352
+    inst [135 or "kmem_cache"] value 352
+
+mem.slabinfo.slabs.active
+    inst [0 or "gfs2_quotad"] value 0
+    inst [1 or "gfs2_inode"] value 0
+    inst [2 or "gfs2_glock(aspace)"] value 0
+    inst [3 or "gfs2_glock"] value 0
+    inst [4 or "dlm_rsb"] value 0
+    inst [5 or "dlm_lkb"] value 0
+    inst [6 or "nf_conntrack_ffff88042bc32240"] value 0
+    inst [7 or "nf_conntrack_ffff88042185a240"] value 0
+    inst [8 or "fuse_request"] value 0
+    inst [9 or "fuse_inode"] value 0
+    inst [10 or "nf_conntrack_ffff880456c38000"] value 0
+    inst [11 or "nf_conntrack_ffffffff81f20800"] value 0
+    inst [12 or "kvm_vcpu"] value 0
+    inst [13 or "ext4_groupinfo_1k"] value 0
+    inst [14 or "nfs4_layout_stateid"] value 0
+    inst [15 or "nfsd4_delegations"] value 0
+    inst [16 or "nfsd4_files"] value 0
+    inst [17 or "nfsd4_lockowners"] value 0
+    inst [18 or "nfsd4_openowners"] value 0
+    inst [19 or "rpc_inode_cache"] value 0
+    inst [20 or "xfs_dqtrx"] value 0
+    inst [21 or "xfs_dquot"] value 0
+    inst [22 or "xfs_inode"] value 0
+    inst [23 or "xfs_efd_item"] value 0
+    inst [24 or "xfs_da_state"] value 0
+    inst [25 or "xfs_btree_cur"] value 0
+    inst [26 or "xfs_log_ticket"] value 0
+    inst [27 or "ip6-frags"] value 0
+    inst [28 or "ip6_dst_cache"] value 0
+    inst [29 or "RAWv6"] value 0
+    inst [30 or "UDPLITEv6"] value 0
+    inst [31 or "UDPv6"] value 0
+    inst [32 or "tw_sock_TCPv6"] value 0
+    inst [33 or "request_sock_TCPv6"] value 0
+    inst [34 or "TCPv6"] value 0
+    inst [35 or "kcopyd_job"] value 0
+    inst [36 or "dm_uevent"] value 0
+    inst [37 or "cfq_queue"] value 0
+    inst [38 or "bsg_cmd"] value 0
+    inst [39 or "mqueue_inode_cache"] value 0
+    inst [40 or "hugetlbfs_inode_cache"] value 0
+    inst [41 or "jbd2_journal_handle"] value 0
+    inst [42 or "jbd2_journal_head"] value 0
+    inst [43 or "jbd2_revoke_table_s"] value 0
+    inst [44 or "jbd2_revoke_record_s"] value 0
+    inst [45 or "ext4_inode_cache"] value 0
+    inst [46 or "ext4_free_data"] value 0
+    inst [47 or "ext4_allocation_context"] value 0
+    inst [48 or "ext4_prealloc_space"] value 0
+    inst [49 or "ext4_io_end"] value 0
+    inst [50 or "ext4_extent_status"] value 0
+    inst [51 or "dquot"] value 0
+    inst [52 or "userfaultfd_ctx_cache"] value 0
+    inst [53 or "fsnotify_mark"] value 0
+    inst [54 or "dio"] value 0
+    inst [55 or "pid_namespace"] value 0
+    inst [56 or "posix_timers_cache"] value 0
+    inst [57 or "UNIX"] value 0
+    inst [58 or "UDP-Lite"] value 0
+    inst [59 or "flow_cache"] value 0
+    inst [60 or "UDP"] value 0
+    inst [61 or "tw_sock_TCP"] value 0
+    inst [62 or "request_sock_TCP"] value 0
+    inst [63 or "TCP"] value 0
+    inst [64 or "inotify_inode_mark"] value 0
+    inst [65 or "sgpool-128"] value 0
+    inst [66 or "sgpool-64"] value 0
+    inst [67 or "sgpool-32"] value 0
+    inst [68 or "sgpool-16"] value 0
+    inst [69 or "scsi_data_buffer"] value 0
+    inst [70 or "blkdev_queue"] value 0
+    inst [71 or "blkdev_requests"] value 0
+    inst [72 or "blkdev_ioc"] value 0
+    inst [73 or "user_namespace"] value 0
+    inst [74 or "dmaengine-unmap-256"] value 0
+    inst [75 or "dmaengine-unmap-128"] value 0
+    inst [76 or "sock_inode_cache"] value 0
+    inst [77 or "file_lock_cache"] value 0
+    inst [78 or "file_lock_ctx"] value 0
+    inst [79 or "net_namespace"] value 0
+    inst [80 or "shmem_inode_cache"] value 0
+    inst [81 or "taskstats"] value 0
+    inst [82 or "proc_inode_cache"] value 0
+    inst [83 or "sigqueue"] value 0
+    inst [84 or "bdev_cache"] value 0
+    inst [85 or "kernfs_node_cache"] value 0
+    inst [86 or "mnt_cache"] value 0
+    inst [87 or "inode_cache"] value 0
+    inst [88 or "dentry"] value 0
+    inst [89 or "avc_xperms_node"] value 0
+    inst [90 or "selinux_inode_security"] value 0
+    inst [91 or "key_jar"] value 0
+    inst [92 or "buffer_head"] value 0
+    inst [93 or "mm_struct"] value 0
+    inst [94 or "files_cache"] value 0
+    inst [95 or "signal_cache"] value 0
+    inst [96 or "sighand_cache"] value 0
+    inst [97 or "task_struct"] value 0
+    inst [98 or "Acpi-ParseExt"] value 0
+    inst [99 or "Acpi-State"] value 0
+    inst [100 or "anon_vma"] value 0
+    inst [101 or "numa_policy"] value 0
+    inst [102 or "debug_objects_cache"] value 0
+    inst [103 or "radix_tree_node"] value 0
+    inst [104 or "trace_event_file"] value 0
+    inst [105 or "ftrace_event_field"] value 0
+    inst [106 or "idr_layer_cache"] value 0
+    inst [107 or "page->ptl"] value 0
+    inst [108 or "dma-kmalloc-8192"] value 0
+    inst [109 or "dma-kmalloc-4096"] value 0
+    inst [110 or "dma-kmalloc-2048"] value 0
+    inst [111 or "dma-kmalloc-1024"] value 0
+    inst [112 or "dma-kmalloc-512"] value 0
+    inst [113 or "dma-kmalloc-256"] value 0
+    inst [114 or "dma-kmalloc-128"] value 0
+    inst [115 or "dma-kmalloc-64"] value 0
+    inst [116 or "dma-kmalloc-32"] value 0
+    inst [117 or "dma-kmalloc-16"] value 0
+    inst [118 or "dma-kmalloc-8"] value 0
+    inst [119 or "dma-kmalloc-192"] value 0
+    inst [120 or "dma-kmalloc-96"] value 0
+    inst [121 or "kmalloc-8192"] value 0
+    inst [122 or "kmalloc-4096"] value 0
+    inst [123 or "kmalloc-2048"] value 0
+    inst [124 or "kmalloc-1024"] value 0
+    inst [125 or "kmalloc-512"] value 0
+    inst [126 or "kmalloc-256"] value 0
+    inst [127 or "kmalloc-192"] value 0
+    inst [128 or "kmalloc-128"] value 0
+    inst [129 or "kmalloc-96"] value 0
+    inst [130 or "kmalloc-64"] value 0
+    inst [131 or "kmalloc-32"] value 0
+    inst [132 or "kmalloc-16"] value 0
+    inst [133 or "kmalloc-8"] value 0
+    inst [134 or "kmem_cache_node"] value 0
+    inst [135 or "kmem_cache"] value 0
+
+mem.slabinfo.slabs.objects_per_slab
+No value(s) available!
+
+mem.slabinfo.slabs.pages_per_slab
+    inst [0 or "gfs2_quotad"] value 2
+    inst [1 or "gfs2_inode"] value 8
+    inst [2 or "gfs2_glock(aspace)"] value 8
+    inst [3 or "gfs2_glock"] value 4
+    inst [4 or "dlm_rsb"] value 4
+    inst [5 or "dlm_lkb"] value 4
+    inst [6 or "nf_conntrack_ffff88042bc32240"] value 4
+    inst [7 or "nf_conntrack_ffff88042185a240"] value 4
+    inst [8 or "fuse_request"] value 4
+    inst [9 or "fuse_inode"] value 8
+    inst [10 or "nf_conntrack_ffff880456c38000"] value 4
+    inst [11 or "nf_conntrack_ffffffff81f20800"] value 4
+    inst [12 or "kvm_vcpu"] value 8
+    inst [13 or "ext4_groupinfo_1k"] value 2
+    inst [14 or "nfs4_layout_stateid"] value 4
+    inst [15 or "nfsd4_delegations"] value 2
+    inst [16 or "nfsd4_files"] value 2
+    inst [17 or "nfsd4_lockowners"] value 4
+    inst [18 or "nfsd4_openowners"] value 4
+    inst [19 or "rpc_inode_cache"] value 8
+    inst [20 or "xfs_dqtrx"] value 4
+    inst [21 or "xfs_dquot"] value 4
+    inst [22 or "xfs_inode"] value 8
+    inst [23 or "xfs_efd_item"] value 2
+    inst [24 or "xfs_da_state"] value 4
+    inst [25 or "xfs_btree_cur"] value 2
+    inst [26 or "xfs_log_ticket"] value 1
+    inst [27 or "ip6-frags"] value 2
+    inst [28 or "ip6_dst_cache"] value 2
+    inst [29 or "RAWv6"] value 8
+    inst [30 or "UDPLITEv6"] value 8
+    inst [31 or "UDPv6"] value 8
+    inst [32 or "tw_sock_TCPv6"] value 2
+    inst [33 or "request_sock_TCPv6"] value 2
+    inst [34 or "TCPv6"] value 8
+    inst [35 or "kcopyd_job"] value 8
+    inst [36 or "dm_uevent"] value 8
+    inst [37 or "cfq_queue"] value 2
+    inst [38 or "bsg_cmd"] value 2
+    inst [39 or "mqueue_inode_cache"] value 8
+    inst [40 or "hugetlbfs_inode_cache"] value 8
+    inst [41 or "jbd2_journal_handle"] value 1
+    inst [42 or "jbd2_journal_head"] value 1
+    inst [43 or "jbd2_revoke_table_s"] value 1
+    inst [44 or "jbd2_revoke_record_s"] value 1
+    inst [45 or "ext4_inode_cache"] value 8
+    inst [46 or "ext4_free_data"] value 1
+    inst [47 or "ext4_allocation_context"] value 1
+    inst [48 or "ext4_prealloc_space"] value 1
+    inst [49 or "ext4_io_end"] value 1
+    inst [50 or "ext4_extent_status"] value 1
+    inst [51 or "dquot"] value 4
+    inst [52 or "userfaultfd_ctx_cache"] value 2
+    inst [53 or "fsnotify_mark"] value 1
+    inst [54 or "dio"] value 4
+    inst [55 or "pid_namespace"] value 8
+    inst [56 or "posix_timers_cache"] value 2
+    inst [57 or "UNIX"] value 8
+    inst [58 or "UDP-Lite"] value 8
+    inst [59 or "flow_cache"] value 1
+    inst [60 or "UDP"] value 8
+    inst [61 or "tw_sock_TCP"] value 2
+    inst [62 or "request_sock_TCP"] value 2
+    inst [63 or "TCP"] value 8
+    inst [64 or "inotify_inode_mark"] value 1
+    inst [65 or "sgpool-128"] value 8
+    inst [66 or "sgpool-64"] value 8
+    inst [67 or "sgpool-32"] value 8
+    inst [68 or "sgpool-16"] value 4
+    inst [69 or "scsi_data_buffer"] value 1
+    inst [70 or "blkdev_queue"] value 8
+    inst [71 or "blkdev_requests"] value 2
+    inst [72 or "blkdev_ioc"] value 2
+    inst [73 or "user_namespace"] value 4
+    inst [74 or "dmaengine-unmap-256"] value 8
+    inst [75 or "dmaengine-unmap-128"] value 8
+    inst [76 or "sock_inode_cache"] value 8
+    inst [77 or "file_lock_cache"] value 2
+    inst [78 or "file_lock_ctx"] value 1
+    inst [79 or "net_namespace"] value 8
+    inst [80 or "shmem_inode_cache"] value 8
+    inst [81 or "taskstats"] value 2
+    inst [82 or "proc_inode_cache"] value 8
+    inst [83 or "sigqueue"] value 1
+    inst [84 or "bdev_cache"] value 8
+    inst [85 or "kernfs_node_cache"] value 1
+    inst [86 or "mnt_cache"] value 4
+    inst [87 or "inode_cache"] value 8
+    inst [88 or "dentry"] value 2
+    inst [89 or "avc_xperms_node"] value 1
+    inst [90 or "selinux_inode_security"] value 1
+    inst [91 or "key_jar"] value 2
+    inst [92 or "buffer_head"] value 1
+    inst [93 or "mm_struct"] value 8
+    inst [94 or "files_cache"] value 8
+    inst [95 or "signal_cache"] value 8
+    inst [96 or "sighand_cache"] value 8
+    inst [97 or "task_struct"] value 4
+    inst [98 or "Acpi-ParseExt"] value 1
+    inst [99 or "Acpi-State"] value 1
+    inst [100 or "anon_vma"] value 1
+    inst [101 or "numa_policy"] value 1
+    inst [102 or "debug_objects_cache"] value 1
+    inst [103 or "radix_tree_node"] value 4
+    inst [104 or "trace_event_file"] value 1
+    inst [105 or "ftrace_event_field"] value 1
+    inst [106 or "idr_layer_cache"] value 8
+    inst [107 or "page->ptl"] value 1
+    inst [108 or "dma-kmalloc-8192"] value 8
+    inst [109 or "dma-kmalloc-4096"] value 8
+    inst [110 or "dma-kmalloc-2048"] value 8
+    inst [111 or "dma-kmalloc-1024"] value 8
+    inst [112 or "dma-kmalloc-512"] value 4
+    inst [113 or "dma-kmalloc-256"] value 2
+    inst [114 or "dma-kmalloc-128"] value 1
+    inst [115 or "dma-kmalloc-64"] value 1
+    inst [116 or "dma-kmalloc-32"] value 1
+    inst [117 or "dma-kmalloc-16"] value 1
+    inst [118 or "dma-kmalloc-8"] value 1
+    inst [119 or "dma-kmalloc-192"] value 1
+    inst [120 or "dma-kmalloc-96"] value 1
+    inst [121 or "kmalloc-8192"] value 8
+    inst [122 or "kmalloc-4096"] value 8
+    inst [123 or "kmalloc-2048"] value 8
+    inst [124 or "kmalloc-1024"] value 8
+    inst [125 or "kmalloc-512"] value 4
+    inst [126 or "kmalloc-256"] value 2
+    inst [127 or "kmalloc-192"] value 1
+    inst [128 or "kmalloc-128"] value 1
+    inst [129 or "kmalloc-96"] value 1
+    inst [130 or "kmalloc-64"] value 1
+    inst [131 or "kmalloc-32"] value 1
+    inst [132 or "kmalloc-16"] value 1
+    inst [133 or "kmalloc-8"] value 1
+    inst [134 or "kmem_cache_node"] value 1
+    inst [135 or "kmem_cache"] value 2
+
+mem.slabinfo.slabs.total
+    inst [0 or "gfs2_quotad"] value 0
+    inst [1 or "gfs2_inode"] value 0
+    inst [2 or "gfs2_glock(aspace)"] value 0
+    inst [3 or "gfs2_glock"] value 0
+    inst [4 or "dlm_rsb"] value 0
+    inst [5 or "dlm_lkb"] value 0
+    inst [6 or "nf_conntrack_ffff88042bc32240"] value 0
+    inst [7 or "nf_conntrack_ffff88042185a240"] value 0
+    inst [8 or "fuse_request"] value 0
+    inst [9 or "fuse_inode"] value 0
+    inst [10 or "nf_conntrack_ffff880456c38000"] value 0
+    inst [11 or "nf_conntrack_ffffffff81f20800"] value 0
+    inst [12 or "kvm_vcpu"] value 0
+    inst [13 or "ext4_groupinfo_1k"] value 0
+    inst [14 or "nfs4_layout_stateid"] value 0
+    inst [15 or "nfsd4_delegations"] value 0
+    inst [16 or "nfsd4_files"] value 0
+    inst [17 or "nfsd4_lockowners"] value 0
+    inst [18 or "nfsd4_openowners"] value 0
+    inst [19 or "rpc_inode_cache"] value 0
+    inst [20 or "xfs_dqtrx"] value 0
+    inst [21 or "xfs_dquot"] value 0
+    inst [22 or "xfs_inode"] value 0
+    inst [23 or "xfs_efd_item"] value 0
+    inst [24 or "xfs_da_state"] value 0
+    inst [25 or "xfs_btree_cur"] value 0
+    inst [26 or "xfs_log_ticket"] value 0
+    inst [27 or "ip6-frags"] value 0
+    inst [28 or "ip6_dst_cache"] value 0
+    inst [29 or "RAWv6"] value 0
+    inst [30 or "UDPLITEv6"] value 0
+    inst [31 or "UDPv6"] value 0
+    inst [32 or "tw_sock_TCPv6"] value 0
+    inst [33 or "request_sock_TCPv6"] value 0
+    inst [34 or "TCPv6"] value 0
+    inst [35 or "kcopyd_job"] value 0
+    inst [36 or "dm_uevent"] value 0
+    inst [37 or "cfq_queue"] value 0
+    inst [38 or "bsg_cmd"] value 0
+    inst [39 or "mqueue_inode_cache"] value 0
+    inst [40 or "hugetlbfs_inode_cache"] value 0
+    inst [41 or "jbd2_journal_handle"] value 0
+    inst [42 or "jbd2_journal_head"] value 0
+    inst [43 or "jbd2_revoke_table_s"] value 0
+    inst [44 or "jbd2_revoke_record_s"] value 0
+    inst [45 or "ext4_inode_cache"] value 0
+    inst [46 or "ext4_free_data"] value 0
+    inst [47 or "ext4_allocation_context"] value 0
+    inst [48 or "ext4_prealloc_space"] value 0
+    inst [49 or "ext4_io_end"] value 0
+    inst [50 or "ext4_extent_status"] value 0
+    inst [51 or "dquot"] value 0
+    inst [52 or "userfaultfd_ctx_cache"] value 0
+    inst [53 or "fsnotify_mark"] value 0
+    inst [54 or "dio"] value 0
+    inst [55 or "pid_namespace"] value 0
+    inst [56 or "posix_timers_cache"] value 0
+    inst [57 or "UNIX"] value 0
+    inst [58 or "UDP-Lite"] value 0
+    inst [59 or "flow_cache"] value 0
+    inst [60 or "UDP"] value 0
+    inst [61 or "tw_sock_TCP"] value 0
+    inst [62 or "request_sock_TCP"] value 0
+    inst [63 or "TCP"] value 0
+    inst [64 or "inotify_inode_mark"] value 0
+    inst [65 or "sgpool-128"] value 0
+    inst [66 or "sgpool-64"] value 0
+    inst [67 or "sgpool-32"] value 0
+    inst [68 or "sgpool-16"] value 0
+    inst [69 or "scsi_data_buffer"] value 0
+    inst [70 or "blkdev_queue"] value 0
+    inst [71 or "blkdev_requests"] value 0
+    inst [72 or "blkdev_ioc"] value 0
+    inst [73 or "user_namespace"] value 0
+    inst [74 or "dmaengine-unmap-256"] value 0
+    inst [75 or "dmaengine-unmap-128"] value 0
+    inst [76 or "sock_inode_cache"] value 0
+    inst [77 or "file_lock_cache"] value 0
+    inst [78 or "file_lock_ctx"] value 0
+    inst [79 or "net_namespace"] value 0
+    inst [80 or "shmem_inode_cache"] value 0
+    inst [81 or "taskstats"] value 0
+    inst [82 or "proc_inode_cache"] value 0
+    inst [83 or "sigqueue"] value 0
+    inst [84 or "bdev_cache"] value 0
+    inst [85 or "kernfs_node_cache"] value 0
+    inst [86 or "mnt_cache"] value 0
+    inst [87 or "inode_cache"] value 0
+    inst [88 or "dentry"] value 0
+    inst [89 or "avc_xperms_node"] value 0
+    inst [90 or "selinux_inode_security"] value 0
+    inst [91 or "key_jar"] value 0
+    inst [92 or "buffer_head"] value 0
+    inst [93 or "mm_struct"] value 0
+    inst [94 or "files_cache"] value 0
+    inst [95 or "signal_cache"] value 0
+    inst [96 or "sighand_cache"] value 0
+    inst [97 or "task_struct"] value 0
+    inst [98 or "Acpi-ParseExt"] value 0
+    inst [99 or "Acpi-State"] value 0
+    inst [100 or "anon_vma"] value 0
+    inst [101 or "numa_policy"] value 0
+    inst [102 or "debug_objects_cache"] value 0
+    inst [103 or "radix_tree_node"] value 0
+    inst [104 or "trace_event_file"] value 0
+    inst [105 or "ftrace_event_field"] value 0
+    inst [106 or "idr_layer_cache"] value 0
+    inst [107 or "page->ptl"] value 0
+    inst [108 or "dma-kmalloc-8192"] value 0
+    inst [109 or "dma-kmalloc-4096"] value 0
+    inst [110 or "dma-kmalloc-2048"] value 0
+    inst [111 or "dma-kmalloc-1024"] value 0
+    inst [112 or "dma-kmalloc-512"] value 0
+    inst [113 or "dma-kmalloc-256"] value 0
+    inst [114 or "dma-kmalloc-128"] value 0
+    inst [115 or "dma-kmalloc-64"] value 0
+    inst [116 or "dma-kmalloc-32"] value 0
+    inst [117 or "dma-kmalloc-16"] value 0
+    inst [118 or "dma-kmalloc-8"] value 0
+    inst [119 or "dma-kmalloc-192"] value 0
+    inst [120 or "dma-kmalloc-96"] value 0
+    inst [121 or "kmalloc-8192"] value 0
+    inst [122 or "kmalloc-4096"] value 0
+    inst [123 or "kmalloc-2048"] value 0
+    inst [124 or "kmalloc-1024"] value 0
+    inst [125 or "kmalloc-512"] value 0
+    inst [126 or "kmalloc-256"] value 0
+    inst [127 or "kmalloc-192"] value 0
+    inst [128 or "kmalloc-128"] value 0
+    inst [129 or "kmalloc-96"] value 0
+    inst [130 or "kmalloc-64"] value 0
+    inst [131 or "kmalloc-32"] value 0
+    inst [132 or "kmalloc-16"] value 0
+    inst [133 or "kmalloc-8"] value 0
+    inst [134 or "kmem_cache_node"] value 0
+    inst [135 or "kmem_cache"] value 0
+
+mem.slabinfo.slabs.total_size
+    inst [0 or "gfs2_quotad"] value 0
+    inst [1 or "gfs2_inode"] value 0
+    inst [2 or "gfs2_glock(aspace)"] value 0
+    inst [3 or "gfs2_glock"] value 0
+    inst [4 or "dlm_rsb"] value 0
+    inst [5 or "dlm_lkb"] value 0
+    inst [6 or "nf_conntrack_ffff88042bc32240"] value 0
+    inst [7 or "nf_conntrack_ffff88042185a240"] value 0
+    inst [8 or "fuse_request"] value 32768
+    inst [9 or "fuse_inode"] value 32768
+    inst [10 or "nf_conntrack_ffff880456c38000"] value 0
+    inst [11 or "nf_conntrack_ffffffff81f20800"] value 442810
+    inst [12 or "kvm_vcpu"] value 0
+    inst [13 or "ext4_groupinfo_1k"] value 16384
+    inst [14 or "nfs4_layout_stateid"] value 0
+    inst [15 or "nfsd4_delegations"] value 0
+    inst [16 or "nfsd4_files"] value 0
+    inst [17 or "nfsd4_lockowners"] value 0
+    inst [18 or "nfsd4_openowners"] value 0
+    inst [19 or "rpc_inode_cache"] value 32768
+    inst [20 or "xfs_dqtrx"] value 0
+    inst [21 or "xfs_dquot"] value 16384
+    inst [22 or "xfs_inode"] value 527648768
+    inst [23 or "xfs_efd_item"] value 122880
+    inst [24 or "xfs_da_state"] value 131072
+    inst [25 or "xfs_btree_cur"] value 65536
+    inst [26 or "xfs_log_ticket"] value 548864
+    inst [27 or "ip6-frags"] value 16384
+    inst [28 or "ip6_dst_cache"] value 65536
+    inst [29 or "RAWv6"] value 327680
+    inst [30 or "UDPLITEv6"] value 0
+    inst [31 or "UDPv6"] value 262144
+    inst [32 or "tw_sock_TCPv6"] value 40960
+    inst [33 or "request_sock_TCPv6"] value 65536
+    inst [34 or "TCPv6"] value 327680
+    inst [35 or "kcopyd_job"] value 0
+    inst [36 or "dm_uevent"] value 0
+    inst [37 or "cfq_queue"] value 761856
+    inst [38 or "bsg_cmd"] value 0
+    inst [39 or "mqueue_inode_cache"] value 32768
+    inst [40 or "hugetlbfs_inode_cache"] value 131072
+    inst [41 or "jbd2_journal_handle"] value 32768
+    inst [42 or "jbd2_journal_head"] value 32768
+    inst [43 or "jbd2_revoke_table_s"] value 4096
+    inst [44 or "jbd2_revoke_record_s"] value 0
+    inst [45 or "ext4_inode_cache"] value 294912
+    inst [46 or "ext4_free_data"] value 28672
+    inst [47 or "ext4_allocation_context"] value 28672
+    inst [48 or "ext4_prealloc_space"] value 24576
+    inst [49 or "ext4_io_end"] value 28672
+    inst [50 or "ext4_extent_status"] value 32768
+    inst [51 or "dquot"] value 0
+    inst [52 or "userfaultfd_ctx_cache"] value 0
+    inst [53 or "fsnotify_mark"] value 32768
+    inst [54 or "dio"] value 21641126
+    inst [55 or "pid_namespace"] value 196608
+    inst [56 or "posix_timers_cache"] value 0
+    inst [57 or "UNIX"] value 1718499
+    inst [58 or "UDP-Lite"] value 0
+    inst [59 or "flow_cache"] value 0
+    inst [60 or "UDP"] value 262144
+    inst [61 or "tw_sock_TCP"] value 335872
+    inst [62 or "request_sock_TCP"] value 65536
+    inst [63 or "TCP"] value 822178
+    inst [64 or "inotify_inode_mark"] value 30682978
+    inst [65 or "sgpool-128"] value 655360
+    inst [66 or "sgpool-64"] value 458752
+    inst [67 or "sgpool-32"] value 393216
+    inst [68 or "sgpool-16"] value 1032847
+    inst [69 or "scsi_data_buffer"] value 3092480
+    inst [70 or "blkdev_queue"] value 131072
+    inst [71 or "blkdev_requests"] value 215970
+    inst [72 or "blkdev_ioc"] value 73728
+    inst [73 or "user_namespace"] value 81920
+    inst [74 or "dmaengine-unmap-256"] value 32768
+    inst [75 or "dmaengine-unmap-128"] value 32768
+    inst [76 or "sock_inode_cache"] value 1643861
+    inst [77 or "file_lock_cache"] value 65536
+    inst [78 or "file_lock_ctx"] value 264432
+    inst [79 or "net_namespace"] value 196608
+    inst [80 or "shmem_inode_cache"] value 4006871
+    inst [81 or "taskstats"] value 65536
+    inst [82 or "proc_inode_cache"] value 65174459
+    inst [83 or "sigqueue"] value 32768
+    inst [84 or "bdev_cache"] value 163840
+    inst [85 or "kernfs_node_cache"] value 6250496
+    inst [86 or "mnt_cache"] value 311296
+    inst [87 or "inode_cache"] value 24838144
+    inst [88 or "dentry"] value 263102464
+    inst [89 or "avc_xperms_node"] value 28672
+    inst [90 or "selinux_inode_security"] value 70705766
+    inst [91 or "key_jar"] value 399769
+    inst [92 or "buffer_head"] value 100896768
+    inst [93 or "mm_struct"] value 720896
+    inst [94 or "files_cache"] value 425984
+    inst [95 or "signal_cache"] value 1341998
+    inst [96 or "sighand_cache"] value 1252205
+    inst [97 or "task_struct"] value 13811712
+    inst [98 or "Acpi-ParseExt"] value 32768
+    inst [99 or "Acpi-State"] value 49152
+    inst [100 or "anon_vma"] value 3143065
+    inst [101 or "numa_policy"] value 408234
+    inst [102 or "debug_objects_cache"] value 2642642
+    inst [103 or "radix_tree_node"] value 89884964
+    inst [104 or "trace_event_file"] value 188416
+    inst [105 or "ftrace_event_field"] value 249856
+    inst [106 or "idr_layer_cache"] value 1540096
+    inst [107 or "page->ptl"] value 1555968
+    inst [108 or "dma-kmalloc-8192"] value 0
+    inst [109 or "dma-kmalloc-4096"] value 0
+    inst [110 or "dma-kmalloc-2048"] value 0
+    inst [111 or "dma-kmalloc-1024"] value 0
+    inst [112 or "dma-kmalloc-512"] value 16384
+    inst [113 or "dma-kmalloc-256"] value 0
+    inst [114 or "dma-kmalloc-128"] value 0
+    inst [115 or "dma-kmalloc-64"] value 0
+    inst [116 or "dma-kmalloc-32"] value 0
+    inst [117 or "dma-kmalloc-16"] value 0
+    inst [118 or "dma-kmalloc-8"] value 0
+    inst [119 or "dma-kmalloc-192"] value 0
+    inst [120 or "dma-kmalloc-96"] value 0
+    inst [121 or "kmalloc-8192"] value 1212416
+    inst [122 or "kmalloc-4096"] value 4034560
+    inst [123 or "kmalloc-2048"] value 3407872
+    inst [124 or "kmalloc-1024"] value 2181120
+    inst [125 or "kmalloc-512"] value 8853504
+    inst [126 or "kmalloc-256"] value 2252032
+    inst [127 or "kmalloc-192"] value 23925906
+    inst [128 or "kmalloc-128"] value 1700864
+    inst [129 or "kmalloc-96"] value 1970176
+    inst [130 or "kmalloc-64"] value 40717568
+    inst [131 or "kmalloc-32"] value 4978080
+    inst [132 or "kmalloc-16"] value 1334368
+    inst [133 or "kmalloc-8"] value 753664
+    inst [134 or "kmem_cache_node"] value 45056
+    inst [135 or "kmem_cache"] value 90112
+
+== done
+

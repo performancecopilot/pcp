@@ -1059,10 +1059,12 @@ timezone
 818 pmval archive multi-archive local
 819 pmda.elasticsearch local
 820 pmda.linux local
+821 pmda.linux local
 822:reserved pmlogrewrite
 823 pmda.sample pmstore secure local
 824 pmlogsummary local #1132476
 825 pmda.ds389 local
+826 pmda.linux local
 827 pmlogrewrite pmda.linux local
 828 valgrind archive context local
 829 pcp python local

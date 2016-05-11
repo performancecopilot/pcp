@@ -21,7 +21,7 @@
 typedef struct {
     struct linux_table	*meminfo;
     struct linux_table	*memstat;
-    double bandwidth;
+    double		bandwidth;
 } nodeinfo_t;
 
 typedef struct {
@@ -31,4 +31,4 @@ typedef struct {
 } numa_meminfo_t;
 
 extern int refresh_numa_meminfo(numa_meminfo_t *, proc_cpuinfo_t *, proc_stat_t *);
-int get_memory_bandwidth_conf(numa_meminfo_t *numa_meminfo,int nr_nodes);
+extern int get_memory_bandwidth_conf(numa_meminfo_t *, int);
