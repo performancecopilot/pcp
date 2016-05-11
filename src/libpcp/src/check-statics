@@ -298,6 +298,8 @@ p_lcontrol.o
 p_lrequest.o
 p_lstatus.o
 pmns.o
+    ?init			# local initialize_mutex mutex
+    ?done			# guarded by local initialize_mutex mutex
     pmns_lock                   # the lock that guards ...
     lineno			# this
     export			# and this ...
