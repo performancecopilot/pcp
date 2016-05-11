@@ -704,6 +704,12 @@ User memory (Kbytes) in pages not backed by files, e.g. from malloc()
 @ mem.numa.alloc.local_node count of times a process ran on this node and got memory on this node
 @ mem.numa.alloc.other_node count of times a process ran on this node and got memory from another node
 @ mem.numa.max_bandwidth maximum memory bandwidth supported on each numa node
+Maximum memory bandwidth supported on each numa node. It makes use of a
+bandwith.conf file which has the bandwidth information for each node :
+node_num:bandwidth
+The node_num must match with any node in sysfs/devices/system/node directory.
+And, the bandwidth is expressed in terms of MBps. This config file should be
+filled up manually after running some bandwidth saturation benchmark tools.
 @ mem.vmstat.nr_dirty number of pages in dirty state
 Instantaneous number of pages in dirty state, from /proc/vmstat
 @ mem.vmstat.nr_dirty_background_threshold background writeback threshold
