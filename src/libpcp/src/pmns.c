@@ -14,7 +14,7 @@
  *
  * Thread-safe notes
  *
- * Uses a simple static pmns_lock mutex to protect statics.
+ * pmns_lock: a recursive lock for protecting local statics
  *
  * locerr - no serious side-effects, most unlikely to be used, and
  * repeated calls are likely to produce the same result, so don't bother
@@ -57,12 +57,17 @@
 #define NO_CPP		0
 #define USE_CPP		1
 
-
 #ifdef PM_MULTI_THREAD
-static pthread_mutex_t pmns_lock = PTHREAD_MUTEX_INITIALIZER;
+#ifdef PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+static pthread_mutex_t pmns_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#else
+static pthread_mutex_t pmns_lock;
+#endif
 #else
 static void* pmns_lock;
 #endif
+static void initialize_mutex();
+
 
 static int	lineno;
 static char	linebuf[256];
@@ -117,6 +122,56 @@ static int havePmLoadCall;
 static int load(const char *, int, int);
 static __pmnsNode *locate(const char *, __pmnsNode *);
 
+
+/* Set up pmns_lock as a recursive mutex. */
+#if defined(PM_MULTI_THREAD) && !defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
+static void
+initialize_mutex(void)
+{
+    static pthread_mutex_t      init = PTHREAD_MUTEX_INITIALIZER;
+    static int                  done = 0;
+    int                         psts;
+    char                        errmsg[PM_MAXERRMSGLEN];
+    if ((psts = pthread_mutex_lock(&init)) != 0) {
+        strerror_r(psts, errmsg, sizeof(errmsg));
+        fprintf(stderr, "initialize_mutex: pthread_mutex_lock failed: %s", errmsg);
+        exit(4);
+    }
+    if (!done) {
+        pthread_mutexattr_t    attr;
+
+        if ((psts = pthread_mutexattr_init(&attr)) != 0) {
+            strerror_r(psts, errmsg, sizeof(errmsg));
+            fprintf(stderr, "initialize_mutex: pthread_mutexattr_init failed: %s", errmsg);
+            exit(4);
+        }
+        if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
+            strerror_r(psts, errmsg, sizeof(errmsg));
+            fprintf(stderr, "initialize_mutex: pthread_mutexattr_settype failed: %s", errmsg);
+            exit(4);
+        }
+        if ((psts = pthread_mutex_init(&pmns_lock, &attr)) != 0) {
+            strerror_r(psts, errmsg, sizeof(errmsg));
+            fprintf(stderr, "initialize_mutex: pthread_mutex_init failed: %s", errmsg);
+            exit(4);
+        }
+        pthread_mutexattr_destroy(&attr);
+        done = 1;
+    }
+    if ((psts = pthread_mutex_unlock(&init)) != 0) {
+        strerror_r(psts, errmsg, sizeof(errmsg));
+        fprintf(stderr, "initialize_mutex: pthread_mutex_unlock failed: %s", errmsg);
+        exit(4);
+    }
+}
+#else
+static void
+initialize_mutex(void)
+{
+}
+#endif
+
+
 /*
  * Helper routine to report all the names for a metric ...
  * numnames and names[] would typically by returned from
@@ -146,7 +201,7 @@ __pmPrintMetricNames(FILE *f, int numnames, char **names, char *sep)
 void
 __pmUsePMNS(__pmnsTree *t)
 {
-    PM_INIT_LOCKS();
+    initialize_mutex();
     PM_TPD(useExtPMNS) = 1;
     PM_TPD(curr_pmns) = t;
 }
@@ -199,7 +254,7 @@ pmGetPMNSLocation(void)
     int n;
     int sts;
 
-    PM_INIT_LOCKS();
+    initialize_mutex();
     if (PM_TPD(useExtPMNS)) {
 	pmns_location = PMNS_LOCAL;
 	goto done;
@@ -725,7 +780,6 @@ backname(__pmnsNode *np, char **name)
  * Fixup the parent pointers of the tree.
  * Fill in the hash table with nodes from the tree.
  * Hashing is done on pmid.
- * Assumes pmns_lock already held.
  */
 static int
 backlink(__pmnsTree *tree, __pmnsNode *root, int dupok)
@@ -914,8 +968,6 @@ __pmNewPMNS(__pmnsTree **pmns)
  * Go through the tree and build a hash table.
  * Fix up parent links while we're there.
  * Unmark all nodes.
- *
- * NB: assumes pmns_lock is already held if required.
  */
 int
 __pmFixPMNSHashTab(__pmnsTree *tree, int numpmid, int dupok)
@@ -935,10 +987,14 @@ __pmFixPMNSHashTab(__pmnsTree *tree, int numpmid, int dupok)
     if (tree->htab == NULL)
 	return -oserror();
 
+    initialize_mutex();
+    PM_LOCK(pmns_lock);
     if ((sts = backlink(tree, tree->root, dupok)) < 0) {
+	PM_UNLOCK(pmns_lock);
 	return sts;
     }
     mark_all(tree, 0);
+    PM_UNLOCK(pmns_lock);
     return 0;
 }
 
@@ -1241,8 +1297,8 @@ __pmHasPMNSFileChanged(const char *filename)
     const char	*f;
     int		sts;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(pmns_lock); /* protect last_mtim */
+    initialize_mutex();
+    PM_LOCK(pmns_lock);
 
     f = getfname(filename);
     if (f == NULL) {
@@ -1319,7 +1375,6 @@ done:
     return sts;
 }
 
-/* assumes pmns_lock already taken */
 static int
 load(const char *filename, int dupok, int use_cpp)
 {
@@ -1388,7 +1443,7 @@ load(const char *filename, int dupok, int use_cpp)
 __pmnsTree*
 __pmExportPMNS(void)
 {
-    PM_INIT_LOCKS();
+    initialize_mutex();
     PM_LOCK(pmns_lock);
     export = 1;
     PM_UNLOCK(pmns_lock);
@@ -1443,7 +1498,7 @@ pmLoadNameSpace(const char *filename)
 {
     int	sts;
 
-    PM_INIT_LOCKS();
+    initialize_mutex();
     PM_LOCK(pmns_lock);
     havePmLoadCall = 1;
     sts = load(filename, DUPS_OK, NO_CPP);
@@ -1456,7 +1511,7 @@ pmLoadASCIINameSpace(const char *filename, int dupok)
 {
     int	sts;
 
-    PM_INIT_LOCKS();
+    initialize_mutex();
     PM_LOCK(pmns_lock);
     havePmLoadCall = 1;
     sts = load(filename, dupok, USE_CPP);
@@ -1508,7 +1563,7 @@ __pmFreePMNS(__pmnsTree *pmns)
 void
 pmUnloadNameSpace(void)
 {
-    PM_INIT_LOCKS();
+    initialize_mutex();
     PM_LOCK(pmns_lock);
     havePmLoadCall = 0;
     __pmFreePMNS(main_pmns);
@@ -1537,7 +1592,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	return PM_ERR_TOOSMALL;
     }
 
-    PM_INIT_LOCKS();
+    initialize_mutex();
 
     ctx = lsts = pmWhichContext();
     if (lsts >= 0) {
@@ -1946,7 +2001,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
     if (name == NULL) 
 	return PM_ERR_NAME;
 
-    PM_INIT_LOCKS();
+    initialize_mutex();
 
     ctx = sts = pmWhichContext();
     if (sts >= 0)
@@ -1974,7 +2029,7 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 	if (statuslist)
 	  *statuslist = NULL;
 
-	PM_INIT_LOCKS();
+        initialize_mutex();
 	if (*name == '\0')
 	    np = PM_TPD(curr_pmns)->root; /* use "" to name the root of the PMNS */
 	else
@@ -2280,7 +2335,7 @@ pmNameID(pmID pmid, char **name)
     int		sts;
     int		lsts;
 
-    PM_INIT_LOCKS();
+    initialize_mutex();
 
     sts = ctx = pmWhichContext();
     if (ctx >= 0) {
@@ -2389,7 +2444,7 @@ pmNameAll(pmID pmid, char ***namelist)
     int		c_type;
     int		sts;
 
-    PM_INIT_LOCKS();
+    initialize_mutex();
 
     sts = ctx = pmWhichContext();
     if (ctx >= 0) {
@@ -2586,8 +2641,12 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
     if (name == NULL) 
 	return PM_ERR_NAME;
 
+    initialize_mutex();
+
     if (pmns_location == PMNS_LOCAL) {
+	PM_LOCK(pmns_lock);
 	sts = TraversePMNS_local(name, func, func_r, closure);
+	PM_UNLOCK(pmns_lock);
     }
     else {
 	__pmPDU      *pb;
@@ -2700,7 +2759,7 @@ pmTrimNameSpace(void)
 	return 0;
 
     /* for PMNS_LOCAL (or PMNS_ARCHIVE) ... */
-    PM_INIT_LOCKS();
+    initialize_mutex();
 
     if ((ctxp = __pmHandleToPtr(pmWhichContext())) == NULL)
 	return PM_ERR_NOCONTEXT;
@@ -2749,7 +2808,7 @@ __pmDumpNameSpace(FILE *f, int verbosity)
     else if (pmns_location == PMNS_REMOTE)
 	fprintf(f, "__pmDumpNameSpace: Name Space is remote !\n");
 
-    PM_INIT_LOCKS();
+    initialize_mutex();
     dumptree(f, 0, PM_TPD(curr_pmns)->root, verbosity);
 }
 
