@@ -174,7 +174,7 @@ derive.o
     ?timefactor			# const (MinGW)
     ?type_c			# const (MinGW)
     ?.LpmRegisterDerivedMetric.fmt	# static string (FreeBSD gcc)
-
+    ?pmRegisterDerivedMetric.fmt	# static string (FreeBSD 10.2 gcc)
 desc.o
 endian.o
 err.o
