@@ -1657,7 +1657,6 @@ pmie/control
 pmie/stomp
 pmlogger/control
 pmproxy/pmproxy.options
-bash_completion.d/pcp
 EOF
 %if "@enable_manager@" == "true"
 cat >>conf_files <<MGREOF
