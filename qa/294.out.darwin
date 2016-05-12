@@ -9,8 +9,8 @@ pmcd.agent.type
 pmcd.agent.status
     Data Type: 32-bit int  InDom: 2.3 0x800003
     Semantics: discrete  Units: none
-1 connects
-1 disconnects
+N connects
+N-0 disconnects
 
 +++ pminfo -h MY_HOSTNAME -f sample.hordes +++
 
@@ -1017,13 +1017,13 @@ sample.hordes.two
     inst [497 or "497"] value 2
     inst [498 or "498"] value 1
     inst [499 or "499"] value 0
-2 connects
-2 disconnects
+N connects
+N-0 disconnects
 
 +++ pmprobe -v -h MY_HOSTNAME hinv.ncpu +++
 hinv.ncpu 1 N
-3 connects
-3 disconnects
+N connects
+N-0 disconnects
 
 +++ pmval -h MY_HOSTNAME -t 0.5 -s 3 sample.bin +++
 
@@ -1038,8 +1038,8 @@ interval:  0.50 sec
  N N N N N N N N N 
  N N N N N N N N N 
  N N N N N N N N N 
-4 connects
-4 disconnects
+N connects
+N-0 disconnects
 
 +++ pmie -h MY_HOSTNAME -c TMP.in -v -t 0.5 -T 1.5 +++
 expr_1: N N N
@@ -1051,8 +1051,8 @@ expr_1: N N N
 expr_1: N N N
 
 [DATE] pmie(PID) Info: evaluator exiting
-6 connects
-6 disconnects
+N connects
+N-0 disconnects
 
 +++ pmie -h MY_HOSTNAME -c TMP.in -v -t 0.5 -T 1.5 +++
 expr_1: ?
@@ -1064,26 +1064,26 @@ expr_1: N
 expr_1: N
 
 [DATE] pmie(PID) Info: evaluator exiting
-8 connects
-8 disconnects
+N connects
+N-0 disconnects
 
 +++ pmdumptext -h MY_HOSTNAME -t 0.5 -s 2 sample.string.hullo +++
 DATE	"hullo world!"
 DATE	"hullo world!"
-9 connects
-9 disconnects
+N connects
+N-0 disconnects
 
 +++ pmdumptext -t 0.5 -s 2 MY_HOSTNAME:sample.string.hullo +++
 DATE	"hullo world!"
 DATE	"hullo world!"
-10 connects
-10 disconnects
+N connects
+N-0 disconnects
 
 +++ pmdumptext -t 0.5 -s 2 MY_HOSTNAME:kernel.all.load +++
 DATE	N	N	N
 DATE	N	N	N
-11 connects
-11 disconnects
+N connects
+N-0 disconnects
 
 +++ pmstat -h MY_HOSTNAME -t 0.5 -s 2 +++
 @ DATE
@@ -1091,12 +1091,12 @@ DATE	N	N	N
    1 min   swpd   free   buff  cache   si   so   bi   bo   in   cs  us  sy  id
  N ? N ? ? ? ? N N ? ? N N N
  N ? N ? ? ? ? N N ? ? N N N
-12 connects
-12 disconnects
+N connects
+N-0 disconnects
 
 +++ pmlogger -h MY_HOSTNAME -c TMP.logger.config -t 0.5sec -s 3 -l TMP.logger.log TMP.arch +++
-13 connects
-13 disconnects
+N connects
+N-0 disconnects
 
 +++ pmstat -S +0.25sec -t 0.5sec -a TMP.arch -z +++
 Note: timezone set to local timezone of host "MY_HOSTNAME" from archive
@@ -1106,5 +1106,5 @@ Note: timezone set to local timezone of host "MY_HOSTNAME" from archive
    1 min   swpd   free   buff  cache   si   so   bi   bo   in   cs  us  sy  id
  N ? N ? ? ? ? N N ? ? N N N
  pmFetchGroup: End of PCP archive log
-13 connects
-13 disconnects
+N connects
+N-0 disconnects

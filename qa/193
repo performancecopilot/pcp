@@ -39,7 +39,8 @@ _filter_pmcd_log <$PCP_PMCDLOG_PATH \
     -e '/HandleClientInput/s/client\[[0-9][0-9]*]/client[N]/' \
     -e 's/len=-1: Connection reset by peer.*/END-OF-FILE/' \
     -e 's/Connection reset by peer/Broken pipe/' \
-    -e 's/have .*, want .*, got 0/END-OF-FILE/'
+    -e 's/have .*, want .*, got 0/END-OF-FILE/' \
+    -e '/Error: ClientLoop: error sending Conn ACK PDU to new client IPC protocol failure/d'
 
 # success, all done
 exit
