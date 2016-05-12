@@ -836,10 +836,17 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 {
     __pmSockAddr	*myAddr;
     __pmHostEnt		*servInfo;
-    int			fd = -1;	/* Fd for socket connection to pmcd */
+    int			fd;
     int			sts;
-    int			fdFlags = 0;
+    int			fdFlags[FD_SETSIZE];
+    __pmFdSet		allFds;
+    __pmFdSet		readyFds;
+    int			maxFd;
     void		*enumIx;
+    struct timeval	stv;
+    struct timeval	*pstv;
+    int			rc;
+    int			i;
 
     if ((servInfo = __pmGetAddrInfo(hostname)) == NULL) {
 #ifdef PCP_DEBUG
@@ -851,8 +858,17 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	return -EHOSTUNREACH;
     }
 
+    /*
+     * We want to respect the connect timeout that has been configured, but we
+     * may have more than one address to try. Do this by creating a socket for
+     * each address and then using __pmSelectWrite() to wait for one of them to
+     * respond. That way, the timeout is applied to all of the addresses
+     * simultaneously. First, create the sockets, add them to the fd set
+     * and try to connect.
+     */
     __pmConnectTimeout();
-
+    __pmFD_ZERO(&allFds);
+    maxFd = -1;
     enumIx = NULL;
     for (myAddr = __pmHostEntGetSockAddr(servInfo, &enumIx);
 	 myAddr != NULL;
@@ -874,46 +890,67 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 	}
 
 	/* Attempt to connect */
-	fdFlags = __pmConnectTo(fd, myAddr, pmcd_port);
+	fdFlags[fd] = __pmConnectTo(fd, myAddr, pmcd_port);
 	__pmSockAddrFree(myAddr);
-	if (fdFlags < 0) {
+	if (fdFlags[fd] < 0) {
 	    /*
 	     * Mark failure in case we fall out the end of the loop
 	     * and try next address
 	     */
-	    fd = -ECONNREFUSED;
+	    __pmCloseSocket(fd);
 	    continue;
 	}
 
-	/* FNDELAY and we're in progress - wait on select */
-	struct timeval stv = conn_wait;
-	struct timeval *pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
-	__pmFdSet wfds;
-	int rc;
+	/* Add it to the fd set. */
+	__pmFD_SET(fd, &allFds);
+	if (fd > maxFd)
+	    maxFd = fd;
+    }
+    __pmHostEntFree(servInfo);
 
-	__pmFD_ZERO(&wfds);
-	__pmFD_SET(fd, &wfds);
-	sts = 0;
-	if ((rc = __pmSelectWrite(fd+1, &wfds, pstv)) == 1) {
-	    sts = __pmConnectCheckError(fd);
-	}
-	else if (rc == 0) {
-	    sts = ETIMEDOUT;
-	}
-	else {
-	    sts = (rc < 0) ? neterror() : EINVAL;
-	}
- 
-	/* Successful connection? */
-	if (sts == 0)
-	    break;
+    /* If we were unable to open any sockets, then give up. */
+    if (maxFd == -1)
+	return -ECONNREFUSED;
 
-	/* Unsuccessful connection. */
-	__pmCloseSocket(fd);
-	fd = -sts;
+    /* FNDELAY and we're in progress - wait on select */
+    __pmFD_COPY(&readyFds, &allFds);
+    stv = conn_wait;
+    pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
+    rc = __pmSelectWrite(maxFd+1, &readyFds, pstv);
+
+    /* Figure out what happened. */
+    if (rc == 0)
+	fd = -ETIMEDOUT;
+    else if (rc < 0)
+	fd = -neterror();
+    else {
+	/*
+	 * Examine the fd set and choose the first successfully connected
+	 * socket, if any.
+	 * Note that because rc > 0, at least one fd is ready and 'fd' will
+	 * definitely get set. However, initialize it to keep coverity happy.
+	 */
+	fd = -EINVAL;
+	for (i = 0; i <= maxFd; ++i) {
+	    if (__pmFD_ISSET(i, &readyFds)) {
+		/* Successful connection? */
+		sts = __pmConnectCheckError(i);
+		if (sts == 0) {
+		    fd = i;
+		    break;
+		}
+		fd = -sts;
+	    }
+	}
     }
 
-    __pmHostEntFree(servInfo);
+    /* Clean up the unused fds. */
+    for (i = 0; i <= maxFd; ++i) {
+	if (i != fd && __pmFD_ISSET(i, &allFds))
+	    __pmCloseSocket(i);
+    }
+
+    /* Unsuccessful? */
     if (fd < 0)
         return fd;
 
@@ -922,7 +959,7 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
      * flags and make sure this file descriptor is closed if exec() is
      * called
      */
-    return __pmConnectRestoreFlags(fd, fdFlags);
+    return __pmConnectRestoreFlags(fd, fdFlags[fd]);
 }
 
 /*
