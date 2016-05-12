@@ -350,14 +350,8 @@ fi
 AC_SUBST(optimization)
 
 PKG_PROG_PKG_CONFIG
-if test -z "$PKG_CONFIG"
-then
-    echo
-    echo "FATAL ERROR: did not find a pkg-config executable."
-    echo "You can either set \$PKG_CONFIG as the full path to pkg-config"
-    echo "in the environment, or install the pkgconfig package."
-    rm -rf conftest conftest.*
-    exit 1
+if test -z "$PKG_CONFIG"; then
+    AC_MSG_ERROR([cannot find a 'pkg-config' command])
 fi
 
 dnl check if user wants their own C compiler
@@ -496,50 +490,10 @@ AC_ARG_ENABLE([shared],
   [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"])
 AC_SUBST(enable_shared)
 
-dnl check if user wants their own lex, yacc
-AC_PROG_LEX
-lex=$LEX
-AC_SUBST(lex)
-AC_PROG_YACC
-yacc=$YACC
-AC_SUBST(yacc)
+dnl check if user wants to use any of their own commands;
+dnl ordering is important: some tests use earlier results
 
-dnl extra check for lex and yacc as these are often not installed
-AC_MSG_CHECKING([if yacc is executable])
-binary=`echo $yacc | awk '{print $1}'`
-binary=`which "$binary"`
-if test -x "$binary"
-then
-    AC_MSG_RESULT([ yes])
-else
-    AC_MSG_RESULT([ no])
-    echo
-    echo "FATAL ERROR: did not find a valid yacc executable."
-    echo "You can either set \$YACC as the full path to yacc"
-    echo "in the environment, or install a yacc/bison package."
-    rm -rf conftest conftest.*
-    exit 1
-fi
-AC_MSG_CHECKING([if lex is executable])
-binary=`echo $lex | awk '{print $1}'`
-binary=`which "$binary"`
-if test -x "$binary"
-then
-    AC_MSG_RESULT([ yes])
-else
-    AC_MSG_RESULT([ no])
-    echo
-    echo "FATAL ERROR: did not find a valid lex executable."
-    echo "You can either set \$LEX as the full path to lex"
-    echo "in the environment, or install a lex/flex package."
-    rm -rf conftest conftest.*
-    exit 1
-fi
-
-dnl check if user wants their own awk, sed and echo
-if test -z "$AWK"; then
-    AC_PATH_PROGS(AWK, gawk awk, /usr/bin/awk)
-fi
+test -z "$AWK" && AC_PATH_PROGS(AWK, gawk awk, /usr/bin/awk)
 case "$AWK"
 in
     gawk|*/gawk)
@@ -550,21 +504,60 @@ in
 	;;
 esac
 AC_SUBST(awk)
+
 if test -z "$SED"; then
     AC_PATH_PROG(SED, sed, /bin/sed)
 fi
+if test ! -x "$SED"; then
+    AC_MSG_ERROR([cannot find a valid 'sed' command.])
+fi
 sed=$SED
 AC_SUBST(sed)
+
 if test -z "$ECHO"; then
     AC_PATH_PROG(ECHO, echo, /bin/echo)
 fi
+if test ! -x "$ECHO"; then
+    AC_MSG_ERROR([cannot find a valid 'echo' command.])
+fi
 echo=$ECHO
 AC_SUBST(echo)
+
+if test -z "$FIND"; then
+    AC_PATH_PROG(FIND, find, /usr/bin/find)
+fi
+if test ! -x "$FIND"; then
+    AC_MSG_ERROR([cannot find a valid 'find' command.])
+fi
+find=$FIND
+AC_SUBST(find)
+
 if test -z "$WHICH"; then
     AC_PATH_PROG(WHICH, which, /usr/bin/which)
 fi
+if test ! -x "$WHICH"; then
+    AC_MSG_ERROR([cannot find a valid 'which' command.])
+fi
 which=$WHICH
 AC_SUBST(which)
+
+AC_PROG_LEX
+lex=`$echo $LEX | awk '{print $1}'`
+lex=`$which "$lex"`
+if test ! -x "$lex"; then
+    AC_MSG_ERROR([cannot find a valid 'lex'/'flex' command.])
+fi
+lex=$LEX
+AC_SUBST(lex)
+
+AC_PROG_YACC
+yacc=`$echo $YACC | awk '{print $1}'`
+yacc=`$which "$yacc"`
+if test ! -x "$yacc"; then
+    AC_MSG_ERROR([cannot find a valid 'yacc'/'bison' command.])
+fi
+yacc=$YACC
+AC_SUBST(yacc)
 
 dnl check we don't get the Windows sort ...
 AC_MSG_CHECKING([where unix-like sort(1) lives])
@@ -577,7 +570,7 @@ if test $target_os = mingw; then
 	fi
     done
 else
-    sort=`which sort`
+    sort=`$which sort`
 fi
 AC_MSG_RESULT($sort)
 $sort -n </dev/null
