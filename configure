@@ -7297,9 +7297,12 @@ if test "x$do_pmdasnmp" = "xyes"; then :
 fi
 if test "x$do_pmdasnmp" = "xcheck"; then :
 
-        if $have_perl -a $pcp_perl_prog -e "use Net::SNMP" >/dev/null 2>&1
+        if test "$have_perl" = true
     then
-	pmda_snmp=true
+	if $pcp_perl_prog -e "use Net::SNMP" >/dev/null 2>&1
+	then
+	    pmda_snmp=true
+	fi
     fi
 
 fi
