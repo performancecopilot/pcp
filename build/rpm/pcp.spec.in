@@ -169,13 +169,29 @@ Performance Co-Pilot (PCP) run-time libraries
 %package libs-devel
 License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
-Summary: Performance Co-Pilot (PCP) development headers and documentation
+Summary: Performance Co-Pilot (PCP) development headers
+URL: http://www.pcp.io
+#Requires: pcp = @package_version@
+#Requires: pcp-libs = @package_version@
+#Requires: pcp-devel = @package_version@
+
+%description libs-devel
+Performance Co-Pilot (PCP) headers for development.
+
+#
+# pcp-devel
+#
+%package devel
+License: GPLv2+ and LGPLv2.1+
+Group: Development/Libraries
+Summary: Performance Co-Pilot (PCP) development tools and documentation
 URL: http://www.pcp.io
 Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
+Requires: pcp-libs-devel = @package_version@
 
-%description libs-devel
-Performance Co-Pilot (PCP) headers, documentation and tools for development.
+%description devel
+Performance Co-Pilot (PCP) documentation and tools for development.
 
 #
 # pcp-testsuite
@@ -1623,22 +1639,32 @@ DEVFILELIST=`ls -1 $BACKDIR/debian/lib*-dev.{install,dirs}`
 # removed from a global set, then the base package catches all remaining.
 sed -e 's/^/\//' $CFGFILELIST >cfg_files
 sed -e 's/^/\//' $LIBFILELIST >libs_files
-sed -e 's/^/\//' $DEVFILELIST >devel_files
+sed -e 's/^/\//' $DEVFILELIST >dev_files
+grep "\.h$" $DEVFILELIST | cut -f2 -d":" >lib_devel_files
+grep "\.so$" $DEVFILELIST | cut -f2 -d":" >>lib_devel_files
+grep "\.a$" $DEVFILELIST | cut -f2 -d":" >>lib_devel_files
+sed -i -e 's/^/\//' lib_devel_files
+sed -i '/.h$/d' dev_files
+sed -i '/.so$/d' dev_files
+sed -i '/.a$/d' dev_files
+
 %ifarch x86_64 ppc64 ppc64le aarch64 s390x
 sed -i -e 's/usr\/lib\//usr\/lib64\//' libs_files
-sed -i -e 's/usr\/lib\//usr\/lib64\//' devel_files
+sed -i -e 's/usr\/lib\//usr\/lib64\//' dev_files
+sed -i -e 's/usr\/lib\//usr\/lib64\//' lib_devel_files
 %endif
 %ifarch ia64
 %if "%{_vendor}" != "suse"
 sed -i -e 's/usr\/lib\//usr\/lib64\//' libs_files
-sed -i -e 's/usr\/lib\//usr\/lib64\//' devel_files
+sed -i -e 's/usr\/lib\//usr\/lib64\//' dev_files
+sed -i -e 's/usr\/lib\//usr\/lib64\//' lib_devel_files
 %endif
 %endif
 
 #
 # some special cases for devel
 awk '{print $NF}' $DIST_MANIFEST |\
-egrep 'pcp\/(examples|demos)|pmdas\/(sample|simple|trivial|txmon)' >>devel_files
+egrep 'pcp\/(examples|demos)|pmdas\/(sample|simple|trivial|txmon)|bin/(pmdbg|pmclient|pmerr|genpmda)' >>dev_files
 
 #
 # Patterns for files to be marked %config(noreplace).
@@ -1852,7 +1878,8 @@ BEGIN {
     while( getline < "gui_files") gui[$0]=1;
     while( getline < "docs_files") doc[$0]=1;
     while( getline < "libs_files") lib[$0]=1;
-    while( getline < "devel_files") dev[$0]=1;
+    while( getline < "dev_files") dev[$0]=1;
+    while( getline < "lib_devel_files") libdev[$0]=1;
     while( getline < "webapi_files") webapi[$0]=1;
     while( getline < "manager_files") manager[$0]=1;
     while( getline < "testsuite_files") testsuite[$0]=1;
@@ -1948,7 +1975,8 @@ BEGIN {
     else if (gui[$NF]) f="gui_files.rpm";
     else if (doc[$NF]) f="docs_files.rpm";
     else if (lib[$NF]) f="libs_files.rpm";
-    else if (dev[$NF]) f="devel_files.rpm";
+    else if (dev[$NF]) f="dev_files.rpm";
+    else if (libdev[$NF]) f="lib_devel_files.rpm";
     else if (webapi[$NF]) f="webapi_files.rpm";
     else if (manager[$NF]) f="manager_files.rpm";
     else if (testsuite[$NF]) f="testsuite_files.rpm";
@@ -2486,7 +2514,9 @@ cd
 
 %files libs -f libs_files.rpm
 
-%files libs-devel -f devel_files.rpm
+%files libs-devel -f lib_devel_files.rpm
+
+%files devel -f dev_files.rpm
 
 %files doc -f docs_files.rpm
 
