@@ -26,31 +26,31 @@ mem.numa.max_bandwidth
 No value(s) available!
 
 mem.numa.util.NFS_Unstable
-No value(s) available!
+    inst [0 or "node0"] value 0
 
 mem.numa.util.active
-No value(s) available!
+    inst [0 or "node0"] value 6333552
 
 mem.numa.util.active_anon
-No value(s) available!
+    inst [0 or "node0"] value 2023764
 
 mem.numa.util.active_file
-No value(s) available!
+    inst [0 or "node0"] value 4309788
 
 mem.numa.util.anonpages
-No value(s) available!
+    inst [0 or "node0"] value 2247232
 
 mem.numa.util.bounce
-No value(s) available!
+    inst [0 or "node0"] value 0
 
 mem.numa.util.dirty
-No value(s) available!
+    inst [0 or "node0"] value 8312
 
 mem.numa.util.filePages
-No value(s) available!
+    inst [0 or "node0"] value 7080468
 
 mem.numa.util.free
-No value(s) available!
+    inst [0 or "node0"] value 5205416
 
 mem.numa.util.highFree
 No value(s) available!
@@ -59,25 +59,25 @@ mem.numa.util.highTotal
 No value(s) available!
 
 mem.numa.util.hugepagesFree
-No value(s) available!
+    inst [0 or "node0"] value 0
 
 mem.numa.util.hugepagesSurp
-No value(s) available!
+    inst [0 or "node0"] value 0
 
 mem.numa.util.hugepagesTotal
-No value(s) available!
+    inst [0 or "node0"] value 0
 
 mem.numa.util.inactive
-No value(s) available!
+    inst [0 or "node0"] value 2994068
 
 mem.numa.util.inactive_anon
-No value(s) available!
+    inst [0 or "node0"] value 617716
 
 mem.numa.util.inactive_file
-No value(s) available!
+    inst [0 or "node0"] value 2376352
 
 mem.numa.util.kernelStack
-No value(s) available!
+    inst [0 or "node0"] value 12352
 
 mem.numa.util.lowFree
 No value(s) available!
@@ -86,40 +86,40 @@ mem.numa.util.lowTotal
 No value(s) available!
 
 mem.numa.util.mapped
-No value(s) available!
+    inst [0 or "node0"] value 448220
 
 mem.numa.util.mlocked
-No value(s) available!
+    inst [0 or "node0"] value 16
 
 mem.numa.util.pageTables
-No value(s) available!
+    inst [0 or "node0"] value 52052
 
 mem.numa.util.shmem
-No value(s) available!
+    inst [0 or "node0"] value 394328
 
 mem.numa.util.slab
-No value(s) available!
+    inst [0 or "node0"] value 991832
 
 mem.numa.util.slabReclaimable
-No value(s) available!
+    inst [0 or "node0"] value 760672
 
 mem.numa.util.slabUnreclaimable
-No value(s) available!
+    inst [0 or "node0"] value 231160
 
 mem.numa.util.total
-No value(s) available!
+    inst [0 or "node0"] value 16022140
 
 mem.numa.util.unevictable
-No value(s) available!
+    inst [0 or "node0"] value 16
 
 mem.numa.util.used
-No value(s) available!
+    inst [0 or "node0"] value 10816724
 
 mem.numa.util.writeback
-No value(s) available!
+    inst [0 or "node0"] value 0
 
 mem.numa.util.writebackTmp
-No value(s) available!
+    inst [0 or "node0"] value 0
 
 mem.physmem
     value 16022140
