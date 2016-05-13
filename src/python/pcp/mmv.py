@@ -161,7 +161,7 @@ LIBPCP_MMV.mmv_stats_init.argtypes = [
 LIBPCP_MMV.mmv_stats_stop.restype = None
 LIBPCP_MMV.mmv_stats_stop.argtypes = [c_char_p, c_void_p]
 
-LIBPCP_MMV.mmv_lookup_value_desc.restype = pmAtomValue
+LIBPCP_MMV.mmv_lookup_value_desc.restype = POINTER(pmAtomValue)
 LIBPCP_MMV.mmv_lookup_value_desc.argtypes = [c_void_p, c_char_p, c_char_p]
 
 LIBPCP_MMV.mmv_inc_value.restype = None
