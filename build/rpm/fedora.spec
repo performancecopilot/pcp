@@ -152,14 +152,7 @@ BuildRequires: qt4-devel >= 4.4
 %endif
 
 Requires: bash gawk sed grep fileutils findutils initscripts which
-Requires: python%{?default_python}
 Requires: pcp-libs = %{version}-%{release}
-%if 0%{?default_python} == 3
-Requires: python3-pcp = %{version}-%{release}
-%endif
-%if !%{disable_python2} && 0%{?default_python} != 3
-Requires: python-pcp = %{version}-%{release}
-%endif
 Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-pmda-nvidia
 
@@ -1545,6 +1538,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: python%{?default_python}
 
 %description -n python-pcp
 This python PCP module contains the language bindings for
@@ -1562,6 +1556,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: python%{?default_python}
 
 %description -n python3-pcp
 This python PCP module contains the language bindings for

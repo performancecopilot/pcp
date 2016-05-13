@@ -548,8 +548,9 @@ License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
 URL: http://www.pcp.io
+BuildRequires: python3-devel
 Requires: pcp-libs = @package_version@
-Requires: python python-devel
+Requires: python3
 
 %description -n python3-pcp
 This python PCP module contains the language bindings for
