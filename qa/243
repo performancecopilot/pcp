@@ -35,7 +35,7 @@ N
 d
 }' \
 	-e 's/ INADDR_ANY/ 0x0/g' \
-	-e '/Error: ClientLoop: error sending Conn ACK PDU to new client IPC protocol failure/d'
+	#end
 }
 
 signal=$PCP_BINADM_DIR/pmsignal

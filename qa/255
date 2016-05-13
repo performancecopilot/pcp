@@ -73,7 +73,6 @@ _filter_pmcd()
 	-e "s/ fd=[0-9]*/ fd=FD/" \
 	-e "s/\.$DSO_SUFFIX/.\$DSO_SUFFIX/g" \
 	-e '/UNIX_DOMAIN_SOCKET/d' \
-	-e '/Error: ClientLoop: error sending Conn ACK PDU to new client IPC protocol failure/d' \
     | $PCP_AWK_PROG '
 BEGIN				{ skip = 0 }
 /client connection from/	{ print; print "..."; skip=1; next }

@@ -679,9 +679,16 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 
 	s = __pmSendXtendError(cp->fd, FROM_ANON, sts, htonl(challenge));
 	if (s < 0) {
-	    __pmNotifyErr(LOG_ERR,
-		"ClientLoop: error sending Conn ACK PDU to new client %s\n",
-		pmErrStr(s));
+	    /*
+	     * Port-probe style connections frequently drop just before
+	     * reaching here, as this is the first PDU we send.  Rather
+	     * than being chatty in pmcd.log write this diagnostic only
+	     * under debugging conditions.
+	     */
+	    if (pmDebug & DBG_TRACE_APPL0)
+		__pmNotifyErr(LOG_INFO, "ClientLoop: "
+			"error sending Conn ACK PDU to new client %s\n",
+			pmErrStr(s));
 	    if (sts >= 0)
 	        /*
 		 * prefer earlier failure status if any, else

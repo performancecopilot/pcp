@@ -85,7 +85,7 @@ $1 == "cisco"		{ $4 = "fd_in"; $5 = "fd_out"
 	-e 's/_64/_SIZE/' \
 	-e "s;$here/src/;;" \
 	-e '/Cleanup "fake_linux" agent (dom 60): unconfigured/q' \
-	-e '/Error: ClientLoop: error sending Conn ACK PDU to new client IPC protocol failure/d'
+	#end
 }
 
 CONFIG=$PCP_PMCDCONF_PATH
