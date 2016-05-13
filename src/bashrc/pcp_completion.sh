@@ -1,7 +1,5 @@
 # Programmable completion for Performance Co-Pilot commands under bash.
-# Author:  Roman Revyakin (Roman), rrevyakin@aconex.com
-
-_pminfo_complete ()
+_pcp_complete()
 {
     local cur=${COMP_WORDS[$COMP_CWORD]}
     local opt_regex= curpos_expand=
@@ -69,6 +67,6 @@ _pminfo_complete ()
         COMPREPLY=(`compgen -W '$(command pminfo)' 2>/dev/null $cur`)
     fi
 
-}    # ----------  end of function _pminfo_complete  ----------
+}    # ----------  end of function _pcp_complete  ----------
 
-complete -F _pminfo_complete -o default pmdumplog pmdumptext pmevent pminfo pmlogsummary pmprobe pmrep pmstore pmval
+complete -F _pcp_complete -o default pmdumplog pmdumptext pmevent pminfo pmlogsummary pmprobe pmrep pmstore pmval
