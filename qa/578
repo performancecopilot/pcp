@@ -105,10 +105,10 @@ want == 1 && $1 == "value" && step == 1 {
 	sec_fds = $2; step = 2; next }
 want == 1 && $1 == "value" && step == 2 { 
 	thr_fds = $2; 
-	if (sec_fds > fst_fds)
-	    printf("=== Info: After install, openfds has increased as expected ===\n");
+	if (sec_fds >= fst_fds)
+	    printf("=== Info: After install, openfds has increased or stayed the same as expected ===\n");
 	else {
-	    printf("=== Error: After install, openfds has unexpectedly decreased or stayed the same ===\n");
+	    printf("=== Error: After install, openfds has unexpectedly decreased ===\n");
 	    printf("\t previous value %d, current value %d\n", fst_fds, sec_fds);
 	    }
 	if (sec_fds == thr_fds)

@@ -101,8 +101,11 @@ _do()
     if which $1 >/dev/null 2>&1
     then
 	eval $* 2>&1 | tee -a $seq.full | _filter
-	echo "`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'` connects"
-	echo "`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'` disconnects"
+	connects=`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'`
+	disconnects=`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'`
+	difference=$(($connects - $disconnects))
+	echo "N connects"
+	echo "N-$difference disconnects"
     else
 	echo "Skipped, no $1 binary installed"
     fi
