@@ -1145,19 +1145,6 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	}
       pmlogextract_options += " -S -" + sh_quote(retention);
 
-      string reduced_retention = get_config_single ("pmlogreduce-retain");
-      if (reduced_retention == "") reduced_retention = "90days";
-      struct timeval reduced_retention_tv;
-      rc = pmParseInterval(reduced_retention.c_str(), &reduced_retention_tv, &errmsg);
-      if (rc)
-	{
-	  timestamp(obatched(cerr)) << "pmlogreduce-retain '" << reduced_retention << "' parse error: " << errmsg << endl;
-	  free (errmsg);
-	  reduced_retention = "90days";
-	  reduced_retention_tv.tv_sec = 90*24*60*60;
-	  reduced_retention_tv.tv_usec = 0;
-	}
-
       // Arrange our new pmlogger to kill itself after the given
       // period, to give us a chance to rerun.
       string period = get_config_single ("pmlogmerge");
@@ -1187,8 +1174,9 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	  if (period_end == now_tv.tv_sec)
 	    period_end ++;
 
+          char ctime_r_buf[26]; // 26 bytes of ctime()
 	  period = string(" @") +
-	    string(ctime(& period_end)).substr(0,24); // 24: ctime(3) magic value, sans \n
+	    string(ctime_r(& period_end, ctime_r_buf)).substr(0,24); // 24: ctime(3) magic value, sans \n
 	}
       pmlogger_options += " -y -T " + sh_quote(period); // NB: pmmgr host local time!
 
@@ -1328,57 +1316,41 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 	      if (rc != 0)
 		{
 		  timestamp(obatched(cerr)) << "corrupt archive " << base_name << " preserved." << endl;
+
+                  string preserved_name = base_name;
+                  size_t pos = preserved_name.rfind("archive-");
+                  assert (pos != string::npos); // by glob
+                  preserved_name.replace(pos, 8, "corrupt-");
+
+                  string rename_cmd = string(pmGetConfig("PCP_BIN_DIR"))+(char)__pmPathSeparator()+"pmlogmv";
+                  rename_cmd += " " + sh_quote(base_name) + " " + sh_quote(preserved_name);
+		  (void) wrap_system(rename_cmd);
+
 		  continue;
 		}
 
-	      mergeable_archives.push_back (base_name);
+              // ugly heuristic to protect against SGI PR1054: sending
+              // too many archives to pmlogextract at once can let it
+              // exhaust file descriptors and fail without making progress
+              const char *batch_str = getenv("PCP_PMMGR_MERGEBATCH");
+              if (batch_str == NULL) batch_str = "";
+              int batch = atoi(batch_str);
+              if (batch <= 1) // need some forward progress
+                batch = 64;
+              mergeable_archives.push_back (base_name);
+              if ((int)mergeable_archives.size() > batch)
+                break; // we'll retry merging the others before too long - at next poll cycle
 	    }
 	  globfree (& the_blob);
 	}
 
       // remove too-old reduced archives too
       glob_pattern = host_log_dir + (char)__pmPathSeparator() + "reduced-*.index";
-      rc = glob (glob_pattern.c_str(), GLOB_NOESCAPE, NULL, & the_blob);
-      if (rc == 0)
-	{
-	  struct timeval now_tv;
-	  __pmtimevalNow (&now_tv);
-	  for (unsigned i=0; i<the_blob.gl_pathc; i++)
-	    {
-	      if (quit) return "";
+      logans_run_archive_glob(glob_pattern, "pmlogreduce-retain", 90*24*60*60);
 
-	      string index_name = the_blob.gl_pathv[i];
-	      string base_name = index_name.substr(0,index_name.length()-6); // trim .index
-
-	      // Manage retention based upon the stat timestamps of the .index file,
-              // same as above.  NB: this is invariably a -younger- base point than
-              // the archive log-label!
-	      struct stat foo;
-	      rc = stat (the_blob.gl_pathv[i], & foo);
-	      if (rc)
-		{
-		  // this apprx. can't happen
-		  timestamp(obatched(cerr)) << "stat '" << the_blob.gl_pathv[i] << "' error; skipping cleanup" << endl;
-		  continue; // likely nothing can be done to this one
-		}
-              if (pmDebug & DBG_TRACE_APPL1)
-                timestamp(obatched(cout)) << "contemplating deletion of archive " << base_name
-                                << " (" << foo.st_mtime << "+" << reduced_retention_tv.tv_sec
-                                << " < " << now_tv.tv_sec << ")"
-                                << endl;
-	      if ((foo.st_mtime + reduced_retention_tv.tv_sec) < now_tv.tv_sec)
-		{
-		  string bnq = sh_quote(base_name);
-		  string cleanup_cmd = string("/bin/rm -f")
-                      + " " + bnq + ".[0-9]*"
-                      + " " + bnq + ".index" +
-                      + " " + bnq + ".meta";
-
-		  (void) wrap_system(cleanup_cmd);
-                }
-            }
-        }
-      globfree (& the_blob);
+      // remove too-old corrupt archives too
+      glob_pattern = host_log_dir + (char)__pmPathSeparator() + "corrupt-*.index";
+      logans_run_archive_glob(glob_pattern, "pmlogcheck-corrupt-gc", 90*24*60*60);
 
       string timestr = "archive";
       time_t now2 = time(NULL);
@@ -1456,6 +1428,78 @@ pmmgr_pmlogger_daemon::daemon_command_line()
 
   return pmlogger_options;
 }
+
+
+void
+pmmgr_pmlogger_daemon::logans_run_archive_glob(const std::string& glob_pattern,
+                                               const std::string& carousel_config,
+                                               time_t carousel_default)
+{
+  int rc;
+  struct timeval retention_tv;
+  string retention = get_config_single (carousel_config);
+  if (retention != "")
+    {
+      char *errmsg = NULL;
+      rc = pmParseInterval(retention.c_str(), &retention_tv, &errmsg);
+      if (rc)
+        {
+          timestamp(obatched(cerr)) << carousel_config << " '" << retention << "' parse error: " << errmsg << endl;
+	  free (errmsg);
+          retention_tv.tv_sec = carousel_default;
+          retention_tv.tv_usec = 0;
+        }
+    }
+  else
+    {
+      retention_tv.tv_sec = carousel_default;
+      retention_tv.tv_usec = 0;
+    }
+
+  glob_t the_blob;
+  rc = glob (glob_pattern.c_str(), GLOB_NOESCAPE, NULL, & the_blob);
+  if (rc == 0)
+    {
+      struct timeval now_tv;
+      __pmtimevalNow (&now_tv);
+      for (unsigned i=0; i<the_blob.gl_pathc; i++)
+        {
+          if (quit) break;
+
+          string index_name = the_blob.gl_pathv[i];
+          string base_name = index_name.substr(0,index_name.length()-6); // trim .index
+
+          // Manage retention based upon the stat timestamps of the .index file,
+          // same as above.  NB: this is invariably a -younger- base point than
+          // the archive log-label!
+          struct stat foo;
+          rc = stat (the_blob.gl_pathv[i], & foo);
+          if (rc)
+            {
+              // this apprx. can't happen
+              timestamp(obatched(cerr)) << "stat '" << the_blob.gl_pathv[i] << "' error; skipping cleanup" << endl;
+              continue; // likely nothing can be done to this one
+            }
+          if (pmDebug & DBG_TRACE_APPL1)
+            timestamp(obatched(cout)) << "contemplating deletion of archive " << base_name
+                                      << " (" << foo.st_mtime << "+" << retention_tv.tv_sec
+                                      << " < " << now_tv.tv_sec << ")"
+                                      << endl;
+          if ((foo.st_mtime + retention_tv.tv_sec) < now_tv.tv_sec)
+            {
+              string bnq = sh_quote(base_name);
+              string cleanup_cmd = string("/bin/rm -f")
+                + " " + bnq + ".[0-9]*"
+                + " " + bnq + ".index" +
+                + " " + bnq + ".meta";
+
+              (void) wrap_system(cleanup_cmd);
+            }
+        }
+    }
+  globfree (& the_blob);
+}
+
 
 
 std::string

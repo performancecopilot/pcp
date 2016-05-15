@@ -938,6 +938,7 @@ timezone
 666 pmmgr local slow
 667 python local
 668 pmmgr local containers
+669 pmmgr local
 670 libpcp local
 701 pmlogcheck local
 702 python libpcp local

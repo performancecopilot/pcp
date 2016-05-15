@@ -263,13 +263,25 @@ the merged archive \fIlags\fR the present time. The default is
 
 .TP
 pmlogmerge\-granular
-If this file exists, pmmgr will merge only a subset of preexisting
+If this file also exists, pmmgr will merge only a subset of preexisting
 log archives into the new one, instead of all of them, so as to
 approximate a granular, aligned set of merged archives.  The subset
 chosen corresponds to the previous time interval specified by the
 \fIpmlogmerge\fR control file.
 The default is
 .BR "no granularity" .
+
+.TP
+pmlogcheck\-corrupt\-gc
+Before archives are considered for merging, they are processed through
+\fIpmlogcheck\fR to check for corruption.  In the unlikely case of a
+problem, such archives are renamed out of the way (named "corrupt-*"),
+and retained up to a limited time.  This file specifies how long.
+If this file exists, it the time interval it contains is the maximum
+age.  The default is
+.BR 90days .
+To store corrupt archives indefinitely, set this to a large
+quantity like "99999weeks".
 
 .TP
 pmlogmerge\-rewrite
