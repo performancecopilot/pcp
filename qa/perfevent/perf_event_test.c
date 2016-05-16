@@ -575,9 +575,9 @@ void test_derived_counters_fail_mismatch()
 
     const char *eventlist = "config/test_derived_counters_fail_mismatch.txt";
 
-    perfhandle_t *h = perf_event_create(eventlist);
+    perfdata_t *h = (perfdata_t *)perf_event_create(eventlist);
 
-    assert( h == NULL );
+    assert( h->nderivedevents == 1 );
 }
 
 void test_derived_counters_fail_missing()
@@ -586,9 +586,9 @@ void test_derived_counters_fail_missing()
 
     const char *eventlist = "config/test_derived_counters_fail_missing.txt";
 
-    perfhandle_t *h = perf_event_create(eventlist);
+    perfdata_t *h = (perfdata_t *)perf_event_create(eventlist);
 
-    assert( h == NULL );
+    assert( h->nderivedevents == 1 );
 }
 
 void test_derived_alternate_group()
