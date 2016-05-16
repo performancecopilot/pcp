@@ -44,6 +44,7 @@ local="-L -K clear -K add,60,$pmda"
 rm -fr $root
 mkdir $root || _fail "temporary root already in use?"
 cd $root
+# For single node tests
 tar xzf $here/linux/meminfo-root-001.tgz
 
 [ -f "$config" ] && _save_config "$config"
@@ -67,6 +68,33 @@ echo
 echo "== Checking max metric value with good bandwidth.conf"
 echo 'Version:1.0' > $tmp.config
 echo 'node0:1024' >> $tmp.config
+$sudo cp $tmp.config "$config"
+pminfo $local -f mem.numa.max_bandwidth 2>&1 | _filter
+echo
+
+# Multinode tests start here
+tar xzf $here/linux/meminfo-root-002.tgz
+
+echo "== Checking max metric value with multinode bandwidth.conf"
+echo 'Version:1.0' > $tmp.config
+echo 'node0:1024' >> $tmp.config
+echo 'node1:1024' >> $tmp.config
+$sudo cp $tmp.config "$config"
+pminfo $local -f mem.numa.max_bandwidth 2>&1 | _filter
+echo
+
+echo "== Checking max metric value with one bad node in bandwidth.conf"
+echo 'Version:1.0' > $tmp.config
+echo 'node0:1024' >> $tmp.config
+echo 'node11:8192' >> $tmp.config
+$sudo cp $tmp.config "$config"
+pminfo $local -f mem.numa.max_bandwidth 2>&1 | _filter
+echo
+
+echo "== Checking max metric value with multiple bad nodes in bandwidth.conf"
+echo 'Version:1.0' > $tmp.config
+echo 'xyz:1024' >> $tmp.config
+echo 'abc:8192.444' >> $tmp.config
 $sudo cp $tmp.config "$config"
 pminfo $local -f mem.numa.max_bandwidth 2>&1 | _filter
 echo
