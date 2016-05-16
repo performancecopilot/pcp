@@ -1538,7 +1538,11 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: python%{?default_python}
+%if 0%{?rhel} == 5
+Requires: python%{default_python}
+%else
+Requires: python
+%endif
 
 %description -n python-pcp
 This python PCP module contains the language bindings for
@@ -1556,7 +1560,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: python%{?default_python}
+Requires: python3
 
 %description -n python3-pcp
 This python PCP module contains the language bindings for
