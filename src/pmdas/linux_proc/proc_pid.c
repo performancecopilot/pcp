@@ -1482,8 +1482,8 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 			    ep->status_lines.vmlck = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmPin:", 6) == 0)
 			    ep->status_lines.vmpin = strsep(&curline, "\n");
-			else if (strncmp(curline, "VmHWN:", 6) == 0)
-			    ep->status_lines.vmhwn = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmHWM:", 6) == 0)
+			    ep->status_lines.vmhwm = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmRSS:", 6) == 0)
 			    ep->status_lines.vmrss = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmData:", 7) == 0)

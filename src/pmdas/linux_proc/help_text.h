@@ -124,7 +124,7 @@ help_text_t  help_text[] = {
 { .name = "psinfo.ngid",   .shorthelp = "NUMA group identifier (from /proc/<pid>/status)", .longhelp = "" },
 { .name = "memory.vmpeak",	.shorthelp = "peak virtual memory size (from /proc/<pid>/status)",        .longhelp = "" },
 { .name = "memory.vmpin",	.shorthelp = "fixed physical address unswappable pages (from /proc/<pid>/status)",        .longhelp = "" },
-{ .name = "memory.vmhwn",	.shorthelp = "peak usage of physical memory (from /proc/<pid>/status)",        .longhelp = "" },
+{ .name = "memory.vmhwm",	.shorthelp = "peak usage of physical memory (from /proc/<pid>/status)",        .longhelp = "" },
 { .name = "memory.vmpte",	.shorthelp = "memory occupied by page table entries (from /proc/<pid>/status)",        .longhelp = "" },
 { .name = "namespaces.tgid",   .shorthelp = "descendant namespace thread group ID hierarchy (/proc/<pid>/status)", .longhelp = "" },
 { .name = "namespaces.pid",   .shorthelp = "descendant namespace process ID hierarchy (/proc/<pid>/status)", .longhelp = "" },
