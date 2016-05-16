@@ -48,7 +48,7 @@ tar xzf $here/linux/meminfo-root-001.tgz
 
 [ -f "$config" ] && _save_config "$config"
 echo "== Checking max metric value with no bandwidth.conf"
-$sudo rm "$config"
+$sudo rm -f "$config"
 pminfo $local -f mem.numa.max_bandwidth 2>&1 | _filter
 echo
 
