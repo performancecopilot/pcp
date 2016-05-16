@@ -141,7 +141,8 @@ int refresh_numa_meminfo(numa_meminfo_t *numa_meminfo, proc_cpuinfo_t *proc_cpui
     }
 
     /* Read NUMA bandwidth info from the bandwidth.conf file (optional) */
-    get_memory_bandwidth_conf(numa_meminfo, idp->it_numinst);
+    if (bandwidth_conf_changed(numa_meminfo->bandwidth_conf))
+	get_memory_bandwidth_conf(numa_meminfo, idp->it_numinst);
 
     return 0;
 }

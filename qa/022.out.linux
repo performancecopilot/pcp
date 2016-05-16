@@ -35,7 +35,7 @@ proc.memory.size
 proc.memory.textrss
 proc.memory.vmdata
 proc.memory.vmexe
-proc.memory.vmhwn
+proc.memory.vmhwm
 proc.memory.vmlib
 proc.memory.vmlock
 proc.memory.vmpeak

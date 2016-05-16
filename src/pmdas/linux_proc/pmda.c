@@ -578,9 +578,9 @@ static pmdaMetric metrictab[] = {
     PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
-/* proc.memory.vmhwn */
+/* proc.memory.vmhwm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMHWN),
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMHWM),
     PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
@@ -2275,8 +2275,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
-	case PROC_PID_STATUS_VMHWN: /* proc.memory.vmhwn */
-	if ((f = _pm_getfield(entry->status_lines.vmhwn, 1)) == NULL)
+	case PROC_PID_STATUS_VMHWM: /* proc.memory.vmhwm */
+	if ((f = _pm_getfield(entry->status_lines.vmhwm, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);

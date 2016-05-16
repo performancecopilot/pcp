@@ -152,14 +152,7 @@ BuildRequires: qt4-devel >= 4.4
 %endif
 
 Requires: bash gawk sed grep fileutils findutils initscripts which
-Requires: python%{?default_python}
 Requires: pcp-libs = %{version}-%{release}
-%if 0%{?default_python} == 3
-Requires: python3-pcp = %{version}-%{release}
-%endif
-%if !%{disable_python2} && 0%{?default_python} != 3
-Requires: python-pcp = %{version}-%{release}
-%endif
 Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-pmda-nvidia
 
@@ -279,13 +272,28 @@ Performance Co-Pilot (PCP) run-time libraries
 %package libs-devel
 License: GPLv2+ and LGPLv2.1+
 Group: Development/Libraries
-Summary: Performance Co-Pilot (PCP) development headers and documentation
+Summary: Performance Co-Pilot (PCP) development headers
+URL: http://www.pcp.io
+#Requires: pcp = %{version}-%{release}
+#Requires: pcp-libs = %{version}-%{release}
+
+%description libs-devel
+Performance Co-Pilot (PCP) headers, for development
+
+#
+# pcp-devel
+#
+%package devel
+License: GPLv2+ and LGPLv2.1+
+Group: Development/Libraries
+Summary: Performance Co-Pilot (PCP) development tools and documentation
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
+Requires: pcp-libs-devel = %{version}-%{release}
 
-%description libs-devel
-Performance Co-Pilot (PCP) headers, documentation and tools for development.
+%description devel
+Performance Co-Pilot (PCP) documentation and tools for development.
 
 #
 # pcp-testsuite
@@ -1530,6 +1538,11 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python bindings and documentation
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%if 0%{?rhel} == 5
+Requires: python%{default_python}
+%else
+Requires: python
+%endif
 
 %description -n python-pcp
 This python PCP module contains the language bindings for
@@ -1547,6 +1560,7 @@ Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
 URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: python3
 
 %description -n python3-pcp
 This python PCP module contains the language bindings for
@@ -1752,7 +1766,8 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 # all base pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
   grep -E -v 'pmiostat|pmcollectl|pmatop|pmrep|pcp2graphite|zabbix|zbxpcp' |\
-  sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
+  grep -E -v 'pmdbg|pmclient|pmerr|genpmda' |\
+sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 #
 # Separate the pcp-system-tools package files.
 #
@@ -1796,6 +1811,9 @@ ls -1 $RPM_BUILD_ROOT/%{_mandir}/man3 |\
 sed -e 's#^#'%{_mandir}'\/man3\/#' | grep -v '3pm' >>pcp-doc.list
 ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos |\
 sed -e 's#^#'%{_datadir}'\/pcp\/demos\/#' | grep -E -v tutorials >> devel.list
+ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
+grep -E 'pmdbg|pmclient|pmerr|genpmda' |\
+sed -e 's#^#'%{_bindir}'\/#' >>devel.list
 
 %pre testsuite
 test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}
@@ -2271,6 +2289,9 @@ cd
 %{_localstatedir}/lib/pcp/config/pmlogrewrite
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmda
 
+%{_datadir}/bash-completion/completions/pcp
+%{_datadir}/zsh/site-functions/_pcp
+
 %if !%{disable_sdt}
 %{tapsetdir}/pmcd.stp
 %endif
@@ -2297,7 +2318,7 @@ cd
 %{_libdir}/libpcp_trace.so.2
 %{_libdir}/libpcp_import.so.1
 
-%files libs-devel -f devel.list
+%files libs-devel
 %{_libdir}/libpcp.so
 %{_libdir}/libpcp_gui.so
 %{_libdir}/libpcp_mmv.so
@@ -2305,6 +2326,8 @@ cd
 %{_libdir}/libpcp_trace.so
 %{_libdir}/libpcp_import.so
 %{_includedir}/pcp/*.h
+
+%files devel -f devel.list
 %{_datadir}/pcp/examples
 
 # PMDAs that ship src and are not for production use

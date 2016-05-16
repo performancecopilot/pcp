@@ -942,7 +942,7 @@ timezone
 701 pmlogcheck local
 702 python libpcp local
 703 pmda.weblog local
-704:reserved pmda.mmv python mmv local
+704 pmda.mmv python mmv local
 705 libpcp local
 706 libpcp local
 707 python libpcp local

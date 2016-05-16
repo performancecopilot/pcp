@@ -37,55 +37,9 @@
 #define EVENT_TYPE_PERF 0
 #define EVENT_TYPE_RAPL 1
 
-typedef struct eventcpuinfo_t_ {
-    uint64_t values[3];
-    uint64_t previous[3];
-    int type;
-    int fd;
-    perf_event_attr_t hw; /* perf_event_attr struct passed to perf_event_open() */
-    int idx; /* opaque libpfm event identifier */
-    char *fstr; /* fstr from library, must be freed */
-    rapl_data_t rapldata;
-    int cpu;
-} eventcpuinfo_t;
-
 #define RAW_VALUE 0
 #define TIME_ENABLED 1
 #define TIME_RUNNING 2
-
-typedef struct event_t_ {
-    char *name;
-    eventcpuinfo_t *info;
-    int ncpus;
-} event_t;
-
-typedef struct event_list_t_ {
-    event_t *event;
-    double scale;
-    struct event_list_t_ *next;
-} event_list_t;
-
-typedef struct derived_event_t_ {
-    char *name;
-    event_list_t *event_list;
-} derived_event_t;
-
-typedef struct perfdata_t_
-{
-    int nevents;
-    event_t *events;
-
-    int nderivedevents;
-    derived_event_t *derived_events;
-
-    /* information about the architecture (number of cpus, numa nodes etc) */
-    archinfo_t *archinfo;
-
-    /* internal state to keep track of cpus for events added in 'round
-     * robin' mode */
-    int roundrobin_cpu_idx;
-    int roundrobin_nodecpu_idx;
-} perfdata_t;
 
 const char *perf_strerror(int err)
 {
@@ -511,15 +465,6 @@ static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
         return -E_PERFEVENT_LOGIC;
     }
 
-    derived_events = realloc(derived_events,
-                             (nderivedevents + 1) * sizeof(*derived_events));
-    if (NULL == derived_events) {
-        free(inst->derived_events);
-        inst->nderivedevents = 0;
-        inst->derived_events = NULL;
-        return -E_PERFEVENT_REALLOC;
-    }
-
     /*
      * If a certain setting_list is not available, then we need to check if the
      * next one is available.
@@ -576,6 +521,7 @@ static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
                 ptr = ptr->next;
             }
         }
+
         /* There was a event mismatch in the curr list, so, discard this list */
         if (clear_history)
             free_event_list(event_list);
@@ -592,7 +538,15 @@ static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
         return -E_PERFEVENT_LOGIC;
     }
 
-    tmp = event_list;
+    derived_events = realloc(derived_events,
+                             (nderivedevents + 1) * sizeof(*derived_events));
+    if (NULL == derived_events) {
+        free(inst->derived_events);
+        inst->nderivedevents = 0;
+        inst->derived_events = NULL;
+        free_event_list(event_list);
+        return -E_PERFEVENT_REALLOC;
+    }
 
     curr = derived_events + nderivedevents;
     curr->name = strdup(derived_pmc->name);
@@ -1190,7 +1144,7 @@ perfhandle_t *perf_event_create(const char *config_file)
             derivedpmc = &(perfconfig->derivedArr[i]);
             ret = perf_setup_derived_event(inst, derivedpmc);
             if (ret < 0)
-                return NULL;
+                fprintf(stderr, "Unable to setup derived event : %s\n", derivedpmc->name);
         }
     }
 

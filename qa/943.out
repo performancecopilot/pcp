@@ -37,7 +37,7 @@ proc.memory.size -12387 No permission to perform requested operation
 proc.memory.textrss -12387 No permission to perform requested operation
 proc.memory.vmdata -12387 No permission to perform requested operation
 proc.memory.vmexe -12387 No permission to perform requested operation
-proc.memory.vmhwn -12387 No permission to perform requested operation
+proc.memory.vmhwm -12387 No permission to perform requested operation
 proc.memory.vmlib -12387 No permission to perform requested operation
 proc.memory.vmlock -12387 No permission to perform requested operation
 proc.memory.vmpeak -12387 No permission to perform requested operation
@@ -134,7 +134,7 @@ proc.memory.size COUNT
 proc.memory.textrss COUNT
 proc.memory.vmdata COUNT
 proc.memory.vmexe COUNT
-proc.memory.vmhwn COUNT
+proc.memory.vmhwm COUNT
 proc.memory.vmlib COUNT
 proc.memory.vmlock COUNT
 proc.memory.vmpeak COUNT

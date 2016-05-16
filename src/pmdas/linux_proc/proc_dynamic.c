@@ -177,7 +177,7 @@ static dynproc_metric_t memory_metrics[] = {
         { .name = "vmswap", .cluster = CLUSTER_PID_STATUS,  .item=27 },
         { .name = "vmpeak",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMPEAK },
 	{ .name = "vmpin",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMPIN },
-	{ .name = "vmhwn",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMHWN },
+	{ .name = "vmhwm",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMHWM },
 	{ .name = "vmpte",	.cluster = CLUSTER_PID_STATUS,	.item = PROC_PID_STATUS_VMPTE },
 };
 

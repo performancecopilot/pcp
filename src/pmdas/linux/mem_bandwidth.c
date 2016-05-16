@@ -18,6 +18,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "pmapi.h"
 #include "impl.h"
@@ -31,10 +34,46 @@
 #define SUPP_VERSION "1.0"
 #define MAX_NAME_LEN 512
 
+/*
+ * Check whether bandwidth.conf has changed
+ */
+int bandwidth_conf_changed(char *conf_path)
+{
+    struct stat stat_buf;
+    static time_t last_errno;
+    static time_t last_mtime;
+
+    if (stat(conf_path, &stat_buf) != 0) {
+	if (errno != last_errno) {
+	    if (errno != ENOENT)
+		fprintf(stderr, "Cannot stat %s\n", conf_path);
+	    last_errno = errno;
+	    return 1;
+	}
+	return 0;
+    }
+    last_errno = 0;
+
+    if (stat_buf.st_mtime != last_mtime) {
+	last_mtime = stat_buf.st_mtime;
+	return 1;
+    }
+
+    return 0;
+}
+
 static void skim_through_whitespace(char *start_ptr, char *end_ptr)
 {
     while ((start_ptr != end_ptr) && isspace(*start_ptr))
 	start_ptr++;
+}
+
+static void reset_bandwidth(numa_meminfo_t *numa_meminfo, int nr_nodes)
+{
+    int i;
+
+    for (i = 0; i < nr_nodes; i++)
+	numa_meminfo->node_info[i].bandwidth = 0.0;
 }
 
 static int find_node_match(char *name, int nr_nodes)
@@ -80,6 +119,8 @@ int get_memory_bandwidth_conf(numa_meminfo_t *numa_meminfo, int nr_nodes)
     char *node_name;
     int nodes_found = 0, id;
     int version_found = 0;
+
+    reset_bandwidth(numa_meminfo, nr_nodes);
 
     if ((fp = fopen(config, "r")) == NULL)
 	return 0;
