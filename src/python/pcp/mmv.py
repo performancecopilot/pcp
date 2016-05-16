@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """Wrapper module for libpcp_mmv - PCP Memory Mapped Values library
 #
-# Copyright (C) 2013,2015 Red Hat.
+# Copyright (C) 2013-2016 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -16,46 +16,57 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-
 # Example use of this module for instrumenting a python application:
 
         from pcp import mmv, pmapi
-        from cpmapi import PM_COUNT_ONE, PM_TIME_USEC
+        import cpmapi as pcpapi
+        import cmmv as mmvapi
 
-        instances = [mmv.mmv_instance(0, "zero"), mmv.mmv_instance(1, "hero")]
-        indoms = [mmv.mmv_indom(serial = 1,
-                            shorttext = "We can be heroes",
-                            helptext = "Set of instances from zero to hero"),
+        instances = [
+                mmv.mmv_instance(0, "Anvils"),
+                mmv.mmv_instance(1, "Rockets"),
+                mmv.mmv_instance(2, "Giant_Rubber_Bands")
+        ]
+        ACME_PRODUCTS_INDOM = 61
+        indoms = [
+                mmv.mmv_indom(
+                    serial = ACME_PRODUCTS_INDOM,
+                    shorttext = "Acme products",
+                    helptext = "Most popular products produced by the Acme Corporation")
+        ]
         indoms[0].set_instances(instances)
-        metrics = [mmv.mmv_metric(name = "counter",
-                              item = 1,
-                              typeof = mmv.MMV_TYPE_U32,
-                              semantics = mmv.MMV_SEM_COUNTER,
-                              dimension = pmapi.pmUnits(0,0,1,0,0,PM_COUNT_ONE),
-                              shorttext = "Example counter metric",
-                              helptext = "Yep, a test counter metric"),
-                   mmv.mmv_metric(name = "instant",
-                              item = 2,
-                              typeof = mmv.MMV_TYPE_I32,
-                              semantics = mmv.MMV_SEM_INSTANT,
-                              dimension = pmapi.pmUnits(0,0,0,0,0,0),
-                              shorttext = "Example instant metric",
-                              helptext = "Yep, a test instantaneous metric"),
-                   mmv.mmv_metric(name = "indom",
-                              item = 3,
-                              typeof = mmv.MMV_TYPE_U32,
-                              semantics = mmv.MMV_SEM_DISCRETE,
-                              dimension = pmapi.pmUnits(0,0,0,0,0,0),
-                              indom = 1)]
 
-        values = mmv.MemoryMappedValues("demo")
+        metrics = [
+                mmv.mmv_metric(
+                    name = "products.count",
+                    item = 7,
+                    typeof = mmvapi.MMV_TYPE_U64,
+                    semantics = mmvapi.MMV_SEM_COUNTER,
+                    dimension = pmapi.pmUnits(0,0,1,0,0,pcpapi.PM_COUNT_ONE),
+                    indom = ACME_PRODUCTS_INDOM,
+                    shorttext = "Acme factory product throughput",
+                    helptext =
+        "Monotonic increasing counter of products produced in the Acme Corporation\n" +
+        "factory since starting the Acme production application.  Quality guaranteed."),
+
+                mmv.mmv_metric(
+                    name = "products.time",
+                    item = 8,
+                    typeof = mmvapi.MMV_TYPE_U64,
+                    semantics = mmvapi.MMV_SEM_COUNTER,
+                    dimension = pmapi.pmUnits(0,1,0,0,pcpapi.PM_TIME_USEC,0),
+                    indom = ACME_PRODUCTS_INDOM,
+                    shorttext = "Machine time spent producing Acme products")
+        ]
+
+        values = mmv.MemoryMappedValues("acme")
         values.add_indoms(indoms)
         values.add_metrics(metrics)
 
         values.start()
-        instant = values.lookup_mapping("instant", None)
-        values.set(instant, 41)
-        values.inc(instant)
+        anvils = values.lookup_mapping("products.count", "Anvils")
+        values.set(anvils, 41)
+        values.inc(anvils)
         values.stop()
 """
 
@@ -399,4 +410,3 @@ class MemoryMappedValues(object):
         if inst != None and type(inst) != type(b''):
             inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_inc_fallback(self._handle, name, inst, fallback)
-
