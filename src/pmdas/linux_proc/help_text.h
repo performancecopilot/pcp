@@ -19,7 +19,7 @@ help_text_t  help_text[] = {
 { .name = "psinfo.blocked_s",            .shorthelp = "blocked signals mask in string form (from /proc/<pid>/status)",        .longhelp = "" },
 { .name = "memory.vmexe",            .shorthelp = "virtual memory used for non-library executable code (from /proc/<pid>/status)",        .longhelp = "" },
 { .name = "id.egid_nm",            .shorthelp = "effective group name based on effective group ID from /proc/<pid>/status",        .longhelp = "" },
-{ .name = "memory.vmswap",            .shorthelp = "virtual memory that has been brought in and out.",        .longhelp = "" },
+{ .name = "memory.vmswap",            .shorthelp = "virtual memory size currently swapped out (from /proc/<pid>/status)",        .longhelp = "" },
 { .name = "psinfo.sigcatch_s",            .shorthelp = "caught signals mask in string form (from /proc/<pid>/status)",        .longhelp = "" },
 { .name = "id.egid",            .shorthelp = "effective group ID from /proc/<pid>/status",        .longhelp = "" },
 { .name = "psinfo.minflt",            .shorthelp = "count of minor page faults (i.e. reclaims)",        .longhelp = "" },

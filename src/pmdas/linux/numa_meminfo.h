@@ -32,3 +32,4 @@ typedef struct {
 
 extern int refresh_numa_meminfo(numa_meminfo_t *, proc_cpuinfo_t *, proc_stat_t *);
 extern int get_memory_bandwidth_conf(numa_meminfo_t *, int);
+extern int bandwidth_conf_changed(char *conf_path);
