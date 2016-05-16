@@ -23,7 +23,7 @@ mem.numa.alloc.other_node
     inst [0 or "node0"] value 0
 
 mem.numa.max_bandwidth
-No value(s) available!
+    inst [0 or "node0"] value 1024
 
 mem.numa.util.NFS_Unstable
     inst [0 or "node0"] value 0
