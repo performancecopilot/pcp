@@ -1492,8 +1492,10 @@ __pmLogGenerateMark(__pmLogCtl *lcp, int mode, pmResult **result)
      */
     pr->numpmid = 0;
     if (mode == PM_MODE_FORW) {
-	if ((sts = __pmGetArchiveEnd(lcp, &end)) < 0)
+	if ((sts = __pmGetArchiveEnd(lcp, &end)) < 0) {
+	    free(pr);
 	    return sts;
+	}
 	pr->timestamp.tv_sec = lcp->l_endtime.tv_sec;
 	pr->timestamp.tv_usec = lcp->l_endtime.tv_usec;
 	pr->timestamp.tv_usec += 1000;

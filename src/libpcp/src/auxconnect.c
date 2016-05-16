@@ -1089,8 +1089,11 @@ __pmHostEntGetName(__pmHostEnt *he)
 	     addr = __pmHostEntGetSockAddr(he, &enumIx)) {
 	    he->name = __pmGetNameInfo(addr);
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_DESPERATE)
-		fprintf(stderr, "%s:__pmHostEntGetName: __pmGetNameInfo(%s) returns %s\n", __FILE__, __pmSockAddrToString(addr), he->name);
+	    if (pmDebug & DBG_TRACE_DESPERATE) {
+		char *sockname = __pmSockAddrToString(addr);
+		fprintf(stderr, "%s:__pmHostEntGetName: __pmGetNameInfo(%s) returns %s\n", __FILE__, sockname, he->name);
+		free(sockname);
+	    }
 #endif
 	    __pmSockAddrFree(addr);
 	    if (he->name != NULL)
