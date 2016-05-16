@@ -795,7 +795,7 @@ setenv(const char *name, const char *value, int overwrite)
     if ((ebuf = (char *)malloc(strlen(name) + strlen(value) + 2)) == NULL)
 	return -1;
 
-    strncpy(ebuf, name, strlen(name));
+    strncpy(ebuf, name, strlen(name)+1);
     strncat(ebuf, "=", 1);
     strncat(ebuf, value, strlen(value));
 
@@ -812,7 +812,7 @@ unsetenv(const char *name)
 	return -1;
 
     /* strange but true */
-    strncpy(ebuf, name, strlen(name));
+    strncpy(ebuf, name, strlen(name)+1);
     strncat(ebuf, "=", 1);
     sts = _putenv(ebuf);
     free(ebuf);

@@ -1793,6 +1793,12 @@ scandir(const char *dirname, struct dirent ***namelist,
 		sizeof(*dp)-sizeof(dp->d_name)+strlen(dp->d_name)+1)) == NULL) {
 	    PM_UNLOCK(__pmLock_libpcp);
 	    closedir(dirp);
+	    n--;
+	    while (n >= 1) {
+		free(names[n-1]);
+		n--;
+	    }
+	    free(names);
 	    return -1;
 	}
 
