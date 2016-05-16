@@ -44,9 +44,15 @@ int bandwidth_conf_changed(char *conf_path)
     static time_t last_mtime;
 
     if (stat(conf_path, &stat_buf) != 0) {
-	fprintf(stderr, "Cannot stat %s\n", conf_path);
-	return 1;
+	if (errno != last_errno) {
+	    if (errno != ENOENT)
+		fprintf(stderr, "Cannot stat %s\n", conf_path);
+	    last_errno = errno;
+	    return 1;
+	}
+	return 0;
     }
+    last_errno = 0;
 
     if (stat_buf.st_mtime != last_mtime) {
 	last_mtime = stat_buf.st_mtime;
@@ -60,6 +66,14 @@ static void skim_through_whitespace(char *start_ptr, char *end_ptr)
 {
     while ((start_ptr != end_ptr) && isspace(*start_ptr))
 	start_ptr++;
+}
+
+static void reset_bandwidth(numa_meminfo_t *numa_meminfo, int nr_nodes)
+{
+    int i;
+
+    for (i = 0; i < nr_nodes; i++)
+	numa_meminfo->node_info[i].bandwidth = 0.0;
 }
 
 static int find_node_match(char *name, int nr_nodes)
@@ -105,6 +119,8 @@ int get_memory_bandwidth_conf(numa_meminfo_t *numa_meminfo, int nr_nodes)
     char *node_name;
     int nodes_found = 0, id;
     int version_found = 0;
+
+    reset_bandwidth(numa_meminfo, nr_nodes);
 
     if ((fp = fopen(config, "r")) == NULL)
 	return 0;

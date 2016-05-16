@@ -21,3 +21,21 @@ No value(s) available!
 mem.numa.max_bandwidth
     inst [0 or "node0"] value 1024
 
+== Checking max metric value with multinode bandwidth.conf
+
+mem.numa.max_bandwidth
+    inst [0 or "node0"] value 1024
+    inst [1 or "node1"] value 1024
+
+== Checking max metric value with one bad node in bandwidth.conf
+Unknown node 'node11' in PCP_PMDAS_DIR/linux/bandwidth.conf
+
+mem.numa.max_bandwidth
+    inst [0 or "node0"] value 1024
+
+== Checking max metric value with multiple bad nodes in bandwidth.conf
+Unknown node 'xyz' in PCP_PMDAS_DIR/linux/bandwidth.conf
+
+mem.numa.max_bandwidth
+No value(s) available!
+
