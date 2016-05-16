@@ -6,7 +6,6 @@
 -  shorten unit display count / sec -> count/s -> c/s if needed
 -  opt to output in short format (see pmdumptext -F / pmNumberStr) [-m/-M]
 -  opt to support pmdumptext -X like output (or shorten inst names if needed)
--  bash/zsh completion with short help (allow description for sets?)
 -  support rate display also for non-cumulative counters
 -  support displaying raw/rate as per given unit
 -  (re)add runtime directive to config file
