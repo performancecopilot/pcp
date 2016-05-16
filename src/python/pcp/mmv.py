@@ -10,7 +10,7 @@
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -148,6 +148,7 @@ class mmv_metric(Structure):
         self.typeof = typeof
         self.indom = indom
         self.item = item
+        self.name = name
 
 ##
 # PCP Memory Mapped Value Services
@@ -160,7 +161,7 @@ LIBPCP_MMV.mmv_stats_init.argtypes = [
 LIBPCP_MMV.mmv_stats_stop.restype = None
 LIBPCP_MMV.mmv_stats_stop.argtypes = [c_char_p, c_void_p]
 
-LIBPCP_MMV.mmv_lookup_value_desc.restype = pmAtomValue
+LIBPCP_MMV.mmv_lookup_value_desc.restype = POINTER(pmAtomValue)
 LIBPCP_MMV.mmv_lookup_value_desc.argtypes = [c_void_p, c_char_p, c_char_p]
 
 LIBPCP_MMV.mmv_inc_value.restype = None
