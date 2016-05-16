@@ -2,28 +2,39 @@
 # PCP QA Test No. 704
 # Exercise MMV python module (end-to-end)
 #
-# Copyright (c) 2013 Red Hat.
+# Copyright (c) 2013,2016 Red Hat.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard filters
-. ./common.product
-. ./common.filter
+. ./common.setup
 . ./common.check
+[ -f common.python ] || _notrun "Testsuite built without python support"
 
-python -c 'from pcp import mmv' 2>/dev/null
+. ./common.python
+
+$python -c 'from pcp import mmv' 2>/dev/null
 test $? -eq 0 || _notrun "Python MMV module not available"
 
 status=1
+_needclean=true
 $sudo rm -f $tmp.* $seq.full
 MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
-MMV_STATS_FILE=pymmv
 
 _cleanup()
 {
-    [ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
+    if $_needclean
+    then
+	[ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	_needclean=false
+    fi
+    $sudo rm -f $tmp.*
+    exit $status
 }
 
 _filter_pminfo()
@@ -39,12 +50,15 @@ trap "_cleanup" 0 1 2 3 15
 $sudo rm -rf $MMV_STATS_DIR
 $sudo mkdir $MMV_STATS_DIR
 $sudo chmod 1777 $MMV_STATS_DIR
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _check_agent mmv >/dev/null || _notrun "MMV agent should be setup but is not"
 
 echo "Running python test program"
-python $here/src/test_mmv.py
-echo "Checking pmdammv metrics"
-pminfo -fmdtT mmv | _filter_pminfo
+$python $here/src/test_mmv.py
+echo "Checking mmv file"
+find $MMV_STATS_DIR | sed -e "s,$MMV_STATS_DIR,MMV_STATS_DIR,g"
+echo "Checking pmdammv queries"
+pminfo -fmdtT mmv.pytest | _filter_pminfo
 
 status=0
 exit

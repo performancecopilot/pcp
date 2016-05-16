@@ -80,7 +80,7 @@ class TestSequenceFunctions(unittest.TestCase):
                               shorttext = "test string metrics",
                               helptext = "Yep, string metric with instances")]
 
-        values = mmv.MemoryMappedValues("test")
+        values = mmv.MemoryMappedValues("pytest")
         self.assertTrue(values != None)
         self.assertTrue(values.started() == 0)
         values.add_indoms(indoms)
