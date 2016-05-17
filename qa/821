@@ -15,6 +15,15 @@ echo "QA output created by $seq"
 
 [ $PCP_PLATFORM = linux ] || _notrun "Linux-specific memory metric testing"
 
+config="$PCP_PMDAS_DIR/linux/bandwidth.conf"
+
+_cleanup()
+{
+    cd $here
+    [ -f "$config.$seq" ] && _restore_config "$config"
+    rm -rf $tmp $tmp.*
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
@@ -28,6 +37,8 @@ local="-L -K clear -K add,60,$pmda"
 
 mem_metrics=`pminfo $local mem | LC_COLLATE=POSIX sort`
 slab_metrics=`pminfo $local mem.slabinfo | LC_COLLATE=POSIX sort`
+
+[ -f "$config" ] && _save_config "$config"
 
 for tgz in $here/linux/meminfo-*.tgz
 do
