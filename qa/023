@@ -88,7 +88,15 @@ $1 == "y" && $2 = "y" && $8 == "localhost" {
 			}
 /pipe cmd=/		{ $4 = "FD"; $5 = "FD" }
 			{ print	}' \
-    | sed -e '/^pmcd 2 A_PID /s/ A_PID .*/ A_PID .../' | _filter_me
+    | sed -e '/^pmcd 2 A_PID /s/ A_PID .*/ A_PID .../' \
+    | _filter_me \
+    | sed -e '/MY_HOSTNAME A_PID/{
+s/^16 /N-OK /
+s/^17 /N-OK /
+s/^18 /N-OK /
+s/^19 /N-OK /
+}'
+    # last sed is because the number of open fds is platform-dependent
 }
 
 TMP_CONFIG=$tmp/conf.tmp
