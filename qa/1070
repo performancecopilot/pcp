@@ -44,7 +44,7 @@ _path_filter()
 _filter()
 {
     sed \
-	-e '/timezone:/s/local is .*)/local is TIMEZONE)/'
+	-e 's/ (reporting, local is .*)$//g' \
     #end
 }
 
