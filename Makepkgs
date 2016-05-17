@@ -410,7 +410,23 @@ src_tar_build()
 	git archive --format=tar --prefix=$source/ HEAD | $ZIP > $SRCTAR
     else
 	# build git file list and make tarball by hand to pick up any changes
+	#
 	git ls-files > .gitcensus
+
+	# but first ensure a "build everything" debian/control has been
+	# recreated
+	#
+	cd debian
+	if ./pre-build
+	then
+	    :
+	else
+	    echo "Error: debian/pre-build failed when creating debian/control"
+	    exit 1
+	fi
+	cd ..
+	echo "debian/control" >> .gitcensus
+
 	$TAR -cz --transform="s,^,$source/," --files-from=.gitcensus \
 		--file=$SRCTAR 
 	rm .gitcensus
