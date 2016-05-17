@@ -285,10 +285,12 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 endif
 
 install-pcppmdainfiniband: default
+ifeq ($(PMDA_INFINIBAND), true)
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
-#	$(INSTALL) -m 755 -d $(PCPPMDAINFINIBAND_DOC_DIR)
-#	$(INSTALL) -m 644 copyright $(PCPPMDAINFINIBAND_DOC_DIR)
-#	$(INSTALL) -m 644 changelog $(PCPPMDAINFINIBAND_DOC_DIR)/changelog.Debian
+	$(INSTALL) -m 755 -d $(PCPPMDAINFINIBAND_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPPMDAINFINIBAND_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPPMDAINFINIBAND_DOC_DIR)/changelog.Debian
+endif
 endif
 
 pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs configversions pcp.preinst.tail
@@ -327,4 +329,7 @@ ifeq ($(ENABLE_WEBAPI), true)
 endif
 ifeq ($(ENABLE_QT), true)
 	cat control.pcpgui >>control
+endif
+ifeq ($(PMDA_INFINIBAND), true)
+	cat control.pmdaib >>control
 endif
