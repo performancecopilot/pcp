@@ -39,7 +39,11 @@ local="-L -K clear -K add,60,$pmda"
 mem_metrics=`pminfo $local mem | LC_COLLATE=POSIX sort`
 slab_metrics=`pminfo $local mem.slabinfo | LC_COLLATE=POSIX sort`
 
-[ -f "$config" ] && _save_config "$config"
+if [ -f "$config" ]
+then
+    _save_config "$config"
+    $sudo rm -f "$config"  # ensure deterministic output, see qa/826
+fi
 
 for tgz in $here/linux/meminfo-*.tgz
 do
