@@ -91,7 +91,7 @@ negotiate_proxy(int fd, const char *hostname, int port)
  * pmcd if we can go ahead with the connection, else error.
  */
 static int
-check_feature_flags(int ctxflags, int features)
+check_feature_flags(int ctxflags, int features, int local_conn)
 {
     int		pduflags = 0;
 
@@ -103,15 +103,15 @@ check_feature_flags(int ctxflags, int features)
 	 */
 	pduflags |= PDU_FLAG_CREDS_REQD;
 
-    if (features & PDU_FLAG_CERT_REQD){
+    if ( (features & PDU_FLAG_CERT_REQD) && !local_conn ){
 	/*
-	 * This is a mandatory connection feature - pmcd must be
-	 * sent a trusted certificate.
+	 * This is a mandatory connection feature for remote connections.
+	 * pmcd must be sent a trusted certificate.
 	 */
 	pduflags |= PDU_FLAG_CERT_REQD;
 	if( !(ctxflags & PM_CTXFLAG_SECURE) ){
-		/* PMCD requires a client cert, but we are not even setup for secure connections */
-		return PM_ERR_NEEDCLIENTCERT;
+	    /* PMCD requires a client cert, but we are not even setup for secure connections */
+	    return PM_ERR_NEEDCLIENTCERT;
 	}
      }
 
@@ -195,6 +195,26 @@ attributes_handshake(int fd, int flags, const char *host, __pmHashCtl *attrs)
     return 0;
 }
 
+static int
+is_local_connection(const char *hostname, __pmHashCtl *attrs)
+{
+   /* 
+    * If attrs has PCP_ATTR_UNIXSOCK or PCP_ATTR_LOCAL
+    * OR
+    * If hostname contains localhost
+    *	We consider this a local connection and don't enforce CERT_REQD
+    */
+
+    if ( __pmHashSearch(PCP_ATTR_UNIXSOCK, attrs) || 
+	 __pmHashSearch(PCP_ATTR_LOCAL, attrs) || 
+	 strstr( hostname, "localhost") ){
+	 return 1;
+    }
+    else{
+	return 0;
+    }
+}
+
 /*
  * client connects to pmcd handshake
  */
@@ -236,9 +256,12 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 	    __pmPDUInfo		pduinfo;
 	    __pmVersionCred	handshake;
 	    int			pduflags;
+	    int			local_conn;
+
+	    local_conn = is_local_connection( hostname, attrs );
 
 	    pduinfo = __ntohpmPDUInfo(*(__pmPDUInfo *)&challenge);
-	    pduflags = sts = check_feature_flags(ctxflags, pduinfo.features);
+	    pduflags = sts = check_feature_flags(ctxflags, pduinfo.features, local_conn);
 	    if (sts < 0) {
 		__pmUnpinPDUBuf(pb);
 		return sts;

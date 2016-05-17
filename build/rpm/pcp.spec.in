@@ -2425,7 +2425,6 @@ fi
 %post
 PCP_PMNS_DIR=@pcp_var_dir@/pmns
 PCP_LOG_DIR=@pcp_log_dir@
-PCP_CONFIG_DIR=@pcp_var_dir@/config
 # restore saved configs, if any
 test -s "$PCP_LOG_DIR/configs.sh" && source "$PCP_LOG_DIR/configs.sh"
 rm -f $PCP_LOG_DIR/configs.sh
@@ -2458,8 +2457,6 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmcd" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmlogger" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmie" 2>/dev/null
 chown -R pcp:pcp "$PCP_LOG_DIR/pmproxy" 2>/dev/null
-mkdir -p -m 755 "$PCP_CONFIG_DIR/nssdb"
-chown pcp:pcp "$PCP_CONFIG_DIR/nssdb" 2>/dev/null
 touch "$PCP_PMNS_DIR/.NeedRebuild"
 chmod 644 "$PCP_PMNS_DIR/.NeedRebuild"
 %if "@enable_systemd@" == "true"

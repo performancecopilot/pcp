@@ -1065,6 +1065,16 @@ ConnectionAttributes(ClientInfo *cp, int flags)
     return 0;
 }
 
+static int
+CheckCertRequired(ClientInfo *cp)
+{
+    if(__pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD))
+	if ( !__pmSockAddrIsLoopBack(cp->addr) && !__pmSockAddrIsUnix(cp->addr) )
+	    return 1;
+
+    return 0;
+}
+
 int
 DoCreds(ClientInfo *cp, __pmPDU *pb)
 {
@@ -1128,12 +1138,18 @@ DoCreds(ClientInfo *cp, __pmPDU *pb)
     if (sts >= 0 && version)
 	sts = __pmSetVersionIPC(cp->fd, version);
 
-    /* Not sure if this will ever be hit. All cases checked during handshake? */
-    if( ( __pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD) && (flags & PDU_FLAG_SECURE) == 0 )){
-	if( !__pmSockAddrIsLoopBack(cp->addr) && !__pmSockAddrIsUnix(cp->addr)){
-	    return PM_ERR_NEEDCLIENTCERT;
-	}
-    }
+    /*
+     * In normal operation, some of this code is redundant. A 
+     * remote client should error out during initial handshake
+     * if it does not support client certs.
+     *
+     * We still need to check local connections and allow those through
+     * in all cases.
+     */
+
+    if ( CheckCertRequired(cp) )
+        if ( (flags & PDU_FLAG_SECURE) == 0 )
+            return PM_ERR_NEEDCLIENTCERT;
 
     if (sts >= 0 && flags) {
 	/*

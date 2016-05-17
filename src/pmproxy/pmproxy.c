@@ -183,6 +183,16 @@ ParseOptions(int argc, char *argv[], int *nports)
     }
 }
 
+static int
+CheckCertRequired(ClientInfo *cp)
+{
+    if( cp->server_features & PDU_FLAG_CERT_REQD )
+	if ( !__pmSockAddrIsLoopBack(cp->addr) && !__pmSockAddrIsUnix(cp->addr) )
+	    return 1;
+
+    return 0;
+}
+
 static void
 CleanupClient(ClientInfo *cp, int sts)
 {
@@ -208,7 +218,6 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
     __pmPDUHdr *header = (__pmPDUHdr *)pb;
     __pmHashCtl attrs = { 0 }; /* TODO */
     __pmCred *credlist;
-    unsigned int toggle_cert_required=0;
 
     /* first check that this is a credentials PDU */
     if (header->type != PDU_CREDS)
@@ -230,26 +239,23 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
 	free(credlist);
 
     /*
-     * Enforce PDU_FLAG_CERT_REQD for remote connections
-     *
-     * Not sure if this will ever be hit. Will all cases be caught  during handshake? See connect.c
-     */ 
-    if( ( ( cp->server_features & PDU_FLAG_CERT_REQD ) && ( (flags & PDU_FLAG_SECURE) == 0) )){
-	if( !__pmSockAddrIsLoopBack(cp->addr) && !__pmSockAddrIsUnix(cp->addr)){
-	    return PM_ERR_NEEDCLIENTCERT;
-	}
-    }
-
-    /*
      * If the server advertises PDU_FLAG_CERT_REQD, add it to flags
      * so we can setup the connection properly with the client.
-     * The client should have errored out in the initial handshake if it
-     * didn't support secure connections, so we should only end up
-     * here if both client and server support this.
+     *
+     * In normal operation, some of this code is redundant. A 
+     * remote client should error out during initial handshake
+     * if it does not support client certs.
+     *
+     * We still need to check local connections and allow those through
+     * in all cases.
      */
 
-    if( (cp->server_features & PDU_FLAG_CERT_REQD) )
-	flags |= PDU_FLAG_CERT_REQD;
+    if ( CheckCertRequired(cp) ){
+	if (flags & PDU_FLAG_SECURE)
+	    flags |= PDU_FLAG_CERT_REQD;
+	else
+	    return PM_ERR_NEEDCLIENTCERT;
+    }
 
     /* need to ensure both the pmcd and client channel use flags */
 
@@ -347,19 +353,11 @@ HandleInput(__pmFdSet *fdsPtr)
 	 */
 
 	if( (!cp->status.allowed) && (sts == PDU_ERROR) ){
-	    int         version;
-	    int         challenge;
-	    __pmPDUInfo         pduinfo;
 	    unsigned int server_features;
-	    int		lsts;
-	    version = __pmDecodeXtendError(pb, &lsts, &challenge);
-	    if( version >= 0 && version == PDU_VERSION2  && lsts >=0 ){
-		pduinfo = __ntohpmPDUInfo(*(__pmPDUInfo *)&challenge);
-		server_features = pduinfo.features;
-		if( server_features & PDU_FLAG_CERT_REQD ){
-		    /* Add as a server feature */
-		    cp->server_features |= PDU_FLAG_CERT_REQD;
-		}
+	    server_features = __pmServerGetFeaturesFromPDU( pb );
+	    if( server_features & PDU_FLAG_CERT_REQD ){
+		/* Add as a server feature */
+		cp->server_features |= PDU_FLAG_CERT_REQD;
 	    }
 	}
 
@@ -591,7 +589,7 @@ main(int argc, char *argv[])
     /* lose root privileges if we have them */
     __pmSetProcessIdentity(username);
 
-    if (__pmSecureServerSetup(certdb, dbpassfile, cert_nickname) < 0)
+    if (__pmSecureServerCertificateSetup(certdb, dbpassfile, cert_nickname) < 0)
 	DontStart();
 
     /* all the work is done here */

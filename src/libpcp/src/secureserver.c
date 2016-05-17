@@ -235,7 +235,13 @@ serverdb(char *path, size_t size, char *db_method)
 }
 
 int
-__pmSecureServerSetup(const char *db, const char *passwd, const char *cert_nickname)
+__pmSecureServerSetup(const char *db, const char *passwd)
+{
+    return __pmSecureServerCertificateSetup(db, passwd, SECURE_SERVER_CERTIFICATE);
+}
+
+int
+__pmSecureServerCertificateSetup(const char *db, const char *passwd, const char *cert_nickname)
 {
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
@@ -316,8 +322,7 @@ __pmSecureServerInit(void)
      * pmproxy acts as both a client and server. Since the
      * server init path happens first, the db previously
      * got opened readonly.  Instead try to open RW.
-     * Any downside to doing this by default?
-     * Should this be conditional on something?
+     * Fallback if there is an error.
      */
 
     secsts = NSS_InitReadWrite(secure_server.database_path);

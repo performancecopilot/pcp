@@ -668,10 +668,8 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 		cp->pduInfo.features |= PDU_FLAG_COMPRESS;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_AUTH))       /*optional*/
 		cp->pduInfo.features |= PDU_FLAG_AUTH;
-            if (__pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD)){  /*required for remote connections only*/
-		if( !__pmSockAddrIsLoopBack(cp->addr) && !__pmSockAddrIsUnix(cp->addr)){
-                    cp->pduInfo.features |= PDU_FLAG_CERT_REQD;
-		}
+            if (__pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD)){ /* Required for remote connections only */
+		cp->pduInfo.features |= PDU_FLAG_CERT_REQD;	    /* Enforced in connect.c:check_feature_flags */
 	    }
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) /*required*/
 		cp->pduInfo.features |= PDU_FLAG_CREDS_REQD;
@@ -952,7 +950,7 @@ main(int argc, char *argv[])
 	    DontStart();
     }
 
-    if (__pmSecureServerSetup(certdb, dbpassfile, cert_nickname) < 0)
+    if (__pmSecureServerCertificateSetup(certdb, dbpassfile, cert_nickname) < 0)
 	DontStart();
 
     PrintAgentInfo(stderr);

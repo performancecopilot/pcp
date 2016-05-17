@@ -592,7 +592,8 @@ PCP_CALL extern void __pmConnectGetPorts(pmHostSpec *);
 /*
  * SSL/TLS/IPv6 support via NSS/NSPR.
  */
-PCP_CALL extern int __pmSecureServerSetup(const char *, const char *, const char *);
+PCP_CALL extern int __pmSecureServerSetup(const char *, const char *);
+PCP_CALL extern int __pmSecureServerCertificateSetup(const char *, const char *, const char *);
 PCP_CALL extern void __pmSecureServerShutdown(void);
 PCP_CALL extern int __pmSecureServerHandshake(int, int, __pmHashCtl *);
 PCP_CALL extern int __pmSecureClientHandshake(int, int, const char *, __pmHashCtl *);
@@ -855,6 +856,8 @@ PCP_CALL extern int __pmSetPDUCeiling(int);
 PCP_DATA extern unsigned int *__pmPDUCntIn;
 PCP_DATA extern unsigned int *__pmPDUCntOut;
 PCP_CALL extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
+
+PCP_CALL unsigned int __pmServerGetFeaturesFromPDU(__pmPDU *);
 
 /* timeout options for PDU handling */
 #define TIMEOUT_NEVER	 0
