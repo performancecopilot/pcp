@@ -456,6 +456,8 @@ dopmda(int pdu)
 		    else
 			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
 		}
+		else if (sts == 0)
+		    printf("Error: __pmGetPDU() failed: PDU empty, PMDA may have died\n");
 		else
 		    printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
 
@@ -504,6 +506,8 @@ dopmda(int pdu)
 		    else
 			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
 		}
+		else if (sts == 0)
+		    printf("Error: __pmGetPDU() failed: PDU empty, PMDA may have died\n");
 		else
 		    printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
 	    }
@@ -542,6 +546,8 @@ dopmda(int pdu)
 		    else
 			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
 		}
+		else if (sts == 0)
+		    printf("Error: __pmGetPDU() failed: PDU empty, PMDA may have died\n");
 		else
 		    printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
 
@@ -596,6 +602,8 @@ dopmda(int pdu)
 			else
 			    printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
 		    }
+		    else if (sts == 0)
+			printf("Error: __pmGetPDU() failed: PDU empty, PMDA may have died\n");
 		    else
 			printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
 		    if (pinpdu > 0)
@@ -627,6 +635,8 @@ dopmda(int pdu)
 		    else
 			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
 		}
+		else if (sts == 0)
+		    printf("Error: __pmGetPDU() failed: PDU empty, PMDA may have died\n");
 		else
 		    printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
 
@@ -654,6 +664,8 @@ dopmda(int pdu)
 		    else
 			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
 		}
+		else if (sts == 0)
+		    printf("Error: __pmGetPDU() failed: PDU empty, PMDA may have died\n");
 		else 
 		    printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
 
@@ -684,6 +696,8 @@ dopmda(int pdu)
 		    else
 			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
 		}
+		else if (sts == 0)
+		    printf("Error: __pmGetPDU() failed: PDU empty, PMDA may have died\n");
 		else
 		    printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
 
@@ -713,6 +727,8 @@ dopmda(int pdu)
 		    else
 			printf("Error: __pmDecodeError() failed: %s\n", pmErrStr(i));
 		}
+		else if (sts == 0)
+		    printf("Error: __pmGetPDU() failed: PDU empty, PMDA may have died\n");
 		else
 		    printf("Error: __pmGetPDU() failed: %s\n", pmErrStr(sts));
 
