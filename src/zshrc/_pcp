@@ -491,7 +491,7 @@ _pcp () {
     fi
     for (( i = 2; i <= $#words; i++ )); do
       # Find metrics arguments, mishits will be filtered out w/ $2>0
-      [[ $words[$i] == [a-z]*.[a-z]* ]] && metrics+=( $words[$i] )
+      [[ $words[$i] == [a-z]* ]] && metrics+=( $words[$i] )
     done
     # TODO: Check if feasible to handle quotes ('") / multiple spaces in insts
     insts=( ${(f)"$(pmprobe $a ${(e)arch} $c ${(e)cont} $h ${(e)host} -I $metrics 2>/dev/null | awk '!/1 PM_IN_NULL$/ && $1~"^[a-z]" && $2>0 {for(i=3;i<=NF;i++)print $i}')"} )
