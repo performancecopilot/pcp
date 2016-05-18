@@ -5,3 +5,4 @@ pcp.postinst
 pcp.postinst.head
 pcp.postrm
 pcp-webapp-vector.*
+control
