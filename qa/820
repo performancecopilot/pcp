@@ -1,0 +1,45 @@
+#!/bin/sh
+# PCP QA Test No. 820
+# Ensure local connections still work if -Q is specified
+#
+# Copyright (c) 2016 Martins Innus.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.secure
+nss_notrun_checks
+
+_cleanup()
+{
+    nss_cleanup
+
+    $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+
+    $sudo rm -f $tmp.*
+    $sudo rm -fr $tmp
+}
+
+status=1        # failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+# real QA test starts here
+nss_backup
+nss_setup_randomness
+
+# Verify that local clients can use insecure connections
+#  even if -Q is specified for pmcd
+nss_setup_collector true $qahost $hostname 1
+
+nss_setup_empty_userdb
+echo "Checking local connection if server certificate exists. Should Pass." | tee -a $seq.full
+pminfo -h local: -f hinv.ncpu 2>&1 | tee -a $seq.full | nss_filter_pminfo
+
+# success, all done
+status=0
+exit
