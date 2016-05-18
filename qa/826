@@ -20,6 +20,7 @@ config="$PCP_PMDAS_DIR/linux/bandwidth.conf"
 _cleanup()
 {
     cd $here
+    $sudo rm -f "$config"
     [ -f "$config.$seq" ] && _restore_config "$config"
     rm -rf $tmp $tmp.*
 }
