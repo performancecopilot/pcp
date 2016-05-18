@@ -21,7 +21,11 @@ _cleanup()
 {
     cd $here
     $sudo rm -f "$config"
-    [ -f "$config.$seq" ] && _restore_config "$config"
+    if [ -f "$config.$seq" ]
+    then
+	_restore_config "$config"
+	$sudo rm -f "$config.$seq"
+    fi
     rm -rf $tmp $tmp.*
 }
 
