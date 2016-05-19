@@ -1086,6 +1086,7 @@ timezone
 845 pmda.mounts local
 846 pmimport local pmdumplog perl local
 847 containers local
+848 pmcd secure local
 850 python local
 853 pmcpp local
 855 pmda.netfilter local

@@ -25,6 +25,7 @@
 #include <sys/stat.h>
 
 #define MAX_NSSDB_PASSWORD_LENGTH	256
+#define MAX_CERT_NAME_LENGTH		256
 
 static struct {
     /* NSS certificate management */
@@ -33,6 +34,9 @@ static struct {
     const char		*password_file;
     SSLKEAType		certificate_KEA;
     char		database_path[MAXPATHLEN];
+
+    unsigned int	server_features;
+    char		cert_nickname[MAX_CERT_NAME_LENGTH];
 
     /* status flags (bitfields) */
     unsigned int	initialized : 1;
@@ -44,15 +48,22 @@ static struct {
 int
 __pmSecureServerSetFeature(__pmServerFeature wanted)
 {
-    (void)wanted;
-    return 0;	/* nothing dynamically enabled at this stage */
+    if (wanted == PM_SERVER_FEATURE_CERT_REQD){
+        secure_server.server_features |= (1 << wanted);
+        return 1;
+    }
+
+    return 0;
 }
 
 int
 __pmSecureServerClearFeature(__pmServerFeature clear)
 {
-    (void)clear;
-    return 0;	/* nothing dynamically disabled at this stage */
+    if (clear == PM_SERVER_FEATURE_CERT_REQD){
+    	secure_server.server_features &= ~(1<<clear);
+	return 1;
+    }
+    return 0;
 }
 
 int
@@ -66,6 +77,9 @@ __pmSecureServerHasFeature(__pmServerFeature query)
     case PM_SERVER_FEATURE_COMPRESS:
     case PM_SERVER_FEATURE_AUTH:
 	sts = 1;
+	break;
+    case PM_SERVER_FEATURE_CERT_REQD:
+	sts = ( (secure_server.server_features & (1 << PM_SERVER_FEATURE_CERT_REQD)) != 0 );
 	break;
     default:
 	break;
@@ -223,6 +237,12 @@ serverdb(char *path, size_t size, char *db_method)
 int
 __pmSecureServerSetup(const char *db, const char *passwd)
 {
+    return __pmSecureServerCertificateSetup(db, passwd, SECURE_SERVER_CERTIFICATE);
+}
+
+int
+__pmSecureServerCertificateSetup(const char *db, const char *passwd, const char *cert_nickname)
+{
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
 
@@ -240,6 +260,13 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 	strncpy(secure_server.database_path, db, MAXPATHLEN-2);
     }
 
+    if (cert_nickname) {
+	strncpy(secure_server.cert_nickname, cert_nickname, MAX_CERT_NAME_LENGTH-2);
+    }
+    else {
+	strncpy(secure_server.cert_nickname, SECURE_SERVER_CERTIFICATE, MAX_CERT_NAME_LENGTH-2);
+    }
+
     PM_UNLOCK(__pmLock_libpcp);
     return 0;
 }
@@ -247,7 +274,6 @@ __pmSecureServerSetup(const char *db, const char *passwd)
 int
 __pmSecureServerInit(void)
 {
-    const char *nickname = SECURE_SERVER_CERTIFICATE;
     const PRUint16 *cipher;
     SECStatus secsts;
     int pathSpecified;
@@ -292,7 +318,18 @@ __pmSecureServerInit(void)
     else
 	pathSpecified = 1;
 
-    secsts = NSS_Init(secure_server.database_path);
+    /*
+     * pmproxy acts as both a client and server. Since the
+     * server init path happens first, the db previously
+     * got opened readonly.  Instead try to open RW.
+     * Fallback if there is an error.
+     */
+
+    secsts = NSS_InitReadWrite(secure_server.database_path);
+
+    if( secsts != SECSuccess )
+    	secsts = NSS_Init(secure_server.database_path);
+
     if (secsts != SECSuccess && !pathSpecified) {
 	/* fallback, older versions of NSS do not support sql: */
 	serverdb(secure_server.database_path, MAXPATHLEN, "");
@@ -331,7 +368,7 @@ __pmSecureServerInit(void)
      */
     CERTCertList *certlist;
     CERTCertDBHandle *nssdb = CERT_GetDefaultCertDB();
-    CERTCertificate *dbcert = PK11_FindCertFromNickname(nickname, NULL);
+    CERTCertificate *dbcert = PK11_FindCertFromNickname(secure_server.cert_nickname, NULL);
 
     if (dbcert) {
 	PRTime now = PR_Now();
@@ -344,7 +381,7 @@ __pmSecureServerInit(void)
 		 !CERT_LIST_END(node, certlist);
 		 node = CERT_LIST_NEXT (node)) {
 		if (pmDebug & DBG_TRACE_CONTEXT)
-		    __pmDumpCertificate(stderr, nickname, node->cert);
+		    __pmDumpCertificate(stderr, secure_server.cert_nickname, node->cert);
 		if (!__pmValidCertificate(nssdb, node->cert, now))
 		    continue;
 		secure_server.certificate_verified = 1;
@@ -358,7 +395,7 @@ __pmSecureServerInit(void)
 	    secure_server.private_key = PK11_FindKeyByAnyCert(dbcert, NULL);
 	    if (!secure_server.private_key) {
 		__pmNotifyErr(LOG_ERR, "Unable to extract %s private key",
-				nickname);
+				secure_server.cert_nickname);
 		CERT_DestroyCertificate(dbcert);
 		secure_server.certificate_verified = 0;
 		sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
@@ -366,7 +403,7 @@ __pmSecureServerInit(void)
 		goto done;
 	    }
 	} else {
-	    __pmNotifyErr(LOG_ERR, "Unable to find a valid %s", nickname);
+	    __pmNotifyErr(LOG_ERR, "Unable to find a valid %s", secure_server.cert_nickname);
 	    CERT_DestroyCertificate(dbcert);
 	    sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
 	    secure_server.init_failed = 1;
@@ -377,7 +414,7 @@ __pmSecureServerInit(void)
     if (! secure_server.certificate_verified) {
 	if (pmDebug & DBG_TRACE_CONTEXT) {
 	    __pmNotifyErr(LOG_INFO, "No valid %s in security database: %s",
-			  nickname, secure_server.database_path);
+			  secure_server.cert_nickname, secure_server.database_path);
 	}
 	sts = -EOPNOTSUPP;	/* not fatal - just no secure connections */
 	secure_server.init_failed = 1;
@@ -695,7 +732,8 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
 
     /* protect from unsupported requests from future/oddball clients */
     if (flags & ~(PDU_FLAG_SECURE | PDU_FLAG_SECURE_ACK | PDU_FLAG_COMPRESS |
-		  PDU_FLAG_AUTH | PDU_FLAG_CREDS_REQD | PDU_FLAG_CONTAINER))
+		  PDU_FLAG_AUTH | PDU_FLAG_CREDS_REQD | PDU_FLAG_CONTAINER |
+		  PDU_FLAG_CERT_REQD))
 	return PM_ERR_IPC;
 
     if (flags & PDU_FLAG_CREDS_REQD) {

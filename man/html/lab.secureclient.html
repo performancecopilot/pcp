@@ -1,0 +1,281 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ (c) Copyright 2013-2015 Red Hat.
+ Permission is granted to copy, distribute, and/or modify this document
+ under the terms of the Creative Commons Attribution-Share Alike, Version
+ 3.0 or any later version published by the Creative Commons Corp. A copy
+ of the license is available at
+ http://creativecommons.org/licenses/by-sa/3.0/us/ .
+-->
+<HTML>
+<HEAD>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="content-style-type" content="text/css">
+	<link href="pcpdoc.css" rel="stylesheet" type="text/css">
+	<link href="images/pcp.ico" rel="icon" type="image/ico">
+	<TITLE>Secure Connections</TITLE>
+</HEAD>
+<BODY LANG="en-AU" TEXT="#000060" DIR="LTR">
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 STYLE="page-break-before: always">
+	<TR> <TD WIDTH=64 HEIGHT=64><FONT COLOR="#000080"><A HREF="http://pcp.io/"><IMG SRC="images/pcpicon.png" ALT="pmcharticon" ALIGN=TOP WIDTH=64 HEIGHT=64 BORDER=0></A></FONT></TD>
+	<TD WIDTH=1><P>&nbsp;&nbsp;&nbsp;&nbsp;</P></TD>
+	<TD WIDTH=500><P ALIGN=LEFT><A HREF="index.html"><FONT COLOR="#cc0000">Home</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="lab.pmchart.html"><FONT COLOR="#cc0000">Charts</FONT></A>&nbsp;&nbsp;&middot;&nbsp;<A HREF="timecontrol.html"><FONT COLOR="#cc0000">Time Control</FONT></A></P></TD>
+	</TR>
+</TABLE>
+<H1 ALIGN=CENTER STYLE="margin-top: 0.48cm; margin-bottom: 0.32cm"><FONT SIZE=7>Secure Client Connections</FONT></H1>
+<P><BR></P>
+<TABLE WIDTH="15%" BORDER=0 CELLPADDING=5 CELLSPACING=10 ALIGN=RIGHT>
+	<TR><TD BGCOLOR="#e2e2e2">
+<PRE><IMG SRC="images/system-search.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0><I>Tools</I>
+certutil
+openssl
+pmcd
+pminfo
+pmchart
+pmproxy</PRE></TD></TR>
+</TABLE>
+<P>This chapter of the Performance Co-Pilot tutorial covers setting up secure
+connections between PCP collector and monitor components. We discuss setting
+up certificates on both the collector and monitor hosts. The certificate
+on the collector ensures that the connection is encrypted. The certificate on
+the client confirms to the collector that a valid connection is being made. </P>
+<P>For an explanation of Performance Co-Pilot terms and acronyms, consult 
+the <A HREF="glossary.html">PCP glossary</A>.</P>
+<UL>
+    <LI>
+    <A HREF="#overview">Overview</A> 
+    <LI>
+    <A HREF="#recipe">Enabling TLS/SSL: Steps Involved</A> 
+    <LI>
+    <A HREF="#collector">Collector Setup</A> 
+    <LI>
+    <A HREF="#monitor">Monitor Setup</A> 
+</UL>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="overview">Overview</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>The Performance Co-Pilot includes facilities for establishing secure
+connections between remote collector and monitoring components.</P>
+<P>All connections made to the PCP metrics collector daemon (<I>pmcd</I>)
+are made using the PCP protocol, which is TCP/IP based.  Traditionally, no
+functionality was available to secure connections between PCP collectors and
+monitors.  However, as PCP evolved to be able to export sensitive information
+(event trace parameters and detailed per-process statistics, for example),
+it became necessary to provide safeguards against malicious behaviour.</P>
+<P>The cryptographic services used to augment the PCP protocol are provided
+by Network Security Services (NSS), a library implementing Transport Layer
+Security (TLS) and the Secure Sockets Layer (SSL) standards, and base
+cryptographic functions.  NSS includes a software-based cryptographic token
+which is FIPS 140-2 certified.</P>
+<P>Both the <I>pmcd</I> and <I>pmproxy</I> daemons are capable of simultaneous
+TLS/SSL and non-SSL communications.  This means that you do not have to choose
+between TLS/SSL or non-SSL communications for your PCP Collector systems; both
+can be used at the same time.</P>
+<P>In addition, <I>pmcd</I> can be instructed to force connecting clients to
+provide certificates verifying their trust to the collector.  This is with a
+new "-Q" option. Also, <I>pmproxy</I> can forward this requirement to clients.</P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Check local PCP collector installation (requires the <I>pcp-verify</I> utility):<BR>
+<PRE><B>$ pcp verify --secure</B></PRE>
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="recipe">Enabling Client and Server TLS/SSL: Steps Involved</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>Before the PCP Collector system can be requested to communicate with TLS/SSL,
+certificates must be properly configured on the Collector Server and Client
+Monitor hosts.</P>
+<P>This typically involves:</P>
+<OL>
+<LI>Obtain and install certificates for your PCP Collector systems, and
+configure each system to trust the certification authority's (CA's) certificate.
+This tutorial shows how to setup your own local CA to generate certificates.
+<LI>Enable secure connections in the <I>pmcd</I> and <I>pmproxy</I> daemons by
+configuring the system certificate database with the PCP Collector certificate.
+<LI>Creating a certificate that is trusted by the collector and installing this
+on the client.
+<LI>Configuring the collector to reject non-local connections without a trusted
+client certificate.
+<LI>Ensure that each user monitoring a PCP Collector system obtains and installs a
+personal certificate for the tools that will communicate with that collector.<BR>
+This can be done by manually updating a monitor-side certificate database, or
+automatically by reviewing and accepting the certificate delivered to the monitor
+tools during the first attempt to access the PCP Collector system.
+</OL>
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="casetup">CA Setup</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>We will be using a local CA to generate the locally trusted certificates.
+At a high-level: a certificate request (CR) must be generated,
+then sent to the certificate authority (CA) you will be using.
+The CA will generate a new trusted certificate and send it to you.
+Once this certificate has been received, it will be installed on the client.</P>
+
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Create the local CA:<BR>
+<PRE><B>
+$ openssl genrsa -out rootCA.key 2048
+$ openssl req -new -x509 -extensions v3_ca -key ca.key -out rootCA.crt -days 3650
+.....
+Common Name (eg, your name or your server's hostname) []:myCA
+.....
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Create the client certificate:<BR>
+<PRE><B>
+$ openssl genrsa -out pmclient.key 2048
+$ openssl req -new -key pmclient.key -out pmclient.csr
+....
+Common Name (eg, your name or your server's hostname) []:pmclient
+....
+$ openssl x509 -req -in pmclient.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out pmclient.crt -days 500 -sha256
+$ openssl pkcs12 -export -out pmclient_pkcs12.key -inkey pmclient.key  -in pmclient.crt -certfile rootCA.crt
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Create the server certificate:<BR>
+<PRE><B>
+$ openssl genrsa -out pmserver.key 2048
+$ openssl req -new -key pmserver.key -out pmserver.csr
+....
+Common Name (eg, your name or your server's hostname) []:pmserver
+....
+$ openssl x509 -req -in pmserver.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out pmserver.crt -days 500 -sha256
+$ openssl pkcs12 -export -out pmserver_pkcs12.key -inkey pmserver.key  -in pmserver.crt -certfile rootCA.crt
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="collector">Collector Setup</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>All PCP Collector systems must have a valid certificate in order to
+participate in secure PCP protocol exchanges. We will use the server certificate created
+above and install it into a pcp specific directory that can be used by the pcp server
+components. This directory should exists with current PCP versions.
+</P>
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install the CA and server certificate<B>(As the PCP user)</B>:<BR>
+<PRE><B>
+$ echo > /tmp/empty
+$ certutil -d sql:/var/lib/pcp/config/nssdb  -N -f /tmp/empty
+$ certutil -d sql:/var/lib/pcp/config/nssdb -A -t "CT,," -n "Root CA" -i rootCA.crt
+$ certutil -d sql:/var/lib/pcp/config/nssdb -A -t "P,," -n "pmserver_cert" -i pmserver.crt
+$ pk12util -i pmserver_pkcs12.key -d sql:/var/lib/pcp/config/nssdb
+$ certutil -d sql:/var/lib/pcp/config/nssdb -L
+
+Certificate Nickname                                         Trust Attributes
+                                                             SSL,S/MIME,JAR/XPI
+
+Root CA                                                      CT,, 
+pmserver_cert                                                P,,  
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Configure pmcd to use our certificate and enforce client certificates:<BR>
+<PRE><B>
+$ cat /etc/pcp/pmcd/pmcd.options
+....
+-C sql:/var/lib/pcp/config/nssdb
+-M pmserver_cert
+-Q
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<P>At this stage, attempts to restart the PCP Collector infrastructure will
+begin to take notice of the new contents of the certificate database.
+</P>
+
+<P><BR></P>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0 BGCOLOR="#e2e2e2">
+        <TR><TD WIDTH="100%" BGCOLOR="#081c59"><P ALIGN=LEFT><FONT SIZE=5 COLOR="#ffffff"><B><A NAME="monitor">Monitor Setup</A></B></FONT></P></TD></TR>
+</TABLE>
+<P>Attempts to connect to the server wirthout a certificate will now fail:</P>
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Test remote connection:<BR>
+<PRE><B>
+$ pminfo -h remote.host
+pminfo: Cannot connect to PMCD on host "remote.host": PMCD requires a client certificate
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<P>In this configuration, PCP Monitoring (client) tools require 2 certificates.
+A client certificate that can be sent to the server for authentication, and a 
+trusted certificate to validate the server in a TLS/SSL connection. 
+The first certificate was generated above and will be installed manually:
+</P>
+
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install the CA and client certificate<B>(As local user)</B>:<BR>
+<PRE><B>
+$ echo > /tmp/empty
+$ mkdir -p -m 0755 $HOME/.pki/nssdb
+$ certutil -d sql:$HOME/.pki/nssdb -N -f /tmp/empty
+$ certutil -d sql:$HOME/.pki/nssdb -A -t "CT,," -n "Root CA" -i ./rootCA.crt
+$ certutil -d sql:$HOME/.pki/nssdb -A -t "P,," -n "pmclient_cert" -i pmclient.crt
+$ pk12util -i pmclient_pkcs12.key -d sql:$HOME/.pki/nssdb
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<P>The second certificate can be installed beforehand or can be delivered via the
+TLS/SSL connection exchange.
+In the latter situation, the user is prompted as to whether the
+certificate is to be trusted (see example below).</P>
+<P>Once certificates are in place, we are ready to attempt to establish secure
+connections between remote PCP Monitor and Collector hosts.
+This can be achieved by specifically requesting a secure connection for individual
+host connections.
+Alternatively, an environment variable can be set to request that all client
+connections within that shell environment be made securely.
+This environment variable should have the value <I><B>enforce</B></I> meaning &quot;all
+connections must be secure, fail if this cannot be achieved&quot;.
+</P>
+
+<P>Using the approach of certificate delivery via the TLS/SSL protocol, the database
+and certificate will be automatically setup in the correct location on your behalf.
+You can also set some environment variables if you are using self signed certs or if
+the domainname in the cert does not match.  Without these, you will be interactively
+prompted to approve the certificate.
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=10 CELLSPACING=20>
+	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;To establish a secure connection, in a shell enter:<BR>
+<PRE><B>
+$ export PCP_SECURE_SOCKETS=enforce
+$ export PCP_ALLOW_BAD_CERT_DOMAIN=1
+$ export PCP_ALLOW_SERVER_SELF_CERT=1
+$ pminfo -h remote.host -f kernel.uname.nodename
+
+kernel.uname.nodename
+    value "remote.host"
+</B></PRE>
+</TD></TR>
+</TABLE>
+
+<P><BR></P>
+<HR>
+<CENTER>
+<TABLE WIDTH="100%" BORDER=0 CELLPADDING=0 CELLSPACING=0>
+	<TR> <TD WIDTH="50%"><P>Copyright &copy; 2007-2010 <A HREF="http://www.aconex.com/"><FONT COLOR="#000060">Aconex</FONT></A><BR>Copyright &copy; 2000-2004 <A HREF="http://www.sgi.com/"><FONT COLOR="#000060">Silicon Graphics Inc</FONT></A></P></TD>
+	<TD WIDTH="50%"><P ALIGN=RIGHT><A HREF="http://pcp.io/"><FONT COLOR="#000060">PCP Site</FONT></A><BR>Copyright &copy; 2012-2015 <A HREF="http://www.redhat.com/"><FONT COLOR="#000060">Red Hat</FONT></A></P></TD></TR>
+</TABLE>
+</CENTER>
+</BODY>
+</HTML>

@@ -593,6 +593,7 @@ PCP_CALL extern void __pmConnectGetPorts(pmHostSpec *);
  * SSL/TLS/IPv6 support via NSS/NSPR.
  */
 PCP_CALL extern int __pmSecureServerSetup(const char *, const char *);
+PCP_CALL extern int __pmSecureServerCertificateSetup(const char *, const char *, const char *);
 PCP_CALL extern void __pmSecureServerShutdown(void);
 PCP_CALL extern int __pmSecureServerHandshake(int, int, __pmHashCtl *);
 PCP_CALL extern int __pmSecureClientHandshake(int, int, const char *, __pmHashCtl *);
@@ -678,6 +679,7 @@ typedef enum {
     PM_SERVER_FEATURE_DISCOVERY,
     PM_SERVER_FEATURE_CONTAINERS,
     PM_SERVER_FEATURE_LOCAL,
+    PM_SERVER_FEATURE_CERT_REQD,
     PM_SERVER_FEATURES
 } __pmServerFeature;
 
@@ -831,6 +833,7 @@ typedef struct {
 #define PDU_FLAG_SECURE_ACK	(1U<<4)
 #define PDU_FLAG_NO_NSS_INIT	(1U<<5)
 #define PDU_FLAG_CONTAINER	(1U<<6)
+#define PDU_FLAG_CERT_REQD	(1U<<7)
 
 /* Credential CVERSION PDU elements look like this */
 typedef struct {
@@ -854,6 +857,8 @@ PCP_CALL extern int __pmSetPDUCeiling(int);
 PCP_DATA extern unsigned int *__pmPDUCntIn;
 PCP_DATA extern unsigned int *__pmPDUCntOut;
 PCP_CALL extern void __pmSetPDUCntBuf(unsigned *, unsigned *);
+
+PCP_CALL unsigned int __pmServerGetFeaturesFromPDU(__pmPDU *);
 
 /* timeout options for PDU handling */
 #define TIMEOUT_NEVER	 0

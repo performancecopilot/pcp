@@ -862,13 +862,39 @@ __pmServerRequestPortString(int fd, char *buffer, size_t sz)
     return NULL;
 }
 
+unsigned int
+__pmServerGetFeaturesFromPDU(__pmPDU *pb)
+{
+    int         version;
+    int         challenge;
+    __pmPDUInfo         pduinfo;
+    int		sts;
+    unsigned int server_features=0;
+
+    version = __pmDecodeXtendError(pb, &sts, &challenge);
+
+    if( version >= 0 && version == PDU_VERSION2  && sts >=0 ){
+	pduinfo = __ntohpmPDUInfo(*(__pmPDUInfo *)&challenge);
+	server_features = pduinfo.features;
+    }
+    
+    return server_features;
+}
+
 #if !defined(HAVE_SECURE_SOCKETS)
 
 int
 __pmSecureServerSetup(const char *db, const char *passwd)
 {
+    return __pmSecureServerCertificateSetup(db, passwd, SECURE_SERVER_CERTIFICATE);
+}
+
+int
+__pmSecureServerCertificateSetup(const char *db, const char *passwd, const char *cert_nickname)
+{
     (void)db;
     (void)passwd;
+    (void)cert_nickname;
     return 0;
 }
 

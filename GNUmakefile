@@ -94,6 +94,7 @@ endif
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_VAR_DIR)/config/pmda
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)
+	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_NSSDB_DIR)
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/pmns
 	$(INSTALL) -m 755 -d $(PCP_PMDAS_DIR)
 	$(INSTALL) -m 755 -d $(PCP_DOC_DIR)

@@ -19,13 +19,14 @@
 \f3pmcd\f1 \- performance metrics collector daemon
 .SH SYNOPSIS
 \f3pmcd\f1
-[\f3\-AfS\f1]
+[\f3\-AfQS\f1]
 [\f3\-c\f1 \f2config\f1]
 [\f3\-C\f1 \f2dirname\f1]
 [\f3\-H\f1 \f2hostname\f1]
 [\f3\-i\f1 \f2ipaddress\f1]
 [\f3\-l\f1 \f2logfile\f1]
 [\f3\-L\f1 \f2bytes\f1]
+[\f3\-M\f1 \f2certname\f1]
 [\f3\-\f1[\f3n\f1|\f3N\f1] \f2pmnsfile\f1]
 [\f3\-p\f1 \f2port\f1[,\f2port\f1 ...]]
 [\f3\-P\f1 \f2passfile\f1]
@@ -184,6 +185,13 @@ option may be used to change the maximum incoming
 .I PDU 
 size.
 .TP
+\f3\-M\f1 \f2certname\f1
+By default, pmcd will try to use a certificate called
+.B "PCP Collector certificate" .
+The
+.B \-M
+option allows this to be changed.
+.TP
 \f3\-n\f1 \f2pmnsfile\f1
 Normally
 .B pmcd
@@ -228,6 +236,9 @@ but the
 .B \-q
 option allows an alternative timeout interval (which must be greater than
 zero) to be specified.  The unit of time is seconds.
+.TP
+.B \-Q
+Require that all remote client connections provide a certficate. 
 .TP
 .B \-S
 Require that all client connections provide user credentials.

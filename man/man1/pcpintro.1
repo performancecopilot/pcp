@@ -856,6 +856,20 @@ As the environment usually is not checked again, the only safe
 strategy is to ensure all PCP-related environment variables are
 set before the first call into any of the PCP libraries.
 .TP
+.B PCP_ALLOW_BAD_CERT_DOMAIN
+When set, allow clients to accept certificates with mismatched
+domain names with no prompt when they are sent by 
+.B pmcd
+or other server components.  See
+.B PCP_SECURE_SOCKETS.
+.TP
+.B PCP_ALLOW_SERVER_SELF_CERT
+When set, allow clients to accept self-signed certificates with
+no prompt when they are sent by
+.B pmcd
+or other server components.  See
+.B PCP_SECURE_SOCKETS.
+.TP
 .B PCP_CONSOLE
 When set, this changes the default console from
 .I /dev/tty
@@ -932,6 +946,13 @@ method by default.  Use
 .B PCP_SECURE_DB_METHOD
 to override the default, most usually setting the value to the empty
 string (for the older database methods).
+.TP
+.B PCP_SECURE_DB_PATH
+When set, this variable specifies an alternate certficate database
+path for client tools.  Similar to the action of the -C option for 
+.BR pmcd (1)
+and
+.BR pmproxy (1).
 .TP
 .B PCP_STDERR
 Many PCP tools support the environment variable

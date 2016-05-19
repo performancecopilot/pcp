@@ -194,6 +194,7 @@ typedef struct pmDesc {
 #define PM_ERR_LOGCHANGESEM	(-PM_ERR_BASE-60)   /* The semantics of a metric has changed in an archive */
 #define PM_ERR_LOGCHANGEINDOM	(-PM_ERR_BASE-61)   /* The instance domain of a metric has changed in an archive */
 #define PM_ERR_LOGCHANGEUNITS	(-PM_ERR_BASE-62)   /* The units of a metric have changed in an archive */
+#define PM_ERR_NEEDCLIENTCERT	(-PM_ERR_BASE-63)   /* PMCD requires a client certificate */
 
 /* retired PM_ERR_CTXBUSY (-PM_ERR_BASE-97) Context is busy */
 #define PM_ERR_TOOSMALL		(-PM_ERR_BASE-98)   /* Insufficient elements in list */

@@ -185,6 +185,7 @@ dbpath(char *path, size_t size, char *db_method)
     const char *empty_homedir = "";
     char *homedir = getenv("HOME");
     char *nss_method = getenv("PCP_SECURE_DB_METHOD");
+    char *nss_dir = getenv("PCP_SECURE_DB_PATH");
 
     if (homedir == NULL)
 	homedir = (char *)empty_homedir;
@@ -196,8 +197,14 @@ dbpath(char *path, size_t size, char *db_method)
      * Return a pointer to the filesystem path component - without
      * the <method>:-prefix - for other routines to work with.
      */
-    snprintf(path, size, "%s%s" "%c" ".pki" "%c" "nssdb",
+    if (nss_dir == NULL){
+    	snprintf(path, size, "%s%s" "%c" ".pki" "%c" "nssdb",
 		nss_method, homedir, sep, sep);
+    }
+    else{
+    	snprintf(path, size, "%s%s", nss_method, nss_dir);
+
+    }
     return path + strlen(nss_method);
 }
 
@@ -280,7 +287,7 @@ saveUserCertificate(CERTCertificate *cert)
     CERTCertTrust *trust = NULL;
 
     secsts = PK11_ImportCert(slot, cert, CK_INVALID_HANDLE,
-				SECURE_SERVER_CERTIFICATE, PR_FALSE);
+				cert->subjectName, PR_FALSE);
     if (secsts != SECSuccess)
 	goto done;
 
@@ -391,6 +398,9 @@ queryCertificateAuthority(PRFileDesc *sslsocket)
     int secsts = SECFailure;
     char *result;
     CERTCertificate *servercert;
+    int AllowSelfSignedCerts;
+
+    AllowSelfSignedCerts = (getenv("PCP_ALLOW_SERVER_SELF_CERT") != NULL );
 
     result = SSL_RevealURL(sslsocket);
     pmprintf("WARNING: "
@@ -401,7 +411,7 @@ queryCertificateAuthority(PRFileDesc *sslsocket)
     servercert = SSL_PeerCertificate(sslsocket);
     if (servercert) {
 	reportFingerprint(&servercert->derCert);
-	sts = queryCertificateOK("Do you want to accept and save this certificate locally anyway");
+	sts = AllowSelfSignedCerts || queryCertificateOK("Do you want to accept and save this certificate locally anyway");
 	if (sts == 1) {
 	    saveUserCertificate(servercert);
 	    secsts = SECSuccess;
@@ -422,6 +432,9 @@ queryCertificateDomain(PRFileDesc *sslsocket)
     SECStatus secstatus = SECFailure;
     PRArenaPool *arena = NULL;
     CERTCertificate *servercert = NULL;
+    int AllowBadCertDomain;
+
+    AllowBadCertDomain = (getenv("PCP_ALLOW_BAD_CERT_DOMAIN") != NULL );
 
     /*
      * Propagate a warning through to the client.  Show the expected
@@ -461,8 +474,15 @@ queryCertificateDomain(PRFileDesc *sslsocket)
     if (servercert)
 	CERT_DestroyCertificate(servercert);
 
-    sts = queryCertificateOK("Do you want to accept this certificate anyway");
+    sts = AllowBadCertDomain || queryCertificateOK("Do you want to accept this certificate anyway");
     return (sts == 1) ? SECSuccess : SECFailure;
+}
+
+static SECStatus
+getClientCert(void *arg, PRFileDesc *ssl_fd, CERTDistNames *ca_names, CERTCertificate **out_return_cert, SECKEYPrivateKey **out_return_key)
+{
+    SECStatus ret = NSS_GetClientAuthData(0, ssl_fd, ca_names, out_return_cert, out_return_key);
+    return ret;
 }
 
 static SECStatus
@@ -866,6 +886,10 @@ __pmSecureClientIPCFlags(int fd, int flags, const char *hostname, __pmHashCtl *a
 				(SSLBadCertHandler)badCertificate, NULL);
 	if (secsts != SECSuccess)
 	    return __pmSecureSocketsError(PR_GetError());
+	secsts = SSL_GetClientAuthDataHook(socket.sslFd,
+				(SSLGetClientAuthData)getClientCert, NULL);
+	if (secsts != SECSuccess)
+	    return __pmSecureSocketsError(PR_GetError());
     }
 
     if ((flags & PDU_FLAG_COMPRESS) != 0) {
@@ -1251,6 +1275,7 @@ __pmSecureServerIPCFlags(int fd, int flags)
 {
     __pmSecureSocket socket;
     SECStatus secsts;
+    PRBool RequestClientCert;
     int saslsts;
     int sts;
 
@@ -1294,13 +1319,23 @@ __pmSecureServerIPCFlags(int fd, int flags)
 	    sendSecureAck(fd, flags, sts);
 	    return sts;
 	}
-	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUEST_CERTIFICATE, PR_FALSE);
+
+	/*
+ 	 * If called from pmcd, the server may have the feature set by a command line option.
+ 	 *
+ 	 * If called from pmproxy, "flags" is set if required by an upstream pmcd. Need 
+ 	 * to forward this through to the client.
+ 	 */
+
+	RequestClientCert = ( __pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD) || (flags & PDU_FLAG_CERT_REQD) );
+
+	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUEST_CERTIFICATE, RequestClientCert);
 	if (secsts != SECSuccess) {
 	    sts = __pmSecureSocketsError(PR_GetError());
 	    sendSecureAck(fd, flags, sts);
 	    return sts;
 	}
-	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUIRE_CERTIFICATE, PR_FALSE);
+	secsts = SSL_OptionSet(socket.sslFd, SSL_REQUIRE_CERTIFICATE, RequestClientCert);
 	if (secsts != SECSuccess) {
 	    sts = __pmSecureSocketsError(PR_GetError());
 	    sendSecureAck(fd, flags, sts);

@@ -30,6 +30,7 @@ typedef struct {
     int			pmcd_port;	/* PMCD port */
     int			pmcd_fd;	/* PMCD socket file descriptor */
     __pmSockAddr	*addr;		/* address of client */
+    unsigned int	server_features;/* features the server is advertising */
 } ClientInfo;
 
 extern ClientInfo	*client;	/* Array of clients */

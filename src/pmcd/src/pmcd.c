@@ -42,6 +42,7 @@ static char	*pmnsfile = PM_NS_DEFAULT;
 static char	*username;
 static char	*certdb;		/* certificate database path (NSS) */
 static char	*dbpassfile;		/* certificate database password file */
+static char	*cert_nickname;		/* Alternate nickname to use for server certificate */
 static int	dupok = 1;		/* set to 0 for -N pmnsfile */
 static char	sockpath[MAXPATHLEN];	/* local unix domain socket path */
 
@@ -115,7 +116,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_POSIX,
-    .short_options = "Ac:C:D:fH:i:l:L:N:n:p:P:q:s:St:T:U:x:?",
+    .short_options = "Ac:C:D:fH:i:l:L:M:N:n:p:P:q:Qs:St:T:U:x:?",
     .long_options = longopts,
 };
 
@@ -186,6 +187,10 @@ ParseOptions(int argc, char *argv[], int *nports)
 		}
 		break;
 
+	    case 'M':	/* nickname for the server cert. Use to query the nssdb */
+		cert_nickname = opts.optarg;
+		break;
+
 	    case 'N':
 		dupok = 0;
 		/*FALLTHROUGH*/
@@ -217,6 +222,10 @@ ParseOptions(int argc, char *argv[], int *nports)
 		} else {
 		    _creds_timeout = val;
 		}
+		break;
+
+	    case 'Q':	/* require clients to provide a trusted cert */
+		__pmServerSetFeature(PM_SERVER_FEATURE_CERT_REQD);
 		break;
 
 	    case 's':	/* path to local unix domain socket */
@@ -660,6 +669,9 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 		cp->pduInfo.features |= PDU_FLAG_COMPRESS;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_AUTH))       /*optional*/
 		cp->pduInfo.features |= PDU_FLAG_AUTH;
+            if (__pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD)){ /* Required for remote connections only */
+		cp->pduInfo.features |= PDU_FLAG_CERT_REQD;	    /* Enforced in connect.c:check_feature_flags */
+	    }
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD)) /*required*/
 		cp->pduInfo.features |= PDU_FLAG_CREDS_REQD;
 	    if (__pmServerHasFeature(PM_SERVER_FEATURE_CONTAINERS))
@@ -969,7 +981,7 @@ main(int argc, char *argv[])
 	    DontStart();
     }
 
-    if (__pmSecureServerSetup(certdb, dbpassfile) < 0)
+    if (__pmSecureServerCertificateSetup(certdb, dbpassfile, cert_nickname) < 0)
 	DontStart();
 
     PrintAgentInfo(stderr);

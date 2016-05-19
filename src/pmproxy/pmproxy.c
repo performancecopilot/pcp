@@ -33,6 +33,7 @@ static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*username;
 static char	*certdb;		/* certificate DB path (NSS) */
 static char	*dbpassfile;		/* certificate DB password file */
+static char     *cert_nickname;         /* Alternate nickname to use for server certificate */
 static char	*hostname;
 
 static void
@@ -82,7 +83,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "A:C:D:fi:l:L:p:P:U:x:?",
+    .short_options = "A:C:D:fi:l:L:M:p:P:U:x:?",
     .long_options = longopts,
 };
 
@@ -127,6 +128,10 @@ ParseOptions(int argc, char *argv[], int *nports)
 	    /* log file name */
 	    logfile = opts.optarg;
 	    break;
+
+        case 'M':   /* nickname for the server cert. Use to query the nssdb */
+            cert_nickname = opts.optarg;
+            break;
 
 	case 'L': /* Maximum size for PDUs from clients */
 	    sts = (int)strtol(opts.optarg, NULL, 0);
@@ -178,6 +183,16 @@ ParseOptions(int argc, char *argv[], int *nports)
     }
 }
 
+static int
+CheckCertRequired(ClientInfo *cp)
+{
+    if( cp->server_features & PDU_FLAG_CERT_REQD )
+	if ( !__pmSockAddrIsLoopBack(cp->addr) && !__pmSockAddrIsUnix(cp->addr) )
+	    return 1;
+
+    return 0;
+}
+
 static void
 CleanupClient(ClientInfo *cp, int sts)
 {
@@ -219,8 +234,28 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
 	    break;
 	}
     }
+
     if (credlist != NULL)
 	free(credlist);
+
+    /*
+     * If the server advertises PDU_FLAG_CERT_REQD, add it to flags
+     * so we can setup the connection properly with the client.
+     *
+     * In normal operation, some of this code is redundant. A 
+     * remote client should error out during initial handshake
+     * if it does not support client certs.
+     *
+     * We still need to check local connections and allow those through
+     * in all cases.
+     */
+
+    if ( CheckCertRequired(cp) ){
+	if (flags & PDU_FLAG_SECURE)
+	    flags |= PDU_FLAG_CERT_REQD;
+	else
+	    return PM_ERR_NEEDCLIENTCERT;
+    }
 
     /* need to ensure both the pmcd and client channel use flags */
 
@@ -238,9 +273,22 @@ VerifyClient(ClientInfo *cp, __pmPDU *pb)
     if (sts >= 0 && flags)
 	sts = __pmSecureClientHandshake(cp->pmcd_fd,
 					flags | PDU_FLAG_NO_NSS_INIT,
-					hostname, &attrs);
+					cp->pmcd_hostname, &attrs);
    
     return sts;
+}
+
+
+/* This is a private libpcp function.  OK to expose ? Copied for now */
+__pmPDUInfo
+__ntohpmPDUInfo(__pmPDUInfo info)
+{
+    unsigned int        x;
+
+    x = ntohl(*(unsigned int *)&info);
+    info = *(__pmPDUInfo *)&x;
+
+    return info;
 }
 
 /* Determine which clients (if any) have sent data to the server and handle it
@@ -295,6 +343,24 @@ HandleInput(__pmFdSet *fdsPtr)
 	cp = &client[i];
 
 	sts = __pmGetPDU(cp->pmcd_fd, ANY_SIZE, 0, &pb);
+
+	/*
+	 * We need to know if the pmcd has PDU_FLAG_CERT_REQD so we can
+	 * setup our own secure connection with the client. Need to intercept
+	 * the first message from the pmcd.  See __pmConnectHandshake
+	 * discussion in connect.c. This code happens before VerifyClient
+	 * above.
+	 */
+
+	if( (!cp->status.allowed) && (sts == PDU_ERROR) ){
+	    unsigned int server_features;
+	    server_features = __pmServerGetFeaturesFromPDU( pb );
+	    if( server_features & PDU_FLAG_CERT_REQD ){
+		/* Add as a server feature */
+		cp->server_features |= PDU_FLAG_CERT_REQD;
+	    }
+	}
+
 	if (sts <= 0) {
 	    CleanupClient(cp, sts);
 	    continue;
@@ -523,7 +589,7 @@ main(int argc, char *argv[])
     /* lose root privileges if we have them */
     __pmSetProcessIdentity(username);
 
-    if (__pmSecureServerSetup(certdb, dbpassfile) < 0)
+    if (__pmSecureServerCertificateSetup(certdb, dbpassfile, cert_nickname) < 0)
 	DontStart();
 
     /* all the work is done here */

@@ -522,3 +522,7 @@ PCP_3.14 {
     pmRegisterDerivedMetric;
 } PCP_3.13;
 
+PCP_3.15 {
+    __pmSecureServerCertificateSetup;
+    __pmServerGetFeaturesFromPDU;
+} PCP_3.14;
