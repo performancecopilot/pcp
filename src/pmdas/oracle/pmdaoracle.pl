@@ -23,6 +23,8 @@ use DBI;
 my $os_user = 'oracle';
 my $username = 'SYSTEM';
 my $password = 'manager';
+my $host = 'localhost';
+my $port = '1521';
 my @sids = ( 'master' );
 
 # Configuration files for overriding the above settings
@@ -427,7 +429,7 @@ sub oracle_sid_connection_setup
     if ($control_map{$sid} == 1) { return undef; }
 
     if (!defined($dbh)) {
-	$dbh = DBI->connect("dbi:Oracle:$sid", $username, $password);
+	$dbh = DBI->connect("dbi:Oracle:host=$host;port=$port;sid=$sid", $username, $password);
 	if (defined($dbh)) {
 	    foreach my $key (keys %tables_by_name) {
 		my ($query, $insts, $fetch);

@@ -21,6 +21,8 @@ use DBI;
 my $os_user = 'oracle';
 my $username = 'SYSTEM';
 my $password = 'manager';
+my $host = 'localhost';
+my $port = '1521';
 my @sids = ( 'master' );
 
 # Configuration files for overriding the above settings
@@ -38,6 +40,8 @@ if (defined($ARGV[0]) && ($ARGV[0] eq '-c' || $ARGV[0] eq '--config')) {
     print("os_user=$os_user\n");
     print("username=$username\n");
     print("password=$password\n");
+    print("host=$host\n");
+    print("port=$port\n");
     # print("path: $ENV{LD_LIBRARY_PATH}\n");
     my $sidstr = '';
     foreach my $sid (@sids) {
@@ -51,7 +55,7 @@ if (defined($ARGV[0]) && ($ARGV[0] eq '-c' || $ARGV[0] eq '--config')) {
 my $status = 0;
 foreach my $sid (@sids) {
     print("Attempting Oracle login SID=$sid ... ");
-    my $db = DBI->connect("dbi:Oracle:$sid", $username, $password);
+    my $db = DBI->connect("dbi:Oracle:host=$host;port=$port;sid=$sid", $username, $password);
     if (defined($db)) {
 	$db->disconnect();
 	print("OK\n");
