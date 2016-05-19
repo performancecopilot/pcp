@@ -1,6 +1,6 @@
 """ Convenience Classes building on the base PMAPI extension module """
 #
-# Copyright (C) 2013-2015 Red Hat
+# Copyright (C) 2013-2016 Red Hat
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -258,6 +258,7 @@ class MetricCache(pmContext):
         self._mcIndomD = {}
         self._mcByNameD = {}
         self._mcByPmidD = {}
+        self._mcCounter = False   # does this cache contain counters?
 
     ##
     # methods
@@ -282,6 +283,9 @@ class MetricCache(pmContext):
                 else:
                     instmap = {}
             self._mcIndomD.update({indom: instmap})
+
+        if core.desc.contents.sem == PM_SEM_COUNTER:
+            self._mcCounter = True
 
         self._mcByNameD.update({core.name.decode(): core})
         self._mcByPmidD.update({core.pmid: core})
@@ -372,6 +376,8 @@ class MetricGroup(dict):
 
     def _R_contextCache(self):
         return self._ctx
+    def _R_hasCounters(self):
+        return self._ctx._mcCounter
     def _R_pmidArray(self):
         return self._pmidArray
     def _R_timestamp(self):
@@ -394,6 +400,7 @@ class MetricGroup(dict):
     # property definitions
 
     contextCache = property(_R_contextCache, None, None, None)
+    hasCounters = property(_R_hasCounters, None, None, None)
     pmidArray = property(_R_pmidArray, None, None, None)
     result = property(_R_result, _W_result, None, None)
     timestamp = property(_R_timestamp, None, None, None)
@@ -560,12 +567,19 @@ class MetricGroupManager(dict, MetricCache):
             This is based on command line options --samples but also
             must consider --start, --finish and --interval.  If none
             of these were presented, a zero return means "infinite".
+            Also consider whether the utility needs rate-conversion,
+            automatically increasing the sample count to accommodate
+            when counters metrics are present.
         """
         if self._options == None:
             return 0	# loop until interrupted or PM_ERR_EOL
+        extra = 0
+        for group in self.keys():
+            if self[group].hasCounters:
+                extra = 1   # extra sample needed if rate converting
         samples = self._options.pmGetOptionSamples()
         if samples != None:
-            return samples
+            return samples + extra
         if self._options.pmGetOptionFinishOptarg() == None:
             return 0	# loop until interrupted or PM_ERR_EOL
         origin = self._options.pmGetOptionOrigin()
@@ -577,7 +591,7 @@ class MetricGroupManager(dict, MetricCache):
         window = float(finish.tv_sec - origin.tv_sec)
         window += float((finish.tv_usec - origin.tv_usec) / 1e6)
         window /= period
-        return int(window + 0.5)    # roundup to positive number
+        return int(window + 0.5) + extra    # roundup to positive number
 
     def _computePauseTime(self):
         """ Figure out how long to sleep between samples.

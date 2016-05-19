@@ -107,6 +107,10 @@ for method in sum avg min max; do
     pmiostat -z -xt,dm -t 30m -a archives/pmiostat_mark -R 'home|swap' -G $method
 done
 
+echo '== testing pmiostat --samples option samples sufficiently (2,3)'
+pmiostat -t 0.01 -s 1 | wc -l
+pmiostat -t 0.01 --samples 2 | wc -l
+
 # success, all done
 status=0
 
