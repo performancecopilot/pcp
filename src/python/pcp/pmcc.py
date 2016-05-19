@@ -258,7 +258,8 @@ class MetricCache(pmContext):
         self._mcIndomD = {}
         self._mcByNameD = {}
         self._mcByPmidD = {}
-        self._mcCounter = False   # does this cache contain counters?
+        self._mcCounter = 0 # number of counters in this cache
+        self._mcMetrics = 0 # number of metrics in this cache
 
     ##
     # methods
@@ -285,7 +286,8 @@ class MetricCache(pmContext):
             self._mcIndomD.update({indom: instmap})
 
         if core.desc.contents.sem == PM_SEM_COUNTER:
-            self._mcCounter = True
+            self._mcCounter += 1
+        self._mcMetrics += 1
 
         self._mcByNameD.update({core.name.decode(): core})
         self._mcByPmidD.update({core.pmid: core})
@@ -376,8 +378,8 @@ class MetricGroup(dict):
 
     def _R_contextCache(self):
         return self._ctx
-    def _R_hasCounters(self):
-        return self._ctx._mcCounter
+    def _R_nonCounters(self):
+        return self._ctx._mcCounter != self._ctx._mcMetrics
     def _R_pmidArray(self):
         return self._pmidArray
     def _R_timestamp(self):
@@ -400,7 +402,7 @@ class MetricGroup(dict):
     # property definitions
 
     contextCache = property(_R_contextCache, None, None, None)
-    hasCounters = property(_R_hasCounters, None, None, None)
+    nonCounters = property(_R_nonCounters, None, None, None)
     pmidArray = property(_R_pmidArray, None, None, None)
     result = property(_R_result, _W_result, None, None)
     timestamp = property(_R_timestamp, None, None, None)
@@ -573,10 +575,10 @@ class MetricGroupManager(dict, MetricCache):
         """
         if self._options == None:
             return 0	# loop until interrupted or PM_ERR_EOL
-        extra = 0
+        extra = 1       # extra sample needed if rate converting
         for group in self.keys():
-            if self[group].hasCounters:
-                extra = 1   # extra sample needed if rate converting
+            if self[group].nonCounters:
+                extra = 0
         samples = self._options.pmGetOptionSamples()
         if samples != None:
             return samples + extra
