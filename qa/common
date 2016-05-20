@@ -18,6 +18,7 @@ _setenvironment()
     MSGVERB="text:action"
     export MSGVERB
     export PCP_BINADM_DIR
+    export PCP_DERIVED_CONFIG=""
 }
 
 _log_fyi()
@@ -274,7 +275,14 @@ _havepmcdtrace()
 -T 3
 End-of-File
 	$sudo cp $tmp.tmp $PCPQA_PMCDOPTIONS
-	$sudo chown root:root $PCPQA_PMCDOPTIONS
+	grp=root
+	case $PCP_PLATFORM
+	in
+	    freebsd|netbsd|openbsd)
+		    grp=wheel
+		    ;;
+	esac
+	$sudo chown root:$grp $PCPQA_PMCDOPTIONS
 	$sudo $PCP_RC_DIR/pcp restart
 	_wait_for_pmlogger
     fi

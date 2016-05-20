@@ -157,6 +157,31 @@ setIdentity(PyObject *self, PyObject *args, PyObject *keywords)
     return Py_BuildValue("i", __pmSetProcessIdentity(name));
 }
 
+static PyObject *
+makeTime(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    struct tm tm;
+    int gmtoff = 0;
+    char *zone = NULL;
+    char *keyword_list[] = {"tm_sec", "tm_min", "tm_hour",
+			    "tm_mday", "tm_mon", "tm_year",
+			    "tm_wday", "tm_yday", "tm_isdst",
+			    "tm_gmtoff", "tm_zone", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"iiiiiiiiils:pmMktime", keyword_list,
+			&tm.tm_sec, &tm.tm_min, &tm.tm_hour,
+			&tm.tm_mday, &tm.tm_mon, &tm.tm_year,
+			&tm.tm_wday, &tm.tm_yday, &tm.tm_isdst,
+			&gmtoff, &zone))
+	return NULL;
+#ifdef IS_LINUX
+    tm.tm_gmtoff = gmtoff;
+    tm.tm_zone = zone;
+#endif
+    return Py_BuildValue("l", __pmMktime(&tm));
+}
+
 /*
  * Common command line option handling code - wrapping pmOptions
  */
@@ -1096,6 +1121,9 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmSetProcessIdentity",
 	.ml_meth = (PyCFunction) setIdentity,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmMktime",
+	.ml_meth = (PyCFunction) makeTime,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmResetAllOptions",
 	.ml_meth = (PyCFunction) resetAllOptions,
         .ml_flags = METH_NOARGS },
@@ -1312,6 +1340,8 @@ MOD_INIT(cpmapi)
     dict_add(dict, "HAVE_BITFIELDS_LTOR", 0);
     dict_add(dict, "HAVE_BITFIELDS_RTOL", 1);
 #endif
+    dict_add(dict, "SIZEOF_SUSECONDS_T", SIZEOF_SUSECONDS_T);
+    dict_add(dict, "SIZEOF_TIME_T", SIZEOF_TIME_T);
 
     dict_add(dict, "PM_SPACE_BYTE", PM_SPACE_BYTE);
     dict_add(dict, "PM_SPACE_KBYTE", PM_SPACE_KBYTE);

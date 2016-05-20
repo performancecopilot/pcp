@@ -1,0 +1,42 @@
+#!/bin/sh
+# PCP QA Test No. 820
+# check network.softnet per-cpu aggregation
+#
+# Copyright (c) 2016 Mark Goodwin <mgoodwin@redhat.com>.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = "linux" ] || _notrun "Test platform does not support network.softnet metrics"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo expect no output
+
+for m in processed dropped time_squeeze cpu_collision received_rps flow_limit_count
+do
+    echo "=== $m ===" >> $seq.full
+    pmprobe -v network.softnet.$m network.softnet.percpu.$m | \
+    tee -a $seq.full | \
+    awk '
+    $2 < 1 { exit 0; }
+    /softnet.'$m'/ { summed = $3; sum=0 }
+    /softnet.percpu.'$m'/ { for(i=3; i <= NF; i++) sum += $i }
+    END { if(summed != sum) { printf "FAILED on '$m': "; exit 1 } }'
+    status=$?
+    [ $status != 0 ] && exit
+done
+
+# success, all done
+status=0
+
+exit

@@ -4,7 +4,7 @@
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2002 International Business Machines Corp.
  * Portions Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
- * Portions Copyright (c) 2012-2015 Red Hat.
+ * Portions Copyright (c) 2012-2016 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -198,12 +198,12 @@ static pmdaMetric metrictab[] = {
 
 /* proc.psinfo.priority */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,17), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STAT,17), PM_TYPE_32, PROC_INDOM, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* proc.psinfo.nice */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STAT,18), PM_TYPE_U32, PROC_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_PID_STAT,18), PM_TYPE_32, PROC_INDOM, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 #if 0
@@ -578,9 +578,9 @@ static pmdaMetric metrictab[] = {
     PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
-/* proc.memory.vmhwn */
+/* proc.memory.vmhwm */
   { NULL,
-    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMHWN),
+    { PMDA_PMID(CLUSTER_PID_STATUS, PROC_PID_STATUS_VMHWM),
     PM_TYPE_U32, PROC_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
@@ -1192,6 +1192,56 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_PERDEVBLKIO_TIME), PM_TYPE_U64,
     CGROUP_PERDEVBLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
 
+/* cgroup.blkio.dev.throttle.io_service_bytes.read */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_PERDEVBLKIO_THROTTLEIOSERVICEBYTES_READ), PM_TYPE_U64,
+    CGROUP_PERDEVBLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+
+/* cgroup.blkio.dev.throttle.io_service_bytes.write */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_PERDEVBLKIO_THROTTLEIOSERVICEBYTES_WRITE), PM_TYPE_U64,
+    CGROUP_PERDEVBLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+
+/* cgroup.blkio.dev.throttle.io_service_bytes.sync */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_PERDEVBLKIO_THROTTLEIOSERVICEBYTES_SYNC), PM_TYPE_U64,
+    CGROUP_PERDEVBLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+
+/* cgroup.blkio.dev.throttle.io_service_bytes.async */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_PERDEVBLKIO_THROTTLEIOSERVICEBYTES_ASYNC), PM_TYPE_U64,
+    CGROUP_PERDEVBLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+
+/* cgroup.blkio.dev.throttle.io_service_bytes.total */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_PERDEVBLKIO_THROTTLEIOSERVICEBYTES_TOTAL), PM_TYPE_U64,
+    CGROUP_PERDEVBLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+
+/* cgroup.blkio.dev.throttle.io_serviced.read */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_PERDEVBLKIO_THROTTLEIOSERVICED_READ), PM_TYPE_U64,
+    CGROUP_PERDEVBLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* cgroup.blkio.dev.throttle.io_serviced.write */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_PERDEVBLKIO_THROTTLEIOSERVICED_WRITE), PM_TYPE_U64,
+    CGROUP_PERDEVBLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* cgroup.blkio.dev.throttle.io_serviced.sync */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_PERDEVBLKIO_THROTTLEIOSERVICED_SYNC), PM_TYPE_U64,
+    CGROUP_PERDEVBLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* cgroup.blkio.dev.throttle.io_serviced.async */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_PERDEVBLKIO_THROTTLEIOSERVICED_ASYNC), PM_TYPE_U64,
+    CGROUP_PERDEVBLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* cgroup.blkio.dev.throttle.io_serviced.total */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_PERDEVBLKIO_THROTTLEIOSERVICED_TOTAL), PM_TYPE_U64,
+    CGROUP_PERDEVBLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* cgroup.blkio.all.io_merged.read */
   { NULL,
     { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_BLKIO_IOMERGED_READ), PM_TYPE_U64,
@@ -1351,6 +1401,57 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_BLKIO_TIME), PM_TYPE_U64,
     CGROUP_BLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
+
+/* cgroup.blkio.all.throttle.io_service_bytes.read */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_BLKIO_THROTTLEIOSERVICEBYTES_READ), PM_TYPE_U64,
+    CGROUP_BLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+
+/* cgroup.blkio.all.throttle.io_service_bytes.write */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_BLKIO_THROTTLEIOSERVICEBYTES_WRITE), PM_TYPE_U64,
+    CGROUP_BLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+
+/* cgroup.blkio.all.throttle.io_service_bytes.sync */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_BLKIO_THROTTLEIOSERVICEBYTES_SYNC), PM_TYPE_U64,
+    CGROUP_BLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+
+/* cgroup.blkio.all.throttle.io_service_bytes.async */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_BLKIO_THROTTLEIOSERVICEBYTES_ASYNC), PM_TYPE_U64,
+    CGROUP_BLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+
+/* cgroup.blkio.all.throttle.io_service_bytes.total */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_BLKIO_THROTTLEIOSERVICEBYTES_TOTAL), PM_TYPE_U64,
+    CGROUP_BLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) } },
+
+/* cgroup.blkio.all.throttle.io_serviced.read */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_BLKIO_THROTTLEIOSERVICED_READ), PM_TYPE_U64,
+    CGROUP_BLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* cgroup.blkio.all.throttle.io_serviced.write */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_BLKIO_THROTTLEIOSERVICED_WRITE), PM_TYPE_U64,
+    CGROUP_BLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* cgroup.blkio.all.throttle.io_serviced.sync */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_BLKIO_THROTTLEIOSERVICED_SYNC), PM_TYPE_U64,
+    CGROUP_BLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* cgroup.blkio.all.throttle.io_serviced.async */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_BLKIO_THROTTLEIOSERVICED_ASYNC), PM_TYPE_U64,
+    CGROUP_BLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* cgroup.blkio.all.throttle.io_serviced.total */
+  { NULL,
+    { PMDA_PMID(CLUSTER_BLKIO_GROUPS, CG_BLKIO_THROTTLEIOSERVICED_TOTAL), PM_TYPE_U64,
+    CGROUP_BLKIO_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 
 /*
  * proc/<pid>/fd cluster
@@ -1818,6 +1919,18 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		}
 		break;
 
+	    case PROC_PID_STAT_TTY_PGRP: /* proc.psinfo.tty_pgrp */
+		f = _pm_getfield(entry->stat_buf, PROC_PID_STAT_TTY_PGRP);
+		if (f == NULL)
+		    return 0;
+		else {
+		    __int32_t value = (__int32_t)strtol(f, &tail, 0);
+		    if (value < 0)
+			return 0;
+		    atom->ul = (__uint32_t)value;
+		}
+		break;
+
 	    case PROC_PID_STAT_CMD: /* proc.psinfo.cmd */
 		f = _pm_getfield(entry->stat_buf, idp->item);
 		if (f == NULL)
@@ -1868,6 +1981,7 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    case PROC_PID_STAT_PRIORITY: /* proc.psinfo.priority */
 	    case PROC_PID_STAT_NICE: /* signed decimal int */ /* proc.psinfo.nice */
+		/* both are signed decimal integers in range [-20,20] */
 		f = _pm_getfield(entry->stat_buf, idp->item);
 		if (f == NULL)
 		    return 0;
@@ -2161,8 +2275,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
 	break;
 
-	case PROC_PID_STATUS_VMHWN: /* proc.memory.vmhwn */
-	if ((f = _pm_getfield(entry->status_lines.vmhwn, 1)) == NULL)
+	case PROC_PID_STATUS_VMHWM: /* proc.memory.vmhwm */
+	if ((f = _pm_getfield(entry->status_lines.vmhwm, 1)) == NULL)
 	    atom->ul = 0;
 	else
 	    atom->ul = (__uint32_t)strtoul(f, &tail, 0);
@@ -2685,6 +2799,36 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    /* unsigned jiffies converted to unsigned milliseconds */
 	    atom->ull = (__uint64_t)blkdev->stats.time * 1000 / hz;
 	    break;
+	case CG_PERDEVBLKIO_THROTTLEIOSERVICEBYTES_READ: /* cgroup.blkio.dev.throttle.io_service_bytes.read */
+	    atom->ull = blkdev->stats.throttle_io_service_bytes.read;
+	    break;
+	case CG_PERDEVBLKIO_THROTTLEIOSERVICEBYTES_WRITE: /* cgroup.blkio.dev.throttle.io_service_bytes.write */
+	    atom->ull = blkdev->stats.throttle_io_service_bytes.write;
+	    break;
+	case CG_PERDEVBLKIO_THROTTLEIOSERVICEBYTES_SYNC: /* cgroup.blkio.dev.throttle.io_service_bytes.sync */
+	    atom->ull = blkdev->stats.throttle_io_service_bytes.sync;
+	    break;
+	case CG_PERDEVBLKIO_THROTTLEIOSERVICEBYTES_ASYNC: /* cgroup.blkio.dev.throttle.io_service_bytes.async */
+	    atom->ull = blkdev->stats.throttle_io_service_bytes.async;
+	    break;
+	case CG_PERDEVBLKIO_THROTTLEIOSERVICEBYTES_TOTAL: /* cgroup.blkio.dev.throttle.io_service_bytes.total */
+	    atom->ull = blkdev->stats.throttle_io_service_bytes.total;
+	    break;
+	case CG_PERDEVBLKIO_THROTTLEIOSERVICED_READ: /* cgroup.blkio.dev.throttle.io_serviced.read */
+	    atom->ull = blkdev->stats.throttle_io_serviced.read;
+	    break;
+	case CG_PERDEVBLKIO_THROTTLEIOSERVICED_WRITE: /* cgroup.blkio.dev.throttle.io_serviced.write */
+	    atom->ull = blkdev->stats.throttle_io_serviced.write;
+	    break;
+	case CG_PERDEVBLKIO_THROTTLEIOSERVICED_SYNC: /* cgroup.blkio.dev.throttle.io_serviced.sync */
+	    atom->ull = blkdev->stats.throttle_io_serviced.sync;
+	    break;
+	case CG_PERDEVBLKIO_THROTTLEIOSERVICED_ASYNC: /* cgroup.blkio.dev.throttle.io_serviced.async */
+	    atom->ull = blkdev->stats.throttle_io_serviced.async;
+	    break;
+	case CG_PERDEVBLKIO_THROTTLEIOSERVICED_TOTAL: /* cgroup.blkio.dev.throttle.io_serviced.total */
+	    atom->ull = blkdev->stats.throttle_io_serviced.total;
+	    break;
 
 	case CG_BLKIO_IOMERGED_READ: /* cgroup.blkio.all.io_merged.read */
 	    atom->ull = blkio->total.io_merged.read;
@@ -2783,6 +2927,36 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case CG_BLKIO_TIME: /* cgroup.blkio.all.time */
 	    /* unsigned jiffies converted to unsigned milliseconds */
 	    atom->ull = (__uint64_t)blkio->total.time * 1000 / hz;
+	    break;
+	case CG_BLKIO_THROTTLEIOSERVICEBYTES_READ: /* cgroup.blkio.all.throttle.io_service_bytes.read */
+	    atom->ull = blkio->total.throttle_io_service_bytes.read;
+	    break;
+	case CG_BLKIO_THROTTLEIOSERVICEBYTES_WRITE: /* cgroup.blkio.all.throttle.io_service_bytes.wrie */
+	    atom->ull = blkio->total.throttle_io_service_bytes.write;
+	    break;
+	case CG_BLKIO_THROTTLEIOSERVICEBYTES_SYNC: /* cgroup.blkio.all.throttle.io_service_bytes.sync */
+	    atom->ull = blkio->total.throttle_io_service_bytes.sync;
+	    break;
+	case CG_BLKIO_THROTTLEIOSERVICEBYTES_ASYNC: /* cgroup.blkio.all.throttle.io_service_bytes.async */
+	    atom->ull = blkio->total.throttle_io_service_bytes.async;
+	    break;
+	case CG_BLKIO_THROTTLEIOSERVICEBYTES_TOTAL: /* cgroup.blkio.all.throttle.io_service_bytes.total */
+	    atom->ull = blkio->total.throttle_io_service_bytes.total;
+	    break;
+	case CG_BLKIO_THROTTLEIOSERVICED_READ: /* cgroup.blkio.all.throttle.io_serviced.read */
+	    atom->ull = blkio->total.throttle_io_serviced.read;
+	    break;
+	case CG_BLKIO_THROTTLEIOSERVICED_WRITE: /* cgroup.blkio.all.throttle.io_serviced.write */
+	    atom->ull = blkio->total.throttle_io_serviced.write;
+	    break;
+	case CG_BLKIO_THROTTLEIOSERVICED_SYNC: /* cgroup.blkio.all.throttle.io_serviced.sync */
+	    atom->ull = blkio->total.throttle_io_serviced.sync;
+	    break;
+	case CG_BLKIO_THROTTLEIOSERVICED_ASYNC: /* cgroup.blkio.all.throttle.io_serviced.async */
+	    atom->ull = blkio->total.throttle_io_serviced.async;
+	    break;
+	case CG_BLKIO_THROTTLEIOSERVICED_TOTAL: /* cgroup.blkio.all.throttle.io_serviced.total */
+	    atom->ull = blkio->total.throttle_io_serviced.total;
 	    break;
 
 	default:
@@ -2949,7 +3123,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 			    set_conf_buffer(savebuffer);
                         sts = PM_ERR_BADSTORE;
 		    }
-                    else if ( lsts == 0 ){
+                    else if (lsts == 0) {
                         /* Empty Config */
                         disable_hotproc();
                     }
@@ -2973,7 +3147,7 @@ proc_store(pmResult *result, pmdaExt *pmda)
 		if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 				PM_TYPE_U32, &av, PM_TYPE_U32)) >= 0) {
                     hotproc_init();
-                    reset_hotproc_timer();
+		    reset_hotproc_timer();
 		}
 		break;
 

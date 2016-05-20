@@ -20,8 +20,8 @@ C fapp1.f
 C
 C Simple program to demonstrate use of the PCP trace performance metrics
 C domain agent (PMDA(3)).  This agent needs to be installed before metrics
-C can be made available via the performance metrics namespace (PMNS(4)),
-C and the Performance Metrics Collector Daemon (PMCD(1)).
+C can be made available via the performance metrics namespace (pmns(5)),
+C and the Performance Metrics Collector Daemon (pmcd(1)).
 C
 C Once this program is running, the trace PMDA metrics & instances can be
 C viewed through PCP monitor tools such as pmchart(1), pmgadgets(1), and

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2014 Red Hat.
+# Copyright (c) 2012-2016 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,33 +18,33 @@ include $(TOPDIR)/src/include/builddefs
 SUBDIRS = pcp
 CFILES = pmapi.c pmda.c pmgui.c pmi.c mmv.c
 LDIRDIRT = build dist
-LDIRT = build_python build_python3
+LDIRT = build_python2 build_python3
 ifneq ($(CFLAGS_ABI),)
 ENV = CFLAGS=$(CFLAGS_ABI)
 else
 ENV =
 endif
 ifeq ($(PCP_PLATFORM),darwin)
-# Universal binaries for PPC, thanks
+# Universal binaries for Mac OS X
 ENV += ARCHFLAGS='-arch i386 -arch x86_64'
 endif
 
-default default_pcp: build_python build_python3
+default default_pcp: build_python2 build_python3
 
 ifeq "$(ENABLE_PYTHON2)" "true"
 PY_BUILD_OPTS = $(SETUP_PY_BUILD_OPTIONS)
 PY_INSTALL_OPTS = $(SETUP_PY_INSTALL_OPTIONS) --record=$(TOPDIR)/python-pcp.list
-build_python: setup.py $(CFILES)
+build_python2: setup.py $(CFILES)
 	$(ENV) $(PYTHON) setup.py build_ext $(PY_BUILD_OPTS)
 	$(ENV) $(PYTHON) setup.py build
-	touch build_python
+	touch build_python2
 
-install_python: default
+install_python2: build_python2
 	$(PYTHON) setup.py install $(PY_INSTALL_OPTS)
 	$(PYTHON_INSTALL)
 else
-build_python: 
-install_python: 
+build_python2:
+install_python2:
 endif
 
 ifeq "$(ENABLE_PYTHON3)" "true"
@@ -55,14 +55,14 @@ build_python3: setup.py $(CFILES)
 	$(ENV) $(PYTHON3) setup.py build
 	touch build_python3
 
-install_python3: default
+install_python3: build_python3
 	$(PYTHON3) setup.py install $(PY3_INSTALL_OPTS)
 	$(PYTHON3_INSTALL)
 else
 build_python3:
-install_python3: 
+install_python3:
 endif
 
 include $(BUILDRULES)
 
-install_pcp install: install_python install_python3
+install_pcp install: install_python2 install_python3

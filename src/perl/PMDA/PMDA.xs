@@ -503,7 +503,7 @@ update_hash_indom(SV *insts, pmInDom indom)
 
     sts = pmdaCacheOp(indom, PMDA_CACHE_SAVE);
     if (sts < 0)
-	warn("pmda cache persistance failed: %s", pmErrStr(sts));
+	warn("pmda cache persistence failed: %s", pmErrStr(sts));
 
     return 0;
 }
@@ -573,7 +573,6 @@ static int
 update_indom(SV *insts, pmInDom indom, pmdaInstid **set)
 {
     SV *rv = (SV *) SvRV(insts);
-    pmdaInstid *instances;
 
     if (! SvROK(insts)) {
 	warn("expected a reference for instances argument");
@@ -694,7 +693,6 @@ pmda_inst_name(index,instance)
 	int		i, sts;
 	char *		name;
 	pmdaIndom *	p;
-	pmdaInstid	*instp;
     CODE:
 	if (index >= itab_size)	/* is this a valid indom */
 	    XSRETURN_UNDEF;
@@ -727,7 +725,7 @@ pmda_inst_lookup(index,instance)
     PREINIT:
 	pmdaIndom *	p;
 	SV *		svp;
-	int		i, sts;
+	int		sts;
     CODE:
 	if (index >= itab_size)	/* is this a valid indom */
 	    XSRETURN_UNDEF;
@@ -815,6 +813,8 @@ void
 error(self,message)
 	pmdaInterface *self
 	char *	message
+    PREINIT:
+	(void)self;
     CODE:
 	__pmNotifyErr(LOG_ERR, "%s", message);
 
@@ -822,6 +822,8 @@ int
 set_user(self,username)
 	pmdaInterface *self
 	char * username
+    PREINIT:
+	(void)self;
     CODE:
 	RETVAL = __pmSetProcessIdentity(username);
     OUTPUT:
@@ -831,6 +833,8 @@ void
 set_fetch(self,function)
 	pmdaInterface *self
 	SV *	function
+    PREINIT:
+	(void)self;
     CODE:
 	if (function != (SV *)NULL) {
 	    fetch_func = newSVsv(function);
@@ -840,6 +844,8 @@ void
 set_refresh(self,function)
 	pmdaInterface *self
 	SV *	function
+    PREINIT:
+	(void)self;
     CODE:
 	if (function != (SV *)NULL) {
 	    refresh_func = newSVsv(function);
@@ -849,6 +855,8 @@ void
 set_instance(self,function)
 	pmdaInterface *self
 	SV *	function
+    PREINIT:
+	(void)self;
     CODE:
 	if (function != (SV *)NULL) {
 	    instance_func = newSVsv(function);
@@ -901,6 +909,8 @@ set_unix_socket(self,socket_name)
 void
 clear_metrics(self)
 	pmdaInterface *self
+    PREINIT:
+	(void)self;
     CODE:
 	need_refresh = 1;
 	if (clustertab)
@@ -909,9 +919,9 @@ clear_metrics(self)
 	if (metrictab)
 	    free(metrictab);
 	mtab_size = 0;
-	clearHV(metric_names);
-	clearHV(metric_oneline);
-	clearHV(metric_helptext);
+	hv_clear(metric_names);
+	hv_clear(metric_oneline);
+	hv_clear(metric_helptext);
 
 void
 add_metric(self,pmid,type,indom,sem,units,name,help,longhelp)
@@ -929,8 +939,8 @@ add_metric(self,pmid,type,indom,sem,units,name,help,longhelp)
 	__pmID_int * pmidp;
 	const char * hash;
 	int          size;
-    CODE:
 	(void)self;
+    CODE:
 	need_refresh = 1;
 	pmidp = (__pmID_int *)&pmid;
 	if (!clustertab_lookup(pmidp->cluster)) {
@@ -969,6 +979,8 @@ add_metric(self,pmid,type,indom,sem,units,name,help,longhelp)
 void
 clear_indoms(self)
 	pmdaInterface *self
+    PREINIT:
+	(void)self;
     CODE:
 	if (indomtab)
 	    free(indomtab);
@@ -976,8 +988,8 @@ clear_indoms(self)
 	if (metrictab)
 	    free(metrictab);
 	mtab_size = 0;
-	clearHV(indom_oneline);
-	clearHV(indom_helptext);
+	hv_clear(indom_oneline);
+	hv_clear(indom_helptext);
 
 int
 add_indom(self,indom,insts,help,longhelp)
@@ -990,6 +1002,7 @@ add_indom(self,indom,insts,help,longhelp)
 	pmdaIndom  * p;
 	const char * hash;
 	int          sts, size;
+	(void)self;
     CODE:
 	size = sizeof(pmdaIndom) * (itab_size + 1);
 	indomtab = (pmdaIndom *)realloc(indomtab, size);
@@ -1026,6 +1039,7 @@ replace_indom(self,index,insts)
     PREINIT:
 	pmdaIndom *	p;
 	int		sts;
+	(void)self;
     CODE:
 	if (index >= itab_size) {
 	    warn("attempt to replace non-existent instance domain");
@@ -1053,6 +1067,8 @@ add_timer(self,timeout,callback,data)
 	double	timeout
 	SV *	callback
 	int	data
+    PREINIT:
+	(void)self;
     CODE:
 	if (getenv("PCP_PERL_PMNS") || getenv("PCP_PERL_DOMAIN") || !callback)
 	    XSRETURN_UNDEF;
@@ -1066,6 +1082,8 @@ add_pipe(self,command,callback,data)
 	char *	command
 	SV *	callback
 	int	data
+    PREINIT:
+	(void)self;
     CODE:
 	if (getenv("PCP_PERL_PMNS") || getenv("PCP_PERL_DOMAIN") || !callback)
 	    XSRETURN_UNDEF;
@@ -1079,6 +1097,8 @@ add_tail(self,filename,callback,data)
 	char *	filename
 	SV *	callback
 	int	data
+    PREINIT:
+	(void)self;
     CODE:
 	if (getenv("PCP_PERL_PMNS") || getenv("PCP_PERL_DOMAIN") || !callback)
 	    XSRETURN_UNDEF;
@@ -1093,6 +1113,8 @@ add_sock(self,hostname,port,callback,data)
 	int	port
 	SV *	callback
 	int	data
+    PREINIT:
+	(void)self;
     CODE:
 	if (getenv("PCP_PERL_PMNS") || getenv("PCP_PERL_DOMAIN") || !callback)
 	    XSRETURN_UNDEF;
@@ -1107,6 +1129,7 @@ put_sock(self,id,output)
 	char *	output
     PREINIT:
 	size_t	length = strlen(output);
+	(void)self;
     CODE:
 	RETVAL = __pmWrite(local_files_get_descriptor(id), output, length);
     OUTPUT:
@@ -1116,6 +1139,8 @@ void
 log(self,message)
 	pmdaInterface *self
 	char *	message
+    PREINIT:
+	(void)self;
     CODE:
 	__pmNotifyErr(LOG_INFO, "%s", message);
 
@@ -1123,6 +1148,8 @@ void
 err(self,message)
 	pmdaInterface *self
 	char *	message
+    PREINIT:
+	(void)self;
     CODE:
 	__pmNotifyErr(LOG_ERR, "%s", message);
 
@@ -1178,6 +1205,7 @@ debug_metric(self)
 	pmdaInterface *self
     PREINIT:
 	int	i;
+	(void)self;
     CODE:
 	/* NB: debugging only (used in test.pl to verify state) */
 	fprintf(stderr, "metric table size = %d\n", mtab_size);
@@ -1188,13 +1216,13 @@ debug_metric(self)
 		(int)metrictab[i].m_desc.indom, metrictab[i].m_desc.sem,
 		*(unsigned int *)&metrictab[i].m_desc.units);
 	}
-	(void)self;
 
 void
 debug_indom(self)
 	pmdaInterface *self
     PREINIT:
 	int	i,j;
+	(void)self;
     CODE:
 	/* NB: debugging only (used in test.pl to verify state) */
 	fprintf(stderr, "indom table size = %d\n", itab_size);
@@ -1208,7 +1236,6 @@ debug_indom(self)
 		    indomtab[i].it_set[j].i_inst, indomtab[i].it_set[j].i_name);
 	    }
 	}
-	(void)self;
 
 void
 debug_init(self)

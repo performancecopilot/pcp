@@ -132,6 +132,7 @@ cgroup.blkio.dev {
     io_wait_time
     sectors		PROC:49:30
     time		PROC:49:31
+    throttle
 }
 
 cgroup.blkio.dev.io_merged {
@@ -182,6 +183,27 @@ cgroup.blkio.dev.io_wait_time {
     total		PROC:49:29
 }
 
+cgroup.blkio.dev.throttle {
+    io_service_bytes
+    io_serviced
+}
+
+cgroup.blkio.dev.throttle.io_service_bytes {
+    read		PROC:49:32
+    write		PROC:49:33
+    sync		PROC:49:34
+    async		PROC:49:35
+    total		PROC:49:36
+}
+
+cgroup.blkio.dev.throttle.io_serviced {
+    read		PROC:49:37
+    write		PROC:49:38
+    sync		PROC:49:39
+    async		PROC:49:40
+    total		PROC:49:41
+}
+
 cgroup.blkio.all {
     io_merged
     io_queued
@@ -191,6 +213,7 @@ cgroup.blkio.all {
     io_wait_time
     sectors		PROC:49:90
     time		PROC:49:91
+    throttle
 }
 
 cgroup.blkio.all.io_merged {
@@ -239,6 +262,27 @@ cgroup.blkio.all.io_wait_time {
     sync		PROC:49:87
     async		PROC:49:88
     total		PROC:49:89
+}
+
+cgroup.blkio.all.throttle {
+    io_service_bytes
+    io_serviced
+}
+
+cgroup.blkio.all.throttle.io_service_bytes {
+    read		PROC:49:92
+    write		PROC:49:93
+    sync		PROC:49:94
+    async		PROC:49:95
+    total		PROC:49:96
+}
+
+cgroup.blkio.all.throttle.io_serviced {
+    read		PROC:49:97
+    write		PROC:49:98
+    sync		PROC:49:99
+    async		PROC:49:100
+    total		PROC:49:101
 }
 
 proc {

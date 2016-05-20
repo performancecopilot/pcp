@@ -23,7 +23,7 @@ _usage()
 dryrun=false
 GIT=git
 branch=master
-tree=pcp
+tree=origin
 short=false
 if [ -f pushed.sha ]
 then
@@ -49,7 +49,7 @@ do
 	    short=true
 	    ;;
 	t)
-	    branch="$OPTARG"
+	    tree="$OPTARG"
 	    ;;
 	*)
 	    _usage
@@ -70,7 +70,7 @@ fi
 unset GIT_EXTERNAL_DIFF
 #old# pull=git://git.pcp.io/$tree.git
 #old# push="ssh://git.pcp.io/oss/git/$tree.git $branch"
-pull=`git config remote.origin.url`
+pull=`git config remote.$tree.url`
 push=`echo "$pull" | sed -e 's/^git:/ssh:/' -e "s;/git.pcp.io/;/git.pcp.io/oss/git/;"`
 push="$push $branch"
 echo "Changes committed to $pull $branch" >/tmp/msg

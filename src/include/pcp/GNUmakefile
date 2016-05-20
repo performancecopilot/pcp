@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2016 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,11 +17,11 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-HFILES = pmapi.h impl.h pmda.h pmtime.h pmafm.h import.h \
-	 trace.h trace_dev.h mmv_stats.h mmv_dev.h \
-	 config32.h config64.h pmdaroot.h
-INFILES = config.h.in configsz.h.in platform_defs.h.in
-CONFFILES = config.h configsz.h platform_defs.h
+HFILES = pmapi.h impl.h pmda.h pmtime.h pmdaroot.h pmafm.h \
+	 trace.h trace_dev.h mmv_stats.h mmv_dev.h import.h \
+	 config32.h config64.h platform32.h platform64.h
+INFILES = config.h.in configsz.h.in platform_defs.h.in platformsz.h.in
+CONFFILES = config.h configsz.h platform_defs.h platformsz.h
 GENERATED_HFILES = pmdbg.h $(CONFFILES)
 
 LDIRT = $(GENERATED_HFILES)

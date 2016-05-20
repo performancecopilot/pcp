@@ -161,4 +161,16 @@ sample.event.param_float
 sample.event.param_double
 sample.event.param_string
 sample.event.param_aggregate
+sample.negative.ctr.m_32
+sample.negative.ctr.m_64
+sample.negative.ctr.m_float
+sample.negative.ctr.m_double
+sample.negative.instant.m_32
+sample.negative.instant.m_64
+sample.negative.instant.m_float
+sample.negative.instant.m_double
+sample.negative.discrete.m_32
+sample.negative.discrete.m_64
+sample.negative.discrete.m_float
+sample.negative.discrete.m_double
 pmlc> 

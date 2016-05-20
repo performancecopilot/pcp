@@ -1,4 +1,4 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 #
 # Copyright (C) 2014-2015 Red Hat.
 #
@@ -51,7 +51,7 @@ class GraphiteRelay(object):
         self.socket = None
         self.sample_count = 0
         self.opts = pmapi.pmOptions()
-        self.opts.pmSetShortOptions("a:O:s:T:g:p:P:u:m:t:h:t:D:LV?")
+        self.opts.pmSetShortOptions("a:O:s:T:g:p:P:r:u:m:t:h:t:D:LV?")
         self.opts.pmSetShortUsage("[options] metricname ...")
         self.opts.pmSetOptionCallback(self.option)
         self.opts.pmSetOverrideCallback(self.option_override)
@@ -81,10 +81,13 @@ network.""")
                                   "(e.g. \"MB\", will omit incompatible units)")
         self.opts.pmSetLongOption("prefix", 1, 'm', '',
                                   "prefix for metric names (default \"pcp.\")")
+        self.opts.pmSetLongOption("pickle-protocol", 1, 'r', 'PROTOCOL',
+                                  "graphite pickle protocol (default 0)")
         self.opts.pmSetLongOptionHelp()
         self.graphite_host = "localhost"
         self.graphite_port = 2004
         self.pickle = True
+        self.pickle_protocol = 0
         self.prefix = "pcp."
         self.unitsstr = None
         self.units = None # pass verbatim by default
@@ -137,6 +140,8 @@ network.""")
         elif opt == 'p':
             self.graphite_port = int(optarg if optarg else "2004")
             self.pickle = True
+        elif opt == 'r':
+            self.pickle_protocol = int(optarg if optarg else "0")
         elif opt == 'P':
             self.graphite_port = int(optarg if optarg else "2003")
             self.pickle = False
@@ -206,20 +211,21 @@ network.""")
                 self.socket = socket.create_connection((self.graphite_host,
                                                         self.graphite_port))
             if self.pickle:
-                import pickle
+                try:
+                    import cPickle as pickle
+                except:
+                    import pickle
                 import struct
                 pickled_input = []
                 for (metric, value) in miv_tuples:
                     pickled_input.append((metric, (timestamp, value)))
-                    # protocol=0 in case carbon is running under an
-                    # older python version than we are
-                    pickled_output = pickle.dumps(pickled_input, protocol=0)
-                    header = struct.pack("!L", len(pickled_output))
-                    msg = header + pickled_output
-                    if self.context.pmDebug(c_api.PM_DEBUG_APPL0):
-                        print ("Sending %s #tuples %d" %
-                               (time.ctime(timestamp), len(pickled_input)))
-                    self.socket.send(msg)
+                pickled_output = pickle.dumps(pickled_input, protocol=self.pickle_protocol)
+                header = struct.pack("!L", len(pickled_output))
+                msg = header + pickled_output
+                if self.context.pmDebug(c_api.PM_DEBUG_APPL0):
+                    print ("Sending %s #tuples %d" %
+                           (time.ctime(timestamp), len(pickled_input)))
+                self.socket.send(msg)
             else:
                 for (metric, value) in miv_tuples:
                     message = ("%s %s %s\n" % (metric, value, timestamp))

@@ -1,5 +1,6 @@
 #! /bin/sh
 #
+# Copyright (c) 2016 Red Hat.
 # Copyright (c) 2009,2012 Aconex.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -19,7 +20,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=oracle
-user=$iam
 domain=32
 perl_opt=true
 daemon_opt=false
@@ -31,32 +31,40 @@ if test $? -ne 0; then
     exit 1
 fi
 
-perl -e "use DBD::Oracle" 2>/dev/null
+# Get os_user definition
+eval `perl $PCP_PMDAS_DIR/oracle/connect.pl --config`
+
+id -g $os_user >/dev/null 2>&1
 if test $? -ne 0; then
-    echo "Oracle database driver (DBD::Oracle) is not installed"
+    echo "Cannot change user to $os_user, sorry this is fatal"
     exit 1
 fi
 
-su -c id $user >/dev/null 2>&1
-if test $? -ne 0; then
-    echo "Cannot change user to $user, sorry this is fatal"
-    exit 1
-fi
+# Thwarted by (potential) Oracle setup dependence on LD_LIBRARY_PATH,
+# as well as the (potential) password request on issuing "su".  Ugh.
+#
+#su -c "perl -e 'use DBD::Oracle'" - $os_user 2>/dev/null
+#if test $? -ne 0; then
+#    echo "Oracle database driver (DBD::Oracle) is not installed"
+#    exit 1
+#fi
 
-su -c mkdir -p "$PCP_VAR_DIR/config/pmda" 2>/dev/null
-indoms="0 1 2 3 4 5 6 7 8 9 10"
+mkdir -p "$PCP_VAR_DIR/config/pmda" 2>/dev/null
+indoms="0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17"
 for indom in $indoms
 do
+    failed=false
     touch "$PCP_VAR_DIR/config/pmda/$domain.$indom" >/dev/null 2>&1
-    if test $? -ne 0; then
-        echo "Cannot create indom persistance files as user $user"
-        echo "Failed on:  $PCP_VAR_DIR/config/pmda/$domain.$indom"
+    [ $? -ne 0 ] && failed=true
+    chown $os_user "$PCP_VAR_DIR/config/pmda/$domain.$indom"
+    [ $? -ne 0 ] && failed=true
+
+    if $failed; then
+        echo "Cannot create indom persistance files for user $user"
+        echo "Failed on: $PCP_VAR_DIR/config/pmda/$domain.$indom"
         exit 1
     fi
 done
-
-# TODO: need to ask for user/pass and SIDs, write $PCP_VAR_DIR/config/oracle/oracle.conf
-# (unless it exists)
 
 pmdaSetup
 pmdaInstall

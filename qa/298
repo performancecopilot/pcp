@@ -41,10 +41,13 @@ _filter()
 	-e 's/  *[0-9][0-9.]*/ N/g'
 }
 
+# missing metric errors now look something like this ...
+# pmie: metric kernel.all.cpu.wait.total not in namespace for pmcd local: (host fuji)
+#
 _filter_err()
 {
     sed \
-	-e '/not in namespace/s/for host .*/for host LOCALHOST/'
+	-e '/not in namespace/s/host .*)/host LOCALHOST)/'
 }
 
 # real QA test starts here

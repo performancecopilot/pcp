@@ -52,17 +52,7 @@ export TZ
 echo "sum of $ARCH ..."
 # want historic BSD "sum" algorithm ...
 #
-if [ $PCP_PLATFORM = darwin ]
-then
-    SUM=sum
-elif [ $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd ]
-then
-    # defaults to cksum -o1 - historic BSD algorithm
-    SUM=sum
-else
-    SUM="sum -r"
-fi
-$SUM $ARCH.* | sed -e 's/[ ][ ]*[0-9]*[ ]/ /' \
+src/sum16 $ARCH.* | sed -e 's/[ ][ ]*[0-9]*[ ]/ /' \
 | sed -e 's/^00*//' \
 | while read chksum path
 do

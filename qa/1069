@@ -8,6 +8,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+. ./common.check
+. ./common.setup
+[ -f common.python ] || _notrun "Testsuite built without python supporty"
+
 . ./common.python
 
 $python -c "from pcp import pmapi" >/dev/null 2>&1
@@ -35,8 +39,26 @@ _path_filter()
     #end
 }
 
+#  timezone: :Australia/Melbourne (creation, current is AEDT-11)
+#  this is not deterministic .......................... ^^^^^^^
+#  and
+#  timezone: AEDT-11
+#            ^^^^ ... ditto
+#
+#  we also need to filter for AEST-10 during standard timezone
+#  as it appears that pmrep will report the change in -11 to -10
+_archive_filter()
+{
+    sed \
+	-e '/timezone/s/current is .*)/current is ...)/' \
+        -e '/timezone/s/ (reporting.*)//' \
+	-e '/timezone:/s/[A-Z][A-Z]*-11/...-11/' \
+	-e '/timezone:/s/[A-Z][A-Z]*-10/...-11/' \
+    #end
+}
+
 log="--archive $here/archives/sample-secs -z"
-log2="--archive $here/archives/20130706 -z -O30m"
+log2="--archive $here/archives/20130706 -z -O 30m"
 
 # real QA test starts here
 echo "== basic live mode reporting"
@@ -61,7 +83,8 @@ pmrep -s 5 -t 2 $log -c $tmp.config sample
 echo "== exercise various output options"
 pmrep -s 5 -t 2 $log -c $tmp.config -o stdout -p -w 20 sample
 echo "---"
-pmrep -s 5 -t 2 $log -c $tmp.config -C -x sample | _path_filter
+pmrep -s 5 -t 2 $log -c $tmp.config -C -x sample | _path_filter \
+| _archive_filter
 echo "---"
 pmrep -s 5 -t 2 $log -c $tmp.config -G -H -U sample
 
@@ -125,6 +148,9 @@ echo "== basic string value reporting"
 # sets variable named $pcp_version
 eval `pmprobe -v pmcd.version | sed -e 's/ 1 /=/g' -e 's/pmcd./pcp_/g'`
 pmrep -s 1 pmcd.version | sed -e "s/$pcp_version/PCP_VERSION/g"
+
+echo "== divide-by-zero error handling"
+pmrep -t .01 -s 1 -e 'fail = sample.long.one / 0' fail
 
 # success, all done
 echo "== done"

@@ -722,7 +722,7 @@ main(int argc, char *argv[])
     memset(&opts, 0, sizeof(opts));
     opts.flags = PM_OPTFLAG_MULTI;
     opts.short_options = "A:a:D:h:n:O:S:s:T:t:VZ:z?"
-			 "c:Cd:f:FGHilmMNoP:rR:uU:w:X";
+			 "c:Cd:f:FGHilmMNoP:rR:uU:Vw:X";
     opts.long_options = longopts;
     opts.short_usage = "[options] [metrics ...]";
     opts.override = override;
@@ -791,7 +791,7 @@ main(int argc, char *argv[])
 		opts.errors++;
 	    }
 	    else if (niceFlag) {
-		pmprintf("%s: -i and -G may not be used togther\n",
+		pmprintf("%s: -i and -G may not be used together\n",
 			 pmProgname);
 		opts.errors++;
 	    }
@@ -805,12 +805,12 @@ main(int argc, char *argv[])
 
 	case 'i':	// abbreviate metric names
 	    if (precFlag) {
-		pmprintf("%s: -i and -P may not be used togther\n",
+		pmprintf("%s: -i and -P may not be used together\n",
 			 pmProgname);
 		opts.errors++;
 	    }
 	    else if (shortFlag) {
-		pmprintf("%s: -i and -G may not be used togther\n",
+		pmprintf("%s: -i and -G may not be used together\n",
 			 pmProgname);
 		opts.errors++;
 	    }
@@ -917,9 +917,10 @@ main(int argc, char *argv[])
 	}
     }
 
-    if (opts.errors > 0) {
+    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT)) {
+	sts = !(opts.flags & PM_OPTFLAG_EXIT);
 	pmUsageMessage(&opts);
-	exit(1);
+	exit(sts);
     }
 
     // Default update interval is 1 second

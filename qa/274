@@ -22,6 +22,8 @@ _filter()
     sed \
     	-e '/pmResult/s/0x[^ ]*/ADDR/g' \
     	-e '/pmResult/s/amp: 0.000000 .* numpmid:/amp: EPOCH in LOCALTIME numpmid:/' \
+    	-e '/Error: .*() failed/s/Broken pipe/[PMDA died]/' \
+    	-e '/Error: .*() failed/s/PDU empty, PMDA may have died/[PMDA died]/' \
 	-e 's/\/tmp.*/logfile/g' \
 	-e 's/\(broken_pmda_2_[0-9]\)([0-9][0-9]*)/\1(PID)/' \
 	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \

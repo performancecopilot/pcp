@@ -108,6 +108,8 @@ s/from='$client'/from=CLIENT/
     -e '/value/s/[0-9]\.[0-9]*e-31[12]/0/' \
     -e '/noname/s/Not privileged/Operation not permitted/' \
     -e '/noname/s/Not owner/Operation not permitted/' \
+    -e '/^pdu-server: /d' \
+    -e '/^$/d' \
     -e '/^000:/{
 s/^\(...: ........ ........ \) *'$server_x' /\1  SERVER /
 s/^\(...: ........ ........ \) *'$client_x' /\1  CLIENT /

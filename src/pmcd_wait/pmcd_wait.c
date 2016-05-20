@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2014,2016 Red Hat.
  * Copyright (c) 1998 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -97,7 +97,7 @@ main(int argc, char **argv)
 	if (verbose) {
 	    fprintf(stderr, "%s: Failed to create env string: %s\n",
 		pmProgname, osstrerror());
-        }
+	}
 	exit(EXIT_STS_UNIXERR);
     }
     sts = putenv(env);
@@ -105,15 +105,15 @@ main(int argc, char **argv)
 	if (verbose) {
 	    fprintf(stderr, "%s: Failed to set PMCD_CONNECT_TIMEOUT: %s\n",
 		pmProgname, osstrerror());
-        }
+	}
 	exit(EXIT_STS_UNIXERR);
     }
 
     delta_count = delta;
-    for(;;) {
-        sts = pmNewContext(PM_CONTEXT_HOST, hostname);
+    for (;;) {
+	sts = pmNewContext(PM_CONTEXT_HOST, hostname);
 
-        if (sts >= 0) {
+	if (sts >= 0) {
 	    (void)pmDestroyContext(sts);
 	    exit(EXIT_STS_SUCCESS);
 	}
@@ -126,8 +126,8 @@ main(int argc, char **argv)
 		exit(EXIT_STS_TIMEOUT);
 	    }
 	    __pmtimevalSleep(onesec); 
-        }
-	else if (sts == PM_ERR_TIMEOUT) {
+	}
+	else if (sts == -ETIMEDOUT || sts == PM_ERR_TIMEOUT) {
 	    PrintTimeout();	
 	    exit(EXIT_STS_TIMEOUT);
 	}

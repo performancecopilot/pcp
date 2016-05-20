@@ -1,30 +1,18 @@
 .TH PCP-ATOP 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-.BR pmatop ,
-.B pcp-atop 
-\- Advanced System and Process Monitor
+\f3pcp-atop\f1,
+\f3pmatop\f1 \- Advanced System and Process Monitor
 .SH SYNOPSIS
 Interactive Usage:
 .P
-.B pcp\ atop
-[\-g|\-m|\-d|\-n|\-u|\-p|\-s|\-c|\-v|\-o|\-y] [\-C|\-M|\-D|\-N|\-A] [\-afFG1xR] [\-L linelen] [\-Plabel[,label]...]
-[
-.I interval
-[
-.I samples
-]]
+\f3pcp\f1 [\f2pcp\ options\f1] \f3atop\f1 [\-g|\-m|\-d|\-n|\-u|\-p|\-s|\-c|\-v|\-o|\-y] [\-C|\-M|\-D|\-N|\-A] [\-afFG1xR] [\-L linelen] [\-Plabel[,label]...] [\f2interval\f1 [\f2samples\f1]]
 .P
 Writing and reading raw logfiles:
 .P
 .B pcp\ atop
 \-w
 .I rawfile
-[\-a] [\-S]
-[
-.I interval
-[
-.I samples
-]]
+[\-a] [\-S] [\f2interval\f1 [\f2samples\f1]]
 .br
 .B pcp\ atop
 \-r [
@@ -78,7 +66,9 @@ options
 .BR \-\-interval ,
 .BR \-Z /\c
 .BR \-\-timezone
-and several other options become indirectly available.
+and several other
+.I pcp options
+become indirectly available.
 .PP
 When 
 .B pcp-atop
@@ -619,8 +609,11 @@ can be used to indicate that
 should finish anyhow before midnight.
 .PP
 A PCP archive can be read and visualized again with the flag
-.B \-r
-followed by the filename. If no filename is specified, the file
+.B \-r .
+The argument is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+If no argument is specified, the file
 .BI $PCP_LOG_DIR/pmlogger/HOST/YYYYMMDD
 is opened for input (where
 .I YYYYMMDD

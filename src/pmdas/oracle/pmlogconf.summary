@@ -1,0 +1,8 @@
+#pmlogconf-setup 2.0
+ident	Oracle database summary information
+probe	oracle.control.connected > 0 ? include : exclude
+	oracle.asm
+	oracle.file
+	oracle.reqdist
+	oracle.sysstat
+	oracle.bufferpool

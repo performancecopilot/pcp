@@ -1,7 +1,7 @@
 /*
  * Linux proc/<pid>/{stat,statm,status,...} Clusters
  *
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2000,2004,2006 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * 
@@ -781,34 +781,35 @@ hotproc_timer(int sig, void *ptr)
 }
 
 void
-init_hotproc_pid(proc_pid_t * _hotproc_poss_pid)
+init_hotproc_pid(proc_pid_t *_hotproc_poss_pid)
 {
-    hotproc_poss_pid =  _hotproc_poss_pid;
-
+    hotproc_poss_pid = _hotproc_poss_pid;
     hotproc_update_interval.tv_sec = 10;
-
     init_hotproc_list();
-
-    /* Only if we have a valid config file.  Set all the other stuff up in case we enable later */
-    if( conf_gen ){
-        reset_hotproc_timer();
-    }
+    reset_hotproc_timer();
 }
 
 void
 reset_hotproc_timer(void)
 {
-    __pmAFunregister(hotproc_timer_id);
+    int	sts;
 
-    if ((hotproc_timer_id = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer)) < 0) {
-        __pmNotifyErr(LOG_ERR, "error registering hotproc timer");
-	    /* OK to exit here?  Assume something really bad has happened */
-        exit(1);
+    /* Only reset/enable timer when a valid configuration is present. */
+    if (!conf_gen)
+	return;
+
+    __pmAFunregister(hotproc_timer_id);
+    sts = __pmAFregister(&hotproc_update_interval, NULL, hotproc_timer);
+    if (sts < 0) {
+	__pmNotifyErr(LOG_ERR, "error registering hotproc timer: %s",
+			pmErrStr(sts));
+	exit(1);
     }
+    hotproc_timer_id = sts;
 }
 
 void
-disable_hotproc()
+disable_hotproc(void)
 {
     /* Clear out the hotlist */
     init_hot_active_list();
@@ -1481,8 +1482,8 @@ fetch_proc_pid_status(int id, proc_pid_t *proc_pid, int *sts)
 			    ep->status_lines.vmlck = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmPin:", 6) == 0)
 			    ep->status_lines.vmpin = strsep(&curline, "\n");
-			else if (strncmp(curline, "VmHWN:", 6) == 0)
-			    ep->status_lines.vmhwn = strsep(&curline, "\n");
+			else if (strncmp(curline, "VmHWM:", 6) == 0)
+			    ep->status_lines.vmhwm = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmRSS:", 6) == 0)
 			    ep->status_lines.vmrss = strsep(&curline, "\n");
 			else if (strncmp(curline, "VmData:", 7) == 0)

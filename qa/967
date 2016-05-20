@@ -54,7 +54,7 @@ _check_papi
 # directly fetching the metric should not return a number
 
 echo "=== Daemon PMDA papi auto_enable disabled test ==="
-$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
+$sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 126 -l $tmp.log
 getdesc on
 attr 'username' 'root'
@@ -73,7 +73,7 @@ EOF
 # now that we know existing functionality is working, lets test
 # the timeout of auto_enable, lets set to 5 seconds and test
 echo "=== Daemon PMDA papi auto_enable test ==="
-$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
+$sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 126 -l $tmp.log
 getdesc on
 attr "username" "root"
@@ -91,7 +91,7 @@ EOF
 # timeout value and the counters will continue counting
 
 echo "=== Daemon PMDA papi auto_enable with papi.control.enable test ==="
-$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
+$sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 126 -l $tmp.log
 getdesc on
 attr "username" "root"
@@ -111,7 +111,7 @@ EOF
 # evidence of altering the papi.control.multiplex metric
 
 echo "=== Daemon PMDA papi auto_enable with multiplexing disabled test ==="
-$sudo dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
+$sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF 2>&1 | _filter
 open pipe $pipepmda -d 126 -l $tmp.log
 getdesc on
 attr "username" "root"

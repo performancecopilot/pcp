@@ -18,7 +18,7 @@
 \f3dbpmda\f1 \- debugger for Performance Co-Pilot PMDAs
 .SH SYNOPSIS
 \f3dbpmda\f1
-[\f3\-ei\f1]
+[\f3\-efi\f1]
 [\f3\-n\f1 \f2pmnsfile\f1]
 [\f3\-q\f1 \f2timeout\f1]
 [\f3\-U\f1 \f2username\f1]
@@ -59,10 +59,16 @@ file, interactive mode and command echoing are enabled and then
 reset at the end of the
 .I .dbpmdarc
 file (see the
-.I \-i
+.B \-i
 and
-.I \-e
+.B \-e
 command line arguments below).
+.PP
+The
+.B \-f
+command line option prevents startup processing of a
+.I .dbpmdarc
+file (if it exists).
 .PP
 If the system supports
 .BR readline (3)
@@ -319,7 +325,7 @@ The
 command (usage: 
 .B watch
 .I filename
-) opens an xwsh window which tails the specified log file.  
+) opens an xterm window which tails the specified log file.  
 This window must be closed by the user when no longer required.
 .PP
 The

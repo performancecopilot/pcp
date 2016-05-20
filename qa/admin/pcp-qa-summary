@@ -95,6 +95,18 @@ _what()
 	| join \
 	    -1 2 -2 1 -t '|' -a 1 -e "$vmdir" -o 1.1,2.1,2.2 \
 	    - $tmp.what \
+	| awk -F\| '
+BEGIN	{ OFS ="|" }
+	{ if ($2 ~ /^vm/)
+	    $2 = substr($2,3,2) "|" $2
+	  else if ($2 ~ /^bozo-laptop/)
+	    $2 = "bl" "|" $2
+	  else if ($2 ~ /^bozo-vm/)
+	    $2 = "bv" "|" $2
+	  else
+	    $2 = substr($2,1,2) "|" $2
+	}
+	{ print }' \
 	| sed -e 's/|PCP/ PCP/'
     else
 	cat

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -778,6 +778,10 @@ get_blkiops(int style, cgroup_perdevblkio_t *perdev)
 	return &perdev->stats.io_service_time;
     case CG_BLKIO_IOWAITTIME_TOTAL:
 	return &perdev->stats.io_wait_time;
+    case CG_BLKIO_THROTTLEIOSERVICEBYTES_TOTAL:
+	return &perdev->stats.throttle_io_service_bytes;
+    case CG_BLKIO_THROTTLEIOSERVICED_TOTAL:
+	return &perdev->stats.throttle_io_serviced;
     }
     return NULL;
 }
@@ -876,7 +880,7 @@ read_blkio_devices_stats(const char *file, const char *name, int style,
 	    memset(&blkiops, 0, sizeof(cgroup_blkiops_t));
 	devname = realname;
 	for (i = 0; blkio_fields[i].field != NULL; i++) {
-	    if (strcmp(name, blkio_fields[i].field) != 0)
+	    if (strcmp(op, blkio_fields[i].field) != 0)
 		continue;
 	    *blkio_fields[i].offset = value;
 	    if (strcmp("Total", blkio_fields[i].field) != 0)
@@ -980,6 +984,12 @@ refresh_blkio(const char *path, const char *name)
     snprintf(file, sizeof(file), "%s/blkio.time", path);
     read_blkio_devices_value(file, name,
 		CG_BLKIO_TIME, &blkio->total.time);
+    snprintf(file, sizeof(file), "%s/blkio.throttle.io_service_bytes", path);
+    read_blkio_devices_stats(file, name,
+		CG_BLKIO_THROTTLEIOSERVICEBYTES_TOTAL, &blkio->total.throttle_io_service_bytes);
+    snprintf(file, sizeof(file), "%s/blkio.throttle.io_serviced", path);
+    read_blkio_devices_stats(file, name,
+		CG_BLKIO_THROTTLEIOSERVICED_TOTAL, &blkio->total.throttle_io_serviced);
 
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, blkio);
 }

@@ -12,6 +12,17 @@
 # for more details.
 # 
 
+# NOTE: This PMDA attempts to support all versions of ElasticSearch. The
+# ElasticSearch REST API changed from <=0.20 to >=0.90. We internally version
+# the ES REST API, since the upstream developers did not version it.
+#
+# | Internal version | ElasticSearch version range |
+# |         1        |         [0, 0.20.6]         |
+# |         2        |        [0.90.0, 2.x]        |
+#
+# The ElasticSearch version can be mapped to an internal version by running
+# es_rest_version_internal().
+
 use strict;
 use warnings;
 use JSON;
@@ -35,6 +46,7 @@ my @index_instance_ids;
 my @cluster_cache;		# time of last refresh for each cluster
 my $cache_interval = 2;		# min secs between refreshes for clusters
 my $http_timeout = 1;		# max secs for a request (*must* be small).
+my $all_node_stats = 0;		# fetch all node stats if true, local node only if false
 
 # Configuration files for overriding the above settings
 for my $file (pmda_config('PCP_PMDAS_DIR') . '/elasticsearch/es.conf', 'es.conf') {
@@ -135,13 +147,20 @@ sub es_rewrite_cluster_state
     foreach my $index_key (keys %$indices) {
 	# Go over each setting key and transpose what the key name is called
 	my $settings = $indices->{$index_key}->{'settings'};
-	foreach my $settings_key (keys %$settings) {
-	    # Convert keys like "index.version.created" to "version_created"
-	    my $transformed_key = $settings_key;
-	    $transformed_key =~ s/index\.//;
-	    $transformed_key =~ s/\./_/g;
-	    $settings->{$transformed_key} = $settings->{$settings_key};
-	}
+
+        if (es_rest_version_internal() == 1) {
+	    foreach my $settings_key (keys %$settings) {
+	        # Convert keys like "index.version.created" to "version_created"
+	        my $transformed_key = $settings_key;
+	        $transformed_key =~ s/index\.//;
+	        $transformed_key =~ s/\./_/g;
+	        $settings->{$transformed_key} = $settings->{$settings_key};
+	    }
+        } else {
+            $indices->{$index_key}->{'settings'} = $settings->{'index'};
+	    $settings = $indices->{$index_key}->{'settings'};
+            $settings->{'version_created'} = $settings->{'version'}->{'created'};
+        }
     }
 }
 
@@ -159,7 +178,20 @@ sub es_refresh_cluster_state
 
 sub es_refresh_cluster_nodes_stats_all
 {
-    my $content = es_agent_get($baseurl . "_cluster/nodes/stats?all");
+    my $url = undef;
+    if (es_rest_version_internal() == 1) {
+        $url = "_cluster/nodes/";
+    } else {
+        $url = "_nodes/";
+    }
+
+    if (not $all_node_stats) {
+        $url .= "_local/";
+    }
+
+    $url .= "stats";
+
+    my $content = es_agent_get($baseurl . $url);
     if (defined($content)) {
 	$es_nodestats = decode_json($content);
 	es_data_node_instances($es_nodestats->{'nodes'});
@@ -170,7 +202,14 @@ sub es_refresh_cluster_nodes_stats_all
 
 sub es_refresh_cluster_nodes_all
 {
-    my $content = es_agent_get($baseurl . "_cluster/nodes?all");
+    my $url = undef;
+    if (es_rest_version_internal() == 1) {
+        $url = "_cluster/nodes?all";
+    } else {
+        $url = "_nodes?all";
+    }
+
+    my $content = es_agent_get($baseurl . $url);
     if (defined($content)) {
 	$es_nodes = decode_json($content);
 	es_data_node_instances($es_nodes->{'nodes'});
@@ -190,7 +229,11 @@ sub es_refresh_stats_search
     my $content = es_agent_get($baseurl . "_stats/search");
     if (defined($content)) {
 	$es_searchstats = decode_json($content);
-	es_search_instances($es_searchstats->{'_all'}->{'indices'});
+        if (es_rest_version_internal() == 1) {
+	    es_search_instances($es_searchstats->{'_all'}->{'indices'});
+        } else {
+	    es_search_instances($es_searchstats->{'indices'});
+        }
     } else {
 	$es_searchstats = undef;
     }
@@ -236,7 +279,12 @@ sub es_lookup_search
 {
     my ($json, $inst) = @_;
     my $searchID = $search_instance_ids[($inst*2)+1];
-    return $json->{'_all'}->{'indices'}->{$searchID};
+
+    if (es_rest_version_internal() == 1) {
+        return $json->{'_all'}->{'indices'}->{$searchID};
+    } else {
+        return $json->{'indices'}->{$searchID};
+    }
 }
 
 sub es_lookup_index
@@ -244,6 +292,22 @@ sub es_lookup_index
     my ($json, $inst) = @_;
     my $indexID = $index_instance_ids[($inst*2)+1];
     return $json->{'metadata'}->{'indices'}->{$indexID};
+}
+
+# Returns our internal REST version number
+sub es_rest_version_internal
+{
+    my $es_version = es_value($es_root, ['version', 'number']);
+
+    if ($es_version =~ /^0\.[0-9]+\.[0-9]+$/ and
+            (not $es_version =~ /^0\.90/)) {
+        return 1;
+    } else {
+        return 2;
+    }
+
+    # Assume a recent version of ES
+    return 2;
 }
 
 # iterate over metric-name components, performing hash lookups as we go.

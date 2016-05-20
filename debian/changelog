@@ -1,3 +1,21 @@
+pcp (3.11.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 17 Jun 2016 13:03:43 +1000
+
+pcp (3.11.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 29 Apr 2016 08:11:42 +1100
+
+pcp (3.11.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 18 Mar 2016 08:11:42 +1100
+
 pcp (3.11.0) unstable; urgency=low
 
   * New release (full details in CHANGELOG).

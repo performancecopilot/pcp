@@ -35,7 +35,9 @@ _cleanup()
     [ -z "$pmcd_pid" ] || sudo $signal $pmcd_pid
     [ -z "$socat_pid" ] || sudo $signal $socat_pid
     _wait_pmcd_end
-    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    $sudo $PCP_RC_DIR/pcp restart \
+    | _filter_pcp_start \
+    | sed -e '/Waiting for pmcd to terminate/d'
     _wait_for_pmcd
     _wait_for_pmlogger
 }

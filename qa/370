@@ -19,10 +19,29 @@ which sar >/dev/null 2>&1 || _notrun "sar not installed"
 which sadf >/dev/null 2>&1 || _notrun "sadf not installed"
 which sar2pcp >/dev/null 2>&1 || _notrun "sar2pcp not installed"
 
+platform=`uname -p`
+[ $platform = "x86_64" ] || _notrun "No qualified input data for $platform"
+
 version=`sar -V 2>&1 | sed -n -e '/sysstat version /{
 s/.* //
 p
 }'`
+
+_fuzzy()
+{
+    case "$version"
+    in
+	11.1.5)
+	    sed \
+		-e '/kernel.all.cpu.sys/s/0.001[78]/0.0017 or 0.0018/' \
+		-e '/diskdev8-2/s/0.3[78]/0.37 or 0.38/' \
+	    # end
+	    ;;
+	*)	# no fuzziness required
+	    cat
+	    ;;
+    esac
+}
 
 rm -f $seq.out
 file_version=$version
@@ -101,6 +120,11 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
+# For this test, don't load any global derived metric configs by default. 
+# So the PCP_DERIVED_CONFIG environment variable is initially set to an
+# empty string, except below where PCP_DERIVED_CONFIG is used for sar's -u view
+export PCP_DERIVED_CONFIG=""
+
 echo "Using sa-sysstat-$file_version" >>$seq.full
 
 sar2pcp sadist/sa-sysstat-$file_version $tmp
@@ -116,7 +140,6 @@ sar2pcp sadist/sa-sysstat-$file_version $tmp
 sar $sar_opt -f sadist/sa-sysstat-$file_version -u \
 | tee -a $seq.full \
 | sed -n '/^[0-2][0-9]:/{
-s/^00\(:..:..\) PM/12\1/
 s/^01\(:..:..\) PM/13\1/
 s/^02\(:..:..\) PM/14\1/
 s/^03\(:..:..\) PM/15\1/
@@ -128,6 +151,7 @@ s/^08\(:..:..\) PM/20\1/
 s/^09\(:..:..\) PM/21\1/
 s/^10\(:..:..\) PM/22\1/
 s/^11\(:..:..\) PM/23\1/
+s/^12\(:..:..\) AM/00\1/
 s/^\(..:..:..\) AM/\1/
 p
 }' \
@@ -220,7 +244,7 @@ p
 cat $tmp.pcp >>$seq.full
 paste $tmp.sar $tmp.pcp >$tmp.both
 $PCP_AWK_PROG <$tmp.both '
-{ if ($2-$NF > 0.01 || $2-$NF < -0.01) print "[",NR,"] mismatch:",$1,$2,$NF }'
+{ if ($2-$NF > 0.02 || $2-$NF < -0.02) print "[",NR,"] mismatch:",$1,$2,$NF }'
 
 echo
 echo "check disk write thruput ..."
@@ -234,7 +258,7 @@ p
 cat $tmp.pcp >>$seq.full
 paste $tmp.sar $tmp.pcp >$tmp.both
 $PCP_AWK_PROG <$tmp.both '
-{ if ($6-$NF > 0.01 || $6-$NF < -0.01) print "[",NR,"] mismatch:",$1,$6,$NF }'
+{ if ($6-$NF > 0.02 || $6-$NF < -0.02) print "[",NR,"] mismatch:",$1,$6,$NF }'
 
 echo
 echo "full dump ..."
@@ -245,7 +269,8 @@ echo "full dump ..."
 pmdumplog -lm -z $tmp 2>&1 \
 | sed \
 	-e 's/245\.0\.[0-9][0-9]*/245.0.NN/g' \
-	-e 's/(proc.nprocs)/(proc.nproc)/'
+	-e 's/(proc.nprocs)/(proc.nproc)/' \
+| _fuzzy
 
 # success, all done
 exit

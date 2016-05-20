@@ -10,6 +10,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/archives
+SUBDIRS = multi
 
 # first the special and odd ones
 #
@@ -34,7 +35,7 @@ SCRIPTS = mk.diff.sh mk.gap.sh mk.mysql.sh mk.schizo.sh mk.foo+.sh \
 	  mkbadlen mkbadti mkbadlabel mkbadlog mkmirage mkproc \
 	  mknuma mkrewrite mkeventrec mkinterpmark mkmultihost \
 	  mksample_expr mktzchange mkarch-all mk.atop.sh \
-	  mklog-derived mk.vmstat.sh
+	  mklog-derived mk.vmstat.sh mk.rep.sh mk.procsched.sh
 
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  kenj-pc-2.config reduce.config uwrap.config wrap.config
@@ -44,9 +45,10 @@ OTHERS = ds390-access.gz collectl-qa small.0.xz small.meta small.index \
 
 LDIRT = pmlogger.log
 
-default default_pcp setup:
+default default_pcp setup: $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 
-install install_pcp:
+install install_pcp: $(SUBDIRS)
 	$(INSTALL) -m 755 -d $(TESTDIR)
 	$(INSTALL) -m 755 $(SCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(TESTDIR)/GNUmakefile
@@ -54,6 +56,7 @@ install install_pcp:
 	$(INSTALL) -m 644 $(SRCMETA) $(SRCOTHER) $(TESTDIR)
 	$(INSTALL) -m 644 $(SRCIDX) $(TESTDIR)
 	$(INSTALL) -m 644 $(OTHERS) $(CONFIGS) $(FOLIOS) $(TESTDIR)
+	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
 

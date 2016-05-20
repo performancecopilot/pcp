@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, Red Hat.
+ * Copyright (c) 2014,2016, Red Hat.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2006-2007, Aconex.  All Rights Reserved.
  * 
@@ -47,7 +47,7 @@ static void setupEnvironment(void)
 
 int main(int argc, char **argv)
 {
-    int		autoport = 0;
+    int		sts, autoport = 0;
 
     QApplication a(argc, argv);
     setupEnvironment();
@@ -56,9 +56,15 @@ int main(int argc, char **argv)
     opts.short_options = "ahD:p:V?";
     opts.long_options = longopts;
     (void)pmGetOptions(argc, argv, &opts);
-    if (opts.errors || opts.optind != argc) {
+    if (opts.errors || (opts.flags & PM_OPTFLAG_EXIT) || opts.optind != argc) {
+	if ((opts.flags & PM_OPTFLAG_EXIT)) {
+	    unsetenv("PCP_STDERR");
+	    sts = 0;
+	} else {
+	    sts = 1;
+	}
 	pmUsageMessage(&opts);
-	exit(1);
+	exit(sts);
     }
 
     if (!opts.guiport) {
@@ -97,8 +103,9 @@ int main(int argc, char **argv)
 	exit(1);
     } else if (autoport) {	/* write to stdout for client */
 	char	name[32];
-	int	c = snprintf(name, sizeof(name), "port=%u\n", opts.guiport);
-	if (write(fileno(stdout), name, c + 1) < 0) {
+
+	sts = snprintf(name, sizeof(name), "port=%u\n", opts.guiport);
+	if (write(fileno(stdout), name, sts + 1) < 0) {
 	    if (errno != EPIPE) {
 		pmprintf("%s: cannot write port for client: %s\n",
 		    pmProgname, strerror(errno));

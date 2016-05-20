@@ -79,6 +79,7 @@ sample {
     percontext
     event
     dupnames
+    negative
 }
 
 sample.long {
@@ -287,4 +288,31 @@ sample.dupnames.two.double {
 sample.dupnames.three {
     bin			SAMPLE:0:6
     write_me		SAMPLE:0:36
+}
+
+sample.negative {
+    ctr
+    instant
+    discrete
+}
+
+sample.negative.ctr {
+    m_32		SAMPLE:0:141
+    m_64		SAMPLE:0:142
+    m_float		SAMPLE:0:143
+    m_double		SAMPLE:0:144
+}
+
+sample.negative.instant {
+    m_32		SAMPLE:0:145
+    m_64		SAMPLE:0:146
+    m_float		SAMPLE:0:147
+    m_double		SAMPLE:0:148
+}
+
+sample.negative.discrete {
+    m_32		SAMPLE:0:149
+    m_64		SAMPLE:0:150
+    m_float		SAMPLE:0:151
+    m_double		SAMPLE:0:152
 }

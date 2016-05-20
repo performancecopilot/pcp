@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 1995-2001,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -1022,7 +1022,7 @@ simabi()
     } else {
 	return abi;
     }
-#elif defined(IS_FREEBSD) || defined(IS_NETBSD)
+#elif defined(IS_FREEBSD) || defined(IS_NETBSD) || defined(IS_OPENBSD)
     return "elf";
 #elif defined(IS_DARWIN)
     return "Mach-O " SIM_ABI;
@@ -1052,81 +1052,58 @@ tzinfo(void)
 }
 
 static int
-extract_service(const char *path, char *name, pid_t *pid)
+extract_service(const char *path, char *name)
 {
-    int		length, sep = __pmPathSeparator();
+    int		sep = __pmPathSeparator();
     char	fullpath[MAXPATHLEN];
     char	buffer[64];
     FILE	*fp;
-
-    /* check basename has a ".pid" suffix */
-    if ((length = strlen(name)) < 5)
-	return 0;
-    length -= 4;
-    if (strcmp(&name[length], ".pid") != 0)
-	return 0;
+    pid_t	pid;
 
     /* extract PID lurking within the file */
-    snprintf(fullpath, sizeof(fullpath), "%s%c%s", path, sep, name);
+    snprintf(fullpath, sizeof(fullpath), "%s%c%s.pid", path, sep, name);
     if ((fp = fopen(fullpath, "r")) == NULL)
 	return 0;
     sep = fscanf(fp, "%63s", buffer);
     fclose(fp);
     if (sep != 1)
 	return 0;
-    *pid = atoi(buffer);
-    if (!__pmProcessExists(*pid))
+    pid = atoi(buffer);
+    if (!__pmProcessExists(pid))
 	return 0;
-
-    /* finally setup service name to return */
-    name[length] = '\0';
-    return length;
+    return strlen(name);
 }
 
-char *
+static char *
 services(void)
 {
-    static char		servicelist[128];
-    static struct stat	lastsbuf;
-    pid_t		pid;
-    struct dirent	*dp;
-    struct stat		statbuf;
-    char		*path;
-    DIR			*rundir;
-    int			length, offset;
+    static char	servicelist[32];
+    struct stat	statbuf;
+    char	*path;
+    char	*services[] = { PM_SERVER_PROXY_SPEC, PM_SERVER_WEBD_SPEC };
 
     path = pmGetConfig("PCP_RUN_DIR");
     if (stat(path, &statbuf) == 0) {
+	static struct stat	lastsbuf;
+
 	if (stat_time_differs(&statbuf, &lastsbuf)) {
+	    int		i, length, offset;
+
 	    lastsbuf = statbuf;
 
 	    /* by definition, pmcd is currently running */
 	    strcpy(servicelist, PM_SERVER_SERVICE_SPEC);
 	    offset = sizeof(PM_SERVER_SERVICE_SPEC) - 1;
 
-	    /* iterate through directory, building up services string */
-	    if ((rundir = opendir(path)) == NULL) {
-		__pmNotifyErr(LOG_ERR, "pmcd pmda cannot open %s: %s",
-				path, osstrerror());
-		return servicelist;
-	    }
-	    while ((dp = readdir(rundir)) != NULL) {
-		if (dp->d_name[0] == '.')
-		    continue;
-		length = sizeof(PM_SERVER_SERVICE_SPEC) - 1;
-		if (strncmp(dp->d_name, PM_SERVER_SERVICE_SPEC, length) == 0)
-		    continue;
-		if ((length = extract_service(path, dp->d_name, &pid)) <= 0)
-		    continue;
-		if (!__pmProcessExists(pid))
+	    for (i = 0; i < sizeof(services)/sizeof(services[0]); i++) {
+		if ((length = extract_service(path, services[i])) <= 0)
 		    continue;
 		if (offset + 1 + length + 1 > sizeof(servicelist))
 		    continue;
 		servicelist[offset++] = ' ';
-		strcpy(&servicelist[offset], dp->d_name);
+		strcpy(&servicelist[offset], services[i]);
 		offset += length;
 	    }
-	    closedir(rundir);
 	}
     } else {
 	strcpy(servicelist, PM_SERVER_SERVICE_SPEC);

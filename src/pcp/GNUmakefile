@@ -27,7 +27,8 @@ SUBDIRS = \
 	shping \
 	summary \
 	uptime \
-	verify
+	verify \
+	vmstat
 
 default :: default_pcp
 

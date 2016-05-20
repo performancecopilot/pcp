@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2015 Red Hat.
+dnl Copyright (c) 2012-2016 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl 
@@ -16,7 +16,9 @@ dnl
 
 dnl unpacking check - this file must exist
 AC_INIT(src/include/pcp/pmapi.h)
-AC_PREREQ([2.60])dnl
+
+dnl need 2.63 for AS_VAR_IF and AS_VAR_COPY
+AC_PREREQ([2.63])dnl
 
 dnl Irix build issue ... use the tools from the local filesystems
 unset ROOT TOOLROOT
@@ -140,6 +142,12 @@ AC_ARG_WITH([pmdajson],
     [do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"],
     [do_pmdajson=check])
 
+AC_ARG_WITH([pmdasnmp],
+    [AC_HELP_STRING([--with-pmdasnmp],
+		   [enable SNMP pmda (default is on)])],
+    [do_pmdasnmp=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdasnmp=$withval"],
+    [do_pmdasnmp=check])
+
 AC_ARG_WITH([manager],
     [AC_HELP_STRING([--with-manager],
 		   [enable daemon manager (default is on)])],
@@ -163,6 +171,12 @@ AC_ARG_WITH([vector],
                     [enable building of vector package (default is off)])],
     [do_vector=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-vector=$withval"],
     [do_vector=no])
+
+AC_ARG_WITH([parfait],
+    [AC_HELP_STRING([--with-parfait],
+                    [enable building of parfait package (default is off)])],
+    [do_parfait=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-parfait=$withval"],
+    [do_parfait=no])
 
 dnl things set in the environment by Makepkgs never make it into an RPM
 dnl build where the environment is stripped ... use a --with-foo=path
@@ -262,7 +276,7 @@ then
     fi
     export CFLAGS
     pcp_platform_paths='/usr/local/bin'
-    pcp_ps_all_flags=auxww
+    pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
 elif test $target_os = mingw
 then
     AC_DEFINE(IS_MINGW, [1], [Platform is MinGW (Windows)])
@@ -273,7 +287,7 @@ elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS, [1], [Platform is Solaris])
     export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing"
-    export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any"
+    export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
 elif test $target_os = aix
@@ -310,6 +324,13 @@ then
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"
     pcp_platform_paths='/usr/pkg/bin'
     pcp_ps_all_flags=auxww
+elif test $target_os = openbsd
+then
+    target_os=openbsd
+    AC_DEFINE(IS_OPENBSD, [1], [Platform is OpenBSD])
+    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    pcp_platform_paths='/usr/local/bin'
+    pcp_ps_all_flags=auxww
 else
     echo
     echo "FATAL ERROR: need platform-specific customization for \"$target_os\""
@@ -329,19 +350,13 @@ fi
 AC_SUBST(optimization)
 
 PKG_PROG_PKG_CONFIG
-if test -z "$PKG_CONFIG"
-then
-    echo
-    echo "FATAL ERROR: did not find a pkg-config executable."
-    echo "You can either set \$PKG_CONFIG as the full path to pkg-config"
-    echo "in the environment, or install the pkgconfig package."
-    rm -rf conftest conftest.*
-    exit 1
+if test -z "$PKG_CONFIG"; then
+    AC_MSG_ERROR([cannot find a 'pkg-config' command])
 fi
 
 dnl check if user wants their own C compiler
 cflags_abi=
-AC_PROG_CC(suncc gcc cc)
+AC_PROG_CC(suncc egcc gcc cc)
 if test $target_os = solaris
 then
     AC_PATH_PROG(CCPATH,$CC,$CC)
@@ -456,7 +471,7 @@ AS_IF([test "x$cc_is_gcc" = xyes -a "$enable_visibility" != no],[
 ])
 AC_SUBST(INVISIBILITY)
 
-AC_PROG_CXX
+AC_PROG_CXX(eg++ g++ c++)
 cxx=$CXX
 AC_SUBST(cxx)
 AC_MSG_CHECKING([for working C++ compiler])
@@ -475,50 +490,10 @@ AC_ARG_ENABLE([shared],
   [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"])
 AC_SUBST(enable_shared)
 
-dnl check if user wants their own lex, yacc
-AC_PROG_LEX
-lex=$LEX
-AC_SUBST(lex)
-AC_PROG_YACC
-yacc=$YACC
-AC_SUBST(yacc)
+dnl check if user wants to use any of their own commands;
+dnl ordering is important: some tests use earlier results
 
-dnl extra check for lex and yacc as these are often not installed
-AC_MSG_CHECKING([if yacc is executable])
-binary=`echo $yacc | awk '{print $1}'`
-binary=`which "$binary"`
-if test -x "$binary"
-then
-    AC_MSG_RESULT([ yes])
-else
-    AC_MSG_RESULT([ no])
-    echo
-    echo "FATAL ERROR: did not find a valid yacc executable."
-    echo "You can either set \$YACC as the full path to yacc"
-    echo "in the environment, or install a yacc/bison package."
-    rm -rf conftest conftest.*
-    exit 1
-fi
-AC_MSG_CHECKING([if lex is executable])
-binary=`echo $lex | awk '{print $1}'`
-binary=`which "$binary"`
-if test -x "$binary"
-then
-    AC_MSG_RESULT([ yes])
-else
-    AC_MSG_RESULT([ no])
-    echo
-    echo "FATAL ERROR: did not find a valid lex executable."
-    echo "You can either set \$LEX as the full path to lex"
-    echo "in the environment, or install a lex/flex package."
-    rm -rf conftest conftest.*
-    exit 1
-fi
-
-dnl check if user wants their own awk, sed and echo
-if test -z "$AWK"; then
-    AC_PATH_PROGS(AWK, gawk awk, /usr/bin/awk)
-fi
+test -z "$AWK" && AC_PATH_PROGS(AWK, gawk awk, /usr/bin/awk)
 case "$AWK"
 in
     gawk|*/gawk)
@@ -529,21 +504,60 @@ in
 	;;
 esac
 AC_SUBST(awk)
+
 if test -z "$SED"; then
     AC_PATH_PROG(SED, sed, /bin/sed)
 fi
+if test ! -x "$SED"; then
+    AC_MSG_ERROR([cannot find a valid 'sed' command.])
+fi
 sed=$SED
 AC_SUBST(sed)
+
 if test -z "$ECHO"; then
     AC_PATH_PROG(ECHO, echo, /bin/echo)
 fi
+if test ! -x "$ECHO"; then
+    AC_MSG_ERROR([cannot find a valid 'echo' command.])
+fi
 echo=$ECHO
 AC_SUBST(echo)
+
+if test -z "$FIND"; then
+    AC_PATH_PROG(FIND, find, /usr/bin/find)
+fi
+if test ! -x "$FIND"; then
+    AC_MSG_ERROR([cannot find a valid 'find' command.])
+fi
+find=$FIND
+AC_SUBST(find)
+
 if test -z "$WHICH"; then
     AC_PATH_PROG(WHICH, which, /usr/bin/which)
 fi
+if test ! -x "$WHICH"; then
+    AC_MSG_ERROR([cannot find a valid 'which' command.])
+fi
 which=$WHICH
 AC_SUBST(which)
+
+AC_PROG_LEX
+lex=`$echo $LEX | awk '{print $1}'`
+lex=`$which "$lex"`
+if test ! -x "$lex"; then
+    AC_MSG_ERROR([cannot find a valid 'lex'/'flex' command.])
+fi
+lex=$LEX
+AC_SUBST(lex)
+
+AC_PROG_YACC
+yacc=`$echo $YACC | awk '{print $1}'`
+yacc=`$which "$yacc"`
+if test ! -x "$yacc"; then
+    AC_MSG_ERROR([cannot find a valid 'yacc'/'bison' command.])
+fi
+yacc=$YACC
+AC_SUBST(yacc)
 
 dnl check we don't get the Windows sort ...
 AC_MSG_CHECKING([where unix-like sort(1) lives])
@@ -556,7 +570,7 @@ if test $target_os = mingw; then
 	fi
     done
 else
-    sort=`which sort`
+    sort=`$which sort`
 fi
 AC_MSG_RESULT($sort)
 $sort -n </dev/null
@@ -736,17 +750,17 @@ AC_SUBST(pm_version_current)
 
 dnl output header files with cpp defs HAVE_*, etc
 AC_CONFIG_HEADERS(src/include/pcp/config.h src/include/pcp/configsz.h)
-AC_OUTPUT(src/include/pcp/platform_defs.h)
+AC_OUTPUT(src/include/pcp/platform_defs.h src/include/pcp/platformsz.h)
 
 AC_CHECK_PROGS(GIT, git)
 AC_SUBST(GIT)
 
 dnl check if python available for the build and runtime
-AC_CHECK_PROGS(PYTHON, python)
+AC_CHECK_PROGS(PYTHON, python, python2.7)
 AC_SUBST(PYTHON)
 
 dnl check if python3 available for the build and runtime
-AC_CHECK_PROGS(PYTHON3, python3)
+AC_CHECK_PROGS(PYTHON3, python3, python3.4)
 AC_SUBST(PYTHON3)
 
 dnl check if python tools/packages wanted (need python >= 2.6)
@@ -908,14 +922,17 @@ AC_MSG_RESULT($pcp_perl_prog)
 
 AC_MSG_CHECKING([if the SNMP PMDA should be included])
 pmda_snmp=false
-if test "$have_perl" = true
-then
-    dnl rpm built for SNMP PMDA needs Perl Net::SNMP
-    if $pcp_perl_prog -e "use Net::SNMP" >/dev/null 2>&1
+AS_IF([test "x$do_pmdasnmp" = "xyes"], [pmda_snmp=true])
+AS_IF([test "x$do_pmdasnmp" = "xcheck"], [
+    dnl SNMP PMDA needs perl and the Net::SNMP module
+    if test "$have_perl" = true
     then
-	pmda_snmp=true
+	if $pcp_perl_prog -e "use Net::SNMP" >/dev/null 2>&1
+	then
+	    pmda_snmp=true
+	fi
     fi
-fi
+])
 AC_SUBST(PMDA_SNMP, $pmda_snmp)
 if $pmda_snmp; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
@@ -950,6 +967,19 @@ then
 fi
 AC_SUBST(PMDA_POSTGRESQL, $pmda_postgresql)
 if $pmda_postgresql; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the oracle PMDA should be included])
+pmda_oracle=false
+if test "$have_perl" = true
+then
+    dnl rpm build for oracle PMDA needs Perl DBI
+    if $pcp_perl_prog -e "use DBI" >/dev/null 2>&1
+    then
+	pmda_oracle=true
+    fi
+fi
+AC_SUBST(PMDA_ORACLE, $pmda_oracle)
+if $pmda_oracle; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the elasticsearch PMDA should be included])
 pmda_elasticsearch=false
@@ -998,7 +1028,8 @@ AS_IF([test "x$do_qt" != "xno"], [
     
     if test -z "$QMAKE"
     then
-	AC_PATH_PROGS(QMAKE, [qmake-qt5 qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin])
+	dnl qmake-qt5 [/usr/lib64/qt5/bin:/usr/lib/qt5/bin]
+	AC_PATH_PROGS(QMAKE, [qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
 	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
@@ -1103,7 +1134,7 @@ AC_SUBST(pcp_user_install)
 if test -z "$PCP_GROUP_INSTALL" ; then
     case "$target_os"
     in
-	darwin|freebsd|netbsd)
+	darwin|freebsd|netbsd|openbsd)
 	    pcp_group_install=wheel
 	    ;;
 	*)
@@ -1412,17 +1443,17 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h syslog.h)
-AC_CHECK_HEADERS(unistd.h stddef.h sched.h dlfcn.h dl.h)
-AC_CHECK_HEADERS(sys/time.h sys/times.h)
-AC_CHECK_HEADERS(sys/resource.h sys/prctl.h)
+AC_CHECK_HEADERS(stddef.h sched.h dlfcn.h dl.h)
+AC_CHECK_HEADERS(sys/times.h sys/resource.h sys/prctl.h)
 AC_CHECK_HEADERS(sys/sysinfo.h sys/systeminfo.h)
 AC_CHECK_HEADERS(endian.h standards.h sys/byteorder.h)
-AC_CHECK_HEADERS(libgen.h sys/param.h sys/mman.h sys/un.h)
+AC_CHECK_HEADERS(libgen.h sys/mman.h sys/un.h)
 AC_CHECK_HEADERS(values.h stdint.h ieeefp.h math.h)
 AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
-AC_CHECK_HEADERS(termio.h termios.h sys/termios.h sys/ioctl.h sys/socket.h)
+AC_CHECK_HEADERS(termio.h termios.h sys/termios.h)
+AC_CHECK_HEADERS(sys/ioctl.h sys/select.h sys/socket.h)
 AC_CHECK_HEADERS(netdb.h)
-if test $target_os = darwin
+if test $target_os = darwin -o $target_os = openbsd
 then
     AC_CHECK_HEADERS(net/if.h, [], [], [#include <sys/types.h>
 #include <sys/socket.h>])
@@ -2267,6 +2298,42 @@ __thread int x;], [],
 	    AC_MSG_RESULT(no))
     fi
 fi
+
+AC_MSG_CHECKING([sizeof suseconds_t])
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_suseconds_t
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
+#include <sys/time.h>
+main() { printf("%d", (int)sizeof(suseconds_t)); }
+End-of-File
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+    rm -rf conftest conftest.*
+fi
+AC_MSG_RESULT($ans)
+AC_DEFINE_UNQUOTED(SIZEOF_SUSECONDS_T, $ans, [sizeof suseconds_t])
+
+AC_MSG_CHECKING([sizeof time_t])
+if test "$cross_compiling" = "yes"; then
+    ans=$sizeof_time_t
+    echo "cross-compile -> \"$ans\"" >&5
+else
+    cat <<End-of-File >conftest.c
+#include <sys/time.h>
+main() { printf("%d", (int)sizeof(time_t)); }
+End-of-File
+    (eval $ac_compile) 2>&5
+    (eval $ac_link) 2>&5
+    ans=`./conftest`
+    echo "./conftest -> \"$ans\"" >&5
+    rm -rf conftest conftest.*
+fi
+AC_MSG_RESULT($ans)
+AC_DEFINE_UNQUOTED(SIZEOF_TIME_T, $ans, [sizeof time_t])
 
 dnl check sizeof long
 AC_MSG_CHECKING([sizeof long])
@@ -3143,6 +3210,14 @@ AC_TRY_COMPILE(
 ], AC_DEFINE(HAVE_AI_ADDRCONFIG, [1], [AI_ADDRCONFIG macro]) AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 dnl Find external source tarballs for packaging
+
+have_parfait=false
+if test -f ./build/tar/parfait.tar.gz
+then
+    AC_MSG_NOTICE([adding Parfait package to the build])
+    have_parfait=true
+fi
+AC_SUBST(have_parfait)
 
 have_vector=false
 if test -f ./build/tar/vector.tar.gz

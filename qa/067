@@ -51,7 +51,8 @@ _filter_log()
 	-e '/client connection from/,/^$/d' \
 	-e '/Cleanup/d' \
 	-e '/Info: spindle_stats_init/d' \
-	-e '/UNIX_DOMAIN_SOCKET/d'
+	-e '/UNIX_DOMAIN_SOCKET/d' \
+	#end
 }
 
 _filter_pmda_log()

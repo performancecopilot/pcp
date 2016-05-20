@@ -115,7 +115,7 @@ enum {
     PROC_PID_STATUS_NGID,
     PROC_PID_STATUS_VMPEAK,
     PROC_PID_STATUS_VMPIN,
-    PROC_PID_STATUS_VMHWN,
+    PROC_PID_STATUS_VMHWM,
     PROC_PID_STATUS_VMPTE,
     PROC_PID_STATUS_NSTGID,
     PROC_PID_STATUS_NSPID,
@@ -200,7 +200,7 @@ typedef struct {	/* /proc/<pid>/status */
     char *vmsize;
     char *vmlck;
     char *vmpin;
-    char *vmhwn;
+    char *vmhwm;
     char *vmrss;
     char *vmdata;
     char *vmstk;

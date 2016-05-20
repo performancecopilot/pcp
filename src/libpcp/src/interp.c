@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2015-2016 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -130,8 +131,22 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     cache_t	*cp;
     cache_t	*lfup;
     cache_t	*cache;
+    char	*save_curlog_name;
+    int		sts;
     int		save_curvol;
+    int		archive_changed;
 
+    /*
+     * If the previous __pmLogRead generated a virtual MARK record and we have
+     * changed direction, then we need to generate that record again.
+     */
+    if (acp->ac_mark_done != 0 && acp->ac_mark_done != mode) {
+	sts = __pmLogGenerateMark(acp->ac_log, acp->ac_mark_done, rp);
+	acp->ac_mark_done = 0;
+	return sts;
+    }
+
+    /* Look for a cache hit. */
     if (acp->ac_vol == acp->ac_log->l_curvol) {
 	posn = ftell(acp->ac_log->l_mfp);
 	assert(posn >= 0);
@@ -168,7 +183,6 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 	    ((mode == PM_MODE_FORW && cp->head_posn == posn) ||
 	     (mode == PM_MODE_BACK && cp->tail_posn == posn)) &&
 	    cp->rp != NULL) {
-	    int		sts;
 	    *rp = cp->rp;
 	    cp->used++;
 	    if (mode == PM_MODE_FORW)
@@ -181,12 +195,13 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 		double		t_this;
 		tmp.tv_sec = (__int32_t)cp->rp->timestamp.tv_sec;
 		tmp.tv_usec = (__int32_t)cp->rp->timestamp.tv_usec;
-		t_this = __pmTimevalSub(&tmp, &acp->ac_log->l_label.ill_start);
+		t_this = __pmTimevalSub(&tmp, __pmLogStartTime(acp));
 		fprintf(stderr, "hit cache[%d] t=%.6f\n",
 		    (int)(cp - cache), t_this);
 		nr_cache[mode]++;
 	    }
 #endif
+	    acp->ac_mark_done = 0;
 	    sts = cp->sts;
 	    return sts;
 	}
@@ -201,6 +216,15 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
     if (lfup->rp != NULL)
 	pmFreeResult(lfup->rp);
 
+    /*
+     * We need to know when we cross archive or volume boundaries.
+     * The only way to know if the archive has changed is to check whether the
+     * archive name has changed.
+     */
+    if ((save_curlog_name = strdup(acp->ac_log->l_name)) == NULL) {
+	__pmNoMem("__pmLogFetchInterp.save_curlog_name",
+		  strlen(acp->ac_log->l_name) + 1, PM_FATAL_ERR);
+    }
     save_curvol = acp->ac_log->l_curvol;
 
     lfup->sts = __pmLogRead(acp->ac_log, mode, NULL, &lfup->rp, PMLOGREAD_NEXT);
@@ -208,12 +232,17 @@ cache_read(__pmArchCtl *acp, int mode, pmResult **rp)
 	lfup->rp = NULL;
     *rp = lfup->rp;
 
-    if (posn == 0 || save_curvol != acp->ac_log->l_curvol) {
-	/*
-	 * vol switch since last time, or vol switch in __pmLogRead() ...
-	 * new vol, stdio stream and we don't know where we started from
-	 * ... don't cache
-	 */
+    archive_changed = strcmp(save_curlog_name, acp->ac_log->l_name) != 0;
+    free(save_curlog_name);
+
+    /*
+     * vol/arch switch since last time, or vol/arch switch or virtual mark
+     * record generated in __pmLogRead() ...
+     * new vol/arch, stdio stream and we don't know where we started from
+     * ... don't cache
+     */
+    if (posn == 0 || save_curvol != acp->ac_log->l_curvol || archive_changed ||
+	acp->ac_mark_done) {
 	if (lfup->l_name) {
 	    free(lfup->l_name);
 	    lfup->l_name = NULL;
@@ -378,7 +407,7 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 
     tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
     tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-    t_this = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
+    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 
     if (logrp->numpmid == 0 && do_mark != UPD_MARK_NONE) {
 	/* mark record, discontinuity in log */
@@ -599,7 +628,7 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 	while (cache_read(ctxp->c_archctl, PM_MODE_FORW, &logrp) >= 0) {
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-	    t_this = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
+	    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    if (t_this > t_req)
 		break;
 
@@ -620,7 +649,7 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 	while (cache_read(ctxp->c_archctl, PM_MODE_BACK, &logrp) >= 0) {
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-	    t_this = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
+	    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    if (t_this < t_req)
 		break;
 
@@ -688,7 +717,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     }
     PM_UNLOCK(__pmLock_libpcp);
 
-    t_req = __pmTimevalSub(&ctxp->c_origin, &ctxp->c_archctl->ac_log->l_label.ill_start);
+    t_req = __pmTimevalSub(&ctxp->c_origin, __pmLogStartTime(ctxp->c_archctl));
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_INTERP) {
@@ -717,14 +746,20 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	__pmTimeval	tmp;
 
 	/*
-	 * Past end of archive ... see if it has grown since we last looked.
+	 * Past end of the current archive ... see if it has grown since we
+	 * last looked, or if we can switch to the next archive in the context.
 	 */
-	if (pmGetArchiveEnd(&end) >= 0) {
+	if (__pmGetArchiveEnd(ctxp->c_archctl->ac_log, &end) >= 0) {
 	    tmp.tv_sec = (__int32_t)end.tv_sec;
 	    tmp.tv_usec = (__int32_t)end.tv_usec;
-	    ctxp->c_archctl->ac_end = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
+	    ctxp->c_archctl->ac_end = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	}
-	if (t_req > ctxp->c_archctl->ac_end) {
+	/* Check if request time is past the end of this archive
+	 * and there are no subsequent archives
+	 */
+	if ((t_req > ctxp->c_archctl->ac_end)
+	    && (ctxp->c_archctl->ac_cur_log >= ctxp->c_archctl->ac_num_logs - 1)) {
+	    /* No more archive data. */
 	    sts = PM_ERR_EOL;
 	    goto all_done;
 	}
@@ -865,7 +900,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    while (cache_read(ctxp->c_archctl, PM_MODE_BACK, &logrp) >= 0) {
 		tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 		tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-		t_this = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
+		t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 		if (t_this <= t_req) {
 		    break;
 		}
@@ -883,7 +918,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    while (cache_read(ctxp->c_archctl, PM_MODE_FORW, &logrp) >= 0) {
 		tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 		tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-		t_this = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
+		t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 		if (t_this > t_req) {
 		    break;
 		}
@@ -1008,7 +1043,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-	    t_this = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
+	    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    if (ctxp->c_delta < 0 && t_this >= t_req) {
 		/* going backwards, and not up to t_req yet */
 		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
@@ -1130,7 +1165,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 	    tmp.tv_sec = (__int32_t)logrp->timestamp.tv_sec;
 	    tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
-	    t_this = __pmTimevalSub(&tmp, &ctxp->c_archctl->ac_log->l_label.ill_start);
+	    t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 	    if (ctxp->c_delta > 0 && t_this <= t_req) {
 		/* going forwards, and not up to t_req yet */
 		ctxp->c_archctl->ac_offset = ftell(ctxp->c_archctl->ac_log->l_mfp);
@@ -1725,7 +1760,7 @@ __pmLogResetInterp(__pmContext *ctxp)
     if (hcp->hsize == 0)
 	return;
 
-    t_req = __pmTimevalSub(&ctxp->c_origin, &ctxp->c_archctl->ac_log->l_label.ill_start);
+    t_req = __pmTimevalSub(&ctxp->c_origin, __pmLogStartTime(ctxp->c_archctl));
 
     for (k = 0; k < hcp->hsize; k++) {
 	for (hp = hcp->hash[k]; hp != NULL; hp = hp->next) {

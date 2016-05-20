@@ -1,7 +1,7 @@
 # pylint: disable=C0103
 """Wrapper module for libpcp_mmv - PCP Memory Mapped Values library
 #
-# Copyright (C) 2013,2015 Red Hat.
+# Copyright (C) 2013-2016 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -10,52 +10,63 @@
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-
 # Example use of this module for instrumenting a python application:
 
         from pcp import mmv, pmapi
-        from cpmapi import PM_COUNT_ONE, PM_TIME_USEC
+        import cpmapi as pcpapi
+        import cmmv as mmvapi
 
-        instances = [mmv.mmv_instance(0, "zero"), mmv.mmv_instance(1, "hero")]
-        indoms = [mmv.mmv_indom(serial = 1,
-                            shorttext = "We can be heroes",
-                            helptext = "Set of instances from zero to hero"),
+        instances = [
+                mmv.mmv_instance(0, "Anvils"),
+                mmv.mmv_instance(1, "Rockets"),
+                mmv.mmv_instance(2, "Giant_Rubber_Bands")
+        ]
+        ACME_PRODUCTS_INDOM = 61
+        indoms = [
+                mmv.mmv_indom(
+                    serial = ACME_PRODUCTS_INDOM,
+                    shorttext = "Acme products",
+                    helptext = "Most popular products produced by the Acme Corporation")
+        ]
         indoms[0].set_instances(instances)
-        metrics = [mmv.mmv_metric(name = "counter",
-                              item = 1,
-                              typeof = mmv.MMV_TYPE_U32,
-                              semantics = mmv.MMV_SEM_COUNTER,
-                              dimension = pmapi.pmUnits(0,0,1,0,0,PM_COUNT_ONE),
-                              shorttext = "Example counter metric",
-                              helptext = "Yep, a test counter metric"),
-                   mmv.mmv_metric(name = "instant",
-                              item = 2,
-                              typeof = mmv.MMV_TYPE_I32,
-                              semantics = mmv.MMV_SEM_INSTANT,
-                              dimension = pmapi.pmUnits(0,0,0,0,0,0),
-                              shorttext = "Example instant metric",
-                              helptext = "Yep, a test instantaneous metric"),
-                   mmv.mmv_metric(name = "indom",
-                              item = 3,
-                              typeof = mmv.MMV_TYPE_U32,
-                              semantics = mmv.MMV_SEM_DISCRETE,
-                              dimension = pmapi.pmUnits(0,0,0,0,0,0),
-                              indom = 1)]
 
-        values = mmv.MemoryMappedValues("demo")
+        metrics = [
+                mmv.mmv_metric(
+                    name = "products.count",
+                    item = 7,
+                    typeof = mmvapi.MMV_TYPE_U64,
+                    semantics = mmvapi.MMV_SEM_COUNTER,
+                    dimension = pmapi.pmUnits(0,0,1,0,0,pcpapi.PM_COUNT_ONE),
+                    indom = ACME_PRODUCTS_INDOM,
+                    shorttext = "Acme factory product throughput",
+                    helptext =
+        "Monotonic increasing counter of products produced in the Acme Corporation\n" +
+        "factory since starting the Acme production application.  Quality guaranteed."),
+
+                mmv.mmv_metric(
+                    name = "products.time",
+                    item = 8,
+                    typeof = mmvapi.MMV_TYPE_U64,
+                    semantics = mmvapi.MMV_SEM_COUNTER,
+                    dimension = pmapi.pmUnits(0,1,0,0,pcpapi.PM_TIME_USEC,0),
+                    indom = ACME_PRODUCTS_INDOM,
+                    shorttext = "Machine time spent producing Acme products")
+        ]
+
+        values = mmv.MemoryMappedValues("acme")
         values.add_indoms(indoms)
         values.add_metrics(metrics)
 
         values.start()
-        instant = values.lookup_mapping("instant", None)
-        values.set(instant, 41)
-        values.inc(instant)
+        anvils = values.lookup_mapping("products.count", "Anvils")
+        values.set(anvils, 41)
+        values.inc(anvils)
         values.stop()
 """
 
@@ -75,7 +86,7 @@ LIBPCP_MMV = ctypes.CDLL(ctypes.util.find_library("pcp_mmv"))
 #
 # This section defines the data structures for accessing and manuiplating
 # metric information and values.  Detailed information about these data
-# structures can be found in the MMV(4) manual page.
+# structures can be found in the MMV(5) manual page.
 #
 
 class mmv_instance(Structure):
@@ -105,9 +116,9 @@ class mmv_indom(Structure):
 
     def __init__(self, serial, shorttext = '', helptext = ''):
         Structure.__init__(self)
-        if type(helptext) != type(b''):
+        if helptext != None and type(helptext) != type(b''):
             helptext = helptext.encode('utf-8')
-        if type(shorttext) != type(b''):
+        if shorttext != None and type(shorttext) != type(b''):
             shorttext = shorttext.encode('utf-8')
         self.shorttext = shorttext
         self.helptext = shorttext
@@ -139,15 +150,16 @@ class mmv_metric(Structure):
         Structure.__init__(self)
         if type(name) != type(b''):
             name = name.encode('utf-8')
-        if type(helptext) != type(b''):
+        if helptext != None and type(helptext) != type(b''):
             helptext = helptext.encode('utf-8')
-        if type(shorttext) != type(b''):
+        if shorttext != None and type(shorttext) != type(b''):
             shorttext = shorttext.encode('utf-8')
         self.shorttext = shorttext
         self.helptext = shorttext
         self.typeof = typeof
         self.indom = indom
         self.item = item
+        self.name = name
 
 ##
 # PCP Memory Mapped Value Services
@@ -160,7 +172,7 @@ LIBPCP_MMV.mmv_stats_init.argtypes = [
 LIBPCP_MMV.mmv_stats_stop.restype = None
 LIBPCP_MMV.mmv_stats_stop.argtypes = [c_char_p, c_void_p]
 
-LIBPCP_MMV.mmv_lookup_value_desc.restype = pmAtomValue
+LIBPCP_MMV.mmv_lookup_value_desc.restype = POINTER(pmAtomValue)
 LIBPCP_MMV.mmv_lookup_value_desc.argtypes = [c_void_p, c_char_p, c_char_p]
 
 LIBPCP_MMV.mmv_inc_value.restype = None
@@ -296,9 +308,9 @@ class MemoryMappedValues(object):
             a convenience only for situations where performance will not
             be affected by repeated (linear) name/inst lookups.
         """
-        if type(name) != type(b''):
+        if name != None and type(name) != type(b''):
             name = name.encode('utf-8')
-        if type(inst) != type(b''):
+        if inst != None and type(inst) != type(b''):
             inst = inst.encode('utf-8')
         return LIBPCP_MMV.mmv_lookup_value_desc(self._handle, name, inst)
 
@@ -316,7 +328,7 @@ class MemoryMappedValues(object):
 
     def set_string(self, mapping, value):
         """ Set the string mapped metric to a given value """
-        if type(value) != type(b''):
+        if value != None and type(value) != type(b''):
             value = value.encode('utf-8')
         LIBPCP_MMV.mmv_set_string(self._handle, mapping, value, len(value))
 
@@ -333,25 +345,25 @@ class MemoryMappedValues(object):
 
     def lookup_add(self, name, inst, value):
         """ Lookup the named metric[instance] and add a value to it """
-        if type(name) != type(b''):
+        if name != None and type(name) != type(b''):
             name = name.encode('utf-8')
-        if type(inst) != type(b''):
+        if inst != None and type(inst) != type(b''):
             inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_add(self._handle, name, inst, value)
 
     def lookup_inc(self, name, inst):
         """ Lookup the named metric[instance] and add one to it """
-        if type(name) != type(b''):
+        if name != None and type(name) != type(b''):
             name = name.encode('utf-8')
-        if type(inst) != type(b''):
+        if inst != None and type(inst) != type(b''):
             inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_inc(self._handle, name, inst)
 
     def lookup_set(self, name, inst, value):
         """ Lookup the named metric[instance] and set its value """
-        if type(name) != type(b''):
+        if name != None and type(name) != type(b''):
             name = name.encode('utf-8')
-        if type(inst) != type(b''):
+        if inst != None and type(inst) != type(b''):
             inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_set(self._handle, name, inst, value)
 
@@ -359,18 +371,18 @@ class MemoryMappedValues(object):
         """ Lookup the named metric[instance] and start an interval
             The opaque handle returned is passed to interval_end().
         """
-        if type(name) != type(b''):
+        if name != None and type(name) != type(b''):
             name = name.encode('utf-8')
-        if type(inst) != type(b''):
+        if inst != None and type(inst) != type(b''):
             inst = inst.encode('utf-8')
         return LIBPCP_MMV.mmv_stats_interval_start(self._handle,
                                                    None, name, inst)
 
     def lookup_set_string(self, name, inst, s):
         """ Lookup the named metric[instance] and set its string value """
-        if type(name) != type(b''):
+        if name != None and type(name) != type(b''):
             name = name.encode('utf-8')
-        if type(inst) != type(b''):
+        if inst != None and type(inst) != type(b''):
             inst = inst.encode('utf-8')
         if type(s) != type(b''):
             s = s.encode('utf-8')
@@ -382,9 +394,9 @@ class MemoryMappedValues(object):
             One example use is: add value to bucketN else use a catch-all
                                 bucket such as "other"
         """
-        if type(name) != type(b''):
+        if name != None and type(name) != type(b''):
             name = name.encode('utf-8')
-        if type(inst) != type(b''):
+        if inst != None and type(inst) != type(b''):
             inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_add_fallback(self._handle, name, inst, fall, value)
 
@@ -393,9 +405,8 @@ class MemoryMappedValues(object):
             If instance is not found, fallback to using a second instance
             One sample use is: inc value of BucketA, else inc a catch-all
         """
-        if type(name) != type(b''):
+        if name != None and type(name) != type(b''):
             name = name.encode('utf-8')
-        if type(inst) != type(b''):
+        if inst != None and type(inst) != type(b''):
             inst = inst.encode('utf-8')
         LIBPCP_MMV.mmv_stats_inc_fallback(self._handle, name, inst, fallback)
-

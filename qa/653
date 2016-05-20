@@ -48,15 +48,15 @@ NR == 1	{ if ($2 != "PID") {
 	    print "PID not in field 2 of ps output!"
 	    exit(1)
 	  }
-	  if ($1 != "UID") {
-	    print "UID not in field 1 of ps output!"
+	  if ($1 != "UID" && $1 != "USER") {
+	    print "UID/USER not in field 1 of ps output!"
 	    exit(1)
 	  }
-	  if ($8 == "CMD")
-	    # Linux
+	  if ($8 == "CMD" || $8 == "COMMAND")
+	    # Linux-like
 	    cmd = 8
 	  else if ($11 == "COMMAND")
-	    # Darwin
+	    # old-style BSD
 	    cmd = 11
 	  else {
 	    print "CMD (or COMMAND) not in field 8 (or 11) of ps output!"
@@ -82,7 +82,7 @@ echo "== failing case, should error out" | tee -a $seq.full
 $here/src/username nosuchuser >$tmp.err 2>&1 &
 pid=$!
 sleep 1	# give it a chance to start
-ps $PCP_PS_ALL_FLAGS | _filter_ps $pid nosuchuser
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | _filter_ps $pid nosuchuser
 $sudo $PCP_BINADM_DIR/pmsignal -a username
 wait $pid
 [ -s $tmp.err ] && cat $tmp.err | _filter_err $pid
@@ -91,7 +91,7 @@ echo "== passing case, should be local user" | tee -a $seq.full
 $here/src/username $username &
 pid=$!
 sleep 1	# give it a chance to start
-ps $PCP_PS_ALL_FLAGS | _filter_ps $pid $username >$tmp.out
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | _filter_ps $pid $username >$tmp.out
 $sudo $PCP_BINADM_DIR/pmsignal -a username
 wait $pid
 [ -s $tmp.out ] && cat $tmp.out | _filter_out $username

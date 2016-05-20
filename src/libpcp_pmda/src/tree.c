@@ -141,7 +141,7 @@ pmdaTreeName(__pmnsTree *pmns, pmID pmid, char ***nameset)
     int nmatch = 0, length = 0;
     char *p, **list;
 
-    if (!pmns)
+    if (!pmns || !pmns->htabsize)
 	return PM_ERR_PMID;
 
     hashchain = pmns->htab[pmid % pmns->htabsize];

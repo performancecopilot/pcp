@@ -1,5 +1,6 @@
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.
 .\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -15,7 +16,7 @@
 .\"
 .TH PMGETARCHIVELABEL 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmGetArchiveLabel\f1 \- fetch the label record from a performance metrics archive log
+\f3pmGetArchiveLabel\f1 \- fetch the label record from a set of performance metrics archive logs
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -36,7 +37,7 @@ may be accumulated and saved using the program
 .PP
 The routine
 .B pmGetArchiveLabel
-may be used to fetch the label record from an archive log that has already
+may be used to fetch the label record from a set of archive logs that has already
 been opened using
 .BR pmNewContext (3),
 or
@@ -120,4 +121,4 @@ and
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_NOCONTEXT\f1
 the current PMAPI context
-is either invalid, or not associated with an archive log
+is either invalid, or not associated with a set of archive logs

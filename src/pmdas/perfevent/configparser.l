@@ -20,22 +20,44 @@
 %{
 #include "configparser.h"
 
-static void new_pmctype(configuration_t *conf)
+static int is_derived(char *name)
 {
-    if(NULL == conf)
+    char *str = NULL;
+
+    str = strchr(name, ':');
+    if (!str)
+         return 0;
+    if (!strcmp(str, ":derived"))
+         return 1;
+    return 0;
+}
+
+static void add_derived(configuration_t *config, char *name)
+{
+    pmcderived_t *entry;
+    char *ptr;
+
+    if (!name)
+         return;
+    ++config->nDerivedEntries;
+
+    config->derivedArr = realloc(config->derivedArr, config->nDerivedEntries * sizeof *config->derivedArr);
+
+    if(NULL == config->derivedArr)
     {
+        config->nDerivedEntries = 0;
         return;
     }
 
-    ++conf->nConfigEntries;
-    conf->configArr = realloc(conf->configArr, conf->nConfigEntries * sizeof *conf->configArr);
+    ptr = strchr(name, ':');
+    *ptr = '\0';
+    memset(&config->derivedArr[config->nDerivedEntries-1], 0, sizeof *config->derivedArr);
 
-    if(NULL == conf->configArr) 
-    {
-        conf->nConfigEntries = 0;
-        return;
-    }
-    memset(&conf->configArr[conf->nConfigEntries-1], 0, sizeof *conf->configArr);
+    entry = &config->derivedArr[config->nDerivedEntries-1];
+
+    entry->name = strdup(name);
+    entry->setting_lists = NULL;
+    context_derived = 1;
 }
 
 static void add_pmctype(configuration_t *config, char *name)
@@ -47,16 +69,117 @@ static void add_pmctype(configuration_t *config, char *name)
     {
         return;
     }
-    if(0 == config->nConfigEntries) 
+    if (is_derived(name))
+        return add_derived(config, name);
+
+    if (context_newpmc)
     {
+        ++config->nConfigEntries;
+        config->configArr = realloc(config->configArr, config->nConfigEntries * sizeof *config->configArr);
+        memset(&config->configArr[config->nConfigEntries-1], 0, sizeof *config->configArr);
+    }
+    if(NULL == config->configArr)
+    {
+        config->nConfigEntries = 0;
         return;
     }
-    entry = &config->configArr[config->nConfigEntries-1];
 
+    entry = &config->configArr[config->nConfigEntries-1];
     newpmctype = malloc(sizeof *newpmctype);
     newpmctype->name = strdup(name);
     newpmctype->next = entry->pmcTypeList;
     entry->pmcTypeList = newpmctype;
+    context_derived = 0;
+    context_newpmc = 0;
+}
+
+static void add_pmc_setting_name_derived(configuration_t *config, char *name)
+{
+    pmcderived_t *entry;
+    pmcsetting_t *slist, *newpmcderivedsetting;
+    pmcSettingLists_t *setting_lists, *new_setting_list;
+
+    if (0 == config->nDerivedEntries)
+    {
+        return;
+    }
+    entry = &config->derivedArr[config->nDerivedEntries - 1];
+    newpmcderivedsetting = calloc(1, sizeof *newpmcderivedsetting);
+    newpmcderivedsetting->name = strdup(name);
+    newpmcderivedsetting->cpuConfig = CPUCONFIG_EACH_CPU;
+    newpmcderivedsetting->scale = 1.0;
+    newpmcderivedsetting->need_perf_scale = 0;
+    newpmcderivedsetting->next = NULL;
+
+    setting_lists = entry->setting_lists;
+
+    if (NULL == setting_lists)
+    {
+        new_setting_list = calloc(1, sizeof *setting_lists);
+        if (NULL == new_setting_list)
+        {
+            fprintf(stderr, "Error in allocating memory\n");
+            return;
+        }
+        new_setting_list->nsettings = 0;
+        new_setting_list->next = NULL;
+        new_setting_list->derivedSettingList = NULL;
+        setting_lists = new_setting_list;
+        entry->setting_lists = setting_lists;
+    }
+    else
+    {
+        while (setting_lists->next)
+            setting_lists = setting_lists->next;
+    }
+
+    slist = setting_lists->derivedSettingList;
+    if (slist == NULL)
+    {
+        setting_lists->derivedSettingList = newpmcderivedsetting;
+    }
+    else
+    {
+        while(slist->next)
+        {
+            slist = slist->next;
+        }
+        slist->next = newpmcderivedsetting;
+    }
+    setting_lists->nsettings++;
+}
+
+static void start_alternate_pmcsetting(configuration_t *config)
+{
+    pmcderived_t *entry;
+    pmcSettingLists_t *setting_lists, *new_setting_list;
+
+    if (!context_derived)
+        return;
+    if (0 == config->nDerivedEntries)
+    {
+        return;
+    }
+    entry = &config->derivedArr[config->nDerivedEntries - 1];
+
+    if (NULL == entry->setting_lists)
+        return;
+
+    setting_lists = entry->setting_lists;
+    new_setting_list = calloc(1, sizeof(*new_setting_list));
+    if (!new_setting_list)
+    {
+        fprintf(stderr, "Error in allocating memory\n");
+        return;
+    }
+    new_setting_list->nsettings = 0;
+    new_setting_list->derivedSettingList = NULL;
+    new_setting_list->next = NULL;
+
+    while(setting_lists->next)
+        setting_lists = setting_lists->next;
+
+    setting_lists->next = new_setting_list;
 }
 
 static void add_pmcsetting_name(configuration_t *config, char *name)
@@ -72,6 +195,10 @@ static void add_pmcsetting_name(configuration_t *config, char *name)
     {
         return;
     }
+
+    if (context_derived)
+         return add_pmc_setting_name_derived(config, name);
+
     entry = &config->configArr[config->nConfigEntries-1];
 
     newpmcsetting = malloc(sizeof *newpmcsetting);
@@ -81,16 +208,64 @@ static void add_pmcsetting_name(configuration_t *config, char *name)
     entry->pmcSettingList = newpmcsetting;
 }
 
+static void set_pmcsetting_derived_scale(configuration_t *config,  double scale,
+                                         int need_perf_scale)
+{
+    pmcsetting_t *pmcsetting;
+    pmcSettingLists_t *setting_lists;
+
+    if ((NULL == config) || (0 == config->nConfigEntries))
+    {
+        return;
+    }
+
+    if (context_derived)
+    {
+        setting_lists = config->derivedArr[config->nDerivedEntries-1].setting_lists;
+        while (setting_lists->next)
+        {
+            setting_lists = setting_lists->next;
+        }
+        pmcsetting = setting_lists->derivedSettingList;
+        while(pmcsetting->next)
+        {
+            pmcsetting = pmcsetting->next;
+        }
+        if (need_perf_scale)
+            pmcsetting->need_perf_scale = need_perf_scale;
+        else
+            pmcsetting->scale = scale;
+    }
+}
+
 static void set_pmcsetting_cpuconfig(configuration_t *config, int cpuconfig)
 {
     pmcsetting_t *pmcsetting;
+    pmcSettingLists_t *setting_lists;
 
     if( (NULL == config) || (0 == config->nConfigEntries) )
     {
         return;
     }
 
-    pmcsetting = config->configArr[config->nConfigEntries-1].pmcSettingList;
+    if (context_derived)
+    {
+        setting_lists = config->derivedArr[config->nDerivedEntries-1].setting_lists;
+        while (setting_lists->next)
+        {
+            setting_lists = setting_lists->next;
+        }
+        pmcsetting = setting_lists->derivedSettingList;
+        while(pmcsetting->next)
+        {
+            pmcsetting = pmcsetting->next;
+        }
+    }
+    else
+    {
+        pmcsetting = config->configArr[config->nConfigEntries-1].pmcSettingList;
+    }
+
 
     if( NULL == pmcsetting )
     {
@@ -144,7 +319,8 @@ void free_configuration(configuration_t *config)
 {
     int i;
     pmctype_t *pmcTypeDel;
-    pmcsetting_t *pmcSettingDel;
+    pmcsetting_t *pmcSettingDel, *tmp;
+    pmcSettingLists_t *setting_lists, *tmp_list;
 
     if(NULL == config)
     {
@@ -170,7 +346,29 @@ void free_configuration(configuration_t *config)
             free(pmcSettingDel);
         }
     }
+
+    for(i = 0; i < config->nDerivedEntries; ++i)
+    {
+        tmp_list = setting_lists = config->derivedArr[i].setting_lists;
+        while(tmp_list != NULL)
+        {
+            tmp = pmcSettingDel = tmp_list->derivedSettingList;
+            while(tmp != NULL)
+            {
+                tmp = tmp->next;
+                free(pmcSettingDel);
+                pmcSettingDel = tmp;
+            }
+            tmp_list = tmp_list->next;
+            free(setting_lists);
+            setting_lists = tmp_list;
+        }
+
+        if (config->derivedArr[i].name)
+            free(config->derivedArr[i].name);
+    }
     free(config->configArr);
+    free(config->derivedArr);
     free(config);
 }
 
@@ -190,7 +388,7 @@ void free_configuration(configuration_t *config)
 [ \t\r]                               ; /* ignore whitespace */
 \n                                    BEGIN(INITIAL); /* new-line always resets state machine */
 
-^\[                                   { BEGIN(PMCTYPELIST); new_pmctype(yyextra); /* a '[' char at beginning of line signals start of a list of PMC types */ }
+^\[                                   { BEGIN(PMCTYPELIST); context_newpmc = 1;/* a '[' char at beginning of line signals start of a list of PMC types */ }
 
 <PMCTYPELIST>{
 \"[^\"]*\"                            { /* strip quotes */ yytext[strlen(yytext)-1] = '\0'; add_pmctype(yyextra, &yytext[1] ); /* allow any char in quotes except the quote char */  }
@@ -200,12 +398,16 @@ void free_configuration(configuration_t *config)
 
 ^([[:alpha:]]+[[:alnum:][:punct:]]*) { BEGIN(PMCSETTINGLIST); add_pmcsetting_name(yyextra, yytext ); }
 
+"||"                                 { start_alternate_pmcsetting(yyextra); }
+
 <PMCSETTINGLIST>{
 cpu           set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_EACH_CPU);
 cpu_rr        set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_ROUNDROBIN_CPU);
 node          set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_EACH_NUMANODE);
 node_rr       set_pmcsetting_cpuconfig(yyextra, CPUCONFIG_ROUNDROBIN_NUMANODE);
-[0-9]*        set_pmcsetting_cpuconfig(yyextra, atoi(yytext) );
+[0-9]*        set_pmcsetting_cpuconfig(yyextra, atoi(yytext));
+perf_scale    set_pmcsetting_derived_scale(yyextra, strtod(yytext, NULL), 1);
+([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)  set_pmcsetting_derived_scale(yyextra, strtod(yytext, NULL), 0);
 }
 
 <*>.|\n { fprintf(stderr, "Syntax error on line: %d \n", yylineno); return -1; }
@@ -233,6 +435,8 @@ configuration_t *parse_configfile(const char *filename)
     config = malloc(sizeof *config);
     config->configArr = NULL;
     config->nConfigEntries = 0;
+    config->derivedArr = NULL;
+    config->nDerivedEntries = 0;
 
     yylex_init(&scanner);
     yyset_extra(config, scanner);

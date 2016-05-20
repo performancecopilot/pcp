@@ -25,10 +25,10 @@ CPMDAS = root pmcd \
 	mmv lmsensors process roomtemp summary etw \
 	lustrecomm infiniband logger bash systemd \
 	gfs2 jbd2 cifs rpm nvidia papi perfevent \
-	dm pipe
+	dm pipe openbsd
 
 PLPMDAS = bonding netfilter zimbra postgresql \
-	dbping memcache mysql vmware kvm \
+	dbping memcache mysql oracle vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
 	rsyslog elasticsearch snmp nginx nfsclient \
 	ds389 ds389log activemq lustre gpfs slurm

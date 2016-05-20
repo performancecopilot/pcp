@@ -69,7 +69,7 @@ date >>$seq.full
 echo "=== 1. prepare blank pmmgr config directory  ===" | tee -a $seq.full
 $sudo rm -rf $tmp.dir
 mkdir $tmp.dir
-$sudo chown pcp.pcp $tmp.dir
+$sudo chown pcp:pcp $tmp.dir
 $sudo chmod 777 $tmp.dir
 ls -ld $tmp.dir >>$seq.full
 
@@ -80,10 +80,19 @@ echo 'localhost' >>$tmp.dir/target-host
 echo 'pcp://localhost:44321/' >>$tmp.dir/target-host
 echo 'localhost6' >>$tmp.dir/target-host
 echo 'pcp://localhost6:44321/' >>$tmp.dir/target-host
+echo 0 > $tmp.dir/target-threads
 # note -v -v here is the same as -D appl0,appl1
 $sudo $_valgrind_clean_assert $PCP_BINADM_DIR/pmmgr -v -v -p 5 -l $tmp.out -c $tmp.dir >$tmp.valout 2>$tmp.valerr &
-pid=$!
-echo "pid=$!" >>$seq.full
+# this is the sudo's pid
+ppid=$!
+echo "ppid=$ppid" >>$seq.full
+# it takes a while for valgrind to get into gear sometimes ...
+#
+sleep 5
+# this is the valgrind's pid
+pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$3 == '"$ppid"' { print $2 }'`
+echo "pid=$pid" >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep "$pid|$ppid" >>$seq.full
 
 date >>$seq.full
 echo "=== 3. look for pmmgr starting no daemons ===" | tee -a $seq.full
@@ -104,7 +113,7 @@ echo $tmp.dir >$tmp.dir/log-directory  # same dir
 
 date >>$seq.full
 echo "=== 5. restart pmcd a few times to get a bunch of pmlogger archives ===" | tee -a $seq.full
-for x in `seq 4`
+for x in 1 2 3 4
 do
     echo restart $x `date` >>$seq.full
     $sudo rm -f $tmp.dir/$hostname/config.pmie $tmp.dir/$hostname/config.pmlogger
@@ -196,6 +205,11 @@ echo "=== 9. how about some granular/reduced mode with some extra monitoring ===
 echo 20sec >$tmp.dir/pmlogmerge
 rm $tmp.dir/pmlogrewrite # separately tested
 touch $tmp.dir/pmlogmerge-granular
+rm $tmp.dir/target-threads
+# add some unreachable hosts too
+echo '192.0.2.1' >>$tmp.dir/target-host
+echo '192.0.2.1' >>$tmp.dir/target-host
+echo '192.0.2.2' >>$tmp.dir/target-host
 echo 40sec >$tmp.dir/pmlogmerge-retain
 echo '-t 10' >$tmp.dir/pmlogreduce  # compare to -t 2 for in /pmlogger
 echo 15sec >$tmp.dir/pmlogreduce-retain
@@ -247,9 +261,18 @@ grep . $tmp.dir/$hostname/monitor-* >> $seq.full
 
 date >>$seq.full
 echo "=== ZZZ kill pmmgr ===" | tee -a $seq.full
-$sudo kill $pid
+$sudo kill $pid $ppid
+sleep 4 # under valgrind this can take some time
+if $sudo kill -0 $pid >/dev/null 2>&1
+then
+    echo "valgrind pmmgr (pid=$pid ppid=$ppid) did not die, try harder ..." >>$seq.full
+    $sudo kill -KILL $pid $ppid >/dev/null 2>&1
+    if $sudo kill -0 $pid >/dev/null 2>&1
+    then
+	echo "valgrind pmmgr (pid=$pid ppid=$ppid) will not die!" >>$seq.full
+    fi
+fi
 pid=
-sleep 2
 
 echo "=== valgrind stdout ===" | tee -a $seq.full
 # seen on bozo-laptop

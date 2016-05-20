@@ -34,6 +34,8 @@ typedef struct pmctype {
 typedef struct pmcsetting {
     char *name;
     int cpuConfig;
+    double scale;    /* Currently, only used by derived events */
+    int need_perf_scale;  /* Currently, only used by derived events */
     struct pmcsetting *next;
 } pmcsetting_t; 
 
@@ -42,10 +44,27 @@ typedef struct pmcconfiguration {
     pmcsetting_t *pmcSettingList;
 } pmcconfiguration_t;
 
+typedef struct settingLists {
+    int nsettings;
+    pmcsetting_t *derivedSettingList;
+    struct settingLists *next;
+} pmcSettingLists_t;
+
+typedef struct pmcderived {
+    char *name;
+    pmcSettingLists_t *setting_lists;
+    /* pmcsetting_t *derivedSettingList; */
+} pmcderived_t;
+
 typedef struct configuration {
     pmcconfiguration_t *configArr;
     size_t nConfigEntries;
+    pmcderived_t *derivedArr;
+    size_t nDerivedEntries;
 } configuration_t;
+
+int context_newpmc;
+int context_derived;        /* A flag to check the current pmc */
 
 /* \brief parse the perf event configuration file
  * This function allocates memory. The returned object should be passed to
@@ -58,5 +77,4 @@ configuration_t *parse_configfile(const char *filename);
 /* \brief returns the memory allocated by the parse_configfile() function
  */
 void free_configuration(configuration_t *);
-
 #endif 

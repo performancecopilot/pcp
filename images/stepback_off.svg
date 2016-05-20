@@ -2,7 +2,7 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
@@ -14,9 +14,9 @@
    id="svg1307"
    sodipodi:version="0.32"
    inkscape:version="0.44.1"
-   sodipodi:docbase="/source/git/pcp-gui/images"
+   sodipodi:docbase="/source/git/pcp/images"
    sodipodi:docname="stepback_off.svg"
-   inkscape:export-filename="/source/git/pcp-gui/images/stepback_off.png"
+   inkscape:export-filename="/source/git/pcp/images/stepback_off.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
    version="1.0">
@@ -235,33 +235,23 @@
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
         <dc:title />
-        <dc:creator>
-          <cc:Agent>
-            <dc:title>Nathan Scott</dc:title>
-          </cc:Agent>
-        </dc:creator>
         <cc:license
-           rdf:resource="http://creativecommons.org/licenses/by-sa/2.0/" />
-        <dc:contributor>
-          <cc:Agent>
-            <dc:title />
-          </cc:Agent>
-        </dc:contributor>
+           rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
       </cc:Work>
       <cc:License
-         rdf:about="http://creativecommons.org/licenses/by-sa/2.0/">
+         rdf:about="http://creativecommons.org/licenses/by-sa/3.0/">
         <cc:permits
-           rdf:resource="http://web.resource.org/cc/Reproduction" />
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
         <cc:permits
-           rdf:resource="http://web.resource.org/cc/Distribution" />
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
         <cc:requires
-           rdf:resource="http://web.resource.org/cc/Notice" />
+           rdf:resource="http://creativecommons.org/ns#Notice" />
         <cc:requires
-           rdf:resource="http://web.resource.org/cc/Attribution" />
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
         <cc:permits
-           rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
         <cc:requires
-           rdf:resource="http://web.resource.org/cc/ShareAlike" />
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
       </cc:License>
     </rdf:RDF>
   </metadata>
@@ -300,7 +290,7 @@
            d="M 1.608317,28.76378 L 1.608317,3.4265473 L 21.296185,16.095164 L 1.608317,28.76378 z "
            id="path3375"
            sodipodi:nodetypes="cccc"
-           inkscape:export-filename="/source/git/pcp-gui/images/play_on.png"
+           inkscape:export-filename="/source/git/pcp/images/play_on.png"
            inkscape:export-xdpi="88.615387"
            inkscape:export-ydpi="88.615387" />
         <path
@@ -310,7 +300,7 @@
            inkscape:r_cx="true"
            inkscape:r_cy="true"
            sodipodi:nodetypes="cccc"
-           inkscape:export-filename="/source/git/pcp-gui/images/play_on.png"
+           inkscape:export-filename="/source/git/pcp/images/play_on.png"
            inkscape:export-xdpi="88.615387"
            inkscape:export-ydpi="88.615387" />
       </g>

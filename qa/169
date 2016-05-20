@@ -61,6 +61,7 @@ _check_pmcd_procs()
     n_pmcd=`ps $PCP_PS_ALL_FLAGS \
 	    | tee $tmp.pmcd \
 	    | fgrep "$PCP_PMCD_PATH" \
+	    | grep -v pmcd_wait \
 	    | grep -v grep \
 	    | wc -l \
 	    | tr -d ' '`

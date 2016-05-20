@@ -1,8 +1,11 @@
 QA output created by 802
 === std out ===
-Start valgrind PMDA: VALGRIND --log-file=TMP._valgrind --leak-check=full pmdas/github-56/pmdatrivial
+dbpmda> open pipe VALGRIND pmdas/github-56/pmdatrivial
+Start valgrind PMDA: VALGRIND pmdas/github-56/pmdatrivial
+dbpmda> children trivial
 Metric: trivial
        leaf foo
+dbpmda> exit
 === std err ===
 [DATE] pmdatrivial(PID) Warning: pmdaInit: PMDA pmdatrivial: No help text file specified for pmdaText
 === filtered valgrind report ===

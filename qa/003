@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 case "$PCP_PLATFORM"
 in
-    linux|darwin|solaris|freebsd|netbsd)
+    linux|darwin|solaris|freebsd|netbsd|openbsd)
 	;;
     *)
 	echo "Need to hand-craft the exceptions list in ./003 for this platform"
@@ -53,10 +53,12 @@ linux_filter()
 {
     sed \
 	-e "/disk\.dm\..*: $unavailable/d" \
+	-e "/disk\.md\..*: $unavailable/d" \
 	-e "/filesys\.readonly: $unknown/d" \
 	-e "/hinv\.cpu\..*: $unavailable/d" \
 	-e "/hinv\.hugepagesize: $unavailable/d" \
 	-e "/hinv\.map\.dmname: $unavailable/d" \
+	-e "/hinv\.map\.mdname: $unavailable/d" \
 	-e "/hinv\.nlv: $unavailable/d" \
 	-e "/hinv\.node\.online: $unavailable/d" \
 	-e "/kernel\.pernode..*: $unavailable/d" \
@@ -260,6 +262,11 @@ do
 	  sed <$tmp.tmp \
 	    -e 's/a/a/'
     elif [ "$PCP_PLATFORM" = netbsd ]
+    then
+	  # do nothing at the moment
+	  sed <$tmp.tmp \
+	    -e 's/a/a/'
+    elif [ "$PCP_PLATFORM" = openbsd ]
     then
 	  # do nothing at the moment
 	  sed <$tmp.tmp \

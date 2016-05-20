@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #
 # Example server application that demonstrates use of the
 # Perl PCP MMV module for runtime instrumentation.

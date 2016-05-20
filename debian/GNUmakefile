@@ -1,4 +1,5 @@
 TOPDIR = ..
+PWDDIR = $(shell pwd)
 include $(TOPDIR)/src/include/builddefs
 SCRIPTS = $(TOPDIR)/build
 
@@ -101,6 +102,7 @@ DEVIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1-dev
 SUBDIRS = source
 LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	pcp.preinst pcp.preinst.head pcp.postinst pcp.postinst.head \
+	pcp-webapp-vector.dirs pcp-webapp-vector.install \
 	$(LIBPCPPCP) $(LIBPCPPCP)-dev \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
@@ -108,7 +110,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL)
 
-default: pcp.preinst pcp.postinst pcp.postrm control
+default: pcp.preinst pcp.postinst pcp.postrm vector control
 
 include $(BUILDRULES)
 
@@ -283,10 +285,12 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 endif
 
 install-pcppmdainfiniband: default
+ifeq ($(PMDA_INFINIBAND), true)
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
-#	$(INSTALL) -m 755 -d $(PCPPMDAINFINIBAND_DOC_DIR)
-#	$(INSTALL) -m 644 copyright $(PCPPMDAINFINIBAND_DOC_DIR)
-#	$(INSTALL) -m 644 changelog $(PCPPMDAINFINIBAND_DOC_DIR)/changelog.Debian
+	$(INSTALL) -m 755 -d $(PCPPMDAINFINIBAND_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPPMDAINFINIBAND_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPPMDAINFINIBAND_DOC_DIR)/changelog.Debian
+endif
 endif
 
 pcp.preinst:	pcp.preinst.head $(SCRIPTS)/cleanconfigs configversions pcp.preinst.tail
@@ -301,11 +305,31 @@ pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail
 	rm -f $@
 	cat pcp.postrm.head configversions pcp.postrm.tail > $@
 
+VECTOR = $(shell echo $(PCP_SHARE_DIR)/webapps/vector | sed -e 's,^/,,g')
+VECTORTGZ = $(PWDDIR)/../build/tar/vector.tar.gz
+VECTORPKG = pcp-webapp-vector
+
+vector:
+ifeq ($(HAVE_VECTOR), true)
+	$(TAR) tvzf $(VECTORTGZ) | \
+	$(AWK) '/^d/ { printf "$(VECTOR)/%s\n", $$NF }' > $(VECTORPKG).dirs
+	$(TAR) tvzf $(VECTORTGZ) | \
+	$(AWK) '/^-/ { printf "$(VECTOR)/%s\n", $$NF }' > $(VECTORPKG).install
+	mkdir -p pcp/$(VECTOR) 2>/dev/null || exit 0
+	cd pcp/$(VECTOR) && $(TAR) xzf $(VECTORTGZ)
+endif
+
 control:	control.master control.webapi control.pcpgui fixcontrol.master
 	./fixcontrol.master >control
+ifeq ($(HAVE_VECTOR), true)
+	cat control.vector >>control
+endif
 ifeq ($(ENABLE_WEBAPI), true)
 	cat control.webapi >>control
 endif
 ifeq ($(ENABLE_QT), true)
 	cat control.pcpgui >>control
+endif
+ifeq ($(PMDA_INFINIBAND), true)
+	cat control.pmdaib >>control
 endif

@@ -1,4 +1,3 @@
-#!/usr/bin/pcp python
 #
 # Copyright (c) 2014 Red Hat.
 # 

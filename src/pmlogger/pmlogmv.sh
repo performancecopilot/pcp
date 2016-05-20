@@ -146,6 +146,25 @@ _cleanup()
     exit
 }
 
+# count hard links to a file
+#
+_count_links()
+{
+    case "$PCP_PLATFORM"
+    in
+	# for *BSD-base systems with a -f option to stat(1)
+	#
+	darwin|freebsd|netbsd|openbsd)
+	    stat -f '%l' $1
+	    ;;
+	# for Linux systems with a -c option to stat(1)
+	#
+	*)
+	    stat -c '%h' $1
+	    ;;
+    esac
+}
+
 # get oldnames inventory check required files are present
 #
 ls "$old".* 2>&1 | egrep '\.(index|meta|[0-9][0-9]*)$' >$tmp/old
@@ -240,7 +259,7 @@ do
 	_cleanup
 	# NOTREACHED
     fi
-    links=`stat $f | sed -n -e '/Links:/s/.*Links:[ 	]*\([0-9][0-9]*\).*/\1/p'`
+    links=`_count_links $f`
     xpect=2
     $showme && xpect=1
     if [ -z "$links" -o "$links" != $xpect ]

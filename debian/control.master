@@ -4,13 +4,14 @@ Priority: extra
 Homepage: http://pcp.io
 Maintainer: PCP Development Team <pcp@oss.sgi.com>
 Uploaders: Nathan Scott <nathans@debian.org>, Anibal Monsalve Salazar <anibal@debian.org>
-Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, libqt4-dev, autotools-dev, zlib1g-dev, autoconf ?{dh-python}
+Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 5), perl (>= 5.6), libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], python-all, python3-all, python-all-dev, python3-all-dev, libnspr4-dev, libnss3-dev, libsasl2-dev, libmicrohttpd-dev, libavahi-common-dev, libqt4-dev, autotools-dev, zlib1g-dev, autoconf, libclass-dbi-perl, libdbd-mysql-perl, libdbd-pg-perl, dpkg-dev, build-essential, ?{dh-python} libcairo2-dev, ?{libpapi-dev} ?{libpfm4-dev} g++, libncurses5-dev, python-six, ?{python-json-pointer} libextutils-autoinstall-perl, libxml-tokeparser-perl, librrds-perl, libjson-perl, libwww-perl, libnet-snmp-perl, qt4-qmake, libnss3-tools, manpages
 #Architecture-dependent -- Build-Depends: libibumad-dev, libibmad-dev
 Standards-Version: 3.9.3
 X-Python-Version: >= 2.6
+X-Python3-Version: >= 3.3
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, python-pcp, python
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, python-pcp | python3-pcp, python | python3
 Conflicts: pgpool2
 Suggests: pcp-gui, libpcp-import-perl
 Architecture: any
@@ -226,6 +227,20 @@ Description: Performance Co-Pilot Python PMAPI module
  client applications to easily retrieve and process any subset of
  that data.
 
+Package: python3-pcp
+Section: python
+Architecture: any
+Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, libpcp3 (= ${binary:Version})
+Provides: ${python:Provides} 
+Description: Performance Co-Pilot Python3 PMAPI module
+ The PCP Python3 module contains the language bindings for
+ building Performance Metric API client tools using Python3.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
 Package: libpcp-pmda-perl
 Section: perl
 Architecture: any
@@ -337,7 +352,7 @@ Description: Tool for importing data from collectl into PCP archive logs
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
 Package: pcp-export-pcp2graphite
-Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, python-pcp
+Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, python-pcp | python3-pcp
 Breaks: pcp (<< 3.9.0)
 Architecture: any
 Description: Tool for exporting data from PCP to Graphite
@@ -347,9 +362,9 @@ Description: Tool for exporting data from PCP to Graphite
 Package: pcp-export-zabbix-agent
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Architecture: any
-Description: Module for exporting from PCP into a Zabbix agent daemon
- Performance Co-Pilot (PCP) module for exporting data from PCP via a
- designated Zabbix agent daemon - see zbxpcp(3) for further details.
+Description: Module for exporting PCP metrics to Zabbix agent
+ Performance Co-Pilot (PCP) module for exporting metrics from PCP to
+ Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 
 Package: pcp-doc
 Section: doc

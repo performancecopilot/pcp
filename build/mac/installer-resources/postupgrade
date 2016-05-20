@@ -34,31 +34,31 @@ fi
 
 cd $2
 
-if [ -f /usr/share/pcp/bin/idb ]
-then
-    if ./install-pcp -u /usr/share/pcp/bin/idb -l /var/log/pcp_inst.log idb
+# need to work through all the possible idb locations here ...
+# start with the old ones and end with the current one
+# for each, remove any files/dirs in the old idb and not in the
+# new idb
+#
+for oldidb in /usr/share/pcp/bin/idb /usr/libexec/pcp/bin/idb 
+do
+    if [ -f $oldidb ]
     then
-	:
-    else
-	echo "$prog: Upgrade Failed"
-	exit
-    fi
-else
-    echo "$prog: Package detected previous install of pcp but /usr/share/pcp/bin/idb does not exist."
-    echo "$prog: Attempting to remove existing files using new idb."
-    if ./install-pcp -v -r -l /var/log/pcp_inst.log idb
-    then
-	if ./install-pcp -v -i -l /var/log/pcp_inst.log idb
+	if ./install-pcp -u $oldidb -l /var/log/pcp_inst.log idb 
 	then
 	    :
 	else
-	    echo "$prog: Install Failed"
+	    echo "$prog: $oldidb Update Removal Failed"
 	    exit
 	fi
-    else
-	echo "$prog: Remove Failed"
-	exit
     fi
+done
+
+if ./install-pcp -i -l /var/log/pcp_inst.log idb
+then
+    :
+else
+    echo "$prog: Install Failed"
+    exit
 fi
 
 if [ -f /etc/pcp.conf ]

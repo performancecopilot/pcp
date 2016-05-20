@@ -40,7 +40,12 @@ root {
 	test	SAMPLE:0:0
 }
 End-of-File
-metrics=`pminfo -Dpmns disk.dev 2>$tmp.err | LC_COLLATE=POSIX sort`
+# pick some disk metrics that are always likely to be present
+#
+metrics=`pminfo -Dpmns disk.dev 2>$tmp.err \
+         | egrep 'read|write|total' \
+	 | egrep -v 'rawactive|_merge|_time' \
+	 | LC_COLLATE=POSIX sort`
 # real QA test starts here
 echo "PM_CONTEXT_LOCAL, default PMNS ..."
 pminfo -Dpmns -L $metrics >$tmp.out 2>$tmp.err

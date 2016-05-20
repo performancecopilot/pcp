@@ -59,7 +59,13 @@ deb_upload()
 
 sign_repository()
 {
-    repo="$1"
+    repo="$1"; vers="$2"
+
+    url="https://api.bintray.com/gpg/pcp/${repo}/pcp/versions/${vers}"
+    echo "Signing version ${repo}/${version} via:" && echo "    ${url}"
+    curl -X POST -H "X-GPG-PASSPHRASE: ${gpgpass}" -u ${user}:${apikey} \
+	"${url};bt_package=pcp;bt_version=${vers};publish=1"
+
     url="https://api.bintray.com/calc_metadata/pcp/${repo}"
     echo "Signing repository ${repo} via:" && echo "    ${url}"
     curl -X POST -H "X-GPG-PASSPHRASE: ${gpgpass}" -u ${user}:${apikey} "${url}"
@@ -77,8 +83,7 @@ container_upload()
 
 verify_asset()
 {
-    file="$1"
-    prev="$2"
+    file="$1"; prev="$2"
 
     test -f "${file}" || return 1
     # batch mode - if we said yes already, say yes again
@@ -137,7 +142,7 @@ then
 	previous=yes && \
 	pkg_upload ${distro} ${rpm} ${version}
     done
-    [ $previous = yes ] && sign_repository ${distro}
+    [ $previous = yes ] && sign_repository ${distro} ${version}
 fi
 
 # DEB packages 
@@ -153,5 +158,5 @@ then
 	previous=yes && \
 	deb_upload ${distro} ${deb} ${version} ${arch}
     done
-    [ $previous = yes ] && sign_repository ${distro}
+    [ $previous = yes ] && sign_repository ${distro} ${version}
 fi

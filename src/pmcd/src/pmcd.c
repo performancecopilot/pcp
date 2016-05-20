@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 1995-2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -29,6 +29,7 @@ static char	*FdToString(int);
 static void	ResetBadHosts(void);
 
 int		AgentDied;		/* for updating mapdom[] */
+int		AgentPendingRestart;	/* for automatic restart */
 static int	timeToDie;		/* For SIGINT handling */
 static int	restart;		/* For SIGHUP restart */
 static int	maxReqPortFd;		/* Largest request port fd */
@@ -678,9 +679,16 @@ CheckNewClient(__pmFdSet * fdset, int rfd, int family)
 
 	s = __pmSendXtendError(cp->fd, FROM_ANON, sts, htonl(challenge));
 	if (s < 0) {
-	    __pmNotifyErr(LOG_ERR,
-		"ClientLoop: error sending Conn ACK PDU to new client %s\n",
-		pmErrStr(s));
+	    /*
+	     * Port-probe style connections frequently drop just before
+	     * reaching here, as this is the first PDU we send.  Rather
+	     * than being chatty in pmcd.log write this diagnostic only
+	     * under debugging conditions.
+	     */
+	    if (pmDebug & DBG_TRACE_APPL0)
+		__pmNotifyErr(LOG_INFO, "ClientLoop: "
+			"error sending Conn ACK PDU to new client %s\n",
+			pmErrStr(s));
 	    if (sts >= 0)
 	        /*
 		 * prefer earlier failure status if any, else
@@ -703,6 +711,7 @@ ClientLoop(void)
     int		maxFd;
     int		checkAgents;
     int		reload_ns = 0;
+    int		restartAgents = -1;	/* initial state unknown */
     __pmFdSet	readableFds;
 
     for (;;) {
@@ -748,6 +757,28 @@ ClientLoop(void)
 	else if (sts == -1 && neterror() != EINTR) {
 	    __pmNotifyErr(LOG_ERR, "ClientLoop select: %s\n", netstrerror());
 	    break;
+	}
+	if (AgentDied) {
+	    if (restartAgents == -1) {
+		char *args;
+
+		if ((args = getenv("PMCD_RESTART_AGENTS")) == NULL)
+		    restartAgents = 1;	/* unset, default to enabled */
+		else
+		    restartAgents = (strcmp(args, "0") != 0);
+	    }
+	    AgentPendingRestart = restartAgents;
+	}
+	if (AgentPendingRestart) {
+	    static time_t last_restart;
+	    time_t now = time(NULL);
+
+	    if ((now - last_restart) >= 60) {
+		AgentPendingRestart = 0;
+		last_restart = now;
+		__pmNotifyErr(LOG_INFO, "Auto-restarting agents.\n");
+		restart = 1;
+	    }
 	}
 	if (restart) {
 	    restart = 0;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 2003 Moser, Inc.  All Rights Reserved.
  * Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -99,15 +99,12 @@ extern "C" {
 /* Define if header file is available */
 #undef HAVE_FCNTL_H
 #undef HAVE_LIMITS_H
-#undef HAVE_MALLOC_H
 #undef HAVE_STRINGS_H
 #undef HAVE_SYSLOG_H
-#undef HAVE_UNISTD_H
 #undef HAVE_STDDEF_H
 #undef HAVE_SCHED_H
 #undef HAVE_DLFCN_H
 #undef HAVE_DL_H
-#undef HAVE_SYS_TIME_H
 #undef HAVE_SYS_TIMEB_H
 #undef HAVE_SYS_TIMES_H
 #undef HAVE_SYS_SYSINFO_H
@@ -116,14 +113,12 @@ extern "C" {
 #undef HAVE_SYS_PRCTL_H
 #undef HAVE_SYS_STATVFS_H
 #undef HAVE_SYS_STATFS_H
-#undef HAVE_SYS_PARAM_H
 #undef HAVE_SYS_MOUNT_H
 #undef HAVE_ENDIAN_H
 #undef HAVE_STANDARDS_H
 #undef HAVE_SYS_BYTEORDER_H
 #undef HAVE_PTHREAD_H
 #undef HAVE_LIBGEN_H
-#undef HAVE_SYS_PARAM_H
 #undef HAVE_SYS_MMAN_H
 #undef HAVE_SYS_UN_H
 #undef HAVE_STDINT_H
@@ -144,6 +139,7 @@ extern "C" {
 #undef HAVE_EXECINFO_H
 #undef HAVE_IPTYPES_H
 #undef HAVE_IPHLPAPI_H
+#undef HAVE_SYS_SELECT_H
 #undef HAVE_SYS_SOCKET_H
 #undef HAVE_NETDB_H
 #undef HAVE_NET_IF_H
@@ -159,9 +155,6 @@ extern "C" {
 
 #undef HAVE_AI_ADDRCONFIG
 
-#if defined(HAVE_MALLOC_H)
-#include <malloc.h>
-#endif
 #if defined(HAVE_STDDEF_H)
 #include <stddef.h>
 #endif
@@ -385,7 +378,6 @@ bozo! unclear how to represent users and groups for this platform
  */
 #undef HAVE_SOCKLEN_T
 #ifdef HAVE_SOCKLEN_T
-#include <sys/types.h>
 #include <sys/socket.h>
 typedef socklen_t __pmSockLen;
 #else
@@ -396,11 +388,7 @@ typedef int __pmSockLen;
  * MAXNAMELEN hides in may places and may have alias names ...
  */
 #ifndef MAXNAMELEN
-#include <stdio.h>
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
-#if !defined(MAXNAMELEN) && defined(FILENAME_MAX)
+#if defined(FILENAME_MAX)
 /* posix version of the bsd MAXNAMELEN macro */
 #define MAXNAMELEN FILENAME_MAX
 #endif
@@ -413,9 +401,6 @@ bozo! need to find where MAXNAMELEN is defined for this platform
  * MAXPATHLEN hides in many places and may have alias names ...
  */
 #ifndef MAXPATHLEN
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
 #endif
@@ -433,11 +418,6 @@ bozo! need to find where MAXNAMELEN is defined for this platform
 /*
  * MAXHOSTNAMELEN hides in many places and may also have aliases ...
  */
-#ifndef MAXHOSTNAMELEN
-#ifdef HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
-#endif
 #ifndef MAXHOSTNAMELEN
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
@@ -538,6 +518,12 @@ typedef void (*SIG_PF) (int);
 
 /* Determine if we are on a NetBSD box */
 #undef IS_NETBSD
+
+/* Determine if we are on an OpenBSD box */
+#undef IS_OPENBSD
+#ifdef IS_OPENBSD
+#define EPROTO		ENOPROTOOPT
+#endif
 
 /* Determine if we are on a Mac OS X box */
 #undef IS_DARWIN
@@ -640,6 +626,9 @@ enum { LOG_EMERG, LOG_ALERT, LOG_CRIT, LOG_ERR,
 #define netstrerror()		strerror(WSAGetLastError())
 #define netstrerror_r(buf, len)	pmErrStr_r(-WSAGetLastError(), buf, len)
 #define hoststrerror()	strerror(WSAGetLastError())
+
+PCP_CALL extern int setenv(const char *, const char *, int);
+PCP_CALL extern int unsetenv(const char *);
 
 #else /*!MINGW*/
 #define PCP_DATA

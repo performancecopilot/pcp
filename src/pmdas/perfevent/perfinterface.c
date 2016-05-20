@@ -27,45 +27,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <dirent.h>
+#include <sys/stat.h>
+
+#define SYSFS_DEVICES "/sys/bus/event_source/devices"
+#define BUF_SIZE 1024
+#define MAX_EVENT_NAME 1024
 
 #define EVENT_TYPE_PERF 0
 #define EVENT_TYPE_RAPL 1
 
-typedef struct eventcpuinfo_t_ {
-    uint64_t values[3];
-    uint64_t previous[3];
-    int type;
-    int fd;
-    perf_event_attr_t hw; /* perf_event_attr struct passed to perf_event_open() */
-    int idx; /* opaque libpfm event identifier */
-    char *fstr; /* fstr from library, must be freed */
-    rapl_data_t rapldata;
-    int cpu;
-} eventcpuinfo_t;
-
 #define RAW_VALUE 0
 #define TIME_ENABLED 1
 #define TIME_RUNNING 2
-
-typedef struct event_t_ {
-    char *name;
-    eventcpuinfo_t *info;
-    int ncpus;
-} event_t;
-
-typedef struct perfdata_t_
-{
-    int nevents;
-    event_t *events;
-
-    /* information about the architecture (number of cpus, numa nodes etc) */
-    archinfo_t *archinfo;
-
-    /* internal state to keep track of cpus for events added in 'round
-     * robin' mode */
-    int roundrobin_cpu_idx;
-    int roundrobin_nodecpu_idx;
-} perfdata_t;
 
 const char *perf_strerror(int err)
 {
@@ -134,6 +108,456 @@ static void free_perfdata(perfdata_t *del)
     pfm_terminate();
 }
 
+/*
+ * Search an event from the event list
+ */
+static event_t *search_event(perfdata_t *inst, const char *event_name)
+{
+    int i;
+
+    for (i = 0; i < inst->nevents; i++) {
+        if (!strcmp(event_name, inst->events[i].name)) {
+            return ((inst->events) + i);
+        }
+    }
+
+    return NULL;
+}
+
+/*
+ * Free up the event list "event_list"
+ */
+static void free_event_list(event_list_t *event_list)
+{
+    event_list_t *tmp;
+
+    tmp = event_list;
+    while(tmp) {
+        tmp = tmp->next;
+        free(event_list);
+        event_list = tmp;
+    }
+}
+
+/*
+ * Utility function to fetch the contents of a
+ * file(in "path") to "buf"
+ */
+static int get_file_string(char *path, char *buf)
+{
+    FILE *fp;
+    int ret;
+    size_t size = BUF_SIZE;
+    char *ptr;
+
+    fp = fopen(path, "r");
+    if (NULL == fp)
+        return -1;
+
+    ret = getline(&buf, &size, fp);
+    if (ret < 0) {
+        fclose(fp);
+        return ret;
+    }
+
+    /* Strip off the new-line character (if found) */
+    ptr = strchr(buf, '\n');
+    if (ptr)
+        *ptr = '\0';
+
+    fclose(fp);
+
+    return 0;
+}
+
+/* Right now, only capable of parsing event and umask */
+static int parse_and_get_config(char *config_str, uint64_t *config)
+{
+    char *start_token, *end_token = NULL, *end_ptr = NULL, *value_ptr;
+    uint64_t event_sel = 0, umask = 0;
+
+    if (!config_str)
+        return -1;
+
+    /* Search for event= */
+    start_token = config_str;
+    /*
+     * Start looking for tokens.
+     * Currently, supported: "event" and "umask"
+     */
+    while (1) {
+        value_ptr = strchr(start_token, '=');
+        if (!value_ptr) {
+            fprintf(stderr, "Error in config string\n");
+            return -1;
+        }
+        end_token = strchr(start_token, ',');
+        if (!end_token)
+            end_ptr = end_token - 1;
+        else
+            end_ptr = config_str + strlen(config_str - 1);
+
+        if (!strncmp(start_token, "event=", strlen("event=")))
+            event_sel = strtoull(value_ptr + 1, &end_ptr, 16);
+        else if (!strncmp(start_token, "umask=", strlen("umask=")))
+            umask = strtoull(value_ptr + 1, &end_ptr, 16);
+        else
+            break;
+        /* No more token to parse after this */
+        if (!end_token)
+            break;
+        /* Point after ',' */
+        start_token = end_token + 1;
+    }
+
+    /*
+     * We have the event and umask fields, find the config value
+     * umask : config[15:8]
+     * event_sel : config[7:0]
+     */
+    if (event_sel && umask)
+        *config = (umask << 8) | event_sel;
+    else
+        return -1;
+    /* Search for umask= */
+    return 0;
+}
+
+static int search_for_config(char *device_path, uint64_t config, char *event_file)
+{
+    char events_path[PATH_MAX], event_path[PATH_MAX], *ptr, *buf = NULL;
+    DIR *events_dir;
+    struct dirent *entry;
+    uint64_t parsed_config = 0;
+    int ret = -1;
+
+    snprintf(events_path, PATH_MAX, "%s/events/", device_path);
+    events_dir = opendir(events_path);
+    if (NULL == events_dir) {
+        fprintf(stderr, "Error in opening %s\n", events_path);
+        return -1;
+    }
+
+    while ((entry = readdir(events_dir)) != NULL) {
+        if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+            continue;
+        snprintf(event_path, PATH_MAX, "%s/events/%s", device_path, entry->d_name);
+
+        buf = calloc(sizeof(char), BUF_SIZE);
+        if (NULL == buf) {
+            fprintf(stderr, "Error in allocating memory for buf\n");
+            ret = -E_PERFEVENT_REALLOC;
+            break;
+        }
+        ret = get_file_string(event_path, buf);
+        if (ret < 0) {
+            free(buf);
+            continue;
+        }
+
+        /* Check whether atleast "event=" is present */
+        ptr = strstr(buf, "event=");
+        if (!ptr) {
+            free(buf);
+            continue;
+        }
+
+        ret = parse_and_get_config(buf, &parsed_config);
+        if (ret < 0) {
+            fprintf(stderr, "parse_and_get_config failed\n");
+            free(buf);
+            break;
+        }
+        if (parsed_config == config) {
+            strncpy(event_file, entry->d_name, strlen(entry->d_name));
+            ret = 0;
+            break;
+        }
+        if (buf)
+            free(buf);
+    }
+
+    closedir(events_dir);
+    return ret;
+}
+
+static int find_and_fetch_scale(char *path_str, uint64_t config,
+                                double *scale)
+{
+    char *device_path, *event_file, scale_path[PATH_MAX], *buf;
+    int ret = -1;
+
+    device_path = calloc(PATH_MAX, sizeof(char));
+    if (NULL == device_path) {
+        fprintf(stderr, "Error in allocating memory\n");
+        return -E_PERFEVENT_REALLOC;
+    }
+    snprintf(device_path, PATH_MAX, "%s", path_str);
+
+    event_file = calloc(MAX_EVENT_NAME, sizeof(char));
+    if (!event_file) {
+        fprintf(stderr, "Error in allocating memory for event_file\n");
+        ret = -E_PERFEVENT_REALLOC;
+        goto free_dev;
+    }
+
+    /* Need to free up event_file after using this call */
+    ret = search_for_config(device_path, config, event_file);
+    if (ret) {
+        fprintf(stderr, "search_for_config failed\n");
+        goto free_event;
+    }
+
+    /* Got the right event name in event_file, fetch the scale */
+    snprintf(scale_path, PATH_MAX, "%s/events/%s.scale", device_path, event_file);
+    buf = calloc(BUF_SIZE, sizeof(char));
+    if (!buf) {
+        fprintf(stderr, "Error in allocating memory to buf\n");
+        ret = -E_PERFEVENT_REALLOC;
+        goto free_event;
+    }
+
+    ret = get_file_string(scale_path, buf);
+    if (ret) {
+        fprintf(stderr, "Couldn't read scale from get_file_string, %s\n", scale_path);
+        goto free_buf;
+    }
+    *scale = strtod(buf, NULL);
+
+ free_buf:
+    free(buf);
+ free_event:
+    free(event_file);
+ free_dev:
+    free(device_path);
+    return ret;
+}
+
+static int parse_sysfs_perf_event_scale(int type, uint64_t config,
+                                        double *scale)
+{
+    DIR *devices_dir;
+    struct dirent* entry;
+    char fullpath[PATH_MAX];
+    char *path_str, *buf = NULL;
+    int fetched_type = -1, ret = -1;
+
+    devices_dir = opendir(SYSFS_DEVICES);
+    if (NULL == devices_dir) {
+        fprintf(stderr, "Error in opening %s\n", SYSFS_DEVICES);
+        return ret;
+    }
+
+    path_str = calloc(PATH_MAX, sizeof(char));
+    if (!path_str) {
+        fprintf(stderr, "Error in allocating memory to path_str\n");
+        goto close_dir;
+    }
+
+    while ((entry = readdir(devices_dir)) != NULL) {
+        if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+            continue;
+
+        snprintf(fullpath, PATH_MAX, "%s/%s", SYSFS_DEVICES, entry->d_name);
+        snprintf(path_str, PATH_MAX, "%s/type", fullpath);
+
+        buf = calloc(BUF_SIZE, sizeof(char));
+        if (!buf) {
+            fprintf(stderr, "Error in allocating memory to buf\n");
+            ret = -1;
+            goto close_dir;
+        }
+
+        ret = get_file_string(path_str, buf);
+        if (ret < 0) {
+            free(buf);
+            goto close_dir;
+        }
+        fetched_type = (int)strtol(buf, NULL, 10);
+        free(buf);
+
+        if (fetched_type < 0) {
+            ret = -1;
+            goto close_dir;
+        }
+        if (fetched_type == type)
+            break;
+    }
+
+    if (fetched_type == type)
+        ret = find_and_fetch_scale(fullpath, config, scale);
+
+ close_dir:
+    closedir(devices_dir);
+    return ret;
+
+}
+
+static int fetch_perf_scale(char *event_name, double *scale)
+{
+    event_t *event;
+    eventcpuinfo_t *info;
+    pfm_perf_encode_arg_t arg;
+    int type, ret;
+    uint64_t config;
+
+    event = calloc(1, sizeof(event_t));
+    if (!event)
+        return -1;
+    event->name = strdup(event_name);
+    info = event->info;
+    info = calloc((sizeof *info),  1);
+    event->ncpus = 0;
+
+    info->type = EVENT_TYPE_PERF;
+
+    /* ABI compatibility, set before calling libpfm */
+    info->hw.size = sizeof(info->hw);
+
+    memset(&arg, 0, sizeof(arg));
+    arg.attr = &(info->hw);
+    arg.fstr = &(info->fstr); /* info->fstr is NULL */
+
+    ret = pfm_get_os_event_encoding(event_name, PFM_PLM0|PFM_PLM3, PFM_OS_PERF_EVENT_EXT, &arg);
+
+    if (ret != PFM_SUCCESS) {
+        fprintf(stderr, "pfm_get_os_event_encoding failed \"%s\": %s\n",
+                event_name, pfm_strerror(ret));
+        free_eventcpuinfo(info);
+        ret = -1;
+        goto free_all;
+    }
+
+    type = info->hw.type;
+    config = info->hw.config;
+
+    ret = parse_sysfs_perf_event_scale(type, config, scale);
+    if (ret) {
+        free_eventcpuinfo(info);
+        ret = -1 ;
+    }
+
+ free_all:
+    free_eventcpuinfo(event->info);
+    free(event->name);
+    free(event);
+
+    return ret;
+}
+
+/*
+ * Setup a derived event
+ */
+static int perf_setup_derived_event(perfdata_t *inst, pmcderived_t *derived_pmc)
+{
+    derived_event_t *curr, *derived_events = inst->derived_events;
+    int nderivedevents = inst->nderivedevents;
+    event_t *event;
+    pmcsetting_t *derived_setting;
+    pmcSettingLists_t *setting_list;
+    event_list_t *ptr, *tmp, *event_list;
+    int cpuconfig, clear_history = 0, ret;
+
+    tmp = NULL;
+    event_list = NULL;
+    if (NULL == derived_pmc->setting_lists) {
+        fprintf(stderr, "No derived_pmc settings\n");
+        return -E_PERFEVENT_LOGIC;
+    }
+
+    /*
+     * If a certain setting_list is not available, then we need to check if the
+     * next one is available.
+     */
+    setting_list = derived_pmc->setting_lists;
+
+    while (setting_list) {
+        event_list = NULL;
+        derived_setting = setting_list->derivedSettingList;
+        clear_history = 0;
+        if (derived_setting)
+            cpuconfig = derived_setting->cpuConfig;
+        while (derived_setting) {
+            event = search_event(inst, derived_setting->name);
+            if (NULL == event) {
+                fprintf(stderr, "Derived setting %s not found\n", derived_setting->name);
+                clear_history = 1;
+                break;
+            }
+
+            if (cpuconfig != derived_setting->cpuConfig) {
+                fprintf(stderr, "Mismatch in cpu configuration\n");
+                free_event_list(event_list);
+                return -E_PERFEVENT_LOGIC;
+            }
+
+            tmp = calloc(1, sizeof(*tmp));
+            if (NULL == tmp) {
+                free_event_list(event_list);
+                return -E_PERFEVENT_REALLOC;
+            }
+            tmp->event = event;
+
+            if (derived_setting->need_perf_scale) {
+                ret = fetch_perf_scale(event->name, &tmp->scale);
+                if (ret < 0) {
+                    fprintf(stderr, "Couldn't fetch perf_scale for the %s event\n",
+                            event->name);
+                    free_event_list(event_list);
+                    return ret;
+                }
+            }
+            else
+                tmp->scale = derived_setting->scale;
+
+            tmp->next = NULL;
+            derived_setting = derived_setting->next;
+
+            if (NULL == event_list) {
+                event_list = tmp;
+                ptr = event_list;
+            } else {
+                ptr->next = tmp;
+                ptr = ptr->next;
+            }
+        }
+
+        /* There was a event mismatch in the curr list, so, discard this list */
+        if (clear_history)
+            free_event_list(event_list);
+
+        /* All the events in the curr list have been successfully found */
+        if (NULL == derived_setting)
+            break;
+        setting_list = setting_list->next;
+    }
+
+    /* If clear_history is still on, then, none of the events were found */
+    if (clear_history) {
+        fprintf(stderr, "None of the derived settings found\n");
+        return -E_PERFEVENT_LOGIC;
+    }
+
+    derived_events = realloc(derived_events,
+                             (nderivedevents + 1) * sizeof(*derived_events));
+    if (NULL == derived_events) {
+        free(inst->derived_events);
+        inst->nderivedevents = 0;
+        inst->derived_events = NULL;
+        free_event_list(event_list);
+        return -E_PERFEVENT_REALLOC;
+    }
+
+    curr = derived_events + nderivedevents;
+    curr->name = strdup(derived_pmc->name);
+    curr->event_list = event_list;
+    (inst->nderivedevents)++;
+    inst->derived_events = derived_events;
+
+    return 0;
+}
+
+
 /* Setup an event
  */
 static int perf_setup_event(perfdata_t *inst, const char *eventname, const int cpuSetting)
@@ -150,7 +574,7 @@ static int perf_setup_event(perfdata_t *inst, const char *eventname, const int c
     events = realloc(events, (nevents + 1) * sizeof(*events) );
     if(NULL == events)
     {
-	free(inst->events);
+        free(inst->events);
         inst->nevents = 0;
         inst->events = NULL;
         return -E_PERFEVENT_REALLOC;
@@ -336,29 +760,28 @@ static void log_events_for_pmu(pfm_pmu_info_t *pinfo)
             fprintf(stderr, "\n");
         }
     }
-
 }
 
 static int enumerate_active_pmus(char **activepmus, int logevents)
 {
-	pfm_pmu_info_t pinfo;
+    pfm_pmu_info_t pinfo;
     pfm_pmu_t j;
     pfm_err_t ret;
     int nactive = 0;
 
-	memset(&pinfo, 0, sizeof(pinfo));
-	pinfo.size = sizeof(pinfo);
+    memset(&pinfo, 0, sizeof(pinfo));
+    pinfo.size = sizeof(pinfo);
 
-	/*
-	 * enumerate all detected PMU models
-	 */
-	pfm_for_all_pmus(j) 
+    /*
+     * enumerate all detected PMU models
+     */
+    pfm_for_all_pmus(j) 
     {
-		ret = pfm_get_pmu_info(j, &pinfo);
-		if (ret != PFM_SUCCESS)
-			continue;
+        ret = pfm_get_pmu_info(j, &pinfo);
+        if (ret != PFM_SUCCESS)
+            continue;
 
-		if (0 == pinfo.is_present)
+        if (0 == pinfo.is_present)
             continue;
 
         fprintf(stderr, "Found PMU: %s (%s) identification %d (%d events %d generic counters %d fixed counters)\n",
@@ -483,7 +906,103 @@ int perf_counter_enable(perfhandle_t *inst, int enable)
     return n;
 }
 
-int perf_get(perfhandle_t *inst, perf_counter **counters, int *size)
+static perf_counter *get_counter(perf_counter **counters, int size, const char *str)
+{
+    perf_counter *pcounter = *counters;
+    int idx, ncounters = size;
+
+    for (idx = 0; idx < ncounters; idx++) {
+        if (!strcmp(pcounter[idx].name, str)) {
+            return (pcounter + idx);
+        }
+    }
+    return NULL;
+}
+
+static int perf_derived_get(perf_derived_counter **derived_counters,
+                            int *derived_size, perfdata_t *pdata,
+                            perf_counter **counters, int *size)
+{
+    int idx, cpuidx;
+
+    perf_derived_counter *pdcounter = *derived_counters;
+    int nderivedcounters = *derived_size;
+
+    if(NULL == pdcounter || nderivedcounters != pdata->nderivedevents)
+    {
+        pdcounter = malloc(pdata->nderivedevents * sizeof *pdcounter);
+        if (NULL == pdcounter) {
+            return -E_PERFEVENT_REALLOC;
+        }
+        memset(pdcounter, 0, pdata->nderivedevents * sizeof *pdcounter);
+        nderivedcounters = pdata->nderivedevents;
+
+        for (idx = 0; idx < pdata->nderivedevents; idx++) {
+            derived_event_t *derived_event = &pdata->derived_events[idx];
+            event_list_t *event_list = derived_event->event_list;
+            perf_counter_list *counter_list, *ptr, *curr;
+            perf_counter *counter;
+
+            counter_list = ptr =curr = NULL;
+            pdcounter[idx].name = derived_event->name;
+
+            while (event_list != NULL) {
+                counter = get_counter(counters, *size, event_list->event->name);
+                if (counter != NULL) {
+                    ptr = calloc(1, sizeof(*ptr));
+                    if (!ptr)
+                        return -E_PERFEVENT_REALLOC;
+                    ptr->counter = counter;
+                    ptr->scale = event_list->scale;
+                    ptr->next = NULL;
+                    if (counter_list == NULL) {
+                        counter_list = ptr;
+                        curr = ptr;
+                    } else {
+                        curr->next = ptr;
+                        curr = curr->next;
+                    }
+                }
+                event_list = event_list->next;
+            }
+            /*
+             * For every counter in a derived_event, we have ninstances and
+             * they should match
+             */
+            pdcounter[idx].counter_list = counter_list;
+            if (pdcounter[idx].counter_list != NULL)
+                pdcounter[idx].ninstances = (pdcounter[idx].counter_list)->counter->ninstances;
+            pdcounter[idx].data = calloc(pdcounter[idx].ninstances, sizeof(uint64_t));
+        }
+        *derived_counters = pdcounter;
+        *derived_size = nderivedcounters;
+    }
+
+    if (pdcounter) {
+        nderivedcounters = *derived_size;
+
+        for (idx = 0; idx < nderivedcounters; idx++) {
+            perf_counter_list *clist;
+            perf_counter *ctr;
+
+            for (cpuidx = 0; cpuidx < pdcounter[idx].ninstances; cpuidx++) {
+                pdcounter[idx].data[cpuidx].value = 0;
+                clist = pdcounter[idx].counter_list;
+                while(clist) {
+                    ctr = clist->counter;
+                    pdcounter[idx].data[cpuidx].value += (ctr->data[cpuidx].value *
+                                                          clist->scale);
+                    clist = clist->next;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+int perf_get(perfhandle_t *inst, perf_counter **counters, int *size,
+             perf_derived_counter **derived_counters, int *derived_size)
 {
     int cpuidx, idx, events_read;
 
@@ -565,16 +1084,19 @@ int perf_get(perfhandle_t *inst, perf_counter **counters, int *size)
     *counters = pcounter;
     *size = ncounters;
 
+    if (pcounter != 0)
+        perf_derived_get(derived_counters, derived_size, pdata, counters, size);
+
     return events_read;
 }
 
-
 perfhandle_t *perf_event_create(const char *config_file)
 {
-    int ret;
+    int ret, i;
     perfdata_t *inst = 0;
     configuration_t *perfconfig = 0;
     pmcsetting_t *pmcsetting = 0;
+    pmcderived_t *derivedpmc = 0;
 
     ret = pfm_initialize();
     if (ret != PFM_SUCCESS)
@@ -614,6 +1136,18 @@ perfhandle_t *perf_event_create(const char *config_file)
         pmcsetting = pmcsetting->next;
     }
 
+    /* Setup the derived events */
+    if (inst && perfconfig && perfconfig->nDerivedEntries)
+    {
+        for (i = 0; i < perfconfig->nDerivedEntries; i++) {
+            int ret;
+            derivedpmc = &(perfconfig->derivedArr[i]);
+            ret = perf_setup_derived_event(inst, derivedpmc);
+            if (ret < 0)
+                fprintf(stderr, "Unable to setup derived event : %s\n", derivedpmc->name);
+        }
+    }
+
     free_configuration(perfconfig);
 
 out:
@@ -628,7 +1162,7 @@ out:
     return (perfhandle_t *)inst;
 }
 
-void perf_counter_destroy(perf_counter *data, int size)
+void perf_counter_destroy(perf_counter *data, int size, perf_derived_counter *derived_counters, int derived_size)
 {
     if(NULL == data)
     {
@@ -640,6 +1174,24 @@ void perf_counter_destroy(perf_counter *data, int size)
     {
         free(data[i].data);
     }
+
+    if (NULL == derived_counters)
+    {
+        return;
+    }
+    for (i = 0; i < derived_size; ++i)
+        {
+            perf_counter_list *tmp, *clist = NULL;
+
+            free(derived_counters[i].name);
+            free(derived_counters[i].data);
+            tmp = clist = derived_counters[i].counter_list;
+            while (clist) {
+                clist = clist->next;
+                free(tmp);
+                tmp = clist;
+            }
+        }
 
     free(data);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -93,6 +93,31 @@ dumpbuf(int nch, __pmPDU *pb)
     fputc('\n', stderr);
 }
 #endif
+
+static int
+checkLabelConsistency (__pmContext *ctxp, const __pmLogLabel *lp)
+{
+    __pmArchCtl	*acp;
+
+    /* No checking to do if there are no other archives */
+    acp = ctxp->c_archctl;
+    if (acp->ac_num_logs < 1)
+	return 0; /* ok */
+
+    /*
+     * When checking for consistency, it is sufficient to check vs the 
+     * first archive in the context.
+     * The version number is checked by __pmLogChkLabel.
+     * Check the hostname and the time zone.
+     */
+    if (strcmp(lp->ill_hostname, ctxp->c_archctl->ac_log_list[0]->ml_hostname) != 0)
+	return PM_ERR_LOGHOST;
+    if (strcmp(lp->ill_tz, ctxp->c_archctl->ac_log_list[0]->ml_tz) != 0)
+	return PM_ERR_LOGTIMEZONE;
+
+    /* All is ok */
+    return 0;
+}
 
 int
 __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
@@ -206,15 +231,14 @@ __pmLogChkLabel(__pmLogCtl *lcp, FILE *f, __pmLogLabel *lp, int vol)
 #endif
 	return PM_ERR_LABEL;
     }
-    else {
-	if (__pmSetVersionIPC(fileno(f), version) < 0)
-	    return -oserror();
+
+    if (__pmSetVersionIPC(fileno(f), version) < 0)
+	return -oserror();
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, " [magic=%8x version=%d vol=%d pid=%d host=%s]\n",
+    if (pmDebug & DBG_TRACE_LOG)
+	fprintf(stderr, " [magic=%8x version=%d vol=%d pid=%d host=%s]\n",
 		lp->ill_magic, version, lp->ill_vol, lp->ill_pid, lp->ill_hostname);
 #endif
-    }
 
     if (vol >= 0 && vol < lcp->l_numseen)
 	lcp->l_seen[vol] = 1;
@@ -665,45 +689,13 @@ __pmLogCreate(const char *host, const char *base, int log_version,
     return oserror() ? -oserror() : -EPERM;
 }
 
-/*
- * Close the log files.
- * Free up the space used by __pmLogCtl.
- */
-
-void
-__pmLogClose(__pmLogCtl *lcp)
+static void
+logFreePMNS(__pmLogCtl *lcp)
 {
-    if (lcp->l_tifp != NULL) {
-	__pmResetIPC(fileno(lcp->l_tifp));
-	fclose(lcp->l_tifp);
-	lcp->l_tifp = NULL;
-    }
-    if (lcp->l_mdfp != NULL) {
-	__pmResetIPC(fileno(lcp->l_mdfp));
-	fclose(lcp->l_mdfp);
-	lcp->l_mdfp = NULL;
-    }
-    if (lcp->l_mfp != NULL) {
-	__pmResetIPC(fileno(lcp->l_mfp));
-	fclose(lcp->l_mfp);
-	lcp->l_mfp = NULL;
-    }
-    if (lcp->l_name != NULL) {
-	free(lcp->l_name);
-	lcp->l_name = NULL;
-    }
-    if (lcp->l_seen != NULL) {
-	free(lcp->l_seen);
-	lcp->l_seen = NULL;
-	lcp->l_numseen = 0;
-    }
     if (lcp->l_pmns != NULL) {
 	__pmFreePMNS(lcp->l_pmns);
 	lcp->l_pmns = NULL;
     }
-
-    if (lcp->l_ti != NULL)
-	free(lcp->l_ti);
 
     if (lcp->l_hashpmid.hsize != 0) {
 	__pmHashCtl	*hcp = &lcp->l_hashpmid;
@@ -756,7 +748,116 @@ __pmLogClose(__pmLogCtl *lcp)
 	}
 	free(hcp->hash);
     }
+}
 
+/*
+ * Close the log files.
+ * Free up the space used by __pmLogCtl.
+ */
+
+void
+__pmLogClose(__pmLogCtl *lcp)
+{
+    /*
+     * We no longer free l_pmns here or clear l_hashpmid or l_hashindom here.
+     * They may be needed by the next archive of a multi-archive context.
+     * They are now now freed as needed using logFreePMNS().
+     */
+    if (lcp->l_tifp != NULL) {
+	__pmResetIPC(fileno(lcp->l_tifp));
+	fclose(lcp->l_tifp);
+	lcp->l_tifp = NULL;
+    }
+    if (lcp->l_mdfp != NULL) {
+	__pmResetIPC(fileno(lcp->l_mdfp));
+	fclose(lcp->l_mdfp);
+	lcp->l_mdfp = NULL;
+    }
+    if (lcp->l_mfp != NULL) {
+	__pmResetIPC(fileno(lcp->l_mfp));
+	fclose(lcp->l_mfp);
+	lcp->l_mfp = NULL;
+    }
+    if (lcp->l_name != NULL) {
+	free(lcp->l_name);
+	lcp->l_name = NULL;
+    }
+    if (lcp->l_seen != NULL) {
+	free(lcp->l_seen);
+	lcp->l_seen = NULL;
+	lcp->l_numseen = 0;
+    }
+    if (lcp->l_ti != NULL)
+	free(lcp->l_ti);
+}
+
+/*
+ * If name contains '.' and the suffix is "index", "meta" or a string of
+ * digits or a string of digits followed by one of the compression suffixes,
+ * strip the suffix.
+ *
+ * Modifications are performed on the argument string in-place. If modifications
+ * are made, a pointer to the start of the modified string is returned.
+ * Otherwise, NULL is returned.
+ */
+char *
+__pmLogBaseName(char *name)
+{
+    char *q;
+    int   strip;
+    int   i;
+
+    strip = 0;
+    if ((q = strrchr(name, '.')) != NULL) {
+	if (strcmp(q, ".index") == 0) {
+	    strip = 1;
+	    goto done;
+	}
+	if (strcmp(q, ".meta") == 0) {
+	    strip = 1;
+	    goto done;
+	}
+	for (i = 0; i < ncompress; i++) {
+	    if (strcmp(q, compress_ctl[i].suff) == 0) {
+		char	*q2;
+		/*
+		 * name ends with one of the supported compressed file
+		 * suffixes, check for a string of digits before that,
+		 * e.g. if name is initially "foo.0.bz2", we want it
+		 * stripped to "foo"
+		 */
+		*q = '\0';
+		if ((q2 = strrchr(name, '.')) == NULL) {
+		    /* no . to the left of the suffix */
+		    *q = '.';
+		    goto done;
+		}
+		q = q2;
+		break;
+	    }
+	}
+	if (q[1] != '\0') {
+	    char	*end;
+	    /*
+	     * Below we don't care about the value from strtol(),
+	     * we're interested in updating the pointer "end".
+	     * The messiness is thanks to gcc and glibc ... strtol()
+	     * is marked __attribute__((warn_unused_result)) ...
+	     * to avoid warnings on all platforms, assign to a
+	     * dummy variable that is explicitly marked unused.
+	     */
+	    long	tmpl __attribute__((unused));
+	    tmpl = strtol(q+1, &end, 10);
+	    if (*end == '\0') strip = 1;
+	}
+    }
+done:
+    if (strip) {
+	*q = '\0';
+	return name;
+    }
+
+    return NULL; /* not the name of an archive file. */
 }
 
 int
@@ -765,9 +866,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     int		sts;
     int		blen;
     int		exists = 0;
-    int		i;
     int		sep = __pmPathSeparator();
-    char	*q;
     char	*base;
     char	*tbuf;
     char	*tp;
@@ -804,60 +903,9 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     PM_UNLOCK(__pmLock_libpcp);
 
     if (access(name, R_OK) == 0) {
-	/*
-	 * file exists and is readable ... if name contains '.' and
-	 * suffix is "index", "meta" or a string of digits or a string
-	 * of digits followed by one of the compression suffixes,
-	 * strip the suffix
-	 */
-	int	strip = 0;
-	if ((q = strrchr(base, '.')) != NULL) {
-	    if (strcmp(q, ".index") == 0) {
-		strip = 1;
-		goto done;
-	    }
-	    if (strcmp(q, ".meta") == 0) {
-		strip = 1;
-		goto done;
-	    }
-	    for (i = 0; i < ncompress; i++) {
-		if (strcmp(q, compress_ctl[i].suff) == 0) {
-		    char	*q2;
-		    /*
-		     * name ends with one of the supported compressed file
-		     * suffixes, check for a string of digits before that,
-		     * e.g. if base is initially "foo.0.bz2", we want it
-		     * stripped to "foo"
-		     */
-		    *q = '\0';
-		    if ((q2 = strrchr(base, '.')) == NULL) {
-			/* no . to the left of the suffix */
-			*q = '.';
-			goto done;
-		    }
-		    q = q2;
-		    break;
-		}
-	    }
-	    if (q[1] != '\0') {
-		char	*end;
-		/*
-		 * Below we don't care about the value from strtol(),
-		 * we're interested in updating the pointer "end".
-		 * The messiness is thanks to gcc and glibc ... strtol()
-		 * is marked __attribute__((warn_unused_result)) ...
-		 * to avoid warnings on all platforms, assign to a
-		 * dummy variable that is explicitly marked unused.
-		 */
-		long	tmpl __attribute__((unused));
-		tmpl = strtol(q+1, &end, 10);
-		if (*end == '\0') strip = 1;
-	    }
-	}
-done:
-	if (strip) {
-	    *q = '\0';
-	}
+	/* Strip the name down to its base, if it is a known archive
+	   component file name. */
+	__pmLogBaseName(base);
     }
 
     snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, base);
@@ -871,10 +919,7 @@ done:
     lcp->l_minvol = -1;
     lcp->l_tifp = lcp->l_mdfp = lcp->l_mfp = NULL;
     lcp->l_ti = NULL;
-    lcp->l_hashpmid.nodes = lcp->l_hashpmid.hsize = 0;
-    lcp->l_hashindom.nodes = lcp->l_hashindom.hsize = 0;
     lcp->l_numseen = 0; lcp->l_seen = NULL;
-    lcp->l_pmns = NULL;
 
     blen = (int)strlen(base);
     PM_LOCK(__pmLock_libpcp);
@@ -984,6 +1029,7 @@ cleanup:
     if (dirp != NULL)
 	closedir(dirp);
     __pmLogClose(lcp);
+    logFreePMNS(lcp);
     free(tbuf);
     free(base);
     return sts;
@@ -1032,6 +1078,13 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	goto cleanup;
     }
 
+    /*
+     * Perform consistency chacks between this label and the labels of other
+     * archives possibly making up this context.
+     */
+    if ((sts = checkLabelConsistency(ctxp, &lcp->l_label)) < 0)
+	goto cleanup;
+
     if ((sts = __pmLogLoadMeta(lcp)) < 0)
 	goto cleanup;
 
@@ -1043,7 +1096,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 	    sts = PM_ERR_LABEL;
 	    goto cleanup;
     }
-    
+
     lcp->l_refcnt = 0;
     lcp->l_physend = -1;
 
@@ -1053,6 +1106,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
 
 cleanup:
     __pmLogClose(lcp);
+    logFreePMNS(lcp);
     return sts;
 }
 
@@ -1418,12 +1472,73 @@ paranoidLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result)
 }
 
 /*
+ * We've reached the beginning or the end of an archive. If we will
+ * be switching to another archive, then generate a MARK record to represent
+ * the gap in recording between the archives.
+ */
+int
+__pmLogGenerateMark(__pmLogCtl *lcp, int mode, pmResult **result)
+{
+    pmResult		*pr;
+    int			sts;
+    struct timeval	end;
+
+    if ((pr = (pmResult *)malloc(sizeof(pmResult))) == NULL)
+	__pmNoMem("generateMark", sizeof(pmResult), PM_FATAL_ERR);
+
+    /*
+     * A mark record has numpmid == 0 and the timestamp set to one millisecond
+     * after the end, or before the beginning of the archive.
+     */
+    pr->numpmid = 0;
+    if (mode == PM_MODE_FORW) {
+	if ((sts = __pmGetArchiveEnd(lcp, &end)) < 0) {
+	    free(pr);
+	    return sts;
+	}
+	pr->timestamp.tv_sec = lcp->l_endtime.tv_sec;
+	pr->timestamp.tv_usec = lcp->l_endtime.tv_usec;
+	pr->timestamp.tv_usec += 1000;
+	if (pr->timestamp.tv_usec > 1000000) {
+	    pr->timestamp.tv_usec -= 1000000;
+	    pr->timestamp.tv_sec++;
+	}
+    }
+    else {
+	pr->timestamp.tv_sec = lcp->l_label.ill_start.tv_sec;
+	pr->timestamp.tv_usec = lcp->l_label.ill_start.tv_usec;
+	if (pr->timestamp.tv_usec >= 1000)
+	    pr->timestamp.tv_usec -= 1000;
+	else {
+	    pr->timestamp.tv_usec = 1000000 - 1000 + pr->timestamp.tv_usec;;
+	    pr->timestamp.tv_sec--;
+	}
+    }
+    *result = pr;
+    return 0;
+}
+
+static void
+clearMarkDone(void)
+{
+    __pmContext		*ctxp;
+
+    /* Get the current context. It must be an archive context. */
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp != NULL) {
+	if (ctxp->c_type == PM_CONTEXT_ARCHIVE)
+	    ctxp->c_archctl->ac_mark_done = 0;
+	PM_UNLOCK(ctxp->c_lock);
+    }
+}
+
+/*
  * read next forward or backward from the log
  *
- * by default (peekf == NULL) use lcp->l_mfp and roll volume
- * at end of file if another volume is available
+ * by default (peekf == NULL) use lcp->l_mfp and roll volume or archive
+ * at end of file if another volume or archive is available
  *
- * if peekf != NULL, use this stream, and do not roll volume
+ * if peekf != NULL, use this stream, and do not roll volume or archive
  */
 int
 __pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result, int option)
@@ -1465,6 +1580,7 @@ __pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result, int optio
 		if (pmDebug & DBG_TRACE_LOG)
 		    fprintf(stderr, "BEFORE start\n");
 #endif
+		sts = PM_ERR_EOL;
 		if (peekf == NULL) {
 		    int		vol = lcp->l_curvol-1;
 		    while (vol >= lcp->l_minvol) {
@@ -1483,16 +1599,44 @@ __pmLogRead(__pmLogCtl *lcp, int mode, FILE *peekf, pmResult **result, int optio
 			}
 			vol--;
 		    }
-		    if (vol < lcp->l_minvol)
-			return PM_ERR_EOL;
+		    if (vol >= lcp->l_minvol)
+			continue; /* Try this volume */
+
+		    /*
+		     * No more volumes. See if there is a previous archive to
+		     * switch to.
+		     */
+		    sts = __pmLogCheckForNextArchive(lcp, PM_MODE_BACK, result);
+		    if (sts == 0) {
+			/* There is a next archive to change to. */
+			if (*result != NULL)
+			    return 0; /* A mark record was generated */
+
+			/*
+			 * Mark was previously generated. Try the previous
+			 * archive, if any.
+			 */
+			if ((sts = __pmLogChangeToPreviousArchive(&lcp)) == 0) {
+			    f = lcp->l_mfp;
+			    offset = ftell(f);
+			    assert(offset >= 0);
+#ifdef PCP_DEBUG
+			    if (pmDebug & DBG_TRACE_LOG) {
+				fprintf(stderr, "arch=%s vol=%d posn=%ld ",
+					lcp->l_name, lcp->l_curvol, (long)offset);
+			    }
+#endif
+			    continue; /* Try this archive */
+			}
+			/* No more archives */
+		    }
 		}
-		else
-		    return PM_ERR_EOL;
-	    }
-	    else {
-		fseek(f, -(long)sizeof(head), SEEK_CUR);
-		break;
-	    }
+		return sts;
+	   }
+	   else {
+	       fseek(f, -(long)sizeof(head), SEEK_CUR);
+	       break;
+	   }
 	}
     }
 
@@ -1508,7 +1652,9 @@ again:
 		fprintf(stderr, "AFTER end\n");
 #endif
 	    fseek(f, offset, SEEK_SET);
+	    sts = PM_ERR_EOL;
 	    if (peekf == NULL) {
+		/* Try the next volume. */
 		int	vol = lcp->l_curvol+1;
 		while (vol <= lcp->l_maxvol) {
 		    if (__pmLogChangeVol(lcp, vol) >= 0) {
@@ -1517,8 +1663,32 @@ again:
 		    }
 		    vol++;
 		}
+		/*
+		 * No more volumes. See if there is another archive to switch
+		 * to.
+		 */
+		sts = __pmLogCheckForNextArchive(lcp, PM_MODE_FORW, result);
+		if (sts == 0) {
+		    /* There is a next archive to change to. */
+		    if (*result != NULL)
+			return 0; /* A mark record was generated */
+
+		    /* Mark was previously generated. Try the next archive. */
+		    if ((sts = __pmLogChangeToNextArchive(&lcp)) == 0) {
+			f = lcp->l_mfp;
+			offset = ftell(f);
+			assert(offset >= 0);
+#ifdef PCP_DEBUG
+			if (pmDebug & DBG_TRACE_LOG) {
+			    fprintf(stderr, "arch=%s vol=%d posn=%ld ",
+				    lcp->l_name, lcp->l_curvol, (long)offset);
+			}
+#endif
+			goto again;
+		    }
+		}
 	    }
-	    return PM_ERR_EOL;
+	    return sts;
 	}
 
 #ifdef PCP_DEBUG
@@ -1534,6 +1704,13 @@ again:
 	    /* corrupted archive */
 	    return PM_ERR_LOGREC;
     }
+
+    /*
+     * If we're here, then we're not at a multi-archive boundary. Clearing the
+     * ac_mark_done flag here automatically handles changes in direction which
+     * happen right at the boundary.
+     */
+    clearMarkDone();
 
     /*
      * This is pretty ugly (forward case shown backwards is similar) ...
@@ -2065,8 +2242,13 @@ VolSkip(__pmLogCtl *lcp, int mode,  int j)
 void
 __pmLogSetTime(__pmContext *ctxp)
 {
-    __pmLogCtl	*lcp = ctxp->c_archctl->ac_log;
+    __pmArchCtl	*acp = ctxp->c_archctl;
+    __pmLogCtl	*lcp = acp->ac_log;
+    __pmTimeval	save_origin;
+    int		save_mode;
+    double	t_hi;
     int		mode;
+    int		i;
 
     mode = ctxp->c_mode & __PM_MODE_MASK; /* strip XTB data */
 
@@ -2081,9 +2263,41 @@ __pmLogSetTime(__pmContext *ctxp)
     }
 #endif
 
+    /*
+     * Ultra coarse positioning. Start within the correct archive.
+     * We're looking for the first archive which starts after the origin.
+     */
+    for (i = 0; i < acp->ac_num_logs; ++i) {
+	t_hi = __pmTimevalSub(&acp->ac_log_list[i]->ml_starttime, &ctxp->c_origin);
+	if (t_hi >= 0)
+	    break; /* found it! */
+    }
+    if (mode == PM_MODE_FORW) {
+	/* back up one archive, if possible. */
+	if (i > 0)
+	    --i;
+    }
+    else {
+	/* Use the final archive, if none start after the origin. */
+	if (i >= acp->ac_num_logs)
+	    --i;
+    }
+
+    /*
+     * __pmLogChangeArchive() will update the c_origin and c_mode fields of
+     * the current context via __pmLogOpen(). However, we don't want that
+     * here, so save this information and restore it after switching to the
+     * new archive.
+     */
+    save_origin = ctxp->c_origin;
+    save_mode = ctxp->c_mode;
+    __pmLogChangeArchive(ctxp, i);
+    lcp = acp->ac_log;
+    ctxp->c_origin = save_origin;
+    ctxp->c_mode = save_mode;
+
     if (lcp->l_numti) {
 	/* we have a temporal index, use it! */
-	int		i;
 	int		j = -1;
 	int		toobig = 0;
 	int		match = 0;
@@ -2091,7 +2305,6 @@ __pmLogSetTime(__pmContext *ctxp)
 	int		numti = lcp->l_numti;
 	FILE		*f;
 	__pmLogTI	*tip = lcp->l_ti;
-	double		t_hi;
 	double		t_lo;
 	struct stat	sbuf;
 
@@ -2133,7 +2346,7 @@ __pmLogSetTime(__pmContext *ctxp)
 	if (i == numti)
 	    j = numti;
 
-	ctxp->c_archctl->ac_serial = 1;
+	acp->ac_serial = 1;
 
 	if (match) {
 	    j = VolSkip(lcp, mode, j);
@@ -2141,7 +2354,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		return;
 	    fseek(lcp->l_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
 	    if (mode == PM_MODE_BACK)
-		ctxp->c_archctl->ac_serial = 0;
+		acp->ac_serial = 0;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG) {
 		fprintf(stderr, " at ti[%d]@", j);
@@ -2167,7 +2380,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		return;
 	    fseek(lcp->l_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
 	    if (mode == PM_MODE_BACK)
-		ctxp->c_archctl->ac_serial = 0;
+		acp->ac_serial = 0;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOG) {
 		fprintf(stderr, " after end ti@");
@@ -2191,7 +2404,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		    return;
 		fseek(lcp->l_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
 		if (mode == PM_MODE_FORW)
-		    ctxp->c_archctl->ac_serial = 0;
+		    acp->ac_serial = 0;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG) {
 		    fprintf(stderr, " before ti[%d]@", j);
@@ -2205,7 +2418,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		    return;
 		fseek(lcp->l_mfp, (long)lcp->l_ti[j].ti_log, SEEK_SET);
 		if (mode == PM_MODE_BACK)
-		    ctxp->c_archctl->ac_serial = 0;
+		    acp->ac_serial = 0;
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_LOG) {
 		    fprintf(stderr, " after ti[%d]@", j);
@@ -2213,7 +2426,7 @@ __pmLogSetTime(__pmContext *ctxp)
 		}
 #endif
 	    }
-	    if (ctxp->c_archctl->ac_serial && mode == PM_MODE_FORW) {
+	    if (acp->ac_serial && mode == PM_MODE_FORW) {
 		/*
 		 * back up one record ...
 		 * index points to the END of the record!
@@ -2252,62 +2465,98 @@ __pmLogSetTime(__pmContext *ctxp)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOG)
 	fprintf(stderr, " vol=%d posn=%ld serial=%d\n",
-	    lcp->l_curvol, (long)ftell(lcp->l_mfp), ctxp->c_archctl->ac_serial);
+	    lcp->l_curvol, (long)ftell(lcp->l_mfp), acp->ac_serial);
 #endif
 
     /* remember your position in this context */
-    ctxp->c_archctl->ac_offset = ftell(lcp->l_mfp);
-    assert(ctxp->c_archctl->ac_offset >= 0);
-    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
+    acp->ac_offset = ftell(lcp->l_mfp);
+    assert(acp->ac_offset >= 0);
+    acp->ac_vol = acp->ac_log->l_curvol;
 }
 
+/* Read the label of the current archive. */
+int
+__pmGetArchiveLabel(__pmLogCtl *lcp, pmLogLabel *lp)
+{
+    __pmLogLabel	*rlp;
+
+    /*
+     * we have to copy the structure to hide the differences
+     * between the internal __pmTimeval and the external struct timeval
+     */
+    rlp = &lcp->l_label;
+    lp->ll_magic = rlp->ill_magic;
+    lp->ll_pid = (pid_t)rlp->ill_pid;
+    lp->ll_start.tv_sec = rlp->ill_start.tv_sec;
+    lp->ll_start.tv_usec = rlp->ill_start.tv_usec;
+    memcpy(lp->ll_hostname, rlp->ill_hostname, PM_LOG_MAXHOSTLEN);
+    memcpy(lp->ll_tz, rlp->ill_tz, sizeof(lp->ll_tz));
+    return 0;
+}
+
+/* Read the label of the first archive in the context. */
 int
 pmGetArchiveLabel(pmLogLabel *lp)
 {
-    __pmContext		*ctxp;
+    int		save_arch = 0;		/* pander to gcc */
+    int		save_vol = 0;		/* pander to gcc */
+    long	save_offset = 0;	/* pander to gcc */
+    int		sts;
+    int		restore = 0;
+    __pmContext	*ctxp;
+    __pmArchCtl	*acp;
+    __pmLogCtl	*lcp;
+
     ctxp = __pmHandleToPtr(pmWhichContext());
     if (ctxp == NULL) 
 	return PM_ERR_NOCONTEXT;
     if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	PM_UNLOCK(ctxp->c_lock);
-	return PM_ERR_NOCONTEXT;
+	return PM_ERR_NOTARCHIVE;
     }
-    else {
-	__pmLogLabel	*rlp;
-	/*
-	 * we have to copy the structure to hide the differences
-	 * between the internal __pmTimeval and the external struct timeval
-	 */
-	rlp = &ctxp->c_archctl->ac_log->l_label;
-	lp->ll_magic = rlp->ill_magic;
-	lp->ll_pid = (pid_t)rlp->ill_pid;
-	lp->ll_start.tv_sec = rlp->ill_start.tv_sec;
-	lp->ll_start.tv_usec = rlp->ill_start.tv_usec;
-	memcpy(lp->ll_hostname, rlp->ill_hostname, PM_LOG_MAXHOSTLEN);
-	memcpy(lp->ll_tz, rlp->ill_tz, sizeof(lp->ll_tz));
+    acp = ctxp->c_archctl;
+    lcp = acp->ac_log;
+
+    /* If necessary, switch to the first archive in the context. */
+    if (acp->ac_cur_log != 0) {
+	/* Save the initial state. */
+	save_arch = ctxp->c_archctl->ac_cur_log;
+	save_vol = ctxp->c_archctl->ac_vol;
+	save_offset = ctxp->c_archctl->ac_offset;
+
+	if ((sts = __pmLogChangeArchive(ctxp, 0)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
+	    return sts;
+	}
+	lcp = acp->ac_log;
+	restore = 1;
+    }
+
+    /* Get the label. */
+    if ((sts = __pmGetArchiveLabel(lcp, lp)) < 0) {
 	PM_UNLOCK(ctxp->c_lock);
-	return 0;
+	return sts;
     }
-}
 
-int
-pmGetArchiveEnd(struct timeval *tp)
-{
-    /*
-     * set l_physend and l_endtime
-     * at the end of ... ctxp->c_archctl->ac_log
-     */
-    __pmContext	*ctxp;
-    int		sts;
+    if (restore) {
+	/* Restore to the initial state. */
+	if ((sts = __pmLogChangeArchive(ctxp, save_arch)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
+	    return sts;
+	}
+	lcp = ctxp->c_archctl->ac_log;
+	if ((sts = __pmLogChangeVol(lcp, save_vol)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
+	    return sts;
+	}
+	fseek(lcp->l_mfp, save_offset, SEEK_SET);
+    }
 
-    ctxp = __pmHandleToPtr(pmWhichContext());
-    if (ctxp == NULL || ctxp->c_type != PM_CONTEXT_ARCHIVE)
-	return PM_ERR_NOCONTEXT;
-    sts = __pmGetArchiveEnd(ctxp->c_archctl->ac_log, tp);
     PM_UNLOCK(ctxp->c_lock);
-    return sts;
+    return 0;
 }
 
+/* Get the end time of the current archive. */
 int
 __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
 {
@@ -2493,4 +2742,345 @@ __pmGetArchiveEnd(__pmLogCtl *lcp, struct timeval *tp)
     }
 
     return sts;
+}
+
+/* Get the end time of the final archive in the context. */
+int
+pmGetArchiveEnd(struct timeval *tp)
+{
+    int		save_arch = 0;		/* pander to gcc */
+    int		save_vol = 0;		/* pander to gcc */
+    long	save_offset = 0;	/* pander to gcc */
+    int		sts;
+    int		restore = 0;
+    __pmContext	*ctxp;
+    __pmArchCtl	*acp;
+    __pmLogCtl	*lcp;
+
+    /*
+     * set l_physend and l_endtime
+     * at the end of ... ctxp->c_archctl->ac_log
+     */
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL)
+	return PM_ERR_NOCONTEXT;
+    if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_NOTARCHIVE;
+    }
+    acp = ctxp->c_archctl;
+    lcp = acp->ac_log;
+
+    /* If necessary, switch to the last archive in the context. */
+    if (acp->ac_cur_log != acp->ac_num_logs - 1) {
+	/* Save the initial state. */
+	save_arch = ctxp->c_archctl->ac_cur_log;
+	save_vol = ctxp->c_archctl->ac_vol;
+	save_offset = ctxp->c_archctl->ac_offset;
+
+	if ((sts = __pmLogChangeArchive(ctxp, acp->ac_num_logs - 1)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
+	    return sts;
+	}
+	lcp = acp->ac_log;
+	restore = 1;
+    }
+
+    if ((sts = __pmGetArchiveEnd(lcp, tp)) < 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return sts;
+    }
+
+    if (restore) {
+	/* Restore to the initial state. */
+	if ((sts = __pmLogChangeArchive(ctxp, save_arch)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
+	    return sts;
+	}
+	lcp = ctxp->c_archctl->ac_log;
+	if ((sts = __pmLogChangeVol(lcp, save_vol)) < 0) {
+	    PM_UNLOCK(ctxp->c_lock);
+	    return sts;
+	}
+	fseek(lcp->l_mfp, save_offset, SEEK_SET);
+    }
+
+    PM_UNLOCK(ctxp->c_lock);
+    return sts;
+}
+
+int
+__pmLogChangeArchive(__pmContext *ctxp, int arch)
+{
+    __pmArchCtl		*acp = ctxp->c_archctl;
+    __pmMultiLogCtl	*mlcp = acp->ac_log_list[arch];
+    int			sts;
+
+    /*
+     * If we're already using the requested archive, then we don't need to
+     * switch.
+     */
+    if (arch == acp->ac_cur_log)
+	return 0;
+
+    /*
+     * Obtain a handle for the named archive.
+     * __pmFindOrOpenArchive() will take care of closing the active archive,
+     * if necessary.
+     */
+    sts = __pmFindOrOpenArchive(ctxp, mlcp->ml_name, 1/*multi_arch*/);
+    if (sts < 0)
+	return sts;
+
+    acp->ac_cur_log = arch;
+    acp->ac_mark_done = 0;
+
+    return sts;
+}
+
+/*
+ * Check whether there is a next archive to switch to. Generate a MARK
+ * record if one has not already been generated.
+ */
+int
+__pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
+{
+    __pmContext		*ctxp;
+    __pmArchCtl		*acp;
+    int		sts = 0;
+
+    /* Get the current context. It must be an archive context. */
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL)
+	return PM_ERR_EOL;
+    if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_NOTARCHIVE;
+    }
+
+    /*
+     * Check whether there is a subsequent archive to switch to.
+     */
+    acp = ctxp->c_archctl;
+    if ((mode == PM_MODE_FORW && acp->ac_cur_log >= acp->ac_num_logs - 1) ||
+	(mode == PM_MODE_BACK && acp->ac_cur_log == 0))
+	sts = PM_ERR_EOL; /* no more archives */
+    else {
+	/*
+	 * Check whether we need to generate a mark record.
+	 */
+	if (! acp->ac_mark_done) {
+	    sts = __pmLogGenerateMark(lcp, mode, result);
+	    acp->ac_mark_done = mode;
+	}
+	else {
+	    *result = NULL;
+	}
+    }
+
+    PM_UNLOCK(ctxp->c_lock);
+    return sts;
+}
+
+/* Advance forward to the next archive in the context, if any. */
+int
+__pmLogChangeToNextArchive(__pmLogCtl **lcp)
+{
+    __pmContext	*ctxp;
+    __pmArchCtl	*acp;
+    __pmTimeval prev_endtime;
+    __pmTimeval	save_origin;
+    int		save_mode;
+
+    /* Get the current context. It must be an archive context. */
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL)
+	return PM_ERR_NOCONTEXT;
+    if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_NOTARCHIVE;
+    }
+
+    /*
+     * Check whether there is a subsequent archive to switch to.
+     */
+    acp = ctxp->c_archctl;
+    if (acp->ac_cur_log >= acp->ac_num_logs - 1) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_EOL; /* no more archives */
+    }
+
+    /*
+     * We're changing to the next archive because we have reached the end of
+     * the current one while reading forward.
+     * We will need to check for temporal overlap between the current
+     * archive and the next archive. We do this at the time of the attempted
+     * transtition because archives can be 'live' and their ranges
+     * in time can change dynamically.
+     *
+     * l_endtime for the current archive was updated when the <mark>
+     * record was generated. Save it.
+     */
+    prev_endtime = (*lcp)->l_endtime;
+	       
+    /*
+     * __pmLogChangeArchive() will update the c_origin and c_mode fields of
+     * the current context via __pmLogOpen(). However, we don't want that
+     * here, so save this information and restore it after switching to the
+     * new archive.
+     */
+    save_origin = ctxp->c_origin;
+    save_mode = ctxp->c_mode;
+    /* Switch to the next archive. */
+    __pmLogChangeArchive(ctxp, acp->ac_cur_log + 1);
+    *lcp = acp->ac_log;
+    ctxp->c_origin = save_origin;
+    ctxp->c_mode = save_mode;
+
+    /*
+     * We want to reposition to the start of the archive.
+     * Start after the header + label record + trailer
+     */
+    acp->ac_offset = sizeof(__pmLogLabel) + 2*sizeof(int);
+    acp->ac_vol = acp->ac_log->l_curvol;
+
+    /*
+     * Check for temporal overlap here. Do this last in case the API client
+     * chooses to keep reading anyway.
+     */
+    if (__pmTimevalSub(&prev_endtime, &(*lcp)->l_label.ill_start) > 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_LOGOVERLAP;
+    }
+
+    PM_UNLOCK(ctxp->c_lock);
+    return 0;
+}
+
+/* Advance backward to the previous archive in the context, if any. */
+int
+__pmLogChangeToPreviousArchive(__pmLogCtl **lcp)
+{
+    __pmContext		*ctxp;
+    __pmArchCtl		*acp;
+    struct timeval	current_endtime;
+    __pmTimeval		prev_starttime;
+    __pmTimeval		save_origin;
+    int			save_mode;
+    int			sts;
+
+    /* Get the current context. It must be an archive context. */
+    ctxp = __pmHandleToPtr(pmWhichContext());
+    if (ctxp == NULL)
+	return PM_ERR_NOCONTEXT;
+    if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_NOTARCHIVE;
+    }
+
+    /*
+     * Check whether there is a previous archive to switch to.
+     */
+    acp = ctxp->c_archctl;
+    if (acp->ac_cur_log == 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_EOL; /* no more archives */
+    }
+
+    /*
+     * We're changing to the previous archive because we have reached the
+     * beginning of the current one while reading backward.
+     * We will need to check for temporal overlap between the current
+     * archive and the next archive. We do this at the time of the attempted
+     * transtition because archives can be 'live' and their ranges
+     * in time can change dynamically.
+     *
+     * Save the start time of the current archive.
+     */
+    prev_starttime = (*lcp)->l_label.ill_start;
+
+    /*
+     * __pmLogChangeArchive() will update the c_origin and c_mode fields of
+     * the current context, either via __pmLogOpen() or directly, if the
+     * new archive is already open. However, we don't want that here, so
+     * save this information and restore it after switching to the new
+     * archive.
+     */
+    save_origin = ctxp->c_origin;
+    save_mode = ctxp->c_mode;
+    /* Switch to the next archive. */
+    __pmLogChangeArchive(ctxp, acp->ac_cur_log - 1);
+    *lcp = acp->ac_log;
+    ctxp->c_origin = save_origin;
+    ctxp->c_mode = save_mode;
+
+    /*
+     * We need the current end time of the new archive in order to compare
+     * with the start time of the previous one.
+     */
+    if ((sts = __pmGetArchiveEnd(*lcp, &current_endtime)) < 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return sts;
+    }
+
+    /* Set up to scan backwards from the end of the archive. */
+    __pmLogChangeVol(*lcp, (*lcp)->l_maxvol);
+    fseek((*lcp)->l_mfp, (long)0, SEEK_END);
+    ctxp->c_archctl->ac_offset = ftell((*lcp)->l_mfp);
+    assert(ctxp->c_archctl->ac_offset >= 0);
+    ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
+
+    /*
+     * Check for temporal overlap here. Do this last in case the API client
+     * chooses to keep reading anyway.
+     */
+    if (__pmTimevalSub(&(*lcp)->l_endtime, &prev_starttime) > 0) {
+	PM_UNLOCK(ctxp->c_lock);
+	return PM_ERR_LOGOVERLAP;  /* temporal overlap */
+    }
+
+    PM_UNLOCK(ctxp->c_lock);
+    return 0;
+}
+
+__pmTimeval *
+__pmLogStartTime(__pmArchCtl *acp)
+{
+    return &acp->ac_log_list[0]->ml_starttime;
+}
+
+void
+__pmArchCtlFree(__pmArchCtl *acp)
+{
+    /*
+     * If this is the last ref, then close the archive.
+     * refcnt == 0 means the log is not open.
+     */
+    __pmLogCtl *lcp = acp->ac_log;
+    if (lcp != NULL) {
+	if (--lcp->l_refcnt == 0) {
+	    __pmLogClose(lcp);
+	    logFreePMNS(lcp);
+	    free(lcp);
+	}
+    }
+
+    /* We need to clean up the archive list. */
+    if (acp->ac_log_list != NULL) {
+	while (--acp->ac_num_logs >= 0) {
+	    assert (acp->ac_log_list[acp->ac_num_logs] != NULL);
+	    free(acp->ac_log_list[acp->ac_num_logs]->ml_name);
+	    free(acp->ac_log_list[acp->ac_num_logs]->ml_hostname);
+	    free(acp->ac_log_list[acp->ac_num_logs]->ml_tz);
+	    free(acp->ac_log_list[acp->ac_num_logs]);
+	}
+	free(acp->ac_log_list);
+    }
+
+    /* And the cache. */
+    if (acp->ac_cache != NULL)
+	free(acp->ac_cache);
+
+    /* Now we can free it. */
+    free(acp);
 }

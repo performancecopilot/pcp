@@ -55,6 +55,7 @@ hinv.map {
     cpu_num		60:18:6
     cpu_node		60:18:8
     dmname		60:54:13
+    mdname		60:59:13
 }
 
 hinv.cpu {
@@ -87,6 +88,8 @@ kernel.all {
     intr		60:0:12
     pswitch		60:0:13
     sysfork		60:0:14
+    running		60:0:15
+    blocked		60:0:16
     hz			60:0:48
     uptime		60:26:0
     idletime		60:26:1
@@ -242,6 +245,7 @@ disk {
     all
     partitions
     dm
+    md
 }
 
 disk.dev {
@@ -300,6 +304,26 @@ disk.dm {
     read_rawactive	60:54:14
     write_rawactive	60:54:15
     total_rawactive	60:54:16
+}
+
+disk.md {
+    read		60:59:0
+    write		60:59:1
+    total		60:59:2
+    blkread		60:59:3
+    blkwrite		60:59:4
+    blktotal		60:59:5
+    read_bytes		60:59:6
+    write_bytes		60:59:7
+    total_bytes		60:59:8
+    read_merge		60:59:9
+    write_merge		60:59:10
+    avactive		60:59:11
+    aveq		60:59:12
+    read_rawactive	60:59:14
+    write_rawactive	60:59:15
+    total_rawactive	60:59:16
+    status		60:60:0
 }
 
 disk.partitions {
@@ -388,6 +412,7 @@ mem.util {
 mem.numa {
     util
     alloc
+    max_bandwidth	60:36:38
 }
 
 mem.numa.util {
@@ -752,6 +777,16 @@ network.softnet {
     cpu_collision	60:57:3
     received_rps	60:57:4
     flow_limit_count	60:57:5
+    percpu
+}
+
+network.softnet.percpu {
+    processed		60:57:6
+    dropped		60:57:7
+    time_squeeze	60:57:8
+    cpu_collision	60:57:9
+    received_rps	60:57:10
+    flow_limit_count	60:57:11
 }
 
 network.ip6 {

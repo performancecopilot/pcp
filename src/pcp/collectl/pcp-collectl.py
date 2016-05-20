@@ -1,6 +1,6 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 #
-# Copyright (C) 2012-2015 Red Hat.
+# Copyright (C) 2012-2016 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -429,10 +429,16 @@ class _netCollectPrint(_CollectPrint):
         print('# KBIn  PktIn SizeIn  MultI   CmpI  ErrsI  KBOut PktOut  SizeO   CmpO  ErrsO')
     def print_brief(self):
         sys.stdout.write("%5d %6d %6d %6d" % (
-            sum(self.ss.get_metric_value('network.interface.in.bytes')) / 1024,
-            sum(self.ss.get_metric_value('network.interface.in.packets')),
-            sum(self.ss.get_metric_value('network.interface.out.bytes')) / 1024,
-            sum(self.ss.get_metric_value('network.interface.out.packets'))))
+            self.sum_interfaces('network.interface.in.bytes') / 1024,
+            self.sum_interfaces('network.interface.in.packets'),
+            self.sum_interfaces('network.interface.out.bytes') / 1024,
+            self.sum_interfaces('network.interface.out.packets')))
+    def sum_interfaces(self, metric_name):
+        # safely iterate over interfaces even if metric/values don't exist, and sum all
+        result = 0
+        for value in self.ss.get_metric_value(metric_name):
+            result += value
+        return result
     def average_packet_size(self, bytes, packets):
         # calculate mean packet size safely (note that divisor may be zero)
         result = 0
@@ -446,17 +452,17 @@ class _netCollectPrint(_CollectPrint):
         self.ss.get_metric_value('network.interface.in.bytes')[0] = 0
         self.ss.get_metric_value('network.interface.out.bytes')[0] = 0
         print('%6d %5d %6d %6d %6d %6d %6d %6d %6d %6d %7d' % (
-            sum(self.ss.get_metric_value('network.interface.in.bytes')) / 1024,
-            sum(self.ss.get_metric_value('network.interface.in.packets')),
+            self.sum_interfaces('network.interface.in.bytes') / 1024,
+            self.sum_interfaces('network.interface.in.packets'),
             self.average_packet_size('in.bytes', 'in.packets'),
-            sum(self.ss.get_metric_value('network.interface.in.mcasts')),
-            sum(self.ss.get_metric_value('network.interface.in.compressed')),
-            sum(self.ss.get_metric_value('network.interface.in.errors')),
-            sum(self.ss.get_metric_value('network.interface.out.bytes')) / 1024,
-            sum(self.ss.get_metric_value('network.interface.out.packets')),
+            self.sum_interfaces('network.interface.in.mcasts'),
+            self.sum_interfaces('network.interface.in.compressed'),
+            self.sum_interfaces('network.interface.in.errors'),
+            self.sum_interfaces('network.interface.out.bytes') / 1024,
+            self.sum_interfaces('network.interface.out.packets'),
             self.average_packet_size('out.bytes', 'out.packets'),
-            sum(self.ss.get_metric_value('network.interface.total.mcasts')),
-            sum(self.ss.get_metric_value('network.interface.out.errors'))))
+            self.sum_interfaces('network.interface.total.mcasts'),
+            self.sum_interfaces('network.interface.out.errors')))
     def print_detail(self):
         for j in range(len(self.ss.metric_pmids)):
             try:

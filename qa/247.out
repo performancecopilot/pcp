@@ -58,6 +58,14 @@ __dmgetpmid: metric "myname.g" -> PMID 511.0.9
 __dmopencontext: bind metric[8] myname.g
 __dmgetpmid: metric "myname.h" -> PMID 511.0.10
 __dmopencontext: bind metric[9] myname.h
+__dmtraverse: name="myname" added "myname.a"
+__dmtraverse: name="myname" added "myname.b"
+__dmtraverse: name="myname" added "myname.c"
+__dmtraverse: name="myname" added "myname.d"
+__dmtraverse: name="myname" added "myname.e"
+__dmtraverse: name="myname" added "myname.f"
+__dmtraverse: name="myname" added "myname.g"
+__dmtraverse: name="myname" added "myname.h"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
 __dmgetpmid: metric "myname.b" -> PMID 511.0.4
 __dmgetpmid: metric "myname.c" -> PMID 511.0.5
@@ -154,35 +162,20 @@ __dmgetpmid: metric "myname.gcov.c" -> PMID 511.0.17
 Semantic error: derived metric myname.gcov.c: 42 - <expr>: Illegal operator for non-counter and counter
 __dmgetpmid: metric "myname.gcov.d" -> PMID 511.0.18
 Semantic error: derived metric myname.gcov.d: sample.bin + sample.darkness: Operands should have the same instance domain
-__dmgetpmid: metric "myname.a" -> PMID 511.0.3
-__dmgetpmid: metric "myname.b" -> PMID 511.0.4
-__dmgetpmid: metric "myname.c" -> PMID 511.0.5
-__dmgetpmid: metric "myname.d" -> PMID 511.0.6
-__dmgetpmid: metric "myname.e" -> PMID 511.0.7
-__dmgetpmid: metric "myname.f" -> PMID 511.0.8
-__dmgetpmid: metric "myname.g" -> PMID 511.0.9
-__dmgetpmid: metric "myname.h" -> PMID 511.0.10
-__dmgetpmid: metric "myname.i" -> PMID 511.0.11
-__dmgetpmid: metric "myname.j" -> PMID 511.0.12
-__dmgetpmid: metric "myname.k" -> PMID 511.0.13
-__dmgetpmid: metric "myname.l" -> PMID 511.0.14
-__dmgetpmid: metric "myname.gcov.a" -> PMID 511.0.15
-__dmgetpmid: metric "myname.gcov.b" -> PMID 511.0.16
-__dmgetpmid: metric "myname.gcov.c" -> PMID 511.0.17
-__dmgetpmid: metric "myname.gcov.d" -> PMID 511.0.18
-myname.a: pmLookupDesc: Unknown or illegal metric identifier
-myname.b: pmLookupDesc: Unknown or illegal metric identifier
-myname.c: pmLookupDesc: Unknown or illegal metric identifier
-myname.d: pmLookupDesc: Unknown or illegal metric identifier
-myname.e: pmLookupDesc: Unknown or illegal metric identifier
-myname.f: pmLookupDesc: Unknown or illegal metric identifier
-myname.g: pmLookupDesc: Unknown or illegal metric identifier
-myname.h: pmLookupDesc: Unknown or illegal metric identifier
-myname.i: pmLookupDesc: Unknown or illegal metric identifier
-myname.j: pmLookupDesc: Unknown or illegal metric identifier
-myname.k: pmLookupDesc: Unknown or illegal metric identifier
-myname.l: pmLookupDesc: Unknown or illegal metric identifier
-myname.gcov.a: pmLookupDesc: Unknown or illegal metric identifier
-myname.gcov.b: pmLookupDesc: Unknown or illegal metric identifier
-myname.gcov.c: pmLookupDesc: Unknown or illegal metric identifier
-myname.gcov.d: pmLookupDesc: Unknown or illegal metric identifier
+__dmtraverse: name="myname", omitting invalid child "myname.a"
+__dmtraverse: name="myname", omitting invalid child "myname.b"
+__dmtraverse: name="myname", omitting invalid child "myname.c"
+__dmtraverse: name="myname", omitting invalid child "myname.d"
+__dmtraverse: name="myname", omitting invalid child "myname.e"
+__dmtraverse: name="myname", omitting invalid child "myname.f"
+__dmtraverse: name="myname", omitting invalid child "myname.g"
+__dmtraverse: name="myname", omitting invalid child "myname.h"
+__dmtraverse: name="myname", omitting invalid child "myname.i"
+__dmtraverse: name="myname", omitting invalid child "myname.j"
+__dmtraverse: name="myname", omitting invalid child "myname.k"
+__dmtraverse: name="myname", omitting invalid child "myname.l"
+__dmtraverse: name="myname", omitting invalid child "myname.gcov.a"
+__dmtraverse: name="myname", omitting invalid child "myname.gcov.b"
+__dmtraverse: name="myname", omitting invalid child "myname.gcov.c"
+__dmtraverse: name="myname", omitting invalid child "myname.gcov.d"
+Error: myname: Unknown metric name

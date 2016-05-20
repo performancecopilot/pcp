@@ -247,7 +247,7 @@ Make in the src Directory
     008.out when the test is run).  Refer to the 008 script, but here is
     the basic recipe:
 
-	$ touch touch 008.out.`hostname`
+	$ touch 008.out.`hostname`
 	$ remake 008
 	$ mv 008.out 008.out.`hostname`
 

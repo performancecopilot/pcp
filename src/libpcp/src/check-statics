@@ -30,7 +30,7 @@ in
 		    ;;
 	    esac
 	    ;;
-    freebsd|netbsd|solaris)
+    freebsd|netbsd|openbsd|solaris)
 	    ;;
     *)
 	    echo "Warning: check-statics skipped for PCP_PLATFORM=$PCP_PLATFORM"
@@ -137,6 +137,7 @@ connect.o
     proxy			# guarded by __pmLock_libpcp mutex
 context.o
     _mode			# const
+    being_initialized           # const
     def_backoff			# guarded by __pmLock_libpcp mutex
     backoff			# guarded by __pmLock_libpcp mutex
     n_backoff			# guarded by __pmLock_libpcp mutex
@@ -148,6 +149,7 @@ context.o
     ?__emutls_v.curcontext	# thread private (MinGW)
 derive_fetch.o
 derive.o
+    ?fmt			# const
     ?func			# const
     ?init			# local initialize_mutex mutex
     ?done			# guarded by local initialize_mutex mutex
@@ -171,7 +173,7 @@ derive.o
     ?timefactor			# const (MinGW)
     ?type_c			# const (MinGW)
     ?.LpmRegisterDerivedMetric.fmt	# static string (FreeBSD gcc)
-
+    ?pmRegisterDerivedMetric.fmt	# static string (FreeBSD 10.2 gcc)
 desc.o
 endian.o
 err.o
@@ -304,9 +306,11 @@ pmns.o
     tokbuf			# guarded by __pmLock_libpcp mutex
     tokpmid			# guarded by __pmLock_libpcp mutex
     ?useExtPMNS			# thread private (no __thread symbols for Mac OS X)
+    ?__emutls_t.useExtPMNS	# thread private for OpenBSD
     repname			# guarded by __pmLock_libpcp mutex
     main_pmns			# guarded by __pmLock_libpcp mutex
     ?curr_pmns			# thread private (no __thread symbols for Mac OS X)
+    ?__emutls_t.curr_pmns	# thread private for OpenBSD
     locerr			# no unsafe side-effects, see notes in pmns.c
 p_pmns.o
 p_profile.o
@@ -337,7 +341,6 @@ tz.o
     zone			# guarded by __pmLock_libpcp mutex
     nzone			# guarded by __pmLock_libpcp mutex
     savetz			# guarded by __pmLock_libpcp mutex
-    savetzp			# guarded by __pmLock_libpcp mutex
     tzbuffer			# guarded by __pmLock_libpcp mutex
     ?wildabbr			# const (MinGW)
 units.o
@@ -365,6 +368,7 @@ util.o
     nfilelog			# guarded by __pmLock_libpcp mutex
     dosyslog			# guarded by __pmLock_libpcp mutex
     done_exit			# guarded by __pmLock_libpcp mutex
+    ?pmprintf_atexit_installed	# guarded by __pmLock_libpcp mutex
     ferr			# guarded by __pmLock_libpcp mutex
     errtype			# guarded by __pmLock_libpcp mutex
     fptr			# guarded by __pmLock_libpcp mutex

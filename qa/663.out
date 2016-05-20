@@ -4,7 +4,7 @@ QA output created by 663
 fetch some metrics via un/compressed modes, compare results
 fetching without compression requested
 repeating with compression requested
-Content-encoding: deflate
+Content-Encoding: gzip
 > Accept-Encoding: deflate, gzip
-< Content-encoding: deflate
+< Content-Encoding: gzip
 comparing compressed vs uncompressed outputs

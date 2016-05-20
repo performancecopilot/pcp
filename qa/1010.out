@@ -86,7 +86,7 @@ VERY_VERY_LONG_TIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
 VERY_VERY_LONG_TIME  3.00  10.00   0.10K  1.00M 20.00  -0.03M 17.86G
 
 pmdumptext -i -G -umN
-pmdumptext: -i and -G may not be used togther
+pmdumptext: -i and -G may not be used together
 Usage: pmdumptext [options] [metrics ...]
 
 General options:
@@ -141,7 +141,7 @@ VERY_VERY_LONG_TIME      3.00      10.00       0.10K      1.00M     20.00      -
 VERY_VERY_LONG_TIME      3.00      10.00       0.10K      1.00M     20.00      -0.03M     17.86G
 
 pmdumptext -i -w 10 -G -umN
-pmdumptext: -i and -G may not be used togther
+pmdumptext: -i and -G may not be used together
 Usage: pmdumptext [options] [metrics ...]
 
 General options:

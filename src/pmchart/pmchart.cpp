@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015, Red Hat.
+ * Copyright (c) 2012-2016, Red Hat.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2006-2009, Aconex.  All Rights Reserved.
  * 
@@ -243,6 +243,7 @@ void PmChart::VCRMode(bool live, QmcTime::Packet *packet, bool drag)
 	liveGroup->VCRMode(packet, drag);
     else
 	archiveGroup->VCRMode(packet, drag);
+    console->post("PmChart::VCRMode drag=%d", drag);
 }
 
 void PmChart::timeZone(bool live, QmcTime::Packet *packet, char *tzdata)

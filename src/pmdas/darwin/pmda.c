@@ -28,6 +28,7 @@
 #include "pmda.h"
 #include "domain.h"
 
+#include "darwin.h"
 #include "disk.h"
 #include "network.h"
 
@@ -86,6 +87,9 @@ extern void init_network(void);
 int			mach_nfs_error = 0;
 struct nfsstats		mach_nfs = { 0 };
 extern int refresh_nfs(struct nfsstats *);
+
+char			hw_model[MODEL_SIZE];
+extern int refresh_hinv(void);
 
 /*
  * Metric Instance Domains (statically initialized ones only)
@@ -159,6 +163,10 @@ static pmdaMetric metrictab[] = {
   { &mach_hertz,
     { PMDA_PMID(CLUSTER_INIT,1), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_DISCRETE, PMDA_PMUNITS(0,-1,1,0,PM_TIME_SEC,PM_COUNT_ONE) }, },
+/* hinv.machine */
+  { &hw_model,
+    { PMDA_PMID(CLUSTER_INIT,2), PM_TYPE_STRING, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* hinv.physmem */
   { NULL, 
@@ -243,6 +251,10 @@ static pmdaMetric metrictab[] = {
 /* mem.util.free */
   { NULL,
     { PMDA_PMID(CLUSTER_VMSTAT,22), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+/* mem.util.used */
+  { NULL,
+    { PMDA_PMID(CLUSTER_VMSTAT,23), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /* kernel.uname.release */
@@ -793,6 +805,9 @@ fetch_vmstat(unsigned int item, unsigned int inst, pmAtomValue *atom)
     case 22: /* mem.util.free */
 	atom->ull = page_count_to_kb(mach_vmstat.free_count);
 	return 1;
+    case 23: /* mem.util.used */
+	atom->ull = page_count_to_kb(mach_vmstat.wire_count+mach_vmstat.active_count+mach_vmstat.inactive_count);
+	return 1;
     }
     return PM_ERR_PMID;
 }
@@ -1186,6 +1201,8 @@ darwin_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 void 
 darwin_init(pmdaInterface *dp)
 {
+    int		sts;
+
     if (_isDSO) {
 	int sep = __pmPathSeparator();
 	char helppath[MAXPATHLEN];
@@ -1203,7 +1220,7 @@ darwin_init(pmdaInterface *dp)
     dp->version.two.fetch = darwin_fetch;
     pmdaSetFetchCallBack(dp, darwin_fetchCallBack);
 
-    pmdaSetFlags(dp, PMDA_EXT_FLAG_DIRECT);
+    pmdaSetFlags(dp, PMDA_EXT_FLAG_HASHED);
     pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]),
 		metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
 
@@ -1212,6 +1229,8 @@ darwin_init(pmdaInterface *dp)
     mach_page_shift = ffs(mach_page_size) - 1;
     if (refresh_hertz(&mach_hertz) != 0)
 	mach_hertz = 100;
+    if ((sts = refresh_hinv()) != 0)
+	fprintf(stderr, "darwin_init: refresh_hinv failed: %s\n", pmErrStr(sts));
     init_network();
 }
 

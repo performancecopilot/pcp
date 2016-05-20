@@ -731,7 +731,10 @@ backlink(__pmnsTree *tree, __pmnsNode *root, int dupok)
 	    __pmnsNode	*xp;
 	    i = np->pmid % tree->htabsize;
 	    for (xp = tree->htab[i]; xp != NULL; xp = xp->hash) {
-		if (xp->pmid == np->pmid && dupok == NO_DUPS) {
+		if (xp->pmid == np->pmid && dupok == NO_DUPS && !IS_DYNAMIC_ROOT(xp->pmid)) {
+		    /*
+		     * Duplicate PMID and not root of a dynamic subtree
+		     */
 		    char	*nn, *xn;
 		    char	strbuf[20];
 		    backname(np, &nn);
@@ -1855,7 +1858,7 @@ stitch_list(int *num, char ***offspring, int **statuslist, int x_num, char **x_o
 
     for (i = 0; i < x_num; i++) {
 	for (j = 0; j < *num; j++) {
-	    if (strcmp(x_offspring[i], (*offspring)[j]) == 0) {
+	    if (x_offspring[i] != NULL && strcmp(x_offspring[i], (*offspring)[j]) == 0) {
 		/* duplicate ... bugger */
 		n_num--;
 		x_offspring[i] = NULL;
@@ -2139,14 +2142,14 @@ pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
     }
 
 check:
-    if (ctxp != NULL)
-        PM_UNLOCK(ctxp->c_lock);
-    
-
     /*
      * see if there are derived metrics that qualify
      */
-    dm_num = __dmchildren(name, &dm_offspring, &dm_statuslist);
+    dm_num = __dmchildren(ctxp, name, &dm_offspring, &dm_statuslist);
+
+    if (ctxp != NULL)
+        PM_UNLOCK(ctxp->c_lock);
+
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DERIVE) {
 	char	errmsg[PM_MAXERRMSGLEN];
@@ -2646,7 +2649,7 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 	     * add any derived metrics that have "name" as
 	     * their prefix
 	     */
-	    xtra = __dmtraverse(name, &namelist);
+	    xtra = __dmtraverse(ctxp, name, &namelist);
 	    if (xtra > 0) {
 		sts = 0;
 		for (i=0; i<xtra; i++) {

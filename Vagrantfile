@@ -93,7 +93,7 @@ apt-get install -y  '^(libreadline|libpapi|libpfm4|libcoin80|libicu)-dev$' \
         python-all  python-all-dev  libnspr4-dev  libnss3-dev  libsasl2-dev  libmicrohttpd-dev  libavahi-common-dev \
         libqt4-dev  autotools-dev  autoconf  gawk  libxml-tokeparser-perl  libspreadsheet-read-perl gdb sysv-rc-conf \
 	libcairo2-dev sysstat valgrind apache2 realpath unbound \
-	libibumad-dev libsoqt-dev libsoqt-dev-common libnss3-tools libibmad-dev x11-utils
+	libibumad-dev libsoqt-dev libsoqt-dev-common libnss3-tools libibmad-dev x11-utils build-essential pbuilder
 
 cd /vagrant
 sudo -H -u vagrant ./Makepkgs
@@ -117,7 +117,8 @@ apt-get install  -y '^(libreadline|libpapi|libpfm4|libcoin80|libicu)-dev$' \
         python-all  python-all-dev  libnspr4-dev  libnss3-dev  libsasl2-dev  libmicrohttpd-dev  libavahi-common-dev \
         libqt4-dev  autotools-dev  autoconf  gawk  libxml-tokeparser-perl  libspreadsheet-read-perl gdb sysv-rc-conf \
 	libcairo2-dev sysstat valgrind apache2 realpath unbound \
-        libibumad-dev libsoqt-dev libsoqt-dev-common libnss3-tools libibmad-dev x11-utils
+        libibumad-dev libsoqt-dev libsoqt-dev-common libnss3-tools libibmad-dev x11-utils build-essential \
+        librrds-perl
 
 cd /vagrant
 sudo -H -u vagrant ./Makepkgs
@@ -137,7 +138,7 @@ apt-get install -y '^(libreadline|libpapi|libpfm4|libcoin80)-dev$' \
 		python-all  python-all-dev  libnspr4-dev  libnss3-dev  libsasl2-dev  libmicrohttpd-dev  libavahi-common-dev \
 		libqt4-dev  autotools-dev  autoconf  gawk  libxml-tokeparser-perl libspreadsheet-read-perl ed gdb sysv-rc-conf \
 		libcairo2-dev libibumad-dev libibmad-dev sysstat valgrind apache2 realpath unbound libsoqt-dev \
-		libsoqt-dev-common libnss3-tools x11-utils
+		libsoqt-dev-common libnss3-tools x11-utils build-essential librrds-perl
 
 cd /vagrant
 sudo -H -u vagrant ./Makepkgs
@@ -148,9 +149,9 @@ echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 SCRIPT
 
 ############################################################
-# Fedora
+# Fedora EOL
 ############################################################
-$script_fedora = <<SCRIPT
+$script_fedora_eol = <<SCRIPT
 
 # For sudo to work from a script
 sed -i '/requiretty/d' /etc/sudoers 
@@ -177,6 +178,37 @@ echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 SCRIPT
 
 ############################################################
+# Fedora
+############################################################
+$script_fedora = <<SCRIPT
+
+# For sudo to work from a script
+sed -i '/requiretty/d' /etc/sudoers 
+
+dnf -y group install 'Development Tools' 'C Development Tools and Libraries' 'RPM Development Tools'
+dnf -y install perl-ExtUtils-MakeMaker bison flex libmicrohttpd-devel qt-devel fedora-packager systemd-devel perl-JSON \
+		sysstat perl-Digest-MD5 bc ed cpan cairo-devel cyrus-sasl-devel libibumad-devel libibmad-devel avahi-devel \
+		papi-devel libpfm-devel rpm-devel perl-TimeDate perl-XML-TokeParser perl-Spreadsheet-WriteExcel \
+		perl-Text-CSV_XS bind-utils httpd python-devel nspr-devel nss-devel perl-Spreadsheet-XLSX time xorg-x11-utils \
+                ncurses-devel readline-devel rrdtool-perl
+
+# Remove too old libraries
+pfmvers=`rpm -q --qf "%{VERSION}\n" libpfm`
+[ "$pfmvers" = "`echo -e "$pfmvers\n4.3.9" | sort -V | head -n1`" ] && rpm -e libpfm libpfm-devel papi papi-devel
+
+cd /vagrant
+sudo -H -u vagrant ./Makepkgs
+rpm -ivh  pcp-*/build/rpm/*.rpm
+
+# Doesn't start automatically on all distributions
+/sbin/service pmcd start
+
+echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+
+SCRIPT
+
+
+############################################################
 # Host Definititions
 ############################################################
 
@@ -187,58 +219,58 @@ pcp_hosts = {
                 :box => "ubuntu/precise64",
                 :script => "#{$script_ubuntu}"
         },
-        :ubuntu1304 => {
-                :hostname => "ubuntu1304",
-                :ipaddress => "10.100.10.11",
-                :box => "chef/ubuntu-13.04",
-                :script => "#{$script_EOLubuntu}"
-        },
+#        :ubuntu1304 => {
+#                :hostname => "ubuntu1304",
+#                :ipaddress => "10.100.10.11",
+#                :box => "chef/ubuntu-13.04",
+#                :script => "#{$script_EOLubuntu}"
+#        },
         :ubuntu1404 => {
                 :hostname => "ubuntu1404",
                 :ipaddress => "10.100.10.12",
                 :box => "ubuntu/trusty64",
                 :script => "#{$script_ubuntu}"
         },
-        :centos511 => {
-                :hostname => "centos511",
-                :ipaddress => "10.100.10.20",
-                :box => "chef/centos-5.11",
-                :script => "#{$script_centos}"
-        },
-	:centos511_32 => {
-                :hostname => "centos511-32",
-                :ipaddress => "10.100.10.21",
-                :box => "chef/centos-5.11-i386",
-                :script => "#{$script_centos}"
-        },
-        :centos65 => {
-                :hostname => "centos65",
-                :ipaddress => "10.100.10.22",
-                :box => "chef/centos-6.5",
-                :script => "#{$script_centos}"
-        },
+#       :centos511 => {
+#                :hostname => "centos511",
+#                :ipaddress => "10.100.10.20",
+#                :box => "chef/centos-5.11",
+#                :script => "#{$script_centos}"
+#        },
+# 	 :centos511_32 => {
+#                :hostname => "centos511-32",
+#                :ipaddress => "10.100.10.21",
+#                :box => "chef/centos-5.11-i386",
+#                :script => "#{$script_centos}"
+#        },
+#        :centos65 => {
+#               :hostname => "centos65",
+#                :ipaddress => "10.100.10.22",
+#                :box => "chef/centos-6.5",
+#                :script => "#{$script_centos}"
+#        },
         :centos7 => {
                 :hostname => "centos7",
                 :ipaddress => "10.100.10.23",
-                :box => "chef/centos-7.0",
+                :box => "centos/7",
                 :script => "#{$script_centos}"
         },
-        :fedora19 => {
-                :hostname => "fedora19",
+        :fedora23 => {
+                :hostname => "fedora23",
                 :ipaddress => "10.100.10.30",
-                :box => "chef/fedora-19",
-                :script => "#{$script_fedora}"
-        },
-        :fedora20 => {
-                :hostname => "fedora20",
-                :ipaddress => "10.100.10.31",
-                :box => "chef/fedora-20",
+                :box => "fedora/23-cloud-base",
                 :script => "#{$script_fedora}"
         },
         :debian76 => {
-                :hostname => "debian76",
+                :hostname => "debianwheezy",
                 :ipaddress => "10.100.10.40",
-                :box => "chef/debian-7.6",
+                :box => "debian/wheezy64",
+                :script => "#{$script_debian}"
+        },
+        :debian8 => {
+                :hostname => "debianjessie",
+                :ipaddress => "10.100.10.40",
+                :box => "debian/jessie64",
                 :script => "#{$script_debian}"
         }
 # Built locally from : https://github.com/opscode/bento
@@ -254,6 +286,13 @@ pcp_hosts = {
 #                :hostname => "opensuse131",
 #                :ipaddress => "10.100.10.50",
 #                :box => "chef/opensuse-13.1",
+#                :script => "#{$script_suse}"
+#        }
+# Possible opensuse box?
+#        :opensuseleap42 => {
+#                :hostname => "opensuse42",
+#                :ipaddress => "10.100.10.52",
+#                :box => "opensuse/openSUSE-42.1-x86_64",
 #                :script => "#{$script_suse}"
 #        }
 }
@@ -327,7 +366,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
 	   config.vm.box = options[:box]
 	   
 	   # VM specific shared folder for qa results
-  	   config.vm.synced_folder "./qaresults/#{name}", "/qaresults", mount_options: ["dmode=777", "fmode=666"], create: true
+#  	   config.vm.synced_folder "./qaresults/#{name}", "/qaresults", mount_options: ["dmode=777", "fmode=666"], create: true
+           config.vm.synced_folder "./qaresults/#{name}", "/qaresults", create: true
 
 	   #config.vm.hostname = "#{name}"
 	   config.vm.hostname = "#{options[:hostname]}"

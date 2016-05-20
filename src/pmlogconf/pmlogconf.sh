@@ -11,7 +11,7 @@
 #		when the group was added to the configuration file
 #	delta	delta argument for pmlogger "logging ... on delta" clause
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014,2016 Red Hat.
 # Copyright (c) 1998,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -313,7 +313,14 @@ want == 1 && /^#----/	{ exit }'
 	    #
 	    echo
 	    was_onoff=$onoff
-	    echo "Group: $desc" | fmt -74 | sed -e '1!s/^/       /'
+	    echo "Group: $desc" \
+	    | if [ "$PCP_PLATFORM" = netbsd ]
+	    then
+		fmt -g 74 -m 75
+	    else
+		fmt -w 74
+	    fi \
+	    | sed -e '1!s/^/       /'
 	    while true
 	    do
 		$PCP_ECHO_PROG $PCP_ECHO_N "Log this group? [$onoff] ""$PCP_ECHO_C"
@@ -432,6 +439,23 @@ y         log this group
 
     done
 }
+
+if [ $autocreate -o $reprobe ]
+then
+    # Once-off check for pmcd connectivity, to avoid subsequent repeated
+    # failures in pmlogconf-setup (which may take awhile, especially when
+    # the environment is setup with slow/faraway PMCD timeout values).
+    #
+    PMCD="$HOST"
+    [ -z "$PMCD" ] && PMCD=local:
+    if $PCP_BINADM_DIR/pmcd_wait -h "$PMCD" -v 2>$tmp/err
+    then
+	:
+    else
+	sed -e "s/pmcd_wait/$prog/g" < $tmp/err
+	exit
+    fi
+fi
 
 if [ ! -f "$config" ]
 then
@@ -600,7 +624,7 @@ s; S2:; networking/rpc:;
 	exit
     fi
 
-    [ -n "$HOST" ] && echo "$prog: Warning: existing config file, -h $HOST will be ignored"
+    [ -n "$HOST" -a ! $reprobe ] && echo "$prog: Warning: existing config file, -h $HOST will be ignored"
 
     CBASE=`sed -n -e '/^#+ groupdir /s///p' <$tmp/in`
     if [ -z "$BASE" ]

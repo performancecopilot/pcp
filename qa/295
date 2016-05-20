@@ -41,8 +41,11 @@ _filter_pmproxy()
 
 _check()
 {
-    echo "`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'` connects"
-    echo "`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'` disconnects"
+    connects=`grep AcceptNewClient $tmp.log | wc -l | sed -e 's/  *//g'`
+    disconnects=`grep DeleteClient $tmp.log | wc -l | sed -e 's/  *//g'`
+    difference=$(($connects - $disconnects))
+    echo "N connects"
+    echo "N-$difference disconnects"
     echo "--- $tmp.log ---" >>$here/$seq.full
     cat $tmp.log >>$here/$seq.full
     echo "--- end $tmp.log ---" >>$here/$seq.full
@@ -72,7 +75,7 @@ pidlist="$pidlist $pid"
 sleep 3
 
 echo all clients started
-echo "expect 4 connects and 1 disconnect, thanks to pmie"
+echo "expect N connects and N-3 disconnect, thanks to pmie"
 _check
 
 for pid in $pidlist

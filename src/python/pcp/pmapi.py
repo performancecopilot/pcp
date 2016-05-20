@@ -81,12 +81,12 @@
     t = pmfg.extend_timestamp()
 
     pmfg.fetch()
-    print ("time: %s" % t())
-    print ("number of cpus: %d" % v())
+    print("time: %s" % t())
+    print("number of cpus: %d" % v())
     for icode, iname, value in vv():
-        print ("load average %s: %f" % (iname, value()))
+        print("load average %s: %f" % (iname, value()))
     for ts, line in vvv():
-        print ("%s : %s" % (ts, line()))
+        print("%s : %s" % (ts, line()))
 
 """
 
@@ -101,7 +101,7 @@ import cpmapi as c_api
 # for interfacing with LIBPCP - the client-side C API
 import ctypes
 from ctypes import c_char, c_int, c_uint, c_long, c_char_p, c_void_p
-from ctypes import c_longlong, c_ulonglong, c_float, c_double
+from ctypes import c_float, c_double, c_int32, c_uint32, c_int64, c_uint64
 from ctypes import CDLL, POINTER, CFUNCTYPE, Structure, Union
 from ctypes import addressof, pointer, sizeof, cast, byref
 from ctypes import create_string_buffer, memmove
@@ -187,10 +187,28 @@ class pmUsageErr(Exception):
 # Section 3.5 - Performance Metric Values
 #
 
-# these hardcoded decls should be derived from <sys/time.h>
+# These hardcoded decls should be derived from <sys/time.h>, but no such
+# ctypes facility exists.  Particularly problematic is the tv_usec field
+# (which POSIX defines as having type suseconds_t) - this can be 32 bits
+# on some 64 bit platforms (hence c_long is not always correct).
+
+if c_api.SIZEOF_SUSECONDS_T == 4:
+    c_suseconds_t = c_int32
+elif c_api.SIZEOF_SUSECONDS_T == 8:
+    c_suseconds_t = c_int64
+else:
+    raise pmErr(c_api.PM_ERR_CONV, "Unexpected suseconds_t size")
+
+if c_api.SIZEOF_TIME_T == 4:
+    c_time_t = c_int32
+elif c_api.SIZEOF_TIME_T == 8:
+    c_time_t = c_int64
+else:
+    raise pmErr(c_api.PM_ERR_CONV, "Unexpected time_t size")
+
 class timeval(Structure):
-    _fields_ = [("tv_sec", c_long),
-                ("tv_usec", c_long)]
+    _fields_ = [("tv_sec", c_time_t),
+                ("tv_usec", c_suseconds_t)]
 
     def __init__(self, sec = 0, usec = 0):
         Structure.__init__(self)
@@ -227,13 +245,16 @@ class timeval(Structure):
         return None
 
 class timespec(Structure):
-    _fields_ = [("tv_sec", c_long),
+    _fields_ = [("tv_sec", c_time_t),
                 ("tv_nsec", c_long)]
 
     def __init__(self, sec = 0, nsec = 0):
         Structure.__init__(self)
         self.tv_sec = sec
-        self.tv_nsec = usec
+        self.tv_nsec = nsec
+
+    def __str__(self):
+        return "%.3f" % (float(self.tv_sec)+(float(self.tv_nsec)/1000000000.0))
 
 class tm(Structure):
     _fields_ = [("tm_sec", c_int),
@@ -249,25 +270,32 @@ class tm(Structure):
                 ("tm_zone", c_char_p)]	# glibc/bsd extension
 
     def __str__(self):
-        timetuple = (self.tm_year+1900, self.tm_mon, self.tm_mday,
-                     self.tm_hour, self.tm_min, self.tm_sec,
-                     self.tm_wday, self.tm_yday, self.tm_isdst)
-        inseconds = 0.0
-        try:
-            inseconds = time.mktime(timetuple)
-        except:
-            pass
-        return "%s %s" % (inseconds.__str__(), timetuple)
+        # For debugging this, the timetuple is possibly more useful
+        # timetuple = (self.tm_year+1900, self.tm_mon, self.tm_mday,
+        #              self.tm_hour, self.tm_min, self.tm_sec,
+        #              self.tm_wday, self.tm_yday, self.tm_isdst)
+        # return str(timetuple)
+
+        # For regular users manipulating struct tm, pretty-print it
+        result = ctypes.create_string_buffer(32)
+        second = c_api.pmMktime(
+                     self.tm_sec, self.tm_min, self.tm_hour,
+                     self.tm_mday, self.tm_mon, self.tm_year,
+                     self.tm_wday, self.tm_yday, self.tm_isdst,
+                     self.tm_gmtoff, str(self.tm_zone))
+        timetp = c_long(long(second))
+        LIBPCP.pmCtime(byref(timetp), result)
+        return str(result.value.decode()).rstrip()
 
 class pmAtomValue(Union):
     """Union used for unpacking metric values according to type
 
     Constants for specifying metric types are defined in module pmapi
     """
-    _fields_ = [("l", c_int),
-                ("ul", c_uint),
-                ("ll", c_longlong),
-                ("ull", c_ulonglong),
+    _fields_ = [("l", c_int32),
+                ("ul", c_uint32),
+                ("ll", c_int64),
+                ("ull", c_uint64),
                 ("f", c_float),
                 ("d", c_double),
                 ("cp", c_char_p),
@@ -572,6 +600,7 @@ LIBPCP.pmRegisterDerivedMetric.argtypes = [c_char_p, c_char_p, POINTER(c_char_p)
 LIBPCP.pmLoadDerivedConfig.restype = c_int
 LIBPCP.pmLoadDerivedConfig.argtypes = [c_char_p]
 
+
 ##
 # PMAPI Metrics Description Services
 
@@ -694,7 +723,6 @@ LIBPCP.pmFetchArchive.argtypes = [POINTER(POINTER(pmResult))]
 
 ##
 # PMAPI Ancilliary Support Services
-
 
 LIBPCP.pmGetOptionalConfig.restype = c_char_p
 LIBPCP.pmGetOptionalConfig.argtypes = [c_char_p]

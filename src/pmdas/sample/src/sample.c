@@ -339,6 +339,30 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,139), PM_TYPE_HIGHRES_EVENT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* event.reset */
     { PMDA_PMID(0,140), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.negative.ctr.m_32 */
+    { PMDA_PMID(0,141), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.negative.ctr.m_64 */
+    { PMDA_PMID(0,142), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.negative.ctr.m_float  */
+    { PMDA_PMID(0,143), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.negative.ctr.m_double  */
+    { PMDA_PMID(0,144), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.negative.instant.m_32  */
+    { PMDA_PMID(0,145), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.negative.instant.m_64  */
+    { PMDA_PMID(0,146), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.negative.instant.m_float  */
+    { PMDA_PMID(0,147), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.negative.instant.m_double  */
+    { PMDA_PMID(0,148), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.negative.discrete.m_32  */
+    { PMDA_PMID(0,149), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.negative.discrete.m_64  */
+    { PMDA_PMID(0,150), PM_TYPE_64, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.negative.discrete.m_float  */
+    { PMDA_PMID(0,151), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.negative.discrete.m_double  */
+    { PMDA_PMID(0,152), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /*
  * dynamic PMNS ones
@@ -535,6 +559,10 @@ static struct timeval	_then;		/* time we started */
 static time_t		_start;		/* ditto */
 static __pmProfile	*_profile;	/* last received profile */
 static int		_x;
+static __int32_t	_neg_32 = -10000;	/* sample.negative.*.m_32 */
+static __int64_t	_neg_64 = -10000;	/* sample.negative.*.m_64 */
+static float		_neg_float = -10000.0;	/* sample.negative.*.m_float */
+static double		_neg_double = -10000.0;	/* sample.negative.*.m_double */
 static pmdaIndom	*_idp;
 static int		_singular = -1;	/* =0 for singular values */
 static int		_ordinal = -1;	/* >=0 for non-singular values */
@@ -2331,6 +2359,27 @@ doit:
 		    case 140:	/* event.reset_highres */
 			atom.l = event_get_highres_fetch_count();
 			break;
+		    case 141:	/* sample.negative.ctr.m_32 */
+		    case 145:	/* sample.negative.instant.m_32 */
+		    case 149:	/* sample.negative.discrete.m_32 */
+			atom.l = ++_neg_32;
+			break;
+		    case 142:	/* sample.negative.ctr.m_64 */
+		    case 146:	/* sample.negative.instant.m_64 */
+		    case 150:	/* sample.negative.discrete.m_64 */
+			atom.ll = ++_neg_64;
+			break;
+		    case 143:	/* sample.negative.ctr.m_float */
+		    case 147:	/* sample.negative.instant.m_float */
+		    case 151:	/* sample.negative.discrete.m_float */
+			atom.f = ++_neg_float;
+			break;
+		    case 144:	/* sample.negative.ctr.m_double */
+		    case 148:	/* sample.negative.instant.m_double */
+		    case 152:	/* sample.negative.discrete.m_double */
+			atom.d = ++_neg_double;
+			break;
+
 		    case 1000:	/* secret.bar */
 			atom.cp = "foo";
 			break;
@@ -2517,6 +2566,9 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 97:	/* ulong.write_me */
 	    case 126:	/* event.reset */
 	    case 140:	/* event.reset_highres */
+	    case 141:	/* sample.negative.ctr.m_32 */
+	    case 145:	/* sample.negative.instant.m_32 */
+	    case 149:	/* sample.negative.discrete.m_32 */
 		if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
 		    sts = PM_ERR_BADSTORE;
 		break;
@@ -2527,6 +2579,12 @@ sample_store(pmResult *result, pmdaExt *ep)
 	    case 35:	/* aggregate.write_me */
 	    case 102:	/* ulonglong.write_me */
 	    case 120:	/* scramble.ver */
+	    case 142:	/* sample.negative.ctr.m_64 */
+	    case 146:	/* sample.negative.instant.m_64 */
+	    case 150:	/* sample.negative.discrete.m_64 */
+	    case 144:	/* sample.negative.ctr.m_double */
+	    case 148:	/* sample.negative.instant.m_double */
+	    case 152:	/* sample.negative.discrete.m_double */
 		if (vsp->numval != 1 || vsp->valfmt == PM_VAL_INSITU)
 		    sts = PM_ERR_BADSTORE;
 		break;
@@ -2550,6 +2608,9 @@ sample_store(pmResult *result, pmdaExt *ep)
 		break;
 
 	    case 19:	/* float.write_me */
+	    case 143:	/* sample.negative.ctr.m_float */
+	    case 147:	/* sample.negative.instant.m_float */
+	    case 151:	/* sample.negative.discrete.m_float */
 		if (vsp->numval != 1)
 		    sts = PM_ERR_BADSTORE;
 		/* accommodate both old and new encoding styles for floats */
@@ -2696,6 +2757,26 @@ sample_store(pmResult *result, pmdaExt *ep)
 		break;
 	    case 140:	/* event.reset_highres */
 		event_set_highres_fetch_count(av.l);
+		break;
+	    case 141:	/* sample.negative.ctr.m_32 */
+	    case 145:	/* sample.negative.instant.m_32 */
+	    case 149:	/* sample.negative.discrete.m_32 */
+		_neg_32 = av.l;
+		break;
+	    case 142:	/* sample.negative.ctr.m_64 */
+	    case 146:	/* sample.negative.instant.m_64 */
+	    case 150:	/* sample.negative.discrete.m_64 */
+		_neg_64 = av.ll;
+		break;
+	    case 143:	/* sample.negative.ctr.m_float */
+	    case 147:	/* sample.negative.instant.m_float */
+	    case 151:	/* sample.negative.discrete.m_float */
+		_neg_float = av.f;
+		break;
+	    case 144:	/* sample.negative.ctr.m_double */
+	    case 148:	/* sample.negative.instant.m_double */
+	    case 152:	/* sample.negative.discrete.m_double */
+		_neg_double = av.d;
 		break;
 	    default:
 		sts = PM_ERR_PERMISSION;

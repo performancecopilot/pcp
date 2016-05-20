@@ -1,4 +1,4 @@
-#!/usr/bin/pcp python
+#!/usr/bin/env pmpython
 """ Test metric value extraction/reporting using the pcp.pmcc module """
 #
 # Copyright (C) 2013-2015 Red Hat Inc.

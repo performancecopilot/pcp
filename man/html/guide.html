@@ -134,8 +134,8 @@
 <br> $ sudo update-rc.d pmmgr defaults
 <br> # Common:
 <br> # echo acme.com >> /etc/pcp/pmmgr/target-host
-<br> # echo avahi >> /etc/pcp/pmmgr/target-discover
-<br> # echo probe=<FONT COLOR="#cc0000">ip.addr.tup.le/netmask</FONT> >> /etc/pcp/pmmgr/target-discover
+<br> # echo avahi >> /etc/pcp/pmmgr/target-discovery
+<br> # echo probe=<FONT COLOR="#cc0000">ip.addr.tup.le/netmask</FONT> >> /etc/pcp/pmmgr/target-discovery
 <br> # service pmmgr restart
 <br> # find /var/log/pcp/pmmgr
 </B></TD></TR>
@@ -160,21 +160,23 @@ Performance Co-Pilot configuration on munch:
   platform: SunOS munch 5.11 oi_151a8 i86pc
   hardware: 4 cpus, 3 disks, 4087MB RAM
   timezone: EST-10
+  services: pmcd pmproxy
       pmcd: Version 3.8.9-1, 3 agents
       pmda: pmcd mmv solaris
+      pmie: /var/log/pcp/pmie/munch/pmie.log
 </PRE>
 <B>
 <BR> $ <a href="http://man7.org/linux/man-pages/man1/pcp.1.html">pcp</a> -a /var/log/pcp/pmlogger/<FONT COLOR="#cc0000">smash</FONT>/20140729</B><PRE>
 Performance Co-Pilot configuration on smash:
-  archive: /var/log/pcp/pmlogger/smash/20140729
- platform: Linux smash 2.6.32-279.46.1.el6.x86_64 #1 SMP Mon May 19 16:16:00 EDT 2014 x86_64
- hardware: 8 cpus, 2 disks, 1 node, 23960MB RAM
- timezone: EST-10
- services: pmcd pmwebd
-     pmcd: Version 3.9.8-1, 13 agents
-     pmda: pmcd proc trace xfs sample sampledso linux mmv nvidia jbd2
-           rpm dmcache simple
- pmlogger: primary logger: smash/20140729.00.10
+   archive: /var/log/pcp/pmlogger/smash/20140729
+  platform: Linux smash 2.6.32-279.46.1.el6.x86_64 #1 SMP Mon May 19 16:16:00 EDT 2014 x86_64
+  hardware: 8 cpus, 2 disks, 1 node, 23960MB RAM
+  timezone: EST-10
+  services: pmcd pmproxy pmwebd
+      pmcd: Version 3.9.8-1, 8 agents
+      pmda: pmcd proc xfs linux mmv nvidia dmcache postgresql
+  pmlogger: primary logger: /var/log/pcp/pmlogger/smash/20140729.00.10
+      pmie: /var/log/pcp/pmie/smash/pmie.log
 </PRE></TD></TR>
 </TABLE>
 

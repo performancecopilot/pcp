@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2016 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -35,7 +35,7 @@ CFILES		= pmda.c \
 		  proc_slabinfo.c proc_sys_fs.c proc_vmstat.c \
 		  sysfs_kernel.c linux_table.c numa_meminfo.c \
 		  proc_net_netstat.c namespaces.c proc_net_softnet.c \
-		  proc_net_snmp6.c
+		  proc_net_snmp6.c mem_bandwidth.c
 
 HFILES		= clusters.h indom.h convert.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
@@ -50,8 +50,10 @@ HFILES		= clusters.h indom.h convert.h \
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LSRCFILES 	= help root_linux proc_net_snmp_migrate.conf linux_kernel_ulong.conf
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) linux_kernel_ulong.conf
+LSRCFILES 	= help root_linux proc_net_snmp_migrate.conf linux_kernel_ulong.conf \
+		  linux_kernel_fixups.conf
+LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) linux_kernel_ulong.conf \
+		  linux_kernel_fixups.conf
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
@@ -75,10 +77,11 @@ build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LSRCFILES)
 install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 domain.h help $(HELPTARGETS) $(PMDADIR)
+	$(INSTALL) -m 644 bandwidth.conf $(PMDADIR)/samplebandwidth.conf
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root_linux $(PCP_VAR_DIR)/pmns/root_linux
 	$(INSTALL) -m 644 proc_net_snmp_migrate.conf $(LOGREWRITEDIR)/linux_proc_net_snmp_migrate.conf
-	$(INSTALL) -m 644 linux_kernel_ulong.conf $(LOGREWRITEDIR)/linux_kernel_ulong.conf
+	$(INSTALL) -m 644 linux_kernel_ulong.conf linux_kernel_fixups.conf $(LOGREWRITEDIR)
 else
 build-me:
 install:
@@ -99,7 +102,7 @@ $(OBJECTS): domain.h
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-linux_kernel_ulong.conf:	mk.rewrite
+linux_kernel_ulong.conf linux_kernel_fixups.conf:	mk.rewrite
 	CPP="$(CPP)" INCDIR="$(TOPDIR)/src/include" ./mk.rewrite
 
 interrupts.o pmda.o proc_partitions.o:	clusters.h

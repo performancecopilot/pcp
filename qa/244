@@ -84,7 +84,8 @@ $1 == "cisco"		{ $4 = "fd_in"; $5 = "fd_out"
 	-e 's/_n32/_SIZE/' \
 	-e 's/_64/_SIZE/' \
 	-e "s;$here/src/;;" \
-	-e '/Cleanup "fake_linux" agent (dom 60): unconfigured/q'
+	-e '/Cleanup "fake_linux" agent (dom 60): unconfigured/q' \
+	#end
 }
 
 CONFIG=$PCP_PMCDCONF_PATH

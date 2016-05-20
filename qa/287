@@ -54,6 +54,10 @@ echo "-- raw input archive --"
 pmval -z -r -w 15 -f 0 -U archives/uwrap sample.wrap.ulong
 
 echo
+echo "-- input archive, rate converted --"
+pmval -z -w 15 -f 0 -a archives/uwrap -t 1sec sample.wrap.ulong
+
+echo
 echo "-- input archive, rate converted with PCP_COUNTER_WRAP set --"
 PCP_COUNTER_WRAP=on
 export PCP_COUNTER_WRAP

@@ -29,16 +29,16 @@ _filter_solaris()
 	cat
     else
 	sed \
-	    -e '/disk.dev.avactive .* Unknown metric name/d' \
-	    -e '/network.icmp.* Unknown metric name/d' \
-	    -e '/network.igmp.* Unknown metric name/d' \
-	    -e '/network.ip.* Unknown metric name/d' \
-	    -e '/network.tcp.* Unknown metric name/d' \
-	    -e '/network.udp.* Unknown metric name/d' \
-	    -e '/filesys.* Unknown metric name/d' \
-	    -e '/swap .* Unknown metric name/d' \
-	    -e '/swap.pages.* Unknown metric name/d' \
-	    -e '/swapdev .* Unknown metric name/d' \
+	    -e '/^disk.dev.avactive .* Unknown metric name/d' \
+	    -e '/^network.icmp.* Unknown metric name/d' \
+	    -e '/^network.igmp.* Unknown metric name/d' \
+	    -e '/^network.ip.* Unknown metric name/d' \
+	    -e '/^network.tcp.* Unknown metric name/d' \
+	    -e '/^network.udp.* Unknown metric name/d' \
+	    -e '/^filesys.* Unknown metric name/d' \
+	    -e '/^swap .* Unknown metric name/d' \
+	    -e '/^swap.pages.* Unknown metric name/d' \
+	    -e '/^swapdev .* Unknown metric name/d' \
 	# solaris
     fi
 }
@@ -50,15 +50,25 @@ _filter_darwin()
 	cat
     else
 	sed \
-	    -e '/disk.dev.avactive .* Unknown metric name/d' \
-	    -e '/network.icmp.* Unknown metric name/d' \
-	    -e '/network.igmp.* Unknown metric name/d' \
-	    -e '/network.ip.* Unknown metric name/d' \
-	    -e '/network.tcp.* Unknown metric name/d' \
-	    -e '/network.udp.* Unknown metric name/d' \
-	    -e '/swap .* Unknown metric name/d' \
-	    -e '/swap.pages.* Unknown metric name/d' \
-	    -e '/swapdev .* Unknown metric name/d' \
+	    -e '/^disk\.dev\.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.all\.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.partitions\..* Unknown metric name/d' \
+	    -e '/^hinv\.nnode .* Unknown metric name/d' \
+	    -e '/^network\.icmp .* Unknown metric name/d' \
+	    -e '/^network\.igmp .* Unknown metric name/d' \
+	    -e '/^network\.ip .* Unknown metric name/d' \
+	    -e '/^network\.tcp .* Unknown metric name/d' \
+	    -e '/^network\.udp .* Unknown metric name/d' \
+	    -e '/^network\.udplite .* Unknown metric name/d' \
+	    -e '/^swap .* Unknown metric name/d' \
+	    -e '/^swap\..* .* Unknown metric name/d' \
+	    -e '/^swapdev .* Unknown metric name/d' \
+	    -e '/^proc\..* Unknown metric name/d' \
+	    -e '/^kernel\.all\.intr .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.nusers .* Unknown metric name/d' \
+	    -e '/^kernel\.all\.pswitch .* Unknown metric name/d' \
+	    -e '/^mem\.util\.bufmem .* Unknown metric name/d' \
+	    -e '/^mem\.util\.cached .* Unknown metric name/d' \
 	# darwin
     fi
 }
@@ -71,7 +81,8 @@ _filter_linux()
 	cat
     else
 	sed \
-	    -e '/proc.namespaces.* Metric not supported/d' \
+	    -e '/^network.softnet.* Metric not supported/d' \
+	    -e '/^proc.namespaces.* Metric not supported/d' \
 	# linux
     fi
 }
@@ -83,17 +94,18 @@ _filter()
 {
     # these are always-on in older oss versions of pcp
     sed \
-       -e '/disk.dev.avg_disk.active .* metric name/d' \
-       -e '/disk.all.avg_disk.active .* metric name/d' \
-       -e '/disk.dev.bytes .* Unknown metric name/d' \
-       -e '/disk.all.bytes .* Unknown metric name/d' \
-       -e '/network.igmp .* Unknown metric name/d' \
-       -e '/nfs.* Unknown metric name/d' \
-       -e '/rpc.* Unknown metric name/d' \
-       -e '/nfsclient.* Unknown metric name/d' \
-       -e '/elasticsearch.search.all.* Metric not supported/d' \
-       -e '/swap.in .* Metric not supported/d' \
-       -e '/swap.out .* Metric not supported/d' \
+       -e '/^disk.dev.avg_disk.active .* metric name/d' \
+       -e '/^disk.all.avg_disk.active .* metric name/d' \
+       -e '/^disk.dev.bytes .* Unknown metric name/d' \
+       -e '/^disk.all.bytes .* Unknown metric name/d' \
+       -e '/^network.igmp .* Unknown metric name/d' \
+       -e '/^nfs.* Unknown metric name/d' \
+       -e '/^rpc.* Unknown metric name/d' \
+       -e '/^nfsclient.* Unknown metric name/d' \
+       -e '/^elasticsearch.search.all.* Metric not supported/d' \
+       -e '/^oracle.* Information not currently available/d' \
+       -e '/^swap.in .* Metric not supported/d' \
+       -e '/^swap.out .* Metric not supported/d' \
     | _filter_linux | _filter_solaris | _filter_darwin
 }
 

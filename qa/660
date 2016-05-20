@@ -72,7 +72,7 @@ _filter()
 	-e '/^[ 	]*$/d'
 }
 
-ipv6local=`_ipv6_localhost`
+ipv6local=`_ipv6_localhost 2>>$seq.full`
 echo "ipv6local=$ipv6local" >>$seq.full
 
 $sudo $PCP_RC_DIR/pmwebd stop >/dev/null 2>&1
@@ -88,6 +88,7 @@ echo "pid=$!" >>$seq.full
 _wait_for_pmwebd_logfile $tmp.out 44323
 
 # prepare the expected output file based on detected mode
+cat $tmp.out >>$seq.full
 rm -f $seq.out
 if grep -q IPv6 $tmp.out; then
     grep -q IPv4 $tmp.out || _notrun "QA host running in IPv6 mode only"
@@ -116,30 +117,39 @@ $PCP_BINADM_DIR/pmwebd $webargs -R `pwd` -c 2222 -L -h localhost -N -vv -l $tmp.
 sleep 2		# let it start up
 cat $tmp.err >> $seq.full
 
+# Note on curl use:
+# extra echo because line from curl may be missing a \n and this
+# breaks some sed implementations (in _webapi_response_filter), and
+# then need post-filter sed to remove empty line (if any)
+#
 echo "+++ should fail due to -N" | tee -a $seq.full
-curl -s -S "http://localhost:44323/pmapi/context?local=anything" \
+( curl -s -S "http://localhost:44323/pmapi/context?local=anything"; echo ) \
 | tee -a $seq.full \
-| _webapi_response_filter
+| _webapi_response_filter \
+| sed -e '/^$/d'
 echo | tee -a $seq.full
 
 echo "+++ should fail due to nonexistent context#" | tee -a $seq.full
-curl -s -S "http://localhost:44323/pmapi/2225/_fetch" \
+( curl -s -S "http://localhost:44323/pmapi/2225/_fetch"; echo ) \
 | tee -a $seq.full \
-| _webapi_response_filter
+| _webapi_response_filter \
+| sed -e '/^$/d'
 echo | tee -a $seq.full
 
 echo "+++ should fail with a different error (insufficient elements; ie pmFetch failed)" | tee -a $seq.full
 # NB: the curl -v part reports http headers too, for ACAO presence assertion
-curl -s -v -S "http://localhost:44323/pmapi/2222/_fetch?names=" 2>&1 \
+( curl -s -v -S "http://localhost:44323/pmapi/2222/_fetch?names=" 2>&1; echo ) \
 | tee -a $seq.full \
 | _webapi_response_filter \
+| sed -e '/^$/d' \
 | _filter
 echo | tee -a $seq.full
 
 echo "+++ should fail with a different error (insufficient elements; ie pmFetch failed)" | tee -a $seq.full
-curl -s -S "http://localhost:44323/pmapi/2223/_fetch?pmids=" \
+( curl -s -S "http://localhost:44323/pmapi/2223/_fetch?pmids="; echo ) \
 | tee -a $seq.full \
-| _webapi_response_filter
+| _webapi_response_filter \
+| sed -e '/^$/d'
 echo | tee -a $seq.full
 
 # filter for responses from newer microhttpd libraries, where
@@ -155,17 +165,19 @@ _symlink_response_filter()
 }
 
 echo "+++ should fail due to suspicious pmresapi path name" | tee -a $seq.full
-curl -s -v -S "http://localhost:44323/../../etc/passwd" 2>&1 \
+( curl -s -v -S "http://localhost:44323/../../etc/passwd" 2>&1; echo ) \
 | tee -a $seq.full \
 | _webapi_response_filter \
+| sed -e '/^$/d' \
 | _symlink_response_filter \
 | _filter
 echo | tee -a $seq.full
 
 echo "+++ should fail due to non-enablement of graphite" | tee -a $seq.full
-curl -s -v -S "http://localhost:44323/graphite/render?target=*" 2>&1 \
+( curl -s -v -S "http://localhost:44323/graphite/render?target=*" 2>&1; echo ) \
 | tee -a $seq.full \
 | _webapi_response_filter \
+| sed -e '/^$/d' \
 | _filter
 
 echo | tee -a $seq.full

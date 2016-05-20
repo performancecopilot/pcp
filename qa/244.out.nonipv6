@@ -62,6 +62,36 @@ pmcd request port(s):
 ok FD A_PID inet INADDR_ANY
 [DATE] pmcd(PID) Warning: pduread: timeout (after 2.000 sec) while attempting to read 12 bytes out of 12 in HDR on fd=FD
 Cleanup "fake_irix" agent (dom 1): protocol failure for fd=FD, exit(0)
+[DATE] pmcd(PID) Info: Auto-restarting agents.
+[DATE] pmcd(PID) Info: 
+
+pmcd RESTARTED at DATE
+
+
+Current PMCD clients ...
+     fd  client connection from                    ipc ver  operations denied
+     ==  ========================================  =======  =================
+
+Configuration file '$PCP_PMCDCONF_PATH' unchanged
+Restarting any deceased agents:
+    "fake_irix" agent
+
+
+active agent dom   pid  in out ver protocol parameters
+============ === ===== === === === ======== ==========
+fake_irix 1 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 1 fake_irix
+pmcd 2 A_PID dso i:6 lib=...pmda_pmcd.$DSO_SUFFIX entry=pmcd_init
+fake_cisco 5 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 5 fake_cisco
+fake_sampledso 30 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 30 fake_sampledso
+fake_linux 60 A_PID FD FD 2 bin pipe cmd=dumb_pmda -d 60 fake_linux
+
+Host access list:
+00 01 Cur/MaxCons host-spec                               host-mask                               lvl host-name
+== == =========== ======================================= ======================================= === ==============
+y y A_PID 0 MYIPADDR MYHOSTMASK 0 localhost
+n n A_PID 0 0.0.0.0 0.0.0.0 4 .*
+
+[DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
 [DATE] pmcd(PID) Info: 
 
 pmcd RESTARTED at DATE

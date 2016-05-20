@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -779,4 +779,42 @@ int
 __pmGetUserIdentity(const char *username, __pmUserID *uid, __pmGroupID *gid, int mode)
 {
     return -ENOTSUP;	/* NYI */
+}
+
+int
+setenv(const char *name, const char *value, int overwrite)
+{
+    char	*ebuf;
+
+    if (getenv(name) != NULL) {
+	/* already in the environment */
+	if (!overwrite)
+	    return(0);
+    }
+
+    if ((ebuf = (char *)malloc(strlen(name) + strlen(value) + 2)) == NULL)
+	return -1;
+
+    strncpy(ebuf, name, strlen(name)+1);
+    strncat(ebuf, "=", 1);
+    strncat(ebuf, value, strlen(value));
+
+    return _putenv(ebuf);
+}
+
+int
+unsetenv(const char *name)
+{
+    char	*ebuf;
+    int		sts;
+
+    if ((ebuf = (char *)malloc(strlen(name) + 2)) == NULL)
+	return -1;
+
+    /* strange but true */
+    strncpy(ebuf, name, strlen(name)+1);
+    strncat(ebuf, "=", 1);
+    sts = _putenv(ebuf);
+    free(ebuf);
+    return sts;
 }

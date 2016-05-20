@@ -1649,9 +1649,10 @@ CreateRootAgentPOSIX(AgentInfo *aPtr)
     if (!enabled) {
 	/* once-off initialisation */
 	enabled = -EOPNOTSUPP;
-	if ((args = getenv("PMCD_ROOT_AGENT")) != NULL)
-	    if (strcmp(args, "0") != 0)
-		enabled = 1;
+	if ((args = getenv("PMCD_ROOT_AGENT")) == NULL)
+	    enabled = 1;	/* unset, default to enabled */
+	else if (strcmp(args, "0") != 0)
+	    enabled = 1;
 	/* enabled is non-zero now */
     }
     if (enabled < 0)

@@ -183,7 +183,7 @@ Dump Instance Profile state=INCLUDE, 0 profiles
 dbpmda> wait 5
 dbpmda> fetch broken.bad.indom
 PMID(s): 249.1.4
-Error: __pmSendProfile() failed: Broken pipe
+Error: __pmSendProfile() failed: [PMDA died]
 dbpmda> close
 dbpmda> quit
 Log started
@@ -300,8 +300,8 @@ Dump Instance Profile state=INCLUDE, 0 profiles
 
 dbpmda> text broken.valid.one
 PMID: 249.0.0
-Error: __pmSendTextReq() failed: Broken pipe
-Error: __pmSendTextReq() failed: Broken pipe
+Error: __pmSendTextReq() failed: [PMDA died]
+Error: __pmSendTextReq() failed: [PMDA died]
 dbpmda> close
 dbpmda> quit
 Culling the Performance Metrics Name Space ...

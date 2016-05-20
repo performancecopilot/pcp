@@ -13,5 +13,7 @@ Warning - failed to expand action for rule per_netif.errors
   string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule per_netif.util
   string: "$syslog_prefix$$rule$^ $action_expand$"
+Warning - failed to expand action for rule pmcd.pmda_status
+  string: "$syslog_prefix$$rule$^ $action_expand$"
 Warning - failed to expand action for rule shping.status
   string: "$syslog_prefix$$rule$^ $action_expand$"

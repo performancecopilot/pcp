@@ -14,7 +14,7 @@ _usage()
     echo >&2 "  -e file     prerun script"
     echo >&2 "  -f          force shutdown"
     echo >&2 "  -g what     QA tests or groups to run, e.g. -g \"123 -g sanity -x remote\""
-    if [ "X$what" = Xall ]
+    if [ "$what" = all ]
     then
 	echo >&2 "              [default <nothing> => all tests]"
     else
@@ -22,6 +22,7 @@ _usage()
     fi
     echo >&2 "  -h          harvest QA failures"
     echo >&2 "  -i          install built pcp packages"
+    echo >&2 "  -l          harvest daily.log after aborted run"
     echo >&2 "  -m          build (Makepkgs) for pcp"
     echo >&2 "  -p          git pull for pcp"
     echo >&2 "  -q          run qa"
@@ -48,14 +49,22 @@ if [ $debug = true ]
 then
     echo PATH=\$PATH
     echo MAKE=\$MAKE
-    which ${MAKE:-make}
+    which \${MAKE:-make}
 fi
 
 tmp=/var/tmp/\$\$
 trap "rm -f \$tmp.*; exit 0" 0 1 2 3 15
+End-of-File
+    if $lflag
+    then
+	:
+    else
+	cat <<End-of-File
 rm -f \$HOME/daily.log
 touch \$HOME/daily.log
-
+End-of-File
+    fi
+    cat <<End-of-File
 case "$pcp_tree"
 in
     pcpfans)
@@ -118,7 +127,7 @@ _script_git_pull()
 # need to clean before pulling in case unwanted files no longer removed,
 # e.g. in PCP 3.x -> PCP 4.0 migration of source base
 # not needed any longer - 26 Mar 2013
-#${MAKE:-make} clean >>\$HOME/daily.log 2>&1
+#\${MAKE:-make} clean >>\$HOME/daily.log 2>&1
 # only VERSION.pcp is expected to be modified, sometimes!
 rm -f VERSION.pcp
 git checkout -- VERSION.pcp
@@ -146,7 +155,7 @@ End-of-File
 _script_make()
 {
     # not needed - 4 Oct 2014
-    # echo "${MAKE:-make} clean >>\$HOME/daily.log 2>&1"
+    # echo "\${MAKE:-make} clean >>\$HOME/daily.log 2>&1"
     cat <<'End-of-File'
 ok=false
 # if needed, bump build number for pcp-daily
@@ -176,7 +185,7 @@ sudo rm -f /usr/lib*/libpcp[_.]*
 # clean up any build turds
 rm -f qa/qa_outfiles
 End-of-File
-    echo "if MAKE=$MAKE ./Makepkgs --clean >>\$HOME/daily.log 2>&1"
+    echo "if MAKE=\$MAKE ./Makepkgs --clean >>\$HOME/daily.log 2>&1"
     cat <<'End-of-File'
 then
     ok=true
@@ -409,7 +418,10 @@ NF == 0	{ txt = ""; next }
 	  else txt = txt "\n" \$0
 	}
 END	{ print txt }' \
-| egrep '^(Failures:|Failed|Passed)'
+| awk '
+\$1 == "Failures:"	{ want = 1 }
+\$1 == "Passed"		{ want = 1 }
+want == 1		{ print }'
 if [ "\$sts" = 0 ]
 then
     echo "Info: QA $check_what done" | tee -a \$HOME/daily.log
@@ -465,7 +477,7 @@ sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22 vm24"
-list_2="fuji grundy vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23"
+list_2="fuji vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23"
 
 args="$*"
 pcp_branch=master
@@ -474,6 +486,7 @@ cflag=false
 fflag=false
 hflag=false
 iflag=false
+lflag=false
 mflag=false
 pflag=false
 qflag=false
@@ -486,7 +499,7 @@ options=false
 work=false
 efile=''
 debug=false
-while getopts "ab:B:cde:fg:himpqrsSt:T:?" c
+while getopts "ab:B:cde:fg:hilmpqrsSt:T:?" c
 do
     case $c
     in
@@ -536,6 +549,11 @@ do
 	    options=true
 	    work=true
 	    iflag=true
+	    ;;
+	l)
+	    options=true
+	    work=true
+	    lflag=true
 	    ;;
 	m)
 	    options=true
@@ -618,7 +636,6 @@ in
 	echo "bozo-vm" >>$tmp.domains
 	echo "bozo-laptop" >>$tmp.domains
 	echo "fuji" >>$tmp.domains
-	echo "grundy.sgi.com" >>$tmp.domains
 	# and open up the X server
 	#
 	# Ubuntu up to 15.04
@@ -741,6 +758,9 @@ do
 	    NetBSD\ *)
 	    	osname=netbsd
 		;;
+	    OpenBSD\ *)
+	    	osname=openbsd
+		;;
 	    *)
 	    	osname=unknown
 		;;
@@ -753,7 +773,7 @@ do
 	MAKE=make
 	case "$osname"
 	in
-	    freebsd|netbsd)
+	    freebsd|netbsd|openbsd)
 		MAKE=gmake
 		;;
 	esac
@@ -784,14 +804,8 @@ End-of-File
 	[ X"$what" = Xall ] && check_what=''
 	case "$domain"
 	in
-	    *grundy*)
-		# Need to add
-		# -x remote default for grundy.sgi.com if running all tests
-		#
-		[ X"$what" = Xall ] && check_what='$check_what -x remote'
-		;;
-	    vm06|vm10|vm09)
-		# Only -g sanity at this stage for FreeBSD or NetBSD
+	    vm06|vm10|vm09|vm32|vm33)
+		# Only -g sanity at this stage for FreeBSD or NetBSD or OpenBSD
 		#
 		[ X"$what" = Xall ] && check_what='-g sanity'
 		;;
@@ -802,12 +816,26 @@ End-of-File
 	$hflag && _script_harvest >>$tmp.script
 
 	chmod 755 $tmp.script
-	if scp $tmp.script $host:daily.script >$tmp.out 2>&1
+	# we've sometimes seen the scp fail because we get here a
+	# bit too soon after a VM has been rebooted ... be a little
+	# more patient
+	#
+	rm -f $tmp.ok
+	for i in 1 2 3
+	do
+	    if scp $tmp.script $host:daily.script >$tmp.out 2>&1
+	    then
+		touch $tmp.ok
+		break
+	    else
+		cat $tmp.out
+		echo "Warning: scp failed!"
+		sleep 2
+	    fi
+	done
+	if [ ! -f $tmp.ok ]
 	then
-	    :
-	else
-	    cat $tmp.out
-	    echo "Error: scp failed!"
+	    echo "Error: cannot copy daily.script to $host ... giving up"
 	    continue
 	fi
 

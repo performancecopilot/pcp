@@ -76,7 +76,7 @@ p
 }'`"
 	    case "$version"
 	    in
-		glibc-2\.1[23][-.]*|glibc-2\.2[0][-.]*)
+		glibc-2\.1[23][-.]*|glibc-2\.2[01][-.]*)
 		    ln $seq.linux $seq.out
 		    ;;
 		*)
@@ -89,7 +89,7 @@ p
 	    exit 1
 	fi
     fi
-elif [ $PCP_PLATFORM = darwin ]
+elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = freebsd ]
 then
     ln $seq.darwin $seq.out
 elif [ $PCP_PLATFORM = solaris ]

@@ -1,0 +1,45 @@
+#!/bin/sh
+# PCP QA Test No. 916
+# Exercise pmlogextract failure to merge archives with duplicate
+# metric names in one of the source archives but not the other,
+# resulting in the following error:
+# "pmlogextract: Error: metric PMID 60.18.0: name changed from hinv.cpu.clock to hinv.cpu.clock, hinv.cpu.clock!"
+#
+# Inspect metric name details via "od -c ./archives/dupname-X.meta"
+#
+# Copyright (c) 2016 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed -e "s,$tmp,TMP,g"
+}
+
+# real QA test starts here
+
+echo "Merge dupname-a and dupname-b (expect fail)"
+pmlogextract archives/dupname-a archives/dupname-b $tmp.one 2>&1 | _filter
+
+echo "Merge dupname-b and dupname-c (expect fail)"
+pmlogextract archives/dupname-b archives/dupname-c $tmp.two 2>&1 | _filter
+
+echo "Merge dupname-c and dupname-a (expect pass)"
+pmlogextract archives/dupname-c archives/dupname-a $tmp.three
+pmlogcheck $tmp.three && echo "Archive \"$tmp.three\" is OK." | _filter
+
+# success, all done
+status=0
+
+exit

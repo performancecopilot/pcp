@@ -2,17 +2,20 @@
 # PCP QA Test No. 1062
 # Exercise pmrep vmstat-style output.
 #
-# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+# Copyright (c) 2015-2016 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
 . ./common.check
+. ./common.setup
+[ -f common.python ] || _notrun "Testsuite built without python support"
 
+. ./common.python
+
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
 which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
 [ $PCP_PLATFORM = linux ] || _notrun "requires Linux kernel metrics"
 
@@ -24,7 +27,7 @@ config="$PCP_SYSCONF_DIR/pmrep/pmrep.conf"
 
 # real QA test starts here
 echo "== exercise vmstat config section, live"
-pmrep -s 2 -c $config :vmstat | sed -e 's/[0-9][0-9]*/xxx/g'
+pmrep -s 2 -c $config :vmstat | sed -e 's/[0-9][0-9]*/xxx/g' | tr -s ' '
 
 echo "== exercise vmstat config section, archive"
 pmrep -z -t 1 -a ./archives/pcp-vmstat -c $config :vmstat

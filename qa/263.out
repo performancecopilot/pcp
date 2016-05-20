@@ -1138,6 +1138,46 @@ expr node <addr-197> type=NAME left=(nil) right=(nil) save_last=1 [sample.sysinf
     PMID: 29.0.39 (29.0.39 from pmDesc) numval: 0
     Data Type: aggregate  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
+__dmtraverse: name="aggr" added "aggr.max32"
+__dmtraverse: name="aggr" added "aggr.min32"
+__dmtraverse: name="aggr" added "aggr.maxu32_minu32"
+__dmtraverse: name="aggr" added "aggr.max64_min64"
+__dmtraverse: name="aggr" added "aggr.maxu64_minu64"
+__dmtraverse: name="aggr" added "aggr.maxuf_minuf"
+__dmtraverse: name="aggr" added "aggr.maxud_minud"
+__dmtraverse: name="aggr" added "aggr.count32"
+__dmtraverse: name="aggr" added "aggr.avg32"
+__dmtraverse: name="aggr" added "aggr.max32_x"
+__dmtraverse: name="aggr" added "aggr.min32_x"
+__dmtraverse: name="aggr" added "aggr.sum32"
+__dmtraverse: name="aggr" added "aggr.avgu32"
+__dmtraverse: name="aggr" added "aggr.countu32"
+__dmtraverse: name="aggr" added "aggr.maxu32"
+__dmtraverse: name="aggr" added "aggr.minu32"
+__dmtraverse: name="aggr" added "aggr.sumu32"
+__dmtraverse: name="aggr" added "aggr.avgf"
+__dmtraverse: name="aggr" added "aggr.countf"
+__dmtraverse: name="aggr" added "aggr.maxf"
+__dmtraverse: name="aggr" added "aggr.minf"
+__dmtraverse: name="aggr" added "aggr.sumf"
+__dmtraverse: name="aggr" added "aggr.avg64"
+__dmtraverse: name="aggr" added "aggr.count64"
+__dmtraverse: name="aggr" added "aggr.max64"
+__dmtraverse: name="aggr" added "aggr.min64"
+__dmtraverse: name="aggr" added "aggr.sum64"
+__dmtraverse: name="aggr" added "aggr.avgu64"
+__dmtraverse: name="aggr" added "aggr.countu64"
+__dmtraverse: name="aggr" added "aggr.maxu64"
+__dmtraverse: name="aggr" added "aggr.minu64"
+__dmtraverse: name="aggr" added "aggr.sumu64"
+__dmtraverse: name="aggr" added "aggr.avgd"
+__dmtraverse: name="aggr" added "aggr.countd"
+__dmtraverse: name="aggr" added "aggr.maxd"
+__dmtraverse: name="aggr" added "aggr.mind"
+__dmtraverse: name="aggr" added "aggr.sumd"
+__dmtraverse: name="aggr" added "aggr.count_err"
+__dmtraverse: name="aggr" added "aggr.sum_err"
+__dmtraverse: name="aggr" added "aggr.countblob"
 __dmgetpmid: metric "aggr.max32" -> PMID 511.0.3
 __dmgetpmid: metric "aggr.min32" -> PMID 511.0.4
 __dmgetpmid: metric "aggr.maxu32_minu32" -> PMID 511.0.5
@@ -1306,7 +1346,6 @@ aggr.countblob
 
 aggr.non_arith = max(sample.lights)
 
-aggr.non_arith: pmLookupDesc: Unknown or illegal metric identifier
 pmRegisterDerived: name="event.flags" expr="anon(PM_TYPE_U32)"
 parse(1) state=P_INIT type=L_ANON "anon("
 parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
@@ -1359,4 +1398,5 @@ expr node <addr-9> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] 
     Semantics: discrete  Units: none
 __dmgetpmid: metric "aggr.non_arith" -> PMID 511.0.3
 Semantic error: derived metric aggr.non_arith: MAX(sample.lights): Non-arithmetic operand for function
-__dmgetpmid: metric "aggr.non_arith" -> PMID 511.0.3
+__dmtraverse: name="aggr", omitting invalid child "aggr.non_arith"
+Error: aggr: Unknown metric name

@@ -1,3 +1,99 @@
+pcp-3.11.2 (29 April 2016)
+    - pmdalinux: add per CPU network.softnet metrics
+    - pmdaoracle: connect to pmcd as early as possible
+    - pmdaperfevent: optional scaling of derived events
+    - pmdaperfevent: alternate event groups for derived events
+    - pmdaelasticsearch: restict to local node metrics by default
+    - pmdaproc: cgroup blkio throttle throughput+iops metrics
+    - pmdaproc: fix per-process scheduler metrics (type+semantics)
+    - pmdaroot: add check for config.v2.json Docker 1.10+ files
+    - pcp-collectl: fix missing network.interface metric handling
+    - pcp-iostat: add -R flag for device name regex matching
+    - pcp-iostat: add -G flag for sum, avg, min or max statistics
+    - pcp-iostat: add -x flag to skip idle devices
+    - libpcp: fix pmcd-context-sharing refcnt and memleak bug
+    - libpcp: add support for permanent, global derived metrics
+    - libpcp: fix a multi-archive context error path memory leak
+    - libpcp: increase discovery probe thread stack sizes
+    - libpcp: rework push and pop of TZ values into environment
+    - pmcd: usability improvements to pmda restart
+    - pmieconf: tweak pcp.pmda rule to detect persistent failures
+    - packaging: python3 debian package
+    - packaging: optional vector webapp debian package
+    - images: switch to DFSG-compliant licensing for GUI icons
+    - pcp_completion.sh: add pmrep support to bash completion
+    - derived metrics: add derived iostat metrics below disk.*
+    - pmchart: split out the Iostat view into SD, DM and MD
+    - pmwebd: better support for some older MSIE browsers
+    - python api: improve the to-string function for struct tm
+    - pmrep: handle Py3 BrokenPipeError in Py2 compatible manner
+    - docs: updates to the pmdajson README file
+
+pcp-3.11.1 (18 March 2016)
+    - libpcp: multi-archive contexts (directory or comma-separated)
+    - libpcp: fix corner case in loading PMNS causing duplicates
+    - libpcp: fix pmLoadDerivedConfig return code, man page updated
+    - libpcp: fix initialization error in roll-your-own TPD (MacOSX)
+    - libpcp_import: new pmiPutMark() API to write <mark> records
+    - libpcp_import: check timestamp ordering in pmiPutResult too
+    - pmieconf: rule to automate restarting of unresponsive PMDAs
+    - pmlogconf: automatically record Oracle database metrics
+    - pmlogconf: automatically record application mmap'd metrics
+    - pmdadarwin: add a hinv.machine metric like other platforms have
+    - pmdaelasticsearch: adjust to deal with elasticsearch API change
+    - pmdaopenbsd: first working version, basic kernel metrics
+    - pmdaoracle: Oracle database metrics available and updated
+    - pmdaoracle: improve error handling on disconnect/reconnect
+    - pmdalinux: fix metric units for swapdev.priority metric
+    - pmdalinux: fix interrupts data types for big endian hosts
+    - pmdalinux: require privileged client for slabinfo metrics
+    - pmdalinux: support for MD driver statistics and status
+    - pmdammv: name mmv control metrics with standard convention
+    - pmdaperfevent: add extension for perf derived events
+    - pmdapmcd: restrict pmcd.services to checking known pcp services
+    - pmdaproc: fix possible sigsegv with unexpected refresh order
+    - pmdasample: add sample.negative metrics for test coverage
+    - pmdaslurm: add allocated cores metric
+    - pcp2graphite: add an option to specify pickle protocol
+    - pcp2graphite: use cPickle instead of pickle for speed
+    - pcp2graphite: send all metrics at once in pickled mode
+    - pcp-vmstat: wrapper for pmstat to be more vmstat-alike
+    - pcp-iostat: uninterpolated archive replay with -u option
+    - pcp-iostat: tweak syntax used for old python versions (2.6.6)
+    - pcp-iostat: signal handling improvements to dodge warnings
+    - pcp-iostat: add -P flag for setting precision (ala pmrep)
+    - pcp-dmcache: dynamic lvname width to avoid truncation
+    - pmie: updates to the PATH handling for pmie shell actions
+    - pmrep: fix extended header times with -O, and sample count
+    - pmrep: correctly handle the end of the time window
+    - pmrep: improve stdio flushing to avoid exception errors
+    - pmrep: fix timezone handling and reporting
+    - pmrep: adjust exit codes for consistency
+    - pmrep: do not issue fsync, makes no sense here
+    - pmrep: finalize zabbix transfers in all cases
+    - pmsignal: provide a targetted program mode, -p option
+    - pmsignal: make dry-run mode show the full command line
+    - pmsocks: use the wrapper script from the tsocks package
+    - pmval: correct handling of real negative values
+    - perl api: fix input-type-socket connection logic typo
+    - perl api: merge pmdalogger logic fix for input string handling
+    - zbxpcp: add derived metrics configuration support
+    - zbxpcp: support both Zabbix 2 and 3 versions simultaneously
+    - dbpmda: add -f option to skip .dbpmdarc processing
+    - collectl2pcp: write a <mark> record between each input source
+    - build: pmdasnmp is now conditionally built as nature intended
+    - build: install pmlogconf where it will be found, like pmieconf
+    - build: fix rpmbuild warnings about symlink attrs
+    - build: fix compiler warnings from perl PMDA module
+    - build: fix af_unix-related solaris build failure
+    - build: rework Makepkgs configopts logic for rpm/dpkg confusion
+    - build: allow rpm signing, bintray upload tweaks (gpgenabled=1)
+    - build: non-verbose reporting on Makepkgs deb packages too
+    - build: add /usr/local/bin to search path for new Mac OS X Qt
+    - packaging: several Debian build depencency corrections
+    - porting: numerous OpenBSD portability changes across the board
+    - porting: numerous Mac OS X fixes and testing (incl a pmpython)
+
 pcp-3.11.0 (29 January 2016)
     - containers: add a pcp-pmwebd container image
     - pmcd: start PMDAs via pmdaroot, allowing restart on PMDA
@@ -356,7 +452,7 @@ pcp-3.10.5 (15 June 2015)
     - libpcp: interp.c: massive performance improvement in archive replay
     - build: scripts to set up a buildbot 
     - libpcp: pmLookupName() error handling, especially for dynamic metrics
-    - hotproc: hotproc : fix an off by one error for fname configs
+    - hotproc: fix an off by one error for fname configs
     - rc scripts: Allow more than one .NeedInstall to occur at a time
     - pmie: remove unnecessary 2 second delay at live startup
     - pmiostat: usage message cleanup

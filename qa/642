@@ -14,8 +14,11 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -f $PCP_PMDAS_DIR/trace/pmdatrace ] || _notrun "trace pmda not installed"
+[ -d $PCP_PMDAS_DIR/trivial ] || _notrun "trivial PMDA directory is not installed"
+[ -d $PCP_PMDAS_DIR/simple ] || _notrun "simple PMDA directory is not installed"
+[ -d $PCP_PMDAS_DIR/sample ] || _notrun "sample PMDA directory is not installed"
 [ -f $PCP_PMDAS_DIR/sendmail/pmdasendmail ] || _notrun "sendmail pmda not installed"
+[ -f $PCP_PMDAS_DIR/trace/pmdatrace ] || _notrun "trace pmda not installed"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.*

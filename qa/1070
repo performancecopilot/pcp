@@ -1,0 +1,75 @@
+#!/bin/sh
+# PCP QA Test No. 1070
+# Exercise pmrep csv / sheet2pcp / pmrep csv roundtrip compatibility.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.check
+. ./common.setup
+[ -f common.python ] || _notrun "No python bindings installed"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+perl -e "use XML::TokeParser" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl XML::TokeParser module not installed"
+perl -e "use Spreadsheet::Read" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl Spreadsheet::Read module not installed"
+which sheet2pcp >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "sheet2pcp not installed"
+
+status=1        # failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_path_filter()
+{
+    sed \
+        -e "s#$here#QAPATH#g" \
+    #end
+}
+
+# deal with ...
+# timezone: PCP-10 (reporting, local is AEDT-11)
+#
+_filter()
+{
+    sed \
+	-e 's/ (reporting, local is .*)$//g' \
+    #end
+}
+
+log="--archive $here/archives/20130706 -z -O 30m"
+
+# real QA test starts here
+echo "== pmrep csv / sheet2pcp / pmrep csv roundtrip compatibility"
+echo "Test data to be used:"
+pmrep -s 5 -t 2 $log -p -o stdout -x hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock 2>&1 \
+| _path_filter \
+| _filter
+pmrep -s 5 -t 2 $log -p -o csv -F 1070.csv hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock 2>&1 \
+| _filter
+sheet2pcp 1070.csv 1070.map 1070-archive
+pmrep -s 5 -t 2 -a 1070-archive -z -p -o csv -F 1070.csv2 hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock 2>&1 \
+| _filter
+echo "Diff of CSV files start (no output expected)"
+diff 1070.csv 1070.csv2
+echo "Diff of CSV files end"
+echo "Test data from temp archive:"
+pmrep -s 5 -t 2 -a 1070-archive -z -p -o stdout -x hinv.machine mem.util.used kernel.all.sysfork hinv.cpu.clock 2>&1 \
+| _filter
+rm -f 1070-archive* 1070.csv*
+
+# success, all done
+echo "== done"
+status=0
+exit

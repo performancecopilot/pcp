@@ -21,12 +21,15 @@
 typedef struct {
     struct linux_table	*meminfo;
     struct linux_table	*memstat;
+    double		bandwidth;
 } nodeinfo_t;
 
 typedef struct {
     nodeinfo_t	*node_info;
     pmdaIndom	*node_indom;
+    char	bandwidth_conf[PATH_MAX];
 } numa_meminfo_t;
 
 extern int refresh_numa_meminfo(numa_meminfo_t *, proc_cpuinfo_t *, proc_stat_t *);
-
+extern int get_memory_bandwidth_conf(numa_meminfo_t *, int);
+extern int bandwidth_conf_changed(char *conf_path);

@@ -1,6 +1,7 @@
+.\" Copyright (c) 2016, Red Hat.  All Rights Reserved.
 .\" Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
 .\" Copyright (c) 2008, Aconex.  All Rights Reserved.
-.\" Copyright (c) 2014, Red Hat.
+.\" Copyright (c) 2014-2016, Red Hat.
 .TH PMCHART 1 "" "Performance Co-Pilot"
 .SH NAME
 \f3pmchart\f1 \- strip chart tool for Performance Co-Pilot
@@ -13,7 +14,6 @@
 [\f3\-f\f1 \f2fontfamily\f1]
 [\f3\-F\f1 \f2fontsize\f1]
 [\f3\-g\f1 \f2geometry\f1]
-[\f3\-g\f1 \f2geometry\f1]
 [\f3\-h\f1 \f2host\f1]
 [\f3\-o\f1 \f2outfile\f1]
 [\f3\-O\f1 \f2offset\f1]
@@ -24,6 +24,7 @@
 [\f3\-t\f1 \f2interval\f1]
 [\f3\-v\f1 \f2visible\f1]
 [\f3\-Z\f1 \f2timezone\f1]
+[\f3\-geometry\f1 \f2geometry\f1]
 [\f2sources\f1...]
 .SH DESCRIPTION
 .B pmchart
@@ -34,7 +35,7 @@ on the unified time axis (X-axis), and through the use of multiple
 interface Tabs.
 .PP
 Metric values can be sourced from one or more live hosts
-(simultaneously).  Alternatively, one or more PCP archives
+(simultaneously).  Alternatively, one or more sets of PCP archives
 can be used as a source of historical data.
 See
 .BR PCPIntro (1)
@@ -49,7 +50,7 @@ In particular, the use of "views" (refer to the section describing
 VIEWS later in this document)
 allows predefined sets of metrics and charting parameters
 like colors, scaling, titles, legends, and so on to be stored for
-later use, or use with different hosts and archives.
+later use, or use with different hosts and sets of archives.
 In addition, the Preferences dialog allows customisations to the
 rest of the
 .B pmchart
@@ -70,14 +71,17 @@ Options which control the default source, timing and layout of the
 window are as follows:
 .TP 5
 .B \-a
-Performance metric values are retrieved from the Performance Co-Pilot
-(PCP) archive log file identified by the base name archive, by default.
+Performance metric values are retrieved from the set of Performance Co-Pilot
+(PCP) archive logs identified by this option, by default. The argument is
+a comma-separated list of names, each of which may be the base name of an
+archive or the name of a directory containing one or more archives. The
+resulting set of archives will be the source of the performance metrics.
 The initial Tab created will be an archive mode Tab.
 Multiple
 .B \-a
-options can be presented, and the list of archives is used for sourcing
-metric values.
-Any \f2sources\f1 listed on the command line are assumed to be archives
+options can be presented, and the resulting list of sets of archives is used
+for sourcing metric values.
+Any \f2sources\f1 listed on the command line are assumed to be sets of archives
 if this option is used.
 .TP
 .B \-c
@@ -131,6 +135,14 @@ option for generating an output image.
 The
 .I geometry
 argument takes the form "WxH" (e.g. 240x120).
+When NOT using the
+.B \-o
+flag, to specify the display window geometry, use
+.B \-geometry
+.I geometry
+where
+.I geometry
+specifies the desired window width, height and optional placement.
 .TP
 .B \-h
 Current performance metric values are retrieved from the nominated
@@ -147,7 +159,7 @@ if this option is used.
 Generate an image file named
 .IR outfile ,
 and then exit.
-This is most useful when run with an archive and one or more views.
+This is most useful when run with a set of archives and one or more views.
 The generated image will be in the format specified as the file
 extension (automatically determined from
 .IR outfile ).
@@ -476,7 +488,7 @@ The \f(CW<options>\fP are zero or more of the optional elements:
 .ES
 [\f(CBscale\fP [from] <ymin> [to] <ymax>] [\f(CBlegend\fP <onoff>]
 .EE
-If \f(CBscale\fP is specfied, the vertical scaling is set for all plots
+If \f(CBscale\fP is specified, the vertical scaling is set for all plots
 in the chart to a y-range defined by \f(CW<ymin>\fP and \f(CW<ymax>\fP.
 Otherwise the
 vertical axis will be autoscaled based on the values currently being
@@ -549,7 +561,7 @@ configuration file format.
 \f(CB#\fPrrrrggggbbbb
 <Xcolor>
 .EE
-where each of \f(CWr\fP, \f(CWg\fP and \f(CWb\fP are hexidecimal
+where each of \f(CWr\fP, \f(CWg\fP and \f(CWb\fP are hexadecimal
 digits (0-9 and A-F) representing respectively the red, green and
 blue color components.
 \f(CW<Xcolor>\fP is one of the color names from the X color database,

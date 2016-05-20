@@ -110,6 +110,9 @@ fetch
 # archive support in libpcp, includes interp.c
 archive
 
+# multi-archive support in libpcp, includes interp.c
+multi-archive
+
 # getopt support - libpcp, pmgetopt, python
 getopt
 
@@ -184,7 +187,9 @@ pmda.named
 pmda.netfilter
 pmda.news
 pmda.nvidia
+pmda.oracle
 pmda.papi
+pmda.perfevent
 pmda.pmcd
 pmda.postfix
 pmda.postgresql
@@ -308,6 +313,9 @@ pmiostat
 # Uses Linux kernel cgroups
 cgroups
 
+# Timezone services in libpcp
+timezone
+
 # test-group association ... one line per test
 # add :retired or :reserved as a tag immediately after the test number
 # to keep the test number allocated, but prevent the test from being run
@@ -388,7 +396,7 @@ cgroups
 074 pmda pmda.cisco pmda.pmcd local ostest sanity
 075 pmval pmstore ostest remote
 076 pmda.pmcd local ostest
-077 libpcp ostest remote
+077 libpcp ostest remote timezone
 078 pmdumplog local ostest
 079 libpcp archive local ostest
 080 libpcp pmval local sanity
@@ -397,7 +405,7 @@ cgroups
 083 pmlc pmlogger compat remote
 084 other local ostest
 085 pmlogger local ostest sanity
-086 libpcp ostest remote
+086 libpcp ostest remote timezone
 087 archive local ostest sanity
 088 archive #500237 pmval local ostest
 089 archive pmval local ostest
@@ -525,7 +533,7 @@ cgroups
 211 pmns local pmval pmie pmdumplog
 212:retired pmda pmda.cisco local
 213 dbpmda pmns local pmda.sample pmda.mmv
-214 pmlogextract local pmdumplog
+214 pmlogextract local pmdumplog timezone
 215 other pmsocks pmval remote
 216 pmda.linux local
 217 folio local
@@ -577,14 +585,14 @@ cgroups
 263 derive local sanity
 264 pmns local
 265 libpcp local
-266 logutil #466346 patch2140 patch2141 local pmlogextract pmdumplog
+266 logutil #466346 patch2140 patch2141 local pmlogextract pmdumplog timezone
 267 libpcp local
 268 interop local
 269 wrap pmval pmkstat local
 270 pmlogextract logutil local pmdumplog
 271 archive local pmdumplog
 272 pmcd pmval pmprobe remote
-273 libpcp local
+273 libpcp local pmval
 274 pmda help local pmda.install dbpmda
 275 derive local
 276 pmie pmval indom local
@@ -597,7 +605,7 @@ cgroups
 283 context pmcd local
 284:retired  pdu local purify
 285 dbpmda local
-286 pmda.linux local
+286 pmda.linux local pmval
 287 pmlogreduce local pmval
 288 archive local
 289 libpcp fetch archive #505498 local
@@ -605,7 +613,7 @@ cgroups
 291 logutil local pmlogextract pmdumplog
 292 pmlogextract logutil pmval local
 293 pmstat #939275 local
-294 pmproxy local pmval pmie
+294 pmproxy local pmval pmie pmstat
 295 pmproxy local pmval pmstat pmie
 296 pmcd local
 297 pmproxy local
@@ -637,8 +645,8 @@ cgroups
 323 pmda.shping pmda.proc local pmda.install
 324 pmda.txmon pmda.proc local pmda.install
 325 libpcp local
-326 pmlogger pmval libpcp pmcd local pmda.install folio pmdumplog pmlc
-327 archive local pmdumplog pmloglabel
+326 pmlogger pmval libpcp pmcd local pmda.install folio pmdumplog pmlc timezone
+327 archive local pmdumplog pmloglabel timezone
 328 logutil local pmlogextract pmdumplog
 329:retired archive mem_leak local purify
 330:retired archive mem_leak local purify
@@ -646,7 +654,7 @@ cgroups
 332:retired archive mem_leak local purify
 333:retired archive mem_leak local purify
 334 derive local
-335 derive local
+335 derive local pmval pmstore
 336 trace local pmda.install
 337 pmlogextract local pmval pmdumplog
 338 logutil pmlogextract local sanity
@@ -655,7 +663,7 @@ cgroups
 341 pmda local
 342 other remote
 343 pmlogreduce local pmdumplog
-344 context_local local
+344 context_local local pmval pmprobe
 345 pmns derive local sanity
 346 pmda.mailq local pmda.install
 347 pmda.news local pmda.install perl
@@ -681,7 +689,7 @@ cgroups
 367 pdu local trace
 368 pmlogconf local
 369 pmimport local sanity pmdumplog perl
-370 pmimport local derive pmdumplog perl
+370 pmimport local derive pmdumplog perl pmval
 371 pmimport local pmdumplog perl libpcp_pmi
 372 pmimport local pmdumplog perl
 373 pmimport local perl
@@ -691,7 +699,7 @@ cgroups
 377 other local
 378 pmie local
 379 pmda.cisco local
-380 libpcp pmda pmda.sample local
+380 libpcp pmda pmda.sample local pmval pmprobe
 381 logutil pmlc remote
 382 dbpmda pmda pmda.sample local
 383 pmda.cisco local flakey
@@ -723,10 +731,10 @@ cgroups
 409 libpcp pminfo local event
 410 pmdumplog local event
 411 pmda.simple local pmda.install
-412 wrap archive libpcp pmval local pmdumplog
+412 wrap archive libpcp pmval local pmdumplog timezone
 413 pmie local event
 414 libpcp local
-415 pmval pmstore local event
+415 pmstore local event
 416 pmda.news dbpmda local sanity perl
 417 archive local pmdumplog
 418 pmdumplog local pmlogger
@@ -790,7 +798,7 @@ cgroups
 476 fault local
 477 event fault local
 478 fault local
-479 archive pmdumplog local pmie
+479 archive pmdumplog local pmie pmval
 480 archive fault local
 481 pmlogrewrite local
 482 pmlogsummary local pmdumplog
@@ -798,19 +806,19 @@ cgroups
 484 pmlogrewrite local pmdumplog
 485 pmlogrewrite local pmdumplog
 486 pmlogrewrite local pmdumplog
-487 pmlogrewrite pmdumplog local
+487 pmlogrewrite pmdumplog local pmval
 488 pmlogrewrite pmdumplog local
 489 pmda local
 490 pmlogrewrite mem_leak valgrind local
 491 pmda local
 492 pmlogrewrite local
-493 pmlogrewrite local
-494 pmlogrewrite pmdumplog local
-495 pmlogrewrite pmval local pmlogextract
+493 pmlogrewrite local pmval
+494 pmlogrewrite pmdumplog local pmval
+495 pmlogrewrite local pmlogextract
 496 pmlogrewrite pmdumplog local
 497 pmlogconf local
 498 event pmda local
-499 pmlogrewrite local
+499 pmlogrewrite local timezone
 500 logutil local #636417 folio
 501 pmie local
 502 pmlogrewrite local
@@ -818,7 +826,7 @@ cgroups
 505 pmlogrewrite local
 506 pmlogrewrite local slow
 507 pcp local
-508 archive pmlogreduce pmlogextract local
+508 archive pmlogreduce pmlogextract local pmval
 509 derive pmns local
 510 pmlogger pmlc local
 511 pmimport pmdumplog pmlogsummary perl local
@@ -837,7 +845,7 @@ cgroups
 524 libpcp pmlogger local
 525 pmda.summary pmie local
 526 pmimport local valgrind
-527 libpcp_import perl local
+527 libpcp_import perl local timezone
 528 pmimport pmdumplog perl local
 529 pmie local
 530 logutil local pmlogextract local
@@ -846,7 +854,7 @@ cgroups
 533 dbpmda local pmda.sample
 534 pmie local
 535 pmie local pmprobe
-536 pmimport local pmiostat
+536 pmimport local pmiostat pmval pmprobe pmdumplog timezone
 537 pmimport perl local
 538 pmie local pmstore
 539 pmpost local flakey
@@ -855,7 +863,7 @@ cgroups
 543 logutil remote pmlogextract
 544 pmimport local
 545 pmsocks local
-546 pmcd local
+546 pmcd local secure
 547 libpcp pmcd local
 548 pmie local sanity
 549 pmie local
@@ -891,7 +899,7 @@ cgroups
 594 pmda.sample #779246 #782029 local
 597 pmda.shping pmda.proc pmda.install local
 599 pmie local
-600 libpcp local
+600 libpcp local timezone
 601 trace pmda.install local
 602 trace pmda.install local
 603 trace pmda.install remote
@@ -901,7 +909,7 @@ cgroups
 622 pmie remote
 628 pmda local pmda.simple
 633 pmlogger local
-634 libirixpmda local pmval
+634 libirixpmda local pmval timezone
 635 pmda.linux libirixpmda remote
 636 libpcp local
 638 pmns local
@@ -934,7 +942,7 @@ cgroups
 701 pmlogcheck local
 702 python libpcp local
 703 pmda.weblog local
-704:reserved pmda.mmv python mmv local
+704 pmda.mmv python mmv local
 705 libpcp local
 706 libpcp local
 707 python libpcp local
@@ -958,18 +966,18 @@ cgroups
 725 pmda.jbd2 local
 726 pmlogger pmdumplog local
 727 avahi local
-728 libpcp getopt local
+728 libpcp getopt local timezone
 729 python local
 730 pmda.proc local cgroups
-731 pmda.proc local cgroups valgrind
+731 pmda.proc local cgroups valgrind pmval
 732 pmda.linux local
 733 pmie pmval pmdumplog local
 734 libpcp pmstat remote
 735 pmda.proc local
 736 pmlogrewrite local
-737 python local
+737 python local timezone
 738 logutil local pmlogmv
-739 python getopt local
+739 python getopt local timezone
 740 pmda.sample pmstore secure local
 741 python getopt local
 742 pcp python local
@@ -980,10 +988,10 @@ cgroups
 747 pmda.linux local
 748 pmlogrewrite pmda.mysql local
 749 pmcd local
-750 pmda.rpm local flakey
+750 pmda.rpm local flakey pmval
 751 pmda.rpm local
-752 libpcp local
-753 derive pmie local
+752 libpcp local pmval timezone
+753 derive pmie local pmval
 754 pmda.unbound local
 755 pmda.apache pmda.install local
 756 pmda.perfevent local
@@ -1007,7 +1015,7 @@ cgroups
 774 pmdumplog local
 775 sanity pmfind local
 776 pmfind local
-777 derive pmprobe pmie local
+777 derive pmprobe pmie local pmval
 778 pmda.postgresql pmie local
 779 pmda local
 780 pmwebapi local
@@ -1034,18 +1042,29 @@ cgroups
 801 pmda.netfilter local
 802 pmda valgrind dbpmda local
 803 libpcp derive local
+804 pcp pmstat local
 805 pmda.postfix local
+806 pmstore pminfo pmie pmval pmprobe dbpmda local
 807 pcp local
 808 pmlogger local
+809 archive multi-archive local
+810 pmiostat archive multi-archive local
 811 pmlogger pmcpp local
 812 pmlogextract local
 813 pmda.papi local
+814 pmprobe archive multi-archive local
 815 pmie local
 816 libpcp local
+817 pmstat archive multi-archive local
+818 pmval archive multi-archive local
+819 pmda.elasticsearch local
+820 pmda.linux local
+821 pmda.linux local
 822:reserved pmlogrewrite
 823 pmda.sample pmstore secure local
 824 pmlogsummary local #1132476
 825 pmda.ds389 local
+826 pmda.linux local
 827 pmlogrewrite pmda.linux local
 828 valgrind archive context local
 829 pcp python local
@@ -1056,12 +1075,12 @@ cgroups
 834 pmie local
 835 pmda.memcache local
 836 pmlogsummary local pmdiff
-837 pmda.sample containers local
+837 pmda.sample containers local pmval pmstore pmprobe
 838 pmns local
 839 pcp python local
 840 avahi local
 841 pmda local
-842 python local pmiostat
+842 python local pmiostat pmval
 843 pmda local python
 844 pmda.linux local
 845 pmda.mounts local
@@ -1072,9 +1091,10 @@ cgroups
 855 pmda.netfilter local
 858 libpcp local fetch
 859 python libpcp local fetch
-860 pmda pmda.proc ostest local
+860 pmda pmda.proc ostest local pmval
 861 pmcd pmda.pmcd local
 862 pmie local
+863 python local
 864 pcp python local
 868 pmda.install local
 869 pmda.linux local
@@ -1084,17 +1104,20 @@ cgroups
 875 libpcp local valgrind
 876 pmda.xfs local
 877 libpcp local
-878 pmda.pipe local
+878 pmda.pipe local pmval
 879 pmda.pipe local
+880 pmrep python local
+881 pmcd local
 885 pmda.linux local
 886 pmda.linux local
+887 pmlogsummary archive multi-archive local
 888 pmda.linux local
 889 pmda.proc local
 892 pmcd libpcp local
 897 pmlc pmlogger local
 898 pmlogmv local 
 899 libpcp getopt local
-900 libpcp sanity local
+900 libpcp sanity local timezone
 901 libpcp event local
 902 libpcp mem_leak valgrind event local
 903 pmda.papi local
@@ -1103,6 +1126,7 @@ cgroups
 909 libpcp pmns local
 914 pmda.papi local
 915 pmcd pmlogger pmproxy libpcp local
+916 pmlogextract pmlogcheck local
 919 pmlogger pmstat local
 921 pmdumplog local
 922 derive pmie pmval local
@@ -1117,8 +1141,9 @@ cgroups
 946 pmfind avahi local
 947 pmlogger local
 948 pmlogger context_local local 
+949 python local timezone
 950 pmproxy avahi local
-951 pmie local
+951 pmie local pmval
 955 pmda.linux local
 956 pmcd local
 957 pmda.linux local valgrind
@@ -1126,20 +1151,23 @@ cgroups
 959 pmda.sample pmstore local
 960 pmda.ds389 local
 961 pmlogextract local
-962 archive local
+962 archive local pmval pmdumplog
 963 libpcp local
 964 pmcd local
 965 derive local
 966 secure local
 967 pmda.papi local
 968 python local
+969 derive local
+970 pmclient archive multi-archive local sanity
+971 pmlogrewrite pmda.proc local
 972 pmda.zswap dbpmda local
 973 pmda.zswap pmda.install local
 974 pmda.proc local
 975 pmimport local
 976 dbpmda perl pmda.lustre local
 977 libpcp valgrind local containers
-978 libpcp getopt sanity local
+978 libpcp getopt sanity local timezone
 979 python local
 980 python local
 981 dbpmda perl pmda.gpfs local
@@ -1195,6 +1223,10 @@ cgroups
 1032 pmwebapi containers local
 1033 pmda.named local
 1034 pmda.named local
+1035 pmda.oracle local
+1036 pmclient archive multi-archive local
+1037 pminfo archive multi-archive local
+1038 pmrep archive multi-archive local
 1042 pmwebapi pmda.proc local
 1044 pmie local pmieconf sanity
 1045 pmie local pmieconf
@@ -1206,18 +1238,21 @@ cgroups
 1052 pmda.json local python
 1053 pmda.json pmda.install local python
 1054 pmlogger pmcpp local
+1062 pmrep python local
 1065 libpcp valgrind local
 1067 zabbix zbxpcp local
 1068 pmrep python zabbix local
-1069 pmrep python local
+1069 pmrep python local timezone
+1070 pmrep pmimport python perl local
 1079 pcp atop local
 1080 valgrind pcp atop local
 1081 python pcp local
 1082 python local
-1090 webapi local context
+1090 pmwebapi local context
 1091 pmns libpcp context local
 1092 libpcp local
 1093 pmcpp local
 1094 logutil local
-1099 archive pmiostat local pmval pmie
+1099 archive pmiostat local pmie
 1108 logutil local folio pmlogextract
+4751:reserved threads local archive fetch context flakey

@@ -386,6 +386,7 @@ static struct {
 	{ "unix_domain_sockets",UNIX_DOMAIN_SOCKETS_ENABLED },	/* from pcp-3.8.2 */
 	{ "static_probes",	STATIC_PROBES_ENABLED },	/* from pcp-3.8.3 */
 	{ "service_discovery",	SERVICE_DISCOVERY_ENABLED },	/* from pcp-3.8.6 */
+	{ "multi_archive_contexts", enabled },			/* from pcp-3.11.1 */
 };
 
 void

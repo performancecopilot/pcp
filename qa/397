@@ -36,7 +36,7 @@ s/amp: .* num/amp: TIMESTAMPS num/
 }
 
 # real QA test starts here
-cat <<End-of-File | $sudo dbpmda -ei >$tmp.out 2>&1
+cat <<End-of-File | $sudo TERM=ansi dbpmda -ei >$tmp.out 2>&1
 open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -l $tmp.log
 store sample.event.reset "0"
 fetch sample.event.records

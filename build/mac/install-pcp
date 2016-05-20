@@ -101,7 +101,7 @@ OS_VERSION=`$UNAME -r`
 _usage()
 {
     cat << EOF
-Usage: $prog [-cinpr] [-C os_version] [-l logfile] [-u origidb] [-R root] idbfile
+Usage: $prog [-cinpr] [-C os_version] [-l logfile] [-u origidb] [-y origidb] [-R root] idbfile
 
    -l logfile Save important output to logfile
    -n         Show actions but do not execute
@@ -114,8 +114,9 @@ Usage: $prog [-cinpr] [-C os_version] [-l logfile] [-u origidb] [-R root] idbfil
    -c         Collect source files into current dir
    -i         Install files from current directory
    -p         Parse and check idb is valid
-   -r         Remove installed files.
-   -u origidb Remove files not in new IDB and then install
+   -r         Remove installed files
+   -u origidb Remove files not in new IDB
+   -y origidb Remove files not in new IDB and then install
 EOF
     exit 1
 }
@@ -140,8 +141,11 @@ _error()
 
 _warn()
 {
-    _echo "$prog: Warning: $*" | $TEE -a $mesg
-    dump_mesg=true
+    if $verbose
+    then
+	_echo "$prog: Warning: $*" | $TEE -a $mesg
+	dump_mesg=true
+    fi
 }
 
 _debug()
@@ -163,7 +167,7 @@ _mesg()
 
 _note()
 {
-    _echo "$prog: Note: $*"
+    $verbose && _echo "$prog: Note: $*"
 }
 
 _cmd()
@@ -526,11 +530,13 @@ _remove()
     # If directory is not empty, default is to ignore and move on
     #
     sort -k1r,1 -k5r,5 $1 < $1 \
-    | $AWK >> $tmp/cmds '
+    | $AWK '
 $7 == "noupdate"	{ next }
 $1 == "d" 		{ printf("_remove_dir %s %s %s\n", $5, $8, $9); next }
 			{ printf("_remove_file %s %s %s\n", $5, $8, $9) }
-'
+' \
+    | sort -r \
+    | uniq >> $tmp/cmds
 }
 
 _install()
@@ -547,6 +553,7 @@ collect=false
 install=false
 remove=false
 upgrade=false
+upgrade_n_install=false
 verbose=false
 logfile=
 log=false
@@ -554,16 +561,17 @@ mesg=$tmp/mesg
 root=
 collect_version=
 parse=false
-if set -- `getopt cC:il:nprR:u:v $*`
+if set -- `getopt cC:il:nprR:u:vy: $*`
 then
     for i in $* 
     do
         case $i in
 	    -C)
 		$install && _usage
+		$parse && _usage
 		$remove && _usage
 		$upgrade && _usage
-		$parse && _usage
+		$upgrade_n_install && _usage
                 collect=true
 		collect_version=$2
 		echo "Collecting for $collect_version"
@@ -572,6 +580,7 @@ then
 		$install && _usage
 		$remove && _usage
 		$upgrade && _usage
+		$upgrade_n_install && _usage
 		$parse && _usage
                 collect=true
                 shift;;
@@ -579,6 +588,7 @@ then
 		$collect && _usage
 		$remove && _usage
 		$upgrade && _usage
+		$upgrade_n_install && _usage
 		$parse && _usage
 		install=true
 		shift;;
@@ -598,15 +608,17 @@ then
 	    -p)
 		$collect && _usage
 		$install && _usage
-		$upgrade && _usage
 		$remove && _usage
+		$upgrade && _usage
+		$upgrade_n_install && _usage
 		parse=true
 		shift;;
 	    -r)
 		$collect && _usage
 		$install && _usage
-		$upgrade && _usage
 		$parse && _usage
+		$upgrade && _usage
+		$upgrade_n_install && _usage
 		remove=true
 		shift;;
 	    -R)
@@ -615,14 +627,24 @@ then
 	    -u)
 		$collect && _usage
 		$install && _usage
-		$remove && _usage
 		$parse && _usage
+		$remove && _usage
+		$upgrade_n_install && _usage
 		upgrade=true
 		oidb=$2
 		shift 2;;
 	    -v)
 		verbose=true
 		shift;;
+	    -y)
+		$collect && _usage
+		$install && _usage
+		$parse && _usage
+		$remove && _usage
+		$upgrade && _usage
+		upgrade_n_install=true
+		oidb=$2
+		shift 2;;
             --)
                 break
                 shift;;
@@ -722,7 +744,7 @@ END	{
 
 if [ -s $tmp/err ]
 then
-    echo "$prog: Invalid IDB file detected:"
+    echo "$prog: $idb: Invalid IDB file detected:"
     cat $tmp/err
     exit 1
 elif $parse
@@ -785,7 +807,7 @@ then
     _mesg_head "User: $USER"
     _install
 
-elif $upgrade
+elif $upgrade || $upgrade_n_install
 then
     _mesg_head "Upgrade of PCP files"
     _mesg_head "Date: "`date`
@@ -813,10 +835,10 @@ then
 	    _note "No files need to be removed before upgrade"
 	fi
     fi
-    _install
+    $upgrade_n_install && _install
 
 else
-    echo "$prog: Must select one of -r, -c, -i or -u options"
+    echo "$prog: Must select one of -r, -c, -i, -u or -y options"
     exit 1
 fi
 

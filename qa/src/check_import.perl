@@ -122,6 +122,9 @@ check($_, "pmiWrite");
 $_ = pmiWrite(-1, -1);
 check($_, "pmiWrite");
 
+$_ = pmiPutMark();
+check($_, "pmiPutMark");
+
 $_ = pmiEnd();
 check($_, "pmiEnd");
 

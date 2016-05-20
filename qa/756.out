@@ -72,4 +72,26 @@ data[12].name = UNHALTED_REFERENCE_CYCLES data[12].instances = 1
 	value[0] = 0
 data[13].name = INSTRUCTIONS_RETIRED data[13].instances = 1
 	value[0] = 0
+ ===== test_derived_counters ==== 
+pddata[0].name = derived_event1 pddata[0].instances = 1
+clist->name : BRANCH_INSTRUCTIONS_RETIRED
+clist->name : MISPREDICTED_BRANCH_RETIRED
+	value[0] = 0
+pddata[1].name = derived_event2 pddata[1].instances = 1
+clist->name : RS_UOPS_DISPATCHED_CYCLES
+clist->name : RS_UOPS_DISPATCHED
+	value[0] = 0
+ ===== test_derived_counters_fail_mismatch ==== 
+ ===== test_derived_counters_fail_missing ==== 
+ ===== test_derived_alternate_group ==== 
+derived size : 1
+pddata[0].name = derived_event1 pddata[0].instances = 1
+clist->name : BRANCH_INSTRUCTIONS_RETIRED
+clist->name : MISPREDICTED_BRANCH_RETIRED
+	value[0] = 0
+ ===== test_derived_events_scale ==== 
+derived size : 1
+pddata[0].name = derived_event1 pddata[0].instances = 1
+clist->name : BRANCH_INSTRUCTIONS_RETIRED, scale : 0.100000
+clist->name : MISPREDICTED_BRANCH_RETIRED, scale : 1.000000
 Unit tests Passed

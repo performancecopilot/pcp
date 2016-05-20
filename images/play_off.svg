@@ -14,9 +14,9 @@
    id="svg1307"
    sodipodi:version="0.32"
    inkscape:version="0.44.1"
-   sodipodi:docbase="/source/git/pcp-gui/images"
+   sodipodi:docbase="/source/git/pcp/images"
    sodipodi:docname="play_off.svg"
-   inkscape:export-filename="/source/git/pcp-gui/images/play_off.png"
+   inkscape:export-filename="/source/git/pcp/images/play_off.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
    version="1.0">
@@ -216,7 +216,7 @@
       <path
          inkscape:export-ydpi="88.615387"
          inkscape:export-xdpi="88.615387"
-         inkscape:export-filename="/source/git/pcp-gui/images/play_off.png"
+         inkscape:export-filename="/source/git/pcp/images/play_off.png"
          sodipodi:nodetypes="cccc"
          id="path3375"
          d="M 6.824147,28.76378 L 6.824147,3.4265473 L 26.512015,16.095164 L 6.824147,28.76378 z "
@@ -226,7 +226,7 @@
       <path
          inkscape:export-ydpi="88.615387"
          inkscape:export-xdpi="88.615387"
-         inkscape:export-filename="/source/git/pcp-gui/images/play_off.png"
+         inkscape:export-filename="/source/git/pcp/images/play_off.png"
          sodipodi:nodetypes="cccc"
          inkscape:r_cy="true"
          inkscape:r_cx="true"

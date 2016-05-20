@@ -16,7 +16,9 @@ echo "QA output created by $seq"
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
 migrate=$PCP_VAR_DIR/config/pmlogrewrite/linux_xfs_migrate.conf
+[ -f "$migrate" ] || _notrun "$migrate not installed"
 
 _compare()
 {

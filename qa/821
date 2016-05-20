@@ -1,0 +1,75 @@
+#!/bin/sh
+# PCP QA Test No. 821
+# Exercise Linux PMDA memory metrics.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific memory metric testing"
+
+config="$PCP_PMDAS_DIR/linux/bandwidth.conf"
+
+_cleanup()
+{
+    cd $here
+    if [ -f "$config.$seq" ]
+    then
+	_restore_config "$config"
+	$sudo rm -f "$config.$seq"
+    fi
+    rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+root=$tmp.root
+export LINUX_HERTZ=100
+export LINUX_PAGESIZE=4096
+export LINUX_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
+local="-L -K clear -K add,60,$pmda"
+
+mem_metrics=`pminfo $local mem | LC_COLLATE=POSIX sort`
+slab_metrics=`pminfo $local mem.slabinfo | LC_COLLATE=POSIX sort`
+
+if [ -f "$config" ]
+then
+    _save_config "$config"
+    $sudo rm -f "$config"  # ensure deterministic output, see qa/826
+fi
+
+for tgz in $here/linux/meminfo-*.tgz
+do
+    rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    tar xzf $tgz
+    base=`basename $tgz`
+
+    echo "== Checking all mem metric values - $base"
+    pminfo $local -f $mem_metrics
+    echo && echo "== done" && echo
+
+    echo "== Checking slabinfo metric values - $base"
+    # requires root privileges to access these
+    $sudo pminfo $local -f $slab_metrics
+    echo && echo "== done" && echo
+
+    cd $here
+done
+
+# success, all done
+status=0
+
+exit

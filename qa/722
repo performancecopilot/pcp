@@ -9,6 +9,10 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+. ./common.check
+. ./common.setup
+[ -f common.python ] || _notrun "Testsuite built without python support"
+
 . ./common.python
 
 [ -n "$PCP_PYTHON_PROG" ] || _notrun "no acceptable python to run src/test_set_source.python"
@@ -48,7 +52,7 @@ _check_stderr
 echo && echo == Archive list, expect pass:
 TEST_SET_ARCHIVELIST=archives/pcp-atop $script 2>$tmp.stderr
 _check_stderr
-echo && echo == Archive list, expect fail:
+echo && echo == Archive list, expect pass:
 TEST_SET_ARCHIVELIST=archives/pcp-atop,archives/rattle $script 2>$tmp.stderr
 _check_stderr
 

@@ -29,6 +29,7 @@
     <copyright>
       <year>2013</year>
       <year>2015</year>
+      <year>2016</year>
       <holder>Red Hat, Inc.</holder>
     </copyright>
     <legalnotice>
@@ -361,7 +362,7 @@ defined.</para></listitem></varlistentry><varlistentry><term><userinput>user inp
       </section>
       <section id="id5177616">
         <title>Distributed PMNS</title>
-        <para> <indexterm id="IG3134017729"><primary>PMNS</primary><secondary>distributed</secondary></indexterm> Performance metric namespace (PMNS) operations are directed by default to the host or archive that is the source of the desired performance metrics.</para>
+        <para> <indexterm id="IG3134017729"><primary>PMNS</primary><secondary>distributed</secondary></indexterm> Performance metric namespace (PMNS) operations are directed by default to the host or set of archives that is the source of the desired performance metrics.</para>
         <para>In <xref linkend="id5177408"/>, both Performance Metrics Collection Daemon (PMCD) processes would respond to PMNS queries from monitoring tools by referring to their local PMNS. If different PMDAs were installed on the two hosts, then the PMNS used by each PMCD would be different, to reflect variations in available metrics on the two hosts.</para>
         <para>Although extremely rarely used, the <command>-n</command>&#xA0;<replaceable>pmnsfile</replaceable> command line option may be used with many PCP monitoring tools to force use of a local PMNS file in preference to the PMNS at the source of the metrics.</para>
       </section>
@@ -3023,11 +3024,11 @@ filesys.free
         <indexterm id="IG31340177266">
           <primary>archive logs</primary>
           <secondary>performance data</secondary>
-        </indexterm>A metric's source may be the current performance data from a particular host (a live or real-time source), or an archive log of performance data collected by <command>pmlogger</command> at some remote host or earlier time (a retrospective or archive source). The metric's source is specified when the PMAPI context is created by calling the <command>pmNewContext</command> function. This function returns an opaque handle which can be used to identify the context.</para>
+        </indexterm>A metric's source may be the current performance data from a particular host (a live or real-time source), or a set of archive logs of performance data collected by <command>pmlogger</command> at some remote host or earlier time (a retrospective or archive source). The metric's source is specified when the PMAPI context is created by calling the <command>pmNewContext</command> function. This function returns an opaque handle which can be used to identify the context.</para>
       <para>
         <indexterm id="IG31340177267">
           <primary>collection time</primary>
-        </indexterm>The collection time for a performance metric is always the current time of day for a real-time source, or current position for an archive source. For archives, the collection time may be set to an arbitrary time within the bounds of the archive log by calling the <command>pmSetMode</command> function.</para>
+        </indexterm>The collection time for a performance metric is always the current time of day for a real-time source, or current position for an archive source. For archives, the collection time may be set to an arbitrary time within the bounds of the set of archive logs by calling the <command>pmSetMode</command> function.</para>
       <para>The last component of a PMAPI context is an instance profile that may be used to control which particular instances from an instance domain should be retrieved. When a new PMAPI context is created, the initial state expresses an interest in all possible instances, to be collected at the current time. The instance profile can be manipulated using the <command>pmAddProfile</command> and <command>pmDelProfile</command> functions.</para>
       <para>The current context can be changed by passing a context handle to <command>pmUseContext</command>. If a live context connection fails, the <command>pmReconnectContext</command> function can be used to attempt to reconnect it.</para>
     </section>
@@ -4506,8 +4507,37 @@ The python bindings return the text name of an instance corresponding to an inst
             </indexterm>
             <indexterm id="IG31340177350">
               <primary>pmNewContext function</primary>
-            </indexterm>The <command>pmNewContext</command> function may be used to establish a new PMAPI context. The source of metrics is identified by <replaceable>name</replaceable>, and may be a host specification (<replaceable>type</replaceable> is <literal>PM_CONTEXT_HOST</literal>) or the basename of an archive log (<replaceable>type</replaceable> is <literal>PM_CONTEXT_ARCHIVE</literal>).</para>
+            </indexterm>The <command>pmNewContext</command> function may be used to establish a new PMAPI context. The source of metrics is identified by <replaceable>name</replaceable>, and may be a host specification (<replaceable>type</replaceable> is <literal>PM_CONTEXT_HOST</literal>) or a comma-separated list of names referring to a set of archive logs (<replaceable>type</replaceable> is <literal>PM_CONTEXT_ARCHIVE</literal>). Each element of the list may either be the base name common to all of the physical files of an archive log or the name of a directory containing archive logs.</para>
           <para>A host specification usually contains a simple hostname, an internet address (IPv4 or IPv6), or the path to the PMCD Unix domain socket. It can also specify properties of the connection to PMCD, such as the protocol to use (secure and encrypted, or native) and whether PMCD should be reached via a <command>pmproxy</command> host. Various other connection attributes, such as authentication information (user name, password, authentication method, and so on) can also be specified. Further details can be found in the <command>PCPIntro(3)</command> man page, and the companion <citetitle>Performance Co-Pilot Tutorials and Case Studies</citetitle> document.</para>
+          <para>In the case where <replaceable>type</replaceable> is <literal>PM_CONTEXT_ARCHIVE</literal>, there are some restrictions on the archives within the specified set:</para>
+          <itemizedlist>
+            <listitem>
+              <para>The archives must all have been generated on the same host.</para>
+            </listitem>
+            <listitem>
+              <para>The archives must not overlap in time.</para>
+            </listitem>
+            <listitem>
+              <para>The archives must all have been created using the same time zone.</para>
+            </listitem>
+            <listitem>
+              <para>The pmID of each metric should be the same in all of the archives.
+Multiple pmIDs are currently tolerated by using the first pmID
+defined for each metric and ignoring subsequent pmIDs.</para>
+            </listitem>
+            <listitem>
+              <para>The type of each metric must be the same in all of the archives.</para>
+            </listitem>
+            <listitem>
+              <para>The semantics of each metric must be the same in all of the archives.</para>
+            </listitem>
+            <listitem>
+              <para>The units of each metric must be the same in all of the archives.</para>
+            </listitem>
+            <listitem>
+              <para>The instance domain of each metric must be the same in all of the archives.</para>
+            </listitem>
+          </itemizedlist>
           <para>In the case where <replaceable>type</replaceable> is <literal>PM_CONTEXT_LOCAL</literal>, <replaceable>name</replaceable> is ignored, and the context uses a stand-alone connection to the PMDA methods used by PMCD. When this type of context is in effect, the range of accessible performance metrics is constrained to DSO PMDAs listed in the <command>pmcd</command> configuration file <filename>${PCP_PMCDCONF_PATH}</filename>. The reason this is done, as opposed to all of the DSO PMDAs found below <filename>${PCP_PMDAS_DIR}</filename> for example, is that DSO PMDAs listed there are very likely to have their metric names reflected in the local Name Space file, which will be loaded for this class of context.</para>
           <para>
             <indexterm id="IG31340177351">
@@ -4515,7 +4545,7 @@ The python bindings return the text name of an instance corresponding to an inst
             </indexterm>
             <indexterm id="IG31340177352">
               <primary>collection time</primary>
-            </indexterm>The initial instance profile is set up to select all instances in all instance domains, and the initial collection time is the current time at the time of each request for a host, or the time at the start of the log for an archive. In the case of archives, the initial collection time results in the earliest set of metrics being returned from the archive at the first <command>pmFetch</command>.</para>
+            </indexterm>The initial instance profile is set up to select all instances in all instance domains, and the initial collection time is the current time at the time of each request for a host, or the time at the start of the first log for a set of archives. In the case of archives, the initial collection time results in the earliest set of metrics being returned from the set of archives at the first <command>pmFetch</command>.</para>
           <para>Once established, the association between a PMAPI context and a source of metrics is fixed for the life of the context; however, functions are provided to independently manipulate both the instance profile and the collection time components of a context.</para>
           <para>
             <indexterm id="IG31340177353">
@@ -4657,7 +4687,7 @@ int <replaceable>status</replaceable> = pmSetMode(mode, timeVal <replaceable>tim
           <para>The <command>pmSetMode</command> parameter <replaceable>delta</replaceable> defines an additional number of time unit that should be used to adjust the time origin (forward or backward) after the new time origin from the <filename>pmResult</filename> has been determined. This is useful when moving through archives with a mode of <literal>PM_MODE_INTERP</literal>. The high-order bits of the <replaceable>mode</replaceable> parameter field is also used to optionally set the units of time for the <filename>delta</filename> field. To specify the units of time, use the <literal>PM_XTB_SET</literal> macro with one of the values <literal>PM_TIME_NSEC</literal>, <literal>PM_TIME_MSEC</literal>, <literal>PM_TIME_SEC</literal>, or so on as follows:</para>
           <literallayout class="monospaced">PM_MODE_INTERP | PM_XTB_SET(PM_TIME_<replaceable>XXXX)</replaceable></literallayout>
           <para>If no units are specified, the default is to interpret <replaceable>delta</replaceable> as milliseconds.</para>
-          <para>Using these mode options, an application can implement replay, playback, fast forward, or reverse for performance metric values held in a PCP archive log by alternating calls to <command>pmSetMode</command> and <command>pmFetch</command>.</para>
+          <para>Using these mode options, an application can implement replay, playback, fast forward, or reverse for performance metric values held in a set of PCP archive logs by alternating calls to <command>pmSetMode</command> and <command>pmFetch</command>.</para>
           <para>In <xref linkend="Z976827209sdc"/>, the code fragment may be used to dump only those values stored in correct temporal sequence, for the specified performance metric <filename>my.metric.name</filename>:</para>
           <example id="Z976827209sdc">
             <title>Dumping Values in Temporal Sequence</title>
@@ -4775,7 +4805,7 @@ pmNewContextZone()
             </indexterm>
             <indexterm id="IG31340177379">
               <primary>pmNewContextZone function</primary>
-            </indexterm>If the current PMAPI context is an archive, the <command>pmNewContextZone</command> function uses the timezone from the archive label record to set the current reporting timezone. The current reporting timezone affects the timezone used by <command>pmCtime</command> and <command>pmLocaltime</command>.</para>
+            </indexterm>If the current PMAPI context is an archive, the <command>pmNewContextZone</command> function uses the timezone from the archive label record in the first archive of the set to set the current reporting timezone. The current reporting timezone affects the timezone used by <command>pmCtime</command> and <command>pmLocaltime</command>.</para>
           <para>If the current PMAPI context corresponds to a host source of metrics, <command>pmNewContextZone</command> executes a <command>pmFetch</command> to retrieve the value for the metric <literal>pmcd.timezone</literal> and uses that to set the current reporting timezone.</para>
           <para>In both cases, the function returns a value to identify the current reporting timezone that may be used in a subsequent call to <command>pmUseZone</command> to restore this reporting timezone.</para>
           <para>
@@ -5243,7 +5273,7 @@ pmLogLabel <replaceable>loglabel</replaceable> = pmGetArchiveLabel()</programlis
             </indexterm>
             <indexterm id="IG31340177401">
               <primary>archive-specific services</primary>
-            </indexterm>Provided the current PMAPI context is associated with a PCP archive log, the <command>pmGetArchiveLabel</command> function may be used to fetch the label record from the archive. The structure returned through <replaceable>lp</replaceable> is as shown in <xref linkend="Z976561683sdc"/>:</para>
+            </indexterm>Provided the current PMAPI context is associated with a set of PCP archive logs, the <command>pmGetArchiveLabel</command> function may be used to fetch the label record from the first archive in the set of archives. The structure returned through <replaceable>lp</replaceable> is as shown in <xref linkend="Z976561683sdc"/>:</para>
           <example id="Z976561683sdc">
             <title>
               <filename>pmLogLabel</filename> Structure</title>
@@ -5285,7 +5315,7 @@ timeval <replaceable>tv</replaceable> = <replaceable>status</replaceable> = pmGe
             </indexterm>
             <indexterm id="IG31340177404">
               <primary>pmSetMode function</primary>
-            </indexterm>Provided the current PMAPI context is associated with a PCP archive log, <command>pmGetArchiveEnd</command> finds the logical end of file (after the last complete record in the archive), and returns the last recorded time stamp with <replaceable>tvp</replaceable>. This timestamp may be passed to <command>pmSetMode</command> to reliably position the context at the last valid log record, for example, in preparation for subsequent reading in reverse chronological order.</para>
+            </indexterm>Provided the current PMAPI context is associated with a set of PCP archive logs, <command>pmGetArchiveEnd</command> finds the logical end of the last archive file in the set (after the last complete record in the archive), and returns the last recorded time stamp with <replaceable>tvp</replaceable>. This timestamp may be passed to <command>pmSetMode</command> to reliably position the context at the last valid log record, for example, in preparation for subsequent reading in reverse chronological order.</para>
           <para>For archive logs that are not concurrently being written, the physical end of file and the logical end of file are co-incident. However, if an archive log is being written by <command>pmlogger</command> at the same time that an application is trying to read the archive, the logical end of file may be before the physical end of file due to write buffering that is not aligned with the logical record boundaries.</para>
           <para>
   The python bindings get the last recorded timestamp from the archive.  
@@ -5307,7 +5337,7 @@ timeval <replaceable>tv</replaceable> = <replaceable>status</replaceable> = pmGe
             </indexterm>
             <indexterm id="IG31340177407">
               <primary>pmGetInDomArchive function</primary>
-            </indexterm>Provided the current PMAPI context is associated with a PCP archive log, <command>pmGetInDomArchive</command> scans the metadata to generate the union of all instances for the instance domain <replaceable>indom</replaceable> that can be found in the archive log, and returns through <replaceable>instlist</replaceable> the internal instance identifiers, and through <replaceable>namelist</replaceable> the full external identifiers.</para>
+            </indexterm>Provided the current PMAPI context is associated with a set of PCP archive logs, <command>pmGetInDomArchive</command> scans the metadata to generate the union of all instances for the instance domain <replaceable>indom</replaceable> that can be found in the set of archive logs, and returns through <replaceable>instlist</replaceable> the internal instance identifiers, and through <replaceable>namelist</replaceable> the full external identifiers.</para>
           <para>
             <indexterm id="IG31340177408">
               <primary>pmGetInDom function</primary>
@@ -5328,7 +5358,7 @@ c_uint <replaceable>instid</replaceable> = pmLookupInDomArchive(pmDesc <replacea
           <para>
             <indexterm id="IG31340177409">
               <primary>pmLookupInDomArchive function</primary>
-            </indexterm>Provided the current PMAPI context is associated with a PCP archive log, <command>pmLookupInDomArchive</command> scans the metadata for the instance domain <replaceable>indom</replaceable>, locates the first instance with the external identification given by <replaceable>name</replaceable>, and returns the internal instance identifier.</para>
+            </indexterm>Provided the current PMAPI context is associated with a set of PCP archive logs, <command>pmLookupInDomArchive</command> scans the metadata for the instance domain <replaceable>indom</replaceable>, locates the first instance with the external identification given by <replaceable>name</replaceable>, and returns the internal instance identifier.</para>
           <para>This function is a specialized version of the more general PMAPI function <command>pmLookupInDom</command>.</para>
           <para>The <command>pmLookupInDomArchive</command> function returns a positive instance identifier on success.</para>
           <para>
@@ -5344,7 +5374,7 @@ c_uint <replaceable>instid</replaceable> = pmLookupInDomArchive(pmDesc <replacea
           <para>
             <indexterm id="IG31340177410">
               <primary>pmNameInDomArchive function</primary>
-            </indexterm>Provided the current PMAPI context is associated with a PCP archive log, <command>pmNameInDomArchive</command> scans the metadata for the instance domain <replaceable>indom</replaceable>, locates the first instance with the internal instance identifier given by <command>inst</command>, and returns the full external instance identification through <replaceable>name</replaceable>. This function is a specialized version of the more general PMAPI function <command>pmNameInDom</command>.</para>
+            </indexterm>Provided the current PMAPI context is associated with a set of PCP archive logs, <command>pmNameInDomArchive</command> scans the metadata for the instance domain <replaceable>indom</replaceable>, locates the first instance with the internal instance identifier given by <command>inst</command>, and returns the full external instance identification through <replaceable>name</replaceable>. This function is a specialized version of the more general PMAPI function <command>pmNameInDom</command>.</para>
           <para>The space for the value of <replaceable>name</replaceable> is allocated in <command>pmNameInDomArchive</command> with <command>malloc</command>, and it is the responsibility of the caller to free the space when it is no longer required; see the <command>malloc(3)</command> and<command>free(3)</command> man pages.</para>
           <para>
   The python bindings return the text name of an instance corresponding to an instance domain <replaceable>pmdesc</replaceable> with instance identifier <replaceable>instid</replaceable>.  
@@ -5362,7 +5392,7 @@ pmResult* <replaceable>pmresult</replaceable> = pmFetchArchive()</literallayout>
             </indexterm>
             <indexterm id="IG31340177412">
               <primary>pmFetchArchive function</primary>
-            </indexterm>This is a variant of <command>pmFetch</command> that may be used only when the current PMAPI context is associated with a PCP archive log. The <replaceable>result</replaceable> is instantiated with all of the metrics (and instances) from the next archive record; consequently, there is no notion of a list of desired metrics, and the instance profile is ignored.</para>
+            </indexterm>This is a variant of <command>pmFetch</command> that may be used only when the current PMAPI context is associated with a set of PCP archive logs. The <replaceable>result</replaceable> is instantiated with all of the metrics (and instances) from the next archive record; consequently, there is no notion of a list of desired metrics, and the instance profile is ignored.</para>
           <para>It is expected that <command>pmFetchArchive</command> would be used to create utilities that scan archive logs (for example, <command>pmdumplog</command> and <command>pmlogsummary</command>), and the more common access to the archives would be through the <command>pmFetch</command> interface.</para>
         </section>
       </section>
@@ -5380,7 +5410,7 @@ pmResult* <replaceable>pmresult</replaceable> = pmFetchArchive()</literallayout>
           <indexterm id="IG31340177415">
             <primary>archive logs</primary>
             <secondary>time control services</secondary>
-          </indexterm>This service is most useful when processing PCP archive logs, to control parameters such as the current archive position, update interval, replay rate, and timezone, but it can also be used in live mode to control a subset of these parameters. Applications such as <command>pmchart</command>, <command>pmgadgets</command>, <command>pmstat</command>, and <command>pmval</command> use the time control services to connect to an instance of the time control server process, <command>pmtime</command>, which provides a uniform graphical user interface to the time control services.</para>
+          </indexterm>This service is most useful when processing sets of PCP archive logs, to control parameters such as the current archive position, update interval, replay rate, and timezone, but it can also be used in live mode to control a subset of these parameters. Applications such as <command>pmchart</command>, <command>pmgadgets</command>, <command>pmstat</command>, and <command>pmval</command> use the time control services to connect to an instance of the time control server process, <command>pmtime</command>, which provides a uniform graphical user interface to the time control services.</para>
         <para>
           <indexterm id="IG31340177416">
             <primary>examples</primary>
@@ -6267,7 +6297,7 @@ pmSortInstances (pmResult* pmresult)</literallayout>
           <para>
             <indexterm id="IG31340177442">
               <primary>pmParseMetricSpec function</primary>
-            </indexterm>The <command>pmParseMetricSpec</command> function accepts a <replaceable>string</replaceable> specifying the name of a PCP performance metric, and optionally the source (either a hostname, a PCP archive log filename, or a local context) and instances for that metric. The syntax is described in the <command>PCPIntro(1)</command> man page.</para>
+            </indexterm>The <command>pmParseMetricSpec</command> function accepts a <replaceable>string</replaceable> specifying the name of a PCP performance metric, and optionally the source (either a hostname, a set of PCP archive logs, or a local context) and instances for that metric. The syntax is described in the <command>PCPIntro(1)</command> man page.</para>
           <para>If neither host nor archive component of the metric specification is provided, the <literal>isarch</literal> and <literal>source</literal> arguments are used to fill in the returned <filename>pmMetricSpec</filename> structure. In <xref linkend="Z976566126sdc"/>, the <filename>pmMetricSpec</filename> structure, which is returned via <replaceable>rsltp,</replaceable> represents the parsed string.</para>
           <example id="Z976566126sdc">
             <title>
@@ -6828,7 +6858,7 @@ waiting for factory capacity to become available).</para>
 data structures are directly comparable to PMDA data structures described earlier:</para>
         <itemizedlist>
           <listitem>
-            <para>mmv_metric_t maps to a pmDesc structure, as in <xref linkend="Z975964618sdc"/></para>
+            <para>mmv_metric_t maps to a pmDesc structure, as in <xref linkend="Z976548425sdc"/></para>
           </listitem>
           <listitem>
             <para>MMV_TYPE, MMV_SEM, and MMV_UNITS map to PMAPI constructs for type, semantics, dimensionality and scale, as in <xref linkend="Z1034792511tls"/></para>

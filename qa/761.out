@@ -3,16 +3,49 @@ Waiting for pmcd to terminate ...
 Starting pmcd ... 
 Starting pmlogger ... 
 === Checking empty containers configuration, no values
+containers.cgroup 0
 containers.engine 0
 containers.name 0
 containers.pid 0
-containers.cgroup 0
-containers.state.running 0
 containers.state.paused 0
 containers.state.restarting 0
+containers.state.running 0
 == done
 
 == Checking values for active containers
+
+containers.cgroup
+No value(s) available!
+
+containers.engine
+    inst [N or "e137109040f53c67031325695ae541a3bf383c7b015af0fd718a412cc0f32da1"] value "docker"
+    inst [N or "e68c65472ffef4c1691c6c5d71327ce816231b2338753973550e7f5eda995fc9"] value "docker"
+
+containers.name
+    inst [N or "e137109040f53c67031325695ae541a3bf383c7b015af0fd718a412cc0f32da1"] value "tender_galileo"
+    inst [N or "e68c65472ffef4c1691c6c5d71327ce816231b2338753973550e7f5eda995fc9"] value "happy_hoover"
+
+containers.pid
+No value(s) available!
+
+containers.state.paused
+    inst [N or "e137109040f53c67031325695ae541a3bf383c7b015af0fd718a412cc0f32da1"] value 0
+    inst [N or "e68c65472ffef4c1691c6c5d71327ce816231b2338753973550e7f5eda995fc9"] value 0
+
+containers.state.restarting
+    inst [N or "e137109040f53c67031325695ae541a3bf383c7b015af0fd718a412cc0f32da1"] value 0
+    inst [N or "e68c65472ffef4c1691c6c5d71327ce816231b2338753973550e7f5eda995fc9"] value 0
+
+containers.state.running
+    inst [N or "e137109040f53c67031325695ae541a3bf383c7b015af0fd718a412cc0f32da1"] value 0
+    inst [N or "e68c65472ffef4c1691c6c5d71327ce816231b2338753973550e7f5eda995fc9"] value 0
+
+== done
+
+== Checking values for active containers
+
+containers.cgroup
+No value(s) available!
 
 containers.engine
     inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value "docker"
@@ -25,13 +58,6 @@ containers.name
 containers.pid
 No value(s) available!
 
-containers.cgroup
-No value(s) available!
-
-containers.state.running
-    inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
-    inst [N or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value 0
-
 containers.state.paused
     inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
     inst [N or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value 0
@@ -40,9 +66,17 @@ containers.state.restarting
     inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
     inst [N or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value 0
 
+containers.state.running
+    inst [N or "781d21edbb014736f7fb4e1412ee55c5564c91ce0647be4879a7c547e6ebc1af"] value 0
+    inst [N or "d4999f7c6d639c837c03634ab2bc51daa5b35fce1bf1e9f56ee9f8342fafa2ec"] value 0
+
 == done
 
 == Checking values for active containers
+
+containers.cgroup
+    inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value "/system.slice/docker-2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255.scope"
+    inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value "/system.slice/docker-d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e.scope"
 
 containers.engine
     inst [N or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value "docker"
@@ -58,15 +92,6 @@ containers.pid
     inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value 32471
     inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 9579
 
-containers.cgroup
-    inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value "/system.slice/docker-2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255.scope"
-    inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value "/system.slice/docker-d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e.scope"
-
-containers.state.running
-    inst [N or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value 0
-    inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value 1
-    inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 1
-
 containers.state.paused
     inst [N or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value 1
     inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value 0
@@ -77,9 +102,17 @@ containers.state.restarting
     inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value 0
     inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 0
 
+containers.state.running
+    inst [N or "252b56e79da57371dd0fe0fd1069418b761a06c42304d5c74b873f3fb9386d5f"] value 0
+    inst [N or "2cb8e83aa13ae05b7d11146ed0daae3607cd1a73d793544e06411fd8f4afc255"] value 1
+    inst [N or "d2e89f8c107e1b7ae899603469cd524618897d52197fbbd6aaf961454202f23e"] value 1
+
 == done
 
 == Checking values for active containers
+
+containers.cgroup
+    inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value "/system.slice/docker-c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9.scope"
 
 containers.engine
     inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value "docker"
@@ -90,21 +123,21 @@ containers.name
 containers.pid
     inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value 18720
 
-containers.cgroup
-    inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value "/system.slice/docker-c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9.scope"
-
-containers.state.running
-    inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value 1
-
 containers.state.paused
     inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value 0
 
 containers.state.restarting
     inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value 0
 
+containers.state.running
+    inst [N or "c2a1bd412ad4206ced8107b9faa1f9b244bd873dcced6f909dbf72682662b7d9"] value 1
+
 == done
 
 == Checking values for active containers
+
+containers.cgroup
+    inst [N or "myvm"] value "lxc/myvm"
 
 containers.engine
     inst [N or "myvm"] value "lxc"
@@ -115,17 +148,14 @@ containers.name
 containers.pid
     inst [N or "myvm"] value 17297
 
-containers.cgroup
-    inst [N or "myvm"] value "lxc/myvm"
-
-containers.state.running
-    inst [N or "myvm"] value 1
-
 containers.state.paused
     inst [N or "myvm"] value 0
 
 containers.state.restarting
     inst [N or "myvm"] value 0
+
+containers.state.running
+    inst [N or "myvm"] value 1
 
 == done
 

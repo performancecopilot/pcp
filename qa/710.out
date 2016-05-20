@@ -23,7 +23,7 @@ Temporal Index
              Log Vol    end(meta)     end(log)
 TIMESTAMP       0          132          132
 TIMESTAMP       0          316          132
-TIMESTAMP       0          316          232
+TIMESTAMP       0          316          252
 
 [100 bytes]
 TIMESTAMP  245.0.1 (hinv.ncpu): value 42
@@ -31,3 +31,6 @@ TIMESTAMP  245.0.1 (hinv.ncpu): value 42
                 inst [1 or "1 minute"] value DOUBLE
                 inst [5 or "5 minute"] value DOUBLE
                 inst [15 or "15 minute"] value DOUBLE
+
+[20 bytes]
+TIMESTAMP  <mark>

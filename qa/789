@@ -49,7 +49,7 @@ _check_papi
 _check_papi_native
 
 echo "=== Daemon PMDA papi native events test ==="
-$sudo dbpmda -n $papirootpmns -ie <<EOF | _filter
+$sudo TERM=ansi dbpmda -n $papirootpmns -ie <<EOF | _filter
 open pipe $pipepmda -d 126 -l $tmp.log
 getdesc on
 attr "username" "root"

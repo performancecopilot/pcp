@@ -1,6 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
+.\" Copyright (c) 2016 Red Hat.
 .\" Copyright (C) 2015 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -74,7 +75,7 @@ The
 .B \-a
 option causes
 .B pmrep
-to use the specified archive log rather than connecting to a PMCD.
+to use the specified set of archive logs rather than connecting to a PMCD.
 The
 .B \-a
 and
@@ -204,9 +205,12 @@ corresponding configuration file parameters (if any).
 The available command line options are:
 .TP 5
 .B \-a
-Performance metric values are retrieved from the Performance Co-Pilot
-(PCP) archive log file identified by the base name
-.IR archive .
+Performance metric values are retrieved from the set of Performance Co-Pilot
+(PCP) archive log files identified by the argument
+.IR archive ,
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
 See also
 .BR \-u .
 .TP
@@ -246,7 +250,6 @@ Specify the
 .I config
 file to use.
 The default is
-\." XXX keep in sync with the code
 .BR ./pmrep.conf .
 See
 .BR pmrep.conf (5).
@@ -450,7 +453,7 @@ is 0 or
 is not specified,
 .B pmrep
 will sample and report continuously (in real time mode) or until the end
-of the PCP archive (in archive mode).
+of the set of PCP archives (in archive mode).
 See also
 .BR \-T .
 .TP
@@ -475,7 +478,9 @@ and in the simplest form may be an unsigned integer (the implied units
 in this case are seconds).
 See also the
 .B \-T
-option.
+and
+.B \-u
+options.
 .TP
 .B \-T
 When reporting archived metrics, the report will be restricted to those

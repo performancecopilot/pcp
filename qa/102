@@ -15,7 +15,11 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
+    _restore_config $PCP_SYSCONFIG_DIR/pmcd
     _restore_primary_logger
+    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
     $sudo rm -f $tmp $tmp.*
     exit $status
 }
@@ -37,10 +41,18 @@ _filter_pmlc()
 	-e 's/^Reason: Unknown or illegal.*$/Reason: No PMCD agent for domain of request/'
 }
 
+_disable_agent_restart()
+{
+    echo PMCD_RESTART_AGENTS=0 > $tmp.defaults
+    $sudo cp $tmp.defaults $PCP_SYSCONFIG_DIR/pmcd
+}
+
 signal=$PCP_BINADM_DIR/pmsignal
 
 # real QA test starts here
+_save_config $PCP_SYSCONFIG_DIR/pmcd
 _writable_primary_logger
+_disable_agent_restart
 ls -l $PCP_VAR_DIR/config/pmlogger/config.default >>$seq.full
 cat $PCP_VAR_DIR/config/pmlogger/config.default >>$seq.full
 pmlc -P </dev/null 2>&1 >>$seq.full

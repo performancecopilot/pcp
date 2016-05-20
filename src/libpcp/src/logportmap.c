@@ -410,7 +410,7 @@ __pmLogFindPort(const char *host, int pid, __pmLogPort **lpp)
 
     if ((sts = pmLookupDesc(pmid, &desc)) < 0)
 	goto ctxErr;
-    if ((sts = pmFetch(1, &pmid, &res) < 0))
+    if ((sts = pmFetch(1, &pmid, &res)) < 0)
 	goto ctxErr;
     if ((sts = numval = res->vset[0]->numval) < 0)
 	goto resErr;

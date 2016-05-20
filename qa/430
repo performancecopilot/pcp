@@ -5,6 +5,13 @@
 # Test out pmlogger_check with directory names where one is a subname
 # of the other.
 #
+# Note:
+# 	This test assumes 127.0.0.2 is available ... for some platforms
+# 	this may not be the case, e.g. Mac OS X, where it is necessary
+# 	to arrange for the command below to be run in the reboot
+# 	sequence ...
+# 	# ifconfig lo0 alias 127.0.0.2
+#
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 

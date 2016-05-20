@@ -103,12 +103,13 @@ Specify an
 .I archive
 from which metrics can be obtained for a particular host.  
 .I archive
-is the basename of an archive, previously created by
+is the basename of an archive, or the name of a directory conytaining archives,
+previously created by
 .BR pmlogger (1).
-Multiple archives (separated by commas or in different \f3\-a\f1 options)
+Multiple sets of archives (separated by commas or in different \f3\-a\f1 options)
 from different hosts may be given, but an error will occur if there is more
-than one archive from the same host. Any metrics that are not associated with a
-specific host or archive in the configuration file will use the first archive
+than one set of archives from the same host. Any metrics that are not associated with a
+specific host or archive in the configuration file will use the first set of archives
 as their source.
 .TP
 .B \-C

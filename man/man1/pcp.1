@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014-2015 Red Hat.
+.\" Copyright (c) 2014-2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -39,8 +39,8 @@ By default, it summarizes the Performance Co-Pilot (PCP) installation
 on the local host.
 This mode can also be used to summarize the installation from a remote
 .IR host ,
-or a historical installation from a PCP
-.IR archive .
+or a historical installation from a set of PCP
+.IR archives .
 This mode indirectly invokes the
 .B pcp-summary
 .I command
@@ -52,8 +52,8 @@ can be passed to
 .B pcp
 to run, again possibly in the context of a remote
 .I host
-or historical
-.IR archive .
+or set of historical
+.IR archives .
 .SH "COMMAND MODE"
 When
 .B pcp
@@ -118,8 +118,11 @@ reports on the local host, however the
 following options are accepted:
 .IP "\f3\-a\f1 \f2archive\f1"
 Report the PCP
-configuration as described in the PCP archive log
-.IR archive .
+configuration as described in the set of PCP archive logs,
+.IR archive ,
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
 .IP "\f3\-h\f1 \f2host\f1"
 Report the PCP configuration on 
 .I host
@@ -208,7 +211,7 @@ will terminate with an exit status of
 .B 1
 if 
 .B pmcd
-on the target host could not be reached or the archive could not be opened, 
+on the target host could not be reached or the set of archives could not be opened, 
 or
 .B 2
 for any other error.

@@ -15,6 +15,17 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+case "$PCP_PLATFORM"
+in
+    linux)
+    	;;
+    *)
+	_notrun "No container support for PCP_PLATFORM $PCP_PLATFORM"
+	# NOTREACHED
+	;;
+esac
+
+
 _get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 
@@ -35,7 +46,7 @@ root_cleanup()
 #
 _check()
 {
-    pminfo containers \
+    pminfo containers | LC_COLLATE=POSIX sort \
     | while read metric
     do
 	pminfo -f $metric >$tmp.tmp
@@ -78,7 +89,7 @@ $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 _wait_for_pmcd
 
 echo "=== Checking empty containers configuration, no values"
-pmprobe -v containers
+pmprobe -v containers | LC_COLLATE=POSIX sort
 echo "== done" && echo
 
 tarballs=`echo $here/linux/containers-*.tgz | LC_COLLATE=POSIX sort`

@@ -2148,7 +2148,7 @@ Performance metrics from host slack
 
 21:32:05.000  245.0.NN (kernel.all.cpu.user): value 0.0049999999
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
-              245.0.NN (kernel.all.cpu.sys): value 0.0017
+              245.0.NN (kernel.all.cpu.sys): value 0.0017 or 0.0018
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
               245.0.NN (kernel.all.cpu.steal): value 0
               245.0.NN (kernel.all.cpu.intr): value 0
@@ -7012,7 +7012,7 @@ Performance metrics from host slack
 
 21:33:25.000  245.0.NN (kernel.all.cpu.user): value 0.0057999999
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
-              245.0.NN (kernel.all.cpu.sys): value 0.0018
+              245.0.NN (kernel.all.cpu.sys): value 0.0017 or 0.0018
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
               245.0.NN (kernel.all.cpu.steal): value 0
               245.0.NN (kernel.all.cpu.intr): value 0
@@ -9625,7 +9625,7 @@ Performance metrics from host slack
               245.0.NN (disk.dev.svctm):
                 inst [0 or "diskdev8-0"] value 0.36000001
                 inst [1 or "diskdev8-1"] value 0
-                inst [2 or "diskdev8-2"] value 0.38
+                inst [2 or "diskdev8-2"] value 0.37 or 0.38
                 inst [3 or "diskdev253-0"] value 0.28999999
                 inst [4 or "diskdev253-1"] value 0
                 inst [5 or "diskdev253-2"] value 0
@@ -9748,7 +9748,7 @@ Performance metrics from host slack
 
 21:34:10.000  245.0.NN (kernel.all.cpu.user): value 0.031599998
               245.0.NN (kernel.all.cpu.nice): value 0.00030000001
-              245.0.NN (kernel.all.cpu.sys): value 0.0018
+              245.0.NN (kernel.all.cpu.sys): value 0.0017 or 0.0018
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
               245.0.NN (kernel.all.cpu.steal): value 0
               245.0.NN (kernel.all.cpu.intr): value 0
@@ -10052,7 +10052,7 @@ Performance metrics from host slack
 
 21:34:15.000  245.0.NN (kernel.all.cpu.user): value 0.025800001
               245.0.NN (kernel.all.cpu.nice): value 0
-              245.0.NN (kernel.all.cpu.sys): value 0.0018
+              245.0.NN (kernel.all.cpu.sys): value 0.0017 or 0.0018
               245.0.NN (kernel.all.cpu.wait.total): value 0.00030000001
               245.0.NN (kernel.all.cpu.steal): value 0
               245.0.NN (kernel.all.cpu.intr): value 0

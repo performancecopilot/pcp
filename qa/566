@@ -36,8 +36,8 @@ _filter()
     cat $tmp.err >>$here/$seq.full
     # need sort because order files are processed in not deterministic
     #
-    sed $tmp.out -e "s;$tmp;TMP;g" | LC_COLLATE=POSIX sort
-    sed $tmp.err -e "s;$tmp;TMP;g" | LC_COLLATE=POSIX sort
+    sed -e "s;$tmp;TMP;g" $tmp.out | LC_COLLATE=POSIX sort
+    sed -e "s;$tmp;TMP;g" $tmp.err | LC_COLLATE=POSIX sort
 }
 
 # this sort of error is not deterministic unfortunately because it is

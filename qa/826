@@ -1,0 +1,109 @@
+#!/bin/sh
+# PCP QA Test No. 826
+# Exercise Linux PMDA NUMA memory metrics.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific memory metric testing"
+
+config="$PCP_PMDAS_DIR/linux/bandwidth.conf"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -f "$config"
+    if [ -f "$config.$seq" ]
+    then
+	_restore_config "$config"
+	$sudo rm -f "$config.$seq"
+    fi
+    rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+    #end
+}
+
+root=$tmp.root
+export LINUX_STATSPATH=$root
+pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
+local="-L -K clear -K add,60,$pmda"
+
+# real QA test starts here
+rm -fr $root
+mkdir $root || _fail "temporary root already in use?"
+cd $root
+# For single node tests
+tar xzf $here/linux/meminfo-root-001.tgz
+
+[ -f "$config" ] && _save_config "$config"
+echo "== Checking max metric value with no bandwidth.conf"
+$sudo rm -f "$config"
+pminfo $local -f mem.numa.max_bandwidth 2>&1 | _filter
+echo
+
+echo "== Checking max metric value with bad bandwidth.conf"
+echo 'bad data' > $tmp.config
+$sudo cp $tmp.config "$config"
+pminfo $local -f mem.numa.max_bandwidth 2>&1 | _filter
+echo
+
+echo "== Checking max metric value on config file with new version"
+echo 'Version:99' > $tmp.config
+$sudo cp $tmp.config "$config"
+pminfo $local -f mem.numa.max_bandwidth 2>&1 | _filter
+echo
+
+echo "== Checking max metric value with good bandwidth.conf"
+echo 'Version:1.0' > $tmp.config
+echo 'node0:1024' >> $tmp.config
+$sudo cp $tmp.config "$config"
+pminfo $local -f mem.numa.max_bandwidth 2>&1 | _filter
+echo
+
+# Multinode tests start here
+tar xzf $here/linux/meminfo-root-002.tgz
+
+echo "== Checking max metric value with multinode bandwidth.conf"
+echo 'Version:1.0' > $tmp.config
+echo 'node0:1024' >> $tmp.config
+echo 'node1:1024' >> $tmp.config
+$sudo cp $tmp.config "$config"
+pminfo $local -f mem.numa.max_bandwidth 2>&1 | _filter
+echo
+
+echo "== Checking max metric value with one bad node in bandwidth.conf"
+echo 'Version:1.0' > $tmp.config
+echo 'node0:1024' >> $tmp.config
+echo 'node11:8192' >> $tmp.config
+$sudo cp $tmp.config "$config"
+pminfo $local -f mem.numa.max_bandwidth 2>&1 | _filter
+echo
+
+echo "== Checking max metric value with multiple bad nodes in bandwidth.conf"
+echo 'Version:1.0' > $tmp.config
+echo 'xyz:1024' >> $tmp.config
+echo 'abc:8192.444' >> $tmp.config
+$sudo cp $tmp.config "$config"
+pminfo $local -f mem.numa.max_bandwidth 2>&1 | _filter
+echo
+
+# success, all done
+status=0
+exit

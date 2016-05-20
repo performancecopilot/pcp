@@ -14,7 +14,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-unset PCP_DERIVED_CONFIG
+# For this test, don't load any global derived metric configs by default. 
+# So the PCP_DERIVED_CONFIG environment variable is set to an empty string.
+export PCP_DERIVED_CONFIG=""
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -168,11 +170,20 @@ End-of-File
 echo | tee -a $seq.full
 cat $tmp.config | tee -a $seq.full
 
+_filter_derived()
+{
+    # look for metric names containing "derived", apply a blacklist
+    grep derived | \
+    sed \
+	-e '/perfevent.derived/d' \
+    #end
+}
+
 for args in "" derived derived_tree sample
 do
     echo | tee -a $seq.full
     echo "=== $args ===" | tee -a $seq.full
-    pminfo -c $tmp.config $args 2>&1 | grep derived
+    pminfo -c $tmp.config $args 2>&1 | _filter_derived
 done
 
 echo | tee -a $seq.full

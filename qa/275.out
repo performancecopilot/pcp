@@ -432,6 +432,20 @@ expr node <addr-99> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pmlogger.
     PMID: 2.3.0 (2.3.0 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
     Semantics: discrete  Units: none
+__dmtraverse: name="my" added "my.space_over_time1"
+__dmtraverse: name="my" added "my.space_over_time2"
+__dmtraverse: name="my" added "my.space_over_time3"
+__dmtraverse: name="my" added "my.space_over_time4"
+__dmtraverse: name="my" added "my.space"
+__dmtraverse: name="my" added "my.byte1"
+__dmtraverse: name="my" added "my.byte2"
+__dmtraverse: name="my" added "my.x1"
+__dmtraverse: name="my" added "my.x2"
+__dmtraverse: name="my" added "my.x3"
+__dmtraverse: name="my" added "my.x4"
+__dmtraverse: name="my" added "my.i1"
+__dmtraverse: name="my" added "my.i2"
+__dmtraverse: name="my" added "my.i3"
 __dmgetpmid: metric "my.space_over_time1" -> PMID 511.0.3
 __dmgetpmid: metric "my.space_over_time2" -> PMID 511.0.4
 __dmgetpmid: metric "my.space_over_time3" -> PMID 511.0.5
@@ -841,9 +855,15 @@ expr node <addr-37> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.c
     PMID: 29.0.118 (29.0.118 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count x 10^3 / Mbyte
+__dmtraverse: name="gcov" added "gcov.a"
+__dmtraverse: name="gcov" added "gcov.b"
+__dmtraverse: name="gcov", omitting invalid child "gcov.c"
+__dmtraverse: name="gcov" added "gcov.d"
+__dmtraverse: name="gcov" added "gcov.e"
+__dmtraverse: name="gcov" added "gcov.f"
+__dmtraverse: name="gcov" added "gcov.g"
 __dmgetpmid: metric "gcov.a" -> PMID 511.0.3
 __dmgetpmid: metric "gcov.b" -> PMID 511.0.4
-__dmgetpmid: metric "gcov.c" -> PMID 511.0.5
 __dmgetpmid: metric "gcov.d" -> PMID 511.0.6
 __dmgetpmid: metric "gcov.e" -> PMID 511.0.7
 __dmgetpmid: metric "gcov.f" -> PMID 511.0.8
@@ -856,7 +876,6 @@ gcov.a
 gcov.b
     Data Type: double  InDom: 29.3 0x7400003
     Semantics: instant  Units: none
-gcov.c: pmLookupDesc: Unknown or illegal metric identifier
 
 gcov.d
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff

@@ -13,11 +13,12 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -d $PCP_PMDAS_DIR/lustre ] || _notrun "lustre PMDA directory is not installed"
+
 status=1
 perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 
-#trap "exit \$status" 0 1 2 3 15
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -36,11 +37,11 @@ cd "$PCP_PMDAS_DIR/lustre"
 # create a root namespace file for dbpmda to use
 export LUSTRE_LLITE_PATH="$here/lustre/llite/"
 export LUSTRE_LNET_PATH="$here/lustre/lnet/"
-PCP_PERL_PMNS=root /usr/bin/perl $script > $tmp.root
+PCP_PERL_PMNS=root /usr/bin/env perl $script > $tmp.root
 
 # create a set of commands for dbpmda
 cat >$tmp.cmds <<End-of-File
-open pipe /usr/bin/perl $script
+open pipe /usr/bin/env perl $script
 getdesc on
 desc lustre.llite.superblock
 desc lustre.llite.volume
@@ -54,7 +55,7 @@ instance $domain.0
 End-of-File
 
 echo === Testing precanned lustre files
-$sudo dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
+$sudo TERM=ansi dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
 
 status=0
 exit

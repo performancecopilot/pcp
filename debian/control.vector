@@ -1,0 +1,8 @@
+
+Package: pcp-webapp-vector
+Depends: ${misc:Depends}
+Architecture: all
+Description: Vector web application for Performance Co-Pilot (PCP)
+ Netflix Vector web application for the Performance Co-Pilot (PCP).
+ .
+ https://github.com/Netflix/vector/wiki/Getting-Started

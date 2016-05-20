@@ -1,0 +1,47 @@
+#!/bin/sh
+# PCP QA Test No. 881
+# Exercise pmsignal(1) options.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter_pid()
+{
+    sed \
+	-e "s/$pmcdpid/PMCDPID/g" \
+	-e "s/pcp-setevent/kill/g" \
+	-e "s/ TERM/-TERM/g" \
+    #end
+}
+
+# real QA test starts here
+pmcdpid=`cat $PCP_RUN_DIR/pmcd.pid`
+checked=`_get_pids_by_name pmcd`
+
+echo pmcdpid=$pmcdpid >> $seq.full
+echo checked=$checked >> $seq.full
+[ "$pmcdpid" = "$checked" ] || \
+    _notrun "Multiple pmcd processes running? ($pmcdpid vs $checked)"
+
+echo === all mode
+pmsignal -n -a pmcd | _filter_pid
+echo === program mode
+pmsignal -n -p pmcd | _filter_pid
+echo === list of signals
+pmsignal -l
+
+# success, all done
+status=0
+exit

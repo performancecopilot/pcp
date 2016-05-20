@@ -41,6 +41,7 @@ Options:
   -X=FILE              file containing egrep(1) patterns to exclude
   --timezone
   --hostzone
+  --version
   --help
 EOF
 
@@ -135,6 +136,11 @@ do
 		;;
 	--)	shift
 		break
+		;;
+	-V)
+		pmconfig -L pcp_version | sed -e 's/[_=]/ /g' -e "s/^pcp/$prog/g"
+		status=0
+		exit
 		;;
 	-\?)	_usage
 		# NOTREACHED

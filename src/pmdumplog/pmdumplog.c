@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2016 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -48,6 +48,7 @@ static pmLongOptions longopts[] = {
     { "", 0, 'x', 0, "include date in reported timestamps" },
     PMOPT_TIMEZONE,
     PMOPT_HOSTZONE,
+    PMOPT_VERSION,
     PMOPT_HELP,
     PMAPI_OPTIONS_END
 };
@@ -678,6 +679,25 @@ overrides(int opt, pmOptions *opts)
     return 0;
 }
 
+static int
+isSingleArchive(const char *name)
+{
+    struct stat	sbuf;
+
+    /* Do not allow a comma within the name. */
+    if (strchr(name, ',') != NULL)
+	return 0;
+
+    /* No not allow a directory */
+    if (stat(name, &sbuf) != 0)
+	return 1; /* Let pmNewContext(1) issue the error */
+
+    if (S_ISDIR(sbuf.st_mode))
+	return 0; /* It's a directory */
+
+    return 1; /* ok */
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -759,10 +779,12 @@ main(int argc, char *argv[])
     }
 
     if (opts.errors ||
+	(opts.flags & PM_OPTFLAG_EXIT) ||
 	(vflag && opts.optind != argc) ||
 	(!vflag && opts.optind > argc - 1 && !opts.narchives)) {
+	sts = !(opts.flags & PM_OPTFLAG_EXIT);
 	pmUsageMessage(&opts);
-	exit(1);
+	exit(sts);
     }
 
     if (vflag) {
@@ -784,6 +806,13 @@ main(int argc, char *argv[])
 	__pmAddOptArchive(&opts, argv[opts.optind++]);
     opts.flags &= ~PM_OPTFLAG_DONE;
     __pmEndOptions(&opts);
+
+    /* For now, ensure that we have only a single archive. */
+    if (!isSingleArchive(opts.archives[0])) {
+	fprintf(stderr, "%s: Multiple archives are not supported\n",
+		pmProgname);
+	exit(1);
+    }
 
     if ((sts = ctxid = pmNewContext(PM_CONTEXT_ARCHIVE, opts.archives[0])) < 0) {
 	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n",

@@ -20,8 +20,16 @@ _filter()
 {
     sed -e 's/\.\.\.*/\.\.\./g'
 }
+
 _cleanup()
 {
+    $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+    unset PMCD_PORT
+    _restore_config $PCP_PMCDOPTIONS_PATH
+    $sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+
     if pmprobe -I pmcd.agent.status | grep '"dynamic"' >/dev/null
     then
         cd $here/pmdas/dynamic
@@ -35,6 +43,28 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 signal=$PCP_BINADM_DIR/pmsignal
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+port=`_get_port tcp 6060 6070`
+if [ -z "$port" ]
+then
+    echo "Arrggh ... no free TCP port in the range 6060 ... 6070"
+    $NETSTAT -a
+    exit 1
+fi
+echo "port=$port" >>$seq.full
+_save_config $PCP_PMCDOPTIONS_PATH
+cat <<End-of-File >$tmp.newoptions
+# New pmcd.options file created by QA $seq
+#
+-s $tmp.socket
+End-of-File
+$sudo cp $tmp.newoptions $PCP_PMCDOPTIONS_PATH
+
+$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+export PMCD_PORT=$port
+$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
 
 cd $here/pmdas/dynamic
 if [ -f GNUmakefile.install ]
@@ -51,7 +81,7 @@ cd $here
 
 # real QA test starts here
 echo "Initial check of some metric access"
-pmprobe -h unix: -i hinv.ncpu
+pmprobe -h unix:$tmp.socket -i hinv.ncpu
 
 pmsleep 0.2
 
@@ -63,10 +93,10 @@ $sudo $signal -a pmdadynamic >> $here/$seq.full 2>&1
 i=0
 while [ $i -lt 10 ]
 do
-    ps "$PCP_PS_ALL_FLAGS" >$tmp.tmp
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.tmp
     echo "ps probe #$i" >>$here/$seq.full
     egrep '[P]ID|[p]mdadynamic' $tmp.tmp >>$here/$seq.full
-    if grep "pmdadynamic.*defunct" $tmp.tmp >/dev/null
+    if egrep '(pmdadynamic.*defunct)|( Z .*pmdadynamic)' $tmp.tmp >/dev/null
     then
 	rm -f $tmp.tmp
 	break
@@ -92,7 +122,7 @@ date >>$here/$seq.full
 pmsleep 3.75
 
 echo "Tickle access to the failed PMDA, must see 'Try Again'"
-pmprobe -h unix: -i hinv.ncpu | tee $tmp.tmp
+pmprobe -h unix:$tmp.socket -i hinv.ncpu | tee $tmp.tmp
 nval=`$PCP_AWK_PROG <$tmp.tmp '{print $2}'`
 if [ "$nval" -ge 0 ]
 then
@@ -105,7 +135,7 @@ then
 fi
 
 echo "Verify subsequent return to healthy state"
-pmprobe -h unix: -i hinv.ncpu
+pmprobe -h unix:$tmp.socket -i hinv.ncpu
 
 # success, all done
 status=0

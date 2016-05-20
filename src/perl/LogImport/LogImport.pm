@@ -12,8 +12,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
 @EXPORT = qw(
     pmiStart pmiUseContext pmiEnd pmiSetHostname pmiSetTimezone
     pmiAddMetric pmiAddInstance pmiPutValue pmiGetHandle pmiPutValueHandle
-    pmiWrite
-    pmiDump pmiErrStr pmiUnits pmiID pmiInDom
+    pmiWrite pmiPutMark pmiDump pmiErrStr pmiUnits pmiID pmiInDom
     pmid_build pmInDom_build
     pmiBatchPutValue pmiBatchPutValueHandle pmiBatchWrite pmiBatchEnd
     PM_ID_NULL PM_INDOM_NULL PM_IN_NULL
@@ -169,7 +168,7 @@ library.
 
 pmiAddInstance(3), pmiAddMetric(3), pmiEnd(3), pmiErrStr(3),
 pmiGetHandle(3), pmiPutResult(3), pmiPutValue(3), pmiPutValueHandle(3),
-pmiStart(3), pmiSetHostname(3), pmiSetTimezone(3), pmiUnits(3),
+pmiPutMark(3), pmiStart(3), pmiSetHostname(3), pmiSetTimezone(3), pmiUnits(3),
 pmiUseContext(3) and pmiWrite(3).
 
 The PCP mailing list pcp@oss.sgi.com can be used for questions about

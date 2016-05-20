@@ -2,7 +2,7 @@
 # Copyright (c) 2000,2004-2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
-# Portions Copyright (c) 2013,2015 Red Hat.
+# Portions Copyright (c) 2013,2015-2016 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -193,6 +193,16 @@ the cgroup.
 @ cgroup.blkio.dev.io_wait_time.sync Per-cgroup sync IO wait time
 @ cgroup.blkio.dev.io_wait_time.async Per-cgroup async IO wait time
 @ cgroup.blkio.dev.io_wait_time.total Per-cgroup total IO wait time
+@ cgroup.blkio.dev.throttle.io_service_bytes.read Per-cgroup throttle bytes transferred in reads
+@ cgroup.blkio.dev.throttle.io_service_bytes.write Per-cgroup throttle bytes transferred to disk in writes
+@ cgroup.blkio.dev.throttle.io_service_bytes.sync Per-cgroup throttle sync bytes transferred
+@ cgroup.blkio.dev.throttle.io_service_bytes.async Per-cgroup throttle async bytes transferred
+@ cgroup.blkio.dev.throttle.io_service_bytes.total Per-cgroup total throttle bytes transferred
+@ cgroup.blkio.dev.throttle.io_serviced.read Per-cgroup throttle read operations serviced
+@ cgroup.blkio.dev.throttle.io_serviced.write Per-cgroup throttle write operations serviced
+@ cgroup.blkio.dev.throttle.io_serviced.sync Per-cgroup throttle sync operations serviced
+@ cgroup.blkio.dev.throttle.io_serviced.async Per-cgroup throttle async operations serviced
+@ cgroup.blkio.dev.throttle.io_serviced.total Per-cgroup total throttle operations serviced
 
 @ cgroup.blkio.all.sectors Per-cgroup total (read+write) sectors
 @ cgroup.blkio.all.time Per-device, per-cgroup total (read+write) time
@@ -226,3 +236,13 @@ the cgroup.
 @ cgroup.blkio.all.io_wait_time.sync Per-cgroup sync IO wait time
 @ cgroup.blkio.all.io_wait_time.async Per-cgroup async IO wait time
 @ cgroup.blkio.all.io_wait_time.total Per-cgroup total IO wait time
+@ cgroup.blkio.all.throttle.io_service_bytes.read Per-cgroup throttle bytes transferred in reads
+@ cgroup.blkio.all.throttle.io_service_bytes.write Per-cgroup throttle bytes transferred to disk in writes
+@ cgroup.blkio.all.throttle.io_service_bytes.sync Per-cgroup throttle sync bytes transferred
+@ cgroup.blkio.all.throttle.io_service_bytes.async Per-cgroup throttle async bytes transferred
+@ cgroup.blkio.all.throttle.io_service_bytes.total Per-cgroup throttle total bytes transferred
+@ cgroup.blkio.all.throttle.io_serviced.read Per-cgroup throttle read operations serviced
+@ cgroup.blkio.all.throttle.io_serviced.write Per-cgroup throttle write operations serviced
+@ cgroup.blkio.all.throttle.io_serviced.sync Per-cgroup throttle sync operations serviced
+@ cgroup.blkio.all.throttle.io_serviced.async Per-cgroup throttle async operations serviced
+@ cgroup.blkio.all.throttle.io_serviced.total Per-cgroup total throttle operations serviced

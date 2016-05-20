@@ -11,6 +11,9 @@ sub new {
 sub IS_JOB_RUNNING {
     return 1;
 };
+sub SHOW_DETAIL {
+    return 1;
+};
 
 sub load_node {
 
@@ -138,4 +141,9 @@ my $jobmsg = {
     return $jobmsg;
 
 };
+
+sub sprint_job_info {
+    return "JobId=4452824 JobName=Ni-P-Hcp-0 UserId=testuser(366972) GroupId=testgroup(104475) Priority=775724 Nice=0 Account=piacct QOS=normal JobState=RUNNING Reason=None Dependency=(null) Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0 DerivedExitCode=0:0 RunTime=22:23:34 TimeLimit=1-00:00:00 TimeMin=N/A SubmitTime=2016-03-17T11:58:10 EligibleTime=2016-03-17T11:58:10 StartTime=2016-03-17T11:58:11 EndTime=2016-03-18T11:58:11 PreemptTime=None SuspendTime=None SecsPreSuspend=0 Partition=largemem AllocNode:Sid=cpn-d07-04-01:48594 ReqNodeList=cpn-d07-04-01 ExcNodeList=(null) NodeList=cpn-d07-04-01 NumNodes=1 NumCPUs=8 CPUs/Task=1 ReqB:S:C:T=0:0:*:* TRES=(null) Socks/Node=* NtasksPerN:B:S:C=8:0:*:* CoreSpec=0   Nodes=cpn-d07-04-01 CPU_IDs=0-7 Mem=40000 MinCPUsNode=8 MinMemoryNode=40000M MinTmpDiskNode=0 Features=dcv Gres=(null) Reservation=(null) Shared=OK Contiguous=0 Licenses=(null) Network=(null) Command=(null) WorkDir=/projects StdErr=/projects/job.err StdIn=/dev/null StdOut=/projects/job.out Power= SICP=0";
+}
+
 1;
