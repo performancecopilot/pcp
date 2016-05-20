@@ -204,6 +204,7 @@ URL: http://www.pcp.io
 Requires: pcp = @package_version@
 Requires: pcp-libs = @package_version@
 Requires: pcp-libs-devel = @package_version@
+Requires: pcp-devel = @package_version@
 Obsoletes: pcp-gui-testsuite
 
 %description testsuite
