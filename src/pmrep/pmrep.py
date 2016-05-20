@@ -56,6 +56,7 @@ import socket
 import struct
 import errno
 import time
+import math
 import copy
 import sys
 import os
@@ -1277,7 +1278,7 @@ class PMReporter(object):
                         #fmt[k] = "{:" + str(l) + "d}"
                         fmt[k] = "{X:" + str(l) + "d}"
 
-                if type(value) is float:
+                if type(value) is float and not math.isinf(value):
                     c = self.precision
                     s = len(str(int(value)))
                     if s > l:
