@@ -306,6 +306,7 @@ URL: http://www.pcp.io
 Requires: pcp = %{version}-%{release}
 Requires: pcp-libs = %{version}-%{release}
 Requires: pcp-libs-devel = %{version}-%{release}
+Requires: pcp-devel = %{version}-%{release}
 Obsoletes: pcp-gui-testsuite
 
 %description testsuite
