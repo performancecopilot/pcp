@@ -139,7 +139,7 @@ nss_setup_collector()
 	$sudo chown -R pcp:pcp $collectordb
     fi
 
-    if [ -n $force_client_cert ]
+    if [ -n "$force_client_cert" ]
     then
 	cert_option="-Q"
     fi
