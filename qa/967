@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ -d $PCP_PMDAS_DIR/papi ] || _notrun "PAPI PMDA is not installed"
+perfevent=`pminfo -f pmcd.agent.status | grep perfevent | wc -l`
+[ $perfevent -eq 1 ] && _notrun "perfevent PMDA installed, conflicts with PAPI"
 
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
