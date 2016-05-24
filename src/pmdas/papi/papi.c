@@ -86,7 +86,8 @@ static char helppath[MAXPATHLEN];
 static int
 permission_check(int context)
 {
-    if (ctxtab[context].uid_flag && ctxtab[context].uid == 0)
+    if (context >= 0 && context < ctxtab_size &&
+        ctxtab[context].uid_flag && ctxtab[context].uid == 0)
 	return 1;
     return 0;
 }
@@ -301,12 +302,14 @@ papi_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
         for (i=0; i<numpmid; i++) {
             __pmID_int *idp = (__pmID_int *)&(pmidlist[i]);
             if (idp->cluster == CLUSTER_PAPI) {
-                if (papi_info[idp->item].position < 0) { // new counter?
-                    need_refresh_p = 1;
-                }
-                // update or initialize remaining lifetime
-                if (papi_info[idp->item].metric_enabled != METRIC_ENABLED_FOREVER)
-                    papi_info[idp->item].metric_enabled = now + auto_enable_time;
+		if (idp->item >= 0 && idp->item <= number_of_events) {
+                    if (papi_info[idp->item].position < 0) { // new counter?
+			need_refresh_p = 1;
+		    }
+		    // update or initialize remaining lifetime
+		    if (papi_info[idp->item].metric_enabled != METRIC_ENABLED_FOREVER)
+			papi_info[idp->item].metric_enabled = now + auto_enable_time;
+		}
             }
         }
         if (need_refresh_p) {
@@ -695,13 +698,15 @@ papi_text(int ident, int type, char **buffer, pmdaExt *ep)
 	return PM_ERR_TEXT;
 
     if (pmidp->cluster == CLUSTER_PAPI) {
-	if (pmidp->item < number_of_events) {
+	if (pmidp->item >= 0 && pmidp->item < number_of_events) {
 	    if (type & PM_TEXT_ONELINE)
 		*buffer = papi_info[pmidp->item].info.short_descr;
 	    else
 		*buffer = papi_info[pmidp->item].info.long_descr;
 	    return 0;
 	}
+	else
+	    return PM_ERR_TEXT;
     }
 
     /* delegate to "help" file */
@@ -748,6 +753,9 @@ papi_internal_init(pmdaInterface *dp)
     if (number_of_counters < 0) {
 	__pmNotifyErr(LOG_ERR, "hardware does not support performance counters\n");
 	return PM_ERR_APPVERSION;
+    }
+    else if (number_of_counters == 0) {
+	__pmNotifyErr(LOG_WARNING, "no performance counters\n");
     }
 
     sts = PAPI_library_init(PAPI_VER_CURRENT);
@@ -863,6 +871,9 @@ papi_contextAttributeCallBack(int context, int attr,
 {
     int id = -1;
 
+    if (pmDebug & DBG_TRACE_APPL0)
+	__pmNotifyErr(LOG_DEBUG, "attribute callback context %d attr=%d id==%d\n", context, attr, atoi(value));
+
     enlarge_ctxtab(context);
     assert(ctxtab != NULL && context < ctxtab_size);
 
@@ -873,7 +884,7 @@ papi_contextAttributeCallBack(int context, int attr,
     ctxtab[context].uid = id = atoi(value);
     if (id != 0) {
 	if (pmDebug & DBG_TRACE_AUTH)
-	    __pmNotifyErr(LOG_DEBUG, "access denied attr=%d id=%d\n", attr, id);
+	    __pmNotifyErr(LOG_DEBUG, "access denied context %d attr=%d id=%d\n", context, attr, id);
 	return PM_ERR_PERMISSION;
     }
 
