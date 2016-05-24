@@ -33,6 +33,7 @@ refresh_shm_info(shm_info_t *_shm_info)
     _shm_info->shm_tot = shm_info.shm_tot * _pm_system_pagesize;
     _shm_info->shm_rss = shm_info.shm_rss * _pm_system_pagesize;
     _shm_info->shm_swp = shm_info.shm_swp * _pm_system_pagesize;
+    _shm_info->used_ids = shm_info.used_ids;
     return 0;
 }
 

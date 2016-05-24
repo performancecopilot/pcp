@@ -17,6 +17,7 @@ typedef struct {
     unsigned int shm_tot; /* total allocated shm */
     unsigned int shm_rss; /* total resident shm */
     unsigned int shm_swp; /* total swapped shm */
+    unsigned int used_ids; /* currently existing segments */
 } shm_info_t;
 
 extern int refresh_shm_info(shm_info_t *);

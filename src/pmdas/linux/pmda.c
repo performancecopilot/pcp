@@ -3698,6 +3698,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_SHM_INFO, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
 
+/* ipc.shm.used_ids */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 /*
  * shared memory limits cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -6098,6 +6103,9 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 2: /* ipc.shm.swp */
 	    atom->ul = _shm_info.shm_swp;
+	    break;
+	case 3: /* ipc.shm.used_ids */
+	    atom->ul = _shm_info.used_ids;
 	    break;
 	default:
 	    return PM_ERR_PMID;

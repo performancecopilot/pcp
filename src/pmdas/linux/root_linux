@@ -233,6 +233,7 @@ ipc.shm {
     tot			60:56:0
     rss			60:56:1
     swp			60:56:2
+    used_ids		60:56:3
 }
 
 pmda {
