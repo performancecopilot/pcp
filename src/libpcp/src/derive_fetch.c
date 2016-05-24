@@ -63,7 +63,7 @@ __dmprefetch(__pmContext *ctxp, int numpmid, const pmID *pmidlist, pmID **newlis
     pmID	*list;
     ctl_t	*cp = (ctl_t *)ctxp->c_dm;
 
-    /* if needed, init() called in __dmopencontext beforehand */
+    /* if needed, __dminit() called in __dmopencontext beforehand */
 
     if (cp == NULL) return 0;
 
@@ -1109,7 +1109,7 @@ __dmpostfetch(__pmContext *ctxp, pmResult **result)
     pmResult	*rp = *result;
     pmResult	*newrp;
 
-    /* if needed, init() called in __dmopencontext beforehand */
+    /* if needed, __dminit() called in __dmopencontext beforehand */
 
     if (cp == NULL || cp->fetch_has_dm == 0) return;
 
