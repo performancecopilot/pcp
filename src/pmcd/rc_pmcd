@@ -223,6 +223,7 @@ _start_pmcheck()
 	message="pmcd_wait failed in $prog: exit status: $status"
 	$PCP_SYSLOG_PROG -p daemon.warning "$message"
 	$PCP_BINADM_DIR/pmpost "$message"
+	exit
     fi
 }
 
@@ -470,7 +471,7 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 	    $ECHO $PCP_ECHO_N "Starting pmcd ..." "$PCP_ECHO_C"
 
 	    # only consider variables which start with PMCD
-	    ENVS=`grep ^PMCD $PMCDENVS 2>/dev/null`
+	    `sed -n 's/^PMCD/export PMCD/p' < $PMCDENVS 2>/dev/null`
 
 	    # only consider lines which start with a hyphen
 	    # get rid of the -f option
@@ -484,7 +485,12 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 			    -e 's/ $//' \
 		    | tr '\012' ' ' `
 
-	    eval $ENVS '$PMCD $OPTS'
+	    if ! $PMCD --verify $OPTS
+	    then
+		echo $prog: pmcd --verify $OPTS failed, cannot start pmcd.
+		exit
+	    fi
+	    $PMCD $OPTS
             _start_pmcheck
 	    $RC_STATUS -v
 

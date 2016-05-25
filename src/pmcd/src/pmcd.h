@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -216,7 +216,8 @@ extern int DoPMNSTraverse(ClientInfo *, __pmPDU *);
  */
 extern void StartDaemon(int, char **);
 extern void Shutdown(void);
-extern int  ParseInitAgents(char *);
+extern int VerifyConfig(char *);
+extern int ParseInitAgents(char *);
 extern void ParseRestartAgents(char *);
 extern void PrintAgentInfo(FILE *);
 extern void MarkStateChanges(int);
