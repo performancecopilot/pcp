@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2016 Red Hat.
 # Copyright (c) 1998-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -107,6 +107,7 @@ VERBOSE=false
 VERY_VERBOSE=false
 CHECK_RUNLEVEL=false
 START_PMIE=true
+STOP_PMIE=false
 
 echo > $tmp/usage
 cat >> $tmp/usage << EOF
@@ -147,6 +148,7 @@ do
 		KILL="echo + kill"
 		;;
 	-s)	START_PMIE=false
+		STOP_PMIE=true
 		;;
 	-T)	TERSE=true
 		;;
@@ -428,7 +430,7 @@ _configure_pmie()
 QUIETLY=false
 if [ $CHECK_RUNLEVEL = true ]
 then
-    # determine whether to start/stop based on runlevel settings - we
+    # determine whether to start pmie based on runlevel settings - we
     # need to do this when running unilaterally from cron, else we'll
     # always start pmie up (even when we shouldn't).
     #
@@ -441,11 +443,14 @@ then
     fi
 fi
 
-if [ $START_PMIE = false ]
+if [ $STOP_PMIE = true ]
 then
     # if pmie has never been started, there's no work to do to stop it
     [ ! -d "$PCP_TMP_DIR/pmie" ] && exit
     $QUIETLY || $PCP_BINADM_DIR/pmpost "stop pmie from $prog"
+elif [ $START_PMIE = false ]
+then
+    exit
 fi
 
 if [ ! -f "$CONTROL" ]
@@ -678,7 +683,7 @@ NR == 3	{ printf "p_pmcd_host=\"%s\"\n", $0; next }
 	    # wait for pmie to get started, and check on its health
 	    _check_pmie $pid
 
-	elif [ ! -z "$pid" -a $START_PMIE = false ]
+	elif [ ! -z "$pid" -a $STOP_PMIE = true ]
 	then
 	    # Send pmie a SIGTERM, which is noted as a pending shutdown.
 	    # Add pid to list of pmies sent SIGTERM - may need SIGKILL later.
@@ -704,7 +709,7 @@ done
 if $SHOWME
 then
     :
-elif [ $START_PMIE = false -a -s $tmp/pmies ]
+elif [ $STOP_PMIE = true -a -s $tmp/pmies ]
 then
     pmielist=`cat $tmp/pmies`
     if $PCP_PS_PROG -p "$pmielist" >/dev/null 2>&1

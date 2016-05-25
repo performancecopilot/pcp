@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2016 Red Hat.
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -89,6 +89,7 @@ VERBOSE=false
 VERY_VERBOSE=false
 CHECK_RUNLEVEL=false
 START_PMLOGGER=true
+STOP_PMLOGGER=false
 
 echo > $tmp/usage
 cat >> $tmp/usage << EOF
@@ -127,7 +128,8 @@ do
 		CP="echo + cp"
 		KILL="echo + kill"
 		;;
-        -s)	START_PMLOGGER=false
+	-s)	START_PMLOGGER=false
+		STOP_PMLOGGER=true
 		;;
 	-T)	TERSE=true
 		;;
@@ -169,7 +171,7 @@ exec 2>&1
 QUIETLY=false
 if [ $CHECK_RUNLEVEL = true ]
 then
-    # determine whether to start/stop based on runlevel settings - we
+    # determine whether to start pmlogger based on runlevel settings -
     # need to do this when running unilaterally from cron, else we'll
     # always start pmlogger up (even when we shouldn't).
     #
@@ -182,11 +184,14 @@ then
     fi
 fi
 
-if [ $START_PMLOGGER = false ]
+if [ $STOP_PMLOGGER = true ]
 then
     # if pmlogger has never been started, there's no work to do to stop it
     [ ! -d "$PCP_TMP_DIR/pmlogger" ] && exit
     $QUIETLY || $PCP_BINADM_DIR/pmpost "stop pmlogger from $prog"
+elif [ $START_PMLOGGER = false ]
+then
+    exit
 fi
 
 if [ ! -f "$CONTROL" ]
@@ -848,7 +853,7 @@ END				{ print m }'`
 		fi
 	    fi
 
-	elif [ ! -z "$pid" -a $START_PMLOGGER = false ]
+	elif [ ! -z "$pid" -a $STOP_PMLOGGER = true ]
 	then
 	    # Send pmlogger a SIGTERM, which is noted as a pending shutdown.
             # Add pid to list of loggers sent SIGTERM - may need SIGKILL later.
@@ -874,7 +879,7 @@ done
 if $SHOWME
 then
     :
-elif [ $START_PMLOGGER = false -a -s $tmp/pmloggers ]
+elif [ $STOP_PMLOGGER = true -a -s $tmp/pmloggers ]
 then
     pmloggerlist=`cat $tmp/pmloggers`
     if $PCP_PS_PROG -p "$pmloggerlist" >/dev/null 2>&1
