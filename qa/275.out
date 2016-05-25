@@ -339,7 +339,7 @@ __dmopencontext: bind metric[10] my.x2
 Derived metric expr dump from <addr-80>...
 expr node <addr-80> type=PLUS left=<addr-81> right=<addr-84> save_last=0
     PMID: PM_ID_NULL (511.0.11 from pmDesc) numval: 0
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: double  InDom: 29.3 0x7400003
     Semantics: instant  Units: Kbyte / sec
 expr node <addr-81> type=SLASH left=<addr-82> right=<addr-83> save_last=0
     PMID: PM_ID_NULL (29.0.66 from pmDesc) numval: 0 div_scale: 1024
@@ -494,7 +494,7 @@ my.x1
     Semantics: instant  Units: byte / sec
 
 my.x2
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: double  InDom: 29.3 0x7400003
     Semantics: instant  Units: Kbyte / sec
 
 my.x3
@@ -634,14 +634,14 @@ my.x1
     value 1
 
 my.x2
-    value 26.0009765625
-    value 4625.0009765625
-    value 4724.0009765625
-    value 1023.0009765625
-    value 1522.0009765625
-    value 1621.0009765625
-    value 1720.0009765625
-    value 1819.0009765625
+    inst [0 or "m-00"] value 26.0009765625
+    inst [46 or "m-46"] value 4625.0009765625
+    inst [47 or "m-47"] value 4724.0009765625
+    inst [10 or "m-10"] value 1023.0009765625
+    inst [15 or "m-15"] value 1522.0009765625
+    inst [16 or "m-16"] value 1621.0009765625
+    inst [17 or "m-17"] value 1720.0009765625
+    inst [18 or "m-18"] value 1819.0009765625
 
 my.x3
     value 1

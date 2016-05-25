@@ -94,6 +94,9 @@ myname.k = sample.long.million - ( sample.float.hundred * sample.double.hundred 
 myname.l = sample.bin / 50
 myname.m = 3*sample.bin
 myname.n = sample.bin + sample.bucket*2 - (sample.bin + 100) - sample.bucket
+# arithmetic over mix of singleton (null indom) and value sets (instance domains)
+myname.o = sample.bin * sample.double.ten
+myname.p = sample.double.ten * sample.bin
 End-of-File
 echo
 cat $tmp.config

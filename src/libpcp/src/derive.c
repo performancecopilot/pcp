@@ -982,13 +982,19 @@ map_desc(int n, node_t *np)
     }
 
     /*
-     * if not both singular, then both operands must have the same
-     * instance domain
+     * if neither singular, then both operands must have the same
+     * instance domain.
+     * if one is singular but the other is not, result indom must
+     * not be singular.
      */
     if (left->indom != PM_INDOM_NULL && right->indom != PM_INDOM_NULL && left->indom != right->indom) {
 	PM_TPD(derive_errmsg) = "Operands should have the same instance domain";
 	goto bad;
     }
+    else if (left->indom != PM_INDOM_NULL && right->indom == PM_INDOM_NULL)
+	np->desc.indom = left->indom;
+    else if (right->indom != PM_INDOM_NULL && left->indom == PM_INDOM_NULL)
+	np->desc.indom = right->indom;
 
     return 0;
 
