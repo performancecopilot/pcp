@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 [ -d $PCP_PMDAS_DIR/oracle ] || _notrun "Oracle PMDA not installed"
 [ -f $PCP_PMDAS_DIR/oracle/oracle.conf ] || _notrun "Oracle PMDA not configured"
+which sqlplus >/dev/null 2>&1 || _notrun "No Oracle 'sqlplus' binary found"
 
 # uses an existing oracle installation, so check its in place
 count=`pmprobe oracle.version | awk '{ print $2 }'`
