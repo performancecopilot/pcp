@@ -664,13 +664,12 @@ initMetric(Metric *m)
 	goto end;
     }
 
-    if (m->desc.type == PM_TYPE_STRING ||
-	m->desc.type == PM_TYPE_AGGREGATE ||
+    if (m->desc.type == PM_TYPE_AGGREGATE ||
 	m->desc.type == PM_TYPE_AGGREGATE_STATIC ||
 	m->desc.type == PM_TYPE_EVENT ||
 	m->desc.type == PM_TYPE_HIGHRES_EVENT ||
 	m->desc.type == PM_TYPE_UNKNOWN) {
-	fprintf(stderr, "%s: metric %s has non-numeric type\n", pmProgname, mname);
+	fprintf(stderr, "%s: metric %s has inappropriate type\n", pmProgname, mname);
 	ret = -1;
     }
     else if (m->desc.indom == PM_INDOM_NULL) {
@@ -841,13 +840,12 @@ reinitMetric(Metric *m)
         goto end;
     }
 
-    if (m->desc.type == PM_TYPE_STRING ||
-	m->desc.type == PM_TYPE_AGGREGATE ||
+    if (m->desc.type == PM_TYPE_AGGREGATE ||
 	m->desc.type == PM_TYPE_AGGREGATE_STATIC ||
 	m->desc.type == PM_TYPE_EVENT ||
 	m->desc.type == PM_TYPE_HIGHRES_EVENT ||
 	m->desc.type == PM_TYPE_UNKNOWN) {
-	fprintf(stderr, "%s: metric %s has non-numeric type\n", pmProgname, mname);
+	fprintf(stderr, "%s: metric %s has inappropriate type\n", pmProgname, mname);
 	ret = -1;
     }
     else if (m->desc.indom == PM_INDOM_NULL) {

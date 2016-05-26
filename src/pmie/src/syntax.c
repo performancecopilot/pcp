@@ -99,6 +99,60 @@ checkDoms(Expr *x1, Expr *x2)
     return 1;
 }
 
+static int
+isString(Expr *x)
+{
+    Metric	*m;
+    int		i;
+    int		sts = 0;
+
+    switch (x->sem) {
+	case SEM_NUMVAR:
+	case SEM_NUMCONST:
+	    break;
+
+	case SEM_UNKNOWN:	/* bad metric name? reported later */
+	    break;
+
+	case SEM_CHAR:
+	    sts = 1;
+	    break;
+
+	case PM_SEM_INSTANT:
+	case PM_SEM_DISCRETE:
+	    m = x->metrics;
+	    for (i = 0; i < x->hdom; i++) {
+		if (m->desc.type == PM_TYPE_STRING) {
+		    sts = 1;
+		    break;
+		}
+		m++;
+	    }
+	    break;
+
+	default:
+	    synerr();
+	    fprintf(stderr, "isString: botch sem=%d\n", x->sem);
+    }
+
+    return sts;
+}
+
+/* check arguments have compatible value types */
+static int
+checkTypes(Expr *x1, Expr *x2)
+{
+    int		str1 = isString(x1);
+    int		str2 = isString(x2);
+
+    if (str1 != str2) {
+	synerr();
+	fprintf(stderr, "operands have mixed string and arithmetic types\n");
+	return 0;
+    }
+
+    return 1;
+}
 
 /* evaluate constant expression */
 static void
@@ -332,18 +386,36 @@ relExpr(int op, Expr *arg1, Expr *arg2)
 
     /* check domains */
     sts = checkDoms(arg1, arg2);
+#if PCP_DEBUG
+    if (sts == 0 && (pmDebug & DBG_TRACE_APPL1)) {
+	fprintf(stderr, "relExpr: checkDoms(" PRINTF_P_PFX "%p, " PRINTF_P_PFX "%p) failed ...\n", arg1, arg2);
+	dumpExpr(arg1);
+	dumpExpr(arg2);
+    }
+#endif
+
+    /*
+     * check value types if string operands are in play
+     * grammary rules out many of the combinations, but we need to
+     * check == and != ... mixed type operands is not detected in
+     * the grammar
+     */
+    if (op == CND_EQ || op == CND_NEQ) {
+	sts = checkTypes(arg1, arg2);
+#if PCP_DEBUG
+	if (sts == 0 && (pmDebug & DBG_TRACE_APPL1)) {
+	    fprintf(stderr, "relExpr: checkTypes(" PRINTF_P_PFX "%p, " PRINTF_P_PFX "%p) failed ...\n", arg1, arg2);
+	    dumpExpr(arg1);
+	    dumpExpr(arg2);
+	}
+#endif
+    }
 
     /* decide primary argument for inheritance of Expr attributes */
     arg = primary(arg1, arg2);
 
     /* construct expression node */
     x = newExpr(op, arg1, arg2, arg->hdom, arg->e_idom, arg->tdom, abs(arg->tdom), SEM_BOOLEAN);
-#if PCP_DEBUG
-    if (sts == 0 && (pmDebug & DBG_TRACE_APPL1)) {
-	fprintf(stderr, "relExpr: checkDoms(" PRINTF_P_PFX "%p, " PRINTF_P_PFX "%p) failed ...\n", arg1, arg2);
-	__dumpTree(1, x);
-    }
-#endif
     newRingBfr(x);
     if (x->tspan > 0) {
 	for (i = 0; i < x->nsmpls; i++)

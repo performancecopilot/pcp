@@ -471,19 +471,31 @@ showConst(Expr *x)
 		first = 0;
 	    else
 		length = concat(" ", length, &string);
-	    if (x->sem == SEM_BOOLEAN)
+	    if (x->sem == SEM_NUMVAR || x->sem == SEM_NUMCONST)
+		length = showNum(x, i, length, &string);
+	    else if (x->sem == SEM_BOOLEAN)
 		length = showBoolean(x, i, length, &string);
-	    else if (x->sem == SEM_REGEX) {
+	    else if (x->sem == SEM_REGEX)
 		/* regex is compiled, cannot recover original string */
 		length = concat("/<regex>/", length, &string);
-	    }
 	    else if (x->sem == SEM_CHAR) {
 		length = showString(x, length, &string);
 		/* tspan is string length, not an iterator in this case */
 		break;
 	    }
-	    else
-		length = showNum(x, i, length, &string);
+	    else if (x->sem == PM_SEM_INSTANT || x->sem == PM_SEM_DISCRETE) {
+		/* expect this to be a string valued metric */
+		length = showString(x, length, &string);
+	    }
+	    else if (x->sem == SEM_UNKNOWN)
+		/* should not happen */
+		length = concat("?sem_unknown?", length, &string);
+	    else {
+		/* oops, don't know how to display this type of value */
+		char msgbuf[30];
+		snprintf(msgbuf, sizeof(msgbuf), "showConst: botch sem=%d", x->sem);
+		length = concat(msgbuf, length, &string);
+	    }
 	}
     }
     return string;

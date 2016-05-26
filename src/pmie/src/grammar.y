@@ -34,6 +34,7 @@ char follow[]	 = "follow";
 char act_str[]	 = "action";
 char bexp_str[]	 = "logical expression";
 char aexp_str[]	 = "arithmetic expression";
+char pexp_str[]	 = "arithmetic or string expression";
 char quant_str[] = "quantifier";
 char aggr_str[]  = "aggregation operator";
 char pcnt_str[]  = "percentage quantifier";
@@ -58,7 +59,7 @@ gramerr(char *phrase, char *pos, char *op)
  * yacc token and operator declarations
  ***********************************************************************/
 
-%expect     188
+%expect     192
 %start      stmnt
 
 %token      ARROW
@@ -118,6 +119,7 @@ gramerr(char *phrase, char *pos, char *op)
 %type  <x>  actarg
 %type  <x>  arglist
 %type  <x>  aexp
+%type  <x>  pexp
 %type  <x>  quant
 %type  <x>  aggr
 %type  <x>  num
@@ -131,7 +133,6 @@ gramerr(char *phrase, char *pos, char *op)
 %type  <u>  units
 %type  <u>  unit
 
-%left  NAME_DELIM
 %left  ARROW
 %left  AND OR SEQ ALT
 %left  NOT RISE FALL
@@ -400,9 +401,9 @@ quant	: ALL_QUANT dom bexp
 		    $$ = NULL; }
 	;
 
-rexp	: aexp EQ_REL aexp
+rexp	: pexp EQ_REL pexp
 		{   $$ = relExpr(CND_EQ, $1, $3); }
-	| aexp NEQ_REL aexp
+	| pexp NEQ_REL pexp
 		{   $$ = relExpr(CND_NEQ, $1, $3); }
 	| aexp '<' aexp
 		{   $$ = relExpr(CND_LT, $1, $3); }
@@ -417,14 +418,14 @@ rexp	: aexp EQ_REL aexp
 	| error EQ_REL
 		{   gramerr(aexp_str, precede, opStrings(CND_EQ));
 		    $$ = NULL; }
-	| aexp EQ_REL error
-		{   gramerr(aexp_str, follow, opStrings(CND_EQ));
+	| pexp EQ_REL error
+		{   gramerr(pexp_str, follow, opStrings(CND_EQ));
 		    $$ = NULL; }
 	| error NEQ_REL
 		{   gramerr(aexp_str, precede, opStrings(CND_NEQ));
 		    $$ = NULL; }
-	| aexp NEQ_REL error
-		{   gramerr(aexp_str, follow, opStrings(CND_NEQ));
+	| pexp NEQ_REL error
+		{   gramerr(pexp_str, follow, opStrings(CND_NEQ));
 		    $$ = NULL; }
 	| error '<'
 		{   gramerr(aexp_str, precede, opStrings(CND_LT));
@@ -514,6 +515,12 @@ aexp	: '(' aexp ')'
 		{   gramerr(aexp_str, follow, opStrings(CND_DIV));
 		    $$ = NULL; }
 /*** preceding cause harmless shift/reduce conflicts ***/
+	;
+
+pexp	: aexp
+		{   $$ = $1; }
+	| str
+		{   $$ = $1; }
 	;
 
 aggr	: SUM_AGGR dom aexp
