@@ -3,6 +3,7 @@ FILES = \
 	atop-proc \
 	atop-summary \
 	atop-httpstats \
+	atop-nfsclient \
 	collectl \
 	collectl-summary \
 	collectl-interrupts \

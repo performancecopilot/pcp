@@ -179,14 +179,3 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	nfs.client.reqs[read,write]
 	nfs3.client.reqs[read,write]
 	nfs4.client.reqs[read,write]
-
-	nfsclient.export
-	nfsclient.age
-	nfsclient.bytes.read.normal
-	nfsclient.bytes.write.normal
-	nfsclient.bytes.read.direct
-	nfsclient.bytes.write.direct
-	nfsclient.bytes.read.server
-	nfsclient.bytes.write.server
-	nfsclient.pages.read
-	nfsclient.pages.write

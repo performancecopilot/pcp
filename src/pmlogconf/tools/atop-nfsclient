@@ -1,0 +1,14 @@
+#pmlogconf-setup 2.0
+ident   NFS client metrics sampled by the atop command
+probe	nfsclient.age exists ? include : exclude
+
+	nfsclient.age
+	nfsclient.export
+	nfsclient.bytes.read.normal
+	nfsclient.bytes.write.normal
+	nfsclient.bytes.read.direct
+	nfsclient.bytes.write.direct
+	nfsclient.bytes.read.server
+	nfsclient.bytes.write.server
+	nfsclient.pages.read
+	nfsclient.pages.write
