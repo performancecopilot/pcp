@@ -205,6 +205,8 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    timeout.tv_sec = _pmcd_timeout;
 	    timeout.tv_usec = 0;
 
+	    retry:
+	    setoserror(0);
 	    s = __pmSelectRead(maxFd+1, &readyFds, &timeout);
 
 	    if (s == 0) {
@@ -220,7 +222,9 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 		sts = PM_ERR_IPC;
 		break;
 	    }
-	    else if (sts < 0) {
+	    else if (s < 0) {
+		if (neterror() == EINTR)
+		    goto retry;
 		/* this is not expected to happen! */
 		__pmNotifyErr(LOG_ERR, "DoStore: fatal select failure: %s\n",
 			netstrerror());
