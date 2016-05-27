@@ -20,12 +20,15 @@ use warnings;
 use PCP::PMDA;
 use DBI;
 
+# global connection/query parameters which can be overridden by oracle.conf
 my $os_user = 'oracle';
 my $username = 'SYSTEM';
 my $password = 'manager';
 my $host = 'localhost';
 my $port = '1521';
 my @sids = ( 'master' );
+my $disable_filestat = 0;	# on/off switch for v$filestat queries
+my $disable_object_cache = 0;	# on/off switch for v$db_object_cache queries
 
 # Configuration files for overriding the above settings
 for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
@@ -36,7 +39,7 @@ for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
 }
 
 use vars qw(
-	$pmda %sids_by_name %sysstat_map %control_map
+	$pmda %sids_by_name %sysstat_map
 
 	%control_instances %sysstat_instances %latch_instances
 	%filestat_instances %rollstat_instances %reqdist_instances
@@ -426,7 +429,7 @@ sub oracle_sid_connection_setup
     my ($sid, $dbh) = @_;
 
     # do not auto-connect if we were asked not to
-    if ($control_map{$sid} == 1) { return undef; }
+    if ($sids_by_name{$sid}{disconnected} == 1) { return undef; }
 
     if (!defined($dbh)) {
 	$dbh = DBI->connect("dbi:Oracle:host=$host;port=$port;sid=$sid", $username, $password);
@@ -438,12 +441,12 @@ sub oracle_sid_connection_setup
 		$fetch = $tables_by_name{$key}{values_query};
 		if (defined($insts)) {
 		    $query = $dbh->prepare($insts);
-		    $tables_by_name{$key}{insts_handle} = $query
+		    $sids_by_name{$sid}{$key}{insts_handle} = $query
 			unless (!defined($query));
 		}
 		if (defined($fetch)) {
 		    $query = $dbh->prepare($fetch);
-		    $tables_by_name{$key}{values_handle} = $query
+		    $sids_by_name{$sid}{$key}{values_handle} = $query
 			unless (!defined($query));
 		}
 	    }
@@ -478,7 +481,9 @@ sub oracle_disconnect
 sub oracle_control_setup
 {
     foreach my $sid (@sids) {
-	$control_map{$sid} = 0;	# mark as "want up"
+	$sids_by_name{$sid}{disconnected} = 0;	# mark as "want up"
+	$sids_by_name{$sid}{filestat}{disabled} = $disable_filestat;
+	$sids_by_name{$sid}{object_cache}{disabled} = $disable_object_cache;
     }
 }
 
@@ -505,13 +510,16 @@ sub oracle_instance
 	my $table = $tables_by_indom{"$indom"}{name};
 	my $insts = $tables_by_indom{"$indom"}{insts_callback};
 
+	next if defined($sids_by_name{$sid}{$table}) &&
+			$sids_by_name{$sid}{$table}{disabled};
+
 	# attempt to reconnect if connection failed previously
 	unless (defined($db)) {
 	    $db = oracle_sid_connection_setup($sid, $db);
 	    $sids_by_name{$sid}{db_handle} = $db;
 	}
 	if (defined($insts)) {
-	    &$insts($db, $sid, $tables_by_name{$table}{insts_handle});
+	    &$insts($db, $sid, $sids_by_name{$sid}{$table}{insts_handle});
 	}
 	if (!defined($db) || $db->err) {
 	    $sids_by_name{$sid}{db_handle} = undef;
@@ -530,6 +538,9 @@ sub oracle_refresh
 	my $insts = $tables_by_cluster{$cluster}{insts_callback};
 	my $refresh = $tables_by_cluster{$cluster}{values_callback};
 
+	next if defined($sids_by_name{$sid}{$table}) &&
+			$sids_by_name{$sid}{$table}{disabled};
+
 	# attempt to reconnect if connection failed previously
 	unless (defined($db)) {
 	    $db = oracle_sid_connection_setup($sid, $db);
@@ -537,9 +548,9 @@ sub oracle_refresh
 	}
 	# execute query, marking the connection bad on failure
 	if (defined($insts)) {
-	    &$insts($db, $sid, $tables_by_name{$table}{insts_handle});
+	    &$insts($db, $sid, $sids_by_name{$sid}{$table}{insts_handle});
 	}
-	&$refresh($db, $sid, $tables_by_name{$table}{values_handle});
+	&$refresh($db, $sid, $sids_by_name{$sid}{$table}{values_handle});
 	if (!defined($db) || $db->err) {
 	    $sids_by_name{$sid}{db_handle} = undef;
 	}
@@ -737,10 +748,17 @@ sub license_values
     }
 }
 
+sub filestat_clear
+{
+    undef %filestat_instances;
+    $pmda->replace_indom($filestat_indom, \%filestat_instances);
+}
+
 sub filestat_insts
 {
     my ($dbh, $sid, $handle) = @_;
-    
+    return if $sids_by_name{$sid}{filestat}{disabled};
+
     if ((my $count = keys(%filestat_instances)) == 0) {
 	my $result = refresh_results($dbh, $sid, $handle);
 
@@ -761,6 +779,7 @@ sub filestat_insts
 sub filestat_values
 {
     my ($dbh, $sid, $handle) = @_;
+    return if $sids_by_name{$sid}{filestat}{disabled};
     my $result = refresh_results($dbh, $sid, $handle);
 
     if (defined($result)) {
@@ -791,7 +810,6 @@ sub rollstat_insts
 	}
 	$pmda->replace_indom($rollstat_indom, \%rollstat_instances);
     }
-
 }
 
 sub rollstat_values
@@ -912,8 +930,20 @@ sub rowcache_values
     $pmda->replace_indom($rowcache_indom, \%rowcache_instances);
 }
 
+sub object_cache_clear
+{
+    foreach my $key (keys(%object_cache_instances)) {
+	# columns - sharable_mem, loads, locks, pins
+	my @novalues = ();
+	$object_cache_instances{$key} = \@novalues;
+    }
+}
+
 sub object_cache_insts
 {
+    my ($dbh, $sid, $handle) = @_;
+    return if $sids_by_name{$sid}{object_cache}{disabled};
+
     $pmda->replace_indom($object_cache_indom, \%object_cache_instances)
 	unless($object_cache_insts_set == 1);
     $object_cache_insts_set = 1;
@@ -922,6 +952,7 @@ sub object_cache_insts
 sub object_cache_values
 {
     my ($dbh, $sid, $handle) = @_;
+    return if $sids_by_name{$sid}{object_cache}{disabled};
     my $result = refresh_results($dbh, $sid, $handle);
 
     # clear all the (accumulated) counts at the start
@@ -1160,6 +1191,8 @@ sub control_values
 	    } else {
 		$values[0] = 0;
 	    }
+	    $values[1] = $sids_by_name{$sid}{object_cache}{disabled};
+	    $values[2] = $sids_by_name{$sid}{filestat}{disabled};
 	    $control_instances{$sid} = \@values;
 	}
     }
@@ -1235,25 +1268,43 @@ sub oracle_store_callback
 	}
     }
     elsif ($cluster == 16) {	# oracle.control
-	if ($item == 0) {	# [...connected]
-	    if ($inst > $#sids) { return PM_ERR_INST; }
-	    my $sid = $sids[$inst];
+	if ($inst > $#sids) { return PM_ERR_INST; }
+	my $sid = $sids[$inst];
 
+	if ($item == 0) {	# [...connected]
 	    #
-	    # %control_map is used to determine whether a manual
+	    # %sids_by_name is used to determine whether a manual
 	    # disconnect/reconnect has been requested.  This is
 	    # distinct from our default preference of wanting to
 	    # be connected (Oracle may go up/down independently).
 	    #
 	    if ($val == 1) {
-		$control_map{$sid} = 0;	# mark as up
+		$sids_by_name{$sid}{disconnected} = 0;	# mark as up
 		return oracle_reconnect($sid);
 	    }
 	    elsif ($val == 0) {
-		$control_map{$sid} = 1;	# mark as down
+		$sids_by_name{$sid}{disconnected} = 1;	# mark as down
 		return oracle_disconnect($sid);
 	    }
 	    return PM_ERR_BADSTORE;
+	}
+	elsif ($item == 1) {	# [...disabled.object_cache]
+	    if ($val == 0 || $val == 1) {
+		$sids_by_name{$sid}{object_cache}{disabled} = $val;
+		object_cache_clear();
+	    } else {
+		return PM_ERR_BADSTORE;
+	    }
+	    return 0;
+	}
+	elsif ($item == 2) {	# [...disabled.file]
+	    if ($val == 0 || $val == 1) {
+		$sids_by_name{$sid}{filestat}{disabled} = $val;
+		filestat_clear();
+	    } else {
+		return PM_ERR_BADSTORE;
+	    }
+	    return 0;
 	}
     }
     elsif ($cluster < 16) { return PM_ERR_PERMISSION; }
@@ -1510,6 +1561,24 @@ sub setup_control	# are we connected, manual disconnect/reconnect
 'A value of one or zero reflecting the state of the Oracle connection.
 This is a storable metric, allowing manual disconnect and reconnect, which
 allows an Oracle instance to be shutdown while the PMDA continues running.');
+
+    $pmda->add_metric(pmda_pmid(16,1), PM_TYPE_U32, $control_indom,
+        PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+        'oracle.control.disabled.object_cache',
+        'Status of V$DB_OBJECT_CACHE view queries for each SID',
+'A value of one or zero reflecting whether queries are disabled for the
+V$DB_OBJECT_CACHE view by the Oracle PMDA.  Experience has shown this can
+introduce high latency in some situations.  When this query is disabled,
+any oracle.object_cache.* metric accesses will return PM_ERR_AGAIN.');
+
+    $pmda->add_metric(pmda_pmid(16,2), PM_TYPE_U32, $control_indom,
+        PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+        'oracle.control.disabled.file',
+        'Status of V$FILESTAT view queries for each SID',
+'A value of one or zero reflecting whether queries are disabled for the
+V$FILESTAT view by the Oracle PMDA.  Experience has shown this can be a
+source of high latency in some situations.  When this query is disabled,
+any oracle.file.* metric accesses will return no values.');
 }
 
 sub setup_parameter
