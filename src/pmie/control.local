@@ -1,2 +1,3 @@
-#Host           S?  Log File                                  Arguments
-LOCALHOSTNAME   n   PCP_LOG_DIR/pmie/LOCALHOSTNAME/pmie.log   -c config.default
+# local primary inference engine
+#Host		P?  S?	Directory				  Arguments
+LOCALHOSTNAME   y   n   PCP_LOG_DIR/pmie/LOCALHOSTNAME/pmie.log   -c config.default

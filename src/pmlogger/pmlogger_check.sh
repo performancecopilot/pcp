@@ -56,11 +56,6 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 CONTROL=$PCP_PMLOGGERCONTROL_PATH
 CONTROLDIR=$PCP_PMLOGGERCONTROL_PATH.d
 
-# NB: FQDN cleanup; don't guess a 'real name for localhost', and
-# definitely don't truncate it a la `hostname -s`.  Instead now
-# we use such a string only for the default log subdirectory, ie.
-# for substituting LOCALHOSTNAME in the fourth column of $CONTROL.
-
 # determine path for pwd command to override shell built-in
 PWDCMND=`which pwd 2>/dev/null | $PCP_AWK_PROG '
 BEGIN	    	{ i = 0 }
@@ -461,14 +456,6 @@ _parse_control()
 	cd "$here"
 	line=`expr $line + 1`
 
-	# NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config
-	# line differently for the directory and the pcp -h HOST arguments.
-	#
-	dir_hostname=`hostname || echo localhost`
-	dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dir_hostname;"`
-
-	[ "x$host" = "xLOCALHOSTNAME" ] && host=local:
-
 	$VERY_VERBOSE && echo "[$controlfile:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
 
 	case "$host"
@@ -508,6 +495,13 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		    esac
 		fi
 		continue
+		;;
+	    *)
+		# Substitute LOCALHOSTNAME marker in the config line
+		# differently for the directory and the pcp -h HOST arguments.
+		dirhostname=`hostname || echo localhost`
+		dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
+		[ "x$host" = "xLOCALHOSTNAME" ] && host=local:
 		;;
 	esac
 

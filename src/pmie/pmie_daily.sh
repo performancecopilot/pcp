@@ -99,11 +99,6 @@ do
     fi
 done
 
-# NB: FQDN cleanup; don't guess a 'real name for localhost', and
-# definitely don't truncate it a la `hostname -s`.  Instead now
-# we use such a string only for the default log subdirectory, ie.
-# for substituting LOCALHOSTNAME in the third column of $CONTROL.
-
 # determine path for pwd command to override shell built-in
 PWDCMND=`which pwd 2>/dev/null | $PCP_AWK_PROG '
 BEGIN	    	{ i = 0 }
@@ -296,14 +291,16 @@ _date_filter()
 }
 
 # note on control file format version
-#  1.0 is the first release, and the version is set in the control file
-#  with a $version=x.y line
+#  1.0 was the first release, and did not include the primary field
+#        [this is the default for backwards compatibility]
+#   1.1 adds the primary field (ala pmlogger control file) indicating
+#        localhost-specific rules should be enabled
 #
 version=1.0
 eval `grep '^version=' "$CONTROL" | sort -rn`
-if [ $version != "1.0" ]
+if [ $version != "1.0" -a $version != "1.1" ]
 then
-    _error "unsupported version (got $version, expected 1.0)"
+    _error "unsupported version (got $version, expected 1.0 or 1.1)"
     status=1
     exit
 fi
@@ -316,20 +313,13 @@ _parse_control()
     line=0
 
     sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" $controlfile | \
-    while read host socks logfile args
+    while read host primary socks logfile args
     do
 	# start in one place for each iteration (beware relative paths)
 	cd "$here"
 	line=`expr $line + 1`
 
-	# NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config
-	# line differently for the directory and the pcp -h HOST arguments.
-	logfile_hostname=`hostname || echo localhost`
-	logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfile_hostname;"`
-	logfile=`_unsymlink_path $logfile`
-	[ "x$host" = "xLOCALHOSTNAME" ] && host=local:
-
-	$VERY_VERBOSE && echo "[$controlfile:$line] host=\"$host\" socks=\"$socks\" log=\"$logfile\" args=\"$args\""
+	$VERY_VERBOSE && echo "[$controlfile:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" log=\"$logfile\" args=\"$args\""
 
 	case "$host"
 	in
@@ -338,8 +328,8 @@ _parse_control()
 		;;
 
 	    \$*)	# in-line variable assignment
-		$SHOWME && echo "# $host $socks $logfile $args"
-		cmd=`echo "$host $socks $logfile $args" \
+		$SHOWME && echo "# $host $primary $socks $logfile $args"
+		cmd=`echo "$host $primary $socks $logfile $args" \
 		     | sed -n \
 			 -e "/='/s/\(='[^']*'\).*/\1/" \
 			 -e '/="/s/\(="[^"]*"\).*/\1/' \
@@ -370,10 +360,27 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		fi
 		continue
 		;;
+	    *)
+		# convert down-revision configs to latest version
+		if [ $version = "1.0" -a "X$primary" != X ]
+		then
+		    args="$logfile $args"
+		    logfile="$socks"
+		    socks="$primary"
+		    primary=n
+		fi
+
+		# Substitute the LOCALHOSTNAME marker in the config line
+		# differently for the directory and the pcp -h HOST arguments.
+		logfilehost=`hostname || echo localhost`
+		logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfilehost;"`
+		logfile=`_unsymlink_path $logfile`
+		[ "X$primary" = Xy -o "x$host" = xLOCALHOSTNAME ] && host=local:
+		;;
 	esac
 
 	[ -f $tmp/cmd ] && . $tmp/cmd
-	if [ -z "$socks" -o -z "$logfile" -o -z "$args" ]
+	if [ -z "$primary" -o -z "$socks" -o -z "$logfile" -o -z "$args" ]
 	then
 	    _error "insufficient fields in control file record"
 	    continue

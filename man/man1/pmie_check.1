@@ -135,8 +135,17 @@ from the
 option) exists, then the contents of any additional control files therein
 will be appended to the main control file (which must exist).
 .PP
-The control file(s) should be customized according to the following rules.
-.IP 1.
+.BR Warning :
+The
+.B $PCP_PMIECONTROL_PATH
+and
+.BR $PCP_PMIECONTROL_PATH .d
+files must not be writable by any user other than root.
+.PP
+The control file(s) should be customized according to the following rules
+that define for the current version (1.1)
+of the control file format.
+.IP 1. 4m
 Lines beginning with a ``#'' are comments.
 .PD 0 parameters of the
 .IP 2.
@@ -158,15 +167,19 @@ $ PMCD_CONNECT_TIMEOUT=20
 .fi
 .ft R
 .in -4n
-.br
-.BR Warning :
-The
-.B $PCP_PMIECONTROL_PATH
-and
-.BR $PCP_PMIECONTROL_PATH .d
-files must not be writable by any user other than root.
-.br
 .IP 3.
+There
+.B must
+be a version line in the initial control file of the form:
+.br
+.in +4n
+.ft CW
+.nf
+$ version=1.1
+.fi
+.ft R
+.in -4n
+.IP 4.
 There should be one line in the control file(s)
 for each
 .B pmie
@@ -175,24 +188,46 @@ instance of the form:
 .in +4n
 .ft CW
 .nf
-\f2host\f1 \f3y\f1|\f3n\f1 \f2logfile\f1 \f2args\f1
+\f2host\f1 \f3y\f1|\f3n\f1 \f3y\f1|\f3n\f1 \f2logfile\f1 \f2args\f1
 .fi
 .ft R
 .in -4n
 
-.IP 4.
+.IP 5.
 Fields within a line of the control file(s)
 are separated by one or more spaces or tabs.
-.IP 5.
+.IP 6.
 The
 .I first
 field is the name of the host that is the default source of the
 performance metrics for this
 .B pmie
 instance.
-.IP 6.
+.IP 7.
 The
 .I second
+field indicates if this is a
+.I primary
+.B pmie
+instance (\c
+.BR y )
+or not (\c
+.BR n ).
+Since the primary inference engine must run on the local host, and there
+may be at most one primary for a particular host, this field can be
+.B y
+for at most one
+.B pmie
+instance, in which case the host name must be the name of the local host.
+When generating
+.B pmie
+configuration files, the primary clause indicates that
+.B pmieconf (1)
+should enable all rules in the primary group, in addition to all other
+default rules.
+.IP 8.
+The
+.I third
 field indicates whether this
 .B pmie
 instance needs to be started under the control of
@@ -203,9 +238,9 @@ through a firewall (\c
 .B y
 or
 .BR n ).
-.IP 8.
+.IP 9.
 The
-.I third
+.I fourth
 field is the name of the
 .B pmie
 activity log file.  
@@ -223,7 +258,7 @@ are maintained in
 This is consistent with the way
 .BR pmlogger (1)
 maintains its activity logs and archive files.
-.IP 9.
+.IP 10.
 All other fields are interpreted as arguments to be passed to
 .BR pmie (1).
 Most typically this would be the
