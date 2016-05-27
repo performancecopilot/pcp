@@ -24,6 +24,8 @@ my $password = 'manager';
 my $host = 'localhost';
 my $port = '1521';
 my @sids = ( 'master' );
+my $disable_filestat = 0;
+my $disable_object_cache = 0;
 
 # Configuration files for overriding the above settings
 for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
@@ -49,18 +51,20 @@ if (defined($ARGV[0]) && ($ARGV[0] eq '-c' || $ARGV[0] eq '--config')) {
     }
     chop($sidstr);
     print("sids=$sidstr\n");
+    print("disable_filestat=$disable_filestat\n");
+    print("disable_object_cache=$disable_object_cache\n");
     exit(0);
 }
 
 my $status = 0;
 foreach my $sid (@sids) {
     print("Attempting Oracle login SID=$sid ... ");
-    my $db = DBI->connect("dbi:Oracle:host=$host;port=$port;sid=$sid", $username, $password);
+    my $db = DBI->connect("dbi:Oracle:host=$host;port=$port;sid=$sid", $username, $password, { PrintError => 0});
     if (defined($db)) {
 	$db->disconnect();
-	print("OK\n");
+	print("ok.\n");
     } else {
-	print("Failed\n%s", $DBI::errstr);
+	printf("failed!\n%s\n", $DBI::errstr);
 	$status = 1;
     }
 }
