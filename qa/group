@@ -1257,4 +1257,5 @@ timezone
 1094 logutil local
 1099 archive pmiostat local pmie
 1108 logutil local folio pmlogextract
+1112 pmda.linux local
 4751:reserved threads local archive fetch context flakey
