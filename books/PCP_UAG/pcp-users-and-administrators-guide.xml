@@ -4709,14 +4709,14 @@ processes to monitor local or remote machines.</para>
 <filename>${PCP_PMIECONTROL_PATH}</filename> and <filename>${PCP_PMIECONTROL_PATH}.d</filename> control files.
 Notice the default entry, which looks like this:
 </para>
-<literallayout class="monospaced">#Host           S?  Log File                                  Arguments
-LOCALHOSTNAME   n   PCP_LOG_DIR/pmie/LOCALHOSTNAME/pmie.log   -c config.default</literallayout>
+<literallayout class="monospaced">#Host           P?  S?  Log File                                  Arguments
+LOCALHOSTNAME   y   n   PCP_LOG_DIR/pmie/LOCALHOSTNAME/pmie.log   -c config.default</literallayout>
 <para>This entry is used to enable a local <command>pmie</command> process.
 Add a new entry for a remote host on your local network (for example, <literal>venus</literal>), by using your <command>pmie</command> configuration file
 (see <xref linkend="Z927039566sdc"/>):</para>
 <literallayout class="monospaced">
-#Host           S?  Log File                                  Arguments
-venus           n   PCP_LOG_DIR/pmie/venus/pmie.log           -c config.demo
+#Host           P?  S?  Log File                                  Arguments
+venus           n   n   PCP_LOG_DIR/pmie/venus/pmie.log           -c config.demo
 </literallayout>
 <note><para>Without an absolute path, the configuration file (<literal>-c</literal> above)
 will be resolved using <filename>${PCP_SYSCONF_DIR}/pmie</filename> - if <filename>config.demo</filename>
@@ -4742,10 +4742,10 @@ Performance Co-Pilot configuration on pluto:
  platform: Linux pluto 3.10.0-0.rc7.64.el7.x86_64 #1 SMP
  hardware: 8 cpus, 2 disks, 23960MB RAM
  timezone: EST-10
-     pmcd: Version 3.8.3-1, 8 agents
-     pmda: pmcd proc xfs linux mmv infiniband gluster elasticsearch<replaceable>
-     pmie: pluto: ${PCP_LOG_DIR}/pmie/pluto/pmie.log
-           venus: ${PCP_LOG_DIR}/pmie/venus/pmie.log</replaceable></literallayout>
+     pmcd: Version 3.11.3-1, 8 agents
+     pmda: pmcd proc xfs linux mmv infiniband gluster elasticsearch
+     <replaceable>pmie: pluto: ${PCP_LOG_DIR}/pmie/pluto/pmie.log</replaceable>
+           <replaceable>venus: ${PCP_LOG_DIR}/pmie/venus/pmie.log</replaceable></literallayout>
 </step>
 </procedure>
 <para>If a remote host is not up at the time when <command>pmie</command>
@@ -5381,8 +5381,8 @@ Performance Co-Pilot configuration on pluto:
  timezone: EST-10
      pmcd: Version 3.8.3-1, 8 agents
      pmda: pmcd proc linux xfs mmv infiniband gluster elasticsearch
-     <replaceable>pmlogger: primary logger: pluto/20130815.10.00
-           venus.redhat.com: venus/20130815.11.15</replaceable>
+     <replaceable>pmlogger: primary logger: pluto/20130815.10.00</replaceable>
+           <replaceable>venus.redhat.com: venus/20130815.11.15</replaceable>
 <userinput>pmlc</userinput>
 pmlc&gt; <userinput>show loggers</userinput>
 The following pmloggers are running on pluto:

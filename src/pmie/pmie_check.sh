@@ -404,7 +404,7 @@ _configure_pmie()
 	if $SHOWME
 	then
 	    echo "+ $PMIECONF -f $configfile -cF"
-	elif ! $PMIECONF -f "$configfile" -cF >$tmp/diag 2>&1 parameters
+	elif ! $PMIECONF -f "$configfile" -cF >$tmp/diag 2>&1
 	then
 	    _warning "pmieconf failed to generate \"$configfile\""
 	    cat $tmp/diag
@@ -457,14 +457,7 @@ fi
 #   1.1 adds the primary field (ala pmlogger control file) indicating
 #        localhost-specific rules should be enabled
 #
-version=1.0
-eval `grep '^version=' "$CONTROL" | sort -rn`
-if [ $version != "1.0" -a $version != "1.1" ]
-then
-    _error "unsupported version (got $version, expected 1.0 or 1.1)"
-    status=1
-    exit
-fi
+version=''
 
 rm -f $tmp/err $tmp/pmies
 
@@ -518,31 +511,38 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		fi
 		continue
 		;;
-	    *)
-		# convert down-revision configs to latest version
-		if [ $version = "1.0" -a "X$primary" != X ]
-		then
-		    args="$logfile $args"
-		    logfile="$socks"
-		    socks="$primary"
-		    primary=n
-		fi
-
-		# Substitute the LOCALHOSTNAME marker in the config line
-		# differently for the directory and the pcp -h HOST arguments.
-		logfilehost=`hostname || echo localhost`
-		logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfilehost;"`
-		logfile=`_unsymlink_path $logfile`
-		[ "X$primary" = Xy -o "x$host" = xLOCALHOSTNAME ] && host=local:
-		;;
 	esac
 
+	# set the version and other variables
+	#
 	[ -f $tmp/cmd ] && . $tmp/cmd
+
+	if [ -z "$version" -o "$version" = "1.0" ]
+	then
+	    if [ -z "$version" ]
+	    then
+		_warning "processing version 1.0 control format"
+		version=1.0
+	    fi
+	    args="$logfile $args"
+	    logfile="$socks"
+	    socks="$primary"
+	    primary=n
+	fi
+
 	if [ -z "$primary" -o -z "$socks" -o -z "$logfile" -o -z "$args" ]
 	then
 	    _error "insufficient fields in control file record"
 	    continue
 	fi
+
+	# substitute LOCALHOSTNAME marker in this config line
+	# (differently for logfile and pcp -h HOST arguments)
+	#
+	logfilehost=`hostname || echo localhost`
+	logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfilehost;"`
+	logfile=`_unsymlink_path $logfile`
+	[ $primary = y -o "x$host" = xLOCALHOSTNAME ] && host=local:
 
 	dir=`dirname $logfile`
 	$VERY_VERBOSE && echo "Check pmie -h $host -l $logfile ..."
@@ -565,9 +565,9 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	dir=`$PWDCMND`
 	$SHOWME && echo "+ cd $dir"
 
-	# ensure pcp user will be able to write there
-	#
-	chown -R $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
+	# ensure pcp user will be able to write there (safely from bad configs)
+	[ "$dir" != / ] && chown -R $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
+
 	if [ ! -w "$dir" ]
 	then
 	    _warning "no write access in $dir, skip lock file processing"

@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2016 Red Hat.
 # Copyright (c) 2007 Aconex.  All Rights Reserved.
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -296,14 +296,7 @@ _date_filter()
 #   1.1 adds the primary field (ala pmlogger control file) indicating
 #        localhost-specific rules should be enabled
 #
-version=1.0
-eval `grep '^version=' "$CONTROL" | sort -rn`
-if [ $version != "1.0" -a $version != "1.1" ]
-then
-    _error "unsupported version (got $version, expected 1.0 or 1.1)"
-    status=1
-    exit
-fi
+version=''
 
 rm -f $tmp/err $tmp/mail
 
@@ -360,31 +353,33 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		fi
 		continue
 		;;
-	    *)
-		# convert down-revision configs to latest version
-		if [ $version = "1.0" -a "X$primary" != X ]
-		then
-		    args="$logfile $args"
-		    logfile="$socks"
-		    socks="$primary"
-		    primary=n
-		fi
-
-		# Substitute the LOCALHOSTNAME marker in the config line
-		# differently for the directory and the pcp -h HOST arguments.
-		logfilehost=`hostname || echo localhost`
-		logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfilehost;"`
-		logfile=`_unsymlink_path $logfile`
-		[ "X$primary" = Xy -o "x$host" = xLOCALHOSTNAME ] && host=local:
-		;;
 	esac
 
+	# set the version and other variables
+	#
 	[ -f $tmp/cmd ] && . $tmp/cmd
+
+	if [ $version = "1.0" -a "X$primary" != X ]
+	then
+	    args="$logfile $args"
+	    logfile="$socks"
+	    socks="$primary"
+	    primary=n
+	fi
+
 	if [ -z "$primary" -o -z "$socks" -o -z "$logfile" -o -z "$args" ]
 	then
 	    _error "insufficient fields in control file record"
 	    continue
 	fi
+
+	# substitute LOCALHOSTNAME marker in this config line
+	# (differently for logfile and pcp -h HOST arguments)
+	#
+	logfilehost=`hostname || echo localhost`
+	logfile=`echo $logfile | sed -e "s;LOCALHOSTNAME;$logfilehost;"`
+	logfile=`_unsymlink_path $logfile`
+	[ $primary = y -o "x$host" = xLOCALHOSTNAME ] && host=local:
 
 	dir=`dirname $logfile`
 	$VERY_VERBOSE && echo "Check pmie -h $host ... in $dir ..."

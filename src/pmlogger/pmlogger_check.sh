@@ -496,21 +496,17 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		fi
 		continue
 		;;
-	    *)
-		# Substitute LOCALHOSTNAME marker in the config line
-		# differently for the directory and the pcp -h HOST arguments.
-		dirhostname=`hostname || echo localhost`
-		dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
-		[ "x$host" = "xLOCALHOSTNAME" ] && host=local:
-		;;
 	esac
 
+	# set the version and other variables
+	#
 	[ -f $tmp/cmd ] && . $tmp/cmd
+
 	if [ -z "$version" -o "$version" = "1.0" ]
 	then
 	    if [ -z "$version" ]
 	    then
-		_warning "processing version 1.0 control format"
+		_warning "processing default version 1.0 control format"
 		version=1.0
 	    fi
 	    args="$dir $args"
@@ -527,6 +523,13 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    _error "insufficient fields in control file record"
 	    continue
 	fi
+
+	# substitute LOCALHOSTNAME marker in this config line
+	# (differently for directory and pcp -h HOST arguments)
+	#
+	dirhostname=`hostname || echo localhost`
+	dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
+	[ $primary = y -o "x$host" = xLOCALHOSTNAME ] && host=local:
 
 	if $VERY_VERBOSE
 	then
@@ -565,9 +568,9 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	dir=`$PWDCMND`
 	$SHOWME && echo "+ cd $dir"
 
-	# ensure pcp user will be able to write there
-	#
-	chown -R $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
+	# ensure pcp user will be able to write there (safely from bad configs)
+	[ "$dir" != / ] && chown -R $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
+
 	if [ ! -w "$dir" ]
 	then
 	    _warning "no write access in $dir, skip lock file processing"
@@ -641,16 +644,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	fi
 
 	pid=''
-	# NB: FQDN cleanup: previously, we used to quietly accept several
-	# putative-aliases in the first (hostname) slot for a primary logger,
-	# which were all supposed to refer to the local host.  So now we
-	# squash them all to the officially pcp-preferred way to access it.
-	# This does not get used by pmlogger in the end (gets -P and not -h
-	# in the primary logger case), but it *does* matter for pmlogconf.
 	if [ "X$primary" = Xy ]
 	then
-	    host=local:
-
 	    if test -e "$PCP_TMP_DIR/pmlogger/primary"
 	    then
 		if $VERY_VERBOSE
