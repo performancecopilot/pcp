@@ -23,8 +23,8 @@ int semctl(int semid, int semnum, int cmd, ...)
     
     struct seminfo *i = (struct seminfo *)arg.array;
     memset(i, 0, sizeof(*i));
-    i->semusz = 9;
-    i->semaem = 9;
+    i->semusz = 7;
+    i->semaem = 8;
     return 0;
 }
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 # PCP QA Test No. 1112
-# ipc.sem.{used_sem,ttl_sem} metrics testing
-# ipc.msg.{used_que,ttl_mes,ttl_byte} metrics testing
+# ipc.sem.{used_sem,tot_sem} metrics testing
+# ipc.msg.{used_queues,tot_msg,tot_bytes} metrics testing
 #
 # Copyright (c) 2015-2016 Red Hat.  All Rights Reserved.
 #
@@ -27,10 +27,10 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.$DSO_SUFFIX,linux_init
 
 LD_PRELOAD=$here/src/qa_sem_msg_ctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.sem.used_sem
-LD_PRELOAD=$here/src/qa_sem_msg_ctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.sem.ttl_sem
-LD_PRELOAD=$here/src/qa_sem_msg_ctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.msg.used_que
-LD_PRELOAD=$here/src/qa_sem_msg_ctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.msg.ttl_mes
-LD_PRELOAD=$here/src/qa_sem_msg_ctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.msg.ttl_byte
+LD_PRELOAD=$here/src/qa_sem_msg_ctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.sem.tot_sem
+LD_PRELOAD=$here/src/qa_sem_msg_ctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.msg.used_queues
+LD_PRELOAD=$here/src/qa_sem_msg_ctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.msg.tot_msg
+LD_PRELOAD=$here/src/qa_sem_msg_ctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.msg.tot_bytes
 
 # success, all done
 status=0

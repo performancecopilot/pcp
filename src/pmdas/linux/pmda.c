@@ -3642,12 +3642,12 @@ static pmdaMetric metrictab[] = {
 
 /* ipc.sem.used_sem */
   { NULL,
-    { PMDA_PMID(CLUSTER_SEM_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+    { PMDA_PMID(CLUSTER_SEM_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
-/* ipc.sem.ttl_sem */
+/* ipc.sem.tot_sem */
   { NULL,
-    { PMDA_PMID(CLUSTER_SEM_INFO, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+    { PMDA_PMID(CLUSTER_SEM_INFO, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /*
@@ -3695,19 +3695,19 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_MSG_LIMITS, 7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
-/* ipc.msg.used_que */
+/* ipc.msg.used_queues */
   { NULL,
-    { PMDA_PMID(CLUSTER_MSG_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+    { PMDA_PMID(CLUSTER_MSG_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
-/* ipc.msg.ttl_mes */
+/* ipc.msg.tot_msg */
   { NULL,
-    { PMDA_PMID(CLUSTER_MSG_INFO, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+    { PMDA_PMID(CLUSTER_MSG_INFO, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
-/* ipc.msg.ttl_byte */
+/* ipc.msg.tot_bytes */
   { NULL,
-    { PMDA_PMID(CLUSTER_MSG_INFO, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+    { PMDA_PMID(CLUSTER_MSG_INFO, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
 
 /* ipc.shm.tot */
@@ -6104,7 +6104,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 0:	/* ipc.sem.used_sem */
 	    atom->ul = _sem_info.semusz;
 	    break;
-	case 1:	/* ipc.sem.ttl_sem */
+	case 1:	/* ipc.sem.tot_sem */
 	    atom->ul = _sem_info.semaem;
 	    break;
 	default:
@@ -6182,13 +6182,13 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      */
     case CLUSTER_MSG_INFO:
 	switch (idp->item) {
-	case 0:	/* ipc.msg.used_que */
+	case 0:	/* ipc.msg.used_queues */
 	    atom->ul = _msg_info.msgpool;
 	    break;
-	case 1:	/* ipc.msg.ttl_mes */
+	case 1:	/* ipc.msg.tot_msg */
 	    atom->ul = _msg_info.msgmap;
 	    break;
-	case 2:	/* ipc.msg.ttl_byte */
+	case 2:	/* ipc.msg.tot_bytes */
 	    atom->ul = _msg_info.msgtql;
 	    break;
 	default:
