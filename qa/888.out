@@ -20,12 +20,12 @@ ipc.shm.used_ids
     Semantics: instant  Units: none
     value 2
 
-ipc.shm.swp_att
+ipc.shm.swap_attempts
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-    value 2
+    value 4
 
-ipc.shm.swp_suc
+ipc.shm.swap_successes
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-    value 2
+    value 3

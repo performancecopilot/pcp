@@ -1499,8 +1499,8 @@ See also the kernel.uname.* metrics
 @ ipc.shm.rss number of resident shared memory pages (from shmctl(..,SHM_INFO,..))
 @ ipc.shm.swp number of swapped shared memory pages (from shmctl(..,SHM_INFO,..))
 @ ipc.shm.used_ids number of currently existing segments (from shmctl(..,SHM_INFO,..))
-@ ipc.shm.swp_att number of swap attempts (from shmctl(..,SHM_INFO,..))
-@ ipc.shm.swp_suc number of swap successes (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.swap_attempts number of swap attempts (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.swap_successes number of swap successes (from shmctl(..,SHM_INFO,..))
 
 @ vfs.files.count number of in-use file structures
 @ vfs.files.free number of available file structures

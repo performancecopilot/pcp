@@ -13,7 +13,7 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf)
     i->shm_rss = 100;
     i->shm_swp = 9000;
     i->used_ids = 2;
-    i->swap_attempts = 2;
-    i->swap_successes = 2;
+    i->swap_attempts = 4;
+    i->swap_successes = 3;
     return 0;
 }

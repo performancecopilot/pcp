@@ -234,8 +234,8 @@ ipc.shm {
     rss			60:56:1
     swp			60:56:2
     used_ids		60:56:3
-    swp_att		60:56:4
-    swp_suc		60:56:5
+    swap_attempts	60:56:4
+    swap_successes	60:56:5
 }
 
 pmda {

@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 888
-# ipc.shm.{tot,rss,swp,used_ids,swp_att,swp_suc} metrics testing
+# ipc.shm.{tot,rss,swp,used_ids,swap_attempts,swap_successes} metrics testing
 #
 # Copyright (c) 2015-2016 Red Hat.  All Rights Reserved.
 #
@@ -30,8 +30,8 @@ LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.
 LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.rss
 LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.swp
 LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.used_ids
-LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.swp_att
-LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.swp_suc
+LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.swap_attempts
+LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.swap_successes
 
 # success, all done
 status=0

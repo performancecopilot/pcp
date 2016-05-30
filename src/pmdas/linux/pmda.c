@@ -3703,12 +3703,12 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_SHM_INFO, 3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
-/* ipc.shm.swp_att */
+/* ipc.shm.swap_attempts */
   { NULL,
     { PMDA_PMID(CLUSTER_SHM_INFO, 4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
-/* ipc.shm.swp_suc */
+/* ipc.shm.swap_successes */
   { NULL,
     { PMDA_PMID(CLUSTER_SHM_INFO, 5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
@@ -6117,10 +6117,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 3: /* ipc.shm.used_ids */
 	    atom->ul = _shm_info.used_ids;
 	    break;
-	case 4: /* ipc.shm.swp_att */
+	case 4: /* ipc.shm.swap_attempts */
 	    atom->ul = _shm_info.swap_attempts;
 	    break;
-	case 5: /* ipc.shm.sqp_suc */
+	case 5: /* ipc.shm.swap_successes */
 	    atom->ul = _shm_info.swap_successes;
 	    break;
 	default:
