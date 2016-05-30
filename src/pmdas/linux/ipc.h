@@ -18,6 +18,8 @@ typedef struct {
     unsigned int shm_rss; /* total resident shm */
     unsigned int shm_swp; /* total swapped shm */
     unsigned int used_ids; /* currently existing segments */
+    unsigned int swap_attempts; /* the count swap attempts */
+    unsigned int swap_successes; /* the count swap successes */
 } shm_info_t;
 
 extern int refresh_shm_info(shm_info_t *);

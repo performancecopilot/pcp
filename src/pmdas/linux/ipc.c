@@ -34,6 +34,8 @@ refresh_shm_info(shm_info_t *_shm_info)
     _shm_info->shm_rss = shm_info.shm_rss * _pm_system_pagesize;
     _shm_info->shm_swp = shm_info.shm_swp * _pm_system_pagesize;
     _shm_info->used_ids = shm_info.used_ids;
+    _shm_info->swap_attempts = shm_info.swap_attempts;
+    _shm_info->swap_successes = shm_info.swap_successes;
     return 0;
 }
 
