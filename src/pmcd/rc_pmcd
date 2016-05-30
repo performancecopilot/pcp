@@ -223,6 +223,7 @@ _start_pmcheck()
 	message="pmcd_wait failed in $prog: exit status: $status"
 	$PCP_SYSLOG_PROG -p daemon.warning "$message"
 	$PCP_BINADM_DIR/pmpost "$message"
+	$RC_STATUS -v
 	exit
     fi
 }
