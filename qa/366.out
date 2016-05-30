@@ -332,6 +332,8 @@ QA output created by 366
 > 	network.interface.inet_addr
 > }
 > #----
+> #+ tools/atop-nfsclient:x::
+> #----
 > #+ tools/atop-summary:y:once:
 > ## metrics sampled once by the atop command
 > log advisory on once {
