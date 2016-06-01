@@ -74,21 +74,6 @@ typedef struct {
  */
 static __pmHashCtl	pc_hc;
 
-#ifdef PM_MULTI_THREAD
-static pthread_mutex_t pc_hc_lock = PTHREAD_MUTEX_INITIALIZER;
-#else
-static void* pc_hc_lock;
-#endif
-
-/* A substitute for the l_lock field that belongs in __pmLogCtl. */
-#ifdef PM_MULTI_THREAD
-static pthread_mutex_t global_logctl_lock = PTHREAD_MUTEX_INITIALIZER;
-#else
-static void* global_logctl_lock;
-#endif
-
-
-
 #ifdef PCP_DEBUG
 static void
 dumpbuf(int nch, __pmPDU *pb)
@@ -893,11 +878,6 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 #else
     struct dirent	*direntp;
 #endif
-#ifdef PM_MULTI_THREAD
-    static pthread_mutex_t basename_lock = PTHREAD_MUTEX_INITIALIZER;
-#else
-    static void* basename_lock;
-#endif
 
     /*
      * find directory name component ... copy as dirname() may clobber
@@ -905,8 +885,8 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
      */
     if ((tbuf = strdup(name)) == NULL)
 	return -oserror();
-    /* dirname(3) and basename(3) might internally copy into & use static vars */
-    PM_LOCK(basename_lock);
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp); /* protect dirname(3) basename(3) statics */
     dir = dirname(tbuf);
 
     /*
@@ -917,10 +897,10 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     if ((base = strdup(basename(filename))) == NULL) {
 	sts = -oserror();
 	free(tbuf);
-	PM_UNLOCK(basename_lock);
+	PM_UNLOCK(__pmLock_libpcp);
 	return sts;
     }
-    PM_UNLOCK(basename_lock);
+    PM_UNLOCK(__pmLock_libpcp);
 
     if (access(name, R_OK) == 0) {
 	/* Strip the name down to its base, if it is a known archive
@@ -942,8 +922,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     lcp->l_numseen = 0; lcp->l_seen = NULL;
 
     blen = (int)strlen(base);
-    PM_INIT_LOCKS();
-    PM_LOCK(global_logctl_lock);
+    PM_LOCK(__pmLock_libpcp);
     if ((dirp = opendir(dir)) != NULL) {
 #if defined(HAVE_READDIR64)
 	while ((direntp = readdir64(dirp)) != NULL)
@@ -967,7 +946,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_tifp = fopen(filename, "r")) == NULL) {
 		    sts = -oserror();
-		    PM_UNLOCK(global_logctl_lock);
+		    PM_UNLOCK(__pmLock_libpcp);
 		    goto cleanup;
 		}
 	    }
@@ -976,7 +955,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 		snprintf(filename, sizeof(filename), "%s%c%s", dir, sep, direntp->d_name);
 		if ((lcp->l_mdfp = fopen(filename, "r")) == NULL) {
 		    sts = -oserror();
-		    PM_UNLOCK(global_logctl_lock);
+		    PM_UNLOCK(__pmLock_libpcp);
 		    goto cleanup;
 		}
 	    }
@@ -1020,12 +999,12 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "__pmLogOpen: cannot scan directory \"%s\": %s\n", dir, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
-	PM_UNLOCK(global_logctl_lock);
+	PM_UNLOCK(__pmLock_libpcp);
 	goto cleanup;
 	
 #endif
     }
-    PM_UNLOCK(global_logctl_lock);
+    PM_UNLOCK(__pmLock_libpcp);
 
     if (lcp->l_minvol == -1 || lcp->l_mdfp == NULL) {
 #ifdef PCP_DEBUG
@@ -1514,9 +1493,9 @@ __pmLogGenerateMark(__pmLogCtl *lcp, int mode, pmResult **result)
     pr->numpmid = 0;
     if (mode == PM_MODE_FORW) {
 	if ((sts = __pmGetArchiveEnd(lcp, &end)) < 0) {
-	    free(pr);
+            free(pr);
 	    return sts;
-	}
+        }
 	pr->timestamp.tv_sec = lcp->l_endtime.tv_sec;
 	pr->timestamp.tv_usec = lcp->l_endtime.tv_usec;
 	pr->timestamp.tv_usec += 1000;
@@ -1544,7 +1523,7 @@ clearMarkDone(void)
 {
     __pmContext		*ctxp;
 
-    /* Get the current context. It must be an archive context. */
+    /* Get the current context. It must be an archive context, already locked. */
     ctxp = __pmHandleToPtr_unlocked(pmWhichContext());
     if (ctxp != NULL) {
 	if (ctxp->c_type == PM_CONTEXT_ARCHIVE)
@@ -2105,7 +2084,7 @@ more:
 	    newres->timestamp = (*result)->timestamp;
 	    u = 0;
 	    PM_INIT_LOCKS();
-	    PM_LOCK(pc_hc_lock);
+	    PM_LOCK(__pmLock_libpcp);
 	    for (j = 0; j < numpmid; j++) {
 		hp = __pmHashSearch((int)pmidlist[j], &pc_hc);
 		if (hp == NULL) {
@@ -2117,7 +2096,7 @@ more:
 		    pcp->pc_numval = 0;
 		    sts = __pmHashAdd((int)pmidlist[j], (void *)pcp, &pc_hc);
 		    if (sts < 0) {
-			PM_UNLOCK(pc_hc_lock);
+			PM_UNLOCK(__pmLock_libpcp);
 			return sts;
 		    }
 		}
@@ -2139,7 +2118,7 @@ more:
 		    newres->vset[j] = (pmValueSet *)pcp;
 		}
 	    }
-	    PM_UNLOCK(pc_hc_lock);
+	    PM_UNLOCK(__pmLock_libpcp);
 	    if (u == 0 && !all_derived) {
 		/*
 		 * not one of our pmids was in the log record, try
@@ -2869,7 +2848,7 @@ __pmLogCheckForNextArchive(__pmLogCtl *lcp, int mode, pmResult **result)
     __pmArchCtl		*acp;
     int		sts = 0;
 
-    /* Get the current context. It must be an archive context. */
+    /* Get the current context. It must be an archive context, already locked. */
     ctxp = __pmHandleToPtr_unlocked(pmWhichContext());
     if (ctxp == NULL)
 	return PM_ERR_EOL;

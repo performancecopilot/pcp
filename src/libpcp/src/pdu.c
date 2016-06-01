@@ -14,9 +14,9 @@
  *
  * Thread-safe notes:
  *
- * maxsize - monotonic increasing and rarely changes, so use private
+ * maxsize - monotonic increasing and rarely changes, so use global
  * 	mutex to protect updates, but allow reads without locking
- * 	as seeing an unexpected newly updated value is benign, we hope
+ * 	as seeing an unexpected newly updated value is benign
  *
  * On success, the result parameter from __pmGetPDU() points into a PDU
  * buffer that is pinned from the call to __pmFindPDUBuf().  It is the
@@ -53,12 +53,6 @@ static int              ceiling = PDU_CHUNK * 64;
 static struct timeval	req_wait = { 10, 0 };
 static int		req_wait_done;
 
-#ifdef PM_MULTI_THREAD
-static pthread_mutex_t req_wait_done_lock = PTHREAD_MUTEX_INITIALIZER;
-#else
-static void* req_wait_done_lock;
-#endif
-
 #define HEADER	-1
 #define BODY	0
 
@@ -69,10 +63,10 @@ __pmSetRequestTimeout(double timeout)
 	return -EINVAL;
 
     PM_INIT_LOCKS();
-    PM_LOCK(req_wait_done_lock);
+    PM_LOCK(__pmLock_libpcp);
     __pmtimevalFromReal(timeout, &req_wait);
     req_wait_done = 1;
-    PM_UNLOCK(req_wait_done_lock);
+    PM_UNLOCK(__pmLock_libpcp);
     return 0;
 }
 
@@ -84,7 +78,7 @@ __pmRequestTimeout(void)
 
     /* get optional PMCD request timeout from the environment */
     PM_INIT_LOCKS();
-    PM_LOCK(req_wait_done_lock);
+    PM_LOCK(__pmLock_libpcp);
     if (!req_wait_done) {
 	if ((timeout_str = getenv("PMCD_REQUEST_TIMEOUT")) != NULL) {
 	    timeout = strtod(timeout_str, &end_ptr);
@@ -98,7 +92,7 @@ __pmRequestTimeout(void)
 	req_wait_done = 1;
     }
     timeout = __pmtimevalToReal(&req_wait);
-    PM_UNLOCK(req_wait_done_lock);
+    PM_UNLOCK(__pmLock_libpcp);
     return timeout;
 }
 
@@ -386,12 +380,6 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
     int			need;
     int			len;
     static int		maxsize = PDU_CHUNK;
-#ifdef PM_MULTI_THREAD
-    static pthread_mutex_t maxsize_lock = PTHREAD_MUTEX_INITIALIZER;
-#else
-    static void*        maxsize_lock;
-#endif
-
     char		*handle;
     __pmPDU		*pdubuf;
     __pmPDU		*pdubuf_prev;
@@ -479,14 +467,14 @@ check_read_len:
 	int		have = len;
 
 	PM_INIT_LOCKS();
-	PM_LOCK(maxsize_lock);
+	PM_LOCK(__pmLock_libpcp);
 	if (php->len > maxsize) {
 	    tmpsize = PDU_CHUNK * ( 1 + php->len / PDU_CHUNK);
 	    maxsize = tmpsize;
 	}
 	else
 	    tmpsize = maxsize;
-	PM_UNLOCK(maxsize_lock);
+	PM_UNLOCK(__pmLock_libpcp);
 
 	pdubuf_prev = pdubuf;
 	if ((pdubuf = __pmFindPDUBuf(tmpsize)) == NULL) {

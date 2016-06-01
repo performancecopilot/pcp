@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
- * Copyright (c) 2015-2016 Red Hat, Inc.
+ * Copyright (c) 2015 Red Hat, Inc.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -34,17 +34,8 @@ typedef struct bufctl
     /* The actual buffer happens to follow this struct. */
 } bufctl_t;
 
-
-/* NB: Protected by a static lock instead of __pmLock_libpcp, to
-   eliminate this source lock-ordering deadlocks. */
+/* Protected by global __pmLock_libpcp. */
 static void *buf_tree;
-
-#ifdef PM_MULTI_THREAD
-static pthread_mutex_t buf_tree_lock = PTHREAD_MUTEX_INITIALIZER;
-#else
-static void* buf_tree_lock;
-#endif
-
 
 #ifdef PCP_DEBUG
 static void
@@ -65,13 +56,13 @@ pdubufdump(void)
      * There is no longer a pdubuf free list, ergo no
      * fprintf(stderr, "   free pdubuf[size]:\n");
      */
-    PM_LOCK(buf_tree_lock);
+    PM_LOCK(__pmLock_libpcp);
     if (buf_tree != NULL) {
 	fprintf(stderr, "   pinned pdubuf[size](pincnt):");
 	twalk(buf_tree, &pdubufdump1);
 	fprintf(stderr, "\n");
     }
-    PM_UNLOCK(buf_tree_lock);
+    PM_UNLOCK(__pmLock_libpcp);
 }
 #endif
 
@@ -117,15 +108,15 @@ __pmFindPDUBuf(int need)
     pcp->bc_size = need;
     pcp->bc_buf = ((char *)pcp) + sizeof(*pcp);
 
-    PM_LOCK(buf_tree_lock);
+    PM_LOCK(__pmLock_libpcp);
     /* Insert the node in the tree. */
     bcp = tsearch((void *)pcp, &buf_tree, &bufctl_t_compare);
     if (unlikely(bcp == NULL)) {	/* ENOMEM */
-	PM_UNLOCK(buf_tree_lock);
+	PM_UNLOCK(__pmLock_libpcp);
 	free(pcp);
 	return NULL;
     }
-    PM_UNLOCK(buf_tree_lock);
+    PM_UNLOCK(__pmLock_libpcp);
 
 #ifdef PCP_DEBUG
     if (unlikely(pmDebug & DBG_TRACE_PDUBUF)) {
@@ -146,7 +137,7 @@ __pmPinPDUBuf(void *handle)
 
     assert(((__psint_t)handle % sizeof(int)) == 0);
     PM_INIT_LOCKS();
-    PM_LOCK(buf_tree_lock);
+    PM_LOCK(__pmLock_libpcp);
 
     /*
      * Initialize a dummy bufctl_t to use only as search key;
@@ -169,11 +160,11 @@ __pmPinPDUBuf(void *handle)
     } else {
 	__pmNotifyErr(LOG_WARNING, "__pmPinPDUBuf: 0x%lx not in pool!",
 			(unsigned long)handle);
-	PM_UNLOCK(buf_tree_lock);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PDUBUF)
 	    pdubufdump();
 #endif
+	PM_UNLOCK(__pmLock_libpcp);
 	return;
     }
 
@@ -184,7 +175,7 @@ __pmPinPDUBuf(void *handle)
 		pcp->bc_buf, pcp->bc_pincnt);
 #endif
 
-    PM_UNLOCK(buf_tree_lock);
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 int
@@ -195,7 +186,7 @@ __pmUnpinPDUBuf(void *handle)
 
     assert(((__psint_t)handle % sizeof(int)) == 0);
     PM_INIT_LOCKS();
-    PM_LOCK(buf_tree_lock);
+    PM_LOCK(__pmLock_libpcp);
 
     /*
      * Initialize a dummy bufctl_t to use only as search key;
@@ -213,7 +204,6 @@ __pmUnpinPDUBuf(void *handle)
     if (likely(bcp != NULL)) {
 	pcp = *(bufctl_t **)bcp;
     } else {
-	PM_UNLOCK(buf_tree_lock);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PDUBUF) {
 	    fprintf(stderr, "__pmUnpinPDUBuf(" PRINTF_P_PFX "%p) -> fails\n",
@@ -221,6 +211,7 @@ __pmUnpinPDUBuf(void *handle)
 	    pdubufdump();
 	}
 #endif
+	PM_UNLOCK(__pmLock_libpcp);
 	return 0;
     }
 
@@ -236,11 +227,11 @@ __pmUnpinPDUBuf(void *handle)
 
     if (likely(--pcp->bc_pincnt == 0)) {
 	tdelete(pcp, &buf_tree, &bufctl_t_compare);
-	PM_UNLOCK(buf_tree_lock);
+	PM_UNLOCK(__pmLock_libpcp);
 	free(pcp);
     }
     else {
-	PM_UNLOCK(buf_tree_lock);
+	PM_UNLOCK(__pmLock_libpcp);
     }
 
     return 1;
@@ -248,7 +239,7 @@ __pmUnpinPDUBuf(void *handle)
 
 /*
  * Used to pass context from __pmCountPDUBuf to the pdubufcount callback.
- * They are protected by the buf_tree_lock.
+ * They are protected by the __pmLock_libpcp.
  */
 static int	pdu_bufcnt_need;
 static unsigned	pdu_bufcnt;
@@ -267,7 +258,7 @@ void
 __pmCountPDUBuf(int need, int *alloc, int *free)
 {
     PM_INIT_LOCKS();
-    PM_LOCK(buf_tree_lock);
+    PM_LOCK(__pmLock_libpcp);
 
     pdu_bufcnt_need = need;
     pdu_bufcnt = 0;
@@ -276,5 +267,5 @@ __pmCountPDUBuf(int need, int *alloc, int *free)
 
     *free = 0;			/* We don't retain freed nodes. */
 
-    PM_UNLOCK(buf_tree_lock);
+    PM_UNLOCK(__pmLock_libpcp);
 }

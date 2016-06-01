@@ -241,26 +241,20 @@ pmgetconfig(const char *name, int fatal)
      * for pathological failures in initialization
      */
     static int		state = 0;
-#ifdef PM_MULTI_THREAD
-    static pthread_mutex_t state_lock = PTHREAD_MUTEX_INITIALIZER;
-#else
-    static void* state_lock;
-#endif
-
     char		*val;
 
     PM_INIT_LOCKS();
-    PM_LOCK(state_lock);
+    PM_LOCK(__pmLock_libpcp);
     if (state == 0) {
 	state = 1;
-	PM_UNLOCK(state_lock);
+	PM_UNLOCK(__pmLock_libpcp);
 	__pmconfig(__pmNativeConfig, fatal);
-	PM_LOCK(state_lock);
+	PM_LOCK(__pmLock_libpcp);
 	state = 2;
     }
     else if (state == 1) {
 	/* recursion from error in __pmConfig() ... no value is possible */
-	PM_UNLOCK(state_lock);
+	PM_UNLOCK(__pmLock_libpcp);
 	if (pmDebug & DBG_TRACE_CONFIG)
 	    fprintf(stderr, "pmgetconfig: %s= ... recursion error\n", name);
 	if (!fatal)
@@ -268,7 +262,7 @@ pmgetconfig(const char *name, int fatal)
 	val = "";
 	return val;
     }
-    PM_UNLOCK(state_lock);
+    PM_UNLOCK(__pmLock_libpcp);
 
     if ((val = getenv(name)) == NULL) {
 	if (!fatal)

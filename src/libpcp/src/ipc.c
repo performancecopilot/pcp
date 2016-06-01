@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2013 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -42,17 +42,7 @@ typedef struct {
 } __pmIPC;
 
 static int	__pmLastUsedFd = -INT_MAX;
-
-/* NB: Protected by a static lock instead of __pmLock_libpcp, to
-   eliminate this source lock-ordering deadlocks. */
 static __pmIPC	*__pmIPCTable;
-
-#ifdef PM_MULTI_THREAD
-static pthread_mutex_t __pmIPCTable_lock = PTHREAD_MUTEX_INITIALIZER;
-#else
-static void* __pmIPCTable_lock;
-#endif
-
 static int	ipctablecount;
 static int	ipcentrysize;
 
@@ -64,7 +54,7 @@ __pmIPCTablePtr(int fd)
 }
 
 /*
- * always called with __pmIPCTable_lock held
+ * always called with __pmLock_libpcp held
  */
 static int
 __pmResizeIPC(int fd)
@@ -99,19 +89,19 @@ __pmSetVersionIPC(int fd, int version)
 	fprintf(stderr, "__pmSetVersionIPC: fd=%d version=%d\n", fd, version);
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmIPCTable_lock);
+    PM_LOCK(__pmLock_libpcp);
     if ((sts = __pmResizeIPC(fd)) < 0) {
-	PM_UNLOCK(__pmIPCTable_lock);
+	PM_UNLOCK(__pmLock_libpcp);
 	return sts;
     }
 
     __pmIPCTablePtr(fd)->version = version;
     __pmLastUsedFd = fd;
 
-    PM_UNLOCK(__pmIPCTable_lock);
     if (pmDebug & DBG_TRACE_CONTEXT)
 	__pmPrintIPC();
 
+    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 
@@ -124,19 +114,19 @@ __pmSetSocketIPC(int fd)
 	fprintf(stderr, "__pmSetSocketIPC: fd=%d\n", fd);
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmIPCTable_lock);
+    PM_LOCK(__pmLock_libpcp);
     if ((sts = __pmResizeIPC(fd)) < 0) {
-	PM_UNLOCK(__pmIPCTable_lock);
+	PM_UNLOCK(__pmLock_libpcp);
 	return sts;
     }
 
     __pmIPCTablePtr(fd)->socket = 1;
     __pmLastUsedFd = fd;
 
-    PM_UNLOCK(__pmIPCTable_lock);
     if (pmDebug & DBG_TRACE_CONTEXT)
 	__pmPrintIPC();
 
+    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 
@@ -148,18 +138,18 @@ __pmVersionIPC(int fd)
     if (fd == PDU_OVERRIDE2)
 	return PDU_VERSION2;
     PM_INIT_LOCKS();
-    PM_LOCK(__pmIPCTable_lock);
+    PM_LOCK(__pmLock_libpcp);
     if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
 	if (pmDebug & DBG_TRACE_CONTEXT)
 	    fprintf(stderr,
 		"IPC protocol botch: table->" PRINTF_P_PFX "%p fd=%d sz=%d\n",
 		__pmIPCTable, fd, ipctablecount);
-	PM_UNLOCK(__pmIPCTable_lock);
+	PM_UNLOCK(__pmLock_libpcp);
 	return UNKNOWN_VERSION;
     }
     sts = __pmIPCTablePtr(fd)->version;
 
-    PM_UNLOCK(__pmIPCTable_lock);
+    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 
@@ -168,7 +158,10 @@ __pmLastVersionIPC()
 {
     int		sts;
 
+    PM_INIT_LOCKS();
+    PM_LOCK(__pmLock_libpcp);
     sts = __pmVersionIPC(__pmLastUsedFd);
+    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 
@@ -178,14 +171,14 @@ __pmSocketIPC(int fd)
     int		sts;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmIPCTable_lock);
+    PM_LOCK(__pmLock_libpcp);
     if (__pmIPCTable == NULL || fd < 0 || fd >= ipctablecount) {
-	PM_UNLOCK(__pmIPCTable_lock);
+	PM_UNLOCK(__pmLock_libpcp);
 	return 0;
     }
     sts = __pmIPCTablePtr(fd)->socket;
 
-    PM_UNLOCK(__pmIPCTable_lock);
+    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 
@@ -196,9 +189,9 @@ __pmSetDataIPC(int fd, void *data)
     int		sts;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmIPCTable_lock);
+    PM_LOCK(__pmLock_libpcp);
     if ((sts = __pmResizeIPC(fd)) < 0) {
-	PM_UNLOCK(__pmIPCTable_lock);
+	PM_UNLOCK(__pmLock_libpcp);
 	return sts;
     }
 
@@ -210,10 +203,10 @@ __pmSetDataIPC(int fd, void *data)
     memcpy(dest, data, ipcentrysize - sizeof(__pmIPC));
     __pmLastUsedFd = fd;
 
-    PM_UNLOCK(__pmIPCTable_lock);
     if (pmDebug & DBG_TRACE_CONTEXT)
 	__pmPrintIPC();
 
+    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 
@@ -223,10 +216,10 @@ __pmDataIPC(int fd, void *data)
     char	*source;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmIPCTable_lock);
+    PM_LOCK(__pmLock_libpcp);
     if (fd < 0 || fd >= ipctablecount || __pmIPCTable == NULL ||
 	ipcentrysize == sizeof(__pmIPC)) {
-	PM_UNLOCK(__pmIPCTable_lock);
+	PM_UNLOCK(__pmLock_libpcp);
 	return -ESRCH;
     }
     source = ((char *)__pmIPCTablePtr(fd)) + sizeof(__pmIPC);
@@ -235,7 +228,7 @@ __pmDataIPC(int fd, void *data)
 		fd, source, (int)(ipcentrysize - sizeof(__pmIPC)));
     memcpy(data, source, ipcentrysize - sizeof(__pmIPC));
 
-    PM_UNLOCK(__pmIPCTable_lock);
+    PM_UNLOCK(__pmLock_libpcp);
     return 0;
 }
 
@@ -249,19 +242,19 @@ void
 __pmOverrideLastFd(int fd)
 {
     PM_INIT_LOCKS();
-    PM_LOCK(__pmIPCTable_lock);
+    PM_LOCK(__pmLock_libpcp);
     __pmLastUsedFd = fd;
-    PM_UNLOCK(__pmIPCTable_lock);
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 void
 __pmResetIPC(int fd)
 {
     PM_INIT_LOCKS();
-    PM_LOCK(__pmIPCTable_lock);
+    PM_LOCK(__pmLock_libpcp);
     if (__pmIPCTable && fd >= 0 && fd < ipctablecount)
 	memset(__pmIPCTablePtr(fd), 0, ipcentrysize);
-    PM_UNLOCK(__pmIPCTable_lock);
+    PM_UNLOCK(__pmLock_libpcp);
 }
 
 void
@@ -270,7 +263,7 @@ __pmPrintIPC(void)
     int	i;
 
     PM_INIT_LOCKS();
-    PM_LOCK(__pmIPCTable_lock);
+    PM_LOCK(__pmLock_libpcp);
     fprintf(stderr, "IPC table fd(PDU version):");
     for (i = 0; i < ipctablecount; i++) {
 	if (__pmIPCTablePtr(i)->version != UNKNOWN_VERSION)
@@ -278,5 +271,5 @@ __pmPrintIPC(void)
 					     __pmIPCTablePtr(i)->socket);
     }
     fputc('\n', stderr);
-    PM_UNLOCK(__pmIPCTable_lock);
+    PM_UNLOCK(__pmLock_libpcp);
 }

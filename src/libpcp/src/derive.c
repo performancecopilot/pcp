@@ -42,8 +42,7 @@
  * registered.mutex is held throughout pmRegisterDerived() and this
  * protects all of the lexical scanner and parser state, i.e. tokbuf,
  * tokbuflen, string, lexpeek and this.  Same applies to pmid within
- * pmRegisterDerived().  But registered.mutex is not held while calling
- * back into normal pmapi functions such as pmLookupName.
+ * pmRegisterDerived().
  *
  * The return value from pmRegisterDerived is either a NULL or a pointer
  * back into the expr argument, so use of "this" to carry the return
@@ -607,14 +606,7 @@ bind_expr(int n, node_t *np)
     if (new->type == L_NAME) {
 	int	sts;
 
-        /*
-         * Release the registered.mutex lock around this call, since
-         * it takes nested context locks etc.
-         */
-        PM_UNLOCK(registered.mutex);
 	sts = pmLookupName(1, &new->value, &new->info->pmid);
-        PM_LOCK(registered.mutex);
-
 	if (sts < 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
@@ -626,11 +618,7 @@ bind_expr(int n, node_t *np)
 	    free(new);
 	    return NULL;
 	}
-
-        PM_UNLOCK(registered.mutex);
 	sts = pmLookupDesc(new->info->pmid, &new->desc);
-        PM_LOCK(registered.mutex);
-
 	if (sts < 0) {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
@@ -2120,7 +2108,6 @@ __dmopencontext(__pmContext *ctxp)
 	cp->mlist[i].anon = registered.mlist[i].anon;
 	assert(registered.mlist[i].expr != NULL);
 	if (!registered.mlist[i].anon) {
-            char *metric_name = registered.mlist[i].name;
 	    /*
 	     * Assume anonymous derived metric names are unique, but otherwise
 	     * derived metric names must not clash with real metric names ...
@@ -2128,14 +2115,9 @@ __dmopencontext(__pmContext *ctxp)
 	     * Logic here depends on pmLookupName() returning before any
 	     * derived metric searching is performed if the name is valid
 	     * for a real metric in the current context.
-             *
-             * Release the registered.mutex lock around this call, since
-             * it takes nested context locks etc.
 	     */
-            PM_UNLOCK(registered.mutex);
-	    sts = pmLookupName(1, &metric_name, &pmid);
-            PM_LOCK(registered.mutex);
-            if (sts >= 0 && !IS_DERIVED(pmid)) {
+	    sts = pmLookupName(1, &registered.mlist[i].name, &pmid);
+	    if (sts >= 0 && !IS_DERIVED(pmid)) {
 		char	strbuf[20];
 		pmprintf("Warning: %s: derived name matches metric %s: derived ignored\n",
 			registered.mlist[i].name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
