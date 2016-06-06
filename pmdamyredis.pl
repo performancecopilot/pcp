@@ -21,6 +21,7 @@ use autodie;
 use PCP::PMDA;
 use IO::Socket::INET;
 use File::Spec::Functions qw(catfile);
+use Benchmark;
 use Data::Dumper;
 
 use vars qw( $pmda %cfg );
@@ -461,6 +462,7 @@ sub load_config {
 sub myredis_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
+    my $t0 = Benchmark->new;
     my $metric_name = pmda_pmid_name($cluster, $item);
 
     mydebug("myredis_fetch_callback metric:'$metric_name' cluster:'$cluster', item:'$item' inst:'$inst'");
@@ -487,6 +489,10 @@ sub myredis_fetch_callback
     # Fetch redis info
     #FIXME - fixed port number
     my $refh_redis_info = get_redis_data($host,$port);
+    my $t1 = Benchmark->new;
+    my $dt = timediff($t1,$t0);
+
+    mydebug("fetch lasted: " . timestr($dt));
 
     return (PM_ERR_INST, 0)
         unless $inst == PM_IN_NULL;
@@ -503,17 +509,31 @@ sub get_redis_data {
 
     mydebug("Opening socket to host:'$host', port:'$port'");
 
+    # Enable autoflush
+    local $| = 1;
+
     my $socket = IO::Socket::INET->new( PeerAddr => $host,
                                         PeerPort => $port,
                                         Proto    => 'tcp',
                                         Type     => SOCK_STREAM )
         or die "Can't bind : $@\n";;
-    print $socket "INFO\r\n";
+    #print $socket "INFO\r\n";
+    my $size = $socket->send("INFO\r\n");
+
+    mydebug("Sent INFO request with $size bytes");
+    shutdown($socket,1);
+
+    my $resp;
+
+    $socket->recv($resp,10240);
+    mydebug("Response: '$resp'");
+    $socket->close;
+    mydebug("... socket closed");
 
     my ($ans,@buffer);
     my $lineno = 0;
 
-    while (defined($ans = <$socket>)) {
+    foreach my $ans (split /[\r\n]+/,$resp) {
 #    while (defined($ans = $socket->getline)) {
         #TODO: This while should be left in undefined $ans but for some reason it does not work for me
         #      so I applied the last hack assuming that there will always be just a single keyspace.
@@ -537,12 +557,11 @@ sub get_redis_data {
         if ($ans =~ /keys.*expires.*avg_ttl/) {
             my ($db,$keys,$expires,$avg_ttl) = ($ans =~ /\A(\S+):keys=(\d+),expires=(\d+),avg_ttl=(\d+)/);
 
+            mydebug("... db='$db', keys='$keys', expires='$expires', avg_ttl='$avg_ttl'");
+
             $refh_inst_keys->{keyspace}->{$db} = { keys    => $keys,
                                                    expires => $expires,
                                                    avg_ttl => $avg_ttl };
-            mydebug("... db='$db', keys='$keys', expires='$expires', avg_ttl='$avg_ttl'");
-
-            last;
         } elsif (($name,$value) = ($ans =~ /\A(\S+):([\S\s]+)\Z/)) {
             $refh_keys->{$name} = $value;
 
@@ -551,10 +570,6 @@ sub get_redis_data {
             mydebug("Assertion error - unexp line format: '$ans'");
         }
     }
-
-    #$pmda->log("Redis output:" . Dumper(\@buffer));
-
-    close $socket;
 
     ($refh_keys,$refh_inst_keys)
 }
