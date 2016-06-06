@@ -344,8 +344,8 @@ $pmda = PCP::PMDA->new('myredis', 252);
 
 die "Failed to load config file"
     unless $cfg{loaded} = load_config(catfile(pmda_config('PCP_PMDAS_DIR'),"myredis",$cfg{config_fname}));
-#$pmda->connect_pmcd;
-#mydebug("Connected to PMDA");
+$pmda->connect_pmcd;
+mydebug("Connected to PMDA");
 
 # Assumption: All the redises offer same metrics (so e.g. no major config changes, same versions)
 
