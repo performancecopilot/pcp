@@ -1,0 +1,80 @@
+#!/bin/sh
+# PCP QA Test No. 990
+# MMV format error injection and verification of pmdammv response.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+status=1
+username=`id -u -n`
+pmda=${PCP_PMDAS_DIR}/mmv/pmda_mmv,mmv_init
+MMV_STATS_DIR=${PCP_TMP_DIR}/mmv
+
+_cleanup()
+{
+    cd $here
+    [ -d ${MMV_STATS_DIR}.$seq ] && _restore_config ${MMV_STATS_DIR}
+    rm -rf $tmp $tmp.*
+}
+
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# move the MMV directory to restore contents later.
+[ -d ${MMV_STATS_DIR} ] && _save_config ${MMV_STATS_DIR}
+
+$sudo rm -rf ${MMV_STATS_DIR}
+$sudo mkdir -m 755 ${MMV_STATS_DIR}
+$sudo chown $username ${MMV_STATS_DIR}
+
+_filter()
+{
+    sed \
+	-e "s,$MMV_STATS_DIR,MMV_STATS_DIR,g" \
+    #end
+}
+
+_verify()
+{
+    section=$1
+
+    echo
+    echo "== generating bad $section data files =="
+    $here/src/badmmv --$section
+
+    files=`ls -1 ${MMV_STATS_DIR}/${section}-* | LC_COLLATE=POSIX sort`
+    for file in $files
+    do
+	echo -- mmvdump `basename $file`
+	$PCP_PMDAS_DIR/mmv/mmvdump $file | _filter
+	echo -- verify `basename $file`
+	_run_valgrind pminfo -L -K clear -K add,70,$pmda -dfmtT mmv 2>&1 | \
+	    $here/src/sortinst | \
+	    sed -e '/inst /s/\[[01] /[0-or-1 /'
+	echo -- done
+	unlink $file
+	echo
+    done
+}
+
+_verify header
+_verify contents
+_verify metrics
+_verify indoms 
+_verify instances
+_verify strings
+_verify values
+
+# success, all done
+status=0
+exit
