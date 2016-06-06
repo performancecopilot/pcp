@@ -358,20 +358,20 @@ third_parties()
 
     if $vector
     then
+	DESTVECTOR="$SRCTREE/build/tar/"`basename "$SRCVECTOR"`
 	if [ ! -f "$SRCVECTOR" ]
 	then
 	    echo "== Downloading Vector webapp"
 	    url=https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
 	    wget -H -q -O "$SRCVECTOR" "$url"
 	    [ $? -eq 0 ] && echo "Wrote: $SRCVECTOR"
-	fi
-	if [ -f "$SRCVECTOR" ]
-	then
-	    DESTVECTOR="$SRCTREE/build/tar/"`basename "$SRCVECTOR"`
 	    mkdir $tmp/vector && pushd $tmp/vector && $TAR -zxf "$SRCVECTOR"
 	    $topdir/scripts/build-vector
+	    [ $? -eq 0] || exit 1
 	    cd dist && $TAR -czf "$DESTVECTOR" *
 	    popd
+	else
+	    cp "$SRCVECTOR" "$DESTVECTOR"
 	fi
     fi
 
