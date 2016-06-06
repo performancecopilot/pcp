@@ -13,15 +13,12 @@
 # for more details.
 #
 # pylint: disable=C0103,R0914,R0902
-""" rovide information on IPC facilities """
+""" Provide information on IPC facilities """
 
 import sys
 import os
 from pcp import pmapi
-from cpmapi import PM_TYPE_U32, PM_CONTEXT_ARCHIVE, PM_SPACE_KBYTE
-
-if sys.version >= '3':
-    long = int  # python2 to python3 portability (no long() in python3)
+from cpmapi import PM_TYPE_U32
 
 class Ipcs(object):
     """ provides information on the inter-process communication 
@@ -80,12 +77,12 @@ class Ipcs(object):
                          'ipc.sem.max_perid',   'ipc.sem.num_undo',
                          'ipc.sem.max_ops',     'ipc.sem.max_semval')
 
-        metrics_summary = ('ipc.msg.used_que', 'ipc.msg.tot_mes',
-                           'ipc.msg.tot_byte', 'ipc.shm.used_ids',
-                           'ipc.shm.tot',      'ipc.shm.rss',
-                           'ipc.shm.swp',      'ipc.shm.swp_att',
-                           'ipc.shm.swp_suc',  'ipc.sem.used_sem',
-                           'ipc.sem.tot_sem')
+        metrics_summary = ('ipc.msg.used_queues', 'ipc.msg.tot_msg',
+                           'ipc.msg.tot_bytes', 'ipc.shm.used_ids',
+                           'ipc.shm.tot',       'ipc.shm.rss',
+                           'ipc.shm.swp',       'ipc.shm.swap_attempts',
+                           'ipc.shm.swap_successes',
+                           'ipc.sem.used_sem',  'ipc.sem.tot_sem')
         pmids_limit = self.context.pmLookupName(metrics_limit)
         descs_limit = self.context.pmLookupDescs(pmids_limit)
 
@@ -107,7 +104,7 @@ class Ipcs(object):
     def report(self, values):
         kb = 1024
         pagesize = os.sysconf("SC_PAGE_SIZE")
-        pagesize_kb = os.sysconf("SC_PAGE_SIZE")/kb
+        pagesize_kb = pagesize / kb
         if self.show_limit == 1:
             print("\n------ Messages Limits --------")
             print("max queues system wide = %u" %values[0])
@@ -123,7 +120,7 @@ class Ipcs(object):
             print("max semaphores per array = %u" %values[8])
             print("max semaphores system wide = %u" %values[9])
             print("max ops per semop call = %u" %values[10])
-            print("emaphore max value = %u" %values[11])
+            print("semaphore max value = %u" %values[11])
         elif self.show_summary == 1:
             print("\n------ Messages Status --------")
             print("allocated queues = %u" %values[0])
@@ -149,7 +146,7 @@ if __name__ == '__main__':
         IPCS.connect()
         IPCS.execute()
     except pmapi.pmErr as error:
-        print("ipcs:", error.message())
+        print("%s: %s" % (error.progname(), error.message()))
     except pmapi.pmUsageErr as usage:
         usage.message()
     except KeyboardInterrupt:
