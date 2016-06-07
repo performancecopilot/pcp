@@ -21,7 +21,8 @@ use autodie;
 use PCP::PMDA;
 use IO::Socket::INET;
 use File::Spec::Functions qw(catfile);
-use Benchmark;
+#use Benchmark;
+use Time::HiRes   qw(gettimeofday);
 use Data::Dumper;
 
 use vars qw( $pmda %cfg %id2metrics);
@@ -333,6 +334,8 @@ use vars qw( $pmda %cfg %id2metrics);
     debug => 1,
 );
 
+$0 = "pmdamyredis";
+
 #TODO: Check units for all the metrics
 
 # Enable PCP debugging
@@ -463,11 +466,23 @@ sub load_config {
 sub myredis_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
-    my $t0 = Benchmark->new;
+    my ($t0_sec,$t0_msec) = gettimeofday;
     my $searched_key = $id2metrics{$item};
     my $metric_name = pmda_pmid_name($cluster, $item);
 
     mydebug("myredis_fetch_callback metric:'$metric_name' cluster:'$cluster', item:'$item' inst:'$inst' -> searched_key: $searched_key");
+
+    if ($inst == PM_IN_NULL) {
+        # Return error if instance number was not given
+        mydebug("Given instance was PM_IN_NULL");
+
+        return (PM_ERR_INST, 0)
+    } elsif (not defined $metric_name) {
+        # Return error if metric was not given
+        mydebug("Given metric is not defined");
+
+        return (PM_ERR_PMID, 0)
+    }
 
     # Get redis hostname and port number from config
     my @host_ports = grep {$cfg{loaded}{hosts}{$_}->{id} == $inst} keys %{$cfg{loaded}{hosts}};
@@ -491,24 +506,16 @@ sub myredis_fetch_callback
     # Fetch redis info
     #TODO: Add support for db instances here
     my ($refh_redis_info,$refh_inst_keys) = get_redis_data($host,$port);
-    my $t1 = Benchmark->new;
-    my $dt = timediff($t1,$t0);
+    my ($t1_sec,$t1_msec) = gettimeofday;
+    my $dt = $t1_sec + $t1_msec/1e6 - ($t0_sec + $t0_msec/1e6);
 
-    mydebug("fetch lasted: " . timestr($dt));
+    mydebug("fetch with processing lasted: $dt seconds");
 
+    #TODO: Add result caching so that redis is not flooded with 1 INFO request per 1 metrics (clean by set_fetch)
+    #TODO: Add some check that at most 1 redis request is performed at a time
     #TODO: Add timer for on-time error check
 
-    if ($inst == PM_IN_NULL) {
-        # Return error if instance number was not given
-        mydebug("Given instance was PM_IN_NULL");
-
-        return (PM_ERR_INST, 0)
-    } elsif (not defined $metric_name) {
-        # Return error if metric was not given
-        mydebug("Given metric is not defined");
-
-        return (PM_ERR_PMID, 0)
-    } elsif (not(exists $refh_redis_info->{$searched_key} and defined $refh_redis_info->{$searched_key})) {
+    if (not(exists $refh_redis_info->{$searched_key} and defined $refh_redis_info->{$searched_key})) {
         # Return error if the atom value was not succesfully retrieved
         mydebug("Required metric '$searched_key' was not found in redis INFO or was undefined");
 
@@ -539,7 +546,7 @@ sub get_redis_data {
     my $size = $socket->send("INFO\r\n");
 
     mydebug("Sent INFO request with $size bytes");
-    shutdown($socket,1);
+    #shutdown($socket,1);
 
     my $resp;
 
