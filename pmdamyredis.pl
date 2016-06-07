@@ -24,7 +24,7 @@ use File::Spec::Functions qw(catfile);
 use Benchmark;
 use Data::Dumper;
 
-use vars qw( $pmda %cfg );
+use vars qw( $pmda %cfg %id2metrics);
 
 # Descriptions retrieved from http://redis.io/commands/INFO
 
@@ -382,6 +382,7 @@ foreach my $key (sort keys %{$cfg{metrics}}) {
         "myredis.$key",                                         # key name
         ($cfg{metrics}->{$key}->{help} // ""),                  # short help
         ($cfg{metrics}->{$key}->{longhelp} // ""));              # long help
+    $id2metrics{$pmid} = $key;
 
     mydebug("... returned '" . ($res // "<undef>") . "'");
 }
@@ -463,9 +464,10 @@ sub myredis_fetch_callback
 {
     my ($cluster, $item, $inst) = @_;
     my $t0 = Benchmark->new;
+    my $searched_key = $id2metrics{$item};
     my $metric_name = pmda_pmid_name($cluster, $item);
 
-    mydebug("myredis_fetch_callback metric:'$metric_name' cluster:'$cluster', item:'$item' inst:'$inst'");
+    mydebug("myredis_fetch_callback metric:'$metric_name' cluster:'$cluster', item:'$item' inst:'$inst' -> searched_key: $searched_key");
 
     # Get redis hostname and port number from config
     my @host_ports = grep {$cfg{loaded}{hosts}{$_}->{id} == $inst} keys %{$cfg{loaded}{hosts}};
@@ -487,20 +489,36 @@ sub myredis_fetch_callback
     mydebug("Host: '$host', port: '$port'");
 
     # Fetch redis info
-    #FIXME - fixed port number
-    my $refh_redis_info = get_redis_data($host,$port);
+    #TODO: Add support for db instances here
+    my ($refh_redis_info,$refh_inst_keys) = get_redis_data($host,$port);
     my $t1 = Benchmark->new;
     my $dt = timediff($t1,$t0);
 
     mydebug("fetch lasted: " . timestr($dt));
 
-    return (PM_ERR_INST, 0)
-        unless $inst == PM_IN_NULL;
-    return (PM_ERR_PMID, 0)
-        unless defined $metric_name;
-    return (PM_ERR_APPVERSION, 0)
-        unless exists $refh_redis_info->{$item} and defined $refh_redis_info->{$item};
-    return ($refh_redis_info->{$item}, 1);
+    #TODO: Add timer for on-time error check
+
+    if ($inst == PM_IN_NULL) {
+        # Return error if instance number was not given
+        mydebug("Given instance was PM_IN_NULL");
+
+        return (PM_ERR_INST, 0)
+    } elsif (not defined $metric_name) {
+        # Return error if metric was not given
+        mydebug("Given metric is not defined");
+
+        return (PM_ERR_PMID, 0)
+    } elsif (not(exists $refh_redis_info->{$searched_key} and defined $refh_redis_info->{$searched_key})) {
+        # Return error if the atom value was not succesfully retrieved
+        mydebug("Required metric '$searched_key' was not found in redis INFO or was undefined");
+
+        return (PM_ERR_AGAIN, 0)
+    } else {
+        # Success - return (<value>,<success code>)
+        mydebug("Returning success");
+
+        return ($refh_redis_info->{$searched_key}, 1);
+    }
 }
 
 sub get_redis_data {
