@@ -577,13 +577,11 @@ qa_timezone.$(DSOSUFFIX):	qa_timezone.o
 	$(LD) -shared -o $@ -nostdlib $<
 
 qa_shmctl.$(DSOSUFFIX):	 qa_shmctl.c
-	$(CC) -fPIC -c qa_shmctl.c
-	$(LD) -shared -o $@ -nostdlib qa_shmctl.o
+	$(CCF) $(LDFLAGS) -shared -o $@ qa_shmctl.c
 	@rm -f qa_shmctl.o
 
 qa_sem_msg_ctl.$(DSOSUFFIX):	 qa_sem_msg_ctl.c
-	$(CC) -fPIC -c qa_sem_msg_ctl.c
-	$(LD) -shared -o $@ -nostdlib qa_sem_msg_ctl.o
+	$(CCF) $(LDFLAGS) -shared -o $@ qa_sem_msg_ctl.c
 	@rm -f qa_sem_msg_ctl.o
 
 ifneq ($(NVIDIAQALIB),)
