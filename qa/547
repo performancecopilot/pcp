@@ -7,9 +7,8 @@
 
 seq=`basename $0`
 echo "QA output created by $seq"
-. ./common.python
 
-[ -n "$PCP_PYTHON_PROG" ] || _notrun "no acceptable python to run secure/crash-*"
+. ./common.python
 
 host=localhost
 timeout=2

@@ -8,11 +8,6 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard filters
-. ./common.setup
-. ./common.check
-[ -f common.python ] || _notrun "Testsuite built without python support"
-
 . ./common.python
 
 $python -c 'from pcp import mmv' 2>/dev/null

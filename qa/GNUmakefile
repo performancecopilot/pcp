@@ -58,10 +58,8 @@ COMMON = common.check common.config common.filter \
 	 common.product common.rc common.setup \
 	 common.secure common.gfs2 common.rpm \
 	 common.qt common.avahi common.docker \
-	 common.discovery common.compress common.webapi
-ifeq "$(HAVE_PYTHON)" "true"
-COMMON += common.python 
-endif
+	 common.discovery common.compress common.webapi \
+	 common.python 
 
 OTHERS = group qa_hosts.master README sanity.coverage .gitignore \
 	 $(shell echo valgrind-suppress*)
