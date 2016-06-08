@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ -f $PCP_PMDAS_DIR/shping/pmdashping ] || _notrun "shping pmda not installed"
+which nslookup >/dev/null 2>&1 || _notrun "nslookup is not installed"
 
 _cleanup()
 {
