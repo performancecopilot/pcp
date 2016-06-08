@@ -55,25 +55,22 @@ _verify()
     files=`ls -1 ${MMV_STATS_DIR}/${section}-* | LC_COLLATE=POSIX sort`
     for file in $files
     do
-	echo -- mmvdump `basename $file`
-	$PCP_PMDAS_DIR/mmv/mmvdump $file | _filter
 	echo -- verify `basename $file`
-	_run_valgrind pminfo -L -K clear -K add,70,$pmda -dfmtT mmv 2>&1 | \
-	    $here/src/sortinst | \
-	    sed -e '/inst /s/\[[01] /[0-or-1 /'
-	echo -- done
+	/source/git/pcp/src/pmdas/mmv/mmvdump $file | _filter
+#	_run_valgrind pminfo -L -K clear -K add,70,$pmda -dfmtT mmv 2>&1 | \
+#	    $here/src/sortinst | \
+#	    sed -e '/inst /s/\[[01] /[0-or-1 /'
 	unlink $file
-	echo
     done
 }
 
 _verify header
 _verify contents
-_verify metrics
-_verify indoms 
-_verify instances
-_verify strings
-_verify values
+#_verify metrics
+#_verify indoms 
+#_verify instances
+#_verify strings
+#_verify values
 
 # success, all done
 status=0

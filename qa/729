@@ -8,17 +8,14 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.check
-. ./common.setup
-[ -f common.python ] || _notrun "Testsuite built without python support"
-
 . ./common.python
-status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 $python -c 'from pcp import pmapi' 2>/dev/null
 test $? -eq 0 || _notrun 'Python pcp pmapi module is not installed'
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 cat > $tmp.units <<EOF
 import pcp.pmapi

@@ -7,11 +7,9 @@
 
 seq=`basename $0`
 echo "QA output created by $seq"
-. ./common.check
-. ./common.setup
-[ -f common.python ] || _notrun "Testsuite built without python support"
 
 . ./common.python
+
 $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 

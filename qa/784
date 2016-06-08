@@ -8,11 +8,8 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.check
-. ./common.setup
-[ -f common.python ] || _notrun "Testsuite built without python support"
-
 . ./common.python
+
 python_path=`which $python`
 pmda_path="$PCP_PMDAS_DIR/mic"
 pmda_script="$pmda_path/pmdamic.python"
