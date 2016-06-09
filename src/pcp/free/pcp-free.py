@@ -212,7 +212,7 @@ if __name__ == '__main__':
         FREE.connect()
         FREE.execute()
     except pmapi.pmErr as error:
-	print("%s: %s" % (error.progname(), error.message()))
+        print("%s: %s" % (error.progname(), error.message()))
     except pmapi.pmUsageErr as usage:
         usage.message()
     except KeyboardInterrupt:

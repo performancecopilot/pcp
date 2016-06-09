@@ -935,7 +935,6 @@ _run_valgrind()
     _filter_valgrind <$tmp._valgrind
 }
 
-
 # Alternate invocation, using valgrind-silence as an assertion.
 # Produces no stdout/stderr from valgrind - except in case of errors!
 # Uses same suppression logic as _run_valgrind.
@@ -965,10 +964,9 @@ if which valgrind >/dev/null 2>&1; then
     _valgrind_clean_assert="valgrind -q \
     	     --leak-check=full --read-var-info=yes --gen-suppressions=all \
 	     --suppressions=$here/valgrind-suppress $__extra \
+	     --show-leak-kinds=definite \
              --log-fd=1"
 fi
-
-
 
 #
 # Checks that given_value is in range of correct_value +/- tolerance.

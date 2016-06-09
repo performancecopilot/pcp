@@ -8,10 +8,9 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+# secure/* scripts all use python, check its installed
+# otherwise this test fails (./secure/* not available)
+. ./common.python
 
 host=localhost
 ppid=0
