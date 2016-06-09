@@ -487,7 +487,7 @@ _parse_control()
 			 -e '/=[^"'"'"']/s/[;&<>|].*$//' \
 			 -e '/^\\$[A-Za-z][A-Za-z0-9_]*=/{
 s/^\\$//
-s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
+/^\([A-Za-z][A-Za-z0-9_]*\)=/s//export \1; \1=/p
 }'`
 		if [ -z "$cmd" ]
 		then
@@ -515,16 +515,43 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
 	# set the version and other variables
 	#
-	[ -f $tmp/cmd ] && . $tmp/cmd
-
-	if [ -z "$version" -o "$version" = "1.0" ]
+	if [ -f $tmp/cmd ]
 	then
-	    if [ -z "$version" ]
+	    . $tmp/cmd
+	    if grep 'version=' $tmp/cmd >/dev/null
 	    then
-		_warning "processing version 1.0 control format"
-		version=1.0
+		case "$version"
+		in
+		    1.0|1.1)
+			;;
+		    *)
+			_error "bad version ($version) in control file"
+			return
+			;;
+		esac
 	    fi
-	    args="$logfile $args"
+	fi
+
+	if [ -z "$version" ]
+	then
+	    _warning "missing \$version, assuming version 1.0 control format"
+	    version=1.0
+	fi
+	if [ "$version" = "1.0" ]
+	then
+	    # handle backwards compatibility
+	    # one less field and primary defaults to "n" for version 1.0
+	    #
+	    if [ -n "$logfile" ]
+	    then
+		args="$logfile $args"
+	    else
+		# missing "args" ... this is bad, but will be reported below
+		# ... guard avoids setting "args" to " " which would defeat
+		# the test below
+		#
+		args=""
+	    fi
 	    logfile="$socks"
 	    socks="$primary"
 	    primary=n
@@ -535,6 +562,28 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    _error "insufficient fields in control file record"
 	    continue
 	fi
+	if [ "$primary" != y -a "$primary" != n ]
+	then
+	    _error "primary field in control file record must be y or n, not \"$primary\""
+	    continue
+	fi
+	if [ "$socks" != y -a "$socks" != n ]
+	then
+	    _error "socks field in control file record must be y or n, not \"$socks\""
+	    continue
+	fi
+
+	# args should begin with a hyphen
+	#
+	case "$args"
+	in
+	    -*)
+		;;
+	    *)
+		_error "args field in control file must begin with a hyphen not \"$args\""
+		continue
+		;;
+	esac
 
 	# substitute LOCALHOSTNAME marker in this config line
 	# (differently for logfile and pcp -h HOST arguments)
@@ -558,15 +607,25 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		_error "cannot create directory ($dir) for pmie log file"
 		continue
 	    fi
-	    chown $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
 	fi
 
-	cd "$dir"
+	# and the user pcp can write there
+	#
+	chown $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
+
+	# and the logfile is writeable, if it exists
+	#
+	[ -f "$logfile" ] && chown $PCP_USER:$PCP_GROUP "$logfile" >/dev/null 2>&1
+
+	if cd "$dir"
+	then
+	    :
+	else
+	    _error "cannot chdir to directory ($dir) for pmie log file"
+	    continue
+	fi
 	dir=`$PWDCMND`
 	$SHOWME && echo "+ cd $dir"
-
-	# ensure pcp user will be able to write there (safely from bad configs)
-	[ "$dir" != / ] && chown -R $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
 
 	if [ ! -w "$dir" ]
 	then
