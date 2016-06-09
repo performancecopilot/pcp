@@ -522,7 +522,7 @@ use vars qw( $pmda %cfg %id2metrics %cur_data %var_metrics);
     # Maximum time in seconds (may also be a fraction) to keep the data for responses
     max_delta_sec => 0.5,
 
-    debug => 1,
+    debug => 0,
 );
 
 $0 = "pmdamyredis";
