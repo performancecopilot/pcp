@@ -16,7 +16,6 @@
 """ Provide information on IPC facilities """
 
 import sys
-import os
 from pcp import pmapi
 from cpmapi import PM_TYPE_U32
 
@@ -101,9 +100,17 @@ class Ipcs(object):
             self.context.pmFreeResult(result_summary)
             self.report(values_summary)
 
+    def get_pagesize(self):
+        metric_pagesize = ("hinv.pagesize")
+        pmid_pagesize = self.context.pmLookupName(metric_pagesize)
+        desc_pagesize = self.context.pmLookupDescs(pmid_pagesize)
+        result = self.context.pmFetch(pmid_pagesize)
+        pagesize = self.extract(desc_pagesize, result)
+        return pagesize[0]
+
     def report(self, values):
         kb = 1024
-        pagesize = os.sysconf("SC_PAGE_SIZE")
+        pagesize = self.get_pagesize() 
         pagesize_kb = pagesize / kb
         if self.show_limit == 1:
             print("\n------ Messages Limits --------")
