@@ -15,5 +15,9 @@ foreach (glob "$RealBin/redis*conf") {
     system "/usr/sbin/redis-server $_ &"
 }
 
+foreach (6380 .. 6383) {
+    system "/usr/bin/redis-cli -p $_ SET foo 123";
+}
+
 sleep 1
     while wait != -1;
