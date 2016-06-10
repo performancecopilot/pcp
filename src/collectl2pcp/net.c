@@ -62,3 +62,63 @@ Inter-|   Receive                                                |  Transmit
     return 0;
 }
 
+int
+net_tcp_handler(handler_t *h, fields_t *f)
+{
+    int n;
+
+    /*
+     * tcp-Tcp: RtoAlgorithm RtoMin RtoMax MaxConn ActiveOpens PassiveOpens AttemptFails EstabResets CurrEstab InSegs OutSegs RetransSegs InErrs OutRsts
+     * tcp-Tcp: 1 200 120000 -1 206329 2355899 5366 9034 1629 2319043300 2457610733 51680 55 111341
+     */
+
+    if (f->nfields != 15)
+    	return -1;
+
+    if (!isdigit(f->fields[1][0]))
+    	return -1; /* skip column heading */
+
+    n = 1;
+    put_str_value("network.tcp.rtoalgorithm", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.tcp.rtomin", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.tcp.rtomax", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.tcp.maxconn", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.tcp.activeopens", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.tcp.passiveopens", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.tcp.attemptfails", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.tcp.estabresets", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.tcp.currestab", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.tcp.insegs", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.tcp.outsegs", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.tcp.retranssegs", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.tcp.inerrs", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.tcp.outrsts", PM_INDOM_NULL, NULL, f->fields[n++]);
+
+    return 0;
+}
+
+int
+net_udp_handler(handler_t *h, fields_t *f)
+{
+    int n;
+
+     /*
+      * tcp-Udp: InDatagrams NoPorts InErrors OutDatagrams RcvbufErrors SndbufErrors
+      * tcp-Udp: 3687153 1023 0 4953744 0 0
+      */
+    if (f->nfields != 7)
+    	return -1;
+    if (!isdigit(f->fields[1][0]))
+    	return -1; /* skip column heading */
+
+    n = 1;
+    put_str_value("network.udp.indatagrams", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.udp.noports", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.udp.inerrors", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.udp.outdatagrams", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.udp.recvbuferrors", PM_INDOM_NULL, NULL, f->fields[n++]);
+    put_str_value("network.udp.sndbuferrors", PM_INDOM_NULL, NULL, f->fields[n++]);
+
+    return 0;
+}
+
