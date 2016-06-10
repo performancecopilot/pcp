@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Red Hat.
+ * Copyright (C) 2013,2016 Red Hat.
  * Copyright (C) 2009 Aconex.  All Rights Reserved.
  * Copyright (C) 2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -74,6 +74,7 @@ typedef struct mmv_metric {
 typedef enum mmv_stats_flags {
     MMV_FLAG_NOPREFIX	= 0x1,	/* Don't prefix metric names by filename */
     MMV_FLAG_PROCESS	= 0x2,	/* Indicates process check on PID needed */
+    MMV_FLAG_SENTINEL	= 0x4,	/* Sentinel values == no-value-available */
 } mmv_stats_flags_t;
 
 extern void * mmv_stats_init(const char *, int, mmv_stats_flags_t,

@@ -348,8 +348,10 @@ flagstr(int flags)
 	strcat(buf, "noprefix, ");
     if (flags & MMV_FLAG_PROCESS)
 	strcat(buf, "process, ");
+    if (flags & MMV_FLAG_SENTINEL)
+	strcat(buf, "sentinel, ");
 
-    flags &= ~(MMV_FLAG_NOPREFIX | MMV_FLAG_PROCESS);
+    flags &= ~(MMV_FLAG_NOPREFIX | MMV_FLAG_PROCESS | MMV_FLAG_SENTINEL);
 
     /* unrecognised bits */
     if (flags) {

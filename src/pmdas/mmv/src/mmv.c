@@ -702,8 +702,13 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return PM_ERR_PMID;
 
     } else if (scnt > 0) {	/* We have at least one source of metrics */
+	static int setup;
+	static float fNaN;
+	static double dNaN;
+	static pmAtomValue aNaN;
 	static char buffer[MMV_STRINGMAX];
 	mmv_disk_string_t *str;
+	mmv_disk_header_t *hdr;
 	mmv_disk_metric_t *m;
 	mmv_disk_value_t *v;
 	__uint64_t offset;
@@ -713,18 +718,40 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	rv = mmv_lookup_stat_metric_value(mdesc->m_desc.pmid, inst, &s, &m, &v);
 	if (rv < 0)
 	    return rv;
+	hdr = (mmv_disk_header_t *)s->addr;
+
+	if (!setup) {
+	    setup++;
+	    fNaN = (float)0.0 / (float)0.0;
+	    dNaN = (double)0.0 / (double)0.0;
+	    memset(&aNaN, -1, sizeof(pmAtomValue));
+	}
 
 	switch (m->type) {
 	    case MMV_TYPE_I32:
 	    case MMV_TYPE_U32:
 	    case MMV_TYPE_I64:
 	    case MMV_TYPE_U64:
+		memcpy(atom, &v->value, sizeof(pmAtomValue));
+		if ((hdr->flags & MMV_FLAG_SENTINEL) &&
+		    (memcmp(atom, &aNaN, sizeof(*atom)) == 0))
+		    return 0;
+		break;
 	    case MMV_TYPE_FLOAT:
+		memcpy(atom, &v->value, sizeof(pmAtomValue));
+		if ((hdr->flags & MMV_FLAG_SENTINEL) && atom->f == fNaN)
+		    return 0;
+		break;
 	    case MMV_TYPE_DOUBLE:
 		memcpy(atom, &v->value, sizeof(pmAtomValue));
+		if ((hdr->flags & MMV_FLAG_SENTINEL) && atom->d == dNaN)
+		    return 0;
 		break;
 	    case MMV_TYPE_ELAPSED: {
 		atom->ll = v->value.ll;
+		if ((hdr->flags & MMV_FLAG_SENTINEL) &&
+		    (memcmp(atom, &aNaN, sizeof(*atom)) == 0))
+		    return 0;
 		if (v->extra < 0) {	/* inside a timed section */
 		    struct timeval tv; 
 		    __pmtimevalNow(&tv); 
@@ -744,6 +771,8 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		offset -= sizeof(mmv_disk_string_t);
 		str = (mmv_disk_string_t *)((char *)s->addr + offset);
 		memcpy(buffer, str->payload, sizeof(buffer));
+		if ((hdr->flags & MMV_FLAG_SENTINEL) && buffer[0] == '\0')
+		    return 0;
 		buffer[sizeof(buffer)-1] = '\0';
 		atom->cp = buffer;
 		break;
