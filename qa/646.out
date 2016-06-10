@@ -5,7 +5,7 @@ Generated  = TIMESTAMP
 TOC count  = 5
 Cluster    = 0
 Process    = PID
-Flags      = 0x0
+Flags      = 0x0 (none)
 
 TOC[0]: offset 40, indoms offset 120 (2 entries)
   [1/120] 2 instances, starting at offset 184
@@ -90,7 +90,7 @@ Generated  = TIMESTAMP
 TOC count  = 2
 Cluster    = 0
 Process    = PID
-Flags      = 0x0
+Flags      = 0x0 (none)
 
 TOC[0]: toc offset 40, metrics offset 72 (0 entries)
 

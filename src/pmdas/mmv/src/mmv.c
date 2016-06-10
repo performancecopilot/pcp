@@ -16,7 +16,7 @@
  *
  * MMV PMDA
  *
- * This PMDA uses specially formatted files in either /var/tmp/mmv or some
+ * This PMDA uses specially formatted files from $PCP_TMP_DIR/mmv or some
  * other directory, as specified on the command line.  Each file represents
  * a separate "cluster" of values with flat name structure for each cluster.
  * Names for the metrics are optionally prepended with mmv and then the name
@@ -30,6 +30,7 @@
 #include "pmda.h"
 #include "./domain.h"
 #include <sys/stat.h>
+#include <inttypes.h>
 #include <ctype.h>
 
 static int isDSO = 1;
@@ -83,6 +84,17 @@ typedef struct {
 static stats_t * slist;
 static int scnt;
 
+#define MAX_MMV_COUNT 10000		/* enforce reasonable limits */
+
+/*
+ * Check cluster number validity (must be in range 0 .. 1<<12).
+ */
+static int
+valid_cluster(int requested)
+{
+    return (pmid_cluster(requested) == requested);
+}
+
 /*
  * Choose an unused cluster ID while honouring specific requests.
  * If a specific (non-zero) cluster is requested we always use it.
@@ -101,8 +113,14 @@ choose_cluster(int requested, const char *path)
 		i = 0;	/* restart, we're filling holes */
 	    }
 	}
+	if (!valid_cluster(next_cluster))
+	    return -EAGAIN;
+
 	return next_cluster;
     }
+
+    if (!valid_cluster(requested))
+	return -EINVAL;
 
     for (i = 0; i < scnt; i++) {
 	if (slist[i].cluster == requested) {
@@ -124,54 +142,72 @@ create_client_stat(const char *client, const char *path, size_t size)
     if (pmDebug & DBG_TRACE_APPL0)
 	__pmNotifyErr(LOG_DEBUG, "MMV: create_client_stat: %s, %s", client, path);
 
+    /* sanity check */
+    if (size < sizeof(mmv_disk_header_t))
+	return -EINVAL;
+
     if ((fd = open(path, O_RDONLY)) >= 0) {
 	void *m = __pmMemoryMap(fd, size, 0);
 
 	close(fd);
 	if (m != NULL) {
-	    mmv_disk_header_t * hdr = (mmv_disk_header_t *)m;
+	    mmv_disk_header_t header = *(mmv_disk_header_t *)m;
+	    size_t offset;
 	    int cluster;
 
-	    if (strncmp(hdr->magic, "MMV", 4)) {
+	    if (strncmp(header.magic, "MMV", 4)) {
 		__pmMemoryUnmap(m, size);
 		return -EINVAL;
 	    }
 
-	    if (hdr->version != MMV_VERSION) {
-		__pmNotifyErr(LOG_ERR, "%s: %s client version %d "
-				"not supported (current is %d)",
-				pmProgname, prefix, hdr->version, MMV_VERSION);
+	    if (header.version != MMV_VERSION) {
+		if (pmDebug & DBG_TRACE_APPL0)
+		    __pmNotifyErr(LOG_ERR,
+			"%s: %s client version %d unsupported (current is %d)",
+			pmProgname, prefix, header.version, MMV_VERSION);
 		__pmMemoryUnmap(m, size);
 		return -ENOSYS;
 	    }
 
-	    if (!hdr->g1 || hdr->g1 != hdr->g2) {
-		/* still in flux, wait till next time */
+	    if (header.g1 == 0 || header.g1 != header.g2) {
+		/* still in flux, wait until next refresh */
 		__pmMemoryUnmap(m, size);
 		return -EAGAIN;
 	    }
 
+	    /* must have entries for at least metric descs and values */
+	    if (header.tocs < 2)
+		return -EINVAL;
+	    offset = header.tocs * sizeof(mmv_disk_toc_t);
+	    if (size < sizeof(mmv_disk_header_t) + offset)
+		return -EINVAL;
+
 	    /* optionally verify the creator PID is running */
-	    if (hdr->process && (hdr->flags & MMV_FLAG_PROCESS) &&
-		!__pmProcessExists((pid_t)hdr->process)) {
+	    if (header.process && (header.flags & MMV_FLAG_PROCESS) &&
+		!__pmProcessExists((pid_t)header.process)) {
 		__pmMemoryUnmap(m, size);
 		return -ESRCH;
 	    }
 
-	    /* all checks out, we'll use this one */
-	    cluster = choose_cluster(hdr->cluster, path);
-	    if (pmDebug & DBG_TRACE_APPL0)
-		__pmNotifyErr(LOG_DEBUG, "MMV: %s: loading %s client: %d \"%s\"",
-				    pmProgname, prefix, cluster, path);
+	    if ((cluster = choose_cluster(header.cluster, path)) < 0) {
+		__pmMemoryUnmap(m, size);
+		return cluster;
+	    }
 
-	    slist = realloc(slist, sizeof(stats_t)*(scnt+1));
+	    /* all checks out so far, we'll use this one */
+	    if (pmDebug & DBG_TRACE_APPL0)
+		__pmNotifyErr(LOG_DEBUG, "MMV: loading %s client: %d \"%s\"",
+				    prefix, cluster, path);
+
+	    slist = realloc(slist, sizeof(stats_t) * (scnt + 1));
 	    if (slist != NULL) {
+		memset(&slist[scnt], 0, sizeof(stats_t));
 		slist[scnt].name = strdup(client);
 		slist[scnt].addr = m;
-		slist[scnt].pid = (pid_t)((hdr->flags & MMV_FLAG_PROCESS)? hdr->process : 0);
+		if ((header.flags & MMV_FLAG_PROCESS) != 0)
+		    slist[scnt].pid = (pid_t)header.process;
 		slist[scnt].cluster = cluster;
-		slist[scnt].mcnt = 0;
-		slist[scnt].gen = hdr->g1;
+		slist[scnt].gen = header.g1;
 		slist[scnt].len = size;
 		scnt++;
 	    } else {
@@ -181,10 +217,10 @@ create_client_stat(const char *client, const char *path, size_t size)
 		scnt = 0;
 	    }
 	} else {
-            __pmNotifyErr(LOG_ERR, "%s: failed to memory map \"%s\" - %s",
+	    __pmNotifyErr(LOG_ERR, "%s: failed to memory map \"%s\" - %s",
 				pmProgname, path, osstrerror());
 	}
-    } else {
+    } else if (pmDebug & DBG_TRACE_APPL0) {
 	__pmNotifyErr(LOG_ERR, "%s: failed to open client file \"%s\" - %s",
 				pmProgname, client, osstrerror());
     }
@@ -300,17 +336,18 @@ verify_indom_serial(pmdaExt *pmda, int serial, stats_t *s, pmInDom *p, pmdaIndom
 }
 
 static int
-update_indom(pmdaExt *pmda, stats_t *s, mmv_disk_indom_t *id, pmdaIndom *ip)
+update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
+		mmv_disk_indom_t *id, pmdaIndom *ip)
 {
     int i, j, size, newinsts = 0;
-    mmv_disk_instance_t *in = (mmv_disk_instance_t *)((char *)s->addr + id->offset);
+    mmv_disk_instance_t *in = (mmv_disk_instance_t *)((char *)s->addr + offset);
 
     if (pmDebug & DBG_TRACE_APPL0)
 	__pmNotifyErr(LOG_DEBUG, "MMV: update_indom: %u (%d insts)",
 			id->serial, ip->it_numinst);
 
     /* first calculate how many new instances, so we know what to alloc */
-    for (i = 0; i < id->count; i++) {
+    for (i = 0; i < count; i++) {
 	for (j = 0; j < ip->it_numinst; j++)
 	    if (ip->it_set[j].i_inst == in[i].internal)
 		continue;
@@ -325,7 +362,7 @@ update_indom(pmdaExt *pmda, stats_t *s, mmv_disk_indom_t *id, pmdaIndom *ip)
     size = sizeof(pmdaInstid) * (ip->it_numinst + newinsts);
     ip->it_set = (pmdaInstid *)realloc(ip->it_set, size);
     if (ip->it_set != NULL) {
-	for (i = 0; i < id->count; i++) {
+	for (i = 0; i < count; i++) {
 	    for (j = 0; j < ip->it_numinst; j++)
 		if (ip->it_set[j].i_inst == in[j].internal)
 		    continue;
@@ -345,7 +382,8 @@ update_indom(pmdaExt *pmda, stats_t *s, mmv_disk_indom_t *id, pmdaIndom *ip)
 }
 
 static int
-create_indom(pmdaExt *pmda, stats_t *s, mmv_disk_indom_t *id, pmInDom indom)
+create_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
+		mmv_disk_indom_t *id, pmInDom indom)
 {
     int i;
     pmdaIndom *ip;
@@ -361,12 +399,12 @@ create_indom(pmdaExt *pmda, stats_t *s, mmv_disk_indom_t *id, pmInDom indom)
     }
     ip = &indoms[incnt++];
     ip->it_indom = indom;
-    ip->it_set = (pmdaInstid *)calloc(id->count, sizeof(pmdaInstid));
+    ip->it_set = (pmdaInstid *)calloc(count, sizeof(pmdaInstid));
     if (ip->it_set != NULL) {
 	mmv_disk_instance_t * in = (mmv_disk_instance_t *)
-				    ((char *)s->addr + id->offset);
-	ip->it_numinst = id->count;
-	for (i = 0; i < ip->it_numinst; i++) {
+				    ((char *)s->addr + offset);
+	ip->it_numinst = count;
+	for (i = 0; i < count; i++) {
 	    ip->it_set[i].i_inst = in[i].internal;
 	    ip->it_set[i].i_name = in[i].external;
 	}
@@ -447,21 +485,42 @@ map_stats(pmdaExt *pmda)
 	free(files);
 
     for (i = 0; slist && i < scnt; i++) {
-	stats_t * s = slist + i;
-	mmv_disk_header_t * hdr = (mmv_disk_header_t *)s->addr;
-	mmv_disk_toc_t * toc = (mmv_disk_toc_t *)
+	stats_t *s = slist + i;
+	mmv_disk_header_t *hdr = (mmv_disk_header_t *)s->addr;
+	mmv_disk_toc_t *toc = (mmv_disk_toc_t *)
 			((char *)s->addr + sizeof(mmv_disk_header_t));
 
 	for (j = 0; j < hdr->tocs; j++) {
+	    __uint64_t offset = toc[j].offset;
+	    __uint32_t count = toc[j].count;
+
 	    switch (toc[j].type) {
 		case MMV_TOC_METRICS: {
 		    mmv_disk_metric_t *ml = (mmv_disk_metric_t *)
-					((char *)s->addr + toc[j].offset);
+					((char *)s->addr + offset);
+
+		    if (count > MAX_MMV_COUNT) {
+			if (pmDebug & DBG_TRACE_APPL0) {
+			    __pmNotifyErr(LOG_ERR, "MMV: %s - "
+					"metrics count: %d > %d",
+					s->name, count, MAX_MMV_COUNT);
+			}
+			continue;
+		    }
+		    offset += (count * sizeof(mmv_disk_metric_t));
+		    if (s->len < offset) {
+			if (pmDebug & DBG_TRACE_APPL0) {
+			    __pmNotifyErr(LOG_INFO, "MMV: %s - "
+					"metrics offset: %"PRIu64" < %"PRIu64,
+					s->name, s->len, offset);
+			}
+			continue;
+		    }
 
 		    s->metrics = ml;
-		    s->mcnt = toc[j].count;
+		    s->mcnt = count;
 
-		    for (k = 0; k < toc[j].count; k++) {
+		    for (k = 0; k < count; k++) {
 			char name[MAXPATHLEN];
 			pmID pmid;
 
@@ -483,35 +542,98 @@ map_stats(pmdaExt *pmda)
 		}
 
 		case MMV_TOC_INDOMS: {
-		    mmv_disk_indom_t * id = (mmv_disk_indom_t *)
-					((char *)s->addr + toc[j].offset);
+		    mmv_disk_indom_t *id = (mmv_disk_indom_t *)
+					((char *)s->addr + offset);
 
-		    for (k = 0; k < toc[j].count; k++) {
+		    if (count > MAX_MMV_COUNT) {
+			if (pmDebug & DBG_TRACE_APPL0) {
+			    __pmNotifyErr(LOG_ERR, "MMV: %s - "
+					"indoms count: %d > %d",
+					s->name, count, MAX_MMV_COUNT);
+			}
+			continue;
+		    }
+		    offset += (count * sizeof(mmv_disk_indom_t));
+		    if (s->len < offset) {
+			if (pmDebug & DBG_TRACE_APPL0) {
+			    __pmNotifyErr(LOG_ERR, "MMV: %s - "
+					"indoms offset: %"PRIu64" < %"PRIu64,
+					s->name, s->len, offset);
+			}
+			continue;
+		    }
+
+		    for (k = 0; k < count; k++) {
 			int sts, serial = id[k].serial;
 			pmInDom pmindom;
 			pmdaIndom *ip;
+
+			offset = id[k].offset;
+			count = id[k].count;
+
+			if (count > MAX_MMV_COUNT) {
+			    if (pmDebug & DBG_TRACE_APPL0) {
+				__pmNotifyErr(LOG_ERR, "MMV: %s - "
+					"indom[%d] count: %d > %d",
+					s->name, k, count, MAX_MMV_COUNT);
+			    }
+			    continue;
+			}
+			offset += (count * sizeof(mmv_disk_instance_t));
+			if (s->len < offset) {
+			    if (pmDebug & DBG_TRACE_APPL0) {
+				__pmNotifyErr(LOG_ERR, "MMV: %s - "
+					"indom[%d] offset: %"PRIu64" < %"PRIu64,
+					s->name, k, s->len, offset);
+			    }
+			    continue;
+			}
+			offset -= (count * sizeof(mmv_disk_instance_t));
 
 			sts = verify_indom_serial(pmda, serial, s, &pmindom, &ip);
 			if (sts == -EINVAL)
 			    continue;
 			else if (sts == -EEXIST)
 			    /* see if we have new instances to add here */
-			    update_indom(pmda, s, &id[k], ip);
+			    update_indom(pmda, s, offset, count, &id[k], ip);
 			else
 			    /* first time we've observed this indom */
-			    create_indom(pmda, s, &id[k], pmindom);
+			    create_indom(pmda, s, offset, count, &id[k], pmindom);
 		    }
 		    break;
 		}
 
 		case MMV_TOC_VALUES: {
-		    s->vcnt = toc[j].count;
+		    if (count > MAX_MMV_COUNT) {
+			if (pmDebug & DBG_TRACE_APPL0) {
+			    __pmNotifyErr(LOG_ERR, "MMV: %s - "
+					"values count: %d > %d",
+					s->name, count, MAX_MMV_COUNT);
+			}
+			continue;
+		    }
+		    offset += (count * sizeof(mmv_disk_value_t));
+		    if (s->len < offset) {
+			if (pmDebug & DBG_TRACE_APPL0) {
+			    __pmNotifyErr(LOG_ERR, "MMV: %s - "
+					"values offset: %"PRIu64" < %"PRIu64,
+					s->name, s->len, offset);
+			}
+			continue;
+		    }
+		    offset -= (count * sizeof(mmv_disk_value_t));
+
+		    s->vcnt = count;
 		    s->values = (mmv_disk_value_t *)
-			((char *)s->addr + toc[j].offset);
+					((char *)s->addr + offset);
 		    break;
 		}
 
 		default:
+		    if (pmDebug & DBG_TRACE_APPL0) {
+			__pmNotifyErr(LOG_DEBUG, "MMV: %s - bad TOC type (%x)",
+				    s->name, toc[j].type);
+		    }
 		    break;
 	    }
 	}
@@ -525,10 +647,10 @@ static int
 mmv_lookup_stat_metric_value(pmID pmid, unsigned int inst,
 	stats_t **sout, mmv_disk_metric_t **mout, mmv_disk_value_t **vout)
 {
-    __pmID_int * id = (__pmID_int *)&pmid;
-    mmv_disk_metric_t * m;
-    mmv_disk_value_t * v;
-    stats_t * s;
+    __pmID_int *id = (__pmID_int *)&pmid;
+    mmv_disk_metric_t *m;
+    mmv_disk_value_t *v;
+    stats_t *s;
     int si, mi, vi;
     int sts = PM_ERR_PMID;
 
@@ -570,7 +692,7 @@ mmv_lookup_stat_metric_value(pmID pmid, unsigned int inst,
 static int
 mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int * id = (__pmID_int *)&(mdesc->m_desc.pmid);
+    __pmID_int *id = (__pmID_int *)&(mdesc->m_desc.pmid);
 
     if (id->cluster == 0) {
 	if (id->item <= 2) {
@@ -580,10 +702,12 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	return PM_ERR_PMID;
 
     } else if (scnt > 0) {	/* We have at least one source of metrics */
-	mmv_disk_string_t * str;
-	mmv_disk_metric_t * m;
-	mmv_disk_value_t * v;
-	stats_t * s;
+	static char buffer[MMV_STRINGMAX];
+	mmv_disk_string_t *str;
+	mmv_disk_metric_t *m;
+	mmv_disk_value_t *v;
+	__uint64_t offset;
+	stats_t *s;
 	int rv;
 
 	rv = mmv_lookup_stat_metric_value(mdesc->m_desc.pmid, inst, &s, &m, &v);
@@ -609,8 +733,19 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    }
 	    case MMV_TYPE_STRING: {
-		str = (mmv_disk_string_t *)((char *)s->addr + v->extra);
-		atom->cp = str->payload;
+		offset = v->extra + sizeof(MMV_STRINGMAX);
+		if (s->len < offset) {
+		    if (pmDebug & DBG_TRACE_APPL0)
+			__pmNotifyErr(LOG_ERR, "MMV: %s - "
+				"bad string value offset: %"PRIu64" < %"PRIu64,
+				s->name, s->len, offset);
+		    return PM_ERR_GENERIC;
+		}
+		offset -= sizeof(mmv_disk_string_t);
+		str = (mmv_disk_string_t *)((char *)s->addr + offset);
+		memcpy(buffer, str->payload, sizeof(buffer));
+		buffer[sizeof(buffer)-1] = '\0';
+		atom->cp = buffer;
 		break;
 	    }
 	    case MMV_TYPE_NOSUPPORT:
@@ -725,22 +860,48 @@ mmv_text(int ident, int type, char **buffer, pmdaExt *ep)
 	return PM_ERR_PMID;
     }
     else {
-	mmv_disk_string_t * str;
-	mmv_disk_metric_t * m;
-	mmv_disk_value_t * v;
-	stats_t * s;
+	static char string[MMV_STRINGMAX];
+	mmv_disk_string_t *str;
+	mmv_disk_metric_t *m;
+	mmv_disk_value_t *v;
+	size_t offset;
+	stats_t *s;
 
 	if (mmv_lookup_stat_metric_value(ident, PM_IN_NULL, &s, &m, &v) != 0)
 	    return PM_ERR_PMID;
 
 	if ((type & PM_TEXT_ONELINE) && m->shorttext) {
-	    str = (mmv_disk_string_t *)((char *)s->addr + m->shorttext);
-	    *buffer = str->payload;
+	    offset = m->shorttext + sizeof(mmv_disk_string_t);
+	    if (s->len < offset) {
+		if (pmDebug & DBG_TRACE_APPL0)
+		    __pmNotifyErr(LOG_ERR, "MMV: %s - "
+				"bad shorttext offset: %"PRIu64" < %"PRIu64,
+				s->name, s->len, offset);
+		return PM_ERR_GENERIC;
+	    }
+	    offset -= sizeof(mmv_disk_string_t);
+
+	    str = (mmv_disk_string_t *)((char *)s->addr + offset);
+	    memcpy(string, str->payload, sizeof(string));
+	    string[sizeof(string)-1] = '\0';
+	    *buffer = string;
 	    return 0;
 	}
 	if ((type & PM_TEXT_HELP) && m->helptext) {
-	    str = (mmv_disk_string_t *)((char *)s->addr + m->helptext);
-	    *buffer = str->payload;
+	    offset = m->helptext + sizeof(mmv_disk_string_t);
+	    if (s->len < offset) {
+		if (pmDebug & DBG_TRACE_APPL0)
+		    __pmNotifyErr(LOG_ERR, "MMV: %s - "
+				"bad helptext offset: %"PRIu64" < %"PRIu64,
+				s->name, s->len, offset);
+		return PM_ERR_GENERIC;
+	    }
+	    offset -= sizeof(mmv_disk_string_t);
+
+	    str = (mmv_disk_string_t *)((char *)s->addr + offset);
+	    memcpy(string, str->payload, sizeof(string));
+	    string[sizeof(string)-1] = '\0';
+	    *buffer = string;
 	    return 0;
 	}
     }
@@ -789,9 +950,9 @@ mmv_store(pmResult *result, pmdaExt *ep)
 					PM_TYPE_32, &atom, PM_TYPE_32)) < 0)
 			return sts;
 		    if (id->item == 0)
-		    reload = atom.l;
+			reload = atom.l;
 		    else if (id->item == 1)
-		    	pmDebug = atom.l;
+			pmDebug = atom.l;
 		    else
 			return PM_ERR_PERMISSION;
 		}

@@ -1,0 +1,715 @@
+QA output created by 990
+
+== generating bad header data files ==
+-- dump header-1
+MMV file   = MMV_STATS_DIR/header-1
+Version    = 1
+Generated  = 0
+TOC count  = 0
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+-- dump header-2
+Bad magic: MMv
+
+-- dump header-3
+version 9999 not supported
+
+-- dump header-4
+MMV file   = MMV_STATS_DIR/header-4
+Version    = 1
+Generated  = 0
+TOC count  = 2
+Cluster    = 67108864
+Process    = 0
+Flags      = 0x0
+Unrecognised TOC[0] type: 0x0
+Unrecognised TOC[1] type: 0x0
+
+-- dump header-5
+MMV file   = MMV_STATS_DIR/header-5
+Version    = 1
+Generated  = 0
+TOC count  = 0
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+-- dump header-6
+MMV file   = MMV_STATS_DIR/header-6
+Version    = 1
+Generated  = 0
+TOC count  = 4294967295
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+
+== generating bad contents data files ==
+-- dump contents-1
+MMV file   = MMV_STATS_DIR/contents-1
+Version    = 1
+Generated  = 0
+TOC count  = 2
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: toc offset 40, metrics offset 0 (5 entries)
+  [0/0] MMV
+       type=32-bit int (0x0), sem=? (0x0), pad=0x0
+       units=
+       (no indom)
+       (no shorttext)
+       (no helptext)
+  [0/104] 
+       type=32-bit int (0x0), sem=? (0x0), pad=0x0
+       units=
+       (no indom)
+       (no shorttext)
+       (no helptext)
+  [0/208] 
+       type=32-bit int (0x0), sem=? (0x0), pad=0x0
+       units=
+       (no indom)
+       (no shorttext)
+       (no helptext)
+  [0/312] 
+       type=32-bit int (0x0), sem=? (0x0), pad=0x0
+       units=
+       (no indom)
+       (no shorttext)
+       (no helptext)
+  [0/416] 
+       type=32-bit int (0x0), sem=? (0x0), pad=0x0
+       units=
+       (no indom)
+       (no shorttext)
+       (no helptext)
+Unrecognised TOC[1] type: 0x0
+
+-- dump contents-2
+MMV file   = MMV_STATS_DIR/contents-2
+Version    = 1
+Generated  = 0
+TOC count  = 2
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+Unrecognised TOC[0] type: 0x270f
+
+TOC[1]: offset 56, values offset 0 (10 entries)
+  [0/0] MMV = 5655885
+  [0/32] MMV = 0
+  [0/64] MMV = 0
+  [0/96] MMV = 0
+  [0/128] MMV = 0
+  [0/160] MMV = 0
+  [0/192] MMV = 0
+  [0/224] MMV = 0
+  [0/256] MMV = 0
+  [0/288] MMV = 0
+
+-- dump contents-3
+MMV file   = MMV_STATS_DIR/contents-3
+Version    = 1
+Generated  = 0
+TOC count  = 2
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: toc offset 40, metrics offset 0 (0 entries)
+
+TOC[1]: offset 56, values offset 0 (10 entries)
+  [0/0] MMV = 5655885
+  [0/32] MMV = 0
+  [0/64] MMV = 0
+  [0/96] MMV = 0
+  [0/128] MMV = 0
+  [0/160] MMV = 0
+  [0/192] MMV = 0
+  [0/224] MMV = 0
+  [0/256] MMV = 0
+  [0/288] MMV = 0
+
+-- dump contents-4
+MMV file   = MMV_STATS_DIR/contents-4
+Version    = 1
+Generated  = 0
+TOC count  = 2
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: toc offset 40, metrics offset 0 (-1 entries)
+
+TOC[1]: offset 56, values offset 0 (10 entries)
+  [0/0] MMV = 5655885
+  [0/32] MMV = 0
+  [0/64] MMV = 0
+  [0/96] MMV = 0
+  [0/128] MMV = 0
+  [0/160] MMV = 0
+  [0/192] MMV = 0
+  [0/224] MMV = 0
+  [0/256] MMV = 0
+  [0/288] MMV = 0
+
+
+== generating bad indoms data files ==
+-- dump indoms-1
+MMV file   = MMV_STATS_DIR/indoms-1
+Version    = 1
+Generated  = 0
+TOC count  = 2
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: offset 40, indoms offset 72 (1 entries)
+  [0/72] 0 instances, starting at offset 0
+       (no shorttext)
+       (no helptext)
+
+TOC[1]: offset 56, instances offset 104 (1 entries)
+  [5655885/104] instance = [0 or ""]
+
+-- dump indoms-2
+MMV file   = MMV_STATS_DIR/indoms-2
+Version    = 1
+Generated  = 0
+TOC count  = 2
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: offset 40, indoms offset 72 (1 entries)
+  [1/72] 1 instances, starting at offset 104
+       (no shorttext)
+       (no helptext)
+
+TOC[1]: offset 56, instances offset 104 (1 entries)
+  [5655885/104] instance = [0 or ""]
+
+-- dump indoms-3
+MMV file   = MMV_STATS_DIR/indoms-3
+Version    = 1
+Generated  = 0
+TOC count  = 3
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: offset 40, indoms offset 72 (1 entries)
+  [2/72] 1 instances, starting at offset 104
+       (no shorttext)
+       helptext=
+
+TOC[1]: offset 56, instances offset 104 (1 entries)
+  [2/104] instance = [1 or "ii"]
+
+TOC[2]: offset 72, instances offset 104 (1 entries)
+  [2/104] instance = [1 or "ii"]
+
+-- dump indoms-4
+MMV file   = MMV_STATS_DIR/indoms-4
+Version    = 1
+Generated  = 0
+TOC count  = 3
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: offset 40, indoms offset 72 (1 entries)
+  [3/72] 1 instances, starting at offset 104
+       shorttext=
+       (no helptext)
+
+TOC[1]: offset 56, instances offset 104 (1 entries)
+  [3/104] instance = [1 or "ii"]
+
+TOC[2]: toc offset 72, metrics offset 104 (1 entries)
+  [0/104] H
+       type=32-bit int (0x0), sem=? (0x0), pad=0x0
+       units=
+       (no indom)
+       (no shorttext)
+       (no helptext)
+
+-- dump indoms-5
+MMV file   = MMV_STATS_DIR/indoms-5
+Version    = 1
+Generated  = 0
+TOC count  = 2
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: offset 40, indoms offset 72 (1 entries)
+  [4/72] 0 instances, starting at offset 104
+       (no shorttext)
+       (no helptext)
+
+TOC[1]: offset 56, instances offset 104 (1 entries)
+  [4/104] instance = [1 or "ii"]
+
+-- dump indoms-6
+MMV file   = MMV_STATS_DIR/indoms-6
+Version    = 1
+Generated  = 0
+TOC count  = 2
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: offset 40, indoms offset 72 (1 entries)
+  [5/72] -1 instances, starting at offset 104
+       (no shorttext)
+       (no helptext)
+
+TOC[1]: offset 56, instances offset 104 (1 entries)
+  [5/104] instance = [1 or "ii"]
+
+
+== generating bad metrics data files ==
+-- dump metrics-1
+MMV file   = MMV_STATS_DIR/metrics-1
+Version    = 1
+Generated  = 0
+TOC count  = 2
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: toc offset 40, metrics offset 72 (1 entries)
+  [0/72] 
+       type=32-bit int (0x0), sem=? (0x0), pad=0x0
+       units=
+       (no indom)
+       (no shorttext)
+       (no helptext)
+
+TOC[1]: offset 56, values offset 176 (1 entries)
+  [176/176] MMV = 0
+
+-- dump metrics-2
+MMV file   = MMV_STATS_DIR/metrics-2
+Version    = 1
+Generated  = 0
+TOC count  = 2
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: toc offset 40, metrics offset 72 (1 entries)
+  [1/72] mm.vv
+       type=32-bit unsigned int (0x1), sem=instant (0x3), pad=0x0
+       units=
+       (no indom)
+       (no shorttext)
+       (no helptext)
+
+TOC[1]: offset 56, values offset 176 (1 entries)
+  [176/176] MMV = 0
+
+-- dump metrics-3
+MMV file   = MMV_STATS_DIR/metrics-3
+Version    = 1
+Generated  = 0
+TOC count  = 3
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: toc offset 40, metrics offset 72 (1 entries)
+  [2/72] mm.vv
+       type=string (0x6), sem=instant (0x3), pad=0x0
+       units=
+       (no indom)
+       (no shorttext)
+       (no helptext)
+
+TOC[1]: offset 56, values offset 176 (1 entries)
+  [2/176] mm.vv = ""
+Unrecognised TOC[2] type: 0x762e6d6d
+
+-- dump metrics-4
+MMV file   = MMV_STATS_DIR/metrics-4
+Version    = 1
+Generated  = 0
+TOC count  = 3
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: toc offset 40, metrics offset 72 (1 entries)
+  [3/72] mm.vv
+       type=32-bit unsigned int (0x1), sem=instant (0x3), pad=0x0
+       units=
+       (no indom)
+       (no shorttext)
+       helptext=
+
+TOC[1]: offset 56, values offset 176 (1 entries)
+  [3/176] mm.vv = 0
+Unrecognised TOC[2] type: 0x762e6d6d
+
+-- dump metrics-5
+MMV file   = MMV_STATS_DIR/metrics-5
+Version    = 1
+Generated  = 0
+TOC count  = 3
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: toc offset 40, metrics offset 72 (1 entries)
+  [4/72] mm.vv
+       type=32-bit unsigned int (0x1), sem=instant (0x3), pad=0x0
+       units=
+       (no indom)
+       shorttext=
+       (no helptext)
+
+TOC[1]: offset 56, values offset 176 (1 entries)
+  [4/176] mm.vv = 0
+Unrecognised TOC[2] type: 0x762e6d6d
+
+-- dump metrics-6
+MMV file   = MMV_STATS_DIR/metrics-6
+Version    = 1
+Generated  = 0
+TOC count  = 2
+Cluster    = 0
+Process    = 0
+Flags      = 0x0
+
+TOC[0]: toc offset 40, metrics offset 72 (1 entries)
+  [5/72] mm.vv
+       type=32-bit unsigned int (0x1), sem=instant (0x3), pad=0x0
+       units=
+       (no indom)
+       (no shorttext)
+       (no helptext)
+
+TOC[1]: offset 56, values offset 176 (1 entries)
+  [0/176]  = 0
+
+
+== generating bad header data files ==
+-- verify header-1
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify header-2
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify header-3
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify header-4
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify header-5
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify header-6
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+
+== generating bad contents data files ==
+-- verify contents-1
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify contents-2
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify contents-3
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify contents-4
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+
+== generating bad indoms data files ==
+-- verify indoms-1
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify indoms-2
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify indoms-3
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify indoms-4
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify indoms-5
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify indoms-6
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+
+== generating bad metrics data files ==
+-- verify metrics-1
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify metrics-2
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify metrics-3
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify metrics-4
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify metrics-5
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
+-- verify metrics-6
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+mmv.control.files
+    value 0
+
