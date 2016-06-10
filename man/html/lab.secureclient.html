@@ -171,11 +171,11 @@ components. This directory should exists with current PCP versions.
 	<TR><TD BGCOLOR="#e2e2e2" WIDTH="70%"><BR><IMG SRC="images/stepfwd_on.png" ALT="" WIDTH=16 HEIGHT=16 BORDER=0>&nbsp;&nbsp;&nbsp;Install the CA and server certificate<B>(As the PCP user)</B>:<BR>
 <PRE><B>
 $ echo > /tmp/empty
-$ certutil -d sql:/var/lib/pcp/config/nssdb  -N -f /tmp/empty
-$ certutil -d sql:/var/lib/pcp/config/nssdb -A -t "CT,," -n "Root CA" -i rootCA.crt
-$ certutil -d sql:/var/lib/pcp/config/nssdb -A -t "P,," -n "pmserver_cert" -i pmserver.crt
-$ pk12util -i pmserver_pkcs12.key -d sql:/var/lib/pcp/config/nssdb
-$ certutil -d sql:/var/lib/pcp/config/nssdb -L
+$ certutil -d sql:/etc/pcp/nssdb  -N -f /tmp/empty
+$ certutil -d sql:/etc/pcp/nssdb -A -t "CT,," -n "Root CA" -i rootCA.crt
+$ certutil -d sql:/etc/pcp/nssdb -A -t "P,," -n "pmserver_cert" -i pmserver.crt
+$ pk12util -i pmserver_pkcs12.key -d sql:/etc/pcp/nssdb
+$ certutil -d sql:/etc/pcp/nssdb -L
 
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
@@ -191,7 +191,7 @@ pmserver_cert                                                P,,
 <PRE><B>
 $ cat /etc/pcp/pmcd/pmcd.options
 ....
--C sql:/var/lib/pcp/config/nssdb
+-C sql:/etc/pcp/nssdb
 -M pmserver_cert
 -Q
 </B></PRE>

@@ -2,16 +2,13 @@
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)
 #
 
-rule	pmcd.pmda_status
+rule	primary.pmda_restart
 	default	= "$rule$"
-	enumerate = hosts
 	predicate =
-"some_host (
-    some_inst (
-        pmcd.agent.status $hosts$ != 0
-    )
+"some_inst (
+    pmcd.agent.status != 0
 )"
-	enabled	= yes
+	enabled	= no
 	version	= 1
 	help	=
 "For at least one Performance Metric Domain Agent (PMDA), the
@@ -21,7 +18,7 @@ When any unresponsive PMDA is detected, a signal will be sent
 to the local pmcd(1) to attempt to restart all such agents.";
 
 string	rule
-	default	= "Unresponsive PMDAs"
+	default	= "Restart unresponsive PMDAs"
 	modify	= no
 	display	= no;
 
@@ -34,6 +31,13 @@ string	email_expand
 	default	= "host: %h pmda: %i status=%v"
 	display	= no
 	modify	= no;
+
+shell	pmcd_sighup_action
+	enabled	= yes
+	default	= "pmsignal -s HUP -p pmcd"
+	help	=
+"The Performance Metrics Collector Daemon will be sent SIGHUP
+when the rule condition is true.";
 
 # 
 # --- DO NOT MODIFY THIS FILE --- see pmieconf(5)

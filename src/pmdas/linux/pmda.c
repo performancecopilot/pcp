@@ -82,6 +82,8 @@ static proc_sys_fs_t		proc_sys_fs;
 static sysfs_kernel_t		sysfs_kernel;
 static numa_meminfo_t		numa_meminfo;
 static shm_info_t              _shm_info;
+static sem_info_t              _sem_info;
+static msg_info_t              _msg_info;
 static proc_net_softnet_t	proc_net_softnet;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
@@ -3638,6 +3640,16 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_SEM_LIMITS, 9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
+/* ipc.sem.used_sem */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SEM_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* ipc.sem.tot_sem */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SEM_INFO, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 /*
  * message limits cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -3683,6 +3695,21 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_MSG_LIMITS, 7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
+/* ipc.msg.used_queues */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MSG_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* ipc.msg.tot_msg */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MSG_INFO, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* ipc.msg.tot_bytes */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MSG_INFO, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
+
 /* ipc.shm.tot */
   { NULL,
     { PMDA_PMID(CLUSTER_SHM_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
@@ -3697,6 +3724,21 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_SHM_INFO, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
+
+/* ipc.shm.used_ids */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* ipc.shm.swap_attempts */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* ipc.shm.swap_successes */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /*
  * shared memory limits cluster
@@ -4703,6 +4745,12 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 
     if (need_refresh[CLUSTER_SHM_INFO])
         refresh_shm_info(&_shm_info);
+
+    if (need_refresh[CLUSTER_SEM_INFO])
+        refresh_sem_info(&_sem_info);
+
+    if (need_refresh[CLUSTER_MSG_INFO])
+        refresh_msg_info(&_msg_info);
 
     if (need_refresh[CLUSTER_SHM_LIMITS])
         refresh_shm_limits(&shm_limits);
@@ -6049,6 +6097,22 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     /*
+     * Cluster added by Wu Liming <wulm.fnst@cn.fujitsu.com>
+     */
+    case CLUSTER_SEM_INFO:
+	switch (idp->item) {
+	case 0:	/* ipc.sem.used_sem */
+	    atom->ul = _sem_info.semusz;
+	    break;
+	case 1:	/* ipc.sem.tot_sem */
+	    atom->ul = _sem_info.semaem;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    /*
      * Cluster added by Mike Mason <mmlnx@us.ibm.com>
      */
     case CLUSTER_SEM_LIMITS:
@@ -6098,6 +6162,34 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 2: /* ipc.shm.swp */
 	    atom->ul = _shm_info.shm_swp;
+	    break;
+	case 3: /* ipc.shm.used_ids */
+	    atom->ul = _shm_info.used_ids;
+	    break;
+	case 4: /* ipc.shm.swap_attempts */
+	    atom->ul = _shm_info.swap_attempts;
+	    break;
+	case 5: /* ipc.shm.swap_successes */
+	    atom->ul = _shm_info.swap_successes;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    /*
+     * Cluster added by Wu Liming <wulm.fnst@cn.fujitsu.com>
+     */
+    case CLUSTER_MSG_INFO:
+	switch (idp->item) {
+	case 0:	/* ipc.msg.used_queues */
+	    atom->ul = _msg_info.msgpool;
+	    break;
+	case 1:	/* ipc.msg.tot_msg */
+	    atom->ul = _msg_info.msgmap;
+	    break;
+	case 2:	/* ipc.msg.tot_bytes */
+	    atom->ul = _msg_info.msgtql;
 	    break;
 	default:
 	    return PM_ERR_PMID;

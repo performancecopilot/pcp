@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2012-2015 Red Hat.
+.\" Copyright (c) 2012-2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 \f3pmcd\f1 \- performance metrics collector daemon
 .SH SYNOPSIS
 \f3pmcd\f1
-[\f3\-AfQS\f1]
+[\f3\-AfQSv\f1]
 [\f3\-c\f1 \f2config\f1]
 [\f3\-C\f1 \f2dirname\f1]
 [\f3\-H\f1 \f2hostname\f1]
@@ -348,6 +348,12 @@ User account under which to run
 .BR pmcd .
 The default is the unprivileged "pcp" account in current versions of PCP,
 but in older versions the superuser account ("root") was used by default.
+.TP
+\f3\-v\f1
+Verify the
+.B pmcd
+configuration file, reporting on any errors then exiting with a status
+indicating verification success or failure.
 .TP
 \f3\-x\f1 \f2file\f1
 Before the

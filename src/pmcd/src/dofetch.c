@@ -425,6 +425,8 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 	    timeout.tv_sec = _pmcd_timeout;
 	    timeout.tv_usec = 0;
 
+            retry:
+	    setoserror(0);
 	    sts = __pmSelectRead(maxFd+1, &readyFds, &timeout);
 
 	    if (sts == 0) {
@@ -447,6 +449,8 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
 		break;
 	    }
 	    else if (sts < 0) {
+		if (neterror() == EINTR)
+		    goto retry;
 		/* this is not expected to happen! */
 		__pmNotifyErr(LOG_ERR, "DoFetch: fatal select failure: %s\n",
 			netstrerror());

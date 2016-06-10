@@ -25,8 +25,6 @@
 #
 #
 
-# TODO: use sets instead of $exargs?
-
 _pcp () {
   local curcontext="$curcontext" state line expl ret=1
   local common_help common_most common_pmda arch_req=0
@@ -57,17 +55,19 @@ _pcp () {
 
   case $service in
   pcp)
-    # TODO: add pcp subcommand options
-    _arguments -A -C -S -s -w \
+    _arguments -A "-*" -C -S -s -w \
       "$common_help[@]" \
       "$common_most[@]" \
       "(-g --guimode $exargs)"{-g,--guimode}'[GUI mode with new time control]' \
       "(-p --guiport $exargs)"{-p+,--guiport}'[specify existing time control port]:port:' \
       - set1 \
-      "(-P --pmie $exargs)"{-P,--pmie}'[display pmie evaluation statistics]' \
-      - set2 \
       '1:command:->pcp_commands' \
+      - set2 \
+      "(-P --pmie $exargs)"{-P,--pmie}'[display pmie evaluation statistics]' \
       && return 0
+      # We accept only PCP command options after the first non-option argument
+      # (i.e., the PCP command itself), this makes it so with the -A "-*" above
+      [[ -z $state ]] && state=pcp_cmdopts
   ;;
   pmchart)
     _arguments -C -S -s -w \
@@ -107,7 +107,7 @@ _pcp () {
       && return 0
   ;;
   pmdiff)
-    _arguments -A -C -S -s -w \
+    _arguments -A "-*" -C -S -s -w \
       "$common_help[@]" \
       "(-d --keep $exargs)"{-d,--keep}'[debug, keep temp files]' \
       "(-p --precision $exargs)"{-p+,--precision}'[set floating point precision]:precision:' \
@@ -128,7 +128,7 @@ _pcp () {
   ;;
   pmdumplog)
     arch_req=1
-    _arguments -A -C -S -s -w \
+    _arguments -A "-*" -C -S -s -w \
       "$common_help[@]" \
       - set1 \
       "(-a --all $exargs)"{-a,--all}'[dump everything]' \
@@ -356,7 +356,7 @@ _pcp () {
       && return 0
   ;;
   pmrep)
-    _arguments -A -C -S -s -w \
+    _arguments -A "-*" -C -S -s -w \
       "$common_help[@]" \
       "$common_most[@]" \
       "$common_pmda[@]" \
@@ -409,7 +409,7 @@ _pcp () {
       && return 0
   ;;
   pmstore)
-    _arguments -A -C -S -s -w \
+    _arguments -A "-*" -C -S -s -w \
       "$common_help[@]" \
       "(-h --host -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
       "(-L --local-PMDA -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
@@ -496,7 +496,7 @@ _pcp () {
     # TODO: Check if feasible to handle quotes ('") / multiple spaces in insts
     insts=( ${(f)"$(pmprobe $a ${(e)arch} $c ${(e)cont} $h ${(e)host} -I $metrics 2>/dev/null | awk '!/1 PM_IN_NULL$/ && $1~"^[a-z]" && $2>0 {for(i=3;i<=NF;i++)print $i}')"} )
     insts=( ${(q-)${${(ps:" ":)insts}//\"}} )
-    # FIXME: don't duplicate " when doing pmval -i "<TAB>
+    # TODO: don't duplicate " when doing pmval -i "<TAB>
     _wanted instances expl instance compadd -Q -P '"' -S '"' -a insts && ret=0
   ;;
   metrics)
@@ -543,13 +543,24 @@ _pcp () {
       for s in ${(f)"$(<${(e)conf})"}; do
         [[ $s == \[*\] && $s != \[(global|options)\] ]] && sets+=:${${s/\[}/\]}
       done
-      _wanted metricsets expl metricset compadd -a -- sets && ret=0
+      _wanted metricsets expl metricset compadd -a sets && ret=0
     fi
   ;;
   pcp_commands)
     typeset -a cmds
     cmds=( ${="$(pcp --help 2>&1)"#*Available Commands:} )
     _wanted commands expl 'pcp command' compadd $cmds && ret=0
+  ;;
+  pcp_cmdopts)
+    local cmd
+    typeset -a cmdopts
+    for (( i = 2; i <= $#words; i++ )); do
+      [[ $words[$i] != -* ]] && cmd=$words[$i] && break
+    done
+    [[ -z $cmd ]] && return 1
+    [[ $cmd == python ]] && _wanted files expl files _files && return 0
+    cmdopts=( ${${${${(M)${=${(f)"$(pcp $cmd --help 2>&1)"}}:#-[-0-9A-Za-z?]*}/,}/=*}/-USR1} )
+    _values -w options $cmdopts && ret=0
   ;;
   pmfind_mechs)
     if compset -P '*,'; then
@@ -562,12 +573,11 @@ _pcp () {
         [[ $IPREFIX != *timeout* ]] && opts+=( timeout )
         [[ $IPREFIX != *maxThreads* ]] && opts+=( maxThreads )
         [[ $#opts -eq 0 ]] && ret=0
-        [[ $#opts -gt 0 ]] && _wanted options expl option compadd -S = -a - opts && ret=0
+        [[ $#opts -gt 0 ]] && _wanted options expl option compadd -S = -a opts && ret=0
       ;;
       esac
     else
-      _wanted mechanisms expl mechanism compadd -S '' avahi probe= \
-      && ret=0
+      _wanted mechanisms expl mechanism compadd -S '' avahi probe= && ret=0
     fi
   ;;
   pmiostat_extopts)

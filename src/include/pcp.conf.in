@@ -152,8 +152,8 @@ PCP_HTML_DIR=@pcp_html_dir@
 PCP_DEMOS_DIR=@pcp_demos_dir@
 
 # directory for PCP specific nssdb
-# Standard path: /var/lib/pcp/config/nssdb
-PCP_NSSDB_DIR=@pcp_var_dir@/config/nssdb
+# Standard path: /etc/pcp/nssdb
+PCP_NSSDB_DIR=@pcp_sysconf_dir@/nssdb
 
 # awk
 PCP_AWK_PROG="@awk@"

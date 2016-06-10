@@ -71,6 +71,8 @@ extern int cpu_handler(handler_t *h, fields_t *f);
 extern int proc_handler(handler_t *h, fields_t *f);
 extern int disk_handler(handler_t *h, fields_t *f);
 extern int net_handler(handler_t *h, fields_t *f);
+extern int net_tcp_handler(handler_t *h, fields_t *f);
+extern int net_udp_handler(handler_t *h, fields_t *f);
 extern int loadavg_handler(handler_t *h, fields_t *f);
 extern int generic1_handler(handler_t *h, fields_t *f);
 extern int generic2_handler(handler_t *h, fields_t *f);

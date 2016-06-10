@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 [ -d $PCP_PMDAS_DIR/oracle ] || _notrun "Oracle PMDA not installed"
 [ -f $PCP_PMDAS_DIR/oracle/oracle.conf ] || _notrun "Oracle PMDA not configured"
+which sqlplus >/dev/null 2>&1 || _notrun "No Oracle 'sqlplus' binary found"
 
 # uses an existing oracle installation, so check its in place
 count=`pmprobe oracle.version | awk '{ print $2 }'`
@@ -178,6 +179,23 @@ _fuzzy_match()
     fi
 }
 
+_bounce()
+{
+    cluster=$1
+    metric=$2
+
+    # initial fetch, should be enabled and have values
+    pmprobe $metric | $PCP_AWK_PROG '$2 > 0 { print $1, "ON" }'
+
+    # disable the cluster, should now have zero values
+    pmstore oracle.control.disabled.$cluster 1 | _filter
+    pmprobe $metric | $PCP_AWK_PROG '$2 == 0 { print $1, "OFF" }'
+
+    # reenable the cluster, should see values once more
+    pmstore oracle.control.disabled.$cluster 0 | _filter
+    pmprobe $metric | $PCP_AWK_PROG '$2 > 0 { print $1, "ON" }'
+}
+
 # real QA test starts here
 _query version
 _probe version oracle.version
@@ -224,6 +242,11 @@ pminfo -f oracle.version | _filter
 pminfo -f oracle.control.connected | _filter
 pmstore oracle.control.connected 1 | _filter
 pminfo -f oracle.version | _filter
+
+# check query state change of high-latency clusters
+echo === Checking cluster query states
+_bounce file oracle.file.readtim
+_bounce object_cache oracle.object_cache.locks
 
 # success, all done
 status=0

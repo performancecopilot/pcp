@@ -148,7 +148,8 @@ MYFILES += \
 	root_irix root_pmns tiny.pmns sgi.bf versiondefs \
 	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
 	permslist \
-	qa_shmctl.c
+	qa_shmctl.c \
+	qa_sem_msg_ctl.c 
 
 MYSCRIPTS = grind-tools ipcs_clear show-args fixhosts mkpermslist \
 	memcachestats.pl
@@ -162,7 +163,7 @@ TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
 	fetchrate_lite pv
 
 ifeq "$(TARGET_OS)" "linux"
-TARGETS += qa_shmctl.$(DSOSUFFIX)
+TARGETS += qa_shmctl.$(DSOSUFFIX) qa_sem_msg_ctl.$(DSOSUFFIX)
 endif
 
 ifeq ($(HAVE_64), 1)
@@ -576,9 +577,12 @@ qa_timezone.$(DSOSUFFIX):	qa_timezone.o
 	$(LD) -shared -o $@ -nostdlib $<
 
 qa_shmctl.$(DSOSUFFIX):	 qa_shmctl.c
-	$(CC) -fPIC -c qa_shmctl.c
-	$(LD) -shared -o $@ -nostdlib qa_shmctl.o
+	$(CCF) $(LDFLAGS) -shared -o $@ qa_shmctl.c
 	@rm -f qa_shmctl.o
+
+qa_sem_msg_ctl.$(DSOSUFFIX):	 qa_sem_msg_ctl.c
+	$(CCF) $(LDFLAGS) -shared -o $@ qa_sem_msg_ctl.c
+	@rm -f qa_sem_msg_ctl.o
 
 ifneq ($(NVIDIAQALIB),)
 $(NVIDIAQALIB):	nvidia-ml.o

@@ -26,7 +26,11 @@ BuildRequires: mozilla-nss-devel
 %else
 BuildRequires: nss-devel
 %endif
+%if "%{_vendor}" == "mandriva"
+BuildRequires: %{_lib}sasl-devel
+%else
 BuildRequires: cyrus-sasl-devel
+%endif
 %endif
 %if "@enable_probes@" == "true"
 BuildRequires: systemtap-sdt-devel

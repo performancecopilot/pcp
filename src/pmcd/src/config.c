@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 1995-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -2197,6 +2197,24 @@ ContactAgents(void)
 	    }
 	}
     }
+}
+
+int
+VerifyConfig(char *fileName)
+{
+    FILE	*configFile;
+    int		sts = -1;
+
+    if ((configFile = fopen(fileName, "r")) == NULL) {
+	fprintf(stderr, "pmcd verify %s: %s\n", fileName, osstrerror());
+	return sts;
+    }
+    if (__pmAccAddOp(PMCD_OP_FETCH) < 0 || __pmAccAddOp(PMCD_OP_STORE) < 0)
+	fprintf(stderr, "pmcd verify cannot create access ops structures\n");
+    else
+	sts = ReadConfigFile(configFile);
+    fclose(configFile);
+    return sts;
 }
 
 int

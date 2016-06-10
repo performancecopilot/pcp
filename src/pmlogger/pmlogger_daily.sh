@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2016 Red Hat.
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -89,11 +89,6 @@ do
 	break
     fi
 done
-
-# NB: FQDN cleanup; don't guess a 'real name for localhost', and
-# definitely don't truncate it a la `hostname -s`.  Instead now
-# we use such a string only for the default log subdirectory, ie.
-# for substituting LOCALHOSTNAME in the fourth column of $CONTROL.
 
 # determine path for pwd command to override shell built-in
 PWDCMND=`which pwd 2>/dev/null | $PCP_AWK_PROG '
@@ -444,14 +439,6 @@ _parse_control()
 	cd "$here"
 	line=`expr $line + 1`
 
-	# NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config line
-	# differently for the directory and the pcp -h HOST arguments.
-	#
-	dir_hostname=`hostname || echo localhost`
-	dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dir_hostname;"`
-
-	[ "x$host" = "xLOCALHOSTNAME" ] && host=local:
-
 	$VERY_VERBOSE && echo "[control:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
 
 	case "$host"
@@ -494,7 +481,10 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		;;
 	esac
 
+	# set the version and other global variables
+	#
 	[ -f $tmp/cmd ] && . $tmp/cmd
+
 	if [ -z "$version" -o "$version" = "1.0" ]
 	then
 	    if [ -z "$version" ]
@@ -516,6 +506,13 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    _error "insufficient fields in control file record"
 	    continue
 	fi
+
+	# substitute LOCALHOSTNAME marker in this config line
+	# (differently for directory and pcp -h HOST arguments)
+	#
+	dirhostname=`hostname || echo localhost`
+	dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
+	[ $primary = y -o "x$host" = xLOCALHOSTNAME ] && host=local:
 
 	if $VERY_VERBOSE
 	then
@@ -593,15 +590,9 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    fi
 	fi
 
-        # NB: FQDN cleanup: previously, we used to quietly accept several
-        # putative-aliases in the first (hostname) slot for a primary logger,
-        # which were all supposed to refer to the local host.  So now we
-        # squash them all to the officially pcp-preferred way to access it.
 	pid=''
 	if [ X"$primary" = Xy ]
 	then
-	    host=local:
-
 	    if test -e "$PCP_TMP_DIR/pmlogger/primary"
 	    then
 		_host=`sed -n 2p <"$PCP_TMP_DIR/pmlogger/primary"`

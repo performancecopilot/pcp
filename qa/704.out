@@ -5,7 +5,7 @@ Starting pmlogger ...
 Running python test program
 .
 ----------------------------------------------------------------------
-Ran 1 test in 0.001s
+Ran 1 test in <0.01s
 
 OK
 Checking mmv file

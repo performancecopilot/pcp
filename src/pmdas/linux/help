@@ -1482,6 +1482,8 @@ See also the kernel.uname.* metrics
 @ ipc.sem.sz_semundo size of struct sem_undo (from semctl(..,IPC_INFO,..))
 @ ipc.sem.max_semval semaphore maximum value (from semctl(..,IPC_INFO,..))
 @ ipc.sem.max_exit adjust on exit maximum value (from semctl(..,IPC_INFO,..))
+@ ipc.sem.used_sem number of semaphore sets currently on the system (from semctl(..,SEM_INFO,..))
+@ ipc.sem.tot_sem number of semaphores in all sets on the system (from semctl(..,SEM_INFO,..))
 @ ipc.msg.sz_pool size of message pool in kilobytes (from msgctl(..,IPC_INFO,..))
 @ ipc.msg.mapent number of entries in a message map (from msgctl(..,IPC_INFO,..))
 @ ipc.msg.max_msgsz maximum size of a message in bytes (from msgctl(..,IPC_INFO,..))
@@ -1490,6 +1492,9 @@ See also the kernel.uname.* metrics
 @ ipc.msg.max_msgseg message segment size (from msgctl(..,IPC_INFO,..))
 @ ipc.msg.num_smsghdr number of system message headers (from msgctl(..,IPC_INFO,..))
 @ ipc.msg.max_seg maximum number of message segments (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.used_queues number of message queues that currently exist (from msgctl(..,MSG_INFO,..))
+@ ipc.msg.tot_msg total number of messages in all queues (from msgctl(..,MSG_INFO,..))
+@ ipc.msg.tot_bytes number of bytes in all messages in all queues (from msgctl(..,MSG_INFO,..))
 @ ipc.shm.max_segsz maximum shared segment size in bytes (from shmctl(..,IPC_INFO,..))
 @ ipc.shm.min_segsz minimum shared segment size in bytes (from shmctl(..,IPC_INFO,..))
 @ ipc.shm.max_seg maximum number of shared segments in system (from shmctl(..,IPC_INFO,..))
@@ -1498,6 +1503,9 @@ See also the kernel.uname.* metrics
 @ ipc.shm.tot total number of shared memory pages (from shmctl(..,SHM_INFO,..))
 @ ipc.shm.rss number of resident shared memory pages (from shmctl(..,SHM_INFO,..))
 @ ipc.shm.swp number of swapped shared memory pages (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.used_ids number of currently existing segments (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.swap_attempts number of swap attempts (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.swap_successes number of swap successes (from shmctl(..,SHM_INFO,..))
 
 @ vfs.files.count number of in-use file structures
 @ vfs.files.free number of available file structures

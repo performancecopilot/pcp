@@ -53,6 +53,9 @@ myname.e = sample.pdu / sample.long.hundred
 myname.f = 1024 * sample.byte_ctr
 myname.g = sample.bin + 100 - sample.bin - 100
 myname.h = sample.seconds + sample.milliseconds / 1000
+# i&j - resolved mismatch on indom / no-indom
+myname.i = sample.bin + sample.double.hundred
+myname.j = sample.double.hundred + sample.bin
 End-of-File
 
 pminfo -Dderive -d -c $tmp.config myname >$tmp.out 2>&1

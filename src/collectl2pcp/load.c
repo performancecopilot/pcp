@@ -24,6 +24,11 @@ loadavg_handler(handler_t *h, fields_t *f)
     pmInDom indom = pmInDom_build(LINUX_DOMAIN, LOADAVG_INDOM);
     if (f->nfields < 4)
     	return -1;
+    if (!isdigit(f->fields[1][0]) || !isdigit(f->fields[2][0]) || !isdigit(f->fields[3][0])) {
+    	fprintf(stderr, "Warning: corrupted value for kernel load average: \"%s %s %s\" ignored.\n",
+	    f->fields[1], f->fields[2], f->fields[3]);
+	return -1;
+    }
     put_str_value("kernel.all.load", indom, "1 minute", f->fields[1]);
     put_str_value("kernel.all.load", indom, "5 minute", f->fields[2]);
     put_str_value("kernel.all.load", indom, "15 minute", f->fields[3]);

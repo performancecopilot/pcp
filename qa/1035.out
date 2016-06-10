@@ -44,3 +44,15 @@ oracle.control.connected inst [0 or "ORACLE_SID"] old value=0 new value=1
 
 oracle.version
     inst [0 or "ORACLE_SID"] value "ORACLE_VERSION"
+
+=== Checking cluster query states
+oracle.file.readtim ON
+oracle.control.disabled.file inst [0 or "ORACLE_SID"] old value=0 new value=1
+oracle.file.readtim OFF
+oracle.control.disabled.file inst [0 or "ORACLE_SID"] old value=1 new value=0
+oracle.file.readtim ON
+oracle.object_cache.locks ON
+oracle.control.disabled.object_cache inst [0 or "ORACLE_SID"] old value=0 new value=1
+oracle.object_cache.locks OFF
+oracle.control.disabled.object_cache inst [0 or "ORACLE_SID"] old value=1 new value=0
+oracle.object_cache.locks ON

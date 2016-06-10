@@ -829,9 +829,12 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
     proc_pid_entry_t *ep;
     pmdaIndom *indomp = proc_pid->indom;
 
-    if (indomp->it_numinst < pids->count)
+    if (indomp->it_numinst < pids->count) {
 	indomp->it_set = (pmdaInstid *)realloc(indomp->it_set,
-						pids->count * sizeof(pmdaInstid));
+	    pids->count * sizeof(pmdaInstid));
+    	memset(&indomp->it_set[indomp->it_numinst], 0,
+	    (pids->count - indomp->it_numinst) * sizeof(pmdaInstid));
+    }
     indomp->it_numinst = pids->count;
 
     /*
@@ -948,7 +951,38 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 
 	/* refresh the indom pointer */
 	indomp->it_set[i].i_inst = ep->id;
-	indomp->it_set[i].i_name = ep->name;
+	if (indomp->it_set[i].i_name) {
+	    int len = strlen(indomp->it_set[i].i_name);
+	    if (strncmp(indomp->it_set[i].i_name, ep->name, len) != 0) {
+	    	free(indomp->it_set[i].i_name);
+	    	indomp->it_set[i].i_name = NULL;
+	    }
+#if PCP_DEBUG
+	    else if (pmDebug & DBG_TRACE_LIBPMDA) {
+		fprintf(stderr, "refresh_proc_pidlist: Instance id=%d \"%s\" no change\n",
+		    ep->id, indomp->it_set[i].i_name);
+	    }
+#endif
+	}
+	if (indomp->it_set[i].i_name == NULL) {
+	    /*
+	     * The external instance name is the pid followed by
+	     * a copy of the psargs truncated at the first space.
+	     * e.g. "012345 /path/to/command". Command line args,
+	     * if any, are truncated. The full command line is
+	     * available in the proc.psinfo.psargs metric.
+	     */
+	    if ((p = strchr(ep->name, ' ')) != NULL) {
+		if ((p = strchr(p+1, ' ')) != NULL) {
+		    int len = p - ep->name;
+		    indomp->it_set[i].i_name = (char *)malloc(len+1);
+		    strncpy(indomp->it_set[i].i_name, ep->name, len);
+		    indomp->it_set[i].i_name[len] = '\0';
+		}
+	    }
+	    if (indomp->it_set[i].i_name == NULL)
+		indomp->it_set[i].i_name = strdup(ep->name);
+	}
     }
 
     /* 

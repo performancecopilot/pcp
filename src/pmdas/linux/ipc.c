@@ -33,6 +33,9 @@ refresh_shm_info(shm_info_t *_shm_info)
     _shm_info->shm_tot = shm_info.shm_tot * _pm_system_pagesize;
     _shm_info->shm_rss = shm_info.shm_rss * _pm_system_pagesize;
     _shm_info->shm_swp = shm_info.shm_swp * _pm_system_pagesize;
+    _shm_info->used_ids = shm_info.used_ids;
+    _shm_info->swap_attempts = shm_info.swap_attempts;
+    _shm_info->swap_successes = shm_info.swap_successes;
     return 0;
 }
 
@@ -49,6 +52,21 @@ refresh_shm_limits(shm_limits_t *shm_limits)
     shm_limits->shmmni = shminfo.shmmni;
     shm_limits->shmseg = shminfo.shmseg;
     shm_limits->shmall = shminfo.shmall;
+    return 0;
+}
+
+int
+refresh_sem_info(sem_info_t *sem_info)
+{
+    static struct seminfo seminfo;
+    static union semun arg;
+
+    arg.array = (unsigned short *) &seminfo;
+    if (semctl(0, 0, SEM_INFO, arg) < 0)
+    	return -oserror();
+
+    sem_info->semusz = seminfo.semusz;
+    sem_info->semaem = seminfo.semaem;
     return 0;
 }
 
@@ -72,6 +90,20 @@ refresh_sem_limits(sem_limits_t *sem_limits)
     sem_limits->semusz = seminfo.semusz;
     sem_limits->semvmx = seminfo.semvmx;
     sem_limits->semaem = seminfo.semaem;
+    return 0;
+}
+
+int
+refresh_msg_info(msg_info_t *msg_info)
+{
+    static struct msginfo msginfo;
+
+    if (msgctl(0, MSG_INFO, (struct msqid_ds *) &msginfo) < 0)
+    	return -oserror();
+
+    msg_info->msgpool = msginfo.msgpool;
+    msg_info->msgmap = msginfo.msgmap;
+    msg_info->msgtql = msginfo.msgtql;
     return 0;
 }
 

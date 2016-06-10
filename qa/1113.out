@@ -1,0 +1,41 @@
+QA output created by 1113
+
+=== ipcs output, at first sample
+
+=== ipcs output, limits
+
+------ Messages Limits --------
+max queues system wide = 15903
+max size of message (bytes) = 8192
+default max size of queue (bytes) = 16384
+
+------ Shared Memory Limits --------
+max number of segments = 4096
+max seg size (kbytes) = 4194303
+max total shared memory (kbytes) = 1073741824
+min seg size (bytes) = 1
+
+------ Semaphore Limits --------
+max number of arrays = 128
+max semaphores per array = 250
+max semaphores system wide = 32000
+max ops per semop call = 32
+semaphore max value = 32767
+
+=== ipcs output, summary
+
+------ Messages Status --------
+allocated queues = 0
+used headers = 0
+used space = 0  bytes
+
+------ Shared Memory Status --------
+segments allocated   5
+pages allocated    2306
+pages resident   200
+pages swapped   0
+Swap performance: 0 attempts     0 successes
+
+------ Semaphore Status --------
+used arrays = 6
+allocated semaphores = 6

@@ -40,6 +40,8 @@ pmRegisterDerived: register metric[6] myname.e = sample.pdu / sample.long.hundre
 pmRegisterDerived: register metric[7] myname.f = 1024 * sample.byte_ctr
 pmRegisterDerived: register metric[8] myname.g = sample.bin + 100 - sample.bin - 100
 pmRegisterDerived: register metric[9] myname.h = sample.seconds + sample.milliseconds / 1000
+pmRegisterDerived: register metric[10] myname.i = sample.bin + sample.double.hundred
+pmRegisterDerived: register metric[11] myname.j = sample.double.hundred + sample.bin
 __dmopencontext: bind metric[0] event.flags
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
@@ -58,6 +60,10 @@ __dmgetpmid: metric "myname.g" -> PMID 511.0.9
 __dmopencontext: bind metric[8] myname.g
 __dmgetpmid: metric "myname.h" -> PMID 511.0.10
 __dmopencontext: bind metric[9] myname.h
+__dmgetpmid: metric "myname.i" -> PMID 511.0.11
+__dmopencontext: bind metric[10] myname.i
+__dmgetpmid: metric "myname.j" -> PMID 511.0.12
+__dmopencontext: bind metric[11] myname.j
 __dmtraverse: name="myname" added "myname.a"
 __dmtraverse: name="myname" added "myname.b"
 __dmtraverse: name="myname" added "myname.c"
@@ -66,6 +72,8 @@ __dmtraverse: name="myname" added "myname.e"
 __dmtraverse: name="myname" added "myname.f"
 __dmtraverse: name="myname" added "myname.g"
 __dmtraverse: name="myname" added "myname.h"
+__dmtraverse: name="myname" added "myname.i"
+__dmtraverse: name="myname" added "myname.j"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
 __dmgetpmid: metric "myname.b" -> PMID 511.0.4
 __dmgetpmid: metric "myname.c" -> PMID 511.0.5
@@ -74,6 +82,8 @@ __dmgetpmid: metric "myname.e" -> PMID 511.0.7
 __dmgetpmid: metric "myname.f" -> PMID 511.0.8
 __dmgetpmid: metric "myname.g" -> PMID 511.0.9
 __dmgetpmid: metric "myname.h" -> PMID 511.0.10
+__dmgetpmid: metric "myname.i" -> PMID 511.0.11
+__dmgetpmid: metric "myname.j" -> PMID 511.0.12
 
 myname.a
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -106,6 +116,14 @@ myname.g
 myname.h
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: sec
+
+myname.i
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+myname.j
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
 
 Semantic errors ...
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)

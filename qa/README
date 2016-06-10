@@ -248,7 +248,7 @@ Make in the src Directory
     the basic recipe:
 
 	$ touch 008.out.`hostname`
-	$ remake 008
+	$ ./remake 008
 	$ mv 008.out 008.out.`hostname`
 
     Be aware that it can be adversely influenced by temporary disks like

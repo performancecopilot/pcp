@@ -81,6 +81,8 @@ enum {
 	CLUSTER_NET_SNMP6,	/* 58 /proc/net/snmp6 */
 	CLUSTER_MD,		/* 59 disk.md.* (not status) */
 	CLUSTER_MDADM,		/* 60 disk.md.status */
+	CLUSTER_SEM_INFO,	/* 61 shmctl(SEM_INFO) system call */
+	CLUSTER_MSG_INFO,	/* 62 msgctl(MSG_INFO) system call */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

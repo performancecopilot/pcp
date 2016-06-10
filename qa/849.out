@@ -1,0 +1,26 @@
+QA output created by 849
+Error cases ...
+
+Test: 00
+load: using config file TMP.pmie.00
+yylex() -> IDENT "sample.long.ten"
+yylex() -> OPERATOR "=="
+yylex() -> STRING "foo"
+pmie: syntax error - near line 1 of file TMP.pmie.00
+operands have mixed string and arithmetic types
+relExpr: ADDR000 ADDR001 failed ...
+Expr dump @ ADDR002
+  op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=(nil)
+  eval=cndFetch_1 metrics=ADDR003 ring=ADDR004
+  valid=0 cardinality[H,I,T]=[1,1,1] tspan=1
+  nsmpls=1 nvals=1 sem=INSTANT units=
+Expr dump @ ADDR005
+  op=80 (<nop node>) arg1=(nil) arg2=(nil) parent=(nil)
+  eval=(nil)() metrics=(nil) ring=ADDR006
+  valid=1 cardinality[H,I,T]=[-1,-1,-1] tspan=4
+  nsmpls=1 nvals=1 sem=CHAR units=
+  smpls[0].ptr ADDR006 "foo"
+yylex() -> OPERATOR "->"
+yylex() -> RESERVED-WORD "print"
+yylex() -> STRING "blah"
+yylex() -> END-OF-RULE

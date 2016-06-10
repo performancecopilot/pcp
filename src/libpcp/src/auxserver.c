@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -886,7 +886,9 @@ __pmServerGetFeaturesFromPDU(__pmPDU *pb)
 int
 __pmSecureServerSetup(const char *db, const char *passwd)
 {
-    return __pmSecureServerCertificateSetup(db, passwd, SECURE_SERVER_CERTIFICATE);
+    (void)db;
+    (void)passwd;
+    return 0;
 }
 
 int

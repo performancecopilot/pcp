@@ -1038,7 +1038,7 @@ timezone
 797 pmlogrewrite local
 798 pmda.nfsclient local
 799:retired pmda.papi local
-800 pmda.proc local
+800 pmda.proc pmda.hotproc local
 801 pmda.netfilter local
 802 pmda valgrind dbpmda local
 803 libpcp derive local
@@ -1087,6 +1087,7 @@ timezone
 846 pmimport local pmdumplog perl local
 847 containers local
 848 pmcd secure local
+849:reserved pmie local
 850 python local
 853 pmcpp local
 855 pmda.netfilter local
@@ -1180,6 +1181,7 @@ timezone
 987 pmda.xfs local
 988 pmda.xfs local valgrind
 989 archive local
+990:reserved pmda.mmv local
 991 pcp python local
 992 pmcpp pmlogger local
 993 pmlogger pmdumplog local
@@ -1256,4 +1258,6 @@ timezone
 1094 logutil local
 1099 archive pmiostat local pmie
 1108 logutil local folio pmlogextract
+1112 pmda.linux local
+1113 pcp python local
 4751:reserved threads local archive fetch context flakey

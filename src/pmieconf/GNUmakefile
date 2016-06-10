@@ -17,7 +17,7 @@ TOPDIR = ../..
 include	$(TOPDIR)/src/include/builddefs
 include $(TOPDIR)/src/libpcp/src/GNUlibrarydefs
 
-MKFILE_SUBDIRS = cpu filesys memory percpu pernetif global pcp
+MKFILE_SUBDIRS = cpu filesys memory percpu pernetif global primary
 
 SUBDIRS	= $(MKFILE_SUBDIRS)
 
@@ -67,6 +67,7 @@ local: $(STATICTARGETS) $(SUBDIRS)
 	@rm -fr rules; mkdir rules
 	$(SUBDIRS_MAKERULE)
 	HOME=`pwd` $(PMIECONF) -F -r rules -f local
+	HOME=`pwd` $(PMIECONF) -r rules -f local modify primary enabled yes
 
 
 pmlogconf: $(SUBDIRS)
