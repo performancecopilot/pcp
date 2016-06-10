@@ -1,7 +1,7 @@
 /*
  * General Utility Routines
  *
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 2009 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -477,6 +477,36 @@ pmEventFlagsStr(int flags)
     pmEventFlagsStr_r(flags, ebuf, sizeof(ebuf));
     return ebuf;
 }
+
+char *
+pmSemStr_r(int sem, char *buf, int buflen)
+{
+    switch (sem) {
+	case PM_SEM_COUNTER:
+	    strncpy (buf, "counter", buflen);
+	    break;
+	case PM_SEM_INSTANT:
+	    strncpy (buf, "instant", buflen);
+	    break;
+	case PM_SEM_DISCRETE:
+	    strncpy (buf, "discrete", buflen);
+	    break;
+	default:
+	    strncpy (buf, "???", buflen);
+	    break;
+    }
+    buf[buflen - 1] = '\0';
+    return buf;
+}
+
+const char *
+pmSemStr(int sem)
+{
+    static char ebuf[64];
+    pmSemStr_r(sem, ebuf, sizeof(ebuf));
+    return ebuf;
+}
+
 
 /*
  * Several PMAPI interfaces allocate a list of strings into a buffer
@@ -1155,23 +1185,9 @@ __pmPrintDesc(FILE *f, const pmDesc *desc)
 
     fprintf(f, "  InDom: %s 0x%x\n", pmInDomStr_r(desc->indom, strbuf, sizeof(strbuf)), desc->indom);
 
-    switch (desc->sem) {
-	case PM_SEM_COUNTER:
-	    sem = "counter";
-	    break;
-	case PM_SEM_INSTANT:
-	    sem = "instant";
-	    break;
-	case PM_SEM_DISCRETE:
-	    sem = "discrete";
-	    break;
-	default:
-	    sem = unknownVal;
-	    break;
-    }
-
+    sem = pmSemStr_r(desc->sem, strbuf, sizeof(strbuf));
     fprintf(f, "    Semantics: %s", sem);
-    if (sem == unknownVal)
+    if (strcmp(sem, unknownVal) == 0)
 	fprintf(f, " (%d)", desc->sem);
 
     fprintf(f, "  Units: ");

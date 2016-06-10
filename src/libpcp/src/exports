@@ -525,4 +525,6 @@ PCP_3.14 {
 PCP_3.15 {
     __pmSecureServerCertificateSetup;
     __pmServerGetFeaturesFromPDU;
+    pmSemStr;
+    pmSemStr_r;
 } PCP_3.14;
