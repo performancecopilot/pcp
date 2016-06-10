@@ -16,14 +16,14 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
         ipc.sem.max_semval
 
 # -u --------------------------------------------------
-        ipc.msg.used_que
+        ipc.msg.used_queues
         ipc.msg.tot_mes
-        ipc.msg.tot_byte
+        ipc.msg.tot_bytes
         ipc.shm.used_ids
         ipc.shm.tot
         ipc.shm.rss
         ipc.shm.swp
-        ipc.shm.swp_att
-        ipc.shm.swp_suc
+        ipc.shm.swap_attempts
+        ipc.shm.swap_successes
         ipc.sem.used_sem
         ipc.sem.tot_sem

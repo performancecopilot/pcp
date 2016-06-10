@@ -39,6 +39,10 @@ then
     exit 1
 fi
 
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp $tmp.help" 0 1 2 3 15
+target=`uname -s | tr 'A-Z' 'a-z'`
+
 # Find where a GNU tool is hiding, look for this line in the
 # $gnutool --help output ...
 # "Report bugs to <bug-$gnutool@gnu.org>"
@@ -113,8 +117,6 @@ want == 1			{ print; exit }'
     return 0
 }
 
-target=`uname -s | tr 'A-Z' 'a-z'`
-
 export MAKE=`gnu_tool Error "$MAKE" make gmake`
 export TAR=`gnu_tool Warning "$TAR" tar gtar gnutar`
 export ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`
@@ -122,9 +124,6 @@ export ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`
 # check if tar supports --transform else we must use git-archive later on (e.g. RHEL5)
 [ -n "$TAR" ] && $TAR --help | 2>&1 grep -q transform || USE_GIT_ARCHIVE=1
 #debug# echo TAR=$TAR USE_GIT_ARCHIVE=$USE_GIT_ARCHIVE
-
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
-trap "rm -rf $tmp $tmp.help" 0 1 2 3 15
 
 configure=./configure
 cmdline_configopts=''
