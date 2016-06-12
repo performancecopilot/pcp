@@ -1086,6 +1086,11 @@ else
     echo "Warning: \"/etc/pcp.conf\" is missing"
 fi
 
-sudo -u pcp [ -x $HOME ] || echo "Error: $HOME is not searchable by user \"pcp\""
+if sudo -u pcp id >/dev/null
+then
+    # pcp user appears to exist ...
+    #
+    sudo -u pcp [ -x $HOME ] || echo "Error: $HOME is not searchable by user \"pcp\""
+fi
 
 $verbose && echo "temp files:" $tmp.*
