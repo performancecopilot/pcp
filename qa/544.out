@@ -3,11 +3,11 @@ QA output created by 544
 40722 TMP.out.cpus
 44436 TMP.out.disks
 45676 TMP.out.general
-44436 TMP.out.nets
-42863 TMP.out.procs
+11372 TMP.out.nets
+36108 TMP.out.procs
 ## Testing Debian inst/value extraction, checksums:
 14808 TMP.out.cpus
 30729 TMP.out.disks
 24005 TMP.out.general
-30729 TMP.out.nets
-27879 TMP.out.procs
+50381 TMP.out.nets
+46214 TMP.out.procs
