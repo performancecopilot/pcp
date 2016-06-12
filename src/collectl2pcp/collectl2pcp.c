@@ -41,6 +41,10 @@ handler_t handlers[] = {
 	/* /proc/net/dev */
 	{ "Net",		net_handler },
 
+	/* /proc/net/snmp */
+	{ "tcp-Tcp:", 		net_tcp_handler },
+	{ "tcp-Udp:", 		net_udp_handler },
+
 	/* /proc/loadavg */
 	{ "load",		loadavg_handler },
 
@@ -230,6 +234,19 @@ main(int argc, char *argv[])
 		*s = '\0';
 	    if (!buf[0])
 	    	continue;
+	    /*
+	     * Fix up the proc/stat kernel debarcle where cmd can have spaces,
+             * e.g. : proc:28896 stat 28896 (bash  ) S 2 0 0 0 -1 ....
+	     */
+	    if (strncmp(buf, "proc:", 5) == 0 && strstr(buf, "stat") != NULL) {
+		char *p = strchr(buf, '(');
+		char *t = strchr(buf, ')');
+		for (; p && t && p < t; p++) {
+		    if (*p == ' ')
+			*p = '_';
+		}
+	    }
+
 	    f = fields_new(buf, strlen(buf)+1);
 	    if (f->nfields > 0) {
 		if ((h = find_handler(f->fields[0])) == NULL) {

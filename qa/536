@@ -66,6 +66,7 @@ pminfo -a $TA -f hinv.ncpu hinv.ndisk
 
 echo '## Testing handling of corrupted or truncated metric values'
 collectl2pcp -F $C/truncated.raw $TA 2>&1
+pminfo -a $TA -f kernel.all.load
 
 echo '## Testing per-CPU metrics'
 collectl2pcp -F $C/some_host.raw $TA

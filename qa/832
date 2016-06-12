@@ -19,7 +19,9 @@ $authentication || _notrun "No authentication support available"
 for helper in pluginviewer; do
     which $helper >/dev/null 2>&1 || _notrun "SASL $helper tool unavailable"
 done
-pluginviewer -s -m plain >/dev/null 2>&1
+pluginviewer -c | grep 'Plugin "plain"' >/dev/null 2>&1
+test $? -eq 0 || _notrun 'No client support for plain authentication'
+pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1
 test $? -eq 0 || _notrun 'No server support for plain authentication'
 
 export PCP_CONSOLE=none 
