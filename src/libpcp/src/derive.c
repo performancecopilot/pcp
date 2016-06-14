@@ -367,7 +367,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_PMAPI);
 	    if (access(global, F_OK) == 0)
 		configpath = global;
 	}
-	if (configpath && strnlen(configpath, MAXPATHLEN) > 0) {
+	if (configpath && configpath[0] != '\0') {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
 		fprintf(stderr, "Derived metric initialization from %s\n",
