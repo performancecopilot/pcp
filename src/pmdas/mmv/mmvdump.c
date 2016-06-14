@@ -168,8 +168,7 @@ dump_metrics(void *addr, size_t size, int idx, long base, __uint64_t offset, __i
     int i;
     char buf[MMV_STRINGMAX];
     mmv_disk_string_t *string;
-    mmv_disk_metric_t *m = (mmv_disk_metric_t *)
-				((char *)addr + offset);
+    mmv_disk_metric_t *m = (mmv_disk_metric_t *)((char *)addr + offset);
 
     printf("\nTOC[%d]: toc offset %ld, metrics offset %"PRIi64" (%d entries)\n",
 		idx, base, offset, count);
@@ -254,6 +253,7 @@ dump_values(void *addr, size_t size, int idx, long base, __uint64_t offset, __in
 	if (m->indom && m->indom != PM_IN_NULL) {
 	    off = vals[i].instance;
 	    if (size < off + sizeof(mmv_disk_instance_t)) {
+		printf("\n");
 		printf("Bad file size: toc[%d] value[%d] inst offset\n", idx, i);
 		return 1;
 	    }
@@ -283,6 +283,7 @@ dump_values(void *addr, size_t size, int idx, long base, __uint64_t offset, __in
 	case MMV_TYPE_STRING:
 	    string = (mmv_disk_string_t *)((char *)addr + vals[i].extra);
 	    if (size < vals[i].extra + sizeof(mmv_disk_string_t)) {
+		printf(" = ?\n");
 		printf("Bad file size: toc[%d] str value[%d] extra\n", idx, i);
 		return 1;
 	    }
@@ -298,8 +299,10 @@ dump_values(void *addr, size_t size, int idx, long base, __uint64_t offset, __in
 		t += ((tv.tv_sec*1e6 + tv.tv_usec) + vals[i].extra);
 	    printf(" = %"PRIi64" (value=%"PRIi64"/extra=%"PRIi64")",
 			t, vals[i].value.ll, vals[i].extra);
-	    if (vals[i].extra > 0)
-		printf("Bad ELAPSED 'extra' value found!");
+	    if (vals[i].extra > 0) {
+		putchar('\n');
+		printf("Bad (positive) ELAPSED 'extra' value found!");
+	    }
 	    break;
 	}
 	default:
@@ -369,7 +372,8 @@ int
 dump(const char *file, void *addr, size_t size)
 {
     int i, sts;
-    size_t offset;
+    __uint32_t count;
+    __uint64_t offset;
     mmv_disk_toc_t *toc;
     mmv_disk_header_t *hdr;
 
@@ -421,25 +425,33 @@ dump(const char *file, void *addr, size_t size)
     for (i = sts = 0; i < hdr->tocs; i++) {
 	__uint64_t base = ((char *)&toc[i] - (char *)addr);
 
+	count = toc[i].count;
+	offset = toc[i].offset;
+
+	if (count < 1) {
+	    printf("Bad TOC[%d]: invalid entry count %d\n", i, count);
+	    continue;
+	}
+
 	switch (toc[i].type) {
 	case MMV_TOC_INDOMS:
-	    if (dump_indoms(addr, size, i, base, toc[i].offset, toc[i].count))
+	    if (dump_indoms(addr, size, i, base, offset, count))
 		sts = 1;
 	    break;
 	case MMV_TOC_INSTANCES:
-	    if (dump_insts(addr, size, i, base, toc[i].offset, toc[i].count))
+	    if (dump_insts(addr, size, i, base, offset, count))
 		sts = 1;
 	    break;
 	case MMV_TOC_VALUES:
-	    if (dump_values(addr, size, i, base, toc[i].offset, toc[i].count))
+	    if (dump_values(addr, size, i, base, offset, count))
 		sts = 1;
 	    break;
 	case MMV_TOC_METRICS:
-	    if (dump_metrics(addr, size, i, base, toc[i].offset, toc[i].count))
+	    if (dump_metrics(addr, size, i, base, offset, count))
 		sts = 1;
 	    break;
 	case MMV_TOC_STRINGS:
-	    if (dump_strings(addr, size, i, base, toc[i].offset, toc[i].count))
+	    if (dump_strings(addr, size, i, base, offset, count))
 		sts = 1;
 	    break;
 	default:
@@ -459,7 +471,7 @@ main(int argc, char **argv)
     void *addr;
 
     if (argc > 2) {
-	fprintf(stderr, "USAGE: %s <filename>\n", argv[0]);
+	fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
 	exit(1);
     }
     if (argc > 1)
