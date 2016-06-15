@@ -319,7 +319,7 @@ Bad file size: toc[2] string[0]
 
 
 == generating bad header data files ==
--- verify header-1
+-- verify header data files
 === std out ===
 === std err ===
 === filtered valgrind report ===
@@ -332,80 +332,9 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 mmv.control.files
     value 0
-
--- verify header-2
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
--- verify header-3
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
--- verify header-4
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
--- verify header-5
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
--- verify header-6
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
 
 == generating bad contents data files ==
--- verify contents-1
+-- verify contents data files
 === std out ===
 === std err ===
 === filtered valgrind report ===
@@ -418,52 +347,9 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 mmv.control.files
     value 0
-
--- verify contents-2
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
--- verify contents-3
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
--- verify contents-4
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
 
 == generating bad indoms data files ==
--- verify indoms-1
+-- verify indoms data files
 === std out ===
 === std err ===
 === filtered valgrind report ===
@@ -476,80 +362,9 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 mmv.control.files
     value 0
-
--- verify indoms-2
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
--- verify indoms-3
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
--- verify indoms-4
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
--- verify indoms-5
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
--- verify indoms-6
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
 
 == generating bad metrics data files ==
--- verify metrics-1
+-- verify metrics data files
 === std out ===
 === std err ===
 === filtered valgrind report ===
@@ -562,74 +377,3 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 mmv.control.files
     value 0
-
--- verify metrics-2
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
--- verify metrics-3
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
--- verify metrics-4
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
--- verify metrics-5
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-
--- verify metrics-6
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
-
-mmv.control.files
-    value 0
-

@@ -73,18 +73,16 @@ _verify()
     echo "== generating bad $section data files =="
     $here/src/badmmv --$section
 
-    files=`ls -1 ${MMV_STATS_DIR}/${section}-* | LC_COLLATE=POSIX sort`
-    for file in $files
-    do
-	echo -- verify `basename $file` | tee -a $seq.full
-	_run_valgrind pminfo -L -Kclear -Kadd,60,$linux -Kadd,70,$pmda -v mmv \
+    # run valgrind once for all files in section (its slow to start)
+    echo -- verify $section data files | tee -a $seq.full
+    _run_valgrind pminfo -L -Kclear -Kadd,60,$linux -Kadd,70,$pmda -v mmv \
 		| _filter
 
-	# this should always show zero (all badmmv generated files are invalid)
-	pminfo -L -Kclear -Kadd,60,$linux -Kadd,70,$pmda -f mmv.control.files
-	unlink $file
-	echo
-    done
+    # this should always show zero (all badmmv generated files are invalid)
+    pminfo -L -Kclear -Kadd,60,$linux -Kadd,70,$pmda -f mmv.control.files
+
+    # cleanup 
+    rm -f ${MMV_STATS_DIR}/${section}-*
 }
 
 _dump header
