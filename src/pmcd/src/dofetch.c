@@ -534,7 +534,7 @@ DoFetch(ClientInfo *cip, __pmPDU* pb)
     __pmtimevalNow(&endResult->timestamp);
     /* The order of the pmIDs in the per-domain results is the same as in the
      * original request, but on a per-domain basis.  resIndex is an array of
-     * indeces (one per agent) of the next metric to be retrieved from each
+     * indices (one per agent) of the next metric to be retrieved from each
      * per-domain result's vset.
      */
     memset(resIndex, 0, (nAgents + 1) * sizeof(resIndex[0]));
