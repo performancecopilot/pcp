@@ -71,6 +71,10 @@ echo "=== Listing with a valid process and without prefix ==="
 $here/src/mmv_poke -p $$ -f noprefix "$MMV_STATS_DIR/test"
 pmprobe -v mmv | _filter
 
+echo "=== Listing with a valid process and sentinel flag set ==="
+$here/src/mmv_poke -p $$ -f sentinel "$MMV_STATS_DIR/test"
+pmprobe -v mmv | _filter
+
 echo "=== Listing without a valid process ==="
 $here/src/mmv_poke -p 4294967295 -f process "$MMV_STATS_DIR/test"
 pmprobe -v mmv | _filter

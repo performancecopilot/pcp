@@ -32,6 +32,15 @@ mmv.counter 1 41
 mmv.control.files 1 1
 mmv.control.debug 1 0
 mmv.control.reload 1 0
+=== Listing with a valid process and sentinel flag set ===
+mmv.strings 1 "00oo00"
+mmv.string 1 "g'day world"
+mmv.indom 2 43 0
+mmv.discrete 1 42
+mmv.counter 1 41
+mmv.control.files 1 1
+mmv.control.debug 1 0
+mmv.control.reload 1 0
 === Listing without a valid process ===
 mmv.control.files 1 0
 mmv.control.debug 1 0
