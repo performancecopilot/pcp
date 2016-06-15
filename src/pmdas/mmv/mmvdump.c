@@ -408,7 +408,7 @@ dump(const char *file, void *addr, size_t size)
 	return 1;
     }
     printf("Cluster    = %u\n", hdr->cluster);
-    if (pmid_cluster(hdr->cluster) != hdr->cluster) {
+    if (hdr->cluster < 0 || hdr->cluster > (1<<12)-1) {
 	printf("Bad cluster: %d is not a valid cluster ID\n", hdr->cluster);
 	return 1;
     }

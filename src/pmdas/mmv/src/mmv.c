@@ -85,6 +85,7 @@ static stats_t * slist;
 static int scnt;
 
 #define MAX_MMV_COUNT 10000		/* enforce reasonable limits */
+#define MAX_MMV_CLUSTER ((1<<12)-1)
 
 /*
  * Check cluster number validity (must be in range 0 .. 1<<12).
@@ -92,7 +93,7 @@ static int scnt;
 static int
 valid_cluster(int requested)
 {
-    return (pmid_cluster(requested) == requested);
+    return (requested >= 0 && requested <= MAX_MMV_CLUSTER);
 }
 
 /*
