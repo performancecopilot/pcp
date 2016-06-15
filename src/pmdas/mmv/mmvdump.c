@@ -235,19 +235,19 @@ dump_values(void *addr, size_t size, int idx, long base, __uint64_t offset, __in
 	mmv_disk_string_t *string;
 	mmv_disk_metric_t *m;
 	mmv_disk_instance_t *inst;
-	__uint64_t off = offset + (i * sizeof(mmv_disk_value_t));
+	__uint64_t moff, off = offset + (i * sizeof(mmv_disk_value_t));
 
 	if (size < off + sizeof(mmv_disk_value_t)) {
 	    printf("Bad file size: too small for toc[%d] value[%d]\n", idx, i);
 	    return 1;
 	}
-	off = vals[i].metric;
-	if (size < off + sizeof(mmv_disk_metric_t)) {
+	moff = vals[i].metric;
+	if (size < moff + sizeof(mmv_disk_metric_t)) {
 	    printf("Bad file size: toc[%d] value[%d] metric offset\n", idx, i);
 	    return 1;
 	}
 
-	m = (mmv_disk_metric_t *)((char *)addr + off);
+	m = (mmv_disk_metric_t *)((char *)addr + moff);
 	printf("  [%u/%"PRIu64"] %s", m->item, off, m->name);
 
 	if (m->indom && m->indom != PM_IN_NULL) {

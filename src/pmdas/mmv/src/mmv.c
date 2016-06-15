@@ -761,15 +761,15 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    }
 	    case MMV_TYPE_STRING: {
-		offset = v->extra + sizeof(MMV_STRINGMAX);
-		if (s->len < offset) {
+		offset = v->extra;
+		if (s->len < offset + sizeof(MMV_STRINGMAX)) {
 		    if (pmDebug & DBG_TRACE_APPL0)
 			__pmNotifyErr(LOG_ERR, "MMV: %s - "
 				"bad string value offset: %"PRIu64" < %"PRIu64,
-				s->name, s->len, offset);
+				s->name, s->len,
+				offset + sizeof(MMV_STRINGMAX));
 		    return PM_ERR_GENERIC;
 		}
-		offset -= sizeof(mmv_disk_string_t);
 		str = (mmv_disk_string_t *)((char *)s->addr + offset);
 		memcpy(buffer, str->payload, sizeof(buffer));
 		if ((hdr->flags & MMV_FLAG_SENTINEL) && buffer[0] == '\0')

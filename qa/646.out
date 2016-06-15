@@ -91,7 +91,5 @@ TOC count  = 2
 Cluster    = 0
 Process    = PID
 Flags      = 0x0 (none)
-
-TOC[0]: toc offset 40, metrics offset 72 (0 entries)
-
-TOC[1]: offset 56, values offset 72 (0 entries)
+Bad TOC[0]: invalid entry count 0
+Bad TOC[1]: invalid entry count 0
