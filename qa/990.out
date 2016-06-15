@@ -266,7 +266,7 @@ TOC[0]: toc offset 40, metrics offset 88 (1 entries)
        (no helptext)
 
 TOC[1]: offset 56, values offset 192 (1 entries)
-  [3/88] mm.vv = ?
+  [3/192] mm.vv = ?
 Bad file size: toc[1] str value[0] extra
 
 TOC[2]: offset 72, string offset 224 (1 entries)
