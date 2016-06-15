@@ -1230,6 +1230,7 @@ timezone
 1036 pmclient archive multi-archive local
 1037 pminfo archive multi-archive local
 1038 pmrep archive multi-archive local
+1039 libpcp local
 1042 pmwebapi pmda.proc local
 1044 pmie local pmieconf sanity
 1045 pmie local pmieconf

@@ -2124,10 +2124,13 @@ __dmopencontext(__pmContext *ctxp)
 	     */
 	    sts = pmLookupName(1, &registered.mlist[i].name, &pmid);
 	    if (sts >= 0 && !IS_DERIVED(pmid)) {
-		char	strbuf[20];
-		pmprintf("Warning: %s: derived name matches metric %s: derived ignored\n",
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_DERIVE) {
+		    char	strbuf[20];
+		    fprintf(stderr, "Warning: %s: derived name matches metric %s: derived ignored\n",
 			registered.mlist[i].name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
-		pmflush();
+		}
+#endif
 		cp->mlist[i].expr = NULL;
 		continue;
 	    }
