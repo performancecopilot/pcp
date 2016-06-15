@@ -19,7 +19,7 @@ our %cfg = (
             "tcp-backlog"   => 511,
             "tcp-keepalive" => 0,
             loglevel        => "DEBUG",
-            logfile         => "./redis-PORTNUMBER.log",
+            logfile         => "$RealBin/redis-PORTNUMBER.log",
             databases       => 16,
         },
 
@@ -86,7 +86,7 @@ our %cfg = (
     redis_cmd     => "/usr/sbin/redis-server",
 
     nc_cmd        => "/usr/sbin/nutcracker",
-    nc_start_args => "--verbose=9 -o ./nutcracker-INST.log -c nutcracker-INST.yml -s STAT_PORT -a 127.0.0.1 -i 1 -p nutcracker-INST.pid --mbuf-size 1024",
+    nc_start_args => "--verbose=9 -o $RealBin/nutcracker-INST.log -c $RealBin/nutcracker-INST.yml -s STAT_PORT -a 127.0.0.1 -i 1 -p $RealBin/nutcracker-INST.pid --mbuf-size 1024",
 );
 
 $0 = "nutcracker_starter";
@@ -120,7 +120,7 @@ foreach my $apid (@pids) {
         if -e "/proc/$apid";
 }
 
-my @fnames = glob "redis*.conf nutcracker*.yml *.pid *.log";
+my @fnames = glob "$RealBin/redis*.conf $RealBin/nutcracker*.yml $RealBin/*.pid $RealBin/*.log";
 
 say STDERR "Files to unlink:\n", map { "  $_\n" } sort @fnames;
 unlink $_
@@ -134,7 +134,7 @@ foreach my $nc_inst (sort keys %{$cfg{instances}}) {
 
     my $refh_nc_group = $cfg{instances}{$nc_inst};
     my $refh_nc_config;
-    my $nc_fname = "nutcracker-$nc_inst.yml";
+    my $nc_fname = "$RealBin/nutcracker-$nc_inst.yml";
 
     open my $fh_nc_out,">",$nc_fname;
     push @nc_fnames,{cfg_fname => $nc_fname,
@@ -152,7 +152,7 @@ foreach my $nc_inst (sort keys %{$cfg{instances}}) {
             foreach keys %{$cfg{config}{nutcracker}{default}};
 
         foreach my $redis_port (@{$refh_nc_group->{$redis_group}->{port}}) {
-            my $redis_fname = "redis-${redis_port}.conf";
+            my $redis_fname = "$RealBin/redis-${redis_port}.conf";
 
             open my $fh_redis_out,">",$redis_fname;
             push @redis_fnames,$redis_fname;
