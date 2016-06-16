@@ -108,6 +108,16 @@ use vars qw($pmda %cfg %id2metrics %indom2name %cur_data %indom2ids);
                        longhelp => "Standalone or cluster (or more?)",
                        id => 4,
                    },
+        total_connections => { type      => PM_TYPE_U64,
+                               semantics => PM_SEM_INSTANT,
+                               help      => "Number of total connections",
+                               id        => 23,
+                           },
+        curr_connections => { type      => PM_TYPE_U64,
+                              semantics => PM_SEM_INSTANT,
+                              help      => "Number of total connections",
+                              id        => 24,
+                          },
     },
 
     pool_metrics => {
@@ -204,6 +214,11 @@ use vars qw($pmda %cfg %id2metrics %indom2name %cur_data %indom2ids);
                                #help      => "N/A",
                                id        => 22,
                            },
+        server_eof => { type      => PM_TYPE_U64,
+                        semantics => PM_SEM_COUNTER,
+                        help      => "Count of server EOFs",
+                        id        => 25,
+                    },
     },
 
     # Maximum time in seconds (may also be a fraction) to keep the data for responses
