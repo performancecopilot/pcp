@@ -625,10 +625,10 @@ sub fetch_callback {
         my $utime1 = $t1_sec + $t1_usec/1e6;
         my $dt_sec = $utime1 - $utime0;
 
-        $cur_data{$inst}{$indom2name{general}} = { timestamp      => $utime1,
-                                                   stats          => $refh_stats,
-                                                   fetch_time_sec => $dt_sec,
-                                               };
+        $cur_data{$inst} = { timestamp      => $utime1,
+                             stats          => $refh_stats,
+                             fetch_time_sec => $dt_sec,
+                         };
 
         mydebug("fetch lasted: $dt_sec seconds");
     }
@@ -707,17 +707,18 @@ sub get_nc_data {
     #
     #mydebug("Sent INFO request with $size bytes");
 
-    my $resp;
+    my ($resp,$cur_resp) = ("","");
 
-    $socket->recv($resp,$cfg{max_recv_len});
+    $resp .= $cur_resp
+        while $socket->recv($cur_resp,$cfg{max_recv_len}),$cur_resp;
     mydebug("Response: '$resp'");
     $socket->close;
     mydebug("... socket closed");
 
     my $json = decode_json($resp);
 
-    mydebug("Decoded JSON: ", Dumper(\$json))
-        if $cfg{debug};
+    #mydebug("Decoded JSON: ", Dumper(\$json))
+    #    if $cfg{debug};
 
     # Sort the has keys to general, pool and server
     foreach my $key (sort keys %$json) {
