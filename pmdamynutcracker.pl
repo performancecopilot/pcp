@@ -212,7 +212,7 @@ use vars qw($pmda %cfg %id2metrics %indom2name %cur_data %indom2ids);
     max_recv_len  => 10240,
     indom_separator => ":::",
 
-    debug => 1,
+    debug => 0,
 );
 
 $0 = "pmda$cfg{pmdaname}";
