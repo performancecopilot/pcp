@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 #
+# Copyright (c) 2016 Lukas Oliva (plhu@seznam.cz)
 # Copyright (c) 2012 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 #
@@ -211,7 +212,7 @@ use vars qw($pmda %cfg %id2metrics %indom2name %cur_data %indom2ids);
     max_recv_len  => 10240,
     indom_separator => ":::",
 
-    debug => 0,
+    debug => 1,
 );
 
 $0 = "pmda$cfg{pmdaname}";
