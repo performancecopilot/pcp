@@ -5,6 +5,8 @@
 # Redis and NutCracker testing files
 t/*.conf
 t/*.log
+t/*.pid
+t/*.yml
 
 # Vim temporary files
 *.sw*
