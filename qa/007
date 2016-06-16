@@ -21,6 +21,6 @@ src/chkoptfetch \
 | tee $seq.full \
 | $PCP_AWK_PROG '
 /re-arrangement/	{ if ($5 == "1," || $5 == "2,") $5="1 or 2,"
-			  if ($NF >= 62 && $NF <= 84) $NF = "[in range]"
+			  if ($NF >= 55 && $NF <= 85) $NF = "[in range]"
 			}
 			{ print }'
