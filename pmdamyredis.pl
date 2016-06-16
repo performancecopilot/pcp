@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 #
+# Copyright (c) 2016 Lukas Oliva (plhu@seznam.cz)
 # Copyright (c) 2012 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 #
@@ -13,18 +14,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-
-use strict;
-use warnings;
-use autodie;
-
-use PCP::PMDA;
-use IO::Socket::INET;
-use File::Spec::Functions qw(catfile);
-use Time::HiRes   qw(gettimeofday);
-use Data::Dumper;
-
-use vars qw( $pmda %cfg %id2metrics %cur_data %var_metrics);
 
 #
 # Notes:
@@ -72,6 +61,18 @@ use vars qw( $pmda %cfg %id2metrics %cur_data %var_metrics);
 #  - use persistent TCP connection to Redis and reconnect only when needed
 #    -> use dynamic replace_indom in case of system unavailability
 #
+
+use strict;
+use warnings;
+use autodie;
+
+use PCP::PMDA;
+use IO::Socket::INET;
+use File::Spec::Functions qw(catfile);
+use Time::HiRes   qw(gettimeofday);
+use Data::Dumper;
+
+use vars qw( $pmda %cfg %id2metrics %cur_data %var_metrics);
 
 %cfg = (
     config_fname => "myredis.conf",
