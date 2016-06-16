@@ -297,7 +297,7 @@ my %indom2insts = (
                 state $foo = -1;
 
                 map {
-                    my $server_name = join $cfg{indom_separator},$host,$pool_name,$_;
+                    my $server_name = join $cfg{indom_separator},$host,$pool,$_;
 
                     ++$foo => $server_name
                 } sort @{$cfg{loaded}{hosts}{$host}{$pool}};
