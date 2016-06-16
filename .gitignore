@@ -2,5 +2,9 @@
 \#*\#
 *~
 
+# Redis and NutCracker testing files
+t/*.conf
+t/*.log
+
 # Vim temporary files
 *.sw*
