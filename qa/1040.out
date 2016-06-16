@@ -1,0 +1,40 @@
+QA output created by 1040
+dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29
+Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29
+dbpmda> fetch sample.long.million
+PMID(s): 29.0.13
+pmResult ... numpmid: 1
+  29.0.13 (sample.long.million): numval: 1 valfmt: 0 vlist[]:
+   value 1000000 ...
+dbpmda> # pmns from non-existent file
+dbpmda> namespace /tmp/no/such/file
+Error Parsing ASCII PMNS: Cannot open "/tmp/no/such/file"
+dbpmda: Cannot load namespace from "/tmp/no/such/file": No such file or directory
+dbpmda: Reload default namespace
+dbpmda> fetch sample.long.million
+PMID(s): 29.0.13
+pmResult ... numpmid: 1
+  29.0.13 (sample.long.million): numval: 1 valfmt: 0 vlist[]:
+   value 1000000 ...
+dbpmda> # pmns from /dev/null
+dbpmda> namespace /dev/null
+Error Parsing ASCII PMNS: No name space entry for "root"
+dbpmda: Cannot load namespace from "/dev/null": Problems parsing PMNS definitions
+dbpmda: Reload default namespace
+dbpmda> fetch sample.long.million
+PMID(s): 29.0.13
+pmResult ... numpmid: 1
+  29.0.13 (sample.long.million): numval: 1 valfmt: 0 vlist[]:
+   value 1000000 ...
+dbpmda> # near-emtpy pmns
+dbpmda> namespace TMP.pmns
+dbpmda> fetch sample.long.million
+                                ^ at or near here
+Error: Unknown metric name
+Type 'help' for a list of commands.
+dbpmda> fetch empty
+PMID(s): 29.0.13
+pmResult ... numpmid: 1
+  29.0.13 (empty): numval: 1 valfmt: 0 vlist[]:
+   value 1000000 ...
+dbpmda> 
