@@ -381,15 +381,16 @@ foreach my $metric_type (qw{general pool server}) {
 
     foreach my $metric (sort keys %{$cfg{$full_mt_name}}) {
         my $refh_metric = $cfg{$full_mt_name}->{$metric};
+        my $metric_full_name = "$cfg{pmdaname}.$metric";
         my $pmid = $refh_metric->{id};
 
-        mydebug("$cfg{pmdaname} adding metric $cfg{pmdaname}.$metric:"
+        mydebug("$cfg{pmdaname} adding metric $metric_full_name:"
                     . Data::Dumper->Dump([pmda_pmid(0,$pmid),
                                           $refh_metric->{type},
                                           $indom2ids{$metric_type},
                                           ($refh_metric->{semantics} // PM_SEM_DISCRETE),
                                           pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-                                          $metric,
+                                          $metric_full_name,
                                           ($refh_metric->{help} // ""),
                                           ($refh_metric->{longhelp} // ""),
                                       ],
@@ -402,7 +403,7 @@ foreach my $metric_type (qw{general pool server}) {
             $indom2ids{$metric_type},                         # indom
             ($refh_metric->{semantics} // PM_SEM_DISCRETE), # semantics
             pmda_units(0,0,1,0,0,PM_COUNT_ONE),             # units
-            $metric,                                        # metric name
+            $metric_full_name,                              # metric name
             ($refh_metric->{help}      // ""),              # short help
             ($refh_metric->{longhelp}  // ""));             # long help
         $id2metrics{$pmid} = $metric;
