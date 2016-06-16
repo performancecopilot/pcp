@@ -105,3 +105,6 @@ bonus:
 - resize window; graphs should resize
 - test out embed mode ..../vector/index.html#/embed?host=....&hostspec=localhost&widgets=kernel.all.cpu
 - check pmwebd logs (-v -v) that traffic is sensible (good rate, needed metrics only)
+- start/stop some containers (docker run --rm -t -i busybox /bin/sh)
+  add container metric widgets, set a container name filter, observe graphs following
+
