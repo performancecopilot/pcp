@@ -21,7 +21,7 @@
 #define PMDAROOT	1	/* domain identifier for pmdaroot(1) */
 #define SHUTDOWNWAIT	15	/* PMDAs wait time, in 10msec increments */
 #define MAXPENDING	5	/* maximum number of pending connections */
-#define FDNAMELEN	40	/* maximum length of a fd description */
+#define FDNAMELEN	80	/* maximum length of a fd description */
 #define STRINGIFY(s)	#s
 #define TO_STRING(s)	STRINGIFY(s)
 
