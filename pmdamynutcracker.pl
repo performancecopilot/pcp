@@ -617,9 +617,6 @@ sub fetch_callback {
 
         ($refh_stats) = get_nc_data($host,$port);
 
-        mydebug(Data::Dumper->Dump([$refh_stats],[qw(refh_stats)]))
-            if $cfg{debug};
-
         return (PM_ERR_AGAIN, 0)
             unless defined $refh_stats;
 
@@ -635,15 +632,52 @@ sub fetch_callback {
         mydebug("fetch lasted: $dt_sec seconds");
     }
 
-    if (not(exists $refh_stats->{$indom_name}->{$searched_key}
-                and defined $refh_stats->{$indom_name}->{$searched_key})) {
-        # Return error if the atom value was not succesfully retrieved
-        mydebug("Required metric '$searched_key' was not found in NutCracker statistics or was undefined");
+    my @inst_parts = split /$cfg{indom_separator}/,$inst_name;
 
-        return (PM_ERR_AGAIN, 0)
+    mydebug(Data::Dumper->Dump([\@inst_parts],[qw(inst_parts)]));
+
+    if ($indom_name eq "general"
+            and exists $refh_stats->{general}->{$searched_key}
+            and defined $refh_stats->{general}->{$searched_key}) {
+
+        return ($refh_stats->{general}->{$searched_key},1)
+    } elsif ($indom_name eq "pool") {
+        unless (defined $inst_parts[1]) {
+            $pmda->err("Assertion error: inst_part[1] for pool metric '$searched_key' not defined");
+
+            return (PM_ERR_AGAIN,0);
+        }
+
+        if (exists $refh_stats->{pool}->{$inst_parts[1]}->{$searched_key}
+                and defined $refh_stats->{pool}->{$inst_parts[1]}->{$searched_key}) {
+
+            return ($refh_stats->{pool}->{$inst_parts[1]}->{$searched_key},1)
+        } else {
+            # Return error if the atom value was not succesfully retrieved
+            mydebug("Required pool metric '$searched_key' was not found in NutCracker statistics or was undefined");
+
+            return (PM_ERR_AGAIN, 0)
+        }
+    } elsif ($indom_name eq "server") {
+        unless (defined $inst_parts[2]) {
+            $pmda->err("Assertion error: inst_part[2] for server metric '$searched_key' not defined");
+
+            return (PM_ERR_AGAIN,0);
+        }
+
+        if (exists $refh_stats->{server}->{$inst_parts[2]}->{$searched_key}
+                and defined $refh_stats->{server}->{$inst_parts[2]}->{$searched_key}) {
+
+            return ($refh_stats->{server}->{$inst_parts[2]}->{$searched_key},1)
+        } else {
+            # Return error if the atom value was not succesfully retrieved
+            mydebug("Required server metric '$searched_key' was not found in NutCracker statistics or was undefined");
+
+            return (PM_ERR_AGAIN, 0)
+        }
     } else {
         # Success - return (<value>,<success code>)
-        mydebug("Returning success");
+        mydebug("Assertion error - how could we get there?");
 
         return ($refh_stats->{$indom_name}->{$searched_key}, 1);
     }
@@ -686,27 +720,27 @@ sub get_nc_data {
 
     # Sort the has keys to general, pool and server
     foreach my $key (sort keys %$json) {
-        mydebug("key '$key': '$$json{$key}'");
+        #mydebug("key '$key': '$$json{$key}'");
 
         if (ref $json->{$key} eq ref "constant") {
             # General metric
-            mydebug("... is a general metric");
+            #mydebug("... is a general metric");
 
             $refh_stats->{general}->{$key} = $json->{$key};
         } elsif (ref $json->{$key} eq ref {}) {
             foreach my $key2 (sort keys %{$json->{$key}}) {
-                mydebug("key2 '$key2': '$$json{$key}{$key2}'");
+                #mydebug("key2 '$key2': '$$json{$key}{$key2}'");
 
                 if (ref $json->{$key}->{$key2} eq ref "const") {
                     # Pool metrics
-                    mydebug("... is a pool metric");
+                    #mydebug("... is a pool metric");
 
                     $refh_stats->{pool}->{$key}->{$key2} = $json->{$key}->{$key2};
                 } elsif (ref $json->{$key}->{$key2} eq ref {}) {
                     # Server metrics
 
                     foreach my $key3 (sort keys %{$json->{$key}->{$key2}}) {
-                        mydebug("key3 '$key3': '$$json{$key}{$key2}{$key3}'");
+                        #mydebug("key3 '$key3': '$$json{$key}{$key2}{$key3}'");
 
                         unless (ref $json->{$key}->{$key2}->{$key3} eq ref "const") {
                             $pmda->err("Unexpected key3 '$key3' value (nor constant, nor hash reference): " . Dumper($json->{$key}->{$key2}->{$key3}));
@@ -714,7 +748,7 @@ sub get_nc_data {
                             next;
                         }
 
-                        mydebug("... is a server metric");
+                        #mydebug("... is a server metric");
 
                         $refh_stats->{server}->{$key2}->{$key3} = $json->{$key}->{$key2}->{$key3};
                     }
