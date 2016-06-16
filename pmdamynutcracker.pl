@@ -14,19 +14,6 @@
 # for more details.
 #
 
-use strict;
-use warnings;
-use autodie;
-
-use PCP::PMDA;
-use IO::Socket::INET;
-use File::Spec::Functions qw(catfile);
-use Time::HiRes   qw(gettimeofday);
-use JSON          qw(decode_json);;
-use Data::Dumper;
-
-use vars qw($pmda %cfg %id2metrics %cur_data %var_metrics);
-
 #
 # Notes:
 #
@@ -61,15 +48,39 @@ use vars qw($pmda %cfg %id2metrics %cur_data %var_metrics);
 #  - add measurement of request-response time, timeout or error of INFO
 #      queries
 #  - add some check that at most 1 NutCracker request is performed at a time
-#  - add configurable timer for on-time error check (< 1 sec)
+#  - add configurable timer for fetch on-time error check (< 1 sec)
 #  - use persistent TCP connection to NutCracker and reconnect only when needed
 #    -> use dynamic replace_indom in case of system unavailability
+#  - make the memoization resistant to time changes (e.g. read counting?)
 #
+
+use strict;
+use warnings;
+use autodie;
+use feature qw{state};
+
+use PCP::PMDA;
+use IO::Socket::INET;
+use File::Spec::Functions qw(catfile);
+use Time::HiRes   qw(gettimeofday);
+use JSON          qw(decode_json);;
+use YAML::XS      qw(LoadFile);
+use Data::Dumper;
+
+use vars qw($pmda %cfg %id2metrics %indom2name %cur_data %indom2ids);
+
+# Important variables:
+#
+# $pmda       - the PMDA object
+# %cfg        - configuration hash holding metric description and important constants
+# %id2metrics - map of metric IDs to the metric names in PMNS
+# %indom2name - map of instance domain IDs to its readable name
+# %cur_data   - hash storing current values of fetched data
 
 %cfg = (
     config_fname => "mynutcracker.conf",
 
-    metrics     => {
+    general_metrics     => {
         source => { type => PM_TYPE_STRING,
                     semantics => PM_SEM_DISCRETE,
                     help => "Hostname of the host running nutcracker",
@@ -167,7 +178,6 @@ use vars qw($pmda %cfg %id2metrics %cur_data %var_metrics);
                         help      => "Number of errors on server connections",
                         id        => 17,
                     },
-
         in_queue => { type      => PM_TYPE_U64,
                         semantics => PM_SEM_COUNTER,
                         help      => "Number of errors on server connections",
@@ -199,6 +209,7 @@ use vars qw($pmda %cfg %id2metrics %cur_data %var_metrics);
     max_delta_sec => 0.5,
     pmdaname      => "mynutcracker",
     max_recv_len  => 10240,
+    indom_separator => ":::",
 
     debug => 1,
 );
@@ -215,137 +226,272 @@ config_check(\%cfg);
 #print STDERR "Starting $cfg{pmdaname} PMDA\n";
 $pmda = PCP::PMDA->new($cfg{pmdaname}, 253);
 
-die "Failed to load config file"
-    unless $cfg{loaded} = load_config(catfile(pmda_config('PCP_PMDAS_DIR'),$cfg{pmdaname},$cfg{config_fname}));
+# TODO: Check behaviour on errors
+$cfg{loaded} = LoadFile(catfile(pmda_config('PCP_PMDAS_DIR'),$cfg{pmdaname},$cfg{config_fname}));
+
+mydebug("Loaded config: ", Dumper(\$cfg{loaded}));
+
+die "Failed to load config file $cfg{config_fname}"
+    unless defined $cfg{loaded} and $cfg{loaded};
+
+# Derive the list of instances in instance domains
+#
+# general: e.g. [localhost:1234, ...]
+# pool:    e.g. [localhost:1234:::redis_1, ...]
+# server:  e.g. [localhost:1234:::redis_1:::redis-1, ...]
+#
+
+my ($general_inst_id,$pool_inst_id,$server_inst_id) = (-1,-1,-1);
+
+foreach my $host_port (sort keys %{$cfg{loaded}{hosts}}) {
+    $indom2name{general}{++$general_inst_id} = $host_port;
+
+    foreach my $pool (sort keys %{$cfg{loaded}{hosts}{$host_port}}) {
+        $indom2name{pool}{++$pool_inst_id} = join $cfg{indom_separator},$host_port,$pool;
+
+        foreach my $server (sort @{$cfg{loaded}{hosts}{$host_port}{$pool}}) {
+            $indom2name{server}{++$server_inst_id} = join $cfg{indom_separator},$host_port,$pool,$server;
+        }
+    }
+}
+
+mydebug(Data::Dumper->Dump([\%indom2name],[qw(indom2name)]));
+
 $pmda->connect_pmcd;
 mydebug("Connected to PMDA");
 
 # Assumption: All the NutCracker instances offer same metrics (so e.g. no major config changes, same versions)
 
-my ($pm_instdom) = (-1,-1);
 my $res;
 
 # Add instance domains - Note that it has to be run before addition of metrics
-$pm_instdom++;
-
-mydebug("$cfg{pmdaname} adding instance domain $pm_instdom," . Dumper($cfg{loaded}{hosts}))
+mydebug("$cfg{pmdaname} adding instance domains based on config:" . Dumper($cfg{loaded}))
     if $cfg{debug};
 
-my %dom2ids = ( general => 0,
-                pool    => 1,
-                server  => 2 );
+%indom2ids = (
+    general => 0,
+    pool    => 1,
+    server  => 2 );
 
-$res = $pmda->add_indom($pm_instdom,
-                        $cfg{loaded}{hosts},
-                        "Memcached/NutCracker Server pools",
-                        "Memcached/NutCracker Server pools names seen in nutcrackermynutcracker.conf");
-mydebug("add_indom returned: " . Dumper($res))
-    if $cfg{debug};
+my %indom2insts = (
+    general => $cfg{loaded}{hosts},
+    pool    => [
+        map {
+            my $host = $_;
+            state $foo = -1;
 
-# Add all the general metrics
-mydebug("Adding general metrics");
+            map {
+                my $pool_name = join $cfg{indom_separator},$host,$_;
 
-foreach my $metric (sort keys %{$cfg{metrics}}) {
-    my $refh_metric = $cfg{metrics}->{$metric};
-    my $pmid = $refh_metric->{id};
+                ++$foo => $pool_name
+            } sort keys %{$cfg{loaded}{hosts}{$host}};
+        } sort keys %{$cfg{loaded}{hosts}}],
+    server  => [
+        map {
+            my $host = $_;
 
-    mydebug("$cfg{pmdaname} adding metric $cfg{pmdaname}.$metric using PMID: $pmid ...");
+            map {
+                my $pool = $_;
+                my $pool_name = join $cfg{indom_separator},$host,$_;
+                state $foo = -1;
 
-    $res = $pmda->add_metric(
-        pmda_pmid(0,$pmid),                              # PMID
-        $refh_metric->{type},                            # data type
-        $dom2ids{general},                               # indom
-        ($refh_metric->{semantics} // PM_SEM_DISCRETE),  # semantics
-        pmda_units(0,0,1,0,0,PM_COUNT_ONE),              # units
-        "$cfg{pmdaname}.$metric",                        # key name
-        ($refh_metric->{help}      // ""),               # short help
-        ($refh_metric->{longhelp}  // ""));              # long help
-    $id2metrics{$pmid} = $metric;
+                map {
+                    my $server_name = join $cfg{indom_separator},$host,$pool_name,$_;
 
-    mydebug("... returned '" . ($res // "<undef>") . "'");
+                    ++$foo => $server_name
+                } sort @{$cfg{loaded}{hosts}{$host}{$pool}};
+            } sort keys %{$cfg{loaded}{hosts}{$host}};
+        } sort keys %{$cfg{loaded}{hosts}}],
+);
+
+foreach my $indom (qw{general pool server}) {
+    my ($indom_id,$insts,$help,$longhelp) = ($indom2ids{$indom},
+                                             $indom2insts{$indom},
+                                             "FIXME",
+                                             "long FIXME");
+
+    $res = $pmda->add_indom($indom_id,  # indom ID
+                            $insts,     # instances
+                            $help,      # help
+                            $longhelp); # longhelp
+    mydebug("add_indom: " . Data::Dumper->Dump([\$indom_id,\$insts,\$help,\$longhelp,\$res],
+                                               [qw(indom_id insts help longhelp res)]))
+        if $cfg{debug};
 }
 
-# ... and also pool metrics (those that depend on configuration and keyspace)
-mydebug("Adding pool metrics");
+# # ... general indom
+# $res = $pmda->add_indom($indom2ids{general},                                # indom ID
+#                         $cfg{loaded}{hosts},                              # instances
+#                         "General Nutcracker metrics",                     # help
+#                         "Metrics not specific for any pools or servers"); # longhelp
+# mydebug("add_indom: " . Dumper($res))
+#     if $cfg{debug};
 
-foreach my $metric_suffix (sort keys %{$cfg{pool_metrics}}) {
-    my $refh_metric = $cfg{variant_metrics}->{$metric_suffix};
-    my $pmid = $refh_metric->{id};
+# # ... pool indom
+# my $refh_pools = { map {
+#     my $host = $_;
 
-    foreach my $keyspace (sort keys %{$cfg{loaded}{dbs}}) {
-        my $metric_name = "$cfg{pmdaname}.${keyspace}$metric_suffix";
+#     map {
+#         my $pool_name = join $cfg{indom_separator},$host,$_;
 
-        mydebug("$cfg{pmdaname} adding metric $cfg{pmdaname}.$keyspace:"
+#         $pool_name => 0
+#     } keys %{$cfg{loaded}{hosts}{$host}};
+# } keys %{$cfg{loaded}{hosts}}};
+
+# mydebug(Data::Dumper->Dump([\$refh_pools],[qw(refh_pools)]))
+#     if $cfg{debug};
+
+# $res = $pmda->add_indom($indom2ids{pool},
+#                         $refh_pools,
+#                         "Redis/Memcache server pools",
+#                         "Redis/Memcache server pools - groups of redis servers specified in nutcracker config");
+# mydebug("add_indom returned: " . Dumper($res))
+#     if $cfg{debug};
+
+# # ... server indom
+# my $refh_servers = { map {
+#     my $host = $_;
+
+#     map {
+#         my $pool = $_;
+#         my $pool_name = join $cfg{indom_separator},$host,$_;
+
+#         map {
+#             my $server_name = join $cfg{indom_separator},$host,$pool_name,$_;
+
+#             $server_name => 0
+#         } @{$cfg{loaded}{hosts}{$host}{$pool}};
+#     } keys %{$cfg{loaded}{hosts}{$host}};
+# } keys %{$cfg{loaded}{hosts}}};
+
+# mydebug(Data::Dumper->Dump([\$refh_servers],[qw(refh_servers)]))
+#     if $cfg{debug};
+
+# $res = $pmda->add_indom($indom2ids{server},
+#                         $cfg{loaded},
+#                         "Memcached/NutCracker server domain",
+#                         "Memcached/NutCracker server names seen in nutcrackermynutcracker.conf");
+# mydebug("add_indom returned: " . Dumper($res))
+#     if $cfg{debug};
+
+foreach my $metric_type (qw{general pool server}) {
+    my $full_mt_name = $metric_type . "_metrics";
+
+    mydebug("Adding $metric_type metrics");
+
+    foreach my $metric (sort keys %{$cfg{$full_mt_name}}) {
+        my $refh_metric = $cfg{$full_mt_name}->{$metric};
+        my $pmid = $refh_metric->{id};
+
+        mydebug("$cfg{pmdaname} adding metric $cfg{pmdaname}.$metric:"
                     . Data::Dumper->Dump([pmda_pmid(0,$pmid),
                                           $refh_metric->{type},
-                                          $pm_instdom,
+                                          $indom2ids{$metric_type},
                                           ($refh_metric->{semantics} // PM_SEM_DISCRETE),
                                           pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-                                          $metric_name,
+                                          $metric,
                                           ($refh_metric->{help} // ""),
                                           ($refh_metric->{longhelp} // ""),
                                       ],
-                                         [qw(PMID data_type instance_domain semantics units metric_name help longhelp)]))
+                                         [qw(pmid data_type instance_domain semantics units metric_name help longhelp)]))
             if $cfg{debug};
 
         $res = $pmda->add_metric(
-            pmda_pmid(0,$pmid),                              # PMID
-            $refh_metric->{type},                            # data type
-            $pm_instdom,                                     # indom
-            ($refh_metric->{semantics} // PM_SEM_DISCRETE),  # semantics
-            pmda_units(0,0,1,0,0,PM_COUNT_ONE),              # units
-            $metric_name,                                    # metric name
-            ($refh_metric->{help} // ""),                    # short help
-            ($refh_metric->{longhelp} // ""));               # long help
-        $id2metrics{$pmid} = $metric_name;
-        $var_metrics{$metric_name}{keyspace} = $keyspace;
+            pmda_pmid(0,$pmid),                             # pmid
+            $refh_metric->{type},                           # data type
+            $indom2ids{$metric_type},                         # indom
+            ($refh_metric->{semantics} // PM_SEM_DISCRETE), # semantics
+            pmda_units(0,0,1,0,0,PM_COUNT_ONE),             # units
+            $metric,                                        # metric name
+            ($refh_metric->{help}      // ""),              # short help
+            ($refh_metric->{longhelp}  // ""));             # long help
+        $id2metrics{$pmid} = $metric;
 
         mydebug("... returned '" . ($res // "<undef>") . "'");
     }
 }
 
-# ... and also server metrics (those that depend on configuration and keyspace)
-mydebug("Adding server metrics");
 
-foreach my $metric_suffix (sort keys %{$cfg{variant_metrics}}) {
-    my $refh_metric = $cfg{variant_metrics}->{$metric_suffix};
-    my $pmid = $refh_metric->{id};
+# # Add all the general metrics
+# mydebug("Adding general metrics");
 
-    foreach my $keyspace (sort keys %{$cfg{loaded}{dbs}}) {
-        my $metric_name = "$cfg{pmdaname}.${keyspace}$metric_suffix";
+# foreach my $metric (sort keys %{$cfg{general_metrics}}) {
+#     my $refh_metric = $cfg{general_metrics}->{$metric};
+#     my $pmid = $refh_metric->{id};
 
-        mydebug("$cfg{pmdaname} adding metric $cfg{pmdaname}.$keyspace:"
-                    . Data::Dumper->Dump([pmda_pmid(0,$pmid),
-                                          $refh_metric->{type},
-                                          $pm_instdom,
-                                          ($refh_metric->{semantics} // PM_SEM_DISCRETE),
-                                          pmda_units(0,0,1,0,0,PM_COUNT_ONE),
-                                          $metric_name,
-                                          ($refh_metric->{help} // ""),
-                                          ($refh_metric->{longhelp} // ""),
-                                      ],
-                                         [qw(PMID data_type instance_domain semantics units metric_name help longhelp)]))
-            if $cfg{debug};
+#     mydebug("$cfg{pmdaname} adding metric $cfg{pmdaname}.$metric using PMID: $pmid ...");
 
-        $res = $pmda->add_metric(
-            pmda_pmid(0,$pmid),                              # PMID
-            $refh_metric->{type},                            # data type
-            $pm_instdom,                                     # indom
-            ($refh_metric->{semantics} // PM_SEM_DISCRETE),  # semantics
-            pmda_units(0,0,1,0,0,PM_COUNT_ONE),              # units
-            $metric_name,                                    # metric name
-            ($refh_metric->{help} // ""),                    # short help
-            ($refh_metric->{longhelp} // ""));               # long help
-        $id2metrics{$pmid} = $metric_name;
-        $var_metrics{$metric_name}{keyspace} = $keyspace;
+#     $res = $pmda->add_metric(
+#         pmda_pmid(0,$pmid),                              # PMID
+#         $refh_metric->{type},                            # data type
+#         $indom2ids{general},                               # indom
+#         ($refh_metric->{semantics} // PM_SEM_DISCRETE),  # semantics
+#         pmda_units(0,0,1,0,0,PM_COUNT_ONE),              # units
+#         "$cfg{pmdaname}.$metric",                        # key name
+#         ($refh_metric->{help}      // ""),               # short help
+#         ($refh_metric->{longhelp}  // ""));              # long help
+#     $id2metrics{$pmid} = $metric;
 
-        mydebug("... returned '" . ($res // "<undef>") . "'");
-    }
-}
+#     mydebug("... returned '" . ($res // "<undef>") . "'");
+# }
 
+# # ... and also pool metrics (those that depend on configuration and keyspace)
+# mydebug("Adding pool metrics");
 
-$pmda->set_fetch(\&mynutcracker_fetch);
-$pmda->set_fetch_callback(\&mynutcracker_fetch_callback);
+# foreach my $metric (sort keys %{$cfg{pool_metrics}}) {
+#     my $refh_metric = $cfg{pool_metrics}->{$metric};
+#     my $pmid = $refh_metric->{id};
+
+#     mydebug("$cfg{pmdaname} adding metric $cfg{pmdaname}.$metric:"
+#                 . Data::Dumper->Dump([pmda_pmid(0,$pmid),
+#                                       $refh_metric->{type},
+#                                       $indom2ids{pool},
+#                                       ($refh_metric->{semantics} // PM_SEM_DISCRETE),
+#                                       pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+#                                       $metric,
+#                                       ($refh_metric->{help} // ""),
+#                                       ($refh_metric->{longhelp} // ""),
+#                                   ],
+#                                      [qw(pmid data_type instance_domain semantics units metric_name help longhelp)]))
+#         if $cfg{debug};
+
+#     $res = $pmda->add_metric(
+#         pmda_pmid(0,$pmid),                              # PMID
+#         $refh_metric->{type},                            # data type
+#         $indom2ids{pool},                                  # indom
+#         ($refh_metric->{semantics} // PM_SEM_DISCRETE),  # semantics
+#         pmda_units(0,0,1,0,0,PM_COUNT_ONE),              # units
+#         $metric,                                         # metric name
+#         ($refh_metric->{help}      // ""),               # short help
+#         ($refh_metric->{longhelp}  // ""));              # long help
+#     $id2metrics{$pmid} = $metric;
+
+#     mydebug("... returned '" . ($res // "<undef>") . "'");
+# }
+
+# # ... and also server metrics (those that depend on configuration and keyspace)
+# mydebug("Adding server metrics");
+
+# foreach my $metric (sort keys %{$cfg{server_metrics}}) {
+#     my $refh_metric = $cfg{server_metrics}->{$metric};
+#     my $pmid = $refh_metric->{id};
+
+#     $res = $pmda->add_metric(
+#         pmda_pmid(0,$pmid),                              # PMID
+#         $refh_metric->{type},                            # data type
+#         $indom2ids{server},                                # indom
+#         ($refh_metric->{semantics} // PM_SEM_DISCRETE),  # semantics
+#         pmda_units(0,0,1,0,0,PM_COUNT_ONE),              # units
+#         $metric,                                         # metric name
+#         ($refh_metric->{help}      // ""),               # short help
+#         ($refh_metric->{longhelp}  // ""));              # long help
+#     $id2metrics{$pmid} = $metric;
+
+#     mydebug("... returned '" . ($res // "<undef>") . "'");
+# }
+
+$pmda->set_fetch(\&fetch);
+$pmda->set_fetch_callback(\&fetch_callback);
 $pmda->set_user('pcp');
 $pmda->run;
 
@@ -371,8 +517,8 @@ sub config_check {
     # Check that there aren't two metrics with same metric IDs
     my ($err_count,%ids);
 
-    $ids{$cfg{metrics}{$_}{id}}{$_}++
-        foreach keys %{$cfg{metrics}};
+    $ids{$cfg{general_metrics}{$_}{id}}{$_}++
+        foreach keys %{$cfg{general_metrics}};
     $ids{$cfg{pool_metrics}{$_}{id}}{$_}++
         foreach keys %{$cfg{pool_metrics}};
     $ids{$cfg{server_metrics}{$_}{id}}{$_}++
@@ -390,70 +536,31 @@ sub config_check {
         if $err_count;
 }
 
-sub load_config {
-    my ($in_fname) = @_;
-    my $refh_res;
+sub metric_to_domain_name {
+    my ($metric) = @_;
 
-    open my $fh_in,"<",$in_fname;
+    if (exists $cfg{general_metrics}{$metric}) {
+        "general"
+    } elsif (exists $cfg{pool_metrics}{$metric}) {
+        "pool"
+    } elsif (exists $cfg{server_metrics}{$metric}) {
+        "server"
+    } else {
+        $pmda->err("Assertion error - metric '$metric' is nor general, nor pool, nor server metric");
 
-    my ($host_id,$lineno) = (0,0,0);
-    while (my $aline = <$fh_in>) {
-        $lineno++;
-        chomp $aline;
-
-        if ($aline =~ /\A\s*#/) {
-            mydebug("#$lineno: Skipping line '$aline'");
-
-            next
-        } elsif ($aline =~ /\A\s*\Z/) {
-            mydebug("#$lineno: Skipping line '$aline'");
-
-            next
-        } elsif ($aline =~ /\A\s*host\s*=\s*(\S+):(\d+)\s*\Z/) {
-            mydebug("#$lineno: host: '$1', port: '$2' from '$aline'");
-
-            $refh_res->{hosts}->{join(':',$1,$2)} = { id   => $host_id++,
-                                                      host => $1,
-                                                      port => $2 };
-        } else {
-            warn "#$lineno: Unexpected line '$aline', skipping it";
-        }
+        undef;
     }
-
-    # Check mandatory options
-    die "No mandatory keys found"
-        unless keys %$refh_res;
-
-    my $err_count = 0;
-
-    mydebug(Dumper($refh_res))
-        if $cfg{debug};
-
-    #TODO: Check also gethostbyname and port number to be >0 and < 65535
-    die "No hosts to be monitored found in '$in_fname'"
-        unless exists $refh_res->{hosts} and keys %{$refh_res->{hosts}};
-    die "It seems that '$in_fname' contains non-unique hosts entries"
-        unless keys %{$refh_res->{hosts}} == $host_id;
-
-    $refh_res
 }
 
-sub mynutcracker_fetch {
+sub fetch {
     my ($cluster, $item, $inst) = @_;
     my ($t0_sec,$t0_msec) = gettimeofday;
-    #my $searched_key = $id2metrics{$item};
-    #my $metric_name = pmda_pmid_name($cluster, $item);
-    #
-    #mydebug("$cfg{pmdaname}_fetch metric:"
-    #            . Data::Dumper->Dump([\$metric_name,\$cluster,\$item,\$inst,\$searched_key],
-    #                                 [qw(metric_name cluster item inst searched_key)]))
-    #    if $cfg{debug};
 
     # Clean deprecated data for all the instances
     my ($cur_date_sec,$cur_date_msec) = gettimeofday;
     my $cur_date = $cur_date_sec + $cur_date_msec/1e6;
 
-    foreach my $inst (sort keys %{$cfg{loaded}{hosts}}) {
+    foreach my $inst (sort keys %{$cfg{loaded}}) {
         if (exists $cur_data{$inst} and ($cur_date - $cur_data{$inst}{timestamp}) > $cfg{max_delta_sec}) {
             mydebug("Removing cache data for '$inst' as too old - cur_date: $cur_date, timestamp: $cur_data{$inst}{timestamp}");
 
@@ -464,16 +571,16 @@ sub mynutcracker_fetch {
     mydebug("$cfg{pmdaname}_fetch finished");
 }
 
-sub mynutcracker_fetch_callback {
+sub fetch_callback {
     my ($cluster, $item, $inst) = @_;
-    my ($t0_sec,$t0_msec) = gettimeofday;
     my $searched_key = $id2metrics{$item};
     my $metric_name = pmda_pmid_name($cluster, $item);
+    my $indom_name = metric_to_domain_name($searched_key);
+    my $inst_name = $indom2name{$indom_name}{$inst};
 
-    #mydebug("mynutcracker_fetch_callback metric:'$metric_name' cluster:'$cluster', item:'$item' inst:'$inst' -> searched_key: $searched_key");
-    mydebug("mynutcracker_fetch_callback:"
-                . Data::Dumper->Dump([\$metric_name,\$cluster,\$item,\$inst,\$searched_key],
-                                     [qw(metric_name cluster item inst searched_key)]))
+    mydebug("fetch_callback:"
+                . Data::Dumper->Dump([\$cluster,\$item,\$inst,\$searched_key,\$metric_name,\$indom_name,\$inst_name],
+                                     [qw(cluster item inst searched_key metric_name indom_name inst_name)]))
         if $cfg{debug};
 
     if ($inst == PM_IN_NULL) {
@@ -488,83 +595,47 @@ sub mynutcracker_fetch_callback {
         return (PM_ERR_PMID, 0)
     }
 
-    # Get NutCracker hostname and port number from config
-    my @host_ports = grep {$cfg{loaded}{hosts}{$_}->{id} == $inst} keys %{$cfg{loaded}{hosts}};
+    # Assumption: There are no two metrics with same name in general/pool/server group (TODO: Check it)
+    my ($host,$port);
 
-    mydebug(Data::Dumper->Dump([\@host_ports,
-                                $cfg{loaded}],
-                               [qw(host_ports cfg{loaded})]))
-        if $cfg{debug};
-
-    die "Assertion error - more than one hostports seen in loaded config having instance '$inst'"
-        if @host_ports > 1;
-    die "Assertion error - no hostport of instance '$inst' found in loaded config"
-        unless @host_ports;
-
-    my ($host,$port) = split /:/,$host_ports[0];
-
-    warn "Assertion error - no host:port detected in '$host_ports[0]'"
-        unless $host and $port;
+    warn "Assertion error - no host:port detected from indom_name '$indom_name'"
+        unless ($host,$port) = ($inst_name =~ /\A(\S+):(\d+)/);
 
     mydebug("Host: '$host', port: '$port'");
 
     # Fetch NutCracker info
-    #TODO: Add support for db instances here
-    my ($refh_nc_info,$refh_inst_keys);
-    my ($cur_date_sec,$cur_date_msec) = gettimeofday;
-    my $cur_date = $cur_date_sec + $cur_date_msec/1e6;
+    my $refh_stats;
+    my ($t0_sec,$t0_usec) = gettimeofday;
+    my $utime0 = $t0_sec + $t0_usec/1e6;
+    my $delta_sec = $utime0 - ($cur_data{$inst}{timestamp} // 0);
 
-    if (exists $cur_data{$host_ports[0]} and ($cur_date - $cur_data{$host_ports[0]}{timestamp}) < $cfg{max_delta_sec}) {
-        $refh_nc_info = $cur_data{$host_ports[0]}{nc_info};
-        $refh_inst_keys  = $cur_data{$host_ports[0]}{inst_keys};
+    if ($delta_sec < $cfg{max_delta_sec}) {
+        $refh_stats = $cur_data{$inst}{stats};
     } else {
         mydebug("Actual data not found, refetching");
 
-        ($refh_nc_info,$refh_inst_keys) = get_nc_data($host,$port);
+        ($refh_stats) = get_nc_data($host,$port);
 
-        mydebug(Data::Dumper->Dump([$refh_nc_info, $refh_inst_keys],[qw(refh_nc_info refh_inst_keys)]))
+        mydebug(Data::Dumper->Dump([$refh_stats],[qw(refh_stats)]))
             if $cfg{debug};
-
-        my ($cur_date_sec,$cur_date_msec) = gettimeofday;
-        my $cur_date = $cur_date + $cur_date_msec/1e6;
-
-        $cur_data{$host_ports[0]}{timestamp} = $cur_date;
-        $cur_data{$host_ports[0]}{nc_info} = $refh_nc_info;
-        $cur_data{$host_ports[0]}{inst_keys} = $refh_inst_keys;
-    }
-
-    my ($t1_sec,$t1_msec) = gettimeofday;
-    my $dt = $t1_sec + $t1_msec/1e6 - ($t0_sec + $t0_msec/1e6);
-
-    mydebug("fetch with processing lasted: $dt seconds");
-
-    # Check if the key is a variant metric
-    my @found = grep { $_ eq $searched_key } keys %{var_metrics};
-
-    mydebug(Data::Dumper->Dump([\@found],[qw(found)]));
-
-    if (@found > 1) {
-        $pmda->err("Assertion error: More than 1 keys found: @found");
 
         return (PM_ERR_AGAIN, 0)
-    } elsif (@found == 1) {
-        my $keyspace = $var_metrics{$searched_key}{keyspace};
-        my ($key_to_search) = ($searched_key =~ /\A$cfg{pmdaname}.${keyspace}_(\S+)/);
+            unless defined $refh_stats;
 
-        mydebug("key '$searched_key'\n", Data::Dumper->Dump([$keyspace,$key_to_search],
-                                                            [qw{keyspace key_to_search}]))
-            if $cfg{debug};
-        mydebug(Data::Dumper->Dump([$refh_inst_keys],[qw(refh_inst_keys)]))
-            if $cfg{debug};
+        my ($t1_sec,$t1_usec) = gettimeofday;
+        my $utime1 = $t1_sec + $t1_usec/1e6;
+        my $dt_sec = $utime1 - $utime0;
 
-        if (exists $refh_inst_keys->{$keyspace}->{$key_to_search}) {
-            return ($refh_inst_keys->{$keyspace}->{$key_to_search},1)
-        }
+        $cur_data{$inst}{$indom2name{general}} = { timestamp      => $utime1,
+                                                   stats          => $refh_stats,
+                                                   fetch_time_sec => $dt_sec,
+                                               };
 
-        return (PM_ERR_AGAIN, 0);
+        mydebug("fetch lasted: $dt_sec seconds");
     }
 
-    if (not(exists $refh_nc_info->{$searched_key} and defined $refh_nc_info->{$searched_key})) {
+    if (not(exists $refh_stats->{$indom_name}->{$searched_key}
+                and defined $refh_stats->{$indom_name}->{$searched_key})) {
         # Return error if the atom value was not succesfully retrieved
         mydebug("Required metric '$searched_key' was not found in NutCracker statistics or was undefined");
 
@@ -573,13 +644,13 @@ sub mynutcracker_fetch_callback {
         # Success - return (<value>,<success code>)
         mydebug("Returning success");
 
-        return ($refh_nc_info->{$searched_key}, 1);
+        return ($refh_stats->{$indom_name}->{$searched_key}, 1);
     }
 }
 
 sub get_nc_data {
     my ($host,$port) = @_;
-    my ($refh_general_stats,$refh_pool_stats,$refh_server_stats);
+    my $refh_stats;
 
     mydebug("Opening socket to host:'$host', port:'$port'");
 
@@ -589,8 +660,13 @@ sub get_nc_data {
     my $socket = IO::Socket::INET->new( PeerAddr => $host,
                                         PeerPort => $port,
                                         Proto    => 'tcp',
-                                        Type     => SOCK_STREAM )
-        or die "Can't bind : $@\n";;
+                                        Type     => SOCK_STREAM );
+    unless ($socket) {
+        mydebug("Failed to create socket: '$@'");
+
+        return undef;
+    }
+
     #my $size = $socket->send("INFO\r\n");
     #
     #mydebug("Sent INFO request with $size bytes");
@@ -615,7 +691,7 @@ sub get_nc_data {
             # General metric
             mydebug("... is a general metric");
 
-            $refh_general_stats->{$key} = $json->{$key};
+            $refh_stats->{general}->{$key} = $json->{$key};
         } elsif (ref $json->{$key} eq ref {}) {
             foreach my $key2 (sort keys %{$json->{$key}}) {
                 mydebug("key2 '$key2': '$$json{$key}{$key2}'");
@@ -624,7 +700,7 @@ sub get_nc_data {
                     # Pool metrics
                     mydebug("... is a pool metric");
 
-                    $refh_pool_stats->{$key}->{$key2} = $json->{$key}->{$key2};
+                    $refh_stats->{pool}->{$key}->{$key2} = $json->{$key}->{$key2};
                 } elsif (ref $json->{$key}->{$key2} eq ref {}) {
                     # Server metrics
 
@@ -639,7 +715,7 @@ sub get_nc_data {
 
                         mydebug("... is a server metric");
 
-                        $refh_server_stats->{$key2}->{$key3} = $json->{$key}->{$key2}->{$key3};
+                        $refh_stats->{server}->{$key2}->{$key3} = $json->{$key}->{$key2}->{$key3};
                     }
                 } else {
                     $pmda->err("Unexpected key2 '$key2' value (nor constant, nor hash reference): " . Dumper($json->{$key}->{$key2}));
@@ -651,11 +727,7 @@ sub get_nc_data {
         }
     }
 
-    mydebug("Fetch callback results:" . Data::Dumper->Dump([$refh_general_stats,
-                                                            $refh_pool_stats,
-                                                            $refh_server_stats],[qw{refh_general_stats
-                                                                                    refh_pool_stats
-                                                                                    refh_server_stats}]));
+    mydebug("Fetch callback results:" . Data::Dumper->Dump([$refh_stats],[qw{refh_stats}]));
 
-    ($refh_general_stats,$refh_pool_stats,$refh_server_stats)
+    $refh_stats
 }
