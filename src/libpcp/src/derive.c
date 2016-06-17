@@ -548,11 +548,18 @@ static void
 free_expr(node_t *np)
 {
     if (np == NULL) return;
-    if (np->left != NULL) free_expr(np->left);
-    if (np->right != NULL) free_expr(np->right);
+    free_expr(np->left);
+    free_expr(np->right);
+    np->left = np->right = NULL;
     /* value is only allocated once for the static nodes */
-    if (np->info == NULL && np->value != NULL) free(np->value);
-    if (np->info != NULL) free(np->info);
+    if (np->info == NULL && np->value != NULL) {
+	free(np->value);
+	np->value = NULL;
+    }
+    if (np->info != NULL) {
+    	free(np->info);
+	np->info = NULL;
+    }
     free(np);
 }
 
@@ -570,14 +577,14 @@ bind_expr(int n, node_t *np)
     if (np->left != NULL) {
 	if ((new->left = bind_expr(n, np->left)) == NULL) {
 	    /* error, reported deeper in the recursion, clean up */
-	    free(new);
+	    free_expr(new);
 	    return(NULL);
 	}
     }
     if (np->right != NULL) {
 	if ((new->right = bind_expr(n, np->right)) == NULL) {
 	    /* error, reported deeper in the recursion, clean up */
-	    free(new);
+	    free_expr(new);
 	    return(NULL);
 	}
     }
@@ -614,8 +621,7 @@ bind_expr(int n, node_t *np)
 		fprintf(stderr, "bind_expr: error: derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 #endif
-	    free(new->info);
-	    free(new);
+	    free_expr(new);
 	    return NULL;
 	}
 	sts = pmLookupDesc(new->info->pmid, &new->desc);
@@ -627,8 +633,7 @@ bind_expr(int n, node_t *np)
 		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 #endif
-	    free(new->info);
-	    free(new);
+	    free_expr(new);
 	    return NULL;
 	}
     }

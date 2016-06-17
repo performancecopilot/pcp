@@ -1132,6 +1132,7 @@ timezone
 919 pmlogger pmstat local
 921 pmdumplog local
 922 derive pmie pmval local
+923 derive libpcp valgrind local
 926 other local
 928 archive local
 929 logutil local
