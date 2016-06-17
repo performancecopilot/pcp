@@ -3,7 +3,7 @@
 # Check changed semantics for interpolation in the region of <mark>
 # records.
 #
-# Also tests various pcp-iostat features
+# Also tests various pcp-iostat features (see also 851)
 #
 # Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
 # Copyright (c) 2016 Red Hat.  All Rights Reserved.
@@ -106,10 +106,6 @@ for method in sum avg min max; do
     echo "== testing pmiostat -R regex -G $method for dm devices"
     pmiostat -z -xt,dm -t 30m -a archives/pmiostat_mark -R 'home|swap' -G $method
 done
-
-echo '== testing pmiostat --samples option samples sufficiently (2,3)'
-pmiostat -t 0.01 -s 1 | wc -l
-pmiostat -t 0.01 --samples 2 | wc -l
 
 # success, all done
 status=0

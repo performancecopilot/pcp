@@ -1089,6 +1089,7 @@ timezone
 848 pmcd secure local
 849:reserved pmie local
 850 python local
+851 pmiostat local
 853 pmcpp local
 855 pmda.netfilter local
 858 libpcp local fetch
@@ -1132,7 +1133,6 @@ timezone
 919 pmlogger pmstat local
 921 pmdumplog local
 922 derive pmie pmval local
-923 derive libpcp valgrind local
 926 other local
 928 archive local
 929 logutil local
