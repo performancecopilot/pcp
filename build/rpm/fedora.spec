@@ -2219,7 +2219,7 @@ cd
 # C source files that rpmlint complains about. These are not devel files,
 # but rather they are (slightly obscure) PMDA config files.
 #
-%doc CHANGELOG COPYING INSTALL README VERSION.pcp pcp.lsm
+%doc CHANGELOG COPYING INSTALL.md README.md VERSION.pcp pcp.lsm
 
 %dir %{_confdir}
 %dir %{_pmdasdir}
