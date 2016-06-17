@@ -453,7 +453,7 @@ _pcp () {
     if [[ $#archives -gt 0 && $archives = *.index* ]]; then
       _values -s , -w archive ${archives/.index} && ret=0
     else
-      _wanted archives expl archive _files && ret=0
+      _wanted archives expl archive _files -/ && ret=0
     fi
   ;;
   containers)
