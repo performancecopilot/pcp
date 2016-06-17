@@ -162,6 +162,7 @@ record-setarg
 rootclient
 rtimetest
 scale
+semstr
 slow_af
 sortinst
 statvfs
