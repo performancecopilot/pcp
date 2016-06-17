@@ -170,6 +170,15 @@ then
     fi
 fi
 
+# Usage: _do_dir user:group mode path
+_do_dir()
+{
+    dir=$3
+    [ -d $dir ] || mkdir $dir
+    chown "$1" $dir
+    chmod "$2" $dir
+}
+
 # permissions ...
 #
 
@@ -199,6 +208,11 @@ done
 chown root:$grp $PCP_SYSCONF_DIR/pmcd/pmcd.conf
 chmod 644 $PCP_SYSCONF_DIR/pmcd/pmcd.conf
 
+# directories that may be empty and hence not in the tarball
+#
+# from src/pmcd/GNUmakefile
+_do_dir "root:$grp" 700 $PCP_TMP_DIR/pmcd
+
 # Expect only root owned things below $PCP_SYSCONF_DIR
 #
 find $PCP_SYSCONF_DIR ! -user root \
@@ -215,11 +229,10 @@ for dir in $PCP_LOG_DIR \
 	   $PCP_RUN_DIR \
 	   $PCP_VAR_DIR/tmp $PCP_VAR_DIR/tmp/pmie $PCP_VAR_DIR/tmp/pmlogger \
 	   $PCP_VAR_DIR/config/pmda \
-	   $PCP_VAR_DIR/config/pmie $PCP_VAR_DIR/config/pmlogger
+	   $PCP_VAR_DIR/config/pmie $PCP_VAR_DIR/config/pmlogger \
+	   $PCP_NSSDB_DIR
 do
-    [ -d $dir ] || mkdir $dir
-    chmod 775 $dir
-    chown pcp:pcp $dir
+    _do_dir "pcp:pcp" 775 $dir
 done
 
 # pcp:pcp and mode 644 files
@@ -233,8 +246,7 @@ done
 
 # pcpqa:pcpqa and mode 755 dir and all below there
 #
-[ -d $PCP_VAR_DIR/testsuite ] || mkdir $PCP_VAR_DIR/testsuite
-chmod 775 $PCP_VAR_DIR/testsuite
+_do_dir "pcpqa:pcpqa" 775 $PCP_VAR_DIR/testsuite
 chown -R pcpqa:pcpqa $PCP_VAR_DIR/testsuite
 
 # Note: do not start daemons other than: pmcd, pmlogger, pmie and pmproxy

@@ -109,8 +109,10 @@ echo >>$seq.full
 echo "=== pmcd.conf ===" >>$seq.full
 cat $PCP_PMCDCONF_PATH >>$seq.full
 
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+echo "=== pmcd restarting ===" >>$seq.full
+$sudo $PCP_RC_DIR/pcp restart 2>>$seq.full | _filter_pcp_start
 _wait_for_pmcd
+echo "=== pmcd restarted ===" >>$seq.full
 
 cat $PCP_PMCDLOG_PATH >>$seq.full
 echo >>$seq.full

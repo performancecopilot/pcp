@@ -367,7 +367,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_PMAPI);
 	    if (access(global, F_OK) == 0)
 		configpath = global;
 	}
-	if (configpath && strnlen(configpath, MAXPATHLEN) > 0) {
+	if (configpath && configpath[0] != '\0') {
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
 		fprintf(stderr, "Derived metric initialization from %s\n",
@@ -548,11 +548,18 @@ static void
 free_expr(node_t *np)
 {
     if (np == NULL) return;
-    if (np->left != NULL) free_expr(np->left);
-    if (np->right != NULL) free_expr(np->right);
+    free_expr(np->left);
+    free_expr(np->right);
+    np->left = np->right = NULL;
     /* value is only allocated once for the static nodes */
-    if (np->info == NULL && np->value != NULL) free(np->value);
-    if (np->info != NULL) free(np->info);
+    if (np->info == NULL && np->value != NULL) {
+	free(np->value);
+	np->value = NULL;
+    }
+    if (np->info != NULL) {
+    	free(np->info);
+	np->info = NULL;
+    }
     free(np);
 }
 
@@ -570,14 +577,14 @@ bind_expr(int n, node_t *np)
     if (np->left != NULL) {
 	if ((new->left = bind_expr(n, np->left)) == NULL) {
 	    /* error, reported deeper in the recursion, clean up */
-	    free(new);
+	    free_expr(new);
 	    return(NULL);
 	}
     }
     if (np->right != NULL) {
 	if ((new->right = bind_expr(n, np->right)) == NULL) {
 	    /* error, reported deeper in the recursion, clean up */
-	    free(new);
+	    free_expr(new);
 	    return(NULL);
 	}
     }
@@ -614,8 +621,7 @@ bind_expr(int n, node_t *np)
 		fprintf(stderr, "bind_expr: error: derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 #endif
-	    free(new->info);
-	    free(new);
+	    free_expr(new);
 	    return NULL;
 	}
 	sts = pmLookupDesc(new->info->pmid, &new->desc);
@@ -627,8 +633,7 @@ bind_expr(int n, node_t *np)
 		fprintf(stderr, "bind_expr: error: derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 #endif
-	    free(new->info);
-	    free(new);
+	    free_expr(new);
 	    return NULL;
 	}
     }
@@ -2124,10 +2129,13 @@ __dmopencontext(__pmContext *ctxp)
 	     */
 	    sts = pmLookupName(1, &registered.mlist[i].name, &pmid);
 	    if (sts >= 0 && !IS_DERIVED(pmid)) {
-		char	strbuf[20];
-		pmprintf("Warning: %s: derived name matches metric %s: derived ignored\n",
+#ifdef PCP_DEBUG
+		if (pmDebug & DBG_TRACE_DERIVE) {
+		    char	strbuf[20];
+		    fprintf(stderr, "Warning: %s: derived name matches metric %s: derived ignored\n",
 			registered.mlist[i].name, pmIDStr_r(pmid, strbuf, sizeof(strbuf)));
-		pmflush();
+		}
+#endif
 		cp->mlist[i].expr = NULL;
 		continue;
 	    }

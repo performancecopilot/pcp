@@ -34,6 +34,14 @@ then
     exit
 fi
 
+root_group=root
+case $PCP_PLATFORM
+in
+    freebsd|netbsd|openbsd)
+	    root_group=wheel
+	    ;;
+esac
+
 # real QA test starts here
 
 # permslist format ...
@@ -91,6 +99,7 @@ p
 	    status=1
 	    break
 	fi
+	[ "$group" = root ] && group="$root_group"
 	#debug# echo "$target: mode: have $_mode expect $mode"
 	#debug# echo "$target: owner: have $_owner expect $owner"
 	#debug# echo "$target: group: have $_group expect $group"
@@ -116,13 +125,6 @@ done
 # except for nssdb which has ownership $PCP_USER:$PCP_GROUP
 # (pmproxy is both client and server and needs r/w access).
 #
-grp=root
-case $PCP_PLATFORM
-in
-    freebsd|darwin)
-	    grp=wheel
-	    ;;
-esac
 find $PCP_SYSCONF_DIR ! -user root | \
     grep -v "^$PCP_NSSDB_DIR" \
     > $tmp.out
@@ -130,7 +132,7 @@ if [ -s $tmp.out ]
 then
     echo "Arrgh ... these files should be owned by root"
     cat $tmp.out | xargs ls -ld
-    $fix && ( ( cat $tmp.out | xargs $sudo chown root:$grp ) ; echo "Fixed." )
+    $fix && ( ( cat $tmp.out | xargs $sudo chown root:$root_group ) ; echo "Fixed." )
 fi
 
 # success, all done

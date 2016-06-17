@@ -1,0 +1,11 @@
+QA output created by 923
+=== std out ===
+=== std err ===
+Error: foo.bar: Unknown metric name
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -f foo.bar
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
