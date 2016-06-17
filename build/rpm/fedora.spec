@@ -2633,7 +2633,12 @@ cd
 
 %changelog
 * Fri Jun 17 2016 Nathan Scott <nathans@redhat.com> - 3.11.3-1
-- Work in progress  [ see http://pcp.io/roadmap ]
+- Fix memory leak in derived metrics error handling (BZ 1331973)
+- Correctly propogate indom in mixed derived metrics (BZ 1337212, BZ 1336130)
+- Disallow stopping pmie/pmlogger daemons from cron (BZ 1336792)
+- Fail fast for easily detected bad pmcd configuration (BZ 1336210)
+- Implement primary (local) pmie concept in rc pmie (BZ 1323851)
+- Update to latest PCP Sources.
 
 * Fri Apr 29 2016 Lukas Berk <lberk@redhat.com> - 3.11.2-1
 - Negative nice values reported incorrectly (BZ 1328432)
