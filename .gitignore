@@ -4,3 +4,7 @@
 
 # Vim temporary files
 *.sw*
+
+# Log and PID files
+*.log
+*.pid
