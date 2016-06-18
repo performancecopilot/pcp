@@ -1116,6 +1116,7 @@ timezone
 887 pmlogsummary archive multi-archive local
 888 pmda.linux local
 889 pmda.proc local
+891:reserved local
 892 pmcd libpcp local
 897 pmlc pmlogger local
 898 pmlogmv local 
@@ -1138,6 +1139,7 @@ timezone
 929 logutil local
 930 pmlogrewrite local
 931 archive pmval local
+932:reserved pmlogger local
 943 pmprobe pmda.proc local
 944 pmcd secure local
 945 pmlogrewrite pmda.xfs local

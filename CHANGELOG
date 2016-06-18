@@ -1,3 +1,58 @@
+pcp-3.11.3 (17 June 2016)
+    - zsh: pcp command auto-completions for the zsh(1) shell
+    - pcp-ipcs: new command to show inter-process communication
+    - pmdalinux: add maximum memory bandwidth per numa node metric
+    - pmdalinux: update max numa bandwidth iff the .config changes
+    - pmdalinux: add metric about current shared memory segments
+    - pmdalinux: ipc shared memory swap attempts/successes metrics
+    - pmdalinux: add MSG_INFO and SEM_INFO ipc metrics
+    - pmdaproc: fix typo in name of proc.memory.vmhw{n,m} metric
+    - pmdaproc: switch to external instances without arguments
+    - libpcp, pmcd, pmproxy: client certificate support for secure
+      connections and add a PMCD_REQUIRE_CLIENT_CERT option
+    - libpcp: allow self-signed server certs in secure connections
+      optionally via PCP_SERVER_SELF_CERT environment variable
+    - libpcp: correctly propogate indom in mixed derived metrics
+    - libpcp: allow name of server certificate to be customized
+    - libpcp: plug memory leak in derived metrics error handling
+    - libpcp: drop dup-metric warning for logged derived metrics
+    - collectl2pcp: refine proc names, support for more metrics
+    - pmcd: improve interrupted pmcd/pmda communication resilience
+    - pmcd: make probe-style connection error a debug diagnostic
+    - pmdapapi: defensive programming improvements
+    - pmdaperfevent: current memory bandwidth perf derived event
+    - pmdaoracle: allow explicit host name and port specification
+    - pmdaoracle: allow potentially high latency query disabling
+    - python pmcc: cater for additional sample needed by counters
+    - pmrep: fix infinity handling
+    - mmv: several python api wrapper fixes
+    - rc scripts: really use default pmcd timeouts by default
+    - rc scripts: no longer allow stopping pmie/pmlogger from cron
+    - rc scripts: add primary (local) pmie concept to pmie
+    - misc: add --version/-V option to several more commands
+    - pmlogextract: fix metadata checking for duplicate names
+    - pmlogconf: move atop nfsclient metrics into own config
+    - pmwebd: allow use of compressed archives as nature intended
+    - build: fix pcp-python vs pcp-python3 deb package contents
+    - build: remove duplicate or unneeded header file checking
+    - build: resolve rpm multilib fallout from printf vs configure
+    - build: resolve Windows build fallout from timezone changes
+    - build: correct logic bug in builddefs INSTALL_MAN macro
+    - build: fix configure test for perl Net::SNMP module
+    - build: Fedora mandates a build-dep on perl-devel for pcp
+    - build: improve command-check error reporting in configure.ac
+    - build: new pcp-devel rpm package with tools/docs
+    - build: drop python dependency from pcp rpm package
+    - build: redo the generation of debian control file
+    - build: reinstate infiniband PMDA optional deb packaging
+    - build: don't double-up on default-on deb monitoring services
+    - build: fixes to the packaging for OpenMandriva
+    - docs, pmie: replace xwsh with xterm use throughout
+    - docs: update pmie man page references to oracle metrics
+    - docs: improve the sample code in the python mmv module
+    - docs: added tutorial about new secure connection features
+    - docs: use markdown for README/INSTALL formatting
+
 pcp-3.11.2 (29 April 2016)
     - pmdalinux: add per CPU network.softnet metrics
     - pmdaoracle: connect to pmcd as early as possible
