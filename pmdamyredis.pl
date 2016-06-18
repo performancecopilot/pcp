@@ -52,8 +52,6 @@
 # TODOs:
 #  - complete short and long help lines
 #  - check units of all the metrics
-#  - define the domain ID in one file only (while currently there are more)
-#  - add hostname:port to the metrics, so that the mapping can be checked
 #  - add measurement of request-response time, timeout or error of INFO
 #      queries
 #  - add some check that at most 1 redis request is performed at a time
