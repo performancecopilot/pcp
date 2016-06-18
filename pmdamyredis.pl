@@ -58,6 +58,7 @@
 #  - add some check that at most 1 redis request is performed at a time
 #  - use persistent TCP connection to Redis and reconnect only when needed
 #    -> use dynamic replace_indom in case of system unavailability
+#  - test with IPv6 addresses in configuration
 #
 
 use strict;
@@ -704,8 +705,6 @@ sub load_config {
     # Check mandatory options
     die "No mandatory keys found"
         unless keys %$refh_res;
-
-    my $err_count = 0;
 
     mydebug(Dumper($refh_res))
         if $cfg{debug};
