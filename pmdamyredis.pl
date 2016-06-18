@@ -522,6 +522,7 @@ use vars qw( $pmda %cfg %id2metrics %cur_data %var_metrics);
 
     # Maximum time in seconds (may also be a fraction) to keep the data for responses
     max_delta_sec => 0.5,
+    max_recv_len  => 10240,
 
     debug => 0,
 );
@@ -554,8 +555,11 @@ $pm_instdom++;
 mydebug("myredis adding instance domain $pm_instdom," . Dumper($cfg{loaded}{hosts}))
     if $cfg{debug};
 
+my $inst = -1;
+my $refh_indom = [ map { ++$inst => $_ } sort keys %{$cfg{loaded}{hosts}} ];
+
 $res = $pmda->add_indom($pm_instdom,
-                        $cfg{loaded}{hosts},
+                        $refh_indom,
                         "Redis instances",
                         "Redis instances in form <host>:<TCP port number>");
 mydebug("add_indom returned: " . Dumper($res))
@@ -874,9 +878,33 @@ sub get_redis_data {
 
     mydebug("Sent INFO request with $size bytes");
 
-    my $resp;
+    my ($cur_resp,$resp,$header,$len) = ("","","",0);
 
-    $socket->recv($resp,10240);
+    while ($socket->recv($cur_resp,$cfg{max_recv_len}),$cur_resp) {
+        $resp .= $cur_resp;
+
+        if (not $len and not (($header,$len) = ($resp =~ /\A(\$(\d+)[\r\n]+)/))) {
+            mydebug("... still do not have enough data to detect header");
+
+            next;
+        }
+
+        mydebug("Len: $len, header: '$header', response length: " . length($resp));
+
+        if ($len) {
+            # Check length = detected length - header length - 2 Bytes for final /r/n
+            if ($header and (length($resp) - length($header) - 2 == $len)) {
+                mydebug("Got the complete response");
+                last;
+            }
+
+            mydebug("Still expecting some more data");
+        }
+
+        mydebug(Data::Dumper->Dump([\$cur_resp,$!],[q(cur_resp !)]));
+    }
+    #$socket->recv($resp,$cfg{max_recv_len},MSG_WAITALL);
+
     mydebug("Response: '$resp'");
     $socket->close;
     mydebug("... socket closed");
