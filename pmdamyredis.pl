@@ -160,8 +160,8 @@ use vars qw( $pmda %cfg %id2metrics %cur_data %var_metrics);
                         },
         hz => { type => PM_TYPE_U32,
                 semantics => PM_SEM_DISCRETE,
-                help => "TODO",
-                longhelp => "TODO",
+                help => "N/A",
+                longhelp => "N/A",
                 id => 14,
             },
         lru_clock => { type => PM_TYPE_U32,
@@ -525,7 +525,7 @@ use vars qw( $pmda %cfg %id2metrics %cur_data %var_metrics);
     recv_wait_sec => 0.5,
     max_recv_len  => 10240,
 
-    debug => 0,
+    debug => 1,
 );
 
 $0 = "pmdamyredis";
@@ -899,8 +899,13 @@ sub get_redis_data {
     my $socket = IO::Socket::INET->new( PeerAddr => $host,
                                         PeerPort => $port,
                                         Proto    => 'tcp',
-                                        Type     => SOCK_STREAM )
-        or die "Can't bind : $@\n";;
+                                        Type     => SOCK_STREAM );
+    unless ($socket) {
+        $pmda->err("Can't create socket to host '$host', port: '$port' - $@");
+
+        return undef
+    }
+
     my $size = $socket->send("INFO\r\n");
 
     mydebug("Sent INFO request with $size bytes");
@@ -917,7 +922,7 @@ sub get_redis_data {
         mydebug("Set alarm to $cfg{recv_wait_sec} seconds ...");
         alarm $cfg{recv_wait_sec};
 
-        while ($socket->recv($cur_resp,$cfg{max_recv_len})) {
+        while ($socket->recv($cur_resp,$cfg{max_recv_len}),$cur_resp) {
             $resp .= $cur_resp;
 
             if (not $len and not (($header,$len) = ($resp =~ /\A(\$(\d+)[\r\n]+)/))) {
@@ -945,7 +950,7 @@ sub get_redis_data {
         mydebug("Alarm disarmed");
     };
 
-    if ($@ =~ /Timeout alarm/) {
+    if ($@ and $@ =~ /Timeout alarm/) {
         mydebug("Exception while waiting for recv: '$@'");
 
         $socket->close;
