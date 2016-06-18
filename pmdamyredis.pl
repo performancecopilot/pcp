@@ -50,12 +50,13 @@
 #     these id values so that the old archives are still readable
 #
 # TODOs:
+#  - check also gethostbyname and port number to be >0 and < 65535
 #  - complete short and long help lines
+#  - add support for multiple changeable db instances
 #  - check units of all the metrics
 #  - add measurement of request-response time, timeout or error of INFO
 #      queries
 #  - add some check that at most 1 redis request is performed at a time
-#  - add configurable timer for on-time error check (< 1 sec)
 #  - use persistent TCP connection to Redis and reconnect only when needed
 #    -> use dynamic replace_indom in case of system unavailability
 #
@@ -67,7 +68,7 @@ use autodie;
 use PCP::PMDA;
 use IO::Socket::INET;
 use File::Spec::Functions qw(catfile);
-use Time::HiRes   qw(gettimeofday);
+use Time::HiRes   qw(gettimeofday alarm);
 use Data::Dumper;
 
 use vars qw( $pmda %cfg %id2metrics %cur_data %var_metrics);
@@ -497,7 +498,6 @@ use vars qw( $pmda %cfg %id2metrics %cur_data %var_metrics);
 
     variant_metrics => {
         # Keyspace
-        #TODO: Change this to possibility of multiple keyspaces
         _keys => { type      => PM_TYPE_U64,
                    semantics => PM_SEM_INSTANT,
                    help      => "Count of keys in the keyspace",
@@ -520,6 +520,9 @@ use vars qw( $pmda %cfg %id2metrics %cur_data %var_metrics);
 
     # Maximum time in seconds (may also be a fraction) to keep the data for responses
     max_delta_sec => 0.5,
+
+    # Maximum time in seconds to wait for recv
+    recv_wait_sec => 0.5,
     max_recv_len  => 10240,
 
     debug => 0,
@@ -708,7 +711,6 @@ sub load_config {
     mydebug(Dumper($refh_res))
         if $cfg{debug};
 
-    #TODO: Check also gethostbyname and port number to be >0 and < 65535
     die "No hosts to be monitored found in '$in_fname'"
         unless exists $refh_res->{hosts} and keys %{$refh_res->{hosts}};
     die "It seems that '$in_fname' contains non-unique hosts entries"
@@ -790,7 +792,6 @@ sub myredis_fetch_callback {
     mydebug("Host: '$host', port: '$port'");
 
     # Fetch redis info
-    #TODO: Add support for db instances here
     my ($refh_redis_info,$refh_inst_keys);
     my ($cur_date_sec,$cur_date_msec) = gettimeofday;
     my $cur_date = $cur_date_sec + $cur_date_msec/1e6;
@@ -802,6 +803,12 @@ sub myredis_fetch_callback {
         mydebug("Actual data not found, refetching");
 
         ($refh_redis_info,$refh_inst_keys) = get_redis_data($host,$port);
+
+        unless (defined $refh_redis_info) {
+            $pmda->err("Reading from socket ($host:$port) timeouted after $cfg{recv_wait_sec} seconds");
+
+            return (PM_ERR_AGAIN, 0)
+        }
 
         mydebug(Data::Dumper->Dump([$refh_redis_info, $refh_inst_keys],[qw(refh_redis_info refh_inst_keys)]))
             if $cfg{debug};
@@ -878,30 +885,51 @@ sub get_redis_data {
 
     my ($cur_resp,$resp,$header,$len) = ("","","",0);
 
-    while ($socket->recv($cur_resp,$cfg{max_recv_len}),$cur_resp) {
-        $resp .= $cur_resp;
+    eval {
+        local $SIG{ALRM} = sub {
+            mydebug("Alarm timeouted");
 
-        if (not $len and not (($header,$len) = ($resp =~ /\A(\$(\d+)[\r\n]+)/))) {
-            mydebug("... still do not have enough data to detect header");
+            die "Timeout alarm"
+        };
 
-            next;
-        }
+        mydebug("Set alarm to $cfg{recv_wait_sec} seconds ...");
+        alarm $cfg{recv_wait_sec};
 
-        mydebug("Len: $len, header: '$header', response length: " . length($resp));
+        while ($socket->recv($cur_resp,$cfg{max_recv_len})) {
+            $resp .= $cur_resp;
 
-        if ($len) {
-            # Check length = detected length - header length - 2 Bytes for final /r/n
-            if ($header and (length($resp) - length($header) - 2 == $len)) {
-                mydebug("Got the complete response");
-                last;
+            if (not $len and not (($header,$len) = ($resp =~ /\A(\$(\d+)[\r\n]+)/))) {
+                mydebug("... still do not have enough data to detect header");
+
+                next;
             }
 
-            mydebug("Still expecting some more data");
+            mydebug("Len: $len, header: '$header', response length: " . length($resp));
+
+            if ($len) {
+                # Check length = detected length - header length - 2 Bytes for final /r/n
+                if ($header and (length($resp) - length($header) - 2 == $len)) {
+                    mydebug("Got the complete response");
+                    last;
+                }
+
+                mydebug("Still expecting some more data");
+            }
+
+            mydebug(Data::Dumper->Dump([\$cur_resp,$!],[q(cur_resp !)]));
         }
 
-        mydebug(Data::Dumper->Dump([\$cur_resp,$!],[q(cur_resp !)]));
+        alarm 0;
+        mydebug("Alarm disarmed");
+    };
+
+    if ($@ =~ /Timeout alarm/) {
+        mydebug("Exception while waiting for recv: '$@'");
+
+        $socket->close;
+
+        return undef;
     }
-    #$socket->recv($resp,$cfg{max_recv_len},MSG_WAITALL);
 
     mydebug("Response: '$resp'");
     $socket->close;
