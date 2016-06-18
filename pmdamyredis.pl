@@ -525,7 +525,7 @@ use vars qw( $pmda %cfg %id2metrics %cur_data %var_metrics);
     recv_wait_sec => 0.5,
     max_recv_len  => 10240,
 
-    debug => 1,
+    debug => 0,
 );
 
 $0 = "pmdamyredis";
