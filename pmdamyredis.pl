@@ -50,7 +50,6 @@
 #     these id values so that the old archives are still readable
 #
 # TODOs:
-#  - check also gethostbyname and port number to be >0 and < 65535
 #  - complete short and long help lines
 #  - add support for multiple changeable db instances
 #  - check units of all the metrics
@@ -717,6 +716,30 @@ sub load_config {
         unless keys %{$refh_res->{hosts}} == $host_id;
     die "No keyspaces to be monitored found in '$in_fname'"
         unless exists $refh_res->{dbs} and keys %{$refh_res->{dbs}};
+
+    # Check that host names/addresses and port numbers are valid
+    my $err_count = 0;
+
+    foreach my $host_port (sort keys %{$refh_res->{hosts}}) {
+        my ($host,$port);
+
+        unless (($host,$port) = ($host_port =~ /(\S+):(\d+)/)) {
+            $err_count++;
+
+            $pmda->err("Failed to detect host name/address and port number from '$host_port'");
+            next;
+        }
+
+        mydebug("Detected - host: '$host', port: '$port'");
+
+        $err_count++,$pmda->err("Failed to gethostbyname($host)")
+            unless $host and gethostbyname $host;
+        $err_count++,$pmda->err("Unexpected port number $port")
+            unless $port and $port >= 1 and $port <= 65535;
+    }
+
+    die "$err_count errors in config file detected, exiting"
+        if $err_count;
 
     $refh_res
 }
