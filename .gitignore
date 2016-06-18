@@ -8,3 +8,7 @@
 # Log and PID files
 *.log
 *.pid
+
+# Ignore temporary pmns files
+pmns
+pmns.perl
