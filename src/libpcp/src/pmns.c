@@ -775,6 +775,13 @@ pass2(int dupok)
 	return -oserror();
     }
 
+    main_pmns->root = NULL;
+    main_pmns->htab = NULL;
+    main_pmns->htabsize = 0;
+    main_pmns->symbol = NULL;
+    main_pmns->contiguous = 0;
+    main_pmns->mark_state = UNKNOWN_MARK_STATE;
+
     /* Get the root subtree out of the seen list */
     if ((main_pmns->root = findseen("root")) == NULL) {
 	err("No name space entry for \"root\"");
@@ -798,10 +805,6 @@ pass2(int dupok)
     }
     if (status)
 	return status;
-
-    main_pmns->symbol = NULL;
-    main_pmns->contiguous = 0;
-    main_pmns->mark_state = UNKNOWN_MARK_STATE;
 
     return __pmFixPMNSHashTab(main_pmns, seenpmid, dupok);
 }
@@ -1486,7 +1489,8 @@ __pmFreePMNS(__pmnsTree *pmns)
 	if (pmns->contiguous) {
 	    free(pmns->root);
 	    free(pmns->htab);
-	    free(pmns->symbol);
+	    if (pmns->symbol != NULL)
+		free(pmns->symbol);
 	}
 	else { 
 	    free(pmns->htab);

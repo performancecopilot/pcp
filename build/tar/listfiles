@@ -1,0 +1,64 @@
+#!/bin/sh
+#
+# Produce a manifest of files to be included on the package tarball
+#
+
+if [ -z "$DIST_MANIFEST" ]
+then
+    echo >&2 "listfiles: Error: \$DIST_MANIFEST is not set"
+    exit 1
+fi
+
+tmp=/var/tmp/$$
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+# Note on sed below
+# for f and l lines of manifest, want the last word (target name),
+# stripped of leading /
+# and don't include d (directory) lines from manifest else tar will
+# add all of the files below these directories again ... but does
+# mean we may need special logic in postinstall to handle empty
+# directories that would otherwise be excluded from the tarball
+#
+sed -n -e '/^[fl]/s/.* \/*//p' <$DIST_MANIFEST >$tmp.main
+
+for file in ../../perl-pcp-*.list
+do
+    case "$file"
+    in
+	'../../perl-pcp-*.list')
+	    echo >&2 "listfiles: Warning: no pcp-perl-*.list files"
+	    ;;
+	*)
+	    cat "$file"
+	    ;;
+    esac
+done \
+| sed -e 's/^\///' >$tmp.perl
+
+for file in ../../python*-pcp.list
+do
+    case "$file"
+    in
+	'../../python*-pcp.list')
+	    echo >&2 "listfiles: Warning: no python*-pcp.list files"
+	    ;;
+	*)
+	    cat "$file"
+	    ;;
+    esac
+done \
+| sed -e 's/^\///' >$tmp.python
+
+cat $tmp.main $tmp.perl $tmp.python \
+| sort \
+| uniq
+
+verbose=true
+if $verbose
+then
+    echo >&2 "listfiles: `wc -l <$tmp.main` files from the main manifest"
+    echo >&2 "listfiles: `wc -l <$tmp.perl` Perl files"
+    echo >&2 "listfiles: `wc -l <$tmp.python` Python files"
+fi

@@ -36,22 +36,12 @@ postinstall: postinstall.head $(SCRIPTS)/cleantmpdirs postinstall.tail
 	cat postinstall.head $(SCRIPTS)/cleantmpdirs postinstall.tail > $@
 	chmod ugo+x $@
 
-# Note on sed below
-# for f and l lines of manifest, want the last word (target name),
-# stripped of leading /
-# and don't include d (directory) lines from manifest else tar will
-# add all of the files below these directories again ... but does
-# mean we may need special logic in postinstall to handle empty
-# directories that would otherwise be excluded from the tarball
-#
-.PHONY: pack_pcp
 pack_pcp : 
-	@ BINTAR=$(PACKAGE_NAME)-$(PACKAGE_VERSION)-$(PACKAGE_BUILD).tar.gz; \
-	HERE=`pwd`; cd $${DIST_ROOT:-/}; \
-	sed -n -e '/^[fl]/s/.* \/*//p' <$$DIST_MANIFEST \
-	| sort \
-	| uniq \
-	| $(TAR) -T - -cf - \
-	| gzip > $$HERE/$$BINTAR; echo Wrote: $$HERE/$$BINTAR
+	@ BINTAR=$(PACKAGE_NAME)-$(PACKAGE_VERSION)-$(PACKAGE_BUILD).tar.gz \
+	; export HERE=`pwd` \
+	; ./listfiles \
+	| ( cd $${DIST_ROOT:-/} ; $(TAR) -T - -cf - ) \
+	| gzip > $$HERE/$$BINTAR \
+	; echo Wrote: $$HERE/$$BINTAR
 
 include $(BUILDRULES)

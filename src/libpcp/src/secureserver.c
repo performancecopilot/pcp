@@ -52,7 +52,6 @@ __pmSecureServerSetFeature(__pmServerFeature wanted)
         secure_server.server_features |= (1 << wanted);
         return 1;
     }
-
     return 0;
 }
 

@@ -16,7 +16,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 ZSHRC = _pcp
-ZSHDIR = $(PCP_SHARE_DIR)/../zsh/site-functions
+ZSHDIR = $(shell echo $(PCP_SHARE_DIR) | sed -e 's;/pcp$$;;')/zsh
 
 default:	$(ZSHRC)
 
@@ -24,7 +24,8 @@ include $(BUILDRULES)
 
 install:	default
 	$(INSTALL) -d $(ZSHDIR)
-	$(INSTALL) -m 644 $(ZSHRC) $(ZSHDIR)/$(ZSHRC)
+	$(INSTALL) -d $(ZSHDIR)/site-functions
+	$(INSTALL) -m 644 $(ZSHRC) $(ZSHDIR)/site-functions/$(ZSHRC)
 
 default_pcp:	default
 

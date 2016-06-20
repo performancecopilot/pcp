@@ -179,11 +179,17 @@ do
     echo "$t logfile----------------"
     echo "$t logfile----------------" >>$here/$seq.full
     cat $log >>$here/$seq.full
+    # Note on if | sed ... need to handle GNU coreutils brain
+    # damage from newer versions of cat(1) and remove ' quotes
+    # from lines like ...
+    # Cannot open 'whacko name': No such file or directory
+    #
     if [ -x filter.$t ]
     then
 	./filter.$t <$log
     else
 	_filter_kill_log
-    fi
+    fi \
+    | sed -e "/: No such file /s/ '\([^']*\)': No/ \1: No/"
     echo "$t endlog ----------------"
 done

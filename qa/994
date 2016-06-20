@@ -37,7 +37,7 @@ fi
 root_group=root
 case $PCP_PLATFORM
 in
-    freebsd|netbsd|openbsd)
+    freebsd|netbsd|openbsd|darwin)
 	    root_group=wheel
 	    ;;
 esac
