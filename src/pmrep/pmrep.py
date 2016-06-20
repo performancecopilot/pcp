@@ -1205,12 +1205,12 @@ class PMReporter(object):
                     data = 1
                     inst = self.insts[i][1][j]
                     if self.descs[i].contents.type == PM_TYPE_STRING:
-                        self.pmi.pmiPutValue(metric, inst, str(values[i][j][2]))
+                        self.pmi.pmiPutValue(metric, inst, str(list(values[i])[j][2]))
                     elif self.descs[i].contents.type == PM_TYPE_FLOAT or \
                          self.descs[i].contents.type == PM_TYPE_DOUBLE:
-                        self.pmi.pmiPutValue(metric, inst, "%f" % values[i][j][2])
+                        self.pmi.pmiPutValue(metric, inst, "%f" % list(values[i])[j][2])
                     else:
-                        self.pmi.pmiPutValue(metric, inst, "%d" % values[i][j][2])
+                        self.pmi.pmiPutValue(metric, inst, "%d" % list(values[i])[j][2])
 
         # Flush
         if data:
