@@ -623,6 +623,14 @@ class PMReporter(object):
             else:
                 self.zabbix_interval = int(self.interval)
 
+    def format_metric_label(self, label):
+        """ Format a metric label """
+        # See src/libpcp/src/units.c
+        label = label.replace(" / nanosec", "/ns").replace(" / microsec", "/µs")
+        label = label.replace(" / millisec", "/ms").replace(" / sec", "/s")
+        label = label.replace(" / min", "/min").replace(" / hour", "/h")
+        return label
+
     def validate_metrics(self):
         """ Validate the metrics set """
         # Check the metrics against PMNS, resolve non-leaf metrics
@@ -737,9 +745,11 @@ class PMReporter(object):
                         label += "/s"
                         if self.descs[i].contents.units.dimTime == 1:
                             label = "util"
+                    label = self.format_metric_label(label)
                     self.metrics[metric][2] = (label, unitstr, mult)
                 else:
-                    self.metrics[metric][2] = (unitstr, unitstr, 1)
+                    label = self.format_metric_label(unitstr)
+                    self.metrics[metric][2] = (label, unitstr, 1)
             except pmapi.pmErr as error:
                 sys.stderr.write("%s: %s.\n" % (str(error), self.metrics[metric][2]))
                 sys.exit(1)
@@ -1195,12 +1205,12 @@ class PMReporter(object):
                     data = 1
                     inst = self.insts[i][1][j]
                     if self.descs[i].contents.type == PM_TYPE_STRING:
-                        self.pmi.pmiPutValue(metric, inst, str(values[i][j][2]))
+                        self.pmi.pmiPutValue(metric, inst, str(list(values[i])[j][2]))
                     elif self.descs[i].contents.type == PM_TYPE_FLOAT or \
                          self.descs[i].contents.type == PM_TYPE_DOUBLE:
-                        self.pmi.pmiPutValue(metric, inst, "%f" % values[i][j][2])
+                        self.pmi.pmiPutValue(metric, inst, "%f" % list(values[i])[j][2])
                     else:
-                        self.pmi.pmiPutValue(metric, inst, "%d" % values[i][j][2])
+                        self.pmi.pmiPutValue(metric, inst, "%d" % list(values[i])[j][2])
 
         # Flush
         if data:

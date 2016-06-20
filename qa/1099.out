@@ -144,6 +144,3 @@ Tue Dec  1 17:00:02 2015 max(home|swap)    0.00    0.00    3.04  14.37    12.41 
 Tue Dec  1 17:30:02 2015 max(home|swap)    0.00    0.00    0.02   4.33     0.12    36.46    8.401    0.007    1.69    1.08    1.69    0.21
 Tue Dec  1 18:00:02 2015 max(home|swap)    0.00    0.00    0.00   0.00     0.00     0.00    0.000    0.000    0.00    0.00    0.00    0.00
 Tue Dec  1 18:30:02 2015 NODATA             ?       ?       ?      ?        ?        ?        ?        ?       ?       ?       ?       ?
-== testing pmiostat --samples option samples sufficiently (2,3)
-2
-3

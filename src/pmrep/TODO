@@ -3,13 +3,13 @@
 -  opt to write cols per row with stdout output [-k]
 -  opt to swap cols and rows (e.g., compare ps vs sar)
 -  -Q/-B/-Y to override per-metric settings unit/scale
--  shorten unit display count / sec -> count/s -> c/s if needed
+-  shorten unit display count/s -> c/s if needed
 -  opt to output in short format (see pmdumptext -F / pmNumberStr) [-m/-M]
 -  opt to support pmdumptext -X like output (or shorten inst names if needed)
 -  support rate display also for non-cumulative counters
 -  support displaying raw/rate as per given unit
 -  (re)add runtime directive to config file
--  containers support
+-  containers support (depends on RHBZ#1333702)
 -  add JSON output support
 -  add XML output support (like sadf)
 -  add XLS output support (like sar2xls)

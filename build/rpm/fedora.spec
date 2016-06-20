@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.11.3
+Version: 3.11.4
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -8,11 +8,11 @@ License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL: http://www.pcp.io
 Group: Applications/System
 # https://bintray.com/artifact/download/pcp/source/pcp-%{version}.src.tar.gz
-Source0: pcp-%{version}.src.tar.gz
+Source0: %{name}-%{version}.src.tar.gz
 # https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
-Source1: vector.tar.gz
+Source1: vector-1.1.0.tar.gz
 # https://github.com/performancecopilot/pcp-webjs/archive/x.y.z.tar.gz
-Source2: pcp-webjs.src.tar.gz
+Source2: pcp-webjs-3.11.2.tar.gz
 
 %global disable_snmp 0
 
@@ -141,7 +141,10 @@ BuildRequires: cairo-devel
 %if !%{disable_sdt}
 BuildRequires: systemtap-sdt-devel
 %endif
-BuildRequires: perl-devel perl(ExtUtils::MakeMaker)
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildRequires: perl-devel
+%endif
+BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man
 %if !%{disable_systemd}
 BuildRequires: systemd-devel
@@ -2632,6 +2635,9 @@ cd
 %endif
 
 %changelog
+* Fri Aug 05 2016 Nathan Scott <nathans@redhat.com> - 3.11.4-1
+- Work in progress, see http://pcp.io/roadmap
+
 * Fri Jun 17 2016 Nathan Scott <nathans@redhat.com> - 3.11.3-1
 - Fix memory leak in derived metrics error handling (BZ 1331973)
 - Correctly propogate indom in mixed derived metrics (BZ 1337212, BZ 1336130)
@@ -2639,6 +2645,9 @@ cd
 - Fail fast for easily detected bad pmcd configuration (BZ 1336210)
 - Implement primary (local) pmie concept in rc pmie (BZ 1323851)
 - Update to latest PCP Sources.
+
+* Mon May 16 2016 Jitka Plesnikova <jplesnik@redhat.com> - 3.11.2-2.1
+- Perl 5.24 rebuild
 
 * Fri Apr 29 2016 Lukas Berk <lberk@redhat.com> - 3.11.2-1
 - Negative nice values reported incorrectly (BZ 1328432)
@@ -2658,6 +2667,8 @@ cd
 * Fri Jan 29 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.0-1
 - Significant speedups to elapsed time stopping pmcd (BZ 1292027)
 - Fix python derived metric exception handling issues (BZ 1299806)
+- incorrect interpolation across <mark> record in a merged archive (BZ 1296750)
+- pcp requires pcp-compat pulling in a lot of unneeded pcp-pmda-* packages (BZ 1293466)
 - Update to latest PCP sources.
 
 * Wed Dec 16 2015 Lukas Berk <lberk@redhat.com> - 3.10.9-1

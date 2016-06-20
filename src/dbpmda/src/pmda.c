@@ -228,12 +228,14 @@ open_unix_socket(char *fname)
 }
 #endif
 
+#define MYSOCKETSZ 64
+
 static void
 open_socket(int port, int family, const char *protocol)
 {
     __pmSockAddr	*addr;
     int			fd, sts;
-    char		socket[64];
+    char		socket[MYSOCKETSZ];
 
     fd = (family == AF_INET) ? __pmCreateSocket() : __pmCreateIPv6Socket();
     if (fd < 0) {
@@ -263,7 +265,7 @@ open_socket(int port, int family, const char *protocol)
     infd = fd;
     outfd = fd;
 
-    sprintf(socket, "%s port %d", protocol, port);
+    snprintf(socket, MYSOCKETSZ, "%s port %d", protocol, port);
     printf("Connect to PMDA on %s\n", socket);
 
     connmode = CONN_DAEMON;

@@ -66,6 +66,12 @@ setup_context(void)
     pthread_mutex_t	save_c_lock;
 #endif
 
+    /* 
+     * we don't want or need any PMDAs to be loaded for this one
+     * PM_CONTEXT_LOCAL context
+     */
+    __pmSpecLocalPMDA("clear");
+
     if ((sts = pmNewContext(PM_CONTEXT_LOCAL, NULL)) < 0) {
 	fprintf(stderr, "setup_context: creation failed: %s\n", pmErrStr(sts));
 	exit(1);
@@ -123,12 +129,14 @@ strnum(int n)
 {
     char	*buf;
 
-    buf = (char *)malloc(13);
+#define MYBUFSZ 13
+
+    buf = (char *)malloc(MYBUFSZ);
     if (buf == NULL) {
 	fprintf(stderr, "strnum: malloc failed: %s\n", osstrerror());
 	exit(1);
     }
-    sprintf(buf, "%d", n);
+    snprintf(buf, MYBUFSZ, "%d", n);
     return buf;
 }
 
@@ -191,12 +199,14 @@ addarglist(char *arg)
     param.argv = argv;
 }
 
+#define MYCMDSZ 200
+
 void
 watch(char *fname)
 {
-    char	cmd[200];
+    char	cmd[MYCMDSZ];
 
-    sprintf(cmd, "xterm -hold -title \"dbpmda watch %s\" -geom 80x16 -bg dodgerblue4 -e tail -f %s &",
+    snprintf(cmd, MYCMDSZ, "xterm -hold -title \"dbpmda watch %s\" -geom 80x16 -bg dodgerblue4 -e tail -f %s &",
 	fname, fname);
     
     if (system(cmd) != 0)

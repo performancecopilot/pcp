@@ -17,8 +17,10 @@ _check_valgrind
 
 status=1
 username=`id -u -n`
-pmda=${PCP_PMDAS_DIR}/mmv/pmda_mmv,mmv_init
 MMV_STATS_DIR=${PCP_TMP_DIR}/mmv
+MMVDUMP=$PCP_PMDAS_DIR/mmv/mmvdump
+pmda=${PCP_PMDAS_DIR}/mmv/pmda_mmv,mmv_init
+linux=${PCP_PMDAS_DIR}/linux/pmda_linux,linux_init
 
 _cleanup()
 {
@@ -41,10 +43,11 @@ _filter()
 {
     sed \
 	-e "s,$MMV_STATS_DIR,MMV_STATS_DIR,g" \
+	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
     #end
 }
 
-_verify()
+_dump()
 {
     section=$1
 
@@ -55,22 +58,42 @@ _verify()
     files=`ls -1 ${MMV_STATS_DIR}/${section}-* | LC_COLLATE=POSIX sort`
     for file in $files
     do
-	echo -- verify `basename $file`
-	/source/git/pcp/src/pmdas/mmv/mmvdump $file | _filter
-#	_run_valgrind pminfo -L -K clear -K add,70,$pmda -dfmtT mmv 2>&1 | \
-#	    $here/src/sortinst | \
-#	    sed -e '/inst /s/\[[01] /[0-or-1 /'
+	echo -- dump `basename $file`
+	$PCP_PMDAS_DIR/mmv/mmvdump $file | _filter
 	unlink $file
+	echo
     done
 }
 
+_verify()
+{
+    section=$1
+
+    echo
+    echo "== generating bad $section data files =="
+    $here/src/badmmv --$section
+
+    # run valgrind once for all files in section (its slow to start)
+    echo -- verify $section data files | tee -a $seq.full
+    _run_valgrind pminfo -L -Kclear -Kadd,60,$linux -Kadd,70,$pmda -v mmv \
+		| _filter
+
+    # this should always show zero (all badmmv generated files are invalid)
+    pminfo -L -Kclear -Kadd,60,$linux -Kadd,70,$pmda -f mmv.control.files
+
+    # cleanup 
+    rm -f ${MMV_STATS_DIR}/${section}-*
+}
+
+_dump header
+_dump contents
+_dump indoms
+_dump metrics
+
 _verify header
 _verify contents
-#_verify metrics
-#_verify indoms 
-#_verify instances
-#_verify strings
-#_verify values
+_verify indoms
+_verify metrics
 
 # success, all done
 status=0

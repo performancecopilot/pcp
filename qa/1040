@@ -1,0 +1,61 @@
+#!/bin/sh
+# PCP QA Test No. 1040
+# dbpmda can trigger malloc badness in the libpcp pmns routines
+#
+# Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+$sudo rm -f /tmp/no/such/file
+
+_filter()
+{
+    sed \
+	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
+	-e '/value/s/1000000 .*/1000000 .../' \
+	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
+	-e "s/\\.$DSO_SUFFIX/.\$DSO_SUFFIX/" \
+	-e "s@$tmp@TMP@g" \
+    # done
+}
+
+cat <<End-of-File >$tmp.pmns
+root {
+    empty	29:0:13		/* really pmid for sample.long.million */
+}
+End-of-File
+
+pipepmda=$PCP_PMDAS_DIR/sample/pmdasample
+[ ! -f $pipepmda ] && echo "FATAL ERROR Could not find \"$pipepmda\"" && exit 1
+
+# real QA test starts here
+$sudo TERM=ansi dbpmda -ie <<End-of-File 2>&1 | _filter
+open pipe $pipepmda -d 29
+fetch sample.long.million
+# pmns from non-existent file
+namespace /tmp/no/such/file
+fetch sample.long.million
+# pmns from /dev/null
+namespace /dev/null
+fetch sample.long.million
+# near-emtpy pmns
+namespace $tmp.pmns
+fetch sample.long.million
+fetch empty
+End-of-File
+
+# success, all done
+status=0
+
+exit

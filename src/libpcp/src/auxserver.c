@@ -881,6 +881,8 @@ __pmServerGetFeaturesFromPDU(__pmPDU *pb)
     return server_features;
 }
 
+static unsigned int server_features;
+
 #if !defined(HAVE_SECURE_SOCKETS)
 
 int
@@ -959,32 +961,41 @@ __pmSecureServerHandshake(int fd, int flags, __pmHashCtl *attrs)
     return PM_ERR_IPC;
 }
 
+/*
+ * PM_SERVER_FEATURE_CERT_REQD is a special case that does not need a
+ * secure server, all other server features are not supported
+ */
 int
 __pmSecureServerHasFeature(__pmServerFeature query)
 {
-    /* CREDS_REQD is a special case that does not need a secure server */
-    if ((query & PDU_FLAG_CREDS_REQD) != 0)
-	return 1;
+    if (query == PM_SERVER_FEATURE_CERT_REQD){
+	return (server_features & (1 << query)) != 0;
+    }
     return 0;
 }
 
 int
 __pmSecureServerSetFeature(__pmServerFeature wanted)
 {
-    (void)wanted;
+    if (wanted == PM_SERVER_FEATURE_CERT_REQD){
+        server_features |= (1 << wanted);
+        return 1;
+    }
+
     return 0;
 }
 
 int
 __pmSecureServerClearFeature(__pmServerFeature clear)
 {
-    (void)clear;
+    if (clear == PM_SERVER_FEATURE_CERT_REQD){
+    	server_features &= ~(1<<clear);
+	return 1;
+    }
     return 0;
 }
 
 #endif /* !HAVE_SECURE_SOCKETS */
-
-static unsigned int server_features;
 
 int
 __pmServerClearFeature(__pmServerFeature clear)
