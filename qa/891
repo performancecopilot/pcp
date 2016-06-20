@@ -1,14 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 891
-<<<<<<< HEAD
 # Check pmSemStr
 #
 # Copyright (c) 2016 Red Hat Inc.  All Rights Reserved.
-=======
-# Waiting for Dave ...
-#
-# Copyright (c) 2016 [who are you?].  All Rights Reserved.
->>>>>>> be39423ad9273292d1f72b911a09d2fb2484e30e
 #
 
 seq=`basename $0`
@@ -19,7 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-<<<<<<< HEAD
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -28,15 +21,4 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 src/semstr
 
 # success, all done
-=======
-status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
-
-# real QA test starts here
-
-# success, all done
-status=0
-
->>>>>>> be39423ad9273292d1f72b911a09d2fb2484e30e
 exit
