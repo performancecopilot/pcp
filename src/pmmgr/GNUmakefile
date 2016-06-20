@@ -31,8 +31,7 @@ build-me: $(SUBDIRS) $(CXXMDTARGET) pmmgr.service
 	$(SUBDIRS_MAKERULE)
 
 pmmgr.service: pmmgr.service.in
-	$(SED) -e 's;@PCP_RC_DIR@;'$(PCP_RC_DIR)';' \
-	       -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' $< > $@
+	$(SED) -e 's;@path@;'$(PCP_RC_DIR)';' $< > $@
 
 install: $(SUBDIRS) $(CXXMDTARGET)
 	$(SUBDIRS_MAKERULE)
