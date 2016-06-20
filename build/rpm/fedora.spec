@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.11.3
+Version: 3.11.4
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -2635,6 +2635,9 @@ cd
 %endif
 
 %changelog
+* Fri Aug 05 2016 Nathan Scott <nathans@redhat.com> - 3.11.4-1
+- Work in progress, see http://pcp.io/roadmap
+
 * Fri Jun 17 2016 Nathan Scott <nathans@redhat.com> - 3.11.3-1
 - Fix memory leak in derived metrics error handling (BZ 1331973)
 - Correctly propogate indom in mixed derived metrics (BZ 1337212, BZ 1336130)
