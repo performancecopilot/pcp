@@ -11,7 +11,7 @@ X-Python-Version: >= 2.6
 X-Python3-Version: >= 3.3
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, python-pcp | python3-pcp, python | python3
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, python3-pcp | python-pcp, python3 | python
 Conflicts: pgpool2
 Suggests: pcp-gui, libpcp-import-perl
 Architecture: any
@@ -352,7 +352,7 @@ Description: Tool for importing data from collectl into PCP archive logs
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
 Package: pcp-export-pcp2graphite
-Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, python-pcp | python3-pcp
+Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, python3-pcp | python-pcp
 Breaks: pcp (<< 3.9.0)
 Architecture: any
 Description: Tool for exporting data from PCP to Graphite
