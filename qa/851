@@ -41,9 +41,47 @@ trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
-echo '== testing pmiostat --samples option samples sufficiently (2,3)'
-pmiostat -t 0.01 -s 1 | wc -l
-pmiostat -t 0.01 --samples 2 | wc -l
+echo '== testing pmiostat --samples and -s options to ensure sufficientl samples'
+
+pmiostat -t 0.01 -s 1 >$tmp.out
+echo "=== -s 1 case ===" >>$here/$seq.full
+cat $tmp.out >>$here/$seq.full
+# expect 1 stats line for _each_ device
+#
+touch $tmp.ok
+sed -e '/Device/d' <$tmp.out \
+| $PCP_AWK_PROG '{ print $1 }' \
+| sort \
+| uniq -c \
+| while read count dev
+do
+    if [ "$count" -ne 1 ]
+    then
+	echo "$dev: unexpected count of $count not 1 ... see $seq.full"
+	rm -f $tmp.ok
+    fi
+done
+[ -f $tmp.ok ] && echo "OK"
+
+pmiostat -t 0.01 --samples 2 >$tmp.out
+echo "=== --samples 2 case ===" >>$here/$seq.full
+cat $tmp.out >>$here/$seq.full
+# expect 2 stats line for _each_ device
+#
+touch $tmp.ok
+sed -e '/Device/d' <$tmp.out \
+| $PCP_AWK_PROG '{ print $1 }' \
+| sort \
+| uniq -c \
+| while read count dev
+do
+    if [ "$count" -ne 2 ]
+    then
+	echo "$dev: unexpected count of $count not 2 ... see $seq.full"
+	rm -f $tmp.ok
+    fi
+done
+[ -f $tmp.ok ] && echo "OK"
 
 # success, all done
 status=0
