@@ -108,10 +108,30 @@ refer to Documentation/scheduler/sched-bwc.txt in the kernel source.
 Scheduler group bandwidth throttle/limit count - further discussion
 in Documentation/scheduler/sched-bwc.txt in the kernel source.
 
-@ cgroup.cpusched.throttled_time Total time group was throttled/limited
+@ cgroup.cpusched.throttled_time Total time CFS group was throttled/limited
 The total time duration (in nanoseconds) for which entities of the
 group have been throttled by the CFS scheduler - refer to discussion
 in Documentation/scheduler/sched-bwc.txt in the kernel source.
+
+@ cgroup.cpusched.cfs_quota Total available runtime within a period (usec)
+The bandwidth allowed for a CFS group is specified using a quota and period.
+Within each given "period" (usec), a group is allowed to consume only up to
+"quota" usec of CPU time.  When the CPU bandwidth consumption of a group
+exceeds this limit (for that period), the tasks belonging to its hierarchy
+will be throttled and are not allowed to run again until the next period.
+
+A value of -1 indicates that the group does not have bandwidth restriction
+in place.  Refer to discussion in Documentation/scheduler/sched-bwc.txt in
+the kernel source.
+
+@ cgroup.cpusched.cfs_period The length of a CFS period (usec)
+The bandwidth allowed for a CFS group is specified using a quota and period.
+Within each given "period" (usec), a group is allowed to consume only up to
+"quota" usec of CPU time.  When the CPU bandwidth consumption of a group
+exceeds this limit (for that period), the tasks belonging to its hierarchy
+will be throttled and are not allowed to run again until the next period.
+Further discussion in Documentation/scheduler/sched-bwc.txt in the kernel
+sources.
 
 @ cgroup.memory.usage Current physical memory accounted to each cgroup
 @ cgroup.memory.limit Maximum memory that can be utilized by each cgroup

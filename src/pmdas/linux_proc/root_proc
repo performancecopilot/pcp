@@ -60,6 +60,8 @@ cgroup.cpusched {
     periods		PROC:43:1
     throttled		PROC:43:2
     throttled_time	PROC:43:3
+    cfs_period		PROC:43:4
+    cfs_quota		PROC:43:5
 }
 
 cgroup.memory {

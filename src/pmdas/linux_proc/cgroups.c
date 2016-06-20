@@ -386,37 +386,54 @@ refresh_cgroups(const char *subsys, const char *container,
 }
 
 static int
-read_oneline_string(const char *file)
+read_oneline(const char *file, char *buffer, size_t length)
 {
-    char buffer[4096], *result;
-    size_t length;
     FILE *fp;
+    int sts;
 
     if ((fp = fopen(file, "r")) == NULL)
 	return -ENOENT;
-    result = fgets(buffer, sizeof(buffer), fp);
+    if (fgets(buffer, length, fp) != NULL) {
+	buffer[length-1] = '\0';
+	sts = 0;
+    } else {
+	sts = -ENOMEM;
+    }
     fclose(fp);
-    if (!result)
-	return -ENOMEM;
-    length = strlen(result);
-    while (result[--length] == '\n')
-	result[length] = '\0';
-    return proc_strings_insert(result);
+    return sts;
 }
 
-static __uint64_t
-read_oneline_ull(const char *file)
+static int
+read_oneline_string(const char *file)
 {
-    char buffer[4096], *result, *endp;
-    FILE *fp;
+    char buffer[4096];
+    size_t length;
+    int sts;
 
-    if ((fp = fopen(file, "r")) == NULL)
-	return -ENOENT;
-    result = fgets(buffer, sizeof(buffer), fp);
-    fclose(fp);
-    if (!result)
-	return -ENOMEM;
-    return strtoull(result, &endp, 0);
+    if ((sts = read_oneline(file, buffer, sizeof(buffer))) < 0)
+	return sts;
+    length = strlen(buffer);
+    while (buffer[--length] == '\n')
+	buffer[length] = '\0';
+    return proc_strings_insert(buffer);
+}
+
+static int
+read_oneline_ull(const char *file, __uint64_t *value)
+{
+    char buffer[4096], *endp;
+    int sts = read_oneline(file, buffer, sizeof(buffer));
+    *value = sts < 0 ? ULONGLONG_MAX : strtoull(buffer, &endp, 0);
+    return sts;
+}
+
+static int
+read_oneline_ll(const char *file, __int64_t *value)
+{
+    char buffer[4096], *endp;
+    int sts = read_oneline(file, buffer, sizeof(buffer));
+    *value = sts < 0 ? sts : strtoll(buffer, &endp, 0);
+    return sts;
 }
 
 void
@@ -551,7 +568,7 @@ refresh_cpuacct(const char *path, const char *name)
     snprintf(file, sizeof(file), "%s/cpuacct.stat", path);
     read_cpuacct_stats(file, cpuacct);
     snprintf(file, sizeof(file), "%s/cpuacct.usage", path);
-    cpuacct->usage = read_oneline_ull(file);
+    read_oneline_ull(file, &cpuacct->usage);
     snprintf(file, sizeof(file), "%s/cpuacct.usage_percpu", path);
     read_percpuacct_usage(file, name);
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, cpuacct);
@@ -619,7 +636,11 @@ refresh_cpusched(const char *path, const char *name)
     snprintf(file, sizeof(file), "%s/cpu.stat", path);
     read_cpu_stats(file, &cpusched->stat);
     snprintf(file, sizeof(file), "%s/cpu.shares", path);
-    cpusched->shares = read_oneline_ull(file);
+    read_oneline_ull(file, &cpusched->shares);
+    snprintf(file, sizeof(file), "%s/cpu.cfs_period_us", path);
+    read_oneline_ull(file, &cpusched->cfs_period);
+    snprintf(file, sizeof(file), "%s/cpu.cfs_quota_us", path);
+    read_oneline_ll(file, &cpusched->cfs_quota);
 
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, cpusched);
 }
@@ -718,11 +739,11 @@ refresh_memory(const char *path, const char *name)
     snprintf(file, sizeof(file), "%s/memory.stat", path);
     read_memory_stats(file, memory);
     snprintf(file, sizeof(file), "%s/memory.limit_in_bytes", path);
-    memory->limit = read_oneline_ull(file);
+    read_oneline_ull(file, &memory->limit);
     snprintf(file, sizeof(file), "%s/memory.usage_in_bytes", path);
-    memory->usage = read_oneline_ull(file);
+    read_oneline_ull(file, &memory->usage);
     snprintf(file, sizeof(file), "%s/memory.failcnt", path);
-    memory->failcnt = read_oneline_ull(file);
+    read_oneline_ull(file, &memory->failcnt);
 
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, memory);
 }
@@ -750,7 +771,7 @@ refresh_netcls(const char *path, const char *name)
 	    return;
     }
     snprintf(file, sizeof(file), "%s/net_cls.classid", path);
-    netcls->classid = read_oneline_ull(file);
+    read_oneline_ull(file, &netcls->classid);
     pmdaCacheStore(indom, PMDA_CACHE_ADD, name, netcls);
 }
 
