@@ -1185,7 +1185,7 @@ timezone
 987 pmda.xfs local
 988 pmda.xfs local valgrind
 989 archive local
-990:reserved pmda.mmv local
+990 pmda.mmv local
 991 pcp python local
 992 pmcpp pmlogger local
 993 pmlogger pmdumplog local

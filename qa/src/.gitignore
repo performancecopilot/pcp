@@ -13,6 +13,7 @@ arch_maxfd
 atomstr
 badUnitsStr_r
 badloglabel
+badmmv
 badpmcdpmid
 badpmda
 batch_import.pl

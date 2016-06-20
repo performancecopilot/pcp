@@ -16,11 +16,11 @@ void
 usage(void)
 {
     fprintf(stderr,
-		"Usage: %s: [options] file\n\n"
-		"Options:\n"
-		"  -f flag  set flag in header (none, noprefix, process)\n"
-		"  -p pid   overwrite MMV file PID with given PID\n",
-	    pmProgname);
+	"Usage: %s: [options] file\n\n"
+	"Options:\n"
+	"  -f flag  set flag in header (none, noprefix, process, sentinel)\n"
+	"  -p pid   overwrite MMV file PID with given PID\n",
+	pmProgname);
     exit(1);
 }
 
@@ -33,6 +33,8 @@ write_flags(char *flags)
 	hdr->flags |= MMV_FLAG_NOPREFIX;
     if (strcmp(flags, "process") == 0)
 	hdr->flags |= MMV_FLAG_PROCESS;
+    if (strcmp(flags, "sentinel") == 0)
+	hdr->flags |= MMV_FLAG_SENTINEL;
     if (strcmp(flags, "none") == 0)
 	hdr->flags = 0;
     hdr->g1 = ++hdr->g2;

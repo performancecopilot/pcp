@@ -516,6 +516,9 @@ mmv_set_string(void *addr, pmAtomValue *av, const char *string, int size)
 	    mmv_disk_string_t * s;
 
 	    s = (mmv_disk_string_t *)((char *)addr + soffset);
+	    /* clear original contents, preparing for overwriting */
+	    memset(s->payload, 0, sizeof(s->payload));
+	    /* swap in new value (note: value.l is cosmetic only) */
 	    strncpy(s->payload, string, size);
 	    s->payload[size] = '\0';
 	    v->value.l = size;
