@@ -1910,6 +1910,13 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
         // following will fail too.
     }
 
+    // Gather up all the data.  We need several passes over it, so gather it into a vector<vector<> >.
+    (void) pmgraphite_fetch_all_series (connection, targets, all_results, all_result_descs, t_start, t_end, t_step);
+
+    if (exit_p) {
+        return MHD_NO;
+    }
+
     int width = atoi (params["width"].c_str ());
     if (width <= 0) {
         width = 640;
@@ -1944,13 +1951,6 @@ pmgraphite_respond_render_gfx (struct MHD_Connection *connection,
     cairo_rectangle (cr, 0.0, 0.0, width, height);
     cairo_fill (cr);
     cairo_restore (cr);
-
-    // Gather up all the data.  We need several passes over it, so gather it into a vector<vector<> >.
-    (void) pmgraphite_fetch_all_series (connection, targets, all_results, all_result_descs, t_start, t_end, t_step);
-
-    if (exit_p) {
-        return MHD_NO;
-    }
 
     // Compute vertical bounds.
     float ymin;
