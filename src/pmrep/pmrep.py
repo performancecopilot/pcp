@@ -310,6 +310,7 @@ class PMReporter(object):
         opts.pmSetLongOptionHeader("General options")
         opts.pmSetLongOptionArchive()      # -a/--archive
         opts.pmSetLongOptionArchiveFolio() # --archive-folio
+        opts.pmSetLongOptionContainer()    # --container
         opts.pmSetLongOptionHost()         # -h/--host
         opts.pmSetLongOptionLocalPMDA()    # -L/--local-PMDA
         opts.pmSetLongOptionSpecLocal()    # -K/--spec-local

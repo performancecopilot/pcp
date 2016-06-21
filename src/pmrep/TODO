@@ -8,7 +8,6 @@
 -  support rate display also for non-cumulative counters
 -  support displaying raw/rate as per given unit
 -  (re)add runtime directive to config file
--  containers support (depends on RHBZ#1333702)
 -  add JSON output support
 -  add XML output support (like sadf)
 -  add XLS output support (like sar2xls)

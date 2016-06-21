@@ -22,9 +22,11 @@
 \f3pmrep\f1
 [\f3\-CdGHLpruUVxz?\f1]
 [\f3\-a\f1 \f2archive\f1]
+[\f3\--archive-folio\f1 \f2folio\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-b\f1 \f2space-scale\f1]
 [\f3\-c\f1 \f2config\f1]
+[\f3\--container\f1 \f2container\f1]
 [\f3\-e\f1 \f2derived\f1]
 [\f3\-E\f1 \f2lines\f1]
 [\f3\-f\f1 \f2format\f1]
@@ -257,6 +259,12 @@ Unlike with other options,
 .I config
 must be separated by a space from
 .BR \-c .
+.TP
+.B \-\-container
+Fetch performance metrics from the specified
+.IR container ,
+either local or remote (see
+.BR \-h ).
 .TP
 .B \-C
 Exit before reporting any values, but after parsing the configuration
