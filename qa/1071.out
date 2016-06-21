@@ -1,0 +1,150 @@
+QA output created by 1071
+== testing default metrics reporting
+
+  archive: QAPATH/archives/rep
+     host: slack
+ timezone: ...-11
+    start: Wed Feb 10 14:39:13 2016
+      end: Wed Feb 10 14:39:21 2016
+  metrics: 9
+  samples: 9
+ interval: 1.0 sec
+ duration: 8 sec
+
+           k.u.sysname     h.machine   k.a.lastpid      m.u.used     n.t.close    k.a.uptime        h.ncpu     m.physmem    h.nfilesys
+                                                           Kbyte         count           sec                       Kbyte         count
+14:39:13         Linux         linux         15707      13573328             0        507689             8      16053852             3
+14:39:14         Linux         linux         15707      13573328             0        507689             8      16053852             3
+14:39:15         Linux         linux         15707      13573256             0        507691             8      16053852             3
+14:39:16         Linux         linux         15708      13573256             0        507692             8      16053852             3
+
+  archive: QAPATH/archives/rep
+     host: slack
+ timezone: ...-11
+    start: Wed Feb 10 14:39:13 2016
+      end: Wed Feb 10 14:39:21 2016
+  metrics: 10
+  samples: 9
+ interval: 1.0 sec
+ duration: 8 sec
+
+          p.p.start_ti  n.i.baudrate        k.a.hz  d.a.read_byt   k.a.sysfork    k.p.c.user      k.a.load  h.c.bogomips     h.c.clock     n.i.speed
+          000001 /usr/       enp0s25                                                    cpu0      1 minute          cpu0          cpu0       enp0s25
+              millisec        byte/s       count/s       Kbyte/s       count/s          util                                     count       Mbyte/s
+14:39:13            20    3168713760           100           N/A           N/A           N/A        0.0900     5587.4199     3029.0310   781261.9375
+14:39:14            20    3168713760           100        0.0000        0.0000        0.0000        0.0900     5587.4199     3029.0310   781261.9375
+14:39:15            20    3168713760           100        0.0000        0.0000        0.0000        0.0800     5587.4199     2800.0000   781261.9375
+14:39:16            20    3168713760           100        0.0000        1.0000        0.0100        0.0800     5587.4199     2800.0000   781261.9375
+== testing raw metrics reporting
+
+  archive: QAPATH/archives/rep
+     host: slack
+ timezone: ...-11
+    start: Wed Feb 10 14:39:13 2016
+      end: Wed Feb 10 14:39:21 2016
+  metrics: 9
+  samples: 9
+ interval: 1.0 sec
+ duration: 8 sec
+
+           k.u.sysname     h.machine   k.a.lastpid      m.u.used     n.t.close    k.a.uptime        h.ncpu     m.physmem    h.nfilesys
+                                                           Kbyte         count           sec                       Kbyte         count
+14:39:13         Linux         linux         15707      13573328             0        507689             8      16053852             3
+14:39:14         Linux         linux         15707      13573328             0        507689             8      16053852             3
+14:39:15         Linux         linux         15707      13573256             0        507691             8      16053852             3
+14:39:16         Linux         linux         15708      13573256             0        507692             8      16053852             3
+
+  archive: QAPATH/archives/rep
+     host: slack
+ timezone: ...-11
+    start: Wed Feb 10 14:39:13 2016
+      end: Wed Feb 10 14:39:21 2016
+  metrics: 10
+  samples: 9
+ interval: 1.0 sec
+ duration: 8 sec
+
+          p.p.start_ti  n.i.baudrate        k.a.hz  d.a.read_byt   k.a.sysfork    k.p.c.user      k.a.load  h.c.bogomips     h.c.clock     n.i.speed
+          000001 /usr/       enp0s25                                                    cpu0      1 minute          cpu0          cpu0       enp0s25
+              millisec        byte/s       count/s         Kbyte         count      millisec                                     count       Mbyte/s
+14:39:13            20    3168713760           100       8736634       3995200       4349650        0.0900     5587.4199     3029.0310   781261.9375
+14:39:14            20    3168713760           100       8736634       3995200       4349650        0.0900     5587.4199     3029.0310   781261.9375
+14:39:15            20    3168713760           100       8736634       3995200       4349650        0.0800     5587.4199     2800.0000   781261.9375
+14:39:16            20    3168713760           100       8736634       3995201       4349660        0.0800     5587.4199     2800.0000   781261.9375
+== testing uninterpolated metrics reporting
+
+  archive: QAPATH/archives/rep
+     host: slack
+ timezone: ...-11
+    start: Wed Feb 10 14:39:13 2016
+      end: Wed Feb 10 14:39:21 2016
+  metrics: 9
+  samples: 9 (requested)
+ interval: N/A
+ duration: N/A
+
+           k.u.sysname     h.machine   k.a.lastpid      m.u.used     n.t.close    k.a.uptime        h.ncpu     m.physmem    h.nfilesys
+                                                           Kbyte         count           sec                       Kbyte         count
+14:39:13         Linux         linux         15707      13573328             0        507689             8      16053852             3
+14:39:14         Linux         linux         15707      13573380             0        507690             8      16053852             3
+14:39:15         Linux         linux         15707      13573256             0        507691             8      16053852             3
+14:39:16         Linux         linux         15708      13573256             0        507692             8      16053852             3
+14:39:17         Linux         linux         15710      13573800             0        507693             8      16053852             3
+
+  archive: QAPATH/archives/rep
+     host: slack
+ timezone: ...-11
+    start: Wed Feb 10 14:39:13 2016
+      end: Wed Feb 10 14:39:21 2016
+  metrics: 10
+  samples: 9 (requested)
+ interval: N/A
+ duration: N/A
+
+          p.p.start_ti  n.i.baudrate        k.a.hz  d.a.read_byt   k.a.sysfork    k.p.c.user      k.a.load  h.c.bogomips     h.c.clock     n.i.speed
+          000001 /usr/       enp0s25                                                    cpu0      1 minute          cpu0          cpu0       enp0s25
+              millisec        byte/s       count/s       Kbyte/s       count/s          util                                     count       Mbyte/s
+14:39:13            20    3168713760           100           N/A           N/A           N/A        0.0900     5587.4199     3029.0310   781261.9375
+14:39:14            20    3168713760           100        0.0000        0.0000        0.0000        0.0900     5587.4199     2723.4370   781261.9375
+14:39:15            20    3168713760           100        0.0000        0.0000        0.0000        0.0800     5587.4199     2800.0000   781261.9375
+14:39:16            20    3168713760           100        0.0000        0.9999        0.0100        0.0800     5587.4199     2800.0000   781261.9375
+14:39:17            20    3168713760           100        0.0000        2.0002        0.0000        0.0800     5587.4199     2800.1089   781261.9375
+== testing uninterpolated raw metrics reporting
+
+  archive: QAPATH/archives/rep
+     host: slack
+ timezone: ...-11
+    start: Wed Feb 10 14:39:13 2016
+      end: Wed Feb 10 14:39:21 2016
+  metrics: 9
+  samples: 9 (requested)
+ interval: N/A
+ duration: N/A
+
+           k.u.sysname     h.machine   k.a.lastpid      m.u.used     n.t.close    k.a.uptime        h.ncpu     m.physmem    h.nfilesys
+                                                           Kbyte         count           sec                       Kbyte         count
+14:39:13         Linux         linux         15707      13573328             0        507689             8      16053852             3
+14:39:14         Linux         linux         15707      13573380             0        507690             8      16053852             3
+14:39:15         Linux         linux         15707      13573256             0        507691             8      16053852             3
+14:39:16         Linux         linux         15708      13573256             0        507692             8      16053852             3
+14:39:17         Linux         linux         15710      13573800             0        507693             8      16053852             3
+
+  archive: QAPATH/archives/rep
+     host: slack
+ timezone: ...-11
+    start: Wed Feb 10 14:39:13 2016
+      end: Wed Feb 10 14:39:21 2016
+  metrics: 10
+  samples: 9 (requested)
+ interval: N/A
+ duration: N/A
+
+          p.p.start_ti  n.i.baudrate        k.a.hz  d.a.read_byt   k.a.sysfork    k.p.c.user      k.a.load  h.c.bogomips     h.c.clock     n.i.speed
+          000001 /usr/       enp0s25                                                    cpu0      1 minute          cpu0          cpu0       enp0s25
+              millisec        byte/s       count/s         Kbyte         count      millisec                                     count       Mbyte/s
+14:39:13            20    3168713760           100       8736634       3995200       4349650        0.0900     5587.4199     3029.0310   781261.9375
+14:39:14            20    3168713760           100       8736634       3995200       4349650        0.0900     5587.4199     2723.4370   781261.9375
+14:39:15            20    3168713760           100       8736634       3995200       4349650        0.0800     5587.4199     2800.0000   781261.9375
+14:39:16            20    3168713760           100       8736634       3995201       4349660        0.0800     5587.4199     2800.0000   781261.9375
+14:39:17            20    3168713760           100       8736634       3995203       4349660        0.0800     5587.4199     2800.1089   781261.9375
+== done

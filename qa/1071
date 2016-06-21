@@ -1,0 +1,95 @@
+#!/bin/sh
+# PCP QA Test No. 1071
+# Exercise pmrep with a wide range of different types of metrics.
+# See archives/mk.rep.sh for the types being tested against.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+status=1        # failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_path_filter()
+{
+    sed \
+        -e "s#$here#QAPATH#g" \
+    #end
+}
+
+#  timezone: :Australia/Melbourne (creation, current is AEDT-11)
+#  this is not deterministic .......................... ^^^^^^^
+#  and
+#  timezone: AEDT-11
+#            ^^^^ ... ditto
+#
+#  we also need to filter for AEST-10 during standard timezone
+#  as it appears that pmrep will report the change in -11 to -10
+_archive_filter()
+{
+    sed \
+        -e '/timezone/s/current is .*)/current is ...)/' \
+        -e '/timezone/s/ (reporting.*)//' \
+        -e '/timezone:/s/[A-Z][A-Z]*-11/...-11/' \
+        -e '/timezone:/s/[A-Z][A-Z]*-10/...-11/' \
+    #end
+}
+
+log="--archive $here/archives/rep -z"
+metrics1="
+    kernel.uname.sysname
+    hinv.machine
+    kernel.all.lastpid
+    mem.util.used
+    network.tcpconn.close
+    kernel.all.uptime
+    hinv.ncpu
+    mem.physmem
+    hinv.nfilesys
+"
+metrics2="
+    proc.psinfo.start_time
+    network.interface.baudrate
+    kernel.all.hz
+    disk.all.read_bytes
+    kernel.all.sysfork
+    kernel.percpu.cpu.user
+    kernel.all.load
+    hinv.cpu.bogomips
+    hinv.cpu.clock
+    network.interface.speed
+"
+
+# real QA test starts here
+echo "== testing default metrics reporting"
+pmrep -s 9 -t 1 -p -P 4 -w 12 -x $log $metrics1 | _archive_filter | _path_filter
+pmrep -s 9 -t 1 -p -P 4 -w 12 -x $log $metrics2 | _archive_filter | _path_filter
+
+echo "== testing raw metrics reporting"
+pmrep -s 9 -t 1 -p -P 4 -w 12 -x -r $log $metrics1 | _archive_filter | _path_filter
+pmrep -s 9 -t 1 -p -P 4 -w 12 -x -r $log $metrics2 | _archive_filter | _path_filter
+
+echo "== testing uninterpolated metrics reporting"
+pmrep -s 9 -t 1 -p -P 4 -w 12 -x -u $log $metrics1 | _archive_filter | _path_filter
+pmrep -s 9 -t 1 -p -P 4 -w 12 -x -u $log $metrics2 | _archive_filter | _path_filter
+
+echo "== testing uninterpolated raw metrics reporting"
+pmrep -s 9 -t 1 -p -P 4 -w 12 -x -u -r $log $metrics1 | _archive_filter | _path_filter
+pmrep -s 9 -t 1 -p -P 4 -w 12 -x -u -r $log $metrics2 | _archive_filter | _path_filter
+
+# success, all done
+echo "== done"
+status=0
+exit
