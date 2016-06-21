@@ -177,9 +177,9 @@ class PMReporter(object):
         # Special command line switches
         self.arghelp = ('-?', '--help', '-V', '--version')
 
-        # The order of preference for parameters (as present):
-        # 1 - command line parameters
-        # 2 - parameters from configuration file(s)
+        # The order of preference for options (as present):
+        # 1 - command line options
+        # 2 - options from configuration file(s)
         # 3 - built-in defaults defined below
         self.check = 0
         self.config = self.set_config_file()
@@ -242,7 +242,7 @@ class PMReporter(object):
         config = DEFAULT_CONFIG
 
         # Possibly override the built-in default config file before
-        # parsing the rest of the command line parameters
+        # parsing the rest of the command line options
         args = iter(sys.argv[1:])
         for arg in args:
             if arg in self.arghelp:
@@ -422,7 +422,7 @@ class PMReporter(object):
             raise pmapi.pmUsageErr()
 
     def read_cmd_line(self):
-        """ Read command line parameters """
+        """ Read command line options """
         pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_POSIX) # RHBZ#1289912
         if pmapi.c_api.pmGetOptionsFromList(sys.argv):
             raise pmapi.pmUsageErr()
@@ -562,7 +562,7 @@ class PMReporter(object):
             sys.exit(1)
 
     def validate_config(self):
-        """ Validate configuration parameters """
+        """ Validate configuration options """
         if self.version != VERSION:
             sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, VERSION))
             sys.exit(1)

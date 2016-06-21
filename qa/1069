@@ -148,7 +148,7 @@ pmrep -s 1 pmcd.version | sed -e "s/$pcp_version/PCP_VERSION/g"
 echo "== divide-by-zero error handling"
 pmrep -t .01 -s 1 -e 'fail = sample.long.one / 0' fail
 
-echo "== exercise parameter priority"
+echo "== exercise option priority"
 echo '[options]' > $tmp.pconfig
 echo 'header = yes' >> $tmp.pconfig
 echo 'unitinfo = no' >> $tmp.pconfig
