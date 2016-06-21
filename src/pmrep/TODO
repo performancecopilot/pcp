@@ -1,4 +1,3 @@
--  check/fix get_cmd_line_metrics for good
 -  allow defining instances to display [-i]
 -  opt to write cols per row with stdout output [-k]
 -  opt to swap cols and rows (e.g., compare ps vs sar)

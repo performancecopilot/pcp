@@ -113,7 +113,6 @@ def recv_from_zabbix(sock, count):
 
 def send_to_zabbix(metrics, zabbix_host, zabbix_port, timeout=15):
     """ Send a set of metrics to a Zabbix server. """
-
     j = json.dumps
     # Zabbix has a very fragile JSON parser, so we cannot use json to
     # dump the whole packet
@@ -162,14 +161,10 @@ def send_to_zabbix(metrics, zabbix_host, zabbix_port, timeout=15):
 
 class PMReporter(object):
     """ Report PCP metrics """
-
     def __init__(self):
         """ Construct object, prepare for command line handling """
         self.context = None
-        self.check = 0
-        self.format = None # output format
         self.opts = self.options()
-        pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_POSIX) # RHBZ#1289912
 
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'header', 'unitinfo',
@@ -180,16 +175,17 @@ class PMReporter(object):
                      'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval')
 
         # Special command line switches
-        self.argless = ('-C', '--check', '-L', '--local-PMDA', '-H', '--no-header', '-U', '--no-unit-info', '-G', '--no-globals', '-p', '--timestamps', '-d', '--delay', '-r', '--raw', '-x', '--extended-header', '-u', '--no-interpol', '-z', '--hostzone')
         self.arghelp = ('-?', '--help', '-V', '--version')
 
         # The order of preference for parameters (as present):
         # 1 - command line parameters
         # 2 - parameters from configuration file(s)
         # 3 - built-in defaults defined below
+        self.check = 0
         self.config = self.set_config_file()
         self.version = VERSION
         self.source = "local:"
+        self.format = None # stdout format
         self.output = OUTPUT_STDOUT
         self.outfile = None
         self.writer = None
@@ -200,8 +196,8 @@ class PMReporter(object):
         self.globals = 1
         self.timestamp = 0
         self.samples = None # forever
-        self.interval = pmapi.timeval(1) # 1 sec
-        self.opts.pmSetOptionInterval(str(1))
+        self.interval = pmapi.timeval(1)      # 1 sec
+        self.opts.pmSetOptionInterval(str(1)) # 1 sec
         self.localtz = None
         self.runtime = -1
         self.delay = 0
@@ -424,21 +420,11 @@ class PMReporter(object):
         else:
             raise pmapi.pmUsageErr()
 
-    def get_cmd_line_metrics(self):
-        """ Get metric set specifications from the command line """
-        for arg in sys.argv[1:]:
-            if arg in self.arghelp:
-                return 0
-        metrics = []
-        for arg in reversed(sys.argv[1:]):
-            if arg.startswith('-'):
-                if len(metrics):
-                    if arg not in self.argless and '=' not in arg:
-                        del metrics[-1]
-                break
-            metrics.append(arg)
-        metrics.reverse()
-        return metrics
+    def read_cmd_line(self):
+        """ Read command line parameters """
+        pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_POSIX) # RHBZ#1289912
+        if pmapi.c_api.pmGetOptionsFromList(sys.argv):
+            raise pmapi.pmUsageErr()
 
     def parse_metric_info(self, metrics, key, value):
         """ Parse metric information """
@@ -470,17 +456,10 @@ class PMReporter(object):
 
     def prepare_metrics(self):
         """ Construct and prepare the initial metrics set """
-        # Get direct and/or sets of metrics from the command line
-        metrics = self.get_cmd_line_metrics()
-        if metrics == 0:
-            return
+        metrics = self.opts.pmGetNonOptionsFromList(sys.argv)
         if not metrics:
             sys.stderr.write("No metrics specified.\n")
             raise pmapi.pmUsageErr()
-
-        # Don't rely on what get_cmd_line_metrics() might do
-        if '-G' in sys.argv:
-            self.globals = 0
 
         # Read config
         config = ConfigParser.SafeConfigParser()
@@ -537,7 +516,18 @@ class PMReporter(object):
 
     def connect(self):
         """ Establish a PMAPI context to archive, host or local, via args """
-        self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
+        optctx = self.opts.pmGetOptionContext()
+        if optctx == pmapi.c_api.PM_CONTEXT_ARCHIVE:
+            self.source = self.opts.pmGetOptionArchives()[0]
+        elif optctx == pmapi.c_api.PM_CONTEXT_HOST:
+            self.source = self.opts.pmGetOptionHosts()[0]
+        elif optctx == pmapi.c_api.PM_CONTEXT_LOCAL:
+            self.source = None
+        else:
+            optctx = pmapi.c_api.PM_CONTEXT_HOST
+        self.context = pmapi.pmContext(optctx, self.source)
+        if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
+            raise pmapi.pmUsageErr()
 
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
@@ -575,13 +565,6 @@ class PMReporter(object):
         if self.version != VERSION:
             sys.stderr.write("Incompatible configuration file version (read v%s, need v%d).\n" % (self.version, VERSION))
             sys.exit(1)
-
-        if self.context.type == PM_CONTEXT_ARCHIVE:
-            self.source = self.opts.pmGetOptionArchives()[0]
-        if self.context.type == PM_CONTEXT_HOST:
-            self.source = self.context.pmGetContextHostName()
-        if self.context.type == PM_CONTEXT_LOCAL:
-            self.source = "@" # PCPIntro(1), RHBZ#1289911
 
         if self.output == OUTPUT_ARCHIVE and not self.outfile:
             sys.stderr.write("Archive must be defined with archive output.\n")
@@ -1076,7 +1059,7 @@ class PMReporter(object):
             if not self.interpol and not self.opts.pmGetOptionFinish():
                 endtime = self.context.pmGetArchiveEnd()
         if self.context.type == PM_CONTEXT_HOST:
-            host = self.source
+            host = self.context.pmGetContextHostName()
         if self.context.type == PM_CONTEXT_LOCAL:
             host = "localhost, using DSO PMDAs"
 
@@ -1376,6 +1359,7 @@ if __name__ == '__main__':
     try:
         P = PMReporter()
         P.read_config()
+        P.read_cmd_line()
         P.prepare_metrics()
         P.connect()
         P.validate_config()
