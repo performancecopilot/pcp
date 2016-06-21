@@ -1,4 +1,4 @@
-#compdef pcp pmchart pmclient pmclient_fg=pmclient pmdiff pmdumplog pmdumptext pmfind pmie pminfo pmiostat pmlogger pmlogsummary pmprobe pmrep pmstat pmstore pmval
+#compdef pcp pmafm pmchart pmclient pmclient_fg=pmclient pmdbg pmdiff pmdumplog pmdumptext pmerr pmfind pmie pmie2col pminfo pmiostat pmlogcheck pmlogger pmloglabel pmlogsummary pmprobe pmrep pmstat pmstore pmval
 #
 # PCP <http://pcp.io> completions for zsh <http://zsh.sf.net>.
 #
@@ -69,6 +69,13 @@ _pcp () {
       # (i.e., the PCP command itself), this makes it so with the -A "-*" above
       [[ -z $state ]] && state=pcp_cmdopts
   ;;
+  pmafm)
+    _arguments -A "-*" \
+      '(- *)'{-\?,--help}'[display help message]' \
+      '1:folio:_files' \
+      '2:command:(archives check help hosts list quit remove repeat replay run selections)' \
+      && return 0
+  ;;
   pmchart)
     _arguments -C -S -s -w \
       "$common_help[@]" \
@@ -104,6 +111,14 @@ _pcp () {
       "(-g --guimode $exargs)"{-g,--guimode}'[GUI mode with new time control]' \
       "(-p --guiport $exargs)"{-p+,--guiport}'[specify existing time control port]:port:' \
       "(-P --pause -h --host $exargs)"{-P,--pause}'[pause between updates in archive mode]' \
+      && return 0
+  ;;
+  pmdbg)
+    _arguments -A "-*" \
+      '(- *)'{-\?,--help}'[display help message]' \
+      '(- *)'{-l,--list}'[list known debug flags]' \
+      '(- *)'-D'[parse name]:name:( $(pmdbg -l | awk "/^DBG_/ {print \$1}" | sed -e "s,DBG_TRACE_,,g") )' \
+      '*:code:( $(pmdbg -l | awk "/^DBG_/ {print \$2}") )' \
       && return 0
   ;;
   pmdiff)
@@ -189,6 +204,13 @@ _pcp () {
       '*:metric:->metrics' \
       && return 0
   ;;
+  pmerr)
+    _arguments -A "-*" \
+      '(- *)'{-\?,--help}'[display help message]' \
+      '(- *)'{-l,--list}'[list known debug flags]' \
+      '*:code:( $(pmerr -l | awk "/ PM_ERR_/ {print \$1}") )' \
+      && return 0
+  ;;
   pmfind)
     _arguments -C -S -s -w \
       "$common_help[@]" \
@@ -229,6 +251,15 @@ _pcp () {
       "(-X --secret-applet -x --secret-agent $exargs)"{-X,--secret-applet}'[run in thin client mode]' \
       "(-x --secret-agent -X --secret-applet $exargs)"{-x,--secret-agent}'[run in domain agent mode]' \
       '*:config:_files' \
+      && return 0
+  ;;
+  pmie2col)
+    exargs="-? --help"
+    _arguments -A "-*" -C -S -s -w \
+      '(- *)'{-\?,--help}'[display help message]' \
+      "(-d --delimiter $exargs)"{-d+,--delimiter}'[specify output delimiter character]:delimiter:' \
+      "(-p --precision $exargs)"{-p+,--precision}'[specify output floating point precision]:precision:' \
+      "(-w --width $exargs)"{-w+,--width}'[specify output column width]:width:' \
       && return 0
   ;;
   pminfo)
@@ -278,6 +309,20 @@ _pcp () {
       "(-x $exargs)"-x+'[set comma-separated extended options]:options:->pmiostat_extopts' \
       && return 0
   ;;
+  pmlogcheck)
+    exargs="-? --help"
+    _arguments -A "-*" -C -S -s -w \
+      '(- *)'{-\?,--help}'[display help message]' \
+      "(-l --label $exargs)"{-l,--label}'[print archive label]' \
+      "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
+      "(-T --finish $exargs)"{-T+,--finish}'[set end of time window]:timespec:' \
+      "(-v --verbose $exargs)"{-v,--verbose}'[verbose output]' \
+      "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
+      '1:archive:->archives' \
+      && return 0
+  ;;
   pmlogger)
     exargs="-? --help"
     _arguments -C -S -s -w \
@@ -302,6 +347,21 @@ _pcp () {
       "(-x $exargs)"-x+'[set control file descriptor]:fd:_file_descriptors' \
       "(-y $exargs)"-y'[use local time not PMCD timezone]' \
       '1:archive:_files' \
+      && return 0
+  ;;
+  pmloglabel)
+    exargs="-? --help"
+    _arguments -A "-*" -C -S -s -w \
+      '(- *)'-\?'[display help message]' \
+      "(-h --host $exargs)"{-h+,--host}'[set hostname for all files in archive]:hostname:_hosts' \
+      "(-l --label $exargs)"{-l,--label}'[print archive label]' \
+      "(-L $exargs)"-L'[print archive label verbosely]' \
+      "(-p --pid $exargs)"{-p+,--pid}'[set logger PID for all files in archive]:pid:' \
+      "(-s $exargs)"-s'[write label sentinel values for all files in archive]' \
+      "(-v --verbose $exargs)"{-v,--verbose}'[verbose output]' \
+      "(-V --version $exargs)"{-V+,--version}'[set version number for all files in archive]' \
+      "(-Z --timezone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone' \
+      '1:archive:->archives' \
       && return 0
   ;;
   pmlogsummary)
