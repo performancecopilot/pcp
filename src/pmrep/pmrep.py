@@ -1,4 +1,5 @@
 #!/usr/bin/env pmpython
+# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2015-2016 Marko Myllynen <myllynen@redhat.com>
 #
