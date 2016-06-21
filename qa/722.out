@@ -24,7 +24,7 @@ Hosts: ['unix:', 'local:', 'localhost']
 Archives: None
 pass
 
-== Container, expect pass
+== Container, expect pass:
 == Test ==
 Hosts: None
 Archives: None
