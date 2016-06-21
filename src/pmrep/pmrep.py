@@ -1326,7 +1326,8 @@ class PMReporter(object):
                 if self.insts[i][1][j]:
                     key += "[" + str(self.insts[i][1][j]) + "]"
                 val = str(list(values[i])[j][2])
-                self.zabbix_metrics.append(ZabbixMetric(self.zabbix_host, key, val, ts))
+                if val != NO_VAL:
+                    self.zabbix_metrics.append(ZabbixMetric(self.zabbix_host, key, val, ts))
 
         # Send when needed
         if self.context.type == PM_CONTEXT_ARCHIVE:
