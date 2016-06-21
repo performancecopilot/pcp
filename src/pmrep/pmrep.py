@@ -237,68 +237,6 @@ class PMReporter(object):
         self.zabbix_prevsend = None
         self.zabbix_metrics = []
 
-    def set_config_file(self):
-        """ Set configuration file """
-        config = DEFAULT_CONFIG
-
-        # Possibly override the built-in default config file before
-        # parsing the rest of the command line options
-        args = iter(sys.argv[1:])
-        for arg in args:
-            if arg in self.arghelp:
-                return None
-            if arg == '-c' or arg == '--config':
-                try:
-                    config = next(args)
-                    if not os.path.isfile(config) or not os.access(config, os.R_OK):
-                        raise IOError("Failed to read configuration file '%s'." % config)
-                except StopIteration:
-                    break
-        return config
-
-    def set_attr(self, name, value):
-        """ Helper to apply config file settings properly """
-        if value in ('true', 'True', 'y', 'yes', 'Yes'):
-            value = 1
-        if value in ('false', 'False', 'n', 'no', 'No'):
-            value = 0
-        if name == 'source':
-            if '/' in value:
-                self.opts.pmSetOptionArchive(value)
-            else:
-                self.opts.pmSetOptionHost(value) # RHBZ#1289911
-        elif name == 'samples':
-            self.opts.pmSetOptionSamples(value)
-            self.samples = self.opts.pmGetOptionSamples()
-        elif name == 'interval':
-            self.opts.pmSetOptionInterval(value)
-            self.interval = self.opts.pmGetOptionInterval()
-        elif name == 'type':
-            if value == 'raw':
-                self.type = 1
-            else:
-                self.type = 0
-        else:
-            try:
-                setattr(self, name, int(value))
-            except ValueError:
-                setattr(self, name, value)
-
-    def read_config(self):
-        """ Read options from configuration file """
-        if self.config is None:
-            return
-        config = ConfigParser.SafeConfigParser()
-        config.read(self.config)
-        if not config.has_section('options'):
-            return
-        for opt in config.options('options'):
-            if opt in self.keys:
-                self.set_attr(opt, config.get('options', opt))
-            else:
-                sys.stderr.write("Invalid directive '%s' in %s.\n" % (opt, self.config))
-                sys.exit(1)
-
     def options(self):
         """ Setup default command line argument option handling """
         opts = pmapi.pmOptions()
@@ -421,6 +359,68 @@ class PMReporter(object):
         else:
             raise pmapi.pmUsageErr()
 
+    def set_config_file(self):
+        """ Set configuration file """
+        config = DEFAULT_CONFIG
+
+        # Possibly override the built-in default config file before
+        # parsing the rest of the command line options
+        args = iter(sys.argv[1:])
+        for arg in args:
+            if arg in self.arghelp:
+                return None
+            if arg == '-c' or arg == '--config':
+                try:
+                    config = next(args)
+                    if not os.path.isfile(config) or not os.access(config, os.R_OK):
+                        raise IOError("Failed to read configuration file '%s'." % config)
+                except StopIteration:
+                    break
+        return config
+
+    def set_attr(self, name, value):
+        """ Helper to apply config file settings properly """
+        if value in ('true', 'True', 'y', 'yes', 'Yes'):
+            value = 1
+        if value in ('false', 'False', 'n', 'no', 'No'):
+            value = 0
+        if name == 'source':
+            if '/' in value:
+                self.opts.pmSetOptionArchive(value)
+            else:
+                self.opts.pmSetOptionHost(value) # RHBZ#1289911
+        elif name == 'samples':
+            self.opts.pmSetOptionSamples(value)
+            self.samples = self.opts.pmGetOptionSamples()
+        elif name == 'interval':
+            self.opts.pmSetOptionInterval(value)
+            self.interval = self.opts.pmGetOptionInterval()
+        elif name == 'type':
+            if value == 'raw':
+                self.type = 1
+            else:
+                self.type = 0
+        else:
+            try:
+                setattr(self, name, int(value))
+            except ValueError:
+                setattr(self, name, value)
+
+    def read_config(self):
+        """ Read options from configuration file """
+        if self.config is None:
+            return
+        config = ConfigParser.SafeConfigParser()
+        config.read(self.config)
+        if not config.has_section('options'):
+            return
+        for opt in config.options('options'):
+            if opt in self.keys:
+                self.set_attr(opt, config.get('options', opt))
+            else:
+                sys.stderr.write("Invalid directive '%s' in %s.\n" % (opt, self.config))
+                sys.exit(1)
+
     def read_cmd_line(self):
         """ Read command line options """
         pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_POSIX) # RHBZ#1289912
@@ -530,37 +530,6 @@ class PMReporter(object):
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
             raise pmapi.pmUsageErr()
 
-    def check_metric(self, metric):
-        """ Validate individual metric and get its details """
-        try:
-            pmid = self.context.pmLookupName(metric)[0]
-            desc = self.context.pmLookupDescs(pmid)[0]
-            try:
-                if self.context.type == PM_CONTEXT_ARCHIVE:
-                    inst = self.context.pmGetInDomArchive(desc)
-                else:
-                    inst = self.context.pmGetInDom(desc) # disk.dev.read
-                if not inst[0]:
-                    inst = ([PM_IN_NULL], [None])        # pmcd.pmie.logfile
-            except pmapi.pmErr:
-                inst = ([PM_IN_NULL], [None])            # mem.util.free
-            # Reject unsupported types
-            mtype = desc.contents.type
-            if not (mtype == PM_TYPE_32 or
-                    mtype == PM_TYPE_U32 or
-                    mtype == PM_TYPE_64 or
-                    mtype == PM_TYPE_U64 or
-                    mtype == PM_TYPE_FLOAT or
-                    mtype == PM_TYPE_DOUBLE or
-                    mtype == PM_TYPE_STRING):
-                raise pmapi.pmErr(PM_ERR_TYPE)
-            self.pmids.append(pmid)
-            self.descs.append(desc)
-            self.insts.append(inst)
-        except pmapi.pmErr as error:
-            sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
-            sys.exit(1)
-
     def validate_config(self):
         """ Validate configuration options """
         if self.version != VERSION:
@@ -607,6 +576,37 @@ class PMReporter(object):
             else:
                 self.zabbix_interval = int(self.interval)
 
+    def check_metric(self, metric):
+        """ Validate individual metric and get its details """
+        try:
+            pmid = self.context.pmLookupName(metric)[0]
+            desc = self.context.pmLookupDescs(pmid)[0]
+            try:
+                if self.context.type == PM_CONTEXT_ARCHIVE:
+                    inst = self.context.pmGetInDomArchive(desc)
+                else:
+                    inst = self.context.pmGetInDom(desc) # disk.dev.read
+                if not inst[0]:
+                    inst = ([PM_IN_NULL], [None])        # pmcd.pmie.logfile
+            except pmapi.pmErr:
+                inst = ([PM_IN_NULL], [None])            # mem.util.free
+            # Reject unsupported types
+            mtype = desc.contents.type
+            if not (mtype == PM_TYPE_32 or
+                    mtype == PM_TYPE_U32 or
+                    mtype == PM_TYPE_64 or
+                    mtype == PM_TYPE_U64 or
+                    mtype == PM_TYPE_FLOAT or
+                    mtype == PM_TYPE_DOUBLE or
+                    mtype == PM_TYPE_STRING):
+                raise pmapi.pmErr(PM_ERR_TYPE)
+            self.pmids.append(pmid)
+            self.descs.append(desc)
+            self.insts.append(inst)
+        except pmapi.pmErr as error:
+            sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
+            sys.exit(1)
+
     def format_metric_label(self, label):
         """ Format a metric label """
         # See src/libpcp/src/units.c
@@ -648,6 +648,7 @@ class PMReporter(object):
                         if err:
                             sys.stderr.write("Failed to register derived metric: %s.\n" % err)
                             sys.exit(1)
+
         # Prepare for non-leaf metrics
         metrics = self.metrics
         self.metrics = OrderedDict()
@@ -759,6 +760,19 @@ class PMReporter(object):
             pmidA[i] = c_uint(p)
         return pmidA
 
+    def get_current_tz(self):
+        """ Figure out the current timezone using the PCP convention """
+        dst = time.localtime().tm_isdst
+        offset = time.altzone if dst else time.timezone
+        currtz = time.tzname[dst]
+        if offset:
+            offset = offset/3600
+            offset = int(offset) if offset == int(offset) else offset
+            if offset >= 0:
+                offset = "+" + str(offset)
+            currtz += str(offset)
+        return currtz
+
     def get_mode_step(self):
         """ Get mode and step for pmSetMode """
         if not self.interpol or self.output == OUTPUT_ARCHIVE:
@@ -774,19 +788,6 @@ class PMReporter(object):
                 step = self.interval.tv_sec*1000 + self.interval.tv_usec/1000
                 mode |= PM_XTB_SET(PM_TIME_MSEC)
         return (mode, int(step))
-
-    def get_current_tz(self):
-        """ Figure out the current timezone using the PCP convention """
-        dst = time.localtime().tm_isdst
-        offset = time.altzone if dst else time.timezone
-        currtz = time.tzname[dst]
-        if offset:
-            offset = offset/3600
-            offset = int(offset) if offset == int(offset) else offset
-            if offset >= 0:
-                offset = "+" + str(offset)
-            currtz += str(offset)
-        return currtz
 
     def execute(self):
         """ Using a PMAPI context (could be either host or archive),
