@@ -642,13 +642,13 @@ __pmAddOptHostList(pmOptions *opts, char *arg)
     }
 }
 
-static void
+void
 __pmAddOptContainer(pmOptions *opts, char *arg)
 {
     char buffer[MAXPATHLEN+16];
 
     (void)opts;
-    snprintf(buffer, sizeof(buffer), "%s=%s", "PCP_CONTAINER", arg? arg : "");
+    snprintf(buffer, sizeof(buffer), "%s=%s", "PCP_CONTAINER", arg ? arg : "");
     putenv(buffer);
 }
 
@@ -800,6 +800,8 @@ __pmStartOptions(pmOptions *opts)
 	    __pmSetDebugFlag(opts, value);
 	else if (strcmp(s, "FOLIO") == 0)
 	    __pmAddOptArchiveFolio(opts, value);
+	else if (strcmp(s, "CONTAINER") == 0)
+	    __pmAddOptContainer(opts, value);
 	else if (strcmp(s, "GUIMODE") == 0)
 	    __pmSetGuiModeFlag(opts);
 	else if (strcmp(s, "HOST") == 0)

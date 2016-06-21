@@ -334,6 +334,13 @@ setLongOptionArchiveFolio(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+setLongOptionContainer(PyObject *self, PyObject *args)
+{
+    pmLongOptions option = PMOPT_CONTAINER;
+    return addLongOptionObject(&option);
+}
+
+static PyObject *
 setLongOptionDebug(PyObject *self, PyObject *args)
 {
     pmLongOptions option = PMOPT_DEBUG;
@@ -550,6 +557,21 @@ setOptionArchive(PyObject *self, PyObject *args, PyObject *keywords)
     if ((archive = strdup(archive ? archive : "")) == NULL)
 	return PyErr_NoMemory();
     __pmAddOptArchive(&options, archive);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+setOptionContainer(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *container;
+    char *keyword_list[] = {PMLONGOPT_CONTAINER, NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "s:pmSetOptionContainer", keyword_list, &container))
+        return NULL;
+
+    __pmAddOptContainer(&options, container);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1148,6 +1170,9 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmSetLongOptionArchiveFolio",
 	.ml_meth = (PyCFunction) setLongOptionArchiveFolio,
         .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionContainer",
+        .ml_meth = (PyCFunction) setLongOptionContainer,
+        .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetLongOptionDebug",
 	.ml_meth = (PyCFunction) setLongOptionDebug,
         .ml_flags = METH_NOARGS },
@@ -1297,6 +1322,9 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmSetOptionArchiveFolio",
 	.ml_meth = (PyCFunction) setOptionArchiveFolio,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetOptionContainer",
+        .ml_meth = (PyCFunction) setOptionContainer,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmSetOptionHost",
 	.ml_meth = (PyCFunction) setOptionHost,
