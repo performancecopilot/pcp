@@ -1059,6 +1059,9 @@ class pmOptions(object):
     def pmGetOptionTimezone(self):	# str
         return c_api.pmGetOptionTimezone()
 
+    def pmGetOptionContainer(self):	# str
+        return c_api.pmGetOptionContainer()
+
     def pmSetOptionArchive(self, archive):	# str
         return c_api.pmSetOptionArchive(archive)
 

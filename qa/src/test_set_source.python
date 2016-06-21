@@ -71,6 +71,9 @@ class Test(object):
         print("== Test ==")
         print("Hosts: %s" % self.opts.pmGetOptionHosts())
         print("Archives: %s" % self.opts.pmGetOptionArchives())
+        container = self.opts.pmGetOptionContainer()
+        if container:
+            print("Container: %s" % (container))
         self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
 
 if __name__ == '__main__':

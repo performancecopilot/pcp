@@ -1126,6 +1126,17 @@ getOptionHostZone(PyObject *self, PyObject *args)
     return Py_BuildValue("i", options.tzflag);
 }
 
+static PyObject *
+getOptionContainer(PyObject *self, PyObject *args)
+{
+    char *container;
+
+    if ((container = getenv("PCP_CONTAINER")) != NULL)
+	return Py_BuildValue("s", strdup(container));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 
 static PyMethodDef methods[] = {
     { .ml_name = "PM_XTB_SET",
@@ -1313,6 +1324,9 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmGetOptionHostZone",
 	.ml_meth = (PyCFunction) getOptionHostZone,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionContainer",
+	.ml_meth = (PyCFunction) getOptionContainer,
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetOptionArchive",
 	.ml_meth = (PyCFunction) setOptionArchive,

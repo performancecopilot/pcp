@@ -3,7 +3,7 @@
 # Exercise various python mechanisms for setting sources
 # (hosts, archives) via the pmOptions class interfaces.
 #
-# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+# Copyright (c) 2015-2016 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -43,11 +43,15 @@ echo && echo == Host list, expect pass:
 TEST_SET_MULTI=1 TEST_SET_HOSTLIST=unix:,local:,localhost $script 2>$tmp.stderr
 _check_stderr
 
+echo && echo == Container, expect pass:
+TEST_SET_CONTAINER=abc012345 $script 2>$tmp.stderr
+_check_stderr
+
 echo && echo == Archive list, expect pass:
 TEST_SET_ARCHIVELIST=archives/pcp-atop $script 2>$tmp.stderr
 _check_stderr
 echo && echo == Archive list, expect pass:
-TEST_SET_ARCHIVELIST=archives/pcp-atop,archives/rattle $script 2>$tmp.stderr
+TEST_SET_ARCHIVELIST=archives/pcp-free,archives/pcp-uptime $script 2>$tmp.stderr
 _check_stderr
 
 cd $here/archives
