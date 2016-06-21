@@ -37,7 +37,7 @@ _pcp () {
   )
   common_most=(
     "(-a --archive --container -h --host -L --local-PMDA -K --spec-local $exargs)"{-a+,--archive}'[specify metrics source archive]:archive:->archives'
-    "(-h --host -a --archive --container -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts'
+    "(-h --host -a --archive -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts'
     "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files'
     "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]'
     "(-Z --timezone -z --hostzone $exargs)"{-Z+,--timezone}'[set reporting timezone]:timezone:_time_zone'
@@ -49,8 +49,8 @@ _pcp () {
     "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:'
   )
   common_pmda=(
-    "(-L --local-PMDA -a --archive --container -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]'
-    "(-a --archive --container -h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)'
+    "(-L --local-PMDA -a --archive -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]'
+    "(-a --archive -h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)'
   )
 
   case $service in
@@ -266,10 +266,10 @@ _pcp () {
     _arguments -C -S -s -w \
       "$common_help[@]" \
       "(-a --archive --container -h --host -L --local-PMDA -K --spec-local $exargs)"{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
-      "(-h --host -a --archive --container -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
-      "(--container -a --archive -h --host -L --local-PMDA -K --spec-local $exargs)"--container+'[specify container to query]:container:->containers' \
-      "(-L --local-PMDA -a --archive --container -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
-      "(-a --archive --container -h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
+      "(-h --host -a --archive -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
+      "(--container -a --archive $exargs)"--container+'[specify container to query]:container:->containers' \
+      "(-L --local-PMDA -a --archive -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
+      "(-a --archive -h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
       "(-n --namespace -N --uniqnames $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-N --uniqnames -n --namespace $exargs)"{-N+,--uniqnames}'[specify alt. PMNS with unique PMID names]:pmnsfile:_files' \
       "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:' \
@@ -398,11 +398,11 @@ _pcp () {
       '(- *)'{-\?,--help}'[display help message]' \
       '(- *)'{-d,--version}'[display version number]' \
       "(-a --archive --container -h --host -L --local-PMDA -K --spec-local $exargs)"{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
-      "(-h --host -a --archive --container -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
-      "(--container -a --archive -h --host -L --local-PMDA -K --spec-local $exargs)"--container+'[specify container to query]:container:->containers' \
+      "(-h --host -a --archive -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
+      "(--container -a --archive $exargs)"--container+'[specify container to query]:container:->containers' \
       "(--derived $exargs)"--derived+'[specify derived metrics config]:file:_files' \
-      "(-L --local-PMDA -a --archice --container -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
-      "(-a --archive --container -h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
+      "(-L --local-PMDA -a --archice -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
+      "(-a --archive -h --host $exargs)"\*{-K+,--spec-local}'[define PMDA spec for local DSO PMDAs]:spec:(add del clear)' \
       "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:' \
       "(-f --force $exargs)"{-f,--force}'[report all instances]' \
@@ -421,6 +421,7 @@ _pcp () {
       "$common_most[@]" \
       "$common_pmda[@]" \
       "(--archive-folio -a --archive -h --host -L --local-pmda -K --spec-local $exargs)"--archive-folio+'[specify metrics source folio]:folio:_files' \
+      "(--container -a --archive -d --delay -u --no-interpol $exargs)"--container+'[specify container to query]:container:->containers' \
       "(-c --config $exargs)"{-c+,--config}'[specify config file]:file:_files' \
       "(-C --check $exargs)"{-C,--check}'[check config only]' \
       "(-o --output $exargs)"{-o+,--output}'[set output target]:target:(archive csv stdout zabbix)' \
@@ -430,7 +431,7 @@ _pcp () {
       "(-U --no-unit-info $exargs)"{-U,--no-unit-info}'[omit unit info]' \
       "(-G --no-globals $exargs)"{-G,--no-globals}'[omit global metrics]' \
       "(-p --timestamps $exargs)"{-p,--timestamps}'[print timestamps]' \
-      "(-d --delay -h --host -L --local-PMDA -K --spec-local -u --no-interpol $exargs)"{-d,--delay}'[delay between updates in archive mode]' \
+      "(-d --delay --container -h --host -L --local-PMDA -K --spec-local -u --no-interpol $exargs)"{-d,--delay}'[delay between updates in archive mode]' \
       "(-r --raw $exargs)"{-r,--raw}'[report raw values]' \
       "(-w --width $exargs)"{-w+,--width}'[set default column width]:width:' \
       "(-P --precision $exargs)"{-P+,--precision}'[set floating point precision]:precision:' \
@@ -438,7 +439,7 @@ _pcp () {
       "(-x --extended-header $exargs)"{-x,--extended-header}'[print extended header]' \
       "(-E --repeat $exargs)"{-E+,--repeat}'[set header repeat frequency]:samples:' \
       "(-f --timestamp-format $exargs)"{-f+,--timestamp-format}'[set time format string]:format:' \
-      "(-u --no-interpol -d --delay -h --host -L --local-PMDA -K --spec-local -t --interval $exargs)"{-u,--no-interpol}'[disable interpolation]' \
+      "(-u --no-interpol --container -d --delay -h --host -L --local-PMDA -K --spec-local -t --interval $exargs)"{-u,--no-interpol}'[disable interpolation]' \
       "(-q --count-scale $exargs)"{-q+,--count-scale}'[set default count unit]:scale:->scales_count' \
       "(-b --space-scale $exargs)"{-b+,--space-scale}'[set default space unit]:scale:->scales_space' \
       "(-y --time-scale $exargs)"{-y+,--time-scale}'[set default time unit]:scale:->scales_time' \
@@ -487,7 +488,7 @@ _pcp () {
       "$common_pmda[@]" \
       "(-g --guimode $exargs)"{-g,--guimode}'[GUI mode with new time control]' \
       "(-p --guiport $exargs)"{-p+,--guiport}'[specify existing time control port]:port:' \
-      "(--container -a --archive -h --host -L --local-PMDA -K --spec-local $exargs)"--container+'[specify container to query]:container:->containers' \
+      "(--container -a --archive $exargs)"--container+'[specify container to query]:container:->containers' \
       "(--derived $exargs)"--derived+'[specify derived metrics config]:file:_files' \
       "(-d --delay --container -h --host -L --local-PMDA -K --spec-local $exargs)"{-d,--delay}'[delay between updates in archive mode]' \
       "(-f --precision $exargs)"{-f+,--precision}'[set fixed output format precision]:precision:' \
