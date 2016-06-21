@@ -561,19 +561,30 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    else
 		_warning "creating directory ($dir) for PCP archive files"
 	    fi
-	    chown $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
 	fi
 
-	cd "$dir"
+	# and the user pcp can write there
+	#
+	chown $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
+
+	# and the logfile is writeable, if it exists
+	#
+	[ -f "$logfile" ] && chown $PCP_USER:$PCP_GROUP "$logfile" >/dev/null 2>&1
+
+	if cd "$dir"
+	then
+	    :
+	else
+	    _error "cannot chdir to directory ($dir) for PCP archive files"
+	    continue
+	fi
 	dir=`$PWDCMND`
 	$SHOWME && echo "+ cd $dir"
-
-	# ensure pcp user will be able to write there (safely from bad configs)
-	[ "$dir" != / ] && chown -R $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
 
 	if [ ! -w "$dir" ]
 	then
 	    _warning "no write access in $dir, skip lock file processing"
+	    ls -ld "$dir"
 	else
 	    # demand mutual exclusion
 	    #
