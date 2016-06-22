@@ -1092,7 +1092,9 @@ timezone
 850 python local
 851 pmiostat local
 853 pmcpp local
+854:reserved pmlogger local
 855 pmda.netfilter local
+856:reserved pmlogger local
 858 libpcp local fetch
 859 python libpcp local fetch
 860 pmda pmda.proc ostest local pmval
@@ -1112,6 +1114,7 @@ timezone
 879 pmda.pipe local
 880 pmrep python local
 881 pmcd local
+882:reserved pmlogger local
 885 pmda.linux local
 886 pmda.linux local
 887 pmlogsummary archive multi-archive local
@@ -1247,6 +1250,7 @@ timezone
 1052 pmda.json local python
 1053 pmda.json pmda.install local python
 1054 pmlogger pmcpp local
+1055:reserved pmlogger local
 1062 pmrep python local
 1065 libpcp valgrind local
 1067 zabbix zbxpcp local
