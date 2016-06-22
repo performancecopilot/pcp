@@ -1464,67 +1464,68 @@ pmgetopt_r(int argc, char *const *argv, pmOptions *d)
 	    if (longopts == NULL)
 		goto no_longs;
 
-	char *nameend;
-	pmLongOptions *p;
-	pmLongOptions *pfound = NULL;
-	int exact = 0;
-	int ambig = 0;
-	int indfound = 0;
-	int option_index;
+	    char *nameend;
+	    pmLongOptions *p;
+	    pmLongOptions *pfound = NULL;
+	    int exact = 0;
+	    int ambig = 0;
+	    int indfound = 0;
+	    int option_index;
 
-	/* This is an option that requires an argument. */
-	if (*d->__nextchar != '\0') {
-	    d->optarg = d->__nextchar;
-	    /* If we end this ARGV-element by taking the rest as an arg,
-	     * we must advance to the next element now.
-	     */
-	    d->optind++;
-	}
-	else if (d->optind == argc) {
-	    if (print_errors) {
-		pmprintf("%s: option requires an argument -- '%c'\n",
-			 pmProgname, c);
+	    /* This is an option that requires an argument. */
+	    if (*d->__nextchar != '\0') {
+		d->optarg = d->__nextchar;
+		/* If we end this ARGV-element by taking the rest as an arg,
+		 * we must advance to the next element now.
+		 */
+		d->optind++;
 	    }
-	    d->optopt = c;
-	    if (optstring[0] == ':')
-		c = ':';
-	    else
-		c = '?';
-	    return c;
-	}
-	else {
-	    /* We already incremented `d->optind' once;
-	     * increment it again when taking next ARGV-elt as argument.
-	     */
-	    d->optarg = argv[d->optind++];
-	}
-
-	/* optarg is now the argument, see if it's in the table of longopts. */
-
-	for (d->__nextchar = nameend = d->optarg; *nameend && *nameend != '=';
-	     nameend++)
-	    /* Do nothing */ ;
-
-	/* Test all long options for either exact or abbreviated matches. */
-	for (p = longopts, option_index = 0; p->long_opt; p++, option_index++)
-	    if (!strncmp(p->long_opt, d->__nextchar, nameend - d->__nextchar)) {
-		if ((unsigned int)(nameend - d->__nextchar) == strlen(p->long_opt)) {
-		    /* Exact match found.  */
-		    pfound = p;
-		    indfound = option_index;
-		    exact = 1;
-		    break;
+	    else if (d->optind == argc) {
+		if (print_errors) {
+		    pmprintf("%s: option requires an argument -- '%c'\n",
+			     pmProgname, c);
 		}
-		else if (pfound == NULL) {
-		    /* First nonexact match found.  */
-		    pfound = p;
-		    indfound = option_index;
-		}
-		else if (long_only
-			|| pfound->has_arg != p->has_arg
-			|| pfound->short_opt != p->short_opt) {
-		    /* Second or later nonexact match found. */
-		    ambig = 1;
+		d->optopt = c;
+		if (optstring[0] == ':')
+		    c = ':';
+		else
+		    c = '?';
+		return c;
+	    }
+	    else {
+		/* We already incremented `d->optind' once;
+		 * increment it again when taking next ARGV-elt as argument.
+		 */
+		d->optarg = argv[d->optind++];
+	    }
+
+	    /* optarg is now the argument, see if it's in the table of longopts. */
+
+	    for (d->__nextchar = nameend = d->optarg; *nameend && *nameend != '=';
+		 nameend++)
+		/* Do nothing */ ;
+
+	    /* Test all long options for either exact or abbreviated matches. */
+	    for (p = longopts, option_index = 0; p->long_opt; p++, option_index++) {
+		if (!strncmp(p->long_opt, d->__nextchar, nameend - d->__nextchar)) {
+		    if ((unsigned int)(nameend - d->__nextchar) == strlen(p->long_opt)) {
+			/* Exact match found.  */
+			pfound = p;
+			indfound = option_index;
+			exact = 1;
+			break;
+		    }
+		    else if (pfound == NULL) {
+			/* First nonexact match found.  */
+			pfound = p;
+			indfound = option_index;
+		    }
+		    else if (long_only
+			    || pfound->has_arg != p->has_arg
+			    || pfound->short_opt != p->short_opt) {
+			/* Second or later nonexact match found. */
+			ambig = 1;
+		    }
 		}
 	    }
 	    if (ambig && !exact) {
@@ -1571,7 +1572,7 @@ pmgetopt_r(int argc, char *const *argv, pmOptions *d)
 		return pfound->short_opt;
 	    }
 
-        no_longs:
+no_longs:
 	    d->__nextchar = NULL;
 	    return 'W';	/* Let the application handle it. */
 	}

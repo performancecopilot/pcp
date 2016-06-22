@@ -301,8 +301,8 @@ bash_store(pmResult *result, pmdaExt *pmda)
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet	*vsp = result->vset[i];
 
-    if (pmDebug & DBG_TRACE_APPL0)
-	__pmNotifyErr(LOG_DEBUG, "bash_store_metric called");
+	if (pmDebug & DBG_TRACE_APPL0)
+	    __pmNotifyErr(LOG_DEBUG, "bash_store_metric called");
 	if ((sts = bash_store_metric(vsp, context)) < 0)
 	    return sts;
     }

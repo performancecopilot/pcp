@@ -1683,7 +1683,7 @@ compcpu(const void *a, const void *b)
 
         if (acpu < bcpu) return  1;
         if (acpu > bcpu) return -1;
-                         return compmem(a, b);
+	return compmem(a, b);
 }
 
 int
@@ -1707,7 +1707,7 @@ compdsk(const void *a, const void *b)
 
         if (adsk < bdsk) return  1;
         if (adsk > bdsk) return -1;
-                         return compcpu(a, b);
+	return compcpu(a, b);
 }
 
 int
@@ -1718,7 +1718,7 @@ compmem(const void *a, const void *b)
 
         if (amem < bmem) return  1;
         if (amem > bmem) return -1;
-                         return  0;
+	return  0;
 }
 
 int
@@ -1735,7 +1735,7 @@ compnet(const void *a, const void *b)
 
         if (anet < bnet) return  1;
         if (anet > bnet) return -1;
-                         return compcpu(a, b);
+	return compcpu(a, b);
 }
 
 int
@@ -1746,7 +1746,7 @@ compusr(const void *a, const void *b)
 
         if (uida > uidb) return  1;
         if (uida < uidb) return -1;
-                         return  0;
+	return  0;
 }
 
 int
@@ -1768,7 +1768,7 @@ cpucompar(const void *a, const void *b)
 
         if (aidle < bidle) return -1;
         if (aidle > bidle) return  1;
-                           return  0;
+	return  0;
 }
 
 int
@@ -1779,7 +1779,7 @@ diskcompar(const void *a, const void *b)
 
         if (amsio < bmsio) return  1;
         if (amsio > bmsio) return -1;
-                           return  0;
+	return  0;
 }
 
 int
@@ -1828,14 +1828,14 @@ intfcompar(const void *a, const void *b)
         {
                 if (afactor < bfactor)  return  1;
                 if (afactor > bfactor)  return -1;
-                                        return  0;
+		return  0;
         }
 
         if (!aspeed && !bspeed)
         {
                 if ((arbyte + asbyte) < (brbyte + bsbyte))      return  1;
                 if ((arbyte + asbyte) > (brbyte + bsbyte))      return -1;
-                                                                return  0;
+		return  0;
         }
 
         if (aspeed)
@@ -1861,7 +1861,7 @@ nfsmcompar(const void *a, const void *b)
 
         if (aused < bused) return  1;
         if (aused > bused) return -1;
-                           return  0;
+	return  0;
 }
 
 int
@@ -1875,7 +1875,7 @@ contcompar(const void *a, const void *b)
 
         if (aused < bused) return  1;
         if (aused > bused) return -1;
-                           return  0;
+	return  0;
 }
 
 /*
