@@ -1,0 +1,134 @@
+#!/bin/sh
+# PCP QA Test No. 882
+# Check PMCD state change notification, aka PMCD_ADD_AGENT
+#
+# Copyright (c) 2016 Red Hat, Inc.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard filters
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1
+done_clean=false
+LOCALHOST=`hostname`
+
+_cleanup()
+{
+    if $done_clean
+    then
+	:
+    else
+	echo "Restore pmcd.conf and restart PMCD ..."
+	if [ -f $tmp.pmcd.conf ]
+	then
+	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
+	    rm -f $tmp.pmcd.conf
+	fi
+	_restore_primary_logger
+	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	rm -f $tmp.*
+	_wait_for_pmcd
+	_wait_for_pmlogger
+	done_clean=true
+    fi
+    exit $status
+}
+
+$sudo rm -rf $tmp.* $seq.full 
+trap "_cleanup" 0 1 2 3 15
+
+# real QA test starts here
+PMDA_PMCD_PATH=$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX
+
+# copy the pmcd config file to restore state later.
+cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
+
+# start from a known starting point
+$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+
+cat <<End-of-File >$tmp.tmp
+# temporary for qa/$seq
+pmcd	2	dso	pmcd_init	$PMDA_PMCD_PATH
+sample	29	pipe	binary 		$PCP_PMDAS_DIR/sample/pmdasample -d 29 
+simple	253	pipe	binary 		/var/lib/pcp/pmdas/simple/pmdasimple -d 253 
+End-of-File
+$sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
+
+_writable_primary_logger
+$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_wait_for_pmcd
+if [ -d $PCP_LOG_DIR/pmlogger ]
+then
+    LOGGING_DIR=$PCP_LOG_DIR/pmlogger
+else
+    LOGGING_DIR=$PCP_LOG_DIR
+fi
+_wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
+
+# Reset pmlogger
+echo "log sample.dynamic.meta.metric"
+# Log the sample pmda's sample.dynamic.meta.metric
+echo 'connect primary
+log mandatory on 500 msec { sample.dynamic.meta.metric }' \
+    | pmlc
+
+# log a few samples
+sleep 2
+
+echo "archive contents before pmda simple restart..."
+echo "expect no <mark> record"
+echo "---------------------------------------------------------------"
+pmafm $LOGGING_DIR/$LOCALHOST/Latest pmdumplog >$tmp.out 2>&1
+egrep '(<mark>)|(sample.dynamic.meta.metric)' $tmp.out \
+| _filter_pmdumplog \
+| uniq
+echo "---------------------------------------------------------------"
+
+# Get the units of sample.dynamic.meta.metric by fetching 
+# sample.dynamic.meta.pmdesc.units using pminfo.
+echo "pminfo -f sample.dynamic.meta.pmdesc.units" | tee -a $seq.full
+units=`pminfo -f sample.dynamic.meta.pmdesc.units | tee -a $seq.full \
+    | awk '/value/ { print $2 }'`
+
+# Change the units of sample.dynamic.meta.metric by using pmstore to store into
+# sample.dynamic.meta.pmdesc.units
+# Change one of the inner bitfields so as to avoid changing the padding
+echo "changing units from $units to $((units + 0x100))"
+pmstore sample.dynamic.meta.pmdesc.units $((units + 0x100))
+
+# Restart the simple pmda by killing it and the getting pmcd to restart it (HUP).
+# pmlogger should receive PMCD_ADD_AGENT, which should cause it to re-check
+# all of it's configured metrics. It should then flag the change to
+# sample.dynamic.meta.pmdesc.units and exit.
+echo "restart the simple pmda"
+$sudo $signal -a -s TERM pmdasimple
+sleep 1 # let the signal arrive and let pmdasimple exit
+$sudo $signal -a -s HUP pmcd   # ensure pmcd restarts the PMDA
+sleep 1 # let the signal arrive and pmcd think about it
+
+echo "archive contents after pmda simple restart..."
+echo "expect no <mark> record"
+echo "---------------------------------------------------------------"
+pmafm $LOGGING_DIR/$LOCALHOST/Latest pmdumplog >$tmp.out 2>&1
+egrep '(<mark>)|(sample.dynamic.meta.metric)' $tmp.out \
+| _filter_pmdumplog \
+| uniq
+echo "---------------------------------------------------------------"
+
+# pmlogger should have stopped. Check for the messages indicating that
+# the re-check of the configured metrics failed and that it stopped.
+echo >>$seq.full
+echo "pmlogger log ..." >>$seq.full
+cat $LOGGING_DIR/$LOCALHOST/pmlogger.log | tee -a $seq.full | \
+grep \
+ -e 'Units of metric "sample.dynamic.meta.metric" has changed from (null) to (null)' \
+ -e 'One or more configured metrics have changed after pmcd state change. Exiting'
+
+status=0
+exit
