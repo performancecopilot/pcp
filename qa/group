@@ -938,6 +938,7 @@ timezone
 666 pmmgr local slow
 667 python local
 668 pmmgr local containers
+669 pmmgr local
 670 libpcp local
 701 pmlogcheck local
 702 python libpcp local
@@ -1089,6 +1090,7 @@ timezone
 848 pmcd secure local
 849:reserved pmie local
 850 python local
+851 pmiostat local
 853 pmcpp local
 854 pmlogger local
 855 pmda.netfilter local
@@ -1118,7 +1120,7 @@ timezone
 887 pmlogsummary archive multi-archive local
 888 pmda.linux local
 889 pmda.proc local
-891 local
+891 libpcp local
 892 pmcd libpcp local
 897 pmlc pmlogger local
 898 pmlogmv local 
@@ -1187,7 +1189,7 @@ timezone
 987 pmda.xfs local
 988 pmda.xfs local valgrind
 989 archive local
-990:reserved pmda.mmv local
+990 pmda.mmv local
 991 pcp python local
 992 pmcpp pmlogger local
 993 pmlogger pmdumplog local
@@ -1237,6 +1239,7 @@ timezone
 1037 pminfo archive multi-archive local
 1038 pmrep archive multi-archive local
 1039 libpcp local
+1040 dbpmda local
 1042 pmwebapi pmda.proc local
 1044 pmie local pmieconf sanity
 1045 pmie local pmieconf

@@ -207,12 +207,12 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		 * updated one, so it's PMNS could have changed. We need to
 		 * recheck each metric to make sure that its pmid and semantics
 		 * have not changed.
-		 * This call will not return if there is an compatible change.
+		 * This call will not return if there is an incompatible change.
 		 */
 		validate_metrics();
 
 		/*
-		 * All metrtics have been validated, however, this state change
+		 * All metrics have been validated, however, this state change
 		 * represents a potential gap in the stream of metrics. Generate
 		 * a <mark> record.
 		 */
