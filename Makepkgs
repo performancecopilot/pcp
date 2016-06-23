@@ -246,6 +246,23 @@ then
     # Try to mimic where pkgsrc/pkgin place things
     #
     configopts="--prefix=/usr/pkg --exec-prefix=/usr/pkg --mandir=/usr/pkg/man --with-rcdir=/etc/rc.d --localstatedir=/usr/pkg --with-rundir=/var/run --with-tmpdir=/var/tmp --with-logdir=/var/log/pcp"
+elif [ $target = freebsd ]
+then
+    # Python build does not work on FreeBSD 9.3, so skip it
+    #
+    case `uname -r`
+    in
+	9.3*)
+		# Bog-standard, just without python
+		#
+		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python=no --with-python3=no"
+		;;
+	*)
+		# Bog-standard, as below ...
+		#
+		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+		;;
+    esac
 else
     # Bog-standard options suitable for a package on any platform.
     # Command line can be used to extend this set, and any unusual

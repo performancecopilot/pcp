@@ -1073,11 +1073,10 @@ try_plot:
 			    msg.sprintf("\nFailed to plot metric \"%s\" for\n%s %s:\n",
 				pms.metric, pms.isarch ? "archive" : "host",
 				pms.source);
-			    if (m == PM_ERR_CONV) {
-				msg.append("Units for this metric are not compatible with other plots in this chart");
-			    }
-			    else
-				msg.append(pmErrStr(m));
+			if (m == PM_ERR_CONV)
+			    msg.append("Units for this metric are not compatible with other plots in this chart");
+			else
+			    msg.append(pmErrStr(m));
 			errmsg.append(msg);
 		    }
 		}

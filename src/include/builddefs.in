@@ -648,15 +648,15 @@ ifeq "$(shell [ '$(TARGET_OS)' = linux -a '$(PACKAGE_DISTRIBUTION)' != gentoo \
 	      ] && echo 1)" "1"
 # Linux and not Gentoo (which needs tarball packaging)
 PYTHON_INSTALL = \
-	$(AWK) '{print} /.pyc$$/ {sub(/.pyc$$/,".pyo"); print}' \
+	$(AWK) '{print} /\.pyc$$/ {sub(/\.pyc$$/,".pyo"); print}' \
 		< $(TOPDIR)/python-pcp.list > $(TOPDIR)/python-pcp.list.rpm; \
 	cat $(TOPDIR)/python-pcp.list.rpm | while read f; do \
 	    touch $${DIST_ROOT-/}$$f; \
 	done
 PYTHON3_INSTALL = \
-	$(AWK) '{print} /.pyc$$/ {sub(/.pyc$$/,".pyo"); print}' \
+	$(AWK) '{print} /\.pyc$$/ {sub(/\.pyc$$/,".pyo"); print}' \
 		< $(TOPDIR)/python3-pcp.list > $(TOPDIR)/python3-pcp.list.rpm; \
-	$(AWK) '{print} /.pyc$$/ {sub(/.pyc$$/,".opt-1.pyc"); print}' \
+	$(AWK) '/\.pyc$$/ {sub(/\.pyc$$/,".opt-1.pyc"); print}' \
 		< $(TOPDIR)/python3-pcp.list >> $(TOPDIR)/python3-pcp.list.rpm; \
 	cat $(TOPDIR)/python3-pcp.list.rpm | while read f; do \
 	    touch $${DIST_ROOT-/}$$f; \

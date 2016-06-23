@@ -217,10 +217,13 @@ do
 done
 grep 'Permission denied' Logs/pcp >$tmp.err
 grep ' [Ee]rror: ' Logs/pcp >>$tmp.err
-grep ' [Ww]arning: ' Logs/pcp \
+sed -e 's/^/ /' <Logs/pcp \
+| grep -i ' warning: ' \
 | sed >>$tmp.err \
+    -e 's/^ //' \
     -e '/yyunput.* defined but not used/d' \
-    -e '/input.* defined but not used/d'
+    -e '/input.* defined but not used/d' \
+    -e '/jobserver unavailable: using -j1/d'
 if [ -s $tmp.err ]
 then
     echo "Warning: `wc -l <$tmp.err | sed -e 's/ //g'` build warnings/errors" | tee -a $HOME/daily.log
