@@ -92,3 +92,9 @@ fi
 here=`pwd`
 tmp=/tmp/$$
 [ "X$seq" != X ] && tmp=/tmp/$seq-$$
+
+# We depend on [A-Za-z] and similar patterns all over ... for some
+# platforms this demands LC_COLLATE to be C to avoid case insensitive
+# matching
+#
+export LC_COLLATE=C
