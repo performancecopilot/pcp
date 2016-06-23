@@ -297,4 +297,16 @@ else
     done
 fi
 
-exit
+# cull any old files or directories that used to be in the distribution
+# but that have gone away or moved somewhere else
+#
+for file in $PCP_VAR_DIR/config/pmieconf/pcp/pmda_status
+do
+    [ -f "$file" ] && rm -f "$file"
+done
+for dir in $PCP_VAR_DIR/config/pmieconf/pcp
+do
+    [ -d "$dir" ] && rm -rf "$dir"
+done
+
+exit 0

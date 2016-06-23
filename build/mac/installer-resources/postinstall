@@ -90,4 +90,16 @@ chown -R pcp:pcp /var/log/pcp/pmproxy 2>/dev/null
 # https://github.com/performancecopilot/pcp/issues/20
 defaults write io.pcp.pmtime NSAppSleepDisabled -bool YES
 
+# cull any old files or directories that used to be in the distribution
+# but that have gone away or moved somewhere else
+#
+for file in /var/lib/pcp/config/pmieconf/pcp/pmda_status
+do
+    [ -f "$file" ] && rm -f "$file"
+done
+for dir in /var/lib/pcp/config/pmieconf/pcp
+do
+    [ -d "$dir" ] && rm -rf "$dir"
+done
+
 status=0
