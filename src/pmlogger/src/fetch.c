@@ -191,6 +191,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	    } while (n == 0);
 
 	    if (changed & PMCD_ADD_AGENT) {
+		int	sts;
 		/*
 		 * PMCD_DROP_AGENT does not matter, no values are returned.
 		 * Trying to restart (PMCD_RESTART_AGENT) is less interesting
@@ -201,13 +202,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		 * generates the second PMCD_ADD_AGENT that we need to be
 		 * particularly sensitive to, as this may reset counter
 		 * metrics.
-		 */
-		int	sts;
-		if ((sts = putmark()) < 0) {
-		    fprintf(stderr, "putmark: %s\n", pmErrStr(sts));
-		    exit(1);
-		}
-		/*
+		 *
 		 * The potentially new instance of the agent may also be an
 		 * updated one, so it's PMNS could have changed. We need to
 		 * recheck each metric to make sure that its pmid and semantics
@@ -215,6 +210,16 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		 * This call will not return if there is an compatible change.
 		 */
 		validate_metrics();
+
+		/*
+		 * All metrtics have been validated, however, this state change
+		 * represents a potential gap in the stream of metrics. Generate
+		 * a <mark> record.
+		 */
+		if ((sts = putmark()) < 0) {
+		    fprintf(stderr, "putmark: %s\n", pmErrStr(sts));
+		    exit(1);
+		}
 	    }
 	}
 	if (newlist != NULL)
