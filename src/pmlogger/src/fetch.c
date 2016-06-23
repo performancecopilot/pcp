@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -191,6 +191,7 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	    } while (n == 0);
 
 	    if (changed & PMCD_ADD_AGENT) {
+		int	sts;
 		/*
 		 * PMCD_DROP_AGENT does not matter, no values are returned.
 		 * Trying to restart (PMCD_RESTART_AGENT) is less interesting
@@ -200,9 +201,21 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		 * not involve a restart ... it is the second Install that
 		 * generates the second PMCD_ADD_AGENT that we need to be
 		 * particularly sensitive to, as this may reset counter
-		 * metrics ...
+		 * metrics.
+		 *
+		 * The potentially new instance of the agent may also be an
+		 * updated one, so it's PMNS could have changed. We need to
+		 * recheck each metric to make sure that its pmid and semantics
+		 * have not changed.
+		 * This call will not return if there is an compatible change.
 		 */
-		int	sts;
+		validate_metrics();
+
+		/*
+		 * All metrtics have been validated, however, this state change
+		 * represents a potential gap in the stream of metrics. Generate
+		 * a <mark> record.
+		 */
 		if ((sts = putmark()) < 0) {
 		    fprintf(stderr, "putmark: %s\n", pmErrStr(sts));
 		    exit(1);

@@ -757,6 +757,9 @@ LIBPCP.pmTypeStr_r.argtypes = [c_int, c_char_p, c_int]
 LIBPCP.pmAtomStr_r.restype = c_char_p
 LIBPCP.pmAtomStr_r.argtypes = [POINTER(pmAtomValue), c_int, c_char_p, c_int]
 
+LIBPCP.pmSemStr_r.restype = c_char_p
+LIBPCP.pmSemStr_r.argtypes = [c_int, c_char_p, c_int]
+
 LIBPCP.pmPrintValue.restype = None
 LIBPCP.pmPrintValue.argtypes = [c_void_p, c_int, c_int, POINTER(pmValue), c_int]
 
@@ -1990,6 +1993,15 @@ class pmContext(object):
         """
         atomstr = ctypes.create_string_buffer(96)
         result = LIBPCP.pmAtomStr_r(byref(atom), typed, atomstr, 96)
+        return str(result.decode())
+
+    @staticmethod
+    def pmSemStr(sem):
+        """PMAPI - Convert a performance metric semantic to a readable string
+        "string" = pmSemStr(c_api.PM_SEM_COUNTER)
+        """
+        semstr = ctypes.create_string_buffer(32)
+        result = LIBPCP.pmSemStr_r(sem, semstr, 32)
         return str(result.decode())
 
     @staticmethod

@@ -563,6 +563,8 @@ PCP_CALL extern const char *pmInDomStr(pmInDom);			/* NOT thread-safe */
 PCP_CALL extern char *pmInDomStr_r(pmInDom, char *, int);
 PCP_CALL extern const char *pmTypeStr(int);			/* NOT thread-safe */
 PCP_CALL extern char *pmTypeStr_r(int, char *, int);
+PCP_CALL extern const char *pmSemStr(int);			/* NOT thread-safe */
+PCP_CALL extern char *pmSemStr_r(int, char *, int);
 PCP_CALL extern const char *pmUnitsStr(const pmUnits *);		/* NOT thread-safe */
 PCP_CALL extern char *pmUnitsStr_r(const pmUnits *, char *, int);
 PCP_CALL extern const char *pmAtomStr(const pmAtomValue *, int);	/* NOT thread-safe */
