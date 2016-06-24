@@ -464,7 +464,7 @@ ifeq "$(TARGET_OS)" "mingw"
 INSTALL_MAN =
 else
 INSTALL_MAN = \
-    test -z "$$MAN_PAGES" && MAN_PAGES="$(MAN_PAGES)" && $(HAVE_MANPAGES); \
+    test -z "$$MAN_PAGES" && MAN_PAGES="$(MAN_PAGES)" -a $(HAVE_MANPAGES); \
     for d in `echo $$MAN_PAGES`; do \
 	first=true; \
 	base=`echo $$d | sed -e 's/\.[0-9]//g'`; \
