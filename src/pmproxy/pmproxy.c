@@ -549,6 +549,15 @@ main(int argc, char *argv[])
     if ((envstr = getenv("PMPROXY_MAXPENDING")) != NULL)
 	maxpending = atoi(envstr);
     ParseOptions(argc, argv, &nport);
+
+    __pmOpenLog(pmProgname, logfile, stderr, &sts);
+    /* close old stdout, and force stdout into same stream as stderr */
+    fflush(stdout);
+    close(fileno(stdout));
+    if (dup(fileno(stderr)) == -1) {
+	fprintf(stderr, "Warning: dup() failed: %s\n", pmErrStr(-oserror()));
+    }
+
     if (localhost)
 	__pmServerAddInterface("INADDR_LOOPBACK");
     if (nport == 0)
@@ -573,21 +582,14 @@ main(int argc, char *argv[])
 	DontStart();
     maxReqPortFd = maxSockFd = sts;
 
-    __pmOpenLog(pmProgname, logfile, stderr, &sts);
-    /* close old stdout, and force stdout into same stream as stderr */
-    fflush(stdout);
-    close(fileno(stdout));
-    if (dup(fileno(stderr)) == -1) {
-	fprintf(stderr, "Warning: dup() failed: %s\n", pmErrStr(-oserror()));
-    }
-
-    fprintf(stderr, "pmproxy: PID = %" FMT_PID, getpid());
-    fprintf(stderr, ", PDU version = %u\n", PDU_VERSION);
-    __pmServerDumpRequestPorts(stderr);
-    fflush(stderr);
-
     /* lose root privileges if we have them */
     __pmSetProcessIdentity(username);
+
+    fprintf(stderr, "pmproxy: PID = %" FMT_PID, getpid());
+    fprintf(stderr, ", PDU version = %u", PDU_VERSION);
+    fprintf(stderr, ", user = %s (%d)\n", username, getuid());
+    __pmServerDumpRequestPorts(stderr);
+    fflush(stderr);
 
     if (__pmSecureServerCertificateSetup(certdb, dbpassfile, cert_nickname) < 0)
 	DontStart();
