@@ -186,8 +186,8 @@ validate_metrics(void)
     char		buf1[20], buf2[20];
 
     time(&now);
-    fprintf(stderr, "\n%s", ctime(&now));
-    fprintf(stderr, "Validating configured metrics after pmcd state change\n");
+    fprintf(stderr, "%s: Validating metrics after PMCD state changed at %s",
+		    pmProgname, ctime(&now));
 
     /*
      * Check each metric in each element of the task list, whether it is

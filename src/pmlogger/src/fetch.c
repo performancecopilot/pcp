@@ -79,7 +79,6 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
     else
 	return PM_ERR_NOCONTEXT;
 
-#if CAN_RECONNECT
     if (ctxp->c_pmcd->pc_fd == -1) {
 	/* lost connection, try to get it back */
 	n = reconnect();
@@ -88,7 +87,6 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 	    return n;
 	}
     }
-#endif
 
     if (ctxp->c_sent == 0) {
 	/*

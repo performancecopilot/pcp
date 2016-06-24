@@ -128,9 +128,7 @@ extern int newvolume(int);
 extern void validate_metrics(void);
 
 extern void disconnect(int);
-#if CAN_RECONNECT
 extern int reconnect(void);
-#endif
 extern int do_preamble(void);
 extern void run_done(int,char *);
 extern __pmPDU *rewrite_pdu(__pmPDU *, int);
