@@ -99,7 +99,9 @@ mmv_genstats
 mmv_instances
 mmv_noinit
 mmv_nostats
+mmv_ondisk
 mmv_poke
+mmv_simple
 multifetch
 multithread0
 multithread1
@@ -163,6 +165,7 @@ record-setarg
 rootclient
 rtimetest
 scale
+semstr
 slow_af
 sortinst
 statvfs

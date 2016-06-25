@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -1281,21 +1281,14 @@ void
 disconnect(int sts)
 {
     time_t  		now;
-#if CAN_RECONNECT
     int			ctx;
     __pmContext		*ctxp;
-#endif
 
     time(&now);
     if (sts != 0)
 	fprintf(stderr, "%s: Error: %s\n", pmProgname, pmErrStr(sts));
     fprintf(stderr, "%s: Lost connection to PMCD on \"%s\" at %s",
 	    pmProgname, pmcd_host, ctime(&now));
-#if CAN_RECONNECT
-    if (primary) {
-	fprintf(stderr, "This is fatal for the primary logger.");
-	exit(1);
-    }
     if (pmcdfd != -1) {
 	close(pmcdfd);
 	__pmFD_CLR(pmcdfd, &fds);
@@ -1310,36 +1303,57 @@ disconnect(int sts)
     }
     ctxp->c_pmcd->pc_fd = -1;
     PM_UNLOCK(ctxp->c_lock);
-#else
-    exit(1);
-#endif
 }
 
-#if CAN_RECONNECT
 int
 reconnect(void)
 {
     int	    		sts;
     int			ctx;
+    time_t		now;
     __pmContext		*ctxp;
 
     if ((ctx = pmWhichContext()) >= 0)
 	ctxp = __pmHandleToPtr(ctx);
     if (ctx < 0 || ctxp == NULL) {
-	fprintf(stderr, "%s: reconnect botch: cannot get context: %s\n", pmProgname, pmErrStr(ctx));
+	fprintf(stderr, "%s: reconnect botch: cannot get context: %s\n",
+		pmProgname, pmErrStr(ctx));
 	exit(1);
     }
     sts = pmReconnectContext(ctx);
     if (sts >= 0) {
-	time_t      now;
-	time(&now);
-	fprintf(stderr, "%s: re-established connection to PMCD on \"%s\" at %s\n",
-		pmProgname, pmcd_host, ctime(&now));
 	pmcdfd = ctxp->c_pmcd->pc_fd;
 	__pmFD_SET(pmcdfd, &fds);
 	numfds = maxfd() + 1;
     }
     PM_UNLOCK(ctxp->c_lock);
-    return sts;
+    if (sts < 0)
+	return sts;
+
+    time(&now);
+    fprintf(stderr, "%s: re-established connection to PMCD on \"%s\" at %s",
+	    pmProgname, pmcd_host, ctime(&now));
+
+    /*
+     * Metrics may have changed while PMCD was unreachable, so we
+     * need to recheck each metric to make sure that its PMID and
+     * semantics have not changed.  We cannot recover if there is
+     * an incompatible change - must defer to controlling scripts
+     * or processes (a new-named archive will have to be created,
+     * from a new pmlogger process, and pmlogrewrite/pmlogextract
+     * will need to become involved if they need to be merged).
+     */
+    validate_metrics();
+
+    /*
+     * All metrics have been validated, however, this state change
+     * represents a potential gap in the stream of metrics.  So we
+     * must store a <mark> record at this point.
+     */
+     if ((sts = putmark()) < 0) {
+	fprintf(stderr, "putmark: %s\n", pmErrStr(sts));
+	exit(1);
+    }
+
+    return 0;
 }
-#endif

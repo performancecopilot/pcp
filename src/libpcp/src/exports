@@ -529,5 +529,7 @@ PCP_3.15 {
 
 PCP_3.16 {
   global:
+    pmSemStr;
+    pmSemStr_r;
     __pmAddOptContainer;
 } PCP_3.15;

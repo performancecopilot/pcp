@@ -1906,8 +1906,6 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (idp->item == 99) /* proc.nprocs */
 	    atom->ul = active_proc_pid->indom->it_numinst;
 	else {
-	    static char ttyname[MAXPATHLEN];
-
 	    if (!have_access)
 		return PM_ERR_PERMISSION;
 	    entry = fetch_proc_pid_stat(inst, active_proc_pid, &sts);
@@ -1924,8 +1922,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		if (f == NULL)
 		    atom->cp = "?";
 		else {
-		    dev_t dev = (dev_t)atoi(f);
-		    atom->cp = get_ttyname_info(inst, dev, ttyname);
+		    dev_t dev = get_encoded_dev(f);
+		    atom->cp = get_ttyname_info(inst, dev);
 		}
 		break;
 

@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
+.\" Copyright (c) 2016 Red Hat, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -13,17 +13,17 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMTYPESTR 3 "PCP" "Performance Co-Pilot"
+.TH PMSEMSTR 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmTypeStr\f1,
-\f3pmTypeStr_r\f1 \- convert a performance metric type into a string
+\f3pmSemStr\f1,
+\f3pmSemStr_r\f1 \- convert a performance metric semantic into a string
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
 .sp
-const char *pmTypeStr(int \fItype\fP);
+const char *pmSemStr(int \fIsem\fP);
 .br
-char *pmTypeStr_r(int \fItype\fP, char *\fIbuf\fP, int \fIbuflen\fP);
+char *pmSemStr_r(int \fIsem\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
 .ft 1
@@ -33,12 +33,12 @@ cc ... \-lpcp
 .el \fI\\$1\f1\\$2
 ..
 Given a performance metric
-.IR type ,
-.B pmTypeStr
+.IR semantic ,
+.B pmSemStr
 produces a terse ASCII equivalent, appropriate for use in error and diagnostic
 messages.
 The
-.B pmTypeStr_r
+.B pmSemStr_r
 function does the same, but stores the result in a user-supplied buffer
 .I buf
 of length
@@ -46,7 +46,7 @@ of length
 which should have room for at least 20 bytes.
 .PP
 The value for
-.I type
+.I sem
 is typically extracted from a
 .CW pmDesc
 structure, following a call to
@@ -54,33 +54,33 @@ structure, following a call to
 for a particular performance metric.
 .PP
 Examples are
-.B 32
+.B counter
 (for
-.I type
+.I sem
 equals
-.BR PM_TYPE_32 ),
-.B U64
+.BR PM_SEM_COUNTER ),
+.B discrete
 (for
-.I type
+.I sem
 equals
-.BR PM_TYPE_U64 ),
-.B AGGREGATE
+.BR PM_SEM_DISCRETE ),
+.B instant
 (for
-.I type
+.I sem
 equals
-.BR PM_TYPE_AGGREGATE ),
+.BR PM_SEM_INSTANT ),
 etc.
 .PP
 The string value result for
-.B pmTypeStr
+.B pmSemStr
 is held in a single static buffer, so the returned value is
 only valid until the next call to
-.BR pmTypeStr .
+.BR pmSemStr .
 .SH NOTES
-.B pmTypeStr
+.B pmSemStr
 returns a pointer to a static buffer and hence is not thread-safe.
 Multi-threaded applications should use
-.B pmTypeStr_r
+.B pmSemStr_r
 instead.
 .SH SEE ALSO
 .BR PMAPI (3),
@@ -91,6 +91,6 @@ instead.
 .BR pmPrintValue (3),
 .BR pmIDStr (3),
 .BR pmInDomStr (3),
-.BR pmSemStr (3)
+.BR pmTypeStr (3)
 and
 .BR pmUnitsStr (3).
