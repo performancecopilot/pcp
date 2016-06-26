@@ -860,7 +860,7 @@ End-of-File
 	cat $tmp.out >>$log
 	echo "=== END ===" >>$log
 
-	if $iflag
+	if $iflag || $qflag || $hflag
 	then
 	    # run whatami on QA host
 	    ssh -t $host src/pcp/qa/admin/whatami >$HOME/Logs/by-vm/$domain/whatami
