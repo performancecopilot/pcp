@@ -565,7 +565,7 @@ timezone
 243 pmcd local pmprobe
 244 pmcd local pmprobe
 245 pmns local
-246 derive local
+246 derive local valgrind
 247 derive local
 248 pmlogger local pmdumplog
 249 derive local sanity
@@ -935,7 +935,7 @@ timezone
 661 pmwebapi local
 662 pmwebapi pmda.sample local
 663 pmwebapi local
-666 pmmgr local slow
+666 pmmgr local slow valgrind
 667 python local
 668 pmmgr local containers
 669 pmmgr local
@@ -1095,7 +1095,7 @@ timezone
 854 pmlogger local
 855 pmda.netfilter local
 856 pmlogger local
-858 libpcp local fetch
+858 libpcp local fetch valgrind
 859 python libpcp local fetch
 860 pmda pmda.proc ostest local pmval
 861 pmcd pmda.pmcd local
