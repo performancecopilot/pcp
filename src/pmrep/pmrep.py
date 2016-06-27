@@ -1300,6 +1300,8 @@ class PMReporter(object):
         index = 0
         nfmt = ""
         for f in fmt:
+            if type(line[index]) is float and math.isinf(line[index]):
+                line[index] = "inf"
             nfmt += f.replace("{X:", "{" + str(index) + ":")
             index += 1
             nfmt += "{" + str(index) + "}"
