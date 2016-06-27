@@ -15,7 +15,6 @@
 -  possibly add more command line switch sanity checking
 -  modularize code to allow creating custom output plugins
 -    (e.g. pcp2graphite type socket, top-like output, separate pcp2zabbix)
--  pmtime support (?) [-g]
 -  per-metric precision (?)
 -  copy metric set spec support (?)
 -  includedir config file support (?)
@@ -32,7 +31,7 @@ In use / reserved cmd line options:
 AaBbcCdDeEfFGhHKLloOpPqQrsStTuUVwxyYzZ
 
 Tentatively planned:
-IigkMmR
+IikMmR
 
 Available:
-JjNnXvW
+gJjNnXvW

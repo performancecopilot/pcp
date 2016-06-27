@@ -348,13 +348,6 @@ setLongOptionDebug(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-setLongOptionGuiMode(PyObject *self, PyObject *args)
-{
-    pmLongOptions option = PMOPT_GUIMODE;
-    return addLongOptionObject(&option);
-}
-
-static PyObject *
 setLongOptionHost(PyObject *self, PyObject *args)
 {
     pmLongOptions option = PMOPT_HOST;
@@ -386,13 +379,6 @@ static PyObject *
 setLongOptionOrigin(PyObject *self, PyObject *args)
 {
     pmLongOptions option = PMOPT_ORIGIN;
-    return addLongOptionObject(&option);
-}
-
-static PyObject *
-setLongOptionGuiPort(PyObject *self, PyObject *args)
-{
-    pmLongOptions option = PMOPT_GUIPORT;
     return addLongOptionObject(&option);
 }
 
@@ -1217,9 +1203,6 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmSetLongOptionDebug",
 	.ml_meth = (PyCFunction) setLongOptionDebug,
         .ml_flags = METH_NOARGS },
-    { .ml_name = "pmSetLongOptionGuiMode",
-	.ml_meth = (PyCFunction) setLongOptionGuiMode,
-        .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetLongOptionHost",
 	.ml_meth = (PyCFunction) setLongOptionHost,
         .ml_flags = METH_NOARGS },
@@ -1237,9 +1220,6 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetLongOptionOrigin",
 	.ml_meth = (PyCFunction) setLongOptionOrigin,
-        .ml_flags = METH_NOARGS },
-    { .ml_name = "pmSetLongOptionGuiPort",
-	.ml_meth = (PyCFunction) setLongOptionGuiPort,
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetLongOptionStart",
 	.ml_meth = (PyCFunction) setLongOptionStart,

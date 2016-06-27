@@ -931,8 +931,8 @@ class pmOptions(object):
         return c_api.pmSetLongOptionDebug()
 
     def pmSetLongOptionGuiMode(self):
-        """ Add support for -g/--guimode into PMAPI monitor tool """
-        return c_api.pmSetLongOptionGuiMode()
+        """ Unimplemented """
+        return None
 
     def pmSetLongOptionHost(self):
         """ Add support for -h/--host into PMAPI monitor tool """
@@ -955,8 +955,8 @@ class pmOptions(object):
         return c_api.pmSetLongOptionOrigin()
 
     def pmSetLongOptionGuiPort(self):
-        """ Add support for -p/--guiport into PMAPI monitor tool """
-        return c_api.pmSetLongOptionGuiPort()
+        """ Unimplemented """
+        return None
 
     def pmSetLongOptionStart(self):
         """ Add support for -S/--start into PMAPI monitor tool """
