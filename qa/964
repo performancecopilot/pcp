@@ -16,6 +16,9 @@ echo "QA output created by $seq"
 
 [ -d $PCP_PMDAS_DIR/xfs ] || _notrun "xfs PMDA directory is not installed"
 
+[ -f /etc/gentoo-release ] && _notrun "Gentoo is lacking chkconfig support"
+[ -f /etc/slackware-version ] && _notrun "Slackware is lacking chkconfig support"
+
 status=1	# failure is the default!
 LOCALHOST=`hostname`
 _needclean=true

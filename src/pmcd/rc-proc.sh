@@ -178,6 +178,11 @@ is_chkconfig_on()
     then
 	$VERBOSE_CONFIG && echo "is_chkconfig_on: using svcs"
 	svcs -l pcp/$_flag | grep "enabled  *true" >/dev/null 2>&1 && _ret=0
+    elif [ -f /etc/slackware-version ]
+    then
+	# fake it for Slackware
+	$VERBOSE_CONFIG && echo "is_chkconfig_on: unconditionally on"
+	_ret=0
     else
 	#
 	# don't know, fallback to using the existence of rc symlinks

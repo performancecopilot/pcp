@@ -202,7 +202,14 @@ done
 if [ $dorpm = unknown ]
 then
     dorpm=false
-    [ -x /usr/bin/rpmbuild ] && dorpm=true
+    if which slackpkg 2>/dev/null
+    then
+	# Slackware has rpm(1) and rpmbuild(1), but don't build RPMs
+	#
+	:
+    else
+	[ -x /usr/bin/rpmbuild ] && dorpm=true
+    fi
 fi
 if [ $dodeb = unknown ]
 then
