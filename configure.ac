@@ -776,19 +776,20 @@ AS_IF([test "x$do_python" != "xno"], [
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
 	if test "$PY_MAJOR" -lt 2; then
 	    echo WARNING: Python version 2.6 or later does not seem to be installed.
-	    echo Cannot proceed with the Python $PY_MAJOR installation found.
 	    enable_python2=false
+	else
+	    if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
+		echo WARNING: Python version 2.$PY_MINOR is too old.
+		echo Python version 2.6 or later is required for Python builds.
+		enable_python2=false
+	    else
+		AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}/Python.h], [], [
+		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
+		    echo Cannot proceed with the Python $PY_MAJOR installation found.
+		    enable_python2=false
+		])
+	    fi
 	fi
-	if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
-	    echo WARNING: Python version 2.$PY_MINOR is too old.
-	    echo Python version 2.6 or later is required for Python builds.
-	    enable_python2=false
-	fi
-	AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}/Python.h], [], [
-	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
-	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python2=false
-	])
     fi
 
     if test "$do_python" != "check" -a "$enable_python2" != "true"
@@ -811,19 +812,20 @@ AS_IF([test "x$do_python3" != "xno"], [
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
 	if test "$PY_MAJOR" -lt 3; then
 	    echo WARNING: Python version 3.3 or later does not seem to be installed.
-	    echo Cannot proceed with the Python $PY_MAJOR installation found.
 	    enable_python3=false
+	else
+	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
+		echo WARNING: Python version 3.$PY_MINOR is too old.
+		echo Python version 3.3 or later is required for Python builds.
+		enable_python3=false
+	    else
+		AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}m/Python.h], [], [
+		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
+		    echo Cannot proceed with the Python $PY_MAJOR installation found.
+		    enable_python3=false
+		])
+	    fi
 	fi
-	if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
-	    echo WARNING: Python version 3.$PY_MINOR is too old.
-	    echo Python version 3.3 or later is required for Python builds.
-	    enable_python3=false
-	fi
-	AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}m/Python.h], [], [
-	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
-	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python3=false
-	])
     fi
 
     if test "$do_python3" != "check" -a "$enable_python3" != "true"
