@@ -1389,6 +1389,8 @@ PCP_CALL extern void __pmAddOptArchiveFolio(pmOptions *, char *);
 PCP_CALL extern void __pmAddOptContainer(pmOptions *, char *);
 PCP_CALL extern void __pmAddOptHost(pmOptions *, char *);
 PCP_CALL extern void __pmAddOptHostList(pmOptions *, char *);
+PCP_CALL extern void __pmSetLocalContextFlag(pmOptions *);
+PCP_CALL extern void __pmSetLocalContextTable(pmOptions *, char *);
 PCP_CALL extern void __pmEndOptions(pmOptions *);
 
 /*

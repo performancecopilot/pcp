@@ -609,6 +609,31 @@ setOptionHostList(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+setOptionSpecLocal(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *spec;
+    char *keyword_list[] = {"spec", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"s:pmSetOptionSpecLocal", keyword_list, &spec))
+	return NULL;
+
+    if ((spec = strdup(spec ? spec : "")) == NULL)
+	return PyErr_NoMemory();
+    __pmSetLocalContextTable(&options, spec);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+setOptionLocalPMDA(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    __pmSetLocalContextFlag(&options);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 setOptionSamples(PyObject *self, PyObject *args, PyObject *keywords)
 {
     char *count, *endnum;
@@ -1137,6 +1162,11 @@ getOptionContainer(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+static PyObject *
+getOptionLocalPMDA(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("i", options.Lflag);
+}
 
 static PyMethodDef methods[] = {
     { .ml_name = "PM_XTB_SET",
@@ -1328,6 +1358,9 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmGetOptionContainer",
 	.ml_meth = (PyCFunction) getOptionContainer,
         .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionLocalPMDA",
+	.ml_meth = (PyCFunction) getOptionLocalPMDA,
+        .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetOptionArchive",
 	.ml_meth = (PyCFunction) setOptionArchive,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
@@ -1345,6 +1378,12 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmSetOptionHostList",
 	.ml_meth = (PyCFunction) setOptionHostList,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetOptionSpecLocal",
+        .ml_meth = (PyCFunction) setOptionSpecLocal,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetOptionLocalPMDA",
+        .ml_meth = (PyCFunction) setOptionLocalPMDA,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmnsTraverse",
 	.ml_meth = (PyCFunction) pmnsTraverse,

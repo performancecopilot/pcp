@@ -1065,6 +1065,11 @@ class pmOptions(object):
     def pmGetOptionContainer(self):	# str
         return c_api.pmGetOptionContainer()
 
+    def pmGetOptionLocalPMDA(self):        # boolean
+        if c_api.pmGetOptionLocalPMDA() == 0:
+            return False
+        return True
+
     def pmSetOptionArchive(self, archive):	# str
         return c_api.pmSetOptionArchive(archive)
 
@@ -1082,6 +1087,12 @@ class pmOptions(object):
 
     def pmSetOptionHostList(self, hosts):	# str
         return c_api.pmSetOptionHostList(hosts)
+
+    def pmSetOptionSpecLocal(self, spec):        # str
+        return c_api.pmSetOptionSpecLocal(spec)
+
+    def pmSetOptionLocalPMDA(self):
+        return c_api.pmSetOptionLocalPMDA()
 
 
 ##############################################################################

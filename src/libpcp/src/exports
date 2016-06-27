@@ -532,4 +532,6 @@ PCP_3.16 {
     pmSemStr;
     pmSemStr_r;
     __pmAddOptContainer;
+    __pmSetLocalContextFlag;
+    __pmSetLocalContextTable;
 } PCP_3.15;

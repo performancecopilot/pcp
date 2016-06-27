@@ -63,6 +63,14 @@ class Test(object):
         if value != None:
             opts.pmSetOptionContainer(value)
 
+        value = os.environ.get('TEST_SET_SPECLOCAL')
+        if value != None:
+            opts.pmSetOptionSpecLocal(value)
+
+        value = os.environ.get('TEST_SET_LOCALPMDA')
+        if value != None:
+            opts.pmSetOptionLocalPMDA()
+
         return opts
 
 
@@ -74,6 +82,9 @@ class Test(object):
         container = self.opts.pmGetOptionContainer()
         if container:
             print("Container: %s" % (container))
+        localpmda = self.opts.pmGetOptionLocalPMDA()
+        if localpmda:
+            print("Local PMDA: %s" % (str(localpmda)))
         self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
 
 if __name__ == '__main__':

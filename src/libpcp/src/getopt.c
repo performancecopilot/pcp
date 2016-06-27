@@ -665,7 +665,7 @@ __pmSetDerivedMetrics(pmOptions *opts, char *arg)
     }
 }
 
-static void
+void
 __pmSetLocalContextTable(pmOptions *opts, char *arg)
 {
     char *errmsg;
@@ -676,7 +676,7 @@ __pmSetLocalContextTable(pmOptions *opts, char *arg)
     }
 }
 
-static void
+void
 __pmSetLocalContextFlag(pmOptions *opts)
 {
     if (opts->context && !(opts->flags & PM_OPTFLAG_MULTI)) {
@@ -808,7 +808,10 @@ __pmStartOptions(pmOptions *opts)
 	    __pmAddOptHost(opts, value);
 	else if (strcmp(s, "HOST_LIST") == 0)
 	    __pmAddOptHostList(opts, value);
-	else if (strcmp(s, "LOCALMODE") == 0)
+	else if (strcmp(s, "SPECLOCAL") == 0)
+	    __pmSetLocalContextTable(opts, value);
+	else if (strcmp(s, "LOCALMODE") == 0 ||
+		 strcmp(s, "LOCALPMDA") == 0)
 	    __pmSetLocalContextFlag(opts);
 	else if (strcmp(s, "NAMESPACE") == 0)
 	    __pmSetNameSpace(opts, value, 1);
