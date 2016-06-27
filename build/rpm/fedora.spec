@@ -142,7 +142,7 @@ BuildRequires: cairo-devel
 BuildRequires: systemtap-sdt-devel
 %endif
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
-BuildRequires: perl-devel
+BuildRequires: perl-devel perl-generators
 %endif
 BuildRequires: perl(ExtUtils::MakeMaker)
 BuildRequires: initscripts man
