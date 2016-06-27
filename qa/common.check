@@ -1494,6 +1494,10 @@ _change_config()
 		$sudo rc-update $act $pat default >$tmp._tmp 2>&1
 		[ $? -eq 0 ] || cat $tmp._tmp
 	    fi
+	elif [ -f /etc/slackware-version ]
+	then
+	    # Slackware uses BSD-style init, so no control
+	    :
 	else
 	    # I have no clue!
 	    #
@@ -1704,6 +1708,10 @@ _get_config()
 		    echo off
 		fi
 	    fi
+	elif [ -f /etc/slackware-version ]
+	then
+	    # Slackware uses BSD-style init, so no control
+	    :
 	else
 	    echo "_change_config: Error: don't know how to change config for Linux"
 	    exit 1

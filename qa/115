@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ -f /etc/gentoo-release ] && _notrun "Gentoo is lacking chkconfig support"
+[ -f /etc/slackware-version ] && _notrun "Slackware is lacking chkconfig support"
+
 if [ -z "$PCP_PMIECONTROL_PATH" ]
 then
     echo "Error: botched installation - PCP_PMIECONTROL_PATH not defined"
