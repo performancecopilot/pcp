@@ -51,6 +51,9 @@ if [ $PCP_PLATFORM = linux ] ; then
     elif [ -f /etc/slackware-version ]
     then
 	ln $seq.linux $seq.out
+    elif [ -f /etc/arch-release ]
+    then
+	ln $seq.linux $seq.out
     fi
     if [ ! -f $seq.out ]
     then
