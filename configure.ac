@@ -260,6 +260,7 @@ then
     test -f /etc/slackware-version && target_distro=slackware
     test -f /etc/gentoo-release && target_distro=gentoo
     test -f /etc/mandriva-release && target_distro=mandriva
+    test -f /etc/arch-release && target_distro=arch
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-efw
