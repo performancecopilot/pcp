@@ -3278,6 +3278,8 @@ proc_init(pmdaInterface *dp)
 	_pm_system_pagesize = getpagesize();
     if ((envpath = getenv("PROC_STATSPATH")) != NULL)
 	proc_statspath = envpath;
+    if ((envpath = getenv("PROC_THREADS")) != NULL)
+	threads = atoi(envpath);
 
     if (_isDSO) {
 	char helppath[MAXPATHLEN];

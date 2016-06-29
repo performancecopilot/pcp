@@ -1925,3 +1925,378 @@ Error: Metric not supported by this version of monitored application
 
 == done
 
+== Extracting subtrees for later use - procpid-4.2.3-root-004.tgz
+== Checking namespace and metric numbering - procpid-4.2.3-root-004.tgz
+== Checking metric descriptors and a fetch - procpid-4.2.3-root-004.tgz
+
+proc.control.all.threads
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 0
+
+proc.fd.count
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: count
+Error: Metric not supported by this version of monitored application
+
+proc.id.egid
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 0
+    inst [N or "000439 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007114 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007132 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007133 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007134 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007135 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007136 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007137 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007138 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007139 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007140 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007141 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007142 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007143 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007144 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007145 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007146 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007147 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007148 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007149 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007150 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007151 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007152 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007153 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007154 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007158 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007159 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007160 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007161 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007162 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007163 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007164 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007165 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007166 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007167 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007168 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007169 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007170 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007171 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007172 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007175 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007178 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007179 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007180 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007181 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007182 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007185 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007186 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007187 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007192 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007193 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007212 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007213 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007214 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "007223 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "008581 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "009278 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "010094 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "011674 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "011675 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "012802 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "014621 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "016080 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "020520 /usr/lib64/firefox/firefox"] value 1000
+    inst [N or "020521 /usr/lib64/firefox/firefox"] value 1000
+
+proc.io.cancelled_write_bytes
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: byte
+    inst [N or "000439 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007114 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007132 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007133 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007134 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007135 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007136 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007137 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007138 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007139 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007140 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007141 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007142 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007143 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007144 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007145 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007146 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007147 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007148 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007149 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007150 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007151 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007152 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007153 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007154 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007158 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007159 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007160 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007161 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007162 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007163 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007164 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007165 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007166 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007167 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007168 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007169 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007170 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007171 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007172 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007175 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007178 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007179 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007180 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007181 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007182 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007185 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007186 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007187 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007192 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007193 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007212 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007213 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007214 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "007223 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "008581 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "009278 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "010094 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "011674 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "011675 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "012802 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "014621 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "016080 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "020520 /usr/lib64/firefox/firefox"] value 13714411520
+    inst [N or "020521 /usr/lib64/firefox/firefox"] value 13714411520
+
+proc.memory.datrss
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: instant  Units: Kbyte
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 151596
+    inst [N or "000439 /usr/lib64/firefox/firefox"] value 2078300
+    inst [N or "007114 /usr/lib64/firefox/firefox"] value 2078300
+    inst [N or "007132 /usr/lib64/firefox/firefox"] value 2078300
+    inst [N or "007133 /usr/lib64/firefox/firefox"] value 2078364
+    inst [N or "007134 /usr/lib64/firefox/firefox"] value 2078364
+    inst [N or "007135 /usr/lib64/firefox/firefox"] value 2078364
+    inst [N or "007136 /usr/lib64/firefox/firefox"] value 2078364
+    inst [N or "007137 /usr/lib64/firefox/firefox"] value 2078364
+    inst [N or "007138 /usr/lib64/firefox/firefox"] value 2078428
+    inst [N or "007139 /usr/lib64/firefox/firefox"] value 2078428
+    inst [N or "007140 /usr/lib64/firefox/firefox"] value 2078428
+    inst [N or "007141 /usr/lib64/firefox/firefox"] value 2078428
+    inst [N or "007142 /usr/lib64/firefox/firefox"] value 2078428
+    inst [N or "007143 /usr/lib64/firefox/firefox"] value 2078428
+    inst [N or "007144 /usr/lib64/firefox/firefox"] value 2078428
+    inst [N or "007145 /usr/lib64/firefox/firefox"] value 2078428
+    inst [N or "007146 /usr/lib64/firefox/firefox"] value 2078428
+    inst [N or "007147 /usr/lib64/firefox/firefox"] value 2078428
+    inst [N or "007148 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007149 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007150 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007151 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007152 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007153 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007154 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007158 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007159 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007160 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007161 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007162 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007163 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007164 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007165 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007166 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007167 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007168 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007169 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007170 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007171 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007172 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007175 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007178 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007179 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007180 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007181 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007182 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007185 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007186 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007187 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007192 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007193 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007212 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007213 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007214 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "007223 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "008581 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "009278 /usr/lib64/firefox/firefox"] value 2078492
+    inst [N or "010094 /usr/lib64/firefox/firefox"] value 2078172
+    inst [N or "011674 /usr/lib64/firefox/firefox"] value 2078172
+    inst [N or "011675 /usr/lib64/firefox/firefox"] value 2078172
+    inst [N or "012802 /usr/lib64/firefox/firefox"] value 2078172
+    inst [N or "014621 /usr/lib64/firefox/firefox"] value 2078172
+    inst [N or "016080 /usr/lib64/firefox/firefox"] value 2078172
+    inst [N or "020520 /usr/lib64/firefox/firefox"] value 2078172
+    inst [N or "020521 /usr/lib64/firefox/firefox"] value 2078172
+
+proc.namespaces.envid
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+Error: Metric not supported by this version of monitored application
+
+proc.psinfo.blocked
+    Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: discrete  Units: none
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 671173123
+    inst [N or "000439 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007114 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007132 /usr/lib64/firefox/firefox"] value 2147221247
+    inst [N or "007133 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007134 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007135 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007136 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007137 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007138 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007139 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007140 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007141 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007142 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007143 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007144 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007145 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007146 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007147 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007148 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007149 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007150 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007151 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007152 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007153 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007154 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007158 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007159 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007160 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007161 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007162 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007163 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007164 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007165 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007166 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007167 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007168 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007169 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007170 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007171 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007172 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007175 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007178 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007179 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007180 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007181 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007182 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007185 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007186 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007187 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007192 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007193 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007212 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007213 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007214 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "007223 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "008581 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "009278 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "010094 /usr/lib64/firefox/firefox"] value 2147221247
+    inst [N or "011674 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "011675 /usr/lib64/firefox/firefox"] value 2147221247
+    inst [N or "012802 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "014621 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "016080 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "020520 /usr/lib64/firefox/firefox"] value 0
+    inst [N or "020521 /usr/lib64/firefox/firefox"] value 0
+
+proc.runq.blocked
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+    value 0
+
+proc.schedstat.cpu_time
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: nanosec
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 147743532627
+    inst [N or "000439 /usr/lib64/firefox/firefox"] value 285169
+    inst [N or "007114 /usr/lib64/firefox/firefox"] value 105899177728795
+    inst [N or "007132 /usr/lib64/firefox/firefox"] value 279655908
+    inst [N or "007133 /usr/lib64/firefox/firefox"] value 302814864
+    inst [N or "007134 /usr/lib64/firefox/firefox"] value 6326769063
+    inst [N or "007135 /usr/lib64/firefox/firefox"] value 48386
+    inst [N or "007136 /usr/lib64/firefox/firefox"] value 1184624996976
+    inst [N or "007137 /usr/lib64/firefox/firefox"] value 360188020112
+    inst [N or "007138 /usr/lib64/firefox/firefox"] value 356254988905
+    inst [N or "007139 /usr/lib64/firefox/firefox"] value 356500700190
+    inst [N or "007140 /usr/lib64/firefox/firefox"] value 360827075008
+    inst [N or "007141 /usr/lib64/firefox/firefox"] value 361659166792
+    inst [N or "007142 /usr/lib64/firefox/firefox"] value 360099574390
+    inst [N or "007143 /usr/lib64/firefox/firefox"] value 360938201704
+    inst [N or "007144 /usr/lib64/firefox/firefox"] value 359539381698
+    inst [N or "007145 /usr/lib64/firefox/firefox"] value 359179128664
+    inst [N or "007146 /usr/lib64/firefox/firefox"] value 361830101157
+    inst [N or "007147 /usr/lib64/firefox/firefox"] value 360346949158
+    inst [N or "007148 /usr/lib64/firefox/firefox"] value 362345585733
+    inst [N or "007149 /usr/lib64/firefox/firefox"] value 64230806208
+    inst [N or "007150 /usr/lib64/firefox/firefox"] value 41757
+    inst [N or "007151 /usr/lib64/firefox/firefox"] value 10617552
+    inst [N or "007152 /usr/lib64/firefox/firefox"] value 144589087084
+    inst [N or "007153 /usr/lib64/firefox/firefox"] value 2446090070857
+    inst [N or "007154 /usr/lib64/firefox/firefox"] value 316716
+    inst [N or "007158 /usr/lib64/firefox/firefox"] value 2365623507681
+    inst [N or "007159 /usr/lib64/firefox/firefox"] value 233291143
+    inst [N or "007160 /usr/lib64/firefox/firefox"] value 24877563430
+    inst [N or "007161 /usr/lib64/firefox/firefox"] value 24896591984
+    inst [N or "007162 /usr/lib64/firefox/firefox"] value 24858571173
+    inst [N or "007163 /usr/lib64/firefox/firefox"] value 25183678414
+    inst [N or "007164 /usr/lib64/firefox/firefox"] value 24874453635
+    inst [N or "007165 /usr/lib64/firefox/firefox"] value 24985094179
+    inst [N or "007166 /usr/lib64/firefox/firefox"] value 24805359377
+    inst [N or "007167 /usr/lib64/firefox/firefox"] value 6981711894
+    inst [N or "007168 /usr/lib64/firefox/firefox"] value 6060195295926
+    inst [N or "007169 /usr/lib64/firefox/firefox"] value 1444868514
+    inst [N or "007170 /usr/lib64/firefox/firefox"] value 32007
+    inst [N or "007171 /usr/lib64/firefox/firefox"] value 9981073851
+    inst [N or "007172 /usr/lib64/firefox/firefox"] value 92448594
+    inst [N or "007175 /usr/lib64/firefox/firefox"] value 801591398467
+    inst [N or "007178 /usr/lib64/firefox/firefox"] value 170679
+    inst [N or "007179 /usr/lib64/firefox/firefox"] value 1129204996495
+    inst [N or "007180 /usr/lib64/firefox/firefox"] value 615563147
+    inst [N or "007181 /usr/lib64/firefox/firefox"] value 1787549065
+    inst [N or "007182 /usr/lib64/firefox/firefox"] value 3371393968
+    inst [N or "007185 /usr/lib64/firefox/firefox"] value 29466883285
+    inst [N or "007186 /usr/lib64/firefox/firefox"] value 16880686080
+    inst [N or "007187 /usr/lib64/firefox/firefox"] value 44157975170
+    inst [N or "007192 /usr/lib64/firefox/firefox"] value 578654197857
+    inst [N or "007193 /usr/lib64/firefox/firefox"] value 40582998444
+    inst [N or "007212 /usr/lib64/firefox/firefox"] value 528501444
+    inst [N or "007213 /usr/lib64/firefox/firefox"] value 1024925030
+    inst [N or "007214 /usr/lib64/firefox/firefox"] value 39465471473
+    inst [N or "007223 /usr/lib64/firefox/firefox"] value 725847886042
+    inst [N or "008581 /usr/lib64/firefox/firefox"] value 12128617
+    inst [N or "009278 /usr/lib64/firefox/firefox"] value 546208796
+    inst [N or "010094 /usr/lib64/firefox/firefox"] value 597578838
+    inst [N or "011674 /usr/lib64/firefox/firefox"] value 48189
+    inst [N or "011675 /usr/lib64/firefox/firefox"] value 1685564818
+    inst [N or "012802 /usr/lib64/firefox/firefox"] value 24127
+    inst [N or "014621 /usr/lib64/firefox/firefox"] value 7707289
+    inst [N or "016080 /usr/lib64/firefox/firefox"] value 593054
+    inst [N or "020520 /usr/lib64/firefox/firefox"] value 30133907
+    inst [N or "020521 /usr/lib64/firefox/firefox"] value 28852203
+
+== done
+

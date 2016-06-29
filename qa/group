@@ -1091,6 +1091,7 @@ timezone
 849:reserved pmie local
 850 python local
 851 pmiostat local
+852 pmda.proc local
 853 pmcpp local
 854 pmlogger local
 855 pmda.netfilter local

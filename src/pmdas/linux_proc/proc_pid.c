@@ -2137,7 +2137,9 @@ fetch_proc_pid_label(int id, proc_pid_t *proc_pid, int *sts)
 
 /*
  * Extract the ith (space separated) field from a char buffer.
- * The first field starts at zero. 
+ * The first field starts at zero.  There is a special case we
+ * have to deal with - brace-enclosed command name may contain
+ * embedded whitespace.
  * BEWARE: return copy is in a static buffer.
  */
 char *
@@ -2149,19 +2151,27 @@ _pm_getfield(char *buf, int field)
     int i;
 
     if (buf == NULL)
-    	return NULL;
+	return NULL;
 
     for (p=buf, i=0; i < field; i++) {
+	/* if brace-enclosed, skip to the closing brace */
+	if (*p == '(')
+	    for (; *p && *p != ')'; p++) {;}
+
 	/* skip to the next space */
-    	for (; *p && !isspace((int)*p); p++) {;}
+	for (; *p && !isspace((int)*p); p++) {;}
 
 	/* skip to the next word */
-    	for (; *p && isspace((int)*p); p++) {;}
+	for (; *p && isspace((int)*p); p++) {;}
     }
 
     /* return a null terminated copy of the field */
     for (i=0; ; i++) {
-	if (isspace((int)p[i]) || p[i] == '\0' || p[i] == '\n')
+	if (p[i] == '\0' || p[i] == '\n')
+	    break;
+	if (p[0] == '(' && i > 0 && p[i-1] == ')')
+	    break;
+	if (p[0] != '(' && isspace((int)p[i]))
 	    break;
     }
 

@@ -1,8 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 974
-# Exercise pmdaproc per-process metric extraction.
+# PCP QA Test No. 852
+# Exercise pmdaproc per-process per-thread metric extraction.
 #
-# Copyright (c) 2015-2016 Red Hat.
+# Copyright (c) 2016 Red Hat.
 #
 
 seq=`basename $0`
@@ -17,8 +17,8 @@ pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
 [ $PCP_PLATFORM = linux ] || _notrun "Linux proc test, only works with Linux"
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -32,9 +32,10 @@ _filter()
 root=$tmp.root
 export PROC_STATSPATH=$root
 export PROC_PAGESIZE=4096
-export PROC_THREADS=0
+export PROC_THREADS=1
 export PROC_HERTZ=100
 pmda=$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init
+metrics="proc.psinfo.rss proc.psinfo.pid proc.psinfo.psargs"
 
 for tgz in $here/linux/procpid-*-root-*.tgz
 do
@@ -45,24 +46,11 @@ do
     tar xzf $tgz
     base=`basename $tgz`
 
-    echo "== Extracting subtrees for later use - $base" | tee -a $seq.full
-    trees=`pminfo proc | awk -F. '{ print $2 }' | sort -u | egrep -v nproc`
-    echo $trees >> $here/$seq.full
-
-    echo "== Checking namespace and metric numbering - $base"
-    pminfo -L -K clear -K add,3,$pmda proc \
-    | LC_COLLATE=POSIX sort \
-    | tee $tmp.names >> $here/$seq.full
-
-    echo "== Checking metric descriptors and a fetch - $base"
-    for tree in $trees
+    for metric in $metrics
     do
-	metric=`grep $tree $tmp.names | head -1`
-	echo $metric >> $here/$seq.full
-	pminfo -L -K clear -K add,3,$pmda -d -f $metric | _filter
+	echo; echo "== Fetching per-thread $metric metric - $base"
+	pminfo -L -K clear -K add,3,$pmda -f $metric | _filter
     done
-
-    echo && echo "== done" && echo
 done
 
 # success, all done
