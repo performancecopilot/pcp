@@ -14,18 +14,23 @@
 #ifndef PCP_PMJSON_H
 #define PCP_PMJSON_H
 
-#include "jsmn.h"
+#include <pmapi.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-PCP_CALL extern int jsmneq(const char *, jsmntok_t *, const char *);
-PCP_CALL extern int jsmnflag(const char *, jsmntok_t *, int *, int);
-PCP_CALL extern int jsmnint(const char *, jsmntok_t *, int *);
-PCP_CALL extern int jsmnstrdup(const char *, jsmntok_t *, char**);
+typedef struct json_metric_desc {
+    char          *json_pointer;
+    int           flags;
+    int           num_values;
+    pmAtomValue   values;
+    char          *dom;
+} json_metric_desc;
 
-    
+PCP_CALL extern int pmjsonInit(int fd, json_metric_desc *, int);
+PCP_CALL extern int pmjsonInitIndom(int fd, json_metric_desc *, int, pmInDom);
+
 #ifdef __cplusplus
 }
 #endif

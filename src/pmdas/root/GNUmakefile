@@ -30,7 +30,6 @@ VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
 LDIRT		= $(HELPTARGETS) pmns domain.h $(VERSION_SCRIPT)
 
-LCFLAGS		= -DJSMN_PARENT_LINKS 
 LLDLIBS		= $(PCP_PMDALIB) $(PCP_JSONLIB)
 LLDFLAGS	= -L$(TOPDIR)/src/libpcp_json/src
 

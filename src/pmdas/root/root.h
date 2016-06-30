@@ -15,6 +15,10 @@
 #define _ROOT_H
 
 #include <sys/stat.h>
+#include "pmjson.h"
+
+#define JSONMETRICS_SZ 5
+extern json_metric_desc json_metrics[JSONMETRICS_SZ];
 
 enum {
     CONTAINERS_INDOM,
@@ -50,7 +54,7 @@ typedef void (*container_setup_t)(struct container_engine *);
 typedef int (*container_changed_t)(struct container_engine *);
 typedef void (*container_insts_t)(struct container_engine *, pmInDom);
 typedef int (*container_values_t)(struct container_engine *,
-		const char *, struct container *);
+				  const char *, struct container *);
 typedef int (*container_match_t)(struct container_engine *,
 		const char *, const char *, const char *);
 
@@ -97,5 +101,7 @@ enum {
 extern int root_create_agent(int, char *, char *, int *, int *);
 extern int root_agent_wait(int *);
 extern int root_maximum_fd;
+
+
 
 #endif
