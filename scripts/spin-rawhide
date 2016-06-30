@@ -113,8 +113,8 @@ cd ../pcp
 
 sed -i "s/Release:.*/Release: $GIT_VERSION_TAG\%\{\?dist\}/" pcp.spec
 sed -i "s/^Source0:.*/Source0: %{name}-%{version}-$GIT_VERSION_TAG.tar.gz/" pcp.spec
-sed -i "s/^Source1:.*/Source1: $PCP_WEB_JS/" pcp.spec
-sed -i "s/^Source2:.*/Source2: $VECTOR/" pcp.spec
+sed -i "s/^Source2:.*/Source2: $PCP_WEB_JS/" pcp.spec
+sed -i "s/^Source1:.*/Source1: $VECTOR/" pcp.spec
 sed -i "s/%global buildversion.*/%global buildversion 0/" pcp.spec
 sed -i "s/^Version:.*/Version: $PCP_FULL_VERSION/" pcp.spec
 
