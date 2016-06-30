@@ -107,9 +107,10 @@ only currently supported value is \fB1\fR.
 source (string)
 .RS 4
 Indicates the source for metrics. Interpreted as a PCP archive if the
-string contains a slash (``/''), otherwise interpreted as a hostname.
-Corresponding command line paraters are \fB-a\fR and \fB-h\fR. Defaults
-to \fBlocal:\fR (see
+string contains a slash (``/''). If set to the special character ``@'',
+local DSO PMDA context is used. Otherwise interpreted as a hostname.
+Corresponding command line paraters are \fB-a\fR, \fB-h\fR, and
+\fB-L\fR. Defaults to \fBlocal:\fR (see
 .BR PCPIntro (1)).
 .RE
 .P

@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (C) 2009 Aconex.  All Rights Reserved.
+ * Copyright (C) 2016 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -15,7 +16,9 @@
 #ifndef PCP_MMV_DEV_H
 #define PCP_MMV_DEV_H
 
-#define MMV_VERSION	1
+#define MMV_VERSION1	1	/* original on-disk format */
+#define MMV_VERSION2	2	/* + mmv_disk_{metric2,instance2}_t */
+#define MMV_VERSION	1	/* default, upgrading to v2 only if needed */
 
 typedef enum mmv_toc_type {
     MMV_TOC_INDOMS	= 1,	/* mmv_disk_indom_t */
@@ -23,6 +26,9 @@ typedef enum mmv_toc_type {
     MMV_TOC_METRICS	= 3,	/* mmv_disk_metric_t */
     MMV_TOC_VALUES	= 4,	/* mmv_disk_value_t */
     MMV_TOC_STRINGS	= 5,	/* mmv_disk_string_t */
+    MMV_TOC_INSTANCES2	= 6,	/* mmv_disk_instance2_t */
+    MMV_TOC_METRICS2	= 7,	/* mmv_disk_metric2_t */
+    MMV_TOC_INDOM2	= 8,	/* mmv_disk_indom_t */
 } mmv_toc_type_t;
 
 /* The way the Table Of Contents is written into the file */
@@ -40,12 +46,21 @@ typedef struct mmv_disk_indom {
     __uint64_t		helptext;	/* Offset of long help text string */
 } mmv_disk_indom_t;
 
+typedef mmv_disk_indom_t mmv_disk_indom2_t;
+
 typedef struct mmv_disk_instance {
     __uint64_t		indom;		/* Offset into files indom section */
     __uint32_t		padding;	/* zero filled, alignment bits */
     __int32_t		internal;	/* Internal instance ID */
     char		external[MMV_NAMEMAX];	/* External instance ID */
 } mmv_disk_instance_t;
+
+typedef struct mmv_disk_instance2 {
+    __uint64_t		indom;		/* Offset into files indom section */
+    __uint32_t		padding;	/* zero filled, alignment bits */
+    __int32_t		internal;	/* Internal instance ID */
+    __uint64_t		external;	/* Offset of instance name string */
+} mmv_disk_instance2_t;
 
 typedef struct mmv_disk_string {
     char		payload[MMV_STRINGMAX];	/* NULL terminated string */
@@ -62,6 +77,18 @@ typedef struct mmv_disk_metric {
     __uint64_t		shorttext;	/* Offset of short help text string */
     __uint64_t		helptext;	/* Offset of long help text string */
 } mmv_disk_metric_t;
+
+typedef struct mmv_disk_metric2 {
+    __uint64_t		name;		/* Offset of metric name string */
+    __uint32_t		item;		/* Unique identifier */
+    mmv_metric_type_t	type;
+    mmv_metric_sem_t	semantics;
+    pmUnits		dimension;
+    __int32_t		indom;		/* Instance domain number */
+    __uint32_t		padding;	/* zero filled, alignment bits */
+    __uint64_t		shorttext;	/* Offset of short help text string */
+    __uint64_t		helptext;	/* Offset of long help text string */
+} mmv_disk_metric2_t;
 
 typedef struct mmv_disk_value {
     pmAtomValue		value;		/* Union of all possible value types */

@@ -158,6 +158,16 @@ echo "---"
 pmrep -s 5 $log2 -p -c $tmp.pconfig mem.util.free
 echo "---"
 pmrep -s 5 $log2 -t 3s -p -H -c $tmp.pconfig mem.util.free
+echo "---"
+echo '[source]' > $tmp.pconfig
+echo "source = $here/archives/rep" >> $tmp.pconfig
+echo 'kernel.all.uptime = uptime,,,,8' >> $tmp.pconfig
+pmrep -s 5 -c $tmp.pconfig -z -p -u :source
+echo "---"
+echo '[source]' > $tmp.pconfig
+echo 'source = wrong.example.com' >> $tmp.pconfig
+echo 'kernel.all.uptime = uptime,,,,8' >> $tmp.pconfig
+pmrep -s 5 $log2 -c $tmp.pconfig -p -u :source
 
 # success, all done
 echo "== done"

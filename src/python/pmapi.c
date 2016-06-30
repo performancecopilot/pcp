@@ -486,6 +486,21 @@ setShortUsage(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+setOptionContext(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int context;
+    char *keyword_list[] = {"context", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "i:pmSetOptionContext", keyword_list, &context))
+        return NULL;
+
+    options.context = context;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 setOptionFlags(PyObject *self, PyObject *args, PyObject *keywords)
 {
     int flags;
@@ -827,6 +842,14 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 	return Py_BuildValue("i", PM_ERR_APPVERSION);
 
     return Py_BuildValue("i", options.errors);
+}
+
+static PyObject *
+endOptions(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    __pmEndOptions(&options);
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -1251,6 +1274,9 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmSetShortUsage",
 	.ml_meth = (PyCFunction) setShortUsage,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetOptionContext",
+        .ml_meth = (PyCFunction) setOptionContext,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmSetOptionFlags",
 	.ml_meth = (PyCFunction) setOptionFlags,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
@@ -1269,6 +1295,9 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmGetNonOptionsFromList",
 	.ml_meth = (PyCFunction) getNonOptionsFromList,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmEndOptions",
+        .ml_meth = (PyCFunction) endOptions,
+        .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetContextOptions",
 	.ml_meth = (PyCFunction) setContextOptions,
         .ml_flags = METH_VARARGS | METH_KEYWORDS},
