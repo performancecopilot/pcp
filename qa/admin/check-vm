@@ -882,6 +882,28 @@ then
     echo "         it is none of: $pkgtools"
 fi
 
+# Modify the package inventory for some particular hosts where we've
+# explored and _know_ certain packages are not available
+#
+na=''
+case `hostname`
+in
+    grundy-dmz)
+	na='microhttpd.h sd-daemon.h papi.h pfmlib_perf_event.h six.py jsonpointer.py valgrind logconv.pl zabbix_agentd mkfs.gfs2 SoQt.h SoPath.h libSoQt.so xclip'
+	;;
+esac
+if [ -n "$na" ]
+then
+    for f in $na
+    do
+	sed <$tmp.main >$tmp.tmp -e "/$f/{"'
+s;[^ 	]*\('"$f"'\);\1;
+s;\[.*;[N/A on host '"`hostname`"'];
+}'
+	mv $tmp.tmp $tmp.main
+    done
+fi
+
 # main loop
 #
 cat $tmp.main \
