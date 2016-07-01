@@ -102,8 +102,11 @@ elif [ -f /etc/os-release ]
 then
     # NAME=openSUSE
     # VERSION = 12.1 (Asparagus)
+    # or
+    # NAME="Arch Linux"
     #
     name=`sed </etc/os-release -n -e '/^NAME *= */s///p'`
+    name=`echo "$name" | sed -e 's/"//g'`
     ver=`sed </etc/os-release -n -e '/^VERSION *= */s///p'`
     os="$name $ver"
     $debug && from=' [/etc/os-release]'
