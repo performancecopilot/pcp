@@ -1,6 +1,6 @@
 """ Build script for the PCP python package """
 #
-# Copyright (C) 2012-2014 Red Hat.
+# Copyright (C) 2012-2016 Red Hat.
 # Copyright (C) 2009-2012 Michael T. Werner
 #
 # This file is part of the "pcp" module, the python interfaces for the
@@ -25,7 +25,7 @@ setup(name = 'pcp',
     license = 'GPLv2+',
     author = 'Performance Co-Pilot Development Team',
     author_email = 'pcp@oss.sgi.com',
-    url = 'http://www.pcp.io',
+    url = 'http://pcp.io',
     packages = ['pcp'],
     ext_modules = [
         Extension('cpmapi', ['pmapi.c'], libraries = ['pcp']),
@@ -34,11 +34,11 @@ setup(name = 'pcp',
         Extension('cpmi', ['pmi.c'], libraries = ['pcp_import']),
         Extension('cmmv', ['mmv.c'], libraries = ['pcp_mmv']),
     ],
-    platforms = [ 'Windows', 'Linux', 'FreeBSD', 'NetBSD', 'Solaris', 'Mac OS X', 'AIX' ],
+    platforms = [ 'Windows', 'Linux', 'FreeBSD', 'NetBSD', 'OpenBSD', 'Solaris', 'Mac OS X', 'AIX' ],
     long_description =
         'PCP provides services to support system-level performance monitoring',
     classifiers = [
-        'Development Status :: 5 - Production/Stable'
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
         'Intended Audience :: Information Technology',
@@ -50,6 +50,7 @@ setup(name = 'pcp',
         'Operating System :: POSIX :: AIX',
         'Operating System :: POSIX :: Linux',
         'Operating System :: POSIX :: BSD :: NetBSD',
+        'Operating System :: POSIX :: BSD :: OpenBSD',
         'Operating System :: POSIX :: BSD :: FreeBSD',
         'Operating System :: POSIX :: SunOS/Solaris',
         'Operating System :: Unix',

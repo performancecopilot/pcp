@@ -261,13 +261,15 @@ refresh_hotproc_pidlist(proc_pid_list_t *pids)
     struct dirent *dp;
 
     if ((dirp = opendir("/proc")) == NULL)
-        return -oserror();
+	return -oserror();
 
     /* note: readdir on /proc ignores threads */
     while ((dp = readdir(dirp)) != NULL) {
-        if (isdigit((int)dp->d_name[0])) {
-	    if( check_if_hot( dp->d_name ) ){
-            	pidlist_append(dp->d_name, pids);
+	if (isdigit((int)dp->d_name[0])) {
+	    if (check_if_hot( dp->d_name)) {
+		pidlist_append(dp->d_name, pids);
+		if (pids->threads)
+		    tasklist_append(dp->d_name, pids);
 	    }
 	}
     }

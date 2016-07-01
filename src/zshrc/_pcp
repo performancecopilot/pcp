@@ -36,7 +36,7 @@ _pcp () {
     '(- *)'{-V,--version}'[display version number]'
   )
   common_most=(
-    "(-a --archive --container -h --host -L --local-PMDA -K --spec-local $exargs)"{-a+,--archive}'[specify metrics source archive]:archive:->archives'
+    "(--container -h --host -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives'
     "(-h --host -a --archive -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts'
     "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files'
     "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]'
@@ -172,7 +172,7 @@ _pcp () {
       "$common_help[@]" \
       "(-A --align $exargs)"{-A+,--align}'[set initial sample time alignment]:timespec:' \
       "(-h --host $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
-      "(-a --archive $exargs)"\*{-h+,--host}'[specify metrics source host]:host:_hosts' \
+      "(-h --host -a --archive $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
       "(-n --namespace $exargs)"{-n+,--namespace}'[specify alternative PMNS]:pmnsfile:_files' \
       "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:' \
       "(-S --start $exargs)"{-S+,--start}'[set start of time window]:timespec:' \
@@ -265,7 +265,7 @@ _pcp () {
   pminfo)
     _arguments -C -S -s -w \
       "$common_help[@]" \
-      "(-a --archive --container -h --host -L --local-PMDA -K --spec-local $exargs)"{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
+      "(--container -h --host -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
       "(-h --host -a --archive -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
       "(--container -a --archive $exargs)"--container+'[specify container to query]:container:->containers' \
       "(-L --local-PMDA -a --archive -h --host $exargs)"{-L,--local-PMDA}'[use local DSO PMDAs as metrics source]' \
@@ -293,7 +293,7 @@ _pcp () {
     _arguments -C -S -s -w \
       "$common_help[@]" \
       "(-A --align $exargs)"{-A+,--align}'[set initial sample time alignment]:timespec:' \
-      "(-a --archive -h --host $exargs)"{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
+      "(-h --host $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
       "(-G --aggregate $exargs)"{-G+,--aggregate}'[set method to aggregate device values]:method:(sum avg min max)' \
       "(-h --host -a --archive -u --no-interpolation $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
       "(-O --origin $exargs)"{-O+,--origin}'[set initial sample time origin]:timespec:' \
@@ -397,7 +397,7 @@ _pcp () {
     _arguments -C -S -s -w \
       '(- *)'{-\?,--help}'[display help message]' \
       '(- *)'{-d,--version}'[display version number]' \
-      "(-a --archive --container -h --host -L --local-PMDA -K --spec-local $exargs)"{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
+      "(--container -h --host -L --local-PMDA -K --spec-local $exargs)"\*{-a+,--archive}'[specify metrics source archive]:archive:->archives' \
       "(-h --host -a --archive -L --local-PMDA -K --spec-local $exargs)"{-h+,--host}'[specify metrics source host]:host:_hosts' \
       "(--container -a --archive $exargs)"--container+'[specify container to query]:container:->containers' \
       "(--derived $exargs)"--derived+'[specify derived metrics config]:file:_files' \
@@ -536,7 +536,7 @@ _pcp () {
     _wanted containers expl container compadd -a found && ret=0
   ;;
   instances)
-    local arch=${~opt_args[-a]:-${~opt_args[--archive]}}
+    local arch=${${~opt_args[-a]:-${~opt_args[--archive]}}/:/,}
     local a=${arch:+-a}
     local cont=${~opt_args[--container]}
     local c=${cont:+--container}
@@ -561,7 +561,7 @@ _pcp () {
     _wanted instances expl instance compadd -Q -P '"' -S '"' -a insts && ret=0
   ;;
   metrics)
-    local arch=${~opt_args[-a]:-${~opt_args[--archive]}}
+    local arch=${${~opt_args[-a]:-${~opt_args[--archive]}}/:/,}
     local a=${arch:+-a}
     local cont=${~opt_args[--container]}
     local c=${cont:+--container}

@@ -385,10 +385,7 @@ class PMReporter(object):
         if value in ('false', 'False', 'n', 'no', 'No'):
             value = 0
         if name == 'source':
-            if '/' in value:
-                self.opts.pmSetOptionArchive(value)
-            else:
-                self.opts.pmSetOptionHost(value) # RHBZ#1289911
+            self.source = value
         elif name == 'samples':
             self.opts.pmSetOptionSamples(value)
             self.samples = self.opts.pmGetOptionSamples()
@@ -423,6 +420,7 @@ class PMReporter(object):
 
     def read_cmd_line(self):
         """ Read command line options """
+        pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_DONE)  # Do later
         pmapi.c_api.pmSetOptionFlags(pmapi.c_api.PM_OPTFLAG_POSIX) # RHBZ#1289912
         if pmapi.c_api.pmGetOptionsFromList(sys.argv):
             raise pmapi.pmUsageErr()
@@ -516,17 +514,44 @@ class PMReporter(object):
                     self.metrics[m] = confmet[m]
 
     def connect(self):
-        """ Establish a PMAPI context to archive, host or local, via args """
-        optctx = self.opts.pmGetOptionContext()
-        if optctx == pmapi.c_api.PM_CONTEXT_ARCHIVE:
+        """ Establish a PMAPI context """
+        context = None
+
+        if pmapi.c_api.pmGetOptionArchives():
+            context = pmapi.c_api.PM_CONTEXT_ARCHIVE
+            self.opts.pmSetOptionContext(pmapi.c_api.PM_CONTEXT_ARCHIVE)
             self.source = self.opts.pmGetOptionArchives()[0]
-        elif optctx == pmapi.c_api.PM_CONTEXT_HOST:
+        elif pmapi.c_api.pmGetOptionHosts():
+            context = pmapi.c_api.PM_CONTEXT_HOST
+            self.opts.pmSetOptionContext(pmapi.c_api.PM_CONTEXT_HOST)
             self.source = self.opts.pmGetOptionHosts()[0]
-        elif optctx == pmapi.c_api.PM_CONTEXT_LOCAL:
+        elif pmapi.c_api.pmGetOptionLocalPMDA():
+            context = pmapi.c_api.PM_CONTEXT_LOCAL
+            self.opts.pmSetOptionContext(pmapi.c_api.PM_CONTEXT_LOCAL)
             self.source = None
-        else:
-            optctx = pmapi.c_api.PM_CONTEXT_HOST
-        self.context = pmapi.pmContext(optctx, self.source)
+
+        if not context:
+            if '/' in self.source:
+                context = pmapi.c_api.PM_CONTEXT_ARCHIVE
+                self.opts.pmSetOptionArchive(self.source)
+                self.opts.pmSetOptionContext(pmapi.c_api.PM_CONTEXT_ARCHIVE)
+            elif self.source != '@':
+                context = pmapi.c_api.PM_CONTEXT_HOST
+                self.opts.pmSetOptionHost(self.source)
+                self.opts.pmSetOptionContext(pmapi.c_api.PM_CONTEXT_HOST)
+            else:
+                context = pmapi.c_api.PM_CONTEXT_LOCAL
+                self.opts.pmSetOptionLocalPMDA()
+                self.opts.pmSetOptionContext(pmapi.c_api.PM_CONTEXT_LOCAL)
+                self.source = None
+
+        # All options set, finalize configuration
+        flags = self.opts.pmGetOptionFlags()
+        self.opts.pmSetOptionFlags(flags | pmapi.c_api.PM_OPTFLAG_DONE)
+        pmapi.c_api.pmEndOptions()
+
+        self.context = pmapi.pmContext(context, self.source)
+
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
             raise pmapi.pmUsageErr()
 

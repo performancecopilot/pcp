@@ -840,6 +840,9 @@ class pmOptions(object):
     def pmGetOptionFlags(self):
         return c_api.pmGetOptionFlags()
 
+    def pmSetOptionContext(self, context):
+        return c_api.pmSetOptionContext(context)
+
     def pmSetOptionFlags(self, flags):
         return c_api.pmSetOptionFlags(flags)
 
