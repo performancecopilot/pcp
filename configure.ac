@@ -1520,7 +1520,7 @@ AC_SUBST(lib_for_regex)
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
-PKG_CHECK_MODULES([SYSTEMD], [libsystemd-journal],
+PKG_CHECK_MODULES([SYSTEMD], [libsystemd],
                   [pmda_systemd=true], [pmda_systemd=false])
 AC_MSG_CHECKING([if the systemd PMDA should be included])
 AC_SUBST(PMDA_SYSTEMD, $pmda_systemd)
