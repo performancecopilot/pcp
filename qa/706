@@ -25,24 +25,23 @@ trap _cleanup 0 1 2 3 15
 
 _save_state
 
-for i in 1 2 3 4
+i=0
+while [ $i -le 15 ]
 do
     src/multifetch -s 100 >$tmp.$i 2>&1 &
-    src/multifetch -s 100 >$tmp.$i 2>&1 &
-    src/multifetch -s 100 >$tmp.$i 2>&1 &
-    src/multifetch -s 100 >$tmp.$i 2>&1 &
+    i=`expr $i + 1`
 done
 
 wait
 
-for i in 1 2 3 4
+i=0
+while [ $i -le 15 ]
 do
     echo
     echo "Log for multifetch #$i:"
     cat $tmp.$i
+    i=`expr $i + 1`
 done
-
-wait
 
 status=0
 exit
