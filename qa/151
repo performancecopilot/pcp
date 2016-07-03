@@ -155,7 +155,7 @@ echo
 echo "pmlogger_daily -k 4 -V ..." >>$seq.full
 $sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp/control -k 4 -V -l $tmp.log
 $sudo cat $tmp.log \
-| tee -a $tmp.full \
+| tee -a $seq.full \
 | _filter \
 | $PCP_AWK_PROG '
 state == 0		{ print >"'$tmp.out.0'"
