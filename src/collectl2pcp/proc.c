@@ -161,8 +161,8 @@ proc_handler(handler_t *h, fields_t *f)
 	    put_ull_value("proc.psinfo.stime", indom, inst, ticks_to_msec(stashed_stat->fields[PROC_PID_STAT_STIME]));
 	    put_ull_value("proc.psinfo.cutime", indom, inst, ticks_to_msec(stashed_stat->fields[PROC_PID_STAT_CUTIME]));
 	    put_ull_value("proc.psinfo.cstime", indom, inst, ticks_to_msec(stashed_stat->fields[PROC_PID_STAT_CSTIME]));
-	    put_ull_value("proc.psinfo.priority", indom, inst, ticks_to_msec(stashed_stat->fields[PROC_PID_STAT_PRIORITY]));
-	    put_ull_value("proc.psinfo.nice", indom, inst, ticks_to_msec(stashed_stat->fields[PROC_PID_STAT_NICE]));
+	    put_str_value("proc.psinfo.priority", indom, inst, stashed_stat->fields[PROC_PID_STAT_PRIORITY]);
+	    put_str_value("proc.psinfo.nice", indom, inst, stashed_stat->fields[PROC_PID_STAT_NICE]);
 
 	    put_ull_value("proc.psinfo.start_time", indom, inst, ticks_to_msec(stashed_stat->fields[PROC_PID_STAT_START_TIME]));
 

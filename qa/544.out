@@ -2029,35 +2029,35 @@ proc.psinfo.psargs
 
 proc.psinfo.nice
     inst [1 or "000001 /sbin/init"] value 0
-    inst [1963 or "001963 /sbin/udevd"] value 4123168564
-    inst [3898 or "003898 /usr/bin/python"] value 4123168554
+    inst [1963 or "001963 /sbin/udevd"] value -4
+    inst [3898 or "003898 /usr/bin/python"] value -5
     inst [4130 or "004130 /sbin/multipathd"] value 0
     inst [5168 or "005168 /sbin/rsyslogd"] value 0
     inst [5180 or "005180 irqbalance"] value 0
     inst [5199 or "005199 rpcbind"] value 0
     inst [5217 or "005217 rpc.statd"] value 0
     inst [5328 or "005328 rpc.idmapd"] value 0
-    inst [5793 or "005793 /usr/bin/python"] value 4123168554
-    inst [7446 or "007446 /usr/bin/python"] value 4123168554
-    inst [10733 or "010733 /usr/bin/python"] value 4123168554
-    inst [10746 or "010746 /usr/bin/python"] value 4123168554
-    inst [10747 or "010747 /usr/bin/python"] value 4123168554
-    inst [10750 or "010750 /usr/bin/python"] value 4123168554
-    inst [10754 or "010754 /usr/bin/python"] value 4123168554
-    inst [10762 or "010762 /usr/bin/python"] value 4123168554
-    inst [10796 or "010796 /usr/bin/python"] value 4123168554
-    inst [10899 or "010899 /usr/bin/python"] value 4123168554
-    inst [11035 or "011035 /usr/bin/python"] value 4123168554
-    inst [11099 or "011099 /usr/bin/python"] value 4123168554
-    inst [11259 or "011259 /usr/bin/python"] value 4123168554
-    inst [11396 or "011396 /usr/bin/python"] value 4123168554
+    inst [5793 or "005793 /usr/bin/python"] value -5
+    inst [7446 or "007446 /usr/bin/python"] value -5
+    inst [10733 or "010733 /usr/bin/python"] value -5
+    inst [10746 or "010746 /usr/bin/python"] value -5
+    inst [10747 or "010747 /usr/bin/python"] value -5
+    inst [10750 or "010750 /usr/bin/python"] value -5
+    inst [10754 or "010754 /usr/bin/python"] value -5
+    inst [10762 or "010762 /usr/bin/python"] value -5
+    inst [10796 or "010796 /usr/bin/python"] value -5
+    inst [10899 or "010899 /usr/bin/python"] value -5
+    inst [11035 or "011035 /usr/bin/python"] value -5
+    inst [11099 or "011099 /usr/bin/python"] value -5
+    inst [11259 or "011259 /usr/bin/python"] value -5
+    inst [11396 or "011396 /usr/bin/python"] value -5
     inst [11520 or "011520 dbus-daemon"] value 0
     inst [11550 or "011550 hald"] value 0
     inst [11551 or "011551 hald-runner"] value 0
     inst [11579 or "011579 hald-addon-input:"] value 0
     inst [11587 or "011587 /usr/libexec/hald-addon-acpi"] value 0
     inst [11606 or "011606 /usr/sbin/sshd"] value 0
-    inst [11607 or "011607 /usr/bin/python"] value 4123168554
+    inst [11607 or "011607 /usr/bin/python"] value -5
     inst [11614 or "011614 ntpd"] value 0
     inst [11636 or "011636 /usr/sbin/abrtd"] value 0
     inst [11650 or "011650 /bin/bash"] value 0
@@ -2068,12 +2068,12 @@ proc.psinfo.nice
     inst [11700 or "011700 wdmd"] value 0
     inst [11711 or "011711 sanlock"] value 0
     inst [11712 or "011712 sanlock"] value 0
-    inst [11990 or "011990 iscsiuio"] value 4123168504
+    inst [11990 or "011990 iscsiuio"] value -10
     inst [11995 or "011995 iscsid"] value 0
-    inst [11996 or "011996 iscsid"] value 4123168504
+    inst [11996 or "011996 iscsid"] value -10
     inst [12007 or "012007 /usr/sbin/libvirtd"] value 0
-    inst [12219 or "012219 /bin/bash"] value 4123168554
-    inst [12223 or "012223 /usr/bin/python"] value 4123168554
+    inst [12219 or "012219 /bin/bash"] value -5
+    inst [12223 or "012223 /usr/bin/python"] value -5
     inst [12232 or "012232 /sbin/mingetty"] value 0
     inst [12234 or "012234 /sbin/mingetty"] value 0
     inst [12235 or "012235 /sbin/agetty"] value 0
@@ -2081,182 +2081,182 @@ proc.psinfo.nice
     inst [12239 or "012239 /sbin/mingetty"] value 0
     inst [12241 or "012241 /sbin/mingetty"] value 0
     inst [12243 or "012243 /sbin/mingetty"] value 0
-    inst [12261 or "012261 /usr/bin/sudo"] value 4123168554
-    inst [12262 or "012262 /usr/bin/python"] value 4123168554
-    inst [12336 or "012336 auditd"] value 4123168564
-    inst [12388 or "012388 /usr/bin/python"] value 4123168554
-    inst [12444 or "012444 /usr/bin/python"] value 4123168554
-    inst [12448 or "012448 /usr/bin/python"] value 4123168554
-    inst [12451 or "012451 /usr/bin/python"] value 4123168554
-    inst [12452 or "012452 /usr/bin/python"] value 4123168554
-    inst [12453 or "012453 /usr/bin/python"] value 4123168554
-    inst [12454 or "012454 /usr/bin/python"] value 4123168554
-    inst [12455 or "012455 /usr/bin/python"] value 4123168554
-    inst [12456 or "012456 /usr/bin/python"] value 4123168554
-    inst [12457 or "012457 /usr/bin/python"] value 4123168554
-    inst [12458 or "012458 /usr/bin/python"] value 4123168554
-    inst [12459 or "012459 /usr/bin/python"] value 4123168554
-    inst [12506 or "012506 /usr/bin/python"] value 4123168554
-    inst [12508 or "012508 /usr/bin/python"] value 4123168554
-    inst [12511 or "012511 /usr/bin/python"] value 4123168554
-    inst [12514 or "012514 /usr/bin/python"] value 4123168554
-    inst [12517 or "012517 /usr/bin/python"] value 4123168554
-    inst [12521 or "012521 /usr/bin/python"] value 4123168554
-    inst [12524 or "012524 /usr/bin/python"] value 4123168554
-    inst [12525 or "012525 /usr/bin/python"] value 4123168554
-    inst [12528 or "012528 /usr/bin/python"] value 4123168554
-    inst [12529 or "012529 /usr/bin/python"] value 4123168554
-    inst [12558 or "012558 /usr/bin/python"] value 4123168554
-    inst [12566 or "012566 /usr/bin/python"] value 4123168554
-    inst [12569 or "012569 /usr/bin/python"] value 4123168554
-    inst [12570 or "012570 /usr/bin/python"] value 4123168554
-    inst [12573 or "012573 /usr/bin/python"] value 4123168554
-    inst [12576 or "012576 /usr/bin/python"] value 4123168554
-    inst [12579 or "012579 /usr/bin/python"] value 4123168554
-    inst [12584 or "012584 /usr/bin/python"] value 4123168554
-    inst [12590 or "012590 /usr/bin/python"] value 4123168554
-    inst [12592 or "012592 /usr/bin/python"] value 4123168554
-    inst [12597 or "012597 /usr/bin/python"] value 4123168554
-    inst [12603 or "012603 /usr/bin/python"] value 4123168554
-    inst [12609 or "012609 /usr/bin/python"] value 4123168554
-    inst [12613 or "012613 /usr/bin/python"] value 4123168554
-    inst [12615 or "012615 /usr/bin/python"] value 4123168554
-    inst [12616 or "012616 /usr/bin/python"] value 4123168554
-    inst [12617 or "012617 /usr/bin/python"] value 4123168554
-    inst [12619 or "012619 /usr/bin/python"] value 4123168554
-    inst [12620 or "012620 /usr/bin/python"] value 4123168554
-    inst [12933 or "012933 /usr/bin/python"] value 4123168554
-    inst [12938 or "012938 /usr/bin/python"] value 4123168554
-    inst [12939 or "012939 /usr/bin/python"] value 4123168554
-    inst [12946 or "012946 /usr/bin/python"] value 4123168554
-    inst [12948 or "012948 /usr/bin/python"] value 4123168554
-    inst [12953 or "012953 /usr/bin/python"] value 4123168554
-    inst [12956 or "012956 /usr/bin/python"] value 4123168554
-    inst [12962 or "012962 /usr/bin/python"] value 4123168554
-    inst [12963 or "012963 /usr/bin/python"] value 4123168554
-    inst [12964 or "012964 /usr/bin/python"] value 4123168554
-    inst [12970 or "012970 /usr/bin/python"] value 4123168554
-    inst [12973 or "012973 /usr/bin/python"] value 4123168554
-    inst [12978 or "012978 /usr/bin/python"] value 4123168554
-    inst [12982 or "012982 /usr/bin/python"] value 4123168554
-    inst [12983 or "012983 /usr/bin/python"] value 4123168554
-    inst [12991 or "012991 /usr/bin/python"] value 4123168554
-    inst [12995 or "012995 /usr/bin/python"] value 4123168554
-    inst [12996 or "012996 /usr/bin/python"] value 4123168554
-    inst [12998 or "012998 /usr/bin/python"] value 4123168554
-    inst [12999 or "012999 /usr/bin/python"] value 4123168554
-    inst [13366 or "013366 /usr/bin/python"] value 4123168554
-    inst [13369 or "013369 /usr/bin/python"] value 4123168554
-    inst [13858 or "013858 /usr/bin/python"] value 4123168554
-    inst [16367 or "016367 /usr/bin/python"] value 4123168554
-    inst [17351 or "017351 /usr/bin/python"] value 4123168554
-    inst [17853 or "017853 /usr/bin/python"] value 4123168554
-    inst [18060 or "018060 /usr/bin/python"] value 4123168554
-    inst [18062 or "018062 /usr/bin/python"] value 4123168554
-    inst [18063 or "018063 /usr/bin/python"] value 4123168554
-    inst [18066 or "018066 /usr/bin/python"] value 4123168554
-    inst [18155 or "018155 /usr/bin/python"] value 4123168554
-    inst [18273 or "018273 /usr/bin/python"] value 4123168554
-    inst [18519 or "018519 /usr/bin/python"] value 4123168554
-    inst [18559 or "018559 /usr/bin/python"] value 4123168554
-    inst [18940 or "018940 /usr/bin/python"] value 4123168554
-    inst [19991 or "019991 /usr/bin/python"] value 4123168554
-    inst [19996 or "019996 /usr/bin/python"] value 4123168554
-    inst [20625 or "020625 /usr/bin/python"] value 4123168554
-    inst [20649 or "020649 /usr/bin/python"] value 4123168554
-    inst [20650 or "020650 /usr/bin/python"] value 4123168554
-    inst [21343 or "021343 /usr/bin/python"] value 4123168554
-    inst [27961 or "027961 /usr/bin/python"] value 4123168554
-    inst [28074 or "028074 /usr/bin/python"] value 4123168554
-    inst [28099 or "028099 /usr/bin/python"] value 4123168554
-    inst [31085 or "031085 /usr/bin/python"] value 4123168554
-    inst [31549 or "031549 /usr/bin/python"] value 4123168554
-    inst [31556 or "031556 /usr/bin/python"] value 4123168554
-    inst [31565 or "031565 /usr/bin/python"] value 4123168554
-    inst [31566 or "031566 /usr/bin/python"] value 4123168554
-    inst [31661 or "031661 /usr/bin/python"] value 4123168554
-    inst [32120 or "032120 /usr/bin/python"] value 4123168554
-    inst [32121 or "032121 /usr/bin/python"] value 4123168554
-    inst [32122 or "032122 /usr/bin/python"] value 4123168554
-    inst [32123 or "032123 /usr/bin/python"] value 4123168554
-    inst [32124 or "032124 /usr/bin/python"] value 4123168554
-    inst [32136 or "032136 /usr/bin/python"] value 4123168554
-    inst [32685 or "032685 /usr/bin/python"] value 4123168554
-    inst [32688 or "032688 /usr/bin/python"] value 4123168554
-    inst [33150 or "033150 /usr/bin/python"] value 4123168554
-    inst [33161 or "033161 /usr/bin/python"] value 4123168554
-    inst [33164 or "033164 /usr/bin/python"] value 4123168554
-    inst [33176 or "033176 /usr/bin/python"] value 4123168554
-    inst [33183 or "033183 /usr/bin/python"] value 4123168554
-    inst [35079 or "035079 /usr/bin/python"] value 4123168554
-    inst [35094 or "035094 /usr/bin/python"] value 4123168554
-    inst [35100 or "035100 /usr/bin/python"] value 4123168554
-    inst [35112 or "035112 /usr/bin/python"] value 4123168554
-    inst [35117 or "035117 /usr/bin/python"] value 4123168554
-    inst [35887 or "035887 /usr/bin/python"] value 4123168554
-    inst [35897 or "035897 /usr/bin/python"] value 4123168554
-    inst [35901 or "035901 /usr/bin/python"] value 4123168554
-    inst [35907 or "035907 /usr/bin/python"] value 4123168554
-    inst [39409 or "039409 /usr/bin/python"] value 4123168554
-    inst [39978 or "039978 /usr/bin/python"] value 4123168554
-    inst [39987 or "039987 /usr/bin/python"] value 4123168554
-    inst [40003 or "040003 /usr/bin/python"] value 4123168554
-    inst [40012 or "040012 /usr/bin/python"] value 4123168554
-    inst [44457 or "044457 /usr/bin/python"] value 4123168554
-    inst [52645 or "052645 /usr/bin/python"] value 4123168554
-    inst [53957 or "053957 /usr/bin/python"] value 4123168554
-    inst [53958 or "053958 /usr/bin/python"] value 4123168554
-    inst [55612 or "055612 /usr/bin/python"] value 4123168554
-    inst [55647 or "055647 /usr/bin/python"] value 4123168554
-    inst [59476 or "059476 /usr/bin/python"] value 4123168554
+    inst [12261 or "012261 /usr/bin/sudo"] value -5
+    inst [12262 or "012262 /usr/bin/python"] value -5
+    inst [12336 or "012336 auditd"] value -4
+    inst [12388 or "012388 /usr/bin/python"] value -5
+    inst [12444 or "012444 /usr/bin/python"] value -5
+    inst [12448 or "012448 /usr/bin/python"] value -5
+    inst [12451 or "012451 /usr/bin/python"] value -5
+    inst [12452 or "012452 /usr/bin/python"] value -5
+    inst [12453 or "012453 /usr/bin/python"] value -5
+    inst [12454 or "012454 /usr/bin/python"] value -5
+    inst [12455 or "012455 /usr/bin/python"] value -5
+    inst [12456 or "012456 /usr/bin/python"] value -5
+    inst [12457 or "012457 /usr/bin/python"] value -5
+    inst [12458 or "012458 /usr/bin/python"] value -5
+    inst [12459 or "012459 /usr/bin/python"] value -5
+    inst [12506 or "012506 /usr/bin/python"] value -5
+    inst [12508 or "012508 /usr/bin/python"] value -5
+    inst [12511 or "012511 /usr/bin/python"] value -5
+    inst [12514 or "012514 /usr/bin/python"] value -5
+    inst [12517 or "012517 /usr/bin/python"] value -5
+    inst [12521 or "012521 /usr/bin/python"] value -5
+    inst [12524 or "012524 /usr/bin/python"] value -5
+    inst [12525 or "012525 /usr/bin/python"] value -5
+    inst [12528 or "012528 /usr/bin/python"] value -5
+    inst [12529 or "012529 /usr/bin/python"] value -5
+    inst [12558 or "012558 /usr/bin/python"] value -5
+    inst [12566 or "012566 /usr/bin/python"] value -5
+    inst [12569 or "012569 /usr/bin/python"] value -5
+    inst [12570 or "012570 /usr/bin/python"] value -5
+    inst [12573 or "012573 /usr/bin/python"] value -5
+    inst [12576 or "012576 /usr/bin/python"] value -5
+    inst [12579 or "012579 /usr/bin/python"] value -5
+    inst [12584 or "012584 /usr/bin/python"] value -5
+    inst [12590 or "012590 /usr/bin/python"] value -5
+    inst [12592 or "012592 /usr/bin/python"] value -5
+    inst [12597 or "012597 /usr/bin/python"] value -5
+    inst [12603 or "012603 /usr/bin/python"] value -5
+    inst [12609 or "012609 /usr/bin/python"] value -5
+    inst [12613 or "012613 /usr/bin/python"] value -5
+    inst [12615 or "012615 /usr/bin/python"] value -5
+    inst [12616 or "012616 /usr/bin/python"] value -5
+    inst [12617 or "012617 /usr/bin/python"] value -5
+    inst [12619 or "012619 /usr/bin/python"] value -5
+    inst [12620 or "012620 /usr/bin/python"] value -5
+    inst [12933 or "012933 /usr/bin/python"] value -5
+    inst [12938 or "012938 /usr/bin/python"] value -5
+    inst [12939 or "012939 /usr/bin/python"] value -5
+    inst [12946 or "012946 /usr/bin/python"] value -5
+    inst [12948 or "012948 /usr/bin/python"] value -5
+    inst [12953 or "012953 /usr/bin/python"] value -5
+    inst [12956 or "012956 /usr/bin/python"] value -5
+    inst [12962 or "012962 /usr/bin/python"] value -5
+    inst [12963 or "012963 /usr/bin/python"] value -5
+    inst [12964 or "012964 /usr/bin/python"] value -5
+    inst [12970 or "012970 /usr/bin/python"] value -5
+    inst [12973 or "012973 /usr/bin/python"] value -5
+    inst [12978 or "012978 /usr/bin/python"] value -5
+    inst [12982 or "012982 /usr/bin/python"] value -5
+    inst [12983 or "012983 /usr/bin/python"] value -5
+    inst [12991 or "012991 /usr/bin/python"] value -5
+    inst [12995 or "012995 /usr/bin/python"] value -5
+    inst [12996 or "012996 /usr/bin/python"] value -5
+    inst [12998 or "012998 /usr/bin/python"] value -5
+    inst [12999 or "012999 /usr/bin/python"] value -5
+    inst [13366 or "013366 /usr/bin/python"] value -5
+    inst [13369 or "013369 /usr/bin/python"] value -5
+    inst [13858 or "013858 /usr/bin/python"] value -5
+    inst [16367 or "016367 /usr/bin/python"] value -5
+    inst [17351 or "017351 /usr/bin/python"] value -5
+    inst [17853 or "017853 /usr/bin/python"] value -5
+    inst [18060 or "018060 /usr/bin/python"] value -5
+    inst [18062 or "018062 /usr/bin/python"] value -5
+    inst [18063 or "018063 /usr/bin/python"] value -5
+    inst [18066 or "018066 /usr/bin/python"] value -5
+    inst [18155 or "018155 /usr/bin/python"] value -5
+    inst [18273 or "018273 /usr/bin/python"] value -5
+    inst [18519 or "018519 /usr/bin/python"] value -5
+    inst [18559 or "018559 /usr/bin/python"] value -5
+    inst [18940 or "018940 /usr/bin/python"] value -5
+    inst [19991 or "019991 /usr/bin/python"] value -5
+    inst [19996 or "019996 /usr/bin/python"] value -5
+    inst [20625 or "020625 /usr/bin/python"] value -5
+    inst [20649 or "020649 /usr/bin/python"] value -5
+    inst [20650 or "020650 /usr/bin/python"] value -5
+    inst [21343 or "021343 /usr/bin/python"] value -5
+    inst [27961 or "027961 /usr/bin/python"] value -5
+    inst [28074 or "028074 /usr/bin/python"] value -5
+    inst [28099 or "028099 /usr/bin/python"] value -5
+    inst [31085 or "031085 /usr/bin/python"] value -5
+    inst [31549 or "031549 /usr/bin/python"] value -5
+    inst [31556 or "031556 /usr/bin/python"] value -5
+    inst [31565 or "031565 /usr/bin/python"] value -5
+    inst [31566 or "031566 /usr/bin/python"] value -5
+    inst [31661 or "031661 /usr/bin/python"] value -5
+    inst [32120 or "032120 /usr/bin/python"] value -5
+    inst [32121 or "032121 /usr/bin/python"] value -5
+    inst [32122 or "032122 /usr/bin/python"] value -5
+    inst [32123 or "032123 /usr/bin/python"] value -5
+    inst [32124 or "032124 /usr/bin/python"] value -5
+    inst [32136 or "032136 /usr/bin/python"] value -5
+    inst [32685 or "032685 /usr/bin/python"] value -5
+    inst [32688 or "032688 /usr/bin/python"] value -5
+    inst [33150 or "033150 /usr/bin/python"] value -5
+    inst [33161 or "033161 /usr/bin/python"] value -5
+    inst [33164 or "033164 /usr/bin/python"] value -5
+    inst [33176 or "033176 /usr/bin/python"] value -5
+    inst [33183 or "033183 /usr/bin/python"] value -5
+    inst [35079 or "035079 /usr/bin/python"] value -5
+    inst [35094 or "035094 /usr/bin/python"] value -5
+    inst [35100 or "035100 /usr/bin/python"] value -5
+    inst [35112 or "035112 /usr/bin/python"] value -5
+    inst [35117 or "035117 /usr/bin/python"] value -5
+    inst [35887 or "035887 /usr/bin/python"] value -5
+    inst [35897 or "035897 /usr/bin/python"] value -5
+    inst [35901 or "035901 /usr/bin/python"] value -5
+    inst [35907 or "035907 /usr/bin/python"] value -5
+    inst [39409 or "039409 /usr/bin/python"] value -5
+    inst [39978 or "039978 /usr/bin/python"] value -5
+    inst [39987 or "039987 /usr/bin/python"] value -5
+    inst [40003 or "040003 /usr/bin/python"] value -5
+    inst [40012 or "040012 /usr/bin/python"] value -5
+    inst [44457 or "044457 /usr/bin/python"] value -5
+    inst [52645 or "052645 /usr/bin/python"] value -5
+    inst [53957 or "053957 /usr/bin/python"] value -5
+    inst [53958 or "053958 /usr/bin/python"] value -5
+    inst [55612 or "055612 /usr/bin/python"] value -5
+    inst [55647 or "055647 /usr/bin/python"] value -5
+    inst [59476 or "059476 /usr/bin/python"] value -5
     inst [75225 or "075225 sshd:"] value 0
     inst [75231 or "075231 -bash"] value 0
     inst [75420 or "075420 sleep"] value 0
     inst [75813 or "075813 /usr/bin/perl"] value 0
     inst [75962 or "075962 sleep"] value 0
-    inst [78364 or "078364 /usr/bin/python"] value 4123168554
+    inst [78364 or "078364 /usr/bin/python"] value -5
     inst [96190 or "096190 /bin/bash"] value 0
-    inst [107134 or "107134 /usr/bin/python"] value 4123168554
-    inst [107150 or "107150 /usr/bin/python"] value 4123168554
-    inst [107152 or "107152 /usr/bin/python"] value 4123168554
-    inst [107158 or "107158 /usr/bin/python"] value 4123168554
-    inst [125593 or "125593 /sbin/udevd"] value 4123168584
+    inst [107134 or "107134 /usr/bin/python"] value -5
+    inst [107150 or "107150 /usr/bin/python"] value -5
+    inst [107152 or "107152 /usr/bin/python"] value -5
+    inst [107158 or "107158 /usr/bin/python"] value -5
+    inst [125593 or "125593 /sbin/udevd"] value -2
     inst [125654 or "125654 /usr/bin/python"] value 0
-    inst [137797 or "137797 /usr/bin/python"] value 4123168554
-    inst [137802 or "137802 /usr/bin/python"] value 4123168554
-    inst [137807 or "137807 /usr/bin/python"] value 4123168554
-    inst [137850 or "137850 /usr/bin/python"] value 4123168554
-    inst [137851 or "137851 /usr/bin/python"] value 4123168554
-    inst [139860 or "139860 /usr/bin/python"] value 4123168554
-    inst [140114 or "140114 /usr/bin/python"] value 4123168554
-    inst [140882 or "140882 /usr/bin/python"] value 4123168554
-    inst [140889 or "140889 /usr/bin/python"] value 4123168554
-    inst [141524 or "141524 /usr/bin/python"] value 4123168554
-    inst [141813 or "141813 /usr/bin/python"] value 4123168554
-    inst [143840 or "143840 /usr/bin/python"] value 4123168554
-    inst [144350 or "144350 /usr/bin/python"] value 4123168554
-    inst [145171 or "145171 /usr/bin/python"] value 4123168554
-    inst [145437 or "145437 /usr/bin/python"] value 4123168554
-    inst [145601 or "145601 /usr/bin/python"] value 4123168554
-    inst [146065 or "146065 /usr/bin/python"] value 4123168554
-    inst [147237 or "147237 /usr/bin/python"] value 4123168554
-    inst [149651 or "149651 /usr/bin/python"] value 4123168554
-    inst [150710 or "150710 /usr/bin/python"] value 4123168554
-    inst [151301 or "151301 /usr/bin/python"] value 4123168554
-    inst [152422 or "152422 /usr/bin/python"] value 4123168554
-    inst [152827 or "152827 /usr/bin/python"] value 4123168554
-    inst [153192 or "153192 /usr/bin/python"] value 4123168554
-    inst [154529 or "154529 /usr/bin/python"] value 4123168554
-    inst [156384 or "156384 /usr/bin/python"] value 4123168554
-    inst [157649 or "157649 /usr/bin/python"] value 4123168554
-    inst [158499 or "158499 /usr/bin/python"] value 4123168554
-    inst [159021 or "159021 /usr/bin/python"] value 4123168554
-    inst [159460 or "159460 /usr/bin/python"] value 4123168554
-    inst [160013 or "160013 /usr/bin/python"] value 4123168554
-    inst [160294 or "160294 /usr/bin/python"] value 4123168554
-    inst [160409 or "160409 /usr/bin/python"] value 4123168554
-    inst [160491 or "160491 /usr/bin/python"] value 4123168554
-    inst [160551 or "160551 /usr/bin/python"] value 4123168554
+    inst [137797 or "137797 /usr/bin/python"] value -5
+    inst [137802 or "137802 /usr/bin/python"] value -5
+    inst [137807 or "137807 /usr/bin/python"] value -5
+    inst [137850 or "137850 /usr/bin/python"] value -5
+    inst [137851 or "137851 /usr/bin/python"] value -5
+    inst [139860 or "139860 /usr/bin/python"] value -5
+    inst [140114 or "140114 /usr/bin/python"] value -5
+    inst [140882 or "140882 /usr/bin/python"] value -5
+    inst [140889 or "140889 /usr/bin/python"] value -5
+    inst [141524 or "141524 /usr/bin/python"] value -5
+    inst [141813 or "141813 /usr/bin/python"] value -5
+    inst [143840 or "143840 /usr/bin/python"] value -5
+    inst [144350 or "144350 /usr/bin/python"] value -5
+    inst [145171 or "145171 /usr/bin/python"] value -5
+    inst [145437 or "145437 /usr/bin/python"] value -5
+    inst [145601 or "145601 /usr/bin/python"] value -5
+    inst [146065 or "146065 /usr/bin/python"] value -5
+    inst [147237 or "147237 /usr/bin/python"] value -5
+    inst [149651 or "149651 /usr/bin/python"] value -5
+    inst [150710 or "150710 /usr/bin/python"] value -5
+    inst [151301 or "151301 /usr/bin/python"] value -5
+    inst [152422 or "152422 /usr/bin/python"] value -5
+    inst [152827 or "152827 /usr/bin/python"] value -5
+    inst [153192 or "153192 /usr/bin/python"] value -5
+    inst [154529 or "154529 /usr/bin/python"] value -5
+    inst [156384 or "156384 /usr/bin/python"] value -5
+    inst [157649 or "157649 /usr/bin/python"] value -5
+    inst [158499 or "158499 /usr/bin/python"] value -5
+    inst [159021 or "159021 /usr/bin/python"] value -5
+    inst [159460 or "159460 /usr/bin/python"] value -5
+    inst [160013 or "160013 /usr/bin/python"] value -5
+    inst [160294 or "160294 /usr/bin/python"] value -5
+    inst [160409 or "160409 /usr/bin/python"] value -5
+    inst [160491 or "160491 /usr/bin/python"] value -5
+    inst [160551 or "160551 /usr/bin/python"] value -5
 
 proc.psinfo.start_time
     inst [1 or "000001 /sbin/init"] value 800
@@ -2535,7 +2535,7 @@ proc.psinfo.vsize
     inst [11996 or "011996 iscsid"] value 5505024
     inst [12007 or "012007 /usr/sbin/libvirtd"] value 1416830976
     inst [12219 or "012219 /bin/bash"] value 9457664
-    inst [12223 or "012223 /usr/bin/python"] value 3013709824
+    inst [12223 or "012223 /usr/bin/python"] value 11603644416
     inst [12232 or "012232 /sbin/mingetty"] value 4157440
     inst [12234 or "012234 /sbin/mingetty"] value 4157440
     inst [12235 or "012235 /sbin/agetty"] value 4173824
@@ -7112,7 +7112,18 @@ proc.io.cancelled_write_bytes
 44436 TMP.out.disks
 45676 TMP.out.general
 11372 TMP.out.nets
-36108 TMP.out.procs
+02284 TMP.out.procs
+Check values ...
+proc.psinfo.nice[1963]: match
+proc.psinfo.nice[11607]: match
+proc.psinfo.nice[11996]: match
+proc.psinfo.vsize[12223]: match
+proc.psinfo.vsize[12232]: match
+proc.psinfo.rss[12223]: match
+proc.psinfo.rss[11712]: match
+proc.memory.vmswap[156384]: match
+proc.memory.vmrss[12223]: match
+proc.memory.vmrss[11712]: match
 
 ## Testing Debian inst/value extraction:
 === General metrics ===
@@ -7760,7 +7771,7 @@ proc.psinfo.nice
     inst [2151 or "002151 /sbin/rpc.statd"] value 0
     inst [2165 or "002165 /usr/sbin/rpc.idmapd"] value 0
     inst [2458 or "002458 /usr/sbin/iscsid"] value 0
-    inst [2459 or "002459 /usr/sbin/iscsid"] value 4123168504
+    inst [2459 or "002459 /usr/sbin/iscsid"] value -10
     inst [2652 or "002652 /usr/sbin/rsyslogd"] value 0
     inst [2843 or "002843 /usr/sbin/acpid"] value 0
     inst [2888 or "002888 /usr/sbin/atd"] value 0
@@ -10499,4 +10510,11 @@ proc.io.cancelled_write_bytes
 30729 TMP.out.disks
 24005 TMP.out.general
 50381 TMP.out.nets
-46214 TMP.out.procs
+45252 TMP.out.procs
+Check values ...
+proc.psinfo.nice[2459]: match
+proc.psinfo.vsize[7876]: match
+proc.psinfo.vsize[7872]: match
+proc.psinfo.rss[7876]: match
+proc.psinfo.rss[7872]: match
+proc.memory.vmswap[8159]: match
