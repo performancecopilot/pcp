@@ -655,10 +655,10 @@ Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 %if "%{_vendor}" == "suse"
-%if 0%{sles_version} == 11
-Requires: libibmad1 >= 1.1.7 libibumad1 >= 1.1.7
-%else
+%if 0%{suse_version} >= 1110
 Requires: libibmad5 >= 1.1.7 libibumad3 >= 1.1.7
+%else
+Requires: libibmad1 >= 1.1.7 libibumad1 >= 1.1.7
 %endif
 %else
 Requires: libibmad >= 1.1.7 libibumad >= 1.1.7

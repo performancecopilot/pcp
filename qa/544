@@ -172,11 +172,20 @@ checksums()
 {
     $sudo rm -f $tmp.out.*
 
-    pminfo -f -a $TA `cat $tmp.general` | tee -a $seq.full > $tmp.out.general
-    pminfo -f -a $TA `cat $tmp.cpus` | tee -a $seq.full > $tmp.out.cpus
-    pminfo -f -a $TA `cat $tmp.disks` | tee -a $seq.full > $tmp.out.disks
-    pminfo -f -a $TA `cat $tmp.nets` | tee -a $seq.full > $tmp.out.nets
-    pminfo -f -a $TA `cat $tmp.procs` | tee -a $seq.full > $tmp.out.procs
+    echo "=== General metrics ==="
+    pminfo -f -a $TA `cat $tmp.general` | tee $tmp.out.general
+    echo
+    echo "=== CPU metrics ==="
+    pminfo -f -a $TA `cat $tmp.cpus` | tee $tmp.out.cpus
+    echo
+    echo "=== Disk metrics ==="
+    pminfo -f -a $TA `cat $tmp.disks` | tee $tmp.out.disks
+    echo
+    echo "=== Network metrics ==="
+    pminfo -f -a $TA `cat $tmp.nets` | tee $tmp.out.nets
+    echo
+    echo "=== Process metrics ==="
+    pminfo -f -a $TA `cat $tmp.procs` | tee $tmp.out.procs
 
     SUM="sum -r"
     [ $PCP_PLATFORM = darwin ] && SUM=sum
@@ -187,16 +196,16 @@ checksums()
 	do
 	    printf "%05d %s\n" $chksum $path | sed -e "s,$tmp,TMP,g"
 	done
-    echo >> $seq.full
 }
 
 # real QA test starts here
 
-echo '## Testing RHEL6.4 inst/value extraction, checksums:' | tee -a $seq.full
+echo '## Testing RHEL6.4 inst/value extraction:'
 collectl2pcp -F $C/rhel6.raw.gz $TA
 checksums
 
-echo '## Testing Debian inst/value extraction, checksums:' | tee -a $seq.full
+echo
+echo '## Testing Debian inst/value extraction:'
 collectl2pcp -F $C/debian_sid_detailed.raw.gz $TA
 checksums
 
