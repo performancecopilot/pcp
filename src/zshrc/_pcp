@@ -488,13 +488,13 @@ _pcp () {
       "$common_pmda[@]" \
       "(-g --guimode $exargs)"{-g,--guimode}'[GUI mode with new time control]' \
       "(-p --guiport $exargs)"{-p+,--guiport}'[specify existing time control port]:port:' \
-      "(--container -a --archive $exargs)"--container+'[specify container to query]:container:->containers' \
+      "(--container -a --archive -U --nointerp $exargs)"--container+'[specify container to query]:container:->containers' \
       "(--derived $exargs)"--derived+'[specify derived metrics config]:file:_files' \
       "(-d --delay --container -h --host -L --local-PMDA -K --spec-local $exargs)"{-d,--delay}'[delay between updates in archive mode]' \
       "(-f --precision $exargs)"{-f+,--precision}'[set fixed output format precision]:precision:' \
       "($exargs)"\*{-i+,--instances}'[specify instances to report]:instances:->instances' \
       "(-r --raw $exargs)"{-r,--raw}'[report raw values]' \
-      "(-U --nointerp -a --archive --container -h --host -L --local-PMDA -K --spec-local $exargs)"{-U+,--nointerp}'[specify uninterp. metrics source archive]:archive:->archives' \
+      "(-a --archive --container -h --host -L --local-PMDA -K --spec-local $exargs)"{-U+,--nointerp}'[specify uninterpolated metrics source archive]:archive:->archives' \
       "(-v --verbose $exargs)"{-v,--verbose}'[verbose mode]' \
       "(-w --width $exargs)"{-w+,--width}'[set column width]:width:' \
       "(-x --filter $exargs)"{-x+,--filter}'[define event filter pattern]:filter:' \
