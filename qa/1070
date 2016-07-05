@@ -39,12 +39,12 @@ _path_filter()
 }
 
 # deal with ...
-# timezone: PCP-10 (reporting, local is AEDT-11)
+# timezone: PCP-10 (reporting, current is AEDT-11)
 #
 _filter()
 {
     sed \
-	-e 's/ (reporting, local is .*)$//g' \
+        -e 's/ (reporting, current is .*)$//g' \
     #end
 }
 

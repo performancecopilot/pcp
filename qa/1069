@@ -35,11 +35,11 @@ _path_filter()
     #end
 }
 
-#  timezone: :Australia/Melbourne (creation, current is AEDT-11)
-#  this is not deterministic .......................... ^^^^^^^
+#  timezone: :Australia/Melbourne (reporting, current is AEDT-11)
+#  this is not deterministic ........................... ^^^^^^^
 #  and
 #  timezone: AEDT-11
-#            ^^^^ ... ditto
+#            ^^^^^^^ ... ditto
 #
 #  we also need to filter for AEST-10 during standard timezone
 #  as it appears that pmrep will report the change in -11 to -10

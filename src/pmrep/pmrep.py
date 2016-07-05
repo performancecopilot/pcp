@@ -782,9 +782,11 @@ class PMReporter(object):
             pmidA[i] = c_uint(p)
         return pmidA
 
-    def get_current_tz(self):
-        """ Figure out the current timezone using the PCP convention """
+    def get_local_tz(self, set_dst=-1):
+        """ Figure out the local timezone using the PCP convention """
         dst = time.localtime().tm_isdst
+        if set_dst >= 0:
+            dst = 1 if set_dst else 0
         offset = time.altzone if dst else time.timezone
         currtz = time.tzname[dst]
         if offset:
@@ -823,14 +825,18 @@ class PMReporter(object):
                 self.delimiter = OUTSEP
 
         # Time
-        self.localtz = self.get_current_tz()
+        self.localtz = self.get_local_tz()
         if self.opts.pmGetOptionHostZone():
             os.environ['TZ'] = self.context.pmWhichZone()
             time.tzset()
         else:
-            os.environ['TZ'] = self.localtz
+            tz = self.localtz
+            if self.context.type == PM_CONTEXT_ARCHIVE:
+                # Determine correct local TZ based on DST of the archive
+                tz = self.get_local_tz(time.localtime(self.opts.pmGetOptionOrigin()).tm_isdst)
+            os.environ['TZ'] = tz
             time.tzset()
-            self.context.pmNewZone(self.localtz)
+            self.context.pmNewZone(tz)
         if self.opts.pmGetOptionTimezone():
             os.environ['TZ'] = self.opts.pmGetOptionTimezone()
             time.tzset()
@@ -1087,9 +1093,9 @@ class PMReporter(object):
         if self.context.type == PM_CONTEXT_LOCAL:
             host = "localhost, using DSO PMDAs"
 
-        timezone = self.get_current_tz()
+        timezone = self.get_local_tz()
         if timezone != self.localtz:
-            timezone += " (reporting, local is " + self.localtz + ")"
+            timezone += " (reporting, current is " + self.localtz + ")"
 
         self.writer.write(comm + "\n")
         if self.context.type == PM_CONTEXT_ARCHIVE:
