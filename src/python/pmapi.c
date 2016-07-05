@@ -572,6 +572,8 @@ setOptionContainer(PyObject *self, PyObject *args, PyObject *keywords)
                         "s:pmSetOptionContainer", keyword_list, &container))
         return NULL;
 
+    if ((container = strdup(container ? container : "")) == NULL)
+	return PyErr_NoMemory();
     __pmAddOptContainer(&options, container);
     Py_INCREF(Py_None);
     return Py_None;
