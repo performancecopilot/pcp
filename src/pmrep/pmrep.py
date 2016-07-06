@@ -1065,29 +1065,8 @@ class PMReporter(object):
         """ Write extended header """
         comm = "#" if self.output == OUTPUT_CSV else ""
 
-        if self.runtime != -1:
-            duration = self.runtime
-            samples = self.samples
-        else:
-            if self.samples:
-                duration = (self.samples - 1) * int(self.interval)
-                samples = self.samples
-                if self.context.type == PM_CONTEXT_ARCHIVE:
-                    if not self.interpol:
-                        samples = str(samples) + " (requested)"
-            else:
-                duration = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin()))
-                samples = int((duration / int(self.interval)) + 1)
-                duration = (samples - 1) * int(self.interval)
-                if self.context.type == PM_CONTEXT_ARCHIVE:
-                    if not self.interpol:
-                        samples = "N/A"
-        endtime = float(self.opts.pmGetOptionOrigin()) + duration
-
         if self.context.type == PM_CONTEXT_ARCHIVE:
             host = self.context.pmGetArchiveLabel().get_hostname()
-            if not self.interpol and not self.opts.pmGetOptionFinish():
-                endtime = self.context.pmGetArchiveEnd()
         if self.context.type == PM_CONTEXT_HOST:
             host = self.context.pmGetContextHostName()
         if self.context.type == PM_CONTEXT_LOCAL:
@@ -1096,6 +1075,27 @@ class PMReporter(object):
         timezone = self.get_local_tz()
         if timezone != self.localtz:
             timezone += " (reporting, current is " + self.localtz + ")"
+
+        if self.runtime != -1:
+            duration = self.runtime
+            samples = self.samples
+        else:
+            if self.samples:
+                duration = (self.samples - 1) * int(self.interval)
+                samples = self.samples
+            else:
+                duration = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin()))
+                samples = int((duration / int(self.interval)) + 1)
+                duration = (samples - 1) * int(self.interval)
+        endtime = float(self.opts.pmGetOptionOrigin()) + duration
+
+        if self.context.type == PM_CONTEXT_ARCHIVE:
+            if endtime > float(self.context.pmGetArchiveEnd()):
+                endtime = self.context.pmGetArchiveEnd()
+            if not self.interpol and self.opts.pmGetOptionSamples():
+                samples = str(samples) + " (requested)"
+            elif not self.interpol:
+                samples = "N/A"
 
         self.writer.write(comm + "\n")
         if self.context.type == PM_CONTEXT_ARCHIVE:

@@ -5,7 +5,7 @@ QA output created by 1071
      host: slack
  timezone: ...-11
     start: Wed Feb 10 14:39:13 2016
-      end: Wed Feb 10 14:39:21 2016
+      end: Wed Feb 10 14:39:17 2016
   metrics: 9
   samples: 9
  interval: 1.0 sec
@@ -22,7 +22,7 @@ QA output created by 1071
      host: slack
  timezone: ...-11
     start: Wed Feb 10 14:39:13 2016
-      end: Wed Feb 10 14:39:21 2016
+      end: Wed Feb 10 14:39:17 2016
   metrics: 10
   samples: 9
  interval: 1.0 sec
@@ -41,7 +41,7 @@ QA output created by 1071
      host: slack
  timezone: ...-11
     start: Wed Feb 10 14:39:13 2016
-      end: Wed Feb 10 14:39:21 2016
+      end: Wed Feb 10 14:39:17 2016
   metrics: 9
   samples: 9
  interval: 1.0 sec
@@ -58,7 +58,7 @@ QA output created by 1071
      host: slack
  timezone: ...-11
     start: Wed Feb 10 14:39:13 2016
-      end: Wed Feb 10 14:39:21 2016
+      end: Wed Feb 10 14:39:17 2016
   metrics: 10
   samples: 9
  interval: 1.0 sec
@@ -77,7 +77,7 @@ QA output created by 1071
      host: slack
  timezone: ...-11
     start: Wed Feb 10 14:39:13 2016
-      end: Wed Feb 10 14:39:21 2016
+      end: Wed Feb 10 14:39:17 2016
   metrics: 9
   samples: 9 (requested)
  interval: N/A
@@ -95,7 +95,7 @@ QA output created by 1071
      host: slack
  timezone: ...-11
     start: Wed Feb 10 14:39:13 2016
-      end: Wed Feb 10 14:39:21 2016
+      end: Wed Feb 10 14:39:17 2016
   metrics: 10
   samples: 9 (requested)
  interval: N/A
@@ -115,7 +115,7 @@ QA output created by 1071
      host: slack
  timezone: ...-11
     start: Wed Feb 10 14:39:13 2016
-      end: Wed Feb 10 14:39:21 2016
+      end: Wed Feb 10 14:39:17 2016
   metrics: 9
   samples: 9 (requested)
  interval: N/A
@@ -133,7 +133,7 @@ QA output created by 1071
      host: slack
  timezone: ...-11
     start: Wed Feb 10 14:39:13 2016
-      end: Wed Feb 10 14:39:21 2016
+      end: Wed Feb 10 14:39:17 2016
   metrics: 10
   samples: 9 (requested)
  interval: N/A
