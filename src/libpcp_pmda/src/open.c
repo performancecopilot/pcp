@@ -179,7 +179,7 @@ socket_ownership(char *sockname)
 	exit(1);
     } else if (oserror() != 0) {
 	__pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
-		username, pmErrStr_r(oserror(), errmsg, sizeof(errmsg)));
+		username, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
 	exit(1);
     }
 
