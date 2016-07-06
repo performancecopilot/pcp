@@ -43,6 +43,7 @@ OTHER_SUBDIRS = \
 	newhelp \
 	pcp \
 	pcp2graphite \
+	pcp2influxdb \
 	pmafm \
 	pmfind \
 	pmcpp \

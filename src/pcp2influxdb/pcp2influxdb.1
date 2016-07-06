@@ -1,0 +1,114 @@
+.TH PCP2INFLUXDB 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+.B pcp2influxdb 
+\- pcp-to-influxdb metrics exporter
+.SH SYNOPSIS
+.B pcp2influxdb
+[\f3\-h\f1 \f2hostspec\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-L\f1]
+[\f3\-O\f1 \f2origin\f1]
+[\f3\-T\f1 \f2finish\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-t\f1 \f2delta\f1]
+[\f3\-i\f1 \f2influxdbaddress\f1]
+[\f3\-u\f1 \f2units\f1]
+[\f3\-d\f1 \f2database\f1]
+[\f3\-U\f1 \f2username\f1]
+[\f3\-P\f1 \f2password\f1]
+[\f3\-I\f1 \f2tagstring\f1]
+\f2metricname\f1 ...
+.SH DESCRIPTION
+.B pcp2influxdb
+is a PCP metric exporter.
+It relays metrics of the
+.BR pmns (5)
+to a designated
+InfluxDB database by periodically polling, then
+copying/converting relevant numerical metrics across the InfluxDB
+HTTP(S) protocols.  Metric values are optionally
+scaled to a given unit/scale, but are not rate-converted.  Metric
+names are somewhat canonicalized (mangled) to fit the
+InfluxDB namespace rules.
+.PP
+The data transfer will continue on a best-effort basis until the
+program is interrupted.  Temporary errors are ignored, but reported.  Multiple
+copies of this program may be run in parallel, to populate different
+InfluxDB databases or subtrees, with different scaling or sampling
+intervals.
+.PP
+.SH OPTIONS
+.TP
+.B \-h \f2hostspec\f1
+Extract metrics from the specified
+.BR pmcd (1)
+daemon, using a host specification as described on
+.BR PCPIntro (1).
+The default is \f3local:\f1.
+.TP
+.B \-a \f2archive\f1
+Extract metrics from the given set of archives,
+which is a comma-separated list of names, each
+of which may be the base name of an archive or the name of a directory containing
+one or more archives.
+.TP
+.B \-L
+Extract metrics from the local context PCP PMDAs.
+.TP
+.B \-t \f2delta\f1
+Specify the polling interval in seconds.  If live, polling is aligned to
+natural multiples of this interval.  The default is \f360\f1 seconds.
+.TP
+.B \-O \f2origin\f1
+Set the time origin for archive scanning.  The default is the start of the
+set of archives.
+.TP
+.B \-T \f2finish\f1
+Set the time finish for archive scanning.  The default is the end of the
+set of archives.
+.TP
+.B \-s \f2samples\f1
+Set the maximum number of samples to relay.  The default is unlimited.
+.TP
+.B \-i \f2influxdbaddress\f1
+Specify the influxdb HTTP(S) address where the relayed data is to
+be relayed.  The default is \f3http://localhost:8086\f1.
+.TP
+.B \-u \f2units\f1
+Rescale the metrics to the given UNITS string, as parsed by the
+.IR pmParseUnitsStr (3)
+function.  This must be dimensionally consistent with the underlying
+PCP metric.  The default is to perform no scaling.
+.TP
+.B \-d \f2database\f1
+The name of the database to write to. Must exist already; will not be created.
+Defaults to "pcp".
+.TP
+.B \-U \f2username\f1
+The username to use to authenticate to InfluxDB. Must have write access on the
+database that metrics are written to.
+.TP
+.B \-P \f2password\f1
+The password to use to authenticate to InfluxDB that goes with the given
+username.
+.TP
+.B \-I \f2tagstring\f1
+A string of tags, in InfluxDB's format (i.e. host=www.example.com,gpu=tesla).
+Not required, but recommended to be enable richer querying and dashboard
+creation.
+.TP
+.I metricname
+Relay all numeric metrics nested at or below the given name in the PMNS.
+This option may be repeated.  This is a compulsory option, having no
+default.
+.SH "SEE ALSO"
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmParseUnitsStr (3),
+.BR https://influxdata.com/time-series-platform/influxdb/,
+.BR pmmgr (1),
+.BR pmval (1),
+.BR PMAPI (3),
+.BR pcp.conf (5)
+and
+.BR pmns (5).
