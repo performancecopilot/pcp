@@ -88,6 +88,10 @@ __pmSockAddrInit(__pmSockAddr *addr, int family, int address, int port)
 	else
 	    addr->sockaddr.ipv6.sin6_addr = in6addr_any;
     }
+    else if (family == AF_UNSPEC) {
+	/* do nothing */
+	;
+    }
     else
 	__pmNotifyErr(LOG_ERR,
 		"%s:__pmSockAddrInit: Invalid address family: %d\n", __FILE__, addr->sockaddr.raw.sa_family);
@@ -230,6 +234,11 @@ __pmSockAddrCompare(const __pmSockAddr *addr1, const __pmSockAddr *addr2)
 		       sizeof(addr1->sockaddr.local.sun_path));
     }
 #endif
+    
+    if (addr1->sockaddr.raw.sa_family == AF_UNSPEC) {
+	/* if the address family is unspecified, assume not equal */
+	return 1;
+    }
 
     /* Unknown address family. */
     __pmNotifyErr(LOG_ERR,
