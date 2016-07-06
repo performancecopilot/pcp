@@ -466,7 +466,7 @@ class PidstatOptions(pmapi.pmOptions):
             else:
                 PidstatOptions.pid_filter = "ALL"
                 try:
-                    PidstatOptions.pid_list = map(lambda x:int(x),optarg.split(','))
+                    PidstatOptions.pid_list = list(map(lambda x:int(x),optarg.split(',')))
                 except ValueError as e:
                     print ("Invalid Process Id List: use comma separated pids without whitespaces")
                     sys.exit(1)
