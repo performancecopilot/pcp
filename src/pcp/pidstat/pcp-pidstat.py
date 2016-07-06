@@ -131,7 +131,7 @@ class ProcessCpuUsage:
 
     def total_percent(self):
         if self.user_percent() is not None and self.guest_percent() is not None and self.system_percent() is not None:
-            return self.user_percent()+self.guest_percent()+self.system_percent()
+            return float("%.2f"%(self.user_percent()+self.guest_percent()+self.system_percent()))
         else:
             return None
 
