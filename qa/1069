@@ -159,7 +159,9 @@ pmrep -s 5 $log2 -p -c $tmp.pconfig mem.util.free
 echo "---"
 pmrep -s 5 $log2 -t 3s -p -H -c $tmp.pconfig mem.util.free
 echo "---"
-echo '[source]' > $tmp.pconfig
+echo '[options]' > $tmp.pconfig
+echo "source = $here/archives/no-such-archive" >> $tmp.pconfig
+echo '[source]' >> $tmp.pconfig
 echo "source = $here/archives/rep" >> $tmp.pconfig
 echo 'kernel.all.uptime = uptime,,,,8' >> $tmp.pconfig
 pmrep -s 5 -c $tmp.pconfig -z -p -u :source
@@ -168,6 +170,18 @@ echo '[source]' > $tmp.pconfig
 echo 'source = wrong.example.com' >> $tmp.pconfig
 echo 'kernel.all.uptime = uptime,,,,8' >> $tmp.pconfig
 pmrep -s 5 $log2 -c $tmp.pconfig -p -u :source
+echo "---"
+echo '[source]' > $tmp.pconfig
+echo 'source = @' >> $tmp.pconfig
+echo "speclocal = clear|add,29,sample/pmda_sample.$DSO_SUFFIX,sample_init" >> $tmp.pconfig
+echo 'sample.long.one = one,,,,8' >> $tmp.pconfig
+pmrep -s 1 -c $tmp.pconfig -p -u :source | _live_filter
+echo "---"
+echo '[source]' > $tmp.pconfig
+echo 'source = @' >> $tmp.pconfig
+echo 'speclocal = fail' >> $tmp.pconfig
+echo 'sample.long.one = one,,,,8' >> $tmp.pconfig
+pmrep -s 1 -K clear -K add,29,sample/pmda_sample.$DSO_SUFFIX,sample_init -c $tmp.pconfig -p -u :source | _live_filter
 
 # success, all done
 echo "== done"

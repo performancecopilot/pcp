@@ -214,4 +214,10 @@ Incompatible configuration file version (read v99, need v1).
 00:50:01  24924406
 00:51:01  24924466
 00:52:01  24924526
+---
+               one
+HH:MM:SS         1
+---
+               one
+HH:MM:SS         1
 == done

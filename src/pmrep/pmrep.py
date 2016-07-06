@@ -173,7 +173,8 @@ class PMReporter(object):
                      'delay', 'type', 'width', 'precision', 'delimiter',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
-                     'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval')
+                     'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval',
+                     'speclocal')
 
         # Special command line switches
         self.arghelp = ('-?', '--help', '-V', '--version')
@@ -191,6 +192,7 @@ class PMReporter(object):
         self.outfile = None
         self.writer = None
         self.pmi = None
+        self.speclocal = None
         self.derived = None
         self.header = 1
         self.unitinfo = 1
@@ -292,13 +294,18 @@ class PMReporter(object):
 
     def option_override(self, opt):
         """ Override a few standard PCP options """
-        if opt == 'H' or opt == 'p':
+        if opt == 'H' or opt == 'p' or opt == 'K':
             return 1
         return 0
 
     def option(self, opt, optarg, index):
         """ Perform setup for an individual command line option """
-        if opt == 'c':
+        if opt == 'K':
+            if not self.speclocal or not self.speclocal.startswith("K:"):
+                self.speclocal = "K:" + optarg
+            else:
+                self.speclocal = self.speclocal + "|" + optarg
+        elif opt == 'c':
             self.config = optarg
         elif opt == 'C':
             self.check = 1
@@ -386,6 +393,9 @@ class PMReporter(object):
             value = 0
         if name == 'source':
             self.source = value
+        if name == 'speclocal':
+            if not self.speclocal or not self.speclocal.startswith("K:"):
+                self.speclocal = value
         elif name == 'samples':
             self.opts.pmSetOptionSamples(value)
             self.samples = self.opts.pmGetOptionSamples()
@@ -544,6 +554,11 @@ class PMReporter(object):
                 self.opts.pmSetOptionLocalPMDA()
                 self.opts.pmSetOptionContext(pmapi.c_api.PM_CONTEXT_LOCAL)
                 self.source = None
+
+        if context == pmapi.c_api.PM_CONTEXT_LOCAL and self.speclocal:
+            self.speclocal = self.speclocal.replace("K:", "")
+            for spec in self.speclocal.split("|"):
+                self.opts.pmSetOptionSpecLocal(spec)
 
         # All options set, finalize configuration
         flags = self.opts.pmGetOptionFlags()
