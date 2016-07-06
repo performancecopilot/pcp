@@ -1782,13 +1782,13 @@ ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
   grep -E 'pmiostat|pmcollectl|pmatop|pmrep' |\
   sed -e 's#^#'%{_bindir}'\/#' >pcp_system_tools.list
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
-  grep -E 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' |\
+  grep -E 'atop|collectl|dmcache|free|iostat|numastat|pidstat|verify|uptime|shping' |\
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >>pcp_system_tools.list
 %endif
 
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
 %if !%{disable_python2} || !%{disable_python3}
-  grep -E -v 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping' |\
+  grep -E -v 'atop|collectl|dmcache|free|iostat|numastat|pidstat|verify|uptime|shping' |\
 %endif
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
 ls -1 $RPM_BUILD_ROOT/%{_booksdir} |\

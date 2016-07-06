@@ -173,7 +173,8 @@ class PMReporter(object):
                      'delay', 'type', 'width', 'precision', 'delimiter',
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
-                     'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval')
+                     'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval',
+                     'speclocal')
 
         # Special command line switches
         self.arghelp = ('-?', '--help', '-V', '--version')
@@ -191,6 +192,7 @@ class PMReporter(object):
         self.outfile = None
         self.writer = None
         self.pmi = None
+        self.speclocal = None
         self.derived = None
         self.header = 1
         self.unitinfo = 1
@@ -292,13 +294,18 @@ class PMReporter(object):
 
     def option_override(self, opt):
         """ Override a few standard PCP options """
-        if opt == 'H' or opt == 'p':
+        if opt == 'H' or opt == 'p' or opt == 'K':
             return 1
         return 0
 
     def option(self, opt, optarg, index):
         """ Perform setup for an individual command line option """
-        if opt == 'c':
+        if opt == 'K':
+            if not self.speclocal or not self.speclocal.startswith("K:"):
+                self.speclocal = "K:" + optarg
+            else:
+                self.speclocal = self.speclocal + "|" + optarg
+        elif opt == 'c':
             self.config = optarg
         elif opt == 'C':
             self.check = 1
@@ -386,6 +393,9 @@ class PMReporter(object):
             value = 0
         if name == 'source':
             self.source = value
+        if name == 'speclocal':
+            if not self.speclocal or not self.speclocal.startswith("K:"):
+                self.speclocal = value
         elif name == 'samples':
             self.opts.pmSetOptionSamples(value)
             self.samples = self.opts.pmGetOptionSamples()
@@ -545,6 +555,11 @@ class PMReporter(object):
                 self.opts.pmSetOptionContext(pmapi.c_api.PM_CONTEXT_LOCAL)
                 self.source = None
 
+        if context == pmapi.c_api.PM_CONTEXT_LOCAL and self.speclocal:
+            self.speclocal = self.speclocal.replace("K:", "")
+            for spec in self.speclocal.split("|"):
+                self.opts.pmSetOptionSpecLocal(spec)
+
         # All options set, finalize configuration
         flags = self.opts.pmGetOptionFlags()
         self.opts.pmSetOptionFlags(flags | pmapi.c_api.PM_OPTFLAG_DONE)
@@ -586,9 +601,6 @@ class PMReporter(object):
                     sys.stderr.write("Interval can't be less than 1 second.\n")
                     sys.exit(1)
                 self.samples = int(self.runtime / int(self.interval) + 1)
-            if int(self.interval) > self.runtime:
-                sys.stderr.write("Interval can't be longer than runtime.\n")
-                sys.exit(1)
         else:
             self.samples = self.opts.pmGetOptionSamples()
             self.interval = self.opts.pmGetOptionInterval()
@@ -785,9 +797,11 @@ class PMReporter(object):
             pmidA[i] = c_uint(p)
         return pmidA
 
-    def get_current_tz(self):
-        """ Figure out the current timezone using the PCP convention """
+    def get_local_tz(self, set_dst=-1):
+        """ Figure out the local timezone using the PCP convention """
         dst = time.localtime().tm_isdst
+        if set_dst >= 0:
+            dst = 1 if set_dst else 0
         offset = time.altzone if dst else time.timezone
         currtz = time.tzname[dst]
         if offset:
@@ -826,14 +840,18 @@ class PMReporter(object):
                 self.delimiter = OUTSEP
 
         # Time
-        self.localtz = self.get_current_tz()
+        self.localtz = self.get_local_tz()
         if self.opts.pmGetOptionHostZone():
             os.environ['TZ'] = self.context.pmWhichZone()
             time.tzset()
         else:
-            os.environ['TZ'] = self.localtz
+            tz = self.localtz
+            if self.context.type == PM_CONTEXT_ARCHIVE:
+                # Determine correct local TZ based on DST of the archive
+                tz = self.get_local_tz(time.localtime(self.opts.pmGetOptionOrigin()).tm_isdst)
+            os.environ['TZ'] = tz
             time.tzset()
-            self.context.pmNewZone(self.localtz)
+            self.context.pmNewZone(tz)
         if self.opts.pmGetOptionTimezone():
             os.environ['TZ'] = self.opts.pmGetOptionTimezone()
             time.tzset()
@@ -1062,6 +1080,17 @@ class PMReporter(object):
         """ Write extended header """
         comm = "#" if self.output == OUTPUT_CSV else ""
 
+        if self.context.type == PM_CONTEXT_ARCHIVE:
+            host = self.context.pmGetArchiveLabel().get_hostname()
+        if self.context.type == PM_CONTEXT_HOST:
+            host = self.context.pmGetContextHostName()
+        if self.context.type == PM_CONTEXT_LOCAL:
+            host = "localhost, using DSO PMDAs"
+
+        timezone = self.get_local_tz()
+        if timezone != self.localtz:
+            timezone += " (reporting, current is " + self.localtz + ")"
+
         if self.runtime != -1:
             duration = self.runtime
             samples = self.samples
@@ -1069,30 +1098,19 @@ class PMReporter(object):
             if self.samples:
                 duration = (self.samples - 1) * int(self.interval)
                 samples = self.samples
-                if self.context.type == PM_CONTEXT_ARCHIVE:
-                    if not self.interpol:
-                        samples = str(samples) + " (requested)"
             else:
                 duration = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin()))
                 samples = int((duration / int(self.interval)) + 1)
                 duration = (samples - 1) * int(self.interval)
-                if self.context.type == PM_CONTEXT_ARCHIVE:
-                    if not self.interpol:
-                        samples = "N/A"
         endtime = float(self.opts.pmGetOptionOrigin()) + duration
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
-            host = self.context.pmGetArchiveLabel().get_hostname()
-            if not self.interpol and not self.opts.pmGetOptionFinish():
+            if endtime > float(self.context.pmGetArchiveEnd()):
                 endtime = self.context.pmGetArchiveEnd()
-        if self.context.type == PM_CONTEXT_HOST:
-            host = self.context.pmGetContextHostName()
-        if self.context.type == PM_CONTEXT_LOCAL:
-            host = "localhost, using DSO PMDAs"
-
-        timezone = self.get_current_tz()
-        if timezone != self.localtz:
-            timezone += " (reporting, local is " + self.localtz + ")"
+            if not self.interpol and self.opts.pmGetOptionSamples():
+                samples = str(samples) + " (requested)"
+            elif not self.interpol:
+                samples = "N/A"
 
         self.writer.write(comm + "\n")
         if self.context.type == PM_CONTEXT_ARCHIVE:
