@@ -513,7 +513,7 @@ map_stats(pmdaExt *pmda)
 			if (pmDebug & DBG_TRACE_APPL0) {
 			    __pmNotifyErr(LOG_INFO, "MMV: %s - "
 					"metrics offset: %"PRIu64" < %"PRIu64,
-					s->name, s->len, offset);
+					s->name, s->len, (int64_t)offset);
 			}
 			continue;
 		    }
@@ -906,7 +906,7 @@ mmv_text(int ident, int type, char **buffer, pmdaExt *ep)
 		if (pmDebug & DBG_TRACE_APPL0)
 		    __pmNotifyErr(LOG_ERR, "MMV: %s - "
 				"bad shorttext offset: %"PRIu64" < %"PRIu64,
-				s->name, s->len, offset);
+				s->name, s->len, (uint64_t)offset);
 		return PM_ERR_GENERIC;
 	    }
 	    offset -= sizeof(mmv_disk_string_t);
@@ -923,7 +923,7 @@ mmv_text(int ident, int type, char **buffer, pmdaExt *ep)
 		if (pmDebug & DBG_TRACE_APPL0)
 		    __pmNotifyErr(LOG_ERR, "MMV: %s - "
 				"bad helptext offset: %"PRIu64" < %"PRIu64,
-				s->name, s->len, offset);
+				s->name, s->len, (uint64_t)offset);
 		return PM_ERR_GENERIC;
 	    }
 	    offset -= sizeof(mmv_disk_string_t);
