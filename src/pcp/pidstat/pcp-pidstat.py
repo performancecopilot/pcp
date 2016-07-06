@@ -460,7 +460,7 @@ class PidstatOptions(pmapi.pmOptions):
         elif opt == 'U':
             PidstatOptions.show_process_user = True
             PidstatOptions.filtered_process_user = optarg
-        elif opt == 'P':
+        elif opt == 'p':
             if optarg == "ALL" or optarg == "SELF":
                 PidstatOptions.pid_filter = optarg
             else:
@@ -471,9 +471,16 @@ class PidstatOptions(pmapi.pmOptions):
                     print ("Invalid Process Id List: use comma separated pids without whitespaces")
                     sys.exit(1)
 
+    def override(self, opt):
+        """ Override standard PCP options to match pidstat(1) """
+        if (opt == 'p'):
+            return 1
+        return 0
+
     def __init__(self):
-        pmapi.pmOptions.__init__(self,"a:s:t:G:IU::P:RrkV?")
+        pmapi.pmOptions.__init__(self,"a:s:t:G:IU::p:RrkV?")
         self.pmSetOptionCallback(self.extraOptions)
+        self.pmSetOverrideCallback(self.override)
         self.pmSetLongOptionHeader("General options")
         self.pmSetLongOptionArchive()
         self.pmSetLongOptionSamples()
@@ -481,7 +488,7 @@ class PidstatOptions(pmapi.pmOptions):
         self.pmSetLongOption("process-name",1,"G","NAME","Select process names using regular expression.")
         self.pmSetLongOption("",0,"I","","In SMP environment, show CPU usage per processor.")
         self.pmSetLongOption("user-name",2,"U","[USERNAME]","Show real user name of the tasks and optionally filter by user name.")
-        self.pmSetLongOption("pid-list",1,"P","PID1,PID2..  ","Show stats for specified pids, Use SELF for current process and ALL for all processes.")
+        self.pmSetLongOption("pid-list",1,"p","PID1,PID2..  ","Show stats for specified pids, Use SELF for current process and ALL for all processes.")
         self.pmSetLongOption("",0,"R","","Report realtime priority and scheduling policy information.")
         self.pmSetLongOption("",0,"r","","Report page faults and memory utilization.")
         self.pmSetLongOption("",0,"k","","Report stack utilization.")
