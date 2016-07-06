@@ -82,7 +82,7 @@ $sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
 date >>$seq.full
 echo "=== 3. check on number of archives and zip 'em up ===" | tee -a $seq.full
 ls -l $tmp.dir/$hostname >> $seq.full
-num=`ls -1 $tmp.dir/$hostname/*.index | wc -l`
+num=`ls -1 $tmp.dir/$hostname/*.index | wc -l | sed -e 's/ //g'`
 if [ $num -gt 30 ]; then
     echo more than thirty
 else
@@ -100,7 +100,7 @@ $sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
 date >>$seq.full
 echo "=== 5. check on number of archives after batched logmerge ===" | tee -a $seq.full
 ls -l $tmp.dir/$hostname >> $seq.full
-num=`ls -1 $tmp.dir/$hostname/*.index | wc -l`
+num=`ls -1 $tmp.dir/$hostname/*.index | wc -l | sed -e 's/ //g'`
 if [ $num -lt 5 ]; then
     echo less than 5
 else
@@ -128,7 +128,7 @@ $sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
 
 date >>$seq.full
 echo "=== 8. expect 10 corrupt leftovers  ===" | tee -a $seq.full
-ls -1 $tmp.dir/$hostname/corrupt*.meta | wc -l
+ls -1 $tmp.dir/$hostname/corrupt*.meta | wc -l | sed -e 's/ //g'
 
 date >>$seq.full
 echo "=== 9. turn on short-term corrupt-gc and cycle a little longer  ===" | tee -a $seq.full
@@ -139,7 +139,7 @@ $sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
 
 date >>$seq.full
 echo "=== 10. expect no corrupt leftovers ===" | tee -a $seq.full
-ls -1 $tmp.dir/$hostname/corrupt*.meta 2>/dev/null | wc -l
+ls -1 $tmp.dir/$hostname/corrupt*.meta 2>/dev/null | wc -l | sed -e 's/ //g'
 
 echo "== collecting full pmmgr logs:" >>$seq.full
 cat $tmp.out >>$seq.full
