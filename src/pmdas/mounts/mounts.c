@@ -1,7 +1,7 @@
 /*
  * Mounts PMDA, info on current tracked filesystem mounts
  *
- * Copyright (c) 2012,2015 Red Hat.
+ * Copyright (c) 2012,2015-2016 Red Hat.
  * Copyright (c) 2001,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2001 Alan Bailey (bailey@mcs.anl.gov or abailey@ncsa.uiuc.edu) 
  * All rights reserved. 
@@ -323,7 +323,8 @@ mounts_refresh_mounts(void)
 	    if (strcmp(path, mounts[item].i_name) != 0)
 		continue;
 	    strncpy(mp->type, type, MAXFSTYPE-1);
-	    if (realpath(device, mp->device) == NULL)
+	    /* don't resolve dm symlinks - we want the persistent device name, not the dm-* name */
+	    if (strncmp(device, "/dev/mapper", 11) == 0 || realpath(device, mp->device) == NULL)
 		strncpy(mp->device, device, MAXPATHLEN-1);
 	    strncpy(mp->options, options, MAXOPTSTR-1);
 	    mp->flags = MOUNTS_FLAG_UP;

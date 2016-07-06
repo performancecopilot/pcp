@@ -1,7 +1,7 @@
 /*
  * Linux Filesystem Cluster
  *
- * Copyright (c) 2014-2015 Red Hat.
+ * Copyright (c) 2014-2016 Red Hat.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -90,8 +90,12 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
 	}
 	else if (strncmp(device, "/dev", 4) != 0)
 	    continue;
-	if (realpath(device, src) != NULL)
-	    device = src;
+
+	/* keep dm and md persistent names, RHBZ#1349932 */
+	if (strncmp(device, "/dev/mapper", 11) != 0 && strncmp(device, "/dev/md", 7) != 0) {
+	    if (realpath(device, src) != NULL)
+		device = src;
+	}
 
 	sts = pmdaCacheLookupName(indom, device, NULL, (void **)&fs);
 	if (sts == PMDA_CACHE_ACTIVE)	/* repeated line in /proc/mounts? */
