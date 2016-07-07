@@ -325,6 +325,20 @@ fi >$tmp/out
 
 if [ -s $tmp/out ]
 then
+    # we expect to find only one matching process ...
+    #
+    if [ "`wc -l <$tmp/out | sed -e 's/ //g'`" -gt 1 ]
+    then
+	$VERBOSE && echo " botch"
+	if $primary
+	then
+	    echo "$prog: Error: expecting at most one primary pmlogger, found:"
+	else
+	    echo "$prog: Error: expecting at most one pmlogger with pid=$pid, found:"
+	fi
+	cat /tmp/out
+	_abandon
+    fi
     $VERBOSE && echo " found"
     $VERBOSE && cat $tmp/out
     # expecting something like
