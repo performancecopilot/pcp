@@ -29,7 +29,7 @@ pcp $pcp_archive pidstat -U
 # pcp $pcp_archive pidstat -I
 
 echo && echo === pcp-pidstat with given samples count
-pcp $pcp_archive pidstat -s 3 -P 1,3,5
+pcp $pcp_archive pidstat -s 3 -p 1,3,5
 
 echo && echo === pcp-pidstat priority and scheduling information
 pcp $pcp_archive pidstat -R
