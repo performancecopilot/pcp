@@ -1264,11 +1264,19 @@ class PMReporter(object):
             ins = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
             for j in range(ins):
                 line += self.delimiter
-                if type(list(values[i])[j][2]) is float:
+                value = list(values[i])[j][2]
+                if type(value) is float:
                     fmt = "." + str(self.precision) + "f"
-                    line += format(list(values[i])[j][2], fmt)
+                    line += format(value, fmt)
+                elif type(value) is int or type(value) is long:
+                    line += str(value)
                 else:
-                    line += str(list(values[i])[j][2])
+                    if value == NO_VAL:
+                        line += '""'
+                    else:
+                        value = value.replace(self.delimiter, " ")
+                        value = value.replace("\"", "\"\"")
+                        line += str("\"" + value + "\"")
         self.writer.write(line + "\n")
 
     def write_stdout(self, timestamp, values):
