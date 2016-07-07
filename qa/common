@@ -349,6 +349,7 @@ verbose=false
 paranoid=false
 group=false
 xgroup=false
+exclude=false
 rflag=false
 selbygroup=false
 snarf=''
@@ -356,7 +357,7 @@ showme=false
 sortme=false
 have_test_arg=false
 check_config=false
-rm -f $tmp.list $tmp.tmp $tmp.sed
+rm -f $tmp.list $tmp.tmp $tmp.sed $tmp.exclude
 
 for r
 do
@@ -443,6 +444,26 @@ s/ .*//p
 	xgroup=false
 	continue
 
+    elif $exclude
+    then
+	# if no test numbers, do everything from group file
+	[ -s $tmp.list ] || \
+	if $rflag
+	then
+	    sed -e 's/\([0-9]\):\(retired\|reserved\) /\1 /' <group
+	else
+	    sed -e '/[0-9]:\(retired\|reserved\) /d' <group
+	fi \
+	| sed -n -e '/^[0-9]/s/[ 	].*//p' >$tmp.list
+
+	for t in `echo "$r" | sed -e 's/,/ /g'`
+	do
+	    echo "/^0*$t\$/d" >>$tmp.exclude
+	    echo "/^0*$t:/d" >>$tmp.exclude
+	done
+	exclude=false
+	continue
+
     elif [ ! -z "$snarf" ]
     then
 	case $snarf
@@ -485,6 +506,8 @@ check options
     -t		turn on tracing
     -T		output timestamps
     -x group	exclude tests from these groups (multiple flags allowed)
+    -X seq[,seq...]
+		exclude these tests
 
 show-me options
     -d QA_DIR		[isms/pcp2.0/qa]
@@ -595,6 +618,11 @@ p
 	    xpand=false
 	    ;;
 
+	-X)	# -X seq[,seq...] ... exclude explicit tests
+	    exclude=true
+	    xpand=false
+	    ;;
+
 	'[0-9][0-9][0-9] [0-9][0-9][0-9][0-9]')
 	    echo "No tests?" >&2
 	    status=1
@@ -649,11 +677,21 @@ BEGIN	{ for (t='$start'; t<='$end'; t++) printf "%03d\n",t }' \
 	    elif egrep -s "^$id:retired([ 	]|$)" group >/dev/null
 	    then
 		# in group file, but retired
-		echo "$id - retired test, ignored"
+		if $rflag
+		then
+		    echo $id >>$tmp.list
+		else
+		   echo "$id - retired test, ignored"
+		fi
 	    elif egrep -s "^$id:reserved([ 	]|$)" group >/dev/null
 	    then
 		# in group file, but reserved
-		echo "$id - reserved test, ignored"
+		if $rflag
+		then
+		    echo $id >>$tmp.list
+		else
+		    echo "$id - reserved test, ignored"
+		fi
 	    else
 		# oops
 		$range || echo "$id - unknown test, ignored"
@@ -699,8 +737,16 @@ p
     fi
 fi
 
+# handle -X exclusions
+#
+if [ -s $tmp.exclude ]
+then
+    sed -f $tmp.exclude <$tmp.list >$tmp.tmp
+    mv $tmp.tmp $tmp.list
+fi
+
 list=`sort -n $tmp.list`
-rm -f $tmp.list $tmp.tmp $tmp.sed
+rm -f $tmp.list $tmp.tmp $tmp.sed $tmp.exclude
 
 # re-process the product-specific setup in case command line args have
 # changed things, e.g. -h hostname
