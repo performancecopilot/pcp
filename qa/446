@@ -13,9 +13,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
+if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
 then
-    # same options for Linux and OpenSolaris
+    # same options for all these platforms
     NM_ARG='--dynamic -B'
     libmajor=2
     DSO_VERSION=$DSO_SUFFIX.$libmajor
@@ -44,8 +44,8 @@ get_syms()
 # real QA test starts here
 cd $PCP_DEMOS_DIR/trace
 unset ROOT TOOLROOT MAKEFLAGS
-$sudo make -f Makefile.stub clobber 2>&1 >/dev/null
-$sudo make -f Makefile.stub lib/libpcp_trace.$DSO_VERSION 2>&1 >$tmp.make
+$sudo $PCP_MAKE_PROG -f Makefile.stub clobber 2>&1 >/dev/null
+$sudo $PCP_MAKE_PROG -f Makefile.stub lib/libpcp_trace.$DSO_VERSION 2>&1 >$tmp.make
 if [ $? -ne 0 ]
 then
     echo Stub library make failed.  Heres the make output ...

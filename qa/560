@@ -23,8 +23,8 @@ cd $PCP_PMDAS_DIR/simple
 
 unset ROOT MAKEFLAGS
 
-$sudo make clobber >/dev/null 2>&1
-$sudo make >/dev/null 2>&1
+$sudo $PCP_MAKE_PROG clobber >/dev/null 2>&1
+$sudo $PCP_MAKE_PROG >/dev/null 2>&1
 
 _filter_make()
 {
@@ -61,7 +61,7 @@ sed -n "/^simple/s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;p" <$PCP_PMCDCONF_PATH
 $sudo ./Remove
 
 echo
-if $sudo make >$tmp.tmp 2>$tmp.err
+if $sudo $PCP_MAKE_PROG >$tmp.tmp 2>$tmp.err
 then
     cat $tmp.err | _filter_make
 else

@@ -19,7 +19,7 @@ echo "QA output created by $seq"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    linux|darwin|solaris)
+    linux|darwin|solaris|freebsd)
 	ln $seq.$PCP_PLATFORM $seq.out || exit 1
 	;;
     *)
@@ -37,7 +37,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _cleanup()
 {
-    ( cd $PCP_PMDAS_DIR/trivial ; $sudo make >/dev/null 2>&1 )
+    ( cd $PCP_PMDAS_DIR/trivial ; $sudo $PCP_MAKE_PROG >/dev/null 2>&1 )
     if $install_on_cleanup
     then
 	( cd $PCP_PMDAS_DIR/trivial; $sudo ./Install </dev/null >/dev/null 2>&1 )
@@ -88,6 +88,14 @@ solaris)
 # temporary pmcd.conf for qa/$seq
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+EOF
+    ;;
+
+freebsd)
+    cat >> $tmp.conf << EOF
+# temporary pmcd.conf for qa/$seq
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
 EOF
     ;;
 

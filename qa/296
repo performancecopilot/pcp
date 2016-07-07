@@ -47,7 +47,7 @@ trap "_interrupt; _cleanup" 1 2 3 15
 # real QA test starts here
 
 case $PCP_PLATFORM in
-linux|solaris)
+linux|solaris|freebsd)
     cat <<End-of-File >$tmp.minconf
 # temporary pmcd.conf for qa/$seq
 #

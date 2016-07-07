@@ -19,8 +19,8 @@ echo "QA output created by $seq"
 rm -f $seq.out
 case $PCP_PLATFORM
 in
-    linux|darwin|solaris)
-	# same output for Linux, Mac OS X and OpenSolaris
+    linux|darwin|solaris|freebsd)
+	# same output for all of these platforms
 	ln $seq.out.1 $seq.out || exit 1
 	;;
     *)
@@ -95,7 +95,7 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 $sudo ./Remove >/dev/null 2>&1
 
 if [ -f Makefile ] ; then
-    if $sudo make clobber >$tmp.out 2>&1
+    if $sudo $PCP_MAKE_PROG clobber >$tmp.out 2>&1
     then
 	:
     else
@@ -104,7 +104,7 @@ if [ -f Makefile ] ; then
 	exit
     fi
 
-    if $sudo make >$tmp.out 2>&1
+    if $sudo $PCP_MAKE_PROG >$tmp.out 2>&1
     then
 	:
     else

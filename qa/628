@@ -44,7 +44,7 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 cp $PCP_VAR_DIR/pmns/root $tmp.root
 [ -f $PCP_VAR_DIR/pmns/root.bin ] && cp $PCP_VAR_DIR/pmns/root.bin $tmp.root.bin
 
-if $sudo make clobber >$tmp.out 2>&1
+if $sudo $PCP_MAKE_PROG clobber >$tmp.out 2>&1
 then
     :
 else

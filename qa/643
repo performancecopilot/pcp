@@ -29,7 +29,7 @@ _cleanup()
     then
 	:
     else
-	( cd $PCP_PMDAS_DIR/trivial ; $sudo make >/dev/null 2>&1 )
+	( cd $PCP_PMDAS_DIR/trivial ; $sudo $PCP_MAKE_PROG >/dev/null 2>&1 )
 	if $install_on_cleanup
 	then
 	    ( cd $PCP_PMDAS_DIR/trivial; $sudo ./Install </dev/null >/dev/null 2>&1 )

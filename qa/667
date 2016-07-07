@@ -81,7 +81,7 @@ sleep 2
 $pcp2graphite -t 1 hinv.ncpu hinv.ncpu >$tmp.p2g.out 2>$tmp.p2g.err &   # will error out after socket cat dies
 p2gpid=$!
 sleep 3
-$signal $pid $p2gpid 2>/dev/null
+$signal $pid $p2gpid >/dev/null 2>&1
 wait
 # python pickle-format 1+ is binary, and python version dependent to boot.
 # but pcp2graphite now uses ascii pickle-format 0 for maximum compatibility
@@ -97,7 +97,7 @@ sleep 2
 $pcp2graphite -t 2 -P $port_text -u "/$scale" -m foobar. hinv.ncpu sample.datasize >$tmp.p2g.out 2>$tmp.p2g.err &
 p2gpid=$!
 sleep 8 # enough for at least 2 messages
-$signal $pid $p2gpid 2>/dev/null
+$signal $pid $p2gpid >/dev/null 2>&1
 wait
 head -2 $tmp.socat.out |
     sed -e "s,\.ncpu $ncpu ,.ncpu NCPUS ," |    # confirm ncpus value
@@ -113,7 +113,7 @@ sleep 2
 $pcp2graphite -L -t 2 -P $port_text -u "/$scale" -m foobar. hinv.ncpu sample.datasize >$tmp.p2g.out 2>$tmp.p2g.err &
 p2gpid=$!
 sleep 8 # enough for at least 2 messages
-$signal $pid $p2gpid 2>/dev/null
+$signal $pid $p2gpid >/dev/null 2>&1
 wait
 head -2 $tmp.socat.out |
     sed -e "s,\.ncpu $ncpu ,.ncpu NCPUS ," |    # confirm ncpus value
@@ -129,7 +129,7 @@ sleep 2
 $pcp2graphite -t 2 -P $port_text sample.bogus_bin sample.aggregate.null sample.string.hullo NoSuchMetric sample.bad >$tmp.p2g.out 2>$tmp.p2g.err &
 p2gpid=$!
 sleep 8 # enough for at least 2 messages
-$signal $pid $p2gpid 2>/dev/null
+$signal $pid $p2gpid >/dev/null 2>&1
 wait
 # confirm time alignment
 head -10 $tmp.socat.out \
@@ -145,7 +145,7 @@ pid=$!
 sleep 2
 # TZ=UTC here to constrain pcp2graphite's -DAPPL0 stdout logging of time.ctime()
 TZ=UTC $pcp2graphite -DAPPL0 -t 1 -s 30 -P $port_text -a archives/chartqa1.meta sample.byte_rate >$tmp.p2g.out 2>$tmp.p2g.err
-$signal $pid 2>/dev/null
+$signal $pid >/dev/null 2>&1
 wait
 cat $tmp.socat.out
 echo
@@ -158,7 +158,7 @@ socat tcp-listen:$port_pickled,reuseaddr,fork - >>$tmp.socat.out 2>>$tmp.socat.e
 pid=$!
 sleep 2
 TZ=UTC $pcp2graphite -DAPPL0 -t 1 -O '2007-10-10 22:31:30 GMT' -T '2007-10-10 22:31:40 GMT' -p $port_pickled -a archives/chartqa1.meta sample.byte_rate >$tmp.p2g.out 2>$tmp.p2g.err
-$signal $pid 2>/dev/null
+$signal $pid >/dev/null 2>&1
 wait
 # while pickle format 0 is ascii, it's wrapped in a struct.pack that
 # puts some non-ascii goo in; we don't want that literally included in
@@ -179,7 +179,7 @@ sleep 2
 $pcp2graphite -r $pickle_version -t 1 hinv.ncpu hinv.ncpu >$tmp.p2g.out 2>$tmp.p2g.err &   # will error out after socket cat dies
 p2gpid=$!
 sleep 3
-$signal $pid $p2gpid 2>/dev/null
+$signal $pid $p2gpid >/dev/null 2>&1
 wait
 # use same case 1 above approach for detecting something relevant
 # in the pickled output, and assume we have a successful transfer

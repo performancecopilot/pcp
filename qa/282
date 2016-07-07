@@ -14,8 +14,14 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ $PCP_PLATFORM = linux -o $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris ] \
-    || _notrun "$PCP_PLATFORM is not yet supported in test $seq"
+case $PCP_PLATFORM
+in
+    linux|darwin|solaris|freebsd)
+	;;
+    *)
+	_notrun "$PCP_PLATFORM is not yet supported in test $seq"
+	;;
+esac
 
 status=1	# failure is the default!
 _needclean=true
@@ -204,6 +210,12 @@ End-of-File
 	cat <<End-of-File >$tmp.out
 # from qa/$seq
 solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+    elif [ $PCP_PLATFORM = freebsd ]
+    then
+	cat <<End-of-File >$tmp.out
+freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
     else

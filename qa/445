@@ -65,6 +65,17 @@ trace	99	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 99 -l ${TRACELOG}2
 EOF
     ;;
 
+freebsd)
+    TRACELOG=$PCP_LOG_DIR/pmcd/trace.log
+    cat >> $tmp.conf << EOF
+# temporary pmcd.conf for qa/$seq
+pmcd    2       dso     pmcd_init       $PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
+trace	10	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 10 -l ${TRACELOG}1
+trace	99	pipe	binary 		$PCP_PMDAS_DIR/trace/pmdatrace -d 99 -l ${TRACELOG}2
+EOF
+    ;;
+
 *)
     echo "Unknown platfrom $PCP_PLATFORM"
     exit 1
