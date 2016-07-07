@@ -82,7 +82,14 @@ echo "---"
 pmrep -s 5 -t 2 $log -c $tmp.config -C -x sample | _path_filter \
 | _archive_filter
 echo "---"
+pmrep -T 7s -t 3 -p $log -c $tmp.config -x sample | _path_filter \
+| _archive_filter
+echo "---"
 pmrep -s 5 -t 2 $log -c $tmp.config -G -H -U sample
+
+echo "== exercise non-integer options"
+pmrep -T 2.5s -t 0.5 -p $log -c $tmp.config -x sample | _path_filter \
+| _archive_filter
 
 echo "== exercise raw counter mode"
 pmrep -s 5 -t 2 $log -c $tmp.config -r sample

@@ -587,7 +587,7 @@ class PMReporter(object):
 
         # Runtime overrides samples/interval
         if self.opts.pmGetOptionFinishOptarg():
-            self.runtime = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin()))
+            self.runtime = float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin())
             if self.opts.pmGetOptionSamples():
                 self.samples = self.opts.pmGetOptionSamples()
                 if self.samples < 2:
@@ -597,21 +597,27 @@ class PMReporter(object):
                 self.interval = self.opts.pmGetOptionInterval()
             else:
                 self.interval = self.opts.pmGetOptionInterval()
-                if int(self.interval) == 0:
-                    sys.stderr.write("Interval can't be less than 1 second.\n")
-                    sys.exit(1)
-                self.samples = int(self.runtime / int(self.interval) + 1)
+                if not self.interval:
+                    self.interval = pmapi.timeval(0)
+                try:
+                    self.samples = int(self.runtime / float(self.interval) + 1)
+                except:
+                    pass
         else:
             self.samples = self.opts.pmGetOptionSamples()
             self.interval = self.opts.pmGetOptionInterval()
 
+        if float(self.interval) <= 0:
+            sys.stderr.write("Interval must be greater than zero.\n")
+            sys.exit(1)
+
         if self.output == OUTPUT_ZABBIX:
             if self.zabbix_interval:
-                self.zabbix_interval = int(pmapi.timeval.fromInterval(self.zabbix_interval))
-                if self.zabbix_interval < int(self.interval):
-                    self.zabbix_interval = int(self.interval)
+                self.zabbix_interval = float(pmapi.timeval.fromInterval(self.zabbix_interval))
+                if self.zabbix_interval < float(self.interval):
+                    self.zabbix_interval = float(self.interval)
             else:
-                self.zabbix_interval = int(self.interval)
+                self.zabbix_interval = float(self.interval)
 
     def check_metric(self, metric):
         """ Validate individual metric and get its details """
@@ -1096,13 +1102,14 @@ class PMReporter(object):
             samples = self.samples
         else:
             if self.samples:
-                duration = (self.samples - 1) * int(self.interval)
+                duration = (self.samples - 1) * float(self.interval)
                 samples = self.samples
             else:
-                duration = int(float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin()))
-                samples = int((duration / int(self.interval)) + 1)
-                duration = (samples - 1) * int(self.interval)
+                duration = float(self.opts.pmGetOptionFinish()) - float(self.opts.pmGetOptionOrigin())
+                samples = int(duration / float(self.interval) + 1)
+                duration = (samples - 1) * float(self.interval)
         endtime = float(self.opts.pmGetOptionOrigin()) + duration
+        duration = int(duration) if duration == int(duration) else "{0:.3f}".format(duration)
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
             if endtime > float(self.context.pmGetArchiveEnd()):
@@ -1136,7 +1143,7 @@ class PMReporter(object):
             if self.runtime != -1:
                 self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), self.runtime))
             elif self.samples:
-                duration = (self.samples - 1) * int(self.interval)
+                duration = (self.samples - 1) * float(self.interval)
                 self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec duration.\n" % (self.samples, float(self.interval), duration))
             else:
                 self.writer.write("...")
@@ -1182,7 +1189,7 @@ class PMReporter(object):
             if self.context.type == PM_CONTEXT_ARCHIVE:
                 self.delay = 0
                 self.interpol = 0
-                self.zabbix_interval = 250 # See zabbix_sender(8)
+                self.zabbix_interval = 250 # See zabbix_sender(8), pmrep.conf(5)
                 self.writer.write("Sending %d archived metrics to Zabbix server %s...\n(Ctrl-C to stop)\n" % (len(self.pmids), self.zabbix_server))
                 return
 
@@ -1190,7 +1197,7 @@ class PMReporter(object):
             if self.runtime != -1:
                 self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), self.runtime))
             elif self.samples:
-                duration = (self.samples - 1) * int(self.interval)
+                duration = (self.samples - 1) * float(self.interval)
                 self.writer.write(":\n%s samples(s) with %.1f sec interval ~ %d sec runtime.\n" % (self.samples, float(self.interval), duration))
             else:
                 self.writer.write("...\n(Ctrl-C to stop)\n")
