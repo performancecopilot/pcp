@@ -359,6 +359,13 @@ Description: Tool for exporting data from PCP to Graphite
  Performance Co-Pilot (PCP) front-end tool for exporting data from PCP
  into designated Graphite (Carbon/Whisper) databases.
 
+Package: pcp-export-pcp2influxdb
+Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}, python3-pcp | python-pcp, python3-requests | python-requests
+Architecture: any
+Description: Tool for exporting data from PCP to InfluxDB
+ Performance Co-Pilot (PCP) front-end tools for exporting metric values
+ to InfluxDB (https://influxdata.com/time-series-platform/influxdb).
+
 Package: pcp-export-zabbix-agent
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Architecture: any
