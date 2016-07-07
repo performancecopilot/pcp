@@ -49,7 +49,7 @@ status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # create a basic pmcd config file
-if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
+if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd ]
 then
 cat >$tmp.pmcd.conf << EOF
 # from QA $seq

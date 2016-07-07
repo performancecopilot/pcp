@@ -69,11 +69,11 @@ _wait_for_pmlogger
 cd $here/pmdas/dynamic
 if [ -f GNUmakefile.install ]
 then
-    make -f GNUmakefile.install clean >>$here/$seq.full 2>&1
-    make -f GNUmakefile.install >>$here/$seq.full 2>&1
+    $PCP_MAKE_PROG -f GNUmakefile.install clean >>$here/$seq.full 2>&1
+    $PCP_MAKE_PROG -f GNUmakefile.install >>$here/$seq.full 2>&1
 else
-    make clean >>$here/$seq.full 2>&1
-    make >>$here/$seq.full 2>&1
+    $PCP_MAKE_PROG clean >>$here/$seq.full 2>&1
+    $PCP_MAKE_PROG >>$here/$seq.full 2>&1
 fi
 $sudo ./Install < /dev/null >$tmp.out 2>&1
 cat $tmp.out | tee -a $here/$seq.full | _filter_pmda_install | _filter

@@ -33,7 +33,7 @@ python -c 'from pcp import pmda' 2>/dev/null
 test $? -eq 0 || _notrun 'Python pcp pmda module is not installed'
 
 cd pmdas/slow_python
-make clean >>$here/$seq.full 2>&1
+$PCP_MAKE_PROG clean >>$here/$seq.full 2>&1
 
 # real QA test starts here
 for start in 0 4 -4
@@ -45,7 +45,7 @@ do
 	    echo "=== no start delay ===" | tee -a $here/$seq.full
 	    ;;
 	-[0-9]*)
-	    echo "=== start delay `expr -1 \* $start` sec, no connect_pmcd() ===" | tee -a $here/$seq.full
+	    echo "=== start delay `expr \( -1 \) \* $start` sec, no connect_pmcd() ===" | tee -a $here/$seq.full
 	    ;;
 	[0-9]*)
 	    echo "=== start delay $start sec, using connect_pmcd() ===" | tee -a $here/$seq.full

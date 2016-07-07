@@ -189,8 +189,8 @@ echo "Finished checking trace.point"
 
 $PCP_ECHO_PROG $PCP_ECHO_N "Checking sample programs build - ""$PCP_ECHO_C"
 cd $PCP_DEMOS_DIR/trace
-$sudo make clobber 2>&1 >/dev/null
-$sudo make app1 app2 app3 pmtrace >$tmp.make 2>&1
+$sudo $PCP_MAKE_PROG clobber 2>&1 >/dev/null
+$sudo $PCP_MAKE_PROG app1 app2 app3 pmtrace >$tmp.make 2>&1
 if [ $? -ne 0 ]
 then
     $PCP_ECHO_PROG "demo trace programs make failed.  Here is the make output ..."

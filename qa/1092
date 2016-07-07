@@ -25,10 +25,10 @@ rm -f getversion getversion.o
 if [ -f GNUmakefile.install ]
 then
     echo "Using GNUmakefile.install ..." >>$here/$seq.full
-    make -f GNUmakefile.install getversion >>$here/$seq.full 2>&1
+    $PCP_MAKE_PROG -f GNUmakefile.install getversion >>$here/$seq.full 2>&1
 else
     echo "Using GNUmakefile ..." >>$here/$seq.full
-    make getversion >>$here/$seq.full 2>&1
+    $PCP_MAKE_PROG getversion >>$here/$seq.full 2>&1
 fi
 ls -l getversion >>$here/$seq.full 2>&1
 cd ..

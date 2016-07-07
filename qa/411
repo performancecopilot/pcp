@@ -57,7 +57,7 @@ $sudo mv $iam.conf $iam.conf.$seq
 echo "sec,min,hour" >$tmp.conf
 $sudo cp $tmp.conf $home/$iam/$iam.conf
 
-if $sudo make clobber >$tmp.out 2>&1
+if $sudo $PCP_MAKE_PROG clobber >$tmp.out 2>&1
 then
     :
 else

@@ -158,7 +158,7 @@ echo "=== Install broken namespace ==="
 cd $here/pmdas/broken
 $sudo ./broken_Install -N < /dev/null | _filter_ins 2>&1
 # ensure help text built (-N above skips this)
-$sudo make broken_v2.dir > /dev/null 2>&1
+$sudo $PCP_MAKE_PROG broken_v2.dir > /dev/null 2>&1
 cd $here
 echo "=== Broken PMNS ==="
 if pminfo broken
@@ -185,8 +185,7 @@ $sudo cp $tmp.simple.conf simple.conf
 $sudo ./Install -N < /dev/null | _filter_ins 2>&1
 echo "Namespace installed"
 
-# if $sudo smake -f Makefile > $tmp.make 2>&1
-if $sudo make > $tmp.make 2>&1
+if $sudo $PCP_MAKE_PROG > $tmp.make 2>&1
 then
     echo "PMDA built"
 else
@@ -345,7 +344,15 @@ End-of-File
 elif [ $PCP_PLATFORM = solaris ]
 then
     cat >>$tmp.newconf  <<End-of-File
+# from qa/$seq
 solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+End-of-File
+elif [ $PCP_PLATFORM = freebsd ]
+then
+    cat >>$tmp.newconf  <<End-of-File
+# from qa/$seq
+freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 End-of-File
 else

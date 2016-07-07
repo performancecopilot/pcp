@@ -116,7 +116,7 @@ _save_config $PCP_PMCDCONF_PATH
 # ditto for simple pmda config
 [ -f $home/$iam/$iam.conf ] && _save_config $home/$iam/$iam.conf
 
-if $sudo make clobber >$tmp.out 2>&1
+if $sudo $PCP_MAKE_PROG clobber >$tmp.out 2>&1
 then
     :
 else

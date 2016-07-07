@@ -59,6 +59,13 @@ s/ i:[0-9] / i:? /
 s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
 s/entry=[^ ]*/entry=[OS]_init/
 }' \
+	-e '/^freebsd.*pmda_freebsd/{
+s/freebsd/[OS]   /
+s/85/??/
+s/ i:[0-9] / i:? /
+s/lib=[^ ]*/lib=[OS]pmda.$DSO_SUFFIX/
+s/entry=[^ ]*/entry=[OS]_init/
+}' \
 	-e '/^solaris.*pmda_solaris/{
 s/solaris/[OS]   /
 s/75/??/

@@ -80,7 +80,7 @@ unset ROOT MAKEFLAGS
 
 if [ -f Makefile ]
 then
-    if $sudo make clobber 2>&1 >$tmp.out
+    if $sudo $PCP_MAKE_PROG clobber 2>&1 >$tmp.out
     then
 	:
     else

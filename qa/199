@@ -21,7 +21,7 @@ pminfo trivial >/dev/null 2>&1 && install_on_cleanup=true
 _cleanup()
 {
 
-    if $sudo make >$tmp.out 2>&1
+    if $sudo $PCP_MAKE_PROG >$tmp.out 2>&1
     then
 	:
     else
@@ -85,7 +85,7 @@ unset ROOT MAKEFLAGS
 _save_config $PCP_PMCDCONF_PATH
 _save_config $PCP_VAR_DIR/pmns/root
 
-if $sudo make clobber >$tmp.out 2>&1
+if $sudo $PCP_MAKE_PROG clobber >$tmp.out 2>&1
 then
     :
 else
@@ -94,7 +94,7 @@ else
     exit
 fi
 
-if $sudo make >$tmp.out 2>&1
+if $sudo $PCP_MAKE_PROG >$tmp.out 2>&1
 then
     :
 else

@@ -80,7 +80,7 @@ $sudo ./Install -R / </dev/null >/dev/null 2>&1
 cd $here
 
 cd $PCP_DEMOS_DIR/trace
-$sudo make app2 2>&1 >$tmp.make
+$sudo $PCP_MAKE_PROG app2 2>&1 >$tmp.make
 if [ $? -ne 0 ]
 then
     echo app2 programs make failed.  Heres the make output ...
