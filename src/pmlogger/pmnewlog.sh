@@ -336,7 +336,7 @@ then
 	else
 	    echo "$prog: Error: expecting at most one pmlogger with pid=$pid, found:"
 	fi
-	cat /tmp/out
+	cat $tmp/out
 	_abandon
     fi
     $VERBOSE && echo " found"
