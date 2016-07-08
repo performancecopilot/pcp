@@ -90,16 +90,22 @@ AcceptNewClient(int reqfd)
     	if (neterror() == EPERM) {
 	    __pmNotifyErr(LOG_NOTICE, "AcceptNewClient(%d): "
 	 	          "Permission Denied\n", reqfd);
-	    client[i].fd = -1;
-	    DeleteClient(&client[i]);
-	    return NULL;	
+	}
+    	else if (neterror() == ECONNABORTED) {
+	    /* quietly ignore this one ... */
+	    ;
 	}
 	else {
-	    __pmNotifyErr(LOG_ERR, "AcceptNewClient(%d) __pmAccept: %s\n",
-			    reqfd, netstrerror());
-	    Shutdown();
-	    exit(1);
+	    /*
+	     * unexpected ... ignore the client (we used to kill off pmcd
+	     * but that seems way too extreme)
+	     */
+	    __pmNotifyErr(LOG_ERR, "AcceptNewClient(%d): Unexpected error from __pmAccept: %d: %s\n",
+			    reqfd, neterror(), netstrerror());
 	}
+	client[i].fd = -1;
+	DeleteClient(&client[i]);
+	return NULL;	
     }
     if (fd > maxClientFd)
 	maxClientFd = fd;
