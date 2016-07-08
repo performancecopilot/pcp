@@ -614,9 +614,11 @@ _pcp () {
   ;;
   pcp_cmdopts)
     local cmd
+    typeset -a cmds
     typeset -a cmdopts
+    cmds=( ${="$(pcp --help 2>&1)"#*Available Commands:} )
     for (( i = 2; i <= $#words; i++ )); do
-      [[ $words[$i] != -* ]] && cmd=$words[$i] && break
+      [[ -n "${cmds[(r)$words[$i]]}" ]] && cmd=$words[$i] && break
     done
     [[ -z $cmd ]] && return 1
     [[ $cmd == python ]] && _wanted files expl files _files && return 0

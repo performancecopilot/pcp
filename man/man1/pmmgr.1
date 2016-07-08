@@ -429,9 +429,10 @@ specify a fixed
 may be used to invoke arbitrary PCP client programs for each target
 .BR pmcd .
 This can enable automated invocation of reporting or relaying tools, such as
-.B pmrep
+.BR pmrep ,
+.B pcp2graphite
 or
-.BR pcp2graphite
+.B pcp2influxdb
 without needing a specialized system service.
 .TP
 .I monitor
@@ -446,7 +447,7 @@ files under the log directory.
 .SH FILES
 .PD 0
 .TP 10
-.BI $PCP_SYSCONFIG_DIR/pmmgr/
+.BI $PCP_SYSCONF_DIR/pmmgr/
 default configuration directory
 .TP
 .BI $PCP_LOG_DIR/pmmgr/
@@ -476,6 +477,7 @@ as described in
 .BR pmie (1),
 .BR pmrep (1),
 .BR pcp2graphite (1),
+.BR pcp2influxdb (1),
 .BR pmlogreduce (1),
 .BR pcp.conf (5)
 and

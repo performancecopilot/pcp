@@ -580,6 +580,26 @@ Requires: python-pcp = %{version}-%{release}
 %description export-pcp2graphite
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to graphite (http://graphite.readthedocs.org).
+
+# pcp-export-pcp2influxdb
+#
+%package export-pcp2influxdb
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to InfluxDB
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = @package_version@
+Requires: python3-requests
+%else
+Requires: python-pcp = @package_version@
+Requires: python-requests
+%endif
+
+%description export-pcp2influxdb
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+to InfluxDB (https://influxdata.com/time-series-platform/influxdb).
 %endif
 
 #
@@ -1769,7 +1789,8 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
 
 # all base pcp package files except those split out into sub packages
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
-  grep -E -v 'pmiostat|pmcollectl|pmatop|pmrep|pcp2graphite|zabbix|zbxpcp' |\
+  grep -E -v 'pmiostat|pmcollectl|pmatop|zabbix|zbxpcp' |\
+  grep -E -v 'pmrep|pcp2graphite|pcp2influxdb' |\
   grep -E -v 'pmdbg|pmclient|pmerr|genpmda' |\
 sed -e 's#^#'%{_bindir}'\/#' >base_bin.list
 #
@@ -2531,6 +2552,9 @@ cd
 
 %files export-pcp2graphite
 %{_bindir}/pcp2graphite
+
+%files export-pcp2influxdb
+%{_bindir}/pcp2influxdb
 %endif # !%{disable_python2} || !%{disable_python3}
 
 %files export-zabbix-agent

@@ -9,7 +9,11 @@ HH:MM:SS        1
 HH:MM:SS        1
 HH:MM:SS        1
 HH:MM:SS        1
-Interval can't be less than 1 second.
+          s.l.one
+                
+HH:MM:SS        1
+HH:MM:SS        1
+HH:MM:SS        1
 == basic archive mode reporting
           s.seconds  s.milliseconds
                util            util
@@ -49,11 +53,48 @@ Interval can't be less than 1 second.
   s.seconds  s.milliseconds
        util            util
 ---
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: ...-11
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:36:52 2000
+  metrics: 2
+  samples: 3
+ interval: 3.0 sec
+ duration: 7 sec
+
+          s.seconds  s.milliseconds
+               util            util
+20:36:45        N/A             N/A
+20:36:48        N/A             N/A
+20:36:51      1.000           1.000
+---
         N/A             N/A
         N/A             N/A
       1.000           1.000
       1.000           1.000
       1.000           1.000
+== exercise non-integer options
+
+  archive: QAPATH/archives/sample-secs
+     host: rattle
+ timezone: ...-11
+    start: Mon May  1 20:36:45 2000
+      end: Mon May  1 20:36:47 2000
+  metrics: 2
+  samples: 6
+ interval: 0.5 sec
+ duration: 2.500 sec
+
+          s.seconds  s.milliseconds
+               util            util
+20:36:45        N/A             N/A
+20:36:45        N/A             N/A
+20:36:46      2.000           1.000
+20:36:46      0.000           1.000
+20:36:47      2.000           1.000
+20:36:47      0.000           1.000
 == exercise raw counter mode
   s.seconds  s.milliseconds
         sec        millisec
@@ -72,13 +113,13 @@ Interval can't be less than 1 second.
 10:36:53      1.000           1.000
 == exercise CSV and alternate delimiters
 Time,sample.seconds,sample.milliseconds
-2000-05-01 20:36:45,N/A,N/A
+2000-05-01 20:36:45,"",""
 2000-05-01 20:36:47,380434,380433679.3
 2000-05-01 20:36:49,380436,380435679.4
 2000-05-01 20:36:51,380438,380437679.4
 2000-05-01 20:36:53,380440,380439679.4
 Time|sample.seconds|sample.milliseconds
-2000-05-01 20:36:45|N/A|N/A
+2000-05-01 20:36:45|""|""
 2000-05-01 20:36:47|380434|380433679.314
 2000-05-01 20:36:49|380436|380435679.381
 2000-05-01 20:36:51|380438|380437679.382

@@ -520,6 +520,27 @@ Requires: python-pcp = @package_version@
 %description export-pcp2graphite
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to graphite (http://graphite.readthedocs.org).
+
+#
+# pcp-export-pcp2influxdb
+#
+%package export-pcp2influxdb
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to InfluxDB
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if "@enable_python3@" == "true"
+Requires: python3-pcp = @package_version@
+Requires: python3-requests
+%else
+Requires: python-pcp = @package_version@
+Requires: python-requests
+%endif
+
+%description export-pcp2influxdb
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+to InfluxDB (https://influxdata.com/time-series-platform/influxdb).
 %endif
 
 %if "@enable_python2@" == "true"
@@ -1737,6 +1758,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'ganglia2pcp' >import_ganglia2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_files
 %if "@have_python@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2graphite' >export_pcp2graphite_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2influxdb' >export_pcp2influxdb_files
 %endif
 awk '{print $NF}' $DIST_MANIFEST | egrep 'zabbix|zbxpcp' >export_zabbix_agent_files
 %if "@pmda_infiniband@" == "true"
@@ -1944,6 +1966,7 @@ BEGIN {
     while( getline < "pmda_unbound_files") pmda_unbound[$0]=1;
     while( getline < "pmda_mic_files") pmda_mic[$0]=1;
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
+    while( getline < "export_pcp2influxdb_files") export_pcp2influxdb[$0]=1;
 %endif
     while( getline < "export_zabbix_agent_files") export_zabbix_agent[$0]=1;
 %if "@pmda_json@" == "true"
@@ -2041,6 +2064,7 @@ BEGIN {
     else if (pmda_unbound[$NF]) f="pmda_unbound_files.rpm";
     else if (pmda_mic[$NF]) f="pmda_mic_files.rpm";
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
+    else if (export_pcp2influxdb[$NF]) f="export_pcp2influxdb_files.rpm";
 %endif
     else if (export_zabbix_agent[$NF]) f="export_zabbix_agent_files.rpm";
 %if "@pmda_json@" == "true"
@@ -2668,6 +2692,8 @@ cd
 %files pmda-mic -f pmda_mic_files.rpm
 
 %files export-pcp2graphite -f export_pcp2graphite_files.rpm
+
+%files export-pcp2influxdb -f export_pcp2influxdb_files.rpm
 %endif
 
 %files export-zabbix-agent -f export_zabbix_agent_files.rpm
