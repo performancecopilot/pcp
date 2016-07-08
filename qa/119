@@ -38,6 +38,8 @@ _cleanup()
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
+	# just in case pmmgr was configured and running
+	$sudo $PCP_RC_DIR/pmmgr restart >/dev/null 2>&1
 	_needclean=false
     fi
     $sudo rm -rf $LOGGING_DIR
@@ -84,6 +86,11 @@ $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 #
 $sudo $PCP_RC_DIR/pcp stop >$tmp.out 2>&1
 cat $tmp.out >$seq.full
+# test may not pass if pmlogger from pmmgr is running
+#
+$sudo $PCP_RC_DIR/pmmgr stop >$tmp.out 2>&1
+cat $tmp.out >$seq.full
+
 $sudo mkdir -p $LOGGING_DIR/${myhost}-one >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/${myhost}-two >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/no.such.host.pcp.io >/dev/null 2>&1
