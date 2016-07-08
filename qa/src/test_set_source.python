@@ -85,7 +85,11 @@ class Test(object):
         localpmda = self.opts.pmGetOptionLocalPMDA()
         if localpmda:
             print("Local PMDA: %s" % (str(localpmda)))
-        self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
+        try:
+            self.context = pmapi.pmContext.fromOptions(self.opts, sys.argv)
+        except pmapi.pmErr as error:
+            if container and str(error).find("Operation not supported") == -1:
+                print(str(error))
 
 if __name__ == '__main__':
     try:
