@@ -245,7 +245,7 @@ p
 }' \
 		| head -1 \
 		| tee $tmp.tmp \
-		| $PCP_AWK_PROG "{ print \$$idx * $scale }" >$tmp.collectl
+		| $PCP_AWK_PROG "{ printf \"%d\\n\",\$$idx * $scale }" >$tmp.collectl
 		;;
 	    VmSwap|VmRSS)
 		# lines like
@@ -255,7 +255,7 @@ p
 $1 == "proc:'"$inst"'" && $2 == "'"$idx"':"	{ print }' \
 		| head -1 \
 		| tee $tmp.tmp \
-		| $PCP_AWK_PROG "{ print \$3 * $scale }" >$tmp.collectl
+		| $PCP_AWK_PROG "{ printf \"%d\\n\",\$3 * $scale }" >$tmp.collectl
 		;;
 	esac
 
