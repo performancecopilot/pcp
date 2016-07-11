@@ -1470,7 +1470,10 @@ _change_config()
 	    # Try the older RedHat and SuSE way ..
 	    #
 	    [ -n "$pat" ] && $sudo chkconfig $pat $2 2>&1 \
-		| sed -e '/insserv: warning: current start runlevel(s) .* of script .pcp./d'
+	    | sed \
+		-e '/^insserv: warning: current start runlevel(s) .* of script .pcp./d' \
+		-e '/^insserv: Service .* is missed in the runlevels /d' \
+	    # end
 	elif [ -x /usr/sbin/sysv-rc-conf ]
 	then
 	    # Try the Debian and Ubuntu way ..
