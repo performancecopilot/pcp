@@ -563,3 +563,107 @@ IR-IO-APIC 2-edge timer
 
 == done
 
+== Checking softirqs metrics from softirqs-8cpu-x86_64 (8 CPU)
+
+kernel.percpu.softirqs.RCU
+    inst [0 or "cpu0"] value 4091340
+    inst [1 or "cpu1"] value 1909874
+    inst [2 or "cpu2"] value 4344260
+    inst [3 or "cpu3"] value 1844811
+    inst [4 or "cpu4"] value 4353438
+    inst [5 or "cpu5"] value 1788762
+    inst [6 or "cpu6"] value 4567499
+    inst [7 or "cpu7"] value 1790731
+
+kernel.percpu.softirqs.HRTIMER
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.softirqs.SCHED
+    inst [0 or "cpu0"] value 10615929
+    inst [1 or "cpu1"] value 2678293
+    inst [2 or "cpu2"] value 11420741
+    inst [3 or "cpu3"] value 2442310
+    inst [4 or "cpu4"] value 11326208
+    inst [5 or "cpu5"] value 2221897
+    inst [6 or "cpu6"] value 11847771
+    inst [7 or "cpu7"] value 2226145
+
+kernel.percpu.softirqs.TASKLET
+    inst [0 or "cpu0"] value 289993
+    inst [1 or "cpu1"] value 20066
+    inst [2 or "cpu2"] value 11407
+    inst [3 or "cpu3"] value 13018
+    inst [4 or "cpu4"] value 11681
+    inst [5 or "cpu5"] value 13975
+    inst [6 or "cpu6"] value 11346
+    inst [7 or "cpu7"] value 14721
+
+kernel.percpu.softirqs.BLOCK_IOPOLL
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.softirqs.BLOCK
+    inst [0 or "cpu0"] value 954704
+    inst [1 or "cpu1"] value 355240
+    inst [2 or "cpu2"] value 148508
+    inst [3 or "cpu3"] value 114078
+    inst [4 or "cpu4"] value 139619
+    inst [5 or "cpu5"] value 109897
+    inst [6 or "cpu6"] value 123041
+    inst [7 or "cpu7"] value 89285
+
+kernel.percpu.softirqs.NET_RX
+    inst [0 or "cpu0"] value 2452582
+    inst [1 or "cpu1"] value 469315
+    inst [2 or "cpu2"] value 398117
+    inst [3 or "cpu3"] value 408351
+    inst [4 or "cpu4"] value 383922
+    inst [5 or "cpu5"] value 438586
+    inst [6 or "cpu6"] value 440370
+    inst [7 or "cpu7"] value 326415
+
+kernel.percpu.softirqs.NET_TX
+    inst [0 or "cpu0"] value 90951
+    inst [1 or "cpu1"] value 17778
+    inst [2 or "cpu2"] value 61
+    inst [3 or "cpu3"] value 40
+    inst [4 or "cpu4"] value 18
+    inst [5 or "cpu5"] value 21
+    inst [6 or "cpu6"] value 21
+    inst [7 or "cpu7"] value 91
+
+kernel.percpu.softirqs.TIMER
+    inst [0 or "cpu0"] value 22759101
+    inst [1 or "cpu1"] value 11940767
+    inst [2 or "cpu2"] value 29285504
+    inst [3 or "cpu3"] value 9478253
+    inst [4 or "cpu4"] value 30806978
+    inst [5 or "cpu5"] value 12117841
+    inst [6 or "cpu6"] value 31045648
+    inst [7 or "cpu7"] value 12521062
+
+kernel.percpu.softirqs.HI
+    inst [0 or "cpu0"] value 12
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 1
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 5
+    inst [7 or "cpu7"] value 0
+
+== done
+

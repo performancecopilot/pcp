@@ -130,6 +130,7 @@ kernel.all.cpu.irq {
 
 kernel.percpu {
     interrupts		60:*:*
+    softirqs		60:*:*
     cpu
 }
 

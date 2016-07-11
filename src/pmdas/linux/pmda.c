@@ -4365,6 +4365,14 @@ static pmdaMetric metrictab[] = {
     CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /*
+ * /proc/softirqs cluster
+ */
+
+    /* kernel.percpu.softirqs.[<name>] */
+    { NULL, { PMDA_PMID(CLUSTER_SOFTIRQS, 0), PM_TYPE_U32,
+    CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/*
  * disk.dm cluster
  */
     /* disk.dm.read */
@@ -4722,6 +4730,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	need_refresh[CLUSTER_INTERRUPT_LINES] ||
 	need_refresh[CLUSTER_INTERRUPT_OTHER])
 	need_refresh_mtab |= refresh_interrupt_values();
+
+    if (need_refresh[CLUSTER_SOFTIRQS])
+	need_refresh_mtab |= refresh_softirqs_values();
 
     if (need_refresh[CLUSTER_SWAPDEV])
 	refresh_swapdev(INDOM(SWAPDEV_INDOM));
@@ -6492,6 +6503,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_INTERRUPT_LINES:
     case CLUSTER_INTERRUPT_OTHER:
+    case CLUSTER_SOFTIRQS:
 	if (inst >= indomtab[CPU_INDOM].it_numinst)
 	    return PM_ERR_INST;
 	return interrupts_fetch(idp->cluster, idp->item, inst, atom);
@@ -6614,6 +6626,7 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	case CLUSTER_INTERRUPT_LINES:
 	case CLUSTER_INTERRUPT_OTHER:
 	case CLUSTER_INTERRUPTS:
+	case CLUSTER_SOFTIRQS:
 	    need_refresh[CLUSTER_STAT]++;
 	    break;
 

@@ -37,9 +37,10 @@ proc_stat()
 root=$tmp.root
 export LINUX_STATSPATH=$root
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
-files=`echo $here/linux/interrupts-* | LC_COLLATE=POSIX sort`
+interrupts=`echo $here/linux/interrupts-* | LC_COLLATE=POSIX sort`
+softirqs=`echo $here/linux/softirqs-* | LC_COLLATE=POSIX sort`
 
-for file in $files
+for file in $interrupts
 do
     rm -fr $root
     mkdir -p $root/proc || _fail "root in use when processing $file"
@@ -55,6 +56,23 @@ do
     echo && echo "== done" && echo
     echo "== Checking interrupts helptext from $base ($ncpu CPU)"
     pminfo -tT -L -K clear -K add,60,$pmda kernel.percpu.interrupts
+    echo && echo "== done" && echo
+    cd $here
+done
+
+for file in $softirqs
+do
+    rm -fr $root
+    mkdir -p $root/proc || _fail "root in use when processing $file"
+
+    cp $file $root/proc/softirqs
+    base=`basename $file`
+    ncpu=`echo $base | sed -e 's/.*-\([0-9][0-9]*\)cpu-.*/\1/'`
+    proc_stat $root/proc/stat $ncpu
+    export LINUX_NCPUS=$ncpu
+
+    echo "== Checking softirqs metrics from $base ($ncpu CPU)"
+    pminfo -f -L -K clear -K add,60,$pmda kernel.percpu.softirqs
     echo && echo "== done" && echo
     cd $here
 done
