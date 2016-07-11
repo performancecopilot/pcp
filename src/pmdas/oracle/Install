@@ -60,7 +60,7 @@ do
     [ $? -ne 0 ] && failed=true
 
     if $failed; then
-        echo "Cannot create indom persistance files for user $user"
+        echo "Cannot create indom persistance files for user $os_user"
         echo "Failed on: $PCP_VAR_DIR/config/pmda/$domain.$indom"
         exit 1
     fi
