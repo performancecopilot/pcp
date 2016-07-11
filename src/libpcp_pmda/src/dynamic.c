@@ -119,47 +119,45 @@ pmdaDynamicCheckName(const char *name, int index)
 pmdaNameSpace *
 pmdaDynamicLookupName(pmdaExt *pmda, const char *name)
 {
-    int i, sts;
+    int i, sts = 0;
 
-    for (i = 0; i < dynamic_count; i++) {
-	sts = dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
-	if (sts)
-	    pmdaDynamicMetricTable(pmda);
+    for (i = 0; i < dynamic_count; i++)
+	sts |= dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
+    if (sts)
+	pmdaDynamicMetricTable(pmda);
+    for (i = 0; i < dynamic_count; i++)
 	if (pmdaDynamicCheckName(name, i))
 	    return dynamic[i].pmns;
-    }
     return NULL;
 }
 
 pmdaNameSpace *
 pmdaDynamicLookupPMID(pmdaExt *pmda, pmID pmid)
 {
-    int i, sts;
+    int i, sts = 0;
 
-    for (i = 0; i < dynamic_count; i++) {
-	/* Need to do this in all cases to be able to search the pmns */
-	sts = dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
-	if(sts)
-	    pmdaDynamicMetricTable(pmda);
+    for (i = 0; i < dynamic_count; i++)
+	sts |= dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
+    if (sts)
+	pmdaDynamicMetricTable(pmda);
+    for (i = 0; i < dynamic_count; i++)
 	if (pmdaDynamicCheckPMID(pmid, i))
 	    return dynamic[i].pmns;
-    }
     return NULL;
 }
 
 int
 pmdaDynamicLookupText(pmID pmid, int type, char **buf, pmdaExt *pmda)
 {
-    int i, sts;
+    int i, sts = 0;
 
-    for (i = 0; i < dynamic_count; i++) {
-	/* Need to do this in all cases to be able to search the pmns */
-	sts = dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
-	if (sts)
-	    pmdaDynamicMetricTable(pmda);
+    for (i = 0; i < dynamic_count; i++)
+	sts |= dynamic[i].pmnsupdate(pmda, &dynamic[i].pmns);
+    if (sts)
+	pmdaDynamicMetricTable(pmda);
+    for (i = 0; i < dynamic_count; i++)
 	if (pmdaDynamicCheckPMID(pmid, i))
 	    return dynamic[i].textupdate(pmda, pmid, type, buf);
-    }
     return -ENOENT;
 }
 
