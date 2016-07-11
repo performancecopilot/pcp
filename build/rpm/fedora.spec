@@ -590,10 +590,10 @@ Summary: Performance Co-Pilot tools for exporting PCP metrics to InfluxDB
 URL: http://www.pcp.io
 Requires: pcp-libs >= %{version}-%{release}
 %if !%{disable_python3}
-Requires: python3-pcp = @package_version@
+Requires: python3-pcp = %{version}-%{release}
 Requires: python3-requests
 %else
-Requires: python-pcp = @package_version@
+Requires: python-pcp = %{version}-%{release}
 Requires: python-requests
 %endif
 
