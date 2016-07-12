@@ -61,7 +61,7 @@ COMMON = common.check common.config common.filter \
 	 common.discovery common.compress common.webapi \
 	 common.python 
 
-OTHERS = group qa_hosts.master README sanity.coverage .gitignore \
+OTHERS = group qa_hosts.master README sanity.coverage \
 	 $(shell echo valgrind-suppress*)
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|work)' | tee qa_outfiles)
