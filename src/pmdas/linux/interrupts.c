@@ -46,6 +46,80 @@ static __pmnsTree *interrupt_tree;
 static __pmnsTree *softirqs_tree;
 unsigned int irq_err_count;
 
+/*
+ * One-shot initialisation for global interrupt-metric-related state
+ */
+static int
+setup_interrupts(void)
+{
+    if (cpu_count != _pm_ncpus) {
+	online_cpumap = realloc(online_cpumap, _pm_ncpus * sizeof(int));
+	if (!online_cpumap)
+	    return -oserror();
+	cpu_count = _pm_ncpus;
+    }
+    memset(online_cpumap, 0, cpu_count * sizeof(int));
+
+    pmdaCacheOp(INDOM(INTERRUPT_NAMES_INDOM), PMDA_CACHE_LOAD);
+    pmdaCacheOp(INDOM(SOFTIRQS_NAMES_INDOM), PMDA_CACHE_LOAD);
+    return 0;
+}
+
+static char *
+dynamic_name_lookup(unsigned int item, int cache)
+{
+    char *name;
+    pmInDom dict = INDOM(cache);
+
+    if (pmdaCacheLookup(dict, item, &name, NULL) == PMDA_CACHE_ACTIVE)
+	return name;
+    return NULL;
+}
+
+static interrupt_t *
+dynamic_data_lookup(unsigned int item, int cache)
+{
+    pmInDom dict = INDOM(cache);
+    void *data;
+    char *name;
+
+    if (pmdaCacheLookup(dict, item, &name, &data) == PMDA_CACHE_ACTIVE)
+	return (interrupt_t *)data;
+    return NULL;
+}
+
+static int
+dynamic_item_lookup(const char *name, int cache)
+{
+    pmInDom dict = INDOM(cache);
+    int inst;
+
+    if (pmdaCacheLookupName(dict, name, &inst, NULL) == PMDA_CACHE_ACTIVE)
+	return inst;
+    return -1;
+}
+
+static unsigned int
+dynamic_name_insert(const char *name, int cache, void *data)
+{
+    pmInDom dict = INDOM(cache);
+
+    return pmdaCacheStore(dict, PMDA_CACHE_ADD, name, data);
+}
+
+static void
+dynamic_name_save(int cache, interrupt_t *data, int count)
+{
+    int i;
+    pmInDom dict = INDOM(cache);
+
+    for (i = 0; i < count; i++) {
+	interrupt_t *ip = &data[i];
+	pmdaCacheStore(dict, PMDA_CACHE_ADD, ip->name, (void *)ip);
+    }
+    pmdaCacheOp(dict, PMDA_CACHE_SAVE);
+}
+
 static void
 update_lines_pmns(int domain, unsigned int item, unsigned int id)
 {
@@ -57,9 +131,10 @@ update_lines_pmns(int domain, unsigned int item, unsigned int id)
 }
 
 static void
-update_other_pmns(int domain, unsigned int item, const char *name)
+update_other_pmns(int domain, const char *name)
 {
     char entry[128];
+    unsigned int item = dynamic_item_lookup(name, INTERRUPT_NAMES_INDOM);
     pmID pmid = pmid_build(domain, CLUSTER_INTERRUPT_OTHER, item);
 
     snprintf(entry, sizeof(entry), "kernel.percpu.interrupts.%s", name);
@@ -67,9 +142,10 @@ update_other_pmns(int domain, unsigned int item, const char *name)
 }
 
 static void
-update_softirqs_pmns(int domain, unsigned int item, const char *name)
+update_softirqs_pmns(int domain, const char *name)
 {
     char entry[128];
+    unsigned int item = dynamic_item_lookup(name, SOFTIRQS_NAMES_INDOM);
     pmID pmid = pmid_build(domain, CLUSTER_SOFTIRQS, item);
 
     snprintf(entry, sizeof(entry), "kernel.percpu.softirqs.%s", name);
@@ -154,6 +230,14 @@ initialise_interrupt(interrupt_t *ip, unsigned int id, char *s, char *end)
     ip->text = end ? strdup(oneline_reformat(end)) : NULL;
 }
 
+static void
+initialise_named_interrupt(interrupt_t *ip, int cache, char *name, char *end)
+{
+    ip->id = dynamic_name_insert(name, cache, (void *)ip);
+    ip->name = dynamic_name_lookup(ip->id, cache);
+    ip->text = end ? strdup(oneline_reformat(end)) : NULL;
+}
+
 static int
 extend_interrupts(interrupt_t **interp, unsigned int *countp)
 {
@@ -209,8 +293,10 @@ extract_interrupt_lines(char *buffer, int ncolumns, int nlines)
     if (resize && !extend_interrupts(&interrupt_lines, &lines_count))
 	return 0;
     end = extract_values(values, interrupt_lines[nlines].values, ncolumns);
-    if (resize)
+    if (resize) {
 	initialise_interrupt(&interrupt_lines[nlines], id, name, end);
+	return 2;
+    }
     return 1;
 }
 
@@ -239,8 +325,11 @@ extract_interrupt_other(char *buffer, int ncolumns, int nlines)
     if (resize && !extend_interrupts(&interrupt_other, &other_count))
 	return 0;
     end = extract_values(values, interrupt_other[nlines].values, ncolumns);
-    if (resize)
-	initialise_interrupt(&interrupt_other[nlines], nlines, name, end);
+    if (resize) {
+	initialise_named_interrupt(&interrupt_other[nlines],
+				   INTERRUPT_NAMES_INDOM, name, end);
+	return 2;
+    }
     return 1;
 }
 
@@ -254,8 +343,11 @@ extract_softirqs(char *buffer, int ncolumns, int nlines)
     if (resize && !extend_interrupts(&softirqs, &softirqs_count))
 	return 0;
     end = extract_values(values, softirqs[nlines].values, ncolumns);
-    if (resize)
-	initialise_interrupt(&softirqs[nlines], nlines, name, end);
+    if (resize) {
+	initialise_named_interrupt(&softirqs[nlines],
+				    SOFTIRQS_NAMES_INDOM, name, end);
+	return 2;
+    }
     return 1;
 }
 
@@ -265,14 +357,10 @@ refresh_interrupt_values(void)
     FILE *fp;
     char buf[BUFSIZ];
     int i, j, ncolumns;
+    int sts, resized = 0;
 
-    if (cpu_count != _pm_ncpus) {
-	online_cpumap = realloc(online_cpumap, _pm_ncpus * sizeof(int));
-	if (!online_cpumap)
-	    return -oserror();
-	cpu_count = _pm_ncpus;
-    }
-    memset(online_cpumap, 0, cpu_count * sizeof(int));
+    if ((sts = setup_interrupts()) < 0)
+	return sts;
 
     if ((fp = linux_statsfile("/proc/interrupts", buf, sizeof(buf))) == NULL)
 	return -oserror();
@@ -288,18 +376,27 @@ refresh_interrupt_values(void)
     i = j = 0;
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	/* next we parse each interrupt line row (starting with a digit) */
-	if (extract_interrupt_lines(buf, ncolumns, i++))
+	sts = extract_interrupt_lines(buf, ncolumns, i++);
+	if (sts > 1)
+	    resized++;
+	if (sts)
 	    continue;
 	if (extract_interrupt_errors(buf))
 	    continue;
 	if (extract_interrupt_misses(buf))
 	    continue;
 	/* parse other per-CPU interrupt counter rows (starts non-digit) */
-	if (!extract_interrupt_other(buf, ncolumns, j++))
+	sts = extract_interrupt_other(buf, ncolumns, j++);
+	if (sts > 1)
+	    resized++;
+	if (!sts)
 	    break;
     }
-
     fclose(fp);
+
+    if (resized)
+	dynamic_name_save(INTERRUPT_NAMES_INDOM, interrupt_other, other_count);
+
     return 0;
 }
 
@@ -309,14 +406,10 @@ refresh_softirqs_values(void)
     FILE *fp;
     char buf[BUFSIZ];
     int i = 0, ncolumns;
+    int sts, resized = 0;
 
-    if (cpu_count != _pm_ncpus) {
-	online_cpumap = realloc(online_cpumap, _pm_ncpus * sizeof(int));
-	if (!online_cpumap)
-	    return -oserror();
-	cpu_count = _pm_ncpus;
-    }
-    memset(online_cpumap, 0, cpu_count * sizeof(int));
+    if ((sts = setup_interrupts()) < 0)
+	return sts;
 
     if ((fp = linux_statsfile("/proc/softirqs", buf, sizeof(buf))) == NULL)
 	return -oserror();
@@ -331,11 +424,17 @@ refresh_softirqs_values(void)
 
     while (fgets(buf, sizeof(buf), fp) != NULL) {
 	/* next we parse each softirqs line */
-	if (!extract_softirqs(buf, ncolumns, i++))
+	sts = extract_softirqs(buf, ncolumns, i++);
+	if (sts > 1)
+	    resized = 1;
+	if (sts == 0)
 	    break;
     }
-
     fclose(fp);
+
+    if (resized)
+	dynamic_name_save(SOFTIRQS_NAMES_INDOM, softirqs, softirqs_count);
+
     return 0;
 }
 
@@ -359,7 +458,7 @@ refresh_interrupts(pmdaExt *pmda, __pmnsTree **tree)
 	for (i = 0; i < lines_count; i++)
 	    update_lines_pmns(dom, i, interrupt_lines[i].id);
 	for (i = 0; i < other_count; i++)
-	    update_other_pmns(dom, i, interrupt_other[i].name);
+	    update_other_pmns(dom, interrupt_other[i].name);
 	*tree = interrupt_tree;
 	pmdaTreeRebuildHash(interrupt_tree, lines_count+other_count);
 	return 1;
@@ -385,7 +484,7 @@ refresh_softirqs(pmdaExt *pmda, __pmnsTree **tree)
 	*tree = NULL;
     } else {
 	for (i = 0; i < softirqs_count; i++)
-	    update_softirqs_pmns(dom, i, softirqs[i].name);
+	    update_softirqs_pmns(dom, softirqs[i].name);
 	*tree = softirqs_tree;
 	pmdaTreeRebuildHash(softirqs_tree, softirqs_count);
 	return 1;
@@ -396,6 +495,8 @@ refresh_softirqs(pmdaExt *pmda, __pmnsTree **tree)
 int
 interrupts_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
 {
+    interrupt_t *ip;
+
     if (inst >= cpu_count)
 	return PM_ERR_INST;
 
@@ -406,14 +507,14 @@ interrupts_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
 	    atom->ul = interrupt_lines[item].values[inst];
 	    return 1;
 	case CLUSTER_INTERRUPT_OTHER:
-	    if (item > other_count)
+	    if (!(ip = dynamic_data_lookup(item, INTERRUPT_NAMES_INDOM)))
 		return PM_ERR_PMID;
-	    atom->ul = interrupt_other[item].values[inst];
+	    atom->ul = ip->values[inst];
 	    return 1;
 	case CLUSTER_SOFTIRQS:
-	    if (item > softirqs_count)
+	    if (!(ip = dynamic_data_lookup(item, SOFTIRQS_NAMES_INDOM)))
 		return PM_ERR_PMID;
-	    atom->ul = softirqs[item].values[inst];
+	    atom->ul = ip->values[inst];
 	    return 1;
     }
     return PM_ERR_PMID;
@@ -468,6 +569,7 @@ softirq_metrictable(int *total, int *trees)
 static int
 interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 {
+    interrupt_t *ip;
     int item = pmid_item(pmid);
     int cluster = pmid_cluster(pmid);
     char *text;
@@ -482,17 +584,17 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 	    *buf = text;
 	    return 0;
 	case CLUSTER_INTERRUPT_OTHER:
-	    if (item > other_count)
+	    if (!(ip = dynamic_data_lookup(item, INTERRUPT_NAMES_INDOM)))
 		return PM_ERR_PMID;
-	    text = interrupt_other[item].text;
+	    text = ip->text;
 	    if (text == NULL || text[0] == '\0')
 		return PM_ERR_TEXT;
 	    *buf = text;
 	    return 0;
 	case CLUSTER_SOFTIRQS:
-	    if (item > softirqs_count)
+	    if (!(ip = dynamic_data_lookup(item, SOFTIRQS_NAMES_INDOM)))
 		return PM_ERR_PMID;
-	    text = softirqs[item].text;
+	    text = ip->text;
 	    if (text == NULL || text[0] == '\0')
 		return PM_ERR_TEXT;
 	    *buf = text;

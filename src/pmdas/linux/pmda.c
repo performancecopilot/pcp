@@ -310,6 +310,8 @@ static pmdaIndom indomtab[] = {
     { ICMPMSG_INDOM, NR_ICMPMSG_COUNTERS, _pm_proc_net_snmp_indom_id },
     { DM_INDOM, 0, NULL }, /* cached */
     { MD_INDOM, 0, NULL }, /* cached */
+    { INTERRUPT_NAMES_INDOM, 0, NULL },
+    { SOFTIRQS_NAMES_INDOM, 0, NULL },
 };
 
 
@@ -6950,6 +6952,12 @@ linux_init(pmdaInterface *dp)
 
     /* string metrics use the pmdaCache API for value indexing */
     pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_STRINGS);
+
+    /* dynamic metrics using the pmdaCache API for name<->item mapping */
+    pmdaCacheOp(INDOM(INTERRUPT_NAMES_INDOM), PMDA_CACHE_STRINGS);
+    pmdaCacheResize(INDOM(INTERRUPT_NAMES_INDOM), (1 << 10)-1);
+    pmdaCacheOp(INDOM(SOFTIRQS_NAMES_INDOM), PMDA_CACHE_STRINGS);
+    pmdaCacheResize(INDOM(SOFTIRQS_NAMES_INDOM), (1 << 10)-1);
 }
 
 pmLongOptions	longopts[] = {
