@@ -2471,7 +2471,7 @@ forced_restart=false
 
 pmdaSetup
 pmdainstall
-exit 0</programlisting>
+exit</programlisting>
         </example>
         <para>The variables, shown in <xref linkend="id5195779"/>, may be assigned values to modify the behavior of the <literal>pmdaSetup</literal> and <literal>pmdainstall</literal> procedures from <filename>${PCP_SHARE_DIR}/lib/pmdaproc.sh</filename>.</para>
         <table frame="topbot" id="id5195779" pgwide="wide">
@@ -2565,21 +2565,6 @@ exit 0</programlisting>
                 <entry align="left" valign="top">
                   <para>
                     <literal>false</literal>
-                  </para>
-                </entry>
-              </row>
-              <row valign="top">
-                <entry align="left" valign="top">
-                  <para>
-                    <literal>$forced_restart</literal>
-                  </para>
-                </entry>
-                <entry align="left" valign="top">
-                  <para>Must this PMDA run as <literal>root</literal> or some other non-default user? (requires PMCD restart)</para>
-                </entry>
-                <entry align="left" valign="top">
-                  <para>
-                    <literal>true</literal>
                   </para>
                 </entry>
               </row>
@@ -2798,6 +2783,21 @@ exit 0</programlisting>
                 </entry>
                 <entry align="left" valign="top">
                   <para>&#xA0;</para>
+                </entry>
+              </row>
+              <row valign="top">
+                <entry align="left" valign="top">
+                  <para>
+                    <literal>$status</literal>
+                  </para>
+                </entry>
+                <entry align="left" valign="top">
+                  <para>Exit status for the shell script</para>
+                </entry>
+                <entry align="left" valign="top">
+                  <para>
+                    <literal>0</literal>
+                  </para>
                 </entry>
               </row>
             </tbody>

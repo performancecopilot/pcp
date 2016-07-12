@@ -28,7 +28,8 @@ forced_restart=true
 perl -e "use DBI" 2>/dev/null
 if test $? -ne 0; then
     echo "Perl database interface (DBI) is not installed"
-    exit 1
+    status=1
+    exit
 fi
 
 # Get os_user definition
@@ -37,7 +38,8 @@ eval `perl $PCP_PMDAS_DIR/oracle/connect.pl --config`
 id -g $os_user >/dev/null 2>&1
 if test $? -ne 0; then
     echo "Cannot change user to $os_user, sorry this is fatal"
-    exit 1
+    status=1
+    exit
 fi
 
 # Thwarted by (potential) Oracle setup dependence on LD_LIBRARY_PATH,
@@ -46,7 +48,8 @@ fi
 #su -c "perl -e 'use DBD::Oracle'" - $os_user 2>/dev/null
 #if test $? -ne 0; then
 #    echo "Oracle database driver (DBD::Oracle) is not installed"
-#    exit 1
+#    status=1
+#    exit
 #fi
 
 mkdir -p "$PCP_VAR_DIR/config/pmda" 2>/dev/null
@@ -62,10 +65,11 @@ do
     if $failed; then
         echo "Cannot create indom persistance files for user $os_user"
         echo "Failed on: $PCP_VAR_DIR/config/pmda/$domain.$indom"
-        exit 1
+        status=1
+        exit
     fi
 done
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit

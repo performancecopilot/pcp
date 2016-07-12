@@ -12,10 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-# 
 # Install the Bonding PMDA (bonded network interfaces)
 #
 
@@ -29,13 +25,15 @@ forced_restart=false
 
 if ! test -d /sys/class/net; then
     echo "SYSFS not enabled in your kernel"
-    exit 1
+    status=1
+    exit
 fi
 if ! test -f /sys/class/net/bonding_masters; then
     echo "Bonding statistics unavailable (load bonding module)"
-    exit 1
+    status=1
+    exit
 fi
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit

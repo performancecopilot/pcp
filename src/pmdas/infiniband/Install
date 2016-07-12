@@ -27,7 +27,8 @@ socket_opt=false
 path=/sys/class/infiniband_mad
 if ! test -d $path; then
     echo "Kernel lacks Infiniband support - $path directory not found"
-    exit 1
+    status=1
+    exit
 fi
 
 __choose_mode()
@@ -43,4 +44,4 @@ __choose_ipc()
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit
