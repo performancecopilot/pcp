@@ -55,6 +55,12 @@ _pcp () {
 
   case $service in
   pcp)
+    if (( ! $+_cache_pcp_cmds )); then
+      _cache_pcp_cmds=( ${="$(pcp --help 2>&1)"#*Available Commands:} )
+    fi
+    if (( ! $+_cache_pcp_cmdopts )); then
+      typeset -gA _cache_pcp_cmdopts
+    fi
     _arguments -A "-*" -C -S -s -w \
       "$common_help[@]" \
       "$common_most[@]" \
@@ -608,22 +614,19 @@ _pcp () {
     fi
   ;;
   pcp_commands)
-    typeset -a cmds
-    cmds=( ${="$(pcp --help 2>&1)"#*Available Commands:} )
-    _wanted commands expl 'pcp command' compadd $cmds && ret=0
+    _wanted commands expl 'pcp command' compadd -a _cache_pcp_cmds && ret=0
   ;;
   pcp_cmdopts)
     local cmd
-    typeset -a cmds
-    typeset -a cmdopts
-    cmds=( ${="$(pcp --help 2>&1)"#*Available Commands:} )
     for (( i = 2; i <= $#words; i++ )); do
-      [[ -n "${cmds[(r)$words[$i]]}" ]] && cmd=$words[$i] && break
+      [[ -n "${_cache_pcp_cmds[(r)$words[$i]]}" ]] && cmd=$words[$i] && break
     done
     [[ -z $cmd ]] && return 1
-    [[ $cmd == python ]] && _wanted files expl files _files && return 0
-    cmdopts=( ${${${${(M)${=${(f)"$(pcp $cmd --help 2>&1)"}}:#-[-0-9A-Za-z?]*}/,}/=*}/-USR1} )
-    _values -w options $cmdopts && ret=0
+    [[ $cmd == python ]] && _default && return 0
+    if [[ -z $_cache_pcp_cmdopts[$cmd] ]]; then
+      _cache_pcp_cmdopts[$cmd]=${${${${(M)${=${(f)"$(pcp $cmd --help 2>&1)"}}:#-[-0-9A-Za-z?]*}/,}/=*}/-USR1}
+    fi
+    _values -w options ${=_cache_pcp_cmdopts[$cmd]} && ret=0
   ;;
   pmfind_mechs)
     if compset -P '*,'; then
