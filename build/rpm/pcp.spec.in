@@ -772,6 +772,11 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for 389 Directory Servers
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = @package_version@
+%if "%{_vendor}" == "suse"
+Requires: perl-ldap
+%else
+Requires: perl-LDAP
+%endif
 
 %description pmda-ds389
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
