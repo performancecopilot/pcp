@@ -33,4 +33,4 @@ fi
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit

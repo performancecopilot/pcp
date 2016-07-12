@@ -22,4 +22,4 @@ iam=gluster
 
 pmdaSetup
 pmdaRemove
-exit 0
+exit

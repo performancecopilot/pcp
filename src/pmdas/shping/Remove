@@ -35,4 +35,4 @@ iam=shping
 pmdaSetup
 pmdaRemove
 
-exit 0
+exit

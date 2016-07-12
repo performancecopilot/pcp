@@ -20,4 +20,4 @@ iam=ds389
 
 pmdaSetup
 pmdaRemove
-exit 0
+exit

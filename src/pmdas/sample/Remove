@@ -42,4 +42,4 @@ pmns_name=sampledso
 domain=30
 pmdaRemove
 
-exit 0
+exit

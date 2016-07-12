@@ -21,4 +21,4 @@ iam=nfsclient
 
 pmdaSetup
 pmdaRemove
-exit 0
+exit

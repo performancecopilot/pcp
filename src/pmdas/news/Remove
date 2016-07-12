@@ -26,4 +26,4 @@ iam=news
 
 pmdaSetup
 pmdaRemove
-exit 0
+exit

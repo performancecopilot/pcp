@@ -22,4 +22,4 @@ iam=netfilter
 
 pmdaSetup
 pmdaRemove
-exit 0
+exit

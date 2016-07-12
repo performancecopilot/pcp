@@ -22,4 +22,4 @@ iam=rsyslog
 
 pmdaSetup
 pmdaRemove
-exit 0
+exit

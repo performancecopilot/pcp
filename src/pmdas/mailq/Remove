@@ -35,4 +35,4 @@ iam=mailq
 pmdaSetup
 pmdaRemove
 
-exit 0
+exit

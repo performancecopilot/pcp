@@ -49,7 +49,8 @@ debug=0
 
 _quit()
 {
-    exit $1
+    status=$1
+    exit
 }
 
 do_debug=false

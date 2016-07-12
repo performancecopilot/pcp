@@ -35,4 +35,4 @@ iam=cisco
 pmdaSetup
 pmdaRemove
 
-exit 0
+exit

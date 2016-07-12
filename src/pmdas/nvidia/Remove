@@ -35,4 +35,4 @@ iam=nvidia
 pmdaSetup
 pmdaRemove
 
-exit 0
+exit

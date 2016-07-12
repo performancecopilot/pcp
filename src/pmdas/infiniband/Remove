@@ -20,5 +20,5 @@ iam=infiniband
 
 pmdaSetup
 pmdaRemove
-exit 0
+exit
 
