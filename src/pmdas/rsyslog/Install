@@ -30,15 +30,21 @@ statsdir=`dirname "$statsfile"`
 if ! test -d "$statsdir"; then
     echo "Creating rsyslog statistics file directory: $statsdir"
     mkdir "$statsdir"
-    [ $? -eq 0 ] || exit 1
+    if [ $? -eq 0 ]; then
+	status=1
+	exit
+    fi
 fi
 
 if ! test -p "$statsfile"; then
     echo "Creating rsyslog statistics file: $statsfile"
     mkfifo "$statsfile"
-    [ $? -eq 0 ] || exit 1
+    if [ $? -eq 0 ]; then
+	status=1
+	exit
+    fi
 fi
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit

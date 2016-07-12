@@ -40,4 +40,4 @@ pmns_name=web		# metric names differ from PMDA name
 #_remove
 pmdaRemove
 
-exit 0
+exit

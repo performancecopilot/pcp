@@ -44,6 +44,8 @@ enum {
 	ICMPMSG_INDOM,          /* 23 - icmp message types */
 	DM_INDOM,		/* 24 - device mapper devices */
 	MD_INDOM,		/* 25 - multi-device devices */
+	INTERRUPT_NAMES_INDOM,	/* 26 - persistent percpu interrupts IDs */
+	SOFTIRQS_NAMES_INDOM,	/* 27 - persistent percpu softirqs IDs */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

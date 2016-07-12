@@ -31,7 +31,8 @@ then
 	echo \
 'Error: The "summary" PMDA requires the pmie(1) application but this
        does not appear to be installed.'
-	exit 1
+	status=1
+	exit
     fi
 
     while true
@@ -47,5 +48,4 @@ then
 fi
 
 pmdaInstall
-
-exit 0
+exit

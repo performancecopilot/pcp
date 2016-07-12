@@ -113,5 +113,4 @@ then
 fi
 
 pmdaInstall
-
-exit 0
+exit

@@ -32,4 +32,4 @@ pmdaInstall
 pmstore papi.control.reset "" >/dev/null
 echo "Note: Some warnings are expected as the number of available hardware Metrics"
 echo "may exceed the maximum concurrently countable metrics."
-exit 0
+exit

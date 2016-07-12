@@ -22,4 +22,4 @@ iam=kvm
 
 pmdaSetup
 pmdaRemove
-exit 0
+exit

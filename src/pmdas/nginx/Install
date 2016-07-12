@@ -25,9 +25,10 @@ perl -e "use LWP::UserAgent" 2>/dev/null
 if test $? -ne 0
 then
 	echo "LWP::UserAgent perl module is not installed"
-	exit 1
+	status=1
+	exit
 fi
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit

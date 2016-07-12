@@ -22,4 +22,4 @@ iam=dtsrun
 
 pmdaSetup
 pmdaRemove
-exit 0
+exit

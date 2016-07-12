@@ -23,21 +23,29 @@ perl_opt=true
 daemon_opt=false
 
 if ! test -x /usr/sbin/smbd; then
-    echo "Samba \"smbd\" daemon is not installed" && exit 1
+    echo "Samba \"smbd\" daemon is not installed"
+    status=1
+    exit
 fi
 /usr/sbin/smbd -b | egrep 'WITH_PROFILE|HAVE_PROFILE' >/dev/null
 if test $? -ne 0; then
-    echo "Samba \"smbd\" not built with profiling support" && exit 1
+    echo "Samba \"smbd\" not built with profiling support"
+    status=1
+    exit
 fi
 
 if ! test -x /usr/bin/smbcontrol; then
-    echo "Samba \"smbcontrol\" tool is not installed" && exit 1
+    echo "Samba \"smbcontrol\" tool is not installed"
+    status=1
+    exit
 fi
 /usr/bin/smbcontrol smbd profile on
 if test $? -ne 0; then
-    echo "Samba \"smbcontrol\" failed to enable profiling" && exit 1
+    echo "Samba \"smbcontrol\" failed to enable profiling"
+    status=1
+    exit
 fi
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit

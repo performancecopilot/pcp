@@ -22,4 +22,4 @@ iam=apache
 pmdaSetup
 pmdaRemove
 
-exit 0
+exit

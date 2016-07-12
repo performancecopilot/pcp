@@ -42,7 +42,8 @@ _parsedefaults()
     	case $c in
 	    \?)		echo "Warning: Unrecognized option in $PCP_PMCDCONF_PATH"
 			echo "	       Remove line for the $iam PMDA in $PCP_PMCDCONF_PATH and re-run ./Install"
-	    		exit 2;;
+			status=2
+	    		exit;;
 	    * )		;;
 	esac
     done
@@ -83,7 +84,8 @@ $1 == "'$iam'"	{ printf "%s",$6
 		    if [ -f "$configfile" ]
 		    then
 			    echo "Cannot remove \"$configfile\""
-			    exit 1
+			    status=1
+			    exit
 		    fi
 	    fi
 
@@ -100,7 +102,8 @@ be at least one logfile specified.  '
 	    if [ ! -f "$configfile" ]
 	    then
 		echo "Installation aborted."
-		exit 1
+		status=1
+		exit
 	    fi
 
 	    while [ ! -s "$configfile" ]
@@ -152,7 +155,8 @@ underscore ('_')."
 	else
 	    echo ""
 	    echo "Error: Abandoning installation as no configuration file was specified."
-	    exit 1
+	    status=1
+	    exit
 	fi
     fi
 
@@ -160,5 +164,4 @@ underscore ('_')."
 fi
 
 pmdaInstall
-
-exit 0
+exit

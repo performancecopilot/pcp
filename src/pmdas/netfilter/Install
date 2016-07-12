@@ -36,15 +36,17 @@ if [ -z "$args" ]; then
 	    args="/proc/sys/net/"
 	else
 	    echo "IP connection tracking not enabled in your kernel"
-	    exit 1
+	    status=1
+	    exit
 	fi
     elif test -d "$value"; then
 	args="$value"
     else
 	echo "IP connection tracking not enabled in your kernel"
-	exit 1
+	status=1
+	exit
     fi
 fi
 
 pmdaInstall
-exit 0
+exit

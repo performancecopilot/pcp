@@ -20,4 +20,4 @@
 iam=mmv
 pmdaSetup
 pmdaRemove
-exit 0
+exit

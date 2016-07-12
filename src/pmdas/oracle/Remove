@@ -22,4 +22,4 @@ iam=oracle
 
 pmdaSetup
 pmdaRemove
-exit 0
+exit

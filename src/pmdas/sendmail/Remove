@@ -35,4 +35,4 @@ iam=sendmail
 pmdaSetup
 pmdaRemove
 
-exit 0
+exit

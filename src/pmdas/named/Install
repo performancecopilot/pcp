@@ -29,9 +29,10 @@ f="named_stats.txt"
 if test ! -f "$d/$f" -a ! -f "/var/named/chroot/$d/$f"
 then
     echo "named does not appear to be exporting statistics (no $d/$f found)"
-    exit 1
+    status=1
+    exit
 fi
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit
