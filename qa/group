@@ -1096,6 +1096,7 @@ timezone
 854 pmlogger local
 855 pmda.netfilter local
 856 pmlogger local
+857 pmda.linux local
 858 libpcp local fetch valgrind
 859 python libpcp local fetch
 860 pmda pmda.proc ostest local pmval

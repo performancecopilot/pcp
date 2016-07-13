@@ -163,6 +163,7 @@ trim_whitespace(char *s)
 static void
 setup_cpuinfo(cpuinfo_t *cpuinfo)
 {
+    cpuinfo->node = -1;
     cpuinfo->sapic = -1;
     cpuinfo->vendor = -1;
     cpuinfo->model = -1;

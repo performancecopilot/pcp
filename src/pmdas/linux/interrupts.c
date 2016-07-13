@@ -52,6 +52,14 @@ unsigned int irq_err_count;
 static int
 setup_interrupts(void)
 {
+    static int setup;
+
+    if (!setup) {
+	pmdaCacheOp(INDOM(INTERRUPT_NAMES_INDOM), PMDA_CACHE_LOAD);
+	pmdaCacheOp(INDOM(SOFTIRQS_NAMES_INDOM), PMDA_CACHE_LOAD);
+	setup = 1;
+    }
+
     if (cpu_count != _pm_ncpus) {
 	online_cpumap = realloc(online_cpumap, _pm_ncpus * sizeof(int));
 	if (!online_cpumap)
@@ -59,9 +67,6 @@ setup_interrupts(void)
 	cpu_count = _pm_ncpus;
     }
     memset(online_cpumap, 0, cpu_count * sizeof(int));
-
-    pmdaCacheOp(INDOM(INTERRUPT_NAMES_INDOM), PMDA_CACHE_LOAD);
-    pmdaCacheOp(INDOM(SOFTIRQS_NAMES_INDOM), PMDA_CACHE_LOAD);
     return 0;
 }
 
@@ -155,13 +160,13 @@ update_softirqs_pmns(int domain, const char *name)
 static int
 map_online_cpus(char *buffer)
 {
-    unsigned long i = 0, cpuid;
+    unsigned int i = 0, cpuid;
     char *s, *end;
 
-    for (s = buffer; *s != '\0'; s++) {
+    for (s = buffer; i < _pm_ncpus && *s != '\0'; s++) {
 	if (!isdigit((int)*s))
 	    continue;
-	cpuid = strtoul(s, &end, 10);
+	cpuid = (unsigned int)strtoul(s, &end, 10);
 	if (end == s)
 	    break;
 	online_cpumap[i++] = cpuid;
