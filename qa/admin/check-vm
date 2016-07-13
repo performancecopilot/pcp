@@ -605,6 +605,8 @@ slackpkg?	unbound-control	[N/A (QA optional)]
 pacman?	unbound-control		[unbound (QA optional)]
 # -- python-requests
 dpkg?	/usr/share/doc/python-requests|/usr/share/doc/packages/python-requests	[python-requests (QA optional)]
+dpkg?	/usr/lib/python2*/dist-packages/requests	[python-requests (QA optional)]
+dpkg?	/usr/lib/python3*/dist-packages/requests	[python3-requests (QA optional)]
 rpm?	/usr/share/doc/python*-requests*|/usr/share/doc/packages/python*-requests	[python-requests and/or python[23]-requests (QA optional)]
 urpmi?	/usr/share/doc/python*-requests*|/usr/share/doc/packages/python*-requests	[python-requests (QA optional)]
 emerge?	/usr/lib/python*/*-packages/requests	[dev-python/requests (QA optional)]
