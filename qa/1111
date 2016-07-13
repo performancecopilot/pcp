@@ -14,6 +14,11 @@ $python -c "from pcp import pmapi" >/dev/null 2>&1
 which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
 which pcp2influxdb >$seq.full 2>&1 || _notrun "pcp2influxdb not installed"
 
+$python -c "import requests" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python requests module not installed"
+major=`$python -c 'import requests; print requests.__version__.split(".")[0]'`
+[ $major -ge 1 ] || _notrun "python requests module too old (v$major)"
+
 port=8086
 echo | $PCP_BINADM_DIR/telnet-probe localhost $port \
 	&& _notrun "Someone already listening on typical InfluxDB $port"
