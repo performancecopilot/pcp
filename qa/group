@@ -774,7 +774,7 @@ timezone
 452 pmda.linux local
 453 perl local sanity
 454 pmcd local
-455:reserved pmda.rsyslog local flakey pmda.install
+455 pmda.rsyslog local flakey pmda.install
 456 logutil local #591459 folio pmlogextract
 457 pmda.logger pmda.install event local flakey
 458 pmda.logger pmda.install event local

@@ -30,7 +30,7 @@ statsdir=`dirname "$statsfile"`
 if ! test -d "$statsdir"; then
     echo "Creating rsyslog statistics file directory: $statsdir"
     mkdir "$statsdir"
-    if [ $? -eq 0 ]; then
+    if [ $? -ne 0 ]; then
 	status=1
 	exit
     fi
@@ -39,7 +39,7 @@ fi
 if ! test -p "$statsfile"; then
     echo "Creating rsyslog statistics file: $statsfile"
     mkfifo "$statsfile"
-    if [ $? -eq 0 ]; then
+    if [ $? -ne 0 ]; then
 	status=1
 	exit
     fi
