@@ -1165,13 +1165,13 @@ class PMReporter(object):
             prnti = 0
             for i, metric in enumerate(self.metrics):
                 ins   = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
-                prnti = 1 if self.insts[i][0][0] != PM_IN_NULL else 0
+                prnti = 1 if self.insts[i][0][0] != PM_IN_NULL else prnti
                 for j in range(ins):
                     names.append(self.metrics[metric][0])
                     names.append(self.delimiter)
                     units.append(self.metrics[metric][2][0])
                     units.append(self.delimiter)
-                    if prnti == 1:
+                    if prnti == 1 and self.insts[i][1][j]:
                         insts.append(self.insts[i][1][j])
                     else:
                         insts.append(self.delimiter)
