@@ -1,0 +1,31 @@
+QA output created by 1072
+== pmrep archive reporting and creation
+Writing output from the original archives to files
+Recording 19 metrics to /tmp/1072.new_archive1:
+5 samples(s) with 1.0 sec interval ~ 4 sec duration.
+Recording 58 metrics to /tmp/1072.new_archive2:
+5 samples(s) with 1.0 sec interval ~ 4 sec duration.
+Writing output from the created archives to files
+Diff of outputs start (only path / minor timestamp diff expected):
+@@ -1,5 +1,5 @@
+ 
+-  archive: QAPATH/archives/rep
++  archive: temp-archive
+      host: slack
+  timezone: ...-11 (reporting, current is ...)
+     start: Wed Feb 10 14:39:13 2016
+@@ -1,9 +1,9 @@
+ 
+-  archive: QAPATH/archives/20130706
++  archive: temp-archive
+      host: billing02
+  timezone: ...-11 (reporting, current is ...)
+-    start: Sat Jul  6 00:27:01 2013
+-      end: Sat Jul  6 00:27:05 2013
++    start: Sat Jul  6 00:28:01 2013
++      end: Sat Jul  6 00:28:05 2013
+   metrics: 58
+   samples: 5 (requested)
+  interval: N/A
+Diff of outputs end
+== done
