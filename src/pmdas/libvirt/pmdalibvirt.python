@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env pmpython
 #
 # Copyright (C) 2016 Marko Myllynen <myllynen@redhat.com>
 #
@@ -575,4 +575,4 @@ class LibvirtPMDA(PMDA):
         return [PM_ERR_PMID, 0]
 
 if __name__ == '__main__':
-    LibvirtPMDA('libvirt', 491).run()
+    LibvirtPMDA('libvirt', 140).run()

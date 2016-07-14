@@ -784,6 +784,7 @@ qmake
 enable_qt
 qt_release
 QMAKE
+PMDA_LIBVIRT
 PMDA_ACTIVEMQ
 PMDA_NGINX
 PMDA_ELASTICSEARCH
@@ -794,6 +795,7 @@ PMDA_SNMP
 have_perl
 pcp_perl_prog
 PERL
+have_python_libvirt
 PMDA_JSON
 have_python_six
 have_python_requests
@@ -7283,6 +7285,29 @@ if $pmda_json; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module libvirt" >&5
+$as_echo_n "checking for Python module libvirt... " >&6; }
+    if test -n ""
+    then
+	txt=""
+    else
+	txt="import libvirt"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_libvirt=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_libvirt=false
+    fi
+
+
+
 for ac_prog in perl
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -7467,6 +7492,25 @@ fi
 PMDA_ACTIVEMQ=$pmda_activemq
 
 if $pmda_activemq; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the libvirt PMDA should be included" >&5
+$as_echo_n "checking if the libvirt PMDA should be included... " >&6; }
+pmda_libvirt=false
+if test "$have_python" = true
+then
+        if $pcp_python_prog -c "import libvirt" /dev/null 2>&1
+    then
+	if $pcp_python_prog -c "import lxml" /dev/null 2>&1
+	then
+	    pmda_libvirt=true
+	fi
+    fi
+fi
+PMDA_LIBVIRT=$pmda_libvirt
+
+if $pmda_libvirt; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. XXX
+# PCP QA Test No. 1041
 # Exercise the libvirt PMDA - install, remove and values.
 #
 # Copyright (c) 2016 Red Hat.
@@ -24,14 +24,15 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-# get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
-
-export PCP_PMDAS_DIR=/var/lib/pcp/pmdas
+. ./common.python
 
 [ -d $PCP_PMDAS_DIR/libvirt ] || _notrun "libvirt PMDA directory is not installed"
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+$python -c "import libvirt" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python libvirt module not installed"
+$python -c "import lxml" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python lxml module not installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -53,7 +54,7 @@ pmdalibvirt_install()
 
     cat <<EOF >$tmp.config
 [pmda]
-oldapi = False
+#oldapi = False
 user = root
 uri = qemu:///system
 EOF
@@ -95,14 +96,22 @@ pmdalibvirt_cleanup()
 _prepare_pmda libvirt
 trap "pmdalibvirt_cleanup; exit \$status" 0 1 2 3 15
 
+_filter()
+{
+    sed \
+	-e '/No value(s) available/d' \
+    #end
+}
+
 # real QA test starts here
 pmdalibvirt_install
 
 echo
-echo "=== extract metric values ==="
-echo "from pmprobe:" >>$here/$seq.full
-pmprobe -v libvirt \
-| LC_COLLATE=POSIX sort
+echo "=== verify metric values ==="
+echo "from pminfo:" >>$here/$seq.full
+pminfo -v libvirt 2>&1 \
+| tee -a $here/$seq.full \
+| _filter
 
 pmdalibvirt_remove
 status=0

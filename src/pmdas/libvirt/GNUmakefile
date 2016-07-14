@@ -34,8 +34,7 @@ ifeq "$(HAVE_PYTHON)" "true"
 build-me:	check_domain
 install_pcp install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 755 connect.py $(PYSCRIPT) $(PMDADIR)
+	$(INSTALL) -m 755 Install Remove connect $(PYSCRIPT) $(PMDADIR)
 	$(INSTALL) -m 644 $(IAM).conf $(PMDADIR)/$(IAM).conf
 	@$(INSTALL_MAN)
 else

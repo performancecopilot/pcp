@@ -715,6 +715,38 @@ collecting hardware counters statistics through libpfm.
 #end pcp-pmda-perfevent
 %endif
 
+%if "@pmda_libvirt@" == "true"
+#
+# pcp-pmda-libvirt
+#
+%package pmda-libvirt
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics from libvirt virtualisation
+URL: http://www.pcp.io
+Requires: pcp-libs = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%if "%{_vendor}" == "suse"
+Requires: libvirt-python
+Requires: python-lxml
+%else
+Requires: libvirt-python3
+Requires: python3-lxml
+%endif
+%else
+Requires: libvirt-python
+Requires: python-lxml
+Requires: python-pcp
+%endif
+
+%description pmda-libvirt
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting virtualisation statistics from libvirt about behaviour of guest
+and hypervisor machines.
+#end pcp-pmda-libvirt
+%endif
+
 %if "@pmda_activemq@" == "true"
 #
 # pcp-pmda-activemq
@@ -1572,6 +1604,9 @@ Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 %if "@pmda_json@" == "true"
 Requires: pcp-pmda-json
 %endif
+%if "@pmda_libvirt@" == "true"
+Requires: pcp-pmda-libvirt
+%endif
 %if "@pmda_rpm@" == "true"
 Requires: pcp-pmda-rpm
 %endif
@@ -1828,6 +1863,9 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dm' > pmda_dm_files
 %if "@pmda_json@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/json' > pmda_json_files
 %endif
+%if "@pmda_libvirt@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/libvirt' > pmda_libvirt_files
+%endif
 %if "@have_python@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
@@ -1879,6 +1917,9 @@ touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
 %endif
 %if "@pmda_json@" == "true"
 touch pmda_json_files
+%endif
+%if "@pmda_libvirt@" == "true"
+touch pmda_libvirt_files
 %endif
 %if "@pmda_snmp@" == "true"
 touch pmda_snmp_files
@@ -1978,6 +2019,9 @@ BEGIN {
 %if "@pmda_json@" == "true"
     while( getline < "pmda_json_files") pmda_json[$0]=1;
 %endif
+%if "@pmda_libvirt@" == "true"
+    while( getline < "pmda_libvirt_files") pmda_libvirt[$0]=1;
+%endif
     while( getline < "pmda_apache_files") pmda_apache[$0]=1;
     while( getline < "pmda_bash_files") pmda_bash[$0]=1;
     while( getline < "pmda_cifs_files") pmda_cifs[$0]=1;
@@ -2075,6 +2119,9 @@ BEGIN {
     else if (export_zabbix_agent[$NF]) f="export_zabbix_agent_files.rpm";
 %if "@pmda_json@" == "true"
     else if (pmda_json[$NF]) f="pmda_json_files.rpm";
+%endif
+%if "@pmda_libvirt@" == "true"
+    else if (pmda_libvirt[$NF]) f="pmda_libvirt_files.rpm";
 %endif
     else if (pmda_apache[$NF]) f="pmda_apache_files.rpm";
     else if (pmda_bash[$NF]) f="pmda_bash_files.rpm";
@@ -2291,6 +2338,11 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
 %preun pmda-json
 %{pmda_remove "$1" "json"}
 %endif #preun pmda-json
+
+%if "@pmda_libvirt@" == "true"
+%preun pmda-libvirt
+%{pmda_remove "$1" "libvirt"}
+%endif #preun pmda-libvirt
 
 %if "@pmda_nginx@" == "true"
 %preun pmda-nginx
@@ -2706,6 +2758,10 @@ cd
 
 %if "@pmda_json@" == "true"
 %files pmda-json -f pmda_json_files.rpm
+%endif
+
+%if "@pmda_libvirt@" == "true"
+%files pmda-libvirt -f pmda_libvirt_files.rpm
 %endif
 
 %files pmda-apache -f pmda_apache_files.rpm
