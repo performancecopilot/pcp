@@ -42,6 +42,8 @@ static interrupt_t *interrupt_other;
 static unsigned int softirqs_count;
 static interrupt_t *softirqs;
 
+static unsigned int refresh_interrupt_count;
+static unsigned int refresh_softirqs_count;
 static __pmnsTree *interrupt_tree;
 static __pmnsTree *softirqs_tree;
 unsigned int irq_err_count;
@@ -364,6 +366,8 @@ refresh_interrupt_values(void)
     int i, j, ncolumns;
     int sts, resized = 0;
 
+    refresh_interrupt_count++;
+
     if ((sts = setup_interrupts()) < 0)
 	return sts;
 
@@ -412,6 +416,8 @@ refresh_softirqs_values(void)
     char buf[BUFSIZ];
     int i = 0, ncolumns;
     int sts, resized = 0;
+
+    refresh_softirqs_count++;
 
     if ((sts = setup_interrupts()) < 0)
 	return sts;
@@ -552,6 +558,9 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int id)
 static void
 interrupts_metrictable(int *total, int *trees)
 {
+    if (!refresh_interrupt_count)
+	refresh_interrupt_values();
+
     *total = 2;	/* lines and other */
     *trees = lines_count > other_count ? lines_count : other_count;
 
@@ -563,6 +572,9 @@ interrupts_metrictable(int *total, int *trees)
 static void
 softirq_metrictable(int *total, int *trees)
 {
+    if (!refresh_softirqs_count)
+	refresh_softirqs_values();
+
     *total = 1;	/* softirqs */
     *trees = softirqs_count;
 
