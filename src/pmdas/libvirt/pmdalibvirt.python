@@ -1,0 +1,578 @@
+#!/usr/bin/env python
+#
+# Copyright (C) 2016 Marko Myllynen <myllynen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+""" PCP libvirt Performance Metrics Domain Agent """
+
+try:
+    import ConfigParser
+except ImportError:
+    import configparser as ConfigParser
+
+import os
+import sys
+import atexit
+import libvirt
+
+from lxml import etree
+from ctypes import c_int
+
+from pcp.pmapi import pmUnits
+from pcp.pmapi import pmContext as PCP
+from pcp.pmda import PMDA, pmdaIndom, pmdaMetric
+from cpmapi import PM_INDOM_NULL
+from cpmapi import PM_TYPE_U32, PM_TYPE_U64, PM_TYPE_STRING
+from cpmapi import PM_SEM_COUNTER, PM_SEM_INSTANT, PM_SEM_DISCRETE
+from cpmapi import PM_COUNT_ONE, PM_SPACE_BYTE, PM_SPACE_KBYTE, PM_TIME_SEC, PM_TIME_NSEC
+from cpmapi import PM_ERR_AGAIN, PM_ERR_INST, PM_ERR_NOTCONN, PM_ERR_NYI, PM_ERR_PMID, PM_ERR_VALUE
+
+if sys.version_info[0] >= 3:
+    long = int
+
+DEFAULT_USER = 'root'
+DEFAULT_URI = 'qemu:///system'
+
+class LibvirtPMDA(PMDA):
+    """ PCP libvirt PMDA """
+    def __init__(self, name, domain):
+        """ Constructor """
+        PMDA.__init__(self, name, domain)
+
+        self.user = DEFAULT_USER
+        self.uri = DEFAULT_URI
+        self.read_config()
+        self.set_user(self.user)
+
+        self.doms = []
+        self.connect_pmcd()
+        self.conn = self.connect_libvirt()
+        try:
+            test = libvirt.VIR_CONNECT_GET_ALL_DOMAINS_STATS_ACTIVE
+        except:
+            if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
+                self.log("Old libvirt API detected, some metrics are unavailable")
+
+        units_none  = pmUnits(0, 0, 0, 0, 0, 0)
+        units_count = pmUnits(0, 0, 1, 0, 0, PM_COUNT_ONE)
+        units_bytes = pmUnits(1, 0, 0, PM_SPACE_BYTE, 0, 0)
+        units_kbyte = pmUnits(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
+        units_bpers = pmUnits(1,-1, 0, PM_SPACE_BYTE, PM_TIME_SEC, 0)
+        units_nsecs = pmUnits(0, 1, 0, 0, PM_TIME_NSEC, 0)
+
+        self.hv_indom = PM_INDOM_NULL
+
+        self.hv_cluster = 0
+        self.hv_metrics = [
+            # Name - method - type - semantics - units - help
+            # See libvirt.py
+            [ 'hv.uri',                    'getURI',                   PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'Libvirt URI'                     ],
+            [ 'hv.driver',                 'getType',                  PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'Libvirt driver'                  ],
+            [ 'hv.version',                'getVersion',               PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'Libvirt version'                 ],
+            [ 'hv.domains.active',         'numOfDomains',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt domains, active'         ],
+            [ 'hv.domains.inactive',       'numOfDefinedDomains',      PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt domains, inactive'       ],
+            [ 'hv.devices',                'numOfDevices',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt devices'                 ],
+            [ 'hv.storagepools.active',    'numOfStoragePools',        PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt storage pools, active'   ],
+            [ 'hv.storagepools.inactive',  'numOfDefinedStoragePools', PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt storage pools, inactive' ],
+            [ 'hv.networks.active',        'numOfNetworks',            PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt networks, active'        ],
+            [ 'hv.networks.inactive',      'numOfDefinedNetworks',     PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt networks, inactive'      ],
+            [ 'hv.interfaces.active',      'numOfInterfaces',          PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt interfaces, active'      ],
+            [ 'hv.interfaces.inactive',    'numOfDefinedInterfaces',   PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt interfaces, inactive'    ],
+            [ 'hv.nwfilters',              'numOfNWFilters',           PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt nw filters'              ],
+            [ 'hv.secrets',                'numOfSecrets',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt secrets'                 ],
+        ]
+
+        self.vm_indom = self.indom(0)
+        self.vm_insts = pmdaIndom(self.vm_indom, [])
+        self.add_indom(self.vm_insts)
+
+        self.vm_cluster = 1
+        self.vm_metrics = [
+            # Name - xpath - type - semantics - units - help
+            # See https://libvirt.org/formatdomain.html
+            [ 'dominfo.type',              '/domain/@type',            PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM type'                         ],
+            [ 'dominfo.name',              '/domain/name',             PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM name'                         ],
+            [ 'dominfo.uuid',              '/domain/uuid',             PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM UUID'                         ],
+            [ 'dominfo.title',             '/domain/title',            PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM title'                        ],
+            [ 'dominfo.description',       '/domain/description',      PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM description'                  ],
+            [ 'dominfo.container',         '/domain/os/init',          PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM container'                    ],
+            [ 'dominfo.os.type',           '/domain/os/type',          PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM OS type'                      ],
+            [ 'dominfo.vcpu.current',      '/domain/vcpu/@current',    PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPUs, current'               ],
+            [ 'dominfo.vcpu.max',          '/domain/vcpu',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPUs, maximum'               ],
+            [ 'dominfo.memory.boot',       '/domain/memory',           PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, at boot'              ],
+            [ 'dominfo.memory.current',    '/domain/currentMemory',    PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, current'              ],
+            [ 'dominfo.memory.max',        '/domain/maxMemory',        PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, maximum'              ],
+        ]
+
+        self.vm_cpustats_res = []
+        self.vm_cpustats_cluster = 2
+        self.vm_cpustats = [
+            # Name - empty - type - semantics - units - help
+            # See libvirt.git/src/libvirt-domain.c
+            [ 'domstats.cpu.time',         None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM CPU time, total'              ],
+            [ 'domstats.cpu.system',       None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM CPU time, system'             ],
+            [ 'domstats.cpu.user',         None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM CPU time, user'               ],
+        ]
+
+        self.vm_vcpustats_res = []
+        self.vm_vcpustats_cluster = 3
+        self.vm_vcpustats = [
+            # Name - empty - type - semantics - units - help
+            # See libvirt.git/src/libvirt-domain.c
+            [ 'domstats.vcpu.current',     None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPUs, current'               ],
+            [ 'domstats.vcpu.maximum',     None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPUs, maximum'               ],
+#           [ 'domstats.vcpu.state',       None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPUs, state'                 ],
+            [ 'domstats.vcpu.time',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM vCPUs, time'                  ],
+            [ 'domstats.vcpu.wait',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM vCPUs, wait'                  ],
+        ]
+
+        self.vm_memstats_res = {}
+        self.vm_memstats_cluster = 4
+        self.vm_memstats = [
+            # Name - empty - type - semantics - units - help
+            # See libvirt.git/include/libvirt/libvirt-domain.h
+            [ 'domstats.mem.swap_in',      None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, swapped in'           ],
+            [ 'domstats.mem.swap_out',     None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, swapped out'          ],
+            [ 'domstats.mem.major_fault',  None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_none,  'VM memory, major faults'         ],
+            [ 'domstats.mem.minor_fault',  None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_none,  'VM memory, minor faults'         ],
+            [ 'domstats.mem.unused',       None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, unused'               ],
+            [ 'domstats.mem.available',    None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, available'            ],
+            [ 'domstats.mem.actual',       None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, balloon size'         ],
+            [ 'domstats.mem.rss',          None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, proc RSS'             ],
+        ]
+
+        self.vm_balloonstats_res = []
+        self.vm_balloonstats_cluster = 5
+        self.vm_balloonstats = [
+            # Name - empty - type - semantics - units - help
+            # See libvirt.git/src/libvirt-domain.c
+            [ 'domstats.balloon.current',  None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon size, current'        ],
+            [ 'domstats.balloon.maximum',  None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon size, maximum'        ],
+        ]
+
+        self.vm_blockstats_res = []
+        self.vm_blockstats_cluster = 6
+        self.vm_blockstats = [
+            # Name - empty - type - semantics - units - help
+            # See libvirt.git/src/libvirt-domain.c
+            [ 'domstats.block.count',      None,                       PM_TYPE_U32,    PM_SEM_COUNTER,  units_count, 'VM block devs, count'            ],
+            [ 'domstats.block.rd.reqs',    None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block devs, rd reqs'          ],
+            [ 'domstats.block.rd.bytes',   None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM block devs, rd bytes'         ],
+            [ 'domstats.block.rd.times',   None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, rd times'         ],
+            [ 'domstats.block.wr.reqs',    None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block devs, wr reqs'          ],
+            [ 'domstats.block.wr.bytes',   None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM block devs, wr bytes'         ],
+            [ 'domstats.block.wr.times',   None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, wr times'         ],
+            [ 'domstats.block.fl.reqs',    None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block devs, fl reqs'          ],
+            [ 'domstats.block.fl.times',   None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, fl times'         ],
+            [ 'domstats.block.allocation', None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM backing imgs, allocation'     ],
+            [ 'domstats.block.capacity',   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, capacity'       ],
+            [ 'domstats.block.physical',   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, physical'       ],
+        ]
+
+        self.vm_netstats_res = []
+        self.vm_netstats_cluster = 7
+        self.vm_netstats = [
+            # Name - empty - type - semantics - units - help
+            # See libvirt.git/src/libvirt-domain.c
+            [ 'domstats.net.count',        None,                       PM_TYPE_U32,    PM_SEM_COUNTER,  units_count, 'VM NICs, count'                  ],
+            [ 'domstats.net.rx.bytes',     None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM NICs, rx bytes'               ],
+            [ 'domstats.net.rx.pkts',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, rx pkts'                ],
+            [ 'domstats.net.rx.errs',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, rx errs'                ],
+            [ 'domstats.net.rx.drop',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, rx drop'                ],
+            [ 'domstats.net.tx.bytes',     None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM NICs, tx bytes'               ],
+            [ 'domstats.net.tx.pkts',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, tx pkts'                ],
+            [ 'domstats.net.tx.errs',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, tx errs'                ],
+            [ 'domstats.net.tx.drop',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, tx drop'                ],
+        ]
+
+        self.vm_perfstats_res = []
+        self.vm_perfstats_cluster = 8
+        self.vm_perfstats = [
+            # Name - empty - type - semantics - units - help
+            # See libvirt.git/src/libvirt-domain.c
+            [ 'domstats.perf.cmt',         None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM perf stats, cmt'              ],
+            [ 'domstats.perf.mbmt',        None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bpers, 'VM perf stats, mbmt'             ],
+            [ 'domstats.perf.mbml',        None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bpers, 'VM perf stats, mbml'             ],
+        ]
+
+        for item in range(len(self.hv_metrics)):
+            self.add_metric(name + '.' + self.hv_metrics[item][0], pmdaMetric(self.pmid(self.hv_cluster, item),
+                self.hv_metrics[item][2], self.hv_indom, self.hv_metrics[item][3],
+                self.hv_metrics[item][4]), self.hv_metrics[item][5], self.hv_metrics[item][5])
+
+        for item in range(len(self.vm_metrics)):
+            self.add_metric(name + '.' + self.vm_metrics[item][0], pmdaMetric(self.pmid(self.vm_cluster, item),
+                self.vm_metrics[item][2], self.vm_indom, self.vm_metrics[item][3],
+                self.vm_metrics[item][4]), self.vm_metrics[item][5], self.vm_metrics[item][5])
+
+        for item in range(len(self.vm_cpustats)):
+            self.add_metric(name + '.' + self.vm_cpustats[item][0], pmdaMetric(self.pmid(self.vm_cpustats_cluster, item),
+                self.vm_cpustats[item][2], self.vm_indom, self.vm_cpustats[item][3],
+                self.vm_cpustats[item][4]), self.vm_cpustats[item][5], self.vm_cpustats[item][5])
+
+        for item in range(len(self.vm_vcpustats)):
+            self.add_metric(name + '.' + self.vm_vcpustats[item][0], pmdaMetric(self.pmid(self.vm_vcpustats_cluster, item),
+                self.vm_vcpustats[item][2], self.vm_indom, self.vm_vcpustats[item][3],
+                self.vm_vcpustats[item][4]), self.vm_vcpustats[item][5], self.vm_vcpustats[item][5])
+
+        for item in range(len(self.vm_memstats)):
+            self.add_metric(name + '.' + self.vm_memstats[item][0], pmdaMetric(self.pmid(self.vm_memstats_cluster, item),
+                self.vm_memstats[item][2], self.vm_indom, self.vm_memstats[item][3],
+                self.vm_memstats[item][4]), self.vm_memstats[item][5], self.vm_memstats[item][5])
+
+        for item in range(len(self.vm_balloonstats)):
+            self.add_metric(name + '.' + self.vm_balloonstats[item][0], pmdaMetric(self.pmid(self.vm_balloonstats_cluster, item),
+                self.vm_balloonstats[item][2], self.vm_indom, self.vm_balloonstats[item][3],
+                self.vm_balloonstats[item][4]), self.vm_balloonstats[item][5], self.vm_balloonstats[item][5])
+
+        for item in range(len(self.vm_blockstats)):
+            self.add_metric(name + '.' + self.vm_blockstats[item][0], pmdaMetric(self.pmid(self.vm_blockstats_cluster, item),
+                self.vm_blockstats[item][2], self.vm_indom, self.vm_blockstats[item][3],
+                self.vm_blockstats[item][4]), self.vm_blockstats[item][5], self.vm_blockstats[item][5])
+
+        for item in range(len(self.vm_netstats)):
+            self.add_metric(name + '.' + self.vm_netstats[item][0], pmdaMetric(self.pmid(self.vm_netstats_cluster, item),
+                self.vm_netstats[item][2], self.vm_indom, self.vm_netstats[item][3],
+                self.vm_netstats[item][4]), self.vm_netstats[item][5], self.vm_netstats[item][5])
+
+        for item in range(len(self.vm_perfstats)):
+            self.add_metric(name + '.' + self.vm_perfstats[item][0], pmdaMetric(self.pmid(self.vm_perfstats_cluster, item),
+                self.vm_perfstats[item][2], self.vm_indom, self.vm_perfstats[item][3],
+                self.vm_perfstats[item][4]), self.vm_perfstats[item][5], self.vm_perfstats[item][5])
+
+        self.set_refresh(self.libvirt_refresh)
+        self.set_fetch_callback(self.libvirt_fetch_callback)
+
+        @atexit.register
+        def cleanup():
+            """ Clean up """
+            if self.conn:
+                if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
+                    self.log("Closing connection to " + self.uri)
+                self.conn.close()
+
+    def read_config(self):
+        """ Read configuration """
+        conffile = PCP.pmGetConfig('PCP_PMDAS_DIR')
+        conffile += '/' + self.read_name() + '/' + self.read_name() + '.conf'
+
+        # Silently ignore missing file/section
+        config = ConfigParser.SafeConfigParser()
+        config.read(conffile)
+        if config.has_section('pmda'):
+            for opt in config.options('pmda'):
+                if opt == 'user':
+                    self.user = config.get('pmda', opt)
+                elif opt == 'uri':
+                    self.uri = config.get('pmda', opt)
+                else:
+                    self.err("Invalid directive '%s' in %s.\n" % (opt, conffile))
+                    sys.exit(1)
+
+    def connect_libvirt(self):
+        """ Connect to libvirt """
+        conn = None
+        try:
+            conn = libvirt.openReadOnly(self.uri)
+            self.doms = conn.listAllDomains(libvirt.VIR_CONNECT_LIST_DOMAINS_ACTIVE)
+            if not os.environ.get('PCP_PYTHON_DOMAIN') and not os.environ.get('PCP_PYTHON_PMNS'):
+                self.log("Connected as " + self.user + " to " + self.uri)
+        except libvirt.libvirtError as error:
+            self.log("Failed to connect to the hypervisor: %s" % error)
+        return conn
+
+    def convert_value(self, value, mtype):
+        """ Convert value """
+        # No float/double in use
+        if mtype != PM_TYPE_STRING:
+            value = long(value)
+        return value
+
+    def scale_to_kib(self, value, unit):
+        """ Scale value to KiB """
+        if unit == "b" or unit == "bytes":
+            return value // 1024
+        elif unit == "k" or unit == "KiB":
+            return value
+        elif unit == "M" or unit == "MiB":
+            return 1024 * value
+        elif unit == "G" or unit == "GiB":
+            return 1024 ** 2 * value
+        elif unit == "T" or unit == "TiB":
+            return 1024 ** 3 * value
+        elif unit == "P" or unit == "PiB":
+            return 1024 ** 4 * value
+        elif unit == "E" or unit == "EiB":
+            return 1024 ** 5 * value
+        elif unit == "KB":
+            return value * 1000 // 1024
+        elif unit == "MB":
+            return value * 1000 ** 2 // 1024
+        elif unit == "GB":
+            return value * 1000 ** 3 // 1024
+        elif unit == "TB":
+            return value * 1000 ** 4 // 1024
+        elif unit == "PB":
+            return value * 1000 ** 5 // 1024
+        elif unit == "EB":
+            return value * 1000 ** 6 // 1024
+        else:
+            return -1
+
+    def libvirt_refresh(self, cluster):
+        """ Refresh """
+        if not self.conn:
+            self.conn = self.connect_libvirt()
+            if not self.conn:
+                self.doms = []
+                self.replace_indom(self.vm_indom, {"0":c_int(1)})
+                return
+
+        if cluster == self.hv_cluster:
+            return
+
+        if cluster == self.vm_cluster:
+            try:
+                self.doms = self.conn.listAllDomains(libvirt.VIR_CONNECT_LIST_DOMAINS_ACTIVE)
+            except libvirt.libvirtError as error:
+                self.log("Failed to list domains: %s" % error)
+                self.conn = None
+                self.doms = []
+                return
+            insts = {}
+            for dom in self.doms:
+                insts[dom.UUIDString()] = c_int(1)
+            self.vm_insts.set_instances(self.vm_indom, insts)
+            self.replace_indom(self.vm_indom, insts)
+            return
+
+        if not self.doms:
+            return
+
+        flags = None
+        try:
+            flags = libvirt.VIR_CONNECT_GET_ALL_DOMAINS_STATS_ACTIVE
+        except:
+            pass
+
+        if cluster == self.vm_cpustats_cluster:
+            try:
+                self.vm_cpustats_res = []
+                if flags is not None:
+                    stats = libvirt.VIR_DOMAIN_STATS_CPU_TOTAL
+                    self.vm_cpustats_res = self.conn.domainListGetStats(self.doms, stats, flags)
+            except libvirt.libvirtError as error:
+                self.log("Failed to get domain cpu stats: %s" % error)
+            return
+
+        if cluster == self.vm_vcpustats_cluster:
+            try:
+                self.vm_vcpustats_res = []
+                if flags is not None:
+                    stats = libvirt.VIR_DOMAIN_STATS_VCPU
+                    self.vm_vcpustats_res = self.conn.domainListGetStats(self.doms, stats, flags)
+            except libvirt.libvirtError as error:
+                self.log("Failed to get domain vcpu stats: %s" % error)
+            return
+
+        if cluster == self.vm_memstats_cluster:
+            try:
+                self.vm_memstats_res = {}
+                for dom in self.doms:
+                    self.vm_memstats_res[dom.UUIDString()] = dom.memoryStats()
+            except libvirt.libvirtError as error:
+                self.log("Failed to get domain mem stats: %s" % error)
+            return
+
+        if cluster == self.vm_balloonstats_cluster:
+            try:
+                self.vm_balloonstats_res = []
+                if flags is not None:
+                    stats = libvirt.VIR_DOMAIN_STATS_BALLOON
+                    self.vm_balloonstats_res = self.conn.domainListGetStats(self.doms, stats, flags)
+            except libvirt.libvirtError as error:
+                self.log("Failed to get domain balloon stats: %s" % error)
+            return
+
+        if cluster == self.vm_blockstats_cluster:
+            try:
+                self.vm_blockstats_res = []
+                if flags is not None:
+                    stats = libvirt.VIR_DOMAIN_STATS_BLOCK | libvirt.VIR_CONNECT_GET_ALL_DOMAINS_STATS_BACKING
+                    self.vm_blockstats_res = self.conn.domainListGetStats(self.doms, stats, flags)
+            except libvirt.libvirtError as error:
+                self.log("Failed to get domain block stats: %s" % error)
+            return
+
+        if cluster == self.vm_netstats_cluster:
+            try:
+                self.vm_netstats_res = []
+                if flags is not None:
+                    stats = libvirt.VIR_DOMAIN_STATS_INTERFACE
+                    self.vm_netstats_res = self.conn.domainListGetStats(self.doms, stats, flags)
+            except libvirt.libvirtError as error:
+                self.log("Failed to get domain net stats: %s" % error)
+            return
+
+        if cluster == self.vm_perfstats_cluster:
+            try:
+                self.vm_perfstats_res = []
+                if flags is not None:
+                    stats = libvirt.VIR_DOMAIN_STATS_PERF
+                    self.vm_perfstats_res = self.conn.domainListGetStats(self.doms, stats, flags)
+            except libvirt.libvirtError as error:
+                self.log("Failed to get domain perf stats: %s" % error)
+            return
+
+    def libvirt_fetch_callback(self, cluster, item, inst):
+        """ Fetch callback """
+        if not self.conn:
+            return [PM_ERR_NOTCONN, 0]
+
+        if cluster == self.hv_cluster:
+            try:
+                method = getattr(self.conn, self.hv_metrics[item][1])
+                if self.hv_metrics[item][1] == "numOfDevices":
+                    value = method(None, 0)
+                else:
+                    value = method()
+                value = self.convert_value(value, self.hv_metrics[item][2])
+                return [value, 1]
+            except:
+                return [PM_ERR_VALUE, 0]
+
+        if not self.doms:
+            return [PM_ERR_AGAIN, 0]
+
+        if cluster == self.vm_cluster:
+            try:
+                doc = None
+                uuid = self.vm_insts.inst_name_lookup(inst)
+                for dom in self.doms:
+                    if dom.UUIDString() == uuid:
+                        doc = etree.fromstring(dom.XMLDesc(0))
+                        break
+                if doc is None:
+                    [PM_ERR_INST, 0]
+
+                path = self.vm_metrics[item][1]
+                value = doc.xpath(path)
+
+                if not len(value):
+                    # Custom fallback: if "current" vCPUs attribute is
+                    # not found then assume maximum allocation is used
+                    if self.vm_metrics[item][0] == 'dominfo.vcpu.current':
+                        value = doc.xpath("/domain/vcpu")
+                    else:
+                        return [PM_ERR_AGAIN, 0]
+
+                # Extract and scale if needed
+                if type(value) is list:
+                    if 'text' in dir(value[0]):
+                        value = value[0].text
+                    else:
+                        value = value[0]
+                if 'dominfo.memory.' in self.vm_metrics[item][0]:
+                    path = path + "/@unit"
+                    unit = doc.xpath(path)[0]
+                    value = self.scale_to_kib(int(value), unit)
+                    if value < 0:
+                        return [PM_ERR_NYI, 0]
+
+                value = self.convert_value(value, self.vm_metrics[item][2])
+                return [value, 1]
+            except:
+                return [PM_ERR_VALUE, 0]
+
+        if cluster == self.vm_memstats_cluster:
+            try:
+                key = self.vm_memstats[item][0].rsplit('.')[2]
+                return [self.vm_memstats_res[self.vm_insts.inst_name_lookup(inst)][key], 1]
+            except:
+                return [PM_ERR_VALUE, 0]
+
+        if cluster == self.vm_cpustats_cluster or \
+           cluster == self.vm_vcpustats_cluster or \
+           cluster == self.vm_balloonstats_cluster or \
+           cluster == self.vm_blockstats_cluster or \
+           cluster == self.vm_netstats_cluster or \
+           cluster == self.vm_perfstats_cluster:
+            try:
+                if cluster == self.vm_cpustats_cluster:
+                    res = self.vm_cpustats_res
+                    mtx = self.vm_cpustats
+                elif cluster == self.vm_vcpustats_cluster:
+                    res = self.vm_vcpustats_res
+                    mtx = self.vm_vcpustats
+                elif cluster == self.vm_balloonstats_cluster:
+                    res = self.vm_balloonstats_res
+                    mtx = self.vm_balloonstats
+                elif cluster == self.vm_blockstats_cluster:
+                    res = self.vm_blockstats_res
+                    mtx = self.vm_blockstats
+                elif cluster == self.vm_netstats_cluster:
+                    res = self.vm_netstats_res
+                    mtx = self.vm_netstats
+                elif cluster == self.vm_perfstats_cluster:
+                    res = self.vm_perfstats_res
+                    mtx = self.vm_perfstats
+
+                # Locate the correct VM domain
+                pos = -1
+                uuid = self.vm_insts.inst_name_lookup(inst)
+                for i, r in enumerate(res):
+                    if r[0].UUIDString() == uuid:
+                        pos = i
+                        break
+                if pos < 0:
+                    return [PM_ERR_INST, 0]
+
+                # All done for non-dynamic clusters
+                if cluster != self.vm_vcpustats_cluster and \
+                   cluster != self.vm_blockstats_cluster and \
+                   cluster != self.vm_netstats_cluster:
+                    key = '.'.join(mtx[item][0].split('.')[1:])
+                    if key in res[pos][1]:
+                        return [res[pos][1][key], 1]
+                    else:
+                        return [PM_ERR_AGAIN, 0]
+
+                # Non-combined values in dynamic clusters
+                key = '.'.join(mtx[item][0].split('.')[1:])
+                if key == 'vcpu.current' or key == 'vcpu.maximum' or \
+                   key == 'net.count' or key == 'block.count':
+                    return [res[pos][1][key], 1]
+
+                # Combine N values for dynamic metrics
+                if 'vcpu' in mtx[item][0]:
+                    count = res[pos][1]['vcpu.current']
+                elif 'block' in mtx[item][0]:
+                    count = res[pos][1]['block.count']
+                elif 'net' in mtx[item][0]:
+                    count = res[pos][1]['net.count']
+                else:
+                    return [PM_ERR_VALUE, 0]
+
+                # Calculate the combined value
+                value = 0
+                for i in range(count):
+                    k = key.split('.')[0] + '.' + str(i) + '.' + '.'.join(key.split('.')[1:])
+                    if k in res[pos][1]:
+                        value += res[pos][1][k]
+                return [value, 1]
+            except:
+                return [PM_ERR_VALUE, 0]
+
+        return [PM_ERR_PMID, 0]
+
+if __name__ == '__main__':
+    LibvirtPMDA('libvirt', 491).run()
