@@ -251,6 +251,7 @@ HAVE_PYTHON = @have_python@
 
 # python dependent bits
 HAVE_PYTHON_SIX = @have_python_six@
+HAVE_PYTHON_REQUESTS = @have_python_requests@
 HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
 
 # for building packages from external sources

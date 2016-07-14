@@ -76,4 +76,11 @@ else
     echo "s/?{python-json-pointer}//" >>$tmp.sed
 fi
 
+if $HAVE_PYTHON_REQUESTS
+then
+    echo "s/?{python-requests}/python-requests,/" >>$tmp.sed
+else
+    echo "s/?{python-requests}//" >>$tmp.sed
+fi
+
 sed -f $tmp.sed <control.master

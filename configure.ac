@@ -890,6 +890,8 @@ AC_DEFUN(PCP_CHECK_PYTHON_MODULE,
   ])
 PCP_CHECK_PYTHON_MODULE(jsonpointer)
 AC_SUBST(have_python_jsonpointer)
+PCP_CHECK_PYTHON_MODULE(requests)
+AC_SUBST(have_python_requests)
 PCP_CHECK_PYTHON_MODULE(six)
 AC_SUBST(have_python_six)
 
