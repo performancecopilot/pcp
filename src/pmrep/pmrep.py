@@ -1112,8 +1112,10 @@ class PMReporter(object):
         duration = int(duration) if duration == int(duration) else "{0:.3f}".format(duration)
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
+            if not self.interpol:
+                endtime = float(self.context.pmGetArchiveEnd())
             if endtime > float(self.context.pmGetArchiveEnd()):
-                endtime = self.context.pmGetArchiveEnd()
+                endtime = float(self.context.pmGetArchiveEnd())
             if not self.interpol and self.opts.pmGetOptionSamples():
                 samples = str(samples) + " (requested)"
             elif not self.interpol:
