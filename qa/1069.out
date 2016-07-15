@@ -16,7 +16,7 @@ HH:MM:SS        1
 HH:MM:SS        1
           s.l.one  s.colour  s.colour  s.colour
                         red     green      blue
-                                              
+                                               
 == basic archive mode reporting
           s.seconds  s.milliseconds
                util            util

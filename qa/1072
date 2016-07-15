@@ -36,7 +36,7 @@ _path_filter()
 }
 
 #  timezone: :Australia/Melbourne (reporting, current is AEDT-11)
-#  this is not deterministic ........................... ^^^^^^^
+#  this is not deterministic .... ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #  and
 #  timezone: AEDT-11
 #            ^^^^^^^ ... ditto
@@ -46,7 +46,7 @@ _path_filter()
 _archive_filter()
 {
     sed \
-        -e '/timezone/s/current is .*)/current is ...)/' \
+        -e '/timezone/s/ (reporting.*)//' \
         -e '/timezone:/s/[A-Z][A-Z]*-11/...-11/' \
         -e '/timezone:/s/[A-Z][A-Z]*-10/...-11/' \
     #end
@@ -70,8 +70,8 @@ metrics1=$(pminfo $log  | grep -v event\. | LC_COLLATE=C sort | tr '\n' ' ')
 metrics2=$(pminfo $log2 kernel | grep -v event\. | LC_COLLATE=C sort | tr '\n' ' ')
 pmrep -u -s 5 -p -P 4 -w 12 -x -z $log  $metrics1 | _path_filter | _archive_filter >$tmp.a1-out
 pmrep -u -s 5 -p -P 4 -w 12 -x -z $log2 $metrics2 | _path_filter | _archive_filter >$tmp.a2-out
-pmrep -u -s 5 -o archive -F $tmp.new_archive1 $log  $metrics1 | _pid_filter
-pmrep -u -s 5 -o archive -F $tmp.new_archive2 $log2 $metrics2 | _pid_filter
+pmrep -u -s 5 -o archive -F $tmp.new_archive1 -z $log  $metrics1 | _pid_filter
+pmrep -u -s 5 -o archive -F $tmp.new_archive2 -z $log2 $metrics2 | _pid_filter
 echo "Writing output from the created archives to files"
 pmrep -u -s 5 -p -P 4 -w 12 -x -z -a $tmp.new_archive1 $metrics1 | \
   _path_filter | _archive_filter | _pid_filter >$tmp.a1-out-new

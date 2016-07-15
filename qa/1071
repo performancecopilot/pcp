@@ -30,7 +30,7 @@ _path_filter()
 }
 
 #  timezone: :Australia/Melbourne (reporting, current is AEDT-11)
-#  this is not deterministic ........................... ^^^^^^^
+#  this is not deterministic .... ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #  and
 #  timezone: AEDT-11
 #            ^^^^^^^ ... ditto
@@ -40,7 +40,6 @@ _path_filter()
 _archive_filter()
 {
     sed \
-        -e '/timezone/s/current is .*)/current is ...)/' \
         -e '/timezone/s/ (reporting.*)//' \
         -e '/timezone:/s/[A-Z][A-Z]*-11/...-11/' \
         -e '/timezone:/s/[A-Z][A-Z]*-10/...-11/' \
