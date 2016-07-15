@@ -40,7 +40,8 @@ respectively.
 .PP
 The old API setting can be used in environments where recent libvirt API
 additions are not available (e.g., RHEL 6 / libvirt-0.10.2) to provide
-some of the metrics available with the newer API.
+some of the metrics available with the newer API. Regardless of the API
+version, no guest agent is needed for the metrics.
 .PP
 Note that using non-root user typically requires also libvirt side
 configuration; please refer to libvirt documentation for further details

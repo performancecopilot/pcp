@@ -412,7 +412,7 @@ class LibvirtPMDA(PMDA):
                                     res['vcpu.' + nrstr + '.state'] = stats[nr][i]
                                 elif i == 2:
                                     res['vcpu.' + nrstr + '.time'] = stats[nr][i]
-                            self.vm_vcpustats_res.append([dom, res])
+                        self.vm_vcpustats_res.append([dom, res])
             except libvirt.libvirtError as error:
                 self.log("Failed to get domain vcpu stats: %s" % error)
             return
@@ -449,9 +449,11 @@ class LibvirtPMDA(PMDA):
                         res = {}
                         res['block.count'] = count
                         for nr in range(count):
-                            src = doc.xpath("/domain/devices/disk")[nr].findall('source')[0]
+                            src = doc.xpath("/domain/devices/disk")[nr].find('source')
+                            if src is None:
+                                continue
                             path = None
-                            for path in 'file', 'block', 'dir', 'network':
+                            for path in 'file', 'block', 'dir', 'network', 'volume':
                                 try:
                                     key = src.keys().index(path)
                                     path = src.values()[key]
@@ -489,7 +491,10 @@ class LibvirtPMDA(PMDA):
                         res = {}
                         res['net.count'] = count
                         for nr in range(count):
-                            name = doc.xpath("/domain/devices/interface")[nr].findall('target')[0].values()[0]
+                            name = doc.xpath("/domain/devices/interface")[nr].find('target')
+                            if name is None:
+                                continue
+                            name = name.values()[0]
                             nrstr = str(nr)
                             stats = dom.interfaceStats(name)
                             for i in range(len(stats)):
