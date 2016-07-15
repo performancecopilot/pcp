@@ -82,17 +82,17 @@ class LibvirtPMDA(PMDA):
             [ 'hv.uri',                    'getURI',                   PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'Libvirt URI'                     ],
             [ 'hv.driver',                 'getType',                  PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'Libvirt driver'                  ],
             [ 'hv.version',                'getVersion',               PM_TYPE_U32,    PM_SEM_DISCRETE, units_none,  'Libvirt version'                 ],
-            [ 'hv.domains.active',         'numOfDomains',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt domains, active'         ],
-            [ 'hv.domains.inactive',       'numOfDefinedDomains',      PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt domains, inactive'       ],
-            [ 'hv.devices',                'numOfDevices',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt devices'                 ],
-            [ 'hv.storagepools.active',    'numOfStoragePools',        PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt storage pools, active'   ],
-            [ 'hv.storagepools.inactive',  'numOfDefinedStoragePools', PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt storage pools, inactive' ],
-            [ 'hv.networks.active',        'numOfNetworks',            PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt networks, active'        ],
-            [ 'hv.networks.inactive',      'numOfDefinedNetworks',     PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt networks, inactive'      ],
-            [ 'hv.interfaces.active',      'numOfInterfaces',          PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt interfaces, active'      ],
-            [ 'hv.interfaces.inactive',    'numOfDefinedInterfaces',   PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt interfaces, inactive'    ],
-            [ 'hv.nwfilters',              'numOfNWFilters',           PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt nw filters'              ],
-            [ 'hv.secrets',                'numOfSecrets',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'Libvirt secrets'                 ],
+            [ 'hv.domains.active',         'numOfDomains',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt domains, active'         ],
+            [ 'hv.domains.inactive',       'numOfDefinedDomains',      PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt domains, inactive'       ],
+            [ 'hv.devices',                'numOfDevices',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt devices'                 ],
+            [ 'hv.storagepools.active',    'numOfStoragePools',        PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt storage pools, active'   ],
+            [ 'hv.storagepools.inactive',  'numOfDefinedStoragePools', PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt storage pools, inactive' ],
+            [ 'hv.networks.active',        'numOfNetworks',            PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt networks, active'        ],
+            [ 'hv.networks.inactive',      'numOfDefinedNetworks',     PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt networks, inactive'      ],
+            [ 'hv.interfaces.active',      'numOfInterfaces',          PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt interfaces, active'      ],
+            [ 'hv.interfaces.inactive',    'numOfDefinedInterfaces',   PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt interfaces, inactive'    ],
+            [ 'hv.networkfilters',         'numOfNWFilters',           PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt network filters'         ],
+            [ 'hv.secrets',                'numOfSecrets',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'Libvirt secrets'                 ],
         ]
 
         self.vm_indom = self.indom(0)
@@ -110,8 +110,8 @@ class LibvirtPMDA(PMDA):
             [ 'dominfo.description',       '/domain/description',      PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM description'                  ],
             [ 'dominfo.container',         '/domain/os/init',          PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM container'                    ],
             [ 'dominfo.os.type',           '/domain/os/type',          PM_TYPE_STRING, PM_SEM_DISCRETE, units_none,  'VM OS type'                      ],
-            [ 'dominfo.vcpu.current',      '/domain/vcpu/@current',    PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPUs, current'               ],
-            [ 'dominfo.vcpu.max',          '/domain/vcpu',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPUs, maximum'               ],
+            [ 'dominfo.vcpu.current',      '/domain/vcpu/@current',    PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPUs, current'               ],
+            [ 'dominfo.vcpu.max',          '/domain/vcpu',             PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPUs, maximum'               ],
             [ 'dominfo.memory.boot',       '/domain/memory',           PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, at boot'              ],
             [ 'dominfo.memory.current',    '/domain/currentMemory',    PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, current'              ],
             [ 'dominfo.memory.max',        '/domain/maxMemory',        PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, maximum'              ],
@@ -132,11 +132,11 @@ class LibvirtPMDA(PMDA):
         self.vm_vcpustats = [
             # Name - empty - type - semantics - units - help
             # See libvirt.git/src/libvirt-domain.c
-            [ 'domstats.vcpu.current',     None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPUs, current'               ],
-            [ 'domstats.vcpu.maximum',     None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPUs, maximum'               ],
+            [ 'domstats.vcpu.current',     None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPUs, current'               ],
+            [ 'domstats.vcpu.maximum',     None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM vCPUs, maximum'               ],
 #           [ 'domstats.vcpu.state',       None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPUs, state'                 ],
-            [ 'domstats.vcpu.time',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM vCPUs, time'                  ],
-            [ 'domstats.vcpu.wait',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM vCPUs, wait'                  ],
+            [ 'domstats.vcpu.time',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPUs, time'                  ],
+            [ 'domstats.vcpu.wait',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPUs, wait'                  ],
         ]
 
         self.vm_memstats_res = {}
@@ -144,10 +144,10 @@ class LibvirtPMDA(PMDA):
         self.vm_memstats = [
             # Name - empty - type - semantics - units - help
             # See libvirt.git/include/libvirt/libvirt-domain.h
-            [ 'domstats.mem.swap_in',      None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, swapped in'           ],
-            [ 'domstats.mem.swap_out',     None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, swapped out'          ],
-            [ 'domstats.mem.major_fault',  None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_none,  'VM memory, major faults'         ],
-            [ 'domstats.mem.minor_fault',  None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_none,  'VM memory, minor faults'         ],
+            [ 'domstats.mem.swap_in',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM memory, swapped in total'     ],
+            [ 'domstats.mem.swap_out',     None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM memory, swapped out total'    ],
+            [ 'domstats.mem.major_fault',  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM memory, major faults'         ],
+            [ 'domstats.mem.minor_fault',  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM memory, minor faults'         ],
             [ 'domstats.mem.unused',       None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, unused'               ],
             [ 'domstats.mem.available',    None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, available'            ],
             [ 'domstats.mem.actual',       None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM memory, balloon size'         ],
@@ -168,7 +168,7 @@ class LibvirtPMDA(PMDA):
         self.vm_blockstats = [
             # Name - empty - type - semantics - units - help
             # See libvirt.git/src/libvirt-domain.c
-            [ 'domstats.block.count',      None,                       PM_TYPE_U32,    PM_SEM_COUNTER,  units_count, 'VM block devs, count'            ],
+            [ 'domstats.block.count',      None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM block devs, count'            ],
             [ 'domstats.block.rd.reqs',    None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block devs, rd reqs'          ],
             [ 'domstats.block.rd.bytes',   None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM block devs, rd bytes'         ],
             [ 'domstats.block.rd.times',   None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, rd times'         ],
@@ -177,7 +177,7 @@ class LibvirtPMDA(PMDA):
             [ 'domstats.block.wr.times',   None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, wr times'         ],
             [ 'domstats.block.fl.reqs',    None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block devs, fl reqs'          ],
             [ 'domstats.block.fl.times',   None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, fl times'         ],
-            [ 'domstats.block.allocation', None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM backing imgs, allocation'     ],
+            [ 'domstats.block.allocation', None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, allocation'     ],
             [ 'domstats.block.capacity',   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, capacity'       ],
             [ 'domstats.block.physical',   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, physical'       ],
         ]
@@ -187,7 +187,7 @@ class LibvirtPMDA(PMDA):
         self.vm_netstats = [
             # Name - empty - type - semantics - units - help
             # See libvirt.git/src/libvirt-domain.c
-            [ 'domstats.net.count',        None,                       PM_TYPE_U32,    PM_SEM_COUNTER,  units_count, 'VM NICs, count'                  ],
+            [ 'domstats.net.count',        None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM NICs, count'                  ],
             [ 'domstats.net.rx.bytes',     None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM NICs, rx bytes'               ],
             [ 'domstats.net.rx.pkts',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, rx pkts'                ],
             [ 'domstats.net.rx.errs',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, rx errs'                ],
