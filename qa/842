@@ -32,10 +32,13 @@ $PMIOSTAT -z --samples 10 --archive archives/dm-io -x t,h
 echo
 
 echo 'Precision'
-for precision in `seq 0 8`; do
+precision=0
+while [ $precision -le 8 ]
+do
     echo == Precision=$precision
     $PMIOSTAT -z -P $precision --samples 3 --archive archives/dm-io -x t,h
     echo
+    precision=`expr $precision + 1`
 done
 
 echo 'Checking reported values against pmval'
