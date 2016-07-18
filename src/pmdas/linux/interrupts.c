@@ -144,8 +144,25 @@ update_other_pmns(int domain, const char *name)
     unsigned int item = dynamic_item_lookup(name, INTERRUPT_NAMES_INDOM);
     pmID pmid = pmid_build(domain, CLUSTER_INTERRUPT_OTHER, item);
 
-    snprintf(entry, sizeof(entry), "kernel.percpu.interrupts.%s", name);
+    snprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", name);
     __pmAddPMNSNode(interrupt_tree, pmid, entry);
+}
+
+static __pmnsTree *
+noop_interrupts_pmns(int domain)
+{
+    char entry[128];
+    pmID pmid;
+
+    pmid = pmid_build(domain, CLUSTER_INTERRUPT_LINES, 0);
+    snprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", "line");
+    __pmAddPMNSNode(interrupt_tree, pmid, entry);
+    pmid = pmid_build(domain, CLUSTER_INTERRUPT_OTHER, 0);
+    snprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.interrupts", "none");
+    __pmAddPMNSNode(interrupt_tree, pmid, entry);
+
+    pmdaTreeRebuildHash(interrupt_tree, 2);
+    return interrupt_tree;
 }
 
 static void
@@ -155,8 +172,20 @@ update_softirqs_pmns(int domain, const char *name)
     unsigned int item = dynamic_item_lookup(name, SOFTIRQS_NAMES_INDOM);
     pmID pmid = pmid_build(domain, CLUSTER_SOFTIRQS, item);
 
-    snprintf(entry, sizeof(entry), "kernel.percpu.softirqs.%s", name);
+    snprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.softirqs", name);
     __pmAddPMNSNode(softirqs_tree, pmid, entry);
+}
+
+static __pmnsTree *
+noop_softirqs_pmns(int domain)
+{
+    char entry[128];
+    pmID pmid = pmid_build(domain, CLUSTER_SOFTIRQS, 0);
+
+    snprintf(entry, sizeof(entry), "%s.%s", "kernel.percpu.softirqs", "none");
+    __pmAddPMNSNode(softirqs_tree, pmid, entry);
+    pmdaTreeRebuildHash(softirqs_tree, 1);
+    return softirqs_tree;
 }
 
 static int
@@ -470,11 +499,15 @@ refresh_interrupts(pmdaExt *pmda, __pmnsTree **tree)
 	    update_lines_pmns(dom, i, interrupt_lines[i].id);
 	for (i = 0; i < other_count; i++)
 	    update_other_pmns(dom, interrupt_other[i].name);
-	*tree = interrupt_tree;
-	pmdaTreeRebuildHash(interrupt_tree, lines_count+other_count);
-	return 1;
+	if ((*tree = interrupt_tree) != NULL) {
+	    pmdaTreeRebuildHash(interrupt_tree, lines_count+other_count);
+	    return 1;
+	}
     }
-    return 0;
+
+    if (*tree == NULL)
+	*tree = noop_interrupts_pmns(dom);
+    return 1;
 }
 
 static int
@@ -496,11 +529,15 @@ refresh_softirqs(pmdaExt *pmda, __pmnsTree **tree)
     } else {
 	for (i = 0; i < softirqs_count; i++)
 	    update_softirqs_pmns(dom, softirqs[i].name);
-	*tree = softirqs_tree;
-	pmdaTreeRebuildHash(softirqs_tree, softirqs_count);
-	return 1;
+	if ((*tree = softirqs_tree) != NULL) {
+	    pmdaTreeRebuildHash(softirqs_tree, softirqs_count);
+	    return 1;
+	}
     }
-    return 0;
+
+    if (*tree == NULL)
+	*tree = noop_softirqs_pmns(dom);
+    return 1;
 }
 
 int
@@ -513,16 +550,22 @@ interrupts_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
 
     switch (cluster) {
 	case CLUSTER_INTERRUPT_LINES:
+	    if (!lines_count)
+		return 0;
 	    if (item > lines_count)
 		return PM_ERR_PMID;
 	    atom->ul = interrupt_lines[item].values[inst];
 	    return 1;
 	case CLUSTER_INTERRUPT_OTHER:
+	    if (!other_count)
+		return 0;
 	    if (!(ip = dynamic_data_lookup(item, INTERRUPT_NAMES_INDOM)))
 		return PM_ERR_PMID;
 	    atom->ul = ip->values[inst];
 	    return 1;
 	case CLUSTER_SOFTIRQS:
+	    if (!softirqs_count)
+		return 0;
 	    if (!(ip = dynamic_data_lookup(item, SOFTIRQS_NAMES_INDOM)))
 		return PM_ERR_PMID;
 	    atom->ul = ip->values[inst];
@@ -561,8 +604,11 @@ interrupts_metrictable(int *total, int *trees)
     if (!refresh_interrupt_count)
 	refresh_interrupt_values();
 
+    if (lines_count > other_count)
+	*trees = lines_count ? lines_count : 1;
+    else
+	*trees = other_count ? other_count : 1;
     *total = 2;	/* lines and other */
-    *trees = lines_count > other_count ? lines_count : other_count;
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
 	fprintf(stderr, "interrupts size_metrictable: %d total x %d trees\n",
@@ -575,8 +621,8 @@ softirq_metrictable(int *total, int *trees)
     if (!refresh_softirqs_count)
 	refresh_softirqs_values();
 
+    *trees = softirqs_count ? softirqs_count : 1;
     *total = 1;	/* softirqs */
-    *trees = softirqs_count;
 
     if (pmDebug & DBG_TRACE_LIBPMDA)
 	fprintf(stderr, "softirqs size_metrictable: %d total x %d trees\n",
