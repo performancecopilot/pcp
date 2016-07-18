@@ -36,7 +36,7 @@ static pmLongOptions longopts[] = {
     PMOPT_VERSION,
     PMOPT_HELP,
     PMAPI_OPTIONS_HEADER("Protocol options"),
-    { "batch",    1, 'b', "N", "fetch N metrics at a time for -f and -v [20]" },
+    { "batch",    1, 'b', "N", "fetch N metrics at a time for -f and -v [128]" },
     { "desc",     0, 'd', 0, "get and print metric description" },
     { "fetch",    0, 'f', 0, "fetch and print values for all instances" },
     { "fetchall", 0, 'F', 0, "fetch and print values for non-enumerable indoms" },
@@ -71,7 +71,7 @@ static int	need_context;	/* set if need a pmapi context */
 static int	need_pmid;	/* set if need to lookup names */
 static char	**namelist;
 static pmID	*pmidlist;
-static int	batchsize = 20;
+static int	batchsize = 128;
 static int	batchidx;
 static int	verify;		/* Only print error messages */
 static int	events;		/* Decode event metrics */
