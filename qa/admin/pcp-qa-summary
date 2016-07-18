@@ -298,9 +298,9 @@ then
     echo
     if $nflag
     then
-	echo "==== QA Failure (X) and Not Run (-) Map ===="
+	echo "==== QA Failure (X), Not Run (N) and Skipped (S) Map ===="
     else
-	echo "==== QA Failure (X) Map ===="
+	echo "==== QA Failure (X) and Not Run or Skipped (-) Map ===="
     fi
     echo
     ( ( sed -e 's/.* //' <$tmp.map | sort | uniq ) \
