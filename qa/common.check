@@ -956,15 +956,21 @@ if which valgrind >/dev/null 2>&1; then
     else
 	__extra=''
     fi
-    valgrind --help 2>&1 | grep -q vgdb
-    [ $? -eq 0 ] && __extra="$__extra --vgdb=no"
+    valgrind --help >$tmp.valgrind.help 2>&1
+    grep -q .--vgdb= <$tmp.valgrind.help && __extra="$__extra --vgdb=no"
     valgrind --help 2>&1 | grep -q show-leak-kinds
-    if [ $? -eq 0 ]
+    if grep -q .--show-leak-kinds= <$tmp.valgrind.help
     then
 	__extra="$__extra --show-leak-kinds=definite"
     else
-	__extra="$__extra --show-reachable=no --show-possibly-lost=no"
+	if grep -q .--show-possibly-lost= <$tmp.valgrind.help
+	then
+	    __extra="$__extra --show-reachable=no --show-possibly-lost=no"
+	else
+	    __extra="$__extra --show-reachable=no"
+	fi
     fi
+    rm -f $tmp.valgrind.help
     _valgrind_clean_assert="valgrind -q \
 	     --leak-check=full --read-var-info=yes --gen-suppressions=all \
 	     --suppressions=$here/valgrind-suppress $__extra \
