@@ -181,7 +181,7 @@ dynamic_metric_table(int index, pmdaMetric *offset, pmdaExt *pmda)
 	pmdaMetric *mp = &dp->metrics[m];
 	int gid;
 
-	if (pmdaDynamicCheckPMID( mp->m_desc.pmid, index))
+	if (pmdaDynamicCheckPMID(mp->m_desc.pmid, index))
 	    for (gid = 0; gid < tree_count; gid++)
 		dp->mtabupdate(mp, offset++, gid + 1);
     }
