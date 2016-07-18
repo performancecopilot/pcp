@@ -310,7 +310,11 @@ given hierarchies of PCP metrics to an InfluxDB server on the network.""")
         return pmidA
 
     def send(self, timestamp, metrics):
-        import requests
+        try:
+            import requests
+        except ImportError:
+            print("Please install the python 'requests' library")
+            sys.exit(1)
 
         body = WriteBody()
 
@@ -331,18 +335,29 @@ given hierarchies of PCP metrics to an InfluxDB server on the network.""")
             res = requests.post(url, params=params, data=str(body), auth=auth)
 
             if res.status_code != 204:
-                print("could not send for some reason")
+                msg = "could not send metrics: "
 
                 if res.status_code == 200:
-                    print("influx could not complete the request")
+                    msg += "influx could not complete the request"
+                elif res.status_code == 404:
+                    msg += "Got an HTTP code 404. This most likely means "
+                    msg += "that the requested database '"
+                    msg += self.database
+                    msg += "' does not exist"
                 else:
-                    print("request to " + res.url + " failed with code " +
-                          str(res.status_code))
+                    msg += "request to "
+                    msg += res.url
+                    msg += " failed with code "
+                    msg += str(res.status_code)
+                    msg += "\n"
+                    msg += "body of request is:\n"
+                    msg += str(body)
 
-                    print("body of request is:")
-                    print(body)
+                print(msg)
         except ValueError:
             print("Can't send a request that has no metrics")
+        except requests.exceptions.ConnectionError:
+            print("Can't connect to an InfluxDB server, running anyways...")
 
     def sanitize_nameindom(self, string):
         """ Quote the given instance-domain string for proper digestion
