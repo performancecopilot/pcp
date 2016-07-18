@@ -19,7 +19,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=libvirt
-domain=491
+domain=140
 python_opt=true
 daemon_opt=false
 

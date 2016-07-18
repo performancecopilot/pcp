@@ -57,9 +57,7 @@ class LibvirtPMDA(PMDA):
         self.doms = []
         self.connect_pmcd()
         self.conn = self.connect_libvirt()
-        try:
-            test = libvirt.VIR_CONNECT_GET_ALL_DOMAINS_STATS_ACTIVE
-        except:
+        if 'domainListGetStats' not in (dir(self.conn)):
             self.oldapi = True
 
         if self.oldapi:
@@ -367,11 +365,8 @@ class LibvirtPMDA(PMDA):
             return
 
         flags = None
-        try:
-            if not self.oldapi:
-                flags = libvirt.VIR_CONNECT_GET_ALL_DOMAINS_STATS_ACTIVE
-        except:
-            pass
+        if not self.oldapi:
+            flags = libvirt.VIR_CONNECT_GET_ALL_DOMAINS_STATS_ACTIVE
 
         if cluster == self.vm_cpustats_cluster:
             try:
