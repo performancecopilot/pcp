@@ -19,28 +19,28 @@ HH:MM:SS        1
                                                
 == basic archive mode reporting
           s.seconds  s.milliseconds
-               util            util
+                s/s            ms/s
 20:36:45        N/A             N/A
 20:36:47        N/A             N/A
-20:36:49       1.00            1.00
-20:36:51       1.00            1.00
-20:36:53       1.00            1.00
+20:36:49       1.00         1000.03
+20:36:51       1.00         1000.00
+20:36:53       1.00         1000.02
 == basic configuration file handling
   s.seconds  s.milliseconds
-       util            util
+        s/s            ms/s
         N/A             N/A
         N/A             N/A
-      1.000           1.000
-      1.000           1.000
-      1.000           1.000
+      1.000        1000.033
+      1.000        1000.001
+      1.000        1000.016
 == exercise various output options
                      s.seconds        s.milliseconds
-                          util                  util
+                           s/s                  ms/s
 20:36:45                   N/A                   N/A
 20:36:47                   N/A                   N/A
-20:36:49                 1.000                 1.000
-20:36:51                 1.000                 1.000
-20:36:53                 1.000                 1.000
+20:36:49                 1.000              1000.033
+20:36:51                 1.000              1000.001
+20:36:53                 1.000              1000.016
 ---
 
   archive: QAPATH/archives/sample-secs
@@ -54,7 +54,7 @@ HH:MM:SS        1
  duration: 8 sec
 
   s.seconds  s.milliseconds
-       util            util
+        s/s            ms/s
 ---
 
   archive: QAPATH/archives/sample-secs
@@ -68,16 +68,16 @@ HH:MM:SS        1
  duration: 7 sec
 
           s.seconds  s.milliseconds
-               util            util
+                s/s            ms/s
 20:36:45        N/A             N/A
 20:36:48        N/A             N/A
-20:36:51      1.000           1.000
+20:36:51      1.000         999.992
 ---
         N/A             N/A
         N/A             N/A
-      1.000           1.000
-      1.000           1.000
-      1.000           1.000
+      1.000        1000.033
+      1.000        1000.001
+      1.000        1000.016
 == exercise non-integer options
 
   archive: QAPATH/archives/sample-secs
@@ -91,13 +91,13 @@ HH:MM:SS        1
  duration: 2.500 sec
 
           s.seconds  s.milliseconds
-               util            util
+                s/s            ms/s
 20:36:45        N/A             N/A
 20:36:45        N/A             N/A
-20:36:46      2.000           1.000
-20:36:46      0.000           1.000
-20:36:47      2.000           1.000
-20:36:47      0.000           1.000
+20:36:46      2.000        1000.216
+20:36:46      0.000        1000.216
+20:36:47      2.000        1000.216
+20:36:47      0.000        1000.205
 == exercise raw counter mode
   s.seconds  s.milliseconds
         sec        millisec
@@ -108,12 +108,12 @@ HH:MM:SS        1
      380440   380439679.413
 == exercise timezone setting
           s.seconds  s.milliseconds
-               util            util
+                s/s            ms/s
 10:36:45        N/A             N/A
 10:36:47        N/A             N/A
-10:36:49      1.000           1.000
-10:36:51      1.000           1.000
-10:36:53      1.000           1.000
+10:36:49      1.000        1000.033
+10:36:51      1.000        1000.001
+10:36:53      1.000        1000.016
 == exercise CSV and alternate delimiters
 Time,sample.seconds,sample.milliseconds
 2000-05-01 20:36:45,"",""
@@ -131,15 +131,15 @@ Time|sample.seconds|sample.milliseconds
 ok
 == exercise repeated headers option
   s.seconds
-       util
+        s/s
         N/A
         N/A
   s.seconds
-       util
+        s/s
       1.000
       1.000
   s.seconds
-       util
+        s/s
       1.000
 == exercise units conversion options
                  m.u.free         m.u.used
@@ -174,23 +174,23 @@ ok
 00:47:09            0.000         3000.000           50.000            0.000            0.000           50.000
              d.d.avactive     d.d.avactive     d.d.avactive     d.d.avactive     d.d.avactive     d.d.avactive
                       sda              sdb              sdc              hdc              sdd              sde
-                     util             util             util             util             util             util
+                      s/s              s/s              s/s              s/s              s/s              s/s
 08:58:23              N/A              N/A              N/A              N/A              N/A              N/A
-08:59:23         0.000000         0.000056         0.000006         0.000000         0.000000         0.000005
-09:00:23         0.000004         0.000089         0.000008         0.000000         0.000000         0.000021
-09:01:23         0.000000         0.000175         0.000013         0.000000         0.000000         0.000036
-09:02:23         0.000000         0.000054         0.000003         0.000000         0.000000         0.000005
+08:59:23         0.000200         0.055902         0.005567         0.000000         0.000000         0.004883
+09:00:23         0.003633         0.088769         0.008017         0.000000         0.000000         0.021034
+09:01:23         0.000200         0.175189         0.012884         0.000000         0.000000         0.036451
+09:02:23         0.000217         0.054218         0.002750         0.000000         0.000000         0.005050
              d.d.avactive     d.d.avactive     d.d.avactive     d.d.avactive     d.d.avactive     d.d.avactive
                       sda              sdb              sdc              hdc              sdd              sde
-                     util             util             util             util             util             util
+                     µs/s             µs/s             µs/s             µs/s             µs/s             µs/s
 08:58:23              N/A              N/A              N/A              N/A              N/A              N/A
-08:59:23         0.200005        55.901528         5.566819         0.000000         0.000000         4.883467
-09:00:23         3.633431        88.769056         8.016882         0.000000         0.000000        21.033900
-09:01:23         0.200007       175.189301        12.883772         0.000000         0.000000        36.451242
-09:02:23         0.216672        54.218071         2.750071         0.000000         0.000000         5.050131
+08:59:23       200.005467     55901.527975      5566.818826         0.000000         0.000000      4883.466815
+09:00:23      3633.431133     88769.056034      8016.882454         0.000000         0.000000     21033.899496
+09:01:23       200.006814    175189.301449     12883.772241         0.000000         0.000000     36451.241772
+09:02:23       216.672278     54218.070915      2750.071227         0.000000         0.000000      5050.130798
 == derived metrics configuration file
   s.combo
-     util
+      s/s
       N/A
       N/A
     1.001
@@ -198,7 +198,7 @@ ok
     1.001
 == derived metrics directly on command line
   s.combo
-     util
+      s/s
       N/A
       N/A
     1.001
@@ -206,20 +206,20 @@ ok
     1.001
 == extended existing sample configuration
   s.combo  s.seconds  s.milliseconds
-     util       util            util
+      s/s        s/s            ms/s
       N/A        N/A             N/A
       N/A        N/A             N/A
-    1.001      1.000           1.000
-    1.001      1.000           1.000
-    1.001      1.000           1.000
+    1.001      1.000        1000.033
+    1.001      1.000        1000.001
+    1.001      1.000        1000.016
 == exercise good config version
   s.seconds  s.milliseconds
-       util            util
+        s/s            ms/s
         N/A             N/A
         N/A             N/A
-      1.000           1.000
-      1.000           1.000
-      1.000           1.000
+      1.000        1000.033
+      1.000        1000.001
+      1.000        1000.016
 == exercise bad config version
 Incompatible configuration file version (read v99, need v1).
 == un/interpolated archive mode reporting
