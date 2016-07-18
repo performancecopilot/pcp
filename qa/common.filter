@@ -234,6 +234,7 @@ _filter_optional_pmdas()
 	-e '/pmdajstat/d' \
 	-e '/pmdakvm/d' \
 	-e '/pmdalab/d' \
+	-e '/pmdalibvirt/d' \
 	-e '/pmdalinux/d' \
 	-e '/pmdalogger/d' \
 	-e '/pmdalmsensors/d' \
@@ -329,6 +330,7 @@ _filter_top_pmns()
 	-e '/^    jstat /d' \
 	-e '/^    kvm /d' \
 	-e '/^    lab /d' \
+	-e '/^    libvirt /d' \
 	-e '/^    lmsensors /d' \
 	-e '/^    logger /d' \
 	-e '/^    lsf /d' \
