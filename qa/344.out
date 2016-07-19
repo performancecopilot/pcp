@@ -55,7 +55,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -93,7 +93,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -131,7 +131,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -169,7 +169,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -207,7 +207,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -245,7 +245,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -283,7 +283,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -321,7 +321,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -359,7 +359,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -397,7 +397,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -435,7 +435,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -473,7 +473,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -511,7 +511,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -549,7 +549,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -587,7 +587,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -625,7 +625,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -673,7 +673,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -711,7 +711,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -759,7 +759,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -805,7 +805,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -843,7 +843,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
@@ -881,7 +881,7 @@ General options:
   -?, --help            show this usage message and exit
 
 Protocol options:
-  -b N, --batch=N       fetch N metrics at a time for -f and -v [20]
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
