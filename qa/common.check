@@ -887,6 +887,10 @@ _check_valgrind()
 # +LEAK SUMMARY:
 # +definitely lost: 0 bytes in 0 blocks
 # +indirectly lost: 0 bytes in 0 blocks
+#
+# Note
+#	last 5 sed expressions are for broken valgrind(1) on
+#	Debian strech circa 2016
 # 
 _filter_valgrind()
 {
@@ -907,7 +911,13 @@ _filter_valgrind()
 	-e '/^To see them, rerun with:/d' \
 	-e '/^For counts of detected and suppressed errors,/d' \
 	-e '/^ERROR SUMMARY:/s/ (suppressed: [^)]*)/ .../' \
-	-e "s/^All heap blocks were freed -- .*/$noleak/g"
+	-e "s/^All heap blocks were freed -- .*/$noleak/g" \
+	-e '/WARNING: Serious error when reading debug info/d' \
+	-e '/When reading debug info from /d' \
+	-e '/Ignoring non-Dwarf2\/3\/4 block in .debug_info/d' \
+	-e '/Last block truncated in .debug_info; ignoring/d' \
+	-e '/parse_CU_Header: is neither DWARF2 nor DWARF3 nor DWARF4/d' \
+    # end
 }
 
 _run_valgrind()
