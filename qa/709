@@ -10,6 +10,16 @@ echo "QA output created by $seq"
 
 . ./common.python
 
+case $PCP_PLATFORM
+in
+    linux)
+	    ;;
+    *)
+	    _notrun "pmcollectl not expected to work for PCP_PLATFORM $PCP_PLATFORM"
+	    # NOTREACHED
+	    ;;
+esac
+
 status=0	# success is the default!
 $sudo rm -fr $tmp.* $seq.full
 trap "cd $here; rm -fr $tmp.*; exit \$status" 0 1 2 3 15
