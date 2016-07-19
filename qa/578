@@ -105,17 +105,22 @@ want == 1 && $1 == "value" && step == 1 {
 	sec_fds = $2; step = 2; next }
 want == 1 && $1 == "value" && step == 2 { 
 	thr_fds = $2; 
-	if (sec_fds >= fst_fds)
-	    printf("=== Info: After install, openfds has increased or stayed the same as expected ===\n");
+	# Need some slop here (possibly because of non-determinism in
+	# parallel checking in connection code), so
+	# - after Install open fds to not have decreased by more than 1
+	# - after Remove open fds to be within +/-1
+	#
+	if (sec_fds >= fst_fds-1)
+	    printf("=== Info: After Install, openfds has increased or stayed about the same as expected ===\n");
 	else {
-	    printf("=== Error: After install, openfds has unexpectedly decreased ===\n");
-	    printf("\t previous value %d, current value %d\n", fst_fds, sec_fds);
+	    printf("=== Error: After Install, openfds has unexpectedly changed ===\n");
+	    printf("\t previous value %d, current value %d (expect [> %d..])\n", fst_fds, sec_fds, fst_fds-1);
 	    }
-	if (sec_fds == thr_fds)
-	    printf("=== Info: After remove, openfds has stayed the same as expected ===\n");
+	if (sec_fds-1 <= thr_fds && thr_fds <= sec_fds+1)
+	    printf("=== Info: After Remove, openfds has stayed about the same as expected ===\n");
 	else {
-	    printf("=== Error: After remove, openfds has unexpectedly changed ===\n") 
-	    printf("\t previous value %d, current value %d\n", sec_fds, thr_fds);
+	    printf("=== Error: After Remove, openfds has unexpectedly changed ===\n") 
+	    printf("\t previous value %d, current value %d (expect [%d..%d]\n", sec_fds, thr_fds, sec_fds-1, sec_fds+1 );
 	    }
 	next;
 	}
