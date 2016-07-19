@@ -823,9 +823,10 @@ End-of-File
 		# Exclude -x valgrind at this stage for Debian stretch
 		# until
 		# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=810295
-		# is fixed
+		# is fixed.
+		# We have a workaround in common.check, so re-enable these
+		# tests (20 Jul 2016)
 		#
-		[ X"$what" = Xall ] && check_what='-x valgrind'
 		;;
 	esac
 
