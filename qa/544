@@ -308,7 +308,7 @@ proc.memory.vmrss	12223		VmRSS		1.0
 proc.memory.vmrss	11712		VmRSS		1.0
 End-of-File
 
-zcat $C/rhel6.raw.gz >$tmp.raw
+zcat <$C/rhel6.raw.gz >$tmp.raw
 _value_checker
 
 echo | tee -a $seq.full
@@ -331,7 +331,7 @@ proc.psinfo.rss		7872		25		1.0
 proc.memory.vmswap	8159		VmSwap		1.0
 End-of-File
 
-zcat $C/debian_sid_detailed.raw.gz >$tmp.raw
+zcat <$C/debian_sid_detailed.raw.gz >$tmp.raw
 _value_checker
 
 # success, all done

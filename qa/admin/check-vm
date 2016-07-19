@@ -405,7 +405,7 @@ pkg_add?	Date::Format	[p5-TimeDate]
 slackpkg?	Date::Format	[from cpan]
 pacman?	Date::Format		[perl-timedate]
 # -- Date::Manip
-rpm?	Date::Manip		[perl-Date-Manip]
+rpm?	Date::Manip		[perl-Date-Manip or 'perl(Date::Manip)']
 # -- Date::Parse
 dpkg?	Date::Parse		[perl]
 rpm?	Date::Parse		[perl-TimeDate or 'perl(Date::Parse)']
@@ -501,7 +501,7 @@ pkg_add?	JSON::		[p5-JSON]
 slackpkg?	JSON::		[JSON from cpan]
 pacman?	JSON::			[perl-json]
 # -- LDAP
-rpm?	Net::LDAP		[perl-LDAP]
+rpm?	Net::LDAP		[perl-LDAP or perl-ldap or 'perl(Net::LDAP)']
 # -- LWP::UserAgent
 dpkg?	LWP::UserAgent		[libwww-perl]
 rpm?	LWP::UserAgent		[perl-libwww-perl or 'perl(LWP::UserAgent)']

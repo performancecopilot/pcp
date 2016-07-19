@@ -173,24 +173,23 @@ socket_ownership(char *sockname)
     int			sts;
 
     setoserror(0);
-    if ((pw = getpwnam(username)) == 0) {
-	__pmNotifyErr(LOG_CRIT,
-		"cannot find the %s user to change ownership to\n", username);
-	exit(1);
-    } else if (oserror() != 0) {
-	__pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
+    if ((pw = getpwnam(username)) == NULL)
+	__pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: getpwnam(%s) failed: %s\n",
 		username, pmErrStr_r(-oserror(), errmsg, sizeof(errmsg)));
-	exit(1);
-    }
 
     sts = chmod(sockname, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     if (sts == -1 && (pmDebug & DBG_TRACE_LIBPMDA))
-	__pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: unix chmod on %s: %s\n",
+	__pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chmod(%s,...) failed: %s\n",
 			sockname, osstrerror());
-    sts = chown(sockname, pw->pw_uid, pw->pw_gid);
-    if (sts == -1 && (pmDebug & DBG_TRACE_LIBPMDA))
-	__pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: unix chown on %s: %s\n",
-			sockname, osstrerror());
+    if (pw != NULL) {
+	sts = chown(sockname, pw->pw_uid, pw->pw_gid);
+	if (sts == -1 && (pmDebug & DBG_TRACE_LIBPMDA))
+	    __pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chown(%s, ...) failed: %s\n",
+			    sockname, osstrerror());
+    }
+    else if (pmDebug & DBG_TRACE_LIBPMDA)
+	    __pmNotifyErr(LOG_WARNING, "__pmdaOpenUnix: chown(%s, ...) skipped\n",
+			    sockname);
 }
 
 /*

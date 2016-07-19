@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+$sudo rm -f $here/$seq.full
 
 _filter()
 {
@@ -138,8 +139,13 @@ quit
 End-of-File
 
 sleep 1
-[ -f $tmp.log ] && cat $tmp.log | _filter2
-rm -f $tmp.log
+if [ -f $tmp.log ]
+then
+    cat $tmp.log | _filter2
+    echo "=== PMDA should survive tests ===" >>$here/$seq.full
+    cat $tmp.log >>$here/$seq.full
+    rm -f $tmp.log
+fi
 
 dbpmda -ie 2>&1 <<End-of-File | _filter
 open pipe pmdas/broken/broken_pmda_2_1 -D47104 -l $tmp.log
@@ -151,8 +157,14 @@ quit
 End-of-File
 
 sleep 1
-[ -f $tmp.log ] && cat $tmp.log | _filter2
-rm -f $tmp.log
+if [ -f $tmp.log ]
+then
+    cat $tmp.log | _filter2
+    echo >>$here/$seq.full
+    echo "=== broken_pmda_2_1 ===" >>$here/$seq.full
+    cat $tmp.log >>$here/$seq.full
+    rm -f $tmp.log
+fi
 
 dbpmda -ie 2>&1 <<End-of-File | _filter
 open pipe pmdas/broken/broken_pmda_2_2 -D47104 -l $tmp.log
@@ -162,8 +174,14 @@ quit
 End-of-File
 
 sleep 1
-[ -f $tmp.log ] && cat $tmp.log | _filter2
-rm -f $tmp.log
+if [ -f $tmp.log ]
+then
+    cat $tmp.log | _filter2
+    echo >>$here/$seq.full
+    echo "=== broken_pmda_2_2 ===" >>$here/$seq.full
+    cat $tmp.log >>$here/$seq.full
+    rm -f $tmp.log
+fi
 
 dbpmda -ie 2>&1 <<End-of-File | _filter
 open pipe pmdas/broken/broken_pmda_2_3 -D47104 -l $tmp.log
@@ -173,8 +191,14 @@ quit
 End-of-File
 
 sleep 1
-[ -f $tmp.log ] && cat $tmp.log | _filter2
-rm -f $tmp.log
+if [ -f $tmp.log ]
+then
+    cat $tmp.log | _filter2
+    echo >>$here/$seq.full
+    echo "=== broken_pmda_2_3 ===" >>$here/$seq.full
+    cat $tmp.log >>$here/$seq.full
+    rm -f $tmp.log
+fi
 
 dbpmda -ie 2>&1 <<End-of-File | _filter
 open pipe pmdas/broken/broken_pmda_2_4 -D47104 -l $tmp.log
@@ -185,8 +209,14 @@ quit
 End-of-File
 
 sleep 1
-[ -f $tmp.log ] && cat $tmp.log | _filter2
-rm -f $tmp.log
+if [ -f $tmp.log ]
+then
+    cat $tmp.log | _filter2
+    echo >>$here/$seq.full
+    echo "=== broken_pmda_2_4 ===" >>$here/$seq.full
+    cat $tmp.log >>$here/$seq.full
+    rm -f $tmp.log
+fi
 
 dbpmda -ie 2>&1 <<End-of-File | _filter | _filterStartBrokenPMDA25
 open pipe pmdas/broken/broken_pmda_2_5 -D47104 -l $tmp.log
@@ -197,8 +227,14 @@ quit
 End-of-File
 
 sleep 1
-[ -f $tmp.log ] && cat $tmp.log | _filter2
-rm -f $tmp.log
+if [ -f $tmp.log ]
+then
+    cat $tmp.log | _filter2
+    echo >>$here/$seq.full
+    echo "=== broken_pmda_2_5 ===" >>$here/$seq.full
+    cat $tmp.log >>$here/$seq.full
+    rm -f $tmp.log
+fi
 
 # all done
 status=0
