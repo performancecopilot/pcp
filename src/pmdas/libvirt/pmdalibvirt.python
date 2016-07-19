@@ -435,7 +435,7 @@ class LibvirtPMDA(PMDA):
             try:
                 self.vm_blockstats_res = []
                 if not self.oldapi:
-                    stats = libvirt.VIR_DOMAIN_STATS_BLOCK | libvirt.VIR_CONNECT_GET_ALL_DOMAINS_STATS_BACKING
+                    stats = libvirt.VIR_DOMAIN_STATS_BLOCK
                     self.vm_blockstats_res = self.conn.domainListGetStats(self.doms, stats, flags)
                 else:
                     for dom in self.doms:
