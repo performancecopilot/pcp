@@ -18,6 +18,7 @@ echo "QA output created by $seq"
 which logconv.pl >/dev/null 2>&1 || _notrun "No logconv.pl script installed"
 $sudo ls /var/log/dirsrv/slapd-*/access 2>&1 >/dev/null || \
     _notrun "No ds389 directory log files accessible"
+id dirsrv >/dev/null 2>&1 || _notrun "No dirsrv (default) account installed"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
