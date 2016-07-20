@@ -1,5 +1,4 @@
 #!/usr/bin/env pmpython
-# -*- coding: utf-8 -*-
 #
 # Copyright (C) 2015-2016 Marko Myllynen <myllynen@redhat.com>
 #
@@ -653,7 +652,7 @@ class PMReporter(object):
     def format_metric_label(self, label):
         """ Format a metric label """
         # See src/libpcp/src/units.c
-        label = label.replace(" / nanosec", "/ns").replace(" / microsec", "/µs")
+        label = label.replace(" / nanosec", "/ns").replace(" / microsec", "/us")
         label = label.replace(" / millisec", "/ms").replace(" / sec", "/s")
         label = label.replace(" / min", "/min").replace(" / hour", "/h")
         return label
