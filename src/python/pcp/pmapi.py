@@ -2304,6 +2304,8 @@ class fetchgroup(object):
 
         self.pmfg = c_void_p()
         self.items = []
+        if typed == c_api.PM_CONTEXT_LOCAL and target = None:
+            target = "" # Ignored
         sts = LIBPCP.pmCreateFetchGroup(byref(self.pmfg), typed, target.encode('utf-8'))
         if sts < 0:
             raise pmErr(sts)
