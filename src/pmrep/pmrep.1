@@ -173,6 +173,16 @@ Too-wide numeric values for output will not be printed (apart from
 decimal places, numeric values will never be silently truncated).
 Too-wide strings will be truncated.
 .P
+As a special case with metrics that are counters with time units
+(nanoseconds to hours), the
+.I unit/scale
+can be used to change the default reporting (for example,
+milliseconds / second) to normalize to the range zero to one
+by setting this to
+.B sec
+(see also
+.BR -y ).
+.P
 The following
 .I metricspec
 requests the metric
@@ -240,7 +250,8 @@ for space (byte) metrics, possible values include
 .BR Mbytes ,
 .BR MB ,
 and so forth up to
-.BR Ebytes .
+.BR Ebytes ,
+.BR EB .
 This option will
 .I not
 override possible per-metric specifications.
@@ -583,8 +594,9 @@ for time metrics, possible values include
 .BR microsec ,
 .BR us ,
 .BR millisec ,
+.BR ms ,
 and so forth up to
-.BR hours ,
+.BR hour ,
 .BR hr .
 This option will
 .I not

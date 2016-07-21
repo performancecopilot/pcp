@@ -39,11 +39,12 @@ DEBUG=-D128
 DEBUG=
 
 DELTA=20
+time=`which time 2>/dev/null`
 
 echo "=== all of the instances ==="
-if which time >/dev/null 2>&1
+if test -n "$time"
 then
-    ( time pmval -z -n $tmp.pmns -a $arch -t $DELTA foo ) >$tmp.out 2>$tmp.err
+    ( $time pmval -z -n $tmp.pmns -a $arch -t $DELTA foo ) >$tmp.out 2>$tmp.err
 else
     echo "Warning: no time(1) executable found ...."
     pmval -z -n $tmp.pmns -a $arch -t $DELTA foo >$tmp.out 2>$tmp.err
@@ -57,9 +58,9 @@ echo "__pmLogReads: `grep __pmLogRead $tmp.err | wc -l | sed -e 's/  *//g'`"
 
 echo
 echo "=== just instance #4653127 (always there) ==="
-if which time >/dev/null 2>&1
+if test -n "$time"
 then
-    ( time pmval -z -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo ) >$tmp.out 2>$tmp.err
+    ( $time pmval -z -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo ) >$tmp.out 2>$tmp.err
 else
     pmval -z -i 4653127 -n $tmp.pmns -a $arch -t $DELTA foo >$tmp.out 2>$tmp.err
 fi

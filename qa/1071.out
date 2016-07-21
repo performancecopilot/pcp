@@ -17,6 +17,7 @@ QA output created by 1071
 14:39:14         Linux         linux         15707      13573328             0        507689             8      16053852             3
 14:39:15         Linux         linux         15707      13573256             0        507691             8      16053852             3
 14:39:16         Linux         linux         15708      13573256             0        507692             8      16053852             3
+14:39:17           N/A         linux           N/A           N/A           N/A           N/A             8      16053852             3
 
   archive: QAPATH/archives/rep
      host: slack
@@ -30,11 +31,12 @@ QA output created by 1071
 
           p.p.start_ti  n.i.baudrate        k.a.hz  d.a.read_byt   k.a.sysfork    k.p.c.user      k.a.load  h.c.bogomips     h.c.clock     n.i.speed
           000001 /usr/       enp0s25                                                    cpu0      1 minute          cpu0          cpu0       enp0s25
-              millisec        byte/s       count/s       Kbyte/s       count/s          util                                     count       Mbyte/s
+              millisec        byte/s       count/s       Kbyte/s       count/s          ms/s                                     count       Mbyte/s
 14:39:13            20    3168713760           100           N/A           N/A           N/A        0.0900     5587.4199     3029.0310   781261.9375
 14:39:14            20    3168713760           100        0.0000        0.0000        0.0000        0.0900     5587.4199     3029.0310   781261.9375
 14:39:15            20    3168713760           100        0.0000        0.0000        0.0000        0.0800     5587.4199     2800.0000   781261.9375
-14:39:16            20    3168713760           100        0.0000        1.0000        0.0100        0.0800     5587.4199     2800.0000   781261.9375
+14:39:16            20    3168713760           100        0.0000        1.0000       10.0000        0.0800     5587.4199     2800.0000   781261.9375
+14:39:17            20    3168713760           100           N/A           N/A           N/A           N/A     5587.4199     2800.1089   781261.9375
 == testing raw metrics reporting
 
   archive: QAPATH/archives/rep
@@ -53,6 +55,7 @@ QA output created by 1071
 14:39:14         Linux         linux         15707      13573328             0        507689             8      16053852             3
 14:39:15         Linux         linux         15707      13573256             0        507691             8      16053852             3
 14:39:16         Linux         linux         15708      13573256             0        507692             8      16053852             3
+14:39:17           N/A         linux           N/A           N/A           N/A           N/A             8      16053852             3
 
   archive: QAPATH/archives/rep
      host: slack
@@ -71,6 +74,7 @@ QA output created by 1071
 14:39:14            20    3168713760           100       8736634       3995200       4349650        0.0900     5587.4199     3029.0310   781261.9375
 14:39:15            20    3168713760           100       8736634       3995200       4349650        0.0800     5587.4199     2800.0000   781261.9375
 14:39:16            20    3168713760           100       8736634       3995201       4349660        0.0800     5587.4199     2800.0000   781261.9375
+14:39:17            20    3168713760           100           N/A           N/A           N/A           N/A     5587.4199     2800.1089   781261.9375
 == testing uninterpolated metrics reporting
 
   archive: QAPATH/archives/rep
@@ -103,11 +107,11 @@ QA output created by 1071
 
           p.p.start_ti  n.i.baudrate        k.a.hz  d.a.read_byt   k.a.sysfork    k.p.c.user      k.a.load  h.c.bogomips     h.c.clock     n.i.speed
           000001 /usr/       enp0s25                                                    cpu0      1 minute          cpu0          cpu0       enp0s25
-              millisec        byte/s       count/s       Kbyte/s       count/s          util                                     count       Mbyte/s
+              millisec        byte/s       count/s       Kbyte/s       count/s          ms/s                                     count       Mbyte/s
 14:39:13            20    3168713760           100           N/A           N/A           N/A        0.0900     5587.4199     3029.0310   781261.9375
 14:39:14            20    3168713760           100        0.0000        0.0000        0.0000        0.0900     5587.4199     2723.4370   781261.9375
 14:39:15            20    3168713760           100        0.0000        0.0000        0.0000        0.0800     5587.4199     2800.0000   781261.9375
-14:39:16            20    3168713760           100        0.0000        0.9999        0.0100        0.0800     5587.4199     2800.0000   781261.9375
+14:39:16            20    3168713760           100        0.0000        0.9999        9.9987        0.0800     5587.4199     2800.0000   781261.9375
 14:39:17            20    3168713760           100        0.0000        2.0002        0.0000        0.0800     5587.4199     2800.1089   781261.9375
 == testing uninterpolated raw metrics reporting
 
