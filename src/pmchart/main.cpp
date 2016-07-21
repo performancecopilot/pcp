@@ -586,7 +586,7 @@ main(int argc, char ** argv)
 
     // Create all of the sources
     liveGroup = new GroupControl();
-    archiveGroup = new GroupControl();
+    archiveGroup = new GroupControl(true); // restrictArchives
     if (Lflag)
 	liveGroup->use(PM_CONTEXT_LOCAL, QmcSource::localHost);
     sts = opts.nhosts + opts.narchives;

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2016, Red Hat.  All Rights Reserved.
  * Copyright (c) 2006-2008, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
  * 
@@ -31,7 +32,7 @@ class GroupControl : public QObject, public QmcGroup
     Q_OBJECT
 
 public:
-    GroupControl();
+    GroupControl(bool restrictArchives = false);
     void init(int, int, struct timeval *, struct timeval *);
 
     void addGadget(Gadget *);

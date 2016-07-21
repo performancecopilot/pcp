@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Red Hat.
+ * Copyright (c) 2013-2016, Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
  * Copyright (c) 1997-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -198,6 +198,8 @@ QmcGroup::use(int type, const QString &theSource, int flags)
 			     my.contexts[i]->source().sourceAscii(),
 			     newContext->source().sourceAscii(),
 			     my.contexts[i]->source().hostAscii());
+		    pmprintf("%s: Consider combining them using pmlogextract(1)\n",
+			     pmProgname);
 		    delete newContext;
 		    return PM_ERR_NOCONTEXT;
 		}
