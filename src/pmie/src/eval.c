@@ -754,6 +754,8 @@ run(void)
     if (taskq == NULL)
 	return;
 
+    inrun = 1;
+
     /* initialize task scheduling */
     t = taskq;
     while (t) {

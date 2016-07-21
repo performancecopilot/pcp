@@ -186,8 +186,8 @@ nextc(void)
 		lin->cno = 0;
 	    }
 	}
-#if PCP_DEBUG && PCP_DESPERATE
-	if (pmDebug & DBG_TRACE_APPL0)
+#if PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_APPL0) && (pmDebug & DBG_TRACE_DESPERATE))
 	    fprintf(stderr, "nextc() -> \'%c\'\n", c);
 #endif
 	return c;
