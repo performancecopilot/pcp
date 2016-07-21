@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 rem_host=`./getpmcdhosts -L -n 1 -P -a sample 2>$seq.notrun`
 [ -z "$rem_host" ] && _notrun `cat $seq.notrun`
-rm -f $seq.notrun
+rm -f $seq.notrun $seq.full
 
 _filter()
 {
@@ -79,6 +79,7 @@ _cleanup()
 	    $sudo $signal -s TERM $pid
 	    sleep 1
 	    pid=''
+	    cat $tmp.log >>$here/$seq.full
 	fi
 	echo
 	if [ -f $tmp.log ]
@@ -140,9 +141,16 @@ port=`pminfo -f pmcd.pmlogger.port \
 s/.* value //p
 }'`
 
-rm -f $seq.full
 echo "Remote host: $rem_host [pid: $rem_pid port: $rem_port]" >>$seq.full
+pminfo -f -h $rem_host pmcd.pmlogger.port >>$seq.full
+ssh $rem_host '. /etc/pcp.env; $PCP_PS_PROG $PCP_PS_ALL_FLAGS' \
+| egrep "PID|pmlogger" >>$seq.full
+echo >>$seq.full
 echo "Local host: $myhost [pid: $pid port: $port]" >>$seq.full
+pminfo -f -h $myhost pmcd.pmlogger.port >>$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+| egrep "PID|pmlogger" \
+| grep -v grep >>$seq.full
 
 # real QA test starts here
 
@@ -156,7 +164,7 @@ _speak_to_me @$rem_host $rem_pid $rem_port
 
 # make sure the primary logger is terminated and stop pmcd
 #
-prim_pid=`ps $PCP_PS_ALL_FLAGS | grep pmlogger | grep ' -P' | $PCP_AWK_PROG '{ print $2 }'`
+prim_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger | grep ' -P' | $PCP_AWK_PROG '{ print $2 }'`
 [ ! -z "$prim_pid" ] && $sudo $signal -s TERM $prim_pid
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
 
