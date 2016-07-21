@@ -1,0 +1,7 @@
+QA output created by 870
+check is OK
+
+start another primary pmlogger (expect failure) ...
+pmlogger: info: found primary symlink -> pid SOMEPID
+pmlogger: ERROR: there is already a primary pmlogger running, pid SOMEPID linkfile=PCP_TMP_DIR/pmlogger/primary
+check is OK

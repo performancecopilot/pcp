@@ -1,0 +1,173 @@
+#!/bin/sh
+# PCP QA Test No. 870
+# Various checks around the pmlogger run files in
+# $PCP_TMP_DIR/pmlogger
+#
+# With a single --check option, is silent except if there is a problem
+# and runs just the integrity check.  This could be used from check or
+# check.callback
+#
+# Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
+#
+
+check=false
+[ $# -eq 1 -a "$1" = "--check" ] && check=true
+
+seq=`basename $0`
+$check || echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+_check()
+{
+    # start by iterating over all running pmlogger processes
+    #
+    _get_pids_by_name pmlogger >$tmp.pmids
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps.out
+    if [ -s $tmp.pmids ]
+    then
+	# at least one is running
+	for pid in `cat $tmp.pmids`
+	do
+	    $PCP_AWK_PROG <$tmp.ps.out >$tmp.ps.pid '
+$2 == '"$pid"'	{ print }'
+	    if [ -f $PCP_TMP_DIR/pmlogger/$pid ]
+	    then
+		# run file exists
+		if grep 'pmlogger .*-P ' <$tmp.ps.pid >/dev/null
+		then
+		    # primary logger
+		    if [ -f $PCP_TMP_DIR/pmlogger/primary ]
+		    then
+			check_pid=`ls -l $PCP_TMP_DIR/pmlogger/primary | sed -e 's/.*\///'`
+			if [ "$check_pid" = "$pid" ]
+			then
+			    # all is well
+			    if $check
+			    then
+				status=0
+			    else
+				echo "check is OK"
+			    fi
+			else
+			    echo "Error: $PCP_TMP_DIR/pmlogger/primary linked to pid $check_pid instead of $pid"
+			    head -1 $tmp.ps.out
+			    $PCP_AWK_PROG <$tmp.ps.out '
+$2 == '"$check_pid"'	{ print }'
+			    cat $tmp.ps.pid
+			    ls -l $PCP_TMP_DIR/pmlogger/*
+			fi
+		    else
+			echo "Error: $PCP_TMP_DIR/pmlogger/primary missing for ..."
+			head -1 $tmp.ps.out
+			cat $tmp.ps.pid
+			ls -l $PCP_TMP_DIR/pmlogger/*
+		    fi
+		else
+		    # nothing more to check
+		    :
+		fi
+	    else
+		echo "Error: $PCP_TMP_DIR/pmlogger/$pid missing for ..."
+		head -1 $tmp.ps.out
+		cat $tmp.ps.pid
+		ls -l $PCP_TMP_DIR/pmlogger/*
+	    fi
+	done
+    else
+	echo "Warning: no pmloggers running"
+    fi
+
+    # Now check for dead run files with no pmlogger attached
+    for file in `cd $PCP_TMP_DIR/pmlogger; ls`
+    do
+	case "$file"
+	in
+	    primary)
+			pid=`ls -l $PCP_TMP_DIR/pmlogger/primary | sed -e 's/.*\///'`
+			;;
+	    *)
+			pid="$file"
+			;;
+	esac
+	$PCP_AWK_PROG <$tmp.ps.out >$tmp.ps.pid '
+$2 == '"$pid"'	{ print }'
+	if [ -s $tmp.ps.pid ]
+	then
+	    # OK
+	    :
+	else
+	    echo "Error: no matching pmlogger process for ..."
+	    ls -l $PCP_TMP_DIR/pmlogger/$file
+	fi
+    done
+
+    # And finally, at most 1 primary pmlogger
+    #
+    num_primary=`grep 'pmlogger .*-P ' <$tmp.ps.out | wc -l | sed -e 's/ //g'`
+    if [ "$num_primary" -gt 1 ]
+    then
+	echo "Error: more than one primary logger running ..."
+	head -1 $tmp.ps.out
+	grep 'pmlogger .*-P ' <$tmp.ps.out
+    fi
+}
+
+
+# real QA test starts here
+_check
+$check && exit
+
+echo
+echo "start another primary pmlogger (expect failure) ..." | tee -a $here/$seq.full
+_start_up_pmlogger -Dcontext -L -c /dev/null -l $tmp.log -P $tmp.arch
+echo "pmlogger pid $pid" >>$here/$seq.full
+for i in 1 2 3 4 5
+do
+    present=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+	     | $PCP_AWK_PROG '$2 == '"$pid"' { print "true"; exit } END { print "false" }'`
+    $present || break
+    sleep 1
+done
+if $present
+then
+    echo "Arrggh ... pmlogger appears to be running ..."
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+    | egrep "PID|$pid" \
+    | grep -v egrep
+    echo "kill off the primary pmlogger we just started ..."
+    $sudo kill -KILL $pid
+    for i in 1 2 3 4 5
+    do
+	present=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+		 | $PCP_AWK_PROG '$2 == '"$pid"' { print "true"; exit } END { print "false" }'`
+	$present || break
+	sleep 1
+    done
+    if $present
+    then
+	echo "Arrggh ... failed to kill of pmlogger (pid $pid)"
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+	| egrep "PID|$pid" \
+	| grep -v egrep
+    fi
+fi
+egrep 'ERROR:|info:' <$tmp.log \
+| sed \
+    -e 's/pid [0-9][0-9]*/pid SOMEPID/g' \
+    -e "s@$PCP_TMP_DIR/@PCP_TMP_DIR/@g"
+
+cat $tmp.log >>$here/$seq.full
+_check
+
+# success, all done
+status=0
+
+exit

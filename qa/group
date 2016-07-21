@@ -1106,6 +1106,7 @@ timezone
 864 pcp python local
 868 pmda.install local
 869 pmda.linux local
+870 pmlogcheck local
 872 pmda.linux local
 873 pmda.linux local
 874 valgrind pmval libpcp local
