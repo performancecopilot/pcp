@@ -2315,8 +2315,7 @@ class fetchgroup(object):
     def __del__(self):
         """Destroy the fetchgroup.  Drop references to fetchgroup_* items."""
 
-        assert self.pmfg.value != None
-        if LIBPCP != None: # might be called late during python3 shutdown; moot then
+        if LIBPCP != None and self.pmfg.value != None:
             sts = LIBPCP.pmDestroyFetchGroup(self.pmfg)
             if sts < 0:
                 raise pmErr(sts)
