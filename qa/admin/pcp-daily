@@ -828,6 +828,10 @@ End-of-File
 		# tests (20 Jul 2016)
 		#
 		;;
+	    vm01)
+		# 739 segv's sometimes deep inside Python
+		[ X"$what" = Xall ] && check_what='-X 739'
+		;;
 	esac
 
 	$qflag && _script_qa >>$tmp.script
