@@ -657,6 +657,7 @@ class PMReporter(object):
             label = label.replace("nanosec", "ns").replace("microsec", "us")
             label = label.replace("millisec", "ms").replace("sec", "s")
             label = label.replace("min", "min").replace("hour", "h")
+            label = label.replace(" / ", "/")
         return label
 
     def validate_metrics(self):
