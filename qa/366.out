@@ -217,13 +217,12 @@ QA output created by 366
 > ## RPC stats
 < #+ F0:n:default:
 < ## Filesystem fullness [pmchart:FileSystem, pmie:filesys]
----
-> #+ filesystem/all:n:default:
-> ## generic filesystem size, fullness and mount information
+< #----
 < #+ F1:n:default:
 < ## XFS data and log traffic
 ---
-> #+ filesystem/xfs-io-irix:x::
+> #+ filesystem/all:n:default:
+> ## generic filesystem size, fullness and mount information
 < #+ F2:n:default:
 < ## all available XFS data
 ---
@@ -272,9 +271,6 @@ QA output created by 366
 > #+ sgi/xbow:x::
 > #+ filesystem/summary:n:default:
 > ## filesystem size and fullness
-> #----
-> #+ filesystem/xfs-io-linux:n:default:
-> ## XFS data and log I/O traffic [Linux]
 > #----
 > #+ kernel/load:n:default:
 > ## load average
