@@ -799,7 +799,7 @@ class PMReporter(object):
                 self.metrics[metric][4] = len(TRUNC) # Forced minimum
 
             # Add fetchgroup item
-            scale = self.metrics[metric][2][0].replace("µs", "microsec")
+            scale = self.metrics[metric][2][0]
             ins = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
             self.metrics[metric][5] = []
             for j in range(ins):
