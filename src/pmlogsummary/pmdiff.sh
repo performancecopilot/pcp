@@ -24,6 +24,10 @@ status=1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
 prog=`basename $0`
 
+# need consistent sorting for sort(1) and join(1)
+#
+export LC_ALL=POSIX
+
 cat > $tmp/usage << EOF
 # Usage: [options] archive1 [archive2]
 
@@ -66,7 +70,7 @@ _fix()
 	-e '/^Note: timezone set to local timezone of host/d' \
 	-e '/^[ 	]*$/d' \
     | egrep -v -f $tmp/exclude \
-    | sort -t\| -k 1,1 -k 2
+    | sort -t'|' -k 1,1
 }
 
 cat <<'End-of-File' >$tmp/exclude
@@ -234,7 +238,16 @@ fi
 
 if ! $skip_missing
 then
-    join -t\| -v 2 $tmp/1 $tmp/2 >$tmp/tmp
+    if join -t'|' -v 2 $tmp/1 $tmp/2 >$tmp/tmp
+    then
+	:
+    else
+	echo "Unexpected join #1 failure: command: join -t'|' -v 2 /tmp/bad.1 /tmp/bad.2"
+	cp $tmp/1 /tmp/bad.1
+	cp $tmp/2 /tmp/bad.2
+	echo "... input files have been saved."
+	exit
+    fi
     if [ -s $tmp/tmp ]
     then
 	echo "Missing from $arch1 $window1 (not compared) ..."
@@ -242,7 +255,16 @@ then
 	echo
     fi
 
-    join -t\| -v 1 $tmp/1 $tmp/2 >$tmp/tmp
+    if join -t'|' -v 1 $tmp/1 $tmp/2 >$tmp/tmp
+    then
+	:
+    else
+	echo "Unexpected join #2 failure: command: join -t'|' -v 1 /tmp/bad.1 /tmp/bad.2"
+	cp $tmp/1 /tmp/bad.1
+	cp $tmp/2 /tmp/bad.2
+	echo "... input files have been saved."
+	exit
+    fi
     if [ -s $tmp/tmp ]
     then
 	echo "Missing from $arch2 $window2 (not compared) ..."
@@ -282,8 +304,19 @@ else
     window2="$window2-$finish2"
 fi
 printf '%*s %*s\n' $colwidth "$window1" $colwidth "$window2"
-join -t\| $tmp/1 $tmp/2 \
-| awk -F\| '
+if join -t'|' $tmp/1 $tmp/2 >$tmp/tmp
+then
+    :
+else
+    sum $tmp/1
+    echo "Unexpected join #3 failure: command: join -t'|' /tmp/bad.1 /tmp/bad.2"
+    cp $tmp/1 /tmp/bad.1
+    cp $tmp/2 /tmp/bad.2
+    echo "... input files have been saved."
+    exit
+fi
+
+awk -F'|' <$tmp/tmp '
 function doval(v)
 {
     precision='"$precision"'
@@ -326,7 +359,7 @@ $2 / $3 >= '"$thres"' || $3 / $2 >= '"$thres"'	{
 		    printf "%5.2f  ",r
 		printf " %s\n",$1
 	}' \
-| LC_COLLATE=${LC_COLLATE:-POSIX} sort -k 3,3nr -k 4 \
+| sort -k 3,3nr -k 4 \
 | sed -e 's/100+/>100/' -e 's/ 0.001-/<0.001 /' >$tmp/out
 
 # sort in ratio order
