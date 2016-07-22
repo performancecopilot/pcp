@@ -803,7 +803,10 @@ class PMReporter(object):
             ins = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
             self.metrics[metric][5] = []
             for j in range(ins):
-                self.metrics[metric][5].append(self.pmfg.extend_item(metric, mtype, scale, self.insts[i][1][j]))
+                try:
+                    self.metrics[metric][5].append(self.pmfg.extend_item(metric, mtype, scale, self.insts[i][1][j]))
+                except:
+                    self.metrics[metric][5].append(self.pmfg.extend_indom(metric, mtype, scale, 1))
 
     def get_local_tz(self, set_dst=-1):
         """ Figure out the local timezone using the PCP convention """
@@ -1211,6 +1214,8 @@ class PMReporter(object):
 
                 try:
                     value = self.metrics[metric][5][j]()
+                    if type(value) is list:
+                        value = value[0]
                 except:
                     value = NO_VAL
 
