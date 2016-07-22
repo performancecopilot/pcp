@@ -18,7 +18,8 @@
 
 #define DESPERATE 0
 
-GroupControl::GroupControl()
+GroupControl::GroupControl(bool restrictArchives) :
+    QmcGroup(restrictArchives)
 {
     my.samples = 0;
     my.visible = 0;

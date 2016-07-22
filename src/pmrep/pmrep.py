@@ -799,11 +799,14 @@ class PMReporter(object):
                 self.metrics[metric][4] = len(TRUNC) # Forced minimum
 
             # Add fetchgroup item
-            scale = self.metrics[metric][2][0].replace("µs", "microsec")
+            scale = self.metrics[metric][2][0]
             ins = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
             self.metrics[metric][5] = []
             for j in range(ins):
-                self.metrics[metric][5].append(self.pmfg.extend_item(metric, mtype, scale, self.insts[i][1][j]))
+                try:
+                    self.metrics[metric][5].append(self.pmfg.extend_item(metric, mtype, scale, self.insts[i][1][j]))
+                except:
+                    self.metrics[metric][5].append(self.pmfg.extend_indom(metric, mtype, scale, 1))
 
     def get_local_tz(self, set_dst=-1):
         """ Figure out the local timezone using the PCP convention """
@@ -1015,10 +1018,7 @@ class PMReporter(object):
         duration = int(duration) if duration == int(duration) else "{0:.3f}".format(duration)
 
         if self.context.type == PM_CONTEXT_ARCHIVE:
-            if not self.interpol:
-                endtime = float(self.context.pmGetArchiveEnd())
-            if endtime > float(self.context.pmGetArchiveEnd()):
-                endtime = float(self.context.pmGetArchiveEnd())
+            endtime = float(self.context.pmGetArchiveEnd())
             if not self.interpol and self.opts.pmGetOptionSamples():
                 samples = str(samples) + " (requested)"
             elif not self.interpol:
@@ -1214,6 +1214,8 @@ class PMReporter(object):
 
                 try:
                     value = self.metrics[metric][5][j]()
+                    if type(value) is list:
+                        value = value[0]
                 except:
                     value = NO_VAL
 
