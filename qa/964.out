@@ -1,7 +1,7 @@
 QA output created by 964
-pmlogger count at start of QA testing: 0
-
 Waiting for pmcd to terminate ...
+pmlogger count after pcp stop (expect 0): 0
+
 You will need to choose an appropriate configuration for installation of
 the "xfs" Performance Metrics Domain Agent (PMDA).
 

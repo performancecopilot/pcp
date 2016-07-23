@@ -67,7 +67,7 @@ _count_pmloggers()
     for process in $plist
     do
 	[ "$process" = "primary" ] && continue
-	ps -p $process >/dev/null 2>&1
+	ps -p $process >>$here/$seq.full 2>&1
 	if [ $? = 1 ]
 	then
 	    echo "urk, $PCP_TMP_DIR/pmlogger/$process has no running pmlogger instance"
@@ -94,14 +94,26 @@ _disable_loggers
 _change_config pmlogger off
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
-$sudo rm -f $PCP_TMP_DIR/pmlogger/*
-
-_count_pmloggers
-echo "pmlogger count at start of QA testing: $?" | tee -a $here/$seq.full
-echo
 
 # switch off pmcd and pmlogger
 $sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+
+# need to go round and smack all the pmloggers ... some might be
+# sleeping and not yet notice pmcd has gone away
+#
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger >>$here/$seq.full
+for i in 1 2 3 4 5
+do
+    plist=`_get_pids_by_name pmlogger`
+    [ -z "$plist" ] && break
+    echo "iteration $i: killing pids: $plist" >>$here/$seq.full
+    $sudo kill -TERM $plist
+    sleep 1
+done
+
+_count_pmloggers
+echo "pmlogger count after pcp stop (expect 0): $?" | tee -a $here/$seq.full
+echo
 
 # install a PMDA, which should restart only pmcd
 cd $PCP_PMDAS_DIR/xfs
