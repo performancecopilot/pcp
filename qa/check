@@ -583,7 +583,16 @@ do
 
     # optional callback
     #
-    [ -x check.callback ] && check.callback $seq
+    if [ -x check.callback ]
+    then
+	if check.callback $seq
+	then
+	    :
+	else
+	    echo "Run aborted by check.callback!  Last test: $seq"
+	    break
+	fi
+    fi
 done
 
 aborted=false
