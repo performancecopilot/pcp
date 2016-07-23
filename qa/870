@@ -29,6 +29,8 @@ _check()
 {
     # start by iterating over all running pmlogger processes
     #
+
+    $check && status=0
     _get_pids_by_name pmlogger >$tmp.pmids
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps.out
     if [ -s $tmp.pmids ]
@@ -52,7 +54,7 @@ $2 == '"$pid"'	{ print }'
 			    # all is well
 			    if $check
 			    then
-				status=0
+				:
 			    else
 				echo "check is OK"
 			    fi
@@ -63,12 +65,14 @@ $2 == '"$pid"'	{ print }'
 $2 == '"$check_pid"'	{ print }'
 			    cat $tmp.ps.pid
 			    ls -l $PCP_TMP_DIR/pmlogger/*
+			    $check && status=1
 			fi
 		    else
 			echo "Error: $PCP_TMP_DIR/pmlogger/primary missing for ..."
 			head -1 $tmp.ps.out
 			cat $tmp.ps.pid
 			ls -l $PCP_TMP_DIR/pmlogger/*
+			$check && status=1
 		    fi
 		else
 		    # nothing more to check
@@ -79,10 +83,12 @@ $2 == '"$check_pid"'	{ print }'
 		head -1 $tmp.ps.out
 		cat $tmp.ps.pid
 		ls -l $PCP_TMP_DIR/pmlogger/*
+		$check && status=1
 	    fi
 	done
     else
 	echo "Warning: no pmloggers running"
+	$check && status=1
     fi
 
     # Now check for dead run files with no pmlogger attached
@@ -106,6 +112,7 @@ $2 == '"$pid"'	{ print }'
 	else
 	    echo "Error: no matching pmlogger process for ..."
 	    ls -l $PCP_TMP_DIR/pmlogger/$file
+	    $check && status=1
 	fi
     done
 
@@ -117,6 +124,7 @@ $2 == '"$pid"'	{ print }'
 	echo "Error: more than one primary logger running ..."
 	head -1 $tmp.ps.out
 	grep 'pmlogger .*-P ' <$tmp.ps.out
+	$check && status=1
     fi
 }
 
