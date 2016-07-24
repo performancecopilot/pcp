@@ -1,7 +1,7 @@
 #!/bin/sh
 # PCP QA Test No. 870
-# Various checks around the pmlogger run files in
-# $PCP_TMP_DIR/pmlogger
+# Various checks around the pmlogger control and run files in
+# $PCP_TMP_DIR/pmlogger and $PCP_RUN_DIR
 #
 # With a single --check option, is silent except if there is a problem
 # and runs just the integrity check.  This could be used from check or
@@ -40,13 +40,16 @@ _check()
 	do
 	    $PCP_AWK_PROG <$tmp.ps.out >$tmp.ps.pid '
 $2 == '"$pid"'	{ print }'
+
+	    # control file(s) ...
+	    #
 	    if [ -f $PCP_TMP_DIR/pmlogger/$pid ]
 	    then
-		# run file exists
+		# control file exists
 		if grep 'pmlogger .*-P ' <$tmp.ps.pid >/dev/null
 		then
 		    # primary logger
-		    if [ -f $PCP_TMP_DIR/pmlogger/primary ]
+		    if [ -L $PCP_TMP_DIR/pmlogger/primary ]
 		    then
 			check_pid=`ls -l $PCP_TMP_DIR/pmlogger/primary | sed -e 's/.*\///'`
 			if [ "$check_pid" = "$pid" ]
@@ -56,7 +59,7 @@ $2 == '"$pid"'	{ print }'
 			    then
 				:
 			    else
-				echo "check is OK"
+				echo "control file check is OK"
 			    fi
 			else
 			    echo "Error: $PCP_TMP_DIR/pmlogger/primary linked to pid $check_pid instead of $pid"
@@ -85,13 +88,63 @@ $2 == '"$check_pid"'	{ print }'
 		ls -l $PCP_TMP_DIR/pmlogger/*
 		$check && status=1
 	    fi
+
+	    # run file(s) ...
+	    #
+	    if [ -S $PCP_RUN_DIR/pmlogger.$pid.socket ]
+	    then
+		# run file exists
+		if grep 'pmlogger .*-P ' <$tmp.ps.pid >/dev/null
+		then
+		    # primary logger
+		    if [ -L $PCP_RUN_DIR/pmlogger.primary.socket ]
+		    then
+			check_pid=`ls -l $PCP_RUN_DIR/pmlogger.primary.socket | sed -e 's/.*\///' -e 's/pmlogger\.//' -e 's/\.socket//'`
+			if [ "$check_pid" = "$pid" ]
+			then
+			    # all is well
+			    if $check
+			    then
+				:
+			    else
+				echo "run file check is OK"
+			    fi
+			else
+			    echo "Error: $PCP_RUN_DIR/pmlogger.primary.socket linked to pid $check_pid instead of $pid"
+			    head -1 $tmp.ps.out
+			    $PCP_AWK_PROG <$tmp.ps.out '
+$2 == '"$check_pid"'	{ print }'
+			    cat $tmp.ps.pid
+			    ls -l $PCP_RUN_DIR/pmlogger.*
+			    $check && status=1
+			fi
+		    else
+			echo "Error: $PCP_RUN_DIR/pmlogger.primary.socket missing for ..."
+			head -1 $tmp.ps.out
+			cat $tmp.ps.pid
+			ls -l $PCP_RUN_DIR/pmlogger.*
+			$check && status=1
+		    fi
+		else
+		    # nothing more to check
+		    :
+		fi
+	    else
+		echo "Error: $PCP_RUN_DIR/pmlogger.$pid.socket missing for ..."
+		head -1 $tmp.ps.out
+		cat $tmp.ps.pid
+		ls -l $PCP_RUN_DIR/pmlogger.*
+		$check && status=1
+	    fi
+
 	done
     else
 	echo "Warning: no pmloggers running"
 	$check && status=1
     fi
 
-    # Now check for dead run files with no pmlogger attached
+    # Check for dead control files with no pmlogger attached
+    #
     for file in `cd $PCP_TMP_DIR/pmlogger; ls`
     do
 	case "$file"
@@ -112,6 +165,32 @@ $2 == '"$pid"'	{ print }'
 	else
 	    echo "Error: no matching pmlogger process for ..."
 	    ls -l $PCP_TMP_DIR/pmlogger/$file
+	    $check && status=1
+	fi
+    done
+
+    # Check for dead run files with no pmlogger attached
+    #
+    for file in `cd $PCP_RUN_DIR; ls pmlogger.*`
+    do
+	case "$file"
+	in
+	    pmlogger.primary.socket)
+			pid=`ls -l $PCP_RUN_DIR/pmlogger.primary.socket | sed -e 's/.*\///' -e 's/pmlogger\.//' -e 's/\.socket//'`
+			;;
+	    *)
+			pid=`echo $file | sed -e 's/pmlogger\.//' -e 's/\.socket//'`
+			;;
+	esac
+	$PCP_AWK_PROG <$tmp.ps.out >$tmp.ps.pid '
+$2 == '"$pid"'	{ print }'
+	if [ -s $tmp.ps.pid ]
+	then
+	    # OK
+	    :
+	else
+	    echo "Error: no matching pmlogger process for ..."
+	    ls -l $PCP_RUN_DIR/$file
 	    $check && status=1
 	fi
     done
