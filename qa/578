@@ -107,14 +107,14 @@ want == 1 && $1 == "value" && step == 2 {
 	thr_fds = $2; 
 	# Need some slop here (possibly because of non-determinism in
 	# parallel checking in connection code), so
-	# - after Install open fds to be within 0,+4
+	# - after Install open fds to be within 0,+10
 	# - after Remove open fds to be within 0,+4
 	#
-	if (fst_fds <= sec_fds && sec_fds <= fst_fds+4)
+	if (fst_fds <= sec_fds && sec_fds <= fst_fds+10)
 	    printf("=== Info: After Install, openfds has increased or stayed about the same as expected ===\n");
 	else {
 	    printf("=== Error: After Install, openfds has unexpectedly changed ===\n");
-	    printf("\t previous value %d, current value %d (expect [%d..%d])\n", fst_fds, sec_fds, fst_fds, fst_fds+4);
+	    printf("\t previous value %d, current value %d (expect [%d..%d])\n", fst_fds, sec_fds, fst_fds, fst_fds+10);
 	    }
 	if (sec_fds <= thr_fds && thr_fds <= sec_fds+4)
 	    printf("=== Info: After Remove, openfds has stayed about the same as expected ===\n");
