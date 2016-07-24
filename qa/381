@@ -109,6 +109,10 @@ pid=''
 
 $sudo rm -f $tmp.*
 
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|pmlogger' >>$here/$seq.full
+ls -l $PCP_TMP_DIR/pmlogger/* >>$here/$seq.full
+ls -l $PCP_RUN_DIR/pmlogger.* >>$here/$seq.full
+
 _start_up_pmlogger -h $rem_host -L -c /dev/null -l $tmp.log $tmp >/dev/null 2>&1
 _wait_for_pmlogger $pid $tmp.log
 
@@ -173,6 +177,10 @@ _speak_to_me "" $pid
 _speak_to_me "" "port $port"
 #debug# DEBUG="-D all"
 _speak_to_me @$rem_host $rem_pid $rem_port
+
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep 'PID|pmlogger' >>$here/$seq.full
+ls -l $PCP_TMP_DIR/pmlogger/* >>$here/$seq.full
+ls -l $PCP_RUN_DIR/pmlogger.* >>$here/$seq.full
 
 # success, all done
 status=0
