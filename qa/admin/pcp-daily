@@ -424,6 +424,8 @@ END	{ print txt }' \
 | awk '
 \$1 == "Failures:"	{ want = 1 }
 \$1 == "Passed"		{ want = 1 }
+\$1 == "Aborted!"	{ want = 1 }
+\$1 == "Check!"		{ want = 1 }
 want == 1		{ print }'
 if [ "\$sts" = 0 ]
 then
