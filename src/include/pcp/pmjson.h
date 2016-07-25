@@ -41,6 +41,7 @@ typedef struct json_metric_desc {
 
 PCP_CALL extern int pmjsonInit(int fd, json_metric_desc *, int);
 PCP_CALL extern int pmjsonInitIndom(int fd, json_metric_desc *, int, pmInDom);
+PCP_CALL extern int pmjsonInitChar(const char *, int, json_metric_desc *, int, pmInDom);
 
 #ifdef __cplusplus
 }
