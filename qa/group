@@ -169,6 +169,7 @@ pmda.cifs
 pmda.cisco
 pmda.dm
 pmda.ds389
+pmda.docker
 pmda.environ
 pmda.gfs2
 pmda.gpfs
@@ -1162,6 +1163,7 @@ oldversion
 921 pmdumplog local
 922 derive pmie pmval local
 923 derive libpcp valgrind local
+924 pmda.docker local
 926 other local
 928 archive local
 929 logutil local
