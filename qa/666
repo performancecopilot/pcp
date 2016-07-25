@@ -7,6 +7,8 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
+rm -f $seq.full
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
@@ -17,7 +19,6 @@ echo pmmgr ok
 
 $sudo rm -fr $tmp.dir
 $sudo rm -f $tmp.*
-rm -f $seq.full
 
 status=1	# failure is the default!
 hostname=`hostname`
