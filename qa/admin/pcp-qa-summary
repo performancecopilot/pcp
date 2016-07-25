@@ -253,10 +253,16 @@ END		{ print NR,": END state=" state >"'$tmp.dbg'"
 		then
 		    # pass lines look like:
 		    # [97%] 1055 16s ...
+		    # or
+		    # [97%] 1055
 		    #
 		    sed <$date -n -e '/^[[0-9][0-9]*%] [0-9][0-9]* [0-9][0-9]*s \.\.\.$/{
 s/.*] //
 s/ .*//
+p
+}' \
+				-e '/^[[0-9][0-9]*%] [0-9][0-9]*$/{
+s/.*] //
 p
 }' \
 		    | sed -e "s/\$/ P $basevmname/" >>$tmp.map
