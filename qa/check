@@ -93,9 +93,9 @@ END	{ if (NR > 0) {
 	    then
 		if [ -z "$seq" ]
 		then
-		    echo "Aborted! [during setup]" >>check.log
+		    echo "Aborted! [during setup]" | tee -a check.log
 		else
-		    echo "Aborted! [running $seq]" >>check.log
+		    echo "Aborted! [running $seq]" | tee -a check.log
 		fi
 	    fi
 
@@ -567,6 +567,25 @@ do
 	fi
     fi
 
+    # optional callback
+    #
+    callback_abort=false
+    if [ -x check.callback ]
+    then
+	if check.callback $seq >$tmp.tmp 2>&1
+	then
+	    :
+	else
+	    echo "Check! [after $seq] Run aborted by check.callback @ `date`" | tee -a check.log
+	    err=true
+	    callback_abort=true
+	    [ -f $seq.out.bad ] || cp $seq.out $seq.out.bad
+	    echo >>$seq.out.bad
+	    echo "+++ check.callback output +++" >>$seq.out.bad
+	    cat $tmp.tmp >>$seq.out.bad
+	fi
+    fi
+
     # come here for each test, except when $showme is true
     #
     if $err
@@ -581,18 +600,8 @@ do
     [ -f $seq.notrun ] || try=`expr $try + 1`
     rm -f $seq.notrun
 
-    # optional callback
-    #
-    if [ -x check.callback ]
-    then
-	if check.callback $seq
-	then
-	    :
-	else
-	    echo "Run aborted by check.callback!  Last test: $seq"
-	    break
-	fi
-    fi
+    $callback_abort && break
+
 done
 
 aborted=false
