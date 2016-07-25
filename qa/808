@@ -31,6 +31,12 @@ else
 
     echo === killing the primary pmlogger with SIGKILL ===
     $sudo kill -9 $pid
+    for i in 1 2 3 4 5
+    do
+	$sudo kill -0 $pid >/dev/null 2>&1 || break
+	sleep 1
+    done
+    $sudo kill -0 $pid >/dev/null 2>&1 && echo "Arrggh, pid $pid won't die!"
 
     echo === running pmlogger_check to restart primary logger ===
     $sudo $PCP_BINADM_DIR/pmlogger_check -C
@@ -50,6 +56,11 @@ else
 	exit
     fi
 
+    # cleanup from SIGKILL
+    #
+    $sudo rm -f $PCP_TMP_DIR/pmlogger/$pid $PCP_RUN_DIR/pmlogger.$pid.socket
+
+
 #
 # Next test: check primary logger restarts with legacy hardlinks present
 # This is a corner case, but can happen.
@@ -60,6 +71,12 @@ else
     echo === checking with stale legacy hard links
     echo === killing the primary pmlogger with SIGKILL ===
     $sudo kill -9 $pid
+    for i in 1 2 3 4 5
+    do
+	$sudo kill -0 $pid >/dev/null 2>&1 || break
+	sleep 1
+    done
+    $sudo kill -0 $pid >/dev/null 2>&1 && echo "Arrggh, pid $pid won't die!"
 
     # change the stale symlinks into hardlinks, to simulate an upgrade
     # from an earlier version of pcp (before we converted to symlinks)
@@ -85,6 +102,10 @@ else
 	status=1
 	exit
     fi
+
+    # cleanup from SIGKILL
+    #
+    $sudo rm -f $PCP_TMP_DIR/pmlogger/$pid $PCP_RUN_DIR/pmlogger.$pid.socket
 
     # success
     status=0
