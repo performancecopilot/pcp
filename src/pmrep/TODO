@@ -11,7 +11,6 @@
 -  add JSON output support
 -  add XML output support (like sadf)
 -  add XLS output support (like sar2xls)
--  look for config in ./, ~/.pcp, ~/, /etc/pcp or so
 -  possibly add more command line switch sanity checking
 -  modularize code to allow creating custom output plugins
 -    (e.g. pcp2graphite type socket, top-like output, separate pcp2zabbix)

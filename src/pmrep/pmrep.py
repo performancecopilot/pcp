@@ -71,7 +71,7 @@ if sys.version_info[0] >= 3:
     long = int
 
 # Default config
-DEFAULT_CONFIG = "./pmrep.conf"
+DEFAULT_CONFIG = [ "./pmrep.conf", "$HOME/.pmrep.conf", "$HOME/.pcp/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep/pmrep.conf" ]
 
 # Default field separators, config/time formats, missing/truncated values
 CSVSEP  = ","
@@ -365,7 +365,13 @@ class PMReporter(object):
 
     def set_config_file(self):
         """ Set configuration file """
-        config = DEFAULT_CONFIG
+        config = DEFAULT_CONFIG[0]
+        for conf in DEFAULT_CONFIG:
+            conf = conf.replace("$HOME", os.getenv("HOME"))
+            conf = conf.replace("$PCP_SYSCONF_DIR", os.getenv("PCP_SYSCONF_DIR"))
+            if os.path.isfile(conf) or os.access(conf, os.R_OK):
+                config = conf
+                break
 
         # Possibly override the built-in default config file before
         # parsing the rest of the command line options
@@ -412,8 +418,6 @@ class PMReporter(object):
 
     def read_config(self):
         """ Read options from configuration file """
-        if self.config is None:
-            return
         config = ConfigParser.SafeConfigParser()
         config.read(self.config)
         if not config.has_section('options'):
