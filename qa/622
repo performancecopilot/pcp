@@ -22,15 +22,26 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+$sudo rm -f $seq.full
 
 [ -z "$PCPQA_HYPHEN_HOST" ] && _notrun 'PCPQA_HYPHEN_HOST is not set in ./common.config'
-if ping -w 2 $PCPQA_HYPHEN_HOST >$tmp.tmp 2>&1
+echo "PCPQA_HYPHEN_HOST=$PCPQA_HYPHEN_HOST" >>$seq.full
+if ping -w 2 $PCPQA_HYPHEN_HOST >>$seq.full 2>&1
 then
-    # seems to be alive
-    :
+    # seems to be alive, check if pmcd is responding
+    #
+    if pminfo -h $PCPQA_HYPHEN_HOST -f pmda.version >>$seq.full 2>&1
+    then
+	# OK
+	:
+    else
+	_notrun "pmcd on host $PCPQA_HYPHEN_HOST is not responding"
+	# NOTREACHED
+    fi
+
 else
-    cat $tmp.tmp >$seq.full
     _notrun "host $PCPQA_HYPHEN_HOST is not responding"
+    # NOTREACHED
 fi
 
 # shell functs for QA test
