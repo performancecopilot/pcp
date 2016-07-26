@@ -499,15 +499,16 @@ refresh_interrupts(pmdaExt *pmda, __pmnsTree **tree)
 	    update_lines_pmns(dom, i, interrupt_lines[i].id);
 	for (i = 0; i < other_count; i++)
 	    update_other_pmns(dom, interrupt_other[i].name);
-	if ((*tree = interrupt_tree) != NULL) {
-	    pmdaTreeRebuildHash(interrupt_tree, lines_count+other_count);
-	    return 1;
-	}
+	*tree = interrupt_tree;
+	pmdaTreeRebuildHash(interrupt_tree, lines_count+other_count);
+	return 1;
     }
 
-    if (*tree == NULL)
+    if (*tree == NULL) {
 	*tree = noop_interrupts_pmns(dom);
-    return 1;
+	return 1;
+    }
+    return 0;
 }
 
 static int
@@ -529,15 +530,16 @@ refresh_softirqs(pmdaExt *pmda, __pmnsTree **tree)
     } else {
 	for (i = 0; i < softirqs_count; i++)
 	    update_softirqs_pmns(dom, softirqs[i].name);
-	if ((*tree = softirqs_tree) != NULL) {
-	    pmdaTreeRebuildHash(softirqs_tree, softirqs_count);
-	    return 1;
-	}
+	*tree = softirqs_tree;
+	pmdaTreeRebuildHash(softirqs_tree, softirqs_count);
+	return 1;
     }
 
-    if (*tree == NULL)
+    if (*tree == NULL) {
 	*tree = noop_softirqs_pmns(dom);
-    return 1;
+	return 1;
+    }
+    return 0;
 }
 
 int
@@ -639,6 +641,8 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 
     switch (cluster) {
 	case CLUSTER_INTERRUPT_LINES:
+	    if (!lines_count)
+		return PM_ERR_TEXT;
 	    if (item > lines_count)
 		return PM_ERR_PMID;
 	    text = interrupt_lines[item].text;
@@ -647,6 +651,8 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 	    *buf = text;
 	    return 0;
 	case CLUSTER_INTERRUPT_OTHER:
+	    if (!other_count)
+		return PM_ERR_TEXT;
 	    if (!(ip = dynamic_data_lookup(item, INTERRUPT_NAMES_INDOM)))
 		return PM_ERR_PMID;
 	    text = ip->text;
@@ -655,6 +661,8 @@ interrupts_text(pmdaExt *pmda, pmID pmid, int type, char **buf)
 	    *buf = text;
 	    return 0;
 	case CLUSTER_SOFTIRQS:
+	    if (!softirqs_count)
+		return PM_ERR_TEXT;
 	    if (!(ip = dynamic_data_lookup(item, SOFTIRQS_NAMES_INDOM)))
 		return PM_ERR_PMID;
 	    text = ip->text;
