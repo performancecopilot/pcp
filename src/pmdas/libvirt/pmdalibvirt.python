@@ -48,9 +48,10 @@ class LibvirtPMDA(PMDA):
         """ Constructor """
         PMDA.__init__(self, name, domain)
 
-        self.oldapi = False
         self.user = DEFAULT_USER
         self.uri = DEFAULT_URI
+        self.backing = False
+        self.oldapi = False
         self.read_config()
         self.set_user(self.user)
 
@@ -167,6 +168,9 @@ class LibvirtPMDA(PMDA):
             # Name - empty - type - semantics - units - help
             # See libvirt.git/src/libvirt-domain.c
             [ 'domstats.block.count',          None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM block devs, count'              ],
+            [ 'domstats.block.all.name',       None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM block devs, all names'          ],
+            [ 'domstats.block.all.backingIndex', None,                     PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM block devs, backing chain imgs' ],
+            [ 'domstats.block.all.path',       None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM block devs, all paths'          ],
             [ 'domstats.block.all.rd.reqs',    None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block devs, total rd reqs'      ],
             [ 'domstats.block.all.rd.bytes',   None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM block devs, total rd bytes'     ],
             [ 'domstats.block.all.rd.times',   None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, total rd times'     ],
@@ -175,11 +179,9 @@ class LibvirtPMDA(PMDA):
             [ 'domstats.block.all.wr.times',   None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, total wr times'     ],
             [ 'domstats.block.all.fl.reqs',    None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block devs, total fl reqs'      ],
             [ 'domstats.block.all.fl.times',   None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block devs, total fl times'     ],
-            [ 'domstats.block.all.name',       None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM block devs, all names'          ],
             [ 'domstats.block.all.allocation', None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, total allocation' ],
             [ 'domstats.block.all.capacity',   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, total capacity'   ],
             [ 'domstats.block.all.physical',   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, total physical'   ],
-            [ 'domstats.block.all.path',       None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM backing imgs, all paths'        ],
         ]
 
         self.vm_netstats_res = []
@@ -275,14 +277,18 @@ class LibvirtPMDA(PMDA):
         config.read(conffile)
         if config.has_section('pmda'):
             for opt in config.options('pmda'):
-                if opt == 'oldapi':
-                    if config.get('pmda', opt) == 'True' or \
-                       config.get('pmda', opt) == '1':
-                        self.oldapi = True
-                elif opt == 'user':
+                if opt == 'user':
                     self.user = config.get('pmda', opt)
                 elif opt == 'uri':
                     self.uri = config.get('pmda', opt)
+                elif opt == 'backing':
+                    if config.get('pmda', opt) == 'True' or \
+                       config.get('pmda', opt) == '1':
+                        self.backing = True
+                elif opt == 'oldapi':
+                    if config.get('pmda', opt) == 'True' or \
+                       config.get('pmda', opt) == '1':
+                        self.oldapi = True
                 else:
                     self.err("Invalid directive '%s' in %s.\n" % (opt, conffile))
                     sys.exit(1)
@@ -439,6 +445,8 @@ class LibvirtPMDA(PMDA):
                 self.vm_blockstats_res = []
                 if not self.oldapi:
                     stats = libvirt.VIR_DOMAIN_STATS_BLOCK
+                    if self.backing:
+                        flags |= libvirt.VIR_CONNECT_GET_ALL_DOMAINS_STATS_BACKING
                     self.vm_blockstats_res = self.conn.domainListGetStats(self.doms, stats, flags)
                 else:
                     for dom in self.doms:
@@ -671,9 +679,16 @@ class LibvirtPMDA(PMDA):
                     k = parts[0] + '.' + str(i) + '.' + parts[2]
                     if k in res[pos][1]:
                         if mtype == PM_TYPE_STRING:
-                            value = value + ' ' + res[pos][1][k]
+                            if not self.backing:
+                                value = value + ' ' + res[pos][1][k]
+                            else:
+                                if res[pos][1][k] not in value:
+                                    value = value + ' ' + res[pos][1][k]
                         else:
-                            value += res[pos][1][k]
+                            if 'backingIndex' not in k:
+                                value += res[pos][1][k]
+                            else:
+                                value += 1
                 if mtype == PM_TYPE_STRING and value.startswith(' '):
                     value = value[1:]
                 return [value, 1]
