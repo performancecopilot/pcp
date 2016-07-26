@@ -104,6 +104,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pcp_etc_dir@|$(PCP_ETC_DIR)|g' \
 	    -e's|@pcp_pmdas_dir@|$(PCP_PMDAS_DIR)|g' \
 	    -e's|@rpm_version@|$(RPM_VERSION)|g' \
+	    -e's|@have_manpages@|$(HAVE_MANPAGES)|g' \
 	    -e's|@make@|$(PCP_MAKE_PROG)|g' <$? >$@
 
 include $(BUILDRULES)
