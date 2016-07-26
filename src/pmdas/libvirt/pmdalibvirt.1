@@ -29,14 +29,19 @@ See the libvirt documentation for detailed description of each metric.
 This file can contain in its \f3[pmda]\f1 section overriding values
 for the following PMDA options:
 .IP "\(bu" 4
-oldapi
-.IP "\(bu" 4
 user
 .IP "\(bu" 4
 uri
+.IP "\(bu" 4
+backing
+.IP "\(bu" 4
+oldapi
 .PP
-By default, \f3False\f1, \f3root\f1 and \f3qemu:///system\f1 are used,
-respectively.
+By default, \f3root\f1, \f3qemu:///system\f1, \f3False\f1 and \f3False\f1
+are used as values, respectively.
+.PP
+The backing setting can be used to expand block device information to
+cover backing chains with recent libvirt versions.
 .PP
 The old API setting can be used in environments where recent libvirt API
 additions are not available (e.g., RHEL 6 / libvirt-0.10.2) to provide

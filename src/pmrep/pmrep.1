@@ -262,8 +262,12 @@ See also
 Specify the
 .I config
 file to use.
-The default is
-.BR ./pmrep.conf .
+The default is the first found of:
+.BR ./pmrep.conf ,
+.BR $HOME/.pmrep.conf ,
+.BR $HOME/pcp/pmrep.conf ,
+and
+.BR $PCP_SYSCONF_DIR/pmrep/pmrep.conf .
 See
 .BR pmrep.conf (5).
 Unlike with other options,
@@ -693,11 +697,11 @@ $ pmrep -o archive -F ./a -t 5s -T 5m ds389 xfs kernel.all.cpu disk mem
 .SH FILES
 .PD 0
 .TP 10
-.BI ./pmrep.conf
-Default configuration file.
+.BI pmrep.conf
+\fBpmrep\fR configuration file (see \fB-c\fR).
 .TP 10
-.BI /etc/pcp/pmrep/pmrep.conf
-Example configuration file.
+.BI $PCP_SYSCONF_DIR/pmrep/pmrep.conf
+System provided configuration file.
 .PD
 .SH BUGS
 No command line option can follow metrics.

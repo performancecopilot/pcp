@@ -1,7 +1,7 @@
 #!/usr/bin/env pmpython
 """ Test creation of a PCP web daemon via the requests module -*- python -*- """
 #
-# Copyright (C) 2013-2015 Red Hat Inc.
+# Copyright (C) 2013-2016 Red Hat Inc.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -111,6 +111,8 @@ def test_metric_enumeration(ctx, prefix):
         print(url)
         print("ERROR: %s" % e)
         print(testprefix + 'error JSON-decoding ' + req.text)
+        return  # hereafter the code assumes "resp" is valid
+
     print(testprefix + ' enumeration with pmwebinfo #'+str(len(resp['metrics'])))
 
     web_metrics = 0
@@ -137,22 +139,30 @@ test_metric_enumeration(ctx_host,'kernel')
 # empty _fetch should get an error
 req = requests.get(url=url + 'pmapi/'+str(ctx_host)+'/_fetch')
 print('context #'+str(ctx_host)+' response code ' + str(req.status_code))
+
 def test_fetch(ctx,metrics):
-# some fetches of real values
-  req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_fetch?'+metrics)
-  print('context #'+str(ctx_host)+' fetch '+metrics+' response code ' + str(req.status_code))
-  if (req.status_code != 200):
-      return
-  # print req.content
-  result = req.json()
-  print('timestamps fields:'+str(len(result['timestamp']))+' len(values[]):'+str(len(result['values'])))
-  for metric in sorted(result['values'], key=lambda x: x['name']):
-      print('  metric:'+metric['name'])
-      if (len(metric['instances']) > 0):
-          print('  with instances')
-      else:
-          print('  no instances')
-      # don't pretty-print instances/values, because they could fluctuate too much from test to test for _filter()
+    # some fetches of real values
+    req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_fetch?'+metrics)
+    print('context #'+str(ctx_host)+' fetch '+metrics+' response code ' + str(req.status_code))
+    if (req.status_code != 200):
+        return
+    try:
+        # print req.content
+        result = req.json()
+    except Exception as e:
+        print(url)
+        print("ERROR: %s" % e)
+        print('error JSON-decoding ' + req.text)
+        return  # hereafter the code assumes "result" is valid
+
+    print('timestamps fields:'+str(len(result['timestamp']))+' len(values[]):'+str(len(result['values'])))
+    for metric in sorted(result['values'], key=lambda x: x['name']):
+        print('  metric:'+metric['name'])
+        if (len(metric['instances']) > 0):
+            print('  with instances')
+        else:
+            print('  no instances')
+        # don't pretty-print instances/values, because they could fluctuate too much from test to test for _filter()
 
 
 # use both contexts so neither times out
@@ -173,16 +183,24 @@ test_fetch(ctx_local,'pmids=blargh')
 
 def test_metadata(ctx,metrics):
 # some fetches of real values
-  req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_metric?'+metrics)
-  print('context #'+str(ctx_host)+' metadata '+metrics+' response code ' + str(req.status_code))
-  if (req.status_code != 200):
-      return
-  # print req.content
-  result = req.json()
-  print('len(metrics[]):'+str(len(result['metrics'])))
-  for metric in sorted(result['metrics'], key=lambda x: x['name']):
-      print('  metric:'+metric['name']+' metadata:'+str(len(metric.keys())))
-      # don't pretty-print metadata contents, because they could fluctuate too much from test to test for _filter()
+    req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_metric?'+metrics)
+    print('context #'+str(ctx_host)+' metadata '+metrics+' response code ' + str(req.status_code))
+    if (req.status_code != 200):
+        return
+    # print req.content
+    try:
+        result = req.json()
+    except Exception as e:
+        print(url)
+        print("ERROR: %s" % e)
+        print('error JSON-decoding ' + req.text)
+        return  # hereafter the code assumes "result" is valid
+
+    print('len(metrics[]):'+str(len(result['metrics'])))
+    for metric in sorted(result['metrics'], key=lambda x: x['name']):
+        print('  metric:'+metric['name']+' metadata:'+str(len(metric.keys())))
+        # don't pretty-print metadata contents, because they could fluctuate
+        # too much from test to test for _filter()
 
 
 # use both contexts so neither times out
@@ -196,17 +214,24 @@ test_metadata(ctx_local,'prefix=keepalive')
 
 def test_indom(ctx,dom):
 # some fetches of real values
-  req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_indom?'+dom)
-  print('context #'+str(ctx_host)+' indom '+dom+' response code ' + str(req.status_code))
-  if (req.status_code != 200):
-      return
-  # print req.content
-  result = req.json()
-  print('indom:'+str(result['indom']))
-  if (len(result['instances']) > 0):
-      print('  with instances')
-  else:
-      print('  no instances')
+    req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_indom?'+dom)
+    print('context #'+str(ctx_host)+' indom '+dom+' response code ' + str(req.status_code))
+    if (req.status_code != 200):
+        return
+    try:
+        # print req.content
+        result = req.json()
+    except Exception as e:
+        print(url)
+        print("ERROR: %s" % e)
+        print('error JSON-decoding ' + req.text)
+        return  # hereafter the code assumes "result" is valid
+
+    print('indom:'+str(result['indom']))
+    if (len(result['instances']) > 0):
+        print('  with instances')
+    else:
+        print('  no instances')
   # don't pretty-print indom tuples, because they could fluctuate too much from test to test for _filter()
 
 
@@ -222,22 +247,29 @@ test_indom(ctx_local,'names=keepalive')
 # ------------------------------------------------------------------------
 
 def test_store(ctx, suffix):
-# some stores of real values
-  req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_store?'+suffix)
-  print('context #'+str(ctx_host)+' store '+suffix+' response code ' + str(req.status_code))
-  if (req.status_code != 200):
-      return
-  print('store: success')
+    # some stores of real values
+    req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_store?'+suffix)
+    print('context #'+str(ctx_host)+' store '+suffix+' response code ' + str(req.status_code))
+    if (req.status_code != 200):
+        return
+    print('store: success')
 
 def check_vals(ctx, metric):
-# dump values after a store
-  req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_fetch?names='+metric)
-  if (req.status_code != 200):
-      return
-  result = req.json()
-  for metric in sorted(result['values'], key=lambda x: x['name']):
-      for inst in sorted(metric['instances'], key=lambda x: x['instance']):
-          print('  ' + metric['name'] + '[' + str(inst['value']) + ']')
+    # dump values after a store
+    req = requests.get(url=url + 'pmapi/'+str(ctx)+'/_fetch?names='+metric)
+    if (req.status_code != 200):
+        return
+    try:
+        result = req.json()
+    except Exception as e:
+        print(url)
+        print("ERROR: %s" % e)
+        print('error JSON-decoding ' + req.text)
+        return  # hereafter the code assumes "result" is valid
+
+    for metric in sorted(result['values'], key=lambda x: x['name']):
+        for inst in sorted(metric['instances'], key=lambda x: x['instance']):
+            print('  ' + metric['name'] + '[' + str(inst['value']) + ']')
 
 # use both contexts so neither times out, verify values reflect stored change
 test_store(ctx_local, 'name=') # no metric
