@@ -29,9 +29,12 @@ _slice_sort_reassemble()
     sed \
 	-e 's/\([0-9][0-9]*\) or "docker/N or "docker/' \
 	-e 's/\([0-9][0-9]*\) or "cciss/N or "cciss/' \
+	-e 's/\([0-9][0-9]*\) or "home/N or "home/' \
 	-e 's/\([0-9][0-9]*\) or "md/N or "md/' \
 	-e 's/\([0-9][0-9]*\) or "sd/N or "sd/' \
 	-e 's/\([0-9][0-9]*\) or "sr/N or "sr/' \
+	-e 's/\([0-9][0-9]*\) or "vd/N or "vd/' \
+	-e 's/\([0-9][0-9]*\) or "rbd/N or "rbd/' \
     | $here/src/sortinst
 }
 
