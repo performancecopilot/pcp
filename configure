@@ -659,6 +659,7 @@ have_xzed_manpages
 have_lzmaed_manpages
 have_bzip2ed_manpages
 have_gzipped_manpages
+have_manpages
 pcp_man_dir
 pcp_x11_pre
 pcp_x11_extra
@@ -13985,6 +13986,7 @@ pcp_x11_extra=$X_EXTRA_LIBS
 pcp_x11_pre=$X_PRE_LIBS
 
 
+have_manpages=false
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
 have_lzmaed_manpages=false
@@ -14001,26 +14003,31 @@ do
 	if test -f $d/$sd/man.1.gz
 	then
 	    have_gzipped_manpages=true
+	    have_manpages=true
 	    man_header=`$ZIP -d < $d/$sd/man.1.gz | head -1`
 	    break
 	elif test -f $d/$sd/man.1.bz2
 	then
 	    have_bzip2ed_manpages=true
+	    have_manpages=true
 	    man_header=`$BZIP2 -d < $d/$sd/man.1.bz2 | head -1`
 	    break
 	elif test -f $d/$sd/man.1.lzma
 	then
 	    have_lzmaed_manpages=true
+	    have_manpages=true
 	    man_header=`$LZMA -d < $d/$sd/man.1.lzma | head -1`
 	    break
 	elif test -f $d/$sd/man.1.xz
 	then
 	    have_xzed_manpages=true
+	    have_manpages=true
 	    man_header=`$XZ -d < $d/$sd/man.1.xz | head -1`
 	    break
 	elif test -f $d/$sd/man.1
 	then
 	    man_header=`head -1 $d/$sd/man.1`
+	    have_manpages=true
 	    break
 	fi
     done
@@ -14028,6 +14035,7 @@ done
 if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
     need_old_tbl_header=true
 fi
+
 
 
 

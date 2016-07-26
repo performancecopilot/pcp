@@ -2046,7 +2046,6 @@ BEGIN {
     while( getline < "import_mrtg2pcp_files") import_mrtg2pcp[$0]=1;
     while( getline < "import_ganglia2pcp_files") import_ganglia2pcp[$0]=1;
     while( getline < "import_collectl2pcp_files") import_collectl2pcp[$0]=1;
-    while( getline < "import_collectl2pcp_files") import_collectl2pcp[$0]=1;
     while( getline < "conf_files") conf[nconf++]=$0;
 }
 {
