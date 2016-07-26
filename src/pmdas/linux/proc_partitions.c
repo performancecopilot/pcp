@@ -1,8 +1,8 @@
 /*
  * Linux Partitions (disk and disk partition IO stats) Cluster
  *
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 2015 Intel, Inc.  All Rights Reserved.
- * Copyright (c) 2012-2014 Red Hat.
  * Copyright (c) 2008,2012 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -52,6 +52,9 @@ extern int _pm_numdisks;
  * Mylex raid disks are named e.g. rd/c0d0 or dac960/c0d0
  * Mylex raid partitions are named e.g. rd/c0d0p1 or dac960/c0d0p1
  *
+ * Ceph RADOS block devices are named e.g. rbd0
+ * Ceph RADOS block device partitions are named e.g. rbd0p1
+ *
  * What this now tries to do is be a bit smarter, and guess that names
  * with slashes that end in the form .../c0t0d0[p0], and ones without
  * are good old 19th century device names like xx0 or xx0a.
@@ -90,6 +93,18 @@ _pm_isnvmedrive(char *dname)
      * assume it is a partition - e.g. nvme0n1p1.
      */
     return (strchr(dname + 4, 'p') == NULL);
+}
+
+static int
+_pm_iscephrados(char *dname)
+{
+    if (strncmp(dname, "rbd", 3) != 0)
+        return 0;
+    /*
+     * Are we a disk or a partition of the disk? If there is a "p"
+     * assume it is a partition - e.g. rbd7p1.
+     */
+    return (strchr(dname + 3, 'p') == NULL);
 }
 
 static int
@@ -142,6 +157,7 @@ _pm_ispartition(char *dname)
 		!_pm_isramdisk(dname) &&
 		!_pm_ismmcdisk(dname) &&
 		!_pm_isnvmedrive(dname) &&
+		!_pm_iscephrados(dname) &&
 		!_pm_ismd(dname) &&
 		!_pm_isdm(dname);
     }
