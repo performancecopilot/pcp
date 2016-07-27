@@ -57,7 +57,7 @@ QA output created by 006
 -12400 Bad input to pmstore
 -12401 Archives overlap in time
 -12402 Archives differ by host
--12403 Archives differ by time zone
+-12403 No such PMAPI error code (-12403)
 -12404 The type of a metric has changed in an archive
 -12405 The semantics of a metric has changed in an archive
 -12406 The instance domain of a metric has changed in an archive
