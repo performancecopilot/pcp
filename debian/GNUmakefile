@@ -99,6 +99,12 @@ DEVIMPORT_FILES = libpcp-import1-dev.dirs libpcp-import1-dev.install
 LIBIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1
 DEVIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1-dev
 
+LIBJSONPCP = libpcp-json1
+LIBJSON_FILES = libpcp-json1.install
+DEVJSON_FILES = libpcp-json1-dev.dirs libpcp-json1-dev.install
+LIBJSON_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-json1
+DEVJSON_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-json1-dev
+
 SUBDIRS = source
 LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	pcp.preinst pcp.preinst.head pcp.postinst pcp.postinst.head \
@@ -107,6 +113,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
 	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev \
+	$(LIBJSONPCP) $(LIBJSONPCP)-dev \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL)
 
@@ -248,6 +255,21 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 644 copyright $(DEVIMPORT_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(DEVIMPORT_DOC_DIR)/changelog.Debian
 endif
+
+install-libjson: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(LIBJSON_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(LIBJSON_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(LIBJSON_DOC_DIR)/changelog.Debian
+endif
+
+install-devjson: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(DEVJSON_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(DEVJSON_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(DEVJSON_DOC_DIR)/changelog.Debian
+endif
+
 
 install-pcpimportsar: default
 ifeq ($(PACKAGE_DISTRIBUTION), debian)

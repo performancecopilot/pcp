@@ -157,11 +157,12 @@ docker_values_parse(FILE *fp, const char *name, container_t *values)
 {
     int     sts = 0;
     int     fd = -1;
+    int     i;
 
     json_metric_desc  *local_json_metrics;
     local_json_metrics = (json_metric_desc*)malloc(JSONMETRICS_SZ*sizeof(*json_metrics)); // maybe realloc?
     memcpy(local_json_metrics, json_metrics, JSONMETRICS_SZ*(sizeof(*json_metrics)));
-    for (int i = 0; i < JSONMETRICS_SZ; i++)
+    for (i = 0; i < JSONMETRICS_SZ; i++)
 	local_json_metrics[i].json_pointer = strdup(json_metrics[i].json_pointer);
 
     local_json_metrics[0].dom = strdup(name);
