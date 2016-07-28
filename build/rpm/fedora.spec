@@ -2305,6 +2305,7 @@ cd
 %dir %{_confdir}/pmlogger/control.d
 %config(noreplace) %{_confdir}/pmlogger/control
 %config(noreplace) %{_confdir}/pmlogger/control.d/local
+%dir %attr(0775,pcp,pcp) %{_confdir}/nssdb
 
 %{_localstatedir}/lib/pcp/config/pmafm
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmie
