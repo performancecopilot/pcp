@@ -13,15 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if echo help | dbpmda | grep -q children
-then
-    :
-else
-    echo "No dynamic metric support in dbpmda" >$seq.notrun
-    echo "$seq: [not run] `cat $seq.notrun`"
-    exit 0
-fi
-
 status=0	# success is the default!
 username=`id -u -n`
 $sudo rm -rf $tmp.* $seq.full
