@@ -22,6 +22,7 @@ SUBDIRS = \
 	dmcache \
 	free \
 	iostat \
+	mpstat \
 	numastat \
 	pidstat \
 	python \
@@ -44,7 +45,7 @@ install_pcp : $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 check :: check_pcp
 
-check_pcp : pidstat
+check_pcp : pidstat mpstat
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)
