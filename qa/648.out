@@ -26,6 +26,18 @@ Help:
 Tags associated with each animal we have found
 mmv.animals.tag PMID: 70.420.33 [Animal tag identifiers]
 
+    Data Type: 32-bit unsigned int  InDom: 70.862210 0x118d2802
+    Semantics: discrete  Units: none
+    inst [0 or "Fido"] value 0
+    inst [1 or "Brutus"] value 1
+    inst [10 or "Tom"] value 10
+    inst [20 or "Jerry"] value 20
+    inst [30 or "Dumbo - an animated film produced by Walt Disney Productions, premiered October 23, 1941"] value 30
+    inst [31 or "Bambi - an animated drama film produced by Walt Disney, released August 13, 1942"] value 31
+Help:
+Tags associated with each animal we have found
+mmv.animals2.tag PMID: 70.421.33 [Animal tag identifiers]
+
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
     value 0
@@ -35,7 +47,7 @@ mmv.control.debug PMID: 70.0.1 [Debug flag]
 
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-    value 3
+    value 7
 Count of currently mapped and exported statistics files.
 Help:
 mmv.control.files PMID: 70.0.2 [Memory mapped file count]

@@ -40,7 +40,8 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	churnctx.c badUnitsStr_r.c units-parse.c rootclient.c derived.c \
 	lookupnametest.c getversion.c pdubufbounds.c statvfs.c storepmcd.c \
 	github-50.c archfetch.c fetchloop.c sortinst.c fetchgroup.c \
-	loadderived.c sum16.c badmmv.c
+	loadderived.c sum16.c badmmv.c mmv_simple.c mmv2_genstats.c \
+	mmv2_instances.c mmv2_nostats.c mmv2_simple.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -412,6 +413,10 @@ keycache2: keycache2.c
 badpmda: badpmda.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
+torture_cache:	torture_cache.o 
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.o $(LDLIBS) -lpcp_pmda
+
 # --- need libpcp_gui
 #
 
@@ -425,22 +430,12 @@ record-setarg: record-setarg.c
 
 # --- need libpcp_mmv
 #
-mmv_genstats:	mmv_genstats.c
+mmv%:	mmv%.o
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
 
-mmv_instances:	mmv_instances.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
-
-mmv_noinit:	mmv_noinit.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
-
-mmv_nostats:	mmv_nostats.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
-
+# --- need extra libraries
+#
 pducheck:	pducheck.o 
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ pducheck.o  $(TRACELIB) $(LDLIBS) -lpcp_pmda
@@ -452,10 +447,6 @@ pducrash:	pducrash.o
 pdu-server:	pdu-server.o
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ pdu-server.o  $(TRACELIB) $(LIBSOL) $(LDLIBS)
-
-torture_cache:	torture_cache.o 
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ torture_cache.o $(LDLIBS) -lpcp_pmda
 
 obs:	obs.c
 	rm -f $@

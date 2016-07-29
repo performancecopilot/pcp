@@ -24,3 +24,8 @@ PCP_MMV_1.0 {
 
   local: *;
 };
+
+PCP_MMV_1.1 {
+  global:
+    mmv_stats2_init;
+} PCP_MMV_1.0;

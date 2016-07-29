@@ -55,6 +55,10 @@ _filter_pmda_install <$tmp.out
 $here/src/mmv_instances cats
 $here/src/mmv_instances dogs
 $here/src/mmv_instances mice
+$here/src/mmv2_instances cats2
+$here/src/mmv2_instances dogs2
+$here/src/mmv2_instances mice2
+$here/src/mmv2_instances film2
 
 echo
 echo "=== validate values ==="
