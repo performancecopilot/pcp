@@ -11,7 +11,7 @@ X-Python-Version: >= 2.6
 X-Python3-Version: >= 3.3
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, python3-pcp | python-pcp, python3 | python
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, libpcp-pmda-perl, python3-pcp | python-pcp, python3 | python, libpcp-web1
 Conflicts: pgpool2
 Suggests: pcp-gui, libpcp-import-perl
 Architecture: any
@@ -207,6 +207,33 @@ Description: Performance Co-Pilot data import library
  by an application that imports performance data from a file or
  real-time source and creates a Performance Co-Pilot (PCP) archive
  suitable for use with the PCP tools.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+ 
+Package: libpcp-web1-dev
+Section: libdevel
+Depends: ${misc:Depends}, libpcp-web1 (= ${binary:Version}), libpcp3-dev
+Architecture: any
+Description: Performance Co-Pilot web tooling
+ The libpcp-web-dev package contains the library and header files
+ needed to build a PMDA which parses and extracts metric data from
+ a JSON file.
+ .
+ The Performance Co-Pilot provides a unifying abstraction for
+ all of the interesting performance data in a system, and allows
+ client applications to easily retrieve and process any subset of
+ that data.
+
+Package: libpcp-web1
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Section: libs
+Architecture: any
+Description: Performance Co-Pilot data import library
+ The libpcp-web package contains the runtime environment required
+ by a PMDA to parse and extract metric data from a JSON file.
  .
  The Performance Co-Pilot provides a unifying abstraction for
  all of the interesting performance data in a system, and allows

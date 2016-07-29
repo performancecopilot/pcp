@@ -99,6 +99,12 @@ DEVIMPORT_FILES = libpcp-import1-dev.dirs libpcp-import1-dev.install
 LIBIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1
 DEVIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1-dev
 
+LIBWEBPCP = libpcp-web1
+LIBWEB_FILES = libpcp-web1.install
+DEVWEB_FILES = libpcp-web1-dev.dirs libpcp-web1-dev.install
+LIBWEB_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-web1
+DEVWEB_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-web1-dev
+
 SUBDIRS = source
 LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	pcp.preinst pcp.preinst.head pcp.postinst pcp.postinst.head \
@@ -107,6 +113,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
 	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev \
+	$(LIBWEBPCP) $(LIBWEBPCP)-dev \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL)
 
@@ -248,6 +255,21 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 644 copyright $(DEVIMPORT_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(DEVIMPORT_DOC_DIR)/changelog.Debian
 endif
+
+install-libweb: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(LIBWEB_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(LIBWEB_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(LIBWEB_DOC_DIR)/changelog.Debian
+endif
+
+install-devweb: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(DEVWEB_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(DEVWEB_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(DEVWEB_DOC_DIR)/changelog.Debian
+endif
+
 
 install-pcpimportsar: default
 ifeq ($(PACKAGE_DISTRIBUTION), debian)

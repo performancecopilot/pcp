@@ -1,0 +1,132 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDAJSONINIT 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmjsonInitIndom\f1,
+\f3pmjsonInit\f1 \- introduction to the JSON metric extraction library
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmjson.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+int pmjsonInitIndom(int \fIfd\fP, json_metric_desc *\fIjson_metrics\fP,
+int \fInum_metrics\fP, pmInDom \fIindom\fP);
+.br
+.ti -8n
+int pmjsonInit(int \fIfd\fP, json_metric_desc *\fIjson_metrics\fP,
+int \fInum_metrics\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_json \-lpcp
+.ft 1
+.SH DESCRIPTION
+.P
+\f3pmjsonInitIndom\f1 creates and initializes JSON metric extraction
+functionality for PCP metrics with instance domains.
+Metrics and instances are defined by the \f2json_metrics\f1 parameter.
+The result of parsing is the extraction of values for the requested
+metrics (as defined in the json_pointer field) in the values field.
+.P
+\f3pmjsonInit\f1 specifies a call to the JSON parsing and metric
+value extraction functionality where there are no instance domains,
+or the PMDA wishes to perform instance domain operations itself.
+.P
+\f2fd\f1 is an open file descriptor from which the JSON document will
+be read.
+.P
+\f2json_metrics\f1 is the array of json_metric_desc struct which
+contains the json pointer to the metric data, possible flags to check
+the data against, number of values (in the case of an array),
+\f2pmAtomValue\f1 where the data is stored, as well as the instance
+domain in the even the PMDA in question has multiple domains.
+\f3pmjsonInitIndom\f1 will endeavour to make use of the
+.BR pmdaCacheAdd (3)
+function where possible.
+In the event that no \f2indom\f1 is needed, PM_INDOM_NULL should be
+passed, or \f3pmjsonInit\f1 used instead.
+.P
+\f2num_metrics\f1 is the number of elements in in the array of
+.IR json_metrics .
+.P
+\f2indom\f1 is the instance domain to be passed to \f3pmdaCacheAdd\f1.
+.P
+.nf
+	typedef struct json_metrics_desc {
+	    char          *json_pointer;  /* json pointer to metric */
+	    int           flags;          /* flags to check if set */
+	    int           num_values;     /* number of values */
+	    pmAtomValue   values;         /* metric value */
+	    char          *dom;           /* instance domain */
+	} json_metric_desc;
+.fi
+.P
+The JSON Pointer syntax current follows \f2RFC6901\f1 in specifying a
+metrics location within the JSON document.
+.SH EXAMPLE
+.ft CW
+.nf
+For the sample JSON document:
+{
+    "Name": "/clever_almeida",
+    "State": {
+        "Dead": false,
+        "Error": "",
+        "ExitCode": 0,
+        "FinishedAt": "2016-07-18T21:21:20.332488706Z",
+        "OOMKilled": false,
+        "Paused": false,
+        "Pid": 0,
+        "Restarting": false,
+        "Running": false,
+        "StartedAt": "2016-07-18T14:10:58.52487316Z"
+    }
+}
+
+A possible corresponding json_metric array would be as follows for the
+Pid, Name, and metrics to indicate whether the container is Running,
+Paused, or Restarting.
+
+static json_metric_desc json_metrics[] = {
+    { "State/Pid", 0, 1, {0}, ""},
+    { "Name", 0, 1, {0}, ""},
+    { "State/Running", CONTAINER_FLAG_RUNNING, 1, {0}, ""},
+    { "State/Paused", CONTAINER_FLAG_PAUSED, 1, {0}, ""},
+    { "State/Restarting", CONTAINER_FLAG_RESTARTING, 1, {0}, ""},
+};
+.fi
+.ft R
+.SH RETURN CODE
+The function returns zero on success, otherwise an error code suitable
+for passing to
+.BR pmErrStr_r (3)
+is returned.
+.SH SEE ALSO
+.BR pmErrStr_r (3),
+.BR pmdaCacheAdd (3),
+.nh
+.BR http://json.org/ ,
+.hy
+.nh
+.BR https://tools.ietf.org/html/rfc7159 ,
+.hy
+.nh
+.BR https://tools.ietf.org/html/rfc6901 ,
+.ny

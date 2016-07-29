@@ -1,0 +1,5 @@
+PCP_WEB_1.0 {
+  global:
+    pmjsonInitIndom;
+    pmjsonInit;
+};
