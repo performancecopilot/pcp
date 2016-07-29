@@ -1,4 +1,4 @@
-PCP_JSON_3.11 {
+PCP_WEB_3.11 {
   global:
     pmjsonInitIndom;
     pmjsonInit;

@@ -99,11 +99,11 @@ DEVIMPORT_FILES = libpcp-import1-dev.dirs libpcp-import1-dev.install
 LIBIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1
 DEVIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1-dev
 
-LIBJSONPCP = libpcp-json1
-LIBJSON_FILES = libpcp-json1.install
-DEVJSON_FILES = libpcp-json1-dev.dirs libpcp-json1-dev.install
-LIBJSON_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-json1
-DEVJSON_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-json1-dev
+LIBWEBPCP = libpcp-web1
+LIBWEB_FILES = libpcp-web1.install
+DEVWEB_FILES = libpcp-web1-dev.dirs libpcp-web1-dev.install
+LIBWEB_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-web1
+DEVWEB_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-web1-dev
 
 SUBDIRS = source
 LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
@@ -113,7 +113,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(LIBPMDAPCP) $(LIBPMDAPCP)-dev $(LIBTRACEPCP) $(LIBTRACEPCP)-dev \
 	$(LIBGUIPCP) $(LIBGUIPCP)-dev $(LIBMMVPCP) $(LIBMMVPCP)-dev \
 	$(LIBIMPORTPCP) $(LIBIMPORTPCP)-dev \
-	$(LIBJSONPCP) $(LIBJSONPCP)-dev \
+	$(LIBWEBPCP) $(LIBWEBPCP)-dev \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL)
 
@@ -256,18 +256,18 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 644 changelog $(DEVIMPORT_DOC_DIR)/changelog.Debian
 endif
 
-install-libjson: default
+install-libweb: default
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
-	$(INSTALL) -m 755 -d $(LIBJSON_DOC_DIR)
-	$(INSTALL) -m 644 copyright $(LIBJSON_DOC_DIR)
-	$(INSTALL) -m 644 changelog $(LIBJSON_DOC_DIR)/changelog.Debian
+	$(INSTALL) -m 755 -d $(LIBWEB_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(LIBWEB_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(LIBWEB_DOC_DIR)/changelog.Debian
 endif
 
-install-devjson: default
+install-devweb: default
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
-	$(INSTALL) -m 755 -d $(DEVJSON_DOC_DIR)
-	$(INSTALL) -m 644 copyright $(DEVJSON_DOC_DIR)
-	$(INSTALL) -m 644 changelog $(DEVJSON_DOC_DIR)/changelog.Debian
+	$(INSTALL) -m 755 -d $(DEVWEB_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(DEVWEB_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(DEVWEB_DOC_DIR)/changelog.Debian
 endif
 
 

@@ -31,7 +31,7 @@ LIBS_SUBDIRS = \
 	libpcp_qed \
 	libpcp_qmc \
 	libpcp_qwt \
-	libpcp_json \
+	libpcp_web \
 	#
 
 OTHER_SUBDIRS = \

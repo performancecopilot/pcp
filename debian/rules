@@ -18,8 +18,8 @@ libpcp_trace = libpcp-trace2
 libpcp_tracedev = libpcp-trace2-dev
 libpcp_import = libpcp-import1
 libpcp_importdev = libpcp-import1-dev
-libpcp_json = libpcp_json1
-libpcp_jsondev = libpcp_json1-dev
+libpcp_web = libpcp_web1
+libpcp_webdev = libpcp_web1-dev
 pcp_import_sar = pcp-import-sar2pcp
 pcp_import_ganglia = pcp-import-ganglia2pcp
 pcp_import_mrtg = pcp-import-mrtg2pcp
@@ -56,8 +56,8 @@ dirlibpcp_trace = debian/$(libpcp_trace)
 dirlibpcp_tracedev = debian/$(libpcp_tracedev)
 dirlibpcp_import = debian/$(libpcp_import)
 dirlibpcp_importdev = debian/$(libpcp_importdev)
-dirlibpcp_json = debian/$(libpcp_json)
-dirlibpcp_jsondev = debian/$(libpcp_jsondev)
+dirlibpcp_web = debian/$(libpcp_web)
+dirlibpcp_webdev = debian/$(libpcp_webdev)
 dirpcp_import_sar = debian/$(pcp_import_sar)
 dirpcp_import_ganglia = debian/$(pcp_import_ganglia)
 dirpcp_import_mrtg = debian/$(pcp_import_mrtg)
@@ -83,7 +83,7 @@ alldir = $(dirpcp) $(dirpcpcfg) \
 		$(dirlibpcp_trace) $(dirlibpcp_tracedev) \
 		$(dirlibpcp_gui) $(dirlibpcp_guidev) \
 		$(dirlibpcp_import) $(dirlibpcp_importdev) \
-		$(dirlibpcp_json) $(dirlibpcp_jsondev) \
+		$(dirlibpcp_web) $(dirlibpcp_webdev) \
 		$(dirlibpcp_mmv) $(dirlibpcp_mmvdev) \
 		$(dirpcp_import_sar) $(dirpcp_import_mrtg) \
 		$(dirpcp_import_ganglia) \
@@ -104,7 +104,7 @@ pkglibpcp_mmv = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_mmv);
 pkglibpcp_pmda = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_pmda);
 pkglibpcp_trace = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_trace);
 pkglibpcp_import = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_import);
-pkglibpcp_json = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_json);
+pkglibpcp_web = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_web);
 pkglibpcp_mmv_perl = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_mmv_perl);
 pkglibpcp_pmda_perl = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_pmda_perl);
 pkglibpcp_import_perl = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_import_perl);
@@ -237,8 +237,8 @@ binary-arch: checkroot build-stamp
 	dh_makeshlibs --package $(libpcp_trace)
 	dh_makeshlibs -N $(libpcp_import)
 	dh_makeshlibs --package $(libpcp_import)
-	dh_makeshlibs -N $(libpcp_json)
-	dh_makeshlibs --package $(libpcp_json)
+	dh_makeshlibs -N $(libpcp_web)
+	dh_makeshlibs --package $(libpcp_web)
 	dh_makeshlibs -N $(libpcp_gui)
 	dh_makeshlibs --package $(libpcp_gui)
 	dh_makeshlibs -N $(libpcp_mmv)
@@ -255,7 +255,7 @@ binary-arch: checkroot build-stamp
 	dh_perl -p $(pcp_import_sheet)
 	dh_perl -p $(pcp_import_iostat)
 	dh_installdeb
-	dh_shlibdeps #2>/dev/null	# qmake doesn't allow a library list
+	dh_shlibdeps 2>/dev/null	# qmake doesn't allow a library list
 	dh_gencontrol $(SUBSTVARS) 2>/dev/null	# squash the python:Versions warning
 	dh_md5sums
 
