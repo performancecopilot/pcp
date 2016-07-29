@@ -324,7 +324,7 @@ Bad file size: toc[2] string[0]
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -339,7 +339,7 @@ mmv.control.files
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -354,7 +354,7 @@ mmv.control.files
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -369,7 +369,7 @@ mmv.control.files
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

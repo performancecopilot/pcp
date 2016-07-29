@@ -20,7 +20,6 @@ username=`id -u -n`
 MMV_STATS_DIR=${PCP_TMP_DIR}/mmv
 MMVDUMP=$PCP_PMDAS_DIR/mmv/mmvdump
 pmda=${PCP_PMDAS_DIR}/mmv/pmda_mmv,mmv_init
-linux=${PCP_PMDAS_DIR}/linux/pmda_linux,linux_init
 
 _cleanup()
 {
@@ -75,11 +74,11 @@ _verify()
 
     # run valgrind once for all files in section (its slow to start)
     echo -- verify $section data files | tee -a $seq.full
-    _run_valgrind pminfo -L -Kclear -Kadd,60,$linux -Kadd,70,$pmda -v mmv \
+    _run_valgrind pminfo -L -Kclear -Kadd,70,$pmda -v mmv \
 		| _filter
 
     # this should always show zero (all badmmv generated files are invalid)
-    pminfo -L -Kclear -Kadd,60,$linux -Kadd,70,$pmda -f mmv.control.files
+    pminfo -L -Kclear -Kadd,70,$pmda -f mmv.control.files
 
     # cleanup 
     rm -f ${MMV_STATS_DIR}/${section}-*
