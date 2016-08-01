@@ -57,6 +57,7 @@ sed -e 's/ /\\ /g' -e 's/|/ /g' <src/permslist \
     -e 's@$(PCP_VAR_DIR)@'$PCP_VAR_DIR@g \
     -e 's@$(PCP_RUN_DIR)@'$PCP_RUN_DIR@g \
     -e 's@$(PCP_NSSDB_DIR)@'$PCP_NSSDB_DIR@g \
+    -e 's@$(PCP_SHARE_DIR)@'$PCP_SHARE_DIR@g \
     -e 's@$(PCP_SYSCONF_DIR)@'$PCP_SYSCONF_DIR@g \
 | while read makefile mode owner group target optional
 do
