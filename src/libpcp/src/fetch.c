@@ -15,6 +15,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
+#include "fault.h"
 
 static int
 request_fetch(int ctxid, __pmContext *ctxp,  int numpmid, pmID pmidlist[])
@@ -114,6 +115,7 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 		    __pmPDU	*pb;
 		    int		pinpdu;
 
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 					    ctxp->c_pmcd->pc_tout_sec, &pb);
 		    if (n == PDU_RESULT) {
@@ -129,6 +131,7 @@ pmFetch(int numpmid, pmID pmidlist[], pmResult **result)
 			    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 		    }
 		    else {
+			__pmCloseChannel(ctxp, n);
 			PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 			if (n != PM_ERR_TIMEOUT)
 			    n = PM_ERR_IPC;

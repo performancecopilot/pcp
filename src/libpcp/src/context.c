@@ -1625,6 +1625,27 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
     PM_UNLOCK(__pmLock_libpcp);
 }
 
+/*
+ * Come here after TIMEOUT or IPC error at the PDU layer in the
+ * communication with pmcd (usually during a __pmGetPDU() call.
+ *
+ * No need to be delicate here, rip the socket down so other
+ * contexts are not compromised by stale data on the channel.
+ */
+void
+__pmCloseChannel(__pmContext *ctxp, int sts)
+{
+    /* guard against repeated calls for the same channel ... */
+    if (ctxp->c_pmcd->pc_fd >= 0) {
+	char		errmsg[PM_MAXERRMSGLEN];
+	__pmNotifyErr(LOG_ERR, "__pmCloseChannel: fd=%d context=%d: %s",
+	    ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+
+	__pmCloseSocket(ctxp->c_pmcd->pc_fd);
+	ctxp->c_pmcd->pc_fd = -1;
+    }
+}
+
 #ifdef PM_MULTI_THREAD
 #ifdef PM_MULTI_THREAD_DEBUG
 /*
