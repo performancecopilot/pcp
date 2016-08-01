@@ -1,0 +1,75 @@
+#!/bin/sh
+# PCP QA Test No. 865
+# Use slow PMDA to exercise __pmCloseChannel() on the pmFetch() path
+#
+# Copyright (c) 2014-2016 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+perl -e "use PCP::PMDA" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
+
+_cleanup()
+{
+    if pmprobe -I pmcd.agent.status | grep '"slow"' >/dev/null
+    then
+	cd $here/pmdas/slow
+	$sudo ./Remove >>$here/$seq.full 2>&1
+	$sudo rm -f domain.h.perl pmns.perl
+	cd $here
+    fi
+}
+
+# [Sat Jul 30 17:33:55] multictx(26317) Error: __pmCloseChannel: fd=3 context=1: Timeout waiting for a response from PMCD
+_filter()
+{
+    sed \
+	-e 's/multictx([0-9][0-9]*)/multictx(PID)/' \
+	-e 's/\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/[DATE]/' \
+    # end
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
+
+cd $here/pmdas/slow
+$PCP_MAKE_PROG clean >>$here/$seq.full 2>&1
+cat <<End-of-File | $sudo ./Install
+both
+0
+3
+End-of-File
+cd $here
+
+# avoid any PDUs associated with the definition of derived metrics
+export PCP_DERIVED_CONFIG=
+
+# # samples is sufficient to do all ops in multictx.c 2 times for
+# each of 3 metrics, so x6 altogether
+#
+samples=60
+
+# real QA test starts here
+
+echo "First no timeouts ..."
+src/multictx -s $samples sample.part_bin slow.seventeen pmcd.buf.alloc 2>&1 \
+| _filter
+
+echo 
+echo "Now with timeouts ..."
+export PMCD_REQUEST_TIMEOUT=2
+src/multictx -s $samples sample.part_bin slow.seventeen pmcd.buf.alloc 2>&1 \
+| _filter
+
+# success, all done
+status=0
+
+exit
