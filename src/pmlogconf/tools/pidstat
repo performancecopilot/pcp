@@ -1,0 +1,27 @@
+#pmlogconf-setup 2.0
+ident   metrics used by the pcp-pidstat(1) command
+probe	kernel.uname.sysname ~ Linux ? available : exclude
+	proc.nprocs
+	proc.psinfo.pid
+	proc.psinfo.cmd
+	proc.psinfo.utime
+	proc.psinfo.stime
+	proc.psinfo.guest_time
+	proc.psinfo.processor
+	proc.psinfo.rt_priority
+	proc.psinfo.policy
+	proc.psinfo.minflt
+	proc.psinfo.maj_flt
+	proc.psinfo.vsize
+	proc.psinfo.rss
+	proc.memory.vmstack
+	proc.id.uid
+	proc.id.uid_nm
+
+	kernel.all.cpu.user
+	kernel.all.cpu.vuser
+	kernel.all.cpu.sys
+	kernel.all.cpu.guest
+	kernel.all.cpu.nice
+	kernel.all.cpu.idle
+

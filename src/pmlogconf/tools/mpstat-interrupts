@@ -1,5 +1,6 @@
 #pmlogconf-setup 2.0
-ident   percpu interrupt metrics for the mpstat(1) command
+ident   percpu interrupt metrics for the pcp-mpstat(1) command
 probe	kernel.uname.sysname ~ Linux ? available : exclude
-# -I -------------------------------------------------
+# -I ------------------------------------------------
 	kernel.percpu.interrupts
+	kernel.percpu.softirqs

@@ -13,9 +13,12 @@ FILES = \
 	iostat \
 	ip \
 	mpstat \
+	mpstat-summary \
 	mpstat-interrupts \
 	numastat \
 	pcp-summary \
+	pidstat \
+	pidstat-summary \
 	pmclient \
 	pmclient-summary \
 	pmstat \
