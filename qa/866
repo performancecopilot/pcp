@@ -31,6 +31,7 @@ _filter()
 {
     sed \
 	-e 's/multictx([0-9][0-9]*)/multictx(PID)/' \
+	-e 's/store([0-9][0-9]*)/store(PID)/' \
 	-e 's/\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/[DATE]/' \
     # end
 }

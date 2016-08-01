@@ -333,5 +333,5 @@ iter 28: ctx 0: pmNameInDom metric: 29.0.5 (aka sample.colour)
 iter 29: ctx 1: pmTraversePMNS metric: pmcd.buf
 
 force 3nd pmStore to timeout
-[DATE] store(29644) Error: __pmCloseChannel: fd=3 context=0: Timeout waiting for a response from PMCD
+[DATE] store(PID) Error: __pmCloseChannel: fd=3 context=0: Timeout waiting for a response from PMCD
 pmStore restore: Timeout waiting for a response from PMCD
