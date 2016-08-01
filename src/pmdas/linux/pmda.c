@@ -4351,12 +4351,16 @@ static pmdaMetric metrictab[] = {
 	PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /*
- * /proc/interrupts cluster
+ * /proc/interrupts clusters
  */
     /* kernel.all.interrupts.errors */
     { &irq_err_count,
       { PMDA_PMID(CLUSTER_INTERRUPTS, 3), PM_TYPE_U32, PM_INDOM_NULL,
 	PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* kernel.percpu.intr */
+    { NULL, { PMDA_PMID(CLUSTER_INTERRUPTS,4), PM_TYPE_U64,
+    CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* kernel.percpu.interrupts.line[<N>] */
     { NULL, { PMDA_PMID(CLUSTER_INTERRUPT_LINES, 0), PM_TYPE_U32,
@@ -6493,21 +6497,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	return sts;
 
-    case CLUSTER_INTERRUPTS:
-	switch (idp->item) {
-	case 3:	/* kernel.all.interrupts.error */
-	    atom->ul = irq_err_count;
-	    break;
-	default:
-	    return PM_ERR_PMID;
-	}
-	break;
-
     case CLUSTER_INTERRUPT_LINES:
     case CLUSTER_INTERRUPT_OTHER:
+    case CLUSTER_INTERRUPTS:
     case CLUSTER_SOFTIRQS:
-	if (inst >= indomtab[CPU_INDOM].it_numinst)
-	    return PM_ERR_INST;
 	return interrupts_fetch(idp->cluster, idp->item, inst, atom);
 
     case CLUSTER_DM:

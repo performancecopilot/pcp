@@ -33,8 +33,13 @@ typedef struct {
     unsigned long	*values;	/* per-CPU values for this counter */
 } interrupt_t;
 
+typedef struct {
+    unsigned int	cpuid;		/* CPU identifier */
+    unsigned long long	count;		/* per-CPU sum of interrupt counts */
+} online_cpu_t;
+
 static unsigned int cpu_count;
-static int *online_cpumap;		/* maps input columns to CPU IDs */
+static online_cpu_t *online_cpumap;	/* maps input columns to CPU info */
 static unsigned int lines_count;
 static interrupt_t *interrupt_lines;
 static unsigned int other_count;
@@ -52,7 +57,7 @@ unsigned int irq_err_count;
  * One-shot initialisation for global interrupt-metric-related state
  */
 static int
-setup_interrupts(void)
+setup_interrupts(int reset)
 {
     static int setup;
 
@@ -63,12 +68,13 @@ setup_interrupts(void)
     }
 
     if (cpu_count != _pm_ncpus) {
-	online_cpumap = realloc(online_cpumap, _pm_ncpus * sizeof(int));
+	online_cpumap = realloc(online_cpumap, _pm_ncpus * sizeof(online_cpu_t));
 	if (!online_cpumap)
 	    return -oserror();
 	cpu_count = _pm_ncpus;
     }
-    memset(online_cpumap, 0, cpu_count * sizeof(int));
+    if (reset)
+	memset(online_cpumap, 0, cpu_count * sizeof(online_cpu_t));
     return 0;
 }
 
@@ -200,7 +206,7 @@ map_online_cpus(char *buffer)
 	cpuid = (unsigned int)strtoul(s, &end, 10);
 	if (end == s)
 	    break;
-	online_cpumap[i++] = cpuid;
+	online_cpumap[i++].cpuid = cpuid;
 	s = end;
     }
     return i;
@@ -211,16 +217,16 @@ column_to_cpuid(int column)
 {
     int i;
 
-    if (online_cpumap[column] == column)
+    if (online_cpumap[column].cpuid == column)
 	return column;
     for (i = 0; i < cpu_count; i++)
-	if (online_cpumap[i] == column)
+	if (online_cpumap[i].cpuid == column)
 	    return i;
     return 0;
 }
 
 static char *
-extract_values(char *buffer, unsigned long *values, int ncolumns)
+extract_values(char *buffer, unsigned long *values, int ncolumns, int count)
 {
     unsigned long i, cpuid, value;
     char *s = buffer, *end = NULL;
@@ -231,6 +237,8 @@ extract_values(char *buffer, unsigned long *values, int ncolumns)
 	    return NULL;
 	s = end;
 	cpuid = column_to_cpuid(i);
+	if (count)
+	    online_cpumap[cpuid].count += value;
 	values[cpuid] = value;
     }
     return end;
@@ -328,7 +336,7 @@ extract_interrupt_lines(char *buffer, int ncolumns, int nlines)
 	return 0;
     if (resize && !extend_interrupts(&interrupt_lines, &lines_count))
 	return 0;
-    end = extract_values(values, interrupt_lines[nlines].values, ncolumns);
+    end = extract_values(values, interrupt_lines[nlines].values, ncolumns, 1);
     if (resize) {
 	initialise_interrupt(&interrupt_lines[nlines], id, name, end);
 	return 2;
@@ -360,7 +368,7 @@ extract_interrupt_other(char *buffer, int ncolumns, int nlines)
     name = extract_interrupt_name(buffer, &values);
     if (resize && !extend_interrupts(&interrupt_other, &other_count))
 	return 0;
-    end = extract_values(values, interrupt_other[nlines].values, ncolumns);
+    end = extract_values(values, interrupt_other[nlines].values, ncolumns, 1);
     if (resize) {
 	initialise_named_interrupt(&interrupt_other[nlines],
 				   INTERRUPT_NAMES_INDOM, name, end);
@@ -378,7 +386,7 @@ extract_softirqs(char *buffer, int ncolumns, int nlines)
     name = extract_interrupt_name(buffer, &values);
     if (resize && !extend_interrupts(&softirqs, &softirqs_count))
 	return 0;
-    end = extract_values(values, softirqs[nlines].values, ncolumns);
+    end = extract_values(values, softirqs[nlines].values, ncolumns, 0);
     if (resize) {
 	initialise_named_interrupt(&softirqs[nlines],
 				    SOFTIRQS_NAMES_INDOM, name, end);
@@ -397,7 +405,7 @@ refresh_interrupt_values(void)
 
     refresh_interrupt_count++;
 
-    if ((sts = setup_interrupts()) < 0)
+    if ((sts = setup_interrupts(1)) < 0)
 	return sts;
 
     if ((fp = linux_statsfile("/proc/interrupts", buf, sizeof(buf))) == NULL)
@@ -448,7 +456,7 @@ refresh_softirqs_values(void)
 
     refresh_softirqs_count++;
 
-    if ((sts = setup_interrupts()) < 0)
+    if ((sts = setup_interrupts(0)) < 0)
 	return sts;
 
     if ((fp = linux_statsfile("/proc/softirqs", buf, sizeof(buf))) == NULL)
@@ -546,30 +554,46 @@ int
 interrupts_fetch(int cluster, int item, unsigned int inst, pmAtomValue *atom)
 {
     interrupt_t *ip;
+    int cpuid;
+
+    if (!refresh_interrupt_count)
+	refresh_interrupt_values();
+
+    if (cluster == CLUSTER_INTERRUPTS && item == 3) {
+	/* kernel.all.interrupts.error */
+	atom->ul = irq_err_count;
+	return 1;
+    }
 
     if (inst >= cpu_count)
 	return PM_ERR_INST;
 
     switch (cluster) {
+	case CLUSTER_INTERRUPTS:
+	    if (item != 4)
+		break;
+	    cpuid = column_to_cpuid(inst);
+	    atom->ull = online_cpumap[cpuid].count;
+	    return 1;
 	case CLUSTER_INTERRUPT_LINES:
 	    if (!lines_count)
 		return 0;
 	    if (item > lines_count)
-		return PM_ERR_PMID;
+		break;
 	    atom->ul = interrupt_lines[item].values[inst];
 	    return 1;
 	case CLUSTER_INTERRUPT_OTHER:
 	    if (!other_count)
 		return 0;
 	    if (!(ip = dynamic_data_lookup(item, INTERRUPT_NAMES_INDOM)))
-		return PM_ERR_PMID;
+		break;
 	    atom->ul = ip->values[inst];
 	    return 1;
 	case CLUSTER_SOFTIRQS:
 	    if (!softirqs_count)
 		return 0;
 	    if (!(ip = dynamic_data_lookup(item, SOFTIRQS_NAMES_INDOM)))
-		return PM_ERR_PMID;
+		break;
 	    atom->ul = ip->values[inst];
 	    return 1;
     }

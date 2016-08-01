@@ -43,7 +43,7 @@ _mk_proc_stat()
 
 # real QA test starts here
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
-metrics="kernel.percpu.interrupts kernel.percpu.softirqs"
+metrics="kernel.percpu.intr kernel.percpu.interrupts kernel.percpu.softirqs"
 machine=8cpu-x86_64
 
 export LINUX_STATSPATH=$tmp.root

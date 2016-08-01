@@ -74,10 +74,10 @@ do
     export LINUX_NCPUS=$ncpu
 
     echo "== Checking interrupts metrics from $base ($ncpu CPU)"
-    pminfo -f -L -K clear -K add,$domain,$pmda kernel.percpu.interrupts
+    pminfo -f -L -K clear -K add,$domain,$pmda kernel.percpu.intr kernel.percpu.interrupts
     echo && echo "== done" && echo
     echo "== Checking interrupts helptext from $base ($ncpu CPU)"
-    pminfo -tT -L -K clear -K add,$domain,$pmda kernel.percpu.interrupts
+    pminfo -tT -L -K clear -K add,$domain,$pmda kernel.percpu.intr kernel.percpu.interrupts
     echo && echo "== done" && echo
     cd $here
 done
