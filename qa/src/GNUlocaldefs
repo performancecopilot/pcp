@@ -446,7 +446,7 @@ pducrash:	pducrash.o
 
 pdu-server:	pdu-server.o
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pdu-server.o  $(TRACELIB) $(LIBSOL) $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ pdu-server.o  $(TRACELIB) $(LDLIBS)
 
 obs:	obs.c
 	rm -f $@
@@ -568,14 +568,14 @@ units-parse: units-parse.c
 # --- miscellaneous
 #
 qa_timezone.$(DSOSUFFIX):	qa_timezone.o
-	$(LD) -shared -o $@ -nostdlib $<
+	$(LD) $(_SHAREDOPTS) -o $@ -nostdlib $<
 
 qa_shmctl.$(DSOSUFFIX):	 qa_shmctl.c
-	$(CCF) $(LDFLAGS) -shared -o $@ qa_shmctl.c
+	$(CCF) $(LDFLAGS) $(_SHAREDOPTS) -o $@ qa_shmctl.c
 	@rm -f qa_shmctl.o
 
 qa_sem_msg_ctl.$(DSOSUFFIX):	 qa_sem_msg_ctl.c
-	$(CCF) $(LDFLAGS) -shared -o $@ qa_sem_msg_ctl.c
+	$(CCF) $(LDFLAGS) $(_SHAREDOPTS) -o $@ qa_sem_msg_ctl.c
 	@rm -f qa_sem_msg_ctl.o
 
 ifneq ($(NVIDIAQALIB),)
