@@ -269,6 +269,17 @@ class tm(Structure):
                 ("tm_gmtoff", c_long),	# glibc/bsd extension
                 ("tm_zone", c_char_p)]	# glibc/bsd extension
 
+    def struct_time(self):
+        # convert POSIX representations - see mktime(3) - to python:
+        # https://docs.python.org/3/library/time.html#time.struct_time
+        pywday = self.tm_wday - 1
+        if pywday < 0:
+            pywday = 6
+        stlist = [self.tm_year + 1900, self.tm_mon + 1, self.tm_mday,
+                  self.tm_hour, self.tm_min, self.tm_sec,
+                  pywday, self.tm_yday - 1, self.tm_isdst ]
+        return time.struct_time(stlist)
+
     def __str__(self):
         # For debugging this, the timetuple is possibly more useful
         # timetuple = (self.tm_year+1900, self.tm_mon, self.tm_mday,
