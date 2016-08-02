@@ -1211,7 +1211,7 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 	if (sts != PDU_ERROR) {
 	    if (pinpdu > 0)
 		__pmUnpinPDUBuf(&rpdu);
-	    return -PM_ERR_IPC;
+	    return PM_ERR_IPC;
 	}
 	sts = __pmDecodeError(rpdu, &serverSts);
 	if (pinpdu > 0)
