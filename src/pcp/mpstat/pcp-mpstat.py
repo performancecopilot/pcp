@@ -16,14 +16,17 @@
 from pcp import pmapi
 from pcp import pmcc
 import sys
-MPSTAT_METRICS = ['pmda.uname', 'hinv.map.cpu_num', 'hinv.ncpu', 'hinv.cpu.online', 'kernel.all.cpu.user',
+import time
+MPSTAT_METRICS = ['kernel.uname.nodename', 'kernel.uname.release', 'kernel.uname.sysname',
+                'kernel.uname.machine', 'hinv.map.cpu_num', 'hinv.ncpu', 'hinv.cpu.online',
+                'kernel.all.cpu.user',
                 'kernel.all.cpu.nice', 'kernel.all.cpu.sys', 'kernel.all.cpu.wait.total',
                 'kernel.all.cpu.irq.hard', 'kernel.all.cpu.irq.soft', 'kernel.all.cpu.steal',
                 'kernel.all.cpu.guest', 'kernel.all.cpu.guest_nice', 'kernel.all.cpu.idle',
                 'kernel.percpu.cpu.user', 'kernel.percpu.cpu.nice', 'kernel.percpu.cpu.sys',
                 'kernel.percpu.cpu.wait.total', 'kernel.percpu.cpu.irq.hard', 'kernel.percpu.cpu.irq.soft',
                 'kernel.percpu.cpu.steal', 'kernel.percpu.cpu.guest','kernel.percpu.cpu.guest_nice',
-                'kernel.percpu.cpu.idle', 'kernel.all.intr', 'kernel.percpu.cpu.intr']
+                'kernel.percpu.cpu.idle', 'kernel.all.intr', 'kernel.percpu.intr']
 interrupts_list = []
 soft_interrupts_list = []
 
@@ -299,8 +302,8 @@ class TotalInterruptUsage:
         return list(map((lambda cpuid: TotalCpuInterrupt(cpuid, self.__get_cpu_total_interrupt(cpuid), self.__metric_repository)), self.__cpus()))
 
     def __get_cpu_total_interrupt(self, instance):
-        c_value = self.__metric_repository.current_value('kernel.percpu.cpu.intr', instance)
-        p_value = self.__metric_repository.previous_value('kernel.percpu.cpu.intr', instance)
+        c_value = self.__metric_repository.current_value('kernel.percpu.intr', instance)
+        p_value = self.__metric_repository.previous_value('kernel.percpu.intr', instance)
         if c_value is not None and p_value is not None:
             return float("%.2f"%(float(c_value - p_value)/self.delta_time))
         else:
@@ -456,7 +459,7 @@ class InterruptUsageReporter:
     def print_report(self, interrupt_usage, timestamp):
         self.interrupt_usage = interrupt_usage
         cpu_interrupts = self.interrupt_usage.get_percpu_interrupts()
-        header_values = ("\nTimestamp","cpu")
+        header_values = ("\nTimestamp","CPU")
         format_str = "%-10s\t%-4s\t"
 
         # use the first CPU in cpu_interrupts to get the interrupt names
@@ -566,10 +569,17 @@ class MpstatReport(pmcc.MetricGroupPrinter):
         u = group.timestamp.tv_usec - group.prevTimestamp.tv_usec
         return (s + u / 1000000.0)
 
-    def print_machine_info(self,group):
-        machine_name = group['pmda.uname'].netValues[0][2]
+    def print_machine_info(self,group, context):
+        timestamp = context.pmLocaltime(group.timestamp.tv_sec)
+        time_string = time.strftime("%A %d %B %Y", timestamp.struct_time())
+        header_string = ''
+        header_string += group['kernel.uname.sysname'].netValues[0][2] + '  '
+        header_string += group['kernel.uname.release'].netValues[0][2] + '  '
+        header_string += '(' + group['kernel.uname.nodename'].netValues[0][2] + ')  '
+        header_string += time_string + '  '
+        header_string += group['kernel.uname.machine'].netValues[0][2] + '  '
         no_cpu =self.get_ncpu(group)
-        print("%s\t(%s CPU)" % (machine_name,no_cpu))
+        print("%s  (%s CPU)" % (header_string,no_cpu))
 
     def get_ncpu(self,group):
         return group['hinv.ncpu'].netValues[0][2]
@@ -581,7 +591,7 @@ class MpstatReport(pmcc.MetricGroupPrinter):
             return
 
         if self.Machine_info_count == 0:
-            self.print_machine_info(group)
+            self.print_machine_info(group, manager)
             self.Machine_info_count = 1
 
         timestamp = group.contextCache.pmCtime(int(group.timestamp)).rstrip().split()
