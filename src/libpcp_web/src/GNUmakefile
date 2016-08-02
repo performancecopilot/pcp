@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015-2016 Red Hat.
 #
 # This library is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
@@ -21,7 +21,7 @@ HFILES		= jsmn.h private.h
 LLDLIBS		= -lpcp
 LCFLAGS		= -DJSMN_PARENT_LINKS
 
-STATICLIBTARGET = libpcp_json.a
+STATICLIBTARGET = libpcp_web.a
 
 DSOVERSION = 1
 LIBTARGET = libpcp_web.$(DSOSUFFIX).$(DSOVERSION)
