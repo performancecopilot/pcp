@@ -350,8 +350,8 @@ static int
 update_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
 		mmv_disk_indom_t *id, pmdaIndom *ip)
 {
-    mmv_disk_instance_t *in1;
-    mmv_disk_instance2_t *in2;
+    mmv_disk_instance_t *in1 = NULL;
+    mmv_disk_instance2_t *in2 = NULL;
     mmv_disk_string_t *string;
     int i, j, size, newinsts = 0;
 
