@@ -16,6 +16,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "internal.h"
+#include "fault.h"
 
 int
 pmLookupDesc(pmID pmid, pmDesc *desc)
@@ -37,14 +38,18 @@ pmLookupDesc(pmID pmid, pmDesc *desc)
 	    n = __pmMapErrno(n);
 	else {
 	    int		pinpdu;
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	    pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 				    ctxp->c_pmcd->pc_tout_sec, &pb);
 	    if (n == PDU_DESC)
 		n = __pmDecodeDesc(pb, desc);
 	    else if (n == PDU_ERROR)
 		__pmDecodeError(pb, &n);
-	    else if (n != PM_ERR_TIMEOUT)
-		n = PM_ERR_IPC;
+	    else {
+		__pmCloseChannel(ctxp, n);
+		if (n != PM_ERR_TIMEOUT)
+		    n = PM_ERR_IPC;
+	    }
 	    if (pinpdu > 0)
 		__pmUnpinPDUBuf(pb);
 	}

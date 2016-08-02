@@ -67,6 +67,7 @@ main(int argc, char **argv)
     int		type = PM_CONTEXT_HOST;
     int		c;
     int		sts;
+    int		ctx;
     int		errflag = 0;
     char	*host = "localhost";
     char	*namespace = PM_NS_DEFAULT;
@@ -85,6 +86,7 @@ main(int argc, char **argv)
     pmResult		*new;
     pmResult		pr;
     pmValueSet		pvs;
+    int			guard;
 
     __pmSetProgname(argv[0]);
 
@@ -135,13 +137,13 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    if ((sts = pmNewContext(type, host)) < 0) {
+    if ((ctx = pmNewContext(type, host)) < 0) {
 	if (type == PM_CONTEXT_HOST)
 	    printf("%s: Cannot connect to PMCD on host \"%s\": %s\n",
-		pmProgname, host, pmErrStr(sts));
+		pmProgname, host, pmErrStr(ctx));
 	else
 	    printf("%s: Cannot connect standalone on localhost: %s\n",
-		pmProgname, pmErrStr(sts));
+		pmProgname, pmErrStr(ctx));
 	exit(1);
     }
 
@@ -165,8 +167,16 @@ main(int argc, char **argv)
 	exit(1);
     }
     old->numpmid--;
+    guard = 0;
+again1:
     if ((n = pmStore(old)) < 0) {
 	printf("pmStore no change: %s\n", pmErrStr(n));
+	if (guard == 0 && n == PM_ERR_TIMEOUT) {
+	    /* for qa/866 */
+	    pmReconnectContext(ctx);
+	    guard++;
+	    goto again1;
+	}
     }
     if ((n = pmFetch(numpmid - 1, midlist, &new)) < 0) {
 	printf("pmFetch new: %s\n", pmErrStr(n));
@@ -178,8 +188,16 @@ main(int argc, char **argv)
     }
 
     old->vset[0]->vlist[0].value.lval++;
+    guard = 0;
+again2:
     if ((n = pmStore(old)) < 0) {
 	printf("pmStore change: %s\n", pmErrStr(n));
+	if (guard == 0 && n == PM_ERR_TIMEOUT) {
+	    /* for qa/866 */
+	    pmReconnectContext(ctx);
+	    guard++;
+	    goto again2;
+	}
     }
     if ((n = pmFetch(numpmid - 1, midlist, &new)) < 0) {
 	printf("pmFetch new again: %s\n", pmErrStr(n));
@@ -191,8 +209,16 @@ main(int argc, char **argv)
     }
 
     old->vset[0]->vlist[0].value.lval--;
+    guard = 0;
+again3:
     if ((n = pmStore(old)) < 0) {
 	printf("pmStore restore: %s\n", pmErrStr(n));
+	if (guard == 0 && n == PM_ERR_TIMEOUT) {
+	    /* for qa/866 */
+	    pmReconnectContext(ctx);
+	    guard++;
+	    goto again3;
+	}
     }
     if ((n = pmFetch(numpmid - 1, midlist, &new)) < 0) {
 	printf("pmFetch new once more: %s\n", pmErrStr(n));
@@ -204,9 +230,17 @@ main(int argc, char **argv)
 
     old->numpmid++;	/* cannot change sampledso.long.one */
     n = pmStore(old);
+    guard = 0;
+again4:
     if (n != -EACCES && n != PM_ERR_PERMISSION) {
 	printf("ERROR: expected EACCES or PM_ERR_PERMISSION error\n");
 	printf("pmStore all 3: %s\n", pmErrStr(n));
+	if (guard == 0 && n == PM_ERR_TIMEOUT) {
+	    /* for qa/866 */
+	    pmReconnectContext(ctx);
+	    guard++;
+	    goto again4;
+	}
     }
     pmFreeResult(old);
 
@@ -221,10 +255,18 @@ main(int argc, char **argv)
     pr.vset[0]->valfmt = PM_VAL_INSITU;
     pr.vset[0]->vlist[0].inst = PM_INDOM_NULL;
     pr.vset[0]->vlist[0].value.lval = 123456;
+    guard = 0;
+again5:
     n = pmStore(&pr);
     if (n != PM_ERR_NOAGENT) {
 	printf("ERROR: expected PM_ERR_NOAGENT error\n");
 	printf("pmStore bad agent domain: %s\n", pmErrStr(n));
+	if (guard == 0 && n == PM_ERR_TIMEOUT) {
+	    /* for qa/866 */
+	    pmReconnectContext(ctx);
+	    guard++;
+	    goto again5;
+	}
 	exit(1);
     }
 

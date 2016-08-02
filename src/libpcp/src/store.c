@@ -17,6 +17,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "internal.h"
+#include "fault.h"
 
 int
 pmStore(const pmResult *result)
@@ -51,12 +52,16 @@ pmStore(const pmResult *result)
 		__pmPDU	*pb;
 		int	pinpdu;
 	     
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 					  ctxp->c_pmcd->pc_tout_sec, &pb);
 		if (sts == PDU_ERROR)
 		    __pmDecodeError(pb, &sts);
-		else if (sts != PM_ERR_TIMEOUT)
-		    sts = PM_ERR_IPC;
+		else {
+		    __pmCloseChannel(ctxp, sts);
+		    if (sts != PM_ERR_TIMEOUT)
+			sts = PM_ERR_IPC;
+		}
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
 	    }

@@ -46,7 +46,7 @@ _speak_to_me()
 {
     echo
     # default
-    _port=4330
+    _port=$port
     [ -n "$3" ] && _port="$3"
     echo "=== _host=$1 _logger_id=$2 ===" >$tmp.out
     echo >>$here/$seq.full

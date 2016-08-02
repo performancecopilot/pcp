@@ -1,0 +1,161 @@
+QA output created by 865
+You will need to choose an appropriate configuration for installation of
+the "slow" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Startup delay (secs) [0]? Fetch delay (secs) [0]? Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+Updating the PMCD control file, and notifying PMCD ...
+Check slow metrics have appeared ... 1 metrics and 1 values
+First no timeouts ...
+iter 0: ctx 0: pmLookupName metric: sample.part_bin
+iter 1: ctx 1: pmLookupDesc metric: slow.seventeen
+iter 2: ctx 2: pmNameID metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 3: ctx 0: pmLookupDesc metric: sample.part_bin
+iter 4: ctx 1: pmLookupName metric: slow.seventeen
+iter 5: ctx 2: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 6: ctx 0: pmNameID metric: 29.0.50 (aka sample.part_bin)
+iter 7: ctx 1: pmFetch metric: 243.0.0 (aka slow.seventeen)
+iter 8: ctx 2: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 9: ctx 0: pmGetInDom metric: 29.0.50 (aka sample.part_bin)
+iter 10: ctx 1: pmGetChildrenStatus metric: slow
+iter 11: ctx 2: pmLookupInDom metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 12: ctx 0: pmNameInDom metric: 29.0.50 (aka sample.part_bin)
+iter 13: ctx 1: pmTraversePMNS metric: slow
+iter 14: ctx 2: pmLookupText metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 15: ctx 0: pmLookupInDom metric: 29.0.50 (aka sample.part_bin)
+iter 16: ctx 1: pmLookupText metric: 243.0.0 (aka slow.seventeen)
+iter 17: ctx 2: pmTraversePMNS metric: pmcd.buf
+iter 18: ctx 0: pmLookupText metric: 29.0.50 (aka sample.part_bin)
+iter 19: ctx 1: pmLookupInDom metric: 243.0.0 (aka slow.seventeen)
+Error: Unknown or illegal instance domain identifier
+iter 20: ctx 2: pmGetChildrenStatus metric: pmcd.buf
+iter 21: ctx 0: pmTraversePMNS metric: sample
+iter 22: ctx 1: pmNameInDom metric: 243.0.0 (aka slow.seventeen)
+Error: Unknown or illegal instance domain identifier
+iter 23: ctx 2: pmFetch metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 24: ctx 0: pmGetChildrenStatus metric: sample
+iter 25: ctx 1: pmGetInDom metric: 243.0.0 (aka slow.seventeen)
+Error: Unknown or illegal instance domain identifier
+iter 26: ctx 2: pmLookupName metric: pmcd.buf.alloc
+iter 27: ctx 0: pmFetch metric: 29.0.50 (aka sample.part_bin)
+iter 28: ctx 1: pmNameID metric: 243.0.0 (aka slow.seventeen)
+iter 29: ctx 2: pmLookupDesc metric: pmcd.buf.alloc
+iter 30: ctx 0: pmLookupName metric: sample.part_bin
+iter 31: ctx 1: pmLookupDesc metric: slow.seventeen
+iter 32: ctx 2: pmNameID metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 33: ctx 0: pmLookupDesc metric: sample.part_bin
+iter 34: ctx 1: pmLookupName metric: slow.seventeen
+iter 35: ctx 2: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 36: ctx 0: pmNameID metric: 29.0.50 (aka sample.part_bin)
+iter 37: ctx 1: pmFetch metric: 243.0.0 (aka slow.seventeen)
+iter 38: ctx 2: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 39: ctx 0: pmGetInDom metric: 29.0.50 (aka sample.part_bin)
+iter 40: ctx 1: pmGetChildrenStatus metric: slow
+iter 41: ctx 2: pmLookupInDom metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 42: ctx 0: pmNameInDom metric: 29.0.50 (aka sample.part_bin)
+iter 43: ctx 1: pmTraversePMNS metric: slow
+iter 44: ctx 2: pmLookupText metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 45: ctx 0: pmLookupInDom metric: 29.0.50 (aka sample.part_bin)
+iter 46: ctx 1: pmLookupText metric: 243.0.0 (aka slow.seventeen)
+iter 47: ctx 2: pmTraversePMNS metric: pmcd.buf
+iter 48: ctx 0: pmLookupText metric: 29.0.50 (aka sample.part_bin)
+iter 49: ctx 1: pmLookupInDom metric: 243.0.0 (aka slow.seventeen)
+Error: Unknown or illegal instance domain identifier
+iter 50: ctx 2: pmGetChildrenStatus metric: pmcd.buf
+iter 51: ctx 0: pmTraversePMNS metric: sample
+iter 52: ctx 1: pmNameInDom metric: 243.0.0 (aka slow.seventeen)
+Error: Unknown or illegal instance domain identifier
+iter 53: ctx 2: pmFetch metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 54: ctx 0: pmGetChildrenStatus metric: sample
+iter 55: ctx 1: pmGetInDom metric: 243.0.0 (aka slow.seventeen)
+Error: Unknown or illegal instance domain identifier
+iter 56: ctx 2: pmLookupName metric: pmcd.buf.alloc
+iter 57: ctx 0: pmFetch metric: 29.0.50 (aka sample.part_bin)
+iter 58: ctx 1: pmNameID metric: 243.0.0 (aka slow.seventeen)
+iter 59: ctx 2: pmLookupDesc metric: pmcd.buf.alloc
+
+Now with timeouts ...
+iter 0: ctx 0: pmLookupName metric: sample.part_bin
+iter 1: ctx 1: pmLookupDesc metric: slow.seventeen
+iter 2: ctx 2: pmNameID metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 3: ctx 0: pmLookupDesc metric: sample.part_bin
+iter 4: ctx 1: pmLookupName metric: slow.seventeen
+iter 5: ctx 2: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 6: ctx 0: pmNameID metric: 29.0.50 (aka sample.part_bin)
+iter 7: ctx 1: pmFetch metric: 243.0.0 (aka slow.seventeen)
+[DATE] multictx(PID) Error: __pmCloseChannel: fd=3 context=1: Timeout waiting for a response from PMCD
+Error: Timeout waiting for a response from PMCD
+iter 8: ctx 2: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
+Error: IPC protocol failure
+iter 9: ctx 0: pmGetInDom metric: 29.0.50 (aka sample.part_bin)
+Error: IPC protocol failure
+iter 10: pmReconnectContext(1) -> 1 OK
+iter 10: ctx 1: pmGetChildrenStatus metric: slow
+iter 11: pmReconnectContext(2) -> 2 OK
+iter 11: ctx 2: pmLookupInDom metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 12: pmReconnectContext(0) -> 0 OK
+iter 12: ctx 0: pmNameInDom metric: 29.0.50 (aka sample.part_bin)
+iter 13: ctx 1: pmTraversePMNS metric: slow
+iter 14: ctx 2: pmLookupText metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 15: ctx 0: pmLookupInDom metric: 29.0.50 (aka sample.part_bin)
+iter 16: ctx 1: pmLookupText metric: 243.0.0 (aka slow.seventeen)
+iter 17: ctx 2: pmTraversePMNS metric: pmcd.buf
+iter 18: ctx 0: pmLookupText metric: 29.0.50 (aka sample.part_bin)
+iter 19: ctx 1: pmLookupInDom metric: 243.0.0 (aka slow.seventeen)
+Error: Unknown or illegal instance domain identifier
+iter 20: ctx 2: pmGetChildrenStatus metric: pmcd.buf
+iter 21: ctx 0: pmTraversePMNS metric: sample
+iter 22: ctx 1: pmNameInDom metric: 243.0.0 (aka slow.seventeen)
+Error: Unknown or illegal instance domain identifier
+iter 23: ctx 2: pmFetch metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 24: ctx 0: pmGetChildrenStatus metric: sample
+iter 25: ctx 1: pmGetInDom metric: 243.0.0 (aka slow.seventeen)
+Error: Unknown or illegal instance domain identifier
+iter 26: ctx 2: pmLookupName metric: pmcd.buf.alloc
+iter 27: ctx 0: pmFetch metric: 29.0.50 (aka sample.part_bin)
+iter 28: ctx 1: pmNameID metric: 243.0.0 (aka slow.seventeen)
+iter 29: ctx 2: pmLookupDesc metric: pmcd.buf.alloc
+iter 30: ctx 0: pmLookupName metric: sample.part_bin
+iter 31: ctx 1: pmLookupDesc metric: slow.seventeen
+iter 32: ctx 2: pmNameID metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 33: ctx 0: pmLookupDesc metric: sample.part_bin
+iter 34: ctx 1: pmLookupName metric: slow.seventeen
+iter 35: ctx 2: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 36: ctx 0: pmNameID metric: 29.0.50 (aka sample.part_bin)
+iter 37: ctx 1: pmFetch metric: 243.0.0 (aka slow.seventeen)
+[DATE] multictx(PID) Error: __pmCloseChannel: fd=3 context=1: Timeout waiting for a response from PMCD
+Error: Timeout waiting for a response from PMCD
+iter 38: ctx 2: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
+Error: IPC protocol failure
+iter 39: ctx 0: pmGetInDom metric: 29.0.50 (aka sample.part_bin)
+Error: IPC protocol failure
+iter 40: pmReconnectContext(1) -> 1 OK
+iter 40: ctx 1: pmGetChildrenStatus metric: slow
+iter 41: pmReconnectContext(2) -> 2 OK
+iter 41: ctx 2: pmLookupInDom metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 42: pmReconnectContext(0) -> 0 OK
+iter 42: ctx 0: pmNameInDom metric: 29.0.50 (aka sample.part_bin)
+iter 43: ctx 1: pmTraversePMNS metric: slow
+iter 44: ctx 2: pmLookupText metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 45: ctx 0: pmLookupInDom metric: 29.0.50 (aka sample.part_bin)
+iter 46: ctx 1: pmLookupText metric: 243.0.0 (aka slow.seventeen)
+iter 47: ctx 2: pmTraversePMNS metric: pmcd.buf
+iter 48: ctx 0: pmLookupText metric: 29.0.50 (aka sample.part_bin)
+iter 49: ctx 1: pmLookupInDom metric: 243.0.0 (aka slow.seventeen)
+Error: Unknown or illegal instance domain identifier
+iter 50: ctx 2: pmGetChildrenStatus metric: pmcd.buf
+iter 51: ctx 0: pmTraversePMNS metric: sample
+iter 52: ctx 1: pmNameInDom metric: 243.0.0 (aka slow.seventeen)
+Error: Unknown or illegal instance domain identifier
+iter 53: ctx 2: pmFetch metric: 2.0.18 (aka pmcd.buf.alloc)
+iter 54: ctx 0: pmGetChildrenStatus metric: sample
+iter 55: ctx 1: pmGetInDom metric: 243.0.0 (aka slow.seventeen)
+Error: Unknown or illegal instance domain identifier
+iter 56: ctx 2: pmLookupName metric: pmcd.buf.alloc
+iter 57: ctx 0: pmFetch metric: 29.0.50 (aka sample.part_bin)
+iter 58: ctx 1: pmNameID metric: 243.0.0 (aka slow.seventeen)
+iter 59: ctx 2: pmLookupDesc metric: pmcd.buf.alloc

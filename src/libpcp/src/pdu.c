@@ -32,6 +32,7 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "internal.h"
+#include "fault.h"
 
 PCP_DATA int	pmDebug;		/* the real McCoy */
 
@@ -384,6 +385,8 @@ __pmGetPDU(int fd, int mode, int timeout, __pmPDU **result)
     __pmPDU		*pdubuf;
     __pmPDU		*pdubuf_prev;
     __pmPDUHdr		*php;
+
+PM_FAULT_CHECK(PM_FAULT_TIMEOUT);
 
     if ((pdubuf = __pmFindPDUBuf(maxsize)) == NULL)
 	return -oserror();

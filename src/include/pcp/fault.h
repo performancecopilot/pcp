@@ -44,7 +44,7 @@ extern void *__pmFault_realloc(void *, size_t);
 #endif
 #define strdup(x) __pmFault_strdup(x)
 extern char *__pmFault_strdup(const char *);
-#define PM_FAULT_CHECK(class) if (__pmFault_arm == PM_FAULT_PMAPI) { __pmFault_arm = 0; return PM_ERR_FAULT; }
+#define PM_FAULT_CHECK(class) if (__pmFault_arm == PM_FAULT_PMAPI) { __pmFault_arm = 0; return PM_ERR_FAULT; } else if (__pmFault_arm == PM_FAULT_TIMEOUT) { __pmFault_arm = 0; return PM_ERR_TIMEOUT; }
 #else
 #define PM_FAULT_POINT(ident, class)
 #define PM_FAULT_CHECK(class)
@@ -55,6 +55,7 @@ extern char *__pmFault_strdup(const char *);
  */
 #define PM_FAULT_ALLOC	100
 #define PM_FAULT_PMAPI	101
+#define PM_FAULT_TIMEOUT	102
 
 #ifdef __cplusplus
 }

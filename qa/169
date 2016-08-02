@@ -55,6 +55,14 @@ rm -f $seq.full
 #
 TAG=000000660066
 
+# [Sat Jul 30 17:33:55] pminfo(26317) Error: __pmCloseChannel: fd=3 context=1: Timeout waiting for a response from PMCD
+_filter()
+{
+    sed \
+	-e 's/pminfo([0-9][0-9]*)/pminfo(PID)/' \
+	-e 's/\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/[DATE]/' \
+    # end
+}
 
 _check_pmcd_procs()
 {
@@ -243,7 +251,8 @@ _set_timeouts 10 5
 _echo ""
 _echo "Expect dummyproc to fail (timeout for pmcd failure):"
 #DEBUG# date
-pminfo -n $pmns -d dummyproc
+pminfo -n $pmns -d dummyproc 2>&1 \
+| _filter
 #DEBUG# date
 _echo ""
 

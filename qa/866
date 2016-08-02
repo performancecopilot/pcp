@@ -1,0 +1,133 @@
+#!/bin/sh
+# PCP QA Test No. 866
+# Use libpcp_fault to exercise pdu timeout handling.
+#
+# Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+src/check_fault_injection >/dev/null 2>&1 || \
+    _notrun "libpcp not built with fault injection enabled"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# avoid any PDUs associated with the definition of derived metrics
+export PCP_DERIVED_CONFIG=
+
+export PM_FAULT_CONTROL=$tmp.control
+export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
+
+# [Sat Jul 30 17:33:55] multictx(26317) Error: __pmCloseChannel: fd=3 context=1: Timeout waiting for a response from PMCD
+_filter()
+{
+    sed \
+	-e 's/multictx([0-9][0-9]*)/multictx(PID)/' \
+	-e 's/store([0-9][0-9]*)/store(PID)/' \
+	-e 's/\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/[DATE]/' \
+    # end
+}
+
+# # samples is sufficient to do all ops in multictx.c 3 times
+#
+samples=30
+
+# real QA test starts here
+
+echo "force 2nd pmFetch to timeout"
+cat >$tmp.control <<End-of-File
+libpcp/fetch.c:1	== 2
+End-of-File
+src/multictx -s $samples sample.colour pmcd.buf.alloc 2>&1 \
+| _filter
+
+# note, 1 pmLookupDesc call per metric in the multictx.c preamble,
+# so fault guard is 4 (2+2)
+echo
+echo "force 2nd pmLookupDesc to timeout"
+cat >$tmp.control <<End-of-File
+libpcp/desc.c:1	== 4
+End-of-File
+src/multictx -s $samples sample.colour pmcd.buf.alloc 2>&1 \
+| _filter
+
+# note, 1 pmLookupName call per metric in the multictx.c preamble,
+# so fault guard is 4 (2+2)
+echo
+echo "force 2nd pmLookupName to timeout"
+cat >$tmp.control <<End-of-File
+libpcp/pmns.c:1	== 4
+End-of-File
+src/multictx -s $samples sample.colour pmcd.buf.alloc 2>&1 \
+| _filter
+
+echo
+echo "force 2nd pmNameID to timeout"
+cat >$tmp.control <<End-of-File
+libpcp/pmns.c:3	== 2
+End-of-File
+src/multictx -s $samples sample.colour pmcd.buf.alloc 2>&1 \
+| _filter
+
+echo
+echo "force 2nd pmGetChildrenStatus to timeout"
+cat >$tmp.control <<End-of-File
+libpcp/pmns.c:2	== 2
+End-of-File
+src/multictx -s $samples sample.colour pmcd.buf.alloc 2>&1 \
+| _filter
+
+echo
+echo "force 2nd pmLookupText to timeout"
+cat >$tmp.control <<End-of-File
+libpcp/help.c:1	== 2
+End-of-File
+src/multictx -s $samples sample.colour pmcd.buf.alloc 2>&1 \
+| _filter
+
+# note, 1 pmGetIndom call per metric in the multictx.c preamble,
+# so fault guard is 4 (2+2)
+echo
+echo "force 2nd pmGetInDom to timeout"
+cat >$tmp.control <<End-of-File
+libpcp/instance.c:1	== 4
+End-of-File
+src/multictx -s $samples sample.colour pmcd.buf.alloc 2>&1 \
+| _filter
+
+echo
+echo "force 2nd pmNameInDom to timeout"
+cat >$tmp.control <<End-of-File
+libpcp/instance.c:2	== 2
+End-of-File
+src/multictx -s $samples sample.colour pmcd.buf.alloc 2>&1 \
+| _filter
+
+echo
+echo "force 2nd pmLookupInDom to timeout"
+cat >$tmp.control <<End-of-File
+libpcp/instance.c:3	== 2
+End-of-File
+src/multictx -s $samples sample.colour pmcd.buf.alloc 2>&1 \
+| _filter
+
+echo
+echo "force 3nd pmStore to timeout"
+cat >$tmp.control <<End-of-File
+libpcp/store.c:1	== 3
+End-of-File
+src/store 2>&1 \
+| _filter
+
+# success, all done
+status=0
+
+exit
