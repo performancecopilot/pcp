@@ -106,6 +106,7 @@ mmv2_genstats
 mmv2_instances
 mmv2_nostats
 mmv2_simple
+multictx
 multifetch
 multithread0
 multithread1
