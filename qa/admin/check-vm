@@ -784,7 +784,7 @@ pkgin?	/usr/pkg/include/nss/nss/nss.h	[nss (build optional)]
 pkg_add?	/usr/local/include/nss/nss/nss.h	[nss (build optional)]
 slackpkg?	/usr/include/nss/nss.h	[mozilla-nss (build optional)]
 pacman?	/usr/include/nss/nss.h		[nss (build optional)]
-pkg?	certutil			[libnss3-tools (build optional)]
+dpkg?	certutil			[libnss3-tools (build optional)]
 rpm?	certutil			[nss-tools or mozilla-nss-tools (build optional)]
 urpmi?	certutil			[nss (build optional)]
 emerge?	certutil			[dev-libs/nss with USE=utils (build optional)]
@@ -795,14 +795,6 @@ pacman?	certutil			[nss (build optional)]
 #
 # misc
 #
-dpkg?		xclip			[xclip (pcp-push script optional)]
-rpm?		xclip			[xclip (pcp-push script optional)]
-urpmi?		xclip			[xclip (pcp-push script optional)]
-emerge?		xclip			[xclip (pcp-push script optional)]
-pkgin?		xclip			[xclip (pcp-push script optional)]
-pkg_add?	xclip			[xclip (pcp-push script optional)]
-slackpkg?	xclip			[N/A (pcp-push script optional)]
-pacman?		xclip			[xclip (pcp-push script optional)]
 End-of-File
 
 if which python >/dev/null 2>&1
