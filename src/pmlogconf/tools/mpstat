@@ -11,7 +11,7 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	kernel.all.cpu.wait.total 	# %iowait
 	kernel.percpu.cpu.wait.total
 	kernel.all.intr		        # %intr/s
-	kernel.percpu.cpu.intr
+	kernel.percpu.intr
 	kernel.all.cpu.irq.hard		# %irq
 	kernel.percpu.cpu.irq.hard
 	kernel.all.cpu.irq.soft		# %soft

@@ -2,7 +2,10 @@
 ident   metrics sampled once by the pcp-mpstat(1) command
 probe	kernel.uname.sysname ~ Linux ? include : exclude
 delta	once
-        pmda.uname
         hinv.ncpu
         hinv.cpu.online
         hinv.map.cpu_num
+        kernel.uname.nodename
+        kernel.uname.release
+        kernel.uname.sysname
+        kernel.uname.machine
