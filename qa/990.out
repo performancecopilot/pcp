@@ -99,6 +99,7 @@ TOC[0]: offset 40, indoms offset 72 (1 entries)
 Bad file size: too small for toc[0] indom[0]
 
 TOC[1]: offset 56, instances offset 104 (1 entries)
+
 Bad file size: too small for toc[1] inst[0]
 
 -- dump indoms-2
@@ -116,6 +117,7 @@ TOC[0]: offset 40, indoms offset 72 (1 entries)
        (no helptext)
 
 TOC[1]: offset 56, instances offset 104 (1 entries)
+
 Bad file size: too small for toc[1] inst[0]
 
 -- dump indoms-3
@@ -167,6 +169,7 @@ TOC[0]: offset 40, indoms offset 88 (1 entries)
 Bad file size: too small for toc[0] indom[0] help
 
 TOC[1]: offset 56, instances offset 120 (1 entries)
+
 Bad file size: too small for toc[1] inst[0]
 
 TOC[2]: offset 72, string offset 200 (1 entries)
@@ -186,6 +189,7 @@ TOC[0]: offset 40, indoms offset 88 (1 entries)
 Bad file size: too small for toc[0] indom[0] oneline
 
 TOC[1]: offset 56, instances offset 120 (1 entries)
+
 Bad file size: too small for toc[1] inst[0]
 
 TOC[2]: offset 72, string offset 200 (1 entries)
@@ -324,7 +328,7 @@ Bad file size: toc[2] string[0]
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -339,7 +343,7 @@ mmv.control.files
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -354,7 +358,7 @@ mmv.control.files
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -369,7 +373,7 @@ mmv.control.files
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -L -Kclear -Kadd,60,PCP_PMDAS_DIR/linux/pmda_linux,linux_init -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
+Command: pminfo -L -Kclear -Kadd,70,PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init -v mmv
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

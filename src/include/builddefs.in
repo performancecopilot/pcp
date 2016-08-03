@@ -218,6 +218,7 @@ PUBLICAN = @publican@
 BOOK_TOOLCHAIN = @book_toolchain@
 BOOK_BRAND = @book_brand@
 
+HAVE_MANPAGES = @have_manpages@
 HAVE_GZIPPED_MANPAGES = @have_gzipped_manpages@
 HAVE_BZIP2ED_MANPAGES = @have_bzip2ed_manpages@
 HAVE_LZMAED_MANPAGES = @have_lzmaed_manpages@
@@ -464,6 +465,7 @@ INSTALL_MAN =
 else
 INSTALL_MAN = \
     test -z "$$MAN_PAGES" && MAN_PAGES="$(MAN_PAGES)"; \
+    if [ "$(HAVE_MANPAGES)" = "true" ] ; then \
     for d in `echo $$MAN_PAGES`; do \
 	first=true; \
 	base=`echo $$d | sed -e 's/\.[0-9]//g'`; \
@@ -520,7 +522,8 @@ state==1 { for (i=1;i<=NF;i++) { \
 	    fi; \
 	    first=false; \
 	done; \
-    done
+    done; \
+    fi
 endif
 
 PERL_INSTALL_BASE = @perl_install_base@
@@ -594,6 +597,11 @@ PERL_GET_FILELIST = \
 	    $(HAVE_BZIP2ED_MANPAGES) && _sfx=.bz2; \
 	    $(HAVE_LZMAED_MANPAGES) && _sfx=.lzma; \
 	    $(HAVE_XZED_MANPAGES) && _sfx=.xz; \
+            if [ "$(HAVE_MANPAGES)" = "false" ] ; then \
+		sed -e '/.*man[1-9].*/d' -e '/.*3pm.*/d' $(2) >$(2).tmp; \
+		mv $(2).tmp $(2); \
+		find $$DIST_ROOT/$(PERL_INSTALL_BASE) -name "*3pm*" -exec rm -rf '{}' ';' ; \
+	    fi ;\
 	    sed -n -e '/\.bs$$/d' -e 's/\.[0-9]pm$$/&'"$$_sfx/" -e "s@^$$DIST_ROOT@@p" $(2) >$(2).tmp; \
 	    mv $(2).tmp $(2); \
 	else echo "Arrgh ... no files to include in package via $(2)"; exit 1; \
@@ -844,6 +852,7 @@ endif
 PCP_GUILIB = -lpcp_gui $(PCPLIB)
 PCP_PMDALIB = -lpcp_pmda $(PCPLIB)
 PCP_TRACELIB = -lpcp_trace $(PCPLIB)
+PCP_WEBLIB = -lpcp_web $(PCPLIB)
 
 ifdef PCP_ALTLIBS
 ifeq ($(PCP_LIB_DIR),$(PCP_LIB32_DIR))

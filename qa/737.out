@@ -1,6 +1,7 @@
 QA output created by 737
-pmLocaltime from int:  Mon Feb  3 04:46:19 2014
+strftime from pmapi.tm:  Mon Feb  3 04:46:19 2014
+pmLocaltime from int:    Mon Feb  3 04:46:19 2014
 pmLocaltime from float:  Mon Feb  3 04:46:19 2014
-pmCtime from int:  Mon Feb  3 04:46:19 2014
-pmCtime from float:  Mon Feb  3 04:46:19 2014
+pmCtime from int:        Mon Feb  3 04:46:19 2014
+pmCtime from float:      Mon Feb  3 04:46:19 2014
 pmWhichZone:  UTC

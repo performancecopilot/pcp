@@ -1,6 +1,10 @@
 QA output created by 886
 == Checking interrupts metrics from interrupts-2cpu-s390x (2 CPU)
 
+kernel.percpu.intr
+    inst [0 or "cpu0"] value 38892
+    inst [1 or "cpu1"] value 90479
+
 kernel.percpu.interrupts.I_O
     inst [0 or "cpu0"] value 6989
     inst [1 or "cpu1"] value 33457
@@ -13,6 +17,11 @@ kernel.percpu.interrupts.EXT
 
 == Checking interrupts helptext from interrupts-2cpu-s390x (2 CPU)
 
+kernel.percpu.intr [interrupt count metric from /proc/interrupts]
+Help:
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
+
 kernel.percpu.interrupts.I_O One-line Help: Error: One-line or help text is not available
 
 Full Help: Error: One-line or help text is not available
@@ -24,6 +33,16 @@ Full Help: Error: One-line or help text is not available
 == done
 
 == Checking interrupts metrics from interrupts-8cpu-x86_64 (8 CPU)
+
+kernel.percpu.intr
+    inst [0 or "cpu0"] value 26111240
+    inst [1 or "cpu1"] value 7662936
+    inst [2 or "cpu2"] value 20042205
+    inst [3 or "cpu3"] value 6568091
+    inst [4 or "cpu4"] value 19451440
+    inst [5 or "cpu5"] value 6189188
+    inst [6 or "cpu6"] value 19095407
+    inst [7 or "cpu7"] value 6657317
 
 kernel.percpu.interrupts.PIW
     inst [0 or "cpu0"] value 0
@@ -408,6 +427,11 @@ kernel.percpu.interrupts.line0
 == done
 
 == Checking interrupts helptext from interrupts-8cpu-x86_64 (8 CPU)
+
+kernel.percpu.intr [interrupt count metric from /proc/interrupts]
+Help:
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
 
 kernel.percpu.interrupts.PIW [Posted-interrupt wakeup event]
 Help:

@@ -74,7 +74,10 @@ tools/collectl
 tools/collectl-interrupts
 tools/dmcache
 tools/mpstat
+tools/mpstat-summary
 tools/mpstat-interrupts
+tools/pidstat
+tools/pidstat-summary
 tools/vmstat
 tools/iostat
 tools/sar

@@ -132,6 +132,7 @@ kernel.percpu {
     interrupts		60:*:*
     softirqs		60:*:*
     cpu
+    intr		60:4:4
 }
 
 kernel.percpu.cpu {

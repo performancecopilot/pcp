@@ -1120,6 +1120,7 @@ timezone
 880 pmrep python local
 881 pmcd local
 882 pmlogger local
+883 pcp python local
 885 pmda.linux local
 886 pmda.linux local
 887 pmlogsummary archive multi-archive local

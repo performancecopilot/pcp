@@ -1037,7 +1037,9 @@ then
     then
 	if $pcp_python_prog -c "import lxml" /dev/null 2>&1
 	then
-	    pmda_libvirt=true
+dnl temporarily disabled until dynamic instance/metric IDs resolved
+dnl	    pmda_libvirt=true
+	    :
 	fi
     fi
 fi
@@ -2825,6 +2827,7 @@ pcp_x11_pre=$X_PRE_LIBS
 AC_SUBST(pcp_x11_pre)
 
 dnl man pages (source)
+have_manpages=false
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
 have_lzmaed_manpages=false
@@ -2842,26 +2845,31 @@ do
 	if test -f $d/$sd/man.1.gz
 	then
 	    have_gzipped_manpages=true
+	    have_manpages=true
 	    man_header=`$ZIP -d < $d/$sd/man.1.gz | head -1`
 	    break
 	elif test -f $d/$sd/man.1.bz2
 	then
 	    have_bzip2ed_manpages=true
+	    have_manpages=true
 	    man_header=`$BZIP2 -d < $d/$sd/man.1.bz2 | head -1`
 	    break
 	elif test -f $d/$sd/man.1.lzma
 	then
 	    have_lzmaed_manpages=true
+	    have_manpages=true
 	    man_header=`$LZMA -d < $d/$sd/man.1.lzma | head -1`
 	    break
 	elif test -f $d/$sd/man.1.xz
 	then
 	    have_xzed_manpages=true
+	    have_manpages=true
 	    man_header=`$XZ -d < $d/$sd/man.1.xz | head -1`
 	    break
 	elif test -f $d/$sd/man.1
 	then
 	    man_header=`head -1 $d/$sd/man.1`
+	    have_manpages=true
 	    break
 	fi
     done
@@ -2870,6 +2878,7 @@ if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
     need_old_tbl_header=true
 fi
 AC_SUBST(pcp_man_dir)
+AC_SUBST(have_manpages)
 AC_SUBST(have_gzipped_manpages)
 AC_SUBST(have_bzip2ed_manpages)
 AC_SUBST(have_lzmaed_manpages)

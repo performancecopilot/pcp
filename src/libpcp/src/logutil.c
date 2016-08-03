@@ -108,12 +108,10 @@ checkLabelConsistency (__pmContext *ctxp, const __pmLogLabel *lp)
      * When checking for consistency, it is sufficient to check vs the 
      * first archive in the context.
      * The version number is checked by __pmLogChkLabel.
-     * Check the hostname and the time zone.
+     * Check the hostname.
      */
     if (strcmp(lp->ill_hostname, ctxp->c_archctl->ac_log_list[0]->ml_hostname) != 0)
 	return PM_ERR_LOGHOST;
-    if (strcmp(lp->ill_tz, ctxp->c_archctl->ac_log_list[0]->ml_tz) != 0)
-	return PM_ERR_LOGTIMEZONE;
 
     /* All is ok */
     return 0;

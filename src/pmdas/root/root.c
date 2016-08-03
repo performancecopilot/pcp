@@ -48,6 +48,16 @@ static pmdaIndom root_indomtab[NUM_INDOMS];
 #define INDOM(x) (root_indomtab[x].it_indom)
 #define INDOMTAB_SZ (sizeof(root_indomtab)/sizeof(root_indomtab[0]))
 
+
+json_metric_desc json_metrics[] = {
+    { "State/Pid", 0, 1, {0}, ""},
+    { "Name", 0, 1, {0}, ""},
+    { "State/Running", CONTAINER_FLAG_RUNNING, 1, {0}, ""},
+    { "State/Paused", CONTAINER_FLAG_PAUSED, 1, {0}, ""},
+    { "State/Restarting", CONTAINER_FLAG_RESTARTING, 1, {0}, ""},
+};
+
+
 static pmdaMetric root_metrictab[] = {
     { NULL, { PMDA_PMID(0, CONTAINERS_ENGINE), PM_TYPE_STRING,
 	CONTAINERS_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) } },
@@ -780,7 +790,7 @@ root_check_user(void)
 {
 #ifdef HAVE_GETUID
     if (getuid() != 0) {
-	__pmNotifyErr(LOG_ERR, "must be run as root\n");
+	__pmNotifyErr(LOG_ERR, "must be run as root %d\n", getuid());
 	exit(1);
     }
 #endif
