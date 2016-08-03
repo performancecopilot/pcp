@@ -1109,8 +1109,10 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	}
     } else if (sts == PDU_ERROR) {
 	__pmDecodeError(pb, &sts);
-    } else if (sts != PM_ERR_TIMEOUT) {
-	sts = PM_ERR_IPC;
+    } else {
+	__pmCloseChannelbyFd(fd, PDU_AUTH, sts);
+	if (sts != PM_ERR_TIMEOUT)
+	    sts = PM_ERR_IPC;
     }
 
     if (pinned > 0)
@@ -1167,8 +1169,10 @@ __pmAuthClientNegotiation(int fd, int ssf, const char *hostname, __pmHashCtl *at
 	    }
 	} else if (sts == PDU_ERROR) {
 	    __pmDecodeError(pb, &sts);
-	} else if (sts != PM_ERR_TIMEOUT) {
-	    sts = PM_ERR_IPC;
+	} else {
+	    __pmCloseChannelbyFd(fd, PDU_AUTH, sts);
+	    if (sts != PM_ERR_TIMEOUT)
+		sts = PM_ERR_IPC;
 	}
 
 	if (pinned > 0)
@@ -1209,6 +1213,7 @@ __pmSecureClientHandshake(int fd, int flags, const char *hostname, __pmHashCtl *
 
 	pinpdu = sts = __pmGetPDU(fd, ANY_SIZE, TIMEOUT_DEFAULT, &rpdu);
 	if (sts != PDU_ERROR) {
+	    __pmCloseChannelbyFd(fd, PDU_ERROR, sts);
 	    if (pinpdu > 0)
 		__pmUnpinPDUBuf(&rpdu);
 	    return PM_ERR_IPC;

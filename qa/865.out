@@ -87,7 +87,7 @@ iter 4: ctx 1: pmLookupName metric: slow.seventeen
 iter 5: ctx 2: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 6: ctx 0: pmNameID metric: 29.0.50 (aka sample.part_bin)
 iter 7: ctx 1: pmFetch metric: 243.0.0 (aka slow.seventeen)
-[DATE] multictx(PID) Error: __pmCloseChannel: fd=3 context=1: Timeout waiting for a response from PMCD
+[DATE] multictx(PID) Error: __pmCloseChannelbyContext: fd=3 context=1 expected PDU_RESULT received: Timeout waiting for a response from PMCD
 Error: Timeout waiting for a response from PMCD
 iter 8: ctx 2: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 Error: IPC protocol failure
@@ -127,7 +127,7 @@ iter 34: ctx 1: pmLookupName metric: slow.seventeen
 iter 35: ctx 2: pmGetInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 iter 36: ctx 0: pmNameID metric: 29.0.50 (aka sample.part_bin)
 iter 37: ctx 1: pmFetch metric: 243.0.0 (aka slow.seventeen)
-[DATE] multictx(PID) Error: __pmCloseChannel: fd=3 context=1: Timeout waiting for a response from PMCD
+[DATE] multictx(PID) Error: __pmCloseChannelbyContext: fd=3 context=1 expected PDU_RESULT received: Timeout waiting for a response from PMCD
 Error: Timeout waiting for a response from PMCD
 iter 38: ctx 2: pmNameInDom metric: 2.0.18 (aka pmcd.buf.alloc)
 Error: IPC protocol failure

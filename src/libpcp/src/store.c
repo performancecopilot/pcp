@@ -58,7 +58,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		if (sts == PDU_ERROR)
 		    __pmDecodeError(pb, &sts);
 		else {
-		    __pmCloseChannel(ctxp, sts);
+		    __pmCloseChannelbyContext(ctxp, PDU_ERROR, sts);
 		    if (sts != PM_ERR_TIMEOUT)
 			sts = PM_ERR_IPC;
 		}

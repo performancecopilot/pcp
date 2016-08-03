@@ -294,8 +294,15 @@ __pmConnectHandshake(int fd, const char *hostname, int ctxflags, __pmHashCtl *at
 	else
 	    sts = PM_ERR_IPC;
     }
-    else if (sts != PM_ERR_TIMEOUT)
-	sts = PM_ERR_IPC;
+    else {
+	/*
+	 * Note: no need to call __pmCloseChannelbyContext() here because
+	 * we only get here from __pmConnectPMCD() where if this call fails
+	 * the socket is closed and the channel is never set up.
+	 */
+	if (sts != PM_ERR_TIMEOUT)
+	    sts = PM_ERR_IPC;
+    }
 
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);

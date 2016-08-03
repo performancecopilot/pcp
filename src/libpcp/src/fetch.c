@@ -131,7 +131,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 			    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 		    }
 		    else {
-			__pmCloseChannel(ctxp, n);
+			__pmCloseChannelbyContext(ctxp, PDU_RESULT, n);
 			PM_UNLOCK(ctxp->c_pmcd->pc_lock);
 			if (n != PM_ERR_TIMEOUT)
 			    n = PM_ERR_IPC;

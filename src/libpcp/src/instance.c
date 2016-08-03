@@ -56,7 +56,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
 		else if (n == PDU_ERROR)
 		    __pmDecodeError(pb, &n);
 		else {
-		    __pmCloseChannel(ctxp, n);
+		    __pmCloseChannelbyContext(ctxp, PDU_INSTANCE, n);
 		    if (n != PM_ERR_TIMEOUT)
 			n = PM_ERR_IPC;
 		}
@@ -133,7 +133,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 		else if (n == PDU_ERROR)
 		    __pmDecodeError(pb, &n);
 		else {
-		    __pmCloseChannel(ctxp, n);
+		    __pmCloseChannelbyContext(ctxp, PDU_INSTANCE, n);
 		    if (n != PM_ERR_TIMEOUT)
 			n = PM_ERR_IPC;
 		}
@@ -263,7 +263,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		else if (n == PDU_ERROR)
 		    __pmDecodeError(pb, &n);
 		else {
-		    __pmCloseChannel(ctxp, n);
+		    __pmCloseChannelbyContext(ctxp, PDU_INSTANCE, n);
 		    if (n != PM_ERR_TIMEOUT)
 			n = PM_ERR_IPC;
 		}
