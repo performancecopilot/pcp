@@ -664,7 +664,9 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
     } else if (sts == PDU_ERROR) {
 	__pmDecodeError(pb, &sts);
     } else {
-	__pmCloseChannelbyFd(fd, PDU_AUTH, sts);
+	/* PDU type 0 is also expected here */
+	if (sts != 0)
+	    __pmCloseChannelbyFd(fd, PDU_AUTH, sts);
 	if (sts != PM_ERR_TIMEOUT)
 	    sts = PM_ERR_IPC;
     }
@@ -708,7 +710,9 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 	} else if (sts == PDU_ERROR) {
 	    __pmDecodeError(pb, &sts);
 	} else {
-	    __pmCloseChannelbyFd(fd, PDU_AUTH, sts);
+	    /* PDU type 0 is also expected here */
+	    if (sts != 0)
+		__pmCloseChannelbyFd(fd, PDU_AUTH, sts);
 	    if (sts != PM_ERR_TIMEOUT)
 		sts = PM_ERR_IPC;
 	}
