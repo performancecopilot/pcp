@@ -87,7 +87,7 @@ num=`ls -1 $tmp.dir/$hostname/*.index | wc -l | sed -e 's/ //g'`
 if [ $num -gt 30 ]; then
     echo more than thirty
 else
-    echo boo
+    echo "boo num=$num, expected > 30"
 fi
 (cd $tmp.dir; tar cf $hostname.tar $hostname)
 
@@ -105,7 +105,7 @@ num=`ls -1 $tmp.dir/$hostname/*.index | wc -l | sed -e 's/ //g'`
 if [ $num -lt 5 ]; then
     echo less than 5
 else
-    echo boo
+    echo "boo num=$num, expected < 5"
 fi
 
 date >>$seq.full
