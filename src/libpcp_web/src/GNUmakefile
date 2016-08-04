@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 CFILES 		= jsmn.c json_helpers.c
 HFILES		= jsmn.h private.h
 
-LLDLIBS		= -lpcp
+LLDLIBS		= -lpcp -lpcp_pmda
 LCFLAGS		= -DJSMN_PARENT_LINKS
 
 STATICLIBTARGET = libpcp_web.a
