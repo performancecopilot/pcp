@@ -571,7 +571,12 @@ class MpstatReport(pmcc.MetricGroupPrinter):
 
     def print_machine_info(self,group, context):
         timestamp = context.pmLocaltime(group.timestamp.tv_sec)
-        time_string = time.strftime("%A %d %B %Y", timestamp.struct_time())
+        '''
+        Please check strftime(3) for different formatting options.
+        Also check TZ and LC_TIME environment variables for more information
+        on how to override the default formatting of the date display in the header
+        '''
+        time_string = time.strftime("%x", timestamp.struct_time())
         header_string = ''
         header_string += group['kernel.uname.sysname'].netValues[0][2] + '  '
         header_string += group['kernel.uname.release'].netValues[0][2] + '  '

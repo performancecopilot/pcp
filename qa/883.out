@@ -1,7 +1,7 @@
 QA output created by 883
 
 === pcp-mpstat without any options
-Linux  4.4.0-31-generic  (ram-Lenovo)  Tuesday 02 August 2016  x86_64    (4 CPU)
+Linux  4.4.0-31-generic  (ram-Lenovo)  08/02/16  x86_64    (4 CPU)
 
 Timestamp 	CPU	%usr 	%nice 	%sys 	%iowait 	%irq 	%soft 	%steal 	%guest 	%nice 	%idle 
 23:52:55  	all	? 	?  	? 	?    	? 	?  	?   	?   	?  	?  
@@ -9,7 +9,7 @@ Timestamp 	CPU	%usr 	%nice 	%sys 	%iowait 	%irq 	%soft 	%steal 	%guest 	%nice 	%
 23:52:57  	all	5.5  	0.0   	26.5 	5.25    	0.0  	0.0   	0.0    	0.0    	0.0   	62.25 
 
 === pcp-mpstat with cpu filter
-Linux  4.4.0-31-generic  (ram-Lenovo)  Tuesday 02 August 2016  x86_64    (4 CPU)
+Linux  4.4.0-31-generic  (ram-Lenovo)  08/02/16  x86_64    (4 CPU)
 
 Timestamp 	CPU	%usr 	%nice 	%sys 	%iowait 	%irq 	%soft 	%steal 	%guest 	%nice 	%idle 
 23:52:55  	1  	? 	?  	? 	?    	? 	?  	?   	?   	?  	?  
@@ -20,7 +20,7 @@ Timestamp 	CPU	%usr 	%nice 	%sys 	%iowait 	%irq 	%soft 	%steal 	%guest 	%nice 	%
 23:52:57  	2  	0.0  	0.0   	100.0	0.0     	0.0  	0.0   	0.0    	0.0    	0.0   	0.0   
 
 === pcp-mpstat total interrupt usage without any options
-Linux  4.4.0-31-generic  (ram-Lenovo)  Tuesday 02 August 2016  x86_64    (4 CPU)
+Linux  4.4.0-31-generic  (ram-Lenovo)  08/02/16  x86_64    (4 CPU)
 
 Timestamp	CPU  	intr/s
 23:52:55  	all  	? 
@@ -28,7 +28,7 @@ Timestamp	CPU  	intr/s
 23:52:57  	all  	1548.0
 
 === pcp-mpstat total interrupt usage with online cpus
-Linux  4.4.0-31-generic  (ram-Lenovo)  Tuesday 02 August 2016  x86_64    (4 CPU)
+Linux  4.4.0-31-generic  (ram-Lenovo)  08/02/16  x86_64    (4 CPU)
 
 Timestamp	CPU  	intr/s
 23:52:55  	all  	? 
@@ -52,7 +52,7 @@ Timestamp	CPU  	intr/s
 23:52:57  	3    	304.0
 
 === pcp-mpstat soft interrupt usage with two samples
-Linux  4.4.0-31-generic  (ram-Lenovo)  Tuesday 02 August 2016  x86_64    (4 CPU)
+Linux  4.4.0-31-generic  (ram-Lenovo)  08/02/16  x86_64    (4 CPU)
 
 Timestamp	CPU 	RCU/s	HRTIMER/s	SCHED/s	TASKLET/s	BLOCK_IOPOLL/s	BLOCK/s	NET_RX/s	NET_TX/s	TIMER/s	HI/s	
 23:52:55  	0   	? 	?     	?   	?     	?          	?   	?    	?    	?   	?	
@@ -61,7 +61,7 @@ Timestamp	CPU 	RCU/s	HRTIMER/s	SCHED/s	TASKLET/s	BLOCK_IOPOLL/s	BLOCK/s	NET_RX/s
 23:52:55  	3   	? 	?     	?   	?     	?          	?   	?    	?    	?   	?	
 
 === pcp-mpstat soft interrupt usage with all cpus
-Linux  4.4.0-31-generic  (ram-Lenovo)  Tuesday 02 August 2016  x86_64    (4 CPU)
+Linux  4.4.0-31-generic  (ram-Lenovo)  08/02/16  x86_64    (4 CPU)
 
 Timestamp	CPU 	RCU/s	HRTIMER/s	SCHED/s	TASKLET/s	BLOCK_IOPOLL/s	BLOCK/s	NET_RX/s	NET_TX/s	TIMER/s	HI/s	
 23:52:55  	0   	? 	?     	?   	?     	?          	?   	?    	?    	?   	?	
@@ -82,7 +82,7 @@ Timestamp	CPU 	RCU/s	HRTIMER/s	SCHED/s	TASKLET/s	BLOCK_IOPOLL/s	BLOCK/s	NET_RX/s
 23:52:57  	3   	78.0 	0.0      	112.0  	0.0      	0.0           	0.0    	0.0     	0.0     	93.0   	0.0 	
 
 === pcp-mpstat hard interrupt usage with interval count 2 sec
-Linux  4.4.0-31-generic  (ram-Lenovo)  Tuesday 02 August 2016  x86_64    (4 CPU)
+Linux  4.4.0-31-generic  (ram-Lenovo)  08/02/16  x86_64    (4 CPU)
 
 Timestamp	CPU 	PIW/s	PIN/s	MIS/s	ERR/s	MCP/s	MCE/s	DFR/s	THR/s	TRM/s	TLB/s	CAL/s	RES/s	RTR/s	IWI/s	PMI/s	SPU/s	LOC/s	NMI/s	32/s	31/s	30/s	29/s	28/s	27/s	26/s	25/s	23/s	17/s	16/s	12/s	9/s	8/s	1/s	0/s	
 23:52:55  	0   	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	
@@ -99,7 +99,7 @@ Timestamp	CPU 	PIW/s	PIN/s	MIS/s	ERR/s	MCP/s	MCE/s	DFR/s	THR/s	TRM/s	TLB/s	CAL/s
 23:52:57  	3   	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	43.0 	0.0  	0.0  	0.0  	0.0  	146.0	0.0  	0.0 	0.0 	0.0 	0.0 	0.0 	112.0	0.0 	3.0 	0.0 	0.0 	0.0 	0.0 	0.0	0.0	0.0	0.0	
 
 === pcp-mpstat hard interrupt usage with cpu filter
-Linux  4.4.0-31-generic  (ram-Lenovo)  Tuesday 02 August 2016  x86_64    (4 CPU)
+Linux  4.4.0-31-generic  (ram-Lenovo)  08/02/16  x86_64    (4 CPU)
 
 Timestamp	CPU 	PIW/s	PIN/s	MIS/s	ERR/s	MCP/s	MCE/s	DFR/s	THR/s	TRM/s	TLB/s	CAL/s	RES/s	RTR/s	IWI/s	PMI/s	SPU/s	LOC/s	NMI/s	32/s	31/s	30/s	29/s	28/s	27/s	26/s	25/s	23/s	17/s	16/s	12/s	9/s	8/s	1/s	0/s	
 23:52:55  	0   	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	? 	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	
@@ -110,7 +110,7 @@ Timestamp	CPU 	PIW/s	PIN/s	MIS/s	ERR/s	MCP/s	MCE/s	DFR/s	THR/s	TRM/s	TLB/s	CAL/s
 23:52:57  	2   	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	0.0  	250.0	0.0  	122.0	0.0 	0.0 	0.0 	0.0 	0.0 	4.0 	1.0 	0.0 	0.0 	0.0 	0.0 	0.0	0.0	0.0	0.0	
 
 === pcp-mpstat all interrutp usages
-Linux  4.4.0-31-generic  (ram-Lenovo)  Tuesday 02 August 2016  x86_64    (4 CPU)
+Linux  4.4.0-31-generic  (ram-Lenovo)  08/02/16  x86_64    (4 CPU)
 
 Timestamp	CPU  	intr/s
 23:52:55  	all  	? 
@@ -158,7 +158,7 @@ Timestamp	CPU 	RCU/s	HRTIMER/s	SCHED/s	TASKLET/s	BLOCK_IOPOLL/s	BLOCK/s	NET_RX/s
 23:52:57  	3   	78.0 	0.0      	112.0  	0.0      	0.0           	0.0    	0.0     	0.0     	93.0   	0.0 	
 
 === pcp-mpstat with all reports
-Linux  4.4.0-31-generic  (ram-Lenovo)  Tuesday 02 August 2016  x86_64    (4 CPU)
+Linux  4.4.0-31-generic  (ram-Lenovo)  08/02/16  x86_64    (4 CPU)
 
 Timestamp	CPU 	RCU/s	HRTIMER/s	SCHED/s	TASKLET/s	BLOCK_IOPOLL/s	BLOCK/s	NET_RX/s	NET_TX/s	TIMER/s	HI/s	
 23:52:55  	0   	? 	?     	?   	?     	?          	?   	?    	?    	?   	?	
