@@ -170,7 +170,7 @@ list of names, each of which may be the base name of an archive or the name of a
 .BR pmlogger (1)\.
 
 .IP "-s \ N , --samples = N"
-Set the number of samples to be displayed. Default is continous.
+Set the number of samples to be displayed. Since the first sample is used for the rate conversion of some of the metrics, the total number of samples reported are one less that N. Default is continous.
 
 .IP "-t DELTA , --interval = DELTA"
 Set the interval between two samples. Default is one second.
@@ -181,12 +181,12 @@ Print version number then exit.
 .SH EXAMPLES
 .B pcp mpstat -t 2 -s 5
 .RS
-Display five reports of global statistics among all processors at two second intervals.
+Display four reports of global statistics among all processors at two second intervals.
 .RE
 
 .B pcp mpstat -P ALL -t 2 -s 5
 .RS
-Display five reports of statistics for all processors at two second intervals.
+Display four reports of statistics for all processors at two second intervals.
 
 .SH NOTES
 .B pcp-mpstat
