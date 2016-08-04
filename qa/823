@@ -17,14 +17,24 @@ echo "QA output created by $seq"
 
 _get_libpcp_config
 $authentication || _notrun "No authentication support available"
-for helper in pluginviewer saslpasswd2 sasldblistusers2; do
+for helper in saslpasswd2 sasldblistusers2; do
     which $helper >/dev/null 2>&1 || _notrun "SASL $helper tool unavailable"
 done
-pluginviewer -a | grep 'Plugin "sasldb"' >/dev/null
+gotplugins=false
+which pluginviewer >/dev/null 2>&1 && gotplugins=true
+if $gotplugins
+then
+    pluginviewer=pluginviewer
+else
+    which saslpluginviewer >/dev/null 2>&1 && gotplugins=true
+    pluginviewer=saslpluginviewer
+fi
+$gotplugins || _notrun "SASL pluginviewer utility unavailable"
+$pluginviewer -a | grep 'Plugin "sasldb"' >/dev/null
 test $? -eq 0 || _notrun "SASL sasldb auxprop plugin unavailable"
-pluginviewer -c | grep 'Plugin "plain"' >/dev/null 2>&1
+$pluginviewer -c | grep 'Plugin "plain"' >/dev/null 2>&1
 test $? -eq 0 || _notrun 'No client support for plain authentication'
-pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1
+$pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1
 test $? -eq 0 || _notrun 'No server support for plain authentication'
 
 cleanup()
@@ -85,7 +95,9 @@ echo "username=$username" >>$seq.full
 pmstore sample.control "$authdbg"
 
 echo "Verifying SASL authentication for new client (FAIL)" | tee -a $seq.full
-pmprobe -v -h "pcp://localhost?username=${username}&password=n" sample.control
+pmprobe -v -h "pcp://localhost?username=${username}&password=n" sample.control 2>&1\
+| tee -a $tmp.out
+grep -q 'user not found' $tmp.out && _notrun "sasldb user-not-found libsasl bug"
 cat $PCP_LOG_DIR/pmcd/sample.log >>$seq.full
 filter_sample_log_credentials
 echo "pmcd.log (from expected FAIL)" >>$seq.full | tee -a $seq.full
