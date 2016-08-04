@@ -792,6 +792,14 @@ pkgin?	certutil			[? (build optional)]
 pkg_add?	certutil		[nss (build optional)]
 slackpkg?	certutil		[mozilla-nss (build optional)]
 pacman?	certutil			[nss (build optional)]
+dpkg?		saslpasswd2		[sasl2-bin]
+rpm?		saslpasswd2		[?]
+urpmi?		saslpasswd2		[?]
+emerge?		saslpasswd2		[?]
+pkgin?		saslpasswd2		[?]
+pkg_add?	saslpasswd2		[?]
+slackpkg?	saslpasswd2		[?]
+pacman?		saslpasswd2		[?]
 #
 # misc
 #
