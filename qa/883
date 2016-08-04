@@ -19,9 +19,13 @@ trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 pcp_mpstat="$PCP_BINADM_DIR/pcp-mpstat"
 test -x $pcp_mpstat || _notrun "No pcp-mpstat(1) installed"
+
 pcp_mpstat="$python $pcp_mpstat"
 pcp_archive="-z -a archives/pcp-mpstat"
+
 # real QA test starts here
+export LC_TIME="en_US.UTF-8"
+
 echo && echo === pcp-mpstat without any options
 pcp $pcp_archive mpstat
 
