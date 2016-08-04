@@ -800,6 +800,14 @@ pkgin?		saslpasswd2		[?]
 pkg_add?	saslpasswd2		[?]
 slackpkg?	saslpasswd2		[?]
 pacman?		saslpasswd2		[?]
+dpkg?		saslpluginviewer	[sasl2-bin]
+rpm?		pluginviewer		[cyrus-sasl]
+urpmi?		pluginviewer		[?]
+emerge?		pluginviewer		[?]
+pkgin?		pluginviewer		[?]
+pkg_add?	pluginviewer		[?]
+slackpkg?	pluginviewer		[?]
+pacman?		pluginviewer		[?]
 #
 # misc
 #
