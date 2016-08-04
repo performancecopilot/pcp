@@ -24,7 +24,7 @@ pcp_mpstat="$python $pcp_mpstat"
 pcp_archive="-z -a archives/pcp-mpstat"
 
 # real QA test starts here
-export LC_TIME="en_US.UTF-8"
+export LC_TIME=POSIX
 
 echo && echo === pcp-mpstat without any options
 pcp $pcp_archive mpstat
