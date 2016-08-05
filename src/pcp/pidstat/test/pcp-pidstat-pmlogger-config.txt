@@ -14,7 +14,10 @@
 #
 
 log mandatory on 1 sec {
-	pmda.uname
+	kernel.uname.nodename
+    kernel.uname.release
+    kernel.uname.sysname
+    kernel.uname.machine
 	hinv.ncpu
 	proc.psinfo.pid
 	proc.nprocs
