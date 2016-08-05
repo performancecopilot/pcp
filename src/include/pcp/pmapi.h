@@ -189,7 +189,7 @@ typedef struct pmDesc {
 #define PM_ERR_BADSTORE		(-PM_ERR_BASE-55)   /* Bad input to pmstore */
 #define PM_ERR_LOGOVERLAP	(-PM_ERR_BASE-56)   /* Archives overlap in time */
 #define PM_ERR_LOGHOST		(-PM_ERR_BASE-57)   /* Archives differ by host */
-#define PM_ERR_LOGTIMEZONE	(-PM_ERR_BASE-58)   /* Archives differ in time zone */
+  /* retired PM_ERR_LOGTIMEZONE	(-PM_ERR_BASE-58) Archives differ in time zone */
 #define PM_ERR_LOGCHANGETYPE	(-PM_ERR_BASE-59)   /* The type of a metric has changed in an archive */
 #define PM_ERR_LOGCHANGESEM	(-PM_ERR_BASE-60)   /* The semantics of a metric has changed in an archive */
 #define PM_ERR_LOGCHANGEINDOM	(-PM_ERR_BASE-61)   /* The instance domain of a metric has changed in an archive */
@@ -563,6 +563,8 @@ PCP_CALL extern const char *pmInDomStr(pmInDom);			/* NOT thread-safe */
 PCP_CALL extern char *pmInDomStr_r(pmInDom, char *, int);
 PCP_CALL extern const char *pmTypeStr(int);			/* NOT thread-safe */
 PCP_CALL extern char *pmTypeStr_r(int, char *, int);
+PCP_CALL extern const char *pmSemStr(int);			/* NOT thread-safe */
+PCP_CALL extern char *pmSemStr_r(int, char *, int);
 PCP_CALL extern const char *pmUnitsStr(const pmUnits *);		/* NOT thread-safe */
 PCP_CALL extern char *pmUnitsStr_r(const pmUnits *, char *, int);
 PCP_CALL extern const char *pmAtomStr(const pmAtomValue *, int);	/* NOT thread-safe */

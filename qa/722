@@ -3,19 +3,13 @@
 # Exercise various python mechanisms for setting sources
 # (hosts, archives) via the pmOptions class interfaces.
 #
-# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+# Copyright (c) 2015-2016 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.check
-. ./common.setup
-[ -f common.python ] || _notrun "Testsuite built without python support"
-
 . ./common.python
-
-[ -n "$PCP_PYTHON_PROG" ] || _notrun "no acceptable python to run src/test_set_source.python"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
@@ -49,11 +43,23 @@ echo && echo == Host list, expect pass:
 TEST_SET_MULTI=1 TEST_SET_HOSTLIST=unix:,local:,localhost $script 2>$tmp.stderr
 _check_stderr
 
+echo && echo == Container, expect pass:
+TEST_SET_CONTAINER=abc012345 $script 2>$tmp.stderr
+_check_stderr
+
+echo && echo == Local PMDA, expect pass:
+TEST_SET_LOCALPMDA=true TEST_SET_SPECLOCAL=clear $script 2>$tmp.stderr
+_check_stderr
+
+echo && echo == Local PMDA, expect fail:
+TEST_SET_LOCALPMDA=true TEST_SET_SPECLOCAL=add, $script 2>$tmp.stderr
+_check_stderr
+
 echo && echo == Archive list, expect pass:
 TEST_SET_ARCHIVELIST=archives/pcp-atop $script 2>$tmp.stderr
 _check_stderr
 echo && echo == Archive list, expect pass:
-TEST_SET_ARCHIVELIST=archives/pcp-atop,archives/rattle $script 2>$tmp.stderr
+TEST_SET_ARCHIVELIST=archives/pcp-free,archives/pcp-uptime $script 2>$tmp.stderr
 _check_stderr
 
 cd $here/archives

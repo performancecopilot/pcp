@@ -13,6 +13,7 @@ arch_maxfd
 atomstr
 badUnitsStr_r
 badloglabel
+badmmv
 badpmcdpmid
 badpmda
 batch_import.pl
@@ -98,7 +99,14 @@ mmv_genstats
 mmv_instances
 mmv_noinit
 mmv_nostats
+mmv_ondisk
 mmv_poke
+mmv_simple
+mmv2_genstats
+mmv2_instances
+mmv2_nostats
+mmv2_simple
+multictx
 multifetch
 multithread0
 multithread1
@@ -162,6 +170,7 @@ record-setarg
 rootclient
 rtimetest
 scale
+semstr
 slow_af
 sortinst
 statvfs

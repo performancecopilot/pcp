@@ -83,7 +83,7 @@ p
 	    ;;
 
 	src/pmie/GNUmakefile)
-	    # this INSTALL line is optional because there if conditional
+	    # this INSTALL line is optional because there is conditional
 	    # gmake control around it
 	    #	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmie
 	    sed -e '/PCP_TMP_DIR)\/pmie$/s/$/|optional/' <$tmp.raw >$tmp.tmp
@@ -91,7 +91,7 @@ p
 	    ;;
 
 	src/pmlogger/GNUmakefile)
-	    # this INSTALL line is optional because there if conditional
+	    # this INSTALL line is optional because there is conditional
 	    # gmake control around it
 	    #	$(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmlogger
 	    sed -e '/PCP_TMP_DIR)\/pmlogger$/s/$/|optional/' <$tmp.raw >$tmp.tmp
@@ -99,7 +99,7 @@ p
 	    ;;
 
 	src/pmdas/bash/GNUmakefile)
-	    # this INSTALL line is optional because there if conditional
+	    # this INSTALL line is optional because there is conditional
 	    # gmake control around it
 	    # $(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/pmdabash
 	    #
@@ -108,7 +108,7 @@ p
 	    ;;
 
 	src/pmdas/mmv/GNUmakefile)
-	    # this INSTALL line is optional because there if conditional
+	    # this INSTALL line is optional because there is conditional
 	    # gmake control around it
 	    # $(INSTALL) -m 1777 -d $(PCP_TMP_DIR)/mmv
 	    #
@@ -120,6 +120,13 @@ p
 	    # all the INSTALL lines here are conditional, including this one
 	    # $(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmwebd
 	    sed -e '/PCP_LOG_DIR)\/pmwebd$/s/$/|optional/' <$tmp.raw >$tmp.tmp
+	    mv $tmp.tmp $tmp.raw
+	    ;;
+
+	src/pmmgr/GNUmakefile)
+	    # all the INSTALL lines here are conditional, including this one
+	    # $(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmmgr
+	    sed -e '/PCP_LOG_DIR)\/pmmgr$/s/$/|optional/' <$tmp.raw >$tmp.tmp
 	    mv $tmp.tmp $tmp.raw
 	    ;;
 

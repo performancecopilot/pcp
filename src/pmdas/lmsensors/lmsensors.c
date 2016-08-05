@@ -652,240 +652,240 @@ lmsensors_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     else if (inst != PM_IN_NULL)
 	return PM_ERR_INST;
 
-	if (idp->cluster == 0) {	/*lmsensors*/
-	    switch (idp->item) {
-		case 0:
-			atom->l = schips.total;
-			break ;
-		case 1:
-			atom->l = schips.n_lm75;
-			break ;
-		case 2:
-			atom->l = schips.n_lm79;
-			break ;
-		case 3:
-			atom->l = schips.n_lm87;
-			break ;
-		case 4:
-			atom->l = schips.n_w83781d;
-			break ;
-		case 5:
-			atom->l = schips.n_mtp008;
-			break ;
-		default:
-			return PM_ERR_PMID;
-	   }
-	}
-	if (idp->cluster == 1) {	/*lmsensors.lm75*/
-		if (schips.n_lm75 > 0) {
-		    sensor75=get_lm75();
-		    switch (idp->item) {
-			case 0:
-				atom->f = sensor75.temp;
-				break ;
-			default:
-				return PM_ERR_PMID;
-			}
-		} else atom->f=9999;
-	}
-	if (idp->cluster == 2) {	/*lmsensors.lm79*/
-		if (schips.n_lm79 > 0) {
-		    sensor79=get_lm79();
-		    switch (idp->item) {
-			case 0:
-				atom->l = sensor79.fan1;
-				break ;
-			case 1:
-				atom->l = sensor79.fan2;
-				break ;
-			case 2:
-				atom->l = sensor79.fan3;
-				break ;
-			case 3:
-				atom->l = sensor79.fan_div;
-				break ;
-			case 4:
-				atom->f = sensor79.temp;
-				break ;
-			case 5:
-				atom->l = sensor79.alarms;
-				break ;
-			case 6:
-				atom->f = sensor79.VCore1;
-				break ;
-			case 7:
-				atom->f = sensor79.VCore2;
-				break ;
-			case 8:
-				atom->f = sensor79.p33V;
-				break ;
-			case 9:
-				atom->f = sensor79.p5V;
-				break ;
-			case 10:
-				atom->f = sensor79.p12V;
-				break ;
-			case 11:
-				atom->f = sensor79.n12V;
-				break ;
-			case 12:
-				atom->f = sensor79.n5V;
-				break ;
-			case 13:
-				atom->f = sensor79.vid;
-				break ;
-			default:
-				return PM_ERR_PMID;
-			}
-		} else atom->f=9999;
-	}
-	if (idp->cluster == 3) {	/*lmsensors.lm87*/
-		if (schips.n_lm87 > 0) {
-		    sensor87=get_lm87();
-		    switch (idp->item) {
-			case 0:
-				atom->l = sensor87.fan1;
-				break ;
-			case 1:
-				atom->l = sensor87.fan2;
-				break ;
-			case 2:
-				atom->f = sensor87.temp1;
-				break ;
-			case 3:
-				atom->f = sensor87.CPUtemp;
-				break ;
-			case 4:
-				atom->f = sensor87.Vccp1;
-				break ;
-			case 5:
-				atom->f = sensor87.Vccp2;
-				break ;
-			case 6:
-				atom->f = sensor87.p25V;
-				break ;
-			case 7:
-				atom->f = sensor87.p33V;
-				break ;
-			case 8:
-				atom->f = sensor87.p5V;
-				break ;
-			case 9:
-				atom->f = sensor87.p12V;
-				break ;
-			case 10:
-				atom->f = sensor87.vid;
-				break ;
-			default:
-				return PM_ERR_PMID;
-			}
-		} else atom->f=9999;
-	}
-	if (idp->cluster == 4) {	/*lmsensors.w83781d*/
-		if (schips.n_w83781d > 0) {
-		    sensorw83781d=get_w83781d();
-		    switch (idp->item) {
-			case 0:
-				atom->l = sensorw83781d.fan1;
-				break ;
-			case 1:
-				atom->l = sensorw83781d.fan2;
-				break ;
-			case 2:
-				atom->l = sensorw83781d.fan3;
-				break ;
-			case 3:
-				atom->l = sensorw83781d.fan_div;
-				break ;
-			case 4:
-				atom->f = sensorw83781d.temp1;
-				break ;
-			case 5:
-				atom->f = sensorw83781d.temp2;
-				break ;
-			case 6:
-				atom->f = sensorw83781d.temp3;
-				break ;
-			case 7:
-				atom->l = sensorw83781d.alarms;
-				break ;
-			case 8:
-				atom->l = sensorw83781d.beep;
-				break ;
-			case 9:
-				atom->f = sensorw83781d.VCore1;
-				break ;
-			case 10:
-				atom->f = sensorw83781d.VCore2;
-				break ;
-			case 11:
-				atom->f = sensorw83781d.p33V;
-				break ;
-			case 12:
-				atom->f = sensorw83781d.p5V;
-				break ;
-			case 13:
-				atom->f = sensorw83781d.p12V;
-				break ;
-			case 14:
-				atom->f = sensorw83781d.n12V;
-				break ;
-			case 15:
-				atom->f = sensorw83781d.n5V;
-				break ;
-			case 16:
-				atom->f = sensorw83781d.vid;
-				break ;
-			default:
-				return PM_ERR_PMID;
-			}
-		} else atom->f=9999;
-	}
-	if (idp->cluster == 5) {	/*lmsensors.mtp008*/
-		if (schips.n_mtp008 > 0) {
-		    sensormtp008=get_mtp008();
-		    switch (idp->item) {
-			case 0:
-				atom->l = sensormtp008.fan1;
-				break ;
-			case 1:
-				atom->l = sensormtp008.fan2;
-				break ;
-			case 2:
-				atom->l = sensormtp008.fan3;
-				break ;
-			case 3:
-				atom->f = sensormtp008.temp1;
-				break ;
-			case 4:
-				atom->f = sensormtp008.temp2;
-				break ;
-			case 5:
-				atom->f = sensormtp008.VCore1;
-				break ;
-			case 6:
-				atom->f = sensormtp008.VCore2;
-				break ;
-			case 7:
-				atom->f = sensormtp008.p33V;
-				break ;
-			case 8:
-				atom->f = sensormtp008.p12V;
-				break ;
-			case 9:
-				atom->f = sensormtp008.n12V;
-				break ;
-			case 10:
-				atom->f = sensormtp008.vid;
-				break ;
-			case 11:
-				atom->f = sensormtp008.vtt;
-				break ;
-			default:
-				return PM_ERR_PMID;
-			}
-		} else atom->f=9999;
-	}
+    if (idp->cluster == 0) {	/*lmsensors*/
+	switch (idp->item) {
+	    case 0:
+		    atom->l = schips.total;
+		    break ;
+	    case 1:
+		    atom->l = schips.n_lm75;
+		    break ;
+	    case 2:
+		    atom->l = schips.n_lm79;
+		    break ;
+	    case 3:
+		    atom->l = schips.n_lm87;
+		    break ;
+	    case 4:
+		    atom->l = schips.n_w83781d;
+		    break ;
+	    case 5:
+		    atom->l = schips.n_mtp008;
+		    break ;
+	    default:
+		    return PM_ERR_PMID;
+       }
+    }
+    if (idp->cluster == 1) {	/*lmsensors.lm75*/
+	    if (schips.n_lm75 > 0) {
+		sensor75=get_lm75();
+		switch (idp->item) {
+		    case 0:
+			    atom->f = sensor75.temp;
+			    break ;
+		    default:
+			    return PM_ERR_PMID;
+		    }
+	    } else atom->f=9999;
+    }
+    if (idp->cluster == 2) {	/*lmsensors.lm79*/
+	    if (schips.n_lm79 > 0) {
+		sensor79=get_lm79();
+		switch (idp->item) {
+		    case 0:
+			    atom->l = sensor79.fan1;
+			    break ;
+		    case 1:
+			    atom->l = sensor79.fan2;
+			    break ;
+		    case 2:
+			    atom->l = sensor79.fan3;
+			    break ;
+		    case 3:
+			    atom->l = sensor79.fan_div;
+			    break ;
+		    case 4:
+			    atom->f = sensor79.temp;
+			    break ;
+		    case 5:
+			    atom->l = sensor79.alarms;
+			    break ;
+		    case 6:
+			    atom->f = sensor79.VCore1;
+			    break ;
+		    case 7:
+			    atom->f = sensor79.VCore2;
+			    break ;
+		    case 8:
+			    atom->f = sensor79.p33V;
+			    break ;
+		    case 9:
+			    atom->f = sensor79.p5V;
+			    break ;
+		    case 10:
+			    atom->f = sensor79.p12V;
+			    break ;
+		    case 11:
+			    atom->f = sensor79.n12V;
+			    break ;
+		    case 12:
+			    atom->f = sensor79.n5V;
+			    break ;
+		    case 13:
+			    atom->f = sensor79.vid;
+			    break ;
+		    default:
+			    return PM_ERR_PMID;
+		    }
+	    } else atom->f=9999;
+    }
+    if (idp->cluster == 3) {	/*lmsensors.lm87*/
+	    if (schips.n_lm87 > 0) {
+		sensor87=get_lm87();
+		switch (idp->item) {
+		    case 0:
+			    atom->l = sensor87.fan1;
+			    break ;
+		    case 1:
+			    atom->l = sensor87.fan2;
+			    break ;
+		    case 2:
+			    atom->f = sensor87.temp1;
+			    break ;
+		    case 3:
+			    atom->f = sensor87.CPUtemp;
+			    break ;
+		    case 4:
+			    atom->f = sensor87.Vccp1;
+			    break ;
+		    case 5:
+			    atom->f = sensor87.Vccp2;
+			    break ;
+		    case 6:
+			    atom->f = sensor87.p25V;
+			    break ;
+		    case 7:
+			    atom->f = sensor87.p33V;
+			    break ;
+		    case 8:
+			    atom->f = sensor87.p5V;
+			    break ;
+		    case 9:
+			    atom->f = sensor87.p12V;
+			    break ;
+		    case 10:
+			    atom->f = sensor87.vid;
+			    break ;
+		    default:
+			    return PM_ERR_PMID;
+		    }
+	    } else atom->f=9999;
+    }
+    if (idp->cluster == 4) {	/*lmsensors.w83781d*/
+	    if (schips.n_w83781d > 0) {
+		sensorw83781d=get_w83781d();
+		switch (idp->item) {
+		    case 0:
+			    atom->l = sensorw83781d.fan1;
+			    break ;
+		    case 1:
+			    atom->l = sensorw83781d.fan2;
+			    break ;
+		    case 2:
+			    atom->l = sensorw83781d.fan3;
+			    break ;
+		    case 3:
+			    atom->l = sensorw83781d.fan_div;
+			    break ;
+		    case 4:
+			    atom->f = sensorw83781d.temp1;
+			    break ;
+		    case 5:
+			    atom->f = sensorw83781d.temp2;
+			    break ;
+		    case 6:
+			    atom->f = sensorw83781d.temp3;
+			    break ;
+		    case 7:
+			    atom->l = sensorw83781d.alarms;
+			    break ;
+		    case 8:
+			    atom->l = sensorw83781d.beep;
+			    break ;
+		    case 9:
+			    atom->f = sensorw83781d.VCore1;
+			    break ;
+		    case 10:
+			    atom->f = sensorw83781d.VCore2;
+			    break ;
+		    case 11:
+			    atom->f = sensorw83781d.p33V;
+			    break ;
+		    case 12:
+			    atom->f = sensorw83781d.p5V;
+			    break ;
+		    case 13:
+			    atom->f = sensorw83781d.p12V;
+			    break ;
+		    case 14:
+			    atom->f = sensorw83781d.n12V;
+			    break ;
+		    case 15:
+			    atom->f = sensorw83781d.n5V;
+			    break ;
+		    case 16:
+			    atom->f = sensorw83781d.vid;
+			    break ;
+		    default:
+			    return PM_ERR_PMID;
+		    }
+	    } else atom->f=9999;
+    }
+    if (idp->cluster == 5) {	/*lmsensors.mtp008*/
+	    if (schips.n_mtp008 > 0) {
+		sensormtp008=get_mtp008();
+		switch (idp->item) {
+		    case 0:
+			    atom->l = sensormtp008.fan1;
+			    break ;
+		    case 1:
+			    atom->l = sensormtp008.fan2;
+			    break ;
+		    case 2:
+			    atom->l = sensormtp008.fan3;
+			    break ;
+		    case 3:
+			    atom->f = sensormtp008.temp1;
+			    break ;
+		    case 4:
+			    atom->f = sensormtp008.temp2;
+			    break ;
+		    case 5:
+			    atom->f = sensormtp008.VCore1;
+			    break ;
+		    case 6:
+			    atom->f = sensormtp008.VCore2;
+			    break ;
+		    case 7:
+			    atom->f = sensormtp008.p33V;
+			    break ;
+		    case 8:
+			    atom->f = sensormtp008.p12V;
+			    break ;
+		    case 9:
+			    atom->f = sensormtp008.n12V;
+			    break ;
+		    case 10:
+			    atom->f = sensormtp008.vid;
+			    break ;
+		    case 11:
+			    atom->f = sensormtp008.vtt;
+			    break ;
+		    default:
+			    return PM_ERR_PMID;
+		    }
+	    } else atom->f=9999;
+    }
 
     return 0;
 }

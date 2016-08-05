@@ -22,4 +22,4 @@ pmns_name="xfs quota"
 
 pmdaSetup
 pmdaRemove
-exit 0
+exit

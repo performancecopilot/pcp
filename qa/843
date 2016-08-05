@@ -8,11 +8,8 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.check
-. ./common.setup
-[ -f common.python ] || _notrun "Testsuite built without python support"
-
 . ./common.python
+
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 
@@ -32,7 +29,7 @@ $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
 
 cd pmdas/memory_python
-make clean >>$here/$seq.full 2>&1
+$PCP_MAKE_PROG clean >>$here/$seq.full 2>&1
 
 # real QA test starts here
 echo | tee -a $here/$seq.full

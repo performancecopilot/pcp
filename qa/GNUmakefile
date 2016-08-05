@@ -1,6 +1,6 @@
 #!gmake
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015-2016 Red Hat.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # NB: this GNUmakefile is only for use from within the PCP build tree.  It governs
@@ -12,7 +12,7 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite
-TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9]/s/:reserved//' -e '/^[0-9]/s/[        ].*//' -e '/^[0-9]/p' <group)
+TESTS	= $(shell sed -n -e '/^[0-9]/s/:retired//' -e '/^[0-9][0-9]*:reserved/d' -e '/^[0-9]/s/[        ].*//' -e '/^[0-9]/p' <group)
 
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
 	  archives views qt linux unbound cifs gpfs lustre ganglia \
@@ -58,12 +58,10 @@ COMMON = common.check common.config common.filter \
 	 common.product common.rc common.setup \
 	 common.secure common.gfs2 common.rpm \
 	 common.qt common.avahi common.docker \
-	 common.discovery common.compress common.webapi
-ifeq "$(HAVE_PYTHON)" "true"
-COMMON += common.python 
-endif
+	 common.discovery common.compress common.webapi \
+	 common.python 
 
-OTHERS = group qa_hosts.master README sanity.coverage .gitignore \
+OTHERS = group qa_hosts.master README sanity.coverage \
 	 $(shell echo valgrind-suppress*)
 
 DOTOUTFILES = $(shell [ -f qa_outfiles ] && cat qa_outfiles || ls -1 | grep '^[0-9]' | grep -v '^[0-9][0-9][0-9]$$' | grep -v '^[0-9][0-9][0-9][0-9]$$' | egrep -v '^[0-9][0-9][0-9]*\.(full|out\.bad|notrun|work)' | tee qa_outfiles)

@@ -453,6 +453,10 @@ ping_pmcd(int handle, __pmPMCDCtl *pmcd)
 	pinpdu = __pmGetPDU(pmcd->pc_fd, ANY_SIZE, pmcd->pc_tout_sec, &pb);
 	if (pinpdu == PDU_ERROR)
 	    __pmDecodeError(pb, &sts);
+	else {
+	    /* wrong PDU type or PM_ERR_* ... close channel to pmcd */
+	    __pmCloseChannelbyContext(contexts[handle], PDU_ERROR, pinpdu);
+	}
 	if (pinpdu > 0)
 	    __pmUnpinPDUBuf(pb);
     }
@@ -1623,6 +1627,74 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
     }
 
     PM_UNLOCK(__pmLock_libpcp);
+}
+
+#define TYPESTRLEN 20
+/*
+ * Come here after TIMEOUT or IPC error at the PDU layer in the
+ * communication with pmcd (usually during a __pmGetPDU() call.
+ *
+ * We were expecting a PDU of type expect, but received one
+ * of type recv (which may be an error, e.g PM_ERR_TIMEOUT).
+ *
+ * No need to be delicate here, rip the socket down so other
+ * contexts are not compromised by stale data on the channel.
+ *
+ * If the channel's fd is < 0, we've been here before (or someone
+ * else has nuked the channel), so be silent.
+ */
+void
+__pmCloseChannelbyFd(int fd, int expect, int recv)
+{
+    char	errmsg[PM_MAXERRMSGLEN];
+    char	expect_str[TYPESTRLEN];
+    char	recv_str[TYPESTRLEN];
+    __pmPDUTypeStr_r(expect, expect_str, TYPESTRLEN);
+    if (recv < 0) {
+	/* error or timeout */
+	__pmNotifyErr(LOG_ERR, "__pmCloseChannelbyFd: fd=%d expected PDU_%s received: %s",
+	    fd, expect_str, pmErrStr_r(recv, errmsg, sizeof(errmsg)));
+    }
+    else if (recv > 0) {
+	/* wrong pdu type */
+	__pmPDUTypeStr_r(recv, recv_str, TYPESTRLEN);
+	__pmNotifyErr(LOG_ERR, "__pmCloseChannelbyFd: fd=%d expected PDU_%s received: PDU_%s",
+	    fd, expect_str, recv_str);
+    }
+    else {
+	/* EOF aka PDU-0, nothing to report */
+	;
+    }
+    __pmCloseSocket(fd);
+}
+
+void
+__pmCloseChannelbyContext(__pmContext *ctxp, int expect, int recv)
+{
+    /* guard against repeated calls for the same channel ... */
+    if (ctxp->c_pmcd->pc_fd >= 0) {
+	char	errmsg[PM_MAXERRMSGLEN];
+	char	expect_str[TYPESTRLEN];
+	char	recv_str[TYPESTRLEN];
+	__pmPDUTypeStr_r(expect, expect_str, TYPESTRLEN);
+	if (recv < 0) {
+	    /* error or timeout */
+	    __pmNotifyErr(LOG_ERR, "__pmCloseChannelbyContext: fd=%d context=%d expected PDU_%s received: %s",
+		ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), expect_str, pmErrStr_r(recv, errmsg, sizeof(errmsg)));
+	}
+	else if (recv > 0) {
+	    /* wrong pdu type */
+	    __pmPDUTypeStr_r(recv, recv_str, TYPESTRLEN);
+	    __pmNotifyErr(LOG_ERR, "__pmCloseChannelbyContext: fd=%d context=%d expected PDU_%s received: PDU_%s",
+		ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), expect_str, recv_str);
+	}
+	else {
+	    /* EOF aka PDU-0, nothing to report */
+	    ;
+	}
+	__pmCloseSocket(ctxp->c_pmcd->pc_fd);
+	ctxp->c_pmcd->pc_fd = -1;
+    }
 }
 
 #ifdef PM_MULTI_THREAD

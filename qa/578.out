@@ -16,8 +16,8 @@ Waiting for pmcd to terminate ...
 Starting pmcd ... 
 === Testing a Client ===
 === Started client ===
-=== Info: After install, openfds has increased or stayed the same as expected ===
-=== Info: After remove, openfds has stayed the same as expected ===
+=== Info: After Install, openfds has increased or stayed about the same as expected ===
+=== Info: After Remove, openfds has stayed about the same as expected ===
 
 === Testing PMDA as a DSO ===
 === Installing simple ===
@@ -31,8 +31,8 @@ simple.numfetch: pmLookupDesc: Unknown or illegal metric identifier
 simple.time.sys: pmLookupDesc: Unknown or illegal metric identifier
 simple.time.user: pmLookupDesc: Unknown or illegal metric identifier
 simple was removed
-=== Info: After install, openfds has increased or stayed the same as expected ===
-=== Info: After remove, openfds has stayed the same as expected ===
+=== Info: After Install, openfds has increased or stayed about the same as expected ===
+=== Info: After Remove, openfds has stayed about the same as expected ===
 
 === Testing PMDA as a PIPE ===
 === Installing simple ===
@@ -46,8 +46,8 @@ simple.numfetch: pmLookupDesc: Unknown or illegal metric identifier
 simple.time.sys: pmLookupDesc: Unknown or illegal metric identifier
 simple.time.user: pmLookupDesc: Unknown or illegal metric identifier
 simple was removed
-=== Info: After install, openfds has increased or stayed the same as expected ===
-=== Info: After remove, openfds has stayed the same as expected ===
+=== Info: After Install, openfds has increased or stayed about the same as expected ===
+=== Info: After Remove, openfds has stayed about the same as expected ===
 === Resetting pmcd.conf back to original state ===
 === Restart PMCD ===
 Waiting for pmcd to terminate ...

@@ -24,6 +24,27 @@ Hosts: ['unix:', 'local:', 'localhost']
 Archives: None
 pass
 
+== Container, expect pass:
+== Test ==
+Hosts: None
+Archives: None
+Container: abc012345
+pass
+
+== Local PMDA, expect pass:
+== Test ==
+Hosts: None
+Archives: None
+Local PMDA: True
+pass
+
+== Local PMDA, expect fail:
+== Test ==
+Hosts: None
+Archives: None
+Local PMDA: True
+fail
+
 == Archive list, expect pass:
 == Test ==
 Hosts: None
@@ -33,8 +54,8 @@ pass
 == Archive list, expect pass:
 == Test ==
 Hosts: None
-Archives: ['archives/pcp-atop,archives/rattle']
-fail
+Archives: ['archives/pcp-free,archives/pcp-uptime']
+pass
 
 == Folio, expect pass:
 == Test ==

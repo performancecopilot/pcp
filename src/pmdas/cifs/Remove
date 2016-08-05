@@ -21,4 +21,4 @@
 iam=cifs
 pmdaSetup
 pmdaRemove
-exit 0
+exit

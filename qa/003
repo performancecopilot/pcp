@@ -61,6 +61,7 @@ linux_filter()
 	-e "/hinv\.map\.mdname: $unavailable/d" \
 	-e "/hinv\.nlv: $unavailable/d" \
 	-e "/hinv\.node\.online: $unavailable/d" \
+	-e "/kernel\.percpu\.softirqs\.none: $unavailable/d" \
 	-e "/kernel\.pernode..*: $unavailable/d" \
 	-e "/mem\.util\.active_anon: $unavailable/d" \
 	-e "/mem\.util\.active_file: $unavailable/d" \

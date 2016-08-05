@@ -1,0 +1,148 @@
+.TH PCP-PIDSTAT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3 pcp-pidstat\f1 \- Report statistics for Linux tasks.
+.SH SYNOPSIS
+\f3pcp\f1 \f3pidstat\f1 [\f3\-s\f1 N] [\f3\-t\f1 DELTA] [\f3\-I \f1] [\f3\-a\f1 FILE]  [\f3\-G\f1 NAME] [\f3\-U\f1[USERNAME]] [\f3\-p\f1 PID1,PID2..] [\f3\-R\f1/\f3\-r/\f3\-k\f1] [\f3\-V\f1] [\f3\-?\f1]
+.SH DESCRIPTION
+.B pcp-pidstat
+command is used for monitoring individual tasks currently being managed by the Linux kernel. Using various options it helps user to see useful information related with the processes. This information can include percentage CPU, memory and stack usages, scheduling and priority information.
+.BR pcp-pidstat
+fetches the data to be analysed from PMCD unless provided \-a option. (See below)
+
+.SH OPTIONS
+Output control options:
+.TP
+.BR \-s \ N ", " \fB\-\-samples =\fIN\fR
+Set the number of samples to be displayed.
+Since the first sample is used for the rate conversion of some of the metrics, the total number of samples reported are one less that N. Default is continous.
+
+.TP
+.BR \-t \ DELTA ", " \fB\-\-interval =\fIDELTA\fR
+Set the interval between two samples.
+Default is one second.
+
+.PP
+General Options:
+
+.TP
+.BR \-I \fR
+In  an  SMP environment, indicates that tasks CPU usage should be divided by the total number of processors.
+
+.TP
+.BR \-a \ FILE ", " \fB\-\-archive =\fIFILE\fR
+Causes pcp\-pidstat to use the specified archive than connecting to PMCD. The argument to -a is a comma-separated
+list of names, each of which may be the base name of an archive or the name of a directory containing one or more archives. Archives can be created using
+.BR pmlogger (1)\.
+
+.TP
+.BR \-R \fR
+Report realtime priority and scheduling policy information.  The following values may be displayed:
+
+UID
+       The real user identification number of the task being monitored.
+
+USER
+       The name of the real user owning the task being monitored.
+
+PID
+       The identification number of the task being monitored.
+
+prio
+       The realtime priority of the task being monitored.
+
+policy
+       The scheduling policy of the task being monitored.
+
+Command
+       The command name of the task.
+
+.TP
+.BR \-r \fR
+Report page faults and memory utilization. The following values may be displayed:
+
+UID
+       The real user identification number of the task being monitored.
+
+USER
+       The name of the real user owning the task being monitored.
+
+PID
+       The identification number of the task being monitored.
+
+minflt/s
+       Total number of minor faults the task has made per second, those which have not required loading a memory page from disk.
+
+majflt/s
+       Total number of major faults the task has made per second, those which have required loading a memory page from disk.
+
+VSZ
+       Virtual Size: The virtual memory usage of entire task in kilobytes.
+
+RSS
+       Resident Set Size: The non-swapped physical memory used by the task in kilobytes.
+
+%MEM
+       The tasks's currently used share of available physical memory.
+
+Command
+       The command name of the task.
+
+.TP
+.BR \-k \fR
+Report stack utilization.  The following values may be displayed:
+
+UID
+      The real user identification number of the task being monitored.
+
+USER
+      The name of the real user owning the task being monitored.
+
+PID
+      The identification number of the task being monitored.
+
+StkSize
+      The amount of memory in kilobytes reserved for the task as stack, but not necessarily used.
+
+StkRef
+      The amount of memory in kilobytes used as stack, referenced by the task.
+
+Command
+      The command name of the task.
+
+.TP
+.BR \-V \fR
+Display version and exit
+
+.TP
+.BR \-? " , " \fB\-\-help\fR
+Display help and exit
+
+.PP
+Ouput Filter Options
+
+.TP
+.BR \-G \ NAME ", " \fB\-\-process-name =\fINAME\fR
+Display only processes whose command name includes the string \fINAME\fR.  This string can be a regular expression.
+
+.TP
+.BR \-U\fI[USERNAME] ", " \fB\-\-user\-name =\fI[USERNAME]\fR
+Display  the real user name of the tasks being monitored instead of the UID.  If \fIusername\fR is specified, then only tasks belonging to the specified user are displayed.
+
+.TP
+.BR \-p \ \fIPID1,PID2 .. " , " \fB\-\-pid-list =\fIPID1,PID2 ..\fR
+Display only processes whose PID belongs to the given Pid List.
+
+.SH NOTES
+.B pcp-pidstat
+is inspired by the
+.BR pidstat (1)
+command and aims to be command line and output compatible with it.
+
+.PP
+.SH "SEE ALSO"
+.BR pcp (1),
+.BR pidstat(1),
+.BR PCPIntro (1),
+.BR pmParseInterval (3)
+and
+.BR environ (7).

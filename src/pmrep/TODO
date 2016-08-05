@@ -1,23 +1,19 @@
--  check/fix get_cmd_line_metrics for good
 -  allow defining instances to display [-i]
 -  opt to write cols per row with stdout output [-k]
 -  opt to swap cols and rows (e.g., compare ps vs sar)
 -  -Q/-B/-Y to override per-metric settings unit/scale
--  shorten unit display count / sec -> count/s -> c/s if needed
+-  shorten unit display count/s -> c/s if needed
 -  opt to output in short format (see pmdumptext -F / pmNumberStr) [-m/-M]
 -  opt to support pmdumptext -X like output (or shorten inst names if needed)
 -  support rate display also for non-cumulative counters
 -  support displaying raw/rate as per given unit
 -  (re)add runtime directive to config file
--  containers support
 -  add JSON output support
 -  add XML output support (like sadf)
 -  add XLS output support (like sar2xls)
--  look for config in ./, ~/.pcp, ~/, /etc/pcp or so
 -  possibly add more command line switch sanity checking
 -  modularize code to allow creating custom output plugins
 -    (e.g. pcp2graphite type socket, top-like output, separate pcp2zabbix)
--  pmtime support (?) [-g]
 -  per-metric precision (?)
 -  copy metric set spec support (?)
 -  includedir config file support (?)
@@ -34,7 +30,7 @@ In use / reserved cmd line options:
 AaBbcCdDeEfFGhHKLloOpPqQrsStTuUVwxyYzZ
 
 Tentatively planned:
-IigkMmR
+IikMmR
 
 Available:
-JjNnXvW
+gJjNnXvW

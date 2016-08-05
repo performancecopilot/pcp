@@ -17,6 +17,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "internal.h"
+#include "fault.h"
 
 static int
 lookuptext(int ident, int type, char **buffer)
@@ -40,6 +41,8 @@ again:
 	    else {
 		__pmPDU	*pb;
 		int		pinpdu;
+
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 					ctxp->c_pmcd->pc_tout_sec, &pb);
 		if (n == PDU_TEXT) {
@@ -48,8 +51,11 @@ again:
 		}
 		else if (n == PDU_ERROR)
 		    __pmDecodeError(pb, &n);
-		else if (n != PM_ERR_TIMEOUT)
-		    n = PM_ERR_IPC;
+		else {
+		    __pmCloseChannelbyContext(ctxp, PDU_TEXT, n);
+		    if (n != PM_ERR_TIMEOUT)
+			n = PM_ERR_IPC;
+		}
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
 		/*

@@ -36,16 +36,12 @@ postinstall: postinstall.head $(SCRIPTS)/cleantmpdirs postinstall.tail
 	cat postinstall.head $(SCRIPTS)/cleantmpdirs postinstall.tail > $@
 	chmod ugo+x $@
 
-# Note on sed below
-# for f and l lines of manifest, want the last word (target name),
-# stripped of leading /
-#
-.PHONY: pack_pcp
 pack_pcp : 
-	@ BINTAR=$(PACKAGE_NAME)-$(PACKAGE_VERSION)-$(PACKAGE_BUILD).tar.gz; \
-	HERE=`pwd`; cd $${DIST_ROOT:-/}; \
-	sort -u $$DIST_MANIFEST | sed -n -e '/^[fl]/s/.* \/*//p' \
-	| $(TAR) -T - -cf - \
-	| gzip > $$HERE/$$BINTAR; echo Wrote: $$HERE/$$BINTAR
+	@ BINTAR=$(PACKAGE_NAME)-$(PACKAGE_VERSION)-$(PACKAGE_BUILD).tar.gz \
+	; export HERE=`pwd` \
+	; ./listfiles \
+	| ( cd $${DIST_ROOT:-/} ; $(TAR) -T - -cf - ) \
+	| gzip > $$HERE/$$BINTAR \
+	; echo Wrote: $$HERE/$$BINTAR
 
 include $(BUILDRULES)

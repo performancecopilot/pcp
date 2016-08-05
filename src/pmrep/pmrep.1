@@ -22,9 +22,11 @@
 \f3pmrep\f1
 [\f3\-CdGHLpruUVxz?\f1]
 [\f3\-a\f1 \f2archive\f1]
+[\f3\--archive-folio\f1 \f2folio\f1]
 [\f3\-A\f1 \f2align\f1]
 [\f3\-b\f1 \f2space-scale\f1]
 [\f3\-c\f1 \f2config\f1]
+[\f3\--container\f1 \f2container\f1]
 [\f3\-e\f1 \f2derived\f1]
 [\f3\-E\f1 \f2lines\f1]
 [\f3\-f\f1 \f2format\f1]
@@ -171,6 +173,16 @@ Too-wide numeric values for output will not be printed (apart from
 decimal places, numeric values will never be silently truncated).
 Too-wide strings will be truncated.
 .P
+As a special case with metrics that are counters with time units
+(nanoseconds to hours), the
+.I unit/scale
+can be used to change the default reporting (for example,
+milliseconds / second) to normalize to the range zero to one
+by setting this to
+.B sec
+(see also
+.BR -y ).
+.P
 The following
 .I metricspec
 requests the metric
@@ -197,10 +209,10 @@ The third form of a metricspec is valid only in
 .P
 Derived metrics are specified like PMNS leaf node metrics.
 .P
-Configuration file parameters override the corresponding built-in
+Configuration file options override the corresponding built-in
 default values (if any).
-Command line parameters override the
-corresponding configuration file parameters (if any).
+Command line options override the
+corresponding configuration file options (if any).
 .SH COMMAND LINE OPTIONS
 The available command line options are:
 .TP 5
@@ -238,7 +250,8 @@ for space (byte) metrics, possible values include
 .BR Mbytes ,
 .BR MB ,
 and so forth up to
-.BR Ebytes .
+.BR Ebytes ,
+.BR EB .
 This option will
 .I not
 override possible per-metric specifications.
@@ -249,10 +262,24 @@ See also
 Specify the
 .I config
 file to use.
-The default is
-.BR ./pmrep.conf .
+The default is the first found of:
+.BR ./pmrep.conf ,
+.BR $HOME/.pmrep.conf ,
+.BR $HOME/pcp/pmrep.conf ,
+and
+.BR $PCP_SYSCONF_DIR/pmrep/pmrep.conf .
 See
 .BR pmrep.conf (5).
+Unlike with other options,
+.I config
+must be separated by a space from
+.BR \-c .
+.TP
+.B \-\-container
+Fetch performance metrics from the specified
+.IR container ,
+either local or remote (see
+.BR \-h ).
 .TP
 .B \-C
 Exit before reporting any values, but after parsing the configuration
@@ -388,7 +415,7 @@ Print metrics to stdout (format subject to formatting options).
 Send metrics to a Zabbix server.
 See
 .BR pmrep.conf (5)
-for the needed Zabbix configuration parameters.
+for the needed Zabbix configuration options.
 This target is currently
 .IR experimental .
 .RE
@@ -571,8 +598,9 @@ for time metrics, possible values include
 .BR microsec ,
 .BR us ,
 .BR millisec ,
+.BR ms ,
 and so forth up to
-.BR hours ,
+.BR hour ,
 .BR hr .
 This option will
 .I not
@@ -669,11 +697,11 @@ $ pmrep -o archive -F ./a -t 5s -T 5m ds389 xfs kernel.all.cpu disk mem
 .SH FILES
 .PD 0
 .TP 10
-.BI ./pmrep.conf
-Default configuration file.
+.BI pmrep.conf
+\fBpmrep\fR configuration file (see \fB-c\fR).
 .TP 10
-.BI /etc/pcp/pmrep/pmrep.conf
-Example configuration file.
+.BI $PCP_SYSCONF_DIR/pmrep/pmrep.conf
+System provided configuration file.
 .PD
 .SH BUGS
 No command line option can follow metrics.

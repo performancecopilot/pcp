@@ -60,7 +60,7 @@ fi
 
 if [ ! -f $1 ]
 then
-    if [ "X$1" = "X-?" ]
+    if [ "X$1" = "X-?" -o "X$1" = "X--help" ]
     then
 	_usage 1>&2
 	echo

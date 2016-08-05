@@ -111,6 +111,10 @@ cleanup()
 {
     cd $here
     rm -rf $tmp $tmp.*
+    # kill off any surviving pmloggers
+    #
+    $sudo $signal -a -s TERM pmlogger
+    _await_logger false
     echo "Restarting pmcd and friends..."
     $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
     _wait_for_pmcd

@@ -34,7 +34,7 @@ for dir in include libpcp/src
 do
     echo "$SRC/$dir ..." >>$seq.full
     cd $SRC/$dir
-    if make 2>$tmp.err >>$here/$seq.full
+    if $PCP_MAKE_PROG 2>$tmp.err >>$here/$seq.full
     then
 	cat $tmp.err >>$here/$seq.full
     else
@@ -62,15 +62,15 @@ _pre()
 	echo "_pre: botch: $1 does not exist"
     else
 	cd $1
-	make clean >/dev/null 2>&1
+	$PCP_MAKE_PROG clean >/dev/null 2>&1
 	# This is a gross hack ...
 	# need to over-ride LDFLAGS from the PCP builddefs so we search for
 	# libpcp.so in the libpcp_fault directory
 	#
-	if LCFLAGS=-DPM_MULTI_THREAD_DEBUG=1 LDFLAGS="-L../../src/libpcp_fault/src" make $2 >$tmp.out 2>&1
+	if LCFLAGS=-DPM_MULTI_THREAD_DEBUG=1 LDFLAGS="-L../../src/libpcp_fault/src" $PCP_MAKE_PROG $2 >$tmp.out 2>&1
 	then
 	    mv $2 $2.debug
-	    make clean >/dev/null 2>&1
+	    $PCP_MAKE_PROG clean >/dev/null 2>&1
 	else
 	    echo "_pre: botch: make failed"
 	    cat $tmp.out

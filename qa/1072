@@ -1,0 +1,89 @@
+#!/bin/sh
+# PCP QA Test No. 1072
+# Exercise pmrep archive creation.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+status=1        # failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_live_filter()
+{
+    sed \
+        -e "s/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/HH:MM:SS/g" \
+    #end
+}
+
+_path_filter()
+{
+    sed \
+        -e "s#$here#QAPATH#g" \
+    #end
+}
+
+#  timezone: :Australia/Melbourne (reporting, current is AEDT-11)
+#  this is not deterministic .... ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#  and
+#  timezone: AEDT-11
+#            ^^^^^^^ ... ditto
+#
+#  we also need to filter for AEST-10 during standard timezone
+#  as it appears that pmrep will report the change in -11 to -10
+_archive_filter()
+{
+    sed \
+	-e '/timezone/s/ (reporting.*)//' \
+	-e '/timezone:/s/[A-Z][A-Z]*-11/...-11/' \
+	-e '/timezone:/s/[A-Z][A-Z]*-10/...-11/' \
+    #end
+}
+
+_pid_filter()
+{
+    sed \
+        -e '/archive:/s/archive: .*/archive: temp-archive/' \
+        -e '/Recording/s/-[0-9][0-9]*//' \
+    #end
+}
+
+log="--archive $here/archives/rep"
+log2="--archive $here/archives/20130706 -O 10m"
+
+# real QA test starts here
+echo "== pmrep archive reporting and creation"
+echo "Writing output from the original archives to files"
+metrics1=$(pminfo $log  | grep -v event\. | LC_COLLATE=C sort | tr '\n' ' ')
+metrics2=$(pminfo $log2 kernel | grep -v event\. | LC_COLLATE=C sort | tr '\n' ' ')
+pmrep -u -s 5 -p -P 4 -w 12 -x -z $log  $metrics1 | _path_filter | _archive_filter >$tmp.a1-out
+pmrep -u -s 5 -p -P 4 -w 12 -x -z $log2 $metrics2 | _path_filter | _archive_filter >$tmp.a2-out
+pmrep -u -s 5 -o archive -F $tmp.new_archive1 -z $log  $metrics1 | _pid_filter
+pmrep -u -s 5 -o archive -F $tmp.new_archive2 -z $log2 $metrics2 | _pid_filter
+echo "Writing output from the created archives to files"
+pmrep -u -s 5 -p -P 4 -w 12 -x -z -a $tmp.new_archive1 $metrics1 | \
+  _path_filter | _archive_filter | _pid_filter >$tmp.a1-out-new
+pmrep -u -s 5 -p -P 4 -w 12 -x -z -a $tmp.new_archive2 $metrics2 | \
+  _path_filter | _archive_filter | _pid_filter >$tmp.a2-out-new
+echo "Diff of outputs start (only path / minor timestamp diff expected):"
+diff -u $tmp.a1-out $tmp.a1-out-new | grep -v +++ | grep -v -- ---
+diff -u $tmp.a2-out $tmp.a2-out-new | grep -v +++ | grep -v -- ---
+echo "Diff of outputs end"
+rm -f $tmp.a1-out* $tmp.a2-out* $tmp.new_archive
+
+# success, all done
+echo "== done"
+status=0
+exit

@@ -334,16 +334,16 @@ setLongOptionArchiveFolio(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-setLongOptionDebug(PyObject *self, PyObject *args)
+setLongOptionContainer(PyObject *self, PyObject *args)
 {
-    pmLongOptions option = PMOPT_DEBUG;
+    pmLongOptions option = PMOPT_CONTAINER;
     return addLongOptionObject(&option);
 }
 
 static PyObject *
-setLongOptionGuiMode(PyObject *self, PyObject *args)
+setLongOptionDebug(PyObject *self, PyObject *args)
 {
-    pmLongOptions option = PMOPT_GUIMODE;
+    pmLongOptions option = PMOPT_DEBUG;
     return addLongOptionObject(&option);
 }
 
@@ -379,13 +379,6 @@ static PyObject *
 setLongOptionOrigin(PyObject *self, PyObject *args)
 {
     pmLongOptions option = PMOPT_ORIGIN;
-    return addLongOptionObject(&option);
-}
-
-static PyObject *
-setLongOptionGuiPort(PyObject *self, PyObject *args)
-{
-    pmLongOptions option = PMOPT_GUIPORT;
     return addLongOptionObject(&option);
 }
 
@@ -493,6 +486,21 @@ setShortUsage(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+setOptionContext(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    int context;
+    char *keyword_list[] = {"context", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "i:pmSetOptionContext", keyword_list, &context))
+        return NULL;
+
+    options.context = context;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 setOptionFlags(PyObject *self, PyObject *args, PyObject *keywords)
 {
     int flags;
@@ -555,6 +563,23 @@ setOptionArchive(PyObject *self, PyObject *args, PyObject *keywords)
 }
 
 static PyObject *
+setOptionContainer(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *container;
+    char *keyword_list[] = {PMLONGOPT_CONTAINER, NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+                        "s:pmSetOptionContainer", keyword_list, &container))
+        return NULL;
+
+    if ((container = strdup(container ? container : "")) == NULL)
+	return PyErr_NoMemory();
+    __pmAddOptContainer(&options, container);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 setOptionHost(PyObject *self, PyObject *args, PyObject *keywords)
 {
     char *host;
@@ -582,6 +607,31 @@ setOptionHostList(PyObject *self, PyObject *args, PyObject *keywords)
 	return NULL;
 
     __pmAddOptHostList(&options, hosts);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+setOptionSpecLocal(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    char *spec;
+    char *keyword_list[] = {"spec", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywords,
+			"s:pmSetOptionSpecLocal", keyword_list, &spec))
+	return NULL;
+
+    if ((spec = strdup(spec ? spec : "")) == NULL)
+	return PyErr_NoMemory();
+    __pmSetLocalContextTable(&options, spec);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+setOptionLocalPMDA(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    __pmSetLocalContextFlag(&options);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -794,6 +844,14 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 	return Py_BuildValue("i", PM_ERR_APPVERSION);
 
     return Py_BuildValue("i", options.errors);
+}
+
+static PyObject *
+endOptions(PyObject *self, PyObject *args, PyObject *keywords)
+{
+    __pmEndOptions(&options);
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -1104,6 +1162,22 @@ getOptionHostZone(PyObject *self, PyObject *args)
     return Py_BuildValue("i", options.tzflag);
 }
 
+static PyObject *
+getOptionContainer(PyObject *self, PyObject *args)
+{
+    char *container;
+
+    if ((container = getenv("PCP_CONTAINER")) != NULL)
+	return Py_BuildValue("s", strdup(container));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+getOptionLocalPMDA(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("i", options.Lflag);
+}
 
 static PyMethodDef methods[] = {
     { .ml_name = "PM_XTB_SET",
@@ -1148,11 +1222,11 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmSetLongOptionArchiveFolio",
 	.ml_meth = (PyCFunction) setLongOptionArchiveFolio,
         .ml_flags = METH_NOARGS },
+    { .ml_name = "pmSetLongOptionContainer",
+        .ml_meth = (PyCFunction) setLongOptionContainer,
+        .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetLongOptionDebug",
 	.ml_meth = (PyCFunction) setLongOptionDebug,
-        .ml_flags = METH_NOARGS },
-    { .ml_name = "pmSetLongOptionGuiMode",
-	.ml_meth = (PyCFunction) setLongOptionGuiMode,
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetLongOptionHost",
 	.ml_meth = (PyCFunction) setLongOptionHost,
@@ -1171,9 +1245,6 @@ static PyMethodDef methods[] = {
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetLongOptionOrigin",
 	.ml_meth = (PyCFunction) setLongOptionOrigin,
-        .ml_flags = METH_NOARGS },
-    { .ml_name = "pmSetLongOptionGuiPort",
-	.ml_meth = (PyCFunction) setLongOptionGuiPort,
         .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetLongOptionStart",
 	.ml_meth = (PyCFunction) setLongOptionStart,
@@ -1205,6 +1276,9 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmSetShortUsage",
 	.ml_meth = (PyCFunction) setShortUsage,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetOptionContext",
+        .ml_meth = (PyCFunction) setOptionContext,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmSetOptionFlags",
 	.ml_meth = (PyCFunction) setOptionFlags,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
@@ -1223,6 +1297,9 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmGetNonOptionsFromList",
 	.ml_meth = (PyCFunction) getNonOptionsFromList,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmEndOptions",
+        .ml_meth = (PyCFunction) endOptions,
+        .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetContextOptions",
 	.ml_meth = (PyCFunction) setContextOptions,
         .ml_flags = METH_VARARGS | METH_KEYWORDS},
@@ -1289,6 +1366,12 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmGetOptionHostZone",
 	.ml_meth = (PyCFunction) getOptionHostZone,
         .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionContainer",
+	.ml_meth = (PyCFunction) getOptionContainer,
+        .ml_flags = METH_NOARGS },
+    { .ml_name = "pmGetOptionLocalPMDA",
+	.ml_meth = (PyCFunction) getOptionLocalPMDA,
+        .ml_flags = METH_NOARGS },
     { .ml_name = "pmSetOptionArchive",
 	.ml_meth = (PyCFunction) setOptionArchive,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
@@ -1298,11 +1381,20 @@ static PyMethodDef methods[] = {
     { .ml_name = "pmSetOptionArchiveFolio",
 	.ml_meth = (PyCFunction) setOptionArchiveFolio,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetOptionContainer",
+        .ml_meth = (PyCFunction) setOptionContainer,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmSetOptionHost",
 	.ml_meth = (PyCFunction) setOptionHost,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmSetOptionHostList",
 	.ml_meth = (PyCFunction) setOptionHostList,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetOptionSpecLocal",
+        .ml_meth = (PyCFunction) setOptionSpecLocal,
+        .ml_flags = METH_VARARGS | METH_KEYWORDS },
+    { .ml_name = "pmSetOptionLocalPMDA",
+        .ml_meth = (PyCFunction) setOptionLocalPMDA,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmnsTraverse",
 	.ml_meth = (PyCFunction) pmnsTraverse,

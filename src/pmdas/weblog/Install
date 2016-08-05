@@ -99,7 +99,8 @@ _parseDefaults()
     	case $c in
 	    \?)		echo "Warning: Unrecognized option in $PCP_PMCDCONF_PATH"
 			echo "         Remove line for pmdaweblog in $PCP_PMCDCONF_PATH and re-run ./Install"
-	    		exit 2;;
+			status=2
+			exit;;
 	    D)		debugFlag=$OPTARG;;
 	    n)		chkDelay=$OPTARG;;
 	    t)		delay=$OPTARG;;
@@ -118,7 +119,8 @@ _parseDefaults()
     else
 	echo "Warning: unrecognized format for old specification in $PCP_PMCDCONF_PATH"
 	echo "         Remove line for pmdaweblog in $PCP_PMCDCONF_PATH and re-run ./Install"
-	exit 2
+	status=2
+	exit
     fi
 }
 
@@ -225,10 +227,11 @@ then
 	_default_config
 	if [ $? -eq 0 ] ; then
 	    pmdaInstall
-	    exit $?
+	    status=$?
 	else
-	    exit 1
+	    status=1
 	fi
+	exit
     else
 	echo "----------------------------------------------------------------"
 	echo
@@ -246,7 +249,8 @@ then
 	    _default_config
 	    if [ $? -eq 0 ] ; then
 		pmdaInstall
-		exit $?
+		status=$?
+		exit
 	    else
 		echo
 		echo "Unable to find any Web servers!"
@@ -301,7 +305,8 @@ then
 			    then
 				configFile=""
 			    else
-				exit 1
+				status=1
+				exit
 			    fi
 			fi
 		    fi
@@ -343,7 +348,8 @@ then
 		    if [ "X$configFile" = "X$__tmp.default" ]
 		    then
 			echo "Arrgh ... this is the default configuration, I cannot recover from here!"
-			exit 1
+			status=1
+			exit
 		    fi
 		    configFile=""
 		fi
@@ -422,7 +428,8 @@ then
 			then
 			    echo "Please consult the manual on how to create a configuration file."
 			    echo "Installation failed."
-			    exit 1
+			    status=1
+			    exit
 			else
 			    echo "Ignoring this file."
 			fi
@@ -528,7 +535,8 @@ then
 		if [ "$Xans" = "Xy" -o "X$ans" = "XY" -o "X$ans" = X ]
 		then
 		    echo "Edit $configFile and then rerun this Install script."
-		    exit 1
+		    status=1
+		    exit
 		echo
 		    echo "Skipping $serverName ..."
 		fi
@@ -624,7 +632,8 @@ then
 	then
 	    echo "Please consult the manual on how to create a configuration file."
 	    echo "Installation failed as no servers were specified."
-	    exit 1
+	    status=1
+	    exit
 	fi
 
 	echo
@@ -637,7 +646,8 @@ then
 	then
 	    echo
 	    echo "Edit $configFile and then rerun this Install script."
-	    exit 1
+	    status=1
+	    exit
 	fi
 
 	echo
@@ -687,6 +697,4 @@ then
 fi
 
 pmdaInstall
-
-exit 0
-
+exit

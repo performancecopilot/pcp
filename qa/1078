@@ -1,0 +1,48 @@
+#!/bin/sh
+# PCP QA Test No. 1078
+# Exercise pcp pidstat for an archive
+#
+# Copyright (c) 2016 Sitaram Shelke.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pcp_pidstat="$PCP_BINADM_DIR/pcp-pidstat"
+test -x $pcp_pidstat || _notrun "No pcp-pidstat(1) installed"
+pcp_pidstat="$python $pcp_pidstat"
+pcp_archive="-z -a archives/pcp-pidstat"
+
+# real QA test starts here
+export LC_TIME=POSIX
+
+echo && echo === pcp-pidstat without filters
+pcp $pcp_archive pidstat
+
+echo && echo === pcp-pidstat with user names
+pcp $pcp_archive pidstat -U
+
+# echo && echo === pcp-pidstat with single user mode
+# pcp $pcp_archive pidstat -I
+
+echo && echo === pcp-pidstat with given samples count
+pcp $pcp_archive pidstat -s 3 -p 1,3,5
+
+echo && echo === pcp-pidstat priority and scheduling information
+pcp $pcp_archive pidstat -R
+
+echo && echo === pcp-pidstat memory utilization
+pcp $pcp_archive pidstat -r
+
+echo && echo === pcp-pidstat stack utilization
+pcp $pcp_archive pidstat -k
+
+# success, all done
+status=0
+exit

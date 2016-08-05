@@ -54,6 +54,7 @@ $0 != last	{ print; last = $0 }' \
 	-e '/^__pmSetDataIPC:/d' \
 	-e '/^pmWhichContext(/d' \
 	-e '/__pmConnect(fd=.*) ->/d' \
+	-e '/__pmCloseChannelbyContext/d' \
     | $PCP_AWK_PROG '
 /delay: 2 /	{ print "delay: 2-4 secs"; next }
 /delay: 3 /	{ print "delay: 2-4 secs"; next }

@@ -431,8 +431,8 @@ apache_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 12:
  	    if (!(data.flags & SCOREBOARD))
 		return 0;
-		atom->ul = data.sb_keepalive;
-		break;
+	    atom->ul = data.sb_keepalive;
+	    break;
 	case 13:
  	    if (!(data.flags & SCOREBOARD))
 		return 0;

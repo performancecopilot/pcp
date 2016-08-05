@@ -82,6 +82,8 @@ static proc_sys_fs_t		proc_sys_fs;
 static sysfs_kernel_t		sysfs_kernel;
 static numa_meminfo_t		numa_meminfo;
 static shm_info_t              _shm_info;
+static sem_info_t              _sem_info;
+static msg_info_t              _msg_info;
 static proc_net_softnet_t	proc_net_softnet;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
@@ -308,6 +310,8 @@ static pmdaIndom indomtab[] = {
     { ICMPMSG_INDOM, NR_ICMPMSG_COUNTERS, _pm_proc_net_snmp_indom_id },
     { DM_INDOM, 0, NULL }, /* cached */
     { MD_INDOM, 0, NULL }, /* cached */
+    { INTERRUPT_NAMES_INDOM, 0, NULL },
+    { SOFTIRQS_NAMES_INDOM, 0, NULL },
 };
 
 
@@ -3638,6 +3642,16 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_SEM_LIMITS, 9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
+/* ipc.sem.used_sem */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SEM_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* ipc.sem.tot_sem */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SEM_INFO, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 /*
  * message limits cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -3683,6 +3697,21 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_MSG_LIMITS, 7), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
+/* ipc.msg.used_queues */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MSG_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* ipc.msg.tot_msg */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MSG_INFO, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* ipc.msg.tot_bytes */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MSG_INFO, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
+
 /* ipc.shm.tot */
   { NULL,
     { PMDA_PMID(CLUSTER_SHM_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
@@ -3701,6 +3730,16 @@ static pmdaMetric metrictab[] = {
 /* ipc.shm.used_ids */
   { NULL,
     { PMDA_PMID(CLUSTER_SHM_INFO, 3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* ipc.shm.swap_attempts */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* ipc.shm.swap_successes */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_INFO, 5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /*
@@ -4312,12 +4351,16 @@ static pmdaMetric metrictab[] = {
 	PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /*
- * /proc/interrupts cluster
+ * /proc/interrupts clusters
  */
     /* kernel.all.interrupts.errors */
     { &irq_err_count,
       { PMDA_PMID(CLUSTER_INTERRUPTS, 3), PM_TYPE_U32, PM_INDOM_NULL,
 	PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* kernel.percpu.intr */
+    { NULL, { PMDA_PMID(CLUSTER_INTERRUPTS,4), PM_TYPE_U64,
+    CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
     /* kernel.percpu.interrupts.line[<N>] */
     { NULL, { PMDA_PMID(CLUSTER_INTERRUPT_LINES, 0), PM_TYPE_U32,
@@ -4325,6 +4368,14 @@ static pmdaMetric metrictab[] = {
 
     /* kernel.percpu.interrupts.[<other>] */
     { NULL, { PMDA_PMID(CLUSTER_INTERRUPT_OTHER, 0), PM_TYPE_U32,
+    CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/*
+ * /proc/softirqs cluster
+ */
+
+    /* kernel.percpu.softirqs.[<name>] */
+    { NULL, { PMDA_PMID(CLUSTER_SOFTIRQS, 0), PM_TYPE_U32,
     CPU_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /*
@@ -4686,6 +4737,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 	need_refresh[CLUSTER_INTERRUPT_OTHER])
 	need_refresh_mtab |= refresh_interrupt_values();
 
+    if (need_refresh[CLUSTER_SOFTIRQS])
+	need_refresh_mtab |= refresh_softirqs_values();
+
     if (need_refresh[CLUSTER_SWAPDEV])
 	refresh_swapdev(INDOM(SWAPDEV_INDOM));
 
@@ -4708,6 +4762,12 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 
     if (need_refresh[CLUSTER_SHM_INFO])
         refresh_shm_info(&_shm_info);
+
+    if (need_refresh[CLUSTER_SEM_INFO])
+        refresh_sem_info(&_sem_info);
+
+    if (need_refresh[CLUSTER_MSG_INFO])
+        refresh_msg_info(&_msg_info);
 
     if (need_refresh[CLUSTER_SHM_LIMITS])
         refresh_shm_limits(&shm_limits);
@@ -6054,6 +6114,22 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     /*
+     * Cluster added by Wu Liming <wulm.fnst@cn.fujitsu.com>
+     */
+    case CLUSTER_SEM_INFO:
+	switch (idp->item) {
+	case 0:	/* ipc.sem.used_sem */
+	    atom->ul = _sem_info.semusz;
+	    break;
+	case 1:	/* ipc.sem.tot_sem */
+	    atom->ul = _sem_info.semaem;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    /*
      * Cluster added by Mike Mason <mmlnx@us.ibm.com>
      */
     case CLUSTER_SEM_LIMITS:
@@ -6106,6 +6182,31 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 3: /* ipc.shm.used_ids */
 	    atom->ul = _shm_info.used_ids;
+	    break;
+	case 4: /* ipc.shm.swap_attempts */
+	    atom->ul = _shm_info.swap_attempts;
+	    break;
+	case 5: /* ipc.shm.swap_successes */
+	    atom->ul = _shm_info.swap_successes;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    /*
+     * Cluster added by Wu Liming <wulm.fnst@cn.fujitsu.com>
+     */
+    case CLUSTER_MSG_INFO:
+	switch (idp->item) {
+	case 0:	/* ipc.msg.used_queues */
+	    atom->ul = _msg_info.msgpool;
+	    break;
+	case 1:	/* ipc.msg.tot_msg */
+	    atom->ul = _msg_info.msgmap;
+	    break;
+	case 2:	/* ipc.msg.tot_bytes */
+	    atom->ul = _msg_info.msgtql;
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -6396,20 +6497,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	return sts;
 
-    case CLUSTER_INTERRUPTS:
-	switch (idp->item) {
-	case 3:	/* kernel.all.interrupts.error */
-	    atom->ul = irq_err_count;
-	    break;
-	default:
-	    return PM_ERR_PMID;
-	}
-	break;
-
     case CLUSTER_INTERRUPT_LINES:
     case CLUSTER_INTERRUPT_OTHER:
-	if (inst >= indomtab[CPU_INDOM].it_numinst)
-	    return PM_ERR_INST;
+    case CLUSTER_INTERRUPTS:
+    case CLUSTER_SOFTIRQS:
 	return interrupts_fetch(idp->cluster, idp->item, inst, atom);
 
     case CLUSTER_DM:
@@ -6530,6 +6621,7 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	case CLUSTER_INTERRUPT_LINES:
 	case CLUSTER_INTERRUPT_OTHER:
 	case CLUSTER_INTERRUPTS:
+	case CLUSTER_SOFTIRQS:
 	    need_refresh[CLUSTER_STAT]++;
 	    break;
 
@@ -6853,6 +6945,12 @@ linux_init(pmdaInterface *dp)
 
     /* string metrics use the pmdaCache API for value indexing */
     pmdaCacheOp(INDOM(STRINGS_INDOM), PMDA_CACHE_STRINGS);
+
+    /* dynamic metrics using the pmdaCache API for name<->item mapping */
+    pmdaCacheOp(INDOM(INTERRUPT_NAMES_INDOM), PMDA_CACHE_STRINGS);
+    pmdaCacheResize(INDOM(INTERRUPT_NAMES_INDOM), (1 << 10)-1);
+    pmdaCacheOp(INDOM(SOFTIRQS_NAMES_INDOM), PMDA_CACHE_STRINGS);
+    pmdaCacheResize(INDOM(SOFTIRQS_NAMES_INDOM), (1 << 10)-1);
 }
 
 pmLongOptions	longopts[] = {

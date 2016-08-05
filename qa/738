@@ -44,9 +44,18 @@ s/cannot remove //
 }
 
 # ls(1) does not have the same format for error messages, sigh.
+#
+# Note on second sed expression ... need to handle GNU coreutils
+# brain damage from newer versions of ls(1) and remove ' quotes
+# from lines like ...
+# ls: cannot access 'foo*': No such file or directory
+#
 _filter_ls()
 {
-    sed -e '/ls: [^ ]*\*: No such/s/ls: /ls: cannot access /'
+    sed \
+	-e '/ls: [^ ]*\*: No such/s/ls: /ls: cannot access /' \
+	-e "/: No such file /s/ '\([^']*\)': No/ \1: No/" \
+    # done
 }
 
 # real QA test starts here

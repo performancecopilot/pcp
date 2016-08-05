@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2016 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -125,10 +125,10 @@ extern void do_work(task_t *);
 extern int chk_one(task_t *, pmID, int);
 extern int chk_all(task_t *, pmID);
 extern int newvolume(int);
+extern void validate_metrics(void);
+
 extern void disconnect(int);
-#if CAN_RECONNECT
 extern int reconnect(void);
-#endif
 extern int do_preamble(void);
 extern void run_done(int,char *);
 extern __pmPDU *rewrite_pdu(__pmPDU *, int);

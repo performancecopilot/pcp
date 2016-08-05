@@ -5,4 +5,5 @@ usr/lib/libpcp_mmv.so
 usr/share/man/man3/mmv_inc_value.3.gz
 usr/share/man/man3/mmv_lookup_value_desc.3.gz
 usr/share/man/man3/mmv_stats_init.3.gz
+usr/share/man/man3/mmv_stats2_init.3.gz
 usr/share/man/man5/mmv.5.gz

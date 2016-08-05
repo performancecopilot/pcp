@@ -130,7 +130,9 @@ kernel.all.cpu.irq {
 
 kernel.percpu {
     interrupts		60:*:*
+    softirqs		60:*:*
     cpu
+    intr		60:4:4
 }
 
 kernel.percpu.cpu {
@@ -211,6 +213,8 @@ ipc.sem {
     sz_semundo		60:21:7
     max_semval		60:21:8
     max_exit		60:21:9
+    used_sem		60:61:0
+    tot_sem		60:61:1
 }
 
 ipc.msg {
@@ -222,6 +226,9 @@ ipc.msg {
     max_msgseg		60:22:5
     num_smsghdr		60:22:6
     max_seg		60:22:7
+    used_queues		60:62:0
+    tot_msg		60:62:1
+    tot_bytes		60:62:2
 }
 
 ipc.shm {
@@ -234,6 +241,8 @@ ipc.shm {
     rss			60:56:1
     swp			60:56:2
     used_ids		60:56:3
+    swap_attempts	60:56:4
+    swap_successes	60:56:5
 }
 
 pmda {

@@ -269,6 +269,17 @@ class tm(Structure):
                 ("tm_gmtoff", c_long),	# glibc/bsd extension
                 ("tm_zone", c_char_p)]	# glibc/bsd extension
 
+    def struct_time(self):
+        # convert POSIX representations - see mktime(3) - to python:
+        # https://docs.python.org/3/library/time.html#time.struct_time
+        pywday = self.tm_wday - 1
+        if pywday < 0:
+            pywday = 6
+        stlist = [self.tm_year + 1900, self.tm_mon + 1, self.tm_mday,
+                  self.tm_hour, self.tm_min, self.tm_sec,
+                  pywday, self.tm_yday - 1, self.tm_isdst ]
+        return time.struct_time(stlist)
+
     def __str__(self):
         # For debugging this, the timetuple is possibly more useful
         # timetuple = (self.tm_year+1900, self.tm_mon, self.tm_mday,
@@ -757,6 +768,9 @@ LIBPCP.pmTypeStr_r.argtypes = [c_int, c_char_p, c_int]
 LIBPCP.pmAtomStr_r.restype = c_char_p
 LIBPCP.pmAtomStr_r.argtypes = [POINTER(pmAtomValue), c_int, c_char_p, c_int]
 
+LIBPCP.pmSemStr_r.restype = c_char_p
+LIBPCP.pmSemStr_r.argtypes = [c_int, c_char_p, c_int]
+
 LIBPCP.pmPrintValue.restype = None
 LIBPCP.pmPrintValue.argtypes = [c_void_p, c_int, c_int, POINTER(pmValue), c_int]
 
@@ -836,6 +850,9 @@ class pmOptions(object):
 
     def pmGetOptionFlags(self):
         return c_api.pmGetOptionFlags()
+
+    def pmSetOptionContext(self, context):
+        return c_api.pmSetOptionContext(context)
 
     def pmSetOptionFlags(self, flags):
         return c_api.pmSetOptionFlags(flags)
@@ -928,8 +945,8 @@ class pmOptions(object):
         return c_api.pmSetLongOptionDebug()
 
     def pmSetLongOptionGuiMode(self):
-        """ Add support for -g/--guimode into PMAPI monitor tool """
-        return c_api.pmSetLongOptionGuiMode()
+        """ Unimplemented """
+        return None
 
     def pmSetLongOptionHost(self):
         """ Add support for -h/--host into PMAPI monitor tool """
@@ -952,8 +969,8 @@ class pmOptions(object):
         return c_api.pmSetLongOptionOrigin()
 
     def pmSetLongOptionGuiPort(self):
-        """ Add support for -p/--guiport into PMAPI monitor tool """
-        return c_api.pmSetLongOptionGuiPort()
+        """ Unimplemented """
+        return None
 
     def pmSetLongOptionStart(self):
         """ Add support for -S/--start into PMAPI monitor tool """
@@ -994,6 +1011,10 @@ class pmOptions(object):
     def pmSetLongOptionArchiveFolio(self):
         """ Add support for --archive-folio into PMAPI monitor tool """
         return c_api.pmSetLongOptionArchiveFolio()
+
+    def pmSetLongOptionContainer(self):
+        """ Add support for --container into PMAPI monitor tool """
+        return c_api.pmSetLongOptionContainer()
 
     def pmSetLongOptionHostList(self):
         """ Add support for --host-list into PMAPI monitor tool """
@@ -1055,6 +1076,14 @@ class pmOptions(object):
     def pmGetOptionTimezone(self):	# str
         return c_api.pmGetOptionTimezone()
 
+    def pmGetOptionContainer(self):	# str
+        return c_api.pmGetOptionContainer()
+
+    def pmGetOptionLocalPMDA(self):        # boolean
+        if c_api.pmGetOptionLocalPMDA() == 0:
+            return False
+        return True
+
     def pmSetOptionArchive(self, archive):	# str
         return c_api.pmSetOptionArchive(archive)
 
@@ -1064,11 +1093,20 @@ class pmOptions(object):
     def pmSetOptionArchiveFolio(self, folio):	# str
         return c_api.pmSetOptionArchiveFolio(folio)
 
+    def pmSetOptionContainer(self, container):	# str
+        return c_api.pmSetOptionContainer(container)
+
     def pmSetOptionHost(self, host):	# str
         return c_api.pmSetOptionHost(host)
 
     def pmSetOptionHostList(self, hosts):	# str
         return c_api.pmSetOptionHostList(hosts)
+
+    def pmSetOptionSpecLocal(self, spec):        # str
+        return c_api.pmSetOptionSpecLocal(spec)
+
+    def pmSetOptionLocalPMDA(self):
+        return c_api.pmSetOptionLocalPMDA()
 
 
 ##############################################################################
@@ -1983,6 +2021,15 @@ class pmContext(object):
         return str(result.decode())
 
     @staticmethod
+    def pmSemStr(sem):
+        """PMAPI - Convert a performance metric semantic to a readable string
+        "string" = pmSemStr(c_api.PM_SEM_COUNTER)
+        """
+        semstr = ctypes.create_string_buffer(32)
+        result = LIBPCP.pmSemStr_r(sem, semstr, 32)
+        return str(result.decode())
+
+    @staticmethod
     def pmPrintValue(fileObj, result, ptype, vset_idx, vlist_idx, min_width):
         """PMAPI - Print the value of a metric
         pmPrintValue(file, value, pmdesc, vset_index, vlist_index, min_width)
@@ -2268,6 +2315,8 @@ class fetchgroup(object):
 
         self.pmfg = c_void_p()
         self.items = []
+        if typed == c_api.PM_CONTEXT_LOCAL and target == None:
+            target = "" # Ignored
         sts = LIBPCP.pmCreateFetchGroup(byref(self.pmfg), typed, target.encode('utf-8'))
         if sts < 0:
             raise pmErr(sts)
@@ -2277,8 +2326,7 @@ class fetchgroup(object):
     def __del__(self):
         """Destroy the fetchgroup.  Drop references to fetchgroup_* items."""
 
-        assert self.pmfg.value != None
-        if LIBPCP != None: # might be called late during python3 shutdown; moot then
+        if LIBPCP != None and self.pmfg.value != None:
             sts = LIBPCP.pmDestroyFetchGroup(self.pmfg)
             if sts < 0:
                 raise pmErr(sts)

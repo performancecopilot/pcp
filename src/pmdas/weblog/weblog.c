@@ -2830,10 +2830,11 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
                         haveValue = 0;
                     else {
                         tmp32 = 0;
-                        for (s = 0; s < wl_numServers; s++)
+                        for (s = 0; s < wl_numServers; s++) {
                             if (wl_servers[s].counts.active)
                                 tmp32 += wl_servers[s].counts.methodReq[m_offset];
-                            atom.ul = tmp32;
+			}
+			atom.ul = tmp32;
                     }
                 } 
 		else if (wl_servers[inst].counts.active)

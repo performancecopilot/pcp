@@ -58,6 +58,8 @@ $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.cull-list
+filesystem/xfs-io-linux
+filesystem/xfs-io-irix
 networking/nfs2-client
 networking/nfs2-server
 networking/nfs3-client
@@ -72,7 +74,10 @@ tools/collectl
 tools/collectl-interrupts
 tools/dmcache
 tools/mpstat
+tools/mpstat-summary
 tools/mpstat-interrupts
+tools/pidstat
+tools/pidstat-summary
 tools/vmstat
 tools/iostat
 tools/sar

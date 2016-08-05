@@ -49,7 +49,11 @@ _cleanup()
 	    ( cd $PCP_PMDAS_DIR/txmon; $sudo ./Remove </dev/null >/dev/null 2>&1 )
 	fi
 	rm -f $tmp.*
-	$sudo ipcrm -M 0xdeadbeef
+	# toss output away in case shm segment already removed or not
+	# created and the installed version of ipcrm(1) complains
+	#
+	$sudo ipcrm -M 0xdeadbeef >/dev/null 2>&1
+	$sudo ipcs -m | grep -iq deadbeef && echo "Failed to removve SHM key 0xdeadbeef"
 	done_clean=true
     fi
     exit $status
@@ -91,7 +95,7 @@ cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 # start from a known starting point
 $sudo ./Remove >/dev/null 2>&1
 
-if $sudo make clobber >$tmp.out 2>&1
+if $sudo $PCP_MAKE_PROG clobber >$tmp.out 2>&1
 then
     :
 else
@@ -100,7 +104,7 @@ else
     exit
 fi
 
-if $sudo make >$tmp.out 2>&1
+if $sudo $PCP_MAKE_PROG >$tmp.out 2>&1
 then
     :
 else
@@ -126,7 +130,7 @@ fi
 
 echo
 echo "=== validate values ==="
-$sudo make txrecord >/dev/null 2>&1
+$sudo $PCP_MAKE_PROG txrecord >/dev/null 2>&1
 ./genload -n 20 | sed -e 's/[0-9][0-9]*\.[0-9][0-9]*/NUMBER/'
 pminfo -f $iam | _filter_info
 

@@ -109,7 +109,6 @@ _reboot_setup()
 	rm -rf $tmp/ent $tmp/pid
 	here=`pwd`
 	cd "$PCP_TMP_DIR/pmlogger"
-	rm -f primary vcr
 	_get_pids_by_name pmlogger | sort >$tmp/pid
 	ls [0-9]* 2>&1 | sed -e '/\[0-9]\*/d' \
 	| sed -e 's/[ 	][ 	]*//g' | sort >$tmp/ent
@@ -117,6 +116,9 @@ _reboot_setup()
 	#
 	rm -f `comm -23 $tmp/ent $tmp/pid`
 	rm -f $tmp/ent $tmp/pid
+	# if primary is now a broken symlink, cleanup (-e follows symlinks)
+	#
+	[ ! -e primary ] && rm -f primary
 	cd "$here"
     fi
 
@@ -223,6 +225,8 @@ _start_pmcheck()
 	message="pmcd_wait failed in $prog: exit status: $status"
 	$PCP_SYSLOG_PROG -p daemon.warning "$message"
 	$PCP_BINADM_DIR/pmpost "$message"
+	$RC_STATUS -v
+	exit
     fi
 }
 
@@ -470,7 +474,7 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 	    $ECHO $PCP_ECHO_N "Starting pmcd ..." "$PCP_ECHO_C"
 
 	    # only consider variables which start with PMCD
-	    ENVS=`grep ^PMCD $PMCDENVS 2>/dev/null`
+	    `sed -n 's/^PMCD/export PMCD/p' < $PMCDENVS 2>/dev/null`
 
 	    # only consider lines which start with a hyphen
 	    # get rid of the -f option
@@ -484,7 +488,12 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 			    -e 's/ $//' \
 		    | tr '\012' ' ' `
 
-	    eval $ENVS '$PMCD $OPTS'
+	    if ! $PMCD --verify $OPTS
+	    then
+		echo $prog: pmcd --verify $OPTS failed, cannot start pmcd.
+		exit
+	    fi
+	    $PMCD $OPTS
             _start_pmcheck
 	    $RC_STATUS -v
 
@@ -498,11 +507,6 @@ Error: pmcd control file '"$PCP_PMCDCONF_PATH"' is missing, cannot start pmcd.'
 		# not a recursive call ...
 
 		$PCP_BINADM_DIR/pmpost "start pmcd from $prog"
-
-		# force removal of primary pmlogger link ... if primary
-		# pmlogger is started, this will re-create the link
-		#
-		rm -f "$PCP_TMP_DIR/pmlogger/primary"
 
 		# site-local customisations after PMCD startup
 		[ -x $PCPLOCAL ] && $PCPLOCAL $VFLAG start

@@ -52,7 +52,6 @@ __pmSecureServerSetFeature(__pmServerFeature wanted)
         secure_server.server_features |= (1 << wanted);
         return 1;
     }
-
     return 0;
 }
 
@@ -664,8 +663,12 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 	}
     } else if (sts == PDU_ERROR) {
 	__pmDecodeError(pb, &sts);
-    } else if (sts != PM_ERR_TIMEOUT) {
-	sts = PM_ERR_IPC;
+    } else {
+	/* PDU type 0 is also expected here */
+	if (sts != 0)
+	    __pmCloseChannelbyFd(fd, PDU_AUTH, sts);
+	if (sts != PM_ERR_TIMEOUT)
+	    sts = PM_ERR_IPC;
     }
 
     if (pinned > 0)
@@ -706,8 +709,12 @@ __pmAuthServerNegotiation(int fd, int ssf, __pmHashCtl *attrs)
 	    }
 	} else if (sts == PDU_ERROR) {
 	    __pmDecodeError(pb, &sts);
-	} else if (sts != PM_ERR_TIMEOUT) {
-	    sts = PM_ERR_IPC;
+	} else {
+	    /* PDU type 0 is also expected here */
+	    if (sts != 0)
+		__pmCloseChannelbyFd(fd, PDU_AUTH, sts);
+	    if (sts != PM_ERR_TIMEOUT)
+		sts = PM_ERR_IPC;
 	}
 
 	if (pinned > 0)

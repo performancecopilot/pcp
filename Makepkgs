@@ -39,11 +39,21 @@ then
     exit 1
 fi
 
-# Find where a GNU tool is hiding, look for this line:
+tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
+trap "rm -rf $tmp $tmp.help" 0 1 2 3 15
+target=`uname -s | tr 'A-Z' 'a-z'`
+
+# Find where a GNU tool is hiding, look for this line in the
+# $gnutool --help output ...
 # "Report bugs to <bug-$gnutool@gnu.org>"
-# or this line:
-# "FreeBSD $gnutool YYYYMMDD"
-# in the $gnutool --help output
+# or lines like this:
+# FreeBSD $gnutool
+# NetBSD $gnutool
+# OpenBSD $gnutool
+# Apple $gnutool
+# or these lines:
+# *This* tar defaults to:
+# --format=gnu ...
 #
 gnu_tool()
 {
@@ -63,7 +73,17 @@ gnu_tool()
 	    exec=`which $command 2>/dev/null`
 	    if [ -n "$exec" ]
 	    then
-		if $command --help 2>&1 | egrep "(bug-$oldcmd@gnu.org)|(FreeBSD $gnutool)|(NetBSD $gnutool)|(Apple $gnutool)" >/dev/null
+		$command --help >$tmp.help 2>&1
+		if egrep "(bug-$oldcmd@gnu.org)|(FreeBSD $command)|(NetBSD $command)|(OpenBSD $command)|(Apple $command)" $tmp.help >/dev/null
+		then
+		    echo $exec
+		    return 0
+		fi
+		awk <$tmp.help >$tmp.check '
+BEGIN				{ want = 0 }
+/This\** tar defaults to:/	{ want=1; next }
+want == 1			{ print; exit }'
+		if grep '[-][-]format=gnu' <$tmp.check >/dev/null
 		then
 		    echo $exec
 		    return 0
@@ -97,17 +117,13 @@ gnu_tool()
     return 0
 }
 
-target=`uname -s | tr 'A-Z' 'a-z'`
-
 export MAKE=`gnu_tool Error "$MAKE" make gmake`
 export TAR=`gnu_tool Warning "$TAR" tar gtar gnutar`
 export ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`
 
 # check if tar supports --transform else we must use git-archive later on (e.g. RHEL5)
-[ ! -z "$TAR" ] && $TAR --help | 2>&1 grep -q transform || USE_GIT_ARCHIVE=1
-
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
-trap "rm -rf $tmp" 0 1 2 3 15
+[ -n "$TAR" ] && $TAR --help | 2>&1 grep -q transform || USE_GIT_ARCHIVE=1
+#debug# echo TAR=$TAR USE_GIT_ARCHIVE=$USE_GIT_ARCHIVE
 
 configure=./configure
 cmdline_configopts=''
@@ -186,7 +202,14 @@ done
 if [ $dorpm = unknown ]
 then
     dorpm=false
-    [ -x /usr/bin/rpmbuild ] && dorpm=true
+    if which slackpkg >/dev/null 2>&1
+    then
+	# Slackware has rpm(1) and rpmbuild(1), but don't build RPMs
+	#
+	:
+    else
+	[ -x /usr/bin/rpmbuild ] && dorpm=true
+    fi
 fi
 if [ $dodeb = unknown ]
 then
@@ -230,6 +253,23 @@ then
     # Try to mimic where pkgsrc/pkgin place things
     #
     configopts="--prefix=/usr/pkg --exec-prefix=/usr/pkg --mandir=/usr/pkg/man --with-rcdir=/etc/rc.d --localstatedir=/usr/pkg --with-rundir=/var/run --with-tmpdir=/var/tmp --with-logdir=/var/log/pcp"
+elif [ $target = freebsd ]
+then
+    # Python build does not work on FreeBSD 9.3, so skip it
+    #
+    case `uname -r`
+    in
+	9.3*)
+		# Bog-standard, just without python
+		#
+		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python=no --with-python3=no"
+		;;
+	*)
+		# Bog-standard, as below ...
+		#
+		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var"
+		;;
+    esac
 else
     # Bog-standard options suitable for a package on any platform.
     # Command line can be used to extend this set, and any unusual
@@ -358,20 +398,20 @@ third_parties()
 
     if $vector
     then
+	DESTVECTOR="$SRCTREE/build/tar/"`basename "$SRCVECTOR"`
 	if [ ! -f "$SRCVECTOR" ]
 	then
 	    echo "== Downloading Vector webapp"
 	    url=https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
 	    wget -H -q -O "$SRCVECTOR" "$url"
 	    [ $? -eq 0 ] && echo "Wrote: $SRCVECTOR"
-	fi
-	if [ -f "$SRCVECTOR" ]
-	then
-	    DESTVECTOR="$SRCTREE/build/tar/"`basename "$SRCVECTOR"`
 	    mkdir $tmp/vector && pushd $tmp/vector && $TAR -zxf "$SRCVECTOR"
 	    $topdir/scripts/build-vector
+	    [ $? -eq 0] || exit 1
 	    cd dist && $TAR -czf "$DESTVECTOR" *
 	    popd
+	else
+	    cp "$SRCVECTOR" "$DESTVECTOR"
 	fi
     fi
 

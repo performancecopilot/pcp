@@ -27,4 +27,4 @@ pipe_opt=true
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit

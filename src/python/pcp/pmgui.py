@@ -76,42 +76,6 @@ LIBPCP_GUI.pmRecordControl.restype = c_int
 LIBPCP_GUI.pmRecordControl.argtypes = [POINTER(pmRecordHost), c_int, c_char_p]
 
 
-
-#LIBPCP_GUI.pmTimeConnect.restype = c_int
-#LIBPCP_GUI.pmTimeConnect.argtypes = [ ]
-
-#LIBPCP_GUI.pmTimeDisconnect.restype = c_int
-#LIBPCP_GUI.pmTimeDisconnect.argtypes = [ ]
-
-#LIBPCP_GUI.pmTimeGetPort.restype = c_int
-#LIBPCP_GUI.pmTimeGetPort.argtypes = [ ]
-
-#LIBPCP_GUI.pmTimeRecv.restype = c_int
-#LIBPCP_GUI.pmTimeRecv.argtypes = [ ]
-
-#LIBPCP_GUI.pmTimeSendAck.restype = c_int
-#LIBPCP_GUI.pmTimeSendAck.argtypes = [ ]
-
-#LIBPCP_GUI.pmTimeSendBounds.restype = c_int
-#LIBPCP_GUI.pmTimeSendBounds.argtypes = [ ]
-
-#LIBPCP_GUI.pmTimeSendMode.restype = c_int
-#LIBPCP_GUI.pmTimeSendMode.argtypes = [ ]
-
-#LIBPCP_GUI.pmTimeSendPosition.restype = c_int
-#LIBPCP_GUI.pmTimeSendPosition.argtypes = [ ]
-
-#LIBPCP_GUI.pmTimeSendTimezone.restype = c_int
-#LIBPCP_GUI.pmTimeSendTimezone.argtypes = [ ]
-
-#LIBPCP_GUI.pmTimeShowDialog.restype = c_int
-#LIBPCP_GUI.pmTimeShowDialog.argtypes = [ ]
-
-#LIBPCP_GUI.pmTimeGetStatePixmap.restype = c_int
-#LIBPCP_GUI.pmTimeGetStatePixmap.argtypes = [ ]
-
-
-
 ##############################################################################
 #
 # class GuiClient
@@ -176,9 +140,4 @@ class GuiClient(object):
         if status < 0 and status != PM_ERR_IPC:
             raise pmErr(status)
         return status
-
-    ##
-    # GUI API Time Control Services
-    # (Not Yet Implemented)
-
 

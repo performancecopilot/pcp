@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ -f /etc/gentoo-release ] && _notrun "Gentoo is lacking chkconfig support"
+[ -f /etc/slackware-version ] && _notrun "Slackware is lacking chkconfig support"
+
 if [ -z "$PCP_PMIECONTROL_PATH" ]
 then
     echo "Error: botched installation - PCP_PMIECONTROL_PATH not defined"
@@ -27,6 +29,13 @@ _cleanup()
 	_restore_config $PCP_PMIECONTROL_PATH
 	_restore_config $PCP_PMCDCONF_PATH
     fi
+    $sudo rm -rf $tmp.nogo $tmp.locker
+    for file in $tmp.*
+    do
+	echo >>$here/$seq.full
+	echo "=== $file ===" >>$here/$seq.full
+	cat $file >>$here/$seq.full
+    done
     $sudo rm -f $tmp.*
 }
 
@@ -48,11 +57,15 @@ rhost=`echo $remote | sed -e 's/\..*//'`
 #  /var/log/pcp/pmmgr/bozo/pmie.log differs to /tmp/SEQ-PID.log1
 # are now expected, and not a problem.
 #
+# mkdir: error lines ... not consistency in format, so cull 'em
+# ditto for cd errors reported from pmie_check
+#
 _filter()
 {
     sed \
 	-e "s/$seq-$$/SEQ-PID/g" \
 	-e "s;$PCP_BIN_DIR/pmie;\$PCP_BIN_DIR/pmie;" \
+	-e 's/line [0-9][0-9]*:/line N:/' \
 	-e 's/$/ /' \
 	-e 's/\([ "]\)'"$remote"'\([ "]\)/\1REMOTEHOST\2/g' \
 	-e 's/\([ "]\)'"$rhost"'\([ "]\)/\1REMOTEHOST\2/g' \
@@ -61,6 +74,9 @@ _filter()
 	-e "s;/private/tmp;/tmp;g" \
 	-e '/ try .* different logfile, skip/d' \
 	-e '/\/pmmgr\/.* differs to /d' \
+	-e '/^.r[-w][-x]r[-w][-x]/s/.* \//... ls output ... /' \
+	-e '/mkdir:/d' \
+	-e '/\/pmie_check:.*cd:/d' \
 	-e 's/ $//'
 }
 
@@ -109,11 +125,17 @@ doo = sample.long.ten;
 EOF
 
 # create pmie control files
-cat >$tmp.control << EOF
+cat >$tmp.control.v1.0 << EOF
 \$version=1.0
 $remote         n $tmp.log1 -c $tmp.conf
 $remote         n $tmp.log2 -c $tmp.conf
-LOCALHOSTNAME   n $tmp.log0 $tmp.conf
+LOCALHOSTNAME   n $tmp.log0 -c $tmp.conf
+EOF
+cat >$tmp.control.v1.1 << EOF
+\$version=1.1
+$remote         n n $tmp.log1 -c $tmp.conf
+$remote         n n $tmp.log2 -c $tmp.conf
+LOCALHOSTNAME   y n $tmp.log0 -c $tmp.conf
 EOF
 
 # real QA test starts here
@@ -148,12 +170,151 @@ _count_pmies
 echo "pmie count after attempt without control file: $?"
 echo
 
-echo === check pmie_check and custom config ===
-pmie_check -V -V -N -c $tmp.control -l $tmp.log
+echo === check pmie_check and custom configs ===
+echo "--- v1.0 ---"
+pmie_check -V -V -N -c $tmp.control.v1.0 -l $tmp.log
 cat $tmp.log | _filter
 # don't bother counting pmie processes, as -N is used above!
 #
 echo
+echo "--- v1.1 ---"
+pmie_check -V -V -N -c $tmp.control.v1.1 -l $tmp.log
+cat $tmp.log | _filter
+# don't bother counting pmie processes, as -N is used above!
+#
+echo
+
+echo "=== warnings ... ==="
+echo "--- stale lock file ---"
+case=1
+cat >$tmp.warning.$case << EOF
+\$version=1.1
+LOCALHOSTNAME   n n $tmp.locker/ok.$case -c $tmp.conf
+EOF
+mkdir $tmp.locker
+touch -t `pmdate -35M %Y%m%d%H%M` $tmp.locker/ok.$case.lock
+pmie_check -V -V -N -c $tmp.warning.$case -l $tmp.warning.$case.log
+cat $tmp.warning.$case.log | _filter
+echo
+echo "--- existing lock file ---"
+case=`expr $case + 1`
+cat >$tmp.warning.$case << EOF
+\$version=1.1
+LOCALHOSTNAME   n n $tmp.locker/ok.$case -c $tmp.conf
+EOF
+rm -f $tmp.locker/ok.$case.lock
+touch $tmp.locker/ok.$case.lock
+pmie_check -V -V -N -c $tmp.warning.$case -l $tmp.warning.$case.log
+cat $tmp.warning.$case.log | _filter
+echo
+echo "--- can't create lock file ---"
+case=`expr $case + 1`
+cat >$tmp.warning.$case << EOF
+\$version=1.1
+LOCALHOSTNAME   n n $tmp.locker/ok.$case -c $tmp.conf
+EOF
+chmod 555 $tmp.locker
+pmie_check -V -V -N -c $tmp.warning.$case -l $tmp.warning.$case.log
+cat $tmp.warning.$case.log | _filter
+$sudo rm -rf $tmp.locker
+echo
+echo "--- bad in-line shell commands ---"
+case=`expr $case + 1`
+cat >$tmp.warning.$case << EOF
+\$version=1.1
+\$date
+\$PATH=/some/where/bad:\$PATH
+\$IFS=a
+LOCALHOSTNAME   n n $tmp.ok.$case -c $tmp.conf
+EOF
+pmie_check -V -V -N -c $tmp.warning.$case -l $tmp.warning.$case.log
+cat $tmp.warning.$case.log | _filter
+echo
+echo "--- missing \$version but really v1.1 ... original control.local issue ---"
+case=`expr $case + 1`
+cat >$tmp.warning.$case << EOF
+LOCALHOSTNAME   n n $tmp.ok.$case -c $tmp.conf
+EOF
+pmie_check -V -V -N -c $tmp.warning.$case -l $tmp.warning.$case.log
+cat $tmp.warning.$case.log | _filter
+echo
+
+echo "=== errors ... ==="
+echo "--- bad version ---"
+case=1
+cat >$tmp.error.$case << EOF
+\$version=0.0
+LOCALHOSTNAME   n $tmp.bad.$case -c $tmp.conf
+EOF
+pmie_check -V -V -N -c $tmp.error.$case -l $tmp.bad.$case.log
+cat $tmp.bad.$case.log | _filter
+echo
+case=`expr $case + 1`
+echo "--- v1.0 socks != y|n ---"
+cat >$tmp.error.$case << EOF
+\$version=1.0
+LOCALHOSTNAME   x $tmp.bad.$case -c $tmp.conf
+EOF
+pmie_check -V -V -N -c $tmp.error.$case -l $tmp.bad.$case.log
+cat $tmp.bad.$case.log | _filter
+echo
+case=`expr $case + 1`
+echo "--- v1.1 socks != y|n ---"
+cat >$tmp.error.$case << EOF
+\$version=1.1
+LOCALHOSTNAME   n x $tmp.bad.$case -c $tmp.conf
+EOF
+pmie_check -V -V -N -c $tmp.error.$case -l $tmp.bad.$case.log
+cat $tmp.bad.$case.log | _filter
+echo
+case=`expr $case + 1`
+echo "--- v1.1 primary != y|n ---"
+cat >$tmp.error.$case << EOF
+\$version=1.1
+LOCALHOSTNAME   x n $tmp.bad.$case -c $tmp.conf
+EOF
+pmie_check -V -V -N -c $tmp.error.$case -l $tmp.bad.$case.log
+cat $tmp.bad.$case.log | _filter
+echo
+case=`expr $case + 1`
+echo "--- v1.0 insufficient fields ---"
+cat >$tmp.error.$case << EOF
+\$version=1.0
+LOCALHOSTNAME   n $tmp.bad.$case
+EOF
+pmie_check -V -V -N -c $tmp.error.$case -l $tmp.bad.$case.log
+cat $tmp.bad.$case.log | _filter
+echo
+case=`expr $case + 1`
+echo "--- v1.1 insufficient fields ---"
+cat >$tmp.error.$case << EOF
+\$version=1.1
+LOCALHOSTNAME   n n $tmp.bad.$case
+EOF
+pmie_check -V -V -N -c $tmp.error.$case -l $tmp.bad.$case.log
+cat $tmp.bad.$case.log | _filter
+echo
+mkdir $tmp.nogo
+chmod 000 $tmp.nogo
+case=`expr $case + 1`
+echo "--- can't create dir for logfile ---"
+cat >$tmp.error.$case << EOF
+\$version=1.1
+LOCALHOSTNAME   n n $tmp.nogo/subdir/bad.$case -c $tmp.conf
+EOF
+pmie_check -V -V -N -c $tmp.error.$case -l $tmp.bad.$case.log
+cat $tmp.bad.$case.log | _filter
+echo
+case=`expr $case + 1`
+echo "--- can't chdir to dir for logfile ---"
+cat >$tmp.error.$case << EOF
+\$version=1.1
+LOCALHOSTNAME   n n $tmp.nogo/bad.$case -c $tmp.conf
+EOF
+pmie_check -V -V -N -c $tmp.error.$case -l $tmp.bad.$case.log
+cat $tmp.bad.$case.log | _filter
+echo
+$sudo rm -rf $tmp.nogo
 
 $sudo $PCP_RC_DIR/pmie stop 2>&1 \
 | _filter_pmie_start \

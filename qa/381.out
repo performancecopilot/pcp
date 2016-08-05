@@ -12,7 +12,7 @@ sample.drift
 
 pmlc> connect port PORT 
 pmlc> status
-pmlogger [PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
 ... status output ...
 pmlc> flush
 pmlc> connect QA-PMLOGGER-PID 
@@ -34,7 +34,7 @@ sample.drift
 
 pmlc> connect port PORT 
 pmlc> status
-pmlogger [PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
 ... status output ...
 pmlc> flush
 pmlc> connect port PORT 
@@ -56,7 +56,7 @@ sample.drift
 
 pmlc> connect port PORT @LOCAL-HOST
 pmlc> status
-pmlogger [PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
 ... status output ...
 pmlc> flush
 pmlc> connect QA-PMLOGGER-PID @LOCAL-HOST
@@ -78,7 +78,7 @@ sample.drift
 
 pmlc> connect port PORT @LOCAL-HOST
 pmlc> status
-pmlogger [PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
 ... status output ...
 pmlc> flush
 pmlc> connect port PORT @LOCAL-HOST
@@ -123,13 +123,10 @@ pmlc> query Error [<stdin>, line 3]
 Not connected to any pmlogger instance
 sample.drift
 pmlc> connect port PORT 
-Unable to connect to pmlogger on port PORT at LOCAL-HOST: Connection refused
 pmlc> status
-Error [<stdin>, line 5]
-Not connected to any pmlogger instance
+pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
 pmlc> flush
-Error [<stdin>, line 6]
-Not connected to any pmlogger instance
 pmlc> connect QA-PMLOGGER-PID 
 pmlc> status
 pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
@@ -148,13 +145,10 @@ pmlc> query Error [<stdin>, line 3]
 Not connected to any pmlogger instance
 sample.drift
 pmlc> connect port PORT 
-Unable to connect to pmlogger on port PORT at LOCAL-HOST: Connection refused
 pmlc> status
-Error [<stdin>, line 5]
-Not connected to any pmlogger instance
+pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...
+... status output ...
 pmlc> flush
-Error [<stdin>, line 6]
-Not connected to any pmlogger instance
 pmlc> connect port PORT 
 pmlc> status
 pmlogger [QA-PMLOGGER-PID] on host LOCAL-HOST is logging metrics from host ...

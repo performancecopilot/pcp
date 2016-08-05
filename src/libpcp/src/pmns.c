@@ -27,6 +27,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "internal.h"
+#include "fault.h"
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
@@ -775,6 +776,13 @@ pass2(int dupok)
 	return -oserror();
     }
 
+    main_pmns->root = NULL;
+    main_pmns->htab = NULL;
+    main_pmns->htabsize = 0;
+    main_pmns->symbol = NULL;
+    main_pmns->contiguous = 0;
+    main_pmns->mark_state = UNKNOWN_MARK_STATE;
+
     /* Get the root subtree out of the seen list */
     if ((main_pmns->root = findseen("root")) == NULL) {
 	err("No name space entry for \"root\"");
@@ -798,10 +806,6 @@ pass2(int dupok)
     }
     if (status)
 	return status;
-
-    main_pmns->symbol = NULL;
-    main_pmns->contiguous = 0;
-    main_pmns->mark_state = UNKNOWN_MARK_STATE;
 
     return __pmFixPMNSHashTab(main_pmns, seenpmid, dupok);
 }
@@ -1486,7 +1490,8 @@ __pmFreePMNS(__pmnsTree *pmns)
 	if (pmns->contiguous) {
 	    free(pmns->root);
 	    free(pmns->htab);
-	    free(pmns->symbol);
+	    if (pmns->symbol != NULL)
+		free(pmns->symbol);
 	}
 	else { 
 	    free(pmns->htab);
@@ -1694,6 +1699,7 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	    __pmPDU	*pb;
 	    int		pinpdu;
 
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 	    pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 				    ctxp->c_pmcd->pc_tout_sec, &pb);
 	    if (sts == PDU_PMNS_IDS) {
@@ -1710,8 +1716,10 @@ pmLookupName(int numpmid, char *namelist[], pmID pmidlist[])
 	    else if (sts == PDU_ERROR) {
 		__pmDecodeError(pb, &sts);
 	    }
-	    else if (sts != PM_ERR_TIMEOUT) {
-		sts = PM_ERR_IPC;
+	    else {
+		__pmCloseChannelbyContext(ctxp, PDU_PMNS_IDS, sts);
+		if (sts != PM_ERR_TIMEOUT)
+		    sts = PM_ERR_IPC;
 	    }
 	    if (pinpdu > 0)
 		__pmUnpinPDUBuf(pb);
@@ -1805,6 +1813,7 @@ GetChildrenStatusRemote(__pmContext *ctxp, const char *name,
 	__pmPDU		*pb;
 	int		pinpdu;
 
+PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 	pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 				ctxp->c_pmcd->pc_tout_sec, &pb);
 	if (n == PDU_PMNS_NAMES) {
@@ -1815,8 +1824,11 @@ GetChildrenStatusRemote(__pmContext *ctxp, const char *name,
 	}
 	else if (n == PDU_ERROR)
 	    __pmDecodeError(pb, &n);
-	else if (n != PM_ERR_TIMEOUT)
-	    n = PM_ERR_IPC;
+	else {
+	    __pmCloseChannelbyContext(ctxp, PDU_PMNS_NAMES, n);
+	    if (n != PM_ERR_TIMEOUT)
+		n = PM_ERR_IPC;
+	}
 	if (pinpdu > 0)
 	    __pmUnpinPDUBuf(pb);
     }
@@ -2221,6 +2233,7 @@ receive_namesbyid(__pmContext *ctxp, char ***namelist)
     __pmPDU	*pb;
     int		pinpdu;
 
+PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
     pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 			    ctxp->c_pmcd->pc_tout_sec, &pb);
     
@@ -2233,8 +2246,11 @@ receive_namesbyid(__pmContext *ctxp, char ***namelist)
     }
     else if (n == PDU_ERROR)
 	__pmDecodeError(pb, &n);
-    else if (n != PM_ERR_TIMEOUT)
-	n = PM_ERR_IPC;
+    else {
+	__pmCloseChannelbyContext(ctxp, PDU_PMNS_NAMES, n);
+	if (n != PM_ERR_TIMEOUT)
+	    n = PM_ERR_IPC;
+    }
 
     if (pinpdu > 0)
 	__pmUnpinPDUBuf(pb);
@@ -2606,6 +2622,7 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 	    char	**namelist;
 	    int		pinpdu;
 
+PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_TIMEOUT);
 	    pinpdu = sts = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 				      TIMEOUT_DEFAULT, &pb);
 	    PM_UNLOCK(ctxp->c_pmcd->pc_lock);
@@ -2637,6 +2654,7 @@ TraversePMNS(const char *name, void(*func)(const char *), void(*func_r)(const ch
 		numnames = 0;
 	    }
 	    else {
+		__pmCloseChannelbyContext(ctxp, PDU_PMNS_NAMES, sts);
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
 		return (sts == PM_ERR_TIMEOUT) ? sts : PM_ERR_IPC;

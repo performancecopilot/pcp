@@ -25,11 +25,13 @@ forced_restart=true
 
 if ! test -d /sys/kernel/debug; then
     echo "DEBUGFS not enabled in your kernel"
-    exit 1
+    status=1
+    exit
 fi
 if ! test -d /sys/kernel/debug/kvm; then
     echo "KVM statistics unavailable (load kvm module and mount debugfs)"
-    exit 1
+    status=1
+    exit
 fi
 if ! test -r /sys/kernel/debug/kvm; then
     forced_restart=true
@@ -37,4 +39,4 @@ fi
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit

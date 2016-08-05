@@ -7,42 +7,102 @@
 #include <pcp/pmapi.h>
 #include <pcp/impl.h>
 #include <pcp/pmafm.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 /*
  * Usage: record folio creator replay host [...]
  */
 
+static char *reportexit(int status)
+{
+    static char	buf[80];
+
+    buf[0] = '\0';
+
+    if (status == 0 || status == -1)
+	return buf;
+    if (WIFEXITED(status)) {
+	if (WIFSIGNALED(status))
+	    snprintf(buf, sizeof(buf), " exit %d, signal %d", WEXITSTATUS(status), WTERMSIG(status));
+
+	else
+	    snprintf(buf, sizeof(buf), " exit %d", WEXITSTATUS(status));
+    }
+    else {
+	if (WIFSIGNALED(status))
+	    snprintf(buf, sizeof(buf), " signal %d", WTERMSIG(status));
+    }
+    return buf;
+}
+
 int
 main(int argc, char **argv)
 {
+    int			c;
+    int			errflag = 0;
     pmRecordHost	*rhp[10];
     int			sts;
     int			i;
+    int			j;
     FILE		*f;
     extern int		errno;
 
-    if (argc < 5) {
-	printf("Usage: record folio creator replay host [...]\n");
-	exit(1);
+    /* trim cmd name of leading directory components */
+    __pmSetProgname(argv[0]);
+
+    while ((c = getopt(argc, argv, "D:?")) != EOF) {
+	switch (c) {
+
+	case 'D':	/* debug flag */
+	    sts = __pmParseDebug(optarg);
+	    if (sts < 0) {
+		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		    pmProgname, optarg);
+		errflag++;
+	    }
+	    else
+		pmDebug |= sts;
+	    break;
+
+	case '?':
+	default:
+	    errflag++;
+	    break;
+	}
     }
 
-    f = pmRecordSetup(argv[1], argv[2], atoi(argv[3]));
+    if (optind > argc-5) {
+	errflag++;
+    }
+
+    if (errflag) {
+	fprintf(stderr,
+"Usage: %s [options] folio creator replay host [...]\n\
+\n\
+Options:\n\
+  -D flags    set debug flags\n",
+                pmProgname);
+        exit(1);
+    }
+
+    f = pmRecordSetup(argv[optind], argv[optind+1], atoi(argv[optind+2]));
     if (f == NULL) {
 	printf("pmRecordSetup(\"%s\", ...): %s\n",
-		argv[1], pmErrStr(-errno));
+		argv[optind], pmErrStr(-errno));
 	exit(1);
     }
 
-    for (i = 4; i < argc; i++) {
+    for (i = optind+3; i < argc; i++) {
 	printf("host: %s\n", argv[i]);
-	sts = pmRecordAddHost(argv[i], i == 4, &rhp[i-4]);
+	sts = pmRecordAddHost(argv[i], i == optind+4, &rhp[i-4]);
 	if (sts < 0) {
 	    printf("pmRecordAddHost(\"%s\", %d, ...): %s\n",
-		argv[i], i==4, pmErrStr(sts));
+		argv[i], i == optind+4, pmErrStr(sts));
 	    exit(1);
 	}
 	printf("f_config: %s", rhp[i-4]->f_config == NULL ? "NULL" : "OK");
-	printf(" f_ipc: %d pid: %" FMT_PID " status: %d\n", rhp[i-4]->fd_ipc, rhp[i-4]->pid, rhp[i-4]->status);
+	printf(" f_ipc: %d pid: %" FMT_PID " status: %d%s\n", rhp[i-4]->fd_ipc, rhp[i-4]->pid, rhp[i-4]->status, reportexit(rhp[i-4]->status));
 	printf("logfile: %s\n", rhp[i-4]->logfile);
 	fprintf(rhp[i-4]->f_config, "log mandatory on 30sec pmcd.control.timeout\n");
     }
@@ -57,29 +117,29 @@ main(int argc, char **argv)
     printf("\nsleeping ...\n\n");
     sleep(3);
 
-    for (i = 4; i < argc; i++) {
+    for (i = optind+3; i < argc; i++) {
 	printf("host: %s\n", argv[i]);
 	printf("f_config: %s", rhp[i-4]->f_config == NULL ? "NULL" : "OK");
-	printf(" f_ipc: %d pid: %" FMT_PID " status: %d\n", rhp[i-4]->fd_ipc, rhp[i-4]->pid, rhp[i-4]->status);
+	printf(" f_ipc: %d pid: %" FMT_PID " status: %d%s\n", rhp[i-4]->fd_ipc, rhp[i-4]->pid, rhp[i-4]->status, reportexit(rhp[i-4]->status));
 	printf("logfile: %s\n", rhp[i-4]->logfile);
     }
 
     printf("\nsend some control requests ...\n");
-    for (i = 4; i < argc; i++) {
+    for (j = 0, i = optind+3; i < argc; i++, j++) {
 	printf("host: %s\n", argv[i]);
-	if (i % 4 == 0) {
+	if (j % 4 == 0) {
 	    printf(" OFF\n");
 	    sts = pmRecordControl(rhp[i-4], PM_REC_OFF, NULL);
 	    if (sts < 0)
 		printf("pmRecordControl: %s\n", pmErrStr(sts));
 	}
-	else if (i % 4 == 1) {
+	else if (j % 4 == 1) {
 	    printf(" DETACH\n");
 	    sts = pmRecordControl(rhp[i-4], PM_REC_DETACH, NULL);
 	    if (sts < 0)
 		printf("pmRecordControl: %s\n", pmErrStr(sts));
 	}
-	else if (i % 4 == 2) {
+	else if (j % 4 == 2) {
 	    printf(" STATUS\n");
 	    sts = pmRecordControl(rhp[i-4], PM_REC_STATUS, NULL);
 	    if (sts < 0)
@@ -93,7 +153,7 @@ main(int argc, char **argv)
     }
 
     printf("\nnow stop 'em all ...\n");
-    for (i = 4; i < argc; i++) {
+    for (i = optind+3; i < argc; i++) {
 	printf("host: %s\n", argv[i]);
 	sts = pmRecordControl(rhp[i-4], PM_REC_OFF, NULL);
 	if (sts < 0)
@@ -109,10 +169,10 @@ main(int argc, char **argv)
 
     printf("\n\ndiscover what's happened ...\n");
     putchar('\n');
-    for (i = 4; i < argc; i++) {
+    for (i = optind+3; i < argc; i++) {
 	printf("host: %s\n", argv[i]);
 	printf("f_config: %s", rhp[i-4]->f_config == NULL ? "NULL" : "OK");
-	printf(" f_ipc: %d pid: %" FMT_PID " status: %d\n", rhp[i-4]->fd_ipc, rhp[i-4]->pid, rhp[i-4]->status);
+	printf(" f_ipc: %d pid: %" FMT_PID " status: %d%s\n", rhp[i-4]->fd_ipc, rhp[i-4]->pid, rhp[i-4]->status, reportexit(rhp[i-4]->status));
 	printf("logfile: %s\n", rhp[i-4]->logfile);
     }
 

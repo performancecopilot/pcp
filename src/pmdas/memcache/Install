@@ -25,4 +25,4 @@ forced_restart=false
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit

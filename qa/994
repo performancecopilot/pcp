@@ -34,6 +34,14 @@ then
     exit
 fi
 
+root_group=root
+case $PCP_PLATFORM
+in
+    freebsd|netbsd|openbsd|darwin)
+	    root_group=wheel
+	    ;;
+esac
+
 # real QA test starts here
 
 # permslist format ...
@@ -48,6 +56,8 @@ sed -e 's/ /\\ /g' -e 's/|/ /g' <src/permslist \
     -e 's@$(PCP_LOG_DIR)@'$PCP_LOG_DIR@g \
     -e 's@$(PCP_VAR_DIR)@'$PCP_VAR_DIR@g \
     -e 's@$(PCP_RUN_DIR)@'$PCP_RUN_DIR@g \
+    -e 's@$(PCP_NSSDB_DIR)@'$PCP_NSSDB_DIR@g \
+    -e 's@$(PCP_SHARE_DIR)@'$PCP_SHARE_DIR@g \
     -e 's@$(PCP_SYSCONF_DIR)@'$PCP_SYSCONF_DIR@g \
 | while read makefile mode owner group target optional
 do
@@ -90,6 +100,7 @@ p
 	    status=1
 	    break
 	fi
+	[ "$group" = root ] && group="$root_group"
 	#debug# echo "$target: mode: have $_mode expect $mode"
 	#debug# echo "$target: owner: have $_owner expect $owner"
 	#debug# echo "$target: group: have $_group expect $group"
@@ -111,21 +122,18 @@ p
     fi
 done
 
-# Now expect only root owned things below $PCP_SYSCONF_DIR
+# Now expect only root owned things below $PCP_SYSCONF_DIR,
+# except for nssdb which has ownership $PCP_USER:$PCP_GROUP
+# (pmproxy is both client and server and needs r/w access).
 #
-grp=root
-case $PCP_PLATFORM
-in
-    freebsd|darwin)
-	    grp=wheel
-	    ;;
-esac
-find $PCP_SYSCONF_DIR ! -user root >$tmp.out
+find $PCP_SYSCONF_DIR ! -user root | \
+    grep -v "^$PCP_NSSDB_DIR" \
+    > $tmp.out
 if [ -s $tmp.out ]
 then
     echo "Arrgh ... these files should be owned by root"
     cat $tmp.out | xargs ls -ld
-    $fix && ( ( cat $tmp.out | xargs $sudo chown root:$grp ) ; echo "Fixed." )
+    $fix && ( ( cat $tmp.out | xargs $sudo chown root:$root_group ) ; echo "Fixed." )
 fi
 
 # success, all done

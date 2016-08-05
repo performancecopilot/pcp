@@ -42,7 +42,7 @@ src/pducheck -p $port -i 1 localhost
 
 sleep 1
 
-$signal -s TERM $server_pid
+$signal -s TERM $server_pid >/dev/null 2>&1
 
 cp $tmp.out $seq.full
 

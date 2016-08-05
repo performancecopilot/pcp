@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -125,13 +125,18 @@ AcceptNewClient(int reqfd)
     }
 
     if (!ok) {
-	abufp = __pmSockAddrToString(client[i].addr);
-	__pmNotifyErr(LOG_WARNING, "Bad version string from client at %s", abufp);
-	free(abufp);
-	fprintf(stderr, "AcceptNewClient: bad version string was \"");
-	for (bp = buf; *bp && bp < &buf[MY_BUFLEN]; bp++)
-	    fputc(*bp & 0xff, stderr);
-	fprintf(stderr, "\"\n");
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_CONTEXT) {
+	    abufp = __pmSockAddrToString(client[i].addr);
+	    __pmNotifyErr(LOG_INFO, "Bad version string from client at %s",
+			abufp);
+	    free(abufp);
+	    fprintf(stderr, "AcceptNewClient: bad version string was \"");
+	    for (bp = buf; *bp && bp < &buf[MY_BUFLEN]; bp++)
+		fputc(*bp & 0xff, stderr);
+	    fprintf(stderr, "\"\n");
+	}
+#endif
 	DeleteClient(&client[i]);
 	return NULL;
     }

@@ -47,10 +47,10 @@ arbitrary strings with no embedded white space, e.g. mytx#1).
     if [ -z "$args" ]
     then
 	echo "You need to specify at least one transaction type name!"
-	exit 1
+	status=1
+	exit
     fi
 fi
 
 pmdaInstall
-
-exit 0
+exit

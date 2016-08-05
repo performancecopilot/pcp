@@ -17,61 +17,7 @@
 #include "pmda.h"
 
 #include "root.h"
-#include "jsmn.h"
 #include "docker.h"
-
-/*
- * JSMN helper interfaces for efficiently extracting JSON configs
- */
-
-static int
-jsmneq(const char *js, jsmntok_t *tok, const char *s)
-{
-    if (tok->type != JSMN_STRING)
-	return -1;
-    if (strlen(s) == tok->end - tok->start &&
-	strncasecmp(js + tok->start, s, tok->end - tok->start) == 0)
-	return 0;
-    return -1;
-}
-
-static int
-jsmnflag(const char *js, jsmntok_t *tok, int *bits, int flag)
-{
-    if (tok->type != JSMN_PRIMITIVE)
-	return -1;
-    if (strncmp(js + tok->start, "true", sizeof("true")-1) == 0)
-	*bits |= flag;
-    else
-	*bits &= ~flag;
-    return 0;
-}
-
-static int
-jsmnint(const char *js, jsmntok_t *tok, int *value)
-{
-    char	buffer[64];
-
-    if (tok->type != JSMN_PRIMITIVE)
-	return -1;
-    strncpy(buffer, js + tok->start, tok->end - tok->start);
-    buffer[tok->end - tok->start] = '\0';
-    *value = (int)strtol(buffer, NULL, 0);
-    return 0;
-}
-
-static int
-jsmnstrdup(const char *js, jsmntok_t *tok, char **name)
-{
-    char	*s = *name;
-
-    if (tok->type != JSMN_STRING)
-	return -1;
-    if (s)
-	free(s);
-    s = strndup(js + tok->start, tok->end - tok->start);
-    return ((*name = s) == NULL) ? -1 : 0;
-}
 
 /*
  * Heuristic to determine if systemd cgroup names will be used,
@@ -186,6 +132,7 @@ docker_insts_refresh(container_engine_t *dp, pmInDom indom)
 			path);
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, path, cp);
+	
     }
     closedir(rundir);
 }
@@ -206,148 +153,36 @@ docker_values_changed(const char *path, container_t *values)
 }
 
 static int
-docker_values_extract(const char *js, jsmntok_t *t, size_t count,
-			int key, container_t *values)
-{
-    int		i, j;
-
-    if (count == 0)
-	return 0;
-    switch (t->type) {
-    case JSMN_PRIMITIVE:
-	return 1;
-    case JSMN_STRING:
-	/*
-	 * We're only interested in a handful of values:
-	 * "Name": "/jolly_sinoussi",
-	 * "State": { "Running": true, "Paused": false, "Restarting": false,
-	 *            "Pid": 32471 }
-	 */
-	if (key) {
-	    jsmntok_t	*value = t + 1;
-
-	    if (t->parent == 0) {	/* top-level: look for Name & State */
-		if (jsmneq(js, t, "Name") == 0) {
-		    jsmnstrdup(js, value, &values->name);
-		    values->uptodate++;
-		}
-		if (jsmneq(js, t, "State") == 0) {
-		    values->state = (value->type == JSMN_OBJECT);
-		    values->uptodate++;
-		}
-	    }
-	    else if (values->state) { /* pick out various stateful values */
-		int 	flag = values->flags;
-
-		if (pmDebug & DBG_TRACE_ATTR)
-		    __pmNotifyErr(LOG_DEBUG, "docker_values_parse: state\n");
-
-		if (jsmneq(js, t, "Running") == 0)
-		    jsmnflag(js, value, &flag, CONTAINER_FLAG_RUNNING);
-		else if (jsmneq(js, t, "Paused") == 0)
-		    jsmnflag(js, value, &flag, CONTAINER_FLAG_PAUSED);
-		else if (jsmneq(js, t, "Restarting") == 0)
-		    jsmnflag(js, value, &flag, CONTAINER_FLAG_RESTARTING);
-		else if (jsmneq(js, t, "Pid") == 0) {
-		    if (jsmnint(js, value, &values->pid) < 0)
-			values->pid = -1;
-		    if (pmDebug & DBG_TRACE_ATTR)
-			__pmNotifyErr(LOG_DEBUG, "docker_value PID=%d\n",
-					values->pid);
-		}
-		values->flags = flag;
-	    }
-	}
-	return 1;
-    case JSMN_OBJECT:
-	for (i = j = 0; i < t->size; i++) {
-	    j += docker_values_extract(js, t+1+j, count-j, 1, values); /* key */
-	    j += docker_values_extract(js, t+1+j, count-j, 0, values); /*value*/
-	}
-	values->state = 0;
-	return j + 1;
-    case JSMN_ARRAY:
-	for (i = j = 0; i < t->size; i++)
-	    j += docker_values_extract(js, t+1+j, count-j, 0, values);
-	return j + 1;
-    default:
-	return 0;
-    }
-    return 0;
-}
-
-static int
 docker_values_parse(FILE *fp, const char *name, container_t *values)
 {
-    static char		*js;
-    static int		jslen;
-    static int		tokcount;
-    static jsmntok_t	*tok;
-    jsmn_parser		p;
-    char		buf[BUFSIZ];
-    int			n, sts = 0, eof_expected = 0;
+    int     sts = 0;
+    int     fd = -1;
+    int     i;
 
-    if (pmDebug & DBG_TRACE_ATTR)
-	__pmNotifyErr(LOG_DEBUG, "docker_values_parse: name=%s\n", name);
+    json_metric_desc  *local_json_metrics;
+    local_json_metrics = (json_metric_desc*)malloc(JSONMETRICS_SZ*sizeof(*json_metrics)); // maybe realloc?
+    memcpy(local_json_metrics, json_metrics, JSONMETRICS_SZ*(sizeof(*json_metrics)));
+    for (i = 0; i < JSONMETRICS_SZ; i++)
+	local_json_metrics[i].json_pointer = strdup(json_metrics[i].json_pointer);
 
-    if (!tok) {
-	tokcount = 128;
-	if ((tok = calloc(tokcount, sizeof(*tok))) == NULL)
-	    return -ENOMEM;
-    }
-    if (jslen)
-	jslen = 0;
-
-    jsmn_init(&p);
-    values->uptodate = 0;	/* values for this container not yet visible */
-    values->state = -1;		/* reset State key marker for this iteration */
-
-    for (;;) {
-	/* Read another chunk */
-	n = fread(buf, 1, sizeof(buf), fp);
-	if (n < 0) {
-	    if (pmDebug & DBG_TRACE_ATTR) {
-		fprintf(stderr, "%s: failed read on docker %s config: %s\n",
-			pmProgname, name, osstrerror());
-		sts = -oserror();
-		break;
-	    }
-	}
-	if (n == 0) {
-	    if (!eof_expected) {
-		if (pmDebug & DBG_TRACE_ATTR)
-		    fprintf(stderr, "%s: unexpected EOF on %s config: %s\n",
-			    pmProgname, name, osstrerror());
-		sts = -EINVAL;
-		break;
-	    }
-	    return 0;
-	}
-
-	if ((js = realloc(js, jslen + n + 1)) == NULL) {
-	    sts = -ENOMEM;
-	    break;
-	}
-	strncpy(js + jslen, buf, n);
-	jslen = jslen + n;
-
-again:
-	n = jsmn_parse(&p, js, jslen, tok, tokcount);
-	if (n < 0) {
-	    if (n == JSMN_ERROR_NOMEM) {
-		tokcount = tokcount * 2;
-		if ((tok = realloc(tok, sizeof(*tok) * tokcount)) == NULL) {
-		    sts = -ENOMEM;
-		    break;
-		}
-		goto again;
-	    }
-	} else {
-	    sts = docker_values_extract(js, tok, p.toknext, 0, values);
-	    eof_expected = 1;
-	}
-    }
-
+    local_json_metrics[0].dom = strdup(name);
+    values->uptodate = 0;
+    fd = fileno(fp);
+    sts = pmjsonInit(fd, local_json_metrics, JSONMETRICS_SZ);
+    values->pid = -1;
+    if(local_json_metrics[0].values.l)
+	values->pid = local_json_metrics[0].values.l;
+    values->uptodate++;
+    values->name = strdup(local_json_metrics[1].values.cp);
+    if(local_json_metrics[2].values.ul)
+	values->flags = CONTAINER_FLAG_RUNNING;
+    else if(local_json_metrics[3].values.ul)
+	values->flags = CONTAINER_FLAG_PAUSED;
+    else if(local_json_metrics[4].values.ul)
+	values->flags = CONTAINER_FLAG_RESTARTING;
+    else
+	values->flags = 0;
+    values->uptodate++;
     return sts;
 }
 
@@ -381,7 +216,7 @@ int determine_docker_version(container_engine_t *dp, const char *name, char *buf
  */
 int
 docker_value_refresh(container_engine_t *dp,
-	const char *name, container_t *values)
+		     const char *name, container_t *values)
 {
     int		sts;
     FILE	*fp;

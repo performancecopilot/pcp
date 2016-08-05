@@ -15,6 +15,15 @@ echo "QA output created by $seq"
 
 [ $PCP_PLATFORM = linux ] || _notrun "Depends on Linux netstat -ai output format"
 
+case `hostname`
+in
+    vm24)
+	    # netstat -ai is just wrong here ... /proc/net/dev and netstat -ai
+	    # do not agree
+	    _notrun "netstat -ai broken on vm24"
+	    ;;
+esac
+
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

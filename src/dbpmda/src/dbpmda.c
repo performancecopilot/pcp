@@ -321,7 +321,6 @@ main(int argc, char **argv)
 		    exit(1);
 		}
 		pmUnloadNameSpace();
-		strcpy(cmd_namespace, param.name);
 		if ((sts = pmLoadASCIINameSpace(cmd_namespace, 1)) < 0) {
 		    fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n",
 			    pmProgname, cmd_namespace, pmErrStr(sts));

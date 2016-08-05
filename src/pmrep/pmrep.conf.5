@@ -1,7 +1,7 @@
 '\"! tbl | mmdoc
 '\"macro stdmacro
 .\"
-.\" Copyright (C) 2015 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2015-2016 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -49,14 +49,14 @@ custom metricsets by editing
 .BR pmrep.conf .
 See below for the \fImetricset\fR specification.
 .P
-Configuration file parameters override the corresponding built-in
-default values (if any). Command line parameters override the
-corresponding configuration file parameters (if any).
+Configuration file options override the corresponding built-in
+default values (if any). Command line options override the
+corresponding configuration file options (if any).
 .SH FILE FORMAT
-The file has an ini-style syntax and consists of sections and
-parameters. A section begins with the name of the section in square
-brackets and continues until the next section begins. An example section
-with two parameters follows:
+The file has an ini-style syntax and consists of sections and options.
+A section begins with the name of the section in square brackets and
+continues until the next section begins. An example section with two
+options follows:
 .sp
 .if n \{\
 .RS 4
@@ -83,8 +83,8 @@ Inline comments are not supported.
 must be readable by the user invoking
 .BR pmrep .
 .P
-Any parameter described below with a corresponding command line
-parameter contains additional description in
+Any option described below with a corresponding command line
+option contains additional description in
 .BR pmrep (1).
 .SH SPECIAL SECTIONS
 .SS The [options] section
@@ -96,7 +96,7 @@ is run and it defines the default runtime values (which may be
 overridden by the corresponding command line options). Metric
 specifications are not allowed in this section.
 .P
-\fBSection parameters\fR
+\fBSection options\fR
 .P
 version (integer)
 .RS 4
@@ -107,23 +107,34 @@ only currently supported value is \fB1\fR.
 source (string)
 .RS 4
 Indicates the source for metrics. Interpreted as a PCP archive if the
-string contains a slash (``/''), otherwise interpreted as a hostname.
-Corresponding command line paraters are \fB-a\fR and \fB-h\fR. Defaults
-to \fBlocal:\fR (see
+string contains a slash (``/''). If set to the special character ``@'',
+local DSO PMDA context is used. Otherwise interpreted as a hostname.
+Corresponding command line paraters are \fB-a\fR, \fB-h\fR, and
+\fB-L\fR. Defaults to \fBlocal:\fR (see
 .BR PCPIntro (1)).
 .RE
 .P
 output (string)
 .RS 4
-Indicates the output target. Corresponding command line parameter is
+Indicates the output target. Corresponding command line option is
 \fB-o\fR. For supported output targets, see
 .BR pmrep (1).
 Defaults to \fBstdout\fR.
 .RE
 .P
+speclocal (string)
+.RS 4
+Indicates the local DSO PMDAs to be made available when using the local
+DSO PMDA context. Corresponding command line option is \fB\-K\fR.
+For syntax description, see
+.BR __pmSpecLocalPMDA (3).
+Use ``|'' to separate more than one \fIspec\fR.
+Undefined by default.
+.RE
+.P
 derived (string)
 .RS 4
-Derived metric specifications. Corresponding command line parameter is
+Derived metric specifications. Corresponding command line option is
 \fB-e\fR. For syntax description, see
 .BR pmrep (1).
 Undefined by default.
@@ -131,40 +142,40 @@ Undefined by default.
 .P
 header (bool)
 .RS 4
-Indicates whether to print headers. Corresponding command line parameter
+Indicates whether to print headers. Corresponding command line option
 is \fB-H\fR. Defaults to \fByes\fR.
 .RE
 .P
 unitinfo (bool)
 .RS 4
 Indicates whether to include unit information as part of headers.
-Corresponding command line parameter is \fB-U\fR. Defaults to \fByes\fR.
+Corresponding command line option is \fB-U\fR. Defaults to \fByes\fR.
 .RE
 .P
 globals (bool)
 .RS 4
 Indicates whether to include metrics from the \fB[global]\fR section
-(see below) for reporting. Corresponding command line parameter is
+(see below) for reporting. Corresponding command line option is
 \fB-G\fR. Defaults to \fByes\fR.
 .RE
 .P
 timestamp (bool)
 .RS 4
 Indicates whether to print the timestamp. Corresponding command line
-parameter is \fB-p\fR. Defaults to \fBno\fR.
+option is \fB-p\fR. Defaults to \fBno\fR.
 .RE
 .P
 samples (integer)
 .RS 4
 Indicates the number of samples to print. Corresponding command line
-parameter is \fB-s\fR. Undefined by default (meaning unlimited number
+option is \fB-s\fR. Undefined by default (meaning unlimited number
 of samples if not limited by other options).
 .RE
 .P
 interval (string)
 .RS 4
 Indicates the interval between samples. Corresponding command line
-parameter is \fB-o\fR. Follows the time syntax described in
+option is \fB-o\fR. Follows the time syntax described in
 .BR PCPIntro (1).
 Defaults to \fB1s\fR.
 .RE
@@ -173,34 +184,34 @@ delay (bool)
 .RS 4
 Indicates whether to pause between samples when replaying from an
 archive rather than replaying at full speed. Corresponding command line
-parameter is \fB-d\fR. Defaults to \fBno\fR.
+option is \fB-d\fR. Defaults to \fBno\fR.
 .RE
 .P
 type (string)
 .RS 4
 Indicates whether to output raw metric values by disabling all rate
 conversions or convert cumulative counters to rates (default).
-Corresponding command line parameter is \fB-r\fR. Allowed values are
+Corresponding command line option is \fB-r\fR. Allowed values are
 \fBdefault\fR or \fBraw\fR.
 .RE
 .P
 width (integer)
 .RS 4
 Indicates the width of stdout output columns. Corresponding command line
-parameter is \fB-w\fR. Forced minimum is \fB3\fR. Defaults to the
+option is \fB-w\fR. Forced minimum is \fB3\fR. Defaults to the
 shortest width that can fit the metric label.
 .RE
 .P
 precision (integer)
 .RS 4
 Indicates how many decimals to use for numeric non-integer output
-values. Corresponding command line parameter is \fB-P\fR. Defaults to
+values. Corresponding command line option is \fB-P\fR. Defaults to
 \fB3\fR.
 .RE
 .P
 delimiter (string)
 .RS 4
-Indicates the column separator. Corresponding command line parameter is
+Indicates the column separator. Corresponding command line option is
 \fB-l\fR. Default depends on the output target, see
 .BR pmrep (1).
 .RE
@@ -208,25 +219,25 @@ Indicates the column separator. Corresponding command line parameter is
 extheader (bool)
 .RS 4
 Indicates whether to print extended header. Corresponding command line
-parameter is \fB-x\fR. Defaults to \fBno\fR.
+option is \fB-x\fR. Defaults to \fBno\fR.
 .RE
 .P
 repeat_header (integer)
 .RS 4
 Indicates how often to repeat the header. Corresponding command line
-parameter is \fB-E\fR. Defaults to \fB0\fR.
+option is \fB-E\fR. Defaults to \fB0\fR.
 .RE
 .P
 timefmt (string)
 .RS 4
 Indicates the format string for formatting the timestamp. Corresponding
-command line parameter is \fB-f\fR. Defaults to \fB%H:%M:%S\fR.
+command line option is \fB-f\fR. Defaults to \fB%H:%M:%S\fR.
 .RE
 .P
 interpol (bool)
 .RS 4
 Indicates whether to interpolate reported archive values. Corresponding
-command line parameter is \fB-u\fR. See
+command line option is \fB-u\fR. See
 .BR pmrep (1)
 for complete description. Defaults to \fByes\fR.
 .RE
@@ -234,7 +245,7 @@ for complete description. Defaults to \fByes\fR.
 count_scale (string)
 .RS 4
 Indicates the unit/scale for counter metrics. Corresponding command line
-parameter is \fB-q\fR. For supported syntax, see
+option is \fB-q\fR. For supported syntax, see
 .BR pmrep (1).
 Undefined (no scaling) by default.
 .RE
@@ -242,7 +253,7 @@ Undefined (no scaling) by default.
 space_scale (string)
 .RS 4
 Indicates the unit/scale for space metrics. Corresponding command line
-parameter is \fB-b\fR. For supported syntax, see
+option is \fB-b\fR. For supported syntax, see
 .BR pmrep (1).
 Undefined (no scaling) by default.
 .RE
@@ -250,15 +261,15 @@ Undefined (no scaling) by default.
 time_scale (string)
 .RS 4
 Indicates the unit/scale for time metrics. Corresponding command line
-parameter is \fB-y\fR. For supported syntax, see
+option is \fB-y\fR. For supported syntax, see
 .BR pmrep (1).
 Undefined (no scaling) by default.
 .RE
 .P
-\fBOutput target specific parameters\fR
+\fBOutput target specific options\fR
 .P
 .RS 4
-The following parameters are also accepted in the \fB[options]\fR
+The following options are also accepted in the \fB[options]\fR
 section but are typically used only in custom sections as they are
 applicable only to certain output targets.
 .RE
@@ -298,14 +309,14 @@ The
 .B [global]
 section is used to define metrics that will be reported in addition to
 any other separately defined metrics or metricsets. Configuration
-parameters are not allowed in this section. Global metrics are reported
+options are not allowed in this section. Global metrics are reported
 by default, the command line option \fB-G\fR or the configuration file
-parameter \fBglobals\fR can be used to disable global metrics.
+option \fBglobals\fR can be used to disable global metrics.
 .P
-\fBSection parameters\fR
+\fBSection options\fR
 .P
 .RS 4
-No predefined parameters, only \fImetricspecs\fR allowed in this
+No predefined options, only \fImetricspecs\fR allowed in this
 section. See below for the metricspec specification.
 .RE
 .SH CUSTOM SECTIONS
@@ -320,7 +331,7 @@ All the metrics specified in a custom section will be reported when
 metricset) defined in which case the combination of all the metrics
 specified in them will be reported.
 .P
-\fBSection parameters\fR
+\fBSection options\fR
 .P
 .RS 4
 Any option valid in the \fB[options]\fR section is also valid in a
@@ -454,15 +465,13 @@ pswitch.width = 8
 .SH FILES
 .PD 0
 .TP 10
-.BI ./pmrep.conf
-Default configuration file.
-.TP 10
-.BI /etc/pcp/pmrep/pmrep.conf
-Example configuration file.
+.BI $PCP_SYSCONF_DIR/pmrep/pmrep.conf
+System provided configuration file.
 .PD
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmrep (1),
+.BR __pmSpecLocalPMDA (3),
 .BR pmRegisterDerived (3)
 and
 .BR zbxpcp (3).

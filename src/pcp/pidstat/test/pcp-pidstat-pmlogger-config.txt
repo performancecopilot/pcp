@@ -1,0 +1,46 @@
+#!/usr/bin/env pmpython
+#
+# Copyright (C) 2016 Sitaram Shelke.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+log mandatory on 1 sec {
+	kernel.uname.nodename
+    kernel.uname.release
+    kernel.uname.sysname
+    kernel.uname.machine
+	hinv.ncpu
+	proc.psinfo.pid
+	proc.nprocs
+	proc.psinfo.utime
+  proc.psinfo.stime
+	proc.psinfo.guest_time
+	proc.psinfo.processor
+  proc.id.uid
+	proc.psinfo.cmd
+	kernel.all.cpu.user
+	kernel.all.cpu.vuser
+  kernel.all.cpu.sys
+	kernel.all.cpu.guest
+	kernel.all.cpu.nice
+	kernel.all.cpu.idle
+  proc.id.uid_nm
+	proc.psinfo.rt_priority
+	proc.psinfo.policy
+	proc.psinfo.minflt
+  proc.psinfo.maj_flt
+	proc.psinfo.vsize
+	proc.psinfo.rss mem.physmem
+  proc.psinfo.cmin_flt
+	proc.psinfo.cmaj_flt
+	proc.memory.vmstack
+}

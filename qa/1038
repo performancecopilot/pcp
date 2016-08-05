@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1038
-# Test libpcp multi-archive support using pmclient_fg
+# Test libpcp multi-archive support using pmrep
 #
 # Copyright (c) 2016 Red Hat.  All Rights Reserved.
 #

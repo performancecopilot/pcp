@@ -54,6 +54,8 @@ typedef struct {
 typedef struct {
     __uint64_t		shares;
     cgroup_cpustat_t	stat;
+    __uint64_t		cfs_period;
+    __int64_t		cfs_quota;
 } cgroup_cpusched_t;
 
 enum {
@@ -61,6 +63,8 @@ enum {
     CG_CPUSCHED_PERIODS		= 1,
     CG_CPUSCHED_THROTTLED	= 2,
     CG_CPUSCHED_THROTTLED_TIME	= 3,
+    CG_CPUSCHED_CFS_PERIOD	= 4,
+    CG_CPUSCHED_CFS_QUOTA	= 5,
 };
 
 typedef struct {

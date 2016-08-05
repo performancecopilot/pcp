@@ -18,6 +18,8 @@ typedef struct {
     unsigned int shm_rss; /* total resident shm */
     unsigned int shm_swp; /* total swapped shm */
     unsigned int used_ids; /* currently existing segments */
+    unsigned int swap_attempts; /* the count swap attempts */
+    unsigned int swap_successes; /* the count swap successes */
 } shm_info_t;
 
 extern int refresh_shm_info(shm_info_t *);
@@ -45,6 +47,15 @@ union semun {
 #endif
 
 typedef struct {
+    unsigned int semusz; /* the number of semaphore sets that
+                          * currently exist on the system */
+    unsigned int semaem; /* total number of semaphores
+                          * in all semaphore sets on the system */
+} sem_info_t;
+
+extern int refresh_sem_info(sem_info_t *);
+
+typedef struct {
     unsigned int semmap; /* # of entries in semaphore map */
     unsigned int semmni; /* max # of semaphore identifiers */
     unsigned int semmns; /* max # of semaphores in system */  
@@ -58,6 +69,17 @@ typedef struct {
 } sem_limits_t;
 
 extern int refresh_sem_limits(sem_limits_t *);
+
+typedef struct {
+    unsigned int msgpool; /* the number of message queues 
+                           * that currently exist on the system */
+    unsigned int msgmap;  /* the total number of messages 
+                           * in all queues on the system */
+    unsigned int msgtql;  /* the total number of bytes in all 
+                           * messages in all queues on the system */
+} msg_info_t;
+
+extern int refresh_msg_info(msg_info_t *);
 
 typedef struct {
     unsigned int msgpool; /* size of message pool (kbytes) */

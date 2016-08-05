@@ -12,6 +12,12 @@ echo "QA output created by $seq"
 
 _check_valgrind
 
+if [ "`hostname`" = bozo ]
+then
+    _notrun "valgrind dies with \"vex: the 'impossible' happened\" on Ubuntu 16.04"
+    # NOTREACHED
+fi
+
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15

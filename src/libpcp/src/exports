@@ -526,3 +526,12 @@ PCP_3.15 {
     __pmSecureServerCertificateSetup;
     __pmServerGetFeaturesFromPDU;
 } PCP_3.14;
+
+PCP_3.16 {
+  global:
+    pmSemStr;
+    pmSemStr_r;
+    __pmAddOptContainer;
+    __pmSetLocalContextFlag;
+    __pmSetLocalContextTable;
+} PCP_3.15;

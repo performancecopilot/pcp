@@ -22,4 +22,4 @@ iam=dm
 pmns_name="dmcache dmthin"
 pmdaSetup
 pmdaRemove
-exit 0
+exit

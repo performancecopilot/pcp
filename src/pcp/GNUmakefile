@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015 Red Hat.
+# Copyright (c) 2014-2016 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -22,13 +22,16 @@ SUBDIRS = \
 	dmcache \
 	free \
 	iostat \
+	mpstat \
 	numastat \
+	pidstat \
 	python \
 	shping \
 	summary \
 	uptime \
 	verify \
-	vmstat
+	vmstat \
+        ipcs
 
 default :: default_pcp
 
@@ -39,6 +42,10 @@ install :: install_pcp
 
 install_pcp : $(SUBDIRS)
 	$(INSTALL) -m 755 pcp.sh $(PCP_BIN_DIR)/pcp$(SHELLSUFFIX)
+	$(SUBDIRS_MAKERULE)
+check :: check_pcp
+
+check_pcp : pidstat mpstat
 	$(SUBDIRS_MAKERULE)
 
 include $(BUILDRULES)

@@ -659,6 +659,7 @@ have_xzed_manpages
 have_lzmaed_manpages
 have_bzip2ed_manpages
 have_gzipped_manpages
+have_manpages
 pcp_man_dir
 pcp_x11_pre
 pcp_x11_extra
@@ -784,6 +785,7 @@ qmake
 enable_qt
 qt_release
 QMAKE
+PMDA_LIBVIRT
 PMDA_ACTIVEMQ
 PMDA_NGINX
 PMDA_ELASTICSEARCH
@@ -794,8 +796,10 @@ PMDA_SNMP
 have_perl
 pcp_perl_prog
 PERL
+have_python_libvirt
 PMDA_JSON
 have_python_six
+have_python_requests
 have_python_jsonpointer
 pcp_python_prog
 have_python
@@ -3048,6 +3052,7 @@ $as_echo "#define IS_LINUX 1" >>confdefs.h
     test -f /etc/slackware-version && target_distro=slackware
     test -f /etc/gentoo-release && target_distro=gentoo
     test -f /etc/mandriva-release && target_distro=mandriva
+    test -f /etc/arch-release && target_distro=arch
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-efw
@@ -7078,15 +7083,14 @@ $as_echo_n "checking Python version... " >&6; }
 $as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 	if test "$PY_MAJOR" -lt 2; then
 	    echo WARNING: Python version 2.6 or later does not seem to be installed.
-	    echo Cannot proceed with the Python $PY_MAJOR installation found.
 	    enable_python2=false
-	fi
-	if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
-	    echo WARNING: Python version 2.$PY_MINOR is too old.
-	    echo Python version 2.6 or later is required for Python builds.
-	    enable_python2=false
-	fi
-	for ac_header in python${PY_MAJOR}.${PY_MINOR}/Python.h
+	else
+	    if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
+		echo WARNING: Python version 2.$PY_MINOR is too old.
+		echo Python version 2.6 or later is required for Python builds.
+		enable_python2=false
+	    else
+		for ac_header in python${PY_MAJOR}.${PY_MINOR}/Python.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -7097,14 +7101,16 @@ _ACEOF
 
 else
 
-	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
-	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python2=false
+		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
+		    echo Cannot proceed with the Python $PY_MAJOR installation found.
+		    enable_python2=false
 
 fi
 
 done
 
+	    fi
+	fi
     fi
 
     if test "$do_python" != "check" -a "$enable_python2" != "true"
@@ -7130,15 +7136,14 @@ $as_echo_n "checking Python3 version... " >&6; }
 $as_echo "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 	if test "$PY_MAJOR" -lt 3; then
 	    echo WARNING: Python version 3.3 or later does not seem to be installed.
-	    echo Cannot proceed with the Python $PY_MAJOR installation found.
 	    enable_python3=false
-	fi
-	if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
-	    echo WARNING: Python version 3.$PY_MINOR is too old.
-	    echo Python version 3.3 or later is required for Python builds.
-	    enable_python3=false
-	fi
-	for ac_header in python${PY_MAJOR}.${PY_MINOR}m/Python.h
+	else
+	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
+		echo WARNING: Python version 3.$PY_MINOR is too old.
+		echo Python version 3.3 or later is required for Python builds.
+		enable_python3=false
+	    else
+		for ac_header in python${PY_MAJOR}.${PY_MINOR}m/Python.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -7149,14 +7154,16 @@ _ACEOF
 
 else
 
-	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
-	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python3=false
+		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
+		    echo Cannot proceed with the Python $PY_MAJOR installation found.
+		    enable_python3=false
 
 fi
 
 done
 
+	    fi
+	fi
     fi
 
     if test "$do_python3" != "check" -a "$enable_python3" != "true"
@@ -7217,6 +7224,28 @@ $as_echo "no" >&6; }
     fi
 
 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module requests" >&5
+$as_echo_n "checking for Python module requests... " >&6; }
+    if test -n ""
+    then
+	txt=""
+    else
+	txt="import requests"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_requests=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_requests=false
+    fi
+
+
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module six" >&5
 $as_echo_n "checking for Python module six... " >&6; }
     if test -n ""
@@ -7256,6 +7285,29 @@ PMDA_JSON=$pmda_json
 if $pmda_json; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
+
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Python module libvirt" >&5
+$as_echo_n "checking for Python module libvirt... " >&6; }
+    if test -n ""
+    then
+	txt=""
+    else
+	txt="import libvirt"
+    fi
+    $pcp_python_prog -c 'import sys;
+'"$txt" >>config.log 2>&1
+    if test "$?" = 0
+    then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	eval have_python_libvirt=true
+    else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	eval have_python_libvirt=false
+    fi
+
+
 
 for ac_prog in perl
 do
@@ -7441,6 +7493,25 @@ fi
 PMDA_ACTIVEMQ=$pmda_activemq
 
 if $pmda_activemq; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the libvirt PMDA should be included" >&5
+$as_echo_n "checking if the libvirt PMDA should be included... " >&6; }
+pmda_libvirt=false
+if test "$have_python" = true
+then
+        if $pcp_python_prog -c "import libvirt" /dev/null 2>&1
+    then
+	if $pcp_python_prog -c "import lxml" /dev/null 2>&1
+	then
+	    :
+	fi
+    fi
+fi
+PMDA_LIBVIRT=$pmda_libvirt
+
+if $pmda_libvirt; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 
@@ -9927,12 +9998,12 @@ if test -n "$SYSTEMD_CFLAGS"; then
     pkg_cv_SYSTEMD_CFLAGS="$SYSTEMD_CFLAGS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libsystemd-journal\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libsystemd-journal") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libsystemd\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libsystemd") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_SYSTEMD_CFLAGS=`$PKG_CONFIG --cflags "libsystemd-journal" 2>/dev/null`
+  pkg_cv_SYSTEMD_CFLAGS=`$PKG_CONFIG --cflags "libsystemd" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -9944,12 +10015,12 @@ if test -n "$SYSTEMD_LIBS"; then
     pkg_cv_SYSTEMD_LIBS="$SYSTEMD_LIBS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libsystemd-journal\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libsystemd-journal") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libsystemd\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libsystemd") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_SYSTEMD_LIBS=`$PKG_CONFIG --libs "libsystemd-journal" 2>/dev/null`
+  pkg_cv_SYSTEMD_LIBS=`$PKG_CONFIG --libs "libsystemd" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -9970,9 +10041,9 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libsystemd-journal" 2>&1`
+	        SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libsystemd" 2>&1`
         else
-	        SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libsystemd-journal" 2>&1`
+	        SYSTEMD_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libsystemd" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$SYSTEMD_PKG_ERRORS" >&5
@@ -13915,6 +13986,7 @@ pcp_x11_extra=$X_EXTRA_LIBS
 pcp_x11_pre=$X_PRE_LIBS
 
 
+have_manpages=false
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
 have_lzmaed_manpages=false
@@ -13931,26 +14003,31 @@ do
 	if test -f $d/$sd/man.1.gz
 	then
 	    have_gzipped_manpages=true
+	    have_manpages=true
 	    man_header=`$ZIP -d < $d/$sd/man.1.gz | head -1`
 	    break
 	elif test -f $d/$sd/man.1.bz2
 	then
 	    have_bzip2ed_manpages=true
+	    have_manpages=true
 	    man_header=`$BZIP2 -d < $d/$sd/man.1.bz2 | head -1`
 	    break
 	elif test -f $d/$sd/man.1.lzma
 	then
 	    have_lzmaed_manpages=true
+	    have_manpages=true
 	    man_header=`$LZMA -d < $d/$sd/man.1.lzma | head -1`
 	    break
 	elif test -f $d/$sd/man.1.xz
 	then
 	    have_xzed_manpages=true
+	    have_manpages=true
 	    man_header=`$XZ -d < $d/$sd/man.1.xz | head -1`
 	    break
 	elif test -f $d/$sd/man.1
 	then
 	    man_header=`head -1 $d/$sd/man.1`
+	    have_manpages=true
 	    break
 	fi
     done
@@ -13958,6 +14035,7 @@ done
 if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
     need_old_tbl_header=true
 fi
+
 
 
 

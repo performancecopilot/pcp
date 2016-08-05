@@ -110,6 +110,15 @@ this stage, only
 .BR __pmRegisterAnon (3)
 has been instrumented as a proof of concept for this part of the
 facility.
+.TP
+.B PM_FAULT_TIMEOUT
+Will cause the
+.B next
+call to an instrumented routine to return the PCP error code
+.BR PM_ERR_TIMEOUT.
+At this stage, only
+.BR __pmGetPDU (3)
+has been instrumented to check for this class of fault injection.
 .PP
 To allow fault injection to co-exist within the production source
 code,
@@ -141,12 +150,20 @@ has been armed with
 .B __pmFaultInject
 then, the enclosing
 routine will trigger the associated error behaviour.
-For the moment, this only works for the
+For the moment, this only works for the following
 .I class
-of
+types:
+.TP
 .B PM_FAULT_PMAPI
-where the enclosing routine will return immediately with the value
+The enclosing routine will return immediately with the value
 .B PM_ERR_FAULT
+\- this assumes the enclosing routine is of type
+.B "int foo(...)"
+like all of the PMAPI routines.
+.TP
+.B PM_FAULT_TIMEOUT
+The enclosing routine will return immediately with the value
+.B PM_ERR_TIMEOUT
 \- this assumes the enclosing routine is of type
 .B "int foo(...)"
 like all of the PMAPI routines.

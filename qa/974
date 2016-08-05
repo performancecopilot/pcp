@@ -2,7 +2,7 @@
 # PCP QA Test No. 974
 # Exercise pmdaproc per-process metric extraction.
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015-2016 Red Hat.
 #
 
 seq=`basename $0`
@@ -13,8 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-_get_libpcp_config
-$unix_domain_sockets || _notrun "No unix domain socket support available"
 pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
 [ $PCP_PLATFORM = linux ] || _notrun "Linux proc test, only works with Linux"
 
@@ -34,6 +32,7 @@ _filter()
 root=$tmp.root
 export PROC_STATSPATH=$root
 export PROC_PAGESIZE=4096
+export PROC_THREADS=0
 export PROC_HERTZ=100
 pmda=$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init
 

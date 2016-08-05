@@ -14,7 +14,7 @@ unset HTTP_PROXY
 _check_pmwebd()
 {
     [ -f ${PCP_BINADM_DIR}/pmwebd ] || _notrun "pmwebd package not installed"
-    $python -c "import requests" >/dev/null 2>&1 || _notrun "python requests package is not installed"
+    $python -c "import requests" >/dev/null 2>&1 || _notrun "$python requests package is not installed"
 }
 
 _check_requests_json()

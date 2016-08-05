@@ -17,6 +17,7 @@
 #include "impl.h"
 #include "pmda.h"
 #include "internal.h"
+#include "fault.h"
 
 int
 pmLookupInDom(pmInDom indom, const char *name)
@@ -41,6 +42,8 @@ pmLookupInDom(pmInDom indom, const char *name)
 	    else {
 		__pmPDU	*pb;
 		int	pinpdu;
+
+PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_TIMEOUT);
 		pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE, 
 			       ctxp->c_pmcd->pc_tout_sec, &pb);
 		if (n == PDU_INSTANCE) {
@@ -52,8 +55,11 @@ pmLookupInDom(pmInDom indom, const char *name)
 		}
 		else if (n == PDU_ERROR)
 		    __pmDecodeError(pb, &n);
-		else if (n != PM_ERR_TIMEOUT)
-		    n = PM_ERR_IPC;
+		else {
+		    __pmCloseChannelbyContext(ctxp, PDU_INSTANCE, n);
+		    if (n != PM_ERR_TIMEOUT)
+			n = PM_ERR_IPC;
+		}
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
 	    }
@@ -112,6 +118,8 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 	    else {
 		__pmPDU	*pb;
 		int	pinpdu;
+
+PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_TIMEOUT);
 		pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 					ctxp->c_pmcd->pc_tout_sec, &pb);
 		if (n == PDU_INSTANCE) {
@@ -124,8 +132,11 @@ pmNameInDom(pmInDom indom, int inst, char **name)
 		}
 		else if (n == PDU_ERROR)
 		    __pmDecodeError(pb, &n);
-		else if (n != PM_ERR_TIMEOUT)
-		    n = PM_ERR_IPC;
+		else {
+		    __pmCloseChannelbyContext(ctxp, PDU_INSTANCE, n);
+		    if (n != PM_ERR_TIMEOUT)
+			n = PM_ERR_IPC;
+		}
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
 	    }
@@ -235,6 +246,8 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 	    else {
 		__pmPDU	*pb;
 		int	pinpdu;
+
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_TIMEOUT);
 		pinpdu = n = __pmGetPDU(ctxp->c_pmcd->pc_fd, ANY_SIZE,
 					ctxp->c_pmcd->pc_tout_sec, &pb);
 		if (n == PDU_INSTANCE) {
@@ -249,8 +262,11 @@ pmGetInDom(pmInDom indom, int **instlist, char ***namelist)
 		}
 		else if (n == PDU_ERROR)
 		    __pmDecodeError(pb, &n);
-		else if (n != PM_ERR_TIMEOUT)
-		    n = PM_ERR_IPC;
+		else {
+		    __pmCloseChannelbyContext(ctxp, PDU_INSTANCE, n);
+		    if (n != PM_ERR_TIMEOUT)
+			n = PM_ERR_IPC;
+		}
 		if (pinpdu > 0)
 		    __pmUnpinPDUBuf(pb);
 	    }

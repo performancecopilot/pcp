@@ -543,16 +543,20 @@ the I/O response (or wait) time for that disk partition.
 @ kernel.all.sysfork fork rate metric from /proc/stat
 @ kernel.all.running number of currently running processes from /proc/stat
 @ kernel.all.blocked number of currently blocked processes from /proc/stat
-@ kernel.all.intr intrrupt rate metric from /proc/stat
+@ kernel.all.intr interrupt count metric from /proc/stat
 The value is the first value from the intr field in /proc/stat,
 which is a counter of the total number of interrupts processed.
 The value is normally converted to a rate (count/second).
 This counter usually increases by at least HZ/second,
 i.e. the clock interrupt rate, wehich is usually 100/second.
 
-See also kernel.percpu.interrupts to get a breakdown
-of interrupt rates by interrupt type and which CPU
+See also kernel.percpu.intr and kernel.percpu.interrupts to get
+the breakdown of interrupt count by interrupt type and which CPU
 processed each one.
+
+@ kernel.percpu.intr interrupt count metric from /proc/interrupts
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
 
 @ mem.physmem total system memory metric reported by /proc/meminfo
 The value of this metric corresponds to the "MemTotal" field
@@ -1482,6 +1486,8 @@ See also the kernel.uname.* metrics
 @ ipc.sem.sz_semundo size of struct sem_undo (from semctl(..,IPC_INFO,..))
 @ ipc.sem.max_semval semaphore maximum value (from semctl(..,IPC_INFO,..))
 @ ipc.sem.max_exit adjust on exit maximum value (from semctl(..,IPC_INFO,..))
+@ ipc.sem.used_sem number of semaphore sets currently on the system (from semctl(..,SEM_INFO,..))
+@ ipc.sem.tot_sem number of semaphores in all sets on the system (from semctl(..,SEM_INFO,..))
 @ ipc.msg.sz_pool size of message pool in kilobytes (from msgctl(..,IPC_INFO,..))
 @ ipc.msg.mapent number of entries in a message map (from msgctl(..,IPC_INFO,..))
 @ ipc.msg.max_msgsz maximum size of a message in bytes (from msgctl(..,IPC_INFO,..))
@@ -1490,6 +1496,9 @@ See also the kernel.uname.* metrics
 @ ipc.msg.max_msgseg message segment size (from msgctl(..,IPC_INFO,..))
 @ ipc.msg.num_smsghdr number of system message headers (from msgctl(..,IPC_INFO,..))
 @ ipc.msg.max_seg maximum number of message segments (from msgctl(..,IPC_INFO,..))
+@ ipc.msg.used_queues number of message queues that currently exist (from msgctl(..,MSG_INFO,..))
+@ ipc.msg.tot_msg total number of messages in all queues (from msgctl(..,MSG_INFO,..))
+@ ipc.msg.tot_bytes number of bytes in all messages in all queues (from msgctl(..,MSG_INFO,..))
 @ ipc.shm.max_segsz maximum shared segment size in bytes (from shmctl(..,IPC_INFO,..))
 @ ipc.shm.min_segsz minimum shared segment size in bytes (from shmctl(..,IPC_INFO,..))
 @ ipc.shm.max_seg maximum number of shared segments in system (from shmctl(..,IPC_INFO,..))
@@ -1499,6 +1508,8 @@ See also the kernel.uname.* metrics
 @ ipc.shm.rss number of resident shared memory pages (from shmctl(..,SHM_INFO,..))
 @ ipc.shm.swp number of swapped shared memory pages (from shmctl(..,SHM_INFO,..))
 @ ipc.shm.used_ids number of currently existing segments (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.swap_attempts number of swap attempts (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.swap_successes number of swap successes (from shmctl(..,SHM_INFO,..))
 
 @ vfs.files.count number of in-use file structures
 @ vfs.files.free number of available file structures

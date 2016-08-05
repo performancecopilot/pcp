@@ -6,6 +6,7 @@
 #
 # This file contains one line per host to be monitored, fields are
 #    Host	name of host to be monitored
+#    P(rimary)  is this the primary localhost pmie? y or n
 #    S(ocks)?	should this pmie be launched with pmsocks? y or n
 #    Log File	full pathname to file where pmie activity log is to be
 #		maintained ... note all scripts "cd" the directory housing
@@ -16,7 +17,7 @@
 
 # === VARIABLE ASSIGNMENTS ===
 #
-$version=1.0
+$version=1.1
 
 # if pmsocks is being used, edit the IP address for $SOCKS_SERVER and
 # uncomment the next line
@@ -38,10 +39,10 @@ $version=1.0
 #	- pmie configuration file search path is "./:$PCP_VAR_DIR/config/pmie/"
 #	  and the working directory ('.') is the dirname of the Log File.
 # 
-#Host           S?  Log File                                  Arguments
+#Host           P?  S?  Log File                                  Arguments
 
 # remote host
-#remote         n   PCP_LOG_DIR/pmie/remote/pmie.log          -c config.remote
+#remote         n   n   PCP_LOG_DIR/pmie/remote/pmie.log          -c config.remote
 
 # thru the firewall via socks
-#distant        y   PCP_LOG_DIR/pmie/distant/pmie.log         -c config.distant
+#distant        n   y   PCP_LOG_DIR/pmie/distant/pmie.log         -c config.distant

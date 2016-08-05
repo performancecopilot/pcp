@@ -65,6 +65,46 @@
    fun:getaddrinfo
 }
 
+# ditto
+# Syscall param sendmsg(mmsg[0].msg_hdr) points to uninitialised byte(s)
+# at 0x4AE71D3: sendmmsg (sendmmsg.c:36)
+# by 0x524A8F0: __libc_res_nsend (res_send.c:1140)
+# by 0x5247E1E: __libc_res_nquery (res_query.c:226)
+# by 0x524849F: __libc_res_nquerydomain (res_query.c:582)
+# by 0x6D6F646B: ???
+{
+   Seen on bozo-laptop
+   Memcheck:Param
+   sendmsg(mmsg[0].msg_hdr)
+   fun:sendmmsg
+   fun:__libc_res_nsend
+   fun:__libc_res_nquery
+   fun:__libc_res_nquerydomain
+   ...
+   obj:*
+}
+
+# ditto
+# Syscall param sendmsg(mmsg[1].msg_hdr) points to uninitialised byte(s)
+# at 0x4AE71D3: sendmmsg (sendmmsg.c:36)
+# by 0x524A8F0: __libc_res_nsend (res_send.c:1140)
+# by 0x5247E1E: __libc_res_nquery (res_query.c:226)
+# by 0x524849F: __libc_res_nquerydomain (res_query.c:582)
+# by 0x5248D9A: __libc_res_nsearch (res_query.c:487)
+# by 0x1: ???
+#
+{
+   Seen on bozo-laptop
+   Memcheck:Param
+   sendmsg(mmsg[1].msg_hdr)
+   fun:sendmmsg
+   fun:__libc_res_nsend
+   fun:__libc_res_nquery
+   fun:__libc_res_nquerydomain
+   ...
+   obj:*
+}
+
 # qa/666 on vm20 similar
 #
 # Syscall param sendmsg(mmsg[0].msg_hdr) points to uninitialised byte(s)

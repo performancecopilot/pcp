@@ -260,6 +260,7 @@ then
     test -f /etc/slackware-version && target_distro=slackware
     test -f /etc/gentoo-release && target_distro=gentoo
     test -f /etc/mandriva-release && target_distro=mandriva
+    test -f /etc/arch-release && target_distro=arch
     export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-efw
@@ -776,19 +777,20 @@ AS_IF([test "x$do_python" != "xno"], [
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
 	if test "$PY_MAJOR" -lt 2; then
 	    echo WARNING: Python version 2.6 or later does not seem to be installed.
-	    echo Cannot proceed with the Python $PY_MAJOR installation found.
 	    enable_python2=false
+	else
+	    if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
+		echo WARNING: Python version 2.$PY_MINOR is too old.
+		echo Python version 2.6 or later is required for Python builds.
+		enable_python2=false
+	    else
+		AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}/Python.h], [], [
+		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
+		    echo Cannot proceed with the Python $PY_MAJOR installation found.
+		    enable_python2=false
+		])
+	    fi
 	fi
-	if test "$PY_MAJOR" -eq 2 -a "$PY_MINOR" -lt 6 ; then
-	    echo WARNING: Python version 2.$PY_MINOR is too old.
-	    echo Python version 2.6 or later is required for Python builds.
-	    enable_python2=false
-	fi
-	AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}/Python.h], [], [
-	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
-	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python2=false
-	])
     fi
 
     if test "$do_python" != "check" -a "$enable_python2" != "true"
@@ -811,19 +813,20 @@ AS_IF([test "x$do_python3" != "xno"], [
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
 	if test "$PY_MAJOR" -lt 3; then
 	    echo WARNING: Python version 3.3 or later does not seem to be installed.
-	    echo Cannot proceed with the Python $PY_MAJOR installation found.
 	    enable_python3=false
+	else
+	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
+		echo WARNING: Python version 3.$PY_MINOR is too old.
+		echo Python version 3.3 or later is required for Python builds.
+		enable_python3=false
+	    else
+		AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}m/Python.h], [], [
+		    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
+		    echo Cannot proceed with the Python $PY_MAJOR installation found.
+		    enable_python3=false
+		])
+	    fi
 	fi
-	if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 3 ; then
-	    echo WARNING: Python version 3.$PY_MINOR is too old.
-	    echo Python version 3.3 or later is required for Python builds.
-	    enable_python3=false
-	fi
-	AC_CHECK_HEADERS([python${PY_MAJOR}.${PY_MINOR}m/Python.h], [], [
-	    echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file missing.
-	    echo Cannot proceed with the Python $PY_MAJOR installation found.
-	    enable_python3=false
-	])
     fi
 
     if test "$do_python3" != "check" -a "$enable_python3" != "true"
@@ -887,6 +890,8 @@ AC_DEFUN(PCP_CHECK_PYTHON_MODULE,
   ])
 PCP_CHECK_PYTHON_MODULE(jsonpointer)
 AC_SUBST(have_python_jsonpointer)
+PCP_CHECK_PYTHON_MODULE(requests)
+AC_SUBST(have_python_requests)
 PCP_CHECK_PYTHON_MODULE(six)
 AC_SUBST(have_python_six)
 
@@ -899,6 +904,9 @@ AS_IF([test "x$do_pmdajson" = "xcheck"], [
 ])
 AC_SUBST(PMDA_JSON, $pmda_json)
 if $pmda_json; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+PCP_CHECK_PYTHON_MODULE(libvirt)
+AC_SUBST(have_python_libvirt)
 
 dnl check if perl available for the build and runtime
 AC_CHECK_PROGS(PERL, perl)
@@ -1019,6 +1027,24 @@ then
 fi
 AC_SUBST(PMDA_ACTIVEMQ, $pmda_activemq)
 if $pmda_activemq; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the libvirt PMDA should be included])
+pmda_libvirt=false
+if test "$have_python" = true
+then
+    dnl rpm build for libvirt PMDA needs Python libvirt and lxml modules
+    if $pcp_python_prog -c "import libvirt" /dev/null 2>&1
+    then
+	if $pcp_python_prog -c "import lxml" /dev/null 2>&1
+	then
+dnl temporarily disabled until dynamic instance/metric IDs resolved
+dnl	    pmda_libvirt=true
+	    :
+	fi
+    fi
+fi
+AC_SUBST(PMDA_LIBVIRT, $pmda_libvirt)
+if $pmda_libvirt; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 qmake=$QMAKE
 enable_qt=false
@@ -1517,7 +1543,7 @@ AC_SUBST(lib_for_regex)
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
-PKG_CHECK_MODULES([SYSTEMD], [libsystemd-journal],
+PKG_CHECK_MODULES([SYSTEMD], [libsystemd],
                   [pmda_systemd=true], [pmda_systemd=false])
 AC_MSG_CHECKING([if the systemd PMDA should be included])
 AC_SUBST(PMDA_SYSTEMD, $pmda_systemd)
@@ -2801,6 +2827,7 @@ pcp_x11_pre=$X_PRE_LIBS
 AC_SUBST(pcp_x11_pre)
 
 dnl man pages (source)
+have_manpages=false
 have_gzipped_manpages=false
 have_bzip2ed_manpages=false
 have_lzmaed_manpages=false
@@ -2818,26 +2845,31 @@ do
 	if test -f $d/$sd/man.1.gz
 	then
 	    have_gzipped_manpages=true
+	    have_manpages=true
 	    man_header=`$ZIP -d < $d/$sd/man.1.gz | head -1`
 	    break
 	elif test -f $d/$sd/man.1.bz2
 	then
 	    have_bzip2ed_manpages=true
+	    have_manpages=true
 	    man_header=`$BZIP2 -d < $d/$sd/man.1.bz2 | head -1`
 	    break
 	elif test -f $d/$sd/man.1.lzma
 	then
 	    have_lzmaed_manpages=true
+	    have_manpages=true
 	    man_header=`$LZMA -d < $d/$sd/man.1.lzma | head -1`
 	    break
 	elif test -f $d/$sd/man.1.xz
 	then
 	    have_xzed_manpages=true
+	    have_manpages=true
 	    man_header=`$XZ -d < $d/$sd/man.1.xz | head -1`
 	    break
 	elif test -f $d/$sd/man.1
 	then
 	    man_header=`head -1 $d/$sd/man.1`
+	    have_manpages=true
 	    break
 	fi
     done
@@ -2846,6 +2878,7 @@ if test x"$man_header" = "x'\\\" t" -o x"$man_header" = "x'\\\" te" ; then
     need_old_tbl_header=true
 fi
 AC_SUBST(pcp_man_dir)
+AC_SUBST(have_manpages)
 AC_SUBST(have_gzipped_manpages)
 AC_SUBST(have_bzip2ed_manpages)
 AC_SUBST(have_lzmaed_manpages)

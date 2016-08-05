@@ -217,10 +217,13 @@ do
 done
 grep 'Permission denied' Logs/pcp >$tmp.err
 grep ' [Ee]rror: ' Logs/pcp >>$tmp.err
-grep ' [Ww]arning: ' Logs/pcp \
+sed -e 's/^/ /' <Logs/pcp \
+| grep -i ' warning: ' \
 | sed >>$tmp.err \
+    -e 's/^ //' \
     -e '/yyunput.* defined but not used/d' \
-    -e '/input.* defined but not used/d'
+    -e '/input.* defined but not used/d' \
+    -e '/jobserver unavailable: using -j1/d'
 if [ -s $tmp.err ]
 then
     echo "Warning: `wc -l <$tmp.err | sed -e 's/ //g'` build warnings/errors" | tee -a $HOME/daily.log
@@ -421,6 +424,8 @@ END	{ print txt }' \
 | awk '
 \$1 == "Failures:"	{ want = 1 }
 \$1 == "Passed"		{ want = 1 }
+\$1 == "Aborted!"	{ want = 1 }
+\$1 == "Check!"		{ want = 1 }
 want == 1		{ print }'
 if [ "\$sts" = 0 ]
 then
@@ -804,10 +809,30 @@ End-of-File
 	[ X"$what" = Xall ] && check_what=''
 	case "$domain"
 	in
-	    vm06|vm10|vm09|vm32|vm33)
-		# Only -g sanity at this stage for FreeBSD or NetBSD or OpenBSD
+	    vm06|vm10|vm09|vm33)
+		# Only -g sanity at this stage for NetBSD or OpenBSD
 		#
 		[ X"$what" = Xall ] && check_what='-g sanity'
+		;;
+	    vm32)
+		# Only selected groups this stage for FreeBSD:
+		#	sanity trace
+		# and some tests are not working yet
+		#
+		[ X"$what" = Xall ] && check_what='-g sanity -g trace -X 603'
+		;;
+	    vm07|vm11)
+		# Exclude -x valgrind at this stage for Debian stretch
+		# until
+		# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=810295
+		# is fixed.
+		# We have a workaround in common.check, so re-enable these
+		# tests (20 Jul 2016)
+		#
+		;;
+	    vm01)
+		# 739 segv's sometimes deep inside Python
+		[ X"$what" = Xall ] && check_what='-X 739'
 		;;
 	esac
 
@@ -848,7 +873,7 @@ End-of-File
 	cat $tmp.out >>$log
 	echo "=== END ===" >>$log
 
-	if $iflag
+	if $iflag || $qflag || $hflag
 	then
 	    # run whatami on QA host
 	    ssh -t $host src/pcp/qa/admin/whatami >$HOME/Logs/by-vm/$domain/whatami

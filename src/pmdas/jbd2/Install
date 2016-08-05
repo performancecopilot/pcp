@@ -28,4 +28,4 @@ pmns_source=root_jbd2
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit

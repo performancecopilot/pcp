@@ -39,7 +39,8 @@ p
 if [ -z "$domain" ]
 then
     echo "Arrgh ... cannot extract domain number from domain.h"
-    exit 1
+    status=1
+    exit
 fi
 if [ -d $PCP_VAR_DIR/config/pmda ]
 then
@@ -50,4 +51,4 @@ fi
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit

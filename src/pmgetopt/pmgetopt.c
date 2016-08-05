@@ -148,6 +148,7 @@ standard_options(pmOptions *opts, char *start)
 	PMOPT_HOST_LIST,
 	PMOPT_ARCHIVE_LIST,
 	PMOPT_ARCHIVE_FOLIO,
+	PMOPT_CONTAINER,
 	PMAPI_OPTIONS_END
     };
     pmLongOptions *entry;

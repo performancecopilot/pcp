@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Red Hat.
+ * Copyright (C) 2013,2016 Red Hat.
  * Copyright (C) 2009 Aconex.  All Rights Reserved.
  * Copyright (C) 2001,2009 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -46,6 +46,11 @@ typedef struct mmv_instances {
     char		external[MMV_NAMEMAX];	/* External instance ID */
 } mmv_instances_t;
 
+typedef struct mmv_instances2 {
+    __int32_t		internal;	/* Internal instance ID */
+    char *		external;	/* External instance ID */
+} mmv_instances2_t;
+
 typedef struct mmv_indom {
     __uint32_t		serial;		/* Unique identifier */
     __uint32_t		count;		/* Number of instances */
@@ -53,6 +58,14 @@ typedef struct mmv_indom {
     char *		shorttext;	/* Short help text string */
     char *		helptext;	/* Long help text string */
 } mmv_indom_t;
+
+typedef struct mmv_indom2 {
+    __uint32_t		serial;		/* Unique identifier */
+    __uint32_t		count;		/* Number of instances */
+    mmv_instances2_t *	instances;	/* Internal/external IDs */
+    char *		shorttext;	/* Short help text string */
+    char *		helptext;	/* Long help text string */
+} mmv_indom2_t;
 
 typedef struct mmv_metric {
     char		name[MMV_NAMEMAX];
@@ -65,6 +78,17 @@ typedef struct mmv_metric {
     char *		helptext;	/* Long help text string */
 } mmv_metric_t;
 
+typedef struct mmv_metric2 {
+    char *		name;
+    __uint32_t		item;		/* Unique identifier */
+    mmv_metric_type_t	type;
+    mmv_metric_sem_t	semantics;
+    pmUnits		dimension;
+    __uint32_t		indom;		/* Indom serial */
+    char *		shorttext;	/* Short help text string */
+    char *		helptext;	/* Long help text string */
+} mmv_metric2_t;
+
 #ifdef HAVE_BITFIELDS_LTOR
 #define MMV_UNITS(a,b,c,d,e,f)	{a,b,c,d,e,f,0}
 #else
@@ -74,11 +98,15 @@ typedef struct mmv_metric {
 typedef enum mmv_stats_flags {
     MMV_FLAG_NOPREFIX	= 0x1,	/* Don't prefix metric names by filename */
     MMV_FLAG_PROCESS	= 0x2,	/* Indicates process check on PID needed */
+    MMV_FLAG_SENTINEL	= 0x4,	/* Sentinel values == no-value-available */
 } mmv_stats_flags_t;
 
 extern void * mmv_stats_init(const char *, int, mmv_stats_flags_t,
 				const mmv_metric_t *, int,
 				const mmv_indom_t *, int);
+extern void * mmv_stats2_init(const char *, int, mmv_stats_flags_t,
+				const mmv_metric2_t *, int,
+				const mmv_indom2_t *, int);
 extern void mmv_stats_stop(const char *, void *);
 
 extern pmAtomValue * mmv_lookup_value_desc(void *, const char *, const char *);

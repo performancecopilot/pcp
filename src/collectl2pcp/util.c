@@ -54,7 +54,12 @@ put_str_instance(pmInDom indom, char *instance)
 {
     int sts;
     __pmInDom_int *idp = __pmindom_int(&indom);
-    int id = indom_cnt[idp->serial]++;
+    int id;
+
+    if (idp->domain == PROC_DOMAIN)
+    	id = atoi(instance);
+    else
+	id = indom_cnt[idp->serial]++;
 
     sts = pmiAddInstance(indom, instance, id);
     return sts ? sts : id;
@@ -72,10 +77,8 @@ put_str_value(char *name, pmInDom indom, char *instance, char *val)
     else {
 	sts = pmiPutValue(name, instance, val);
 	if (sts == PM_ERR_NAME) {
-#if 0
 	    if (vflag)
 		fprintf(stderr, "Warning: unknown metric name \"%s\". Check metrics.c\n", name);
-#endif
 	    return sts;
 	}
 	if (indom != PM_INDOM_NULL && instance && (sts == PM_ERR_INST || sts == PM_ERR_INDOM)) {
@@ -87,10 +90,10 @@ put_str_value(char *name, pmInDom indom, char *instance, char *val)
 	    else if (vflag)
 		printf("New instance %s[%d] \"%s\"\n", name, sts, instance);
 	    sts = pmiPutValue(name, instance, val);
+	    if (sts < 0)
+		fprintf(stderr, "Warning: put_str_value \"%s\" inst:\"%s\" value:\"%s\" failed: err=%d %s\n",
+		    name, instance ? instance : "NULL", val ? val : "NULL", sts, pmiErrStr(sts));
 	}
-	if (sts < 0)
-	    fprintf(stderr, "Warning: put_str_value \"%s\" inst:\"%s\" value:\"%s\" failed: err=%d %s\n",
-		name, instance ? instance : "NULL", val ? val : "NULL", sts, pmiErrStr(sts));
     }
 
     return sts;

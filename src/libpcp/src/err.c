@@ -154,8 +154,6 @@ static const struct {
         "Archives overlap in time" },
     { PM_ERR_LOGHOST,		"PM_ERR_LOGHOST",
         "Archives differ by host" },
-    { PM_ERR_LOGTIMEZONE,	"PM_ERR_LOGTIMEZONE",
-        "Archives differ by time zone" },
     { PM_ERR_LOGCHANGETYPE,	"PM_ERR_LOGCHANGETYPE",
 	"The type of a metric has changed in an archive" },
     { PM_ERR_LOGCHANGESEM,	"PM_ERR_LOGCHANGESEM",

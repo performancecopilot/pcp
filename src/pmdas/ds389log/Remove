@@ -20,4 +20,4 @@ iam=ds389log
 
 pmdaSetup
 pmdaRemove
-exit 0
+exit

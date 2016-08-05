@@ -9,11 +9,12 @@ _usage()
 {
     echo "Usage: $0 [options] [vm ...]"
     echo 'Options:'
-    echo '  -a      report all tests [default is to report only failing tests]'
+    echo '  -a      report all tests, not just failing ones (implies -n)'
+    echo '  -c      report counts not percentages'
     echo '  -d      debug'
-    echo '  -f      sort failure map on %fail [default sort of Test #]'
+    echo '  -f      sort failure map on %fail [default sort on Test #]'
     echo '  -m N    minimum number of tests run to be reported [default 60]'
-    echo '  -n      report not run tests (reported as "-")'
+    echo '  -n      report skipped and not run tests (reported as "S" and "N")'
     echo '  -r      only most recent results date [default report all dates]'
     exit 1
 }
@@ -27,13 +28,17 @@ minrun=60
 debug=false
 recent=false
 aflag=false
+cflag=false
 nflag=false
 failsort=false
-while getopts 'adfm:nr?' p
+while getopts 'acdfm:nr?' p
 do
     case "$p"
     in
 	a)	aflag=true
+		nflag=true
+		;;
+	c)	cflag=true
 		;;
 	d)	debug=true
 		;;
@@ -216,6 +221,8 @@ END		{ print NR,": END state=" state >"'$tmp.dbg'"
 	    $debug && sed -e 's/^/Debug: /' <$tmp.dbg
 	    sort <$tmp.out --key=3,3nr --key=5,5n \
 	    | sed -e 1q >$tmp.tmp
+	    # $tmp.tmp line is ...
+	    # <date> <#run> <#passed> <#failed> <#notrun>|<hostname>|<failed list...>+<passed list>
 	    if [ -s $tmp.tmp ]
 	    then
 		if $debug
@@ -231,15 +238,34 @@ END		{ print NR,": END state=" state >"'$tmp.dbg'"
 		    | tr ' ' '\012' \
 		    | sed -e "s/\$/ X $basevmname/" >>$tmp.map
 		fi
+		nnotrun=0
 		if $nflag
 		then
-		    nrun=`sed -e 's/|.*//' <$tmp.tmp | awk '{print $5}'`
-		    if [ $nrun -gt 0 ]
+		    nnotrun=`sed -e 's/|.*//' <$tmp.tmp | awk '{print $5}'`
+		    if [ $nnotrun -gt 0 ]
 		    then
 			sed -e 's/.*+//' <$tmp.tmp \
 			| tr ' ' '\012' \
-			| sed -e "s/\$/ - $basevmname/" >>$tmp.map
+			| sed -e "s/\$/ N $basevmname/" >>$tmp.map
 		    fi
+		fi
+		if $aflag || [ $nfail -gt 0 -o $nnotrun -gt 0 ]
+		then
+		    # pass lines look like:
+		    # [97%] 1055 16s ...
+		    # or
+		    # [97%] 1055
+		    #
+		    sed <$date -n -e '/^[[0-9][0-9]*%] [0-9][0-9]* [0-9][0-9]*s \.\.\.$/{
+s/.*] //
+s/ .*//
+p
+}' \
+				-e '/^[[0-9][0-9]*%] [0-9][0-9]*$/{
+s/.*] //
+p
+}' \
+		    | sed -e "s/\$/ P $basevmname/" >>$tmp.map
 		fi
 		$recent && break
 	    else
@@ -278,9 +304,9 @@ then
     echo
     if $nflag
     then
-	echo "==== QA Failure (X) and Not Run (-) Map ===="
+	echo "==== QA Failure (X), Not Run (N) and Skipped (S) Map ===="
     else
-	echo "==== QA Failure (X) Map ===="
+	echo "==== QA Failure (X) and Not Run or Skipped (-) Map ===="
     fi
     echo
     ( ( sed -e 's/.* //' <$tmp.map | sort | uniq ) \
@@ -291,8 +317,11 @@ then
     | awk '
 function heading() {
     printf "%4.4s","Host"
-    printf " %5.5s",""			# %fail
-    if (nflag) printf " %5.5s",""	# %pass
+    printf " %5.5s",""		# %fail or nfail (-c)
+    if (nflag) {
+	printf " %5.5s",""	# %pass or npass (-c)
+	printf " %5.5s",""	# %nrun or nnrun (-c)
+    }
     for (i = 0; i < nh; i++) {
 	if (host[i] ~ /^vm/)
 	    printf " %2.2s",substr(host[i],length(host[i])-1)
@@ -304,43 +333,82 @@ function heading() {
 	    printf " %2.2s",substr(host[i],1,2)
     }
     printf "\n"
+    printf "%4.4s","Test"
+    if (cflag)
+	printf " %5.5s"," fail"
+    else
+	printf " %5.5s","%fail"
+    if (nflag) {
+	if (cflag) {
+	    printf " %5.5s"," pass"
+	    printf " %5.5s"," nrun"
+	}
+	else {
+	    printf " %5.5s","%pass"
+	    printf " %5.5s","%nrun"
+	}
+    }
+    for (i = 0; i < nh; i++) printf " %2.2s"," "
+    printf " %4.4s QA groups\n","Test"
 }
 BEGIN	{ nh = 0
 	  state = 0
+	  aflag = 0
+	  if ("'"$aflag"'" == "true") aflag = 1
+	  cflag = 0
+	  if ("'"$cflag"'" == "true") cflag = 1
 	  nflag = 0
-	  if ("'"$aflag"'" == "true") nflag = 1
+	  if ("'"$nflag"'" == "true") nflag = 1
 	}
 $1 == "---"	{ heading()
-		  printf "%4.4s","Test"
-		  printf " %5.5s","%fail"
-		  if (nflag) printf " %5.5s","%pass"
-		  for (i = 0; i < nh; i++) printf " %2.2s"," "
-                  printf " %4.4s QA groups\n","Test"
 		  state = 1
 		  last = $1
 		  next
 		}
 state == 0	{ host[nh] = $1; nh++; next }
 $1 != last	{ if (last != "---") {
-		      bad = 0
+		      skip = nrun = bad = pass = 0
 		      for (i = 0; i < nh; i++) {
-			  if (fail[i] != " " && fail[i] != "-") bad++
-		      }
-		      if (nflag) {
-			  ntry = pass = 0
-			  for (i = 0; i < nh; i++) {
-			      if (fail[i] == " ") pass++
-			      if (fail[i] != "-") ntry++
+			  if (fail[i] == "X") bad++
+			  if (fail[i] == "P") {
+			      pass++
+			      fail[i] = " "
+			  }
+			  if (fail[i] == "N") {
+			      nrun++
+			      if (nflag == 0) fail[i] = "-"
+			  }
+			  if (fail[i] == "S") {
+			      skip++
+			      if (nflag == 0) fail[i] = "-"
 			  }
 		      }
-		      if (bad > 0 || "'"$aflag"'" == "true") {
+		      if (bad > 0 || aflag) {
 			  printf "%04d",last
-			  printf "  %3d%%",int(0.5+100*bad/'$numqahosts')
-			  if (nflag) {
-			      if (ntry > 0)
-				  printf "  %3d%%",int(0.5+100*pass/ntry)
+			  if (nflag && nrun == nh) {
+			    printf "   NOT RUN AT ALL "
+			  }
+			  else {
+			      if (cflag)
+				  printf "  %4d",bad
 			      else
-				  printf "  %3d%%",0
+				  printf "  %3d%%",int(0.5+100*bad/'$numqahosts')
+			      if (nflag) {
+				  if (cflag) {
+				      printf "  %4d",pass
+				      printf "  %4d",nrun+skip
+				  }
+				  else {
+				      if (pass > 0)
+					  printf "  %3d%%",int(0.5+100*pass/'$numqahosts')
+				      else
+					  printf "  %3d%%",0
+				      if (nrun > 0)
+					  printf "  %3d%%",int(0.5+100*(nrun+skip)/'$numqahosts')
+				      else
+					  printf "  %3d%%",0
+				  }
+			      }
 			  }
 			  for (i = 0; i < nh; i++) {
 			      printf " %2.2s",fail[i]
@@ -350,7 +418,7 @@ $1 != last	{ if (last != "---") {
 			  system(cmd)
 		      }
 		  }
-		  for (i = 0; i < nh; i++) fail[i] = " "
+		  for (i = 0; i < nh; i++) fail[i] = "S"
 		  last = $1
 		 }
 $1 == last	{ for (i = 0; i < nh; i++) {
@@ -380,7 +448,7 @@ $1 == last	{ for (i = 0; i < nh; i++) {
     do
 	if [ "$num" -eq 20 ]
 	then
-	    sed -n -e 1p -e 1q <$tmp.mapout
+	    sed -e 2q <$tmp.mapout
 	    num=0
 	else
 	    num=`expr $num + 1`
@@ -388,6 +456,7 @@ $1 == last	{ for (i = 0; i < nh; i++) {
 	echo "$line"
     done \
     | sed -e 's/^0/ /'
+    sed -n -e 2p -e 2q <$tmp.mapout
     sed -n -e 1p -e 1q <$tmp.mapout
 fi
 

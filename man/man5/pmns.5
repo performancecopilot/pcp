@@ -193,31 +193,17 @@ Range	Allocation
 _
 0	reserved
 _
-1-31	PMDAs from the PCP base product
+1-384	production PMDAs from PCP packages
 _
-32-39	Oracle
+385-510	end-user PMDAs (allocate from high to low)
 _
-40-47	Sybase
-_
-48-55	Informix
-_
-56-58	SNMP Gateway PMDA
-_
-59-63	Linux PMDAs
-_
-64-69	ISV PMDAs
-_
-70-128	more PMDAs from the PCP base product
-_
-129-510	End-user PMDAs and demo PMDAs
-_
-511	RESERVED
+511	reserved for dynamic PMNS entries
 .TE
 .SH EXAMPLE
 .ft CW
 .nf
 #define KERNEL 1
-#define FOO 317
+#define FOO 387
 root {
     network
     cpu

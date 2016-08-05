@@ -842,6 +842,16 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_CPUSCHED_GROUPS, CG_CPUSCHED_THROTTLED_TIME), PM_TYPE_U64,
     CGROUP_CPUSCHED_INDOM, PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) } },
 
+/* cgroup.cpusched.cfs_period */
+  { NULL,
+    { PMDA_PMID(CLUSTER_CPUSCHED_GROUPS, CG_CPUSCHED_CFS_PERIOD), PM_TYPE_U64,
+    CGROUP_CPUSCHED_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0) } },
+
+/* cgroup.cpusched.cfs_quota */
+  { NULL,
+    { PMDA_PMID(CLUSTER_CPUSCHED_GROUPS, CG_CPUSCHED_CFS_QUOTA), PM_TYPE_64,
+    CGROUP_CPUSCHED_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_USEC,0) } },
+
 /* cgroup.memory.stat.cache */
   { NULL,
     { PMDA_PMID(CLUSTER_MEMORY_GROUPS, CG_MEMORY_STAT_CACHE), PM_TYPE_U64,
@@ -1896,8 +1906,6 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (idp->item == 99) /* proc.nprocs */
 	    atom->ul = active_proc_pid->indom->it_numinst;
 	else {
-	    static char ttyname[MAXPATHLEN];
-
 	    if (!have_access)
 		return PM_ERR_PERMISSION;
 	    entry = fetch_proc_pid_stat(inst, active_proc_pid, &sts);
@@ -1914,8 +1922,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		if (f == NULL)
 		    atom->cp = "?";
 		else {
-		    dev_t dev = (dev_t)atoi(f);
-		    atom->cp = get_ttyname_info(inst, dev, ttyname);
+		    dev_t dev = get_encoded_dev(f);
+		    atom->cp = get_ttyname_info(inst, dev);
 		}
 		break;
 
@@ -2534,6 +2542,12 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case CG_CPUSCHED_THROTTLED_TIME: /* cgroup.cpusched.throttled_time */
 	    atom->ull = cpusched->stat.throttled_time;
+	    break;
+	case CG_CPUSCHED_CFS_PERIOD: /* cgroup.cpusched.cfs_period */
+	    atom->ull = cpusched->cfs_period;
+	    break;
+	case CG_CPUSCHED_CFS_QUOTA: /* cgroup.cpusched.cfs_quota */
+	    atom->ll = cpusched->cfs_quota;
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -3264,6 +3278,8 @@ proc_init(pmdaInterface *dp)
 	_pm_system_pagesize = getpagesize();
     if ((envpath = getenv("PROC_STATSPATH")) != NULL)
 	proc_statspath = envpath;
+    if ((envpath = getenv("PROC_THREADS")) != NULL)
+	threads = atoi(envpath);
 
     if (_isDSO) {
 	char helppath[MAXPATHLEN];

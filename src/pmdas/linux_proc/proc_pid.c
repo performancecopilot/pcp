@@ -261,13 +261,15 @@ refresh_hotproc_pidlist(proc_pid_list_t *pids)
     struct dirent *dp;
 
     if ((dirp = opendir("/proc")) == NULL)
-        return -oserror();
+	return -oserror();
 
     /* note: readdir on /proc ignores threads */
     while ((dp = readdir(dirp)) != NULL) {
-        if (isdigit((int)dp->d_name[0])) {
-	    if( check_if_hot( dp->d_name ) ){
-            	pidlist_append(dp->d_name, pids);
+	if (isdigit((int)dp->d_name[0])) {
+	    if (check_if_hot( dp->d_name)) {
+		pidlist_append(dp->d_name, pids);
+		if (pids->threads)
+		    tasklist_append(dp->d_name, pids);
 	    }
 	}
     }
@@ -829,9 +831,12 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
     proc_pid_entry_t *ep;
     pmdaIndom *indomp = proc_pid->indom;
 
-    if (indomp->it_numinst < pids->count)
+    if (indomp->it_numinst < pids->count) {
 	indomp->it_set = (pmdaInstid *)realloc(indomp->it_set,
-						pids->count * sizeof(pmdaInstid));
+	    pids->count * sizeof(pmdaInstid));
+    	memset(&indomp->it_set[indomp->it_numinst], 0,
+	    (pids->count - indomp->it_numinst) * sizeof(pmdaInstid));
+    }
     indomp->it_numinst = pids->count;
 
     /*
@@ -948,7 +953,38 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids)
 
 	/* refresh the indom pointer */
 	indomp->it_set[i].i_inst = ep->id;
-	indomp->it_set[i].i_name = ep->name;
+	if (indomp->it_set[i].i_name) {
+	    int len = strlen(indomp->it_set[i].i_name);
+	    if (strncmp(indomp->it_set[i].i_name, ep->name, len) != 0) {
+	    	free(indomp->it_set[i].i_name);
+	    	indomp->it_set[i].i_name = NULL;
+	    }
+#if PCP_DEBUG
+	    else if (pmDebug & DBG_TRACE_LIBPMDA) {
+		fprintf(stderr, "refresh_proc_pidlist: Instance id=%d \"%s\" no change\n",
+		    ep->id, indomp->it_set[i].i_name);
+	    }
+#endif
+	}
+	if (indomp->it_set[i].i_name == NULL) {
+	    /*
+	     * The external instance name is the pid followed by
+	     * a copy of the psargs truncated at the first space.
+	     * e.g. "012345 /path/to/command". Command line args,
+	     * if any, are truncated. The full command line is
+	     * available in the proc.psinfo.psargs metric.
+	     */
+	    if ((p = strchr(ep->name, ' ')) != NULL) {
+		if ((p = strchr(p+1, ' ')) != NULL) {
+		    int len = p - ep->name;
+		    indomp->it_set[i].i_name = (char *)malloc(len+1);
+		    strncpy(indomp->it_set[i].i_name, ep->name, len);
+		    indomp->it_set[i].i_name[len] = '\0';
+		}
+	    }
+	    if (indomp->it_set[i].i_name == NULL)
+		indomp->it_set[i].i_name = strdup(ep->name);
+	}
     }
 
     /* 
@@ -2103,7 +2139,9 @@ fetch_proc_pid_label(int id, proc_pid_t *proc_pid, int *sts)
 
 /*
  * Extract the ith (space separated) field from a char buffer.
- * The first field starts at zero. 
+ * The first field starts at zero.  There is a special case we
+ * have to deal with - brace-enclosed command name may contain
+ * embedded whitespace.
  * BEWARE: return copy is in a static buffer.
  */
 char *
@@ -2115,19 +2153,27 @@ _pm_getfield(char *buf, int field)
     int i;
 
     if (buf == NULL)
-    	return NULL;
+	return NULL;
 
     for (p=buf, i=0; i < field; i++) {
+	/* if brace-enclosed, skip to the closing brace */
+	if (*p == '(')
+	    for (; *p && *p != ')'; p++) {;}
+
 	/* skip to the next space */
-    	for (; *p && !isspace((int)*p); p++) {;}
+	for (; *p && !isspace((int)*p); p++) {;}
 
 	/* skip to the next word */
-    	for (; *p && isspace((int)*p); p++) {;}
+	for (; *p && isspace((int)*p); p++) {;}
     }
 
     /* return a null terminated copy of the field */
     for (i=0; ; i++) {
-	if (isspace((int)p[i]) || p[i] == '\0' || p[i] == '\n')
+	if (p[i] == '\0' || p[i] == '\n')
+	    break;
+	if (p[0] == '(' && i > 0 && p[i-1] == ')')
+	    break;
+	if (p[0] != '(' && isspace((int)p[i]))
 	    break;
     }
 

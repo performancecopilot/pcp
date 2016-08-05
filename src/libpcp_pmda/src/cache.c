@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013,2015 Red Hat.
+ * Copyright (c) 2013,2015-2016 Red Hat.
  * Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -885,9 +885,10 @@ save_cache(hdr_t *h, int hstate)
     int		cnt;
     time_t	now;
     int		sep = __pmPathSeparator();
+    int		state = h->hstate & ~CACHE_STRINGS;
     char	strbuf[20];
 
-    if ((h->hstate & hstate) == 0 || (h->hstate & CACHE_STRINGS) != 0) {
+    if ((state & hstate) == 0) {
 	/* nothing to be done */
 	return 0;
     }
@@ -926,7 +927,7 @@ save_cache(hdr_t *h, int hstate)
 	cnt++;
     }
     fclose(fp);
-    h->hstate = 0;
+    h->hstate &= ~(DIRTY_INSTANCE | DIRTY_STAMP);
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_INDOM) {

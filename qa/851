@@ -1,0 +1,89 @@
+#!/bin/sh
+# PCP QA Test No. 851
+#
+# Tests various pcp-iostat features.
+#
+# Second part of 1099 that is conditional on availability of the
+# metrics disk.dev.avactive, disk.dev.read_merge, et al. in the
+# platform PMDA.
+#
+# Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
+# Copyright (c) 2016 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmiostat >/dev/null 2>&1 || _notrun "pmiostat binary not installed"
+
+for metric in disk.dev.avactive disk.dev.read_rawactive \
+    disk.dev.read_merge disk.dev.write_rawactive disk.dev.write_merge
+do
+    numval=`pmprobe $metric | $PCP_AWK_PROG '{ print $2 }'`
+    case "$numval"
+    in
+	[0-9]*)
+	    ;;
+	*)
+	    _notrun "metric $metric not available for pcp-iostat"
+	    ;;
+    esac
+done
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo '== testing pmiostat --samples and -s options to ensure sufficientl samples'
+
+pmiostat -t 0.01 -s 1 >$tmp.out
+echo "=== -s 1 case ===" >>$here/$seq.full
+cat $tmp.out >>$here/$seq.full
+# expect 1 stats line for _each_ device
+#
+touch $tmp.ok
+sed -e '/Device/d' <$tmp.out \
+| $PCP_AWK_PROG '{ print $1 }' \
+| sort \
+| uniq -c \
+| while read count dev
+do
+    if [ "$count" -ne 1 ]
+    then
+	echo "$dev: unexpected count of $count not 1 ... see $seq.full"
+	rm -f $tmp.ok
+    fi
+done
+[ -f $tmp.ok ] && echo "OK"
+
+pmiostat -t 0.01 --samples 2 >$tmp.out
+echo "=== --samples 2 case ===" >>$here/$seq.full
+cat $tmp.out >>$here/$seq.full
+# expect 2 stats line for _each_ device
+#
+touch $tmp.ok
+sed -e '/Device/d' <$tmp.out \
+| $PCP_AWK_PROG '{ print $1 }' \
+| sort \
+| uniq -c \
+| while read count dev
+do
+    if [ "$count" -ne 2 ]
+    then
+	echo "$dev: unexpected count of $count not 2 ... see $seq.full"
+	rm -f $tmp.ok
+    fi
+done
+[ -f $tmp.ok ] && echo "OK"
+
+# success, all done
+status=0
+
+exit

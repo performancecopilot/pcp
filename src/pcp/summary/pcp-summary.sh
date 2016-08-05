@@ -69,8 +69,9 @@ _usage()
 
 # usage spec for pmgetopt, note posix flag (commands mean no reordering)
 cat > $tmp/usage << EOF
-# getopts: a:h:n:O:P?
+# getopts: a:Dh:n:O:P?
    --archive
+   -D            debug
    --host
    --origin
    --namespace
@@ -80,6 +81,7 @@ cat > $tmp/usage << EOF
 EOF
 
 Pflag=false
+debug=false
 ARGS=`pmgetopt --progname=$progname --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
 
@@ -90,6 +92,9 @@ do
       -a)
 	export PCP_ARCHIVE="$2"
 	shift
+	;;
+      -D)
+	debug=true
 	;;
       -h)
 	export PCP_HOST="$2"
@@ -288,6 +293,14 @@ fi
 ncpu=`_plural $ncpu "$cputype cpu"`
 
 hardware="${ncpu}${ndisk}${nnode}${nrouter}${nxbow}${ncell}$mem"
+
+if $debug
+then
+    echo "log_archive:"
+    cat $tmp/log_archive
+    echo "log_host:"
+    cat $tmp/log_host
+fi
 
 if [ -f $tmp/log_archive -a -f $tmp/log_host ]
 then

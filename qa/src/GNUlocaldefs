@@ -34,13 +34,14 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	mmv_genstats.c mmv_instances.c mmv_poke.c mmv_noinit.c mmv_nostats.c \
 	record.c record-setarg.c clientid.c killparent.c grind_ctx.c \
 	pmdacache.c check_import.c unpack.c hrunpack.c aggrstore.c atomstr.c \
-	grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
+	semstr.c grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
 	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c \
 	username.c rtimetest.c getcontexthost.c badpmda.c chkputlogresult.c \
 	churnctx.c badUnitsStr_r.c units-parse.c rootclient.c derived.c \
 	lookupnametest.c getversion.c pdubufbounds.c statvfs.c storepmcd.c \
 	github-50.c archfetch.c fetchloop.c sortinst.c fetchgroup.c \
-	loadderived.c sum16.c
+	loadderived.c sum16.c badmmv.c multictx.c mmv_simple.c \
+	mmv2_genstats.c mmv2_instances.c mmv2_nostats.c mmv2_simple.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -148,7 +149,8 @@ MYFILES += \
 	root_irix root_pmns tiny.pmns sgi.bf versiondefs \
 	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
 	permslist \
-	qa_shmctl.c
+	qa_shmctl.c \
+	qa_sem_msg_ctl.c 
 
 MYSCRIPTS = grind-tools ipcs_clear show-args fixhosts mkpermslist \
 	memcachestats.pl
@@ -162,7 +164,7 @@ TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
 	fetchrate_lite pv
 
 ifeq "$(TARGET_OS)" "linux"
-TARGETS += qa_shmctl.$(DSOSUFFIX)
+TARGETS += qa_shmctl.$(DSOSUFFIX) qa_sem_msg_ctl.$(DSOSUFFIX)
 endif
 
 ifeq ($(HAVE_64), 1)
@@ -399,6 +401,9 @@ rootclient: rootclient.c
 atomstr: atomstr.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
+semstr: semstr.c
+	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+
 keycache: keycache.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
 
@@ -407,6 +412,10 @@ keycache2: keycache2.c
 
 badpmda: badpmda.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+
+torture_cache:	torture_cache.o 
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.o $(LDLIBS) -lpcp_pmda
 
 # --- need libpcp_gui
 #
@@ -421,22 +430,12 @@ record-setarg: record-setarg.c
 
 # --- need libpcp_mmv
 #
-mmv_genstats:	mmv_genstats.c
+mmv%:	mmv%.o
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
 
-mmv_instances:	mmv_instances.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
-
-mmv_noinit:	mmv_noinit.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
-
-mmv_nostats:	mmv_nostats.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
-
+# --- need extra libraries
+#
 pducheck:	pducheck.o 
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ pducheck.o  $(TRACELIB) $(LDLIBS) -lpcp_pmda
@@ -447,11 +446,7 @@ pducrash:	pducrash.o
 
 pdu-server:	pdu-server.o
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pdu-server.o  $(TRACELIB) $(LIBSOL) $(LDLIBS)
-
-torture_cache:	torture_cache.o 
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ torture_cache.o $(LDLIBS) -lpcp_pmda
+	$(CCF) $(CDEFS) -o $@ pdu-server.o  $(TRACELIB) $(LDLIBS)
 
 obs:	obs.c
 	rm -f $@
@@ -576,9 +571,12 @@ qa_timezone.$(DSOSUFFIX):	qa_timezone.o
 	$(LD) -shared -o $@ -nostdlib $<
 
 qa_shmctl.$(DSOSUFFIX):	 qa_shmctl.c
-	$(CC) -fPIC -c qa_shmctl.c
-	$(LD) -shared -o $@ -nostdlib qa_shmctl.o
+	$(CCF) $(LDFLAGS) -shared -o $@ qa_shmctl.c
 	@rm -f qa_shmctl.o
+
+qa_sem_msg_ctl.$(DSOSUFFIX):	 qa_sem_msg_ctl.c
+	$(CCF) $(LDFLAGS) -shared -o $@ qa_sem_msg_ctl.c
+	@rm -f qa_sem_msg_ctl.o
 
 ifneq ($(NVIDIAQALIB),)
 $(NVIDIAQALIB):	nvidia-ml.o

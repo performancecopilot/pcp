@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2015 Red Hat.
+# Copyright (c) 2012-2016 Red Hat.
 # Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,7 @@ CONFIGURE_GENERATED = pcp.lsm \
 	$(TOPDIR)/src/include/pcp/platform_defs.h
 
 LICFILES = COPYING
-DOCFILES = README INSTALL CHANGELOG VERSION.pcp
+DOCFILES = README.md INSTALL.md CHANGELOG VERSION.pcp
 CONFFILES = pcp.lsm
 LDIRT = config.cache config.status config.log files.rpm pro_files.rpm \
 	autom4te.cache install.manifest install_pro.manifest \
@@ -119,6 +119,12 @@ else
 realclean distclean clean clobber:
 	@true
 endif
+
+check :: check_pcp
+
+check_pcp : src
+	$(SUBDIRS_MAKERULE)
+
 
 aclocal.m4:
 	# older aclocal(1) versions use --acdir but not the current versions

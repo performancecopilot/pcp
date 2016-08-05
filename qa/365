@@ -86,6 +86,15 @@ solaris	75	dso	solaris_init	$PCP_PMDAS_DIR/solaris/pmda_solaris.so
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
 
 End-of-File
+elif [ $PCP_PLATFORM = freebsd ]
+then
+    cat <<End-of-File >$tmp.tmp
+# from qa/$seq
+#
+freebsd	85	dso	freebsd_init	$PCP_PMDAS_DIR/freebsd/pmda_freebsd.so
+pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.so
+
+End-of-File
 else
     echo "Arrgh ... need pmcd.conf for $PCP_PLATFORM"
     exit 1
@@ -109,8 +118,10 @@ echo >>$seq.full
 echo "=== pmcd.conf ===" >>$seq.full
 cat $PCP_PMCDCONF_PATH >>$seq.full
 
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+echo "=== pmcd restarting ===" >>$seq.full
+$sudo $PCP_RC_DIR/pcp restart 2>>$seq.full | _filter_pcp_start
 _wait_for_pmcd
+echo "=== pmcd restarted ===" >>$seq.full
 
 cat $PCP_PMCDLOG_PATH >>$seq.full
 echo >>$seq.full

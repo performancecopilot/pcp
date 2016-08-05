@@ -20,4 +20,4 @@
 iam=jbd2
 pmdaSetup
 pmdaRemove
-exit 0
+exit

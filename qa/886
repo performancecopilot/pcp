@@ -17,7 +17,18 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    cd $here
+    [ -f $PCP_VAR_DIR/config/pmda/$domain.26.$seq ] && \
+	_restore_config $PCP_VAR_DIR/config/pmda/$domain.26
+    [ -f $PCP_VAR_DIR/config/pmda/$domain.27.$seq ] && \
+	_restore_config $PCP_VAR_DIR/config/pmda/$domain.27
+    rm -rf $tmp.*
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 proc_stat()
 {
@@ -37,9 +48,21 @@ proc_stat()
 root=$tmp.root
 export LINUX_STATSPATH=$root
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
-files=`echo $here/linux/interrupts-* | LC_COLLATE=POSIX sort`
+interrupts=`echo $here/linux/interrupts-* | LC_COLLATE=POSIX sort`
+softirqs=`echo $here/linux/softirqs-* | LC_COLLATE=POSIX sort`
 
-for file in $files
+# override the default contents of PMDA cache files
+# (do not want localhost versions to be used here).
+#
+domain=60
+[ -f $PCP_VAR_DIR/config/pmda/$domain.26 ] && \
+    _save_config $PCP_VAR_DIR/config/pmda/$domain.26
+$sudo rm -f $PCP_VAR_DIR/config/pmda/$domain.26
+[ -f $PCP_VAR_DIR/config/pmda/$domain.27 ] && \
+    _save_config $PCP_VAR_DIR/config/pmda/$domain.27
+$sudo rm -f $PCP_VAR_DIR/config/pmda/$domain.27
+
+for file in $interrupts
 do
     rm -fr $root
     mkdir -p $root/proc || _fail "root in use when processing $file"
@@ -51,10 +74,27 @@ do
     export LINUX_NCPUS=$ncpu
 
     echo "== Checking interrupts metrics from $base ($ncpu CPU)"
-    pminfo -f -L -K clear -K add,60,$pmda kernel.percpu.interrupts
+    pminfo -f -L -K clear -K add,$domain,$pmda kernel.percpu.intr kernel.percpu.interrupts
     echo && echo "== done" && echo
     echo "== Checking interrupts helptext from $base ($ncpu CPU)"
-    pminfo -tT -L -K clear -K add,60,$pmda kernel.percpu.interrupts
+    pminfo -tT -L -K clear -K add,$domain,$pmda kernel.percpu.intr kernel.percpu.interrupts
+    echo && echo "== done" && echo
+    cd $here
+done
+
+for file in $softirqs
+do
+    rm -fr $root
+    mkdir -p $root/proc || _fail "root in use when processing $file"
+
+    cp $file $root/proc/softirqs
+    base=`basename $file`
+    ncpu=`echo $base | sed -e 's/.*-\([0-9][0-9]*\)cpu-.*/\1/'`
+    proc_stat $root/proc/stat $ncpu
+    export LINUX_NCPUS=$ncpu
+
+    echo "== Checking softirqs metrics from $base ($ncpu CPU)"
+    pminfo -f -L -K clear -K add,$domain,$pmda kernel.percpu.softirqs
     echo && echo "== done" && echo
     cd $here
 done

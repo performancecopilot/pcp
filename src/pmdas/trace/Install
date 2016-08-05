@@ -272,4 +272,4 @@ pmdaInstall
 echo Note: some warnings are expected until trace API calls are made - refer to
 echo "      the man pages for pmtrace(1) and pmdatrace(3) for further details."
 
-exit 0
+exit

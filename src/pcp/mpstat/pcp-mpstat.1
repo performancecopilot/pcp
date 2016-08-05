@@ -1,0 +1,210 @@
+.TH PCP-MPSTAT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+pcp-mpstat \- Report CPU and Interrupt related statistics.
+.SH SYNOPSIS
+.B pcp mpstat [ -A ] [ -u ] [ -V ] [ -I {
+.B SUM | CPU | SCPU | ALL } ] [ -P {
+.I cpu1,cpu2
+.B [,...] | ON | ALL } ] [ -t
+.I interval
+.B ] [ -s
+.I count
+.B ] [ -a
+.I pcp-archive
+.B ]
+.SH DESCRIPTION
+The
+.B pcp mpstat
+command writes to standard output activities for each available processor,
+processor 0 being the first one. If no activity/option has been selected, then the
+default report is the CPU utilization
+.B [ -u ]
+report.
+
+The
+.I interval
+parameter specifies the amount of time in seconds between each report. Default is one second.
+The value of
+.I count
+parameter determines the number of samples to be displayed.
+Default is continous.
+
+
+.SH OPTIONS
+.IP -A
+This option is equivalent to specifying
+.BR "-u -I ALL -P ALL"
+.IP "-I { SUM | CPU | SCPU | ALL }"
+Report interrupts statistics.
+
+With the
+.B SUM
+keyword, the
+.B pcp mpstat
+command reports the total number of interrupts per processor.
+The following values are displayed:
+
+.B CPU
+.RS
+.RS
+Processor number. The keyword
+.I all
+indicates that statistics are calculated as averages among all
+processors.
+.RE
+
+.B intr/s
+.RS
+Show the total number of interrupts received per second by
+the CPU or CPUs.
+.RE
+
+With the
+.B CPU
+keyword, the number of each individual interrupt received per
+second by the CPU or CPUs is displayed. Interrupts are those under the kernel.percpu.interrupts metric tree.
+
+With the
+.B SCPU
+keyword, the number of each individual software interrupt received per
+second by the CPU or CPUs is displayed. Software interrupts are those under
+  the kernel.percpu.softirqs tree
+
+The
+.B ALL
+keyword is equivalent to specifying all the keywords above and
+therefore all the interrupts statistics are displayed.
+.RE
+.RE
+.IP "-P { cpu1,cpu2[,...] | ON | ALL }"
+Indicate the processor number for which statistics are to be reported.
+.I cpu1 and cpu2
+are the processor numbers. A list of required processor numbers can be provided. Note that processor 0 is the first processor.
+
+The
+.B ON
+keyword indicates that statistics are to be reported for every
+online processor, whereas the
+.B ALL
+keyword indicates that statistics are to be reported for all processors.
+.IP -u
+Report CPU utilization. The following values are displayed:
+
+.B CPU
+.RS
+.RS
+Processor number. The keyword
+.I ALL
+indicates that statistics are calculated as averages among all
+processors.
+.RE
+
+.B %usr
+.RS
+Show the percentage of CPU utilization that occurred while
+executing at the user level (application).
+.RE
+
+.B %nice
+.RS
+Show the percentage of CPU utilization that occurred while
+executing at the user level with nice priority.
+.RE
+
+.B %sys
+.RS
+Show the percentage of CPU utilization that occurred while
+executing at the system level (kernel). Note that this does not
+include time spent servicing hardware and software interrupts.
+.RE
+
+.B %iowait
+.RS
+Show the percentage of time that the CPU or CPUs were idle during which
+the system had an outstanding disk I/O request.
+.RE
+
+.B %irq
+.RS
+Show the percentage of time spent by the CPU or CPUs to service hardware
+interrupts.
+.RE
+
+.B %soft
+.RS
+Show the percentage of time spent by the CPU or CPUs to service software
+interrupts.
+.RE
+
+.B %steal
+.RS
+Show the percentage of time spent in involuntary wait by the virtual CPU
+or CPUs while the hypervisor was servicing another virtual processor.
+.RE
+
+.B %guest
+.RS
+Show the percentage of time spent by the CPU or CPUs to run a virtual
+processor.
+.RE
+
+.B %gnice
+.RS
+Show the percentage of time spent by the CPU or CPUs to run a niced
+guest.
+.RE
+
+.B %idle
+.RS
+Show the percentage of time that the CPU or CPUs were idle and the system
+did not have an outstanding disk I/O request.
+.RE
+
+Note: On SMP machines a processor that does not have any activity at all
+is a disabled (offline) processor.
+.RE
+
+.IP "-a  FILE , --archive = FILE "
+Causes pcp\-mpstat to use the specified archive than connecting to PMCD. The argument to -a is a comma-separated
+list of names, each of which may be the base name of an archive or the name of a directory containing one or more archives. Archives can be created using
+.BR pmlogger (1)\.
+
+.IP "-s \ N , --samples = N"
+Set the number of samples to be displayed. Since the first sample is used for the rate conversion of some of the metrics, the total number of samples reported are one less that N. Default is continous.
+
+.IP "-t DELTA , --interval = DELTA"
+Set the interval between two samples. Default is one second.
+
+.IP -V
+Print version number then exit.
+
+.SH EXAMPLES
+.B pcp mpstat -t 2 -s 5
+.RS
+Display four reports of global statistics among all processors at two second intervals.
+.RE
+
+.B pcp mpstat -P ALL -t 2 -s 5
+.RS
+Display four reports of statistics for all processors at two second intervals.
+
+.SH NOTES
+.B pcp-mpstat
+is inspired by the
+.BR mpstat (1)
+command and aims to be command line and output compatible with it.
+
+.PP
+.SH ENVIRONMENT
+.BR TZ
+and
+.BR LC_TIME
+environment variables can be used to override the default date display format for pcp-mpstat.
+.SH "SEE ALSO"
+.BR pcp (1),
+.BR mpstat(1),
+.BR PCPIntro (1),
+.BR pmParseInterval (3)
+.BR pmTraversePMNS (3)
+and
+.BR environ (7).

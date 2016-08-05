@@ -369,6 +369,13 @@ main(int argc, char **argv)
     
     if (desc.status != 0) {
 	fprintf(stderr, "pmdaDaemon() failed!\n");
+	/*
+	 * we're going to exit() now, but first, shut down file
+	 * descriptors to reduce chances of a race with dbpmda's first
+	 * PDU send, e.g. in qa/274
+	 */
+	fclose(stdin);
+	fclose(stdout);
 	exit(1);
     }
 

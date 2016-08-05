@@ -19,8 +19,7 @@
 
 iam=mmv
 dso_opt=true
-socket_opt=true
-socket_inet_def=2081
+daemon_opt=false
 forced_restart=false
 pmda_interface=4
 pmns_source=root_mmv
@@ -33,4 +32,4 @@ fi
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit

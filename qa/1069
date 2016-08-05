@@ -8,10 +8,6 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.check
-. ./common.setup
-[ -f common.python ] || _notrun "Testsuite built without python supporty"
-
 . ./common.python
 
 $python -c "from pcp import pmapi" >/dev/null 2>&1
@@ -39,19 +35,18 @@ _path_filter()
     #end
 }
 
-#  timezone: :Australia/Melbourne (creation, current is AEDT-11)
-#  this is not deterministic .......................... ^^^^^^^
+#  timezone: :Australia/Melbourne (reporting, current is AEDT-11)
+#  this is not deterministic .... ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #  and
 #  timezone: AEDT-11
-#            ^^^^ ... ditto
+#            ^^^^^^^ ... ditto
 #
 #  we also need to filter for AEST-10 during standard timezone
 #  as it appears that pmrep will report the change in -11 to -10
 _archive_filter()
 {
     sed \
-	-e '/timezone/s/current is .*)/current is ...)/' \
-        -e '/timezone/s/ (reporting.*)//' \
+	-e '/timezone/s/ (reporting.*)//' \
 	-e '/timezone:/s/[A-Z][A-Z]*-11/...-11/' \
 	-e '/timezone:/s/[A-Z][A-Z]*-10/...-11/' \
     #end
@@ -65,6 +60,7 @@ echo "== basic live mode reporting"
 pmrep -p -s 2 -t 0.25 sample.long.one | _live_filter
 pmrep -p -T 2sec -t 1 sample.long.one | _live_filter
 pmrep -p -T 2sec -t 0.8 sample.long.one | _live_filter
+pmrep -p -T 1sec -t 1 -C sample.long.one sample.colour | _live_filter
 
 echo "== basic archive mode reporting"
 pmrep -z -p -s 5 -t 2 -P 2 --archive $here/archives/sample-secs \
@@ -86,7 +82,14 @@ echo "---"
 pmrep -s 5 -t 2 $log -c $tmp.config -C -x sample | _path_filter \
 | _archive_filter
 echo "---"
+pmrep -T 7s -t 3 -p $log -c $tmp.config -x sample | _path_filter \
+| _archive_filter
+echo "---"
 pmrep -s 5 -t 2 $log -c $tmp.config -G -H -U sample
+
+echo "== exercise non-integer options"
+pmrep -T 2.5s -t 0.5 -p $log -c $tmp.config -x sample | _path_filter \
+| _archive_filter
 
 echo "== exercise raw counter mode"
 pmrep -s 5 -t 2 $log -c $tmp.config -r sample
@@ -107,9 +110,12 @@ echo "== exercise repeated headers option"
 pmrep -s 5 -t 2 $log -E 2 sample.seconds
 
 echo "== exercise units conversion options"
-pmrep -s 5 -t 2 $log2 -p -b MB -P 0 mem.util.free mem.util.used
-pmrep -s 5 -t 2 $log2 -p -q "count x 10^-2" -P 0 -w 15 disk.dev.read
-pmrep -s 5 -t 2 $log  -p -y microsec sample
+pmrep -s 5 -t 2 $log2 -w 15 -P 0 -p -b byte mem.util.free mem.util.used
+pmrep -s 5 -t 2 $log2 -w 15 -P 0 -p -b MB mem.util.free mem.util.used
+pmrep -s 5 -t 2 $log2 -w 15 -P 3 -p -q "count x 10^2" disk.dev.read
+pmrep -s 5 -t 2 $log2 -w 15 -P 3 -p -q "count x 10^-2" disk.dev.read
+pmrep -s 5 -t 2 $log2 -w 15 -P 6 -p -y sec -u disk.dev.avactive
+pmrep -s 5 -t 2 $log2 -w 15 -P 6 -p -y microsec -u disk.dev.avactive
 
 echo "== derived metrics configuration file"
 cat > $tmp.derived <<EOF
@@ -151,6 +157,41 @@ pmrep -s 1 pmcd.version | sed -e "s/$pcp_version/PCP_VERSION/g"
 
 echo "== divide-by-zero error handling"
 pmrep -t .01 -s 1 -e 'fail = sample.long.one / 0' fail
+
+echo "== exercise option priority"
+echo '[options]' > $tmp.pconfig
+echo 'header = yes' >> $tmp.pconfig
+echo 'unitinfo = no' >> $tmp.pconfig
+echo 'interval = 2s' >> $tmp.pconfig
+pmrep -s 5 $log2 -p mem.util.free
+echo "---"
+pmrep -s 5 $log2 -p -c $tmp.pconfig mem.util.free
+echo "---"
+pmrep -s 5 $log2 -t 3s -p -H -c $tmp.pconfig mem.util.free
+echo "---"
+echo '[options]' > $tmp.pconfig
+echo "source = $here/archives/no-such-archive" >> $tmp.pconfig
+echo '[source]' >> $tmp.pconfig
+echo "source = $here/archives/rep" >> $tmp.pconfig
+echo 'kernel.all.uptime = uptime,,,,8' >> $tmp.pconfig
+pmrep -s 5 -c $tmp.pconfig -z -p -u :source
+echo "---"
+echo '[source]' > $tmp.pconfig
+echo 'source = wrong.example.com' >> $tmp.pconfig
+echo 'kernel.all.uptime = uptime,,,,8' >> $tmp.pconfig
+pmrep -s 5 $log2 -c $tmp.pconfig -p -u :source
+echo "---"
+echo '[source]' > $tmp.pconfig
+echo 'source = @' >> $tmp.pconfig
+echo "speclocal = clear|add,29,sample/pmda_sample.$DSO_SUFFIX,sample_init" >> $tmp.pconfig
+echo 'sample.long.one = one,,,,8' >> $tmp.pconfig
+pmrep -s 1 -c $tmp.pconfig -p -u :source | _live_filter
+echo "---"
+echo '[source]' > $tmp.pconfig
+echo 'source = @' >> $tmp.pconfig
+echo 'speclocal = fail' >> $tmp.pconfig
+echo 'sample.long.one = one,,,,8' >> $tmp.pconfig
+pmrep -s 1 -K clear -K add,29,sample/pmda_sample.$DSO_SUFFIX,sample_init -c $tmp.pconfig -p -u :source | _live_filter
 
 # success, all done
 echo "== done"

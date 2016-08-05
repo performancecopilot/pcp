@@ -22,4 +22,4 @@ iam=samba
 
 pmdaSetup
 pmdaRemove
-exit 0
+exit

@@ -26,9 +26,9 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # create test control file, directories and populate with dummy logfiles
 cat >$tmp.ctl<<EOF
 \$version=1.1
-#Host           S?  logfile                  args
-dist.engr       n   $tmp.distdir/pmie.log    -c config.default
-relay.engr      n   $tmp.relaydir/pmie.log   -c config.default
+#Host           P?  S?  logfile                  args
+dist.engr       n   n   $tmp.distdir/pmie.log    -c config.default
+relay.engr      n   n   $tmp.relaydir/pmie.log   -c config.default
 EOF
 
 mkdir -p $tmp.distdir $tmp.relaydir

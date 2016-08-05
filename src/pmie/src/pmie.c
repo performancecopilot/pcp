@@ -395,7 +395,13 @@ sigintproc(int sig)
     __pmSetSignalHandler(SIGTERM, SIG_IGN);
     if (pmDebug & DBG_TRACE_DESPERATE)
 	__pmNotifyErr(LOG_INFO, "%s caught SIGINT or SIGTERM\n", pmProgname);
-    doexit = sig;
+    if (inrun)
+	doexit = sig;
+    else {
+	/* for RH BZ 1327226 */
+	fprintf(stderr, "\nInterrupted!\n");
+	exit(1);
+    }
 }
 
 static void

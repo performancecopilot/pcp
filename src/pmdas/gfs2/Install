@@ -24,4 +24,4 @@ pmda_interface=4
 
 pmdaSetup
 pmdaInstall
-exit 0
+exit

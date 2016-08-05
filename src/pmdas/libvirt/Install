@@ -1,0 +1,71 @@
+#! /bin/sh
+#
+# Copyright (c) 2016 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# Install the libvirt PMDA
+#
+
+. $PCP_DIR/etc/pcp.env
+. $PCP_SHARE_DIR/lib/pmdaproc.sh
+
+iam=libvirt
+domain=140
+python_opt=true
+daemon_opt=false
+
+for module in libvirt lxml; do
+    $PCP_PYTHON_PROG -c "import $module" 2>/dev/null
+    if test $? -ne 0; then
+        echo "$PCP_PYTHON_PROG module $module not found"
+        status=1
+        exit
+    fi
+done
+
+# Get user and uri definitions
+eval `$PCP_PYTHON_PROG $PCP_PMDAS_DIR/libvirt/connect --config`
+
+if [ -z "$user" ]; then
+    echo "Failed to get configuration, sorry this is fatal"
+    status=1
+    exit
+fi
+
+id -g $user >/dev/null 2>&1
+if test $? -ne 0; then
+    echo "Cannot change user to $user, sorry this is fatal"
+    status=1
+    exit
+fi
+
+mkdir -p "$PCP_VAR_DIR/config/pmda" 2>/dev/null
+indoms="0"
+for indom in $indoms
+do
+    failed=false
+    touch "$PCP_VAR_DIR/config/pmda/$domain.$indom" >/dev/null 2>&1
+    [ $? -ne 0 ] && failed=true
+    chown $user "$PCP_VAR_DIR/config/pmda/$domain.$indom"
+    [ $? -ne 0 ] && failed=true
+
+    if $failed; then
+        echo "Cannot create indom persistance files for user $user"
+        echo "Failed on: $PCP_VAR_DIR/config/pmda/$domain.$indom"
+        status=1
+        exit
+    fi
+done
+
+pmdaSetup
+pmdaInstall
+exit

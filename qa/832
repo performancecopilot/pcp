@@ -16,10 +16,20 @@ echo "QA output created by $seq"
 _get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 $authentication || _notrun "No authentication support available"
-for helper in pluginviewer; do
-    which $helper >/dev/null 2>&1 || _notrun "SASL $helper tool unavailable"
-done
-pluginviewer -s -m plain >/dev/null 2>&1
+
+gotplugins=false
+which pluginviewer >/dev/null 2>&1 && gotplugins=true
+if $gotplugins
+then
+    pluginviewer=pluginviewer
+else
+    which saslpluginviewer >/dev/null 2>&1 && gotplugins=true
+    pluginviewer=saslpluginviewer
+fi
+$gotplugins || _notrun "SASL pluginviewer utility unavailable"
+$pluginviewer -c | grep 'Plugin "plain"' >/dev/null 2>&1
+test $? -eq 0 || _notrun 'No client support for plain authentication'
+$pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1
 test $? -eq 0 || _notrun 'No server support for plain authentication'
 
 export PCP_CONSOLE=none 
@@ -41,14 +51,18 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cleanup; exit \$status" 0 1 2 3 15
 
-# Handle these spurious lines from deep inside SASL code ...
-#
+# Handle spurious lines from deep inside SASL code ...
 # [Mon Mar  2 17:58:40] pmcd_wait(16622) Alert: Parameter Error in ../plugins/plugin_common.c near line 357
+#
+# And this from libpcp (via pmcd_wait) ...
+# Starting pmcd ... [Thu Aug  4 16:59:02] pmcd_wait(14208) Error: __pmCloseChannelbyFd: fd=3 expected PDU_ATTR received: Timeout waiting for a response from PMCD
 #
 _filter()
 {
     sed \
 	-e 's/\[[^]]*] .* Alert: Parameter Error .* line [0-9][0-9]*//' \
+	-e '/ pmcd_wait([0-9][0-9]*) Error: __pmCloseChannelbyFd/d' \
+	-e 's/\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/[DATE]/' \
 	-e '/^[ 	]*$/d' \
     # end
 }

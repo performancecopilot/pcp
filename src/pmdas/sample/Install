@@ -72,4 +72,4 @@ dso_entry=sample_init
 
 pmdaInstall
 
-exit 0
+exit

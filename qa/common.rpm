@@ -12,6 +12,7 @@
 
 _rpm_support_tests()
 {
+    [ -f /etc/slackware-version ] && _notrun "No don't exercise rpm bits on Slackware"
     which rpmbuild >/dev/null 2>&1 || _notrun "No rpmbuild binary found"
     test -x "$PCP_PMDAS_DIR/rpm/pmdarpm" || _notrun "pmdarpm not installed"
 }

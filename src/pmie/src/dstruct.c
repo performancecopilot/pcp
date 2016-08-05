@@ -70,6 +70,7 @@ int		applet;				/* applet mode? */
 int		dowrap;				/* counter wrap? default no */
 int		doexit;				/* time to exit stage left? */
 int		dorotate;			/* is a log rotation pending? */
+int		inrun;				/* parsing done, in run() */
 pmiestats_t	*perf;				/* live performance data */
 pmiestats_t	instrument;			/* used if no mmap (archive) */
 

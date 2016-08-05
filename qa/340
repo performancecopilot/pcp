@@ -24,7 +24,9 @@ status=1	# failure is the default!
 _filter_pminfo()
 {
     sed \
-      -e 's/Connection reset by peer/No permission to perform requested operation/'
+	-e 's/Connection reset by peer/No permission to perform requested operation/' \
+	-e 's/"'$me'"/"HOST"/g' \
+    # end
 }
 
 # real QA test starts here
@@ -62,8 +64,12 @@ trap "cleanup; exit \$status" 0 1 2 3 15
 
 rm -f $seq.full
 
+# see if unix domain sockets are available (permissions)
+_get_libpcp_config
+target="localhost"
+$unix_domain_sockets && target="unix:"
+
 # real QA test starts here
-dov1hosts=true
 
 # disable all pmloggers ...
 _chkconfig_pmlogger_on=true
@@ -80,71 +86,31 @@ $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 
 _save_config $PCP_PMCDCONF_PATH
 
-other1=bogus
-other2=bogus
-
-other1=`./getpmcdhosts -n 1 -L -v 'pcp=1' 2>$tmp.err`
-if [ -z "$other1" ]
-then
-    echo "[test configuration only for v2 hosts]"
-    dov1hosts=false
-    rm -f $seq.out ; ln $seq-v2.out $seq.out
-else
-    rm -f $seq.out ; ln $seq-v1v2.out $seq.out
-fi
-
-other2=`./getpmcdhosts -n 1 -L -v 'pcp>=2' 2>$tmp.err`
-if [ -z "$other2" ]
+other=`./getpmcdhosts -n 1 -L -v 'pcp>=2' 2>$tmp.err`
+if [ -z "$other" ]
 then
     # Unable to find remote PCP 2.x host
     cat $tmp.err >$seq.notrun
     exit
 fi
 
-echo "other1=$other1" >>$seq.full
-echo "other2=$other2" >>$seq.full
+echo "other=$other" >>$seq.full
 
-list1=
-if $dov1hosts
+list=`_all_hostnames $other`
+if [ -z "$list" ]
 then
-    list1=`_all_hostnames $other1`
-    if [ -z "$list1" ]
-    then
-	echo "Error: failed to expand hostnames for other1=\"$other1\""
-	exit
-    fi
-    echo "V1 list1=$list1" >>$seq.full
-    list2=`_all_hostnames $other2`
-    if [ -z "$list2" ]
-    then
-	echo "Error: failed to expand hostnames for other2=\"$other2\""
-	exit
-    fi
-    echo "V1 list2=$list2" >>$seq.full
-
-    cat >$tmp.access <<End-Of-File
-
-[access]
-disallow $list1 : all;
-disallow $list2 : all;
-allow * :	   all;
-End-Of-File
-else
-    list2=`_all_hostnames $other2`
-    if [ -z "$list2" ]
-    then
-	echo "Error: failed to expand hostnames for other2=\"$other2\""
-	exit
-    fi
-    echo "V2 list2=$list2" >>$seq.full
-
-    cat >$tmp.access <<End-Of-File
-
-[access]
-disallow $list2 : all;
-allow * :	   all;
-End-Of-File
+    echo "Error: failed to expand hostnames for other=\"$other\""
+    exit
 fi
+echo "list=$list" >>$seq.full
+
+cat >$tmp.access <<End-Of-File
+
+[access]
+disallow $list : all;
+allow * :	   all;
+End-Of-File
+
 sed -e '/\[access]/q' $PCP_PMCDCONF_PATH.$seq  \
 | sed -e '/\[access]/d' >$tmp.config
 cat $tmp.access >>$tmp.config
@@ -156,74 +122,41 @@ cat $PCP_PMCDCONF_PATH >>$seq.full
 echo "---- end pmcd.conf ----" >>$seq.full
 
 $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
-_wait_for_pmcd
+_wait_for_pmcd 20 $target
 
 echo "    checking default access for this host ..."
 pminfo -f sample.long.million \
 | _filter_pminfo
 pmstore sample.write_me 111
 
-if $dov1hosts
-then
-    echo
-    echo "    checking access for list1 (should fail)"
-    ssh -q pcpqa@$other1 pminfo -h $me -f pmcd.numclients 2>&1 \
-      | sed -e 's/"'$me'"/"HOST"/g'
-fi
-echo
-echo "    checking access for list2 (should fail)"
-ssh -q pcpqa@$other2 pminfo -h $me -f pmcd.numclients 2>&1 \
-  | sed -e 's/"'$me'"/"HOST"/g'
+echo "    checking access for list (should fail)"
+ssh -q pcpqa@$other pminfo -h $me -f pmcd.numclients 2>&1 \
+| _filter_pminfo
 
 echo "pmcd.log:======="
 sed -n <$PCP_PMCDLOG_PATH -e '/endclient/{
 s/\[[0-9]*]/[M]/
 s/(fd [0-9]*)/(fd N)/
 p
-}'
+}' \
+| sort \
+| uniq
 echo "================"
 
-iplist1=
-if $dov1hosts
+iplist=`_all_ipaddrs $other`
+if [ -z "$iplist" ]
 then
-    iplist1=`_all_ipaddrs $other1`
-    if [ -z "$iplist1" ]
-    then
-	echo "Error: failed to expand ip addrs for other1=\"$other1\""
-	exit
-    fi
-    echo "V1 iplist1=$iplist1" >>$seq.full
-    iplist2=`_all_ipaddrs $other2`
-    if [ -z "$iplist2" ]
-    then
-	echo "Error: failed to expand ip addrs for other2=\"$other2\""
-	exit
-    fi
-    echo "V1 iplist2=$iplist2" >>$seq.full
-
-    cat >$tmp.access <<End-Of-File
-
-[access]
-disallow $iplist1 : all;
-disallow $iplist2 : all;
-allow * :	   all;
-End-Of-File
-else
-    iplist2=`_all_ipaddrs $other2`
-    if [ -z "$iplist2" ]
-    then
-	echo "Error: failed to expand ip addrs for other2=\"$other2\""
-	exit
-    fi
-    echo "V2 iplist2=$iplist2" >>$seq.full
-
-    cat >$tmp.access <<End-Of-File
-
-[access]
-disallow $iplist2 : all;
-allow * :	   all;
-End-Of-File
+    echo "Error: failed to expand ip addrs for other=\"$other\""
+    exit
 fi
+echo "iplist=$iplist" >>$seq.full
+
+cat >$tmp.access <<End-Of-File
+
+[access]
+disallow $iplist : all;
+allow * :	   all;
+End-Of-File
 
 sed -e '/\[access]/q' $PCP_PMCDCONF_PATH.$seq  \
 | sed -e '/\[access]/d' >$tmp.config
@@ -242,18 +175,10 @@ echo "    checking default access for this host ..."
 pminfo -f sample.long.million
 pmstore sample.write_me 444
 
-if $dov1hosts
-then
-    echo
-    echo "    checking access for iplist1 (should fail)"
-    ssh -q pcpqa@$other1 pminfo -h $me -f pmcd.numclients 2>&1 \
-      | sed -e 's/"'$me'"/"HOST"/g'
-fi
-
 echo
-echo "    checking access for iplist2 (should fail)"
-ssh -q pcpqa@$other2 pminfo -h $me -f pmcd.numclients 2>&1 \
-  | sed -e 's/"'$me'"/"HOST"/g'
+echo "    checking access for iplist (should fail)"
+ssh -q pcpqa@$other pminfo -h $me -f pmcd.numclients 2>&1 \
+| _filter_pminfo
 
 echo "pmcd.log:======="
 sed -n <$PCP_PMCDLOG_PATH -e '/endclient/{

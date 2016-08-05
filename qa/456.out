@@ -4,16 +4,16 @@ PMLOGGER.CHECK
 --------------
 PMLOGGER.CHECK: [TMP/control:LINE]
 Error: insufficient fields in control file record
-[dots] logging for host "LOCALHOST" unchanged
+[dots] logging for host "LOCALHOSTNAME" unchanged
 PMLOGGER.CHECK: [TMP/control:LINE]
 Error: insufficient fields in control file record
-[dots] logging for host "LOCALHOST" unchanged
+[dots] logging for host "LOCALHOSTNAME" unchanged
 PMLOGGER.CHECK: [TMP/control:LINE]
 Error: insufficient fields in control file record
-[dots] logging for host "LOCALHOST" unchanged
+[dots] logging for host "LOCALHOSTNAME" unchanged
 PMLOGGER.CHECK: [TMP/control:LINE]
 Error: insufficient fields in control file record
-[dots] logging for host "LOCALHOST" unchanged
+[dots] logging for host "LOCALHOSTNAME" unchanged
 PMLOGGER.CHECK: [TMP/control:LINE]
 Error: insufficient fields in control file record
 [dots] logging for host "foo" unchanged
@@ -28,13 +28,13 @@ Error: insufficient fields in control file record
 PMLOGGER.DAILY
 --------------
 PMLOGGER.DAILY: Error: insufficient fields in control file record
-[TMP/control:LINE] [dots] logging for host "LOCALHOST" unchanged
+[TMP/control:LINE] [dots] logging for host "LOCALHOSTNAME" unchanged
 PMLOGGER.DAILY: Error: insufficient fields in control file record
-[TMP/control:LINE] [dots] logging for host "LOCALHOST" unchanged
+[TMP/control:LINE] [dots] logging for host "LOCALHOSTNAME" unchanged
 PMLOGGER.DAILY: Error: insufficient fields in control file record
-[TMP/control:LINE] [dots] logging for host "LOCALHOST" unchanged
+[TMP/control:LINE] [dots] logging for host "LOCALHOSTNAME" unchanged
 PMLOGGER.DAILY: Error: insufficient fields in control file record
-[TMP/control:LINE] [dots] logging for host "LOCALHOST" unchanged
+[TMP/control:LINE] [dots] logging for host "LOCALHOSTNAME" unchanged
 PMLOGGER.DAILY: Error: insufficient fields in control file record
 [TMP/control:LINE] [dots] logging for host "foo" unchanged
 PMLOGGER.DAILY: Error: insufficient fields in control file record

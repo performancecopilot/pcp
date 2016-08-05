@@ -12,7 +12,6 @@ dbpmda> open dso $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX sample_init 3
 dbpmda> close
 sample_ctx_end(0) [context is unknown, num_ctx=0]
 dbpmda> 
-sample_ctx_end(0) [context is unknown, num_ctx=0]
 dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 dbpmda> fetch sample.percontext.pdu
@@ -37,7 +36,6 @@ pmResult dump ...
 dbpmda> close
 sample_ctx_end(0) [context is active]
 dbpmda> 
-sample_ctx_end(0) [context is inactive]
 dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 dbpmda> fetch sample.percontext.pdu
@@ -60,7 +58,6 @@ pmResult dump ...
   29.0.43 (sample.percontext.pdu): No values returned!
 dbpmda> quit
 sample_ctx_end(0) [context is active]
-sample_ctx_end(0) [context is inactive]
 dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 dbpmda> fetch sample.percontext.pdu
@@ -83,7 +80,6 @@ pmResult dump ...
   29.0.43 (sample.percontext.pdu): No values returned!
 dbpmda> exit
 sample_ctx_end(0) [context is active]
-sample_ctx_end(0) [context is inactive]
 dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 dbpmda> fetch sample.percontext.pdu
@@ -106,7 +102,6 @@ pmResult dump ...
   29.0.43 (sample.percontext.pdu): No values returned!
 dbpmda> 
 sample_ctx_end(0) [context is active]
-sample_ctx_end(0) [context is inactive]
 dbpmda> open pipe $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 Start pmdasample PMDA: $PCP_VAR_DIR/pmdas/sample/pmdasample -d 29 -D appl1 -l $tmp.log
 dbpmda> fetch sample.percontext.pdu
@@ -147,4 +142,3 @@ pmResult dump ...
   29.0.43 (sample.percontext.pdu): No values returned!
 dbpmda> 
 sample_ctx_end(0) [context is active]
-sample_ctx_end(0) [context is inactive]

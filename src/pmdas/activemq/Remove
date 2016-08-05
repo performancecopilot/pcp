@@ -20,4 +20,4 @@ iam=activemq
 
 pmdaSetup
 pmdaRemove
-exit 0
+exit

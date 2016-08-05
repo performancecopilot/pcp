@@ -25,7 +25,7 @@ our $lc_opts = '-D /dev/shm -s all';
 our $lc_ival = 30; # minimal query interval in seconds, must be >= 30
 our $ds_alog = ''; # empty - guess; ok if only one DS instance in use
 our $ds_logd = '/var/log/dirsrv';
-our $ds_user = 'nobody'; # empty - use root
+our $ds_user = 'dirsrv'; # empty - use root
 
 # Configuration files for overriding the above settings
 for my $file (pmda_config('PCP_PMDAS_DIR') . '/ds389log/ds389log.conf', './ds389log.conf') {

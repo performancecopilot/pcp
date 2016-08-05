@@ -1,0 +1,8 @@
+QA output created by 891
+1 -> counter
+3 -> instant
+4 -> discrete
+
+And now some error cases ...
+out of range high -> ???
+out of range low -> ???

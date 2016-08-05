@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014-2016 Red Hat.
  * Copyright (c) 1995-2001 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,7 +12,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include "pmapi.h"
 #include "logger.h"
 
 char *chk_emess[] = {
@@ -161,4 +164,136 @@ chk_all(task_t *tp, pmID pmid)
     }
 #endif
     return 0;
+}
+
+/*
+ * Called when an error PDU containing PMCD_ADD_AGENT is received.
+ * This function checks all of the configured metrics to make sure that
+ * they have not changed. For example due to a PMDA being replaced by an
+ * updated version 
+ */
+void
+validate_metrics(void)
+{
+    const task_t	*tp;
+    pmID		*new_pmids;
+    const pmDesc	*old_desc;
+    pmDesc		new_desc;
+    int			index;
+    int			error;
+    int			sts;
+    time_t		now;
+    char		buf1[20], buf2[20];
+
+    time(&now);
+    fprintf(stderr, "%s: Validating metrics after PMCD state changed at %s",
+		    pmProgname, ctime(&now));
+
+    /*
+     * Check each metric in each element of the task list, whether it is
+     * active or not.
+     */
+    error = 0;
+    for (tp = tasklist; tp != NULL; tp = tp->t_next) {
+	/* We need at least one metric to look up. */
+	if (tp->t_numpmid < 1)
+	    continue;
+
+	/*
+	 * Perform a bulk lookup and then check for consistency.
+	 * Lookup the metrics by name, since that's the way they are
+	 * specified in the pmlogger config file.
+	 * We need a temporary array for the new pmIDs
+	 */
+
+	new_pmids = malloc(tp->t_numpmid * sizeof(*tp->t_pmidlist));
+	if (new_pmids == NULL) {
+	    __pmNoMem("allocating pmID array for validating metrice",
+		      tp->t_numpmid * sizeof(*tp->t_pmidlist), PM_FATAL_ERR);
+	}
+	if ((sts = pmLookupName(tp->t_numpmid, tp->t_namelist, new_pmids)) < 0) {
+	    fprintf(stderr, "Error looking up metrics: Reason: %s\n",
+		    pmErrStr(sts));
+	    exit(1);
+	}
+
+	/* Now check the individual metrics for problems. */
+	for (index = 0; index < tp->t_numpmid; ++index) {
+	    /* If there was an error looking up this metric, try again in order
+	     * to obtain the reason. If there is no error the second time
+	     * (possible), then the needed pmID will be fetched.
+	     */
+	    if (new_pmids[index] == PM_ID_NULL) {
+		if ((sts = pmLookupName(1, &tp->t_namelist[index],
+					&new_pmids[index])) < 0) {
+		    /* The lookup of the metric is still in error. */
+		    fprintf(stderr, "Error looking up %s: Reason: %s\n",
+			    tp->t_namelist[index], pmErrStr(sts));
+		    ++error;
+		    continue;
+		}
+		/* No error the second time. Fall through */
+	    }
+
+	    /*
+	     * Check that the pmid, type, semantics, instance domain and units
+	     * of the metric have not changed.
+	     */
+	    if (new_pmids[index] != tp->t_pmidlist[index]) {
+		fprintf(stderr, "PMID of metric \"%s\" has changed from %s to %s\n",
+			tp->t_namelist[index],
+			pmIDStr_r(tp->t_pmidlist[index], buf1, sizeof(buf1)),
+			pmIDStr_r(new_pmids[index], buf2, sizeof(buf2)));
+		++error;
+	    }
+	    if ((sts = pmLookupDesc(new_pmids[index], &new_desc)) < 0) {
+		fprintf(stderr, "Description unavailable for metric \"%s\": %s\n",
+			tp->t_namelist[index], pmErrStr(sts));
+		++error;
+		continue;
+	    }
+	    old_desc = &tp->t_desclist[index];
+	    if (new_desc.type != old_desc->type) {
+		fprintf(stderr, "Type of metric \"%s\" has changed from %s to %s\n",
+			tp->t_namelist[index],
+			pmTypeStr_r(old_desc->type, buf1, sizeof(buf1)),
+			pmTypeStr_r(new_desc.type, buf2, sizeof(buf2)));
+		++error;
+	    }
+	    if (new_desc.sem != old_desc->sem) {
+		fprintf(stderr, "Semantics of metric \"%s\" have changed from %s to %s\n",
+			tp->t_namelist[index],
+			pmSemStr_r(old_desc->sem, buf1, sizeof(buf1)),
+			pmSemStr_r(new_desc.sem, buf2, sizeof(buf2)));
+		++error;
+	    }
+	    if (new_desc.indom != old_desc->indom) {
+		fprintf(stderr, "Instance domain of metric \"%s\" has changed from %s to %s\n",
+			tp->t_namelist[index],
+			pmInDomStr_r(old_desc->indom, buf1, sizeof(buf1)),
+			pmInDomStr_r(new_desc.indom, buf2, sizeof(buf2)));
+		++error;
+	    }
+	    if (new_desc.units.dimSpace != old_desc->units.dimSpace ||
+		new_desc.units.dimTime != old_desc->units.dimTime ||
+		new_desc.units.dimCount != old_desc->units.dimCount ||
+		new_desc.units.scaleSpace != old_desc->units.scaleSpace ||
+		new_desc.units.scaleTime != old_desc->units.scaleTime ||
+		new_desc.units.scaleCount != old_desc->units.scaleCount) {
+		++error;
+		fprintf(stderr, "Units of metric \"%s\" has changed from %s to %s\n",
+			tp->t_namelist[index],
+			pmUnitsStr_r(&old_desc->units, buf1, sizeof(buf1)),
+			pmUnitsStr_r(&new_desc.units, buf2, sizeof(buf2)));
+	    }
+	} /* loop over metrics */
+
+	free(new_pmids);
+    } /* Loop over task list */
+
+    /* We cannot continue, if any of the metrics have changed. */
+    if (error) {
+	fprintf(stderr, "One or more configured metrics have changed after pmcd state change. Exiting\n");
+	exit(1);
+    }
 }

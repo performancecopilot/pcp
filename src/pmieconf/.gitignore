@@ -3,9 +3,9 @@ filesys/GNUmakefile
 global/GNUmakefile
 local
 memory/GNUmakefile
-pcp/GNUmakefile
 percpu/GNUmakefile
 pernetif/GNUmakefile
+primary/GNUmakefile
 pmieconf
 pmieconf.static
 pmlogconf

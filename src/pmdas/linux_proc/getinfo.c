@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2016 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -14,42 +15,54 @@
  */
 
 #include <sys/stat.h>
-#include <sys/dir.h>
 #include <ctype.h>
 #include <fcntl.h>
 #include "pmapi.h"
 
-char *
-get_ttyname_info(int pid, dev_t dev, char *ttyname)
+/*
+ * Convert kernels string device number encoding into a dev_t.
+*/
+dev_t
+get_encoded_dev(const char *devnum)
 {
-    DIR *dir;
-    struct dirent *dp;
-    struct stat sbuf;
-    int found=0;
-    char procpath[MAXPATHLEN];
+    unsigned device = (unsigned int)strtoul(devnum, NULL, 0);
+    return (dev_t)device;
+}
+
+/*
+ * Attempt to map a device number to a tty for a given process.
+ *
+ * Previously this was much more elaborate, scanning all open fds
+ * for a match on the device; but that is expensive for processes
+ * with many open fds, and we end up stat'ing all sorts of files
+ * unrelated to the job at hand (which SElinux blocks and reports
+ * as poor form).
+ *
+ * Returns a pointer into a static buffer, so no free'ing needed.
+ */
+char *
+get_ttyname_info(int pid, dev_t dev)
+{
+    int i;
+    size_t length;
+    struct stat statbuf;
     char ttypath[MAXPATHLEN];
+    char procpath[MAXPATHLEN];
+    static char ttyname[MAXPATHLEN];
+    const int fds[] = { STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO };
 
-    sprintf(procpath, "/proc/%d/fd", pid);
-    if ((dir = opendir(procpath)) != NULL) {
-	while ((dp = readdir(dir)) != NULL) {
-	    if (!isdigit((int)dp->d_name[0]))
-	    	continue;
-	    sprintf(procpath, "/proc/%d/fd/%s", pid, dp->d_name);
-	    if (realpath(procpath, ttypath) == NULL || stat(ttypath, &sbuf) < 0)
-	    	continue;
-	    if (S_ISCHR(sbuf.st_mode) && dev == sbuf.st_rdev) {
-		found=1;
-		break;
-	    }
+    strcpy(ttyname, "?");
+    for (i = 0; i < sizeof(fds)/sizeof(int); i++) {
+	sprintf(procpath, "/proc/%d/fd/%d", pid, fds[i]);
+	if ((length = readlink(procpath, ttypath, sizeof(ttypath)-1)) < 0)
+	    continue;
+	ttypath[length] = '\0';
+	if (strncmp(ttypath, "/dev/", 5) == 0 &&
+	    stat(ttypath, &statbuf) == 0 &&
+	    S_ISCHR(statbuf.st_mode) && dev == statbuf.st_rdev) {
+	    strcpy(ttyname, &ttypath[5]); /* skip "/dev/" prefix */
+	    break;
 	}
-	closedir(dir);
     }
-
-    if (!found)
-    	strcpy(ttyname, "?");
-    else
-	/* skip the "/dev/" prefix */
-    	strcpy(ttyname, &ttypath[5]);
-
     return ttyname;
 }

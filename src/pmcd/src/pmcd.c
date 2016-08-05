@@ -21,7 +21,7 @@
 #define PMDAROOT	1	/* domain identifier for pmdaroot(1) */
 #define SHUTDOWNWAIT	15	/* PMDAs wait time, in 10msec increments */
 #define MAXPENDING	5	/* maximum number of pending connections */
-#define FDNAMELEN	40	/* maximum length of a fd description */
+#define FDNAMELEN	80	/* maximum length of a fd description */
 #define STRINGIFY(s)	#s
 #define TO_STRING(s)	STRINGIFY(s)
 
@@ -103,6 +103,7 @@ static pmLongOptions longopts[] = {
     { "", 1, 'L', "BYTES", "maximum size for PDUs from clients [default 65536]" },
     { "", 1, 'q', "TIME", "PMDA initial negotiation timeout (seconds) [default 3]" },
     { "", 1, 't', "TIME", "PMDA response timeout (seconds) [default 5]" },
+    { "verify", 0, 'v', 0, "check validity of pmcd configuration, then exit" },
     PMAPI_OPTIONS_HEADER("Connection options"),
     { "interface", 1, 'i', "ADDR", "accept connections on this IP address" },
     { "port", 1, 'p', "N", "accept connections on this port" },
@@ -116,7 +117,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_POSIX,
-    .short_options = "Ac:C:D:fH:i:l:L:M:N:n:p:P:q:Qs:St:T:U:x:?",
+    .short_options = "Ac:C:D:fH:i:l:L:M:N:n:p:P:q:Qs:St:T:U:vx:?",
     .long_options = longopts,
 };
 
@@ -126,6 +127,7 @@ ParseOptions(int argc, char *argv[], int *nports)
     int		c;
     int		sts;
     char	*endptr;
+    int		verify = 0;
     int		usage = 0;
     int		val;
 
@@ -262,6 +264,10 @@ ParseOptions(int argc, char *argv[], int *nports)
 		username = opts.optarg;
 		break;
 
+	    case 'v':
+		verify = 1;
+		break;
+
 	    case 'x':
 		fatalfile = opts.optarg;
 		break;
@@ -281,6 +287,11 @@ ParseOptions(int argc, char *argv[], int *nports)
 	if (usage)
 	    exit(0);
 	DontStart();
+    }
+
+    if (verify) {
+	sts = VerifyConfig(configFileName);
+	exit(sts < 0);
     }
 }
 

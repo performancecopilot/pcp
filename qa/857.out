@@ -1,0 +1,776 @@
+QA output created by 857
+== Checking interrupts and softirqs names
+=== std out ===
+kernel.percpu.intr
+kernel.percpu.interrupts.PIW
+kernel.percpu.interrupts.PIN
+kernel.percpu.interrupts.MIS
+kernel.percpu.interrupts.ERR
+kernel.percpu.interrupts.HYP
+kernel.percpu.interrupts.MCP
+kernel.percpu.interrupts.MCE
+kernel.percpu.interrupts.DFR
+kernel.percpu.interrupts.THR
+kernel.percpu.interrupts.TRM
+kernel.percpu.interrupts.TLB
+kernel.percpu.interrupts.CAL
+kernel.percpu.interrupts.RES
+kernel.percpu.interrupts.RTR
+kernel.percpu.interrupts.IWI
+kernel.percpu.interrupts.PMI
+kernel.percpu.interrupts.SPU
+kernel.percpu.interrupts.LOC
+kernel.percpu.interrupts.NMI
+kernel.percpu.interrupts.line35
+kernel.percpu.interrupts.line34
+kernel.percpu.interrupts.line33
+kernel.percpu.interrupts.line32
+kernel.percpu.interrupts.line31
+kernel.percpu.interrupts.line30
+kernel.percpu.interrupts.line29
+kernel.percpu.interrupts.line28
+kernel.percpu.interrupts.line27
+kernel.percpu.interrupts.line25
+kernel.percpu.interrupts.line24
+kernel.percpu.interrupts.line23
+kernel.percpu.interrupts.line18
+kernel.percpu.interrupts.line16
+kernel.percpu.interrupts.line12
+kernel.percpu.interrupts.line9
+kernel.percpu.interrupts.line8
+kernel.percpu.interrupts.line1
+kernel.percpu.interrupts.line0
+kernel.percpu.softirqs.RCU
+kernel.percpu.softirqs.HRTIMER
+kernel.percpu.softirqs.SCHED
+kernel.percpu.softirqs.TASKLET
+kernel.percpu.softirqs.BLOCK_IOPOLL
+kernel.percpu.softirqs.BLOCK
+kernel.percpu.softirqs.NET_RX
+kernel.percpu.softirqs.NET_TX
+kernel.percpu.softirqs.TIMER
+kernel.percpu.softirqs.HI
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init kernel.percpu.intr kernel.percpu.interrupts kernel.percpu.softirqs
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Checking interrupts and softirqs values
+=== std out ===
+
+kernel.percpu.intr
+    inst [0 or "cpu0"] value 26111240
+    inst [1 or "cpu1"] value 7662936
+    inst [2 or "cpu2"] value 20042205
+    inst [3 or "cpu3"] value 6568091
+    inst [4 or "cpu4"] value 19451440
+    inst [5 or "cpu5"] value 6189188
+    inst [6 or "cpu6"] value 19095407
+    inst [7 or "cpu7"] value 6657317
+
+kernel.percpu.interrupts.PIW
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.PIN
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.MIS
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.ERR
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.HYP
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.MCP
+    inst [0 or "cpu0"] value 2525
+    inst [1 or "cpu1"] value 2525
+    inst [2 or "cpu2"] value 2525
+    inst [3 or "cpu3"] value 2525
+    inst [4 or "cpu4"] value 2525
+    inst [5 or "cpu5"] value 2525
+    inst [6 or "cpu6"] value 2525
+    inst [7 or "cpu7"] value 2525
+
+kernel.percpu.interrupts.MCE
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.DFR
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.THR
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.TRM
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.TLB
+    inst [0 or "cpu0"] value 280553
+    inst [1 or "cpu1"] value 186882
+    inst [2 or "cpu2"] value 319241
+    inst [3 or "cpu3"] value 187637
+    inst [4 or "cpu4"] value 351230
+    inst [5 or "cpu5"] value 213259
+    inst [6 or "cpu6"] value 369334
+    inst [7 or "cpu7"] value 186595
+
+kernel.percpu.interrupts.CAL
+    inst [0 or "cpu0"] value 60497
+    inst [1 or "cpu1"] value 66829
+    inst [2 or "cpu2"] value 59929
+    inst [3 or "cpu3"] value 56784
+    inst [4 or "cpu4"] value 61385
+    inst [5 or "cpu5"] value 64420
+    inst [6 or "cpu6"] value 49034
+    inst [7 or "cpu7"] value 58256
+
+kernel.percpu.interrupts.RES
+    inst [0 or "cpu0"] value 448998
+    inst [1 or "cpu1"] value 206937
+    inst [2 or "cpu2"] value 333675
+    inst [3 or "cpu3"] value 153696
+    inst [4 or "cpu4"] value 325565
+    inst [5 or "cpu5"] value 143760
+    inst [6 or "cpu6"] value 326484
+    inst [7 or "cpu7"] value 145869
+
+kernel.percpu.interrupts.RTR
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.IWI
+    inst [0 or "cpu0"] value 1
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 1
+    inst [3 or "cpu3"] value 1
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.PMI
+    inst [0 or "cpu0"] value 553
+    inst [1 or "cpu1"] value 288
+    inst [2 or "cpu2"] value 586
+    inst [3 or "cpu3"] value 286
+    inst [4 or "cpu4"] value 607
+    inst [5 or "cpu5"] value 216
+    inst [6 or "cpu6"] value 389
+    inst [7 or "cpu7"] value 203
+
+kernel.percpu.interrupts.SPU
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.LOC
+    inst [0 or "cpu0"] value 18017794
+    inst [1 or "cpu1"] value 5791007
+    inst [2 or "cpu2"] value 18785621
+    inst [3 or "cpu3"] value 5656822
+    inst [4 or "cpu4"] value 18296406
+    inst [5 or "cpu5"] value 5364275
+    inst [6 or "cpu6"] value 18002503
+    inst [7 or "cpu7"] value 5946670
+
+kernel.percpu.interrupts.NMI
+    inst [0 or "cpu0"] value 553
+    inst [1 or "cpu1"] value 288
+    inst [2 or "cpu2"] value 586
+    inst [3 or "cpu3"] value 286
+    inst [4 or "cpu4"] value 607
+    inst [5 or "cpu5"] value 216
+    inst [6 or "cpu6"] value 389
+    inst [7 or "cpu7"] value 203
+
+kernel.percpu.interrupts.line35
+    inst [0 or "cpu0"] value 312
+    inst [1 or "cpu1"] value 386
+    inst [2 or "cpu2"] value 570
+    inst [3 or "cpu3"] value 223
+    inst [4 or "cpu4"] value 24
+    inst [5 or "cpu5"] value 51
+    inst [6 or "cpu6"] value 63
+    inst [7 or "cpu7"] value 476
+
+kernel.percpu.interrupts.line34
+    inst [0 or "cpu0"] value 46
+    inst [1 or "cpu1"] value 165
+    inst [2 or "cpu2"] value 28
+    inst [3 or "cpu3"] value 96
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 18
+    inst [6 or "cpu6"] value 4
+    inst [7 or "cpu7"] value 59
+
+kernel.percpu.interrupts.line33
+    inst [0 or "cpu0"] value 1469469
+    inst [1 or "cpu1"] value 144536
+    inst [2 or "cpu2"] value 72660
+    inst [3 or "cpu3"] value 67411
+    inst [4 or "cpu4"] value 30996
+    inst [5 or "cpu5"] value 54462
+    inst [6 or "cpu6"] value 55834
+    inst [7 or "cpu7"] value 36640
+
+kernel.percpu.interrupts.line32
+    inst [0 or "cpu0"] value 6
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 1
+    inst [4 or "cpu4"] value 1
+    inst [5 or "cpu5"] value 12
+    inst [6 or "cpu6"] value 5
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.line31
+    inst [0 or "cpu0"] value 535491
+    inst [1 or "cpu1"] value 101812
+    inst [2 or "cpu2"] value 97997
+    inst [3 or "cpu3"] value 89277
+    inst [4 or "cpu4"] value 72963
+    inst [5 or "cpu5"] value 71434
+    inst [6 or "cpu6"] value 58086
+    inst [7 or "cpu7"] value 60455
+
+kernel.percpu.interrupts.line30
+    inst [0 or "cpu0"] value 249
+    inst [1 or "cpu1"] value 54
+    inst [2 or "cpu2"] value 51
+    inst [3 or "cpu3"] value 42
+    inst [4 or "cpu4"] value 32
+    inst [5 or "cpu5"] value 37
+    inst [6 or "cpu6"] value 40
+    inst [7 or "cpu7"] value 42
+
+kernel.percpu.interrupts.line29
+    inst [0 or "cpu0"] value 3249898
+    inst [1 or "cpu1"] value 727145
+    inst [2 or "cpu2"] value 103573
+    inst [3 or "cpu3"] value 204127
+    inst [4 or "cpu4"] value 93052
+    inst [5 or "cpu5"] value 157195
+    inst [6 or "cpu6"] value 78865
+    inst [7 or "cpu7"] value 122291
+
+kernel.percpu.interrupts.line28
+    inst [0 or "cpu0"] value 1206282
+    inst [1 or "cpu1"] value 65009
+    inst [2 or "cpu2"] value 178349
+    inst [3 or "cpu3"] value 63472
+    inst [4 or "cpu4"] value 144415
+    inst [5 or "cpu5"] value 55875
+    inst [6 or "cpu6"] value 92424
+    inst [7 or "cpu7"] value 49796
+
+kernel.percpu.interrupts.line27
+    inst [0 or "cpu0"] value 836947
+    inst [1 or "cpu1"] value 368771
+    inst [2 or "cpu2"] value 86379
+    inst [3 or "cpu3"] value 84935
+    inst [4 or "cpu4"] value 71356
+    inst [5 or "cpu5"] value 61231
+    inst [6 or "cpu6"] value 59367
+    inst [7 or "cpu7"] value 47157
+
+kernel.percpu.interrupts.line25
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.line24
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.line23
+    inst [0 or "cpu0"] value 14
+    inst [1 or "cpu1"] value 3
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 3
+    inst [4 or "cpu4"] value 1
+    inst [5 or "cpu5"] value 4
+    inst [6 or "cpu6"] value 2
+    inst [7 or "cpu7"] value 6
+
+kernel.percpu.interrupts.line18
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.line16
+    inst [0 or "cpu0"] value 13
+    inst [1 or "cpu1"] value 4
+    inst [2 or "cpu2"] value 2
+    inst [3 or "cpu3"] value 3
+    inst [4 or "cpu4"] value 3
+    inst [5 or "cpu5"] value 3
+    inst [6 or "cpu6"] value 2
+    inst [7 or "cpu7"] value 1
+
+kernel.percpu.interrupts.line12
+    inst [0 or "cpu0"] value 669
+    inst [1 or "cpu1"] value 204
+    inst [2 or "cpu2"] value 411
+    inst [3 or "cpu3"] value 430
+    inst [4 or "cpu4"] value 64
+    inst [5 or "cpu5"] value 123
+    inst [6 or "cpu6"] value 41
+    inst [7 or "cpu7"] value 45
+
+kernel.percpu.interrupts.line9
+    inst [0 or "cpu0"] value 322
+    inst [1 or "cpu1"] value 79
+    inst [2 or "cpu2"] value 14
+    inst [3 or "cpu3"] value 29
+    inst [4 or "cpu4"] value 206
+    inst [5 or "cpu5"] value 65
+    inst [6 or "cpu6"] value 14
+    inst [7 or "cpu7"] value 27
+
+kernel.percpu.interrupts.line8
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 1
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.interrupts.line1
+    inst [0 or "cpu0"] value 10
+    inst [1 or "cpu1"] value 11
+    inst [2 or "cpu2"] value 7
+    inst [3 or "cpu3"] value 5
+    inst [4 or "cpu4"] value 2
+    inst [5 or "cpu5"] value 7
+    inst [6 or "cpu6"] value 2
+    inst [7 or "cpu7"] value 1
+
+kernel.percpu.interrupts.line0
+    inst [0 or "cpu0"] value 38
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.softirqs.RCU
+    inst [0 or "cpu0"] value 4091340
+    inst [1 or "cpu1"] value 1909874
+    inst [2 or "cpu2"] value 4344260
+    inst [3 or "cpu3"] value 1844811
+    inst [4 or "cpu4"] value 4353438
+    inst [5 or "cpu5"] value 1788762
+    inst [6 or "cpu6"] value 4567499
+    inst [7 or "cpu7"] value 1790731
+
+kernel.percpu.softirqs.HRTIMER
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.softirqs.SCHED
+    inst [0 or "cpu0"] value 10615929
+    inst [1 or "cpu1"] value 2678293
+    inst [2 or "cpu2"] value 11420741
+    inst [3 or "cpu3"] value 2442310
+    inst [4 or "cpu4"] value 11326208
+    inst [5 or "cpu5"] value 2221897
+    inst [6 or "cpu6"] value 11847771
+    inst [7 or "cpu7"] value 2226145
+
+kernel.percpu.softirqs.TASKLET
+    inst [0 or "cpu0"] value 289993
+    inst [1 or "cpu1"] value 20066
+    inst [2 or "cpu2"] value 11407
+    inst [3 or "cpu3"] value 13018
+    inst [4 or "cpu4"] value 11681
+    inst [5 or "cpu5"] value 13975
+    inst [6 or "cpu6"] value 11346
+    inst [7 or "cpu7"] value 14721
+
+kernel.percpu.softirqs.BLOCK_IOPOLL
+    inst [0 or "cpu0"] value 0
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 0
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 0
+    inst [7 or "cpu7"] value 0
+
+kernel.percpu.softirqs.BLOCK
+    inst [0 or "cpu0"] value 954704
+    inst [1 or "cpu1"] value 355240
+    inst [2 or "cpu2"] value 148508
+    inst [3 or "cpu3"] value 114078
+    inst [4 or "cpu4"] value 139619
+    inst [5 or "cpu5"] value 109897
+    inst [6 or "cpu6"] value 123041
+    inst [7 or "cpu7"] value 89285
+
+kernel.percpu.softirqs.NET_RX
+    inst [0 or "cpu0"] value 2452582
+    inst [1 or "cpu1"] value 469315
+    inst [2 or "cpu2"] value 398117
+    inst [3 or "cpu3"] value 408351
+    inst [4 or "cpu4"] value 383922
+    inst [5 or "cpu5"] value 438586
+    inst [6 or "cpu6"] value 440370
+    inst [7 or "cpu7"] value 326415
+
+kernel.percpu.softirqs.NET_TX
+    inst [0 or "cpu0"] value 90951
+    inst [1 or "cpu1"] value 17778
+    inst [2 or "cpu2"] value 61
+    inst [3 or "cpu3"] value 40
+    inst [4 or "cpu4"] value 18
+    inst [5 or "cpu5"] value 21
+    inst [6 or "cpu6"] value 21
+    inst [7 or "cpu7"] value 91
+
+kernel.percpu.softirqs.TIMER
+    inst [0 or "cpu0"] value 22759101
+    inst [1 or "cpu1"] value 11940767
+    inst [2 or "cpu2"] value 29285504
+    inst [3 or "cpu3"] value 9478253
+    inst [4 or "cpu4"] value 30806978
+    inst [5 or "cpu5"] value 12117841
+    inst [6 or "cpu6"] value 31045648
+    inst [7 or "cpu7"] value 12521062
+
+kernel.percpu.softirqs.HI
+    inst [0 or "cpu0"] value 12
+    inst [1 or "cpu1"] value 0
+    inst [2 or "cpu2"] value 1
+    inst [3 or "cpu3"] value 0
+    inst [4 or "cpu4"] value 0
+    inst [5 or "cpu5"] value 0
+    inst [6 or "cpu6"] value 5
+    inst [7 or "cpu7"] value 0
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo --fetch -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init kernel.percpu.intr kernel.percpu.interrupts kernel.percpu.softirqs
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+
+== Checking interrupts and softirqs helptext
+=== std out ===
+
+kernel.percpu.intr [interrupt count metric from /proc/interrupts]
+Help:
+Aggregate count of each CPUs interrupt processing count, calculated
+as the sum of all interrupt types in /proc/interrupts for each CPU.
+
+kernel.percpu.interrupts.PIW [Posted-interrupt wakeup event]
+Help:
+Posted-interrupt wakeup event
+
+kernel.percpu.interrupts.PIN [Posted-interrupt notification event]
+Help:
+Posted-interrupt notification event
+
+kernel.percpu.interrupts.MIS One-line Help: Error: One-line or help text is not available
+
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.interrupts.ERR One-line Help: Error: One-line or help text is not available
+
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.interrupts.HYP [Hypervisor callback interrupts]
+Help:
+Hypervisor callback interrupts
+
+kernel.percpu.interrupts.MCP [Machine check polls]
+Help:
+Machine check polls
+
+kernel.percpu.interrupts.MCE [Machine check exceptions]
+Help:
+Machine check exceptions
+
+kernel.percpu.interrupts.DFR [Deferred Error APIC interrupts]
+Help:
+Deferred Error APIC interrupts
+
+kernel.percpu.interrupts.THR [Threshold APIC interrupts]
+Help:
+Threshold APIC interrupts
+
+kernel.percpu.interrupts.TRM [Thermal event interrupts]
+Help:
+Thermal event interrupts
+
+kernel.percpu.interrupts.TLB [TLB shootdowns]
+Help:
+TLB shootdowns
+
+kernel.percpu.interrupts.CAL [Function call interrupts]
+Help:
+Function call interrupts
+
+kernel.percpu.interrupts.RES [Rescheduling interrupts]
+Help:
+Rescheduling interrupts
+
+kernel.percpu.interrupts.RTR [APIC ICR read retries]
+Help:
+APIC ICR read retries
+
+kernel.percpu.interrupts.IWI [IRQ work interrupts]
+Help:
+IRQ work interrupts
+
+kernel.percpu.interrupts.PMI [Performance monitoring interrupts]
+Help:
+Performance monitoring interrupts
+
+kernel.percpu.interrupts.SPU [Spurious interrupts]
+Help:
+Spurious interrupts
+
+kernel.percpu.interrupts.LOC [Local timer interrupts]
+Help:
+Local timer interrupts
+
+kernel.percpu.interrupts.NMI [Non-maskable interrupts]
+Help:
+Non-maskable interrupts
+
+kernel.percpu.interrupts.line35 [IR-PCI-MSI 49152-edge snd_hda_intel]
+Help:
+IR-PCI-MSI 49152-edge snd_hda_intel
+
+kernel.percpu.interrupts.line34 [IR-PCI-MSI 442368-edge snd_hda_intel]
+Help:
+IR-PCI-MSI 442368-edge snd_hda_intel
+
+kernel.percpu.interrupts.line33 [IR-PCI-MSI 1572864-edge iwlwifi]
+Help:
+IR-PCI-MSI 1572864-edge iwlwifi
+
+kernel.percpu.interrupts.line32 [IR-PCI-MSI 360448-edge mei_me]
+Help:
+IR-PCI-MSI 360448-edge mei_me
+
+kernel.percpu.interrupts.line31 [IR-PCI-MSI 32768-edge i915]
+Help:
+IR-PCI-MSI 32768-edge i915
+
+kernel.percpu.interrupts.line30 [IR-PCI-MSI 524288-edge nvkm]
+Help:
+IR-PCI-MSI 524288-edge nvkm
+
+kernel.percpu.interrupts.line29 [IR-PCI-MSI 409600-edge enp0s25]
+Help:
+IR-PCI-MSI 409600-edge enp0s25
+
+kernel.percpu.interrupts.line28 [IR-PCI-MSI 327680-edge xhci_hcd]
+Help:
+IR-PCI-MSI 327680-edge xhci_hcd
+
+kernel.percpu.interrupts.line27 [IR-PCI-MSI 512000-edge 0000:00:1f.2]
+Help:
+IR-PCI-MSI 512000-edge 0000:00:1f.2
+
+kernel.percpu.interrupts.line25 [DMAR-MSI 1-edge dmar1]
+Help:
+DMAR-MSI 1-edge dmar1
+
+kernel.percpu.interrupts.line24 [DMAR-MSI 0-edge dmar0]
+Help:
+DMAR-MSI 0-edge dmar0
+
+kernel.percpu.interrupts.line23 [IR-IO-APIC 23-fasteoi ehci_hcd:usb4]
+Help:
+IR-IO-APIC 23-fasteoi ehci_hcd:usb4
+
+kernel.percpu.interrupts.line18 [IR-IO-APIC 18-fasteoi i801_smbus]
+Help:
+IR-IO-APIC 18-fasteoi i801_smbus
+
+kernel.percpu.interrupts.line16 [IR-IO-APIC 16-fasteoi ehci_hcd:usb3, mmc0]
+Help:
+IR-IO-APIC 16-fasteoi ehci_hcd:usb3, mmc0
+
+kernel.percpu.interrupts.line12 [IR-IO-APIC 12-edge i8042]
+Help:
+IR-IO-APIC 12-edge i8042
+
+kernel.percpu.interrupts.line9 [IR-IO-APIC 9-fasteoi acpi]
+Help:
+IR-IO-APIC 9-fasteoi acpi
+
+kernel.percpu.interrupts.line8 [IR-IO-APIC 8-edge rtc0]
+Help:
+IR-IO-APIC 8-edge rtc0
+
+kernel.percpu.interrupts.line1 [IR-IO-APIC 1-edge i8042]
+Help:
+IR-IO-APIC 1-edge i8042
+
+kernel.percpu.interrupts.line0 [IR-IO-APIC 2-edge timer]
+Help:
+IR-IO-APIC 2-edge timer
+
+kernel.percpu.softirqs.RCU One-line Help: Error: One-line or help text is not available
+
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.HRTIMER One-line Help: Error: One-line or help text is not available
+
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.SCHED One-line Help: Error: One-line or help text is not available
+
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.TASKLET One-line Help: Error: One-line or help text is not available
+
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.BLOCK_IOPOLL One-line Help: Error: One-line or help text is not available
+
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.BLOCK One-line Help: Error: One-line or help text is not available
+
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.NET_RX One-line Help: Error: One-line or help text is not available
+
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.NET_TX One-line Help: Error: One-line or help text is not available
+
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.TIMER One-line Help: Error: One-line or help text is not available
+
+Full Help: Error: One-line or help text is not available
+
+kernel.percpu.softirqs.HI One-line Help: Error: One-line or help text is not available
+
+Full Help: Error: One-line or help text is not available
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -tT -L -K clear -K add,60,PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init kernel.percpu.intr kernel.percpu.interrupts kernel.percpu.softirqs
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== done
+

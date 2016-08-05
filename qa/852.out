@@ -1,0 +1,2029 @@
+QA output created by 852
+
+== Fetching per-thread proc.psinfo.rss metric - procpid-2.6.32-root-001.tgz
+
+proc.psinfo.rss
+    inst [N or "000001 /sbin/init"] value 1540
+    inst [N or "000002 (kthreadd)"] value 0
+    inst [N or "000003 (migration/0)"] value 0
+    inst [N or "000004 (ksoftirqd/0)"] value 0
+    inst [N or "000005 (stopper/0)"] value 0
+    inst [N or "000006 (watchdog/0)"] value 0
+    inst [N or "000007 (migration/1)"] value 0
+    inst [N or "000008 (stopper/1)"] value 0
+    inst [N or "000009 (ksoftirqd/1)"] value 0
+    inst [N or "000010 (watchdog/1)"] value 0
+    inst [N or "000011 (migration/2)"] value 0
+    inst [N or "000012 (stopper/2)"] value 0
+    inst [N or "000013 (ksoftirqd/2)"] value 0
+    inst [N or "000014 (watchdog/2)"] value 0
+    inst [N or "000015 (migration/3)"] value 0
+    inst [N or "000016 (stopper/3)"] value 0
+    inst [N or "000017 (ksoftirqd/3)"] value 0
+    inst [N or "000018 (watchdog/3)"] value 0
+    inst [N or "000019 (events/0)"] value 0
+    inst [N or "000020 (events/1)"] value 0
+    inst [N or "000021 (events/2)"] value 0
+    inst [N or "000022 (events/3)"] value 0
+    inst [N or "000023 (cgroup)"] value 0
+    inst [N or "000024 (khelper)"] value 0
+    inst [N or "000025 (netns)"] value 0
+    inst [N or "000026 (async/mgr)"] value 0
+    inst [N or "000027 (pm)"] value 0
+    inst [N or "000028 (sync_supers)"] value 0
+    inst [N or "000029 (bdi-default)"] value 0
+    inst [N or "000030 (kintegrityd/0)"] value 0
+    inst [N or "000031 (kintegrityd/1)"] value 0
+    inst [N or "000032 (kintegrityd/2)"] value 0
+    inst [N or "000033 (kintegrityd/3)"] value 0
+    inst [N or "000034 (kblockd/0)"] value 0
+    inst [N or "000035 (kblockd/1)"] value 0
+    inst [N or "000036 (kblockd/2)"] value 0
+    inst [N or "000037 (kblockd/3)"] value 0
+    inst [N or "000038 (kacpid)"] value 0
+    inst [N or "000039 (kacpi_notify)"] value 0
+    inst [N or "000040 (kacpi_hotplug)"] value 0
+    inst [N or "000041 (ata_aux)"] value 0
+    inst [N or "000042 (ata_sff/0)"] value 0
+    inst [N or "000043 (ata_sff/1)"] value 0
+    inst [N or "000044 (ata_sff/2)"] value 0
+    inst [N or "000045 (ata_sff/3)"] value 0
+    inst [N or "000046 (ksuspend_usbd)"] value 0
+    inst [N or "000047 (khubd)"] value 0
+    inst [N or "000048 (kseriod)"] value 0
+    inst [N or "000049 (md/0)"] value 0
+    inst [N or "000050 (md/1)"] value 0
+    inst [N or "000051 (md/2)"] value 0
+    inst [N or "000052 (md/3)"] value 0
+    inst [N or "000053 (md_misc/0)"] value 0
+    inst [N or "000054 (md_misc/1)"] value 0
+    inst [N or "000055 (md_misc/2)"] value 0
+    inst [N or "000056 (md_misc/3)"] value 0
+    inst [N or "000057 (linkwatch)"] value 0
+    inst [N or "000059 (khungtaskd)"] value 0
+    inst [N or "000060 (kswapd0)"] value 0
+    inst [N or "000061 (ksmd)"] value 0
+    inst [N or "000062 (khugepaged)"] value 0
+    inst [N or "000063 (aio/0)"] value 0
+    inst [N or "000064 (aio/1)"] value 0
+    inst [N or "000065 (aio/2)"] value 0
+    inst [N or "000066 (aio/3)"] value 0
+    inst [N or "000067 (crypto/0)"] value 0
+    inst [N or "000068 (crypto/1)"] value 0
+    inst [N or "000069 (crypto/2)"] value 0
+    inst [N or "000070 (crypto/3)"] value 0
+    inst [N or "000078 (kthrotld/0)"] value 0
+    inst [N or "000079 (kthrotld/1)"] value 0
+    inst [N or "000080 (kthrotld/2)"] value 0
+    inst [N or "000081 (kthrotld/3)"] value 0
+    inst [N or "000083 (kpsmoused)"] value 0
+    inst [N or "000084 (usbhid_resumer)"] value 0
+    inst [N or "000085 (deferwq)"] value 0
+    inst [N or "000116 (kdmremove)"] value 0
+    inst [N or "000117 (kstriped)"] value 0
+    inst [N or "000146 (ttm_swap)"] value 0
+    inst [N or "000291 (scsi_eh_0)"] value 0
+    inst [N or "000292 (scsi_wq_0)"] value 0
+    inst [N or "000301 (scsi_eh_1)"] value 0
+    inst [N or "000302 (scsi_eh_2)"] value 0
+    inst [N or "000303 (scsi_eh_3)"] value 0
+    inst [N or "000304 (scsi_eh_4)"] value 0
+    inst [N or "000305 (scsi_eh_5)"] value 0
+    inst [N or "000306 (scsi_eh_6)"] value 0
+    inst [N or "000396 (jbd2/sda2-8)"] value 0
+    inst [N or "000397 (ext4-dio-unwrit)"] value 0
+    inst [N or "000499 (flush-8:0)"] value 0
+    inst [N or "000504 /sbin/udevd"] value 1380
+    inst [N or "000547 (hd-audio0)"] value 0
+    inst [N or "000550 (hd-audio1)"] value 0
+    inst [N or "001484 (kvm-irqfd-clean)"] value 0
+    inst [N or "001532 (jbd2/sda1-8)"] value 0
+    inst [N or "001533 (ext4-dio-unwrit)"] value 0
+    inst [N or "001536 (xfs_mru_cache)"] value 0
+    inst [N or "001537 (xfslogd/0)"] value 0
+    inst [N or "001538 (xfslogd/1)"] value 0
+    inst [N or "001539 (xfslogd/2)"] value 0
+    inst [N or "001540 (xfslogd/3)"] value 0
+    inst [N or "001541 (xfsdatad/0)"] value 0
+    inst [N or "001542 (xfsdatad/1)"] value 0
+    inst [N or "001543 (xfsdatad/2)"] value 0
+    inst [N or "001544 (xfsdatad/3)"] value 0
+    inst [N or "001545 (xfsconvertd/0)"] value 0
+    inst [N or "001546 (xfsconvertd/1)"] value 0
+    inst [N or "001547 (xfsconvertd/2)"] value 0
+    inst [N or "001548 (xfsconvertd/3)"] value 0
+    inst [N or "001549 (xfsalloc/0)"] value 0
+    inst [N or "001550 (xfsalloc/1)"] value 0
+    inst [N or "001551 (xfsalloc/2)"] value 0
+    inst [N or "001552 (xfsalloc/3)"] value 0
+    inst [N or "001553 (xfseofblocks/0)"] value 0
+    inst [N or "001554 (xfseofblocks/1)"] value 0
+    inst [N or "001555 (xfseofblocks/2)"] value 0
+    inst [N or "001556 (xfseofblocks/3)"] value 0
+    inst [N or "001557 (xfsbufd/sda4)"] value 0
+    inst [N or "001558 (xfs-cil/sda4)"] value 0
+    inst [N or "001559 (xfssyncd/sda4)"] value 0
+    inst [N or "001560 (xfsaild/sda4)"] value 0
+    inst [N or "001612 (kauditd)"] value 0
+    inst [N or "001915 auditd"] value 848
+    inst [N or "001945 /sbin/rsyslogd"] value 1848
+    inst [N or "001969 (kondemand/0)"] value 0
+    inst [N or "001970 (kondemand/1)"] value 0
+    inst [N or "001971 (kondemand/2)"] value 0
+    inst [N or "001972 (kondemand/3)"] value 0
+    inst [N or "001994 irqbalance"] value 620
+    inst [N or "002015 rpcbind"] value 904
+    inst [N or "002132 dbus-daemon"] value 1620
+    inst [N or "002144 NetworkManager"] value 4460
+    inst [N or "002148 /usr/sbin/modem-manager"] value 2432
+    inst [N or "002165 rpc.statd"] value 1344
+    inst [N or "002193 /sbin/dhclient"] value 1536
+    inst [N or "002201 cupsd"] value 3340
+    inst [N or "002202 /usr/sbin/wpa_supplicant"] value 684
+    inst [N or "002230 /usr/sbin/acpid"] value 632
+    inst [N or "002240 hald"] value 5592
+    inst [N or "002241 hald-runner"] value 1168
+    inst [N or "002288 hald-addon-input:"] value 1084
+    inst [N or "002289 hald-addon-acpi:"] value 1036
+    inst [N or "002387 automount"] value 1900
+    inst [N or "002414 /usr/sbin/mcelog"] value 292
+    inst [N or "002429 /usr/sbin/sshd"] value 1224
+    inst [N or "002438 ntpd"] value 2096
+    inst [N or "002520 /usr/libexec/postfix/master"] value 3408
+    inst [N or "002526 pickup"] value 3368
+    inst [N or "002527 qmgr"] value 3412
+    inst [N or "002545 /usr/sbin/abrtd"] value 1076
+    inst [N or "002560 /bin/bash"] value 776
+    inst [N or "002571 crond"] value 1372
+    inst [N or "002584 /usr/sbin/atd"] value 484
+    inst [N or "002595 /usr/bin/python"] value 28932
+    inst [N or "002610 libvirtd"] value 12348
+    inst [N or "002663 /usr/bin/rhsmcertd"] value 608
+    inst [N or "002733 /usr/sbin/dnsmasq"] value 656
+    inst [N or "002735 /usr/sbin/certmonger"] value 1208
+    inst [N or "002858 /usr/libexec/qemu-kvm"] value 1791644
+    inst [N or "002860 (kvm-pit-wq)"] value 0
+    inst [N or "002862 (vhost-2858)"] value 0
+    inst [N or "002887 /usr/libexec/qemu-kvm"] value 1797236
+    inst [N or "002906 (kvm-pit-wq)"] value 0
+    inst [N or "002909 (vhost-2887)"] value 0
+    inst [N or "002954 /usr/libexec/qemu-kvm"] value 500664
+    inst [N or "002955 (kvm-pit-wq)"] value 0
+    inst [N or "002958 (vhost-2954)"] value 0
+    inst [N or "003004 /usr/libexec/qemu-kvm"] value 457028
+    inst [N or "003006 (kvm-pit-wq)"] value 0
+    inst [N or "003008 (vhost-3004)"] value 0
+    inst [N or "003051 /usr/libexec/qemu-kvm"] value 554056
+    inst [N or "003052 (kvm-pit-wq)"] value 0
+    inst [N or "003055 (vhost-3051)"] value 0
+    inst [N or "003076 /usr/sbin/gdm-binary"] value 2144
+    inst [N or "003081 /sbin/mingetty"] value 552
+    inst [N or "003083 /sbin/mingetty"] value 548
+    inst [N or "003085 /sbin/mingetty"] value 552
+    inst [N or "003087 /sbin/mingetty"] value 544
+    inst [N or "003089 /sbin/mingetty"] value 548
+    inst [N or "003096 /sbin/udevd"] value 2816
+    inst [N or "003097 /sbin/udevd"] value 2820
+    inst [N or "003112 /usr/libexec/gdm-simple-slave"] value 3064
+    inst [N or "003115 /usr/bin/Xorg"] value 59408
+    inst [N or "003138 /usr/sbin/console-kit-daemon"] value 3328
+    inst [N or "003208 /usr/bin/dbus-launch"] value 656
+    inst [N or "003209 /bin/dbus-daemon"] value 1272
+    inst [N or "003211 /usr/bin/gnome-session"] value 7848
+    inst [N or "003214 /usr/libexec/devkit-power-daemon"] value 2696
+    inst [N or "003220 /usr/libexec/gconfd-2"] value 5276
+    inst [N or "003236 /usr/libexec/at-spi-registryd"] value 4416
+    inst [N or "003237 /usr/libexec/gnome-settings-daemon"] value 13336
+    inst [N or "003239 /usr/libexec/bonobo-activation-server"] value 2972
+    inst [N or "003247 /usr/libexec/gvfsd"] value 1868
+    inst [N or "003248 metacity"] value 9936
+    inst [N or "003251 gnome-power-manager"] value 8636
+    inst [N or "003256 /usr/libexec/gdm-simple-greeter"] value 16032
+    inst [N or "003257 /usr/libexec/polkit-gnome-authentication-agent-1"] value 7400
+    inst [N or "003261 /usr/libexec/polkit-1/polkitd"] value 4476
+    inst [N or "003264 /usr/bin/pulseaudio"] value 4448
+    inst [N or "003266 /usr/libexec/rtkit-daemon"] value 1196
+    inst [N or "003273 pam:"] value 2052
+    inst [N or "004928 sshd:"] value 3904
+    inst [N or "004931 sshd:"] value 1836
+    inst [N or "004932 -bash"] value 1828
+    inst [N or "007972 sleep"] value 572
+    inst [N or "007985 /bin/sh"] value 1304
+
+== Fetching per-thread proc.psinfo.pid metric - procpid-2.6.32-root-001.tgz
+
+proc.psinfo.pid
+    inst [N or "000001 /sbin/init"] value 1
+    inst [N or "000002 (kthreadd)"] value 2
+    inst [N or "000003 (migration/0)"] value 3
+    inst [N or "000004 (ksoftirqd/0)"] value 4
+    inst [N or "000005 (stopper/0)"] value 5
+    inst [N or "000006 (watchdog/0)"] value 6
+    inst [N or "000007 (migration/1)"] value 7
+    inst [N or "000008 (stopper/1)"] value 8
+    inst [N or "000009 (ksoftirqd/1)"] value 9
+    inst [N or "000010 (watchdog/1)"] value 10
+    inst [N or "000011 (migration/2)"] value 11
+    inst [N or "000012 (stopper/2)"] value 12
+    inst [N or "000013 (ksoftirqd/2)"] value 13
+    inst [N or "000014 (watchdog/2)"] value 14
+    inst [N or "000015 (migration/3)"] value 15
+    inst [N or "000016 (stopper/3)"] value 16
+    inst [N or "000017 (ksoftirqd/3)"] value 17
+    inst [N or "000018 (watchdog/3)"] value 18
+    inst [N or "000019 (events/0)"] value 19
+    inst [N or "000020 (events/1)"] value 20
+    inst [N or "000021 (events/2)"] value 21
+    inst [N or "000022 (events/3)"] value 22
+    inst [N or "000023 (cgroup)"] value 23
+    inst [N or "000024 (khelper)"] value 24
+    inst [N or "000025 (netns)"] value 25
+    inst [N or "000026 (async/mgr)"] value 26
+    inst [N or "000027 (pm)"] value 27
+    inst [N or "000028 (sync_supers)"] value 28
+    inst [N or "000029 (bdi-default)"] value 29
+    inst [N or "000030 (kintegrityd/0)"] value 30
+    inst [N or "000031 (kintegrityd/1)"] value 31
+    inst [N or "000032 (kintegrityd/2)"] value 32
+    inst [N or "000033 (kintegrityd/3)"] value 33
+    inst [N or "000034 (kblockd/0)"] value 34
+    inst [N or "000035 (kblockd/1)"] value 35
+    inst [N or "000036 (kblockd/2)"] value 36
+    inst [N or "000037 (kblockd/3)"] value 37
+    inst [N or "000038 (kacpid)"] value 38
+    inst [N or "000039 (kacpi_notify)"] value 39
+    inst [N or "000040 (kacpi_hotplug)"] value 40
+    inst [N or "000041 (ata_aux)"] value 41
+    inst [N or "000042 (ata_sff/0)"] value 42
+    inst [N or "000043 (ata_sff/1)"] value 43
+    inst [N or "000044 (ata_sff/2)"] value 44
+    inst [N or "000045 (ata_sff/3)"] value 45
+    inst [N or "000046 (ksuspend_usbd)"] value 46
+    inst [N or "000047 (khubd)"] value 47
+    inst [N or "000048 (kseriod)"] value 48
+    inst [N or "000049 (md/0)"] value 49
+    inst [N or "000050 (md/1)"] value 50
+    inst [N or "000051 (md/2)"] value 51
+    inst [N or "000052 (md/3)"] value 52
+    inst [N or "000053 (md_misc/0)"] value 53
+    inst [N or "000054 (md_misc/1)"] value 54
+    inst [N or "000055 (md_misc/2)"] value 55
+    inst [N or "000056 (md_misc/3)"] value 56
+    inst [N or "000057 (linkwatch)"] value 57
+    inst [N or "000059 (khungtaskd)"] value 59
+    inst [N or "000060 (kswapd0)"] value 60
+    inst [N or "000061 (ksmd)"] value 61
+    inst [N or "000062 (khugepaged)"] value 62
+    inst [N or "000063 (aio/0)"] value 63
+    inst [N or "000064 (aio/1)"] value 64
+    inst [N or "000065 (aio/2)"] value 65
+    inst [N or "000066 (aio/3)"] value 66
+    inst [N or "000067 (crypto/0)"] value 67
+    inst [N or "000068 (crypto/1)"] value 68
+    inst [N or "000069 (crypto/2)"] value 69
+    inst [N or "000070 (crypto/3)"] value 70
+    inst [N or "000078 (kthrotld/0)"] value 78
+    inst [N or "000079 (kthrotld/1)"] value 79
+    inst [N or "000080 (kthrotld/2)"] value 80
+    inst [N or "000081 (kthrotld/3)"] value 81
+    inst [N or "000083 (kpsmoused)"] value 83
+    inst [N or "000084 (usbhid_resumer)"] value 84
+    inst [N or "000085 (deferwq)"] value 85
+    inst [N or "000116 (kdmremove)"] value 116
+    inst [N or "000117 (kstriped)"] value 117
+    inst [N or "000146 (ttm_swap)"] value 146
+    inst [N or "000291 (scsi_eh_0)"] value 291
+    inst [N or "000292 (scsi_wq_0)"] value 292
+    inst [N or "000301 (scsi_eh_1)"] value 301
+    inst [N or "000302 (scsi_eh_2)"] value 302
+    inst [N or "000303 (scsi_eh_3)"] value 303
+    inst [N or "000304 (scsi_eh_4)"] value 304
+    inst [N or "000305 (scsi_eh_5)"] value 305
+    inst [N or "000306 (scsi_eh_6)"] value 306
+    inst [N or "000396 (jbd2/sda2-8)"] value 396
+    inst [N or "000397 (ext4-dio-unwrit)"] value 397
+    inst [N or "000499 (flush-8:0)"] value 499
+    inst [N or "000504 /sbin/udevd"] value 504
+    inst [N or "000547 (hd-audio0)"] value 547
+    inst [N or "000550 (hd-audio1)"] value 550
+    inst [N or "001484 (kvm-irqfd-clean)"] value 1484
+    inst [N or "001532 (jbd2/sda1-8)"] value 1532
+    inst [N or "001533 (ext4-dio-unwrit)"] value 1533
+    inst [N or "001536 (xfs_mru_cache)"] value 1536
+    inst [N or "001537 (xfslogd/0)"] value 1537
+    inst [N or "001538 (xfslogd/1)"] value 1538
+    inst [N or "001539 (xfslogd/2)"] value 1539
+    inst [N or "001540 (xfslogd/3)"] value 1540
+    inst [N or "001541 (xfsdatad/0)"] value 1541
+    inst [N or "001542 (xfsdatad/1)"] value 1542
+    inst [N or "001543 (xfsdatad/2)"] value 1543
+    inst [N or "001544 (xfsdatad/3)"] value 1544
+    inst [N or "001545 (xfsconvertd/0)"] value 1545
+    inst [N or "001546 (xfsconvertd/1)"] value 1546
+    inst [N or "001547 (xfsconvertd/2)"] value 1547
+    inst [N or "001548 (xfsconvertd/3)"] value 1548
+    inst [N or "001549 (xfsalloc/0)"] value 1549
+    inst [N or "001550 (xfsalloc/1)"] value 1550
+    inst [N or "001551 (xfsalloc/2)"] value 1551
+    inst [N or "001552 (xfsalloc/3)"] value 1552
+    inst [N or "001553 (xfseofblocks/0)"] value 1553
+    inst [N or "001554 (xfseofblocks/1)"] value 1554
+    inst [N or "001555 (xfseofblocks/2)"] value 1555
+    inst [N or "001556 (xfseofblocks/3)"] value 1556
+    inst [N or "001557 (xfsbufd/sda4)"] value 1557
+    inst [N or "001558 (xfs-cil/sda4)"] value 1558
+    inst [N or "001559 (xfssyncd/sda4)"] value 1559
+    inst [N or "001560 (xfsaild/sda4)"] value 1560
+    inst [N or "001612 (kauditd)"] value 1612
+    inst [N or "001915 auditd"] value 1915
+    inst [N or "001945 /sbin/rsyslogd"] value 1945
+    inst [N or "001969 (kondemand/0)"] value 1969
+    inst [N or "001970 (kondemand/1)"] value 1970
+    inst [N or "001971 (kondemand/2)"] value 1971
+    inst [N or "001972 (kondemand/3)"] value 1972
+    inst [N or "001994 irqbalance"] value 1994
+    inst [N or "002015 rpcbind"] value 2015
+    inst [N or "002132 dbus-daemon"] value 2132
+    inst [N or "002144 NetworkManager"] value 2144
+    inst [N or "002148 /usr/sbin/modem-manager"] value 2148
+    inst [N or "002165 rpc.statd"] value 2165
+    inst [N or "002193 /sbin/dhclient"] value 2193
+    inst [N or "002201 cupsd"] value 2201
+    inst [N or "002202 /usr/sbin/wpa_supplicant"] value 2202
+    inst [N or "002230 /usr/sbin/acpid"] value 2230
+    inst [N or "002240 hald"] value 2240
+    inst [N or "002241 hald-runner"] value 2241
+    inst [N or "002288 hald-addon-input:"] value 2288
+    inst [N or "002289 hald-addon-acpi:"] value 2289
+    inst [N or "002387 automount"] value 2387
+    inst [N or "002414 /usr/sbin/mcelog"] value 2414
+    inst [N or "002429 /usr/sbin/sshd"] value 2429
+    inst [N or "002438 ntpd"] value 2438
+    inst [N or "002520 /usr/libexec/postfix/master"] value 2520
+    inst [N or "002526 pickup"] value 2526
+    inst [N or "002527 qmgr"] value 2527
+    inst [N or "002545 /usr/sbin/abrtd"] value 2545
+    inst [N or "002560 /bin/bash"] value 2560
+    inst [N or "002571 crond"] value 2571
+    inst [N or "002584 /usr/sbin/atd"] value 2584
+    inst [N or "002595 /usr/bin/python"] value 2595
+    inst [N or "002610 libvirtd"] value 2610
+    inst [N or "002663 /usr/bin/rhsmcertd"] value 2663
+    inst [N or "002733 /usr/sbin/dnsmasq"] value 2733
+    inst [N or "002735 /usr/sbin/certmonger"] value 2735
+    inst [N or "002858 /usr/libexec/qemu-kvm"] value 2858
+    inst [N or "002860 (kvm-pit-wq)"] value 2860
+    inst [N or "002862 (vhost-2858)"] value 2862
+    inst [N or "002887 /usr/libexec/qemu-kvm"] value 2887
+    inst [N or "002906 (kvm-pit-wq)"] value 2906
+    inst [N or "002909 (vhost-2887)"] value 2909
+    inst [N or "002954 /usr/libexec/qemu-kvm"] value 2954
+    inst [N or "002955 (kvm-pit-wq)"] value 2955
+    inst [N or "002958 (vhost-2954)"] value 2958
+    inst [N or "003004 /usr/libexec/qemu-kvm"] value 3004
+    inst [N or "003006 (kvm-pit-wq)"] value 3006
+    inst [N or "003008 (vhost-3004)"] value 3008
+    inst [N or "003051 /usr/libexec/qemu-kvm"] value 3051
+    inst [N or "003052 (kvm-pit-wq)"] value 3052
+    inst [N or "003055 (vhost-3051)"] value 3055
+    inst [N or "003076 /usr/sbin/gdm-binary"] value 3076
+    inst [N or "003081 /sbin/mingetty"] value 3081
+    inst [N or "003083 /sbin/mingetty"] value 3083
+    inst [N or "003085 /sbin/mingetty"] value 3085
+    inst [N or "003087 /sbin/mingetty"] value 3087
+    inst [N or "003089 /sbin/mingetty"] value 3089
+    inst [N or "003096 /sbin/udevd"] value 3096
+    inst [N or "003097 /sbin/udevd"] value 3097
+    inst [N or "003112 /usr/libexec/gdm-simple-slave"] value 3112
+    inst [N or "003115 /usr/bin/Xorg"] value 3115
+    inst [N or "003138 /usr/sbin/console-kit-daemon"] value 3138
+    inst [N or "003208 /usr/bin/dbus-launch"] value 3208
+    inst [N or "003209 /bin/dbus-daemon"] value 3209
+    inst [N or "003211 /usr/bin/gnome-session"] value 3211
+    inst [N or "003214 /usr/libexec/devkit-power-daemon"] value 3214
+    inst [N or "003220 /usr/libexec/gconfd-2"] value 3220
+    inst [N or "003236 /usr/libexec/at-spi-registryd"] value 3236
+    inst [N or "003237 /usr/libexec/gnome-settings-daemon"] value 3237
+    inst [N or "003239 /usr/libexec/bonobo-activation-server"] value 3239
+    inst [N or "003247 /usr/libexec/gvfsd"] value 3247
+    inst [N or "003248 metacity"] value 3248
+    inst [N or "003251 gnome-power-manager"] value 3251
+    inst [N or "003256 /usr/libexec/gdm-simple-greeter"] value 3256
+    inst [N or "003257 /usr/libexec/polkit-gnome-authentication-agent-1"] value 3257
+    inst [N or "003261 /usr/libexec/polkit-1/polkitd"] value 3261
+    inst [N or "003264 /usr/bin/pulseaudio"] value 3264
+    inst [N or "003266 /usr/libexec/rtkit-daemon"] value 3266
+    inst [N or "003273 pam:"] value 3273
+    inst [N or "004928 sshd:"] value 4928
+    inst [N or "004931 sshd:"] value 4931
+    inst [N or "004932 -bash"] value 4932
+    inst [N or "007972 sleep"] value 7972
+    inst [N or "007985 /bin/sh"] value 7985
+
+== Fetching per-thread proc.psinfo.psargs metric - procpid-2.6.32-root-001.tgz
+
+proc.psinfo.psargs
+    inst [N or "000001 /sbin/init"] value "/sbin/init"
+    inst [N or "000002 (kthreadd)"] value "(kthreadd)"
+    inst [N or "000003 (migration/0)"] value "(migration/0)"
+    inst [N or "000004 (ksoftirqd/0)"] value "(ksoftirqd/0)"
+    inst [N or "000005 (stopper/0)"] value "(stopper/0)"
+    inst [N or "000006 (watchdog/0)"] value "(watchdog/0)"
+    inst [N or "000007 (migration/1)"] value "(migration/1)"
+    inst [N or "000008 (stopper/1)"] value "(stopper/1)"
+    inst [N or "000009 (ksoftirqd/1)"] value "(ksoftirqd/1)"
+    inst [N or "000010 (watchdog/1)"] value "(watchdog/1)"
+    inst [N or "000011 (migration/2)"] value "(migration/2)"
+    inst [N or "000012 (stopper/2)"] value "(stopper/2)"
+    inst [N or "000013 (ksoftirqd/2)"] value "(ksoftirqd/2)"
+    inst [N or "000014 (watchdog/2)"] value "(watchdog/2)"
+    inst [N or "000015 (migration/3)"] value "(migration/3)"
+    inst [N or "000016 (stopper/3)"] value "(stopper/3)"
+    inst [N or "000017 (ksoftirqd/3)"] value "(ksoftirqd/3)"
+    inst [N or "000018 (watchdog/3)"] value "(watchdog/3)"
+    inst [N or "000019 (events/0)"] value "(events/0)"
+    inst [N or "000020 (events/1)"] value "(events/1)"
+    inst [N or "000021 (events/2)"] value "(events/2)"
+    inst [N or "000022 (events/3)"] value "(events/3)"
+    inst [N or "000023 (cgroup)"] value "(cgroup)"
+    inst [N or "000024 (khelper)"] value "(khelper)"
+    inst [N or "000025 (netns)"] value "(netns)"
+    inst [N or "000026 (async/mgr)"] value "(async/mgr)"
+    inst [N or "000027 (pm)"] value "(pm)"
+    inst [N or "000028 (sync_supers)"] value "(sync_supers)"
+    inst [N or "000029 (bdi-default)"] value "(bdi-default)"
+    inst [N or "000030 (kintegrityd/0)"] value "(kintegrityd/0)"
+    inst [N or "000031 (kintegrityd/1)"] value "(kintegrityd/1)"
+    inst [N or "000032 (kintegrityd/2)"] value "(kintegrityd/2)"
+    inst [N or "000033 (kintegrityd/3)"] value "(kintegrityd/3)"
+    inst [N or "000034 (kblockd/0)"] value "(kblockd/0)"
+    inst [N or "000035 (kblockd/1)"] value "(kblockd/1)"
+    inst [N or "000036 (kblockd/2)"] value "(kblockd/2)"
+    inst [N or "000037 (kblockd/3)"] value "(kblockd/3)"
+    inst [N or "000038 (kacpid)"] value "(kacpid)"
+    inst [N or "000039 (kacpi_notify)"] value "(kacpi_notify)"
+    inst [N or "000040 (kacpi_hotplug)"] value "(kacpi_hotplug)"
+    inst [N or "000041 (ata_aux)"] value "(ata_aux)"
+    inst [N or "000042 (ata_sff/0)"] value "(ata_sff/0)"
+    inst [N or "000043 (ata_sff/1)"] value "(ata_sff/1)"
+    inst [N or "000044 (ata_sff/2)"] value "(ata_sff/2)"
+    inst [N or "000045 (ata_sff/3)"] value "(ata_sff/3)"
+    inst [N or "000046 (ksuspend_usbd)"] value "(ksuspend_usbd)"
+    inst [N or "000047 (khubd)"] value "(khubd)"
+    inst [N or "000048 (kseriod)"] value "(kseriod)"
+    inst [N or "000049 (md/0)"] value "(md/0)"
+    inst [N or "000050 (md/1)"] value "(md/1)"
+    inst [N or "000051 (md/2)"] value "(md/2)"
+    inst [N or "000052 (md/3)"] value "(md/3)"
+    inst [N or "000053 (md_misc/0)"] value "(md_misc/0)"
+    inst [N or "000054 (md_misc/1)"] value "(md_misc/1)"
+    inst [N or "000055 (md_misc/2)"] value "(md_misc/2)"
+    inst [N or "000056 (md_misc/3)"] value "(md_misc/3)"
+    inst [N or "000057 (linkwatch)"] value "(linkwatch)"
+    inst [N or "000059 (khungtaskd)"] value "(khungtaskd)"
+    inst [N or "000060 (kswapd0)"] value "(kswapd0)"
+    inst [N or "000061 (ksmd)"] value "(ksmd)"
+    inst [N or "000062 (khugepaged)"] value "(khugepaged)"
+    inst [N or "000063 (aio/0)"] value "(aio/0)"
+    inst [N or "000064 (aio/1)"] value "(aio/1)"
+    inst [N or "000065 (aio/2)"] value "(aio/2)"
+    inst [N or "000066 (aio/3)"] value "(aio/3)"
+    inst [N or "000067 (crypto/0)"] value "(crypto/0)"
+    inst [N or "000068 (crypto/1)"] value "(crypto/1)"
+    inst [N or "000069 (crypto/2)"] value "(crypto/2)"
+    inst [N or "000070 (crypto/3)"] value "(crypto/3)"
+    inst [N or "000078 (kthrotld/0)"] value "(kthrotld/0)"
+    inst [N or "000079 (kthrotld/1)"] value "(kthrotld/1)"
+    inst [N or "000080 (kthrotld/2)"] value "(kthrotld/2)"
+    inst [N or "000081 (kthrotld/3)"] value "(kthrotld/3)"
+    inst [N or "000083 (kpsmoused)"] value "(kpsmoused)"
+    inst [N or "000084 (usbhid_resumer)"] value "(usbhid_resumer)"
+    inst [N or "000085 (deferwq)"] value "(deferwq)"
+    inst [N or "000116 (kdmremove)"] value "(kdmremove)"
+    inst [N or "000117 (kstriped)"] value "(kstriped)"
+    inst [N or "000146 (ttm_swap)"] value "(ttm_swap)"
+    inst [N or "000291 (scsi_eh_0)"] value "(scsi_eh_0)"
+    inst [N or "000292 (scsi_wq_0)"] value "(scsi_wq_0)"
+    inst [N or "000301 (scsi_eh_1)"] value "(scsi_eh_1)"
+    inst [N or "000302 (scsi_eh_2)"] value "(scsi_eh_2)"
+    inst [N or "000303 (scsi_eh_3)"] value "(scsi_eh_3)"
+    inst [N or "000304 (scsi_eh_4)"] value "(scsi_eh_4)"
+    inst [N or "000305 (scsi_eh_5)"] value "(scsi_eh_5)"
+    inst [N or "000306 (scsi_eh_6)"] value "(scsi_eh_6)"
+    inst [N or "000396 (jbd2/sda2-8)"] value "(jbd2/sda2-8)"
+    inst [N or "000397 (ext4-dio-unwrit)"] value "(ext4-dio-unwrit)"
+    inst [N or "000499 (flush-8:0)"] value "(flush-8:0)"
+    inst [N or "000504 /sbin/udevd"] value "/sbin/udevd -d"
+    inst [N or "000547 (hd-audio0)"] value "(hd-audio0)"
+    inst [N or "000550 (hd-audio1)"] value "(hd-audio1)"
+    inst [N or "001484 (kvm-irqfd-clean)"] value "(kvm-irqfd-clean)"
+    inst [N or "001532 (jbd2/sda1-8)"] value "(jbd2/sda1-8)"
+    inst [N or "001533 (ext4-dio-unwrit)"] value "(ext4-dio-unwrit)"
+    inst [N or "001536 (xfs_mru_cache)"] value "(xfs_mru_cache)"
+    inst [N or "001537 (xfslogd/0)"] value "(xfslogd/0)"
+    inst [N or "001538 (xfslogd/1)"] value "(xfslogd/1)"
+    inst [N or "001539 (xfslogd/2)"] value "(xfslogd/2)"
+    inst [N or "001540 (xfslogd/3)"] value "(xfslogd/3)"
+    inst [N or "001541 (xfsdatad/0)"] value "(xfsdatad/0)"
+    inst [N or "001542 (xfsdatad/1)"] value "(xfsdatad/1)"
+    inst [N or "001543 (xfsdatad/2)"] value "(xfsdatad/2)"
+    inst [N or "001544 (xfsdatad/3)"] value "(xfsdatad/3)"
+    inst [N or "001545 (xfsconvertd/0)"] value "(xfsconvertd/0)"
+    inst [N or "001546 (xfsconvertd/1)"] value "(xfsconvertd/1)"
+    inst [N or "001547 (xfsconvertd/2)"] value "(xfsconvertd/2)"
+    inst [N or "001548 (xfsconvertd/3)"] value "(xfsconvertd/3)"
+    inst [N or "001549 (xfsalloc/0)"] value "(xfsalloc/0)"
+    inst [N or "001550 (xfsalloc/1)"] value "(xfsalloc/1)"
+    inst [N or "001551 (xfsalloc/2)"] value "(xfsalloc/2)"
+    inst [N or "001552 (xfsalloc/3)"] value "(xfsalloc/3)"
+    inst [N or "001553 (xfseofblocks/0)"] value "(xfseofblocks/0)"
+    inst [N or "001554 (xfseofblocks/1)"] value "(xfseofblocks/1)"
+    inst [N or "001555 (xfseofblocks/2)"] value "(xfseofblocks/2)"
+    inst [N or "001556 (xfseofblocks/3)"] value "(xfseofblocks/3)"
+    inst [N or "001557 (xfsbufd/sda4)"] value "(xfsbufd/sda4)"
+    inst [N or "001558 (xfs-cil/sda4)"] value "(xfs-cil/sda4)"
+    inst [N or "001559 (xfssyncd/sda4)"] value "(xfssyncd/sda4)"
+    inst [N or "001560 (xfsaild/sda4)"] value "(xfsaild/sda4)"
+    inst [N or "001612 (kauditd)"] value "(kauditd)"
+    inst [N or "001915 auditd"] value "auditd"
+    inst [N or "001945 /sbin/rsyslogd"] value "/sbin/rsyslogd -i /var/run/syslogd.pid -c 5"
+    inst [N or "001969 (kondemand/0)"] value "(kondemand/0)"
+    inst [N or "001970 (kondemand/1)"] value "(kondemand/1)"
+    inst [N or "001971 (kondemand/2)"] value "(kondemand/2)"
+    inst [N or "001972 (kondemand/3)"] value "(kondemand/3)"
+    inst [N or "001994 irqbalance"] value "irqbalance --pid=/var/run/irqbalance.pid"
+    inst [N or "002015 rpcbind"] value "rpcbind"
+    inst [N or "002132 dbus-daemon"] value "dbus-daemon --system"
+    inst [N or "002144 NetworkManager"] value "NetworkManager --pid-file=/var/run/NetworkManager/NetworkManager.pid"
+    inst [N or "002148 /usr/sbin/modem-manager"] value "/usr/sbin/modem-manager"
+    inst [N or "002165 rpc.statd"] value "rpc.statd"
+    inst [N or "002193 /sbin/dhclient"] value "/sbin/dhclient -d -4 -sf /usr/libexec/nm-dhcp-client.action -pf /var/run/dhclient-eth0.pid -lf /var/lib/dhclient/dhclient-59debce9-ddcf-4500-b93b-8c8c9a087cd0-eth0.lease -cf /var/run/nm-dhclient-eth0.conf eth0"
+    inst [N or "002201 cupsd"] value "cupsd -C /etc/cups/cupsd.conf"
+    inst [N or "002202 /usr/sbin/wpa_supplicant"] value "/usr/sbin/wpa_supplicant -c /etc/wpa_supplicant/wpa_supplicant.conf -B -u -f /var/log/wpa_supplicant.log -P /var/run/wpa_supplicant.pid"
+    inst [N or "002230 /usr/sbin/acpid"] value "/usr/sbin/acpid"
+    inst [N or "002240 hald"] value "hald"
+    inst [N or "002241 hald-runner"] value "hald-runner"
+    inst [N or "002288 hald-addon-input:"] value "hald-addon-input: Listening on /dev/input/event5 /dev/input/event4 /dev/input/event6 /dev/input/event0 /dev/input/event1"
+    inst [N or "002289 hald-addon-acpi:"] value "hald-addon-acpi: listening on acpid socket /var/run/acpid.socket"
+    inst [N or "002387 automount"] value "automount --pid-file /var/run/autofs.pid"
+    inst [N or "002414 /usr/sbin/mcelog"] value "/usr/sbin/mcelog --daemon"
+    inst [N or "002429 /usr/sbin/sshd"] value "/usr/sbin/sshd"
+    inst [N or "002438 ntpd"] value "ntpd -u ntp:ntp -p /var/run/ntpd.pid -g"
+    inst [N or "002520 /usr/libexec/postfix/master"] value "/usr/libexec/postfix/master"
+    inst [N or "002526 pickup"] value "pickup -l -t fifo -u"
+    inst [N or "002527 qmgr"] value "qmgr -l -t fifo -u"
+    inst [N or "002545 /usr/sbin/abrtd"] value "/usr/sbin/abrtd"
+    inst [N or "002560 /bin/bash"] value "/bin/bash /usr/sbin/ksmtuned"
+    inst [N or "002571 crond"] value "crond"
+    inst [N or "002584 /usr/sbin/atd"] value "/usr/sbin/atd"
+    inst [N or "002595 /usr/bin/python"] value "/usr/bin/python /usr/share/virt-who/virtwho.py"
+    inst [N or "002610 libvirtd"] value "libvirtd --daemon"
+    inst [N or "002663 /usr/bin/rhsmcertd"] value "/usr/bin/rhsmcertd"
+    inst [N or "002733 /usr/sbin/dnsmasq"] value "/usr/sbin/dnsmasq --strict-order --pid-file=/var/run/libvirt/network/default.pid --conf-file= --except-interface lo --bind-interfaces --listen-address 192.168.122.1 --dhcp-range 192.168.122.2,192.168.122.254 --dhcp-leasefile=/var/lib/libvirt/dnsmasq/default.leases --dhcp-lease-max=253 --dhcp-no-override --dhcp-hostsfile=/var/lib/libvirt/dnsmasq/default.hostsfile --addn-hosts=/var/lib/libvirt/dnsmasq/default.addnhosts"
+    inst [N or "002735 /usr/sbin/certmonger"] value "/usr/sbin/certmonger -S -p /var/run/certmonger.pid"
+    inst [N or "002858 /usr/libexec/qemu-kvm"] value "/usr/libexec/qemu-kvm -name RHEL-6.6-Server-x86_64 -S -M rhel6.6.0 -enable-kvm -m 4096 -realtime mlock=off -smp 4,sockets=4,cores=1,threads=1 -uuid 423687cd-e0e1-3bd1-8335-d7992c1a18d0 -nodefconfig -nodefaults -chardev socket,id=charmonitor,path=/var/lib/libvirt/qemu/RHEL-6.6-Server-x86_64.monitor,server,nowait -mon chardev=charmonitor,id=monitor,mode=control -rtc base=utc -no-shutdown -device ich9-usb-ehci1,id=usb,bus=pci.0,addr=0x5.0x7 -device ich9-usb-uhci1,masterbus=usb.0,firstport=0,bus=pci.0,multifunction=on,addr=0x5 -device ich9-usb-uhci2,masterbus=usb.0,firstport=2,bus=pci.0,addr=0x5.0x1 -device ich9-usb-uhci3,masterbus=usb.0,firstport=4,bus=pci.0,addr=0x5.0x2 -drive file=/var/lib/libvirt/images/RHEL-6.6-Server-x86_64.img,if=none,id=drive-virtio-disk0,format=raw,cache=none -device virtio-blk-pci,scsi=off,bus=pci.0,addr=0x6,drive=drive-virtio-disk0,id=virtio-disk0,bootindex=1 -drive if=none,media=cdrom,id=drive-ide0-1-0,readonly=on,format=raw -device ide-drive,bus=ide.1,unit=0,drive=drive-ide0-1-0,id=ide0-1-0 -netdev tap,fd=27,id=hostnet0,vhost=on,vhostfd=28 -device virtio-net-pci,netdev=hostnet0,id=net0,mac=52:54:00:3e:c2:66,bus=pci.0,addr=0x3 -chardev pty,id=charserial0 -device isa-serial,chardev=charserial0,id=serial0 -device usb-tablet,id=input0 -vnc 127.0.0.1:0 -vga cirrus -device intel-hda,id=sound0,bus=pci.0,addr=0x4 -device hda-duplex,id=sound0-codec0,bus=sound0.0,cad=0 -incoming fd:25 -device virtio-balloon-pci,id=balloon0,bus=pci.0,addr=0x7 -msg timestamp=on"
+    inst [N or "002860 (kvm-pit-wq)"] value "(kvm-pit-wq)"
+    inst [N or "002862 (vhost-2858)"] value "(vhost-2858)"
+    inst [N or "002887 /usr/libexec/qemu-kvm"] value "/usr/libexec/qemu-kvm -name RHEL-7.1-Server-x86_64 -S -M rhel6.6.0 -enable-kvm -m 4096 -realtime mlock=off -smp 4,sockets=4,cores=1,threads=1 -uuid 278dec2e-6f2d-21eb-da6d-2eb124efee0c -nodefconfig -nodefaults -chardev socket,id=charmonitor,path=/var/lib/libvirt/qemu/RHEL-7.1-Server-x86_64.monitor,server,nowait -mon chardev=charmonitor,id=monitor,mode=control -rtc base=utc -no-shutdown -device ich9-usb-ehci1,id=usb,bus=pci.0,addr=0x5.0x7 -device ich9-usb-uhci1,masterbus=usb.0,firstport=0,bus=pci.0,multifunction=on,addr=0x5 -device ich9-usb-uhci2,masterbus=usb.0,firstport=2,bus=pci.0,addr=0x5.0x1 -device ich9-usb-uhci3,masterbus=usb.0,firstport=4,bus=pci.0,addr=0x5.0x2 -drive file=/var/lib/libvirt/images/RHEL-7.1-Server-x86_64.img,if=none,id=drive-virtio-disk0,format=raw,cache=none -device virtio-blk-pci,scsi=off,bus=pci.0,addr=0x6,drive=drive-virtio-disk0,id=virtio-disk0,bootindex=1 -drive if=none,media=cdrom,id=drive-ide0-1-0,readonly=on,format=raw -device ide-drive,bus=ide.1,unit=0,drive=drive-ide0-1-0,id=ide0-1-0 -netdev tap,fd=27,id=hostnet0,vhost=on,vhostfd=29 -device virtio-net-pci,netdev=hostnet0,id=net0,mac=52:54:00:87:f1:c1,bus=pci.0,addr=0x3 -chardev pty,id=charserial0 -device isa-serial,chardev=charserial0,id=serial0 -device usb-tablet,id=input0 -vnc 127.0.0.1:1 -vga cirrus -device intel-hda,id=sound0,bus=pci.0,addr=0x4 -device hda-duplex,id=sound0-codec0,bus=sound0.0,cad=0 -incoming fd:25 -device virtio-balloon-pci,id=balloon0,bus=pci.0,addr=0x7 -msg timestamp=on"
+    inst [N or "002906 (kvm-pit-wq)"] value "(kvm-pit-wq)"
+    inst [N or "002909 (vhost-2887)"] value "(vhost-2887)"
+    inst [N or "002954 /usr/libexec/qemu-kvm"] value "/usr/libexec/qemu-kvm -name Debian-7.8.0-x86_64 -S -M rhel6.6.0 -enable-kvm -m 4096 -realtime mlock=off -smp 4,sockets=4,cores=1,threads=1 -uuid e4d095c1-aec5-b61f-dcbc-897fbedd20bf -nodefconfig -nodefaults -chardev socket,id=charmonitor,path=/var/lib/libvirt/qemu/Debian-7.8.0-x86_64.monitor,server,nowait -mon chardev=charmonitor,id=monitor,mode=control -rtc base=utc -no-shutdown -device ich9-usb-ehci1,id=usb,bus=pci.0,addr=0x5.0x7 -device ich9-usb-uhci1,masterbus=usb.0,firstport=0,bus=pci.0,multifunction=on,addr=0x5 -device ich9-usb-uhci2,masterbus=usb.0,firstport=2,bus=pci.0,addr=0x5.0x1 -device ich9-usb-uhci3,masterbus=usb.0,firstport=4,bus=pci.0,addr=0x5.0x2 -drive file=/var/lib/libvirt/images/Debian-7.8.0-x86_64.img,if=none,id=drive-virtio-disk0,format=raw,cache=none -device virtio-blk-pci,scsi=off,bus=pci.0,addr=0x6,drive=drive-virtio-disk0,id=virtio-disk0,bootindex=1 -drive if=none,media=cdrom,id=drive-ide0-1-0,readonly=on,format=raw -device ide-drive,bus=ide.1,unit=0,drive=drive-ide0-1-0,id=ide0-1-0 -netdev tap,fd=27,id=hostnet0,vhost=on,vhostfd=30 -device virtio-net-pci,netdev=hostnet0,id=net0,mac=52:54:00:b4:03:94,bus=pci.0,addr=0x3 -chardev pty,id=charserial0 -device isa-serial,chardev=charserial0,id=serial0 -device usb-tablet,id=input0 -vnc 127.0.0.1:2 -vga cirrus -device intel-hda,id=sound0,bus=pci.0,addr=0x4 -device hda-duplex,id=sound0-codec0,bus=sound0.0,cad=0 -incoming fd:25 -device virtio-balloon-pci,id=balloon0,bus=pci.0,addr=0x7 -msg timestamp=on"
+    inst [N or "002955 (kvm-pit-wq)"] value "(kvm-pit-wq)"
+    inst [N or "002958 (vhost-2954)"] value "(vhost-2954)"
+    inst [N or "003004 /usr/libexec/qemu-kvm"] value "/usr/libexec/qemu-kvm -name Ubuntu-14.04-Server -S -M rhel6.6.0 -enable-kvm -m 4096 -realtime mlock=off -smp 4,sockets=4,cores=1,threads=1 -uuid 2857f075-36a1-b872-3915-03895a80b7a7 -nodefconfig -nodefaults -chardev socket,id=charmonitor,path=/var/lib/libvirt/qemu/Ubuntu-14.04-Server.monitor,server,nowait -mon chardev=charmonitor,id=monitor,mode=control -rtc base=utc -no-shutdown -device ich9-usb-ehci1,id=usb,bus=pci.0,addr=0x5.0x7 -device ich9-usb-uhci1,masterbus=usb.0,firstport=0,bus=pci.0,multifunction=on,addr=0x5 -device ich9-usb-uhci2,masterbus=usb.0,firstport=2,bus=pci.0,addr=0x5.0x1 -device ich9-usb-uhci3,masterbus=usb.0,firstport=4,bus=pci.0,addr=0x5.0x2 -drive file=/var/lib/libvirt/images/Ubuntu-14.04-Server.img,if=none,id=drive-virtio-disk0,format=raw,cache=none -device virtio-blk-pci,scsi=off,bus=pci.0,addr=0x6,drive=drive-virtio-disk0,id=virtio-disk0,bootindex=1 -drive if=none,media=cdrom,id=drive-ide0-1-0,readonly=on,format=raw -device ide-drive,bus=ide.1,unit=0,drive=drive-ide0-1-0,id=ide0-1-0 -netdev tap,fd=27,id=hostnet0,vhost=on,vhostfd=31 -device virtio-net-pci,netdev=hostnet0,id=net0,mac=52:54:00:5d:e5:9f,bus=pci.0,addr=0x3 -chardev pty,id=charserial0 -device isa-serial,chardev=charserial0,id=serial0 -vnc 127.0.0.1:3 -vga cirrus -device intel-hda,id=sound0,bus=pci.0,addr=0x4 -device hda-duplex,id=sound0-codec0,bus=sound0.0,cad=0 -incoming fd:25 -device virtio-balloon-pci,id=balloon0,bus=pci.0,addr=0x7 -msg timestamp=on"
+    inst [N or "003006 (kvm-pit-wq)"] value "(kvm-pit-wq)"
+    inst [N or "003008 (vhost-3004)"] value "(vhost-3004)"
+    inst [N or "003051 /usr/libexec/qemu-kvm"] value "/usr/libexec/qemu-kvm -name Fedora-21-Server -S -M rhel6.6.0 -enable-kvm -m 4096 -realtime mlock=off -smp 4,sockets=4,cores=1,threads=1 -uuid d1b483cc-b94b-e946-8a8d-4ab8d7549467 -nodefconfig -nodefaults -chardev socket,id=charmonitor,path=/var/lib/libvirt/qemu/Fedora-21-Server.monitor,server,nowait -mon chardev=charmonitor,id=monitor,mode=control -rtc base=utc -no-shutdown -device ich9-usb-ehci1,id=usb,bus=pci.0,addr=0x5.0x7 -device ich9-usb-uhci1,masterbus=usb.0,firstport=0,bus=pci.0,multifunction=on,addr=0x5 -device ich9-usb-uhci2,masterbus=usb.0,firstport=2,bus=pci.0,addr=0x5.0x1 -device ich9-usb-uhci3,masterbus=usb.0,firstport=4,bus=pci.0,addr=0x5.0x2 -drive file=/var/lib/libvirt/images/Fedora-21-Server.img,if=none,id=drive-virtio-disk0,format=raw,cache=none -device virtio-blk-pci,scsi=off,bus=pci.0,addr=0x6,drive=drive-virtio-disk0,id=virtio-disk0,bootindex=1 -drive if=none,media=cdrom,id=drive-ide0-1-0,readonly=on,format=raw -device ide-drive,bus=ide.1,unit=0,drive=drive-ide0-1-0,id=ide0-1-0 -netdev tap,fd=27,id=hostnet0,vhost=on,vhostfd=32 -device virtio-net-pci,netdev=hostnet0,id=net0,mac=52:54:00:19:93:b4,bus=pci.0,addr=0x3 -chardev pty,id=charserial0 -device isa-serial,chardev=charserial0,id=serial0 -device usb-tablet,id=input0 -vnc 127.0.0.1:4 -vga cirrus -device intel-hda,id=sound0,bus=pci.0,addr=0x4 -device hda-duplex,id=sound0-codec0,bus=sound0.0,cad=0 -incoming fd:25 -device virtio-balloon-pci,id=balloon0,bus=pci.0,addr=0x7 -msg timestamp=on"
+    inst [N or "003052 (kvm-pit-wq)"] value "(kvm-pit-wq)"
+    inst [N or "003055 (vhost-3051)"] value "(vhost-3051)"
+    inst [N or "003076 /usr/sbin/gdm-binary"] value "/usr/sbin/gdm-binary -nodaemon"
+    inst [N or "003081 /sbin/mingetty"] value "/sbin/mingetty /dev/tty2"
+    inst [N or "003083 /sbin/mingetty"] value "/sbin/mingetty /dev/tty3"
+    inst [N or "003085 /sbin/mingetty"] value "/sbin/mingetty /dev/tty4"
+    inst [N or "003087 /sbin/mingetty"] value "/sbin/mingetty /dev/tty5"
+    inst [N or "003089 /sbin/mingetty"] value "/sbin/mingetty /dev/tty6"
+    inst [N or "003096 /sbin/udevd"] value "/sbin/udevd -d"
+    inst [N or "003097 /sbin/udevd"] value "/sbin/udevd -d"
+    inst [N or "003112 /usr/libexec/gdm-simple-slave"] value "/usr/libexec/gdm-simple-slave --display-id /org/gnome/DisplayManager/Display1"
+    inst [N or "003115 /usr/bin/Xorg"] value "/usr/bin/Xorg :0 -br -verbose -audit 4 -auth /var/run/gdm/auth-for-gdm-UcQPnY/database -nolisten tcp vt1"
+    inst [N or "003138 /usr/sbin/console-kit-daemon"] value "/usr/sbin/console-kit-daemon --no-daemon"
+    inst [N or "003208 /usr/bin/dbus-launch"] value "/usr/bin/dbus-launch --exit-with-session"
+    inst [N or "003209 /bin/dbus-daemon"] value "/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session"
+    inst [N or "003211 /usr/bin/gnome-session"] value "/usr/bin/gnome-session --autostart=/usr/share/gdm/autostart/LoginWindow/"
+    inst [N or "003214 /usr/libexec/devkit-power-daemon"] value "/usr/libexec/devkit-power-daemon"
+    inst [N or "003220 /usr/libexec/gconfd-2"] value "/usr/libexec/gconfd-2"
+    inst [N or "003236 /usr/libexec/at-spi-registryd"] value "/usr/libexec/at-spi-registryd"
+    inst [N or "003237 /usr/libexec/gnome-settings-daemon"] value "/usr/libexec/gnome-settings-daemon --gconf-prefix=/apps/gdm/simple-greeter/settings-manager-plugins"
+    inst [N or "003239 /usr/libexec/bonobo-activation-server"] value "/usr/libexec/bonobo-activation-server --ac-activate --ior-output-fd=12"
+    inst [N or "003247 /usr/libexec/gvfsd"] value "/usr/libexec/gvfsd"
+    inst [N or "003248 metacity"] value "metacity"
+    inst [N or "003251 gnome-power-manager"] value "gnome-power-manager"
+    inst [N or "003256 /usr/libexec/gdm-simple-greeter"] value "/usr/libexec/gdm-simple-greeter"
+    inst [N or "003257 /usr/libexec/polkit-gnome-authentication-agent-1"] value "/usr/libexec/polkit-gnome-authentication-agent-1"
+    inst [N or "003261 /usr/libexec/polkit-1/polkitd"] value "/usr/libexec/polkit-1/polkitd"
+    inst [N or "003264 /usr/bin/pulseaudio"] value "/usr/bin/pulseaudio --start --log-target=syslog"
+    inst [N or "003266 /usr/libexec/rtkit-daemon"] value "/usr/libexec/rtkit-daemon"
+    inst [N or "003273 pam:"] value "pam: gdm-password"
+    inst [N or "004928 sshd:"] value "sshd: nathans [priv]"
+    inst [N or "004931 sshd:"] value "sshd: nathans@pts/0"
+    inst [N or "004932 -bash"] value "-bash"
+    inst [N or "007972 sleep"] value "sleep 60"
+    inst [N or "007985 /bin/sh"] value "/bin/sh ./mk.procpid"
+
+== Fetching per-thread proc.psinfo.rss metric - procpid-3.19.0-root-002.tgz
+
+proc.psinfo.rss
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 8472
+    inst [N or "000002 (kthreadd)"] value 0
+    inst [N or "000003 (ksoftirqd/0)"] value 0
+    inst [N or "000005 (kworker/0:0H)"] value 0
+    inst [N or "000007 (rcu_sched)"] value 0
+    inst [N or "000008 (rcu_bh)"] value 0
+    inst [N or "000009 (rcuos/0)"] value 0
+    inst [N or "000010 (rcuob/0)"] value 0
+    inst [N or "000011 (migration/0)"] value 0
+    inst [N or "000012 (watchdog/0)"] value 0
+    inst [N or "000013 (watchdog/1)"] value 0
+    inst [N or "000014 (migration/1)"] value 0
+    inst [N or "000015 (ksoftirqd/1)"] value 0
+    inst [N or "000017 (kworker/1:0H)"] value 0
+    inst [N or "000018 (rcuos/1)"] value 0
+    inst [N or "000019 (rcuob/1)"] value 0
+    inst [N or "000020 (watchdog/2)"] value 0
+    inst [N or "000021 (migration/2)"] value 0
+    inst [N or "000022 (ksoftirqd/2)"] value 0
+    inst [N or "000024 (kworker/2:0H)"] value 0
+    inst [N or "000025 (rcuos/2)"] value 0
+    inst [N or "000026 (rcuob/2)"] value 0
+    inst [N or "000027 (watchdog/3)"] value 0
+    inst [N or "000028 (migration/3)"] value 0
+    inst [N or "000029 (ksoftirqd/3)"] value 0
+    inst [N or "000031 (kworker/3:0H)"] value 0
+    inst [N or "000032 (rcuos/3)"] value 0
+    inst [N or "000033 (rcuob/3)"] value 0
+    inst [N or "000034 (khelper)"] value 0
+    inst [N or "000035 (kdevtmpfs)"] value 0
+    inst [N or "000036 (netns)"] value 0
+    inst [N or "000037 (perf)"] value 0
+    inst [N or "000038 (writeback)"] value 0
+    inst [N or "000039 (ksmd)"] value 0
+    inst [N or "000040 (khugepaged)"] value 0
+    inst [N or "000041 (crypto)"] value 0
+    inst [N or "000042 (kintegrityd)"] value 0
+    inst [N or "000043 (bioset)"] value 0
+    inst [N or "000044 (kblockd)"] value 0
+    inst [N or "000045 (ata_sff)"] value 0
+    inst [N or "000046 (md)"] value 0
+    inst [N or "000047 (devfreq_wq)"] value 0
+    inst [N or "000073 (kswapd0)"] value 0
+    inst [N or "000074 (fsnotify_mark)"] value 0
+    inst [N or "000084 (kthrotld)"] value 0
+    inst [N or "000085 (acpi_thermal_pm)"] value 0
+    inst [N or "000086 (scsi_eh_0)"] value 0
+    inst [N or "000087 (scsi_tmf_0)"] value 0
+    inst [N or "000088 (scsi_eh_1)"] value 0
+    inst [N or "000089 (scsi_tmf_1)"] value 0
+    inst [N or "000093 (kpsmoused)"] value 0
+    inst [N or "000095 (dm_bufio_cache)"] value 0
+    inst [N or "000096 (ipv6_addrconf)"] value 0
+    inst [N or "000097 (deferwq)"] value 0
+    inst [N or "000127 (kauditd)"] value 0
+    inst [N or "000214 (kworker/2:1H)"] value 0
+    inst [N or "000215 (kworker/1:1H)"] value 0
+    inst [N or "000218 (kworker/0:1H)"] value 0
+    inst [N or "000234 (kworker/3:1H)"] value 0
+    inst [N or "000235 (jbd2/sda7-8)"] value 0
+    inst [N or "000236 (ext4-rsv-conver)"] value 0
+    inst [N or "000311 /usr/lib/systemd/systemd-journald"] value 84836
+    inst [N or "000327 /usr/sbin/lvmetad"] value 4920
+    inst [N or "000341 /usr/lib/systemd/systemd-udevd"] value 7108
+    inst [N or "000389 (irq/45-mei_me)"] value 0
+    inst [N or "000431 (rpciod)"] value 0
+    inst [N or "000435 (kmemstick)"] value 0
+    inst [N or "000445 (rtsx_usb_ms_1)"] value 0
+    inst [N or "000448 (cfg80211)"] value 0
+    inst [N or "000451 (kvm-irqfd-clean)"] value 0
+    inst [N or "000452 (hd-audio0)"] value 0
+    inst [N or "000453 (hd-audio1)"] value 0
+    inst [N or "000474 /sbin/auditd"] value 3028
+    inst [N or "000480 /sbin/audispd"] value 1636
+    inst [N or "000491 /usr/sbin/alsactl"] value 2172
+    inst [N or "000500 /usr/bin/python"] value 27460
+    inst [N or "000503 /usr/libexec/accounts-daemon"] value 7756
+    inst [N or "000506 /usr/libexec/rtkit-daemon"] value 2296
+    inst [N or "000509 /usr/sbin/chronyd"] value 3092
+    inst [N or "000512 /sbin/rsyslogd"] value 18244
+    inst [N or "000513 /usr/sbin/ModemManager"] value 6680
+    inst [N or "000515 /usr/sbin/abrtd"] value 8512
+    inst [N or "000524 /usr/bin/abrt-watch-log"] value 7548
+    inst [N or "000528 /sbin/rpcbind"] value 2288
+    inst [N or "000531 /sbin/rngd"] value 1344
+    inst [N or "000533 /usr/sbin/irqbalance"] value 2668
+    inst [N or "000534 /usr/bin/abrt-watch-log"] value 7544
+    inst [N or "000537 /usr/sbin/smartd"] value 3708
+    inst [N or "000540 avahi-daemon:"] value 2672
+    inst [N or "000541 /usr/lib/systemd/systemd-logind"] value 3120
+    inst [N or "000546 /bin/dbus-daemon"] value 4092
+    inst [N or "000548 /usr/sbin/crond"] value 3268
+    inst [N or "000550 /usr/sbin/atd"] value 2160
+    inst [N or "000551 java"] value 196624
+    inst [N or "000553 /usr/sbin/gdm"] value 5516
+    inst [N or "000558 /usr/sbin/sedispatch"] value 2132
+    inst [N or "000560 avahi-daemon:"] value 232
+    inst [N or "000571 /usr/libexec/gdm-simple-slave"] value 6936
+    inst [N or "000574 /usr/sbin/mcelog"] value 1788
+    inst [N or "000587 /usr/bin/Xorg"] value 32804
+    inst [N or "000661 /usr/lib/systemd/systemd"] value 4204
+    inst [N or "000664 (sd-pam)"] value 2960
+    inst [N or "000680 /usr/sbin/NetworkManager"] value 13496
+    inst [N or "000764 /usr/sbin/libvirtd"] value 25396
+    inst [N or "000889 /usr/bin/docker"] value 18204
+    inst [N or "000893 /usr/bin/memcached"] value 2308
+    inst [N or "000901 /usr/libexec/bluetooth/bluetoothd"] value 4056
+    inst [N or "000912 /usr/sbin/sshd"] value 6140
+    inst [N or "000927 /sbin/rpc.statd"] value 2976
+    inst [N or "000962 /usr/bin/postgres"] value 18348
+    inst [N or "001022 /usr/libexec/upowerd"] value 11584
+    inst [N or "001069 postgres:"] value 3056
+    inst [N or "001072 postgres:"] value 3132
+    inst [N or "001073 postgres:"] value 4468
+    inst [N or "001074 postgres:"] value 3132
+    inst [N or "001075 postgres:"] value 5720
+    inst [N or "001076 postgres:"] value 3328
+    inst [N or "001083 /usr/libexec/colord"] value 11896
+    inst [N or "001084 /usr/sbin/pcscd"] value 2532
+    inst [N or "002927 (loop0)"] value 0
+    inst [N or "002928 (loop1)"] value 0
+    inst [N or "002932 (kdmflush)"] value 0
+    inst [N or "003033 (bioset)"] value 0
+    inst [N or "003043 (kcopyd)"] value 0
+    inst [N or "003044 (bioset)"] value 0
+    inst [N or "003045 (dm-thin)"] value 0
+    inst [N or "003046 (bioset)"] value 0
+    inst [N or "003137 gdm-session-worker"] value 13220
+    inst [N or "003189 /usr/lib/systemd/systemd"] value 4208
+    inst [N or "003196 (sd-pam)"] value 3036
+    inst [N or "003209 /usr/bin/gnome-keyring-daemon"] value 7352
+    inst [N or "003266 gnome-session"] value 11976
+    inst [N or "003274 dbus-launch"] value 1804
+    inst [N or "003275 /bin/dbus-daemon"] value 3520
+    inst [N or "003358 /usr/libexec/gvfsd"] value 6284
+    inst [N or "003365 /usr/libexec//gvfsd-fuse"] value 6172
+    inst [N or "003464 /usr/libexec/at-spi-bus-launcher"] value 5304
+    inst [N or "003468 /bin/dbus-daemon"] value 3080
+    inst [N or "003472 /usr/libexec/at-spi2-registryd"] value 6104
+    inst [N or "003485 /usr/bin/pulseaudio"] value 10736
+    inst [N or "003492 /usr/libexec/gnome-settings-daemon"] value 37084
+    inst [N or "003520 /usr/libexec/gvfs-udisks2-volume-monitor"] value 8612
+    inst [N or "003522 /usr/lib/udisks2/udisksd"] value 7412
+    inst [N or "003531 /usr/libexec/gvfs-afc-volume-monitor"] value 9936
+    inst [N or "003537 /usr/libexec/gvfs-goa-volume-monitor"] value 6304
+    inst [N or "003540 /usr/libexec/goa-daemon"] value 37244
+    inst [N or "003546 /usr/libexec/mission-control-5"] value 11956
+    inst [N or "003550 /usr/libexec/gvfs-mtp-volume-monitor"] value 6236
+    inst [N or "003560 /usr/libexec/gvfs-gphoto2-volume-monitor"] value 6608
+    inst [N or "003581 /usr/bin/gnome-shell"] value 411000
+    inst [N or "003596 /usr/sbin/cupsd"] value 7696
+    inst [N or "003612 /usr/libexec/gsd-printer"] value 9640
+    inst [N or "003621 /usr/libexec/dconf-service"] value 4676
+    inst [N or "003636 /usr/libexec/gnome-shell-calendar-server"] value 25816
+    inst [N or "003641 /usr/bin/ibus-daemon"] value 9400
+    inst [N or "003645 /usr/libexec/ibus-dconf"] value 7132
+    inst [N or "003647 /usr/libexec/ibus-x11"] value 15088
+    inst [N or "003659 /usr/libexec/evolution-source-registry"] value 27400
+    inst [N or "003700 /usr/libexec/evolution/3.10/evolution-alarm-notify"] value 32032
+    inst [N or "003740 /usr/libexec/tracker-store"] value 17088
+    inst [N or "003749 /usr/libexec/ibus-engine-simple"] value 7008
+    inst [N or "003808 /usr/libexec/tracker-miner-fs"] value 13432
+    inst [N or "003812 /usr/bin/python"] value 20540
+    inst [N or "003836 /usr/bin/seapplet"] value 17572
+    inst [N or "003874 abrt-applet"] value 22524
+    inst [N or "003891 /usr/libexec/deja-dup/deja-dup-monitor"] value 7628
+    inst [N or "003910 /usr/libexec/gvfsd-metadata"] value 6260
+    inst [N or "003918 /usr/libexec/evolution-calendar-factory"] value 72924
+    inst [N or "003924 /usr/libexec/bluetooth/obexd"] value 2808
+    inst [N or "003926 /usr/libexec/telepathy-logger"] value 8808
+    inst [N or "003939 /usr/libexec/gvfsd-burn"] value 6084
+    inst [N or "004157 xchat"] value 37660
+    inst [N or "004164 /usr/lib64/firefox/firefox"] value 763868
+    inst [N or "004274 /usr/lib/systemd/systemd"] value 4248
+    inst [N or "004279 (sd-pam)"] value 3056
+    inst [N or "004413 /usr/libexec/gnome-terminal-server"] value 35672
+    inst [N or "004416 gnome-pty-helper"] value 1536
+    inst [N or "004417 bash"] value 5500
+    inst [N or "004605 /usr/lib/systemd/systemd"] value 4216
+    inst [N or "004613 (sd-pam)"] value 3056
+    inst [N or "004724 ssh"] value 6892
+    inst [N or "004778 (kworker/1:2)"] value 0
+    inst [N or "005800 sudo"] value 6872
+    inst [N or "005801 su"] value 5460
+    inst [N or "005802 -bash"] value 5328
+    inst [N or "007503 vim"] value 8212
+    inst [N or "007504 /usr/bin/cscope"] value 1900
+    inst [N or "007550 /sbin/dhclient"] value 18936
+    inst [N or "007833 bash"] value 5364
+    inst [N or "007985 bash"] value 5292
+    inst [N or "009060 (kworker/0:0)"] value 0
+    inst [N or "009387 (kworker/1:1)"] value 0
+    inst [N or "009804 (kworker/3:0)"] value 0
+    inst [N or "010066 (kworker/3:1)"] value 0
+    inst [N or "010370 (kworker/0:2)"] value 0
+    inst [N or "010673 (kworker/2:1)"] value 0
+    inst [N or "010679 (kworker/3:2)"] value 0
+    inst [N or "010680 (kworker/3:3)"] value 0
+    inst [N or "011194 /usr/libexec/nm-vpnc-service"] value 5872
+    inst [N or "011204 /usr/sbin/vpnc"] value 7232
+    inst [N or "011269 vim"] value 8288
+    inst [N or "011854 (kworker/u16:0)"] value 0
+    inst [N or "012370 /usr/lib/polkit-1/polkitd"] value 23032
+    inst [N or "012431 /usr/libexec/pcp/bin/pmcd"] value 4228
+    inst [N or "012435 /var/lib/pcp/pmdas/root/pmdaroot"] value 3404
+    inst [N or "012436 /var/lib/pcp/pmdas/proc/pmdaproc"] value 3992
+    inst [N or "012437 /var/lib/pcp/pmdas/xfs/pmdaxfs"] value 3392
+    inst [N or "012438 /var/lib/pcp/pmdas/sample/pmdasample"] value 3628
+    inst [N or "012439 /var/lib/pcp/pmdas/linux/pmdalinux"] value 3844
+    inst [N or "012440 /var/lib/pcp/pmdas/mounts/pmdamounts"] value 3572
+    inst [N or "012441 perl"] value 13248
+    inst [N or "012442 perl"] value 10188
+    inst [N or "012443 python3"] value 14504
+    inst [N or "012447 /var/lib/pcp/pmdas/dm/pmdadm"] value 3520
+    inst [N or "012448 /var/lib/pcp/pmdas/simple/pmdasimple"] value 3636
+    inst [N or "014901 (kworker/1:0)"] value 0
+    inst [N or "014918 /bin/sh"] value 2960
+    inst [N or "015515 (kworker/2:2)"] value 0
+    inst [N or "015521 (kworker/u16:2)"] value 0
+    inst [N or "017402 bash"] value 5224
+    inst [N or "023148 bash"] value 5176
+    inst [N or "028053 /usr/libexec/gconfd-2"] value 4796
+    inst [N or "028206 (kworker/2:0)"] value 0
+
+== Fetching per-thread proc.psinfo.pid metric - procpid-3.19.0-root-002.tgz
+
+proc.psinfo.pid
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 1
+    inst [N or "000002 (kthreadd)"] value 2
+    inst [N or "000003 (ksoftirqd/0)"] value 3
+    inst [N or "000005 (kworker/0:0H)"] value 5
+    inst [N or "000007 (rcu_sched)"] value 7
+    inst [N or "000008 (rcu_bh)"] value 8
+    inst [N or "000009 (rcuos/0)"] value 9
+    inst [N or "000010 (rcuob/0)"] value 10
+    inst [N or "000011 (migration/0)"] value 11
+    inst [N or "000012 (watchdog/0)"] value 12
+    inst [N or "000013 (watchdog/1)"] value 13
+    inst [N or "000014 (migration/1)"] value 14
+    inst [N or "000015 (ksoftirqd/1)"] value 15
+    inst [N or "000017 (kworker/1:0H)"] value 17
+    inst [N or "000018 (rcuos/1)"] value 18
+    inst [N or "000019 (rcuob/1)"] value 19
+    inst [N or "000020 (watchdog/2)"] value 20
+    inst [N or "000021 (migration/2)"] value 21
+    inst [N or "000022 (ksoftirqd/2)"] value 22
+    inst [N or "000024 (kworker/2:0H)"] value 24
+    inst [N or "000025 (rcuos/2)"] value 25
+    inst [N or "000026 (rcuob/2)"] value 26
+    inst [N or "000027 (watchdog/3)"] value 27
+    inst [N or "000028 (migration/3)"] value 28
+    inst [N or "000029 (ksoftirqd/3)"] value 29
+    inst [N or "000031 (kworker/3:0H)"] value 31
+    inst [N or "000032 (rcuos/3)"] value 32
+    inst [N or "000033 (rcuob/3)"] value 33
+    inst [N or "000034 (khelper)"] value 34
+    inst [N or "000035 (kdevtmpfs)"] value 35
+    inst [N or "000036 (netns)"] value 36
+    inst [N or "000037 (perf)"] value 37
+    inst [N or "000038 (writeback)"] value 38
+    inst [N or "000039 (ksmd)"] value 39
+    inst [N or "000040 (khugepaged)"] value 40
+    inst [N or "000041 (crypto)"] value 41
+    inst [N or "000042 (kintegrityd)"] value 42
+    inst [N or "000043 (bioset)"] value 43
+    inst [N or "000044 (kblockd)"] value 44
+    inst [N or "000045 (ata_sff)"] value 45
+    inst [N or "000046 (md)"] value 46
+    inst [N or "000047 (devfreq_wq)"] value 47
+    inst [N or "000073 (kswapd0)"] value 73
+    inst [N or "000074 (fsnotify_mark)"] value 74
+    inst [N or "000084 (kthrotld)"] value 84
+    inst [N or "000085 (acpi_thermal_pm)"] value 85
+    inst [N or "000086 (scsi_eh_0)"] value 86
+    inst [N or "000087 (scsi_tmf_0)"] value 87
+    inst [N or "000088 (scsi_eh_1)"] value 88
+    inst [N or "000089 (scsi_tmf_1)"] value 89
+    inst [N or "000093 (kpsmoused)"] value 93
+    inst [N or "000095 (dm_bufio_cache)"] value 95
+    inst [N or "000096 (ipv6_addrconf)"] value 96
+    inst [N or "000097 (deferwq)"] value 97
+    inst [N or "000127 (kauditd)"] value 127
+    inst [N or "000214 (kworker/2:1H)"] value 214
+    inst [N or "000215 (kworker/1:1H)"] value 215
+    inst [N or "000218 (kworker/0:1H)"] value 218
+    inst [N or "000234 (kworker/3:1H)"] value 234
+    inst [N or "000235 (jbd2/sda7-8)"] value 235
+    inst [N or "000236 (ext4-rsv-conver)"] value 236
+    inst [N or "000311 /usr/lib/systemd/systemd-journald"] value 311
+    inst [N or "000327 /usr/sbin/lvmetad"] value 327
+    inst [N or "000341 /usr/lib/systemd/systemd-udevd"] value 341
+    inst [N or "000389 (irq/45-mei_me)"] value 389
+    inst [N or "000431 (rpciod)"] value 431
+    inst [N or "000435 (kmemstick)"] value 435
+    inst [N or "000445 (rtsx_usb_ms_1)"] value 445
+    inst [N or "000448 (cfg80211)"] value 448
+    inst [N or "000451 (kvm-irqfd-clean)"] value 451
+    inst [N or "000452 (hd-audio0)"] value 452
+    inst [N or "000453 (hd-audio1)"] value 453
+    inst [N or "000474 /sbin/auditd"] value 474
+    inst [N or "000480 /sbin/audispd"] value 480
+    inst [N or "000491 /usr/sbin/alsactl"] value 491
+    inst [N or "000500 /usr/bin/python"] value 500
+    inst [N or "000503 /usr/libexec/accounts-daemon"] value 503
+    inst [N or "000506 /usr/libexec/rtkit-daemon"] value 506
+    inst [N or "000509 /usr/sbin/chronyd"] value 509
+    inst [N or "000512 /sbin/rsyslogd"] value 512
+    inst [N or "000513 /usr/sbin/ModemManager"] value 513
+    inst [N or "000515 /usr/sbin/abrtd"] value 515
+    inst [N or "000524 /usr/bin/abrt-watch-log"] value 524
+    inst [N or "000528 /sbin/rpcbind"] value 528
+    inst [N or "000531 /sbin/rngd"] value 531
+    inst [N or "000533 /usr/sbin/irqbalance"] value 533
+    inst [N or "000534 /usr/bin/abrt-watch-log"] value 534
+    inst [N or "000537 /usr/sbin/smartd"] value 537
+    inst [N or "000540 avahi-daemon:"] value 540
+    inst [N or "000541 /usr/lib/systemd/systemd-logind"] value 541
+    inst [N or "000546 /bin/dbus-daemon"] value 546
+    inst [N or "000548 /usr/sbin/crond"] value 548
+    inst [N or "000550 /usr/sbin/atd"] value 550
+    inst [N or "000551 java"] value 551
+    inst [N or "000553 /usr/sbin/gdm"] value 553
+    inst [N or "000558 /usr/sbin/sedispatch"] value 558
+    inst [N or "000560 avahi-daemon:"] value 560
+    inst [N or "000571 /usr/libexec/gdm-simple-slave"] value 571
+    inst [N or "000574 /usr/sbin/mcelog"] value 574
+    inst [N or "000587 /usr/bin/Xorg"] value 587
+    inst [N or "000661 /usr/lib/systemd/systemd"] value 661
+    inst [N or "000664 (sd-pam)"] value 664
+    inst [N or "000680 /usr/sbin/NetworkManager"] value 680
+    inst [N or "000764 /usr/sbin/libvirtd"] value 764
+    inst [N or "000889 /usr/bin/docker"] value 889
+    inst [N or "000893 /usr/bin/memcached"] value 893
+    inst [N or "000901 /usr/libexec/bluetooth/bluetoothd"] value 901
+    inst [N or "000912 /usr/sbin/sshd"] value 912
+    inst [N or "000927 /sbin/rpc.statd"] value 927
+    inst [N or "000962 /usr/bin/postgres"] value 962
+    inst [N or "001022 /usr/libexec/upowerd"] value 1022
+    inst [N or "001069 postgres:"] value 1069
+    inst [N or "001072 postgres:"] value 1072
+    inst [N or "001073 postgres:"] value 1073
+    inst [N or "001074 postgres:"] value 1074
+    inst [N or "001075 postgres:"] value 1075
+    inst [N or "001076 postgres:"] value 1076
+    inst [N or "001083 /usr/libexec/colord"] value 1083
+    inst [N or "001084 /usr/sbin/pcscd"] value 1084
+    inst [N or "002927 (loop0)"] value 2927
+    inst [N or "002928 (loop1)"] value 2928
+    inst [N or "002932 (kdmflush)"] value 2932
+    inst [N or "003033 (bioset)"] value 3033
+    inst [N or "003043 (kcopyd)"] value 3043
+    inst [N or "003044 (bioset)"] value 3044
+    inst [N or "003045 (dm-thin)"] value 3045
+    inst [N or "003046 (bioset)"] value 3046
+    inst [N or "003137 gdm-session-worker"] value 3137
+    inst [N or "003189 /usr/lib/systemd/systemd"] value 3189
+    inst [N or "003196 (sd-pam)"] value 3196
+    inst [N or "003209 /usr/bin/gnome-keyring-daemon"] value 3209
+    inst [N or "003266 gnome-session"] value 3266
+    inst [N or "003274 dbus-launch"] value 3274
+    inst [N or "003275 /bin/dbus-daemon"] value 3275
+    inst [N or "003358 /usr/libexec/gvfsd"] value 3358
+    inst [N or "003365 /usr/libexec//gvfsd-fuse"] value 3365
+    inst [N or "003464 /usr/libexec/at-spi-bus-launcher"] value 3464
+    inst [N or "003468 /bin/dbus-daemon"] value 3468
+    inst [N or "003472 /usr/libexec/at-spi2-registryd"] value 3472
+    inst [N or "003485 /usr/bin/pulseaudio"] value 3485
+    inst [N or "003492 /usr/libexec/gnome-settings-daemon"] value 3492
+    inst [N or "003520 /usr/libexec/gvfs-udisks2-volume-monitor"] value 3520
+    inst [N or "003522 /usr/lib/udisks2/udisksd"] value 3522
+    inst [N or "003531 /usr/libexec/gvfs-afc-volume-monitor"] value 3531
+    inst [N or "003537 /usr/libexec/gvfs-goa-volume-monitor"] value 3537
+    inst [N or "003540 /usr/libexec/goa-daemon"] value 3540
+    inst [N or "003546 /usr/libexec/mission-control-5"] value 3546
+    inst [N or "003550 /usr/libexec/gvfs-mtp-volume-monitor"] value 3550
+    inst [N or "003560 /usr/libexec/gvfs-gphoto2-volume-monitor"] value 3560
+    inst [N or "003581 /usr/bin/gnome-shell"] value 3581
+    inst [N or "003596 /usr/sbin/cupsd"] value 3596
+    inst [N or "003612 /usr/libexec/gsd-printer"] value 3612
+    inst [N or "003621 /usr/libexec/dconf-service"] value 3621
+    inst [N or "003636 /usr/libexec/gnome-shell-calendar-server"] value 3636
+    inst [N or "003641 /usr/bin/ibus-daemon"] value 3641
+    inst [N or "003645 /usr/libexec/ibus-dconf"] value 3645
+    inst [N or "003647 /usr/libexec/ibus-x11"] value 3647
+    inst [N or "003659 /usr/libexec/evolution-source-registry"] value 3659
+    inst [N or "003700 /usr/libexec/evolution/3.10/evolution-alarm-notify"] value 3700
+    inst [N or "003740 /usr/libexec/tracker-store"] value 3740
+    inst [N or "003749 /usr/libexec/ibus-engine-simple"] value 3749
+    inst [N or "003808 /usr/libexec/tracker-miner-fs"] value 3808
+    inst [N or "003812 /usr/bin/python"] value 3812
+    inst [N or "003836 /usr/bin/seapplet"] value 3836
+    inst [N or "003874 abrt-applet"] value 3874
+    inst [N or "003891 /usr/libexec/deja-dup/deja-dup-monitor"] value 3891
+    inst [N or "003910 /usr/libexec/gvfsd-metadata"] value 3910
+    inst [N or "003918 /usr/libexec/evolution-calendar-factory"] value 3918
+    inst [N or "003924 /usr/libexec/bluetooth/obexd"] value 3924
+    inst [N or "003926 /usr/libexec/telepathy-logger"] value 3926
+    inst [N or "003939 /usr/libexec/gvfsd-burn"] value 3939
+    inst [N or "004157 xchat"] value 4157
+    inst [N or "004164 /usr/lib64/firefox/firefox"] value 4164
+    inst [N or "004274 /usr/lib/systemd/systemd"] value 4274
+    inst [N or "004279 (sd-pam)"] value 4279
+    inst [N or "004413 /usr/libexec/gnome-terminal-server"] value 4413
+    inst [N or "004416 gnome-pty-helper"] value 4416
+    inst [N or "004417 bash"] value 4417
+    inst [N or "004605 /usr/lib/systemd/systemd"] value 4605
+    inst [N or "004613 (sd-pam)"] value 4613
+    inst [N or "004724 ssh"] value 4724
+    inst [N or "004778 (kworker/1:2)"] value 4778
+    inst [N or "005800 sudo"] value 5800
+    inst [N or "005801 su"] value 5801
+    inst [N or "005802 -bash"] value 5802
+    inst [N or "007503 vim"] value 7503
+    inst [N or "007504 /usr/bin/cscope"] value 7504
+    inst [N or "007550 /sbin/dhclient"] value 7550
+    inst [N or "007833 bash"] value 7833
+    inst [N or "007985 bash"] value 7985
+    inst [N or "009060 (kworker/0:0)"] value 9060
+    inst [N or "009387 (kworker/1:1)"] value 9387
+    inst [N or "009804 (kworker/3:0)"] value 9804
+    inst [N or "010066 (kworker/3:1)"] value 10066
+    inst [N or "010370 (kworker/0:2)"] value 10370
+    inst [N or "010673 (kworker/2:1)"] value 10673
+    inst [N or "010679 (kworker/3:2)"] value 10679
+    inst [N or "010680 (kworker/3:3)"] value 10680
+    inst [N or "011194 /usr/libexec/nm-vpnc-service"] value 11194
+    inst [N or "011204 /usr/sbin/vpnc"] value 11204
+    inst [N or "011269 vim"] value 11269
+    inst [N or "011854 (kworker/u16:0)"] value 11854
+    inst [N or "012370 /usr/lib/polkit-1/polkitd"] value 12370
+    inst [N or "012431 /usr/libexec/pcp/bin/pmcd"] value 12431
+    inst [N or "012435 /var/lib/pcp/pmdas/root/pmdaroot"] value 12435
+    inst [N or "012436 /var/lib/pcp/pmdas/proc/pmdaproc"] value 12436
+    inst [N or "012437 /var/lib/pcp/pmdas/xfs/pmdaxfs"] value 12437
+    inst [N or "012438 /var/lib/pcp/pmdas/sample/pmdasample"] value 12438
+    inst [N or "012439 /var/lib/pcp/pmdas/linux/pmdalinux"] value 12439
+    inst [N or "012440 /var/lib/pcp/pmdas/mounts/pmdamounts"] value 12440
+    inst [N or "012441 perl"] value 12441
+    inst [N or "012442 perl"] value 12442
+    inst [N or "012443 python3"] value 12443
+    inst [N or "012447 /var/lib/pcp/pmdas/dm/pmdadm"] value 12447
+    inst [N or "012448 /var/lib/pcp/pmdas/simple/pmdasimple"] value 12448
+    inst [N or "014901 (kworker/1:0)"] value 14901
+    inst [N or "014918 /bin/sh"] value 14918
+    inst [N or "015515 (kworker/2:2)"] value 15515
+    inst [N or "015521 (kworker/u16:2)"] value 15521
+    inst [N or "017402 bash"] value 17402
+    inst [N or "023148 bash"] value 23148
+    inst [N or "028053 /usr/libexec/gconfd-2"] value 28053
+    inst [N or "028206 (kworker/2:0)"] value 28206
+
+== Fetching per-thread proc.psinfo.psargs metric - procpid-3.19.0-root-002.tgz
+
+proc.psinfo.psargs
+    inst [N or "000001 /usr/lib/systemd/systemd"] value "/usr/lib/systemd/systemd --switched-root --system --deserialize 23"
+    inst [N or "000002 (kthreadd)"] value "(kthreadd)"
+    inst [N or "000003 (ksoftirqd/0)"] value "(ksoftirqd/0)"
+    inst [N or "000005 (kworker/0:0H)"] value "(kworker/0:0H)"
+    inst [N or "000007 (rcu_sched)"] value "(rcu_sched)"
+    inst [N or "000008 (rcu_bh)"] value "(rcu_bh)"
+    inst [N or "000009 (rcuos/0)"] value "(rcuos/0)"
+    inst [N or "000010 (rcuob/0)"] value "(rcuob/0)"
+    inst [N or "000011 (migration/0)"] value "(migration/0)"
+    inst [N or "000012 (watchdog/0)"] value "(watchdog/0)"
+    inst [N or "000013 (watchdog/1)"] value "(watchdog/1)"
+    inst [N or "000014 (migration/1)"] value "(migration/1)"
+    inst [N or "000015 (ksoftirqd/1)"] value "(ksoftirqd/1)"
+    inst [N or "000017 (kworker/1:0H)"] value "(kworker/1:0H)"
+    inst [N or "000018 (rcuos/1)"] value "(rcuos/1)"
+    inst [N or "000019 (rcuob/1)"] value "(rcuob/1)"
+    inst [N or "000020 (watchdog/2)"] value "(watchdog/2)"
+    inst [N or "000021 (migration/2)"] value "(migration/2)"
+    inst [N or "000022 (ksoftirqd/2)"] value "(ksoftirqd/2)"
+    inst [N or "000024 (kworker/2:0H)"] value "(kworker/2:0H)"
+    inst [N or "000025 (rcuos/2)"] value "(rcuos/2)"
+    inst [N or "000026 (rcuob/2)"] value "(rcuob/2)"
+    inst [N or "000027 (watchdog/3)"] value "(watchdog/3)"
+    inst [N or "000028 (migration/3)"] value "(migration/3)"
+    inst [N or "000029 (ksoftirqd/3)"] value "(ksoftirqd/3)"
+    inst [N or "000031 (kworker/3:0H)"] value "(kworker/3:0H)"
+    inst [N or "000032 (rcuos/3)"] value "(rcuos/3)"
+    inst [N or "000033 (rcuob/3)"] value "(rcuob/3)"
+    inst [N or "000034 (khelper)"] value "(khelper)"
+    inst [N or "000035 (kdevtmpfs)"] value "(kdevtmpfs)"
+    inst [N or "000036 (netns)"] value "(netns)"
+    inst [N or "000037 (perf)"] value "(perf)"
+    inst [N or "000038 (writeback)"] value "(writeback)"
+    inst [N or "000039 (ksmd)"] value "(ksmd)"
+    inst [N or "000040 (khugepaged)"] value "(khugepaged)"
+    inst [N or "000041 (crypto)"] value "(crypto)"
+    inst [N or "000042 (kintegrityd)"] value "(kintegrityd)"
+    inst [N or "000043 (bioset)"] value "(bioset)"
+    inst [N or "000044 (kblockd)"] value "(kblockd)"
+    inst [N or "000045 (ata_sff)"] value "(ata_sff)"
+    inst [N or "000046 (md)"] value "(md)"
+    inst [N or "000047 (devfreq_wq)"] value "(devfreq_wq)"
+    inst [N or "000073 (kswapd0)"] value "(kswapd0)"
+    inst [N or "000074 (fsnotify_mark)"] value "(fsnotify_mark)"
+    inst [N or "000084 (kthrotld)"] value "(kthrotld)"
+    inst [N or "000085 (acpi_thermal_pm)"] value "(acpi_thermal_pm)"
+    inst [N or "000086 (scsi_eh_0)"] value "(scsi_eh_0)"
+    inst [N or "000087 (scsi_tmf_0)"] value "(scsi_tmf_0)"
+    inst [N or "000088 (scsi_eh_1)"] value "(scsi_eh_1)"
+    inst [N or "000089 (scsi_tmf_1)"] value "(scsi_tmf_1)"
+    inst [N or "000093 (kpsmoused)"] value "(kpsmoused)"
+    inst [N or "000095 (dm_bufio_cache)"] value "(dm_bufio_cache)"
+    inst [N or "000096 (ipv6_addrconf)"] value "(ipv6_addrconf)"
+    inst [N or "000097 (deferwq)"] value "(deferwq)"
+    inst [N or "000127 (kauditd)"] value "(kauditd)"
+    inst [N or "000214 (kworker/2:1H)"] value "(kworker/2:1H)"
+    inst [N or "000215 (kworker/1:1H)"] value "(kworker/1:1H)"
+    inst [N or "000218 (kworker/0:1H)"] value "(kworker/0:1H)"
+    inst [N or "000234 (kworker/3:1H)"] value "(kworker/3:1H)"
+    inst [N or "000235 (jbd2/sda7-8)"] value "(jbd2/sda7-8)"
+    inst [N or "000236 (ext4-rsv-conver)"] value "(ext4-rsv-conver)"
+    inst [N or "000311 /usr/lib/systemd/systemd-journald"] value "/usr/lib/systemd/systemd-journald"
+    inst [N or "000327 /usr/sbin/lvmetad"] value "/usr/sbin/lvmetad -f"
+    inst [N or "000341 /usr/lib/systemd/systemd-udevd"] value "/usr/lib/systemd/systemd-udevd"
+    inst [N or "000389 (irq/45-mei_me)"] value "(irq/45-mei_me)"
+    inst [N or "000431 (rpciod)"] value "(rpciod)"
+    inst [N or "000435 (kmemstick)"] value "(kmemstick)"
+    inst [N or "000445 (rtsx_usb_ms_1)"] value "(rtsx_usb_ms_1)"
+    inst [N or "000448 (cfg80211)"] value "(cfg80211)"
+    inst [N or "000451 (kvm-irqfd-clean)"] value "(kvm-irqfd-clean)"
+    inst [N or "000452 (hd-audio0)"] value "(hd-audio0)"
+    inst [N or "000453 (hd-audio1)"] value "(hd-audio1)"
+    inst [N or "000474 /sbin/auditd"] value "/sbin/auditd -n"
+    inst [N or "000480 /sbin/audispd"] value "/sbin/audispd"
+    inst [N or "000491 /usr/sbin/alsactl"] value "/usr/sbin/alsactl -s -n 19 -c -E ALSA_CONFIG_PATH=/etc/alsa/alsactl.conf --initfile=/lib/alsa/init/00main rdaemon"
+    inst [N or "000500 /usr/bin/python"] value "/usr/bin/python -Es /usr/sbin/firewalld --nofork --nopid"
+    inst [N or "000503 /usr/libexec/accounts-daemon"] value "/usr/libexec/accounts-daemon"
+    inst [N or "000506 /usr/libexec/rtkit-daemon"] value "/usr/libexec/rtkit-daemon"
+    inst [N or "000509 /usr/sbin/chronyd"] value "/usr/sbin/chronyd"
+    inst [N or "000512 /sbin/rsyslogd"] value "/sbin/rsyslogd -n"
+    inst [N or "000513 /usr/sbin/ModemManager"] value "/usr/sbin/ModemManager"
+    inst [N or "000515 /usr/sbin/abrtd"] value "/usr/sbin/abrtd -d -s"
+    inst [N or "000524 /usr/bin/abrt-watch-log"] value "/usr/bin/abrt-watch-log -F BUG: WARNING: at WARNING: CPU: INFO: possible recursive locking detected ernel BUG at list_del corruption list_add corruption do_IRQ: stack overflow: ear stack overflow (cur: eneral protection fault nable to handle kernel ouble fault: RTNL: assertion failed eek! page_mapcount(page) went negative! adness at NETDEV WATCHDOG ysctl table check failed : nobody cared IRQ handler type mismatch Machine Check Exception: Machine check events logged divide error: bounds: coprocessor segment overrun: invalid TSS: segment not present: invalid opcode: alignment check: stack segment: fpu exception: simd exception: iret exception: /var/log/messages -- /usr/bin/abrt-dump-oops -xtD"
+    inst [N or "000528 /sbin/rpcbind"] value "/sbin/rpcbind -w"
+    inst [N or "000531 /sbin/rngd"] value "/sbin/rngd -f"
+    inst [N or "000533 /usr/sbin/irqbalance"] value "/usr/sbin/irqbalance --foreground"
+    inst [N or "000534 /usr/bin/abrt-watch-log"] value "/usr/bin/abrt-watch-log -F Backtrace /var/log/Xorg.0.log -- /usr/bin/abrt-dump-xorg -xD"
+    inst [N or "000537 /usr/sbin/smartd"] value "/usr/sbin/smartd -n -q never"
+    inst [N or "000540 avahi-daemon:"] value "avahi-daemon: running [slick.local]"
+    inst [N or "000541 /usr/lib/systemd/systemd-logind"] value "/usr/lib/systemd/systemd-logind"
+    inst [N or "000546 /bin/dbus-daemon"] value "/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation"
+    inst [N or "000548 /usr/sbin/crond"] value "/usr/sbin/crond -n"
+    inst [N or "000550 /usr/sbin/atd"] value "/usr/sbin/atd -f"
+    inst [N or "000551 java"] value "java -agentpath:/usr/lib64/libabrt-java-connector.so=abrt=on -Xms256m -Xmx1g -Djava.awt.headless=true -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly -XX:+HeapDumpOnOutOfMemoryError -XX:+DisableExplicitGC -Dfile.encoding=UTF-8 -Delasticsearch -Des.pidfile=/var/run/elasticsearch/elasticsearch.pid -Des.path.home=/usr/share/elasticsearch -cp :/usr/share/elasticsearch/lib/elasticsearch-1.5.1.jar:/usr/share/elasticsearch/lib/*:/usr/share/elasticsearch/lib/sigar/* -Des.default.config=/etc/elasticsearch/elasticsearch.yml -Des.default.path.home=/usr/share/elasticsearch -Des.default.path.logs=/var/log/elasticsearch -Des.default.path.data=/var/lib/elasticsearch -Des.default.path.work=/tmp/elasticsearch -Des.default.path.conf=/etc/elasticsearch org.elasticsearch.bootstrap.Elasticsearch"
+    inst [N or "000553 /usr/sbin/gdm"] value "/usr/sbin/gdm"
+    inst [N or "000558 /usr/sbin/sedispatch"] value "/usr/sbin/sedispatch"
+    inst [N or "000560 avahi-daemon:"] value "avahi-daemon: chroot helper"
+    inst [N or "000571 /usr/libexec/gdm-simple-slave"] value "/usr/libexec/gdm-simple-slave --display-id /org/gnome/DisplayManager/Displays/_0"
+    inst [N or "000574 /usr/sbin/mcelog"] value "/usr/sbin/mcelog --ignorenodev --daemon --foreground"
+    inst [N or "000587 /usr/bin/Xorg"] value "/usr/bin/Xorg :0 -background none -verbose -auth /run/gdm/auth-for-gdm-5WedCX/database -seat seat0 -nolisten tcp vt1"
+    inst [N or "000661 /usr/lib/systemd/systemd"] value "/usr/lib/systemd/systemd --user"
+    inst [N or "000664 (sd-pam)"] value "(sd-pam)"
+    inst [N or "000680 /usr/sbin/NetworkManager"] value "/usr/sbin/NetworkManager --no-daemon"
+    inst [N or "000764 /usr/sbin/libvirtd"] value "/usr/sbin/libvirtd"
+    inst [N or "000889 /usr/bin/docker"] value "/usr/bin/docker -d --selinux-enabled"
+    inst [N or "000893 /usr/bin/memcached"] value "/usr/bin/memcached -u memcached -p 11211 -m 64 -c 1024"
+    inst [N or "000901 /usr/libexec/bluetooth/bluetoothd"] value "/usr/libexec/bluetooth/bluetoothd"
+    inst [N or "000912 /usr/sbin/sshd"] value "/usr/sbin/sshd -D"
+    inst [N or "000927 /sbin/rpc.statd"] value "/sbin/rpc.statd"
+    inst [N or "000962 /usr/bin/postgres"] value "/usr/bin/postgres -D /var/lib/pgsql/data -p 5432"
+    inst [N or "001022 /usr/libexec/upowerd"] value "/usr/libexec/upowerd"
+    inst [N or "001069 postgres:"] value "postgres: logger process   "
+    inst [N or "001072 postgres:"] value "postgres: checkpointer process   "
+    inst [N or "001073 postgres:"] value "postgres: writer process   "
+    inst [N or "001074 postgres:"] value "postgres: wal writer process   "
+    inst [N or "001075 postgres:"] value "postgres: autovacuum launcher process   "
+    inst [N or "001076 postgres:"] value "postgres: stats collector process   "
+    inst [N or "001083 /usr/libexec/colord"] value "/usr/libexec/colord"
+    inst [N or "001084 /usr/sbin/pcscd"] value "/usr/sbin/pcscd --foreground --auto-exit"
+    inst [N or "002927 (loop0)"] value "(loop0)"
+    inst [N or "002928 (loop1)"] value "(loop1)"
+    inst [N or "002932 (kdmflush)"] value "(kdmflush)"
+    inst [N or "003033 (bioset)"] value "(bioset)"
+    inst [N or "003043 (kcopyd)"] value "(kcopyd)"
+    inst [N or "003044 (bioset)"] value "(bioset)"
+    inst [N or "003045 (dm-thin)"] value "(dm-thin)"
+    inst [N or "003046 (bioset)"] value "(bioset)"
+    inst [N or "003137 gdm-session-worker"] value "gdm-session-worker [pam/gdm-password]"
+    inst [N or "003189 /usr/lib/systemd/systemd"] value "/usr/lib/systemd/systemd --user"
+    inst [N or "003196 (sd-pam)"] value "(sd-pam)"
+    inst [N or "003209 /usr/bin/gnome-keyring-daemon"] value "/usr/bin/gnome-keyring-daemon --daemonize --login"
+    inst [N or "003266 gnome-session"] value "gnome-session"
+    inst [N or "003274 dbus-launch"] value "dbus-launch --sh-syntax --exit-with-session"
+    inst [N or "003275 /bin/dbus-daemon"] value "/bin/dbus-daemon --fork --print-pid 4 --print-address 6 --session"
+    inst [N or "003358 /usr/libexec/gvfsd"] value "/usr/libexec/gvfsd"
+    inst [N or "003365 /usr/libexec//gvfsd-fuse"] value "/usr/libexec//gvfsd-fuse /run/user/1000/gvfs -f -o big_writes"
+    inst [N or "003464 /usr/libexec/at-spi-bus-launcher"] value "/usr/libexec/at-spi-bus-launcher"
+    inst [N or "003468 /bin/dbus-daemon"] value "/bin/dbus-daemon --config-file=/etc/at-spi2/accessibility.conf --nofork --print-address 3"
+    inst [N or "003472 /usr/libexec/at-spi2-registryd"] value "/usr/libexec/at-spi2-registryd --use-gnome-session"
+    inst [N or "003485 /usr/bin/pulseaudio"] value "/usr/bin/pulseaudio --start"
+    inst [N or "003492 /usr/libexec/gnome-settings-daemon"] value "/usr/libexec/gnome-settings-daemon"
+    inst [N or "003520 /usr/libexec/gvfs-udisks2-volume-monitor"] value "/usr/libexec/gvfs-udisks2-volume-monitor"
+    inst [N or "003522 /usr/lib/udisks2/udisksd"] value "/usr/lib/udisks2/udisksd --no-debug"
+    inst [N or "003531 /usr/libexec/gvfs-afc-volume-monitor"] value "/usr/libexec/gvfs-afc-volume-monitor"
+    inst [N or "003537 /usr/libexec/gvfs-goa-volume-monitor"] value "/usr/libexec/gvfs-goa-volume-monitor"
+    inst [N or "003540 /usr/libexec/goa-daemon"] value "/usr/libexec/goa-daemon"
+    inst [N or "003546 /usr/libexec/mission-control-5"] value "/usr/libexec/mission-control-5"
+    inst [N or "003550 /usr/libexec/gvfs-mtp-volume-monitor"] value "/usr/libexec/gvfs-mtp-volume-monitor"
+    inst [N or "003560 /usr/libexec/gvfs-gphoto2-volume-monitor"] value "/usr/libexec/gvfs-gphoto2-volume-monitor"
+    inst [N or "003581 /usr/bin/gnome-shell"] value "/usr/bin/gnome-shell"
+    inst [N or "003596 /usr/sbin/cupsd"] value "/usr/sbin/cupsd -f"
+    inst [N or "003612 /usr/libexec/gsd-printer"] value "/usr/libexec/gsd-printer"
+    inst [N or "003621 /usr/libexec/dconf-service"] value "/usr/libexec/dconf-service"
+    inst [N or "003636 /usr/libexec/gnome-shell-calendar-server"] value "/usr/libexec/gnome-shell-calendar-server"
+    inst [N or "003641 /usr/bin/ibus-daemon"] value "/usr/bin/ibus-daemon --replace --xim --panel disable"
+    inst [N or "003645 /usr/libexec/ibus-dconf"] value "/usr/libexec/ibus-dconf"
+    inst [N or "003647 /usr/libexec/ibus-x11"] value "/usr/libexec/ibus-x11 --kill-daemon"
+    inst [N or "003659 /usr/libexec/evolution-source-registry"] value "/usr/libexec/evolution-source-registry"
+    inst [N or "003700 /usr/libexec/evolution/3.10/evolution-alarm-notify"] value "/usr/libexec/evolution/3.10/evolution-alarm-notify"
+    inst [N or "003740 /usr/libexec/tracker-store"] value "/usr/libexec/tracker-store"
+    inst [N or "003749 /usr/libexec/ibus-engine-simple"] value "/usr/libexec/ibus-engine-simple"
+    inst [N or "003808 /usr/libexec/tracker-miner-fs"] value "/usr/libexec/tracker-miner-fs"
+    inst [N or "003812 /usr/bin/python"] value "/usr/bin/python /usr/share/system-config-printer/applet.py"
+    inst [N or "003836 /usr/bin/seapplet"] value "/usr/bin/seapplet"
+    inst [N or "003874 abrt-applet"] value "abrt-applet"
+    inst [N or "003891 /usr/libexec/deja-dup/deja-dup-monitor"] value "/usr/libexec/deja-dup/deja-dup-monitor"
+    inst [N or "003910 /usr/libexec/gvfsd-metadata"] value "/usr/libexec/gvfsd-metadata"
+    inst [N or "003918 /usr/libexec/evolution-calendar-factory"] value "/usr/libexec/evolution-calendar-factory"
+    inst [N or "003924 /usr/libexec/bluetooth/obexd"] value "/usr/libexec/bluetooth/obexd"
+    inst [N or "003926 /usr/libexec/telepathy-logger"] value "/usr/libexec/telepathy-logger"
+    inst [N or "003939 /usr/libexec/gvfsd-burn"] value "/usr/libexec/gvfsd-burn --spawner :1.3 /org/gtk/gvfs/exec_spaw/0"
+    inst [N or "004157 xchat"] value "xchat"
+    inst [N or "004164 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "004274 /usr/lib/systemd/systemd"] value "/usr/lib/systemd/systemd --user"
+    inst [N or "004279 (sd-pam)"] value "(sd-pam)"
+    inst [N or "004413 /usr/libexec/gnome-terminal-server"] value "/usr/libexec/gnome-terminal-server"
+    inst [N or "004416 gnome-pty-helper"] value "gnome-pty-helper"
+    inst [N or "004417 bash"] value "bash"
+    inst [N or "004605 /usr/lib/systemd/systemd"] value "/usr/lib/systemd/systemd --user"
+    inst [N or "004613 (sd-pam)"] value "(sd-pam)"
+    inst [N or "004724 ssh"] value "ssh smash"
+    inst [N or "004778 (kworker/1:2)"] value "(kworker/1:2)"
+    inst [N or "005800 sudo"] value "sudo su - pcpqa"
+    inst [N or "005801 su"] value "su - pcpqa"
+    inst [N or "005802 -bash"] value "-bash"
+    inst [N or "007503 vim"] value "vim src/pmdas/linux_proc/proc_pid.c"
+    inst [N or "007504 /usr/bin/cscope"] value "/usr/bin/cscope -dl -f /source/git/pcp/cscope.out"
+    inst [N or "007550 /sbin/dhclient"] value "/sbin/dhclient -d -sf /usr/libexec/nm-dhcp-helper -pf /var/run/dhclient-p2p1.pid -lf /var/lib/NetworkManager/dhclient-c1a891b2-a297-4d35-bcf5-d3771822e95e-p2p1.lease -cf /var/lib/NetworkManager/dhclient-p2p1.conf p2p1"
+    inst [N or "007833 bash"] value "bash"
+    inst [N or "007985 bash"] value "bash"
+    inst [N or "009060 (kworker/0:0)"] value "(kworker/0:0)"
+    inst [N or "009387 (kworker/1:1)"] value "(kworker/1:1)"
+    inst [N or "009804 (kworker/3:0)"] value "(kworker/3:0)"
+    inst [N or "010066 (kworker/3:1)"] value "(kworker/3:1)"
+    inst [N or "010370 (kworker/0:2)"] value "(kworker/0:2)"
+    inst [N or "010673 (kworker/2:1)"] value "(kworker/2:1)"
+    inst [N or "010679 (kworker/3:2)"] value "(kworker/3:2)"
+    inst [N or "010680 (kworker/3:3)"] value "(kworker/3:3)"
+    inst [N or "011194 /usr/libexec/nm-vpnc-service"] value "/usr/libexec/nm-vpnc-service"
+    inst [N or "011204 /usr/sbin/vpnc"] value "/usr/sbin/vpnc --non-inter --no-detach -"
+    inst [N or "011269 vim"] value "vim 731"
+    inst [N or "011854 (kworker/u16:0)"] value "(kworker/u16:0)"
+    inst [N or "012370 /usr/lib/polkit-1/polkitd"] value "/usr/lib/polkit-1/polkitd --no-debug"
+    inst [N or "012431 /usr/libexec/pcp/bin/pmcd"] value "/usr/libexec/pcp/bin/pmcd -T 3"
+    inst [N or "012435 /var/lib/pcp/pmdas/root/pmdaroot"] value "/var/lib/pcp/pmdas/root/pmdaroot -d 1"
+    inst [N or "012436 /var/lib/pcp/pmdas/proc/pmdaproc"] value "/var/lib/pcp/pmdas/proc/pmdaproc -d 3"
+    inst [N or "012437 /var/lib/pcp/pmdas/xfs/pmdaxfs"] value "/var/lib/pcp/pmdas/xfs/pmdaxfs -d 11"
+    inst [N or "012438 /var/lib/pcp/pmdas/sample/pmdasample"] value "/var/lib/pcp/pmdas/sample/pmdasample -d 29"
+    inst [N or "012439 /var/lib/pcp/pmdas/linux/pmdalinux"] value "/var/lib/pcp/pmdas/linux/pmdalinux"
+    inst [N or "012440 /var/lib/pcp/pmdas/mounts/pmdamounts"] value "/var/lib/pcp/pmdas/mounts/pmdamounts -d 72"
+    inst [N or "012441 perl"] value "perl /var/lib/pcp/pmdas/elasticsearch/pmdaelasticsearch.pl"
+    inst [N or "012442 perl"] value "perl /var/lib/pcp/pmdas/postgresql/pmdapostgresql.pl"
+    inst [N or "012443 python3"] value "python3 /var/lib/pcp/pmdas/zswap/pmdazswap.python"
+    inst [N or "012447 /var/lib/pcp/pmdas/dm/pmdadm"] value "/var/lib/pcp/pmdas/dm/pmdadm -d 129"
+    inst [N or "012448 /var/lib/pcp/pmdas/simple/pmdasimple"] value "/var/lib/pcp/pmdas/simple/pmdasimple -d 253"
+    inst [N or "014901 (kworker/1:0)"] value "(kworker/1:0)"
+    inst [N or "014918 /bin/sh"] value "/bin/sh ./mk.procpid"
+    inst [N or "015515 (kworker/2:2)"] value "(kworker/2:2)"
+    inst [N or "015521 (kworker/u16:2)"] value "(kworker/u16:2)"
+    inst [N or "017402 bash"] value "bash"
+    inst [N or "023148 bash"] value "bash"
+    inst [N or "028053 /usr/libexec/gconfd-2"] value "/usr/libexec/gconfd-2"
+    inst [N or "028206 (kworker/2:0)"] value "(kworker/2:0)"
+
+== Fetching per-thread proc.psinfo.rss metric - procpid-3.2.0-root-003.tgz
+
+proc.psinfo.rss
+    inst [N or "000001 init"] value 844
+    inst [N or "000002 (kthreadd)"] value 0
+    inst [N or "000003 (ksoftirqd/0)"] value 0
+    inst [N or "000005 (kworker/u:0)"] value 0
+    inst [N or "000006 (posixcputmr/0)"] value 0
+    inst [N or "000007 (migration/0)"] value 0
+    inst [N or "000008 (watchdog/0)"] value 0
+    inst [N or "000009 (posixcputmr/1)"] value 0
+    inst [N or "000010 (migration/1)"] value 0
+    inst [N or "000012 (ksoftirqd/1)"] value 0
+    inst [N or "000014 (watchdog/1)"] value 0
+    inst [N or "000015 (cpuset)"] value 0
+    inst [N or "000016 (khelper)"] value 0
+    inst [N or "000017 (kdevtmpfs)"] value 0
+    inst [N or "000018 (netns)"] value 0
+    inst [N or "000019 (sync_supers)"] value 0
+    inst [N or "000020 (bdi-default)"] value 0
+    inst [N or "000021 (kintegrityd)"] value 0
+    inst [N or "000022 (kblockd)"] value 0
+    inst [N or "000023 (irq/9-acpi)"] value 0
+    inst [N or "000025 (khungtaskd)"] value 0
+    inst [N or "000026 (kswapd0)"] value 0
+    inst [N or "000027 (ksmd)"] value 0
+    inst [N or "000028 (fsnotify_mark)"] value 0
+    inst [N or "000029 (crypto)"] value 0
+    inst [N or "000032 (irq/12-i8042)"] value 0
+    inst [N or "000033 (irq/1-i8042)"] value 0
+    inst [N or "000034 (irq/8-rtc0)"] value 0
+    inst [N or "000137 (khubd)"] value 0
+    inst [N or "000143 (irq/22-ehci_hcd)"] value 0
+    inst [N or "000145 (ata_sff)"] value 0
+    inst [N or "000147 (firewire)"] value 0
+    inst [N or "000159 (irq/20-uhci_hcd)"] value 0
+    inst [N or "000160 (irq/14-ata_piix)"] value 0
+    inst [N or "000161 (irq/15-ata_piix)"] value 0
+    inst [N or "000164 (scsi_eh_0)"] value 0
+    inst [N or "000168 (scsi_eh_1)"] value 0
+    inst [N or "000176 (kworker/u:1)"] value 0
+    inst [N or "000180 (irq/20-ehci_hcd)"] value 0
+    inst [N or "000182 (irq/19-firewire)"] value 0
+    inst [N or "000184 (irq/21-uhci_hcd)"] value 0
+    inst [N or "000192 (irq/18-ata_piix)"] value 0
+    inst [N or "000193 (scsi_eh_2)"] value 0
+    inst [N or "000195 (scsi_eh_3)"] value 0
+    inst [N or "000196 (irq/20-uhci_hcd)"] value 0
+    inst [N or "000197 (irq/21-uhci_hcd)"] value 0
+    inst [N or "000198 (irq/22-uhci_hcd)"] value 0
+    inst [N or "000236 (xfs_mru_cache)"] value 0
+    inst [N or "000237 (xfslogd)"] value 0
+    inst [N or "000238 (xfsdatad)"] value 0
+    inst [N or "000239 (xfsconvertd)"] value 0
+    inst [N or "000241 (xfsbufd/sda1)"] value 0
+    inst [N or "000242 (xfsaild/sda1)"] value 0
+    inst [N or "000405 udevd"] value 1768
+    inst [N or "000463 (irq/19-yenta)"] value 0
+    inst [N or "000464 (irq/43-snd_hda_)"] value 0
+    inst [N or "000465 (hd-audio0)"] value 0
+    inst [N or "000468 (pccardd)"] value 0
+    inst [N or "000470 (kpsmoused)"] value 0
+    inst [N or "000487 (ttm_swap)"] value 0
+    inst [N or "000488 (irq/16-nouveau)"] value 0
+    inst [N or "001069 (xfsbufd/sda2)"] value 0
+    inst [N or "001070 (xfsaild/sda2)"] value 0
+    inst [N or "001071 (xfsbufd/sda3)"] value 0
+    inst [N or "001072 (xfsaild/sda3)"] value 0
+    inst [N or "001073 (xfsbufd/sda5)"] value 0
+    inst [N or "001074 (xfsaild/sda5)"] value 0
+    inst [N or "001337 (irq/44-eth1)"] value 0
+    inst [N or "001339 (flush-8:0)"] value 0
+    inst [N or "001343 dhclient"] value 2296
+    inst [N or "001460 /sbin/rpcbind"] value 984
+    inst [N or "001488 /sbin/rpc.statd"] value 1296
+    inst [N or "001493 (rpciod)"] value 0
+    inst [N or "001496 (nfsiod)"] value 0
+    inst [N or "001503 /usr/sbin/rpc.idmapd"] value 388
+    inst [N or "001763 (iscsi_eh)"] value 0
+    inst [N or "001810 (ib_mcast)"] value 0
+    inst [N or "001811 (ib_cm)"] value 0
+    inst [N or "001812 (iw_cm_wq)"] value 0
+    inst [N or "001813 (ib_addr)"] value 0
+    inst [N or "001814 (rdma_cm)"] value 0
+    inst [N or "001834 /usr/sbin/iscsid"] value 488
+    inst [N or "001835 /usr/sbin/iscsid"] value 3212
+    inst [N or "001989 /usr/sbin/rsyslogd"] value 3888
+    inst [N or "001995 (kvm-irqfd-clean)"] value 0
+    inst [N or "002199 /usr/sbin/acpid"] value 760
+    inst [N or "002233 /usr/sbin/atd"] value 124
+    inst [N or "002261 /usr/bin/atop"] value 4212
+    inst [N or "002307 /usr/sbin/dnsmasq"] value 824
+    inst [N or "002334 /usr/bin/dbus-daemon"] value 1448
+    inst [N or "002471 /usr/bin/perl"] value 14292
+    inst [N or "002811 /usr/sbin/apache2"] value 8044
+    inst [N or "002884 avahi-daemon:"] value 1612
+    inst [N or "002885 avahi-daemon:"] value 436
+    inst [N or "002939 /usr/sbin/cron"] value 1076
+    inst [N or "003041 /usr/sbin/NetworkManager"] value 5408
+    inst [N or "003277 /usr/lib/policykit-1/polkitd"] value 3152
+    inst [N or "003279 /usr/sbin/libvirtd"] value 10772
+    inst [N or "003331 /usr/bin/kdm"] value 804
+    inst [N or "003379 /usr/sbin/modem-manager"] value 2736
+    inst [N or "003644 /bin/sh"] value 640
+    inst [N or "003668 /usr/bin/memcached"] value 1112
+    inst [N or "003999 /usr/sbin/collectdmon"] value 300
+    inst [N or "004001 collectd"] value 3292
+    inst [N or "004097 /usr/sbin/mysqld"] value 33608
+    inst [N or "004419 /usr/sbin/dnsmasq"] value 888
+    inst [N or "004420 /usr/sbin/dnsmasq"] value 168
+    inst [N or "004464 /usr/sbin/inetd"] value 672
+    inst [N or "004625 /usr/sbin/ntpd"] value 2020
+    inst [N or "005140 /usr/lib/pcp/bin/pmcd"] value 2348
+    inst [N or "005145 /var/lib/pcp/pmdas/root/pmdaroot"] value 1232
+    inst [N or "005146 /var/lib/pcp/pmdas/proc/pmdaproc"] value 1772
+    inst [N or "005147 /var/lib/pcp/pmdas/trace/pmdatrace"] value 1492
+    inst [N or "005148 /var/lib/pcp/pmdas/xfs/pmdaxfs"] value 1248
+    inst [N or "005149 /var/lib/pcp/pmdas/sendmail/pmdasendmail"] value 1464
+    inst [N or "005150 /var/lib/pcp/pmdas/shping/pmdashping"] value 1556
+    inst [N or "005152 /var/lib/pcp/pmdas/sample/pmdasample"] value 1540
+    inst [N or "005155 /var/lib/pcp/pmdas/linux/pmdalinux"] value 1800
+    inst [N or "005157 perl"] value 6000
+    inst [N or "005158 perl"] value 8368
+    inst [N or "005186 /var/lib/pcp/pmdas/dm/pmdadm"] value 1244
+    inst [N or "005187 /var/lib/pcp/pmdas/trivial/pmdatrivial"] value 1508
+    inst [N or "005188 /var/lib/pcp/pmdas/simple/pmdasimple"] value 1524
+    inst [N or "006008 /usr/lib/pcp/bin/pmproxy"] value 1576
+    inst [N or "006103 /usr/lib/pcp/bin/pmwebd"] value 3044
+    inst [N or "007940 pmlogger"] value 2084
+    inst [N or "007951 pmie"] value 2008
+    inst [N or "008020 /usr/sbin/rinetd"] value 760
+    inst [N or "008077 /usr/sbin/sshd"] value 1072
+    inst [N or "008152 /usr/sbin/tgtd"] value 928
+    inst [N or "008381 /usr/lib/postgresql/9.1/bin/postgres"] value 7932
+    inst [N or "008490 postgres:"] value 1680
+    inst [N or "008491 postgres:"] value 1436
+    inst [N or "008492 postgres:"] value 2512
+    inst [N or "008493 postgres:"] value 1516
+    inst [N or "008498 (kauditd)"] value 0
+    inst [N or "009115 /usr/lib/postfix/master"] value 1888
+    inst [N or "009139 pickup"] value 1804
+    inst [N or "009140 qmgr"] value 1816
+    inst [N or "009181 /sbin/getty"] value 840
+    inst [N or "009182 /sbin/getty"] value 840
+    inst [N or "009183 /sbin/getty"] value 828
+    inst [N or "009184 /sbin/getty"] value 836
+    inst [N or "009185 /sbin/getty"] value 836
+    inst [N or "009186 /sbin/getty"] value 844
+    inst [N or "009188 postgres:"] value 6296
+    inst [N or "009470 /usr/sbin/apache2"] value 4560
+    inst [N or "009471 /usr/sbin/apache2"] value 4056
+    inst [N or "009472 /usr/sbin/apache2"] value 4056
+    inst [N or "009473 /usr/sbin/apache2"] value 4056
+    inst [N or "009474 /usr/sbin/apache2"] value 4056
+    inst [N or "009528 /usr/sbin/cupsd"] value 2788
+    inst [N or "009653 (kworker/0:3)"] value 0
+    inst [N or "009662 (kworker/1:1)"] value 0
+    inst [N or "009672 (kworker/0:1)"] value 0
+    inst [N or "009679 (kworker/1:0)"] value 0
+    inst [N or "010070 (kworker/1:2)"] value 0
+    inst [N or "010549 (kworker/0:2)"] value 0
+    inst [N or "010554 /usr/sbin/console-kit-daemon"] value 3480
+    inst [N or "010630 sshd:"] value 3368
+    inst [N or "010635 sshd:"] value 1608
+    inst [N or "010636 -bash"] value 4544
+    inst [N or "010671 ssh-agent"] value 428
+    inst [N or "010697 gpg-agent"] value 412
+    inst [N or "013162 /bin/sh"] value 600
+
+== Fetching per-thread proc.psinfo.pid metric - procpid-3.2.0-root-003.tgz
+
+proc.psinfo.pid
+    inst [N or "000001 init"] value 1
+    inst [N or "000002 (kthreadd)"] value 2
+    inst [N or "000003 (ksoftirqd/0)"] value 3
+    inst [N or "000005 (kworker/u:0)"] value 5
+    inst [N or "000006 (posixcputmr/0)"] value 6
+    inst [N or "000007 (migration/0)"] value 7
+    inst [N or "000008 (watchdog/0)"] value 8
+    inst [N or "000009 (posixcputmr/1)"] value 9
+    inst [N or "000010 (migration/1)"] value 10
+    inst [N or "000012 (ksoftirqd/1)"] value 12
+    inst [N or "000014 (watchdog/1)"] value 14
+    inst [N or "000015 (cpuset)"] value 15
+    inst [N or "000016 (khelper)"] value 16
+    inst [N or "000017 (kdevtmpfs)"] value 17
+    inst [N or "000018 (netns)"] value 18
+    inst [N or "000019 (sync_supers)"] value 19
+    inst [N or "000020 (bdi-default)"] value 20
+    inst [N or "000021 (kintegrityd)"] value 21
+    inst [N or "000022 (kblockd)"] value 22
+    inst [N or "000023 (irq/9-acpi)"] value 23
+    inst [N or "000025 (khungtaskd)"] value 25
+    inst [N or "000026 (kswapd0)"] value 26
+    inst [N or "000027 (ksmd)"] value 27
+    inst [N or "000028 (fsnotify_mark)"] value 28
+    inst [N or "000029 (crypto)"] value 29
+    inst [N or "000032 (irq/12-i8042)"] value 32
+    inst [N or "000033 (irq/1-i8042)"] value 33
+    inst [N or "000034 (irq/8-rtc0)"] value 34
+    inst [N or "000137 (khubd)"] value 137
+    inst [N or "000143 (irq/22-ehci_hcd)"] value 143
+    inst [N or "000145 (ata_sff)"] value 145
+    inst [N or "000147 (firewire)"] value 147
+    inst [N or "000159 (irq/20-uhci_hcd)"] value 159
+    inst [N or "000160 (irq/14-ata_piix)"] value 160
+    inst [N or "000161 (irq/15-ata_piix)"] value 161
+    inst [N or "000164 (scsi_eh_0)"] value 164
+    inst [N or "000168 (scsi_eh_1)"] value 168
+    inst [N or "000176 (kworker/u:1)"] value 176
+    inst [N or "000180 (irq/20-ehci_hcd)"] value 180
+    inst [N or "000182 (irq/19-firewire)"] value 182
+    inst [N or "000184 (irq/21-uhci_hcd)"] value 184
+    inst [N or "000192 (irq/18-ata_piix)"] value 192
+    inst [N or "000193 (scsi_eh_2)"] value 193
+    inst [N or "000195 (scsi_eh_3)"] value 195
+    inst [N or "000196 (irq/20-uhci_hcd)"] value 196
+    inst [N or "000197 (irq/21-uhci_hcd)"] value 197
+    inst [N or "000198 (irq/22-uhci_hcd)"] value 198
+    inst [N or "000236 (xfs_mru_cache)"] value 236
+    inst [N or "000237 (xfslogd)"] value 237
+    inst [N or "000238 (xfsdatad)"] value 238
+    inst [N or "000239 (xfsconvertd)"] value 239
+    inst [N or "000241 (xfsbufd/sda1)"] value 241
+    inst [N or "000242 (xfsaild/sda1)"] value 242
+    inst [N or "000405 udevd"] value 405
+    inst [N or "000463 (irq/19-yenta)"] value 463
+    inst [N or "000464 (irq/43-snd_hda_)"] value 464
+    inst [N or "000465 (hd-audio0)"] value 465
+    inst [N or "000468 (pccardd)"] value 468
+    inst [N or "000470 (kpsmoused)"] value 470
+    inst [N or "000487 (ttm_swap)"] value 487
+    inst [N or "000488 (irq/16-nouveau)"] value 488
+    inst [N or "001069 (xfsbufd/sda2)"] value 1069
+    inst [N or "001070 (xfsaild/sda2)"] value 1070
+    inst [N or "001071 (xfsbufd/sda3)"] value 1071
+    inst [N or "001072 (xfsaild/sda3)"] value 1072
+    inst [N or "001073 (xfsbufd/sda5)"] value 1073
+    inst [N or "001074 (xfsaild/sda5)"] value 1074
+    inst [N or "001337 (irq/44-eth1)"] value 1337
+    inst [N or "001339 (flush-8:0)"] value 1339
+    inst [N or "001343 dhclient"] value 1343
+    inst [N or "001460 /sbin/rpcbind"] value 1460
+    inst [N or "001488 /sbin/rpc.statd"] value 1488
+    inst [N or "001493 (rpciod)"] value 1493
+    inst [N or "001496 (nfsiod)"] value 1496
+    inst [N or "001503 /usr/sbin/rpc.idmapd"] value 1503
+    inst [N or "001763 (iscsi_eh)"] value 1763
+    inst [N or "001810 (ib_mcast)"] value 1810
+    inst [N or "001811 (ib_cm)"] value 1811
+    inst [N or "001812 (iw_cm_wq)"] value 1812
+    inst [N or "001813 (ib_addr)"] value 1813
+    inst [N or "001814 (rdma_cm)"] value 1814
+    inst [N or "001834 /usr/sbin/iscsid"] value 1834
+    inst [N or "001835 /usr/sbin/iscsid"] value 1835
+    inst [N or "001989 /usr/sbin/rsyslogd"] value 1989
+    inst [N or "001995 (kvm-irqfd-clean)"] value 1995
+    inst [N or "002199 /usr/sbin/acpid"] value 2199
+    inst [N or "002233 /usr/sbin/atd"] value 2233
+    inst [N or "002261 /usr/bin/atop"] value 2261
+    inst [N or "002307 /usr/sbin/dnsmasq"] value 2307
+    inst [N or "002334 /usr/bin/dbus-daemon"] value 2334
+    inst [N or "002471 /usr/bin/perl"] value 2471
+    inst [N or "002811 /usr/sbin/apache2"] value 2811
+    inst [N or "002884 avahi-daemon:"] value 2884
+    inst [N or "002885 avahi-daemon:"] value 2885
+    inst [N or "002939 /usr/sbin/cron"] value 2939
+    inst [N or "003041 /usr/sbin/NetworkManager"] value 3041
+    inst [N or "003277 /usr/lib/policykit-1/polkitd"] value 3277
+    inst [N or "003279 /usr/sbin/libvirtd"] value 3279
+    inst [N or "003331 /usr/bin/kdm"] value 3331
+    inst [N or "003379 /usr/sbin/modem-manager"] value 3379
+    inst [N or "003644 /bin/sh"] value 3644
+    inst [N or "003668 /usr/bin/memcached"] value 3668
+    inst [N or "003999 /usr/sbin/collectdmon"] value 3999
+    inst [N or "004001 collectd"] value 4001
+    inst [N or "004097 /usr/sbin/mysqld"] value 4097
+    inst [N or "004419 /usr/sbin/dnsmasq"] value 4419
+    inst [N or "004420 /usr/sbin/dnsmasq"] value 4420
+    inst [N or "004464 /usr/sbin/inetd"] value 4464
+    inst [N or "004625 /usr/sbin/ntpd"] value 4625
+    inst [N or "005140 /usr/lib/pcp/bin/pmcd"] value 5140
+    inst [N or "005145 /var/lib/pcp/pmdas/root/pmdaroot"] value 5145
+    inst [N or "005146 /var/lib/pcp/pmdas/proc/pmdaproc"] value 5146
+    inst [N or "005147 /var/lib/pcp/pmdas/trace/pmdatrace"] value 5147
+    inst [N or "005148 /var/lib/pcp/pmdas/xfs/pmdaxfs"] value 5148
+    inst [N or "005149 /var/lib/pcp/pmdas/sendmail/pmdasendmail"] value 5149
+    inst [N or "005150 /var/lib/pcp/pmdas/shping/pmdashping"] value 5150
+    inst [N or "005152 /var/lib/pcp/pmdas/sample/pmdasample"] value 5152
+    inst [N or "005155 /var/lib/pcp/pmdas/linux/pmdalinux"] value 5155
+    inst [N or "005157 perl"] value 5157
+    inst [N or "005158 perl"] value 5158
+    inst [N or "005186 /var/lib/pcp/pmdas/dm/pmdadm"] value 5186
+    inst [N or "005187 /var/lib/pcp/pmdas/trivial/pmdatrivial"] value 5187
+    inst [N or "005188 /var/lib/pcp/pmdas/simple/pmdasimple"] value 5188
+    inst [N or "006008 /usr/lib/pcp/bin/pmproxy"] value 6008
+    inst [N or "006103 /usr/lib/pcp/bin/pmwebd"] value 6103
+    inst [N or "007940 pmlogger"] value 7940
+    inst [N or "007951 pmie"] value 7951
+    inst [N or "008020 /usr/sbin/rinetd"] value 8020
+    inst [N or "008077 /usr/sbin/sshd"] value 8077
+    inst [N or "008152 /usr/sbin/tgtd"] value 8152
+    inst [N or "008381 /usr/lib/postgresql/9.1/bin/postgres"] value 8381
+    inst [N or "008490 postgres:"] value 8490
+    inst [N or "008491 postgres:"] value 8491
+    inst [N or "008492 postgres:"] value 8492
+    inst [N or "008493 postgres:"] value 8493
+    inst [N or "008498 (kauditd)"] value 8498
+    inst [N or "009115 /usr/lib/postfix/master"] value 9115
+    inst [N or "009139 pickup"] value 9139
+    inst [N or "009140 qmgr"] value 9140
+    inst [N or "009181 /sbin/getty"] value 9181
+    inst [N or "009182 /sbin/getty"] value 9182
+    inst [N or "009183 /sbin/getty"] value 9183
+    inst [N or "009184 /sbin/getty"] value 9184
+    inst [N or "009185 /sbin/getty"] value 9185
+    inst [N or "009186 /sbin/getty"] value 9186
+    inst [N or "009188 postgres:"] value 9188
+    inst [N or "009470 /usr/sbin/apache2"] value 9470
+    inst [N or "009471 /usr/sbin/apache2"] value 9471
+    inst [N or "009472 /usr/sbin/apache2"] value 9472
+    inst [N or "009473 /usr/sbin/apache2"] value 9473
+    inst [N or "009474 /usr/sbin/apache2"] value 9474
+    inst [N or "009528 /usr/sbin/cupsd"] value 9528
+    inst [N or "009653 (kworker/0:3)"] value 9653
+    inst [N or "009662 (kworker/1:1)"] value 9662
+    inst [N or "009672 (kworker/0:1)"] value 9672
+    inst [N or "009679 (kworker/1:0)"] value 9679
+    inst [N or "010070 (kworker/1:2)"] value 10070
+    inst [N or "010549 (kworker/0:2)"] value 10549
+    inst [N or "010554 /usr/sbin/console-kit-daemon"] value 10554
+    inst [N or "010630 sshd:"] value 10630
+    inst [N or "010635 sshd:"] value 10635
+    inst [N or "010636 -bash"] value 10636
+    inst [N or "010671 ssh-agent"] value 10671
+    inst [N or "010697 gpg-agent"] value 10697
+    inst [N or "013162 /bin/sh"] value 13162
+
+== Fetching per-thread proc.psinfo.psargs metric - procpid-3.2.0-root-003.tgz
+
+proc.psinfo.psargs
+    inst [N or "000001 init"] value "init [2]"
+    inst [N or "000002 (kthreadd)"] value "(kthreadd)"
+    inst [N or "000003 (ksoftirqd/0)"] value "(ksoftirqd/0)"
+    inst [N or "000005 (kworker/u:0)"] value "(kworker/u:0)"
+    inst [N or "000006 (posixcputmr/0)"] value "(posixcputmr/0)"
+    inst [N or "000007 (migration/0)"] value "(migration/0)"
+    inst [N or "000008 (watchdog/0)"] value "(watchdog/0)"
+    inst [N or "000009 (posixcputmr/1)"] value "(posixcputmr/1)"
+    inst [N or "000010 (migration/1)"] value "(migration/1)"
+    inst [N or "000012 (ksoftirqd/1)"] value "(ksoftirqd/1)"
+    inst [N or "000014 (watchdog/1)"] value "(watchdog/1)"
+    inst [N or "000015 (cpuset)"] value "(cpuset)"
+    inst [N or "000016 (khelper)"] value "(khelper)"
+    inst [N or "000017 (kdevtmpfs)"] value "(kdevtmpfs)"
+    inst [N or "000018 (netns)"] value "(netns)"
+    inst [N or "000019 (sync_supers)"] value "(sync_supers)"
+    inst [N or "000020 (bdi-default)"] value "(bdi-default)"
+    inst [N or "000021 (kintegrityd)"] value "(kintegrityd)"
+    inst [N or "000022 (kblockd)"] value "(kblockd)"
+    inst [N or "000023 (irq/9-acpi)"] value "(irq/9-acpi)"
+    inst [N or "000025 (khungtaskd)"] value "(khungtaskd)"
+    inst [N or "000026 (kswapd0)"] value "(kswapd0)"
+    inst [N or "000027 (ksmd)"] value "(ksmd)"
+    inst [N or "000028 (fsnotify_mark)"] value "(fsnotify_mark)"
+    inst [N or "000029 (crypto)"] value "(crypto)"
+    inst [N or "000032 (irq/12-i8042)"] value "(irq/12-i8042)"
+    inst [N or "000033 (irq/1-i8042)"] value "(irq/1-i8042)"
+    inst [N or "000034 (irq/8-rtc0)"] value "(irq/8-rtc0)"
+    inst [N or "000137 (khubd)"] value "(khubd)"
+    inst [N or "000143 (irq/22-ehci_hcd)"] value "(irq/22-ehci_hcd)"
+    inst [N or "000145 (ata_sff)"] value "(ata_sff)"
+    inst [N or "000147 (firewire)"] value "(firewire)"
+    inst [N or "000159 (irq/20-uhci_hcd)"] value "(irq/20-uhci_hcd)"
+    inst [N or "000160 (irq/14-ata_piix)"] value "(irq/14-ata_piix)"
+    inst [N or "000161 (irq/15-ata_piix)"] value "(irq/15-ata_piix)"
+    inst [N or "000164 (scsi_eh_0)"] value "(scsi_eh_0)"
+    inst [N or "000168 (scsi_eh_1)"] value "(scsi_eh_1)"
+    inst [N or "000176 (kworker/u:1)"] value "(kworker/u:1)"
+    inst [N or "000180 (irq/20-ehci_hcd)"] value "(irq/20-ehci_hcd)"
+    inst [N or "000182 (irq/19-firewire)"] value "(irq/19-firewire)"
+    inst [N or "000184 (irq/21-uhci_hcd)"] value "(irq/21-uhci_hcd)"
+    inst [N or "000192 (irq/18-ata_piix)"] value "(irq/18-ata_piix)"
+    inst [N or "000193 (scsi_eh_2)"] value "(scsi_eh_2)"
+    inst [N or "000195 (scsi_eh_3)"] value "(scsi_eh_3)"
+    inst [N or "000196 (irq/20-uhci_hcd)"] value "(irq/20-uhci_hcd)"
+    inst [N or "000197 (irq/21-uhci_hcd)"] value "(irq/21-uhci_hcd)"
+    inst [N or "000198 (irq/22-uhci_hcd)"] value "(irq/22-uhci_hcd)"
+    inst [N or "000236 (xfs_mru_cache)"] value "(xfs_mru_cache)"
+    inst [N or "000237 (xfslogd)"] value "(xfslogd)"
+    inst [N or "000238 (xfsdatad)"] value "(xfsdatad)"
+    inst [N or "000239 (xfsconvertd)"] value "(xfsconvertd)"
+    inst [N or "000241 (xfsbufd/sda1)"] value "(xfsbufd/sda1)"
+    inst [N or "000242 (xfsaild/sda1)"] value "(xfsaild/sda1)"
+    inst [N or "000405 udevd"] value "udevd --daemon"
+    inst [N or "000463 (irq/19-yenta)"] value "(irq/19-yenta)"
+    inst [N or "000464 (irq/43-snd_hda_)"] value "(irq/43-snd_hda_)"
+    inst [N or "000465 (hd-audio0)"] value "(hd-audio0)"
+    inst [N or "000468 (pccardd)"] value "(pccardd)"
+    inst [N or "000470 (kpsmoused)"] value "(kpsmoused)"
+    inst [N or "000487 (ttm_swap)"] value "(ttm_swap)"
+    inst [N or "000488 (irq/16-nouveau)"] value "(irq/16-nouveau)"
+    inst [N or "001069 (xfsbufd/sda2)"] value "(xfsbufd/sda2)"
+    inst [N or "001070 (xfsaild/sda2)"] value "(xfsaild/sda2)"
+    inst [N or "001071 (xfsbufd/sda3)"] value "(xfsbufd/sda3)"
+    inst [N or "001072 (xfsaild/sda3)"] value "(xfsaild/sda3)"
+    inst [N or "001073 (xfsbufd/sda5)"] value "(xfsbufd/sda5)"
+    inst [N or "001074 (xfsaild/sda5)"] value "(xfsaild/sda5)"
+    inst [N or "001337 (irq/44-eth1)"] value "(irq/44-eth1)"
+    inst [N or "001339 (flush-8:0)"] value "(flush-8:0)"
+    inst [N or "001343 dhclient"] value "dhclient -v -pf /run/dhclient.eth1.pid -lf /var/lib/dhcp/dhclient.eth1.leases eth1"
+    inst [N or "001460 /sbin/rpcbind"] value "/sbin/rpcbind -w"
+    inst [N or "001488 /sbin/rpc.statd"] value "/sbin/rpc.statd"
+    inst [N or "001493 (rpciod)"] value "(rpciod)"
+    inst [N or "001496 (nfsiod)"] value "(nfsiod)"
+    inst [N or "001503 /usr/sbin/rpc.idmapd"] value "/usr/sbin/rpc.idmapd"
+    inst [N or "001763 (iscsi_eh)"] value "(iscsi_eh)"
+    inst [N or "001810 (ib_mcast)"] value "(ib_mcast)"
+    inst [N or "001811 (ib_cm)"] value "(ib_cm)"
+    inst [N or "001812 (iw_cm_wq)"] value "(iw_cm_wq)"
+    inst [N or "001813 (ib_addr)"] value "(ib_addr)"
+    inst [N or "001814 (rdma_cm)"] value "(rdma_cm)"
+    inst [N or "001834 /usr/sbin/iscsid"] value "/usr/sbin/iscsid"
+    inst [N or "001835 /usr/sbin/iscsid"] value "/usr/sbin/iscsid"
+    inst [N or "001989 /usr/sbin/rsyslogd"] value "/usr/sbin/rsyslogd -c5"
+    inst [N or "001995 (kvm-irqfd-clean)"] value "(kvm-irqfd-clean)"
+    inst [N or "002199 /usr/sbin/acpid"] value "/usr/sbin/acpid"
+    inst [N or "002233 /usr/sbin/atd"] value "/usr/sbin/atd"
+    inst [N or "002261 /usr/bin/atop"] value "/usr/bin/atop -a -w /var/log/atop/atop_20150428 600"
+    inst [N or "002307 /usr/sbin/dnsmasq"] value "/usr/sbin/dnsmasq -x /var/run/dnsmasq/dnsmasq.pid -u dnsmasq -7 /etc/dnsmasq.d,.dpkg-dist,.dpkg-old,.dpkg-new"
+    inst [N or "002334 /usr/bin/dbus-daemon"] value "/usr/bin/dbus-daemon --system"
+    inst [N or "002471 /usr/bin/perl"] value "/usr/bin/perl -w /usr/bin/collectl -D"
+    inst [N or "002811 /usr/sbin/apache2"] value "/usr/sbin/apache2 -k start"
+    inst [N or "002884 avahi-daemon:"] value "avahi-daemon: running [verge.local]"
+    inst [N or "002885 avahi-daemon:"] value "avahi-daemon: chroot helper"
+    inst [N or "002939 /usr/sbin/cron"] value "/usr/sbin/cron"
+    inst [N or "003041 /usr/sbin/NetworkManager"] value "/usr/sbin/NetworkManager"
+    inst [N or "003277 /usr/lib/policykit-1/polkitd"] value "/usr/lib/policykit-1/polkitd --no-debug"
+    inst [N or "003279 /usr/sbin/libvirtd"] value "/usr/sbin/libvirtd -d"
+    inst [N or "003331 /usr/bin/kdm"] value "/usr/bin/kdm -config /var/run/kdm/kdmrc"
+    inst [N or "003379 /usr/sbin/modem-manager"] value "/usr/sbin/modem-manager"
+    inst [N or "003644 /bin/sh"] value "/bin/sh /usr/bin/mysqld_safe"
+    inst [N or "003668 /usr/bin/memcached"] value "/usr/bin/memcached -m 64 -p 11211 -u nobody -l 127.0.0.1"
+    inst [N or "003999 /usr/sbin/collectdmon"] value "/usr/sbin/collectdmon -P /var/run/collectd.pid -- -C /etc/collectd/collectd.conf"
+    inst [N or "004001 collectd"] value "collectd -C /etc/collectd/collectd.conf -f"
+    inst [N or "004097 /usr/sbin/mysqld"] value "/usr/sbin/mysqld --basedir=/usr --datadir=/var/lib/mysql --plugin-dir=/usr/lib/mysql/plugin --user=mysql --log-error=/var/log/mysql/error.log --pid-file=/var/run/mysqld/mysqld.pid --socket=/var/run/mysqld/mysqld.sock --port=3306"
+    inst [N or "004419 /usr/sbin/dnsmasq"] value "/usr/sbin/dnsmasq --conf-file=/var/lib/libvirt/dnsmasq/worknet.conf --dhcp-script=/usr/lib/libvirt/libvirt_leaseshelper"
+    inst [N or "004420 /usr/sbin/dnsmasq"] value "/usr/sbin/dnsmasq --conf-file=/var/lib/libvirt/dnsmasq/worknet.conf --dhcp-script=/usr/lib/libvirt/libvirt_leaseshelper"
+    inst [N or "004464 /usr/sbin/inetd"] value "/usr/sbin/inetd"
+    inst [N or "004625 /usr/sbin/ntpd"] value "/usr/sbin/ntpd -p /var/run/ntpd.pid -g -u 118:130"
+    inst [N or "005140 /usr/lib/pcp/bin/pmcd"] value "/usr/lib/pcp/bin/pmcd -T 3"
+    inst [N or "005145 /var/lib/pcp/pmdas/root/pmdaroot"] value "/var/lib/pcp/pmdas/root/pmdaroot"
+    inst [N or "005146 /var/lib/pcp/pmdas/proc/pmdaproc"] value "/var/lib/pcp/pmdas/proc/pmdaproc -d 3"
+    inst [N or "005147 /var/lib/pcp/pmdas/trace/pmdatrace"] value "/var/lib/pcp/pmdas/trace/pmdatrace -d 10"
+    inst [N or "005148 /var/lib/pcp/pmdas/xfs/pmdaxfs"] value "/var/lib/pcp/pmdas/xfs/pmdaxfs -d 11"
+    inst [N or "005149 /var/lib/pcp/pmdas/sendmail/pmdasendmail"] value "/var/lib/pcp/pmdas/sendmail/pmdasendmail -d 15"
+    inst [N or "005150 /var/lib/pcp/pmdas/shping/pmdashping"] value "/var/lib/pcp/pmdas/shping/pmdashping -d 19 -I 120 -t 20 -D 0 /var/lib/pcp/config/shping/shping.conf"
+    inst [N or "005152 /var/lib/pcp/pmdas/sample/pmdasample"] value "/var/lib/pcp/pmdas/sample/pmdasample -d 29"
+    inst [N or "005155 /var/lib/pcp/pmdas/linux/pmdalinux"] value "/var/lib/pcp/pmdas/linux/pmdalinux"
+    inst [N or "005157 perl"] value "perl /var/lib/pcp/pmdas/mysql/pmdamysql.pl"
+    inst [N or "005158 perl"] value "perl /var/lib/pcp/pmdas/postgresql/pmdapostgresql.pl"
+    inst [N or "005186 /var/lib/pcp/pmdas/dm/pmdadm"] value "/var/lib/pcp/pmdas/dm/pmdadm -d 129"
+    inst [N or "005187 /var/lib/pcp/pmdas/trivial/pmdatrivial"] value "/var/lib/pcp/pmdas/trivial/pmdatrivial -d 250"
+    inst [N or "005188 /var/lib/pcp/pmdas/simple/pmdasimple"] value "/var/lib/pcp/pmdas/simple/pmdasimple -d 253"
+    inst [N or "006008 /usr/lib/pcp/bin/pmproxy"] value "/usr/lib/pcp/bin/pmproxy"
+    inst [N or "006103 /usr/lib/pcp/bin/pmwebd"] value "/usr/lib/pcp/bin/pmwebd -l pmwebd.log -R /usr/share/pcp/webapps -A /var/log/pcp -G -v -M2"
+    inst [N or "007940 pmlogger"] value "pmlogger -P -r -T24h10m -c config.default -m pmlogger_check 20150428.15.57"
+    inst [N or "007951 pmie"] value "pmie -b -h local: -l /var/log/pcp/pmie/verge/pmie.log -c config.default"
+    inst [N or "008020 /usr/sbin/rinetd"] value "/usr/sbin/rinetd"
+    inst [N or "008077 /usr/sbin/sshd"] value "/usr/sbin/sshd"
+    inst [N or "008152 /usr/sbin/tgtd"] value "/usr/sbin/tgtd -f"
+    inst [N or "008381 /usr/lib/postgresql/9.1/bin/postgres"] value "/usr/lib/postgresql/9.1/bin/postgres -D /var/lib/postgresql/9.1/main -c config_file=/etc/postgresql/9.1/main/postgresql.conf"
+    inst [N or "008490 postgres:"] value "postgres: writer process   "
+    inst [N or "008491 postgres:"] value "postgres: wal writer process   "
+    inst [N or "008492 postgres:"] value "postgres: autovacuum launcher process   "
+    inst [N or "008493 postgres:"] value "postgres: stats collector process   "
+    inst [N or "008498 (kauditd)"] value "(kauditd)"
+    inst [N or "009115 /usr/lib/postfix/master"] value "/usr/lib/postfix/master"
+    inst [N or "009139 pickup"] value "pickup -l -t fifo -u -c"
+    inst [N or "009140 qmgr"] value "qmgr -l -t fifo -u"
+    inst [N or "009181 /sbin/getty"] value "/sbin/getty 38400 tty1"
+    inst [N or "009182 /sbin/getty"] value "/sbin/getty 38400 tty2"
+    inst [N or "009183 /sbin/getty"] value "/sbin/getty 38400 tty3"
+    inst [N or "009184 /sbin/getty"] value "/sbin/getty 38400 tty4"
+    inst [N or "009185 /sbin/getty"] value "/sbin/getty 38400 tty5"
+    inst [N or "009186 /sbin/getty"] value "/sbin/getty 38400 tty6"
+    inst [N or "009188 postgres:"] value "postgres: postgres postgres [local] idle"
+    inst [N or "009470 /usr/sbin/apache2"] value "/usr/sbin/apache2 -k start"
+    inst [N or "009471 /usr/sbin/apache2"] value "/usr/sbin/apache2 -k start"
+    inst [N or "009472 /usr/sbin/apache2"] value "/usr/sbin/apache2 -k start"
+    inst [N or "009473 /usr/sbin/apache2"] value "/usr/sbin/apache2 -k start"
+    inst [N or "009474 /usr/sbin/apache2"] value "/usr/sbin/apache2 -k start"
+    inst [N or "009528 /usr/sbin/cupsd"] value "/usr/sbin/cupsd -C /etc/cups/cupsd.conf"
+    inst [N or "009653 (kworker/0:3)"] value "(kworker/0:3)"
+    inst [N or "009662 (kworker/1:1)"] value "(kworker/1:1)"
+    inst [N or "009672 (kworker/0:1)"] value "(kworker/0:1)"
+    inst [N or "009679 (kworker/1:0)"] value "(kworker/1:0)"
+    inst [N or "010070 (kworker/1:2)"] value "(kworker/1:2)"
+    inst [N or "010549 (kworker/0:2)"] value "(kworker/0:2)"
+    inst [N or "010554 /usr/sbin/console-kit-daemon"] value "/usr/sbin/console-kit-daemon --no-daemon"
+    inst [N or "010630 sshd:"] value "sshd: nathans [priv]"
+    inst [N or "010635 sshd:"] value "sshd: nathans@pts/0"
+    inst [N or "010636 -bash"] value "-bash"
+    inst [N or "010671 ssh-agent"] value "ssh-agent"
+    inst [N or "010697 gpg-agent"] value "gpg-agent --daemon"
+    inst [N or "013162 /bin/sh"] value "/bin/sh ./mk.procpid"
+
+== Fetching per-thread proc.psinfo.rss metric - procpid-4.2.3-root-004.tgz
+
+proc.psinfo.rss
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 8048
+    inst [N or "000439 /usr/lib64/firefox/firefox"] value 1320656
+    inst [N or "007114 /usr/lib64/firefox/firefox"] value 1320656
+    inst [N or "007132 /usr/lib64/firefox/firefox"] value 1320656
+    inst [N or "007133 /usr/lib64/firefox/firefox"] value 1320656
+    inst [N or "007134 /usr/lib64/firefox/firefox"] value 1320656
+    inst [N or "007135 /usr/lib64/firefox/firefox"] value 1320656
+    inst [N or "007136 /usr/lib64/firefox/firefox"] value 1320656
+    inst [N or "007137 /usr/lib64/firefox/firefox"] value 1320656
+    inst [N or "007138 /usr/lib64/firefox/firefox"] value 1320920
+    inst [N or "007139 /usr/lib64/firefox/firefox"] value 1320920
+    inst [N or "007140 /usr/lib64/firefox/firefox"] value 1320920
+    inst [N or "007141 /usr/lib64/firefox/firefox"] value 1320920
+    inst [N or "007142 /usr/lib64/firefox/firefox"] value 1320920
+    inst [N or "007143 /usr/lib64/firefox/firefox"] value 1320920
+    inst [N or "007144 /usr/lib64/firefox/firefox"] value 1320920
+    inst [N or "007145 /usr/lib64/firefox/firefox"] value 1320920
+    inst [N or "007146 /usr/lib64/firefox/firefox"] value 1320920
+    inst [N or "007147 /usr/lib64/firefox/firefox"] value 1320920
+    inst [N or "007148 /usr/lib64/firefox/firefox"] value 1320920
+    inst [N or "007149 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007150 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007151 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007152 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007153 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007154 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007158 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007159 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007160 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007161 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007162 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007163 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007164 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007165 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007166 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007167 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007168 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007169 /usr/lib64/firefox/firefox"] value 1321964
+    inst [N or "007170 /usr/lib64/firefox/firefox"] value 1322228
+    inst [N or "007171 /usr/lib64/firefox/firefox"] value 1322228
+    inst [N or "007172 /usr/lib64/firefox/firefox"] value 1322228
+    inst [N or "007175 /usr/lib64/firefox/firefox"] value 1322228
+    inst [N or "007178 /usr/lib64/firefox/firefox"] value 1322228
+    inst [N or "007179 /usr/lib64/firefox/firefox"] value 1322228
+    inst [N or "007180 /usr/lib64/firefox/firefox"] value 1322228
+    inst [N or "007181 /usr/lib64/firefox/firefox"] value 1322228
+    inst [N or "007182 /usr/lib64/firefox/firefox"] value 1322228
+    inst [N or "007185 /usr/lib64/firefox/firefox"] value 1322228
+    inst [N or "007186 /usr/lib64/firefox/firefox"] value 1322228
+    inst [N or "007187 /usr/lib64/firefox/firefox"] value 1322228
+    inst [N or "007192 /usr/lib64/firefox/firefox"] value 1322228
+    inst [N or "007193 /usr/lib64/firefox/firefox"] value 1322228
+    inst [N or "007212 /usr/lib64/firefox/firefox"] value 1322492
+    inst [N or "007213 /usr/lib64/firefox/firefox"] value 1322492
+    inst [N or "007214 /usr/lib64/firefox/firefox"] value 1322492
+    inst [N or "007223 /usr/lib64/firefox/firefox"] value 1322492
+    inst [N or "008581 /usr/lib64/firefox/firefox"] value 1322492
+    inst [N or "009278 /usr/lib64/firefox/firefox"] value 1322492
+    inst [N or "010094 /usr/lib64/firefox/firefox"] value 1320392
+    inst [N or "011674 /usr/lib64/firefox/firefox"] value 1320392
+    inst [N or "011675 /usr/lib64/firefox/firefox"] value 1320392
+    inst [N or "012802 /usr/lib64/firefox/firefox"] value 1320392
+    inst [N or "014621 /usr/lib64/firefox/firefox"] value 1320392
+    inst [N or "016080 /usr/lib64/firefox/firefox"] value 1320392
+    inst [N or "020520 /usr/lib64/firefox/firefox"] value 1320392
+    inst [N or "020521 /usr/lib64/firefox/firefox"] value 1320392
+
+== Fetching per-thread proc.psinfo.pid metric - procpid-4.2.3-root-004.tgz
+
+proc.psinfo.pid
+    inst [N or "000001 /usr/lib/systemd/systemd"] value 1
+    inst [N or "000439 /usr/lib64/firefox/firefox"] value 439
+    inst [N or "007114 /usr/lib64/firefox/firefox"] value 7114
+    inst [N or "007132 /usr/lib64/firefox/firefox"] value 7132
+    inst [N or "007133 /usr/lib64/firefox/firefox"] value 7133
+    inst [N or "007134 /usr/lib64/firefox/firefox"] value 7134
+    inst [N or "007135 /usr/lib64/firefox/firefox"] value 7135
+    inst [N or "007136 /usr/lib64/firefox/firefox"] value 7136
+    inst [N or "007137 /usr/lib64/firefox/firefox"] value 7137
+    inst [N or "007138 /usr/lib64/firefox/firefox"] value 7138
+    inst [N or "007139 /usr/lib64/firefox/firefox"] value 7139
+    inst [N or "007140 /usr/lib64/firefox/firefox"] value 7140
+    inst [N or "007141 /usr/lib64/firefox/firefox"] value 7141
+    inst [N or "007142 /usr/lib64/firefox/firefox"] value 7142
+    inst [N or "007143 /usr/lib64/firefox/firefox"] value 7143
+    inst [N or "007144 /usr/lib64/firefox/firefox"] value 7144
+    inst [N or "007145 /usr/lib64/firefox/firefox"] value 7145
+    inst [N or "007146 /usr/lib64/firefox/firefox"] value 7146
+    inst [N or "007147 /usr/lib64/firefox/firefox"] value 7147
+    inst [N or "007148 /usr/lib64/firefox/firefox"] value 7148
+    inst [N or "007149 /usr/lib64/firefox/firefox"] value 7149
+    inst [N or "007150 /usr/lib64/firefox/firefox"] value 7150
+    inst [N or "007151 /usr/lib64/firefox/firefox"] value 7151
+    inst [N or "007152 /usr/lib64/firefox/firefox"] value 7152
+    inst [N or "007153 /usr/lib64/firefox/firefox"] value 7153
+    inst [N or "007154 /usr/lib64/firefox/firefox"] value 7154
+    inst [N or "007158 /usr/lib64/firefox/firefox"] value 7158
+    inst [N or "007159 /usr/lib64/firefox/firefox"] value 7159
+    inst [N or "007160 /usr/lib64/firefox/firefox"] value 7160
+    inst [N or "007161 /usr/lib64/firefox/firefox"] value 7161
+    inst [N or "007162 /usr/lib64/firefox/firefox"] value 7162
+    inst [N or "007163 /usr/lib64/firefox/firefox"] value 7163
+    inst [N or "007164 /usr/lib64/firefox/firefox"] value 7164
+    inst [N or "007165 /usr/lib64/firefox/firefox"] value 7165
+    inst [N or "007166 /usr/lib64/firefox/firefox"] value 7166
+    inst [N or "007167 /usr/lib64/firefox/firefox"] value 7167
+    inst [N or "007168 /usr/lib64/firefox/firefox"] value 7168
+    inst [N or "007169 /usr/lib64/firefox/firefox"] value 7169
+    inst [N or "007170 /usr/lib64/firefox/firefox"] value 7170
+    inst [N or "007171 /usr/lib64/firefox/firefox"] value 7171
+    inst [N or "007172 /usr/lib64/firefox/firefox"] value 7172
+    inst [N or "007175 /usr/lib64/firefox/firefox"] value 7175
+    inst [N or "007178 /usr/lib64/firefox/firefox"] value 7178
+    inst [N or "007179 /usr/lib64/firefox/firefox"] value 7179
+    inst [N or "007180 /usr/lib64/firefox/firefox"] value 7180
+    inst [N or "007181 /usr/lib64/firefox/firefox"] value 7181
+    inst [N or "007182 /usr/lib64/firefox/firefox"] value 7182
+    inst [N or "007185 /usr/lib64/firefox/firefox"] value 7185
+    inst [N or "007186 /usr/lib64/firefox/firefox"] value 7186
+    inst [N or "007187 /usr/lib64/firefox/firefox"] value 7187
+    inst [N or "007192 /usr/lib64/firefox/firefox"] value 7192
+    inst [N or "007193 /usr/lib64/firefox/firefox"] value 7193
+    inst [N or "007212 /usr/lib64/firefox/firefox"] value 7212
+    inst [N or "007213 /usr/lib64/firefox/firefox"] value 7213
+    inst [N or "007214 /usr/lib64/firefox/firefox"] value 7214
+    inst [N or "007223 /usr/lib64/firefox/firefox"] value 7223
+    inst [N or "008581 /usr/lib64/firefox/firefox"] value 8581
+    inst [N or "009278 /usr/lib64/firefox/firefox"] value 9278
+    inst [N or "010094 /usr/lib64/firefox/firefox"] value 10094
+    inst [N or "011674 /usr/lib64/firefox/firefox"] value 11674
+    inst [N or "011675 /usr/lib64/firefox/firefox"] value 11675
+    inst [N or "012802 /usr/lib64/firefox/firefox"] value 12802
+    inst [N or "014621 /usr/lib64/firefox/firefox"] value 14621
+    inst [N or "016080 /usr/lib64/firefox/firefox"] value 16080
+    inst [N or "020520 /usr/lib64/firefox/firefox"] value 20520
+    inst [N or "020521 /usr/lib64/firefox/firefox"] value 20521
+
+== Fetching per-thread proc.psinfo.psargs metric - procpid-4.2.3-root-004.tgz
+
+proc.psinfo.psargs
+    inst [N or "000001 /usr/lib/systemd/systemd"] value "/usr/lib/systemd/systemd --switched-root --system --deserialize 21"
+    inst [N or "000439 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007114 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007132 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007133 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007134 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007135 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007136 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007137 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007138 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007139 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007140 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007141 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007142 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007143 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007144 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007145 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007146 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007147 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007148 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007149 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007150 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007151 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007152 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007153 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007154 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007158 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007159 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007160 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007161 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007162 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007163 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007164 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007165 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007166 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007167 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007168 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007169 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007170 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007171 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007172 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007175 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007178 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007179 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007180 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007181 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007182 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007185 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007186 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007187 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007192 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007193 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007212 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007213 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007214 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "007223 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "008581 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "009278 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "010094 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "011674 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "011675 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "012802 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "014621 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "016080 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "020520 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"
+    inst [N or "020521 /usr/lib64/firefox/firefox"] value "/usr/lib64/firefox/firefox"

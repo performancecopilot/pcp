@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013 Red Hat.
+.\" Copyright (c) 2013,2016 Red Hat.
 .\" Copyright (c) 2009 Max Matveev.
 .\" Copyright (c) 2009 Aconex.  All Rights Reserved.
 .\"
@@ -17,7 +17,8 @@
 .\"
 .TH MMV_STATS_INIT 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3mmv_stats_init\f1 - create and initialize Memory Mapped Value file
+\f3mmv_stats_init\f1,
+\f3mmv_stats2_init\f1 - create and initialize Memory Mapped Value file
 .SH "C SYNOPSIS"
 .ft 3
 #include <pcp/pmapi.h>
@@ -29,6 +30,9 @@
 .in +8n
 .ti -8n
 void *mmv_stats_init(const char *\fIname\fP, int \fIcluster\fP, mmv_stats_flags_t\ \fIflags\fP, const\ mmv_metric_t\ *\fIstats\fP, int\ \fInstats\fP, mmv_indom_t\ *\fIindoms\fP, int\ \fInindoms\fP);
+.br
+.ti -8n
+void *mmv_stats2_init(const char *\fIname\fP, int \fIcluster\fP, mmv_stats_flags_t\ \fIflags\fP, const\ mmv_metric2_t\ *\fIstats2\fP, int\ \fInstats2\fP, mmv_indom2_t\ *\fIindoms2\fP, int\ \fInindoms2\fP);
 .sp
 .in
 .hy
@@ -40,6 +44,9 @@ cc ... \-lpcp_mmv \-lpcp
 \f3mmv_stats_init\f1 creates and initializes the content of the 
 \f2MMV\f1(5) file, returning a handle that is used in subsequent
 MMV API calls.
+.P
+\f3mmv_stats2_init\f1 is equivalent to \f3mmv_stats_init\f1 except
+that it provides an option for longer metric and instance names.
 .P
 \f3mmv_stats_stop\f1 performs an orderly shutdown of the mapping
 handle returned by an earlier initialization call.
@@ -74,12 +81,31 @@ this is verified on each request for new values.
         } mmv_metric_t;
 .fi
 .P
+\f2stats2\f1 is the array of \f3mmv_metric2_t\f1 elements of length
+\f2nstats2\f1. Each element of the array describes one PCP metric,
+the only difference to \f2stats\f1 is the lifting of the restriction
+on name length (previously MMV_NAMEMAX, which is 64 bytes).
+.P
+.nf
+        typedef struct {
+            char *name;                 /* Name of the metric */
+            __uint32_t item;            /* Item component of PMID */
+            mmv_metric_type_t type;     /* Type of the metric */
+            mmv_metric_sem_t semantics; /* Semantics of the metric */
+            pmUnits dimension;          /* Dimensions (TIME,SPACE,etc) */
+            __uint32_t indom;           /* Instance domain identifier */
+            char *shorttext;            /* Optional, one-line help */
+            char *helptext;             /* Optional, full help text */
+        } mmv_metric_t;
+.fi
+.P
 If \f3indom\f1 is not zero and not PM_INDOM_NULL, then the metric has
 multiple values and there must be a corresponding \f2indom\f1 entry
 in the \f2indom\f1 list (uniquely identified by \f3serial\f1 number).
 .P
-The \f2stats\f1 array cannot contain any elements which have no name -
-this is considered an error and no metrics will be exported in this case.
+The \f2stats\f1 and \f2stats2\f1 arrays cannot contain any elements which
+have no name - this is considered an error and no metrics will be exported
+in this case.
 .P
 \f2indoms\f1 is the array of \f3mmv_indom_t\f1 elements of length
 \f2nindoms\f1. Each element of the array describes one PCP instance
@@ -92,19 +118,43 @@ domain.
         } mmv_instances_t;
 
         typedef struct {
-            __uint32_t serial;          /* Unique serial number */
-            __uint32_t count;           /* Number of instances */
-            mmv_instances_t *instances; /* Internal/external IDs */
-            char *shorttext;            /* Short help text */
-            char *helptext;             /* Long help text */
+            __uint32_t serial;           /* Unique serial number */
+            __uint32_t count;            /* Number of instances */
+            mmv_instances_t *instances;  /* Internal/external IDs */
+            char *shorttext;             /* Short help text */
+            char *helptext;              /* Long help text */
         } mmv_indom_t;
 .fi
 .P
-.SH RETURNS
-The function returns the address of the memory mapped region on success or
-NULL on failure.
+\f2indoms2\f1 is the array of \f3mmv_indom2_t\f1 elements of length
+\f2nindoms2\f1. Each element of the array describes one PCP instance
+domain, and the only difference to \f2indoms\f1 is the lifting of the
+restriction on external instance name lengths (previously MMV_NAMEMAX,
+which is 64 bytes).
+.P
+.nf
+        typedef struct {
+            __int32_t internal;
+            char *external;
+        } mmv_instances2_t;
+
+        typedef struct {
+            __uint32_t serial;           /* Unique serial number */
+            __uint32_t count;            /* Number of instances */
+            mmv_instances2_t *instances; /* Internal/external IDs */
+            char *shorttext;             /* Short help text */
+            char *helptext;              /* Long help text */
+        } mmv_indom2_t;
+.fi
+.P
+.SH RETURN VALUES
+These functions return the address of the memory mapped region on success.
+On failure, NULL is returned and \f2errno\f1 is set to a value suitable
+for decoding with
+.BR strerror (3).
 .SH SEE ALSO
 .BR mmv_inc_value (3),
-.BR mmv_lookup_value_desc (3)
+.BR mmv_lookup_value_desc (3),
+.BR strerror (3)
 and
 .BR mmv (5).

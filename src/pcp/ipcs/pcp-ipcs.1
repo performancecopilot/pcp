@@ -1,0 +1,103 @@
+.TH PCP-IPCS 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+pcp-ipcs \- provide information on IPC facilities
+.SH SYNOPSIS
+.B pcp-ipcs
+.RB [ resource\-option "] [" output\-format ]
+.br
+.B pcp-ipcs
+.RB [ resource\-option ]
+.BI \-i " id"
+.SH DESCRIPTION
+.B pcp-ipcs
+provides information on the inter-process communication facilities
+for which the calling process has read access.
+.SH OPTIONS
+.TP
+\fB\-i\fR, \fB\-\-id\fR \fIid\fR
+Print details only on the resource identified by
+.IR id .
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Display a help text and exit.
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version information and exit.
+.SS "Resource options"
+.TP
+\fB\-q\fR, \fB\-\-queues\fR
+Write information about active message queues.
+.TP
+\fB\-m\fR, \fB\-\-shmems\fR
+Write information about active shared memory segments.
+.TP
+\fB\-s\fR, \fB\-\-semaphores\fR
+Write information about active semaphore sets.
+.TP
+\fB\-a\fR, \fB\-\-all\fR
+Write information about all three resources (default).
+.SS "Output formats"
+Of these options only one takes effect: the last one specified.
+.TP
+\fB\-c\fR, \fB\-\-creator\fR
+Show creator and owner.
+.TP
+\fB\-l\fR, \fB\-\-limits\fR
+Show resource limits.
+.TP
+\fB\-p\fR, \fB\-\-pid\fR
+Show PIDs of creator and last operator.
+.TP
+\fB\-t\fR, \fB\-\-time\fR
+Write time information.  The time of the last control operation that changed
+the access permissions for all facilities, the time of the last
+.I msgsnd()
+and
+.I msgrcv()
+operations on message queues, the time of the last
+.I shmat()
+and
+.I shmdt()
+operations on shared memory, and the time of the last
+.I semop()
+operation on semaphores.
+.TP
+\fB\-u\fR, \fB\-\-summary\fR
+Show status summary.
+.SS "Representation"
+These affect only the \fB\-l\fR (\fB\-\-limits\fR) option.
+.TP
+\fB\-b\fR, \fB\-\-bytes\fR
+Print sizes in bytes.
+.TP
+.B \-\-human
+Print sizes in human-readable format.
+.SH SEE ALSO
+.BR ipcrm (1),
+.BR ipcmk (1),
+.BR msgrcv (2),
+.BR msgsnd (2),
+.BR semget (2),
+.BR semop (2),
+.BR shmat (2),
+.BR shmdt (2),
+.BR shmget (2)
+.SH CONFORMING TO
+The Linux pcp-ipcs utility is not fully compatible to the POSIX pcp-ipcs utility.
+The Linux version does not support the POSIX
+.BR \-a ,
+.B \-b
+and
+.B \-o
+options, but does support the
+.B \-l
+and
+.B \-u
+options not defined by POSIX.  A portable application shall not use the
+.BR \-a ,
+.BR \-b ,
+.BR \-o ,
+.BR \-l ,
+and
+.B \-u
+options.

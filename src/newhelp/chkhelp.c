@@ -264,10 +264,12 @@ main(int argc, char **argv)
 	aflag = 1;
 
     if (eflag) {
-	if (optind == argc)
+	if (optind == argc) {
 	    sts = pmTraversePMNS("", dometric);
-	    if (sts < 0)
+	    if (sts < 0) {
 		fprintf(stderr, "Error: pmTraversePMNS(\"\", ...): %s\n", pmErrStr(sts));
+	    }
+	}
 	else {
 	    for ( ; optind < argc; optind++) {
 		sts = pmTraversePMNS(argv[optind], dometric);

@@ -4,7 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 TESTDIR = $(PCP_VAR_DIR)/testsuite/linux
 ROOTFILES = $(shell echo *-root-*.tgz)
 CPUINFOFILES = $(shell echo cpuinfo-*)
-PROCIRQFILES = $(shell echo interrupts-*)
+PROCIRQFILES = $(shell echo interrupts-* softirqs-*)
 PROCNETFILES = $(shell echo procnet-*)
 BIGPIDFILE = $(shell echo proc-big-pid-001.tgz)
 

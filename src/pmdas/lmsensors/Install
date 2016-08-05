@@ -21,15 +21,10 @@
 iam=lmsensors
 pmda_interface=2
 forced_restart=true
-
-# Do it
-#
-pmdaSetup
-
 dso_opt=true
 socket_opt=true
 socket_inet_def=2079
 
+pmdaSetup
 pmdaInstall
-
-exit 0
+exit

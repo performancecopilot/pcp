@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2016 Red Hat.
 # Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -56,11 +56,6 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 CONTROL=$PCP_PMLOGGERCONTROL_PATH
 CONTROLDIR=$PCP_PMLOGGERCONTROL_PATH.d
 
-# NB: FQDN cleanup; don't guess a 'real name for localhost', and
-# definitely don't truncate it a la `hostname -s`.  Instead now
-# we use such a string only for the default log subdirectory, ie.
-# for substituting LOCALHOSTNAME in the fourth column of $CONTROL.
-
 # determine path for pwd command to override shell built-in
 PWDCMND=`which pwd 2>/dev/null | $PCP_AWK_PROG '
 BEGIN	    	{ i = 0 }
@@ -89,6 +84,7 @@ VERBOSE=false
 VERY_VERBOSE=false
 CHECK_RUNLEVEL=false
 START_PMLOGGER=true
+STOP_PMLOGGER=false
 
 echo > $tmp/usage
 cat >> $tmp/usage << EOF
@@ -127,7 +123,8 @@ do
 		CP="echo + cp"
 		KILL="echo + kill"
 		;;
-        -s)	START_PMLOGGER=false
+	-s)	START_PMLOGGER=false
+		STOP_PMLOGGER=true
 		;;
 	-T)	TERSE=true
 		;;
@@ -169,7 +166,7 @@ exec 2>&1
 QUIETLY=false
 if [ $CHECK_RUNLEVEL = true ]
 then
-    # determine whether to start/stop based on runlevel settings - we
+    # determine whether to start pmlogger based on runlevel settings -
     # need to do this when running unilaterally from cron, else we'll
     # always start pmlogger up (even when we shouldn't).
     #
@@ -182,11 +179,14 @@ then
     fi
 fi
 
-if [ $START_PMLOGGER = false ]
+if [ $STOP_PMLOGGER = true ]
 then
     # if pmlogger has never been started, there's no work to do to stop it
     [ ! -d "$PCP_TMP_DIR/pmlogger" ] && exit
     $QUIETLY || $PCP_BINADM_DIR/pmpost "stop pmlogger from $prog"
+elif [ $START_PMLOGGER = false ]
+then
+    exit
 fi
 
 if [ ! -f "$CONTROL" ]
@@ -456,14 +456,6 @@ _parse_control()
 	cd "$here"
 	line=`expr $line + 1`
 
-	# NB: FQDN cleanup: substitute the LOCALHOSTNAME marker in the config
-	# line differently for the directory and the pcp -h HOST arguments.
-	#
-	dir_hostname=`hostname || echo localhost`
-	dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dir_hostname;"`
-
-	[ "x$host" = "xLOCALHOSTNAME" ] && host=local:
-
 	$VERY_VERBOSE && echo "[$controlfile:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
 
 	case "$host"
@@ -506,12 +498,15 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		;;
 	esac
 
+	# set the version and other variables
+	#
 	[ -f $tmp/cmd ] && . $tmp/cmd
+
 	if [ -z "$version" -o "$version" = "1.0" ]
 	then
 	    if [ -z "$version" ]
 	    then
-		_warning "processing version 1.0 control format"
+		_warning "processing default version 1.0 control format"
 		version=1.0
 	    fi
 	    args="$dir $args"
@@ -528,6 +523,13 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    _error "insufficient fields in control file record"
 	    continue
 	fi
+
+	# substitute LOCALHOSTNAME marker in this config line
+	# (differently for directory and pcp -h HOST arguments)
+	#
+	dirhostname=`hostname || echo localhost`
+	dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
+	[ $primary = y -o "x$host" = xLOCALHOSTNAME ] && host=local:
 
 	if $VERY_VERBOSE
 	then
@@ -559,19 +561,30 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    else
 		_warning "creating directory ($dir) for PCP archive files"
 	    fi
-	    chown $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
 	fi
 
-	cd "$dir"
+	# and the user pcp can write there
+	#
+	chown $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
+
+	# and the logfile is writeable, if it exists
+	#
+	[ -f "$logfile" ] && chown $PCP_USER:$PCP_GROUP "$logfile" >/dev/null 2>&1
+
+	if cd "$dir"
+	then
+	    :
+	else
+	    _error "cannot chdir to directory ($dir) for PCP archive files"
+	    continue
+	fi
 	dir=`$PWDCMND`
 	$SHOWME && echo "+ cd $dir"
 
-	# ensure pcp user will be able to write there
-	#
-	chown -R $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
 	if [ ! -w "$dir" ]
 	then
 	    _warning "no write access in $dir, skip lock file processing"
+	    ls -ld "$dir"
 	else
 	    # demand mutual exclusion
 	    #
@@ -642,16 +655,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	fi
 
 	pid=''
-	# NB: FQDN cleanup: previously, we used to quietly accept several
-	# putative-aliases in the first (hostname) slot for a primary logger,
-	# which were all supposed to refer to the local host.  So now we
-	# squash them all to the officially pcp-preferred way to access it.
-	# This does not get used by pmlogger in the end (gets -P and not -h
-	# in the primary logger case), but it *does* matter for pmlogconf.
 	if [ "X$primary" = Xy ]
 	then
-	    host=local:
-
 	    if test -e "$PCP_TMP_DIR/pmlogger/primary"
 	    then
 		if $VERY_VERBOSE
@@ -848,7 +853,7 @@ END				{ print m }'`
 		fi
 	    fi
 
-	elif [ ! -z "$pid" -a $START_PMLOGGER = false ]
+	elif [ ! -z "$pid" -a $STOP_PMLOGGER = true ]
 	then
 	    # Send pmlogger a SIGTERM, which is noted as a pending shutdown.
             # Add pid to list of loggers sent SIGTERM - may need SIGKILL later.
@@ -874,7 +879,7 @@ done
 if $SHOWME
 then
     :
-elif [ $START_PMLOGGER = false -a -s $tmp/pmloggers ]
+elif [ $STOP_PMLOGGER = true -a -s $tmp/pmloggers ]
 then
     pmloggerlist=`cat $tmp/pmloggers`
     if $PCP_PS_PROG -p "$pmloggerlist" >/dev/null 2>&1

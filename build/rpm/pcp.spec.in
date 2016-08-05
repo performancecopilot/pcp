@@ -26,7 +26,11 @@ BuildRequires: mozilla-nss-devel
 %else
 BuildRequires: nss-devel
 %endif
+%if "%{_vendor}" == "mandriva"
+BuildRequires: %{_lib}sasl-devel
+%else
 BuildRequires: cyrus-sasl-devel
+%endif
 %endif
 %if "@enable_probes@" == "true"
 BuildRequires: systemtap-sdt-devel
@@ -516,6 +520,27 @@ Requires: python-pcp = @package_version@
 %description export-pcp2graphite
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 to graphite (http://graphite.readthedocs.org).
+
+#
+# pcp-export-pcp2influxdb
+#
+%package export-pcp2influxdb
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot tools for exporting PCP metrics to InfluxDB
+URL: http://www.pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if "@enable_python3@" == "true"
+Requires: python3-pcp = @package_version@
+Requires: python3-requests
+%else
+Requires: python-pcp = @package_version@
+Requires: python-requests
+%endif
+
+%description export-pcp2influxdb
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+to InfluxDB (https://influxdata.com/time-series-platform/influxdb).
 %endif
 
 %if "@enable_python2@" == "true"
@@ -651,10 +676,10 @@ Summary: Performance Co-Pilot (PCP) metrics for Infiniband HCAs and switches
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 %if "%{_vendor}" == "suse"
-%if 0%{sles_version} == 11
-Requires: libibmad1 >= 1.1.7 libibumad1 >= 1.1.7
-%else
+%if 0%{suse_version} >= 1110
 Requires: libibmad5 >= 1.1.7 libibumad3 >= 1.1.7
+%else
+Requires: libibmad1 >= 1.1.7 libibumad1 >= 1.1.7
 %endif
 %else
 Requires: libibmad >= 1.1.7 libibumad >= 1.1.7
@@ -688,6 +713,38 @@ BuildRequires: libpfm-devel >= 4.4
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting hardware counters statistics through libpfm.
 #end pcp-pmda-perfevent
+%endif
+
+%if "@pmda_libvirt@" == "true"
+#
+# pcp-pmda-libvirt
+#
+%package pmda-libvirt
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics from libvirt virtualisation
+URL: http://www.pcp.io
+Requires: pcp-libs = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%if "%{_vendor}" == "suse"
+Requires: libvirt-python
+Requires: python-lxml
+%else
+Requires: libvirt-python3
+Requires: python3-lxml
+%endif
+%else
+Requires: libvirt-python
+Requires: python-lxml
+Requires: python-pcp
+%endif
+
+%description pmda-libvirt
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting virtualisation statistics from libvirt about behaviour of guest
+and hypervisor machines.
+#end pcp-pmda-libvirt
 %endif
 
 %if "@pmda_activemq@" == "true"
@@ -747,6 +804,11 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for 389 Directory Servers
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = @package_version@
+%if "%{_vendor}" == "suse"
+Requires: perl-ldap
+%else
+Requires: perl-LDAP
+%endif
 
 %description pmda-ds389
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -762,6 +824,7 @@ Group: Applications/System
 Summary: Performance Co-Pilot (PCP) metrics for 389 Directory Server Loggers
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = @package_version@
+Requires: perl-Date-Manip
 
 %description pmda-ds389log
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -1541,6 +1604,9 @@ Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 %if "@pmda_json@" == "true"
 Requires: pcp-pmda-json
 %endif
+%if "@pmda_libvirt@" == "true"
+Requires: pcp-pmda-libvirt
+%endif
 %if "@pmda_rpm@" == "true"
 Requires: pcp-pmda-rpm
 %endif
@@ -1733,6 +1799,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep 'ganglia2pcp' >import_ganglia2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'collectl2pcp' >import_collectl2pcp_files
 %if "@have_python@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2graphite' >export_pcp2graphite_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp2influxdb' >export_pcp2influxdb_files
 %endif
 awk '{print $NF}' $DIST_MANIFEST | egrep 'zabbix|zbxpcp' >export_zabbix_agent_files
 %if "@pmda_infiniband@" == "true"
@@ -1796,13 +1863,16 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dm' > pmda_dm_files
 %if "@pmda_json@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/json' > pmda_json_files
 %endif
+%if "@pmda_libvirt@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/libvirt' > pmda_libvirt_files
+%endif
 %if "@have_python@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/unbound' > pmda_unbound_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mic' > pmda_mic_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmatop|pmcollectl|pmiostat|pmrep' |\
-egrep -e 'atop|collectl|dmcache|free|iostat|numastat|verify|uptime|shping|pmrep' | \
+egrep -e 'atop|collectl|dmcache|free|iostat|mpstat|numastat|pidstat|verify|uptime|shping|pmrep' | \
 egrep -v 'testsuite|pmlogconf|pmieconf' \
 	    > system_tools_files
 %endif
@@ -1847,6 +1917,9 @@ touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
 %endif
 %if "@pmda_json@" == "true"
 touch pmda_json_files
+%endif
+%if "@pmda_libvirt@" == "true"
+touch pmda_libvirt_files
 %endif
 %if "@pmda_snmp@" == "true"
 touch pmda_snmp_files
@@ -1940,10 +2013,14 @@ BEGIN {
     while( getline < "pmda_unbound_files") pmda_unbound[$0]=1;
     while( getline < "pmda_mic_files") pmda_mic[$0]=1;
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
+    while( getline < "export_pcp2influxdb_files") export_pcp2influxdb[$0]=1;
 %endif
     while( getline < "export_zabbix_agent_files") export_zabbix_agent[$0]=1;
 %if "@pmda_json@" == "true"
     while( getline < "pmda_json_files") pmda_json[$0]=1;
+%endif
+%if "@pmda_libvirt@" == "true"
+    while( getline < "pmda_libvirt_files") pmda_libvirt[$0]=1;
 %endif
     while( getline < "pmda_apache_files") pmda_apache[$0]=1;
     while( getline < "pmda_bash_files") pmda_bash[$0]=1;
@@ -1968,7 +2045,6 @@ BEGIN {
     while( getline < "import_sheet2pcp_files") import_sheet2pcp[$0]=1;
     while( getline < "import_mrtg2pcp_files") import_mrtg2pcp[$0]=1;
     while( getline < "import_ganglia2pcp_files") import_ganglia2pcp[$0]=1;
-    while( getline < "import_collectl2pcp_files") import_collectl2pcp[$0]=1;
     while( getline < "import_collectl2pcp_files") import_collectl2pcp[$0]=1;
     while( getline < "conf_files") conf[nconf++]=$0;
 }
@@ -2037,10 +2113,14 @@ BEGIN {
     else if (pmda_unbound[$NF]) f="pmda_unbound_files.rpm";
     else if (pmda_mic[$NF]) f="pmda_mic_files.rpm";
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
+    else if (export_pcp2influxdb[$NF]) f="export_pcp2influxdb_files.rpm";
 %endif
     else if (export_zabbix_agent[$NF]) f="export_zabbix_agent_files.rpm";
 %if "@pmda_json@" == "true"
     else if (pmda_json[$NF]) f="pmda_json_files.rpm";
+%endif
+%if "@pmda_libvirt@" == "true"
+    else if (pmda_libvirt[$NF]) f="pmda_libvirt_files.rpm";
 %endif
     else if (pmda_apache[$NF]) f="pmda_apache_files.rpm";
     else if (pmda_bash[$NF]) f="pmda_bash_files.rpm";
@@ -2257,6 +2337,11 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
 %preun pmda-json
 %{pmda_remove "$1" "json"}
 %endif #preun pmda-json
+
+%if "@pmda_libvirt@" == "true"
+%preun pmda-libvirt
+%{pmda_remove "$1" "libvirt"}
+%endif #preun pmda-libvirt
 
 %if "@pmda_nginx@" == "true"
 %preun pmda-nginx
@@ -2664,12 +2749,18 @@ cd
 %files pmda-mic -f pmda_mic_files.rpm
 
 %files export-pcp2graphite -f export_pcp2graphite_files.rpm
+
+%files export-pcp2influxdb -f export_pcp2influxdb_files.rpm
 %endif
 
 %files export-zabbix-agent -f export_zabbix_agent_files.rpm
 
 %if "@pmda_json@" == "true"
 %files pmda-json -f pmda_json_files.rpm
+%endif
+
+%if "@pmda_libvirt@" == "true"
+%files pmda-libvirt -f pmda_libvirt_files.rpm
 %endif
 
 %files pmda-apache -f pmda_apache_files.rpm

@@ -31,6 +31,7 @@ LIBS_SUBDIRS = \
 	libpcp_qed \
 	libpcp_qmc \
 	libpcp_qwt \
+	libpcp_web \
 	#
 
 OTHER_SUBDIRS = \
@@ -43,6 +44,7 @@ OTHER_SUBDIRS = \
 	newhelp \
 	pcp \
 	pcp2graphite \
+	pcp2influxdb \
 	pmafm \
 	pmfind \
 	pmcpp \
@@ -122,6 +124,11 @@ default_pcp : $(SUBDIRS)
 install :: default_pcp install_pcp
 
 install_pcp : $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
+
+check :: check_pcp
+ 
+check_pcp : pcp
 	$(SUBDIRS_MAKERULE)
 
 $(LIBPCP_SUBDIR): $(INCLUDE_SUBDIR)

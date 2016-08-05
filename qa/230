@@ -68,6 +68,7 @@ _filter()
 	-e '/^current time/s/\(   *\).*/\1DATE/' \
 	-e '/^log volume/s/\(   *\).*/\1NUMBER/' \
 	-e '/^log size/s/\(   *\).*/\1NUMBER/' \
+	-e '/__pmCloseChannelbyFd/d' \
 
 }
 

@@ -114,11 +114,11 @@ Check ...
 [TMP/control:LINE] host="#" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="#" primary="5." socks="Putting" dir="all" args="the cases together"
 [TMP/control:LINE] host="#" primary="" socks="" dir="" args=""
-[TMP/control:LINE] host="LOCALHOST" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
+[TMP/control:LINE] host="LOCALHOSTNAME" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
 Check pmlogger -P -h LOCALHOST [dots] in TMP.1 ...
 Restarting primary pmlogger for host "LOCALHOST" [dots] [process PID]  done
 Latest folio created for CHECK
-[TMP/control:LINE] host="LOCALHOST" primary="n" socks="n" dir="TMP.2" args="-c TMP/config"
+[TMP/control:LINE] host="LOCALHOSTNAME" primary="n" socks="n" dir="TMP.2" args="-c TMP/config"
 Check pmlogger -h LOCALHOST [dots] in TMP.2 ...
 [TMP/control:LINE] host="LOCALHOST" primary="n" socks="n" dir="TMP.3" args="-c TMP/config"
 Check pmlogger -h LOCALHOST [dots] in TMP.3 ...
@@ -137,10 +137,10 @@ Check ...
 [TMP/control:LINE] host="#" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="#" primary="5." socks="Putting" dir="all" args="the cases together"
 [TMP/control:LINE] host="#" primary="" socks="" dir="" args=""
-[TMP/control:LINE] host="LOCALHOST" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
+[TMP/control:LINE] host="LOCALHOSTNAME" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
 Check pmlogger -P -h LOCALHOST [dots] in TMP.1 ...
 primary pmlogger process PID identified, OK
-[TMP/control:LINE] host="LOCALHOST" primary="n" socks="n" dir="TMP.2" args="-c TMP/config"
+[TMP/control:LINE] host="LOCALHOSTNAME" primary="n" socks="n" dir="TMP.2" args="-c TMP/config"
 Check pmlogger -h LOCALHOST [dots] in TMP.2 ...
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
 Latest folio created for CHECK
@@ -161,10 +161,10 @@ Check ...
 [TMP/control:LINE] host="#" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="#" primary="5." socks="Putting" dir="all" args="the cases together"
 [TMP/control:LINE] host="#" primary="" socks="" dir="" args=""
-[TMP/control:LINE] host="LOCALHOST" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
+[TMP/control:LINE] host="LOCALHOSTNAME" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
 Check pmlogger -P -h LOCALHOST [dots] in TMP.1 ...
 primary pmlogger process PID identified, OK
-[TMP/control:LINE] host="LOCALHOST" primary="n" socks="n" dir="TMP.2" args="-c TMP/config"
+[TMP/control:LINE] host="LOCALHOSTNAME" primary="n" socks="n" dir="TMP.2" args="-c TMP/config"
 Check pmlogger -h LOCALHOST [dots] in TMP.2 ...
 [TMP/control:LINE] host="LOCALHOST" primary="n" socks="n" dir="TMP.3" args="-c TMP/config"
 Check pmlogger -h LOCALHOST [dots] in TMP.3 ...
@@ -185,10 +185,10 @@ Check ...
 [TMP/control:LINE] host="#" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="#" primary="5." socks="Putting" dir="all" args="the cases together"
 [TMP/control:LINE] host="#" primary="" socks="" dir="" args=""
-[TMP/control:LINE] host="LOCALHOST" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
+[TMP/control:LINE] host="LOCALHOSTNAME" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
 Check pmlogger -P -h LOCALHOST [dots] in TMP.1 ...
 primary pmlogger process PID identified, OK
-[TMP/control:LINE] host="LOCALHOST" primary="n" socks="n" dir="TMP.2" args="-c TMP/config"
+[TMP/control:LINE] host="LOCALHOSTNAME" primary="n" socks="n" dir="TMP.2" args="-c TMP/config"
 Check pmlogger -h LOCALHOST [dots] in TMP.2 ...
 [TMP/control:LINE] host="LOCALHOST" primary="n" socks="n" dir="TMP.3" args="-c TMP/config"
 Check pmlogger -h LOCALHOST [dots] in TMP.3 ...
@@ -209,10 +209,10 @@ Check ...
 [TMP/control:LINE] host="#" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="#" primary="5." socks="Putting" dir="all" args="the cases together"
 [TMP/control:LINE] host="#" primary="" socks="" dir="" args=""
-[TMP/control:LINE] host="LOCALHOST" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
+[TMP/control:LINE] host="LOCALHOSTNAME" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
 Check pmlogger -P -h LOCALHOST [dots] in TMP.1 ...
 primary pmlogger process PID identified, OK
-[TMP/control:LINE] host="LOCALHOST" primary="n" socks="n" dir="TMP.2" args="-c TMP/config"
+[TMP/control:LINE] host="LOCALHOSTNAME" primary="n" socks="n" dir="TMP.2" args="-c TMP/config"
 Check pmlogger -h LOCALHOST [dots] in TMP.2 ...
 [TMP/control:LINE] host="LOCALHOST" primary="n" socks="n" dir="TMP.3" args="-c TMP/config"
 Check pmlogger -h LOCALHOST [dots] in TMP.3 ...
@@ -233,10 +233,10 @@ Check ...
 [TMP/control:LINE] host="#" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="#" primary="5." socks="Putting" dir="all" args="the cases together"
 [TMP/control:LINE] host="#" primary="" socks="" dir="" args=""
-[TMP/control:LINE] host="LOCALHOST" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
+[TMP/control:LINE] host="LOCALHOSTNAME" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
 Check pmlogger -P -h LOCALHOST [dots] in TMP.1 ...
 primary pmlogger process PID identified, OK
-[TMP/control:LINE] host="LOCALHOST" primary="n" socks="n" dir="TMP.2" args="-c TMP/config"
+[TMP/control:LINE] host="LOCALHOSTNAME" primary="n" socks="n" dir="TMP.2" args="-c TMP/config"
 Check pmlogger -h LOCALHOST [dots] in TMP.2 ...
 [TMP/control:LINE] host="LOCALHOST" primary="n" socks="n" dir="TMP.3" args="-c TMP/config"
 Check pmlogger -h LOCALHOST [dots] in TMP.3 ...

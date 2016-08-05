@@ -31,7 +31,7 @@ $PCP_ECHO_PROG $PCP_ECHO_N "Fetch delay (secs) [0]? $PCP_ECHO_C"
 read y
 [ -z "$y" ] && y=0
 args="$args $x $y"
-[ "$x" -lt 0 ] && check_delay=`expr -1 \* $x + 2`
+[ "$x" -lt 0 ] && check_delay=`expr \( -1 \) \* $x + 2`
 [ "$x" -gt 0 ] && check_delay=`expr $x + 2`
 
 pmdaInstall

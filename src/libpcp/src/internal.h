@@ -269,4 +269,7 @@ extern int __pmProxyAddPorts(int **, int) _PCP_HIDDEN;
 extern int __pmWebdAddPorts(int **, int) _PCP_HIDDEN;
 extern int __pmAddPorts(const char *, int **, int) _PCP_HIDDEN;
 
+extern void __pmCloseChannelbyContext(__pmContext *, int, int ) _PCP_HIDDEN;
+extern void __pmCloseChannelbyFd(int, int, int ) _PCP_HIDDEN;
+
 #endif /* _LIBPCP_INTERNAL_H */

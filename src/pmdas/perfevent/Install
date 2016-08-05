@@ -32,4 +32,4 @@ socket_inet_def=2078
 pmdaSetup
 pmdaInstall
 
-exit 0
+exit

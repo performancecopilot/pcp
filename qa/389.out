@@ -9,11 +9,12 @@ Nothing to log, and not the primary logger instance ... good-bye
 
 Log finished DATE
 
-=== empty config and -L, should exit when pmcd restarted ===
+=== empty config and -L, no reconnect and no exit ===
 Waiting for pmcd to terminate ...
 Starting pmcd ... 
 Starting pmlogger ... 
-expect no pmlogger process ...
+expect pmlogger process ...
+OK
 Log for pmlogger on HOST started DATE
 
 Config parsed
@@ -21,18 +22,19 @@ Starting logger for host "HOST"
 Archive basename: ARCHIVE
 pmlogger: Lost connection to PMCD on "HOST" at DATE
 
-Log finished DATE
-
-=== non-empty config, should exit when pmcd restarted ===
+=== non-empty config, reconnect when pmcd restarted ===
 Waiting for pmcd to terminate ...
 Starting pmcd ... 
 Starting pmlogger ... 
-expect no pmlogger process ...
+expect pmlogger process ...
+OK
 Log for pmlogger on HOST started DATE
 
 Config parsed
 Starting logger for host "HOST"
 Archive basename: ARCHIVE
 pmlogger: Lost connection to PMCD on "HOST" at DATE
-
-Log finished DATE
+pmlogger: re-established connection to PMCD on "HOST" at DATE
+pmlogger: Validating metrics after PMCD state changed at DATE
+expect one mark record ...
+1
