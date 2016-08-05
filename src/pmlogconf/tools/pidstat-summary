@@ -3,5 +3,8 @@ ident   metrics sampled once by the pcp-pidstat(1) command
 probe	kernel.uname.sysname ~ Linux ? available : exclude
 delta	once
         hinv.ncpu
-        pmda.uname
+        kernel.uname.nodename
+        kernel.uname.release
+        kernel.uname.sysname
+        kernel.uname.machine
         mem.physmem
