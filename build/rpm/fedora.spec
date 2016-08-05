@@ -2665,7 +2665,13 @@ cd
 
 %changelog
 * Fri Aug 05 2016 Nathan Scott <nathans@redhat.com> - 3.11.4-1
-- Work in progress, see http://pcp.io/roadmap
+- Support inside-container metric values in python (BZ 1333702)
+- Fix pmdaproc handling of commands with whitespace (BZ 1350816)
+- Use persistent DM names for the filesystem metrics (BZ 1349932)
+- Add to the ds389{,log} RPM package dependencies (BZ 1354055)
+- Use "dirsrv" as default pmdads389log user account (BZ 1357607)
+- Make pmie(1) honour SIGINT while parsing rules (BZ 1327226)
+- Add pmlogconf support for pcp-pidstat and pcp-mpstat (BZ 1361943)
 
 * Fri Jun 17 2016 Nathan Scott <nathans@redhat.com> - 3.11.3-1
 - Fix memory leak in derived metrics error handling (BZ 1331973)
