@@ -99,7 +99,7 @@ int
 json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 		    json_metric_desc *json_metrics, char* pointer_part[], int key, int total)
 {
-    int i, j;
+    int i, j, k = 0;
     
     /* we've reached the end of the json doc */
     if (count == 0)
@@ -114,16 +114,21 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 	if (pmDebug & DBG_TRACE_APPL2)
 	    __pmNotifyErr(LOG_DEBUG, "string: %.*s parent: %d\n", json_tokens->end - json_tokens->start, json+json_tokens->start, json_tokens->parent);
 	if (jsmneq(json, json_tokens, pointer_part[key]) == 0){
+	    //XXX this needs to have a better method for detecting
+	    if (key == 0 && json_tokens->parent != 0)
+		return 1;
 	    jsmntok_t *value = json_tokens + 1;
-	    key++;
-	    if(value->type == 0){
-		int l;
-		l = jsmnflagorint(json, value, &json_metrics->values.l, json_metrics->flags);
+	    if(value->type == JSMN_PRIMITIVE && (total - key == 1)){
+		jsmnflagorint(json, value, &json_metrics->values.l, json_metrics->flags);
+		return count;
 	    }
-	    else{
+	    else if(value->type == JSMN_STRING && total - key == 1){
 		jsmnstrdup(json, value, &json_metrics->values.cp);
+		return count;
 	    }
-	    return count;
+	    if (total - key == 1)
+		key = 0;
+	    return -1;
 	}
 	return 1;
     case JSMN_OBJECT:
@@ -132,17 +137,32 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 	for (i = j = 0; i < json_tokens->size; i++){
 	    if (pmDebug & DBG_TRACE_APPL2)
 		__pmNotifyErr(LOG_DEBUG, "object key\n");
-	    j += json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, 0, total);
+	    k = json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, key, total);
+	    /* returned a valid section, continue */
+	    if (k > 1){
+		key = 0;
+		j += k;
+	    }
+	    /* went a level deeper but no match */
+	    if (k < 0){
+		key++;
+		j++;
+	    }
+	    /* returned a one, nothing hit so far */
+	    if (k == 1){
+		j++;
+	    }
+
 	    if (pmDebug & DBG_TRACE_APPL2)
-		__pmNotifyErr(LOG_DEBUG, "object value\n");
-	    j += json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, 0, total);
+		__pmNotifyErr(LOG_DEBUG, "object value %d\n", (json_tokens+1+j)->size);
+	    j += json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, key, total);
 	}
 	return j + 1;
     case JSMN_ARRAY:
 	if (pmDebug & DBG_TRACE_APPL2)
 	    __pmNotifyErr(LOG_DEBUG, "jsmn_array");
 	for (i = j = 0; i < json_tokens->size; i++)
-	    j += json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, 0, total);
+	    j += json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, key, total);
 	return j + 1;
     default:
 	return 0;
@@ -170,6 +190,7 @@ json_pointer_to_index(const char *json, jsmntok_t *json_tokens, size_t count, js
 	pointer_part = strtok(json_pointer, delim);
 	if (pointer_part){
 	    pointer_final[j] = strdup(pointer_part);
+	    j++;
 	    while(pointer_part){
 		pointer_part = strtok(NULL, delim);
 		if (pointer_part){
@@ -178,11 +199,8 @@ json_pointer_to_index(const char *json, jsmntok_t *json_tokens, size_t count, js
 		}
 	    }
 	}
-    
 	json_extract_values(json, json_tokens, count, &json_metrics[i], pointer_final, 0, j);
     }
-
-    
     return 0;
 }
 
