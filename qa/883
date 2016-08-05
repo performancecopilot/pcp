@@ -55,7 +55,7 @@ pcp $pcp_archive mpstat -I ALL
 
 echo && echo === pcp-mpstat with all reports 
 pcp $pcp_archive mpstat -I SCPU
+
 # success, all done
 status=0
-
 exit

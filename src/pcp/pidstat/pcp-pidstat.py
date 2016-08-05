@@ -16,11 +16,13 @@
 import sys
 import re
 import os
+import time
 from pcp import pmcc
 from pcp import pmapi
 
 # Metric list to be fetched
-PIDSTAT_METRICS = ['pmda.uname','hinv.ncpu','proc.psinfo.pid','proc.nprocs','proc.psinfo.utime',
+PIDSTAT_METRICS = ['kernel.uname.nodename', 'kernel.uname.release', 'kernel.uname.sysname',
+                    'kernel.uname.machine','hinv.ncpu','proc.psinfo.pid','proc.nprocs','proc.psinfo.utime',
                     'proc.psinfo.stime','proc.psinfo.guest_time','proc.psinfo.processor',
                     'proc.id.uid','proc.psinfo.cmd','kernel.all.cpu.user','kernel.all.cpu.vuser',
                     'kernel.all.cpu.sys','kernel.all.cpu.guest','kernel.all.cpu.nice','kernel.all.cpu.idle',
@@ -184,7 +186,9 @@ class ProcessPriority:
 
     def policy(self):
         policy_int = self.__metric_repository.current_value('proc.psinfo.policy', self.instance)
-        return SCHED_POLICY[policy_int]
+        if policy_int is not None:
+            return SCHED_POLICY[policy_int]
+        return None
 
     def user_name(self):
         return self.__metric_repository.current_value('proc.id.uid_nm', self.instance)
@@ -320,17 +324,17 @@ class ProcessFilter:
         return True
 
     def __matches_process_priority(self, process):
-        if self.options.show_process_priority:
+        if self.options.show_process_priority and process.priority() is not None:
             return process.priority() > 0
         return True
 
     def __matches_process_memory_util(self, process):
-        if self.options.show_process_memory_util:
+        if self.options.show_process_memory_util and process.vsize() is not None:
             return process.vsize() > 0
         return True
 
     def __matches_process_stack_size(self, process):
-        if self.options.show_process_stack_util:
+        if self.options.show_process_stack_util and process.stack_size() is not None:
             return process.stack_size() > 0
         return True
 
@@ -504,10 +508,22 @@ class PidstatReport(pmcc.MetricGroupPrinter):
         u = group.timestamp.tv_usec - group.prevTimestamp.tv_usec
         return (s + u / 1000000.0)
 
-    def print_machine_info(self,group):
-        machine_name = group['pmda.uname'].netValues[0][2]
+    def print_machine_info(self,group, context):
+        timestamp = context.pmLocaltime(group.timestamp.tv_sec)
+        '''
+        Please check strftime(3) for different formatting options.
+        Also check TZ and LC_TIME environment variables for more information
+        on how to override the default formatting of the date display in the header
+        '''
+        time_string = time.strftime("%x", timestamp.struct_time())
+        header_string = ''
+        header_string += group['kernel.uname.sysname'].netValues[0][2] + '  '
+        header_string += group['kernel.uname.release'].netValues[0][2] + '  '
+        header_string += '(' + group['kernel.uname.nodename'].netValues[0][2] + ')  '
+        header_string += time_string + '  '
+        header_string += group['kernel.uname.machine'].netValues[0][2] + '  '
         no_cpu =self.get_ncpu(group)
-        print("%s\t(%s CPU)" % (machine_name,no_cpu))
+        print("%s  (%s CPU)" % (header_string,no_cpu))
 
     def get_ncpu(self,group):
         return group['hinv.ncpu'].netValues[0][2]
@@ -519,7 +535,7 @@ class PidstatReport(pmcc.MetricGroupPrinter):
             return
 
         if not self.Machine_info_count:
-            self.print_machine_info(group)
+            self.print_machine_info(group, manager)
             self.Machine_info_count = 1
 
         timestamp = group.contextCache.pmCtime(int(group.timestamp)).rstrip().split()

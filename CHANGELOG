@@ -1,5 +1,69 @@
 pcp-3.11.4 (5 August 2016)
-    - Work in progress, see http://pcp.io/roadmap
+    - pcp2influxdb: export PCP metrics to InfluxDB
+    - collectl2pcp: fix metadata and overflow issues
+    - pcp-mpstat: PCP version of mpstat(1), supporting archives
+    - pcp-pidstat: PCP version of pidstat(1), supporting archives
+    - pmdammv: MMV version 2 format (longer metric & instance names)
+    - pmdalinux: add kernel.percpu.intr count metric
+    - pmdalinux: add cgroup.cpusched.cfs_{period,quota} metrics
+    - pmdalinux: correctly handle Ceph RADOS RBD device naming
+    - pmdalinux: add kernel.percpu.softirqs metrics (/proc/softirqs)
+    - pmdalinux: filesys metrics use persistent device mapper names
+    - pmdalinux: persist interrupt and softirq metric name:ID maps
+    - pmdaproc: rewrite proc.psinfo.ttyname metric handling (this
+      fix significantly reduces probability of proc PMDA timeouts)
+    - pmdaproc: correct handling of command names with whitespace
+    - pmdaproc: include threads in hotproc results, if enabled
+    - pmdads389log: use "dirsrv" as default user account
+    - scripts: fix failure status handling in PMDA Install scripts
+    - pmdaoracle: fix Install script failure diagnostic message
+    - pmlogger: auto-reconnect to pmcd whenever possible
+    - pmlogger: fix broken logic for primary control file
+    - pmlogger: validate metrics before generating MARK records
+    - pmnewlog: improve checking of pmlogger processes
+    - pmlogger_check: additional hardening against failure cases
+    - pmlogconf: enable logging of small core set of XFS metrics
+    - pmchart: fix diagnostics for archives from the same host
+    - pmcd: improve robustness in the face of accept(2) errors
+    - libpcp: guard against accept() returning an AF_UNSPEC
+    - libpcp: correct __pmSecureClientHandshake() error handling
+    - libpcp: make pmcd-client protocol safer when timeouts occur
+    - libpcp_web: a new web library, with JSON-pointer (RFC 6901)
+      support for extracting values from JSON - see pmjsoninit(3)
+    - libpcp_pmda: allow string caches to be saved also
+    - python api: support for containers
+    - python api: support for local context mode
+    - python api: interface tm class to struct_time for strftime
+    - pmrep: improve command line parsing
+    - pmrep: support configuration file sources
+    - pmrep: support local context mode
+    - pmrep: add support for containers
+    - pmrep: default timezone handling fix
+    - pmrep: allow sub-second sampling intervals
+    - pmrep: improve robustness of CSV output
+    - pmrep: fix unitinfo for mixed type metrics
+    - pmrep: fix archive end time reporting
+    - pmrep: cwd, user-specific config, then system-wide config
+    - pmdiff: rework the sort/join use for portability
+    - pminfo: increase default batch size
+    - pmafm: support standard --help option
+    - pmie: honour SIGINT while parsing rules
+    - zsh completion: multi-archive support
+    - zsh completion: support pmafm/pmie2col/pmlogcheck/pmloglabel
+    - zsh completion: --container improvements
+    - zsh completion: fix handling of pcp(1) subcommands
+    - build: ensure man pages are not built if unnecessary
+    - build: look for libsystemd not deprecated libsystemd-journal
+    - build: rearrange deb order of depending on python3 modules
+    - build: add missing python debian package shlib dependencies
+    - build: remove build-essential packages from debian/control
+    - build: add to ds389{,log} RPM package dependencies
+    - build: do not include .gitignore in installed file set
+    - build: fix declarations for deb graphite export package
+    - build: create nssdb directory with rpm spec packaging too
+    - docs: fix pmmgr(1) path typo
+    - docs: updates to pmrep configuration section
+    - docs: update pmns(5) domain table to match stdpmid
 
 pcp-3.11.3 (17 June 2016)
     - zsh: pcp command auto-completions for the zsh(1) shell

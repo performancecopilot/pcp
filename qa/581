@@ -190,6 +190,7 @@ _filter_pmie_log <$tmp.out \
     -e "/ Info: /s/$HOST/HOST/g" \
     -e "/ Info: /s/localhost/HOST/g" \
     -e "/ Info: /s/local:/HOST/g" \
+    -e '/ Error: __pmCloseChannelbyContext: /d' \
     -e 's/failed: Connection reset by peer/failed: IPC protocol failure/' \
     -e '/^DATE: *$/d' \
     -e '/^FILESYS \/dev\//d' \
