@@ -80,3 +80,132 @@
    fun:pmTraversePMNS
    fun:main
 }
+
+# from qa/731 on vm04
+# at 0x4005B83: malloc (vg_replace_malloc.c:195)
+# by 0xA905DF: strdup (in /lib/libc-2.5.so)
+# by 0x6EE93E: insert_cache (cache.c:611)
+# by 0x6EFD0A: store (cache.c:991)
+# by 0x6EFEE6: pmdaCacheStore (cache.c:1053)
+# by 0x4425CE6: refresh_cgroup_devices (cgroups.c:109)
+# by 0x44282BD: setup_blkio (cgroups.c:781)
+# by 0x4426CF9: refresh_cgroups (cgroups.c:383)
+# by 0x44208B1: proc_refresh (pmda.c:1619)
+# by 0x442470E: proc_fetch (pmda.c:3058)
+# by 0x695581: __pmFetchLocal (fetchlocal.c:131)
+# by 0x65F1A7: pmFetch (fetch.c:150)
+{
+   <vm04 qa/731>
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:insert_cache
+   fun:store
+   fun:pmdaCacheStore
+   fun:refresh_cgroup_devices
+   fun:setup_blkio
+   fun:refresh_cgroups
+   fun:proc_refresh
+   fun:proc_fetch
+   fun:__pmFetchLocal
+   fun:pmFetch
+}
+
+# from qa/459 on vm04
+# at 0x4005B83: malloc (vg_replace_malloc.c:195)
+# by 0xA905DF: strdup (in /lib/libc-2.5.so)
+# by 0x6EE93E: insert_cache (cache.c:611)
+# by 0x6EFD0A: store (cache.c:991)
+# by 0x6EFEE6: pmdaCacheStore (cache.c:1053)
+# by 0x4425CE6: refresh_cgroup_devices (cgroups.c:109)
+# by 0x44282BD: setup_blkio (cgroups.c:781)
+# by 0x4426CF9: refresh_cgroups (cgroups.c:383)
+# by 0x44208B1: proc_refresh (pmda.c:1619)
+# by 0x442470E: proc_fetch (pmda.c:3058)
+# by 0x695581: __pmFetchLocal (fetchlocal.c:131)
+# by 0x65F1A7: pmFetch (fetch.c:150)
+{
+   <vm04 qa/459>
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:insert_cache
+   fun:store
+   fun:pmdaCacheStore
+   fun:refresh_cgroup_devices
+   fun:setup_blkio
+   fun:refresh_cgroups
+   fun:proc_refresh
+   fun:proc_fetch
+   fun:__pmFetchLocal
+   fun:pmFetch
+}
+
+# from qa/459 on vm04
+# by 0xA905DF: strdup (in /lib/libc-2.5.so)
+# by 0x6EE93E: insert_cache (cache.c:611)
+# by 0x6EFD0A: store (cache.c:991)
+# by 0x6EFEE6: pmdaCacheStore (cache.c:1053)
+# by 0x4425CE6: refresh_cgroup_devices (cgroups.c:109)
+# by 0x44282BD: setup_blkio (cgroups.c:781)
+# by 0x4426CF9: refresh_cgroups (cgroups.c:383)
+# by 0x44208B1: proc_refresh (pmda.c:1619)
+# by 0x442470E: proc_fetch (pmda.c:3058)
+# by 0x695581: __pmFetchLocal (fetchlocal.c:131)
+# by 0x65F1A7: pmFetch (fetch.c:150)
+{
+   <vm04 qa/459>
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:insert_cache
+   fun:store
+   fun:pmdaCacheStore
+   fun:refresh_cgroup_devices
+   fun:setup_blkio
+   fun:refresh_cgroups
+   fun:proc_refresh
+   fun:proc_fetch
+   fun:__pmFetchLocal
+   fun:pmFetch
+}
+
+# from qa/459 on vm04
+# by 0x67D9A8: __pmLogLoadMeta (logmeta.c:143)
+# by 0x683E5C: __pmLogOpen (logutil.c:1086)
+# by 0x65B353: __pmFindOrOpenArchive (context.c:555)
+# by 0x65B953: initarchive (context.c:759)
+# by 0x65C7F0: pmNewContext (context.c:1126)
+# by 0x8049B8A: main (pmlogreduce.c:234)
+{
+   <vm04 qa/459>
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmLogLoadMeta
+   fun:__pmLogOpen
+   fun:__pmFindOrOpenArchive
+   fun:initarchive
+   fun:pmNewContext
+   fun:main
+}
+
+# from qa/459 on vm04
+# by 0x6AF383: __pmHashAdd (hash.c:87)
+# by 0x67DD1A: __pmLogLoadMeta (logmeta.c:204)
+# by 0x683E5C: __pmLogOpen (logutil.c:1086)
+# by 0x65B353: __pmFindOrOpenArchive (context.c:555)
+# by 0x65B953: initarchive (context.c:759)
+# by 0x65C7F0: pmNewContext (context.c:1126)
+# by 0x8049B8A: main (pmlogreduce.c:234)
+{
+   <vm04 qa/459>
+   Memcheck:Leak
+   fun:malloc
+   fun:__pmHashAdd
+   fun:__pmLogLoadMeta
+   fun:__pmLogOpen
+   fun:__pmFindOrOpenArchive
+   fun:initarchive
+   fun:pmNewContext
+   fun:main
+}
