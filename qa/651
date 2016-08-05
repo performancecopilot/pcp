@@ -79,7 +79,11 @@ _wait_for_start()
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
 	| egrep 'PID|pmproxy' >>$here/$seq.full
     else
-	echo "Failed to start pmproxy"
+	# NB: may be an expected situation at this stage of the test
+	echo "Failed to probe pmproxy" >>$here/$seq.full
+	$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+	| egrep 'PID|pmproxy' >>$here/$seq.full
+	[ -f $tmp.log ] && cat $tmp.log >>$here/$seq.full
     fi
 }
 
@@ -117,7 +121,7 @@ $sudo $signal -a pmproxy
 _wait_for_stop
 
 proxyargs="-l $tmp.log"
-proxyargs="-l $tmp.log -Dcontext,pdu"
+#proxyargs="$proxyargs -Dcontext,pdu"
 id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U pcp"
 
 echo "== pmproxy not running =="
@@ -127,8 +131,6 @@ echo
 echo "== simplest default case ==" | tee -a $here/$seq.full
 $sudo $PCP_BINADM_DIR/pmproxy $proxyargs
 _wait_for_start
-
-sleep 1000
 
 pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
@@ -160,14 +162,14 @@ echo "2nd pmproxy log ..." >>$here/$seq.full
 cat $tmp.log >>$here/$seq.full
 
 echo
-echo "== restricted interface for connections, expect failure =="
+echo "== restricted interface for connections, expect failure ==" | tee -a $here/$seq.full
 $sudo $PCP_BINADM_DIR/pmproxy -i 127.0.0.1 $proxyargs
 _wait_for_start
 
 pmprobe $target -v sample.long.hundred 2>&1 | _filter
 
 echo
-echo "== restricted interface for connections, expect success =="
+echo "== restricted interface for connections, expect success ==" | tee -a $here/$seq.full
 export PMPROXY_HOST=localhost
 pmprobe $target -v sample.long.hundred 2>&1 | _filter
 

@@ -2345,6 +2345,7 @@ cd
 %{_libdir}/libpcp_pmda.so.3
 %{_libdir}/libpcp_trace.so.2
 %{_libdir}/libpcp_import.so.1
+%{_libdir}/libpcp_web.so.1
 
 %files libs-devel
 %{_libdir}/libpcp.so
@@ -2353,6 +2354,7 @@ cd
 %{_libdir}/libpcp_pmda.so
 %{_libdir}/libpcp_trace.so
 %{_libdir}/libpcp_import.so
+%{_libdir}/libpcp_web.so
 %{_includedir}/pcp/*.h
 
 %files devel -f devel.list

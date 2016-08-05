@@ -1,6 +1,6 @@
 QA output created by 832
 Start pmcd with modified $PCP_PMCDOPTIONS_PATH (pmcd.options)
-Starting pmcd ... [DATE] pmcd_wait(PID) Error: __pmCloseChannelbyFd: fd=3 expected PDU_ATTR received: Timeout waiting for a response from PMCD
+Starting pmcd ... 
 testing secure mode access via unix domain socket (PASS)
 sample.write_me old value=2 new value=1
 sample.write_me 1 1
