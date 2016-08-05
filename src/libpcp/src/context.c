@@ -1650,14 +1650,21 @@ __pmCloseChannelbyFd(int fd, int expect, int recv)
     char	expect_str[TYPESTRLEN];
     char	recv_str[TYPESTRLEN];
     __pmPDUTypeStr_r(expect, expect_str, TYPESTRLEN);
-    if (recv < 0)
+    if (recv < 0) {
+	/* error or timeout */
 	__pmNotifyErr(LOG_ERR, "__pmCloseChannelbyFd: fd=%d expected PDU_%s received: %s",
 	    fd, expect_str, pmErrStr_r(recv, errmsg, sizeof(errmsg)));
-    else {
+    }
+    else if (recv > 0) {
+	/* wrong pdu type */
 	__pmPDUTypeStr_r(recv, recv_str, TYPESTRLEN);
 	__pmNotifyErr(LOG_ERR, "__pmCloseChannelbyFd: fd=%d expected PDU_%s received: PDU_%s",
 	    fd, expect_str, recv_str);
-	}
+    }
+    else {
+	/* EOF aka PDU-0, nothing to report */
+	;
+    }
     __pmCloseSocket(fd);
 }
 
@@ -1670,13 +1677,20 @@ __pmCloseChannelbyContext(__pmContext *ctxp, int expect, int recv)
 	char	expect_str[TYPESTRLEN];
 	char	recv_str[TYPESTRLEN];
 	__pmPDUTypeStr_r(expect, expect_str, TYPESTRLEN);
-	if (recv < 0)
+	if (recv < 0) {
+	    /* error or timeout */
 	    __pmNotifyErr(LOG_ERR, "__pmCloseChannelbyContext: fd=%d context=%d expected PDU_%s received: %s",
 		ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), expect_str, pmErrStr_r(recv, errmsg, sizeof(errmsg)));
-	else {
+	}
+	else if (recv > 0) {
+	    /* wrong pdu type */
 	    __pmPDUTypeStr_r(recv, recv_str, TYPESTRLEN);
 	    __pmNotifyErr(LOG_ERR, "__pmCloseChannelbyContext: fd=%d context=%d expected PDU_%s received: PDU_%s",
 		ctxp->c_pmcd->pc_fd, __pmPtrToHandle(ctxp), expect_str, recv_str);
+	}
+	else {
+	    /* EOF aka PDU-0, nothing to report */
+	    ;
 	}
 	__pmCloseSocket(ctxp->c_pmcd->pc_fd);
 	ctxp->c_pmcd->pc_fd = -1;
