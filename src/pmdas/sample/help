@@ -281,6 +281,7 @@ For testing, only.  This metric is known, but no value is ever available
 @ sample.string.null a zero length string
 @ sample.string.hullo K&R have a lot to answer for
 @ sample.string.write_me a string value that can be modified
+@ sample.string.bin a string-valued version of sample.bin
 
 @ sample.aggregate.null a zero length aggregate
 @ sample.aggregate.hullo K&R have a lot to answer for

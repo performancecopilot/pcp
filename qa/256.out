@@ -386,6 +386,7 @@ sampledso.double.bin_ctr
 sampledso.string.null
 sampledso.string.hullo
 sampledso.string.write_me
+sampledso.string.bin
 sampledso.aggregate.null
 sampledso.aggregate.hullo
 sampledso.aggregate.write_me
@@ -585,6 +586,7 @@ sampledso.double.bin_ctr
 sampledso.string.null
 sampledso.string.hullo
 sampledso.string.write_me
+sampledso.string.bin
 sampledso.aggregate.null
 sampledso.aggregate.hullo
 sampledso.aggregate.write_me

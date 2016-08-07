@@ -140,6 +140,7 @@ PMID: 30.0.3 (sampledso.milliseconds)
 2 sampledso.seconds
 2 sampledso.step
 2 sampledso.step_counter
+2 sampledso.string.bin
 2 sampledso.string.hullo
 2 sampledso.string.null
 2 sampledso.string.write_me
@@ -303,6 +304,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.seconds
 2 sampledso.step
 2 sampledso.step_counter
+2 sampledso.string.bin
 2 sampledso.string.hullo
 2 sampledso.string.null
 2 sampledso.string.write_me
@@ -452,6 +454,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 0 sampledso.seconds
 0 sampledso.step
 0 sampledso.step_counter
+0 sampledso.string.bin
 0 sampledso.string.hullo
 0 sampledso.string.null
 0 sampledso.string.write_me
@@ -600,6 +603,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 1 sampledso.seconds
 1 sampledso.step
 1 sampledso.step_counter
+1 sampledso.string.bin
 1 sampledso.string.hullo
 1 sampledso.string.null
 1 sampledso.string.write_me
@@ -748,6 +752,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.seconds
 2 sampledso.step
 2 sampledso.step_counter
+2 sampledso.string.bin
 2 sampledso.string.hullo
 2 sampledso.string.null
 2 sampledso.string.write_me
@@ -897,6 +902,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 0 sampledso.seconds
 0 sampledso.step
 0 sampledso.step_counter
+0 sampledso.string.bin
 0 sampledso.string.hullo
 0 sampledso.string.null
 0 sampledso.string.write_me
@@ -1045,6 +1051,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 1 sampledso.seconds
 1 sampledso.step
 1 sampledso.step_counter
+1 sampledso.string.bin
 1 sampledso.string.hullo
 1 sampledso.string.null
 1 sampledso.string.write_me
@@ -1193,6 +1200,7 @@ Error: pmTrimeNameSpace: PMNS not accessible
 2 sampledso.seconds
 2 sampledso.step
 2 sampledso.step_counter
+2 sampledso.string.bin
 2 sampledso.string.hullo
 2 sampledso.string.null
 2 sampledso.string.write_me
@@ -1393,6 +1401,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 0 sampledso.seconds
 0 sampledso.step
 0 sampledso.step_counter
+0 sampledso.string.bin
 0 sampledso.string.hullo
 0 sampledso.string.null
 0 sampledso.string.write_me
@@ -1541,6 +1550,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 1 sampledso.seconds
 1 sampledso.step
 1 sampledso.step_counter
+1 sampledso.string.bin
 1 sampledso.string.hullo
 1 sampledso.string.null
 1 sampledso.string.write_me
@@ -1689,6 +1699,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 2 sampledso.seconds
 2 sampledso.step
 2 sampledso.step_counter
+2 sampledso.string.bin
 2 sampledso.string.hullo
 2 sampledso.string.null
 2 sampledso.string.write_me
@@ -1838,6 +1849,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 0 sampledso.seconds
 0 sampledso.step
 0 sampledso.step_counter
+0 sampledso.string.bin
 0 sampledso.string.hullo
 0 sampledso.string.null
 0 sampledso.string.write_me
@@ -1986,6 +1998,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 1 sampledso.seconds
 1 sampledso.step
 1 sampledso.step_counter
+1 sampledso.string.bin
 1 sampledso.string.hullo
 1 sampledso.string.null
 1 sampledso.string.write_me
@@ -2134,6 +2147,7 @@ Error: pmTrimeNameSpace: Attempt to use an illegal context
 2 sampledso.seconds
 2 sampledso.step
 2 sampledso.step_counter
+2 sampledso.string.bin
 2 sampledso.string.hullo
 2 sampledso.string.null
 2 sampledso.string.write_me

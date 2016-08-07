@@ -193,6 +193,7 @@ sample.seconds
 sample.secret
 sample.step
 sample.step_counter
+sample.string.bin
 sample.string.hullo
 sample.string.null
 sample.string.write_me

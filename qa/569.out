@@ -100,6 +100,7 @@ sample.double.bin_ctr 9
 sample.string.null 1
 sample.string.hullo 1
 sample.string.write_me 1
+sample.string.bin 9
 sample.aggregate.null 1
 sample.aggregate.hullo 1
 sample.aggregate.write_me 1
@@ -257,6 +258,7 @@ sample.double.bin_ctr 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
 sample.string.null 1 PM_IN_NULL
 sample.string.hullo 1 PM_IN_NULL
 sample.string.write_me 1 PM_IN_NULL
+sample.string.bin 9 ?100 ?200 ?300 ?400 ?500 ?600 ?700 ?800 ?900
 sample.aggregate.null 1 PM_IN_NULL
 sample.aggregate.hullo 1 PM_IN_NULL
 sample.aggregate.write_me 1 PM_IN_NULL
@@ -444,6 +446,7 @@ sample.double.bin_ctr 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-6
 sample.string.null 1 PM_IN_NULL
 sample.string.hullo 1 PM_IN_NULL
 sample.string.write_me 1 PM_IN_NULL
+sample.string.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
 sample.aggregate.null 1 PM_IN_NULL
 sample.aggregate.hullo 1 PM_IN_NULL
 sample.aggregate.write_me 1 PM_IN_NULL
@@ -637,6 +640,7 @@ sample.double.bin_ctr 9 100 200 300 400 500 600 700 800 900
 sample.string.null 1 ""
 sample.string.hullo 1 "hullo world!"
 sample.string.write_me 1 "STRING"
+sample.string.bin 9 "100" "200" "300" "400" "500" "600" "700" "800" "900"
 sample.aggregate.null 1 "" []
 sample.aggregate.hullo 1 "hullo world!" [68756c6c6f20776f726c6421]
 sample.aggregate.write_me 1 "STRING" [3133]
@@ -817,6 +821,7 @@ sample.double.bin_ctr 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-4
 sample.string.null 1 PM_IN_NULL PM_IN_NULL
 sample.string.hullo 1 PM_IN_NULL PM_IN_NULL
 sample.string.write_me 1 PM_IN_NULL PM_IN_NULL
+sample.string.bin 9 ?100 "bin-100" ?200 "bin-200" ?300 "bin-300" ?400 "bin-400" ?500 "bin-500" ?600 "bin-600" ?700 "bin-700" ?800 "bin-800" ?900 "bin-900"
 sample.aggregate.null 1 PM_IN_NULL PM_IN_NULL
 sample.aggregate.hullo 1 PM_IN_NULL PM_IN_NULL
 sample.aggregate.write_me 1 PM_IN_NULL PM_IN_NULL

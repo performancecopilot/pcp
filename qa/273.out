@@ -95,6 +95,7 @@ sampledso.double.bin_ctr [like sample.bin but type DOUBLE, SEM_COUNTER and SPACE
 sampledso.string.null [a zero length string]
 sampledso.string.hullo [K&R have a lot to answer for]
 sampledso.string.write_me [a string value that can be modified]
+sampledso.string.bin [a string-valued version of sample.bin]
 sampledso.aggregate.null [a zero length aggregate]
 sampledso.aggregate.hullo [K&R have a lot to answer for]
 sampledso.aggregate.write_me [a aggregate value that can be modified]
@@ -673,6 +674,10 @@ K&R have a lot to answer for
 sampledso.string.write_me
 Help:
 a string value that can be modified
+
+sampledso.string.bin
+Help:
+a string-valued version of sample.bin
 
 sampledso.aggregate.null
 Help:

@@ -1343,61 +1343,61 @@ __dmgetpmid: metric "myname.n" -> PMID 511.0.17
 __dmgetpmid: metric "myname.o" -> PMID 511.0.18
 __dmgetpmid: metric "myname.p" -> PMID 511.0.19
 derived metrics prefetch added 16 metrics: 29.0.13 29.0.23 29.0.18 29.0.28 29.0.12 29.0.11 29.0.10 29.0.22 29.0.21 29.0.20 29.0.17 29.0.16 29.0.15 29.0.27 29.0.48 29.0.26
-__dmpostfetch: [3] root node 511.0.9: numval=1 vset[0]: inst=-1 cp=hullo world! (len=13)
+__dmpostfetch: [4] root node 511.0.9: numval=1 vset[0]: inst=-1 cp=hullo world! (len=13)
 expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] master=0
     PMID: 29.0.31 (511.0.9 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=hullo world!
-__dmpostfetch: [5] root node 511.0.3: numval=1 vset[0]: inst=-1 u=123456
+__dmpostfetch: [6] root node 511.0.3: numval=1 vset[0]: inst=-1 u=123456
 expr node <addr-1> type=NUMBER left=(nil) right=(nil) save_last=0 [123456] master=0
     PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=123456
-__dmpostfetch: [6] root node 511.0.4: numval=1 vset[0]: inst=-1 l=1000000
+__dmpostfetch: [7] root node 511.0.4: numval=1 vset[0]: inst=-1 l=1000000
 expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] master=0
     PMID: 29.0.13 (511.0.4 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
-__dmpostfetch: [7] root node 511.0.5: numval=1 vset[0]: inst=-1 ll=1000000
+__dmpostfetch: [8] root node 511.0.5: numval=1 vset[0]: inst=-1 ll=1000000
 expr node <addr-3> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.million] master=0
     PMID: 29.0.23 (511.0.5 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
-__dmpostfetch: [8] root node 511.0.6: numval=1 vset[0]: inst=-1 f=1000000.000000
+__dmpostfetch: [9] root node 511.0.6: numval=1 vset[0]: inst=-1 f=1000000.000000
 expr node <addr-4> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.million] master=0
     PMID: 29.0.18 (511.0.6 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1e+06
-__dmpostfetch: [9] root node 511.0.7: numval=1 vset[0]: inst=-1 d=1000000.000000
+__dmpostfetch: [10] root node 511.0.7: numval=1 vset[0]: inst=-1 d=1000000.000000
 expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.million] master=0
     PMID: 29.0.28 (511.0.7 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1e+06
-__dmpostfetch: [10] root node 511.0.8: numval=1 vset[0]: inst=-1 cp= (len=1)
+__dmpostfetch: [11] root node 511.0.8: numval=1 vset[0]: inst=-1 cp= (len=1)
 expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.null] master=0
     PMID: 29.0.30 (511.0.8 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=
-__dmpostfetch: [11] root node 511.0.9: numval=1 vset[0]: inst=-1 cp=hullo world! (len=13)
+__dmpostfetch: [12] root node 511.0.9: numval=1 vset[0]: inst=-1 cp=hullo world! (len=13)
 expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] master=0
     PMID: 29.0.31 (511.0.9 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=hullo world!
-__dmpostfetch: [12] root node 511.0.10: numval=1 vset[0]: inst=-1 cp=13 (len=3)
+__dmpostfetch: [13] root node 511.0.10: numval=1 vset[0]: inst=-1 cp=13 (len=3)
 expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.write_me] master=0
     PMID: 29.0.32 (511.0.10 from pmDesc) numval: 1
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=13
-__dmpostfetch: [13] root node 511.0.11: numval=1 vset[0]: inst=-1 l=1000111
+__dmpostfetch: [14] root node 511.0.11: numval=1 vset[0]: inst=-1 l=1000111
 expr node <addr-9> type=PLUS left=<addr-10> right=<addr-15> save_last=0
     PMID: PM_ID_NULL (511.0.11 from pmDesc) numval: 1
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -1433,7 +1433,7 @@ expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.on
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1
-__dmpostfetch: [14] root node 511.0.12: numval=1 vset[0]: inst=-1 ll=999889
+__dmpostfetch: [15] root node 511.0.12: numval=1 vset[0]: inst=-1 ll=999889
 expr node <addr-16> type=MINUS left=<addr-17> right=<addr-22> save_last=0
     PMID: PM_ID_NULL (511.0.12 from pmDesc) numval: 1
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -1469,7 +1469,7 @@ expr node <addr-22> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlon
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1
-__dmpostfetch: [15] root node 511.0.13: numval=1 vset[0]: inst=-1 d=999000.000000
+__dmpostfetch: [16] root node 511.0.13: numval=1 vset[0]: inst=-1 d=999000.000000
 expr node <addr-23> type=MINUS left=<addr-24> right=<addr-25> save_last=0
     PMID: PM_ID_NULL (511.0.13 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -1505,7 +1505,7 @@ expr node <addr-29> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.o
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1
-__dmpostfetch: [16] root node 511.0.14: numval=1 vset[0]: inst=-1 d=1.000000
+__dmpostfetch: [17] root node 511.0.14: numval=1 vset[0]: inst=-1 d=1.000000
 expr node <addr-30> type=PLUS left=<addr-31> right=<addr-38> save_last=0
     PMID: PM_ID_NULL (511.0.14 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -1551,7 +1551,7 @@ expr node <addr-38> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.on
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1
-__dmpostfetch: [17] root node 511.0.15: numval=9 vset[0]: inst=100 d=2.000000 vset[1]: inst=200 d=4.000000 vset[2]: inst=300 d=6.000000 vset[3]: inst=400 d=8.000000 vset[4]: inst=500 d=10.000000 vset[5]: inst=600 d=12.000000 vset[6]: inst=700 d=14.000000 vset[7]: inst=800 d=16.000000 vset[8]: inst=900 d=18.000000
+__dmpostfetch: [18] root node 511.0.15: numval=9 vset[0]: inst=100 d=2.000000 vset[1]: inst=200 d=4.000000 vset[2]: inst=300 d=6.000000 vset[3]: inst=400 d=8.000000 vset[4]: inst=500 d=10.000000 vset[5]: inst=600 d=12.000000 vset[6]: inst=700 d=14.000000 vset[7]: inst=800 d=16.000000 vset[8]: inst=900 d=18.000000
 expr node <addr-39> type=SLASH left=<addr-40> right=<addr-41> save_last=0
     PMID: PM_ID_NULL (511.0.15 from pmDesc) numval: 9
     Data Type: double  InDom: 29.2 0x7400002
@@ -1583,7 +1583,7 @@ expr node <addr-41> type=NUMBER left=(nil) right=(nil) save_last=0 [50] master=0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 [0] inst=-1, val=50
-__dmpostfetch: [18] root node 511.0.16: numval=9 vset[0]: inst=100 u=300 vset[1]: inst=200 u=600 vset[2]: inst=300 u=900 vset[3]: inst=400 u=1200 vset[4]: inst=500 u=1500 vset[5]: inst=600 u=1800 vset[6]: inst=700 u=2100 vset[7]: inst=800 u=2400 vset[8]: inst=900 u=2700
+__dmpostfetch: [19] root node 511.0.16: numval=9 vset[0]: inst=100 u=300 vset[1]: inst=200 u=600 vset[2]: inst=300 u=900 vset[3]: inst=400 u=1200 vset[4]: inst=500 u=1500 vset[5]: inst=600 u=1800 vset[6]: inst=700 u=2100 vset[7]: inst=800 u=2400 vset[8]: inst=900 u=2700
 expr node <addr-42> type=STAR left=<addr-43> right=<addr-44> save_last=0
     PMID: PM_ID_NULL (511.0.16 from pmDesc) numval: 9
     Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
@@ -1615,7 +1615,7 @@ expr node <addr-44> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] ma
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-__dmpostfetch: [19] root node 511.0.17: numval=9 vset[0]: inst=100 u=0 vset[1]: inst=200 u=100 vset[2]: inst=300 u=200 vset[3]: inst=400 u=300 vset[4]: inst=500 u=400 vset[5]: inst=600 u=500 vset[6]: inst=700 u=600 vset[7]: inst=800 u=700 vset[8]: inst=900 u=800
+__dmpostfetch: [20] root node 511.0.17: numval=9 vset[0]: inst=100 u=0 vset[1]: inst=200 u=100 vset[2]: inst=300 u=200 vset[3]: inst=400 u=300 vset[4]: inst=500 u=400 vset[5]: inst=600 u=500 vset[6]: inst=700 u=600 vset[7]: inst=800 u=700 vset[8]: inst=900 u=800
 expr node <addr-45> type=MINUS left=<addr-46> right=<addr-55> save_last=0
     PMID: PM_ID_NULL (511.0.17 from pmDesc) numval: 9
     Data Type: 32-bit unsigned int  InDom: 29.2 0x7400002
@@ -1743,7 +1743,7 @@ expr node <addr-55> type=NAME left=(nil) right=(nil) save_last=0 [sample.bucket]
 [6] inst=700, val=700
 [7] inst=800, val=800
 [8] inst=900, val=900
-__dmpostfetch: [20] root node 511.0.18: numval=9 vset[0]: inst=100 d=1000.000000 vset[1]: inst=200 d=2000.000000 vset[2]: inst=300 d=3000.000000 vset[3]: inst=400 d=4000.000000 vset[4]: inst=500 d=5000.000000 vset[5]: inst=600 d=6000.000000 vset[6]: inst=700 d=7000.000000 vset[7]: inst=800 d=8000.000000 vset[8]: inst=900 d=9000.000000
+__dmpostfetch: [21] root node 511.0.18: numval=9 vset[0]: inst=100 d=1000.000000 vset[1]: inst=200 d=2000.000000 vset[2]: inst=300 d=3000.000000 vset[3]: inst=400 d=4000.000000 vset[4]: inst=500 d=5000.000000 vset[5]: inst=600 d=6000.000000 vset[6]: inst=700 d=7000.000000 vset[7]: inst=800 d=8000.000000 vset[8]: inst=900 d=9000.000000
 expr node <addr-56> type=STAR left=<addr-57> right=<addr-58> save_last=0
     PMID: PM_ID_NULL (511.0.18 from pmDesc) numval: 9
     Data Type: double  InDom: 29.2 0x7400002
@@ -1775,7 +1775,7 @@ expr node <addr-58> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=10
-__dmpostfetch: [21] root node 511.0.19: numval=9 vset[0]: inst=100 d=1000.000000 vset[1]: inst=200 d=2000.000000 vset[2]: inst=300 d=3000.000000 vset[3]: inst=400 d=4000.000000 vset[4]: inst=500 d=5000.000000 vset[5]: inst=600 d=6000.000000 vset[6]: inst=700 d=7000.000000 vset[7]: inst=800 d=8000.000000 vset[8]: inst=900 d=9000.000000
+__dmpostfetch: [22] root node 511.0.19: numval=9 vset[0]: inst=100 d=1000.000000 vset[1]: inst=200 d=2000.000000 vset[2]: inst=300 d=3000.000000 vset[3]: inst=400 d=4000.000000 vset[4]: inst=500 d=5000.000000 vset[5]: inst=600 d=6000.000000 vset[6]: inst=700 d=7000.000000 vset[7]: inst=800 d=8000.000000 vset[8]: inst=900 d=9000.000000
 expr node <addr-59> type=STAR left=<addr-60> right=<addr-61> save_last=0
     PMID: PM_ID_NULL (511.0.19 from pmDesc) numval: 9
     Data Type: double  InDom: 29.2 0x7400002
@@ -1808,13 +1808,23 @@ expr node <addr-61> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] ma
 [7] inst=800, val=800
 [8] inst=900, val=900
 pmFetch returns ...
-TIMESTAMP ... numpmid: 22
+TIMESTAMP ... numpmid: 23
   29.0.30 (sample.string.null): numval: 1 valfmt: 1 vlist[]:
    value ""
   29.0.31 (sample.string.hullo): numval: 1 valfmt: 1 vlist[]:
    value "hullo world!"
   29.0.32 (sample.string.write_me): numval: 1 valfmt: 1 vlist[]:
    value "13"
+  29.0.153 (sample.string.bin): numval: 9 valfmt: 1 vlist[]:
+    inst [100 or "bin-100"] value "100"
+    inst [200 or "bin-200"] value "200"
+    inst [300 or "bin-300"] value "300"
+    inst [400 or "bin-400"] value "400"
+    inst [500 or "bin-500"] value "500"
+    inst [600 or "bin-600"] value "600"
+    inst [700 or "bin-700"] value "700"
+    inst [800 or "bin-800"] value "800"
+    inst [900 or "bin-900"] value "900"
   511.0.9 (myname.f): numval: 1 valfmt: 1 vlist[]:
    value "hullo world!"
   29.0.6 (sample.dupnames.three.bin, sample.dupnames.two.bin, sample.bin): numval: 9 valfmt: 0 vlist[]:
@@ -1910,6 +1920,17 @@ sample.string.hullo
 
 sample.string.write_me
     value "13"
+
+sample.string.bin
+    inst [100 or "bin-100"] value "100"
+    inst [200 or "bin-200"] value "200"
+    inst [300 or "bin-300"] value "300"
+    inst [400 or "bin-400"] value "400"
+    inst [500 or "bin-500"] value "500"
+    inst [600 or "bin-600"] value "600"
+    inst [700 or "bin-700"] value "700"
+    inst [800 or "bin-800"] value "800"
+    inst [900 or "bin-900"] value "900"
 
 myname.f
     value "hullo world!"
