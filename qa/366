@@ -78,6 +78,8 @@ tools/mpstat-summary
 tools/mpstat-interrupts
 tools/pidstat
 tools/pidstat-summary
+tools/vector
+tools/vector-summary
 tools/vmstat
 tools/iostat
 tools/sar
