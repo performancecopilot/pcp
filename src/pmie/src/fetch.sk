@@ -205,6 +205,7 @@ cndFetch_1(Expr *x)
 {
     Metric	*m = x->metrics;
     double	*op;
+    char	**op_s;
     RealTime	stamp = 0;
     pmAtomValue	a;
     double	t;
@@ -231,20 +232,32 @@ cndFetch_1(Expr *x)
     for (i = 0; i < x->hdom; i++) {
 	/* extract value */
 	if (m->vset && m->vset->numval == 1) {
-	    pmExtractValue(m->vset->valfmt, &m->vset->vlist[0], m->desc.type, &a, PM_TYPE_DOUBLE);
-	    *op++ = m->conv * a.d;
+	    if (m->desc.type == PM_TYPE_STRING) {
+		op_s = (char **)op;
+		*op_s = m->vset->vlist[0].value.pval->vbuf;
 #if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
-		fprintf(stderr, "cndFetch_1: %s from %s = %g",
-			symName(m->mname), symName(m->hname), m->conv * a.d);
-		if (m->conv != 1) fprintf(stderr, " (unconv = %g)", a.d);
-		fputc('\n', stderr);
-	    }
+		if (pmDebug & DBG_TRACE_APPL2) {
+		    fprintf(stderr, "cndFetch_1: %s from %s = \"%s\"\n",
+			    symName(m->mname), symName(m->hname), *op_s);
+		}
 #endif
+	    }
+	    else {
+		pmExtractValue(m->vset->valfmt, &m->vset->vlist[0], m->desc.type, &a, PM_TYPE_DOUBLE);
+		*op = m->conv * a.d;
+#if PCP_DEBUG
+		if (pmDebug & DBG_TRACE_APPL2) {
+		    fprintf(stderr, "cndFetch_1: %s from %s = %g",
+			    symName(m->mname), symName(m->hname), *op);
+		    if (m->conv != 1) fprintf(stderr, " (unconv = %g)", a.d);
+		    fputc('\n', stderr);
+		}
+#endif
+	    }
+	    op++;
 	}
-
-	/* no value */
 	else {
+	    /* no value */
 	    x->valid = 0;
 	    for (j = i; j < x->hdom; j++) {
 		m->stomp = 0;
@@ -295,6 +308,7 @@ cndFetch_all(Expr *x)
 {
     Metric	*m = x->metrics;
     double	*op;
+    char	**op_s;
     RealTime	stamp = 0;
     pmAtomValue	a;
     double	t;
@@ -346,20 +360,34 @@ cndFetch_all(Expr *x)
 
     /* extract values */
     op = (double *)x->smpls[0].ptr;
+
     for (i = 0; i < x->hdom; i++) {
 
 	/* extract values from m->vset */
 	for (j = 0; j < m->m_idom; j++) {
-	    pmExtractValue(m->vset->valfmt, &m->vset->vlist[j], m->desc.type, &a, PM_TYPE_DOUBLE);
-	    *op++ = m->conv * a.d;
+	    if (m->desc.type == PM_TYPE_STRING) {
+		op_s = (char **)op;
+		*op_s = m->vset->vlist[j].value.pval->vbuf;
 #if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2) {
-		fprintf(stderr, "cndFetch_all: %s[%s] from %s = %g",
-			symName(m->mname), m->inames[j], symName(m->hname), m->conv * a.d);
-		if (m->conv != 1) fprintf(stderr, " (unconv = %g)", a.d);
-		fputc('\n', stderr);
-	    }
+		if (pmDebug & DBG_TRACE_APPL2) {
+		    fprintf(stderr, "cndFetch_all: %s[%s] from %s = \"%s\"\n",
+			    symName(m->mname), m->inames[j], symName(m->hname), *op_s);
+		}
 #endif
+	    }
+	    else {
+		pmExtractValue(m->vset->valfmt, &m->vset->vlist[j], m->desc.type, &a, PM_TYPE_DOUBLE);
+		*op = m->conv * a.d;
+#if PCP_DEBUG
+		if (pmDebug & DBG_TRACE_APPL2) {
+		    fprintf(stderr, "cndFetch_all: %s[%s] from %s = %g",
+			    symName(m->mname), m->inames[j], symName(m->hname), *op);
+		    if (m->conv != 1) fprintf(stderr, " (unconv = %g)", a.d);
+		    fputc('\n', stderr);
+		}
+#endif
+	    }
+	    op++;
 	}
 	m->vset = NULL;
 
@@ -403,6 +431,7 @@ cndFetch_n(Expr *x)
 {
     Metric	*m = x->metrics;
     double	*op;
+    char	**op_s;
     RealTime	stamp = 0;
     pmAtomValue	a;
     double	t;
@@ -442,16 +471,29 @@ cndFetch_n(Expr *x)
 	for (j = 0; j < m->m_idom; j++) {
 	    for (k = 0; k < m->vset->numval; k++) {
 		if (m->iids[j] == m->vset->vlist[k].inst) {
-		    pmExtractValue(m->vset->valfmt, &m->vset->vlist[k], m->desc.type, &a, PM_TYPE_DOUBLE);
-		    *op++ = m->conv * a.d;
+		    if (m->desc.type == PM_TYPE_STRING) {
+			op_s = (char **)op;
+			*op_s = (void *)m->vset->vlist[k].value.pval->vbuf;
 #if PCP_DEBUG
-		    if (pmDebug & DBG_TRACE_APPL2) {
-			fprintf(stderr, "cndFetch_n: %s[%s] from %s = %g",
-				symName(m->mname), m->inames[j], symName(m->hname), m->conv * a.d);
-			if (m->conv != 1) fprintf(stderr, " (unconv = %g)", a.d);
-			fputc('\n', stderr);
-		    }
+			if (pmDebug & DBG_TRACE_APPL2) {
+			    fprintf(stderr, "cndFetch_n: %s[%s] from %s = \"%s\"\n",
+				    symName(m->mname), m->inames[j], symName(m->hname), *op_s);
+			}
 #endif
+		    }
+		    else {
+			pmExtractValue(m->vset->valfmt, &m->vset->vlist[k], m->desc.type, &a, PM_TYPE_DOUBLE);
+			*op = m->conv * a.d;
+#if PCP_DEBUG
+			if (pmDebug & DBG_TRACE_APPL2) {
+			    fprintf(stderr, "cndFetch_n: %s[%s] from %s = %g",
+				    symName(m->mname), m->inames[j], symName(m->hname), *op);
+			    if (m->conv != 1) fprintf(stderr, " (unconv = %g)", a.d);
+			    fputc('\n', stderr);
+			}
+#endif
+		    }
+		    op++;
 		    break;
 		}
 	    }

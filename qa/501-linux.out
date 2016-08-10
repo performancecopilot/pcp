@@ -28,6 +28,10 @@ no2: ?
 mill: NUMBER
 no3: ?
 no4: ?
+notnum1: "hullo world!"
+notnum2: unknown
+notnum3: false
+notnum4: false
 
 valid_a: NUMBER
 alone_a: ?
@@ -56,6 +60,10 @@ no2: ?
 mill: NUMBER
 no3: ?
 no4: ?
+notnum1: "hullo world!"
+notnum2: unknown
+notnum3: false
+notnum4: false
 
 Log for pmie on HOST started DATE
 
@@ -99,10 +107,6 @@ pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
 pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric sample.string.hullo has non-numeric type
-pmie: metric sample.string.hullo has non-numeric type
-pmie: metric sample.string.hullo has non-numeric type
-pmie: metric sample.string.hullo has non-numeric type
 [TIMESTAMP] pmie(PID) Info: evaluator exiting
 
 Log finished DATE

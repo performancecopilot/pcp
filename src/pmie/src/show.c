@@ -359,7 +359,6 @@ showBoolean(Expr *x, int nth, size_t length, char **string)
     return dog - cat;
 }
 
-
 static size_t
 showString(Expr *x, size_t length, char **string)
 {
@@ -376,6 +375,42 @@ showString(Expr *x, size_t length, char **string)
     strcpy(dog, (char *)x->smpls[0].ptr);
     dog += slen;
     *dog++ = '"';
+    *dog = '\0';
+
+    *string = cat;
+    return tlen;
+}
+
+static size_t
+showStringValue(Expr *x, int nth, size_t length, char **string)
+{
+    int		smpl;
+    size_t	slen = 0;
+    size_t	tlen;
+    char	*cat;
+    char	*dog;
+    double	*dp;
+    char	**cp;
+
+    for (smpl = 0; smpl < x->nsmpls; smpl++) {
+	dp = (double *)x->smpls[smpl].ptr + nth;
+	cp = (char **)dp;
+	if (smpl > 0)
+	    slen++;
+	slen += strlen(*cp) + 2;
+    }
+
+    tlen = length + slen;
+    cat = (char *)ralloc(*string, tlen + 1);
+    dog = cat + length;
+    for (smpl = 0; smpl < x->nsmpls; smpl++) {
+	if (smpl > 0)
+	    *dog++ = ' ';
+	*dog++ = '"';
+	strcpy(dog, *cp);
+	dog += strlen(*cp);
+	*dog++ = '"';
+    }
     *dog = '\0';
 
     *string = cat;
@@ -471,7 +506,7 @@ showConst(Expr *x)
 		first = 0;
 	    else
 		length = concat(" ", length, &string);
-	    if (x->sem == SEM_NUMVAR || x->sem == SEM_NUMCONST)
+	    if (x->sem == SEM_NUMVAR || x->sem == SEM_NUMCONST || x->sem == SEM_UNKNOWN)
 		length = showNum(x, i, length, &string);
 	    else if (x->sem == SEM_BOOLEAN)
 		length = showBoolean(x, i, length, &string);
@@ -484,12 +519,11 @@ showConst(Expr *x)
 		break;
 	    }
 	    else if (x->sem == PM_SEM_INSTANT || x->sem == PM_SEM_DISCRETE) {
-		/* expect this to be a string valued metric */
-		length = showString(x, length, &string);
+		if (x->metrics != NULL && x->metrics->desc.type == PM_TYPE_STRING)
+		    length = showStringValue(x, i, length, &string);
+		else
+		    length = showNum(x, i, length, &string);
 	    }
-	    else if (x->sem == SEM_UNKNOWN)
-		/* should not happen */
-		length = concat("?sem_unknown?", length, &string);
 	    else {
 		/* oops, don't know how to display this type of value */
 		char msgbuf[30];
