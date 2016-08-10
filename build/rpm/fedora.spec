@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.11.4
+Version: 3.11.5
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -2664,6 +2664,9 @@ cd
 %endif
 
 %changelog
+* Wed Sep 21 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.5-1
+- Work in progress, see http://pcp.io/roadmap
+
 * Fri Aug 05 2016 Nathan Scott <nathans@redhat.com> - 3.11.4-1
 - Support inside-container metric values in python (BZ 1333702)
 - Fix pmdaproc handling of commands with whitespace (BZ 1350816)

@@ -42,7 +42,7 @@ static int	numhelp = 0;
  * open the help text files and return a handle on success
  */
 int
-pmdaOpenHelp(char *fname)
+pmdaOpenHelp(const char *fname)
 {
     char	pathname[MAXPATHLEN];
     int		sts, size;

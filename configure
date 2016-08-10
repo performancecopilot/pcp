@@ -7501,9 +7501,9 @@ $as_echo_n "checking if the libvirt PMDA should be included... " >&6; }
 pmda_libvirt=false
 if test "$have_python" = true
 then
-        if $pcp_python_prog -c "import libvirt" /dev/null 2>&1
+        if $pcp_python_prog -c "import libvirt" >/dev/null 2>&1
     then
-	if $pcp_python_prog -c "import lxml" /dev/null 2>&1
+	if $pcp_python_prog -c "import lxml" >/dev/null 2>&1
 	then
 	    :
 	fi

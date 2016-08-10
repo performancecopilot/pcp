@@ -123,9 +123,9 @@ typedef struct pmdaExt {
     void	*e_ext;		/* used internally within libpcp_pmda */
 
     char	*e_sockname;	/* socket name to pmcd */
-    char	*e_name;	/* name of this pmda */
-    char	*e_logfile;	/* path to log file */
-    char	*e_helptext;	/* path to help text */		    
+    const char	*e_name;	/* name of this pmda */
+    const char	*e_logfile;	/* path to log file */
+    const char	*e_helptext;	/* path to help text */
     int		e_status;	/* =0 is OK */
     int		e_infd;		/* input file descriptor from pmcd */
     int		e_outfd;	/* output file descriptor to pmcd */
@@ -424,7 +424,7 @@ typedef struct pmdaOptions {
 PMDA_CALL extern int pmdaGetOpt(int, char *const *, const char *, pmdaInterface *, int *);
 PMDA_CALL extern int pmdaGetOptions(int, char *const *, pmdaOptions *, pmdaInterface *);
 PMDA_CALL extern void pmdaUsageMessage(pmdaOptions *);
-PMDA_CALL extern void pmdaDaemon(pmdaInterface *, int, char *, int , char *, char *);
+PMDA_CALL extern void pmdaDaemon(pmdaInterface *, int, const char *, int , const char *, const char *);
 PMDA_CALL extern void pmdaDSO(pmdaInterface *, int, char *, char *);
 PMDA_CALL extern void pmdaOpenLog(pmdaInterface *);
 PMDA_CALL extern void pmdaSetFlags(pmdaInterface *, int);
@@ -499,7 +499,7 @@ PMDA_CALL extern int pmdaAttribute(int, int, const char *, int, pmdaExt *);
 /*
  * PMDA "help" text manipulation
  */
-PMDA_CALL extern int pmdaOpenHelp(char *);
+PMDA_CALL extern int pmdaOpenHelp(const char *);
 PMDA_CALL extern void pmdaCloseHelp(int);
 PMDA_CALL extern char *pmdaGetHelp(int, pmID, int);
 PMDA_CALL extern char *pmdaGetInDomHelp(int, pmInDom, int);
