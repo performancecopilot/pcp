@@ -1033,9 +1033,9 @@ pmda_libvirt=false
 if test "$have_python" = true
 then
     dnl rpm build for libvirt PMDA needs Python libvirt and lxml modules
-    if $pcp_python_prog -c "import libvirt" /dev/null 2>&1
+    if $pcp_python_prog -c "import libvirt" >/dev/null 2>&1
     then
-	if $pcp_python_prog -c "import lxml" /dev/null 2>&1
+	if $pcp_python_prog -c "import lxml" >/dev/null 2>&1
 	then
 dnl temporarily disabled until dynamic instance/metric IDs resolved
 dnl	    pmda_libvirt=true
