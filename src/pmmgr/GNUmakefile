@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2014 Red Hat.
+# Copyright (c) 2013-2014,2016 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -31,7 +31,10 @@ build-me: $(SUBDIRS) $(CXXMDTARGET) pmmgr.service
 	$(SUBDIRS_MAKERULE)
 
 pmmgr.service: pmmgr.service.in
-	$(SED) -e 's;@path@;'$(PCP_RC_DIR)';' $< > $@
+	$(SED) $< > $@ \
+	    -e 's;@PCP_RC_DIR@;'$(PCP_RC_DIR)';' \
+	    -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' \
+	# END
 
 install: $(SUBDIRS) $(CXXMDTARGET)
 	$(SUBDIRS_MAKERULE)

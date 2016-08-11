@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015 Red Hat.
+# Copyright (c) 2013-2016 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -51,4 +51,7 @@ default_pcp : default
 install_pcp : install
 
 pmcd.service: pmcd.service.in
-	$(SED) -e 's;@path@;'$(PCP_RC_DIR)';' $< > $@
+	$(SED) $< > $@ \
+	    -e 's;@PCP_RC_DIR@;'$(PCP_RC_DIR)';' \
+	    -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' \
+	# END

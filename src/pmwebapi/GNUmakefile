@@ -18,7 +18,6 @@ include $(TOPDIR)/src/include/builddefs
 CXXMDTARGET = pmwebd$(EXECSUFFIX)
 HFILES = pmwebapi.h
 CXXFILES = main.cxx pmwebapi.cxx pmresapi.cxx util.cxx
-LSRCFILES = rc_pmwebd pmwebd.options
 
 LLDLIBS = $(PCPLIB) $(LIB_FOR_MICROHTTPD) $(LIB_FOR_PTHREADS) 
 LDIRT = pmwebd.log pmwebd.service
@@ -52,7 +51,10 @@ ifeq "$(ENABLE_WEBAPI)" "true"
 build-me:	$(CXXMDTARGET) pmwebd.service
 
 pmwebd.service:	pmwebd.service.in
-	$(SED) -e 's;@path@;'$(PCP_RC_DIR)';' $< > $@
+	$(SED) $< > $@ \
+	    -e 's;@PCP_RC_DIR@;'$(PCP_RC_DIR)';' \
+	    -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' \
+	# END
 
 install:	default
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMWEBDOPTIONS_PATH)`

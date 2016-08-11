@@ -2,10 +2,8 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/mic
-
 PYMODULES = micmgmt.python
 
-LSRCFILES = $(PYMODULES)
 LDIRT = micmgmt.py micmgmt.pyc micmgmt.pyo
 
 default default_pcp setup: micmgmt.py

@@ -1780,17 +1780,19 @@ PFMEOF
 # Likewise, for the pcp-pmda and pcp-testsuite subpackages.
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp-doc|man.*\.[1-9].*' | egrep -v 'out' >docs_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials' >>docs_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite|etc/systemd/system' >testsuite_files
 %if "@enable_qt@" == "true"
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|applications|pixmaps" | egrep -v '/pcp-doc/|/man/|pmtime.h' > gui_files
 %endif
 %if "@enable_webapi@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmwebd|webapps|PMWEBAPI' >webapi_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmwebd|webapps|PMWEBAPI' | \
+egrep -v 'testsuite|etc/systemd/system' >webapi_files
 %endif
 %if "@enable_manager@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmmgr' >manager_files
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmmgr' | \
+egrep -v 'testsuite|etc/systemd/system' >manager_files
 %endif
-awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite' >testsuite_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sar2pcp' >import_sar2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'iostat2pcp' >import_iostat2pcp_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'sheet2pcp' >import_sheet2pcp_files

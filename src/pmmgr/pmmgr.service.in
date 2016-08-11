@@ -5,10 +5,11 @@ Wants=avahi-daemon.service
 After=network.target avahi-daemon.service pmcd.service
 
 [Service]
-Type=oneshot
-ExecStart=@path@/pmmgr start
-ExecStop=@path@/pmmgr stop
-RemainAfterExit=yes 
+Type=forking
+Restart=always
+ExecStart=@PCP_RC_DIR@/pmmgr start
+ExecStop=@PCP_RC_DIR@/pmmgr stop
+PIDFile=@PCP_RUN_DIR@/pmmgr.pid
 
 [Install]
 WantedBy=multi-user.target
