@@ -740,7 +740,7 @@ pmdaInit(pmdaInterface *dispatch, pmdaIndom *indoms, int nindoms,
  */
 
 static int
-__pmdaSetupPDU(int infd, int outfd, int flags, char *agentname)
+__pmdaSetupPDU(int infd, int outfd, int flags, const char *agentname)
 {
     __pmVersionCred	handshake;
     __pmCred		*credlist = NULL;
@@ -899,7 +899,7 @@ pmdaConnect(pmdaInterface *dispatch)
  */
 
 static void
-__pmdaSetup(pmdaInterface *dispatch, int version, char *name)
+__pmdaSetup(pmdaInterface *dispatch, int version, const char *name)
 {
     pmdaExt	*pmda = NULL;
     e_ext_t	*extp;
@@ -980,8 +980,8 @@ __pmdaSetup(pmdaInterface *dispatch, int version, char *name)
  */
 
 void
-pmdaDaemon(pmdaInterface *dispatch, int version, char *name, int domain, 
-	   char *logfile, char *helptext)
+pmdaDaemon(pmdaInterface *dispatch, int version, const char *name, int domain,
+	   const char *logfile, const char *helptext)
 {
     pmdaExt	*pmda;
 

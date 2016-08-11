@@ -91,6 +91,7 @@ s/^16 /N-OK /
 s/^17 /N-OK /
 s/^18 /N-OK /
 s/^19 /N-OK /
+s/^20 /N-OK /
 }'
     # last sed is because the number of open fds is platform-dependent
 }

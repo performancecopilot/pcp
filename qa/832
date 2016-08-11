@@ -61,7 +61,7 @@ _filter()
 {
     sed \
 	-e 's/\[[^]]*] .* Alert: Parameter Error .* line [0-9][0-9]*//' \
-	-e '/ pmcd_wait([0-9][0-9]*) Error: __pmCloseChannelbyFd/d' \
+	-e '/ pmcd_wait([0-9][0-9]*) Error: __pmCloseChannelbyFd/s/\[.*//' \
 	-e 's/\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/[DATE]/' \
 	-e '/^[ 	]*$/d' \
     # end
