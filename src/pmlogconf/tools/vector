@@ -22,7 +22,7 @@ probe	kernel.uname.sysname ~ Linux ? available : exclude
 	network.tcp.listendrops
 	network.tcp.fastretrans
 	network.tcp.slowstartretrans
-	network.tcp.syncretrans
+	network.tcp.synretrans
 	mem.util.cached
 	mem.util.used
 	mem.util.free
