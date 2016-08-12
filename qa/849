@@ -55,18 +55,56 @@ BEGIN	{ n = 0 }
 }
 
 # real QA test starts here
-echo "Error cases ..."
 
 cat <<'End-of-File' >$tmp.pmie.00
+//args -Dappl0,appl1 -t 2sec -T 1sec
+//expect parser syntax error
 sample.long.ten == "foo" -> print "blah";
+End-of-File
+
+cat <<'End-of-File' >$tmp.pmie.01
+//args -v -t 0.5sec -T 1.2sec
+//expect 3 samples x 5 metric values to be reported
+sample.long.million;
+sample.string.hullo;
+sample.bin;
+sample.string.bin;
+sample.string.bin #'bin-400'
+End-of-File
+
+cat <<'End-of-File' >$tmp.pmie.02
+//args -v -t 0.5sec -T 0.2sec
+//expect all true values to be reported
+"hullo world!" == sample.string.hullo;
+sample.string.hullo == "hullo world!";
+sample.string.hullo == sample.string.hullo;
+sample.string.hullo != sample.string.bin #'bin-100';
+sample.string.bin == sample.string.bin;
+End-of-File
+
+cat <<'End-of-File' >$tmp.pmie.03
+//args -t 0.5sec -T 0.2sec
+//expect several OK #N msgs
+some_inst sample.string.bin == "300" -> print "OK #1 @ inst:" " %i";
+some_inst "900" == sample.string.bin -> print "OK #2 @ inst:" " %i";
+some_inst sample.string.bin != "300" -> print "OK #3 @ inst:" " %i";
+some_inst "100" != sample.string.bin -> print "OK #4 @ inst:" " %i";
+ruleset
+    all_inst sample.string.bin != "42" -> print "OK #5 @ inst:" " %i"
+otherwise
+    -> print "BAD #5";
+ruleset
+    all_inst "500" != sample.string.bin -> print "BAD #6 @ inst:" " %i"
+otherwise
+    -> print "OK #6"
 End-of-File
 
 for x in $tmp.pmie.*
 do
     echo | tee -a $seq.full
-    echo "Test: `echo $x | sed -e "s;$tmp.pmie.;;"`" | tee -a $seq.full
+    echo "Test: `echo $x | sed -e "s;$tmp.pmie.;;"` [expect: `sed -n -e '/^\/\/expect /s///p' <$x`]" | tee -a $seq.full
     cat $x | tee -a $seq.full >>$seq.full
-    pmie -Dappl0,appl1 -c $x -t 2 -T 1sec >$tmp.out 2>$tmp.err
+    pmie -c $x `sed -n -e '/^\/\/args /s///p' <$x` >$tmp.out 2>$tmp.err
     echo "=== pmie output ===" >>$seq.full
     cat $tmp.out >>$seq.full
     echo >>$seq.full

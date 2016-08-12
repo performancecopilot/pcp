@@ -28,7 +28,7 @@ esac
 status=0	# success is the default!
 host=`hostname`
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-$sudo rm -f core* $seq.core*
+$sudo rm -f core* $seq.core* $seq.full
 
 _filter()
 {
@@ -86,14 +86,14 @@ no4 = (sample.long.one - (sample.long.one + sample.long.ten + sample.long.millio
 
 // not-numeric
 notnum1 = sample.string.hullo;
-notnum2 = 1 != sample.string.hullo;
-notnum3 = (sample.long.one - (sample.long.one + sample.long.ten + sample.string.hullo)) / sample.long.one;
-notnum4 = (sample.long.one - (sample.long.one + sample.long.ten + sample.long.million)) / sample.string.hullo;
+notnum2 = "g'day" != sample.string.hullo;
+notnum3 = sample.string.hullo == "hullo world!" && 0 <= (sample.long.one - (sample.long.one + sample.long.ten) / sample.long.one);
+notnum4 = (sample.long.one - (sample.long.one + sample.long.ten + sample.long.million)) >= 0 && sample.string.hullo == "hullo world!";
 
 
 End-of-File
 
-    cat $tmp.out $tmp.log | _filter
+    cat $tmp.out $tmp.log | tee -a $seq.full | _filter
 
     echo
     _check_core

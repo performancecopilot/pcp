@@ -1032,6 +1032,10 @@ static struct {
     { cndEq_1_n,	"cndEq_1_n" },
     { cndEq_n_1,	"cndEq_n_1" },
     { cndEq_n_n,	"cndEq_n_n" },
+    { cndEqStr_1_1,	"cndEqStr_1_1" },
+    { cndEqStr_1_n,	"cndEqStr_1_n" },
+    { cndEqStr_n_1,	"cndEqStr_n_1" },
+    { cndEqStr_n_n,	"cndEqStr_n_n" },
     { cndFall_1,	"cndFall_1" },
     { cndFall_n,	"cndFall_n" },
     { cndFetch_1,	"cndFetch_1" },
@@ -1039,20 +1043,22 @@ static struct {
     { cndFetch_n,	"cndFetch_n" },
     { cndGt_1_1,	"cndGt_1_1" },
     { cndGt_1_n,	"cndGt_1_n" },
-    { cndGt_n_1,	"cndGt_n_1" },
-    { cndGt_n_n,	"cndGt_n_n" },
     { cndGte_1_1,	"cndGte_1_1" },
     { cndGte_1_n,	"cndGte_1_n" },
     { cndGte_n_1,	"cndGte_n_1" },
     { cndGte_n_n,	"cndGte_n_n" },
+    { cndGt_n_1,	"cndGt_n_1" },
+    { cndGt_n_n,	"cndGt_n_n" },
+    { cndInstant_1,	"cndInstant_1" },
+    { cndInstant_n,	"cndInstant_n" },
     { cndLt_1_1,	"cndLt_1_1" },
     { cndLt_1_n,	"cndLt_1_n" },
-    { cndLt_n_1,	"cndLt_n_1" },
-    { cndLt_n_n,	"cndLt_n_n" },
     { cndLte_1_1,	"cndLte_1_1" },
     { cndLte_1_n,	"cndLte_1_n" },
     { cndLte_n_1,	"cndLte_n_1" },
     { cndLte_n_n,	"cndLte_n_n" },
+    { cndLt_n_1,	"cndLt_n_1" },
+    { cndLt_n_n,	"cndLt_n_n" },
     { cndMax_host,	"cndMax_host" },
     { cndMax_inst,	"cndMax_inst" },
     { cndMax_time,	"cndMax_time" },
@@ -1069,6 +1075,10 @@ static struct {
     { cndNeq_1_n,	"cndNeq_1_n" },
     { cndNeq_n_1,	"cndNeq_n_1" },
     { cndNeq_n_n,	"cndNeq_n_n" },
+    { cndNeqStr_1_1,	"cndNeqStr_1_1" },
+    { cndNeqStr_1_n,	"cndNeqStr_1_n" },
+    { cndNeqStr_n_1,	"cndNeqStr_n_1" },
+    { cndNeqStr_n_n,	"cndNeqStr_n_n" },
     { cndNot_1,		"cndNot_1" },
     { cndNot_n,		"cndNot_n" },
     { cndOr_1_1,	"cndOr_1_1" },
@@ -1080,8 +1090,6 @@ static struct {
     { cndPcnt_time,	"cndPcnt_time" },
     { cndRate_1,	"cndRate_1" },
     { cndRate_n,	"cndRate_n" },
-    { cndInstant_1,	"cndInstant_1" },
-    { cndInstant_n,	"cndInstant_n" },
     { cndRise_1,	"cndRise_1" },
     { cndRise_n,	"cndRise_n" },
     { cndSome_host,	"cndSome_host" },
@@ -1181,8 +1189,13 @@ __dumpExpr(int level, Expr *x)
 			    fprintf(stderr, "bogus (0x%x)", c & 0xff);
 		    }
 		    else if (x->sem == SEM_CHAR) {
+			/* string constant */
 			if (k == 0)
 			    fprintf(stderr, "\"%s\"", (char *)x->smpls[j].ptr);
+		    }
+		    else if (x->metrics != NULL && x->metrics->desc.type == PM_TYPE_STRING) {
+			/* string-valued metric */
+			fprintf(stderr, "\"%s\"", getStringValue(x, k));
 		    }
 		    else {
 			double	v = *((double *)x->smpls[j].ptr+k);
@@ -1315,4 +1328,30 @@ dumpTask(Task *t)
     for (i = 0; i < t->nrules; i++) {
 	fprintf(stderr, "    %s\n", symName(t->rules[i]));
     }
+}
+
+/*
+ * return a pointer to the nth string-value for smpls[0] of an expression
+ */
+char *getStringValue(Expr *x, int nth)
+{
+    if (x->sem == SEM_CHAR) {
+	/* string constant */
+	if (nth == 0)
+	    return (char *)x->smpls[0].ptr;
+	fprintf(stderr, "getStringValue: botch: nth=%d, not 0 for string constant\n", nth);
+	dumpExpr(x);
+	return NULL;
+    }
+    else if ((x->sem == PM_SEM_INSTANT || x->sem == PM_SEM_DISCRETE) &&
+	     x->metrics != NULL && x->metrics->desc.type == PM_TYPE_STRING) {
+	if (0 <= nth && nth < x->nvals)
+	    return *(char **)((double *)x->smpls[0].ptr + nth);
+	fprintf(stderr, "getStringValue: botch: nth=%d, not in the range 0..%d for string-valued metric\n", nth, x->nvals);
+	dumpExpr(x);
+	return NULL;
+    }
+    fprintf(stderr, "getStringValue(" PRINTF_P_PFX "%p, %d): botch: no clue what to do here!\n", x, nth);
+    dumpExpr(x);
+    return NULL;
 }

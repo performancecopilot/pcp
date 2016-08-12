@@ -1088,7 +1088,7 @@ timezone
 846 pmimport local pmdumplog perl local
 847 containers local
 848 pmcd secure local
-849:reserved pmie local
+849 pmie local
 850 python local
 851 pmiostat local
 852 pmda.proc local

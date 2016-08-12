@@ -363,6 +363,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,151), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* sample.negative.discrete.m_double  */
     { PMDA_PMID(0,152), PM_TYPE_DOUBLE, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.string.bin */
+    { PMDA_PMID(0,153), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /*
  * dynamic PMNS ones
@@ -1136,6 +1138,7 @@ init_tables(int dom)
 	    case PMDA_PMID(0,112):	/* ulonglong.bin_ctr */
 	    case PMDA_PMID(0,113):	/* double.bin */
 	    case PMDA_PMID(0,114):	/* double.bin_ctr */
+	    case PMDA_PMID(0,153):	/* sample.string.bin */
 		dp->indom = indomtab[BIN_INDOM].it_indom;
 		break;
 	    case PMDA_PMID(0,37):	/* mirage */
@@ -1599,6 +1602,7 @@ sample_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ep)
     __pmID_int	*pmidp;
     pmAtomValue	atom;
     int		type;
+    char	strbuf[4];	/* sample.string.bin value X00\0 */
 
     sample_inc_recv(ep->e_context);
     sample_inc_xmit(ep->e_context);
@@ -2378,6 +2382,11 @@ doit:
 		    case 148:	/* sample.negative.instant.m_double */
 		    case 152:	/* sample.negative.discrete.m_double */
 			atom.d = ++_neg_double;
+			break;
+
+		    case 153:	/* sample.string.bin */
+			snprintf(strbuf, 4, "%3d", inst);
+			atom.cp = strbuf;
 			break;
 
 		    case 1000:	/* secret.bar */

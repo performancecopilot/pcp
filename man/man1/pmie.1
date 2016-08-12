@@ -578,7 +578,7 @@ Where performance metrics have the semantics of a counter,
 .B pmie
 will automatically convert to a rate based upon consecutive samples
 and the time interval between these samples.
-All expressions are evaluated in double precision, and where
+All numeric expressions are evaluated in double precision, and where
 appropriate, automatically
 scaled into canonical units of ``bytes'', ``seconds'' and ``counts''.
 .P
@@ -609,6 +609,18 @@ _
 \f(CBrate\fR	Explicit rate conversion (rarely required)
 \f(CBinstant\fR	No automatic rate conversion (rarely required)
 .TE
+.P
+All operators are supported for numeric-valued operands and expressions.
+For string-valued
+operands, namely literal string constants enclosed in double quotes or 
+metrics with a data type of string (\c
+.BR PM_TYPE_STRING ),
+.B only
+the operators
+.B ==
+and
+.B !=
+are supported.
 .P
 The \f(CBrate\fP and \f(CBinstant\fP operators are the logical inverse
 of one another, so

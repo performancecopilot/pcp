@@ -117,6 +117,7 @@ sample.double.bin_ctr
 sample.string.null
 sample.string.hullo
 sample.string.write_me
+sample.string.bin
 sample.aggregate.null
 sample.aggregate.hullo
 sample.aggregate.write_me

@@ -254,7 +254,9 @@ typedef int Op;
 #define CND_MIN_TIME	21
 /* relational */
 #define CND_EQ		30
+#define CND_EQ_STR	62
 #define CND_NEQ		31
+#define CND_NEQ_STR	63
 #define CND_LT		32
 #define CND_LTE		33
 #define CND_GT		34
@@ -354,6 +356,7 @@ void rotate(Expr *);
 Expr *primary(Expr *, Expr *);
 void changeSmpls(Expr **, int);
 void instFetchExpr(Expr *);
+char *getStringValue(Expr *, int);
 
 /***********************************************************************
  * time methods

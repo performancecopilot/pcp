@@ -324,19 +324,31 @@ findEval(Expr *x)
      *	1	arg1 has tspan 1, and must always have one metric value
      *	2	arg2 has tspan 1, and must always have one metric value
      */
-    if (x->arg1 && x->arg1->tspan == 1) {
-	for (m = x->arg1->metrics; m; m = m->next) {
-	    if (m->desc.indom == PM_INDOM_NULL) continue;
-	    if (m->specinst == 0) break;
+    if (x->arg1) {
+	if (x->arg1->tspan == 1) {
+	    for (m = x->arg1->metrics; m; m = m->next) {
+		if (m->desc.indom == PM_INDOM_NULL) continue;
+		if (m->specinst == 0) break;
+	    }
+	    if (m == NULL) arity |= 1;
 	}
-	if (m == NULL) arity |= 1;
+	else if (x->arg1->sem == SEM_CHAR) {
+	    /* string-valued constant */
+	    arity |= 1;
+	}
     }
-    if (x->arg2 && x->arg2->tspan == 1) {
-	for (m = x->arg2->metrics; m; m = m->next) {
-	    if (m->desc.indom == PM_INDOM_NULL) continue;
-	    if (m->specinst == 0) break;
+    if (x->arg2) {
+	if (x->arg2->tspan == 1) {
+	    for (m = x->arg2->metrics; m; m = m->next) {
+		if (m->desc.indom == PM_INDOM_NULL) continue;
+		if (m->specinst == 0) break;
+	    }
+	    if (m == NULL) arity |= 2;
 	}
-	if (m == NULL) arity |= 2;
+	else if (x->arg2->sem == SEM_CHAR) {
+	    /* string-valued constant */
+	    arity |= 2;
+	}
     }
 
     /*
@@ -614,6 +626,21 @@ findEval(Expr *x)
 	}
 	break;
 
+    case CND_EQ_STR:
+	if (arity & 1) {
+	    if (arity & 2)
+		x->eval = cndEqStr_1_1;
+	    else
+		x->eval = cndEqStr_1_n;
+	}
+	else {
+	    if (arity & 2)
+		x->eval = cndEqStr_n_1;
+	    else
+		x->eval = cndEqStr_n_n;
+	}
+	break;
+
     case CND_NEQ:
 	if (arity & 1) {
 	    if (arity & 2)
@@ -626,6 +653,21 @@ findEval(Expr *x)
 		x->eval = cndNeq_n_1;
 	    else
 		x->eval = cndNeq_n_n;
+	}
+	break;
+
+    case CND_NEQ_STR:
+	if (arity & 1) {
+	    if (arity & 2)
+		x->eval = cndNeqStr_1_1;
+	    else
+		x->eval = cndNeqStr_1_n;
+	}
+	else {
+	    if (arity & 2)
+		x->eval = cndNeqStr_n_1;
+	    else
+		x->eval = cndNeqStr_n_n;
 	}
 	break;
 

@@ -155,6 +155,7 @@ sample.string {
     null	SAMPLE:0:30
     hullo	SAMPLE:0:31
     write_me	SAMPLE:0:32
+    bin		SAMPLE:0:153
 }
 
 sample.aggregate {

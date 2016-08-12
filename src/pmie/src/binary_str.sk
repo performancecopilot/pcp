@@ -1,0 +1,181 @@
+/*
+ * Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+/***********************************************************************
+ * skeleton: binary_str.sk - binary string-valued operator
+ ***********************************************************************/
+
+/*
+ *  operator: @FUN
+ */
+
+#define @OP
+
+void
+@FUN_n_n(Expr *x)
+{
+    Expr        *arg1 = x->arg1;
+    Expr        *arg2 = x->arg2;
+    Sample      *is1 = &arg1->smpls[0];
+    Sample      *is2 = &arg2->smpls[0];
+    char	*cp1;
+    char	*cp2;
+    Sample      *os = &x->smpls[0];
+    Boolean	*op;
+    int		n;
+    int         i;
+
+    EVALARG(arg1)
+    EVALARG(arg2)
+    ROTATE(x)
+
+    if (arg1->valid && arg2->valid && x->tspan == arg1->tspan && x->tspan == arg2->tspan) {
+	op = (Boolean *)os->ptr;
+	n = x->tspan;
+	for (i = 0; i < n; i++) {
+	    cp1 = getStringValue(arg1, i);
+	    cp2 = getStringValue(arg2, i);
+	    *op++ = cp1 != NULL && cp2 != NULL && OP(strcmp(cp1, cp2) == 0);
+	}
+	os->stamp = (is1->stamp > is2->stamp) ? is1->stamp : is2->stamp;
+	x->valid++;
+    }
+    else x->valid = 0;
+
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "@FUN_n_n(" PRINTF_P_PFX "%p) ...\n", x);
+	dumpExpr(x);
+    }
+#endif
+}
+
+void
+@FUN_n_1(Expr *x)
+{
+    Expr        *arg1 = x->arg1;
+    Expr        *arg2 = x->arg2;
+    Sample      *is1 = &arg1->smpls[0];
+    Sample      *is2 = &arg2->smpls[0];
+    char	*cp1;
+    char	*cp2;
+    Sample      *os = &x->smpls[0];
+    Boolean	*op;
+    int		n;
+    int         i;
+
+    EVALARG(arg1)
+    EVALARG(arg2)
+    ROTATE(x)
+
+    if (arg1->valid && arg2->valid && x->tspan == (arg1->sem == SEM_CHAR ? 1 : arg1->tspan)) {
+	cp2 = getStringValue(arg2, 0);
+	op = (Boolean *)os->ptr;
+	n = x->tspan;
+	for (i = 0; i < n; i++) {
+	    cp1 = getStringValue(arg1, i);
+	    *op++ = cp1 != NULL && cp2 != NULL && OP(strcmp(cp1, cp2) == 0);
+	}
+	os->stamp = (is1->stamp > is2->stamp) ? is1->stamp : is2->stamp;
+	x->valid++;
+    }
+    else x->valid = 0;
+
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "@FUN_n_1(" PRINTF_P_PFX "%p) ...\n", x);
+	dumpExpr(x);
+    }
+#endif
+}
+
+void
+@FUN_1_n(Expr *x)
+{
+    Expr        *arg1 = x->arg1;
+    Expr        *arg2 = x->arg2;
+    Sample      *is1 = &arg1->smpls[0];
+    Sample      *is2 = &arg2->smpls[0];
+    char	*cp1;
+    char	*cp2;
+    Sample      *os = &x->smpls[0];
+    Boolean	*op;
+    int		n;
+    int         i;
+
+    EVALARG(arg1)
+    EVALARG(arg2)
+    ROTATE(x)
+
+    if (arg1->valid && arg2->valid && x->tspan == (arg2->sem == SEM_CHAR ? 1 : arg2->tspan)) {
+	op = (Boolean *)os->ptr;
+	cp1 = getStringValue(arg1, 0);
+	n = x->tspan;
+	for (i = 0; i < n; i++) {
+	    cp2 = getStringValue(arg2, i);
+	    *op++ = cp1 != NULL && cp2 != NULL && OP(strcmp(cp1, cp2) == 0);
+	}
+	os->stamp = (is1->stamp > is2->stamp) ? is1->stamp : is2->stamp;
+	x->valid++;
+    }
+    else x->valid = 0;
+
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "@FUN_1_n(" PRINTF_P_PFX "%p) ...\n", x);
+	dumpExpr(x);
+    }
+#endif
+}
+
+void
+@FUN_1_1(Expr *x)
+{
+    Expr        *arg1 = x->arg1;
+    Expr        *arg2 = x->arg2;
+    Sample      *is1 = &arg1->smpls[0];
+    Sample      *is2 = &arg2->smpls[0];
+    char	*cp1;
+    char	*cp2;
+    Sample      *os = &x->smpls[0];
+    Boolean	*op;
+
+    EVALARG(arg1)
+    EVALARG(arg2)
+    ROTATE(x)
+
+    if (arg1->valid && arg2->valid && x->tspan == (arg1->sem == SEM_CHAR ? 1 : arg1->tspan) && x->tspan == (arg2->sem == SEM_CHAR ? 1 : arg2->tspan)) {
+	op = (Boolean *)os->ptr;
+	cp1 = getStringValue(arg1, 0);
+	cp2 = getStringValue(arg2, 0);
+	*op = cp1 != NULL && cp2 != NULL && OP(strcmp(cp1, cp2) == 0);
+	os->stamp = (is1->stamp > is2->stamp) ? is1->stamp : is2->stamp;
+	x->valid++;
+    }
+    else x->valid = 0;
+
+#if PCP_DEBUG
+    if (pmDebug & DBG_TRACE_APPL2) {
+	fprintf(stderr, "@FUN_1_1(" PRINTF_P_PFX "%p) ...\n", x);
+	dumpExpr(x);
+    }
+#endif
+}
+
+#undef OP
+
