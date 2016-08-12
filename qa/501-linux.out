@@ -29,7 +29,7 @@ mill: NUMBER
 no3: ?
 no4: ?
 notnum1: "hullo world!"
-notnum2: unknown
+notnum2: true
 notnum3: false
 notnum4: false
 
@@ -61,7 +61,7 @@ mill: NUMBER
 no3: ?
 no4: ?
 notnum1: "hullo world!"
-notnum2: unknown
+notnum2: true
 notnum3: false
 notnum4: false
 
@@ -145,6 +145,14 @@ mill:
     HOST: NUMBER
 no3: ?
 no4: ?
+notnum1: 
+    HOST: NUMBER
+notnum2: 
+    HOST: true
+notnum3: 
+    HOST: false
+notnum4: 
+    HOST: false
 
 valid_a: 
     HOST: NUMBER
@@ -178,6 +186,14 @@ mill:
     HOST: NUMBER
 no3: ?
 no4: ?
+notnum1: 
+    HOST: NUMBER
+notnum2: 
+    HOST: true
+notnum3: 
+    HOST: false
+notnum4: 
+    HOST: false
 
 Log for pmie on HOST started DATE
 
@@ -221,10 +237,6 @@ pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
 pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric sample.string.hullo has non-numeric type
-pmie: metric sample.string.hullo has non-numeric type
-pmie: metric sample.string.hullo has non-numeric type
-pmie: metric sample.string.hullo has non-numeric type
 [TIMESTAMP] pmie(PID) Info: evaluator exiting
 
 Log finished DATE
@@ -266,6 +278,12 @@ mill:
     HOST: NUMBER
 no3: ?
 no4: ?
+notnum1: 
+    HOST: NUMBER
+notnum2: 
+    HOST: NUMBER
+notnum3: 
+notnum4: 
 
 valid_a: 
     HOST: NUMBER
@@ -302,6 +320,12 @@ mill:
     HOST: NUMBER
 no3: ?
 no4: ?
+notnum1: 
+    HOST: NUMBER
+notnum2: 
+    HOST: NUMBER
+notnum3: 
+notnum4: 
 
 Log for pmie on HOST started DATE
 
@@ -345,10 +369,6 @@ pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
 pmie: metric no.such.metric not in namespace for pmcd HOST (host HOST)
 pmLookupName failed: Unknown metric name
-pmie: metric sample.string.hullo has non-numeric type
-pmie: metric sample.string.hullo has non-numeric type
-pmie: metric sample.string.hullo has non-numeric type
-pmie: metric sample.string.hullo has non-numeric type
 [TIMESTAMP] pmie(PID) Info: evaluator exiting
 
 Log finished DATE

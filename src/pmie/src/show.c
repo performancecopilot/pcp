@@ -65,7 +65,9 @@ static struct {
 	{ CND_MIN_TIME,	"min_sample" },
 /* relational */
 	{ CND_EQ,	"==" },
+	{ CND_EQ_STR,	"==<str>" },
 	{ CND_NEQ,	"!=" },
+	{ CND_NEQ_STR,	"!=<str>" },
 	{ CND_LT,	"<" },
 	{ CND_LTE,	"<=" },
 	{ CND_GT,	">" },
@@ -389,12 +391,10 @@ showStringValue(Expr *x, int nth, size_t length, char **string)
     size_t	tlen;
     char	*cat;
     char	*dog;
-    double	*dp;
     char	**cp;
 
     for (smpl = 0; smpl < x->nsmpls; smpl++) {
-	dp = (double *)x->smpls[smpl].ptr + nth;
-	cp = (char **)dp;
+	cp = (char **)((double *)x->smpls[smpl].ptr + nth);
 	if (smpl > 0)
 	    slen++;
 	slen += strlen(*cp) + 2;
@@ -404,6 +404,7 @@ showStringValue(Expr *x, int nth, size_t length, char **string)
     cat = (char *)ralloc(*string, tlen + 1);
     dog = cat + length;
     for (smpl = 0; smpl < x->nsmpls; smpl++) {
+	cp = (char **)((double *)x->smpls[smpl].ptr + nth);
 	if (smpl > 0)
 	    *dog++ = ' ';
 	*dog++ = '"';

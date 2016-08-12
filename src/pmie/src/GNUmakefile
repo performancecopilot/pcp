@@ -24,7 +24,7 @@ HFILES  = fun.h dstruct.h eval.h lexicon.h pragmatics.h stats.h \
 	  show.h symbol.h syntax.h systemlog.h stomp.h andor.h
 
 SKELETAL = hdr.sk fetch.sk misc.sk aggregate.sk unary.sk binary.sk \
-	merge.sk act.sk
+	merge.sk act.sk binary_str.sk
 
 LSRCFILES = $(SKELETAL) meta logger.h
 

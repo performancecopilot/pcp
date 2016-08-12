@@ -11,4 +11,4 @@ notknown: ?
 pmLookupDesc failed: Unknown or illegal metric identifier
 pmie: metric sample.aggregate.hullo has inappropriate type
 pmie: metric sample.bad.unknown not currently available from pmcd HOST (host HOST)
-string: unknown
+string: false

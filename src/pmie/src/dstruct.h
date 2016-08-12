@@ -356,6 +356,7 @@ void rotate(Expr *);
 Expr *primary(Expr *, Expr *);
 void changeSmpls(Expr **, int);
 void instFetchExpr(Expr *);
+char *getStringValue(Expr *, int);
 
 /***********************************************************************
  * time methods

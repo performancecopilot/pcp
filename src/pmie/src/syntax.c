@@ -395,20 +395,29 @@ relExpr(int op, Expr *arg1, Expr *arg2)
 #endif
 
     /*
-     * check value types if string operands are in play
+     * check value types if string-valued operands are in play
      * grammary rules out many of the combinations, but we need to
      * check == and != ... mixed type operands is not detected in
      * the grammar
      */
     if (op == CND_EQ || op == CND_NEQ) {
 	sts = checkTypes(arg1, arg2);
+	if (sts == 0) {
+	    /* oops ... synerr() called from checkTypes() */
+	    ;
 #if PCP_DEBUG
-	if (sts == 0 && (pmDebug & DBG_TRACE_APPL1)) {
-	    fprintf(stderr, "relExpr: checkTypes(" PRINTF_P_PFX "%p, " PRINTF_P_PFX "%p) failed ...\n", arg1, arg2);
-	    dumpExpr(arg1);
-	    dumpExpr(arg2);
-	}
+	    if (pmDebug & DBG_TRACE_APPL1) {
+		fprintf(stderr, "relExpr: checkTypes(" PRINTF_P_PFX "%p, " PRINTF_P_PFX "%p) failed ...\n", arg1, arg2);
+		dumpExpr(arg1);
+		dumpExpr(arg2);
+	    }
 #endif
+	}
+	else if (isString(arg1)) {
+	    /* string-valued operands, change to string operator */
+	    if (op == CND_EQ) op = CND_EQ_STR;
+	    else op = CND_NEQ_STR;
+	}
     }
 
     /* decide primary argument for inheritance of Expr attributes */

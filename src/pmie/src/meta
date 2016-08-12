@@ -77,6 +77,16 @@ sed -e "$CULLCOPYRIGHT" \
     $fin >> $fout
 }
 
+_binary_str()
+{
+fin=binary_str.sk
+sed -e "$CULLCOPYRIGHT" \
+    -e "s/@FUN/$fun/g" \
+    -e "s/@ITYPE/$itype/g" \
+    -e "s/@OP/$op/g" \
+    $fin >> $fout
+}
+
 _merge()
 {
 fin=merge.sk
@@ -206,9 +216,17 @@ fun=cndEq
 op="OP(x,y) ((x) == (y))"
 _binary
 
+fun=cndEqStr
+op="OP(x) (x)"
+_binary_str
+
 fun=cndNeq
 op="OP(x,y) ((x) != (y))"
 _binary
+
+fun=cndNeqStr
+op="OP(x) !(x)"
+_binary_str
 
 fun=cndLt
 op="OP(x,y) ((x) < (y))"
