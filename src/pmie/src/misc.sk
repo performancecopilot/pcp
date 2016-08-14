@@ -141,18 +141,31 @@ cndDelay_n(Expr *x)
     int		n = arg1->tdom;
     Sample	*is = &arg1->smpls[n - 1];
     Sample	*os = &x->smpls[0];
-    @ITYPE	*ip;
-    @OTYPE	*op;
     int         i;
 
     EVALARG(arg1)
     ROTATE(x)
 
     if (arg1->valid >= n && x->tspan > 0) {
-	ip = (@ITYPE *)is->ptr;
-	op = (@OTYPE *)os->ptr;
-	for (i = 0; i < x->tspan; i++)
-	    *op++ = *ip++;
+	if (arg1->metrics != NULL && arg1->metrics->desc.type == PM_TYPE_STRING) {
+	    /* string values */
+	    char	**iv = (char **)is->ptr;
+	    char	**ov = (char **)os->ptr;
+	    for (i = 0; i < x->tspan; i++) {
+		if (*ov != NULL)
+		    free(*ov);
+		*ov++ = strdup(*iv++);
+	    }
+	}
+	else {
+	    /* numeric values */
+	    double	*ip;
+	    double	*op;
+	    ip = (double *)is->ptr;
+	    op = (double *)os->ptr;
+	    for (i = 0; i < x->tspan; i++)
+		*op++ = *ip++;
+	}
 	os->stamp = is->stamp;
 	x->valid++;
     }
@@ -171,7 +184,18 @@ cndDelay_1(Expr *x)
     ROTATE(x)
 
     if (arg1->valid >= n) {
-	*(@OTYPE *)os->ptr = *(@ITYPE *)is->ptr;
+	if (arg1->metrics != NULL && arg1->metrics->desc.type == PM_TYPE_STRING) {
+	    /* string values */
+	    char	**iv = (char **)is->ptr;
+	    char	**ov = (char **)os->ptr;
+	    if (*ov != NULL)
+		free(*ov);
+	    *ov = strdup(*iv);
+	}
+	else {
+	    /* numeric values */
+	    *(double *)os->ptr = *(double *)is->ptr;
+	}
 	os->stamp = is->stamp;
 	x->valid++;
     }

@@ -111,22 +111,22 @@ isString(Expr *x)
 	case SEM_NUMCONST:
 	    break;
 
-	case SEM_UNKNOWN:	/* bad metric name? reported later */
-	    break;
-
 	case SEM_CHAR:
 	    sts = 1;
 	    break;
 
+	case SEM_UNKNOWN:
 	case PM_SEM_INSTANT:
 	case PM_SEM_DISCRETE:
-	    m = x->metrics;
-	    for (i = 0; i < x->hdom; i++) {
-		if (m->desc.type == PM_TYPE_STRING) {
-		    sts = 1;
-		    break;
+	    if (x->metrics != NULL) {
+		m = x->metrics;
+		for (i = 0; i < x->hdom; i++) {
+		    if (m->desc.type == PM_TYPE_STRING) {
+			sts = 1;
+			break;
+		    }
+		    m++;
 		}
-		m++;
 	    }
 	    break;
 
@@ -781,7 +781,7 @@ fetchExpr(char *mname,
 
     /* construct delay node */
     if (dsz) {
-        x = newExpr(CND_DELAY, x, NULL, x->hdom, x->e_idom, dsz, dsz, SEM_UNKNOWN);
+        x = newExpr(CND_DELAY, x, NULL, x->hdom, x->e_idom, dsz, dsz, x->sem);
 	newRingBfr(x);
 	findEval(x);
     }
