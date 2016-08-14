@@ -17,9 +17,17 @@ echo "QA output created by $seq"
 
 _set_write_me()
 {
-    pmstore sampledso.string.write_me $1 >/dev/null
-    pmstore sampledso.ulong.write_me $1 >/dev/null
-    pmstore sampledso.double.write_me $1 >/dev/null
+    pmstore sampledso.string.write_me "$1" >/dev/null
+    pmstore sampledso.ulong.write_me "$1" >/dev/null
+    pmstore sampledso.double.write_me "$1" >/dev/null
+    case "$1" in
+    13)
+	pmstore -i bin-300 sample.bin 300 >/dev/null
+	;;
+    *)
+	pmstore -i bin-300 sample.bin "$1" >/dev/null
+	;;
+    esac
 }
 
 status=1	# failure is the default!
@@ -52,9 +60,9 @@ else
 otherwise
     -> print "case 6 startup";
 ruleset
-    all_inst ( sampledso.string.bin @0 == sampledso.string.bin @1 ) -> print "case 7 OK"
+    all_inst ( sample.string.bin @0 == sample.string.bin @1 ) -> print "case 7 OK"
 else
-    some_inst ( sampledso.string.bin @0 != sampledso.string.bin @1 ) -> print "case 7 BAD"
+    some_inst ( sample.string.bin @0 != sample.string.bin @1 ) -> print "case 7 OK-change"
 otherwise
     -> print "case 7 startup";
 End-of-File
@@ -76,11 +84,3 @@ _filter <$tmp.err
 status=0
 
 exit
-
-versions = ( mmv.MyApp.java.jvm_version @0 != mmv.MyApp.java.jvm_version @1 )
--> print "Java upgraded to %v";
-
-iosched = ( some_inst ( disk.dev.scheduler @0 != disk.dev.scheduler @1 ) )
--> print "I/O scheduler changed to %v for block device %i\n";
-
-
