@@ -646,6 +646,8 @@ static struct {
 };
 static int	numdyn = sizeof(dynamic_ones)/sizeof(dynamic_ones[0]);
 
+static int	_bin_val[] = { 100, 200, 300, 400, 500, 600, 700, 800, 900 };
+
 static int
 redo_dynamic(void)
 {
@@ -1823,28 +1825,28 @@ doit:
 		    case 104:
 		    case 121:		/* scramble.bin */
 			/* the value is the instance identifier (sic) */
-			atom.l = inst;
+			atom.l = _bin_val[(inst/100) - 1];
 			break;
 			/* and ditto for all the other type variants of "bin" */
 		    case 105:		/* ulong.bin & ulong.bin_ctr */
 		    case 106:
-			atom.ul = inst;
+			atom.ul = _bin_val[(inst/100) - 1];
 			break;
 		    case 107:		/* float.bin & float.bin_ctr */
 		    case 108:
-			atom.f = inst;
+			atom.f = _bin_val[(inst/100) - 1];
 			break;
 		    case 109:		/* longlong.bin & longlong.bin_ctr */
 		    case 110:
-			atom.ll = inst;
+			atom.ll = _bin_val[(inst/100) - 1];
 			break;
 		    case 111:		/* ulonglong.bin & ulonglong.bin_ctr */
 		    case 112:
-			atom.ull = inst;
+			atom.ull = _bin_val[(inst/100) - 1];
 			break;
 		    case 113:		/* double.bin & double.bin_ctr */
 		    case 114:
-			atom.d = inst;
+			atom.d = _bin_val[(inst/100) - 1];
 			break;
 		    case 7:		/* drift */
 			_drift = _drift + _sign * (int)(lrand48() % 50);
@@ -2083,7 +2085,7 @@ doit:
 		    case 35:
 			atom.vbp = _aggr35;
 			break;
-		    case 52:
+		    case 52:	/* hordes.one */
 			atom.l = inst;
 			break;
 		    case 53:
@@ -2385,7 +2387,7 @@ doit:
 			break;
 
 		    case 153:	/* sample.string.bin */
-			snprintf(strbuf, 4, "%3d", inst);
+			snprintf(strbuf, 4, "%3d", _bin_val[(inst/100) - 1]);
 			atom.cp = strbuf;
 			break;
 
@@ -2514,6 +2516,8 @@ static int
 sample_store(pmResult *result, pmdaExt *ep)
 {
     int		i;
+    int		k;
+    int		inst;
     pmValueSet	*vsp;
     pmDesc	*dp;
     __pmID_int	*pmidp;
@@ -2547,11 +2551,13 @@ sample_store(pmResult *result, pmdaExt *ep)
 	}
 
 	/*
-	 * for this PMD, the metrics that support modification
+	 * For this PMDA, the metrics that support modification
 	 * via pmStore() mostly demand a single value, encoded in
 	 * the result structure as PM_VAL_INSITU format for 32-bit
 	 * ints, else a single value, encoded in the result structure
 	 * as NOT PM_VAL_INSITU for 64-bit ints.
+	 * The notable exception is sample.bin where one or more
+	 * 32-bit values is expected.
 	 */
 	switch (pmidp->item) {
 
@@ -2631,6 +2637,11 @@ sample_store(pmResult *result, pmdaExt *ep)
 		    sts = PM_ERR_BADSTORE;
 		break;
 
+	    case 6:	/* bin */
+		if (vsp->numval < 1)
+		    sts = PM_ERR_BADSTORE;
+	    	break;
+
 	    default:
 		sts = PM_ERR_PERMISSION;
 		break;
@@ -2669,6 +2680,18 @@ sample_store(pmResult *result, pmdaExt *ep)
 		break;
 	    case 38:	/* mirage_longlong */
 		_x = av.ll;
+		break;
+	    case 6:	/* bin */
+		for (k = 0; k < vsp->numval; k++) {
+		    inst = vsp->vlist[k].inst;
+		    if (inst < 100 || inst > 900 || (inst % 100) != 0) {
+			sts = PM_ERR_INST;
+			break;
+		    }
+		    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[k], dp->type, &av, dp->type)) < 0)
+			break;
+		    _bin_val[(inst/100) - 1] = av.l;
+		}
 		break;
 	    case 7:	/* drift */
 		_drift = av.l;
