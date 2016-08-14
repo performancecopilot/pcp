@@ -13,12 +13,14 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMDAJSONINIT 3 "PCP" "Performance Co-Pilot"
+.TH PMJSONINIT 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmjsonInitIndom\f1,
-\f3pmjsonInit\f1 \- introduction to the JSON metric extraction library
+\f3pmjsonInit\f1,
+\f3pmjsonInitIndom\f1 \- JSON performance metrics extraction
 .SH "C SYNOPSIS"
 .ft 3
+#include <pcp/pmapi.h>
+.br
 #include <pcp/pmjson.h>
 .sp
 .ad l
@@ -35,7 +37,7 @@ int \fInum_metrics\fP);
 .in
 .hy
 .ad
-cc ... \-lpcp_json \-lpcp
+cc ... \-lpcp_web
 .ft 1
 .SH DESCRIPTION
 .P

@@ -15,13 +15,11 @@
 
 #include "pmapi.h"
 #include "impl.h"
-#include "private.h"
 #include "pmjson.h"
 #include "pmda.h"
-#include <string.h>
-#include <stdlib.h>
+#include "jsmn.h"
 #include <sys/stat.h>
-#include <stdio.h>
+
 /*
  * JSMN helper interfaces for efficiently extracting JSON configs
  */

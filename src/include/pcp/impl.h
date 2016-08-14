@@ -305,7 +305,8 @@ PCP_DATA extern int pmDebug;
 #define DBG_TRACE_AUTH		(1<<24) /* authentication tracing */
 #define DBG_TRACE_DISCOVERY	(1<<25) /* service discovery tracing */
 #define DBG_TRACE_ATTR		(1<<26) /* all connection attributes */
-/* not yet allocated, bits (1<<27) ... (1<<29) */
+#define DBG_TRACE_HTTP		(1<<27) /* trace HTTP operations */
+/* not yet allocated, bits (1<<28) ... (1<<29) */
 #define DBG_TRACE_DESPERATE	(1<<30) /* verbose/desperate level */
 
 PCP_CALL extern int __pmParseDebug(const char *);

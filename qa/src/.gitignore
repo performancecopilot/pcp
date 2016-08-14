@@ -76,6 +76,7 @@ hashwalk
 hex2nbo
 hp-mib
 hrunpack
+httpfetch
 import_limit_test.pl
 indom
 interp0

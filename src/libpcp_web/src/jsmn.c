@@ -21,7 +21,6 @@
  */
 
 #include <stdlib.h>
-
 #include "jsmn.h"
 
 /**

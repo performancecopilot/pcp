@@ -15,11 +15,11 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-CFILES 		= jsmn.c json_helpers.c
-HFILES		= jsmn.h private.h
+CFILES 		= jsmn.c json_helpers.c http_client.c http_parser.c
+HFILES		= jsmn.h private.h http_client.h http_parser.h
 
 LLDLIBS		= -lpcp -lpcp_pmda
-LCFLAGS		= -DJSMN_PARENT_LINKS
+LCFLAGS		= -DJSMN_PARENT_LINKS=1 -DHTTP_PARSER_STRICT=0
 
 STATICLIBTARGET = libpcp_web.a
 
@@ -61,6 +61,4 @@ install_pcp:	install
 ifneq ($(LIBTARGET),)
 $(LIBTARGET): $(VERSION_SCRIPT)
 endif
-
-
 
