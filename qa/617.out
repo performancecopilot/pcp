@@ -426,8 +426,18 @@ text indom indom#
 dbpmda> text 29.0.6
 PMID: 29.0.6
 [Several constant instances]
-9 instances labelled "bin-100" thru "bin-900", each with a constant
-value of 100 thru 900.
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sample.bucket,
+sample.part_bin, sample.bogus_bin, sample.scramble.bin
+sample.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sample.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sample.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sample.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sample.string.bin.
 dbpmda> text indom 29.2
 pmInDom: 29.2
 [Instance domain "bin" for sample PMDA]
