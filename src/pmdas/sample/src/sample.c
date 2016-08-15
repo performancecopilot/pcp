@@ -1817,10 +1817,22 @@ doit:
 				break;
 			}
 			break;
+		    case 51:		/* bogus_bin */
+			if (inst % 200 == 50) {
+			    /*
+			     * inst "bin-250" (not in indom) value 250 instead
+			     * of inst "bin-200" value 200 ... ditto for 400,
+			     * 600 and 800
+			     */
+			    atom.l = _bin_val[(inst/100) - 1] + 50;
+			    inst += 50;
+			}
+			else
+			    atom.l = _bin_val[(inst/100) - 1];
+			break;
 		    case 6:		/* bin or dupnames.two.bin or dupnames.three.bin */
 		    case 48:
 		    case 50:
-		    case 51:
 		    case 103:		/* long.bin & long.bin_ctr */
 		    case 104:
 		    case 121:		/* scramble.bin */
