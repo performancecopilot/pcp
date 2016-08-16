@@ -1362,7 +1362,7 @@ char *getStringValue(Expr *x, int nth)
     else if ((x->sem == PM_SEM_INSTANT || x->sem == PM_SEM_DISCRETE) &&
 	     x->metrics != NULL && x->metrics->desc.type == PM_TYPE_STRING) {
 	if (0 <= nth && nth < x->nvals)
-	    return *(char **)((double *)x->smpls[0].ptr + nth);
+	    return *((char **)x->smpls[0].ptr + nth);
 	fprintf(stderr, "getStringValue: botch: nth=%d, not in the range 0..%d for string-valued metric\n", nth, x->nvals);
 	dumpExpr(x);
 	return NULL;
