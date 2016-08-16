@@ -10,7 +10,7 @@
 int
 main(int argc, char *argv[])
 {
-    int			c;
+    int			c, code = 0;
     int			verbose = 0;
     int			version = 0;
     int			errflag = 0;
@@ -112,6 +112,7 @@ main(int argc, char *argv[])
 				type, sizeof(type));
 	if (c < 0) {
 	    fprintf(stderr, "Failed to fetch %s [%d]\n", argv[optind], c);
+	    code = 1;
 	} else if (c == 0) {
 	    printf("Response with empty body\n");
 	} else {
@@ -127,5 +128,5 @@ main(int argc, char *argv[])
     }
 
     pmhttpFreeClient(client);
-    exit(0);
+    exit(code);
 }
