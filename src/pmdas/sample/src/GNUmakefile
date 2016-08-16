@@ -56,6 +56,7 @@ install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 644 domain.h $(CFILES) $(HFILES) $(PMDADIR)
 	$(INSTALL) -m 644 GNUmakefile.install $(PMDADIR)/Makefile
+	$(INSTALL) -m 755 $(TARGETS) $(PMDADIR)
 
 include $(BUILDRULES)
 

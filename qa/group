@@ -1105,11 +1105,12 @@ timezone
 863 python local
 864 pcp python local
 865 pmda local
-866 fault libpcp  local
+866 fault libpcp local
 867 pmwebapi libpcp_web local
 868 pmda.install local
 869 pmda.linux local
 870 pmlogcheck local
+871 pmie local
 872 pmda.linux local
 873 pmda.linux local
 874 valgrind pmval libpcp local

@@ -224,8 +224,18 @@ metric returns the "No values available" error for every fetch.
 
 sampledso.bin
 Help:
-9 instances labelled "bin-100" thru "bin-900", each with a constant
-value of 100 thru 900.
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sampledso.bucket,
+sampledso.part_bin, sample.bogus_bin, sample.scramble.bin
+sampledso.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sampledso.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sampledso.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sampledso.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sampledso.string.bin.
 
 sampledso.bucket
 Help:
@@ -1038,8 +1048,18 @@ by time(2).
 
 sampledso.dupnames.two.bin
 Help:
-9 instances labelled "bin-100" thru "bin-900", each with a constant
-value of 100 thru 900.
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sampledso.bucket,
+sampledso.part_bin, sample.bogus_bin, sample.scramble.bin
+sampledso.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sampledso.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sampledso.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sampledso.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sampledso.string.bin.
 
 sampledso.dupnames.two.write_me
 Help:
@@ -1063,8 +1083,18 @@ Help:
 
 sampledso.dupnames.three.bin
 Help:
-9 instances labelled "bin-100" thru "bin-900", each with a constant
-value of 100 thru 900.
+9 instances labelled "bin-100" thru "bin-900", each with an
+initial value of 100 thru 900.
+
+pmstore(1) may be used to change the values of some or all of
+the instances, but note this will also change the values of the
+metrics that share the same underlying values, i.e. sampledso.bucket,
+sampledso.part_bin, sample.bogus_bin, sample.scramble.bin
+sampledso.long.bin, sample.long.bin_ctr, sample.ulong.bin,
+sampledso.ulong.bin_ctr, sample.longlong.bin, sample.longlong.bin_ctr,
+sampledso.ulonglong.bin, sample.ulonglong.bin_ctr, sample.float.bin,
+sampledso.float.bin_ctr, sample.double.bin, sample.double.bin_ctr
+and sampledso.string.bin.
 
 sampledso.dupnames.three.write_me
 Help:

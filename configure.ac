@@ -1545,6 +1545,14 @@ AC_SUBST(HAVE_NCURSES, [$have_ncurses])
 
 PKG_CHECK_MODULES([SYSTEMD], [libsystemd],
                   [pmda_systemd=true], [pmda_systemd=false])
+if $pmda_systemd
+then
+    :
+else
+    dnl libsystemd-journal is an alternative for older distros
+    PKG_CHECK_MODULES([SYSTEMD], [libsystemd-journal],
+		      [pmda_systemd=true], [pmda_systemd=false])
+fi
 AC_MSG_CHECKING([if the systemd PMDA should be included])
 AC_SUBST(PMDA_SYSTEMD, $pmda_systemd)
 if $pmda_systemd; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi

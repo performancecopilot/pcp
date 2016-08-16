@@ -289,6 +289,9 @@ sleepTight(Task *t, int type)
 
 /***********************************************************************
  * ring buffer management
+ *
+ * each element in the ring buffer holds a value or a pointer to a string
+ * value
  ***********************************************************************/
 
 void
@@ -298,14 +301,27 @@ newRingBfr(Expr *x)
     char    *p;
     int     i;
 
-    sz = ((x->sem == SEM_BOOLEAN) || (x->sem == SEM_CHAR)) ?
-	    sizeof(char) * x->tspan :
-	    sizeof(double) * x->tspan;
+    switch (x->sem) {
+
+    case SEM_BOOLEAN:
+    case SEM_CHAR:
+	    sz = sizeof(char);
+	    break;
+
+    default:
+	    if (x->metrics != NULL && x->metrics->desc.type == PM_TYPE_STRING)
+		sz = sizeof(char *);
+	    else
+		sz = sizeof(double);
+	    break;
+    }
+
+    sz *= x->tspan;
     if (x->ring) free(x->ring);
-    x->ring = alloc(x->nsmpls * sz);
-    p = (char *) x->ring;
+    x->ring = zalloc(x->nsmpls * sz);
+    p = (char *)x->ring;
     for (i = 0; i < x->nsmpls; i++) {
-	x->smpls[i].ptr = (void *) p;
+	x->smpls[i].ptr = (void *)p;
 	p += sz;
     }
 }
@@ -1346,7 +1362,7 @@ char *getStringValue(Expr *x, int nth)
     else if ((x->sem == PM_SEM_INSTANT || x->sem == PM_SEM_DISCRETE) &&
 	     x->metrics != NULL && x->metrics->desc.type == PM_TYPE_STRING) {
 	if (0 <= nth && nth < x->nvals)
-	    return *(char **)((double *)x->smpls[0].ptr + nth);
+	    return *((char **)x->smpls[0].ptr + nth);
 	fprintf(stderr, "getStringValue: botch: nth=%d, not in the range 0..%d for string-valued metric\n", nth, x->nvals);
 	dumpExpr(x);
 	return NULL;

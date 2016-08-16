@@ -394,7 +394,7 @@ showStringValue(Expr *x, int nth, size_t length, char **string)
     char	**cp;
 
     for (smpl = 0; smpl < x->nsmpls; smpl++) {
-	cp = (char **)((double *)x->smpls[smpl].ptr + nth);
+	cp = (char **)x->smpls[smpl].ptr + nth;
 	if (smpl > 0)
 	    slen++;
 	slen += strlen(*cp) + 2;
@@ -404,7 +404,7 @@ showStringValue(Expr *x, int nth, size_t length, char **string)
     cat = (char *)ralloc(*string, tlen + 1);
     dog = cat + length;
     for (smpl = 0; smpl < x->nsmpls; smpl++) {
-	cp = (char **)((double *)x->smpls[smpl].ptr + nth);
+	cp = (char **)x->smpls[smpl].ptr + nth;
 	if (smpl > 0)
 	    *dog++ = ' ';
 	*dog++ = '"';
@@ -463,7 +463,7 @@ showNum(Expr *x, int nth, size_t length, char **string)
 	    }
 	}
 	else {
-	    v = *((double *)x->smpls[smpl].ptr+nth);
+	    v = *((double *)x->smpls[smpl].ptr + nth);
 	    if (v == (int)v)
 		sts = sprintf(dog, "%d", (int)v);
 	    else {
