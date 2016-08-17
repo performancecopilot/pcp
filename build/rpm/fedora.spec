@@ -2370,6 +2370,10 @@ cd
 %files testsuite
 %defattr(-,pcpqa,pcpqa)
 %{_testsdir}
+%config(noreplace) %{_sysconfdir}/systemd/system/pmwebd.service.d/pmwebd.conf
+%config(noreplace) %{_sysconfdir}/systemd/system/pmmgr.service.d/pmmgr.conf
+%config(noreplace) %{_sysconfdir}/systemd/system/pmcd.service.d/pmcd.conf
+%config(noreplace) %{_sysconfdir}/systemd/system/pmproxy.service.d/pmproxy.conf
 
 %if !%{disable_microhttpd}
 %files webapi
