@@ -316,6 +316,9 @@ cgroups
 # Timezone services in libpcp
 timezone
 
+# JSON parsing and metric extraction in libpcp_web
+libpcp_web
+
 # test-group association ... one line per test
 # add :retired or :reserved as a tag immediately after the test number
 # to keep the test number allocated, but prevent the test from being run
@@ -1123,6 +1126,7 @@ timezone
 881 pmcd local
 882 pmlogger local
 883 pcp python local
+884 libpcp_web local
 885 pmda.linux local
 886 pmda.linux local
 887 pmlogsummary archive multi-archive local
