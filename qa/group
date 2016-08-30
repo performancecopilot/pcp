@@ -1132,6 +1132,7 @@ libpcp_web
 887 pmlogsummary archive multi-archive local
 888 pmda.linux local
 889 pmda.proc local
+890 libpcp_import local
 891 libpcp local
 892 pmcd libpcp local
 897 pmlc pmlogger local
