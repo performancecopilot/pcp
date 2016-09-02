@@ -1,0 +1,16 @@
+QA output created by 871
+=== std out ===
+DATE: case 0 OK
+DATE: case 1 OK
+DATE: case 2 OK
+DATE: case 3 OK
+DATE: case 4 OK
+DATE: case 5 OK
+DATE: case 6 OK
+DATE: case 6 startup
+DATE: case 7 OK
+DATE: case 7 OK-change
+DATE: case 7 startup
+
+=== std err ===
+[DATE] pmie(PID) Info: evaluator exiting

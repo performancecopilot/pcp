@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, Red Hat.
+ * Copyright (c) 2012-2016, Red Hat.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
@@ -57,7 +57,7 @@ public:
     void updateCursor(const QPointF &, int);
     const QString &cursorInfo();
 
-    void replot(int, double *);
+    void replot(int, const QVector<double> &);
     void copyRawDataArray(void);
     void copyRawDataPoint(int index);
     void copyDataPoint(int index);
@@ -74,8 +74,8 @@ private:
 	SamplingCurve *curve;
 	QString info;
 	double scale;
-	double *data;
-	double *itemData;
+	QVector<double> data;
+	QVector<double> itemData;
 	int dataCount;
     } my;
 };

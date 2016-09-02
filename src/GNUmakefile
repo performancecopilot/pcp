@@ -23,7 +23,6 @@ LIBPCP_SUBDIR = libpcp
 LIBS_SUBDIRS = \
 	libpcp_pmda \
 	libpcp_trace \
-	libpcp_http \
 	libpcp_pmcd \
 	libpcp_gui \
 	libpcp_mmv \

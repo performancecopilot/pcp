@@ -78,7 +78,3 @@ Credits
 =======
 
 Original PMDA was written by Michal Kara.
-
-This PMDA embeds a (slightly modified) lightweight "Http Fetcher" library,
-written by Lyle Hanson (lhanson@users.sourceforge.net) (C) 2001, 2003, 2004
-http://http-fetcher.sourceforge.net

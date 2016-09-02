@@ -25,7 +25,6 @@ GroupControl::GroupControl(bool restrictArchives) :
     my.visible = 0;
     my.realDelta = 0;
     my.realPosition = 0;
-    my.timeData = NULL;
     my.timeState = StartState;
     my.buttonState = QedTimeButton::Timeless;
     my.pmtimeState = QmcTime::StoppedState;
@@ -53,9 +52,9 @@ GroupControl::init(int samples, int visible,
     my.realDelta = __pmtimevalToReal(interval);
     my.realPosition = __pmtimevalToReal(position);
 
-    my.timeData = (double *)malloc(samples * sizeof(double));
+    my.timeData.clear();
     for (int i = 0; i < samples; i++)
-	my.timeData[i] = my.realPosition - (i * my.realDelta);
+	my.timeData.push_back(my.realPosition - (i * my.realDelta));
 }
 
 bool
@@ -554,13 +553,13 @@ GroupControl::step(QmcTime::Packet *packet)
     int last = my.samples - 1;
     if (packet->state == QmcTime::ForwardState) { // left-to-right (all but 1st)
 	if (my.samples > 1)
-	    memmove(&my.timeData[1], &my.timeData[0], sizeof(double) * last);
-	my.timeData[0] = my.realPosition;
+	    my.timeData.pop_back();
+	my.timeData.push_front(my.realPosition);
     }
     else if (packet->state == QmcTime::BackwardState) { // right-to-left
 	if (my.samples > 1)
-	    memmove(&my.timeData[0], &my.timeData[1], sizeof(double) * last);
-	my.timeData[last] = my.realPosition - torange(my.delta, last);
+	    my.timeData.pop_front();
+	my.timeData.push_back(my.realPosition - torange(my.delta, last));
     }
 
     fetch();
@@ -597,13 +596,10 @@ GroupControl::setSampleHistory(int v)
     if (my.samples != v) {
 	my.samples = v;
 
-	my.timeData = (double *)malloc(my.samples * sizeof(my.timeData[0]));
-	if (my.timeData == NULL)
-	    nomem();
-
 	double right = my.realPosition;
+	my.timeData.clear();
 	for (v = 0; v < my.samples; v++)
-	    my.timeData[v] = my.realPosition - (v * my.realDelta);
+	    my.timeData.push_back(my.realPosition - (v * my.realDelta));
 	double left = my.timeData[v-1];
 	for (v = 0; v < gadgetCount(); v++)
 	    my.gadgetsList.at(v)->resetValues(my.samples, left, right);
@@ -631,7 +627,7 @@ GroupControl::visibleHistory(void)
     return my.visible;
 }
 
-double *
+QVector<double> &
 GroupControl::timeAxisData(void)
 {
     return my.timeData;

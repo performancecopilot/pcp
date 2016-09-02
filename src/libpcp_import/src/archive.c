@@ -139,6 +139,8 @@ _pmi_end(pmi_context *current)
      */
     __pmLogPutIndex(&current->logctl, &stamp);
 
+    __pmLogClose(&current->logctl);
+
     current->state = CONTEXT_END;
     return 0;
 }

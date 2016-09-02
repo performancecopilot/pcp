@@ -25,6 +25,8 @@ FILES = \
 	sar \
 	sar-summary \
 	uptime \
+	vector \
+	vector-summary \
 	vmstat \
 	vmstat-summary \
 # END

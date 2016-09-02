@@ -47,7 +47,7 @@ public:
     void setSampleHistory(int);
     int sampleHistory();
 
-    double *timeAxisData(void);
+    QVector<double> &timeAxisData(void);
 
     void step(QmcTime::Packet *);
     void VCRMode(QmcTime::Packet *, bool);
@@ -96,7 +96,7 @@ private:
 
 	int visible;			// -v visible points
 	int samples;			// -s total number of samples
-	double *timeData;		// time array (intervals)
+	QVector<double> timeData;	// time array (intervals)
 
 	QedTimeButton::State buttonState;
 	QmcTime::Source pmtimeSource;	// reliable archive/host test

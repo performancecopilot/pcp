@@ -1,0 +1,95 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2016 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMHTTPNEWCLIENT 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmhttpNewClient\f1,
+\f3pmhttpFreeClient\f1,
+\f3pmhttpClientFetch\f1 \- simple HTTP client interfaces
+.SH "C SYNOPSIS"
+.ft 3
+#include <pcp/pmapi.h>
+.br
+#include <pcp/pmhttp.h>
+.sp
+.ad l
+.hy 0
+.in +8n
+.ti -8n
+struct http_client *pmhttpNewClient(void);
+.br
+.ti -8n
+void pmhttpFreeClient(struct http_client *\fIclient\fP);
+.br
+.ti -8n
+int pmhttpClientFetch(struct http_client *\fIclient\fP, const char *\fIurl\fP, char *\fIbodybuf\fP, size_t \fIbodylen\fP, char *\fItypebuf\fP, size_t \fItypelen\fP);
+.sp
+.in
+.hy
+.ad
+cc ... \-lpcp_web
+.ft 1
+.SH DESCRIPTION
+.B pmhttpNewClient
+allocates and initializes an opaque HTTP client that is ready to
+make requests from a server.
+.PP
+The URL request interface
+.B pmhttpClientFetch
+issues an HTTP GET request to the server specified in the supplied
+.IR url .
+The body of the response is returned in the caller supplied
+.I bodybuf
+buffer, of
+.I bodylen
+bytes length.
+An optional
+.I typebuf
+buffer, of
+.I typelen
+bytes length, can also be supplied and (if non-NULL) will contain the
+value of the content-type header returned from the server.
+.PP
+The
+.I url
+parameter is an \f2RFC1630\f1 format URL.
+This will typically be prefixed with "http://", however these interfaces
+also support Unix domain sockets.
+Those are instead prefixed by "unix://", followed by the full filesystem
+path to the desired Unix domain socket.
+.PP
+To free up resources associated with an HTTP client, including closing
+any persistent server connection that has been established earlier, is
+accomplished using the
+.B pmhttpFreeClient
+routine.
+.SH DIAGNOSTICS
+.B pmhttpNewClient
+will return NULL on failure, which can only occur when allocation
+of memory is not possible.
+.PP
+.B pmhttpClientFetch
+will return the number of bytes places into the
+.I bodybuf
+buffer, else a negated error code indicating the nature of the failure.
+.SH SEE ALSO
+.BR pmdaapache (1),
+.BR pmjsonInit (3),
+.BR PMAPI (3),
+.BR PMWEBAPI (3)
+and
+.hy
+.nh
+.BR https://tools.ietf.org/html/rfc1630
+.ny

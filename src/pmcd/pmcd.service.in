@@ -6,10 +6,11 @@ After=local-fs.target network.target avahi-daemon.service
 Before=zabbix-agent.service
  
 [Service]
-Type=oneshot
-ExecStart=@path@/pmcd start
-ExecStop=@path@/pmcd stop
-RemainAfterExit=yes 
+Type=forking
+Restart=always
+ExecStart=@PCP_RC_DIR@/pmcd start
+ExecStop=@PCP_RC_DIR@/pmcd stop
+PIDFile=@PCP_RUN_DIR@/pmcd.pid
  
 [Install]
 WantedBy=multi-user.target

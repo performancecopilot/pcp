@@ -76,6 +76,7 @@ hashwalk
 hex2nbo
 hp-mib
 hrunpack
+httpfetch
 import_limit_test.pl
 indom
 interp0
@@ -86,6 +87,7 @@ interp4
 interp_bug
 interp_bug2
 ipc
+json_test
 keycache
 keycache2
 killparent

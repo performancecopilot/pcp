@@ -1,7 +1,7 @@
 /*
  * Apache PMDA
  *
- * Copyright (C) 2012-2014 Red Hat.
+ * Copyright (C) 2012-2014,2016 Red Hat.
  * Copyright (C) 2008-2010 Aconex.  All Rights Reserved.
  * Copyright (C) 2000 Michal Kara.  All Rights Reserved.
  *
@@ -19,8 +19,8 @@
 #include "pmapi.h"
 #include "impl.h"
 #include "pmda.h"
+#include "pmhttp.h"
 #include "domain.h"
-#include "http_fetcher.h"
 #include <inttypes.h>
 
 static char url[256];
@@ -30,6 +30,7 @@ static char *username;
 static int http_port = 80;
 static char *http_server = "localhost";
 static char *http_path = "server-status";
+static struct http_client *http_client;
 
 static pmLongOptions longopts[] = {
     PMDA_OPTIONS_HEADER("Options"),
@@ -117,15 +118,8 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0,0,0,0,0,0) } },
 };
 
-/*
- * To speed everything up, the PMDA is caching the data.
- * Values are refreshed only if older than one second.
- */
 struct {
     unsigned int	flags;		/* Tells which values are valid */
-    unsigned int	timeout;	/* There was a timeout (a bool) */
-    time_t		timestamp;	/* Time of last attempted fetch */
-
     __uint64_t		uptime;
     __uint64_t		total_accesses;
     __uint64_t		total_kbytes;
@@ -188,8 +182,7 @@ static void dumpData(void)
     uptime_string(data.uptime, uptime_s, sizeof(uptime_s));
     fprintf(stderr, "Apache data from %s port %d, path %s:\n",
 	    http_server, http_port, http_path);
-    fprintf(stderr, "  flags=0x%x timeout=%d timestamp=%lu\n",
-	    data.flags, data.timeout, (unsigned long)data.timestamp);
+    fprintf(stderr, "  flags=0x%x\n", data.flags);
     fprintf(stderr, "  uptime=%" PRIu64 " (%s)\n", data.uptime, uptime_s);
     fprintf(stderr, "  accesses=%" PRIu64 "  kbytes=%" PRIu64
 		    "  req/sec=%.2f  b/sec=%.2f\n",
@@ -210,24 +203,19 @@ static void dumpData(void)
 /*
  * Refresh data. Returns 1 of OK, 0 on error.
  */
-static int refreshData(time_t now)
+static int refreshData(void)
 {
-    char	*res = NULL;
+    char	res[BUFSIZ];
     int		len;
     char	*s,*s2,*s3;
 
     if (pmDebug & DBG_TRACE_APPL0)
-	fprintf(stderr, "Doing http_fetch(%s)\n", url);
+	fprintf(stderr, "Doing pmhttpClientFetch(%s)\n", url);
 
-    len = http_fetch(url, &res);
+    len = pmhttpClientFetch(http_client, url, res, sizeof(res), NULL, 0);
     if (len < 0) {
 	if (pmDebug & DBG_TRACE_APPL1)
-	    __pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed: %s\n", http_strerror());
-	data.timeout = http_getTimeoutError();
-	if (data.timeout)
-	    data.timestamp = now;  /* Don't retry too soon */
-	if (res)
-	    free(res);
+	    __pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed\n");
 	return 0; /* failed */
     }
 
@@ -249,7 +237,13 @@ static int refreshData(time_t now)
 	if (*s == 10)
 	    *s++ = 0;
 
-	if (strcmp(s2, "CPULoad:") == 0)
+	if (strcmp(s2, http_server) == 0 ||
+	    strcmp(s2, "CurrentTime:") == 0 ||
+	    strcmp(s2, "RestartTime:") == 0 ||
+	    strncmp(s2, "Server", 6) == 0 ||
+	    strncmp(s2, "Parent", 6) == 0 ||
+	    strncmp(s2, "Load", 4) == 0 ||
+	    strncmp(s2, "CPU", 3) == 0)
 		/* ignored */ ;
 	else if (strcmp(s2, "Total Accesses:") == 0) {
 	    data.total_accesses = strtoull(s3, (char **)NULL, 10);
@@ -336,24 +330,16 @@ static int refreshData(time_t now)
 	}
     }
 
-    data.timestamp = now;
-
     if (pmDebug & DBG_TRACE_APPL2)
 	dumpData();
-    free(res);
     return 1;
 }
 
 static int
 apache_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-    time_t	now = time(NULL);
-
-    if (now > data.timestamp && !refreshData(now + 1))
+    if (!refreshData())
 	return PM_ERR_AGAIN;
-    if (data.timeout)
-	return PM_ERR_AGAIN;
-
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
@@ -482,8 +468,10 @@ apache_init(pmdaInterface *dp)
 {
     __pmSetProcessIdentity(username);
 
-    http_setTimeout(1);
-    http_setUserAgent(pmProgname);
+    if ((http_client = pmhttpNewClient()) == NULL) {
+	__pmNotifyErr(LOG_ERR, "HTTP client creation failed\n");
+	exit(1);
+    }
     snprintf(url, sizeof(url), "http://%s:%u/%s?auto", http_server, http_port, http_path);
 
     dp->version.two.fetch = apache_fetch;

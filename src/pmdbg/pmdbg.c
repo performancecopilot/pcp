@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013-2014,2016 Red Hat.
  * Copyright (c) 1995,2002-2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -80,6 +80,8 @@ static struct {
     		"Service discovery (if enabled)" },
     { DBG_TRACE_ATTR,		"ATTR",
     		"Trace connection attributes" },
+    { DBG_TRACE_HTTP,		"HTTP",
+    		"Trace hypertext transfer protocol operations" },
     { DBG_TRACE_DESPERATE,		"DESPERATE",
     		"Desperate/verbose level" },
 };

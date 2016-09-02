@@ -31,8 +31,6 @@ SamplingItem::SamplingItem(Chart *parent,
 
     // initialize the pcp data and item data arrays
     my.dataCount = 0;
-    my.data = NULL;
-    my.itemData = NULL;
     resetValues(samples, 0.0, 0.0);
 
     // set base scale, then tweak if value to plot is time / time
@@ -56,10 +54,6 @@ SamplingItem::SamplingItem(Chart *parent,
 
 SamplingItem::~SamplingItem(void)
 {
-    if (my.data != NULL)
-	free(my.data);
-    if (my.itemData != NULL)
-	free(my.itemData);
 }
 
 QwtPlotItem *
@@ -77,15 +71,9 @@ SamplingItem::curve(void)
 void
 SamplingItem::resetValues(int values, double, double)
 {
-    size_t size;
-
     // Reset sizes of pcp data array and the plot data array
-    size = values * sizeof(my.data[0]);
-    if ((my.data = (double *)realloc(my.data, size)) == NULL)
-	nomem();
-    size = values * sizeof(my.itemData[0]);
-    if ((my.itemData = (double *)realloc(my.itemData, size)) == NULL)
-	nomem();
+    my.data.resize(values);
+    my.itemData.resize(values);
     if (my.dataCount > values)
 	my.dataCount = values;
 }
@@ -124,19 +112,28 @@ SamplingItem::updateValues(bool forward,
 	value = scaled.d * my.scale;
     }
 
+    // sz will be the number of previous samples we want to keep.
     if (my.dataCount < sampleHistory)
 	sz = qMax(0, (int)(my.dataCount * sizeof(double)));
     else
 	sz = qMax(0, (int)((my.dataCount - 1) * sizeof(double)));
 
     if (forward) {
-	memmove(&my.data[1], &my.data[0], sz);
-	memmove(&my.itemData[1], &my.itemData[0], sz);
-	my.data[0] = value;
+	// Keep sz samples and add the new sample to the beginning.
+	my.data.resize (sz);
+	my.itemData.resize (sz);
+	my.data.push_front(value);
+	my.itemData.push_front(value);
     } else {
-	memmove(&my.data[0], &my.data[1], sz);
-	memmove(&my.itemData[0], &my.itemData[1], sz);
-	my.data[my.dataCount - 1] = value;
+	// Keep sz samples and add the new sample to the end.
+	if (my.dataCount) {
+	    my.data.pop_front ();
+	    my.itemData.pop_front();
+	}
+	my.data.resize (sz);
+	my.itemData.resize (sz);
+	my.data.push_back(value);
+	my.itemData.push_back(value);
     }
 
     if (my.dataCount < sampleHistory)
@@ -167,10 +164,19 @@ SamplingItem::rescaleValues(pmUnits *new_units)
 }
 
 void
-SamplingItem::replot(int history, double *timeData)
+SamplingItem::replot(int history, const QVector<double> &timeData)
 {
+    // Restrict the number of samples to the minimum of history and my.dataCount
     int count = qMin(history, my.dataCount);
-    my.curve->setRawSamples(timeData, my.itemData, count);
+
+    // QwtPlotCurve::setSamples( const QVector<QPointF> & ) which is a
+    // non-deprecated instance of setSamples.
+    QVector<QPointF> samples;
+    for (int i = 0; i < count; ++i) {
+	QPointF sample(timeData[i], my.itemData[i]);
+	samples.push_back(sample);
+    }
+    my.curve->setSamples(samples);
     console->post("SamplingItem::replot");
 }
 
@@ -762,13 +768,13 @@ SamplingEngine::redoScale(void)
 void
 SamplingEngine::replot(void)
 {
-    GroupControl *group = my.chart->my.tab->group();
-    int		vh = group->visibleHistory();
-    double	*vp = group->timeAxisData();
-    int		itemCount = my.chart->metricCount();
-    int		maxCount = 0;
-    int		i, m;
-    double	sum;
+    GroupControl		*group = my.chart->my.tab->group();
+    int				vh = group->visibleHistory();
+    const QVector<double>	&vp = group->timeAxisData();
+    int				itemCount = my.chart->metricCount();
+    int				maxCount = 0;
+    int				i, m;
+    double			sum;
 
 #if DESPERATE
     console->post(PmChart::DebugForce, "SamplingEngine::replot %d items)", itemCount);

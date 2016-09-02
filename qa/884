@@ -1,0 +1,48 @@
+#!/bin/sh
+# PCP QA Test No. 884
+# libpcp_web qa
+#
+# Copyright (c) 2016 Red Hat.  All Rights Reserved.
+
+seq=`basename $0`
+echo "QA output created by $seq"
+qa_dir=`pwd`
+web_qa_dir="${qa_dir}/web"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+culldir=false
+
+_cleanup()
+{
+    rm -f $tmp.*
+    $sudo rm -f $files1 $files2
+    $culldir && $sudo rm -fr "$PCP_TMP_DIR/web"
+}
+
+# is a pre-existing web directory in place?  if so, write access needed
+if [ -d "$PCP_TMP_DIR/web" ]
+then
+    [ -w "$PCP_TMP_DIR/web" ] || _notrun "Cannot write to $PCP_TMP_DIR/web"
+else
+    culldir=true
+    $sudo mkdir -p "$PCP_TMP_DIR/web"
+    $sudo chown `whoami` "$PCP_TMP_DIR/web"    # local user - tmpdir writing
+    $sudo chgrp $PCP_GROUP "$PCP_TMP_DIR/web"  # group pcp - pmdammv reading
+fi
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cp json/ceph_data1.json $PCP_TMP_DIR/web/
+src/json_test "$PCP_TMP_DIR/web/ceph_data1.json"
+
+# success, all done
+status=0
+_cleanup
+exit

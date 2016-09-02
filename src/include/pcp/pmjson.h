@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Red Hat.
+ * Copyright (c) 2015-2016 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -10,11 +10,11 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
  * License for more details.
+ *
+ * Javascript Object Notation metric value extraction (libpcp_web)
  */
 #ifndef PCP_PMJSON_H
 #define PCP_PMJSON_H
-
-#include <pmapi.h>
 
 #ifdef __cplusplus
 extern "C" {

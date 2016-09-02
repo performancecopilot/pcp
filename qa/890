@@ -1,0 +1,28 @@
+#!/bin/sh
+# PCP QA Test No. 890
+# check libpcp_import:pmiend does not leak file descriptors
+#
+# Copyright (c) 2016 Red Hat. All Rights Reserved.
+# Copyright (c) 2016 Mark Goodwin. All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f ${PCP_LIB_DIR}/libpcp_import.${DSO_SUFFIX} ] || \
+        _notrun "No support for libpcp_import"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+src/check_pmiend_fdleak
+status=$?
+
+exit
