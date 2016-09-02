@@ -2226,12 +2226,12 @@ __pmProcessTerminate(pid_t pid, int force)
 int
 __pmProcessDataSize(unsigned long *size)
 {
-    static void *base;
+    static char *base;
 
     if (size && base)
-	*size = (sbrk(0) - base) / 1024;
+	*size = ((char *)sbrk(0) - base) / 1024;
     else {
-	base = sbrk(0);
+	base = (char *)sbrk(0);
 	if (size)
 	    *size = 0;
     }
@@ -2375,11 +2375,10 @@ __pmDumpStack(FILE *f)
 	call_fn[i] = names[i];
     res = trace_back_stack(MAX_DEPTH, call_addr, call_fn, MAX_DEPTH, MAX_SIZE);
     for (i = 1; i < res; i++) {
-#if defined(HAVE_64BIT_PTR)
-	fprintf(f, "  0x%016llx [%s]\n", call_addr[i], call_fn[i]);
-#else
-	fprintf(f, "  0x%08lx [%s]\n", (__uint32_t)call_addr[i], call_fn[i]);
-#endif
+	if (sizeof(void *) == sizeof(long long))
+	    fprintf(f, "  0x%016llx [%s]\n", call_addr[i], call_fn[i]);
+	else
+	    fprintf(f, "  0x%08lx [%s]\n", (__uint32_t)call_addr[i], call_fn[i]);
     }
 }
 

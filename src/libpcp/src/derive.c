@@ -278,7 +278,7 @@ __dminit_component(const char *name, int descend, int recover)
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_DERIVE) {
 	fprintf(stderr, "Warning: derived metrics path component: %s: unexpected st_mode=%o?\n",
-	    name, sbuf.st_mode);
+	    name, (unsigned int)sbuf.st_mode);
     }
 #endif
 

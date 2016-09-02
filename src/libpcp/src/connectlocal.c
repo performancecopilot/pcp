@@ -218,7 +218,7 @@ build_dsoattrs(pmdaInterface *dispatch, __pmHashCtl *attrs)
 	__pmHashAdd(PCP_ATTR_GROUPID, namep, attrs);
 #endif
 
-    snprintf(name, sizeof(name), "%u", getpid());
+    snprintf(name, sizeof(name), "%" FMT_PID, getpid());
     name[sizeof(name)-1] = '\0';
     if ((namep = strdup(name)) != NULL)
 	__pmHashAdd(PCP_ATTR_PROCESSID, namep, attrs);
