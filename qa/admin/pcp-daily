@@ -375,11 +375,16 @@ else
     echo "Don't know how to install packages" | tee -a $HOME/daily.log
     exit 1
 fi
+if [ ! -f /etc/pcp.env ]
+then
+    echo "Error: /etc/pcp.env not installed" | tee -a $HOME/daily.log
+    exit 1
+fi
+. /etc/pcp.env
 if [ -f pcp-$buildversion/build/sun/pcp-$src_version ]
 then
     : pmcd started above
 else
-    . /etc/pcp.env
     if sudo $PCP_RC_DIR/pcp start >$tmp.out 2>&1
     then
 	cat $tmp.out >>$HOME/daily.log
