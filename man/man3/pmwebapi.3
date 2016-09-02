@@ -308,23 +308,23 @@ parameters may be ignored.  Arithmetic/statistical functions on
 metrics are not supported.
 
 .TP
-.B /graphite/render&format=json&target=FOO&from=TIME&until=TIME
+.B /graphite/render?format=json&target=FOO&from=TIME&until=TIME
 Return a series of values of the given metrics, between the two times, sampled every 60 seconds.
 .TP
-.B /graphite/rawdata&target=FOO.BAR&from=TIME&until=TIME
+.B /graphite/rawdata?target=FOO.BAR&from=TIME&until=TIME
 Same, with a slightly different result encoding.
 .TP
-.B /graphite/render&format=png&target=FOO&from=TIME&until=TIME&....
+.B /graphite/render?format=png&target=FOO&from=TIME&until=TIME&....
 Same, but render the curves into a PNG image file.  Several color- and
 rendering-control-related parameters are supported.
 .TP
-.B /graphite/metrics/find&query=FOO.BAR.*
-Provide incremental metric-tree traversal uwing wildcards.
+.B /graphite/metrics/find?query=FOO.BAR.*
+Provide incremental metric-tree traversal using wildcards.
 .TP
-.B /graphite/graphlot/findmetric&query=FOO+BAR
+.B /graphite/graphlot/findmetric?query=FOO+BAR
 Search through metrics with space-separated regular expressions.
 .TP
-.B /graphite/browser/search&q=FOO+BAR
+.B /graphite/browser/search?q=FOO+BAR
 Same, with a slightly different result encoding.
 
 
