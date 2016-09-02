@@ -9,6 +9,8 @@ sts=1  # presume failure, in case of an unexpected early exit
 tmp=`mktemp -d /var/tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 
+NM=nm
+
 # Note
 #    Really want to make this run on as many platforms as possible ...
 eval `grep PCP_PLATFORM= ../../include/pcp.conf`
@@ -30,6 +32,39 @@ in
 		    ;;
 	    esac
 	    ;;
+
+    solaris)
+	    # needto find a nm(1) that produces old-style output
+	    #
+	    if [ ! -f access.o ]
+	    then
+		echo "Error: no access.o to check"
+		exit
+	    fi
+	    rm -f $tmp/tmp
+	    dirs=/usr/bin
+	    [ -d /usr/gnu ] && dirs="$dirs /usr/gnu"
+	    [ -d /usr/opt ] && dirs="$dirs /usr/opt"
+	    find $dirs -name nm \
+	    | while read nm
+	    do
+		echo $nm >>$tmp/try
+		if $nm access.o | grep ' T __pmAccAddAccount' >/dev/null 2>&1
+		then
+		    echo $nm >$tmp/tmp
+		    break
+		fi
+	    done
+	    if [ -f $tmp/tmp ]
+	    then
+		NM=`cat $tmp/tmp`
+	    else
+		echo "Error: cannot find a version of nm(1) below that produces classic format output ..."
+		cat $tmp/try
+		exit
+	    fi
+	    ;;
+
     freebsd|netbsd|openbsd|solaris)
 	    ;;
     *)
@@ -448,17 +483,29 @@ do
 		# + strip  r __func__.NNN lines
 		# for NetBSD
 		# + strip  r CSWTCH.NNN lines
+		# for Solaris (OpenIndiana with suncc)
+		# + remove symbol mangling so
+		#   0000000000000058 B .XA$BAABAJVtXUrj.userlist
+		#   becomes
+		#   0000000000000058 B userlist
+		#   (same for R records) and
+		#   0000000000000000 D .XB$BAAB6IVtXk4i.pmfstate.errtype
+		#   becomes
+		#   0000000000000000 D errtype
+		# + strip .bss, .data, .picdata and .rodata lines
 		#
 		skip_file=false
-		nm $line \
+		$NM $line \
 		| sed -n >$tmp/out \
 		    -e '/ S ___i686.get_pc_thunk.[bc]x/d' \
 		    -e '/ [sS] .*\.eh$/d' \
 		    -e '/ [sS] .*\.stv$/d' \
 		    -e '/ s .*_\.[0-9][0-9]*$/d' \
 		    -e '/ s LC[0-9][0-9]*$/d' \
-		    -e '/ s L_\.str[0-9][0-9]*$/d' -e '/ s L_\.str$/d' \
-		    -e '/ r \.L\.str[0-9][0-9]*$/d' -e '/ r \.L\.str$/d' \
+		    -e '/ s L_\.str[0-9][0-9]*$/d' \
+		    -e '/ s L_\.str$/d' \
+		    -e '/ r \.L\.str[0-9][0-9]*$/d' \
+		    -e '/ r \.L\.str$/d' \
 		    -e '/ s L___func__\./d' \
 		    -e '/ r \.LCPI./d' \
 		    -e '/ s l_switch\./d' \
@@ -482,7 +529,16 @@ do
 		    -e '/ C ___pmPDUCntIn/d' \
 		    -e '/ C ___pmPDUCntOut/d' \
 		    -e '/ C _pmProgname/d' \
-		    -e '/ [dDbBCsSrR] /p'
+		    -e '/ \([BDR]\) \..*\./s// \1 /' \
+		    -e '/\.bss$/d' \
+		    -e '/\.data$/d' \
+		    -e '/\.picdata$/d' \
+		    -e '/\.rodata$/d' \
+		    -e '/ b bss/d' \
+		    -e '/ d data/d' \
+		    -e '/ d picdata/d' \
+		    -e '/ [dDbBCsSrR] /p' \
+		# end
 		obj=$line
 	    else
 		case "$line"
