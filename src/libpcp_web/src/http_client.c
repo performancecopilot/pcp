@@ -717,7 +717,7 @@ pmhttpClientFetch(http_client *cp, const char *url,
 		char *body_buffer, size_t body_length,
 		char *type_buffer, size_t type_length)
 {
-    int			sts, redirected = 0;
+    int		sts = 0, redirected = 0;
 
     if (pmDebug & DBG_TRACE_HTTP)
 	fprintf(stderr, "pmhttpClientFetch: %s\n", url);
