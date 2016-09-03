@@ -1,3 +1,4 @@
+usr/include/pcp/pmhttp.h
 usr/include/pcp/pmjson.h
 usr/lib/libpcp_web.so
 usr/lib/libpcp_web.a
