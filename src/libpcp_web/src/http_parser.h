@@ -41,10 +41,6 @@
 # define HTTP_MAX_HEADER_SIZE (80*1024)
 #endif
 
-typedef struct http_parser http_parser;
-typedef struct http_parser_settings http_parser_settings;
-
-
 /* Callbacks should return non-zero to indicate an error. The parser will
  * then halt execution.
  *
@@ -63,9 +59,6 @@ typedef struct http_parser_settings http_parser_settings;
  * many times for each string. E.G. you might get 10 callbacks for "on_url"
  * each providing just a few characters more data.
  */
-typedef int (*http_data_cb) (http_parser*, const char *at, size_t length);
-typedef int (*http_cb) (http_parser*);
-
 
 /* Request Methods */
 #define HTTP_METHOD_MAP(XX)         \
@@ -196,7 +189,7 @@ enum http_errno {
 #define HTTP_PARSER_ERRNO(p)            ((enum http_errno) (p)->http_errno)
 
 
-struct http_parser {
+typedef struct http_parser {
   /** PRIVATE **/
   unsigned int type : 2;         /* enum http_parser_type */
   unsigned int flags : 8;        /* F_* values from 'flags' enum; semi-public */
@@ -224,7 +217,10 @@ struct http_parser {
 
   /** PUBLIC **/
   void *data; /* A pointer to get hook to the "connection" or "socket" object */
-};
+} http_parser;
+
+typedef int (*http_data_cb) (http_parser*, const char *at, size_t length);
+typedef int (*http_cb) (http_parser*);
 
 
 typedef struct http_parser_settings {
