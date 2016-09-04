@@ -51,7 +51,7 @@ ifeq "$(ENABLE_WEBAPI)" "true"
 build-me:	$(CXXMDTARGET) pmwebd.service
 
 pmwebd.service:	pmwebd.service.in
-	$(SED) $< > $@ \
+	$(SED) <$< >$@ \
 	    -e 's;@PCP_RC_DIR@;'$(PCP_RC_DIR)';' \
 	    -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' \
 	# END

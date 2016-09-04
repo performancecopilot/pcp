@@ -68,7 +68,7 @@ default_pcp : default
 install_pcp : install
 
 pmie.service : pmie.service.in
-	$(SED) -e 's;@path@;'$(PCP_RC_DIR)';' $< > $@
+	$(SED) -e 's;@path@;'$(PCP_RC_DIR)';' <$< >$@
 
 crontab: crontab.in
 	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';g' $< > $@
