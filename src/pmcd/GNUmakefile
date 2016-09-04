@@ -51,7 +51,7 @@ default_pcp : default
 install_pcp : install
 
 pmcd.service: pmcd.service.in
-	$(SED) $< > $@ \
+	$(SED) <$< >$@ \
 	    -e 's;@PCP_RC_DIR@;'$(PCP_RC_DIR)';' \
 	    -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' \
 	# END
