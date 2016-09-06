@@ -127,7 +127,7 @@ install_pcp : $(SUBDIRS)
 
 check :: check_pcp
  
-check_pcp : pcp
+check_pcp : pcp python
 	$(SUBDIRS_MAKERULE)
 
 $(LIBPCP_SUBDIR): $(INCLUDE_SUBDIR)
