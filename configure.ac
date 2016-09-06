@@ -1037,9 +1037,7 @@ then
     then
 	if $pcp_python_prog -c "import lxml" >/dev/null 2>&1
 	then
-dnl temporarily disabled until dynamic instance/metric IDs resolved
-dnl	    pmda_libvirt=true
-	    :
+	    pmda_libvirt=true
 	fi
     fi
 fi
