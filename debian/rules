@@ -216,7 +216,10 @@ binary-arch: checkroot build-stamp
 	# 	effects from the unknown option
 	dh_strip --no-automatic-dbgsym
 	dh_compress
-	dh_fixperms -X/tmp
+	# pmcd.stp added to dh_fixperms because on Ubuntu 16.04
+	# $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp was getting an
+	# unwanted mode change from 444 to 644
+	dh_fixperms -X/tmp -Xpmcd.stp
 	dh_installdirs
 	dh_install --sourcedir=debian/$(pcp)
 	@$(uninstall)
@@ -258,7 +261,6 @@ binary-arch: checkroot build-stamp
 	dh_shlibdeps 2>/dev/null	# qmake doesn't allow a library list
 	dh_gencontrol $(SUBSTVARS) 2>/dev/null	# squash the python:Versions warning
 	dh_md5sums
-
 	dh_builddeb
 
 binary: binary-indep binary-arch
