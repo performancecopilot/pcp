@@ -1,0 +1,89 @@
+{
+    "nodes": [
+        {
+            "name": "short title of node",
+	    "description": "more detailed explanation of the issue",
+	    "pcp_metrics": "information from pcp to determine whether problem",
+	    "predicate": "test to determine if problem",
+	    "article": "list of extern URLs (for example kbase articles) for addressing the issue",
+	    "parents": "one or more nodes that would be checked before this node"
+        },
+        {
+            "name": "Start",
+	    "predicate": 1
+        },
+        {
+            "name": "CPU",
+	    "description": "The speed of the CPU is limiting performance",
+	    "predicate": "(1 - fetch_metric_min(\"kernel.percpu.cpu.idle\")",
+	    "pcp_metrics": "kernel.percpu.cpu.idle",
+	    "article": "",
+	    "parents": "Start"
+        },
+        {
+            "name": "CPU - serial code",
+	    "description": "The processors in the machine are sitting idle while others are quite busy.",
+	    "pcp_metrics": "kernel.percpu.cpu.idle",
+	    "predicate": "test to determine if problem",
+	    "article": "",
+	    "parents": "CPU"
+        },
+        {
+            "name": "CPU - cache issue",
+	    "description": "The cache is having excessive misses.",
+	    "pcp_metrics": "papi pmda, looking at PAPI_L2_TCM or PAPI_L3_TCM",
+	    "predicate": "",
+	    "article": "",
+	    "parents": "CPU"
+        },
+        {
+            "name": "Storage - high utilization",
+	    "description": "Excessive waiting for storage",
+	    "pcp_metrics": "disk.md.avactive",
+	    "predicate": "disk.md.avactive",
+	    "article": "",
+	    "parents": "Start"
+        },
+        {
+            "name": "Storage - bandwidth",
+	    "description": "Saturating bandwidth of storage",
+	    "pcp_metrics": [ "disk.md.total", "time" ],
+	    "predicate": "delta(disk.md.total)/delta(time)",
+	    "article": "",
+	    "parents": "Storage - high utilization"
+        },
+        {
+            "name": "Storage - small blocks",
+	    "description": "Excessive waiting for storage",
+	    "pcp_metrics": [ "disk.md.total", "disk.md.blktotal"],
+	    "predicate": "delta(disk.md.total)/delta(disk.md.blktotal)",
+	    "article": "",
+	    "parents": "Storage - high utilization"
+        },
+        {
+            "name": "Memory - space",
+	    "description": "Running low on free memory",
+	    "pcp_metrics": [ "mem.freemem", "mem.physmem" ],
+	    "predicate": "mem.freemem/mem.physmem",
+	    "article": "",
+	    "parents": "Start"
+        },
+        {
+            "name": "Memory - swapping",
+	    "description": "Not enough physical memory and data being moved between memory and swap space",
+	    "pcp_metrics":  [ "pagesin" , "swap.pagesout" ], 
+	    "predicate": "",
+	    "article": "",
+	    "parents": "Start"
+        },
+        {
+            "name": "Memory - huge page defragmentation",
+	    "description": "The system is spending large amounts of time grouping small pages of memory together into contigious physical regions of memory",
+	    "pcp_metrics": [ "mem.vmstat.thp_collapse_alloc", "mem.vmstat.thp_fault_alloc", "mem.vmstat.thp_fault_fallback" ],
+	    "predicate": "",
+	    "article": "http://dl.acm.org/citation.cfm?id=2930834",
+	    "parents": "Start"
+        }
+    ],
+    "edges": [ ]
+}
