@@ -327,7 +327,7 @@ static const char *
 ipv6_enabled(void)
 {
 #if defined(IS_LINUX)
-    char c;
+    int c;
     FILE *fp = fopen("/proc/sys/net/ipv6/conf/all/disable_ipv6", "r");
     if (fp == NULL)
 	return access("/proc/net/if_inet6", F_OK) == 0 ? enabled() : disabled();
