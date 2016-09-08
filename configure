@@ -10643,7 +10643,7 @@ fi
 
 done
 
-    if test "$do_perfevent" != "check" -a "$enable_papi" != "true"
+    if test "$do_perfevent" != "check" -a "$enable_perfevent" != "true"
     then
 	as_fn_error $? "libpfm is not installed, cannot enable the perfevent PMDA" "$LINENO" 5
     else

@@ -1676,7 +1676,7 @@ AS_IF([test "x$do_perfevent" != "xno" ], [
 		 [pfm_libs="-lpfm"],
 		 [enable_perfevent=false])
     AC_CHECK_HEADERS([perfmon/pfmlib_perf_event.h], [], [enable_perfevent=false])
-    if test "$do_perfevent" != "check" -a "$enable_papi" != "true"
+    if test "$do_perfevent" != "check" -a "$enable_perfevent" != "true"
     then
 	AC_MSG_ERROR([libpfm is not installed, cannot enable the perfevent PMDA])
     else
