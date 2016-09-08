@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2016 Red Hat.
  * Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
  * Copyright (c) 2000-2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -327,7 +327,15 @@ static const char *
 ipv6_enabled(void)
 {
 #if defined(IS_LINUX)
-    return access("/proc/net/if_inet6", F_OK) == 0 ? enabled() : disabled();
+    char c;
+    FILE *fp = fopen("/proc/sys/net/ipv6/conf/all/disable_ipv6", "r");
+    if (fp == NULL)
+	return access("/proc/net/if_inet6", F_OK) == 0 ? enabled() : disabled();
+    c = fgetc(fp);
+    fclose(fp);
+    if (c == '1')
+	return disabled();
+    return enabled();
 #else
     return enabled();
 #endif
