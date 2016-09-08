@@ -17,7 +17,7 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 pmns=$PCP_PMDAS_DIR/papi/root
 pmda=$PCP_PMDAS_DIR/papi/pmda_papi.$DSO_SUFFIX,papi_init

@@ -17,7 +17,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
@@ -39,9 +39,9 @@ echo "without PMCD ..."
 if [ -x src/fetchrate_lite ]
 then
     PMDA_LOCAL_SAMPLE=yes; export PMDA_LOCAL_SAMPLE
-    $sudo src/fetchrate_lite -L sampledso.sysinfo 2>&1 | _filter 6500
+    $sudo_local_ctx src/fetchrate_lite -L sampledso.sysinfo 2>&1 | _filter 6500
 else
-    $sudo src/fetchrate -L sampledso.sysinfo 2>&1 | _filter 6500
+    $sudo_local_ctx src/fetchrate -L sampledso.sysinfo 2>&1 | _filter 6500
 fi
 e1=$?
 

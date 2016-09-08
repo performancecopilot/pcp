@@ -16,31 +16,43 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# Expect this ...
+# Unlock Fail: Operation not permitted
+# may see this on Solaris/OpenIndiana ...
+# Unlock Fail: Not owner
+#
+_filter()
+{
+    sed \
+	-e '/Unlock Fail/s/Not owner/Operation not permitted/' \
+    # end
+}
 
 # real QA test starts here
 echo "=== -x (no context) ==="
-src/github-50 -x
+src/github-50 -x 2>&1 | _filter
 
 echo
 echo "=== no args, default context ==="
-src/github-50
+src/github-50 2>&1 | _filter
 
 echo
 echo "=== -h local: ==="
-src/github-50 -h 'local:'
+src/github-50 -h 'local:' 2>&1 | _filter
 
 echo
 echo '=== -h `hostname` ==='
-src/github-50 -h `hostname`
+src/github-50 -h `hostname` 2>&1 | _filter
 
 echo
 echo '=== -L ==='
-src/github-50 -L
+$sudo_local_ctx src/github-50 -L 2>&1 | _filter
 
 echo
 echo '=== -a archives/ok-foo ==='
-src/github-50 -a archives/ok-foo
+src/github-50 -a archives/ok-foo 2>&1 | _filter
 
 # success, all done
 status=0

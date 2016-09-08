@@ -113,6 +113,7 @@ mkdir $tmp
 
 # real QA test starts here
 unset verbose
+verbose_text=''
 for loop in 1 2
 do
     echo >$tmp/sed
@@ -157,8 +158,8 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
     echo >>$seq.full
 
     echo
-    echo "=== [${verbose+verbose}] regular show ==="
-    echo "=== [${verbose+verbose}] regular show ===" >>$seq.full
+    echo "=== [$verbose_text] regular show ==="
+    echo "=== [$verbose_text] regular show ===" >>$seq.full
     $sudo $PCP_BINADM_DIR/pmlogger_daily -o -c $tmp/control -k 3 $verbose -l $tmp.log
 
     $sudo cat $tmp.log | _filter
@@ -166,8 +167,8 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
     ls $tmp | sed -f $tmp/sed | tee -a $seq.full | LC_COLLATE=POSIX sort
 
     echo
-    echo "=== [${verbose+verbose}] nothing to do but cull some more ==="
-    echo "=== [${verbose+verbose}] nothing to do but cull some more ===" >>$seq.full
+    echo "=== [$verbose_text] nothing to do but cull some more ==="
+    echo "=== [$verbose_text] nothing to do but cull some more ===" >>$seq.full
     for ext in 0 index meta
     do
 	mv $tmp/$yesterday.$ext $tmp/save.$ext
@@ -178,8 +179,8 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
     ls $tmp | sed -f $tmp/sed | tee -a $seq.full | LC_COLLATE=POSIX sort
 
     echo
-    echo "=== [${verbose+verbose}] error, output already exists ==="
-    echo "=== [${verbose+verbose}] error, output already exists ===" >>$seq.full
+    echo "=== [$verbose_text] error, output already exists ==="
+    echo "=== [$verbose_text] error, output already exists ===" >>$seq.full
     for ext in 0 index meta
     do
 	cp archives/arch_a.$ext $tmp/$yesterday.17.18.$ext
@@ -191,6 +192,7 @@ LOCALHOSTNAME	n   n	'"$tmp"'	./config'
     ls $tmp | sed -f $tmp/sed | tee -a $seq.full | LC_COLLATE=POSIX sort
 
     verbose=-V
+    verbose_text='verbose'
     rm -f $tmp/*
 done
 

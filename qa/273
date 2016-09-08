@@ -18,7 +18,7 @@ echo "QA output created by $seq"
 _cleanup()
 {
     _restore_primary_logger
-    rm -f $tmp.*
+    $sudo rm -f $tmp.*
     exit $status
 }
 
@@ -101,26 +101,26 @@ _wait_for_pmlogger
 
 # help.c
 #
-$sudo pminfo -t -L sampledso 2>&1
-$sudo pminfo -T -L sampledso 2>&1
+$sudo_local_ctx pminfo -t -L sampledso 2>&1
+$sudo_local_ctx pminfo -T -L sampledso 2>&1
 pminfo -T -a tmparch/foo sample
-$sudo pminfo -T -L -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init simple.now 2>&1
+$sudo_local_ctx pminfo -T -L -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init simple.now 2>&1
 
 # instance.c
 #
-$sudo pminfo -L -f -Dfetch sampledso.bin 2>&1 | _filter_dumpresult
+$sudo_local_ctx pminfo -L -f -Dfetch sampledso.bin 2>&1 | _filter_dumpresult
 pminfo -f -Dindom sample.bin 2>&1 | _filter
 $sudo pminfo -fL -Dfetch,indom -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init simple 2>&1 \
 | _filter_dumpresult | _filter
 src/indom sample.bin
 src/indom sample.long.one
 pmval -s 1 -i "bin-123" sample.bin
-$sudo src/torture_indom -L sampledso.colour 2>&1
-$sudo src/torture_indom -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init -L simple.now 2>&1
+$sudo_local_ctx src/torture_indom -L sampledso.colour 2>&1
+$sudo_local_ctx src/torture_indom -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init -L simple.now 2>&1
 
 # fetchlocal.c
 #
-$sudo pminfo -f -L -Dfetch sampledso.bad.unknown 2>&1 | _filter_dumpresult
+$sudo_local_ctx pminfo -f -L -Dfetch sampledso.bad.unknown 2>&1 | _filter_dumpresult
 
 # spec.c
 #
@@ -220,11 +220,11 @@ src/xval -e
 # store.c
 #
 echo
-$sudo src/chknumval -L sampledso.long.write_me sampledso.ulong.write_me sampledso.longlong.write_me >$tmp.out 2>$tmp.err
+$sudo_local_ctx src/chknumval -L sampledso.long.write_me sampledso.ulong.write_me sampledso.longlong.write_me >$tmp.out 2>$tmp.err
 cat $tmp.err $tmp.out | _filter2
 
 echo
-$sudo src/chknumval -Dcontext -L pmcd.control.debug sampledso.long.write_me sample.colour >$tmp.out 2>$tmp.err
+$sudo_local_ctx src/chknumval -Dcontext -L pmcd.control.debug sampledso.long.write_me sample.colour >$tmp.out 2>$tmp.err
 cat $tmp.err $tmp.out | _filter2
 cat >$tmp.root <<End-of-File
 root {
@@ -250,11 +250,11 @@ sampledso.long {
 End-of-File
 
 echo
-$sudo src/chknumval -L -n $tmp.root pmcd.control.debug sampledso.long.write_me sample.colour >$tmp.out 2>$tmp.err
+$sudo_local_ctx src/chknumval -L -n $tmp.root pmcd.control.debug sampledso.long.write_me sample.colour >$tmp.out 2>$tmp.err
 cat $tmp.err $tmp.out | _filter2
 
 echo
-$sudo src/chknumval -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init -L simple.now simple.now simple.now >$tmp.out 2>$tmp.err
+$sudo_local_ctx src/chknumval -n $PCP_PMDAS_DIR/simple/root -K clear -K add,253,simple/pmda_simple.$DSO_SUFFIX,simple_init -L simple.now simple.now simple.now >$tmp.out 2>$tmp.err
 cat $tmp.err $tmp.out | _filter2
 
 # success, all done
