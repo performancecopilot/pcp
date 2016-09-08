@@ -146,10 +146,14 @@ def pyFileToCFile(fileObj):
 #
 
 class pmErr(Exception):
+    def __init__(self, *args):
+        super(pmErr, self).__init__(*args)
+        self.errno = args[0]
+
     def __str__(self):
         errSym = None
         try:
-            errSym = c_api.pmErrSymDict[self.args[0]]
+            errSym = c_api.pmErrSymDict[self.errno]
         except KeyError:
             pass
         if errSym == None:
@@ -158,7 +162,7 @@ class pmErr(Exception):
 
     def message(self):
         errStr = create_string_buffer(c_api.PM_MAXERRMSGLEN)
-        errStr = LIBPCP.pmErrStr_r(self.args[0], errStr, c_api.PM_MAXERRMSGLEN)
+        errStr = LIBPCP.pmErrStr_r(self.errno, errStr, c_api.PM_MAXERRMSGLEN)
         result = str(errStr.decode())
         for index in range(1, len(self.args)):
             result += " " + str(self.args[index])

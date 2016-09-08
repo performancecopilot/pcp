@@ -66,3 +66,8 @@ endif
 include $(BUILDRULES)
 
 install_pcp install: install_python2 install_python3
+
+check :: check_pcp
+
+check_pcp:
+	pmpython -m unittest discover -s test -p '*_test.py'
