@@ -13,7 +13,6 @@
 #include "qwt_global.h"
 #include "qwt_magnifier.h"
 
-class QwtPlotCanvas;
 class QwtPlot;
 
 /*!
@@ -32,14 +31,14 @@ class QWT_EXPORT QwtPlotMagnifier: public QwtMagnifier
     Q_OBJECT
 
 public:
-    explicit QwtPlotMagnifier( QwtPlotCanvas * );
+    explicit QwtPlotMagnifier( QWidget * );
     virtual ~QwtPlotMagnifier();
 
     void setAxisEnabled( int axis, bool on );
     bool isAxisEnabled( int axis ) const;
 
-    QwtPlotCanvas *canvas();
-    const QwtPlotCanvas *canvas() const;
+    QWidget *canvas();
+    const QWidget *canvas() const;
 
     QwtPlot *plot();
     const QwtPlot *plot() const;

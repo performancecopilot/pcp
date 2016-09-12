@@ -8,91 +8,9 @@
  *****************************************************************************/
 
 #include "qwt_scale_map.h"
+#include "qwt_math.h"
 #include <qrect.h>
-#include <qalgorithms.h>
-#include <qmath.h>
 #include <qdebug.h>
-
-#if QT_VERSION < 0x040601
-#define qExp(x) ::exp(x)
-#endif
-
-//! Smallest allowed value for logarithmic scales: 1.0e-150
-QT_STATIC_CONST_IMPL double QwtScaleMap::LogMin = 1.0e-150;
-
-//! Largest allowed value for logarithmic scales: 1.0e150
-QT_STATIC_CONST_IMPL double QwtScaleMap::LogMax = 1.0e150;
-
-//! Constructor for a linear transformation
-QwtScaleTransformation::QwtScaleTransformation( Type type ):
-    d_type( type )
-{
-}
-
-//! Destructor
-QwtScaleTransformation::~QwtScaleTransformation()
-{
-}
-
-//! Create a clone of the transformation
-QwtScaleTransformation *QwtScaleTransformation::copy() const
-{
-    return new QwtScaleTransformation( d_type );
-}
-
-/*!
-  \brief Transform a value from the coordinate system of a scale
-         into the coordinate system of the paint device
-
-  \param s  Value related to the coordinate system of the scale
-  \param s1 First border of the coordinate system of the scale
-  \param s2 Second border of the coordinate system of the scale
-  \param p1 First border of the coordinate system of the paint device
-  \param p2 Second border of the coordinate system of the paint device
-  \return
-  <dl>
-  <dt>linear mapping:<dd>p1 + (p2 - p1) / (s2 - s1) * (s - s1);</dd>
-  </dl>
-  <dl>
-  <dt>log10 mapping: <dd>p1 + (p2 - p1) / log(s2 / s1) * log(s / s1);</dd>
-  </dl>
-*/
-
-double QwtScaleTransformation::xForm(
-    double s, double s1, double s2, double p1, double p2 ) const
-{
-    if ( d_type == Log10 )
-        return p1 + ( p2 - p1 ) / log( s2 / s1 ) * log( s / s1 );
-    else
-        return p1 + ( p2 - p1 ) / ( s2 - s1 ) * ( s - s1 );
-}
-
-/*!
-  \brief Transform a value from the coordinate system of the paint device
-         into the coordinate system of a scale.
-
-  \param p Value related to the coordinate system of the paint device 
-  \param p1 First border of the coordinate system of the paint device
-  \param p2 Second border of the coordinate system of the paint device
-  \param s1 First border of the coordinate system of the scale
-  \param s2 Second border of the coordinate system of the scale
-  \return
-  <dl>
-  <dt>linear mapping:<dd>s1 + ( s2 - s1 ) / ( p2 - p1 ) * ( p - p1 );</dd>
-  </dl>
-  <dl>
-  <dt>log10 mapping:<dd>exp((p - p1) / (p2 - p1) * log(s2 / s1)) * s1;</dd>
-  </dl>
-*/
-
-double QwtScaleTransformation::invXForm( double p, double p1, double p2,
-    double s1, double s2 ) const
-{
-    if ( d_type == Log10 )
-        return qExp( ( p - p1 ) / ( p2 - p1 ) * log( s2 / s1 ) ) * s1;
-    else
-        return s1 + ( s2 - s1 ) / ( p2 - p1 ) * ( p - p1 );
-}
 
 /*!
   \brief Constructor
@@ -104,10 +22,10 @@ QwtScaleMap::QwtScaleMap():
     d_s2( 1.0 ),
     d_p1( 0.0 ),
     d_p2( 1.0 ),
-    d_cnv( 1.0 )
+    d_cnv( 1.0 ),
+    d_ts1( 0.0 ),
+    d_transform( NULL )
 {
-    d_transformation = new QwtScaleTransformation(
-        QwtScaleTransformation::Linear );
 }
 
 //! Copy constructor
@@ -116,9 +34,12 @@ QwtScaleMap::QwtScaleMap( const QwtScaleMap& other ):
     d_s2( other.d_s2 ),
     d_p1( other.d_p1 ),
     d_p2( other.d_p2 ),
-    d_cnv( other.d_cnv )
+    d_cnv( other.d_cnv ),
+    d_ts1( other.d_ts1 ),
+    d_transform( NULL )
 {
-    d_transformation = other.d_transformation->copy();
+    if ( other.d_transform )
+        d_transform = other.d_transform->copy();
 }
 
 /*!
@@ -126,7 +47,7 @@ QwtScaleMap::QwtScaleMap( const QwtScaleMap& other ):
 */
 QwtScaleMap::~QwtScaleMap()
 {
-    delete d_transformation;
+    delete d_transform;
 }
 
 //! Assignment operator
@@ -137,9 +58,13 @@ QwtScaleMap &QwtScaleMap::operator=( const QwtScaleMap & other )
     d_p1 = other.d_p1;
     d_p2 = other.d_p2;
     d_cnv = other.d_cnv;
+    d_ts1 = other.d_ts1;
 
-    delete d_transformation;
-    d_transformation = other.d_transformation->copy();
+    delete d_transform;
+    d_transform = NULL;
+
+    if ( other.d_transform )
+        d_transform = other.d_transform->copy();
 
     return *this;
 }
@@ -147,53 +72,42 @@ QwtScaleMap &QwtScaleMap::operator=( const QwtScaleMap & other )
 /*!
    Initialize the map with a transformation
 */
-void QwtScaleMap::setTransformation(
-    QwtScaleTransformation *transformation )
+void QwtScaleMap::setTransformation( QwtTransform *transform )
 {
-    if ( transformation == NULL )
-        return;
-
-    if ( transformation != d_transformation )
+    if ( transform != d_transform )
     {
-        delete d_transformation;
-        d_transformation = transformation;
+        delete d_transform;
+        d_transform = transform;
     }
 
     setScaleInterval( d_s1, d_s2 );
 }
 
 //! Get the transformation
-const QwtScaleTransformation *QwtScaleMap::transformation() const
+const QwtTransform *QwtScaleMap::transformation() const
 {
-    return d_transformation;
+    return d_transform;
 }
 
 /*!
   \brief Specify the borders of the scale interval
   \param s1 first border
   \param s2 second border
-  \warning logarithmic scales might be aligned to [LogMin, LogMax]
+  \warning scales might be aligned to 
+           transformation depending boundaries
 */
 void QwtScaleMap::setScaleInterval( double s1, double s2 )
 {
-    if ( d_transformation->type() == QwtScaleTransformation::Log10 )
-    {
-        if ( s1 < LogMin )
-            s1 = LogMin;
-        else if ( s1 > LogMax )
-            s1 = LogMax;
-
-        if ( s2 < LogMin )
-            s2 = LogMin;
-        else if ( s2 > LogMax )
-            s2 = LogMax;
-    }
-
     d_s1 = s1;
     d_s2 = s2;
 
-    if ( d_transformation->type() != QwtScaleTransformation::Other )
-        newFactor();
+    if ( d_transform )
+    {
+        d_s1 = d_transform->bounded( d_s1 );
+        d_s2 = d_transform->bounded( d_s2 );
+    }
+
+    updateFactor();
 }
 
 /*!
@@ -206,33 +120,23 @@ void QwtScaleMap::setPaintInterval( double p1, double p2 )
     d_p1 = p1;
     d_p2 = p2;
 
-    if ( d_transformation->type() != QwtScaleTransformation::Other )
-        newFactor();
+    updateFactor();
 }
 
-/*!
-  \brief Re-calculate the conversion factor.
-*/
-void QwtScaleMap::newFactor()
+void QwtScaleMap::updateFactor()
 {
-    d_cnv = 0.0;
+    d_ts1 = d_s1;
+    double ts2 = d_s2;
 
-    switch ( d_transformation->type() )
+    if ( d_transform )
     {
-        case QwtScaleTransformation::Linear:
-        {
-            if ( d_s2 != d_s1 )
-                d_cnv = ( d_p2 - d_p1 ) / ( d_s2 - d_s1 );
-            break;
-        }
-        case QwtScaleTransformation::Log10:
-        {
-            if ( d_s1 != 0 )
-                d_cnv = ( d_p2 - d_p1 ) / log( d_s2 / d_s1 );
-            break;
-        }
-        default:;
+        d_ts1 = d_transform->transform( d_ts1 );
+        ts2 = d_transform->transform( ts2 );
     }
+
+    d_cnv = 1.0;
+    if ( d_ts1 != ts2 )
+        d_cnv = ( d_p2 - d_p1 ) / ( ts2 - d_ts1 );
 }
 
 /*!
@@ -333,7 +237,7 @@ QRectF QwtScaleMap::invTransform( const QwtScaleMap &xMap,
 QDebug operator<<( QDebug debug, const QwtScaleMap &map )
 {
     debug.nospace() << "QwtScaleMap("
-        << static_cast<int>( map.transformation()->type() )
+        << map.transformation()
         << ", s:" << map.s1() << "->" << map.s2()
         << ", p:" << map.p1() << "->" << map.p2()
         << ")";

@@ -1,10 +1,13 @@
 TARGET		= pcp_qwt
 TEMPLATE	= lib
-VERSION		= 6.0.2
+VERSION		= 6.1.4
 CONFIG		+= qt staticlib warn_on
 release:DESTDIR = build/debug
 debug:DESTDIR   = build/release
 QT		= core gui network svg
+greaterThan(QT_MAJOR_VERSION, 4) {
+QT		+= concurrent printsupport
+}
 
 HEADERS	+= \
 	qwt.h \
@@ -21,22 +24,28 @@ HEADERS	+= \
 	qwt_magnifier.h \
 	qwt_null_paintdevice.h \
 	qwt_painter.h \
+	qwt_painter_command.h \
 	qwt_panner.h \
 	qwt_picker.h \
 	qwt_picker_machine.h \
+	qwt_pixel_matrix.h \
 	qwt_point_3d.h \
+	qwt_point_data.h \
+	qwt_point_mapper.h \
 	qwt_point_polar.h \
 	qwt_round_scale_draw.h \
 	qwt_scale_div.h \
 	qwt_scale_draw.h \
 	qwt_scale_engine.h \
 	qwt_scale_map.h \
+	qwt_series_store.h \
 	qwt_spline.h \
 	qwt_symbol.h \
 	qwt_system_clock.h \
 	qwt_text_engine.h \
 	qwt_text_label.h \
-	qwt_text.h
+	qwt_text.h \
+	qwt_transform.h \
 
 SOURCES += \
 	qwt_abstract_scale_draw.cpp \
@@ -51,6 +60,7 @@ SOURCES += \
 	qwt_panner.cpp \
 	qwt_null_paintdevice.cpp \
 	qwt_painter.cpp \
+	qwt_painter_command.cpp \
 	qwt_picker.cpp \
 	qwt_round_scale_draw.cpp \
 	qwt_scale_div.cpp \
@@ -62,19 +72,25 @@ SOURCES += \
 	qwt_text.cpp \
 	qwt_event_pattern.cpp \
 	qwt_picker_machine.cpp \
+	qwt_pixel_matrix.cpp \
 	qwt_point_3d.cpp \
+	qwt_point_data.cpp \
+	qwt_point_mapper.cpp \
 	qwt_point_polar.cpp \
 	qwt_scale_engine.cpp \
 	qwt_symbol.cpp \
-	qwt_system_clock.cpp
+	qwt_system_clock.cpp \
+	qwt_transform.cpp \
 
 # qwt plot
 HEADERS += \
+	qwt_abstract_legend.h \
 	qwt_curve_fitter.h \
 	qwt_event_pattern.h \
+	qwt_graphic.h \
 	qwt_legend.h \
-	qwt_legend_item.h \
-	qwt_legend_itemmanager.h \
+	qwt_legend_data.h \
+	qwt_legend_label.h \
 	qwt_plot.h \
 	qwt_plot_renderer.h \
 	qwt_plot_curve.h \
@@ -99,14 +115,19 @@ HEADERS += \
 	qwt_plot_rescaler.h \
 	qwt_raster_data.h \
 	qwt_matrix_raster_data.h \
+	qwt_samples.h \
 	qwt_sampling_thread.h \
 	qwt_series_data.h \
-	qwt_scale_widget.h 
+	qwt_scale_widget.h \
+	qwt_widget_overlay.h \
 
 SOURCES += \
+	qwt_abstract_legend.cpp \
 	qwt_curve_fitter.cpp \
+	qwt_graphic.cpp \
 	qwt_legend.cpp \
-	qwt_legend_item.cpp \
+	qwt_legend_label.cpp \
+	qwt_legend_data.cpp \
 	qwt_plot.cpp \
 	qwt_plot_renderer.cpp \
 	qwt_plot_xml.cpp \
@@ -135,7 +156,8 @@ SOURCES += \
 	qwt_matrix_raster_data.cpp \
 	qwt_sampling_thread.cpp \
 	qwt_series_data.cpp \
-	qwt_scale_widget.cpp 
+	qwt_scale_widget.cpp \
+	qwt_widget_overlay.cpp \
 
 # svg
 HEADERS += qwt_plot_svgitem.h

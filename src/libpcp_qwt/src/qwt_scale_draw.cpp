@@ -63,6 +63,7 @@ QwtScaleDraw::~QwtScaleDraw()
 /*!
    Return alignment of the scale
    \sa setAlignment()
+   \return Alignment of the scale
 */
 QwtScaleDraw::Alignment QwtScaleDraw::alignment() const
 {
@@ -71,6 +72,8 @@ QwtScaleDraw::Alignment QwtScaleDraw::alignment() const
 
 /*!
    Set the alignment of the scale
+
+   \param align Alignment of the scale
 
    The default alignment is QwtScaleDraw::BottomScale
    \sa alignment()
@@ -85,6 +88,8 @@ void QwtScaleDraw::setAlignment( Alignment align )
 
   TopScale, BottomScale are horizontal (Qt::Horizontal) scales,
   LeftScale, RightScale are vertical (Qt::Vertical) scales.
+
+  \return Orientation of the scale
 
   \sa alignment()
 */
@@ -112,11 +117,11 @@ Qt::Orientation QwtScaleDraw::orientation() const
   \param start Start border distance
   \param end End border distance
 */
-void QwtScaleDraw::getBorderDistHint( const QFont &font,
-                                      int &start, int &end ) const
+void QwtScaleDraw::getBorderDistHint( 
+    const QFont &font, int &start, int &end ) const
 {
     start = 0;
-    end = 0;
+    end = 1.0;
 
     if ( !hasComponent( QwtAbstractScaleDraw::Labels ) )
         return;
@@ -229,7 +234,7 @@ int QwtScaleDraw::minLabelDist( const QFont &font ) const
             maxDist = dist;
     }
 
-    double angle = labelRotation() / 180.0 * M_PI;
+    double angle = qwtRadians( labelRotation() ); 
     if ( vertical )
         angle += M_PI / 2;
 
@@ -241,7 +246,7 @@ int QwtScaleDraw::minLabelDist( const QFont &font ) const
 
     // The distance we need until there is
     // the height of the label font. This height is needed
-    // for the neighbour labal.
+    // for the neighbored label.
 
     double labelDist = fmHeight / qFastSin( angle ) * qFastCos( angle );
     if ( labelDist < 0 )
@@ -270,6 +275,7 @@ int QwtScaleDraw::minLabelDist( const QFont &font ) const
    of the labels.
 
    \param font Font used for painting the labels
+   \return Extent
 
    \sa minLength()
 */
@@ -295,7 +301,7 @@ double QwtScaleDraw::extent( const QFont &font ) const
 
     if ( hasComponent( QwtAbstractScaleDraw::Backbone ) )
     {
-        const double pw = qMax( 1, penWidth() );  // penwidth can be zero
+        const double pw = qMax( 1, penWidth() );  // pen width can be zero
         d += pw;
     }
 
@@ -307,6 +313,7 @@ double QwtScaleDraw::extent( const QFont &font ) const
    Calculate the minimum length that is needed to draw the scale
 
    \param font Font used for painting the labels
+   \return Minimum length that is needed to draw the scale
 
    \sa extent()
 */
@@ -340,10 +347,11 @@ int QwtScaleDraw::minLength( const QFont &font ) const
 /*!
    Find the position, where to paint a label
 
-   The position has a distance of majTickLength() + spacing() + 1
-   from the backbone. The direction depends on the alignment()
+   The position has a distance that depends on the length of the ticks 
+   in direction of the alignment().
 
    \param value Value
+   \return Position, where to paint a label
 */
 QPointF QwtScaleDraw::labelPosition( double value ) const
 {
@@ -394,7 +402,7 @@ QPointF QwtScaleDraw::labelPosition( double value ) const
 
    \param painter Painter
    \param value Value of the tick
-   \param len Lenght of the tick
+   \param len Length of the tick
 
    \sa drawBackbone(), drawLabel()
 */
@@ -600,14 +608,22 @@ QPointF QwtScaleDraw::pos() const
   The length doesn't include the space needed for
   overlapping labels.
 
+  \param length Length of the backbone
+
   \sa move(), minLabelDist()
 */
 void QwtScaleDraw::setLength( double length )
 {
+#if 1
     if ( length >= 0 && length < 10 )
         length = 10;
+
+    // why should we accept negative lengths ???
     if ( length < 0 && length > -10 )
         length = -10;
+#else
+    length = qMax( length, 10 );
+#endif
 
     d_data->len = length;
     updateMap();
@@ -651,13 +667,15 @@ void QwtScaleDraw::drawLabel( QPainter *painter, double value ) const
 }
 
 /*!
-  Find the bounding rect for the label. The coordinates of
-  the rect are absolute coordinates ( calculated from pos() ).
+  \brief Find the bounding rectangle for the label.
+
+  The coordinates of the rectangle are absolute ( calculated from pos() ).
   in direction of the tick.
 
   \param font Font used for painting
   \param value Value
 
+  \return Bounding rectangle
   \sa labelRect()
 */
 QRect QwtScaleDraw::boundingLabelRect( const QFont &font, double value ) const
@@ -680,6 +698,7 @@ QRect QwtScaleDraw::boundingLabelRect( const QFont &font, double value ) const
    \param pos Position where to paint the label
    \param size Size of the label
 
+   \return Transformation matrix
    \sa setLabelAlignment(), setLabelRotation()
 */
 QTransform QwtScaleDraw::labelTransformation(
@@ -743,12 +762,14 @@ QTransform QwtScaleDraw::labelTransformation(
 }
 
 /*!
-  Find the bounding rect for the label. The coordinates of
-  the rect are relative to spacing + ticklength from the backbone
+  Find the bounding rectangle for the label. The coordinates of
+  the rectangle are relative to spacing + tick length from the backbone
   in direction of the tick.
 
   \param font Font used for painting
   \param value Value
+
+   \return Bounding rectangle that is needed to draw a label
 */
 QRectF QwtScaleDraw::labelRect( const QFont &font, double value ) const
 {
@@ -772,6 +793,8 @@ QRectF QwtScaleDraw::labelRect( const QFont &font, double value ) const
 
    \param font Label font
    \param value Value
+
+   \return Size that is needed to draw a label
 */
 QSizeF QwtScaleDraw::labelSize( const QFont &font, double value ) const
 {
@@ -808,7 +831,7 @@ double QwtScaleDraw::labelRotation() const
 /*!
   \brief Change the label flags
 
-  Labels are aligned to the point ticklength + spacing away from the backbone.
+  Labels are aligned to the point tick length + spacing away from the backbone.
 
   The alignment is relative to the orientation of the label text.
   In case of an flags of 0 the label will be aligned
@@ -827,7 +850,7 @@ double QwtScaleDraw::labelRotation() const
   \warning The various alignments might be confusing.
            The alignment of the label is not the alignment
            of the scale and is not the alignment of the flags
-           (QwtText::flags()) returned from QwtAbstractScaleDraw::label().
+           ( QwtText::flags() ) returned from QwtAbstractScaleDraw::label().
 */
 
 void QwtScaleDraw::setLabelAlignment( Qt::Alignment alignment )

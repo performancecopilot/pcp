@@ -67,8 +67,11 @@ time.</string>
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="backgroundStyle" >
-          <enum>QwtSlider::Groove</enum>
+         <property name="groove" >
+          <bool>true</bool>
+         </property>
+         <property name="trough" >
+          <bool>false</bool>
          </property>
          <property name="handleSize" >
           <size>
@@ -125,8 +128,11 @@ time.</string>
          <property name="orientation" >
           <enum>Qt::Horizontal</enum>
          </property>
-         <property name="backgroundStyle" >
-          <enum>QwtSlider::Groove</enum>
+         <property name="groove" >
+          <bool>true</bool>
+         </property>
+         <property name="trough" >
+          <bool>false</bool>
          </property>
          <property name="handleSize" >
           <size>

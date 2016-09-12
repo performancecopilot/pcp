@@ -15,14 +15,13 @@
 #include "qwt_plot.h"
 #include <qobject.h>
 
-class QwtPlotCanvas;
 class QwtPlot;
 class QResizeEvent;
 
 /*!
     \brief QwtPlotRescaler takes care of fixed aspect ratios for plot scales
 
-    QwtPlotRescaler autoadjusts the axes of a QwtPlot according
+    QwtPlotRescaler auto adjusts the axes of a QwtPlot according
     to fixed aspect ratios.
 */
 
@@ -45,7 +44,7 @@ public:
         Fixed,
 
         /*!
-          The interval of the reference axis will be shrinked/expanded,
+          The interval of the reference axis will be shrunk/expanded,
           when the geometry of the canvas changes. All other axes
           will be adjusted according to their aspect ratio.
 
@@ -77,7 +76,7 @@ public:
         ExpandBoth
     };
 
-    explicit QwtPlotRescaler( QwtPlotCanvas *,
+    explicit QwtPlotRescaler( QWidget *canvas,
         int referenceAxis = QwtPlot::xBottom,
         RescalePolicy = Expanding );
 
@@ -103,8 +102,8 @@ public:
     void setIntervalHint( int axis, const QwtInterval& );
     QwtInterval intervalHint( int axis ) const;
 
-    QwtPlotCanvas *canvas();
-    const QwtPlotCanvas *canvas() const;
+    QWidget *canvas();
+    const QWidget *canvas() const;
 
     QwtPlot *plot();
     const QwtPlot *plot() const;

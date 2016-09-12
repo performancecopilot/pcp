@@ -246,11 +246,13 @@ class QwtWeedingCurveFitter::PrivateData
 {
 public:
     PrivateData():
-        tolerance( 1.0 )
+        tolerance( 1.0 ),
+        chunkSize( 0 )
     {
     }
 
     double tolerance;
+    uint chunkSize;
 };
 
 class QwtWeedingCurveFitter::Line
@@ -287,7 +289,7 @@ QwtWeedingCurveFitter::~QwtWeedingCurveFitter()
 /*!
  Assign the tolerance
 
- The tolerance is the maximum distance, that is accaptable
+ The tolerance is the maximum distance, that is acceptable
  between the original curve and the smoothed curve.
 
  Increasing the tolerance will reduce the number of the
@@ -312,11 +314,63 @@ double QwtWeedingCurveFitter::tolerance() const
 }
 
 /*!
+ Limit the number of points passed to a run of the algorithm
+
+ The runtime of the Douglas Peucker algorithm increases non linear
+ with the number of points. For a chunk size > 0 the polygon
+ is split into pieces passed to the algorithm one by one.
+
+ \param numPoints Maximum for the number of points passed to the algorithm
+
+ \sa chunkSize()
+*/
+void QwtWeedingCurveFitter::setChunkSize( uint numPoints )
+{
+    if ( numPoints > 0 )
+        numPoints = qMax( numPoints, 3U );
+
+    d_data->chunkSize = numPoints;
+}
+
+/*!
+  
+  \return Maximum for the number of points passed to a run 
+          of the algorithm - or 0, when unlimited
+  \sa setChunkSize()
+*/
+uint QwtWeedingCurveFitter::chunkSize() const
+{
+    return d_data->chunkSize;
+}
+
+/*!
   \param points Series of data points
   \return Curve points
 */
 QPolygonF QwtWeedingCurveFitter::fitCurve( const QPolygonF &points ) const
 {
+    QPolygonF fittedPoints;
+
+    if ( d_data->chunkSize == 0 )
+    {
+        fittedPoints = simplify( points );
+    }
+    else
+    {
+        for ( int i = 0; i < points.size(); i += d_data->chunkSize )
+        {
+            const QPolygonF p = points.mid( i, d_data->chunkSize );
+            fittedPoints += simplify( p );
+        }
+    }
+
+    return fittedPoints;
+}
+
+QPolygonF QwtWeedingCurveFitter::simplify( const QPolygonF &points ) const
+{
+    const double toleranceSqr = d_data->tolerance * d_data->tolerance;
+
     QStack<Line> stack;
     stack.reserve( 500 );
 
@@ -324,8 +378,6 @@ QPolygonF QwtWeedingCurveFitter::fitCurve( const QPolygonF &points ) const
     const int nPoints = points.size();
 
     QVector<bool> usePoint( nPoints, false );
-
-    double distToSegment;
 
     stack.push( Line( 0, nPoints - 1 ) );
 
@@ -342,45 +394,43 @@ QPolygonF QwtWeedingCurveFitter::fitCurve( const QPolygonF &points ) const
         const double unitVecX = ( vecLength != 0.0 ) ? vecX / vecLength : 0.0;
         const double unitVecY = ( vecLength != 0.0 ) ? vecY / vecLength : 0.0;
 
-        double maxDist = 0.0;
+        double maxDistSqr = 0.0;
         int nVertexIndexMaxDistance = r.from + 1;
         for ( int i = r.from + 1; i < r.to; i++ )
         {
             //compare to anchor
             const double fromVecX = p[i].x() - p[r.from].x();
             const double fromVecY = p[i].y() - p[r.from].y();
-            const double fromVecLength =
-                qSqrt( fromVecX * fromVecX + fromVecY * fromVecY );
 
+            double distToSegmentSqr;
             if ( fromVecX * unitVecX + fromVecY * unitVecY < 0.0 )
             {
-                distToSegment = fromVecLength;
-            }
-            if ( fromVecX * unitVecX + fromVecY * unitVecY < 0.0 )
-            {
-                distToSegment = fromVecLength;
+                distToSegmentSqr = fromVecX * fromVecX + fromVecY * fromVecY;
             }
             else
             {
                 const double toVecX = p[i].x() - p[r.to].x();
                 const double toVecY = p[i].y() - p[r.to].y();
-                const double toVecLength = qSqrt( toVecX * toVecX + toVecY * toVecY );
+                const double toVecLength = toVecX * toVecX + toVecY * toVecY;
+
                 const double s = toVecX * ( -unitVecX ) + toVecY * ( -unitVecY );
                 if ( s < 0.0 )
-                    distToSegment = toVecLength;
+                {
+                    distToSegmentSqr = toVecLength;
+                }
                 else
                 {
-                    distToSegment = qSqrt( qFabs( toVecLength * toVecLength - s * s ) );
+                    distToSegmentSqr = qFabs( toVecLength - s * s );
                 }
             }
 
-            if ( maxDist < distToSegment )
+            if ( maxDistSqr < distToSegmentSqr )
             {
-                maxDist = distToSegment;
+                maxDistSqr = distToSegmentSqr;
                 nVertexIndexMaxDistance = i;
             }
         }
-        if ( maxDist <= d_data->tolerance )
+        if ( maxDistSqr <= toleranceSqr )
         {
             usePoint[r.from] = true;
             usePoint[r.to] = true;
@@ -392,14 +442,12 @@ QPolygonF QwtWeedingCurveFitter::fitCurve( const QPolygonF &points ) const
         }
     }
 
-    int cnt = 0;
-
-    QPolygonF stripped( nPoints );
+    QPolygonF stripped;
     for ( int i = 0; i < nPoints; i++ )
     {
         if ( usePoint[i] )
-            stripped[cnt++] = p[i];
+            stripped += p[i];
     }
-    stripped.resize( cnt );
+
     return stripped;
 }

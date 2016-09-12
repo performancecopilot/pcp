@@ -19,7 +19,7 @@
 #include <qstring.h>
 
 class QPainter;
-class QwtScaleTransformation;
+class QwtTransform;
 class QwtScaleDiv;
 class QwtColorMap;
 
@@ -53,7 +53,7 @@ public:
     virtual ~QwtScaleWidget();
 
 Q_SIGNALS:
-    //! Signal emitted, whenever the scale divison changes
+    //! Signal emitted, whenever the scale division changes
     void scaleDivChanged();
 
 public:
@@ -79,7 +79,8 @@ public:
     void setSpacing( int td );
     int spacing() const;
 
-    void setScaleDiv( QwtScaleTransformation *, const QwtScaleDiv &sd );
+    void setScaleDiv( const QwtScaleDiv &sd );
+    void setTransformation( QwtTransform * );
 
     void setScaleDraw( QwtScaleDraw * );
     const QwtScaleDraw *scaleDraw() const;

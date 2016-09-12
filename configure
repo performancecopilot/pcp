@@ -7524,7 +7524,7 @@ if test "x$do_qt" != "xno"; then :
 
     if test -z "$QMAKE"
     then
-		for ac_prog in qmake-qt4 qmake
+	for ac_prog in qmake-qt5 qmake-qt4 qmake
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -7539,7 +7539,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-as_dummy="$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin"
+as_dummy="$QTDIR/bin:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin"
 for as_dir in $as_dummy
 do
   IFS=$as_save_IFS

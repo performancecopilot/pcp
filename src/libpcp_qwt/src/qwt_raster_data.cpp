@@ -9,6 +9,7 @@
 
 #include "qwt_raster_data.h"
 #include "qwt_point_3d.h"
+#include <qnumeric.h>
 
 class QwtRasterData::ContourPlane
 {
@@ -180,11 +181,11 @@ void QwtRasterData::setInterval( Qt::Axis axis, const QwtInterval &interval )
 /*!
   \brief Initialize a raster
 
-  Before the composition of an image QwtPlotSpectrogram calls initRaster,
+  Before the composition of an image QwtPlotSpectrogram calls initRaster(),
   announcing the area and its resolution that will be requested.
 
   The default implementation does nothing, but for data sets that
-  are stored in files, it might be good idea to reimplement initRaster,
+  are stored in files, it might be good idea to reimplement initRaster(),
   where the data is resampled and loaded into memory.
 
   \param area Area of the raster
@@ -220,7 +221,7 @@ void QwtRasterData::discardRaster()
    representing the data. 
    
    Width and height of the hint need to be the horizontal  
-   and vertical distances between 2 neighboured points. 
+   and vertical distances between 2 neighbored points. 
    The center of the hint has to be the position of any point 
    ( it doesn't matter which one ).
 
@@ -246,6 +247,13 @@ QRectF QwtRasterData::pixelHint( const QRectF &area ) const
 
 /*!
    Calculate contour lines
+
+   \param rect Bounding rectangle for the contour lines
+   \param raster Number of data pixels of the raster data
+   \param levels List of limits, where to insert contour lines
+   \param flags Flags to customize the contouring algorithm
+
+   \return Calculated contour lines
 
    An adaption of CONREC, a simple contouring algorithm.
    http://local.wasp.uwa.edu.au/~pbourke/papers/conrec/
@@ -336,6 +344,12 @@ QwtRasterData::ContourLines QwtRasterData::contourLines(
                     zMin = z;
                 if ( z > zMax )
                     zMax = z;
+            }
+
+            if ( qIsNaN( zSum ) )
+            {
+                // one of the points is NaN
+                continue;
             }
 
             if ( ignoreOutOfRange )

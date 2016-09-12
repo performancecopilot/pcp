@@ -12,6 +12,7 @@
 #include "qwt_scale_map.h"
 #include "qwt_clipper.h"
 #include "qwt_painter.h"
+#include <string.h>
 
 #include <qpainter.h>
 
@@ -75,7 +76,7 @@ public:
   \param title Title of the curve
 */
 QwtPlotIntervalCurve::QwtPlotIntervalCurve( const QwtText &title ):
-    QwtPlotSeriesItem<QwtIntervalSample>( title )
+    QwtPlotSeriesItem( title )
 {
     init();
 }
@@ -85,7 +86,7 @@ QwtPlotIntervalCurve::QwtPlotIntervalCurve( const QwtText &title ):
   \param title Title of the curve
 */
 QwtPlotIntervalCurve::QwtPlotIntervalCurve( const QString &title ):
-    QwtPlotSeriesItem<QwtIntervalSample>( QwtText( title ) )
+    QwtPlotSeriesItem( QwtText( title ) )
 {
     init();
 }
@@ -103,7 +104,7 @@ void QwtPlotIntervalCurve::init()
     setItemAttribute( QwtPlotItem::AutoScale, true );
 
     d_data = new PrivateData;
-    d_series = new QwtIntervalSeriesData();
+    setData( new QwtIntervalSeriesData() );
 
     setZ( 19.0 );
 }
@@ -131,7 +132,7 @@ void QwtPlotIntervalCurve::setPaintAttribute(
 }
 
 /*!
-    \brief Return the current paint attributes
+    \return True, when attribute is enabled
     \sa PaintAttribute, setPaintAttribute()
 */
 bool QwtPlotIntervalCurve::testPaintAttribute(
@@ -147,9 +148,23 @@ bool QwtPlotIntervalCurve::testPaintAttribute(
 void QwtPlotIntervalCurve::setSamples(
     const QVector<QwtIntervalSample> &samples )
 {
-    delete d_series;
-    d_series = new QwtIntervalSeriesData( samples );
-    itemChanged();
+    setData( new QwtIntervalSeriesData( samples ) );
+}
+
+/*!
+  Assign a series of samples
+    
+  setSamples() is just a wrapper for setData() without any additional
+  value - beside that it is easier to find for the developer.
+    
+  \param data Data
+  \warning The item takes ownership of the data object, deleting
+           it when its not used anymore.
+*/
+void QwtPlotIntervalCurve::setSamples( 
+    QwtSeriesData<QwtIntervalSample> *data )
+{
+    setData( data );
 }
 
 /*!
@@ -163,12 +178,14 @@ void QwtPlotIntervalCurve::setStyle( CurveStyle style )
     if ( style != d_data->style )
     {
         d_data->style = style;
+
+        legendChanged();
         itemChanged();
     }
 }
 
 /*!
-    \brief Return the current style
+    \return Style of the curve
     \sa setStyle()
 */
 QwtPlotIntervalCurve::CurveStyle QwtPlotIntervalCurve::style() const
@@ -188,6 +205,8 @@ void QwtPlotIntervalCurve::setSymbol( const QwtIntervalSymbol *symbol )
     {
         delete d_data->symbol;
         d_data->symbol = symbol;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -202,6 +221,24 @@ const QwtIntervalSymbol *QwtPlotIntervalCurve::symbol() const
 }
 
 /*!
+  Build and assign a pen
+    
+  In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
+  non cosmetic ( see QPen::isCosmetic() ). This method has been introduced
+  to hide this incompatibility.
+    
+  \param color Pen color
+  \param width Pen width
+  \param style Pen style
+    
+  \sa pen(), brush()
+ */
+void QwtPlotIntervalCurve::setPen( const QColor &color, qreal width, Qt::PenStyle style )
+{   
+    setPen( QPen( color, width, style ) );
+}   
+
+/*!
   \brief Assign a pen
   \param pen New pen
   \sa pen(), brush()
@@ -211,12 +248,14 @@ void QwtPlotIntervalCurve::setPen( const QPen &pen )
     if ( pen != d_data->pen )
     {
         d_data->pen = pen;
+
+        legendChanged();
         itemChanged();
     }
 }
 
 /*!
-    \brief Return the pen used to draw the lines
+    \return Pen used to draw the lines
     \sa setPen(), brush()
 */
 const QPen& QwtPlotIntervalCurve::pen() const
@@ -237,6 +276,8 @@ void QwtPlotIntervalCurve::setBrush( const QBrush &brush )
     if ( brush != d_data->brush )
     {
         d_data->brush = brush;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -256,7 +297,7 @@ const QBrush& QwtPlotIntervalCurve::brush() const
 */
 QRectF QwtPlotIntervalCurve::boundingRect() const
 {
-    QRectF rect = QwtPlotSeriesItem<QwtIntervalSample>::boundingRect();
+    QRectF rect = QwtPlotSeriesItem::boundingRect();
     if ( rect.isValid() && orientation() == Qt::Vertical )
         rect.setRect( rect.y(), rect.x(), rect.height(), rect.width() );
 
@@ -269,7 +310,7 @@ QRectF QwtPlotIntervalCurve::boundingRect() const
   \param painter Painter
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from Index of the first sample to be painted
   \param to Index of the last sample to be painted. If to < 0 the
          series will be painted to its last sample.
@@ -318,7 +359,7 @@ void QwtPlotIntervalCurve::drawSeries( QPainter *painter,
   \param painter Painter
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from Index of the first sample to be painted
   \param to Index of the last sample to be painted. If to < 0 the
          series will be painted to its last sample.
@@ -411,12 +452,12 @@ void QwtPlotIntervalCurve::drawTube( QPainter *painter,
             QPolygonF p;
 
             p.resize( size );
-            qMemCopy( p.data(), points, size * sizeof( QPointF ) );
+            ::memcpy( p.data(), points, size * sizeof( QPointF ) );
             p = QwtClipper::clipPolygonF( clipRect, p );
             QwtPainter::drawPolyline( painter, p );
 
             p.resize( size );
-            qMemCopy( p.data(), points + size, size * sizeof( QPointF ) );
+            ::memcpy( p.data(), points + size, size * sizeof( QPointF ) );
             p = QwtClipper::clipPolygonF( clipRect, p );
             QwtPainter::drawPolyline( painter, p );
         }
@@ -437,7 +478,7 @@ void QwtPlotIntervalCurve::drawTube( QPainter *painter,
   \param symbol Interval symbol
   \param xMap x map
   \param yMap y map
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from Index of the first sample to be painted
   \param to Index of the last sample to be painted
 
@@ -499,27 +540,37 @@ void QwtPlotIntervalCurve::drawSymbols(
 }
 
 /*!
-  \brief Draw the identifier for the legend
+  \return Icon for the legend
 
-  In case of Tube style() a plain rectangle filled with the brush() is painted.
-  If a symbol is assigned it is painted centered into rect.
+  In case of Tube style() the icon is a plain rectangle filled with the brush().
+  If a symbol is assigned it is scaled to size.
 
-  \param painter Painter
-  \param rect Bounding rectangle for the identifier
+  \param index Index of the legend entry 
+               ( ignored as there is only one )
+  \param size Icon size
+    
+  \sa QwtPlotItem::setLegendIconSize(), QwtPlotItem::legendData()
 */
-void QwtPlotIntervalCurve::drawLegendIdentifier(
-    QPainter *painter, const QRectF &rect ) const
+QwtGraphic QwtPlotIntervalCurve::legendIcon( 
+    int index, const QSizeF &size ) const
 {
-    const double dim = qMin( rect.width(), rect.height() );
+    Q_UNUSED( index );
 
-    QSizeF size( dim, dim );
+    if ( size.isEmpty() )
+        return QwtGraphic();
 
-    QRectF r( 0, 0, size.width(), size.height() );
-    r.moveCenter( rect.center() );
+    QwtGraphic icon;
+    icon.setDefaultSize( size );
+    icon.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
+
+    QPainter painter( &icon );
+    painter.setRenderHint( QPainter::Antialiasing,
+        testRenderHint( QwtPlotItem::RenderAntialiased ) );
 
     if ( d_data->style == Tube )
     {
-        painter->fillRect( r, d_data->brush );
+        QRectF r( 0, 0, size.width(), size.height() );
+        painter.fillRect( r, d_data->brush );
     }
 
     if ( d_data->symbol &&
@@ -529,20 +580,24 @@ void QwtPlotIntervalCurve::drawLegendIdentifier(
         pen.setWidthF( pen.widthF() );
         pen.setCapStyle( Qt::FlatCap );
 
-        painter->setPen( pen );
-        painter->setBrush( d_data->symbol->brush() );
+        painter.setPen( pen );
+        painter.setBrush( d_data->symbol->brush() );
 
         if ( orientation() == Qt::Vertical )
         {
-            d_data->symbol->draw( painter, orientation(),
-                QPointF( r.center().x(), r.top() ),
-                QPointF( r.center().x(), r.bottom() - 1 ) );
+            const double x = 0.5 * size.width();
+
+            d_data->symbol->draw( &painter, orientation(),
+                QPointF( x, 0 ), QPointF( x, size.height() - 1.0 ) );
         }
         else
         {
-            d_data->symbol->draw( painter, orientation(),
-                QPointF( r.left(), r.center().y() ),
-                QPointF( r.right() - 1, r.center().y() ) );
+            const double y = 0.5 * size.height();
+
+            d_data->symbol->draw( &painter, orientation(),
+                QPointF( 0.0, y ), QPointF( size.width() - 1.0, y ) );
         }
     }
+
+    return icon;
 }

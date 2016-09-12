@@ -13,7 +13,6 @@
 #include "qwt_global.h"
 #include "qwt_abstract_scale.h"
 #include "qwt_interval.h"
-#include <qwidget.h>
 
 class QwtScaleDraw;
 class QwtColorMap;
@@ -43,95 +42,72 @@ class QwtColorMap;
     For the axis of the scale
   - QPalette::Text
     For the labels of the scale
-
-  By default, the scale and range run over the same interval of values.
-  QwtAbstractScale::setScale() changes the interval of the scale and allows
-  easy conversion between physical units.
-
-  The example shows how to make the scale indicate in degrees Fahrenheit and
-  to set the value in degrees Kelvin:
-\code
-#include <qapplication.h>
-#include <qwt_thermo.h>
-
-double Kelvin2Fahrenheit(double kelvin)
-{
-    // see http://en.wikipedia.org/wiki/Kelvin
-    return 1.8*kelvin - 459.67;
-}
-
-int main(int argc, char **argv)
-{
-    const double minKelvin = 0.0;
-    const double maxKelvin = 500.0;
-
-    QApplication a(argc, argv);
-    QwtThermo t;
-    t.setRange(minKelvin, maxKelvin);
-    t.setScale(Kelvin2Fahrenheit(minKelvin), Kelvin2Fahrenheit(maxKelvin));
-    // set the value in Kelvin but the scale displays in Fahrenheit
-    // 273.15 Kelvin = 0 Celsius = 32 Fahrenheit
-    t.setValue(273.15);
-    a.setMainWidget(&t);
-    t.show();
-    return a.exec();
-}
-\endcode
-
-  \todo Improve the support for a logarithmic range and/or scale.
 */
-class QWT_EXPORT QwtThermo: public QWidget, public QwtAbstractScale
+class QWT_EXPORT QwtThermo: public QwtAbstractScale
 {
     Q_OBJECT
 
-    Q_ENUMS( ScalePos )
+    Q_ENUMS( ScalePosition )
+    Q_ENUMS( OriginMode )
+
+    Q_PROPERTY( Qt::Orientation orientation
+        READ orientation WRITE setOrientation )
+    Q_PROPERTY( ScalePosition scalePosition 
+        READ scalePosition WRITE setScalePosition )
+    Q_PROPERTY( OriginMode originMode READ originMode WRITE setOriginMode )
 
     Q_PROPERTY( bool alarmEnabled READ alarmEnabled WRITE setAlarmEnabled )
     Q_PROPERTY( double alarmLevel READ alarmLevel WRITE setAlarmLevel )
-    Q_PROPERTY( ScalePos scalePosition READ scalePosition
-        WRITE setScalePosition )
+    Q_PROPERTY( double origin READ origin WRITE setOrigin )
     Q_PROPERTY( int spacing READ spacing WRITE setSpacing )
     Q_PROPERTY( int borderWidth READ borderWidth WRITE setBorderWidth )
-    Q_PROPERTY( double maxValue READ maxValue WRITE setMaxValue )
-    Q_PROPERTY( double minValue READ minValue WRITE setMinValue )
     Q_PROPERTY( int pipeWidth READ pipeWidth WRITE setPipeWidth )
     Q_PROPERTY( double value READ value WRITE setValue )
 
 public:
+
     /*!
-      Scale position. QwtThermo tries to enforce valid combinations of its
-      orientation and scale position:
-
-      - Qt::Horizonal combines with NoScale, TopScale and BottomScale
-      - Qt::Vertical combines with NoScale, LeftScale and RightScale
-
-      \sa setOrientation(), setScalePosition()
-    */
-    enum ScalePos
+      Position of the scale
+      \sa setScalePosition(), setOrientation()
+     */
+    enum ScalePosition
     {
-        //! No scale
+        //! The slider has no scale
         NoScale,
 
-        //! The scale is left of the pipe
-        LeftScale,
+        //! The scale is right of a vertical or below of a horizontal slider
+        LeadingScale,
 
-        //! The scale is right of the pipe
-        RightScale,
+        //! The scale is left of a vertical or above of a horizontal slider
+        TrailingScale
+    };
 
-        //! The scale is above the pipe
-        TopScale,
+    /*!
+      Origin mode. This property specifies where the beginning of the liquid
+      is placed.
 
-        //! The scale is below the pipe
-        BottomScale
+      \sa setOriginMode(), setOrigin()
+    */
+    enum OriginMode
+    {
+        //! The origin is the minimum of the scale
+        OriginMinimum,
+
+        //! The origin is the maximum of the scale
+        OriginMaximum,
+
+        //! The origin is specified using the origin() property
+        OriginCustom
     };
 
     explicit QwtThermo( QWidget *parent = NULL );
     virtual ~QwtThermo();
 
-    void setOrientation( Qt::Orientation, ScalePos );
+    void setOrientation( Qt::Orientation );
+    Qt::Orientation orientation() const;
 
-    void setScalePosition( ScalePos s );
-    ScalePos scalePosition() const;
+    void setScalePosition( ScalePosition );
+    ScalePosition scalePosition() const;
 
     void setSpacing( int );
     int spacing() const;
@@ -139,11 +115,17 @@ public:
     void setBorderWidth( int w );
     int borderWidth() const;
 
+    void setOriginMode( OriginMode );
+    OriginMode originMode() const;
+
+    void setOrigin( double );
+    double origin() const;
+
     void setFillBrush( const QBrush &b );
-    const QBrush &fillBrush() const;
+    QBrush fillBrush() const;
 
     void setAlarmBrush( const QBrush &b );
-    const QBrush &alarmBrush() const;
+    QBrush alarmBrush() const;
 
     void setAlarmLevel( double v );
     double alarmLevel() const;
@@ -161,15 +143,7 @@ public:
     void setRangeFlags( QwtInterval::BorderFlags );
     QwtInterval::BorderFlags rangeFlags() const;
 
-    void setMaxValue( double v );
-    double maxValue() const;
-
-    void setMinValue( double v );
-    double minValue() const;
-
     double value() const;
-
-    void setRange( double vmin, double vmax, bool lg = false );
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
@@ -191,6 +165,8 @@ protected:
     QwtScaleDraw *scaleDraw();
 
     QRect pipeRect() const;
+    QRect fillRect( const QRect & ) const;
+    QRect alarmRect( const QRect & ) const;
 
 private:
     void layoutThermo( bool );

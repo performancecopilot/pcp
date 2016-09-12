@@ -168,6 +168,30 @@ public:
 };
 
 /*!
+  \brief A state machine for line selections
+    
+  Pressing QwtEventPattern::MouseSelect1 selects
+  the first point, releasing it the second point.
+  Pressing QwtEventPattern::KeySelect1 also selects the
+  first point, a second press selects the second point and terminates
+  the selection.
+
+  A common use case of QwtPickerDragLineMachine are pickers for
+  distance measurements.
+  
+  \sa QwtEventPattern::MousePatternCode, QwtEventPattern::KeyPatternCode
+*/              
+                    
+class QWT_EXPORT QwtPickerDragLineMachine: public QwtPickerMachine
+{
+public:
+    QwtPickerDragLineMachine();
+
+    virtual QList<Command> transition(
+        const QwtEventPattern &, const QEvent * );
+};
+
+/*!
   \brief A state machine for polygon selections
 
   Pressing QwtEventPattern::MouseSelect1 or QwtEventPattern::KeySelect1

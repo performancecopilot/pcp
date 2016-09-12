@@ -120,18 +120,18 @@ SamplingItem::updateValues(bool forward,
 
     if (forward) {
 	// Keep sz samples and add the new sample to the beginning.
-	my.data.resize (sz);
-	my.itemData.resize (sz);
+	my.data.resize(sz);
+	my.itemData.resize(sz);
 	my.data.push_front(value);
 	my.itemData.push_front(value);
     } else {
 	// Keep sz samples and add the new sample to the end.
 	if (my.dataCount) {
-	    my.data.pop_front ();
+	    my.data.pop_front();
 	    my.itemData.pop_front();
 	}
 	my.data.resize (sz);
-	my.itemData.resize (sz);
+	my.itemData.resize(sz);
 	my.data.push_back(value);
 	my.itemData.push_back(value);
     }
@@ -581,8 +581,8 @@ SamplingEngine::redoScale(void)
     // of appropriate units scaling.
     //
     if (my.scaleEngine->autoScale() &&
-	my.chart->axisScaleDiv(QwtPlot::yLeft)->upperBound() > 1000) {
-	double scaled_max = my.chart->axisScaleDiv(QwtPlot::yLeft)->upperBound();
+	my.chart->axisScaleDiv(QwtPlot::yLeft).upperBound() > 1000) {
+	double scaled_max = my.chart->axisScaleDiv(QwtPlot::yLeft).upperBound();
 	if (my.units.dimSpace == 1) {
 	    switch (my.units.scaleSpace) {
 		case PM_SPACE_BYTE:
@@ -666,8 +666,8 @@ SamplingEngine::redoScale(void)
 
     if (rescale == false &&
 	my.scaleEngine->autoScale() &&
-	my.chart->axisScaleDiv(QwtPlot::yLeft)->upperBound() < 0.1) {
-	double scaled_max = my.chart->axisScaleDiv(QwtPlot::yLeft)->upperBound();
+	my.chart->axisScaleDiv(QwtPlot::yLeft).upperBound() < 0.1) {
+	double scaled_max = my.chart->axisScaleDiv(QwtPlot::yLeft).upperBound();
 	if (my.units.dimSpace == 1) {
 	    switch (my.units.scaleSpace) {
 		case PM_SPACE_KBYTE:

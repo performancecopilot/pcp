@@ -23,28 +23,17 @@
 #define _USE_MATH_DEFINES 1
 #endif
 
-#include <qpoint.h>
 #include <qmath.h>
 #include "qwt_global.h"
 
-#ifndef LOG10_2
-#define LOG10_2     0.30102999566398119802  /* log10(2) */
-#endif
-
-#ifndef LOG10_3
-#define LOG10_3     0.47712125471966243540  /* log10(3) */
-#endif
-
-#ifndef LOG10_5
-#define LOG10_5     0.69897000433601885749  /* log10(5) */
-#endif
-
-#ifndef M_2PI
-#define M_2PI       6.28318530717958623200  /* 2 pi */
+#ifndef M_PI_2
+// For Qt <= 4.8.4 M_PI_2 is not known by MinGW-w64 
+// when compiling with -std=c++11
+#define M_PI_2 (1.57079632679489661923)
 #endif
 
 #ifndef LOG_MIN
-//! Mininum value for logarithmic scales
+//! Minimum value for logarithmic scales
 #define LOG_MIN 1.0e-100
 #endif
 
@@ -53,60 +42,11 @@
 #define LOG_MAX 1.0e100
 #endif
 
-#ifndef M_E
-#define M_E            2.7182818284590452354   /* e */
-#endif
-
-#ifndef M_LOG2E
-#define M_LOG2E 1.4426950408889634074   /* log_2 e */
-#endif
-
-#ifndef M_LOG10E
-#define M_LOG10E    0.43429448190325182765  /* log_10 e */
-#endif
-
-#ifndef M_LN2
-#define M_LN2       0.69314718055994530942  /* log_e 2 */
-#endif
-
-#ifndef M_LN10
-#define M_LN10         2.30258509299404568402  /* log_e 10 */
-#endif
-
-#ifndef M_PI
-#define M_PI        3.14159265358979323846  /* pi */
-#endif
-
-#ifndef M_PI_2
-#define M_PI_2      1.57079632679489661923  /* pi/2 */
-#endif
-
-#ifndef M_PI_4
-#define M_PI_4      0.78539816339744830962  /* pi/4 */
-#endif
-
-#ifndef M_1_PI
-#define M_1_PI      0.31830988618379067154  /* 1/pi */
-#endif
-
-#ifndef M_2_PI
-#define M_2_PI      0.63661977236758134308  /* 2/pi */
-#endif
-
-#ifndef M_2_SQRTPI
-#define M_2_SQRTPI  1.12837916709551257390  /* 2/sqrt(pi) */
-#endif
-
-#ifndef M_SQRT2
-#define M_SQRT2 1.41421356237309504880  /* sqrt(2) */
-#endif
-
-#ifndef M_SQRT1_2
-#define M_SQRT1_2   0.70710678118654752440  /* 1/sqrt(2) */
-#endif
-
 QWT_EXPORT double qwtGetMin( const double *array, int size );
 QWT_EXPORT double qwtGetMax( const double *array, int size );
+
+QWT_EXPORT double qwtNormalizeRadians( double radians );
+QWT_EXPORT double qwtNormalizeDegrees( double degrees );
 
 /*!
   \brief Compare 2 values, relative to an interval
@@ -161,22 +101,49 @@ inline double qwtSqr( double x )
     return x * x;
 }
 
-//! Like qRound, but without converting the result to an int
-inline double qwtRoundF(double d)
-{ 
-    return ::floor( d + 0.5 );
+//! Approximation of arc tangent ( error below 0,005 radians )
+inline double qwtFastAtan( double x )
+{
+    if ( x < -1.0 )
+        return -M_PI_2 - x / ( x * x + 0.28 );
+
+    if ( x > 1.0 )
+        return M_PI_2 - x / ( x * x + 0.28 );
+
+    return x / ( 1.0 + x * x * 0.28 );
 }
 
-//! Like qFloor, but without converting the result to an int
-inline double qwtFloorF(double d)
-{ 
-    return ::floor( d );
+//! Approximation of arc tangent ( error below 0,005 radians )
+inline double qwtFastAtan2( double y, double x )
+{
+    if ( x > 0 )
+        return qwtFastAtan( y / x );
+
+    if ( x < 0 )
+    {
+        const double d = qwtFastAtan( y / x );
+        return ( y >= 0 ) ? d + M_PI : d - M_PI;
+    }
+
+    if ( y < 0.0 )
+        return -M_PI_2;
+
+    if ( y > 0.0 )
+        return M_PI_2;
+
+    return 0.0;
 }
 
-//! Like qCeil, but without converting the result to an int
-inline double qwtCeilF(double d)
-{ 
-    return ::ceil( d );
+//! Translate degrees into radians
+inline double qwtRadians( double degrees )
+{
+    return degrees * M_PI / 180.0;
+}
+
+//! Translate radians into degrees
+inline double qwtDegrees( double degrees )
+{
+    return degrees * 180.0 / M_PI;
 }
 
 #endif

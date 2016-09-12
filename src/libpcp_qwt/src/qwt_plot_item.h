@@ -11,17 +11,17 @@
 #define QWT_PLOT_ITEM_H
 
 #include "qwt_global.h"
-#include "qwt_legend_itemmanager.h"
 #include "qwt_text.h"
+#include "qwt_legend_data.h"
+#include "qwt_graphic.h"
 #include <qrect.h>
+#include <qlist.h>
+#include <qmetatype.h>
 
-class QString;
 class QPainter;
-class QWidget;
-class QwtPlot;
-class QwtLegend;
 class QwtScaleMap;
 class QwtScaleDiv;
+class QwtPlot;
 
 /*!
   \brief Base class for items on the plot canvas
@@ -50,7 +50,7 @@ class QwtScaleDiv;
     - ...
 
   Depending on the QwtPlotItem::ItemAttribute flags, an item is included
-  into autoscaling or has an entry on the legnd.
+  into autoscaling or has an entry on the legend.
 
   Before misusing the existing item classes it might be better to
   implement a new type of plot item
@@ -61,7 +61,7 @@ class QwtScaleDiv;
   \sa The cpuplot example shows the implementation of additional plot items.
 */
 
-class QWT_EXPORT QwtPlotItem: public QwtLegendItemManager
+class QWT_EXPORT QwtPlotItem
 {
 public:
     /*!
@@ -80,6 +80,9 @@ public:
 
         //! For QwtPlotScaleItem
         Rtti_PlotScale,
+
+        //! For QwtPlotLegendItem
+        Rtti_PlotLegend,
 
         //! For QwtPlotMarker
         Rtti_PlotMarker,
@@ -102,6 +105,24 @@ public:
         //! For QwtPlotSvgItem
         Rtti_PlotSVG,
 
+        //! For QwtPlotTradingCurve
+        Rtti_PlotTradingCurve,
+
+        //! For QwtPlotBarChart
+        Rtti_PlotBarChart,
+
+        //! For QwtPlotMultiBarChart
+        Rtti_PlotMultiBarChart,
+
+        //! For QwtPlotShapeItem
+        Rtti_PlotShape,
+
+        //! For QwtPlotTextLabel
+        Rtti_PlotTextLabel,
+
+        //! For QwtPlotZoneItem
+        Rtti_PlotZone,
+
         /*! 
            Values >= Rtti_PlotUserItem are reserved for plot items
            not implemented in the Qwt library.
@@ -110,8 +131,13 @@ public:
     };
 
     /*!
-       Plot Item Attributes
-       \sa setItemAttribute(), testItemAttribute()
+       \brief Plot Item Attributes
+
+       Various aspects of a plot widget depend on the attributes of
+       the attached plot items. If and how a single plot item 
+       participates in these updates depends on its attributes.
+       
+       \sa setItemAttribute(), testItemAttribute(), ItemInterest
      */
     enum ItemAttribute
     {
@@ -119,20 +145,62 @@ public:
         Legend = 0x01,
 
         /*!
-         The boundingRect() of the item is included in the
-         autoscaling calculation.
+           The boundingRect() of the item is included in the
+           autoscaling calculation as long as its width or height
+           is >= 0.0.
          */
-        AutoScale = 0x02
+        AutoScale = 0x02,
+
+        /*!
+           The item needs extra space to display something outside
+           its bounding rectangle. 
+           \sa getCanvasMarginHint()
+         */
+        Margins = 0x04
     };
 
     //! Plot Item Attributes
     typedef QFlags<ItemAttribute> ItemAttributes;
 
+    /*!
+       \brief Plot Item Interests
+
+       Plot items might depend on the situation of the corresponding
+       plot widget. By enabling an interest the plot item will be
+       notified, when the corresponding attribute of the plot widgets
+       has changed.
+
+       \sa setItemAttribute(), testItemAttribute(), ItemInterest
+     */
+    enum ItemInterest
+    {
+        /*! 
+           The item is interested in updates of the scales
+           \sa updateScaleDiv()
+         */
+        ScaleInterest = 0x01,
+
+        /*! 
+           The item is interested in updates of the legend ( of other items )
+           This flag is intended for items, that want to implement a legend
+           for displaying entries of other plot item.
+
+           \note If the plot item wants to be represented on a legend
+                 enable QwtPlotItem::Legend instead.
+
+           \sa updateLegend()
+         */
+        LegendInterest = 0x02
+    };
+
+    //! Plot Item Interests
+    typedef QFlags<ItemInterest> ItemInterests;
+
     //! Render hints
     enum RenderHint
     {
         //! Enable antialiasing
-        RenderAntialiased = 1
+        RenderAntialiased = 0x1
     };
 
     //! Render hints
@@ -155,8 +223,17 @@ public:
     void setItemAttribute( ItemAttribute, bool on = true );
     bool testItemAttribute( ItemAttribute ) const;
 
+    void setItemInterest( ItemInterest, bool on = true );
+    bool testItemInterest( ItemInterest ) const;
+
     void setRenderHint( RenderHint, bool on = true );
     bool testRenderHint( RenderHint ) const;
+
+    void setRenderThreadCount( uint numThreads );
+    uint renderThreadCount() const;
+
+    void setLegendIconSize( const QSize & );
+    QSize legendIconSize() const;
 
     double z() const;
     void setZ( double z );
@@ -175,6 +252,7 @@ public:
     int yAxis() const;
 
     virtual void itemChanged();
+    virtual void legendChanged();
 
     /*!
       \brief Draw the item
@@ -190,14 +268,26 @@ public:
 
     virtual QRectF boundingRect() const;
 
-    virtual void updateLegend( QwtLegend * ) const;
+    virtual void getCanvasMarginHint( 
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+        const QRectF &canvasSize,
+        double &left, double &top, double &right, double &bottom) const;
+
     virtual void updateScaleDiv( 
         const QwtScaleDiv&, const QwtScaleDiv& );
 
-    virtual QWidget *legendItem() const;
+    virtual void updateLegend( const QwtPlotItem *,
+        const QList<QwtLegendData> & );
 
     QRectF scaleRect( const QwtScaleMap &, const QwtScaleMap & ) const;
     QRectF paintRect( const QwtScaleMap &, const QwtScaleMap & ) const;
+
+    virtual QList<QwtLegendData> legendData() const;
+
+    virtual QwtGraphic legendIcon( int index, const QSizeF  & ) const;
+
+protected:
+    QwtGraphic defaultIcon( const QBrush &, const QSizeF & ) const;
 
 private:
     // Disabled copy constructor and operator=
@@ -209,6 +299,9 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::ItemAttributes )
+Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::ItemInterests )
 Q_DECLARE_OPERATORS_FOR_FLAGS( QwtPlotItem::RenderHints )
+
+Q_DECLARE_METATYPE( QwtPlotItem * )
 
 #endif

@@ -1052,8 +1052,7 @@ AS_IF([test "x$do_qt" != "xno"], [
     
     if test -z "$QMAKE"
     then
-	dnl qmake-qt5 [/usr/lib64/qt5/bin:/usr/lib/qt5/bin]
-	AC_PATH_PROGS(QMAKE, [qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
+	AC_PATH_PROGS(QMAKE, [qmake-qt5 qmake-qt4 qmake],, [$QTDIR/bin:/usr/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/lib64/qt4/bin:/usr/lib/qt4/bin:/usr/local/bin])
 	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE

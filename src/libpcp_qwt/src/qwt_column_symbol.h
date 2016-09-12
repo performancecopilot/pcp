@@ -22,7 +22,7 @@ class QRect;
 class QwtText;
 
 /*!
-    \brief Directed rectangle representing bounding rectangle und orientation
+    \brief Directed rectangle representing bounding rectangle and orientation
     of a column.
 */
 class QWT_EXPORT QwtColumnRect

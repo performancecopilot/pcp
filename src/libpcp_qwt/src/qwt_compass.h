@@ -12,10 +12,36 @@
 
 #include "qwt_global.h"
 #include "qwt_dial.h"
+#include "qwt_round_scale_draw.h"
 #include <qstring.h>
 #include <qmap.h>
 
 class QwtCompassRose;
+
+/*!
+  \brief A special scale draw made for QwtCompass
+
+  QwtCompassScaleDraw maps values to strings using
+  a special map, that can be modified by the application
+
+  The default map consists of the labels N, NE, E, SE, S, SW, W, NW.
+
+  \sa QwtCompass
+*/
+class QWT_EXPORT QwtCompassScaleDraw: public QwtRoundScaleDraw
+{
+public:
+    explicit QwtCompassScaleDraw();
+    explicit QwtCompassScaleDraw( const QMap<double, QString> &map );
+
+    void setLabelMap( const QMap<double, QString> &map );
+    QMap<double, QString> labelMap() const;
+
+    virtual QwtText label( double value ) const;
+
+private:
+    QMap<double, QString> d_labelMap;
+};
 
 /*!
   \brief A Compass Widget
@@ -40,13 +66,7 @@ public:
     const QwtCompassRose *rose() const;
     QwtCompassRose *rose();
 
-    const QMap<double, QString> &labelMap() const;
-    QMap<double, QString> &labelMap();
-    void setLabelMap( const QMap<double, QString> &map );
-
 protected:
-    virtual QwtText scaleLabel( double value ) const;
-
     virtual void drawRose( QPainter *, const QPointF &center,
         double radius, double north, QPalette::ColorGroup ) const;
 
@@ -56,8 +76,6 @@ protected:
     virtual void keyPressEvent( QKeyEvent * );
 
 private:
-    void initCompass();
-
     class PrivateData;
     PrivateData *d_data;
 };

@@ -99,6 +99,12 @@ private:
   maximum distance (tolerance) between the original curve and the
   smoothed curve.
 
+  The runtime of the algorithm increases non linear ( worst case O( n*n ) )
+  and might be very slow for huge polygons. To avoid performance issues
+  it might be useful to split the polygon ( setChunkSize() ) and to run the algorithm
+  for these smaller parts. The disadvantage of having no interpolation
+  at the borders is for most use cases irrelevant.
+
   The smoothed curve consists of a subset of the points that defined the
   original curve.
 
@@ -116,9 +122,14 @@ public:
     void setTolerance( double );
     double tolerance() const;
 
+    void setChunkSize( uint );
+    uint chunkSize() const;
+
     virtual QPolygonF fitCurve( const QPolygonF & ) const;
 
 private:
+    virtual QPolygonF simplify( const QPolygonF & ) const;
+
     class Line;
 
     class PrivateData;

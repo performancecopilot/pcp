@@ -1,7 +1,7 @@
 /* -*- mode: C++ ; c-file-style: "stroustrup" -*- *****************************
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
- * Copyright (C) 2003   Uwe Rathmann
+ * Copyright (C) 2002   Uwe Rathmann
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
@@ -138,7 +138,8 @@ class QwtText::PrivateData
 public:
     PrivateData():
         renderFlags( Qt::AlignCenter ),
-        backgroundPen( Qt::NoPen ),
+        borderRadius( 0 ),
+        borderPen( Qt::NoPen ),
         backgroundBrush( Qt::NoBrush ),
         paintAttributes( 0 ),
         layoutAttributes( 0 ),
@@ -150,7 +151,8 @@ public:
     QString text;
     QFont font;
     QColor color;
-    QPen backgroundPen;
+    double borderRadius;
+    QPen borderPen;
     QBrush backgroundBrush;
 
     QwtText::PaintAttributes paintAttributes;
@@ -218,7 +220,8 @@ bool QwtText::operator==( const QwtText &other ) const
         d_data->text == other.d_data->text &&
         d_data->font == other.d_data->font &&
         d_data->color == other.d_data->color &&
-        d_data->backgroundPen == other.d_data->backgroundPen &&
+        d_data->borderRadius == other.d_data->borderRadius &&
+        d_data->borderPen == other.d_data->borderPen &&
         d_data->backgroundBrush == other.d_data->backgroundBrush &&
         d_data->paintAttributes == other.d_data->paintAttributes &&
         d_data->textEngine == other.d_data->textEngine;
@@ -247,7 +250,7 @@ void QwtText::setText( const QString &text,
 }
 
 /*!
-   Return the text.
+   \return Text as QString.
    \sa setText()
 */
 QString QwtText::text() const
@@ -260,7 +263,7 @@ QString QwtText::text() const
 
    The default setting is Qt::AlignCenter
 
-   \param renderFlags Bitwise OR of the flags used like in QPainter::drawText
+   \param renderFlags Bitwise OR of the flags used like in QPainter::drawText()
 
    \sa renderFlags(), QwtTextEngine::draw()
    \note Some renderFlags might have no effect, depending on the text format.
@@ -303,11 +306,13 @@ QFont QwtText::font() const
 }
 
 /*!
-  Return the font of the text, if it has one.
-  Otherwise return defaultFont.
+   Return the font of the text, if it has one.
+   Otherwise return defaultFont.
 
-  \param defaultFont Default font
-  \sa setFont(), font(), PaintAttributes
+   \param defaultFont Default font
+   \return Font used for drawing the text
+
+   \sa setFont(), font(), PaintAttributes
 */
 QFont QwtText::usedFont( const QFont &defaultFont ) const
 {
@@ -318,7 +323,7 @@ QFont QwtText::usedFont( const QFont &defaultFont ) const
 }
 
 /*!
-   Set the pen color used for painting the text.
+   Set the pen color used for drawing the text.
 
    \param color Color
    \note Setting the color might have no effect, when
@@ -341,6 +346,8 @@ QColor QwtText::color() const
   Otherwise return defaultColor.
 
   \param defaultColor Default color
+  \return Color used for drawing the text
+
   \sa setColor(), color(), PaintAttributes
 */
 QColor QwtText::usedColor( const QColor &defaultColor ) const
@@ -352,31 +359,51 @@ QColor QwtText::usedColor( const QColor &defaultColor ) const
 }
 
 /*!
+  Set the radius for the corners of the border frame
+
+  \param radius Radius of a rounded corner
+  \sa borderRadius(), setBorderPen(), setBackgroundBrush()
+*/
+void QwtText::setBorderRadius( double radius )
+{
+    d_data->borderRadius = qMax( 0.0, radius );
+}
+
+/*!
+  \return Radius for the corners of the border frame
+  \sa setBorderRadius(), borderPen(), backgroundBrush()
+*/
+double QwtText::borderRadius() const
+{
+    return d_data->borderRadius;
+}
+
+/*!
    Set the background pen
 
    \param pen Background pen
-   \sa backgroundPen(), setBackgroundBrush()
+   \sa borderPen(), setBackgroundBrush()
 */
-void QwtText::setBackgroundPen( const QPen &pen )
+void QwtText::setBorderPen( const QPen &pen )
 {
-    d_data->backgroundPen = pen;
+    d_data->borderPen = pen;
     setPaintAttribute( PaintBackground );
 }
 
 /*!
    \return Background pen
-   \sa setBackgroundPen(), backgroundBrush()
+   \sa setBorderPen(), backgroundBrush()
 */
-QPen QwtText::backgroundPen() const
+QPen QwtText::borderPen() const
 {
-    return d_data->backgroundPen;
+    return d_data->borderPen;
 }
 
 /*!
    Set the background brush
 
    \param brush Background brush
-   \sa backgroundBrush(), setBackgroundPen()
+   \sa backgroundBrush(), setBorderPen()
 */
 void QwtText::setBackgroundBrush( const QBrush &brush )
 {
@@ -386,7 +413,7 @@ void QwtText::setBackgroundBrush( const QBrush &brush )
 
 /*!
    \return Background brush
-   \sa setBackgroundBrush(), backgroundPen()
+   \sa setBackgroundBrush(), borderPen()
 */
 QBrush QwtText::backgroundBrush() const
 {
@@ -400,7 +427,7 @@ QBrush QwtText::backgroundBrush() const
    \param on On/Off
 
    \note Used by setFont(), setColor(),
-         setBackgroundPen() and setBackgroundBrush()
+         setBorderPen() and setBackgroundBrush()
    \sa testPaintAttribute()
 */
 void QwtText::setPaintAttribute( PaintAttribute attribute, bool on )
@@ -491,18 +518,10 @@ double QwtText::heightForWidth( double width, const QFont &defaultFont ) const
 }
 
 /*!
-   Find the height for a given width
-
-   \param defaultFont Font, used for the calculation if the text has no font
-
-   \return Calculated height
-*/
-
-/*!
    Returns the size, that is needed to render text
 
    \param defaultFont Font of the text
-   \return Caluclated size
+   \return Calculated size
 */
 QSizeF QwtText::textSize( const QFont &defaultFont ) const
 {
@@ -542,13 +561,25 @@ void QwtText::draw( QPainter *painter, const QRectF &rect ) const
 {
     if ( d_data->paintAttributes & PaintBackground )
     {
-        if ( d_data->backgroundPen != Qt::NoPen ||
+        if ( d_data->borderPen != Qt::NoPen ||
             d_data->backgroundBrush != Qt::NoBrush )
         {
             painter->save();
-            painter->setPen( d_data->backgroundPen );
+
+            painter->setPen( d_data->borderPen );
             painter->setBrush( d_data->backgroundBrush );
-            QwtPainter::drawRect( painter, rect );
+
+            if ( d_data->borderRadius == 0 )
+            {
+                QwtPainter::drawRect( painter, rect );
+            }
+            else
+            {
+                painter->setRenderHint( QPainter::Antialiasing, true );
+                painter->drawRoundedRect( rect,
+                    d_data->borderRadius, d_data->borderRadius );
+            }
+
             painter->restore();
         }
     }
@@ -595,13 +626,15 @@ void QwtText::draw( QPainter *painter, const QRectF &rect ) const
 
    In case of QwtText::AutoText the first text engine
    (beside QwtPlainTextEngine) is returned, where QwtTextEngine::mightRender
-   returns true. If there is none QwtPlainTextEngine is returnd.
+   returns true. If there is none QwtPlainTextEngine is returned.
 
    If no text engine is registered for the format QwtPlainTextEngine
    is returnd.
 
    \param text Text, needed in case of AutoText
    \param format Text format
+
+   \return Corresponding text engine
 */
 const QwtTextEngine *QwtText::textEngine( const QString &text,
     QwtText::TextFormat format )

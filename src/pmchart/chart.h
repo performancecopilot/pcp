@@ -24,6 +24,8 @@
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_picker.h>
+#include <qwt_plot_canvas.h>
+#include <qwt_text_label.h>
 #include <qmc_metric.h>
 #include "gadget.h"
 
@@ -143,7 +145,7 @@ private Q_SLOTS:
     void selected(const QPolygon &);
     void selected(const QPointF &);
     void moved(const QPointF &);
-    void legendChecked(QwtPlotItem *, bool);
+    void showItem(const QVariant &, bool);
 
 private:
     // changing properties
@@ -179,9 +181,14 @@ private:
 class ChartPicker : public QwtPlotPicker
 {
 public:
-    ChartPicker(QwtPlotCanvas *canvas) :
+    ChartPicker(QWidget *canvas) :
 	QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
 	QwtPicker::CrossRubberBand, QwtPicker::AlwaysOff, canvas) { }
+
+    QPoint transform(const QPointF &point) const
+	{ return QwtPlotPicker::transform(point); }
+    QRectF invTransform(const QRect &rect) const
+	{ return QwtPlotPicker::invTransform(rect); }
 
     void widgetMousePressEvent(QMouseEvent *event)
 	{ QwtPlotPicker::widgetMousePressEvent(event); }

@@ -7,11 +7,11 @@
 /*!
   \brief A thread collecting samples at regular intervals.
 
-  Contiounous signals are converted into a discrete signal by
+  Continuous signals are converted into a discrete signal by
   collecting samples at regular intervals. A discrete signal
   can be displayed by a QwtPlotSeriesItem on a QwtPlot widget.
 
-  QwtSamplingThread starts a thread calling perodically sample(),
+  QwtSamplingThread starts a thread calling periodically sample(),
   to collect and store ( or emit ) a single sample.
 
   \sa QwtPlotCurve, QwtPlotSeriesItem
@@ -38,7 +38,7 @@ protected:
     /*!
        Collect a sample
 
-       \param elapsed Time since the thread was started in miliseconds
+       \param elapsed Time since the thread was started in milliseconds
      */
     virtual void sample( double elapsed ) = 0;
 

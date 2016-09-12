@@ -40,7 +40,7 @@ public:
 
     enum Format
     {
-        //! The map is intended to map into QRgb values.
+        //! The map is intended to map into RGB values.
         RGB,
 
         /*!
@@ -56,16 +56,18 @@ public:
     Format format() const;
 
     /*!
-       Map a value of a given interval into a rgb value.
+       Map a value of a given interval into a RGB value.
+
        \param interval Range for the values
        \param value Value
-       \return rgb value, corresponding to value
+       \return RGB value, corresponding to value
     */
     virtual QRgb rgb( const QwtInterval &interval,
         double value ) const = 0;
 
     /*!
        Map a value of a given interval into a color index
+
        \param interval Range for the values
        \param value Value
        \return color index, corresponding to value
@@ -135,7 +137,7 @@ private:
 };
 
 /*!
-  \brief QwtAlphaColorMap variies the alpha value of a color
+  \brief QwtAlphaColorMap varies the alpha value of a color
 */
 class QWT_EXPORT QwtAlphaColorMap: public QwtColorMap
 {
@@ -177,7 +179,7 @@ inline QColor QwtColorMap::color(
 {
     if ( d_format == RGB )
     {
-        return QColor( rgb( interval, value ) );
+        return QColor::fromRgba( rgb( interval, value ) );
     }
     else
     {

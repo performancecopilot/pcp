@@ -11,116 +11,94 @@
 #define QWT_ABSTRACT_SLIDER_H
 
 #include "qwt_global.h"
-#include "qwt_double_range.h"
-#include <qwidget.h>
+#include "qwt_abstract_scale.h"
 
 /*!
-  \brief An abstract base class for slider widgets
+  \brief An abstract base class for slider widgets with a scale
 
-  QwtAbstractSlider is a base class for
-  slider widgets. It handles mouse events
-  and updates the slider's value accordingly. Derived classes
-  only have to implement the getValue() and
-  getScrollMode() members, and should react to a
-  valueChange(), which normally requires repainting.
+  A slider widget displays a value according to a scale.
+  The class is designed as a common super class for widgets like 
+  QwtKnob, QwtDial and QwtSlider.
+
+  When the slider is nor readOnly() its value can be modified 
+  by keyboard, mouse and wheel inputs. 
+
+  The range of the slider is divided into a number of steps from
+  which the value increments according to user inputs depend. 
+  Only for linear scales the number of steps correspond with
+  a fixed step size.
 */
 
-class QWT_EXPORT QwtAbstractSlider : public QWidget, public QwtDoubleRange
+class QWT_EXPORT QwtAbstractSlider: public QwtAbstractScale
 {
     Q_OBJECT
+
+    Q_PROPERTY( double value READ value WRITE setValue )
+
+    Q_PROPERTY( uint totalSteps READ totalSteps WRITE setTotalSteps )
+    Q_PROPERTY( uint singleSteps READ singleSteps WRITE setSingleSteps )
+    Q_PROPERTY( uint pageSteps READ pageSteps WRITE setPageSteps )
+    Q_PROPERTY( bool stepAlignment READ stepAlignment WRITE setStepAlignment )
+
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
-    Q_PROPERTY( bool valid READ isValid WRITE setValid )
-    Q_PROPERTY( double mass READ mass WRITE setMass )
-    Q_PROPERTY( Qt::Orientation orientation
-                READ orientation WRITE setOrientation )
+    Q_PROPERTY( bool tracking READ isTracking WRITE setTracking )
+    Q_PROPERTY( bool wrapping READ wrapping WRITE setWrapping )
+
+    Q_PROPERTY( bool invertedControls READ invertedControls WRITE setInvertedControls )
 
 public:
-    /*!
-      Scroll mode
-      \sa getScrollMode()
-     */
-    enum ScrollMode
-    {
-        //! Scrolling switched off. Don't change the value.
-        ScrNone,
-
-        /*!
-          Change the value while the user keeps the
-          button pressed and moves the mouse.
-         */
-        ScrMouse,
-
-        /*!
-          Automatic scrolling. Increment the value in the specified direction 
-          as long as the user keeps the button pressed.
-         */
-        ScrTimer,
-
-        ScrDirect,
-
-        //! Automatic scrolling. Same as ScrTimer, but increment by page size.
-        ScrPage
-    };
-
-    explicit QwtAbstractSlider( Qt::Orientation, QWidget *parent = NULL );
+    explicit QwtAbstractSlider( QWidget *parent = NULL );
     virtual ~QwtAbstractSlider();
 
-    void setUpdateTime( int t );
-    void stopMoving();
-    void setTracking( bool enable );
+    void setValid( bool );
+    bool isValid() const;
 
-    virtual void setMass( double val );
-    virtual double mass() const;
+    double value() const;
 
-    virtual void setOrientation( Qt::Orientation o );
-    Qt::Orientation orientation() const;
+    void setWrapping( bool );
+    bool wrapping() const;
 
+    void setTotalSteps( uint );
+    uint totalSteps() const;
+
+    void setSingleSteps( uint );
+    uint singleSteps() const;
+
+    void setPageSteps( uint );
+    uint pageSteps() const;
+
+    void setStepAlignment( bool ); 
+    bool stepAlignment() const;
+
+    void setTracking( bool );
+    bool isTracking() const;
+
+    void setReadOnly( bool );
     bool isReadOnly() const;
 
-    /*
-        Wrappers for QwtDblRange::isValid/QwtDblRange::setValid made
-        to be available as Q_PROPERTY in the designer.
-    */
-
-    /*!
-      \sa QwtDblRange::isValid()
-    */
-    bool isValid() const
-    {
-        return QwtDoubleRange::isValid();
-    }
-
-    /*!
-      \param valid true/false
-      \sa QwtDblRange::isValid()
-    */
-    void setValid( bool valid )
-    {
-        QwtDoubleRange::setValid( valid );
-    }
+    void setInvertedControls( bool );
+    bool invertedControls() const;
 
 public Q_SLOTS:
-    virtual void setValue( double val );
-    virtual void fitValue( double val );
-    virtual void incValue( int steps );
-
-    virtual void setReadOnly( bool );
+    void setValue( double val );
 
 Q_SIGNALS:
 
     /*!
       \brief Notify a change of value.
 
-      In the default setting
-      (tracking enabled), this signal will be emitted every
-      time the value changes ( see setTracking() ).
-      \param value new value
+      When tracking is enabled (default setting), 
+      this signal will be emitted every time the value changes. 
+
+      \param value New value
+
+      \sa setTracking(), sliderMoved()
     */
     void valueChanged( double value );
 
     /*!
       This signal is emitted when the user presses the
-      movable part of the slider (start ScrMouse Mode).
+      movable part of the slider.
     */
     void sliderPressed();
 
@@ -128,58 +106,59 @@ Q_SIGNALS:
       This signal is emitted when the user releases the
       movable part of the slider.
     */
-
     void sliderReleased();
+
     /*!
       This signal is emitted when the user moves the
       slider with the mouse.
-      \param value new value
+
+      \param value New value
+
+      \sa valueChanged()
     */
     void sliderMoved( double value );
 
 protected:
-    virtual void setPosition( const QPoint & );
-    virtual void valueChange();
-
-    virtual void timerEvent( QTimerEvent *e );
-    virtual void mousePressEvent( QMouseEvent *e );
-    virtual void mouseReleaseEvent( QMouseEvent *e );
-    virtual void mouseMoveEvent( QMouseEvent *e );
-    virtual void keyPressEvent( QKeyEvent *e );
-    virtual void wheelEvent( QWheelEvent *e );
-
-    /*!
-      \brief Determine the value corresponding to a specified poind
-
-      This is an abstract virtual function which is called when
-      the user presses or releases a mouse button or moves the
-      mouse. It has to be implemented by the derived class.
-      \param p point
-    */
-    virtual double getValue( const QPoint & p ) = 0;
+    virtual void mousePressEvent( QMouseEvent * );
+    virtual void mouseReleaseEvent( QMouseEvent * );
+    virtual void mouseMoveEvent( QMouseEvent * );
+    virtual void keyPressEvent( QKeyEvent * );
+    virtual void wheelEvent( QWheelEvent * );
 
     /*!
       \brief Determine what to do when the user presses a mouse button.
 
-      This function is abstract and has to be implemented by derived classes.
-      It is called on a mousePress event. The derived class can determine
-      what should happen next in dependence of the position where the mouse
-      was pressed by returning scrolling mode and direction. 
+      \param pos Mouse position
 
-      \param pos point where the mouse was pressed
-      \retval scrollMode The scrolling mode
-      \retval direction  direction: 1, 0, or -1.
+      \retval True, when pos is a valid scroll position
+      \sa scrolledTo()
     */
-    virtual void getScrollMode( const QPoint &pos,
-        ScrollMode &scrollMode, int &direction ) const = 0;
+    virtual bool isScrollPosition( const QPoint &pos ) const = 0;
 
-    void setMouseOffset( double );
-    double mouseOffset() const;
+    /*!
+      \brief Determine the value for a new position of the
+             movable part of the slider
 
-    int scrollMode() const;
+      \param pos Mouse position
+
+      \return Value for the mouse position
+      \sa isScrollPosition()
+    */
+    virtual double scrolledTo( const QPoint &pos ) const = 0;
+
+    void incrementValue( int numSteps );
+
+    virtual void scaleChange();
+
+protected:
+    virtual void sliderChange();
+
+    double incrementedValue( 
+        double value, int stepCount ) const;
 
 private:
-    void buttonReleased();
+    double alignedValue( double ) const;
+    double boundedValue( double ) const;
 
     class PrivateData;
     PrivateData *d_data;

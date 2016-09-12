@@ -1,7 +1,7 @@
 /* -*- mode: C++ ; c-file-style: "stroustrup" -*- *****************************
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
- * Copyright (C) 2003   Uwe Rathmann
+ * Copyright (C) 2002   Uwe Rathmann
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
@@ -61,7 +61,7 @@ public:
         else
             option.setWrapMode( QTextOption::NoWrap );
 
-        option.setAlignment( ( Qt::Alignment ) flags );
+        option.setAlignment( static_cast<Qt::Alignment>( flags ) );
         setDefaultTextOption( option );
 
         QTextFrame *root = rootFrame();
@@ -115,7 +115,8 @@ private:
         int row = 0;
         for ( row = 0; row < img.height(); row++ )
         {
-            const QRgb *line = ( const QRgb * )img.scanLine( row );
+            const QRgb *line = reinterpret_cast<const QRgb *>( 
+                img.scanLine( row ) );
 
             const int w = pm.width();
             for ( int col = 0; col < w; col++ )
@@ -180,7 +181,7 @@ double QwtPlainTextEngine::heightForWidth( const QFont& font, int flags,
   \param flags Bitwise OR of the flags used like in QPainter::drawText
   \param text Text to be rendered
 
-  \return Caluclated size
+  \return Calculated size
 */
 QSizeF QwtPlainTextEngine::textSize( const QFont &font,
     int flags, const QString& text ) const
@@ -247,7 +248,7 @@ QwtRichTextEngine::QwtRichTextEngine()
    Find the height for a given width
 
    \param font Font of the text
-   \param flags Bitwise OR of the flags used like in QPainter::drawText
+   \param flags Bitwise OR of the flags used like in QPainter::drawText()
    \param text Text to be rendered
    \param width Width
 
@@ -266,10 +267,10 @@ double QwtRichTextEngine::heightForWidth( const QFont& font, int flags,
   Returns the size, that is needed to render text
 
   \param font Font of the text
-  \param flags Bitwise OR of the flags used like in QPainter::drawText
+  \param flags Bitwise OR of the flags used like in QPainter::drawText()
   \param text Text to be rendered
 
-  \return Caluclated size
+  \return Calculated size
 */
 
 QSizeF QwtRichTextEngine::textSize( const QFont &font,
@@ -293,7 +294,7 @@ QSizeF QwtRichTextEngine::textSize( const QFont &font,
 
   \param painter Painter
   \param rect Clipping rectangle
-  \param flags Bitwise OR of the flags like in for QPainter::drawText
+  \param flags Bitwise OR of the flags like in for QPainter::drawText()
   \param text Text to be rendered
 */
 void QwtRichTextEngine::draw( QPainter *painter, const QRectF &rect,
@@ -307,7 +308,7 @@ void QwtRichTextEngine::draw( QPainter *painter, const QRectF &rect,
    Wrap text into <div align=...> </div> tags according flags
 
    \param text Text
-   \param flags Bitwise OR of the flags like in for QPainter::drawText
+   \param flags Bitwise OR of the flags like in for QPainter::drawText()
 
    \return Tagged text
 */
@@ -320,7 +321,7 @@ QString QwtRichTextEngine::taggedText( const QString &text, int flags ) const
   Test if a string can be rendered by this text engine
 
   \param text Text to be tested
-  \return QStyleSheet::mightBeRichText(text);
+  \return Qt::mightBeRichText(text);
 */
 bool QwtRichTextEngine::mightRender( const QString &text ) const
 {

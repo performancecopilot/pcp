@@ -9,9 +9,7 @@
 
 #include "qwt_panner.h"
 #include "qwt_picker.h"
-#if QT_VERSION >= 0x050000
 #include "qwt_painter.h"
-#endif
 #include <qpainter.h>
 #include <qpixmap.h>
 #include <qevent.h>
@@ -38,9 +36,9 @@ class QwtPanner::PrivateData
 public:
     PrivateData():
         button( Qt::LeftButton ),
-        buttonState( Qt::NoButton ),
+        buttonModifiers( Qt::NoModifier ),
         abortKey( Qt::Key_Escape ),
-        abortKeyState( Qt::NoButton ),
+        abortKeyModifiers( Qt::NoModifier ),
 #ifndef QT_NO_CURSOR
         cursor( NULL ),
         restoreCursor( NULL ),
@@ -59,10 +57,11 @@ public:
 #endif
     }
 
-    int button;
-    int buttonState;
+    Qt::MouseButton button;
+    Qt::KeyboardModifiers  buttonModifiers;
+
     int abortKey;
-    int abortKeyState;
+    Qt::KeyboardModifiers abortKeyModifiers;
 
     QPoint initialPos;
     QPoint pos;
@@ -104,40 +103,44 @@ QwtPanner::~QwtPanner()
 }
 
 /*!
-   Change the mouse button
-   The defaults are Qt::LeftButton and Qt::NoButton
+   Change the mouse button and modifiers used for panning
+   The defaults are Qt::LeftButton and Qt::NoModifier
 */
-void QwtPanner::setMouseButton( int button, int buttonState )
+void QwtPanner::setMouseButton( Qt::MouseButton button,
+    Qt::KeyboardModifiers modifiers )
 {
     d_data->button = button;
-    d_data->buttonState = buttonState;
+    d_data->buttonModifiers = modifiers;
 }
 
-//! Get the mouse button
-void QwtPanner::getMouseButton( int &button, int &buttonState ) const
+//! Get mouse button and modifiers used for panning
+void QwtPanner::getMouseButton( Qt::MouseButton &button,
+    Qt::KeyboardModifiers &modifiers ) const
 {
     button = d_data->button;
-    buttonState = d_data->buttonState;
+    modifiers = d_data->buttonModifiers;
 }
 
 /*!
    Change the abort key
-   The defaults are Qt::Key_Escape and Qt::NoButton
+   The defaults are Qt::Key_Escape and Qt::NoModifiers
 
    \param key Key ( See Qt::Keycode )
-   \param state State
+   \param modifiers Keyboard modifiers
 */
-void QwtPanner::setAbortKey( int key, int state )
+void QwtPanner::setAbortKey( int key, 
+    Qt::KeyboardModifiers modifiers )
 {
     d_data->abortKey = key;
-    d_data->abortKeyState = state;
+    d_data->abortKeyModifiers = modifiers;
 }
 
-//! Get the abort key
-void QwtPanner::getAbortKey( int &key, int &state ) const
+//! Get the abort key and modifiers
+void QwtPanner::getAbortKey( int &key, 
+    Qt::KeyboardModifiers &modifiers ) const
 {
     key = d_data->abortKey;
-    state = d_data->abortKeyState;
+    modifiers = d_data->abortKeyModifiers;
 }
 
 /*!
@@ -221,7 +224,7 @@ Qt::Orientations QwtPanner::orientations() const
 }
 
 /*!
-   Return true if a orientatio is enabled
+   \return True if an orientation is enabled
    \sa orientations(), setOrientations()
 */
 bool QwtPanner::isOrientationEnabled( Qt::Orientation o ) const
@@ -255,11 +258,7 @@ void QwtPanner::paintEvent( QPaintEvent *pe )
     r.moveCenter( QPoint( r.center().x() + dx, r.center().y() + dy ) );
 
     QPixmap pm( size() );
-#if QT_VERSION >= 0x050000
     QwtPainter::fillPixmap( parentWidget(), pm );
-#else
-    pm.fill( parentWidget(), 0, 0 );
-#endif
 
     QPainter painter( &pm );
 
@@ -300,19 +299,28 @@ QBitmap QwtPanner::contentsMask() const
 
 /*!
   Grab the widget into a pixmap.
+  \return Grabbed pixmap
 */
 QPixmap QwtPanner::grab() const
 {
+#if QT_VERSION >= 0x050000
+    return parentWidget()->grab( parentWidget()->rect() );
+#else
     return QPixmap::grabWidget( parentWidget() );
+#endif
 }
 
 /*!
   \brief Event filter
 
-  When isEnabled() the mouse events of the observed widget are filtered.
+  When isEnabled() is true mouse events of the
+  observed widget are filtered.
 
   \param object Object to be filtered
   \param event Event
+
+  \return Always false, beside for paint events for the
+          parent widget.
 
   \sa widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseMoveEvent()
@@ -326,27 +334,27 @@ bool QwtPanner::eventFilter( QObject *object, QEvent *event )
     {
         case QEvent::MouseButtonPress:
         {
-            widgetMousePressEvent( ( QMouseEvent * )event );
+            widgetMousePressEvent( static_cast<QMouseEvent *>( event ) );
             break;
         }
         case QEvent::MouseMove:
         {
-            widgetMouseMoveEvent( ( QMouseEvent * )event );
+            widgetMouseMoveEvent( static_cast<QMouseEvent *>( event ) );
             break;
         }
         case QEvent::MouseButtonRelease:
         {
-            widgetMouseReleaseEvent( ( QMouseEvent * )event );
+            widgetMouseReleaseEvent( static_cast<QMouseEvent *>( event ) );
             break;
         }
         case QEvent::KeyPress:
         {
-            widgetKeyPressEvent( ( QKeyEvent * )event );
+            widgetKeyPressEvent( static_cast<QKeyEvent *>( event ) );
             break;
         }
         case QEvent::KeyRelease:
         {
-            widgetKeyReleaseEvent( ( QKeyEvent * )event );
+            widgetKeyReleaseEvent( static_cast<QKeyEvent *>( event ) );
             break;
         }
         case QEvent::Paint:
@@ -370,18 +378,15 @@ bool QwtPanner::eventFilter( QObject *object, QEvent *event )
 */
 void QwtPanner::widgetMousePressEvent( QMouseEvent *mouseEvent )
 {
-    if ( mouseEvent->button() != d_data->button )
+    if ( ( mouseEvent->button() != d_data->button )
+        || ( mouseEvent->modifiers() != d_data->buttonModifiers ) )
+    {
         return;
+    }
 
     QWidget *w = parentWidget();
     if ( w == NULL )
         return;
-
-    if ( ( mouseEvent->modifiers() & Qt::KeyboardModifierMask ) !=
-        ( int )( d_data->buttonState & Qt::KeyboardModifierMask ) )
-    {
-        return;
-    }
 
 #ifndef QT_NO_CURSOR
     showCursor( true );
@@ -474,19 +479,15 @@ void QwtPanner::widgetMouseReleaseEvent( QMouseEvent *mouseEvent )
 */
 void QwtPanner::widgetKeyPressEvent( QKeyEvent *keyEvent )
 {
-    if ( keyEvent->key() == d_data->abortKey )
+    if ( ( keyEvent->key() == d_data->abortKey )
+        && ( keyEvent->modifiers() == d_data->abortKeyModifiers ) )
     {
-        const bool matched =
-            ( keyEvent->modifiers() & Qt::KeyboardModifierMask ) ==
-                ( int )( d_data->abortKeyState & Qt::KeyboardModifierMask );
-        if ( matched )
-        {
-            hide();
+        hide();
+
 #ifndef QT_NO_CURSOR
-            showCursor( false );
+        showCursor( false );
 #endif
-            d_data->pixmap = QPixmap();
-        }
+        d_data->pixmap = QPixmap();
     }
 }
 

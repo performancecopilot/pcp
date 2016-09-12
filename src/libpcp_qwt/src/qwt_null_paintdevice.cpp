@@ -15,17 +15,17 @@ class QwtNullPaintDevice::PrivateData
 {
 public:
     PrivateData():
-        size( 0, 0 )
+        mode( QwtNullPaintDevice::NormalMode )
     {
     }
 
-    QSize size;
+    QwtNullPaintDevice::Mode mode;
 };
 
 class QwtNullPaintDevice::PaintEngine: public QPaintEngine
 {
 public:
-    PaintEngine( QPaintEngine::PaintEngineFeatures );
+    PaintEngine();
 
     virtual bool begin( QPaintDevice * );
     virtual bool end();
@@ -54,37 +54,35 @@ public:
         const QPixmap &, const QRectF &);
 
     virtual void drawTextItem(const QPointF &, const QTextItem &);
+
     virtual void drawTiledPixmap(const QRectF &, 
         const QPixmap &, const QPointF &s);
+
     virtual void drawImage(const QRectF &, 
         const QImage &, const QRectF &, Qt::ImageConversionFlags );
 
 private:
-    QwtNullPaintDevice *d_device;
+    QwtNullPaintDevice *nullDevice();
 };
     
-QwtNullPaintDevice::PaintEngine::PaintEngine( 
-        QPaintEngine::PaintEngineFeatures features ):
-    QPaintEngine( features ),
-    d_device(NULL)
+QwtNullPaintDevice::PaintEngine::PaintEngine():
+    QPaintEngine( QPaintEngine::AllFeatures )
 {
 }
 
-bool QwtNullPaintDevice::PaintEngine::begin( 
-    QPaintDevice *device )
+bool QwtNullPaintDevice::PaintEngine::begin( QPaintDevice * )
 {
-    d_device = static_cast<QwtNullPaintDevice *>( device );
+    setActive( true );
     return true;
 }
 
 bool QwtNullPaintDevice::PaintEngine::end()
 {
-    d_device = NULL;
+    setActive( false );
     return true;
 }
 
-QPaintEngine::Type 
-QwtNullPaintDevice::PaintEngine::type () const
+QPaintEngine::Type QwtNullPaintDevice::PaintEngine::type() const
 {
     return QPaintEngine::User;
 }
@@ -92,137 +90,274 @@ QwtNullPaintDevice::PaintEngine::type () const
 void QwtNullPaintDevice::PaintEngine::drawRects(
     const QRect *rects, int rectCount)
 {
-    if ( d_device )
-        d_device->drawRects( rects, rectCount );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
+    {
+        QPaintEngine::drawRects( rects, rectCount );
+        return;
+    }
+
+    device->drawRects( rects, rectCount );
 }
 
 void QwtNullPaintDevice::PaintEngine::drawRects(
     const QRectF *rects, int rectCount)
 {
-    if ( d_device )
-        d_device->drawRects( rects, rectCount );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
+    {
+        QPaintEngine::drawRects( rects, rectCount );
+        return;
+    }
+
+    device->drawRects( rects, rectCount );
 }
 
 void QwtNullPaintDevice::PaintEngine::drawLines(
     const QLine *lines, int lineCount)
 {
-    if ( d_device )
-        d_device->drawLines( lines, lineCount );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
+    {
+        QPaintEngine::drawLines( lines, lineCount );
+        return;
+    }
+
+    device->drawLines( lines, lineCount );
 }
 
 void QwtNullPaintDevice::PaintEngine::drawLines(
     const QLineF *lines, int lineCount)
 {
-    if ( d_device )
-        d_device->drawLines( lines, lineCount );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
+    {
+        QPaintEngine::drawLines( lines, lineCount );
+        return;
+    }
+
+    device->drawLines( lines, lineCount );
 }
 
 void QwtNullPaintDevice::PaintEngine::drawEllipse(
     const QRectF &rect)
 {
-    if ( d_device )
-        d_device->drawEllipse( rect );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
+    {
+        QPaintEngine::drawEllipse( rect );
+        return;
+    }
+
+    device->drawEllipse( rect );
 }
 
 void QwtNullPaintDevice::PaintEngine::drawEllipse(
     const QRect &rect)
 {
-    if ( d_device )
-        d_device->drawEllipse( rect );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
+    {
+        QPaintEngine::drawEllipse( rect );
+        return;
+    }
+
+    device->drawEllipse( rect );
 }
 
 
 void QwtNullPaintDevice::PaintEngine::drawPath(
     const QPainterPath &path)
 {
-    if ( d_device )
-        d_device->drawPath( path );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    device->drawPath( path );
 }
 
 void QwtNullPaintDevice::PaintEngine::drawPoints(
     const QPointF *points, int pointCount)
 {
-    if ( d_device )
-        d_device->drawPoints( points, pointCount );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
+    {
+        QPaintEngine::drawPoints( points, pointCount );
+        return;
+    }
+
+    device->drawPoints( points, pointCount );
 }
 
 void QwtNullPaintDevice::PaintEngine::drawPoints(
     const QPoint *points, int pointCount)
 {
-    if ( d_device )
-        d_device->drawPoints( points, pointCount );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
+    {
+        QPaintEngine::drawPoints( points, pointCount );
+        return;
+    }
+
+    device->drawPoints( points, pointCount );
 }
 
 void QwtNullPaintDevice::PaintEngine::drawPolygon(
     const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
-    if ( d_device )
-        d_device->drawPolygon( points, pointCount, mode );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    if ( device->mode() == QwtNullPaintDevice::PathMode )
+    {
+        QPainterPath path;
+
+        if ( pointCount > 0 )
+        {
+            path.moveTo( points[0] );
+            for ( int i = 1; i < pointCount; i++ )
+                path.lineTo( points[i] );
+
+            if ( mode != PolylineMode )
+                path.closeSubpath();
+        }
+
+        device->drawPath( path );
+        return;
+    }
+
+    device->drawPolygon( points, pointCount, mode );
 }
 
 void QwtNullPaintDevice::PaintEngine::drawPolygon(
     const QPoint *points, int pointCount, PolygonDrawMode mode)
 {
-    if ( d_device )
-        d_device->drawPolygon( points, pointCount, mode );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    if ( device->mode() == QwtNullPaintDevice::PathMode )
+    {
+        QPainterPath path;
+
+        if ( pointCount > 0 )
+        {
+            path.moveTo( points[0] );
+            for ( int i = 1; i < pointCount; i++ )
+                path.lineTo( points[i] );
+
+            if ( mode != PolylineMode )
+                path.closeSubpath();
+        }
+
+        device->drawPath( path );
+        return;
+    }
+
+    device->drawPolygon( points, pointCount, mode );
 }
 
 void QwtNullPaintDevice::PaintEngine::drawPixmap( 
     const QRectF &rect, const QPixmap &pm, const QRectF &subRect )
 {
-    if ( d_device )
-        d_device->drawPixmap( rect, pm, subRect );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    device->drawPixmap( rect, pm, subRect );
 }
 
 void QwtNullPaintDevice::PaintEngine::drawTextItem(
     const QPointF &pos, const QTextItem &textItem)
 {
-    if ( d_device )
-        d_device->drawTextItem( pos, textItem );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
+    {
+        QPaintEngine::drawTextItem( pos, textItem );
+        return;
+    }
+
+    device->drawTextItem( pos, textItem );
 }
 
 void QwtNullPaintDevice::PaintEngine::drawTiledPixmap(
     const QRectF &rect, const QPixmap &pixmap, 
     const QPointF &subRect)
 {
-    if ( d_device )
-        d_device->drawTiledPixmap( rect, pixmap, subRect );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    if ( device->mode() != QwtNullPaintDevice::NormalMode )
+    {
+        QPaintEngine::drawTiledPixmap( rect, pixmap, subRect );
+        return;
+    }   
+
+    device->drawTiledPixmap( rect, pixmap, subRect );
 }
 
 void QwtNullPaintDevice::PaintEngine::drawImage(
     const QRectF &rect, const QImage &image, 
     const QRectF &subRect, Qt::ImageConversionFlags flags)
 {
-    if ( d_device )
-        d_device->drawImage( rect, image, subRect, flags );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    device->drawImage( rect, image, subRect, flags );
 }
 
 void QwtNullPaintDevice::PaintEngine::updateState(
     const QPaintEngineState &state)
 {
-    if ( d_device )
-        d_device->updateState( state );
+    QwtNullPaintDevice *device = nullDevice();
+    if ( device == NULL )
+        return;
+
+    device->updateState( state );
+}
+
+inline QwtNullPaintDevice *QwtNullPaintDevice::PaintEngine::nullDevice()
+{
+    if ( !isActive() )
+        return NULL;
+
+    return static_cast<QwtNullPaintDevice *>( paintDevice() );
 }
 
 //! Constructor
-QwtNullPaintDevice::QwtNullPaintDevice( 
-    QPaintEngine::PaintEngineFeatures features )
+QwtNullPaintDevice::QwtNullPaintDevice():
+    d_engine( NULL )
 {
-    init( features );
-}
-
-//! Constructor
-QwtNullPaintDevice::QwtNullPaintDevice( const QSize &size,
-    QPaintEngine::PaintEngineFeatures features )
-{
-    init( features );
-    d_data->size = size;
-}
-
-void QwtNullPaintDevice::init( 
-    QPaintEngine::PaintEngineFeatures features )
-{
-    d_engine = new PaintEngine( features );
     d_data = new PrivateData;
 }
 
@@ -234,61 +369,91 @@ QwtNullPaintDevice::~QwtNullPaintDevice()
 }
 
 /*!
-   Set the size of the paint device
+    Set the render mode
 
-   \param size Size
-   \sa size()
-*/
-void QwtNullPaintDevice::setSize( const QSize & size )
+    \param mode New mode
+    \sa mode()
+ */
+void QwtNullPaintDevice::setMode( Mode mode )
 {
-    d_data->size = size;
+    d_data->mode = mode;
 }
 
 /*! 
-    \return Size of the paint device
-    \sa setSize()
+    \return Render mode
+    \sa setMode()
 */
-QSize QwtNullPaintDevice::size() const
+QwtNullPaintDevice::Mode QwtNullPaintDevice::mode() const
 {
-    return d_data->size;
+    return d_data->mode;
 }
 
 //! See QPaintDevice::paintEngine()
 QPaintEngine *QwtNullPaintDevice::paintEngine() const
 {
+    if ( d_engine == NULL )
+    {
+        QwtNullPaintDevice *that = 
+            const_cast< QwtNullPaintDevice * >( this );
+
+        that->d_engine = new PaintEngine();
+    }
+
     return d_engine;
 }
 
 /*! 
     See QPaintDevice::metric()
-    \sa setSize()
-*/
-int QwtNullPaintDevice::metric( PaintDeviceMetric metric ) const
-{
-    static QPixmap pm;
 
+    \param deviceMetric Type of metric
+    \return Metric information for the given paint device metric.
+
+    \sa sizeMetrics()
+*/
+int QwtNullPaintDevice::metric( PaintDeviceMetric deviceMetric ) const
+{
     int value;
 
-    switch ( metric ) 
+    switch ( deviceMetric ) 
     {
         case PdmWidth:
-            value = qMax( d_data->size.width(), 0 );
+        {
+            value = sizeMetrics().width();
             break;
+        }
         case PdmHeight:
-            value = qMax( d_data->size.height(), 0 );
+        {
+            value = sizeMetrics().height();
             break;
+        }
         case PdmNumColors:
-            value = 16777216;
+        {
+            value = 0xffffffff;
             break;
+        }
         case PdmDepth:
-            value = 24;
+        {
+            value = 32;
             break;
+        }
         case PdmPhysicalDpiX:
-        case PdmDpiY:
         case PdmPhysicalDpiY:
-        case PdmWidthMM:
-        case PdmHeightMM:
+        case PdmDpiY:
         case PdmDpiX:
+        {
+            value = 72;
+            break;
+        }
+        case PdmWidthMM:
+        {
+            value = qRound( metric( PdmWidth ) * 25.4 / metric( PdmDpiX ) );
+            break;
+        }
+        case PdmHeightMM:
+        {
+            value = qRound( metric( PdmHeight ) * 25.4 / metric( PdmDpiY ) );
+            break;
+        }
         default:
             value = 0;
     }

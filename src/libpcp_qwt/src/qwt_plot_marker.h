@@ -28,7 +28,7 @@ class QwtSymbol;
   a symbol, a label or any combination of them, which can
   be drawn around a center point inside a bounding rectangle.
 
-  The QwtPlotMarker::setSymbol() member assigns a symbol to the marker.
+  The setSymbol() member assigns a symbol to the marker.
   The symbol is drawn at the specified point.
 
   With setLabel(), a label can be assigned to the marker.
@@ -39,6 +39,10 @@ class QwtSymbol;
   the marker, which means, for example, that the label would be printed
   left above the center point if the alignment was set to 
   Qt::AlignLeft | Qt::AlignTop.
+
+  \note QwtPlotTextLabel is intended to align a text label
+        according to the geometry of canvas 
+        ( unrelated to plot coordinates )
 */
 
 class QWT_EXPORT QwtPlotMarker: public QwtPlotItem
@@ -64,7 +68,9 @@ public:
         Cross
     };
 
-    explicit QwtPlotMarker();
+    explicit QwtPlotMarker( const QString &title = QString::null );
+    explicit QwtPlotMarker( const QwtText &title );
+
     virtual ~QwtPlotMarker();
 
     virtual int rtti() const;
@@ -81,6 +87,7 @@ public:
     void setLineStyle( LineStyle st );
     LineStyle lineStyle() const;
 
+    void setLinePen( const QColor &, qreal width = 0.0, Qt::PenStyle = Qt::SolidLine );
     void setLinePen( const QPen &p );
     const QPen &linePen() const;
 
@@ -105,8 +112,7 @@ public:
 
     virtual QRectF boundingRect() const;
 
-    virtual void updateLegend( QwtLegend * ) const;
-    virtual void drawLegendIdentifier( QPainter *, const QRectF & ) const;
+    virtual QwtGraphic legendIcon( int index, const QSizeF & ) const;
 
 protected:
     virtual void drawLines( QPainter *, 

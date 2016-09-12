@@ -13,13 +13,12 @@
 #include "qwt_global.h"
 #include "qwt_panner.h"
 
-class QwtPlotCanvas;
 class QwtPlot;
 
 /*!
   \brief QwtPlotPanner provides panning of a plot canvas
 
-  QwtPlotPanner is a panner for a QwtPlotCanvas, that
+  QwtPlotPanner is a panner for a plot canvas, that
   adjusts the scales of the axes after dropping
   the canvas on its new position.
 
@@ -34,11 +33,11 @@ class QWT_EXPORT QwtPlotPanner: public QwtPanner
     Q_OBJECT
 
 public:
-    explicit QwtPlotPanner( QwtPlotCanvas * );
+    explicit QwtPlotPanner( QWidget * );
     virtual ~QwtPlotPanner();
 
-    QwtPlotCanvas *canvas();
-    const QwtPlotCanvas *canvas() const;
+    QWidget *canvas();
+    const QWidget *canvas() const;
 
     QwtPlot *plot();
     const QwtPlot *plot() const;
@@ -51,6 +50,7 @@ protected Q_SLOTS:
 
 protected:
     virtual QBitmap contentsMask() const;
+    virtual QPixmap grab() const;
 
 private:
     class PrivateData;

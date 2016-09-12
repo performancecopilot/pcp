@@ -38,7 +38,7 @@ public:
     //! Flags to modify the contour algorithm
     enum ConrecFlag
     {
-        //! Ignore all verices on the same level
+        //! Ignore all vertices on the same level
         IgnoreAllVerticesOnLevel = 0x01,
 
         //! Ignore all values, that are out of range

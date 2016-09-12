@@ -43,10 +43,13 @@ public:
     void setEnabled( bool );
     bool isEnabled() const;
 
-    void setMouseButton( int button, int buttonState = Qt::NoButton );
-    void getMouseButton( int &button, int &buttonState ) const;
-    void setAbortKey( int key, int state = Qt::NoButton );
-    void getAbortKey( int &key, int &state ) const;
+    void setMouseButton( Qt::MouseButton, 
+        Qt::KeyboardModifiers = Qt::NoModifier );
+    void getMouseButton( Qt::MouseButton &button, 
+        Qt::KeyboardModifiers & ) const;
+
+    void setAbortKey( int key, Qt::KeyboardModifiers = Qt::NoModifier );
+    void getAbortKey( int &key, Qt::KeyboardModifiers & ) const;
 
     void setCursor( const QCursor & );
     const QCursor cursor() const;

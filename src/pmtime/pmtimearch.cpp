@@ -125,6 +125,7 @@ void PmTimeArch::setControl(PmTime::State state, PmTime::Mode mode)
 void PmTimeArch::init()
 {
     static char UTC[] = "UTC\0Universal Coordinated Time";
+    double delta, minspeed, maxspeed;
 
     console->post(PmTime::DebugApp, "Starting Archive Time Control...");
 
@@ -153,10 +154,12 @@ void PmTimeArch::init()
     displayDeltaText();
     setControl(PmTime::StoppedState, PmTime::NormalMode);
 
-    double delta = PmTime::secondsFromTimeval(&my.pmtime.delta);
+    delta = PmTime::secondsFromTimeval(&my.pmtime.delta);
+    minspeed = PmTime::minimumSpeed(delta);
+    maxspeed = PmTime::maximumSpeed(delta);
     changeSpeed(PmTime::defaultSpeed(delta));
-    wheelSpeed->setRange(
-		PmTime::minimumSpeed(delta), PmTime::maximumSpeed(delta), 0.1);
+    wheelSpeed->setRange(minspeed, maxspeed);
+    wheelSpeed->setSingleStep(0.1);
     wheelSpeed->setValue(PmTime::defaultSpeed(delta));
     lineEditDelta->setAlignment(Qt::AlignRight);
     lineEditDelta->setValidator(
@@ -351,15 +354,30 @@ void PmTimeArch::displayPositionSlide(void)
     sliderPosition->setValue(PmTime::secondsFromTimeval(&my.pmtime.position));
 }
 
-void PmTimeArch::setPositionSlideRange(void)
+void PmTimeArch::setPositionSlideScale(void)
 {
-    sliderPosition->setRange(PmTime::secondsFromTimeval(&my.pmtime.start),
-			     PmTime::secondsFromTimeval(&my.pmtime.end));
+    double delta, start, end;
+
+    delta = PmTime::secondsFromTimeval(&my.pmtime.delta);
+    start = PmTime::secondsFromTimeval(&my.pmtime.start);
+    end = PmTime::secondsFromTimeval(&my.pmtime.end);
+
+    sliderPosition->blockSignals(true);
+    sliderPosition->setScale(start, end);
+    sliderPosition->setTotalSteps((end - start) / delta);
+    sliderPosition->blockSignals(false);
 }
 
-void PmTimeArch::setPositionSlideDelta(void)
+void PmTimeArch::setPositionSlideRange(void)
 {
-    sliderPosition->setStep(PmTime::secondsFromTimeval(&my.pmtime.delta));
+    double start, end;
+
+    start = PmTime::secondsFromTimeval(&my.pmtime.start);
+    end = PmTime::secondsFromTimeval(&my.pmtime.end);
+
+    sliderPosition->blockSignals(true);
+    sliderPosition->setScale(start, end);
+    sliderPosition->blockSignals(false);
 }
 
 void PmTimeArch::pressedPosition()
@@ -464,9 +482,7 @@ void PmTimeArch::doneBounds(void)
 	my.pmtime.position = my.pmtime.end;
 	tellclients = 1;
     }
-    sliderPosition->blockSignals(true);
     setPositionSlideRange();
-    sliderPosition->blockSignals(false);
     if (tellclients)
 	emit vcrModePulse(&my.pmtime, 0);
 }
@@ -635,10 +651,7 @@ void PmTimeArch::setTime(PmTime::Packet *k, char *tzdata)
 	my.absoluteEnd = my.pmtime.end = k->end;
 	my.pmtime.position = k->position;
 	my.pmtime.delta = k->delta;
-	sliderPosition->blockSignals(true);
-	setPositionSlideRange();
-	setPositionSlideDelta();
-	sliderPosition->blockSignals(false);
+	setPositionSlideScale();
 	displayDeltaText();
 	displayPositionText();
 	displayPositionSlide();
@@ -686,9 +699,7 @@ void PmTimeArch::addBound(PmTime::Packet *k, char *tzdata)
 	my.pmtime.end = k->end;
     }
 
-    sliderPosition->blockSignals(true);
     setPositionSlideRange();
-    sliderPosition->blockSignals(false);
     displayPositionText();
     displayPositionSlide();
     my.bounds->reset();

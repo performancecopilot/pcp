@@ -288,8 +288,11 @@ and also with respect to any "play mode" changes requested.</string>
         <property name="orientation" >
          <enum>Qt::Horizontal</enum>
         </property>
-        <property name="backgroundStyle" >
-         <enum>QwtSlider::Groove</enum>
+        <property name="groove" >
+         <bool>true</bool>
+        </property>
+        <property name="trough" >
+         <bool>false</bool>
         </property>
         <property name="handleSize" >
          <size>

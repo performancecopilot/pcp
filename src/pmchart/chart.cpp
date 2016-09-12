@@ -24,10 +24,10 @@
 #include <QApplication>
 #include <QWhatsThis>
 #include <QCursor>
+#include <qwt_legend.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_picker.h>
 #include <qwt_plot_renderer.h>
-#include <qwt_legend_item.h>
 #include <qwt_scale_widget.h>
 
 #define DESPERATE 0
@@ -50,10 +50,13 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget(this)
     my.engine = new ChartEngine(this);
 
     // setup the legend (all charts must have one)
+    QwtLegend *legend = new QwtLegend;
+    insertLegend(legend, QwtPlot::BottomLegend);
+    legend->setDefaultItemMode(QwtLegendData::Checkable);
+    legend->setFont(*globalFont);
+    connect(legend, SIGNAL(checked(const QVariant &, bool, int)),
+		    SLOT(showItem(const QVariant &, bool)));
     setLegendVisible(true);
-    QwtPlot::legend()->contentsWidget()->setFont(*globalFont);
-    connect(this, SIGNAL(legendChecked(QwtPlotItem *, bool)),
-		    SLOT(legendChecked(QwtPlotItem *, bool)));
 
     // setup a picker (all charts must have one)
     my.picker = new ChartPicker(canvas());
@@ -320,15 +323,17 @@ Chart::replot()
 }
 
 void
-Chart::legendChecked(QwtPlotItem *item, bool down)
+Chart::showItem(const QVariant &itemInfo, bool down)
 {
+    QwtPlotItem *item = infoToItem(itemInfo);
+    bool changed = false;
+
 #if DESPERATE
-    console->post(PmChart::DebugForce, "Chart::legendChecked %s for item %p",
+    console->post(PmChart::DebugForce, "Chart::showItem %s for item %p",
 		down? "down":"up", item);
 #endif
 
     // find matching item and update hidden status if required
-    bool changed = false;
     for (int i = 0; i < my.items.size(); i++) {
 	if (my.items[i]->item() != item)
 	    continue;
@@ -455,7 +460,9 @@ Chart::resetTitleFont(void)
 void
 Chart::resetFont(void)
 {
-    QwtPlot::legend()->contentsWidget()->setFont(*globalFont);
+    QwtLegend *legend = (QwtLegend *)QwtPlot::legend();
+
+    legend->contentsWidget()->setFont(*globalFont);
     setAxisFont(QwtPlot::yLeft, *globalFont);
     resetTitleFont();
 }
@@ -839,13 +846,13 @@ Chart::legendVisible()
 void
 Chart::setLegendVisible(bool on)
 {
-    QwtLegend *legend = QwtPlot::legend();
+    QwtLegend *legend = (QwtLegend *)QwtPlot::legend();
 
     if (on) {
 	if (legend == NULL) { // currently disabled, enable it
 	    legend = new QwtLegend;
 
-	    legend->setItemMode(QwtLegend::CheckableItem);
+	    legend->setDefaultItemMode(QwtLegendData::Checkable);
 	    insertLegend(legend, QwtPlot::BottomLegend);
 	    // force each Legend item to "checked" state matching
 	    // the initial plotting state

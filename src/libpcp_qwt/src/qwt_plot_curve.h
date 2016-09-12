@@ -52,7 +52,8 @@ class QwtCurveFitter;
 
   \sa QwtPointSeriesData, QwtSymbol, QwtScaleMap
 */
-class QWT_EXPORT QwtPlotCurve: public QwtPlotSeriesItem<QPointF>
+class QWT_EXPORT QwtPlotCurve: 
+    public QwtPlotSeriesItem, public QwtSeriesStore<QPointF>
 {
 public:
     /*!
@@ -119,7 +120,7 @@ public:
           A QwtCurveFitter tries to
           interpolate/smooth the curve, before it is painted.
 
-          \note Curve fitting requires temorary memory
+          \note Curve fitting requires temporary memory
           for calculating coefficients and additional points.
           If painting in QwtPlotCurve::Fitted mode is slow it might be better
           to fit the points, before they are passed to QwtPlotCurve.
@@ -134,7 +135,7 @@ public:
         Attributes how to represent the curve on the legend
 
         \sa setLegendAttribute(), testLegendAttribute(),
-            drawLegendIdentifier()
+            QwtPlotItem::legendData(), legendIcon()
      */
 
     enum LegendAttribute
@@ -168,7 +169,7 @@ public:
 
     /*!
         Attributes to modify the drawing algorithm.
-        The default setting enables ClipPolygons
+        The default setting enables ClipPolygons | FilterPoints
 
         \sa setPaintAttribute(), testPaintAttribute()
     */
@@ -182,12 +183,28 @@ public:
         ClipPolygons = 0x01,
 
         /*!
-          Paint the symbol to a QPixmap and paint the pixmap
-          instead rendering the symbol for each point. The flag has
-          no effect, when the curve is not painted to the canvas
-          ( f.e when exporting the plot to a PDF document ).
+          Tries to reduce the data that has to be painted, by sorting out
+          duplicates, or paintings outside the visible area. Might have a
+          notable impact on curves with many close points.
+          Only a couple of very basic filtering algorithms are implemented.
          */
-        CacheSymbols = 0x02
+        FilterPoints = 0x02,
+
+        /*!
+          Minimize memory usage that is temporarily needed for the 
+          translated points, before they get painted.
+          This might slow down the performance of painting 
+         */
+        MinimizeMemory = 0x04,
+
+        /*!
+          Render the points to a temporary image and paint the image.
+          This is a very special optimization for Dots style, when
+          having a huge amount of points. 
+          With a reasonable number of points QPainter::drawPoints()
+          will be faster.
+         */
+        ImageBuffer = 0x08
     };
 
     //! Paint attributes
@@ -212,6 +229,7 @@ public:
     void setSamples( const QVector<double> &xData, const QVector<double> &yData );
 #endif
     void setSamples( const QVector<QPointF> & );
+    void setSamples( QwtSeriesData<QPointF> * );
 
     int closestPoint( const QPoint &pos, double *dist = NULL ) const;
 
@@ -223,19 +241,20 @@ public:
     void setCurveAttribute( CurveAttribute, bool on = true );
     bool testCurveAttribute( CurveAttribute ) const;
 
+    void setPen( const QColor &, qreal width = 0.0, Qt::PenStyle = Qt::SolidLine );
     void setPen( const QPen & );
     const QPen &pen() const;
 
     void setBrush( const QBrush & );
     const QBrush &brush() const;
 
-    void setBaseline( double ref );
+    void setBaseline( double );
     double baseline() const;
 
     void setStyle( CurveStyle style );
     CurveStyle style() const;
 
-    void setSymbol( const QwtSymbol *s );
+    void setSymbol( QwtSymbol * );
     const QwtSymbol *symbol() const;
 
     void setCurveFitter( QwtCurveFitter * );
@@ -245,34 +264,33 @@ public:
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    virtual void updateLegend( QwtLegend * ) const;
-    virtual void drawLegendIdentifier( QPainter *, const QRectF & ) const;
+    virtual QwtGraphic legendIcon( int index, const QSizeF & ) const;
 
 protected:
 
     void init();
 
-    virtual void drawCurve( QPainter *, int style,
+    virtual void drawCurve( QPainter *p, int style,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    virtual void drawSymbols( QPainter *, const QwtSymbol &,
+    virtual void drawSymbols( QPainter *p, const QwtSymbol &,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    void drawLines( QPainter *,
+    virtual void drawLines( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    void drawSticks( QPainter *,
+    virtual void drawSticks( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    void drawDots( QPainter *,
+    virtual void drawDots( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
-    void drawSteps( QPainter *,
+    virtual void drawSteps( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QRectF &canvasRect, int from, int to ) const;
 
