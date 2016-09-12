@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015, Red Hat.
+ * Copyright (c) 2012-2016, Red Hat.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
@@ -688,6 +688,8 @@ void
 Chart::selected(const QPointF &p)
 {
     showPoint(p);
+    accumulatePointInfo(p);
+    showInfo();
     my.tab->setCurrent(this);
 }
 
@@ -699,40 +701,53 @@ Chart::moved(const QPointF &p)
     my.engine->moved(p);
 }
 
+QString
+Chart::pointValueText(const QPointF &p) const
+{
+    QString text;
+    text.sprintf("[%.2f", (float)p.y());
+    QString title = YAxisTitle();
+    if (title != QString::null) {
+	text.append(" ");
+	text.append(title);
+    }
+    text.append(" at ");
+    text.append(timeHiResString(p.x()));
+    text.append("]");
+
+    return text;
+}
 
 void
 Chart::showPoint(const QPointF &p)
 {
-    ChartItem *selected = NULL;
-    double dist, distance = 10e10;
-    int index = -1;
-
     // pixel point
     QPoint pp = my.picker->transform(p);
-
     console->post("Chart::showPoint p=%.2f,%.2f pixel=%d,%d",
-		p.x(), p.y(), pp.x(), pp.y());
+		  p.x(), p.y(), pp.x(), pp.y());
 
-    // seek the closest curve to the point selected
-    for (int i = 0; i < my.items.size(); i++) {
-	QwtPlotCurve *curve = my.items[i]->curve();
-	int point = curve->closestPoint(pp, &dist);
+    QString text = pointValueText(p);
+    pmchart->setValueText(text);
+}
 
-	if (dist < distance) {
-	    index = point;
-	    distance = dist;
-	    selected = my.items[i];
-	}
-    }
+void
+Chart::accumulatePointInfo(const QPointF &p)
+{
+    // pixel point
+    QPoint pp = my.picker->transform(p);
+    console->post("Chart::accumulatePointInfo p=%.2f,%.2f pixel=%d,%d",
+		  p.x(), p.y(), pp.x(), pp.y());
 
-    // clear existing selections then show this one
-    bool update = (index >= 0 && pp.y() >= 0);
+    // Update the cursor of each curve with respect to the given point.
     for (int i = 0; i < my.items.size(); i++) {
 	ChartItem *item = my.items[i];
-
 	item->clearCursor();
-	if (update && item == selected)
-	    item->updateCursor(p, index);
+
+	double dist;
+	const QwtPlotCurve *curve = item->curve();
+	int point = curve->closestPoint(pp, &dist);
+
+	item->updateCursor(p, point);
     }
 }
 
@@ -809,13 +824,26 @@ Chart::showInfo(void)
     pmchart->timeout();	// clear status bar
     for (int i = 0; i < my.items.size(); i++) {
 	ChartItem *item = my.items[i];
-	if (info != QString::null)
-	    info.append("\n");
-	info.append(item->cursorInfo());
-    }
+	const QString &cursorInfo = item->cursorInfo();
 
-    while (!info.isEmpty() && (info.at(info.length()-1) == '\n'))
-	info.chop(1);
+	// Add this item's cursor info, if it is not empty.
+	if (!cursorInfo.isEmpty()) {
+	    // New line separator, if not the first item
+	    if (!info.isEmpty())
+		info.append("\n");
+
+	    // Get the item's title and strip the host name.
+	    QString title = item->item()->title().text();
+	    int hostEnd = title.indexOf(':');
+	    if (hostEnd != -1)
+		title.remove(0, hostEnd + 1);
+
+	    // Add the title and cursor info.
+	    info.append(title);
+	    info.append(": ");
+	    info.append(cursorInfo);
+	}
+    }
 
     if (!info.isEmpty())
 	QWhatsThis::showText(QCursor::pos(), info, this);

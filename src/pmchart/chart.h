@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015, Red Hat.
+ * Copyright (c) 2012-2016, Red Hat.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
@@ -68,6 +68,11 @@ public:
     QString title(void);		// return copy of chart title
     void changeTitle(QString, bool);	// QString::null to clear; expand?
     QString hostNameString(bool);	// short/long host names as qstring
+
+    QString pointValueText(const QPointF &p) const; // text for the given point
+
+    Tab *tab()
+	{ return my.tab; }
 
     Style style(void);			// return chart style
     void setStyle(Style);		// set default chart plot style
@@ -152,6 +157,7 @@ private:
 
     // handling selection
     void showInfo(void);
+    void accumulatePointInfo(const QPointF &);
     void showPoint(const QPointF &);
     void showPoints(const QPolygon &);
 
