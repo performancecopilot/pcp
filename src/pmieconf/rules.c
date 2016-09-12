@@ -2134,6 +2134,7 @@ read_pmiefile(char *warning, size_t warnlen)
     char	*tmp = NULL;
     char	*p, *home;
     FILE	*f;
+    struct stat	sbuf;
     char	*rule_path_sep;
 
     if ((f = fopen(get_pmiefile(), "r")) == NULL) {
@@ -2146,6 +2147,12 @@ read_pmiefile(char *warning, size_t warnlen)
 
     linenum = 1;
     filename = get_pmiefile();
+    if (fstat(fileno(f), &sbuf) == 0 && sbuf.st_size == 0) {
+	/* short-circuit empty file special case */
+	fclose(f);
+	return NULL;
+    }
+
     if (read_lheader(f, &tmp) != NULL) {
 	fclose(f);
 	return errmsg;

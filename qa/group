@@ -1135,6 +1135,8 @@ libpcp_web
 890 libpcp_import local
 891 libpcp local
 892 pmcd libpcp local
+893 pmcd local
+894 pmlogconf pmieconf local
 897 pmlc pmlogger local
 898 pmlogmv local 
 899 libpcp getopt local
@@ -1158,6 +1160,7 @@ libpcp_web
 930 pmlogrewrite local
 931 archive pmval local
 932 pmlogger local
+933 pmda.proc local
 943 pmprobe pmda.proc local
 944 pmcd secure local
 945 pmlogrewrite pmda.xfs local

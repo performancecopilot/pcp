@@ -27,5 +27,6 @@ typedef struct {
 } proc_runq_t;
 
 extern int proc_runq_append(const char *, proc_runq_t *);
+extern int proc_runq_append_pid(int, proc_runq_t *);
 
 #endif /* _PROC_RUNQ_H */

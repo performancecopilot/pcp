@@ -60,12 +60,18 @@ then
 fi
 
 eval `egrep '^(PMDA_|HAVE_)' ../src/include/builddefs | sed -e 's/ //g'`
+
 if $PMDA_PAPI
 then
-    echo "s/?{libpapi-dev}/libpapi-dev,/" >>$tmp.sed
-    echo "s/?{libpfm4-dev}/libpfm4-dev,/" >>$tmp.sed
+    echo "s/?{libpapi-dev}/libpapi-dev [!s390x],/" >>$tmp.sed
 else
     echo "s/?{libpapi-dev}//" >>$tmp.sed
+fi
+
+if $PMDA_PERFEVENT
+then
+    echo "s/?{libpfm4-dev}/libpfm4-dev,/" >>$tmp.sed
+else
     echo "s/?{libpfm4-dev}//" >>$tmp.sed
 fi
 

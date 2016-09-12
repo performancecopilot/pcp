@@ -21,6 +21,7 @@ check_fault_injection
 check_import
 check_import_name
 check_import.pl
+check_pmiend_fdleak
 chkacc1
 chkacc2
 chkacc3
