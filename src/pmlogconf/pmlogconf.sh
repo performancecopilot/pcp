@@ -457,7 +457,7 @@ then
     fi
 fi
 
-if [ ! -f "$config" ]
+if [ ! -s "$config" ]
 then
     # create a new config file
     #

@@ -12,7 +12,7 @@
 #    that 'pminfo me<tab>' will offer only 'mem.' not all the metrics
 #    under 'mem'), this can be enabled with:
 #
-#      % zstyle ':completion:*:pcp:metrics' full-names off
+#      % zstyle ':completion:*:*:pcp:metrics' full-names off
 #
 #    In both modes partial word completion is enabled (meaning that when
 #    completing 'pminfo m.u.f<tab>' it expands to 'pminfo mem.util.free'.
@@ -21,14 +21,14 @@
 #    containers while IDs are also recognized if being completed. To use
 #    IDs instead of names (but still recognize names, too), set:
 #
-#      % zstyle ':completion:*:pcp:containers' use-ids on
+#      % zstyle ':completion:*:*:pcp:containers' use-ids on
 #
 #
 
 _pcp () {
   local curcontext="$curcontext" state line expl ret=1
   local common_help common_most common_pmda arch_req=0
-  typeset -A opt_args
+  declare -A opt_args
 
   local exargs="-? --help -V --version"
   common_help=(
@@ -511,31 +511,34 @@ _pcp () {
 
   case $state in
   archives)
-    typeset -a archives
-    if [[ $words[-1] == -* || $words[CURRENT] == *, ]]; then
-      archives=( *(-FM) *.index )
-    else
-      archives=( ${words[-1]##*,}*(-FM) ${words[-1]##*,}*.index )
-    fi
-    if [[ $#archives -gt 0 && $archives = *.index* ]]; then
+    local fpat t
+    local -a archives
+    [[ -n $words[CURRENT] ]] && t=${words[CURRENT]##*,}
+    archives=( ${t}*(-FM) ${t}*.index )
+    if [[ $#archives -gt 0 && $archives == *.index* ]]; then
       _values -s , -w archive ${archives/.index} && ret=0
     else
-      _wanted archives expl archive _files -/ && ret=0
+      compset -P '*,'
+      zstyle -s ":completion:${curcontext}:" file-patterns fpat
+      if [[ -z "$fpat" ]]; then
+        zstyle ":completion:${curcontext}:" file-patterns '%p:globbed-files'
+      fi
+      _wanted archives expl archive _files -g '*(-F)' && ret=0
     fi
   ;;
   containers)
-    typeset -a conts names found
+    local -a conts names found
     conts=( ${(f)"$(pminfo -f containers.state.running)"} )
     names=( ${(f)"$(pminfo -f containers.name)"} )
     for cont in $conts; do
       [[ $cont == *value?1* ]] || continue
       for c in $names; do
-        if zstyle -t ":completion:${curcontext}:pcp:containers" use-ids; then
-          [[ ${${=cont}[4]} = ${${=c}[4]} ]] && found+=( ${(Q)${${=cont}[4]}/\]} )
-          [[ ${${=cont}[4]} = ${${=c}[4]} && -n $words[-1] ]] && found+=( ${(Q)${=c}[6]} )
+        if zstyle -t ":completion:*:${curcontext}:pcp:containers" use-ids; then
+          [[ ${${=cont}[4]} == ${${=c}[4]} ]] && found+=( ${(Q)${${=cont}[4]}/\]} )
+          [[ ${${=cont}[4]} == ${${=c}[4]} && -n $words[CURRENT] ]] && found+=( ${(Q)${=c}[6]} )
         else
-          [[ ${${=cont}[4]} = ${${=c}[4]} ]] && found+=( ${(Q)${=c}[6]} )
-          [[ ${${=cont}[4]} = ${${=c}[4]} && -n $words[-1] ]] && found+=( ${(Q)${${=cont}[4]}/\]} )
+          [[ ${${=cont}[4]} == ${${=c}[4]} ]] && found+=( ${(Q)${=c}[6]} )
+          [[ ${${=cont}[4]} == ${${=c}[4]} && -n $words[CURRENT] ]] && found+=( ${(Q)${${=cont}[4]}/\]} )
         fi
       done
     done
@@ -548,17 +551,18 @@ _pcp () {
     local c=${cont:+--container}
     local host=${~opt_args[-h]:-${~opt_args[--host]}}
     local h=${host:+-h}
-    typeset -a metrics insts found
+    local -a metrics insts found
+    local word
     if [[ $arch_req -eq 1 ]]; then
       a=-a
       arch=$words[2]
-      for (( i = 2; i <= $#words; i++ )); do
-        [[ $words[$i] != -* && -f ${words[$i]}.index ]] && arch=$words[$i]
+      for word in ${words:1}; do
+        [[ $word != -* && -f $word.index ]] && arch=$word
       done
     fi
-    for (( i = 2; i <= $#words; i++ )); do
+    for word in ${words:1}; do
       # Find metrics arguments, mishits will be filtered out w/ $2>0
-      [[ $words[$i] == [a-z]* ]] && metrics+=( $words[$i] )
+      [[ $word == [a-z]* ]] && metrics+=( $word )
     done
     # TODO: Check if feasible to handle quotes ('") / multiple spaces in insts
     insts=( ${(f)"$(pmprobe $a ${(e)arch} $c ${(e)cont} $h ${(e)host} -I $metrics 2>/dev/null | awk '!/1 PM_IN_NULL$/ && $1~"^[a-z]" && $2>0 {for(i=3;i<=NF;i++)print $i}')"} )
@@ -573,16 +577,17 @@ _pcp () {
     local c=${cont:+--container}
     local host=${~opt_args[-h]:-${~opt_args[--host]}}
     local h=${host:+-h}
+    local word
     if [[ $arch_req -eq 1 ]]; then
       a=-a
       arch=$words[2]
-      for (( i = 2; i <= $#words; i++ )); do
-        [[ $words[$i] != -* && -f ${words[$i]}.index ]] && arch=$words[$i]
+      for word in ${words:1}; do
+        [[ $word != -* && -f $word.index ]] && arch=$word
       done
     fi
     # Derived metrics from command line
     local drvc=${~opt_args[--derived]}
-    typeset -a drvm
+    local -a drvm
     [[ $service == pminfo ]] && drvc=${drvc:-${~opt_args[-c]}}
     [[ $service == pmrep ]] && drvc=${drvc:-${~opt_args[-e]}}
     if [[ -n $drvc && -f ${(e)drvc} ]]; then
@@ -592,11 +597,11 @@ _pcp () {
       drvm=( ${=${(ps:,:)${(Qe)drvc}}%%=*} )
     fi
     if [[ $words[CURRENT] != :* ]]; then
-      if zstyle -T ":completion:${curcontext}:pcp:metrics" full-names; then
+      if zstyle -T ":completion:*:${curcontext}:pcp:metrics" full-names; then
         _wanted metrics expl metric compadd -M 'r:|.=* r:|=*' $drvm \
           $(pminfo $a ${(e)arch} $c ${(e)cont} $h ${(e)host} 2>/dev/null) && ret=0
       else
-        typeset -a res
+        local -a res
         res=( $(pminfo $a ${(e)arch} $c ${(e)cont} $h ${(e)host} 2>/dev/null) )
         res+=( $drvm )
         _wanted metrics expl metric _multi_parts -i . res
@@ -606,7 +611,7 @@ _pcp () {
       [[ $service == pmrep ]] || return 1
       local conf=${~opt_args[-c]:-${~opt_args[--config]}}
       [[ -z $conf ]] && conf=${${(M)${(f)"$(</etc/pcp.conf)"}:#PCP_SYSCONF_DIR=*}##PCP_SYSCONF_DIR=}/pmrep/pmrep.conf
-      typeset -a sets
+      local -a sets
       for s in ${(f)"$(<${(e)conf})"}; do
         [[ $s == \[*\] && $s != \[(global|options)\] ]] && sets+=:${${s/\[}/\]}
       done
@@ -617,16 +622,16 @@ _pcp () {
     _wanted commands expl 'pcp command' compadd -a _cache_pcp_cmds && ret=0
   ;;
   pcp_cmdopts)
-    local cmd
-    for (( i = 2; i <= $#words; i++ )); do
-      [[ -n "${_cache_pcp_cmds[(r)$words[$i]]}" ]] && cmd=$words[$i] && break
+    local cmd word
+    for word in ${words:1}; do
+      [[ -n "${_cache_pcp_cmds[(r)$word]}" ]] && cmd=$word && break
     done
     [[ -z $cmd ]] && return 1
     [[ $cmd == python ]] && _default && return 0
     if [[ -z $_cache_pcp_cmdopts[$cmd] ]]; then
       _cache_pcp_cmdopts[$cmd]=${${${${(M)${=${(f)"$(pcp $cmd --help 2>&1)"}}:#-[-0-9A-Za-z?]*}/,}/=*}/-USR1}
     fi
-    _values -w options ${=_cache_pcp_cmdopts[$cmd]} && ret=0
+    [[ -n $_cache_pcp_cmdopts[$cmd] ]] && _values -w option ${(u)=_cache_pcp_cmdopts[$cmd]} && ret=0
   ;;
   pmfind_mechs)
     if compset -P '*,'; then

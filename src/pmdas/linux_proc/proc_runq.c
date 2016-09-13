@@ -1,6 +1,7 @@
 /*
  * Linux /proc/runq metrics cluster
  *
+ * Copyright (c) 2016 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -23,18 +24,16 @@
 #include "proc_pid.h"
 #include "indom.h"
 
-int
-proc_runq_append(const char *process, proc_runq_t *proc_runq)
+static int
+proc_runq_accounting(const char *path, proc_runq_t *proc_runq)
 {
     int fd, sname;
     ssize_t sz;
     char *p, buf[4096];
     static int unknown_count;
 
-    snprintf(buf, sizeof(buf), "%s/proc/%s/stat", proc_statspath, process);
-    if ((fd = open(buf, O_RDONLY)) < 0)
+    if ((fd = open(path, O_RDONLY)) < 0)
 	return fd;
-
     sz = read(fd, buf, sizeof(buf));
     close(fd);
     buf[sizeof(buf)-1] = '\0';
@@ -92,4 +91,20 @@ proc_runq_append(const char *process, proc_runq_t *proc_runq)
 	    break;
     }
     return 0;
+}
+
+int
+proc_runq_append(const char *process, proc_runq_t *proc_runq)
+{
+    char path[MAXPATHLEN];
+    snprintf(path, sizeof(path)-1, "%s/proc/%s/stat", proc_statspath, process);
+    return proc_runq_accounting(path, proc_runq);
+}
+
+int
+proc_runq_append_pid(int pid, proc_runq_t *proc_runq)
+{
+    char path[MAXPATHLEN];
+    snprintf(path, sizeof(path)-1, "%s/proc/%d/stat", proc_statspath, pid);
+    return proc_runq_accounting(path, proc_runq);
 }

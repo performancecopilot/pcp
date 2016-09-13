@@ -1,0 +1,52 @@
+#!/bin/sh
+# PCP QA Test No. 893
+# Exercise fix for RH BZ 1365424 where init script terminates
+# like-named processes.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+signal=$PCP_BINADM_DIR/pmsignal
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_cleanup()
+{
+    if [ -n "$pid" ]
+    then
+        echo "Terminating local pmcd process"
+        $signal -s TERM $pid
+        wait
+        pid=""
+    fi
+    cd $here; rm -rf $tmp.*
+}
+
+_filter()
+{
+    tee -a $seq.full \
+    | sed -e "s,$tmp.pmcd,$seq,g" \
+    | grep -v grep | wc -l
+}
+
+# real QA test starts here
+mkdir $tmp.pmcd
+cp $PCP_BINADM_DIR/pmsleep $tmp.pmcd/pmcd
+$tmp.pmcd/pmcd 60 &
+pid=$!
+$sudo $PCP_RC_DIR/pmcd restart | _filter_pcp_start
+$PCP_ECHO_PROG $PCP_ECHO_N "Local pmcd count: ""$PCP_ECHO_C"
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep $tmp.pmcd/pmcd | _filter
+
+# success, all done
+status=0
+exit

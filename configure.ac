@@ -1037,9 +1037,7 @@ then
     then
 	if $pcp_python_prog -c "import lxml" >/dev/null 2>&1
 	then
-dnl temporarily disabled until dynamic instance/metric IDs resolved
-dnl	    pmda_libvirt=true
-	    :
+	    pmda_libvirt=true
 	fi
     fi
 fi
@@ -1678,7 +1676,7 @@ AS_IF([test "x$do_perfevent" != "xno" ], [
 		 [pfm_libs="-lpfm"],
 		 [enable_perfevent=false])
     AC_CHECK_HEADERS([perfmon/pfmlib_perf_event.h], [], [enable_perfevent=false])
-    if test "$do_perfevent" != "check" -a "$enable_papi" != "true"
+    if test "$do_perfevent" != "check" -a "$enable_perfevent" != "true"
     then
 	AC_MSG_ERROR([libpfm is not installed, cannot enable the perfevent PMDA])
     else

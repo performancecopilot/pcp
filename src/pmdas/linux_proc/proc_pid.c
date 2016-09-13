@@ -155,7 +155,7 @@ tasklist_append(const char *pid, proc_pid_list_t *pids)
 }
 
 static int
-refresh_cgroup_pidlist(int want_threads, const char *cgroup, proc_pid_list_t *pids)
+refresh_cgroup_pidlist(int want_threads, proc_runq_t *runq_stats, proc_pid_list_t *pids, const char *cgroup)
 {
     char path[MAXPATHLEN];
     FILE *fp;
@@ -178,8 +178,11 @@ refresh_cgroup_pidlist(int want_threads, const char *cgroup, proc_pid_list_t *pi
 	snprintf(path, sizeof(path), "%s%s/cgroup.procs", proc_statspath, cgroup);
 
     if ((fp = fopen(path, "r")) != NULL) {
-	while (fscanf(fp, "%d\n", &pid) == 1)
+	while (fscanf(fp, "%d\n", &pid) == 1) {
 	    pidlist_append_pid(pid, pids);
+	    if (runq_stats)
+		proc_runq_append_pid(pid, runq_stats);
+	}
 	fclose(fp);
     }
 #if PCP_DEBUG
@@ -1044,15 +1047,6 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
 
     want_cgroups = container || (cgroups && cgroups[0] != '\0');
 
-    /* For the run queue stats, we cannot avoid the global /proc refresh.
-     * However, we can ensure we scan it once only (either here or below).
-     */
-    if (proc_runq) {
-	memset(proc_runq, 0, sizeof(proc_runq_t));
-	if (!want_cgroups)
-	    refresh_global_pidlist(want_threads, proc_runq, &procpids);
-    }
-
     /* For containers we asked pmdaroot for a cgroup name for the container.
      * We must find this systems mount path for a cgroup subsystem that will
      * be in use for all containers - choose memory for this purpose, as its
@@ -1067,9 +1061,13 @@ refresh_proc_pid(proc_pid_t *proc_pid, proc_runq_t *proc_runq,
 	filter = path;
     }
 
-    sts = want_cgroups ?
-	refresh_cgroup_pidlist(want_threads, filter, &procpids) :
-	refresh_global_pidlist(want_threads, proc_runq, &procpids);
+    /* Reset accounting of the runqueue metrics, initially all zeroes */
+    if (proc_runq)
+	memset(proc_runq, 0, sizeof(proc_runq_t));
+
+    sts = !want_cgroups ?
+	refresh_global_pidlist(want_threads, proc_runq, &procpids) :
+	refresh_cgroup_pidlist(want_threads, proc_runq, &procpids, filter);
     if (sts < 0)
 	return sts;
 

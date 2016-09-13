@@ -1,0 +1,43 @@
+#!/bin/sh
+# PCP QA Test No. 894
+# Exercise pmlogconf and pmiconf handling of empty files.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$tmp.pmlogger.empty,CONFIG,g" \
+	-e 's/\.\.\.*//g' \
+	-e '/^$/d' \
+    #end
+}
+
+# real QA test starts here
+
+echo && echo pmlogconf
+touch $tmp.pmlogger.empty
+pmlogconf -q $tmp.pmlogger.empty 2>&1 | _filter
+[ -s $tmp.pmlogger.empty ] && echo success
+
+echo && echo pmieconf
+touch $tmp.pmie.empty
+pmieconf -Ff $tmp.pmie.empty
+[ -s $tmp.pmie.empty ] && echo success
+
+# success, all done
+status=0
+exit
