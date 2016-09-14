@@ -254,12 +254,13 @@ private:
 class ChartCurve : public QwtPlotCurve
 {
 public:
-    ChartCurve(const QString &title)
-	: QwtPlotCurve(title), legendColor(Qt::white) { }
+    ChartCurve(const QString &title);
+    virtual ~ChartCurve(void) { }
 
-    virtual void drawLegendIdentifier(QPainter *painter,
-		const QRectF &rect ) const;
+    virtual QwtGraphic legendIcon( int index, const QSizeF &) const;
     void setLegendColor(QColor color) { legendColor = color; }
+
+private:
     QColor legendColor;
 };
 
