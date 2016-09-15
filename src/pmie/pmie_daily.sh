@@ -305,6 +305,12 @@ _parse_control()
     controlfile="$1"
     line=0
 
+    if echo "$controlfile" | grep -q -e '\.rpmsave' -e '\.rpmnew'
+    then
+	echo "Warning: ignored backup control file \"$controlfile\""
+	return
+    fi
+
     sed -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" $controlfile | \
     while read host primary socks logfile args
     do
