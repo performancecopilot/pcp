@@ -98,6 +98,9 @@ extern int      	ossub;
 
 extern unsigned short	hertz;
 extern unsigned int	pagesize;
+extern unsigned int	hinv_nrcpus;
+extern unsigned int	hinv_nrdisk;
+extern unsigned int	hinv_nrintf;
 
 extern int		supportflags;
 
@@ -159,6 +162,8 @@ int		nfsmcompar(const void *, const void *);
 int		contcompar(const void *, const void *);
 
 count_t		subcount(count_t, count_t);
+
+void		setup_options(struct pmOptions *, char **, char *);
 void  		rawread(struct pmOptions *);
 void		rawfolio(struct pmOptions *);
 void		rawarchive(struct pmOptions *, const char *);

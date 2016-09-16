@@ -8,7 +8,7 @@
 ** time-of-day, the cpu-time consumption and the memory-occupation. 
 **
 ** Copyright (C) 2000-2010 Gerlof Langeveld
-** Copyright (C) 2015 Red Hat.
+** Copyright (C) 2015-2016 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -30,6 +30,45 @@
 
 #include "atop.h"
 #include "hostmetrics.h"
+
+/*
+** Add the PCP long option and environment variable handling into
+** the mix, along with regular atop short option handling, ready
+** for subsequent (combined) pmgetopt_r processing.
+*/
+void
+setup_options(pmOptions *opts, char **argv, char *short_options)
+{
+	pmLongOptions	*opt;
+	static pmLongOptions long_options[] =
+	{
+		PMOPT_ALIGN,
+		PMOPT_ARCHIVE,
+		PMOPT_DEBUG,
+		PMOPT_HOST,
+		PMOPT_START,
+		PMOPT_SAMPLES,
+		PMOPT_FINISH,
+		PMOPT_INTERVAL,
+		PMOPT_TIMEZONE,
+		PMOPT_HOSTZONE,
+		PMOPT_VERSION,
+		PMAPI_OPTIONS_END
+	};
+
+	__pmSetProgname(argv[0]);
+
+	memset(opts, 0, sizeof *opts);
+	opts->flags = PM_OPTFLAG_BOUNDARIES;
+	opts->long_options = long_options;
+	opts->short_options = short_options;
+
+	/* only perform long option handling for PCP args */
+	for (opt = &long_options[0]; opt->long_opt; opt++)
+		opt->short_opt = 0;
+
+	__pmStartOptions(opts);
+}
 
 /*
 ** Function convtime() converts a value (number of seconds since
@@ -639,6 +678,14 @@ setup_globals(pmOptions *opts)
 	extract_string(result, descs, HOST_MACHINE, sysname.machine, sizeof(sysname.machine));
 	extract_string(result, descs, HOST_NODENAME, sysname.nodename, sizeof(sysname.nodename));
 	nodenamelen = strlen(sysname.nodename);
+
+	/* default hardware inventory - used as fallbacks only if other metrics missing */
+	if ((hinv_nrcpus = extract_integer(result, descs, NRCPUS)) <= 0)
+		hinv_nrcpus = 1;
+	if ((hinv_nrdisk = extract_integer(result, descs, NRDISK)) <= 0)
+		hinv_nrdisk = 1;
+	if ((hinv_nrintf = extract_integer(result, descs, NRINTF)) <= 0)
+		hinv_nrintf = 1;
 
 	pmFreeResult(result);
 	setup_step_mode(opts, 0);

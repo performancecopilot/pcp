@@ -8,7 +8,7 @@
 ** of the 'atop'-framework.
 ** 
 ** Copyright (C) 2007-2010 Gerlof Langeveld
-** Copyright (C) 2015 Red Hat.
+** Copyright (C) 2015-2016 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -123,16 +123,16 @@ int
 atopsar(int argc, char *argv[])
 {
 	register int	i, c;
-	pmOptions	opts = {
-		.flags = PM_OPTFLAG_BOUNDARIES,
-	};
+	pmOptions	opts;
 
 	usecolors = 't';
 
-	opts.short_options = saroptions();
-	__pmStartOptions(&opts);
-	if (opts.narchives > 0)
-		rawreadflag++;
+	/*
+	** setup for option processing by PMAPI getopts interface
+	** (adds PCP long options and env processing transparently
+	** alongside the atopsar short options).
+	*/
+	setup_options(&opts, argv, saroptions());
 
 	/* 
 	** interpret command-line arguments & flags 
@@ -141,6 +141,11 @@ atopsar(int argc, char *argv[])
 	{
 		while ((c = pmgetopt_r(argc, argv, &opts)) != EOF)
 		{
+			if (c == 0)
+			{
+				__pmGetLongOptions(&opts);
+				continue;
+			}
 			switch (c)
 			{
 			   case '?':		/* usage wanted ?        */
@@ -257,15 +262,13 @@ atopsar(int argc, char *argv[])
 					pratopsaruse(pmProgname);
 			}
 		}
-		/* if no interval specified, read from logfile */
-		else if (!rawreadflag)
-		{
-			rawfolio(&opts);
-			rawreadflag++;
-		}
 	}
+
+	if (opts.narchives > 0)
+		rawreadflag++;
+
 	/* if no flags specified at all, read from logfile */
-	else if (!rawreadflag)
+	if (argc <= 1 && !rawreadflag)
 	{
 		rawfolio(&opts);
 		rawreadflag++;

@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2015 Red Hat.
+** Copyright (C) 2015-2016 Red Hat.
 ** Copyright (C) 2000-2012 Gerlof Langeveld.
 **
 ** This program is free software; you can redistribute it and/or modify it
@@ -268,6 +268,8 @@ photosyst(struct sstat *si)
 	si->cpu.all.guest = extract_count_t(result, descs, CPU_GUEST);
 
 	nrcpu = get_instances("processors", PERCPU_UTIME, descs, &ids, &insts);
+	if (nrcpu == 0)
+		nrcpu = hinv_nrcpus;
 	if (nrcpu > onrcpu)
 	{
 		size = nrcpu * sizeof(struct percpu);
@@ -334,6 +336,8 @@ photosyst(struct sstat *si)
 	insts = NULL; /* silence coverity */
 	ids = NULL;
 	nrintf = get_instances("interfaces", PERINTF_RBYTE, descs, &ids, &insts);
+	if (nrintf == 0)
+		nrintf = hinv_nrintf;
 	if (nrintf > onrintf)
 	{
 		size = (nrintf + 1) * sizeof(struct perintf);
@@ -477,6 +481,8 @@ photosyst(struct sstat *si)
 	insts = NULL; /* silence coverity */
 	ids = NULL;
 	nrdisk = get_instances("disks", PERDISK_NREAD, descs, &ids, &insts);
+	if (nrdisk == 0)
+		nrdisk = hinv_nrdisk;
 	if (nrdisk > onrdisk)
 	{
 		size = (nrdisk + 1) * sizeof(struct perdsk);

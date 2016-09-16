@@ -12,7 +12,7 @@
 ** visualized for the user.
 ** 
 ** Copyright (C) 2000-2012 Gerlof Langeveld
-** Copyright (C) 2015 Red Hat.
+** Copyright (C) 2015-2016 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -147,6 +147,9 @@ char      	calcpss    = 0;  /* boolean: read/calculate process PSS  */
 
 unsigned short	hertz;
 unsigned int	pagesize;
+unsigned int	hinv_nrcpus;
+unsigned int	hinv_nrdisk;
+unsigned int	hinv_nrintf;
 int 		osrel;
 int 		osvers;
 int 		ossub;
@@ -263,10 +266,7 @@ main(int argc, char *argv[])
 	int		c;
 	char		*p;
 	char		path[MAXPATHLEN];
-	pmOptions	opts = {
-		.short_options = allflags,
-		.flags = PM_OPTFLAG_BOUNDARIES,
-	};
+	pmOptions	opts;
 
 	/*
 	** preserve command arguments to allow restart of other version
@@ -286,16 +286,17 @@ main(int argc, char *argv[])
 	}
 
 	/*
+	** setup for option processing by PCP getopts API
+	** (adds long options, and env processing).
+	*/
+	setup_options(&opts, argv, allflags);
+
+	/*
 	** check if we are supposed to behave as 'atopsar'
 	** i.e. system statistics only
 	*/
-	__pmSetProgname(argv[0]);
 	if (strcmp(pmProgname, "pcp-atopsar") == 0)
 		return atopsar(argc, argv);
-
-	__pmStartOptions(&opts);
-	if (opts.narchives > 0)
-		rawreadflag++;
 
 	/* 
 	** interpret command-line arguments & flags 
@@ -312,6 +313,11 @@ main(int argc, char *argv[])
 
 		while (i < MAXFL-1 && (c = pmgetopt_r(argc, argv, &opts)) != EOF)
 		{
+			if (c == 0)
+			{
+				__pmGetLongOptions(&opts);
+				continue;
+			}
 			switch (c)
 			{
 			   case '?':		/* usage wanted ?             */
@@ -398,6 +404,9 @@ main(int argc, char *argv[])
 			}
 		}
 	}
+
+	if (opts.narchives > 0)
+		rawreadflag++;
 
 	__pmEndOptions(&opts);
 

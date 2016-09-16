@@ -1,5 +1,5 @@
 /*
-** Copyright (C) 2015 Red Hat.
+** Copyright (C) 2015-2016 Red Hat.
 **
 ** This program is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU General Public License as published by the
@@ -46,6 +46,8 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp)
 
 	task->gen.pid = extract_integer_inst(rp, dp, TASK_GEN_PID, pid);
 	task->gen.ppid = extract_integer_inst(rp, dp, TASK_GEN_PPID, pid);
+	if (task->gen.ppid <= 0 && pid != 1)
+		task->gen.ppid = 1;
 	task->mem.minflt = extract_count_t_inst(rp, dp, TASK_MEM_MINFLT, pid);
 	task->mem.majflt = extract_count_t_inst(rp, dp, TASK_MEM_MAJFLT, pid);
 	task->cpu.utime = extract_count_t_inst(rp, dp, TASK_CPU_UTIME, pid);
@@ -62,6 +64,8 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp)
 	/* /proc/pid/status */
 	task->gen.nthr = extract_integer_inst(rp, dp, TASK_GEN_NTHR, pid);
 	task->gen.tgid = extract_integer_inst(rp, dp, TASK_GEN_TGID, pid);
+	if (task->gen.tgid <= 0)
+		task->gen.tgid = pid;
 	task->gen.ctid = extract_integer_inst(rp, dp, TASK_GEN_ENVID, pid);
 	task->gen.vpid = extract_integer_inst(rp, dp, TASK_GEN_VPID, pid);
 	task->gen.ruid = extract_integer_inst(rp, dp, TASK_GEN_RUID, pid);
