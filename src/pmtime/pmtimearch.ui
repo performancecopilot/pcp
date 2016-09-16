@@ -294,6 +294,9 @@ and also with respect to any "play mode" changes requested.</string>
         <property name="trough" >
          <bool>false</bool>
         </property>
+        <property name="scalePosition" >
+         <enum>QwtSlider::NoScale</enum>
+        </property>
         <property name="handleSize" >
          <size>
           <width>12</width>

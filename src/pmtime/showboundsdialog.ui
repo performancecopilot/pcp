@@ -73,6 +73,9 @@ time.</string>
          <property name="trough" >
           <bool>false</bool>
          </property>
+         <property name="scalePosition" >
+          <enum>QwtSlider::NoScale</enum>
+         </property>
          <property name="handleSize" >
           <size>
            <width>12</width>
@@ -133,6 +136,9 @@ time.</string>
          </property>
          <property name="trough" >
           <bool>false</bool>
+         </property>
+         <property name="scalePosition" >
+          <enum>QwtSlider::NoScale</enum>
          </property>
          <property name="handleSize" >
           <size>
