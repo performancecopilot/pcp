@@ -42,6 +42,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("General options"),
     PMOPT_ALIGN,
     PMOPT_ARCHIVE,
+    PMOPT_ARCHIVE_FOLIO,
     PMOPT_DEBUG,
     PMOPT_HOST,
     PMOPT_HOSTSFILE,

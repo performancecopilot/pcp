@@ -1384,6 +1384,7 @@ PCP_CALL extern const char *__pmGetAPIConfig(const char *);
  * internals of argument parsing for special circumstances
  */
 PCP_CALL extern void __pmStartOptions(pmOptions *);
+PCP_CALL extern int  __pmGetLongOptions(pmOptions *);
 PCP_CALL extern void __pmAddOptArchive(pmOptions *, char *);
 PCP_CALL extern void __pmAddOptArchiveList(pmOptions *, char *);
 PCP_CALL extern void __pmAddOptArchiveFolio(pmOptions *, char *);

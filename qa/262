@@ -40,7 +40,7 @@ _filter_number()
 }
 
 status=1	# failure is the default!
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 SOCKS_SERVER=$PCPQA_SOCKS_SERVER
 PMCD_CONNECT_TIMEOUT=30
@@ -65,7 +65,7 @@ $PROG -t1 -s1 2>&1 | _filter_number
 
 echo
 echo "=== $PROG + PM_CONTEXT_LOCAL ==="
-$sudo $PROG -L -t1 -s1 2>&1 | _filter_number | _filter_pmcd_log
+$sudo_local_ctx $PROG -L -t1 -s1 2>&1 | _filter_number | _filter_pmcd_log
 
 echo
 echo "=== $PROG + PM_CONTEXT_HOST + pmsocks ==="
@@ -73,7 +73,7 @@ $sudo pmsocks $PROG -t1 -s1 2>&1 | _filter_number
 
 echo
 echo "=== $PROG + PM_CONTEXT_LOCAL + pmsocks ==="
-$sudo pmsocks $PROG -L -t1 -s1 2>&1 | _filter_number | _filter_pmcd_log
+$sudo_local_ctx pmsocks $PROG -L -t1 -s1 2>&1 | _filter_number | _filter_pmcd_log
 
 echo
 echo "Expect no error messages or ?'s from pmie"

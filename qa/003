@@ -196,7 +196,7 @@ do
 
     if [ "$PCP_PLATFORM" = linux ]
     then
-	  sed <$tmp.tmp \
+	sed <$tmp.tmp \
 	    -e "/disk\.all\.avactive: $unavailable/d" \
 	    -e "/disk\.all\.aveq: $unavailable/d" \
 	    -e "/disk\.all\..*_bytes: $unavailable/d" \
@@ -246,31 +246,36 @@ do
 	    -e "/rpc\.server\..*: $unavailable/d" \
 	    -e "/sampledso\.sysinfo: $nosupport/d" \
 	    -e "/sample\.sysinfo: $nosupport/d" \
-	    -e "/xfs\..*: $unavailable/d"
+	    -e "/xfs\..*: $unavailable/d" \
+	# end
     elif [ "$PCP_PLATFORM" = darwin ]
     then
-	  # do nothing at the moment
-	  sed <$tmp.tmp \
-	    -e 's/a/a/'
+	# do nothing at the moment
+	sed <$tmp.tmp \
+	    -e 's/a/a/' \
+	# end
     elif [ "$PCP_PLATFORM" = solaris ]
     then
-	  # do nothing at the moment
-	  sed <$tmp.tmp \
-	    -e 's/a/a/'
+	sed <$tmp.tmp \
+	    -e "/hinv.disk.devlink: $unavailable/d" \
+	# end
     elif [ "$PCP_PLATFORM" = freebsd ]
     then
-	  # do nothing at the moment
-	  sed <$tmp.tmp \
-	    -e 's/a/a/'
+	# do nothing at the moment
+	sed <$tmp.tmp \
+	    -e 's/a/a/' \
+	# end
     elif [ "$PCP_PLATFORM" = netbsd ]
     then
-	  # do nothing at the moment
-	  sed <$tmp.tmp \
-	    -e 's/a/a/'
+	# do nothing at the moment
+	sed <$tmp.tmp \
+	    -e 's/a/a/' \
+	# end
     elif [ "$PCP_PLATFORM" = openbsd ]
     then
-	  # do nothing at the moment
-	  sed <$tmp.tmp \
-	    -e 's/a/a/'
+	# do nothing at the moment
+	sed <$tmp.tmp \
+	    -e 's/a/a/' \
+	# end
     fi
 done

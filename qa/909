@@ -68,7 +68,7 @@ echo
 echo "simple cases ..."
 src/lookupnametest sampledso.drift
 echo
-src/lookupnametest -L sampledso.drift
+$sudo_local_ctx src/lookupnametest -L sampledso.drift
 echo
 src/lookupnametest -h $host sampledso.drift | _filter_host
 echo
@@ -80,7 +80,7 @@ echo
 echo "add non-terminal ..."
 src/lookupnametest sampledso.drift sampledso sampledso.bin
 echo
-src/lookupnametest -L sampledso.drift sampledso sampledso.bin
+$sudo_local_ctx src/lookupnametest -L sampledso.drift sampledso sampledso.bin
 echo
 src/lookupnametest -h $host sampledso.drift sampledso sampledso.bin | _filter_host
 echo
@@ -90,7 +90,7 @@ echo
 echo "swap non-terminal for valid dynamic metric ..."
 src/lookupnametest sampledso.drift sampledso.secret.bar sampledso.bin
 echo
-src/lookupnametest -L sampledso.drift sampledso.secret.bar sampledso.bin
+$sudo_local_ctx src/lookupnametest -L sampledso.drift sampledso.secret.bar sampledso.bin
 echo
 src/lookupnametest -h $host sampledso.drift sampledso.secret.bar sampledso.bin | _filter_host
 echo
@@ -100,7 +100,7 @@ echo
 echo "swap valid dynamic metric for invalid dynamic metrics ..."
 src/lookupnametest sampledso.drift sampledso.secret sampledso.secret.foo.zero sampledso.bin
 echo
-src/lookupnametest -L sampledso.drift sampledso.secret sampledso.secret.foo.zero sampledso.bin
+$sudo_local_ctx src/lookupnametest -L sampledso.drift sampledso.secret sampledso.secret.foo.zero sampledso.bin
 echo
 src/lookupnametest -h $host sampledso.drift sampledso.secret sampledso.secret.foo.zero sampledso.bin | _filter_host
 echo
@@ -109,11 +109,11 @@ src/lookupnametest -a archives/dynmetric sampledso.secret sampledso.drift sample
 echo
 echo "some no agent cases ..."
 echo
-src/lookupnametest -L sampledso.secret.bar sample.secret.bar
+$sudo_local_ctx src/lookupnametest -L sampledso.secret.bar sample.secret.bar
 echo
 src/lookupnametest -n $tmp.pmns noagent sampledso.bin sampledso.secret.bar | _filter_tmp
 #echo
-#src/lookupnametest -L -n $tmp.pmns noagent | _filter_tmp
+#$sudo_local_ctx src/lookupnametest -L -n $tmp.pmns noagent | _filter_tmp
 
 
 # success, all done

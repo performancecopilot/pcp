@@ -69,7 +69,7 @@ do
 	_mode=""
 	_owner=""
 	_group=""
-	if [ $PCP_PLATFORM = linux ]
+	if [ $PCP_PLATFORM = linux -o $PCP_PLATFORM = solaris ]
 	then
 	    # stat line of interest ...
 	    # Access: (1777/drwxrwxrwt)  Uid: (  0/  root)   Gid: (  0/  root)

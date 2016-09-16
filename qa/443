@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 
 status=0	# success is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 host=`hostname`
 
@@ -50,7 +50,7 @@ _run()
 _run_sudo()
 {
     echo "=== $* ==="
-    $sudo pmevent $* 2>&1 | _filter_usage
+    $sudo_local_ctx pmevent $* 2>&1 | _filter_usage
 }
 
 _run_ok()

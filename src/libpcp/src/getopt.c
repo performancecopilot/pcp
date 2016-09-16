@@ -763,6 +763,13 @@ __pmSetHostZone(pmOptions *opts)
     }
 }
 
+static void
+__pmSetVersionPCP(pmOptions *opts)
+{
+    opts->flags |= PM_OPTFLAG_EXIT;
+    pmprintf("%s version %s\n", pmProgname, PCP_VERSION);
+}
+
 /*
  * Called once at the start of option processing, before any getopt calls.
  * For our needs, we can set default values at this point based on values
@@ -837,10 +844,74 @@ __pmStartOptions(pmOptions *opts)
     opts->flags |= PM_OPTFLAG_INIT;
 }
 
+/*
+ * long-option-only standard argument handling
+ * Note this uses the index field to lookup the requested option
+ * and not the getopt return code (allowing it to co-exist with
+ * short option processing with conflicting short arguments).
+ */
+int
+__pmGetLongOptions(pmOptions *opts)
+{
+    pmLongOptions *opt;
+
+    opt = &opts->long_options[opts->index];
+    if (strcmp(opt->long_opt, PMLONGOPT_ALIGN) == 0)
+	__pmSetAlignment(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_ARCHIVE) == 0)
+	__pmAddOptArchive(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_ARCHIVE_LIST) == 0)
+	__pmAddOptArchiveList(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_ARCHIVE_FOLIO) == 0)
+	__pmAddOptArchiveFolio(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_CONTAINER) == 0)
+	__pmAddOptContainer(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_DEBUG) == 0)
+	__pmSetDebugFlag(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_DERIVED) == 0)
+	__pmSetDerivedMetrics(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_GUIMODE) == 0)
+	__pmSetGuiModeFlag(opts);
+    else if (strcmp(opt->long_opt, PMLONGOPT_HOST) == 0)
+	__pmAddOptHost(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_HOSTSFILE) == 0)
+	__pmAddOptHostFile(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_SPECLOCAL) == 0)
+	__pmSetLocalContextTable(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_LOCALPMDA) == 0)
+	__pmSetLocalContextFlag(opts);
+    else if (strcmp(opt->long_opt, PMLONGOPT_NAMESPACE) == 0)
+	__pmSetNameSpace(opts, opts->optarg, 1);
+    else if (strcmp(opt->long_opt, PMLONGOPT_UNIQNAMES) == 0)
+	__pmSetNameSpace(opts, opts->optarg, 0);
+    else if (strcmp(opt->long_opt, PMLONGOPT_GUIPORT) == 0)
+	__pmSetGuiPort(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_HOST_LIST) == 0)
+	__pmAddOptHostList(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_INTERVAL) == 0)
+	__pmSetSampleInterval(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_ORIGIN) == 0)
+	__pmSetOrigin(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_SAMPLES) == 0)
+	__pmSetSampleCount(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_START) == 0)
+	__pmSetStartTime(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_FINISH) == 0)
+	__pmSetFinishTime(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_TIMEZONE) == 0)
+	__pmSetTimeZone(opts, opts->optarg);
+    else if (strcmp(opt->long_opt, PMLONGOPT_HOSTZONE) == 0)
+	__pmSetHostZone(opts);
+    else if (strcmp(opt->long_opt, PMLONGOPT_VERSION) == 0)
+	__pmSetVersionPCP(opts);
+    else
+	return 1;
+    return 0;
+}
+
 int
 pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 {
-    pmLongOptions *opt;
     int flag = 0;
     int c = EOF;
 
@@ -913,8 +984,7 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 	    __pmSetSampleInterval(opts, opts->optarg);
 	    break;
 	case 'V':
-	    opts->flags |= PM_OPTFLAG_EXIT;
-	    pmprintf("%s version %s\n", pmProgname, PCP_VERSION);
+	    __pmSetVersionPCP(opts);
 	    break;
 	case 'Z':
 	    __pmSetTimeZone(opts, opts->optarg);
@@ -927,18 +997,7 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 	    break;
 	case 0:
 	    /* long-option-only standard argument handling */
-	    opt = &opts->long_options[opts->index];
-	    if (strcmp(opt->long_opt, PMLONGOPT_HOST_LIST) == 0)
-		__pmAddOptHostList(opts, opts->optarg);
-	    else if (strcmp(opt->long_opt, PMLONGOPT_ARCHIVE_LIST) == 0)
-		__pmAddOptArchiveList(opts, opts->optarg);
-	    else if (strcmp(opt->long_opt, PMLONGOPT_ARCHIVE_FOLIO) == 0)
-		__pmAddOptArchiveFolio(opts, opts->optarg);
-	    else if (strcmp(opt->long_opt, PMLONGOPT_CONTAINER) == 0)
-		__pmAddOptContainer(opts, opts->optarg);
-	    else if (strcmp(opt->long_opt, PMLONGOPT_DERIVED) == 0)
-		__pmSetDerivedMetrics(opts, opts->optarg);
-	    else
+	    if (__pmGetLongOptions(opts) != 0)
 		flag = 1;
 	    break;
 	default:	/* pass back out to caller */

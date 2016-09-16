@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
 
 _filter()
 {
@@ -24,7 +24,7 @@ _filter()
 # real QA test starts here
 PCP_LITE_SAMPLE=yes
 export PCP_LITE_SAMPLE
-$sudo pminfo -L -f sampledso.bin hinv.ncpu 2>&1 \
+$sudo_local_ctx pminfo -L -f sampledso.bin hinv.ncpu 2>&1 \
 | _filter \
 | sed \
     -e '/pcp\[/s/\[[0-9][0-9]*]/[PID]/' \

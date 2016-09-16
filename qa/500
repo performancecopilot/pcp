@@ -50,6 +50,9 @@ do
     echo "pmnewlog args: -V -L -c null -p ... $arg one"
     _wait_for_pmlogger $pmlogger_pid pmlogger.log
     $sudo rm -f one.*
+    # Need to do this really as root so the pmsignal to kill pmlogger
+    # works as expected.
+    #
     eval $sudo $newlog -V -L -c null -p $pmlogger_pid $arg one >out
     _filter_pmnewlog <out
 

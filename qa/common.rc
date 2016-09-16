@@ -75,8 +75,21 @@ then
     #
     sudo="$sudo -E"
 fi
-real_sudo="$sudo"
 
+# $sudo_local_ctx maybe $sudo if PM_CONTEXT_LOCAL needs to run as root,
+# e.g. for /dev/kmem readers
+#
+case $PCP_PLATFORM
+in
+    netbsd|openbsd|solaris)
+    	sudo_local_ctx="$sudo"
+	;;
+    *)
+	sudo_local_ctx=''
+	;;
+esac
+
+real_sudo="$sudo"
 # running with PCP_DIR set, probably don't want to do most things as
 # root ... leave $real_sudo alone just in case
 # However, if $PCP_DIR exists and is owned by someone other than ourselves,

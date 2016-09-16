@@ -17,7 +17,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+trap "$sudo rm -f $tmp.*; exit" 0 1 2 3 15
 
 #
 # Get rid of some new sampledso metrics which
@@ -58,7 +58,7 @@ src/chktrim -h local: 2>&1 | _filter
 
 echo
 echo "=== current LOCAL context ==="
-src/chktrim -L 2>&1 | _filter
+$sudo_local_ctx src/chktrim -L 2>&1 | _filter
 
 cat <<End-of-File >$tmp.pmns
 root {
@@ -105,5 +105,5 @@ src/chktrim -h local: 2>&1 | _filter
 
 echo
 echo "=== current LOCAL context ==="
-src/chktrim -L 2>&1 | _filter
+$sudo_local_ctx src/chktrim -L 2>&1 | _filter
 

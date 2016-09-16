@@ -15,6 +15,8 @@ echo "QA output created by $seq"
 . ./common.check
 
 which pmdumptext >/dev/null 2>&1 || _notrun "pmdumptext not installed"
+numval=`pmprobe -v mem.util.used | cut -d ' ' -f 2`
+[ "$numval" -eq 1 ] || _notrun "no values for mem.util.used (numval=$numval)"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full

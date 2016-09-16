@@ -21,12 +21,15 @@ host=`hostname`
 
 # errno mapping -65 (EHOSTUNREACH on Mac OS X) -> -113 (EHOSTUNREACH on
 # Linux)
+# errno mapping -148 (EHOSTUNREACH on Solaris/OpenIndiana) -> -113
+# (EHOSTUNREACH on Linux)
 #
 _filter()
 {
     sed \
 	-e "s/$host/HOSTNAME/" \
 	-e 's/(-65\([,)]\)/(-113\1/' \
+	-e 's/(-148\([,)]\)/(-113\1/' \
     # end
 }
 
@@ -37,7 +40,7 @@ for arg in "" "-h $host" -L "-a archives/babylon.percpu_v2" "-h localhost" \
 do
     echo
     echo "=== $arg ==="
-    src/getcontexthost $arg 2>&1
+    $sudo src/getcontexthost $arg 2>&1
 done | _filter
 
 # success, all done

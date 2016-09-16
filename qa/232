@@ -92,7 +92,7 @@ do
 	# equivalents with different names
 	case $metric
 	in
-	    swapdev.length|nfs.*|nfs3.*)
+	    swapdev.length|nfs.*|nfs3.*|nfs4.*|hinv.map.cpu_num|disk.partitions.total|hinv.map.scsi|mem.slabinfo.objects.total|network.interface.total.*|tmpfs.capacity|kernel.pernode.cpu.nice|hinv.map.dmname)
 		continue
 		;;
 	    filesys.used)

@@ -642,45 +642,65 @@ PCP_CALL extern int pmGetVersion(void);
 #define PMAPI_OPTIONS_TEXT(s)	{ "", 0, '|', 0, (s) }
 #define PMAPI_OPTIONS_END	{ NULL, 0, 0, 0, NULL }
 
-#define PMOPT_ALIGN	{ "align",	1, 'A',	"TIME", \
+#define PMLONGOPT_ALIGN		"align"
+#define PMOPT_ALIGN	{ PMLONGOPT_ALIGN,	1, 'A',	"TIME", \
 			"align sample times on natural boundaries" }
-#define PMOPT_ARCHIVE	{ "archive",	1, 'a',	"FILE", \
+#define PMLONGOPT_ARCHIVE	"archive"
+#define PMOPT_ARCHIVE	{ PMLONGOPT_ARCHIVE,	1, 'a',	"FILE", \
 			"metrics source is a PCP log archive" }
-#define PMOPT_DEBUG	{ "debug",	1, 'D',	"DBG", \
+#define PMLONGOPT_DEBUG		"debug"
+#define PMOPT_DEBUG	{ PMLONGOPT_DEBUG,	1, 'D',	"DBG", \
 			NULL }
-#define PMOPT_GUIMODE	{ "guimode",	0, 'g',	0, \
+#define PMLONGOPT_GUIMODE	"guimode"
+#define PMOPT_GUIMODE	{ PMLONGOPT_GUIMODE,	0, 'g',	0, \
 			"start in GUI mode with new time control" }
-#define PMOPT_HOST	{ "host",	1, 'h', "HOST", \
+#define PMLONGOPT_HOST		"host"
+#define PMOPT_HOST	{ PMLONGOPT_HOST,	1, 'h', "HOST", \
 			"metrics source is PMCD on host" }
-#define PMOPT_HOSTSFILE	{ "hostsfile",	1, 'H', "FILE", \
+#define PMLONGOPT_HOSTSFILE	"hostsfile"
+#define PMOPT_HOSTSFILE	{ PMLONGOPT_HOSTSFILE,	1, 'H', "FILE", \
 			"read metric source hosts from a file" }
-#define PMOPT_SPECLOCAL	{ "spec-local",	1, 'K',	"SPEC", \
+#define PMLONGOPT_SPECLOCAL	"spec-local"
+#define PMOPT_SPECLOCAL	{ PMLONGOPT_SPECLOCAL,	1, 'K',	"SPEC", \
 			"optional additional PMDA spec for local connection" }
-#define PMOPT_LOCALPMDA	{ "local-PMDA",	0, 'L', 0, \
+#define PMLONGOPT_LOCALPMDA	"local-PMDA"
+#define PMOPT_LOCALPMDA	{ PMLONGOPT_LOCALPMDA,	0, 'L', 0, \
 			"metrics source is local connection to a PMDA" }
-#define PMOPT_NAMESPACE	{ "namespace",	1, 'n', "FILE", \
+#define PMLONGOPT_NAMESPACE	"namespace"
+#define PMOPT_NAMESPACE	{ PMLONGOPT_NAMESPACE,	1, 'n', "FILE", \
 			"use an alternative PMNS" }
-#define PMOPT_UNIQNAMES	{ "uniqnames",	1, 'N', "FILE", \
+#define PMLONGOPT_UNIQNAMES	"uniqnames"
+#define PMOPT_UNIQNAMES	{ PMLONGOPT_UNIQNAMES,	1, 'N', "FILE", \
 			"like -n but only one name allowed for each PMID" }
-#define PMOPT_ORIGIN	{ "origin",	1, 'O', "TIME", \
+#define PMLONGOPT_ORIGIN	"origin"
+#define PMOPT_ORIGIN	{ PMLONGOPT_ORIGIN,	1, 'O', "TIME", \
 			"initial sample time within the time window" }
-#define PMOPT_GUIPORT	{ "guiport",	1, 'p', "N", \
+#define PMLONGOPT_GUIPORT	"guiport"
+#define PMOPT_GUIPORT	{ PMLONGOPT_GUIPORT,	1, 'p', "N", \
 			"port for connection to existing time control" }
-#define PMOPT_START	{ "start",	1, 'S', "TIME", \
+#define PMLONGOPT_START		"start"
+#define PMOPT_START	{ PMLONGOPT_START,	1, 'S', "TIME", \
 			"start of the time window" }
-#define PMOPT_SAMPLES	{ "samples",	1, 's', "N", \
+#define PMLONGOPT_SAMPLES	"samples"
+#define PMOPT_SAMPLES	{ PMLONGOPT_SAMPLES,	1, 's', "N", \
 			"terminate after this many samples" }
-#define PMOPT_FINISH	{ "finish",	1, 'T', "TIME", \
+#define PMLONGOPT_FINISH	"finish"
+#define PMOPT_FINISH	{ PMLONGOPT_FINISH,	1, 'T', "TIME", \
 			"end of the time window" }
-#define PMOPT_INTERVAL	{ "interval",	1, 't', "DELTA", \
+#define PMLONGOPT_INTERVAL	"interval"
+#define PMOPT_INTERVAL	{ PMLONGOPT_INTERVAL,	1, 't', "DELTA", \
 			"sampling interval" }
-#define PMOPT_VERSION	{ "version",	0, 'V', 0, \
+#define PMLONGOPT_VERSION	"version"
+#define PMOPT_VERSION	{ PMLONGOPT_VERSION,	0, 'V', 0, \
 			"display version number and exit" }
-#define PMOPT_TIMEZONE	{ "timezone",	1, 'Z', "TZ", \
+#define PMLONGOPT_TIMEZONE	"timezone"
+#define PMOPT_TIMEZONE	{ PMLONGOPT_TIMEZONE,	1, 'Z', "TZ", \
 			"set reporting timezone" }
-#define PMOPT_HOSTZONE	{ "hostzone",	0, 'z', 0, \
+#define PMLONGOPT_HOSTZONE	"hostzone"
+#define PMOPT_HOSTZONE	{ PMLONGOPT_HOSTZONE,	0, 'z', 0, \
 			"set reporting timezone to local time of metrics source" }
-#define PMOPT_HELP	{ "help",	0, '?', 0, \
+#define PMLONGOPT_HELP		"help"
+#define PMOPT_HELP	{ PMLONGOPT_HELP,	0, '?', 0, \
 			"show this usage message and exit" }
 
 #define PMAPI_GENERAL_OPTIONS	\
