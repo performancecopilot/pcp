@@ -70,6 +70,7 @@ networking/softnet
 tools/atop
 tools/atop-httpstats
 tools/atop-proc
+tools/cockpit
 tools/collectl
 tools/collectl-interrupts
 tools/dmcache
