@@ -128,6 +128,7 @@ then
     #
     if [ -d $HOME/git-mirror/$tree.git ]
     then
+	echo "Update local git mirror ..."
 	here=`pwd`
 	cd $HOME/git-mirror/$tree.git
 	git fetch
