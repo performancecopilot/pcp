@@ -124,6 +124,15 @@ if [ -f $tmp.y ]
 then
     $GIT push $push
     $GIT push --tags $push
+    # may have local git mirror that needs to be updated ...
+    #
+    if [ -d $HOME/git-mirror/$tree.git ]
+    then
+	here=`pwd`
+	cd $HOME/git-mirror/$tree.git
+	git fetch
+	cd $here
+    fi
 fi
 
 rm -f $tmp.y
