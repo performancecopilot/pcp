@@ -15,7 +15,6 @@ _usage()
     echo >&2 "  -b branch           [defaults to master]"
     echo >&2 "  -n                  dryrun"
     echo >&2 "  -r range            [defaults to \$(cat pushed.sha)..)]"
-    echo >&2 "  -t tree             [defaults to pcp]"
     echo >&2 "  -s                  short format, do not include commit messages"
     exit 1
 }
@@ -31,7 +30,7 @@ then
 else
     range=''
 fi
-while getopts "b:nr:st:?" c
+while getopts "b:nr:s?" c
 do
     case $c
     in
@@ -47,9 +46,6 @@ do
 	    ;;
 	s)
 	    short=true
-	    ;;
-	t)
-	    tree="$OPTARG"
 	    ;;
 	*)
 	    _usage
@@ -68,9 +64,7 @@ fi
 
 
 unset GIT_EXTERNAL_DIFF
-#old# pull=git://git.pcp.io/$tree.git
-#old# push="ssh://git.pcp.io/oss/git/$tree.git $branch"
-pull=`git config remote.$tree.url`
+pull=`git config remote.origin.url`
 push=`echo "$pull" | sed -e 's/^git:/ssh:/' -e "s;/git.pcp.io/;/git.pcp.io/oss/git/;"`
 push="$push $branch"
 echo "Changes committed to $pull $branch" >/tmp/msg
@@ -126,12 +120,24 @@ then
     $GIT push --tags $push
     # may have local git mirror that needs to be updated ...
     #
-    if [ -d $HOME/git-mirror/$tree.git ]
+    if [ -d $HOME/git-mirror ]
     then
-	echo "Update local git mirror ..."
 	here=`pwd`
-	cd $HOME/git-mirror/$tree.git
-	git fetch
+	cd $HOME/git-mirror
+	for dir in *
+	do
+	    [ -d "$dir" ] || continue
+	    [ -f "$dir/config" ] || continue
+	    if grep "url = $pull" "$dir/config" >/dev/null 2>&1
+	    then
+		# found repo with url matching the one we've just pushed to
+		#
+		cd $dir
+		echo "Update local $dir git mirror ..."
+		git fetch
+		cd ..
+	    fi
+	done
 	cd $here
     fi
 fi
