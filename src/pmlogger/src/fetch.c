@@ -226,8 +226,10 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 
     if (n < 0 && ctxp->c_pmcd->pc_fd != -1) {
 	disconnect(n);
+	/* PM_UNLOCK() done in disconnect() */
     }
+    else
+	PM_UNLOCK(ctxp->c_lock);
 
-    PM_UNLOCK(ctxp->c_lock);
     return n;
 }

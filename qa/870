@@ -32,7 +32,10 @@ _check()
 
     $check && status=0
     _get_pids_by_name pmlogger >$tmp.pmids
+    echo "_get_pids_by_name pmlogger output" >>$here/$seq.full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps.out
+    echo "$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger output" >>$here/$seq.full
+    grep pmlogger <$tmp.ps.out >>$here/$seq.full
     if [ -s $tmp.pmids ]
     then
 	# at least one is running

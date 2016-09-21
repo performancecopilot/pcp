@@ -1284,24 +1284,39 @@ disconnect(int sts)
     int			ctx;
     __pmContext		*ctxp;
 
-    time(&now);
-    if (sts != 0)
-	fprintf(stderr, "%s: Error: %s\n", pmProgname, pmErrStr(sts));
-    fprintf(stderr, "%s: Lost connection to PMCD on \"%s\" at %s",
-	    pmProgname, pmcd_host, ctime(&now));
-    if (pmcdfd != -1) {
-	close(pmcdfd);
-	__pmFD_CLR(pmcdfd, &fds);
-	pmcdfd = -1;
-    }
-    numfds = maxfd() + 1;
     if ((ctx = pmWhichContext()) >= 0)
 	ctxp = __pmHandleToPtr(ctx);
     if (ctx < 0 || ctxp == NULL) {
 	fprintf(stderr, "%s: disconnect botch: cannot get context: %s\n", pmProgname, pmErrStr(ctx));
 	exit(1);
     }
-    ctxp->c_pmcd->pc_fd = -1;
+
+    if (pmcdfd != -1) {
+	/*
+	 * only do this once per disconnect event ... because there
+	 * multiple callbacks and PDU interchange attempts after a
+	 * disconnect and before a successful pmReconnectContext(),
+	 * only need to shut down the channel and report once.
+	 */
+	time(&now);
+	if (sts != 0)
+	    fprintf(stderr, "%s: Error: %s\n", pmProgname, pmErrStr(sts));
+	fprintf(stderr, "%s: Lost connection to PMCD on \"%s\" at %s",
+		pmProgname, pmcd_host, ctime(&now));
+	if (pmcdfd != -1) {
+	    close(pmcdfd);
+	    __pmFD_CLR(pmcdfd, &fds);
+	    pmcdfd = -1;
+	}
+	numfds = maxfd() + 1;
+	ctxp->c_pmcd->pc_fd = -1;
+    }
+
+    /*
+     * for repeated calls here, c_lock may have been locked again,
+     * so although there is no channel cleanup to be done, release
+     * the lock
+     */
     PM_UNLOCK(ctxp->c_lock);
 }
 
