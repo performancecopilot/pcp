@@ -67,7 +67,7 @@ _filter_die_log()
 	-e "/host '.*':/s/host '.*'/host 'HOST'/" \
 	-e '/UNIX_DOMAIN_SOCKET/d' \
     | $PCP_AWK_PROG '
-/__pmGetAddrInfo.* Host name lookup failure/	{ state = 1; next }
+/gethostbyname:.* Host name lookup failure/	{ state = 1; next }
 state == 1 && $1 == "Warning:"			{ state = 2; next }
 state == 2 && /No route to host/		{ state = 0; next }
 						{ print }'
