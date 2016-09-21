@@ -511,11 +511,15 @@ do_work(task_t *tp)
 	clearavail(fp);
 
 	if ((sts = myFetch(fp->f_numpmid, fp->f_pmidlist, &pb)) < 0) {
+	    if (sts != -ETIMEDOUT) {
+		/* optionally report and disconnect() the first time thru */
 #ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_APPL2)
-		fprintf(stderr, "callback: disconnecting because myFetch failed: %s\n", pmErrStr(sts));
+		if (pmDebug & DBG_TRACE_APPL2)
+		    fprintf(stderr, "callback: disconnecting because myFetch failed: %s\n", pmErrStr(sts));
 #endif
-	    disconnect(sts);
+		disconnect(sts);
+	    }
+	    continue;
 	}
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_APPL2)
