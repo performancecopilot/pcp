@@ -51,7 +51,8 @@ _filter_hostnames()
 # Warning: the following access control specification will be ignored
 # pmcd config[line 19]: Warning: access control error for host 'www.sgi.com': No route to host
 # ... the test results are otherwise OK, so that's what the last filter
-# is getting rid of.
+# is getting rid of.  The filtering is complicated by the fact something
+# similar to this is _expected_ for die.020, die.021 and die.022.
 #
 _filter_die_log()
 {
@@ -67,10 +68,14 @@ _filter_die_log()
 	-e "/host '.*':/s/host '.*'/host 'HOST'/" \
 	-e '/UNIX_DOMAIN_SOCKET/d' \
     | $PCP_AWK_PROG '
-/gethostbyname:.* Host name lookup failure/	{ state = 1; next }
-state == 1 && $1 == "Warning:"			{ state = 2; next }
-state == 2 && /No route to host/		{ state = 0; next }
-						{ print }'
+state == 1 && /gethostbyname:.* Host name lookup failure/	{ state = 2; next }
+state == 2 && $1 == "Warning:"			{ next }
+state == 2 && /No route to host/		{ next }
+						{ print }
+/^die.020=/					{ next }
+/^die.021=/					{ next }
+/^die.022=/					{ next }
+/^die.[0-9][0-9][0-9]=/				{ state = 1 }'
 }
 
 _filter_kill_log()
