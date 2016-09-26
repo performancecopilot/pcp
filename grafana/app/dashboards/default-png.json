@@ -426,7 +426,9 @@
                 "24h",
                 "2d",
                 "7d",
-                "30d"
+                "30d",
+                "90d",
+                "365d"
             ],
             "refresh_intervals": [
                 "5s",
@@ -458,5 +460,5 @@
         "hide": false
     },
     "timezone": "utc",
-    "refresh": false
+    "refresh": "5m"
 }

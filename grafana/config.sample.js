@@ -3,7 +3,7 @@
 // must be set before Grafana is run for the first time.
 
 define(['settings'], function(Settings) {
-  
+  "use strict";
 
   return new Settings({
 

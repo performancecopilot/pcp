@@ -1,0 +1,22 @@
+commit a48f2c813dc40ce02005a67bf503383d0482669e (HEAD -> v1.9.1-pcp)
+Author: Frank Ch. Eigler <fche@redhat.com>
+Date:   Thu Jan 7 15:21:38 2016 -0500
+
+    png graphing: add &bust=XXXX url parameter to prevent browser-side img caching
+    
+    Despite pcp pmwebd's varying 302 redirection and anti-caching
+    directives, web browser still sometimes cache img src content.
+    Defeat this with an extra graphite-png cache-busting url parameter.
+
+diff --git a/src/app/panels/graph/graph.js b/src/app/panels/graph/graph.js
+index 485d64d76ae1..bf4468cf580c 100755
+--- a/src/app/panels/graph/graph.js
++++ b/src/app/panels/graph/graph.js
+@@ -426,6 +426,7 @@ function (angular, $, kbn, moment, _, GraphTooltip) {
+           }
+ 
+           url += scope.panel.steppedLine ? '&lineMode=staircase' : '';
++          url += '&bust='+Date.now(); /* preclude image caching */
+ 
+           elem.html('<img src="' + url + '"></img>');
+         }
