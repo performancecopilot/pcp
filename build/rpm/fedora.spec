@@ -669,6 +669,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting Infiniband statistics.  By default, it monitors the local HCAs
 but can also be configured to monitor remote GUIDs such as IB switches.
 %endif
+
 #
 # pcp-pmda-activemq
 #
@@ -1208,6 +1209,29 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Intel MIC cards.
 # end pcp-pmda-mic
 
+#
+# pcp-pmda-libvirt
+#
+%package pmda-libvirt
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for virtual machines
+URL: http://www.pcp.io
+%if !%{disable_python3}
+Requires: python3-pcp
+Requires: libvirt-python3 python3-lxml
+BuildRequires: libvirt-python3
+%else
+Requires: python-pcp
+Requires: libvirt-python python-lxml
+BuildRequires: libvirt-python
+%endif
+%description pmda-libvirt
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting virtualisation statistics from libvirt about behaviour of guest
+and hypervisor machines.
+# end pcp-pmda-libvirt
+
 %endif # !%{disable_python2} || !%{disable_python3}
 
 %if !%{disable_json}
@@ -1515,7 +1539,7 @@ Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm pcp-pmda-logger
 %if !%{disable_python2} || !%{disable_python3}
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-libvirt
 %endif
 %if !%{disable_snmp}
 Requires: pcp-pmda-snmp
@@ -1770,6 +1794,7 @@ ls -1 $RPM_BUILD_ROOT/%{_pmdasdir} |\
   grep -E -v '^cifs' |\
   grep -E -v '^cisco' |\
   grep -E -v '^gfs2' |\
+  grep -E -v '^libvirt' |\
   grep -E -v '^lmsensors' |\
   grep -E -v '^logger' |\
   grep -E -v '^mailq' |\
@@ -2064,6 +2089,9 @@ fi
 
 %preun pmda-mic
 %{pmda_remove "$1" "mic"}
+
+%preun pmda-libvirt
+%{pmda_remove "$1" "libvirt"}
 %endif # !%{disable_python[2,3]}
 
 %preun pmda-apache
@@ -2559,6 +2587,9 @@ cd
 %files pmda-mic
 %{_pmdasdir}/mic
 
+%files pmda-libvirt
+%{_pmdasdir}/libvirt
+
 %files export-pcp2graphite
 %{_bindir}/pcp2graphite
 
@@ -2672,6 +2703,8 @@ cd
 - Allow systemd-based auto-restart of all daemons (BZ 1365658)
 - Ensure pmieconf and pmlogconf handle empty files (BZ 1249123)
 - Ignore rpmsave and rpmnew suffixed control files (BZ 1375415)
+- Add new pcp-pmda-libvirt package for virtual machine metrics
+- Update to latest PCP Sources.
 
 * Fri Aug 05 2016 Nathan Scott <nathans@redhat.com> - 3.11.4-1
 - Support inside-container metric values in python (BZ 1333702)
@@ -2681,6 +2714,7 @@ cd
 - Use "dirsrv" as default pmdads389log user account (BZ 1357607)
 - Make pmie(1) honour SIGINT while parsing rules (BZ 1327226)
 - Add pmlogconf support for pcp-pidstat and pcp-mpstat (BZ 1361943)
+- Update to latest PCP Sources.
 
 * Fri Jun 17 2016 Nathan Scott <nathans@redhat.com> - 3.11.3-1
 - Fix memory leak in derived metrics error handling (BZ 1331973)

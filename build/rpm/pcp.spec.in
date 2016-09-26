@@ -715,38 +715,6 @@ collecting hardware counters statistics through libpfm.
 #end pcp-pmda-perfevent
 %endif
 
-%if "@pmda_libvirt@" == "true"
-#
-# pcp-pmda-libvirt
-#
-%package pmda-libvirt
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics from libvirt virtualisation
-URL: http://www.pcp.io
-Requires: pcp-libs = @package_version@
-%if "@enable_python3@" == "true"
-Requires: python3-pcp
-%if "%{_vendor}" == "suse"
-Requires: libvirt-python
-Requires: python-lxml
-%else
-Requires: libvirt-python3
-Requires: python3-lxml
-%endif
-%else
-Requires: libvirt-python
-Requires: python-lxml
-Requires: python-pcp
-%endif
-
-%description pmda-libvirt
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-extracting virtualisation statistics from libvirt about behaviour of guest
-and hypervisor machines.
-#end pcp-pmda-libvirt
-%endif
-
 %if "@pmda_activemq@" == "true"
 #
 # pcp-pmda-activemq
@@ -1291,7 +1259,35 @@ Requires: python-pcp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Intel MIC cards.
 # end pcp-pmda-mic
+%endif
 
+%if "@pmda_libvirt@" == "true"
+#
+# pcp-pmda-libvirt
+#
+%package pmda-libvirt
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics from libvirt virtualisation
+URL: http://www.pcp.io
+Requires: pcp-libs = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+%if "%{_vendor}" == "suse"
+Requires: libvirt-python python-lxml
+%else
+Requires: libvirt-python3 python3-lxml
+%endif
+%else
+Requires: libvirt-python python-lxml
+Requires: python-pcp
+%endif
+
+%description pmda-libvirt
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting virtualisation statistics from libvirt about behaviour of guest
+and hypervisor machines.
+#end pcp-pmda-libvirt
 %endif
 
 %if "@pmda_json@" == "true"
