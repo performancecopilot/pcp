@@ -3,7 +3,7 @@ pcp (3.11.5) unstable; urgency=low
   * New release (full details in CHANGELOG).
   * Fix uninstallable s390x papi dependency (closes: #836842)
 
- -- Nathan Scott <nathans@debian.org>  Wed, 21 Sep 2016 20:29:00 +1000
+ -- Nathan Scott <nathans@debian.org>  Mon, 26 Sep 2016 14:21:21 +1000
 
 pcp (3.11.4) unstable; urgency=low
 
