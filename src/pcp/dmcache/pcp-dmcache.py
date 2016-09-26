@@ -78,6 +78,8 @@ def cache_dict(group, metric):
 def max_lv_length(group):
     """ look at the observation group and return the max length of all the lvnames """
     cache_used = cache_dict(group, 'dmcache.cache.used')
+    if not cache_used:
+        return 0
     lv_names = cache_used.keys()
     return len(max(lv_names, key=len))
 
