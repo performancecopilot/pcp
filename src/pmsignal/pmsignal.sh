@@ -95,7 +95,7 @@ then
     pids=""
     for name in "$@"; do
 	program=`basename "$name"`
-	pidlist=`_get_pids_by_name "$program"`
+	pidlist=`_get_pids_by_name -a "$program"`
 	pids="$pids $pidlist"
     done
 elif $pflag
