@@ -417,7 +417,7 @@ else
 
 	# running
 	_b=`basename "$1"`
-	_n=`_get_pids_by_name $_b | wc -l`
+	_n=`_get_pids_by_name -a $_b | wc -l`
 	[ $_n -ge 1 ] && return 0
 
 	# not running, but pid exists
