@@ -10,13 +10,14 @@
         },
         {
             "name": "Start",
-	    "predicate": 1
+	    "predicate": 1,
+            "pcp_metrics": ["kernel.all.load.1 minute"]
         },
         {
             "name": "CPU",
 	    "description": "The speed of the CPU is limiting performance",
 	    "predicate": "(1 - fetch_metric_min(\"kernel.percpu.cpu.idle\")",
-	    "pcp_metrics": "kernel.percpu.cpu.idle",
+	    "pcp_metrics": ["kernel.percpu.cpu.idle.*"],
 	    "article": "",
 	    "parents": "Start"
         },
