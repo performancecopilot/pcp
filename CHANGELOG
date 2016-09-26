@@ -1,6 +1,29 @@
-pcp-3.11.5 (21 September 2016)
-    - Work in progress, see http://pcp.io/roadmap
-
+pcp-3.11.5 (26 September 2016)
+    - dmcache: improved err handling when lvmcache not configured
+    - pmie: support expressions involving string-valued-metrics
+    - pmlogger: fix several logic errors in disconnect handling
+    - pcp-atop: fix SIGFPE when some kernel metrics unavailable
+    - python api: add errno attribute to pmErr class
+    - pmdaproc: fix double accounting in the proc.runq metrics
+    - pmlogconf: add set of default Vector webapp metrics
+    - libpcp_pmi: close archive in pmi_end, plugging an fd leak
+    - libpcp: improvements to detection of IPv6 being disabled
+    - libpcp: small portability fixes from OpenIndiana compilers
+    - libpcp_pmda: change some char* function args to const char*
+    - libpcp_web: completely rewo of simple http client library,
+      shared library now installed and API available for all PMDAs
+    - libpcp_web: support for Unix domain socket http requests
+    - libpcp_web: prefer persistent connections whenever possible
+    - libpcp_web: cater for both http 1.0 and 1.1 client requests
+    - rc scripts: allow systemd auto-restart of all PCP daemons
+    - rc scripts: ensure same-named non-PCP daemons are not killed
+    - cron scripts: ignore *.rpmsave and *.rpmnew from control.d
+    - zsh completions: minor tweaks, rewrite archive completion
+    - build: re-instate libsystemd-journal.so as a fallback, such
+      that pcp-pmda-systemd packages generated as previously done
+    - build: fix debian papi pmda dependencies
+    - docs: remove out-of-date section in pmdamounts(1) man page
+ 
 pcp-3.11.4 (5 August 2016)
     - pcp2influxdb: export PCP metrics to InfluxDB
     - collectl2pcp: fix metadata and overflow issues
