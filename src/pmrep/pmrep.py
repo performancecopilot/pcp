@@ -566,7 +566,6 @@ class PMReporter(object):
         self.opts.pmSetOptionFlags(flags | pmapi.c_api.PM_OPTFLAG_DONE)
         pmapi.c_api.pmEndOptions()
 
-        if not self.source: self.source = "@" # XXX
         self.pmfg = pmapi.fetchgroup(context, self.source)
         self.pmfg_ts = self.pmfg.extend_timestamp()
         self.context = self.pmfg.get_context()
