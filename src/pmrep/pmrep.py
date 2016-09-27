@@ -1063,8 +1063,15 @@ class PMReporter(object):
 
         if self.output == OUTPUT_CSV:
             self.writer.write("Time")
-            for metric in self.metrics:
-                self.writer.write(self.delimiter + metric)
+            for i, metric in enumerate(self.metrics):
+                ins = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
+                for j in range(ins):
+                    if self.insts[i][0][0] != PM_IN_NULL and self.insts[i][1][j]:
+                        name = metric + "-" + self.insts[i][1][j]
+                    else:
+                        name = metric
+                    name = name.replace(self.delimiter, " ").replace("\n", " ").replace("\"", " ")
+                    self.writer.write(self.delimiter + "\"" + name + "\"")
             self.writer.write("\n")
 
         if self.output == OUTPUT_STDOUT:
@@ -1188,9 +1195,9 @@ class PMReporter(object):
                     if value == NO_VAL:
                         line += '""'
                     else:
-                        value = value.replace(self.delimiter, " ")
-                        value = value.replace("\"", "\"\"")
-                        line += str("\"" + value + "\"")
+                        if value:
+                            value = value.replace(self.delimiter, " ").replace("\n", " ").replace("\"", " ")
+                            line += str("\"" + value + "\"")
         self.writer.write(line + "\n")
 
     def write_stdout(self, timestamp):
