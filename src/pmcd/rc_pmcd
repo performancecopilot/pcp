@@ -254,7 +254,7 @@ tolower($3) == "socket" && NF > 5	{ $1=$2=$3=$4=$5=""; print $0; next }
 
     cat $tmp/pmdas | while read pmda
     do
-	_get_pids_by_args $pmda >$tmp/tmp
+	_get_pids_by_name -a "$pmda" >$tmp/tmp
 	[ -s $tmp/tmp ] || continue
 	pmsignal -s TERM `cat $tmp/tmp` > /dev/null 2>&1 &
     done
@@ -265,7 +265,7 @@ tolower($3) == "socket" && NF > 5	{ $1=$2=$3=$4=$5=""; print $0; next }
 
     cat $tmp/pmdas | while read pmda
     do
-	_get_pids_by_args $pmda >$tmp/tmp
+	_get_pids_by_name -a "$pmda" >$tmp/tmp
 	[ -s $tmp/tmp ] || continue
 	pmsignal -s KILL `cat $tmp/tmp` > /dev/null 2>&1 &
     done
@@ -283,6 +283,13 @@ _shutdown()
 	rm -f $PCP_RUN_DIR/pmcd.pid $PCP_RUN_DIR/pmcd.socket
 	return 0
     fi
+    pidlist="`cat $tmp/tmp`"
+    suffix=''
+    if [ "`wc -l <$tmp/tmp | sed -e 's/ //g'`" -ne 1 ]
+    then
+ 	[ "$1" = verbose ] && echo "$prog: warning more than one pmcd running: $pidlist"
+	suffix='es'
+    fi
 
     # If pmcd is running but we can't find a pidfile, or a logfile at the
     # configured or default location, assume this script is being run via
@@ -292,30 +299,32 @@ _shutdown()
     [ -f $logf ] || logf=$RUNDIR/pmcd.log
     if [ ! -f $PCP_RUN_DIR/pmcd.pid -a ! -f $logf ]
     then
-	pmcdpid=`cat $tmp/tmp`
-	echo "PMCD process ... $pmcdpid"
+	echo "PMCD process$suffix ... $pidlist"
         echo "$prog:
 Warning: found no $PCP_RUN_DIR/pmcd.pid
          and no $logf.
          Assuming an uninstall from a chroot: pmcd not killed.
-         If this is incorrect, \"pmsignal -s TERM $pmcdpid\"  can be used."
+         If this is incorrect, \"pmsignal -s TERM $pidlist\"  can be used."
         exit
     elif [ -f $PCP_RUN_DIR/pmcd.pid ]
     then
-	TOKILL=`cat $PCP_RUN_DIR/pmcd.pid`
-	if grep "^$TOKILL$" $tmp/tmp >/dev/null
-	then
-	    :
-	else
-	    echo "PMCD process ... "`cat $tmp/tmp`
-	    echo "$prog:
-Warning: process ID in $PCP_RUN_DIR/pmcd.pid is $TOKILL.
-         Check logfile $logf. When you are ready to proceed, remove 
-         $PCP_RUN_DIR/pmcd.pid before retrying."
-	    exit
-	fi
+	runpid=`cat $PCP_RUN_DIR/pmcd.pid`
+	for pid in $pidlist
+	do
+	    if [ "$runpid" != "$pid" ]
+	    then
+		echo "PMCD process ... $pid"
+		echo "$prog:
+Warning: process ID in $PCP_RUN_DIR/pmcd.pid ($runpid) is different.
+         Check logfile $logf. When you are ready to proceed,
+	 remove $PCP_RUN_DIR/pmcd.pid before retrying."
+		exit
+	    fi
+	done
     else
-	TOKILL=
+	# no $PCP_RUN_DIR/pmcd.pid ... use $pidlist from _get_pids_by_name()
+	#
+	runpid=''
     fi
 
     # Send pmcd a SIGTERM, which is noted as a pending shutdown.
@@ -327,11 +336,11 @@ Warning: process ID in $PCP_RUN_DIR/pmcd.pid is $TOKILL.
     delay=200	# tenths of a second
     for SIG in TERM KILL
     do
-	if [ "x$TOKILL" = "x" ]
+	if [ -z "$runpid" ]
 	then
-	    pmsignal -a -s $SIG pmcd > /dev/null 2>&1
+	    pmsignal -s $SIG $pidlist > /dev/null 2>&1
 	else
-	    pmsignal -s $SIG $TOKILL >/dev/null 2>&1
+	    pmsignal -s $SIG $runpid >/dev/null 2>&1
 	    rm -f $PCP_RUN_DIR/pmcd.pid $PCP_RUN_DIR/pmcd.socket
 	fi
 	while [ $delay -gt 0 ]

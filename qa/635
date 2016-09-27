@@ -112,6 +112,8 @@ hdr==1	{ print $rx, $rx_err, $rx_drp, $rx_ovr, $tx, $tx_err, $tx_drp, $tx_ovr }'
 echo >$seq.full
 
 # Get the list of network interfaces from ifconfig
+# Need uniq because may have one interface appearing moer than once
+# (e.g. br1 and br1:avahi which become 2 br1 lines otherwise).
 #
 ifconfig -a \
     | sed -n -e '/^[^ 	]/{
@@ -119,6 +121,7 @@ s/[: 	].*//
 p
 }' \
     | LC_COLLATE=POSIX sort \
+    | uniq \
     > $tmp.net.indom
 
 pminfo -f network.interface.total.drops \
@@ -133,9 +136,12 @@ if diff $tmp.pcp.indom $tmp.net.indom >$tmp.indom.diff
 then
     :
 else
-    echo "Instance domain for network.interface.total.drops incorrect:"
-    echo "diff output (PCP first, then ifconfig):"
-    cat $tmp.indom.diff
+    echo "Instance domains for network.interface.total.drops are different:"
+    diff -u $tmp.pcp.indom $tmp.net.indom
+    echo "PCP instance domain ..." >>$seq.full
+    cat $tmp.pcp.indom >>$seq.full
+    echo "netstat instance domain ..." >>$seq.full
+    cat $tmp.net.indom >>$seq.full
     status=1
 fi
 

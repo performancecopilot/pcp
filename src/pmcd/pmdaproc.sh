@@ -218,7 +218,7 @@ END					{ exit status }'
     #
     for __sig in TERM KILL
     do
-	__pids=`_get_pids_by_name pmda$1`
+	__pids=`_get_pids_by_name -a pmda$1`
 	if [ ! -z "$__pids" ]
 	then
 	    pmsignal -s $__sig $__pids >/dev/null 2>&1
