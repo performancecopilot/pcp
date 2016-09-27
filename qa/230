@@ -35,7 +35,7 @@ _check()
 {
     echo "_check $1" >>$seq.full
     sleep 2
-    pidlist=`_get_pids_by_name "pmlc"`
+    pidlist=`_get_pids_by_name pmlc`
     echo "pidlist=$pidlist" >>$seq.full
     for pid in $pidlist
     do
@@ -84,6 +84,9 @@ fi
 #
 port=1214
 
+# kill off any old drain-server left running from previous runs
+pmsignal -s KILL -a src/drain-server
+
 # real QA test starts here
 _change_config pmcd on
 _change_config pmlogger on
@@ -106,7 +109,7 @@ pmlc -e -h localhost -P >$tmp.out 2>&1 &
 sleep 2
 _check $!
 _filter
-pidlist=`_get_pids_by_name "drain-server"`
+pidlist=`_get_pids_by_name -a drain-server`
 for pid in $pidlist
 do
     [ "$draino" = "$pid" ] && kill -TERM $draino
@@ -123,7 +126,7 @@ pmlc -e -h localhost -P >$tmp.out 2>&1 &
 sleep 2
 _check $!
 _filter
-pidlist=`_get_pids_by_name "drain-server"`
+pidlist=`_get_pids_by_name -a drain-server`
 for pid in $pidlist
 do
     [ "$draino" = "$pid" ] && kill -TERM $draino
@@ -139,7 +142,7 @@ export PMLOGGER_REQUEST_TIMEOUT=1
 pmlc -e -h localhost -P >$tmp.out 2>&1 </dev/null
 _check $!
 _filter
-pidlist=`_get_pids_by_name "drain-server"`
+pidlist=`_get_pids_by_name -a drain-server`
 for pid in $pidlist
 do
     [ "$draino" = "$pid" ] && kill -TERM $draino

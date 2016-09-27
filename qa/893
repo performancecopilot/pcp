@@ -3,6 +3,9 @@
 # Exercise fix for RH BZ 1365424 where init script terminates
 # like-named processes.
 #
+# Really a test for _get_pids_by_name() from /etc/pcp.env, as invoked
+# from the pmcd "rc" script.
+#
 # Copyright (c) 2016 Red Hat.
 #
 
@@ -31,21 +34,23 @@ _cleanup()
     cd $here; rm -rf $tmp.*
 }
 
-_filter()
-{
-    tee -a $seq.full \
-    | sed -e "s,$tmp.pmcd,$seq,g" \
-    | grep -v grep | wc -l
-}
-
 # real QA test starts here
 mkdir $tmp.pmcd
 cp $PCP_BINADM_DIR/pmsleep $tmp.pmcd/pmcd
 $tmp.pmcd/pmcd 60 &
 pid=$!
+echo "Fake pmcd pid=$pid" >>$here/$seq.full
+echo "Before restart ..." >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mcd' >>$here/$seq.full
+echo "_get_pids_by_name pmcd -> `_get_pids_by_name pmcd`" >>$here/$seq.full
 $sudo $PCP_RC_DIR/pmcd restart | _filter_pcp_start
+echo "After restart ..." >>$here/$seq.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | egrep '[P]ID|[p]mcd' >>$here/$seq.full
 $PCP_ECHO_PROG $PCP_ECHO_N "Local pmcd count: ""$PCP_ECHO_C"
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep $tmp.pmcd/pmcd | _filter
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+| grep "$tmp.pmcd/[p]mcd" \
+| wc -l \
+| sed -e 's/ //g'
 
 # success, all done
 status=0

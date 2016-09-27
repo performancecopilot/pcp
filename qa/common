@@ -177,7 +177,7 @@ _haveagents()
 
 _havelogger()
 {
-    if [ -z "`_get_pids_by_name 'pmlogger.*-P'`" ]
+    if [ -z "`_get_pids_by_name -a 'pmlogger.*-P'`" ]
     then
 	echo "Primary pmlogger not running ..."
 	echo "chkconfig pmlogger on, and restart PMCD"
