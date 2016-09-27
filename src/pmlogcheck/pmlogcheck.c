@@ -38,7 +38,7 @@ static pmLongOptions longopts[] = {
     PMOPT_NAMESPACE,
     PMOPT_START,
     PMOPT_FINISH,
-    { "verbose", 0, 'l', 0, "verbose output" },
+    { "verbose", 0, 'v', 0, "verbose output" },
     PMOPT_TIMEZONE,
     PMOPT_HOSTZONE,
     PMOPT_HELP,

@@ -2668,8 +2668,10 @@ cd
 %endif
 
 %changelog
-* Wed Sep 21 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.5-1
-- Work in progress, see http://pcp.io/roadmap
+* Mon Sep 26 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.5-1
+- Allow systemd-based auto-restart of all daemons (BZ 1365658)
+- Ensure pmieconf and pmlogconf handle empty files (BZ 1249123)
+- Ignore rpmsave and rpmnew suffixed control files (BZ 1375415)
 
 * Fri Aug 05 2016 Nathan Scott <nathans@redhat.com> - 3.11.4-1
 - Support inside-container metric values in python (BZ 1333702)
