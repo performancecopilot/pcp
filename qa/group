@@ -1263,7 +1263,7 @@ libpcp_web
 1045 pmie local pmieconf
 1046 pmie local pmieconf
 1047 pmie local pmieconf
-#1048 python local
+1048 python local
 1049 pmie pmieconf local
 1050 pmieconf local
 1051 pmieconf #696008 local
@@ -1271,6 +1271,7 @@ libpcp_web
 1053 pmda.json pmda.install local python
 1054 pmlogger pmcpp local
 1055 pmlogger local
+1056 derive local
 1062 pmrep python local
 1065 libpcp valgrind local
 1067 zabbix zbxpcp local
