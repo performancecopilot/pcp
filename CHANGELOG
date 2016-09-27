@@ -1,3 +1,6 @@
+pcp-3.11.6 (11 November 2016)
+    - Work in progress, see http://pcp.io/roadmap
+
 pcp-3.11.5 (26 September 2016)
     - pmdalibvirt: statistics from guest and hypervisor machines
     - dmcache: improved err handling when lvmcache not configured
