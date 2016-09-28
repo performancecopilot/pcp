@@ -25,12 +25,34 @@ return function(callback) {
         method: 'GET',
         url: pmwebd + "/checklist/checklist.json"
     }).done(function(result) {
+        var nodes = result.nodes;
+        var node = ARGS["node"];
         var dashboard;
+	var node_map = [];
+        var panel;
+
+	// create a table mapping nodes names to indices
+        for (var i=0; i<nodes.length; i++) {
+	    node_map[nodes[i].name] = i;
+	}
+
+	// FIXME debug code
+        for (t in node_map) {
+	    console.log(t, "=", node_map[t]);
+	}
 
         // url parameter to identify checklist node
-        var node = ARGS["node"]; 
         if (node == undefined) { node = "Start"; }
         
+        // find
+	if (node in node_map) {
+            panel = nodes[node_map[node]];
+	} else {
+            alert ("checklist node " + node + "not found");
+            callback(dashboard);
+            return;
+        }
+
         // Intialize a skeleton with nothing but a rows array and service object
         dashboard = {
             style: 'light',
@@ -58,7 +80,6 @@ return function(callback) {
         // XXX: grafana suppresses normal click linkfollowing action in these A HREF links
         var markdown = "";
         markdown = "[**RESTART**](" + pmwebd + checklist_url + ")";
-        var nodes = result.nodes;
         for (var i=0; i<nodes.length; i++) {
             var highlight = "";
             if (nodes[i].name == node) {
@@ -72,19 +93,6 @@ return function(callback) {
             title: '', height: '0',
             panels: [ { title: 'Navigation', type: 'text', span: 12, fill: 1, content: markdown } ]
         });
-
-        // find        
-        var panel;
-        for (var i=0; i<nodes.length; i++) {
-            if (nodes[i].name == node) {
-                panel = nodes[i];
-            }
-        }
-        if (panel == undefined) {
-            alert ("checklist node " + node + "not found");
-            callback(dashboard);
-            return;
-        }
 
         // create description panel
         var markdown = "";
