@@ -6,8 +6,8 @@
 	    "pcp_metrics": "information from pcp to determine whether problem",
 	    "predicate": "test to determine if problem",
 	    "article": "list of extern URLs (for example kbase articles) for addressing the issue",
-	    "parents": "one or more nodes that would be checked before this node",
-	    "children": "zero or more nodes that would be checked after this node (filled in by scripted dashboard))"        },
+	    "parents": ["one or more nodes that would be checked before this node"],
+	    "children": ["zero or more nodes that would be checked after this node (filled in by scripted dashboard))"]        },
         {
             "name": "Start",
 	    "predicate": 1,
@@ -19,7 +19,7 @@
 	    "predicate": "(1 - fetch_metric_min(\"kernel.percpu.cpu.idle\")",
 	    "pcp_metrics": ["kernel.percpu.cpu.idle.*"],
 	    "article": "",
-	    "parents": "Start"
+	    "parents": ["Start"]
         },
         {
             "name": "CPU - serial code",
@@ -27,7 +27,7 @@
 	    "pcp_metrics": "kernel.percpu.cpu.idle",
 	    "predicate": "test to determine if problem",
 	    "article": "",
-	    "parents": "CPU"
+	    "parents": ["CPU"]
         },
         {
             "name": "CPU - cache issue",
@@ -35,7 +35,7 @@
 	    "pcp_metrics": "papi pmda, looking at PAPI_L2_TCM or PAPI_L3_TCM",
 	    "predicate": "",
 	    "article": "",
-	    "parents": "CPU"
+	    "parents": ["CPU"]
         },
         {
             "name": "Storage - high utilization",
@@ -43,7 +43,7 @@
 	    "pcp_metrics": "disk.md.avactive",
 	    "predicate": "disk.md.avactive",
 	    "article": "",
-	    "parents": "Start"
+	    "parents": ["Start"]
         },
         {
             "name": "Storage - bandwidth",
@@ -51,7 +51,7 @@
 	    "pcp_metrics": [ "disk.md.total", "time" ],
 	    "predicate": "delta(disk.md.total)/delta(time)",
 	    "article": "",
-	    "parents": "Storage - high utilization"
+	    "parents": ["Storage - high utilization"]
         },
         {
             "name": "Storage - small blocks",
@@ -59,7 +59,7 @@
 	    "pcp_metrics": [ "disk.md.total", "disk.md.blktotal"],
 	    "predicate": "delta(disk.md.total)/delta(disk.md.blktotal)",
 	    "article": "",
-	    "parents": "Storage - high utilization"
+	    "parents": ["Storage - high utilization"]
         },
         {
             "name": "Memory - space",
@@ -67,7 +67,7 @@
 	    "pcp_metrics": [ "mem.freemem", "mem.physmem" ],
 	    "predicate": "mem.freemem/mem.physmem",
 	    "article": "",
-	    "parents": "Start"
+	    "parents": ["Start"]
         },
         {
             "name": "Memory - swapping",
@@ -75,7 +75,7 @@
 	    "pcp_metrics":  [ "pagesin" , "swap.pagesout" ], 
 	    "predicate": "",
 	    "article": "",
-	    "parents": "Start"
+	    "parents": ["Start"]
         },
         {
             "name": "Memory - huge page defragmentation",
@@ -83,7 +83,7 @@
 	    "pcp_metrics": [ "mem.vmstat.thp_collapse_alloc", "mem.vmstat.thp_fault_alloc", "mem.vmstat.thp_fault_fallback" ],
 	    "predicate": "",
 	    "article": "http://dl.acm.org/citation.cfm?id=2930834",
-	    "parents": "Start"
+	    "parents": ["Start"]
         }
     ],
     "edges": [ ]

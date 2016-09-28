@@ -31,14 +31,30 @@ return function(callback) {
 	var node_map = [];
         var panel;
 
-	// create a table mapping nodes names to indices
+	// create a table mapping nodes names to indices and children field
         for (var i=0; i<nodes.length; i++) {
 	    node_map[nodes[i].name] = i;
+	    nodes[i].children = [];
 	}
 
 	// FIXME debug code
         for (t in node_map) {
 	    console.log(t, "=", node_map[t]);
+	}
+
+	// populate the children field of the nodes
+        for (var i=0; i<nodes.length; i++) {
+	    var child = nodes[i].name
+	    var parents = nodes[i].parents;
+	    console.log("child =", child, " parents = ", parents);
+	    for (var p=0; (parents != undefined && p<parents.length); p++) {
+		var pn = parents[p];
+		// FIXME debug code
+		console.log(pn, "(", node_map[pn], ") -> ", child, "(", i, ")");
+		if (pn in node_map) {
+		    nodes[node_map[pn]].children.push(child);
+		}
+	    }
 	}
 
         // url parameter to identify checklist node
