@@ -1,0 +1,42 @@
+#!/bin/sh
+# PCP QA Test No. 1048
+# Exercise python fetchgroup wrapper instance type fix.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat > $tmp.py <<EOF
+#!/usr/bin/pmpython
+
+from pcp import pmapi
+import cpmapi as capi
+
+pmfg = pmapi.fetchgroup()
+cpus = pmfg.extend_indom("hinv.ncpu")
+
+pmfg.fetch()
+for inst, name, value in cpus():
+    if inst != capi.PM_IN_NULL:
+        print("Expected null instance, got: %d" % inst)
+    else:
+        print("inst: %d" % inst)
+EOF
+
+$python $tmp.py
+
+# success, all done
+status=0
+exit

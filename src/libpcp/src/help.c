@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Red Hat.
+ * Copyright (c) 2013,2016 Red Hat.
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -112,6 +112,8 @@ again_local:
 int
 pmLookupText(pmID pmid, int level, char **buffer)
 {
+    if (IS_DERIVED(pmid))
+	return PM_ERR_TEXT;
     return lookuptext((int)pmid, level | PM_TEXT_PMID, buffer);
 }
 

@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.11.5
+Version: 3.11.6
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -2699,6 +2699,9 @@ cd
 %endif
 
 %changelog
+* Fri Nov 11 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.6-1
+- Work in progress, see http://pcp.io/roadmap
+
 * Mon Sep 26 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.5-1
 - Allow systemd-based auto-restart of all daemons (BZ 1365658)
 - Ensure pmieconf and pmlogconf handle empty files (BZ 1249123)

@@ -2224,7 +2224,7 @@ class fetchgroup(object):
             """Allocate a single instance to receive a fetchgroup item."""
             stss_t = c_int * num
             values_t = pmAtomValue * num
-            icodes_t = c_int * num
+            icodes_t = c_uint * num
             inames_t = c_char_p * num
             self.sts = c_int()
             self.stss = stss_t()

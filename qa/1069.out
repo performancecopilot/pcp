@@ -115,18 +115,25 @@ HH:MM:SS        1
 10:36:51      1.000        1000.001
 10:36:53      1.000        1000.016
 == exercise CSV and alternate delimiters
-Time,sample.seconds,sample.milliseconds
-2000-05-01 20:36:45,"",""
+Time,"sample.seconds","sample.milliseconds"
+2000-05-01 20:36:45,,
 2000-05-01 20:36:47,380434,380433679.3
 2000-05-01 20:36:49,380436,380435679.4
 2000-05-01 20:36:51,380438,380437679.4
 2000-05-01 20:36:53,380440,380439679.4
-Time|sample.seconds|sample.milliseconds
-2000-05-01 20:36:45|""|""
+Time|"sample.seconds"|"sample.milliseconds"
+2000-05-01 20:36:45||
 2000-05-01 20:36:47|380434|380433679.314
 2000-05-01 20:36:49|380436|380435679.381
 2000-05-01 20:36:51|380438|380437679.382
 2000-05-01 20:36:53|380440|380439679.413
+== exercise CSV and instance handling
+Time,"hinv.map.scsi-scsi0:0:0:0 Direct-Access","hinv.map.scsi-scsi0:0:1:0 Direct-Access","hinv.map.scsi-scsi0:0:2:0 Direct-Access","hinv.map.scsi-scsi0:0:3:0 Direct-Access","hinv.map.scsi-scsi0:0:4:0 Direct-Access","kernel.all.load-1 minute","kernel.all.load-5 minute","kernel.all.load-15 minute"
+2013-07-06 00:47:01,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
+2013-07-06 00:47:03,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
+2013-07-06 00:47:05,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
+2013-07-06 00:47:07,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
+2013-07-06 00:47:09,"sda","sdb","sdc","sdd","sde",0.820,0.700,0.590
 == compare output-to-file versus stdout
 ok
 == exercise repeated headers option

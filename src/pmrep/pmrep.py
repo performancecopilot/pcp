@@ -566,7 +566,6 @@ class PMReporter(object):
         self.opts.pmSetOptionFlags(flags | pmapi.c_api.PM_OPTFLAG_DONE)
         pmapi.c_api.pmEndOptions()
 
-        if not self.source: self.source = "@" # XXX
         self.pmfg = pmapi.fetchgroup(context, self.source)
         self.pmfg_ts = self.pmfg.extend_timestamp()
         self.context = self.pmfg.get_context()
@@ -804,13 +803,7 @@ class PMReporter(object):
 
             # Add fetchgroup item
             scale = self.metrics[metric][2][0]
-            ins = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
-            self.metrics[metric][5] = []
-            for j in range(ins):
-                try:
-                    self.metrics[metric][5].append(self.pmfg.extend_item(metric, mtype, scale, self.insts[i][1][j]))
-                except:
-                    self.metrics[metric][5].append(self.pmfg.extend_indom(metric, mtype, scale, 1))
+            self.metrics[metric][5] = self.pmfg.extend_indom(metric, mtype, scale, 1024)
 
     def get_local_tz(self, set_dst=-1):
         """ Figure out the local timezone using the PCP convention """
@@ -980,8 +973,7 @@ class PMReporter(object):
             self.format += "{" + str(index) + "}"
             index += 1
         for i, metric in enumerate(self.metrics):
-            ins = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
-            for _ in range(ins):
+            for _ in range(len(self.insts[i][0])):
                 l = str(self.metrics[metric][4])
                 #self.format += "{:>" + l + "." + l + "}{}"
                 self.format += "{" + str(index) + ":>" + l + "." + l + "}"
@@ -1063,8 +1055,14 @@ class PMReporter(object):
 
         if self.output == OUTPUT_CSV:
             self.writer.write("Time")
-            for metric in self.metrics:
-                self.writer.write(self.delimiter + metric)
+            for i, metric in enumerate(self.metrics):
+                for j in range(len(self.insts[i][0])):
+                    if self.insts[i][0][0] != PM_IN_NULL and self.insts[i][1][j]:
+                        name = metric + "-" + self.insts[i][1][j]
+                    else:
+                        name = metric
+                    name = name.replace(self.delimiter, " ").replace("\n", " ").replace("\"", " ")
+                    self.writer.write(self.delimiter + "\"" + name + "\"")
             self.writer.write("\n")
 
         if self.output == OUTPUT_STDOUT:
@@ -1073,9 +1071,8 @@ class PMReporter(object):
             units = ["", self.delimiter] # no timestamp on units line
             prnti = 0
             for i, metric in enumerate(self.metrics):
-                ins   = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
                 prnti = 1 if self.insts[i][0][0] != PM_IN_NULL else prnti
-                for j in range(ins):
+                for j in range(len(self.insts[i][0])):
                     names.append(self.metrics[metric][0])
                     names.append(self.delimiter)
                     units.append(self.metrics[metric][2][0])
@@ -1122,6 +1119,7 @@ class PMReporter(object):
         if self.pmi == None:
             # Create a new archive
             self.pmi = pmi.pmiLogImport(self.outfile)
+            self.recorded = OrderedDict()
             if self.context.type == PM_CONTEXT_ARCHIVE:
                 self.pmi.pmiSetHostname(self.context.pmGetArchiveLabel().hostname)
                 self.pmi.pmiSetTimezone(self.context.pmGetArchiveLabel().tz)
@@ -1133,31 +1131,42 @@ class PMReporter(object):
                                       self.descs[i].contents.sem,
                                       self.descs[i].contents.units)
                 ins = 0 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
-                try:
-                    for j in range(ins):
+                for j in range(ins):
+                    if metric not in self.recorded:
+                        self.recorded[metric] = []
+                    self.recorded[metric].append(self.insts[i][0][j])
+                    try:
                         self.pmi.pmiAddInstance(self.descs[i].contents.indom, self.insts[i][1][j], self.insts[i][0][j])
-                except pmi.pmiErr as error:
-                    if error.args[0] == PMI_ERR_DUPINSTNAME:
-                        continue
+                    except pmi.pmiErr as error:
+                        if error.args[0] == PMI_ERR_DUPINSTNAME:
+                            continue
 
         # Add current values
         data = 0
         for i, metric in enumerate(self.metrics):
-            ins = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
-            for j in range(ins):
-                try:
-                    value = self.metrics[metric][5][j]()
-                    inst = self.insts[i][1][j]
-                    data = 1
-                    if self.descs[i].contents.type == PM_TYPE_STRING:
-                        self.pmi.pmiPutValue(metric, inst, value)
-                    elif self.descs[i].contents.type == PM_TYPE_FLOAT or \
-                         self.descs[i].contents.type == PM_TYPE_DOUBLE:
-                        self.pmi.pmiPutValue(metric, inst, "%f" % value)
-                    else:
-                        self.pmi.pmiPutValue(metric, inst, "%d" % value)
-                except:
-                    pass
+            try:
+                for inst, name, val in self.metrics[metric][5]():
+                    try:
+                        value = val()
+                        if inst != PM_IN_NULL and inst not in self.recorded[metric]:
+                            self.recorded[metric].append(inst)
+                            try:
+                                self.pmi.pmiAddInstance(self.descs[i].contents.indom, name, inst)
+                            except pmi.pmiErr as error:
+                                if error.args[0] == PMI_ERR_DUPINSTNAME:
+                                    pass
+                        if self.descs[i].contents.type == PM_TYPE_STRING:
+                            self.pmi.pmiPutValue(metric, name, value)
+                        elif self.descs[i].contents.type == PM_TYPE_FLOAT or \
+                             self.descs[i].contents.type == PM_TYPE_DOUBLE:
+                            self.pmi.pmiPutValue(metric, name, "%f" % value)
+                        else:
+                            self.pmi.pmiPutValue(metric, name, "%d" % value)
+                        data = 1
+                    except Exception as e:
+                        pass
+            except:
+                pass
 
         # Flush
         if data:
@@ -1172,11 +1181,21 @@ class PMReporter(object):
         # Print the results
         line = timestamp
         for i, metric in enumerate(self.metrics):
-            ins = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
-            for j in range(ins):
+            for j in range(len(self.insts[i][0])):
                 line += self.delimiter
+                found = 0
                 try:
-                    value = self.metrics[metric][5][j]()
+                    for inst, name, val in self.metrics[metric][5]():
+                        if inst == PM_IN_NULL or inst == self.insts[i][0][j]:
+                            found = 1
+                            break
+                    if not found:
+                        continue
+                except:
+                    continue
+
+                try:
+                    value = val()
                 except:
                     value = NO_VAL
                 if type(value) is float:
@@ -1188,9 +1207,9 @@ class PMReporter(object):
                     if value == NO_VAL:
                         line += '""'
                     else:
-                        value = value.replace(self.delimiter, " ")
-                        value = value.replace("\"", "\"\"")
-                        line += str("\"" + value + "\"")
+                        if value:
+                            value = value.replace(self.delimiter, " ").replace("\n", " ").replace("\"", " ")
+                            line += str("\"" + value + "\"")
         self.writer.write(line + "\n")
 
     def write_stdout(self, timestamp):
@@ -1213,15 +1232,26 @@ class PMReporter(object):
         for i, metric in enumerate(self.metrics):
             l = self.metrics[metric][4]
 
-            for j in range(len(self.metrics[metric][5])):
+            for j in range(len(self.insts[i][0])):
                 k += 1
 
+                found = 0
                 try:
-                    value = self.metrics[metric][5][j]()
-                    if type(value) is list:
-                        value = value[0]
+                    for inst, name, val in self.metrics[metric][5]():
+                        if inst == PM_IN_NULL or inst == self.insts[i][0][j]:
+                            found = 1
+                            break
                 except:
+                    pass
+                if not found:
                     value = NO_VAL
+                else:
+                    try:
+                        value = val()
+                        if type(value) is list:
+                             value = value[0]
+                    except:
+                        value = NO_VAL
 
                 # Make sure the value fits
                 if type(value) is int or type(value) is long:
@@ -1281,16 +1311,18 @@ class PMReporter(object):
         if self.zabbix_prevsend == None:
             self.zabbix_prevsend = ts
         for i, metric in enumerate(self.metrics):
-            ins = 1 if self.insts[i][0][0] == PM_IN_NULL else len(self.insts[i][0])
-            for j in range(ins):
-                key = ZBXPRFX + metric
-                if self.insts[i][1][j]:
-                    key += "[" + str(self.insts[i][1][j]) + "]"
-                try:
-                    value = str(self.metrics[metric][5][j]())
-                    self.zabbix_metrics.append(ZabbixMetric(self.zabbix_host, key, value, ts))
-                except:
-                    pass
+            try:
+                for inst, name, val in self.metrics[metric][5]():
+                    key = ZBXPRFX + metric
+                    if name:
+                        key += "[" + name + "]"
+                    try:
+                        value = str(val())
+                        self.zabbix_metrics.append(ZabbixMetric(self.zabbix_host, key, value, ts))
+                    except:
+                        pass
+            except:
+                pass
 
         # Send when needed
         if self.context.type == PM_CONTEXT_ARCHIVE:
