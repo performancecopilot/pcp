@@ -27,6 +27,7 @@ return function(callback) {
     }).done(function(result) {
         var nodes = result.nodes;
         var node = ARGS["node"];
+	var node_index;
         var dashboard;
 	var node_map = [];
         var panel;
@@ -62,7 +63,8 @@ return function(callback) {
         
         // find
 	if (node in node_map) {
-            panel = nodes[node_map[node]];
+	    node_index = node_map[node];
+            panel = nodes[node_index];
 	} else {
             alert ("checklist node " + node + "not found");
             callback(dashboard);
@@ -96,14 +98,10 @@ return function(callback) {
         // XXX: grafana suppresses normal click linkfollowing action in these A HREF links
         var markdown = "";
         markdown = "[**RESTART**](" + pmwebd + checklist_url + ")";
-        for (var i=0; i<nodes.length; i++) {
-            var highlight = "";
-            if (nodes[i].name == node) {
-                highlight="**";
-            }
-            markdown +=
-                " | [" + highlight + nodes[i].name + highlight + "]" +
-                "(" + pmwebd + checklist_url + "?node=" + encodeURIComponent(nodes[i].name) + ")";
+        for (var i=0; i<nodes[node_index].children.length; i++) {
+            markdown += " | [" + nodes[node_index].children[i] + "]" +
+                "(" + pmwebd + checklist_url + "?node=" +
+		encodeURIComponent(nodes[node_index].children[i]) + ")";
         }
         dashboard.rows.push({
             title: '', height: '0',
