@@ -31,6 +31,7 @@ return function(callback) {
         var dashboard;
 	var node_map = [];
         var panel;
+        var markdown = "";
 
 	// create a table mapping nodes names to indices and children field
         for (var i=0; i<nodes.length; i++) {
@@ -93,19 +94,36 @@ return function(callback) {
         
         // Set a title
         dashboard.title = 'PCP CHECKLIST ' + node;
-        
-        // create navigation link/menu at the top
+
+        // create navigation links/menus at the top
+
+	// create navigation links back up the graph
         // XXX: grafana suppresses normal click linkfollowing action in these A HREF links
-        var markdown = "";
         markdown = "[**RESTART**](" + pmwebd + checklist_url + ")";
-        for (var i=0; i<nodes[node_index].children.length; i++) {
-            markdown += " | [" + nodes[node_index].children[i] + "]" +
-                "(" + pmwebd + checklist_url + "?node=" +
-		encodeURIComponent(nodes[node_index].children[i]) + ")";
-        }
+	if ("parents" in nodes[node_index]) {
+            for (var i=0; i<nodes[node_index].parents.length; i++) {
+		markdown += " | [" + nodes[node_index].parents[i] + "]" +
+                    "(" + pmwebd + checklist_url + "?node=" +
+		    encodeURIComponent(nodes[node_index].parents[i]) + ") |";
+            }
+	}
         dashboard.rows.push({
             title: '', height: '0',
-            panels: [ { title: 'Navigation', type: 'text', span: 12, fill: 1, content: markdown } ]
+            panels: [ { title: 'Navigation up', type: 'text', span: 12, fill: 1, content: markdown } ]
+        });
+
+        // XXX: grafana suppresses normal click linkfollowing action in these A HREF links
+        markdown = "";
+	if ("children" in nodes[node_index]) {
+            for (var i=0; i<nodes[node_index].children.length; i++) {
+		markdown += " | [" + nodes[node_index].children[i] + "]" +
+                    "(" + pmwebd + checklist_url + "?node=" +
+		    encodeURIComponent(nodes[node_index].children[i]) + ") |";
+            }
+	}
+        dashboard.rows.push({
+            title: '', height: '0',
+            panels: [ { title: 'Possible Causes', type: 'text', span: 12, fill: 1, content: markdown } ]
         });
 
         // create description panel
