@@ -511,6 +511,10 @@ do_work(task_t *tp)
 	clearavail(fp);
 
 	if ((sts = myFetch(fp->f_numpmid, fp->f_pmidlist, &pb)) < 0) {
+	    if (sts == -EINTR) {
+		/* disconnect() already done in myFetch() */
+		return;
+	    }
 	    if (sts != -ETIMEDOUT) {
 		/* optionally report and disconnect() the first time thru */
 #ifdef PCP_DEBUG
@@ -807,9 +811,9 @@ do_work(task_t *tp)
                 if (pdu_metrics > 1)
                     fprintf(stderr, "\n");
             } 
-            if (pdu_metrics > 1)
-                fprintf(stderr, "}");
         }
+	if (pdu_metrics > 1)
+	    fprintf(stderr, "}");
 	fprintf(stderr, " logged ");
 
 	if (tp->t_delta.tv_sec == 0 && tp->t_delta.tv_usec == 0)
