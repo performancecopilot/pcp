@@ -1137,6 +1137,7 @@ libpcp_web
 892 pmcd libpcp local
 893 pmcd local
 894 pmlogconf pmieconf local
+895 pmlogger local
 897 pmlc pmlogger local
 898 pmlogmv local 
 899 libpcp getopt local
