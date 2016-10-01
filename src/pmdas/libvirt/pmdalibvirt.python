@@ -58,7 +58,7 @@ class LibvirtPMDA(PMDA):
         self.doms = []
         self.connect_pmcd()
         self.conn = self.connect_libvirt()
-        if 'domainListGetStats' not in (dir(self.conn)):
+        if 'domainListGetStats' not in dir(self.conn):
             self.oldapi = True
 
         if self.oldapi:
@@ -126,6 +126,10 @@ class LibvirtPMDA(PMDA):
             [ 'domstats.cpu.user',               None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM CPU time, user'                 ],
         ]
 
+        self.vm_vcpu_indom = self.indom(1)
+        self.vm_vcpu_insts = pmdaIndom(self.vm_vcpu_indom, [])
+        self.add_indom(self.vm_vcpu_insts)
+
         self.vm_vcpustats_res = []
         self.vm_vcpustats_cluster = 3
         self.vm_vcpustats = [
@@ -136,6 +140,9 @@ class LibvirtPMDA(PMDA):
             [ 'domstats.vcpu.all.state',         None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPUs, total state'             ],
             [ 'domstats.vcpu.all.time',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPUs, total time'              ],
             [ 'domstats.vcpu.all.wait',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPUs, total wait'              ],
+            [ 'domstats.vcpu.state',             None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_none,  'VM vCPU, state'                    ],
+            [ 'domstats.vcpu.time',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPU, time'                     ],
+            [ 'domstats.vcpu.wait',              None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM vCPU, wait'                     ],
         ]
 
         self.vm_memstats_res = {}
@@ -162,6 +169,10 @@ class LibvirtPMDA(PMDA):
             [ 'domstats.balloon.maximum',        None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon size, maximum'          ],
         ]
 
+        self.vm_block_indom = self.indom(2)
+        self.vm_block_insts = pmdaIndom(self.vm_block_indom, [])
+        self.add_indom(self.vm_block_insts)
+
         self.vm_blockstats_res = []
         self.vm_blockstats_cluster = 6
         self.vm_blockstats = [
@@ -182,7 +193,25 @@ class LibvirtPMDA(PMDA):
             [ 'domstats.block.all.allocation',   None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, total allocation' ],
             [ 'domstats.block.all.capacity',     None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, total capacity'   ],
             [ 'domstats.block.all.physical',     None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing imgs, total physical'   ],
+            [ 'domstats.block.name',             None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM block dev, name'                ],
+            [ 'domstats.block.backingIndex',     None,                       PM_TYPE_U32,    PM_SEM_INSTANT,  units_count, 'VM block dev, backing chain img'   ],
+            [ 'domstats.block.path',             None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM block dev, path'                ],
+            [ 'domstats.block.rd.reqs',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block dev, rd reqs'             ],
+            [ 'domstats.block.rd.bytes',         None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM block dev, rd bytes'            ],
+            [ 'domstats.block.rd.times',         None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block dev, rd times'            ],
+            [ 'domstats.block.wr.reqs',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block dev, wr reqs'             ],
+            [ 'domstats.block.wr.bytes',         None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM block dev, wr bytes'            ],
+            [ 'domstats.block.wr.times',         None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block dev, wr times'            ],
+            [ 'domstats.block.fl.reqs',          None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM block dev, fl reqs'             ],
+            [ 'domstats.block.fl.times',         None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_nsecs, 'VM block dev, fl times'            ],
+            [ 'domstats.block.allocation',       None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing img, allocation'        ],
+            [ 'domstats.block.capacity',         None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing img, capacity'          ],
+            [ 'domstats.block.physical',         None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM backing img, physical'          ],
         ]
+
+        self.vm_net_indom = self.indom(3)
+        self.vm_net_insts = pmdaIndom(self.vm_net_indom, [])
+        self.add_indom(self.vm_net_insts)
 
         self.vm_netstats_res = []
         self.vm_netstats_cluster = 7
@@ -199,6 +228,15 @@ class LibvirtPMDA(PMDA):
             [ 'domstats.net.all.tx.pkts',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total tx pkts'            ],
             [ 'domstats.net.all.tx.errs',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total tx errs'            ],
             [ 'domstats.net.all.tx.drop',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NICs, total tx drop'            ],
+            [ 'domstats.net.name',               None,                       PM_TYPE_STRING, PM_SEM_INSTANT,  units_none,  'VM NIC, name'                      ],
+            [ 'domstats.net.rx.bytes',           None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM NIC, rx bytes'                  ],
+            [ 'domstats.net.rx.pkts',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, rx pkts'                   ],
+            [ 'domstats.net.rx.errs',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, rx errs'                   ],
+            [ 'domstats.net.rx.drop',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, rx drop'                   ],
+            [ 'domstats.net.tx.bytes',           None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_bytes, 'VM NIC, tx bytes'                  ],
+            [ 'domstats.net.tx.pkts',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, tx pkts'                   ],
+            [ 'domstats.net.tx.errs',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, tx errs'                   ],
+            [ 'domstats.net.tx.drop',            None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM NIC, tx drop'                   ],
         ]
 
         self.vm_perfstats_res = []
@@ -226,9 +264,14 @@ class LibvirtPMDA(PMDA):
                 self.vm_cpustats[item][2], self.vm_indom, self.vm_cpustats[item][3],
                 self.vm_cpustats[item][4]), self.vm_cpustats[item][5], self.vm_cpustats[item][5])
 
-        for item in range(len(self.vm_vcpustats)):
+        # Note the different instance domains
+        for item in range(len(self.vm_vcpustats) - 3):
             self.add_metric(name + '.' + self.vm_vcpustats[item][0], pmdaMetric(self.pmid(self.vm_vcpustats_cluster, item),
                 self.vm_vcpustats[item][2], self.vm_indom, self.vm_vcpustats[item][3],
+                self.vm_vcpustats[item][4]), self.vm_vcpustats[item][5], self.vm_vcpustats[item][5])
+        for item in range(len(self.vm_vcpustats) - 3, len(self.vm_vcpustats)):
+            self.add_metric(name + '.' + self.vm_vcpustats[item][0], pmdaMetric(self.pmid(self.vm_vcpustats_cluster, item),
+                self.vm_vcpustats[item][2], self.vm_vcpu_indom, self.vm_vcpustats[item][3],
                 self.vm_vcpustats[item][4]), self.vm_vcpustats[item][5], self.vm_vcpustats[item][5])
 
         for item in range(len(self.vm_memstats)):
@@ -241,14 +284,24 @@ class LibvirtPMDA(PMDA):
                 self.vm_balloonstats[item][2], self.vm_indom, self.vm_balloonstats[item][3],
                 self.vm_balloonstats[item][4]), self.vm_balloonstats[item][5], self.vm_balloonstats[item][5])
 
-        for item in range(len(self.vm_blockstats)):
+        # Note the different instance domains
+        for item in range(len(self.vm_blockstats) - 14):
             self.add_metric(name + '.' + self.vm_blockstats[item][0], pmdaMetric(self.pmid(self.vm_blockstats_cluster, item),
                 self.vm_blockstats[item][2], self.vm_indom, self.vm_blockstats[item][3],
                 self.vm_blockstats[item][4]), self.vm_blockstats[item][5], self.vm_blockstats[item][5])
+        for item in range(len(self.vm_blockstats) - 14, len(self.vm_blockstats)):
+            self.add_metric(name + '.' + self.vm_blockstats[item][0], pmdaMetric(self.pmid(self.vm_blockstats_cluster, item),
+                self.vm_blockstats[item][2], self.vm_block_indom, self.vm_blockstats[item][3],
+                self.vm_blockstats[item][4]), self.vm_blockstats[item][5], self.vm_blockstats[item][5])
 
-        for item in range(len(self.vm_netstats)):
+        # Note the different instance domains
+        for item in range(len(self.vm_netstats) - 9):
             self.add_metric(name + '.' + self.vm_netstats[item][0], pmdaMetric(self.pmid(self.vm_netstats_cluster, item),
                 self.vm_netstats[item][2], self.vm_indom, self.vm_netstats[item][3],
+                self.vm_netstats[item][4]), self.vm_netstats[item][5], self.vm_netstats[item][5])
+        for item in range(len(self.vm_netstats) - 9, len(self.vm_netstats)):
+            self.add_metric(name + '.' + self.vm_netstats[item][0], pmdaMetric(self.pmid(self.vm_netstats_cluster, item),
+                self.vm_netstats[item][2], self.vm_net_indom, self.vm_netstats[item][3],
                 self.vm_netstats[item][4]), self.vm_netstats[item][5], self.vm_netstats[item][5])
 
         for item in range(len(self.vm_perfstats)):
@@ -350,6 +403,9 @@ class LibvirtPMDA(PMDA):
             if not self.conn:
                 self.doms = []
                 self.replace_indom(self.vm_indom, {"0":c_int(1)})
+                self.replace_indom(self.vm_vcpu_indom, {"0":c_int(1)})
+                self.replace_indom(self.vm_block_indom, {"0":c_int(1)})
+                self.replace_indom(self.vm_net_indom, {"0":c_int(1)})
                 return
 
         if cluster == self.hv_cluster:
@@ -417,6 +473,17 @@ class LibvirtPMDA(PMDA):
                                 elif i == 2:
                                     res['vcpu.' + nrstr + '.time'] = stats[nr][i]
                         self.vm_vcpustats_res.append([dom, res])
+
+                insts = {}
+                for dom in self.doms:
+                    for res in self.vm_vcpustats_res:
+                        if res[0].UUIDString() == dom.UUIDString():
+                            for i in range(res[1]['vcpu.maximum']):
+                                insts[dom.UUIDString() + "-vcpu" + str(i)] = c_int(1)
+                            break
+                self.vm_vcpu_insts.set_instances(self.vm_vcpu_indom, insts)
+                self.replace_indom(self.vm_vcpu_indom, insts)
+
             except libvirt.libvirtError as error:
                 self.log("Failed to get domain vcpu stats: %s" % error)
             return
@@ -480,6 +547,17 @@ class LibvirtPMDA(PMDA):
                                 elif i == 3:
                                     res['block.' + nrstr + '.wr.bytes'] = stats[i]
                         self.vm_blockstats_res.append([dom, res])
+
+                insts = {}
+                for dom in self.doms:
+                    for res in self.vm_blockstats_res:
+                        if res[0].UUIDString() == dom.UUIDString():
+                            for i in range(res[1]['block.count']):
+                                insts[dom.UUIDString() + "-block" + str(i)] = c_int(1)
+                            break
+                self.vm_block_insts.set_instances(self.vm_block_indom, insts)
+                self.replace_indom(self.vm_block_indom, insts)
+
             except libvirt.libvirtError as error:
                 self.log("Failed to get domain block stats: %s" % error)
             return
@@ -521,6 +599,16 @@ class LibvirtPMDA(PMDA):
                                 elif i == 7:
                                     res['net.' + nrstr + '.tx.drop'] = stats[i]
                         self.vm_netstats_res.append([dom, res])
+                insts = {}
+                for dom in self.doms:
+                    for res in self.vm_netstats_res:
+                        if res[0].UUIDString() == dom.UUIDString():
+                            for i in range(res[1]['net.count']):
+                                insts[dom.UUIDString() + "-net" + str(i)] = c_int(1)
+                            break
+                self.vm_net_insts.set_instances(self.vm_net_indom, insts)
+                self.replace_indom(self.vm_net_indom, insts)
+
             except libvirt.libvirtError as error:
                 self.log("Failed to get domain net stats: %s" % error)
             return
@@ -628,11 +716,18 @@ class LibvirtPMDA(PMDA):
                     res = self.vm_perfstats_res
                     mtx = self.vm_perfstats
 
-                # Locate the correct VM domain
+                # Locate the correct instance domain
                 pos = -1
-                uuid = self.vm_insts.inst_name_lookup(inst)
+                if cluster == 3 and item > 4:
+                   uuid = self.vm_vcpu_insts.inst_name_lookup(inst)
+                elif cluster == 6 and item > 14:
+                   uuid = self.vm_block_insts.inst_name_lookup(inst)
+                elif cluster == 7 and item > 9:
+                   uuid = self.vm_net_insts.inst_name_lookup(inst)
+                else:
+                   uuid = self.vm_insts.inst_name_lookup(inst)
                 for i, r in enumerate(res):
-                    if r[0].UUIDString() == uuid:
+                    if uuid.startswith(r[0].UUIDString()):
                         pos = i
                         break
                 if pos < 0:
@@ -653,6 +748,18 @@ class LibvirtPMDA(PMDA):
                 if key == 'vcpu.current' or key == 'vcpu.maximum' or \
                    key == 'net.count' or key == 'block.count' or \
                    '.all.' not in key:
+                    if item > 2: # Consider device metrics only
+                        # !vm_indom
+                        if 'vcpu' in key:
+                            idx = self.vm_vcpu_insts.inst_name_lookup(inst)[-1:]
+                        elif 'block' in key:
+                            idx = self.vm_block_insts.inst_name_lookup(inst)[-1:]
+                        elif 'net' in key:
+                            idx = self.vm_net_insts.inst_name_lookup(inst)[-1:]
+                        else:
+                            return [PM_ERR_INST, 0]
+                        parts = key.partition('.')
+                        key = parts[0] + '.' + idx + '.' + parts[2]
                     if key in res[pos][1]:
                         return [res[pos][1][key], 1]
                     else:
