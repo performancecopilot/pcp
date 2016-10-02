@@ -120,6 +120,7 @@ cat $tmp.all \
 | while read metric n1 vpcp n2 vsys
 do
     if [ "$metric" = "kvm.halt_successful_poll" -o \
+	 "$metric" = "kvm.halt_poll_invalid" -o \
 	 "$metric" = "kvm.halt_attempted_poll" ] # version-specific metrics
     then
 	_within_tolerance $metric $vpcp $vsys 2%
