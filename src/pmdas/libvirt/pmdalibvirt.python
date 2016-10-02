@@ -479,7 +479,7 @@ class LibvirtPMDA(PMDA):
                     for res in self.vm_vcpustats_res:
                         if res[0].UUIDString() == dom.UUIDString():
                             for i in range(res[1]['vcpu.maximum']):
-                                insts[dom.UUIDString() + "-vcpu" + str(i)] = c_int(1)
+                                insts[dom.UUIDString() + "::vcpu" + str(i)] = c_int(1)
                             break
                 self.vm_vcpu_insts.set_instances(self.vm_vcpu_indom, insts)
                 self.replace_indom(self.vm_vcpu_indom, insts)
@@ -553,7 +553,7 @@ class LibvirtPMDA(PMDA):
                     for res in self.vm_blockstats_res:
                         if res[0].UUIDString() == dom.UUIDString():
                             for i in range(res[1]['block.count']):
-                                insts[dom.UUIDString() + "-block" + str(i)] = c_int(1)
+                                insts[dom.UUIDString() + "::block" + str(i)] = c_int(1)
                             break
                 self.vm_block_insts.set_instances(self.vm_block_indom, insts)
                 self.replace_indom(self.vm_block_indom, insts)
@@ -604,7 +604,7 @@ class LibvirtPMDA(PMDA):
                     for res in self.vm_netstats_res:
                         if res[0].UUIDString() == dom.UUIDString():
                             for i in range(res[1]['net.count']):
-                                insts[dom.UUIDString() + "-net" + str(i)] = c_int(1)
+                                insts[dom.UUIDString() + "::net" + str(i)] = c_int(1)
                             break
                 self.vm_net_insts.set_instances(self.vm_net_indom, insts)
                 self.replace_indom(self.vm_net_indom, insts)
