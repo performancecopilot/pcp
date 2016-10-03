@@ -130,7 +130,7 @@ SamplingItem::updateValues(bool forward,
 	    my.data.pop_front();
 	    my.itemData.pop_front();
 	}
-	my.data.resize (sz);
+	my.data.resize(sz);
 	my.itemData.resize(sz);
 	my.data.push_back(value);
 	my.itemData.push_back(value);
@@ -344,7 +344,7 @@ SamplingItem::setPlotUtil(int index, double sum)
 	index = my.dataCount - 1;
     if (hidden() || sum == 0.0 ||
 	index >= my.dataCount || qIsNaN(my.data[index]))
-	my.itemData[index] = qQNaN();
+	my.itemData[index] = 0.0;
     else
 	my.itemData[index] = 100.0 * my.data[index] / sum;
 }
@@ -777,7 +777,7 @@ SamplingEngine::replot(void)
     double			sum;
 
 #if DESPERATE
-    console->post(PmChart::DebugForce, "SamplingEngine::replot %d items)", itemCount);
+    console->post(PmChart::DebugForce, "SamplingEngine::replot (%d items)", itemCount);
 #endif
 
     for (i = 0; i < itemCount; i++)
