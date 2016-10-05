@@ -247,6 +247,10 @@ class LibvirtPMDA(PMDA):
             [ 'domstats.perf.cmt',               None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bytes, 'VM perf stats, cmt'                ],
             [ 'domstats.perf.mbmt',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bpers, 'VM perf stats, mbmt'               ],
             [ 'domstats.perf.mbml',              None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_bpers, 'VM perf stats, mbml'               ],
+            [ 'domstats.perf.cpu_cycles',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, CPU cycles/instr'   ],
+            [ 'domstats.perf.instructions',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, instructions count' ],
+            [ 'domstats.perf.cache_references',  None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, cache references'   ],
+            [ 'domstats.perf.cache_misses',      None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM perf stats, cache misses'       ],
         ]
 
         for item in range(len(self.hv_metrics)):
