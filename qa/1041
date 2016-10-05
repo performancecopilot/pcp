@@ -73,10 +73,10 @@ EOF
     | sed \
         -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
     | $PCP_AWK_PROG '
-/Check libvirt metrics have appeared/  { if ($7 >= 67 && $7 <= 100) $7 = "X"
+/Check libvirt metrics have appeared/  { if ($7 >= 67 && $7 <= 250) $7 = "X"
                                           if ($10 >= 14 && $10 <= 50) $10 = "Y"
                                        }
-/ warnings, /                          { if ($9 >= 67 && $9 <= 100) $9 = "X"
+/ warnings, /                          { if ($9 >= 67 && $9 <= 250) $9 = "X"
                                           if ($12 >= 14 && $12 <= 50) $12 = "Y"
                                        }
                                        { print }'
