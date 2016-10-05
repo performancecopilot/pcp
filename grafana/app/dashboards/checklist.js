@@ -20,8 +20,8 @@ var window, document, ARGS, $, jQuery, moment, kbn;
 var pmwebd = location.protocol + "//" + location.hostname + ":" + location.port;
 var checklist_url = "/grafana/index.html#/dashboard/script/checklist.js";
 
-function create_metric_panel(dashboard, panel){
-    var metrics = panel.pcp_metrics;
+function create_metric_panel(dashboard, node){
+    var metrics = node.pcp_metrics;
     console.log(metrics);
 
     if (! (metrics instanceof Array))
@@ -173,6 +173,15 @@ return function(callback) {
 	    create_metric_panel(dashboard, panel);
         }
         
+	if ("children" in panel) {
+            for (var i=0; i<panel.children.length; i++) {
+		var child = nodes[node_map[panel.children[i]]];
+		if ("pcp_metrics" in child) {
+		    create_metric_panel(dashboard, child);
+		}
+	    }
+	}
+
         // when dashboard is composed call the callback function and
         // pass the dashboard
         callback(dashboard);
