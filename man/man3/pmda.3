@@ -867,9 +867,9 @@ Default: \fI$pmda_dir\fP/pmda\fI$iam\fP.python or \fI$pmda_dir\fP/pmda\fI$iam\fP
 The shell procedures in 
 .IR $PCP_SHARE_DIR /lib/pmdaproc.sh 
 manipulate a number of temporary files using the variable
-.I $__tmp
+.I $tmp
 as the prefix for the name of the temporary files.
-.I $__tmp
+.I $tmp
 is a directory that is created, used and removed
 internally within the procedures of
 .IR $PCP_SHARE_DIR /lib/pmdaproc.sh 
@@ -880,9 +880,9 @@ or
 .I Remove
 scripts.
 When used in this way, 
-.I $__tmp
-should be followed by a ``.'' and then a suffix, e.g. \c
-.IR $__tmp .myfoo .
+.I $tmp
+should be followed by a ``/'' and then a suffix, e.g. \c
+.IR $tmp /myfoo.
 The
 .I Install
 and
