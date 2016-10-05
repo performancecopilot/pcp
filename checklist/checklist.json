@@ -7,7 +7,8 @@
 	    "predicate": "test to determine if problem",
 	    "article": "list of extern URLs (for example kbase articles) for addressing the issue",
 	    "parents": ["one or more nodes that would be checked before this node"],
-	    "children": ["zero or more nodes that would be checked after this node (filled in by scripted dashboard))"]        },
+	    "children": ["zero or more nodes that would be checked after this node (filled in by scripted dashboard))"]
+        },
         {
             "name": "Start",
 	    "predicate": 1,
