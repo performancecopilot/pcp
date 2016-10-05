@@ -20,6 +20,36 @@ var window, document, ARGS, $, jQuery, moment, kbn;
 var pmwebd = location.protocol + "//" + location.hostname + ":" + location.port;
 var checklist_url = "/grafana/index.html#/dashboard/script/checklist.js";
 
+function create_metric_panel(dashboard, panel){
+    var metrics = panel.pcp_metrics;
+    console.log(metrics);
+
+    if (! (metrics instanceof Array))
+        metrics = [ metrics ];
+    for (t in metrics) {
+        var targets = metrics[t];
+        var panel = {
+            title: targets,
+            type: 'graph',
+            span: 12,
+            fill: 1,
+            linewidth: 2,
+            targets: [],
+            seriesOverrides: [ { yaxis: 2, fill: 0, linewidth: 5 } ]
+        };
+        var subtargets = targets.split(',');
+        for (j in subtargets) {
+            panel.targets.push({target: "*."+subtargets[j]});
+        }
+
+        console.log(panel);
+        dashboard.rows.push({
+            title: 'Chart',
+            height: 250, // XXX: param
+            panels: [ panel ]});
+    }
+}
+
 return function(callback) {
     $.ajax({
         method: 'GET',
@@ -140,33 +170,7 @@ return function(callback) {
 
         // create pcp metrics panel
         if ("pcp_metrics" in panel) {
-            var metrics = panel.pcp_metrics;
-            console.log(metrics);
-
-            if (! (metrics instanceof Array))
-                metrics = [ metrics ];
-            for (t in metrics) {
-                var targets = metrics[t];
-                var panel = {
-                    title: targets,
-                    type: 'graph',
-                    span: 12,
-                    fill: 1,
-                    linewidth: 2,
-                    targets: [],
-                    seriesOverrides: [ { yaxis: 2, fill: 0, linewidth: 5 } ]
-                };
-                var subtargets = targets.split(',');
-                for (j in subtargets) {
-                    panel.targets.push({target: "*."+subtargets[j]});
-                }
-
-                console.log(panel);
-                dashboard.rows.push({
-                    title: 'Chart',
-                    height: 250, // XXX: param
-                    panels: [ panel ]});
-            }
+	    create_metric_panel(dashboard, panel);
         }
         
         // when dashboard is composed call the callback function and
