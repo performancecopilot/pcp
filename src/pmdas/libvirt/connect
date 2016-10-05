@@ -76,7 +76,7 @@ sys.stdout.write("Connection as %s to %s ok.\n" % (user, uri))
 sys.stdout.write("Block dev backing stats: %s.\n" % backing)
 
 newapi = False
-if 'domainListGetStats' in (dir(conn)):
+if 'domainListGetStats' in dir(conn):
     newapi = True
 else:
     oldapi = True
