@@ -1160,6 +1160,15 @@ _restore_cron()
     fi
 }
 
+# running QA within a container can mean no crontab setup;
+# _check_cron is a convenience routine checking the external
+# dependencies of _remove_cron() and _restore_cron()
+#
+_check_cron()
+{
+    which crontab >/dev/null 2>&1 || _notrun "No crontab binary found"
+}
+
 # get offset into an archive relative to the first pmResult
 # past the preamble
 #
