@@ -4,7 +4,7 @@ ENV container docker
 STOPSIGNAL SIGRTMIN+3
 RUN yum upgrade -y && yum install -y time which bc sudo git make gcc gcc-c++ zsh rpm-build dnf-plugins-core avahi-tools avahi-glib avahi-autoip rpm-build valgrind && yum-builddep -y pcp && yum clean all
 RUN mkdir -p /pcpsrc/ && cd /pcpsrc/ && git clone git://git.pcp.io/pcp/pcp.git && cd pcp && ./Makepkgs --verbose
-RUN cd /pcpsrc/pcp/pcp-3.11.5/build/rpm/ && yum install ./*rpm -y
+RUN cd /pcpsrc/pcp/pcp-3.11.6/build/rpm/ && yum install ./*rpm -y
 #RUN the daemons
 RUN systemctl enable pmcd pmlogger avahi-daemon
 RUN echo "pcpqa   ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers
