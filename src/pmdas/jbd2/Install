@@ -20,7 +20,6 @@
 
 iam=jbd2
 pmda_interface=4
-forced_restart=false
 daemon_opt=true
 pipe_opt=true
 dso_opt=true

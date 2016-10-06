@@ -31,7 +31,6 @@ perfevent_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/perfevent
     $sudo ./Remove >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmcd stop | _filter_pcp_stop
 
     [ -f $PCP_PMDAS_DIR/perfevent/perfevent.conf ] && \
     $sudo cp $PCP_PMDAS_DIR/perfevent/perfevent.conf $tmp.backup
@@ -40,13 +39,14 @@ perfevent_install()
     echo
     echo "=== $iam agent installation ==="
     $sudo ./Install </dev/null >$tmp.out 2>&1
+
     # Check for warnings, we're going to considering these warnings
-    # indications that there is not perfevents on the current machine
-    grep "warnings" $tmp.out; if [ $? -eq 0 ]; then _notrun "perfevents not found"; fi
+    # indications that there are no perfevents on the current machine
+    grep "warnings" $tmp.out
+    [ $? -eq 0 ] && _notrun "perfevents not found"
+
     # Check perfevent metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
-    | sed \
-	-e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
     | $PCP_AWK_PROG '
 /Check perfevent metrics have appeared/ { 
                                           if ($7 >= 8) $7 = "X"

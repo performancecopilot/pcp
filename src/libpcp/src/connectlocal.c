@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -342,13 +342,13 @@ __pmConnectLocal(__pmHashCtl *attrs)
 	 * other than relative to $PCP_PMDAS_DIR ... need to try both
 	 * options and also with and without DSO_SUFFIX (so, dll, etc)
 	 */
-	snprintf(pathbuf, sizeof(pathbuf), "%s%c%s",
-		 pmdas, __pmPathSeparator(), dp->name);
-	if ((path = __pmFindPMDA(pathbuf)) == NULL) {
-	    snprintf(pathbuf, sizeof(pathbuf), "%s%c%s.%s",
-		 pmdas, __pmPathSeparator(), dp->name, DSO_SUFFIX);
+	if ((path = __pmFindPMDA(dp->name)) == NULL) {
+	    snprintf(pathbuf, sizeof(pathbuf), "%s%c%s",
+			pmdas, __pmPathSeparator(), dp->name);
 	    if ((path = __pmFindPMDA(pathbuf)) == NULL) {
-		if ((path = __pmFindPMDA(dp->name)) == NULL) {
+		snprintf(pathbuf, sizeof(pathbuf), "%s%c%s.%s",
+			    pmdas, __pmPathSeparator(), dp->name, DSO_SUFFIX);
+		if ((path = __pmFindPMDA(pathbuf)) == NULL) {
 		    snprintf(pathbuf, sizeof(pathbuf), "%s.%s", dp->name, DSO_SUFFIX);
 		    if ((path = __pmFindPMDA(pathbuf)) == NULL) {
 			pmprintf("__pmConnectLocal: Warning: cannot find DSO at \"%s\" or \"%s\"\n", 

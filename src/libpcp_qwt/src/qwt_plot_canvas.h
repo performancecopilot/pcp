@@ -12,9 +12,7 @@
 
 #include "qwt_global.h"
 #include <qframe.h>
-#include <qpen.h>
 #include <qpainterpath.h>
-#include <qbitmap.h>
 
 class QwtPlot;
 class QPixmap;
@@ -24,11 +22,13 @@ class QPixmap;
   
    Canvas is the widget where all plot items are displayed
 
-  \sa QwtPlot
+  \sa QwtPlot::setCanvas(), QwtPlotGLCanvas
 */
 class QWT_EXPORT QwtPlotCanvas : public QFrame
 {
     Q_OBJECT
+
+    Q_PROPERTY( double borderRadius READ borderRadius WRITE setBorderRadius )
 
 public:
 
@@ -46,7 +46,7 @@ public:
                  of the pixmap buffer when possible. 
 
           Using a backing store might improve the performance
-          significantly, when workin with widget overlays ( like rubberbands ).
+          significantly, when working with widget overlays ( like rubber bands ).
           Disabling the cache might improve the performance for
           incremental paints (using QwtPlotDirectPainter ).
 
@@ -80,10 +80,10 @@ public:
           handle backgrounds with rounded corners - beside of padding.
 
           When HackStyledBackground is enabled the plot canvas tries
-          to seperate the background from the background border
-          by reverse engeneering to paint the background before and
+          to separate the background from the background border
+          by reverse engineering to paint the background before and
           the border after the plot items. In this order the border
-          gets prefectly antialiased and you can avoid some pixel
+          gets perfectly antialiased and you can avoid some pixel
           artifacts in the corners.
          */
         HackStyledBackground = 4,
@@ -103,7 +103,7 @@ public:
     /*!
       \brief Focus indicator
       The default setting is NoFocusIndicator
-      \sa setFocusIndicator(), focusIndicator(), paintFocus()
+      \sa setFocusIndicator(), focusIndicator(), drawFocusIndicator()
     */
 
     enum FocusIndicator
@@ -113,7 +113,7 @@ public:
 
         /*!
           The focus is related to the complete canvas.
-          Paint the focus indicator using paintFocus()
+          Paint the focus indicator using drawFocusIndicator()
          */
         CanvasFocusIndicator,
 
@@ -125,7 +125,7 @@ public:
         ItemFocusIndicator
     };
 
-    explicit QwtPlotCanvas( QwtPlot * );
+    explicit QwtPlotCanvas( QwtPlot * = NULL );
     virtual ~QwtPlotCanvas();
 
     QwtPlot *plot();
@@ -137,18 +137,18 @@ public:
     void setBorderRadius( double );
     double borderRadius() const;
 
-    QPainterPath borderPath( const QRect &rect ) const;
-    QBitmap borderMask( const QSize & ) const;
-
     void setPaintAttribute( PaintAttribute, bool on = true );
     bool testPaintAttribute( PaintAttribute ) const;
 
     const QPixmap *backingStore() const;
     void invalidateBackingStore();
 
-    void replot();
-
     virtual bool event( QEvent * );
+
+    Q_INVOKABLE QPainterPath borderPath( const QRect & ) const;
+
+public Q_SLOTS:
+    void replot();
 
 protected:
     virtual void paintEvent( QPaintEvent * );

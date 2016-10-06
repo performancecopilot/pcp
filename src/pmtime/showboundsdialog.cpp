@@ -71,7 +71,7 @@ void ShowBounds::reset()
 void ShowBounds::displayStartSlider()
 {
     sliderStart->blockSignals(true);
-    sliderStart->setRange(my.localAbsoluteStart, my.localAbsoluteEnd);
+    sliderStart->setScale(my.localAbsoluteStart, my.localAbsoluteEnd);
     sliderStart->setValue(my.localCurrentStart);
     sliderStart->blockSignals(false);
 }
@@ -79,7 +79,7 @@ void ShowBounds::displayStartSlider()
 void ShowBounds::displayEndSlider()
 {
     sliderEnd->blockSignals(true);
-    sliderEnd->setRange(my.localAbsoluteStart, my.localAbsoluteEnd);
+    sliderEnd->setScale(my.localAbsoluteStart, my.localAbsoluteEnd);
     sliderEnd->setValue(my.localCurrentEnd);
     sliderEnd->blockSignals(false);
 }

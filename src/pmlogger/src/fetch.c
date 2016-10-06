@@ -177,11 +177,17 @@ myFetch(int numpmid, pmID pmidlist[], __pmPDU **pdup)
 		    fprintf(stderr, "myFetch: End of File: PMCD exited?\n");
 		    disconnect(PM_ERR_IPC);
 		}
+		else if (n == -EINTR) {
+		    /* SIGINT, let the normal cleanup happen */
+		    ;
+		}
 		else if (n < 0) {
+		    /* other badness, disconnect */
 		    fprintf(stderr, "myFetch: __pmGetPDU: Error: %s\n", pmErrStr(n));
 		    disconnect(PM_ERR_IPC);
 		}
 		else {
+		    /* protocol botch, disconnect */
 		    fprintf(stderr, "myFetch: Unexpected %s PDU from PMCD\n", __pmPDUTypeStr(n));
 		    disconnect(PM_ERR_IPC);
 		    __pmUnpinPDUBuf(pb);

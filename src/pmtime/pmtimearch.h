@@ -38,8 +38,8 @@ public:
     virtual void displayDeltaText();
     virtual void displayPositionText();
     virtual void displayPositionSlide();
+    virtual void setPositionSlideScale();
     virtual void setPositionSlideRange();
-    virtual void setPositionSlideDelta();
     virtual void addTimezone(const char *string);
     virtual void setTime(PmTime::Packet *k, char *tzdata);
     virtual void addBound(PmTime::Packet *k, char *tzdata);

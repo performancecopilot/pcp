@@ -9,10 +9,71 @@
 
 #include "qwt_plot_zoomer.h"
 #include "qwt_plot.h"
-#include "qwt_plot_canvas.h"
 #include "qwt_scale_div.h"
 #include "qwt_picker_machine.h"
 #include <qalgorithms.h>
+
+static QwtInterval qwtExpandedZoomInterval( double v1, double v2, 
+    double minRange, const QwtTransform* transform )
+{
+    double min = v1;
+    double max = v2;
+
+    if ( max - min < minRange )
+    {
+        min = 0.5 * ( min + max - minRange );
+        max = min + minRange;
+
+        if ( transform )
+        {
+            // f.e the logarithmic scale doesn't allow values
+            // outside [QwtLogTransform::LogMin/QwtLogTransform::LogMax]
+
+            double minBounded = transform->bounded( min );
+            double maxBounded = transform->bounded( max );
+
+            if ( minBounded != min )
+            {
+                maxBounded = transform->bounded( minBounded + minRange );
+            }
+            else if ( maxBounded != max )
+            {
+                minBounded = transform->bounded( maxBounded - minRange );
+            }
+
+            min = minBounded;
+            max = maxBounded;
+        }
+    }
+
+    return QwtInterval( min, max );
+}
+
+static QRectF qwtExpandedZoomRect( const QRectF &zoomRect, const QSizeF &minSize,
+    const QwtTransform* transformX, const QwtTransform* transformY )
+{
+    QRectF r = zoomRect;
+
+    if ( minSize.width() > r.width() )
+    {
+        const QwtInterval intv = qwtExpandedZoomInterval(
+            r.left(), r.right(), minSize.width(), transformX );
+
+        r.setLeft( intv.minValue() );
+        r.setRight( intv.maxValue() );
+    }
+
+    if ( minSize.height() > r.height() )
+    {
+        const QwtInterval intv = qwtExpandedZoomInterval(
+            zoomRect.top(), zoomRect.bottom(), minSize.height(), transformY );
+
+        r.setTop( intv.minValue() );
+        r.setBottom( intv.maxValue() );
+    }
+
+    return r;
+}
 
 class QwtPlotZoomer::PrivateData
 {
@@ -32,17 +93,17 @@ public:
   enabled, it is set to QwtPlot::yLeft.
 
   The zoomer is initialized with a QwtPickerDragRectMachine,
-  the tracker mode is set to QwtPicker::ActiveOnly and the rubberband
+  the tracker mode is set to QwtPicker::ActiveOnly and the rubber band
   is set to QwtPicker::RectRubberBand
 
   \param canvas Plot canvas to observe, also the parent object
-  \param doReplot Call replot for the attached plot before initializing
+  \param doReplot Call QwtPlot::replot() for the attached plot before initializing
                   the zoomer with its scales. This might be necessary,
                   when the plot is in a state with pending scale changes.
 
   \sa QwtPlot::autoReplot(), QwtPlot::replot(), setZoomBase()
 */
-QwtPlotZoomer::QwtPlotZoomer( QwtPlotCanvas *canvas, bool doReplot ):
+QwtPlotZoomer::QwtPlotZoomer( QWidget *canvas, bool doReplot ):
     QwtPlotPicker( canvas )
 {
     if ( canvas )
@@ -53,13 +114,13 @@ QwtPlotZoomer::QwtPlotZoomer( QwtPlotCanvas *canvas, bool doReplot ):
   \brief Create a zoomer for a plot canvas.
 
   The zoomer is initialized with a QwtPickerDragRectMachine,
-  the tracker mode is set to QwtPicker::ActiveOnly and the rubberband
+  the tracker mode is set to QwtPicker::ActiveOnly and the rubber band
   is set to QwtPicker;;RectRubberBand
 
   \param xAxis X axis of the zoomer
   \param yAxis Y axis of the zoomer
   \param canvas Plot canvas to observe, also the parent object
-  \param doReplot Call replot for the attached plot before initializing
+  \param doReplot Call QwtPlot::replot() for the attached plot before initializing
                   the zoomer with its scales. This might be necessary,
                   when the plot is in a state with pending scale changes.
 
@@ -67,7 +128,7 @@ QwtPlotZoomer::QwtPlotZoomer( QwtPlotCanvas *canvas, bool doReplot ):
 */
 
 QwtPlotZoomer::QwtPlotZoomer( int xAxis, int yAxis,
-        QwtPlotCanvas *canvas, bool doReplot ):
+        QWidget *canvas, bool doReplot ):
     QwtPlotPicker( xAxis, yAxis, canvas )
 {
     if ( canvas )
@@ -140,8 +201,8 @@ int QwtPlotZoomer::maxStackDepth() const
 }
 
 /*!
-  Return the zoom stack. zoomStack()[0] is the zoom base,
-  zoomStack()[1] the first zoomed rectangle.
+  \return The zoom stack. zoomStack()[0] is the zoom base,
+          zoomStack()[1] the first zoomed rectangle.
 
   \sa setZoomStack(), zoomRectIndex()
 */
@@ -162,7 +223,7 @@ QRectF QwtPlotZoomer::zoomBase() const
 /*!
   Reinitialized the zoom stack with scaleRect() as base.
 
-  \param doReplot Call replot for the attached plot before initializing
+  \param doReplot Call QwtPlot::replot() for the attached plot before initializing
                   the zoomer with its scales. This might be necessary,
                   when the plot is in a state with pending scale changes.
 
@@ -188,7 +249,7 @@ void QwtPlotZoomer::setZoomBase( bool doReplot )
   \brief Set the initial size of the zoomer.
 
   base is united with the current scaleRect() and the zoom stack is
-  reinitalized with it as zoom base. plot is zoomed to scaleRect().
+  reinitialized with it as zoom base. plot is zoomed to scaleRect().
 
   \param base Zoom base
 
@@ -217,8 +278,7 @@ void QwtPlotZoomer::setZoomBase( const QRectF &base )
 }
 
 /*!
-  Rectangle at the current position on the zoom stack.
-
+  \return Rectangle at the current position on the zoom stack.
   \sa zoomRectIndex(), scaleRect().
 */
 QRectF QwtPlotZoomer::zoomRect() const
@@ -238,7 +298,7 @@ uint QwtPlotZoomer::zoomRectIndex() const
   \brief Zoom in
 
   Clears all rectangles above the current position of the
-  zoom stack and pushs the normalized rect on it.
+  zoom stack and pushes the normalized rectangle on it.
 
   \note If the maximal stack depth is reached, zoom is ignored.
   \note The zoomed signal is emitted.
@@ -274,7 +334,7 @@ void QwtPlotZoomer::zoom( const QRectF &rect )
   \brief Zoom in or out
 
   Activate a rectangle on the zoom stack with an offset relative
-  to the current position. Negative values of offest will zoom out,
+  to the current position. Negative values of offset will zoom out,
   positive zoom in. A value of 0 zooms out to the zoom base.
 
   \param offset Offset relative to the current position of the zoom stack.
@@ -343,7 +403,7 @@ void QwtPlotZoomer::setZoomStack(
 /*!
   Adjust the observed plot to zoomRect()
 
-  \note Initiates QwtPlot::replot
+  \note Initiates QwtPlot::replot()
 */
 
 void QwtPlotZoomer::rescale()
@@ -360,21 +420,16 @@ void QwtPlotZoomer::rescale()
 
         double x1 = rect.left();
         double x2 = rect.right();
-        if ( plt->axisScaleDiv( xAxis() )->lowerBound() >
-            plt->axisScaleDiv( xAxis() )->upperBound() )
-        {
+        if ( !plt->axisScaleDiv( xAxis() ).isIncreasing() )
             qSwap( x1, x2 );
-        }
 
         plt->setAxisScale( xAxis(), x1, x2 );
 
         double y1 = rect.top();
         double y2 = rect.bottom();
-        if ( plt->axisScaleDiv( yAxis() )->lowerBound() >
-            plt->axisScaleDiv( yAxis() )->upperBound() )
-        {
+        if ( !plt->axisScaleDiv( yAxis() ).isIncreasing() )
             qSwap( y1, y2 );
-        }
+
         plt->setAxisScale( yAxis(), y1, y2 );
 
         plt->setAutoReplot( doReplot );
@@ -494,12 +549,12 @@ void QwtPlotZoomer::moveTo( const QPointF &pos )
 /*!
   \brief Check and correct a selected rectangle
 
-  Reject rectangles with a hight or width < 2, otherwise
+  Reject rectangles with a height or width < 2, otherwise
   expand the selected rectangle to a minimum size of 11x11
   and accept it.
 
-  \return true If rect is accepted, or has been changed
-          to a accepted rectangle.
+  \return true If the rectangle is accepted, or has been changed
+          to an accepted one.
 */
 
 bool QwtPlotZoomer::accept( QPolygon &pa ) const
@@ -572,7 +627,11 @@ void QwtPlotZoomer::begin()
   Expand the selected rectangle to minZoomSize() and zoom in
   if accepted.
 
+  \param ok If true, complete the selection and emit selected signals
+            otherwise discard the selection.
+
   \sa accept(), minZoomSize()
+  \return True if the selection has been accepted, false otherwise
 */
 bool QwtPlotZoomer::end( bool ok )
 {
@@ -591,15 +650,13 @@ bool QwtPlotZoomer::end( bool ok )
     QRect rect = QRect( pa[0], pa[int( pa.count() - 1 )] );
     rect = rect.normalized();
 
-    QRectF zoomRect = invTransform( rect ).normalized();
+    const QwtScaleMap xMap = plot->canvasMap( xAxis() );
+    const QwtScaleMap yMap = plot->canvasMap( yAxis() );
 
-    const QSizeF minSize = minZoomSize();
-    if ( minSize.isValid() )
-    {
-        const QPointF center = zoomRect.center();
-        zoomRect.setSize( zoomRect.size().expandedTo( minZoomSize() ) );
-        zoomRect.moveCenter( center );
-    }
+    QRectF zoomRect = QwtScaleMap::invTransform( xMap, yMap, rect ).normalized();
+
+    zoomRect = qwtExpandedZoomRect( zoomRect, minZoomSize(),
+        xMap.transformation(), yMap.transformation() );
 
     zoom( zoomRect );
 

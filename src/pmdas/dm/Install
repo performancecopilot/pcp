@@ -20,8 +20,8 @@
 
 iam=dm
 pmns_name="dmcache dmthin"
-forced_restart=true
 pmda_interface=4
+forced_restart=true	# for env vars
 
 which dmsetup >/dev/null 2>&1
 if [ $? -ne 0 ]

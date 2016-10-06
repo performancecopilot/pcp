@@ -9,15 +9,13 @@
 
 #include "qwt_plot_histogram.h"
 #include "qwt_plot.h"
-#include "qwt_legend.h"
-#include "qwt_legend_item.h"
 #include "qwt_painter.h"
 #include "qwt_column_symbol.h"
 #include "qwt_scale_map.h"
 #include <qstring.h>
 #include <qpainter.h>
 
-static inline bool isCombinable( const QwtInterval &d1,
+static inline bool qwtIsCombinable( const QwtInterval &d1,
     const QwtInterval &d2 )
 {
     if ( d1.isValid() && d2.isValid() )
@@ -62,9 +60,8 @@ public:
   Constructor
   \param title Title of the histogram.
 */
-
 QwtPlotHistogram::QwtPlotHistogram( const QwtText &title ):
-    QwtPlotSeriesItem<QwtIntervalSample>( title )
+    QwtPlotSeriesItem( title )
 {
     init();
 }
@@ -74,7 +71,7 @@ QwtPlotHistogram::QwtPlotHistogram( const QwtText &title ):
   \param title Title of the histogram.
 */
 QwtPlotHistogram::QwtPlotHistogram( const QString &title ):
-    QwtPlotSeriesItem<QwtIntervalSample>( title )
+    QwtPlotSeriesItem( title )
 {
     init();
 }
@@ -89,7 +86,7 @@ QwtPlotHistogram::~QwtPlotHistogram()
 void QwtPlotHistogram::init()
 {
     d_data = new PrivateData();
-    d_series = new QwtIntervalSeriesData();
+    setData( new QwtIntervalSeriesData() );
 
     setItemAttribute( QwtPlotItem::AutoScale, true );
     setItemAttribute( QwtPlotItem::Legend, true );
@@ -108,18 +105,38 @@ void QwtPlotHistogram::setStyle( HistogramStyle style )
     if ( style != d_data->style )
     {
         d_data->style = style;
+
+        legendChanged();
         itemChanged();
     }
 }
 
 /*!
-    Return the current style
+    \return Style of the histogram
     \sa HistogramStyle, setStyle()
 */
 QwtPlotHistogram::HistogramStyle QwtPlotHistogram::style() const
 {
     return d_data->style;
 }
+
+/*!
+  Build and assign a pen
+    
+  In Qt5 the default pen width is 1.0 ( 0.0 in Qt4 ) what makes it
+  non cosmetic ( see QPen::isCosmetic() ). This method has been introduced
+  to hide this incompatibility.
+    
+  \param color Pen color
+  \param width Pen width
+  \param style Pen style
+    
+  \sa pen(), brush()
+ */
+void QwtPlotHistogram::setPen( const QColor &color, qreal width, Qt::PenStyle style )
+{   
+    setPen( QPen( color, width, style ) );
+}   
 
 /*!
   Assign a pen, that is used in a style() depending way.
@@ -132,6 +149,8 @@ void QwtPlotHistogram::setPen( const QPen &pen )
     if ( pen != d_data->pen )
     {
         d_data->pen = pen;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -156,6 +175,8 @@ void QwtPlotHistogram::setBrush( const QBrush &brush )
     if ( brush != d_data->brush )
     {
         d_data->brush = brush;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -180,7 +201,7 @@ const QBrush &QwtPlotHistogram::brush() const
   \sa style(), symbol(), drawColumn(), pen(), brush()
 
   \note In applications, where different intervals need to be displayed
-        in a different way ( f.e different colors or even using differnt symbols)
+        in a different way ( f.e different colors or even using different symbols)
         it is recommended to overload drawColumn().
 */
 void QwtPlotHistogram::setSymbol( const QwtColumnSymbol *symbol )
@@ -189,6 +210,8 @@ void QwtPlotHistogram::setSymbol( const QwtColumnSymbol *symbol )
     {
         delete d_data->symbol;
         d_data->symbol = symbol;
+
+        legendChanged();
         itemChanged();
     }
 }
@@ -237,7 +260,7 @@ double QwtPlotHistogram::baseline() const
 */
 QRectF QwtPlotHistogram::boundingRect() const
 {
-    QRectF rect = d_series->boundingRect();
+    QRectF rect = data()->boundingRect();
     if ( !rect.isValid() )
         return rect;
 
@@ -275,9 +298,23 @@ int QwtPlotHistogram::rtti() const
 void QwtPlotHistogram::setSamples(
     const QVector<QwtIntervalSample> &samples )
 {
-    delete d_series;
-    d_series = new QwtIntervalSeriesData( samples );
-    itemChanged();
+    setData( new QwtIntervalSeriesData( samples ) );
+}
+
+/*!
+  Assign a series of samples
+    
+  setSamples() is just a wrapper for setData() without any additional
+  value - beside that it is easier to find for the developer.
+    
+  \param data Data
+  \warning The item takes ownership of the data object, deleting
+           it when its not used anymore.
+*/
+void QwtPlotHistogram::setSamples( 
+    QwtSeriesData<QwtIntervalSample> *data )
+{
+    setData( data );
 }
 
 /*!
@@ -286,7 +323,7 @@ void QwtPlotHistogram::setSamples(
   \param painter Painter
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
-  \param canvasRect Contents rect of the canvas
+  \param canvasRect Contents rectangle of the canvas
   \param from Index of the first sample to be painted
   \param to Index of the last sample to be painted. If to < 0 the
          series will be painted to its last sample.
@@ -349,7 +386,7 @@ void QwtPlotHistogram::drawOutline( QPainter *painter,
     QPolygonF polygon;
     for ( int i = from; i <= to; i++ )
     {
-        const QwtIntervalSample sample = d_series->sample( i );
+        const QwtIntervalSample sample = this->sample( i );
 
         if ( !sample.interval.isValid() )
         {
@@ -360,7 +397,7 @@ void QwtPlotHistogram::drawOutline( QPainter *painter,
 
         if ( previous.interval.isValid() )
         {
-            if ( !isCombinable( previous.interval, sample.interval ) )
+            if ( !qwtIsCombinable( previous.interval, sample.interval ) )
                 flushPolygon( painter, v0, polygon );
         }
 
@@ -425,9 +462,11 @@ void QwtPlotHistogram::drawColumns( QPainter *painter,
     painter->setPen( d_data->pen );
     painter->setBrush( d_data->brush );
 
+    const QwtSeriesData<QwtIntervalSample> *series = data();
+
     for ( int i = from; i <= to; i++ )
     {
-        const QwtIntervalSample sample = d_series->sample( i );
+        const QwtIntervalSample sample = series->sample( i );
         if ( !sample.interval.isNull() )
         {
             const QwtColumnRect rect = columnRect( sample, xMap, yMap );
@@ -457,9 +496,11 @@ void QwtPlotHistogram::drawLines( QPainter *painter,
     painter->setPen( d_data->pen );
     painter->setBrush( Qt::NoBrush );
 
+    const QwtSeriesData<QwtIntervalSample> *series = data();
+
     for ( int i = from; i <= to; i++ )
     {
-        const QwtIntervalSample sample = d_series->sample( i );
+        const QwtIntervalSample sample = series->sample( i );
         if ( !sample.interval.isNull() )
         {
             const QwtColumnRect rect = columnRect( sample, xMap, yMap );
@@ -531,11 +572,11 @@ void QwtPlotHistogram::flushPolygon( QPainter *painter,
             polygon += QPointF( baseLine, polygon.last().y() );
             polygon += QPointF( baseLine, polygon.first().y() );
         }
+
         QwtPainter::drawPolygon( painter, polygon );
-	int resize = polygon.size();
-	if ( resize > 1 )
-	    resize -= 2;
-        polygon.resize( resize );
+
+        polygon.pop_back();
+        polygon.pop_back();
     }
     if ( d_data->pen.style() != Qt::NoPen )
     {
@@ -603,7 +644,7 @@ QwtColumnRect QwtPlotHistogram::columnRect( const QwtIntervalSample &sample,
   \param sample Sample to be displayed
 
   \note In applications, where different intervals need to be displayed
-        in a different way ( f.e different colors or even using differnt symbols)
+        in a different way ( f.e different colors or even using different symbols)
         it is recommended to overload drawColumn().
 */
 void QwtPlotHistogram::drawColumn( QPainter *painter,
@@ -632,20 +673,18 @@ void QwtPlotHistogram::drawColumn( QPainter *painter,
 }
 
 /*!
-  Draw a plain rectangle without pen using the brush() as identifier
+  A plain rectangle without pen using the brush()
 
-  \param painter Painter
-  \param rect Bounding rectangle for the identifier
+  \param index Index of the legend entry 
+                ( ignored as there is only one )
+  \param size Icon size
+  \return A graphic displaying the icon
+    
+  \sa QwtPlotItem::setLegendIconSize(), QwtPlotItem::legendData()
 */
-void QwtPlotHistogram::drawLegendIdentifier(
-    QPainter *painter, const QRectF &rect ) const
+QwtGraphic QwtPlotHistogram::legendIcon( int index,
+    const QSizeF &size ) const
 {
-    const double dim = qMin( rect.width(), rect.height() );
-
-    QSizeF size( dim, dim );
-
-    QRectF r( 0, 0, size.width(), size.height() );
-    r.moveCenter( rect.center() );
-
-    painter->fillRect( r, d_data->brush );
+    Q_UNUSED( index );
+    return defaultIcon( d_data->brush, size );
 }

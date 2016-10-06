@@ -102,7 +102,7 @@ inline QwtPoint3D::QwtPoint3D( const QPointF &other ):
 }
 
 /*!
-    Returns true if the point is null; otherwise returns false.
+    \return True if the point is null; otherwise returns false.
 
     A point is considered to be null if x, y and z-coordinates
     are equal to zero.
@@ -112,37 +112,37 @@ inline bool QwtPoint3D::isNull() const
     return d_x == 0.0 && d_y == 0.0 && d_z == 0.0;
 }
 
-//! Returns the x-coordinate of the point.
+//! \return The x-coordinate of the point.
 inline double QwtPoint3D::x() const
 {
     return d_x;
 }
 
-//! Returns the y-coordinate of the point.
+//! \return The y-coordinate of the point.
 inline double QwtPoint3D::y() const
 {
     return d_y;
 }
 
-//! Returns the z-coordinate of the point.
+//! \return The z-coordinate of the point.
 inline double QwtPoint3D::z() const
 {
     return d_z;
 }
 
-//! Returns a reference to the x-coordinate of the point.
+//! \return A reference to the x-coordinate of the point.
 inline double &QwtPoint3D::rx()
 {
     return d_x;
 }
 
-//! Returns a reference to the y-coordinate of the point.
+//! \return A reference to the y-coordinate of the point.
 inline double &QwtPoint3D::ry()
 {
     return d_y;
 }
 
-//! Returns a reference to the z-coordinate of the point.
+//! \return A reference to the z-coordinate of the point.
 inline double &QwtPoint3D::rz()
 {
     return d_z;
@@ -167,20 +167,20 @@ inline void QwtPoint3D::setZ( double z )
 }
 
 /*!
-   Rounds 2D point, where the z coordinate is dropped.
+   \return 2D point, where the z coordinate is dropped.
 */
 inline QPointF QwtPoint3D::toPoint() const
 {
     return QPointF( d_x, d_y );
 }
 
-//! Returns true if this point and other are equal; otherwise returns false.
+//! \return True, if this point and other are equal; otherwise returns false.
 inline bool QwtPoint3D::operator==( const QwtPoint3D &other ) const
 {
     return ( d_x == other.d_x ) && ( d_y == other.d_y ) && ( d_z == other.d_z );
 }
 
-//! Returns true if this rect and other are different; otherwise returns false.
+//! \return True if this rect and other are different; otherwise returns false.
 inline bool QwtPoint3D::operator!=( const QwtPoint3D &other ) const
 {
     return !operator==( other );

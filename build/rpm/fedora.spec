@@ -1224,7 +1224,9 @@ BuildRequires: libvirt-python3
 %else
 Requires: python-pcp
 Requires: libvirt-python python-lxml
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
 BuildRequires: libvirt-python
+%endif
 %endif
 %description pmda-libvirt
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -2335,6 +2337,7 @@ cd
 %config(noreplace) %{_confdir}/pmlogger/control.d/local
 %dir %attr(0775,pcp,pcp) %{_confdir}/nssdb
 
+%ghost %{_localstatedir}/run/pcp
 %{_localstatedir}/lib/pcp/config/pmafm
 %dir %attr(0775,pcp,pcp) %{_localstatedir}/lib/pcp/config/pmie
 %{_localstatedir}/lib/pcp/config/pmie
@@ -2398,10 +2401,12 @@ cd
 %files testsuite
 %defattr(-,pcpqa,pcpqa)
 %{_testsdir}
+%if !%{disable_systemd}
 %config(noreplace) %{_sysconfdir}/systemd/system/pmwebd.service.d/pmwebd.conf
 %config(noreplace) %{_sysconfdir}/systemd/system/pmmgr.service.d/pmmgr.conf
 %config(noreplace) %{_sysconfdir}/systemd/system/pmcd.service.d/pmcd.conf
 %config(noreplace) %{_sysconfdir}/systemd/system/pmproxy.service.d/pmproxy.conf
+%endif
 
 %if !%{disable_microhttpd}
 %files webapi

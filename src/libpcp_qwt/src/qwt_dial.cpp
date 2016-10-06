@@ -12,9 +12,9 @@
 #include "qwt_math.h"
 #include "qwt_scale_engine.h"
 #include "qwt_scale_map.h"
+#include "qwt_round_scale_draw.h"
 #include "qwt_painter.h"
 #include <qpainter.h>
-#include <qbitmap.h>
 #include <qpalette.h>
 #include <qpixmap.h>
 #include <qevent.h>
@@ -24,9 +24,55 @@
 #include <qstyleoption.h>
 #include <qapplication.h>
 
-#if QT_VERSION < 0x040601
-#define qAtan(x) ::atan(x)
-#endif
+static inline double qwtAngleDist( double a1, double a2 )
+{
+    double dist = qAbs( a2 - a1 );
+    if ( dist > 360.0 )
+        dist -= 360.0;
+
+    return dist;
+}
+
+static inline bool qwtIsOnArc( double angle, double min, double max )
+{
+    if ( min < max )
+    {
+        return ( angle >= min ) && ( angle <= max );
+    }
+    else
+    {
+        return ( angle >= min ) || ( angle <= max );
+    }
+}
+
+static inline double qwtBoundedAngle( double min, double angle, double max )
+{
+    double from = qwtNormalizeDegrees( min );
+    double to = qwtNormalizeDegrees( max );
+
+    double a;
+
+    if ( qwtIsOnArc( angle, from, to ) )
+    {
+        a = angle;
+        if ( a < min )
+            a += 360.0;
+    }
+    else
+    {
+        if ( qwtAngleDist( angle, from ) <
+            qwtAngleDist( angle, to ) )
+        {
+            a = min;
+        }
+        else
+        {
+            a = max;
+        }
+    }
+
+    return a;
+}
 
 class QwtDial::PrivateData
 {
@@ -35,108 +81,50 @@ public:
         frameShadow( Sunken ),
         lineWidth( 0 ),
         mode( RotateNeedle ),
-        direction( Clockwise ),
         origin( 90.0 ),
         minScaleArc( 0.0 ),
         maxScaleArc( 0.0 ),
-        scaleDraw( 0 ),
-        maxMajIntv( 36 ),
-        maxMinIntv( 10 ),
-        scaleStep( 0.0 ),
-        needle( 0 )
+        needle( NULL ),
+        arcOffset( 0.0 ),
+        mouseOffset( 0.0 )
     {
     }
 
     ~PrivateData()
     {
-        delete scaleDraw;
         delete needle;
     }
     Shadow frameShadow;
     int lineWidth;
 
     QwtDial::Mode mode;
-    QwtDial::Direction direction;
 
     double origin;
     double minScaleArc;
     double maxScaleArc;
 
-    QwtDialScaleDraw *scaleDraw;
-    int maxMajIntv;
-    int maxMinIntv;
-    double scaleStep;
-
     QwtDialNeedle *needle;
 
-    static double previousDir;
+    double arcOffset;
+    double mouseOffset;
+
+    QPixmap pixmapCache;
 };
-
-double QwtDial::PrivateData::previousDir = -1.0;
-
-/*!
-  Constructor
-
-  \param parent Parent dial widget
-*/
-QwtDialScaleDraw::QwtDialScaleDraw( QwtDial *parent ):
-    d_parent( parent ),
-    d_penWidth( 1.0 )
-{
-}
-
-/*!
-  Set the pen width used for painting the scale
-
-  \param penWidth Pen width
-  \sa penWidth(), QwtDial::drawScale()
-*/
-
-void QwtDialScaleDraw::setPenWidth( double penWidth )
-{
-    d_penWidth = qMax( penWidth, 0.0 );
-}
-
-/*!
-  \return Pen width used for painting the scale
-  \sa setPenWidth, QwtDial::drawScale()
-*/
-double QwtDialScaleDraw::penWidth() const
-{
-    return d_penWidth;
-}
-
-/*!
-  Call QwtDial::scaleLabel of the parent dial widget.
-
-  \param value Value to display
-
-  \sa QwtDial::scaleLabel()
-*/
-QwtText QwtDialScaleDraw::label( double value ) const
-{
-    if ( d_parent == NULL )
-        return QwtRoundScaleDraw::label( value );
-
-    return d_parent->scaleLabel( value );
-}
 
 /*!
   \brief Constructor
   \param parent Parent widget
 
-  Create a dial widget with no scale and no needle.
-  The default origin is 90.0 with no valid value. It accepts
-  mouse and keyboard inputs and has no step size. The default mode
-  is QwtDial::RotateNeedle.
+  Create a dial widget with no needle. The scale is initialized
+  to [ 0.0, 360.0 ] and 360 steps ( QwtAbstractSlider::setTotalSteps() ).
+  The origin of the scale is at 90°,
+
+  The value is set to 0.0.
+
+  The default mode is QwtDial::RotateNeedle.
 */
 QwtDial::QwtDial( QWidget* parent ):
-    QwtAbstractSlider( Qt::Horizontal, parent )
-{
-    initDial();
-}
-
-void QwtDial::initDial()
+    QwtAbstractSlider( parent )
 {
     d_data = new PrivateData;
 
@@ -145,7 +133,8 @@ void QwtDial::initDial()
     QPalette p = palette();
     for ( int i = 0; i < QPalette::NColorGroups; i++ )
     {
-        const QPalette::ColorGroup colorGroup = ( QPalette::ColorGroup )i;
+        const QPalette::ColorGroup colorGroup =
+            static_cast<QPalette::ColorGroup>( i );
 
         // Base: background color of the circle inside the frame.
         // WindowText: background color of the circle inside the scale
@@ -155,11 +144,17 @@ void QwtDial::initDial()
     }
     setPalette( p );
 
-    d_data->scaleDraw = new QwtDialScaleDraw( this );
-    d_data->scaleDraw->setRadius( 0 );
+    QwtRoundScaleDraw* scaleDraw = new QwtRoundScaleDraw();
+    scaleDraw->setRadius( 0 );
+
+    setScaleDraw( scaleDraw );
 
     setScaleArc( 0.0, 360.0 ); // scale as a full circle
-    setRange( 0.0, 360.0, 1.0, 10 ); // degrees as default
+
+    setScaleMaxMajor( 10 );
+    setScaleMaxMinor( 5 );
+
+    setValue( 0.0 );
 }
 
 //!  Destructor
@@ -170,6 +165,7 @@ QwtDial::~QwtDial()
 
 /*!
   Sets the frame shadow value from the frame style.
+
   \param shadow Frame shadow
   \sa setLineWidth(), QFrame::setFrameShadow()
 */
@@ -177,6 +173,8 @@ void QwtDial::setFrameShadow( Shadow shadow )
 {
     if ( shadow != d_data->frameShadow )
     {
+        invalidateCache();
+
         d_data->frameShadow = shadow;
         if ( lineWidth() > 0 )
             update();
@@ -185,7 +183,7 @@ void QwtDial::setFrameShadow( Shadow shadow )
 
 /*!
   \return Frame shadow
-  /sa setFrameShadow(), lineWidth(), QFrame::frameShadow
+  /sa setFrameShadow(), lineWidth(), QFrame::frameShadow()
 */
 QwtDial::Shadow QwtDial::frameShadow() const
 {
@@ -193,7 +191,7 @@ QwtDial::Shadow QwtDial::frameShadow() const
 }
 
 /*!
-  Sets the line width
+  Sets the line width of the frame
 
   \param lineWidth Line width
   \sa setFrameShadow()
@@ -205,6 +203,8 @@ void QwtDial::setLineWidth( int lineWidth )
 
     if ( d_data->lineWidth != lineWidth )
     {
+        invalidateCache();
+
         d_data->lineWidth = lineWidth;
         update();
     }
@@ -220,42 +220,43 @@ int QwtDial::lineWidth() const
 }
 
 /*!
-  \return bounding rect of the circle inside the frame
+  \return bounding rectangle of the circle inside the frame
   \sa setLineWidth(), scaleInnerRect(), boundingRect()
 */
-QRectF QwtDial::innerRect() const
+QRect QwtDial::innerRect() const
 {
-    const double lw = lineWidth();
+    const int lw = lineWidth();
     return boundingRect().adjusted( lw, lw, -lw, -lw );
 }
 
 /*!
-  \return bounding rect of the dial including the frame
+  \return bounding rectangle of the dial including the frame
   \sa setLineWidth(), scaleInnerRect(), innerRect()
 */
-QRectF QwtDial::boundingRect() const
+QRect QwtDial::boundingRect() const
 {
-    const QRectF cr = contentsRect();
+    const QRect cr = contentsRect();
 
     const double dim = qMin( cr.width(), cr.height() );
 
-    QRectF inner( 0, 0, dim, dim );
+    QRect inner( 0, 0, dim, dim );
     inner.moveCenter( cr.center() );
 
     return inner;
 }
 
 /*!
-  \return rect inside the scale
+  \return rectangle inside the scale
   \sa setLineWidth(), boundingRect(), innerRect()
 */
-QRectF QwtDial::scaleInnerRect() const
+QRect QwtDial::scaleInnerRect() const
 {
-    QRectF rect = innerRect();
+    QRect rect = innerRect();
 
-    if ( d_data->scaleDraw )
+    const QwtAbstractScaleDraw *sd = scaleDraw();
+    if ( sd )
     {
-        double scaleDist = qCeil( d_data->scaleDraw->extent( font() ) );
+        int scaleDist = qCeil( sd->extent( font() ) );
         scaleDist++; // margin
 
         rect.adjust( scaleDist, scaleDist, -scaleDist, -scaleDist );
@@ -265,13 +266,10 @@ QRectF QwtDial::scaleInnerRect() const
 }
 
 /*!
-  \brief Change the mode of the meter.
+  \brief Change the mode of the dial.
   \param mode New mode
 
-  The value of the meter is indicated by the difference
-  between north of the scale and the direction of the needle.
-  In case of QwtDial::RotateNeedle north is pointing
-  to the origin() and the needle is rotating, in case of
+  In case of QwtDial::RotateNeedle the needle is rotating, in case of
   QwtDial::RotateScale, the needle points to origin()
   and the scale is rotating.
 
@@ -283,23 +281,15 @@ void QwtDial::setMode( Mode mode )
 {
     if ( mode != d_data->mode )
     {
+        invalidateCache();
+
         d_data->mode = mode;
-        update();
+        sliderChange();
     }
 }
 
 /*!
-  \return mode of the dial.
-
-  The value of the dial is indicated by the difference
-  between the origin and the direction of the needle.
-  In case of QwtDial::RotateNeedle the scale arc is fixed
-  to the origin() and the needle is rotating, in case of
-  QwtDial::RotateScale, the needle points to origin()
-  and the scale is rotating.
-
-  The default mode is QwtDial::RotateNeedle.
-
+  \return Mode of the dial.
   \sa setMode(), origin(), setScaleArc(), value()
 */
 QwtDial::Mode QwtDial::mode() const
@@ -308,58 +298,11 @@ QwtDial::Mode QwtDial::mode() const
 }
 
 /*!
-    Sets whether it is possible to step the value from the highest value to
-    the lowest value and vice versa to on.
-
-    \param wrapping en/disables wrapping
-
-    \sa wrapping(), QwtDoubleRange::periodic()
-    \note The meaning of wrapping is like the wrapping property of QSpinBox,
-          but not like it is used in QDial.
-*/
-void QwtDial::setWrapping( bool wrapping )
+  Invalidate the internal caches used to speed up repainting
+ */
+void QwtDial::invalidateCache()
 {
-    setPeriodic( wrapping );
-}
-
-/*!
-    wrapping() holds whether it is possible to step the value from the
-    highest value to the lowest value and vice versa.
-
-    \sa setWrapping(), QwtDoubleRange::setPeriodic()
-    \note The meaning of wrapping is like the wrapping property of QSpinBox,
-          but not like it is used in QDial.
-*/
-bool QwtDial::wrapping() const
-{
-    return periodic();
-}
-
-/*!
-    Set the direction of the dial (clockwise/counterclockwise)
-
-    \param direction Direction
-    \sa direction()
-*/
-void QwtDial::setDirection( Direction direction )
-{
-    if ( direction != d_data->direction )
-    {
-        d_data->direction = direction;
-        update();
-    }
-}
-
-/*!
-   \return Direction of the dial
-
-   The default direction of a dial is QwtDial::Clockwise
-
-   \sa setDirection()
-*/
-QwtDial::Direction QwtDial::direction() const
-{
-    return d_data->direction;
+    d_data->pixmapCache = QPixmap();
 }
 
 /*!
@@ -375,52 +318,52 @@ void QwtDial::paintEvent( QPaintEvent *event )
     opt.init(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
 
-    painter.setRenderHint( QPainter::Antialiasing, true );
+    if ( d_data->mode == QwtDial::RotateScale )
+    {
+        painter.save();
+        painter.setRenderHint( QPainter::Antialiasing, true );
 
-    painter.save();
-    drawContents( &painter );
-    painter.restore();
+        drawContents( &painter );
 
-    painter.save();
-    drawFrame( &painter );
-    painter.restore();
+        painter.restore();
+    }
+
+    const QRect r = contentsRect();
+    if ( r.size() != d_data->pixmapCache.size() )
+    {
+        d_data->pixmapCache = QwtPainter::backingStore( this, r.size() );
+        d_data->pixmapCache.fill( Qt::transparent );
+
+        QPainter p( &d_data->pixmapCache );
+        p.setRenderHint( QPainter::Antialiasing, true );
+        p.translate( -r.topLeft() );
+            
+        if ( d_data->mode != QwtDial::RotateScale )
+            drawContents( &p );
+
+        if ( lineWidth() > 0 )
+            drawFrame( &p );
+
+        if ( d_data->mode != QwtDial::RotateNeedle )
+            drawNeedle( &p );
+    }
+
+    painter.drawPixmap( r.topLeft(), d_data->pixmapCache );
+
+    if ( d_data->mode == QwtDial::RotateNeedle )
+        drawNeedle( &painter );
 
     if ( hasFocus() )
         drawFocusIndicator( &painter );
 }
 
 /*!
-  Draw a dotted round circle, if !isReadOnly()
-
+  Draw the focus indicator
   \param painter Painter
 */
 void QwtDial::drawFocusIndicator( QPainter *painter ) const
 {
-    if ( !isReadOnly() )
-    {
-        QRectF focusRect = innerRect();
-
-        const int margin = 2;
-        focusRect.adjust( margin, margin, -margin, -margin );
-
-        QColor color = palette().color( QPalette::Base );
-        if ( color.isValid() )
-        {
-            const QColor gray( Qt::gray );
-
-            int h, s, v;
-            color.getHsv( &h, &s, &v );
-            color = ( v > 128 ) ? gray.dark( 120 ) : gray.light( 120 );
-        }
-        else
-            color = Qt::darkGray;
-
-        painter->save();
-        painter->setBrush( Qt::NoBrush );
-        painter->setPen( QPen( color, 0, Qt::DotLine ) );
-        painter->drawEllipse( focusRect );
-        painter->restore();
-    }
+    QwtPainter::drawFocusRect( painter, this, boundingRect() );
 }
 
 /*!
@@ -431,51 +374,8 @@ void QwtDial::drawFocusIndicator( QPainter *painter ) const
 */
 void QwtDial::drawFrame( QPainter *painter )
 {
-    if ( lineWidth() <= 0 )
-        return;
-
-    const double lw2 = 0.5 * lineWidth();
-
-    QRectF r = boundingRect();
-    r.adjust( lw2, lw2, -lw2, -lw2 );
-
-    QPen pen;
-
-    switch ( d_data->frameShadow )
-    {
-        case QwtDial::Raised:
-        case QwtDial::Sunken:
-        {
-            QColor c1 = palette().color( QPalette::Light );
-            QColor c2 = palette().color( QPalette::Dark );
-
-            if ( d_data->frameShadow == QwtDial::Sunken )
-                qSwap( c1, c2 );
-
-            QLinearGradient gradient( r.topLeft(), r.bottomRight() );
-            gradient.setColorAt( 0.0, c1 );
-#if 0
-            gradient.setColorAt( 0.3, c1 );
-            gradient.setColorAt( 0.7, c2 );
-#endif
-            gradient.setColorAt( 1.0, c2 );
-
-            pen = QPen( gradient, lineWidth() );
-            break;
-        }
-        default: // Plain
-        {
-            pen = QPen( palette().brush( QPalette::Dark ), lineWidth() );
-        }
-    }
-
-    painter->save();
-
-    painter->setPen( pen );
-    painter->setBrush( Qt::NoBrush );
-    painter->drawEllipse( r );
-
-    painter->restore();
+    QwtPainter::drawRoundFrame( painter, boundingRect(),
+        palette(), lineWidth(), d_data->frameShadow );
 }
 
 /*!
@@ -486,6 +386,7 @@ void QwtDial::drawFrame( QPainter *painter )
   QPalette::WindowText is the background color inside the scale.
 
   \param painter Painter
+
   \sa boundingRect(), innerRect(),
     scaleInnerRect(), QWidget::setPalette()
 */
@@ -504,7 +405,6 @@ void QwtDial::drawContents( QPainter *painter ) const
         painter->restore();
     }
 
-
     const QRectF insideScaleRect = scaleInnerRect();
     if ( palette().brush( QPalette::WindowText ) !=
             palette().brush( QPalette::Base ) )
@@ -519,57 +419,13 @@ void QwtDial::drawContents( QPainter *painter ) const
     const QPointF center = insideScaleRect.center();
     const double radius = 0.5 * insideScaleRect.width();
 
-    double direction = d_data->origin;
-
-    if ( isValid() )
-    {
-        direction = d_data->minScaleArc;
-        if ( maxValue() > minValue() && 
-            d_data->maxScaleArc > d_data->minScaleArc )
-        {
-            const double ratio =
-                ( value() - minValue() ) / ( maxValue() - minValue() );
-            direction += ratio * ( d_data->maxScaleArc - d_data->minScaleArc );
-        }
-
-        if ( d_data->direction == QwtDial::CounterClockwise )
-            direction = d_data->maxScaleArc - ( direction - d_data->minScaleArc );
-
-        direction += d_data->origin;
-        if ( direction >= 360.0 )
-            direction -= 360.0;
-        else if ( direction < 0.0 )
-            direction += 360.0;
-    }
-
-    double origin = d_data->origin;
-    if ( mode() == RotateScale )
-    {
-        origin -= direction - d_data->origin;
-        direction = d_data->origin;
-    }
-
     painter->save();
-    drawScale( painter, center, radius, origin,
-        d_data->minScaleArc, d_data->maxScaleArc );
+    drawScale( painter, center, radius );
     painter->restore();
 
     painter->save();
     drawScaleContents( painter, center, radius );
     painter->restore();
-
-    if ( isValid() )
-    {
-        QPalette::ColorGroup cg;
-        if ( isEnabled() )
-            cg = hasFocus() ? QPalette::Active : QPalette::Inactive;
-        else
-            cg = QPalette::Disabled;
-
-        painter->save();
-        drawNeedle( painter, center, radius, direction, cg );
-        painter->restore();
-    }
 }
 
 /*!
@@ -579,16 +435,36 @@ void QwtDial::drawContents( QPainter *painter ) const
   \param center Center of the dial
   \param radius Length for the needle
   \param direction Direction of the needle in degrees, counter clockwise
-  \param cg ColorGroup
+  \param colorGroup ColorGroup
 */
 void QwtDial::drawNeedle( QPainter *painter, const QPointF &center,
-    double radius, double direction, QPalette::ColorGroup cg ) const
+    double radius, double direction, QPalette::ColorGroup colorGroup ) const
 {
     if ( d_data->needle )
     {
         direction = 360.0 - direction; // counter clockwise
-        d_data->needle->draw( painter, center, radius, direction, cg );
+        d_data->needle->draw( painter, center, radius, direction, colorGroup );
     }
+}
+
+void QwtDial::drawNeedle( QPainter *painter ) const
+{
+    if ( !isValid() )
+        return;
+
+    QPalette::ColorGroup colorGroup;
+    if ( isEnabled() )
+        colorGroup = hasFocus() ? QPalette::Active : QPalette::Inactive;
+    else
+        colorGroup = QPalette::Disabled;
+
+    const QRectF sr = scaleInnerRect();
+
+    painter->save();
+    painter->setRenderHint( QPainter::Antialiasing, true );
+    drawNeedle( painter, sr.center(), 0.5 * sr.width(),
+        scaleMap().transform( value() ) + 270.0, colorGroup );
+    painter->restore();
 }
 
 /*!
@@ -597,55 +473,27 @@ void QwtDial::drawNeedle( QPainter *painter, const QPointF &center,
   \param painter Painter
   \param center Center of the dial
   \param radius Radius of the scale
-  \param origin Origin of the scale
-  \param minArc Minimum of the arc
-  \param maxArc Minimum of the arc
-
-  \sa QwtRoundScaleDraw::setAngleRange()
 */
-void QwtDial::drawScale( QPainter *painter, const QPointF &center,
-    double radius, double origin, double minArc, double maxArc ) const
+void QwtDial::drawScale( QPainter *painter, 
+    const QPointF &center, double radius ) const
 {
-    if ( d_data->scaleDraw == NULL )
+    QwtRoundScaleDraw *sd = const_cast<QwtRoundScaleDraw *>( scaleDraw() );
+    if ( sd == NULL )
         return;
 
-    origin -= 270.0; // hardcoded origin of QwtScaleDraw
-
-    double angle = maxArc - minArc;
-    if ( angle > 360.0 )
-        angle = ::fmod( angle, 360.0 );
-
-    minArc += origin;
-    if ( minArc < -360.0 )
-        minArc = ::fmod( minArc, 360.0 );
-
-    maxArc = minArc + angle;
-    if ( maxArc > 360.0 )
-    {
-        // QwtRoundScaleDraw::setAngleRange accepts only values
-        // in the range [-360.0..360.0]
-        minArc -= 360.0;
-        maxArc -= 360.0;
-    }
-
-    if ( d_data->direction == QwtDial::CounterClockwise )
-        qSwap( minArc, maxArc );
-
-    painter->setFont( font() );
-
-    d_data->scaleDraw->setAngleRange( minArc, maxArc );
-    d_data->scaleDraw->setRadius( qFloor( radius ) );
-    d_data->scaleDraw->moveCenter( center );
+    sd->setRadius( radius );
+    sd->moveCenter( center );
 
     QPalette pal = palette();
 
     const QColor textColor = pal.color( QPalette::Text );
-    pal.setColor( QPalette::WindowText, textColor ); //ticks, backbone
+    pal.setColor( QPalette::WindowText, textColor ); // ticks, backbone
 
-    painter->setPen( QPen( textColor, d_data->scaleDraw->penWidth() ) );
+    painter->setFont( font() );
+    painter->setPen( QPen( textColor, sd->penWidth() ) );
 
     painter->setBrush( Qt::red );
-    d_data->scaleDraw->draw( painter, pal );
+    sd->draw( painter, pal );
 }
 
 /*!
@@ -657,7 +505,6 @@ void QwtDial::drawScale( QPainter *painter, const QPointF &center,
   \param center Center of the contents circle
   \param radius Radius of the contents circle
 */
-
 void QwtDial::drawScaleContents( QPainter *painter,
     const QPointF &center, double radius ) const
 {
@@ -669,12 +516,10 @@ void QwtDial::drawScaleContents( QPainter *painter,
 /*!
   Set a needle for the dial
 
-  Qwt is missing a set of good looking needles.
-  Contributions are very welcome.
-
   \param needle Needle
+
   \warning The needle will be deleted, when a different needle is
-    set or in ~QwtDial()
+           set or in ~QwtDial()
 */
 void QwtDial::setNeedle( QwtDialNeedle *needle )
 {
@@ -706,150 +551,101 @@ QwtDialNeedle *QwtDial::needle()
     return d_data->needle;
 }
 
-//! QwtDoubleRange update hook
-void QwtDial::rangeChange()
+//! \return the scale draw
+QwtRoundScaleDraw *QwtDial::scaleDraw()
 {
-    updateScale();
+    return static_cast<QwtRoundScaleDraw *>( abstractScaleDraw() );
 }
 
-/*!
-  Update the scale with the current attributes
-  \sa setScale()
-*/
-void QwtDial::updateScale()
+//! \return the scale draw
+const QwtRoundScaleDraw *QwtDial::scaleDraw() const
 {
-    if ( d_data->scaleDraw )
-    {
-        QwtLinearScaleEngine scaleEngine;
-
-        const QwtScaleDiv scaleDiv = scaleEngine.divideScale(
-            minValue(), maxValue(),
-            d_data->maxMajIntv, d_data->maxMinIntv, d_data->scaleStep );
-
-        d_data->scaleDraw->setTransformation( scaleEngine.transformation() );
-        d_data->scaleDraw->setScaleDiv( scaleDiv );
-    }
-}
-
-//! Return the scale draw
-QwtDialScaleDraw *QwtDial::scaleDraw()
-{
-    return d_data->scaleDraw;
-}
-
-//! Return the scale draw
-const QwtDialScaleDraw *QwtDial::scaleDraw() const
-{
-    return d_data->scaleDraw;
+    return static_cast<const QwtRoundScaleDraw *>( abstractScaleDraw() );
 }
 
 /*!
   Set an individual scale draw
 
+  The motivation for setting a scale draw is often
+  to overload QwtRoundScaleDraw::label() to return 
+  individual tick labels.
+  
   \param scaleDraw Scale draw
   \warning The previous scale draw is deleted
 */
-void QwtDial::setScaleDraw( QwtDialScaleDraw *scaleDraw )
+void QwtDial::setScaleDraw( QwtRoundScaleDraw *scaleDraw )
 {
-    if ( scaleDraw != d_data->scaleDraw )
-    {
-        if ( d_data->scaleDraw )
-            delete d_data->scaleDraw;
+    setAbstractScaleDraw( scaleDraw );
+    sliderChange();
+}
 
-        d_data->scaleDraw = scaleDraw;
-        updateScale();
-        update();
+/*!
+  Change the arc of the scale
+
+  \param minArc Lower limit
+  \param maxArc Upper limit
+
+  \sa minScaleArc(), maxScaleArc()
+*/
+void QwtDial::setScaleArc( double minArc, double maxArc )
+{
+    if ( minArc != 360.0 && minArc != -360.0 )
+        minArc = ::fmod( minArc, 360.0 );
+    if ( maxArc != 360.0 && maxArc != -360.0 )
+        maxArc = ::fmod( maxArc, 360.0 );
+
+    double minScaleArc = qMin( minArc, maxArc );
+    double maxScaleArc = qMax( minArc, maxArc );
+
+    if ( maxScaleArc - minScaleArc > 360.0 )
+        maxScaleArc = minScaleArc + 360.0;
+
+    if ( ( minScaleArc != d_data->minScaleArc ) || 
+        ( maxScaleArc != d_data->maxScaleArc ) )
+    {
+        d_data->minScaleArc = minScaleArc;
+        d_data->maxScaleArc = maxScaleArc;
+
+        invalidateCache();
+        sliderChange();
     }
 }
 
-/*!
-  Change the intervals of the scale
+/*! 
+  Set the lower limit for the scale arc
 
-  \param maxMajIntv Maximum for the number of major steps
-  \param maxMinIntv Maximum number of minor steps
-  \param step Step size
-
-  \sa QwtScaleEngine::divideScale()
-*/
-void QwtDial::setScale( int maxMajIntv, int maxMinIntv, double step )
+  \param min Lower limit of the scale arc
+  \sa setScaleArc(), setMaxScaleArc()
+ */
+void QwtDial::setMinScaleArc( double min )
 {
-    d_data->maxMajIntv = maxMajIntv;
-    d_data->maxMinIntv = maxMinIntv;
-    d_data->scaleStep = step;
-
-    updateScale();
+    setScaleArc( min, d_data->maxScaleArc );
 }
 
-/*!
-  A wrapper method for accessing the scale draw.
-
-  \param components Scale components
-  \sa QwtAbstractScaleDraw::enableComponent()
+/*! 
+  \return Lower limit of the scale arc
+  \sa setScaleArc()
 */
-void QwtDial::setScaleComponents( 
-    QwtAbstractScaleDraw::ScaleComponents components )
-{
-    if ( components == 0 )
-        setScaleDraw( NULL );
-
-    QwtDialScaleDraw *sd = d_data->scaleDraw;
-    if ( sd == NULL )
-        return;
-
-    sd->enableComponent( QwtAbstractScaleDraw::Backbone,
-        components & QwtAbstractScaleDraw::Backbone );
-
-    sd->enableComponent( QwtAbstractScaleDraw::Ticks,
-        components & QwtAbstractScaleDraw::Ticks );
-
-    sd->enableComponent( QwtAbstractScaleDraw::Labels,
-        components & QwtAbstractScaleDraw::Labels );
-}
-
-/*!
-  Assign length and width of the ticks
-
-  \param minLen Length of the minor ticks
-  \param medLen Length of the medium ticks
-  \param majLen Length of the major ticks
-  \param penWidth Width of the pen for all ticks
-
-  \sa QwtAbstractScaleDraw::setTickLength(), QwtDialScaleDraw::setPenWidth()
-*/
-void QwtDial::setScaleTicks( int minLen, int medLen,
-                             int majLen, int penWidth )
-{
-    QwtDialScaleDraw *sd = d_data->scaleDraw;
-    if ( sd )
-    {
-        sd->setTickLength( QwtScaleDiv::MinorTick, minLen );
-        sd->setTickLength( QwtScaleDiv::MediumTick, medLen );
-        sd->setTickLength( QwtScaleDiv::MajorTick, majLen );
-        sd->setPenWidth( penWidth );
-    }
-}
-
-/*!
-   Find the label for a value
-
-   \param value Value
-   \return label
-*/
-QwtText QwtDial::scaleLabel( double value ) const
-{
-    if ( value == -0.0 )
-        value = 0.0;
-
-    return QString::number( value );
-}
-
-//! \return Lower limit of the scale arc
 double QwtDial::minScaleArc() const
 {
     return d_data->minScaleArc;
 }
 
-//! \return Upper limit of the scale arc
+/*! 
+  Set the upper limit for the scale arc
+
+  \param max Upper limit of the scale arc
+  \sa setScaleArc(), setMinScaleArc()
+ */
+void QwtDial::setMaxScaleArc( double max )
+{
+    setScaleArc( d_data->minScaleArc, max );
+}
+
+/*! 
+  \return Upper limit of the scale arc
+  \sa setScaleArc()
+*/
 double QwtDial::maxScaleArc() const
 {
     return d_data->maxScaleArc;
@@ -865,8 +661,10 @@ double QwtDial::maxScaleArc() const
 */
 void QwtDial::setOrigin( double origin )
 {
+    invalidateCache();
+
     d_data->origin = origin;
-    update();
+    sliderChange();
 }
 
 /*!
@@ -881,41 +679,14 @@ double QwtDial::origin() const
 }
 
 /*!
-  Change the arc of the scale
-
-  \param minArc Lower limit
-  \param maxArc Upper limit
-*/
-void QwtDial::setScaleArc( double minArc, double maxArc )
-{
-    if ( minArc != 360.0 && minArc != -360.0 )
-        minArc = ::fmod( minArc, 360.0 );
-    if ( maxArc != 360.0 && maxArc != -360.0 )
-        maxArc = ::fmod( maxArc, 360.0 );
-
-    d_data->minScaleArc = qMin( minArc, maxArc );
-    d_data->maxScaleArc = qMax( minArc, maxArc );
-    if ( d_data->maxScaleArc - d_data->minScaleArc > 360.0 )
-        d_data->maxScaleArc = d_data->minScaleArc + 360.0;
-
-    update();
-}
-
-//! QwtDoubleRange update hook
-void QwtDial::valueChange()
-{
-    update();
-    QwtAbstractSlider::valueChange();
-}
-
-/*!
   \return Size hint
+  \sa minimumSizeHint()
 */
 QSize QwtDial::sizeHint() const
 {
     int sh = 0;
-    if ( d_data->scaleDraw )
-        sh = qCeil( d_data->scaleDraw->extent( font() ) );
+    if ( scaleDraw() )
+        sh = qCeil( scaleDraw()->extent( font() ) );
 
     const int d = 6 * sh + 2 * lineWidth();
 
@@ -927,230 +698,174 @@ QSize QwtDial::sizeHint() const
 }
 
 /*!
-  \brief Return a minimum size hint
-  \warning The return value of QwtDial::minimumSizeHint() depends on the
-           font and the scale.
+  \return Minimum size hint
+  \sa sizeHint()
 */
 QSize QwtDial::minimumSizeHint() const
 {
     int sh = 0;
-    if ( d_data->scaleDraw )
-        sh = qCeil( d_data->scaleDraw->extent( font() ) );
+    if ( scaleDraw() )
+        sh = qCeil( scaleDraw()->extent( font() ) );
 
     const int d = 3 * sh + 2 * lineWidth();
 
     return QSize( d, d );
 }
 
-static double line2Degrees( const QPointF &p1, const QPointF &p2 )
-{
-    const QPointF p = p2 - p1;
+/*!
+  \brief Determine what to do when the user presses a mouse button.
 
-    double angle;
-    if ( p.x() == 0.0 )
+  \param pos Mouse position
+
+  \retval True, when the inner circle contains pos 
+  \sa scrolledTo()
+*/
+bool QwtDial::isScrollPosition( const QPoint &pos ) const
+{
+    const QRegion region( innerRect(), QRegion::Ellipse );
+    if ( region.contains( pos ) && ( pos != innerRect().center() ) )
     {
-        angle = ( p.y() <= 0.0 ) ? M_PI_2 : 3 * M_PI_2;
+        double angle = QLineF( rect().center(), pos ).angle();
+        if ( d_data->mode == QwtDial::RotateScale )
+            angle = 360.0 - angle;
+
+        double valueAngle = 
+            qwtNormalizeDegrees( 90.0 - scaleMap().transform( value() ) );
+
+        d_data->mouseOffset = qwtNormalizeDegrees( angle - valueAngle );
+        d_data->arcOffset = scaleMap().p1();
+
+        return true;
+    }
+
+    return false;
+}
+
+/*!
+  \brief Determine the value for a new position of the
+         slider handle.
+
+  \param pos Mouse position
+
+  \return Value for the mouse position
+  \sa isScrollPosition()
+*/
+double QwtDial::scrolledTo( const QPoint &pos ) const
+{
+    double angle = QLineF( rect().center(), pos ).angle();
+    if ( d_data->mode == QwtDial::RotateScale )
+    {
+        angle += scaleMap().p1() - d_data->arcOffset;
+        angle = 360.0 - angle;
+    }
+
+    angle = qwtNormalizeDegrees( angle - d_data->mouseOffset );
+    angle = qwtNormalizeDegrees( 90.0 - angle );
+
+    if ( scaleMap().pDist() >= 360.0 )
+    {
+        if ( angle < scaleMap().p1() )
+            angle += 360.0;
+
+        if ( !wrapping() )
+        {
+            double boundedAngle = angle;
+
+            const double arc = angle - scaleMap().transform( value() );
+            if ( qAbs( arc ) > 180.0 )
+            {
+                boundedAngle = ( arc > 0 ) 
+                    ? scaleMap().p1() : scaleMap().p2();
+            }
+
+            d_data->mouseOffset += ( boundedAngle - angle );
+
+            angle = boundedAngle;
+        }
     }
     else
     {
-        angle = qAtan( double( -p.y() ) / double( p.x() ) );
-        if ( p.x() < 0.0 )
-            angle += M_PI;
-        if ( angle < 0.0 )
-            angle += 2 * M_PI;
+        const double boundedAngle =
+            qwtBoundedAngle( scaleMap().p1(), angle, scaleMap().p2() );
+
+        if ( !wrapping() )
+            d_data->mouseOffset += ( boundedAngle - angle );
+
+        angle = boundedAngle;
     }
-    return 360.0 - angle * 180.0 / M_PI;
+
+    return scaleMap().invTransform( angle );
 }
 
 /*!
-  Find the value for a given position
+  Change Event handler
+  \param event Change event
 
-  \param pos Position
-  \return Value
+  Invalidates internal paint caches if necessary
 */
-double QwtDial::getValue( const QPoint &pos )
+void QwtDial::changeEvent( QEvent *event )
 {
-    if ( d_data->maxScaleArc == d_data->minScaleArc || maxValue() == minValue() )
-        return minValue();
+    switch( event->type() )
+    {
+        case QEvent::EnabledChange:
+        case QEvent::FontChange:
+        case QEvent::StyleChange:
+        case QEvent::PaletteChange:
+        case QEvent::LanguageChange:
+        case QEvent::LocaleChange:
+        {
+            invalidateCache();
+            break;
+        }
+        default:
+            break;
+    }
+    
+    QwtAbstractSlider::changeEvent( event );
+}
 
-    double dir = line2Degrees( innerRect().center(), pos ) - d_data->origin;
-    if ( dir < 0.0 )
-        dir += 360.0;
+/*!
+  Wheel Event handler
+  \param event Wheel event
+*/
+void QwtDial::wheelEvent( QWheelEvent *event )
+{
+    const QRegion region( innerRect(), QRegion::Ellipse );
+    if ( region.contains( event->pos() ) )
+        QwtAbstractSlider::wheelEvent( event );
+}
+
+void QwtDial::setAngleRange( double angle, double span )
+{
+    QwtRoundScaleDraw *sd = const_cast<QwtRoundScaleDraw *>( scaleDraw() );
+    if ( sd  )
+    {
+        angle = qwtNormalizeDegrees( angle - 270.0 );
+        sd->setAngleRange( angle, angle + span );
+    }
+}
+
+/*!
+  Invalidate the internal caches and call 
+  QwtAbstractSlider::scaleChange()
+ */
+void QwtDial::scaleChange()
+{
+    invalidateCache();
+    QwtAbstractSlider::scaleChange();
+}
+
+void QwtDial::sliderChange()
+{
+    setAngleRange( d_data->origin + d_data->minScaleArc,
+        d_data->maxScaleArc - d_data->minScaleArc );
 
     if ( mode() == RotateScale )
-        dir = 360.0 - dir;
-
-    // The position might be in the area that is outside the scale arc.
-    // We need the range of the scale if it was a complete circle.
-
-    const double completeCircle = 360.0 / ( d_data->maxScaleArc - d_data->minScaleArc )
-        * ( maxValue() - minValue() );
-
-    double posValue = minValue() + completeCircle * dir / 360.0;
-
-    if ( scrollMode() == ScrMouse )
     {
-        if ( d_data->previousDir >= 0.0 ) // valid direction
-        {
-            // We have to find out whether the mouse is moving
-            // clock or counter clockwise
-
-            bool clockWise = false;
-
-            const double angle = dir - d_data->previousDir;
-            if ( ( angle >= 0.0 && angle <= 180.0 ) || angle < -180.0 )
-                clockWise = true;
-
-            if ( clockWise )
-            {
-                if ( dir < d_data->previousDir && mouseOffset() > 0.0 )
-                {
-                    // We passed 360 -> 0
-                    setMouseOffset( mouseOffset() - completeCircle );
-                }
-
-                if ( wrapping() )
-                {
-                    if ( posValue - mouseOffset() > maxValue() )
-                    {
-                        // We passed maxValue and the value will be set
-                        // to minValue. We have to adjust the mouseOffset.
-
-                        setMouseOffset( posValue - minValue() );
-                    }
-                }
-                else
-                {
-                    if ( posValue - mouseOffset() > maxValue() ||
-                            value() == maxValue() )
-                    {
-                        // We fix the value at maxValue by adjusting
-                        // the mouse offset.
-
-                        setMouseOffset( posValue - maxValue() );
-                    }
-                }
-            }
-            else
-            {
-                if ( dir > d_data->previousDir && mouseOffset() < 0.0 )
-                {
-                    // We passed 0 -> 360
-                    setMouseOffset( mouseOffset() + completeCircle );
-                }
-
-                if ( wrapping() )
-                {
-                    if ( posValue - mouseOffset() < minValue() )
-                    {
-                        // We passed minValue and the value will be set
-                        // to maxValue. We have to adjust the mouseOffset.
-
-                        setMouseOffset( posValue - maxValue() );
-                    }
-                }
-                else
-                {
-                    if ( posValue - mouseOffset() < minValue() ||
-                        value() == minValue() )
-                    {
-                        // We fix the value at minValue by adjusting
-                        // the mouse offset.
-
-                        setMouseOffset( posValue - minValue() );
-                    }
-                }
-            }
-        }
-        d_data->previousDir = dir;
+        const double arc = scaleMap().transform( value() ) - scaleMap().p1();
+        setAngleRange( d_data->origin - arc,
+            d_data->maxScaleArc - d_data->minScaleArc );
     }
 
-    return posValue;
-}
-
-/*!
-  See QwtAbstractSlider::getScrollMode()
-
-  \param pos point where the mouse was pressed
-  \retval scrollMode The scrolling mode
-  \retval direction  direction: 1, 0, or -1.
-
-  \sa QwtAbstractSlider::getScrollMode()
-*/
-void QwtDial::getScrollMode( const QPoint &pos, 
-    QwtAbstractSlider::ScrollMode &scrollMode, int &direction ) const
-{
-    direction = 0;
-    scrollMode = QwtAbstractSlider::ScrNone;
-
-    const QRegion region( innerRect().toRect(), QRegion::Ellipse );
-    if ( region.contains( pos ) && pos != innerRect().center() )
-    {
-        scrollMode = QwtAbstractSlider::ScrMouse;
-        d_data->previousDir = -1.0;
-    }
-}
-
-/*!
-  Handles key events
-
-  - Key_Down, KeyLeft\n
-    Decrement by 1
-  - Key_Prior\n
-    Decrement by pageSize()
-  - Key_Home\n
-    Set the value to minValue()
-
-  - Key_Up, KeyRight\n
-    Increment by 1
-  - Key_Next\n
-    Increment by pageSize()
-  - Key_End\n
-    Set the value to maxValue()
-
-  \param event Key event
-  \sa isReadOnly()
-*/
-void QwtDial::keyPressEvent( QKeyEvent *event )
-{
-    if ( isReadOnly() )
-    {
-        event->ignore();
-        return;
-    }
-
-    if ( !isValid() )
-        return;
-
-    const double previousValue = value();
-
-    switch ( event->key() )
-    {
-        case Qt::Key_Down:
-        case Qt::Key_Left:
-            QwtDoubleRange::incValue( -1 );
-            break;
-        case Qt::Key_PageUp:
-            QwtDoubleRange::incValue( -pageSize() );
-            break;
-        case Qt::Key_Home:
-            setValue( minValue() );
-            break;
-
-        case Qt::Key_Up:
-        case Qt::Key_Right:
-            QwtDoubleRange::incValue( 1 );
-            break;
-        case Qt::Key_PageDown:
-            QwtDoubleRange::incValue( pageSize() );
-            break;
-        case Qt::Key_End:
-            setValue( maxValue() );
-            break;
-        default:;
-            event->ignore();
-    }
-
-    if ( value() != previousValue )
-        Q_EMIT sliderMoved( value() );
+    QwtAbstractSlider::sliderChange();
 }

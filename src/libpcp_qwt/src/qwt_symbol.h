@@ -11,7 +11,7 @@
 #define QWT_SYMBOL_H
 
 #include "qwt_global.h"
-#include <QPolygonF>
+#include <qpolygon.h>
 
 class QPainter;
 class QRect;
@@ -20,6 +20,11 @@ class QBrush;
 class QPen;
 class QColor;
 class QPointF;
+class QPolygonF;
+class QPainterPath;
+class QPixmap;
+class QByteArray;
+class QwtGraphic;
 
 //! A class for drawing symbols
 class QWT_EXPORT QwtSymbol
@@ -80,6 +85,39 @@ public:
         Hexagon,
 
         /*!
+          The symbol is represented by a painter path, where the 
+          origin ( 0, 0 ) of the path coordinate system is mapped to
+          the position of the symbol.
+
+          \sa setPath(), path()
+         */
+        Path,
+
+        /*!
+          The symbol is represented by a pixmap. The pixmap is centered
+          or aligned to its pin point.
+
+          \sa setPinPoint()
+         */
+        Pixmap,
+
+        /*!
+          The symbol is represented by a graphic. The graphic is centered
+          or aligned to its pin point.
+
+          \sa setPinPoint()
+         */
+        Graphic,
+
+        /*!
+          The symbol is represented by a SVG graphic. The graphic is centered
+          or aligned to its pin point.
+
+          \sa setPinPoint()
+         */
+        SvgDocument,
+
+        /*!
          Styles >= QwtSymbol::UserSymbol are reserved for derived
          classes of QwtSymbol that overload drawSymbols() with
          additional application specific symbol types.
@@ -87,41 +125,107 @@ public:
         UserStyle = 1000
     };
 
+    /*!
+      Depending on the render engine and the complexity of the
+      symbol shape it might be faster to render the symbol
+      to a pixmap and to paint this pixmap.
+
+      F.e. the raster paint engine is a pure software renderer
+      where in cache mode a draw operation usually ends in 
+      raster operation with the the backing store, that are usually
+      faster, than the algorithms for rendering polygons.
+      But the opposite can be expected for graphic pipelines
+      that can make use of hardware acceleration.
+
+      The default setting is AutoCache
+
+      \sa setCachePolicy(), cachePolicy()
+
+      \note The policy has no effect, when the symbol is painted 
+            to a vector graphics format ( PDF, SVG ).
+      \warning Since Qt 4.8 raster is the default backend on X11
+     */
+
+    enum CachePolicy
+    {
+        //! Don't use a pixmap cache
+        NoCache,
+
+        //! Always use a pixmap cache
+        Cache,
+
+        /*! 
+           Use a cache when one of the following conditions is true:
+
+           - The symbol is rendered with the software 
+             renderer ( QPaintEngine::Raster )
+         */
+        AutoCache
+    };
+
 public:
     QwtSymbol( Style = NoSymbol );
     QwtSymbol( Style, const QBrush &, const QPen &, const QSize & );
-    QwtSymbol( const QwtSymbol & );
+    QwtSymbol( const QPainterPath &, const QBrush &, const QPen & );
+
     virtual ~QwtSymbol();
 
-    QwtSymbol &operator=( const QwtSymbol & );
-    bool operator==( const QwtSymbol & ) const;
-    bool operator!=( const QwtSymbol & ) const;
+    void setCachePolicy( CachePolicy );
+    CachePolicy cachePolicy() const;
 
     void setSize( const QSize & );
     void setSize( int width, int height = -1 );
     const QSize& size() const;
+
+    void setPinPoint( const QPointF &pos, bool enable = true );
+    QPointF pinPoint() const;
+
+    void setPinPointEnabled( bool );
+    bool isPinPointEnabled() const;
 
     virtual void setColor( const QColor & );
 
     void setBrush( const QBrush& b );
     const QBrush& brush() const;
 
+    void setPen( const QColor &, qreal width = 0.0, Qt::PenStyle = Qt::SolidLine );
     void setPen( const QPen & );
     const QPen& pen() const;
 
     void setStyle( Style );
     Style style() const;
 
+    void setPath( const QPainterPath & );
+    const QPainterPath &path() const;
+
+    void setPixmap( const QPixmap & );
+    const QPixmap &pixmap() const;
+
+    void setGraphic( const QwtGraphic & );
+    const QwtGraphic &graphic() const;
+
+#ifndef QWT_NO_SVG
+    void setSvgDocument( const QByteArray & );
+#endif
+
+    void drawSymbol( QPainter *, const QRectF & ) const;
     void drawSymbol( QPainter *, const QPointF & ) const;
     void drawSymbols( QPainter *, const QPolygonF & ) const;
+    void drawSymbols( QPainter *,
+        const QPointF *, int numPoints ) const;
 
-    virtual QSize boundingSize() const;
+    virtual QRect boundingRect() const;
+    void invalidateCache();
 
 protected:
-    virtual void drawSymbols( QPainter *,
+    virtual void renderSymbols( QPainter *,
         const QPointF *, int numPoints ) const;
 
 private:
+    // Disabled copy constructor and operator=
+    QwtSymbol( const QwtSymbol & );
+    QwtSymbol &operator=( const QwtSymbol & );
+
     class PrivateData;
     PrivateData *d_data;
 };

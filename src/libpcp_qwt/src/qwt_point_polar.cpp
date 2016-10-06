@@ -38,6 +38,8 @@ void QwtPointPolar::setPoint( const QPointF &p )
 /*!
    Convert and return values in Cartesian coordinates
 
+   \return Converted point in Cartesian coordinates
+
    \note Invalid or null points will be returned as QPointF(0.0, 0.0)
    \sa isValid(), isNull()
 */
@@ -53,11 +55,13 @@ QPointF QwtPointPolar::toPoint() const
 }
 
 /*!
-    Returns true if point1 is equal to point2; otherwise returns false.
+    \brief Compare 2 points
 
     Two points are equal to each other if radius and
     azimuth-coordinates are the same. Points are not equal, when
     the azimuth differs, but other.azimuth() == azimuth() % (2 * PI).
+
+    \return True if the point is equal to other; otherwise return false.
 
     \sa normalized()
 */
@@ -67,12 +71,13 @@ bool QwtPointPolar::operator==( const QwtPointPolar &other ) const
 }
 
 /*!
-    Returns true if point1 is not equal to point2; otherwise returns false.
+    Compare 2 points
 
     Two points are equal to each other if radius and
     azimuth-coordinates are the same. Points are not equal, when
     the azimuth differs, but other.azimuth() == azimuth() % (2 * PI).
 
+    \return True if the point is not equal to other; otherwise return false.
     \sa normalized()
 */
 bool QwtPointPolar::operator!=( const QwtPointPolar &other ) const
@@ -85,6 +90,8 @@ bool QwtPointPolar::operator!=( const QwtPointPolar &other ) const
 
    When the radius is < 0.0 it is set to 0.0. The azimuth is
    a value >= 0.0 and < 2 * M_PI.
+
+   \return Normalized point
 */
 QwtPointPolar QwtPointPolar::normalized() const
 {

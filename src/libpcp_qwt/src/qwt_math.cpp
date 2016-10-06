@@ -43,3 +43,32 @@ double qwtGetMax( const double *array, int size )
 
     return rv;
 }
+
+/*!
+  \brief Normalize an angle to be int the range [0.0, 2 * PI[
+  \param radians Angle in radians
+  \return Normalized angle in radians
+*/
+double qwtNormalizeRadians( double radians )
+{
+    double a = ::fmod( radians, 2.0 * M_PI );
+    if ( a < 0.0 )
+        a += 2.0 * M_PI;
+
+    return a;
+
+}
+
+/*!
+  \brief Normalize an angle to be int the range [0.0, 360.0[
+  \param radians Angle in degrees
+  \return Normalized angle in degrees
+*/
+double qwtNormalizeDegrees( double degrees )
+{
+    double a = ::fmod( degrees, 360.0 );
+    if ( a < 0.0 )
+        a += 360.0;
+
+    return a;
+}

@@ -66,7 +66,7 @@ main(int argc, char* argv[])
 
     if (src2->status() < 0) {
 	pmprintf("%s: Error: Unable to create context to \"%s\": %s\n",
-		pmProgname, (const char *)source.toAscii(),
+		pmProgname, (const char *)source.toLatin1(),
 		pmErrStr(src2->status()));
 	pmflush();
 	sts = 1;
@@ -74,8 +74,8 @@ main(int argc, char* argv[])
 
     if (src1 != src2) {
 	pmprintf("%s: Error: Matching host to an archive failed: src1 = %s, src2 = %s\n",
-		 pmProgname, (const char *)src1->desc().toAscii(),
-		(const char *)src2->desc().toAscii());
+		 pmProgname, (const char *)src1->desc().toLatin1(),
+		(const char *)src2->desc().toLatin1());
 	pmflush();
 	QmcSource::dumpList(cerr);
 	sts = 1;
@@ -100,8 +100,8 @@ main(int argc, char* argv[])
 
     if (src3 != src4) {
 	pmprintf("%s: Error: Identical host test failed: src3 = %s, src4 = %s\n",
-		 pmProgname, (const char *)src3->desc().toAscii(),
-		(const char *)src4->desc().toAscii());
+		 pmProgname, (const char *)src3->desc().toLatin1(),
+		(const char *)src4->desc().toLatin1());
 	pmflush();
 	QmcSource::dumpList(cerr);
 	sts = 1;

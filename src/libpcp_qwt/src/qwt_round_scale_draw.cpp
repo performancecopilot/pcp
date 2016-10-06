@@ -11,6 +11,7 @@
 #include "qwt_painter.h"
 #include "qwt_scale_div.h"
 #include "qwt_scale_map.h"
+#include "qwt_math.h"
 #include <qpen.h>
 #include <qpainter.h>
 #include <qfontmetrics.h>
@@ -22,8 +23,8 @@ public:
     PrivateData():
         center( 50.0, 50.0 ),
         radius( 50.0 ),
-        startAngle( -135 * 16 ),
-        endAngle( 135 * 16 )
+        startAngle( -135.0 ),
+        endAngle( 135.0 )
     {
     }
 
@@ -63,7 +64,7 @@ QwtRoundScaleDraw::~QwtRoundScaleDraw()
   \param radius New Radius
   \sa moveCenter()
 */
-void QwtRoundScaleDraw::setRadius( int radius )
+void QwtRoundScaleDraw::setRadius( double radius )
 {
     d_data->radius = radius;
 }
@@ -73,11 +74,12 @@ void QwtRoundScaleDraw::setRadius( int radius )
 
   Radius is the radius of the backbone without ticks and labels.
 
+  \return Radius of the scale
   \sa setRadius(), extent()
 */
-int QwtRoundScaleDraw::radius() const
+double QwtRoundScaleDraw::radius() const
 {
-    return qCeil( d_data->radius );
+    return d_data->radius;
 }
 
 /*!
@@ -109,18 +111,20 @@ QPointF QwtRoundScaleDraw::center() const
   \warning <ul>
   <li>The angle range is limited to [-360, 360] degrees. Angles exceeding
       this range will be clipped.
-  <li>For angles more than 359 degrees above or below min(angle1, angle2),
+  <li>For angles more or equal than 360 degrees above or below min(angle1, angle2),
       scale marks will not be drawn.
-  <li>If you need a counterclockwise scale, use QwtScaleDiv::setRange
+  <li>If you need a counterclockwise scale, use QwtScaleDiv::setInterval()
   </ul>
 */
 void QwtRoundScaleDraw::setAngleRange( double angle1, double angle2 )
 {
+#if 0
     angle1 = qBound( -360.0, angle1, 360.0 );
     angle2 = qBound( -360.0, angle2, 360.0 );
+#endif
 
-    d_data->startAngle = angle1 * 16.0;
-    d_data->endAngle = angle2 * 16.0;
+    d_data->startAngle = angle1;
+    d_data->endAngle = angle2;
 
     if ( d_data->startAngle == d_data->endAngle )
     {
@@ -141,16 +145,16 @@ void QwtRoundScaleDraw::setAngleRange( double angle1, double angle2 )
 */
 void QwtRoundScaleDraw::drawLabel( QPainter *painter, double value ) const
 {
-    const QwtText label = tickLabel( painter->font(), value );
-    if ( label.isEmpty() )
-        return;
-
     const double tval = scaleMap().transform( value );
-    if ( ( tval > d_data->startAngle + 359 * 16 )
-        || ( tval < d_data->startAngle - 359 * 16 ) )
+    if ( ( tval >= d_data->startAngle + 360.0 )
+        || ( tval <= d_data->startAngle - 360.0 ) )
     {
         return;
     }
+
+    const QwtText label = tickLabel( painter->font(), value );
+    if ( label.isEmpty() )
+        return;
 
     double radius = d_data->radius;
     if ( hasComponent( QwtAbstractScaleDraw::Ticks ) ||
@@ -163,12 +167,12 @@ void QwtRoundScaleDraw::drawLabel( QPainter *painter, double value ) const
         radius += tickLength( QwtScaleDiv::MajorTick );
 
     const QSizeF sz = label.textSize( painter->font() );
-    const double arc = tval / 16.0 / 360.0 * 2 * M_PI;
+    const double arc = qwtRadians( tval );
 
     const double x = d_data->center.x() +
         ( radius + sz.width() / 2.0 ) * qSin( arc );
     const double y = d_data->center.y() -
-        ( radius + sz.height() / 2.0 ) * cos( arc );
+        ( radius + sz.height() / 2.0 ) * qCos( arc );
 
     const QRectF r( x - sz.width() / 2, y - sz.height() / 2,
         sz.width(), sz.height() );
@@ -195,10 +199,10 @@ void QwtRoundScaleDraw::drawTick( QPainter *painter, double value, double len ) 
     const double cy = d_data->center.y();
     const double radius = d_data->radius;
 
-    if ( ( tval <= d_data->startAngle + 359 * 16 )
-        || ( tval >= d_data->startAngle - 359 * 16 ) )
+    if ( ( tval < d_data->startAngle + 360.0 )
+        && ( tval > d_data->startAngle - 360.0 ) )
     {
-        const double arc = double( tval ) / 16.0 * M_PI / 180.0;
+        const double arc = qwtRadians( tval );
 
         const double sinArc = qSin( arc );
         const double cosArc = qCos( arc );
@@ -223,15 +227,15 @@ void QwtRoundScaleDraw::drawBackbone( QPainter *painter ) const
     const double deg1 = scaleMap().p1();
     const double deg2 = scaleMap().p2();
 
-    const int a1 = qRound( qMin( deg1, deg2 ) - 90 * 16 );
-    const int a2 = qRound( qMax( deg1, deg2 ) - 90 * 16 );
+    const int a1 = qRound( qMin( deg1, deg2 ) - 90 );
+    const int a2 = qRound( qMax( deg1, deg2 ) - 90 );
 
     const double radius = d_data->radius;
     const double x = d_data->center.x() - radius;
     const double y = d_data->center.y() - radius;
 
     painter->drawArc( QRectF( x, y, 2 * radius, 2 * radius ),
-        -a2, a2 - a1 + 1 );          // counterclockwise
+        -a2 * 16, ( a2 - a1 + 1 ) * 16 );          // counterclockwise
 }
 
 /*!
@@ -242,9 +246,10 @@ void QwtRoundScaleDraw::drawBackbone( QPainter *painter ) const
    for the radius of the bounding circle.
 
    \param font Font used for painting the labels
+   \return Calculated extent
 
    \sa setMinimumExtent(), minimumExtent()
-   \warning The implemented algo is not too smart and
+   \warning The implemented algorithm is not too smart and
             calculates only an upper limit, that might be a
             few pixels too large
 */
@@ -262,15 +267,15 @@ double QwtRoundScaleDraw::extent( const QFont &font ) const
             if ( !sd.contains( value ) )
                 continue;
 
-            const QwtText label = tickLabel( font, value );
-            if ( label.isEmpty() )
-                continue;
-
             const double tval = scaleMap().transform( value );
-            if ( ( tval < d_data->startAngle + 360 * 16 )
-                && ( tval > d_data->startAngle - 360 * 16 ) )
+            if ( ( tval < d_data->startAngle + 360 )
+                && ( tval > d_data->startAngle - 360 ) )
             {
-                const double arc = tval / 16.0 / 360.0 * 2 * M_PI;
+                const QwtText label = tickLabel( font, value );
+                if ( label.isEmpty() )
+                    continue;
+
+                const double arc = qwtRadians( tval );
 
                 const QSizeF sz = label.textSize( font );
                 const double off = qMax( sz.width(), sz.height() );
@@ -292,7 +297,7 @@ double QwtRoundScaleDraw::extent( const QFont &font ) const
 
     if ( hasComponent( QwtAbstractScaleDraw::Backbone ) )
     {
-        const double pw = qMax( 1, penWidth() );  // penwidth can be zero
+        const double pw = qMax( 1, penWidth() );  // pen width can be zero
         d += pw;
     }
 

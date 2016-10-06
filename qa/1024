@@ -35,6 +35,7 @@ _slice_sort_reassemble()
 	-e 's/\([0-9][0-9]*\) or "sr/N or "sr/' \
 	-e 's/\([0-9][0-9]*\) or "vd/N or "vd/' \
 	-e 's/\([0-9][0-9]*\) or "rbd/N or "rbd/' \
+	-e 's/\([0-9][0-9]*\) or "nbd/N or "nbd/' \
     | $here/src/sortinst
 }
 

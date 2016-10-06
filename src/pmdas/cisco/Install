@@ -20,7 +20,6 @@
 
 iam=cisco
 pmda_interface=2
-forced_restart=false
 
 # Do it
 #

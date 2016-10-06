@@ -20,7 +20,6 @@
 
 iam=lmsensors
 pmda_interface=2
-forced_restart=true
 dso_opt=true
 socket_opt=true
 socket_inet_def=2079

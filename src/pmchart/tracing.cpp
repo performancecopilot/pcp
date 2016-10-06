@@ -399,10 +399,10 @@ TracingItem::setStroke(Chart::Style, QColor color, bool)
 {
     const QColor black(Qt::black);
     const QPen outline(black);
-    QColor darkColor(color);
     QColor alphaColor(color);
+    QColor darkColor;
 
-    darkColor.dark(180);
+    darkColor = color.darker(180);
     alphaColor.setAlpha(196);
     QBrush alphaBrush(alphaColor);
 

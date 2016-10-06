@@ -80,8 +80,6 @@ echo "=== $iam agent installation ==="
 $sudo ./Install </dev/null >$tmp.out 2>&1
 # Check kvm metrics have appeared ... X metrics and Y values
 _filter_pmda_install <$tmp.out \
-| sed \
-	-e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
 | $PCP_AWK_PROG '
 /Check kvm metrics have appeared/	{ if ($7 >= 30 && $7 <= 40) $7 = "X"
 					  if ($10 >= 30 && $10 <= 40) $10 = "Y"
@@ -120,6 +118,7 @@ cat $tmp.all \
 | while read metric n1 vpcp n2 vsys
 do
     if [ "$metric" = "kvm.halt_successful_poll" -o \
+	 "$metric" = "kvm.halt_poll_invalid" -o \
 	 "$metric" = "kvm.halt_attempted_poll" ] # version-specific metrics
     then
 	_within_tolerance $metric $vpcp $vsys 2%

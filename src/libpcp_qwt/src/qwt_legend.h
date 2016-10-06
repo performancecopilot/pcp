@@ -11,70 +11,42 @@
 #define QWT_LEGEND_H
 
 #include "qwt_global.h"
-#include <qframe.h>
-#include <qlist.h>
+#include "qwt_abstract_legend.h"
+#include <qvariant.h>
 
 class QScrollBar;
-class QwtLegendItemManager;
 
 /*!
   \brief The legend widget
 
   The QwtLegend widget is a tabular arrangement of legend items. Legend
   items might be any type of widget, but in general they will be
-  a QwtLegendItem.
+  a QwtLegendLabel.
 
-  \sa QwtLegendItem, QwtLegendItemManager QwtPlot
+  \sa QwtLegendLabel, QwtPlotItem, QwtPlot
 */
 
-class QWT_EXPORT QwtLegend : public QFrame
+class QWT_EXPORT QwtLegend : public QwtAbstractLegend
 {
     Q_OBJECT
 
 public:
-    /*!
-      \brief Interaction mode for the legend items
-
-       The default is QwtLegend::ReadOnlyItem.
-
-       \sa setItemMode(), itemMode(), QwtLegendItem::IdentifierMode
-           QwtLegendItem::clicked(), QwtLegendItem::checked(),
-           QwtPlot::legendClicked(), QwtPlot::legendChecked()
-     */
-
-    enum LegendItemMode
-    {
-        //! The legend item is not interactive, like a label
-        ReadOnlyItem,
-
-        //! The legend item is clickable, like a push button
-        ClickableItem,
-
-        //! The legend item is checkable, like a checkable button
-        CheckableItem
-    };
-
     explicit QwtLegend( QWidget *parent = NULL );
     virtual ~QwtLegend();
 
-    void setItemMode( LegendItemMode );
-    LegendItemMode itemMode() const;
+    void setMaxColumns( uint numColums );
+    uint maxColumns() const;
+
+    void setDefaultItemMode( QwtLegendData::Mode );
+    QwtLegendData::Mode defaultItemMode() const;
 
     QWidget *contentsWidget();
     const QWidget *contentsWidget() const;
 
-    void insert( const QwtLegendItemManager *, QWidget * );
-    void remove( const QwtLegendItemManager * );
+    QWidget *legendWidget( const QVariant &  ) const;
+    QList<QWidget *> legendWidgets( const QVariant & ) const;
 
-    QWidget *find( const QwtLegendItemManager * ) const;
-    QwtLegendItemManager *find( const QWidget * ) const;
-
-    virtual QList<QWidget *> legendItems() const;
-
-    void clear();
-
-    bool isEmpty() const;
-    uint itemCount() const;
+    QVariant itemInfo( const QWidget * ) const;
 
     virtual bool eventFilter( QObject *, QEvent * );
 
@@ -84,10 +56,60 @@ public:
     QScrollBar *horizontalScrollBar() const;
     QScrollBar *verticalScrollBar() const;
 
+    virtual void renderLegend( QPainter *, 
+        const QRectF &, bool fillBackground ) const;
+
+    virtual void renderItem( QPainter *, 
+        const QWidget *, const QRectF &, bool fillBackground ) const;
+
+    virtual bool isEmpty() const;
+    virtual int scrollExtent( Qt::Orientation ) const;
+
+Q_SIGNALS:
+    /*!
+      A signal which is emitted when the user has clicked on
+      a legend label, which is in QwtLegendData::Clickable mode.
+
+      \param itemInfo Info for the item item of the
+                      selected legend item
+      \param index Index of the legend label in the list of widgets
+                   that are associated with the plot item
+
+      \note clicks are disabled as default
+      \sa setDefaultItemMode(), defaultItemMode(), QwtPlot::itemToInfo()
+     */
+    void clicked( const QVariant &itemInfo, int index );
+
+    /*!
+      A signal which is emitted when the user has clicked on
+      a legend label, which is in QwtLegendData::Checkable mode
+
+      \param itemInfo Info for the item of the
+                      selected legend label
+      \param index Index of the legend label in the list of widgets
+                   that are associated with the plot item
+      \param on True when the legend label is checked
+
+      \note clicks are disabled as default
+      \sa setDefaultItemMode(), defaultItemMode(), QwtPlot::itemToInfo()
+     */
+    void checked( const QVariant &itemInfo, bool on, int index );
+
+public Q_SLOTS:
+    virtual void updateLegend( const QVariant &,
+        const QList<QwtLegendData> & );
+
+protected Q_SLOTS:
+    void itemClicked();
+    void itemChecked( bool );
+
 protected:
-    virtual void layoutContents();
+    virtual QWidget *createWidget( const QwtLegendData & ) const;
+    virtual void updateWidget( QWidget *widget, const QwtLegendData &data );
 
 private:
+    void updateTabOrder();
+
     class PrivateData;
     PrivateData *d_data;
 };

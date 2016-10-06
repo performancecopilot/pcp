@@ -11,7 +11,6 @@
 #define QWT_PLOT_PICKER_H
 
 #include "qwt_global.h"
-#include "qwt_plot_canvas.h"
 #include "qwt_picker.h"
 #include <qvector.h>
 
@@ -22,7 +21,7 @@ class QwtPlot;
 
   QwtPlotPicker is a QwtPicker tailored for selections on
   a plot canvas. It is set to a x-Axis and y-Axis and
-  translates all pixel coordinates into this coodinate system.
+  translates all pixel coordinates into this coordinate system.
 */
 
 class QWT_EXPORT QwtPlotPicker: public QwtPicker
@@ -30,14 +29,13 @@ class QWT_EXPORT QwtPlotPicker: public QwtPicker
     Q_OBJECT
 
 public:
-    explicit QwtPlotPicker( QwtPlotCanvas * );
+    explicit QwtPlotPicker( QWidget *canvas );
     virtual ~QwtPlotPicker();
 
-    explicit QwtPlotPicker( int xAxis, int yAxis, QwtPlotCanvas * );
+    explicit QwtPlotPicker( int xAxis, int yAxis, QWidget * );
 
     explicit QwtPlotPicker( int xAxis, int yAxis,
-        RubberBand rubberBand, DisplayMode trackerMode,
-        QwtPlotCanvas * );
+        RubberBand rubberBand, DisplayMode trackerMode, QWidget * );
 
     virtual void setAxis( int xAxis, int yAxis );
 
@@ -47,19 +45,19 @@ public:
     QwtPlot *plot();
     const QwtPlot *plot() const;
 
-    QwtPlotCanvas *canvas();
-    const QwtPlotCanvas *canvas() const;
+    QWidget *canvas();
+    const QWidget *canvas() const;
 
 Q_SIGNALS:
 
     /*!
-      A signal emitted in case of selectionFlags() & PointSelection.
+      A signal emitted in case of QwtPickerMachine::PointSelection.
       \param pos Selected point
     */
     void selected( const QPointF &pos );
 
     /*!
-      A signal emitted in case of selectionFlags() & RectSelection.
+      A signal emitted in case of QwtPickerMachine::RectSelection.
       \param rect Selected rectangle
     */
     void selected( const QRectF &rect );
@@ -92,14 +90,12 @@ Q_SIGNALS:
 protected:
     QRectF scaleRect() const;
 
-public:
     QRectF invTransform( const QRect & ) const;
     QRect transform( const QRectF & ) const;
 
     QPointF invTransform( const QPoint & ) const;
     QPoint transform( const QPointF & ) const;
 
-protected:
     virtual QwtText trackerText( const QPoint & ) const;
     virtual QwtText trackerTextF( const QPointF & ) const;
 

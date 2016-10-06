@@ -13,7 +13,7 @@
 #include <qpainter.h>
 #include <qpalette.h>
 
-static void drawBox( QPainter *p, const QRectF &rect,
+static void qwtDrawBox( QPainter *p, const QRectF &rect,
     const QPalette &pal, double lw )
 {
     if ( lw > 0.0 )
@@ -56,7 +56,7 @@ static void drawBox( QPainter *p, const QRectF &rect,
         p->fillRect( windowRect, pal.window() );
 }
 
-static void drawPanel( QPainter *painter, const QRectF &rect,
+static void qwtDrawPanel( QPainter *painter, const QRectF &rect,
     const QPalette &pal, double lw )
 {
     if ( lw > 0.0 )
@@ -277,12 +277,12 @@ void QwtColumnSymbol::drawBox( QPainter *painter,
     {
         case QwtColumnSymbol::Raised:
         {
-            ::drawPanel( painter, r, d_data->palette, d_data->lineWidth );
+            qwtDrawPanel( painter, r, d_data->palette, d_data->lineWidth );
             break;
         }
         case QwtColumnSymbol::Plain:
         {
-            ::drawBox( painter, r, d_data->palette, d_data->lineWidth );
+            qwtDrawBox( painter, r, d_data->palette, d_data->lineWidth );
             break;
         }
         default:

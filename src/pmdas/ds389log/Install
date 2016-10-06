@@ -19,7 +19,6 @@
 iam=ds389log
 perl_opt=true
 daemon_opt=false
-forced_restart=true
 
 perl -e "use Date::Manip" 2>/dev/null
 if test $? -ne 0; then

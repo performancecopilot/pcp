@@ -10,6 +10,8 @@
 #include "qwt_clipper.h"
 #include "qwt_point_polar.h"
 #include <qrect.h>
+#include <string.h>
+#include <stdlib.h>
 
 #if QT_VERSION < 0x040601
 #define qAtan(x) ::atan(x)
@@ -43,7 +45,7 @@ public:
     inline Point intersection( const Point &p1, const Point &p2 ) const
     {
         double dy = ( p1.y() - p2.y() ) / double( p1.x() - p2.x() );
-        return Point( d_x1, ( Value ) ( p2.y() + ( d_x1 - p2.x() ) * dy ) );
+        return Point( d_x1, static_cast< Value >( p2.y() + ( d_x1 - p2.x() ) * dy ) );
     }
 private:
     const Value d_x1;
@@ -66,7 +68,7 @@ public:
     inline Point intersection( const Point &p1, const Point &p2 ) const
     {
         double dy = ( p1.y() - p2.y() ) / double( p1.x() - p2.x() );
-        return Point( d_x2, ( Value ) ( p2.y() + ( d_x2 - p2.x() ) * dy ) );
+        return Point( d_x2, static_cast<Value>( p2.y() + ( d_x2 - p2.x() ) * dy ) );
     }
 
 private:
@@ -90,7 +92,7 @@ public:
     inline Point intersection( const Point &p1, const Point &p2 ) const
     {
         double dx = ( p1.x() - p2.x() ) / double( p1.y() - p2.y() );
-        return Point( ( Value )( p2.x() + ( d_y1 - p2.y() ) * dx ), d_y1 );
+        return Point( static_cast<Value>( p2.x() + ( d_y1 - p2.y() ) * dx ), d_y1 );
     }
 
 private:
@@ -114,7 +116,7 @@ public:
     inline Point intersection( const Point &p1, const Point &p2 ) const
     {
         double dx = ( p1.x() - p2.x() ) / double( p1.y() - p2.y() );
-        return Point( ( Value )( p2.x() + ( d_y2 - p2.y() ) * dx ), d_y2 );
+        return Point( static_cast<Value>( p2.x() + ( d_y2 - p2.y() ) * dx ), d_y2 );
     }
 
 private:
@@ -137,7 +139,7 @@ public:
     ~PointBuffer()
     {
         if ( m_buffer )
-            qFree( m_buffer );
+            ::free( m_buffer );
     }
 
     inline void setPoints( int numPoints, const Point *points )
@@ -145,7 +147,7 @@ public:
         reserve( numPoints );
 
         m_size = numPoints;
-        qMemCopy( m_buffer, points, m_size * sizeof( Point ) );
+        ::memcpy( m_buffer, points, m_size * sizeof( Point ) );
     }
 
     inline void reset() 
@@ -190,8 +192,8 @@ private:
         while ( m_capacity < size )
             m_capacity *= 2;
 
-        m_buffer = ( Point * ) qRealloc( 
-            m_buffer, m_capacity * sizeof( Point ) );
+        m_buffer = static_cast<Point *>( 
+            ::realloc( m_buffer, m_capacity * sizeof( Point ) ) );
     }
 
     int m_capacity;
@@ -229,7 +231,7 @@ public:
 
         Polygon p;
         p.resize( points1.size() );
-        qMemCopy( p.data(), points1.data(), points1.size() * sizeof( Point ) );
+        ::memcpy( p.data(), points1.data(), points1.size() * sizeof( Point ) );
 
         return p;
     }
@@ -334,7 +336,7 @@ QVector<QwtInterval> QwtCircleClipper::clipCircle(
 {
     QList<QPointF> points;
     for ( int edge = 0; edge < NEdges; edge++ )
-        points += cuttingPoints( ( Edge )edge, pos, radius );
+        points += cuttingPoints( static_cast<Edge>(edge), pos, radius );
 
     QVector<QwtInterval> intv;
     if ( points.size() <= 0 )
@@ -443,6 +445,28 @@ QList<QPointF> QwtCircleClipper::cuttingPoints(
    \return Clipped polygon
 */
 QPolygon QwtClipper::clipPolygon(
+    const QRectF &clipRect, const QPolygon &polygon, bool closePolygon )
+{
+    const int minX = qCeil( clipRect.left() );
+    const int maxX = qFloor( clipRect.right() );
+    const int minY = qCeil( clipRect.top() );
+    const int maxY = qFloor( clipRect.bottom() );
+
+    const QRect r( minX, minY, maxX - minX, maxY - minY );
+
+    QwtPolygonClipper<QPolygon, QRect, QPoint, int> clipper( r );
+    return clipper.clipPolygon( polygon, closePolygon );
+}
+/*!
+   Sutherland-Hodgman polygon clipping
+
+   \param clipRect Clip rectangle
+   \param polygon Polygon
+   \param closePolygon True, when the polygon is closed
+
+   \return Clipped polygon
+*/
+QPolygon QwtClipper::clipPolygon(
     const QRect &clipRect, const QPolygon &polygon, bool closePolygon )
 {
     QwtPolygonClipper<QPolygon, QRect, QPoint, int> clipper( clipRect );
@@ -468,7 +492,7 @@ QPolygonF QwtClipper::clipPolygonF(
 /*!
    Circle clipping
 
-   clipCircle() devides a circle into intervals of angles representing arcs
+   clipCircle() divides a circle into intervals of angles representing arcs
    of the circle. When the circle is completely inside the clip rectangle
    an interval [0.0, 2 * M_PI] is returned.
 

@@ -46,11 +46,11 @@ public:
     void detachItems( int rtti = QwtPlotItem::Rtti_PlotItem,
         bool autoDelete = true );
 
+protected:
+    void insertItem( QwtPlotItem * );
+    void removeItem( QwtPlotItem * );
+
 private:
-    friend class QwtPlotItem;
-
-    void attachItem( QwtPlotItem *, bool );
-
     class PrivateData;
     PrivateData *d_data;
 };

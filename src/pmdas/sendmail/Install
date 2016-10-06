@@ -20,7 +20,6 @@
 
 iam=sendmail
 pmda_interface=3
-forced_restart=false
 
 pmdaSetup
 pmdaInstall

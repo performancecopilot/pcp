@@ -21,7 +21,7 @@
 
   QwtDynGridLayout takes the space it gets, divides it up into rows and
   columns, and puts each of the widgets it manages into the correct cell(s).
-  It lays out as many number of columns as possible (limited by maxCols()).
+  It lays out as many number of columns as possible (limited by maxColumns()).
 */
 
 class QWT_EXPORT QwtDynGridLayout : public QLayout
@@ -35,11 +35,11 @@ public:
 
     virtual void invalidate();
 
-    void setMaxCols( uint maxCols );
-    uint maxCols() const;
+    void setMaxColumns( uint maxCols );
+    uint maxColumns() const;
 
     uint numRows () const;
-    uint numCols () const;
+    uint numColumns () const;
 
     virtual void addItem( QLayoutItem * );
 

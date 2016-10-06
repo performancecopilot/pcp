@@ -1,9 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 964
-# Ensure pmlogger not started via PMDA Install if it is
-# not chkconfig'd on.
+# Ensure pmlogger not (re)started via PMDA Install.
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015-2016 Red Hat.
 #
 
 seq=`basename $0`
@@ -35,14 +34,9 @@ _cleanup()
     if $_needclean
     then
 	echo "Resetting system state"
-	_restore_loggers
-	_change_config pmlogger on
 	_restore_pmda_install xfs
-	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-	&& $sudo sh $tmp.cmd
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	$sudo $PCP_RC_DIR/pmcd restart | _filter_pcp_start
 	_wait_for_pmcd
-	_wait_for_pmlogger
 	_needclean=false
     fi
     $sudo rm -f $tmp.*
@@ -90,43 +84,22 @@ _filter_xfs_install()
 
 # real QA test starts here
 _prepare_pmda_install xfs
-_disable_loggers
-_change_config pmlogger off
-pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
-&& $sudo sh $tmp.cmd
 
-# switch off pmcd and pmlogger
-$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
-
-# need to go round and smack all the pmloggers ... some might be
-# sleeping and not yet notice pmcd has gone away
-#
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger >>$here/$seq.full
-for i in 1 2 3 4 5
-do
-    plist=`_get_pids_by_name pmlogger`
-    [ -z "$plist" ] && break
-    echo "iteration $i: killing pids: $plist" >>$here/$seq.full
-    $sudo kill -TERM $plist
-    sleep 1
-done
+# switch off pmcd
+$sudo $PCP_RC_DIR/pmcd stop | _filter_pcp_stop
 
 _count_pmloggers
-echo "pmlogger count after pcp stop (expect 0): $?" | tee -a $here/$seq.full
+echo "pmlogger count after pmcd stop (expect 1): $?" | tee -a $here/$seq.full
 echo
 
 # install a PMDA, which should restart only pmcd
 cd $PCP_PMDAS_DIR/xfs
 $sudo ./Install < /dev/null 2>&1 | _filter_xfs_install
 
-# verify no pmloggers running
+# verify pmlogger still running
 _count_pmloggers
-echo "pmlogger count at end of Install (expect 0): $?" | tee -a $here/$seq.full
+echo "pmlogger count at end of Install (expect 1): $?" | tee -a $here/$seq.full
 echo
-
-# switch default pmlogger on once more
-_restore_loggers
-_change_config pmlogger on
 
 # install a PMDA, should restart both pmcd and pmlogger
 cd $PCP_PMDAS_DIR/xfs

@@ -43,12 +43,8 @@ sub kvm_fetch_callback
 $pmda = PCP::PMDA->new('kvm', 95);
 $pmda->connect_pmcd;
 
-# May need to be root to read the directory $kvm_path (/sys/kernel/debug/kvm)
-# and so
-# (a) do not use $pmda->set_user('pcp') below, and
-# (b) need forced_restart=true in the Install script so pmcd is restarted
-#     and we're running as root at this point (SIGHUP pmcd once it has
-#     changed to user "pcp" is not going to work for PMDA installation)
+# May need to be root to read directory $kvm_path (/sys/kernel/debug/kvm)
+# - hence we cannot default to using $pmda->set_user('pcp') below.
 #
 my $pmid = 0;
 opendir(DIR, $kvm_path) || $pmda->err("pmdakvm failed to open $kvm_path: $!");

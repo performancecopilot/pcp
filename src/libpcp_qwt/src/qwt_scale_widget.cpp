@@ -14,6 +14,7 @@
 #include "qwt_math.h"
 #include "qwt_scale_div.h"
 #include "qwt_text.h"
+#include "qwt_scale_engine.h"
 #include <qpainter.h>
 #include <qevent.h>
 #include <qmath.h>
@@ -105,6 +106,9 @@ void QwtScaleWidget::initScale( QwtScaleDraw::Alignment align )
     d_data->scaleDraw = new QwtScaleDraw;
     d_data->scaleDraw->setAlignment( align );
     d_data->scaleDraw->setLength( 10 );
+
+    d_data->scaleDraw->setScaleDiv(
+        QwtLinearScaleEngine().divideScale( 0.0, 100.0, 10, 5 ) );
 
     d_data->colorBar.colorMap = new QwtLinearColorMap();
     d_data->colorBar.isEnabled = false;
@@ -212,6 +216,7 @@ void QwtScaleWidget::setAlignment( QwtScaleDraw::Alignment alignment )
             policy.transpose();
 
         setSizePolicy( policy );
+
         setAttribute( Qt::WA_WState_OwnSizePolicy, false );
     }
 
@@ -305,28 +310,41 @@ void QwtScaleWidget::setLabelRotation( double rotation )
 
 /*!
   Set a scale draw
-  sd has to be created with new and will be deleted in
-  ~QwtScaleWidget() or the next call of setScaleDraw().
 
-  \param sd ScaleDraw object
+  scaleDraw has to be created with new and will be deleted in
+  ~QwtScaleWidget() or the next call of setScaleDraw().
+  scaleDraw will be initialized with the attributes of
+  the previous scaleDraw object.
+
+  \param scaleDraw ScaleDraw object
   \sa scaleDraw()
 */
-void QwtScaleWidget::setScaleDraw( QwtScaleDraw *sd )
+void QwtScaleWidget::setScaleDraw( QwtScaleDraw *scaleDraw )
 {
-    if ( sd == NULL || sd == d_data->scaleDraw )
+    if ( ( scaleDraw == NULL ) || ( scaleDraw == d_data->scaleDraw ) )
         return;
 
-    if ( d_data->scaleDraw )
-        sd->setAlignment( d_data->scaleDraw->alignment() );
+    const QwtScaleDraw* sd = d_data->scaleDraw;
+    if ( sd )
+    {
+        scaleDraw->setAlignment( sd->alignment() );
+        scaleDraw->setScaleDiv( sd->scaleDiv() );
+
+        QwtTransform *transform = NULL;
+        if ( sd->scaleMap().transformation() )
+            transform = sd->scaleMap().transformation()->copy();
+
+        scaleDraw->setTransformation( transform );
+    }
 
     delete d_data->scaleDraw;
-    d_data->scaleDraw = sd;
+    d_data->scaleDraw = scaleDraw;
 
     layoutScale();
 }
 
 /*!
-    scaleDraw of this scale
+    \return scaleDraw of this scale
     \sa setScaleDraw(), QwtScaleDraw::setScaleDraw()
 */
 const QwtScaleDraw *QwtScaleWidget::scaleDraw() const
@@ -335,7 +353,7 @@ const QwtScaleDraw *QwtScaleWidget::scaleDraw() const
 }
 
 /*!
-    scaleDraw of this scale
+    \return scaleDraw of this scale
     \sa QwtScaleDraw::setScaleDraw()
 */
 QwtScaleDraw *QwtScaleWidget::scaleDraw()
@@ -436,7 +454,7 @@ void QwtScaleWidget::draw( QPainter *painter ) const
   Calculate the the rectangle for the color bar
 
   \param rect Bounding rectangle for all components of the scale
-  \return Rectabgle for the color bar
+  \return Rectangle for the color bar
 */
 QRectF QwtScaleWidget::colorBarRect( const QRectF& rect ) const
 {
@@ -490,7 +508,7 @@ QRectF QwtScaleWidget::colorBarRect( const QRectF& rect ) const
 }
 
 /*!
-  Event handler for resize event
+  Event handler for resize events
   \param event Resize event
 */
 void QwtScaleWidget::resizeEvent( QResizeEvent *event )
@@ -501,7 +519,7 @@ void QwtScaleWidget::resizeEvent( QResizeEvent *event )
 
 /*!
   Recalculate the scale's geometry and layout based on
-  the current rect and fonts.
+  the current geometry and fonts.
 
   \param update_geometry Notify the layout system and call update
                          to redraw the scale
@@ -749,6 +767,11 @@ int QwtScaleWidget::dimForLength( int length, const QFont &scaleFont ) const
   The maximum of this distance an the minimum border distance
   is returned.
 
+  \param start Return parameter for the border width at 
+               the beginning of the scale
+  \param end Return parameter for the border width at the 
+             end of the scale
+
   \warning
   <ul> <li>The minimum border distance depends on the font.</ul>
   \sa setMinBorderDist(), getMinBorderDist(), setBorderDist()
@@ -784,6 +807,11 @@ void QwtScaleWidget::setMinBorderDist( int start, int end )
   Get the minimum value for the distances of the scale's endpoints from
   the widget borders.
 
+  \param start Return parameter for the border width at 
+               the beginning of the scale
+  \param end Return parameter for the border width at the 
+             end of the scale
+
   \sa setMinBorderDist(), getBorderDistHint()
 */
 void QwtScaleWidget::getMinBorderDist( int &start, int &end ) const
@@ -797,35 +825,31 @@ void QwtScaleWidget::getMinBorderDist( int &start, int &end ) const
 
   The scale division determines where to set the tick marks.
 
-  \param transformation Transformation, needed to translate between
-                        scale and pixal values
   \param scaleDiv Scale Division
   \sa For more information about scale divisions, see QwtScaleDiv.
 */
-void QwtScaleWidget::setScaleDiv(
-    QwtScaleTransformation *transformation,
-    const QwtScaleDiv &scaleDiv )
+void QwtScaleWidget::setScaleDiv( const QwtScaleDiv &scaleDiv )
 {
     QwtScaleDraw *sd = d_data->scaleDraw;
-    if ( sd->scaleDiv() != scaleDiv ||
-        sd->scaleMap().transformation()->type() != transformation->type() )
+    if ( sd->scaleDiv() != scaleDiv )
     {
-        sd->setTransformation( transformation );
         sd->setScaleDiv( scaleDiv );
         layoutScale();
 
         Q_EMIT scaleDivChanged();
     }
-    else
-    {
-        /*
-          The transformation doesn't anything different as the 
-          previous one. So we better throw it silently away instead of 
-          initiating heavy updates
-         */
+}
 
-        delete transformation;
-    }
+/*!
+  Set the transformation
+
+  \param transformation Transformation
+  \sa QwtAbstractScaleDraw::scaleDraw(), QwtScaleMap
+ */
+void QwtScaleWidget::setTransformation( QwtTransform *transformation )
+{
+    d_data->scaleDraw->setTransformation( transformation );
+    layoutScale();
 }
 
 /*!

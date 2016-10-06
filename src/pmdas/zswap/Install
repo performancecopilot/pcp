@@ -21,7 +21,6 @@
 iam=zswap
 python_opt=true
 daemon_opt=false
-forced_restart=true
 
 pmdaSetup
 pmdaInstall

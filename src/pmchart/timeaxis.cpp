@@ -74,6 +74,11 @@ TimeAxis::TimeAxis(QWidget *parent) : QwtPlot(parent)
 {
     clearScaleCache();
     setFocusPolicy(Qt::NoFocus);
+
+    QwtPlotCanvas *canvas = new QwtPlotCanvas();
+    canvas->resize(QSize(0.0, 0.0));
+    setCanvas(canvas);
+    canvas->hide();
 }
 
 void TimeAxis::init()

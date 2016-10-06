@@ -53,7 +53,7 @@ main(int argc, char* argv[])
     QmcSource *src1 = QmcSource::getSource(PM_CONTEXT_ARCHIVE, source, false);
     if (src1->status() < 0) {
 	pmprintf("%s: Error: Unable to create context to \"%s\": %s\n",
-		pmProgname, (const char *)source.toAscii(),
+		pmProgname, (const char *)source.toLatin1(),
 		pmErrStr(src1->status()));
 	pmflush();
 	fail = 1;
@@ -216,7 +216,7 @@ main(int argc, char* argv[])
 
     if (src2->status() >= 0) {
 	pmprintf("%s: Error: Able to create context to \"%s\": %s\n",
-		pmProgname, (const char *)source.toAscii(),
+		pmProgname, (const char *)source.toLatin1(),
 		pmErrStr(src1->status()));
 	pmflush();
 	fail = 1;

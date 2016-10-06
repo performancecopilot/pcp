@@ -1,0 +1,101 @@
+#!/bin/sh
+# PCP QA Test No. 895
+# pmlogger SIGINT badness
+#
+# https://github.com/performancecopilot/pcp/issues/116
+#
+# Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<End-of-File >$tmp.config
+log mandatory on 10 msec {
+    cgroup
+    containers
+    disk
+    event
+    filesys
+    hinv
+    hotproc
+    ipc
+    jbd2
+    kernel
+    mem
+    mmv
+    network
+    nfs
+    nfs3
+    nfs4
+    pmcd
+    pmda
+    proc
+    quota
+    rpc
+    swap
+    swapdev
+    sysfs
+    tmpfs
+    vfs
+    xfs
+}
+End-of-File
+
+_filter()
+{
+    cat \
+    | tee -a $here/$seq.full \
+    | sed \
+	-e '/re-established connection/d' \
+	-e '/Validating metrics/d' \
+	-e '/^Log for pmlogger /s/ on .*/ .../' \
+	-e '/^preprocessor cmd:/s/: .*/: .../' \
+	-e '/^Starting logger/s/".*/.../' \
+	-e '/} logged every/s/: .*/: .../' \
+	-e "s@$tmp@TMP@" \
+	-e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]/DATE/' \
+	-e 's/DATE [0-9][0-9][0-9][0-9]/DATE/' \
+	-e 's/pmlogger([0-9][0-9]*)/pmlogger(PID)/' \
+    | $PCP_AWK_PROG '
+BEGIN			{ state = 0 }
+$1 == "Group"		{ print "Group ... {"; state = 1; next }
+state == 1 && $1 == "}"	{ print "	..."; state = 0 }
+state == 0		{ print }'
+}
+
+# real QA test starts here
+pmlogger -h localhost -r -c $tmp.config -m qa_$seq -l $tmp.log $tmp &
+pid=$!
+
+sleep 3
+kill -INT $pid
+wait
+
+_filter <$tmp.log
+
+# without timeouts, expect 3sec * 1000 * 5 fetch groups / 10msec = 1500 records
+#
+max_nrec=1500
+min_nrec=300
+nrec=`pmdumplog $tmp | grep '^[0-9]' | grep -v '<mark>' | wc -l | sed -e 's/ //g'`
+if [ "$nrec" -ge $min_nrec -a "$nrec" -le $max_nrec ]
+then
+    echo "OK, between $min_nrec and $max_nrec archive records"
+else
+    echo "oops, $nrec archive records not between the expected range of $min_nrec and $max_nrec"
+fi
+
+# success, all done
+status=0
+
+exit

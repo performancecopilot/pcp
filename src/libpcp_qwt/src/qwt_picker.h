@@ -17,12 +17,14 @@
 #include <qpen.h>
 #include <qfont.h>
 #include <qrect.h>
+#include <qpainterpath.h>
 
 class QWidget;
 class QMouseEvent;
 class QWheelEvent;
 class QKeyEvent;
 class QwtPickerMachine;
+class QwtWidgetOverlay;
 
 /*!
   \brief QwtPicker provides selections on a widget
@@ -47,12 +49,12 @@ class QwtPickerMachine;
   it is also possible to implement individual machines as well.
 
   QwtPicker translates the picked points into a selection using the
-  adjustedPoints method. adjustedPoints is intended to be reimplemented
-  to fixup the selection according to application specific requirements.
+  adjustedPoints() method. adjustedPoints() is intended to be reimplemented
+  to fix up the selection according to application specific requirements.
   (F.e. when an application accepts rectangles of a fixed aspect ratio only.)
 
   Optionally QwtPicker support the process of collecting points by a
-  rubberband and tracker displaying a text for the current mouse
+  rubber band and tracker displaying a text for the current mouse
   position.
 
   \par Example
@@ -78,7 +80,7 @@ picker->setRubberBand(QwtPicker::RectRubberBand); \endverbatim\n
     Terminate the selection and call accept to validate the picked points.
 
   The picker is active (isActive()), between begin() and end().
-  In active state the rubberband is displayed, and the tracker is visible
+  In active state the rubber band is displayed, and the tracker is visible
   in case of trackerMode is ActiveOnly or AlwaysOn.
 
   The cursor can be moved using the arrow keys. All selections can be aborted
@@ -94,9 +96,7 @@ class QWT_EXPORT QwtPicker: public QObject, public QwtEventPattern
 {
     Q_OBJECT
 
-    Q_ENUMS( RubberBand )
-    Q_ENUMS( DisplayMode )
-    Q_ENUMS( ResizeMode )
+    Q_ENUMS( RubberBand DisplayMode ResizeMode )
 
     Q_PROPERTY( bool isEnabled READ isEnabled WRITE setEnabled )
     Q_PROPERTY( ResizeMode resizeMode READ resizeMode WRITE setResizeMode )
@@ -110,7 +110,7 @@ class QWT_EXPORT QwtPicker: public QObject, public QwtEventPattern
 
 public:
     /*!
-      Rubberband style
+      Rubber band style
 
       The default value is QwtPicker::NoRubberBand.
       \sa setRubberBand(), rubberBand()
@@ -121,22 +121,22 @@ public:
         //! No rubberband.
         NoRubberBand = 0,
 
-        //! A horizontal line ( only for QwtPicker::PointSelection )
+        //! A horizontal line ( only for QwtPickerMachine::PointSelection )
         HLineRubberBand,
 
-        //! A vertical line ( only for QwtPicker::PointSelection )
+        //! A vertical line ( only for QwtPickerMachine::PointSelection )
         VLineRubberBand,
 
-        //! A crosshair ( only for QwtPicker::PointSelection )
+        //! A crosshair ( only for QwtPickerMachine::PointSelection )
         CrossRubberBand,
 
-        //! A rectangle ( only for QwtPicker::RectSelection )
+        //! A rectangle ( only for QwtPickerMachine::RectSelection )
         RectRubberBand,
 
-        //! An ellipse ( only for QwtPicker::RectSelection )
+        //! An ellipse ( only for QwtPickerMachine::RectSelection )
         EllipseRubberBand,
 
-        //! A polygon ( only for QwtPicker::&PolygonSelection )
+        //! A polygon ( only for QwtPickerMachine::PolygonSelection )
         PolygonRubberBand,
 
         /*!
@@ -215,10 +215,12 @@ public:
     QWidget *parentWidget();
     const QWidget *parentWidget() const;
 
-    virtual QRect pickRect() const;
+    virtual QPainterPath pickArea() const;
 
     virtual void drawRubberBand( QPainter * ) const;
     virtual void drawTracker( QPainter * ) const;
+
+    virtual QRegion rubberBandMask() const;
 
     virtual QwtText trackerText( const QPoint &pos ) const;
     QPoint trackerPosition() const;
@@ -268,6 +270,7 @@ Q_SIGNALS:
       A signal emitted whenever the last appended point of the
       selection has been removed.
 
+      \param pos Position of the point, that has been removed
       \sa remove(), appended()
     */
     void removed( const QPoint &pos );
@@ -309,8 +312,8 @@ protected:
 
     virtual void updateDisplay();
 
-    const QWidget *rubberBandWidget() const;
-    const QWidget *trackerWidget() const;
+    const QwtWidgetOverlay *rubberBandOverlay() const;
+    const QwtWidgetOverlay *trackerOverlay() const;
 
     const QPolygon &pickedPoints() const;
 
@@ -319,7 +322,6 @@ private:
 
     void setMouseTracking( bool );
 
-    class PickerWidget;
     class PrivateData;
     PrivateData *d_data;
 };

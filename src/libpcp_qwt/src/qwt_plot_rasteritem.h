@@ -38,20 +38,24 @@ class QWT_EXPORT QwtPlotRasterItem: public QwtPlotItem
 {
 public:
     /*!
-      - NoCache\n
-        renderImage() is called, whenever the item has to be repainted
-      - PaintCache\n
-        renderImage() is called, whenever the image cache is not valid,
-        or the scales, or the size of the canvas has changed. This type
-        of cache is only useful for improving the performance of hide/show
-        operations. All other situations are already handled by the
-        plot canvas cache.
-
+      \brief Cache policy
       The default policy is NoCache
      */
     enum CachePolicy
     {
+        /*!
+          renderImage() is called each time the item has to be repainted
+         */
         NoCache,
+
+        /*!
+          renderImage() is called, whenever the image cache is not valid,
+          or the scales, or the size of the canvas has changed. 
+
+          This type of cache is useful for improving the performance 
+          of hide/show operations or manipulations of the alpha value. 
+          All other situations are handled by the canvas backing store.
+         */
         PaintCache
     };
 
@@ -117,6 +121,8 @@ protected:
       \param yMap Y-Scale Map
       \param area Requested area for the image in scale coordinates
       \param imageSize Requested size of the image
+   
+      \return Rendered image
      */
     virtual QImage renderImage( const QwtScaleMap &xMap,
         const QwtScaleMap &yMap, const QRectF &area,

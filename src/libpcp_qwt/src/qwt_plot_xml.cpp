@@ -28,6 +28,7 @@ void QwtPlot::applyProperties( const QString & /* xmlDocument */ )
   This method is intended for manipulating the plot widget
   from a specific editor in the Qwt designer plugin.
 
+  \return QString::null
   \warning The plot editor has never been implemented.
 */
 QString QwtPlot::grabProperties() const

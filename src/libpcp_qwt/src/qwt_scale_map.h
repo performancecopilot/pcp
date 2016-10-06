@@ -11,60 +11,14 @@
 #define QWT_SCALE_MAP_H
 
 #include "qwt_global.h"
-#include "qwt_math.h"
+#include "qwt_transform.h"
+#include <qrect.h>
+
 #ifndef QT_NO_DEBUG_STREAM
 #include <qdebug.h>
 #endif
 
 class QRectF;
-
-/*!
-   \brief A transformation between coordinate systems
-
-   QwtScaleTransformation offers transformations from the coordinate system
-   of a scale into the linear coordinate system of a paint device 
-   and vice versa.
-*/
-class QWT_EXPORT QwtScaleTransformation
-{
-public:
-    //! Transformation type
-    enum Type
-    {
-        //! Transformation between 2 linear scales
-        Linear,
-
-        //! Transformation between a linear and a logarithmic ( base 10 ) scale
-        Log10,
-
-        //! Any other type of transformation
-        Other
-    };
-
-    QwtScaleTransformation( Type type );
-    virtual ~QwtScaleTransformation();
-
-    virtual double xForm( double s, double s1, double s2,
-        double p1, double p2 ) const;
-    virtual double invXForm( double p, double p1, double p2,
-        double s1, double s2 ) const;
-
-    Type type() const;
-
-    virtual QwtScaleTransformation *copy() const;
-
-private:
-    QwtScaleTransformation();
-    QwtScaleTransformation &operator=( const QwtScaleTransformation );
-
-    const Type d_type;
-};
-
-//! \return Transformation type
-inline QwtScaleTransformation::Type QwtScaleTransformation::type() const
-{
-    return d_type;
-}
 
 /*!
    \brief A scale map
@@ -83,8 +37,8 @@ public:
 
     QwtScaleMap &operator=( const QwtScaleMap & );
 
-    void setTransformation( QwtScaleTransformation * );
-    const QwtScaleTransformation *transformation() const;
+    void setTransformation( QwtTransform * );
+    const QwtTransform *transformation() const;
 
     void setPaintInterval( double p1, double p2 );
     void setScaleInterval( double s1, double s2 );
@@ -101,9 +55,6 @@ public:
     double pDist() const;
     double sDist() const;
 
-    static const double LogMin;
-    static const double LogMax;
-
     static QRectF transform( const QwtScaleMap &,
         const QwtScaleMap &, const QRectF & );
     static QRectF invTransform( const QwtScaleMap &,
@@ -117,14 +68,15 @@ public:
     bool isInverting() const;
 
 private:
-    void newFactor();
+    void updateFactor();
 
     double d_s1, d_s2;     // scale interval boundaries
     double d_p1, d_p2;     // paint device interval boundaries
 
     double d_cnv;       // conversion factor
+    double d_ts1;
 
-    QwtScaleTransformation *d_transformation;
+    QwtTransform *d_transform;
 };
 
 /*!
@@ -180,18 +132,16 @@ inline double QwtScaleMap::sDist() const
   related to the interval of the paint device
 
   \param s Value relative to the coordinates of the scale
+  \return Transformed value
+
+  \sa invTransform()
 */
 inline double QwtScaleMap::transform( double s ) const
 {
-    // try to inline code from QwtScaleTransformation
+    if ( d_transform )
+        s = d_transform->transform( s );
 
-    if ( d_transformation->type() == QwtScaleTransformation::Linear )
-        return d_p1 + ( s - d_s1 ) * d_cnv;
-
-    if ( d_transformation->type() == QwtScaleTransformation::Log10 )
-        return d_p1 + log( s / d_s1 ) * d_cnv;
-
-    return d_transformation->xForm( s, d_s1, d_s2, d_p1, d_p2 );
+    return d_p1 + ( s - d_ts1 ) * d_cnv;
 }
 
 /*!
@@ -199,11 +149,17 @@ inline double QwtScaleMap::transform( double s ) const
   interval of the scale.
 
   \param p Value relative to the coordinates of the paint device
+  \return Transformed value
+
   \sa transform()
 */
 inline double QwtScaleMap::invTransform( double p ) const
 {
-    return d_transformation->invXForm( p, d_p1, d_p2, d_s1, d_s2 );
+    double s = d_ts1 + ( p - d_p1 ) / d_cnv;
+    if ( d_transform )
+        s = d_transform->invTransform( s );
+
+    return s;
 }
 
 //! \return True, when ( p1() < p2() ) != ( s1() < s2() )

@@ -55,6 +55,9 @@ extern int _pm_numdisks;
  * Ceph RADOS block devices are named e.g. rbd0
  * Ceph RADOS block device partitions are named e.g. rbd0p1
  *
+ * Network Block Devices (NBD) are named e.g. nbd0
+ * Network Block Device partitions are named e.g. nbd0p1
+ *
  * What this now tries to do is be a bit smarter, and guess that names
  * with slashes that end in the form .../c0t0d0[p0], and ones without
  * are good old 19th century device names like xx0 or xx0a.
@@ -108,6 +111,18 @@ _pm_iscephrados(char *dname)
 }
 
 static int
+_pm_isnbd(char *dname)
+{
+    if (strncmp(dname, "nbd", 3) != 0)
+        return 0;
+    /*
+     * Are we a disk or a partition of the disk? If there is a "p"
+     * assume it is a partition - e.g. nbd7p1.
+     */
+    return (strchr(dname + 3, 'p') == NULL);
+}
+
+static int
 _pm_ismd(char *dname)
 {
     return strncmp(dname, "md", 2) == 0;
@@ -147,10 +162,8 @@ _pm_ispartition(char *dname)
     }
     else {
 	/*
-	 * default test : partition names end in a digit do not
-	 * look like loopback devices.  Handle other special-cases
-	 * here - mostly seems to be RAM-type disk drivers that're
-	 * choosing to end device names with numbers.
+	 * default test : partition names end in a digit do not look
+	 * like loopback devices.  Handle other special cases here.
 	 */
 	return isdigit((int)dname[m]) &&
 		!_pm_isloop(dname) &&
@@ -158,6 +171,7 @@ _pm_ispartition(char *dname)
 		!_pm_ismmcdisk(dname) &&
 		!_pm_isnvmedrive(dname) &&
 		!_pm_iscephrados(dname) &&
+		!_pm_isnbd(dname) &&
 		!_pm_ismd(dname) &&
 		!_pm_isdm(dname);
     }

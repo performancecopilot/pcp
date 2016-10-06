@@ -1298,11 +1298,13 @@ disconnect(int sts)
 	 * disconnect and before a successful pmReconnectContext(),
 	 * only need to shut down the channel and report once.
 	 */
-	time(&now);
-	if (sts != 0)
-	    fprintf(stderr, "%s: Error: %s\n", pmProgname, pmErrStr(sts));
-	fprintf(stderr, "%s: Lost connection to PMCD on \"%s\" at %s",
+	if (sts != -EINTR) {
+	    time(&now);
+	    if (sts != 0)
+		fprintf(stderr, "%s: Error: %s\n", pmProgname, pmErrStr(sts));
+	    fprintf(stderr, "%s: Lost connection to PMCD on \"%s\" at %s",
 		pmProgname, pmcd_host, ctime(&now));
+	}
 	if (pmcdfd != -1) {
 	    close(pmcdfd);
 	    __pmFD_CLR(pmcdfd, &fds);
@@ -1310,6 +1312,11 @@ disconnect(int sts)
 	}
 	numfds = maxfd() + 1;
 	ctxp->c_pmcd->pc_fd = -1;
+	/*
+	 * since there is only one context in play here, pc_refcnt is not
+	 * really in play, but reset it for consistency
+	 */
+	ctxp->c_pmcd->pc_refcnt = 0;
     }
 
     /*

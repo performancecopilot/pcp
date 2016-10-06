@@ -53,7 +53,7 @@ main(int argc, char* argv[])
 
     if (src->status() < 0) {
 	pmprintf("%s: Error: Unable to create context to \"%s\": %s\n",
-		pmProgname, (const char *)source.toAscii(),
+		pmProgname, (const char *)source.toLatin1(),
 		pmErrStr(src->status()));
 	pmflush();
 	return 1;

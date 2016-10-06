@@ -7,38 +7,40 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef QWT_LEGEND_ITEM_H
-#define QWT_LEGEND_ITEM_H
+#ifndef QWT_LEGEND_LABEL_H
+#define QWT_LEGEND_LABEL_H
 
 #include "qwt_global.h"
-#include "qwt_legend.h"
+#include "qwt_legend_data.h"
 #include "qwt_text.h"
 #include "qwt_text_label.h"
 #include <qpixmap.h>
 
+class QwtLegendData;
+
 /*!
-  \brief A widget representing something on a QwtLegend().
+  \brief A widget representing something on a QwtLegend.
 */
-class QWT_EXPORT QwtLegendItem: public QwtTextLabel
+class QWT_EXPORT QwtLegendLabel: public QwtTextLabel
 {
     Q_OBJECT
 public:
-    explicit QwtLegendItem( QWidget *parent = 0 );
-    virtual ~QwtLegendItem();
+    explicit QwtLegendLabel( QWidget *parent = 0 );
+    virtual ~QwtLegendLabel();
 
-    void setItemMode( QwtLegend::LegendItemMode );
-    QwtLegend::LegendItemMode itemMode() const;
+    void setData( const QwtLegendData & );
+    const QwtLegendData &data() const;
+
+    void setItemMode( QwtLegendData::Mode );
+    QwtLegendData::Mode itemMode() const;
 
     void setSpacing( int spacing );
     int spacing() const;
 
     virtual void setText( const QwtText & );
 
-    void setIdentifier( const QPixmap & );
-    QPixmap identifier() const;
-
-    void setIdentifierSize( const QSize & );
-    QSize identifierSize() const;
+    void setIcon( const QPixmap & );
+    QPixmap icon() const;
 
     virtual QSize sizeHint() const;
 
@@ -54,7 +56,7 @@ Q_SIGNALS:
     //! Signal, when the legend item has been pressed
     void pressed();
 
-    //! Signal, when the legend item has been relased
+    //! Signal, when the legend item has been released
     void released();
 
     //! Signal, when the legend item has been toggled

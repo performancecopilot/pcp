@@ -155,7 +155,7 @@ pcp-3.11.2 (29 April 2016)
     - pmdaoracle: connect to pmcd as early as possible
     - pmdaperfevent: optional scaling of derived events
     - pmdaperfevent: alternate event groups for derived events
-    - pmdaelasticsearch: restict to local node metrics by default
+    - pmdaelasticsearch: restrict to local node metrics by default
     - pmdaproc: cgroup blkio throttle throughput+iops metrics
     - pmdaproc: fix per-process scheduler metrics (type+semantics)
     - pmdaroot: add check for config.v2.json Docker 1.10+ files

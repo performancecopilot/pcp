@@ -353,7 +353,6 @@ void QwtDialSimpleNeedle::drawNeedle( QPainter *painter,
 }
 
 //! Constructor
-
 QwtCompassMagnetNeedle::QwtCompassMagnetNeedle( Style style,
         const QColor &light, const QColor &dark ):
     d_style( style )

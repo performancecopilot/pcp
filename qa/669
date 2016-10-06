@@ -67,7 +67,10 @@ ls -ld $tmp.dir >>$seq.full
 
 date >>$seq.full
 echo "=== 2. generate a bunch of short archives  ===" | tee -a $seq.full
-echo 'local:' >$tmp.dir/target-host
+# put in some blank lines and terminate without \n
+echo >>$tmp.dir/target-host
+echo >>$tmp.dir/target-host
+$PCP_ECHO_PROG $PCP_ECHO_N 'local:'"$PCP_ECHO_C" >>$tmp.dir/target-host
 echo $tmp.dir > $tmp.dir/log-directory
 echo 'log advisory on default { pmcd.hostname }' > $tmp.dir/pmlogger.conf
 echo '-t 1 -s 1 -c '$tmp.dir'/pmlogger.conf' > $tmp.dir/pmlogger  # "one ping only"
@@ -93,7 +96,10 @@ fi
 
 date >>$seq.full
 echo "=== 4. do a few rounds of batched log merging ===" | tee -a $seq.full
-touch $tmp.dir/pmlogmerge
+# a few blank lines - interpreted as though there was one
+echo > $tmp.dir/pmlogmerge
+echo VERY IGNORED >> $tmp.dir/pmlogmerge
+echo IGNORED >> $tmp.dir/pmlogmerge
 $sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
 sleep 20 # enough for some cycles of log merging batches
 $sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1

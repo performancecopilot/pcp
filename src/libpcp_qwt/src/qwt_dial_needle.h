@@ -22,9 +22,6 @@ class QPoint;
   QwtDialNeedle is a pointer that indicates a value by pointing
   to a specific direction.
 
-  Qwt is missing a set of good looking needles.
-  Contributions are very welcome.
-
   \sa QwtDial, QwtCompass
 */
 
@@ -48,7 +45,7 @@ protected:
       The origin of the needle is at position (0.0, 0.0 )
       pointing in direction 0.0 ( = east ). 
 
-      The painter is already initilaized with translation and 
+      The painter is already initialized with translation and 
       rotation.
 
       \param painter Painter

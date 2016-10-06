@@ -63,13 +63,34 @@ void QwtTextLabel::init()
 }
 
 /*!
+   Interface for the designer plugin - does the same as setText()
+   \sa plainText()
+ */
+void QwtTextLabel::setPlainText( const QString &text )
+{
+    setText( QwtText( text ) );
+}
+
+/*!
+   Interface for the designer plugin
+
+   \return Text as plain text
+   \sa setPlainText(), text()
+ */
+QString QwtTextLabel::plainText() const
+{
+    return d_data->text.text();
+}
+
+/*!
    Change the label's text, keeping all other QwtText attributes
    \param text New text
    \param textFormat Format of text
 
   \sa QwtText
 */
-void QwtTextLabel::setText( const QString &text, QwtText::TextFormat textFormat )
+void QwtTextLabel::setText( const QString &text, 
+    QwtText::TextFormat textFormat )
 {
     d_data->text.setText( text, textFormat );
 
@@ -125,7 +146,7 @@ void QwtTextLabel::setIndent( int indent )
     updateGeometry();
 }
 
-//! Return label's text indent in pixels
+//! Return label's text margin in pixels
 int QwtTextLabel::margin() const
 {
     return d_data->margin;
@@ -143,7 +164,7 @@ void QwtTextLabel::setMargin( int margin )
     updateGeometry();
 }
 
-//! Return label's margin in pixels
+//! Return a size hint
 QSize QwtTextLabel::sizeHint() const
 {
     return minimumSizeHint();
@@ -231,30 +252,27 @@ void QwtTextLabel::drawContents( QPainter *painter )
     painter->setFont( font() );
     painter->setPen( palette().color( QPalette::Active, QPalette::Text ) );
 
-    drawText( painter, r );
+    drawText( painter, QRectF( r ) );
 
     if ( hasFocus() )
     {
-        const int margin = 2;
+        const int m = 2;
 
-        QRect focusRect = contentsRect();
-        focusRect.setRect( focusRect.x() + margin, focusRect.y() + margin,
-            focusRect.width() - 2 * margin - 2,
-            focusRect.height() - 2 * margin - 2 );
+        QRect focusRect = contentsRect().adjusted( m, m, -m + 1, -m + 1);
 
         QwtPainter::drawFocusRect( painter, this, focusRect );
     }
 }
 
 //! Redraw the text
-void QwtTextLabel::drawText( QPainter *painter, const QRect &textRect )
+void QwtTextLabel::drawText( QPainter *painter, const QRectF &textRect )
 {
     d_data->text.draw( painter, textRect );
 }
 
 /*!
-  Calculate the rect for the text in widget coordinates
-  \return Text rect
+  Calculate geometry for the text in widget coordinates
+  \return Geometry for the text
 */
 QRect QwtTextLabel::textRect() const
 {

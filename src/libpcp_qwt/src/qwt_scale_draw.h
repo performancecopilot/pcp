@@ -28,7 +28,6 @@
   using QwtAbstractScaleDraw::setScaleDiv(const QwtScaleDiv &s),
   the scale can be drawn with the QwtAbstractScaleDraw::draw() member.
 */
-
 class QWT_EXPORT QwtScaleDraw: public QwtAbstractScaleDraw
 {
 public:
@@ -107,6 +106,10 @@ private:
 
 /*!
    Move the position of the scale
+
+   \param x X coordinate
+   \param y Y coordinate
+
    \sa move(const QPointF &)
 */
 inline void QwtScaleDraw::move( double x, double y )

@@ -24,7 +24,7 @@ class QwtScaleDiv;
 
   The QwtPlotGrid class can be used to draw a coordinate grid.
   A coordinate grid consists of major and minor vertical
-  and horizontal gridlines. The locations of the gridlines
+  and horizontal grid lines. The locations of the grid lines
   are determined by the X and Y scale divisions which can
   be assigned with setXDiv() and setYDiv().
   The draw() member draws the grid within a bounding
@@ -57,13 +57,16 @@ public:
     void setYDiv( const QwtScaleDiv &sy );
     const QwtScaleDiv &yScaleDiv() const;
 
-    void setPen( const QPen &p );
+    void setPen( const QColor &, qreal width = 0.0, Qt::PenStyle = Qt::SolidLine );
+    void setPen( const QPen & );
 
-    void setMajPen( const QPen &p );
-    const QPen& majPen() const;
+    void setMajorPen( const QColor &, qreal width = 0.0, Qt::PenStyle = Qt::SolidLine );
+    void setMajorPen( const QPen & );
+    const QPen& majorPen() const;
 
-    void setMinPen( const QPen &p );
-    const QPen& minPen() const;
+    void setMinorPen( const QColor &, qreal width = 0.0, Qt::PenStyle = Qt::SolidLine );
+    void setMinorPen( const QPen &p );
+    const QPen& minorPen() const;
 
     virtual void draw( QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,

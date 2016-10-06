@@ -614,7 +614,7 @@ with
 When the
 .B pmdaCache
 routines are used for particular instance domain,
-.B pmdaInstance (3)
+.BR pmdaInstance (3)
 and the instance domain enumeration behind
 .BR pmdaFetch (3)
 will attempt to extract instance domain information from the cache, thereby avoiding
@@ -641,7 +641,7 @@ instances in a PMDA are to be serviced from a
 then a
 .B pmdaIndom
 is not required, and the
-.B pmdaInit (3)
+.BR pmdaInit (3)
 call becomes
 .EX
     pmdaInit(dp, NULL, 0, metrictab, nmetrics);
@@ -661,9 +661,9 @@ is missing entries for the instance domains maintained in the cache.
 Independent of how the instance domain is being maintained,
 to refresh an instance domain prior to a fetch or an instance domain
 operation, the standard methods of a ``wrapper'' to the
-.B pmdaInstance (3)
+.BR pmdaInstance (3)
 and
-.B pmdaFetch (3)
+.BR pmdaFetch (3)
 methods should be used.
 .PP
 Refer to the

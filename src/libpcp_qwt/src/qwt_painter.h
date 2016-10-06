@@ -16,6 +16,7 @@
 #include <qrect.h>
 #include <qpen.h>
 #include <qline.h>
+#include <qpalette.h>
 
 class QPainter;
 class QBrush;
@@ -29,7 +30,6 @@ class QwtScaleMap;
 class QwtColorMap;
 class QwtInterval;
 
-class QPalette;
 class QTextDocument;
 class QPainterPath;
 
@@ -69,34 +69,55 @@ public:
     static void drawLine( QPainter *, const QPointF &p1, const QPointF &p2 );
     static void drawLine( QPainter *, const QLineF & );
 
-    static void drawPolygon( QPainter *, const QPolygonF &pa );
-    static void drawPolyline( QPainter *, const QPolygonF &pa );
+    static void drawPolygon( QPainter *, const QPolygonF & );
+    static void drawPolyline( QPainter *, const QPolygonF & );
     static void drawPolyline( QPainter *, const QPointF *, int pointCount );
+
+    static void drawPolygon( QPainter *, const QPolygon & );
+    static void drawPolyline( QPainter *, const QPolygon & );
+    static void drawPolyline( QPainter *, const QPoint *, int pointCount );
+
+    static void drawPoint( QPainter *, const QPoint & );
+    static void drawPoints( QPainter *, const QPolygon & );
+    static void drawPoints( QPainter *, const QPoint *, int pointCount );
 
     static void drawPoint( QPainter *, double x, double y );
     static void drawPoint( QPainter *, const QPointF & );
+    static void drawPoints( QPainter *, const QPolygonF & );
+    static void drawPoints( QPainter *, const QPointF *, int pointCount );
 
     static void drawPath( QPainter *, const QPainterPath & );
     static void drawImage( QPainter *, const QRectF &, const QImage & );
     static void drawPixmap( QPainter *, const QRectF &, const QPixmap & );
 
+    static void drawRoundFrame( QPainter *,
+        const QRectF &, const QPalette &, int lineWidth, int frameStyle );
+
     static void drawRoundedFrame( QPainter *, 
         const QRectF &, double xRadius, double yRadius,
         const QPalette &, int lineWidth, int frameStyle );
 
-    static void drawFocusRect( QPainter *, QWidget * );
-    static void drawFocusRect( QPainter *, QWidget *, const QRect & );
+    static void drawFrame( QPainter *, const QRectF &rect,
+        const QPalette &palette, QPalette::ColorRole foregroundRole,
+        int lineWidth, int midLineWidth, int frameStyle ); 
+
+    static void drawFocusRect( QPainter *, const QWidget * );
+    static void drawFocusRect( QPainter *, const QWidget *, const QRect & );
 
     static void drawColorBar( QPainter *painter,
         const QwtColorMap &, const QwtInterval &,
         const QwtScaleMap &, Qt::Orientation, const QRectF & );
 
     static bool isAligning( QPainter *painter );
+    static bool isX11GraphicsSystem();
 
-#if QT_VERSION >= 0x050000
-    static void fillPixmap( const QWidget *,
+    static void fillPixmap( const QWidget *, 
         QPixmap &, const QPoint &offset = QPoint() );
-#endif
+
+    static void drawBackgound( QPainter *painter,
+        const QRectF &rect, const QWidget *widget );
+
+    static QPixmap backingStore( QWidget *, const QSize & );
 
 private:
     static bool d_polylineSplitting;
@@ -107,6 +128,18 @@ private:
 inline void QwtPainter::drawPoint( QPainter *painter, double x, double y )
 {
     QwtPainter::drawPoint( painter, QPointF( x, y ) );
+}
+
+//! Wrapper for QPainter::drawPoints()
+inline void QwtPainter::drawPoints( QPainter *painter, const QPolygon &polygon )
+{
+    drawPoints( painter, polygon.data(), polygon.size() );
+}
+
+//! Wrapper for QPainter::drawPoints()
+inline void QwtPainter::drawPoints( QPainter *painter, const QPolygonF &polygon )
+{
+    drawPoints( painter, polygon.data(), polygon.size() );
 }
 
 //!  Wrapper for QPainter::drawLine()
@@ -123,7 +156,7 @@ inline void QwtPainter::drawLine( QPainter *painter, const QLineF &line )
 }
 
 /*!
-  Returns whether line splitting for the raster paint engine is enabled.
+  \return True, when line splitting for the raster paint engine is enabled.
   \sa setPolylineSplitting()
 */
 inline bool QwtPainter::polylineSplitting()
@@ -132,10 +165,11 @@ inline bool QwtPainter::polylineSplitting()
 }
 
 /*!
-  Returns whether coordinates should be rounded, before they are painted
-  to a paint engine that floors to integer values.  For other paint engines
-  this ( Pdf, SVG ), this flag has no effect.
+  Check whether coordinates should be rounded, before they are painted
+  to a paint engine that rounds to integer values. For other paint engines
+  ( PDF, SVG ), this flag has no effect.
 
+  \return True, when rounding is enabled
   \sa setRoundingAlignment(), isAligning()
 */
 inline bool QwtPainter::roundingAlignment()

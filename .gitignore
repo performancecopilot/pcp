@@ -30,6 +30,7 @@ perl-pcp*.list*
 python-pcp*.list*
 python3-pcp*.list*
 ui_*.h
+moc_*.h
 moc_*.cpp
 qrc_*.cpp
 debug

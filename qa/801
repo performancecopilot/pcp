@@ -1,8 +1,9 @@
 #!/bin/sh
 # PCP QA Test No. 801
-# Exercise adding and removing the netfilter PMDA with older proc heirarchy config, reading values
+# Exercise adding and removing the netfilter PMDA
+# with older proc heirarchy config, reading values.
 #
-# Copyright (c) 2015 Red Hat.  All Rights Reserved.
+# Copyright (c) 2015-2016 Red Hat.  All Rights Reserved.
 #
 
 seq=`basename $0`
@@ -44,7 +45,6 @@ pmdanetfilter_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/netfilter
     $sudo ./Remove >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
 
     echo
     echo "=== netfilter agent installation ==="
@@ -53,10 +53,9 @@ pmdanetfilter_install()
     # Check netfilter metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
-        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
         -e 's/[0-9][0-9]* warnings, //' \
     | $PCP_AWK_PROG '
-/Check netfilter metrics have appeared/    { if ($7 >= 0 && $7 <= 2) $7 = "X"
+/Check netfilter metrics have appeared/ { if ($7 >= 0 && $7 <= 2) $7 = "X"
                                           if ($10 >= 0 && $10 <= 80) $10 = "Y"
                                         }
                                         { print }'
@@ -73,7 +72,7 @@ pmdanetfilter_prepare
 pmdanetfilter_install
 
 # avoid a possible race condition if the pmda is slow starting
-sleep 3
+pmsleep 0.5
 
 # test netfilter values
 pminfo -f netfilter.ip_conntrack_count
@@ -84,5 +83,4 @@ pmdanetfilter_remove
 
 # success, all done
 status=0
-
 exit

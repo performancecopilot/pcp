@@ -21,7 +21,6 @@
 iam=snmp
 perl_opt=true
 daemon_opt=false
-forced_restart=false
 
 pmdaSetup
 pmdaInstall

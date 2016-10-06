@@ -11,6 +11,8 @@
 #define QWT_INTERVAL_H
 
 #include "qwt_global.h"
+#include <qmetatype.h>
+
 #ifndef QT_NO_DEBUG_STREAM
 #include <qdebug.h>
 #endif
@@ -202,6 +204,8 @@ inline double QwtInterval::maxValue() const
    A interval is valid when minValue() <= maxValue().
    In case of QwtInterval::ExcludeBorders it is true
    when minValue() < maxValue()
+
+   \return True, when the interval is valid
 */
 inline bool QwtInterval::isValid() const
 {
@@ -212,10 +216,12 @@ inline bool QwtInterval::isValid() const
 }
 
 /*!
-   Return the width of an interval
+   \brief Return the width of an interval
+
    The width of invalid intervals is 0.0, otherwise the result is
    maxValue() - minValue().
 
+   \return Interval width
    \sa isValid()
 */
 inline double QwtInterval::width() const
@@ -224,34 +230,51 @@ inline double QwtInterval::width() const
 }
 
 /*!
-   Intersection of two intervals
+   \brief Intersection of two intervals
+ 
+   \param other Interval to intersect with
+   \return Intersection of this and other
+
    \sa intersect()
 */
 inline QwtInterval QwtInterval::operator&(
-    const QwtInterval &interval ) const
+    const QwtInterval &other ) const
 {
-    return intersect( interval );
+    return intersect( other );
 }
 
 /*!
    Union of two intervals
+
+   \param other Interval to unite with
+   \return Union of this and other
+
    \sa unite()
 */
 inline QwtInterval QwtInterval::operator|(
-    const QwtInterval &interval ) const
+    const QwtInterval &other ) const
 {
-    return unite( interval );
+    return unite( other );
 }
 
-//! Compare two intervals
+/*! 
+   \brief Compare two intervals
+
+   \param other Interval to compare with
+   \return True, when this and other are equal
+*/
 inline bool QwtInterval::operator==( const QwtInterval &other ) const
 {
     return ( d_minValue == other.d_minValue ) &&
            ( d_maxValue == other.d_maxValue ) &&
            ( d_borderFlags == other.d_borderFlags );
 }
+/*! 
+   \brief Compare two intervals
 
-//! Compare two intervals
+   \param other Interval to compare with
+   \return True, when this and other are not equal
+*/
 inline bool QwtInterval::operator!=( const QwtInterval &other ) const
 {
     return ( !( *this == other ) );
@@ -288,6 +311,7 @@ inline void QwtInterval::invalidate()
 }
 
 Q_DECLARE_OPERATORS_FOR_FLAGS( QwtInterval::BorderFlags )
+Q_DECLARE_METATYPE( QwtInterval )
 
 #ifndef QT_NO_DEBUG_STREAM
 QWT_EXPORT QDebug operator<<( QDebug, const QwtInterval & );

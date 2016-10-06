@@ -21,7 +21,6 @@
 
 iam=simple
 pmda_interface=2
-forced_restart=false
 
 dso_opt=true
 perl_opt=true

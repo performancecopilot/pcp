@@ -9,9 +9,9 @@
 
 #include "qwt_plot_rescaler.h"
 #include "qwt_plot.h"
-#include "qwt_plot_canvas.h"
 #include "qwt_scale_div.h"
 #include "qwt_interval.h"
+#include "qwt_plot_canvas.h"
 #include <qevent.h>
 #include <qalgorithms.h>
 
@@ -58,7 +58,7 @@ public:
 
    \sa setRescalePolicy(), setReferenceAxis()
 */
-QwtPlotRescaler::QwtPlotRescaler( QwtPlotCanvas *canvas,
+QwtPlotRescaler::QwtPlotRescaler( QWidget *canvas,
         int referenceAxis, RescalePolicy policy ):
     QObject( canvas )
 {
@@ -178,7 +178,7 @@ void QwtPlotRescaler::setExpandingDirection(
 }
 
 /*!
-  Return direction in which an axis should be expanded
+  \return Direction in which an axis should be expanded
 
   \param axis Axis index ( see QwtPlot::AxisId )
   \sa setExpandingDirection()
@@ -223,7 +223,7 @@ void QwtPlotRescaler::setAspectRatio( int axis, double ratio )
 }
 
 /*!
-  Return aspect ratio between an axis and the reference axis.
+  \return Aspect ratio between an axis and the reference axis.
 
   \param axis Axis index ( see QwtPlot::AxisId )
   \sa setAspectRatio()
@@ -240,7 +240,7 @@ double QwtPlotRescaler::aspectRatio( int axis ) const
   Set an interval hint for an axis
 
   In Fitting mode, the hint is used as minimal interval
-  taht always needs to be displayed.
+  that always needs to be displayed.
 
   \param axis Axis, see QwtPlot::Axis
   \param interval Axis
@@ -267,35 +267,35 @@ QwtInterval QwtPlotRescaler::intervalHint( int axis ) const
 }
 
 //! \return plot canvas
-QwtPlotCanvas *QwtPlotRescaler::canvas()
+QWidget *QwtPlotRescaler::canvas()
 {
-    return qobject_cast<QwtPlotCanvas *>( parent() );
+    return qobject_cast<QWidget *>( parent() );
 }
 
 //! \return plot canvas
-const QwtPlotCanvas *QwtPlotRescaler::canvas() const
+const QWidget *QwtPlotRescaler::canvas() const
 {
-    return qobject_cast<const QwtPlotCanvas *>( parent() );
+    return qobject_cast<const QWidget *>( parent() );
 }
 
 //! \return plot widget
 QwtPlot *QwtPlotRescaler::plot()
 {
-    QwtPlotCanvas *w = canvas();
+    QWidget *w = canvas();
     if ( w )
-        return w->plot();
+        w = w->parentWidget();
 
-    return NULL;
+    return qobject_cast<QwtPlot *>( w );
 }
 
 //! \return plot widget
 const QwtPlot *QwtPlotRescaler::plot() const
 {
-    const QwtPlotCanvas *w = canvas();
+    const QWidget *w = canvas();
     if ( w )
-        return w->plot();
+        w = w->parentWidget();
 
-    return NULL;
+    return qobject_cast<const QwtPlot *>( w );
 }
 
 //!  Event filter for the plot canvas
@@ -307,7 +307,7 @@ bool QwtPlotRescaler::eventFilter( QObject *object, QEvent *event )
         {
             case QEvent::Resize:
             {
-                canvasResizeEvent( ( QResizeEvent * )event );
+                canvasResizeEvent( static_cast<QResizeEvent *>( event ) );
                 break;
             }
             case QEvent::PolishRequest:
@@ -330,9 +330,13 @@ bool QwtPlotRescaler::eventFilter( QObject *object, QEvent *event )
 */
 void QwtPlotRescaler::canvasResizeEvent( QResizeEvent* event )
 {
-    const int fw = 2 * canvas()->frameWidth();
-    const QSize newSize = event->size() - QSize( fw, fw );
-    const QSize oldSize = event->oldSize() - QSize( fw, fw );
+    int left, top, right, bottom;
+    canvas()->getContentsMargins( &left, &top, &right, &bottom );
+
+    const QSize marginSize( left + right, top + bottom );
+
+    const QSize newSize = event->size() - marginSize;
+    const QSize oldSize = event->oldSize() - marginSize;
 
     rescale( oldSize, newSize );
 }
@@ -436,11 +440,13 @@ QwtInterval QwtPlotRescaler::expandScale( int axis,
 }
 
 /*!
-   Synchronize an axis scale according to the scale of the reference axis
+  Synchronize an axis scale according to the scale of the reference axis
 
   \param axis Axis index ( see QwtPlot::AxisId )
   \param reference Interval of the reference axis
   \param size Size of the canvas
+
+  \return New interval for axis
 */
 QwtInterval QwtPlotRescaler::syncScale( int axis,
     const QwtInterval& reference, const QSize &size ) const
@@ -470,7 +476,7 @@ QwtInterval QwtPlotRescaler::syncScale( int axis,
 }
 
 /*!
-  Return orientation of an axis
+  \return Orientation of an axis
   \param axis Axis index ( see QwtPlot::AxisId )
 */
 Qt::Orientation QwtPlotRescaler::orientation( int axis ) const
@@ -482,20 +488,15 @@ Qt::Orientation QwtPlotRescaler::orientation( int axis ) const
 }
 
 /*!
-  Return interval of an axis
   \param axis Axis index ( see QwtPlot::AxisId )
+  \return Normalized interval of an axis
 */
 QwtInterval QwtPlotRescaler::interval( int axis ) const
 {
     if ( axis < 0 || axis >= QwtPlot::axisCnt )
         return QwtInterval();
 
-    const QwtPlot *plt = plot();
-
-    const double v1 = plt->axisScaleDiv( axis )->lowerBound();
-    const double v2 = plt->axisScaleDiv( axis )->upperBound();
-
-    return QwtInterval( v1, v2 ).normalized();
+    return plot()->axisScaleDiv( axis ).interval().normalized();
 }
 
 /*!
@@ -587,16 +588,11 @@ void QwtPlotRescaler::updateScales(
             double v1 = intervals[axis].minValue();
             double v2 = intervals[axis].maxValue();
 
-            if ( plt->axisScaleDiv( axis )->lowerBound() >
-                plt->axisScaleDiv( axis )->upperBound() )
-            {
+            if ( !plt->axisScaleDiv( axis ).isIncreasing() )
                 qSwap( v1, v2 );
-            }
 
             if ( d_data->inReplot >= 1 )
-            {
-                d_data->axisData[axis].scaleDiv = *plt->axisScaleDiv( axis );
-            }
+                d_data->axisData[axis].scaleDiv = plt->axisScaleDiv( axis );
 
             if ( d_data->inReplot >= 2 )
             {
@@ -613,9 +609,14 @@ void QwtPlotRescaler::updateScales(
         }
     }
 
-    const bool immediatePaint = 
-        plt->canvas()->testPaintAttribute( QwtPlotCanvas::ImmediatePaint );
-    plt->canvas()->setPaintAttribute( QwtPlotCanvas::ImmediatePaint, false );
+    QwtPlotCanvas *canvas = qobject_cast<QwtPlotCanvas *>( plt->canvas() );
+
+    bool immediatePaint = false;
+    if ( canvas )
+    {
+        immediatePaint = canvas->testPaintAttribute( QwtPlotCanvas::ImmediatePaint );
+        canvas->setPaintAttribute( QwtPlotCanvas::ImmediatePaint, false );
+    }
 
     plt->setAutoReplot( doReplot );
 
@@ -623,6 +624,8 @@ void QwtPlotRescaler::updateScales(
     plt->replot();
     d_data->inReplot--;
 
-    plt->canvas()->setPaintAttribute( 
-        QwtPlotCanvas::ImmediatePaint, immediatePaint );
+    if ( canvas && immediatePaint )
+    {
+        canvas->setPaintAttribute( QwtPlotCanvas::ImmediatePaint, true );
+    }
 }

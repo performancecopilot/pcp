@@ -198,7 +198,7 @@ Client::list(QStringList const& list)
     _group->useDefault();
 
     for (l = 0; l < list.size(); l++)
-	_metrics.append(_group->addMetric(list[l].toAscii().constData(), 0.0, false));
+	_metrics.append(_group->addMetric(list[l].toLatin1().constData(), 0.0, false));
 
     cout << keywords[keyList] << sep << _group->numContexts() << endl;
 
@@ -626,13 +626,13 @@ main(int argc, char* argv[])
     Client* client3 = new Client;
 
     mesg("Client3: CONTEXT ARCH archive1");
-    string = archive1.toAscii().constData();
+    string = archive1.toLatin1().constData();
     sts = client3->context(PM_CONTEXT_ARCHIVE, string);
 
     checksts();
 
     mesg("Client3: CONTEXT ARCH archive2");
-    string = archive2.toAscii().constData();
+    string = archive2.toLatin1().constData();
     sts = client3->context(PM_CONTEXT_ARCHIVE, string);
 
     checksts();
@@ -794,7 +794,7 @@ main(int argc, char* argv[])
     //
 
     mesg("Client1: CONTEXT ARCH moomba.pmkstat");
-    string = archive3.toAscii().constData();
+    string = archive3.toLatin1().constData();
     sts = client1->context(PM_CONTEXT_ARCHIVE, string);
 
     checksts();

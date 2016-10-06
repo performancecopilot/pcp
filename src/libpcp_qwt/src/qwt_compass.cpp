@@ -17,6 +17,102 @@
 #include <qpixmap.h>
 #include <qevent.h>
 
+/*! 
+  \brief Constructor
+
+  Initializes a label map for multiples of 45 degrees
+ */
+QwtCompassScaleDraw::QwtCompassScaleDraw()
+{
+    enableComponent( QwtAbstractScaleDraw::Backbone, false );
+    enableComponent( QwtAbstractScaleDraw::Ticks, false );
+
+    d_labelMap.insert( 0.0, QString::fromLatin1( "N" ) );
+    d_labelMap.insert( 45.0, QString::fromLatin1( "NE" ) );
+    d_labelMap.insert( 90.0, QString::fromLatin1( "E" ) );
+    d_labelMap.insert( 135.0, QString::fromLatin1( "SE" ) );
+    d_labelMap.insert( 180.0, QString::fromLatin1( "S" ) );
+    d_labelMap.insert( 225.0, QString::fromLatin1( "SW" ) );
+    d_labelMap.insert( 270.0, QString::fromLatin1( "W" ) );
+    d_labelMap.insert( 315.0, QString::fromLatin1( "NW" ) );
+
+#if 0
+    d_labelMap.insert( 22.5, QString::fromLatin1( "NNE" ) );
+    d_labelMap.insert( 67.5, QString::fromLatin1( "NEE" ) );
+    d_labelMap.insert( 112.5, QString::fromLatin1( "SEE" ) );
+    d_labelMap.insert( 157.5, QString::fromLatin1( "SSE" ) );
+    d_labelMap.insert( 202.5, QString::fromLatin1( "SSW" ) );
+    d_labelMap.insert( 247.5, QString::fromLatin1( "SWW" ) );
+    d_labelMap.insert( 292.5, QString::fromLatin1( "NWW" ) );
+    d_labelMap.insert( 337.5, QString::fromLatin1( "NNW" ) );
+#endif
+}
+
+/*! 
+  \brief Constructor
+
+  \param map Value to label map
+ */
+QwtCompassScaleDraw::QwtCompassScaleDraw( const QMap<double, QString> &map ):
+    d_labelMap( map )
+{
+    enableComponent( QwtAbstractScaleDraw::Backbone, false );
+    enableComponent( QwtAbstractScaleDraw::Ticks, false );
+}
+
+/*!
+  \brief Set a map, mapping values to labels
+  \param map Value to label map
+
+  The values of the major ticks are found by looking into this
+  map. The default map consists of the labels N, NE, E, SE, S, SW, W, NW.
+
+  \warning The map will have no effect for values that are no major
+           tick values. Major ticks can be changed by QwtScaleDraw::setScale
+
+  \sa labelMap(), scaleDraw(), setScale()
+*/
+void QwtCompassScaleDraw::setLabelMap( const QMap<double, QString> &map )
+{
+    d_labelMap = map;
+}
+
+
+/*!
+  \return map, mapping values to labels
+  \sa setLabelMap()
+*/
+QMap<double, QString> QwtCompassScaleDraw::labelMap() const
+{
+    return d_labelMap;
+}
+
+/*!
+  Map a value to a corresponding label
+
+  \param value Value that will be mapped
+
+  label() looks in the labelMap() for a corresponding label for value
+  or returns an null text.
+
+  \return Label, or QString::null
+  \sa labelMap(), setLabelMap()
+*/
+
+QwtText QwtCompassScaleDraw::label( double value ) const
+{
+    if ( qFuzzyCompare( value + 1.0, 1.0 ) )
+        value = 0.0;
+
+    if ( value < 0.0 )
+        value += 360.0;
+
+    if ( d_labelMap.contains( value ) )
+        return d_labelMap[value];
+
+    return QwtText();
+}
+
 class QwtCompass::PrivateData
 {
 public:
@@ -31,7 +127,6 @@ public:
     }
 
     QwtCompassRose *rose;
-    QMap<double, QString> labelMap;
 };
 
 /*!
@@ -46,7 +141,18 @@ public:
 QwtCompass::QwtCompass( QWidget* parent ):
     QwtDial( parent )
 {
-    initCompass();
+    d_data = new PrivateData;
+
+    setScaleDraw( new QwtCompassScaleDraw() );
+
+    setOrigin( 270.0 );
+    setWrapping( true );
+
+    setScaleMaxMajor( 36 );
+    setScaleMaxMinor( 10 );
+
+    setScale( 0.0, 360.0 ); // degrees as default
+    setTotalSteps( 360 );
 }
 
 //!  Destructor
@@ -55,37 +161,6 @@ QwtCompass::~QwtCompass()
     delete d_data;
 }
 
-void QwtCompass::initCompass()
-{
-    d_data = new PrivateData;
-
-    // Only labels, no backbone, no ticks
-    setScaleComponents( QwtAbstractScaleDraw::Labels ); 
-
-    setOrigin( 270.0 );
-    setWrapping( true );
-
-
-    d_data->labelMap.insert( 0.0, QString::fromLatin1( "N" ) );
-    d_data->labelMap.insert( 45.0, QString::fromLatin1( "NE" ) );
-    d_data->labelMap.insert( 90.0, QString::fromLatin1( "E" ) );
-    d_data->labelMap.insert( 135.0, QString::fromLatin1( "SE" ) );
-    d_data->labelMap.insert( 180.0, QString::fromLatin1( "S" ) );
-    d_data->labelMap.insert( 225.0, QString::fromLatin1( "SW" ) );
-    d_data->labelMap.insert( 270.0, QString::fromLatin1( "W" ) );
-    d_data->labelMap.insert( 315.0, QString::fromLatin1( "NW" ) );
-
-#if 0
-    d_data->labelMap.insert( 22.5, QString::fromLatin1( "NNE" ) );
-    d_data->labelMap.insert( 67.5, QString::fromLatin1( "NEE" ) );
-    d_data->labelMap.insert( 112.5, QString::fromLatin1( "SEE" ) );
-    d_data->labelMap.insert( 157.5, QString::fromLatin1( "SSE" ) );
-    d_data->labelMap.insert( 202.5, QString::fromLatin1( "SSW" ) );
-    d_data->labelMap.insert( 247.5, QString::fromLatin1( "SWW" ) );
-    d_data->labelMap.insert( 292.5, QString::fromLatin1( "NWW" ) );
-    d_data->labelMap.insert( 337.5, QString::fromLatin1( "NNW" ) );
-#endif
-}
 
 /*!
    Draw the contents of the scale
@@ -230,63 +305,4 @@ void QwtCompass::keyPressEvent( QKeyEvent *kev )
     {
         QwtDial::keyPressEvent( kev );
     }
-}
-
-/*!
-  \return map, mapping values to labels
-  \sa setLabelMap()
-*/
-const QMap<double, QString> &QwtCompass::labelMap() const
-{
-    return d_data->labelMap;
-}
-
-/*!
-  \return map, mapping values to labels
-  \sa setLabelMap()
-*/
-QMap<double, QString> &QwtCompass::labelMap()
-{
-    return d_data->labelMap;
-}
-
-/*!
-  \brief Set a map, mapping values to labels
-  \param map value to label map
-
-  The values of the major ticks are found by looking into this
-  map. The default map consists of the labels N, NE, E, SE, S, SW, W, NW.
-
-  \warning The map will have no effect for values that are no major
-           tick values. Major ticks can be changed by QwtScaleDraw::setScale
-
-  \sa labelMap(), scaleDraw(), setScale()
-*/
-void QwtCompass::setLabelMap( const QMap<double, QString> &map )
-{
-    d_data->labelMap = map;
-}
-
-/*!
-  Map a value to a corresponding label
-  \param value Value that will be mapped
-  \return Label, or QString::null
-
-  label() looks in a map for a corresponding label for value
-  or return an null text.
-  \sa labelMap(), setLabelMap()
-*/
-
-QwtText QwtCompass::scaleLabel( double value ) const
-{
-    if ( qFuzzyCompare( value + 1.0, 1.0 ) )
-        value = 0.0;
-
-    if ( value < 0.0 )
-        value += 360.0;
-
-    if ( d_data->labelMap.contains( value ) )
-        return d_data->labelMap[value];
-
-    return QwtText();
 }

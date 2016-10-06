@@ -202,8 +202,9 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 	    }
 	    else if (status < 0) {
 		char	errmsg[PM_MAXERRMSGLEN];
-		__pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d: %s",
-			fd, netstrerror_r(errmsg, sizeof(errmsg)));
+		status = -neterror();
+		__pmNotifyErr(LOG_ERR, "pduread: select() on fd=%d status=%d: %s",
+			fd, status, netstrerror_r(errmsg, sizeof(errmsg)));
 		setoserror(neterror());
 		return status;
 	    }
@@ -414,9 +415,9 @@ PM_FAULT_CHECK(PM_FAULT_TIMEOUT);
 	     */
 	    goto check_read_len;	/* continue, do not return */
 	}
-	else if (len == PM_ERR_TIMEOUT) {
+	else if (len == PM_ERR_TIMEOUT || len == -EINTR) {
 	    __pmUnpinPDUBuf(pdubuf);
-	    return PM_ERR_TIMEOUT;
+	    return len;
 	}
 	else if (len < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];

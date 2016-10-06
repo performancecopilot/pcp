@@ -19,6 +19,8 @@
   It is used by the QwtPlot widget to organize its internal widgets
   or by QwtPlot::print() to render its content to a QPaintDevice like
   a QPrinter, QPixmap/QImage or QSvgRenderer.
+
+  \sa QwtPlot::setPlotLayout()
 */
 
 class QWT_EXPORT QwtPlotLayout
@@ -43,7 +45,13 @@ public:
         IgnoreFrames = 0x04,
 
         //! Ignore the legend.
-        IgnoreLegend = 0x08
+        IgnoreLegend = 0x08,
+
+        //! Ignore the title.
+        IgnoreTitle = 0x10,
+
+        //! Ignore the footer.
+        IgnoreFooter = 0x20
     };
 
     //! Layout options
@@ -59,7 +67,9 @@ public:
     int fixedAxisOffset(int axis) const;
 
     void setAlignCanvasToScales( bool );
-    bool alignCanvasToScales() const;
+
+    void setAlignCanvasToScale( int axisId, bool );
+    bool alignCanvasToScale( int axisId ) const;
 
     void setSpacing( int );
     int spacing() const;
@@ -78,23 +88,30 @@ public:
 
     virtual void invalidate();
 
-    const QRectF &titleRect() const;
-    const QRectF &legendRect() const;
-    const QRectF &scaleRect( int axis ) const;
-    const QRectF &canvasRect() const;
+    QRectF titleRect() const;
+    QRectF footerRect() const;
+    QRectF legendRect() const;
+    QRectF scaleRect( int axis ) const;
+    QRectF canvasRect() const;
 
     class LayoutData;
 
 protected:
 
+    void setTitleRect( const QRectF & );
+    void setFooterRect( const QRectF & );
+    void setLegendRect( const QRectF & );
+    void setScaleRect( int axis, const QRectF & );
+    void setCanvasRect( const QRectF & );
+
     QRectF layoutLegend( Options options, const QRectF & ) const;
     QRectF alignLegend( const QRectF &canvasRect,
         const QRectF &legendRect ) const;
 
-    void expandLineBreaks( int options, const QRectF &rect,
-        int &dimTitle, int dimAxes[QwtPlot::axisCnt] ) const;
+    void expandLineBreaks( Options options, const QRectF &rect,
+        int &dimTitle, int &dimFooter, int dimAxes[QwtPlot::axisCnt] ) const;
 
-    void alignScales( int options, QRectF &canvasRect,
+    void alignScales( Options options, QRectF &canvasRect,
         QRectF scaleRect[QwtPlot::axisCnt] ) const;
 
 private:

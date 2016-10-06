@@ -2562,3 +2562,612 @@ No value(s) available!
 
 == done
 
+== Checking metric values - blkdev-root-006.tgz
+
+disk.all.avactive
+    value 1231517648
+
+disk.all.aveq
+    value 2969598188
+
+disk.all.blkread
+    value 36808318902
+
+disk.all.blktotal
+    value 169835197144
+
+disk.all.blkwrite
+    value 133026878242
+
+disk.all.read
+    value 416505440
+
+disk.all.read_bytes
+    value 1224290267
+
+disk.all.read_merge
+    value 78056
+
+disk.all.read_rawactive
+    value 4043047892
+
+disk.all.total
+    value 3015286466
+
+disk.all.total_bytes
+    value 3313219948
+
+disk.all.total_rawactive
+    value 2949180136
+
+disk.all.write
+    value 2598781026
+
+disk.all.write_bytes
+    value 2088929681
+
+disk.all.write_merge
+    value 67668396
+
+disk.all.write_rawactive
+    value 3201099540
+
+disk.dev.avactive
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 46736
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 4568324
+    inst [N or "sdb"] value 1226902588
+
+disk.dev.aveq
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 120228
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 13586540
+    inst [N or "sdb"] value 2955891420
+
+disk.dev.blkread
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 7868930
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 93377586
+    inst [N or "sdb"] value 36707072386
+
+disk.dev.blktotal
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 7869122
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 363373132
+    inst [N or "sdb"] value 169463954890
+
+disk.dev.blkwrite
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 192
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 269995546
+    inst [N or "sdb"] value 132756882504
+
+disk.dev.read
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 32634
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 2459644
+    inst [N or "sdb"] value 414013162
+
+disk.dev.read_bytes
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 3934465
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 46688793
+    inst [N or "sdb"] value 1173667009
+
+disk.dev.read_merge
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 1040
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 5323
+    inst [N or "sdb"] value 71693
+
+disk.dev.read_rawactive
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 119524
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 7268116
+    inst [N or "sdb"] value 4035660252
+
+disk.dev.scheduler
+    inst [N or "nbd0"] value "unknown"
+    inst [N or "nbd1"] value "unknown"
+    inst [N or "nbd10"] value "unknown"
+    inst [N or "nbd11"] value "unknown"
+    inst [N or "nbd12"] value "unknown"
+    inst [N or "nbd13"] value "unknown"
+    inst [N or "nbd14"] value "unknown"
+    inst [N or "nbd15"] value "unknown"
+    inst [N or "nbd2"] value "unknown"
+    inst [N or "nbd3"] value "unknown"
+    inst [N or "nbd4"] value "unknown"
+    inst [N or "nbd5"] value "unknown"
+    inst [N or "nbd6"] value "unknown"
+    inst [N or "nbd7"] value "unknown"
+    inst [N or "nbd8"] value "unknown"
+    inst [N or "nbd9"] value "unknown"
+    inst [N or "sda"] value "unknown"
+    inst [N or "sdb"] value "unknown"
+
+disk.dev.total
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 32671
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 10590352
+    inst [N or "sdb"] value 3004663443
+
+disk.dev.total_bytes
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 3934561
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 181686566
+    inst [N or "sdb"] value 3127598821
+
+disk.dev.total_rawactive
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 120252
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 13586748
+    inst [N or "sdb"] value 2935473136
+
+disk.dev.write
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 37
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 8130708
+    inst [N or "sdb"] value 2590650281
+
+disk.dev.write_bytes
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 96
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 134997773
+    inst [N or "sdb"] value 1953931812
+
+disk.dev.write_merge
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 5
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 8627863
+    inst [N or "sdb"] value 59040528
+
+disk.dev.write_rawactive
+    inst [N or "nbd0"] value 0
+    inst [N or "nbd1"] value 0
+    inst [N or "nbd10"] value 0
+    inst [N or "nbd11"] value 728
+    inst [N or "nbd12"] value 0
+    inst [N or "nbd13"] value 0
+    inst [N or "nbd14"] value 0
+    inst [N or "nbd15"] value 0
+    inst [N or "nbd2"] value 0
+    inst [N or "nbd3"] value 0
+    inst [N or "nbd4"] value 0
+    inst [N or "nbd5"] value 0
+    inst [N or "nbd6"] value 0
+    inst [N or "nbd7"] value 0
+    inst [N or "nbd8"] value 0
+    inst [N or "nbd9"] value 0
+    inst [N or "sda"] value 6318632
+    inst [N or "sdb"] value 3194780180
+
+disk.dm.avactive
+No value(s) available!
+
+disk.dm.aveq
+No value(s) available!
+
+disk.dm.blkread
+No value(s) available!
+
+disk.dm.blktotal
+No value(s) available!
+
+disk.dm.blkwrite
+No value(s) available!
+
+disk.dm.read
+No value(s) available!
+
+disk.dm.read_bytes
+No value(s) available!
+
+disk.dm.read_merge
+No value(s) available!
+
+disk.dm.read_rawactive
+No value(s) available!
+
+disk.dm.total
+No value(s) available!
+
+disk.dm.total_bytes
+No value(s) available!
+
+disk.dm.total_rawactive
+No value(s) available!
+
+disk.dm.write
+No value(s) available!
+
+disk.dm.write_bytes
+No value(s) available!
+
+disk.dm.write_merge
+No value(s) available!
+
+disk.dm.write_rawactive
+No value(s) available!
+
+disk.md.avactive
+No value(s) available!
+
+disk.md.aveq
+No value(s) available!
+
+disk.md.blkread
+No value(s) available!
+
+disk.md.blktotal
+No value(s) available!
+
+disk.md.blkwrite
+No value(s) available!
+
+disk.md.read
+No value(s) available!
+
+disk.md.read_bytes
+No value(s) available!
+
+disk.md.read_merge
+No value(s) available!
+
+disk.md.read_rawactive
+No value(s) available!
+
+disk.md.status
+No value(s) available!
+
+disk.md.total
+No value(s) available!
+
+disk.md.total_bytes
+No value(s) available!
+
+disk.md.total_rawactive
+No value(s) available!
+
+disk.md.write
+No value(s) available!
+
+disk.md.write_bytes
+No value(s) available!
+
+disk.md.write_merge
+No value(s) available!
+
+disk.md.write_rawactive
+No value(s) available!
+
+disk.partitions.avactive
+    inst [N or "nbd11p1"] value 46736
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 1008
+    inst [N or "sda2"] value 324
+    inst [N or "sda3"] value 4567444
+
+disk.partitions.aveq
+    inst [N or "nbd11p1"] value 120228
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 4264
+    inst [N or "sda2"] value 328
+    inst [N or "sda3"] value 13593772
+
+disk.partitions.blkread
+    inst [N or "nbd11p1"] value 7868930
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 4224
+    inst [N or "sda2"] value 3304
+    inst [N or "sda3"] value 93367258
+
+disk.partitions.blktotal
+    inst [N or "nbd11p1"] value 7869122
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 4498
+    inst [N or "sda2"] value 3304
+    inst [N or "sda3"] value 363362530
+
+disk.partitions.blkwrite
+    inst [N or "nbd11p1"] value 192
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 274
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 269995272
+
+disk.partitions.read
+    inst [N or "nbd11p1"] value 32634
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 1170
+    inst [N or "sda2"] value 413
+    inst [N or "sda3"] value 2457745
+
+disk.partitions.read_bytes
+    inst [N or "nbd11p1"] value 3934465
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 2112
+    inst [N or "sda2"] value 1652
+    inst [N or "sda3"] value 46683629
+
+disk.partitions.read_merge
+    inst [N or "nbd11p1"] value 1040
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 331
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 4958
+
+disk.partitions.read_rawactive
+    inst [N or "nbd11p1"] value 119524
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 4256
+    inst [N or "sda2"] value 328
+    inst [N or "sda3"] value 7263252
+
+disk.partitions.total
+    inst [N or "nbd11p1"] value 32671
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 1244
+    inst [N or "sda2"] value 413
+    inst [N or "sda3"] value 10588373
+
+disk.partitions.total_bytes
+    inst [N or "nbd11p1"] value 3934561
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 2249
+    inst [N or "sda2"] value 1652
+    inst [N or "sda3"] value 181681265
+
+disk.partitions.total_rawactive
+    inst [N or "nbd11p1"] value 120252
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 4264
+    inst [N or "sda2"] value 328
+    inst [N or "sda3"] value 13581876
+
+disk.partitions.write
+    inst [N or "nbd11p1"] value 37
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 74
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 8130628
+
+disk.partitions.write_bytes
+    inst [N or "nbd11p1"] value 96
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 137
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 134997636
+
+disk.partitions.write_merge
+    inst [N or "nbd11p1"] value 5
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 57
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 8627806
+
+disk.partitions.write_rawactive
+    inst [N or "nbd11p1"] value 728
+    inst [N or "nbd11p2"] value 0
+    inst [N or "sda1"] value 8
+    inst [N or "sda2"] value 0
+    inst [N or "sda3"] value 6318624
+
+hinv.map.dmname
+No value(s) available!
+
+hinv.map.mdname
+No value(s) available!
+
+== done
+
