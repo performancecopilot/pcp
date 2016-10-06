@@ -98,8 +98,8 @@ date >>$seq.full
 echo "=== 4. do a few rounds of batched log merging ===" | tee -a $seq.full
 # a few blank lines - interpreted as though there was one
 echo > $tmp.dir/pmlogmerge
-echo > $tmp.dir/pmlogmerge
-echo > $tmp.dir/pmlogmerge
+echo VERY IGNORED >> $tmp.dir/pmlogmerge
+echo IGNORED >> $tmp.dir/pmlogmerge
 $sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
 sleep 20 # enough for some cycles of log merging batches
 $sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
