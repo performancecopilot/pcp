@@ -18,6 +18,7 @@
 #include "tracing.h"
 #include "sampling.h"
 #include "saveviewdialog.h"
+#include "metricdetails.h"
 
 #include <QPoint>
 #include <QRegExp>
@@ -39,6 +40,7 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget(this)
     my.style = NoStyle;
     my.scheme = QString::null;
     my.sequence = 0;
+    my.metricDetailsWindow = NULL;
 
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     plotLayout()->setCanvasMargin(0);
@@ -85,6 +87,8 @@ Chart::~Chart()
 	delete my.items[i];
     delete my.engine;
     delete my.picker;
+    if (my.metricDetailsWindow)
+	delete my.metricDetailsWindow;
 }
 
 ChartEngine::ChartEngine(Chart *chart)
@@ -819,6 +823,7 @@ Chart::showPoints(const QPolygon &poly)
 void
 Chart::showInfo(void)
 {
+#if 0
     QString info = QString::null;
 
     pmchart->timeout();	// clear status bar
@@ -849,6 +854,104 @@ Chart::showInfo(void)
 	QWhatsThis::showText(QCursor::pos(), info, this);
     else
 	QWhatsThis::hideText();
+#endif
+    showMetricDetails();
+}
+
+//
+// give feedback (window) about the selection
+//
+void
+Chart::showMetricDetails(void)
+{
+    if (!my.metricDetailsWindow)
+	my.metricDetailsWindow = new MetricDetailsWindow(this);
+  
+    // Populate the table cells.
+    // The documentation for QTableWidget warns against doing this while
+    // column sorting is enabled.
+    MetricDetailsWindow *window = my.metricDetailsWindow;
+    QTableWidget *tableWidget = my.metricDetailsWindow->tableWidget;
+    tableWidget->setSortingEnabled(false);
+    tableWidget->clearContents();
+
+    // We need to know how many rows there will be first
+    int rows = 0;
+    for (int i = 0; i < my.items.size(); i++) {
+	ChartItem *item = my.items[i];
+	const QString &cursorInfo = item->cursorInfo();
+	if (!cursorInfo.isEmpty())
+	    ++rows;
+    }
+
+    // Now add the data
+    tableWidget->setRowCount(rows);
+    int row = 0;
+    for (int i = 0; i < my.items.size(); i++) {
+	ChartItem *item = my.items[i];
+	const QString &cursorInfo = item->cursorInfo();
+
+	// Add this item's cursor info, if it is not empty.
+	if (!cursorInfo.isEmpty()) {
+	    // Get the item's title and strip the host name.
+	    QString dataStr = item->item()->title().text();
+	    int dataEnd = dataStr.indexOf(':');
+	    QString itemStr;
+	    if (dataEnd != -1) {
+		itemStr = dataStr.left(dataEnd);
+		dataStr.remove(0, dataEnd + 1);
+	    }
+	    else
+		itemStr = "unknown";
+	    TableWidgetItem *twItem = new TableWidgetItem(itemStr);
+	    tableWidget->setItem(row, window->hostNameColumn(), twItem);
+
+	    // The metric name.
+	    twItem = new TableWidgetItem(item->metricName());
+	    tableWidget->setItem(row, window->metricColumn(), twItem);
+
+	    // The instance name, if there is one
+	    if (item->metricHasInstances()) {
+		twItem = new TableWidgetItem(item->metricInstance());
+		tableWidget->setItem(row, window->instanceColumn(), twItem);
+	    }
+
+	    // The metric value.
+	    dataStr = cursorInfo;
+	    Q_ASSERT(dataStr[0] == '[');
+	    dataStr.remove(0, 1);
+	    dataEnd = dataStr.indexOf(' ');
+	    Q_ASSERT(dataEnd != -1);
+	    itemStr = dataStr.left(dataEnd);
+	    dataStr.remove(0, dataEnd + 1);
+
+	    // Store it as double, if possible, so that it will sort properly.
+	    bool isOk;
+	    double itemVal = itemStr.toDouble(&isOk);
+	    if (isOk) {
+		twItem = new TableWidgetItem;
+		twItem->setData(Qt::EditRole, itemVal);    
+	    }
+	    else
+		twItem = new TableWidgetItem(itemStr);
+	    tableWidget->setItem(row, window->valueColumn(), twItem);
+
+	    // The time of the sample
+	    Q_ASSERT(dataStr.left(3) == "at ");
+	    dataStr.remove(0, 3);
+	    dataEnd = dataStr.indexOf(']');
+	    Q_ASSERT(dataEnd != -1);
+	    itemStr = dataStr.left(dataEnd);
+	    twItem = new TableWidgetItem(itemStr);
+	    tableWidget->setItem(row, window->timeColumn(), twItem);
+
+	    ++row;
+	}
+    }
+
+    // Re-enable sorting and display the window.
+    tableWidget->setSortingEnabled(true);
+    my.metricDetailsWindow->show();
 }
 
 bool
@@ -1078,4 +1181,14 @@ ChartCurve::drawLegendIdentifier(QPainter *painter, const QRectF &rect) const
     painter->setBrush(brush);
     painter->setRenderHint(QPainter::Antialiasing, false);
     painter->drawRect(r.x(), r.y(), r.width(), r.height());
+}
+
+// Customize QTableWidgetItem
+void
+TableWidgetItem::initialize()
+{
+    // Make sure that this item is not editable.
+    Qt::ItemFlags f = flags();
+    f &= ~Qt::ItemIsEditable;
+    setFlags(f);
 }

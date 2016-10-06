@@ -21,6 +21,7 @@
 #include <QDateTime>
 #include <QColor>
 #include <QTreeWidget>
+#include <QTableWidgetItem>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_picker.h>
@@ -33,6 +34,7 @@ class ChartPicker;
 class ChartEngine;
 class TracingEngine;
 class SamplingEngine;
+class MetricDetailsWindow;
 
 //
 // Centre of the pmchart universe
@@ -160,6 +162,7 @@ private:
     void accumulatePointInfo(const QPointF &);
     void showPoint(const QPointF &);
     void showPoints(const QPolygon &);
+    void showMetricDetails(void);
 
     struct {
 	Tab *tab;
@@ -172,6 +175,7 @@ private:
 
 	ChartEngine *engine;
 	ChartPicker *picker;
+	MetricDetailsWindow *metricDetailsWindow;
     } my;
 
     friend class TracingEngine;
@@ -335,6 +339,19 @@ private:
     QString shortHostName(void) const;
     QString shortMetricName(void) const;
     QString shortInstName(void) const;
+};
+
+// A class used for customizingQTableWidgetItem
+class TableWidgetItem : public QTableWidgetItem
+{
+ public:
+    TableWidgetItem(const QString &text, int type = Type) 
+	: QTableWidgetItem(text, type) { initialize(); }
+    TableWidgetItem(int type = Type)
+	: QTableWidgetItem(type) { initialize(); }
+
+ private:
+    void initialize();
 };
 
 #endif	// CHART_H

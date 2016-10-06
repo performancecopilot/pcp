@@ -9,7 +9,8 @@ HEADERS		= pmchart.h main.h \
 		  chart.h colorbutton.h colorscheme.h statusbar.h \
 		  namespace.h \
 		  tabwidget.h timeaxis.h timecontrol.h \
-		  groupcontrol.h gadget.h sampling.h tracing.h
+		  groupcontrol.h gadget.h sampling.h tracing.h \
+                  metricdetails.h
 SOURCES		= pmchart.cpp main.cpp \
 		  aboutdialog.cpp chartdialog.cpp exportdialog.cpp \
 		  hostdialog.cpp infodialog.cpp openviewdialog.cpp \
@@ -20,12 +21,12 @@ SOURCES		= pmchart.cpp main.cpp \
 		  namespace.cpp \
 		  tabwidget.cpp timeaxis.cpp timecontrol.cpp \
 		  groupcontrol.cpp gadget.cpp sampling.cpp tracing.cpp \
-		  view.cpp
+		  view.cpp metricdetails.cpp
 FORMS		= aboutdialog.ui chartdialog.ui exportdialog.ui \
 		  hostdialog.ui infodialog.ui pmchart.ui openviewdialog.ui \
 		  recorddialog.ui samplesdialog.ui saveviewdialog.ui \
 		  searchdialog.ui seealsodialog.ui settingsdialog.ui \
-		  tabdialog.ui
+		  tabdialog.ui metricdetails.ui
 ICON		= pmchart.icns
 RC_FILE		= pmchart.rc
 RESOURCES	= pmchart.qrc
