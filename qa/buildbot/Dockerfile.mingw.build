@@ -1,0 +1,9 @@
+FROM fedora:24
+MAINTAINER PCP Development Team <pcp@oss.sgi.com>
+ENV container docker
+STOPSIGNAL SIGRTMIN+3
+RUN dnf upgrade -y && dnf install -y time which bc sudo git make gcc gcc-c++ zsh rpm-build dnf-plugins-core avahi-tools avahi-glib avahi-autoipd valgrind mingw64-* && dnf builddep -y pcp && dnf clean all
+
+RUN mkdir -p /pcpsrc/ && cd /pcpsrc/ && git clone git://git.pcp.io/pcp/pcp.git && cd pcp && ./Makepkgs --verbose
+RUN cd /pcpsrc/pcp/pcp-3.11.6/build/rpm/ && rm ./*src.rpm && dnf install ./*rpm -y
+CMD cd /pcpsrc/pcp/ && ./Makepkgs --target mingw64 --verbose
