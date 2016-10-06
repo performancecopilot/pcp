@@ -28,7 +28,6 @@ cat >$tmp.sh <<'End-of-File'
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=sample
-forced_restart=false
 pmda_dir=$PCP_VAR_DIR/pmdas/sample
 
 pmdaSetup
@@ -46,7 +45,6 @@ cat >$tmp.sh <<'End-of-File'
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=sample
-forced_restart=false
 pmda_dir=/really/bad/directory
 pmns_dupok=true
 

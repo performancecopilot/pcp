@@ -21,7 +21,6 @@
 
 iam=mounts
 pmda_interface=2
-forced_restart=false
 
 pmdaSetup
 pmdaInstall

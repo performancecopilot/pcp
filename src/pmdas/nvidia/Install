@@ -21,7 +21,6 @@
 iam=nvidia
 pmda_interface=2
 dso_opt=true
-forced_restart=false
 
 pmdaSetup
 pmdaInstall

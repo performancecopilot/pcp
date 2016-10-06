@@ -21,7 +21,6 @@
 iam=slow_python
 python_opt=true
 daemon_opt=false
-forced_restart=false
 
 pmdaSetup
 $PCP_ECHO_PROG $PCP_ECHO_N "Startup delay (secs) [0]? $PCP_ECHO_C"

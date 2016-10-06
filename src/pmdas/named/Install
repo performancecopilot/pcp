@@ -22,7 +22,6 @@
 iam=named
 perl_opt=true
 daemon_opt=false
-forced_restart=true
 
 d="/var/named/data"
 f="named_stats.txt"

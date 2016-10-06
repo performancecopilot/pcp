@@ -1,10 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 755
-# Exercise the Apache PMDA Install/Remove, as well as the
-# mechanism by which a PMDA can be installed with no pmcd
-# process running.
+# Exercise the Apache PMDA Install/Remove.
 #
-# Copyright (c) 2014-2015 Red Hat.
+# Copyright (c) 2014-2016 Red Hat.
 #
 
 seq=`basename $0`
@@ -39,7 +37,6 @@ pmdaapache_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/apache
     $sudo ./Remove >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
 
     echo
     echo "=== apache agent installation ==="
@@ -48,7 +45,6 @@ pmdaapache_install()
     # Check apache metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
-        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
         -e 's/[0-9][0-9]* warnings, //' \
     | $PCP_AWK_PROG '
 /Check apache metrics have appeared/    { if ($7 >= 20 && $7 <= 80) $7 = "X"
@@ -64,8 +60,7 @@ trap "_cleanup_pmda apache; exit \$status" 0 1 2 3 15
 pmdaapache_install
 
 # there may be a race if the pmda has a bit of a slow start ... pause
-# 
-sleep 3
+pmsleep 0.5
 
 # pmcd should have been started by the Install process - check
 if pminfo -v apache > $tmp.info 2> $tmp.err

@@ -2,7 +2,7 @@
 # PCP QA Test No. 845
 # Exercise the mounts PMDA Install/Remove and basic functionality.
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015-2016 Red Hat.
 #
 
 seq=`basename $0`
@@ -47,7 +47,6 @@ pmdamounts_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/mounts
     $sudo ./Remove >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
 
     echo
     echo "=== mounts agent installation ==="
@@ -56,7 +55,6 @@ pmdamounts_install()
     # Check mounts metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
-        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
         -e 's/[0-9][0-9]* warnings, //' \
     | $PCP_AWK_PROG '
 /Check mounts metrics have appeared/    { if ($7 = 4) $7 = "X"

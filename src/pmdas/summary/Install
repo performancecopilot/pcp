@@ -20,7 +20,6 @@
 
 iam=summary
 pmda_interface=2
-forced_restart=false
 
 pmdaSetup
 

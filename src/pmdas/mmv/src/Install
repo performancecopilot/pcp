@@ -20,7 +20,6 @@
 iam=mmv
 dso_opt=true
 daemon_opt=false
-forced_restart=false
 pmda_interface=4
 pmns_source=root_mmv
 

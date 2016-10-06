@@ -21,7 +21,6 @@
 iam=dtsrun
 perl_opt=true
 daemon_opt=false
-forced_restart=false
 
 pmdaSetup
 

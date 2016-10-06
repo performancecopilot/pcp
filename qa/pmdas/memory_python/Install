@@ -21,7 +21,6 @@
 iam=memory_python
 python_opt=true
 daemon_opt=false
-forced_restart=false
 
 pmdaSetup
 pmdaInstall

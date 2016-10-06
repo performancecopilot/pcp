@@ -20,7 +20,6 @@
 
 iam=pipe
 pmda_interface=5
-forced_restart=true
 
 pmdaSetup
 pmdaInstall

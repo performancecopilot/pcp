@@ -50,7 +50,6 @@ pmdalibvirt_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/libvirt
     $sudo ./Remove >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmcd stop
 
     cat <<EOF >$tmp.config
 [pmda]

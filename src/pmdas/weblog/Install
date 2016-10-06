@@ -61,7 +61,6 @@ the "'$iam'" Performance Metrics Domain Agent (PMDA).
 
 iam=weblog
 pmda_interface=2
-forced_restart=false
 
 pmdaSetup
 

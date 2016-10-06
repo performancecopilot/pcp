@@ -20,7 +20,6 @@
 
 iam=trace
 pmda_interface=2
-forced_restart=false
 
 # Override interactive dialog from pmdaSetup in pmdaproc.sh
 #

@@ -20,7 +20,6 @@
 
 iam=papi
 pmda_interface=6
-forced_restart=true
 
 pmdaSetup
 # NB: Some number of warnings from the "pmprobe -i papi" embedded

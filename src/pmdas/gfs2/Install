@@ -19,7 +19,6 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=gfs2
-forced_restart=true
 pmda_interface=4
 
 pmdaSetup

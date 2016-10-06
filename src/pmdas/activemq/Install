@@ -19,7 +19,6 @@
 iam=activemq
 perl_opt=true
 daemon_opt=false
-forced_restart=false
 
 for module in JSON LWP::UserAgent File::Basename
 do

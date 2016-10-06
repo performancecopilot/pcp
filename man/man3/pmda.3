@@ -641,22 +641,6 @@ For a DSO PMDA, this is the full pathanme of the PMDA's DSO file.
 .br
 Default: \fI$PCP_PMDAS_DIR\fP/\fI$iam\fP/pmda_\fI$iam\fP.\fI$dso_suffix\fP
 .TP
-.I forced_restart
-If
-.B true
-then the PMDA needs to run with the user-id of ``root'' or something
-other than the user-id of ``pcp''.  This means
-.BR pmcd (1)
-needs to be restarted and run initially as ``root'' until all the PMDAs
-are started at which time
-.BR pmcd (1)
-reverts to the user ``pcp''.
-Otherwise, the new PMDA will be run as the user ``pcp'' after
-.BR pmcd (1)
-is sent a SIGHUP signal.
-.br
-Default: true
-.TP
 .I pipe_opt
 For a daemon PMDA, is the default IPC channel via a
 .BR pipe (2)?

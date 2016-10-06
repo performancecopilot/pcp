@@ -19,7 +19,6 @@
 iam=ds389
 perl_opt=true
 daemon_opt=false
-forced_restart=false
 
 perl -e "use Net::LDAP" 2>/dev/null
 if test $? -ne 0; then

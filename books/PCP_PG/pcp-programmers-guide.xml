@@ -2467,7 +2467,6 @@ main(int argc, char **argv)
 
 iam=trivial
 pmda_interface=2
-forced_restart=false
 
 pmdaSetup
 pmdainstall

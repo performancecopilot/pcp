@@ -1,10 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1053
-# Exercise the JSON PMDA Install/Remove, as well as the
-# mechanism by which a PMDA can be installed with no pmcd
-# process running.
+# Exercise the JSON PMDA Install/Remove.
 #
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015-2016 Red Hat.
 #
 
 seq=`basename $0`
@@ -39,7 +37,6 @@ pmdajson_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/json
     $sudo ./Remove >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
 
     echo
     echo "=== json agent installation ==="
@@ -52,9 +49,9 @@ pmdajson_install()
         -e 's/[0-9][0-9]* warnings, //' \
     | $PCP_AWK_PROG '
 /Check json metrics have appeared/    { if ($7 >= 20 && $7 <= 80) $7 = "X"
-                                          if ($10 >= 0 && $10 <= 80) $10 = "Y"
-                                        }
-                                        { print }'
+                                        if ($10 >= 0 && $10 <= 80) $10 = "Y"
+                                      }
+                                      { print }'
 }
 
 cleanup()
@@ -72,7 +69,7 @@ trap "cleanup; exit \$status" 0 1 2 3 15
 if [ -f ${pmda_config} ]; then
     _save_config ${pmda_config}
 fi
-# Create a new empty JSOM pmda config file and install it
+# Create a new empty JSON pmda config file and install it
 cat > $tmp.pmda_config << EOF
 {
     "directory_list" : [
@@ -85,8 +82,7 @@ $sudo mv $tmp.pmda_config ${pmda_config}
 pmdajson_install
 
 # there may be a race if the pmda has a bit of a slow start ... pause
-# 
-sleep 3
+pmsleep 0.25
 
 # pmcd should have been started by the Install process - check
 if pminfo -v json > $tmp.info 2> $tmp.err

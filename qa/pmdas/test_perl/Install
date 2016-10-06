@@ -20,7 +20,6 @@
 iam=test_perl
 perl_opt=true
 daemon_opt=false
-forced_restart=false
 
 pmdaSetup
 pmdaInstall

@@ -22,7 +22,6 @@
 iam=rsyslog
 perl_opt=true
 daemon_opt=false
-forced_restart=false
 
 statsfile="$PCP_LOG_DIR/rsyslog/stats"
 statsdir=`dirname "$statsfile"`

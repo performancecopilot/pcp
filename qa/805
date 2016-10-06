@@ -59,7 +59,6 @@ pmdapostfix_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/postfix
     $sudo ./Remove >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmcd stop 2>&1 | _filter_pcp_stop
 
     echo | tee -a $here/$seq.full
     echo "=== postfix agent installation ===" | tee -a $here/$seq.full
@@ -68,7 +67,6 @@ pmdapostfix_install()
     # Check postfix metrics have appeared ... X metrics and Y values
     _filter_pmda_install <$tmp.out \
     | sed \
-        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
         -e 's/[0-9][0-9]* warnings, //' \
     | $PCP_AWK_PROG '
 /Check postfix metrics have appeared/   { if ($7 >= 7) $7 = "X"

@@ -21,7 +21,6 @@
 
 iam=logger
 pmda_interface=5
-forced_restart=false
 
 pmdaSetup
 

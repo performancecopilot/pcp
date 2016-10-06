@@ -20,7 +20,6 @@
 
 iam=roomtemp
 pmda_interface=2
-forced_restart=true
 pmdaSetup
 
 if $do_pmda

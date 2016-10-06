@@ -21,7 +21,6 @@
 iam=elasticsearch
 perl_opt=true
 daemon_opt=false
-forced_restart=false
 
 for module in JSON LWP::UserAgent
 do

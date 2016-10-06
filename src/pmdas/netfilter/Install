@@ -22,7 +22,6 @@
 iam=netfilter
 perl_opt=true
 daemon_opt=false
-forced_restart=true
 
 pmdaSetup
 

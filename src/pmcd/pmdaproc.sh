@@ -140,7 +140,6 @@ __restore_pmcd()
 	rm -f $tmp/pmcd.conf.save
 	$PCP_RC_DIR/pmcd start
 	__wait_for_pmcd
-	$__pmcd_is_dead || $PCP_RC_DIR/pmlogger condrestart
     fi
     if $__pmcd_is_dead
     then
@@ -292,24 +291,13 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
 	pmsignal -a -s HUP pmcd >/dev/null 2>&1
 	# allow signal processing to be done before checking status
 	pmsleep $signal_delay
-	__wait_for_pmcd
-	$__pmcd_is_dead && __restore_pmcd
     else
 	log=$LOGDIR/pmcd.log
 	rm -f $log
 	$PCP_RC_DIR/pmcd start
-	__wait_for_pmcd
-	if $__pmcd_is_dead
-	then
-	    __restore_pmcd	# also restarts pmlogger if needed
-	else
-	    # Successfully forced a pmcd restart.  This will cause
-	    # any running pmlogger-control-file pmloggers to exit,
-	    # so if pmlogger is enabled, ensure it's restarted now.
-	    #
-	    $PCP_RC_DIR/pmlogger condrestart
-	fi
     fi
+    __wait_for_pmcd
+    $__pmcd_is_dead && __restore_pmcd
 }
 
 # expect -R root or $ROOT not set in environment
@@ -1168,9 +1156,6 @@ _install()
 	    if pmnsdel -n $PMNSROOT $__n >$tmp/base 2>&1
 	    then
 		pmsignal -a -s HUP pmcd >/dev/null 2>&1
-		# Make sure the PMNS timestamp will be different the next
-		# time the PMNS is updated
-		pmsleep $signal_delay
 	    else
 		if grep 'Non-terminal "'"$__n"'" not found' $tmp/base >/dev/null
 		then
@@ -1475,11 +1460,11 @@ socket_inet_def=''
 #	IPC Protocol for daemon (binary only now)
 ipc_prot=binary
 #	Need to force a restart of pmcd?
-forced_restart=true
+forced_restart=false
 #	Delay after install before checking (sec)
 check_delay=1
 #	Delay after sending a signal to pmcd (sec)
-signal_delay=1
+signal_delay=0.1
 #	Additional command line args to go in $PCP_PMCDCONF_PATH
 args=""
 #	Source for the PMNS
