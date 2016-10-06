@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2013 Red Hat.
+.\" Copyright (c) 2013-2016 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
@@ -218,8 +218,9 @@ control lines have the format:
 .br
 where
 .I metric
-is the name of a PCP metric (must be a leaf node in the PMNS and
-no instance specification is allowed) and the optional
+is the name of a PCP metric (must be a leaf node in the PMNS,
+no instance specification is allowed, and it must not be a
+derived metric) and the optional
 .I condition
 is the keyword
 .B exists
@@ -360,6 +361,11 @@ variable may be used to specify an alternative
 configuration file,
 as described in
 .BR pcp.conf (5).
+Note that
+.B pmlogconf
+specifically overrides its own
+.B $PCP_DERIVED_CONFIG
+environment variable to an empty string, for performance reasons.
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pmlogger (1),

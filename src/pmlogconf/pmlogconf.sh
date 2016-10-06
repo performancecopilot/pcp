@@ -28,6 +28,11 @@
 # Get standard environment
 . $PCP_DIR/etc/pcp.env
 
+# Clear this part to ensure many short-lived pmprobe children
+# don't waste time analyzing derived metrics.
+PCP_DERIVED_CONFIG=
+export PCP_DERIVED_CONFIG
+
 status=1
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
 trap "rm -rf $tmp; exit \$status" 0 1 2 3 15

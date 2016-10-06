@@ -227,10 +227,12 @@ pmmgr_configurable::get_config_multi(const string& file) const
   while (f.good()) {
     string line;
     getline(f, line);
+    if (line != "") // could happen, even if now !f.good() due to EOF (line without \n)
+      lines.push_back(line);
     if (! f.good())
       break;
-    if (line != "")
-      lines.push_back(line);
+    if (line == "")
+      timestamp(obatched(cerr)) << "file '" << file << "' parse warning: empty line ignored" << endl;
   }
 
   return lines;
@@ -252,8 +254,13 @@ pmmgr_configurable::get_config_single(const string& file) const
   vector<string> lines = get_config_multi (file);
   if (lines.size() == 1)
     return lines[0];
+  else if (lines.size() > 1)
+    {
+      timestamp(obatched(cerr)) << "file '" << file << "' parse warning: ignored extra lines" << endl;
+      return "";
+    }
   else
-    return "";
+    return ""; // even an empty or nonexistent file comes back with a ""
 }
 
 ostream& // NB: return by value!
