@@ -2146,8 +2146,12 @@ BEGIN {
     else if (import_collectl2pcp[$NF]) f="import_collectl2pcp_files.rpm";
     else f="base_files.rpm"
 }
-$1 == "d" { printf ("%%%%dir %%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $5) >> f } 
-
+$1 == "d" {
+	    if (match ($5, "'$PCP_RUN_DIR'")) {
+		printf ("%%%%ghost %s\n", $5) >> f;
+	    }
+	    printf ("%%%%dir %%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $5) >> f
+	  }
 $1 == "f" && $6 ~ "etc/pcp.conf" { printf ("%%%%config ") >> f; }
 $1 == "f" && $6 ~ "etc/pcp.env"  { printf ("%%%%config ") >> f; }
 $1 == "f" && $6 ~ "etc/pcp.sh"   { printf ("%%%%config ") >> f; }
@@ -2165,7 +2169,8 @@ $1 == "f" {
 	    if (match ($6, "'$PCP_MAN_DIR'") || match ($6, "'$PCP_DOC_DIR'")) {
 		printf ("%%%%doc ") >> f;
 	    }
-	    printf ("%%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $6) >> f }
+	    printf ("%%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $6) >> f
+	  }
 $1 == "l" { print $3 >> f }'
 
 %pre testsuite
@@ -2615,8 +2620,6 @@ cd
 
 %if "@enable_manager@" == "true"
 %files manager -f manager_files.rpm
-# %config(missingok,noreplace) /etc/pcp/pmmgr
-# set via awk processing above
 %endif
 
 %if "@have_webjs@" == "true"
