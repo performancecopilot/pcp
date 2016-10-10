@@ -255,7 +255,7 @@ Incompatible configuration file version (read v99, need v1).
 == user-requested instance handling
 No matching instances found.
 
-Requested instances:
+Requested global instances:
 wrong
   m.u.free
      Kbyte
@@ -299,10 +299,10 @@ wrong
                sda               sdb
            count/s           count/s
                N/A               N/A
-  k.a.sysfork      free      load      load      read
-                         1 minute  5 minute       sda
-      count/s     Kbyte                       count/s
-          N/A     38220     0.820     0.700       N/A
+  k.a.sysfork              free              load              load              read
+                                         1 minute          5 minute               sda
+      count/s             Kbyte                                               count/s
+          N/A             38220             0.820             0.700               N/A
 == exercise option priority
           m.u.free
              Kbyte

@@ -178,10 +178,10 @@ echo 'instances = wrong' >> $tmp.pconfig
 echo 'sysfork = kernel.all.sysfork' >> $tmp.pconfig
 echo 'mem.util.free = free,,,,16' >> $tmp.pconfig
 # We want: kernel.all.load = load,"'1 minute','5 minute','15 min'",,,16
-echo "kernel.all.load = load,\"'1 minute','5 minute','15 min'\",,,16" >> $tmp.config
-echo 'disk.dev.read = read,sda,,,16' >> $tmp.config
-echo 'disk.dev.write = write,wrong,,,16' >> $tmp.config
-pmrep -s 1 $log2 :test
+echo "kernel.all.load = load,\"'1 minute','5 minute','15 min'\",,,16" >> $tmp.pconfig
+echo 'disk.dev.read = read,sda,,,16' >> $tmp.pconfig
+echo 'disk.dev.write = write,wrong,,,16' >> $tmp.pconfig
+pmrep -s 1 $log2 -c $tmp.pconfig :test
 
 echo "== exercise option priority"
 echo '[options]' > $tmp.pconfig
