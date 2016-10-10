@@ -32,6 +32,7 @@
 [\f3\-f\f1 \f2format\f1]
 [\f3\-F\f1 \f2outfile\f1]
 [\f3\-h\f1 \f2host\f1]
+[\f3\-i\f1 \f2instances\f1]
 [\f3\-K\f1 \f2spec\f1]
 [\f3\-l\f1 \f2delimiter\f1]
 [\f3\-o\f1 \f2output\f1]
@@ -47,6 +48,22 @@
 [\f3\-Z\f1 \f2timezone\f1]
 \f2metricspec [...]\f1
 .SH DESCRIPTION
+.de EX
+.in +0.5i
+.ie t .ft CB
+.el .ft B
+.ie t .sp .5v
+.el .sp
+.ta \\w' 'u*8
+.nf
+..
+.de EE
+.fi
+.ie t .sp .5v
+.el .sp
+.ft R
+.in
+..
 .B pmrep
 is a customizable performance metrics reporting tool.
 Any available performance metric, live or archived, system and/or application,
@@ -149,7 +166,12 @@ and
 see below).
 The optional
 .I instance
-definition is currently unimplemented.
+definition restricts
+.I csv
+and
+.I stdout
+reporting to the specified instances (so non-matching instances
+will be filtered).
 An optional
 .I unit/scale
 is applicable for dimension-compatible, non-string, and (currently)
@@ -204,7 +226,7 @@ kernel.all.sysfork,forks,,,,8
 .ft R
 .in
 .P
-The third form of a metricspec is valid only in
+The third form of a metricspec is described and valid only in
 .BR pmrep.conf (5).
 .P
 Derived metrics are specified like PMNS leaf node metrics.
@@ -346,6 +368,43 @@ rather than the default localhost.
 .TP
 .B \-H
 Do not print any headers.
+.TP
+.B \-i
+Report only the listed
+.I instances
+(if present).
+By default all current instances are reported.
+This is a global option that is used for all metrics unless a
+metric-specific instance definition is provided as part of a
+.IR metricspec .
+Metrics without instances are reported as usual.
+.RS
+.PP
+The list may consist of one or more comma-separated instances.
+The instance name may be quoted with single (') or double (")
+quotes for those cases where the instance name contains commas
+or white space. Note that on the command line when specifying
+more than one instance, all the names must be quoted.
+.PP
+Multiple
+.B \-i
+options are allowed as an alternative way of specifying more than
+one instance of interest.
+.PP
+As an example, the following would report the same instances:
+.EX
+$ pmrep \-i "'1 minute','5 minute'" kernel.all.load
+$ pmrep \-i '"1 minute","5 minute"' kernel.all.load
+$ pmrep \-i "'1 minute'" -i "'5 minute'" kernel.all.load
+$ pmrep kernel.all.load,,"'1 minute','5 minute'"
+$ pmrep kernel.all.load,,'"1 minute","5 minute"'
+.EE
+.PP
+However, this would report only the 1-minute instance:
+.EX
+$ pmrep \-i '"1 minute","5 minute"' kernel.all.load,,"1 minute"
+.EE
+.RE
 .TP
 .B \-K
 When fetching metrics from a local context (see
@@ -705,8 +764,6 @@ System provided configuration file.
 .PD
 .SH BUGS
 No command line option can follow metrics.
-
-Specifying instances is not yet supported.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_

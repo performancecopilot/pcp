@@ -58,6 +58,7 @@ import errno
 import time
 import math
 import copy
+import csv
 import sys
 import os
 import re
@@ -173,7 +174,7 @@ class PMReporter(object):
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval',
-                     'speclocal')
+                     'speclocal', 'instances')
 
         # Special command line switches
         self.arghelp = ('-?', '--help', '-V', '--version')
@@ -204,6 +205,7 @@ class PMReporter(object):
         self.runtime = -1
         self.delay = 0
         self.type = 0
+        self.instances = []
         self.width = 0
         self.precision = 3 # .3f
         self.delimiter = None
@@ -223,11 +225,13 @@ class PMReporter(object):
         self.pmfg_ts = None
 
         # Corresponding config file metric specifiers
-        self.metricspec = ('label', 'instance', 'unit', 'type', 'width', 'formula')
+        self.metricspec = ('label', 'instances', 'unit', 'type', 'width', 'formula')
 
         self.pmids = []
         self.descs = []
         self.insts = []
+
+        self.tmp = []
 
         # Zabbix integration
         self.zabbix_server = None
@@ -242,7 +246,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdrw:P:l:xE:f:uq:b:y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdri:w:P:l:xE:f:uq:b:y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -276,6 +280,7 @@ class PMReporter(object):
         opts.pmSetLongOptionHostZone()     # -z/--hostzone
         opts.pmSetLongOption("delay", 0, "d", "", "delay, pause between updates for archive replay")
         opts.pmSetLongOption("raw", 0, "r", "", "output raw counter values (no rate conversion)")
+        opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
         opts.pmSetLongOption("width", 1, "w", "N", "default column width")
         opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (if width enough)")
         opts.pmSetLongOption("delimiter", 1, "l", "STR", "delimiter to separate csv/stdout columns")
@@ -340,6 +345,8 @@ class PMReporter(object):
             self.delay = 1
         elif opt == 'r':
             self.type = 1
+        elif opt == 'i':
+            self.instances = self.instances + self.parse_instances(optarg)
         elif opt == 'w':
             self.width = int(optarg)
         elif opt == 'P':
@@ -388,6 +395,16 @@ class PMReporter(object):
                     break
         return config
 
+    def parse_instances(self, instances):
+        """ Parse user-supplied instances string """
+        insts = []
+        reader = csv.reader([instances])
+        for i, inst in enumerate(list(reader)[0]):
+            if inst.startswith('"') or inst.startswith("'"):
+                inst = inst[1:-1]
+            insts.append(inst)
+        return insts
+
     def set_attr(self, name, value):
         """ Helper to apply config file settings properly """
         if value in ('true', 'True', 'y', 'yes', 'Yes'):
@@ -418,6 +435,8 @@ class PMReporter(object):
 
     def read_config(self):
         """ Read options from configuration file """
+        if not self.config:
+            return
         config = ConfigParser.SafeConfigParser()
         config.read(self.config)
         if not config.has_section('options'):
@@ -436,12 +455,41 @@ class PMReporter(object):
         if pmapi.c_api.pmGetOptionsFromList(sys.argv):
             raise pmapi.pmUsageErr()
 
+    def parse_metric_spec_instances(self, spec):
+        """ Parse instances from metric spec """
+        insts = [None]
+        if spec.count(",") < 2:
+            return spec + ",,", insts
+        # User may supply quoted or unquoted instance specification
+        # Conf file preservers outer quotes, command line does not
+        # We need to detect which is the case here. What a mess.
+        quoted = 0
+        s = spec.split(",")[2]
+        if s and (s[1] == "'" or s[1] == '"'):
+            quoted = 1
+        if spec.count('"') or spec.count("'"):
+            inststr = spec.partition(",")[2].partition(",")[2]
+            q = inststr[0]
+            inststr = inststr[:inststr.rfind(q)+1]
+            if quoted:
+                insts = self.parse_instances(inststr[1:-1])
+            else:
+                insts = self.parse_instances(inststr)
+            spec = spec.replace(inststr, "")
+        else:
+            insts = [s]
+        if spec.count(",") < 2:
+            spec += ",,"
+        return spec, insts
+
     def parse_metric_info(self, metrics, key, value):
         """ Parse metric information """
         # NB. Uses the config key, not the metric, as the dict key
         if ',' in value:
             # Compact / one-line definition
-            metrics[key] = (key + "," + value).split(",")
+            spec, insts = self.parse_metric_spec_instances(key + "," + value)
+            metrics[key] = spec.split(",")
+            metrics[key][2] = insts
         else:
             # Verbose / multi-line definition
             if not '.' in key or key.rsplit(".", 1)[1] not in self.metricspec:
@@ -492,7 +540,9 @@ class PMReporter(object):
             if metric.startswith(":"):
                 tempmet[metric[1:]] = None
             else:
-                m = metric.split(",")
+                spec, insts = self.parse_metric_spec_instances(metric)
+                m = spec.split(",")
+                m[2] = insts
                 tempmet[m[0]] = m[1:]
 
         # Get config and set details for configuration file metric sets
@@ -646,6 +696,18 @@ class PMReporter(object):
                     mtype == PM_TYPE_DOUBLE or
                     mtype == PM_TYPE_STRING):
                 raise pmapi.pmErr(PM_ERR_TYPE)
+            instances = self.instances if not self.tmp[0] else self.tmp
+            if instances and inst[1][0]:
+                found = [[], []]
+                for r in instances:
+                   cr = re.compile('\A' + r + '\Z')
+                   for i, s in enumerate(inst[1]):
+                       if re.match(cr, s):
+                           found[0].append(inst[0][i])
+                           found[1].append(inst[1][i])
+                if not found[0]:
+                    return
+                inst = found
             self.pmids.append(pmid)
             self.descs.append(desc)
             self.insts.append(inst)
@@ -703,7 +765,12 @@ class PMReporter(object):
         for metric in metrics:
             try:
                 l = len(self.pmids)
+                if len(metrics[metric]) > 1:
+                    self.tmp = metrics[metric][1]
+                    if not 'append' in dir(self.tmp):
+                        self.tmp = [None]
                 self.context.pmTraversePMNS(metric, self.check_metric)
+                self.tmp = []
                 if len(self.pmids) == l + 1:
                     # Leaf
                     if metric == self.context.pmNameID(self.pmids[l]):
@@ -720,6 +787,15 @@ class PMReporter(object):
             except pmapi.pmErr as error:
                 sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
                 sys.exit(1)
+
+        # Exit if no metrics with specified instances found
+        if not self.insts:
+            sys.stderr.write("No matching instances found.\n")
+            # Try to help the user to get the instance specifications right
+            if self.instances:
+                print("\nRequested global instances:")
+                print("\n".join(self.instances))
+            sys.exit(1)
 
         # Finalize the metrics set
         for i, metric in enumerate(self.metrics):

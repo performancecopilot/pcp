@@ -252,6 +252,57 @@ Incompatible configuration file version (read v99, need v1).
   fail
       
    inf
+== user-requested instance handling
+No matching instances found.
+
+Requested instances:
+wrong
+  m.u.free
+     Kbyte
+     38220
+  m.u.free
+     Kbyte
+     38220
+  d.d.read
+       sda
+   count/s
+       N/A
+  d.d.read
+       sda
+   count/s
+       N/A
+  d.d.read  k.a.load  k.a.load
+       sda  1 minute  5 minute
+   count/s                    
+       N/A     0.820     0.700
+          k.a.load
+          1 minute
+                  
+             0.820
+  k.a.load  k.a.load
+  1 minute  5 minute
+                    
+     0.820     0.700
+  d.d.read
+       sda
+   count/s
+       N/A
+          d.d.read
+               sda
+           count/s
+               N/A
+  d.d.read  d.d.read
+       sda       sdb
+   count/s   count/s
+       N/A       N/A
+          d.d.read          d.d.read
+               sda               sdb
+           count/s           count/s
+               N/A               N/A
+  k.a.sysfork      free      load      load      read
+                         1 minute  5 minute       sda
+      count/s     Kbyte                       count/s
+          N/A     38220     0.820     0.700       N/A
 == exercise option priority
           m.u.free
              Kbyte
