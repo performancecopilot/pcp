@@ -765,12 +765,12 @@ class PMReporter(object):
         for metric in metrics:
             try:
                 l = len(self.pmids)
+                self.tmp = []
                 if len(metrics[metric]) > 1:
                     self.tmp = metrics[metric][1]
                     if not 'append' in dir(self.tmp):
                         self.tmp = [None]
                 self.context.pmTraversePMNS(metric, self.check_metric)
-                self.tmp = []
                 if len(self.pmids) == l + 1:
                     # Leaf
                     if metric == self.context.pmNameID(self.pmids[l]):
