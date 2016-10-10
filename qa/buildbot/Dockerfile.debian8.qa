@@ -1,5 +1,5 @@
 FROM debian:jessie
-MAINTAINER PCP Development Team <pcp@oss.sgi.com>
+MAINTAINER PCP Development Team <pcp@groups.io>
 ENV container docker
 STOPSIGNAL SIGRTMIN+3
 RUN sed -i 'p' /etc/apt/sources.list && sed -i ':a;N;$!ba;s/deb /deb-src /2' /etc/apt/sources.list &&  sed -i ':a;N;$!ba;s/deb /deb-src /3' /etc/apt/sources.list && sed -i ':a;N;$!ba;s/deb /deb-src /4' /etc/apt/sources.list

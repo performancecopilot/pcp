@@ -232,7 +232,7 @@ Make in the src Directory
 
     1. cd src
     2. diff -u trace_dev.h ../../src/include/trace_dev.h
-       and mail the differences to pcp@oss.sgi.com so we can refine the
+       and mail the differences to pcp@groups.io so we can refine the
        Makefiles to avoid cosmetic differences
     3. mv trace_dev.h trace_dev.h.orig
        cp ../../src/include/trace_dev.h trace_dev.h
@@ -260,5 +260,5 @@ Fixes
 -----
     
     If you find something that does not work, and fix it, or create
-    additional QA tests, please send the details to pcp@oss.sgi.com.
+    additional QA tests, please send the details to pcp@groups.io.
 

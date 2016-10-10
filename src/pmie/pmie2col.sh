@@ -15,7 +15,7 @@
 #       load_1 (Tue Dec 23 12:20:45 2003): 0.24
 # the first sed step in the filter sorts this out.
 #
-# First e-mailed to Patrick Aland <paland@stetson.edu> and pcp@oss.sgi.com
+# First e-mailed to Patrick Aland <paland@stetson.edu> and pcp@groups.io
 # on Wed, 24 Jan 2001.
 #
  

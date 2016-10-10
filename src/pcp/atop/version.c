@@ -20,7 +20,7 @@ getstrvers(void)
 	static char vers[64];
 
 	snprintf(vers, sizeof vers,
-		"%s version: %s <pcp@oss.sgi.com>",
+		"%s version: %s <pcp@groups.io>",
 		pmProgname, PCP_VERSION);
 
 	return vers;

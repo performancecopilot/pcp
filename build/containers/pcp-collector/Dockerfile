@@ -13,7 +13,7 @@
 # Dockerfile to build the pcp-collector container image, layered on pcp-base.
 #
 FROM pcp-base:latest
-MAINTAINER PCP Development Team <pcp@oss.sgi.com>
+MAINTAINER PCP Development Team <pcp@groups.io>
 
 #
 # install pcp-collector and it's dependencies, clean the cache.

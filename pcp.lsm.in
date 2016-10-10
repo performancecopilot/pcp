@@ -18,11 +18,11 @@ Description:    Performance Co-Pilot (PCP) provides a framework and
 		the PCP project visit http://www.pcp.io
 
 Keywords:       performance, monitoring, system, status, distributed
-Author:         pcp@oss.sgi.com (PCP Development Team)
-Maintained-by:  pcp@oss.sgi.com (PCP Development Team)
-Primary-site:   ftp://ftp.pcp.io/download/
+Author:         pcp@groups.io (PCP Development Team)
+Maintained-by:  pcp@groups.io (PCP Development Team)
+Primary-site:   https://bintray.com/pcp
 Alternate-site:
-Original-site:  ftp://ftp.pcp.io/download/
-Platforms:      Linux, MacOSX, Solaris, AIX, FreeBSD, Windows
+Original-site:  https://bintray.com/pcp
+Platforms:      Linux, MacOSX, Solaris, AIX, FreeBSD, NetBSD, Windows
 Copying-policy: GPL (libraries are LGPL)
 End

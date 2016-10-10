@@ -487,7 +487,7 @@ with
 
 perl(1) and PCPIntro(1).
 
-The PCP mailing list pcp@oss.sgi.com can be used for questions about
+The PCP mailing list pcp@groups.io can be used for questions about
 this module.
 
 Further details can be found at http://www.pcp.io

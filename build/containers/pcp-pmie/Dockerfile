@@ -13,7 +13,7 @@
 # Dockerfile to build the pcp-pmie container image, layered on pcp-base.
 #
 FROM pcp-base:latest
-MAINTAINER PCP Development Team <pcp@oss.sgi.com>
+MAINTAINER PCP Development Team <pcp@groups.io>
 
 #
 # install pcp and it's dependencies, clean the cache.

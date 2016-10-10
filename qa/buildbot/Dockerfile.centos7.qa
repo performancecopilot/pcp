@@ -1,5 +1,5 @@
 FROM centos:7
-MAINTAINER PCP Development Team <pcp@oss.sgi.com>
+MAINTAINER PCP Development Team <pcp@groups.io>
 ENV container docker
 STOPSIGNAL SIGRTMIN+3
 RUN yum upgrade -y && yum install -y time which bc sudo git make gcc gcc-c++ zsh rpm-build dnf-plugins-core avahi-tools avahi-glib avahi-autoip rpm-build valgrind && yum-builddep -y pcp && yum clean all
