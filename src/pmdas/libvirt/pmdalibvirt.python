@@ -71,6 +71,7 @@ class LibvirtPMDA(PMDA):
         units_kbyte = pmUnits(1, 0, 0, PM_SPACE_KBYTE, 0, 0)
         units_bpers = pmUnits(1,-1, 0, PM_SPACE_BYTE, PM_TIME_SEC, 0)
         units_nsecs = pmUnits(0, 1, 0, 0, PM_TIME_NSEC, 0)
+        units_secs  = pmUnits(0, 1, 0, 0, PM_TIME_SEC, 0)
 
         self.hv_indom = PM_INDOM_NULL
 
@@ -165,8 +166,17 @@ class LibvirtPMDA(PMDA):
         self.vm_balloonstats = [
             # Name - empty - type - semantics - units - help
             # See libvirt.git/src/libvirt-domain.c
-            [ 'domstats.balloon.current',        None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon size, current'          ],
-            [ 'domstats.balloon.maximum',        None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon size, maximum'          ],
+            [ 'domstats.balloon.current',        None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, current size'          ],
+            [ 'domstats.balloon.maximum',        None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, maximum size'          ],
+            [ 'domstats.balloon.swap_in',        None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM balloon, swapped in total'      ],
+            [ 'domstats.balloon.swap_out',       None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_kbyte, 'VM balloon, swapped out total'     ],
+            [ 'domstats.balloon.major_fault',    None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM balloon, major faults'          ],
+            [ 'domstats.balloon.minor_fault',    None,                       PM_TYPE_U64,    PM_SEM_COUNTER,  units_count, 'VM balloon, minor faults'          ],
+            [ 'domstats.balloon.unused',         None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, unused'                ],
+            [ 'domstats.balloon.available',      None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, available'             ],
+            [ 'domstats.balloon.rss',            None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, proc RSS'              ],
+            [ 'domstats.balloon.usable',         None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_kbyte, 'VM balloon, usable w/o swap'       ],
+            [ 'domstats.balloon.last_update',    None,                       PM_TYPE_U64,    PM_SEM_INSTANT,  units_secs,  'VM balloon, update timestamp'      ],
         ]
 
         self.vm_block_indom = self.indom(2)
@@ -743,6 +753,7 @@ class LibvirtPMDA(PMDA):
                 if cluster != self.vm_vcpustats_cluster and \
                    cluster != self.vm_blockstats_cluster and \
                    cluster != self.vm_netstats_cluster:
+                    if key == 'balloon.last_update': key = 'balloon.last-update'
                     if key in res[pos][1]:
                         return [res[pos][1][key], 1]
                     else:
