@@ -1,5 +1,5 @@
 FROM fedora:23
-MAINTAINER PCP Development Team <pcp@oss.sgi.com>
+MAINTAINER PCP Development Team <pcp@groups.io>
 ENV container docker
 STOPSIGNAL SIGRTMIN+3
 RUN dnf upgrade -y && dnf install -y time which bc sudo git make gcc gcc-c++ zsh rpm-build dnf-plugins-core avahi-tools avahi-glib avahi-autoipd valgrind && dnf builddep -y pcp && dnf clean all

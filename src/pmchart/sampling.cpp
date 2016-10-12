@@ -353,7 +353,8 @@ SamplingItem::setPlotStack(int index, double sum)
     if (!hidden() && !qIsNaN(my.itemData[index])) {
 	sum += my.itemData[index];
 	my.itemData[index] = sum;
-    }
+    } else
+	my.itemData[index] = 0.0;
     return sum;
 }
 

@@ -171,7 +171,7 @@ pmiGetHandle(3), pmiPutResult(3), pmiPutValue(3), pmiPutValueHandle(3),
 pmiPutMark(3), pmiStart(3), pmiSetHostname(3), pmiSetTimezone(3), pmiUnits(3),
 pmiUseContext(3) and pmiWrite(3).
 
-The PCP mailing list pcp@oss.sgi.com can be used for questions about
+The PCP mailing list pcp@groups.io can be used for questions about
 this module.
 
 Further details can be found at http://www.pcp.io

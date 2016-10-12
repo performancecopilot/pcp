@@ -3007,7 +3007,7 @@ if test -z "$target"
 then
     echo '
 FATAL ERROR: Cannot guess your target, try explicit specification
-             using --target or mailto: pcp@oss.sgi.com to ask.'
+             using --target or mailto: pcp@groups.io to ask.'
     rm -rf conftest conftest.*
     exit 1
 else

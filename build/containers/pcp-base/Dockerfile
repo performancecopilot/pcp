@@ -15,7 +15,7 @@
 # for all other PCP containers, i.e. layered.
 #
 FROM fedora:latest
-MAINTAINER PCP Development Team <pcp@oss.sgi.com>
+MAINTAINER PCP Development Team <pcp@groups.io>
 
 # update the Fedora base image and clean the dnf cache
 # (normally disabled during development)

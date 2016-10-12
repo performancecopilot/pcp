@@ -160,6 +160,29 @@ pmrep -s 1 pmcd.version | sed -e "s/$pcp_version/PCP_VERSION/g"
 echo "== divide-by-zero error handling"
 pmrep -t .01 -s 1 -e 'fail = sample.long.one / 0' fail
 
+echo "== user-requested instance handling"
+pmrep -s 1 -i wrong $log2 disk.dev.read
+pmrep -s 1 -i wrong $log2 mem.util.free
+pmrep -s 1 -i wrong $log2 disk.dev.read mem.util.free
+pmrep -s 1 -i wrong,sda $log2 disk.dev.read
+pmrep -s 1 -i wrong,sda,wrong $log2 disk.dev.read
+pmrep -s 1 -i '"1 minute",wrong,sda,"5 minute","still,wrong"' $log2 disk.dev.read kernel.all.load
+pmrep -s 1 -i '"1 minute",wrong,"5 minute"' $log2 kernel.all.load,,"1 minute",,,16
+pmrep -s 1 -i "1 minute" -i wrong -i "5 minute" $log2 kernel.all.load
+pmrep -s 1 $log2 disk.dev.read,,sda
+pmrep -s 1 $log2 disk.dev.read,,sda,,,16
+pmrep -s 1 $log2 disk.dev.read,,"'sda','sdb'"
+pmrep -s 1 $log2 disk.dev.read,,"'sda','sdb'",,,16
+echo '[test]' > $tmp.pconfig
+echo 'instances = wrong' >> $tmp.pconfig
+echo 'sysfork = kernel.all.sysfork' >> $tmp.pconfig
+echo 'mem.util.free = free,,,,16' >> $tmp.pconfig
+# We want: kernel.all.load = load,"'1 minute','5 minute','15 min'",,,16
+echo "kernel.all.load = load,\"'1 minute','5 minute','15 min'\",,,16" >> $tmp.pconfig
+echo 'disk.dev.read = read,sda,,,16' >> $tmp.pconfig
+echo 'disk.dev.write = write,wrong,,,16' >> $tmp.pconfig
+pmrep -s 1 $log2 -c $tmp.pconfig :test
+
 echo "== exercise option priority"
 echo '[options]' > $tmp.pconfig
 echo 'header = yes' >> $tmp.pconfig

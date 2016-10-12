@@ -651,7 +651,6 @@ pcp-3.10.3 (2 March 2015)
     - enhancement: ongoing improvements to the native containers support
 	http://pcp.io/docs/lab.containers.html
     - enhancement: pmlogger on-the-fly one-shot recording
-	http://oss.sgi.com/bugzilla/show_bug.cgi?id=1073
     - doc: containers tutorial.
     - build: new scripts directory. Contains useful scripts for project
       management tasks.
@@ -681,9 +680,7 @@ pcp-3.10.3 (2 March 2015)
     - solaris PMDA: duplicate PMNS names allowed by default.
     - ganglia2pcp: new utility.
     - bug fix: pmlogger: signal delivery may lead to deadlock
-	http://oss.sgi.com/bugzilla/show_bug.cgi?id=1104
     - bug fix: libpcp: AF functionality has posix-signal-unsafe elements
-	http://oss.sgi.com/bugzilla/show_bug.cgi?id=1069
 
 pcp-3.10.2 (23 January 2015)
     - PMAPI extension: pmParseUnitsStr. Includes python binding
