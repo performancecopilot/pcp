@@ -173,15 +173,6 @@ return function(callback) {
 	    create_metric_panel(dashboard, panel);
         }
         
-	if ("children" in panel) {
-            for (var i=0; i<panel.children.length; i++) {
-		var child = nodes[node_map[panel.children[i]]];
-		if ("pcp_metrics" in child) {
-		    create_metric_panel(dashboard, child);
-		}
-	    }
-	}
-
         // when dashboard is composed call the callback function and
         // pass the dashboard
         callback(dashboard);
