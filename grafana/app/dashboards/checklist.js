@@ -57,7 +57,6 @@ return function(callback) {
     }).done(function(result) {
         var nodes = result.nodes;
         var node = ARGS["node"];
-	var node_index;
         var dashboard;
 	var node_map = [];
         var panel;
@@ -82,7 +81,7 @@ return function(callback) {
 	    for (var p=0; (parents != undefined && p<parents.length); p++) {
 		var pn = parents[p];
 		// FIXME debug code
-		console.log(pn, "(", node_map[pn], ") -> ", child, "(", i, ")");
+		console.log(pn, "(", node_map[pn], ") -> ", child, "(", node_map[child], ")");
 		if (pn in node_map) {
 		    nodes[node_map[pn]].children.push(child);
 		}
@@ -94,8 +93,7 @@ return function(callback) {
         
         // find
 	if (node in node_map) {
-	    node_index = node_map[node];
-            panel = nodes[node_index];
+            panel = nodes[node_map[node]];
 	} else {
             alert ("checklist node " + node + "not found");
             callback(dashboard);
@@ -130,11 +128,11 @@ return function(callback) {
 	// create navigation links back up the graph
         // XXX: grafana suppresses normal click linkfollowing action in these A HREF links
         markdown = "[**RESTART**](" + pmwebd + checklist_url + ")";
-	if ("parents" in nodes[node_index]) {
-            for (var i=0; i<nodes[node_index].parents.length; i++) {
-		markdown += " | [" + nodes[node_index].parents[i] + "]" +
+	if ("parents" in panel) {
+            for (var parent of panel.parents) {
+		markdown += " | [" + parent + "]" +
                     "(" + pmwebd + checklist_url + "?node=" +
-		    encodeURIComponent(nodes[node_index].parents[i]) + ") |";
+		    encodeURIComponent(parent) + ") |";
             }
 	}
         dashboard.rows.push({
@@ -144,11 +142,11 @@ return function(callback) {
 
         // XXX: grafana suppresses normal click linkfollowing action in these A HREF links
         markdown = "";
-	if ("children" in nodes[node_index]) {
-            for (var i=0; i<nodes[node_index].children.length; i++) {
-		markdown += " | [" + nodes[node_index].children[i] + "]" +
+	if ("children" in panel) {
+            for (var child of panel.children) {
+		markdown += " | [" + child + "]" +
                     "(" + pmwebd + checklist_url + "?node=" +
-		    encodeURIComponent(nodes[node_index].children[i]) + ") |";
+		    encodeURIComponent(child) + ") |";
             }
 	}
         dashboard.rows.push({
