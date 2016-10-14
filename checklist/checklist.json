@@ -23,22 +23,6 @@
 	    "parents": ["Start"]
         },
         {
-            "name": "CPU - serial code",
-	    "description": "The processors in the machine are sitting idle while others are quite busy.",
-	    "pcp_metrics": "kernel.percpu.cpu.idle",
-	    "predicate": "test to determine if problem",
-	    "article": "",
-	    "parents": ["CPU"]
-        },
-        {
-            "name": "CPU - cache issue",
-	    "description": "The cache is having excessive misses.",
-	    "pcp_metrics": "papi pmda, looking at PAPI_L2_TCM or PAPI_L3_TCM",
-	    "predicate": "",
-	    "article": "",
-	    "parents": ["CPU"]
-        },
-        {
             "name": "Storage - high utilization",
 	    "description": "Excessive waiting for storage",
 	    "pcp_metrics": "disk.md.avactive",
