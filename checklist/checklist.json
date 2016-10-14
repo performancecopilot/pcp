@@ -69,6 +69,30 @@
 	    "predicate": "",
 	    "article": "http://dl.acm.org/citation.cfm?id=2930834",
 	    "parents": ["Memory"]
+        },
+        {
+            "name": "Network",
+	    "description": "Amount of network trafic",
+	    "pcp_metrics": ["network.interface.out.bytes", "network.interface.in.bytes"],
+	    "predicate": "",
+	    "article": "",
+	    "parents": ["Start"]
+        },
+        {
+            "name": "Network - Saturation",
+	    "description": "Network packets being dropped",
+	    "pcp_metrics": ["network.interface.out.drops", "network.interface.in.drops"],
+	    "predicate": "",
+	    "article": "",
+	    "parents": ["Network"]
+        },
+        {
+            "name": "Network - errors",
+	    "description": "Show network errors",
+	    "pcp_metrics": ["network.interface.out.errors", "network.interface.in.errors"],
+	    "predicate": "",
+	    "article": "",
+	    "parents": ["Network"]
         }
     ],
     "edges": [ ]
