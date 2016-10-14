@@ -47,7 +47,7 @@
 	    "parents": ["Storage"]
         },
         {
-            "name": "Memory - space",
+            "name": "Memory",
 	    "description": "Running low on free memory",
 	    "pcp_metrics": [ "mem.freemem", "mem.physmem" ],
 	    "predicate": "mem.freemem/mem.physmem",
@@ -60,7 +60,7 @@
 	    "pcp_metrics":  [ "pagesin" , "swap.pagesout" ], 
 	    "predicate": "",
 	    "article": "",
-	    "parents": ["Start"]
+	    "parents": ["Memory"]
         },
         {
             "name": "Memory - huge page defragmentation",
@@ -68,7 +68,7 @@
 	    "pcp_metrics": [ "mem.vmstat.thp_collapse_alloc", "mem.vmstat.thp_fault_alloc", "mem.vmstat.thp_fault_fallback" ],
 	    "predicate": "",
 	    "article": "http://dl.acm.org/citation.cfm?id=2930834",
-	    "parents": ["Start"]
+	    "parents": ["Memory"]
         }
     ],
     "edges": [ ]
