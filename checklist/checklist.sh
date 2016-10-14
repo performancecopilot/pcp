@@ -24,7 +24,7 @@ trap 'kill $pids; rm -r "$tmpdir"; exit 0' 0 1 2 3 5 9 15
 
 # start private logger if needed
 # XXX: create metrics list from search of json file
-metrics="kernel.percpu kernel.all.load"
+metrics="kernel.percpu kernel.all.load disk.dm.avactive disk.dm.total disk.dm.blktotal"
 refresh="1" # XXX: parametrize
 $PCP_BIN_DIR/pmrep -F ${tmpdir}/archive-`date +%s` -o archive -t $refresh $metrics &
 pids="$pids $!"

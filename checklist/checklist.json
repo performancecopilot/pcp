@@ -23,28 +23,28 @@
 	    "parents": ["Start"]
         },
         {
-            "name": "Storage - high utilization",
+            "name": "Storage",
 	    "description": "Excessive waiting for storage",
-	    "pcp_metrics": "disk.md.avactive",
-	    "predicate": "disk.md.avactive",
+	    "pcp_metrics": "disk.dm.avactive",
+	    "predicate": "disk.dm.avactive",
 	    "article": "",
 	    "parents": ["Start"]
         },
         {
             "name": "Storage - bandwidth",
 	    "description": "Saturating bandwidth of storage",
-	    "pcp_metrics": [ "disk.md.total", "time" ],
-	    "predicate": "delta(disk.md.total)/delta(time)",
+	    "pcp_metrics": [ "disk.dm.total", "time" ],
+	    "predicate": "delta(disk.dm.total)/delta(time)",
 	    "article": "",
-	    "parents": ["Storage - high utilization"]
+	    "parents": ["Storage"]
         },
         {
             "name": "Storage - small blocks",
 	    "description": "Excessive waiting for storage",
-	    "pcp_metrics": [ "disk.md.total", "disk.md.blktotal"],
-	    "predicate": "delta(disk.md.total)/delta(disk.md.blktotal)",
+	    "pcp_metrics": [ "disk.dm.total", "disk.dm.blktotal"],
+	    "predicate": "delta(disk.dm.total)/delta(disk.dm.blktotal)",
 	    "article": "",
-	    "parents": ["Storage - high utilization"]
+	    "parents": ["Storage"]
         },
         {
             "name": "Memory - space",
