@@ -105,7 +105,7 @@ return function(callback) {
             style: 'light',
             rows: [],
             services : {},
-            refresh: '2s', // XXX: parametrize
+            refresh: '1s', // XXX: parametrize
             style: 'light',
             nav: [ { type : "timepicker",
                      collapse: false,
@@ -113,6 +113,7 @@ return function(callback) {
                      time_options : [ "5m", "15m", "1h", "6h",
                                       "12h", "24h", "2d", "7d",
                                       "30d", "90d", "365d" ],
+                     refresh_intervals : [ "0.1s", "0.25s", "0.5s", "1s", "2s", "5s", "10s", "30s", "1m" ],
                      now: true
                    } ],
             time: { from: "now-1m", // overriden with ARGS[from]
@@ -133,8 +134,8 @@ return function(callback) {
         }
         
 	// create navigation links back up the graph
-        var html = "";
-        html = emit_js_a_href(pmwebd + checklist_url, "<b>RESTART</b>") + " | ";
+        var html = " | ";
+        html += emit_js_a_href(pmwebd + checklist_url, "<b>RESTART</b>") + " | ";
 	if ("parents" in panel) {
             for (var parent of panel.parents) {
 		html += emit_js_a_href(pmwebd + checklist_url + "?node=" + encodeURIComponent(parent), parent);
@@ -146,7 +147,7 @@ return function(callback) {
             panels: [ { title: 'Navigation up', type: 'text', mode: 'html', span: 12, fill: 1, content: html } ]
         });
 
-        var html = "";
+        var html = " | ";
 	if ("children" in panel) {
             for (var child of panel.children) {
 		html += emit_js_a_href(pmwebd + checklist_url + "?node=" + encodeURIComponent(child), child);
