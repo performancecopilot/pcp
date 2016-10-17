@@ -125,33 +125,37 @@ return function(callback) {
 
         // create navigation links/menus at the top
 
+        // grafana etc. normally suppresses the link-following-reload action of markdown
+        // or html links.  To overcome this, we emit a special <a href=javascript:....>
+        // link instead.
+        function emit_js_a_href(url,text) {
+            return "<a href=\"javascript:window.location.replace('" + url + "'); window.location.reload(true);\">" + text + "</a>";
+        }
+        
 	// create navigation links back up the graph
-        // XXX: grafana suppresses normal click linkfollowing action in these A HREF links
-        markdown = "[**RESTART**](" + pmwebd + checklist_url + ")";
+        var html = "";
+        html = emit_js_a_href(pmwebd + checklist_url, "<b>RESTART</b> | ");
 	if ("parents" in panel) {
             for (var parent of panel.parents) {
-		markdown += " | [" + parent + "]" +
-                    "(" + pmwebd + checklist_url + "?node=" +
-		    encodeURIComponent(parent) + ") |";
+		html += emit_js_a_href(pmwebd + checklist_url + "?node=" + encodeURIComponent(parent), parent);
+                html += " | ";
             }
 	}
         dashboard.rows.push({
             title: '', height: '0',
-            panels: [ { title: 'Navigation up', type: 'text', span: 12, fill: 1, content: markdown } ]
+            panels: [ { title: 'Navigation up', type: 'text', mode: 'html', span: 12, fill: 1, content: html } ]
         });
 
-        // XXX: grafana suppresses normal click linkfollowing action in these A HREF links
-        markdown = "";
+        var html = "";
 	if ("children" in panel) {
             for (var child of panel.children) {
-		markdown += " | [" + child + "]" +
-                    "(" + pmwebd + checklist_url + "?node=" +
-		    encodeURIComponent(child) + ") |";
+		html += emit_js_a_href(pmwebd + checklist_url + "?node=" + encodeURIComponent(child), child);
+                html += " | ";
             }
 	}
         dashboard.rows.push({
             title: '', height: '0',
-            panels: [ { title: 'Possible Causes', type: 'text', span: 12, fill: 1, content: markdown } ]
+            panels: [ { title: 'Possible Causes', type: 'text', mode: 'html', span: 12, fill: 1, content: html } ]
         });
 
         // create description panel
