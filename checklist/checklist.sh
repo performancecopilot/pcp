@@ -14,6 +14,14 @@ WEBAPPSDIR=`cd $CHECKLISTDIR/..; pwd`
 
 set -e
 
+h=${1-local:}
+# many pcp clients (undocumentedly) can take their -h VALUE from here
+PCP_HOST=$h
+export PCP_HOST
+hostname=`pmprobe -v pmcd.hostname | cut -f2 -d'"'`
+echo "Starting checklist for PCP_HOST=$PCP_HOST $hostname".
+echo
+
 tmpdir=`mktemp -d`
 echo "For use by checklist pid $$" > $tmpdir/README
 echo "Created temporary directory $tmpdir"
@@ -33,10 +41,9 @@ do
 done > $tmpdir.metrics
 metrics=`cat $tmpdir.metrics`
 refresh="1" # XXX: parametrize
-$PCP_BIN_DIR/pmrep -F ${tmpdir}/archive-`date +%s` -o archive -t $refresh $metrics &
+$PCP_BIN_DIR/pmrep -F ${tmpdir}/${hostname} -o archive -t $refresh $metrics &
 pids="$pids $!"
-
-$PCP_BINADM_DIR/pmwebd -i $refresh -G -R ${WEBAPPSDIR} -p ${PMWEBD_PORT} -A ${tmpdir} -P &
+$PCP_BINADM_DIR/pmwebd -i $refresh -G -X -R ${WEBAPPSDIR} -p ${PMWEBD_PORT} -A ${tmpdir} -P &
 pids="$pids $!"
 
 echo "Started service pids $pids"
