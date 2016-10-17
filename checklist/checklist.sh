@@ -38,8 +38,8 @@ do
     then
         echo $metric
     fi
-done > $tmpdir.metrics
-metrics=`cat $tmpdir.metrics`
+done > $tmpdir/metrics
+metrics=`cat $tmpdir/metrics`
 refresh="1" # XXX: parametrize
 $PCP_BIN_DIR/pmrep -F ${tmpdir}/${hostname} -o archive -t $refresh $metrics &
 pids="$pids $!"
