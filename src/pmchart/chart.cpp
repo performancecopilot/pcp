@@ -834,38 +834,6 @@ Chart::showPoints(const QPolygon &poly)
 void
 Chart::showInfo(void)
 {
-#if 0
-    QString info = QString::null;
-
-    pmchart->timeout();	// clear status bar
-    for (int i = 0; i < my.items.size(); i++) {
-	ChartItem *item = my.items[i];
-	const QString &cursorInfo = item->cursorInfo();
-
-	// Add this item's cursor info, if it is not empty.
-	if (!cursorInfo.isEmpty()) {
-	    // New line separator, if not the first item
-	    if (!info.isEmpty())
-		info.append("\n");
-
-	    // Get the item's title and strip the host name.
-	    QString title = item->item()->title().text();
-	    int hostEnd = title.indexOf(':');
-	    if (hostEnd != -1)
-		title.remove(0, hostEnd + 1);
-
-	    // Add the title and cursor info.
-	    info.append(title);
-	    info.append(": ");
-	    info.append(cursorInfo);
-	}
-    }
-
-    if (!info.isEmpty())
-	QWhatsThis::showText(QCursor::pos(), info, this);
-    else
-	QWhatsThis::hideText();
-#endif
     showMetricDetails();
 }
 
