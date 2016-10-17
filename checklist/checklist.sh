@@ -23,7 +23,7 @@ pids=""
 trap 'kill $pids; rm -r "$tmpdir"; exit 0' 0 1 2 3 5 9 15 
 
 # start private logger (pmrep) from metrics in json file
-jq '.nodes[] | .pcp_metrics_log // .pcp_metrics | select (. != null) | .[] ' < checklist.json | while read metric
+jq '.nodes[] | .pcp_metrics_log // .pcp_metrics | select (. != null) | .[] ' < $CHECKLIST | while read metric
 do
     metric=`eval echo $metric` # undo quoting
     if pminfo $metric >/dev/null
