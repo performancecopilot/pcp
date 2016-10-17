@@ -84,7 +84,8 @@
         {
             "name": "Network - Saturation",
 	    "description": "Network packets being dropped",
-	    "pcp_metrics": ["network.interface.out.drops", "network.interface.in.drops"],
+	    "pcp_metrics_log": ["network.interface.out.drops", "network.interface.in.drops" ],
+	    "pcp_metrics": ["network.interface.out.drops.*", "network.interface.in.drops.*" ],
 	    "predicate": "",
 	    "article": "",
 	    "parents": ["Network"]
@@ -92,7 +93,8 @@
         {
             "name": "Network - errors",
 	    "description": "Show network errors",
-	    "pcp_metrics": ["network.interface.out.errors", "network.interface.in.errors"],
+	    "pcp_metrics_log": ["network.interface.out.errors", "network.interface.in.errors"],
+	    "pcp_metrics": ["network.interface.out.errors.*", "network.interface.in.errors.*" ],
 	    "predicate": "",
 	    "article": "",
 	    "parents": ["Network"]
