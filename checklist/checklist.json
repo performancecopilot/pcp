@@ -20,6 +20,7 @@
 	    "description": "The speed of the CPU is limiting performance",
 	    "predicate": "(1 - fetch_metric_min(\"kernel.percpu.cpu.idle\")",
 	    "pcp_metrics": ["kernel.percpu.cpu.idle.*"],
+            "pcp_metrics_log": ["kernel.percpu.cpu.idle" ],
 	    "article": "",
 	    "parents": ["Start"]
         },
@@ -34,7 +35,7 @@
         {
             "name": "Storage - bandwidth",
 	    "description": "Saturating bandwidth of storage",
-	    "pcp_metrics": [ "disk.dm.total", "time" ],
+	    "pcp_metrics": [ "disk.dm.total", "kernel.all.uptime" ],
 	    "predicate": "delta(disk.dm.total)/delta(time)",
 	    "article": "",
 	    "parents": ["Storage"]
@@ -58,7 +59,7 @@
         {
             "name": "Memory - swapping",
 	    "description": "Not enough physical memory and data being moved between memory and swap space",
-	    "pcp_metrics":  [ "pagesin" , "swap.pagesout" ], 
+	    "pcp_metrics":  [ "swap.pagesin" , "swap.pagesout" ], 
 	    "predicate": "",
 	    "article": "",
 	    "parents": ["Memory"]
