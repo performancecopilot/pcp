@@ -15,21 +15,7 @@
 #include <QTableWidget>
 
 MetricDetailsWindow::MetricDetailsWindow(QWidget* parent) :
-    QMainWindow(parent)
+    QDialog(parent)
 {
     setupUi(this);
-
-    // Set up the metrics table and headers.
-    tableWidget->setColumnCount(numColumns());
-    tableWidget->setRowCount(1);
-    QTableWidgetItem *item = new QTableWidgetItem("Time");
-    tableWidget->setHorizontalHeaderItem(timeColumn(), item);
-    item = new QTableWidgetItem("Hostname");
-    tableWidget->setHorizontalHeaderItem(hostNameColumn(), item);
-    item = new QTableWidgetItem("Metric");
-    tableWidget->setHorizontalHeaderItem(metricColumn(), item);
-    item = new QTableWidgetItem("Instance");
-    tableWidget->setHorizontalHeaderItem(instanceColumn(), item);
-    item = new QTableWidgetItem("Value");
-    tableWidget->setHorizontalHeaderItem(valueColumn(), item);
 }

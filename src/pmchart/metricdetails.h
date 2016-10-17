@@ -15,7 +15,7 @@
 #define METRICDETAILS_H
 
 #include "ui_metricdetails.h"
-class MetricDetailsWindow : public QMainWindow, public Ui::MetricDetailsWindow
+class MetricDetailsWindow : public QDialog, public Ui::MetricDetailsWindow
 {
     Q_OBJECT
 
@@ -35,11 +35,6 @@ public slots:
 protected slots:
 
 private:
-#if 0
-     struct {
-	 int whatever;
-     } my;
-#endif
 };
 
 #endif	// METRICDETAILS_H
