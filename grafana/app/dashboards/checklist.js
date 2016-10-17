@@ -134,7 +134,7 @@ return function(callback) {
         
 	// create navigation links back up the graph
         var html = "";
-        html = emit_js_a_href(pmwebd + checklist_url, "<b>RESTART</b> | ");
+        html = emit_js_a_href(pmwebd + checklist_url, "<b>RESTART</b>") + " | ";
 	if ("parents" in panel) {
             for (var parent of panel.parents) {
 		html += emit_js_a_href(pmwebd + checklist_url + "?node=" + encodeURIComponent(parent), parent);
