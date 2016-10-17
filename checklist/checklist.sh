@@ -43,7 +43,8 @@ metrics=`cat $tmpdir.metrics`
 refresh="1" # XXX: parametrize
 $PCP_BIN_DIR/pmrep -F ${tmpdir}/${hostname} -o archive -t $refresh $metrics &
 pids="$pids $!"
-$PCP_BINADM_DIR/pmwebd -i $refresh -G -X -R ${WEBAPPSDIR} -p ${PMWEBD_PORT} -A ${tmpdir} -P &
+# pmwebapi context #1 will be permanently hard-coded to connect to the checklist target host
+$PCP_BINADM_DIR/pmwebd -i $refresh -G -X -R ${WEBAPPSDIR} -p ${PMWEBD_PORT} -A ${tmpdir} -P -h $PCP_HOST -N  &
 pids="$pids $!"
 
 echo "Started service pids $pids"
