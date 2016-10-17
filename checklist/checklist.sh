@@ -28,7 +28,7 @@ echo "Created temporary directory $tmpdir"
 
 # baby systemd -- or maybe instead systemd-run --scope=user ...
 pids=""
-trap 'kill $pids; rm -r "$tmpdir"; exit 0' 0 1 2 3 5 9 15 
+trap 'kill $pids >/dev/null 2>&1; rm -rf "$tmpdir"; exit 0' 0 1 2 3 5 9 15 
 
 # start private logger (pmrep) from metrics in json file
 jq '.nodes[] | .pcp_metrics_log // .pcp_metrics | select (. != null) | .[] ' < $CHECKLIST | while read metric
