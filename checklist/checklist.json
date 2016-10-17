@@ -1,18 +1,19 @@
 {
     "nodes": [
         {
-            "name": "short title of node",
-	    "description": "more detailed explanation of the issue",
-	    "pcp_metrics": "information from pcp to determine whether problem",
-	    "predicate": "test to determine if problem",
-	    "article": "list of extern URLs (for example kbase articles) for addressing the issue",
-	    "parents": ["one or more nodes that would be checked before this node"],
-	    "children": ["zero or more nodes that would be checked after this node (filled in by scripted dashboard))"]
+            ".name": "short title of node",
+	    ".description": "more detailed explanation of the issue",
+	    ".pcp_metrics": "information from pcp to determine whether problem",
+	    ".predicate": "test to determine if problem",
+	    ".article": "list of extern URLs (for example kbase articles) for addressing the issue",
+	    ".parents": ["one or more nodes that would be checked before this node"],
+	    ".children": ["zero or more nodes that would be checked after this node (filled in by scripted dashboard))"]
         },
         {
             "name": "Start",
 	    "predicate": 1,
-            "pcp_metrics": ["kernel.all.load.1 minute"]
+            "pcp_metrics": ["kernel.all.load.1 minute"],
+            "pcp_metrics_log": ["kernel.all.load"]
         },
         {
             "name": "CPU",
@@ -25,7 +26,7 @@
         {
             "name": "Storage",
 	    "description": "Excessive waiting for storage",
-	    "pcp_metrics": "disk.dm.avactive",
+	    "pcp_metrics": [ "disk.dm.avactive"],
 	    "predicate": "disk.dm.avactive",
 	    "article": "",
 	    "parents": ["Start"]

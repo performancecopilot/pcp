@@ -22,9 +22,16 @@ echo "Created temporary directory $tmpdir"
 pids=""
 trap 'kill $pids; rm -r "$tmpdir"; exit 0' 0 1 2 3 5 9 15 
 
-# start private logger if needed
-# XXX: create metrics list from search of json file
-metrics="kernel.percpu kernel.all.load disk.dm.avactive disk.dm.total disk.dm.blktotal mem.freemem mem.physmem swap.pagesin swap.pagesout mem.vmstat.thp_collapse_alloc mem.vmstat.thp_fault_alloc mem.vmstat.thp_fault_fallback network.interface.out.bytes network.interface.in.bytes network.interface.out.drops network.interface.in.drops network.interface.out.errors network.interface.in.errors"
+# start private logger (pmrep) from metrics in json file
+jq '.nodes[] | .pcp_metrics, .pcp_metrics_log | select (. != null) | .[] ' < checklist.json | while read metric
+do
+    metric=`eval echo $metric` # undo quoting
+    if pminfo $metric >/dev/null
+    then
+        echo $metric
+    fi
+done > $tmpdir.metrics
+metrics=`cat $tmpdir.metrics`
 refresh="1" # XXX: parametrize
 $PCP_BIN_DIR/pmrep -F ${tmpdir}/archive-`date +%s` -o archive -t $refresh $metrics &
 pids="$pids $!"
