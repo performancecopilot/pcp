@@ -75,7 +75,8 @@
         {
             "name": "Network",
 	    "description": "Amount of network trafic",
-	    "pcp_metrics": ["network.interface.out.bytes", "network.interface.in.bytes"],
+	    "pcp_metrics": ["network.interface.in.bytes.*", "network.interface.out.bytes.*" ],
+	    "pcp_metrics_log": ["network.interface.out.bytes", "network.interface.in.bytes"],
 	    "predicate": "",
 	    "article": "",
 	    "parents": ["Start"]
