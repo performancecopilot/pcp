@@ -3,7 +3,7 @@
 # starts the checklist services
 
 PMWEBD_PORT=44444 # choose any random one
-BROWSER="/usr/bin/firefox -new-instance"
+BROWSER="/usr/bin/firefox --new-instance"
 # BROWSER="/usr/bin/google-chrome"
 PCP_ENV=/etc/pcp.env
 CHECKLISTDIR=`dirname $0`
