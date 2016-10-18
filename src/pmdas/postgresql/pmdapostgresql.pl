@@ -89,8 +89,8 @@ my %tables_by_name = (
     pg_stat_xact_all_tables	=> { handle => undef, values => {}, version => 9.1 },
     pg_stat_xact_sys_tables	=> { handle => undef, values => {}, version => 9.1 },
     pg_stat_xact_user_tables	=> { handle => undef, values => {}, version => 9.1 },
-    pg_active			=> { handle => undef, values => {}, version => undef, sql => 'select pg_is_in_recovery(), pg_current_xlog_location()' },
-    pg_recovery			=> { handle => undef, values => {}, version => undef, sql => 'select pg_is_in_recovery(), pg_last_xlog_receive_location(), pg_last_xlog_replay_location()' },
+    pg_active			=> { handle => undef, values => {}, version => 9.0, sql => 'select pg_is_in_recovery(), pg_current_xlog_location()' },
+    pg_recovery			=> { handle => undef, values => {}, version => 9.0, sql => 'select pg_is_in_recovery(), pg_last_xlog_receive_location(), pg_last_xlog_replay_location()' },
 );
 
 # hash of hashes holding setup and refresh function, indexed by PMID cluster
