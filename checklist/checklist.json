@@ -27,7 +27,8 @@
         {
             "name": "Storage",
 	    "description": "Excessive waiting for storage",
-	    "pcp_metrics": [ "disk.dm.avactive"],
+	    "pcp_metrics": ["disk.dm.avactive.*"],
+	    "pcp_metrics_log": ["disk.dm.avactive"],
 	    "predicate": "disk.dm.avactive",
 	    "article": "",
 	    "parents": ["Start"]
@@ -35,7 +36,8 @@
         {
             "name": "Storage - bandwidth",
 	    "description": "Saturating bandwidth of storage",
-	    "pcp_metrics": [ "disk.dm.total", "kernel.all.uptime" ],
+	    "pcp_metrics": [ "disk.dm.total.*", "kernel.all.uptime.*" ],
+	    "pcp_metrics_log": [ "disk.dm.total", "kernel.all.uptime" ],
 	    "predicate": "delta(disk.dm.total)/delta(time)",
 	    "article": "",
 	    "parents": ["Storage"]
@@ -43,7 +45,8 @@
         {
             "name": "Storage - small blocks",
 	    "description": "Excessive waiting for storage",
-	    "pcp_metrics": [ "disk.dm.total", "disk.dm.blktotal"],
+	    "pcp_metrics": [ "disk.dm.total.*", "disk.dm.blktotal.*"],
+	    "pcp_metrics_log": [ "disk.dm.total", "disk.dm.blktotal"],
 	    "predicate": "delta(disk.dm.total)/delta(disk.dm.blktotal)",
 	    "article": "",
 	    "parents": ["Storage"]
@@ -84,8 +87,8 @@
         {
             "name": "Network - Saturation",
 	    "description": "Network packets being dropped",
-	    "pcp_metrics_log": ["network.interface.out.drops", "network.interface.in.drops" ],
 	    "pcp_metrics": ["network.interface.out.drops.*", "network.interface.in.drops.*" ],
+	    "pcp_metrics_log": ["network.interface.out.drops", "network.interface.in.drops" ],
 	    "predicate": "",
 	    "article": "",
 	    "parents": ["Network"]
@@ -93,8 +96,8 @@
         {
             "name": "Network - errors",
 	    "description": "Show network errors",
-	    "pcp_metrics_log": ["network.interface.out.errors", "network.interface.in.errors"],
 	    "pcp_metrics": ["network.interface.out.errors.*", "network.interface.in.errors.*" ],
+	    "pcp_metrics_log": ["network.interface.out.errors", "network.interface.in.errors"],
 	    "predicate": "",
 	    "article": "",
 	    "parents": ["Network"]
