@@ -2565,52 +2565,52 @@ No value(s) available!
 == Checking metric values - blkdev-root-006.tgz
 
 disk.all.avactive
-    value 1231517648
+    value 31517648
 
 disk.all.aveq
-    value 2969598188
+    value 69598188
 
 disk.all.blkread
-    value 36808318902
+    value 108318902
 
 disk.all.blktotal
-    value 169835197144
+    value 235197144
 
 disk.all.blkwrite
-    value 133026878242
+    value 126878242
 
 disk.all.read
-    value 416505440
+    value 16505440
 
 disk.all.read_bytes
-    value 1224290267
+    value 54159451
 
 disk.all.read_merge
     value 78056
 
 disk.all.read_rawactive
-    value 4043047892
+    value 43047892
 
 disk.all.total
-    value 3015286466
+    value 115286466
 
 disk.all.total_bytes
-    value 3313219948
+    value 117598572
 
 disk.all.total_rawactive
-    value 2949180136
+    value 144147432
 
 disk.all.write
-    value 2598781026
+    value 98781026
 
 disk.all.write_bytes
-    value 2088929681
+    value 63439121
 
 disk.all.write_merge
     value 67668396
 
 disk.all.write_rawactive
-    value 3201099540
+    value 101099540
 
 disk.dev.avactive
     inst [N or "nbd0"] value 0
@@ -2630,7 +2630,7 @@ disk.dev.avactive
     inst [N or "nbd8"] value 0
     inst [N or "nbd9"] value 0
     inst [N or "sda"] value 4568324
-    inst [N or "sdb"] value 1226902588
+    inst [N or "sdb"] value 26902588
 
 disk.dev.aveq
     inst [N or "nbd0"] value 0
@@ -2650,7 +2650,7 @@ disk.dev.aveq
     inst [N or "nbd8"] value 0
     inst [N or "nbd9"] value 0
     inst [N or "sda"] value 13586540
-    inst [N or "sdb"] value 2955891420
+    inst [N or "sdb"] value 55891420
 
 disk.dev.blkread
     inst [N or "nbd0"] value 0
@@ -2670,7 +2670,7 @@ disk.dev.blkread
     inst [N or "nbd8"] value 0
     inst [N or "nbd9"] value 0
     inst [N or "sda"] value 93377586
-    inst [N or "sdb"] value 36707072386
+    inst [N or "sdb"] value 7072386
 
 disk.dev.blktotal
     inst [N or "nbd0"] value 0
@@ -2689,8 +2689,8 @@ disk.dev.blktotal
     inst [N or "nbd7"] value 0
     inst [N or "nbd8"] value 0
     inst [N or "nbd9"] value 0
-    inst [N or "sda"] value 363373132
-    inst [N or "sdb"] value 169463954890
+    inst [N or "sda"] value 163373132
+    inst [N or "sdb"] value 63954890
 
 disk.dev.blkwrite
     inst [N or "nbd0"] value 0
@@ -2709,8 +2709,8 @@ disk.dev.blkwrite
     inst [N or "nbd7"] value 0
     inst [N or "nbd8"] value 0
     inst [N or "nbd9"] value 0
-    inst [N or "sda"] value 269995546
-    inst [N or "sdb"] value 132756882504
+    inst [N or "sda"] value 69995546
+    inst [N or "sdb"] value 56882504
 
 disk.dev.read
     inst [N or "nbd0"] value 0
@@ -2730,7 +2730,7 @@ disk.dev.read
     inst [N or "nbd8"] value 0
     inst [N or "nbd9"] value 0
     inst [N or "sda"] value 2459644
-    inst [N or "sdb"] value 414013162
+    inst [N or "sdb"] value 14013162
 
 disk.dev.read_bytes
     inst [N or "nbd0"] value 0
@@ -2750,7 +2750,7 @@ disk.dev.read_bytes
     inst [N or "nbd8"] value 0
     inst [N or "nbd9"] value 0
     inst [N or "sda"] value 46688793
-    inst [N or "sdb"] value 1173667009
+    inst [N or "sdb"] value 3536193
 
 disk.dev.read_merge
     inst [N or "nbd0"] value 0
@@ -2790,7 +2790,7 @@ disk.dev.read_rawactive
     inst [N or "nbd8"] value 0
     inst [N or "nbd9"] value 0
     inst [N or "sda"] value 7268116
-    inst [N or "sdb"] value 4035660252
+    inst [N or "sdb"] value 35660252
 
 disk.dev.scheduler
     inst [N or "nbd0"] value "unknown"
@@ -2830,7 +2830,7 @@ disk.dev.total
     inst [N or "nbd8"] value 0
     inst [N or "nbd9"] value 0
     inst [N or "sda"] value 10590352
-    inst [N or "sdb"] value 3004663443
+    inst [N or "sdb"] value 104663443
 
 disk.dev.total_bytes
     inst [N or "nbd0"] value 0
@@ -2849,8 +2849,8 @@ disk.dev.total_bytes
     inst [N or "nbd7"] value 0
     inst [N or "nbd8"] value 0
     inst [N or "nbd9"] value 0
-    inst [N or "sda"] value 181686566
-    inst [N or "sdb"] value 3127598821
+    inst [N or "sda"] value 81686566
+    inst [N or "sdb"] value 31977445
 
 disk.dev.total_rawactive
     inst [N or "nbd0"] value 0
@@ -2870,7 +2870,7 @@ disk.dev.total_rawactive
     inst [N or "nbd8"] value 0
     inst [N or "nbd9"] value 0
     inst [N or "sda"] value 13586748
-    inst [N or "sdb"] value 2935473136
+    inst [N or "sdb"] value 130440432
 
 disk.dev.write
     inst [N or "nbd0"] value 0
@@ -2890,7 +2890,7 @@ disk.dev.write
     inst [N or "nbd8"] value 0
     inst [N or "nbd9"] value 0
     inst [N or "sda"] value 8130708
-    inst [N or "sdb"] value 2590650281
+    inst [N or "sdb"] value 90650281
 
 disk.dev.write_bytes
     inst [N or "nbd0"] value 0
@@ -2909,8 +2909,8 @@ disk.dev.write_bytes
     inst [N or "nbd7"] value 0
     inst [N or "nbd8"] value 0
     inst [N or "nbd9"] value 0
-    inst [N or "sda"] value 134997773
-    inst [N or "sdb"] value 1953931812
+    inst [N or "sda"] value 34997773
+    inst [N or "sdb"] value 28441252
 
 disk.dev.write_merge
     inst [N or "nbd0"] value 0
@@ -2950,7 +2950,7 @@ disk.dev.write_rawactive
     inst [N or "nbd8"] value 0
     inst [N or "nbd9"] value 0
     inst [N or "sda"] value 6318632
-    inst [N or "sdb"] value 3194780180
+    inst [N or "sdb"] value 94780180
 
 disk.dm.avactive
 No value(s) available!
@@ -3077,14 +3077,14 @@ disk.partitions.blktotal
     inst [N or "nbd11p2"] value 0
     inst [N or "sda1"] value 4498
     inst [N or "sda2"] value 3304
-    inst [N or "sda3"] value 363362530
+    inst [N or "sda3"] value 163362530
 
 disk.partitions.blkwrite
     inst [N or "nbd11p1"] value 192
     inst [N or "nbd11p2"] value 0
     inst [N or "sda1"] value 274
     inst [N or "sda2"] value 0
-    inst [N or "sda3"] value 269995272
+    inst [N or "sda3"] value 69995272
 
 disk.partitions.read
     inst [N or "nbd11p1"] value 32634
@@ -3126,7 +3126,7 @@ disk.partitions.total_bytes
     inst [N or "nbd11p2"] value 0
     inst [N or "sda1"] value 2249
     inst [N or "sda2"] value 1652
-    inst [N or "sda3"] value 181681265
+    inst [N or "sda3"] value 81681265
 
 disk.partitions.total_rawactive
     inst [N or "nbd11p1"] value 120252
@@ -3147,7 +3147,7 @@ disk.partitions.write_bytes
     inst [N or "nbd11p2"] value 0
     inst [N or "sda1"] value 137
     inst [N or "sda2"] value 0
-    inst [N or "sda3"] value 134997636
+    inst [N or "sda3"] value 34997636
 
 disk.partitions.write_merge
     inst [N or "nbd11p1"] value 5
