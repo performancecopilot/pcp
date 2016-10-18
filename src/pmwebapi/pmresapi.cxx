@@ -74,7 +74,7 @@ create_rfc822_date (time_t t)
 {
     static char datebuf[80];	/* if-threaded: unstaticify */
     struct tm *now = gmtime (&t);
-    size_t rc = strftime (datebuf, sizeof (datebuf), "%a, %d %b %Y %T %z", now);
+    size_t rc = strftime (datebuf, sizeof (datebuf), "%a, %d %b %Y %T GMT", now);
     if (rc <= 0 || rc >= sizeof (datebuf)) {
         return NULL;
     }
