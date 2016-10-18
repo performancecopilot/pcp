@@ -53,7 +53,7 @@ function create_metric_panel(dashboard, node){
 return function(callback) {
     $.ajax({
         method: 'GET',
-        url: pmwebd + "/checklist/checklist.json"
+        url: pmwebd + "/checklist/checklist.json?nocache=888"
     }).done(function(result) {
         var nodes = result.nodes;
         var node = ARGS["node"];
