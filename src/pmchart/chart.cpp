@@ -843,6 +843,10 @@ Chart::showInfo(void)
 void
 Chart::showMetricDetails(void)
 {
+    // Only do this if we are the active chart.
+    if (my.tab->currentGadget() != this)
+	return;
+
     if (!my.metricDetailsWindow)
 	my.metricDetailsWindow = new MetricDetailsWindow(this);
   
@@ -863,7 +867,9 @@ Chart::showMetricDetails(void)
 	    ++rows;
     }
 
-    // Now add the data
+    // Now add the data. Leave an extra empty row to make the table look better
+    // When stretched vertically.
+    ++rows;
     tableWidget->setRowCount(rows);
     int row = 0;
     for (int i = 0; i < my.items.size(); i++) {
@@ -872,17 +878,8 @@ Chart::showMetricDetails(void)
 
 	// Add this item's cursor info, if it is not empty.
 	if (!cursorInfo.isEmpty()) {
-	    // Get the item's title and strip the host name.
-	    QString dataStr = item->item()->title().text();
-	    int dataEnd = dataStr.indexOf(':');
-	    QString itemStr;
-	    if (dataEnd != -1) {
-		itemStr = dataStr.left(dataEnd);
-		dataStr.remove(0, dataEnd + 1);
-	    }
-	    else
-		itemStr = "unknown";
-	    TableWidgetItem *twItem = new TableWidgetItem(itemStr);
+	    // The host name.
+	    TableWidgetItem *twItem = new TableWidgetItem(item->hostname());
 	    tableWidget->setItem(row, window->hostNameColumn(), twItem);
 
 	    // The metric name.
@@ -896,12 +893,12 @@ Chart::showMetricDetails(void)
 	    }
 
 	    // The metric value.
-	    dataStr = cursorInfo;
+	    QString dataStr = cursorInfo;
 	    Q_ASSERT(dataStr[0] == '[');
 	    dataStr.remove(0, 1);
-	    dataEnd = dataStr.indexOf(' ');
+	    int dataEnd = dataStr.indexOf(' ');
 	    Q_ASSERT(dataEnd != -1);
-	    itemStr = dataStr.left(dataEnd);
+	    QString itemStr = dataStr.left(dataEnd);
 	    dataStr.remove(0, dataEnd + 1);
 
 	    // Store it as double, if possible, so that it will sort properly.

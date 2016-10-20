@@ -305,6 +305,7 @@ public:
     QString name(void) const { return my.name; }
     QString label(void) const { return my.label; } // as displayed, expanded
     QString legend(void) const { return my.legend; } // no %i/%h/.. expansion
+    QString hostname(void) const;
     QString metricName(void) const { return my.metric->name(); }
     QString metricInstance(void) const
         { return my.metric->numInst() > 0 ? my.metric->instName(0) : QString::null; }
@@ -343,7 +344,6 @@ private:
     void expandLegendLabel(const QString &legend);
     void clearLegendLabel(void);
 
-    QString hostname(void) const;
     QString shortHostName(void) const;
     QString shortMetricName(void) const;
     QString shortInstName(void) const;
