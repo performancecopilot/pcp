@@ -2,8 +2,8 @@ TARGET		= pcp_qwt
 TEMPLATE	= lib
 VERSION		= 6.1.4
 CONFIG		+= qt staticlib warn_on
-release:DESTDIR = build/release
-debug:DESTDIR   = build/debug
+release:DESTDIR = build/debug
+debug:DESTDIR   = build/release
 QT		= core gui network svg
 greaterThan(QT_MAJOR_VERSION, 4) {
 QT		+= concurrent printsupport

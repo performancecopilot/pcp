@@ -6,5 +6,5 @@ ICON		= pmquery.icns
 RESOURCES	= pmquery.qrc
 CONFIG		+= qt warn_on
 QT		+= widgets
-release:DESTDIR	= build/release
-debug:DESTDIR	= build/debug
+release:DESTDIR	= build/debug
+debug:DESTDIR	= build/release
