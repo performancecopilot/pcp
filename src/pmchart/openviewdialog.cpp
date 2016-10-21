@@ -326,7 +326,7 @@ bool OpenViewDialog::useLiveContext(int index)
 	return false;
     }
 
-    Q_ASSERT(index <= liveGroup->numContexts());
+    Q_ASSERT((unsigned int)index <= liveGroup->numContexts());
     QmcSource source = liveGroup->context(index)->source();
     char *sourceName = source.sourceAscii();
     bool result = true;
@@ -355,7 +355,7 @@ bool OpenViewDialog::useArchiveContext(int index)
 	return false;
     }
 
-    Q_ASSERT(index <= archiveGroup->numContexts());
+    Q_ASSERT((unsigned int)index <= archiveGroup->numContexts());
     QmcSource source = archiveGroup->context(index)->source();
     char *sourceName = source.sourceAscii();
     bool result = true;

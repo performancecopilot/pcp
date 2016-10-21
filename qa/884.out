@@ -180,9 +180,9 @@ osd/map_messages: 6
 osd/map_message_epochs: 8
 osd/map_message_epoch_dups: 5
 osd/messages_delayed_for_map: 34
-osd/stat_bytes: -538578944
-osd/stat_bytes_used: -1414389760
-osd/stat_bytes_avail: -429453312
+osd/stat_bytes: 25231224832
+osd/stat_bytes_used: 2880577536
+osd/stat_bytes_avail: 21045383168
 osd/copyfrom: 0
 osd/tier_promote: 0
 osd/tier_flush: 0

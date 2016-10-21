@@ -1,4 +1,5 @@
 #include <pcp/pmapi.h>
+#include <pcp/impl.h>
 #include <pcp/pmjson.h>
 #include <stdio.h>
 
@@ -210,8 +211,47 @@ int main(int argc, char** argv){
     int fd = -1;
     FILE *fp;
     unsigned int i;
+    int c;
+    int sts;
+    int errflag = 0;
 
-    if ((fp = fopen(argv[1], "r")) == NULL) {
+    __pmSetProgname(argv[0]);
+
+    while ((c = getopt(argc, argv, "D:?")) != EOF) {
+	switch (c) {
+
+	case 'D':	/* debug flag */
+	    sts = __pmParseDebug(optarg);
+	    if (sts < 0) {
+		fprintf(stderr, "%s: unrecognized debug flag specification (%s)\n",
+		    pmProgname, optarg);
+		errflag++;
+	    }
+	    else
+		pmDebug |= sts;
+	    break;
+
+	case '?':
+	default:
+	    errflag++;
+	    break;
+	}
+    }
+
+    if (argc-1 > optind)
+	errflag++;
+
+    if (errflag) {
+	fprintf(stderr,
+"Usage: %s [options] inputfile\n\
+\n\
+Options:\n\
+  -D flags    set debug flags\n",
+                pmProgname);
+        exit(1);
+    }
+
+    if ((fp = fopen(argv[optind], "r")) == NULL) {
 	return 1;
     }
     fd = fileno(fp);

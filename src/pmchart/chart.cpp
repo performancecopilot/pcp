@@ -769,28 +769,28 @@ Chart::accumulatePointInfo(const QPointF &p)
 void
 Chart::activateTime(QMouseEvent *event)
 {
-    bool block = signalsBlocked();
-    blockSignals(true);
+    const bool block = my.picker->signalsBlocked();
+    my.picker->blockSignals(true);
     my.picker->widgetMousePressEvent(event);
-    blockSignals(block);
+    my.picker->blockSignals(block);
 }
 
 void
 Chart::reactivateTime(QMouseEvent *event)
 {
-    bool block = signalsBlocked();
-    blockSignals(true);
+    const bool block = my.picker->signalsBlocked();
+    my.picker->blockSignals(true);
     my.picker->widgetMouseMoveEvent(event);
-    blockSignals(block);
+    my.picker->blockSignals(block);
 }
 
 void
 Chart::deactivateTime(QMouseEvent *event)
 {
-    bool block = signalsBlocked();
-    blockSignals(true);
+    const bool block = my.picker->signalsBlocked();
+    my.picker->blockSignals(true);
     my.picker->widgetMouseReleaseEvent(event);
-    blockSignals(block);
+    my.picker->blockSignals(block);
 }
 
 void

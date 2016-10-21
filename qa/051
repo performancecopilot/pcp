@@ -56,26 +56,53 @@ _filter_hostnames()
 #
 _filter_die_log()
 {
+    case "$1"
+    in
+	die.020|die.021|die.022)
+	    state=0
+	    ;;
+	die.028|die.030|die.033|die.034)
+	    # if "off net", cannot get IP addrs, so fake it
+	    #
+	    if grep 'Host name lookup failure' <$log >/dev/null 2>&1
+	    then
+		$PCP_AWK_PROG <$log >$tmp.tmp '
+BEGIN		{ state = 0 }
+state == 0 && /Host name lookup/	{ print "[DATE] pmcd(PID) Error: Permission clash for ..."
+					  print "pmcd config[line 7]: Warning: access control error for host '"'HOST'"': Invalid argument"
+					  state = 1
+					}
+					{ print }'
+		$sudo cp $tmp.tmp $log
+	    fi
+	    state=1
+	    ;;
+	*)
+	    # may need to strip "No route" messages when "off net"
+	    #
+	    state=1
+	    ;;
+    esac
+    rm -f $tmp.tmp
     _filter_pmcd_log <$log \
     | _filter_hostnames \
     | sed \
-	-e 's/^$//' \
 	-e 's/__pmGetAddrInfo/gethostbyname/g' \
 	-e 's/__pmGetHostByName/gethostbyname/g' \
 	-e '/Permission clash/s/for .*/for .../' \
-	-e '/gethostbyname(/s/name([0-9.]*)/name(IPADDR)/' \
-	-e '/gethostbyname(/s/).*/) ERROR.../' \
+	-e '/gethostbyname(/s/gethostbyname([0-9.]*)/gethostbyname(IPADDR)/' \
 	-e "/host '.*':/s/host '.*'/host 'HOST'/" \
 	-e '/UNIX_DOMAIN_SOCKET/d' \
     | $PCP_AWK_PROG '
-state == 1 && /gethostbyname:.* Host name lookup failure/	{ state = 2; next }
-state == 2 && $1 == "Warning:"			{ next }
-state == 2 && /No route to host/		{ next }
-						{ print }
-/^die.020=/					{ next }
-/^die.021=/					{ next }
-/^die.022=/					{ next }
-/^die.[0-9][0-9][0-9]=/				{ state = 1 }'
+BEGIN						{ state = '"$state"' }
+    			{ print state,$0 >"'$tmp.tmp'" }
+state == 1 && /gethostbyname\([^)]*\), Host name lookup failure/	{ state = 2; next }
+state == 2 && $1 == "Warning:"			{ state = 3; next }
+state == 3 && /No route to host/		{ state = 1; next }
+						{ state = '"$state"'; print }' \
+    | sed \
+	-e '/gethostbyname(/s/).*/) ERROR.../' \
+    # end
 }
 
 _filter_kill_log()
@@ -171,7 +198,10 @@ do
     then
 	./filter.$t <$log
     else
-	_filter_die_log
+	_filter_die_log $t
+	echo "$t filtered logfile----------------" >>$here/$seq.full
+	cat $tmp.tmp >>$here/$seq.full
+	echo "$t filtered endlog ----------------" >>$here/$seq.full
     fi
     echo "$t endlog ----------------"
 done
