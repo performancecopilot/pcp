@@ -3,8 +3,8 @@ TEMPLATE	= lib
 VERSION		= 1.0.0
 CONFIG		+= qt staticlib warn_on
 INCLUDEPATH	+= ../../include
-release:DESTDIR = build/debug
-debug:DESTDIR   = build/release
+release:DESTDIR = build/release
+debug:DESTDIR   = build/debug
 
 HEADERS	= qmc_context.h qmc_desc.h qmc_group.h \
 	  qmc_indom.h qmc_metric.h qmc_source.h \

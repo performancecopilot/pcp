@@ -3,8 +3,8 @@ TEMPLATE	= lib
 VERSION		= 1.0.0
 CONFIG		+= qt staticlib warn_on
 INCLUDEPATH	+= ../../include ../../libpcp_qmc/src
-release:DESTDIR = build/debug
-debug:DESTDIR   = build/release
+release:DESTDIR = build/release
+debug:DESTDIR   = build/debug
 QT		= core gui network svg
 
 HEADERS	= qed.h \
