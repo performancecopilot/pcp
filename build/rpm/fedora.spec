@@ -1679,6 +1679,19 @@ This meta-package contains the PCP performance monitoring dependencies.  This
 includes a large number of packages for analysing PCP metrics in various ways.
 # monitor
 
+# pcp-zeroconf metapackage
+%package zeroconf
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) Zeroconf meta Package
+URL: http://www.pcp.io
+Requires: pcp
+%description zeroconf
+This meta-package contains a minimal PCP set and begins local logging
+with additional logging configuration
+#zeroconf
+
+
 %if !%{disable_python2}
 #
 # python-pcp. This is the PCP library bindings for python.
@@ -2371,6 +2384,20 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %endif #distro version check
 %endif
 
+%post zeroconf
+%if "@enable_systemd@" == "true"
+    systemctl restart pmcd >/dev/null 2>&1
+    systemctl restart pmlogger >/dev/null 2>&1
+    systemctl enable pmcd >/dev/null 2>&1
+    systemctl enable pmlogger >/dev/null 2>&1
+%else
+    /sbin/chkconfig --add pmcd >/dev/null 2>&1
+    /sbin/chkconfig --add pmlogger >/dev/null 2>&1
+    /sbin/service pmcd condrestart
+    /sbin/service pmlogger condrestart
+%endif #zeroconf
+
+
 %post
 PCP_LOG_DIR=%{_logsdir}
 PCP_PMNS_DIR=%{_pmnsdir}
@@ -2532,6 +2559,9 @@ fi
 
 %files collector
 #empty
+
+%files -n pcp-zeroconf
+#additional pmlogger config files
 
 %files conf
 %dir %{_includedir}/pcp
