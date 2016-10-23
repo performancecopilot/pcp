@@ -81,6 +81,7 @@ install: default
 	$(INSTALL) -m 755 $(LIBTARGET) $(CMDTARGET) $(PMDADIR)
 	$(INSTALL) -m 644 root_linux $(PCP_VAR_DIR)/pmns/root_linux
 	$(INSTALL) -m 644 proc_net_snmp_migrate.conf $(LOGREWRITEDIR)/linux_proc_net_snmp_migrate.conf
+	$(INSTALL) -m 644 proc_net_tcp_migrate.conf $(LOGREWRITEDIR)/linux_proc_net_tcp_migrate.conf
 	$(INSTALL) -m 644 linux_kernel_ulong.conf linux_kernel_fixups.conf $(LOGREWRITEDIR)
 else
 build-me:

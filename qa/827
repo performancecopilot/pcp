@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 827
-# Check log rewriting of Linux /proc/net/snmp metric types
+# Check log rewriting of Linux kernel PMDA metric metadata
 #
-# Copyright (c) 2013, 2015 Red Hat.
+# Copyright (c) 2013, 2015, 2016 Red Hat.
 #
 
 # get standard environment, filters and checks
@@ -13,36 +13,46 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-[ -f ${PCP_PMDAS_DIR}/snmp/pmdasnmp.pl ] || _notrun "snmp pmda not installed"
-
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-migrate=$PCP_VAR_DIR/config/pmlogrewrite/linux_proc_net_snmp_migrate.conf
-[ -f "$migrate" ] || _notrun "$migrate not installed"
-
 # real QA test starts here
-cat >$tmp.config <<End-of-File
+cat >$tmp.config_snmp <<End-of-File
 metric 60.14.* { type -> U32 }
 End-of-File
 
-pmlogrewrite -c $tmp.config -w archives/new_snmp $tmp.old
+cat >$tmp.config_tcp <<End-of-File
+metric network.tcp.rtoalgorithm { sem -> COUNTER units -> 0,0,1,0,0,1 }
+metric network.tcp.rtomin { sem -> COUNTER units -> 0,0,1,0,0,1 }
+metric network.tcp.rtomax { sem -> COUNTER units -> 0,0,1,0,0,1 }
+metric network.tcp.maxconn { sem -> COUNTER units -> 0,0,1,0,0,1 }
+metric network.tcp.currestab { sem -> COUNTER units -> 0,0,1,0,0,1 }
+End-of-File
 
-pmlogrewrite -c $migrate -w $tmp.old $tmp.new
+for tree in snmp tcp
+do
+    echo
+    echo "=== checking Linux kernel $tree metric rewriting ==="
+    echo
 
-pmdumplog -z -a $tmp.old >$tmp.old.dump
-pmdumplog -z -a $tmp.new >$tmp.new.dump
-pmdumplog -z -a archives/new_snmp >$tmp.ref.dump
+    pmlogrewrite -c $tmp.config_$tree -w archives/new_$tree $tmp.old
+    pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite/linux_proc_net_${tree}_migrate.conf -w $tmp.old $tmp.new
 
-echo "old -> new changes"
-diff -u $tmp.old.dump $tmp.new.dump | sed -e '/^---/d' -e '/^+++/d'
+    pmdumplog -z -a $tmp.old >$tmp.old.dump
+    pmdumplog -z -a $tmp.new >$tmp.new.dump
+    pmdumplog -z -a archives/new_$tree >$tmp.ref.dump
 
-echo
-echo "new -> ref changes ... expect none"
-diff -u $tmp.new.dump $tmp.ref.dump | sed -e '/^---/d' -e '/^+++/d'
+    echo "old -> new changes"
+    diff -u $tmp.old.dump $tmp.new.dump | sed -e '/^---/d' -e '/^+++/d'
+
+    echo
+    echo "new -> ref changes ... expect none"
+    diff -u $tmp.ref.dump $tmp.new.dump | sed -e '/^---/d' -e '/^+++/d'
+
+    rm $tmp.old.* $tmp.new.* $tmp.ref.*
+done
 
 # success, all done
 status=0
-
 exit
