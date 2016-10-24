@@ -393,10 +393,10 @@ SamplingCurve::drawSeries(QPainter *p,
 
     while (okTo < size) {
 	okFrom = okTo;
-	while (qIsNaN(sample(okFrom).y()) && okFrom < size)
+	while (okFrom < size && qIsNaN(sample(okFrom).y()))
 	    ++okFrom;
 	okTo = okFrom;
-	while (!qIsNaN(sample(okTo).y()) && okTo < size)
+	while (okTo < size && !qIsNaN(sample(okTo).y()))
 	    ++okTo;
 	if (okFrom < size)
 	    QwtPlotCurve::drawSeries(p, xMap, yMap, canvasRect, okFrom, okTo-1);

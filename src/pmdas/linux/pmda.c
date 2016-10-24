@@ -2283,23 +2283,23 @@ static pmdaMetric metrictab[] = {
 
 /* network.tcp.rtoalgorithm */
   { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_RTOALGORITHM], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,50), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { PMDA_PMID(CLUSTER_NET_SNMP,50), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* network.tcp.rtomin */
   { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_RTOMIN], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,51), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { PMDA_PMID(CLUSTER_NET_SNMP,51), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
 
 /* network.tcp.rtomax */
   { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_RTOMAX], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,52), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { PMDA_PMID(CLUSTER_NET_SNMP,52), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0) } },
 
 /* network.tcp.maxconn */
   { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_MAXCONN], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,53), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { PMDA_PMID(CLUSTER_NET_SNMP,53), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* network.tcpconn.established */
   { &proc_net_tcp.stat[_PM_TCP_ESTABLISHED],
@@ -2378,8 +2378,8 @@ static pmdaMetric metrictab[] = {
 
 /* network.tcp.currestab */
   { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_CURRESTAB], 
-    { PMDA_PMID(CLUSTER_NET_SNMP,58), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
-    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+    { PMDA_PMID(CLUSTER_NET_SNMP,58), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /* network.tcp.insegs */
   { &_pm_proc_net_snmp.tcp[_PM_SNMP_TCP_INSEGS], 

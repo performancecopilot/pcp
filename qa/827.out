@@ -1,4 +1,7 @@
 QA output created by 827
+
+=== checking Linux kernel snmp metric rewriting ===
+
 old -> new changes
 @@ -7,223 +7,223 @@
  
@@ -320,5 +323,56 @@ old -> new changes
  21:49:32.119  60.14.82 (network.udplite.sndbuferrors): value 0
                60.14.81 (network.udplite.recvbuferrors): value 0
                60.14.80 (network.udplite.outdatagrams): value 0
+
+new -> ref changes ... expect none
+
+=== checking Linux kernel tcp metric rewriting ===
+
+old -> new changes
+@@ -158,7 +158,7 @@
+     Semantics: counter  Units: count
+ PMID: 60.14.50 (network.tcp.rtoalgorithm)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: counter  Units: count x 10
++    Semantics: instant  Units: none
+ PMID: 60.53.44 (network.tcp.pureacks)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+@@ -170,7 +170,7 @@
+     Semantics: counter  Units: count
+ PMID: 60.14.51 (network.tcp.rtomin)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: counter  Units: count x 10
++    Semantics: instant  Units: millisec
+ PMID: 60.53.45 (network.tcp.hpacks)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+@@ -182,7 +182,7 @@
+     Semantics: counter  Units: count
+ PMID: 60.14.52 (network.tcp.rtomax)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: counter  Units: count x 10
++    Semantics: instant  Units: millisec
+ PMID: 60.53.46 (network.tcp.renorecovery)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+@@ -194,7 +194,7 @@
+     Semantics: counter  Units: count
+ PMID: 60.14.53 (network.tcp.maxconn)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: counter  Units: count x 10
++    Semantics: instant  Units: none
+ PMID: 60.53.17 (network.tcp.syncookiessent)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
+@@ -278,7 +278,7 @@
+     Semantics: counter  Units: count
+ PMID: 60.14.58 (network.tcp.currestab)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+-    Semantics: counter  Units: count x 10
++    Semantics: instant  Units: none
+ PMID: 60.53.22 (network.tcp.rcvpruned)
+     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+     Semantics: counter  Units: count
 
 new -> ref changes ... expect none
