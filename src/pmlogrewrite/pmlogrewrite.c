@@ -1197,8 +1197,6 @@ main(int argc, char **argv)
 		 * rewrite if needed, delete if needed else output
 		 */
 		do_desc();
-		if (!first_datarec)
-		    old_meta_offset = ftell(outarch.logctl.l_mdfp);
 	    }
 	    else if (stsmeta == TYPE_INDOM) {
 		struct timeval	stamp;
@@ -1218,8 +1216,6 @@ main(int argc, char **argv)
 		    break;
 		needti = 1;
 		do_indom();
-		if (!first_datarec)
-		    old_meta_offset = ftell(outarch.logctl.l_mdfp);
 	    }
 	    else {
 		fprintf(stderr, "%s: Error: unrecognised meta data type: %d\n",
