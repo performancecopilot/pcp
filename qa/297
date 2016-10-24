@@ -126,8 +126,9 @@ cat $PMCDLOG >>$seq.full
 
 echo "re-starting pmcd ..."
 $sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+_wait_for_pmcd
+_wait_for_pmlogger
 
-sleep 4
 echo >>$seq.full
 echo "2nd pmproxy log" >>$seq.full
 cat $tmp.log >>$seq.full
