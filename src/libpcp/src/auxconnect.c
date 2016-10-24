@@ -484,8 +484,8 @@ __pmInitSocket(int fd, int family)
     if (__pmSetSockOpt(fd, SOL_SOCKET, SO_LINGER, (char *)&nolinger,
 		   (__pmSockLen)sizeof(nolinger)) < 0) {
 	__pmNotifyErr(LOG_WARNING,
-		      "%s:__pmCreateSocket(%d): __pmSetSockOpt SO_LINGER: %s\n",
-		      __FILE__, fd, netstrerror_r(errmsg, sizeof(errmsg)));
+		      "%s:__pmInitSocket(fd=%d, family=%d): __pmSetSockOpt SO_LINGER: %s\n",
+		      __FILE__, fd, family, netstrerror_r(errmsg, sizeof(errmsg)));
     }
 
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
@@ -497,8 +497,8 @@ __pmInitSocket(int fd, int family)
     if (__pmSetSockOpt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&nodelay,
 		       (__pmSockLen)sizeof(nodelay)) < 0) {
 	__pmNotifyErr(LOG_WARNING,
-		      "%s:__pmCreateSocket(%d): __pmSetSockOpt TCP_NODELAY: %s\n",
-		      __FILE__, fd, netstrerror_r(errmsg, sizeof(errmsg)));
+		      "%s:__pmInitSocket(fd=%d, family=%d): __pmSetSockOpt TCP_NODELAY: %s\n",
+		      __FILE__, fd, family, netstrerror_r(errmsg, sizeof(errmsg)));
     }
 
     return fd;
