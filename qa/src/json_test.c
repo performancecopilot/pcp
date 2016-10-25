@@ -185,9 +185,9 @@ json_metric_desc json_metrics[] = {
     { "osd/map_message_epochs", 0, 1, {0}, ""},
     { "osd/map_message_epoch_dups", 0, 1, {0}, ""},
     { "osd/messages_delayed_for_map", 0, 1, {0}, ""},
-    { "osd/stat_bytes", 0, 1, {0}, ""},
-    { "osd/stat_bytes_used", 0, 1, {0}, ""},
-    { "osd/stat_bytes_avail", 0, 1, {0}, ""},
+    { "osd/stat_bytes", pmjson_flag_u64, 1, {0}, ""},
+    { "osd/stat_bytes_used", pmjson_flag_u64, 1, {0}, ""},
+    { "osd/stat_bytes_avail", pmjson_flag_u64, 1, {0}, ""},
     { "osd/copyfrom", 0, 1, {0}, ""},
     { "osd/tier_promote", 0, 1, {0}, ""},
     { "osd/tier_flush", 0, 1, {0}, ""},
@@ -256,7 +256,32 @@ Options:\n\
     }
     fd = fileno(fp);
     pmjsonInit(fd, json_metrics, JSON_SZ);
-    for(i = 0; i < JSON_SZ; i++)
-	printf("%s: %d\n", json_metrics[i].json_pointer, json_metrics[i].values.ul);
+    for(i = 0; i < JSON_SZ; i++) {
+	switch (json_metrics[i].flags) {
+	case pmjson_flag_boolean:
+	    break;
+	case pmjson_flag_s32:
+	    printf("%s: %d\n", json_metrics[i].json_pointer, json_metrics[i].values.l);
+	    break;
+	case pmjson_flag_u32:
+	    printf("%s: %u\n", json_metrics[i].json_pointer, json_metrics[i].values.ul);
+	    break;
+	case pmjson_flag_s64:
+	    printf("%s: %l\n", json_metrics[i].json_pointer, json_metrics[i].values.ll);
+	    break;
+	case pmjson_flag_u64:
+	    printf("%s: %lu\n", json_metrics[i].json_pointer, json_metrics[i].values.ull);
+	    break;
+	case pmjson_flag_float:
+	    printf("%s: %f\n", json_metrics[i].json_pointer, json_metrics[i].values.f);
+	    break;
+	case pmjson_flag_double:
+	    printf("%s: %f\n", json_metrics[i].json_pointer, json_metrics[i].values.d);
+	    break;
+	default:
+	    printf("%s: %d\n", json_metrics[i].json_pointer, json_metrics[i].values.ul);
+	    break;
+	}
+    }
     return 0;
 }

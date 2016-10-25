@@ -20,9 +20,20 @@
 extern "C" {
 #endif
 
+typedef enum json_flags {
+    pmjson_flag_bitfield = (1<<0),
+    pmjson_flag_boolean  = (1<<1),
+    pmjson_flag_s32      = (1<<2),
+    pmjson_flag_u32      = (1<<3),
+    pmjson_flag_s64      = (1<<4),
+    pmjson_flag_u64      = (1<<5),
+    pmjson_flag_float    = (1<<6),
+    pmjson_flag_double   = (1<<7),
+} json_flags;
+
 typedef struct json_metric_desc {
     char          *json_pointer;
-    int           flags;
+    json_flags    flags;
     int           num_values;
     pmAtomValue   values;
     char          *dom;

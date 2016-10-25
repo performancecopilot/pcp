@@ -48,6 +48,22 @@ jsmnflag(const char *js, jsmntok_t *tok, int *bits, int flag)
 }
 
 int
+jsmnbool(const char *js, jsmntok_t *tok, unsigned int *value)
+{
+    char	buffer[64];
+
+    if (tok->type != JSMN_PRIMITIVE)
+	return -1;
+    strncpy(buffer, js + tok->start, tok->end - tok->start);
+    buffer[tok->end - tok->start] = '\0';
+    if((unsigned int)strtol(buffer, NULL, 0)>0)
+	*value = 1;
+    else
+	*value = 0;
+    return 0;
+}
+
+int
 jsmnint(const char *js, jsmntok_t *tok, int *value)
 {
     char	buffer[64];
@@ -61,21 +77,125 @@ jsmnint(const char *js, jsmntok_t *tok, int *value)
 }
 
 int
-jsmnflagorint(const char *js, jsmntok_t *tok, int *bits, int flag)
+jsmnuint(const char *js, jsmntok_t *tok, unsigned int *value)
+{
+    char	buffer[64];
+
+    if (tok->type != JSMN_PRIMITIVE)
+	return -1;
+    strncpy(buffer, js + tok->start, tok->end - tok->start);
+    buffer[tok->end - tok->start] = '\0';
+    *value = (unsigned int)strtoul(buffer, NULL, 0);
+    return 0;
+}
+
+int
+jsmnlong(const char *js, jsmntok_t *tok, long *value)
+{
+    char	buffer[64];
+
+    if (tok->type != JSMN_PRIMITIVE)
+	return -1;
+    strncpy(buffer, js + tok->start, tok->end - tok->start);
+    buffer[tok->end - tok->start] = '\0';
+    *value = strtol(buffer, NULL, 0);
+    return 0;
+}
+
+int
+jsmnulong(const char *js, jsmntok_t *tok, unsigned long *value)
+{
+    char	buffer[64];
+
+    if (tok->type != JSMN_PRIMITIVE)
+	return -1;
+    strncpy(buffer, js + tok->start, tok->end - tok->start);
+    buffer[tok->end - tok->start] = '\0';
+    *value = strtoul(buffer, NULL, 0);
+    return 0;
+}
+
+int
+jsmnfloat(const char *js, jsmntok_t *tok, float *value)
+{
+    char	buffer[64];
+
+    if (tok->type != JSMN_PRIMITIVE)
+	return -1;
+    strncpy(buffer, js + tok->start, tok->end - tok->start);
+    buffer[tok->end - tok->start] = '\0';
+    *value = strtof(buffer, NULL);
+    return 0;
+}
+
+int
+jsmndouble(const char *js, jsmntok_t *tok, double *value)
+{
+    char	buffer[64];
+
+    if (tok->type != JSMN_PRIMITIVE)
+	return -1;
+    strncpy(buffer, js + tok->start, tok->end - tok->start);
+    buffer[tok->end - tok->start] = '\0';
+    *value = strtod(buffer, NULL);
+    return 0;
+}
+
+int
+jsmnflagornumber(const char *js, jsmntok_t *tok, json_metric_desc *json_metrics, int flag)
 {
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
-    
-    if (strncmp(js + tok->start, "true", sizeof("true")-1) != 0 &&
-	strncmp(js + tok->start, "false", sizeof("false")-1) != 0) {
-	if(jsmnint(js, tok, bits)<0)
-	    return -1;
-	else
-	    return 0;
+
+    if ((flag & pmjson_flag_bitfield) ||
+	(strncmp(js + tok->start, "true", sizeof("true")-1) == 0) ||
+	(strncmp(js + tok->start, "false", sizeof("false")-1) == 0)) {
+    	if(jsmnflag(js, tok, &json_metrics->values.l, flag)<0)
+    	    return -1;
     }
     else {
-	if(jsmnflag(js, tok, bits, flag)<0)
-	    return -1;
+	if (pmDebug & DBG_TRACE_APPL2)
+	    __pmNotifyErr(LOG_DEBUG, "pmjson_flag: %d\n", flag);
+	switch (flag) {
+	case pmjson_flag_boolean:
+	    if(jsmnbool(js, tok, &json_metrics->values.ul)<0)
+		return -1;
+	    break;
+	    
+	case pmjson_flag_s32:
+	    if(jsmnint(js, tok, &json_metrics->values.l)<0)
+		return -1;
+	    break;
+
+	case pmjson_flag_u32:
+	    if(jsmnuint(js, tok, &json_metrics->values.ul)<0)
+		return -1;
+	    break;
+
+	case pmjson_flag_s64:
+	    if(jsmnlong(js, tok, &json_metrics->values.ll)<0)
+		return -1;
+	    break;
+	    
+	case pmjson_flag_u64:
+	    if(jsmnulong(js, tok, &json_metrics->values.ull)<0)
+		return -1;
+	    break;
+	    
+	case pmjson_flag_float:
+	    if(jsmnfloat(js, tok, &json_metrics->values.f)<0)
+		return -1;
+	    break;
+	    
+	case pmjson_flag_double:
+	    if(jsmndouble(js, tok, &json_metrics->values.d)<0)
+		return -1;
+	    break;
+	default:  /* assume old interface? not set and default to int */
+	    if(jsmnint(js, tok, &json_metrics->values.l)<0)
+		return -1;
+	    break;
+	}
     }
     return 0;
 }
@@ -117,7 +237,7 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 		return 1;
 	    jsmntok_t *value = json_tokens + 1;
 	    if(value->type == JSMN_PRIMITIVE && (total - key == 1)){
-		jsmnflagorint(json, value, &json_metrics->values.l, json_metrics->flags);
+		jsmnflagornumber(json, value, json_metrics, json_metrics->flags);
 		return count;
 	    }
 	    else if(value->type == JSMN_STRING && total - key == 1){
