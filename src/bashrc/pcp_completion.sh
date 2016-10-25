@@ -2,7 +2,8 @@
 _pcp_complete()
 {
     local cur=${COMP_WORDS[$COMP_CWORD]}
-    local opt_regex= curpos_expand=
+    local curpos_expand=0
+    local opt_regex=""
 
     COMPREPLY=()
 
