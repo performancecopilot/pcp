@@ -1464,7 +1464,7 @@ forced_restart=false
 #	Delay after install before checking (sec)
 check_delay=1
 #	Delay after sending a signal to pmcd (sec)
-signal_delay=0.1
+signal_delay=1
 #	Additional command line args to go in $PCP_PMCDCONF_PATH
 args=""
 #	Source for the PMNS
