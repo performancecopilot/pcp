@@ -587,7 +587,9 @@ main(int argc, char *argv[])
 
     fprintf(stderr, "pmproxy: PID = %" FMT_PID, getpid());
     fprintf(stderr, ", PDU version = %u", PDU_VERSION);
+#ifdef HAVE_GETUID
     fprintf(stderr, ", user = %s (%d)\n", username, getuid());
+#endif
     __pmServerDumpRequestPorts(stderr);
     fflush(stderr);
 
