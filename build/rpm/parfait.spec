@@ -103,9 +103,10 @@ popd
 
 
 %changelog
-* Mon Oct 24 2016 Nathan Scott <nathans@redhat.com> - 0.4.0-3
+* Fri Oct 28 2016 Nathan Scott <nathans@redhat.com> - 0.4.0-3
 - Add in parfait wrapper shell script and man page.
 - Rename the agent package to pcp-parfait-agent.
+- Add in some initial demo applications jars.
 
 * Thu Oct 20 2016 Nathan Scott <nathans@redhat.com> - 0.4.0-2
 - Addition of the standalone parfait-agent package.
