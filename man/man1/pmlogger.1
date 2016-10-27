@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
-.\" Copyright (c) 2014-2015 Red Hat.
+.\" Copyright (c) 2014-2016 Red Hat.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -789,6 +789,15 @@ variable can be set to indicate the maximum length to which the queue
 of pending
 .B pmlc
 connections may grow.
+.PP
+The default sampling interval used by
+.B pmlogger
+can be set using the
+.B PMLOGGER_INTERVAL
+variable (if not set, 60 seconds will be used).
+Both the command line and directives in the configuration file will
+override this value.
+It is an integer in units of seconds.
 .SH "PCP ENVIRONMENT"
 Environment variables with the prefix
 .B PCP_
