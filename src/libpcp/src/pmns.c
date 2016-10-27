@@ -67,7 +67,8 @@ static int	seenpmid;
 
 static __pmnsNode *seen; /* list of pass-1 subtree nodes */
 
-/* Last modification time for loading main_pmns file. */
+/* size and last modification time for loading main_pmns file. */
+static off_t	last_size;
 #if defined(HAVE_STAT_TIMESTRUC)
 static timestruc_t	last_mtim;
 #elif defined(HAVE_STAT_TIMESPEC)
@@ -1258,45 +1259,55 @@ __pmHasPMNSFileChanged(const char *filename)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_PMNS) {
 		fprintf(stderr,
-			"__pmHasPMNSFileChanged(%s) -> %s last=%d now=%d\n",
+			"__pmHasPMNSFileChanged(%s) -> %s last: size %ld mtime %d now: size %ld mtime %d\n",
 			filename == PM_NS_DEFAULT ||
 			(__psint_t)filename == 0xffffffff ?
 				"PM_NS_DEFAULT" : filename,
-			f, (int)last_mtim, (int)statbuf.st_mtime);
+			f, (long)last_size, (int)last_mtim, (long)statbuf.st_size, (int)statbuf.st_mtime);
 	    }
 #endif
-	    sts = (statbuf.st_mtime == last_mtim) ? 0 : 1;
+	    if (statbuf.st_size != last_size || statbuf.st_mtime != last_mtim)
+		sts = 1;
+	    else
+		sts = 0;
 	    goto done;
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_PMNS) {
 		fprintf(stderr,
-			"__pmHasPMNSFileChanged(%s) -> %s last=%d.%09ld now=%d.%09ld\n",
+			"__pmHasPMNSFileChanged(%s) -> %s last: size %ld mtime %d.%09ld now: size %ld mtime %d.%09ld\n",
 			filename == PM_NS_DEFAULT ||
 			(__psint_t)filename == 0xffffffff ?
 				"PM_NS_DEFAULT" : filename,
-			f, (int)last_mtim.tv_sec, last_mtim.tv_nsec,
-			(int)statbuf.st_mtimespec.tv_sec,
-			statbuf.st_mtimespec.tv_nsec);
+			f, (long)last_size, (int)last_mtim.tv_sec, last_mtim.tv_nsec,
+			(long)statbuf.st_size, (int)statbuf.st_mtimespec.tv_sec, statbuf.st_mtimespec.tv_nsec);
 	    }
 #endif
-	    sts = (statbuf.st_mtimespec.tv_sec == last_mtim.tv_sec &&
-		statbuf.st_mtimespec.tv_nsec == last_mtim.tv_nsec) ? 0 : 1;
+	    if (statbuf.st_size != last_size ||
+	        statbuf.st_mtimespec.tv_sec != last_mtim.tv_sec ||
+		statbuf.st_mtimespec.tv_nsec != last_mtim.tv_nsec)
+		sts = 1;
+	    else
+		sts = 0;
 	    goto done;
 #elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_PMNS) {
 		fprintf(stderr,
-			"__pmHasPMNSFileChanged(%s) -> %s last=%d.%09ld now=%d.%09ld\n",
+			"__pmHasPMNSFileChanged(%s) -> %s last: size %ld mtime %d.%09ld now: size %ld mtime %d.%09ld\n",
 			filename == PM_NS_DEFAULT ||
 			(__psint_t)filename == 0xffffffff ?
 				"PM_NS_DEFAULT" : filename,
-			f, (int)last_mtim.tv_sec, last_mtim.tv_nsec,
-			(int)statbuf.st_mtim.tv_sec, statbuf.st_mtim.tv_nsec);
+			f, (long)last_size, (int)last_mtim.tv_sec, last_mtim.tv_nsec,
+			(long)statbuf.st_size, (int)statbuf.st_mtim.tv_sec, statbuf.st_mtim.tv_nsec);
 	    }
 #endif
-	    sts = (statbuf.st_mtim.tv_sec == last_mtim.tv_sec &&
-		    (statbuf.st_mtim.tv_nsec == last_mtim.tv_nsec)) ? 0 : 1;
+	    if (statbuf.st_size != last_size ||
+		statbuf.st_mtim.tv_sec != last_mtim.tv_sec ||
+		statbuf.st_mtim.tv_nsec == last_mtim.tv_nsec)
+		sts = 1;
+	    else
+		sts = 0;
 	    goto done;
 #else
 !bozo!
@@ -1349,11 +1360,12 @@ load(const char *filename, int dupok, int use_cpp)
 		filename, dupok, use_cpp, i, fname);
 #endif
 
-    /* Note modification time of pmns file */
+    /* Note size and modification time of pmns file */
     {
 	struct stat statbuf;
 
 	if (stat(fname, &statbuf) == 0) {
+	    last_size = statbuf.st_size;
 #if defined(HAVE_ST_MTIME_WITH_E)
 	    last_mtim = statbuf.st_mtime; /* possible struct assignment */
 #elif defined(HAVE_ST_MTIME_WITH_SPEC)

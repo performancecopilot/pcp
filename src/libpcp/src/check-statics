@@ -331,6 +331,7 @@ pmns.o
     use_cpp			# guarded by __pmLock_libpcp mutex
     fname			# guarded by __pmLock_libpcp mutex
     havePmLoadCall		# guarded by __pmLock_libpcp mutex
+    last_size			# guarded by __pmLock_libpcp mutex
     last_mtim			# guarded by __pmLock_libpcp mutex
     last_pmns_location		# guarded by __pmLock_libpcp mutex
     linebuf			# guarded by __pmLock_libpcp mutex
