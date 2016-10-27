@@ -148,6 +148,29 @@ __restore_pmcd()
     fi
 }
 
+# send pmcd SIGHUP and reliably check that it received (at least) one
+#
+__sighup_pmcd()
+{
+    __sighups_before=-1
+
+    eval `pmprobe -v pmcd.sighups 2>/dev/null \
+	  | $PCP_AWK_PROG '{ printf "__sighups_before=%d\n", $3 }'`
+    [ $__sighups_before -lt 0 ] && return 1	# pmcd not running
+
+    pmsignal -a -s HUP pmcd >/dev/null 2>&1
+
+    for __delay in 0.01 0.05 0.1 0.15 0.25 0.5 $signal_delay
+    do
+	pmsleep $__delay
+	__sighups=-1
+	eval `pmprobe -v pmcd.sighups 2>/dev/null \
+	      | $PCP_AWK_PROG '{ printf "__sighups=%d\n", $3 }'`
+        [ $__sighups -gt $__sighups_before ] && return 0
+    done
+    return 1
+}
+
 # __pmda_cull name domain
 #
 __pmda_cull()
@@ -205,9 +228,7 @@ END					{ exit status }'
 	#
 	if pminfo -v pmcd.version >/dev/null 2>&1
 	then
-	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
-	    # allow signal processing to be done before checking status
-	    pmsleep $signal_delay
+	    __sighup_pmcd
 	    __wait_for_pmcd
 	    $__pmcd_is_dead && __restore_pmcd
 	fi
@@ -288,9 +309,7 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
     #
     if ! $forced_restart && pminfo -v pmcd.version >/dev/null 2>&1
     then
-	pmsignal -a -s HUP pmcd >/dev/null 2>&1
-	# allow signal processing to be done before checking status
-	pmsleep $signal_delay
+	__sighup_pmcd
     else
 	log=$LOGDIR/pmcd.log
 	rm -f $log
@@ -1193,10 +1212,10 @@ _install()
         cd $PMNSDIR
 	if pmnsadd -n $PMNSROOT $__n
 	then
-	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
-	    # Make sure the PMNS timestamp will be different the next
+	    # Ensure the PMNS timestamp will be different the next
 	    # time the PMNS is updated 
-	    pmsleep $signal_delay
+            #
+	    __sighup_pmcd
 	else
 	    echo "$prog: failed to add the PMNS entries for \"$__n\" ..."
 	    echo
@@ -1280,8 +1299,7 @@ _remove()
 	if pmnsdel -n $PMNSROOT $__n >$tmp/base 2>&1
 	then
 	    rm -f $PMNSDIR/$__n
-	    pmsignal -a -s HUP pmcd >/dev/null 2>&1
-	    pmsleep $signal_delay
+	    __sighup_pmcd
 	    echo "done"
 	else
 	    if grep 'Non-terminal "'"$__n"'" not found' $tmp/base >/dev/null
@@ -1464,7 +1482,7 @@ forced_restart=false
 #	Delay after install before checking (sec)
 check_delay=1
 #	Delay after sending a signal to pmcd (sec)
-signal_delay=0.1
+signal_delay=1
 #	Additional command line args to go in $PCP_PMCDCONF_PATH
 args=""
 #	Source for the PMNS

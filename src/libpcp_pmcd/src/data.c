@@ -29,6 +29,8 @@ PMCD_DATA AgentInfo *agent;		/* Array of agent info structs */
 
 PMCD_DATA char *_pmcd_hostname;		/* Explicitly requested hostname */
 
+PMCD_DATA unsigned pmcd_sighups;	/* Count of SIGHUPS responded to */
+
 /*
  * File descriptors are used as an internal index with the advent
  * of NSPR in libpcp.  We (may) need to first decode the index to
