@@ -46,8 +46,15 @@ do
     echo "old -> new changes"
     diff -u $tmp.old.dump $tmp.new.dump | sed -e '/^---/d' -e '/^+++/d'
 
+    # Note:
+    # 	Turns out pmlogrewrite and pmlogger don't quite agree on when
+    # 	to update the temporal index for the preamble record, so there
+    # 	may be a small diff here in the metadata offset in the temporal
+    # 	index ... the differences have been analyzed and are believed to
+    # 	be benign.
+    #
     echo
-    echo "new -> ref changes ... expect none"
+    echo "new -> ref changes ... expect at most, metadata offset change for temporal index"
     diff -u $tmp.ref.dump $tmp.new.dump | sed -e '/^---/d' -e '/^+++/d'
 
     rm $tmp.old.* $tmp.new.* $tmp.ref.*

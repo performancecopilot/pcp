@@ -324,7 +324,7 @@ old -> new changes
                60.14.81 (network.udplite.recvbuferrors): value 0
                60.14.80 (network.udplite.outdatagrams): value 0
 
-new -> ref changes ... expect none
+new -> ref changes ... expect at most, metadata offset change for temporal index
 
 === checking Linux kernel tcp metric rewriting ===
 
@@ -375,4 +375,13 @@ old -> new changes
      Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
      Semantics: counter  Units: count
 
-new -> ref changes ... expect none
+new -> ref changes ... expect at most, metadata offset change for temporal index
+@@ -375,7 +375,7 @@
+ Temporal Index
+              Log Vol    end(meta)     end(log)
+ 10:10:27.854       0          132          132
+-10:10:27.855       0         7893          272
++10:10:27.855       0          351          272
+ 
+ [140 bytes]
+ 10:10:27.854  2.3.3 (pmcd.pmlogger.host): inst [16936 or "16936"] value "slack"

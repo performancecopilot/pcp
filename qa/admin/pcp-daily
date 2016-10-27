@@ -304,7 +304,7 @@ in
 	#		e.g. Fedora 15
 	#  --oldpackage	sometimes we do a downgrade on the QA machines
 	#
-	if sudo rpm -U `ls pcp-$buildversion/build/rpm/*.rpm | sed -e '/src.rpm/d'` >$tmp.out 2>&1
+	if sudo rpm -U --force `ls pcp-$buildversion/build/rpm/*.rpm | sed -e '/src.rpm/d'` >$tmp.out 2>&1
 	then
 	    cat $tmp.out >>$HOME/daily.log
 	    echo "Info: rpm install" | tee -a $HOME/daily.log
