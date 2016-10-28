@@ -63,7 +63,7 @@ public:
     // Lookup the pmid or indom (implies descriptor) for metric <name>|<id>
     int lookupPMID(const char *name, pmID& id);
     int lookupInDom(const char *name, unsigned int& indom);
-    int lookupInDom(QmcDesc *desc, uint_t& indom);
+    int lookupInDom(QmcDesc *desc, uint32_t& indom);
 
     // Lookup various structures using the pmid
     int lookupInDom(pmID pmid, unsigned int& indom);

@@ -236,4 +236,7 @@ PMCD_CALL extern void pmcd_openfds_sethi(int);
 /* Explicitly requested hostname (pmcd.hostname metric) */
 PMCD_DATA extern char *_pmcd_hostname;
 
+/* Counter of SIGHUPs received and responded to by pmcd */
+PMCD_DATA extern unsigned pmcd_sighups;
+
 #endif /* _PMCD_H */

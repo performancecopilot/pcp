@@ -858,6 +858,7 @@ SigIntProc(int sig)
 static void
 SigHupProc(int sig)
 {
+    pmcd_sighups++;
     SignalRestart();
     SignalReloadPMNS();
 }
@@ -867,6 +868,7 @@ SigHupProc(int sig)
 {
     signal(SIGHUP, SigHupProc);
     restart = 1;
+    pmcd_sighups++;
 }
 #endif
 

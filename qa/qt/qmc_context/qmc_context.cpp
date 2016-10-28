@@ -68,7 +68,7 @@ main(int argc, char* argv[])
     context1.dump(cout);
 
     pmID pmid;
-    uint_t indomIndex;
+    uint32_t indomIndex;
 
     fprintf(stderr, "\n*** Cacheing of descriptors and indoms ***\n");
     QmcDesc *desc;

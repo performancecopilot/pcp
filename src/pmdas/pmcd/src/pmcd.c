@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2016 Red Hat.
- * Copyright (c) 1995-2001,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
+ * Copyright (c) 1995-2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -79,6 +79,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,20), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* hostname -- local hostname -- for pmlogger */
     { PMDA_PMID(0,21), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sighups */
+    { PMDA_PMID(0,22), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
 
 /* pdu_in.error */
     { PMDA_PMID(1,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) },
@@ -1453,6 +1455,11 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 				need = pmda->e_context;	/* client context ID */
 				host = fetch_hostname(need, &atom, host);
 				break;
+
+			case 22:	/* SIGHUPs received */
+				atom.ul = pmcd_sighups;
+				break;
+
 			default:
 				sts = atom.l = PM_ERR_PMID;
 				break;

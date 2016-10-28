@@ -34,6 +34,7 @@ pmcd {
     client
     cputime
     feature
+    sighups	PMCD:0:22
 }
 
 pmcd.control {
