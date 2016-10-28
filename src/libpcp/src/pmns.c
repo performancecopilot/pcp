@@ -1253,61 +1253,56 @@ __pmHasPMNSFileChanged(const char *filename)
     if (strcmp(f, fname) == 0) {
 	struct stat statbuf;
 
+	sts = 0;
 	if (stat(f, &statbuf) == 0) {
-	    /* If the modification times have changed */
+	    /* If the file size or modification times have changed */
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
-#ifdef PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_PMNS) {
-		fprintf(stderr,
-			"__pmHasPMNSFileChanged(%s) -> %s last: size %ld mtime %d now: size %ld mtime %d\n",
-			filename == PM_NS_DEFAULT ||
-			(__psint_t)filename == 0xffffffff ?
-				"PM_NS_DEFAULT" : filename,
-			f, (long)last_size, (int)last_mtim, (long)statbuf.st_size, (int)statbuf.st_mtime);
-	    }
-#endif
 	    if (statbuf.st_size != last_size || statbuf.st_mtime != last_mtim)
 		sts = 1;
-	    else
-		sts = 0;
-	    goto done;
-#elif defined(HAVE_ST_MTIME_WITH_SPEC)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_PMNS) {
 		fprintf(stderr,
-			"__pmHasPMNSFileChanged(%s) -> %s last: size %ld mtime %d.%09ld now: size %ld mtime %d.%09ld\n",
+			"__pmHasPMNSFileChanged(%s) %s last: size %ld mtime %d now: size %ld mtime %d -> %d\n",
 			filename == PM_NS_DEFAULT ||
 			(__psint_t)filename == 0xffffffff ?
 				"PM_NS_DEFAULT" : filename,
-			f, (long)last_size, (int)last_mtim.tv_sec, last_mtim.tv_nsec,
-			(long)statbuf.st_size, (int)statbuf.st_mtimespec.tv_sec, statbuf.st_mtimespec.tv_nsec);
+			f, (long)last_size, (int)last_mtim, (long)statbuf.st_size, (int)statbuf.st_mtime, sts);
 	    }
 #endif
+	    goto done;
+#elif defined(HAVE_ST_MTIME_WITH_SPEC)
 	    if (statbuf.st_size != last_size ||
 	        statbuf.st_mtimespec.tv_sec != last_mtim.tv_sec ||
 		statbuf.st_mtimespec.tv_nsec != last_mtim.tv_nsec)
 		sts = 1;
-	    else
-		sts = 0;
-	    goto done;
-#elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_PMNS) {
 		fprintf(stderr,
-			"__pmHasPMNSFileChanged(%s) -> %s last: size %ld mtime %d.%09ld now: size %ld mtime %d.%09ld\n",
+			"__pmHasPMNSFileChanged(%s) %s last: size %ld mtime %d.%09ld now: size %ld mtime %d.%09ld -> %d\n",
 			filename == PM_NS_DEFAULT ||
 			(__psint_t)filename == 0xffffffff ?
 				"PM_NS_DEFAULT" : filename,
 			f, (long)last_size, (int)last_mtim.tv_sec, last_mtim.tv_nsec,
-			(long)statbuf.st_size, (int)statbuf.st_mtim.tv_sec, statbuf.st_mtim.tv_nsec);
+			(long)statbuf.st_size, (int)statbuf.st_mtimespec.tv_sec, statbuf.st_mtimespec.tv_nsec, sts);
 	    }
 #endif
+	    goto done;
+#elif defined(HAVE_STAT_TIMESTRUC) || defined(HAVE_STAT_TIMESPEC) || defined(HAVE_STAT_TIMESPEC_T)
 	    if (statbuf.st_size != last_size ||
 		statbuf.st_mtim.tv_sec != last_mtim.tv_sec ||
-		statbuf.st_mtim.tv_nsec == last_mtim.tv_nsec)
+		statbuf.st_mtim.tv_nsec != last_mtim.tv_nsec)
 		sts = 1;
-	    else
-		sts = 0;
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_PMNS) {
+		fprintf(stderr,
+			"__pmHasPMNSFileChanged(%s) %s last: size %ld mtime %d.%09ld now: size %ld mtime %d.%09ld -> %d\n",
+			filename == PM_NS_DEFAULT ||
+			(__psint_t)filename == 0xffffffff ?
+				"PM_NS_DEFAULT" : filename,
+			f, (long)last_size, (int)last_mtim.tv_sec, last_mtim.tv_nsec,
+			(long)statbuf.st_size, (int)statbuf.st_mtim.tv_sec, statbuf.st_mtim.tv_nsec, sts);
+	    }
+#endif
 	    goto done;
 #else
 !bozo!
