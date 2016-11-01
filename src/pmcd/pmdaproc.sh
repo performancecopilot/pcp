@@ -160,15 +160,26 @@ __sighup_pmcd()
 
     pmsignal -a -s HUP pmcd >/dev/null 2>&1
 
-    for __delay in 0.01 0.05 0.1 0.15 0.25 0.5 $signal_delay
+    # first make sure pmcd has received SIGHUP
+    #
+    __sts=1
+    for __delay in 0.01 0.05 0.1 0.15 0.25 0.5 1 2
     do
 	pmsleep $__delay
 	__sighups=-1
 	eval `pmprobe -v pmcd.sighups 2>/dev/null \
 	      | $PCP_AWK_PROG '{ printf "__sighups=%d\n", $3 }'`
-        [ $__sighups -gt $__sighups_before ] && return 0
+        if [ $__sighups -gt $__sighups_before ]
+	then
+	    __sts=0
+	    break
+	fi
     done
-    return 1
+    # now configurable delay for $signal_delay while pmcd actually
+    # does post-SIGHUP work
+    #
+    pmsleep $signal_delay
+    return $__sts
 }
 
 # __pmda_cull name domain
