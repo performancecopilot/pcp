@@ -20,11 +20,6 @@
  * lrand48() is not thread-safe, but we don't really care here.
  */
 
-/* if DESPERATE, we need DEBUG */
-#if defined(DESPERATE) && !defined(PCP_DEBUG)
-#define DEBUG
-#endif
-
 #include "pmapi.h"
 #include "impl.h"
 #include <assert.h>
@@ -347,7 +342,7 @@ __pmOptFetchDump(FILE *f, const fetchctl_t *root)
     for (fp = root; fp != NULL; fp = fp->f_next)
 	___pmOptFetchDump(f, fp);
 }
-#endif /* DEBUG */
+#endif /* PCP_DEBUG */
 
 /*
  * add a new request into a group of fetches ...
@@ -419,10 +414,9 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	fp->f_newcost = optCost(fp);
 	if (fp == *root)
 	    fp->f_newcost += optcost.c_fetch;
-#ifdef DESPERATE
-	if (pmDebug & DBG_TRACE_OPTFETCH) {
+	if ((pmDebug & DBG_TRACE_OPTFETCH) && (pmDebug & DBG_TRACE_DESPERATE)) {
 	    char	strbuf[100];
-	    fprintf(stderr, "optFetch: cost=");
+	    fprintf(stderr, "__pmOptFetchAdd: fp=" PRINTF_P_PFX "%p cost=", fp);
 	    if (fp->f_cost == OPT_COST_INFINITY)
 		fprintf(stderr, "INFINITY");
 	    else
@@ -432,12 +426,11 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 		fprintf(stderr, "INFINITY");
 	    else
 		fprintf(stderr, "%d", fp->f_newcost);
-	    fprintf(stderr, ", for %s @ grp 0x%x,",
+	    fprintf(stderr, ", for %s @ grp " PRINTF_P_PFX "%p,",
 		pmIDStr_r(pmid, strbuf, sizeof(strbuf)), fp);
 	    fprintf(stderr, " state %s\n",
 		statestr(fp->f_state, strbuf));
 	}
-#endif
     }
 
     tfp = NULL;
@@ -455,15 +448,13 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	    tfp = fp;
 	}
     }
-#ifdef DESPERATE
-    if (pmDebug & DBG_TRACE_OPTFETCH) {
+    if ((pmDebug & DBG_TRACE_OPTFETCH) && (pmDebug & DBG_TRACE_DESPERATE)) {
 	char	strbuf[100];
-	fprintf(stderr, "optFetch: chose %s cost=%d for %s @ grp 0x%x,",
-		optcost.c_scope ? "global" : "incremental",
+	fprintf(stderr, "__pmOptFetchAdd: fp=" PRINTF_P_PFX "%p chose %s cost=%d for %s @ grp " PRINTF_P_PFX "%p,",
+		tfp, optcost.c_scope ? "global" : "incremental",
 		mincost, pmIDStr_r(pmid, strbuf, sizeof(strbuf)), tfp);
 	fprintf(stderr, " change %s\n", statestr(tfp->f_state, strbuf));
     }
-#endif
 
     /*
      * Warning! Traversal of the list is a bit tricky, because the
@@ -544,6 +535,10 @@ __pmOptFetchDel(fetchctl_t **root, optreq_t *new)
     optreq_t		*rqp;
     optreq_t		*p_rqp;
 
+    if ((pmDebug & DBG_TRACE_OPTFETCH) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	fprintf(stderr, "__pmOptFetchDel: " PRINTF_P_PFX "%p\n", new);
+    }
+
     p_fp = NULL;
     for (fp = *root; fp != NULL; fp = fp->f_next) {
 	p_idp = NULL;
@@ -595,7 +590,24 @@ __pmOptFetchDel(fetchctl_t **root, optreq_t *new)
 			    redoinst(fp);
 			    redopmid(fp);
 			    fp->f_state = OPT_STATE_PMID | OPT_STATE_PROFILE;
+			    if ((pmDebug & DBG_TRACE_OPTFETCH) && (pmDebug & DBG_TRACE_DESPERATE)) {
+
+
+				fprintf(stderr, "__pmOptFetchDel: redo " PRINTF_P_PFX "%p old cost=", fp);
+				if (fp->f_cost == OPT_COST_INFINITY)
+				    fprintf(stderr, "INFINITY");
+				else
+				    fprintf(stderr, "%d", fp->f_cost);
+			    }
 			    fp->f_cost = optCost(fp);
+			    if ((pmDebug & DBG_TRACE_OPTFETCH) && (pmDebug & DBG_TRACE_DESPERATE)) {
+				fprintf(stderr, " new cost=");
+				if (fp->f_cost == OPT_COST_INFINITY)
+				    fprintf(stderr, "INFINITY");
+				else
+				    fprintf(stderr, "%d", fp->f_cost);
+				fputc('\n', stderr);
+			    }
 			}
 			return 0;
 		    }
