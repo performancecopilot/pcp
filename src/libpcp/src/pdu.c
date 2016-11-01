@@ -33,6 +33,7 @@
 #include "impl.h"
 #include "internal.h"
 #include "fault.h"
+#include <assert.h>
 
 PCP_DATA int	pmDebug;		/* the real McCoy */
 
@@ -106,6 +107,12 @@ pduread(int fd, char *buf, int len, int part, int timeout)
     int			onetrip = 1;
     struct timeval	dead_hand;
     struct timeval	now;
+
+    /*
+     * Regression circa Oct 2016 seems to have introduced the possibility
+     * that fd may be (incorrectly) -1 here ...
+     */
+    assert(fd >= 0);
 
     if (timeout == -2 /*TIMEOUT_ASYNC*/)
 	return -EOPNOTSUPP;
