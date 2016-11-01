@@ -75,7 +75,10 @@ _count_pmloggers()
 
 _filter_xfs_install()
 {
-    _filter_pmda_install | _filter_pcp_stop | $PCP_AWK_PROG '
+    _filter_pmda_install \
+    | _filter_pcp_stop \
+    | tee -a $here/$seq.full \
+    | $PCP_AWK_PROG '
 /Check xfs metrics have appeared/ { if ($7 >= 0) $7 = "X"
                                            if ($10 >= 0) $10 = "Y"
                                          }
