@@ -309,6 +309,8 @@ Value for the $TZ environment variable where the PMCD is running.
 Enables determination of "local" time for timestamps returned via
 PMCD from a remote host.
 
+@ pmcd.sighups count of SIGHUP signals pmcd has received
+
 @ pmcd.hostname local hostname
 A reasonably unique identifier of the PMCD installation, for use
 by pmlogger or other tools to identify the source principal of

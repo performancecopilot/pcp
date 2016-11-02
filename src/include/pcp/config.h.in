@@ -158,6 +158,9 @@ extern "C" {
 #if defined(HAVE_STDDEF_H)
 #include <stddef.h>
 #endif
+#if defined(HAVE_STDINT_H)
+#include <stdint.h>
+#endif
 #if defined(HAVE_SYSLOG_H)
 #include <syslog.h>
 #endif
@@ -327,7 +330,10 @@ extern "C" {
 #endif
 
 /* some types only known by some compilers */
-#undef uint_t
+#undef __int8_t
+#undef __uint8_t
+#undef __int16_t
+#undef __uint16_t
 #undef __int32_t
 #undef __uint32_t
 #undef __int64_t

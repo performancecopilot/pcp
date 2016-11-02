@@ -105,7 +105,7 @@ QmcContext::lookupPMID(const char *name, pmID& id)
 }
 
 int
-QmcContext::lookupInDom(const char *name, uint_t& indom)
+QmcContext::lookupInDom(const char *name, uint32_t& indom)
 {
     pmID pmid;
     int sts = lookupPMID(name, pmid);
@@ -152,7 +152,7 @@ QmcContext::lookupDesc(pmID pmid, QmcDesc **descriptor)
 int
 QmcContext::lookup(pmID pmid, QString **namePtr, QmcDesc **descPtr, QmcIndom **indomPtr)
 {
-    uint_t indom;
+    uint32_t indom;
     int sts;
 
     if ((sts = lookupName(pmid, namePtr)) < 0)
@@ -166,7 +166,7 @@ QmcContext::lookup(pmID pmid, QString **namePtr, QmcDesc **descPtr, QmcIndom **i
 }
 
 int
-QmcContext::lookupInDom(pmID pmid, uint_t& indom)
+QmcContext::lookupInDom(pmID pmid, uint32_t& indom)
 {
     QmcDesc *descPtr;
     int sts;
@@ -177,7 +177,7 @@ QmcContext::lookupInDom(pmID pmid, uint_t& indom)
 }
 
 int
-QmcContext::lookupInDom(QmcDesc *descPtr, uint_t& indom)
+QmcContext::lookupInDom(QmcDesc *descPtr, uint32_t& indom)
 {
     int i, sts;
     QmcIndom *indomPtr;

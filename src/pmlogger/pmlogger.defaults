@@ -9,3 +9,9 @@
 # Max length to which the queue of pending connections may grow
 # A value of 5 is the default.
 # PMLOGGER_MAXPENDING=5
+
+# Default sampling interval pmlogger uses when no more specific
+# interval is requested.  A value of 60 seconds is the default.
+# Both pmlogger command line (via control file) and also pmlogger
+# configuration file directives will override this value.
+# PMLOGGER_INTERVAL=60

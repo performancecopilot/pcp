@@ -562,6 +562,8 @@ main(int argc, char **argv)
 
     __pmGetUsername(&username);
     sep = __pmPathSeparator();
+    if ((endnum = getenv("PMLOGGER_INTERVAL")) != NULL)
+	delta.tv_sec = atoi(endnum);
 
     /*
      * Warning:

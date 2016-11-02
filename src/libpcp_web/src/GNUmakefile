@@ -19,7 +19,7 @@ CFILES 		= jsmn.c json_helpers.c http_client.c http_parser.c
 HFILES		= jsmn.h private.h http_client.h http_parser.h
 
 LLDLIBS		= -lpcp -lpcp_pmda
-LCFLAGS		= -DJSMN_PARENT_LINKS=1 -DHTTP_PARSER_STRICT=0
+LCFLAGS		= -DJSMN_PARENT_LINKS=1 -DHTTP_PARSER_STRICT=0 -DPCP_INTERNAL
 
 STATICLIBTARGET = libpcp_web.a
 

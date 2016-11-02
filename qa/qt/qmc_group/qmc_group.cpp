@@ -95,7 +95,7 @@ char const Client::cont = '-';
 int
 Client::context(int type, char const* source)
 {
-    uint_t	numContexts = _group->numContexts();
+    uint32_t	numContexts = _group->numContexts();
     QString	qsource = source;
     int		sts = _group->use(type, qsource);
 
@@ -189,11 +189,11 @@ int
 Client::list(QStringList const& list)
 {
     int		l, sts = 0;
-    uint_t	i;
-    uint_t	j;
-    uint_t	k;
-    uint_t	numContexts = _group->numContexts();
-    uint_t	numMetrics = _metrics.size();
+    uint32_t	i;
+    uint32_t	j;
+    uint32_t	k;
+    uint32_t	numContexts = _group->numContexts();
+    uint32_t	numMetrics = _metrics.size();
     
     _group->useDefault();
 
@@ -234,7 +234,7 @@ Client::list(QStringList const& list)
 
 	    cout << keywords[keyIndom] << sep << j << sep << indom.refCount() 
 		 << endl;
-	    for (k = 0; k < (uint_t)indom.listLen(); k++) {
+	    for (k = 0; k < (uint32_t)indom.listLen(); k++) {
 		if (!indom.nullInst(k) && indom.refInst(k))
 		    cout << cont << sep << k << sep << indom.name(k) << endl;
 	    }
@@ -258,7 +258,7 @@ Client::list(QStringList const& list)
     }
 
     // Dump new metrics listed by client
-    for (i = numMetrics; i < (uint_t)_metrics.size(); i++) {
+    for (i = numMetrics; i < (uint32_t)_metrics.size(); i++) {
 
 	QmcMetric const& metric = *_metrics[i];
 
@@ -275,7 +275,7 @@ Client::list(QStringList const& list)
 		cout << "-1" << endl;
 	    else
 		cout << metric.indomIndex() << endl;
-	    for (j = 0; j < (uint_t)metric.numInst(); j++)
+	    for (j = 0; j < (uint32_t)metric.numInst(); j++)
 		cout << cont << sep << metric.instIndex(j) << endl;
 	}
 
@@ -405,13 +405,13 @@ Client::update(QList<int> const& list)
 	cout << keywords[keyUpdate] << sep << contexts.size() << endl;
 
 	for (i = 0; i < contexts.size(); i++) {
-	    uint_t cntx = contexts[i];
+	    uint32_t cntx = contexts[i];
 	    QmcContext *context = _group->context(cntx);
 
 	    // Generate unique list of updated metrics for this context
 	    metrics.clear();
 	    for (j = 0; j < list.size(); j++) {
-		uint_t index = list[j];
+		uint32_t index = list[j];
 		if (_metrics[index]->status() >= 0 &&
 		    _metrics[index]->contextIndex() == cntx)
 		    metrics.append(index);
