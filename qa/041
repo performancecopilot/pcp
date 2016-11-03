@@ -105,6 +105,7 @@ pminfo -f sample.long.million 2>&1 | _filter
 $sudo $PCP_RC_DIR/pcp start >$tmp.one 2>&1
 
 _wait_for_pmcd
+_wait_for_pmlogger
 _expect "one million retrieved OK from sample.long.million"
 pminfo -f sample.long.million
 
