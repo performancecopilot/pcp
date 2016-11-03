@@ -426,6 +426,8 @@ OpenRequestSocket(int port, const char *address, int *family,
     int			one, sts;
     __pmSockAddr	*myAddr;
     int			isUnix = 0;
+    int			try;
+    struct timeval	tick = { 0, 250*1000 };		/* 250msec */
 
     /*
      * Using this flag will eliminate the need for more conditional
@@ -526,13 +528,27 @@ OpenRequestSocket(int port, const char *address, int *family,
 	goto fail;
     }
 
-    sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
+    /*
+     * Attempts to make daemon restart (especailly pmcd) have increased
+     * the probability of trying to reuse a socket before the last use
+     * has been completely torn down ... so be prepared to try this a
+     * few times (4 x 250msec)
+     */
+    sts = -1;
+    try = 0;
+    while (sts < 0 && try < 4) {
+	sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
+	if (sts >= 0)
+	    break;
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmBind try %d: %s\n",
+		port, address, AddressFamily(*family), try+1, netstrerror());
+	__pmtimevalSleep(tick);
+	try++;
+    }
     __pmSockAddrFree(myAddr);
     myAddr = NULL;
     if (sts < 0) {
 	sts = neterror();
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmBind: %s\n",
-		port, address, AddressFamily(*family), netstrerror());
 	if (sts == EADDRINUSE)
 	    __pmNotifyErr(LOG_ERR, "%s may already be running\n", pmProgname);
 	goto fail;
