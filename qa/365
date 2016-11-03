@@ -110,8 +110,8 @@ allow localhost, $other2, nohost.melbourne.sgi.com : store;
 allow "local:" , "unix:" : all;
 End-of-File
 
-echo >> $tmp.tmp
-echo "# from qa/$seq" >> $tmp.tmp
+echo >>$tmp.tmp
+echo "# from qa/$seq" >>$tmp.tmp
 
 $sudo cp $tmp.tmp $PCP_PMCDCONF_PATH
 echo >>$seq.full
@@ -166,8 +166,26 @@ $8 ~ /^[A-Z]+HOST[12]*$/ && $5 ~ /^[0-9a-f]/ {
 		}
 		{ print }'
 
-echo "check pmcd is up and we can get local access" >> $seq.full
-pmprobe hinv.ncpu >>$seq.full 2>&1 || echo "ACCESS DENIED"
-
 status=0
+echo "check pmcd is up and we can get local access" >>$seq.full
+if pmprobe hinv.ncpu >>$seq.full 2>&1
+then
+    :
+else
+    echo "pmcd check FAILED"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmcd
+    status=1
+fi
+echo "check primary pmlogger is running" >>$seq.full
+pmlc -P </dev/null 2>&1 \
+| tee -a $seq.full \
+| if grep 'Connected to primary pmlogger' >/dev/null
+then
+    :
+else
+    echo "primary pmlogger check FAILED"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger
+    status=1
+fi
+
 exit
