@@ -1632,7 +1632,16 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 #define TYPESTRLEN 20
 /*
  * Come here after TIMEOUT or IPC error at the PDU layer in the
- * communication with pmcd (usually during a __pmGetPDU() call.
+ * communication with another process (usually during a __pmGetPDU()
+ * call.
+ *
+ * If we are a client of pmcd, then close the channel to prevent
+ * cascading errors from any context that is communicating with
+ * the same pmcd over the same socket.
+ *
+ * If we are not a client of pmcd (e.g. pmcd or dbpmda commnicating
+ * with a PMDA), do nothing ... the higher level logic will handle
+ * the error and there is no socket multiplexing in play.
  *
  * We were expecting a PDU of type expect, but received one
  * of type recv (which may be an error, e.g PM_ERR_TIMEOUT).
@@ -1649,6 +1658,10 @@ __pmCloseChannelbyFd(int fd, int expect, int recv)
     char	errmsg[PM_MAXERRMSGLEN];
     char	expect_str[TYPESTRLEN];
     char	recv_str[TYPESTRLEN];
+    if (__pmGetInternalState() == PM_STATE_PMCS) {
+	/* not a client of pmcd, so don't close any channels here */
+	return;
+    }
     __pmPDUTypeStr_r(expect, expect_str, TYPESTRLEN);
     if (recv < 0) {
 	/* error or timeout */
@@ -1668,9 +1681,19 @@ __pmCloseChannelbyFd(int fd, int expect, int recv)
     __pmCloseSocket(fd);
 }
 
+/*
+ * See comments above for __pmCloseChannelbyFd() ...
+ *
+ * In this case we are dealing with a PMAPI context and come here
+ * holding the c_lock.
+ */
 void
 __pmCloseChannelbyContext(__pmContext *ctxp, int expect, int recv)
 {
+    if (__pmGetInternalState() == PM_STATE_PMCS) {
+	/* not a client of pmcd, so don't close any channels here */
+	return;
+    }
     /* guard against repeated calls for the same channel ... */
     if (ctxp->c_pmcd->pc_fd >= 0) {
 	char	errmsg[PM_MAXERRMSGLEN];
