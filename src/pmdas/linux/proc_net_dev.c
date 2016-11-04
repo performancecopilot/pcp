@@ -104,7 +104,7 @@ refresh_net_dev_ioctl(char *name, net_interface_t *netip,
 	     * For kernel ABI reasons, this is split into two 16 bits
 	     * fields, which must be combined for speeds above 1Gbps.
 	     */
-	    netip->ioc.speed = (ecmd.speed << 16) | ecmd.speed;
+	    netip->ioc.speed = (ecmd.speed_hi << 16) | ecmd.speed;
 	    netip->ioc.duplex = ecmd.duplex + 1;
 	} else if (!(ioctl(fd, SIOCGIWRATE, &iwreq) < 0)) {
 	    /*
