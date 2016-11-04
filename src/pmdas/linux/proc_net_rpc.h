@@ -17,8 +17,8 @@
 
 #define NR_RPC_COUNTERS		18
 #define NR_RPC3_COUNTERS	22
-#define NR_RPC4_CLI_COUNTERS	53
-#define NR_RPC4_SVR_COUNTERS	59
+#define NR_RPC4_CLI_COUNTERS	56
+#define NR_RPC4_SVR_COUNTERS	71
 
 typedef struct {
     struct {

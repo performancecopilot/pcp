@@ -212,6 +212,10 @@ static pmdaInstid nfs4_cli_indom_id[NR_RPC4_CLI_COUNTERS] = {
 	{ 50, "getdevlist" },
 	{ 51, "bind_ses" },
 	{ 52, "destroy_clntid" },
+	/* nfsv4.2 client ops */
+	{ 53, "seek" },
+	{ 54, "allocate" },
+	{ 55, "deallocate" },
 };
 
 static pmdaInstid nfs4_svr_indom_id[NR_RPC4_SVR_COUNTERS] = {
@@ -281,6 +285,19 @@ static pmdaInstid nfs4_svr_indom_id[NR_RPC4_SVR_COUNTERS] = {
 	{ 57, "want_deleg" },
 	{ 58, "destroy_clid" },
 	{ 59, "reclaim_comp" },
+	/* nfsv4.2 server ops */
+	{ 60, "allocate" },
+	{ 61, "copy" },
+	{ 62, "copy_notify" },
+	{ 63, "deallocate" },
+	{ 64, "io_advise" },
+	{ 65, "layouterror" },
+	{ 66, "layoutstats" },
+	{ 67, "offload_cancel" },
+	{ 68, "offload_status" },
+	{ 69, "read_plus" },
+	{ 70, "seek" },
+	{ 71, "write_same" },
 };
 
 static pmdaIndom indomtab[] = {
