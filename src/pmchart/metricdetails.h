@@ -15,26 +15,26 @@
 #define METRICDETAILS_H
 
 #include "ui_metricdetails.h"
+
+class Chart;
+
 class MetricDetailsWindow : public QDialog, public Ui::MetricDetailsWindow
 {
     Q_OBJECT
 
-public:
+ public:
     MetricDetailsWindow(QWidget*);
 
+    void setupTable(Chart *);
+
+ private:
     // Define the column layout
-    int timeColumn() const { return 0; }
+    int timeColumn()     const { return 0; }
     int hostNameColumn() const { return 1; }
-    int metricColumn() const { return 2; }
+    int metricColumn()   const { return 2; }
     int instanceColumn() const { return 3; }
-    int valueColumn() const { return 4; }
-    int numColumns() const { return 5; }
-
-public slots:
-
-protected slots:
-
-private:
+    int valueColumn()    const { return 4; }
+    int numColumns()     const { return 5; }
 };
 
 #endif	// METRICDETAILS_H

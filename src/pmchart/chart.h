@@ -94,6 +94,9 @@ public:
     QString label(int);			// return legend label for ith plot
     void setLabel(int, const QString &);	// set plot legend label
 
+    QList<ChartItem *> &items()
+	{ return my.items; }
+
     bool autoScale(void);
     void scale(bool *, double *, double *);
 			// return autoscale state and fixed scale parameters

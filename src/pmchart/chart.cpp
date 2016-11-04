@@ -847,87 +847,14 @@ Chart::showMetricDetails(void)
     if (my.tab->currentGadget() != this)
 	return;
 
+    // Make sure we have a metric details window.
     if (!my.metricDetailsWindow)
 	my.metricDetailsWindow = new MetricDetailsWindow(this);
   
-    // Populate the table cells.
-    // The documentation for QTableWidget warns against doing this while
-    // column sorting is enabled.
+    // Set up the tbale and show the window.
     MetricDetailsWindow *window = my.metricDetailsWindow;
-    QTableWidget *tableWidget = my.metricDetailsWindow->tableWidget;
-    tableWidget->setSortingEnabled(false);
-    tableWidget->clearContents();
-
-    // We need to know how many rows there will be first
-    int rows = 0;
-    for (int i = 0; i < my.items.size(); i++) {
-	ChartItem *item = my.items[i];
-	const QString &cursorInfo = item->cursorInfo();
-	if (!cursorInfo.isEmpty())
-	    ++rows;
-    }
-
-    // Now add the data. Leave an extra empty row to make the table look better
-    // When stretched vertically.
-    ++rows;
-    tableWidget->setRowCount(rows);
-    int row = 0;
-    for (int i = 0; i < my.items.size(); i++) {
-	ChartItem *item = my.items[i];
-	const QString &cursorInfo = item->cursorInfo();
-
-	// Add this item's cursor info, if it is not empty.
-	if (!cursorInfo.isEmpty()) {
-	    // The host name.
-	    TableWidgetItem *twItem = new TableWidgetItem(item->hostname());
-	    tableWidget->setItem(row, window->hostNameColumn(), twItem);
-
-	    // The metric name.
-	    twItem = new TableWidgetItem(item->metricName());
-	    tableWidget->setItem(row, window->metricColumn(), twItem);
-
-	    // The instance name, if there is one
-	    if (item->metricHasInstances()) {
-		twItem = new TableWidgetItem(item->metricInstance());
-		tableWidget->setItem(row, window->instanceColumn(), twItem);
-	    }
-
-	    // The metric value.
-	    QString dataStr = cursorInfo;
-	    Q_ASSERT(dataStr[0] == '[');
-	    dataStr.remove(0, 1);
-	    int dataEnd = dataStr.indexOf(' ');
-	    Q_ASSERT(dataEnd != -1);
-	    QString itemStr = dataStr.left(dataEnd);
-	    dataStr.remove(0, dataEnd + 1);
-
-	    // Store it as double, if possible, so that it will sort properly.
-	    bool isOk;
-	    double itemVal = itemStr.toDouble(&isOk);
-	    if (isOk) {
-		twItem = new TableWidgetItem;
-		twItem->setData(Qt::EditRole, itemVal);    
-	    }
-	    else
-		twItem = new TableWidgetItem(itemStr);
-	    tableWidget->setItem(row, window->valueColumn(), twItem);
-
-	    // The time of the sample
-	    Q_ASSERT(dataStr.left(3) == "at ");
-	    dataStr.remove(0, 3);
-	    dataEnd = dataStr.indexOf(']');
-	    Q_ASSERT(dataEnd != -1);
-	    itemStr = dataStr.left(dataEnd);
-	    twItem = new TableWidgetItem(itemStr);
-	    tableWidget->setItem(row, window->timeColumn(), twItem);
-
-	    ++row;
-	}
-    }
-
-    // Re-enable sorting and display the window.
-    tableWidget->setSortingEnabled(true);
-    my.metricDetailsWindow->show();
+    window->setupTable(this);
+    window->show();
 }
 
 bool
