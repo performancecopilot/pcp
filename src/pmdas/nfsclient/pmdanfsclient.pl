@@ -16,7 +16,7 @@ use strict;
 use warnings;
 use PCP::PMDA;
 
-use vars qw( $pmda @all_ops @common_ops @v3only_ops @v4_ops @v41_ops);
+use vars qw( $pmda @all_ops @common_ops @v3only_ops @v4_ops @v41_ops @v42_ops);
 
 # The instance domain is 0 for all nfs client stats
 our  $nfsclient_indom = 0;
@@ -226,6 +226,10 @@ sub nfsclient_parse_proc_mountstats {
 		if ($line =~ /^\tcaps:\t(.*)$/) {
                         $h{$nfsinst}->{'nfsclient.capabilities'} = $1;
                 }
+		#nfsv4
+		if ($line =~ /^\tnfsv4:\t(.*)$/) {
+                        $h{$nfsinst}->{'nfsclient.nfsv4'} = $1;
+                }
 		#sec
 		if ($line =~ /^\tsec:\t(.*)$/) {
                         $h{$nfsinst}->{'nfsclient.security'} = $1;
@@ -256,7 +260,9 @@ sub nfsclient_parse_proc_mountstats {
 			 $h{$nfsinst}->{'nfsclient.events.sillyrename'},
 			 $h{$nfsinst}->{'nfsclient.events.shortread'},
 			 $h{$nfsinst}->{'nfsclient.events.shortwrite'},
-			 $h{$nfsinst}->{'nfsclient.events.delay'}) =
+			 $h{$nfsinst}->{'nfsclient.events.delay'},
+			 $h{$nfsinst}->{'nfsclient.events.pnfsread'},
+			 $h{$nfsinst}->{'nfsclient.events.pnfswrite'}) =
 				split(/ /, $1);
 		}
 
@@ -698,6 +704,11 @@ $pmda->add_metric(pmda_pmid(3,1), PM_TYPE_STRING, $nfsclient_indom,
                 'nfsclient.capabilities',
                 'Capabilities',
                 '');
+$pmda->add_metric(pmda_pmid(3,2), PM_TYPE_STRING, $nfsclient_indom,
+                PM_SEM_INSTANT, pmda_units(0,0,0,0,0,0),
+                'nfsclient.nfsv4',
+                'NFSv4 supported attributes',
+                '');
 
 # sec - cluster 4 - Any use in parsing this ?
 $pmda->add_metric(pmda_pmid(4,1), PM_TYPE_STRING, $nfsclient_indom,
@@ -839,6 +850,16 @@ $pmda->add_metric(pmda_pmid(5,24), PM_TYPE_U32, $nfsclient_indom,
 $pmda->add_metric(pmda_pmid(5,25), PM_TYPE_U32, $nfsclient_indom,
 		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
 		  'nfsclient.events.delay',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,26), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.pnfsread',
+		  '', '');
+
+$pmda->add_metric(pmda_pmid(5,27), PM_TYPE_U32, $nfsclient_indom,
+		  PM_SEM_COUNTER, pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+		  'nfsclient.events.pnfswrite',
 		  '', '');
 
 # bytes - cluster 6
@@ -1066,7 +1087,11 @@ our @v4_ops = ('close', 'create_session', 'delegreturn', 'destroy_session', 'exc
 our @v41_ops = ('bind_conn_to_session', 'destroy_clientid', 'free_stateid', 'getdevicelist',
 	     'secinfo_no_name', 'test_stateid');
 
-our @all_ops = ( @common_ops, @v3only_ops, @v4_ops, @v41_ops );
+# ops ADDED in v4.2
+#
+our @v42_ops = ('seek', 'allocate', 'deallocate');
+
+our @all_ops = ( @common_ops, @v3only_ops, @v4_ops, @v41_ops, @v42_ops );
 
 my $item = 1;
 for my $op_name (@all_ops) {
