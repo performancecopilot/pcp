@@ -47,6 +47,17 @@ header_handler(FILE *fp, char *fname, char *buf, int maxbuf)
 	    break;
 	}
 
+	if (f->nfields > 3 && strncmp(f->fields[1], "Collectl:", 9) == 0) {
+	    /* # Collectl: */
+	    for (i=0; i < f->nfields; i++) {
+		if (strcmp(f->fields[i], "--plot") == 0 || strcmp(f->fields[i], "-P") == 0) {
+		    fprintf(stderr, "FATAL Error: \"%s\" contains data in collectl \"plot\" format. Only \"raw\" format is supported\n",
+		    fname);
+		    exit(1);
+		}
+	    }
+	}
+
 	if (f->nfields > 3 && strncmp(f->fields[1], "Host:", 5) == 0) {
 	    /* # Host:       somehostname ... */  
 	    if (hostname && strcmp(hostname, f->fields[2]) != 0) {
