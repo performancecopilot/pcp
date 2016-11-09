@@ -18,6 +18,7 @@
 #include "tracing.h"
 #include "sampling.h"
 #include "saveviewdialog.h"
+#include "metricdetails.h"
 
 #include <QPoint>
 #include <QRegExp>
@@ -39,6 +40,7 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget(this)
     my.style = NoStyle;
     my.scheme = QString::null;
     my.sequence = 0;
+    my.metricDetailsWindow = NULL;
 
     QwtPlotCanvas *canvas = new QwtPlotCanvas();
     canvas->setBorderRadius(5);
@@ -92,6 +94,8 @@ Chart::~Chart()
 	delete my.items[i];
     delete my.engine;
     delete my.picker;
+    if (my.metricDetailsWindow)
+	delete my.metricDetailsWindow;
 }
 
 ChartEngine::ChartEngine(Chart *chart)
@@ -699,6 +703,8 @@ void
 Chart::selected(const QPointF &p)
 {
     showPoint(p);
+    accumulatePointInfo(p);
+    showInfo();
     my.tab->setCurrent(this);
 }
 
@@ -710,40 +716,53 @@ Chart::moved(const QPointF &p)
     my.engine->moved(p);
 }
 
+QString
+Chart::pointValueText(const QPointF &p) const
+{
+    QString text;
+    text.sprintf("[%.2f", (float)p.y());
+    QString title = YAxisTitle();
+    if (title != QString::null) {
+	text.append(" ");
+	text.append(title);
+    }
+    text.append(" at ");
+    text.append(timeHiResString(p.x()));
+    text.append("]");
+
+    return text;
+}
 
 void
 Chart::showPoint(const QPointF &p)
 {
-    ChartItem *selected = NULL;
-    double dist, distance = 10e10;
-    int index = -1;
-
     // pixel point
     QPoint pp = my.picker->transform(p);
-
     console->post("Chart::showPoint p=%.2f,%.2f pixel=%d,%d",
-		p.x(), p.y(), pp.x(), pp.y());
+		  p.x(), p.y(), pp.x(), pp.y());
 
-    // seek the closest curve to the point selected
-    for (int i = 0; i < my.items.size(); i++) {
-	QwtPlotCurve *curve = my.items[i]->curve();
-	int point = curve->closestPoint(pp, &dist);
+    QString text = pointValueText(p);
+    pmchart->setValueText(text);
+}
 
-	if (dist < distance) {
-	    index = point;
-	    distance = dist;
-	    selected = my.items[i];
-	}
-    }
+void
+Chart::accumulatePointInfo(const QPointF &p)
+{
+    // pixel point
+    QPoint pp = my.picker->transform(p);
+    console->post("Chart::accumulatePointInfo p=%.2f,%.2f pixel=%d,%d",
+		  p.x(), p.y(), pp.x(), pp.y());
 
-    // clear existing selections then show this one
-    bool update = (index >= 0 && pp.y() >= 0);
+    // Update the cursor of each curve with respect to the given point.
     for (int i = 0; i < my.items.size(); i++) {
 	ChartItem *item = my.items[i];
-
 	item->clearCursor();
-	if (update && item == selected)
-	    item->updateCursor(p, index);
+
+	double dist;
+	const QwtPlotCurve *curve = item->curve();
+	int point = curve->closestPoint(pp, &dist);
+
+	item->updateCursor(p, point);
     }
 }
 
@@ -815,23 +834,27 @@ Chart::showPoints(const QPolygon &poly)
 void
 Chart::showInfo(void)
 {
-    QString info = QString::null;
+    showMetricDetails();
+}
 
-    pmchart->timeout();	// clear status bar
-    for (int i = 0; i < my.items.size(); i++) {
-	ChartItem *item = my.items[i];
-	if (info != QString::null)
-	    info.append("\n");
-	info.append(item->cursorInfo());
-    }
+//
+// give feedback (window) about the selection
+//
+void
+Chart::showMetricDetails(void)
+{
+    // Only do this if we are the active chart.
+    if (my.tab->currentGadget() != this)
+	return;
 
-    while (!info.isEmpty() && (info.at(info.length()-1) == '\n'))
-	info.chop(1);
-
-    if (!info.isEmpty())
-	QWhatsThis::showText(QCursor::pos(), info, this);
-    else
-	QWhatsThis::hideText();
+    // Make sure we have a metric details window.
+    if (!my.metricDetailsWindow)
+	my.metricDetailsWindow = new MetricDetailsWindow(this);
+  
+    // Set up the tbale and show the window.
+    MetricDetailsWindow *window = my.metricDetailsWindow;
+    window->setupTable(this);
+    window->show();
 }
 
 bool
@@ -1071,4 +1094,14 @@ ChartCurve::legendIcon(int index, const QSizeF &size) const
     painter.drawRect(r.x(), r.y(), r.width(), r.height());
 
     return icon;
+}
+
+// Customize QTableWidgetItem
+void
+TableWidgetItem::initialize()
+{
+    // Make sure that this item is not editable.
+    Qt::ItemFlags f = flags();
+    f &= ~Qt::ItemIsEditable;
+    setFlags(f);
 }

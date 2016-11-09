@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015, Red Hat.
+ * Copyright (c) 2012-2016, Red Hat.
  * Copyright (c) 2012, Nathan Scott.  All Rights Reserved.
  * Copyright (c) 2006-2010, Aconex.  All Rights Reserved.
  * Copyright (c) 2006, Ken McDonell.  All Rights Reserved.
@@ -21,6 +21,7 @@
 #include <QDateTime>
 #include <QColor>
 #include <QTreeWidget>
+#include <QTableWidgetItem>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_picker.h>
@@ -35,6 +36,7 @@ class ChartPicker;
 class ChartEngine;
 class TracingEngine;
 class SamplingEngine;
+class MetricDetailsWindow;
 
 //
 // Centre of the pmchart universe
@@ -71,6 +73,11 @@ public:
     void changeTitle(QString, bool);	// QString::null to clear; expand?
     QString hostNameString(bool);	// short/long host names as qstring
 
+    QString pointValueText(const QPointF &p) const; // text for the given point
+
+    Tab *tab()
+	{ return my.tab; }
+
     Style style(void);			// return chart style
     void setStyle(Style);		// set default chart plot style
 
@@ -86,6 +93,9 @@ public:
 
     QString label(int);			// return legend label for ith plot
     void setLabel(int, const QString &);	// set plot legend label
+
+    QList<ChartItem *> &items()
+	{ return my.items; }
 
     bool autoScale(void);
     void scale(bool *, double *, double *);
@@ -154,8 +164,10 @@ private:
 
     // handling selection
     void showInfo(void);
+    void accumulatePointInfo(const QPointF &);
     void showPoint(const QPointF &);
     void showPoints(const QPolygon &);
+    void showMetricDetails(void);
 
     struct {
 	Tab *tab;
@@ -168,6 +180,7 @@ private:
 
 	ChartEngine *engine;
 	ChartPicker *picker;
+	MetricDetailsWindow *metricDetailsWindow;
     } my;
 
     friend class TracingEngine;
@@ -295,6 +308,7 @@ public:
     QString name(void) const { return my.name; }
     QString label(void) const { return my.label; } // as displayed, expanded
     QString legend(void) const { return my.legend; } // no %i/%h/.. expansion
+    QString hostname(void) const;
     QString metricName(void) const { return my.metric->name(); }
     QString metricInstance(void) const
         { return my.metric->numInst() > 0 ? my.metric->instName(0) : QString::null; }
@@ -333,10 +347,22 @@ private:
     void expandLegendLabel(const QString &legend);
     void clearLegendLabel(void);
 
-    QString hostname(void) const;
     QString shortHostName(void) const;
     QString shortMetricName(void) const;
     QString shortInstName(void) const;
+};
+
+// A class used for customizingQTableWidgetItem
+class TableWidgetItem : public QTableWidgetItem
+{
+ public:
+    TableWidgetItem(const QString &text, int type = Type) 
+	: QTableWidgetItem(text, type) { initialize(); }
+    TableWidgetItem(int type = Type)
+	: QTableWidgetItem(type) { initialize(); }
+
+ private:
+    void initialize();
 };
 
 #endif	// CHART_H
