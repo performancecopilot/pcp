@@ -32,7 +32,12 @@ LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.
 LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.used_ids
 LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.swap_attempts
 LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.swap_successes
-
+LD_PRELOAD=$here/src/qa_shmctl_stat.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.key
+LD_PRELOAD=$here/src/qa_shmctl_stat.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.owner
+LD_PRELOAD=$here/src/qa_shmctl_stat.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.perms
+LD_PRELOAD=$here/src/qa_shmctl_stat.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.segsz
+LD_PRELOAD=$here/src/qa_shmctl_stat.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.nattch
+LD_PRELOAD=$here/src/qa_shmctl_stat.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.status
 # success, all done
 status=0
 exit

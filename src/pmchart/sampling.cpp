@@ -255,7 +255,7 @@ SamplingItem::setStroke(Chart::Style style, QColor color, bool antiAlias)
 void
 SamplingItem::clearCursor()
 {
-    // nothing to do here.
+    my.info.clear();
 }
 
 bool
@@ -265,20 +265,16 @@ SamplingItem::containsPoint(const QRectF &, int)
 }
 
 void
-SamplingItem::updateCursor(const QPointF &p, int)
+SamplingItem::updateCursor(const QPointF &, int index)
 {
-    QString title = my.chart->YAxisTitle();
+    // Use the point on our curve represented by the given data index.
+    GroupControl		*group = my.chart->tab()->group();
+    const QVector<double>	&timeData = group->timeAxisData();
+    Q_ASSERT(index < my.dataCount);
+    QPointF curvePoint( timeData[index], my.itemData[index]);
 
-    my.info.sprintf("[%.2f", (float)p.y());
-    if (title != QString::null) {
-	my.info.append(" ");
-	my.info.append(title);
-    }
-    my.info.append(" at ");
-    my.info.append(timeHiResString(p.x()));
-    my.info.append("]");
-
-    pmchart->setValueText(my.info);
+    // Now get the point info.
+    my.info = my.chart->pointValueText(curvePoint);
 }
 
 const QString &

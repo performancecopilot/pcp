@@ -44,6 +44,7 @@
 [\f3\-t\f1 \f2interval\f1]
 [\f3\-T\f1 \f2endtime\f1]
 [\f3\-w\f1 \f2width\f1]
+[\f3\-X\f1 \f2label\f1]
 [\f3\-y\f1 \f2time-scale\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 \f2metricspec [...]\f1
@@ -344,9 +345,9 @@ method which is mostly the same as that described in
 An empty
 .I format
 string (i.e., '') will remove the timestamps from the output.
-The default with stdout is
+The default with \fIstdout\fR is
 .BR %H:%M:%S .
-The default with csv is
+The default with \fIcsv\fR is
 .BR "%Y-%m-%d %H:%M:%S" .
 .TP
 .B \-F
@@ -636,7 +637,7 @@ Omit unit information from of headers.
 Display version number and exit.
 .TP
 .B \-w
-Set the stdout output column
+Set the \fIstdout\fR output column
 .IR width .
 Strings will be truncated to this width.
 The default
@@ -648,6 +649,16 @@ override possible per-metric specifications.
 .TP
 .B \-x
 Print extended header.
+.TP
+.B \-X
+Swap columns and rows in \fIstdout\fR output, reporting one instance per
+line, using \fIlabel\fR as the label for instance column (set to an empty
+string \fB""\fR to enable swapping without a specific label).
+This is convenient to allow easily using
+.BR grep (1)
+to filter results or to more closely mimic other utilities.
+See also
+.BR -i .
 .TP
 .B \-y
 .I Unit/scale

@@ -1510,6 +1510,12 @@ See also the kernel.uname.* metrics
 @ ipc.shm.used_ids number of currently existing segments (from shmctl(..,SHM_INFO,..))
 @ ipc.shm.swap_attempts number of swap attempts (from shmctl(..,SHM_INFO,..))
 @ ipc.shm.swap_successes number of swap successes (from shmctl(..,SHM_INFO,..))
+@ ipc.shm.key Key supplied to shmget (from shmctl(.., SHM_STAT, ..))
+@ ipc.shm.owner share memory segment owner (rom shmctl(.., SHM_STAT, ..))
+@ ipc.shm.perms operation perms (from shmctl(.., SHM_STAT, ..))
+@ ipc.shm.segsz size of segment (bytes) (from shmctl(.., SHM_STAT, ..))
+@ ipc.shm.nattch no. of current attaches (from shmctl(.., SHM_STAT, ..))
+@ ipc.shm.status share memory segment status (from shmctl(.., SHM_STAT, ..))
 
 @ vfs.files.count number of in-use file structures
 @ vfs.files.free number of available file structures

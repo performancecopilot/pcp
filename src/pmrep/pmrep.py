@@ -82,6 +82,7 @@ OUTTIME = "%H:%M:%S"
 ZBXPORT = 10051
 ZBXPRFX = "pcp."
 NO_VAL  = "N/A"
+NO_INST = "~"
 TRUNC   = "xxx"
 VERSION = 1
 
@@ -174,7 +175,7 @@ class PMReporter(object):
                      'extheader', 'repeat_header', 'timefmt', 'interpol',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'zabbix_server', 'zabbix_port', 'zabbix_host', 'zabbix_interval',
-                     'speclocal', 'instances')
+                     'speclocal', 'instances', 'colxrow')
 
         # Special command line switches
         self.arghelp = ('-?', '--help', '-V', '--version')
@@ -206,6 +207,7 @@ class PMReporter(object):
         self.delay = 0
         self.type = 0
         self.instances = []
+        self.colxrow = None
         self.width = 0
         self.precision = 3 # .3f
         self.delimiter = None
@@ -246,7 +248,7 @@ class PMReporter(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdri:w:P:l:xE:f:uq:b:y:")
+        opts.pmSetShortOptions("a:h:LK:c:Co:F:e:D:V?HUGpA:S:T:O:s:t:Z:zdri:X:w:P:l:xE:f:uq:b:y:")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -281,6 +283,7 @@ class PMReporter(object):
         opts.pmSetLongOption("delay", 0, "d", "", "delay, pause between updates for archive replay")
         opts.pmSetLongOption("raw", 0, "r", "", "output raw counter values (no rate conversion)")
         opts.pmSetLongOption("instances", 1, "i", "STR", "instances to report (default: all current)")
+        opts.pmSetLongOption("colxrow", 1, "X", "STR", "swap stdout columns and rows using header label")
         opts.pmSetLongOption("width", 1, "w", "N", "default column width")
         opts.pmSetLongOption("precision", 1, "P", "N", "N digits after the decimal separator (if width enough)")
         opts.pmSetLongOption("delimiter", 1, "l", "STR", "delimiter to separate csv/stdout columns")
@@ -347,6 +350,8 @@ class PMReporter(object):
             self.type = 1
         elif opt == 'i':
             self.instances = self.instances + self.parse_instances(optarg)
+        elif opt == 'X':
+            self.colxrow = optarg
         elif opt == 'w':
             self.width = int(optarg)
         elif opt == 'P':
@@ -1036,6 +1041,13 @@ class PMReporter(object):
 
     def prepare_stdout(self):
         """ Prepare stdout output """
+        if self.colxrow is None:
+            self.prepare_stdout_std()
+        else:
+            self.prepare_stdout_colxrow()
+
+    def prepare_stdout_std(self):
+        """ Prepare standard formatted stdout output """
         index = 0
         if self.timestamp == 0:
             #self.format = "{:}{}"
@@ -1057,6 +1069,40 @@ class PMReporter(object):
                 self.format += "{" + str(index) + "}"
                 index += 1
         #self.format = self.format[:-2]
+        l = len(str(index-1)) + 2
+        self.format = self.format[:-l]
+
+    def prepare_stdout_colxrow(self):
+        """ Prepare columns and rows swapped stdout output """
+        index = 0
+
+        # Timestamp
+        if self.timestamp == 0:
+            self.format = "{0:}{1}"
+            index += 2
+        else:
+            tstamp = datetime.fromtimestamp(time.time()).strftime(self.timefmt)
+            self.format = "{0:<" + str(len(tstamp)) + "." + str(len(tstamp)) + "}{1}"
+            index += 2
+
+        # Instance name
+        if self.colxrow:
+            self.format += "{2:<" + str(len(self.colxrow)) + "." + str(len(self.colxrow)) + "}{3}"
+        else:
+            self.format += "{2:<" + str(8) + "." + str(8) + "}{3}"
+        index += 2
+
+        # Metrics
+        for i, metric in enumerate(self.metrics):
+            l = str(self.metrics[metric][4])
+            # Value truncated and aligned
+            self.format += "{" + str(index) + ":>" + l + "." + l + "}"
+            index += 1
+            # Dummy
+            self.format += "{" + str(index) + "}"
+            index += 1
+
+        # Drop the last dummy
         l = len(str(index-1)) + 2
         self.format = self.format[:-l]
 
@@ -1145,8 +1191,17 @@ class PMReporter(object):
             names = ["", self.delimiter] # no timestamp on header line
             insts = ["", self.delimiter] # no timestamp on instances line
             units = ["", self.delimiter] # no timestamp on units line
+            if self.colxrow is not None:
+                names += [self.colxrow, self.delimiter]
+                units += ["", self.delimiter]
             prnti = 0
             for i, metric in enumerate(self.metrics):
+                if self.colxrow is not None:
+                    names.append(self.metrics[metric][0])
+                    names.append(self.delimiter)
+                    units.append(self.metrics[metric][2][0])
+                    units.append(self.delimiter)
+                    continue
                 prnti = 1 if self.insts[i][0][0] != PM_IN_NULL else prnti
                 for j in range(len(self.insts[i][0])):
                     names.append(self.metrics[metric][0])
@@ -1290,6 +1345,13 @@ class PMReporter(object):
 
     def write_stdout(self, timestamp):
         """ Write a line to stdout """
+        if self.colxrow is None:
+            self.write_stdout_std(timestamp)
+        else:
+            self.write_stdout_colxrow(timestamp)
+
+    def write_stdout_std(self, timestamp):
+        """ Write a line to standard formatted stdout """
         if timestamp == None:
             # Silent goodbye
             return
@@ -1372,6 +1434,126 @@ class PMReporter(object):
         l = len(str(index-1)) + 2
         nfmt = nfmt[:-l]
         self.writer.write(nfmt.format(*tuple(line)) + "\n")
+
+    def write_stdout_colxrow(self, timestamp):
+        """ Write a line to columns and rows swapped stdout """
+        if timestamp == None:
+            # Silent goodbye
+            return
+
+        # Collect the instances in play
+        insts = []
+        for i in range(len(self.metrics)):
+            for instance in self.insts[i][1]:
+                if instance not in insts:
+                    insts.append(instance)
+
+        # Avoid crossing the C/Python boundary more than once per metric
+        res = OrderedDict()
+        for i, metric in enumerate(self.metrics):
+            res[metric] = []
+            try:
+                for inst, name, val in self.metrics[metric][5]():
+                    try:
+                        res[metric].append([inst, name, val()])
+                    except:
+                        res[metric].append([inst, name, NO_VAL])
+                if not res[metric]:
+                    res[metric].append(['', '', NO_VAL])
+            except:
+                res[metric].append(['', '', NO_VAL])
+
+        # Avoid per-line I/O
+        output = ""
+
+        # Painfully iterate over what we have, the logic below
+        # being that we need to construct each line independently
+        for instance in insts:
+            # Split on dummies
+            fmt = re.split("{\\d+}", self.format)
+
+            # Start a new line
+            k = 0
+            line = []
+
+            # Add timestamp as wanted
+            if self.timestamp == 0:
+                line.append("")
+            else:
+                line.append(timestamp)
+            line.append(self.delimiter)
+            k += 1
+
+            # Add instance
+            line.append(instance)
+            line.append(self.delimiter)
+            k += 1
+
+            # Look for this instance from each metric
+            for metric in self.metrics:
+                l = self.metrics[metric][4]
+
+                found = 0
+                value = NO_VAL
+                for inst in res[metric]:
+                    if inst[1] == instance:
+                        # This metric has the instance we're
+                        # processing, grab it and format below
+                        value = inst[2]
+                        found = 1
+                        break
+
+                if not found:
+                        # Not an instance this metric has,
+                        # add a placeholder and move on
+                        line.append(NO_INST)
+                        line.append(self.delimiter)
+                        k += 1
+                        continue
+
+                # Make sure the value fits
+                if type(value) is int or type(value) is long:
+                    if len(str(value)) > l:
+                        value = TRUNC
+                    else:
+                        fmt[k] = "{X:" + str(l) + "d}"
+
+                if type(value) is float and not math.isinf(value):
+                    c = self.precision
+                    s = len(str(int(value)))
+                    if s > l:
+                        c = -1
+                        value = TRUNC
+                    for f in reversed(range(c+1)):
+                        r = "{X:" + str(l) + "." + str(c) + "f}"
+                        t = "{0:" + str(l) + "." + str(c) + "f}"
+                        if len(t.format(value)) > l:
+                            c -= 1
+                        else:
+                            fmt[k] = r
+                            break
+
+                # Finally add the value
+                line.append(value)
+                line.append(self.delimiter)
+                k += 1
+
+            # Print the line in a Python 2.6 compatible manner
+            del line[-1]
+            index = 0
+            nfmt = ""
+            for f in fmt:
+                if type(line[index]) is float and math.isinf(line[index]):
+                    line[index] = "inf"
+                nfmt += f.replace("{X:", "{" + str(index) + ":")
+                index += 1
+                nfmt += "{" + str(index) + "}"
+                index += 1
+            l = len(str(index-1)) + 2
+            nfmt = nfmt[:-l]
+            output += nfmt.format(*tuple(line)) + "\n"
+
+        self.writer.write(output)
 
     def write_zabbix(self, timestamp):
         """ Write (send) metrics to a Zabbix server """

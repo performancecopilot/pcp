@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Red Hat.
+ * Copyright (C) 2015-2016 Red Hat.
  * Copyright (C) 2002 International Business Machines Corp.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -12,6 +12,19 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
+#define SHM_DEST	01000	/* segment will be destroyed on last detach */
+#define SHM_LOCKED	02000	/* segment will not be swapped */
+
+/*
+ *  * X/OPEN (Jan 1987) does not define fields key, seq in struct ipc_perm;                            
+ *   *      glibc-1.09 has no support for sysv ipc.                                                     
+ *    *      glibc 2 uses __key, __seq
+ *     */
+#if defined (__GLIBC__) && __GLIBC__ >= 2
+# define KEY __key                                                                 
+#else
+# define KEY key
+#endif
 
 typedef struct {
     unsigned int shm_tot; /* total allocated shm */
@@ -94,3 +107,16 @@ typedef struct {
 
 extern int refresh_msg_limits(msg_limits_t *);
 
+#define SHM_KEYLEN	16
+#define SHM_OWNERLEN	128
+
+typedef struct {
+        char                shm_key[SHM_KEYLEN]; /* name of this shm slot */
+        char                shm_owner[SHM_OWNERLEN]; /* username of owner */
+        unsigned int        shm_perms;		/* access permissions */
+        unsigned int        shm_bytes;		/* segment size in bytes */
+        unsigned int        shm_nattch;		/* no. of current attaches */
+        char                *shm_status;	/* descriptive status */
+} shm_stat_t;
+
+extern int refresh_shm_stat(pmInDom shm_indom);

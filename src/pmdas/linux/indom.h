@@ -46,6 +46,7 @@ enum {
 	MD_INDOM,		/* 25 - multi-device devices */
 	INTERRUPT_NAMES_INDOM,	/* 26 - persistent percpu interrupts IDs */
 	SOFTIRQS_NAMES_INDOM,	/* 27 - persistent percpu softirqs IDs */
+	IPC_STAT_INDOM,	        /* 28 - ipc shm_stat shmid */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

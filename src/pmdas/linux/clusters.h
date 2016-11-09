@@ -84,6 +84,7 @@ enum {
 	CLUSTER_SEM_INFO,	/* 61 shmctl(SEM_INFO) system call */
 	CLUSTER_MSG_INFO,	/* 62 msgctl(MSG_INFO) system call */
 	CLUSTER_SOFTIRQS,	/* 63 /proc/softirqs percpu counters */
+	CLUSTER_SHM_STAT,	/* 64 shmctl(SHM_STAT) system call */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

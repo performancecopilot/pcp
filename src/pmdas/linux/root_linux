@@ -243,6 +243,12 @@ ipc.shm {
     used_ids		60:56:3
     swap_attempts	60:56:4
     swap_successes	60:56:5
+    key 		60:64:0
+    owner 		60:64:1
+    perms 		60:64:2
+    segsz 		60:64:3
+    nattch 		60:64:4
+    status 		60:64:5
 }
 
 pmda {
