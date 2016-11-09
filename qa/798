@@ -97,6 +97,61 @@ fetch nfsclient.options.vers
 instance $domain.0
 End-of-File
 
+# create a set of commands for dbpmda and nfsv4.2
+cat >$tmp.42cmds <<EOF
+open pipe /usr/bin/env perl $script
+getdesc on
+desc nfsclient.nfsv4
+desc nfsclient.ops.seek.ops
+desc nfsclient.ops.seek.ntrans
+desc nfsclient.ops.seek.timeouts
+desc nfsclient.ops.seek.bytes_sent
+desc nfsclient.ops.seek.bytes_recv
+desc nfsclient.ops.seek.queue
+desc nfsclient.ops.seek.rtt
+desc nfsclient.ops.seek.execute
+desc nfsclient.ops.allocate.ops
+desc nfsclient.ops.allocate.ntrans
+desc nfsclient.ops.allocate.timeouts
+desc nfsclient.ops.allocate.bytes_sent
+desc nfsclient.ops.allocate.bytes_recv
+desc nfsclient.ops.allocate.queue
+desc nfsclient.ops.allocate.rtt
+desc nfsclient.ops.allocate.execute
+desc nfsclient.ops.deallocate.ops
+desc nfsclient.ops.deallocate.ntrans
+desc nfsclient.ops.deallocate.timeouts
+desc nfsclient.ops.deallocate.bytes_sent
+desc nfsclient.ops.deallocate.bytes_recv
+desc nfsclient.ops.deallocate.queue
+desc nfsclient.ops.deallocate.rtt
+desc nfsclient.ops.deallocate.execute
+fetch nfsclient.nfsv4
+fetch nfsclient.ops.seek.ops
+fetch nfsclient.ops.seek.ntrans
+fetch nfsclient.ops.seek.timeouts
+fetch nfsclient.ops.seek.bytes_sent
+fetch nfsclient.ops.seek.bytes_recv
+fetch nfsclient.ops.seek.queue
+fetch nfsclient.ops.seek.rtt
+fetch nfsclient.ops.seek.execute
+fetch nfsclient.ops.allocate.ops
+fetch nfsclient.ops.allocate.ntrans
+fetch nfsclient.ops.allocate.timeouts
+fetch nfsclient.ops.allocate.bytes_sent
+fetch nfsclient.ops.allocate.bytes_recv
+fetch nfsclient.ops.allocate.queue
+fetch nfsclient.ops.allocate.rtt
+fetch nfsclient.ops.allocate.execute
+fetch nfsclient.ops.deallocate.ops
+fetch nfsclient.ops.deallocate.ntrans
+fetch nfsclient.ops.deallocate.timeouts
+fetch nfsclient.ops.deallocate.bytes_sent
+fetch nfsclient.ops.deallocate.bytes_recv
+fetch nfsclient.ops.deallocate.queue
+fetch nfsclient.ops.deallocate.rtt
+fetch nfsclient.ops.deallocate.execute
+EOF
 # iterate over our pre-canned mountstats files
 test="$here/nfsclient"
 for file in $test/*.qa
@@ -104,7 +159,17 @@ do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log
-    $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.cmds 2>&1 | _filter | _filter_indom
+    $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.cmds 2>&1 #| _filter | _filter_indom
+    _filter_pmda_log < nfsclient.log
+done
+
+# iterate over pre-canned nfsv4.2 mountstat files
+for file in $test/*42.qa
+do
+    export NFSCLIENT_MOUNTSTATS_PATH="$file"
+    echo === Test case: `basename $file`
+    $sudo rm -f nfsclient.log
+    $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.42cmds 2>&1 | _filter | _filter_indom
     _filter_pmda_log < nfsclient.log
 done
 
