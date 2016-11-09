@@ -3796,7 +3796,7 @@ static pmdaMetric metrictab[] = {
 /* ipc.shm.segsz */
   { NULL,
     { PMDA_PMID(CLUSTER_SHM_STAT,3), PM_TYPE_U32, IPC_STAT_INDOM, PM_SEM_DISCRETE, 
-    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
 /* ipc.shm.nattch */
   { NULL,
