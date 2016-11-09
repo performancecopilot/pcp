@@ -540,16 +540,20 @@ OpenRequestSocket(int port, const char *address, int *family,
 	sts = __pmBind(fd, (void *)myAddr, __pmSockAddrSize());
 	if (sts >= 0)
 	    break;
-	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmBind try %d: %s\n",
+#ifdef PCP_DEBUG
+	if (pmDebug & DBG_TRACE_DESPERATE)
+	    fprintf(stderr, "OpenRequestSocket(%d, %s, %s) __pmBind try %d: %s\n",
 		port, address, AddressFamily(*family), try+1, netstrerror());
+#endif
 	__pmtimevalSleep(tick);
 	try++;
     }
     __pmSockAddrFree(myAddr);
     myAddr = NULL;
     if (sts < 0) {
-	sts = neterror();
-	if (sts == EADDRINUSE)
+	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmBind: %s\n",
+		port, address, AddressFamily(*family), netstrerror());
+	if (neterror() == EADDRINUSE)
 	    __pmNotifyErr(LOG_ERR, "%s may already be running\n", pmProgname);
 	goto fail;
     }

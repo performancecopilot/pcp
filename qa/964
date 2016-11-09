@@ -37,6 +37,7 @@ _cleanup()
 	_restore_pmda_install xfs
 	$sudo $PCP_RC_DIR/pmcd restart | _filter_pcp_start
 	_wait_for_pmcd
+	_wait_for_pmlogger
 	_needclean=false
     fi
     $sudo rm -f $tmp.*

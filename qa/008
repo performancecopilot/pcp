@@ -28,10 +28,10 @@ rm -f $seq.out
 case $host
 in
     bozo)
-    	# sdc comes and goes
-	if pmprobe -I disk.dev.total | grep sdc >/dev/null
+    	# (CD drive) sdf comes and goes
+	if pmprobe -I disk.dev.total | grep sdf >/dev/null
 	then
-	    ln $seq.out.bozo+sdc $seq.out
+	    ln $seq.out.bozo+cd $seq.out
 	else
 	    ln $seq.out.bozo $seq.out
 	fi

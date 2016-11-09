@@ -417,6 +417,11 @@ rm -f *.out.bad
 echo "Info: QA $check_what starting"
 ./check -l $check_what >>\$HOME/daily.log 2>&1
 sts=\$?
+# look for badness in daily.log and report here (so it goes into any
+# cron-based email)
+awk <\$HOME/daily.log '
+\$1 == "Aborted!"	{ print }
+\$1 == "Check!"		{ print }'
 # get last block from check.log ... then get the summary on
 # stdout (not needed in the daily.log, already there)
 sed -e '/^    [0-9 ]*\$/d' <check.log \
@@ -429,8 +434,6 @@ END	{ print txt }' \
 | awk '
 \$1 == "Failures:"	{ want = 1 }
 \$1 == "Passed"		{ want = 1 }
-\$1 == "Aborted!"	{ want = 1 }
-\$1 == "Check!"		{ want = 1 }
 want == 1		{ print }'
 if [ "\$sts" = 0 ]
 then

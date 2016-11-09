@@ -96,7 +96,11 @@ echo
 echo "Trying to start another PMCD over the top of the first one."
 echo "Expect \"bind:  Address already in use\"...:"
 $PCP_PMCD_PROG -f -x err2 2>&1 | _filter_err &
-pmsleep 2.5
+
+# EADDRINUSE errors now have 4x250 msec delay while we retry before giving
+# up, and this happens once per socket type, so up to 3 times ... and then
+# wait a little longer ...
+pmsleep 3.5
 
 echo "Checking for startup errors ..."
 [ -f err2 ] && _filter_err <err2
