@@ -86,6 +86,8 @@ pmrep -T 7s -t 3 -p $log -c $tmp.config -x sample | _path_filter \
 | _archive_filter
 echo "---"
 pmrep -s 5 -t 2 $log -c $tmp.config -G -H -U sample
+pmrep -s 5 -t 2 $log2 -c $tmp.config -p -l '|' -X "" disk.dev.read disk.dev.write disk.dev.total network.interface.mtu mem.util.free kernel.all.load mem.util.used
+pmrep -s 5 -t 2 $log2 -c $tmp.config -p -l '|' -X "Instance name" disk.dev.read disk.dev.write disk.dev.total network.interface.mtu mem.util.free kernel.all.load mem.util.used
 
 echo "== exercise non-integer options"
 pmrep -T 2.5s -t 0.5 -p $log -c $tmp.config -x sample | _path_filter \

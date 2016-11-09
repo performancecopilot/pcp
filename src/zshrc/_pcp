@@ -440,6 +440,7 @@ _pcp () {
       "(-d --delay --container -h --host -L --local-PMDA -K --spec-local -u --no-interpol $exargs)"{-d,--delay}'[delay between updates in archive mode]' \
       "(-r --raw $exargs)"{-r,--raw}'[report raw values]' \
       "($exargs)"\*{-i+,--instances}'[specify instances to report]:instances:->instances' \
+      "(-X --colxrow $exargs)"{-X+,--colxrow}'[swap stdout columns and rows using header label]:label:' \
       "(-w --width $exargs)"{-w+,--width}'[set default column width]:width:' \
       "(-P --precision $exargs)"{-P+,--precision}'[set floating point precision]:precision:' \
       "(-l --delimiter $exargs)"{-l+,--delimiter}'[set column delimiter]:delimiter:' \

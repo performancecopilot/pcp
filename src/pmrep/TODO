@@ -1,5 +1,4 @@
 -  opt to write cols per row with stdout output [-k]
--  opt to swap cols and rows (e.g., compare ps vs sar)
 -  -Q/-B/-Y to override per-metric settings unit/scale
 -  shorten unit display count/s -> c/s if needed
 -  opt to output in short format (see pmdumptext -F / pmNumberStr) [-m/-M]
@@ -27,7 +26,7 @@
 -----
 
 In use / reserved cmd line options:
-AaBbcCdDeEfFGhHiKLloOpPqQrsStTuUVwxyYzZ
+AaBbCcDdEeFfGHhiKLlOoPpQqrSsTtUuVwXxYyZz
 
 Tentatively planned:
 IkMmR
