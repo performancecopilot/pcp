@@ -3790,7 +3790,7 @@ static pmdaMetric metrictab[] = {
 
 /* ipc.shm.perms */
   { NULL,
-    { PMDA_PMID(CLUSTER_SHM_STAT,2), PM_TYPE_U32, IPC_STAT_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_SHM_STAT,2), PM_TYPE_U32, IPC_STAT_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* ipc.shm.segsz */
@@ -3800,12 +3800,12 @@ static pmdaMetric metrictab[] = {
 
 /* ipc.shm.nattch */
   { NULL,
-    { PMDA_PMID(CLUSTER_SHM_STAT,4), PM_TYPE_U32, IPC_STAT_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_SHM_STAT,4), PM_TYPE_U32, IPC_STAT_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* ipc.shm.status */
   { NULL,
-    { PMDA_PMID(CLUSTER_SHM_STAT,5), PM_TYPE_STRING, IPC_STAT_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_SHM_STAT,5), PM_TYPE_STRING, IPC_STAT_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*

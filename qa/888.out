@@ -42,20 +42,20 @@ ipc.shm.owner
 
 ipc.shm.perms
     Data Type: 32-bit unsigned int  InDom: 60.28 0xf00001c
-    Semantics: discrete  Units: none
+    Semantics: instant  Units: none
     inst [0 or "0"] value 570
 
 ipc.shm.segsz
     Data Type: 32-bit unsigned int  InDom: 60.28 0xf00001c
-    Semantics: discrete  Units: none
+    Semantics: discrete  Units: byte
     inst [0 or "0"] value 666
 
 ipc.shm.nattch
     Data Type: 32-bit unsigned int  InDom: 60.28 0xf00001c
-    Semantics: discrete  Units: none
+    Semantics: instant  Units: none
     inst [0 or "0"] value 777
 
 ipc.shm.status
     Data Type: string  InDom: 60.28 0xf00001c
-    Semantics: discrete  Units: none
+    Semantics: instant  Units: none
     inst [0 or "0"] value "dest"

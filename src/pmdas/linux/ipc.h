@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Red Hat.
+ * Copyright (C) 2015-2016 Red Hat.
  * Copyright (C) 2002 International Business Machines Corp.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -107,13 +107,16 @@ typedef struct {
 
 extern int refresh_msg_limits(msg_limits_t *);
 
+#define SHM_KEYLEN	16
+#define SHM_OWNERLEN	128
+
 typedef struct {
-        char                shm_key[16];
-        char                shm_owner[128];
-        unsigned int        shm_perms;
-        unsigned int        shm_bytes;
-        unsigned int        shm_nattch;
-        char                *shm_status;
+        char                shm_key[SHM_KEYLEN]; /* name of this shm slot */
+        char                shm_owner[SHM_OWNERLEN]; /* username of owner */
+        unsigned int        shm_perms;		/* access permissions */
+        unsigned int        shm_bytes;		/* segment size in bytes */
+        unsigned int        shm_nattch;		/* no. of current attaches */
+        char                *shm_status;	/* descriptive status */
 } shm_stat_t;
 
 extern int refresh_shm_stat(pmInDom shm_indom);

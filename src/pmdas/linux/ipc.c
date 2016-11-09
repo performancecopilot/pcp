@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Red Hat.
+ * Copyright (c) 2015-2016 Red Hat.
  * Copyright (c) 2002 International Business Machines Corp.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -131,81 +131,71 @@ refresh_msg_limits(msg_limits_t *msg_limits)
 }
 
 int 
-refresh_shm_stat(pmInDom shm_indom){
+refresh_shm_stat(pmInDom shm_indom)
+{
     struct passwd *pw = NULL;
     char shmid[16]; 
-    char perms_temp[16];
+    char perms[16];
     int i = 0, maxid = 0;
     int sts = 0;
     shm_stat_t *shm_stat = NULL;
-
-    pmdaCacheOp(shm_indom, PMDA_CACHE_INACTIVE);
     struct shm_info dummy;
 
-    maxid = shmctl(0, SHM_INFO, (struct shmid_ds *) &dummy);
+    pmdaCacheOp(shm_indom, PMDA_CACHE_INACTIVE);
+    maxid = shmctl(0, SHM_INFO, (struct shmid_ds *)&dummy);
     if (maxid < 0)
-        return -1;
+	return -1;
  
     while (i <= maxid) {
-        int shmid_o;
-        struct shmid_ds shmseg;
-        struct ipc_perm *ipcp = &shmseg.shm_perm; 
-        shmid_o = shmctl(i, SHM_STAT, &shmseg);
-        if (shmid_o < 0) {
-            i++;
-            continue;
-        }
-	else {
-	    i ++;
-	}
+	int shmid_o;
+	struct shmid_ds shmseg;
+	struct ipc_perm *ipcp = &shmseg.shm_perm; 
 
-	sprintf(shmid, "%d", shmid_o);
-        sts = pmdaCacheLookupName(shm_indom, shmid, NULL, (void **)&shm_stat);
-
-        if (sts == PMDA_CACHE_ACTIVE){
+	if ((shmid_o = shmctl(i++, SHM_STAT, &shmseg)) < 0)
 	    continue;
-	}
-	if (sts == PMDA_CACHE_INACTIVE){
-            pmdaCacheStore(shm_indom, PMDA_CACHE_ADD, shmid, shm_stat);
+
+	snprintf(shmid, sizeof(shmid), "%d", shmid_o);
+	shmid[sizeof(shmid)-1] = '\0';
+	sts = pmdaCacheLookupName(shm_indom, shmid, NULL, (void **)&shm_stat);
+	if (sts == PMDA_CACHE_ACTIVE)
+	    continue;
+
+	if (sts == PMDA_CACHE_INACTIVE) {
+	    pmdaCacheStore(shm_indom, PMDA_CACHE_ADD, shmid, shm_stat);
 	}
 	else {
-	    if ((shm_stat =(shm_stat_t*)malloc(sizeof(shm_stat_t))) == NULL) {
-	        continue;
-            }
+	    if ((shm_stat = (shm_stat_t *)malloc(sizeof(shm_stat_t))) == NULL)
+		continue;
 	    memset(shm_stat, 0, sizeof(shm_stat_t));
 
-	    sprintf(shm_stat->shm_key, "0x%08x", ipcp->KEY); 
-            pw = getpwuid(ipcp->uid);
-            if(pw){
-                strcpy(shm_stat->shm_owner, pw->pw_name);
-            } 
-            else
-            {
-                strcpy(shm_stat->shm_owner, ipcp->uid);
-            }  
-            /* convert to octal number */
-            sprintf(perms_temp, "%o", ipcp->mode & 0777);
-            shm_stat->shm_perms      = atoi(perms_temp);
-            shm_stat->shm_bytes      = shmseg.shm_segsz;
-            shm_stat->shm_nattch     = shmseg.shm_nattch;
-            if(ipcp->mode & SHM_DEST){
-                shm_stat->shm_status = "dest";
-            }
-            else if(ipcp->mode & SHM_LOCKED){
-                shm_stat->shm_status = "locked";
-            }
-            else{
-                shm_stat->shm_status = " ";
-            }  
-            sts = pmdaCacheStore(shm_indom, PMDA_CACHE_ADD, shmid, (void *)shm_stat);
-            if (sts < 0) {
-                fprintf(stderr, "Warning: refresh_shm_stat: pmdaCacheOp(%s, ADD, \"%s\", (%s)): %s\n",
-                pmInDomStr(shm_indom), shmid, shm_stat->shm_key, pmErrStr(sts));
-                free(shm_stat->shm_key);
-                free(shm_stat->shm_owner);
-                free(shm_stat->shm_status);
-                free(shm_stat);
-           }	
+	    snprintf(shm_stat->shm_key, SHM_KEYLEN, "0x%08x", ipcp->KEY); 
+	    shm_stat->shm_key[SHM_KEYLEN-1] = '\0';
+	    if ((pw = getpwuid(ipcp->uid)) != NULL)
+		strncpy(shm_stat->shm_owner, pw->pw_name, SHM_OWNERLEN);
+	    else
+		snprintf(shm_stat->shm_owner, SHM_OWNERLEN, "%d", ipcp->uid);
+	    shm_stat->shm_owner[SHM_OWNERLEN-1] = '\0';
+	    /* convert to octal number */
+	    snprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
+	    perms[sizeof(perms)-1] = '\0';
+	    shm_stat->shm_perms      = atoi(perms);
+	    shm_stat->shm_bytes      = shmseg.shm_segsz;
+	    shm_stat->shm_nattch     = shmseg.shm_nattch;
+	    if ((ipcp->mode & SHM_DEST))
+		shm_stat->shm_status = "dest";
+	    else if ((ipcp->mode & SHM_LOCKED))
+		shm_stat->shm_status = "locked";
+	    else
+		shm_stat->shm_status = " ";
+	    sts = pmdaCacheStore(shm_indom, PMDA_CACHE_ADD, shmid, (void *)shm_stat);
+	    if (sts < 0) {
+		fprintf(stderr, "Warning: %s: pmdaCacheStore(%s, %s): %s\n",
+			__FUNCTION__, shmid, shm_stat->shm_key, pmErrStr(sts));
+		free(shm_stat->shm_key);
+		free(shm_stat->shm_owner);
+		free(shm_stat->shm_status);
+		free(shm_stat);
+	    }	
 	}
     }
     pmdaCacheOp(shm_indom, PMDA_CACHE_SAVE);
