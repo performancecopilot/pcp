@@ -44,8 +44,9 @@
  * We attempt to auto-detect the Zabbix agent version to deal
  * with ABI/ABI breakage at the Zabbix v2/v3 boundary.
  */
-#define ZBX_COMPAT_VERSION	2
-#define ZBX_RECENT_VERSION	3
+#define ZBX_VERSION2		2.0
+#define ZBX_VERSION3		3.0
+#define ZBX_VERSION3_2		3.2
 
 /* PCP includes.  */
 #include "pmapi.h"
@@ -57,7 +58,7 @@
 /* Zabbix includes.  */
 #include "module.h"
 
-static int zbx_version;
+static float zbx_version = ZBX_VERSION2;
 
 /*
  * PCP connection
@@ -79,26 +80,26 @@ static int zbx_module_pcp_disconnect()
     return pmDestroyContext(ctx);
 }
 
-static int zbx_get_version()
+static void zbx_get_version()
 {
-    int version = ZBX_COMPAT_VERSION;
 #if defined(HAVE_DLOPEN)
     void *handle = dlopen(NULL, RTLD_NOW);
 
     if (!handle) {
-        fprintf(stderr, "dlopen failed, assuming zabbix-agent version=%d\n",
-                version);
-        return version;
+        fprintf(stderr, "dlopen failed, assuming zabbix-agent version=%.1f\n",
+                zbx_version);
+        return;
     }
-    /* lookup a symbol that should exist in all new versions, but not old */
-    if (dlsym(handle, "zbx_user_macro_parse") != NULL)
-        version = ZBX_RECENT_VERSION;
+    /* lookup symbol that should exist in new versions, but not old versions */
+    if (dlsym(handle, "history_log_cbs") != NULL)
+        zbx_version = ZBX_VERSION3_2;
+    else if (dlsym(handle, "zbx_user_macro_parse") != NULL)
+        zbx_version = ZBX_VERSION3;
     dlclose(handle);
 #else
-    fprintf(stderr, "dlopen unsupported, assuming zabbix-agent version=%d\n",
-                version);
+    fprintf(stderr, "dlopen unsupported, assuming zabbix-agent version=%.1f\n",
+                zbx_version);
 #endif
-    return version;
 }
 
 /*
@@ -106,7 +107,6 @@ static int zbx_get_version()
  */
 int zbx_module_init()
 {
-    zbx_version = zbx_get_version();
     if (zbx_module_pcp_connect() < 0)
         return ZBX_MODULE_FAIL;
     return ZBX_MODULE_OK;
@@ -114,6 +114,9 @@ int zbx_module_init()
 
 int zbx_module_api_version()
 {
+    zbx_get_version();
+    if (zbx_version >= ZBX_VERSION3_2)
+        return ZBX_MODULE_API_VERSION_TWO;
     return ZBX_MODULE_API_VERSION_ONE;
 }
 
@@ -199,7 +202,7 @@ static void zbx_module_pcp_add_metric(const char *name)
     if (metrics == NULL) { metrics = mptr; free(metric); free(param); return; }
     metrics[metric_count].key = metric;
     metrics[metric_count].flags = flags;
-    if (zbx_version == ZBX_RECENT_VERSION)
+    if (zbx_version >= ZBX_VERSION3)
 	metrics[metric_count].function = zbx_module3_pcp_fetch_metric;
     else
 	metrics[metric_count].function = zbx_module2_pcp_fetch_metric;

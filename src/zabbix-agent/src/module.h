@@ -22,6 +22,7 @@ typedef __uint64_t zbx_uint64_t;
 #define ZBX_MODULE_FAIL	-1
 
 #define ZBX_MODULE_API_VERSION_ONE	1
+#define ZBX_MODULE_API_VERSION_TWO	2
 
 #define get_rkey(request)		(request)->key
 #define get_rparams_num(request)	(request)->nparam
