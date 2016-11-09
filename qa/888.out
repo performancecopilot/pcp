@@ -29,3 +29,33 @@ ipc.shm.swap_successes
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
     value 3
+
+ipc.shm.key
+    Data Type: string  InDom: 60.28 0xf00001c
+    Semantics: discrete  Units: none
+    inst [0 or "0"] value "0x00000457"
+
+ipc.shm.owner
+    Data Type: string  InDom: 60.28 0xf00001c
+    Semantics: discrete  Units: none
+    inst [0 or "0"] value "root"
+
+ipc.shm.perms
+    Data Type: 32-bit unsigned int  InDom: 60.28 0xf00001c
+    Semantics: discrete  Units: none
+    inst [0 or "0"] value 570
+
+ipc.shm.segsz
+    Data Type: 32-bit unsigned int  InDom: 60.28 0xf00001c
+    Semantics: discrete  Units: none
+    inst [0 or "0"] value 666
+
+ipc.shm.nattch
+    Data Type: 32-bit unsigned int  InDom: 60.28 0xf00001c
+    Semantics: discrete  Units: none
+    inst [0 or "0"] value 777
+
+ipc.shm.status
+    Data Type: string  InDom: 60.28 0xf00001c
+    Semantics: discrete  Units: none
+    inst [0 or "0"] value "dest"

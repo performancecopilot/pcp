@@ -312,6 +312,7 @@ static pmdaIndom indomtab[] = {
     { MD_INDOM, 0, NULL }, /* cached */
     { INTERRUPT_NAMES_INDOM, 0, NULL },
     { SOFTIRQS_NAMES_INDOM, 0, NULL },
+    { IPC_STAT_INDOM, 0, NULL },
 };
 
 
@@ -3773,6 +3774,41 @@ static pmdaMetric metrictab[] = {
     PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 /*
+ * shared memory stat cluster
+ * Cluster added by wu liming <wulm.fnst@cn.fujitsu.com>
+ */
+
+/* ipc.shm.key */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_STAT,0), PM_TYPE_STRING, IPC_STAT_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* ipc.shm.owner */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_STAT,1), PM_TYPE_STRING, IPC_STAT_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* ipc.shm.perms */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_STAT,2), PM_TYPE_U32, IPC_STAT_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* ipc.shm.segsz */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_STAT,3), PM_TYPE_U32, IPC_STAT_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* ipc.shm.nattch */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_STAT,4), PM_TYPE_U32, IPC_STAT_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* ipc.shm.status */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SHM_STAT,5), PM_TYPE_STRING, IPC_STAT_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/*
  * number of users cluster
  */
 
@@ -4787,6 +4823,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_NET_SOFTNET])
 	refresh_proc_net_softnet(&proc_net_softnet);
 
+    if (need_refresh[CLUSTER_SHM_STAT])
+	refresh_shm_stat(INDOM(IPC_STAT_INDOM));
+
 done:
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
@@ -4849,6 +4888,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	break;
     case ICMPMSG_INDOM:
 	need_refresh[CLUSTER_NET_SNMP]++;
+	break;
+    case IPC_STAT_INDOM:
+	need_refresh[CLUSTER_SHM_STAT]++;
 	break;
     /* no default label : pmdaInstance will pick up errors */
     }
@@ -6129,6 +6171,43 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
+    /*
+     * Cluster added by Wu Liming <wulm.fnst@cn.fujitsu.com>
+     */
+    case CLUSTER_SHM_STAT: {
+	
+        shm_stat_t *shm_stat;
+
+	sts = pmdaCacheLookup(INDOM(IPC_STAT_INDOM), inst, NULL, (void **)&shm_stat);
+	if (sts < 0)
+	    return sts;
+	if (sts != PMDA_CACHE_ACTIVE)
+	    return PM_ERR_INST;
+	switch (idp->item) {
+	case 0:	/* ipc.shm.key */
+	    atom->cp = (char *)shm_stat->shm_key;
+	    break;
+	case 1:	/* ipc.shm.owner */
+	    atom->cp = (char *)shm_stat->shm_owner;
+	    break;
+	case 2:	/* ipc.shm.perms */
+	    atom->ul = shm_stat->shm_perms;
+	    break;
+	case 3:	/* ipc.shm.segsz */
+	    atom->ul = shm_stat->shm_bytes;
+	    break;
+	case 4:	/* ipc.shm.nattch */
+	    atom->ul = shm_stat->shm_nattch;
+	    break;
+	case 5:	/* ipc.shm.status */
+	    atom->cp = (char *)shm_stat->shm_status;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+     }
+     
     /*
      * Cluster added by Mike Mason <mmlnx@us.ibm.com>
      */
