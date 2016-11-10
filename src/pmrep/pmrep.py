@@ -1484,8 +1484,8 @@ class PMReporter(object):
             line.append(self.delimiter)
             k += 1
 
-            # Add instance
-            line.append(instance)
+            # Add instance (may be None for singular indoms)
+            line.append(str(instance))
             line.append(self.delimiter)
             k += 1
 
