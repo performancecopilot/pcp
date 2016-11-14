@@ -297,7 +297,7 @@ dbpmda> desc nfsclient.ops.deallocate.execute
 PMID: 62.8.488
     Data Type: 64-bit unsigned int  InDom: 62.0 0xf800000
     Semantics: counter  Units: millisec
-dbpmda> fetch nfsclient.nfsv4                    
+dbpmda> fetch nfsclient.nfsv4
 PMID(s): 62.3.2
 pmResult ... numpmid: 1
   62.3.2 (<noname>): numval: 1 valfmt: 1 vlist[]:

@@ -159,7 +159,7 @@ do
     export NFSCLIENT_MOUNTSTATS_PATH="$file"
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log
-    $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.cmds 2>&1 #| _filter | _filter_indom
+    $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.cmds 2>&1 | _filter | _filter_indom
     _filter_pmda_log < nfsclient.log
 done
 
