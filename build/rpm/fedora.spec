@@ -2705,7 +2705,10 @@ cd
 
 %changelog
 * Fri Nov 11 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.6-1
-- Work in progress, see http://pcp.io/roadmap
+- Optimize DSO lookups for local context mode startup (BZ 1275293)
+- Correct return code for derive metric help text (BZ 1336208)
+- Improve pmrep metrics collection via extend_indom (BZ 1377464)
+- Fix network.interface.speed value extraction (BZ 1379431)
 
 * Mon Sep 26 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.5-1
 - Allow systemd-based auto-restart of all daemons (BZ 1365658)

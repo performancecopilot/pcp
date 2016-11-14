@@ -1,5 +1,42 @@
 pcp-3.11.6 (11 November 2016)
-    - Work in progress, see http://pcp.io/roadmap
+    - pmchart, pmtime, pmdumptext: enable use of Qt5 toolchain
+    - pmchart, pmtime: switch to Qwt 6.1 for charts, widgets
+    - pmchart: display data values interactively (table popup)
+    - pmchart: fix signal blocking for the Qwt picker events
+    - pmdalibvirt: add per-device metrics
+    - pmdalibvirt: add support for new perf metrics
+    - pmdalibvirt: add new balloon statistics
+    - pmdalinux: add NFSv4.2 parameters to nfs4.* metric instances
+    - pmdalinux: additional shared memory segment metrics
+    - pmdalinux: fix network.interface.speed values
+    - pmdalinux: correctly classify NBD devices and partitions
+    - pmdalinux: fix units, semantics for some network.tcp metrics
+    - pmdapmcd: add pmcd.sighups metric to assist signal detection
+    - pmdapostgresql: no active and recovery metrics in 8.x series
+    - pmda scripts: deprecate "forced_restart" from Install scripts
+    - collectl2pcp: detect if input data in collectls "plot" format
+    - pmlogger: fix SIGINT handling problem
+    - pmlogger: allow default primary pmlogger interval to be set
+    - pmlogconf: suppress $PCP_DERIVED_CONFIG processing
+    - pmlogrewrite: fix small error in temporal index
+    - pmrep: add support for specifying instances
+    - pmrep: improve metrics collection via extend_indom
+    - pmrep: fixes and other improvements to CSV output
+    - pmrep: add -X "label" flag for instance-per-line output mode
+    - pmwebd: fix HTTP time zones in Date:/Last-Modified: headers
+    - python api: correct type of fetchgroup instance ids
+    - libpcp: correct logic in __pmHasPMNSFileChanged()
+    - libpcp: allow -EINTR to be returned from pduread()
+    - libpcp: correct return code for derive metric help text
+    - libpcp: optimise DSO lookups for local context mode startup
+    - libpcp_json: fix JSON data type conversion
+    - scripts: correct tempfile handling used throughout (SElinux)
+    - zabbix-agent: support zabbix 3.2.x and later, transparently
+    - bashrc: defend against unexpected bash completion input
+    - build: annotate PCP_RUN_DIR as %ghost in rpm packages
+    - build: fix a handful of Windows build issues
+    - build: revamp buildbot config and Dockerfile based builds
+    - docs: switch list name from pcp@oss.sgi.com to pcp@groups.io
 
 pcp-3.11.5 (26 September 2016)
     - pmdalibvirt: statistics from guest and hypervisor machines
