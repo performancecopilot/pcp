@@ -263,6 +263,9 @@ nfs4.client.reqs
     inst [50 or "getdevlist"] value 0
     inst [51 or "bind_ses"] value 0
     inst [52 or "destroy_clntid"] value 0
+    inst [53 or "seek"] value 0
+    inst [54 or "allocate"] value 0
+    inst [55 or "deallocate"] value 0
 
 nfs4.server.calls
     value 250
@@ -327,6 +330,18 @@ nfs4.server.reqs
     inst [57 or "want_deleg"] value 0
     inst [58 or "destroy_clid"] value 0
     inst [59 or "reclaim_comp"] value 99
+    inst [60 or "allocate"] value 0
+    inst [61 or "copy"] value 0
+    inst [62 or "copy_notify"] value 0
+    inst [63 or "deallocate"] value 0
+    inst [64 or "io_advise"] value 0
+    inst [65 or "layouterror"] value 0
+    inst [66 or "layoutstats"] value 0
+    inst [67 or "offload_cancel"] value 0
+    inst [68 or "offload_status"] value 0
+    inst [69 or "read_plus"] value 0
+    inst [70 or "seek"] value 0
+    inst [71 or "write_same"] value 0
 
 == done
 
@@ -594,6 +609,9 @@ nfs4.client.reqs
     inst [50 or "getdevlist"] value 0
     inst [51 or "bind_ses"] value 0
     inst [52 or "destroy_clntid"] value 0
+    inst [53 or "seek"] value 0
+    inst [54 or "allocate"] value 0
+    inst [55 or "deallocate"] value 0
 
 nfs4.server.calls
     value 24258
@@ -658,6 +676,18 @@ nfs4.server.reqs
     inst [57 or "want_deleg"] value 0
     inst [58 or "destroy_clid"] value 0
     inst [59 or "reclaim_comp"] value 0
+    inst [60 or "allocate"] value 0
+    inst [61 or "copy"] value 0
+    inst [62 or "copy_notify"] value 0
+    inst [63 or "deallocate"] value 0
+    inst [64 or "io_advise"] value 0
+    inst [65 or "layouterror"] value 0
+    inst [66 or "layoutstats"] value 0
+    inst [67 or "offload_cancel"] value 0
+    inst [68 or "offload_status"] value 0
+    inst [69 or "read_plus"] value 0
+    inst [70 or "seek"] value 0
+    inst [71 or "write_same"] value 0
 
 == done
 
