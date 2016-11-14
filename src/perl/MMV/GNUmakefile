@@ -59,7 +59,6 @@ ifeq "$(PACKAGE_DISTRIBUTION)" "openbsd"
 else
 	$(call PERL_GET_FILELIST,install,$(TOPDIR)/perl-pcp-mmv.list,MMV)
 endif
-	find $$DIST_ROOT -name server.pl -exec chmod 755 '{}' ';'
 endif
 
 install_perl:
