@@ -319,6 +319,9 @@ timezone
 # JSON parsing and metric extraction in libpcp_web
 libpcp_web
 
+# Old PCP versions interoperability
+oldversion
+
 # test-group association ... one line per test
 # add :retired or :reserved as a tag immediately after the test number
 # to keep the test number allocated, but prevent the test from being run
@@ -1147,6 +1150,7 @@ libpcp_web
 902 libpcp mem_leak valgrind event local
 903 pmda.papi local
 904 python local
+905 oldversion remote
 907 pmlogextract local pmdumplog
 909 libpcp pmns local
 914 pmda.papi local
