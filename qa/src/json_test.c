@@ -267,7 +267,7 @@ Options:\n\
 	    printf("%s: %u\n", json_metrics[i].json_pointer, json_metrics[i].values.ul);
 	    break;
 	case pmjson_flag_s64:
-	    printf("%s: %l\n", json_metrics[i].json_pointer, json_metrics[i].values.ll);
+	    printf("%s: %ld\n", json_metrics[i].json_pointer, json_metrics[i].values.ll);
 	    break;
 	case pmjson_flag_u64:
 	    printf("%s: %lu\n", json_metrics[i].json_pointer, json_metrics[i].values.ull);
