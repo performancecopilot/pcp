@@ -61,6 +61,12 @@ linux_filter()
 	-e "/hinv\.map\.mdname: $unavailable/d" \
 	-e "/hinv\.nlv: $unavailable/d" \
 	-e "/hinv\.node\.online: $unavailable/d" \
+	-e "/ipc\.shm\.key: $unavailable/d" \
+	-e "/ipc\.shm\.nattch: $unavailable/d" \
+	-e "/ipc\.shm\.owner: $unavailable/d" \
+	-e "/ipc\.shm\.perms: $unavailable/d" \
+	-e "/ipc\.shm\.segsz: $unavailable/d" \
+	-e "/ipc\.shm\.status: $unavailable/d" \
 	-e "/kernel\.percpu\.softirqs\.none: $unavailable/d" \
 	-e "/kernel\.pernode..*: $unavailable/d" \
 	-e "/mem\.util\.active_anon: $unavailable/d" \
