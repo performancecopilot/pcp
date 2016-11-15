@@ -1,3 +1,6 @@
+pcp-3.11.7 (21 December 2016)
+    - Work-in-progress, see http://pcp.io/roadmap
+
 pcp-3.11.6 (11 November 2016)
     - pmchart, pmtime, pmdumptext: enable use of Qt5 toolchain
     - pmchart, pmtime: switch to Qwt 6.1 for charts, widgets
