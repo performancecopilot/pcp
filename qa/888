@@ -1,6 +1,9 @@
 #!/bin/sh
 # PCP QA Test No. 888
+#
 # ipc.shm.{tot,rss,swp,used_ids,swap_attempts,swap_successes} metrics testing
+# ipc.shm.{key,owner,perms,segsz,nattch,status} metrics + instances testing
+# ipc.msg.{key,owner,perms,msgsz,messages} metrics + instances testing
 #
 # Copyright (c) 2015-2016 Red Hat.  All Rights Reserved.
 #
@@ -13,10 +16,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if [ $PCP_PLATFORM != linux ]
-then
-   _notrun "shmctl(..,SHM_INFO,..) metrics only available on linux"
-fi
+[ $PCP_PLATFORM != linux ] && \
+     _notrun "shmctl and msgctl IPC metrics test, only for Linux"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
@@ -26,18 +27,24 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 export LINUX_PAGESIZE=4096
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.$DSO_SUFFIX,linux_init
 
-LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.tot
-LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.rss
-LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.swp
-LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.used_ids
-LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.swap_attempts
-LD_PRELOAD=$here/src/qa_shmctl.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.swap_successes
-LD_PRELOAD=$here/src/qa_shmctl_stat.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.key
-LD_PRELOAD=$here/src/qa_shmctl_stat.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.owner
-LD_PRELOAD=$here/src/qa_shmctl_stat.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.perms
-LD_PRELOAD=$here/src/qa_shmctl_stat.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.segsz
-LD_PRELOAD=$here/src/qa_shmctl_stat.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.nattch
-LD_PRELOAD=$here/src/qa_shmctl_stat.so  pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.status
+for metric in tot rss swp used_ids swap_attempts swap_successes
+do
+    LD_PRELOAD=$here/src/qa_shmctl.so \
+    pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.$metric
+done
+
+for metric in key owner perms segsz nattch status
+do
+    LD_PRELOAD=$here/src/qa_shmctl_stat.so \
+    pminfo -L -K clear -K add,60,$pmda -d -f ipc.shm.$metric
+done
+
+for metric in key owner perms msgsz messages
+do
+    LD_PRELOAD=$here/src/qa_msgctl_stat.so \
+    pminfo -L -K clear -K add,60,$pmda -d -f ipc.msg.$metric
+done
+
 # success, all done
 status=0
 exit

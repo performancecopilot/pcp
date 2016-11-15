@@ -3852,7 +3852,7 @@ static pmdaMetric metrictab[] = {
 
 /* ipc.msg.messages */
   { NULL,
-    { PMDA_PMID(CLUSTER_MSG_STAT,4), PM_TYPE_U32, IPC_MSG_INDOM, PM_SEM_DISCRETE, 
+    { PMDA_PMID(CLUSTER_MSG_STAT,4), PM_TYPE_U32, IPC_MSG_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
