@@ -68,6 +68,24 @@
 	    "parents": ["Memory"]
         },
         {
+            "name": "Memory - low system memory",
+	    "description": "Not enough memory in the system resulting in data being moved between memory and storage",
+	    "pcp_metrics":  [ "mem.util.free", "mem.physmem" ],
+	    "pcp_metrics_log":  [ "mem.util.free", "mem.physmem" ],
+	    "predicate": "",
+	    "article": "",
+	    "parents": ["Memory - swapping"]
+        },
+        {
+            "name": "Memory - low NUMA node memory",
+	    "description": "Not enough memory on or more NUMA nodes resulting in data being moved between memory and storage",
+	    "pcp_metrics":  [ "mem.numa.util.free.*", "mem.numa.util.total.*" ],
+	    "pcp_metrics_log":  [ "mem.numa.util.free.*", "mem.numa.util.total.*" ],
+	    "predicate": "",
+	    "article": ["https://access.redhat.com/solutions/406253", "https://access.redhat.com/solutions/465463" ],
+	    "parents": ["Memory - swapping"]
+        },
+        {
             "name": "Memory - huge page defragmentation",
 	    "description": "The system is spending large amounts of time grouping small pages of memory together into contigious physical regions of memory",
 	    "pcp_metrics": [ "mem.vmstat.thp_collapse_alloc", "mem.vmstat.thp_fault_alloc", "mem.vmstat.thp_fault_fallback" ],
