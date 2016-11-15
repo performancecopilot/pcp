@@ -39,7 +39,6 @@ log mandatory on 10 msec {
     nfs4
     pmcd
     pmda
-    proc
     quota
     rpc
     swap
