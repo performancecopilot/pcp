@@ -107,12 +107,12 @@ typedef struct {
 
 extern int refresh_msg_limits(msg_limits_t *);
 
-#define SHM_KEYLEN	16
-#define SHM_OWNERLEN	128
+#define IPC_KEYLEN	16
+#define IPC_OWNERLEN	128
 
 typedef struct {
-        char                shm_key[SHM_KEYLEN]; /* name of this shm slot */
-        char                shm_owner[SHM_OWNERLEN]; /* username of owner */
+        char                shm_key[IPC_KEYLEN]; /* name of this shm slot */
+        char                shm_owner[IPC_OWNERLEN]; /* username of owner */
         unsigned int        shm_perms;		/* access permissions */
         unsigned int        shm_bytes;		/* segment size in bytes */
         unsigned int        shm_nattch;		/* no. of current attaches */
@@ -120,3 +120,13 @@ typedef struct {
 } shm_stat_t;
 
 extern int refresh_shm_stat(pmInDom shm_indom);
+
+typedef struct {
+        char                msg_key[IPC_KEYLEN]; /* name of these messages slot */
+        char                msg_owner[IPC_OWNERLEN]; /* username of owner */
+        unsigned int        msg_perms;		/* access permissions */
+        unsigned int        msg_bytes;		/* used size in bytes */
+        unsigned int        messages;	        /* no. of messages */
+} msg_que_t;
+
+extern int refresh_msg_que(pmInDom msg_indom);

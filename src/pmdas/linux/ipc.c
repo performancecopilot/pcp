@@ -168,13 +168,13 @@ refresh_shm_stat(pmInDom shm_indom)
 		continue;
 	    memset(shm_stat, 0, sizeof(shm_stat_t));
 
-	    snprintf(shm_stat->shm_key, SHM_KEYLEN, "0x%08x", ipcp->KEY); 
-	    shm_stat->shm_key[SHM_KEYLEN-1] = '\0';
+	    snprintf(shm_stat->shm_key, IPC_KEYLEN, "0x%08x", ipcp->KEY); 
+	    shm_stat->shm_key[IPC_KEYLEN-1] = '\0';
 	    if ((pw = getpwuid(ipcp->uid)) != NULL)
-		strncpy(shm_stat->shm_owner, pw->pw_name, SHM_OWNERLEN);
+		strncpy(shm_stat->shm_owner, pw->pw_name, IPC_OWNERLEN);
 	    else
-		snprintf(shm_stat->shm_owner, SHM_OWNERLEN, "%d", ipcp->uid);
-	    shm_stat->shm_owner[SHM_OWNERLEN-1] = '\0';
+		snprintf(shm_stat->shm_owner, IPC_OWNERLEN, "%d", ipcp->uid);
+	    shm_stat->shm_owner[IPC_OWNERLEN-1] = '\0';
 	    /* convert to octal number */
 	    snprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
 	    perms[sizeof(perms)-1] = '\0';
@@ -199,5 +199,73 @@ refresh_shm_stat(pmInDom shm_indom)
 	}
     }
     pmdaCacheOp(shm_indom, PMDA_CACHE_SAVE);
+    return 0;
+}
+
+int 
+refresh_msg_que(pmInDom msg_indom)
+{
+    struct passwd *pw = NULL;
+    char msgid[IPC_KEYLEN]; 
+    char perms[IPC_KEYLEN];
+    int i = 0, maxid = 0;
+    int sts = 0;
+    msg_que_t *msg_que = NULL;
+    struct msqid_ds dummy;
+    struct msqid_ds msgseg;  
+
+    pmdaCacheOp(msg_indom, PMDA_CACHE_INACTIVE);
+
+    maxid = msgctl(0, MSG_STAT, &dummy);
+    if (maxid < 0)
+	return -1;
+ 
+    while (i <= maxid) {
+	int msgid_o;
+        struct ipc_perm *ipcp = &msgseg.msg_perm; 
+
+	if ((msgid_o = msgctl(i++, MSG_STAT, &msgseg)) < 0)
+	    continue;
+
+	snprintf(msgid, sizeof(msgid), "%d", msgid_o);
+	msgid[sizeof(msgid)-1] = '\0';
+	sts = pmdaCacheLookupName(msg_indom, msgid, NULL, (void **)&msg_que);
+	if (sts == PMDA_CACHE_ACTIVE)
+	    continue;
+
+	if (sts == PMDA_CACHE_INACTIVE) {
+	    pmdaCacheStore(msg_indom, PMDA_CACHE_ADD, msgid, msg_que);
+	}
+	else {
+	    if ((msg_que = (msg_que_t *)malloc(sizeof(msg_que_t))) == NULL)
+		continue;
+	    memset(msg_que, 0, sizeof(msg_que_t));
+
+	    snprintf(msg_que->msg_key, IPC_KEYLEN, "0x%08x", ipcp->KEY); 
+	    msg_que->msg_key[IPC_KEYLEN-1] = '\0';
+	    if ((pw = getpwuid(ipcp->uid)) != NULL)
+		strncpy(msg_que->msg_owner, pw->pw_name, IPC_OWNERLEN);
+	    else
+		snprintf(msg_que->msg_owner, IPC_OWNERLEN, "%d", ipcp->uid);
+	    msg_que->msg_owner[IPC_OWNERLEN-1] = '\0';
+
+	    /* convert to octal number */
+	    snprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
+	    perms[sizeof(perms)-1] = '\0';
+	    msg_que->msg_perms     = atoi(perms);
+	    msg_que->msg_bytes     = msgseg.msg_cbytes;
+	    msg_que->messages      = msgseg.msg_qnum;
+
+	    sts = pmdaCacheStore(msg_indom, PMDA_CACHE_ADD, msgid, (void *)msg_que);
+	    if (sts < 0) {
+		fprintf(stderr, "Warning: %s: pmdaCacheStore(%s, %s): %s\n",
+			__FUNCTION__, msgid, msg_que->msg_key, pmErrStr(sts));
+		free(msg_que->msg_key);
+		free(msg_que->msg_owner);
+		free(msg_que);
+	    }	
+	}
+    }
+    pmdaCacheOp(msg_indom, PMDA_CACHE_SAVE);
     return 0;
 }
