@@ -10,6 +10,7 @@ bozo.localdomain
 bozo-laptop.localdomain
 vm01.localdomain
 vm03.localdomain
+vm35.localdomain
 
 # SGI Section
 grundy.sgi.com

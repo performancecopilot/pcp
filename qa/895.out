@@ -9,7 +9,6 @@ Archive basename: TMP
 Group ... {
 	...
 } logged every 0.010 sec: ...
-[DATE] pmlogger(PID) Error: pduread: select() on fd=3 status=-4: Interrupted system call
 
 Log finished DATE
 OK, between 300 and 1500 archive records

@@ -2183,6 +2183,9 @@ fi
 fmt_int64="$ans"
 AC_MSG_RESULT("$fmt_int64")
 AC_SUBST(fmt_int64)
+dnl and the unsigned version of this ...
+fmt_uint64=`echo $fmt_int64 | sed -e 's/d"/u"/'`
+AC_SUBST(fmt_uint64)
 rm -rf conftest.* conftest
 
 AC_MSG_CHECKING([strtol or strtoll for int64_t])
