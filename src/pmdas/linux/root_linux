@@ -229,6 +229,11 @@ ipc.msg {
     used_queues		60:62:0
     tot_msg		60:62:1
     tot_bytes		60:62:2
+    key 		60:65:0
+    owner 		60:65:1
+    perms 		60:65:2
+    msgsz 		60:65:3
+    messages 		60:65:4
 }
 
 ipc.shm {

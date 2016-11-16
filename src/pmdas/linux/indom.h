@@ -47,6 +47,7 @@ enum {
 	INTERRUPT_NAMES_INDOM,	/* 26 - persistent percpu interrupts IDs */
 	SOFTIRQS_NAMES_INDOM,	/* 27 - persistent percpu softirqs IDs */
 	IPC_STAT_INDOM,	        /* 28 - ipc shm_stat shmid */
+	IPC_MSG_INDOM,	        /* 29 - ipc msg_stat msgid */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

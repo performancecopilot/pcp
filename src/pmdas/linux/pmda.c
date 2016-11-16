@@ -330,6 +330,7 @@ static pmdaIndom indomtab[] = {
     { INTERRUPT_NAMES_INDOM, 0, NULL },
     { SOFTIRQS_NAMES_INDOM, 0, NULL },
     { IPC_STAT_INDOM, 0, NULL },
+    { IPC_MSG_INDOM, 0, NULL },
 };
 
 
@@ -3826,6 +3827,35 @@ static pmdaMetric metrictab[] = {
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
+ * message queues stat cluster
+ */
+
+/* ipc.msg.key */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MSG_STAT,0), PM_TYPE_STRING, IPC_MSG_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* ipc.msg.owner */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MSG_STAT,1), PM_TYPE_STRING, IPC_MSG_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* ipc.msg.perms */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MSG_STAT,2), PM_TYPE_U32, IPC_MSG_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* ipc.msg.msgsz */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MSG_STAT,3), PM_TYPE_U32, IPC_MSG_INDOM, PM_SEM_DISCRETE, 
+    PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* ipc.msg.messages */
+  { NULL,
+    { PMDA_PMID(CLUSTER_MSG_STAT,4), PM_TYPE_U32, IPC_MSG_INDOM, PM_SEM_INSTANT, 
+    PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/*
  * number of users cluster
  */
 
@@ -4843,6 +4873,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_SHM_STAT])
 	refresh_shm_stat(INDOM(IPC_STAT_INDOM));
 
+    if (need_refresh[CLUSTER_MSG_STAT])
+	refresh_msg_que(INDOM(IPC_MSG_INDOM));
+
 done:
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
@@ -4908,6 +4941,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	break;
     case IPC_STAT_INDOM:
 	need_refresh[CLUSTER_SHM_STAT]++;
+	break;
+    case IPC_MSG_INDOM:
+	need_refresh[CLUSTER_MSG_STAT]++;
 	break;
     /* no default label : pmdaInstance will pick up errors */
     }
@@ -6218,6 +6254,37 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 5:	/* ipc.shm.status */
 	    atom->cp = (char *)shm_stat->shm_status;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+     }
+
+    case CLUSTER_MSG_STAT: {
+	
+        msg_que_t *msg_que;
+
+	sts = pmdaCacheLookup(INDOM(IPC_MSG_INDOM), inst, NULL, (void **)&msg_que);
+	if (sts < 0)
+	    return sts;
+	if (sts != PMDA_CACHE_ACTIVE)
+	    return PM_ERR_INST;
+	switch (idp->item) {
+	case 0:	/* ipc.msg.key */
+	    atom->cp = (char *)msg_que->msg_key;
+	    break;
+	case 1:	/* ipc.msg.owner */
+	    atom->cp = (char *)msg_que->msg_owner;
+	    break;
+	case 2:	/* ipc.msg.perms */
+	    atom->ul = msg_que->msg_perms;
+	    break;
+	case 3:	/* ipc.msg.msgsz */
+	    atom->ul = msg_que->msg_bytes;
+	    break;
+	case 4:	/* ipc.shm.messages */
+	    atom->ul = msg_que->messages;
 	    break;
 	default:
 	    return PM_ERR_PMID;
