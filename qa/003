@@ -67,6 +67,11 @@ linux_filter()
 	-e "/ipc\.shm\.perms: $unavailable/d" \
 	-e "/ipc\.shm\.segsz: $unavailable/d" \
 	-e "/ipc\.shm\.status: $unavailable/d" \
+	-e "/ipc\.msg\.key: $unavailable/d" \
+	-e "/ipc\.msg\.owner: $unavailable/d" \
+	-e "/ipc\.msg\.perms: $unavailable/d" \
+	-e "/ipc\.msg\.msgsz: $unavailable/d" \
+	-e "/ipc\.msg\.messages: $unavailable/d" \
 	-e "/kernel\.percpu\.softirqs\.none: $unavailable/d" \
 	-e "/kernel\.pernode..*: $unavailable/d" \
 	-e "/mem\.util\.active_anon: $unavailable/d" \
