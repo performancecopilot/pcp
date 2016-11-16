@@ -77,7 +77,7 @@ in
     *)
 	if [ ! -d src/$pcp_tree ]
 	then
-	    git clone ssh://bozo/home/kenj/src/${pcp_tree} src/$pcp_tree
+	    git clone ssh://bozo/home/kenj/git-mirror/${pcp_tree}.git src/$pcp_tree
 	    echo "Info: clone $pcp_tree git tree" | tee -a \$HOME/daily.log
 	fi
 	;;
@@ -485,12 +485,14 @@ End-of-File
 # Mainline starts here ...
 #
 
+user=${USER-kenj}
+qa_dir=$HOME/src/pcp/qa
 tmp=/var/tmp/$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
-list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22 vm24"
-list_2="fuji vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23"
+list_1="vm03 vm01 vm04 vm07 vm12 vm14 vm16 vm18 vm20 vm22 vm24 vm26 vm28 vm30 vm32 vm34"
+list_2="fuji vm02 vm00 vm05 vm11 vm15 vm19 vm21 vm23 vm25 vm27 vm29 vm31 vm33"
 
 args="$*"
 pcp_branch=master
@@ -743,7 +745,7 @@ do
 	do
 	    # if ping -c 1 $host >/dev/null 2>&1
 	    # then
-		if ssh $host true
+		if ssh $user@$host true
 		then
 		    $debug && echo host up
 		    touch $tmp.up
@@ -761,7 +763,7 @@ do
 	    continue
 	fi
 	
-	check=`ssh -t $host uname -sr 2>/dev/null`
+	check=`ssh -t $user@$host uname -sr 2>/dev/null`
 	$debug && echo "check=$check"
 	case "$check"
 	in
@@ -792,27 +794,6 @@ do
 	esac
 	$debug && echo "MAKE=$MAKE"
 
-	_script_header >$tmp.script
-	if [ -n "$efile" ]
-	then
-	    cat $efile >>$tmp.script
-	fi
-	_script_git >>$tmp.script
-	$cflag && _script_git_check >>$tmp.script
-	$pflag && _script_git_pull >>$tmp.script
-
-	if $mflag
-	then
-	    _script_make >>$tmp.script
-	fi
-
-	$iflag && _script_install >>$tmp.script
-
-	cat >>$tmp.script <<End-of-File
-
-cd qa
-End-of-File
-
 	check_what="$what"
 	[ X"$what" = Xall ] && check_what=''
 	case "$domain"
@@ -842,7 +823,50 @@ End-of-File
 		# 739 segv's sometimes deep inside Python
 		[ X"$what" = Xall ] && check_what='-X 739'
 		;;
+	    vm35)
+		# this is PCP 2.7.8, need to run as user pcpqa and just
+		# the sanity group and no -p or -m or -i flags
+		[ X"$what" = Xall ] && check_what='-g sanity'
+		user=pcpqa
+		qa_dir=/var/lib/pcp/testsuite/qa
+		if $pflag
+		then
+		    echo "Info: skip -p for vm35"
+		    pflag=false
+		fi
+		if $mflag
+		then
+		    echo "Info: skip -m for vm35"
+		    mflag=false
+		fi
+		if $iflag
+		then
+		    echo "Info: skip -i for vm35"
+		    iflag=false
+		fi
+		;;
 	esac
+
+	_script_header >$tmp.script
+	if [ -n "$efile" ]
+	then
+	    cat $efile >>$tmp.script
+	fi
+	_script_git >>$tmp.script
+	$cflag && _script_git_check >>$tmp.script
+	$pflag && _script_git_pull >>$tmp.script
+
+	if $mflag
+	then
+	    _script_make >>$tmp.script
+	fi
+
+	$iflag && _script_install >>$tmp.script
+
+	cat >>$tmp.script <<End-of-File
+
+cd $qa_dir
+End-of-File
 
 	$qflag && _script_qa >>$tmp.script
 	$rflag && _script_qa_rerun >>$tmp.script
@@ -856,7 +880,7 @@ End-of-File
 	rm -f $tmp.ok
 	for i in 1 2 3
 	do
-	    if scp $tmp.script $host:daily.script >$tmp.out 2>&1
+	    if scp $tmp.script $user@$host:daily.script >$tmp.out 2>&1
 	    then
 		touch $tmp.ok
 		break
@@ -874,9 +898,9 @@ End-of-File
 
 	# actually do the remote work here
 	#
-	ssh -t $host sh -c ./daily.script
+	ssh -t $user@$host sh -c ./daily.script
 
-	scp -q $host:daily.log $tmp.out
+	scp -q $user@$host:daily.log $tmp.out
 	echo "=== `date` ===" >>$log
 	cat $tmp.out >>$log
 	echo "=== END ===" >>$log
@@ -884,7 +908,7 @@ End-of-File
 	if $iflag || $qflag || $hflag
 	then
 	    # run whatami on QA host
-	    ssh -t $host src/pcp/qa/admin/whatami >$HOME/Logs/by-vm/$domain/whatami
+	    ssh -t $user@$host src/pcp/qa/admin/whatami >$HOME/Logs/by-vm/$domain/whatami
 	fi
 
 	if $hflag
@@ -909,13 +933,13 @@ End-of-File
 	    fi
 	    rm -f $HOME/Logs/by-vm/$domain/qa/[0-9]*
 	    rm -f $tmp.harvest
-	    scp $host:daily.harvest $tmp.harvest >$tmp.out 2>&1
+	    scp $user@$host:daily.harvest $tmp.harvest >$tmp.out 2>&1
 	    if [ -s $tmp.harvest ]
 	    then
 		for file in `cat $tmp.harvest`
 		do
 		    echo -n " $file"
-		    if scp $host:src/pcp/qa/$file $HOME/Logs/by-vm/$domain/qa >$tmp.err 2>&1
+		    if scp $user@$host:src/pcp/qa/$file $HOME/Logs/by-vm/$domain/qa >$tmp.err 2>&1
 		    then
 			:
 		    else
@@ -939,8 +963,8 @@ End-of-File
 	doit=false
 	case $host
 	in
-	    vm01|vm03)
-		# try to keep vm01 and vm03 running, unless -f
+	    vm01|vm03|vm35)
+		# try to keep vm01, vm03 and vm35 running, unless -f
 		$fflag && doit=true
 		;;
 	    vm*)
@@ -958,7 +982,7 @@ End-of-File
 		    echo "Warning: Already shutdown"
 		fi
 	    else
-		ssh -t -q $host "sync; sleep 2; sync; ( sudo poweroff || sudo halt )" -f </dev/null >/dev/null 2>&1 &
+		ssh -t -q $user@$host "sync; sleep 2; sync; ( sudo poweroff || sudo halt )" -f </dev/null >/dev/null 2>&1 &
 		sleep 60
 		sudo virsh shutdown $domain >/dev/null 2>&1
 		sleep 10
