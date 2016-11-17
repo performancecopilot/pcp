@@ -14,7 +14,6 @@
 #ifndef PCP_PLATFORM64_H
 #define PCP_PLATFORM64_H
 
-/* printf candy ... */
-#define FMT_INT64 "ld"
+/* this header file is longer used ... retained for backwards compatibility */
 
 #endif /* PCP_PLATFORM64_H */

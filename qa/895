@@ -27,7 +27,6 @@ log mandatory on 10 msec {
     event
     filesys
     hinv
-    hotproc
     ipc
     jbd2
     kernel
@@ -56,6 +55,7 @@ _filter()
     | tee -a $here/$seq.full \
     | sed \
 	-e '/re-established connection/d' \
+	-e '/pduread: .* Interrupted system call/d' \
 	-e '/Validating metrics/d' \
 	-e '/^Log for pmlogger /s/ on .*/ .../' \
 	-e '/^preprocessor cmd:/s/: .*/: .../' \

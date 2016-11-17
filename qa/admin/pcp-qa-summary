@@ -21,9 +21,9 @@ _usage()
 
 
 # must have tried to run at least this number to qualify
-# 60 = > -g sanity [minus a few not runs]
+# 40 = > -g sanity circa PCP 2.7.8 [minus a few not runs]
 #
-minrun=60
+minrun=40
 
 debug=false
 recent=false
@@ -163,6 +163,13 @@ do
 		  print NR,": Not run: start: notrun=" notrun >"'$tmp.dbg'"
 		  next
 		}
+/^Failures:/	{ nfail = NF - 1
+		  flist = $2
+		  for (i = 3; i <= NF; i++) flist = flist " " $i
+		  print NR,": Failures: start: nfail=" nfail >"'$tmp.dbg'"
+		  state = 2
+		  next
+		}
 /^Failed [0-9][0-9]* of [0-9][0-9]* tests/	{
 		  failed = $2
 		  run = $4
@@ -171,14 +178,13 @@ do
 /^Passed all [0-9][0-9]* tests/	{
 		  failed = 0
 		  run = $3
+		  print NR,": Passed all: " run >"'$tmp.dbg'"
 		  state = 3
 		}
-/^Failures:/	{ nfail = NF - 1
-		  flist = $2
-		  for (i = 3; i <= NF; i++) flist = flist " " $i
-		  print NR,": Failures: start: nfail=" nfail >"'$tmp.dbg'"
-		  state = 2
-		  next
+state == 3	{ if (run >= '$minrun') printf "%s %4d %4d %4d %4d|%s|%s+%s\n","'$date'",run,run-failed,failed,notrun,"'$basevmname'",flist,nrlist
+		  state = 0
+		  notrun = 0
+		  nfail = 0
 		}
 /^Info:/	{
 		  state = 0
@@ -203,11 +209,6 @@ state == 2	{ # Failures: list broken over multiple lines
 		  for (i = 1; i <= NF; i++) flist = flist " " $i
 		  print NR,": Failures: add",NF," nfail=" nfail >"'$tmp.dbg'"
 		  next
-		}
-state == 3	{ if (run >= '$minrun') printf "%s %4d %4d %4d %4d|%s|%s+%s\n","'$date'",run,run-failed,failed,notrun,"'$basevmname'",flist,nrlist
-		  state = 0
-		  notrun = 0
-		  nfail = 0
 		}
 END		{ print NR,": END state=" state >"'$tmp.dbg'"
 		}'

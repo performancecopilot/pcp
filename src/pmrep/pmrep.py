@@ -380,7 +380,7 @@ class PMReporter(object):
         config = DEFAULT_CONFIG[0]
         for conf in DEFAULT_CONFIG:
             conf = conf.replace("$HOME", os.getenv("HOME"))
-            conf = conf.replace("$PCP_SYSCONF_DIR", os.getenv("PCP_SYSCONF_DIR"))
+            conf = conf.replace("$PCP_SYSCONF_DIR", pmapi.pmContext.pmGetConfig("PCP_SYSCONF_DIR"))
             if os.path.isfile(conf) or os.access(conf, os.R_OK):
                 config = conf
                 break

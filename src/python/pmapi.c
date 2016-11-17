@@ -779,6 +779,7 @@ getNonOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 
     for (i = 0; i < length; i++) {
 	PyObject *pyarg = PyList_GET_ITEM(pyargv, options.optind + i);
+	Py_INCREF(pyarg);
 	PyList_SET_ITEM(result, i, pyarg);
     }
     Py_INCREF(result);

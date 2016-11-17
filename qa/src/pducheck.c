@@ -19,6 +19,7 @@ static int		fd[2];
 static int		standalone = 1;
 static int		e;
 static pmID		pmidlist[6];
+static int		remote_version = -1;
 
 /*
  * warning:
@@ -852,47 +853,49 @@ _z(void)
 #if PCP_VER >= 3800
 /* PDU_AUTH */
 #define USERNAME "pcpqa"
-    if ((e = __pmSendAuth(fd[1], mypid, PCP_ATTR_USERNAME, USERNAME, sizeof(USERNAME))) < 0) {
-	fprintf(stderr, "Error: SendAuth: %s\n", pmErrStr(e));
-	fatal = 1;
-	goto cleanup;
-    }
-    else {
-	if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
-	    fprintf(stderr, "Error: RecvAuth: %s\n", pmErrStr(e));
-	    fatal = 1;
-	    goto cleanup;
-	}
-	else if (e == 0) {
-	    fprintf(stderr, "Error: RecvAuth: end-of-file!\n");
-	    fatal = 1;
-	    goto cleanup;
-	}
-	else if (e != PDU_AUTH) {
-	    fprintf(stderr, "Error: RecvAuth: %s wrong type PDU!\n", __pmPDUTypeStr(e));
+    if (remote_version == -1 || remote_version >= 3800) {
+	if ((e = __pmSendAuth(fd[1], mypid, PCP_ATTR_USERNAME, USERNAME, sizeof(USERNAME))) < 0) {
+	    fprintf(stderr, "Error: SendAuth: %s\n", pmErrStr(e));
 	    fatal = 1;
 	    goto cleanup;
 	}
 	else {
-	    buffer = NULL;
-	    if ((e = __pmDecodeAuth(pb, &attr, &buffer, &count)) < 0) {
-		fprintf(stderr, "Error: DecodeAuth: %s\n", pmErrStr(e));
+	    if ((e = __pmGetPDU(fd[0], ANY_SIZE, timeout, &pb)) < 0) {
+		fprintf(stderr, "Error: RecvAuth: %s\n", pmErrStr(e));
+		fatal = 1;
+		goto cleanup;
+	    }
+	    else if (e == 0) {
+		fprintf(stderr, "Error: RecvAuth: end-of-file!\n");
+		fatal = 1;
+		goto cleanup;
+	    }
+	    else if (e != PDU_AUTH) {
+		fprintf(stderr, "Error: RecvAuth: %s wrong type PDU!\n", __pmPDUTypeStr(e));
 		fatal = 1;
 		goto cleanup;
 	    }
 	    else {
-		if (attr != PCP_ATTR_USERNAME)
-		    fprintf(stderr, "Botch: AuthAttr: attr: got: 0x%x expect: 0x%x\n",
-			attr, PCP_ATTR_USERNAME);
-		if (count != sizeof(USERNAME))
-		    fprintf(stderr, "Botch: AuthAttr: length: got: 0x%x expect: 0x%x\n",
-			count, (int)sizeof(USERNAME));
-		if (buffer == NULL)
-		    fprintf(stderr, "Botch: AuthAttr: payload is NULL!\n");
+		buffer = NULL;
+		if ((e = __pmDecodeAuth(pb, &attr, &buffer, &count)) < 0) {
+		    fprintf(stderr, "Error: DecodeAuth: %s\n", pmErrStr(e));
+		    fatal = 1;
+		    goto cleanup;
+		}
 		else {
-		    if (strncmp(buffer, USERNAME, sizeof(USERNAME)) != 0)
-			fprintf(stderr, "Botch: AuthAttr: payload: got: \"%s\" expect: \"%s\"\n",
-			    buffer, USERNAME);
+		    if (attr != PCP_ATTR_USERNAME)
+			fprintf(stderr, "Botch: AuthAttr: attr: got: 0x%x expect: 0x%x\n",
+			    attr, PCP_ATTR_USERNAME);
+		    if (count != sizeof(USERNAME))
+			fprintf(stderr, "Botch: AuthAttr: length: got: 0x%x expect: 0x%x\n",
+			    count, (int)sizeof(USERNAME));
+		    if (buffer == NULL)
+			fprintf(stderr, "Botch: AuthAttr: payload is NULL!\n");
+		    else {
+			if (strncmp(buffer, USERNAME, sizeof(USERNAME)) != 0)
+			    fprintf(stderr, "Botch: AuthAttr: payload: got: \"%s\" expect: \"%s\"\n",
+				buffer, USERNAME);
+		    }
 		}
 	    }
 	}
@@ -1526,7 +1529,7 @@ main(int argc, char **argv)
 
     __pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:i:Np:?")) != EOF) {
+    while ((c = getopt(argc, argv, "D:i:Np:v:?")) != EOF) {
 	switch (c) {
 	case 'D':	/* debug flag */
 	    sts = __pmParseDebug(optarg);
@@ -1560,6 +1563,20 @@ main(int argc, char **argv)
 	    }
 	    break;
 
+	case 'v':	/* remote (pcp) version */
+	    /* turn version like 3.8.4 into 3804 */
+	    remote_version = 1000*(int)strtol(optarg, &endnum, 10);
+	    if (*endnum == '.') {
+		endnum++;
+		remote_version += 100*(int)strtol(endnum, &endnum, 10);
+		if (*endnum == '.') {
+		    endnum++;
+		    remote_version += (int)strtol(endnum, &endnum, 10);
+		}
+	    }
+	    printf("remote_version = %d\n", remote_version);
+	    break;
+
 	case '?':
 	default:
 	    errflag++;
@@ -1568,7 +1585,7 @@ main(int argc, char **argv)
     }
 
     if (errflag || optind < argc-1) {
-	fprintf(stderr, "Usage: %s [-N] [-D n] [-i iter] [-p port] [host]\n", pmProgname);
+	fprintf(stderr, "Usage: %s [-N] [-D n] [-i iter] [-p port] [-v remote_version] [host]\n", pmProgname);
 	exit(1);
     }
 

@@ -267,10 +267,10 @@ Options:\n\
 	    printf("%s: %u\n", json_metrics[i].json_pointer, json_metrics[i].values.ul);
 	    break;
 	case pmjson_flag_s64:
-	    printf("%s: %ld\n", json_metrics[i].json_pointer, json_metrics[i].values.ll);
+	    printf("%s: %" FMT_INT64 "\n", json_metrics[i].json_pointer, json_metrics[i].values.ll);
 	    break;
 	case pmjson_flag_u64:
-	    printf("%s: %lu\n", json_metrics[i].json_pointer, json_metrics[i].values.ull);
+	    printf("%s: %" FMT_UINT64 "\n", json_metrics[i].json_pointer, json_metrics[i].values.ull);
 	    break;
 	case pmjson_flag_float:
 	    printf("%s: %f\n", json_metrics[i].json_pointer, json_metrics[i].values.f);
