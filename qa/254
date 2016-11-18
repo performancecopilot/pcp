@@ -33,6 +33,7 @@ cleanup()
 	unset PMCD_SOCKET
         echo "Restart and ping pmcd ..."
         $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_restore_systemd_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
     fi
@@ -40,6 +41,8 @@ cleanup()
 }
 
 trap "cleanup; exit \$status" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
 
 # real QA test starts here
 

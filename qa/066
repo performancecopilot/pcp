@@ -22,8 +22,15 @@ else
     ln $seq.out.nonipv6 $seq.out || exit 1
 fi
 
-trap "rm -f $tmp $tmp.*; exit" 0 1 2 3 15
+trap "_cleanup; rm -f $tmp $tmp.*; exit" 0 1 2 3 15
 rm -f $seq.full
+
+_stop_systemd_restart pmcd
+
+_cleanup()
+{
+    _restore_systemd_restart pmcd
+}
 
 # real QA test starts here
 
@@ -66,6 +73,7 @@ _filter_log()
 interrupt()
 {
     echo "Interrupted"
+    _restore_systemd_restart pmcd
     exit
 }
 
@@ -87,6 +95,7 @@ cleanup()
 	echo "Restarting pmcd"
 	echo "+++ restarting pmcd `date` +++" >>$seq.full
 	$sudo $PCP_RC_DIR/pcp restart | tee -a $seq.full | _filter_pcp_start
+	_restore_systemd_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	_needclean=false

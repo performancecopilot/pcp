@@ -49,7 +49,14 @@ _filter()
 status=1	# failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 LOCALHOST=`hostname`
-trap "$sudo rm -f $tmp.* $LOGGING_DIR/$LOCALHOST/lock; exit \$status" 0 1 2 3 15
+trap "_cleanup; $sudo rm -f $tmp.* $LOGGING_DIR/$LOCALHOST/lock; exit \$status" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
+
+_cleanup()
+{
+    _restore_systemd_restart pmcd
+}
 
 rm -f $seq.full
 

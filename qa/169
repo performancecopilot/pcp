@@ -36,6 +36,7 @@ _cleanup()
     _filter_pcp_stop <$tmp.stop | _filter_dots | sed -e '/logger not running/d'
     _restore_config $PCP_PMCDCONF_PATH
     $sudo $PCP_RC_DIR/pcp start >$tmp.start
+    _restore_systemd_restart pmcd
     _filter_pcp_start <$tmp.start | _filter_dots
     _wait_for_pmcd
     _wait_for_pmlogger
@@ -46,6 +47,8 @@ _cleanup()
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 rm -f $seq.full
+
+_stop_systemd_restart pmcd
 
 # real QA test starts here
 

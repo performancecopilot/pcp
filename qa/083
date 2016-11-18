@@ -104,6 +104,8 @@ _await_logger()
 interrupt()
 {
     echo "Interrupted"
+    _restore_systemd_restart pmcd
+    _restore_systemd_restart pmlogger
     exit
 }
 
@@ -117,12 +119,17 @@ cleanup()
     _await_logger false
     echo "Restarting pmcd and friends..."
     $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    _restore_systemd_restart pmcd
+    _restore_systemd_restart pmlogger
     _wait_for_pmcd
     _wait_for_pmlogger
 }
 
 trap interrupt 1 2 3 15
 trap cleanup 0
+
+_stop_systemd_restart pmcd
+_stop_systemd_restart pmlogger
 
 # real QA test starts here
 
