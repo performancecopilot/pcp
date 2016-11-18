@@ -83,7 +83,8 @@ _filter_pmproxy()
         -e '/^__pmSetDataIPC: fd=/d' \
         -e '/^__pmDataIPC: fd=/d' \
         -e '/^IPC table fd/d' \
-	-e '/^__pmSetVersionIPC: fd=/d'
+	-e '/^__pmSetVersionIPC: fd=/d' \
+	-e 's/localhost/MY_HOST/g'
 }
 
 $sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1

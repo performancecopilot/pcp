@@ -26,6 +26,7 @@ rm -f $seq.full
 _filter_dumptext()
 {
     _filter_pmdumptext \
+    | sed -e '/^Time[ 	]/s/[ 	]local::/ HOST:/g' \
     | sed -e '/^Time[ 	]/s/[ 	][^:]*:/ HOST:/g' \
     | $PCP_AWK_PROG '
 NR == 1		{ for (i = 1; i <= NF; i++) {

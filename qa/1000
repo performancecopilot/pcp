@@ -36,7 +36,9 @@ _filter1()
 #
 _filter2()
 {
-    sed -e "s/`hostname`/MYHOSTNAME/g"
+    sed \
+	-e "s/`hostname`/MYHOSTNAME/g" \
+	-e "s/local:/MYHOSTNAME/g"
 }
 
 # real QA test starts here

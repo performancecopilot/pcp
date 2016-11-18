@@ -43,10 +43,7 @@ QmcGroup::QmcGroup(bool restrictArchives)
 
     // Get timezone from environment
     if (tzLocalInit == false) {
-	char buf[MAXHOSTNAMELEN];
-	gethostname(buf, MAXHOSTNAMELEN);
-	buf[MAXHOSTNAMELEN-1] = '\0';
-	localHost = buf;
+	localHost = QmcSource::getLocalHost();
 
         char *tz = __pmTimezone();
 	if (tz == NULL)

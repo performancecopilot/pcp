@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013,2015 Red Hat, Inc.
+ * Copyright (c) 2013,2016 Red Hat, Inc.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
  * Copyright (c) 1998,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -35,6 +35,9 @@ public:
     // a NULL pointer is returned.
     static QmcSource* getSource(int type, QString &source, int flags = 0,
 				 bool matchHosts = false);
+
+    // Return the name of the local host.
+    static const char *getLocalHost();
 
     int status() const { return my.status; }
     int flags() const { return my.flags; }
@@ -78,7 +81,7 @@ public:
     // Dump list of known sources
     static void dumpList(QTextStream &os);
 
-    // Local host name (from gethostname(2))
+    // Local host name ("local:")
     static QString localHost;
 
     // Convert a time to a string (long and short forms)

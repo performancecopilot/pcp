@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013,2015 Red Hat.
+ * Copyright (c) 2013,2016 Red Hat.
  * Copyright (c) 2007 Aconex.  All Rights Reserved.
  * Copyright (c) 1998,2005 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -27,12 +27,8 @@ QmcSource::QmcSource(int type, QString &source, int flags)
     my.tz = 0;
     my.dupFlag = false;
 
-    if (localHost.length() == 0) {
-	char buf[MAXHOSTNAMELEN];
-	gethostname(buf, MAXHOSTNAMELEN);
-	buf[MAXHOSTNAMELEN-1] = '\0';
-	localHost = buf;
-    }
+    if (localHost.length() == 0)
+	localHost = getLocalHost();
 
     my.attrs = QString::null;
     my.context_hostname = QString::null;
@@ -257,6 +253,20 @@ QmcSource::compare(int type, QString &source, int flags)
     if (this->flags() != flags)
 	return false;
     return this->source() == source;
+}
+
+const char *
+QmcSource::getLocalHost()
+{
+    // Respect the setting of PMPROXY_HOST
+    char *envstr;
+    if ((envstr = getenv("PMPROXY_HOST")) != NULL) {
+	if (*envstr != '\0')
+	    return envstr;
+    }
+
+    // Otherwise, use local:
+    return "local:";
 }
 
 QmcSource*
