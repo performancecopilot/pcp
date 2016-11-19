@@ -133,7 +133,12 @@ _stop_systemd_restart()
 	    _save_config $PCP_SYSTEMDUNIT_DIR/$1.service
 	    sed -e 's/Restart=always/Restart=no/' <$PCP_SYSTEMDUNIT_DIR/$1.service >$tmp.tmp
 	    $sudo cp $tmp.tmp $PCP_SYSTEMDUNIT_DIR/$1.service
-	    $sudo kill -HUP 1
+	    if `which systemctl >/dev/null 2>&1`
+	    then
+		$sudo systemctl daemon-reload
+	    else
+		$sudo kill -HUP 1
+	    fi
 	fi
     fi
 }
@@ -143,7 +148,12 @@ _restore_systemd_restart()
     if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service.$seq ]
     then
 	_restore_config $PCP_SYSTEMDUNIT_DIR/$1.service
-	$sudo kill -HUP 1
+	if `which systemctl >/dev/null 2>&1`
+	then
+	    $sudo systemctl daemon-reload
+	else
+	    $sudo kill -HUP 1
+	fi
     fi
 }
 
