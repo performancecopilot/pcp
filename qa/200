@@ -18,11 +18,14 @@ rm -f $seq.full
 
 trap _cleanup 0 1 2 3 15
 
+_stop_systemd_restart pmcd
+
 _cleanup()
 {
     [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
     [ "$PCP_PLATFORM" != "linux" ] && _change_config pmlogger on
     $sudo $PCP_RC_DIR/pcp restart >/dev/null
+    _restore_systemd_restart pmcd
     _wait_for_pmcd
     _wait_for_pmlogger
     $sudo rm -f $tmp.pmcd.conf

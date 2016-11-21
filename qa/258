@@ -41,6 +41,7 @@ _cleanup()
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_restore_systemd_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	if $install_on_cleanup
@@ -67,6 +68,8 @@ pminfo trace >/dev/null 2>&1 && install_on_cleanup=true
 
 trap "_cleanup" 0
 trap "_interrupt; _cleanup" 1 2 3 15
+
+_stop_systemd_restart pmcd
 
 if [ -n "$PCP_TRACE_HOST" ]
 then

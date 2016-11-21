@@ -27,6 +27,10 @@ myhost=`hostname`
 
 trap "_cleanup" 0 1 2 3 15
 
+_stop_systemd_restart pmcd
+_stop_systemd_restart pmlogger
+_stop_systemd_restart pmmgr
+
 _cleanup()
 {
     if $_needclean
@@ -36,6 +40,9 @@ _cleanup()
 	[ -d $tmp.control.d ] && \
 	    $sudo mv $tmp.control.d $PCP_PMLOGGERCONTROL_PATH.d
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_restore_systemd_restart pmcd
+	_restore_systemd_restart pmlogger
+	_restore_systemd_restart pmmgr
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	# just in case pmmgr was configured and running

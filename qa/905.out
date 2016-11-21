@@ -38,7 +38,7 @@ name: sample.colour
 
 name: sample.longlong
 
-name: LOCALHOST.the.clown
+name: bozo.the.clown
 
 
 Unexpected failure for 0 of 53 PMAPI operations
@@ -82,7 +82,7 @@ name: sample.colour
 
 name: sample.longlong
 
-name: LOCALHOST.the.clown
+name: bozo.the.clown
 
 
 Unexpected failure for 0 of 53 PMAPI operations

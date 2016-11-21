@@ -13,7 +13,14 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-trap "rm -f $tmp.*; exit" 0 1 2 3 15
+trap "_cleanup; rm -f $tmp.*; exit" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
+
+_cleanup()
+{
+    _restore_systemd_restart pmcd
+}
 
 # real QA test starts here
 $sudo src/pmcdgone 2>&1 \

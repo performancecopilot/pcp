@@ -12,13 +12,23 @@ echo "QA output created by $seq"
 . ./common.product
 . ./common.filter
 
+# see src/pmdas/linux/pmda.c and the initializations of ...
+#
+# nfs_indom_id - 18 members
+# nfs3_indom_id - 22 members
+# nfs4_cli_indom_id - 56 members
+# nfs4_svr_indom_id - 71 members (no "0" instance in this case)
+#
+# The indom is well-defined, but no values are available if the
+# relevant parts of the NFS protocols are not enabled in the kernel.
+#
 _filter_dodgey_nfs_indom()
 {
     sed \
 	-e '/number of instances .* (0) != that for pmGetInDom (18)/d' \
 	-e '/number of instances .* (0) != that for pmGetInDom (22)/d' \
 	-e '/number of instances .* (0) != that for pmGetInDom (56)/d' \
-	-e '/number of instances .* (0) != that for pmGetInDom (59)/d'
+	-e '/number of instances .* (0) != that for pmGetInDom (71)/d'
 }
 
 status=0

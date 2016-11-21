@@ -90,7 +90,7 @@ jsmnuint(const char *js, jsmntok_t *tok, unsigned int *value)
 }
 
 int
-jsmnlong(const char *js, jsmntok_t *tok, long *value)
+jsmnlong(const char *js, jsmntok_t *tok, __int64_t *value)
 {
     char	buffer[64];
 
@@ -98,12 +98,12 @@ jsmnlong(const char *js, jsmntok_t *tok, long *value)
 	return -1;
     strncpy(buffer, js + tok->start, tok->end - tok->start);
     buffer[tok->end - tok->start] = '\0';
-    *value = strtol(buffer, NULL, 0);
+    *value = strtoll(buffer, NULL, 0);
     return 0;
 }
 
 int
-jsmnulong(const char *js, jsmntok_t *tok, unsigned long *value)
+jsmnulong(const char *js, jsmntok_t *tok, __uint64_t *value)
 {
     char	buffer[64];
 
@@ -111,7 +111,7 @@ jsmnulong(const char *js, jsmntok_t *tok, unsigned long *value)
 	return -1;
     strncpy(buffer, js + tok->start, tok->end - tok->start);
     buffer[tok->end - tok->start] = '\0';
-    *value = strtoul(buffer, NULL, 0);
+    *value = strtoull(buffer, NULL, 0);
     return 0;
 }
 

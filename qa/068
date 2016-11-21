@@ -22,6 +22,8 @@ LOCALHOST=`hostname`
 
 trap "_cleanup" 0 1 2 3 15
 
+_stop_systemd_restart pmcd
+
 if [ -d $PCP_LOG_DIR/pmlogger ]
 then
     LOGGING_DIR=$PCP_LOG_DIR/pmlogger
@@ -42,6 +44,7 @@ _cleanup()
 	$sudo $PCP_RC_DIR/pcp stop >>$here/$seq.full 2>&1
 	echo "--- pcp start ---" >>$here/$seq.full
 	$sudo $PCP_RC_DIR/pcp start 2>&1 | tee -a $here/$seq.full | _filter_pcp_start
+	_restore_systemd_restart pmcd
 	echo >>$here/$seq.full
 	echo "--- _wait_for_pmcd ---" >>$here/$seq.full
 	_wait_for_pmcd | tee -a $here/$seq.full

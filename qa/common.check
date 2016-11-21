@@ -122,6 +122,41 @@ _restore_config()
     fi
 }
 
+# systemd config changes
+#
+_stop_systemd_restart()
+{
+    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service ]
+    then
+	if grep '^Restart=always' $PCP_SYSTEMDUNIT_DIR/$1.service >/dev/null
+	then
+	    _save_config $PCP_SYSTEMDUNIT_DIR/$1.service
+	    sed -e 's/Restart=always/Restart=no/' <$PCP_SYSTEMDUNIT_DIR/$1.service >$tmp.tmp
+	    $sudo cp $tmp.tmp $PCP_SYSTEMDUNIT_DIR/$1.service
+	    if `which systemctl >/dev/null 2>&1`
+	    then
+		$sudo systemctl daemon-reload
+	    else
+		$sudo kill -HUP 1
+	    fi
+	fi
+    fi
+}
+
+_restore_systemd_restart()
+{
+    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service.$seq ]
+    then
+	_restore_config $PCP_SYSTEMDUNIT_DIR/$1.service
+	if `which systemctl >/dev/null 2>&1`
+	then
+	    $sudo systemctl daemon-reload
+	else
+	    $sudo kill -HUP 1
+	fi
+    fi
+}
+
 # check that a given agent (argument 1) is up and running;
 # indicated by return status and agent warnings to stdout.
 #

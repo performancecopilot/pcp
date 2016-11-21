@@ -804,7 +804,7 @@ pmda_long()
 int
 pmda_ulong()
     CODE:
-	RETVAL = (sizeof(unsigned long) == 4) ? PM_TYPE_32 : PM_TYPE_64;
+	RETVAL = (sizeof(unsigned long) == 4) ? PM_TYPE_U32 : PM_TYPE_U64;
     OUTPUT:
 	RETVAL
 
