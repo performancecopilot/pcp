@@ -467,3 +467,9 @@ Specification error in configuration file (TMP.conf)
 [line 2] Expecting metric name in iname clause
 Specification error in configuration file (TMP.conf)
 [line 2] Expecting metric name in iname clause
+
+=== new conditional if in type clause (expect errors) ===
+Specification error in configuration file (TMP.conf)
+[line 3] Expecting XXX (from PM_TYPE_XXX) in type clause
+Specification error in configuration file (TMP.conf)
+[line 3] Expecting XXX (from PM_TYPE_XXX) after if in type clause
