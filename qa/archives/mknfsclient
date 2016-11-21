@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# remake a nfsclient archive ...
+# these archives (one for 32-bit platforms and one for 64-bit platforms)
+# are intended to be checked in and not remade, this script is simply a
+# record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+check=`pmprobe -v nfsclient.export | $PCP_AWK_PROG '{print $NF}'`
+if [ "$check" -lt 0 ]
+then
+    echo "$0: Error: no nfsclient.export metric available, is the PMDA installed?"
+    exit 1
+fi
+
+cat <<End-of-File >$tmp.config
+log mandatory on 1 sec {
+    nfsclient
+}
+End-of-File
+
+rm -f nfsclient.0 nfsclient.meta nfsclient.index
+
+pmlogger -s 10 -c $tmp.config nfsclient

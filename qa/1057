@@ -1,0 +1,102 @@
+#!/bin/sh
+# PCP QA Test No. 1057
+# pmlogrewrite conditional type changes
+#
+# Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+cat <<'End-of-File' >$tmp.config
+metric nfsclient.age {
+    type if 64 -> U64
+    type if 32 -> U32
+}
+
+metric nfsclient.bytes.read.normal {
+    type if 64 -> U64
+    type if 32 -> U32
+}
+
+metric nfsclient.xprt.read_chunks {
+    type if 64 -> U64
+    type if 32 -> U32
+}
+
+metric nfsclient.xprt.write_chunks {
+    type if 64 -> U64
+    type if 32 -> U32
+}
+
+metric nfsclient.xprt.reply_chunks {
+    type if 64 -> U64
+    type if 32 -> U32
+}
+
+metric nfsclient.xprt.hardway {
+    type if 64 -> U64
+    type if 32 -> U32
+}
+
+metric nfsclient.xprt.failed_marshal {
+    type if 64 -> U64
+    type if 32 -> U32
+}
+
+metric nfsclient.xprt.bad_reply {
+    type if 64 -> U64
+    type if 32 -> U32
+}
+
+# nfsclient.ops.* metrics
+metric 62.8.* {
+    type if 64 -> U64
+    type if 32 -> U32
+}
+End-of-File
+
+_filter_rewrite()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+_filter_diff()
+{
+    sed \
+	-e "s@$tmp.in.*@input archive@g" \
+	-e "s@$tmp.out.*@output archive@g" \
+    # end
+}
+
+# real QA test starts here
+for size in 32 64
+do
+    echo
+    echo "=== size $size ==="
+    rm -f $tmp.0 $tmp.index $tmp.meta
+    pmlogrewrite -w -c $tmp.config archives/nfsclient_$size $tmp 2>&1 \
+    | _filter_rewrite
+
+    pminfo -d -a archives/nfsclient_$size >$tmp.in
+    pminfo -d -a $tmp >$tmp.out
+
+    diff -u $tmp.in $tmp.out \
+    | _filter_diff
+done
+
+# success, all done
+status=0
+
+exit
