@@ -558,7 +558,7 @@ DoPMNSNames(ClientInfo *cp, __pmPDU *pb)
 	/*
 	 * only set error status to the current error status
 	 * if this is the first error for this set of metrics,
-	 * and it either it is a fatal error, or numids is 1
+	 * and if either it is a fatal error, or numids is 1
 	 */
 	if (lsts < 0 && sts > 0) {
 	    if ((lsts != PM_ERR_NAME && lsts != PM_ERR_NOAGENT &&
@@ -724,16 +724,16 @@ static int travNL_i;      /* array index */
 static void
 AddLengths(const char *name)
 {
-  travNL_strlen += strlen(name) + 1;
-  travNL_num++;
+    travNL_strlen += strlen(name) + 1;
+    travNL_num++;
 }
 
 static void
 BuildNameList(const char *name)
 {
-  travNL[travNL_i++] = travNL_ptr;
-  strcpy(travNL_ptr, name);
-  travNL_ptr += strlen(name) + 1;
+    travNL[travNL_i++] = travNL_ptr;
+    strcpy(travNL_ptr, name);
+    travNL_ptr += strlen(name) + 1;
 }
 
 /*
