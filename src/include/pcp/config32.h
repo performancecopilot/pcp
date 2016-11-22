@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2014,2016 Red Hat.
+ * Headers for "multilib" support (32-bit and 64-bit packages co-existing)
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
