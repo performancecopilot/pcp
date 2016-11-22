@@ -33,6 +33,7 @@ install: default
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
 	@$(INSTALL_MAN)
+	$(INSTALL) -m 644 migrate.conf $(PCP_VAR_DIR)/config/pmlogrewrite/nfsclient_migrate.conf
 else
 install:
 endif
