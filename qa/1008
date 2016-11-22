@@ -21,6 +21,7 @@ _filter()
 {
     sed \
     	-e "s/$otherhost[\.a-zA-Z0-9\-]*/OTHER_HOST/g" \
+    	-e "s/local:/THIS_HOST/g" \
     	-e "s/$localhost[\.a-zA-Z0-9\-]*/THIS_HOST/g" \
 	-e "s#$tz#TZ#"
 }
