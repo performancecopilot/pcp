@@ -208,7 +208,7 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 #	query pmcd.pdu_in
 # below ... so best to avoid that.
 #
-type="-v 'pcp>=3'"
+type="-v pcp>=3"
 echo
 echo "=== pmlogger host type: $type ==="
 host=`./getpmcdhosts -L -n 1 $type`

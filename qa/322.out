@@ -1,6 +1,6 @@
 QA output created by 322
 
-=== pmlogger host type: -v pcp>=2 ===
+=== pmlogger host type: -v pcp>=3 ===
 New log volume 1
 last log entry   DATE
 current time     DATE
