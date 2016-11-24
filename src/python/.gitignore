@@ -5,3 +5,4 @@ build_python3
 dist
 s-setup
 MANIFEST
+pcp.egg-info
