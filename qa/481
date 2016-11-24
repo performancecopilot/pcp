@@ -276,5 +276,22 @@ End-of-File
 rm -f $tmp.new.*
 pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
 
+echo
+echo "=== new conditional if in type clause (expect errors) ==="
+cat <<End-of-File >$tmp.conf
+metric irix.kernel.all.load {
+    type if 32 ->
+}
+End-of-File
+rm -f $tmp.new.*
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+cat <<End-of-File >$tmp.conf
+metric irix.kernel.all.load {
+    type if
+}
+End-of-File
+rm -f $tmp.new.*
+pmlogrewrite -C -c $tmp.conf archives/src-rattle $tmp.new 2>&1 | _filter
+
 # success, all done
 exit

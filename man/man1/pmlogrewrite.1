@@ -828,6 +828,31 @@ an unsigned type.
 .RE
 
 .PP
+.KW TYPE
+.KW IF
+.I oldtype
+.KW ->
+.I newtype
+.RS +4n
+.PP
+The same as the preceding
+.KW TYPE
+clause, except the type of the metric is only changed to
+.I newtype
+if the type of the metric in
+.I inlog
+is
+.I oldtype.
+.PP
+This useful in cases where the type of
+.I metricid
+in
+.I inlog
+may be platform dependent and so more than one type rewriting rule is
+required.
+.RE
+
+.PP
 .KW UNITS
 .KW ->
 .I newunits
@@ -936,6 +961,21 @@ metric 60.32.* { pmid -> 123.*.* }
 metric 60.51.* { pmid -> 123.*.* }
 # only one instance domain for Linux proc metrics
 indom 60.9 { indom -> 123.0 }
+.fi
+.ft P
+.RE
+.PP
+If the metric foo.count_em was exported as a native ``long'' then it
+could be a 32-bit integer on some platforms and a 64-bit integer on
+other platforms.  Subsequent investigations show the value is in
+fact unsigned, so the following rules could be used.
+.RS +4
+.ft CW
+.nf
+metric foo.count_em {
+	type if 32 -> U32
+	type if 64 -> U64
+}
 .fi
 .ft P
 .RE

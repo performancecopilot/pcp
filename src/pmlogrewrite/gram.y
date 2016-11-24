@@ -61,7 +61,7 @@ walk_indom(int mode)
 }
 
 metricspec_t *
-walk_metric(int mode, int flag, char *which)
+walk_metric(int mode, int flag, char *which, int dupok)
 {
     static metricspec_t	*mp;
 
@@ -85,7 +85,7 @@ walk_metric(int mode, int flag, char *which)
     }
 
     if (mp != NULL) {
-	if (mp->flags & flag) {
+	if (!dupok && (mp->flags & flag)) {
 	    snprintf(mess, sizeof(mess), "Duplicate %s clause for metric %s", which, mp->old_name);
 	    yyerror(mess);
 	}
@@ -137,6 +137,7 @@ walk_metric(int mode, int flag, char *which)
 	TOK_PMID
 	TOK_NULL_INT
 	TOK_TYPE
+	TOK_IF
 	TOK_SEM
 	TOK_UNITS
 	TOK_OUTPUT
@@ -692,7 +693,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 		    {
 			metricspec_t	*mp;
 			pmID		pmid;
-			for (mp = walk_metric(W_START, METRIC_CHANGE_PMID, "pmid"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_PMID, "pmid")) {
+			for (mp = walk_metric(W_START, METRIC_CHANGE_PMID, "pmid", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_PMID, "pmid", 0)) {
 			    if (current_star_metric == 1)
 				pmid = pmid_build(pmid_domain($3), pmid_cluster($3), pmid_item(mp->old_desc.pmid));
 			    else if (current_star_metric == 2)
@@ -715,7 +716,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 		| TOK_NAME TOK_ASSIGN TOK_GNAME
 		    {
 			metricspec_t	*mp;
-			for (mp = walk_metric(W_START, METRIC_CHANGE_NAME, "name"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_NAME, "name")) {
+			for (mp = walk_metric(W_START, METRIC_CHANGE_NAME, "name", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_NAME, "name", 0)) {
 			    if (strcmp($3, mp->old_name) == 0) {
 				/* no change ... */
 				if (wflag) {
@@ -739,9 +740,9 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 		| TOK_TYPE TOK_ASSIGN TOK_TYPE_NAME
 		    {
 			metricspec_t	*mp;
-			for (mp = walk_metric(W_START, METRIC_CHANGE_TYPE, "type"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_TYPE, "type")) {
+			for (mp = walk_metric(W_START, METRIC_CHANGE_TYPE, "type", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_TYPE, "type", 0)) {
 			    if ($3 == mp->old_desc.type) {
-				/* no change ... */
+				/* old == new, so no change ... */
 				if (wflag) {
 				    snprintf(mess, sizeof(mess), "Metric: %s (%s): type: PM_TYPE_%s: No change", mp->old_name, pmIDStr(mp->old_desc.pmid), pmTypeStr(mp->old_desc.type));
 				    yywarn(mess);
@@ -764,11 +765,42 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			    }
 			}
 		    }
+		| TOK_TYPE TOK_IF TOK_TYPE_NAME TOK_ASSIGN TOK_TYPE_NAME
+		    {
+			metricspec_t	*mp;
+			for (mp = walk_metric(W_START, METRIC_CHANGE_TYPE, "type", 1); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_TYPE, "type", 1)) {
+			    if (mp->old_desc.type != $3) {
+				if (wflag) {
+				    char	tbuf0[20];
+				    char	tbuf1[20];
+				    pmTypeStr_r(mp->old_desc.type, tbuf0, sizeof(tbuf0));
+				    pmTypeStr_r($5, tbuf1, sizeof(tbuf1));
+				    snprintf(mess, sizeof(mess), "Metric: %s (%s): type: PM_TYPE_%s: No conditional change to PM_TYPE_%s", mp->old_name, pmIDStr(mp->old_desc.pmid), tbuf0, tbuf1);
+				    yywarn(mess);
+				}
+			    }
+			    else {
+				if (mp->old_desc.type == PM_TYPE_32 ||
+				    mp->old_desc.type == PM_TYPE_U32 ||
+				    mp->old_desc.type == PM_TYPE_64 ||
+				    mp->old_desc.type == PM_TYPE_U64 ||
+				    mp->old_desc.type == PM_TYPE_FLOAT ||
+				    mp->old_desc.type == PM_TYPE_DOUBLE) {
+				    mp->new_desc.type = $5;
+				    mp->flags |= METRIC_CHANGE_TYPE;
+				}
+				else {
+				    snprintf(mess, sizeof(mess), "Old type (PM_TYPE_%s) must be numeric", pmTypeStr(mp->old_desc.type));
+				    yyerror(mess);
+				}
+			    }
+			}
+		    }
 		| TOK_INDOM TOK_ASSIGN null_or_indom pick
 		    {
 			metricspec_t	*mp;
 			pmInDom		indom;
-			for (mp = walk_metric(W_START, METRIC_CHANGE_INDOM, "indom"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_INDOM, "indom")) {
+			for (mp = walk_metric(W_START, METRIC_CHANGE_INDOM, "indom", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_INDOM, "indom", 0)) {
 			    if (current_star_indom)
 				indom = pmInDom_build(pmInDom_domain($3), pmInDom_serial(mp->old_desc.indom));
 			    else
@@ -841,7 +873,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 		| TOK_SEM TOK_ASSIGN TOK_SEM_NAME
 		    {
 			metricspec_t	*mp;
-			for (mp = walk_metric(W_START, METRIC_CHANGE_SEM, "sem"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_SEM, "sem")) {
+			for (mp = walk_metric(W_START, METRIC_CHANGE_SEM, "sem", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_SEM, "sem", 0)) {
 			    if ($3 == mp->old_desc.sem) {
 				/* no change ... */
 				if (wflag) {
@@ -858,7 +890,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 		| TOK_UNITS TOK_ASSIGN signnumber TOK_COMMA signnumber TOK_COMMA signnumber TOK_COMMA TOK_SPACE_NAME TOK_COMMA TOK_TIME_NAME TOK_COMMA TOK_COUNT_NAME rescaleopt
 		    {
 			metricspec_t	*mp;
-			for (mp = walk_metric(W_START, METRIC_CHANGE_UNITS, "units"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_UNITS, "units")) {
+			for (mp = walk_metric(W_START, METRIC_CHANGE_UNITS, "units", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_UNITS, "units", 0)) {
 			    if ($3 == mp->old_desc.units.dimSpace &&
 			        $5 == mp->old_desc.units.dimTime &&
 			        $7 == mp->old_desc.units.dimCount &&
@@ -904,7 +936,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 		| TOK_DELETE
 		    {
 			metricspec_t	*mp;
-			for (mp = walk_metric(W_START, METRIC_DELETE, "delete"); mp != NULL; mp = walk_metric(W_NEXT, METRIC_DELETE, "delete")) {
+			for (mp = walk_metric(W_START, METRIC_DELETE, "delete", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_DELETE, "delete", 0)) {
 			    mp->flags |= METRIC_DELETE;
 			}
 		    }
@@ -919,6 +951,16 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			yyerror(mess);
 		    }
 		| TOK_TYPE TOK_ASSIGN
+		    {
+			snprintf(mess, sizeof(mess), "Expecting XXX (from PM_TYPE_XXX) in type clause");
+			yyerror(mess);
+		    }
+		| TOK_TYPE TOK_IF
+		    {
+			snprintf(mess, sizeof(mess), "Expecting XXX (from PM_TYPE_XXX) after if in type clause");
+			yyerror(mess);
+		    }
+		| TOK_TYPE TOK_IF TOK_TYPE_NAME TOK_ASSIGN
 		    {
 			snprintf(mess, sizeof(mess), "Expecting XXX (from PM_TYPE_XXX) in type clause");
 			yyerror(mess);
@@ -990,5 +1032,6 @@ rescaleopt	: TOK_RESCALE { $$ = 1; }
 		| /* nothing */
 		    { $$ = 0; }
 		;
+
 
 %%
