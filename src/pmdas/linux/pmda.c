@@ -63,6 +63,7 @@
 #include "interrupts.h"
 #include "ipc.h"
 #include "proc_net_softnet.h"
+#include "proc_buddyinfo.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -85,6 +86,7 @@ static shm_info_t              _shm_info;
 static sem_info_t              _sem_info;
 static msg_info_t              _msg_info;
 static proc_net_softnet_t	proc_net_softnet;
+static proc_buddyinfo_t		proc_buddyinfo;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static int		rootfd = -1;	/* af_unix pmdaroot */
@@ -332,6 +334,7 @@ static pmdaIndom indomtab[] = {
     { IPC_STAT_INDOM, 0, NULL },
     { IPC_MSG_INDOM, 0, NULL },
     { IPC_SEM_INDOM, 0, NULL },
+    { BUDDYINFO_INDOM, 0, NULL },
 };
 
 
@@ -1298,6 +1301,13 @@ static pmdaMetric metrictab[] = {
     { NULL,
       { PMDA_PMID(CLUSTER_SLAB,7), PM_TYPE_U64, SLAB_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/*
+ * /proc/buddyinfo cluster
+ */
+    { NULL,
+      { PMDA_PMID(CLUSTER_BUDDYINFO,0), PM_TYPE_U32, BUDDYINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0) }, }, 
 
 /*
  * /proc/loadavg cluster
@@ -4904,6 +4914,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_SEM_STAT])
 	refresh_sem_array(INDOM(IPC_SEM_INDOM));
 
+    if (need_refresh[CLUSTER_BUDDYINFO])
+	refresh_proc_buddyinfo(&proc_buddyinfo);
+
 done:
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
@@ -4976,6 +4989,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     case IPC_SEM_INDOM:
 	need_refresh[CLUSTER_SEM_STAT]++;
 	break;
+    case BUDDYINFO_INDOM:
+        need_refresh[CLUSTER_BUDDYINFO]++;
+        break;
     /* no default label : pmdaInstance will pick up errors */
     }
 
@@ -6803,6 +6819,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
+    case CLUSTER_BUDDYINFO:
+        atom->ul = proc_buddyinfo.buddys[inst].value;
+        break;
+
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -7071,6 +7091,7 @@ linux_init(pmdaInterface *dp)
     proc_stat.cpu_indom = proc_cpuinfo.cpuindom = &indomtab[CPU_INDOM];
     numa_meminfo.node_indom = proc_cpuinfo.node_indom = &indomtab[NODE_INDOM];
     proc_slabinfo.indom = &indomtab[SLAB_INDOM];
+    proc_buddyinfo.indom = &indomtab[BUDDYINFO_INDOM];
 
     /*
      * Figure out kernel version.  The precision of certain metrics
