@@ -141,8 +141,12 @@ refresh_filesys(pmInDom filesys_indom, pmInDom quota_indom)
 	    continue;
 	if (strncmp(device, "/dev", 4) != 0)
 	    continue;
-	if (realpath(device, realdevice) != NULL)
-	    device = realdevice;
+	/* keep dm and md persistent names, RHBZ#1349932 */
+	if (strncmp(device, "/dev/mapper", 11) != 0 && strncmp(device, "/dev/md", 7) != 0) {
+	    if (realpath(device, realdevice) != NULL) {
+		device = realdevice;
+	    }
+	}
 
 	sts = pmdaCacheLookupName(indom, device, NULL, (void **)&fs);
 	if (sts == PMDA_CACHE_ACTIVE)	/* repeated line in /proc/mounts? */
