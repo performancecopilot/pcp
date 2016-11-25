@@ -1,13 +1,13 @@
-Summary: Unit Standard (JSR 363) Reference Implementation
-Name: unit-ri
+Summary: Unit Standard (JSR 363) Implementation for Java SE 8 and above
+Name: uom-se
 Version: 1.0.1
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
 License: BSD3
-URL: https://github.com/unitsofmeasurement/unit-api
+URL: https://github.com/unitsofmeasurement/uom-se
 Group: Development/Languages
-# https://github.com/unitsofmeasurement/unit-ri/archive/%{version}.tar.gz
+# https://github.com/unitsofmeasurement/uom-se/archive/%{version}.tar.gz
 Source0: %{name}-%{version}.tar.gz
 
 BuildArch: noarch
@@ -24,18 +24,20 @@ BuildRequires: mvn(tec.uom:uom-parent:pom:)
 BuildRequires: mvn(tec.uom.lib:uom-lib:pom:)
 
 %description
-JSR 363 Reference Implementation (RI).
+JSR 363 Implementation got Java SE 8 and above.
 
-The RI aims at Java Embedded, both SE 6/7 or above and Java ME 8 Embedded.
+JDK Integration of Unit-API / JSR 363.  This implementation aims at
+Java SE 8 and above, allowing the use of new features like Lambdas
+together with Units of Measurement API.
 
 %package javadoc
 Group: Documentation
 BuildArch: noarch
-Summary: Javadoc for the Units Standard (JSR 363) Reference Implementation
+Summary: Javadoc for the Units Standard (JSR 363) Java SE 8 Implementation
 
 %description javadoc
 This package contains documentation for the Units Standard (JSR 363)
-Reference Implementation.
+Java SE 8 Implementation.
 
 %prep
 %setup -q
@@ -53,5 +55,5 @@ Reference Implementation.
 %files javadoc -f .mfiles-javadoc
 
 %changelog
-* Thu Oct 13 2016 Nathan Scott <nathans@redhat.com> - 1.0.1-1
+* Fri Nov 25 2016 Nathan Scott <nathans@redhat.com> - 1.0.1-1
 - Initial version.
