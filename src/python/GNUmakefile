@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 SUBDIRS = pcp
 CFILES = pmapi.c pmda.c pmgui.c pmi.c mmv.c
 LDIRDIRT = build dist
-LDIRT = build_python2 build_python3
+LDIRT = build_python2 build_python3 MANIFEST
 ifneq ($(CFLAGS_ABI),)
 ENV = CFLAGS=$(CFLAGS_ABI)
 else
