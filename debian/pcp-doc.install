@@ -12,12 +12,9 @@ usr/share/doc/pcp-doc/html/howto.systemlog.html
 usr/share/doc/pcp-doc/html/index.html
 usr/share/doc/pcp-doc/html/installation.html
 usr/share/doc/pcp-doc/html/lab.importdata.html
-usr/share/doc/pcp-doc/html/lab.mmapvalues.html
 usr/share/doc/pcp-doc/html/lab.pmchart.html
-usr/share/doc/pcp-doc/html/lab.pmdas.html
 usr/share/doc/pcp-doc/html/lab.pmieconf.html
 usr/share/doc/pcp-doc/html/lab.pmie.html
-usr/share/doc/pcp-doc/html/lab.pmlogconf.html
 usr/share/doc/pcp-doc/html/lab.pmlogger.html
 usr/share/doc/pcp-doc/html/lab.pmview.html
 usr/share/doc/pcp-doc/html/lab.trace.html
