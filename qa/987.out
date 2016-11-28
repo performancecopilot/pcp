@@ -1,10 +1,4 @@
 QA output created by 987
-tar: dev/mapper/docker-253\:1-1051828-pool: Cannot mknod: Operation not permitted
-tar: dev/mapper/fedora-home: Cannot mknod: Operation not permitted
-tar: dev/mapper/fedora-root: Cannot mknod: Operation not permitted
-tar: dev/mapper/fedora-swap: Cannot mknod: Operation not permitted
-tar: dev/mapper/tmpvg-tmplv: Cannot mknod: Operation not permitted
-tar: Exiting with failure status due to previous errors
 == Checking metric descriptors and values - xfs-root-001.tgz
 
 xfs.write PMID: 11.16.51 [number of XFS file system write operations]
@@ -2320,13 +2314,6 @@ No value(s) available!
 
 == done
 
-tar: dev/mapper/tmpvg-tmplv: Cannot mknod: Operation not permitted
-tar: dev/mapper/docker-253\:1-1051828-pool: Cannot mknod: Operation not permitted
-tar: dev/mapper/fedora-home: Cannot mknod: Operation not permitted
-tar: dev/mapper/fedora-root: Cannot mknod: Operation not permitted
-tar: dev/mapper/fedora-swap: Cannot mknod: Operation not permitted
-tar: dev/mapper/control: Cannot mknod: Operation not permitted
-tar: Exiting with failure status due to previous errors
 == Checking metric descriptors and values - xfs-root-002.tgz
 
 xfs.write PMID: 11.16.51 [number of XFS file system write operations]
@@ -3495,7 +3482,7 @@ Help:
 This is the number of write(2) system calls made to files in
 XFS file systems.
     inst [0-or-1 or "/dev/loop3"] value 151
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 101
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 252
 
 xfs.perdev.write_bytes PMID: 11.18.52 [number of bytes written in XFS file system write operations]
     Data Type: 64-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3506,7 +3493,7 @@ in XFS file systems. It can be used in conjunction with the write_calls
 count to calculate the average size of the write operations to files in
 XFS file systems.
     inst [0-or-1 or "/dev/loop3"] value 566552
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 378952
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 945504
 
 xfs.perdev.read PMID: 11.18.53 [number of XFS file system read operations]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3537,7 +3524,7 @@ inode is being flushed (such as by bdflush or tail pushing).
 xfs_iflush searches for other inodes in the same cluster which are
 dirty and flushable.
     inst [0-or-1 or "/dev/loop3"] value 9
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 5
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 14
 
 xfs.perdev.icluster_flushcnt PMID: 11.18.68 [value from xs_icluster_flushcnt field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3545,7 +3532,7 @@ xfs.perdev.icluster_flushcnt PMID: 11.18.68 [value from xs_icluster_flushcnt fie
 Help:
 value from xs_icluster_flushcnt field of struct xfsstats
     inst [0-or-1 or "/dev/loop3"] value 8
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 4
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 12
 
 xfs.perdev.icluster_flushinode PMID: 11.18.69 [number of flushes of only one inode in cluster]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3554,7 +3541,7 @@ Help:
 This is the number of times that the inode clustering was not able to
 flush anything but the one inode it was called with.
     inst [0-or-1 or "/dev/loop3"] value 167
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 97
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 264
 
 xfs.perdev.allocs.alloc_extent PMID: 11.18.0 [XFS extents allocated]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3562,7 +3549,7 @@ xfs.perdev.allocs.alloc_extent PMID: 11.18.0 [XFS extents allocated]
 Help:
 Number of file system extents allocated over XFS filesystems
     inst [0-or-1 or "/dev/loop3"] value 142
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 92
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 234
 
 xfs.perdev.allocs.alloc_block PMID: 11.18.1 [XFS blocks allocated]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3570,7 +3557,7 @@ xfs.perdev.allocs.alloc_block PMID: 11.18.1 [XFS blocks allocated]
 Help:
 Number of file system blocks allocated over XFS filesystems
     inst [0-or-1 or "/dev/loop3"] value 149
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 99
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 248
 
 xfs.perdev.allocs.free_extent PMID: 11.18.2 [XFS extents freed]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3578,7 +3565,7 @@ xfs.perdev.allocs.free_extent PMID: 11.18.2 [XFS extents freed]
 Help:
 Number of file system extents freed over XFS filesystems
     inst [0-or-1 or "/dev/loop3"] value 61
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 61
 
 xfs.perdev.allocs.free_block PMID: 11.18.3 [XFS blocks freed]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3586,7 +3573,7 @@ xfs.perdev.allocs.free_block PMID: 11.18.3 [XFS blocks freed]
 Help:
 Number of file system blocks freed over XFS filesystems
     inst [0-or-1 or "/dev/loop3"] value 61
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 61
 
 xfs.perdev.alloc_btree.lookup PMID: 11.18.4 [lookups in XFS alloc btrees]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3626,7 +3613,7 @@ xfs.perdev.block_map.read_ops PMID: 11.18.8 [block map read ops in XFS]
 Help:
 Number of block map for read operations performed on XFS files
     inst [0-or-1 or "/dev/loop3"] value 628
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 447
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 1075
 
 xfs.perdev.block_map.write_ops PMID: 11.18.9 [block map write ops in XFS]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3634,7 +3621,7 @@ xfs.perdev.block_map.write_ops PMID: 11.18.9 [block map write ops in XFS]
 Help:
 Number of block map for write operations performed on XFS files
     inst [0-or-1 or "/dev/loop3"] value 292
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 192
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 484
 
 xfs.perdev.block_map.unmap PMID: 11.18.10 [block unmap ops in XFS]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3642,7 +3629,7 @@ xfs.perdev.block_map.unmap PMID: 11.18.10 [block unmap ops in XFS]
 Help:
 Number of block unmap (delete) operations performed on XFS files
     inst [0-or-1 or "/dev/loop3"] value 184
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 112
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 296
 
 xfs.perdev.block_map.add_exlist PMID: 11.18.11 [extent list add ops in XFS]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3650,7 +3637,7 @@ xfs.perdev.block_map.add_exlist PMID: 11.18.11 [extent list add ops in XFS]
 Help:
 Number of extent list insertion operations for XFS files
     inst [0-or-1 or "/dev/loop3"] value 141
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 91
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 232
 
 xfs.perdev.block_map.del_exlist PMID: 11.18.12 [extent list delete ops in XFS]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3658,7 +3645,7 @@ xfs.perdev.block_map.del_exlist PMID: 11.18.12 [extent list delete ops in XFS]
 Help:
 Number of extent list deletion operations for XFS files
     inst [0-or-1 or "/dev/loop3"] value 72
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 11
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 83
 
 xfs.perdev.block_map.look_exlist PMID: 11.18.13 [extent list lookup ops in XFS]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3666,7 +3653,7 @@ xfs.perdev.block_map.look_exlist PMID: 11.18.13 [extent list lookup ops in XFS]
 Help:
 Number of extent list lookup operations for XFS files
     inst [0-or-1 or "/dev/loop3"] value 1104
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 751
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 1855
 
 xfs.perdev.block_map.cmp_exlist PMID: 11.18.14 [extent list compare ops in XFS]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3718,7 +3705,7 @@ system's directory name lookup cache and must search the real directory
 structure for the name in question.  The count is incremented once for
 each level of a pathname search that results in a directory lookup.
     inst [0-or-1 or "/dev/loop3"] value 101
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 101
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 202
 
 xfs.perdev.dir_ops.create PMID: 11.18.20 [number of directory entry creation operations]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3729,7 +3716,7 @@ filesystems. Each time that a new file, directory, link, symbolic link,
 or special file is created in the directory hierarchy the count is
 incremented.
     inst [0-or-1 or "/dev/loop3"] value 112
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 101
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 213
 
 xfs.perdev.dir_ops.remove PMID: 11.18.21 [number of directory entry remove operations]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3740,7 +3727,7 @@ XFS filesystems. Each time that a file, directory, link, symbolic link,
 or special file is removed from the directory hierarchy the count is
 incremented.
     inst [0-or-1 or "/dev/loop3"] value 33
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 11
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 44
 
 xfs.perdev.dir_ops.getdents PMID: 11.18.22 [number of times the getdents operation is performed]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3752,7 +3739,7 @@ contents of directories in a file system independent fashion.  This
 count corresponds exactly to the number of times the getdents(2) system
 call was successfully used on an XFS directory.
     inst [0-or-1 or "/dev/loop3"] value 6
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 16
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 22
 
 xfs.perdev.transactions.sync PMID: 11.18.23 [number of synchronous meta-data transactions performed]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3765,7 +3752,7 @@ expensive than asynchronous transactions, because they force the in
 memory log buffers to be forced to disk more often and they wait for
 the completion of the log buffer writes.
     inst [0-or-1 or "/dev/loop3"] value 4
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 2
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 7
 
 xfs.perdev.transactions.async PMID: 11.18.24 [number of asynchronous meta-data transactions performed]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3780,7 +3767,7 @@ written to disk. This allows multiple asynchronous transactions to be
 committed to disk in a single log buffer write. Most transactions used
 in XFS file systems are asynchronous.
     inst [0-or-1 or "/dev/loop3"] value 1042
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 632
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 1674
 
 xfs.perdev.transactions.empty PMID: 11.18.25 [number of meta-data transactions which committed without changing anything]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3801,7 +3788,7 @@ inode in the inode cache. Whether the inode was found in the cache or
 needed to be read in from the disk is not indicated here, but this can
 be computed from the ig_found and ig_missed counts.
     inst [0-or-1 or "/dev/loop3"] value 113
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 102
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 216
 
 xfs.perdev.inode_ops.ig_found PMID: 11.18.27 [number of successful in memory inode lookup operations]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3832,7 +3819,7 @@ This is the number of times the operating system looked for an XFS
 inode in the inode cache and the inode was not there. The further this
 count is from the ig_attempts count the better.
     inst [0-or-1 or "/dev/loop3"] value 113
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 102
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 216
 
 xfs.perdev.inode_ops.ig_dup PMID: 11.18.30 [number of inode cache insertions that fail because the inode is there]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3856,7 +3843,7 @@ from growing without bound. If the reclaim rate is high it may be
 beneficial to raise the vnode_free_ratio kernel tunable variable to
 increase the size of inode cache.
     inst [0-or-1 or "/dev/loop3"] value 33
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 11
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 45
 
 xfs.perdev.inode_ops.ig_attrchg PMID: 11.18.32 [number of inode attribute change operations]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3866,7 +3853,7 @@ This is the number of times the operating system explicitly changed the
 attributes of an XFS inode. For example, this could be to change the
 inode's owner, the inode's size, or the inode's timestamps.
     inst [0-or-1 or "/dev/loop3"] value 39
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 39
 
 xfs.perdev.log.writes PMID: 11.18.33 [number of buffer writes going to the disk from the log]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3877,7 +3864,7 @@ physical log partitions of XFS filesystems. Log data traffic is
 proportional to the level of meta-data updating. Log buffer writes get
 generated when they fill up or external syncs occur.
     inst [0-or-1 or "/dev/loop3"] value 10
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 7
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 19
 
 xfs.perdev.log.blocks PMID: 11.18.34 [write throughput to the physical XFS log]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3891,7 +3878,7 @@ disk write speed. Therefore, filesystems with very high meta-data
 updating may need to stripe the log partition or put the log partition
 on a separate drive.
     inst [0-or-1 or "/dev/loop3"] value 100
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 68
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 170
 
 xfs.perdev.log.write_ratio PMID: 11.18.78 [ratio of count of XFS log blocks written to log writes]
     Data Type: float  InDom: 11.6 0x2c00006
@@ -3903,7 +3890,7 @@ performed - this is suboptimal.  Perfection is 64.  Fine-grain control
 can be obtained when this metric is used in conjuntion with pmstore(1)
 and the xfs.control.reset metric.
     inst [0-or-1 or "/dev/loop3"] value 20
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 19
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 17
 
 xfs.perdev.log.noiclogs PMID: 11.18.35 [count of failures for immediate get of buffered/internal]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3923,7 +3910,7 @@ The number of times the in-core log is forced to disk.  It is
 equivalent to the number of successful calls to the function
 xfs_log_force().
     inst [0-or-1 or "/dev/loop3"] value 150
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 160
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 318
 
 xfs.perdev.log.force_sleep PMID: 11.18.37 [value from xs_log_force_sleep field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3931,7 +3918,7 @@ xfs.perdev.log.force_sleep PMID: 11.18.37 [value from xs_log_force_sleep field o
 Help:
 This metric is exported from the xs_log_force_sleep field of struct xfsstats
     inst [0-or-1 or "/dev/loop3"] value 5
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 2
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 8
 
 xfs.perdev.log_tail.try_logspace PMID: 11.18.38 [value from xs_try_logspace field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3939,7 +3926,7 @@ xfs.perdev.log_tail.try_logspace PMID: 11.18.38 [value from xs_try_logspace fiel
 Help:
 This metric is exported from the xs_try_logspace field of struct xfsstats
     inst [0-or-1 or "/dev/loop3"] value 1046
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 634
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 1682
 
 xfs.perdev.log_tail.sleep_logspace PMID: 11.18.39 [value from xs_sleep_logspace field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3957,7 +3944,7 @@ The number of times the tail of the AIL is moved forward.  It is
 equivalent to the number of successful calls to the function
 xfs_trans_push_ail().
     inst [0-or-1 or "/dev/loop3"] value 1192
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 1780
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 2973
 
 xfs.perdev.log_tail.push_ail.success PMID: 11.18.41 [value from xs_push_ail_success field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3965,7 +3952,7 @@ xfs.perdev.log_tail.push_ail.success PMID: 11.18.41 [value from xs_push_ail_succ
 Help:
 value from xs_push_ail_success field of struct xfsstats
     inst [0-or-1 or "/dev/loop3"] value 36
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 16
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 53
 
 xfs.perdev.log_tail.push_ail.pushbuf PMID: 11.18.42 [value from xs_push_ail_pushbuf field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3981,7 +3968,7 @@ xfs.perdev.log_tail.push_ail.pinned PMID: 11.18.43 [value from xs_push_ail_pinne
 Help:
 value from xs_push_ail_pinned field of struct xfsstats
     inst [0-or-1 or "/dev/loop3"] value 106
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 107
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 213
 
 xfs.perdev.log_tail.push_ail.locked PMID: 11.18.44 [value from xs_push_ail_locked field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -3997,7 +3984,7 @@ xfs.perdev.log_tail.push_ail.flushing PMID: 11.18.45 [value from xs_push_ail_flu
 Help:
 value from xs_push_ail_flushing field of struct xfsstats
     inst [0-or-1 or "/dev/loop3"] value 167
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 97
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 264
 
 xfs.perdev.log_tail.push_ail.restarts PMID: 11.18.46 [value from xs_push_ail_restarts field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4013,7 +4000,7 @@ xfs.perdev.log_tail.push_ail.flush PMID: 11.18.47 [value from xs_push_ail_flush 
 Help:
 value from xs_push_ail_flush field of struct xfsstats
     inst [0-or-1 or "/dev/loop3"] value 2
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 3
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 5
 
 xfs.perdev.xstrat.bytes PMID: 11.18.48 [number of bytes of data processed by the XFS daemons]
     Data Type: 64-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4022,7 +4009,7 @@ Help:
 This is the number of bytes of file data flushed out by the XFS
 flushing daemons.
     inst [0-or-1 or "/dev/loop3"] value 573440
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 368640
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 942080
 
 xfs.perdev.xstrat.quick PMID: 11.18.49 [number of buffers processed by the XFS daemons written to contiguous space on disk]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4034,7 +4021,7 @@ the XFS daemons are delayed allocation buffers, so this count gives an
 indication of the success of the XFS daemons in allocating contiguous
 disk space for the data being flushed to disk.
     inst [0-or-1 or "/dev/loop3"] value 140
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 90
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 230
 
 xfs.perdev.xstrat.split PMID: 11.18.50 [number of buffers processed by the XFS daemons written to non-contiguous space on disk]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4159,7 +4146,7 @@ xfs.perdev.buffer.get PMID: 11.18.140 One-line Help: Error: One-line or help tex
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
     inst [0-or-1 or "/dev/loop3"] value 1516
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 894
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 2411
 
 xfs.perdev.buffer.create PMID: 11.18.141 One-line Help: Error: One-line or help text is not available
 
@@ -4167,7 +4154,7 @@ xfs.perdev.buffer.create PMID: 11.18.141 One-line Help: Error: One-line or help 
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
     inst [0-or-1 or "/dev/loop3"] value 29
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 29
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 76
 
 xfs.perdev.buffer.get_locked PMID: 11.18.142 One-line Help: Error: One-line or help text is not available
 
@@ -4175,7 +4162,7 @@ xfs.perdev.buffer.get_locked PMID: 11.18.142 One-line Help: Error: One-line or h
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
     inst [0-or-1 or "/dev/loop3"] value 1504
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 882
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 2386
 
 xfs.perdev.buffer.get_locked_waited PMID: 11.18.143 One-line Help: Error: One-line or help text is not available
 
@@ -4199,7 +4186,7 @@ xfs.perdev.buffer.miss_locked PMID: 11.18.145 One-line Help: Error: One-line or 
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
     inst [0-or-1 or "/dev/loop3"] value 12
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 12
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 25
 
 xfs.perdev.buffer.page_retries PMID: 11.18.146 One-line Help: Error: One-line or help text is not available
 
@@ -4215,7 +4202,7 @@ xfs.perdev.buffer.page_found PMID: 11.18.147 One-line Help: Error: One-line or h
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
     inst [0-or-1 or "/dev/loop3"] value 21
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 21
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 46
 
 xfs.perdev.buffer.get_read PMID: 11.18.148 One-line Help: Error: One-line or help text is not available
 
@@ -4223,7 +4210,7 @@ xfs.perdev.buffer.get_read PMID: 11.18.148 One-line Help: Error: One-line or hel
     Semantics: counter  Units: count
 Full Help: Error: One-line or help text is not available
     inst [0-or-1 or "/dev/loop3"] value 9
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 9
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 19
 
 xfs.perdev.vnodes.active PMID: 11.18.70 [number of vnodes not on free lists]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4231,7 +4218,7 @@ xfs.perdev.vnodes.active PMID: 11.18.70 [number of vnodes not on free lists]
 Help:
 number of vnodes not on free lists
     inst [0-or-1 or "/dev/loop3"] value 80
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 91
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 171
 
 xfs.perdev.vnodes.alloc PMID: 11.18.71 [number of times vn_alloc called]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4263,7 +4250,7 @@ xfs.perdev.vnodes.rele PMID: 11.18.74 [number of times vn_rele called]
 Help:
 number of times vn_rele called
     inst [0-or-1 or "/dev/loop3"] value 33
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 11
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 45
 
 xfs.perdev.vnodes.reclaim PMID: 11.18.75 [number of times vn_reclaim called]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4271,7 +4258,7 @@ xfs.perdev.vnodes.reclaim PMID: 11.18.75 [number of times vn_reclaim called]
 Help:
 number of times vn_reclaim called
     inst [0-or-1 or "/dev/loop3"] value 33
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 11
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 45
 
 xfs.perdev.vnodes.remove PMID: 11.18.76 [number of times vn_remove called]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4279,7 +4266,7 @@ xfs.perdev.vnodes.remove PMID: 11.18.76 [number of times vn_remove called]
 Help:
 number of times vn_remove called
     inst [0-or-1 or "/dev/loop3"] value 33
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 11
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 45
 
 xfs.perdev.vnodes.free PMID: 11.18.77 [number of times vn_free called]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4295,7 +4282,7 @@ xfs.perdev.btree.alloc_blocks.lookup PMID: 11.18.80 []
 Help:
 Number of free-space-by-block-number btree record lookups
     inst [0-or-1 or "/dev/loop3"] value 205
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 94
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 299
 
 xfs.perdev.btree.alloc_blocks.compare PMID: 11.18.81 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4303,7 +4290,7 @@ xfs.perdev.btree.alloc_blocks.compare PMID: 11.18.81 []
 Help:
 Number of free-space-by-block-number btree record compares
     inst [0-or-1 or "/dev/loop3"] value 326
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 94
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 420
 
 xfs.perdev.btree.alloc_blocks.insrec PMID: 11.18.82 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4311,7 +4298,7 @@ xfs.perdev.btree.alloc_blocks.insrec PMID: 11.18.82 []
 Help:
 Number of free-space-by-block-number btree insert record operations executed
     inst [0-or-1 or "/dev/loop3"] value 5
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 1
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 6
 
 xfs.perdev.btree.alloc_blocks.delrec PMID: 11.18.83 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4319,7 +4306,7 @@ xfs.perdev.btree.alloc_blocks.delrec PMID: 11.18.83 []
 Help:
 Number of free-space-by-block-number btree delete record operations executed
     inst [0-or-1 or "/dev/loop3"] value 2
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 1
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 3
 
 xfs.perdev.btree.alloc_blocks.newroot PMID: 11.18.84 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4412,7 +4399,7 @@ xfs.perdev.btree.alloc_blocks.moves PMID: 11.18.94 []
 Help:
 Records moved inside blocks during free-space-by-block-number btree operations
     inst [0-or-1 or "/dev/loop3"] value 5
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 1
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 6
 
 xfs.perdev.btree.alloc_contig.lookup PMID: 11.18.95 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4420,7 +4407,7 @@ xfs.perdev.btree.alloc_contig.lookup PMID: 11.18.95 []
 Help:
 Number of free-space-by-size btree record lookups
     inst [0-or-1 or "/dev/loop3"] value 403
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 184
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 587
 
 xfs.perdev.btree.alloc_contig.compare PMID: 11.18.96 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4428,7 +4415,7 @@ xfs.perdev.btree.alloc_contig.compare PMID: 11.18.96 []
 Help:
 Number of free-space-by-size btree btree record compares
     inst [0-or-1 or "/dev/loop3"] value 481
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 94
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 575
 
 xfs.perdev.btree.alloc_contig.insrec PMID: 11.18.97 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4436,7 +4423,7 @@ xfs.perdev.btree.alloc_contig.insrec PMID: 11.18.97 []
 Help:
 Number of free-space-by-size btree insert record operations executed
     inst [0-or-1 or "/dev/loop3"] value 203
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 92
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 295
 
 xfs.perdev.btree.alloc_contig.delrec PMID: 11.18.98 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4444,7 +4431,7 @@ xfs.perdev.btree.alloc_contig.delrec PMID: 11.18.98 []
 Help:
 Number of free-space-by-size btree delete record operations executed
     inst [0-or-1 or "/dev/loop3"] value 200
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 92
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 292
 
 xfs.perdev.btree.alloc_contig.newroot PMID: 11.18.99 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4537,7 +4524,7 @@ xfs.perdev.btree.alloc_contig.moves PMID: 11.18.109 []
 Help:
 Records moved inside blocks during free-space-by-size btree operations
     inst [0-or-1 or "/dev/loop3"] value 144
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 3
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 147
 
 xfs.perdev.btree.block_map.lookup PMID: 11.18.110 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4670,7 +4657,7 @@ xfs.perdev.btree.inode.lookup PMID: 11.18.125 []
 Help:
 Number of inode-allocation btree record lookups
     inst [0-or-1 or "/dev/loop3"] value 219
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 164
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 383
 
 xfs.perdev.btree.inode.compare PMID: 11.18.126 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4678,7 +4665,7 @@ xfs.perdev.btree.inode.compare PMID: 11.18.126 []
 Help:
 Number of inode-allocation btree record compares
     inst [0-or-1 or "/dev/loop3"] value 146
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 113
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 259
 
 xfs.perdev.btree.inode.insrec PMID: 11.18.127 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -4686,7 +4673,7 @@ xfs.perdev.btree.inode.insrec PMID: 11.18.127 []
 Help:
 Number of inode-allocation btree insert record operations executed
     inst [0-or-1 or "/dev/loop3"] value 1
-    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 1
+    inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 2
 
 xfs.perdev.btree.inode.delrec PMID: 11.18.128 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
