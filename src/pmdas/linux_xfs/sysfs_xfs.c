@@ -277,22 +277,42 @@ refresh_sysfs_xfs(sysfs_xfs_t *xfs)
     return -1;
 }
 
+/*
+ * The XFS stats kernel export uses device names that may not be persistent e.g. dm-xx,
+ * so we have to map from the persistent name used in /proc/mounts and also by the
+ * xfs.perdev indom name to the non-persistent name used by xfsstats.
+ */
+static char *
+xfs_stats_device_name(char *devname, char *statsname, int maxlen)
+{
+    char *slash;
+
+    if (realpath(devname, statsname) == NULL)
+    	strcpy(statsname, devname);
+    if ((slash = strrchr(statsname, '/')) != NULL)
+	return slash+1;
+    return statsname;
+}
+
 sysfs_xfs_t *
 refresh_device(pmInDom devices_indom, int inst)
 {
     char path[MAXPATHLEN], *dev;
+    char statsdev[MAXPATHLEN];
     sysfs_xfs_t *xfs;
     FILE *fp;
     int sts;
 
+    /* Indom 'dev' name is the full persistent device name, e.g. /dev/mapper/vg-lv1 */
     sts = pmdaCacheLookup(devices_indom, inst, &dev, (void **)&xfs);
     if (sts != PMDA_CACHE_ACTIVE)
 	return NULL;
     if (xfs->uptodate)
 	return xfs;
 
+    snprintf(path, sizeof(path), "%s/sys/fs/xfs/%s/stats/stats",
+    	xfs_statspath, xfs_stats_device_name(dev, statsdev, sizeof(statsdev)));
     memset(xfs, 0, sizeof(sysfs_xfs_t));
-    snprintf(path, sizeof(path), "%s/sys/fs/xfs/%s/stats/stats", xfs_statspath, dev);
     if ((fp = fopen(path, "r")) == NULL)
 	/* backwards compat - fallback to the original procfs entry */
 	if ((fp = xfs_statsfile("/proc/fs/xfs/stat", "r")) == NULL)
@@ -312,12 +332,14 @@ int
 refresh_devices(pmInDom devices_indom)
 {
     DIR *dp;
-    char path[MAXPATHLEN], *device;
+    char path[MAXPATHLEN], *statsdevice;
+    char device[MAXPATHLEN];
     pmInDom indom = devices_indom;
     struct sysfs_xfs *xfs;
     struct dirent *dentry;
     struct stat sb;
     int sts, i;
+    FILE *fp;
 
     /* mark any device currently active as having stale values */
     for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
@@ -332,13 +354,28 @@ refresh_devices(pmInDom devices_indom)
     snprintf(path, sizeof(path), "%s/sys/fs/xfs", xfs_statspath);
     if ((dp = opendir(path)) != NULL) {
 	while ((dentry = readdir(dp)) != NULL) {
-	    device = dentry->d_name;
-	    if (*device == '.')
+	    statsdevice = dentry->d_name;
+	    if (*statsdevice == '.')
 		continue;
 	    snprintf(path, sizeof(path), "%s/sys/fs/xfs/%s/stats/stats",
-			xfs_statspath, device);
+			xfs_statspath, statsdevice);
 	    if (stat(path, &sb) != 0 || !S_ISREG(sb.st_mode))
 		continue;
+
+	    /* map to the persistent name for the indom name */
+	    device[0] = '\0';
+	    if (snprintf(path, sizeof(path), "%s/sys/block/%s/dm/name", xfs_statspath, statsdevice) > 0) {
+		if ((fp = fopen(path, "r")) != NULL) {
+		    if (fgets(path, sizeof(device), fp) != NULL) {
+		    	char *p = strrchr(path, '\n');
+			if (p) *p = '\0';
+			snprintf(device, sizeof(device), "/dev/mapper/%s", path);
+		    }
+		    fclose(fp);
+		}
+	    }
+	    if (strnlen(device, sizeof(device)) == 0)
+	    	snprintf(device, sizeof(device), "/dev/%s", statsdevice);
 
 	    sts = pmdaCacheLookupName(indom, device, NULL, (void **)&xfs);
 	    if (sts == PMDA_CACHE_ACTIVE)
