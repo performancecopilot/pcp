@@ -34,11 +34,13 @@ LLDLIBS		= $(PCP_PMDALIB) $(PCP_WEBLIB)
 LLDFLAGS	= -L$(TOPDIR)/src/libpcp_web/src
 
 default:	$(CMDTARGET) $(HELPTARGETS) pmns
+ifneq "$(TARGET_OS)" "mingw"
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
 	    fi; \
 	fi
+endif
 
 include $(BUILDRULES)
 
