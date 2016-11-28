@@ -72,6 +72,9 @@ ifneq "$(findstring $(TARGET_OS),darwin mingw)" ""
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man3
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man5
 endif
+ifneq "$(findstring $(TARGET_OS), mingw)" ""
+	$(INSTALL) -m 1777 -d $(PCP_TMPFILE_DIR)
+endif
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)
 ifeq "$(findstring $(PACKAGE_DISTRIBUTION), debian)" ""
 	# $PCP_RUN_DIR usually -> /var/run which may be a temporary filesystem
