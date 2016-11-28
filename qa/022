@@ -55,7 +55,7 @@ _proc_filter()
 
     echo "+++ start proc_filter $1 +++" >>$seq.full
     cat $input \
-    | tee - $seq.full \
+    | tee -a $seq.full \
     | sed \
 	-e '/proc.memory.*.txt/s/valfmt: [01]/valfmt: 0-or-1/' \
 	-e '/proc\.psinfo\.[us]time/s/valfmt: [01]/valfmt: 0-or-1/' \
