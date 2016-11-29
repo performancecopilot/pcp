@@ -20,7 +20,7 @@
 # lines beginning with a # are ignored
 # lines beginning @ introduce a new entry of the form
 #  @ metric-name oneline-text
-#  help test goes
+#  help text goes
 #  here over multiple lines
 #  ...
 #
