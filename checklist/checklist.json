@@ -5,9 +5,8 @@
 	    ".description": "more detailed explanation of the issue",
 	    ".pcp_metrics": "information from pcp to determine whether problem",
 	    ".predicate": "test to determine if problem",
-	    ".article": "list of extern URLs (for example kbase articles) for addressing the issue",
-	    ".parents": ["one or more nodes that would be checked before this node"],
-	    ".children": ["zero or more nodes that would be checked after this node (filled in by scripted dashboard))"]
+	    ".urls": [ "list of extern URLs (for example kbase articles) for addressing the issue" ],
+	    ".parents": ["one or more nodes that would be checked before this node"]
         },
         {
             "name": "Start",
@@ -21,7 +20,6 @@
 	    "predicate": "(1 - fetch_metric_min(\"kernel.percpu.cpu.idle\")",
 	    "pcp_metrics": ["kernel.percpu.cpu.idle.*"],
             "pcp_metrics_log": ["kernel.percpu.cpu.idle" ],
-	    "article": "",
 	    "parents": ["Start"]
         },
         {
@@ -30,7 +28,6 @@
 	    "pcp_metrics": ["disk.dm.avactive.*"],
 	    "pcp_metrics_log": ["disk.dm.avactive"],
 	    "predicate": "disk.dm.avactive",
-	    "article": "",
 	    "parents": ["Start"]
         },
         {
@@ -39,7 +36,6 @@
 	    "pcp_metrics": [ "disk.dm.total.*", "kernel.all.uptime.*" ],
 	    "pcp_metrics_log": [ "disk.dm.total", "kernel.all.uptime" ],
 	    "predicate": "delta(disk.dm.total)/delta(time)",
-	    "article": "",
 	    "parents": ["Storage"]
         },
         {
@@ -47,24 +43,27 @@
 	    "description": "Excessive waiting for storage",
 	    "pcp_metrics": [ "disk.dm.total.*", "disk.dm.blktotal.*"],
 	    "pcp_metrics_log": [ "disk.dm.total", "disk.dm.blktotal"],
-	    "predicate": "delta(disk.dm.total)/delta(disk.dm.blktotal)",
-	    "article": "",
+            "pcp_deriveds": [ "blkrate = delta(disk.dm.total)/delta(disk.dm.blktotal)" ],
+	    "pcp_predicate": { "indom" : "any",
+                               "left": { "pcp_metric": "blkrate" },
+                               "operator": "<",
+                               "right": { "literal": "64" } },
 	    "parents": ["Storage"]
         },
         {
             "name": "Memory",
 	    "description": "Running low on free memory",
 	    "pcp_metrics": [ "mem.freemem", "mem.physmem" ],
-	    "predicate": "mem.freemem/mem.physmem",
-	    "article": "",
+	    "pcp_deriveds": [ "mem_freepct = mem.freemem * 100/mem.physmem" ],
+            "pcp_predicate": { "left": { "pcp_metric" : "mem_freepct"},
+                               "operator": "<",
+                               "right": { "literal": "5" } },
 	    "parents": ["Start"]
         },
         {
             "name": "Memory - swapping",
 	    "description": "Not enough physical memory and data being moved between memory and swap space",
 	    "pcp_metrics":  [ "swap.pagesin" , "swap.pagesout" ], 
-	    "predicate": "",
-	    "article": "",
 	    "parents": ["Memory"]
         },
         {
@@ -89,8 +88,7 @@
             "name": "Memory - huge page defragmentation",
 	    "description": "The system is spending large amounts of time grouping small pages of memory together into contigious physical regions of memory",
 	    "pcp_metrics": [ "mem.vmstat.thp_collapse_alloc", "mem.vmstat.thp_fault_alloc", "mem.vmstat.thp_fault_fallback" ],
-	    "predicate": "",
-	    "article": "http://dl.acm.org/citation.cfm?id=2930834",
+	    "urls": [ "http://dl.acm.org/citation.cfm?id=2930834" ],
 	    "parents": ["Memory"]
         },
         {
@@ -98,8 +96,6 @@
 	    "description": "Amount of network trafic",
 	    "pcp_metrics": ["network.interface.in.bytes.*", "network.interface.out.bytes.*" ],
 	    "pcp_metrics_log": ["network.interface.out.bytes", "network.interface.in.bytes"],
-	    "predicate": "",
-	    "article": "",
 	    "parents": ["Start"]
         },
         {
@@ -107,8 +103,6 @@
 	    "description": "Network packets being dropped",
 	    "pcp_metrics": ["network.interface.out.drops.*", "network.interface.in.drops.*" ],
 	    "pcp_metrics_log": ["network.interface.out.drops", "network.interface.in.drops" ],
-	    "predicate": "",
-	    "article": "",
 	    "parents": ["Network"]
         },
         {
@@ -116,10 +110,7 @@
 	    "description": "Show network errors",
 	    "pcp_metrics": ["network.interface.out.errors.*", "network.interface.in.errors.*" ],
 	    "pcp_metrics_log": ["network.interface.out.errors", "network.interface.in.errors"],
-	    "predicate": "",
-	    "article": "",
 	    "parents": ["Network"]
         }
-    ],
-    "edges": [ ]
+    ]
 }

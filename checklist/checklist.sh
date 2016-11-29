@@ -30,6 +30,12 @@ echo "Created temporary directory $tmpdir"
 pids=""
 trap 'kill $pids >/dev/null 2>&1; rm -rf "$tmpdir"; exit 0' 0 1 2 3 5 9 15 
 
+# extract derived metrics from json file
+derived=$tmpdir/derived.config
+jq -r '.nodes[] | .pcp_deriveds | select (. != null) | .[] ' < $CHECKLIST > $derived
+PCP_DERIVED_CONFIG=$derived${PCP_DERIVED_CONFIG+:$PCP_DERIVED_CONFIG}
+export PCP_DERIVED_CONFIG
+
 # start private logger (pmrep) from metrics in json file
 jq '.nodes[] | .pcp_metrics_log // .pcp_metrics | select (. != null) | .[] ' < $CHECKLIST | while read metric
 do
