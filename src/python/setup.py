@@ -18,7 +18,7 @@
 #
 
 # New way, modern setup mechanisms for pypi
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 # To use a consistent encoding
 from codecs import open
 from os import path
@@ -37,6 +37,13 @@ setup(name = 'pcp',
     author_email = 'pcp@groups.io',
     url = 'http://pcp.io',
     packages = find_packages(),
+    ext_modules = [
+        Extension('cpmapi', ['pmapi.c'], libraries = ['pcp']),
+        Extension('cpmda', ['pmda.c'], libraries = ['pcp_pmda', 'pcp']),
+        Extension('cpmgui', ['pmgui.c'], libraries = ['pcp_gui']),
+        Extension('cpmi', ['pmi.c'], libraries = ['pcp_import']),
+        Extension('cmmv', ['mmv.c'], libraries = ['pcp_mmv']),
+    ],
     keywords = ['performance', 'analysis', 'monitoring' ],
     platforms = [ 'Windows', 'Linux', 'FreeBSD', 'NetBSD', 'OpenBSD', 'Solaris', 'Mac OS X', 'AIX' ],
     classifiers = [

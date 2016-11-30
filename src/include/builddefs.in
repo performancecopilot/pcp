@@ -694,8 +694,9 @@ PYTHON_INSTALL = \
 	    | while read f; do \
 		bn=`basename $$f`; \
 		dn=`dirname $$f`; \
+		pydir="$(TOPDIR)/src/python"; \
 		$(INSTALL) -d $$dn || exit 1; \
-		src=`find $(TOPDIR)/src/python/build -name $$bn`; \
+		src=`find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; \
 		$(INSTALL) $$src $$f || exit 1; \
 	    done; \
 	fi
@@ -705,8 +706,9 @@ PYTHON3_INSTALL = \
 	    | while read f; do \
 		bn=`basename $$f`; \
 		dn=`dirname $$f`; \
+		pydir="$(TOPDIR)/src/python"; \
 		$(INSTALL) -d $$dn || exit 1; \
-		src=`find $(TOPDIR)/src/python/build -name $$bn`; \
+		src=`find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; \
 		$(INSTALL) $$src $$f || exit 1; \
 	    done; \
 	fi
