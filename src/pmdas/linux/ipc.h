@@ -130,3 +130,12 @@ typedef struct {
 } msg_que_t;
 
 extern int refresh_msg_que(pmInDom msg_indom);
+
+typedef struct {
+        char                sem_key[IPC_KEYLEN]; /* name of these messages slot */
+        char                sem_owner[IPC_OWNERLEN]; /* username of owner */
+        unsigned int        sem_perms;		/* access permissions */
+        unsigned int        nsems;	        /* no. of semaphore */
+} sem_array_t;
+
+extern int refresh_sem_array(pmInDom sem_indom);

@@ -280,3 +280,73 @@ refresh_msg_que(pmInDom msg_indom)
     pmdaCacheOp(msg_indom, PMDA_CACHE_SAVE);
     return 0;
 }
+
+int 
+refresh_sem_array(pmInDom sem_indom)
+{
+    struct passwd *pw = NULL;
+    char semid[IPC_KEYLEN]; 
+    char perms[IPC_KEYLEN];
+    int i = 0, maxid = 0;
+    int sts = 0;
+    sem_array_t *sem_arr = NULL;
+    struct seminfo dummy;
+    static union semun arg;
+    struct semid_ds semseg;  
+
+    pmdaCacheOp(sem_indom, PMDA_CACHE_INACTIVE);
+
+    arg.array = (unsigned short *) &dummy;
+    maxid = semctl(0, 0, SEM_INFO, arg);
+    if (maxid < 0)
+	return -1;
+ 
+    while (i <= maxid) {
+	int semid_o;
+        struct ipc_perm *ipcp = &semseg.sem_perm; 
+        arg.buf = (struct semid_ds *)&semseg;
+
+	if ((semid_o = semctl(i++, 0, SEM_STAT, arg)) < 0)
+	    continue;
+
+	snprintf(semid, sizeof(semid), "%d", semid_o);
+	semid[sizeof(semid)-1] = '\0';
+	sts = pmdaCacheLookupName(sem_indom, semid, NULL, (void **)&sem_arr);
+	if (sts == PMDA_CACHE_ACTIVE)
+	    continue;
+
+	if (sts == PMDA_CACHE_INACTIVE) {
+	    pmdaCacheStore(sem_indom, PMDA_CACHE_ADD, semid, sem_arr);
+	}
+	else {
+	    if ((sem_arr = (sem_array_t *)malloc(sizeof(sem_array_t))) == NULL)
+		continue;
+	    memset(sem_arr, 0, sizeof(sem_array_t));
+
+	    snprintf(sem_arr->sem_key, IPC_KEYLEN, "0x%08x", ipcp->KEY); 
+	    sem_arr->sem_key[IPC_KEYLEN-1] = '\0';
+	    if ((pw = getpwuid(ipcp->uid)) != NULL)
+		strncpy(sem_arr->sem_owner, pw->pw_name, IPC_OWNERLEN);
+	    else
+		snprintf(sem_arr->sem_owner, IPC_OWNERLEN, "%d", ipcp->uid);
+	    sem_arr->sem_owner[IPC_OWNERLEN-1] = '\0';
+
+	    /* convert to octal number */
+	    snprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
+	    perms[sizeof(perms)-1] = '\0';
+	    sem_arr->sem_perms     = atoi(perms);
+	    sem_arr->nsems      = semseg.sem_nsems;
+
+	    sts = pmdaCacheStore(sem_indom, PMDA_CACHE_ADD, semid, (void *)sem_arr);
+	    if (sts < 0) {
+		fprintf(stderr, "Warning: %s: pmdaCacheStore(%s, %s): %s\n",
+			__FUNCTION__, semid, sem_arr->sem_key, pmErrStr(sts));
+		free(sem_arr->sem_key);
+		free(sem_arr->sem_owner);
+		free(sem_arr);
+	    }	
+	}
+    }
+    pmdaCacheOp(sem_indom, PMDA_CACHE_SAVE);
+    return 0;
+}
