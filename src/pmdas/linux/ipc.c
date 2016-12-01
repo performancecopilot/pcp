@@ -25,37 +25,49 @@
 #include "pmda.h"
 #include "indom.h"
 
+/*
+ * We've seen some buffer overrun issues with the polymorphic "buf"
+ * parameter to shmctl() on some platforms ... the union here is
+ * designed to make sure we have something that is always going to
+ * be big enough.
+ */
+typedef union {
+    struct shmid_ds	shmid_ds;
+    struct shm_info	shm_info;
+    struct shminfo	shminfo;
+} shmctl_buf_t;
+
 int
 refresh_shm_info(shm_info_t *_shm_info)
 {
-    static struct shm_info shm_info;
+    static shmctl_buf_t buf;
     extern size_t _pm_system_pagesize;
 
-    if (shmctl(0, SHM_INFO, (struct shmid_ds *) &shm_info) < 0)
+    if (shmctl(0, SHM_INFO, &buf.shmid_ds) < 0)
 	return -oserror();
 
-    _shm_info->shm_tot = shm_info.shm_tot * _pm_system_pagesize;
-    _shm_info->shm_rss = shm_info.shm_rss * _pm_system_pagesize;
-    _shm_info->shm_swp = shm_info.shm_swp * _pm_system_pagesize;
-    _shm_info->used_ids = shm_info.used_ids;
-    _shm_info->swap_attempts = shm_info.swap_attempts;
-    _shm_info->swap_successes = shm_info.swap_successes;
+    _shm_info->shm_tot = buf.shm_info.shm_tot * _pm_system_pagesize;
+    _shm_info->shm_rss = buf.shm_info.shm_rss * _pm_system_pagesize;
+    _shm_info->shm_swp = buf.shm_info.shm_swp * _pm_system_pagesize;
+    _shm_info->used_ids = buf.shm_info.used_ids;
+    _shm_info->swap_attempts = buf.shm_info.swap_attempts;
+    _shm_info->swap_successes = buf.shm_info.swap_successes;
     return 0;
 }
 
 int
 refresh_shm_limits(shm_limits_t *shm_limits)
 {
-    static struct shminfo shminfo;
+    static shmctl_buf_t buf;
 
-    if (shmctl(0, IPC_INFO, (struct shmid_ds *) &shminfo) < 0)
+    if (shmctl(0, IPC_INFO, &buf.shmid_ds) < 0)
     	return -oserror();
 
-    shm_limits->shmmax = shminfo.shmmax;
-    shm_limits->shmmin = shminfo.shmmin;
-    shm_limits->shmmni = shminfo.shmmni;
-    shm_limits->shmseg = shminfo.shmseg;
-    shm_limits->shmall = shminfo.shmall;
+    shm_limits->shmmax = buf.shminfo.shmmax;
+    shm_limits->shmmin = buf.shminfo.shmmin;
+    shm_limits->shmmni = buf.shminfo.shmmni;
+    shm_limits->shmseg = buf.shminfo.shmseg;
+    shm_limits->shmall = buf.shminfo.shmall;
     return 0;
 }
 
@@ -139,19 +151,18 @@ refresh_shm_stat(pmInDom shm_indom)
     int i = 0, maxid = 0;
     int sts = 0;
     shm_stat_t *shm_stat = NULL;
-    struct shm_info dummy;
+    shmctl_buf_t buf;
 
     pmdaCacheOp(shm_indom, PMDA_CACHE_INACTIVE);
-    maxid = shmctl(0, SHM_INFO, (struct shmid_ds *)&dummy);
+    maxid = shmctl(0, SHM_INFO, &buf.shmid_ds);
     if (maxid < 0)
 	return -1;
  
     while (i <= maxid) {
 	int shmid_o;
-	struct shmid_ds shmseg;
-	struct ipc_perm *ipcp = &shmseg.shm_perm; 
+	struct ipc_perm *ipcp = &buf.shmid_ds.shm_perm; 
 
-	if ((shmid_o = shmctl(i++, SHM_STAT, &shmseg)) < 0)
+	if ((shmid_o = shmctl(i++, SHM_STAT, &buf.shmid_ds)) < 0)
 	    continue;
 
 	snprintf(shmid, sizeof(shmid), "%d", shmid_o);
@@ -179,8 +190,8 @@ refresh_shm_stat(pmInDom shm_indom)
 	    snprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
 	    perms[sizeof(perms)-1] = '\0';
 	    shm_stat->shm_perms      = atoi(perms);
-	    shm_stat->shm_bytes      = shmseg.shm_segsz;
-	    shm_stat->shm_nattch     = shmseg.shm_nattch;
+	    shm_stat->shm_bytes      = buf.shmid_ds.shm_segsz;
+	    shm_stat->shm_nattch     = buf.shmid_ds.shm_nattch;
 	    if ((ipcp->mode & SHM_DEST))
 		shm_stat->shm_status = "dest";
 	    else if ((ipcp->mode & SHM_LOCKED))
@@ -267,5 +278,75 @@ refresh_msg_que(pmInDom msg_indom)
 	}
     }
     pmdaCacheOp(msg_indom, PMDA_CACHE_SAVE);
+    return 0;
+}
+
+int
+refresh_sem_array(pmInDom sem_indom)
+{
+    struct passwd *pw = NULL;
+    char semid[IPC_KEYLEN];
+    char perms[IPC_KEYLEN];
+    int i = 0, maxid = 0;
+    int sts = 0;
+    sem_array_t *sem_arr = NULL;
+    struct seminfo dummy;
+    static union semun arg;
+    struct semid_ds semseg;
+
+    pmdaCacheOp(sem_indom, PMDA_CACHE_INACTIVE);
+
+    arg.array = (unsigned short *)&dummy;
+    maxid = semctl(0, 0, SEM_INFO, arg);
+    if (maxid < 0)
+	return -1;
+ 
+    while (i <= maxid) {
+	int semid_o;
+        struct ipc_perm *ipcp = &semseg.sem_perm;
+        arg.buf = (struct semid_ds *)&semseg;
+
+	if ((semid_o = semctl(i++, 0, SEM_STAT, arg)) < 0)
+	    continue;
+
+	snprintf(semid, sizeof(semid), "%d", semid_o);
+	semid[sizeof(semid)-1] = '\0';
+	sts = pmdaCacheLookupName(sem_indom, semid, NULL, (void **)&sem_arr);
+	if (sts == PMDA_CACHE_ACTIVE)
+	    continue;
+
+	if (sts == PMDA_CACHE_INACTIVE) {
+	    pmdaCacheStore(sem_indom, PMDA_CACHE_ADD, semid, sem_arr);
+	}
+	else {
+	    if ((sem_arr = (sem_array_t *)malloc(sizeof(sem_array_t))) == NULL)
+		continue;
+	    memset(sem_arr, 0, sizeof(sem_array_t));
+
+	    snprintf(sem_arr->sem_key, IPC_KEYLEN, "0x%08x", ipcp->KEY);
+	    sem_arr->sem_key[IPC_KEYLEN-1] = '\0';
+	    if ((pw = getpwuid(ipcp->uid)) != NULL)
+		strncpy(sem_arr->sem_owner, pw->pw_name, IPC_OWNERLEN);
+	    else
+		snprintf(sem_arr->sem_owner, IPC_OWNERLEN, "%d", ipcp->uid);
+	    sem_arr->sem_owner[IPC_OWNERLEN-1] = '\0';
+
+	    /* convert to octal number */
+	    snprintf(perms, sizeof(perms), "%o", ipcp->mode & 0777);
+	    perms[sizeof(perms)-1] = '\0';
+	    sem_arr->sem_perms     = atoi(perms);
+	    sem_arr->nsems      = semseg.sem_nsems;
+
+	    sts = pmdaCacheStore(sem_indom, PMDA_CACHE_ADD, semid, (void *)sem_arr);
+	    if (sts < 0) {
+		fprintf(stderr, "Warning: %s: pmdaCacheStore(%s, %s): %s\n",
+			__FUNCTION__, semid, sem_arr->sem_key, pmErrStr(sts));
+		free(sem_arr->sem_key);
+		free(sem_arr->sem_owner);
+		free(sem_arr);
+	    }
+	}
+    }
+    pmdaCacheOp(sem_indom, PMDA_CACHE_SAVE);
     return 0;
 }

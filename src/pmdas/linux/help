@@ -19,7 +19,7 @@
 # lines beginning with a # are ignored
 # lines beginning @ introduce a new entry of the form
 #  @ metric_name oneline-text
-#  help test goes
+#  help text goes
 #  here over multiple lines
 #  ...
 #
@@ -142,7 +142,7 @@ but certainly not limited to that).
 
 @ disk.dev.avactive per-disk count of active time
 Counts the number of milliseconds for which at least one I/O is in
-progresss for each device.
+progress for each device.
 
 When converted to a rate, this metric represents the average utilization of
 the disk during the sampling interval.  A value of 0.5 (or 50%) means the
@@ -219,7 +219,7 @@ Count of write requests that were merged with an already queued write request.
 @ disk.dm.write_merge per-device-mapper device count of merged write requests
 @ disk.dm.avactive per-device-mapper device count of active time
 Counts the number of milliseconds for which at least one I/O is in
-progresss for each device-mapper device.
+progress for each device-mapper device.
 
 When converted to a rate, this metric represents the average utilization
 of the device during the sampling interval.  A value of 0.5 (or 50%)
@@ -290,7 +290,7 @@ e.g. mirroring the results from existing performance tools:
 @ disk.md.write_merge per-multi-device device count of merged write requests
 @ disk.md.avactive per-multi-device device count of active time
 Counts the number of milliseconds for which at least one I/O is in
-progresss for each multi-device device.
+progress for each multi-device device.
 
 When converted to a rate, this metric represents the average utilization
 of the device during the sampling interval.  A value of 0.5 (or 50%)
@@ -357,7 +357,7 @@ Total count of write requests that were merged with an already queued write requ
 
 @ disk.all.avactive total count of active time, summed for all disks
 Counts the number of milliseconds for which at least one I/O is in
-progresss on each disk, summed across all disks.
+progress on each disk, summed across all disks.
 
 When converted to a rate and divided by the number of disks (hinv.ndisk),
 this metric represents the average utilization of all disks during the
@@ -482,7 +482,7 @@ volumes.
 
 @ disk.partitions.avactive per-disk-partition device count of active time
 Counts the number of milliseconds for which at least one I/O is in
-progresss for each disk partition.
+progress for each disk partition.
 
 When converted to a rate, this metric represents the average utilization
 of the disk partition during the sampling interval.  A value of 0.5
@@ -1489,6 +1489,10 @@ See also the kernel.uname.* metrics
 @ ipc.sem.max_exit adjust on exit maximum value (from semctl(..,IPC_INFO,..))
 @ ipc.sem.used_sem number of semaphore sets currently on the system (from semctl(..,SEM_INFO,..))
 @ ipc.sem.tot_sem number of semaphores in all sets on the system (from semctl(..,SEM_INFO,..))
+@ ipc.sem.key key of these semaphore (from msgctl(..,SEM_STAT,..))
+@ ipc.sem.owner username of owner (from msgctl(..,SEM_STAT,..))
+@ ipc.sem.perms access permissions (from msgctl(..,SEM_STAT,..))
+@ ipc.sem.nsems number of semaphore (from semctl(..,SEM_STAT,..))
 @ ipc.msg.sz_pool size of message pool in kilobytes (from msgctl(..,IPC_INFO,..))
 @ ipc.msg.mapent number of entries in a message map (from msgctl(..,IPC_INFO,..))
 @ ipc.msg.max_msgsz maximum size of a message in bytes (from msgctl(..,IPC_INFO,..))

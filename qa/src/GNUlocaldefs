@@ -150,8 +150,8 @@ MYFILES += \
 	root_irix root_pmns tiny.pmns sgi.bf versiondefs \
 	pthread_barrier.h pv.c qa_test.c qa_timezone.c \
 	permslist \
-	qa_shmctl.c qa_shmctl_stat.c qa_msgctl_stat.c \
-	qa_sem_msg_ctl.c 
+	qa_shmctl.c qa_sem_msg_ctl.c \
+	qa_shmctl_stat.c qa_msgctl_stat.c qa_semctl_stat.c
 
 MYSCRIPTS = grind-tools ipcs_clear show-args fixhosts mkpermslist \
 	memcachestats.pl
@@ -166,7 +166,8 @@ TARGETS = $(subst broken_pmda,,$(basename $(CFILES_TARGETS))) \
 
 ifeq "$(TARGET_OS)" "linux"
 TARGETS += qa_shmctl.$(DSOSUFFIX) qa_sem_msg_ctl.$(DSOSUFFIX) \
-	qa_shmctl_stat.$(DSOSUFFIX) qa_msgctl_stat.$(DSOSUFFIX)
+	qa_shmctl_stat.$(DSOSUFFIX) qa_msgctl_stat.$(DSOSUFFIX) \
+	qa_semctl_stat.$(DSOSUFFIX)
 endif
 
 ifeq ($(HAVE_64), 1)
@@ -593,6 +594,10 @@ qa_shmctl.$(DSOSUFFIX):	 qa_shmctl.c
 qa_msgctl_stat.$(DSOSUFFIX):	 qa_msgctl_stat.c
 	$(CCF) $(LDFLAGS) -shared -o $@ qa_msgctl_stat.c
 	@rm -f qa_msgctl_stat.o
+
+qa_semctl_stat.$(DSOSUFFIX):	 qa_semctl_stat.c
+	$(CCF) $(LDFLAGS) -shared -o $@ qa_semctl_stat.c
+	@rm -f qa_semctl_stat.o
 
 qa_shmctl_stat.$(DSOSUFFIX):	 qa_shmctl_stat.c
 	$(CCF) $(LDFLAGS) -shared -o $@ qa_shmctl_stat.c

@@ -33,7 +33,7 @@ enum {
 	SLAB_INDOM,		/* 12 - kernel slabs */
 	STRINGS_INDOM,		/* 13 - string dictionary */
 	NFS4_CLI_INDOM,		/* 14 - nfs v4 client operations */
-	NFS4_SVR_INDOM,		/* 15 - nfs n4 server operations */
+	NFS4_SVR_INDOM,		/* 15 - nfs v4 server operations */
 	QUOTA_PRJ_INDOM,	/* 16 - project quota -> xfs PMDA */
 	NET_ADDR_INDOM,		/* 17 - inet/ipv6 addresses */
 	TMPFS_INDOM,		/* 18 - tmpfs mounts */
@@ -48,7 +48,8 @@ enum {
 	SOFTIRQS_NAMES_INDOM,	/* 27 - persistent percpu softirqs IDs */
 	IPC_STAT_INDOM,	        /* 28 - ipc shm_stat shmid */
 	IPC_MSG_INDOM,	        /* 29 - ipc msg_stat msgid */
-	BUDDYINFO_INDOM,	/* 30 - kernel buddys */
+	IPC_SEM_INDOM,	        /* 30 - ipc sem_stat msgid */
+	BUDDYINFO_INDOM,	/* 31 - kernel buddys */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

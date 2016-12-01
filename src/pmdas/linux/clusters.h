@@ -86,7 +86,8 @@ enum {
 	CLUSTER_SOFTIRQS,	/* 63 /proc/softirqs percpu counters */
 	CLUSTER_SHM_STAT,	/* 64 shmctl(SHM_STAT) system call */
 	CLUSTER_MSG_STAT,	/* 65 msgctl(MSG_STAT) system call */
-	CLUSTER_BUDDYINFO,	/* 66 /proc/buddyinfo */
+	CLUSTER_SEM_STAT,	/* 66 msgctl(SEM_STAT) system call */
+	CLUSTER_BUDDYINFO,	/* 67 /proc/buddyinfo */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

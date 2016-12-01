@@ -1,7 +1,7 @@
 Summary: Parfait Java libraries for Performance Co-Pilot (PCP)
 Name: parfait
 Version: 0.4.0
-%global buildversion 3
+%global buildversion 4
 
 Release: %{buildversion}%{?dist}
 License: ASL2.0
@@ -35,7 +35,7 @@ BuildRequires: mvn(org.springframework:spring-test)
 BuildRequires: mvn(com.codahale.metrics:metrics-core)
 BuildRequires: mvn(systems.uom:systems-common:pom:)
 BuildRequires: mvn(javax.measure:unit-api)
-BuildRequires: mvn(tec.units:unit-ri)
+BuildRequires: mvn(tec.uom:uom-se)
 
 %description
 Parfait is a Java performance monitoring library that exposes and
@@ -56,7 +56,7 @@ This package contains the API documentation for Parfait.
 Group: Applications/System
 BuildArch: noarch
 Summary: Parfait Java Agent for Performance Co-Pilot (PCP)
-Requires: java-headless >= 1:1.7
+Requires: java-headless >= 1.8
 
 %description -n pcp-parfait-agent
 This package contains the Parfait Agent for instrumenting Java
@@ -70,7 +70,7 @@ machinery for extremely lightweight instrumentation.
 Group: Development/Languages
 BuildArch: noarch
 Summary: Parfait Java demostration programs
-Requires: java-headless >= 1:1.7
+Requires: java-headless >= 1.8
 
 %description examples
 Sample standalone Java programs showing use of Parfait modules
@@ -81,7 +81,6 @@ for instrumenting applications.
 %pom_disable_module parfait-benchmark
 %pom_disable_module parfait-cxf
 %pom_disable_module parfait-jdbc	# need hsqldb update?
-%pom_disable_module parfait-dropwizard	# need metrics update
 
 %build
 %mvn_build
@@ -129,6 +128,9 @@ done
 
 
 %changelog
+* Fri Nov 25 2016 Nathan Scott <nathans@redhat.com> - 0.4.0-4
+- Switch to jdk1.8+, uom-se, enable dropwizard metrics module.
+
 * Fri Oct 28 2016 Nathan Scott <nathans@redhat.com> - 0.4.0-3
 - Add in parfait wrapper shell script and man page.
 - Rename the agent package to pcp-parfait-agent.

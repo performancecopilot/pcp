@@ -141,7 +141,13 @@ echo "Running the access tests"
 # but even that has been dropped now that single CPU systems are so
 # rare
 #
-eval `./getpmcdhosts -L -n2 -v 'pcp>=2' | sed -e 's/^/other1=/' -e 's/ / other2=/'`
+# Need at least PCP 3.0 here, because there is an interoperability
+# issue with older pmlc versions (e.g. 2.7.8) talking to a newer
+# pmlogger ... the pmlc-pmlogger channel is fine, but when pmlc tries
+# to contact the pmlogger's pmcd, if the pmlogger is using a local
+# (Unix domain) socket, :local, then the wheels fall off.
+#
+eval `./getpmcdhosts -L -n2 -v 'pcp>=3' | sed -e 's/^/other1=/' -e 's/ / other2=/'`
 if [ -z "$other1" ]
 then
     echo "Cannot find first remote host running pmcd v2.x" >$seq.notrun

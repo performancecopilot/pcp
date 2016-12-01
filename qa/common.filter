@@ -789,6 +789,7 @@ _filter_install()
 _filter_post()
 {
     sed \
+	-e 's/local:/host/' \
 	-e 's/^host [^ :]*:/host <host>:/'
 }
 

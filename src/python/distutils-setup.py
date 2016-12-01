@@ -17,26 +17,17 @@
 # for more details.
 #
 
-# New way, modern setup mechanisms for pypi
-from setuptools import setup, find_packages, Extension
-# To use a consistent encoding
-from codecs import open
-from os import path
-
-# Get the long description from the README file
-here = path.abspath(path.dirname(__file__))
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
+# Old way, only used by platforms without setuptools module
+from distutils.core import setup, Extension
 
 setup(name = 'pcp',
     version = '1.0',
     description = 'Python package for Performance Co-Pilot',
-    long_description = long_description,
     license = 'GPLv2+',
     author = 'Performance Co-Pilot Development Team',
     author_email = 'pcp@groups.io',
     url = 'http://pcp.io',
-    packages = find_packages(),
+    packages = ['pcp'],
     ext_modules = [
         Extension('cpmapi', ['pmapi.c'], libraries = ['pcp']),
         Extension('cpmda', ['pmda.c'], libraries = ['pcp_pmda', 'pcp']),
@@ -44,8 +35,9 @@ setup(name = 'pcp',
         Extension('cpmi', ['pmi.c'], libraries = ['pcp_import']),
         Extension('cmmv', ['mmv.c'], libraries = ['pcp_mmv']),
     ],
-    keywords = ['performance', 'analysis', 'monitoring' ],
     platforms = [ 'Windows', 'Linux', 'FreeBSD', 'NetBSD', 'OpenBSD', 'Solaris', 'Mac OS X', 'AIX' ],
+    long_description =
+        'PCP provides services to support system-level performance monitoring',
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
