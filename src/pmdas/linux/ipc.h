@@ -16,12 +16,12 @@
 #define SHM_LOCKED	02000	/* segment will not be swapped */
 
 /*
- *  * X/OPEN (Jan 1987) does not define fields key, seq in struct ipc_perm;                            
- *   *      glibc-1.09 has no support for sysv ipc.                                                     
- *    *      glibc 2 uses __key, __seq
- *     */
+ * X/OPEN (Jan 1987) does not define fields key, seq in struct ipc_perm;
+ * glibc-1.09 has no support for SYSV IPC.
+ * glibc 2 uses __key, __seq
+ */
 #if defined (__GLIBC__) && __GLIBC__ >= 2
-# define KEY __key                                                                 
+# define KEY __key
 #else
 # define KEY key
 #endif

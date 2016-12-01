@@ -84,3 +84,23 @@ ipc.msg.messages
     Data Type: 32-bit unsigned int  InDom: 60.29 0xf00001d
     Semantics: instant  Units: none
     inst [0 or "0"] value 777
+
+ipc.sem.key
+    Data Type: string  InDom: 60.30 0xf00001e
+    Semantics: discrete  Units: none
+    inst [0 or "0"] value "0x00000457"
+
+ipc.sem.owner
+    Data Type: string  InDom: 60.30 0xf00001e
+    Semantics: discrete  Units: none
+    inst [0 or "0"] value "root"
+
+ipc.sem.perms
+    Data Type: 32-bit unsigned int  InDom: 60.30 0xf00001e
+    Semantics: instant  Units: none
+    inst [0 or "0"] value 570
+
+ipc.sem.nsems
+    Data Type: 32-bit unsigned int  InDom: 60.30 0xf00001e
+    Semantics: instant  Units: none
+    inst [0 or "0"] value 999
