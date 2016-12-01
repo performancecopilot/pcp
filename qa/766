@@ -43,9 +43,9 @@ _unresolved_filter()
 _resolved_filter()
 {
     # Pass unresolved urls, filter the resolved ones.
-    sed -e '/  pcp:\/\/[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+/{p;b};
-	    /  proxy:\/\/[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+/{p;b};
-	    /  http:\/\/[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+/{p;b};
+    sed -e '/  pcp:\/\/[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+/{b};
+	    /  proxy:\/\/[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+/{b};
+	    /  http:\/\/[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+/{b};
 	    /  pcp:/d;
 	    /  proxy:/d;
 	    /  http:/d' \
@@ -68,14 +68,30 @@ _control_service_discovery
 #
 # and then extracting the address
 #
-addr=`pminfo -f network.interface.inet_addr | \
+echo >$tmp.tmp
+pminfo -f network.interface.inet_addr | \
   tail -n +3 | \
   grep -v 127.0.0.1 | \
-  head -n1 | \
   awk '{ print $6 }' | \
-  sed s/\"//g`
+  sed s/\"//g \
+| while read addr
+do
+    if `host $addr 2>&1 | grep NXDOMAIN >/dev/null`
+    then
+	# continue, no DNS for this interface, may be partially configured
+	# DHCP
+	#
+	:
+    else
+	echo $addr >$tmp.tmp
+	break
+    fi
+done
 
-[ -z addr ] && _notrun "no active inet interfaces"
+addr=`cat $tmp.tmp`
+[ -z addr ] && _notrun "no active inet interfaces with DNS resolution"
+
+echo "addr=$addr" >>$seq.full
 
 # Probe the obtained network.
 # Test various combinations of service queries and subnet sizes. Keep the
