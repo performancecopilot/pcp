@@ -230,6 +230,7 @@ _cleanup_pmda()
     else
 	_restore_config $PCP_PMCDCONF_PATH
 	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_restore_systemd_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	if $install_on_cleanup
