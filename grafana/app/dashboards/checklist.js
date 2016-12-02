@@ -96,14 +96,58 @@ function checklist_predicate_fetch() {
 }
 
 
-// javascript code generator for pcp_predicates
-function traverse_predicate(child, div_id, metrics) {
-    // XXX
-    metrics.push('kernel.all.load');
-    // return 'function (metrics) { }';
-    return 'function (metrics) { $("#' + div_id + '").html(JSON.stringify(metrics)); }';
-}
 
+// javascript code generator for pcp_predicates
+
+function predicate_lambda(child, div_id, metrics) {
+    if ('pcp_predicate' in child) {
+        var node = child['pcp_predicate'];
+        console.log('generating code for ',child,'predicate',node);
+        var part0 = 'var result = \'\';';
+        var part1_trywrap = 'try { ';
+
+        // codegen
+        // input: var metrics = {"pcp.metric": { ... "instances":[{ "instance":IIII, "value":VVVV }] } }
+        // output: var instances = [ { "instance":IIII, "score":true/false} ... ]
+        var part2_analysis = 'var instances=[];';
+        switch(node['operator']) {
+        case 'threshold_max':
+            metrics.push(node['metric']);
+            part2_analysis = 'var instances = metrics[\''+node['metric']+'\'].instances.map(function(x,y) { \
+            return {"instance":x.instance, "score":x.value < ' + node['value'] + '}; \
+            });';
+            break;
+        case 'threshold_min':
+            metrics.push(node['metric']);
+            part2_analysis = 'var instances = metrics[\''+node['metric']+'\'].instances.map(function(x,y) { \
+            return {"instance":x.instance, "score":x.value > ' + node['value'] + '}; \
+            });';
+            break;
+        default:
+            alert('invalid pcp_predicate '+JSON.stringify(node));
+        }
+
+        // codegen
+        // input: var instances = [ { "instance":IIII, "score":true/false} ... ]
+        // output: var result = '<html code for instance representation>'
+        if (! ('label' in node)) { node['label'] = ''; }
+        var part3_htmlify = 'result = \'<div style=\"display:inline\" class=\"rhck-label\">'+node['label'] /*XXX htmlencode? */ +
+                            '</div>\' + \
+                             instances.reduce(function(html,inst) { \
+                             return html+\'<div style=\"display:inline\" class="\'+inst.score+\'">\' + \
+                                         (inst.instance<0?\'\':inst.instance) + \
+                                         \' \' + inst.score + \
+                                         \'</div>\'; \
+                             }, \'\');';
+        var part8_catchwrap = '} catch (err) { result = err.message }';
+        var part9_update = '$("#' + div_id + '").html(result);';
+        
+        return 'function (metrics) { ' + part0 + part1_trywrap + part2_analysis + part3_htmlify + part8_catchwrap + part9_update + ' }';
+    } else { // no pcp_predicate
+        return 'function (metrics) { /* do nothing */ }';
+    }
+}
+    
 
 
 return function (callback) {
@@ -117,7 +161,10 @@ return function (callback) {
     $.ajax({
         method: 'GET',
         cache: false,
-        url: pmwebd + "/checklist/checklist.json"
+        url: pmwebd + "/checklist/checklist.json",
+        error: function (xhr,ajaxOptions,thrownError) {
+            alert(xhr.statusText + ' ' + thrownError);
+        }
     }).done(function (result) {
         var nodes = result.nodes;
         var node = ARGS["node"];
@@ -166,7 +213,7 @@ return function (callback) {
             style: 'light',
             rows: [],
             services: {},
-            refresh: '1s', // XXX: parametrize
+            refresh: '120s', // XXX: parametrize
             style: 'light',
             nav: [{
                 type: "timepicker",
@@ -199,7 +246,7 @@ return function (callback) {
 
         // register a <script></script><div></div> to be populated by javascript code
         function emit_js_onload_div(code, id) {
-            return '<script>function onload_' + id + '() {' + code + '}</script><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onload="onload_' + id + '()"><div id="' + id + '"></div>';
+            return '<script>function onload_' + id + '() {' + code + '}</script><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onload="onload_' + id + '()"><div style="display:inline" id="' + id + '"></div>';
         }
 
         // create navigation links back up the graph
@@ -230,14 +277,11 @@ return function (callback) {
                 var metrics = [];
                 var l;
                 var div_id = 'predicate_' + index + '_status'; // must also be a javascript identifier part
-                for (var child of panel.children) {
-                    l = traverse_predicate(child, div_id, metrics);
-                }
-
+                l = predicate_lambda(node_map[child], div_id, metrics);
                 html += emit_js_onload_div('top.rhck_predicate_metric_names.push.apply(top.rhck_predicate_metric_names,' + JSON.stringify(metrics) + ');' +
                                            'top.rhck_predicate_notifiers.push(' + l + ');',
                                            div_id);
-
+                html += " ";
                 html += emit_js_a_href(pmwebd + checklist_url + "?node=" + encodeURIComponent(child), child);
                 html += " | ";
             });

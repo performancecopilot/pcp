@@ -44,10 +44,10 @@
 	    "pcp_metrics": [ "disk.dm.total.*", "disk.dm.blktotal.*"],
 	    "pcp_metrics_log": [ "disk.dm.total", "disk.dm.blktotal"],
             "pcp_deriveds": [ "blkrate = delta(disk.dm.total)/delta(disk.dm.blktotal)" ],
-	    "pcp_predicate": { "indom" : "any",
-                               "left": { "pcp_metric": "blkrate" },
-                               "operator": "<",
-                               "right": { "literal": "64" } },
+	    "pcp_predicate": { "label": "> 64 blocks per something",
+                               "metric": "blkrate",
+                               "operator": "threshold_min",
+                               "value" : 64 },
 	    "parents": ["Storage"]
         },
         {
@@ -55,9 +55,10 @@
 	    "description": "Running low on free memory",
 	    "pcp_metrics": [ "mem.freemem", "mem.physmem" ],
 	    "pcp_deriveds": [ "mem_freepct = mem.freemem * 100/mem.physmem" ],
-            "pcp_predicate": { "left": { "pcp_metric" : "mem_freepct"},
-                               "operator": "<",
-                               "right": { "literal": "5" } },
+            "pcp_predicate": { "label": "< 5% free memory",
+                               "operator": "threshold_max",
+                               "metric": "mem_freepct",
+                               "value": 5 },
 	    "parents": ["Start"]
         },
         {
