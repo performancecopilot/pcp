@@ -89,11 +89,14 @@ pmdalibvirt_cleanup()
     else
 	$sudo rm -f $PCP_PMDAS_DIR/libvirt/libvirt.conf
     fi
+    # note: _restore_systemd_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda libvirt
 }
 
 _prepare_pmda libvirt
 trap "pmdalibvirt_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
 
 _filter()
 {

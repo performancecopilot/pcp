@@ -63,11 +63,14 @@ perfevent_cleanup()
     else
         $sudo rm -f $PCP_PMDAS_DIR/perfevent/perfevent.conf
     fi
+    # note: _restore_systemd_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda perfevent
 }
 
 _prepare_pmda perfevent
 trap "perfevent_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
 
 _filter_perfevent()
 {

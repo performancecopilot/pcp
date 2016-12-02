@@ -24,11 +24,14 @@ MMV_STATS_DIR="$PCP_TMP_DIR/mmv"
 _cleanup()
 {
     [ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
+    # note: _restore_systemd_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda mmv $tmp.input
 }
 
 _prepare_pmda mmv
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
 
 _filter_mmv_values()
 {
