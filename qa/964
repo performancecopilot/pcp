@@ -36,6 +36,7 @@ _cleanup()
 	echo "Resetting system state"
 	_restore_pmda_install xfs
 	$sudo $PCP_RC_DIR/pmcd restart | _filter_pcp_start
+	_restore_systemd_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	_needclean=false
@@ -46,6 +47,8 @@ _cleanup()
 
 trap "_cleanup" 0
 trap "_interrupt; _cleanup" 1 2 3 15
+
+_stop_systemd_restart pmcd
 
 _count_pmloggers()
 {
