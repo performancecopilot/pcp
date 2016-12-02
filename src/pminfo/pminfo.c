@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 1995-2001,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -15,6 +15,7 @@
 
 #include "pmapi.h"
 #include "impl.h"
+#include <ctype.h>
 #include <limits.h>
 
 static void myeventdump(pmValueSet *, int, int);
@@ -55,7 +56,7 @@ static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
     .short_options = "a:b:c:dD:Ffh:K:LMmN:n:O:tTvVxzZ:?",
     .long_options = longopts,
-    .short_usage = "[options] [metricname ...]",
+    .short_usage = "[options] [metricname | pmid | indom]...",
     .override = myoverrides,
 };
 
@@ -310,6 +311,56 @@ myeventdump(pmValueSet *vsp, int inst, int highres)
 }
 
 static void
+myhelptext(unsigned int ident, int type)
+{
+    char	*buffer, *p;
+    int		sts;
+
+    sts = (type == PM_TEXT_PMID) ?
+	pmLookupText(ident, PM_TEXT_HELP, &buffer) :
+	pmLookupInDomText(ident, PM_TEXT_HELP, &buffer);
+    if (sts == 0) {
+	for (p = buffer; *p; p++)
+	    ;
+	while (p > buffer && p[-1] == '\n') {
+	    p--;
+	    *p = '\0';
+	}
+	if (*buffer != '\0') {
+	    printf("Help:\n");
+	    printf("%s", buffer);
+	    putchar('\n');
+	}
+	else
+	    printf("Help: <empty entry>\n");
+	free(buffer);
+    }
+    else
+	printf("Full Help: Error: %s\n", pmErrStr(sts));
+}
+
+static void
+myoneline(unsigned int ident, int type)
+{
+    char	*buffer;
+    int		sts;
+
+    sts = (type == PM_TEXT_PMID) ?
+	pmLookupText(ident, PM_TEXT_ONELINE, &buffer) :
+	pmLookupInDomText(ident, PM_TEXT_ONELINE, &buffer);
+    if (sts == 0) {
+	if (p_fullmid)
+	    printf("\n    ");
+	else
+	    putchar(' ');
+	printf("[%s]", buffer);
+	free(buffer);
+    }
+    else
+	printf(" One-line Help: Error: %s\n", pmErrStr(sts));
+}
+
+static void
 report(void)
 {
     int		i;
@@ -318,7 +369,6 @@ report(void)
     pmResult	*result = NULL;
     pmResult	*xresult = NULL;
     pmValueSet	*vsp = NULL;
-    char	*buffer;
     int		all_count;
     int		*all_inst;
     char	**all_names;
@@ -427,57 +477,22 @@ report(void)
 		printf("%s: No value(s) available\n", namelist[i]);
 	    continue;
 	}
-	else
-	    /* not verify */
-	    printf("%s", namelist[i]);
 
+	/* not verify mode - detailed reporting */
+	printf("%s", namelist[i]);
 	if (p_mid)
 	    printf(" PMID: %s", pmIDStr(pmidlist[i]));
 	if (p_fullmid)
 	    printf(" = %d = 0x%x", pmidlist[i], pmidlist[i]);
-
-	if (p_oneline) {
-	    if ((sts = pmLookupText(pmidlist[i], PM_TEXT_ONELINE, &buffer)) == 0) {
-		if (p_fullmid)
-		    printf("\n    ");
-		else
-		    putchar(' ');
-		printf("[%s]", buffer);
-		free(buffer);
-	    }
-	    else
-		printf(" One-line Help: Error: %s\n", pmErrStr(sts));
-	}
+	if (p_oneline)
+	    myoneline(pmidlist[i], PM_TEXT_PMID);
 	putchar('\n');
-
 	if (p_desc)
 	    __pmPrintDesc(stdout, &desc);
-
-	if (p_help) {
-	    if ((sts = pmLookupText(pmidlist[i], PM_TEXT_HELP, &buffer)) == 0) {
-		char	*p;
-		for (p = buffer; *p; p++)
-		    ;
-		while (p > buffer && p[-1] == '\n') {
-		    p--;
-		    *p = '\0';
-		}
-		if (*buffer != '\0') {
-		    printf("Help:\n");
-		    printf("%s", buffer);
-		    putchar('\n');
-		}
-		else
-		    printf("Help: <empty entry>\n");
-		free(buffer);
-	    }
-	    else
-		printf("Full Help: Error: %s\n", pmErrStr(sts));
-	}
-
-	if (p_value) {
+	if (p_help)
+	    myhelptext(pmidlist[i], PM_TEXT_PMID);
+	if (p_value)
 	    mydump(&desc, vsp, NULL);
-	}
     }
 
     if (result != NULL) {
@@ -514,6 +529,46 @@ dometric(const char *name)
 	report();
 }
 
+static int
+dopmid(pmID pmid)
+{
+    char	*name;
+    int		sts;
+
+    if ((sts = pmNameID(pmid, &name)) < 0)
+	return sts;
+    sts = pmTraversePMNS(name, dometric);
+    free(name);
+    return sts;
+}
+
+static int
+doindom(pmInDom indom)
+{
+    if (verify)
+	return 0;
+    putchar('\n');
+    printf("InDom: %s 0x%x", pmInDomStr(indom), indom);
+    if (p_oneline)
+	myoneline(indom, PM_TEXT_INDOM);
+    putchar('\n');
+    if (p_help)
+	myhelptext(indom, PM_TEXT_INDOM);
+    return 0;
+}
+
+static int
+dodigit(const char *arg)
+{
+    int		domain, cluster, item, serial;
+
+    if (sscanf(arg, "%u.%u.%u", &domain, &cluster, &item) == 3)
+	return dopmid(pmid_build(domain, cluster, item));
+    if (sscanf(arg, "%u.%u", &domain, &serial) == 2)
+	return doindom(pmInDom_build(domain, serial));
+    return PM_ERR_NAME;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -536,7 +591,8 @@ main(int argc, char **argv)
 	    case 'c':		/* derived metrics config file */
 		sts = pmLoadDerivedConfig(opts.optarg);
 		if (sts < 0) {
-		    fprintf(stderr, "%s: derived configuration(s) error: %s\n", pmProgname, pmErrStr(sts));
+		    fprintf(stderr, "%s: derived configuration(s) error: %s\n",
+			    pmProgname, pmErrStr(sts));
 		    /* errors are not necessarily fatal ... */
 		}
 		break;
@@ -682,7 +738,10 @@ main(int argc, char **argv)
     }
     else {
 	for (a = opts.optind; a < argc; a++) {
-	    sts = pmTraversePMNS(argv[a], dometric);
+	    if (isdigit(argv[a][0]))
+		sts = dodigit(argv[a]);
+	    else
+		sts = pmTraversePMNS(argv[a], dometric);
 	    if (sts < 0) {
 		fprintf(stderr, "Error: %s: %s\n", argv[a], pmErrStr(sts));
 		exitsts = 1;

@@ -28,7 +28,7 @@
 [\f3\-\f1[\f3n\f1|\f3N\f1] \f2pmnsfile\f1]
 [\f3\-O\f1 \f2time\f1]
 [\f3\-Z\f1 \f2timezone\f1]
-[\f2metricname\f1 ...]
+[\f2metricname\f1 | \f2pmid\f1 | \f2indom\f1]...
 .SH DESCRIPTION
 .B pminfo
 displays various types of information about performance metrics
@@ -65,6 +65,23 @@ will recursively descend the PMNS and report on all leaf nodes.
 If no
 .I metricname
 argument is given, the root of the PMNS is used.
+.PP
+If the
+.I metricname
+argument is in numeric dotted notation, it is interpreted as either
+a 3-dotted
+.I pmid
+(metric identifier \- domain, cluster, item numbers) or
+a 2-dotted
+.I indom
+(instance domain identifier \- domain, serial number).
+In the
+.I pmid
+case, a reverse PMID-to-name lookup is performed, and in the
+.I indom
+case, the instance domain is reported on directly.
+This latter mode can be used to report the instance domain
+``one line'' and long form help text summaries.
 .PP
 Unless directed to another host by the
 .B \-h

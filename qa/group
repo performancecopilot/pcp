@@ -1151,7 +1151,9 @@ oldversion
 903 pmda.papi local
 904 python local
 905 oldversion remote
+906 pmda.sample indom help pmda pminfo local
 907 pmlogextract local pmdumplog
+908 indom help pmda pminfo local
 909 libpcp pmns local
 914 pmda.papi local
 915 pmcd pmlogger pmproxy libpcp local
