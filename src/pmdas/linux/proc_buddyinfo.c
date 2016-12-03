@@ -30,17 +30,46 @@ enum{
 
 static int MAX_ORDER = -1; /* maximum number of page order (This value is determined by kernel config) */
 
-static int read_node_name(const char *data, char *buf)
+int
+node_name_check(const char* data)
 {
     int i;
     int len = strlen(data);
     for (i = 0; i < len; i++) {
+        if (data[i] == ' ') {
+	    return i;
+        }
+    }
+    return len;
+}
+
+static int read_node_name(const char *data, char *buf)
+{
+    int i, j;
+    int len = strlen(data);
+    char tmp_buf[64];
+    int start;
+    int end;
+    for (i = 0; i < len; i++) {
         if (data[i] == ',') {
-            buf[i] = '\0';
+            tmp_buf[i] = '\0';
             break;
         }
-        buf[i] = data[i];
+        tmp_buf[i] = data[i];
+	if (data[i] == 'N') {
+	    tmp_buf[i] = 'n';
+	}
     }
+
+    start = node_name_check(tmp_buf);
+    end = strlen(tmp_buf);
+    for (i = 0, j = 0; i < end; i++) {
+	if (i == start)
+	    continue;
+	buf[j] = tmp_buf[i];
+	j++;
+    }
+    buf[end-1] = '\0';
     return i;
 }
 
@@ -126,7 +155,7 @@ refresh_proc_buddyinfo(proc_buddyinfo_t *proc_buddyinfo)
                 proc_buddyinfo->buddys[i+j].id = next_id++;
                 strcpy(proc_buddyinfo->buddys[i+j].node_name, node_name);
                 strcpy(proc_buddyinfo->buddys[i+j].zone_name, zone_name);
-                sprintf(proc_buddyinfo->buddys[i+j].id_name, "2^%d %s %s", j, zone_name, node_name);
+                sprintf(proc_buddyinfo->buddys[i+j].id_name, "%s_%d::%s", zone_name, j, node_name);
             }
         }
         /* update data */

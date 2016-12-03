@@ -373,7 +373,7 @@ disk.partitions {
 mem {
     physmem		60:1:0
     freemem		60:1:10
-    buddyinfo		60:66:0
+    buddyinfo		60:67:0
     util
     numa
     slabinfo
