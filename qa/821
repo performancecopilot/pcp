@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ $PCP_PLATFORM = linux ] || _notrun "Linux-specific memory metric testing"
+userid=`id -u`	# test exercises procfs access from both root and non-root
+[ "$userid" != 0 ] || _notrun "Test cannot be run as privileged root user"
 
 config="$PCP_PMDAS_DIR/linux/bandwidth.conf"
 

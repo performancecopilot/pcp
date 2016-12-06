@@ -1306,7 +1306,7 @@ static pmdaMetric metrictab[] = {
  * /proc/buddyinfo cluster
  */
     { NULL,
-      { PMDA_PMID(CLUSTER_BUDDYINFO,0), PM_TYPE_U32, BUDDYINFO_INDOM, PM_SEM_INSTANT,
+      { PMDA_PMID(CLUSTER_BUDDYINFO,0), KERNEL_ULONG, BUDDYINFO_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,0,0,0,0,0) }, }, 
 
 /*
@@ -6820,8 +6820,8 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_BUDDYINFO:
-        atom->ul = proc_buddyinfo.buddys[inst].value;
-        break;
+	_pm_assign_ulong(atom, proc_buddyinfo.buddys[inst].value);
+	break;
 
     default: /* unknown cluster */
 	return PM_ERR_PMID;
