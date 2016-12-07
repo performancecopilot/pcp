@@ -1,6 +1,41 @@
 QA output created by 821
 == Checking all mem metric values - meminfo-root-001.tgz
 
+mem.buddyinfo
+    inst [0 or "DMA_0::node0"] value 3
+    inst [1 or "DMA_1::node0"] value 1
+    inst [2 or "DMA_2::node0"] value 2
+    inst [3 or "DMA_3::node0"] value 2
+    inst [4 or "DMA_4::node0"] value 2
+    inst [5 or "DMA_5::node0"] value 1
+    inst [6 or "DMA_6::node0"] value 0
+    inst [7 or "DMA_7::node0"] value 0
+    inst [8 or "DMA_8::node0"] value 1
+    inst [9 or "DMA_9::node0"] value 1
+    inst [10 or "DMA_10::node0"] value 3
+    inst [11 or "DMA32_0::node0"] value 470
+    inst [12 or "DMA32_1::node0"] value 524
+    inst [13 or "DMA32_2::node0"] value 98
+    inst [14 or "DMA32_3::node0"] value 154
+    inst [15 or "DMA32_4::node0"] value 86
+    inst [16 or "DMA32_5::node0"] value 30
+    inst [17 or "DMA32_6::node0"] value 23
+    inst [18 or "DMA32_7::node0"] value 10
+    inst [19 or "DMA32_8::node0"] value 26
+    inst [20 or "DMA32_9::node0"] value 12
+    inst [21 or "DMA32_10::node0"] value 681
+    inst [22 or "Normal_0::node0"] value 188
+    inst [23 or "Normal_1::node0"] value 420
+    inst [24 or "Normal_2::node0"] value 143
+    inst [25 or "Normal_3::node0"] value 11
+    inst [26 or "Normal_4::node0"] value 2
+    inst [27 or "Normal_5::node0"] value 0
+    inst [28 or "Normal_6::node0"] value 0
+    inst [29 or "Normal_7::node0"] value 0
+    inst [30 or "Normal_8::node0"] value 0
+    inst [31 or "Normal_9::node0"] value 0
+    inst [32 or "Normal_10::node0"] value 1
+
 mem.freemem
     value 4650860
 
@@ -1594,7 +1629,49 @@ mem.slabinfo.slabs.total_size
 
 == done
 
+== Checking buddyinfo metric values - meminfo-root-001.tgz
+
+mem.buddyinfo
+    inst [0 or "DMA_0::node0"] value 3
+    inst [1 or "DMA_1::node0"] value 1
+    inst [2 or "DMA_2::node0"] value 2
+    inst [3 or "DMA_3::node0"] value 2
+    inst [4 or "DMA_4::node0"] value 2
+    inst [5 or "DMA_5::node0"] value 1
+    inst [6 or "DMA_6::node0"] value 0
+    inst [7 or "DMA_7::node0"] value 0
+    inst [8 or "DMA_8::node0"] value 1
+    inst [9 or "DMA_9::node0"] value 1
+    inst [10 or "DMA_10::node0"] value 3
+    inst [11 or "DMA32_0::node0"] value 470
+    inst [12 or "DMA32_1::node0"] value 524
+    inst [13 or "DMA32_2::node0"] value 98
+    inst [14 or "DMA32_3::node0"] value 154
+    inst [15 or "DMA32_4::node0"] value 86
+    inst [16 or "DMA32_5::node0"] value 30
+    inst [17 or "DMA32_6::node0"] value 23
+    inst [18 or "DMA32_7::node0"] value 10
+    inst [19 or "DMA32_8::node0"] value 26
+    inst [20 or "DMA32_9::node0"] value 12
+    inst [21 or "DMA32_10::node0"] value 681
+    inst [22 or "Normal_0::node0"] value 188
+    inst [23 or "Normal_1::node0"] value 420
+    inst [24 or "Normal_2::node0"] value 143
+    inst [25 or "Normal_3::node0"] value 11
+    inst [26 or "Normal_4::node0"] value 2
+    inst [27 or "Normal_5::node0"] value 0
+    inst [28 or "Normal_6::node0"] value 0
+    inst [29 or "Normal_7::node0"] value 0
+    inst [30 or "Normal_8::node0"] value 0
+    inst [31 or "Normal_9::node0"] value 0
+    inst [32 or "Normal_10::node0"] value 1
+
+== done
+
 == Checking all mem metric values - meminfo-root-002.tgz
+
+mem.buddyinfo
+No value(s) available!
 
 mem.freemem
     value 87287012
@@ -3171,6 +3248,13 @@ mem.slabinfo.slabs.total_size
     inst [126 or "kmalloc-8"] value 819200
     inst [127 or "kmem_cache_node"] value 65728
     inst [128 or "kmem_cache"] value 122880
+
+== done
+
+== Checking buddyinfo metric values - meminfo-root-002.tgz
+
+mem.buddyinfo
+No value(s) available!
 
 == done
 
