@@ -33,10 +33,52 @@ StrTimeval(__pmTimeval *tp)
 }
 #endif
 
+/* Return 1 if the indoms are the same, 0 otherwise */
+static int
+sameindom(const __pmLogInDom *idp1, const __pmLogInDom *idp2) {
+    int i;
+
+    /*
+     * Duplicate indoms at different timestamps are still duplicate, so don't compare the
+     * timestamps.
+     */
+    if (idp1->numinst != idp2->numinst)
+	return 0; /* different */
+
+    for (i = 0; i < idp1->numinst; ++i) {
+	if (idp1->instlist[i] != idp2->instlist[i])
+	    return 0; /* different */
+	if (strcmp(idp1->namelist[i], idp2->namelist[i]) != 0)
+	    return 0; /* different */
+    }
+
+    return 1; /* duplicate */
+}
+
+/* Free the given indom. See the comment for the allocation of__pmLogIndom in impl.h */
+static void
+freeindom(__pmLogInDom *idp) {
+    if (idp->buf) {
+	free(idp->buf);
+	if (idp->allinbuf == 0)
+	    free(idp->namelist);
+    }
+    else {
+	free(idp->instlist);
+	free(idp->namelist);
+    }
+    free(idp);
+}
+
+/*
+ * Add the given instance domain to the hashed instance domain.
+ * Filter out duplicates.
+ */
 static int
 addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp, int numinst, 
          int *instlist, char **namelist, int *indom_buf, int allinbuf)
 {
+    const __pmLogInDom	*idp_cached;
     __pmLogInDom	*idp;
     __pmHashNode	*hp;
     int		sts;
@@ -60,16 +102,39 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     }
 #endif
 
-
     if ((hp = __pmHashSearch((unsigned int)indom, &lcp->l_hashindom)) == NULL) {
 	idp->next = NULL;
 	sts = __pmHashAdd((unsigned int)indom, (void *)idp, &lcp->l_hashindom);
+	/* __pmHashAdd returns 1 for success, but we want zero. */
+	if (sts > 0)
+	    sts = 0;
     }
     else {
-	idp->next = (__pmLogInDom *)hp->data;
-	hp->data = (void *)idp;
+	/*
+	 * Filter out identical indoms. This is very common in multi-archive
+	 * contexts where the individual archives almost always use the same
+	 * instance domains.
+	 */
 	sts = 0;
+	for (idp_cached = hp->data; idp_cached; idp_cached = idp_cached->next) {
+	    if (sameindom(idp_cached, idp)) {
+		sts = 1; /* duplicate */
+		break;
+	    }
+	}
+	if (sts == 0) {
+	    idp->next = (__pmLogInDom *)hp->data;
+	    hp->data = (void *)idp;
+	}
     }
+
+    /* It's a duplicate or an error has occurred, free the duplicate data. */
+    if (sts != 0) {
+	freeindom(idp);
+	if (sts == 1)
+	    sts = 0; /* duplicate is ok */
+    }
+
     return sts;
 }
 
@@ -200,6 +265,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		    free(dp);
 		    goto end;
 		}
+                /*
+                 * This pmid is already known, and matches.  We can free the newly
+                 * read copy and use the one in the hash table. 
+                 */
+                free(dp);
+                dp = olddp;
 	    }
 	    else if ((sts = __pmHashAdd((int)dp->pmid, (void *)dp, &lcp->l_hashpmid)) < 0) {
 		free(dp);
@@ -361,12 +432,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		instlist = NULL;
 		namelist = NULL;
 	    }
-	    if ((sts = addindom(lcp, indom, when, numinst, instlist, namelist, tbuf, allinbuf)) < 0) {
-		free(tbuf);
-		if (allinbuf == 0)
-		    free(namelist);
+	    if ((sts = addindom(lcp, indom, when, numinst, instlist, namelist, tbuf, allinbuf)) < 0)
 		goto end;
-	    }
 	}
 	else
 	    fseek(f, (long)rlen, SEEK_CUR);
