@@ -570,9 +570,9 @@ do
     # optional callback
     #
     callback_abort=false
-    if [ -x check.callback ]
+    if [ -x ./check.callback ]
     then
-	if check.callback $seq >$tmp.tmp 2>&1
+	if ./check.callback $seq >$tmp.tmp 2>&1
 	then
 	    :
 	else

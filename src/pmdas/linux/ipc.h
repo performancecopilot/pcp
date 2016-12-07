@@ -16,12 +16,12 @@
 #define SHM_LOCKED	02000	/* segment will not be swapped */
 
 /*
- *  * X/OPEN (Jan 1987) does not define fields key, seq in struct ipc_perm;                            
- *   *      glibc-1.09 has no support for sysv ipc.                                                     
- *    *      glibc 2 uses __key, __seq
- *     */
+ * X/OPEN (Jan 1987) does not define fields key, seq in struct ipc_perm;
+ * glibc-1.09 has no support for SYSV IPC.
+ * glibc 2 uses __key, __seq
+ */
 #if defined (__GLIBC__) && __GLIBC__ >= 2
-# define KEY __key                                                                 
+# define KEY __key
 #else
 # define KEY key
 #endif
@@ -130,3 +130,12 @@ typedef struct {
 } msg_que_t;
 
 extern int refresh_msg_que(pmInDom msg_indom);
+
+typedef struct {
+        char                sem_key[IPC_KEYLEN]; /* name of these messages slot */
+        char                sem_owner[IPC_OWNERLEN]; /* username of owner */
+        unsigned int        sem_perms;		/* access permissions */
+        unsigned int        nsems;	        /* no. of semaphore */
+} sem_array_t;
+
+extern int refresh_sem_array(pmInDom sem_indom);

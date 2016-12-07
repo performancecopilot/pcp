@@ -168,6 +168,7 @@ do
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log
     $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.cmds 2>&1 | _filter | _filter_indom
+    pmsleep 0.5
     _filter_pmda_log < nfsclient.log
 done
 
@@ -178,6 +179,7 @@ do
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log
     $sudo TERM=ansi sh -c ". /etc/pcp.env; dbpmda -n $tmp.root -ie" < $tmp.42cmds 2>&1 | _filter | _filter_indom
+    pmsleep 0.5
     _filter_pmda_log < nfsclient.log
 done
 

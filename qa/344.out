@@ -33,7 +33,7 @@ sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K clear, +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -71,7 +71,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400 +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -109,7 +109,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400, +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -147,7 +147,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400,TMP.$DSO_SUFFIX +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -185,7 +185,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400,TMP.$DSO_SUFFIX, +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -223,7 +223,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400,TMP.$DSO_SUFFIX,sample_init +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -261,7 +261,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,,TMP.$DSO_SUFFIX,sample_init +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -299,7 +299,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,,,sample_init +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -337,7 +337,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,,TMP.$DSO_SUFFIX,sample_init +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -375,7 +375,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K clear,400,,sample_init +++
 pminfo: __pmSpecLocalPMDA failed: unexpected text after clear op in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -413,7 +413,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add +++
 pminfo: __pmSpecLocalPMDA failed: expected , after op in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -451,7 +451,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add, +++
 pminfo: __pmSpecLocalPMDA failed: missing domain in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -489,7 +489,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400 +++
 pminfo: __pmSpecLocalPMDA failed: missing dso-path in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -527,7 +527,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400, +++
 pminfo: __pmSpecLocalPMDA failed: missing dso-path in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -565,7 +565,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400,TMP.$DSO_SUFFIX +++
 pminfo: __pmSpecLocalPMDA failed: missing init-routine in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -603,7 +603,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K add,400,TMP.$DSO_SUFFIX, +++
 pminfo: __pmSpecLocalPMDA failed: missing init-routine in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -651,7 +651,7 @@ qa.string.write_me PMID: 400.0.29
     value 13
 +++ -K del +++
 pminfo: __pmSpecLocalPMDA failed: expected , after op in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -689,7 +689,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del, +++
 pminfo: __pmSpecLocalPMDA failed: missing domain in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -737,7 +737,7 @@ qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 build_dsotab: parsing $PCP_PMCDCONF_PATH
 __pmLocalPMDA -> Unknown or illegal instance domain identifier
 pminfo: __pmSpecLocalPMDA failed: __pmLocalPMDA: Unknown or illegal instance domain identifier
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -783,7 +783,7 @@ sample.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 qa.string.write_me: pmLookupDesc: No PMCD agent for domain of request
 +++ -K del,, +++
 pminfo: __pmSpecLocalPMDA failed: missing domain and dso-path in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -821,7 +821,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del,,, +++
 pminfo: __pmSpecLocalPMDA failed: missing domain and dso-path in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE
@@ -859,7 +859,7 @@ Metrics options:
   -v, --verify          verify mode, be quiet and only report errors
 +++ -K del,,,sample_init +++
 pminfo: __pmSpecLocalPMDA failed: missing domain and dso-path in spec
-Usage: pminfo [options] [metricname ...]
+Usage: pminfo [options] [metricname | pmid | indom]...
 
 General options:
   -a FILE, --archive=FILE

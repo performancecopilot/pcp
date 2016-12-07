@@ -79,11 +79,14 @@ pmdads389log_cleanup()
     else
         $sudo rm -f $PCP_PMDAS_DIR/ds389log/ds389log.conf
     fi
+    # note: _restore_systemd_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda ds389log
 }
 
 _prepare_pmda ds389log
 trap "pmdads389log_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
 
 _filter()
 {

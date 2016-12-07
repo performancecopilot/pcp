@@ -253,6 +253,7 @@ HAVE_PYTHON = @have_python@
 # python dependent bits
 HAVE_PYTHON_SIX = @have_python_six@
 HAVE_PYTHON_REQUESTS = @have_python_requests@
+HAVE_PYTHON_SETUPTOOLS = @have_python_setuptools@
 HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
 
 # for building packages from external sources
@@ -658,16 +659,22 @@ ifeq "$(shell [ '$(TARGET_OS)' = linux -a '$(PACKAGE_DISTRIBUTION)' != gentoo \
 	      ] && echo 1)" "1"
 # Linux and not Gentoo (which needs tarball packaging)
 PYTHON_INSTALL = \
+	cat $(TOPDIR)/python-pcp.list | while read f; do \
+	    dirname $$f | $(SED) -e '/.*packages$$/d'; \
+	done | $(PCP_SORT_PROG) -u > $(TOPDIR)/python-pcp.list.rpm; \
 	$(AWK) '{print} /\.pyc$$/ {sub(/\.pyc$$/,".pyo"); print}' \
-		< $(TOPDIR)/python-pcp.list > $(TOPDIR)/python-pcp.list.rpm; \
+	    < $(TOPDIR)/python-pcp.list >> $(TOPDIR)/python-pcp.list.rpm; \
 	cat $(TOPDIR)/python-pcp.list.rpm | while read f; do \
 	    touch $${DIST_ROOT-/}$$f; \
 	done
 PYTHON3_INSTALL = \
+	cat $(TOPDIR)/python3-pcp.list | while read f; do \
+	    dirname $$f | $(SED) -e '/.*packages$$/d'; \
+	done | $(PCP_SORT_PROG) -u > $(TOPDIR)/python3-pcp.list.rpm; \
 	$(AWK) '{print} /\.pyc$$/ {sub(/\.pyc$$/,".pyo"); print}' \
-		< $(TOPDIR)/python3-pcp.list > $(TOPDIR)/python3-pcp.list.rpm; \
+	    < $(TOPDIR)/python3-pcp.list >> $(TOPDIR)/python3-pcp.list.rpm; \
 	$(AWK) '/\.pyc$$/ {sub(/\.pyc$$/,".opt-1.pyc"); print}' \
-		< $(TOPDIR)/python3-pcp.list >> $(TOPDIR)/python3-pcp.list.rpm; \
+	    < $(TOPDIR)/python3-pcp.list >> $(TOPDIR)/python3-pcp.list.rpm; \
 	cat $(TOPDIR)/python3-pcp.list.rpm | while read f; do \
 	    touch $${DIST_ROOT-/}$$f; \
 	done
@@ -693,8 +700,9 @@ PYTHON_INSTALL = \
 	    | while read f; do \
 		bn=`basename $$f`; \
 		dn=`dirname $$f`; \
+		pydir="$(TOPDIR)/src/python"; \
 		$(INSTALL) -d $$dn || exit 1; \
-		src=`find $(TOPDIR)/src/python/build -name $$bn`; \
+		src=`find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; \
 		$(INSTALL) $$src $$f || exit 1; \
 	    done; \
 	fi
@@ -704,8 +712,9 @@ PYTHON3_INSTALL = \
 	    | while read f; do \
 		bn=`basename $$f`; \
 		dn=`dirname $$f`; \
+		pydir="$(TOPDIR)/src/python"; \
 		$(INSTALL) -d $$dn || exit 1; \
-		src=`find $(TOPDIR)/src/python/build -name $$bn`; \
+		src=`find $$pydir/build $$pydir/pcp.egg-info -name $$bn`; \
 		$(INSTALL) $$src $$f || exit 1; \
 	    done; \
 	fi

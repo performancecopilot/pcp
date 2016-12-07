@@ -215,6 +215,10 @@ ipc.sem {
     max_exit		60:21:9
     used_sem		60:61:0
     tot_sem		60:61:1
+    key 		60:66:0
+    owner 		60:66:1
+    perms 		60:66:2
+    nsems 		60:66:3
 }
 
 ipc.msg {
@@ -369,6 +373,7 @@ disk.partitions {
 mem {
     physmem		60:1:0
     freemem		60:1:10
+    buddyinfo		60:67:0
     util
     numa
     slabinfo

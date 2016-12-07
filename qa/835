@@ -72,11 +72,14 @@ pmdamemcache_cleanup()
     else
 	$sudo rm -f $PCP_PMDAS_DIR/memcache/memcache.conf
     fi
+    # note: _restore_systemd_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda memcache
 }
 
 _prepare_pmda memcache
 trap "pmdamemcache_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_systemd_restart pmcd
 
 # make pmprobe output comparable to memcachestats
 rewrite_memcache_metric_names()

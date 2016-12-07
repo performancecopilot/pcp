@@ -61,6 +61,10 @@ linux_filter()
 	-e "/hinv\.map\.mdname: $unavailable/d" \
 	-e "/hinv\.nlv: $unavailable/d" \
 	-e "/hinv\.node\.online: $unavailable/d" \
+	-e "/ipc\.sem\.key: $unavailable/d" \
+	-e "/ipc\.sem\.nsems: $unavailable/d" \
+	-e "/ipc\.sem\.owner: $unavailable/d" \
+	-e "/ipc\.sem\.perms: $unavailable/d" \
 	-e "/ipc\.shm\.key: $unavailable/d" \
 	-e "/ipc\.shm\.nattch: $unavailable/d" \
 	-e "/ipc\.shm\.owner: $unavailable/d" \

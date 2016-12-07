@@ -11,12 +11,12 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # 
-# rpm PMDA help file in the ASCII format
+# RPM PMDA help file in the ASCII format
 #
 # lines beginning with a # are ignored
 # lines beginning @ introduce a new entry of the form
 #  @ metric_name oneline-text
-#  help test goes
+#  help text goes
 #  here over multiple lines
 #  ...
 #

@@ -19,7 +19,7 @@
 # lines beginning with a # are ignored
 # lines beginning @ introduce a new entry of the form
 #  @ metric_name oneline-text
-#  help test goes
+#  help text goes
 #  here over multiple lines
 #  ...
 #
@@ -566,6 +566,7 @@ be areas of the physical address space mapped as ROM in
 various peripheral devices and the bios may be mirroring
 certain ROMs in RAM.
 @ mem.freemem free system memory metric from /proc/meminfo
+@ mem.buddyinfo information of page fragment from /proc/buddyinfo
 @ mem.util.used used memory metric from /proc/meminfo
 Used memory is the difference between mem.physmem and mem.freemem.
 @ mem.util.free free memory metric from /proc/meminfo
@@ -1488,6 +1489,10 @@ See also the kernel.uname.* metrics
 @ ipc.sem.max_exit adjust on exit maximum value (from semctl(..,IPC_INFO,..))
 @ ipc.sem.used_sem number of semaphore sets currently on the system (from semctl(..,SEM_INFO,..))
 @ ipc.sem.tot_sem number of semaphores in all sets on the system (from semctl(..,SEM_INFO,..))
+@ ipc.sem.key key of these semaphore (from msgctl(..,SEM_STAT,..))
+@ ipc.sem.owner username of owner (from msgctl(..,SEM_STAT,..))
+@ ipc.sem.perms access permissions (from msgctl(..,SEM_STAT,..))
+@ ipc.sem.nsems number of semaphore (from semctl(..,SEM_STAT,..))
 @ ipc.msg.sz_pool size of message pool in kilobytes (from msgctl(..,IPC_INFO,..))
 @ ipc.msg.mapent number of entries in a message map (from msgctl(..,IPC_INFO,..))
 @ ipc.msg.max_msgsz maximum size of a message in bytes (from msgctl(..,IPC_INFO,..))

@@ -1,0 +1,29 @@
+#!/bin/sh
+# PCP QA Test No. 906
+# Exercise pminfo(1) reporting via pmID and pmInDom.
+#
+# Copyright (c) 2016 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+echo; echo == sample.color by pmID ==
+pminfo --desc --oneline --helptext 29.0.5	# sample.color pmid
+
+echo; echo == sample.color pmInDom ==
+pminfo --oneline --helptext 29.1		# sample color indom
+
+# success, all done
+status=0
+exit

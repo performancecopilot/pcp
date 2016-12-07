@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ $PCP_PLATFORM = linux ] || _notrun "Linux-specific memory metric testing"
+userid=`id -u`	# test exercises procfs access from both root and non-root
+[ "$userid" != 0 ] || _notrun "Test cannot be run as privileged root user"
 
 config="$PCP_PMDAS_DIR/linux/bandwidth.conf"
 
@@ -42,6 +44,7 @@ local="-L -K clear -K add,60,$pmda"
 
 mem_metrics=`pminfo $local mem | LC_COLLATE=POSIX sort`
 slab_metrics=`pminfo $local mem.slabinfo | LC_COLLATE=POSIX sort`
+buddy_metrics=`pminfo $local mem.buddyinfo | LC_COLLATE=POSIX sort`
 
 if [ -f "$config" ]
 then
@@ -64,6 +67,10 @@ do
     echo "== Checking slabinfo metric values - $base"
     # requires root privileges to access these
     $sudo pminfo $local -f $slab_metrics
+    echo && echo "== done" && echo
+
+    echo "== Checking buddyinfo metric values - $base"
+    pminfo $local -f $buddy_metrics
     echo && echo "== done" && echo
 
     cd $here

@@ -33,8 +33,8 @@ _filter_pmlogger_log <$tmp.log
 echo "host should be HOST ..."
 pmdumplog -l $tmp 2>&1 \
 | sed -e 's/host /Host /' \
-      -e "s/$realhost/HOST/" \
-      -e "s/$host/HOST/" \
+      -e "s/$realhost\$/HOST/" \
+      -e "s/$host\$/HOST/" \
 | _filter_pmdumplog \
 | sed -e 's/Host /host /'
 
