@@ -17,9 +17,13 @@
         {
             "name": "CPU",
 	    "description": "The speed of the CPU is limiting performance",
-	    "predicate": "(1 - fetch_metric_min(\"kernel.percpu.cpu.idle\")",
-	    "pcp_metrics": ["kernel.percpu.cpu.idle.*"],
-            "pcp_metrics_log": ["kernel.percpu.cpu.idle" ],
+            "pcp_metrics": ["cpubusy.*"],
+            "pcp_metrics_log": ["cpubusy" ],
+            "pcp_deriveds": [ "cpubusy = 1 - rate(kernel.percpu.cpu.idle)" ],
+            "pcp_predicate": { "label": "processors busy",
+                               "metric": "cpubusy",
+                               "operator": "threshold_min",
+                               "value" : 85 },
 	    "parents": ["Start"]
         },
         {
@@ -27,7 +31,11 @@
 	    "description": "Excessive waiting for storage",
 	    "pcp_metrics": ["disk.dm.avactive.*"],
 	    "pcp_metrics_log": ["disk.dm.avactive"],
-	    "predicate": "disk.dm.avactive",
+            "pcp_deriveds": [ "diskbusy = rate(disk.dm.avactive)" ],
+            "pcp_predicate": { "label": "disk busy",
+                               "metric": "diskbusy",
+                               "operator": "threshold_min",
+                               "value" : 85 },
 	    "parents": ["Start"]
         },
         {
