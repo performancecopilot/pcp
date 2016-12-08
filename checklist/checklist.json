@@ -29,8 +29,8 @@
         {
             "name": "Storage",
 	    "description": "Excessive waiting for storage",
-	    "pcp_metrics": ["disk.dm.avactive.*"],
-	    "pcp_metrics_log": ["disk.dm.avactive"],
+	    "pcp_metrics": ["diskbusy.*"],
+	    "pcp_metrics_log": ["diskbusy"],
             "pcp_deriveds": [ "diskbusy = rate(disk.dm.avactive)" ],
             "pcp_predicate": { "label": "disk busy",
                                "metric": "diskbusy",
