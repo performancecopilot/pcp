@@ -10,27 +10,27 @@ trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 sts=1
 recursive=true
-do_unlock=true
+oflag=false
 verbose=false
 
 _usage()
 {
     echo "Usage: mk.cgraph [options] function ..."
     echo "Options"
-    echo "-e	ignore PM_UNLOCK (assume on error branch)"
+    echo "-o    omit external thread-safe routines"
     echo "-R	NO recursive descent"
     echo "-v	verbose"
     exit
 }
 
-while getopts "eRv?" c
+while getopts "oRv?" c
 do
     case $c
     in
-	e)
-	    # assume PM_UNLOCK is really on erro branch
-	    do_unlock=false
+	o)
+	    oflag=true
 	    ;;
+
 	R)
 	    # no recursive descent, thanks
 	    recursive=false
@@ -54,51 +54,17 @@ then
     # NOTREACHED
 fi
 
-rm -f $tmp.l_libpcp	# exists when __pmLock_libpcp is locked
-rm -f $tmp.l_derived	# exists when registered.mutex is locked
-
-echo 0 >$tmp.n
-
-_doedge()
-{
-    locks=''
-    if [ -e $tmp.l_libpcp ]
-    then
-	locks=libpcp
-    fi
-    if [ -e $tmp.l_derived ]
-    then
-	if [ -z "$locks" ]
-	then
-	    locks=derived
-	else
-	    locks="$locks\\nderived"
-	fi
-    fi
-    if [ -n "$locks" ]
-    then
-	n=`cat $tmp.n`
-	echo `expr $n + 1` >$tmp.n
-	echo "    $1_$n [label=\"$locks\",shape=box,color=red,height=0.1];"
-	echo "    $1 -> $1_$n [arrowhead=none];"
-	echo "    $1_$n -> $2;"
-    else
-	echo "    $1 -> $2;"
-    fi
-}
-
 _dofunc()
 {
     func=$1
     $verbose && echo >&2 $func:
-    echo
-    rm -f $tmp.calls
+    rm -f $tmp.calls $tmp.output
     ( cd ../src; cscope -I../include/pcp -L -2"$func" ) >$tmp.tmp 2>$tmp.err
     if [ -s $tmp.err ]
     then
-	echo "Unexpected errors from cscope(1) ..."
-	cat $tmp.err
-	echo "... skipping $func"
+	echo >&2 "Unexpected errors from cscope(1) ..."
+	cat >&2 $tmp.err
+	echo >&2 "... skipping $func"
 	continue
     fi
 
@@ -107,14 +73,16 @@ _dofunc()
     # access.c getmyhostid 1276 getmyhostid();
     # access.c PM_UNLOCK 1280 PM_UNLOCK(__pmLock_libpcp);
     #
+    rm -f $tmp.locks
 
     sed <$tmp.tmp \
 	-e 's/;$/ ;/' \
     | awk '
 $2 == "PM_INIT_LOCKS"	{ next }
 $2 == "PM_TPD"		{ next }
+$2 == "defined"		{ next }	# cscope botch on #if defined()?
+$2 == "PM_UNLOCK"	{ next }
 $2 == "PM_LOCK"		{ print $4; next }
-$2 == "PM_UNLOCK"	{ print $4; next }
 			{ # omit repeated function calls
 			  if (seen[$2] == 1) next
 			  seen[$2] = 1
@@ -132,13 +100,14 @@ s/)//
 	in
 	    LOCK)
 		echo "    #LOCK $param"
+		touch $tmp.output
 		case "$param"
 		in
 		    __pmLock_libpcp)
-			touch $tmp.l_libpcp
+			echo libpcp >>$tmp.locks
 			;;
 		    registered.mutex)
-			touch $tmp.l_derived
+			echo derived >>$tmp.locks
 			;;
 		    *)
 			echo >&2 "Bad LOCK: $param"
@@ -148,52 +117,47 @@ s/)//
 		continue
 		;;
 
-	    UNLOCK)
-		if $do_unlock
-		then
-		    echo "    #UNLOCK $param"
-		    case "$param"
-		    in
-			__pmLock_libpcp)
-			    rm -f $tmp.l_libpcp
-			    ;;
-			registered.mutex)
-			    rm -f $tmp.l_derived
-			    ;;
-			*)
-			    echo >&2 "Bad UNLOCK: $param"
-			    exit
-			    ;;
-		    esac
-		else
-		    echo "    #UNLOCK $param ... ignored due to -e"
-		fi
-		continue
-		;;
-
 	esac
 
 	if grep "^$calls\$" glibc.safe >/dev/null
 	then
 	    # glibc, thread-safe
-	    echo "    $calls [fontcolor=blue,color=blue,style=filled,fillcolor=\"lightgrey\"];"
-	    _doedge $func $calls
+	    if $oflag
+	    then
+		# do not include thread-safe routines in graph
+		:
+	    else
+		echo "    $calls [fontcolor=blue,color=blue,style=filled,fillcolor=\"lightgrey\"];"
+		echo "    $func -> $calls;"
+		touch $tmp.output
+	    fi
 	elif grep "^$calls\$" posix.unsafe >/dev/null
 	then
 	    # posix, not thread-safe
 	    echo "    $calls [fontcolor=red,color=red,style=filled,fillcolor=\"lightgrey\"];"
-	    _doedge $func $calls
+	    echo "    $func -> $calls;"
+	    touch $tmp.output
 	elif grep "^$calls\$" glibc.unsafe >/dev/null
 	then
 	    # glibc, not thread-safe
 	    echo "    $calls [fontcolor=red,color=red,style=filled,fillcolor=\"lightgrey\"];"
-	    _doedge $func $calls
+	    echo "    $func -> $calls;"
+	    touch $tmp.output
 	else
 	    # assumed to be in libpcp
-	    _doedge $func $calls
+	    echo "    $func -> $calls;"
+	    touch $tmp.output
 	    echo $calls >>$tmp.calls
 	fi
     done
+
+    if [ -s $tmp.locks ]
+    then
+	echo "    $func [label=\"$func\\\\n`sort <$tmp.locks | uniq | tr '[\012]' '[ ]' | sed -e 's/ /\\\\n/g' -e 's/\\\\n\$//'`\",shape=box,fontcolor=red,color=red];"
+    fi
+
+    [ -f $tmp.output ] && echo
+
 }
 
 rm -f $tmp.done
