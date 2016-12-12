@@ -88,6 +88,7 @@ OTHER_SUBDIRS = \
 	pmsnap \
 	pmtime \
 	pmval \
+	pmview \
 	pmwebapi \
 	perl \
 	python \

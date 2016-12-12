@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, Red Hat.
+ * Copyright (c) 2014-2016, Red Hat.
  * Copyright (c) 2007, Aconex.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -15,8 +15,8 @@
 #ifndef QED_FILEICONPROVIDER_H
 #define QED_FILEICONPROVIDER_H
 
-#include <QApplication>
-#include <QFileIconProvider>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QFileIconProvider>
 
 class QedFileIconProvider : public QFileIconProvider
 {

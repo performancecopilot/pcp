@@ -32,7 +32,7 @@ default: build-me
 
 include $(BUILDRULES)
 
-ifeq "$(ENABLE_QT)" "true"
+ifeq "$(ENABLE_QT3D)" "true"
 build-me:: images wrappers $(GENERATED)
 	+$(QTMAKE)
 	$(LNMAKE)

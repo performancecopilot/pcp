@@ -15,7 +15,7 @@
 #ifndef QED_APP_H
 #define QED_APP_H
 
-#include <QApplication>
+#include <QtWidgets/QApplication>
 #include <QPixmapCache>
 #include <QFont>
 #include <qmc_time.h>

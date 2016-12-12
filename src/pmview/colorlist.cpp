@@ -86,7 +86,6 @@ ColorList::findColor(const char *color, float &red, float &green, float &blue)
 {
     QColor col;
 
-    col.setAllowX11ColorNames(true);
     col.setNamedColor(color);
     if (!col.isValid())
 	return false;
@@ -102,7 +101,6 @@ ColorList::findColor(const char *color)
 {
     QColor col;
 
-    col.setAllowX11ColorNames(true);
     col.setNamedColor(color);
     if (!col.isValid())
 	return false;

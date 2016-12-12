@@ -27,6 +27,7 @@
 #include "viewobj.h"
 #include "main.h"
 
+#include <sys/stat.h>
 #include <iostream>
 using namespace std;
 
@@ -244,7 +245,7 @@ int
 genInventor(void)
 {
     int sts = 0;
-    const char *configfile;
+    char *configfile;
     QTextStream cerr(stderr);
 
     if (theConfigName.length()) {
@@ -257,15 +258,35 @@ genInventor(void)
 	}
 	theAltConfigName = theConfigName;
     } else {
-	configfile = mktemp(strdup("/tmp/pmview.XXXXXX"));
-	if (pmDebug & DBG_TRACE_APPL0)
-	    cerr << "genInventor: Copy of configuration saved to "
-		 << configfile << endl;
-	if (!(theAltConfig = fopen(configfile, "w"))) {
+	mode_t	cur_umask;
+	char	*tmpdir = pmGetConfig("PCP_TMPFILE_DIR");
+	int	fd = -1;
+
+#if HAVE_MKSTEMP
+	configfile = (char *)malloc(MAXPATHLEN+1);
+	if (configfile == NULL) goto fail;
+	snprintf(configfile, MAXPATHLEN, "%s/pcp-XXXXXX", tmpdir);
+	cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
+	fd = mkstemp(configfile);
+	umask(cur_umask);
+#else
+	configfile = tempnam(tmpdir, "pcp-");
+	if (configfile == NULL) goto fail;
+	cur_umask = umask(S_IXUSR | S_IRWXG | S_IRWXO);
+	fd = open(configfile, O_RDWR|O_APPEND|O_CREAT|O_EXCL, 0600);
+	umask(cur_umask);
+#endif /* HAVE_MKSTEMP */
+
+	if (fd < 0) goto fail;
+	if (!(theAltConfig = fdopen(fd, "a")))
+fail:
             pmprintf("%s: Warning: Unable to save configuration for "
 		     "recording to \"%s\": %s\n",
 		    pmProgname, configfile, strerror(errno));
-	}
+	else if (pmDebug & DBG_TRACE_APPL0)
+	    cerr << "genInventor: Copy of configuration saved to "
+		 << configfile << endl;
+
 	theAltConfigName = configfile;
     }
 

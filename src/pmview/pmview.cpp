@@ -27,9 +27,6 @@
 #include <Inventor/nodes/SoBaseColor.h>
 #include <Inventor/nodes/SoCube.h>
 
-#include <iostream>
-using namespace std;
-
 #include "barobj.h"
 #include "gridobj.h"
 #include "stackobj.h"
@@ -45,6 +42,9 @@ using namespace std;
 #include "qed_statusbar.h"
 #include "qed_timecontrol.h"
 #include "qed_recorddialog.h"
+
+#include <iostream>
+using namespace std;
 
 QString		theConfigName;
 QString		theAltConfigName;
@@ -601,16 +601,9 @@ QString View::pmloggerSyntax(bool)
 #endif
 }
 
-bool View::saveConfig(QString filename, bool hostDynamic,
-			bool sizeDynamic, bool allViews, bool allCharts)
+bool View::saveConfig(QString, bool, bool, bool, bool)
 {
-// TODO
-#if 0
-    return SaveViewDialog::saveView(filename,
-				hostDynamic, sizeDynamic, allViews, allCharts);
-#else
     return false;
-#endif
 }
 
 bool View::stopRecording()

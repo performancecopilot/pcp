@@ -41,6 +41,6 @@ LIBS		+= -L../libpcp_qmc/src -L../libpcp_qmc/src/$$DESTDIR
 LIBS		+= -L../libpcp_qwt/src -L../libpcp_qwt/src/$$DESTDIR
 LIBS		+= -lpcp_qed -lpcp_qmc -lpcp_qwt -lpcp
 win32:LIBS	+= -lwsock32 -liphlpapi
-QT		+= printsupport network svg
+QT		+= printsupport network svg widgets
 QMAKE_INFO_PLIST = pmchart.info
 QMAKE_CXXFLAGS	+= $$(PCP_CFLAGS)
