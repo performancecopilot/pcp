@@ -2,7 +2,10 @@ gram.cpp
 gram.h
 lex.cpp
 pmview
-y.tab.c
-y.tab.h
+pmview.app
+pmview.info
+pmview.sh
 frameworks
 images
+y.tab.c
+y.tab.h

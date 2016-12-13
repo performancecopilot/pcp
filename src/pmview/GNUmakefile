@@ -61,29 +61,34 @@ endif
 
 $(WRAPPER): $(WRAPPER).IN
 	$(SED) -e '/\# .*/b' -e 's;PKG_MAC_DIR;$(PKG_MAC_DIR);g' < $< > $@
+$(XMLFILE): $(XMLFILE).in
+	$(SED) -e 's;PACKAGE_VERSION;$(PACKAGE_VERSION);g' < $< > $@
 
+# empty install target until porting is complete
 install: default
+
+futures: default
 	$(SUBDIRS_MAKERULE)
-	$(INSTALL) -m 755 -d $(PCP_BIN_DIR)
 ifeq ($(WINDOW),win)
-	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
+	$(INSTALL) -m 755 $(BINARY) $(PCP_BIN_DIR)/$(COMMAND)
 endif
 ifeq ($(WINDOW),x11)
-	$(INSTALL) -m 755 $(BINARY) $(PKG_BIN_DIR)/$(COMMAND)
-	$(INSTALL) -m 755 -d $(PKG_DESKTOP_DIR)
-	$(INSTALL) -m 644 $(DESKTOP) $(PKG_DESKTOP_DIR)/$(DESKTOP)
+	$(INSTALL) -m 755 $(BINARY) $(PCP_BIN_DIR)/$(COMMAND)
+	$(INSTALL) -m 755 -d $(PCP_DESKTOP_DIR)
+	$(INSTALL) -m 644 $(DESKTOP) $(PCP_DESKTOP_DIR)/$(DESKTOP)
 endif
 ifeq ($(WINDOW),mac)
-	$(INSTALL) -m 755 $(WRAPPER) $(PKG_BIN_DIR)/$(COMMAND)
-	$(INSTALL) -m 755 -d /Applications
-	$(INSTALL) -m 755 -d /Applications/$(COMMAND).app
-	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)
-	$(INSTALL) -m 644 $(MACBUILD)/Info.plist $(PKG_MAC_DIR)/Info.plist
+	$(INSTALL) -m 755 $(WRAPPER) $(PCP_BIN_DIR)/$(COMMAND)
+	$(call INSTALL_DIRECTORY_HIERARCHY,$(PKG_MAC_DIR),/Applications)
 	$(INSTALL) -m 644 $(MACBUILD)/PkgInfo $(PKG_MAC_DIR)/PkgInfo
+	$(INSTALL) -m 644 $(XMLFILE) $(PKG_MAC_DIR)/Info.plist
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/MacOS
+	$(call INSTALL_QT_FRAMEWORKS,$(BINARY))
 	$(INSTALL) -m 755 $(BINARY) $(PKG_MAC_DIR)/MacOS/$(COMMAND)
+	rm $(BINARY)
 	$(INSTALL) -m 755 -d $(PKG_MAC_DIR)/Resources
 	$(INSTALL) -m 644 $(ICNFILE) $(PKG_MAC_DIR)/Resources/$(ICNFILE)
+	$(call INSTALL_QT_RESOURCES,$(PKG_MAC_DIR)/Resources)
 endif
 
 else
