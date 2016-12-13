@@ -23,7 +23,7 @@
             "pcp_predicate": { "label": "processors busy",
                                "metric": "cpubusy",
                                "operator": "threshold_min",
-                               "value" : 85 },
+                               "value" : 0.85 },
 	    "parents": ["Start"]
         },
         {
@@ -35,7 +35,7 @@
             "pcp_predicate": { "label": "disk busy",
                                "metric": "diskbusy",
                                "operator": "threshold_min",
-                               "value" : 85 },
+                               "value" : 0.85 },
 	    "parents": ["Start"]
         },
         {
