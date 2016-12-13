@@ -86,7 +86,7 @@ addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp, int numinst,
     __pmLogInDom	*idp, *idp_prev;
     __pmLogInDom	*idp_cached, *idp_time;
     __pmHashNode	*hp;
-    double		timediff;
+    int			timecmp;
     int			sts;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
@@ -132,13 +132,13 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
      */
     idp_prev = NULL;
     for (idp_cached = (__pmLogInDom *)hp->data; idp_cached; idp_cached = idp_cached->next) {
-	timediff = __pmTimevalSub(&idp_cached->stamp, &idp->stamp);
+	timecmp = __pmTimevalCmp(&idp_cached->stamp, &idp->stamp);
 
 	/*
 	 * If the time of the current cached item is before our time,
 	 * then insert here.
 	 */
-	if (timediff < 0)
+	if (timecmp < 0)
 	    break;
 
 	/*
@@ -147,7 +147,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	 * to the head of this time slot. Otherwise insert this new item
 	 * at the head of the time slot.
 	 */
-	if (timediff == 0) {
+	if (timecmp == 0) {
 	    sts = 0;
 	    idp_time = idp_prev; /* just before this time slot */
 	    do {
@@ -161,8 +161,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 		idp_cached = idp_cached->next;
 		if (idp_cached == NULL)
 		    break;
-		timediff = __pmTimevalSub(&idp_cached->stamp, &idp->stamp);
-	    } while (timediff == 0);
+		timecmp = __pmTimevalCmp(&idp_cached->stamp, &idp->stamp);
+	    } while (timecmp == 0);
 
 	    if (sts == 1) {
 		/*
@@ -674,7 +674,7 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp)
 	    /*
 	     * need first one at or earlier than the requested time
 	     */
-	    if (__pmTimevalSub(&idp->stamp, tp) <= 0)
+	    if (__pmTimevalCmp(&idp->stamp, tp) <= 0)
 		break;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOGMETA) {
