@@ -34,12 +34,15 @@ StrTimeval(const __pmTimeval *tp)
 }
 #endif
 
-/* Return 1 if the indoms are the same, 0 otherwise */
+/*
+ * Return 1 if the indoms are the same, 0 otherwise.
+ * The time stamp does not count for this comparison.
+ */
 static int
-sameindom(const __pmLogInDom *idp1, const __pmLogInDom *idp2) {
+sameindom(const __pmLogInDom *idp1, const __pmLogInDom *idp2)
+{
     int i;
 
-    /* The time stamp does not count for this test. */
     if (idp1->numinst != idp2->numinst)
 	return 0; /* different */
 
@@ -53,9 +56,13 @@ sameindom(const __pmLogInDom *idp1, const __pmLogInDom *idp2) {
     return 1; /* duplicate */
 }
 
-/* Free the given indom. See the comment for the allocation of__pmLogIndom in impl.h */
+/*
+ * Free the given indom.
+ * See the comment for the allocation of__pmLogInDom in impl.h
+ */
 static void
-freeindom(__pmLogInDom *idp) {
+freeindom(__pmLogInDom *idp)
+{
     if (idp->buf) {
 	free(idp->buf);
 	if (idp->allinbuf == 0)
@@ -120,7 +127,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
      *
      * The indoms need to be sorted by decreasing time stamp. Before
      * multi-archive contexts, this happened automatically. Now we
-     * must do it explicitely. Duplicates must be moved to the head of their
+     * must do it explicitly. Duplicates must be moved to the head of their
      * time slot.
      */
     idp_prev = NULL;
@@ -166,7 +173,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 		    /* The duplicate is already in the right place. */
 		    return 0; /* ok */
 		}
-		    
+
 		/* Unlink the duplicate and set it up to be re-inserted. */
 		assert(idp_cached != NULL);
 		if (idp_prev)
