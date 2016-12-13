@@ -1,0 +1,35 @@
+QA output created by 1058
+
+=== bash agent installation ===
+You will need to choose an appropriate configuration for installation of
+the "bash" Performance Metrics Domain Agent (PMDA).
+
+  collector	collect performance statistics on this system
+  monitor	allow this system to monitor local and/or remote systems
+  both		collector and monitor configuration for this system
+
+Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+[...install files, make output...]
+Updating the PMCD control file, and notifying PMCD ...
+Check bash metrics have appeared ... X metrics and Y values
+bash.xtrace.numclients: No value(s) available
+bash.xtrace.maxmem: No value(s) available
+bash.xtrace.queuemem: No value(s) available
+bash.xtrace.count: No value(s) available
+bash.xtrace.records: No value(s) available
+bash.xtrace.parameters.pid: No value(s) available
+bash.xtrace.parameters.parent: No value(s) available
+bash.xtrace.parameters.lineno: No value(s) available
+bash.xtrace.parameters.function: No value(s) available
+bash.xtrace.parameters.command: No value(s) available
+
+=== remove bash agent ===
+Culling the Performance Metrics Name Space ...
+bash ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check bash metrics have gone away ... OK
+Waiting for pmcd to terminate ...
+Starting pmcd ... 
+Starting pmlogger ... 

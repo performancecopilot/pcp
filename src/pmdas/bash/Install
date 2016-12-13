@@ -1,5 +1,6 @@
 #! /bin/sh
 #
+# Copyright (c) 2016 Red Hat.
 # Copyright (c) 2012 Nathan Scott.  All rights reversed.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -19,9 +20,8 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=bash
-dso_opt=true
-socket_opt=true
-socket_inet_def=2082
+dso_opt=false
+socket_opt=false
 pmda_interface=5
 
 if [ ! -e "$PCP_TMP_DIR/pmdabash" ]

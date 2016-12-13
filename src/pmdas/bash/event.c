@@ -1,6 +1,7 @@
 /*
  * Event support for the bash tracing PMDA
  *
+ * Copyright (c) 2016 Red Hat.
  * Copyright (c) 2012 Nathan Scott.  All rights reversed.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -292,7 +293,7 @@ multiread:
      */
     if (bytes == 0)
 	return 0;
-    if (bytes < 0 && (errno == EBADF))
+    if (bytes < 0 && (errno == EBADF || errno == EISDIR || errno == EINVAL))
 	return 0;
     if (bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
 	return 0;
@@ -306,7 +307,7 @@ multiread:
 
     process_stat_timestamp(process, &timestamp);
 
-    buffer[bufsize-1] = '\0';
+    buffer[offset+bytes] = '\0';
     for (s = p = buffer, j = 0; *s != '\0' && j < bufsize-1; s++, j++) {
 	if (*s != '\n')
 	    continue;
