@@ -378,6 +378,7 @@ mem {
     numa
     slabinfo
     vmstat
+    zone
 }
 
 mem.util {
@@ -483,7 +484,14 @@ mem.numa.alloc {
     interleave_hit	60:36:35
     local_node		60:36:36
     other_node		60:36:37
-} 
+}
+
+mem.zone {
+    dma_free            60:68:0
+    dma32_free          60:68:1
+    normal_free         60:68:2
+    highmem_free        60:68:3
+}
 
 swap {
     pagesin		60:0:8

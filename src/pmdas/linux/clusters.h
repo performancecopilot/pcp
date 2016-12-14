@@ -88,6 +88,7 @@ enum {
 	CLUSTER_MSG_STAT,	/* 65 msgctl(MSG_STAT) system call */
 	CLUSTER_SEM_STAT,	/* 66 msgctl(SEM_STAT) system call */
 	CLUSTER_BUDDYINFO,	/* 67 /proc/buddyinfo */
+	CLUSTER_ZONEINFO,	/* 68 /proc/zoneinfo */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };

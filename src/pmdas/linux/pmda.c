@@ -64,6 +64,7 @@
 #include "ipc.h"
 #include "proc_net_softnet.h"
 #include "proc_buddyinfo.h"
+#include "proc_zoneinfo.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -335,6 +336,7 @@ static pmdaIndom indomtab[] = {
     { IPC_MSG_INDOM, 0, NULL },
     { IPC_SEM_INDOM, 0, NULL },
     { BUDDYINFO_INDOM, 0, NULL },
+    { ZONEINFO_INDOM, 0, NULL },
 };
 
 
@@ -3540,6 +3542,30 @@ static pmdaMetric metrictab[] = {
       PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
+ * /proc/zoneinfo cluster
+ */
+
+/* mem.zone.dma_free */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO, 0), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/* mem.zone.dma32_free */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO, 1), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/* mem.zone.normal_free */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO, 2), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/* mem.zone.highmem_free */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO, 3), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/*
  * /proc/cpuinfo cluster (cpu indom)
  */
 
@@ -4917,6 +4943,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_BUDDYINFO])
 	refresh_proc_buddyinfo(&proc_buddyinfo);
 
+    if (need_refresh[CLUSTER_ZONEINFO])
+	refresh_proc_zoneinfo(INDOM(ZONEINFO_INDOM));
+
 done:
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
@@ -4991,6 +5020,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
 	break;
     case BUDDYINFO_INDOM:
         need_refresh[CLUSTER_BUDDYINFO]++;
+        break;
+    case ZONEINFO_INDOM:
+	need_refresh[CLUSTER_ZONEINFO]++;
         break;
     /* no default label : pmdaInstance will pick up errors */
     }
@@ -6258,6 +6290,37 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     /*
      * Cluster added by Wu Liming <wulm.fnst@cn.fujitsu.com>
      */
+    case CLUSTER_ZONEINFO: {
+	zoneinfo_entry_t *zoneinfo_entry;
+	sts = pmdaCacheLookup(INDOM(ZONEINFO_INDOM), inst, NULL, (void **)&zoneinfo_entry);
+	if (sts < 0)
+	    return sts;
+	if (sts == PMDA_CACHE_INACTIVE)
+	    return PM_ERR_INST;
+	switch (idp->item) {
+
+	case 0: /* mem.zone.dma_free */
+	    atom->ull = zoneinfo_entry->dma_free;
+	    break;
+
+	case 1: /* mem.zone.dma32_free */
+	    atom->ull = zoneinfo_entry->dma32_free;
+	    break;
+
+	case 2: /* mem.zone.normal_free */
+	    atom->ull = zoneinfo_entry->normal_free;
+	    break;
+
+	case 3: /* mem.zone.highmem_free */
+	    atom->ull = zoneinfo_entry->highmem_free;
+	    break;
+
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+    }
+
     case CLUSTER_SEM_INFO:
 	switch (idp->item) {
 	case 0:	/* ipc.sem.used_sem */

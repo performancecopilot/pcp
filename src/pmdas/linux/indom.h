@@ -50,6 +50,7 @@ enum {
 	IPC_MSG_INDOM,	        /* 29 - ipc msg_stat msgid */
 	IPC_SEM_INDOM,	        /* 30 - ipc sem_stat msgid */
 	BUDDYINFO_INDOM,	/* 31 - kernel buddys */
+	ZONEINFO_INDOM,	        /* 32 - proc zoneinfo */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };
