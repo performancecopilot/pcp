@@ -16,7 +16,7 @@
 #define QED_TIMEBUTTON_H
 
 #include <QIcon>
-#include <QtWidgets/QToolButton>
+#include <QToolButton>
 
 class QedTimeButton : public QToolButton
 {

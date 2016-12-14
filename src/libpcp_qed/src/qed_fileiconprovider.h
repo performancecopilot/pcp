@@ -15,8 +15,8 @@
 #ifndef QED_FILEICONPROVIDER_H
 #define QED_FILEICONPROVIDER_H
 
-#include <QtWidgets/QApplication>
-#include <QtWidgets/QFileIconProvider>
+#include <QApplication>
+#include <QFileIconProvider>
 
 class QedFileIconProvider : public QFileIconProvider
 {
