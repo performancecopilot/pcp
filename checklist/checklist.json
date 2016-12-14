@@ -62,11 +62,11 @@
             "name": "Memory",
 	    "description": "Running low on free memory",
 	    "pcp_metrics": [ "mem.freemem", "mem.physmem" ],
-	    "pcp_deriveds": [ "mem_freepct = mem.freemem * 100/mem.physmem" ],
+	    "pcp_deriveds": [ "mem_free = mem.freemem/mem.physmem" ],
             "pcp_predicate": { "label": "< 5% free memory",
                                "operator": "threshold_max",
-                               "metric": "mem_freepct",
-                               "value": 5 },
+                               "metric": "mem_free",
+                               "value": 0.05 },
 	    "parents": ["Start"]
         },
         {
