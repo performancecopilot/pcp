@@ -41,16 +41,32 @@ StrTimeval(const __pmTimeval *tp)
 static int
 sameindom(const __pmLogInDom *idp1, const __pmLogInDom *idp2)
 {
-    int i;
+    int i, j;
 
     if (idp1->numinst != idp2->numinst)
 	return 0; /* different */
 
+    /*
+     * Make sure that the instances and their names are the same.
+     * We can't assume that the instances are always in the same order,
+     * but we do assume that each instance occurs only once.
+     */
     for (i = 0; i < idp1->numinst; ++i) {
-	if (idp1->instlist[i] != idp2->instlist[i])
+	for (j = 0; j < idp2->numinst; ++j) {
+	    if (idp1->instlist[i] == idp2->instlist[j]) {
+		/*
+		 * We found the same instance. Make sure that the names are
+		 * the same.
+		 */
+		if (strcmp(idp1->namelist[i], idp2->namelist[j]) != 0)
+		    return 0; /* different */
+		break;
+	    }
+	}
+	if (j >= idp2->numinst) {
+	    /* The current idp1 instance was not found in idp2. */
 	    return 0; /* different */
-	if (strcmp(idp1->namelist[i], idp2->namelist[i]) != 0)
-	    return 0; /* different */
+	}
     }
 
     return 1; /* duplicate */
