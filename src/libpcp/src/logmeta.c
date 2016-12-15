@@ -18,13 +18,14 @@
 #include "fault.h"
 #include "internal.h"
 #include <stddef.h>
+#include <assert.h>
 
 /* bytes for a length field in a header/trailer, or a string length field */
 #define LENSIZE	4
 
 #ifdef PCP_DEBUG
 static void
-StrTimeval(__pmTimeval *tp)
+StrTimeval(const __pmTimeval *tp)
 {
     if (tp == NULL)
 	fprintf(stderr, "<null timeval>");
@@ -33,13 +34,76 @@ StrTimeval(__pmTimeval *tp)
 }
 #endif
 
+/*
+ * Return 1 if the indoms are the same, 0 otherwise.
+ * The time stamp does not count for this comparison.
+ */
+static int
+sameindom(const __pmLogInDom *idp1, const __pmLogInDom *idp2)
+{
+    int i, j;
+
+    if (idp1->numinst != idp2->numinst)
+	return 0; /* different */
+
+    /*
+     * Make sure that the instances and their names are the same.
+     * We can't assume that the instances are always in the same order,
+     * but we do assume that each instance occurs only once.
+     */
+    for (i = 0; i < idp1->numinst; ++i) {
+	for (j = 0; j < idp2->numinst; ++j) {
+	    if (idp1->instlist[i] == idp2->instlist[j]) {
+		/*
+		 * We found the same instance. Make sure that the names are
+		 * the same.
+		 */
+		if (strcmp(idp1->namelist[i], idp2->namelist[j]) != 0)
+		    return 0; /* different */
+		break;
+	    }
+	}
+	if (j >= idp2->numinst) {
+	    /* The current idp1 instance was not found in idp2. */
+	    return 0; /* different */
+	}
+    }
+
+    return 1; /* duplicate */
+}
+
+/*
+ * Free the given indom.
+ * See the comment for the allocation of__pmLogInDom in impl.h
+ */
+static void
+freeindom(__pmLogInDom *idp)
+{
+    if (idp->buf) {
+	free(idp->buf);
+	if (idp->allinbuf == 0)
+	    free(idp->namelist);
+    }
+    else {
+	free(idp->instlist);
+	free(idp->namelist);
+    }
+    free(idp);
+}
+
+/*
+ * Add the given instance domain to the hashed instance domain.
+ * Filter out duplicates.
+ */
 static int
 addindom(__pmLogCtl *lcp, pmInDom indom, const __pmTimeval *tp, int numinst, 
          int *instlist, char **namelist, int *indom_buf, int allinbuf)
 {
-    __pmLogInDom	*idp;
+    __pmLogInDom	*idp, *idp_prev;
+    __pmLogInDom	*idp_cached, *idp_time;
     __pmHashNode	*hp;
-    int		sts;
+    int			timecmp;
+    int			sts;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
     if ((idp = (__pmLogInDom *)malloc(sizeof(__pmLogInDom))) == NULL)
@@ -53,24 +117,114 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 
 #ifdef PCP_DEBUG
     if (pmDebug & DBG_TRACE_LOGMETA) {
-	char	strbuf[20];
+	char    strbuf[20];
 	fprintf(stderr, "addindom( ..., %s, ", pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	StrTimeval((__pmTimeval *)tp);
 	fprintf(stderr, ", numinst=%d)\n", numinst);
     }
 #endif
 
-
     if ((hp = __pmHashSearch((unsigned int)indom, &lcp->l_hashindom)) == NULL) {
 	idp->next = NULL;
 	sts = __pmHashAdd((unsigned int)indom, (void *)idp, &lcp->l_hashindom);
+	if (sts >= 0) {
+	    /* __pmHashAdd returns 1 for success, but we want zero. */
+	    sts = 0;
+	}
+	else
+	    freeindom(idp); /* error */
+	return sts;
     }
-    else {
+
+    /*
+     * Filter out identical indoms. This is very common in multi-archive
+     * contexts where the individual archives almost always use the same
+     * instance domains.
+     *
+     * The indoms need to be sorted by decreasing time stamp. Before
+     * multi-archive contexts, this happened automatically. Now we
+     * must do it explicitly. Duplicates must be moved to the head of their
+     * time slot.
+     */
+    idp_prev = NULL;
+    for (idp_cached = (__pmLogInDom *)hp->data; idp_cached; idp_cached = idp_cached->next) {
+	timecmp = __pmTimevalCmp(&idp_cached->stamp, &idp->stamp);
+
+	/*
+	 * If the time of the current cached item is before our time,
+	 * then insert here.
+	 */
+	if (timecmp < 0)
+	    break;
+
+	/*
+	 * If the time of the current cached item is the same as our time,
+	 * search for a duplicate in this time slot. If found, move it
+	 * to the head of this time slot. Otherwise insert this new item
+	 * at the head of the time slot.
+	 */
+	if (timecmp == 0) {
+	    sts = 0;
+	    idp_time = idp_prev; /* just before this time slot */
+	    do {
+		/* Have we found a duplicate? */
+		if (sameindom(idp_cached, idp)) {
+		    sts = 1; /* duplicate */
+		    break;
+		}
+		/* Try the next one */
+		idp_prev = idp_cached;
+		idp_cached = idp_cached->next;
+		if (idp_cached == NULL)
+		    break;
+		timecmp = __pmTimevalCmp(&idp_cached->stamp, &idp->stamp);
+	    } while (timecmp == 0);
+
+	    if (sts == 1) {
+		/*
+		 * We found a duplicate.  Free the new one.
+		 */
+		freeindom(idp);
+		if (idp_prev == idp_time) {
+		    /* The duplicate is already in the right place. */
+		    return 0; /* ok */
+		}
+
+		/* Unlink the duplicate and set it up to be re-inserted. */
+		assert(idp_cached != NULL);
+		if (idp_prev)
+		    idp_prev->next = idp_cached->next;
+		else
+		    hp->data = (void *)idp_cached->next;
+		idp = idp_cached;
+	    }
+
+	    /*
+	     * Regardless of whether or not a duplicate was found, we will be
+	     * inserting the indom we have at the head of the time slot.
+	     */
+	    idp_prev = idp_time;
+	    break;
+	}
+
+	/*
+	 * The time of the current cached item is after our time.
+	 * Just keep looking.
+	 */
+	idp_prev = idp_cached;
+    }
+
+    /* Insert at the identified insertion point. */
+    if (idp_prev == NULL) {
 	idp->next = (__pmLogInDom *)hp->data;
 	hp->data = (void *)idp;
-	sts = 0;
     }
-    return sts;
+    else {
+	idp->next = idp_prev->next;
+	idp_prev->next = idp;
+    }
+
+    return 0; /* ok */
 }
 
 /*
@@ -200,6 +354,12 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 		    free(dp);
 		    goto end;
 		}
+                /*
+                 * This pmid is already known, and matches.  We can free the newly
+                 * read copy and use the one in the hash table. 
+                 */
+                free(dp);
+                dp = olddp;
 	    }
 	    else if ((sts = __pmHashAdd((int)dp->pmid, (void *)dp, &lcp->l_hashpmid)) < 0) {
 		free(dp);
@@ -361,12 +521,8 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		instlist = NULL;
 		namelist = NULL;
 	    }
-	    if ((sts = addindom(lcp, indom, when, numinst, instlist, namelist, tbuf, allinbuf)) < 0) {
-		free(tbuf);
-		if (allinbuf == 0)
-		    free(namelist);
+	    if ((sts = addindom(lcp, indom, when, numinst, instlist, namelist, tbuf, allinbuf)) < 0)
 		goto end;
-	    }
 	}
 	else
 	    fseek(f, (long)rlen, SEEK_CUR);
@@ -534,7 +690,7 @@ searchindom(__pmLogCtl *lcp, pmInDom indom, __pmTimeval *tp)
 	    /*
 	     * need first one at or earlier than the requested time
 	     */
-	    if (__pmTimevalSub(&idp->stamp, tp) <= 0)
+	    if (__pmTimevalCmp(&idp->stamp, tp) <= 0)
 		break;
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LOGMETA) {

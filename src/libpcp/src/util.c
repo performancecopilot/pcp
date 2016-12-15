@@ -1056,6 +1056,20 @@ __pmGetTimespec(struct timespec *ts)
 }
 
 /*
+ * a : b for __pmTimeval ... <0 for a<b, ==0 for a==b, >0 for a>b
+ */
+int
+__pmTimevalCmp(const __pmTimeval *a, const __pmTimeval *b)
+{
+    int res = (int)(a->tv_sec - b->tv_sec);
+
+    if (res == 0)
+	res = (int)(a->tv_usec - b->tv_usec);
+
+    return res;
+}
+
+/*
  * Difference for two of the internal timestamps ...
  * Same as __pmtimevalSub() in tv.c, just with __pmTimeval args
  * rather than struct timeval args.

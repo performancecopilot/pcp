@@ -1170,6 +1170,7 @@ PCP_CALL extern int __pmParseTime(const char *, struct timeval *, struct timeval
 			 struct timeval *, char **);
 
 /* manipulate internal timestamps */
+PCP_CALL extern int __pmTimevalCmp(const __pmTimeval *, const __pmTimeval *);
 PCP_CALL extern double __pmTimevalSub(const __pmTimeval *, const __pmTimeval *);
 
 /* 32-bit file checksum */
