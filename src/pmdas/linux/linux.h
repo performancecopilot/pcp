@@ -203,8 +203,6 @@ int linux_strings_insert(const char *);
     } while (0)
 
 extern int _pm_ncpus;
-extern int _pm_numdisks;
 extern int _pm_pageshift;
-
 
 #endif /* LINUX_PMDA_H */
