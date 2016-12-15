@@ -17,6 +17,7 @@
 
 #include <QApplication>
 #include <QPixmapCache>
+#include <QPrinter>
 #include <QFont>
 #include <qmc_time.h>
 
