@@ -22,6 +22,7 @@
 #include "pmda.h"
 #include "domain.h"
 #include "contexts.h"
+#include "../linux/convert.h"
 
 #include <ctype.h>
 #include <unistd.h>
@@ -33,7 +34,6 @@
 #include <pwd.h>
 #include <grp.h>
 
-#include "../linux/convert.h"
 #include "clusters.h"
 #include "indom.h"
 #include "hotproc.h"

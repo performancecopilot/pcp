@@ -38,7 +38,7 @@ CFILES		= pmda.c \
 		  proc_net_snmp6.c mem_bandwidth.c proc_buddyinfo.c \
                   proc_zoneinfo.c
 
-HFILES		= linux.h \
+HFILES		= linux.h convert.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
 		  proc_net_dev.h interrupts.h filesys.h ipc.h \
 		  swapdev.h proc_net_rpc.h proc_partitions.h \

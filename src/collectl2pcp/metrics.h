@@ -25,7 +25,7 @@
 #define PROC_DOMAIN 3
 
 /* Linux PMDA instance domain identifiers */
-#include "../../pmdas/linux/indom.h"
+#include "../../pmdas/linux/linux.h"
 
 /* PCP metric, see metrics.c */
 typedef struct {
