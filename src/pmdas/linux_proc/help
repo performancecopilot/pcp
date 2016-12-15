@@ -30,6 +30,21 @@
 # blank lines before the @ line are ignored
 #
 
+@ 3.9 all current processes
+@ 3.39 set of interesting ("hot") processes
+
+@ 3.20 kernel cpusets resource control group (cgroup)
+@ 3.21 kernel cpu accounting resource control group (cgroup)
+@ 3.22 kernel per-processor cpu accounting control group (cgroup)
+@ 3.23 kernel cpu scheduling control group (cgroup)
+@ 3.24 kernel memory resource control group (cgroup)
+@ 3.25 network classifier resource control group (cgroup)
+@ 3.26 aggregate block device resource control group (cgroup)
+@ 3.27 individual block device resource control group (cgroup)
+
+@ 3.37 control group (cgroup) subsystems
+@ 3.38 control group (cgroup) mount points
+
 @ proc.nprocs instantaneous number of processes
 
 @ proc.runq.runnable number of runnable (on run queue) processes

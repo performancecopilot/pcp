@@ -29,6 +29,34 @@
 #
 # blank lines before the @ line are ignored
 #
+
+@ 60.0 set of all processors
+@ 60.1 set of all disks
+@ 60.2 load averages for 1, 5, and 15 minutes
+@ 60.3 set of network interfaces
+@ 60.5 mounted block-device-backed filesystem
+@ 60.6 swap devices
+@ 60.7 network filesystem (NFS) v2 operations
+@ 60.8 network filesystem (NFS) v3 operations
+@ 60.10 set of all disk partitions
+@ 60.11 SCSI devices
+@ 60.12 kernel memory slabs
+@ 60.14 network filesystem (NFS) v4 client operations
+@ 60.15 network filesystem (NFS) v4 server operations
+@ 60.17 network interface addresses (inet and ipv6)
+@ 60.18 temporary filesystem (tempfs) mounts
+@ 60.19 non-uniform memory access (NUMA) nodes
+@ 60.23 internet control message protocol (ICMP) message types
+@ 60.24 device mapper driver devices
+@ 60.25 multi-device driver devices
+@ 60.26 persistent per-processor interrupt IDs
+@ 60.27 persistent per-processor softirq IDs
+@ 60.28 IPC shm_stat shared memory IDs
+@ 60.29 IPC msg_stat message queue IDs
+@ 60.30 IPC sem_stat semaphore IDs
+@ 60.31 buddyinfo memory fragmentation sets, per-NUMA-node
+@ 60.32 zoneinfo memory types, per-NUMA-node
+
 @ kernel.uname.release release level of the running kernel
 Release level of the running kernel as reported via the release[]
 value returned from uname(2) or uname -r.

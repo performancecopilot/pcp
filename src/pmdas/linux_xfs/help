@@ -27,6 +27,9 @@
 #
 # blank lines before the @ line are ignored
 #
+@ 11.5 mounted XFS filesystems
+@ 11.6 mounted XFS filesystem devices (sysfs)
+@ 11.16 XFS project quota virtual mounts
 
 @ xfs.allocs.alloc_extent XFS extents allocated
 Number of file system extents allocated over XFS filesystems
