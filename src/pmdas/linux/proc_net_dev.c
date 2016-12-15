@@ -1,7 +1,7 @@
 /*
  * Linux /proc/net/dev metrics cluster
  *
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -14,16 +14,11 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "indom.h"
-#include "clusters.h"
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <net/if.h>
+#include "linux.h"
 #include <ctype.h>
+#include <net/if.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
 #include "namespaces.h"
 #include "proc_net_dev.h"
 

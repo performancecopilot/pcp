@@ -13,10 +13,6 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
- * 
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
 /*** version 1.1
@@ -48,8 +44,6 @@ typedef struct {
     slab_cache_t	*caches;
     pmdaIndom		*indom;
 } proc_slabinfo_t;
-
-extern size_t _pm_system_pagesize;
 
 extern int refresh_proc_slabinfo(proc_slabinfo_t *);
 

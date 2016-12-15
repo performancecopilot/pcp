@@ -14,12 +14,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
 #include <ctype.h>
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "indom.h"
+#include "linux.h"
 #include "proc_slabinfo.h"
 
 int
@@ -123,7 +119,8 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 		goto out;
 	    }
 
-	    sbuf.total_size = sbuf.pages_per_slab * sbuf.num_active_slabs * _pm_system_pagesize;
+	    sbuf.total_size = sbuf.pages_per_slab * sbuf.num_active_slabs;
+	    sbuf.total_size <<= _pm_pageshift;
 	}
 	else if (major_version == 2 && minor_version >= 0 && minor_version <= 1) {
 	    /* 
@@ -141,7 +138,9 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 		goto out;
 	    }
 
-	    sbuf.total_size = sbuf.pages_per_slab * sbuf.num_active_objs * _pm_system_pagesize / sbuf.objects_per_slab;
+	    sbuf.total_size = sbuf.pages_per_slab * sbuf.num_active_objs;
+	    sbuf.total_size <<= _pm_pageshift;
+	    sbuf.total_size /= sbuf.objects_per_slab;
 	}
 	else {
 	    /* no support */

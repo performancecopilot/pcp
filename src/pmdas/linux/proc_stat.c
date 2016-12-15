@@ -15,16 +15,12 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "indom.h"
-#include <dirent.h>
-#include <ctype.h>
-#include <sys/stat.h>
+#include "linux.h"
 #include "proc_cpuinfo.h"
 #include "proc_stat.h"
+#include <sys/stat.h>
+#include <dirent.h>
+#include <ctype.h>
 
 int
 refresh_proc_stat(proc_cpuinfo_t *proc_cpuinfo, proc_stat_t *proc_stat)

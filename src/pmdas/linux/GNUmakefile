@@ -38,7 +38,7 @@ CFILES		= pmda.c \
 		  proc_net_snmp6.c mem_bandwidth.c proc_buddyinfo.c \
                   proc_zoneinfo.c
 
-HFILES		= clusters.h indom.h convert.h \
+HFILES		= linux.h \
 		  proc_stat.h proc_meminfo.h proc_loadavg.h \
 		  proc_net_dev.h interrupts.h filesys.h ipc.h \
 		  swapdev.h proc_net_rpc.h proc_partitions.h \
@@ -107,12 +107,11 @@ domain.h: ../../pmns/stdpmid
 linux_kernel_ulong.conf linux_kernel_fixups.conf:	mk.rewrite
 	CPP="$(CPP)" INCDIR="$(TOPDIR)/src/include" ./mk.rewrite
 
-interrupts.o pmda.o proc_partitions.o:	clusters.h
-pmda.o proc_partitions.o:	convert.h
+interrupts.o pmda.o proc_partitions.o:	linux.h
+numa_meminfo.o proc_cpuinfo.o proc_stat.o:	linux.h
 filesys.o interrupts.o pmda.o:	filesys.h
 pmda.o:	getinfo.h
 pmda.o ipc.o:	ipc.h
-numa_meminfo.o pmda.o proc_cpuinfo.o proc_partitions.o proc_stat.o:	indom.h
 interrupts.o pmda.o:	interrupts.h
 linux_table.o numa_meminfo.o pmda.o:	linux_table.h
 numa_meminfo.o pmda.o:	numa_meminfo.h

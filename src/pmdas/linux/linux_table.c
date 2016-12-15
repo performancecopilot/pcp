@@ -13,14 +13,9 @@
  * for more details.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
-#include <stdint.h>
-
+#include "linux.h"
 #include "linux_table.h"
-#include "pcp/config.h"
 
 extern int linux_table_lookup(const char *field, struct linux_table *table, uint64_t *val);
 extern struct linux_table *linux_table_clone(struct linux_table *table);

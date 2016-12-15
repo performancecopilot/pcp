@@ -1,7 +1,7 @@
 /*
  * Linux sysfs_kernel cluster
  *
- * Copyright (c) 2009,2014 Red Hat.
+ * Copyright (c) 2009,2014,2016 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -13,9 +13,9 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
+#include <ctype.h>
+#include "linux.h"
 #include "sysfs_kernel.h"
-#include "indom.h"
 
 int
 refresh_sysfs_kernel(sysfs_kernel_t *sk)

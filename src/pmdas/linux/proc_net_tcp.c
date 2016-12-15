@@ -13,11 +13,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
 #include <ctype.h>
-#include "pmapi.h"
-#include "pmda.h"
-#include "indom.h"
+#include "linux.h"
 #include "proc_net_tcp.h"
 
 #define MYBUFSZ (1<<14) /*16k*/

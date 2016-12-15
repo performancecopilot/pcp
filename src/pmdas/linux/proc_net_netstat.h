@@ -141,7 +141,6 @@ enum {
     _PM_NETSTAT_TCPEXT_NFIELDS /* must be last */
 };
 
-
 typedef struct {
     __uint64_t	ip[_PM_NETSTAT_IPEXT_NFIELDS];
     __uint64_t	tcp[_PM_NETSTAT_TCPEXT_NFIELDS];

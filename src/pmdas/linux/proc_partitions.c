@@ -20,19 +20,10 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
-#include <unistd.h>
-
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "convert.h"
-#include "clusters.h"
-#include "indom.h"
+#include "linux.h"
 #include "proc_partitions.h"
 
-int _pm_have_kernel_2_6_partition_stats;
-
-extern int _pm_numdisks;
+static int _pm_have_kernel_2_6_partition_stats;
 
 /*
  * _pm_ispartition : return true if arg is a partition name

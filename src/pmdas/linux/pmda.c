@@ -16,10 +16,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
+#include "linux.h"
 #undef LINUX /* defined in NSS/NSPR headers as something different, which we do not need. */
 #include "domain.h"
 
@@ -32,18 +29,19 @@
 #include <pwd.h>
 #include <grp.h>
 
-#include "convert.h"
-#include "clusters.h"
-#include "indom.h"
-
+#include "ipc.h"
+#include "filesys.h"
+#include "getinfo.h"
+#include "swapdev.h"
+#include "interrupts.h"
+#include "linux_table.h"
+#include "namespaces.h"
+#include "sysfs_kernel.h"
 #include "proc_cpuinfo.h"
 #include "proc_stat.h"
 #include "proc_meminfo.h"
 #include "proc_loadavg.h"
 #include "proc_net_dev.h"
-#include "filesys.h"
-#include "swapdev.h"
-#include "getinfo.h"
 #include "proc_net_rpc.h"
 #include "proc_net_sockstat.h"
 #include "proc_net_tcp.h"
@@ -56,15 +54,10 @@
 #include "proc_uptime.h"
 #include "proc_sys_fs.h"
 #include "proc_vmstat.h"
-#include "sysfs_kernel.h"
-#include "linux_table.h"
-#include "numa_meminfo.h"
-#include "namespaces.h"
-#include "interrupts.h"
-#include "ipc.h"
 #include "proc_net_softnet.h"
 #include "proc_buddyinfo.h"
 #include "proc_zoneinfo.h"
+#include "numa_meminfo.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -95,7 +88,7 @@ static char		*username;
 static int		hz;
 
 /* globals */
-size_t _pm_system_pagesize; /* for hinv.pagesize and used elsewhere */
+int _pm_pageshift; /* for hinv.pagesize and for pages -> bytes */
 int _pm_ncpus; /* number of processors at pmda startup time */
 int _pm_have_proc_vmstat; /* if /proc/vmstat is available */
 int _pm_intr_size; /* size in bytes of interrupt sum count metric */
@@ -5460,7 +5453,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ull = proc_meminfo.MemFree >> 10;
 	    break;
 	case 11: /* hinv.pagesize (in bytes) */
-	    atom->ul = _pm_system_pagesize;
+	    atom->ul = 1 << _pm_pageshift;
 	    break;
 	case 12: /* mem.util.other (in kbytes) */
 	    /* other = used - (cached+buffers) */
@@ -7118,9 +7111,9 @@ linux_init(pmdaInterface *dp)
     else
 	_pm_ncpus = sysconf(_SC_NPROCESSORS_CONF);
     if ((envpath = getenv("LINUX_PAGESIZE")) != NULL)
-	_pm_system_pagesize = atoi(envpath);
+	_pm_pageshift = ffs(atoi(envpath)) - 1;
     else
-	_pm_system_pagesize = getpagesize();
+	_pm_pageshift = ffs(getpagesize()) - 1;
     if ((envpath = getenv("LINUX_STATSPATH")) != NULL)
 	linux_statspath = envpath;
     if ((envpath = getenv("LINUX_MDADM")) != NULL)

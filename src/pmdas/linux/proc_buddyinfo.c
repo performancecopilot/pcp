@@ -13,15 +13,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
-#include <string.h>
-#include <stdint.h>
-#include "pmapi.h"
-#include "pmda.h"
-#include "indom.h"
+#include "linux.h"
 #include "proc_buddyinfo.h"
 
-enum{
+enum {
     eSTATE_SPACE,
     eSTATE_CHAR
 };

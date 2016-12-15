@@ -13,18 +13,17 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "indom.h"
+#include "linux.h"
 #include "proc_zoneinfo.h"
+
 #define SYSFS_NODE_PATH "/sys/devices/system/node"
 
-int get_nodes(){
-    DIR * dir;
-    struct dirent * ptr;
-    int nodes =0;
+int get_nodes()
+{
+    DIR *dir;
+    struct dirent *ptr;
+    int nodes = 0;
+
     dir = opendir(SYSFS_NODE_PATH);
     while((ptr = readdir(dir)) != NULL)
     {

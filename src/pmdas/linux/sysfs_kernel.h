@@ -13,22 +13,15 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
-#ifndef _SYSFS_KERNEL_H
-#define _SYSFS_KERNEL_H
-
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include <ctype.h>
+#ifndef SYSFS_KERNEL_H
+#define SYSFS_KERNEL_H
 
 typedef struct {
 	int		valid_uevent_seqnum;
 	uint64_t	uevent_seqnum; /* /sys/kernel/uevent_seqnum */
-	/* TODO queue length, event type counters and other metrics */
 } sysfs_kernel_t;
 
 /* refresh sysfs_kernel */
 extern int refresh_sysfs_kernel(sysfs_kernel_t *);
 
-#endif /* _SYSFS_KERNEL_H */
+#endif /* SYSFS_KERNEL_H */
