@@ -87,6 +87,8 @@ pclose
 perror
 popen
 printf
+psiginfo
+psignal
 pthread_getspecific
 putc
 putchar
@@ -103,6 +105,7 @@ select
 send
 setlinebuf
 setsockopt
+__sigpause
 snprintf
 sprintf
 sscanf

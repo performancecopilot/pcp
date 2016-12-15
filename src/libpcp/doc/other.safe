@@ -85,6 +85,7 @@ __fpclassifyf
 __fpclassifyl
 __nonnull
 __format__
+__asm__
 
 # Windows
 SetCommTimeouts
