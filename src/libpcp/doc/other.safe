@@ -1,0 +1,96 @@
+# to cscope these look like "functions called by this function", but
+# really are mostly simple macros or other obscure constructs
+# that have nothing to do with analysis of the locking logic
+#
+PM_MULTIPLE_THREADS
+PM_INIT_LOCKS
+PM_TPD
+PM_FAULT_POINT
+PM_FAULT_CHECK
+PM_PDU_SIZE
+PM_PDU_SIZE_BYTES
+PMLC_GET_MAND
+PMLC_GET_ON
+PMLC_GET_INLOG
+PMLC_GET_AVAIL
+PMLC_GET_DELTA
+IS_DYNAMIC_ROOT
+DECODE_SECURE_SOCKETS_ERROR
+DECODE_SASL_SPECIFIC_ERROR
+ABS
+IS_DERIVED
+
+# strerror_r(), errno and h_errno wrappers from (PCP) config.h
+osstrerror_r
+netstrerror_r
+setoserror
+oserror
+neterror
+hosterror
+
+# pmdaInterface methods ... not safe per se, but PM_MULTIPLE_THREADS guard
+# ensures all these are called from a single thread
+profile
+fetch
+desc
+instance
+text
+store
+pmid
+name
+children
+attribute
+# PMID access macros
+pmid_cluster
+pmid_domain
+pmid_item
+
+# select(2) macros
+FD_SET
+FD_ZERO
+
+# stat(2) macros
+S_ISDIR
+S_ISREG
+
+# libnspr
+PR_Close
+PR_ErrorToString
+PR_GetError
+PR_Read
+PR_Write
+PR_FileDesc2NativeHandle
+PR_SetSocketOption
+
+# libpthread
+pthread_mutex_init
+pthread_mutex_lock
+pthread_mutex_unlock
+pthread_mutexattr_init
+pthread_mutexattr_settype
+pthread_mutexattr_destroy
+
+# libsasl
+sasl_errstring
+
+# misc ... mostly gcc internal macros and functions
+__ASSERT_VOID_CAST
+__REDIRECT
+__REDIRECT_NTH
+__assert_fail
+__builtin_expect
+__builtin_fpclassify
+__fpclassify
+__fpclassifyf
+__fpclassifyl
+__nonnull
+__format__
+
+# Windows
+SetCommTimeouts
+_get_osfhandle
+closesocket
+CreateMutex
+CreateWaitableTimer
+SetLastError
+SleepEx

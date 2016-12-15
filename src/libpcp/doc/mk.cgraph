@@ -8,27 +8,72 @@
 tmp=/var/tmp/$$
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
+rm -f $tmp.*
+touch $tmp.stop
+
 sts=1
 recursive=true
-oflag=false
+eflag=false
+fflag=false
 verbose=false
+warning=false
 
 _usage()
 {
-    echo "Usage: mk.cgraph [options] function ..."
-    echo "Options"
-    echo "-o    omit external thread-safe routines"
-    echo "-R	NO recursive descent"
-    echo "-v	verbose"
+    echo >&2 "Usage: mk.cgraph [options] [function ...]"
+    echo >&2 "Options"
+    echo >&2 "-f file   use all functions in file that acquire or release locks"
+    echo >&2 "-e        include external thread-safe routines"
+    echo >&2 "-R        NO recursive descent"
+    echo >&2 "-s func[,func]"
+    echo >&2 "          do not recurse below the named functions"
+    echo >&2 "-v        verbose"
+    echo >&2 "-w        emit warnings"
     exit
 }
 
-while getopts "oRv?" c
+while getopts "ef:Rs:vw?" c
 do
     case $c
     in
-	o)
-	    oflag=true
+	e)
+	    eflag=true
+	    ;;
+
+	f)
+	    # file may be in ../src
+	    # use cscope to suss out routines involved in locking
+	    file=$OPTARG
+	    here=`pwd`
+	    if [ ! -e $file ]
+	    then
+		if [ ! -e ../src/$file ]
+		then
+		    echo >&2 "Cannot find $file or ../src/$file"
+		    exit
+		else
+		    cd ../src
+		fi
+	    fi
+	    ( cscope -I../include/pcp -L -3PM_LOCK $file \
+	      ; cscope -I../include/pcp -L -3PM_UNLOCK $file \
+	      ; cscope -I../include/pcp -L -3__pmHandleToPtr $file ) >$tmp.csout 2>$tmp.cserr
+	    if [ -s $tmp.cserr ]
+	    then
+		echo >&2 "Unexpected errors from cscope(1) ..."
+		cat >&2 $tmp.cserr
+		exit
+	    fi
+	    if [ -s $tmp.csout ]
+	    then
+		mv $tmp.csout $tmp.funcs
+	    else
+		echo >&2 "No locking calls from routines in $file."
+		sts=0
+		exit
+	    fi
+	    cd $here
+	    fflag=true
 	    ;;
 
 	R)
@@ -36,8 +81,19 @@ do
 	    recursive=false
 	    ;;
 
+	s)
+	    # list of functions to stop recursion
+	    for f in `echo "$OPTARG" | sed -e 's/,/ /g'`
+	    do
+		echo $f >>$tmp.stop
+	    done
+	    ;;
 	v)
 	    verbose=true
+	    ;;
+
+	w)
+	    warning=true
 	    ;;
 
 	?)
@@ -47,6 +103,13 @@ do
     esac
 done
 shift `expr $OPTIND - 1`
+
+if [ -s $tmp.funcs ]
+then
+    set -- `cut -d' ' -f2 $tmp.funcs \
+	    | sort \
+	    | uniq`
+fi
 
 if [ $# -lt 1 ]
 then
@@ -59,11 +122,11 @@ _dofunc()
     func=$1
     $verbose && echo >&2 $func:
     rm -f $tmp.calls $tmp.output
-    ( cd ../src; cscope -I../include/pcp -L -2"$func" ) >$tmp.tmp 2>$tmp.err
-    if [ -s $tmp.err ]
+    ( cd ../src; cscope -I../include/pcp -L -2"$func" ) >$tmp.csout 2>$tmp.cserr
+    if [ -s $tmp.cserr ]
     then
 	echo >&2 "Unexpected errors from cscope(1) ..."
-	cat >&2 $tmp.err
+	cat >&2 $tmp.cserr
 	echo >&2 "... skipping $func"
 	continue
     fi
@@ -74,19 +137,27 @@ _dofunc()
     # access.c PM_UNLOCK 1280 PM_UNLOCK(__pmLock_libpcp);
     #
     rm -f $tmp.locks
+    mv $tmp.csout $tmp.tmp
 
     sed <$tmp.tmp \
 	-e 's/;$/ ;/' \
     | awk '
-$2 == "PM_INIT_LOCKS"	{ next }
-$2 == "PM_TPD"		{ next }
 $2 == "defined"		{ next }	# cscope botch on #if defined()?
-$2 == "PM_UNLOCK"	{ next }
+$2 == "PM_UNLOCK"	{ next }	# we do not care about these
+$2 == "formatter"	{		# function pointer in config.c
+			  print "posix_formatter"
+			  print "dos_formatter"
+			  next
+			}
 $2 == "PM_LOCK"		{ print $4; next }
 			{ # omit repeated function calls
 			  if (seen[$2] == 1) next
 			  seen[$2] = 1
 			  print $2
+			  if ($2 == "__pmHandleToPtr") {
+			    # returns with context locked
+			    print "PM_LOCK(c_lock)"
+			  }
 			}' \
     | sed \
 	-e '/LOCK(/{
@@ -109,6 +180,18 @@ s/)//
 		    registered.mutex)
 			echo derived >>$tmp.locks
 			;;
+		    c_lock|*-\>c_lock)
+			echo context >>$tmp.locks
+			;;
+		    *c_pmcd-\>pc_lock)
+			echo pmcd >>$tmp.locks
+			;;
+		    context-\>addrLock)
+			echo probe.addr >>$tmp.locks
+			;;
+		    context-\>urlLock)
+			echo probe.url >>$tmp.locks
+			;;
 		    *)
 			echo >&2 "Bad LOCK: $param"
 			exit
@@ -122,11 +205,19 @@ s/)//
 	if grep "^$calls\$" glibc.safe >/dev/null
 	then
 	    # glibc, thread-safe
-	    if $oflag
+	    if $eflag
 	    then
-		# do not include thread-safe routines in graph
-		:
-	    else
+		# include thread-safe routines in graph
+		echo "    $calls [fontcolor=blue,color=blue,style=filled,fillcolor=\"lightgrey\"];"
+		echo "    $func -> $calls;"
+		touch $tmp.output
+	    fi
+	elif grep "^$calls\$" other.safe >/dev/null
+	then
+	    # others, thread-safe
+	    if $eflag
+	    then
+		# include thread-safe routines in graph
 		echo "    $calls [fontcolor=blue,color=blue,style=filled,fillcolor=\"lightgrey\"];"
 		echo "    $func -> $calls;"
 		touch $tmp.output
@@ -143,55 +234,102 @@ s/)//
 	    echo "    $calls [fontcolor=red,color=red,style=filled,fillcolor=\"lightgrey\"];"
 	    echo "    $func -> $calls;"
 	    touch $tmp.output
-	else
-	    # assumed to be in libpcp
+	elif grep "^$calls\$" other.unsafe >/dev/null
+	then
+	    # others, not thread-safe
+	    echo "    $calls [fontcolor=red,color=red,style=filled,fillcolor=\"lightgrey\"];"
 	    echo "    $func -> $calls;"
 	    touch $tmp.output
-	    echo $calls >>$tmp.calls
+	else
+	    # assumed to be in libpcp, but may be a macro so use cscope
+	    # to see if there exists a global definition
+	    #
+	    ( cd ../src; cscope -I../include/pcp -L -1"$calls" ) >$tmp.csout 2>$tmp.cserr
+	    if [ -s $tmp.cserr ]
+	    then
+		echo >&2 "Unexpected errors from cscope(1) ..."
+		cat >&2 $tmp.cserr
+		echo >&2 "... skipping $calls"
+		continue
+	    fi
+	    if [ -s $tmp.csout ]
+	    then
+		echo "    $func -> $calls;"
+		touch $tmp.output
+		if grep "^$calls\$" <$tmp.stop >/dev/null
+		then
+		    echo "    $calls [label=\"$calls (*)\",fontcolor=green,color=green];"
+		else
+		    echo $calls >>$tmp.calls
+		    if $warning
+		    then
+			if grep "#define $calls" $tmp.calls >/dev/null
+			then
+			    $warning && echo >&2 "$calls: macro?"
+			fi
+		    fi
+		fi
+	    else
+		$warning && echo >&2 "-> $calls skipped: no definition from cscope"
+	    fi
 	fi
     done
 
     if [ -s $tmp.locks ]
     then
-	echo "    $func [label=\"$func\\\\n`sort <$tmp.locks | uniq | tr '[\012]' '[ ]' | sed -e 's/ /\\\\n/g' -e 's/\\\\n\$//'`\",shape=box,fontcolor=red,color=red];"
+	echo "    $func [label=\"$func\\\\n`sort <$tmp.locks | uniq | tr '\012' '@' | sed -e 's/@/\\\\\\\\n/g' -e 's/\\\\\\\\n\$//'`\",shape=box,fontcolor=red,color=red];"
     fi
 
     [ -f $tmp.output ] && echo
 
 }
 
-rm -f $tmp.done
 for i
 do
     echo $i >>$tmp.todo
 done
 
+if $fflag
+then
+    if $verbose
+    then
+	echo "# created from $file on `date`"
+	echo
+    fi
+    echo "digraph `basename $file .c` {"
+    echo
+fi
+
 while [ -s $tmp.todo ]
 do
     func=`head -1 $tmp.todo`
     _dofunc $func
-    $recursive || break
     echo $func >>$tmp.done
     sed -e 1d <$tmp.todo >$tmp.tmp
     mv $tmp.tmp $tmp.todo
-    if [ -s $tmp.calls ]
+    if $recursive
     then
-	# some libpcp calls from here
-	for calls in `cat $tmp.calls`
-	do
-	    if grep "^$calls\$" <$tmp.done >/dev/null
-	    then
-		# already done
-		:
-	    elif grep "^$calls\$" <$tmp.todo >/dev/null
-	    then
-		# already pending
-		:
-	    else
-		echo $calls >>$tmp.todo
-	    fi
-	done
+	if [ -s $tmp.calls ]
+	then
+	    # some routines called from here
+	    for calls in `cat $tmp.calls`
+	    do
+		if grep "^$calls\$" <$tmp.done >/dev/null
+		then
+		    # already done
+		    :
+		elif grep "^$calls\$" <$tmp.todo >/dev/null
+		then
+		    # already pending
+		    :
+		else
+		    echo $calls >>$tmp.todo
+		fi
+	    done
+	fi
     fi
 done
+
+$fflag && echo "}"
 
 sts=0

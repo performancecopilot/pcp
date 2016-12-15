@@ -1,2 +1,15 @@
-# extra to the posix list
+# thread-unsafe routines in glibc that are extras beyond the posix.unsafe
+# list
 exit
+cuserid
+# *_unlocked require flockfile() and funlockfile() wrappers
+fgetc_unlocked
+fputc_unlocked
+fputs_unlocked
+fwrite_unlocked
+# race on rootp
+tsearch
+tfind
+tdelete
+tdestroy
+twalk
