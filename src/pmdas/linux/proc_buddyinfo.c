@@ -150,7 +150,7 @@ refresh_proc_buddyinfo(proc_buddyinfo_t *proc_buddyinfo)
                 proc_buddyinfo->buddys[i+j].id = next_id++;
                 strcpy(proc_buddyinfo->buddys[i+j].node_name, node_name);
                 strcpy(proc_buddyinfo->buddys[i+j].zone_name, zone_name);
-                sprintf(proc_buddyinfo->buddys[i+j].id_name, "%s_%d::%s", zone_name, j, node_name);
+                sprintf(proc_buddyinfo->buddys[i+j].id_name, "%s::order%u::%s", zone_name, j, node_name);
             }
         }
         /* update data */

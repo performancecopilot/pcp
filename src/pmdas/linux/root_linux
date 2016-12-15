@@ -373,12 +373,17 @@ disk.partitions {
 mem {
     physmem		60:1:0
     freemem		60:1:10
-    buddyinfo		60:67:0
     util
     numa
-    slabinfo
     vmstat
-    zone
+    buddyinfo
+    slabinfo
+    zoneinfo
+}
+
+mem.buddyinfo {
+    pages		60:67:0
+    total		60:67:1
 }
 
 mem.util {
@@ -486,11 +491,8 @@ mem.numa.alloc {
     other_node		60:36:37
 }
 
-mem.zone {
-    dma_free            60:68:0
-    dma32_free          60:68:1
-    normal_free         60:68:2
-    highmem_free        60:68:3
+mem.zoneinfo {
+    free		60:68:0
 }
 
 swap {

@@ -1300,9 +1300,15 @@ static pmdaMetric metrictab[] = {
 /*
  * /proc/buddyinfo cluster
  */
+
+    /* mem.buddyinfo.pages */
     { NULL,
-      { PMDA_PMID(CLUSTER_BUDDYINFO,0), KERNEL_ULONG, BUDDYINFO_INDOM, PM_SEM_INSTANT,
-      PMDA_PMUNITS(0,0,0,0,0,0) }, }, 
+      { PMDA_PMID(CLUSTER_BUDDYINFO,0), KERNEL_ULONG, BUDDYINFO_INDOM,
+	PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, }, 
+    /* mem.buddyinfo.bytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_BUDDYINFO,1), PM_TYPE_U64, BUDDYINFO_INDOM,
+	PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, }, 
 
 /*
  * /proc/loadavg cluster
@@ -3538,25 +3544,10 @@ static pmdaMetric metrictab[] = {
  * /proc/zoneinfo cluster
  */
 
-/* mem.zone.dma_free */
+/* mem.zoneinfo.free */
   { NULL,
-    { PMDA_PMID(CLUSTER_ZONEINFO, 0), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
-
-/* mem.zone.dma32_free */
-  { NULL,
-    { PMDA_PMID(CLUSTER_ZONEINFO, 1), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
-
-/* mem.zone.normal_free */
-  { NULL,
-    { PMDA_PMID(CLUSTER_ZONEINFO, 2), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
-
-/* mem.zone.highmem_free */
-  { NULL,
-    { PMDA_PMID(CLUSTER_ZONEINFO, 3), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
-    PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { PMDA_PMID(CLUSTER_ZONEINFO,0), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
 /*
  * /proc/cpuinfo cluster (cpu indom)
@@ -6284,33 +6275,16 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
      * Cluster added by Wu Liming <wulm.fnst@cn.fujitsu.com>
      */
     case CLUSTER_ZONEINFO: {
-	zoneinfo_entry_t *zoneinfo_entry;
-	sts = pmdaCacheLookup(INDOM(ZONEINFO_INDOM), inst, NULL, (void **)&zoneinfo_entry);
+	zoneinfo_entry_t *info;
+
+	sts = pmdaCacheLookup(INDOM(ZONEINFO_INDOM), inst, NULL, (void **)&info);
 	if (sts < 0)
 	    return sts;
 	if (sts == PMDA_CACHE_INACTIVE)
 	    return PM_ERR_INST;
-	switch (idp->item) {
-
-	case 0: /* mem.zone.dma_free */
-	    atom->ull = zoneinfo_entry->dma_free;
-	    break;
-
-	case 1: /* mem.zone.dma32_free */
-	    atom->ull = zoneinfo_entry->dma32_free;
-	    break;
-
-	case 2: /* mem.zone.normal_free */
-	    atom->ull = zoneinfo_entry->normal_free;
-	    break;
-
-	case 3: /* mem.zone.highmem_free */
-	    atom->ull = zoneinfo_entry->highmem_free;
-	    break;
-
-	default:
+	if (idp->item >= ZONE_VALUES)
 	    return PM_ERR_PMID;
-	}
+	atom->ull = info->values[idp->item];
 	break;
     }
 
@@ -6876,7 +6850,19 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_BUDDYINFO:
-	_pm_assign_ulong(atom, proc_buddyinfo.buddys[inst].value);
+	if (inst >= proc_buddyinfo.nbuddys)
+	    return PM_ERR_INST;
+	switch (idp->item) {
+	case 0:
+	    _pm_assign_ulong(atom, proc_buddyinfo.buddys[inst].value);
+	    break;
+	case 1:
+	    atom->ull = proc_buddyinfo.buddys[inst].value << _pm_pageshift;
+	    atom->ull /= 1024;	/* convert to kilobytes */
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
 	break;
 
     default: /* unknown cluster */

@@ -1,40 +1,75 @@
 QA output created by 821
 == Checking all mem metric values - meminfo-root-001.tgz
 
-mem.buddyinfo
-    inst [0 or "DMA_0::node0"] value 3
-    inst [1 or "DMA_1::node0"] value 1
-    inst [2 or "DMA_2::node0"] value 2
-    inst [3 or "DMA_3::node0"] value 2
-    inst [4 or "DMA_4::node0"] value 2
-    inst [5 or "DMA_5::node0"] value 1
-    inst [6 or "DMA_6::node0"] value 0
-    inst [7 or "DMA_7::node0"] value 0
-    inst [8 or "DMA_8::node0"] value 1
-    inst [9 or "DMA_9::node0"] value 1
-    inst [10 or "DMA_10::node0"] value 3
-    inst [11 or "DMA32_0::node0"] value 470
-    inst [12 or "DMA32_1::node0"] value 524
-    inst [13 or "DMA32_2::node0"] value 98
-    inst [14 or "DMA32_3::node0"] value 154
-    inst [15 or "DMA32_4::node0"] value 86
-    inst [16 or "DMA32_5::node0"] value 30
-    inst [17 or "DMA32_6::node0"] value 23
-    inst [18 or "DMA32_7::node0"] value 10
-    inst [19 or "DMA32_8::node0"] value 26
-    inst [20 or "DMA32_9::node0"] value 12
-    inst [21 or "DMA32_10::node0"] value 681
-    inst [22 or "Normal_0::node0"] value 188
-    inst [23 or "Normal_1::node0"] value 420
-    inst [24 or "Normal_2::node0"] value 143
-    inst [25 or "Normal_3::node0"] value 11
-    inst [26 or "Normal_4::node0"] value 2
-    inst [27 or "Normal_5::node0"] value 0
-    inst [28 or "Normal_6::node0"] value 0
-    inst [29 or "Normal_7::node0"] value 0
-    inst [30 or "Normal_8::node0"] value 0
-    inst [31 or "Normal_9::node0"] value 0
-    inst [32 or "Normal_10::node0"] value 1
+mem.buddyinfo.pages
+    inst [0 or "DMA::order0::node0"] value 3
+    inst [1 or "DMA::order1::node0"] value 1
+    inst [2 or "DMA::order2::node0"] value 2
+    inst [3 or "DMA::order3::node0"] value 2
+    inst [4 or "DMA::order4::node0"] value 2
+    inst [5 or "DMA::order5::node0"] value 1
+    inst [6 or "DMA::order6::node0"] value 0
+    inst [7 or "DMA::order7::node0"] value 0
+    inst [8 or "DMA::order8::node0"] value 1
+    inst [9 or "DMA::order9::node0"] value 1
+    inst [10 or "DMA::order10::node0"] value 3
+    inst [11 or "DMA32::order0::node0"] value 470
+    inst [12 or "DMA32::order1::node0"] value 524
+    inst [13 or "DMA32::order2::node0"] value 98
+    inst [14 or "DMA32::order3::node0"] value 154
+    inst [15 or "DMA32::order4::node0"] value 86
+    inst [16 or "DMA32::order5::node0"] value 30
+    inst [17 or "DMA32::order6::node0"] value 23
+    inst [18 or "DMA32::order7::node0"] value 10
+    inst [19 or "DMA32::order8::node0"] value 26
+    inst [20 or "DMA32::order9::node0"] value 12
+    inst [21 or "DMA32::order10::node0"] value 681
+    inst [22 or "Normal::order0::node0"] value 188
+    inst [23 or "Normal::order1::node0"] value 420
+    inst [24 or "Normal::order2::node0"] value 143
+    inst [25 or "Normal::order3::node0"] value 11
+    inst [26 or "Normal::order4::node0"] value 2
+    inst [27 or "Normal::order5::node0"] value 0
+    inst [28 or "Normal::order6::node0"] value 0
+    inst [29 or "Normal::order7::node0"] value 0
+    inst [30 or "Normal::order8::node0"] value 0
+    inst [31 or "Normal::order9::node0"] value 0
+    inst [32 or "Normal::order10::node0"] value 1
+
+mem.buddyinfo.total
+    inst [0 or "DMA::order0::node0"] value 12
+    inst [1 or "DMA::order1::node0"] value 4
+    inst [2 or "DMA::order2::node0"] value 8
+    inst [3 or "DMA::order3::node0"] value 8
+    inst [4 or "DMA::order4::node0"] value 8
+    inst [5 or "DMA::order5::node0"] value 4
+    inst [6 or "DMA::order6::node0"] value 0
+    inst [7 or "DMA::order7::node0"] value 0
+    inst [8 or "DMA::order8::node0"] value 4
+    inst [9 or "DMA::order9::node0"] value 4
+    inst [10 or "DMA::order10::node0"] value 12
+    inst [11 or "DMA32::order0::node0"] value 1880
+    inst [12 or "DMA32::order1::node0"] value 2096
+    inst [13 or "DMA32::order2::node0"] value 392
+    inst [14 or "DMA32::order3::node0"] value 616
+    inst [15 or "DMA32::order4::node0"] value 344
+    inst [16 or "DMA32::order5::node0"] value 120
+    inst [17 or "DMA32::order6::node0"] value 92
+    inst [18 or "DMA32::order7::node0"] value 40
+    inst [19 or "DMA32::order8::node0"] value 104
+    inst [20 or "DMA32::order9::node0"] value 48
+    inst [21 or "DMA32::order10::node0"] value 2724
+    inst [22 or "Normal::order0::node0"] value 752
+    inst [23 or "Normal::order1::node0"] value 1680
+    inst [24 or "Normal::order2::node0"] value 572
+    inst [25 or "Normal::order3::node0"] value 44
+    inst [26 or "Normal::order4::node0"] value 8
+    inst [27 or "Normal::order5::node0"] value 0
+    inst [28 or "Normal::order6::node0"] value 0
+    inst [29 or "Normal::order7::node0"] value 0
+    inst [30 or "Normal::order8::node0"] value 0
+    inst [31 or "Normal::order9::node0"] value 0
+    inst [32 or "Normal::order10::node0"] value 4
 
 mem.freemem
     value 4650860
@@ -653,6 +688,11 @@ mem.vmstat.unevictable_pgs_stranded
 
 mem.vmstat.zone_reclaim_failed
     value 0
+
+mem.zoneinfo.free
+    inst [1 or "DMA::node0"] value 15852
+    inst [2 or "DMA32::node0"] value 284860
+    inst [3 or "Normal::node0"] value 4349528
 
 == done
 
@@ -1631,46 +1671,93 @@ mem.slabinfo.slabs.total_size
 
 == Checking buddyinfo metric values - meminfo-root-001.tgz
 
-mem.buddyinfo
-    inst [0 or "DMA_0::node0"] value 3
-    inst [1 or "DMA_1::node0"] value 1
-    inst [2 or "DMA_2::node0"] value 2
-    inst [3 or "DMA_3::node0"] value 2
-    inst [4 or "DMA_4::node0"] value 2
-    inst [5 or "DMA_5::node0"] value 1
-    inst [6 or "DMA_6::node0"] value 0
-    inst [7 or "DMA_7::node0"] value 0
-    inst [8 or "DMA_8::node0"] value 1
-    inst [9 or "DMA_9::node0"] value 1
-    inst [10 or "DMA_10::node0"] value 3
-    inst [11 or "DMA32_0::node0"] value 470
-    inst [12 or "DMA32_1::node0"] value 524
-    inst [13 or "DMA32_2::node0"] value 98
-    inst [14 or "DMA32_3::node0"] value 154
-    inst [15 or "DMA32_4::node0"] value 86
-    inst [16 or "DMA32_5::node0"] value 30
-    inst [17 or "DMA32_6::node0"] value 23
-    inst [18 or "DMA32_7::node0"] value 10
-    inst [19 or "DMA32_8::node0"] value 26
-    inst [20 or "DMA32_9::node0"] value 12
-    inst [21 or "DMA32_10::node0"] value 681
-    inst [22 or "Normal_0::node0"] value 188
-    inst [23 or "Normal_1::node0"] value 420
-    inst [24 or "Normal_2::node0"] value 143
-    inst [25 or "Normal_3::node0"] value 11
-    inst [26 or "Normal_4::node0"] value 2
-    inst [27 or "Normal_5::node0"] value 0
-    inst [28 or "Normal_6::node0"] value 0
-    inst [29 or "Normal_7::node0"] value 0
-    inst [30 or "Normal_8::node0"] value 0
-    inst [31 or "Normal_9::node0"] value 0
-    inst [32 or "Normal_10::node0"] value 1
+mem.buddyinfo.pages
+    inst [0 or "DMA::order0::node0"] value 3
+    inst [1 or "DMA::order1::node0"] value 1
+    inst [2 or "DMA::order2::node0"] value 2
+    inst [3 or "DMA::order3::node0"] value 2
+    inst [4 or "DMA::order4::node0"] value 2
+    inst [5 or "DMA::order5::node0"] value 1
+    inst [6 or "DMA::order6::node0"] value 0
+    inst [7 or "DMA::order7::node0"] value 0
+    inst [8 or "DMA::order8::node0"] value 1
+    inst [9 or "DMA::order9::node0"] value 1
+    inst [10 or "DMA::order10::node0"] value 3
+    inst [11 or "DMA32::order0::node0"] value 470
+    inst [12 or "DMA32::order1::node0"] value 524
+    inst [13 or "DMA32::order2::node0"] value 98
+    inst [14 or "DMA32::order3::node0"] value 154
+    inst [15 or "DMA32::order4::node0"] value 86
+    inst [16 or "DMA32::order5::node0"] value 30
+    inst [17 or "DMA32::order6::node0"] value 23
+    inst [18 or "DMA32::order7::node0"] value 10
+    inst [19 or "DMA32::order8::node0"] value 26
+    inst [20 or "DMA32::order9::node0"] value 12
+    inst [21 or "DMA32::order10::node0"] value 681
+    inst [22 or "Normal::order0::node0"] value 188
+    inst [23 or "Normal::order1::node0"] value 420
+    inst [24 or "Normal::order2::node0"] value 143
+    inst [25 or "Normal::order3::node0"] value 11
+    inst [26 or "Normal::order4::node0"] value 2
+    inst [27 or "Normal::order5::node0"] value 0
+    inst [28 or "Normal::order6::node0"] value 0
+    inst [29 or "Normal::order7::node0"] value 0
+    inst [30 or "Normal::order8::node0"] value 0
+    inst [31 or "Normal::order9::node0"] value 0
+    inst [32 or "Normal::order10::node0"] value 1
+
+mem.buddyinfo.total
+    inst [0 or "DMA::order0::node0"] value 12
+    inst [1 or "DMA::order1::node0"] value 4
+    inst [2 or "DMA::order2::node0"] value 8
+    inst [3 or "DMA::order3::node0"] value 8
+    inst [4 or "DMA::order4::node0"] value 8
+    inst [5 or "DMA::order5::node0"] value 4
+    inst [6 or "DMA::order6::node0"] value 0
+    inst [7 or "DMA::order7::node0"] value 0
+    inst [8 or "DMA::order8::node0"] value 4
+    inst [9 or "DMA::order9::node0"] value 4
+    inst [10 or "DMA::order10::node0"] value 12
+    inst [11 or "DMA32::order0::node0"] value 1880
+    inst [12 or "DMA32::order1::node0"] value 2096
+    inst [13 or "DMA32::order2::node0"] value 392
+    inst [14 or "DMA32::order3::node0"] value 616
+    inst [15 or "DMA32::order4::node0"] value 344
+    inst [16 or "DMA32::order5::node0"] value 120
+    inst [17 or "DMA32::order6::node0"] value 92
+    inst [18 or "DMA32::order7::node0"] value 40
+    inst [19 or "DMA32::order8::node0"] value 104
+    inst [20 or "DMA32::order9::node0"] value 48
+    inst [21 or "DMA32::order10::node0"] value 2724
+    inst [22 or "Normal::order0::node0"] value 752
+    inst [23 or "Normal::order1::node0"] value 1680
+    inst [24 or "Normal::order2::node0"] value 572
+    inst [25 or "Normal::order3::node0"] value 44
+    inst [26 or "Normal::order4::node0"] value 8
+    inst [27 or "Normal::order5::node0"] value 0
+    inst [28 or "Normal::order6::node0"] value 0
+    inst [29 or "Normal::order7::node0"] value 0
+    inst [30 or "Normal::order8::node0"] value 0
+    inst [31 or "Normal::order9::node0"] value 0
+    inst [32 or "Normal::order10::node0"] value 4
+
+== done
+
+== Checking zoneinfo metric values - meminfo-root-001.tgz
+
+mem.zoneinfo.free
+    inst [1 or "DMA::node0"] value 15852
+    inst [2 or "DMA32::node0"] value 284860
+    inst [3 or "Normal::node0"] value 4349528
 
 == done
 
 == Checking all mem metric values - meminfo-root-002.tgz
 
-mem.buddyinfo
+mem.buddyinfo.pages
+No value(s) available!
+
+mem.buddyinfo.total
 No value(s) available!
 
 mem.freemem
@@ -2324,6 +2411,12 @@ mem.vmstat.unevictable_pgs_stranded
 
 mem.vmstat.zone_reclaim_failed
     value 0
+
+mem.zoneinfo.free
+    inst [1 or "DMA::node0"] value 15320
+    inst [2 or "DMA32::node0"] value 693676
+    inst [3 or "Normal::node0"] value 42201908
+    inst [4 or "Normal::node1"] value 44375624
 
 == done
 
@@ -3253,8 +3346,21 @@ mem.slabinfo.slabs.total_size
 
 == Checking buddyinfo metric values - meminfo-root-002.tgz
 
-mem.buddyinfo
+mem.buddyinfo.pages
 No value(s) available!
+
+mem.buddyinfo.total
+No value(s) available!
+
+== done
+
+== Checking zoneinfo metric values - meminfo-root-002.tgz
+
+mem.zoneinfo.free
+    inst [1 or "DMA::node0"] value 15320
+    inst [2 or "DMA32::node0"] value 693676
+    inst [3 or "Normal::node0"] value 42201908
+    inst [4 or "Normal::node1"] value 44375624
 
 == done
 

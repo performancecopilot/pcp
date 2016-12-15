@@ -566,7 +566,8 @@ be areas of the physical address space mapped as ROM in
 various peripheral devices and the bios may be mirroring
 certain ROMs in RAM.
 @ mem.freemem free system memory metric from /proc/meminfo
-@ mem.buddyinfo information of page fragment from /proc/buddyinfo
+@ mem.buddyinfo.pages fragmented page count from /proc/buddyinfo
+@ mem.buddyinfo.total page fragmentation size from /proc/buddyinfo
 @ mem.util.used used memory metric from /proc/meminfo
 Used memory is the difference between mem.physmem and mem.freemem.
 @ mem.util.free free memory metric from /proc/meminfo
@@ -894,10 +895,7 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ mem.vmstat.balloon_inflate count of virt guest balloon page inflations
 @ mem.vmstat.balloon_deflate number of virt guest balloon page deflations
 @ mem.vmstat.balloon_migrate number of virt guest balloon page migrations
-@ mem.zone.dma_free free pages of zone_dma
-@ mem.zone.dma32_free free pages of zone_dma32(x86_64)
-@ mem.zone.normal_free free pages of zone_normal
-@ mem.zone.highmem_free free pages of zone_highmem(i386)
+@ mem.zoneinfo.free free space in each zone for each NUMA node
 
 @ swap.length total swap available metric from /proc/meminfo
 @ swap.used swap used metric from /proc/meminfo
