@@ -443,8 +443,8 @@ pmInDom: 29.2
 [Instance domain "bin" for sample PMDA]
 Universally 9 instances numbered 100 .. 900 in steps of 100, and named
 "bin-100" .. "bin-900"
-dbpmda> text indom 29.5
-pmInDom: 29.5
+dbpmda> text indom 29.50
+pmInDom: 29.50
 Error PDU: Oneline or help text is not available
 Error PDU: Oneline or help text is not available
 dbpmda> text blah 29.2
