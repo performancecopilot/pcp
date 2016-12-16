@@ -16,7 +16,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
-# Remove the papi PMDA
+# Remove the docker PMDA
 #
 
 # source the PCP configuration environment variables
