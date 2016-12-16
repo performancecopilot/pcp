@@ -690,9 +690,9 @@ mem.vmstat.zone_reclaim_failed
     value 0
 
 mem.zoneinfo.free
-    inst [1 or "DMA::node0"] value 15852
-    inst [2 or "DMA32::node0"] value 284860
-    inst [3 or "Normal::node0"] value 4349528
+    inst [0 or "DMA::node0"] value 15852
+    inst [1 or "DMA32::node0"] value 284860
+    inst [2 or "Normal::node0"] value 4349528
 
 == done
 
@@ -1746,9 +1746,9 @@ mem.buddyinfo.total
 == Checking zoneinfo metric values - meminfo-root-001.tgz
 
 mem.zoneinfo.free
-    inst [1 or "DMA::node0"] value 15852
-    inst [2 or "DMA32::node0"] value 284860
-    inst [3 or "Normal::node0"] value 4349528
+    inst [0 or "DMA::node0"] value 15852
+    inst [1 or "DMA32::node0"] value 284860
+    inst [2 or "Normal::node0"] value 4349528
 
 == done
 
@@ -2413,10 +2413,10 @@ mem.vmstat.zone_reclaim_failed
     value 0
 
 mem.zoneinfo.free
-    inst [1 or "DMA::node0"] value 15320
-    inst [2 or "DMA32::node0"] value 693676
-    inst [3 or "Normal::node0"] value 42201908
-    inst [4 or "Normal::node1"] value 44375624
+    inst [0 or "DMA::node0"] value 15320
+    inst [1 or "DMA32::node0"] value 693676
+    inst [2 or "Normal::node0"] value 42201908
+    inst [3 or "Normal::node1"] value 44375624
 
 == done
 
@@ -3357,10 +3357,10 @@ No value(s) available!
 == Checking zoneinfo metric values - meminfo-root-002.tgz
 
 mem.zoneinfo.free
-    inst [1 or "DMA::node0"] value 15320
-    inst [2 or "DMA32::node0"] value 693676
-    inst [3 or "Normal::node0"] value 42201908
-    inst [4 or "Normal::node1"] value 44375624
+    inst [0 or "DMA::node0"] value 15320
+    inst [1 or "DMA32::node0"] value 693676
+    inst [2 or "Normal::node0"] value 42201908
+    inst [3 or "Normal::node1"] value 44375624
 
 == done
 
