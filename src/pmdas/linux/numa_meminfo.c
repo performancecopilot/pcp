@@ -1,7 +1,7 @@
 /*
  * Linux NUMA meminfo metrics cluster from sysfs
  *
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012,2016 Red Hat.
  * Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,12 +17,7 @@
 
 #include <dirent.h>
 #include <sys/stat.h>
-#include <string.h>
-
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "indom.h"
+#include "linux.h"
 #include "linux_table.h"
 #include "proc_cpuinfo.h"
 #include "proc_stat.h"

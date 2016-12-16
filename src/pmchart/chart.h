@@ -156,6 +156,7 @@ private Q_SLOTS:
     void selected(const QPointF &);
     void moved(const QPointF &);
     void showItem(const QVariant &, bool);
+    void doubleClick(void);
 
 private:
     // changing properties
@@ -193,6 +194,8 @@ private:
 //
 class ChartPicker : public QwtPlotPicker
 {
+    Q_OBJECT
+
 public:
     ChartPicker(QWidget *canvas) :
 	QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
@@ -209,6 +212,11 @@ public:
 	{ QwtPlotPicker::widgetMouseReleaseEvent(event); }
     void widgetMouseMoveEvent(QMouseEvent *event)
 	{ QwtPlotPicker::widgetMouseMoveEvent(event); }
+    void widgetMouseDoubleClickEvent(QMouseEvent *event)
+	{ Q_EMIT doubleClick(); QwtPlotPicker::widgetMouseDoubleClickEvent(event); }
+
+Q_SIGNALS:
+    void doubleClick(void);
 };
 
 //

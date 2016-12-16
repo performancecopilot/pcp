@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Red Hat 2014.
+ * Copyright (c) Red Hat 2014,2016.
  * Copyright (c) International Business Machines Corp., 2002
  * This code contributed by Mike Mason <mmlnx@us.ibm.com>
  *
@@ -13,11 +13,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
 #include <fcntl.h>
-#include "pmapi.h"
-#include "pmda.h"
-#include "indom.h"
+#include "linux.h"
 #include "proc_uptime.h"
 
 int

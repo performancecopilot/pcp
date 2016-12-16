@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -12,11 +12,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "indom.h"
+#include "linux.h"
 #include "proc_net_snmp.h"
 
 extern proc_net_snmp_t	_pm_proc_net_snmp;

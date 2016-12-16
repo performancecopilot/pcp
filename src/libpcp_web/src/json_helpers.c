@@ -12,7 +12,6 @@
  * License for more details.
  */
 
-
 #include "pmapi.h"
 #include "impl.h"
 #include "pmjson.h"
@@ -21,16 +20,22 @@
 #include <sys/stat.h>
 
 /*
- * JSMN helper interfaces for efficiently extracting JSON configs
+ * JSMN helper interfaces for efficiently extracting from JSON strings
  */
+#define TRUE_TOK	"true"
+#define FALSE_TOK	"false"
+#define TRUE_LEN	(sizeof(TRUE_TOK)-1)
+#define FALSE_LEN	(sizeof(FALSE_TOK)-1)
 
 int
 jsmneq(const char *js, jsmntok_t *tok, const char *s)
 {
+    size_t	length;
+
     if (tok->type != JSMN_STRING)
 	return -1;
-    if (strlen(s) == tok->end - tok->start &&
-	strncasecmp(js + tok->start, s, tok->end - tok->start) == 0)
+    length = tok->end - tok->start;
+    if (strlen(s) == length && strncmp(js + tok->start, s, length) == 0)
 	return 0;
     return -1;
 }
@@ -38,9 +43,12 @@ jsmneq(const char *js, jsmntok_t *tok, const char *s)
 int
 jsmnflag(const char *js, jsmntok_t *tok, int *bits, int flag)
 {
+    size_t	length;
+
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
-    if (strncmp(js + tok->start, "true", sizeof("true")-1) == 0)
+    length = tok->end - tok->start;
+    if (strncmp(js + tok->start, TRUE_TOK, length) == 0)
 	*bits |= flag;
     else
 	*bits &= ~flag;
@@ -50,149 +58,185 @@ jsmnflag(const char *js, jsmntok_t *tok, int *bits, int flag)
 int
 jsmnbool(const char *js, jsmntok_t *tok, unsigned int *value)
 {
-    char	buffer[64];
+    size_t	length;
 
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
-    strncpy(buffer, js + tok->start, tok->end - tok->start);
-    buffer[tok->end - tok->start] = '\0';
-    if((unsigned int)strtol(buffer, NULL, 0)>0)
+    length = tok->end - tok->start;
+    if (length == TRUE_LEN && !strncmp(js + tok->start, TRUE_TOK, TRUE_LEN)) {
 	*value = 1;
-    else
+	return 0;
+    }
+    if (length == FALSE_LEN && !strncmp(js + tok->start, FALSE_TOK, FALSE_LEN)) {
 	*value = 0;
-    return 0;
+	return 0;
+    }
+    return -1;
 }
 
 int
 jsmnint(const char *js, jsmntok_t *tok, int *value)
 {
     char	buffer[64];
+    char	*endptr;
+    size_t	length;
 
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
-    strncpy(buffer, js + tok->start, tok->end - tok->start);
-    buffer[tok->end - tok->start] = '\0';
-    *value = (int)strtol(buffer, NULL, 0);
-    return 0;
+    length = tok->end - tok->start;
+    strncpy(buffer, js + tok->start, length);
+    buffer[length] = '\0';
+    *value = (int)strtol(buffer, &endptr, 0);
+    if (*endptr == '\0')
+	return 0;
+    return -1;
 }
 
 int
 jsmnuint(const char *js, jsmntok_t *tok, unsigned int *value)
 {
     char	buffer[64];
+    char	*endptr;
+    size_t	length;
 
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
-    strncpy(buffer, js + tok->start, tok->end - tok->start);
-    buffer[tok->end - tok->start] = '\0';
-    *value = (unsigned int)strtoul(buffer, NULL, 0);
-    return 0;
+    length = tok->end - tok->start;
+    strncpy(buffer, js + tok->start, length);
+    buffer[length] = '\0';
+    *value = (unsigned int)strtoul(buffer, &endptr, 0);
+    if (*endptr == '\0')
+	return 0;
+    return -1;
 }
 
 int
 jsmnlong(const char *js, jsmntok_t *tok, __int64_t *value)
 {
     char	buffer[64];
+    char	*endptr;
+    size_t	length;
 
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
-    strncpy(buffer, js + tok->start, tok->end - tok->start);
-    buffer[tok->end - tok->start] = '\0';
-    *value = strtoll(buffer, NULL, 0);
-    return 0;
+    length = tok->end - tok->start;
+    strncpy(buffer, js + tok->start, length);
+    buffer[length] = '\0';
+    *value = strtoll(buffer, &endptr, 0);
+    if (*endptr == '\0')
+	return 0;
+    return -1;
 }
 
 int
 jsmnulong(const char *js, jsmntok_t *tok, __uint64_t *value)
 {
     char	buffer[64];
+    char	*endptr;
+    size_t	length;
 
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
-    strncpy(buffer, js + tok->start, tok->end - tok->start);
-    buffer[tok->end - tok->start] = '\0';
-    *value = strtoull(buffer, NULL, 0);
-    return 0;
+    length = tok->end - tok->start;
+    strncpy(buffer, js + tok->start, length);
+    buffer[length] = '\0';
+    *value = strtoull(buffer, &endptr, 0);
+    if (*endptr == '\0')
+	return 0;
+    return -1;
 }
 
 int
 jsmnfloat(const char *js, jsmntok_t *tok, float *value)
 {
     char	buffer[64];
+    char	*endptr;
+    size_t	length;
 
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
-    strncpy(buffer, js + tok->start, tok->end - tok->start);
-    buffer[tok->end - tok->start] = '\0';
-    *value = strtof(buffer, NULL);
-    return 0;
+    length = tok->end - tok->start;
+    strncpy(buffer, js + tok->start, length);
+    buffer[length] = '\0';
+    *value = strtof(buffer, &endptr);
+    if (*endptr == '\0')
+	return 0;
+    return -1;
 }
 
 int
 jsmndouble(const char *js, jsmntok_t *tok, double *value)
 {
     char	buffer[64];
+    char	*endptr;
+    size_t	length;
 
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
-    strncpy(buffer, js + tok->start, tok->end - tok->start);
-    buffer[tok->end - tok->start] = '\0';
-    *value = strtod(buffer, NULL);
-    return 0;
+    length = tok->end - tok->start;
+    strncpy(buffer, js + tok->start, length);
+    buffer[length] = '\0';
+    *value = strtod(buffer, &endptr);
+    if (*endptr == '\0')
+	return 0;
+    return -1;
 }
 
 int
 jsmnflagornumber(const char *js, jsmntok_t *tok, json_metric_desc *json_metrics, int flag)
 {
+    size_t	len;
+
     if (tok->type != JSMN_PRIMITIVE)
 	return -1;
 
+    len = tok->end - tok->start;
     if ((flag & pmjson_flag_bitfield) ||
-	(strncmp(js + tok->start, "true", sizeof("true")-1) == 0) ||
-	(strncmp(js + tok->start, "false", sizeof("false")-1) == 0)) {
-    	if(jsmnflag(js, tok, &json_metrics->values.l, flag)<0)
-    	    return -1;
+	(len == TRUE_LEN && !strncmp(js + tok->start, TRUE_TOK, TRUE_LEN)) ||
+	(len == FALSE_LEN && !strncmp(js + tok->start, FALSE_TOK, FALSE_LEN))) {
+	if (jsmnflag(js, tok, &json_metrics->values.l, flag) < 0)
+	    return -1;
     }
     else {
 	if (pmDebug & DBG_TRACE_APPL2)
 	    __pmNotifyErr(LOG_DEBUG, "pmjson_flag: %d\n", flag);
 	switch (flag) {
 	case pmjson_flag_boolean:
-	    if(jsmnbool(js, tok, &json_metrics->values.ul)<0)
+	    if (jsmnbool(js, tok, &json_metrics->values.ul) < 0)
 		return -1;
 	    break;
 	    
 	case pmjson_flag_s32:
-	    if(jsmnint(js, tok, &json_metrics->values.l)<0)
+	    if (jsmnint(js, tok, &json_metrics->values.l) < 0)
 		return -1;
 	    break;
 
 	case pmjson_flag_u32:
-	    if(jsmnuint(js, tok, &json_metrics->values.ul)<0)
+	    if (jsmnuint(js, tok, &json_metrics->values.ul) < 0)
 		return -1;
 	    break;
 
 	case pmjson_flag_s64:
-	    if(jsmnlong(js, tok, &json_metrics->values.ll)<0)
+	    if (jsmnlong(js, tok, &json_metrics->values.ll) < 0)
 		return -1;
 	    break;
 	    
 	case pmjson_flag_u64:
-	    if(jsmnulong(js, tok, &json_metrics->values.ull)<0)
+	    if (jsmnulong(js, tok, &json_metrics->values.ull) < 0)
 		return -1;
 	    break;
 	    
 	case pmjson_flag_float:
-	    if(jsmnfloat(js, tok, &json_metrics->values.f)<0)
+	    if (jsmnfloat(js, tok, &json_metrics->values.f) < 0)
 		return -1;
 	    break;
 	    
 	case pmjson_flag_double:
-	    if(jsmndouble(js, tok, &json_metrics->values.d)<0)
+	    if (jsmndouble(js, tok, &json_metrics->values.d) < 0)
 		return -1;
 	    break;
 	default:  /* assume old interface? not set and default to int */
-	    if(jsmnint(js, tok, &json_metrics->values.l)<0)
+	    if (jsmnint(js, tok, &json_metrics->values.l) < 0)
 		return -1;
 	    break;
 	}
@@ -230,17 +274,19 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 	return 1;
     case JSMN_STRING:
 	if (pmDebug & DBG_TRACE_APPL2)
-	    __pmNotifyErr(LOG_DEBUG, "string: %.*s parent: %d\n", json_tokens->end - json_tokens->start, json+json_tokens->start, json_tokens->parent);
-	if (jsmneq(json, json_tokens, pointer_part[key]) == 0){
+	    __pmNotifyErr(LOG_DEBUG, "string: %.*s parent: %d\n",
+			json_tokens->end - json_tokens->start,
+			json + json_tokens->start, json_tokens->parent);
+	if (jsmneq(json, json_tokens, pointer_part[key]) == 0) {
 	    //XXX this needs to have a better method for detecting
 	    if (key == 0 && json_tokens->parent != 0)
 		return 1;
 	    jsmntok_t *value = json_tokens + 1;
-	    if(value->type == JSMN_PRIMITIVE && (total - key == 1)){
+	    if (value->type == JSMN_PRIMITIVE && (total - key == 1)) {
 		jsmnflagornumber(json, value, json_metrics, json_metrics->flags);
 		return count;
 	    }
-	    else if(value->type == JSMN_STRING && total - key == 1){
+	    else if (value->type == JSMN_STRING && total - key == 1) {
 		jsmnstrdup(json, value, &json_metrics->values.cp);
 		return count;
 	    }
@@ -252,22 +298,22 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
     case JSMN_OBJECT:
 	if (pmDebug & DBG_TRACE_APPL2)
 	    __pmNotifyErr(LOG_DEBUG, "jsmn object\n");
-	for (i = j = 0; i < json_tokens->size; i++){
+	for (i = j = 0; i < json_tokens->size; i++) {
 	    if (pmDebug & DBG_TRACE_APPL2)
 		__pmNotifyErr(LOG_DEBUG, "object key\n");
 	    k = json_extract_values(json, json_tokens+1+j, count-j, json_metrics, pointer_part, key, total);
 	    /* returned a valid section, continue */
-	    if (k > 1){
+	    if (k > 1) {
 		key = 0;
 		j += k;
 	    }
 	    /* went a level deeper but no match */
-	    if (k < 0){
+	    if (k < 0) {
 		key++;
 		j++;
 	    }
 	    /* returned a one, nothing hit so far */
-	    if (k == 1){
+	    if (k == 1) {
 		j++;
 	    }
 
@@ -306,12 +352,12 @@ json_pointer_to_index(const char *json, jsmntok_t *json_tokens, size_t count, js
 	if (pmDebug & DBG_TRACE_APPL1)
 	    __pmNotifyErr(LOG_DEBUG, "json_pointer: %s\n", json_pointer);
 	pointer_part = strtok(json_pointer, delim);
-	if (pointer_part){
+	if (pointer_part) {
 	    pointer_final[j] = strdup(pointer_part);
 	    j++;
-	    while(pointer_part){
+	    while(pointer_part) {
 		pointer_part = strtok(NULL, delim);
-		if (pointer_part){
+		if (pointer_part) {
 		    pointer_final[j] = strdup(pointer_part);
 		    j++;
 		}
@@ -339,12 +385,12 @@ pmjsonInitIndom(int fd, json_metric_desc *json_metrics, int nummetrics, pmInDom 
     jsmn_parser       parser;
     jsmntok_t         *json_tokens = NULL;
     int               json_token_count = 0;
-    char              *json = NULL;
     int               json_length = 0;
+    char              *json = NULL;
 
     if (!json_tokens) {
-	json_token_count = 2;
-	if ((json_tokens = calloc(json_token_count, sizeof(*json_tokens))) == NULL)
+	json_token_count = 64;
+	if ((json_tokens = calloc(json_token_count, sizeof(jsmntok_t))) == NULL)
 	    sts = -ENOMEM;
     }
     jsmn_init(&parser);
@@ -352,7 +398,7 @@ pmjsonInitIndom(int fd, json_metric_desc *json_metrics, int nummetrics, pmInDom 
     for (;;) {
 	number_of_bytes_read = read(fd, buffer, sizeof(buffer));
 	if (number_of_bytes_read < 0) {
-	    if (pmDebug & DBG_TRACE_ATTR) {
+	    if (pmDebug & DBG_TRACE_APPL2) {
 		fprintf(stderr, "%s: failed read on json file: %s\n",
 			pmProgname, osstrerror());
 		sts = -oserror();
@@ -363,7 +409,7 @@ pmjsonInitIndom(int fd, json_metric_desc *json_metrics, int nummetrics, pmInDom 
 	if (number_of_bytes_read == 0) {
 	    /* eof_expected when our parsing looks done, not before */
 	    if (!eof_expected) {
-		if (pmDebug & DBG_TRACE_ATTR)
+		if (pmDebug & DBG_TRACE_APPL2)
 		    fprintf(stderr, "%s: unexpected EOF on json file: %s\n",
 			    pmProgname, osstrerror());
 		sts = -EINVAL;
@@ -374,7 +420,6 @@ pmjsonInitIndom(int fd, json_metric_desc *json_metrics, int nummetrics, pmInDom 
 		sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, json_metrics[0].dom, json_metrics);
 	    return sts;
 	}
-
 
 	/* We've read in more json data, adjust our json size */
 	if ((json = realloc(json, json_length + number_of_bytes_read + 1)) == NULL) {

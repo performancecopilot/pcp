@@ -1,7 +1,7 @@
 /*
  * Bash -x trace PMDA
  *
- * Copyright (c) 2012-2014 Red Hat.
+ * Copyright (c) 2012-2014,2016 Red Hat.
  * Copyright (c) 2012 Nathan Scott.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -376,7 +376,8 @@ bash_main(pmdaInterface *dispatch)
 void 
 bash_init(pmdaInterface *dp)
 {
-    __pmSetProcessIdentity(username);
+    if (username)
+	__pmSetProcessIdentity(username);
 
     if (dp->status != 0)
 	return;
@@ -424,7 +425,6 @@ main(int argc, char **argv)
     int			c, sep = __pmPathSeparator();
 
     __pmSetProgname(argv[0]);
-    __pmGetUsername(&username);
 
     minmem = getpagesize();
     bash_maxmem = (minmem > DEFAULT_MAXMEM) ? minmem : DEFAULT_MAXMEM;

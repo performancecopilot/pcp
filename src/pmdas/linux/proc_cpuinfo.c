@@ -1,7 +1,7 @@
 /*
  * Linux /proc/cpuinfo metrics cluster
  *
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
  * Portions Copyright (c) 2001 Gilly Ran (gilly@exanet.com) - for the
  * portions supporting the Alpha platform.  All rights reserved.
@@ -16,14 +16,10 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
 #include <ctype.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "indom.h"
+#include "linux.h"
 #include "proc_cpuinfo.h"
 
 static void

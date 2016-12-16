@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 Red Hat.
+ * Copyright (c) 2014-2016 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -11,9 +11,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
+#include "linux.h"
 #include "pmdaroot.h"
 #include "namespaces.h"
 

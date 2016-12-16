@@ -1,7 +1,7 @@
 /*
  * Linux /proc/sys/fs metrics cluster
  *
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2016 Red Hat.
  * Copyright (c) 2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -14,11 +14,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "indom.h"
+#include "linux.h"
 #include "proc_sys_fs.h"
 
 int

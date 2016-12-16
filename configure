@@ -782,6 +782,7 @@ LD
 cpp
 make
 MAKE
+enable_qt3d
 qmake
 enable_qt
 qt_release
@@ -946,6 +947,7 @@ with_group
 with_discovery
 with_systemd
 with_qt
+with_qt3d
 with_python
 with_python3
 with_books
@@ -1650,6 +1652,8 @@ Optional Packages:
   --with-discovery        enable support for service discovery (default is on)
   --with-systemd          enable support for systemd services (default is on)
   --with-qt               enable support for tools requiring Qt (default is
+                          on)
+  --with-qt3d             enable support for 3D scene graph API (default is
                           on)
   --with-python           enable support for tools requiring Python (default
                           is on)
@@ -2710,6 +2714,15 @@ if test "${with_qt+set}" = set; then :
   withval=$with_qt; do_qt=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt=$withval"
 else
   do_qt=check
+fi
+
+
+
+# Check whether --with-qt3d was given.
+if test "${with_qt3d+set}" = set; then :
+  withval=$with_qt3d; do_qt3d=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt3d=$withval"
+else
+  do_qt3d=check
 fi
 
 
@@ -7635,6 +7648,20 @@ $as_echo "$QT_MAJOR.$QT_MINOR.$QT_POINT" >&6; }
 fi
 
 
+
+
+enable_qt3d=false
+if test "x$do_qt3d" != "xno"; then :
+
+    if test -f /usr/include/Coin3/Inventor/Qt/SoQt.h
+    then
+	enable_qt3d=$enable_qt
+    elif test -a "$do_qt3d" = "yes"
+    then
+	as_fn_error $? "cannot enable support for 3D scene graph API" "$LINENO" 5
+    fi
+
+fi
 
 
 if test -z "$MAKE"

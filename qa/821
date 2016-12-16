@@ -45,6 +45,7 @@ local="-L -K clear -K add,60,$pmda"
 mem_metrics=`pminfo $local mem | LC_COLLATE=POSIX sort`
 slab_metrics=`pminfo $local mem.slabinfo | LC_COLLATE=POSIX sort`
 buddy_metrics=`pminfo $local mem.buddyinfo | LC_COLLATE=POSIX sort`
+zone_metrics=`pminfo $local mem.zoneinfo | LC_COLLATE=POSIX sort`
 
 if [ -f "$config" ]
 then
@@ -71,6 +72,10 @@ do
 
     echo "== Checking buddyinfo metric values - $base"
     pminfo $local -f $buddy_metrics
+    echo && echo "== done" && echo
+
+    echo "== Checking zoneinfo metric values - $base"
+    pminfo $local -f $zone_metrics
     echo && echo "== done" && echo
 
     cd $here

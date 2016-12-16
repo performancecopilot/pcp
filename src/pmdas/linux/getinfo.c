@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 Red Hat.
+ * Copyright (c) 2014-2016 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -13,14 +13,11 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
 #include <sys/stat.h>
 #include <sys/dir.h>
 #include <ctype.h>
 #include <fcntl.h>
-#include "pmapi.h"
-#include "pmda.h"
-#include "indom.h"
+#include "linux.h"
 
 char *
 get_distro_info(void)

@@ -11,12 +11,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
 #include <ctype.h>
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "indom.h"
+#include "linux.h"
 #include "proc_net_softnet.h"
 
 int

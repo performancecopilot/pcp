@@ -98,6 +98,12 @@ AC_ARG_WITH([qt],
     [do_qt=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt=$withval"],
     [do_qt=check])
 
+AC_ARG_WITH([qt3d],
+    [AC_HELP_STRING([--with-qt3d],
+                    [enable support for 3D scene graph API (default is on)])],
+    [do_qt3d=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-qt3d=$withval"],
+    [do_qt3d=check])
+
 AC_ARG_WITH([python],
     [AC_HELP_STRING([--with-python],
                     [enable support for tools requiring Python (default is on)])],
@@ -1095,6 +1101,18 @@ AS_IF([test "x$do_qt" != "xno"], [
 AC_SUBST(qt_release)
 AC_SUBST(enable_qt)
 AC_SUBST(qmake)
+
+enable_qt3d=false
+AS_IF([test "x$do_qt3d" != "xno"], [
+    if test -f /usr/include/Coin3/Inventor/Qt/SoQt.h
+    then
+	enable_qt3d=$enable_qt
+    elif test -a "$do_qt3d" = "yes"
+    then
+	AC_MSG_ERROR([cannot enable support for 3D scene graph API])
+    fi
+])
+AC_SUBST(enable_qt3d)
 
 dnl check if user wants their own make program
 dnl note: all makefiles in this package use the gmake syntax

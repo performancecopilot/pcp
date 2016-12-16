@@ -5,7 +5,7 @@ CONFIG		+= qt staticlib warn_on
 INCLUDEPATH	+= ../../include ../../libpcp_qmc/src
 release:DESTDIR = build/debug
 debug:DESTDIR   = build/release
-QT		= core gui network svg
+QT		= core gui network svg widgets
 
 HEADERS	= qed.h \
 	  qed_actionlist.h \

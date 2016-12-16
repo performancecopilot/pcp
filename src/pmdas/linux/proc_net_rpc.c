@@ -14,10 +14,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
-#include "pmapi.h"
-#include "pmda.h"
-#include "indom.h"
+#include "linux.h"
 #include "proc_net_rpc.h"
 
 int

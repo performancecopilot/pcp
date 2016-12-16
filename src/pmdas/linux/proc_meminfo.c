@@ -1,7 +1,7 @@
 /*
  * Linux /proc/meminfo metrics cluster
  *
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -14,16 +14,12 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
 #include <ctype.h>
-#include "pmapi.h"
-#include "pmda.h"
-#include "indom.h"
 #include <sys/stat.h>
+#include "linux.h"
 #include "proc_meminfo.h"
 
 static proc_meminfo_t moff;
-extern size_t _pm_system_pagesize;
 
 static struct {
     char	*field;
@@ -154,7 +150,7 @@ refresh_proc_meminfo(proc_meminfo_t *proc_meminfo)
 		    }
 		}
 		fclose(fp);
-		wmark_low *= _pm_system_pagesize;
+		wmark_low <<= _pm_pageshift;
 	    }
 
 	    /*  

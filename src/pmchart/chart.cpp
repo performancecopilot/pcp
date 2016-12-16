@@ -74,6 +74,8 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget(this)
 			 SLOT(selected(const QPointF &)));
     connect(my.picker, SIGNAL(moved(const QPointF &)),
 			 SLOT(moved(const QPointF &)));
+    connect(my.picker, SIGNAL(doubleClick(void)),
+			 SLOT(doubleClick(void)));
 
     // feedback into the group about any selection
     connect(this, SIGNAL(timeSelectionActive(Gadget *, int)),
@@ -693,6 +695,13 @@ Chart::activated(bool on)
 }
 
 void
+Chart::doubleClick(void)
+{
+    my.tab->setCurrent(this);
+    showInfo();
+}
+
+void
 Chart::selected(const QPolygon &poly)
 {
     my.engine->selected(poly);
@@ -704,7 +713,6 @@ Chart::selected(const QPointF &p)
 {
     showPoint(p);
     accumulatePointInfo(p);
-    showInfo();
     my.tab->setCurrent(this);
 }
 
@@ -824,8 +832,6 @@ Chart::showPoints(const QPolygon &poly)
 		    item->updateCursor(p, index);
 	}
     }
-
-    showInfo();
 }
 
 //

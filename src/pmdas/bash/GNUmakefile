@@ -28,7 +28,6 @@ CFILES		= event.c bash.c util.c
 HFILES		= event.h
 SCRIPTS		= bashproc.sh
 SAMPLES		= test-child.sh test-trace.sh
-LSRCFILES	= Install Remove pmns help root $(SCRIPTS) $(SAMPLES)
 
 default:	build-me
 
@@ -43,9 +42,8 @@ build-me: $(TARGETS)
 install:	default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 $(IAM) $(PMDADIR)/pmda$(IAM)
-	$(INSTALL) -m 755 Install Remove $(PMDADIR)
-	$(INSTALL) -m 644 root help pmns $(PMDADIR)
-	$(INSTALL) -m 644 domain.h $(PMDADIR)/domain.h
+	$(INSTALL) -m 755 Install Remove $(SAMPLES) $(PMDADIR)
+	$(INSTALL) -m 644 root help pmns domain.h $(PMDADIR)
 	$(INSTALL) -m 644 bashproc.sh $(PCP_SHARE_DIR)/lib/bashproc.sh
 endif
 

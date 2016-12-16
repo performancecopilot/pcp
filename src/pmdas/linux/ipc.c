@@ -12,7 +12,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#include "pmapi.h"
+#include "linux.h"
 #define __USE_GNU 1
 #include <sys/ipc.h>
 #include <sys/sem.h>
@@ -20,10 +20,6 @@
 #include <sys/msg.h>
 #include <pwd.h>
 #include "ipc.h"
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "indom.h"
 
 /*
  * We've seen some buffer overrun issues with the polymorphic "buf"
@@ -41,14 +37,13 @@ int
 refresh_shm_info(shm_info_t *_shm_info)
 {
     static shmctl_buf_t buf;
-    extern size_t _pm_system_pagesize;
 
     if (shmctl(0, SHM_INFO, &buf.shmid_ds) < 0)
 	return -oserror();
 
-    _shm_info->shm_tot = buf.shm_info.shm_tot * _pm_system_pagesize;
-    _shm_info->shm_rss = buf.shm_info.shm_rss * _pm_system_pagesize;
-    _shm_info->shm_swp = buf.shm_info.shm_swp * _pm_system_pagesize;
+    _shm_info->shm_tot = buf.shm_info.shm_tot << _pm_pageshift;
+    _shm_info->shm_rss = buf.shm_info.shm_rss << _pm_pageshift;
+    _shm_info->shm_swp = buf.shm_info.shm_swp << _pm_pageshift;
     _shm_info->used_ids = buf.shm_info.used_ids;
     _shm_info->swap_attempts = buf.shm_info.swap_attempts;
     _shm_info->swap_successes = buf.shm_info.swap_successes;

@@ -12,13 +12,8 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "indom.h"
+#include "linux.h"
 #include "filesys.h"
-#include "clusters.h"
 #include "interrupts.h"
 #include <sys/stat.h>
 #ifdef HAVE_STRINGS_H

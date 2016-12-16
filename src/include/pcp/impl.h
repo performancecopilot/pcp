@@ -1064,8 +1064,8 @@ PCP_CALL extern void __pmDumpErrTab(FILE *);
  * the namelist has been allocated separately and so
  * both the buf and namelist should be freed.
  */
-typedef struct _indom_t {
-    struct _indom_t	*next;
+typedef struct __pmLogInDom {
+    struct __pmLogInDom	*next;
     __pmTimeval		stamp;
     int			numinst;
     int			*instlist;
@@ -1170,6 +1170,7 @@ PCP_CALL extern int __pmParseTime(const char *, struct timeval *, struct timeval
 			 struct timeval *, char **);
 
 /* manipulate internal timestamps */
+PCP_CALL extern int __pmTimevalCmp(const __pmTimeval *, const __pmTimeval *);
 PCP_CALL extern double __pmTimevalSub(const __pmTimeval *, const __pmTimeval *);
 
 /* 32-bit file checksum */

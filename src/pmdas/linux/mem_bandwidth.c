@@ -1,4 +1,5 @@
-/* Initializes the maximum memory bandwidth per numa node
+/*
+ * Initializes maximum memory bandwidth per numa node.
  *
  * Copyright (c) 2016 Hemant K. Shaw, IBM Corporation.
  *
@@ -12,20 +13,9 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <ctype.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
-
-#include "pmapi.h"
-#include "impl.h"
-#include "pmda.h"
-#include "indom.h"
+#include "linux.h"
 #include "proc_cpuinfo.h"
 #include "proc_stat.h"
 #include "numa_meminfo.h"
