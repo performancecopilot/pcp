@@ -27,42 +27,42 @@
 # blank lines before the @ line are ignored
 #
 
-@ SAMPLE.0 Instance domain "colour" for sample PMDA
+@ SAMPLE.1 Instance domain "colour" for sample PMDA
 Universally 3 instances, "red" (0), "green" (1) and "blue" (3).
 
-@ SAMPLE.1 Instance domain "bin" for sample PMDA
+@ SAMPLE.2 Instance domain "bin" for sample PMDA
 Universally 9 instances numbered 100 .. 900 in steps of 100, and named
 "bin-100" .. "bin-900"
 
-@ SAMPLE.2 Instance domain "mirage" for sample PMDA
+@ SAMPLE.3 Instance domain "mirage" for sample PMDA
 Random number of instances, that change with time.  Instance "m-00" (0)
 is always present, while the others are numbered 1 .. 49 and named "m-01"
 .. "m-99"
 
-@ SAMPLE.3 Instance domain "family" for sample PMDA.
+@ SAMPLE.4 Instance domain "family" for sample PMDA.
 A fixed set of instances:
     "colleen", "terry", "emma", "cathy" and "fat bald bastard"
 
-@ SAMPLE.4 Instance domain "hordes" for sample PMDA.
+@ SAMPLE.5 Instance domain "hordes" for sample PMDA.
 A relatively large instance domain, with hundreds of numeric instances.
 
-@ SAMPLE.5 Instance domain "dodgey" for sample PMDA.
+@ SAMPLE.6 Instance domain "dodgey" for sample PMDA.
 Instances for an unreliable instance domain, where the instances can
 under certain conditions (random or controlled) return holes, errors,
 and other interesting scenarios for testing.  A sample.dodgey.control
 metric store controls this instance domain.
 
-@ SAMPLE.6 Instance domain "dynamic" for sample PMDA.
+@ SAMPLE.7 Instance domain "dynamic" for sample PMDA.
 Instances come from $PCP_PMDAS_DIR/sample/dynamic.indom, if it exists.
 
-@ SAMPLE.7 Instance domain "many" for sample PMDA.
+@ SAMPLE.8 Instance domain "many" for sample PMDA.
 A varable size set of instances controlled by sample.many.count
 
-@ SAMPLE.8 Instance domain "scramble" for sample PMDA.
+@ SAMPLE.9 Instance domain "scramble" for sample PMDA.
 Several constant instances, instances reordered on successive pmFetch
 calls, and sometimes (probability 0.33) some instances are missing.
 
-@ SAMPLE.9 Instance domain "events" for sample PMDA.
+@ SAMPLE.10 Instance domain "events" for sample PMDA.
 Instances "fungus" and "bogus" for testing event metrics indoms.
 
 @ sample.control A control variable for the "sample" PMDA
