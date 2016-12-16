@@ -168,7 +168,7 @@ static pmdaMetric metrictab[] = {
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* docker.name */
     { (void*) &json_metrics[1], 
-      { PMDA_PMID(CLUSTER_BASIC,1), PM_TYPE_STRING, CONTAINERS_INDOM, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_BASIC,1), PM_TYPE_STRING, CONTAINERS_INDOM, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* docker.running */
     { (void*) &json_metrics[2], 
@@ -186,31 +186,31 @@ static pmdaMetric metrictab[] = {
 
     /* version */
     { (void*) &version_metrics[0], 
-      { PMDA_PMID(CLUSTER_VERSION,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_VERSION,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* OS */
     { (void*) &version_metrics[1], 
-      { PMDA_PMID(CLUSTER_VERSION,1), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_VERSION,1), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* Kernel Version */
         { (void*) &version_metrics[2], 
-	  { PMDA_PMID(CLUSTER_VERSION,2), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	  { PMDA_PMID(CLUSTER_VERSION,2), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* GoVersion */
         { (void*) &version_metrics[3], 
-	  { PMDA_PMID(CLUSTER_VERSION,3), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+	  { PMDA_PMID(CLUSTER_VERSION,3), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* Git Commit */
     { (void*) &version_metrics[4], 
-      { PMDA_PMID(CLUSTER_VERSION,4), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_VERSION,4), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* Arch */
     { (void*) &version_metrics[5], 
-      { PMDA_PMID(CLUSTER_VERSION,5), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_VERSION,5), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* API Version */
     { (void*) &version_metrics[6], 
-      { PMDA_PMID(CLUSTER_VERSION,6), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT, 
+      { PMDA_PMID(CLUSTER_VERSION,6), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* Build Time */
     /*    { (void*) &version_metrics[7], 
@@ -419,7 +419,6 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_STATS,48), PM_TYPE_U64, CONTAINERS_STATS_INDOM, PM_SEM_INSTANT, 
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-
     /* control frequency of the thread fetching the metrics */
     { NULL,
       { PMDA_PMID(CLUSTER_CONTROL,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
@@ -560,7 +559,6 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     char             *name;
     json_metric_desc *local_json_metrics = NULL;
     pmInDom           indom;
-    
     pthread_mutex_lock(&stats_mutex);
     switch (idp->cluster) {
     case CLUSTER_BASIC:
@@ -628,62 +626,12 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 	    }
 	}
-	switch (idp->item) {
-	case 0:
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
-	case 8:
-	case 9:
-	case 10:
-	case 11:
-	case 12:
-	case 13:
-	case 14:
-	case 15:
-	case 16:
-	case 17:
-	case 18:
-	case 19:
-	case 20:
-	case 21:
-	case 22:
-	case 23:
-	case 24:
-	case 25:
-	case 26:
-	case 27:
-	case 28:
-	case 29:
-	case 30:
-	case 31:
-	case 32:
-	case 33:
-	case 34:
-	case 35:
-	case 36:
-	case 37:
-	case 38:
-	case 39:
-	case 40:
-	case 41:
-	case 42:
-	case 43:
-	case 44:
-	case 45:
-	case 46:
-	case 47:
-	case 48:
+	if (idp->item <= 48) {
 	    atom->ull = local_json_metrics[idp->item].values.ull;
 	    sts = PMDA_FETCH_STATIC;
-	    break;
-	default:
+	}
+	else {
 	    sts = PM_ERR_PMID;
-	    break;
 	}
 	break;
     case CLUSTER_CONTROL:
@@ -692,6 +640,7 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    pthread_mutex_lock(&refresh_mutex);
 	    atom->ull = thread_freq;
 	    pthread_mutex_unlock(&refresh_mutex);
+	    sts = PMDA_FETCH_STATIC;
 	    break;
 	default:
 	    sts = PM_ERR_PMID;
@@ -711,6 +660,7 @@ static int
 notready()
 {
     int local_ready;
+    int iterations = 0;
     while (1) {
 	pthread_mutex_lock(&docker_mutex);
 	local_ready = ready;
@@ -719,9 +669,14 @@ notready()
 	    break;
 	else
 	    sleep(1);
+	if (iterations++ > 30) { /* Complain every 30 seconds. */
+	    __pmNotifyErr(LOG_WARNING, "notready waited too long");
+	    iterations = 0; /* XXX: or exit? */
+	}
     }
     return PM_ERR_PMDAREADY;
 }
+
 static int
 docker_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
@@ -737,12 +692,26 @@ docker_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     return pmdaFetch(numpmid, pmidlist, resp, pmda); 
 }
 
+static int
+docker_instance(pmInDom id, int i, char *name, __pmInResult **in, pmdaExt *pmda)
+{
+    int local_ready;
+    pthread_mutex_lock(&docker_mutex);
+    local_ready = ready;
+    pthread_mutex_unlock(&docker_mutex);
+    if (!local_ready) {
+    	__pmSendError(pmda->e_outfd, FROM_ANON, PM_ERR_PMDANOTREADY);
+	return notready();
+    }
+    return pmdaInstance(id, i, name, in, pmda);
+}
+
 int grab_values(char* json_query, pmInDom indom, char* local_path, json_metric_desc* json, int json_size)
 {
     int               len, sts, i;
     char              res[BUFSIZ] = "";
     char             *url = "unix://var/run/docker.sock";
-    json_metric_desc *local_json_metrics;
+    json_metric_desc *local_json_metrics = NULL;
 
     len = pmhttpClientFetch(http_client, url, res, sizeof(res), json_query, strlen(json_query));
 
@@ -752,7 +721,6 @@ int grab_values(char* json_query, pmInDom indom, char* local_path, json_metric_d
 	return 0; // failed
     }
     pthread_mutex_lock(&docker_mutex);
-    local_json_metrics = (json_metric_desc*)malloc(sizeof(json_metric_desc)*json_size);
 
     if (indom != PM_INDOM_NULL)
 	sts = pmdaCacheLookupName(indom, local_path, NULL, (void **)&local_json_metrics);
@@ -810,7 +778,6 @@ check_docker_dir(char *path)
 	pthread_mutex_unlock(&docker_mutex);
 	return 1;
     }
-    pthread_mutex_unlock(&docker_mutex);
     return 0;
 }
 
@@ -818,7 +785,7 @@ void update_stats_cache(int mark_inactive)
 {
     char             *name;
     int               sts = 0;
-    json_metric_desc *local_json_metrics;
+    json_metric_desc *local_json_metrics = NULL;
     pmInDom           stats, stats_cache;
     stats = INDOM(CONTAINERS_STATS_INDOM);
     stats_cache = INDOM(CONTAINERS_STATS_CACHE_INDOM);
@@ -834,8 +801,8 @@ void update_stats_cache(int mark_inactive)
 	    continue;
 	pmdaCacheStore(stats, PMDA_CACHE_ADD, name, (void *)local_json_metrics);
     }
-    pthread_mutex_unlock(&docker_mutex);
     pthread_mutex_unlock(&stats_mutex);
+    pthread_mutex_unlock(&docker_mutex);
 }
 
 void refresh_insts(char *path)
@@ -917,12 +884,16 @@ docker_init(pmdaInterface *dp)
     pthread_mutex_init(&refresh_mutex, NULL);
     pthread_mutex_init(&stats_mutex, NULL);
     dp->version.any.fetch = docker_fetch;
+    dp->version.any.instance = docker_instance;
     dp->version.any.store = docker_store;
     pmdaSetFetchCallBack(dp, docker_fetchCallBack);
     docker_indomtab[CONTAINERS_INDOM].it_indom = CONTAINERS_INDOM;
     docker_indomtab[CONTAINERS_STATS_INDOM].it_indom = CONTAINERS_STATS_INDOM;
     docker_indomtab[CONTAINERS_STATS_CACHE_INDOM].it_indom = CONTAINERS_STATS_CACHE_INDOM;
     pmdaInit(dp, docker_indomtab, INDOMTAB_SZ, metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
+    for (i = 0; i < NUM_INDOMS; i++)
+	pmdaCacheOp(INDOM(i), PMDA_CACHE_CULL);
+	
     docker_setup();
     sts = pthread_create(&docker_query_thread, NULL, docker_background_loop, loop);
     if (sts != 0) {
@@ -932,9 +903,6 @@ docker_init(pmdaInterface *dp)
     else
 	__pmNotifyErr(LOG_DEBUG, "docker_init: properly spawned new thread");
     
-    for (i = 0; i < NUM_INDOMS; i++)
-	pmdaCacheOp(INDOM(i), PMDA_CACHE_CULL);
-
 }
  
  static pmLongOptions longopts[] = {

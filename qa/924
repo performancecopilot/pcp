@@ -33,7 +33,7 @@ trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
 
-_run_valgrind --undef-value-errors=no $PCP_PMDAS_DIR/docker/pmdadocker -C 2>&1 | _filter
+valgrind --tool=helgrind $PCP_PMDAS_DIR/docker/pmdadocker -C 2>&1 | _filter
 
 # success, all done
 status=0
