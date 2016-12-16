@@ -29,6 +29,7 @@
 #
 # blank lines before the @ line are ignored
 #
+@ MOUNTS.0 all mount points being monitored by pmdamounts
 
 @ mounts.device The currently tracked mounted devices from mounts.conf
 @ mounts.type The filesystem types of current mounts from mounts.conf

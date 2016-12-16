@@ -43,8 +43,27 @@ is always present, while the others are numbered 1 .. 49 and named "m-01"
 A fixed set of instances:
     "colleen", "terry", "emma", "cathy" and "fat bald bastard"
 
-@ SAMPLE.7 Instance domain "many" for sample PMDA.
+@ SAMPLE.5 Instance domain "hordes" for sample PMDA.
+A relatively large instance domain, with hundreds of numeric instances.
+
+@ SAMPLE.6 Instance domain "dodgey" for sample PMDA.
+Instances for an unreliable instance domain, where the instances can
+under certain conditions (random or controlled) return holes, errors,
+and other interesting scenarios for testing.  A sample.dodgey.control
+metric store controls this instance domain.
+
+@ SAMPLE.7 Instance domain "dynamic" for sample PMDA.
+Instances come from $PCP_PMDAS_DIR/sample/dynamic.indom, if it exists.
+
+@ SAMPLE.8 Instance domain "many" for sample PMDA.
 A varable size set of instances controlled by sample.many.count
+
+@ SAMPLE.9 Instance domain "scramble" for sample PMDA.
+Several constant instances, instances reordered on successive pmFetch
+calls, and sometimes (probability 0.33) some instances are missing.
+
+@ SAMPLE.10 Instance domain "events" for sample PMDA.
+Instances "fungus" and "bogus" for testing event metrics indoms.
 
 @ sample.control A control variable for the "sample" PMDA
 This control variable may be modified using pmStore().

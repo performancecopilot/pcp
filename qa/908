@@ -34,7 +34,7 @@ do
     if [ $? -eq 0 ]
     then
 	echo "Missing help text for indom $indom"
-	echo "For reference - pmcd.agent.status:"
+	echo "For reference, domain $domain from pmcd.agent.status is:"
 	pminfo -f pmcd.agent.status | grep "\[$domain or"
     fi
 done

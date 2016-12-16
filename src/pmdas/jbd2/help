@@ -27,6 +27,8 @@
 # blank lines before the @ line are ignored
 #
 
+@ 122.0 all JBD2 block devices
+
 @ jbd2.njournals Count of active JBD2 (Journal Block Device v2) devices
 
 @ jbd2.transaction.count Total transactions committed per journal
