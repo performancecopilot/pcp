@@ -11,6 +11,20 @@ This project provides a PMDA (Performance Metric Domain Agent) to allow the admi
 
 *NB. the statistics provided are constrained to those metrics populated by the LIO subsystem*
 
+## Pre-requisites
+The LIO configuration is maintained within the kernel's configfs virtual filesystem. The python-rtslib library provides the interface to configfs, allowing other tools to interact with the settings and metadata held in configfs. pcp-pmda-lio uses the python-rtslib package to extract lun statistics, so in order to run the pmda you'll also need
+
+python-rtslib (tested against RHEL7 with python-rtslib-2.1.fb57-5.el7.noarch)
+
+On systems with SELINUX enabled, you may also find that SELINUX prevents the pmda from being automatically launched by pmcd. In this scenario the pmcd.log file will show something like;  
+
+```  
+pmcd: unexpected end-of-file at initial exchange with lio PMDA 
+```  
+To resolve, either turn off SELINUX (Yeah right!) or create a local policy to allow the pmda access to configfs. An example TE file is included in the repo. To compile take a look at this Centos Wiki page
+https://wiki.centos.org/HowTos/SELinux#head-d8db97e538d95b1bc5e54fc5a9ddb0c953e9a969
+
+
 ##Installation
 1. untar/unzip the archive into ```/var/lib/pcp/pmdas```  
 2. install the pmda  
