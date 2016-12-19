@@ -21,7 +21,8 @@ On systems with SELINUX enabled, you may also find that SELINUX prevents the pmd
 ```  
 pmcd: unexpected end-of-file at initial exchange with lio PMDA 
 ```  
-To resolve, either turn off SELINUX (Yeah right!) or create a local policy to allow the pmda access to configfs. An example TE file is included in the repo. To compile take a look at this Centos Wiki page
+To resolve, either turn off SELINUX (Yeah right!) or create a local policy to allow the pmda access to configfs. An example TE file is included in the repo but it is recommended to build your own TE from running audit2allow against your own system. Information about building local policies can be found on the following Centos Wiki page;
+
 https://wiki.centos.org/HowTos/SELinux#head-d8db97e538d95b1bc5e54fc5a9ddb0c953e9a969
 
 
