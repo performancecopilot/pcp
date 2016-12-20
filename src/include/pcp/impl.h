@@ -1552,9 +1552,13 @@ PCP_CALL extern int __pmMultiThreaded(int);
 #define PM_UNLOCK(lock)		__pmUnlock(&(lock), __FILE__, __LINE__)
 
 #ifdef HAVE_PTHREAD_MUTEX_T
-PCP_CALL extern pthread_mutex_t	__pmLock_libpcp;	/* big libpcp lock */
+/* the big libpcp lock */
+PCP_CALL extern pthread_mutex_t	__pmLock_libpcp;
+/* mutex for calls to external routines that are not thread-safe */
+PCP_CALL extern pthread_mutex_t	__pmLock_extcall;
 #else
 PCP_CALL extern void *__pmLock_libpcp;			/* symbol exposure */
+PCP_CALL extern void *__pmLock_extcall;			/* symbol exposure */
 #endif
 
 /*
