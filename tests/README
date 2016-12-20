@@ -1,0 +1,33 @@
+
+Pre-Requisites
+In order to perform the tests we'll make some assumptions
+
+- python-rtslib is installed
+- targetcli is installed
+- the lio pmda has been installed successfully (either with selinux disabled
+  or with a local policy active)
+
+What the Test is
+The test will create an ISCSI gateway as follows;
+ - a single gateway and tpg (target portal group)
+ - a 1GB LUN using a ramdisk
+ - a client based on the local machines characteristics
+ - a mapping of the LUN to the client
+
+Once the LIO config is complete, the pmda is used to check the following
+metrics
+lio.summary.total_luns = 1
+lio.summary.tpgs = 1
+lio.summary.clients = 1
+lio.lun.iops = 0
+lio.lun.size = 1
+
+If any of the above checks fail an exception will be raised
+
+Once the test is complete, the LIO environment will be dropped automatically
+
+
+
+How to Test
+1. Make sure the pre-requisites are in place
+2. Run the lio_test.py script
