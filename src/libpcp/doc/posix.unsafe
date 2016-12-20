@@ -1,6 +1,9 @@
 # POSIX refs
 # IEEE Std 1003.1-2001
 # http://pubs.opengroup.org/onlinepubs/009695399/functions/xsh_chap02_09.html#tag_02_09_01
+# POSIX.1-2008
+# http://pubs.opengroup.org/onlinepubs/9699919799/functions/V2_chap02.html#tag_15_09_01
+#
 asctime
 basename
 catgets

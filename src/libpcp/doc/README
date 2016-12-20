@@ -25,11 +25,23 @@ Locking and Concurrency Control
       the node includes the routine name and the locks acquired
       as follows:
       	libpcp	=> the global __pmLock_libpcp mutex
+      	extcall	=> the global __pmLock_extcall mutex
 	derived => the registered.mutex mutex for derived metrics
 	pmcd => the pc_lock mutext in a __pmPMCDCtl structure
 	context => the c_lock mutex in a __pmContext structure
 	probe.addr => the addrLock mutex in a connectionContext structure
 	probe.url => the urlLock mutex in a connectionContext structure
+
+  - prune.cgraph
+    Using cscope and the .dot file created by mk.cgraph, do a recursive
+    'lead-to-root' prune of the call graph removing nodes that are
+    thread-safe ... meaning they don't acquire locks and don't call
+    any unsafe routines
+
+  - find-posix-unsafe
+    Search source files for uses of routines named in posix.unsafe.
+    Comment tagging with /* THREADSAFE */ can be used to mark cases
+    that have been analyzed.
 
   - *.safe and *.unsafe
     Various thread-safe and thread-unsafe routines external to libpcp.

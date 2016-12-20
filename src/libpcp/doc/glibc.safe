@@ -2,11 +2,13 @@ access
 assert
 atexit
 calloc
+clock_nanosleep
 close
 closedir
 closelog
 connect
 creat
+ctime_r
 dup
 dup2
 fclose

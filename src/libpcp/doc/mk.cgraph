@@ -177,6 +177,9 @@ s/)//
 		    __pmLock_libpcp)
 			echo libpcp >>$tmp.locks
 			;;
+		    __pmLock_extcall)
+			echo extcall >>$tmp.locks
+			;;
 		    registered.mutex)
 			echo derived >>$tmp.locks
 			;;
