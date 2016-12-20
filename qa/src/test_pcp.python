@@ -243,7 +243,7 @@ def test_pcp(self):
         inst1 = ctx.pmLookupInDomArchive(descs[0], "1 minute")
         print("pmLookupInDomArchive:", inst1)
     self.assertTrue(inst1 >= 0)
-        
+
     if self.local_type:
         # pmNameInDom
         instname = ctx.pmNameInDom(descs[0], inst1)
@@ -253,15 +253,16 @@ def test_pcp(self):
         instname = ctx.pmNameInDomArchive(descs[0], inst1)
         print("pmNameInDomArchive:", instname)
     self.assertTrue(instname == "1 minute")
-        
+
+    # pmLookupInDomText - should succeed live only
     try:
         # pmLookupInDomText
         ctx.pmLookupInDomText(descs[0])
-        self.assertTrue(False)
+        self.assertTrue(self.local_type)
     except pmapi.pmErr as error:
         print("pmLookupInDomText:", error)
-        self.assertTrue(True)
-        
+        self.assertFalse(self.local_type)
+
     # pmAddProfile
     try:
         ctx.pmAddProfile(descs[0], inst1)
