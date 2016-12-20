@@ -16,6 +16,8 @@ The LIO configuration is maintained within the kernel's configfs virtual filesys
 
 python-rtslib (tested against RHEL7 with python-rtslib-2.1.fb57-5.el7.noarch)
 
+**NB.** *For python3 environments like Fedora25, pmpython invokes python3.x so you'll need to have python3-rtslib installed*
+
 On systems with SELINUX enabled, you may also find that SELINUX prevents the pmda from being automatically launched by pmcd. In this scenario the pmcd.log file will show something like;  
 
 ```  
