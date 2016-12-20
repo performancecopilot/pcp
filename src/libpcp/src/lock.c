@@ -48,6 +48,7 @@ __pmTPD__destroy(void *addr)
 }
 #endif
 #endif
+pthread_mutex_t	__pmLock_extcall = PTHREAD_MUTEX_INITIALIZER;
 
 static void
 SetupDebug(void)
@@ -56,8 +57,12 @@ SetupDebug(void)
      * if $PCP_DEBUG is set in the environment then use the (decimal)
      * value to set bits in pmDebug via bitwise ORing
      */
-    char	*val = getenv("PCP_DEBUG");
+    char	*val;
     int		ival;
+
+    PM_LOCK(__pmLock_extcall);
+    val = getenv("PCP_DEBUG");
+    PM_UNLOCK(__pmLock_extcall);
 
     if (val != NULL) {
 	char	*end;
@@ -301,6 +306,7 @@ __pmUnlock(void *lock, const char *file, int line)
 
 #else /* !PM_MULTI_THREAD - symbols exposed at the shlib ABI level */
 void *__pmLock_libpcp;
+void *__pmLock_extcall;
 void __pmInitLocks(void)
 {
     static int		done = 0;

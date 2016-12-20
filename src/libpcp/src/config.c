@@ -98,10 +98,10 @@ static int posix_style(void)
 {
     char	*s;
     int		sts;
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(__pmLock_extcall);
     s = getenv("SHELL");
+    PM_UNLOCK(__pmLock_extcall);
     sts = (s && strncmp(s, "/bin/", 5) == 0);
-    PM_UNLOCK(__pmLock_libpcp);
     return sts;
 }
 
@@ -118,9 +118,9 @@ dos_formatter(char *var, char *prefix, char *val)
     else {
 	snprintf(envbuf, sizeof(envbuf), "%s=%s", var, val);
     }
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(__pmLock_extcall);
     putenv(strdup(envbuf));
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(__pmLock_extcall);
 }
 
 PCP_DATA const __pmConfigCallback __pmNativeConfig = dos_formatter;
@@ -155,9 +155,9 @@ posix_formatter(char *var, char *prefix, char *val)
     strncat(envbuf, vp, vend-vp+1);
     envbuf[strlen(var)+1+vend-vp+1+1] = '\0';
 
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(__pmLock_extcall);
     putenv(strdup(envbuf));
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(__pmLock_extcall);
     (void)prefix;
 }
 
@@ -182,10 +182,11 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
     char *val;
     char *p;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(__pmLock_extcall);
     prefix = getenv("PCP_DIR");
-    if ((conf = getenv("PCP_CONF")) == NULL) {
+    conf = getenv("PCP_CONF");
+    PM_UNLOCK(__pmLock_extcall);
+    if (conf == NULL) {
 	strncpy(confpath, "/etc/pcp.conf", sizeof(confpath));
 	if (prefix == NULL)
 	    conf = __pmNativePath(confpath);
@@ -197,7 +198,6 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
     }
 
     if ((fp = fopen(conf, "r")) == NULL) {
-	PM_UNLOCK(__pmLock_libpcp);
 	if (!fatal)
 	    return;
 	pmprintf(
@@ -215,7 +215,10 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	val = p+1;
 	if ((p = strrchr(val, '\n')) != NULL)
 	    *p = '\0';
-	if ((p = getenv(var)) != NULL)
+	PM_LOCK(__pmLock_extcall);
+	p = getenv(var);
+	PM_UNLOCK(__pmLock_extcall);
+	if (p != NULL)
 	    val = p;
 	else
 	    formatter(var, prefix, val);
@@ -224,7 +227,6 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	    fprintf(stderr, "pmgetconfig: (init) %s=%s\n", var, val);
     }
     fclose(fp);
-    PM_UNLOCK(__pmLock_libpcp);
 }
 
 void
@@ -264,7 +266,10 @@ pmgetconfig(const char *name, int fatal)
     }
     PM_UNLOCK(__pmLock_libpcp);
 
-    if ((val = getenv(name)) == NULL) {
+    PM_LOCK(__pmLock_extcall);
+    val = getenv(name);
+    PM_UNLOCK(__pmLock_extcall);
+    if (val == NULL) {
 	if (!fatal)
 	    return NULL;
 	val = "";

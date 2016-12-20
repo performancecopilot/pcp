@@ -57,8 +57,11 @@ __pmFaultInject(const char *ident, int class)
     int		sts;
     control_t	*cp;
 
+    PM_LOCK(__pmLock_extcall);
     if (first) {
 	char	*fname = getenv("PM_FAULT_CONTROL");
+	first = 0;
+	PM_UNLOCK(__pmLock_extcall);
 	if (fname != NULL) {
 	    FILE	*f;
 	    if ((f = fopen(fname, "r")) == NULL) {
@@ -176,8 +179,9 @@ __pmFaultInject(const char *ident, int class)
 	    atexit(__pmFaultAtExit);
 #endif
 #endif
-	first = 0;
     }
+    else
+	PM_UNLOCK(__pmLock_extcall);
 
     sts = pmdaCacheLookupName(FAULT_INDOM, ident, NULL, (void **)&cp);
     if (sts == PMDA_CACHE_ACTIVE) {

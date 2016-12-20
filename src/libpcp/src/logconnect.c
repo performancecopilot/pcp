@@ -37,12 +37,14 @@ __pmLoggerTimeout(void)
     static int		timeout = TIMEOUT_NEVER;
     static int		done_default = 0;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     if (!done_default) {
 	char	*timeout_str;
 	char	*end_ptr;
-	if ((timeout_str = getenv("PMLOGGER_REQUEST_TIMEOUT")) != NULL) {
+	PM_LOCK(__pmLock_extcall);
+	timeout_str = getenv("PMLOGGER_REQUEST_TIMEOUT");
+	done_default = 1;
+	PM_UNLOCK(__pmLock_extcall);
+	if (timeout_str != NULL) {
 	    /*
 	     * Only a positive integer (the unit is seconds) is OK
 	     */
@@ -54,9 +56,7 @@ __pmLoggerTimeout(void)
 		timeout = TIMEOUT_NEVER;
 	    }
 	}
-	done_default = 1;
     }
-    PM_UNLOCK(__pmLock_libpcp);
 
     return timeout;
 }

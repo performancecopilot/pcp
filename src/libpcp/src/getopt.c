@@ -497,7 +497,9 @@ __pmAddOptArchiveFolio(pmOptions *opts, char *arg)
 	}
 
 	line = 2;
+	PM_LOCK(__pmLock_extcall);
 	dir = dirname(arg);
+	PM_UNLOCK(__pmLock_extcall);
 
 	while (fgets(buffer, sizeof(buffer)-1, fp) != NULL) {
 	    line++;

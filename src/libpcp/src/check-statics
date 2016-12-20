@@ -262,6 +262,7 @@ ipc.o
     ipctablecount		# guarded by __pmLock_libpcp mutex
 lock.o
     __pmLock_libpcp		# the global libpcp mutex
+    __pmLock_extcall		# mutex for calls to external routines that are not thread-safe
     ?init			# local __pmInitLocks mutex
     ?done			# guarded by local __pmInitLocks mutex
     ?__pmTPDKey			# one-trip initialization then read-only
@@ -270,8 +271,8 @@ lock.o
     ?hashctl			# for lock debug tracing
     ?__pmTPDKey			# if don't have __thread support
 logconnect.o
-    done_default		# guarded by __pmLock_libpcp mutex
-    timeout			# guarded by __pmLock_libpcp mutex
+    done_default		# one-trip initialization then read-only
+    timeout			# one-trip initialization then read-only
 logcontrol.o
 logmeta.o
 logportmap.o
@@ -402,11 +403,11 @@ util.o
     pmProgname			# no unsafe side-effects, see notes in util.c
     filelog			# guarded by __pmLock_libpcp mutex
     nfilelog			# guarded by __pmLock_libpcp mutex
-    dosyslog			# guarded by __pmLock_libpcp mutex
+    dosyslog			# no unsafe side-effects, see notes in util.c
     done_exit			# guarded by __pmLock_libpcp mutex
     ?pmprintf_atexit_installed	# guarded by __pmLock_libpcp mutex
     ferr			# guarded by __pmLock_libpcp mutex
-    errtype			# guarded by __pmLock_libpcp mutex
+    errtype			# no unsafe side-effects, see notes in util.c
     fptr			# guarded by __pmLock_libpcp mutex
     fname			# guarded by __pmLock_libpcp mutex
     msgsize			# guarded by __pmLock_libpcp mutex

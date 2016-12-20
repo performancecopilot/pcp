@@ -291,10 +291,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	else {
 	    /* No strerror_r in MinGW, so need to lock */
 	    char	*tbp;
-	    PM_LOCK(__pmLock_libpcp);
+	    PM_LOCK(__pmLock_extcall);
 	    tbp = strerror(-code);
 	    strncpy(buf, tbp, buflen);
-	    PM_UNLOCK(__pmLock_libpcp);
+	    PM_UNLOCK(__pmLock_extcall);
 	}
 
 	if (strncmp(buf, unknown, strlen(unknown)) != 0)

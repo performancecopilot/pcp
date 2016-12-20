@@ -19,6 +19,10 @@
  *
  * pmState - no side-effects, don't bother locking
  *
+ * dosyslog - no side-effects, other than non-determinism with concurrent
+ *	attempts to set/clear the state in __pmSyslog() which locking will
+ *	not avoid
+ *
  * pmProgname - most likely set in main(), not worth protecting here
  * 	and impossible to capture all the read uses in other places
  *
@@ -26,6 +30,14 @@
  *	locking
  *
  * pmprintf_atexit_installed is protected by the __pmLock_libpcp mutex.
+ *
+ * done_exit is protected by the __pmLock_libpcp mutex.
+ *
+ * filelog[] and nfilelog are protected by the __pmLock_libpcp mutex.
+ *
+ * errtype - no side-effects (same value would result from concurrent
+ *	execution of the initialization block, unchanged after that),
+ *	don't bother locking
  */
 
 #include <stdarg.h>
@@ -77,14 +89,11 @@ static int vpmprintf(const char *, va_list);
 void
 __pmSyslog(int onoff)
 {
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     dosyslog = onoff;
     if (dosyslog)
 	openlog("pcp", LOG_PID, LOG_DAEMON);
     else
 	closelog();
-    PM_UNLOCK(__pmLock_libpcp);
 }
 
 /*
@@ -98,13 +107,12 @@ __pmNotifyErr(int priority, const char *message, ...)
     char		*p;
     char		*level;
     struct timeval	tv;
+    char		ct_buf[26];
 
     va_start(arg, message);
 
     gettimeofday(&tv, NULL);
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     if (dosyslog) {
 	char	syslogmsg[2048];
 
@@ -113,7 +121,6 @@ __pmNotifyErr(int priority, const char *message, ...)
 	va_start(arg, message);
 	syslog(priority, "%s", syslogmsg);
     }
-    PM_UNLOCK(__pmLock_libpcp);
 
     /*
      * do the stderr equivalent
@@ -149,13 +156,11 @@ __pmNotifyErr(int priority, const char *message, ...)
 	    break;
     }
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    ctime_r(&tv.tv_sec, ct_buf);
     /* when profiling use "[%.19s.%lu]" for extra precision */
-    pmprintf("[%.19s] %s(%" FMT_PID ") %s: ", ctime(&tv.tv_sec),
+    pmprintf("[%.19s] %s(%" FMT_PID ") %s: ", ct_buf,
 		/* (unsigned long)tv.tv_usec, */
 		pmProgname, getpid(), level);
-    PM_UNLOCK(__pmLock_libpcp);
     vpmprintf(message, arg);
     va_end(arg);
     /* trailing \n if needed */
@@ -169,27 +174,27 @@ __pmNotifyErr(int priority, const char *message, ...)
 static void
 logheader(const char *progname, FILE *log, const char *act)
 {
-    time_t	now;
     char	host[MAXHOSTNAMELEN];
+    time_t	now;
+    char	ct_buf[26];
 
     setlinebuf(log);		/* line buffering for log files */
     gethostname(host, MAXHOSTNAMELEN);
     host[MAXHOSTNAMELEN-1] = '\0';
     time(&now);
-    PM_LOCK(__pmLock_libpcp);
-    fprintf(log, "Log for %s on %s %s %s\n", progname, host, act, ctime(&now));
-    PM_UNLOCK(__pmLock_libpcp);
+    ctime_r(&now, ct_buf);
+    fprintf(log, "Log for %s on %s %s %s\n", progname, host, act, ct_buf);
 }
 
 static void
 logfooter(FILE *log, const char *act)
 {
     time_t	now;
+    char	ct_buf[26];
 
     time(&now);
-    PM_LOCK(__pmLock_libpcp);
-    fprintf(log, "\nLog %s %s", act, ctime(&now));
-    PM_UNLOCK(__pmLock_libpcp);
+    ctime_r(&now, ct_buf);
+    fprintf(log, "\nLog %s %s", act, ct_buf);
 }
 
 static void
@@ -217,6 +222,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
     int		oldfd;
     int		dupoldfd;
     FILE	*dupoldstream = oldstream;
+    char	errmsg[PM_MAXERRMSGLEN];
 
     /*
      * Do our own version of freopen() because the standard one closes the
@@ -275,7 +281,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 		oldstream = dupoldstream;
 	    }
 	    pmprintf("%s: cannot open log \"%s\" for writing : %s\n",
-		    progname, logname, strerror(save_error));
+		    progname, logname, strerror_r(save_error, errmsg, sizeof(errmsg)));
 	    pmflush();
 	}
 	else {
@@ -286,7 +292,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
     }
     else {
 	pmprintf("%s: cannot redirect log output to \"%s\": %s\n",
-		progname, logname, strerror(errno));
+		progname, logname, osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
     }
     return oldstream;
@@ -1345,14 +1351,12 @@ static char	*ferr;		/* error output filename from PCP_STDERR */
 static int
 pmfstate(int state)
 {
-    static int	errtype = -1;
+    static int	errtype = PM_QUERYERR;
     char	errmsg[PM_MAXERRMSGLEN];
 
     if (state > PM_QUERYERR)
 	errtype = state;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
     if (errtype == PM_QUERYERR) {
 	errtype = PM_USESTDERR;
 	if ((ferr = getenv("PCP_STDERR")) != NULL) {
@@ -1371,7 +1375,6 @@ pmfstate(int state)
 		errtype = PM_USEFILE;
 	}
     }
-    PM_UNLOCK(__pmLock_libpcp);
     return errtype;
 }
 
@@ -1803,8 +1806,7 @@ scandir(const char *dirname, struct dirent ***namelist,
     struct dirent	*dp;
     struct dirent	*tp;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(__pmLock_extcall);
     if ((dirp = opendir(dirname)) == NULL)
 	return -1;
 
@@ -1814,7 +1816,7 @@ scandir(const char *dirname, struct dirent ***namelist,
 
 	n++;
 	if ((names = (struct dirent **)realloc(names, n * sizeof(dp))) == NULL) {
-	    PM_UNLOCK(__pmLock_libpcp);
+	    PM_UNLOCK(__pmLock_extcall);
 	    closedir(dirp);
 	    return -1;
 	}
@@ -1841,7 +1843,7 @@ scandir(const char *dirname, struct dirent ***namelist,
 	memcpy(tp->d_name, dp->d_name, strlen(dp->d_name)+1);
     }
     closedir(dirp);
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(__pmLock_extcall);
     *namelist = names;
 
     if (n && compare)

@@ -115,8 +115,7 @@ static char		myhostname[MAXHOSTNAMELEN+1];
 
 /*
  * Always called with __pmLock_libpcp already held, so accessing
- * gotmyhostid, myhostname, myhostid and gethostname() call are all 
- * thread-safe.
+ * gotmyhostid, myhostname, myhostid are all thread-safe.
  */
 static int
 getmyhostid(void)
@@ -1239,6 +1238,11 @@ __pmAccAddHost(const char *name, unsigned int specOps, unsigned int denyOps, int
     return found != 0 ? 0 : -EINVAL;
 }
 
+/*!
+ * @brief get client ids
+ *
+ * @callgraph
+ */
 static __pmSockAddr **
 getClientIds(const __pmSockAddr *hostid, int *sts)
 {
