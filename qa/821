@@ -34,6 +34,28 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
+# deal with non-determinism in the order in which the mem.zoneinfo.free
+# indom is populated
+#
+_fix_zoneinfo_indom()
+{
+    touch $tmp.head
+    touch $tmp.zoneinfo
+    touch $tmp.tail
+    $PCP_AWK_PROG '
+/^mem\.zoneinfo\.free/		{ state = 1 }
+state == 0			{ print >"'"$tmp.head"'"; next }
+state == 1			{ print >"'"$tmp.zoneinfo"'"
+				  if (NF == 0) state = 0
+				  next
+				}
+state == 2			{ print >"'"$tmp.tail"'"; next }'
+    cat $tmp.head
+    $here/src/sortinst <$tmp.zoneinfo \
+    | sed -e 's/inst \[[0-9][0-9]*/inst [N/'
+    cat $tmp.tail
+}
+
 # real QA test starts here
 root=$tmp.root
 export LINUX_HERTZ=100
@@ -62,7 +84,8 @@ do
     base=`basename $tgz`
 
     echo "== Checking all mem metric values - $base"
-    pminfo $local -f $mem_metrics
+    pminfo $local -f $mem_metrics \
+    | _fix_zoneinfo_indom
     echo && echo "== done" && echo
 
     echo "== Checking slabinfo metric values - $base"
@@ -75,7 +98,8 @@ do
     echo && echo "== done" && echo
 
     echo "== Checking zoneinfo metric values - $base"
-    pminfo $local -f $zone_metrics
+    pminfo $local -f $zone_metrics \
+    | _fix_zoneinfo_indom
     echo && echo "== done" && echo
 
     cd $here
