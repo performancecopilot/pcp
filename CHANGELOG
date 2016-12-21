@@ -1,5 +1,25 @@
 pcp-3.11.7 (21 December 2016)
-    - Work-in-progress, see http://pcp.io/roadmap
+    - docs: pmLookupText added to PMAPI calls for _metric web API
+    - build: fix qt4 builds once more, no widgets module there
+    - build: update parfait and uom-se bits for jdk-1.8 use
+    - build: couple of small Windows install improvements
+    - build: conditionally use setuptools python module
+    - libpcp_web: fix handling of 64-bit values on 32-bit platforms
+    - libpcp_web: improvements to error checking
+    - pmdabash: resolve some permissions issues preventing use
+    - pmdalinux: add metrics about IPC message queues
+    - pmdalinux: additional semaphore arrays metrics
+    - pmddalinux: buddyinfo and zoneinfo mem metric updates
+    - pmdalinux: add zoneinfo NUMA free mem stats
+    - pmdaxfs: use persistent dm and md device names for xfs.perdev
+    - pmchart: 'local:' is now the default source
+    - pmchart run-away mem leak replaying multi-archive when rewinding (RHBZ 1359975)
+    - pmchart: make metric details popup on double click event only
+    - pmdumptext: 'local:' is now the default source
+    - pminfo: allow reverse pmid name lookups, support indoms
+    - pmlogrewrite: add conditional type clause (TYPE IF oldtype -> newtype)
+    - pmview: changes to make pmview build with latest toolchains
+    - qa: lots of fixes and improvements
 
 pcp-3.11.6 (11 November 2016)
     - pmchart, pmtime, pmdumptext: enable use of Qt5 toolchain

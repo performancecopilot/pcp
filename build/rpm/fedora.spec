@@ -2705,7 +2705,7 @@ cd
 
 %changelog
 * Wed Dec 21 2016 Dave Brolley <brolley@redhat.com> - 3.11.7-1
-- Work-in-progress, see http://pcp.io/roadmap
+- pmchart run-away mem leak replaying multi-archive when rewinding (BZ 1359975)
 
 * Fri Nov 11 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.6-1
 - Optimize DSO lookups for local context mode startup (BZ 1275293)
