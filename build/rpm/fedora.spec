@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.11.7
+Version: 3.11.8
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -2401,12 +2401,6 @@ cd
 %files testsuite
 %defattr(-,pcpqa,pcpqa)
 %{_testsdir}
-%if !%{disable_systemd}
-%config(noreplace) %{_sysconfdir}/systemd/system/pmwebd.service.d/pmwebd.conf
-%config(noreplace) %{_sysconfdir}/systemd/system/pmmgr.service.d/pmmgr.conf
-%config(noreplace) %{_sysconfdir}/systemd/system/pmcd.service.d/pmcd.conf
-%config(noreplace) %{_sysconfdir}/systemd/system/pmproxy.service.d/pmproxy.conf
-%endif
 
 %if !%{disable_microhttpd}
 %files webapi
@@ -2705,7 +2699,7 @@ cd
 
 %changelog
 * Wed Dec 21 2016 Dave Brolley <brolley@redhat.com> - 3.11.7-1
-- Work-in-progress, see http://pcp.io/roadmap
+- pmchart run-away mem leak replaying multi-archive when rewinding (BZ 1359975)
 
 * Fri Nov 11 2016 Mark Goodwin <mgoodwin@redhat.com> - 3.11.6-1
 - Optimize DSO lookups for local context mode startup (BZ 1275293)
