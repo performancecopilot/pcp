@@ -1,3 +1,6 @@
+pcp-3.11.8 (16 February 2016)
+    - Work in progress
+
 pcp-3.11.7 (21 December 2016)
     - docs: pmLookupText added to PMAPI calls for _metric web API
     - build: fix qt4 builds once more, no widgets module there
