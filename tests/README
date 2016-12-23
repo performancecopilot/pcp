@@ -20,7 +20,6 @@ lio.summary.total_luns = 1
 lio.summary.tpgs = 1
 lio.summary.clients = 1
 lio.lun.iops = 0
-lio.lun.size = 1
 
 If any of the above checks fail an exception will be raised
 
@@ -31,3 +30,21 @@ Once the test is complete, the LIO environment will be dropped automatically
 How to Test
 1. Make sure the pre-requisites are in place
 2. Run the lio_test.py script
+
+
+
+Issues
+------
+1. After testing with one iscsi configuration, you need to restart the pmda before
+you run the test again with a different iscsi configuration (iscsi_conf.json file)
+After the first run the pmda shows no entries correctly, but if you change the json
+and resubmit the test you hit
+ERROR: setUpClass (__main__.ISCSITests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "lio_test.py", line 61, in setUpClass
+    dev_name = ctx.pmNameInDom(descs[o], i)
+  File "/usr/lib64/python2.7/site-packages/pcp/pmapi.py", line 1571, in pmNameInDom
+    raise pmErr(status)
+pmErr: PM_ERR_INST Unknown or illegal instance identifier
+
