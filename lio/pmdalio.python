@@ -21,9 +21,10 @@ from pcp.pmapi import pmUnits
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 
 import rtslib_fb.root as root
-from rtslib_fb.utils import fread
+from rtslib_fb.utils import fread, RTSLibNotInCFS
 
 import os
+import sys
 
 UNITS_NONE = pmUnits(0, 0, 0, 0, 0, 0)
 UNITS_COUNT = pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)
@@ -193,9 +194,18 @@ class LIOPMDA(PMDA):
                 for tpg in tgt.tpgs:
                     if tpg.enable:
                         for l in tpg.luns:
+
+                            try:
+                                so = l.storage_object
+                            except RTSLibNotInCFS:
+                                sys.stderr.write("Warning - RTSLIBNotInCFS issue\n")
+                                sys.stderr.flush()
+                                continue
+
                             lun = LUN()
                             so_name = l.storage_object.name
                             path = l.path
+
                             lun.size = int(l.storage_object.size / 1024**3)
 
                             lun.read_mb = int(fread(
@@ -213,7 +223,8 @@ class LIOPMDA(PMDA):
                             target.total_size += lun.size
 
                             target.total_luns += 1
-
+                            sys.stderr.write("creating stats for {}\n".format(so_name))
+                            sys.stderr.flush()
                             self.luns[so_name] = lun
 
                         # determine the client count based on the active tpg
@@ -226,8 +237,11 @@ class LIOPMDA(PMDA):
                     target.tpgs += 1
 
                 self.targets[tgt.wwn] = target
+        del r
+
 
     def lio_instance(self, serial):
+
         self.refresh()
 
     def lio_fetch(self):
