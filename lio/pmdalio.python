@@ -191,7 +191,7 @@ class LIOPMDA(PMDA):
 
                 # load luns that are associated with this target iqn
                 for tpg in tgt.tpgs:
-                    if tpg._get_enable():
+                    if tpg.enable:
                         for l in tpg.luns:
                             lun = LUN()
                             so_name = l.storage_object.name
