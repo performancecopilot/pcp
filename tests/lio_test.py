@@ -73,7 +73,7 @@ class ISCSITests(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         print "Deleting test iSCSI target"
-        #ISCSITests.target.drop_test_config()
+        ISCSITests.target.drop_test_config()
 
     def test_LUN_count(self):
         self.assertEqual(ISCSITests.target.lun_count,
