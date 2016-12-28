@@ -99,12 +99,15 @@ static int posix_style(void)
     char	*s;
     int		sts;
     PM_LOCK(__pmLock_extcall);
-    s = getenv("SHELL");
-    PM_UNLOCK(__pmLock_extcall);
+    s = getenv("SHELL");		/* THREADSAFE */
     sts = (s && strncmp(s, "/bin/", 5) == 0);
+    PM_UNLOCK(__pmLock_extcall);
     return sts;
 }
 
+/*
+ * Called with __pmLock_extcall held, so putenv() is thread-safe.
+ */
 static void
 dos_formatter(char *var, char *prefix, char *val)
 {
@@ -118,9 +121,7 @@ dos_formatter(char *var, char *prefix, char *val)
     else {
 	snprintf(envbuf, sizeof(envbuf), "%s=%s", var, val);
     }
-    PM_LOCK(__pmLock_extcall);
-    putenv(strdup(envbuf));
-    PM_UNLOCK(__pmLock_extcall);
+    putenv(strdup(envbuf));		/* THREADSAFE */
 }
 
 PCP_DATA const __pmConfigCallback __pmNativeConfig = dos_formatter;
@@ -132,6 +133,9 @@ char *__pmNativePath(char *path) { return path; }
 int __pmAbsolutePath(char *path) { return path[0] == '/'; }
 int __pmPathSeparator() { return '/'; }
 
+/*
+ * Called with __pmLock_extcall held, so putenv() is thread-safe.
+ */
 static void
 posix_formatter(char *var, char *prefix, char *val)
 {
@@ -155,9 +159,7 @@ posix_formatter(char *var, char *prefix, char *val)
     strncat(envbuf, vp, vend-vp+1);
     envbuf[strlen(var)+1+vend-vp+1+1] = '\0';
 
-    PM_LOCK(__pmLock_extcall);
-    putenv(strdup(envbuf));
-    PM_UNLOCK(__pmLock_extcall);
+    putenv(strdup(envbuf));		/* THREADSAFE */
     (void)prefix;
 }
 
@@ -183,28 +185,37 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
     char *p;
 
     PM_LOCK(__pmLock_extcall);
-    prefix = getenv("PCP_DIR");
-    conf = getenv("PCP_CONF");
-    PM_UNLOCK(__pmLock_extcall);
+    prefix = getenv("PCP_DIR");		/* THREADSAFE */
+    conf = getenv("PCP_CONF");		/* THREADSAFE */
     if (conf == NULL) {
 	strncpy(confpath, "/etc/pcp.conf", sizeof(confpath));
-	if (prefix == NULL)
+	if (prefix == NULL) {
+	    /* THREADSAFE - no locks acquired in __pmNativePath() */
 	    conf = __pmNativePath(confpath);
+	}
 	else {
 	    snprintf(dir, sizeof(dir),
 			 "%s%s", prefix, __pmNativePath(confpath));
 	    conf = dir;
 	}
     }
+    conf = strdup(conf);
+    if (prefix != NULL) prefix = strdup(prefix);
+    PM_UNLOCK(__pmLock_extcall);
 
     if ((fp = fopen(conf, "r")) == NULL) {
-	if (!fatal)
+	if (!fatal) {
+	    free(conf);
+	    if (prefix != NULL) free(prefix);
 	    return;
+	}
 	pmprintf(
 	    "FATAL PCP ERROR: could not open config file \"%s\" : %s\n"
 	    "You may need to set PCP_CONF or PCP_DIR in your environment.\n",
 		conf, osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
+	free(conf);
+	if (prefix != NULL) free(prefix);
 	exit(1);
     }
 
@@ -217,16 +228,22 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	    *p = '\0';
 	PM_LOCK(__pmLock_extcall);
 	p = getenv(var);
-	PM_UNLOCK(__pmLock_extcall);
 	if (p != NULL)
 	    val = p;
-	else
+	else {
+	    /*
+	     * THREADSAFE - no locks acquired in formatter() which is
+	     * really dos_formatter() or posix_formatter()
+	     */
 	    formatter(var, prefix, val);
-
+	}
 	if (pmDebug & DBG_TRACE_CONFIG)
 	    fprintf(stderr, "pmgetconfig: (init) %s=%s\n", var, val);
+	PM_UNLOCK(__pmLock_extcall);
     }
     fclose(fp);
+    free(conf);
+    if (prefix != NULL) free(prefix);
 }
 
 void

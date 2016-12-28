@@ -749,22 +749,30 @@ __pmConnectTimeout(void)
     double	timeout;
 
     /* get optional PMCD connection timeout from the environment */
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(__pmLock_extcall);
     if (!conn_wait_done) {
-	if ((timeout_str = getenv("PMCD_CONNECT_TIMEOUT")) != NULL) {
+	conn_wait_done = 1;
+	timeout_str = getenv("PMCD_CONNECT_TIMEOUT");		/* THREADSAFE */
+	if (timeout_str != NULL) {
 	    timeout = strtod(timeout_str, &end_ptr);
-	    if (*end_ptr != '\0' || timeout < 0.0)
+	    if (*end_ptr != '\0' || timeout < 0.0) {
+		char	*fromenv = strdup(timeout_str);
+		PM_UNLOCK(__pmLock_extcall);
 		__pmNotifyErr(LOG_WARNING, "%s:__pmAuxConnectPMCDPort: "
 			      "ignored bad PMCD_CONNECT_TIMEOUT = '%s'\n",
-			      __FILE__, timeout_str);
-	    else
+			      __FILE__, fromenv);
+		free(fromenv);
+	    }
+	    else {
+		PM_UNLOCK(__pmLock_extcall);
 		__pmtimevalFromReal(timeout, &conn_wait);
+	    }
 	}
-	conn_wait_done = 1;
     }
+    else
+	PM_UNLOCK(__pmLock_extcall);
+
     timeout = __pmtimevalToReal(&conn_wait);
-    PM_UNLOCK(__pmLock_libpcp);
     return timeout;
 }
  
@@ -983,17 +991,19 @@ __pmPMCDLocalSocketDefault(void)
 {
     static char pmcd_socket[MAXPATHLEN];
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(__pmLock_extcall);
     if (pmcd_socket[0] == '\0') {
 	char *envstr;
-	if ((envstr = getenv("PMCD_SOCKET")) != NULL)
+	if ((envstr = getenv("PMCD_SOCKET")) != NULL) {
 	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s", envstr);
-	else
+	    PM_UNLOCK(__pmLock_extcall);
+	}
+	else {
+	    PM_UNLOCK(__pmLock_extcall);
 	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s%c" "pmcd.socket",
 		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
+	}
     }
-    PM_UNLOCK(__pmLock_libpcp);
 
     return pmcd_socket;
 }

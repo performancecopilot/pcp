@@ -96,8 +96,8 @@ __pmGroupnameFromID(gid_t gid, char *buf, size_t size)
 
     PM_LOCK(__pmLock_extcall);
     result = getgrgid(gid);		/* THREADSAFE */
-    PM_UNLOCK(__pmLock_extcall);
     snprintf(buf, size, "%s", result ? result->gr_name : "unknown");
+    PM_UNLOCK(__pmLock_extcall);
     buf[size-1] = '\0';
     return buf;
 }
@@ -125,8 +125,8 @@ __pmUsernameFromID(uid_t uid, char *buf, size_t size)
 
     PM_LOCK(__pmLock_extcall);
     result = getpwuid(uid);		/* THREADSAFE */
-    PM_UNLOCK(__pmLock_extcall);
     snprintf(buf, size, "%s", result ? result->pw_name : "unknown");
+    PM_UNLOCK(__pmLock_extcall);
     buf[size-1] = '\0';
     return buf;
 }
@@ -155,10 +155,12 @@ __pmUsernameToID(const char *name, uid_t *uid)
 
     PM_LOCK(__pmLock_extcall);
     result = getpwnam(name);		/* THREADSAFE */
-    PM_UNLOCK(__pmLock_extcall);
-    if (result == NULL)
+    if (result == NULL) {
+	PM_UNLOCK(__pmLock_extcall);
 	return -ENOENT;
+    }
     *uid = result->pw_uid;
+    PM_UNLOCK(__pmLock_extcall);
     return 0;
 }
 #else
@@ -186,10 +188,12 @@ __pmGroupnameToID(const char *name, gid_t *gid)
 
     PM_LOCK(__pmLock_extcall);
     result = getgrnam(name);		/* THREADSAFE */
-    PM_UNLOCK(__pmLock_extcall);
-    if (result == NULL)
+    if (result == NULL) {
+	PM_UNLOCK(__pmLock_extcall);
 	return -ENOENT;
+    }
     *gid = result->gr_gid;
+    PM_UNLOCK(__pmLock_extcall);
     return 0;
 }
 #else
@@ -210,10 +214,12 @@ __pmHomedirFromID(uid_t uid, char *buf, size_t size)
      */
     PM_LOCK(__pmLock_extcall);
     env = getenv("HOME");		/* THREADSAFE */
-    PM_UNLOCK(__pmLock_extcall);
-    if (env != NULL)
+    if (env != NULL) {
 	snprintf(buf, size, "%s", env);
+	PM_UNLOCK(__pmLock_extcall);
+    }
     else {
+	PM_UNLOCK(__pmLock_extcall);
 	getpwuid_r(uid, &pwd, namebuf, sizeof(namebuf), &result);
 	if (result == NULL)
 	    return NULL;
@@ -234,16 +240,18 @@ __pmHomedirFromID(uid_t uid, char *buf, size_t size)
      */
     PM_LOCK(__pmLock_extcall);
     env = getenv("HOME");		/* THREADSAFE */
-    PM_UNLOCK(__pmLock_extcall);
-    if (env != NULL)
+    if (env != NULL) {
 	snprintf(buf, size, "%s", env);
-    else {
-	PM_LOCK(__pmLock_extcall);
-	result = getpwuid(uid);			/* THREADSAFE */
 	PM_UNLOCK(__pmLock_extcall);
-	if (result == NULL)
+    }
+    else {
+	result = getpwuid(uid);			/* THREADSAFE */
+	if (result == NULL) {
+	    PM_UNLOCK(__pmLock_extcall);
 	    return NULL;
+	}
 	snprintf(buf, size, "%s", result->pw_dir);
+	PM_UNLOCK(__pmLock_extcall);
     }
     buf[size-1] = '\0';
     return buf;
@@ -311,6 +319,7 @@ __pmUsersGroupIDs(const char *username, gid_t **groupids, unsigned int *ngroups)
 	for (i = 0; grp->gr_mem[i]; i++) {
 	    if (strcmp(username, grp->gr_mem[i]) != 0)
 		continue;
+	    /* THREADSAFE - no locks acquired in __pmAddGroupID() */
 	    if ((sts = __pmAddGroupID(grp->gr_gid, &gidlist, &count)) < 0) {
 		endgrent();		/* THREADSAFE */
 		PM_UNLOCK(__pmLock_extcall);
@@ -332,18 +341,22 @@ __pmUsersGroupIDs(const char *username, gid_t **groupids, unsigned int *ngroups)
 {
     int			i, sts;
     unsigned int	count = 0;
+    git_t		gid;
     gid_t		*gidlist = NULL;
     struct passwd	*result;
     struct group	*grp;
 
     PM_LOCK(__pmLock_extcall);
     result = getpwnam(username);		/* THREADSAFE */
-    PM_UNLOCK(__pmLock_extcall);
-    if (result == NULL)
+    if (result == NULL) {
+	PM_UNLOCK(__pmLock_extcall);
 	return -ENOENT;
+    }
+    gid = result->pw_gid;
+    PM_UNLOCK(__pmLock_extcall);
 
     /* add the primary group in right away, before supplementary groups */
-    if ((sts = __pmAddGroupID(result->pw_gid, &gidlist, &count)) < 0)
+    if ((sts = __pmAddGroupID(gid, &gidlist, &count)) < 0)
 	return sts;
 
     /* search for groups in which the given user is a member */
@@ -356,6 +369,7 @@ __pmUsersGroupIDs(const char *username, gid_t **groupids, unsigned int *ngroups)
 	for (i = 0; grp->gr_mem[i]; i++) {
 	    if (strcmp(username, grp->gr_mem[i]) != 0)
 		continue;
+	    /* THREADSAFE - no locks acquired in __pmAddGroupID() */
 	    if ((sts = __pmAddGroupID(grp->gr_gid, &gidlist, &count)) < 0) {
 		endgrent();		/* THREADSAFE */
 		PM_UNLOCK(__pmLock_extcall);
@@ -434,6 +448,7 @@ __pmGroupsUserIDs(const char *groupname, uid_t **userids, unsigned int *nusers)
 	    break;
 #endif
 	/* check to see if this user has given group as primary */
+	/* THREADSAFE - no locks acquired in __pmAddUserID() */
 	if (pwp->pw_gid == groupid &&
 	    (sts = __pmAddUserID(pwp->pw_uid, &uidlist, &count)) < 0) {
 	    endpwent();		/* THREADSAFE */
@@ -474,18 +489,19 @@ __pmGroupsUserIDs(const char *name, uid_t **userids, unsigned int *nusers)
     /* for a given group name, find gid and user names */
     PM_LOCK(__pmLock_extcall);
     grp = getgrnam(name);		/* THREADSAFE */
-    PM_UNLOCK(__pmLock_extcall);
-    if (grp == NULL)
+    if (grp == NULL) {
+	PM_UNLOCK(__pmLock_extcall);
 	return -EINVAL;
+    }
     groupid = grp->gr_gid;
     names = grp->gr_mem;
 
-    PM_LOCK(__pmLock_extcall);
     setpwent();		/* THREADSAFE */
     while (1) {
 	if ((pwp = getpwent()) == NULL)		/* THREADSAFE */
 	    break;
 	/* check to see if this user has given group as primary */
+	/* THREADSAFE - no locks acquired in __pmAddUserID() */
 	if (pwp->pw_gid == groupid &&
 	    (sts = __pmAddUserID(pwp->pw_uid, &uidlist, &count)) < 0) {
 	    endpwent();		/* THREADSAFE */
@@ -551,14 +567,15 @@ __pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
     setoserror(0);
     PM_LOCK(__pmLock_extcall);
     pw = getpwnam(username);		/* THREADSAFE */
-    PM_UNLOCK(__pmLock_extcall);
     if (pw == NULL) {
+	PM_UNLOCK(__pmLock_extcall);
 	__pmNotifyErr(LOG_CRIT,
 		"cannot find the %s user to switch to\n", username);
 	if (mode == PM_FATAL_ERR)
 	    exit(1);
 	return -ENOENT;
     } else if (oserror() != 0) {
+	PM_UNLOCK(__pmLock_extcall);
 	__pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
 		username, pmErrStr_r(oserror(), errmsg, sizeof(errmsg)));
 	if (mode == PM_FATAL_ERR)
@@ -567,6 +584,7 @@ __pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
     }
     *uid = pw->pw_uid;
     *gid = pw->pw_gid;
+    PM_UNLOCK(__pmLock_extcall);
     return 0;
 }
 #else

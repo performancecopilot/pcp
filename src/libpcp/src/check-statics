@@ -128,8 +128,8 @@ AF.o
     ?afsetup			# guarded by __pmLock_libpcp mutex
     ?aftimer			# guarded by __pmLock_libpcp mutex
 auxconnect.o
-    conn_wait			# guarded by __pmLock_libpcp mutex
-    conn_wait_done		# guarded by __pmLock_libpcp mutex
+    conn_wait			# guarded by __pmLock_extcall mutex
+    conn_wait_done		# guarded by __pmLock_extcall mutex
     pmcd_ports			# guarded by __pmLock_libpcp mutex
     pmcd_socket			# guarded by __pmLock_libpcp mutex
 auxserver.o
@@ -153,8 +153,8 @@ discovery.o
     simplePoll			# single-threaded server scope
     client			# single-threaded server scope
     group			# single-threaded server scope
-    done_default		# guarded by __pmLock_libpcp mutex
-    def_timeout			# guarded by __pmLock_libpcp mutex
+    done_default		# guarded by __pmLock_extcall mutex
+    def_timeout			# guarded by __pmLock_extcall mutex
 checksum.o
 config.o
     ?__pmNativeConfig		# const

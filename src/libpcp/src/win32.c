@@ -1,3 +1,4 @@
+/*
  * Copyright (c) 2013-2016 Red Hat.
  * Copyright (c) 2008-2010 Aconex.  All Rights Reserved.
  * 
