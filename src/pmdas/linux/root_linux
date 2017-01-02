@@ -493,6 +493,13 @@ mem.numa.alloc {
 
 mem.zoneinfo {
     free		60:68:0
+    min 		60:68:1
+    low   		60:68:2
+    high		60:68:3
+    scanned		60:68:4
+    spanned		60:68:5
+    present		60:68:6
+    managed		60:68:7
 }
 
 swap {

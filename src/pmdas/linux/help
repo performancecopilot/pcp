@@ -924,6 +924,13 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ mem.vmstat.balloon_deflate number of virt guest balloon page deflations
 @ mem.vmstat.balloon_migrate number of virt guest balloon page migrations
 @ mem.zoneinfo.free free space in each zone for each NUMA node
+@ mem.zoneinfo.min  min space in each zone for each NUMA node
+@ mem.zoneinfo.low  low space in each zone for each NUMA node
+@ mem.zoneinfo.high high space in each zone for each NUMA node
+@ mem.zoneinfo.scanned scanned space in each zone for each NUMA node
+@ mem.zoneinfo.spanned spanned space in each zone for each NUMA node
+@ mem.zoneinfo.present present space in each zone for each NUMA node
+@ mem.zoneinfo.managed managed space in each zone for each NUMA node
 
 @ swap.length total swap available metric from /proc/meminfo
 @ swap.used swap used metric from /proc/meminfo

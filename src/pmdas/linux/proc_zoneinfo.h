@@ -16,7 +16,14 @@
  */
 
 enum {
-    ZONE_FREE	= 0,
+    ZONE_FREE          = 0,
+    ZONE_MIN           = 1,
+    ZONE_LOW           = 2,
+    ZONE_HIGH          = 3,
+    ZONE_SCANNED       = 4,
+    ZONE_SPANNED       = 5,
+    ZONE_PRESENT       = 6,
+    ZONE_MANAGED       = 7,
     /* enumerate all values here */
     ZONE_VALUES	/* maximum value */
 };
