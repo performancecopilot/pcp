@@ -75,7 +75,8 @@ refresh_proc_zoneinfo(pmInDom indom)
 		values++;
 		continue;
 	    }
-	    else if ((sscanf(buf, "        scanned %llu", &value)) == 1) {
+	    else if ((sscanf(buf, "        scanned %llu", &value)) == 1 ||
+	             (sscanf(buf, "   node_scanned %llu", &value)) == 1) {
 		info->values[ZONE_SCANNED] = (value << _pm_pageshift) / 1024;
 		values++;
 		continue;
