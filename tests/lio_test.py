@@ -6,7 +6,7 @@
 
 from pcp import pmapi
 import cpmapi as c_api
-from time import sleep
+import logging
 
 import unittest
 from iscsi_target import ISCSITarget
@@ -26,10 +26,8 @@ class ISCSITests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print "Creating test iSCSI target"
+        print "\nCreating test iSCSI target using iscsi_config.json\n"
         ISCSITests.target = ISCSITarget()
-
-        print "Extracting from PMDA"
 
         pminfo = PMInfo()
         pminfo.lun = {}
@@ -56,12 +54,13 @@ class ISCSITests(unittest.TestCase):
         pmids = ctx.pmLookupName("lio.lun.iops")
         descs = ctx.pmLookupDescs(pmids)
         results = ctx.pmFetch(pmids)
-        for o in range(results.contents.numpmid):
-            for i in range(results.contents.get_numval(o)):
-                dev_name = ctx.pmNameInDom(descs[o], i)
-                iops = ctx.pmExtractValue(results.contents.get_valfmt(o),
-                                          results.contents.get_vlist(o, i),
-                                          descs[o].contents.type,
+        devices = ctx.pmGetInDom(descs[0])[1]
+        for i in range(results.contents.get_numval(0)):
+
+                dev_name = devices[i]
+                iops = ctx.pmExtractValue(results.contents.get_valfmt(0),
+                                          results.contents.get_vlist(0, i),
+                                          descs[0].contents.type,
                                           c_api.PM_TYPE_U32)
                 pminfo.lun[dev_name] = iops.ul
 
@@ -72,7 +71,7 @@ class ISCSITests(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        print "Deleting test iSCSI target"
+        print "\nDeleting test iSCSI target"
         ISCSITests.target.drop_test_config()
 
     def test_LUN_count(self):
@@ -96,9 +95,6 @@ class ISCSITests(unittest.TestCase):
         for dev_name in ISCSITests.target.lun_list:
             lun_iops = ISCSITests.pminfo.lun[dev_name]
             self.assertEqual(lun_iops, 0)
-
-
-
 
 
 if __name__ == '__main__':

@@ -6,24 +6,24 @@ In order to perform the tests we'll make some assumptions
 - targetcli is installed
 - the lio pmda has been installed successfully (either with selinux disabled
   or with a local policy active)
+- you will be able to run the test as the root user (required for interaction
+  with configfs)
 
-What the Test is
-The test will create an ISCSI gateway as follows;
- - a single gateway and tpg (target portal group)
- - a 1GB LUN using a ramdisk
- - a client based on the local machines characteristics
- - a mapping of the LUN to the client
 
-Once the LIO config is complete, the pmda is used to check the following
-metrics
-lio.summary.total_luns = 1
-lio.summary.tpgs = 1
-lio.summary.clients = 1
-lio.lun.iops = 0
+What the Test does
+The test will create an ISCSI gateway based on the sample configuration defined
+in iscsi_conf.json. by changing the config you can vary the complexity of the
+test.
+
+Once the LIO config is complete, the pmda values are checked to make sure they
+match the settings in LIO (via rtslib)
 
 If any of the above checks fail an exception will be raised
 
-Once the test is complete, the LIO environment will be dropped automatically
+
+Reruns
+Once the test is complete, the LIO environment is dropped automatically so you
+may rerun the test multiple times or cycle through different configurations
 
 
 
@@ -35,16 +35,5 @@ How to Test
 
 Issues
 ------
-1. After testing with one iscsi configuration, you need to restart the pmda before
-you run the test again with a different iscsi configuration (iscsi_conf.json file)
-After the first run the pmda shows no entries correctly, but if you change the json
-and resubmit the test you hit
-ERROR: setUpClass (__main__.ISCSITests)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "lio_test.py", line 61, in setUpClass
-    dev_name = ctx.pmNameInDom(descs[o], i)
-  File "/usr/lib64/python2.7/site-packages/pcp/pmapi.py", line 1571, in pmNameInDom
-    raise pmErr(status)
-pmErr: PM_ERR_INST Unknown or illegal instance identifier
+- None known at this time
 

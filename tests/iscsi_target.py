@@ -5,7 +5,13 @@ import sys
 import rtslib_fb
 import json
 
+
 class ISCSITarget(object):
+
+    """
+    Class used to define an iSCSI target using an json file to govern the
+    target name, clients and luns defined.
+    """
 
     def __init__(self):
 
@@ -29,7 +35,6 @@ class ISCSITarget(object):
         for client in config["clients"]:
             self._add_client(client_iqn=client["client_iqn"])
 
-
     def _create_target(self, iqn):
         iscsi = rtslib_fb.fabric.ISCSIFabricModule()
         self.iqn = iqn
@@ -38,19 +43,18 @@ class ISCSITarget(object):
         self.portal = rtslib_fb.target.NetworkPortal(self.tpg, '0.0.0.0')
         self.tpg.enable = True
 
-    def _add_lun(self, name='ramdisk', type='ramdisk', size=104857600):
+    def _add_lun(self, name='ramdisk', disk_type='ramdisk', size=104857600):
 
-
-        if type == 'ramdisk':
+        if disk_type == 'ramdisk':
 
             try:
                 # create the disk (storage object)
                 so = rtslib_fb.tcm.RDMCPStorageObject(name, size=size)
 
                 # map to the iscsi tpg
-                next_lun_id = len([disk for disk in self.lio.storage_objects]) - 1
-                lun = rtslib_fb.target.LUN(self.tpg, lun=next_lun_id,
-                                           storage_object=so)
+                next_lun = len([disk for disk in self.lio.storage_objects]) - 1
+                rtslib_fb.target.LUN(self.tpg, lun=next_lun,
+                                     storage_object=so)
                 self.lun_list.append(name)
 
             except rtslib_fb.RTSLibError:
@@ -60,11 +64,10 @@ class ISCSITarget(object):
         else:
             raise ValueError("LUN type of {} has not been implemented")
 
-
     def _add_client(self, client_iqn=None):
 
         try:
-            client = rtslib_fb.target.NodeACL(self.tpg, client_iqn)
+            rtslib_fb.target.NodeACL(self.tpg, client_iqn)
         except rtslib_fb.RTSLibError:
             print "failed to create client {}".format(client_iqn)
             sys.exit(4)
