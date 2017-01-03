@@ -21,10 +21,11 @@ from pcp.pmapi import pmUnits
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 
 import rtslib_fb.root as root
+import rtslib_fb.tcm as tcm
 from rtslib_fb.utils import fread, RTSLibNotInCFS
 
 import os
-import sys
+
 
 UNITS_NONE = pmUnits(0, 0, 0, 0, 0, 0)
 UNITS_COUNT = pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)
@@ -181,7 +182,16 @@ class LIOPMDA(PMDA):
         :return: None
         """
 
+        # drop the bs_cache to ensure we capture the current view.
+        # Changes to LIO can happen at anytime through other instances of
+        # rtslib e.g. targetcli interaction. If we don't drop the bs_cache
+        # dict the pmda only sees the view of LIO environment at the time the
+        # PMDA started, so adds/removes from other toolchains would be missed
+        # resulting in RTSLIBNotInCFS errors
+        tcm.bs_cache = {}
+
         r = root.RTSRoot()
+
         for tgt in r.targets:
 
             if tgt.wwn_type == 'iqn':
@@ -194,19 +204,16 @@ class LIOPMDA(PMDA):
                 for tpg in tgt.tpgs:
                     if tpg.enable:
                         for l in tpg.luns:
+                            path = l.path
+                            so_name = l.storage_object.name
 
-                            try:
-                                so = l.storage_object
-                            except RTSLibNotInCFS:
-                                sys.stderr.write("Warning - RTSLIBNotInCFS issue\n")
-                                sys.stderr.flush()
-                                continue
+                            # lun_size is stored in GB
+                            lun_size = int(round(
+                                l.storage_object.size / (1024 ** 3)))
 
                             lun = LUN()
-                            so_name = l.storage_object.name
-                            path = l.path
 
-                            lun.size = int(l.storage_object.size / 1024**3)
+                            lun.size = lun_size
 
                             lun.read_mb = int(fread(
                                 os.path.join(path, LIOPMDA.READ_MB_PATH)))
@@ -223,8 +230,6 @@ class LIOPMDA(PMDA):
                             target.total_size += lun.size
 
                             target.total_luns += 1
-                            sys.stderr.write("creating stats for {}\n".format(so_name))
-                            sys.stderr.flush()
                             self.luns[so_name] = lun
 
                         # determine the client count based on the active tpg
@@ -237,8 +242,6 @@ class LIOPMDA(PMDA):
                     target.tpgs += 1
 
                 self.targets[tgt.wwn] = target
-        del r
-
 
     def lio_instance(self, serial):
 
