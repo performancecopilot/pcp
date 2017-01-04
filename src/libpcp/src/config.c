@@ -216,7 +216,7 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	pmflush();
 	free(conf);
 	if (prefix != NULL) free(prefix);
-	exit(1);
+	exit(1);		/* THREADSAFE */
     }
 
     while (fgets(var, sizeof(var), fp) != NULL) {
@@ -227,7 +227,7 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	if ((p = strrchr(val, '\n')) != NULL)
 	    *p = '\0';
 	PM_LOCK(__pmLock_extcall);
-	p = getenv(var);
+	p = getenv(var);		/* THREADSAFE */
 	if (p != NULL)
 	    val = p;
 	else {
@@ -283,9 +283,12 @@ pmgetconfig(const char *name, int fatal)
     }
     PM_UNLOCK(__pmLock_libpcp);
 
-    PM_LOCK(__pmLock_extcall);
-    val = getenv(name);
-    PM_UNLOCK(__pmLock_extcall);
+    /*
+     * THREADSAFE TODO ... this is bad (and documented), returning a
+     * direct pointer into the env ... should strdup() here and fix all
+     * callers to free() as needed later
+     */
+    val = getenv(name);		/* THREAD-UNSAFE! */
     if (val == NULL) {
 	if (!fatal)
 	    return NULL;

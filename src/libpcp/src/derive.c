@@ -146,16 +146,11 @@ static const char	*state_dbg[] = {
 static void
 initialize_mutex(void)
 {
-    static pthread_mutex_t	init = PTHREAD_MUTEX_INITIALIZER;
-    static int			done;
+    static int			done = 0;
     int				psts;
     char			errmsg[PM_MAXERRMSGLEN];
 
-    if ((psts = pthread_mutex_lock(&init)) != 0) {
-	strerror_r(psts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "initialize_mutex: pthread_mutex_lock failed: %s", errmsg);
-	exit(4);
-    }
+    PM_LOCK(__pmLock_extcall);
     if (!done) {
 	/*
 	 * Unable to initialize at compile time, need to do it here in
@@ -181,11 +176,7 @@ initialize_mutex(void)
 	pthread_mutexattr_destroy(&attr);
 	done = 1;
     }
-    if ((psts = pthread_mutex_unlock(&init)) != 0) {
-	strerror_r(psts, errmsg, sizeof(errmsg));
-	fprintf(stderr, "initialize_mutex: pthread_mutex_unlock failed: %s", errmsg);
-	exit(4);
-    }
+    PM_UNLOCK(__pmLock_extcall);
 }
 #else
 # define initialize_mutex() do { } while (0)

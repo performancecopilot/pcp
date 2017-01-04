@@ -854,8 +854,12 @@ getHostAccessSpecs(const char *name, int *sts)
 	__pmHostEntFree(servInfo);
     }
     else {
+	char	errmsg[PM_MAXERRMSGLEN];
+	PM_LOCK(__pmLock_extcall);
+	strncpy(errmsg, hoststrerror(), PM_MAXERRMSGLEN);	/* THREADSAFE */
+	PM_UNLOCK(__pmLock_extcall);
 	__pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
-		      realname, hoststrerror());
+		      realname, errmsg);
     }
 
     /* Return NULL if nothing was discovered. *sts is already set. */

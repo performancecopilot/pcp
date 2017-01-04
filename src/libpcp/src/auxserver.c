@@ -105,8 +105,14 @@ __pmPMCDAddPorts(int **ports, int nports)
     char *env;
     int  new_nports = nports;
 
-    if ((env = getenv("PMCD_PORT")) != NULL)
-	new_nports = __pmAddPorts(env, ports, nports);
+    PM_LOCK(__pmLock_extcall);
+    if ((env = getenv("PMCD_PORT")) != NULL)		/* THREADSAFE */
+	/*
+	 * THREADSAFE because __pmAddPorts acquires no locks (other than
+	 * on the fatal __pmNoMem() path
+	 */
+	new_nports = __pmAddPorts(env, ports, nports);		/* THREADSAFE */
+    PM_UNLOCK(__pmLock_extcall);
 
     /*
      * Add the default port, if no new ports were added or if there was an
@@ -133,8 +139,14 @@ __pmProxyAddPorts(int **ports, int nports)
     char *env;
     int  new_nports = nports;
 
-    if ((env = getenv("PMPROXY_PORT")) != NULL)
-	new_nports = __pmAddPorts(env, ports, nports);
+    PM_LOCK(__pmLock_extcall);
+    if ((env = getenv("PMPROXY_PORT")) != NULL)		/* THREADSAFE */
+	/*
+	 * THREADSAFE because __pmAddPorts acquires no locks (other than
+	 * on the fatal __pmNoMem() path
+	 */
+	new_nports = __pmAddPorts(env, ports, nports);		/* THREADSAFE */
+    PM_UNLOCK(__pmLock_extcall);
 
     /*
      * Add the default port, if no new ports were added or if there was an
@@ -161,8 +173,14 @@ __pmWebdAddPorts(int **ports, int nports)
     char *env;
     int  new_nports = nports;
 
-    if ((env = getenv("PMWEBD_PORT")) != NULL)
-	new_nports = __pmAddPorts(env, ports, nports);
+    PM_LOCK(__pmLock_extcall);
+    if ((env = getenv("PMWEBD_PORT")) != NULL)		/* THREADSAFE */
+	/*
+	 * THREADSAFE because __pmAddPorts acquires no locks (other than
+	 * on the fatal __pmNoMem() path
+	 */
+	new_nports = __pmAddPorts(env, ports, nports);		/* THREADSAFE */
+    PM_UNLOCK(__pmLock_extcall);
 
     /*
      * Add the default port, if no new ports were added or if there was an
@@ -428,6 +446,7 @@ OpenRequestSocket(int port, const char *address, int *family,
     int			isUnix = 0;
     int			try;
     struct timeval	tick = { 0, 250*1000 };		/* 250msec */
+    char 		errmsg[PM_MAXERRMSGLEN];
 
     /*
      * Using this flag will eliminate the need for more conditional
@@ -495,7 +514,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 
     if (fd < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmCreateSocket: %s\n",
-		port, address, AddressFamily(*family), netstrerror());
+		port, address, AddressFamily(*family), netstrerror_r(errmsg, sizeof(errmsg)));
 	goto fail;
     }
 
@@ -506,7 +525,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 		       (__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
 		      "OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_REUSEADDR): %s\n",
-		      port, address, AddressFamily(*family), netstrerror());
+		      port, address, AddressFamily(*family), netstrerror_r(errmsg, sizeof(errmsg)));
 	goto fail;
     }
 #else
@@ -514,7 +533,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 		       (__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
 		      "OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(EXCLUSIVEADDRUSE): %s\n",
-		      port, address, AddressFamily(*family), netstrerror());
+		      port, address, AddressFamily(*family), netstrerror_r(errmsg, sizeof(errmsg)));
 	goto fail;
     }
 #endif
@@ -524,7 +543,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 		(__pmSockLen)sizeof(one)) < 0) {
 	__pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d, %s, %s) __pmSetSockOpt(SO_KEEPALIVE): %s\n",
-		port, address, AddressFamily(*family), netstrerror());
+		port, address, AddressFamily(*family), netstrerror_r(errmsg, sizeof(errmsg)));
 	goto fail;
     }
 
@@ -543,7 +562,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_DESPERATE)
 	    fprintf(stderr, "OpenRequestSocket(%d, %s, %s) __pmBind try %d: %s\n",
-		port, address, AddressFamily(*family), try+1, netstrerror());
+		port, address, AddressFamily(*family), try+1, netstrerror_r(errmsg, sizeof(errmsg)));
 #endif
 	__pmtimevalSleep(tick);
 	try++;
@@ -552,7 +571,7 @@ OpenRequestSocket(int port, const char *address, int *family,
     myAddr = NULL;
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmBind: %s\n",
-		port, address, AddressFamily(*family), netstrerror());
+		port, address, AddressFamily(*family), netstrerror_r(errmsg, sizeof(errmsg)));
 	if (neterror() == EADDRINUSE)
 	    __pmNotifyErr(LOG_ERR, "%s may already be running\n", pmProgname);
 	goto fail;
@@ -568,7 +587,7 @@ OpenRequestSocket(int port, const char *address, int *family,
 	if (sts != 0) {
 	    __pmNotifyErr(LOG_ERR,
 		"OpenRequestSocket(%d, %s, %s) chmod(%s): %s\n",
-		port, address, AddressFamily(*family), address, strerror(errno));
+		port, address, AddressFamily(*family), address, netstrerror_r(errmsg, sizeof(errmsg)));
 	    goto fail;
 	}
     }
@@ -576,7 +595,7 @@ OpenRequestSocket(int port, const char *address, int *family,
     sts = __pmListen(fd, backlog);	/* Max. pending connection requests */
     if (sts < 0) {
 	__pmNotifyErr(LOG_ERR, "OpenRequestSocket(%d, %s, %s) __pmListen: %s\n",
-		port, address, AddressFamily(*family), netstrerror());
+		port, address, AddressFamily(*family), netstrerror_r(errmsg, sizeof(errmsg)));
 	goto fail;
     }
 

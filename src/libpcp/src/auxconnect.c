@@ -28,6 +28,12 @@
 static struct timeval	conn_wait = { 5, 0 };
 static int		conn_wait_done;
 
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	localmutex = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*localmutex;
+#endif
+
 __pmHostEnt *
 __pmHostEntAlloc(void)
 {
@@ -734,11 +740,11 @@ __pmSetConnectTimeout(double timeout)
     if (timeout < 0.0)
 	return -EINVAL;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(localmutex);
+    /* THREADSAFE - no locks acquired in __pmtimevalFromReal() */
     __pmtimevalFromReal(timeout, &conn_wait);
     conn_wait_done = 1;
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(localmutex);
     return 0;
 }
 
@@ -749,30 +755,35 @@ __pmConnectTimeout(void)
     double	timeout;
 
     /* get optional PMCD connection timeout from the environment */
-    PM_LOCK(__pmLock_extcall);
+    PM_LOCK(localmutex);
     if (!conn_wait_done) {
 	conn_wait_done = 1;
+	PM_LOCK(__pmLock_extcall);
 	timeout_str = getenv("PMCD_CONNECT_TIMEOUT");		/* THREADSAFE */
 	if (timeout_str != NULL) {
 	    timeout = strtod(timeout_str, &end_ptr);
 	    if (*end_ptr != '\0' || timeout < 0.0) {
 		char	*fromenv = strdup(timeout_str);
 		PM_UNLOCK(__pmLock_extcall);
+		PM_UNLOCK(localmutex);
 		__pmNotifyErr(LOG_WARNING, "%s:__pmAuxConnectPMCDPort: "
 			      "ignored bad PMCD_CONNECT_TIMEOUT = '%s'\n",
 			      __FILE__, fromenv);
+		PM_LOCK(localmutex);
 		free(fromenv);
 	    }
 	    else {
 		PM_UNLOCK(__pmLock_extcall);
+		/* THREADSAFE - no locks acquired in __pmtimevalFromReal() */
 		__pmtimevalFromReal(timeout, &conn_wait);
 	    }
 	}
     }
-    else
-	PM_UNLOCK(__pmLock_extcall);
 
+    /* THREADSAFE - no locks acquired in __pmtimevalToReal() */
     timeout = __pmtimevalToReal(&conn_wait);
+    PM_UNLOCK(localmutex);
+
     return timeout;
 }
  
@@ -838,11 +849,15 @@ __pmAuxConnectPMCD(const char *hostname)
 {
     static int		*pmcd_ports = NULL;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    if (pmcd_ports == NULL)
+    PM_LOCK(localmutex);
+    if (pmcd_ports == NULL) {
+	/*
+	 * THREADSAFE - only __pmLock_extcall acquired during call to
+	 * __pmPMCDAddPorts()
+	 */
 	__pmPMCDAddPorts(&pmcd_ports, 0);
-    PM_UNLOCK(__pmLock_libpcp);
+    }
+    PM_UNLOCK(localmutex);
 
     /* __pmPMCDAddPorts discovers at least one valid port, if it returns. */
     return __pmAuxConnectPMCDPort(hostname, pmcd_ports[0]);
@@ -868,8 +883,11 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     if ((servInfo = __pmGetAddrInfo(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
+	    PM_LOCK(__pmLock_extcall);
+	    /* THREADSAFE */
 	    fprintf(stderr, "%s:__pmAuxConnectPMCDPort(%s, %d) : hosterror=%d, ``%s''\n",
 		    __FILE__, hostname, pmcd_port, hosterror(), hoststrerror());
+	    PM_UNLOCK(__pmLock_extcall);
 	}
 #endif
 	return -EHOSTUNREACH;
@@ -931,6 +949,10 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 
     /* FNDELAY and we're in progress - wait on select */
     __pmFD_COPY(&readyFds, &allFds);
+    /*
+     * THREADSAFE - conn_wait only changed in one-trip code in
+     * __pmConnectTimeout()
+     */
     stv = conn_wait;
     pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
     rc = __pmSelectWrite(maxFd+1, &readyFds, pstv);
@@ -989,12 +1011,13 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
 const char *
 __pmPMCDLocalSocketDefault(void)
 {
-    static char pmcd_socket[MAXPATHLEN];
+    static char 		pmcd_socket[MAXPATHLEN];
 
-    PM_LOCK(__pmLock_extcall);
+    PM_LOCK(localmutex);
     if (pmcd_socket[0] == '\0') {
 	char *envstr;
-	if ((envstr = getenv("PMCD_SOCKET")) != NULL) {
+	PM_LOCK(__pmLock_extcall);
+	if ((envstr = getenv("PMCD_SOCKET")) != NULL) {		/* THREADSAFE */
 	    snprintf(pmcd_socket, sizeof(pmcd_socket), "%s", envstr);
 	    PM_UNLOCK(__pmLock_extcall);
 	}
@@ -1004,6 +1027,7 @@ __pmPMCDLocalSocketDefault(void)
 		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
 	}
     }
+    PM_UNLOCK(localmutex);
 
     return pmcd_socket;
 }
@@ -1052,7 +1076,12 @@ __pmAuxConnectPMCDUnixSocket(const char *sock_path)
 	return -ECONNREFUSED;
     }
 
-    /* FNDELAY and we're in progress - wait on select */
+    /*
+     * FNDELAY and we're in progress - wait on select
+     *
+     * THREADSAFE - conn_wait only changed in one-trip code in
+     * __pmConnectTimeout()
+     */
     stv = conn_wait;
     pstv = (stv.tv_sec || stv.tv_usec) ? &stv : NULL;
     __pmFD_ZERO(&wfds);

@@ -310,9 +310,11 @@ __pmUsersGroupIDs(const char *username, gid_t **groupids, unsigned int *ngroups)
     while (1) {
 	grp = NULL;
 #ifdef IS_SOLARIS
+	/* THREADSAFE */
 	if ((grp = getgrent_r(&gr, grbuf, sizeof(grbuf))) == NULL)
 	    break;
 #else
+	/* THREADSAFE */
 	if (getgrent_r(&gr, grbuf, sizeof(grbuf), &grp) != 0 || grp == NULL)
 	    break;
 #endif
@@ -440,10 +442,12 @@ __pmGroupsUserIDs(const char *groupname, uid_t **userids, unsigned int *nusers)
     setpwent();		/* THREADSAFE */
     while (1) {
 #ifdef IS_SOLARIS
+	/* THREADSAFE */
 	if ((pwp = getpwent_r(&pw, buf, sizeof(buf))) == NULL)
 	    break;
 #else
 	pwp = NULL;
+	/* THREADSAFE */
 	if (getpwent_r(&pw, buf, sizeof(buf), &pwp) != 0 || pwp == NULL)
 	    break;
 #endif
@@ -543,13 +547,13 @@ __pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
 	__pmNotifyErr(LOG_CRIT,
 		"cannot find the %s user to switch to\n", username);
 	if (mode == PM_FATAL_ERR)
-	    exit(1);
+	    exit(1);		/* THREADSAFE */
 	return -ENOENT;
     } else if (sts != 0) {
 	__pmNotifyErr(LOG_CRIT, "getpwnam_r(%s) failed: %s\n",
 		username, pmErrStr_r(sts, buf, sizeof(buf)));
 	if (mode == PM_FATAL_ERR)
-	    exit(1);
+	    exit(1);		/* THREADSAFE */
 	return -ENOENT;
     }
     *uid = pwd.pw_uid;
@@ -572,14 +576,14 @@ __pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
 	__pmNotifyErr(LOG_CRIT,
 		"cannot find the %s user to switch to\n", username);
 	if (mode == PM_FATAL_ERR)
-	    exit(1);
+	    exit(1);		/* THREADSAFE */
 	return -ENOENT;
     } else if (oserror() != 0) {
 	PM_UNLOCK(__pmLock_extcall);
 	__pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
 		username, pmErrStr_r(oserror(), errmsg, sizeof(errmsg)));
 	if (mode == PM_FATAL_ERR)
-	    exit(1);
+	    exit(1);		/* THREADSAFE */
 	return -ENOENT;
     }
     *uid = pw->pw_uid;
@@ -604,7 +608,7 @@ __pmSetProcessIdentity(const char *username)
 	__pmNotifyErr(LOG_CRIT,
 		"setgid to gid of %s user (gid=%d): %s",
 		username, gid, osstrerror_r(msg, sizeof(msg)));
-	exit(1);
+	exit(1);		/* THREADSAFE */
     }
 
     /*
@@ -616,14 +620,14 @@ __pmSetProcessIdentity(const char *username)
 	__pmNotifyErr(LOG_CRIT,
 		"initgroups with gid of %s user (gid=%d): %s",
 		username, gid, osstrerror_r(msg, sizeof(msg)));
-	exit(1);
+	exit(1);		/* THREADSAFE */
     }
 
     if (setuid(uid) < 0) {
 	__pmNotifyErr(LOG_CRIT,
 		"setuid to uid of %s user (uid=%d): %s",
 		username, uid, osstrerror_r(msg, sizeof(msg)));
-	exit(1);
+	exit(1);		/* THREADSAFE */
     }
 
     return 0;

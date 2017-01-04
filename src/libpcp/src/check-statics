@@ -128,10 +128,11 @@ AF.o
     ?afsetup			# guarded by __pmLock_libpcp mutex
     ?aftimer			# guarded by __pmLock_libpcp mutex
 auxconnect.o
-    conn_wait			# guarded by __pmLock_extcall mutex
-    conn_wait_done		# guarded by __pmLock_extcall mutex
-    pmcd_ports			# guarded by __pmLock_libpcp mutex
-    pmcd_socket			# guarded by __pmLock_libpcp mutex
+    ?localmutex			# local mutex
+    conn_wait			# guarded by localmutex
+    conn_wait_done		# guarded by localmutex
+    pmcd_ports			# guarded by localmutex
+    pmcd_socket			# guarded by localmutex
 auxserver.o
     nport			# single-threaded server scope
     portlist			# single-threaded server scope
@@ -186,8 +187,7 @@ derive_fetch.o
 derive.o
     ?fmt			# const
     ?func			# const
-    ?init			# local initialize_mutex mutex
-    ?done			# guarded by local initialize_mutex mutex
+    ?done			# guarded by __pmLock_extcall mutex
     type_dbg			# const
     ?type_c			# const
     state_dbg			# const

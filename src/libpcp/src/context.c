@@ -58,7 +58,12 @@ waitawhile(__pmPMCDCtl *ctl)
     if (n_backoff == 0) {
 	char	*q;
 	/* first time ... try for PMCD_RECONNECT_TIMEOUT from env */
-	if ((q = getenv("PMCD_RECONNECT_TIMEOUT")) != NULL) {
+	PM_LOCK(__pmLock_extcall);
+	q = getenv("PMCD_RECONNECT_TIMEOUT");		/* THREADSAFE */
+	if (q != NULL)
+	    q = strdup(q);
+	PM_UNLOCK(__pmLock_extcall);
+	if (q != NULL) {
 	    char	*pend;
 	    char	*p;
 	    int		val;
@@ -82,6 +87,7 @@ waitawhile(__pmPMCDCtl *ctl)
 		    break;
 		p = &pend[1];
 	    }
+	    free(q);
 	}
 	if (n_backoff == 0) {
 	    /* use default */
@@ -293,21 +299,21 @@ initcontextlock(pthread_mutex_t *lock)
 	fprintf(stderr, "pmNewContext: "
 		"context=%d lock pthread_mutexattr_init failed: %s",
 		contexts_len-1, errmsg);
-	exit(4);
+	exit(4);		/* THREADSAFE */
     }
     if ((sts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
 	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmNewContext: "
 		"context=%d lock pthread_mutexattr_settype failed: %s",
 		contexts_len-1, errmsg);
-	exit(4);
+	exit(4);		/* THREADSAFE */
     }
     if ((sts = pthread_mutex_init(lock, &attr)) != 0) {
 	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmNewContext: "
 		"context=%d lock pthread_mutex_init failed: %s",
 		contexts_len-1, errmsg);
-	exit(4);
+	exit(4);		/* THREADSAFE */
     }
     pthread_mutexattr_destroy(&attr);
 }
@@ -323,7 +329,7 @@ initchannellock(pthread_mutex_t *lock)
 	fprintf(stderr, "pmNewContext: "
 		"context=%d pmcd channel lock pthread_mutex_init failed: %s",
 		contexts_len, errmsg);
-	exit(4);
+	exit(4);		/* THREADSAFE */
     }
 }
 
@@ -362,9 +368,13 @@ ctxlocal(__pmHashCtl *attrs)
     char *name = NULL;
     char *container = NULL;
 
-    if ((container = getenv("PCP_CONTAINER")) != NULL) {
-	if ((name = strdup(container)) == NULL)
+    PM_LOCK(__pmLock_extcall);
+    if ((container = getenv("PCP_CONTAINER")) != NULL) {	/* THREADSAFE */
+	if ((name = strdup(container)) == NULL) {
+	    PM_UNLOCK(__pmLock_extcall);
 	    return -ENOMEM;
+	}
+	PM_UNLOCK(__pmLock_extcall);
 	if ((sts = __pmHashAdd(PCP_ATTR_CONTAINER, (void *)name, attrs)) < 0) {
 	    free(name);
 	    return sts;
@@ -391,8 +401,9 @@ ctxflags(__pmHashCtl *attrs, int *flags)
 	}
     }
 
+    PM_LOCK(__pmLock_extcall);
     if (!secure)
-	secure = getenv("PCP_SECURE_SOCKETS");
+	secure = getenv("PCP_SECURE_SOCKETS");		/* THREADSAFE */
 
     if (secure) {
 	if (secure[0] == '\0' ||
@@ -403,6 +414,7 @@ ctxflags(__pmHashCtl *attrs, int *flags)
 	    *flags |= PM_CTXFLAG_RELAXED;
 	}
     }
+    PM_UNLOCK(__pmLock_extcall);
 
     if (__pmHashSearch(PCP_ATTR_COMPRESS, attrs) != NULL)
 	*flags |= PM_CTXFLAG_COMPRESS;
@@ -416,14 +428,23 @@ ctxflags(__pmHashCtl *attrs, int *flags)
 
     if (__pmHashSearch(PCP_ATTR_CONTAINER, attrs) != NULL)
 	*flags |= PM_CTXFLAG_CONTAINER;
-    else if ((container = getenv("PCP_CONTAINER")) != NULL) {
-	if ((name = strdup(container)) == NULL)
-	    return -ENOMEM;
-	if ((sts = __pmHashAdd(PCP_ATTR_CONTAINER, (void *)name, attrs)) < 0) {
-	    free(name);
-	    return sts;
+    else {
+	PM_LOCK(__pmLock_extcall);
+	container = getenv("PCP_CONTAINER");		/* THREADSAFE */
+	if (container != NULL) {
+	    if ((name = strdup(container)) == NULL) {
+		PM_LOCK(__pmLock_extcall);
+		return -ENOMEM;
+	    }
+	    PM_UNLOCK(__pmLock_extcall);
+	    if ((sts = __pmHashAdd(PCP_ATTR_CONTAINER, (void *)name, attrs)) < 0) {
+		free(name);
+		return sts;
+	    }
+	    *flags |= PM_CTXFLAG_CONTAINER;
 	}
-	*flags |= PM_CTXFLAG_CONTAINER;
+	else
+	    PM_UNLOCK(__pmLock_extcall);
     }
 
     if (__pmHashSearch(PCP_ATTR_EXCLUSIVE, attrs) != NULL)

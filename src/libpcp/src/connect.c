@@ -328,8 +328,10 @@ load_proxy_hostspec(pmHostSpec *proxy)
     char	errmsg[PM_MAXERRMSGLEN];
     char	*envstr;
 
-    if ((envstr = getenv("PMPROXY_HOST")) != NULL) {
+    PM_LOCK(__pmLock_extcall);
+    if ((envstr = getenv("PMPROXY_HOST")) != NULL) {		/* THREADSAFE */
 	proxy->name = strdup(envstr);
+	PM_UNLOCK(__pmLock_extcall);
 	if (proxy->name == NULL) {
 	    __pmNotifyErr(LOG_WARNING,
 			  "__pmConnectPMCD: cannot save PMPROXY_HOST: %s\n",
@@ -343,6 +345,9 @@ load_proxy_hostspec(pmHostSpec *proxy)
 	    proxy->nports = __pmProxyAddPorts(&proxy->ports, proxy->nports);
 	}
     }
+    else
+	PM_UNLOCK(__pmLock_extcall);
+
 }
 
 void

@@ -364,8 +364,18 @@ __pmConnectLocal(__pmHashCtl *attrs)
 #if defined(HAVE_DLOPEN)
 	dp->handle = dlopen(path, RTLD_NOW);
 	if (dp->handle == NULL) {
+	    char	*errmsg;
+	    /*
+	     * Threadsafe note:
+	     *	dlerror() may not be threadsafe according to POSIX,
+	     *	but the glibc version is threadsafe.  Locking here
+	     *	is just being a little overly careful.
+	     */
+	    PM_LOCK(__pmLock_extcall);
+	    errmsg = dlerror();		/* THREADSAFE */
+	    PM_UNLOCK(__pmLock_extcall);
 	    pmprintf("__pmConnectLocal: Warning: error attaching DSO "
-		     "\"%s\"\n%s\n\n", path, dlerror());
+		     "\"%s\"\n%s\n\n", path, errmsg);
 	    pmflush();
 	    dp->domain = -1;
 	}
