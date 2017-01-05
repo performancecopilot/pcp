@@ -371,97 +371,25 @@ json_pointer_to_index(const char *json, jsmntok_t *json_tokens, size_t count, js
 }
 
 int
-pmjsonInit(int fd, json_metric_desc *json_metrics, int nummetrics)
+pmjsonInit(json_metric_desc *json_metrics, int nummetrics, void (*buffer_func)(char*, int*, void*), void* json_input)
 {
-    return pmjsonInitIndom(fd, json_metrics, nummetrics, PM_INDOM_NULL);
+    return pmjsonInitIndom(json_metrics, nummetrics, PM_INDOM_NULL, buffer_func, json_input);
 }
 
 int
-pmjsonInitIndom(int fd, json_metric_desc *json_metrics, int nummetrics, pmInDom indom)
+pmjsonInitIndom(json_metric_desc *json_metrics, int nummetrics, pmInDom indom, void (*buffer_func)(char*, int*, void*), void* json_input)
 {
-    int               number_of_bytes_read;
     int               number_of_tokens_read;
-    char              buffer[BUFSIZ] = {""};
     int               sts = 0;
-    int               eof_expected = 0;
-    jsmn_parser       parser;
-    jsmntok_t         *json_tokens = NULL;
-    int               json_token_count = 0;
-    int               json_length = 0;
-    char              *json = NULL;
-
-    if (!json_tokens) {
-	json_token_count = 64;
-	if ((json_tokens = calloc(json_token_count, sizeof(jsmntok_t))) == NULL)
-	    sts = -ENOMEM;
-    }
-    jsmn_init(&parser);
-
-    for (;;) {
-	number_of_bytes_read = read(fd, buffer, sizeof(buffer));
-	if (number_of_bytes_read < 0) {
-	    if (pmDebug & DBG_TRACE_APPL2) {
-		fprintf(stderr, "%s: failed read on json file: %s\n",
-			pmProgname, osstrerror());
-		sts = -oserror();
-		return sts;
-	    }
-	}
-	/* Ok, we've read in the json file */
-	if (number_of_bytes_read == 0) {
-	    /* eof_expected when our parsing looks done, not before */
-	    if (!eof_expected) {
-		if (pmDebug & DBG_TRACE_APPL2)
-		    fprintf(stderr, "%s: unexpected EOF on json file: %s\n",
-			    pmProgname, osstrerror());
-		sts = -EINVAL;
-		break;
-	    }
-	    /* We haven't read in any more information, and it appears parsing is done, return */
-	    if (indom != PM_INDOM_NULL)
-		sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, json_metrics[0].dom, json_metrics);
-	    return sts;
-	}
-
-	/* We've read in more json data, adjust our json size */
-	if ((json = realloc(json, json_length + number_of_bytes_read + 1)) == NULL) {
-	    sts = -ENOMEM;
-	    break;
-	}
-	strncpy(json + json_length, buffer, number_of_bytes_read);
-	json_length = json_length + number_of_bytes_read;
-again:
-	number_of_tokens_read = jsmn_parse(&parser, json, json_length, json_tokens, json_token_count);
-	if (number_of_tokens_read < 0) {
-	    if (number_of_tokens_read == JSMN_ERROR_NOMEM) {
-		json_token_count = json_token_count * 2;
-		if ((json_tokens = realloc(json_tokens, sizeof(*json_tokens) * json_token_count)) == NULL) {
-		    sts = -ENOMEM;
-		    break;
-		}
-		goto again;
-	    }
-	} else {
-	    json_pointer_to_index(json, json_tokens, parser.toknext, json_metrics, nummetrics);
-	    eof_expected = 1;
-	}
-    }
-    return sts;
-}
-int
-pmjsonInitChar(const char* buffer, int number_of_bytes_read, json_metric_desc *json_metrics, int nummetrics, pmInDom indom)
-{
-    //    int               number_of_bytes_read;
-    int               number_of_tokens_read;
-    //    char              buffer[BUFSIZ] = {""};
-    int               sts = 0;
-    int               eof_expected = 0;
     jsmn_parser       parser;
     jsmntok_t         *json_tokens = NULL;
     int               json_token_count = 0;
     char              *json = NULL;
     int               json_length = 0;
-    int test_var = 0;
+    int               i = 0;
+    int               number_of_bytes_read = 0;
+    char              *buffer = malloc(BUFSIZ);
+    number_of_bytes_read = BUFSIZ;
 
     if (!json_tokens) {
 	json_token_count = 2;
@@ -470,60 +398,53 @@ pmjsonInitChar(const char* buffer, int number_of_bytes_read, json_metric_desc *j
     }
     jsmn_init(&parser);
 
-    for (;;) {
-	//	number_of_bytes_read = read(fd, buffer, sizeof(buffer));
-	if (test_var)
-	    number_of_bytes_read = 0;
-	if (!test_var)
-	    test_var = 1;
-	if (number_of_bytes_read < 0) {
-	    if (pmDebug & DBG_TRACE_ATTR) {
-		fprintf(stderr, "%s: failed read on json file: %s\n",
-			pmProgname, osstrerror());
-		sts = -oserror();
-		return sts;
-	    }
+    for (i = 0;;i++) {
+	(*buffer_func)(buffer+(number_of_bytes_read-BUFSIZ), &number_of_bytes_read, json_input);
+	if (number_of_bytes_read == BUFSIZ){
+	    buffer = realloc(buffer, number_of_bytes_read + BUFSIZ);
+	    number_of_bytes_read = number_of_bytes_read + BUFSIZ;
 	}
-	/* Ok, we've read in the json file */
-	if (number_of_bytes_read == 0) {
-	    /* eof_expected when our parsing looks done, not before */
-	    if (!eof_expected) {
-		if (pmDebug & DBG_TRACE_ATTR)
-		    fprintf(stderr, "%s: unexpected EOF on json file: %s\n",
-			    pmProgname, osstrerror());
-		sts = -EINVAL;
-		break;
+	else if (number_of_bytes_read < 0) {
+	    if (pmDebug & DBG_TRACE_ATTR) {
+		fprintf(stderr, "%s: failed to read in json file: %s\n",
+			pmProgname, osstrerror());
 	    }
-	    /* We haven't read in any more information, and it appears parsing is done, return */
-	    if (indom != PM_INDOM_NULL)
-		sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, json_metrics[0].dom, json_metrics);
+	    sts = -oserror();
 	    return sts;
 	}
-
-
-	/* We've read in more json data, adjust our json size */
-	if ((json = realloc(json, json_length + number_of_bytes_read + 1)) == NULL) {
-	    sts = -ENOMEM;
+	else {
+	    number_of_bytes_read = (i*BUFSIZ + number_of_bytes_read);
 	    break;
 	}
-	strncpy(json + json_length, buffer, number_of_bytes_read);
-	json_length = json_length + number_of_bytes_read;
-again:
-	number_of_tokens_read = jsmn_parse(&parser, json, json_length, json_tokens, json_token_count);
-	if (number_of_tokens_read < 0) {
-	    if (number_of_tokens_read == JSMN_ERROR_NOMEM) {
-		json_token_count = json_token_count * 2;
-		if ((json_tokens = realloc(json_tokens, sizeof(*json_tokens) * json_token_count)) == NULL) {
-		    sts = -ENOMEM;
-		    break;
-		}
-		goto again;
-	    }
-	} else {
-	    json_pointer_to_index(json, json_tokens, parser.toknext, json_metrics, nummetrics);
-	    eof_expected = 1;
-	}
     }
+    /* We've read in more json data, adjust our json size */
+    if ((json = realloc(json, json_length + number_of_bytes_read + 1)) == NULL) {
+	sts = -ENOMEM;
+	free(json_tokens);
+	return sts;
+    }
+    strncpy(json + json_length, buffer, number_of_bytes_read);
+    json_length = json_length + number_of_bytes_read;
+ again:
+    number_of_tokens_read = jsmn_parse(&parser, json, json_length, json_tokens, json_token_count);
+    if (number_of_tokens_read < 0) {
+	if (number_of_tokens_read == JSMN_ERROR_NOMEM) {
+	    json_token_count = json_token_count * 2;
+	    if ((json_tokens = realloc(json_tokens, sizeof(*json_tokens) * json_token_count)) == NULL) {
+		sts = -ENOMEM;
+		free(json_tokens);
+		return sts;
+	    }
+	    goto again;
+	}
+    } else {
+	json_pointer_to_index(json, json_tokens, parser.toknext, json_metrics, nummetrics);
+	if (indom != PM_INDOM_NULL)
+	    sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, json_metrics[0].dom, json_metrics);
+	free(json_tokens);
+	return sts;
+    }
+    /* Should never reach here */
     free(json_tokens);
     return sts;
 }

@@ -207,8 +207,21 @@ json_metric_desc json_metrics[] = {
 
 #define JSON_SZ (sizeof(json_metrics)/sizeof(json_metrics[0]))
 
-int main(int argc, char** argv){
+void
+buffer_callback(char* buffer, int *buffer_size, void* extra)
+{
     int fd = -1;
+    int sts = -1;
+    fd = fileno((FILE*)extra);
+    if (fd > -1)
+	//	sts = read(fd, buffer, BUFSIZ*sizeof(char));
+	sts = read(fd, buffer, BUFSIZ);
+    if (sts > 0)
+	*buffer_size = sts;
+    return;
+}
+
+int main(int argc, char** argv){
     FILE *fp;
     unsigned int i;
     int c;
@@ -254,8 +267,8 @@ Options:\n\
     if ((fp = fopen(argv[optind], "r")) == NULL) {
 	return 1;
     }
-    fd = fileno(fp);
-    pmjsonInit(fd, json_metrics, JSON_SZ);
+
+    pmjsonInit(json_metrics, JSON_SZ, &buffer_callback, fp);
     for(i = 0; i < JSON_SZ; i++) {
 	switch (json_metrics[i].flags) {
 	case pmjson_flag_boolean:

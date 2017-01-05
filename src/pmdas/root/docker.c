@@ -152,6 +152,20 @@ docker_values_changed(const char *path, container_t *values)
     return 1;
 }
 
+void
+buffer_callback(char* buffer, int *buffer_size, void* extra)
+{
+
+    int fd = -1;
+    int sts = -1;
+    fd = fileno((FILE*)extra);
+    if (fd > -1)
+	sts = read(fd, buffer, BUFSIZ);
+    if (sts > 0)
+	*buffer_size = sts;
+    return;
+
+}
 static int
 docker_values_parse(FILE *fp, const char *name, container_t *values)
 {
@@ -168,7 +182,7 @@ docker_values_parse(FILE *fp, const char *name, container_t *values)
     local_json_metrics[0].dom = strdup(name);
     values->uptodate = 0;
     fd = fileno(fp);
-    sts = pmjsonInit(fd, local_json_metrics, JSONMETRICS_SZ);
+    sts = pmjsonInit(local_json_metrics, JSONMETRICS_SZ, &buffer_callback, fp);
     values->pid = -1;
     if(local_json_metrics[0].values.l)
 	values->pid = local_json_metrics[0].values.l;
