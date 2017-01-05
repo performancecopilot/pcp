@@ -27,12 +27,12 @@
 .hy 0
 .in +8n
 .ti -8n
-int pmjsonInitIndom(int \fIfd\fP, json_metric_desc *\fIjson_metrics\fP,
-int \fInum_metrics\fP, pmInDom \fIindom\fP);
+int pmjsonInit(json_metric_desc *\fIjson_metrics\fP,
+int \fInum_metrics\fP, void (*\fIjson_callback\fP)(char* buffer, int buflen, void *), void *\fIjson_input\fP);
 .br
 .ti -8n
-int pmjsonInit(int \fIfd\fP, json_metric_desc *\fIjson_metrics\fP,
-int \fInum_metrics\fP);
+int pmjsonInitIndom(json_metric_desc *\fIjson_metrics\fP, int \fInum_metrics\fP, pmInDom \fIindom\fP,
+void (*\fIjson_callback\fP)(char* buffer, int buflen, void *), void *\fIjson_input\fP);
 .sp
 .in
 .hy
@@ -46,13 +46,13 @@ functionality for PCP metrics with instance domains.
 Metrics and instances are defined by the \f2json_metrics\f1 parameter.
 The result of parsing is the extraction of values for the requested
 metrics (as defined in the json_pointer field) in the values field.
+The json buffer is filled in via a client supplied callback.  The result
+of which will supply the buffer and buflen variables.
 .P
 \f3pmjsonInit\f1 specifies a call to the JSON parsing and metric
 value extraction functionality where there are no instance domains,
 or the PMDA wishes to perform instance domain operations itself.
 .P
-\f2fd\f1 is an open file descriptor from which the JSON document will
-be read.
 .P
 \f2json_metrics\f1 is the array of json_metric_desc struct which
 contains the json pointer to the metric data, possible flags to check
@@ -67,6 +67,16 @@ passed, or \f3pmjsonInit\f1 used instead.
 .P
 \f2num_metrics\f1 is the number of elements in in the array of
 .IR json_metrics .
+.P
+\f2json_input\f1 the variable holding the JSON document to be parsed by the callback.
+.P
+\f2json_callback *buffer\f1 Is the variable where the callback stores the retrieved JSON document.
+.P
+\f2json_callback buflen\f1 Is the length of the data read from the JSON document, the result should
+be stored for the library to check if another callback is required.  The buffer will be expanded and
+realloced in BUFSIZ increments.
+.P
+\f2json_callback *extra\f1 The JSON document source.
 .P
 \f2indom\f1 is the instance domain to be passed to \f3pmdaCacheAdd\f1.
 .P

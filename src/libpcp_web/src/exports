@@ -14,7 +14,3 @@ PCP_WEB_1.1 {
     pmhttpFreeClient;
 } PCP_WEB_1.0;
 
-PCP_WEB_1.2 {
-  global:
-    pmjsonInitChar;
-} PCP_WEB_1.1;
