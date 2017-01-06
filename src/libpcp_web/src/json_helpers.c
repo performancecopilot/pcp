@@ -370,14 +370,30 @@ json_pointer_to_index(const char *json, jsmntok_t *json_tokens, size_t count, js
     return 0;
 }
 
-int
-pmjsonInit(json_metric_desc *json_metrics, int nummetrics, void (*buffer_func)(char*, int*, void*), void* json_input)
+void compat_callback(char *buffer, int *buffer_size, void *extra)
 {
-    return pmjsonInitIndom(json_metrics, nummetrics, PM_INDOM_NULL, buffer_func, json_input);
+    int sts = 0;
+    int fd = (int)extra;
+    if (fd > -1)
+	sts = read(fd, buffer, BUFSIZ);
+    if (sts >= 0)
+	*buffer_size = sts;
+    return;
+}
+int
+pmjsonInit(int fd, json_metric_desc *json_metrics, int nummetrics)
+{
+    return pmjsonInitIterable(json_metrics, nummetrics, PM_INDOM_NULL, compat_callback, (void*)fd);
 }
 
 int
-pmjsonInitIndom(json_metric_desc *json_metrics, int nummetrics, pmInDom indom, void (*buffer_func)(char*, int*, void*), void* json_input)
+pmjsonInitIndom(int fd, json_metric_desc *json_metrics, int nummetrics, pmInDom indom)
+{
+    return pmjsonInitIterable(json_metrics, nummetrics, indom, compat_callback, (void*)fd);
+}
+
+int
+pmjsonInitIterable(json_metric_desc *json_metrics, int nummetrics, pmInDom indom, void (*buffer_func)(char*, int*, void*), void* json_input)
 {
     int               number_of_tokens_read;
     int               sts = 0;
