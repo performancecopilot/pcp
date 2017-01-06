@@ -757,7 +757,7 @@ int grab_values(char* json_query, pmInDom indom, char* local_path, json_metric_d
 	local_json_metrics[i].json_pointer = strdup(json[i].json_pointer);
 
     local_json_metrics[0].dom = strdup(local_path);
-    sts = pmjsonInitIndom(local_json_metrics, json_size, indom, &buffer_callback, res);
+    sts = pmjsonInitIterable(local_json_metrics, json_size, indom, &buffer_callback, res);
 
     if (indom == PM_INDOM_NULL)
 	memcpy(json, local_json_metrics, (sizeof(json_metric_desc)*json_size));

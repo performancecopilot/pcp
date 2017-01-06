@@ -39,9 +39,11 @@ typedef struct json_metric_desc {
     char          *dom;
 } json_metric_desc;
 
-PCP_CALL extern int pmjsonInitIndom(json_metric_desc *, int, pmInDom, void(*)(char*, int*, void*), void* json_input);
-PCP_CALL extern int pmjsonInit(json_metric_desc *, int, void(*)(char*, int*, void*), void* json_input);
+typedef void (*buffer_func)(char*, int*, void*);
 
+PCP_CALL extern int pmjsonInit(int fd, json_metric_desc *, int);
+PCP_CALL extern int pmjsonInitIndom(int fd, json_metric_desc *, int, pmInDom);
+PCP_CALL extern int pmjsonInitIterable(json_metric_desc *, int, pmInDom, void(*)(char*, int*, void*), void* json_input);
 
 
 #ifdef __cplusplus
