@@ -203,6 +203,7 @@ __pmUnpinPDUBuf(void *handle)
     if (likely(bcp != NULL)) {
 	pcp = *(bufctl_t **)bcp;
     } else {
+	PM_UNLOCK(__pmLock_extcall);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PDUBUF) {
 	    fprintf(stderr, "__pmUnpinPDUBuf(" PRINTF_P_PFX "%p) -> fails\n",
@@ -210,7 +211,6 @@ __pmUnpinPDUBuf(void *handle)
 	    pdubufdump();
 	}
 #endif
-	PM_UNLOCK(__pmLock_extcall);
 	return 0;
     }
 

@@ -159,7 +159,8 @@ discovery.o
 checksum.o
 config.o
     ?__pmNativeConfig		# const
-    state			# guarded by __pmLock_libpcp mutex
+    ?localmutex			# local mutex
+    state			# guarded by localmutex
     ?features			# const
 connectlocal.o
     atexit_installed		# guarded by __pmLock_libpcp mutex

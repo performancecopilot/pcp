@@ -1014,7 +1014,7 @@ __pmNoMem(const char *where, size_t size, int fatal)
 			"%s: malloc(%d) failed: %s",
 			where, (int)size, osstrerror_r(errmsg, sizeof(errmsg)));
     if (fatal)
-	exit(1);
+	exit(1);		/* THREADSAFE */
 }
 
 /*
@@ -2316,7 +2316,7 @@ __pmProcessCreate(char **argv, int *infd, int *outfd)
 	}
 	execvp(argv[0], argv);
 	fprintf(stderr, "execvp: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
-	exit(1);
+	exit(1);		/* THREADSAFE */
     }
     return pid;
 }

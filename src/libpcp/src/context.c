@@ -380,6 +380,8 @@ ctxlocal(__pmHashCtl *attrs)
 	    return sts;
 	}
     }
+    else
+	PM_UNLOCK(__pmLock_extcall);
     return 0;
 }
 
@@ -667,13 +669,12 @@ expandArchiveList(const char *names)
 	memcpy(dirname, current, length);
 	dirname[length] = '\0';
 
-	PM_INIT_LOCKS();
-	PM_LOCK(__pmLock_libpcp);
+	PM_LOCK(__pmLock_extcall);
 	if ((dirp = opendir(dirname)) != NULL) {
 #if defined(HAVE_READDIR64)
-	    while ((direntp = readdir64(dirp)) != NULL) {
+	    while ((direntp = readdir64(dirp)) != NULL) {	/* THREADSAFE */
 #else
-	    while ((direntp = readdir(dirp)) != NULL) {
+	    while ((direntp = readdir(dirp)) != NULL) {		/* THREADSAFE */
 #endif
 		/*
 		 * If this file is part of an archive, then add it.
@@ -683,14 +684,18 @@ expandArchiveList(const char *names)
 		suffix = strrchr(direntp->d_name, '.');
 		if (suffix == NULL || strcmp(suffix, ".meta") != 0)
 		    continue;
+		/*
+		 * THREADSAFE because addName() acquires no locks (other than
+		 * on the fatal __pmNoMem() paths)
+		 */
 		newlist = addName(dirname, newlist, &newlistsize,
 				   direntp->d_name, suffix - direntp->d_name);
 	    }
 	    closedir(dirp);
-	    PM_UNLOCK(__pmLock_libpcp);
+	    PM_UNLOCK(__pmLock_extcall);
 	}
 	else {
-	    PM_UNLOCK(__pmLock_libpcp);
+	    PM_UNLOCK(__pmLock_extcall);
 	    newlist = addName(NULL, newlist, &newlistsize, current, length);
 	}
 	free(dirname);

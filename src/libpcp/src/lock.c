@@ -85,7 +85,7 @@ __pmInitLocks(void)
     if ((psts = pthread_mutex_lock(&init)) != 0) {
 	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "__pmInitLocks: pthread_mutex_lock failed: %s", errmsg);
-	exit(4);
+	exit(4);		/* THREADSAFE */
     }
     if (!done) {
 	SetupDebug();
@@ -99,17 +99,17 @@ __pmInitLocks(void)
 	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
 	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "__pmInitLocks: pthread_mutexattr_init failed: %s", errmsg);
-	    exit(4);
+	    exit(4);		/* THREADSAFE */
 	}
 	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
 	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "__pmInitLocks: pthread_mutexattr_settype failed: %s", errmsg);
-	    exit(4);
+	    exit(4);		/* THREADSAFE */
 	}
 	if ((psts = pthread_mutex_init(&__pmLock_libpcp, &attr)) != 0) {
 	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "__pmInitLocks: pthread_mutex_init failed: %s", errmsg);
-	    exit(4);
+	    exit(4);		/* THREADSAFE */
 	}
 	pthread_mutexattr_destroy(&attr);
 #endif
@@ -118,7 +118,7 @@ __pmInitLocks(void)
 	if ((psts = pthread_key_create(&__pmTPDKey, __pmTPD__destroy)) != 0) {
 	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "__pmInitLocks: pthread_key_create failed: %s", errmsg);
-	    exit(4);
+	    exit(4);		/* THREADSAFE */
 	}
 #endif
 	done = 1;
@@ -126,7 +126,7 @@ __pmInitLocks(void)
     if ((psts = pthread_mutex_unlock(&init)) != 0) {
 	pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "__pmInitLocks: pthread_mutex_unlock failed: %s", errmsg);
-	exit(4);
+	exit(4);		/* THREADSAFE */
     }
 #ifndef HAVE___THREAD
     if (pthread_getspecific(__pmTPDKey) == NULL) {
@@ -138,7 +138,7 @@ __pmInitLocks(void)
 	if ((psts = pthread_setspecific(__pmTPDKey, tpd)) != 0) {
 	    pmErrStr_r(-psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "__pmInitLocks: pthread_setspecific failed: %s", errmsg);
-	    exit(4);
+	    exit(4);		/* THREADSAFE */
 	}
 	memset((void *)tpd, 0, sizeof(*tpd));
 	tpd->curcontext = PM_CONTEXT_UNDEF;
@@ -229,6 +229,8 @@ again:
 	    fprintf(stderr, "(ctx %d ipc channel)", ctx);
 	else if (__pmIsDeriveLock(lock))
 	    fprintf(stderr, "(derived_metric)");
+	else if (lock == (void *)&__pmLock_extcall)
+	    fprintf(stderr, "(global_extcall)");
 	else
 	    fprintf(stderr, "(" PRINTF_P_PFX "%p)", lock);
     }

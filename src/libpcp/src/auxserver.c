@@ -109,7 +109,7 @@ __pmPMCDAddPorts(int **ports, int nports)
     if ((env = getenv("PMCD_PORT")) != NULL)		/* THREADSAFE */
 	/*
 	 * THREADSAFE because __pmAddPorts acquires no locks (other than
-	 * on the fatal __pmNoMem() path
+	 * on the fatal __pmNoMem() path)
 	 */
 	new_nports = __pmAddPorts(env, ports, nports);		/* THREADSAFE */
     PM_UNLOCK(__pmLock_extcall);
@@ -143,7 +143,7 @@ __pmProxyAddPorts(int **ports, int nports)
     if ((env = getenv("PMPROXY_PORT")) != NULL)		/* THREADSAFE */
 	/*
 	 * THREADSAFE because __pmAddPorts acquires no locks (other than
-	 * on the fatal __pmNoMem() path
+	 * on the fatal __pmNoMem() path)
 	 */
 	new_nports = __pmAddPorts(env, ports, nports);		/* THREADSAFE */
     PM_UNLOCK(__pmLock_extcall);
@@ -177,7 +177,7 @@ __pmWebdAddPorts(int **ports, int nports)
     if ((env = getenv("PMWEBD_PORT")) != NULL)		/* THREADSAFE */
 	/*
 	 * THREADSAFE because __pmAddPorts acquires no locks (other than
-	 * on the fatal __pmNoMem() path
+	 * on the fatal __pmNoMem() path)
 	 */
 	new_nports = __pmAddPorts(env, ports, nports);		/* THREADSAFE */
     PM_UNLOCK(__pmLock_extcall);

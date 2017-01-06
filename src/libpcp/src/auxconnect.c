@@ -778,6 +778,8 @@ __pmConnectTimeout(void)
 		__pmtimevalFromReal(timeout, &conn_wait);
 	    }
 	}
+	else
+	    PM_UNLOCK(__pmLock_extcall);
     }
 
     /* THREADSAFE - no locks acquired in __pmtimevalToReal() */

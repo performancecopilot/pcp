@@ -22,6 +22,12 @@
 #include <strings.h>
 #endif
 
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	localmutex = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*localmutex;
+#endif
+
 #ifdef IS_MINGW
 /*
  * Fix up the Windows path separator quirkiness - PCP code deals
@@ -262,18 +268,17 @@ pmgetconfig(const char *name, int fatal)
     static int		state = 0;
     char		*val;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(localmutex);
     if (state == 0) {
 	state = 1;
-	PM_UNLOCK(__pmLock_libpcp);
+	PM_UNLOCK(localmutex);
 	__pmconfig(__pmNativeConfig, fatal);
-	PM_LOCK(__pmLock_libpcp);
+	PM_LOCK(localmutex);
 	state = 2;
     }
     else if (state == 1) {
 	/* recursion from error in __pmConfig() ... no value is possible */
-	PM_UNLOCK(__pmLock_libpcp);
+	PM_UNLOCK(localmutex);
 	if (pmDebug & DBG_TRACE_CONFIG)
 	    fprintf(stderr, "pmgetconfig: %s= ... recursion error\n", name);
 	if (!fatal)
@@ -281,7 +286,7 @@ pmgetconfig(const char *name, int fatal)
 	val = "";
 	return val;
     }
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(localmutex);
 
     /*
      * THREADSAFE TODO ... this is bad (and documented), returning a
