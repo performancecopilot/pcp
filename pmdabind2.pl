@@ -11,8 +11,8 @@ use autodie;
 #TODO: Consider removing autodie
 
 use PCP::PMDA;
-use Time::HiRes            qw{gettimeofday};
-use LWP::Simple;
+use Time::HiRes            qw{gettimeofday alarm};
+use LWP;
 use XML::LibXML;
 use List::MoreUtils        qw{uniq};
 use File::Spec::Functions  qw{catfile};
@@ -25,106 +25,367 @@ use Data::Dumper;
 #$SIG{ __DIE__ } = sub { Carp::confess( @_ ) };
 
 $Data::Dumper::Sortkeys = 1;
+$Data::Dumper::Pad = "   <dump> ";
 #$Devel::Trace::TRACE = 1;
 
 # Assumes following options to be enabled in named.conf:
 #  - statistics-channels { inet <addr> port <port> allow { any }; }
 #  - options { zone-statistics yes; }
 
-# TODO: Make addr, port and allow_addr, allow_port in configuration
-# TODO: Make zone-statistics possible to be disabled
+#TODO: Make addr, port and allow_addr, allow_port in configuration
+#TODO: Make zone-statistics possible to be disabled
+#TODO: Better handle bind2.memory.contexts.blocksize set to '-'
+#TODO: Better handle undef in bind2.sockets.peer-address
+#TODO: Make the instance handling adaptive
+#TODO: Separate the Bind stats reading data into a module
+#TODO: Check bind2.nsstat.RateDropped, bind2.nsstat.RateSlipped, bind2.resolver.total.Lame
+#TODO: Review all the metrics for type/semantics/units/help/longhelp
+#TODO: Make somehow the metric id constant even if the metrics change so that the archives are comparable (or doesn't the PCP do it itself?)
+#TODO: Add warnings/unknown_stats counter
+#TODO: Add .total metrics for memory and sockstat metrics
+#TODO: Add .pmda metrics for config, errors and reasons
+#TODO: Make the intentionally deleted data available once they are considered useful. Note that some of these may grow large, so test under load at first. Once enabling these, make their ignoring configurable.
+#TODO: Make the bind2.pmda.errors.http_fetch
+#TODO: Make the bind2.pmda.errors.timeout
+#TODO: Make the bind2.pmda.delays.{data_fetch,fetch,fetch_callback}[actual,1min,5min,10min]
 
-# my $dom = XML::LibXML->load_xml(
-#     location => $ARGV[0],
-#     # parser options ...
-# );
 
-my %cfg = (
+our %cfg = (
     config_fname => "bind2.conf",
     pmda_prefix  => "bind2",
-    bind_uri     => "http://perf-v45.cz.intinfra.com:9999",
     pmda_id      => 250,
 
-    debug        => 1,
+    metrics => {
+        types => {
+            # Give a list of metrics with non-default type here
+
+            PM_TYPE_STRING() => [qw{bind2.memory.contexts.name
+                                    bind2.boot-time
+                                    bind2.current-time
+
+                                    bind2.sockets.local-address
+                                    bind2.sockets.name
+                                    bind2.sockets.peer-address
+                                    bind2.sockets.type
+                                    bind2.tasks.ADB.state
+                                    bind2.tasks.client.state
+                                    bind2.tasks.other.state
+                               }],
+        },
+
+        semantics => {
+            # Give a list of metrics with non-default semantics here
+
+            PM_SEM_DISCRETE() => [qw{bind2.memory.total.BlockSize
+                                     bind2.memory.total.ContextSize
+                                     bind2.memory.contexts.name
+                                     bind2.sockets.local-address
+                                     bind2.sockets.name
+                                     bind2.sockets.peer-address
+                                     bind2.tasks.ADB
+                                     bind2.tasks.client
+                                     bind2.tasks.other
+                              }],
+            PM_SEM_INSTANT()  => [qw{bind2.boot-time
+                                     bind2.current-time
+
+                                     bind2.memory.total.InUse
+                                     bind2.memory.total.Lost
+                                     bind2.memory.total.TotalUse
+                                     bind2.memory.contexts.blocksize
+                                     bind2.memory.contexts.hiwater
+                                     bind2.memory.contexts.inuse
+                                     bind2.memory.contexts.lowater
+                                     bind2.memory.contexts.maxinuse
+                                     bind2.memory.contexts.pools
+                                     bind2.memory.contexts.references
+                                     bind2.memory.contexts.total
+
+                                     bind2.sockets.references
+                                     bind2.sockets.states.bound
+                                     bind2.sockets.states.connected
+                                     bind2.sockets.states.listener
+
+                                     bind2.sockets.total
+                                }],
+        },
+
+        defaults => {
+            # Default metric properties here
+
+            type      => PM_TYPE_U32,
+            semantics => PM_SEM_COUNTER,
+        },
+    },
+
+    # Maximum time in seconds (may also be a fraction) to keep the data for responses
+    max_delta_sec      => 0.9,
+    max_get_delay_sec  => 0.7,
+
+    debug              => 1,
 );
 
-our %current_data;
+our (%current_data,%metrics,%indoms,%id2metrics,$lwp_user_agent);
 
 $0 = "pmda$cfg{pmda_prefix}";
 
-# Enable PCP debugging
+# Enable PCP debugging if required
 $ENV{PCP_DEBUG} = 65535
     if $cfg{debug};
 
-# Config check
-#TODO config_check(\%cfg);
-
-#print STDERR "Starting myredis PMDA\n";
+# Construct the PCP::PMDA object
 my $pmda = PCP::PMDA->new($cfg{pmda_prefix}, $cfg{pmda_id});
 
+die "Failed to construct the PMDA object"
+    unless $pmda;
+
+# Construct the LWP User Agent object
+$lwp_user_agent = LWP::UserAgent->new
+    or die "Failed to create the LWP::UserAgent";
+
+mytrace(Data::Dumper->Dump([\$lwp_user_agent],[qw{lwp_user_agent}]));
+
+# Load the configuration
 die "Failed to load config file"
     unless $cfg{loaded} = load_config(catfile(pmda_config('PCP_PMDAS_DIR'),
                                               $cfg{pmda_prefix},
                                               $cfg{config_fname}));
+
 $pmda->connect_pmcd;
 
 #$Devel::Trace::TRACE = 1;
-mydebug("Connected to PMDA");
+myinfo("Connected to PMDA");
 
-fetch_bind_stats($cfg{bind_uri});
+# Initialize the list of metrics
+init_metrics($cfg{loaded}{uri})
+    or die "Failed to init metrics from Bind server at '$cfg{loaded}{uri}'";
 
-#TODO: Add warnings/unknown_stats counter
+myinfo("Metrics initialized");
+
+# Add the instance domains
+foreach my $indom (sort {$a <=> $b} keys %indoms) {
+    mydebug("$cfg{pmda_prefix} adding instance domain '$indom' ...")
+        if $cfg{debug};
+
+    my $res = $pmda->add_indom($indom,
+                               $indoms{$indom},
+                               "TODO",
+                               "long TODO");
+    mydebug("add_indom returned: " . Dumper($res))
+        if $cfg{debug};
+}
+
+# Add all the metrics
+my $tmp_pmid = -1;
+
+foreach my $metric (sort keys %metrics) {
+    my $refh_metric = $metrics{$metric};
+    my ($pmid,$type,$indom,$semantics,$units,$shorthelp,$longhelp) = ( pmda_pmid(0,++$tmp_pmid),
+                                                                       $refh_metric->{type},
+                                                                       exists $refh_metric->{indom_id} ? $refh_metric->{indom_id} : PM_INDOM_NULL,
+                                                                       $refh_metric->{semantics},
+                                                                       pmda_units(0,0,1,0,0,PM_COUNT_ONE),
+                                                                       (exists $refh_metric->{help}     ? $refh_metric->{help} : ""),
+                                                                       (exists $refh_metric->{longhelp} ? $refh_metric->{longhelp} : ""));
+
+    $pmid++;
+
+    mydebug("Current metric parameters: " . Dumper(\$refh_metric));
+    mydebug("$cfg{pmda_prefix} adding metric $metric using:\n" . Data::Dumper->Dump([\$pmid,
+                                                                                     \$type,
+                                                                                     \$indom,
+                                                                                     \$semantics,
+                                                                                     \$units,
+                                                                                     \$shorthelp,
+                                                                                     \$longhelp],
+                                                                                    [qw{pmid type indom semantics units shorthelp longhelp}]));
+
+    my $res = $pmda->add_metric(
+        $pmid,                   # PMID
+        $type,                   # data type
+        $indom,                  # indom
+        $semantics,              # semantics
+        $units,                  # units
+        $metric,                 # key name
+        $shorthelp,              # short help
+        $longhelp);              # long help
+    $id2metrics{$pmid} = $metric;
+
+    mydebug("... returned '" . ($res // "<undef>") . "'");
+}
+
+# Set all the necessary callbacks and the account to run under
+mydebug("Setting fetch method ...");
+$pmda->set_fetch(\&fetch);
+
+mydebug("Setting fetch_callback method ...");
+$pmda->set_fetch_callback(\&fetch_callback);
+
+$pmda->set_user('pcp');
+
+# Start the PMDA
+mydebug("Calling ->run");
+$pmda->run;
+
+# This should never happen as run should never return
+myerror("Assertion error: ->run() terminated - this should never happen");
+
 
 ## Subroutines
-# log_me ($level_prefix,@lines) - logs lines with given log level prefix
-#                            - it is not intended to be run directly but from logging subroutines
-# sub log_me {
-#     my ($level,@args) = @_;
-#     my ($pkg,$fname,$lineno,$subroutine) = caller(2);
+#- Callback routines
+sub fetch {
+    my ($cluster, $item, $inst) = @_;
 
-#     #print Data::Dumper->Dump([caller(2)],[qw{caller}]);
-#     #
-#     #print STDERR Data::Dumper->Dump([\$pkg,\$fname,\$lineno,\$subroutine],
-#     #                                [qw{pkg fname lineno subroutine}]);
-#     #my $basename = basename $fname;
+    mydebug("Entering fetch(): " . Data::Dumper->Dump([\$cluster,\$item,\$inst],[qw{cluster item inst}]))
+        if $cfg{debug};
 
-#     # Note: caller can do even more, but the four are of my interest
+    # Clean deprecated data for all the instances
+    my ($cur_date_sec,$cur_date_msec) = gettimeofday;
+    my $cur_date = $cur_date_sec + $cur_date_msec/1e6;
 
-#     chomp @args;
-#     #$subroutine =~ s/main:://;
+    unless (keys %metrics) {
+        mydebug("No metrics found, calling init_metrics ...");
 
-#     if ($level eq "FATAL" or $level eq "ERROR") {
-#         $pmda->error("[$subroutine #$lineno] " . ($_ // "<undef>"))
-#             foreach @args;
-#     } else {
-#         $pmda->log("[$subroutine #$lineno] " . ($_ // "<undef>"))
-#             foreach @args;
-#     }
-# }
+        init_metrics()
+    }
 
-# sub myfatal {
-#     my ($exit_val,@args) = @_;
+    if (keys %current_data and ($cur_date - $current_data{timestamp}) > $cfg{max_delta_sec}) {
+        mydebug("Removing cache data as too old - cur_date: $cur_date, timestamp: $current_data{timestamp}");
 
-#     log_me("FATAL", @args);
-#     exit $exit_val
-# }
-# sub myerror { log_me("ERROR",@_) }
-# #sub mywarn  { log_me("WARN", @_) }
-# sub mydebug {
-#     return
-#         unless $cfg{debug};
+        delete $current_data{values};
+    }
 
-#     log_me("DEBUG", @_);
-# }
+    mydebug("... fetch() finished");
+}
 
-sub mydebug {
-    my @args = @_;
+sub fetch_callback {
+    my ($cluster, $item, $inst) = @_;
+    my $searched_key = $id2metrics{$item};
+    my $metric_name = pmda_pmid_name($cluster, $item);
+
+    mydebug("fetch_callback(): "
+                . Data::Dumper->Dump([\$cluster,\$item,\$inst,\$metric_name,\$searched_key],
+                                     [qw(cluster item inst metric_name searched_key)]))
+        if $cfg{debug};
+
+    if ($inst == PM_IN_NULL) {
+        # Return error if instance number was not given
+        mydebug("Given instance was PM_IN_NULL");
+
+        return (PM_ERR_INST, 0)
+    } elsif (not defined $metric_name) {
+        # Return error if metric was not given
+        mydebug("Given metric is not defined");
+
+        return (PM_ERR_PMID, 0)
+    }
+
+    # Fetch Bind metrics info ...
+    my ($cur_date_sec,$cur_date_msec) = gettimeofday;
+    my $cur_date = $cur_date_sec + $cur_date_msec/1e6;
+
+    if (not keys %metrics) {
+        # ... if the initialization did not succeed at the time of PMDA's start
+        mydebug("No metrics found, calling init_metrics ...");
+
+        init_metrics()
+    } elsif(($cur_date - $current_data{timestamp}) > $cfg{max_delta_sec}) {
+        # ... if the data are considered deprecated
+
+        mydebug("Actual data not found, refetching");
+
+        my $refh_bind_stats = fetch_bind_stats($cfg{loaded}{uri});
+
+        unless (defined $refh_bind_stats) {
+            $pmda->err("HTTP GET from '$cfg{loaded}{uri}' failed");
+
+            return (PM_ERR_AGAIN, 0)
+        }
+
+        $current_data{timestamp} = $cur_date;
+        $current_data{values} = $refh_bind_stats;
+    }
+
+    # Return the value if available
+    if (exists $current_data{$searched_key} and defined $current_data{$searched_key}) {
+        # ... key exists
+
+        if (exists $metrics{$searched_key}{indom_id}) {
+            # ... and isn't a scalar
+
+            # Derive the instance name
+            my $inst_name;
+            my $indom_id = $metrics{$searched_key}{indom_id};
+
+            if (defined $inst) {
+                while (my ($key,$value) = %{$indoms{$indom_id}}) {
+                    if ($value = $inst) {
+                        $inst_name = $key;
+
+                        last
+                    }
+                }
+
+                unless (defined $inst_name and exists $current_data{$searched_key}{$inst_name}) {
+                    myerror("Either inst_name cannot be derived or it is not present in fetched data:" . Data::Dumper->Dump([$searched_key,$inst,$inst_name],[qw{searched_key inst inst_name}]));
+
+                    return (PM_ERR_AGAIN, 0);
+                }
+            } else {
+                myerror("Assertion error - inst should be defined for metric '$searched_key'");
+
+                return (PM_ERR_AGAIN, 0);
+            }
+
+            return ($current_data{$searched_key}{$inst_name},1)
+        } else {
+            # ... is a scalar - return (<value>,<success code>)
+            mydebug("Returning success");
+
+            return ($current_data{$searched_key}, 1);
+        }
+
+        return (PM_ERR_AGAIN, 0);
+    } else {
+        # Return error if the atom value was not succesfully retrieved
+        mydebug("Required metric '$searched_key' was not found in Bind INFO or was undefined");
+
+        return (PM_ERR_AGAIN, 0)
+    }
+
+    myerror("Assertion Error fetch_callback() finished - this line should never be reached");
+}
+
+
+#- Logging subroutines
+sub mylog {
+    my ($prefix,@args) = @_;
 
     chomp @args;
-    print STDERR "DEBUG " . $_ . "\n"
+    #print STDERR join("",$prefix, " ", $_ , "\n")
+    $pmda->log(join("",$prefix, " ", $_))
         foreach @args;
 }
 
+
+sub myinfo  { mylog("INFO",@_) }
+sub mydebug { $cfg{debug} < 1 ? return : mylog("DEBUG",@_) }
+sub mytrace { $cfg{debug} < 2 ? return : mylog("TRACE",@_) }
+
+sub myerror {
+    $pmda->err("ERROR " . $_)
+        foreach @_;
+}
+
+sub myfatal {
+    $pmda->err("FATAL " . $_)
+        foreach @_;
+
+    exit 10;
+}
+
+
+#- Configuration-related subroutines
 sub load_config {
     my ($in_fname) = @_;
     my $refh_res;
@@ -132,61 +393,68 @@ sub load_config {
     open my $fh_in,"<",$in_fname;
 
     my ($host_id,$db_id,$lineno) = (0,0,0);
+    my $err_count;
 
     while (my $aline = <$fh_in>) {
         $lineno++;
         chomp $aline;
 
         if ($aline =~ /\A\s*#/) {
-            mydebug("#$lineno: Skipping line '$aline'");
+            mytrace("#$lineno: Skipping line '$aline'");
 
             next
         } elsif ($aline =~ /\A\s*\Z/) {
-            mydebug("#$lineno: Skipping line '$aline'");
+            mytrace("#$lineno: Skipping line '$aline'");
 
             next
         } elsif ($aline =~ /\A\s*host\s*=\s*(?<uri>(?:(?<proto>\S+):\/\/)?(?<host>\S+):(?<port>\d+)?)\s*\Z/) {
-            mydebug("#$lineno: proto: '$+{proto}', host: '$+{host}', port: '$+{port}', uri: $+{uri} from '$aline'");
+            mytrace(Data::Dumper->Dump([\$lineno,$+{proto},$+{host},$+{port},$+{uri},$aline],
+                                       [qw{lineno proto host port uri aline}]));
 
-            $refh_res->{host} = { proto => $+{proto},
-                                  host  => $+{host},
-                                  port  => $+{port},
-                                  uri   => $+{uri}};
+            die "More than single host given"
+                if exists $refh_res->{host} and defined $refh_res->{host};
+
+            $refh_res = {
+                proto => $+{proto},
+                host  => $+{host},
+                port  => $+{port},
+                uri   => $+{uri}
+            };
+
+            # Autoconfigure if necessary
+            $refh_res->{proto} //= "http";
+            $refh_res->{port}  //= 80;
+
+            $refh_res->{uri} = $refh_res->{proto} . "://" . $refh_res->{host} . ":" . $refh_res->{port};
+
+            # Check that host names/addresses and port numbers are valid
+            $err_count++,myerror("Failed to gethostbyname($$refh_res{host})")
+                unless $refh_res->{host} and gethostbyname $refh_res->{host};
+            $err_count++,myerror("Unexpected port number $$refh_res{port}")
+                unless $refh_res->{port} and $refh_res->{port} >= 1 and $refh_res->{port} <= 65535;
+
+            myinfo("Detected - host: '$$refh_res{host}', port: '$$refh_res{port}'");
         } else {
             warn "#$lineno: Unexpected line '$aline', skipping it";
         }
+
+        # if (defined $refh_res
+        #         and defined $refh_res->{host}
+        #         and defined $refh_res->{port}
+        #         and defined $refh_res->{uri}) {
+
+        # } else {
+        #     $err_count++;
+
+        #     $pmda->err("Failed to detect host name/address and port number from '$aline'");
+        #     next
+        # }
     }
 
-    # Check mandatory options
-    die "No mandatory keys found"
-        unless keys %$refh_res;
-
-    mydebug(Dumper($refh_res))
-        if $cfg{debug};
+    mytrace(Dumper($refh_res));
 
     die "No host to be monitored found in '$in_fname'"
         unless exists $refh_res->{host} and defined $refh_res->{host};
-
-    # Check that host names/addresses and port numbers are valid
-    my $err_count = 0;
-
-    foreach my $host_port (sort keys %{$refh_res->{hosts}}) {
-        my ($host,$port);
-
-        unless (($host,$port) = ($host_port =~ /(\S+):(\d+)/)) {
-            $err_count++;
-
-            $pmda->err("Failed to detect host name/address and port number from '$host_port'");
-            next;
-        }
-
-        mydebug("Detected - host: '$host', port: '$port'");
-
-        $err_count++,$pmda->err("Failed to gethostbyname($host)")
-            unless $host and gethostbyname $host;
-        $err_count++,$pmda->err("Unexpected port number $port")
-            unless $port and $port >= 1 and $port <= 65535;
-    }
 
     die "$err_count errors in config file detected, exiting"
         if $err_count;
@@ -194,34 +462,38 @@ sub load_config {
     $refh_res
 }
 
+#- Data extraction subroutines (XML mongers)
+#Note: I am not particularly good at XML. Anyone can find a better way to extract the information
+#      and reimplement the subroutines but keep in mind to hold the minimum delay and memoization
+#      features for minimum performance impact on the host where the PMDA is running.
 sub get_server_stats {
     my ($xml) = @_;
     my $refh_res;
 
     foreach my $node ($xml->findnodes("/isc/bind/statistics/server/*")) {
-        mydebug("node: ", Data::Dumper->Dump([$node->nodeName,$node->textContent],
+        mytrace("node: ", Data::Dumper->Dump([$node->nodeName,$node->textContent],
                                              [qw{name content}]))
             if $cfg{debug};
 
         if ($node->nodeName eq "#text") {
-            mydebug("skipping");
+            mytrace("skipping");
 
             next
         } elsif ($node->nodeName =~ /\A(boot-time|current-time)\Z/) {
-            mydebug("times - '"
+            mytrace("times - '"
                 . $node->nodeName
                 . "': '"
                 . $node->textContent);
 
             $refh_res->{join ".",$cfg{pmda_prefix},$1} = $node->textContent
         } elsif ($node->nodeName eq "requests") {
-            mydebug("requests: ",
+            mytrace("requests: ",
                     Data::Dumper->Dump([@{$node->childNodes}],
                                        [qw{child_nodes}]))
                 if $cfg{debug};
 
             foreach my $opcode ($node->childNodes) {
-                mydebug("opcode ",
+                mytrace("opcode ",
                         Data::Dumper->Dump([$opcode->nodeName,$opcode->textContent],
                                            [qw{name value}]))
                     if $cfg{debug};
@@ -232,7 +504,7 @@ sub get_server_stats {
                 my %data;
 
                 foreach my $child_node ($opcode->childNodes) {
-                    mydebug("child_node ",
+                    mytrace("child_node ",
                             Data::Dumper->Dump([$child_node->nodeName,$child_node->textContent],
                                                [qw{name content}]))
                         if $cfg{debug};
@@ -243,7 +515,7 @@ sub get_server_stats {
                     $data{$child_node->nodeName} = $child_node->textContent;
                 }
 
-                mydebug("opcode ",
+                mytrace("opcode ",
                         Data::Dumper->Dump([$data{name},$data{counter}],
                                            [qw{name counter}]))
                     if $cfg{debug};
@@ -293,7 +565,7 @@ sub get_server_stats {
         }
     }
 
-    mydebug("get_server_stats: ", Dumper($refh_res))
+    mytrace("get_server_stats: ", Dumper($refh_res))
         if $cfg{debug};
 
     $refh_res
@@ -313,7 +585,7 @@ sub get_task_stats {
         $refh_res->{join '.',$cfg{pmda_prefix},"thread_model",$task->nodeName} = $task->textContent;
     }
 
-    mydebug("get_task_stats - thread-model: ", Dumper(\$refh_res))
+    mytrace("get_task_stats - thread-model: ", Dumper(\$refh_res))
         if $cfg{debug};
 
     # Get the task counters
@@ -336,8 +608,7 @@ sub get_task_stats {
         }
 
         $name //= "other";
-
-        mydebug("task: ", Data::Dumper->Dump([$id,$name,\%data],
+        mytrace("task: ", Data::Dumper->Dump([$id,$name,\%data],
                                              [qw{id name data}]))
             if $cfg{debug};
 
@@ -349,7 +620,7 @@ sub get_task_stats {
             foreach keys %data;
     }
 
-    mydebug("get_task_stats: ", Dumper(\$refh_res))
+    mytrace("get_task_stats: ", Dumper(\$refh_res))
         if $cfg{debug};
 
     $refh_res
@@ -369,18 +640,18 @@ sub get_socket_stats {
         my $refh_states;
 
         foreach my $child_node ($node->childNodes) {
-            mydebug("child_node: " . $child_node->nodeName);
+            mytrace("child_node: " . $child_node->nodeName);
 
             # foreach my $name (keys %data) {
             if ($child_node->nodeName eq "states") {
-                mydebug("states: " . Dumper($child_node->childNodes->to_literal))
+                mytrace("states: " . Dumper($child_node->childNodes->to_literal))
                     if $cfg{debug};
 
                 foreach my $state ($child_node->childNodes) {
                     my $state_name = $state->textContent;
                     my $name = $state->nodeName;
 
-                    mydebug(Data::Dumper->Dump([\$name,\$state_name],
+                    mytrace(Data::Dumper->Dump([\$name,\$state_name],
                                                [qw{name state_name}]))
                         if $cfg{debug};
 
@@ -411,7 +682,7 @@ sub get_socket_stats {
                 if exists $refh_states->{$state};
         }
 
-        mydebug("id: '$data{id}'");
+        mytrace("id: '$data{id}'");
 
         foreach my $key (grep {not /\Aid\Z/} sort keys %data) {
             $refh_res->{join ".",
@@ -432,7 +703,7 @@ sub get_socket_stats {
     $refh_res->{$_} = $stats{$_}
         foreach keys %stats;
 
-    mydebug("get_socket_stats: ", Dumper(\$refh_res))
+    mytrace("get_socket_stats: ", Dumper(\$refh_res))
         if $cfg{debug};
 
     $refh_res;
@@ -448,16 +719,16 @@ sub get_resstat {
         foreach my $child_node ($node->childNodes) {
             my $node_name = $child_node->nodeName;
 
-            mydebug("node_name: '$node_name'");
+            mytrace("node_name: '$node_name'");
 
             if ($node_name eq "name") {
                 $name = $child_node->textContent;
 
-                mydebug("name: '$name'");
+                mytrace("name: '$name'");
             } elsif ($node_name eq "counter") {
                 $value = $child_node->textContent;
 
-                mydebug("value: '$value'");
+                mytrace("value: '$value'");
             } elsif ($node_name eq "#text") {
                 next
             } else {
@@ -472,7 +743,7 @@ sub get_resstat {
                     $name} = $value;
     }
 
-    mydebug("params: ", Dumper(\$refh_res))
+    mytrace("params: ", Dumper(\$refh_res))
         if $cfg{debug};
 
     $refh_res
@@ -482,18 +753,18 @@ sub get_zone_stats {
     my ($xml,$view) = @_;
     my $refh_res;
 
-    mydebug(Data::Dumper->Dump([\$xml,\$view],[qw{xml view}]))
+    mytrace("get_zone_stats:" . Data::Dumper->Dump([\$xml,\$view],[qw{xml view}]))
         if $cfg{debug};
 
     foreach my $zone ($xml->findnodes("/isc/bind/statistics/views/view[name='$view']/zones/*")) {
         my ($name) = map { $_->textContent } $zone->findnodes("./name");
 
         $name =~ s/\/\S+//;
-        mydebug(Data::Dumper->Dump([\$zone,\$name],[qw{zone name}]))
+        mytrace(Data::Dumper->Dump([\$zone,\$name],[qw{zone name}]))
             if $cfg{debug};
 
         foreach my $node ($zone->childNodes) {
-            mydebug("node: ", Dumper($node->nodeName))
+            mytrace(Data::Dumper->Dump([$node->nodeName],[qw{name}]))
                 if $cfg{debug};
 
             if ($node->nodeName =~ /\A(name|#text)\Z/) {
@@ -517,7 +788,7 @@ sub get_zone_stats {
         }
     }
 
-    mydebug("params: ", Dumper(\$refh_res))
+    mytrace("get_zone_stats results: ", Data::Dumper->Dump([$refh_res],[qw{refh_res}]))
         if $cfg{debug};
 
     $refh_res
@@ -543,7 +814,7 @@ sub get_memory_stats {
         }
     }
 
-    mydebug("get_memory_stats - total: ", Dumper(\$refh_res))
+    mytrace("get_memory_stats - total: ", Dumper(\$refh_res))
         if $cfg{debug};
 
     foreach my $context ($xml->findnodes("/isc/bind/statistics/memory/contexts/*")) {
@@ -562,7 +833,7 @@ sub get_memory_stats {
             }
         }
 
-        mydebug(Data::Dumper->Dump([$id,\%data],[qw{id data}]))
+        mytrace(Data::Dumper->Dump([$id,\%data],[qw{id data}]))
             if $cfg{debug};
 
         foreach (keys %data) {
@@ -574,63 +845,271 @@ sub get_memory_stats {
         }
     }
 
-    mydebug("get_memory_stats: ", Dumper(\$refh_res))
+    mytrace("get_memory_stats: ", Dumper(\$refh_res))
         if $cfg{debug};
 
     $refh_res
 }
 
+#- Overall data fetch subroutine to get the XML into the PMDA process
 sub fetch_bind_stats {
     my ($uri) = @_;
     my @time1 = gettimeofday;
-    my $content = get $uri
-        or return undef;
+    my $response;
+
+    eval {
+        local $SIG{ALRM} = sub {
+            mydebug("alarm timeouted");
+
+            die "Timeout alarm"
+        };
+
+        mydebug("Set alarm to $cfg{max_get_delay_sec} seconds ...");
+        alarm $cfg{max_get_delay_sec};
+
+        #$content = get $uri
+        #    or return undef;
+
+        $response = $lwp_user_agent->get($cfg{loaded}{uri});
+        mydebug(Data::Dumper->Dump([$response],[qw{response}]));
+
+        alarm 0;
+        mydebug("Alarm disarmed");
+    };
+
+    if ($@) {
+        if ($@ =~ /Timeout alarm/) {
+            mydebug("LWP GET timeouted");
+
+            return undef
+        } else {
+            myerror("Exception while waiting for LWP get: $@");
+
+            return undef
+        }
+    }
+
     my @time2 = gettimeofday;
+    my $fetch_delay_sec = (($time2[0] - $time1[0]) + ($time2[1] - $time1[1])/1e6);
 
-    print "Fetch delay: ", ($time2[0] - $time1[0]) + ($time2[1] - $time1[1])/1e6, " secs\n";
+    mydebug("Fetch delay: $fetch_delay_sec secs");
 
-    mydebug("content: '" . $content)
+    # Check the response
+    unless ($response->is_success) {
+        myerror("Failed to retrieve stats from '$cfg{loaded}{uri}': " . $response->status_line);
+
+        return undef
+    }
+
+    mytrace(Data::Dumper->Dump([\$response->content],[qw{content}]))
         if $cfg{debug};
 
+    # Parse the stats
     my $parser = XML::LibXML->new
         or die "Failed to create XML parser";
-    my $dom = $parser->load_xml(
-        # location => $uri,
-        string => $content,
-    ) or die "Failed to parse '$uri'";
+    my $dom;
+
+    eval {
+        $dom = $parser->load_xml(
+            # location => $uri,
+            string => $response->content,
+        );
+    };
+
+    if ($@) {
+        myerror("Exception caught while parsing content: '$@'");
+
+        return undef
+    }
+
+    # unless ($dom) {
+    #     myerror("Failed to parse content");
+
+    #     return undef
+    # }
 
     my ($refh_res,$refh_foo);
     my %subs = (
-        server           => sub { get_server_stats($_[0]) },
-        task             => sub { get_task_stats($_[0]) },
-        socket           => sub { get_socket_stats($_[0]) },
-        resolver_default => sub { get_resstat($_[0],"_default") },
-        resolver_bind    => sub { get_resstat($_[0],"_bind") },
+        server           => sub { get_server_stats($_[0])          },
+        task             => sub { get_task_stats($_[0])            },
+        socket           => sub { get_socket_stats($_[0])          },
+        resolver_default => sub { get_resstat($_[0],"_default")    },
+        # resolver_bind    => sub { get_resstat($_[0],"_bind")       },
         zone_default     => sub { get_zone_stats($_[0],"_default") },
-        zone_bind        => sub { get_zone_stats($_[0],"_bind") },
-        memory           => sub { get_memory_stats($_[0])});
+        # zone_bind        => sub { get_zone_stats($_[0],"_bind")    },
+        memory           => sub { get_memory_stats($_[0])          });
 
-    mydebug(Data::Dumper->Dump([\%subs],[qw{subs}]))
+    mytrace(Data::Dumper->Dump([\%subs],[qw{subs}]))
         if $cfg{debug};
 
     foreach my $type (sort keys %subs) {
-        mydebug(Data::Dumper->Dump([\$type],[qw{type}]))
+        mytrace(Data::Dumper->Dump([\$type],[qw{type}]))
             if $cfg{debug};
 
         $refh_foo = $subs{$type}->($dom)
             or die "failed to get $type stats";
 
-        merge_hashrefs_to_first($refh_res,$refh_foo)
+        $refh_res = merge_hashrefs_to_first($refh_res,$refh_foo)
             or die "Failed to merge $type stats";
     }
 
+    # Remove the actually unneeded data
+    my @unwanted_metrics = grep {
+        my $metric = $_;
+
+        grep {$metric =~ /\A$_/} qw{bind2.memory.contexts
+                                    bind2.sockets.local-address
+                                    bind2.sockets.peer-address
+                                    bind2.sockets.name
+                                    bind2.sockets.references
+                                    bind2.sockets.states
+                                    bind2.sockets.type
+                                    bind2.tasks}
+    } sort keys %$refh_res;
+
+    mydebug("Intentionally not considered metrics: " . join("\n  ", sort @unwanted_metrics));
+
+    delete $refh_res->{$_}
+        foreach @unwanted_metrics;
+
+    {
+        local $Data::Dumper::Maxdepth = 2;
+
+        mydebug("fetch_bind_stats - result: " . Data::Dumper->Dump([\$refh_res],[qw{refh_res}]))
+            if $cfg{debug};
+    }
+
+    my @time3 = gettimeofday;
+    my $processing_delay_sec = (($time3[0] - $time2[0]) + ($time3[1] - $time2[1])/1e6);
+
+    mydebug("Processing delay: $processing_delay_sec secs ()");
+
     $refh_res
+}
+
+#- Initialization procedure
+sub init_metrics {
+    my ($uri) = @_;
+
+    mydebug("Entering init_metrics() ...");
+
+    my $refh_res = fetch_bind_stats($uri);
+    mydebug("Failed to fetch Bind server stats")
+        unless defined $refh_res;
+
+    mydebug("init_metrics:");
+
+    # Create list of current metrics, type, semantics and values
+    foreach my $metric (sort keys %$refh_res) {
+        $metrics{$metric}{value} = $refh_res->{$metric};
+
+        # Get the metric type ...
+        my (@types,@semantics);
+
+        foreach my $data_type (keys %{$cfg{metrics}{types}}) {
+            push @types,$data_type
+                foreach grep { $metric =~ /\A$_/ } @{$cfg{metrics}{types}{$data_type}};
+        }
+
+        die "More than one data types found for metric '$metric': @types"
+            if @types and @types > 1;
+
+        $metrics{$metric}{type} = $types[0] // $cfg{metrics}{defaults}{type};
+
+        #TODO: Test both bind server response time and parsing time for huge (tens of thousands) sockets and use only stats if needed (the same with memory contexts)
+        #TODO: Exclude resources and the whole bind2.tasks until they are proved useful
+
+        # ...  and semantics
+        foreach my $data_semantics (keys %{$cfg{metrics}{semantics}}) {
+            push @semantics,$data_semantics
+                foreach grep { $metric =~ /\A$_/ } @{$cfg{metrics}{semantics}{$data_semantics}};
+        }
+
+        die "More than one data semantics found for metric '$metric': @semantics"
+            if @semantics and @semantics > 1;
+
+        $metrics{$metric}{semantics} = $semantics[0] // $cfg{metrics}{defaults}{semantics};
+        mytrace("Metric '$metric' - type: '$metrics{$metric}{type}', semantics: '$metrics{$metric}{semantics}', value: '$metrics{$metric}{value}'");
+    }
+
+    #TODO: Make the bind2.sockets.peer-address or other metrics with undefined valued not present
+    #TODO: Make the autoconfiguration optional or take it out to a script
+    #TODO: bind2.sockets.{local_address,name,peer_address,bound/unbound} -> bind2.sockets.total
+    #TODO: Make the bind2.sockets.{stats.{listener,connected},type}, bind2.sockets.type a scalar
+
+    # Create a list of current instance domains
+    foreach my $metric (sort keys %metrics) {
+        # Skip all the scalar metrics
+        next
+            if ref $metrics{$metric}{value} ne ref {};
+
+        mydebug("Deriving instance domain of metric: '$metric': " . Dumper($metrics{$metric}{value}));
+
+        # Check if there is an existing metric space - get the difference
+        my $indom_id;
+
+        foreach my $cur_indom_id (sort {$a <=> $b} keys %indoms) {
+            # Check if instances in existing instance domain are the same (the domain is the same)
+            # Note: This way may be prone to instance domains that would contain the same members
+            #       at the time of the initialization but would be different in general. For the
+            #       moment, I consider this to be unlikely case but in general this may lead to
+            #       problems. General configuration generated on demand by script outside
+            #       of the PMDA code could resolve this by enabling a check.
+
+            my @difference = grep {
+                not exists $indoms{$cur_indom_id}{$_}
+            } sort keys %{$metrics{$metric}{value}};
+
+            unless (@difference) {
+                $indom_id = $cur_indom_id;
+
+                last
+            }
+        }
+
+        # mydebug(Data::Dumper->Dump([$indom_id,\%indoms],[qw{indom_id indoms}]));
+
+        # This is a new indom
+        unless (defined $indom_id) {
+            $indom_id = scalar(keys(%indoms)) + 1;
+
+            # Add the new indom
+            my $instance_id = 0;
+
+            $indoms{$indom_id} = { map {
+                my $foo = $_;
+
+                mydebug("foo: '$foo', instance_id: '$instance_id'");
+
+                $foo => $instance_id++
+            } sort keys %{$metrics{$metric}{value}} };
+#            } sort keys %{$current_data{$metric}} };
+        }
+
+        mydebug("... added indom: " . Data::Dumper->Dump([$indom_id,$indoms{$indom_id}],
+                                                         [qw{indom_id indoms_of_indom_id}]));
+
+        $metrics{$metric}{indom_id} = $indom_id;
+    }
+
+    # Copy current values to current_data
+    my @current_time = gettimeofday;
+
+    $current_data{timestamp} = $current_time[0] + $current_time[1]/1e6;
+    $current_data{values} = { map {
+        $_ => $metrics{$_}{value};
+    } keys %metrics };
+
+    mydebug("init_metrics result: " . Data::Dumper->Dump([\%metrics,\%indoms,\%current_data],
+                                                         [qw{metrics indoms current_data}]));
+
+    1
 }
 
 sub merge_hashrefs_to_first {
     my ($x,$y) = @_;
 
-    mydebug(Data::Dumper->Dump([\$x,\$y],[qw{x y}]))
+    mytrace("merge_hashrefs_to_first: " . Data::Dumper->Dump([\$x,\$y],[qw{x y}]))
         if $cfg{debug};
 
     return undef
@@ -644,6 +1123,9 @@ sub merge_hashrefs_to_first {
 
         $x->{$_} = $y->{$_}
     }
+
+    mytrace("merge_hashrefs_to_first - result: " . Data::Dumper->Dump([\$x],[qw{x}]))
+        if $cfg{debug};
 
     $x
 }

@@ -12,7 +12,7 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Install the KVM PMDA
+# Install the Bind2 PMDA
 #
 
 . $PCP_DIR/etc/pcp.env
@@ -21,7 +21,7 @@
 iam=bind2
 perl_opt=true
 #daemon_opt=false
-daemon_opt=false
+daemon_opt=true
 forced_restart=true
 
 pmdaSetup
