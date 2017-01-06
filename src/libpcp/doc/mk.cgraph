@@ -186,7 +186,7 @@ s/)//
 		    c_lock|*-\>c_lock)
 			echo context >>$tmp.locks
 			;;
-		    *c_pmcd-\>pc_lock)
+		    *-\>pc_lock)
 			echo pmcd >>$tmp.locks
 			;;
 		    context-\>addrLock)
@@ -194,6 +194,9 @@ s/)//
 			;;
 		    context-\>urlLock)
 			echo probe.url >>$tmp.locks
+			;;
+		    localmutex)
+			echo local >>$tmp.locks
 			;;
 		    *)
 			echo >&2 "Bad LOCK: $param"
@@ -245,9 +248,14 @@ s/)//
 	    touch $tmp.output
 	else
 	    # assumed to be in libpcp, but may be a macro so use cscope
-	    # to see if there exists a global definition
+	    # to see if there exists a global definition that (a) is
+	    # in a C source file, and (b) looks like a function
 	    #
-	    ( cd ../src; cscope -I../../include/pcp -L -1"$calls" ) >$tmp.csout 2>$tmp.cserr
+	    ( cd ../src; cscope -I../../include/pcp -L -1"$calls" ) \
+	    | awk '$1 ~ /.*\.c$/ { print }' \
+	    | sed >$tmp.csout 2>$tmp.cserr \
+		-e "/$calls;/d" \
+		-e "/#define[ 	][ 	]*$calls[ 	(]/d"
 	    if [ -s $tmp.cserr ]
 	    then
 		echo >&2 "Unexpected errors from cscope(1) ..."

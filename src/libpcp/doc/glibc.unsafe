@@ -2,6 +2,7 @@
 # list
 exit
 cuserid
+tmpnam
 # *_unlocked require flockfile() and funlockfile() wrappers
 fgetc_unlocked
 fputc_unlocked
@@ -13,3 +14,10 @@ tfind
 tdelete
 tdestroy
 twalk
+# used in a setgrent-endgrent block
+getgrent_r
+# used in a setpwent-endpwent block
+getpwent_r
+# potential race on *DIR
+readdir
+readdir64

@@ -27,10 +27,12 @@ Locking and Concurrency Control
       	libpcp	=> the global __pmLock_libpcp mutex
       	extcall	=> the global __pmLock_extcall mutex
 	derived => the registered.mutex mutex for derived metrics
-	pmcd => the pc_lock mutext in a __pmPMCDCtl structure
 	context => the c_lock mutex in a __pmContext structure
+	pmcd => the pc_lock mutext in a __pmPMCDCtl structure
 	probe.addr => the addrLock mutex in a connectionContext structure
 	probe.url => the urlLock mutex in a connectionContext structure
+	local => a local mutex to protect data structures in one source
+		 file
 
   - prune.cgraph
     Using cscope and the .dot file created by mk.cgraph, do a recursive

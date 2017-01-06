@@ -2,9 +2,25 @@
 # create .dot and .png files from source files using mk.cgraph
 #
 
-PNGFILES = access.png access_part.png util.png AF.png desc \
-	   derive.png derive_part.png desc.png store.png avahi.png \
-	   probe.png probe_part.png access_prune.png probe_prune.png
+PNGFILES = access.png accounts.png AF.png auxconnect.png \
+	   auxserver.png avahi.png checksum.png config.png \
+	   connect.png connectlocal.png context.png \
+	   derive.png derive_fetch.png desc.png discovery.png \
+	   endian.png err.png events.png fault.png \
+	   fetch.png fetchgroup.png fetchlocal.png freeresult.png \
+	   getdate.tab.png getopt.png hash.png help.png instance.png \
+	   interp.png ipc.png lock.png logconnect.png \
+	   logcontrol.png logmeta.png logportmap.png logutil.png \
+	   optfetch.png pdubuf.png pdu.png pmns.png probe.png profile.png \
+	   p_attr.png p_creds.png p_desc.png p_error.png p_fetch.png \
+	   p_instance.png p_lcontrol.png p_lrequest.png p_lstatus.png \
+	   p_pmns.png p_profile.png p_result.png p_text.png \
+	   rtime.png secureconnect.png secureserver.png sortinst.png spec.png \
+	   store.png stuffvalue.png tv.png tz.png \
+	   units.png util.png win32.png \
+	   access_part.png access_prune.png \
+	   derive_part.png \
+	   probe_part.png probe_prune.png
 
 default: $(PNGFILES)
 

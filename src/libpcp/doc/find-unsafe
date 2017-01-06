@@ -24,13 +24,14 @@ _usage()
     echo >&2 "   	[default is to suppress these ones]"
     echo >&2 " -c	don't use comment skipping heuristic"
     echo >&2 " -u file	unsafe functions list, may be more than"
-    echo >&2 "   	-u option [default is posix.unsafe]"
+    echo >&2 "   	one -u option [default is posix.unsafe]"
+    echo >&2 " -U	use all the *.unsafe files"
 }
 
 unsafelist=""
 all=false
 skipcomment=true
-while getopts "acu:?" c
+while getopts "acu:U?" c
 do
     case $c
     in
@@ -44,6 +45,10 @@ do
 
 	u)
 	    unsafelist="$unsafelist $OPTARG"
+	    ;;
+
+	U)
+	    unsafelist="`echo *.unsafe`"
 	    ;;
 
 	?)
@@ -82,7 +87,7 @@ then
     echo 'found == 1	{ print NR; found = 0 }' >>$tmp.match
 else
     cat <<'End-of-File' >>$tmp.match
-/THREADSAFE/	{ safe = 2 }
+/THREADSAFE/	{ safe = 3 }
 found == 1	{ if (!safe) print NR
 		  found = 0
 		}
@@ -99,12 +104,12 @@ do
     then
 	sed <$file \
 	    -e 's/^/|/' \
-	    -e 's/\/\* THREADSAFE \*\//| THREADSAFE |/' \
+	    -e 's/\/\* \(THREADSAFE[^*/]*\) \*\//| \1 |/' \
 	| pmcpp \
 	| sed \
 	    -e '/^#/d' \
 	    -e 's/^|//' \
-	    -e 's/| THREADSAFE |/\/* THREADSAFE *\//'
+	    -e 's/| \(THREADSAFE.*\) |/\/* \1 *\//'
     else
 	cat $file
     fi \
