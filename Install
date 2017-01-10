@@ -20,8 +20,7 @@
 
 iam=bind2
 perl_opt=true
-#daemon_opt=false
-daemon_opt=true
+daemon_opt=false
 forced_restart=true
 
 pmdaSetup
