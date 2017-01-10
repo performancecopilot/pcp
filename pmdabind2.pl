@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #!/usr/bin/perl -d:Trace
 # pmdabind2.pl --- Few attempts
-# Author:  <lukas@sam>
+# Author:  <olivalukas@gmail.com>
 # Created: 09 Sep 2016
 # Version: 0.01
 
@@ -1145,7 +1145,7 @@ Stub documentation for try_XML-LibXML-Parser.pl,
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2016 by
+Copyright (C) 2016 by Lukas Oliva (olivalukas@gmail.com)
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.2 or,
