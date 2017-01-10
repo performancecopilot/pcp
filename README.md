@@ -29,7 +29,7 @@ The per-socket and per-memory-context statistics that can be retrieved from Bind
   * statistics-channels { inet <addr> port <port> allow { any }; }
   * options { zone-statistics yes; }
 
-   Note that you may need to allow the statistics queries/acls on the Bind server depending on the security settings of the Bind server as well.
+   Note that you may need to allow the statistics queries/acls on the Bind server depending on the security settings of the Bind server as well. See the Bind server Administration Reference Manual e.g. on https://ftp.isc.org/isc/ appropriate to the version of Bind server you use for details.
 
 * Install the PMDA to the PMCD as usual using the ./Install script and select it to be Collector/Monitor or Both
 * Check it to be present with pcp command:
