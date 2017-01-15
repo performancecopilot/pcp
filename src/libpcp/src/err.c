@@ -222,8 +222,11 @@ pmErrStr_r(int code, char *buf, int buflen)
 #define DECODE_SASL_SPECIFIC_ERROR(c)	((c) < -1000 ? 0 : (c))
 
 	int error = DECODE_SECURE_SOCKETS_ERROR(code);
-	if (DECODE_SASL_SPECIFIC_ERROR(error))
-	    snprintf(buf, buflen, "Authentication - %s", sasl_errstring(error, NULL, NULL));
+	if (DECODE_SASL_SPECIFIC_ERROR(error)) {
+	    PM_LOCK(__pmLock_extcall);
+	    snprintf(buf, buflen, "Authentication - %s", sasl_errstring(error, NULL, NULL));	/* THREADSAFE */
+	    PM_UNLOCK(__pmLock_extcall);
+	}
 	else
 	    strncpy(buf, PR_ErrorToString(error, PR_LANGUAGE_EN), buflen);
 	buf[buflen-1] = '\0';
@@ -292,7 +295,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 	    /* No strerror_r in MinGW, so need to lock */
 	    char	*tbp;
 	    PM_LOCK(__pmLock_extcall);
-	    tbp = strerror(-code);
+	    tbp = strerror(-code);		/* THREADSAFE */
 	    strncpy(buf, tbp, buflen);
 	    PM_UNLOCK(__pmLock_extcall);
 	}

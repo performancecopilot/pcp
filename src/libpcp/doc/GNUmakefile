@@ -20,7 +20,8 @@ PNGFILES = access.png accounts.png AF.png auxconnect.png \
 	   units.png util.png win32.png \
 	   access_part.png access_prune.png \
 	   derive_part.png \
-	   probe_part.png probe_prune.png
+	   probe_part.png probe_prune.png \
+	   tz_part.png
 
 default: $(PNGFILES)
 
@@ -59,4 +60,7 @@ probe_prune.dot:	probe.dot
 	cp probe_part.dot probe_prune.dot
 	prune.cgraph probe_prune.dot
 
+tz_part.png:	tz_part.dot
+tz_part.dot:	../src/tz.c
+	mk.cgraph -w -s pmLookupName,pmFetch,pmFreeResult,__pmNoMem -f ../src/tz.c >tz_part.dot
 

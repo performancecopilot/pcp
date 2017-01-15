@@ -23,9 +23,20 @@
 #endif
 
 #ifdef PM_MULTI_THREAD
-static pthread_mutex_t	localmutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t	config_lock = PTHREAD_MUTEX_INITIALIZER;
 #else
-void			*localmutex;
+void			*config_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == config_lock
+ */
+int
+__pmIsConfigLock(void *lock)
+{
+    return lock == (void *)&config_lock;
+}
 #endif
 
 #ifdef IS_MINGW
@@ -268,17 +279,17 @@ pmgetconfig(const char *name, int fatal)
     static int		state = 0;
     char		*val;
 
-    PM_LOCK(localmutex);
+    PM_LOCK(config_lock);
     if (state == 0) {
 	state = 1;
-	PM_UNLOCK(localmutex);
+	PM_UNLOCK(config_lock);
 	__pmconfig(__pmNativeConfig, fatal);
-	PM_LOCK(localmutex);
+	PM_LOCK(config_lock);
 	state = 2;
     }
     else if (state == 1) {
 	/* recursion from error in __pmConfig() ... no value is possible */
-	PM_UNLOCK(localmutex);
+	PM_UNLOCK(config_lock);
 	if (pmDebug & DBG_TRACE_CONFIG)
 	    fprintf(stderr, "pmgetconfig: %s= ... recursion error\n", name);
 	if (!fatal)
@@ -286,7 +297,7 @@ pmgetconfig(const char *name, int fatal)
 	val = "";
 	return val;
     }
-    PM_UNLOCK(localmutex);
+    PM_UNLOCK(config_lock);
 
     /*
      * THREADSAFE TODO ... this is bad (and documented), returning a

@@ -2,12 +2,18 @@
 #
 # Find routines that have been identified as possibly thread unsafe
 #
-# In the source files, use of these routines can be marked in a comment
-# either on the previous line of the source or the line with the call
-# as follows with the word THREADSAFE to indicate the code has been
-# analyzed and either mutual exclusion is guaranteed, e.g. by holding
-# a lock, or the results of the call are not invalidated by any
-# concurrency, e.g. rand();	/* THREADSAFE */
+# If the code has been analyzed and either mutual exclusion is
+# guaranteed, e.g. by holding a lock, or the results of the call are not
+# invalidated by any concurrency then the source file may be annotated
+# with the word THREADSAFE (assumed to be in a comment).
+#
+# This annotation can either be on the source line that contains
+# the potentially unsafe call, or on the proceeding source line (provided
+# it is the only thing on that source line.  For example
+#	rand();	/* THREADSAFE */
+# or
+# 	/* THREADSAFE */
+# 	rand();
 #
 
 tmp=/var/tmp/$$
@@ -76,8 +82,9 @@ do
     fi
 done
 
+echo "BEGIN { safe = 0 }" >$tmp.match
 cat $unsafelist \
-| sed >$tmp.match \
+| sed >>$tmp.match \
     -e '/^[ 	]*$/d' \
     -e '/^#/d' \
     -e 's/.*/\/[^a-zA-Z0-9_"]&[ 	]*\\(\/ { found = 1 }/'
@@ -87,8 +94,9 @@ then
     echo 'found == 1	{ print NR; found = 0 }' >>$tmp.match
 else
     cat <<'End-of-File' >>$tmp.match
-/THREADSAFE/	{ safe = 3 }
-found == 1	{ if (!safe) print NR
+/THREADSAFE/	{ safe = 1 }
+$1 = "/*" && $2 == "THREADSAFE" && $3 == "*/"	{ safe = 2 }
+found == 1	{ if (safe == 0) print NR
 		  found = 0
 		}
 safe > 0	{ safe-- }
@@ -96,6 +104,7 @@ End-of-File
 fi
 
 #debug# head $tmp.match
+cp $tmp.match eek.awk
 
 touch $tmp.first
 for file

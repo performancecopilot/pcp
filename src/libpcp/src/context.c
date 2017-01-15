@@ -435,7 +435,7 @@ ctxflags(__pmHashCtl *attrs, int *flags)
 	container = getenv("PCP_CONTAINER");		/* THREADSAFE */
 	if (container != NULL) {
 	    if ((name = strdup(container)) == NULL) {
-		PM_LOCK(__pmLock_extcall);
+		PM_UNLOCK(__pmLock_extcall);
 		return -ENOMEM;
 	    }
 	    PM_UNLOCK(__pmLock_extcall);

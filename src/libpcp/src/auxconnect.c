@@ -29,9 +29,20 @@ static struct timeval	conn_wait = { 5, 0 };
 static int		conn_wait_done;
 
 #ifdef PM_MULTI_THREAD
-static pthread_mutex_t	localmutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t	auxconnect_lock = PTHREAD_MUTEX_INITIALIZER;
 #else
-void			*localmutex;
+void			*auxconnect_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == auxconnect_lock
+ */
+int
+__pmIsAuxconnectLock(void *lock)
+{
+    return lock == (void *)&auxconnect_lock;
+}
 #endif
 
 __pmHostEnt *
@@ -740,11 +751,11 @@ __pmSetConnectTimeout(double timeout)
     if (timeout < 0.0)
 	return -EINVAL;
 
-    PM_LOCK(localmutex);
+    PM_LOCK(auxconnect_lock);
     /* THREADSAFE - no locks acquired in __pmtimevalFromReal() */
     __pmtimevalFromReal(timeout, &conn_wait);
     conn_wait_done = 1;
-    PM_UNLOCK(localmutex);
+    PM_UNLOCK(auxconnect_lock);
     return 0;
 }
 
@@ -755,7 +766,7 @@ __pmConnectTimeout(void)
     double	timeout;
 
     /* get optional PMCD connection timeout from the environment */
-    PM_LOCK(localmutex);
+    PM_LOCK(auxconnect_lock);
     if (!conn_wait_done) {
 	conn_wait_done = 1;
 	PM_LOCK(__pmLock_extcall);
@@ -765,11 +776,11 @@ __pmConnectTimeout(void)
 	    if (*end_ptr != '\0' || timeout < 0.0) {
 		char	*fromenv = strdup(timeout_str);
 		PM_UNLOCK(__pmLock_extcall);
-		PM_UNLOCK(localmutex);
+		PM_UNLOCK(auxconnect_lock);
 		__pmNotifyErr(LOG_WARNING, "%s:__pmAuxConnectPMCDPort: "
 			      "ignored bad PMCD_CONNECT_TIMEOUT = '%s'\n",
 			      __FILE__, fromenv);
-		PM_LOCK(localmutex);
+		PM_LOCK(auxconnect_lock);
 		free(fromenv);
 	    }
 	    else {
@@ -784,7 +795,7 @@ __pmConnectTimeout(void)
 
     /* THREADSAFE - no locks acquired in __pmtimevalToReal() */
     timeout = __pmtimevalToReal(&conn_wait);
-    PM_UNLOCK(localmutex);
+    PM_UNLOCK(auxconnect_lock);
 
     return timeout;
 }
@@ -851,7 +862,7 @@ __pmAuxConnectPMCD(const char *hostname)
 {
     static int		*pmcd_ports = NULL;
 
-    PM_LOCK(localmutex);
+    PM_LOCK(auxconnect_lock);
     if (pmcd_ports == NULL) {
 	/*
 	 * THREADSAFE - only __pmLock_extcall acquired during call to
@@ -859,7 +870,7 @@ __pmAuxConnectPMCD(const char *hostname)
 	 */
 	__pmPMCDAddPorts(&pmcd_ports, 0);
     }
-    PM_UNLOCK(localmutex);
+    PM_UNLOCK(auxconnect_lock);
 
     /* __pmPMCDAddPorts discovers at least one valid port, if it returns. */
     return __pmAuxConnectPMCDPort(hostname, pmcd_ports[0]);
@@ -885,10 +896,11 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     if ((servInfo = __pmGetAddrInfo(hostname)) == NULL) {
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_CONTEXT) {
+	    const char	*errmsg;
 	    PM_LOCK(__pmLock_extcall);
-	    /* THREADSAFE */
+	    errmsg = hoststrerror();		/* THREADSAFE */
 	    fprintf(stderr, "%s:__pmAuxConnectPMCDPort(%s, %d) : hosterror=%d, ``%s''\n",
-		    __FILE__, hostname, pmcd_port, hosterror(), hoststrerror());
+		    __FILE__, hostname, pmcd_port, hosterror(), errmsg);
 	    PM_UNLOCK(__pmLock_extcall);
 	}
 #endif
@@ -1015,7 +1027,7 @@ __pmPMCDLocalSocketDefault(void)
 {
     static char 		pmcd_socket[MAXPATHLEN];
 
-    PM_LOCK(localmutex);
+    PM_LOCK(auxconnect_lock);
     if (pmcd_socket[0] == '\0') {
 	char *envstr;
 	PM_LOCK(__pmLock_extcall);
@@ -1029,7 +1041,7 @@ __pmPMCDLocalSocketDefault(void)
 		     pmGetConfig("PCP_RUN_DIR"), __pmPathSeparator());
 	}
     }
-    PM_UNLOCK(localmutex);
+    PM_UNLOCK(auxconnect_lock);
 
     return pmcd_socket;
 }

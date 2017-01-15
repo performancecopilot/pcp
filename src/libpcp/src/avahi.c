@@ -678,8 +678,8 @@ discoveryTimeout(void)
 			      fromenv);
 	    }
 	    else {
-		PM_UNLOCK(__pmLock_extcall);
 		def_timeout = new_timeout;
+		PM_UNLOCK(__pmLock_extcall);
 	    }
 	}
 	else

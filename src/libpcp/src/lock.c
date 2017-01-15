@@ -61,9 +61,7 @@ SetupDebug(void)
     int		ival;
 
     PM_LOCK(__pmLock_extcall);
-    val = getenv("PCP_DEBUG");
-    PM_UNLOCK(__pmLock_extcall);
-
+    val = getenv("PCP_DEBUG");		/* THREADSAFE */
     if (val != NULL) {
 	char	*end;
 	ival = strtol(val, &end, 10);
@@ -73,6 +71,7 @@ SetupDebug(void)
 	else
 	    pmDebug |= ival;
     }
+    PM_UNLOCK(__pmLock_extcall);
 }
 
 void
@@ -229,6 +228,20 @@ again:
 	    fprintf(stderr, "(ctx %d ipc channel)", ctx);
 	else if (__pmIsDeriveLock(lock))
 	    fprintf(stderr, "(derived_metric)");
+	else if (__pmIsAuxconnectLock(lock))
+	    fprintf(stderr, "(auxconnect)");
+	else if (__pmIsConfigLock(lock))
+	    fprintf(stderr, "(config)");
+#ifdef PM_FAULT_INJECTION
+	else if (__pmIsFaultLock(lock))
+	    fprintf(stderr, "(fault)");
+#endif
+	else if (__pmIsPduLock(lock))
+	    fprintf(stderr, "(pdu)");
+	else if (__pmIsPdubufLock(lock))
+	    fprintf(stderr, "(pdubuf)");
+	else if (__pmIsUtilLock(lock))
+	    fprintf(stderr, "(util)");
 	else if (lock == (void *)&__pmLock_extcall)
 	    fprintf(stderr, "(global_extcall)");
 	else

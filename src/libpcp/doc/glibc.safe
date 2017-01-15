@@ -4,6 +4,7 @@ asctime_r
 assert
 atexit
 atoi
+basename
 calloc
 clearerr
 clock_nanosleep
@@ -13,6 +14,7 @@ closelog
 connect
 creat
 ctime_r
+dirname
 div
 dup
 dup2
@@ -160,10 +162,15 @@ strtoll
 strtoul
 strtoull
 syslog
+tdelete
+tdestroy
 tempnam
+tfind
 time
 tolower
 toupper
+tsearch
+twalk
 tzset
 umask
 ungetc

@@ -122,11 +122,17 @@ __pmTPDGet(void)
 #define PM_TPD(x) x
 #endif
 
-#ifdef PM_MULTI_THREAD_DEBUG
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
 extern void __pmDebugLock(int, void *, const char *, int) _PCP_HIDDEN;
 extern int __pmIsContextLock(void *) _PCP_HIDDEN;
 extern int __pmIsChannelLock(void *) _PCP_HIDDEN;
 extern int __pmIsDeriveLock(void *) _PCP_HIDDEN;
+extern int __pmIsAuxconnectLock(void *) _PCP_HIDDEN;
+extern int __pmIsConfigLock(void *) _PCP_HIDDEN;
+extern int __pmIsFaultLock(void *) _PCP_HIDDEN;
+extern int __pmIsPduLock(void *) _PCP_HIDDEN;
+extern int __pmIsPdubufLock(void *) _PCP_HIDDEN;
+extern int __pmIsUtilLock(void *) _PCP_HIDDEN;
 #endif
 
 /* AF_UNIX socket family internals */

@@ -5,7 +5,7 @@
 # http://pubs.opengroup.org/onlinepubs/9699919799/functions/V2_chap02.html#tag_15_09_01
 #
 asctime
-basename
+# basename OK according to glibc documentation
 catgets
 crypt
 ctime
@@ -18,7 +18,7 @@ dbm_firstkey
 dbm_nextkey
 dbm_open
 dbm_store
-dirname
+# dirname OK according to glibc documentation
 dlerror
 drand48
 ecvt

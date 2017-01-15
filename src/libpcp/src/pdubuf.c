@@ -34,8 +34,25 @@ typedef struct bufctl
     /* The actual buffer happens to follow this struct. */
 } bufctl_t;
 
-/* Protected by the __pmLock_extcall mutex. */
+/* Protected by the pdubuf_lock mutex. */
 static void *buf_tree;
+
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	pdubuf_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*pdubuf_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == pdubuf_lock
+ */
+int
+__pmIsPdubufLock(void *lock)
+{
+    return lock == (void *)&pdubuf_lock;
+}
+#endif
 
 #ifdef PCP_DEBUG
 static void
@@ -56,14 +73,14 @@ pdubufdump(void)
      * There is no longer a pdubuf free list, ergo no
      * fprintf(stderr, "   free pdubuf[size]:\n");
      */
-    PM_LOCK(__pmLock_extcall);
+    PM_LOCK(pdubuf_lock);
     if (buf_tree != NULL) {
 	fprintf(stderr, "   pinned pdubuf[size](pincnt):");
 	/* THREADSAFE - no locks acquired in pdubufdump1() */
 	twalk(buf_tree, &pdubufdump1);
 	fprintf(stderr, "\n");
     }
-    PM_UNLOCK(__pmLock_extcall);
+    PM_UNLOCK(pdubuf_lock);
 }
 #endif
 
@@ -107,16 +124,16 @@ __pmFindPDUBuf(int need)
     pcp->bc_size = need;
     pcp->bc_buf = ((char *)pcp) + sizeof(*pcp);
 
-    PM_LOCK(__pmLock_extcall);
+    PM_LOCK(pdubuf_lock);
     /* Insert the node in the tree. */
     /* THREADSAFE - no locks acquired in bufctl_t_compare() */
     bcp = tsearch((void *)pcp, &buf_tree, &bufctl_t_compare);
     if (unlikely(bcp == NULL)) {	/* ENOMEM */
-	PM_UNLOCK(__pmLock_extcall);
+	PM_UNLOCK(pdubuf_lock);
 	free(pcp);
 	return NULL;
     }
-    PM_UNLOCK(__pmLock_extcall);
+    PM_UNLOCK(pdubuf_lock);
 
 #ifdef PCP_DEBUG
     if (unlikely(pmDebug & DBG_TRACE_PDUBUF)) {
@@ -144,7 +161,7 @@ __pmPinPDUBuf(void *handle)
     pcp_search.bc_buf = handle;
     pcp_search.bc_size = 1;
 
-    PM_LOCK(__pmLock_extcall);
+    PM_LOCK(pdubuf_lock);
     /* THREADSAFE - no locks acquired in bufctl_t_compare() */
     bcp = tfind(&pcp_search, &buf_tree, &bufctl_t_compare);
     /*
@@ -157,7 +174,7 @@ __pmPinPDUBuf(void *handle)
 	       ((char *)handle < &pcp->bc_buf[pcp->bc_size]));
 	pcp->bc_pincnt++;
     } else {
-	PM_UNLOCK(__pmLock_extcall);
+	PM_UNLOCK(pdubuf_lock);
 	__pmNotifyErr(LOG_WARNING, "__pmPinPDUBuf: 0x%lx not in pool!",
 			(unsigned long)handle);
 #ifdef PCP_DEBUG
@@ -174,7 +191,7 @@ __pmPinPDUBuf(void *handle)
 		pcp->bc_buf, pcp->bc_pincnt);
 #endif
 
-    PM_UNLOCK(__pmLock_extcall);
+    PM_UNLOCK(pdubuf_lock);
 }
 
 int
@@ -184,7 +201,7 @@ __pmUnpinPDUBuf(void *handle)
     void	*bcp;
 
     assert(((__psint_t)handle % sizeof(int)) == 0);
-    PM_LOCK(__pmLock_extcall);
+    PM_LOCK(pdubuf_lock);
 
     /*
      * Initialize a dummy bufctl_t to use only as search key;
@@ -203,7 +220,7 @@ __pmUnpinPDUBuf(void *handle)
     if (likely(bcp != NULL)) {
 	pcp = *(bufctl_t **)bcp;
     } else {
-	PM_UNLOCK(__pmLock_extcall);
+	PM_UNLOCK(pdubuf_lock);
 #ifdef PCP_DEBUG
 	if (pmDebug & DBG_TRACE_PDUBUF) {
 	    fprintf(stderr, "__pmUnpinPDUBuf(" PRINTF_P_PFX "%p) -> fails\n",
@@ -227,11 +244,11 @@ __pmUnpinPDUBuf(void *handle)
     if (likely(--pcp->bc_pincnt == 0)) {
 	/* THREADSAFE - no locks acquired in bufctl_t_compare() */
 	tdelete(pcp, &buf_tree, &bufctl_t_compare);
-	PM_UNLOCK(__pmLock_extcall);
+	PM_UNLOCK(pdubuf_lock);
 	free(pcp);
     }
     else {
-	PM_UNLOCK(__pmLock_extcall);
+	PM_UNLOCK(pdubuf_lock);
     }
 
     return 1;
@@ -239,7 +256,7 @@ __pmUnpinPDUBuf(void *handle)
 
 /*
  * Used to pass context from __pmCountPDUBuf to the pdubufcount callback.
- * They are protected by the __pmLock_extcall mutex.
+ * They are protected by the pdubuf_lock mutex.
  */
 static int	pdu_bufcnt_need;
 static unsigned	pdu_bufcnt;
@@ -257,7 +274,7 @@ pdubufcount(const void *nodep, const VISIT which, const int depth)
 void
 __pmCountPDUBuf(int need, int *alloc, int *free)
 {
-    PM_LOCK(__pmLock_extcall);
+    PM_LOCK(pdubuf_lock);
 
     pdu_bufcnt_need = need;
     pdu_bufcnt = 0;
@@ -267,5 +284,5 @@ __pmCountPDUBuf(int need, int *alloc, int *free)
 
     *free = 0;			/* We don't retain freed nodes. */
 
-    PM_UNLOCK(__pmLock_extcall);
+    PM_UNLOCK(pdubuf_lock);
 }

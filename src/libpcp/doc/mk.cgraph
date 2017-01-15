@@ -195,8 +195,14 @@ s/)//
 		    context-\>urlLock)
 			echo probe.url >>$tmp.locks
 			;;
-		    localmutex)
-			echo local >>$tmp.locks
+		    config_lock)
+			echo config >>$tmp.locks
+			;;
+		    auxconnect_lock)
+			echo auxconnect >>$tmp.locks
+			;;
+		    pdubuf_lock)
+			echo pdubuf >>$tmp.locks
 			;;
 		    *)
 			echo >&2 "Bad LOCK: $param"
@@ -309,6 +315,8 @@ then
     fi
     echo "digraph `basename $file .c` {"
     echo
+else
+    echo "digraph $1 {"
 fi
 
 while [ -s $tmp.todo ]
@@ -341,6 +349,6 @@ do
     fi
 done
 
-$fflag && echo "}"
+echo "}"
 
 sts=0

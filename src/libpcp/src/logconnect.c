@@ -37,26 +37,34 @@ __pmLoggerTimeout(void)
     static int		timeout = TIMEOUT_NEVER;
     static int		done_default = 0;
 
+    PM_LOCK(__pmLock_extcall);
     if (!done_default) {
 	char	*timeout_str;
 	char	*end_ptr;
-	PM_LOCK(__pmLock_extcall);
-	timeout_str = getenv("PMLOGGER_REQUEST_TIMEOUT");
+	timeout_str = getenv("PMLOGGER_REQUEST_TIMEOUT");	/* THREADSAFE */
 	done_default = 1;
-	PM_UNLOCK(__pmLock_extcall);
 	if (timeout_str != NULL) {
 	    /*
 	     * Only a positive integer (the unit is seconds) is OK
 	     */
 	    timeout = strtol(timeout_str, &end_ptr, 10);
 	    if (*end_ptr != '\0' || timeout < 0) {
+		char	*fromenv = strdup(timeout_str);
+		timeout = TIMEOUT_NEVER;
+		PM_UNLOCK(__pmLock_extcall);
 		__pmNotifyErr(LOG_WARNING,
 			      "ignored bad PMLOGGER_REQUEST_TIMEOUT = '%s'\n",
-			      timeout_str);
-		timeout = TIMEOUT_NEVER;
+			      fromenv);
+		free(fromenv);
 	    }
+	    else
+		PM_UNLOCK(__pmLock_extcall);
 	}
+	else
+	    PM_UNLOCK(__pmLock_extcall);
     }
+    else
+	PM_UNLOCK(__pmLock_extcall);
 
     return timeout;
 }
@@ -330,9 +338,14 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 
 	    if ((servInfo = __pmGetAddrInfo(connectionSpec)) == NULL) {
 #ifdef PCP_DEBUG
-		if (pmDebug & DBG_TRACE_CONTEXT)
+		if (pmDebug & DBG_TRACE_CONTEXT) {
+		    const char	*errmsg;
+		    PM_LOCK(__pmLock_extcall);
+		    errmsg = hoststrerror();		/* THREADSAFE */
 		    fprintf(stderr, "__pmConnectLogger: __pmGetAddrInfo: %s\n",
-			    hoststrerror());
+			    errmsg);
+		    PM_LOCK(__pmLock_extcall);
+		}
 #endif
 		return -EHOSTUNREACH;
 	    }

@@ -6,6 +6,7 @@ hoststrerror
 # libpcp_pmda
 pmdaCacheOp
 pmdaCacheStore
+pmdaCacheLookup
 pmdaCacheLookupName
 
 # libsasl

@@ -418,6 +418,8 @@ lex(int reset)
 	    char	*alt;
 	    char	cmd[80+MAXPATHLEN];
 
+	    /* always get here after acquiring __pmLock_libpcp */
+	    /* THREADSAFE */
 	    if ((alt = getenv("PCP_ALT_CPP")) != NULL) {
 		/* $PCP_ALT_CPP used in the build before pmcpp installed */
 		snprintf(cmd, sizeof(cmd), "%s %s", alt, fname);
@@ -1214,7 +1216,8 @@ getfname(const char *filename)
     if (filename == PM_NS_DEFAULT || (__psint_t)filename == 0xffffffff) {
 	char	*def_pmns;
 
-	def_pmns = getenv("PMNS_DEFAULT");
+	/* always get here after acquiring __pmLock_libpcp */
+	def_pmns = getenv("PMNS_DEFAULT");		/* THREADSAFE */
 	if (def_pmns != NULL) {
 	    /* get default PMNS name from environment */
 	    return def_pmns;

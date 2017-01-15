@@ -35,6 +35,23 @@
 #include "fault.h"
 #include <assert.h>
 
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	pdu_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*pdu_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == pdu_lock
+ */
+int
+__pmIsPduLock(void *lock)
+{
+    return lock == (void *)&pdu_lock;
+}
+#endif
+
 PCP_DATA int	pmDebug;		/* the real McCoy */
 
 /*
@@ -64,11 +81,11 @@ __pmSetRequestTimeout(double timeout)
     if (timeout < 0.0)
 	return -EINVAL;
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    __pmtimevalFromReal(timeout, &req_wait);
+    PM_LOCK(pdu_lock);
     req_wait_done = 1;
-    PM_UNLOCK(__pmLock_libpcp);
+    /* THREADSAFE - no locks acquired in __pmtimevalFromReal() */
+    __pmtimevalFromReal(timeout, &req_wait);
+    PM_UNLOCK(pdu_lock);
     return 0;
 }
 
@@ -79,22 +96,30 @@ __pmRequestTimeout(void)
     double	timeout;
 
     /* get optional PMCD request timeout from the environment */
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
+    PM_LOCK(pdu_lock);
     if (!req_wait_done) {
-	if ((timeout_str = getenv("PMCD_REQUEST_TIMEOUT")) != NULL) {
+	req_wait_done = 1;
+	PM_LOCK(__pmLock_extcall);
+	timeout_str = getenv("PMCD_REQUEST_TIMEOUT");		/* THREADSAFE */
+	if (timeout_str != NULL)
+	    timeout_str = strdup(timeout_str);
+	if (timeout_str != NULL) {
 	    timeout = strtod(timeout_str, &end_ptr);
-	    if (*end_ptr != '\0' || timeout < 0.0)
+	    PM_UNLOCK(__pmLock_extcall);
+	    if (*end_ptr != '\0' || timeout < 0.0) {
 		__pmNotifyErr(LOG_WARNING,
 			      "ignored bad PMCD_REQUEST_TIMEOUT = '%s'\n",
 			      timeout_str);
+	    }
 	    else
 		__pmtimevalFromReal(timeout, &req_wait);
+	    free(timeout_str);
 	}
-	req_wait_done = 1;
+	else
+	    PM_UNLOCK(__pmLock_extcall);
     }
     timeout = __pmtimevalToReal(&req_wait);
-    PM_UNLOCK(__pmLock_libpcp);
+    PM_UNLOCK(pdu_lock);
     return timeout;
 }
 
@@ -152,8 +177,11 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 		wait.tv_sec = timeout;
 		wait.tv_usec = 0;
 	    }
-	    else
+	    else {
+		PM_LOCK(pdu_lock);
 		wait = req_wait;
+		PM_UNLOCK(pdu_lock);
+	    }
 	    if (onetrip) {
 		/*
 		 * Need all parts of the PDU to be received by dead_hand
@@ -194,8 +222,10 @@ pduread(int fd, char *buf, int len, int part, int timeout)
 			tosec = (int)timeout;
 			tomsec = 0;
 		    } else {
+			PM_LOCK(pdu_lock);
 			tosec = (int)req_wait.tv_sec;
 			tomsec = 1000*(int)req_wait.tv_usec;
+			PM_UNLOCK(pdu_lock);
 		    }
 
 		    __pmNotifyErr(LOG_WARNING, 
@@ -477,15 +507,14 @@ check_read_len:
 	int		tmpsize;
 	int		have = len;
 
-	PM_INIT_LOCKS();
-	PM_LOCK(__pmLock_libpcp);
+	PM_LOCK(pdu_lock);
 	if (php->len > maxsize) {
 	    tmpsize = PDU_CHUNK * ( 1 + php->len / PDU_CHUNK);
 	    maxsize = tmpsize;
 	}
 	else
 	    tmpsize = maxsize;
-	PM_UNLOCK(__pmLock_libpcp);
+	PM_UNLOCK(pdu_lock);
 
 	pdubuf_prev = pdubuf;
 	if ((pdubuf = __pmFindPDUBuf(tmpsize)) == NULL) {

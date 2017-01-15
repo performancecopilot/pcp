@@ -709,7 +709,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     PM_LOCK(__pmLock_extcall);
     if (dowrap == -1) {
 	/* PCP_COUNTER_WRAP in environment enables "counter wrap" logic */
-	if (getenv("PCP_COUNTER_WRAP") == NULL)
+	if (getenv("PCP_COUNTER_WRAP") == NULL)		/* THREADSAFE */
 	    dowrap = 0;
 	else
 	    dowrap = 1;

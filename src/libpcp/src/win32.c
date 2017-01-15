@@ -548,11 +548,13 @@ static char *eventlogPrefix;
 void
 openlog(const char *ident, int option, int facility)
 {
+    PM_LOCK(__pmLock_extcall);
     if (eventlog)
 	closelog();
-    eventlog = RegisterEventSource(NULL, "Application");
+    eventlog = RegisterEventSource(NULL, "Application");	/* THREADSAFE */
     if (ident)
 	eventlogPrefix = strdup(ident);
+    PM_UNLOCK(__pmLock_extcall);
 }
 
 void
@@ -599,13 +601,15 @@ syslog(int priority, const char *format, ...)
 void
 closelog(void)
 {
+    PM_LOCK(__pmLock_extcall);
     if (eventlog) {
-	DeregisterEventSource(eventlog);
+	DeregisterEventSource(eventlog);		/* THREADSAFE */
 	if (eventlogPrefix)
 	    free(eventlogPrefix);
 	eventlogPrefix = NULL;
     }
     eventlog = NULL;
+    PM_UNLOCK(__pmLock_extcall);
 }
 
 const char *
@@ -786,12 +790,15 @@ __pmGetUserIdentity(const char *username, __pmUserID *uid, __pmGroupID *gid, int
     return -ENOTSUP;	/* NYI */
 }
 
+/*
+ * always called with __pmLock_extcall already held, so THREADSAFE
+ */
 int
 setenv(const char *name, const char *value, int overwrite)
 {
     char	*ebuf;
 
-    if (getenv(name) != NULL) {
+    if (getenv(name) != NULL) {		/* THREADSAFE */
 	/* already in the environment */
 	if (!overwrite)
 	    return(0);
@@ -804,9 +811,12 @@ setenv(const char *name, const char *value, int overwrite)
     strncat(ebuf, "=", 1);
     strncat(ebuf, value, strlen(value));
 
-    return _putenv(ebuf);
+    return _putenv(ebuf);		/* THREADSAFE */
 }
 
+/*
+ * always called with __pmLock_extcall already held, so THREADSAFE
+ */
 int
 unsetenv(const char *name)
 {
@@ -819,7 +829,7 @@ unsetenv(const char *name)
     /* strange but true */
     strncpy(ebuf, name, strlen(name)+1);
     strncat(ebuf, "=", 1);
-    sts = _putenv(ebuf);
+    sts = _putenv(ebuf);		/* THREADSAFE */
     free(ebuf);
     return sts;
 }

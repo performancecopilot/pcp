@@ -668,7 +668,7 @@ __pmOptFetchRedo(fetchctl_t **root)
 
     if (numreq) {
 	/* something to do, randomly cut and splice the list of requests */
-	numreq = (int)lrand48() % numreq;
+	numreq = (int)lrand48() % numreq;	/* THREADSAFE - don't care */
 	t_rqp = rlist;
 	p_rqp = NULL;
 	for (rqp = rlist; rqp != NULL; rqp = rqp->r_next) {

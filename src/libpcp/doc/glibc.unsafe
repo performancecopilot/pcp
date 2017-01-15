@@ -8,12 +8,6 @@ fgetc_unlocked
 fputc_unlocked
 fputs_unlocked
 fwrite_unlocked
-# race on rootp
-tsearch
-tfind
-tdelete
-tdestroy
-twalk
 # used in a setgrent-endgrent block
 getgrent_r
 # used in a setpwent-endpwent block

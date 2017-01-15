@@ -293,7 +293,9 @@ fopen_securetmp(const char *fname)
     msg = tmpname;
     fd = mkstemp(tmpname);
 #else
-    if ((msg = tmpnam(NULL)) == NULL) {
+    PM_LOCK(__pmLock_extcall);
+    if ((msg = tmpnam(NULL)) == NULL) {		/* THREADSAFE */
+	PM_UNLOCK(__pmLock_extcall);
 	umask(cur_umask);
 	return -1;
     }
@@ -303,7 +305,12 @@ fopen_securetmp(const char *fname)
      * unlink temporary file to avoid namespace pollution and allow O/S
      * space cleanup on last close
      */
+#if HAVE_MKSTEMP
     unlink(msg);
+#else
+    unlink(msg);
+    PM_UNLOCK(__pmLock_extcall);
+#endif
     umask(cur_umask);
     return fd;
 }
@@ -353,8 +360,10 @@ fopen_compress(const char *fname)
     if ((fd = fopen_securetmp(fname)) < 0) {
 	sts = oserror();
 #ifdef PCP_DEBUG
-	if (pmDebug & DBG_TRACE_LOG)
-	    fprintf(stderr, "__pmLogOpen: temp file create failed: %s\n", osstrerror());
+	if (pmDebug & DBG_TRACE_LOG) {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmLogOpen: temp file create failed: %s\n", osstrerror_r(errmsg, sizeof(errmsg)));
+	}
 #endif
 	setoserror(sts);
 	return NULL;
@@ -885,14 +894,14 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 	return -oserror();
     PM_INIT_LOCKS();
     PM_LOCK(__pmLock_libpcp);
-    dir = dirname(tbuf);
+    dir = dirname(tbuf);		/* THREADSAFE */
 
     /*
      * find file name component
      */
     strncpy(filename, name, MAXPATHLEN);
     filename[MAXPATHLEN-1] = '\0';
-    if ((base = strdup(basename(filename))) == NULL) {
+    if ((base = strdup(basename(filename))) == NULL) {		/* THREADSAFE */
 	sts = -oserror();
 	free(tbuf);
 	PM_UNLOCK(__pmLock_libpcp);
@@ -923,9 +932,9 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
     PM_LOCK(__pmLock_libpcp);
     if ((dirp = opendir(dir)) != NULL) {
 #if defined(HAVE_READDIR64)
-	while ((direntp = readdir64(dirp)) != NULL)
+	while ((direntp = readdir64(dirp)) != NULL)		/* THREADSAFE */
 #else
-	while ((direntp = readdir(dirp)) != NULL)
+	while ((direntp = readdir(dirp)) != NULL)		/* THREADSAFE */
 #endif
 	{
 	    if (strncmp(base, direntp->d_name, blen) != 0)
