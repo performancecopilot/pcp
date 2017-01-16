@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat.
+ * Copyright (c) 2016-2017 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -27,7 +27,7 @@
 #define TRUE_LEN	(sizeof(TRUE_TOK)-1)
 #define FALSE_LEN	(sizeof(FALSE_TOK)-1)
 
-int
+static int
 jsmneq(const char *js, jsmntok_t *tok, const char *s)
 {
     size_t	length;
@@ -40,7 +40,7 @@ jsmneq(const char *js, jsmntok_t *tok, const char *s)
     return -1;
 }
 
-int
+static int
 jsmnflag(const char *js, jsmntok_t *tok, int *bits, int flag)
 {
     size_t	length;
@@ -55,7 +55,7 @@ jsmnflag(const char *js, jsmntok_t *tok, int *bits, int flag)
     return 0;
 }
 
-int
+static int
 jsmnbool(const char *js, jsmntok_t *tok, unsigned int *value)
 {
     size_t	length;
@@ -74,7 +74,7 @@ jsmnbool(const char *js, jsmntok_t *tok, unsigned int *value)
     return -1;
 }
 
-int
+static int
 jsmnint(const char *js, jsmntok_t *tok, int *value)
 {
     char	buffer[64];
@@ -92,7 +92,7 @@ jsmnint(const char *js, jsmntok_t *tok, int *value)
     return -1;
 }
 
-int
+static int
 jsmnuint(const char *js, jsmntok_t *tok, unsigned int *value)
 {
     char	buffer[64];
@@ -110,7 +110,7 @@ jsmnuint(const char *js, jsmntok_t *tok, unsigned int *value)
     return -1;
 }
 
-int
+static int
 jsmnlong(const char *js, jsmntok_t *tok, __int64_t *value)
 {
     char	buffer[64];
@@ -128,7 +128,7 @@ jsmnlong(const char *js, jsmntok_t *tok, __int64_t *value)
     return -1;
 }
 
-int
+static int
 jsmnulong(const char *js, jsmntok_t *tok, __uint64_t *value)
 {
     char	buffer[64];
@@ -146,7 +146,7 @@ jsmnulong(const char *js, jsmntok_t *tok, __uint64_t *value)
     return -1;
 }
 
-int
+static int
 jsmnfloat(const char *js, jsmntok_t *tok, float *value)
 {
     char	buffer[64];
@@ -164,7 +164,7 @@ jsmnfloat(const char *js, jsmntok_t *tok, float *value)
     return -1;
 }
 
-int
+static int
 jsmndouble(const char *js, jsmntok_t *tok, double *value)
 {
     char	buffer[64];
@@ -182,7 +182,7 @@ jsmndouble(const char *js, jsmntok_t *tok, double *value)
     return -1;
 }
 
-int
+static int
 jsmnflagornumber(const char *js, jsmntok_t *tok, json_metric_desc *json_metrics, int flag)
 {
     size_t	len;
@@ -244,7 +244,7 @@ jsmnflagornumber(const char *js, jsmntok_t *tok, json_metric_desc *json_metrics,
     return 0;
 }
 
-int
+static int
 jsmnstrdup(const char *js, jsmntok_t *tok, char **name)
 {
     char	*s = *name;
@@ -257,7 +257,7 @@ jsmnstrdup(const char *js, jsmntok_t *tok, char **name)
     return ((*name = s) == NULL) ? -1 : 0;
 }
 
-int
+static int
 json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 		    json_metric_desc *json_metrics, char* pointer_part[], int key, int total)
 {
@@ -278,7 +278,6 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
 			json_tokens->end - json_tokens->start,
 			json + json_tokens->start, json_tokens->parent);
 	if (jsmneq(json, json_tokens, pointer_part[key]) == 0) {
-	    //XXX this needs to have a better method for detecting
 	    if (key == 0 && json_tokens->parent != 0)
 		return 1;
 
@@ -335,132 +334,123 @@ json_extract_values(const char *json, jsmntok_t *json_tokens, size_t count,
     return 0;
 }
 
-int
-json_pointer_to_index(const char *json, jsmntok_t *json_tokens, size_t count, json_metric_desc *json_metrics, int nummetrics)
+static int
+json_pointer_to_index(const char *json, jsmntok_t *json_tokens, size_t count, json_metric_desc *json_metrics, int nmetrics)
 {
-    const char *delim = "/";
-    char *json_pointer = "";
-    char *pointer_part = "";
-    char *pointer_final[MAXPATHLEN] = { "" };
-
-    int i, j = 0;
+    char	*json_pointer;
+    char	*pointer_part;
+    char	*pointer_final[MAXPATHLEN];
+    int		i, j;
 
     /* tokenize the json_metrics.json_pointers fields */
-    for(i = 0; i < nummetrics; i++) {
- 	j = 0;
+    for (i = 0; i < nmetrics; i++) {
 	memset(&pointer_final[0], 0, sizeof(pointer_final));
 	json_pointer = strdup(json_metrics[i].json_pointer);
 	if (pmDebug & DBG_TRACE_APPL1)
 	    __pmNotifyErr(LOG_DEBUG, "json_pointer: %s\n", json_pointer);
-	pointer_part = strtok(json_pointer, delim);
-	if (pointer_part) {
-	    pointer_final[j] = strdup(pointer_part);
-	    j++;
-	    while(pointer_part) {
-		pointer_part = strtok(NULL, delim);
-		if (pointer_part) {
-		    pointer_final[j] = strdup(pointer_part);
-		    j++;
-		}
+	j = 0;
+	pointer_part = strtok(json_pointer, "/");
+	if (!pointer_part) {
+	    pointer_final[j++] = strdup(json_pointer);
+	} else {
+	    pointer_final[j++] = strdup(pointer_part);
+	    while (pointer_part && j < sizeof(pointer_final)) {
+		if ((pointer_part = strtok(NULL, "/")) != NULL)
+		    pointer_final[j++] = strdup(pointer_part);
 	    }
 	}
 	json_extract_values(json, json_tokens, count, &json_metrics[i], pointer_final, 0, j);
+	while (--j > 0)
+	    free(pointer_final[j]);
+	if (json_pointer != pointer_final[0])
+	    free(json_pointer);
     }
-    free(json_pointer);
     return 0;
 }
 
-void compat_callback(char *buffer, int *buffer_size, void *extra)
+static int
+json_read(char *buffer, int buffer_size, void *userdata)
 {
-    int sts = 0;
-    int fd = (int)extra;
-    if (fd > -1)
-	sts = read(fd, buffer, BUFSIZ);
-    if (sts >= 0)
-	*buffer_size = sts;
-    return;
-}
-int
-pmjsonInit(int fd, json_metric_desc *json_metrics, int nummetrics)
-{
-    return pmjsonInitIterable(json_metrics, nummetrics, PM_INDOM_NULL, compat_callback, (void*)fd);
+    int	fd = *(int *)userdata;
+    return read(fd, buffer, buffer_size);
 }
 
 int
-pmjsonInitIndom(int fd, json_metric_desc *json_metrics, int nummetrics, pmInDom indom)
+pmjsonInit(int fd, json_metric_desc *json_metrics, int nmetrics)
 {
-    return pmjsonInitIterable(json_metrics, nummetrics, indom, compat_callback, (void*)fd);
+    return pmjsonGet(json_metrics, nmetrics, PM_INDOM_NULL, json_read, (void *)&fd);
 }
 
 int
-pmjsonInitIterable(json_metric_desc *json_metrics, int nummetrics, pmInDom indom, void (*buffer_func)(char*, int*, void*), void* json_input)
+pmjsonInitIndom(int fd, json_metric_desc *json_metrics, int nmetrics, pmInDom indom)
 {
-    int               number_of_tokens_read;
+    return pmjsonGet(json_metrics, nmetrics, indom, json_read, (void *)&fd);
+}
+
+int
+pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
+		   json_get get_json, void *userdata)
+{
     int               sts = 0;
     jsmn_parser       parser;
-    jsmntok_t         *json_tokens = NULL;
-    int               json_token_count = 0;
-    char              *json = NULL;
+    jsmntok_t         *json_tokens;
+    int               token_count = 16;
     int               json_length = 0;
-    int               i = 0;
-    int               number_of_bytes_read = 0;
-    char              *buffer = malloc(BUFSIZ);
-    number_of_bytes_read = BUFSIZ;
+    char              *json = NULL;
+    char              buffer[BUFSIZ];
+    int               bytes;
 
-    if (!json_tokens) {
-	json_token_count = 2;
-	if ((json_tokens = calloc(json_token_count, sizeof(*json_tokens))) == NULL)
-	    sts = -ENOMEM;
-    }
     jsmn_init(&parser);
+    if (!(json_tokens = calloc(token_count, sizeof(*json_tokens))))
+	return -ENOMEM;
 
-    for (i = 0;;i++) {
-	(*buffer_func)(buffer+(number_of_bytes_read-BUFSIZ), &number_of_bytes_read, json_input);
-	if (number_of_bytes_read == BUFSIZ){
-	    buffer = realloc(buffer, number_of_bytes_read + BUFSIZ);
-	    number_of_bytes_read = number_of_bytes_read + BUFSIZ;
-	}
-	else if (number_of_bytes_read < 0) {
-	    if (pmDebug & DBG_TRACE_ATTR) {
-		fprintf(stderr, "%s: failed to read in json file: %s\n",
+    for (;;) {
+	bytes = (*get_json)(buffer, sizeof(buffer), userdata);
+	if (bytes == 0)
+	    goto indexing;
+	if (bytes < 0) {
+	    if (pmDebug & DBG_TRACE_ATTR)
+		fprintf(stderr, "%s: failed to read more JSON: %s\n",
 			pmProgname, osstrerror());
-	    }
 	    sts = -oserror();
-	    return sts;
+	    goto finished;
 	}
-	else {
-	    number_of_bytes_read = (i*BUFSIZ + number_of_bytes_read);
+
+	/* Successfully read in more data, extend sizeof json array */
+	json_length += json_length + bytes;
+	if ((json = realloc(json, json_length)) == NULL) {
+	    sts = -ENOMEM;
+	    goto finished;
+	}
+	strncpy(json + json_length, buffer, bytes);
+
+parsing:
+	sts = jsmn_parse(&parser, json, json_length, json_tokens, token_count);
+	if (sts < 0) {
+	    if (sts == JSMN_ERROR_PART)		/* keep consuming JSON */
+		continue;
+	    if (sts == JSMN_ERROR_NOMEM) {	/* ran out of token space */
+		token_count *= 2;
+		bytes = sizeof(*json_tokens) * token_count;
+		if ((json_tokens = realloc(json_tokens, bytes)) == NULL) {
+		    free(json);
+		    return -ENOMEM;
+		}
+		goto parsing;
+	    }
+	    sts = -EINVAL;	/* anything else indicates invalid JSON */
 	    break;
 	}
+
+indexing:
+	json_pointer_to_index(json, json_tokens, parser.toknext, json_metrics, nmetrics);
+	sts = (indom == PM_INDOM_NULL) ? 0 :
+	    pmdaCacheStore(indom, PMDA_CACHE_ADD, json_metrics[0].dom, json_metrics);
+	break;
     }
-    /* We've read in more json data, adjust our json size */
-    if ((json = realloc(json, json_length + number_of_bytes_read + 1)) == NULL) {
-	sts = -ENOMEM;
-	free(json_tokens);
-	return sts;
-    }
-    strncpy(json + json_length, buffer, number_of_bytes_read);
-    json_length = json_length + number_of_bytes_read;
- again:
-    number_of_tokens_read = jsmn_parse(&parser, json, json_length, json_tokens, json_token_count);
-    if (number_of_tokens_read < 0) {
-	if (number_of_tokens_read == JSMN_ERROR_NOMEM) {
-	    json_token_count = json_token_count * 2;
-	    if ((json_tokens = realloc(json_tokens, sizeof(*json_tokens) * json_token_count)) == NULL) {
-		sts = -ENOMEM;
-		free(json_tokens);
-		return sts;
-	    }
-	    goto again;
-	}
-    } else {
-	json_pointer_to_index(json, json_tokens, parser.toknext, json_metrics, nummetrics);
-	if (indom != PM_INDOM_NULL)
-	    sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, json_metrics[0].dom, json_metrics);
-	free(json_tokens);
-	return sts;
-    }
-    /* Should never reach here */
+
+finished:
     free(json_tokens);
+    free(json);
     return sts;
 }

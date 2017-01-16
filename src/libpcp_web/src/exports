@@ -16,5 +16,5 @@ PCP_WEB_1.1 {
 
 PCP_WEB_1.2 {
   global:
-    pmjsonInitInterable;
+    pmjsonGet;
 } PCP_WEB_1.1;

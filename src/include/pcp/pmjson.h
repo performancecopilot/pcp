@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Red Hat.
+ * Copyright (c) 2015-2017 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -32,19 +32,18 @@ typedef enum json_flags {
 } json_flags;
 
 typedef struct json_metric_desc {
-    char          *json_pointer;
-    json_flags    flags;
-    int           num_values;
-    pmAtomValue   values;
-    char          *dom;
+    char          *json_pointer;	/* json pointer to metric */
+    json_flags    flags;		/* flags to check if set */
+    int           num_values;		/* number of values */
+    pmAtomValue   values;		/* metric value */
+    char          *dom;			/* instance name */
 } json_metric_desc;
 
-typedef void (*buffer_func)(char*, int*, void*);
+typedef int (*json_get)(char *, int, void *);
+PCP_CALL extern int pmjsonGet(json_metric_desc *, int, pmInDom, json_get, void *);
 
 PCP_CALL extern int pmjsonInit(int fd, json_metric_desc *, int);
 PCP_CALL extern int pmjsonInitIndom(int fd, json_metric_desc *, int, pmInDom);
-PCP_CALL extern int pmjsonInitIterable(json_metric_desc *, int, pmInDom, void(*)(char*, int*, void*), void* json_input);
-
 
 #ifdef __cplusplus
 }

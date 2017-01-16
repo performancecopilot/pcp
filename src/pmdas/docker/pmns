@@ -29,9 +29,6 @@ docker {
     api_version   	DOCKER:1:6
     cpu_stats
     memory_stats
-/*    BuildTime         DOCKER:1:7
-    Experimental        DOCKER:1:8
-*/
     control
 }
 docker.control {
