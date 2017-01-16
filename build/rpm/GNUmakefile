@@ -92,6 +92,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@enable_python3@|$(ENABLE_PYTHON3)|g' \
 	    -e's|@enable_manager@|$(ENABLE_MANAGER)|g' \
 	    -e's|@enable_webapi@|$(ENABLE_WEBAPI)|g' \
+	    -e's|@enable_selinux@|$(ENABLE_SELINUX)|g' \
 	    -e's|@have_libmicrohttpd@|$(have_libmicrohttpd)|g' \
 	    -e's|@have_cairo@|$(have_cairo)|g' \
 	    -e's|@have_python@|$(HAVE_PYTHON)|g' \
@@ -104,6 +105,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pcp_log_dir@|$(PCP_LOG_DIR)|g' \
 	    -e's|@pcp_var_dir@|$(PCP_VAR_DIR)|g' \
 	    -e's|@pcp_etc_dir@|$(PCP_ETC_DIR)|g' \
+	    -e's|@pcp_selinux_dir@|$(PCP_SELINUX_DIR)|g' \
 	    -e's|@pcp_pmdas_dir@|$(PCP_PMDAS_DIR)|g' \
 	    -e's|@rpm_version@|$(RPM_VERSION)|g' \
 	    -e's|@have_manpages@|$(HAVE_MANPAGES)|g' \
