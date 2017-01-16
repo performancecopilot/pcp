@@ -10,10 +10,18 @@
 # Copyright (c) 2016 Ken McDonell.  All Rights Reserved.
 #
 
-check=false
-[ $# -eq 1 -a "$1" = "--check" ] && check=true
-
 seq=`basename $0`
+
+check=false
+if [ $# -ge 1 -a "$1" = "--check" ]
+then
+    check=true
+    # if 2nd arg present then use this as $seq ... we're being called from
+    # check.callback more than likely
+    #
+    [ $# -ge 2 -a "$2" != "" ] && seq="$2"
+fi
+
 $check || echo "QA output created by $seq"
 
 # get standard environment, filters and checks
@@ -30,11 +38,16 @@ _check()
     # start by iterating over all running pmlogger processes
     #
 
-    $check && status=0
+    if $check
+    then
+	echo "--- running 870 --check @ `date` ---" >>$here/$seq.full
+	status=0
+    fi
     _get_pids_by_name pmlogger >$tmp.pmids
-    echo "_get_pids_by_name pmlogger output" >>$here/$seq.full
+    echo "_get_pids_by_name pmlogger ..." >>$here/$seq.full
+    cat $tmp.pmids >>$here/$seq.full
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps.out
-    echo "$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger output" >>$here/$seq.full
+    echo "$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmlogger ..." >>$here/$seq.full
     grep pmlogger <$tmp.ps.out >>$here/$seq.full
     if [ -s $tmp.pmids ]
     then
