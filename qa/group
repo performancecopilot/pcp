@@ -387,13 +387,13 @@ oldversion
 058 pmval local ostest
 059 archive local ostest sanity pmdumplog
 060 archive context local ostest
-061 pmlogger pmlc local ostest pmdumplog
+061 pmlogger local ostest pmdumplog
 062 pmcd local ostest
 063 fetch local ostest
 065 libpcp local ostest pmstore
 066 pmcd ostest remote
 067 pmcd local ostest
-068 context pmlc local ostest sanity
+068 context local ostest sanity
 069 pmcd pmval remote
 070 other ostest remote
 071 context_local local ostest
@@ -690,7 +690,7 @@ oldversion
 362 pmlogconf local
 363 logutil local
 364 pmlogconf local
-365 pmcd remote
+365 pmcd remote pmlc
 366 pmlogconf local
 367 pdu local trace
 368 pmlogconf local
@@ -1099,9 +1099,9 @@ oldversion
 851 pmiostat local
 852 pmda.proc local
 853 pmcpp local
-854 pmlogger local
+854 pmlogger local pmlc
 855 pmda.netfilter local
-856 pmlogger local
+856 pmlogger local pmlc
 857 pmda.linux local
 858 libpcp local fetch valgrind
 859 python libpcp local fetch
@@ -1127,7 +1127,7 @@ oldversion
 879 pmda.pipe local
 880 pmrep python local
 881 pmcd local
-882 pmlogger local
+882 pmlogger local pmlc
 883 pcp python local
 884 libpcp_web local
 885 pmda.linux local
@@ -1156,7 +1156,7 @@ oldversion
 908 indom help pmda pminfo local
 909 libpcp pmns local
 914 pmda.papi local
-915 pmcd pmlogger pmproxy libpcp local
+915 pmcd pmlogger pmproxy libpcp local pmlc
 916 pmlogextract pmlogcheck local
 919 pmlogger pmstat local
 921 pmdumplog local
