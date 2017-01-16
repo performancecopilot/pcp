@@ -417,12 +417,12 @@ pmjsonGet(json_metric_desc *json_metrics, int nmetrics, pmInDom indom,
 	}
 
 	/* Successfully read in more data, extend sizeof json array */
-	json_length += json_length + bytes;
-	if ((json = realloc(json, json_length)) == NULL) {
+	if ((json = realloc(json, json_length + bytes)) == NULL) {
 	    sts = -ENOMEM;
 	    goto finished;
 	}
 	strncpy(json + json_length, buffer, bytes);
+	json_length += json_length + bytes;
 
 parsing:
 	sts = jsmn_parse(&parser, json, json_length, json_tokens, token_count);
