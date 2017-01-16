@@ -30,7 +30,8 @@ $check || echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
+$sudo rm -rf $tmp $tmp.*
+$check || $sudo rm -f $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 _check()
