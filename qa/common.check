@@ -2043,3 +2043,37 @@ _get_libpcp_config()
     . $tmp.config
     rm $tmp.config
 }
+
+# core dumping deep inside the libvirt Python wrapper layer ...
+# not much we can do here other than skip libvirtpmda stuff`
+#
+_libvirt_is_ok()
+{
+    if [ -f /etc/lsb-release ]
+    then
+	if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
+	then
+	    # OK, Ubuntu ... now let's check the libvirt version
+	    #
+	    cat <<'End-of-File' >$tmp.py
+import sys
+import libvirt
+conn = libvirt.open('qemu:///system')
+if conn != None:
+    ver = conn.getVersion()
+    print(str(ver))
+    conn.close()
+exit(0)
+End-of-File
+	    _libvirt_ver=`$PCP_PYTHON_PROG $tmp.py`
+	    echo "Ubuntu and libvert version $_libvirt_ver" >>$here/$seq.full
+	    case "$_libvirt_ver"
+	    in
+		2005000)
+		    return 1
+		    ;;
+	    esac
+	fi
+    fi
+    return 0
+}
