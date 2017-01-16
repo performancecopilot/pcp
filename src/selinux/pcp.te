@@ -1,5 +1,5 @@
 
-policy_module(pcp, 1.0)
+policy_module(pcp, 3.11.8)
 
 require {
 	type dovecot_t;
@@ -51,3 +51,6 @@ allow pcp_pmlogger_t self:capability kill;
 dev_write_kmsg(pcp_pmlogger_t)
 init_status(pcp_pmlogger_t)
 unconfined_signal(pcp_pmlogger_t)
+dontaudit pcp_pmlogger_t self:capability sys_ptrace;
+
+
