@@ -1,7 +1,7 @@
 /*
  * Docker PMDA
  *
- * Copyright (c) 2016 Red Hat.
+ * Copyright (c) 2016-2017 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,12 +21,7 @@
 #include "domain.h"
 #include "pmhttp.h"
 #include <pthread.h>
-#include <errno.h>
-#include <string.h>
-#include <stdio.h>
-#include <time.h>
 #include <sys/stat.h>
-
 
 enum {
     CONTAINER_FLAG_RUNNING	= (1<<0),
@@ -42,23 +37,20 @@ enum {
 };
 
 enum {
-    CLUSTER_BASIC = 0,
+    CLUSTER_BASIC,
     CLUSTER_VERSION,
     CLUSTER_STATS,
-    //    CLUSTER_SYSWIDE,
     CLUSTER_CONTROL,
     NUM_CLUSTERS
 };
 
-static pthread_t docker_query_thread;	/* runs all libpcp_web/docker.sock queries */
-static struct http_client *http_client;
+#define ARRAY_SIZE(array)	(sizeof(array) / sizeof(array[0]))
+
 static pmdaIndom docker_indomtab[NUM_INDOMS];
 #define INDOM(x) (docker_indomtab[x].it_indom)
-#define INDOMTAB_SZ (sizeof(docker_indomtab)/sizeof(docker_indomtab[0]))
-char resulting_path[MAXPATHLEN];
-static int ready = 0;
+#define INDOMTAB_SZ ARRAY_SIZE(docker_indomtab)
 
-static json_metric_desc json_metrics[] = {
+static json_metric_desc basic_metrics[] = {
     /* GET localhost/containers/$ID/json */
     { "State/Pid", 0, 1, {0}, ""},
     { "Name", 0, 1, {0}, ""},
@@ -66,6 +58,8 @@ static json_metric_desc json_metrics[] = {
     { "State/Paused", CONTAINER_FLAG_PAUSED, 1, {0}, ""},
     { "State/Restarting", CONTAINER_FLAG_RESTARTING, 1, {0}, ""},
 };
+#define basic_metrics_size 	ARRAY_SIZE(basic_metrics)
+
 static json_metric_desc version_metrics[] = {
     /* GET /version */
     { "Version", 0, 1, {0}, ""},
@@ -75,45 +69,17 @@ static json_metric_desc version_metrics[] = {
     { "GitCommit", 0, 1, {0}, ""},
     { "Arch", 0, 1, {0}, ""},
     { "ApiVersion", 0, 1, {0}, ""},
-    //    { "BuildTime", 0, 1, {0}, ""},
-    //    { "Experimental", 0, 1, {0}, ""},
 };
+#define version_metrics_size	ARRAY_SIZE(version_metrics)
 
-// this so needs another name, WHAT COLOUR IS THE BIKESHED?!
 static json_metric_desc stats_metrics[] = {
-
-    //    { "cpu_stats/cpu_usage/percpu_usage", 0, 1, {0}, ""}, //XXX fix arrays
-    /*        "cpu_usage": {
-            "percpu_usage": [
-                163882262,
-                47891411,
-                39057464,
-                31342456,
-                0,
-                0,
-                0,
-                0
-		],*/
     { "cpu_stats/cpu_usage/total_usage", 0, 1, {0}, ""},
     { "cpu_stats/cpu_usage/usage_in_kernelmode", 0, 1, {0}, ""},
     { "cpu_stats/cpu_usage/usage_in_usermode", 0, 1, {0}, ""},
-        /*
-            "total_usage": 282173593,
-            "usage_in_kernelmode": 80000000,
-            "usage_in_usermode": 190000000
-	    },*/
-
     { "cpu_stats/system_cpu_usage", 0, 1, {0}, ""},
     { "cpu_stats/trottling_data/periods", 0, 1, {0}, ""},
     { "cpu_stats/trottling_data/throttled_periods", 0, 1, {0}, ""},
     { "cpu_stats/trottling_data/throttled_time", 0, 1, {0}, ""},
-    /*        "system_cpu_usage": 54927880000000,*/
-    /*    "throttling_data": {
-            "periods": 0,
-            "throttled_periods": 0,
-            "throttled_time": 0
-        }
-	},*/
     { "memory_stats/failcnt", 0, 1, {0}, ""},
     { "memory_stats/limit", 0, 1, {0}, ""},
     { "memory_stats/max_usage", 0, 1, {0}, ""},
@@ -156,33 +122,30 @@ static json_metric_desc stats_metrics[] = {
     { "memory_stats/stats/unevictable", 0, 1, {0}, ""},
     { "memory_stats/stats/writeback", 0, 1, {0}, ""},
     { "memory_stats/usage", 0, 1, {0}, ""},
-
 };
-
-//static json_metric_desc startup = { "ApiVersion", 0, 1, {0}, ""};
+#define stats_metrics_size 	ARRAY_SIZE(stats_metrics)
 
 static pmdaMetric metrictab[] = {
     /* docker.pid */
-    { (void*) &json_metrics[0], 
+    { (void*) &basic_metrics[0], 
       { PMDA_PMID(CLUSTER_BASIC,0), PM_TYPE_U64, CONTAINERS_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* docker.name */
-    { (void*) &json_metrics[1], 
+    { (void*) &basic_metrics[1], 
       { PMDA_PMID(CLUSTER_BASIC,1), PM_TYPE_STRING, CONTAINERS_INDOM, PM_SEM_DISCRETE,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* docker.running */
-    { (void*) &json_metrics[2], 
+    { (void*) &basic_metrics[2], 
       { PMDA_PMID(CLUSTER_BASIC,2), PM_TYPE_U32, CONTAINERS_INDOM, PM_SEM_INSTANT, 
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* docker.paused */
-    { (void*) &json_metrics[3], 
+    { (void*) &basic_metrics[3], 
       { PMDA_PMID(CLUSTER_BASIC,3), PM_TYPE_U32, CONTAINERS_INDOM, PM_SEM_INSTANT, 
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* docker.restarting */
-    { (void*) &json_metrics[4], 
+    { (void*) &basic_metrics[4], 
       { PMDA_PMID(CLUSTER_BASIC,4), PM_TYPE_U32, CONTAINERS_INDOM, PM_SEM_INSTANT, 
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
-    
 
     /* version */
     { (void*) &version_metrics[0], 
@@ -216,10 +179,6 @@ static pmdaMetric metrictab[] = {
     /*    { (void*) &version_metrics[7], 
       { PMDA_PMID(CLUSTER_VERSION,7), PM_TYPE_STRING, CONTAINERS_VERSION_INDOM, PM_SEM_INSTANT, 
       PMDA_PMUNITS(0,0,0,0,0,0) }, },*/
-    /* Experimental */
-    //    { (void*) &version_metrics[13], 
-    //      { PMDA_PMID(CLUSTER_VERSION,14), PM_TYPE_32, CONTAINERS_VERSION_INDOM, PM_SEM_INSTANT, 
-    //        PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* cpu_stats.cpu_usage.total_usage */
     { (void*) &stats_metrics[0], 
@@ -424,22 +383,28 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_CONTROL,0), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
 };
+#define METRICTAB_SZ	ARRAY_SIZE(metrictab)
 
-static int             isDSO = 1;		/* =0 I am a daemon */
-static char            *username =  "root";
-static char            mypath[MAXPATHLEN];
-static char            *local_path;
-static int             thread_freq = 1;
-static pthread_mutex_t refresh_mutex;
-static pthread_mutex_t docker_mutex;
-static pthread_mutex_t stats_mutex;
+static int		isDSO = 1;		/* =0 I am a daemon */
+static char		*username =  "root";
+static char		mypath[MAXPATHLEN];
+static char		*local_path;
+static int		thread_freq = 1;
+static struct http_client *http_client;
+static char		resulting_path[MAXPATHLEN];
+static int		ready;
 
-void refresh_insts(char *path);
-int grab_values(char* json_query, pmInDom indom, char* local_path, json_metric_desc* json, int json_size);
-int docker_setup();
+static pthread_t	docker_query_thread;	/* all docker.sock queries */
+static pthread_mutex_t	refresh_mutex;
+static pthread_mutex_t	docker_mutex;
+static pthread_mutex_t	stats_mutex;
+
+static void refresh_insts(char *);
+static int grab_values(char *, pmInDom, char *, json_metric_desc *, int);
+static int docker_setup(void);
 
 /* General utility routine for checking timestamp differences */
-int
+static int
 stat_time_differs(struct stat *statbuf, struct stat *lastsbuf)
 {
 #if defined(HAVE_ST_MTIME_WITH_E) && defined(HAVE_STAT_TIME_T)
@@ -459,57 +424,42 @@ stat_time_differs(struct stat *statbuf, struct stat *lastsbuf)
     return 0;
 }
 
-
-void refresh_basic(char* local_path)
+static void
+refresh_basic(char *path)
 {
     char    json_query[BUFSIZ] = "";
     pmInDom indom = INDOM(CONTAINERS_INDOM);
-    sprintf(json_query, "http://localhost/containers/%s/json", local_path);
-    grab_values(json_query, indom, local_path, json_metrics, (sizeof(json_metrics)/sizeof(json_metrics[0])));
+
+    sprintf(json_query, "http://localhost/containers/%s/json", path);
+    grab_values(json_query, indom, path, basic_metrics, basic_metrics_size);
 } 
 
-void refresh_version(char* local_path)
+static void
+refresh_version(char *path)
 {
     char    json_query[BUFSIZ] = "";
     pmInDom indom = PM_INDOM_NULL;
+
     sprintf(json_query, "http://localhost/version");
-    grab_values(json_query, indom, local_path, version_metrics,(sizeof(version_metrics)/sizeof(version_metrics[0])));
+    grab_values(json_query, indom, path, version_metrics, version_metrics_size);
 }
-void refresh_stats(char* local_path)
+
+static void
+refresh_stats(char *path)
 {
     char    json_query[BUFSIZ] = "";
     pmInDom indom = INDOM(CONTAINERS_STATS_CACHE_INDOM);
-    /* we need to add the ?stream=0 bit as to not continuously request stats*/
-    sprintf(json_query, "http://localhost/containers/%s/stats?stream=0", local_path);
-    grab_values(json_query, indom, local_path, stats_metrics, (sizeof(stats_metrics)/sizeof(stats_metrics[0])));
-}
-/*
-void refresh_syswide(char* local_path)
-{
-    char json_query[BUFSIZ] = "";
-    pmInDom indom = PM_INDOM_NULL
-    __pmNotifyErr(LOG_DEBUG, "hit syswide debug\n");
-    sprintf(json_query, "http://localhost/info");
-    grab_values(json_query, indom, local_path, syswide_metrics, (sizeof(syswide_metrics)/sizeof(syswide_metrics[0]);
-    return;
+
+    /* the ?stream=0 bit is set so as to not continuously request stats */
+    sprintf(json_query, "http://localhost/containers/%s/stats?stream=0", path);
+    grab_values(json_query, indom, path, stats_metrics, stats_metrics_size);
 }
 
-void refresh_syswide(char* local_path)
-{
-    char json_query[BUFSIZ] = "";
-    pmInDom indom = PM_INDOM_NULL
-    __pmNotifyErr(LOG_DEBUG, "hit syswide debug\n");
-    sprintf(json_query, "http://localhost/info");
-    grab_values(json_query, indom, local_path, syswide_metrics, (sizeof(syswide_metrics)/sizeof(syswide_metrics[0]);
-    return;
-}
-
-*/
-
-void*
+static void *
 docker_background_loop(void* loop)
 {
     int local_freq;
+
     while (1) {
 	pthread_mutex_lock(&refresh_mutex);
 	local_freq = thread_freq;
@@ -526,14 +476,15 @@ docker_store(pmResult *result, pmdaExt *pmda)
 {
     int i = 0;
     int sts = 0;
+
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];
 	__pmID_int *idp = (__pmID_int *)&(vsp->pmid);
 	pmAtomValue av;
  
-	if (idp->cluster != CLUSTER_CONTROL) {
+	if (idp->cluster != CLUSTER_CONTROL)
 	    return PM_ERR_PMID;
-	}
+
 	switch (idp->item) {
 	case 0:
 	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0], PM_TYPE_U64, &av, PM_TYPE_U64)) < 0)
@@ -546,8 +497,9 @@ docker_store(pmResult *result, pmdaExt *pmda)
 	    return PM_ERR_PMID;
 	}
     }
-	return sts;
+    return sts;
 }
+
 /*
  * callback provided to pmdaFetch
  */
@@ -559,6 +511,7 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     char             *name;
     json_metric_desc *local_json_metrics = NULL;
     pmInDom           indom;
+
     pthread_mutex_lock(&stats_mutex);
     switch (idp->cluster) {
     case CLUSTER_BASIC:
@@ -653,14 +606,14 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     }
     pthread_mutex_unlock(&stats_mutex);
     return sts;
- 
 }
 
 static int
-notready()
+notready(void)
 {
     int local_ready;
     int iterations = 0;
+
     while (1) {
 	pthread_mutex_lock(&docker_mutex);
 	local_ready = ready;
@@ -680,8 +633,8 @@ notready()
 static int
 docker_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 {
-
     int local_ready;
+
     pthread_mutex_lock(&docker_mutex);
     local_ready = ready;
     pthread_mutex_unlock(&docker_mutex);
@@ -696,9 +649,11 @@ static int
 docker_instance(pmInDom id, int i, char *name, __pmInResult **in, pmdaExt *pmda)
 {
     int local_ready;
+
     pthread_mutex_lock(&docker_mutex);
     local_ready = ready;
     pthread_mutex_unlock(&docker_mutex);
+
     if (!local_ready) {
     	__pmSendError(pmda->e_outfd, FROM_ANON, PM_ERR_PMDANOTREADY);
 	return notready();
@@ -706,64 +661,89 @@ docker_instance(pmInDom id, int i, char *name, __pmInResult **in, pmdaExt *pmda)
     return pmdaInstance(id, i, name, in, pmda);
 }
 
-void
-buffer_callback (char *buffer, int *buffer_size, void *extra)
+typedef struct {
+    char	json[BUFSIZ];
+    int		json_len;
+    int		off;
+} http_data;
+
+static int
+grab_json(char *buffer, int buffer_size, void *data)
 {
-    if (extra == NULL){
-	return;
-    }
-    *buffer_size = strlen((char*)extra);
-    strncpy(buffer, (char*)extra, *buffer_size);
-    return;
-		      
+    http_data	*hp = (http_data *)data;
+    size_t	bytes;
+
+    /* have we reached the end of the json string? */
+    if (hp->off >= hp->json_len)
+	return 0;
+
+    /* can we fill the entire buffer (or more)? */
+    if (hp->off + buffer_size <= hp->json_len)
+	bytes = buffer_size;
+    else
+	bytes = hp->json_len - hp->off;
+
+    memcpy(buffer, hp->json + hp->off, bytes);
+    hp->off += bytes;
+    return bytes;
 }
 
-int grab_values(char* json_query, pmInDom indom, char* local_path, json_metric_desc* json, int json_size)
+static int
+grab_values(char *json_query, pmInDom indom, char *local_path, json_metric_desc *json, int json_size)
 {
-    int               len, sts, i;
-    char              res[BUFSIZ] = "";
-    char             *url = "unix://var/run/docker.sock";
-    json_metric_desc *local_json_metrics = NULL;
+    int			sts, i;
+    http_data		http_data;
+    json_metric_desc	*local_metrics;
 
-    len = pmhttpClientFetch(http_client, url, res, sizeof(res), json_query, strlen(json_query));
-
-    if (len < 0) {
+    if ((sts = pmhttpClientFetch(http_client, "unix://var/run/docker.sock",
+			&http_data.json[0], sizeof(http_data.json),
+			json_query, strlen(json_query))) < 0) {
 	if (pmDebug & DBG_TRACE_APPL1)
 	    __pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed\n");
 	return 0; // failed
     }
+    http_data.json_len = strlen(http_data.json);
+    http_data.off = 0;
+
     pthread_mutex_lock(&docker_mutex);
 
-    if (indom != PM_INDOM_NULL)
-	sts = pmdaCacheLookupName(indom, local_path, NULL, (void **)&local_json_metrics);
-    else
-	sts = 0;
+    sts = (indom == PM_INDOM_NULL) ? 0 :
+	pmdaCacheLookupName(indom, local_path, NULL, (void **)&local_metrics);
+
     /* allocate space for values for this container and update indom */
-    if (sts != PMDA_CACHE_INACTIVE) {
+    if (sts != PMDA_CACHE_INACTIVE && sts != PMDA_CACHE_ACTIVE) {
 	if (pmDebug & DBG_TRACE_ATTR) {
 	    fprintf(stderr, "%s: adding docker container %s\n",
 		    pmProgname, local_path);
 	}
-	if ((local_json_metrics = calloc(json_size, sizeof(json_metric_desc))) == NULL){
+	if (!(local_metrics = calloc(json_size, sizeof(json_metric_desc)))) {
 	    if (pmDebug & DBG_TRACE_ATTR) {
-		fprintf(stderr, "%s: could not alloc more space for container %s\n",
+		fprintf(stderr, "%s: cannot allocate container %s space\n",
 			pmProgname, local_path);
 	    }
 	    return 0;
 	}
+	memcpy(local_metrics, json, (sizeof(json_metric_desc)*json_size));
+	for (i = 0; i < json_size; i++)
+	    local_metrics[i].json_pointer = strdup(json[i].json_pointer);
+	local_metrics[0].dom = strdup(local_path);
+    } else {
+	memcpy(local_metrics, json, (sizeof(json_metric_desc)*json_size));
+	for (i = 0; i < json_size; i++)
+	    strcpy(local_metrics[i].json_pointer, json[i].json_pointer);
+	strcpy(local_metrics[0].dom, local_path);
     }
-    memcpy(local_json_metrics, json, (sizeof(json_metric_desc)*json_size));
-    for (i = 0; i < json_size; i++)
-	local_json_metrics[i].json_pointer = strdup(json[i].json_pointer);
 
-    local_json_metrics[0].dom = strdup(local_path);
-    sts = pmjsonInitIterable(local_json_metrics, json_size, indom, &buffer_callback, res);
+    if ((sts = pmjsonGet(local_metrics, json_size, indom, &grab_json,
+			 (void *)&http_data)) < 0)
+	goto unlock;
 
     if (indom == PM_INDOM_NULL)
-	memcpy(json, local_json_metrics, (sizeof(json_metric_desc)*json_size));
+	memcpy(json, local_metrics, (sizeof(json_metric_desc) * json_size));
     else
-	sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, local_path, (void*)local_json_metrics);
+	sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, local_path, (void *)local_metrics);
     
+unlock:
     pthread_mutex_unlock(&docker_mutex);
     return sts;
 }
@@ -778,9 +758,8 @@ check_docker_dir(char *path)
 
     stats_cache = INDOM(CONTAINERS_STATS_CACHE_INDOM);
     if (stat(path, &statbuf) != 0) {
-	if (oserror() == lasterrno) {
+	if (oserror() == lasterrno)
 	    return 0;
-	}
 	lasterrno = oserror();
     }
     lasterrno = 0;
@@ -794,12 +773,14 @@ check_docker_dir(char *path)
     return 0;
 }
 
-void update_stats_cache(int mark_inactive)
+static void
+update_stats_cache(int mark_inactive)
 {
     char             *name;
     int               sts = 0;
     json_metric_desc *local_json_metrics = NULL;
     pmInDom           stats, stats_cache;
+
     stats = INDOM(CONTAINERS_STATS_INDOM);
     stats_cache = INDOM(CONTAINERS_STATS_CACHE_INDOM);
 
@@ -818,7 +799,8 @@ void update_stats_cache(int mark_inactive)
     pthread_mutex_unlock(&docker_mutex);
 }
 
-void refresh_insts(char *path)
+static void
+refresh_insts(char *path)
 {
     DIR               *rundir;
     struct dirent     *drp;
@@ -855,8 +837,8 @@ void refresh_insts(char *path)
     return;
 }
 
-int
-docker_setup()
+static int
+docker_setup(void)
 {
     static const char *docker_default = "/var/lib/docker";
     const char        *docker = getenv("PCP_DOCKER_DIR");
@@ -872,6 +854,7 @@ docker_setup()
  * Initialise the agent (both daemon and DSO).
  */
 void 
+__PMDA_INIT_CALL
 docker_init(pmdaInterface *dp)
 {
     int         i, sts;
@@ -903,7 +886,7 @@ docker_init(pmdaInterface *dp)
     docker_indomtab[CONTAINERS_INDOM].it_indom = CONTAINERS_INDOM;
     docker_indomtab[CONTAINERS_STATS_INDOM].it_indom = CONTAINERS_STATS_INDOM;
     docker_indomtab[CONTAINERS_STATS_CACHE_INDOM].it_indom = CONTAINERS_STATS_CACHE_INDOM;
-    pmdaInit(dp, docker_indomtab, INDOMTAB_SZ, metrictab, sizeof(metrictab)/sizeof(metrictab[0]));
+    pmdaInit(dp, docker_indomtab, INDOMTAB_SZ, metrictab, METRICTAB_SZ);
     for (i = 0; i < NUM_INDOMS; i++)
 	pmdaCacheOp(INDOM(i), PMDA_CACHE_CULL);
 	
