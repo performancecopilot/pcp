@@ -456,7 +456,7 @@ refresh_stats(char *path)
 }
 
 static void *
-docker_background_loop(void* loop)
+docker_background_loop(void *loop)
 {
     int local_freq;
 
@@ -474,8 +474,7 @@ docker_background_loop(void* loop)
 static int
 docker_store(pmResult *result, pmdaExt *pmda)
 {
-    int i = 0;
-    int sts = 0;
+    int i;
 
     for (i = 0; i < result->numpmid; i++) {
 	pmValueSet *vsp = result->vset[i];
@@ -487,7 +486,7 @@ docker_store(pmResult *result, pmdaExt *pmda)
 
 	switch (idp->item) {
 	case 0:
-	    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0], PM_TYPE_U64, &av, PM_TYPE_U64)) < 0)
+	    if (pmExtractValue(vsp->valfmt, &vsp->vlist[0], PM_TYPE_U64, &av, PM_TYPE_U64) < 0)
 		return PM_ERR_VALUE;
 	    pthread_mutex_lock(&refresh_mutex);
 	    thread_freq = av.ull;
@@ -497,7 +496,7 @@ docker_store(pmResult *result, pmdaExt *pmda)
 	    return PM_ERR_PMID;
 	}
     }
-    return sts;
+    return 0;
 }
 
 /*
@@ -506,44 +505,47 @@ docker_store(pmResult *result, pmdaExt *pmda)
 static int
 docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    __pmID_int	     *idp = (__pmID_int *)&(mdesc->m_desc.pmid);
-    int               sts = 0;
-    char             *name;
-    json_metric_desc *local_json_metrics = NULL;
-    pmInDom           indom;
+    __pmID_int		*idp = (__pmID_int *)&(mdesc->m_desc.pmid);
+    int			sts = 0;
+    char		*name;
+    json_metric_desc	*local_metrics;
+    pmInDom		indom;
 
     pthread_mutex_lock(&stats_mutex);
+
     switch (idp->cluster) {
     case CLUSTER_BASIC:
 
 	indom = INDOM(CONTAINERS_INDOM);
 	if (inst != PM_INDOM_NULL) {
-	    local_json_metrics = NULL;
-	    sts = pmdaCacheLookup(indom, inst, &name, (void**)&local_json_metrics);
-	    if (sts < 0){
+	    local_metrics = NULL;
+	    sts = pmdaCacheLookup(indom, inst, &name, (void**)&local_metrics);
+	    if (sts < 0 || !local_metrics) {
 		sts = PM_ERR_INDOM;
 		break;
 	    }
 	}
 	switch (idp->item) {
 	case 0:		/* docker.pid */
-	    atom->ll = local_json_metrics[idp->item].values.l;
+	    atom->ll = local_metrics[idp->item].values.l;
 	    sts = PMDA_FETCH_STATIC;
 	    break;
 	case 1:             /* docker.name */
-	    atom->cp = *local_json_metrics[idp->item].values.cp == '/' ? local_json_metrics[idp->item].values.cp+1 : local_json_metrics[idp->item].values.cp;
+	    atom->cp = *local_metrics[idp->item].values.cp == '/' ?
+			local_metrics[idp->item].values.cp + 1 :
+			local_metrics[idp->item].values.cp;
 	    sts = PMDA_FETCH_STATIC;
 	    break;
 	case 2:             /* docker.running */
-	    atom->ul = (local_json_metrics[idp->item].values.ll & CONTAINER_FLAG_RUNNING) != 0;
+	    atom->ul = (local_metrics[idp->item].values.ll & CONTAINER_FLAG_RUNNING) != 0;
 	    sts = PMDA_FETCH_STATIC;
 	    break;
 	case 3:                /* docker.paused */
-	    atom->ul = local_json_metrics[idp->item].values.ll;
+	    atom->ul = local_metrics[idp->item].values.ll;
 	    sts = PMDA_FETCH_STATIC;
 	    break;
 	case 4:                /* docker.restarting */
-	    atom->ul = local_json_metrics[idp->item].values.ll;
+	    atom->ul = local_metrics[idp->item].values.ll;
 	    sts = PMDA_FETCH_STATIC;
 	    break;
 	default:
@@ -551,6 +553,7 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	}
 	break;
+
     case CLUSTER_VERSION:
 	switch (idp->item) {
 	case 0:               /* docker.version */
@@ -561,34 +564,38 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 5:               /* docker.arch */
 	case 6:               /* docker.apiversion */
 	case 7:               /* docker.buildversion */
-	    atom->cp = version_metrics[idp->item].values.cp;
-	    sts = PMDA_FETCH_STATIC;
+	    if ((atom->cp = version_metrics[idp->item].values.cp) == NULL)
+		sts = PMDA_FETCH_NOVALUES;
+	    else
+		sts = PMDA_FETCH_STATIC;
 	    break;
 	default:
 	    sts = PM_ERR_PMID;
 	    break;
 	}
 	break;
+
     case CLUSTER_STATS:
 	indom = INDOM(CONTAINERS_STATS_INDOM);
 	if (inst != PM_INDOM_NULL) {
-	    local_json_metrics = NULL;
-	    sts = pmdaCacheLookup(indom, inst, &name, (void**)&local_json_metrics);
-	    if (sts < 0){
+	    local_metrics = NULL;
+	    sts = pmdaCacheLookup(indom, inst, &name, (void**)&local_metrics);
+	    if (sts < 0 || !local_metrics) {
 		sts = PM_ERR_INDOM;
 		break;
 	    }
 	}
 	if (idp->item <= 48) {
-	    atom->ull = local_json_metrics[idp->item].values.ull;
+	    atom->ull = local_metrics[idp->item].values.ull;
 	    sts = PMDA_FETCH_STATIC;
 	}
 	else {
 	    sts = PM_ERR_PMID;
 	}
 	break;
+
     case CLUSTER_CONTROL:
-	switch (idp->item){
+	switch (idp->item) {
 	case 0:
 	    pthread_mutex_lock(&refresh_mutex);
 	    atom->ull = thread_freq;
@@ -600,10 +607,12 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	}
 	break;
+
     default:
 	sts = PM_ERR_PMID;
 	break;
     }
+
     pthread_mutex_unlock(&stats_mutex);
     return sts;
 }
@@ -723,16 +732,11 @@ grab_values(char *json_query, pmInDom indom, char *local_path, json_metric_desc 
 	    }
 	    return 0;
 	}
-	memcpy(local_metrics, json, (sizeof(json_metric_desc)*json_size));
-	for (i = 0; i < json_size; i++)
-	    local_metrics[i].json_pointer = strdup(json[i].json_pointer);
-	local_metrics[0].dom = strdup(local_path);
-    } else {
-	memcpy(local_metrics, json, (sizeof(json_metric_desc)*json_size));
-	for (i = 0; i < json_size; i++)
-	    strcpy(local_metrics[i].json_pointer, json[i].json_pointer);
-	strcpy(local_metrics[0].dom, local_path);
     }
+    memcpy(local_metrics, json, (sizeof(json_metric_desc)*json_size));
+    for (i = 0; i < json_size; i++)
+	local_metrics[i].json_pointer = strdup(json[i].json_pointer);
+    local_metrics[0].dom = strdup(local_path);
 
     if ((sts = pmjsonGet(local_metrics, json_size, indom, &grab_json,
 			 (void *)&http_data)) < 0)
@@ -776,10 +780,10 @@ check_docker_dir(char *path)
 static void
 update_stats_cache(int mark_inactive)
 {
-    char             *name;
-    int               sts = 0;
-    json_metric_desc *local_json_metrics = NULL;
-    pmInDom           stats, stats_cache;
+    char		*name;
+    int			inst;
+    json_metric_desc	*local_metrics;
+    pmInDom		stats, stats_cache;
 
     stats = INDOM(CONTAINERS_STATS_INDOM);
     stats_cache = INDOM(CONTAINERS_STATS_CACHE_INDOM);
@@ -788,12 +792,14 @@ update_stats_cache(int mark_inactive)
     pthread_mutex_lock(&stats_mutex);
     if (mark_inactive)
 	pmdaCacheOp(stats, PMDA_CACHE_INACTIVE);
-    for (sts = pmdaCacheOp(stats_cache, PMDA_CACHE_WALK_REWIND);;) {
-	if ((sts = pmdaCacheOp(stats_cache, PMDA_CACHE_WALK_NEXT)) < 0)
+    for (pmdaCacheOp(stats_cache, PMDA_CACHE_WALK_REWIND);;) {
+	if ((inst = pmdaCacheOp(stats_cache, PMDA_CACHE_WALK_NEXT)) < 0)
 	    break;
-	if ((pmdaCacheLookup(stats_cache, sts, &name, (void **)&local_json_metrics) < 0) || !local_json_metrics)
+	local_metrics = NULL;
+	if ((pmdaCacheLookup(stats_cache, inst, &name, (void **)&local_metrics) < 0)
+	    || !local_metrics)
 	    continue;
-	pmdaCacheStore(stats, PMDA_CACHE_ADD, name, (void *)local_json_metrics);
+	pmdaCacheStore(stats, PMDA_CACHE_ADD, name, (void *)local_metrics);
     }
     pthread_mutex_unlock(&stats_mutex);
     pthread_mutex_unlock(&docker_mutex);
@@ -901,7 +907,7 @@ docker_init(pmdaInterface *dp)
     
 }
  
- static pmLongOptions longopts[] = {
+static pmLongOptions longopts[] = {
     PMDA_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
     PMDAOPT_DOMAIN,
@@ -923,26 +929,23 @@ main(int argc, char **argv)
 {
     int			sep = __pmPathSeparator();
     pmdaInterface	dispatch;
-    int                 qaflag = 0;
-    int                 c, err = 0;
+    int			qaflag = 0;
+    int			c, err = 0;
 
     isDSO = 0;
 
     snprintf(mypath, sizeof(mypath), "%s%c" "docker" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-    if(!isDSO)
-	pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, DOCKER,
-		   "docker.log", mypath);
-    while (( c = pmdaGetOpt(argc, argv, "CD:d:l:U:?", &dispatch, &err)) != EOF){
-	switch (c){
+    pmdaDaemon(&dispatch, PMDA_INTERFACE_6, pmProgname, DOCKER,
+		"docker.log", mypath);
+
+    while ((c = pmdaGetOpt(argc, argv, "CD:d:l:U:?", &dispatch, &err)) != EOF) {
+	switch (c) {
 	case 'C':
 	    qaflag++;
 	    break;
 	case 'U':
 	    username = optarg;
-	    break;
-	case 'l':
-	    printf("hit l option");
 	    break;
 	default:
 	    err++;
@@ -955,7 +958,8 @@ main(int argc, char **argv)
 	exit(1);
     }
     
-    if (qaflag){
+    if (qaflag) {
+	docker_init(&dispatch);
 	docker_background_loop(0);
 	exit(0);
     }
