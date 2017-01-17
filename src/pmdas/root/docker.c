@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Red Hat.
+ * Copyright (c) 2014-2017 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -185,7 +185,7 @@ docker_values_parse(FILE *fp, const char *name, container_t *values)
 
     clearerr(fp);
     if ((sts = pmjsonGet(local_metrics, JSONMETRICS_SZ, PM_INDOM_NULL,
-			 docker_fread, (void *)&fp)) < 0)
+			 docker_fread, (void *)fp)) < 0)
 	return sts;
 
     values->pid = -1;
