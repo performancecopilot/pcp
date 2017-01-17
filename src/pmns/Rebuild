@@ -252,8 +252,12 @@ else
 	_die
     fi
 
-    if [ ! -f root ]
+    if [ -f root -a -s root ]
     then
+	# root exists and is not empty, use as is
+	:
+    else
+	# missing or empty root, create a new skeletal one
     	echo "root {" >root
     	echo "}" >>root
 	chmod 644 root

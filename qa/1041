@@ -31,6 +31,7 @@ $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 $python -c "import libvirt" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python libvirt module not installed"
+_is_libvirt_ok || _notrun "bad python libvirt version"
 $python -c "import lxml" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python lxml module not installed"
 
