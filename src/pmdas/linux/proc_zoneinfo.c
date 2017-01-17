@@ -60,6 +60,42 @@ refresh_proc_zoneinfo(pmInDom indom)
 		values++;
 		continue;
 	    }
+	    else if ((sscanf(buf, "        min %llu", &value)) == 1) {
+		info->values[ZONE_MIN] = (value << _pm_pageshift) / 1024;
+		values++;
+		continue;
+	    }
+	    else if ((sscanf(buf, "        low %llu", &value)) == 1) {
+		info->values[ZONE_LOW] = (value << _pm_pageshift) / 1024;
+		values++;
+		continue;
+	    }
+	    else if ((sscanf(buf, "        high %llu", &value)) == 1) {
+		info->values[ZONE_HIGH] = (value << _pm_pageshift) / 1024;
+		values++;
+		continue;
+	    }
+	    else if ((sscanf(buf, "        scanned %llu", &value)) == 1 ||
+	             (sscanf(buf, "   node_scanned %llu", &value)) == 1) {
+		info->values[ZONE_SCANNED] = (value << _pm_pageshift) / 1024;
+		values++;
+		continue;
+	    }
+	    else if ((sscanf(buf, "        spanned %llu", &value)) == 1) {
+		info->values[ZONE_SPANNED] = (value << _pm_pageshift) / 1024;
+		values++;
+		continue;
+	    }
+	    else if ((sscanf(buf, "        present %llu", &value)) == 1) {
+		info->values[ZONE_PRESENT] = (value << _pm_pageshift) / 1024;
+		values++;
+		continue;
+	    }
+	    else if ((sscanf(buf, "        managed %llu", &value)) == 1) {
+		info->values[ZONE_MANAGED] = (value << _pm_pageshift) / 1024;
+		values++;
+		continue;
+	    }
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, instname, (void *)info);
 

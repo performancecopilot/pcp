@@ -11,13 +11,13 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
-#ifndef _ROOT_H
-#define _ROOT_H
+#ifndef PMDA_ROOT_H
+#define PMDA_ROOT_H
 
 #include <sys/stat.h>
 #include "pmjson.h"
 
-#define JSONMETRICS_SZ 5
+#define JSONMETRICS_SZ	5
 extern json_metric_desc json_metrics[JSONMETRICS_SZ];
 
 enum {
@@ -102,6 +102,4 @@ extern int root_create_agent(int, char *, char *, int *, int *);
 extern int root_agent_wait(int *);
 extern int root_maximum_fd;
 
-
-
-#endif
+#endif	/* PMDA_ROOT_H */

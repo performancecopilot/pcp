@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2016 Red Hat.
+.\" Copyright (c) 2016-2017 Red Hat.
 .\" 
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -13,8 +13,9 @@
 .\" for more details.
 .\" 
 .\"
-.TH PMJSONINIT 3 "PCP" "Performance Co-Pilot"
+.TH PMJSONGET 3 "PCP" "Performance Co-Pilot"
 .SH NAME
+\f3pmjsonGet\f1,
 \f3pmjsonInit\f1,
 \f3pmjsonInitIndom\f1 \- JSON performance metrics extraction
 .SH "C SYNOPSIS"
@@ -27,12 +28,21 @@
 .hy 0
 .in +8n
 .ti -8n
-int pmjsonInitIndom(int \fIfd\fP, json_metric_desc *\fIjson_metrics\fP,
-int \fInum_metrics\fP, pmInDom \fIindom\fP);
+typedef int (*json_get)(void *\fIbuffer\fP, int \fIlength\fP, void *\fIdata\fP);
 .br
 .ti -8n
-int pmjsonInit(int \fIfd\fP, json_metric_desc *\fIjson_metrics\fP,
-int \fInum_metrics\fP);
+int pmjsonGet(json_metric_desc *\fIjson_metrics\fP, int \fInmetrics\fP, pmInDom \fIindom\fP, json_get \fIcallback\fP, void *\fIdata\fP);
+.sp
+.in
+.hy
+.ad
+.in +8n
+.ti -8n
+int pmjsonInit(int \fIfd\fP, json_metric_desc *\fIjson_metrics\fP, int \fInmetrics\fP);
+.br
+.ti -8n
+int pmjsonInitIndom(int \fIfd\fP, json_metric_desc *\fIjson_metrics\fP, int \fInmetrics\fP, pmInDom \fIindom\fP);
+.br
 .sp
 .in
 .hy
@@ -40,34 +50,38 @@ int \fInum_metrics\fP);
 cc ... \-lpcp_web
 .ft 1
 .SH DESCRIPTION
-.P
-\f3pmjsonInitIndom\f1 creates and initializes JSON metric extraction
-functionality for PCP metrics with instance domains.
+\f3pmjsonGet\f1 performs metric value extraction from JSON strings for a
+Performance Metric Domain Agent (\fBPMDA\fP(3)).
 Metrics and instances are defined by the \f2json_metrics\f1 parameter.
 The result of parsing is the extraction of values for the requested
 metrics (as defined in the json_pointer field) in the values field.
-.P
-\f3pmjsonInit\f1 specifies a call to the JSON parsing and metric
-value extraction functionality where there are no instance domains,
-or the PMDA wishes to perform instance domain operations itself.
-.P
-\f2fd\f1 is an open file descriptor from which the JSON document will
-be read.
-.P
+.PP
 \f2json_metrics\f1 is the array of json_metric_desc struct which
 contains the json pointer to the metric data, possible flags to check
 the data against, number of values (in the case of an array),
 \f2pmAtomValue\f1 where the data is stored, as well as the instance
-domain in the even the PMDA in question has multiple domains.
-\f3pmjsonInitIndom\f1 will endeavour to make use of the
+domain in the event the PMDA has multiple instance domains.
+The number of elements in the
+.IR json_metrics
+array is indicated by the \f2nmetrics\f1 parameter.
+.PP
+Interfaces for common cases are provided \- \f3pmjsonInit\f1 specifies
+a call to the JSON parsing and metric value extraction functionality
+where there are no instance domains (or the PMDA wishes to perform
+instance domain operations itself) and where data can be read directly
+from an open file descriptor.
+\f3pmjsonInitIndom\f1 is similar, but makes use of the
 .BR pmdaCacheAdd (3)
 function where possible.
-In the event that no \f2indom\f1 is needed, PM_INDOM_NULL should be
-passed, or \f3pmjsonInit\f1 used instead.
-.P
-\f2num_metrics\f1 is the number of elements in in the array of
-.IR json_metrics .
-.P
+.PP
+The JSON string must be provided by the \f2callback\f1 function.
+This function is passed a memory \f2buffer\f1 of \f2length\f1 bytes and
+an opaque user \f2data\f1 pointer which is unchanged from the original
+call to
+.BR pmjsonGet .
+The returned result must be the number of bytes written into \f2buffer\f1,
+zero when no more data is available or less than zero on error conditions.
+.PP
 \f2indom\f1 is the instance domain to be passed to \f3pmdaCacheAdd\f1.
 .P
 .nf
@@ -83,9 +97,10 @@ passed, or \f3pmjsonInit\f1 used instead.
 The JSON Pointer syntax current follows \f2RFC6901\f1 in specifying a
 metrics location within the JSON document.
 .SH EXAMPLE
+For the sample JSON document:
+.P
 .ft CW
 .nf
-For the sample JSON document:
 {
     "Name": "/clever_almeida",
     "State": {
@@ -101,11 +116,15 @@ For the sample JSON document:
         "StartedAt": "2016-07-18T14:10:58.52487316Z"
     }
 }
-
+.fi
+.ft R
+.P
 A possible corresponding json_metric array would be as follows for the
 Pid, Name, and metrics to indicate whether the container is Running,
 Paused, or Restarting.
-
+.P
+.ft CW
+.nf
 static json_metric_desc json_metrics[] = {
     { "State/Pid", 0, 1, {0}, ""},
     { "Name", 0, 1, {0}, ""},
@@ -116,11 +135,12 @@ static json_metric_desc json_metrics[] = {
 .fi
 .ft R
 .SH RETURN CODE
-The function returns zero on success, otherwise an error code suitable
+The functions return zero on success, otherwise an error code suitable
 for passing to
 .BR pmErrStr_r (3)
 is returned.
 .SH SEE ALSO
+.BR PMDA (3),
 .BR pmErrStr_r (3),
 .BR pmdaCacheAdd (3),
 .nh

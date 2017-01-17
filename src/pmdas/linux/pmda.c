@@ -3549,6 +3549,41 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_ZONEINFO,0), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+/* mem.zoneinfo.min */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,1), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.low */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,2), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.high */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,3), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.scanned */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,4), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.spanned */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,5), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.present */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,6), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.zoneinfo.managed */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO,7), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
 /*
  * /proc/cpuinfo cluster (cpu indom)
  */
