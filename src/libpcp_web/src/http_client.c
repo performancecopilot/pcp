@@ -284,8 +284,11 @@ http_client_connect(http_client *cp)
 		up->field_data[UF_HOST].len, url + up->field_data[UF_HOST].off,
 		up->field_data[UF_PATH].len, url + up->field_data[UF_PATH].off);
 	path[length] = '\0';
-
+	//	__pmNotifyErr(LOG_DEBUG, "host: %.*s\n", up->field_data[UF_HOST].len, url + up->field_data[UF_HOST].off);
+	//	__pmNotifyErr(LOG_DEBUG, "UF_path: %.*s\n", up->field_data[UF_PATH].len, url + up->field_data[UF_PATH].off);
+	//	__pmNotifyErr(LOG_DEBUG, "path: %s\n", path);
 	cp->fd = http_client_connectunix(path, &cp->timeout);
+	//	__pmNotifyErr(LOG_DEBUG, "fd: %d\n", cp->fd);
 	return cp->fd;
     }
 
@@ -313,9 +316,10 @@ http_client_get(http_client *cp)
     char		host[MAXHOSTNAMELEN];
     char		*bp = &buf[0], *url = cp->url;
     http_parser_url	*up = &cp->parser_url;
-    const char		*path, *agent, *version;
-    size_t		hostlen, len = 0;
+    const char		*path, *agent, *version, *protocol;
+    size_t		hostlen, len = 0, length;
     int			sts;
+
 
     /* sanitize request parameters */
     if ((agent = cp->user_agent) == NULL)
@@ -324,16 +328,31 @@ http_client_get(http_client *cp)
 	version = "1.0";
     if ((path = url + up->field_data[UF_PATH].off) == NULL ||
 	up->field_data[UF_PATH].off == 0 ||
-	strchr(path, '/') == NULL)
+	strchr(path, '/') == NULL){
 	path = "/";	/* assume root-level request */
+    }
     hostlen = up->field_data[UF_HOST].len;
     strncpy(host, url + up->field_data[UF_HOST].off, hostlen);
     host[hostlen] = '\0';
-
+    //    strncpy(host, "localhost", sizeof("localhost"));
+    //    host[sizeof("localhost")] = '\0';
+    //    strncpy(path, "/containers/8d70f8a47a6b6e515fb8e40d31da7928de70e883c235ba16b132e6a3b4f8267d/json", sizeof("/containers/8d70f8a47a6b6e515fb8e40d31da7928de70e883c235ba16b132e6a3b4f8267d/json"));
+    //    __pmNotifyErr(LOG_DEBUG, "hit here: %s", cp->type_buffer);
+    
+    protocol = url + up->field_data[UF_SCHEMA].off;
+    length = up->field_data[UF_SCHEMA].len;
     /* prepare and send a GET request */
-    len += snprintf(bp+len, sizeof(buf)-len, "GET %s HTTP/%s\r\n",
+    if (length == sizeof(HTTP)-1 && strncmp(protocol, UNIX, length) == 0) {
+	len += snprintf(bp+len, sizeof(buf)-len, "GET %s HTTP/%s\r\n",
+			cp->type_buffer, http_versionstr(cp->http_version));
+	len += snprintf(bp+len, sizeof(buf)-len, "Host: %s\r\n", "localhost");
+    }
+    else
+    {
+	len += snprintf(bp+len, sizeof(buf)-len, "GET %s HTTP/%s\r\n",
 			path, http_versionstr(cp->http_version));
-    len += snprintf(bp+len, sizeof(buf)-len, "Host: %s\r\n", host);
+	len += snprintf(bp+len, sizeof(buf)-len, "Host: %s\r\n", host);
+    }
     len += snprintf(bp+len, sizeof(buf)-len, "User-Agent: %s/%s\r\n",
 			agent, version);
     /* establish persistent connections (default in HTTP/1.1 onward) */

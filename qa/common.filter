@@ -217,6 +217,7 @@ _filter_optional_pmdas()
 	-e '/pmdadbping/d' \
 	-e '/pmdadm/d' \
 	-e '/pmdadmf/d' \
+	-e '/pmdadocker/d' \
 	-e '/pmdads389/d' \
 	-e '/pmda_environ/d' \
 	-e '/pmdaelasticsearch/d' \
