@@ -795,6 +795,7 @@ __pmGetDate(struct timespec *result, const char *p, struct timespec const *now)
 {
     PARSER		yp;
     struct tm		*tm, tmp, *gmt_ptr, gmt;
+    struct tm		gmtbuf;
     struct timespec	gettime_buffer;
     int			tzoff;
     time_t		Start;
@@ -808,12 +809,9 @@ __pmGetDate(struct timespec *result, const char *p, struct timespec const *now)
     memset(&tmp, 0, sizeof(struct tm));
     memset(&gmt, 0, sizeof(struct tm));
 
-    PM_INIT_LOCKS();
-    PM_LOCK(__pmLock_libpcp);
-    gmt_ptr = gmtime(&now->tv_sec);
+    gmt_ptr = gmtime_r(&now->tv_sec, &gmtbuf);
     if (gmt_ptr != NULL)
 	gmt = *gmt_ptr;
-    PM_UNLOCK(__pmLock_libpcp);
 
     if ((tm = pmLocaltime(&now->tv_sec, &tmp)) == NULL)
 	return -1;
