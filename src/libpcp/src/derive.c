@@ -164,17 +164,17 @@ initialize_mutex(void)
 	if ((psts = pthread_mutexattr_init(&attr)) != 0) {
 	    strerror_r(psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "initialize_mutex: pthread_mutexattr_init failed: %s", errmsg);
-	    exit(4);		/* THREADSAFE */
+	    exit(4);
 	}
 	if ((psts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
 	    strerror_r(psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "initialize_mutex: pthread_mutexattr_settype failed: %s", errmsg);
-	    exit(4);		/* THREADSAFE */
+	    exit(4);
 	}
 	if ((psts = pthread_mutex_init(&registered.mutex, &attr)) != 0) {
 	    strerror_r(psts, errmsg, sizeof(errmsg));
 	    fprintf(stderr, "initialize_mutex: pthread_mutex_init failed: %s", errmsg);
-	    exit(4);		/* THREADSAFE */
+	    exit(4);
 	}
 	pthread_mutexattr_destroy(&attr);
 	done = 1;

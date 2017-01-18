@@ -334,14 +334,14 @@ void
 __pmFaultInject(const char *ident, int class)
 {
     fprintf(stderr, "__pmFaultInject() called but library not compiled with -DPM_FAULT_INJECTION\n");
-    exit(1);		/* THREADSAFE */
+    exit(1);
 }
 
 void
 __pmFaultSummary(FILE *f)
 {
     fprintf(f, "__pmFaultSummary() called but library not compiled with -DPM_FAULT_INJECTION\n");
-    exit(1);		/* THREADSAFE */
+    exit(1);
 
 }
 #endif

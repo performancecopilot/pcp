@@ -1,6 +1,10 @@
 # thread-unsafe routines in glibc that are extras beyond the posix.unsafe
 # list
-exit
+#
+# we don't care about any exit status race issues in libpcp, so exit
+# is not in the list (although it was at an earlier iteration of the
+# locking and concurrency control refactoring work)
+# exit
 cuserid
 tmpnam
 # *_unlocked require flockfile() and funlockfile() wrappers

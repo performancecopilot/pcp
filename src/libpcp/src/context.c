@@ -299,21 +299,21 @@ initcontextlock(pthread_mutex_t *lock)
 	fprintf(stderr, "pmNewContext: "
 		"context=%d lock pthread_mutexattr_init failed: %s",
 		contexts_len-1, errmsg);
-	exit(4);		/* THREADSAFE */
+	exit(4);
     }
     if ((sts = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) != 0) {
 	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmNewContext: "
 		"context=%d lock pthread_mutexattr_settype failed: %s",
 		contexts_len-1, errmsg);
-	exit(4);		/* THREADSAFE */
+	exit(4);
     }
     if ((sts = pthread_mutex_init(lock, &attr)) != 0) {
 	pmErrStr_r(-sts, errmsg, sizeof(errmsg));
 	fprintf(stderr, "pmNewContext: "
 		"context=%d lock pthread_mutex_init failed: %s",
 		contexts_len-1, errmsg);
-	exit(4);		/* THREADSAFE */
+	exit(4);
     }
     pthread_mutexattr_destroy(&attr);
 }
@@ -329,7 +329,7 @@ initchannellock(pthread_mutex_t *lock)
 	fprintf(stderr, "pmNewContext: "
 		"context=%d pmcd channel lock pthread_mutex_init failed: %s",
 		contexts_len, errmsg);
-	exit(4);		/* THREADSAFE */
+	exit(4);
     }
 }
 

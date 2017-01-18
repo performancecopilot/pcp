@@ -547,13 +547,13 @@ __pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
 	__pmNotifyErr(LOG_CRIT,
 		"cannot find the %s user to switch to\n", username);
 	if (mode == PM_FATAL_ERR)
-	    exit(1);		/* THREADSAFE */
+	    exit(1);
 	return -ENOENT;
     } else if (sts != 0) {
 	__pmNotifyErr(LOG_CRIT, "getpwnam_r(%s) failed: %s\n",
 		username, pmErrStr_r(sts, buf, sizeof(buf)));
 	if (mode == PM_FATAL_ERR)
-	    exit(1);		/* THREADSAFE */
+	    exit(1);
 	return -ENOENT;
     }
     *uid = pwd.pw_uid;
@@ -576,14 +576,14 @@ __pmGetUserIdentity(const char *username, uid_t *uid, gid_t *gid, int mode)
 	__pmNotifyErr(LOG_CRIT,
 		"cannot find the %s user to switch to\n", username);
 	if (mode == PM_FATAL_ERR)
-	    exit(1);		/* THREADSAFE */
+	    exit(1);
 	return -ENOENT;
     } else if (oserror() != 0) {
 	PM_UNLOCK(__pmLock_extcall);
 	__pmNotifyErr(LOG_CRIT, "getpwnam(%s) failed: %s\n",
 		username, pmErrStr_r(oserror(), errmsg, sizeof(errmsg)));
 	if (mode == PM_FATAL_ERR)
-	    exit(1);		/* THREADSAFE */
+	    exit(1);
 	return -ENOENT;
     }
     *uid = pw->pw_uid;
@@ -608,7 +608,7 @@ __pmSetProcessIdentity(const char *username)
 	__pmNotifyErr(LOG_CRIT,
 		"setgid to gid of %s user (gid=%d): %s",
 		username, gid, osstrerror_r(msg, sizeof(msg)));
-	exit(1);		/* THREADSAFE */
+	exit(1);
     }
 
     /*
@@ -620,14 +620,14 @@ __pmSetProcessIdentity(const char *username)
 	__pmNotifyErr(LOG_CRIT,
 		"initgroups with gid of %s user (gid=%d): %s",
 		username, gid, osstrerror_r(msg, sizeof(msg)));
-	exit(1);		/* THREADSAFE */
+	exit(1);
     }
 
     if (setuid(uid) < 0) {
 	__pmNotifyErr(LOG_CRIT,
 		"setuid to uid of %s user (uid=%d): %s",
 		username, uid, osstrerror_r(msg, sizeof(msg)));
-	exit(1);		/* THREADSAFE */
+	exit(1);
     }
 
     return 0;

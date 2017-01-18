@@ -233,7 +233,7 @@ __pmconfig(__pmConfigCallback formatter, int fatal)
 	pmflush();
 	free(conf);
 	if (prefix != NULL) free(prefix);
-	exit(1);		/* THREADSAFE */
+	exit(1);
     }
 
     while (fgets(var, sizeof(var), fp) != NULL) {
