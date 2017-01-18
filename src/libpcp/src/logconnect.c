@@ -344,7 +344,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 		    errmsg = hoststrerror();		/* THREADSAFE */
 		    fprintf(stderr, "__pmConnectLogger: __pmGetAddrInfo: %s\n",
 			    errmsg);
-		    PM_LOCK(__pmLock_extcall);
+		    PM_UNLOCK(__pmLock_extcall);
 		}
 #endif
 		return -EHOSTUNREACH;
