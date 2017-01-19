@@ -37,7 +37,7 @@ cleanup()
 	_wait_for_pmcd
 	_wait_for_pmlogger
     fi
-    rm -rf $tmp
+    rm -rf $tmp $tmp.*
 }
 
 trap "cleanup; exit \$status" 0 1 2 3 15
