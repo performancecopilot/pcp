@@ -247,6 +247,23 @@ _cleanup_pmda()
     $sudo rm -f $tmp.*
 }
 
+#
+# create a Linux /proc/stat-alike file for a given number of CPUs
+#
+_make_proc_stat()
+{
+    __path=$1
+    __ncpu=$2
+
+    echo cpu 0 0 0 0 0 0 0 0 0 > $__path
+    __cpu=0
+    while [ $__cpu -lt $__ncpu ]
+    do
+	echo cpu$__cpu 0 0 0 0 0 0 0 0 0 >> $__path
+	__cpu=`expr $__cpu + 1`
+    done
+}
+
 _make_helptext()
 {
     __pmda=$1

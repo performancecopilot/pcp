@@ -180,7 +180,6 @@ exit
 
 # success, all done
 status=0
-
 exit
 End-of-File
 
