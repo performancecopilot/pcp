@@ -126,7 +126,8 @@ refresh_proc_meminfo(proc_meminfo_t *proc_meminfo)
      * MemAvailable is only in 3.x or later kernels but we can calculate it
      * using other values, similar to upstream kernel commit 34e431b0ae.
      */
-    if (!MEMINFO_VALID_VALUE(proc_meminfo->MemAvailable) || linux_test_mode & 2) {
+    if (!MEMINFO_VALID_VALUE(proc_meminfo->MemAvailable) ||
+	(linux_test_mode & LINUX_TEST_MEMINFO)) {
 	if (MEMINFO_VALID_VALUE(proc_meminfo->MemTotal) &&
 	    MEMINFO_VALID_VALUE(proc_meminfo->MemFree) &&
 	    MEMINFO_VALID_VALUE(proc_meminfo->Active_file) &&

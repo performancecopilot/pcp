@@ -159,10 +159,18 @@ extern pmInDom linux_indom(int);
 extern pmdaIndom *linux_pmda_indom(int);
 #define PMDAINDOM(i) linux_pmda_indom(i)
 
+/*
+ * Bitflag states representing various modes for testing.
+ */
+#define	LINUX_TEST_MODE		(1<<0)
+#define	LINUX_TEST_STATSPATH	(1<<1)
+#define	LINUX_TEST_MEMINFO	(1<<2)
+#define	LINUX_TEST_NCPUS	(1<<3)
+extern int linux_test_mode;
+
 /*  
  * Optional path prefix for all stats files, used for testing.
  */
-extern int linux_test_mode;
 extern char *linux_statspath;
 extern FILE *linux_statsfile(const char *, char *, int);
 extern char *linux_mdadm;

@@ -7084,30 +7084,30 @@ linux_init(pmdaInterface *dp)
 
     /* optional overrides of some globals for testing */
     if ((envpath = getenv("LINUX_HERTZ")) != NULL) {
+	linux_test_mode |= LINUX_TEST_MODE;
 	hz = atoi(envpath);
-	linux_test_mode |= 1;
     } else
 	hz = sysconf(_SC_CLK_TCK);
     if ((envpath = getenv("LINUX_NCPUS")) != NULL) {
+	linux_test_mode |= (LINUX_TEST_MODE|LINUX_TEST_NCPUS);
 	_pm_ncpus = atoi(envpath);
-	linux_test_mode |= 1;
     } else
 	_pm_ncpus = sysconf(_SC_NPROCESSORS_CONF);
     if ((envpath = getenv("LINUX_PAGESIZE")) != NULL) {
+	linux_test_mode |= LINUX_TEST_MODE;
 	_pm_pageshift = ffs(atoi(envpath)) - 1;
-	linux_test_mode |= 1;
     } else
 	_pm_pageshift = ffs(getpagesize()) - 1;
     if ((envpath = getenv("LINUX_STATSPATH")) != NULL) {
+	linux_test_mode |= (LINUX_TEST_MODE|LINUX_TEST_STATSPATH);
 	linux_statspath = envpath;
-	linux_test_mode |= 1;
     }
     if ((envpath = getenv("LINUX_MDADM")) != NULL) {
+	linux_test_mode |= LINUX_TEST_MODE;
 	linux_mdadm = envpath;
-	linux_test_mode |= 1;
     }
     if (getenv("PCP_QA_ESTIMATE_MEMAVAILABLE") != NULL)
-	linux_test_mode |= 2;
+	linux_test_mode |= (LINUX_TEST_MODE|LINUX_TEST_MEMINFO);
 
     if (_isDSO) {
 	char helppath[MAXPATHLEN];

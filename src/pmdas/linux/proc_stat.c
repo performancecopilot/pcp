@@ -110,7 +110,7 @@ cpu_node_setup(void)
 
     snprintf(path, sizeof(path), "%s/%s", linux_statspath, node_path);
     count = scandir(path, &node_files, NULL, versionsort);
-    if (!node_files || linux_test_mode) {
+    if (!node_files || (linux_test_mode & LINUX_TEST_NCPUS)) {
 	/* QA mode or no sysfs support, assume single NUMA node */
 	node_add(nodes, 0);	/* default to just node zero */
 	for (cpu = 0; cpu < _pm_ncpus; cpu++)
@@ -195,8 +195,8 @@ refresh_proc_stat(proc_stat_t *proc_stat)
 	memset(&np->stat, 0, sizeof(np->stat));
     }
 
-    /* in test mode we can replace procfs files (keeping open thwarts that) */
-    if (fd >= 0 && linux_test_mode) {
+    /* in test mode we replace procfs files (keeping fd open thwarts that) */
+    if (fd >= 0 && (linux_test_mode & LINUX_TEST_STATSPATH)) {
 	close(fd);
 	fd = -1;
     }
