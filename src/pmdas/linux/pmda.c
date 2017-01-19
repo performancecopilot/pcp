@@ -1,7 +1,7 @@
 /*
  * Linux PMDA
  *
- * Copyright (c) 2012-2016 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
@@ -67,7 +67,6 @@ static proc_net_tcp_t		proc_net_tcp;
 static proc_net_sockstat_t	proc_net_sockstat;
 static struct utsname		kernel_uname;
 static char 			uname_string[sizeof(kernel_uname)];
-static proc_cpuinfo_t		proc_cpuinfo;
 static proc_slabinfo_t		proc_slabinfo;
 static sem_limits_t		sem_limits;
 static msg_limits_t		msg_limits;
@@ -75,7 +74,6 @@ static shm_limits_t		shm_limits;
 static proc_uptime_t		proc_uptime;
 static proc_sys_fs_t		proc_sys_fs;
 static sysfs_kernel_t		sysfs_kernel;
-static numa_meminfo_t		numa_meminfo;
 static shm_info_t              _shm_info;
 static sem_info_t              _sem_info;
 static msg_info_t              _msg_info;
@@ -89,7 +87,7 @@ static int		hz;
 
 /* globals */
 int _pm_pageshift; /* for hinv.pagesize and for pages -> bytes */
-int _pm_ncpus; /* number of processors at pmda startup time */
+int _pm_ncpus; /* maximum number of processors configurable */
 int _pm_have_proc_vmstat; /* if /proc/vmstat is available */
 int _pm_intr_size; /* size in bytes of interrupt sum count metric */
 int _pm_ctxt_size; /* size in bytes of context switch count metric */
@@ -297,7 +295,7 @@ static pmdaInstid nfs4_svr_indom_id[NR_RPC4_SVR_COUNTERS] = {
 };
 
 static pmdaIndom indomtab[] = {
-    { CPU_INDOM, 0, NULL },
+    { CPU_INDOM, 0, NULL }, /* cached */
     { DISK_INDOM, 0, NULL }, /* cached */
     { LOADAVG_INDOM, 3, loadavg_indom_id },
     { NET_DEV_INDOM, 0, NULL },
@@ -316,7 +314,7 @@ static pmdaIndom indomtab[] = {
     { QUOTA_PRJ_INDOM, 0, NULL },	/* migrated to the xfs PMDA */
     { NET_ADDR_INDOM, 0, NULL },
     { TMPFS_INDOM, 0, NULL },
-    { NODE_INDOM, 0, NULL },
+    { NODE_INDOM, 0, NULL }, /* cached */
     { PROC_CGROUP_SUBSYS_INDOM, 0, NULL },
     { PROC_CGROUP_MOUNTS_INDOM, 0, NULL },
     { 0 }, /* deprecated LV_INDOM */
@@ -4752,6 +4750,7 @@ typedef struct {
 static perctx_t *ctxtab;
 static int      num_ctx;
 
+int linux_test_mode;	/* bit field indicating if currently doing QA tests */
 char *linux_statspath = "";	/* optional path prefix for all stats files */
 char *linux_mdadm = "/sbin/mdadm"; /* program for extracting MD RAID status */
 
@@ -4798,16 +4797,16 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 				INDOM(DM_INDOM), INDOM(MD_INDOM));
 
     if (need_refresh[CLUSTER_STAT])
-	refresh_proc_stat(&proc_cpuinfo, &proc_stat);
+	refresh_proc_stat(&proc_stat);
 
     if (need_refresh[CLUSTER_CPUINFO])
-	refresh_proc_cpuinfo(&proc_cpuinfo);
+	refresh_proc_cpuinfo();
 
     if (need_refresh[CLUSTER_MEMINFO])
 	refresh_proc_meminfo(&proc_meminfo);
 
     if (need_refresh[CLUSTER_NUMA_MEMINFO])
-	refresh_numa_meminfo(&numa_meminfo, &proc_cpuinfo, &proc_stat);
+	refresh_numa_meminfo();
 
     if (need_refresh[CLUSTER_LOADAVG])
 	refresh_proc_loadavg(&proc_loadavg);
@@ -5062,6 +5061,8 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     int			i;
     int			sts;
     long		sl;
+    percpu_t		*cp;
+    pernode_t		*np;
     struct filesys	*fs;
     net_addr_t		*addrp;
     net_interface_t	*netip;
@@ -5159,114 +5160,142 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	 */
 	switch (idp->item) {
 	case 0: /* kernel.percpu.cpu.user */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_user[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.user / hz);
 	    break;
 	case 1: /* kernel.percpu.cpu.nice */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_nice[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.nice / hz);
 	    break;
 	case 2: /* kernel.percpu.cpu.sys */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_sys[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.sys / hz);
 	    break;
 	case 3: /* kernel.percpu.cpu.idle */
-	    _pm_assign_utype(_pm_idletime_size, atom,
-			1000 * (double)proc_stat.p_idle[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_idletime_size, atom, 1000 * (double)cp->stat.idle / hz);
 	    break;
 	case 30: /* kernel.percpu.cpu.wait.total */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_wait[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.wait / hz);
 	    break;
 	case 31: /* kernel.percpu.cpu.intr */
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)proc_stat.p_irq[inst] +
-				(double)proc_stat.p_sirq[inst]) / hz);
+			1000 * ((double)cp->stat.irq + (double)cp->stat.sirq) / hz);
 	    break;
 	case 56: /* kernel.percpu.cpu.irq.soft */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_sirq[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.sirq / hz);
 	    break;
 	case 57: /* kernel.percpu.cpu.irq.hard */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_irq[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.irq / hz);
 	    break;
 	case 58: /* kernel.percpu.cpu.steal */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_steal[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.steal / hz);
 	    break;
 	case 61: /* kernel.percpu.cpu.guest */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_guest[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)cp->stat.guest / hz);
 	    break;
 	case 76: /* kernel.percpu.cpu.vuser */
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)proc_stat.p_user[inst] - (double)proc_stat.p_guest[inst])
-			/ hz);
+			1000 * ((double)cp->stat.user - (double)cp->stat.guest) / hz);
 	    break;
 	case 83: /* kernel.percpu.cpu.guest_nice */
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.p_guest_nice[inst] / hz);
+			1000 * (double)cp->stat.guest_nice / hz);
 	    break;
 	case 84: /* kernel.percpu.cpu.vnice */
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)proc_stat.p_nice[inst] - (double)proc_stat.p_guest_nice[inst])
-			/ hz);
+			1000 * ((double)cp->stat.nice - (double)cp->stat.guest_nice) / hz);
 	    break;
 	case 62: /* kernel.pernode.cpu.user */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_user[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.user / hz);
 	    break;
 	case 63: /* kernel.pernode.cpu.nice */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_nice[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.nice / hz);
 	    break;
 	case 64: /* kernel.pernode.cpu.sys */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_sys[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.sys / hz);
 	    break;
 	case 65: /* kernel.pernode.cpu.idle */
-	    _pm_assign_utype(_pm_idletime_size, atom,
-			1000 * (double)proc_stat.n_idle[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_idletime_size, atom, 1000 * (double)np->stat.idle / hz);
 	    break;
 	case 69: /* kernel.pernode.cpu.wait.total */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_wait[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.wait / hz);
 	    break;
 	case 66: /* kernel.pernode.cpu.intr */
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)proc_stat.n_irq[inst] +
-				(double)proc_stat.n_sirq[inst]) / hz);
+			1000 * ((double)np->stat.irq + (double)np->stat.sirq) / hz);
 	    break;
 	case 70: /* kernel.pernode.cpu.irq.soft */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_sirq[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.sirq / hz);
 	    break;
 	case 71: /* kernel.pernode.cpu.irq.hard */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_irq[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.irq / hz);
 	    break;
 	case 67: /* kernel.pernode.cpu.steal */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_steal[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.steal / hz);
 	    break;
 	case 68: /* kernel.pernode.cpu.guest */
-	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_guest[inst] / hz);
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+		return PM_ERR_INST;
+	    _pm_assign_utype(_pm_cputime_size, atom, 1000 * (double)np->stat.guest / hz);
 	    break;
 	case 77: /* kernel.pernode.cpu.vuser */
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)proc_stat.n_user[inst] - (double)proc_stat.n_guest[inst])
-			/ hz);
+			1000 * ((double)np->stat.user - (double)np->stat.guest) / hz);
 	    break;
 	case 85: /* kernel.pernode.cpu.guest_nice */
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.n_guest_nice[inst] / hz);
+			1000 * (double)np->stat.guest_nice / hz);
 	    break;
 	case 86: /* kernel.pernode.cpu.vnice */
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np) < 0)
+		return PM_ERR_INST;
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)proc_stat.n_nice[inst] - (double)proc_stat.n_guest_nice[inst])
-			/ hz);
+			1000 * ((double)np->stat.nice - (double)np->stat.guest_nice) / hz);
 	    break;
 
 	case 8: /* swap.pagesin */
@@ -5311,64 +5340,64 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	case 20: /* kernel.all.cpu.user */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.user / hz);
+			1000 * (double)proc_stat.all.user / hz);
 	    break;
 	case 21: /* kernel.all.cpu.nice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.nice / hz);
+			1000 * (double)proc_stat.all.nice / hz);
 	    break;
 	case 22: /* kernel.all.cpu.sys */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.sys / hz);
+			1000 * (double)proc_stat.all.sys / hz);
 	    break;
 	case 23: /* kernel.all.cpu.idle */
 	    _pm_assign_utype(_pm_idletime_size, atom,
-			1000 * (double)proc_stat.idle / hz);
+			1000 * (double)proc_stat.all.idle / hz);
 	    break;
 	case 34: /* kernel.all.cpu.intr */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)proc_stat.irq +
-			      	(double)proc_stat.sirq) / hz);
+			1000 * ((double)proc_stat.all.irq +
+			      	(double)proc_stat.all.sirq) / hz);
 	    break;
 	case 35: /* kernel.all.cpu.wait.total */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.wait / hz);
+			1000 * (double)proc_stat.all.wait / hz);
 	    break;
 	case 53: /* kernel.all.cpu.irq.soft */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.sirq / hz);
+			1000 * (double)proc_stat.all.sirq / hz);
 	    break;
 	case 54: /* kernel.all.cpu.irq.hard */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.irq / hz);
+			1000 * (double)proc_stat.all.irq / hz);
 	    break;
 	case 55: /* kernel.all.cpu.steal */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.steal / hz);
+			1000 * (double)proc_stat.all.steal / hz);
 	    break;
 	case 60: /* kernel.all.cpu.guest */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.guest / hz);
+			1000 * (double)proc_stat.all.guest / hz);
 	    break;
 	case 78: /* kernel.all.cpu.vuser */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)proc_stat.user - (double)proc_stat.guest)
+			1000 * ((double)proc_stat.all.user - (double)proc_stat.all.guest)
 				/ hz);
 	    break;
 	case 81: /* kernel.all.cpu.guest_nice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * (double)proc_stat.guest_nice / hz);
+			1000 * (double)proc_stat.all.guest_nice / hz);
 	    break;
 	case 82: /* kernel.all.cpu.vnice */
 	    _pm_assign_utype(_pm_cputime_size, atom,
-			1000 * ((double)proc_stat.nice - (double)proc_stat.guest_nice)
+			1000 * ((double)proc_stat.all.nice - (double)proc_stat.all.guest_nice)
 				/ hz);
 	    break;
 	case 19: /* hinv.nnode */
-	    atom->ul = indomtab[NODE_INDOM].it_numinst;
+	    atom->ul = pmdaCacheOp(INDOM(NODE_INDOM), PMDA_CACHE_SIZE_ACTIVE);
 	    break;
 	case 32: /* hinv.ncpu */
-	    atom->ul = indomtab[CPU_INDOM].it_numinst;
+	    atom->ul = pmdaCacheOp(INDOM(CPU_INDOM), PMDA_CACHE_SIZE_ACTIVE);
 	    break;
 	case 33: /* hinv.ndisk */
 	    atom->ul = pmdaCacheOp(INDOM(DISK_INDOM), PMDA_CACHE_SIZE_ACTIVE);
@@ -6217,70 +6246,65 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	break;
 
     case CLUSTER_CPUINFO:
-	if (idp->item != 7 && /* hinv.machine is singular */
-	    (inst >= proc_cpuinfo.cpuindom->it_numinst))
+	if (inst != PM_IN_NULL &&
+	    pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
 	    return PM_ERR_INST;
-	switch(idp->item) {
+	switch (idp->item) {
 	case 0: /* hinv.cpu.clock */
-	    if (proc_cpuinfo.cpuinfo[inst].clock == 0.0)
+	    if (cp->info.clock == 0.0)
 		return 0;
-	    atom->f = proc_cpuinfo.cpuinfo[inst].clock;
+	    atom->f = cp->info.clock;
 	    break;
 	case 1: /* hinv.cpu.vendor */
-	    i = proc_cpuinfo.cpuinfo[inst].vendor;
-	    atom->cp = linux_strings_lookup(i);
-	    if (atom->cp == NULL)
+	    i = cp->info.vendor;
+	    if ((atom->cp = linux_strings_lookup(i)) == NULL)
 		atom->cp = "unknown";
 	    break;
 	case 2: /* hinv.cpu.model */
-	    if ((i = proc_cpuinfo.cpuinfo[inst].model) < 0)
-		i = proc_cpuinfo.cpuinfo[inst].model_name;
-	    atom->cp = linux_strings_lookup(i);
-	    if (atom->cp == NULL)
+	    if ((i = cp->info.model) < 0)
+		i = cp->info.model_name;
+	    if ((atom->cp = linux_strings_lookup(i)) == NULL)
 		atom->cp = "unknown";
 	    break;
 	case 3: /* hinv.cpu.stepping */
-	    i = proc_cpuinfo.cpuinfo[inst].stepping;
-	    atom->cp = linux_strings_lookup(i);
-	    if (atom->cp == NULL)
+	    i = cp->info.stepping;
+	    if ((atom->cp = linux_strings_lookup(i)) == NULL)
 		atom->cp = "unknown";
 	    break;
 	case 4: /* hinv.cpu.cache */
-	    if (!proc_cpuinfo.cpuinfo[inst].cache)
+	    if (!cp->info.cache)
 		return 0;
-	    atom->ul = proc_cpuinfo.cpuinfo[inst].cache;
+	    atom->ul = cp->info.cache;
 	    break;
 	case 5: /* hinv.cpu.bogomips */
-	    if (proc_cpuinfo.cpuinfo[inst].bogomips == 0.0)
+	    if (cp->info.bogomips == 0.0)
 		return 0;
-	    atom->f = proc_cpuinfo.cpuinfo[inst].bogomips;
+	    atom->f = cp->info.bogomips;
 	    break;
 	case 6: /* hinv.map.cpu_num */
-	    atom->ul = proc_cpuinfo.cpuinfo[inst].cpu_num;
+	    atom->ul = cp->cpuid;
 	    break;
-	case 7: /* hinv.machine */
-	    atom->cp = proc_cpuinfo.machine;
+	case 7: /* hinv.machine ... not from /proc/stat */
+	    atom->cp = get_machine_info(kernel_uname.machine);
 	    break;
 	case 8: /* hinv.map.cpu_node */
-	    atom->ul = proc_cpuinfo.cpuinfo[inst].node;
+	    atom->ul = cp->nodeid;
 	    break;
 	case 9: /* hinv.cpu.model_name */
-	    if ((i = proc_cpuinfo.cpuinfo[inst].model_name) < 0)
-		i = proc_cpuinfo.cpuinfo[inst].model;
-	    atom->cp = linux_strings_lookup(i);
-	    if (atom->cp == NULL)
+	    if ((i = cp->info.model_name) < 0)
+		i = cp->info.model;
+	    if ((atom->cp = linux_strings_lookup(i)) == NULL)
 		atom->cp = "unknown";
 	    break;
 	case 10: /* hinv.cpu.flags */
-	    i = proc_cpuinfo.cpuinfo[inst].flags;
-	    atom->cp = linux_strings_lookup(i);
-	    if (atom->cp == NULL)
+	    i = cp->info.flags;
+	    if ((atom->cp = linux_strings_lookup(i)) == NULL)
 		atom->cp = "unknown";
 	    break;
 	case 11: /* hinv.cpu.cache_alignment */
-	    if (!proc_cpuinfo.cpuinfo[inst].cache_align)
+	    if (!cp->info.cache_align)
 		return 0;
-	    atom->ul = proc_cpuinfo.cpuinfo[inst].cache_align;
+	    atom->ul = cp->info.cache_align;
 	    break;
 
 	default:
@@ -6291,12 +6315,12 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_SYSFS_DEVICES:
 	switch (idp->item) {
 	case 0: /* hinv.cpu.online */
-	    if (inst >= proc_cpuinfo.cpuindom->it_numinst)
+	    if (pmdaCacheLookup(INDOM(CPU_INDOM), inst, NULL, NULL) < 0)
 		return PM_ERR_INST;
 	    atom->ul = refresh_sysfs_online(inst, "cpu");
 	    break;
 	case 1: /* hinv.node.online */
-	    if (inst >= proc_cpuinfo.node_indom->it_numinst)
+	    if (pmdaCacheLookup(INDOM(NODE_INDOM), inst, NULL, NULL) < 0)
 		return PM_ERR_INST;
 	    atom->ul = refresh_sysfs_online(inst, "node");
 	    break;
@@ -6597,201 +6621,127 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     case CLUSTER_NUMA_MEMINFO:
 	/* NUMA memory metrics from /sys/devices/system/node/nodeX */
-	if (inst >= numa_meminfo.node_indom->it_numinst)
+	sts = pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&np);
+	if (sts != PMDA_CACHE_ACTIVE)
 	    return PM_ERR_INST;
 
-	switch(idp->item) {
+	switch (idp->item) {
 	case 0: /* mem.numa.util.total */
-	    sts = linux_table_lookup("MemTotal:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("MemTotal:", np->meminfo, &atom->ull);
 	    break;
 	case 1: /* mem.numa.util.free */
-	    sts = linux_table_lookup("MemFree:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("MemFree:", np->meminfo, &atom->ull);
 	    break;
-
 	case 2: /* mem.numa.util.used */
-	    sts = linux_table_lookup("MemUsed:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("MemUsed:", np->meminfo, &atom->ull);
 	    break;
-
 	case 3: /* mem.numa.util.active */
-	    sts = linux_table_lookup("Active:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("Active:", np->meminfo, &atom->ull);
 	    break;
-
 	case 4: /* mem.numa.util.inactive */
-	    sts = linux_table_lookup("Inactive:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("Inactive:", np->meminfo, &atom->ull);
 	    break;
-
 	case 5: /* mem.numa.util.active_anon */
-	    sts = linux_table_lookup("Active(anon):", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("Active(anon):", np->meminfo, &atom->ull);
 	    break;
-
 	case 6: /* mem.numa.util.inactive_anon */
-	    sts = linux_table_lookup("Inactive(anon):", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("Inactive(anon):", np->meminfo, &atom->ull);
 	    break;
-
 	case 7: /* mem.numa.util.active_file */
-	    sts = linux_table_lookup("Active(file):", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("Active(file):", np->meminfo, &atom->ull);
 	    break;
-
 	case 8: /* mem.numa.util.inactive_file */
-	    sts = linux_table_lookup("Inactive(file):", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("Inactive(file):", np->meminfo, &atom->ull);
 	    break;
-
 	case 9: /* mem.numa.util.highTotal */
-	    sts = linux_table_lookup("HighTotal:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("HighTotal:", np->meminfo, &atom->ull);
 	    break;
-
 	case 10: /* mem.numa.util.highFree */
-	    sts = linux_table_lookup("HighFree:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("HighFree:", np->meminfo, &atom->ull);
 	    break;
-
 	case 11: /* mem.numa.util.lowTotal */
-	    sts = linux_table_lookup("LowTotal:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("LowTotal:", np->meminfo, &atom->ull);
 	    break;
-
 	case 12: /* mem.numa.util.lowFree */
-	    sts = linux_table_lookup("LowFree:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("LowFree:", np->meminfo, &atom->ull);
 	    break;
-
 	case 13: /* mem.numa.util.unevictable */
-	    sts = linux_table_lookup("Unevictable:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("Unevictable:", np->meminfo, &atom->ull);
 	    break;
-
 	case 14: /* mem.numa.util.mlocked */
-	    sts = linux_table_lookup("Mlocked:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("Mlocked:", np->meminfo, &atom->ull);
 	    break;
-
 	case 15: /* mem.numa.util.dirty */
-	    sts = linux_table_lookup("Dirty:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("Dirty:", np->meminfo, &atom->ull);
 	    break;
-
 	case 16: /* mem.numa.util.writeback */
-	    sts = linux_table_lookup("Writeback:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("Writeback:", np->meminfo, &atom->ull);
 	    break;
-
 	case 17: /* mem.numa.util.filePages */
-	    sts = linux_table_lookup("FilePages:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("FilePages:", np->meminfo, &atom->ull);
 	    break;
-
 	case 18: /* mem.numa.util.mapped */
-	    sts = linux_table_lookup("Mapped:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("Mapped:", np->meminfo, &atom->ull);
 	    break;
-
 	case 19: /* mem.numa.util.anonPages */
-	    sts = linux_table_lookup("AnonPages:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("AnonPages:", np->meminfo, &atom->ull);
 	    break;
-
 	case 20: /* mem.numa.util.shmem */
-	    sts = linux_table_lookup("Shmem:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("Shmem:", np->meminfo, &atom->ull);
 	    break;
-
 	case 21: /* mem.numa.util.kernelStack */
-	    sts = linux_table_lookup("KernelStack:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("KernelStack:", np->meminfo, &atom->ull);
 	    break;
-
 	case 22: /* mem.numa.util.pageTables */
-	    sts = linux_table_lookup("PageTables:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("PageTables:", np->meminfo, &atom->ull);
 	    break;
-
 	case 23: /* mem.numa.util.NFS_Unstable */
-	    sts = linux_table_lookup("NFS_Unstable:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("NFS_Unstable:", np->meminfo, &atom->ull);
 	    break;
-
 	case 24: /* mem.numa.util.bounce */
-	    sts = linux_table_lookup("Bounce:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("Bounce:", np->meminfo, &atom->ull);
 	    break;
-
 	case 25: /* mem.numa.util.writebackTmp */
-	    sts = linux_table_lookup("WritebackTmp:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("WritebackTmp:", np->meminfo, &atom->ull);
 	    break;
-
 	case 26: /* mem.numa.util.slab */
-	    sts = linux_table_lookup("Slab:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("Slab:", np->meminfo, &atom->ull);
 	    break;
-
 	case 27: /* mem.numa.util.slabReclaimable */
-	    sts = linux_table_lookup("SReclaimable:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("SReclaimable:", np->meminfo, &atom->ull);
 	    break;
-
 	case 28: /* mem.numa.util.slabUnreclaimable */
-	    sts = linux_table_lookup("SUnreclaim:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("SUnreclaim:", np->meminfo, &atom->ull);
 	    break;
-
 	case 29: /* mem.numa.util.hugepagesTotal */
-	    sts = linux_table_lookup("HugePages_Total:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("HugePages_Total:", np->meminfo, &atom->ull);
 	    break;
-
 	case 30: /* mem.numa.util.hugepagesFree */
-	    sts = linux_table_lookup("HugePages_Free:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("HugePages_Free:", np->meminfo, &atom->ull);
 	    break;
-
 	case 31: /* mem.numa.util.hugepagesSurp */
-	    sts = linux_table_lookup("HugePages_Surp:", numa_meminfo.node_info[inst].meminfo,
-		    &atom->ull);
+	    sts = linux_table_lookup("HugePages_Surp:", np->meminfo, &atom->ull);
 	    break;
-
 	case 32: /* mem.numa.alloc.hit */
-	    sts = linux_table_lookup("numa_hit", numa_meminfo.node_info[inst].memstat,
-		    &atom->ull);
+	    sts = linux_table_lookup("numa_hit", np->memstat, &atom->ull);
 	    break;
-
 	case 33: /* mem.numa.alloc.miss */
-	    sts = linux_table_lookup("numa_miss", numa_meminfo.node_info[inst].memstat,
-		    &atom->ull);
+	    sts = linux_table_lookup("numa_miss", np->memstat, &atom->ull);
 	    break;
-
 	case 34: /* mem.numa.alloc.foreign */
-	    sts = linux_table_lookup("numa_foreign", numa_meminfo.node_info[inst].memstat,
-		    &atom->ull);
+	    sts = linux_table_lookup("numa_foreign", np->memstat, &atom->ull);
 	    break;
-
 	case 35: /* mem.numa.alloc.interleave_hit */
-	    sts = linux_table_lookup("interleave_hit", numa_meminfo.node_info[inst].memstat,
-		    &atom->ull);
+	    sts = linux_table_lookup("interleave_hit", np->memstat, &atom->ull);
 	    break;
-
 	case 36: /* mem.numa.alloc.local_node */
-	    sts = linux_table_lookup("local_node", numa_meminfo.node_info[inst].memstat,
-		    &atom->ull);
+	    sts = linux_table_lookup("local_node", np->memstat, &atom->ull);
 	    break;
-
 	case 37: /* mem.numa.alloc.other_node */
-	    sts = linux_table_lookup("other_node", numa_meminfo.node_info[inst].memstat,
-		    &atom->ull);
+	    sts = linux_table_lookup("other_node", np->memstat, &atom->ull);
 	    break;
-
 	case 38: /* mem.numa.max_bandwidth */
-	    atom->d = numa_meminfo.node_info[inst].bandwidth;
+	    atom->d = np->bandwidth;
 	    sts = (atom->d > 0.0);
 	    break;
 
@@ -6816,68 +6766,74 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 0:	/* network.softnet.processed */
 	    if (!(proc_net_softnet.flags & SN_PROCESSED))
 		return PM_ERR_APPVERSION;
-	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
-		atom->ull += proc_net_softnet.processed[i];
+	    atom->ull = proc_net_softnet.processed;
 	    break;
 	case 1: /* network.softnet.dropped */
 	    if (!(proc_net_softnet.flags & SN_DROPPED))
 		return PM_ERR_APPVERSION;
-	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
-		atom->ull += proc_net_softnet.dropped[i];
+	    atom->ull = proc_net_softnet.dropped;
 	    break;
 	case 2: /* network.softnet.time_squeeze */
 	    if (!(proc_net_softnet.flags & SN_TIME_SQUEEZE))
 		return PM_ERR_APPVERSION;
-	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
-		atom->ull += proc_net_softnet.time_squeeze[i];
+	    atom->ull = proc_net_softnet.time_squeeze;
 	    break;
 	case 3: /* network.softnet.cpu_collision */
 	    if (!(proc_net_softnet.flags & SN_CPU_COLLISION))
 		return PM_ERR_APPVERSION;
-	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
-		atom->ull += proc_net_softnet.cpu_collision[i];
+	    atom->ull = proc_net_softnet.cpu_collision;
 	    break;
 	case 4: /* network.softnet.received_rps */
 	    if (!(proc_net_softnet.flags & SN_RECEIVED_RPS))
 		return PM_ERR_APPVERSION;
-	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
-		atom->ull += proc_net_softnet.received_rps[i];
+	    atom->ull = proc_net_softnet.received_rps;
 	    break;
 	case 5: /* network.softnet.flow_limit_count */
 	    if (!(proc_net_softnet.flags & SN_FLOW_LIMIT_COUNT))
 		return PM_ERR_APPVERSION;
-	    for (atom->ull=0, i=0; i < _pm_ncpus; i++)
-		atom->ull += proc_net_softnet.flow_limit_count[i];
+	    atom->ull = proc_net_softnet.flow_limit_count;
 	    break;
 	case 6:	/* network.softnet.percpu.processed */
 	    if (!(proc_net_softnet.flags & SN_PROCESSED))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.processed[inst];
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    atom->ull = cp->softnet->processed;
 	    break;
 	case 7: /* network.softnet.percpu.dropped */
 	    if (!(proc_net_softnet.flags & SN_DROPPED))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.dropped[inst];
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    atom->ull = cp->softnet->dropped;
 	    break;
 	case 8: /* network.softnet.percpu.time_squeeze */
 	    if (!(proc_net_softnet.flags & SN_TIME_SQUEEZE))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.time_squeeze[inst];
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    atom->ull = cp->softnet->time_squeeze;
 	    break;
 	case 9: /* network.softnet.percpu.cpu_collision */
 	    if (!(proc_net_softnet.flags & SN_CPU_COLLISION))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.cpu_collision[inst];
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    atom->ull = cp->softnet->cpu_collision;
 	    break;
 	case 10: /* network.softnet.percpu.received_rps */
 	    if (!(proc_net_softnet.flags & SN_RECEIVED_RPS))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.received_rps[inst];
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    atom->ull = cp->softnet->received_rps;
 	    break;
 	case 11: /* network.softnet.percpu.flow_limit_count */
 	    if (!(proc_net_softnet.flags & SN_FLOW_LIMIT_COUNT))
 		return PM_ERR_APPVERSION;
-	    atom->ull = proc_net_softnet.flow_limit_count[inst];
+	    if (pmdaCacheLookup(mdesc->m_desc.indom, inst, NULL, (void **)&cp) < 0)
+		return PM_ERR_INST;
+	    atom->ull = cp->softnet->flow_limit_count;
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -6918,16 +6874,16 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 	if (idp->cluster >= NUM_CLUSTERS)
 	    continue;
-	need_refresh[idp->cluster]++;
 
 	switch (idp->cluster) {
 	case CLUSTER_STAT:
 	case CLUSTER_DM:
 	case CLUSTER_MD:
 	case CLUSTER_MDADM:
-	    if (need_refresh[CLUSTER_PARTITIONS] == 0 &&
-		is_partitions_metric(pmidlist[i]))
+	    if (is_partitions_metric(pmidlist[i]))
 		need_refresh[CLUSTER_PARTITIONS]++;
+	    else if (idp->item != 48)	/* hz */
+		need_refresh[idp->cluster]++;
 	    /* In 2.6 kernels, swap.{pagesin,pagesout} are in /proc/vmstat */
 	    if (_pm_have_proc_vmstat && idp->cluster == CLUSTER_STAT) {
 		if (idp->item >= 8 && idp->item <= 11)
@@ -6936,15 +6892,18 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    break;
 
 	case CLUSTER_CPUINFO:
-	case CLUSTER_SYSFS_DEVICES:
 	case CLUSTER_INTERRUPT_LINES:
 	case CLUSTER_INTERRUPT_OTHER:
 	case CLUSTER_INTERRUPTS:
 	case CLUSTER_SOFTIRQS:
+	case CLUSTER_SYSFS_DEVICES:
+	case CLUSTER_NET_SOFTNET:
+	    need_refresh[idp->cluster]++;
 	    need_refresh[CLUSTER_STAT]++;
 	    break;
 
 	case CLUSTER_NET_DEV:
+	    need_refresh[idp->cluster]++;
 	    switch (idp->item) {
 	    case 21:	/* network.interface.mtu */
 		need_refresh[REFRESH_NET_MTU]++;
@@ -6966,6 +6925,7 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    break;
 
 	case CLUSTER_NET_ADDR:
+	    need_refresh[idp->cluster]++;
 	    switch (idp->item) {
 	    case 0:	/* network.interface.ipv4_addr */
 		need_refresh[REFRESH_NETADDR_INET]++;
@@ -6980,8 +6940,8 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    }
 	    break;
 
-	case CLUSTER_NET_SOFTNET:
-	    need_refresh[CLUSTER_NET_SOFTNET]++;
+	default:
+	    need_refresh[idp->cluster]++;
 	    break;
 	}
     }
@@ -7123,22 +7083,31 @@ linux_init(pmdaInterface *dp)
     __pmID_int	*idp;
 
     /* optional overrides of some globals for testing */
-    if ((envpath = getenv("LINUX_HERTZ")) != NULL)
+    if ((envpath = getenv("LINUX_HERTZ")) != NULL) {
 	hz = atoi(envpath);
-    else
+	linux_test_mode |= 1;
+    } else
 	hz = sysconf(_SC_CLK_TCK);
-    if ((envpath = getenv("LINUX_NCPUS")) != NULL)
+    if ((envpath = getenv("LINUX_NCPUS")) != NULL) {
 	_pm_ncpus = atoi(envpath);
-    else
+	linux_test_mode |= 1;
+    } else
 	_pm_ncpus = sysconf(_SC_NPROCESSORS_CONF);
-    if ((envpath = getenv("LINUX_PAGESIZE")) != NULL)
+    if ((envpath = getenv("LINUX_PAGESIZE")) != NULL) {
 	_pm_pageshift = ffs(atoi(envpath)) - 1;
-    else
+	linux_test_mode |= 1;
+    } else
 	_pm_pageshift = ffs(getpagesize()) - 1;
-    if ((envpath = getenv("LINUX_STATSPATH")) != NULL)
+    if ((envpath = getenv("LINUX_STATSPATH")) != NULL) {
 	linux_statspath = envpath;
-    if ((envpath = getenv("LINUX_MDADM")) != NULL)
+	linux_test_mode |= 1;
+    }
+    if ((envpath = getenv("LINUX_MDADM")) != NULL) {
 	linux_mdadm = envpath;
+	linux_test_mode |= 1;
+    }
+    if (getenv("PCP_QA_ESTIMATE_MEMAVAILABLE") != NULL)
+	linux_test_mode |= 2;
 
     if (_isDSO) {
 	char helppath[MAXPATHLEN];
@@ -7165,8 +7134,6 @@ linux_init(pmdaInterface *dp)
     dp->version.six.ext->e_endCallBack = linux_end_context;
     pmdaSetFetchCallBack(dp, linux_fetchCallBack);
 
-    proc_stat.cpu_indom = proc_cpuinfo.cpuindom = &indomtab[CPU_INDOM];
-    numa_meminfo.node_indom = proc_cpuinfo.node_indom = &indomtab[NODE_INDOM];
     proc_slabinfo.indom = &indomtab[SLAB_INDOM];
     proc_buddyinfo.indom = &indomtab[BUDDYINFO_INDOM];
 

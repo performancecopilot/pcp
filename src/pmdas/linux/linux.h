@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat.
+ * Copyright (c) 2016-2017 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@
  * fetch cluster numbers
  */
 enum {
-	CLUSTER_STAT = 0,	/*  0 /proc/stat */
+	CLUSTER_STAT = 0,	/*  0 /proc/stat (plus others, historical) */
 	CLUSTER_MEMINFO,	/*  1 /proc/meminfo */
 	CLUSTER_LOADAVG,	/*  2 /proc/loadavg */
 	CLUSTER_NET_DEV,	/*  3 /proc/net/dev */
@@ -162,6 +162,7 @@ extern pmdaIndom *linux_pmda_indom(int);
 /*  
  * Optional path prefix for all stats files, used for testing.
  */
+extern int linux_test_mode;
 extern char *linux_statspath;
 extern FILE *linux_statsfile(const char *, char *, int);
 extern char *linux_mdadm;
@@ -202,7 +203,60 @@ int linux_strings_insert(const char *);
 	if ((size)==8) { (atomp)->ull = (val); } else { (atomp)->ul = (val); } \
     } while (0)
 
-extern int _pm_ncpus;
+extern int _pm_ncpus;			/* max CPU count, not online CPUs */
 extern int _pm_pageshift;
+
+typedef struct {
+    unsigned long long	user;
+    unsigned long long	sys;
+    unsigned long long	nice;
+    unsigned long long	idle;
+    unsigned long long	wait;
+    unsigned long long	irq;
+    unsigned long long	sirq;
+    unsigned long long	steal;
+    unsigned long long	guest;
+    unsigned long long	guest_nice;
+} cpuacct_t;
+
+typedef struct {
+    float		clock;
+    float		bogomips;
+    int			sapic;		/* strings dictionary hash key */
+    int			vendor;		/* strings dictionary hash key */
+    int			model;		/* strings dictionary hash key */
+    int			model_name;	/* strings dictionary hash key */
+    int			stepping;	/* strings dictionary hash key */
+    int			flags;		/* strings dictionary hash key */
+    unsigned int	cache;
+    unsigned int	cache_align;
+} cpuinfo_t;
+
+typedef struct {
+    unsigned int	flags;
+    uint64_t		processed;
+    uint64_t		dropped;
+    uint64_t		time_squeeze;
+    uint64_t		cpu_collision;
+    uint64_t		received_rps;
+    uint64_t		flow_limit_count;
+} softnet_t;
+
+typedef struct {
+    unsigned int	cpuid;
+    unsigned int	nodeid;
+    char		*name;
+    cpuacct_t		stat;
+    cpuinfo_t		info;
+    softnet_t		*softnet;
+} percpu_t;
+
+typedef struct {
+    unsigned int	nodeid;
+    cpuacct_t		stat;
+    struct linux_table	*meminfo;
+    struct linux_table	*memstat;
+    double		bandwidth;
+} pernode_t;
 
 #endif /* LINUX_PMDA_H */

@@ -125,10 +125,8 @@ refresh_proc_meminfo(proc_meminfo_t *proc_meminfo)
     /*
      * MemAvailable is only in 3.x or later kernels but we can calculate it
      * using other values, similar to upstream kernel commit 34e431b0ae.
-     * The environment variable is for QA purposes.
      */
-    if (!MEMINFO_VALID_VALUE(proc_meminfo->MemAvailable) ||
-    	getenv("PCP_QA_ESTIMATE_MEMAVAILABLE") != NULL) {
+    if (!MEMINFO_VALID_VALUE(proc_meminfo->MemAvailable) || linux_test_mode & 2) {
 	if (MEMINFO_VALID_VALUE(proc_meminfo->MemTotal) &&
 	    MEMINFO_VALID_VALUE(proc_meminfo->MemFree) &&
 	    MEMINFO_VALID_VALUE(proc_meminfo->Active_file) &&
@@ -141,7 +139,7 @@ refresh_proc_meminfo(proc_meminfo_t *proc_meminfo)
 	    /*
 	     * sum for each zone->watermark[WMARK_LOW];
 	     */
-	    if ((fp = fopen("/proc/zoneinfo", "r")) != NULL) {
+	    if ((fp = linux_statsfile("/proc/zoneinfo", buf, sizeof(buf))) != NULL) {
 		while (fgets(buf, sizeof(buf), fp) != NULL) {
 		    if ((bufp = strstr(buf, "low ")) != NULL) {
 			int64_t low;

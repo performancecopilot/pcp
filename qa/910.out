@@ -1,0 +1,16 @@
+QA output created by 910
+Running pmval in the background
+Mutating the CPU instance domain
+.
+Observed from running pmval:
+
+metric:    kernel.percpu.cpu.user
+semantics: cumulative counter (converting to rate)
+units:     millisec (converting to time utilization)
+samples:   26
+interval:  0.20 sec
+
+ cpu0  cpu1  cpu2  cpu3  cpu4  cpu5  cpu6  cpu7 
+ 0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00 
+ 0.00  0.00  0.00     ?  0.00  0.00  0.00     ? 
+ 0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00 
