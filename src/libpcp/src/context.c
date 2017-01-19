@@ -669,7 +669,7 @@ expandArchiveList(const char *names)
 	memcpy(dirname, current, length);
 	dirname[length] = '\0';
 
-	PM_LOCK(__pmLock_extcall);
+	/* dirp is an on-stack variable, so readdir*() is THREADSAFE */
 	if ((dirp = opendir(dirname)) != NULL) {
 #if defined(HAVE_READDIR64)
 	    while ((direntp = readdir64(dirp)) != NULL) {	/* THREADSAFE */
@@ -692,10 +692,8 @@ expandArchiveList(const char *names)
 				   direntp->d_name, suffix - direntp->d_name);
 	    }
 	    closedir(dirp);
-	    PM_UNLOCK(__pmLock_extcall);
 	}
 	else {
-	    PM_UNLOCK(__pmLock_extcall);
 	    newlist = addName(NULL, newlist, &newlistsize, current, length);
 	}
 	free(dirname);

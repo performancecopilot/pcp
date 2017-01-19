@@ -930,6 +930,7 @@ __pmLogLoadLabel(__pmLogCtl *lcp, const char *name)
 
     blen = (int)strlen(base);
     PM_LOCK(__pmLock_libpcp);
+    /* dirp is an on-stack variable, so readdir*() is THREADSAFE */
     if ((dirp = opendir(dir)) != NULL) {
 #if defined(HAVE_READDIR64)
 	while ((direntp = readdir64(dirp)) != NULL)		/* THREADSAFE */

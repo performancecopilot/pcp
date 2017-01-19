@@ -229,9 +229,6 @@ __dminit_component(const char *name, int descend, int recover)
 	/* directory, descend to process all files in the directory */
 	DIR		*dirp;
 	struct dirent	*dp;
-	char		**file = NULL;
-	int		nfile = 0;
-	int		i;
 
 	if ((dirp = opendir(name)) == NULL) {
 #ifdef PCP_DEBUG
@@ -244,10 +241,11 @@ __dminit_component(const char *name, int descend, int recover)
 	    sts = -oserror();
 	    goto finish;
 	}
-	/* pass 1 build the list of files */
-	PM_LOCK(__pmLock_extcall);
-	while (setoserror(0), (dp = readdir(dirp)) != NULL) {	/* THREADSAFE */
+	/* dirp is an on-stack variable, so readdir() is ... */
+	/* THREADSAFE */
+	while (setoserror(0), (dp = readdir(dirp)) != NULL) {
 	    char	path[MAXPATHLEN+1];
+	    int		localsts;
 	    /*
 	     * skip "." and ".." and recursively call __dminit_component()
 	     * to process the directory entries ... descend is passed down
@@ -255,21 +253,12 @@ __dminit_component(const char *name, int descend, int recover)
 	    if (strcmp(dp->d_name, ".") == 0) continue;
 	    if (strcmp(dp->d_name, "..") == 0) continue;
 	    snprintf(path, sizeof(path), "%s%c%s", name, __pmPathSeparator(), dp->d_name);
-	    nfile++;
-	    file = (char **)realloc(file, nfile*sizeof(file[0]));
-	    if (file == NULL) {
-		PM_UNLOCK(__pmLock_extcall);
-		__pmNoMem("__dminit_component: file", nfile*sizeof(file[0]), PM_FATAL_ERR);
-		/*NOTREACHED*/
+	    if ((localsts = __dminit_component(path, descend, recover)) < 0) {
+		sts = localsts;
+		goto finish;
 	    }
-	    file[nfile-1] = strdup(path);
-	    if (file[nfile-1] == NULL) {
-		PM_UNLOCK(__pmLock_extcall);
-		__pmNoMem("__dminit_component: file[]", strlen(path)+1, PM_FATAL_ERR);
-		/*NOTREACHED*/
-	    }
+	    sts += localsts;
 	}
-	PM_UNLOCK(__pmLock_extcall);
 #ifdef PCP_DEBUG
 	/* error is most unlikely and ignore unless -Dderive specified */
 	if (oserror() != 0 && pmDebug & DBG_TRACE_DERIVE) {
@@ -279,21 +268,6 @@ __dminit_component(const char *name, int descend, int recover)
 	}
 #endif
 	closedir(dirp);
-
-	/* pass 2 process the list of files */
-	for (i = 0; i < nfile; i++) {
-	    int		localsts;
-	    if ((localsts = __dminit_component(file[i], descend, recover)) < 0) {
-		sts = localsts;
-		break;
-	    }
-	    sts += localsts;
-	}
-	if (file != NULL) {
-	    for (i = 0; i < nfile; i++)
-		free(file[i]);
-	    free(file);
-	}
 	goto finish;
     }
     /* otherwise not a file or symlink to a real file or a directory */

@@ -1857,24 +1857,23 @@ scandir(const char *dirname, struct dirent ***namelist,
     struct dirent	*dp;
     struct dirent	*tp;
 
-    PM_LOCK(__pmLock_extcall);
     if ((dirp = opendir(dirname)) == NULL)
 	return -1;
 
-    while ((dp = readdir(dirp)) != NULL) {		/* THREADSAFE */
+    /* dirp is an on-stack variable, so readdir() is ... */
+    /* THREADSAFE */
+    while ((dp = readdir(dirp)) != NULL) {
 	if (select && (*select)(dp) == 0)
 	    continue;
 
 	n++;
 	if ((names = (struct dirent **)realloc(names, n * sizeof(dp))) == NULL) {
-	    PM_UNLOCK(__pmLock_extcall);
 	    closedir(dirp);
 	    return -1;
 	}
 
 	if ((names[n-1] = tp = (struct dirent *)malloc(
 		sizeof(*dp)-sizeof(dp->d_name)+strlen(dp->d_name)+1)) == NULL) {
-	    PM_UNLOCK(__pmLock_extcall);
 	    closedir(dirp);
 	    n--;
 	    while (n >= 1) {
@@ -1894,7 +1893,6 @@ scandir(const char *dirname, struct dirent ***namelist,
 	memcpy(tp->d_name, dp->d_name, strlen(dp->d_name)+1);
     }
     closedir(dirp);
-    PM_UNLOCK(__pmLock_extcall);
     *namelist = names;
 
     if (n && compare)
