@@ -673,7 +673,7 @@ printrates(Context *x,
 	   pmValueSet *vset2, struct timeval stamp2,	/* previous values */
 	   int cols)
 {
-    int     i, j;
+    int     i, j, k;
     double  delta;
 
     /* compute delta from timestamps and convert units */
@@ -693,12 +693,21 @@ printrates(Context *x,
     else {
 	for (i = 0; i < x->inum; i++) {
 	    for (j = 0; j < vset1->numval; j++) {
-		if (vset1->vlist[j].inst == x->ipairs[i].id)
+		if (vset1->vlist[j].inst != x->ipairs[i].id)
+		    continue;
+		/* fast path - instance in same position in both valuelists */
+		k = j;
+		if (k < vset2->numval && vset1->vlist[j].inst == vset2->vlist[k].inst)
 		    break;
+		/* scan for matching instance identifier, it may have moved */
+		for (k = 0; k < vset2->numval; k++)
+		    if (vset1->vlist[j].inst == vset2->vlist[k].inst)
+			break;
+		break;
 	    }
-	    if ((j < vset1->numval) && (j < vset2->numval) &&
-		(vset1->vlist[j].inst == vset2->vlist[j].inst))
-		printrate(vset1->valfmt, x->desc.type, &vset1->vlist[j], &vset2->vlist[j], delta, cols);
+	    if ((j < vset1->numval) && (k < vset2->numval) &&
+		(vset1->vlist[j].inst == vset2->vlist[k].inst))
+		printrate(vset1->valfmt, x->desc.type, &vset1->vlist[j], &vset2->vlist[k], delta, cols);
 	    else
 		printf("%*s", cols, "?");
 	    putchar(' ');

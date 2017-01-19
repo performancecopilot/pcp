@@ -1,7 +1,7 @@
 /*
  * Linux /proc/cpuinfo metrics cluster
  *
- * Copyright (c) 2013-2015 Red Hat.
+ * Copyright (c) 2013-2015,2017 Red Hat.
  * Copyright (c) 2001 Gilly Ran (gilly@exanet.com) for the
  * portions of the code supporting the Alpha platform.
  * All rights reserved.
@@ -18,29 +18,5 @@
  * for more details.
  */
 
-typedef struct {
-    int			cpu_num;
-    int			node;
-    char		*name;
-    float		clock;
-    float		bogomips;
-    int			sapic;		/* strings dictionary hash key */
-    int			vendor;		/* strings dictionary hash key */
-    int			model;		/* strings dictionary hash key */
-    int			model_name;	/* strings dictionary hash key */
-    int			stepping;	/* strings dictionary hash key */
-    int			flags;		/* strings dictionary hash key */
-    unsigned int	cache;
-    unsigned int	cache_align;
-} cpuinfo_t;
-
-typedef struct {
-    char		*machine;
-    cpuinfo_t		*cpuinfo;
-    pmdaIndom		*cpuindom;
-    pmdaIndom		*node_indom;
-} proc_cpuinfo_t;
-
-extern int refresh_proc_cpuinfo(proc_cpuinfo_t *);
-extern char *cpu_name(proc_cpuinfo_t *, unsigned int);
+extern int refresh_proc_cpuinfo(void);
 extern int refresh_sysfs_online(unsigned int, const char *);

@@ -30,20 +30,6 @@ _cleanup()
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-proc_stat()
-{
-    path=$1
-    ncpu=$2
-
-    echo cpu 0 0 0 0 0 0 0 0 0 > $path
-    cpu=0
-    while [ $cpu -lt $ncpu ]
-    do
-	echo cpu$cpu 0 0 0 0 0 0 0 0 0 >> $path
-	cpu=`expr $cpu + 1`
-    done
-}
-
 # real QA test starts here
 root=$tmp.root
 export LINUX_STATSPATH=$root
@@ -70,7 +56,7 @@ do
     cp $file $root/proc/interrupts
     base=`basename $file`
     ncpu=`echo $base | sed -e 's/.*-\([0-9][0-9]*\)cpu-.*/\1/'`
-    proc_stat $root/proc/stat $ncpu
+    _make_proc_stat $root/proc/stat $ncpu
     export LINUX_NCPUS=$ncpu
 
     echo "== Checking interrupts metrics from $base ($ncpu CPU)"
@@ -90,7 +76,7 @@ do
     cp $file $root/proc/softirqs
     base=`basename $file`
     ncpu=`echo $base | sed -e 's/.*-\([0-9][0-9]*\)cpu-.*/\1/'`
-    proc_stat $root/proc/stat $ncpu
+    _make_proc_stat $root/proc/stat $ncpu
     export LINUX_NCPUS=$ncpu
 
     echo "== Checking softirqs metrics from $base ($ncpu CPU)"

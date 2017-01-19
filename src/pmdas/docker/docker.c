@@ -959,7 +959,7 @@ main(int argc, char **argv)
     }
     
     if (qaflag) {
-	docker_init(&dispatch);
+	docker_setup();
 	docker_background_loop(0);
 	exit(0);
     }

@@ -62,7 +62,7 @@ cleanup()
 	_wait_for_pmlogger
 	pmprobe pmcd.control.debug
     fi
-    rm -rf $tmp
+    rm -rf $tmp $tmp.*
 }
 
 status=1
