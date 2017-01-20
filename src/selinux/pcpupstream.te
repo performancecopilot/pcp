@@ -1,0 +1,73 @@
+module pcpupstream 1.0;
+
+require {
+	type container_runtime_t;
+	type pcp_pmcd_t;
+	type user_home_t;
+	type tmp_t;
+	type init_t;
+	type kmsg_device_t;
+	type pcp_pmlogger_t;
+	type pcp_var_lib_t;
+	type pcp_log_t;
+	type pcp_pmie_t;
+	type sysctl_net_t;
+	type svirt_sandbox_file_t;
+	type docker_var_lib_t;
+	type hostname_exec_t;
+	class lnk_file read;
+	class file { append create execute execute_no_trans getattr ioctl open read write };
+	class dir { add_name open read search write };
+	class unix_stream_socket connectto;
+	class capability { kill sys_ptrace net_admin chown };
+	class chr_file { open write };
+}
+
+#============= init_t ==============
+# type=AVC msg=audit(1484681301.812:174751): avc:  denied  { read } for  pid=21999 comm="pmcd" name="pmcd" dev="dm-1" ino=936441 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:pcp_log_t:s0 tclass=dir permissive=0
+allow init_t pcp_log_t:dir read;
+
+
+allow init_t pcp_log_t:file getattr;
+
+# type=AVC msg=audit(1484681301.810:174749): avc:  denied  { getattr } for  pid=21999 comm="pmcd" path="/var/lib/pcp/pmns/root" dev="dm-1" ino=945382 scontext=system_u:system_r:init_t:s0 tcontext=unconfined_u:object_r:pcp_var_lib_t:s0 tclass=file permissive=0
+allow init_t pcp_var_lib_t:dir { add_name read write };
+
+#type=AVC msg=audit(1484681301.810:174750): avc:  denied  { execute } for  pid=21999 comm="pmcd" name="Rebuild" dev="dm-1" ino=937158 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:pcp_var_lib_t:s0 tclass=file permissive=0
+# execute
+
+allow init_t pcp_var_lib_t:file { append create execute execute_no_trans getattr ioctl open read write };
+
+allow init_t pcp_var_lib_t:lnk_file read;
+
+# type=AVC msg=audit(1484681301.369:174692): avc:  denied  { open } for  pid=21901 comm="pmcd" path="/var/tmp/pcp.sQReBLg6R/pcp.env.path" dev="dm-1" ino=930323 scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:tmp_t:s0 tclass=file permissive=0
+# 
+allow init_t tmp_t:file open;
+
+#============= pcp_pmcd_t ==============
+
+#!!!! The file '/run/docker.sock' is mislabeled on your system.  
+#!!!! Fix with $ restorecon -R -v /run/docker.sock
+#!!!! This avc can be allowed using the boolean 'daemons_enable_cluster_mode'
+allow pcp_pmcd_t docker_var_lib_t:dir search;
+allow pcp_pmcd_t container_runtime_t:unix_stream_socket connectto;
+allow pcp_pmcd_t svirt_sandbox_file_t:dir { open read search };
+allow pcp_pmcd_t sysctl_net_t:dir search;
+allow pcp_pmcd_t sysctl_net_t:file { getattr open read };
+allow pcp_pmcd_t user_home_t:file { execute execute_no_trans open read };
+
+
+#type=AVC msg=audit(1463754714.313:316): avc:  denied  { net_admin } for  pid=2335 comm="pmcd" capability=12  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
+allow pcp_pmcd_t self:capability net_admin;
+
+#============= pcp_pmlogger_t ==============
+allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
+allow pcp_pmlogger_t self:capability kill;
+
+# type=AVC msg=audit(1484681301.380:174695): avc:  denied  { sys_ptrace } for  pid=21962 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:pcp_pmlogger_t:s0 tclass=capability
+# src/pmlogger/pmnewlog.sh
+allow pcp_pmlogger_t self:capability sys_ptrace;
+
+#============= pcp_pmie_t ==============
+allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read };
+allow pcp_pmie_t self:capability { chown kill net_admin };
