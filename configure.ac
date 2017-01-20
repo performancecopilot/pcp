@@ -186,7 +186,7 @@ AC_ARG_WITH([parfait],
 
 AC_ARG_WITH([selinux],
     [AC_HELP_STRING([--with-selinux],
-                    [enable building of parfait package (default is on)])],
+                    [enable building of selinux package (default is on)])],
     [do_selinux=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-selinux=$withval"],
     [do_selinux=check])
 dnl things set in the environment by Makepkgs never make it into an RPM

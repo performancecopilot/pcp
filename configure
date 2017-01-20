@@ -1680,7 +1680,7 @@ Optional Packages:
   --with-webjs            enable building of webjs packages (default is off)
   --with-vector           enable building of vector package (default is off)
   --with-parfait          enable building of parfait package (default is off)
-  --with-selinux          enable building of parfait package (default is on)
+  --with-selinux          enable building of selinux package (default is on)
   --with-make             path to GNU compatible make(1) (default is empty for
                           auto discovery)
   --with-tar              path to GNU compatible tar(1) (default is empty for
