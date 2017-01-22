@@ -973,6 +973,20 @@ _filter_valgrind()
     # end
 }
 
+_filter_helgrind()
+{
+    sed \
+	-e 's/^==*[1-9][0-9]*==* *//' \
+	-e '/^Copyright (/d' \
+	-e '/^Using Valgrind-/d' \
+	-e '/^Command: /d' \
+	-e '/^For counts of detected and suppressed errors,/d' \
+	-e '/^Use --history-level=approx or =none/d' \
+	-e '/^the cost of reduced accuracy of conflicting-access/d' \
+	-e '/^ERROR SUMMARY:/s/ (suppressed: [^)]*)/ .../' \
+    # end
+}
+
 _run_valgrind()
 {
     __version=`valgrind --version | sed -e 's/valgrind-//'`
