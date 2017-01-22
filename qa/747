@@ -19,6 +19,29 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
+# deal with non-determinism in the order in which the per cpu indom
+# is populated
+# input is assumed to be in the format ...
+# 	head ...
+# 	stuff to fix ...
+# 	tail ...
+#
+_fix_percpu_indom()
+{
+    rm -f $tmp.head $tmp.percpu $tmp.tail
+    $PCP_AWK_PROG '
+/^hinv\.cpu\.online/		{ state = 1 }
+/^kernel\.percpu\./		{ state = 1 }
+state == 0			{ print >"'"$tmp.head"'"; next }
+state == 1			{ print >"'"$tmp.percpu"'" }
+state == 2			{ print >"'"$tmp.tail"'"; next }
+state == 1 && NF == 0		{ state = 2 }'
+    [ -f $tmp.head ] && cat $tmp.head
+    [ -f $tmp.percpu ] && $here/src/sortinst -i <$tmp.percpu \
+			  | sed -e 's/cpu[0-9][0-9]*/cpuN/'
+    [ -f $tmp.tail ] && cat $tmp.tail
+}
+
 # real QA test starts here
 root=$tmp.root
 export LINUX_HERTZ=100
@@ -40,7 +63,10 @@ do
     base=`basename $tgz`
 
     echo "== Checking hinv metric values - $base"
-    pminfo $local -f $hinv_metrics
+    for m in $hinv_metrics
+    do
+	pminfo $local -f $m | _fix_percpu_indom
+    done
     echo && echo "== done" && echo
 
     echo "== Checking aggregate CPU metric values - $base"
@@ -48,7 +74,10 @@ do
     echo && echo "== done" && echo
 
     echo "== Checking per-CPU metric values - $base"
-    pminfo $local -f $percpu_metrics
+    for m in $percpu_metrics
+    do
+	pminfo $local -f $m | _fix_percpu_indom
+    done
     echo && echo "== done" && echo
 
     echo "== Checking per-node CPU metric values - $base"
