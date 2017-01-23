@@ -33,12 +33,13 @@ cd $here
 echo "Running pmval in the background"
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so
 pmval -f2 -w5 -t0.2sec -T5sec -L -Kclear -Kadd,60,$pmda,linux_init \
-	kernel.percpu.cpu.user > $tmp.out &
+	kernel.percpu.cpu.user > $tmp.out 2> $tmp.err &
 echo pmval started: `date` >> $seq.full
 
 echo "Mutating the CPU instance domain"
 pmsleep 1.1
 echo Initial /proc/stat contents: `date` >> $seq.full
+ls -li $tmp.root/proc/stat >> $seq.full
 cat $tmp.root/proc/stat >> $seq.full
 
 # Take some processors offline
@@ -48,11 +49,13 @@ sed -i -e '/^cpu3 /d' -e '/^cpu7 /d' $tmp.stat
 mv -f $tmp.stat $tmp.root/proc/stat
 pmsleep 1.5
 echo Changed /proc/stat contents: `date` >> $seq.full
+ls -li $tmp.root/proc/stat >> $seq.full
 cat $tmp.root/proc/stat >> $seq.full
 
 # re-enable all processors
 mv -f $tmp.orig $tmp.root/proc/stat
 echo Final /proc/stat contents: `date` >> $seq.full
+ls -li $tmp.root/proc/stat >> $seq.full
 cat $tmp.root/proc/stat >> $seq.full
 
 echo .
@@ -61,6 +64,8 @@ echo Finished wait for pmval: `date` >> $seq.full
 
 echo "Observed from running pmval:"
 cat $tmp.out | tee -a $seq.full | _filter | uniq
+
+cat $tmp.err >>$seq.full
 
 # success, all done
 status=0
