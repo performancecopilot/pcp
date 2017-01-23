@@ -3,6 +3,7 @@
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
 # Portions Copyright (c) 2013-2017 Red Hat.
+# Portions Copyright (c) 2016-2017 Fujitsu.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -932,14 +933,14 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ mem.zoneinfo.present present space in each zone for each NUMA node
 @ mem.zoneinfo.managed managed space in each zone for each NUMA node
 @ mem.ksm.full_scans Number of times that KSM has scanned for duplicated content
-@ mem.ksm.merge_across_nodes Allows merging across NUMA nodes
+@ mem.ksm.merge_across_nodes Kernel allows merging across NUMA nodes
 @ mem.ksm.pages_shared The number of nodes in the stable tree
 @ mem.ksm.pages_sharing The number of virtual pages that are sharing a single page
 @ mem.ksm.pages_to_scan Number of pages to scan at a time
 @ mem.ksm.pages_unshared The number of nodes in the unstable tree
 @ mem.ksm.pages_volatile Number of pages that are candidate to be shared
-@ mem.ksm.run Wheter the KSM is run
-@ mem.ksm.sleep_millisecs Milliseconds ksmd should sleep between batches
+@ mem.ksm.run_state Whether the KSM daemon has run and/or is running
+@ mem.ksm.sleep_time Time ksmd should sleep between batches
 
 @ swap.length total swap available metric from /proc/meminfo
 @ swap.used swap used metric from /proc/meminfo

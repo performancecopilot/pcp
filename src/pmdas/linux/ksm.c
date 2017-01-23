@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2016 Fujitsu.
+ * Copyright (c) 2016-2017 Fujitsu.
+ * Copyright (c) 2017 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,69 +19,69 @@
 int
 refresh_ksm_info(ksm_info_t *ksm_info)
 {
-    DIR *FD;
-    struct dirent* in_file;
-    FILE    *fp;
+    int sts = 0;
+    DIR	*ksm_dir;
+    FILE *fp;
+    struct dirent *de;
     char buffer[BUFSIZ];
-    char path[100];
-    if(NULL == (FD = opendir("/sys/kernel/mm/ksm")))
+    char path[MAXPATHLEN];
+
+    snprintf(path, sizeof(path), "%s/sys/kernel/mm/ksm", linux_statspath);
+    path[sizeof(path)-1] = '\0';
+    if ((ksm_dir = opendir(path)) == NULL)
 	return -oserror();
 
-    while ((in_file = readdir(FD))) 
-    {   
-        if (!strncmp (in_file->d_name, ".", 1))
-            continue;
-        if (!strncmp (in_file->d_name, "..", 2))    
-            continue;
-        
-        sprintf(path, "/sys/kernel/mm/ksm/%s", in_file->d_name);
-        path[sizeof(path)-1] = '\0';
+    while ((de = readdir(ksm_dir)) != NULL) {   
+	if (!strncmp(de->d_name, ".", 1))
+	    continue;
 
-        if ((fp = linux_statsfile(path, buffer, sizeof(buffer))) == NULL)
-	    return -oserror();
+	sprintf(path, "%s/sys/kernel/mm/ksm/%s", linux_statspath, de->d_name);
+	path[sizeof(path)-1] = '\0';
+	if ((fp = fopen(path, "r")) == NULL) {
+	    sts = -oserror();
+	    break;
+	}
 
-        while (fgets(buffer, BUFSIZ, fp) != NULL)
-        {
-            if (!strncmp(in_file->d_name, "full_scans", 10)) {
-               ksm_info->full_scans = atol(buffer);
-               break;
-            }
-            else if (!strncmp(in_file->d_name, "merge_across_nodes", 18)) {
-               ksm_info->merge_across_nodes = atol(buffer);
-               break;
-            }
-            else if (!strncmp(in_file->d_name, "pages_shared", 12)) {
-               ksm_info->pages_shared = atol(buffer);
-               break;
-            }
-            else if (!strncmp(in_file->d_name, "pages_sharing", 13)) {
-               ksm_info->pages_sharing = atol(buffer);
-               break;
-            }
-            else if (!strncmp(in_file->d_name, "pages_to_scan", 13)) {
-               ksm_info->pages_to_scan = atol(buffer);
-               break;
-            }
-            else if (!strncmp(in_file->d_name, "pages_unshared", 14)) {
-               ksm_info->pages_unshared = atol(buffer);
-               break;
-            }
-            else if (!strncmp(in_file->d_name, "pages_volatile", 14)) {
-               ksm_info->pages_volatile = atol(buffer);
-               break;
-            }
-            else if (!strncmp(in_file->d_name, "run", 3)) {
-               ksm_info->run = atol(buffer);
-               break;
-            }
-            else if (!strncmp(in_file->d_name, "sleep_millisecs", 15)) {
-               ksm_info->sleep_millisecs = atol(buffer);
-               break;
-            }
-        }
+	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+	    if (!strncmp(de->d_name, "full_scans", 10)) {
+	       ksm_info->full_scans = strtoul(buffer, NULL, 10);
+	       break;
+	    }
+	    else if (!strncmp(de->d_name, "merge_across_nodes", 18)) {
+	       ksm_info->merge_across_nodes = strtoul(buffer, NULL, 10);
+	       break;
+	    }
+	    else if (!strncmp(de->d_name, "pages_shared", 12)) {
+	       ksm_info->pages_shared = strtoul(buffer, NULL, 10);
+	       break;
+	    }
+	    else if (!strncmp(de->d_name, "pages_sharing", 13)) {
+	       ksm_info->pages_sharing = strtoul(buffer, NULL, 10);
+	       break;
+	    }
+	    else if (!strncmp(de->d_name, "pages_to_scan", 13)) {
+	       ksm_info->pages_to_scan = strtoul(buffer, NULL, 10);
+	       break;
+	    }
+	    else if (!strncmp(de->d_name, "pages_unshared", 14)) {
+	       ksm_info->pages_unshared = strtoul(buffer, NULL, 10);
+	       break;
+	    }
+	    else if (!strncmp(de->d_name, "pages_volatile", 14)) {
+	       ksm_info->pages_volatile = strtoul(buffer, NULL, 10);
+	       break;
+	    }
+	    else if (!strncmp(de->d_name, "run", 3)) {
+	       ksm_info->run = strtoul(buffer, NULL, 10);
+	       break;
+	    }
+	    else if (!strncmp(de->d_name, "sleep_millisecs", 15)) {
+	       ksm_info->sleep_millisecs = strtoul(buffer, NULL, 10);
+	       break;
+	    }
+	}
+	fclose(fp);
     } 
-    free(in_file);
-    closedir(FD);
-    fclose(fp);
-    return 0;
+    closedir(ksm_dir);
+    return sts;
 }
