@@ -2,7 +2,7 @@
 #
 # Make whichever packages the system supports
 #
-# Copyright (c) 2012-2016 Red Hat.
+# Copyright (c) 2012-2017 Red Hat.
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -551,10 +551,10 @@ debian_buildpackage()
 
     SUDO=${SUDO:-fakeroot}
     # don't sign by default
-    sign='-us -uc -S'
+    sign='-us -uc'
     # sign if --signed and $DEB_SIGN_KEYID set in the environment
     # (always for an upload to Debian servers so its source only)
-    $signed && [ -n "$DEB_SIGN_KEYID" ] && sign=''
+    $signed && [ -n "$DEB_SIGN_KEYID" ] && sign='-S'
     rm -f $tmp/failed
     if $verbose ; then
 	(dpkg-buildpackage $sign -r$SUDO || touch $tmp/failed) 2>&1 | tee -a $LOGDIR/pcp
