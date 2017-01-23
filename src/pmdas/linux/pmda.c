@@ -58,6 +58,7 @@
 #include "proc_buddyinfo.h"
 #include "proc_zoneinfo.h"
 #include "numa_meminfo.h"
+#include "ksm.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -79,6 +80,7 @@ static sem_info_t              _sem_info;
 static msg_info_t              _msg_info;
 static proc_net_softnet_t	proc_net_softnet;
 static proc_buddyinfo_t		proc_buddyinfo;
+static ksm_info_t               ksm_info;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static int		rootfd = -1;	/* af_unix pmdaroot */
@@ -3934,6 +3936,54 @@ static pmdaMetric metrictab[] = {
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
+ * ksm info cluster
+ */
+/* msm.ksm.full_scans */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* msm.ksm.merge_across_nodes */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* msm.ksm.pages_shared */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* msm.ksm.pages_sharing */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* msm.ksm.pages_to_scan */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 4), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* msm.ksm.pages_unshared */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 5), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* msm.ksm.pages_volatile */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 6), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* msm.ksm.run */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 7), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* msm.ksm.sleep_millisecs */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 8), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/*
  * number of users cluster
  */
 
@@ -4963,6 +5013,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 
     if (need_refresh[CLUSTER_ZONEINFO])
 	refresh_proc_zoneinfo(INDOM(ZONEINFO_INDOM));
+
+    if (need_refresh[CLUSTER_KSM_INFO])
+	refresh_ksm_info(&ksm_info);
 
 done:
     if (need_refresh_mtab)
@@ -6346,6 +6399,40 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	atom->ull = info->values[idp->item];
 	break;
     }
+
+    case CLUSTER_KSM_INFO:
+	switch (idp->item) {
+	case 0: /* mem.ksm.full_scans */
+	    atom->ul = ksm_info.full_scans;
+	    break;
+	case 1: /* mem.ksm.merge_across_nodes */
+	    atom->ul = ksm_info.merge_across_nodes;
+	    break;
+	case 2: /* mem.ksm.pages_shared */
+	    atom->ul = ksm_info.pages_shared;
+	    break;
+	case 3: /* mem.ksm.pages_sharing */
+	    atom->ul = ksm_info.pages_sharing;
+	    break;
+	case 4: /* mem.ksm.pages_to_scan */
+	    atom->ul = ksm_info.pages_to_scan;
+	    break;
+	case 5: /* mem.ksm.pages_unshared */
+	    atom->ul = ksm_info.pages_unshared;
+	    break;
+	case 6: /* mem.ksm.pages_volatile */
+	    atom->ul = ksm_info.pages_volatile;
+	    break;
+	case 7: /* mem.ksm.run */
+	    atom->d = ksm_info.run;
+	    break;
+	case 8: /* mem.ksm.sleep_millisecs */
+	    atom->ul = ksm_info.sleep_millisecs;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+        }
+	break;
 
     case CLUSTER_SEM_INFO:
 	switch (idp->item) {
