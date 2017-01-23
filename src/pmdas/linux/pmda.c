@@ -2,6 +2,7 @@
  * Linux PMDA
  *
  * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2016-2017 Fujitsu.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
@@ -58,6 +59,7 @@
 #include "proc_buddyinfo.h"
 #include "proc_zoneinfo.h"
 #include "numa_meminfo.h"
+#include "ksm.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -79,6 +81,7 @@ static sem_info_t              _sem_info;
 static msg_info_t              _msg_info;
 static proc_net_softnet_t	proc_net_softnet;
 static proc_buddyinfo_t		proc_buddyinfo;
+static ksm_info_t               ksm_info;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static int		rootfd = -1;	/* af_unix pmdaroot */
@@ -3934,6 +3937,54 @@ static pmdaMetric metrictab[] = {
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /*
+ * ksm info cluster
+ */
+/* mem.ksm.full_scans */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 0), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* mem.ksm.merge_across_nodes */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 1), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* mem.ksm.pages_shared */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 2), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* mem.ksm.pages_sharing */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 3), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* mem.ksm.pages_to_scan */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 4), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* mem.ksm.pages_unshared */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 5), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* mem.ksm.pages_volatile */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 6), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* mem.ksm.run_state */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 7), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* mem.ksm.sleep_time */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 8), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0)}},
+
+/*
  * number of users cluster
  */
 
@@ -4963,6 +5014,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
 
     if (need_refresh[CLUSTER_ZONEINFO])
 	refresh_proc_zoneinfo(INDOM(ZONEINFO_INDOM));
+
+    if (need_refresh[CLUSTER_KSM_INFO])
+	refresh_ksm_info(&ksm_info);
 
 done:
     if (need_refresh_mtab)
@@ -6346,6 +6400,40 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	atom->ull = info->values[idp->item];
 	break;
     }
+
+    case CLUSTER_KSM_INFO:
+	switch (idp->item) {
+	case 0: /* mem.ksm.full_scans */
+	    _pm_assign_ulong(atom, ksm_info.full_scans);
+	    break;
+	case 1: /* mem.ksm.merge_across_nodes */
+	    _pm_assign_ulong(atom, ksm_info.merge_across_nodes);
+	    break;
+	case 2: /* mem.ksm.pages_shared */
+	    _pm_assign_ulong(atom, ksm_info.pages_shared);
+	    break;
+	case 3: /* mem.ksm.pages_sharing */
+	    _pm_assign_ulong(atom, ksm_info.pages_sharing);
+	    break;
+	case 4: /* mem.ksm.pages_to_scan */
+	    _pm_assign_ulong(atom, ksm_info.pages_to_scan);
+	    break;
+	case 5: /* mem.ksm.pages_unshared */
+	    _pm_assign_ulong(atom, ksm_info.pages_unshared);
+	    break;
+	case 6: /* mem.ksm.pages_volatile */
+	    _pm_assign_ulong(atom, ksm_info.pages_volatile);
+	    break;
+	case 7: /* mem.ksm.run_state */
+	    _pm_assign_ulong(atom, ksm_info.run);
+	    break;
+	case 8: /* mem.ksm.sleep_time */
+	    _pm_assign_ulong(atom, ksm_info.sleep_millisecs);
+	    break;
+	default:
+	    return PM_ERR_PMID;
+        }
+	break;
 
     case CLUSTER_SEM_INFO:
 	switch (idp->item) {

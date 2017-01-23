@@ -379,6 +379,18 @@ mem {
     buddyinfo
     slabinfo
     zoneinfo
+    ksm
+}
+mem.ksm {
+    full_scans		60:69:0
+    merge_across_nodes	60:69:1
+    pages_shared	60:69:2
+    pages_sharing	60:69:3
+    pages_to_scan	60:69:4
+    pages_unshared	60:69:5
+    pages_volatile	60:69:6
+    run_state		60:69:7
+    sleep_time		60:69:8
 }
 
 mem.buddyinfo {

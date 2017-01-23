@@ -1157,6 +1157,7 @@ oldversion
 908 indom help pmda pminfo local
 909 libpcp pmns local
 910 pmda.linux pmval local
+911 pmda.linux local
 914 pmda.papi local
 915 pmcd pmlogger pmproxy libpcp local pmlc
 916 pmlogextract pmlogcheck local

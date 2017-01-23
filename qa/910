@@ -36,8 +36,9 @@ pmval -f2 -w5 -t0.2sec -T5sec -L -Kclear -Kadd,60,$pmda,linux_init \
 	kernel.percpu.cpu.user > $tmp.out 2> $tmp.err &
 echo pmval started: `date` >> $seq.full
 
+pmsleep 1.75
+
 echo "Mutating the CPU instance domain"
-pmsleep 1.1
 echo Initial /proc/stat contents: `date` >> $seq.full
 ls -li $tmp.root/proc/stat >> $seq.full
 cat $tmp.root/proc/stat >> $seq.full
@@ -47,7 +48,9 @@ cp $tmp.root/proc/stat $tmp.orig
 cp $tmp.root/proc/stat $tmp.stat
 sed -i -e '/^cpu3 /d' -e '/^cpu7 /d' $tmp.stat
 mv -f $tmp.stat $tmp.root/proc/stat
-pmsleep 1.5
+
+pmsleep 1.75
+
 echo Changed /proc/stat contents: `date` >> $seq.full
 ls -li $tmp.root/proc/stat >> $seq.full
 cat $tmp.root/proc/stat >> $seq.full
