@@ -551,9 +551,8 @@ debian_buildpackage()
 
     SUDO=${SUDO:-fakeroot}
     # don't sign by default
-    sign='-us -uc -S'
+    sign='-us -uc'
     # sign if --signed and $DEB_SIGN_KEYID set in the environment
-    # (always for an upload to Debian servers so its source only)
     $signed && [ -n "$DEB_SIGN_KEYID" ] && sign=''
     rm -f $tmp/failed
     if $verbose ; then
