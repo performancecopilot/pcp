@@ -1235,8 +1235,8 @@ memline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 		ss->mem.cachemem  /1024,
 		ss->mem.cachedrt  /1024,
 		ss->mem.slabmem   /1024,
-		ss->mem.totswap   /1024,
-		ss->mem.freeswap  /1024);
+		ss->mem.totswap   /(1024 * 1024),
+		ss->mem.freeswap  /(1024 * 1024));
 
 	postprint(mbadness >= sbadness ? mbadness : sbadness);
 
