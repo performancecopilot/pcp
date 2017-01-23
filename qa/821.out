@@ -74,6 +74,33 @@ mem.buddyinfo.total
 mem.freemem
     value 4650860
 
+mem.ksm.full_scans
+    value 0
+
+mem.ksm.merge_across_nodes
+    value 0
+
+mem.ksm.pages_shared
+    value 0
+
+mem.ksm.pages_sharing
+    value 0
+
+mem.ksm.pages_to_scan
+    value 0
+
+mem.ksm.pages_unshared
+    value 0
+
+mem.ksm.pages_volatile
+    value 0
+
+mem.ksm.run_state
+    value 0
+
+mem.ksm.sleep_time
+    value 0
+
 mem.numa.alloc.foreign
     inst [0 or "node0"] value 0
 
@@ -1832,6 +1859,33 @@ No value(s) available!
 
 mem.freemem
     value 87287012
+
+mem.ksm.full_scans
+    value 0
+
+mem.ksm.merge_across_nodes
+    value 0
+
+mem.ksm.pages_shared
+    value 0
+
+mem.ksm.pages_sharing
+    value 0
+
+mem.ksm.pages_to_scan
+    value 0
+
+mem.ksm.pages_unshared
+    value 0
+
+mem.ksm.pages_volatile
+    value 0
+
+mem.ksm.run_state
+    value 0
+
+mem.ksm.sleep_time
+    value 0
 
 mem.numa.alloc.foreign
     inst [0 or "node0"] value 0
