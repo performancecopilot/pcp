@@ -689,45 +689,45 @@ mem.vmstat.unevictable_pgs_stranded
 mem.vmstat.zone_reclaim_failed
     value 0
 
-mem.zoneinfo.high
-    inst [0 or "DMA::node0"] value 16
-    inst [1 or "DMA32::node0"] value 2424
-    inst [2 or "Normal::node0"] value 21480
-
-mem.zoneinfo.low
-    inst [0 or "DMA::node0"] value 12
-    inst [1 or "DMA32::node0"] value 2020
-    inst [2 or "Normal::node0"] value 17900
-
-mem.zoneinfo.managed
-    inst [0 or "DMA::node0"] value 15900
-    inst [1 or "DMA32::node0"] value 1627896
-    inst [2 or "Normal::node0"] value 14378344
-
-mem.zoneinfo.min
-    inst [0 or "DMA::node0"] value 12
-    inst [1 or "DMA32::node0"] value 1616
-    inst [2 or "Normal::node0"] value 14320
-
-mem.zoneinfo.present
-    inst [0 or "DMA::node0"] value 15984
-    inst [1 or "DMA32::node0"] value 1724008
-    inst [2 or "Normal::node0"] value 14653440
-
-mem.zoneinfo.scanned
-    inst [0 or "DMA::node0"] value 0
-    inst [1 or "DMA32::node0"] value 0
-    inst [2 or "Normal::node0"] value 0
-
-mem.zoneinfo.spanned
-    inst [0 or "DMA::node0"] value 16380
-    inst [1 or "DMA32::node0"] value 4177920
-    inst [2 or "Normal::node0"] value 14653440
 mem.zoneinfo.free
     inst [N or "DMA32::node0"] value 284860
     inst [N or "DMA::node0"] value 15852
     inst [N or "Normal::node0"] value 4349528
 
+mem.zoneinfo.high
+    inst [N or "DMA32::node0"] value 2424
+    inst [N or "DMA::node0"] value 16
+    inst [N or "Normal::node0"] value 21480
+
+mem.zoneinfo.low
+    inst [N or "DMA32::node0"] value 2020
+    inst [N or "DMA::node0"] value 12
+    inst [N or "Normal::node0"] value 17900
+
+mem.zoneinfo.managed
+    inst [N or "DMA32::node0"] value 1627896
+    inst [N or "DMA::node0"] value 15900
+    inst [N or "Normal::node0"] value 14378344
+
+mem.zoneinfo.min
+    inst [N or "DMA32::node0"] value 1616
+    inst [N or "DMA::node0"] value 12
+    inst [N or "Normal::node0"] value 14320
+
+mem.zoneinfo.present
+    inst [N or "DMA32::node0"] value 1724008
+    inst [N or "DMA::node0"] value 15984
+    inst [N or "Normal::node0"] value 14653440
+
+mem.zoneinfo.scanned
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.spanned
+    inst [N or "DMA32::node0"] value 4177920
+    inst [N or "DMA::node0"] value 16380
+    inst [N or "Normal::node0"] value 14653440
 
 == done
 
@@ -1780,45 +1780,45 @@ mem.buddyinfo.total
 
 == Checking zoneinfo metric values - meminfo-root-001.tgz
 
-mem.zoneinfo.high
-    inst [0 or "DMA::node0"] value 16
-    inst [1 or "DMA32::node0"] value 2424
-    inst [2 or "Normal::node0"] value 21480
-
-mem.zoneinfo.low
-    inst [0 or "DMA::node0"] value 12
-    inst [1 or "DMA32::node0"] value 2020
-    inst [2 or "Normal::node0"] value 17900
-
-mem.zoneinfo.managed
-    inst [0 or "DMA::node0"] value 15900
-    inst [1 or "DMA32::node0"] value 1627896
-    inst [2 or "Normal::node0"] value 14378344
-
-mem.zoneinfo.min
-    inst [0 or "DMA::node0"] value 12
-    inst [1 or "DMA32::node0"] value 1616
-    inst [2 or "Normal::node0"] value 14320
-
-mem.zoneinfo.present
-    inst [0 or "DMA::node0"] value 15984
-    inst [1 or "DMA32::node0"] value 1724008
-    inst [2 or "Normal::node0"] value 14653440
-
-mem.zoneinfo.scanned
-    inst [0 or "DMA::node0"] value 0
-    inst [1 or "DMA32::node0"] value 0
-    inst [2 or "Normal::node0"] value 0
-
-mem.zoneinfo.spanned
-    inst [0 or "DMA::node0"] value 16380
-    inst [1 or "DMA32::node0"] value 4177920
-    inst [2 or "Normal::node0"] value 14653440
 mem.zoneinfo.free
     inst [N or "DMA32::node0"] value 284860
     inst [N or "DMA::node0"] value 15852
     inst [N or "Normal::node0"] value 4349528
 
+mem.zoneinfo.high
+    inst [N or "DMA32::node0"] value 2424
+    inst [N or "DMA::node0"] value 16
+    inst [N or "Normal::node0"] value 21480
+
+mem.zoneinfo.low
+    inst [N or "DMA32::node0"] value 2020
+    inst [N or "DMA::node0"] value 12
+    inst [N or "Normal::node0"] value 17900
+
+mem.zoneinfo.managed
+    inst [N or "DMA32::node0"] value 1627896
+    inst [N or "DMA::node0"] value 15900
+    inst [N or "Normal::node0"] value 14378344
+
+mem.zoneinfo.min
+    inst [N or "DMA32::node0"] value 1616
+    inst [N or "DMA::node0"] value 12
+    inst [N or "Normal::node0"] value 14320
+
+mem.zoneinfo.present
+    inst [N or "DMA32::node0"] value 1724008
+    inst [N or "DMA::node0"] value 15984
+    inst [N or "Normal::node0"] value 14653440
+
+mem.zoneinfo.scanned
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+
+mem.zoneinfo.spanned
+    inst [N or "DMA32::node0"] value 4177920
+    inst [N or "DMA::node0"] value 16380
+    inst [N or "Normal::node0"] value 14653440
 
 == done
 
@@ -2482,53 +2482,53 @@ mem.vmstat.unevictable_pgs_stranded
 mem.vmstat.zone_reclaim_failed
     value 0
 
-mem.zoneinfo.high
-    inst [0 or "DMA::node0"] value 12
-    inst [1 or "DMA32::node0"] value 1836
-    inst [2 or "Normal::node0"] value 65580
-    inst [3 or "Normal::node1"] value 67728
-
-mem.zoneinfo.low
-    inst [0 or "DMA::node0"] value 8
-    inst [1 or "DMA32::node0"] value 1528
-    inst [2 or "Normal::node0"] value 54648
-    inst [3 or "Normal::node1"] value 56440
-
-mem.zoneinfo.managed
-    inst [0 or "DMA::node0"] value 15896
-    inst [1 or "DMA32::node0"] value 1796948
-    inst [2 or "Normal::node0"] value 63960660
-    inst [3 or "Normal::node1"] value 66057548
-
-mem.zoneinfo.min
-    inst [0 or "DMA::node0"] value 8
-    inst [1 or "DMA32::node0"] value 1224
-    inst [2 or "Normal::node0"] value 43720
-    inst [3 or "Normal::node1"] value 45152
-
-mem.zoneinfo.present
-    inst [0 or "DMA::node0"] value 15988
-    inst [1 or "DMA32::node0"] value 2049788
-    inst [2 or "Normal::node0"] value 65011712
-    inst [3 or "Normal::node1"] value 67108864
-
-mem.zoneinfo.scanned
-    inst [0 or "DMA::node0"] value 0
-    inst [1 or "DMA32::node0"] value 0
-    inst [2 or "Normal::node0"] value 0
-    inst [3 or "Normal::node1"] value 0
-
-mem.zoneinfo.spanned
-    inst [0 or "DMA::node0"] value 16380
-    inst [1 or "DMA32::node0"] value 4177920
-    inst [2 or "Normal::node0"] value 65011712
-    inst [3 or "Normal::node1"] value 67108864
 mem.zoneinfo.free
     inst [N or "DMA32::node0"] value 693676
     inst [N or "DMA::node0"] value 15320
     inst [N or "Normal::node0"] value 42201908
     inst [N or "Normal::node1"] value 44375624
 
+mem.zoneinfo.high
+    inst [N or "DMA32::node0"] value 1836
+    inst [N or "DMA::node0"] value 12
+    inst [N or "Normal::node0"] value 65580
+    inst [N or "Normal::node1"] value 67728
+
+mem.zoneinfo.low
+    inst [N or "DMA32::node0"] value 1528
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 54648
+    inst [N or "Normal::node1"] value 56440
+
+mem.zoneinfo.managed
+    inst [N or "DMA32::node0"] value 1796948
+    inst [N or "DMA::node0"] value 15896
+    inst [N or "Normal::node0"] value 63960660
+    inst [N or "Normal::node1"] value 66057548
+
+mem.zoneinfo.min
+    inst [N or "DMA32::node0"] value 1224
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 43720
+    inst [N or "Normal::node1"] value 45152
+
+mem.zoneinfo.present
+    inst [N or "DMA32::node0"] value 2049788
+    inst [N or "DMA::node0"] value 15988
+    inst [N or "Normal::node0"] value 65011712
+    inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.scanned
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.spanned
+    inst [N or "DMA32::node0"] value 4177920
+    inst [N or "DMA::node0"] value 16380
+    inst [N or "Normal::node0"] value 65011712
+    inst [N or "Normal::node1"] value 67108864
 
 == done
 
@@ -3468,53 +3468,53 @@ No value(s) available!
 
 == Checking zoneinfo metric values - meminfo-root-002.tgz
 
-mem.zoneinfo.high
-    inst [0 or "DMA::node0"] value 12
-    inst [1 or "DMA32::node0"] value 1836
-    inst [2 or "Normal::node0"] value 65580
-    inst [3 or "Normal::node1"] value 67728
-
-mem.zoneinfo.low
-    inst [0 or "DMA::node0"] value 8
-    inst [1 or "DMA32::node0"] value 1528
-    inst [2 or "Normal::node0"] value 54648
-    inst [3 or "Normal::node1"] value 56440
-
-mem.zoneinfo.managed
-    inst [0 or "DMA::node0"] value 15896
-    inst [1 or "DMA32::node0"] value 1796948
-    inst [2 or "Normal::node0"] value 63960660
-    inst [3 or "Normal::node1"] value 66057548
-
-mem.zoneinfo.min
-    inst [0 or "DMA::node0"] value 8
-    inst [1 or "DMA32::node0"] value 1224
-    inst [2 or "Normal::node0"] value 43720
-    inst [3 or "Normal::node1"] value 45152
-
-mem.zoneinfo.present
-    inst [0 or "DMA::node0"] value 15988
-    inst [1 or "DMA32::node0"] value 2049788
-    inst [2 or "Normal::node0"] value 65011712
-    inst [3 or "Normal::node1"] value 67108864
-
-mem.zoneinfo.scanned
-    inst [0 or "DMA::node0"] value 0
-    inst [1 or "DMA32::node0"] value 0
-    inst [2 or "Normal::node0"] value 0
-    inst [3 or "Normal::node1"] value 0
-
-mem.zoneinfo.spanned
-    inst [0 or "DMA::node0"] value 16380
-    inst [1 or "DMA32::node0"] value 4177920
-    inst [2 or "Normal::node0"] value 65011712
-    inst [3 or "Normal::node1"] value 67108864
 mem.zoneinfo.free
     inst [N or "DMA32::node0"] value 693676
     inst [N or "DMA::node0"] value 15320
     inst [N or "Normal::node0"] value 42201908
     inst [N or "Normal::node1"] value 44375624
 
+mem.zoneinfo.high
+    inst [N or "DMA32::node0"] value 1836
+    inst [N or "DMA::node0"] value 12
+    inst [N or "Normal::node0"] value 65580
+    inst [N or "Normal::node1"] value 67728
+
+mem.zoneinfo.low
+    inst [N or "DMA32::node0"] value 1528
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 54648
+    inst [N or "Normal::node1"] value 56440
+
+mem.zoneinfo.managed
+    inst [N or "DMA32::node0"] value 1796948
+    inst [N or "DMA::node0"] value 15896
+    inst [N or "Normal::node0"] value 63960660
+    inst [N or "Normal::node1"] value 66057548
+
+mem.zoneinfo.min
+    inst [N or "DMA32::node0"] value 1224
+    inst [N or "DMA::node0"] value 8
+    inst [N or "Normal::node0"] value 43720
+    inst [N or "Normal::node1"] value 45152
+
+mem.zoneinfo.present
+    inst [N or "DMA32::node0"] value 2049788
+    inst [N or "DMA::node0"] value 15988
+    inst [N or "Normal::node0"] value 65011712
+    inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.scanned
+    inst [N or "DMA32::node0"] value 0
+    inst [N or "DMA::node0"] value 0
+    inst [N or "Normal::node0"] value 0
+    inst [N or "Normal::node1"] value 0
+
+mem.zoneinfo.spanned
+    inst [N or "DMA32::node0"] value 4177920
+    inst [N or "DMA::node0"] value 16380
+    inst [N or "Normal::node0"] value 65011712
+    inst [N or "Normal::node1"] value 67108864
 
 == done
 
