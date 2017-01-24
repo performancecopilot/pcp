@@ -39,7 +39,7 @@ mem.ksm.merge_across_nodes
     value 1
 
 mem.ksm.pages_shared
-    value 128976234976
+    value 4294967294
 
 mem.ksm.pages_sharing
     value 2318472134
