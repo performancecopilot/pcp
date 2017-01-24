@@ -27,5 +27,5 @@ default_pcp:
 
 install_pcp install: default
 	$(INSTALL) -m 755 -d $(PCP_SELINUX_DIR)
-	$(INSTALL) -m 600 $(IAM).pp $(PCP_SELINUX_DIR)/$(IAM).pp
-#       $(INSTALL) -m 644 $(IAM).if /usr/share/selinux/devel/include/contrib
+	$(INSTALL) -m 664 $(IAM).pp $(PCP_SELINUX_DIR)/$(IAM).pp
+	$(INSTALL) -m 664 $(IAM).te $(PCP_SELINUX_DIR)/$(IAM).te

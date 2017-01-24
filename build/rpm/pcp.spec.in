@@ -2157,7 +2157,9 @@ BEGIN {
 {
     if (cfg[$NF]) f="cfg_files.rpm";
     else if (gui[$NF]) f="gui_files.rpm";
+%if "@enable_selinux@" == "true"
     else if (selinux[$NF]) f="selinux_files.rpm";
+%endif
     else if (doc[$NF]) f="docs_files.rpm";
     else if (lib[$NF]) f="libs_files.rpm";
     else if (dev[$NF]) f="dev_files.rpm";
@@ -2427,6 +2429,12 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
     /sbin/service pmlogger condrestart
 %endif
 
+%if "@enable_selinux@" == "true"
+%post selinux
+PCP_SELINUX_DIR=@pcp_selinux_dir@/
+semodule -X 400 -i @pcp_selinux_dir@/pcpupstream.pp
+%endif 
+
 %if "@pmda_rpm@" == "true"
 %preun pmda-rpm
 %{pmda_remove "$1" "rpm"}
@@ -2671,6 +2679,7 @@ fi
 %post
 PCP_PMNS_DIR=@pcp_var_dir@/pmns
 PCP_LOG_DIR=@pcp_log_dir@
+
 # restore saved configs, if any
 test -s "$PCP_LOG_DIR/configs.sh" && source "$PCP_LOG_DIR/configs.sh"
 rm -f $PCP_LOG_DIR/configs.sh
@@ -2726,6 +2735,13 @@ cd
 
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
+
+%if "@enable_selinux@" == "true"
+%postun selinux
+PCP_SELINUX_DIR=@pcp_selinux_dir@/
+semodule -u "$PCP_SELINUX_DIR/pcpupstream.pp"
+%endif 
+
 
 %files -f base_files.rpm
 

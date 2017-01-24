@@ -11086,7 +11086,7 @@ if test "x$do_selinux" != "xno"; then :
 pcp_selinux_dir=""
     if test -f /usr/share/selinux/devel/Makefile
     then
-        pcp_selinux_dir="/usr/share/selinux/packages/pcp"
+        pcp_selinux_dir="/var/lib/pcp/selinux"
 	enable_selinux=true
     else
 	as_fn_error $? "Cannot find SELinux Makefile to build policy package" "$LINENO" 5

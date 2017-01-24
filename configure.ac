@@ -1843,7 +1843,7 @@ AS_IF([test "x$do_selinux" != "xno"], [
 pcp_selinux_dir=""
     if test -f /usr/share/selinux/devel/Makefile
     then
-        pcp_selinux_dir="/usr/share/selinux/packages/pcp"
+        pcp_selinux_dir="/var/lib/pcp/selinux"
 	enable_selinux=true
     else
 	AC_MSG_ERROR([Cannot find SELinux Makefile to build policy package])

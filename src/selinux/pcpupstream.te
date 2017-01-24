@@ -21,6 +21,7 @@ require {
 	class unix_stream_socket connectto;
 	class capability { kill sys_ptrace net_admin chown };
 	class chr_file { open write };
+	class system status;
 }
 
 #============= init_t ==============
@@ -63,6 +64,7 @@ allow pcp_pmcd_t self:capability net_admin;
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
+allow pcp_pmlogger_t init_t:system status;
 
 # type=AVC msg=audit(1484681301.380:174695): avc:  denied  { sys_ptrace } for  pid=21962 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:pcp_pmlogger_t:s0 tclass=capability
 # src/pmlogger/pmnewlog.sh
@@ -71,3 +73,4 @@ allow pcp_pmlogger_t self:capability sys_ptrace;
 #============= pcp_pmie_t ==============
 allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read };
 allow pcp_pmie_t self:capability { chown kill net_admin };
+allow pcp_pmie_t init_t:system status;
