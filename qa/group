@@ -1159,6 +1159,7 @@ oldversion
 909 libpcp pmns local
 910 pmda.linux pmval local
 911 pmda.linux local
+913 pmda.redis local
 914 pmda.papi local
 915 pmcd pmlogger pmproxy libpcp local pmlc
 916 pmlogextract pmlogcheck local
