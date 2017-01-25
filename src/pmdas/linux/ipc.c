@@ -72,7 +72,7 @@ refresh_sem_info(sem_info_t *sem_info)
     static struct seminfo seminfo;
     static union semun arg;
 
-    arg.array = (unsigned short *) &seminfo;
+    arg.__buf = &seminfo;
     if (semctl(0, 0, SEM_INFO, arg) < 0)
     	return -oserror();
 
@@ -291,7 +291,7 @@ refresh_sem_array(pmInDom sem_indom)
 
     pmdaCacheOp(sem_indom, PMDA_CACHE_INACTIVE);
 
-    arg.array = (unsigned short *)&dummy;
+    arg.__buf = &dummy;
     maxid = semctl(0, 0, SEM_INFO, arg);
     if (maxid < 0)
 	return -1;
