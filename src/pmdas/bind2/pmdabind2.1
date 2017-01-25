@@ -1,0 +1,104 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDABIND2 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdabind2\f1 \- BIND performance metrics domain agent (PMDA)
+.SH DESCRIPTION
+This \s-1PMDA\s0 extracts performance data from BIND (Berkeley Internet
+Name Domain).
+It enables collection of most of the statistics metrics from the Bind
+server version 9 or later, which includes:
+.IP \[bu] 2
+overall memory statistics
+.IP \[bu]
+overall per-query statistics (general queries, EDNS/truncated responses, Update/Notify/AXFR/IXFR messages)
+.IP \[bu]
+overall error statistics (Rejected, SERVFAIL, Update/XFR failures ...)
+.IP \[bu]
+overall statistics per transport protocol, EDNS and per version of IP protocol
+.IP \[bu]
+resolver statistics (successes, errors, round-trip times in several ranges)
+.IP \[bu]
+detailed per-socket statistics with respect to the transport protcol and IP version including errors
+.IP \[bu]
+detailed per-file-descriptor statistics including errors
+.PP
+The PMDA performs per-second collection of the whole data set (148 metrics
+on the test environment) with modest requirements (2% CPU usage on Intel
+i7-4700MQ @2.4 GHz, cca 30 MB RAM).
+.P
+If more than 1 requests/sec is performed, the memoized values are used so
+that the statistics interface of the Bind server does not get overloaded.
+.SH INSTALLATION
+Configure BIND to export XML statistics via its REST interface.
+This requires BIND configuration to enable statistics exporting locally
+(at least).
+.PP
+    statistics-channels {
+.br
+        inet 127.0.0.1 port 8080 allow { 127.0.0.1; };
+.br
+    }
+.br
+    options { zone-statistics yes; }
+.PP
+The hostname (localhost), port (8080 above) and other configuration
+information must be specified in both the BIND configuration file
+as well as the 
+\&\f(CW$PCP_PMDAS_DIR\fR/bind2/bind2.conf file.
+.PP
+      # cd $PCP_PMDAS_DIR/bind2
+.br
+      # [ edit bind2.conf ]
+.br
+        host=localhost.localdomain:8080
+.PP
+Once this is setup, you can access the names and values for the
+bind2 performance metrics by doing the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/bind2
+.br
+      # ./Install
+.PP
+To uninstall, do the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/bind2
+.br
+      # ./Remove
+.PP
+\fBpmdabind2\fR is launched by \fIpmcd\fR(1) and should never be executed 
+directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
+agent is installed or removed.
+.SH FILES
+.IP "\fB$PCP_PMDAS_DIR/bind2/bind2.conf\fR" 4
+mandatory configuration file listing monitored bind2 instances
+.IP "\fB$PCP_PMDAS_DIR/bind2/Install\fR" 4 
+installation script for the \fBpmdabind2\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/bind2/Remove\fR" 4 
+undo installation script for the \fBpmdabind2\fR agent 
+.IP "\fB$PCP_LOG_DIR/pmcd/bind2.log\fR" 4 
+default log file for error messages from \fBpmdabind2\fR 
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables. 
+The \fB$PCP_CONF\fR variable may be used to specify an alternative 
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmdanamed (1),
+.BR named.conf (5)
+and
+.BR named (8).
