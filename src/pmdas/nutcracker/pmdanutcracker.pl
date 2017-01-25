@@ -23,9 +23,9 @@
 # - the PMDA was written thanks to mentoring by fche at #pcp@irc.freenode.net
 #     and support of myllynen
 # - debugging messages can be enabled by setting $cfg{debug} to true value and
-#     are usually visible at /var/log/pcp/pmcd/mynutcracker.log including
+#     are usually visible at /var/log/pcp/pmcd/nutcracker.log including
 #     message dumps
-# - configuration file is present at ./mynutcracker.conf and has following options:
+# - configuration file is present at ./nutcracker.conf and has following options:
 #     - host = <hostname or IP address>:<port number> - NutCracker host
 #       Example: Enabling two NutCracker instances running on localhost
 #
@@ -41,7 +41,7 @@
 #     these id values so that the old archives are still readable
 #
 # TODOs:
-#  - complete adoption from myredis to mynutcracker
+#  - complete adoption from myredis to nutcracker
 #  - complete short and long help lines
 #  - check units of all the metrics
 #  - define the domain ID in one file only (while currently there are more)
@@ -79,7 +79,7 @@ use vars qw($pmda %cfg %id2metrics %indom2name %cur_data %indom2ids);
 # %cur_data   - hash storing current values of fetched data
 
 %cfg = (
-    config_fname => "mynutcracker.conf",
+    config_fname => "nutcracker.conf",
 
     general_metrics     => {
         source => { type => PM_TYPE_STRING,
@@ -223,7 +223,7 @@ use vars qw($pmda %cfg %id2metrics %indom2name %cur_data %indom2ids);
 
     # Maximum time in seconds (may also be a fraction) to keep the data for responses
     max_delta_sec => 0.5,
-    pmdaname      => "mynutcracker",
+    pmdaname      => "nutcracker",
     max_recv_len  => 10240,
     indom_separator => ":::",
 
@@ -240,7 +240,7 @@ $ENV{PCP_DEBUG} = 65535
 config_check(\%cfg);
 
 #print STDERR "Starting $cfg{pmdaname} PMDA\n";
-$pmda = PCP::PMDA->new($cfg{pmdaname}, 253);
+$pmda = PCP::PMDA->new($cfg{pmdaname}, 26);
 
 # TODO: Check behaviour on errors
 $cfg{loaded} = LoadFile(catfile(pmda_config('PCP_PMDAS_DIR'),$cfg{pmdaname},$cfg{config_fname}));
@@ -386,7 +386,7 @@ foreach my $indom (qw{general pool server}) {
 # $res = $pmda->add_indom($indom2ids{server},
 #                         $cfg{loaded},
 #                         "Memcached/NutCracker server domain",
-#                         "Memcached/NutCracker server names seen in nutcrackermynutcracker.conf");
+#                         "Memcached/NutCracker server names seen in nutcrackernutcracker.conf");
 # mydebug("add_indom returned: " . Dumper($res))
 #     if $cfg{debug};
 

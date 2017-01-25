@@ -1,1 +1,0 @@
-#define MYREDIS 252

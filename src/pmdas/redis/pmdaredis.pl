@@ -22,9 +22,9 @@
 # - the PMDA was written thanks to mentoring by fche at #pcp@irc.freenode.net
 #     and support of myllynen
 # - debugging messages can be enabled by setting $cfg{debug} to true value and
-#     are usually visible at /var/log/pcp/pmcd/myredis.log including message
+#     are usually visible at /var/log/pcp/pmcd/redis.log including message
 #     dumps
-# - configuration file is present at ./myredis.conf and has following options:
+# - configuration file is present at ./redis.conf and has following options:
 #     - keyspace_name
 #       - gives name of the keyspaces whose metrics should be enabled
 #
@@ -74,7 +74,7 @@ use Data::Dumper;
 use vars qw( $pmda %cfg %id2metrics %cur_data %var_metrics);
 
 %cfg = (
-    config_fname => "myredis.conf",
+    config_fname => "redis.conf",
 
     metrics     => {
         redis_version => { type => PM_TYPE_STRING,
@@ -528,7 +528,7 @@ use vars qw( $pmda %cfg %id2metrics %cur_data %var_metrics);
     debug => 0,
 );
 
-$0 = "pmdamyredis";
+$0 = "pmdaredis";
 
 # Enable PCP debugging
 $ENV{PCP_DEBUG} = 65535
@@ -537,11 +537,11 @@ $ENV{PCP_DEBUG} = 65535
 # Config check
 config_check(\%cfg);
 
-#print STDERR "Starting myredis PMDA\n";
-$pmda = PCP::PMDA->new('myredis', 252);
+#print STDERR "Starting redis PMDA\n";
+$pmda = PCP::PMDA->new('redis', 24);
 
 die "Failed to load config file"
-    unless $cfg{loaded} = load_config(catfile(pmda_config('PCP_PMDAS_DIR'),"myredis",$cfg{config_fname}));
+    unless $cfg{loaded} = load_config(catfile(pmda_config('PCP_PMDAS_DIR'),"redis",$cfg{config_fname}));
 $pmda->connect_pmcd;
 mydebug("Connected to PMDA");
 
@@ -553,7 +553,7 @@ my $res;
 # Add instance domains - Note that it has to be run before addition of metrics
 $pm_instdom++;
 
-mydebug("myredis adding instance domain $pm_instdom," . Dumper($cfg{loaded}{hosts}))
+mydebug("redis adding instance domain $pm_instdom," . Dumper($cfg{loaded}{hosts}))
     if $cfg{debug};
 
 my $inst = -1;
@@ -571,7 +571,7 @@ foreach my $metric (sort keys %{$cfg{metrics}}) {
     my $refh_metric = $cfg{metrics}->{$metric};
     my $pmid = $refh_metric->{id};
 
-    mydebug("myredis adding metric myredis.$metric using PMID: $pmid ...");
+    mydebug("redis adding metric redis.$metric using PMID: $pmid ...");
 
     $res = $pmda->add_metric(
         pmda_pmid(0,$pmid),                              # PMID
@@ -579,7 +579,7 @@ foreach my $metric (sort keys %{$cfg{metrics}}) {
         $pm_instdom,                                     # indom
         ($refh_metric->{semantics} // PM_SEM_DISCRETE),  # semantics
         pmda_units(0,0,1,0,0,PM_COUNT_ONE),              # units
-        "myredis.$metric",                               # key name
+        "redis.$metric",                               # key name
         ($refh_metric->{help} // ""),                    # short help
         ($refh_metric->{longhelp} // ""));               # long help
     $id2metrics{$pmid} = $metric;
@@ -593,9 +593,9 @@ foreach my $metric_suffix (sort keys %{$cfg{variant_metrics}}) {
     my $pmid = $refh_metric->{id};
 
     foreach my $keyspace (sort keys %{$cfg{loaded}{dbs}}) {
-        my $metric_name = "myredis.${keyspace}$metric_suffix";
+        my $metric_name = "redis.${keyspace}$metric_suffix";
 
-        mydebug("myredis adding metric myredis.$keyspace:"
+        mydebug("redis adding metric redis.$keyspace:"
                     . Data::Dumper->Dump([pmda_pmid(0,$pmid),
                                           $refh_metric->{type},
                                           $pm_instdom,
@@ -624,8 +624,8 @@ foreach my $metric_suffix (sort keys %{$cfg{variant_metrics}}) {
     }
 }
 
-$pmda->set_fetch(\&myredis_fetch);
-$pmda->set_fetch_callback(\&myredis_fetch_callback);
+$pmda->set_fetch(\&redis_fetch);
+$pmda->set_fetch_callback(\&redis_fetch_callback);
 $pmda->set_user('pcp');
 $pmda->run;
 
@@ -743,13 +743,13 @@ sub load_config {
     $refh_res
 }
 
-sub myredis_fetch {
+sub redis_fetch {
     my ($cluster, $item, $inst) = @_;
     my ($t0_sec,$t0_msec) = gettimeofday;
     #my $searched_key = $id2metrics{$item};
     #my $metric_name = pmda_pmid_name($cluster, $item);
     #
-    #mydebug("myredis_fetch metric:"
+    #mydebug("redis_fetch metric:"
     #            . Data::Dumper->Dump([\$metric_name,\$cluster,\$item,\$inst,\$searched_key],
     #                                 [qw(metric_name cluster item inst searched_key)]))
     #    if $cfg{debug};
@@ -766,17 +766,17 @@ sub myredis_fetch {
         }
     }
 
-    mydebug("myredis_fetch finished");
+    mydebug("redis_fetch finished");
 }
 
-sub myredis_fetch_callback {
+sub redis_fetch_callback {
     my ($cluster, $item, $inst) = @_;
     my ($t0_sec,$t0_msec) = gettimeofday;
     my $searched_key = $id2metrics{$item};
     my $metric_name = pmda_pmid_name($cluster, $item);
 
-    #mydebug("myredis_fetch_callback metric:'$metric_name' cluster:'$cluster', item:'$item' inst:'$inst' -> searched_key: $searched_key");
-    mydebug("myredis_fetch_callback:"
+    #mydebug("redis_fetch_callback metric:'$metric_name' cluster:'$cluster', item:'$item' inst:'$inst' -> searched_key: $searched_key");
+    mydebug("redis_fetch_callback:"
                 . Data::Dumper->Dump([\$metric_name,\$cluster,\$item,\$inst,\$searched_key],
                                      [qw(metric_name cluster item inst searched_key)]))
         if $cfg{debug};
@@ -859,7 +859,7 @@ sub myredis_fetch_callback {
         return (PM_ERR_AGAIN, 0)
     } elsif (@found == 1) {
         my $keyspace = $var_metrics{$searched_key}{keyspace};
-        my ($key_to_search) = ($searched_key =~ /\Amyredis.${keyspace}_(\S+)/);
+        my ($key_to_search) = ($searched_key =~ /\Aredis.${keyspace}_(\S+)/);
 
         mydebug("key '$searched_key'\n", Data::Dumper->Dump([$keyspace,$key_to_search],
                                                             [qw{keyspace key_to_search}]))

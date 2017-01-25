@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2008 Aconex.  All Rights Reserved.
+# Copyright (C) 2016 by Lukas Oliva (olivalukas@gmail.com)
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -12,17 +12,26 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Install the KVM PMDA
+# Install the NutCracker PMDA
 #
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-iam=mynutcracker
+iam=nutcracker
 perl_opt=true
-#daemon_opt=false
 daemon_opt=false
-forced_restart=true
+
+for module in YAML::XS
+do
+    perl -e "use $module" 2>/dev/null 
+    if test $? -ne 0
+    then
+        echo "$module perl module is not installed"
+	status=1
+	exit
+    fi
+done
 
 pmdaSetup
 pmdaInstall
