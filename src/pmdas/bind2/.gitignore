@@ -1,14 +1,4 @@
-# Emacs temporary files
-\#*\#
-*~
-
-# Vim temporary files
-*.sw*
-
-# Log and PID files
-*.log
-*.pid
-
-# Ignore temporary pmns files
-pmns
-pmns.perl
+pmdabind2.1.gz
+pmdabind2.1.lzma
+pmdabind2.1.xz
+pmdabind2.1.bz2

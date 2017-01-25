@@ -1,12 +1,12 @@
 #bind2 Performance Metrics Domain Agent (PMDA) for Performance Co-Pilot (PCP)
 
-This PMDA enables the PCP to collect a lot of Bind server statistics (more than the previous PMDA was able to get). It is written in Perl, requires a few Perl common modules (LWP and XML::LibXML). It is written with intention to be placed on the server hosting the Bind server itself, so with emphasis to the CPU impact and resistance to overload.
+This PMDA enables the PCP to collect a lot of Bind server statistics (more than the previous PMDA was able to get). It is written in Perl, requires a few Perl common modules (LWP and XML::LibXML). It is written with intention to be placed on the server hosting the Bind server itself, so with emphasis on the CPU impact and resistance to overload.
 
 ## Main features
 
 * the bind2 PMDA enables the PCP to collect most of the statistics metrics from the Bind server version 9 which includes:
   - boot-time
-  * overall memory statititcs
+  * overall memory statistics
   * overall per-query statistics (general queries, EDNS/truncated responses, Update/Notify/AXFR/IXFR messages)
   * overall error statistics (Rejected, SERVFAIL, Update/XFR failures ...)
   * overall statistics per transport protocol, EDNS and per version of IP protocol
@@ -17,13 +17,13 @@ This PMDA enables the PCP to collect a lot of Bind server statistics (more than 
 * if more than 1 requests/sec are performed, the memoized values are being used so that the statistics interface of the Bind server does not get overloaded
 * PCP and PMDA traces can be enabled for debugging in the %cfg hash
 
-The per-socket and per-memory-context statistics that can be retrieved from Bind are intentionally not accessible can but could be added if needed.
+The per-socket and per-memory-context statistics that can be retrieved from Bind are intentionally not accessible but could be added if needed.
 
 ##Installation
 
 * Install the required modules using your distribution packages (preferably) or using CPAN. E.g. for RHEL/CentOS, install perl-libwww-perl, perl-XML-LibXML and perl-Time-HiRes.
-* Checkout this code to /var/lib/pcp/pmdas/bind2
-* Copy the bind2-example.conf file to bind2.conf and adopt the contents. Currently it is only the host line is needed to be changed.
+* Copy this code to /var/lib/pcp/pmdas/bind2
+* Copy the bind2-example.conf file to bind2.conf and adapt the contents. Currently it is only the host line is needed to be changed.
 * Configure the Bind server to give all the interesting information via HTTP in named.conf (addr and port must match the configuration in hosts):
 
   * statistics-channels { inet <addr> port <port> allow { any }; }
@@ -31,7 +31,7 @@ The per-socket and per-memory-context statistics that can be retrieved from Bind
 
    Note that you may need to allow the statistics queries/acls on the Bind server depending on the security settings of the Bind server as well. See the Bind server Administration Reference Manual e.g. on https://ftp.isc.org/isc/ appropriate to the version of Bind server you use for details.
 
-* Install the PMDA to the PMCD as usual using the ./Install script and select it to be Collector/Monitor or Both
+* Install the PMDA to the PMCD as usual using the ./Install script and select it to be Collector or Both
 * Check it to be present with pcp command:
 
    $ pcp
@@ -39,7 +39,7 @@ The per-socket and per-memory-context statistics that can be retrieved from Bind
      pmda: root pmcd proc ... bind2 ...
    ...
 
-* Check if all the metrics got autoconfigured (this depend on the zone stats being enabled or not):
+* Check if all the metrics were successfully autoconfigured (this depends on the zone stats being enabled or not):
 
 ```
    $ pminfo bind2

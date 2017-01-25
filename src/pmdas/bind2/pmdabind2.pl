@@ -1,6 +1,17 @@
 #!/usr/bin/perl
 #!/usr/bin/perl -d:Trace
-# pmdabind2.pl --- Few attempts
+# Copyright (C) 2016 by Lukas Oliva (olivalukas@gmail.com)
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
 # Author:  <olivalukas@gmail.com>
 # Created: 09 Sep 2016
 # Version: 0.01
@@ -12,11 +23,12 @@ use English;
 
 use PCP::PMDA;
 use Time::HiRes            qw{gettimeofday alarm};
-use LWP;
+use LWP::UserAgent;
 use XML::LibXML;
 use List::MoreUtils        qw{uniq};
 use File::Spec::Functions  qw{catfile};
 use File::Basename         qw{basename};
+use File::Slurp            qw{read_file};
 use Data::Dumper;
 
 # Note: Enable this together with -d:Trace in the hashbang at the top of the file for per line traces
@@ -35,9 +47,16 @@ $Data::Dumper::Sortkeys = 1;
 $Data::Dumper::Pad = "   <dump> ";
 
 #
-# TODOs and ideas for improvements:
+# Pre-release TODOs:
 #
 #TODO: Review all the metrics for type/semantics/units/help/longhelp
+#TODO: Make somehow the metric id constant even if the metrics change so that the archives are comparable (or doesn't the PCP do it itself?)
+#TODO: follow PMNS naming convensions (i.e. no hyphens)
+
+#
+# TODOs and ideas for improvements:
+#
+#TODO: Update XML parsing to handle newer (changed output) versions of bind.
 #TODO: Check bind2.nsstat.RateDropped, bind2.nsstat.RateSlipped, bind2.resolver.total.Lame
 #TODO: Make the autoconfiguration optional or take it out to a script
 #TODO: Make the instance handling adaptive
@@ -47,10 +66,10 @@ $Data::Dumper::Pad = "   <dump> ";
 #Idea: Make zone-statistics possible to be disabled (e.g. for servers with huge amount of zones)
 #Idea: Better handle bind2.memory.contexts.blocksize set to '-'
 #Idea: Better handle undef in bind2.sockets.peer-address
-#TODO: Make somehow the metric id constant even if the metrics change so that the archives are comparable (or doesn't the PCP do it itself?)
 #TODO: Add .total metrics for memory and sockstat metrics
 #TODO: Make the intentionally deleted data available once they are considered useful. Note that some of these may grow large, so test under load at first. Once enabling these, make their ignoring configurable.
-#Idea: Support more than one server (multiple host parameters -> $0, per-daemon process)#Idea: Make the optional items (sockets, memory contexts) possible to be disabled by file configuration
+#Idea: Support more than one server (multiple host parameters -> $0, per-daemon process)
+#Idea: Make the optional items (sockets, memory contexts) possible to be disabled by file configuration
 #Idea: bind2.sockets.{local_address,name,peer_address,bound/unbound} -> bind2.sockets.total
 #Idea: Make the bind2.sockets.{stats.{listener,connected},type}, bind2.sockets.type a scalar
 
@@ -62,19 +81,20 @@ $Data::Dumper::Pad = "   <dump> ";
 our %cfg = (
     config_fname => "bind2.conf",
     pmda_prefix  => "bind2",
-    pmda_id      => 250,
+    xml_prefix   => undef,
 
     metrics => {
         types => {
             # Give a list of metrics with non-default type here
 
             PM_TYPE_STRING() => [qw{bind2.memory.contexts.name
-                                    bind2.boot-time
-                                    bind2.current-time
+                                    bind2.boot_time
+                                    bind2.config_time
+                                    bind2.current_time
 
-                                    bind2.sockets.local-address
+                                    bind2.sockets.local_address
                                     bind2.sockets.name
-                                    bind2.sockets.peer-address
+                                    bind2.sockets.peer_address
                                     bind2.sockets.type
                                     bind2.tasks.ADB.state
                                     bind2.tasks.client.state
@@ -88,15 +108,16 @@ our %cfg = (
             PM_SEM_DISCRETE() => [qw{bind2.memory.total.BlockSize
                                      bind2.memory.total.ContextSize
                                      bind2.memory.contexts.name
-                                     bind2.sockets.local-address
+                                     bind2.sockets.local_address
                                      bind2.sockets.name
-                                     bind2.sockets.peer-address
+                                     bind2.sockets.peer_address
                                      bind2.tasks.ADB
                                      bind2.tasks.client
                                      bind2.tasks.other
                               }],
-            PM_SEM_INSTANT()  => [qw{bind2.boot-time
-                                     bind2.current-time
+            PM_SEM_INSTANT()  => [qw{bind2.boot_time
+                                     bind2.config_time
+                                     bind2.current_time
 
                                      bind2.memory.total.InUse
                                      bind2.memory.total.Lost
@@ -131,7 +152,7 @@ our %cfg = (
     max_delta_sec      => 0.9,
     max_get_delay_sec  => 0.7,
 
-    # Note: Debug level sohuld be on 0 for normal use or for running some load tests
+    # Note: Debug level should be on 0 for normal use or for running some load tests
     debug              => 0,
     debug_pcp          => 0,
 );
@@ -145,7 +166,7 @@ $ENV{PCP_DEBUG} = 65535
     if $cfg{debug_pcp};
 
 # Construct the PCP::PMDA object
-my $pmda = PCP::PMDA->new($cfg{pmda_prefix}, $cfg{pmda_id});
+my $pmda = PCP::PMDA->new($cfg{pmda_prefix}, 25);
 
 die "Failed to construct the PMDA object"
     unless $pmda;
@@ -166,13 +187,13 @@ die "Failed to load config file"
 $pmda->connect_pmcd;
 
 #$Devel::Trace::TRACE = 1;
-myinfo("Connected to PMCD");
+mydebug("Connected to PMCD");
 
 # Initialize the list of metrics
 init_metrics($cfg{loaded}{uri})
     or die "Failed to init metrics from Bind server at '$cfg{loaded}{uri}'";
 
-myinfo("Metrics initialized");
+mydebug("Metrics initialized");
 
 # Add the instance domains
 foreach my $indom_id (sort {$a <=> $b} keys %indoms) {
@@ -228,52 +249,57 @@ foreach my $metric (sort keys %metrics) {
 }
 
 # Set all the necessary callbacks and the account to run under
-mydebug("Setting fetch method ...");
-$pmda->set_fetch(\&fetch);
-
-mydebug("Setting fetch_callback method ...");
+$pmda->set_refresh(\&refresh);
 $pmda->set_fetch_callback(\&fetch_callback);
-
 $pmda->set_user('pcp');
 
 mydebug("Dump of the most important variables:" . Data::Dumper->Dump([\%metrics,\%indoms,\%id2metrics],
                                                                      [qw{metrics indoms id2metrics}]));
 
 # Start the PMDA
-myinfo("Calling ->run (PMDA PID: $PID)");
+mydebug("Calling ->run (PMDA PID: $PID)");
 $pmda->run;
-
-# This should never happen as run should never return
-myerror("Assertion error: ->run() terminated - apart from installation this should never happen");
+# Not reached.
 
 
 ## Subroutines
 #- Callback routines
-sub fetch {
+sub refresh {
+    my ($cluster) = @_;
 
-    #Note: This fetch subroutine is apparently being call without any parameter values.
-
-    mydebug("Entering fetch() ...");
+    mydebug("Entering refresh() ...");
 
     # Clean deprecated data for all the instances
     my ($cur_date_sec,$cur_date_msec) = gettimeofday;
     my $cur_date = $cur_date_sec + $cur_date_msec/1e6;
 
-    unless (keys %metrics) {
+    # Fetch Bind metrics info ...
+    if (not keys %metrics) {
         mydebug("No metrics found, calling init_metrics ...");
 
         init_metrics()
     }
 
-    if (keys %current_data and ($cur_date - $current_data{timestamp}) > $cfg{max_delta_sec}) {
+    if (($cur_date - $current_data{timestamp}) > $cfg{max_delta_sec}) {
         mydebug("Removing cache data as too old - cur_date: $cur_date, timestamp: $current_data{timestamp}");
 
         delete $current_data{values};
+
+        my $refh_bind_stats = fetch_bind_stats($cfg{loaded}{uri});
+
+        unless (defined $refh_bind_stats) {
+            $pmda->err("HTTP GET from '$cfg{loaded}{uri}' failed");
+
+            return (PM_ERR_AGAIN, 0)
+        }
+
+        $current_data{timestamp} = $cur_date;
+        $current_data{values} = $refh_bind_stats;
+
+        mydebug("... current_data updated");
     }
 
-    mydebug("... fetch() finished");
-
-    1
+    mydebug("... refresh() finished");
 }
 
 sub fetch_callback {
@@ -301,34 +327,6 @@ sub fetch_callback {
         mydebug("Given metric is not defined");
 
         return (PM_ERR_PMID, 0)
-    }
-
-    # Fetch Bind metrics info ...
-    my ($cur_date_sec,$cur_date_msec) = gettimeofday;
-    my $cur_date = $cur_date_sec + $cur_date_msec/1e6;
-
-    if (not keys %metrics) {
-        # ... if the initialization did not succeed at the time of PMDA's start
-        mydebug("No metrics found, calling init_metrics ...");
-
-        init_metrics()
-    } elsif(($cur_date - $current_data{timestamp}) > $cfg{max_delta_sec}) {
-        # ... if the data are considered deprecated
-
-        mydebug("Actual data not found, refetching ...");
-
-        my $refh_bind_stats = fetch_bind_stats($cfg{loaded}{uri});
-
-        unless (defined $refh_bind_stats) {
-            $pmda->err("HTTP GET from '$cfg{loaded}{uri}' failed");
-
-            return (PM_ERR_AGAIN, 0)
-        }
-
-        $current_data{timestamp} = $cur_date;
-        $current_data{values} = $refh_bind_stats;
-
-        mydebug("... current_data updated");
     }
 
     # Return the value if available
@@ -396,22 +394,16 @@ sub mylog {
 }
 
 
-sub myinfo  { mylog("INFO",@_) }
+sub myinfo  { pmda_install() ? return : mylog("INFO",@_) }
 sub mydebug { $cfg{debug} < 1 ? return : mylog("DEBUG",@_) }
 sub mytrace { $cfg{debug} < 2 ? return : mylog("TRACE",@_) }
 
 sub myerror {
-    $pmda->err("ERROR " . $_)
-        foreach @_;
+    unless (pmda_install()) {
+        $pmda->err("ERROR " . $_)
+            foreach @_;
+    }
 }
-
-sub myfatal {
-    $pmda->err("FATAL " . $_)
-        foreach @_;
-
-    exit 10;
-}
-
 
 #- Configuration-related subroutines
 sub load_config {
@@ -463,6 +455,12 @@ sub load_config {
                 unless $refh_res->{port} and $refh_res->{port} >= 1 and $refh_res->{port} <= 65535;
 
             myinfo("Detected - host: '$$refh_res{host}', port: '$$refh_res{port}'");
+        } elsif ($aline =~ /\A\s*test\s*=\s*(?<filename>\S+)\s*\Z/) {
+            $refh_res = {
+                test  => $+{filename},
+            };
+
+            myinfo("Detected - test data file: '$$refh_res{test}'");
         } else {
             warn "#$lineno: Unexpected line '$aline', skipping it";
         }
@@ -472,7 +470,8 @@ sub load_config {
         if $cfg{debug};
 
     die "No host to be monitored found in '$in_fname'"
-        unless exists $refh_res->{host} and defined $refh_res->{host};
+        unless exists $refh_res->{host} and defined $refh_res->{host} or defined $refh_res->{test};
+
 
     die "$err_count errors in config file detected, exiting"
         if $err_count;
@@ -488,8 +487,9 @@ sub get_server_stats {
     my ($xml) = @_;
     my $refh_res;
 
-    foreach my $node ($xml->findnodes("/isc/bind/statistics/server/*")) {
-        mytrace("node: ", Data::Dumper->Dump([$node->nodeName,$node->textContent],
+    my $pattern = $cfg{xml_prefix} . "/statistics/server/*";
+    foreach my $node ($xml->findnodes($pattern)) {
+        mydebug("node: ", Data::Dumper->Dump([$node->nodeName,$node->textContent],
                                              [qw{name content}]))
             if $cfg{debug};
 
@@ -497,7 +497,7 @@ sub get_server_stats {
             mytrace("skipping");
 
             next
-        } elsif ($node->nodeName =~ /\A(boot-time|current-time)\Z/) {
+        } elsif ($node->nodeName =~ /\A(boot-time|current-time|config-time)\Z/) {
             mytrace("times - '"
                 . $node->nodeName
                 . "': '"
@@ -579,7 +579,7 @@ sub get_server_stats {
                         $node->nodeName,
                         $data{name}} = $data{counter};
         } else {
-            die "Assertion error - failed to recognize node name '" . $node->nodeName . "'";
+            warn "get_server_stats: unknown node name '" . $node->nodeName . "'";
         }
     }
 
@@ -592,11 +592,13 @@ sub get_server_stats {
 sub get_task_stats {
     my ($xml) = @_;
     my $refh_res;
+    my $pattern;
 
     # Get the thread model counters
     my %data;
 
-    foreach my $task ($xml->findnodes("/isc/bind/statistics/taskmgr/thread-model/*")) {
+    $pattern = $cfg{xml_prefix} . "/statistics/taskmgr/thread-model/*";
+    foreach my $task ($xml->findnodes($pattern)) {
         next
             if $task->textContent eq "#text";
 
@@ -607,7 +609,8 @@ sub get_task_stats {
         if $cfg{debug};
 
     # Get the task counters
-    foreach my $task ($xml->findnodes("/isc/bind/statistics/taskmgr/tasks/*")) {
+    $pattern = $cfg{xml_prefix} . "/statistics/taskmgr/tasks/*";
+    foreach my $task ($xml->findnodes($pattern)) {
         next
             if $task->textContent eq "#text";
 
@@ -650,7 +653,8 @@ sub get_socket_stats {
 
     #Idea: Make the calculation of statistics independent to the node parsing
 
-    foreach my $node ($xml->findnodes("/isc/bind/statistics/socketmgr/sockets/*")) {
+    my $pattern = $cfg{xml_prefix} . "/statistics/socketmgr/sockets/*";
+    foreach my $node ($xml->findnodes($pattern)) {
         my %data = (id              => undef,
                     name            => undef,
                     references      => undef,
@@ -733,7 +737,8 @@ sub get_resstat {
     my ($xml,$view) = @_;
     my $refh_res;
 
-    foreach my $node ($xml->findnodes("/isc/bind/statistics/views/view[name='$view']/resstat")) {
+    my $pattern = $cfg{xml_prefix} . "/statistics/views/view[name='$view']/resstat";
+    foreach my $node ($xml->findnodes($pattern)) {
         my ($name,$value);
 
         foreach my $child_node ($node->childNodes) {
@@ -776,7 +781,8 @@ sub get_zone_stats {
     mydebug("get_zone_stats (xml not dumped):" . Data::Dumper->Dump([\$view],[qw{view}]))
         if $cfg{debug};
 
-    foreach my $zone ($xml->findnodes("/isc/bind/statistics/views/view[name='$view']/zones/*")) {
+    my $pattern = $cfg{xml_prefix} . "/statistics/views/view[name='$view']/zones/*";
+    foreach my $zone ($xml->findnodes($pattern)) {
         my ($name) = map { $_->textContent } $zone->findnodes("./name");
 
         $name =~ s/\/\S+//;
@@ -818,7 +824,10 @@ sub get_memory_stats {
     my ($xml) = @_;
     my $refh_res;
 
-    foreach my $node ($xml->findnodes("/isc/bind/statistics/memory/summary")) {
+    my $pattern = $cfg{xml_prefix} . "/statistics/memory/summary";
+    mytrace("get_memory_stats - from: ", $pattern);
+    foreach my $node ($xml->findnodes($pattern)) {
+        mytrace("get_memory_stats - node: ", Dumper($node));
         next
             if $node->nodeName eq "#text";
 
@@ -838,7 +847,8 @@ sub get_memory_stats {
         if $cfg{debug};
 
     #Note: Commented out as the values seem not to be useful now
-    # foreach my $context ($xml->findnodes("/isc/bind/statistics/memory/contexts/*")) {
+    # $pattern = $cfg{xml_prefix} . "/statistics/memory/contexts/*";
+    # foreach my $context ($xml->findnodes($pattern)) {
     #     next
     #         if $context->nodeName eq "#text";
 
@@ -872,8 +882,112 @@ sub get_memory_stats {
     $refh_res
 }
 
+#- Detect properties of given XML, esp. global prefix (for older binds)
+sub parse_version {
+    my ($xml) = @_;
+
+    unless (defined $cfg{xml_prefix}) {
+        my $pattern = "/isc/bind/*";
+        if (defined $xml->findnodes($pattern)) {
+            $cfg{xml_prefix} = '/isc/bind';
+        } else {
+            $cfg{xml_prefix} = '';
+        }
+    }
+}
+
+#- Extract XML data into internal data structures for serving pmcd requests
+sub parse_bind_stats {
+    my ($content) = @_;
+    my $dom;
+
+    # Parse the stats
+    my $parser = XML::LibXML->new
+        or die "Failed to create XML parser";
+
+    eval {
+        $dom = $parser->load_xml(
+            # location => $uri,
+            string => $content,
+        );
+    };
+
+    if ($@) {
+        myerror("Exception caught while parsing content: '$@'");
+
+        return undef
+    }
+
+    parse_version($dom);
+
+    my ($refh_res,$refh_foo);
+    my %subs = (
+        server           => sub { get_server_stats($_[0])          },
+        # Note: Commented out as currently not being useful. If you enable it make a few tests.
+        # task             => sub { get_task_stats($_[0])            },
+        # Note: Commented out as currently not being useful and potentially problematic for Bind server being loaded with queries leading to the TCP responses, so having a lot of open sockets.
+        # socket           => sub { get_socket_stats($_[0])          },
+        resolver_default => sub { get_resstat($_[0],"_default")    },
+        # resolver_bind    => sub { get_resstat($_[0],"_bind")       },
+        zone_default     => sub { get_zone_stats($_[0],"_default") },
+        # zone_bind        => sub { get_zone_stats($_[0],"_bind")    },
+        memory           => sub { get_memory_stats($_[0])          }
+    );
+
+    #Idea: Use socket information to give the amount of open sockets per source host
+
+    mytrace(Data::Dumper->Dump([\%subs],[qw{subs}]))
+        if $cfg{debug};
+
+    foreach my $type (sort keys %subs) {
+        mytrace(Data::Dumper->Dump([\$type],[qw{type}]))
+            if $cfg{debug};
+
+        mydebug("Running $type") if $cfg{debug};
+
+        $refh_foo = $subs{$type}->($dom);
+        next unless defined $refh_foo;
+        mydebug("Good data from $type") if $cfg{debug};
+
+        $refh_res = merge_hashrefs_to_first($refh_res, $refh_foo)
+            or die "Failed to merge $type stats";
+    }
+
+    $refh_res
+}
+
 #- Overall data fetch subroutine to get the XML into the PMDA process
 sub fetch_bind_stats {
+    my ($uri) = @_;
+    my $qaxml = $cfg{loaded}{test};
+    
+    return get_bind_stats($uri)
+        unless defined $qaxml;
+    return read_bind_stats($qaxml);
+}
+
+#- Inject test data, read XML directly from local filesystem
+sub read_bind_stats {
+    my ($fname) = @_;
+    my $content = read_file($fname);
+
+    mytrace(Data::Dumper->Dump([\$content],[qw{content}]))
+        if $cfg{debug};
+
+    my $refh_res = parse_bind_stats($content);
+
+    {
+        local $Data::Dumper::Maxdepth = 2;
+
+        mydebug("read_bind_stats - result: " . Data::Dumper->Dump([\$refh_res],[qw{refh_res}]))
+            if $cfg{debug};
+    }
+
+    $refh_res
+}
+
+#- Extract data in the normal way, using a HTTP GET request
+sub get_bind_stats {
     my ($uri) = @_;
     my @time1 = gettimeofday;
     my $response;
@@ -919,61 +1033,17 @@ sub fetch_bind_stats {
 
         return undef
     }
+    mydebug("Success retrieving stats from '$cfg{loaded}{uri}': " . $response->status_line);
 
     mytrace(Data::Dumper->Dump([\$response->content],[qw{content}]))
         if $cfg{debug};
 
-    # Parse the stats
-    my $parser = XML::LibXML->new
-        or die "Failed to create XML parser";
-    my $dom;
-
-    eval {
-        $dom = $parser->load_xml(
-            # location => $uri,
-            string => $response->content,
-        );
-    };
-
-    if ($@) {
-        myerror("Exception caught while parsing content: '$@'");
-
-        return undef
-    }
-
-    my ($refh_res,$refh_foo);
-    my %subs = (
-        server           => sub { get_server_stats($_[0])          },
-        # Note: Commented out as currently not being useful. If you enable it make a few tests.
-        # task             => sub { get_task_stats($_[0])            },
-        # Note: Commented out as currently not being useful and potentially problematic for Bind server being loaded with queries leading to the TCP responses, so having a lot of open sockets.
-        # socket           => sub { get_socket_stats($_[0])          },
-        resolver_default => sub { get_resstat($_[0],"_default")    },
-        # resolver_bind    => sub { get_resstat($_[0],"_bind")       },
-        zone_default     => sub { get_zone_stats($_[0],"_default") },
-        # zone_bind        => sub { get_zone_stats($_[0],"_bind")    },
-        memory           => sub { get_memory_stats($_[0])          });
-
-    #Idea: Use socket information to give the amount of open sockets per source host
-
-    mytrace(Data::Dumper->Dump([\%subs],[qw{subs}]))
-        if $cfg{debug};
-
-    foreach my $type (sort keys %subs) {
-        mytrace(Data::Dumper->Dump([\$type],[qw{type}]))
-            if $cfg{debug};
-
-        $refh_foo = $subs{$type}->($dom)
-            or die "failed to get $type stats";
-
-        $refh_res = merge_hashrefs_to_first($refh_res,$refh_foo)
-            or die "Failed to merge $type stats";
-    }
+    my $refh_res = parse_bind_stats($response->content);
 
     {
         local $Data::Dumper::Maxdepth = 2;
 
-        mydebug("fetch_bind_stats - result: " . Data::Dumper->Dump([\$refh_res],[qw{refh_res}]))
+        mydebug("get_bind_stats - result: " . Data::Dumper->Dump([\$refh_res],[qw{refh_res}]))
             if $cfg{debug};
     }
 
@@ -1108,8 +1178,6 @@ sub merge_hashrefs_to_first {
     return undef
         unless defined $y and ref $y eq ref {};
 
-    # print "DEBUG: ... still there\n";
-
     foreach (keys %$y) {
         die "Assertion error - key $_ already exists"
             if exists $x->{$_};
@@ -1122,37 +1190,3 @@ sub merge_hashrefs_to_first {
 
     $x
 }
-
-__END__
-
-=head1 NAME
-
-try_XML-LibXML-Parser.pl - Describe the usage of script briefly
-
-=head1 SYNOPSIS
-
-try_XML-LibXML-Parser.pl [options] args
-
-      -opt --long      Option description
-
-=head1 DESCRIPTION
-
-Stub documentation for try_XML-LibXML-Parser.pl,
-
-=head1 AUTHOR
-
-, E<lt>lukas@samE<gt>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2016 by Lukas Oliva (olivalukas@gmail.com)
-
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.2 or,
-at your option, any later version of Perl 5 you may have available.
-
-=head1 BUGS
-
-None reported... yet.
-
-=cut

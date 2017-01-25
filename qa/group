@@ -165,6 +165,7 @@ pmda.install
 ## Assorted PMDAs
 pmda.activemq
 pmda.apache
+pmda.bind2
 pmda.cifs
 pmda.cisco
 pmda.dm
@@ -1157,7 +1158,6 @@ oldversion
 908 indom help pmda pminfo local
 909 libpcp pmns local
 910 pmda.linux pmval local
-911 pmda.linux local
 914 pmda.papi local
 915 pmcd pmlogger pmproxy libpcp local pmlc
 916 pmlogextract pmlogcheck local
@@ -1299,6 +1299,7 @@ oldversion
 1080 valgrind pcp atop local
 1081 python pcp local
 1082 python local
+1087 pmda.bind2 local
 1090 pmwebapi local context
 1091 pmns libpcp context local
 1092 libpcp local
