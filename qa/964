@@ -23,6 +23,14 @@ LOCALHOST=`hostname`
 _needclean=true
 $sudo rm -rf $tmp $tmp.* $seq.full
 
+if $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep "$PCP_BINADM_DIR/[p]mmgr " >/dev/null
+then
+    pmmgr_running=true
+    _stop_systemd_restart pmmgr
+else
+    pmmgr_running=false
+fi
+
 _interrupt()
 {
     status=1
@@ -37,6 +45,11 @@ _cleanup()
 	_restore_pmda_install xfs
 	$sudo $PCP_RC_DIR/pmcd restart | _filter_pcp_start
 	_restore_systemd_restart pmcd
+	if $pmmgr_running
+	then
+	    $sudo $PCP_RC_DIR/pmmgr stop >>$here/$seq.full
+	    _restore_systemd_restart pmmgr
+	fi
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	_needclean=false
@@ -94,6 +107,12 @@ _prepare_pmda_install xfs
 
 # switch off pmcd
 $sudo $PCP_RC_DIR/pmcd stop | _filter_pcp_stop
+
+# and pmmgr (maybe)
+$pmmgr_running && $sudo $PCP_RC_DIR/pmmgr stop >>$here/$seq.full
+
+# give the dust a chance to settle ...
+sleep 3
 
 _count_pmloggers
 echo "pmlogger count after pmcd stop (expect 1): $?" | tee -a $here/$seq.full
