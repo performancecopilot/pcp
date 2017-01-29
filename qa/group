@@ -1288,6 +1288,7 @@ oldversion
 1056 derive local
 1057 pmlogrewrite local
 1058 pmda.bash local
+1059 pmcd local
 1062 pmrep python local
 1065 libpcp valgrind local
 1067 zabbix zbxpcp local
