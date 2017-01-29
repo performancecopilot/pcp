@@ -21,6 +21,24 @@ addr=`_host_to_ipv6addrs $host | head -1`
 [ -z "$addr" ] && _notrun "Cannot translate hostname ($host) to IPv6 address"
 ipv6local=`_ipv6_localhost`
 
+if [ -f /etc/lsb-release ]
+then
+    if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
+    then
+	if grep -q 'DISTRIB_RELEASE=12.04' /etc/lsb-release
+	then
+	    # getaddrinfo() for Ubuntu 12.04 does not seem to be able
+	    # to handle the IPv6 name localhost6 (or similar) ... at least
+	    # not on vm00 in the QA farm ... so don't run the test (it gets
+	    # exercised in lots of other places) because this would not
+	    # appear to be a PCP-related issue
+	    #
+	    _notrun "Ubuntu + 12.04 + getaddrinfo() == bad karma"
+	    # NOTREACHED
+	fi
+    fi
+fi
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 
