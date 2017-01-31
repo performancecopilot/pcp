@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 Red Hat.
+ * Copyright (c) 2015-2017 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -409,8 +409,11 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
     tmp.tv_usec = (__int32_t)logrp->timestamp.tv_usec;
     t_this = __pmTimevalSub(&tmp, __pmLogStartTime(ctxp->c_archctl));
 
-    if (logrp->numpmid == 0 && do_mark != UPD_MARK_NONE) {
+    if (logrp->numpmid == 0) {
 	/* mark record, discontinuity in log */
+	if (do_mark == UPD_MARK_NONE)
+	    return 0; /* ok */
+
 	for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
 	    if (t_this <= t_req &&
 		(t_this >= icp->t_prior || icp->t_prior > t_req)) {
@@ -438,9 +441,10 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		}
 
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
-		    if (icp->v_prior.pval != NULL)
+		    if (icp->v_prior.pval != NULL) {
 			__pmUnpinPDUBuf((void *)icp->v_prior.pval);
-		    icp->v_prior.pval = NULL;
+			icp->v_prior.pval = NULL;
+		    }
 		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP)
@@ -472,10 +476,12 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 		    }
 #endif
 		}
+
 		if (icp->metric->valfmt != PM_VAL_INSITU) {
-		    if (icp->v_next.pval != NULL)
+		    if (icp->v_next.pval != NULL) {
 			__pmUnpinPDUBuf((void *)icp->v_next.pval);
-		    icp->v_next.pval = NULL;
+			icp->v_next.pval = NULL;
+		    }
 		}
 #ifdef PCP_DEBUG
 		if (pmDebug & DBG_TRACE_INTERP)
@@ -506,15 +512,21 @@ update_bounds(__pmContext *ctxp, double t_req, pmResult *logrp, int do_mark, int
 #endif
 	    return PM_ERR_LOGREC;
 	}
-	for (icp = pcp->first; icp != NULL; icp = icp->next) {
-	    for (i = 0; i < logrp->vset[k]->numval; i++) {
-		if (logrp->vset[k]->vlist[i].inst == icp->inst ||
-		    icp->inst == PM_IN_NULL) {
+	for (i = 0; i < logrp->vset[k]->numval; i++) {
+	    pmInDom vlistIndom = logrp->vset[k]->vlist[i].inst;
+	    for (icp = pcp->first; icp != NULL; icp = icp->next) {
+		if (icp->inst == vlistIndom) {
 		    /* matched on instance */
 #ifdef PCP_DEBUG
+		    if (icp->inst == PM_IN_NULL)
+			assert(i == 0);
 		    if ((pmDebug & DBG_TRACE_INTERP) && (pmDebug & DBG_TRACE_DESPERATE))
 			dumpicp("update_bounds: match", icp);
 #endif
+		    /* Do we want this instance? */
+		    if (!icp->inresult)
+			goto next_inst;
+
 		    if (t_this <= t_req &&
 			(icp->t_prior > t_req || t_this >= icp->t_prior)) {
 			/*
@@ -1200,7 +1212,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		if (pmDebug & DBG_TRACE_INTERP) {
 		    char	strbuf[20];
 		    fprintf(stderr, "pmid %s inst %d no values after t_last=%.6f\n",
-			pmIDStr_r(icp->metric->desc.pmid, strbuf, sizeof(strbuf)), icp->inst, icp->t_last);
+			    pmIDStr_r(icp->metric->desc.pmid, strbuf, sizeof(strbuf)), icp->inst, icp->t_last);
 		}
 #endif
 	    }
