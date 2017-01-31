@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2016 Red Hat.
+# Copyright (c) 2012-2017 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -81,6 +81,8 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_snmp@|$(PMDA_SNMP)|g' \
 	    -e's|@pmda_mysql@|$(PMDA_MYSQL)|g' \
 	    -e's|@pmda_activemq@|$(PMDA_ACTIVEMQ)|g' \
+	    -e's|@pmda_bind2@|$(PMDA_BIND2)|g' \
+	    -e's|@pmda_nutcracker@|$(PMDA_NUTCRACKER)|g' \
 	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \
 	    -e's|@enable_probes@|$(ENABLE_PROBES)|g' \

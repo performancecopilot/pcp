@@ -733,6 +733,59 @@ collecting metrics about the ActiveMQ message broker.
 #end pcp-pmda-activemq
 %endif
 
+%if "@pmda_bind2@" == "true"
+#
+# pcp-pmda-bind2
+#
+%package pmda-bind2
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for ActiveMQ
+URL: http://www.pcp.io
+Requires: perl-PCP-PMDA = @package_version@
+Requires: perl(LWP::UserAgent)
+Requires: perl(XML::LibXML)
+
+%description pmda-bind2
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from BIND (Berkeley Internet Name Domain).
+#end pcp-pmda-bind2
+%endif
+
+#
+# pcp-pmda-redis
+#
+%package pmda-redis
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for Redis
+URL: http://www.pcp.io
+Requires: perl-PCP-PMDA = @package_version@
+
+%description pmda-redis
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from Redis servers (redis.io).
+#end pcp-pmda-redis
+
+%if "@pmda_nutcracker@" == "true"
+#
+# pcp-pmda-nutcracker
+#
+%package pmda-nutcracker
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for NutCracker (TwemCache)
+URL: http://www.pcp.io
+Requires: perl-PCP-PMDA = @package_version@
+Requires: perl(YAML::XS::LibYAML)
+Requires: perl(JSON)
+
+%description pmda-nutcracker
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from NutCracker (TwemCache).
+#end pcp-pmda-nutcracker
+%endif
+
 #
 # pcp-pmda-bonding
 #
@@ -1593,7 +1646,7 @@ Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
 Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
-Requires: pcp-pmda-lustrecomm
+Requires: pcp-pmda-lustrecomm pcp-pmda-redis
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 %endif
@@ -1623,6 +1676,12 @@ Requires: pcp-pmda-nginx
 %endif
 %if "@pmda_activemq@" == "true"
 Requires: pcp-pmda-activemq
+%endif
+%if "@pmda_bind2@" == "true"
+Requires: pcp-pmda-bind2
+%endif
+%if "@pmda_nutcracker@" == "true"
+Requires: pcp-pmda-nutcracker
 %endif
 %if "@pmda_elasticsearch@" == "true"
 Requires: pcp-pmda-elasticsearch
@@ -1816,6 +1875,13 @@ awk '{print $NF}' $DIST_MANIFEST | grep 'pmdas/systemd' > pmda_systemd_files
 %if "@pmda_activemq@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/activemq' > pmda_activemq_files
 %endif
+%if "@pmda_bind2@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bind2' > pmda_bind2_files
+%endif
+%if "@pmda_nutcracker@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/nutcracker' > pmda_nutcracker_files
+%endif
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/redis' > pmda_redis_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/bonding' > pmda_bonding_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/dbping' > pmda_dbping_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/ds389log' > pmda_ds389log_files
@@ -1898,7 +1964,7 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
       pmda_perfevent_files pmda_bonding_files pmda_dbping_files \
       pmda_ds389_files pmda_ds389log_files pmda_gpfs_files \
       pmda_gpsd_files pmda_kvm_files pmda_lustre_files pmda_lustrecomm_files \
-      pmda_memcache_files pmda_named_files \
+      pmda_memcache_files pmda_named_files pmda_redis_files \
       pmda_netfilter_files pmda_news_files pmda_nfsclient_files \
       pmda_pdns_files \
       pmda_rsyslog_files pmda_samba_files pmda_slurm_files \
@@ -1931,6 +1997,12 @@ touch pmda_nginx_files
 %if "@pmda_activemq@" == "true"
 touch pmda_activemq_files
 %endif
+%if "@pmda_bind2@" == "true"
+touch pmda_bind2_files
+%endif
+%if "@pmda_nutcracker@" == "true"
+touch pmda_nutcracker_files
+%endif
 %if "@pmda_postgresql@" == "true"
 touch pmda_postgresql_files
 %endif
@@ -1962,6 +2034,13 @@ BEGIN {
 %if "@pmda_activemq@" == "true"
     while( getline < "pmda_activemq_files") pmda_activemq[$0]=1;
 %endif
+%if "@pmda_bind2@" == "true"
+    while( getline < "pmda_bind2_files") pmda_bind2[$0]=1;
+%endif
+%if "@pmda_nutcracker@" == "true"
+    while( getline < "pmda_nutcracker_files") pmda_nutcracker[$0]=1;
+%endif
+    while( getline < "pmda_redis_files") pmda_redis[$0]=1;
     while( getline < "pmda_bonding_files") pmda_bonding[$0]=1;
     while( getline < "pmda_dbping_files") pmda_dbping[$0]=1;
     while( getline < "pmda_ds389log_files") pmda_ds389log[$0]=1;
@@ -2062,6 +2141,13 @@ BEGIN {
 %if "@pmda_activemq@" == "true"
     else if (pmda_activemq[$NF]) f="pmda_activemq_files.rpm";
 %endif
+%if "@pmda_bind2@" == "true"
+    else if (pmda_bind2[$NF]) f="pmda_bind2_files.rpm";
+%endif
+%if "@pmda_nutcracker@" == "true"
+    else if (pmda_nutcracker[$NF]) f="pmda_nutcracker_files.rpm";
+%endif
+    else if (pmda_redis[$NF]) f="pmda_redis_files.rpm";
     else if (pmda_bonding[$NF]) f="pmda_bonding_files.rpm";
     else if (pmda_dbping[$NF]) f="pmda_dbping_files.rpm";
     else if (pmda_ds389log[$NF]) f="pmda_ds389log_files.rpm";
@@ -2386,6 +2472,19 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
 %{pmda_remove "$1" "activemq"}
 %endif #preun pmda-activemq
 
+%if "@pmda_bind2@" == "true"
+%preun pmda-bind2
+%{pmda_remove "$1" "bind2"}
+%endif #preun pmda-bind2
+
+%if "@pmda_nutcracker@" == "true"
+%preun pmda-nutcracker
+%{pmda_remove "$1" "nutcracker"}
+%endif #preun pmda-nutcracker
+
+%preun pmda-redis
+%{pmda_remove "$1" "redis"}
+
 %preun pmda-bonding
 %{pmda_remove "$1" "bonding"}
 
@@ -2669,6 +2768,16 @@ cd
 %if "@pmda_activemq@" == "true"
 %files pmda-activemq -f pmda_activemq_files.rpm
 %endif
+
+%if "@pmda_bind2@" == "true"
+%files pmda-bind2 -f pmda_bind2_files.rpm
+%endif
+
+%if "@pmda_nutcracker@" == "true"
+%files pmda-nutcracker -f pmda_nutcracker_files.rpm
+%endif
+
+%files pmda-redis -f pmda_redis_files.rpm
 
 %files pmda-bonding -f pmda_bonding_files.rpm
 
