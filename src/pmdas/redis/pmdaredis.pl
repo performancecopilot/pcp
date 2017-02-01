@@ -428,8 +428,8 @@ use vars qw( $pmda %cfg %id2metrics %cur_data %var_metrics);
         # Replication
         role => { type => PM_TYPE_STRING,
                   semantics => PM_SEM_INSTANT,
-                  help => q{Replication "master" or "slave" role.},
-                  longhelp => q{Value is "master" if the instance is slave of no one, or "slave" if the\ninstance is enslaved to a master. Note that a slave can be master of\nanother slave (daisy chaining).},
+                  help => "Replication \"master\" or \"slave\" role",
+                  longhelp => "Value is \"master\" if the instance is slave of no one, or \"slave\" if the\ninstance is enslaved to a master. Note that a slave can be master of\nanother slave (daisy chaining).",
                   id => 57,
               },
         connected_slaves => { type => PM_TYPE_U32,
