@@ -498,12 +498,13 @@ sub get_server_stats {
 
             next
         } elsif ($node->nodeName =~ /\A(boot-time|current-time|config-time)\Z/) {
+            (my $name = $1) =~ s/-/_/g;
             mytrace("times - '"
-                . $node->nodeName
+                . $name
                 . "': '"
                 . $node->textContent);
 
-            $refh_res->{join ".",$cfg{pmda_prefix},$1} = $node->textContent
+            $refh_res->{join ".",$cfg{pmda_prefix},$name} = $node->textContent
         } elsif ($node->nodeName eq "requests") {
             mytrace("requests: ",
                     Data::Dumper->Dump([@{$node->childNodes}],
@@ -578,6 +579,30 @@ sub get_server_stats {
             $refh_res->{join ".",$cfg{pmda_prefix},
                         $node->nodeName,
                         $data{name}} = $data{counter};
+        } elsif ($node->nodeName eq "counters") {
+            my $type = $node->getAttribute('type');
+
+            next
+                unless $type =~ /\A(opcode|nsstat|zonestat|sockstat)\Z/;
+
+            foreach my $child_node ($node->childNodes) {
+                next
+                    unless $child_node->nodeName eq "counter";
+
+                my $name = $child_node->getAttribute('name');
+                my $metric = $type;
+
+                if ($type eq "opcode") {
+                    next
+                        unless $name !~ /\ARESERVED.*\Z/;
+
+                    $metric = "total.queries.out";
+                }
+                $refh_res->{join ".",
+                            $cfg{pmda_prefix},
+                            $metric,
+                            $name} = $child_node->textContent;
+            }
         } else {
             warn "get_server_stats: unknown node name '" . $node->nodeName . "'";
         }
@@ -887,8 +912,7 @@ sub parse_version {
     my ($xml) = @_;
 
     unless (defined $cfg{xml_prefix}) {
-        my $pattern = "/isc/bind/*";
-        if (defined $xml->findnodes($pattern)) {
+        if ($xml->exists('/isc/bind')) {
             $cfg{xml_prefix} = '/isc/bind';
         } else {
             $cfg{xml_prefix} = '';

@@ -788,6 +788,8 @@ enable_qt
 qt_release
 QMAKE
 PMDA_LIBVIRT
+PMDA_NUTCRACKER
+PMDA_BIND2
 PMDA_ACTIVEMQ
 PMDA_NGINX
 PMDA_ELASTICSEARCH
@@ -7530,6 +7532,44 @@ fi
 PMDA_ACTIVEMQ=$pmda_activemq
 
 if $pmda_activemq; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the bind2 PMDA should be included" >&5
+$as_echo_n "checking if the bind2 PMDA should be included... " >&6; }
+pmda_bind2=false
+if test "$have_perl" = true
+then
+        if $pcp_perl_prog -e "use LWP::UserAgent" >/dev/null 2>&1
+    then
+	if $pcp_perl_prog -e "use XML::LibXML" >/dev/null 2>&1
+	then
+	    pmda_bind2=true
+	fi
+    fi
+fi
+PMDA_BIND2=$pmda_bind2
+
+if $pmda_bind2; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the nutcracker PMDA should be included" >&5
+$as_echo_n "checking if the nutcracker PMDA should be included... " >&6; }
+pmda_nutcracker=false
+if test "$have_perl" = true
+then
+        if $pcp_perl_prog -e "use YAML::XS" >/dev/null 2>&1
+    then
+	if $pcp_perl_prog -e "use JSON" >/dev/null 2>&1
+	then
+	    pmda_nutcracker=true
+	fi
+    fi
+fi
+PMDA_NUTCRACKER=$pmda_nutcracker
+
+if $pmda_nutcracker; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 
