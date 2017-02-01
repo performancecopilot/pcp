@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2016 Red Hat.
+dnl Copyright (c) 2012-2017 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl 
@@ -1035,6 +1035,38 @@ then
 fi
 AC_SUBST(PMDA_ACTIVEMQ, $pmda_activemq)
 if $pmda_activemq; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the bind2 PMDA should be included])
+pmda_bind2=false
+if test "$have_perl" = true
+then
+    dnl rpm build for bind2 PMDA needs Perl LWP::UserAgent, XML::LibXML
+    if $pcp_perl_prog -e "use LWP::UserAgent" >/dev/null 2>&1
+    then
+	if $pcp_perl_prog -e "use XML::LibXML" >/dev/null 2>&1
+	then
+	    pmda_bind2=true
+	fi
+    fi
+fi
+AC_SUBST(PMDA_BIND2, $pmda_bind2)
+if $pmda_bind2; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the nutcracker PMDA should be included])
+pmda_nutcracker=false
+if test "$have_perl" = true
+then
+    dnl rpm build for nutcracker PMDA needs Perl JSON YAML::XS
+    if $pcp_perl_prog -e "use YAML::XS" >/dev/null 2>&1
+    then
+	if $pcp_perl_prog -e "use JSON" >/dev/null 2>&1
+	then
+	    pmda_nutcracker=true
+	fi
+    fi
+fi
+AC_SUBST(PMDA_NUTCRACKER, $pmda_nutcracker)
+if $pmda_nutcracker; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the libvirt PMDA should be included])
 pmda_libvirt=false

@@ -473,6 +473,14 @@ pkg_add?	ExtUtils::MakeMaker	[perl]
 pkg?	ExtUtils::MakeMaker	[perl]
 slackpkg?	ExtUtils::MakeMaker	[perl]
 pacman?	ExtUtils::MakeMaker	[perl]
+# -- YAML::XS::LibYAML
+dpkg?	YAML::XS::LibYAML	[libyaml-libyaml-perl]
+rpm?	YAML::XS::LibYAML	[perl-YAML-LibYAML or 'perl(YAML::XS::LibYAML)' or from cpan]
+urpmi?	YAML::XS::LibYAML	[perl-YAML-LibYAML or 'perl(YAML::XS::LibYAML)' or from cpan]
+# -- XML::LibXML
+dpkg?	XML::LibXML		[libxml-libxml-perl]
+rpm?	XML::LibXML		[perl-XML-LibXML or 'perl(XML::LibXML)' or from cpan]
+urpmi?	XML::LibXML		[perl-XML-LibXML or 'perl(XML::LibXML)' or from cpan]
 # -- XML::TokeParser
 dpkg?	XML::TokeParser		[libxml-tokeparser-perl]
 rpm?	XML::TokeParser		[perl-XML-TokeParser or 'perl(XML::TokeParser)' or from cpan]
