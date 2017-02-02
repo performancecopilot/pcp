@@ -2739,7 +2739,7 @@ cd
 %if "@enable_selinux@" == "true"
 %postun selinux
 PCP_SELINUX_DIR=@pcp_selinux_dir@/
-semodule -u "$PCP_SELINUX_DIR/pcpupstream.pp"
+semodule -X 400 -r pcpupstream >/dev/null
 %endif 
 
 

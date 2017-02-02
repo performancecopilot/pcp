@@ -2241,6 +2241,11 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %endif
 %endif
 
+%if !%{disable_selinux}
+%post selinux
+semodule -X 400 -i %{localstatedir}/lib/pcp/selinux/pcpupstream.pp
+%endif
+
 %post
 PCP_LOG_DIR=%{_logsdir}
 PCP_PMNS_DIR=%{_pmnsdir}
@@ -2299,6 +2304,11 @@ cd
 
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
+
+%if !%{disable_selinux}
+%postun selinux
+semodule -X 400 -r pcpupstream >/dev/null
+%endif
 
 %files -f base.list
 #
