@@ -13,6 +13,7 @@ require {
 	type pcp_pmie_t;
 	type sysctl_net_t;
 	type svirt_sandbox_file_t;
+	type svirt_lxc_net_t;
 	type docker_var_lib_t;
 	type hostname_exec_t;
 	type ldconfig_exec_t; # pcp-lio
@@ -20,11 +21,12 @@ require {
 	type modules_conf_t; # pcp-lio
 	type saslauthd_t; # pcp-lio
 	type modules_object_t; # pcp-lio
+	type nsfs_t; # filesys.used
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl open read write };
 	class dir { add_name open read search write getattr };
 	class unix_stream_socket connectto;
-	class capability { kill sys_ptrace net_admin chown };
+	class capability { kill sys_ptrace net_admin chown sys_chroot };
 	class chr_file { open write };
 	class system status;
 }
@@ -58,6 +60,7 @@ allow init_t tmp_t:file open;
 allow pcp_pmcd_t docker_var_lib_t:dir search;
 allow pcp_pmcd_t container_runtime_t:unix_stream_socket connectto;
 allow pcp_pmcd_t svirt_sandbox_file_t:dir { open read search };
+allow pcp_pmcd_t svirt_lxc_net_t:dir { open read search };
 allow pcp_pmcd_t sysctl_net_t:dir search;
 allow pcp_pmcd_t sysctl_net_t:file { getattr open read };
 allow pcp_pmcd_t user_home_t:file { execute execute_no_trans open read };
@@ -65,6 +68,12 @@ allow pcp_pmcd_t user_home_t:file { execute execute_no_trans open read };
 
 #type=AVC msg=audit(1463754714.313:316): avc:  denied  { net_admin } for  pid=2335 comm="pmcd" capability=12  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
 allow pcp_pmcd_t self:capability net_admin;
+
+#type=AVC msg=audit(1485899863.032:3024): avc:  denied  { sys_chroot } for  pid=25873 comm="pmdalinux" capability=18  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability
+allow pcp_pmcd_t self:capability sys_chroot;
+
+#type=AVC msg=audit(1485899838.438:13213): avc:  denied  { read } for  pid=29112 comm="pmdalinux" dev="nsfs" ino=4026532454 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:nsfs_t:s0 tclass=file permissive=1
+allow pcp_pmcd_t nsfs_t:file { read open };
 
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
