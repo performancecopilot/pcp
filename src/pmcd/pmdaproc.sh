@@ -138,7 +138,7 @@ __restore_pmcd()
 	eval $CHOWN root $PCP_PMCDCONF_PATH
 	eval $CHMOD 644 $PCP_PMCDCONF_PATH
 	rm -f $tmp/pmcd.conf.save
-	$PCP_RC_DIR/pmcd start
+	__pmda_restart_pmcd
 	__wait_for_pmcd
     fi
     if $__pmcd_is_dead
@@ -262,6 +262,28 @@ END					{ exit status }'
     done
 }
 
+__pmda_restart_pmcd()
+{
+    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/pmcd.service -a "$PCPQA_SYSTEMD" != no ]
+    then
+	# smells like systemctl is the go ...
+	#
+	journalctl -n 10 -u pmcd | grep " pmcd\\[" >$tmp.journal.pre
+	systemctl restart pmcd
+	journalctl -n 10 -u pmcd | grep " pmcd\\[" >$tmp.journal.post
+	diff $tmp.journal.pre $tmp.journal.post \
+	| sed \
+	    -e '/^[<0-9]/d' \
+	    -e '/^---$/d' \
+	    -e "s/^.*\\[[0-9]*]: //" \
+	    -e '/^Starting p.*[^ ]$/s/$/ /' \
+	    -e '/^Stopping p.*[^ ]$/s/$/ /' \
+	# end
+    else
+	$PCP_RC_DIR/pmcd start
+    fi
+}
+
 # __pmda_add "entry for $PCP_PMCDCONF_PATH"
 #
 __pmda_add()
@@ -324,7 +346,7 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
     else
 	log=$LOGDIR/pmcd.log
 	rm -f $log
-	$PCP_RC_DIR/pmcd start
+	__pmda_restart_pmcd
     fi
     __wait_for_pmcd
     $__pmcd_is_dead && __restore_pmcd
