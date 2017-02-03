@@ -1,0 +1,44 @@
+#!/bin/sh
+# PCP QA Test No. 1060
+# Testing pmdalio
+#
+# Copyright (c) 2017 Red Hat Inc.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.python
+
+pmda_path="$PCP_PMDAS_DIR/lio"
+pmda_script="$pmda_path/pmdalio.python"
+
+_filter()
+{
+    sed \
+	-e "s/Ran 5 tests in 0.[0-9][0-9][0-9]s/Ran 5 tests in 0.XXXs/" \
+    # end
+}
+
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+
+$python -c "import rtslib_fb" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python rtslib module not installed"
+
+which targetcli >/dev/null 2>&1 || _notrun "targetcli not installed"
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+$sudo python lio/lio_test.py 2>&1 | LC_COLLATE=POSIX sort | _filter
+
+# success, all done
+status=0
+exit
