@@ -19,7 +19,7 @@ class ISCSITarget(object):
         self.lun_list = []
 
         try:
-            with open('iscsi_conf.json') as conf:
+            with open('lio/iscsi_conf.json') as conf:
                 config = json.load(conf)
         except ValueError:
             print "invalid JSON"
