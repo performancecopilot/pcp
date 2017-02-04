@@ -2622,6 +2622,9 @@ semodule -X 400 -i @pcp_selinux_dir@/pcpupstream.pp
 
 %preun pmda-mic
 %{pmda_remove "$1" "mic"}
+
+%preun pmda-lio
+%{pmda_remove "$1" "lio"}
 %endif #@have_python@
 
 %preun pmda-apache
