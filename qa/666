@@ -34,7 +34,7 @@ _cleanup()
 {
     if [ -n "$pid" ]; then kill $pid; fi
     # restart pmcd and primary pmlogger
-    $sudo $PCP_RC_DIR/pcp restart >>$seq.full 2>&1
+    _service pcp restart >>$seq.full 2>&1
     _wait_for_pmcd
     _wait_for_pmlogger
     $sudo rm -fr $tmp.dir
@@ -90,10 +90,10 @@ sleep 5
 
 date >>$seq.full
 echo "=== 3. look for pmmgr starting no daemons ===" | tee -a $seq.full
-$sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
+_service pmcd restart >>$seq.full 2>&1
 _wait_for_pmcd
 sleep 10
-$sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
+_service pmcd stop >>$seq.full 2>&1
 sleep 10 # pmmgr daemon shutdown
 ls -1 $tmp.dir # should be almost empty
 
@@ -111,7 +111,7 @@ for x in 1 2 3 4
 do
     echo restart $x `date` >>$seq.full
     rm -f $tmp.dir/$hostname/config.pmie $tmp.dir/$hostname/config.pmlogger
-    $sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
+    _service pmcd start >>$seq.full 2>&1
     _wait_for_pmcd
     i=0;
     # wait up to 300ish seconds for pm*conf to run
@@ -136,7 +136,7 @@ do
 	ls -lR $tmp.dir
     fi
 
-    $sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
+    _service pmcd stop >>$seq.full 2>&1
     sleep 10 # pmmgr daemon shutdown
     [ -f $tmp.dir/$hostname/pmlogger.log ] && mv $tmp.dir/$hostname/pmlogger.log $tmp.dir/$hostname/pmlogger-$x.log
     [ -f $tmp.dir/$hostname/pmie.log ] && mv $tmp.dir/$hostname/pmie.log $tmp.dir/$hostname/pmie-$x.log
@@ -169,10 +169,10 @@ rm $tmp.dir/pmlogconf
 rm $tmp.dir/pmieconf
 # ^^^ so pmmgr will react to pmcd restarts rather quickly
 echo 5min >$tmp.dir/pmlogmerge-retain
-$sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
+_service pmcd start >>$seq.full 2>&1
 _wait_for_pmcd
 sleep 20 # enough time to get new daemons started up, logs rotated/merged
-$sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1
+_service pmcd stop >>$seq.full 2>&1
 sleep 10 # pmmgr daemon shutdown
 
 date >>$seq.full
@@ -207,7 +207,7 @@ echo '-t 10' >$tmp.dir/pmlogreduce  # compare to -t 2 for in /pmlogger
 echo 30sec >$tmp.dir/pmlogreduce-retain
 echo 'pcp summary' > $tmp.dir/monitor # short-lived; will be restarted periodically
 echo 'pmstat' >> $tmp.dir/monitor # long-lived
-$sudo $PCP_RC_DIR/pmcd start >>$seq.full 2>&1
+_service pmcd start >>$seq.full 2>&1
 _wait_for_pmcd
 
 date >>$seq.full
@@ -215,7 +215,7 @@ echo "=== 10. wait a bit ===" | tee -a $seq.full
 # long enough for all the old archives to age out, only new granular stuff to survive
 # not an exact multiple of the pmlogmerge period, to avoid testing the edge moments
 sleep 170 # apprx. pmlogmerge + pmlogmerge-retain + 2* pmlogreduce-retain
-$sudo $PCP_RC_DIR/pmcd stop >>$seq.full 2>&1  # ensure daemons stop & no new ones are started
+_service pmcd stop >>$seq.full 2>&1  # ensure daemons stop & no new ones are started
 sleep 10 # pmmgr daemon shutdown
 
 date >>$seq.full

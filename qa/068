@@ -41,9 +41,9 @@ _cleanup()
 	&& $sudo sh $tmp.cmd
 	echo >>$seq.full
 	echo "--- pcp stop ---" >>$here/$seq.full
-	$sudo $PCP_RC_DIR/pcp stop >>$here/$seq.full 2>&1
+	_service pcp stop >>$here/$seq.full 2>&1
 	echo "--- pcp start ---" >>$here/$seq.full
-	$sudo $PCP_RC_DIR/pcp start 2>&1 | tee -a $here/$seq.full | _filter_pcp_start
+	_service pcp start 2>&1 | tee -a $here/$seq.full | _filter_pcp_start
 	_restore_systemd_restart pmcd
 	echo >>$here/$seq.full
 	echo "--- _wait_for_pmcd ---" >>$here/$seq.full
@@ -60,7 +60,7 @@ rm -f $seq.full
 
 # real QA test starts here
 echo "--- pcp stop ---" >>$here/$seq.full
-$sudo $PCP_RC_DIR/pcp stop | tee -a $here/$seq.full | _filter_pcp_stop
+_service pcp stop | tee -a $here/$seq.full | _filter_pcp_stop
 echo >>$here/$seq.full
 echo "--- run pmcdgone ---" >>$here/$seq.full
 $sudo src/pmcdgone | tee -a $here/$seq.full

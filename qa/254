@@ -32,7 +32,7 @@ cleanup()
 	sleep 1
 	unset PMCD_SOCKET
         echo "Restart and ping pmcd ..."
-        $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+        _service pcp restart | _filter_pcp_start
 	_restore_systemd_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -63,7 +63,7 @@ yet.another {
 }
 End-of-File
 
-$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+_service pcp stop | _filter_pcp_stop
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 #

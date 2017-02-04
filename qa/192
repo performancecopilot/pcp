@@ -35,7 +35,7 @@ _cleanup()
     then
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	_needclean=false
@@ -48,8 +48,9 @@ trap "_cleanup" 0
 trap "_interrupt; _cleanup" 1 2 3 15
 
 # real QA test starts here
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart | _filter_pcp_start
 _wait_for_pmcd
+_wait_for_pmlogger
 
 PMCD_REQUEST_TIMEOUT=2; export PMCD_REQUEST_TIMEOUT
 

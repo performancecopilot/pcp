@@ -48,7 +48,8 @@ _cleanup()
 	unset PMLOGGER_PORT
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	unset PCPQA_SYSTEMD
+	_service pcp restart | _filter_pcp_start
 	_restore_systemd_restart pmcd
 	_restore_systemd_restart pmlogger
 	_wait_for_pmcd
@@ -74,6 +75,12 @@ rm -f $seq.full
 PMCD_PORT=42000
 PMLOGGER_PORT=43000
 export PMCD_PORT PMLOGGER_PORT
+
+# don't want init script to restart pmcd via systemctl, as this
+# will clobber the environment, ...
+#
+_service pcp stop | _filter_pcp_stop
+export PCPQA_SYSTEMD=no
 
 echo "pmcd with PMCD_PORT=$PMCD_PORT, pmlogger with PMLOGGER_PORT=$PMLOGGER_PORT"
 # need to do this indirectly because system sudo cleanses the environment

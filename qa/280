@@ -66,8 +66,8 @@ umask 022
 
 # start from a known state
 #
-$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_service pcp stop >/dev/null 2>&1
+_service pcp start | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 

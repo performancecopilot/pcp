@@ -24,7 +24,7 @@ _reset()
 	:
     else
 	_restore_loggers
-	$sudo $PCP_RC_DIR/pcp restart \
+	_service pcp restart \
 	| _filter_pcp_start \
 	| sed -e '/Waiting/s/\.\.\.*/[dots]/'
 	_restore_systemd_restart pmcd
@@ -52,11 +52,16 @@ _stop_systemd_restart pmcd
 
 # real QA test starts here
 
+# Note, _disable_loggers() still leaves a primary logger active, but it
+# makes no requests to pmcd.
+#
 _disable_loggers
-$sudo $PCP_RC_DIR/pcp restart \
+
+_service pcp restart \
 | _filter_pcp_start \
 | sed -e '/Waiting/s/\.\.\.*/[dots]/'
 _wait_for_pmcd
+_wait_for_pmlogger
 pminfo -f pmcd.numclients pmcd.pmlogger.host \
 | _filter
 

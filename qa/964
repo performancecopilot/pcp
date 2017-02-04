@@ -43,11 +43,11 @@ _cleanup()
     then
 	echo "Resetting system state"
 	_restore_pmda_install xfs
-	$sudo $PCP_RC_DIR/pmcd restart | _filter_pcp_start
+	_service pmcd restart | _filter_pcp_start
 	_restore_systemd_restart pmcd
 	if $pmmgr_running
 	then
-	    $sudo $PCP_RC_DIR/pmmgr stop >>$here/$seq.full
+	    _service pmmgr stop >>$here/$seq.full
 	    _restore_systemd_restart pmmgr
 	fi
 	_wait_for_pmcd
@@ -106,10 +106,10 @@ _filter_xfs_install()
 _prepare_pmda_install xfs
 
 # switch off pmcd
-$sudo $PCP_RC_DIR/pmcd stop | _filter_pcp_stop
+_service pmcd stop | _filter_pcp_stop
 
 # and pmmgr (maybe)
-$pmmgr_running && $sudo $PCP_RC_DIR/pmmgr stop >>$here/$seq.full
+$pmmgr_running && _service pmmgr stop >>$here/$seq.full
 
 # give the dust a chance to settle ...
 sleep 3

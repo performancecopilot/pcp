@@ -77,7 +77,9 @@ _filter()
 	-e '/^.r[-w][-x]r[-w][-x]/s/.* \//... ls output ... /' \
 	-e '/mkdir:/d' \
 	-e '/\/pmie_check:.*cd:/d' \
-	-e 's/ $//'
+	-e 's/[ 	]*$//' \
+	-e 's/^[ 	]*//' \
+    # end
 }
 
 _count_pmies()
@@ -155,7 +157,7 @@ echo "pmie count at start of QA testing: $?"
 echo
 
 echo === check default install operation ===
-$sudo $PCP_RC_DIR/pmie restart 2>&1 | _filter_pmie_start
+_service pmie restart 2>&1 | _filter_pmie_start
 _count_pmies
 # chkconfig no longer controls start-ability, expect non-zero
 echo "pmie count after chkconfig pmie off: $?"
@@ -165,7 +167,7 @@ echo === check for missing control file ===
 _change_config pmie off
 $sudo rm -f $PCP_PMIECONTROL_PATH
 _change_config pmie on
-$sudo $PCP_RC_DIR/pmie restart 2>&1 | _filter_pmie_start
+_service pmie restart 2>&1 | _filter_pmie_start | _filter
 _count_pmies
 echo "pmie count after attempt without control file: $?"
 echo
@@ -316,9 +318,12 @@ cat $tmp.bad.$case.log | _filter
 echo
 $sudo rm -rf $tmp.nogo
 
-$sudo $PCP_RC_DIR/pmie stop 2>&1 \
+_service pmie stop 2>&1 \
 | _filter_pmie_start \
-| sed -e '/pmie: PMIE not running/d'
+| sed \
+    -e '/PMIE not running/d' \
+    -e '/pmie not running/d' \
+# end
 _change_config pmie off
 
 status=0

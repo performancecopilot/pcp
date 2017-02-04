@@ -128,7 +128,7 @@ _cleanup()
 	echo "Restart and ping pmcd ..."
 	unset PMCD_PORT
 	unset PMCD_SOCKET
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_service pcp restart | _filter_pcp_start
 	_restore_systemd_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -145,7 +145,7 @@ _stop_systemd_restart pmcd
 
 # real QA test starts here
 
-$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+_service pcp stop | _filter_pcp_stop
 $sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
 _disable_loggers
 $sudo $signal -a -s TERM pmie >/dev/null 2>&1

@@ -29,7 +29,7 @@ unset HTTP_PROXY
 webport=`_find_free_port`
 
 # real QA test starts here
-$sudo $PCP_RC_DIR/pmwebd stop >/dev/null 2>&1
+_service pmwebd stop >/dev/null 2>&1
 $sudo cp $PCP_PMWEBDOPTIONS_PATH $tmp.backup
 
 # create an old-format configuration file
@@ -39,7 +39,7 @@ cat <<EOF >$tmp.config
 EOF
 $sudo cp $tmp.config $PCP_PMWEBDOPTIONS_PATH
 
-$sudo $PCP_RC_DIR/pmwebd start
+_service pmwebd start
 _wait_for_pmwebd $webport
 
 echo
@@ -49,7 +49,7 @@ curl -s -S "http://localhost:$webport/pmapi/context?local=anything" -D- 2>&1 | _
 # new-format configuration file via _cleanup
 $sudo cp $tmp.backup $PCP_PMWEBDOPTIONS_PATH
 $sudo rm -f $tmp.backup
-$sudo $PCP_RC_DIR/pmwebd restart
+_service pmwebd restart
 _wait_for_pmwebd 44323
 
 # success, all done

@@ -28,8 +28,8 @@ _cleanup()
     _restore_config $PCP_SYSCONFIG_DIR/pmproxy
     _restore_config $PCP_SYSCONFIG_DIR/pmlogger
 
-    $sudo $PCP_RC_DIR/pmproxy condrestart >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+    _service pmproxy condrestart >/dev/null 2>&1
+    _service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
 
@@ -61,9 +61,9 @@ echo "# Dummy entry added by PCP QA test $seq" > $tmp.local
 echo PMLOGGER_LOCAL=1 >> $tmp.local
 $sudo cp $tmp.local $PCP_SYSCONFIG_DIR/pmlogger
 
-$sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
-$sudo $PCP_RC_DIR/pmproxy start 2>&1 | _filter_pmproxy_start
-$sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+_service pmproxy stop >/dev/null 2>&1
+_service pmproxy start 2>&1 | _filter_pmproxy_start
+_service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

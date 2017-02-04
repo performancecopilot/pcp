@@ -47,14 +47,15 @@ some_host
 End-of-File
 
 sleep 3
-$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+_service pcp stop | _filter_pcp_stop
 
 sleep 10
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_service pcp start | _filter_pcp_start
 pmcd_wait
 sleep 10
 $signal -s TERM $!
 wait
+_wait_for_pmlogger
 
 cp $tmp.log $seq.full
 
