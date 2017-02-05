@@ -14,7 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ -d $PCP_PMDAS_DIR/bind2 ] || _notrun "PMDA bind2 is not installed"
-for module in XML::LibXML
+for module in XML::LibXML File::Slurp
 do
     perl -e "use $module" 2>/dev/null
     test $? -eq 0 || _notrun "bind2 PMDA needs perl module $module"
