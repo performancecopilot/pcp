@@ -69,10 +69,10 @@ _service()
     then
 	# smells like systemctl is the go ...
 	#
-	systemctl "$2" "$1"
-    elif [ -f $PCP_RC_DIR/"$1" ]
+	systemctl $2 $1.service
+    elif [ -f $PCP_RC_DIR/$1 ]
     then
-	$PCP_RC_DIR/"$1" "$2"
+	$PCP_RC_DIR/$1 $2
     else
 	echo "_service: $1 is not a systemctl service nor a $PCP_RC_DIR script!"
 	exit

@@ -214,18 +214,56 @@ _service()
 		# not a systemd service but a wrapper for the pmcd and pmlogger
 		# services, so a little different ...
 		#
-		journalctl -n 10 -u pmcd -u pmlogger | egrep " (pmcd)|(pmlogger)\\[" >$tmp.journal.pre
+		if `which journalctl >/dev/null 2>&1`
+		then
+		    journalctl -n 10 -u pmcd -u pmlogger \
+		    | egrep " (pmcd)|(pmlogger)\\[" >$tmp.journal.pre
+		elif `which systemd-journalctl >/dev/null 2>&1`
+		then
+		    systemd-journalctl -a -q -n 100 \
+		    | egrep " (pmcd)|(pmlogger)\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
+		fi
 		$sudo $PCP_RC_DIR/pcp $2
 		sleep 1
-		journalctl -n 10 -u pmcd -u pmlogger | egrep " (pmcd)|(pmlogger)\\[" >$tmp.journal.post
+		if `which journalctl >/dev/null 2>&1`
+		then
+		    journalctl -n 10 -u pmcd -u pmlogger \
+		    | egrep " (pmcd)|(pmlogger)\\[" >$tmp.journal.post
+		elif `which systemd-journalctl >/dev/null 2>&1`
+		then
+		    systemd-journalctl -a -q -n 100 \
+		    | egrep " (pmcd)|(pmlogger)\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.post
+		fi
 		;;
 	    *)
-		journalctl -n 10 -u $1 | grep " $1\\[" >$tmp.journal.pre
-		$sudo systemctl $2 $1
+		if `which journalctl >/dev/null 2>&1`
+		then
+		    journalctl -n 10 -u pmcd -u pmlogger \
+		    | grep " $1\\[" >$tmp.journal.pre
+		elif `which systemd-journalctl >/dev/null 2>&1`
+		then
+		    systemd-journalctl -a -q -n 100 \
+		    | egrep " $1\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
+		fi
+		$sudo systemctl $2 $1.service
 		sleep 1
-		journalctl -n 10 -u $1 | grep " $1\\[" >$tmp.journal.post
+		if `which journalctl >/dev/null 2>&1`
+		then
+		    journalctl -n 10 -u pmcd -u pmlogger \
+		    | grep " $1\\[" >$tmp.journal.post
+		elif `which systemd-journalctl >/dev/null 2>&1`
+		then
+		    systemd-journalctl -a -q -n 100 \
+		    | egrep " $1\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.post
+		fi
 		;;
 	esac
+	# logic copied from pmdaproc.sh ...
+	#
 	# diff the pre and post journal lines to find those most recently
 	# added:
 	#	- lines beginning with a digit are ed(1) commands, ignore
@@ -234,8 +272,22 @@ _service()
 	#	- strip journal datestamp and process id info
 	#	- add trailing space for some output lines to match
 	#	  non-systemd output and QA *.out files
+	#	- bizarro (on vm19) the .post file may contain lines
+	#	  _before_ the start of a non-empty .pre file, so any
+	#	  > lines after 0a? are nonsense, but need to make sure
+	#	  the .pre file is not empty (sigh)
 	#
+	echo "--- journal _service $1 $2 pre ---" >>$here/$seq.full
+	[ -s $tmp.journal.pre ] || echo "-- added by _service() --" >$tmp.journal.pre
+	cat $tmp.journal.pre >>$here/$seq.full
+	echo "--- journal _service $1 $2 post ---" >>$here/$seq.full
+	cat $tmp.journal.post >>$here/$seq.full
 	diff $tmp.journal.pre $tmp.journal.post \
+	| $PCP_AWK_PROG '
+BEGIN		{ skip = 0 }
+$1 ~ /^0a/	{ skip = 1; next }
+skip == 1 && $1 != ">"	{ skip = 0 }
+skip == 0	{ print }' \
 	| sed \
 	    -e '/^[<0-9]/d' \
 	    -e '/^---$/d' \

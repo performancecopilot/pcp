@@ -79,6 +79,7 @@ _filter()
 	-e '/\/pmie_check:.*cd:/d' \
 	-e 's/[ 	]*$//' \
 	-e 's/^[ 	]*//' \
+	-e 's/\.\.failed/failed (status=1)/' \
     # end
 }
 
