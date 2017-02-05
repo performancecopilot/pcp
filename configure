@@ -7544,7 +7544,10 @@ then
     then
 	if $pcp_perl_prog -e "use XML::LibXML" >/dev/null 2>&1
 	then
-	    pmda_bind2=true
+	    if $pcp_perl_prog -e "use File::Slurp" >/dev/null 2>&1
+	    then
+	        pmda_bind2=true
+	    fi
 	fi
     fi
 fi
