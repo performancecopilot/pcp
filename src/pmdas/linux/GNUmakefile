@@ -52,10 +52,8 @@ HFILES		= linux.h convert.h \
 
 VERSION_SCRIPT	= exports
 HELPTARGETS	= help.dir help.pag
-LSRCFILES 	= help root_linux proc_net_snmp_migrate.conf linux_kernel_ulong.conf \
-		  linux_kernel_fixups.conf
-LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) linux_kernel_ulong.conf \
-		  linux_kernel_fixups.conf
+CONFTARGETS	= linux_kernel_ulong.conf linux_kernel_fixups.conf
+LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(CONFTARGETS)
 
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
@@ -69,7 +67,7 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LSRCFILES)
+build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(CONFTARGETS)
 	@if [ -f ../pmcd.conf ]; then \
 	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
 		echo $(CONF_LINE) >> ../pmcd.conf ; \
@@ -105,7 +103,7 @@ $(OBJECTS): domain.h
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-linux_kernel_ulong.conf linux_kernel_fixups.conf:	mk.rewrite
+$(CONFTARGETS):	mk.rewrite
 	CPP="$(CPP)" INCDIR="$(TOPDIR)/src/include" ./mk.rewrite
 
 interrupts.o pmda.o proc_partitions.o:	linux.h

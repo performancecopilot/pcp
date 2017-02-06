@@ -1456,7 +1456,7 @@ static pmdaMetric metrictab[] = {
 
 /* network.interface.baudrate */
     { NULL, 
-      { PMDA_PMID(CLUSTER_NET_DEV,23), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_DISCRETE, 
+      { PMDA_PMID(CLUSTER_NET_DEV,23), PM_TYPE_U64, NET_DEV_INDOM, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) }, },
 
 /* network.interface.duplex */
@@ -5897,7 +5897,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 23: /* network.interface.baudrate */
 	    if (!netip->ioc.speed)
 		return 0;
-	    atom->ul = ((long long)netip->ioc.speed * 1000000 / 8);
+	    atom->ull = ((unsigned long long)netip->ioc.speed * 1000000 / 8);
 	    break;
 	case 24: /* network.interface.duplex */
 	    if (!netip->ioc.duplex)
