@@ -274,6 +274,7 @@ logconnect.o
     timeout			# guarded by __pmLock_libpcp mutex
 logcontrol.o
 logmeta.o
+    ihash			# single-threaded PM_SCOPE_LOGPORT
 logportmap.o
     nlogports			# single-threaded PM_SCOPE_LOGPORT
     szlogport			# single-threaded PM_SCOPE_LOGPORT
