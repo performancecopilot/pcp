@@ -16,10 +16,10 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
-    $sudo rm -rf $tmp.*
     _service pcp start | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
+    $sudo rm -rf $tmp.*
 }
 
 status=1	# failure is the default!

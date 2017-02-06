@@ -17,11 +17,11 @@ status=0
 _cleanup()
 {
     _restore_config $PCP_PMCDOPTIONS_PATH
-    $sudo rm -f $tmp.*
     _service pcp restart | _filter_pcp_start
     _restore_systemd_restart pmcd
     _wait_for_pmcd
     _wait_for_pmlogger
+    $sudo rm -f $tmp.*
     exit $status
 }
 

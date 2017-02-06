@@ -19,10 +19,10 @@ status=1	# failure is the default!
 _cleanup()
 {
     _restore_config $PCP_PMCDCONF_PATH
-    $sudo rm -f $tmp.*
     _service pcp restart | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
+    $sudo rm -f $tmp.*
 }
 
 _check()
