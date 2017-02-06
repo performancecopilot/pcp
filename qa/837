@@ -39,7 +39,7 @@ uid=`id -u`
 gid=`id -g`
 
 # reset the sample PMDA logfile
-$sudo $PCP_RC_DIR/pcp start >/dev/null 2>&1
+_service pcp start >/dev/null 2>&1
 _wait_for_pmcd
 _wait_for_pmlogger
 

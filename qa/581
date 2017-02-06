@@ -57,7 +57,7 @@ _cleanup()
 	$sudo rm -f $control
 	[ -f $control.$seq ] && $sudo mv $control.$seq $control
 	_restore_loggers
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	needlcean=false
@@ -89,7 +89,8 @@ End-of-File
 $sudo rm -f $control
 $sudo cp $tmp.indom $control
 _disable_loggers
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_service pmlogger stop | _filter_pcp_stop
+_service pmcd restart | _filter_pcp_start
 _wait_for_pmcd
 pminfo -f sample.dynamic.instant | _filter
 echo
@@ -107,9 +108,9 @@ sleep_stop=5
 # and again with the same instances
 #
 sleep $sleep_stop
-$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+_service pmcd stop | _filter_pcp_stop
 sleep $sleep_start
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_service pmcd start | _filter_pcp_start
 _wait_for_pmcd
 pminfo -f sample.dynamic.instant |_filter
 echo
@@ -117,7 +118,7 @@ echo
 # instances - mk II
 #
 sleep $sleep_stop
-$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+_service pmcd stop | _filter_pcp_stop
 cat >$tmp.indom <<End-of-File
 20 twenty
 25 twenty-five
@@ -130,7 +131,7 @@ cat >$tmp.indom <<End-of-File
 End-of-File
 $sudo cp $tmp.indom $control
 sleep $sleep_start
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_service pmcd start | _filter_pcp_start
 _wait_for_pmcd
 pminfo -f sample.dynamic.instant |_filter
 echo
@@ -138,7 +139,7 @@ echo
 # instances - mk III
 #
 sleep $sleep_stop
-$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+_service pmcd stop | _filter_pcp_stop
 cat >$tmp.indom <<End-of-File
 07 seven
 08 eight
@@ -149,7 +150,7 @@ cat >$tmp.indom <<End-of-File
 End-of-File
 $sudo cp $tmp.indom $control
 sleep $sleep_start
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_service pmcd start | _filter_pcp_start
 _wait_for_pmcd
 pminfo -f sample.dynamic.instant |_filter
 echo
@@ -157,12 +158,12 @@ echo
 # instances - mk IV
 #
 sleep $sleep_stop
-$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+_service pmcd stop | _filter_pcp_stop
 cat >$tmp.indom <<End-of-File
 End-of-File
 $sudo cp $tmp.indom $control
 sleep $sleep_start
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_service pmcd start | _filter_pcp_start
 _wait_for_pmcd
 pminfo -f sample.dynamic.instant |_filter
 echo

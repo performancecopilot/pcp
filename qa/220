@@ -47,7 +47,7 @@ _cleanup()
 		break
 	    fi
 	done
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	_service pcp start | _filter_pcp_start
 	_restore_systemd_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -60,7 +60,7 @@ trap "rm -f $tmp.*; _cleanup; exit \$status" 0 1 2 3 15
 _stop_systemd_restart pmcd
 
 # real QA test starts here
-$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+_service pcp stop | _filter_pcp_stop
 echo "primary pmlogger processes?  exect none"
 ps $PCP_PS_ALL_FLAGS | grep 'pmlogger.* -P' | grep -v grep
 

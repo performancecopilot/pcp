@@ -157,6 +157,153 @@ _restore_systemd_restart()
     fi
 }
 
+# Wrapper for PCP daemon init scripts ... use systemctl if available,
+# else run the PCP scripts directly
+#
+# Based on similar logic in the $PCP_RC_DIR/pcp script, but note this
+# one has to do the $sudo and the journal dredging and handle "pcp" as
+# the special non-service case ...
+#
+# Usage: _service <service> [on|off|restart|...]
+#
+_service()
+{
+    if [ $# -ne 2 ]
+    then
+	echo "_service: expect 2 arguments, not $# ($*)"
+	exit
+    fi
+    _do_systemctl=false
+    which systemctl >/dev/null 2>&1 && _do_systemctl=true
+    if $_do_systemctl
+    then
+	case "$1"
+	in
+	    pcp)
+		if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/pmcd.service -a -f $PCP_SYSTEMDUNIT_DIR/pmlogger.service -a -f $PCP_RC_DIR/pcp ]
+		then
+		    :
+		else
+		    _do_systemctl=false
+		fi
+		;;
+	    *)
+		if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service ]
+		then
+		    :
+		else
+		    _do_systemctl=false
+		fi
+		;;
+	esac
+    fi
+
+    if $_do_systemctl
+    then
+	# smells like systemctl is the go ...
+	#
+	# need to extract relevant journal entries, like
+	# Jan 28 13:48:39 vm31.localdomain pmcd[24352]: Starting pmcd ...
+	# but not these
+	# -- Logs begin at Tue 2016-11-15 02:41:52 AEDT, end at Sun 2017-01-29 07:01:06 AEDT. --
+	# Jan 28 13:48:39 vm31.localdomain systemd[1]: Starting Performance Metrics Collector Daemon...
+	#
+	case "$1"
+	in
+	    pcp)
+		# not a systemd service but a wrapper for the pmcd and pmlogger
+		# services, so a little different ...
+		#
+		if `which journalctl >/dev/null 2>&1`
+		then
+		    journalctl -n 10 -u pmcd -u pmlogger \
+		    | egrep " (pmcd)|(pmlogger)\\[" >$tmp.journal.pre
+		elif `which systemd-journalctl >/dev/null 2>&1`
+		then
+		    systemd-journalctl -a -q -n 100 \
+		    | egrep " (pmcd)|(pmlogger)\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
+		fi
+		$sudo $PCP_RC_DIR/pcp $2
+		sleep 1
+		if `which journalctl >/dev/null 2>&1`
+		then
+		    journalctl -n 10 -u pmcd -u pmlogger \
+		    | egrep " (pmcd)|(pmlogger)\\[" >$tmp.journal.post
+		elif `which systemd-journalctl >/dev/null 2>&1`
+		then
+		    systemd-journalctl -a -q -n 100 \
+		    | egrep " (pmcd)|(pmlogger)\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.post
+		fi
+		;;
+	    *)
+		if `which journalctl >/dev/null 2>&1`
+		then
+		    journalctl -n 10 -u pmcd -u pmlogger \
+		    | grep " $1\\[" >$tmp.journal.pre
+		elif `which systemd-journalctl >/dev/null 2>&1`
+		then
+		    systemd-journalctl -a -q -n 100 \
+		    | egrep " $1\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
+		fi
+		$sudo systemctl $2 $1.service
+		sleep 1
+		if `which journalctl >/dev/null 2>&1`
+		then
+		    journalctl -n 10 -u pmcd -u pmlogger \
+		    | grep " $1\\[" >$tmp.journal.post
+		elif `which systemd-journalctl >/dev/null 2>&1`
+		then
+		    systemd-journalctl -a -q -n 100 \
+		    | egrep " $1\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.post
+		fi
+		;;
+	esac
+	# logic copied from pmdaproc.sh ...
+	#
+	# diff the pre and post journal lines to find those most recently
+	# added:
+	#	- lines beginning with a digit are ed(1) commands, ignore
+	#	- --- lines are diff fluff
+	#	- lines beginnning < are only in journal.pre, ignore
+	#	- strip journal datestamp and process id info
+	#	- add trailing space for some output lines to match
+	#	  non-systemd output and QA *.out files
+	#	- bizarro (on vm19) the .post file may contain lines
+	#	  _before_ the start of a non-empty .pre file, so any
+	#	  > lines after 0a? are nonsense, but need to make sure
+	#	  the .pre file is not empty (sigh)
+	#
+	echo "--- journal _service $1 $2 pre ---" >>$here/$seq.full
+	[ -s $tmp.journal.pre ] || echo "-- added by _service() --" >$tmp.journal.pre
+	cat $tmp.journal.pre >>$here/$seq.full
+	echo "--- journal _service $1 $2 post ---" >>$here/$seq.full
+	cat $tmp.journal.post >>$here/$seq.full
+	diff $tmp.journal.pre $tmp.journal.post \
+	| $PCP_AWK_PROG '
+BEGIN		{ skip = 0 }
+$1 ~ /^0a/	{ skip = 1; next }
+skip == 1 && $1 != ">"	{ skip = 0 }
+skip == 0	{ print }' \
+	| sed \
+	    -e '/^[<0-9]/d' \
+	    -e '/^---$/d' \
+	    -e "s/^.*\\[[0-9]*]: //" \
+	    -e '/^Starting p.*[^ ]$/s/$/ /' \
+	    -e '/^Stopping p.*[^ ]$/s/$/ /' \
+	# end
+    elif [ -f $PCP_RC_DIR/$1 ]
+    then
+	$sudo $PCP_RC_DIR/$1 $2
+    else
+	echo "_service: $1 is not a systemctl service nor a $PCP_RC_DIR script!"
+	exit
+    fi
+}
+
 # check that a given agent (argument 1) is up and running;
 # indicated by return status and agent warnings to stdout.
 #
@@ -229,7 +376,7 @@ _cleanup_pmda()
 	:
     else
 	_restore_config $PCP_PMCDCONF_PATH
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_service pcp restart | _filter_pcp_start
 	_restore_systemd_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -1897,7 +2044,13 @@ p
     fi
 }
 
-# disable all system pmloggers running via the control file(s)
+# This used to disable all system pmloggers running via the control
+# file(s), but that was problematic and so now replaces the control
+# file with a simple one that starts a primary pmlogger with /dev/null
+# as the configuration file so pmlogger makes not requests to pmcd.
+# 
+# See _restore_loggers() below for the logic to re-instate the original
+# control file(s).
 #
 _disable_loggers()
 {

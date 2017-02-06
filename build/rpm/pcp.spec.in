@@ -745,6 +745,7 @@ URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = @package_version@
 Requires: perl(LWP::UserAgent)
 Requires: perl(XML::LibXML)
+Requires: perl(File::Slurp)
 
 %description pmda-bind2
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for

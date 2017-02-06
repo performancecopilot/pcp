@@ -50,7 +50,7 @@ pmdapapi_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/papi
     $sudo ./Remove >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmcd stop
+    _service pmcd stop
 
     echo
     echo "=== PAPI agent installation ==="

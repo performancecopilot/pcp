@@ -36,7 +36,7 @@ esac
 _cleanup()
 {
     $sudo $signal -a pmproxy >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmproxy restart >/dev/null 2>&1
+    _service pmproxy restart >/dev/null 2>&1
 }
 
 _filter()
@@ -135,7 +135,7 @@ log advisory on default {
 End-of-File
 }
 
-$sudo $PCP_RC_DIR/pmproxy stop >/dev/null 2>&1
+_service pmproxy stop >/dev/null 2>&1
 $sudo $signal -a pmproxy >/dev/null 2>&1
 
 proxyargs="-Dcontext"

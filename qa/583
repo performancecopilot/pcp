@@ -94,7 +94,7 @@ fi
 # real QA test starts here
 $sudo rm -f core* $seq.core*
 
-$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+_service pcp stop | _filter_pcp_stop
 sleep 3
 
 # note the following is time sensitive, run it too long
@@ -121,7 +121,7 @@ pmie -t 1sec >$tmp.out 2>$tmp.err <$tmp.in &
 pmie_pid=$!
 
 sleep 5
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

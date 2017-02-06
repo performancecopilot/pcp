@@ -25,8 +25,9 @@ $sudo rm -rf $tmp.* $seq.full
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart | _filter_pcp_start
 _wait_for_pmcd		# sample.log is now sure to be clean
+_wait_for_pmlogger
 
 echo "Enabling sample PMDA tracing"
 authdbg=`pmdbg -l | grep DBG_TRACE_AUTH | awk '{ print $2 }'`

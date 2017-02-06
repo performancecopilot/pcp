@@ -14,6 +14,11 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ -d $PCP_PMDAS_DIR/bind2 ] || _notrun "PMDA bind2 is not installed"
+for module in XML::LibXML File::Slurp
+do
+    perl -e "use $module" 2>/dev/null
+    test $? -eq 0 || _notrun "bind2 PMDA needs perl module $module"
+done
 
 _cleanup()
 {
@@ -43,7 +48,7 @@ do
 
     # put the test config file in place
     echo "test=$xml" > $tmp.conf
-    $sudo cp $tmp.conf $PCP_PMDAS_DIR/bind2.conf
+    $sudo cp $tmp.conf $PCP_PMDAS_DIR/bind2/bind2.conf
 
     $sudo ./Install </dev/null >>$tmp.out 2>&1
     _filter_pmda_install <$tmp.out \

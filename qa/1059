@@ -59,7 +59,8 @@ else
 	then
 	    if [ -S $PCP_RUN_DIR/pmcd.socket ]
 	    then
-		$sudo lsof $PCP_RUN_DIR/pmcd.socket 2>/dev/null \
+		$sudo lsof -U 2>/dev/null \
+		| grep $PCP_RUN_DIR/pmcd.socket \
 		| $PCP_AWK_PROG '$1 != "COMMAND" { print $1,$2 }' \
 		| sort \
 		| uniq >$tmp.tmp
@@ -68,7 +69,7 @@ else
 		    echo "Info: pmcd's PID matches $PCP_RUN_DIR/pmcd.socket owner"
 		else
 		    echo "Error: pmcd's PMID (`cat $PCP_RUN_DIR/pmcd.pid`) does not match $PCP_RUN_DIR/pmcd.socket owner"
-		    $sudo lsof $PCP_RUN_DIR/pmcd.socket
+		    $sudo lsof -U | grep $PCP_RUN_DIR/pmcd.socket
 		    error=true
 		fi
 		if grep -v "^pmcd `cat $PCP_RUN_DIR/pmcd.pid`\$" $tmp.tmp >$tmp.out

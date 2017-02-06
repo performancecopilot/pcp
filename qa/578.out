@@ -1,4 +1,5 @@
 QA output created by 578
+Waiting for pmcd to terminate ...
 === Building simple agent ===
 You will need to choose an appropriate configuration for installation of
 the "simple" Performance Metrics Domain Agent (PMDA).
@@ -12,7 +13,6 @@ Skipping PMDA install and PMCD re-configuration
 Namespace installed
 PMDA built
 Help generated
-Waiting for pmcd to terminate ...
 Starting pmcd ... 
 === Testing a Client ===
 === Started client ===

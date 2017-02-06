@@ -12,7 +12,8 @@ First configure your apache http server to enable status support.
 The full procedure is documented at
 http://www.apache.org/docs/mod/mod_status.html 
 
-Edit /etc/apache2/mods-enabled/status.conf and enable the following:
+Edit /etc/apache2/mods-enabled/status.conf or
+/etc/apache2/mod_status.conf and enable the following:
 
 <Location /server-status>
   SetHandler server-status
