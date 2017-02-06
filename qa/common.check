@@ -240,7 +240,7 @@ _service()
 	    *)
 		if `which journalctl >/dev/null 2>&1`
 		then
-		    $sudo journalctl -n 10 -u pmcd -u pmlogger \
+		    $sudo journalctl -n 10 -u $1 \
 		    | grep " $1\\[" >$tmp.journal.pre
 		elif `which systemd-journalctl >/dev/null 2>&1`
 		then
@@ -252,7 +252,7 @@ _service()
 		sleep 1
 		if `which journalctl >/dev/null 2>&1`
 		then
-		    $sudo journalctl -n 10 -u pmcd -u pmlogger \
+		    $sudo journalctl -n 10 -u $1 \
 		    | grep " $1\\[" >$tmp.journal.post
 		elif `which systemd-journalctl >/dev/null 2>&1`
 		then
