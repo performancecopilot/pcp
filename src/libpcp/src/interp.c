@@ -699,7 +699,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     int		i;
     int		j;
     int		k;
-    int		sts;
+    int		sts, sts1;
     double	t_req;
     double	t_this;
     pmResult	*rp;
@@ -842,8 +842,11 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		else {
 		    sts = pmGetInDomArchive(pcp->desc.indom, &instlist, &namelist);
 		}
+		/* Pre allocate enough space for the instance domain. */
+		sts1 = __pmHashPreAlloc(sts, &pcp->hc);
+		if (sts1 < 0)
+		    return sts1;
 		for (i = 0; i < sts; i++) {
-		    int sts1;
 		    if ((icp = (instcntl_t *)malloc(sizeof(instcntl_t))) == NULL) {
 			__pmNoMem("__pmLogFetchInterp.instcntl_t", sizeof(instcntl_t), PM_FATAL_ERR);
 		    }
