@@ -1024,6 +1024,26 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_MEMINFO,59), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
+/* mem.util.hugepagesTotalBytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,60), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* mem.util.hugepagesFreeBytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,61), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* mem.util.hugepagesRsvdBytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,62), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* mem.util.hugepagesSurpBytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,63), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
 /* mem.numa.util.total */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,0), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
@@ -1218,6 +1238,21 @@ static pmdaMetric metrictab[] = {
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,38), PM_TYPE_DOUBLE, NODE_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1,-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0) }, },
+
+/* mem.numa.util.hugepagesTotalBytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,39), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* mem.numa.util.hugepagesFreeBytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,40), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* mem.numa.util.hugepagesSurpBytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,41), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
 /* swap.length */
     { NULL,
@@ -5818,6 +5853,26 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	return 0; /* no values available */
 	    atom->ul = proc_meminfo.Hugepagesize;
 	    break;
+	case 60: /* mem.util.hugepagesTotalBytes */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesTotal))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.HugepagesTotal * proc_meminfo.Hugepagesize;
+	   break;
+	case 61: /* mem.util.hugepagesFreeBytes */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesFree))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.HugepagesFree * proc_meminfo.Hugepagesize;
+	   break;
+	case 62: /* mem.util.hugepagesRsvdBytes */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesRsvd))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.HugepagesRsvd * proc_meminfo.Hugepagesize;
+	   break;
+	case 63: /* mem.util.hugepagesSurpBytes */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesSurp))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.HugepagesSurp * proc_meminfo.Hugepagesize;
+	   break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -6832,6 +6887,24 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->d = np->bandwidth;
 	    sts = (atom->d > 0.0);
 	    break;
+	case 39: /* mem.numa.util.hugepagesTotalBytes */
+	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugepagesize))
+	    	return 0; /* no values available */
+	    sts = linux_table_lookup("HugePages_Total:", np->meminfo, &atom->ull);
+	    atom->ull *= proc_meminfo.Hugepagesize;
+	    break;
+	case 40: /* mem.numa.util.hugepagesFreeBytes */
+	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugepagesize))
+	    	return 0; /* no values available */
+	    sts = linux_table_lookup("HugePages_Free:", np->meminfo, &atom->ull);
+	    atom->ull *= proc_meminfo.Hugepagesize;
+	    break;
+	case 41: /* mem.numa.util.hugepagesSurpBytes */
+	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugepagesize))
+	    	return 0; /* no values available */
+	    sts = linux_table_lookup("HugePages_Surp:", np->meminfo, &atom->ull);
+	    atom->ull *= proc_meminfo.Hugepagesize;
+	    break;
 
 	default:
 	    return PM_ERR_PMID;
@@ -6988,6 +7061,11 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	case CLUSTER_NET_SOFTNET:
 	    need_refresh[idp->cluster]++;
 	    need_refresh[CLUSTER_STAT]++;
+	    break;
+
+	case CLUSTER_NUMA_MEMINFO:
+	    need_refresh[idp->cluster]++;
+	    need_refresh[CLUSTER_MEMINFO]++;
 	    break;
 
 	case CLUSTER_NET_DEV:

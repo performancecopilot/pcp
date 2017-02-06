@@ -451,6 +451,10 @@ mem.util {
     anonhugepages	60:1:56
     directMap1G		60:1:57
     available		60:1:58
+    hugepagesTotalBytes	60:1:60
+    hugepagesFreeBytes	60:1:61
+    hugepagesRsvdBytes	60:1:62
+    hugepagesSurpBytes	60:1:63
 }
 
 mem.numa {
@@ -492,6 +496,9 @@ mem.numa.util {
     hugepagesTotal	60:36:29
     hugepagesFree	60:36:30
     hugepagesSurp	60:36:31
+    hugepagesTotalBytes	60:36:39
+    hugepagesFreeBytes	60:36:40
+    hugepagesSurpBytes	60:36:41
 }
 
 mem.numa.alloc {
