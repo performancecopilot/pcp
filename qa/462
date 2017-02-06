@@ -34,7 +34,7 @@ _cleanup()
 {
     _change_config pmlogger on
     _service pcp restart >/dev/null 2>&1
-    _restore_systemd_restart pmcd
+    _restore_auto_restart pmcd
     _wait_for_pmcd
     _wait_for_pmlogger
     rm -f $tmp.*
@@ -71,7 +71,7 @@ _stop()
 
 # real QA test starts here
 _change_config pmlogger off
-_stop_systemd_restart pmlogger
+_stop_auto_restart pmlogger
 _service pcp stop | _filter_pcp_stop
 
 delta=10

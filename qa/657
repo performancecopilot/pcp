@@ -55,7 +55,7 @@ _cleanup()
 {
     unset PCPQA_SYSTEMD
     _service pcp restart | _filter_pcp_start
-    _restore_systemd_restart pmcd
+    _restore_auto_restart pmcd
     _wait_for_pmcd
     _wait_for_pmlogger
     $sudo rm -fr $root
@@ -67,7 +67,7 @@ _cleanup()
 iam=dm
 status=1 # failure is the default!
 trap "_cleanup $iam" 0 1 2 3 15
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 $sudo rm -fr $root
 $sudo rm -fr $tmp.*.dir

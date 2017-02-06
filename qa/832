@@ -41,7 +41,7 @@ cleanup()
     _restore_config $PCP_SASLCONF_DIR/pmcd.conf
 
     _service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
-    _restore_systemd_restart pmcd
+    _restore_auto_restart pmcd
     _wait_for_pmcd
     _wait_for_pmlogger
 
@@ -52,7 +52,7 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 trap "cleanup; exit \$status" 0 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 # Handle spurious lines from deep inside SASL code ...
 # [Mon Mar  2 17:58:40] pmcd_wait(16622) Alert: Parameter Error in ../plugins/plugin_common.c near line 357

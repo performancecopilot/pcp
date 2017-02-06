@@ -43,7 +43,7 @@ _cleanup()
 	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
-	_restore_systemd_restart pmcd
+	_restore_auto_restart pmcd
 	if $install_on_cleanup
 	then
 	    ( cd $PCP_PMDAS_DIR/mmv; $sudo ./Install <$tmp.input >/dev/null 2>&1 )
@@ -61,7 +61,7 @@ pminfo mmv >/dev/null 2>&1 && install_on_cleanup=true
 
 trap "_cleanup" 0 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 home="$PCP_PMDAS_DIR"
 iam=mmv

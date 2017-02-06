@@ -124,7 +124,7 @@ _restore_config()
 
 # systemd config changes
 #
-_stop_systemd_restart()
+_stop_auto_restart()
 {
     if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service ]
     then
@@ -143,7 +143,7 @@ _stop_systemd_restart()
     fi
 }
 
-_restore_systemd_restart()
+_restore_auto_restart()
 {
     if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service.$seq ]
     then
@@ -377,7 +377,7 @@ _cleanup_pmda()
     else
 	_restore_config $PCP_PMCDCONF_PATH
 	_service pcp restart | _filter_pcp_start
-	_restore_systemd_restart pmcd
+	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	if $install_on_cleanup

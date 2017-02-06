@@ -36,7 +36,7 @@ _cleanup()
 	$sudo rm -f $PCP_PMCDCONF_PATH.prev
 	_restore_loggers
 	_service pcp restart | _filter_pcp_start
-	_restore_systemd_restart pmcd
+	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	_needclean=false
@@ -80,7 +80,7 @@ pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 trap "_cleanup" 0
 trap "_interrupt; _cleanup" 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 # real QA test starts here
 
