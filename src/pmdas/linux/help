@@ -698,6 +698,10 @@ you will get real memory on demand, and just as much as you use.
 @ mem.util.quicklists amount of memory in the per-CPU quicklists
 @ mem.util.corrupthardware amount of memory in hardware corrupted pages
 @ mem.util.anonhugepages amount of memory in anonymous huge pages
+@ mem.util.hugepagesTotalBytes amount of memory in total hugepages
+@ mem.util.hugepagesFreeBytes amount of memory in free hugepages
+@ mem.util.hugepagesRsvdBytes amount of memory in reserved hugepages
+@ mem.util.hugepagesSurpBytes amount of memory in surplus hugepages
 
 User memory (Kbytes) in pages not backed by files, e.g. from malloc()
 @ mem.numa.util.total per-node total memory
@@ -745,6 +749,9 @@ node_num:bandwidth
 The node_num must match with any node in sysfs/devices/system/node directory.
 And, the bandwidth is expressed in terms of MBps. This config file should be
 filled up manually after running some bandwidth saturation benchmark tools.
+@ mem.numa.util.hugepagesTotalBytes per-node total amount of hugepages memory
+@ mem.numa.util.hugepagesFreeBytes per-node amount of free hugepages memory
+@ mem.numa.util.hugepagesSurpBytes per-node amount of surplus hugepages memory
 @ mem.vmstat.nr_dirty number of pages in dirty state
 Instantaneous number of pages in dirty state, from /proc/vmstat
 @ mem.vmstat.nr_dirty_background_threshold background writeback threshold
