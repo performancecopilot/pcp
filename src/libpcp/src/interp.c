@@ -1075,9 +1075,11 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 
 	    /*
 	     * Forget about those that can never be found from here
-	     * in this direction. The unbound list is sorted in order of descending t_first.
-	     * We can abandon the traversal once t_first is less than t_this.
+	     * in this direction. The unbound list is sorted in order of
+	     * descending t_first. We can abandon the traversal once t_first is
+	     * less than t_this. Trim the list as instances are resolved.
 	     */
+	    ub_prev = NULL;
 	    for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
 		if (icp->t_first < t_this)
 		    break;
@@ -1085,7 +1087,14 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    icp->search = 0;
 		    SET_SCANNED(icp->s_prior);
 		    done++;
+		    /* Remove this item from the list. */
+		    if (ub_prev)
+			ub_prev->unbound = icp->unbound;
+		    else
+			ctxp->c_archctl->ac_unbound = icp->unbound;
 		}
+		else
+		    ub_prev = icp;
 	    }
 	}
 	/* end of search, trim t_first as required */
@@ -1205,9 +1214,12 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 
 	    /*
 	     * Forget about those that can never be found from here
-	     * in this direction. The unbound list is sorted in order of ascending t_last.
-	     * We can abandon the traversal once t_last is greater than than t_this.
+	     * in this direction. The unbound list is sorted in order of
+	     * ascending t_last. We can abandon the traversal once t_last
+	     * is greater than than t_this. Trim the list as instances are
+	     * resolved.
 	     */
+	    ub_prev = NULL;
 	    for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
 		if (icp->t_last > t_this)
 		    break;
@@ -1215,7 +1227,14 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    icp->search = 0;
 		    SET_SCANNED(icp->s_next);
 		    done++;
+		    /* Remove this item from the list. */
+		    if (ub_prev)
+			ub_prev->unbound = icp->unbound;
+		    else
+			ctxp->c_archctl->ac_unbound = icp->unbound;
 		}
+		else
+		    ub_prev = icp;
 	    }
 	}
 	//	fprintf(stderr, "sts==%10d, t_req==%.2f, forw==%d, done==%d, remaining==%d\n", sts, t_req, forw, done, forw - done);
