@@ -30,6 +30,7 @@ require {
 	class unix_stream_socket connectto;
 	class capability { kill sys_ptrace net_admin chown sys_chroot };
 	class chr_file { open write };
+	class fifo_file { getattr read open }; # qa/455
 	class system status;
 }
 
@@ -79,6 +80,8 @@ allow pcp_pmcd_t self:capability sys_chroot;
 
 #type=AVC msg=audit(1485899838.438:13213): avc:  denied  { read } for  pid=29112 comm="pmdalinux" dev="nsfs" ino=4026532454 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:nsfs_t:s0 tclass=file permissive=1
 allow pcp_pmcd_t nsfs_t:file { read open };
+
+allow pcp_pmcd_t pcp_log_t:fifo_file { getattr read open }; # qa/455
 
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
