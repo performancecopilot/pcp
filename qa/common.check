@@ -174,28 +174,34 @@ _service()
 	exit
     fi
     _do_systemctl=false
-    which systemctl >/dev/null 2>&1 && _do_systemctl=true
-    if $_do_systemctl
+    if [ "$PCPQA_SYSTEMD" = no ]
     then
-	case "$1"
-	in
-	    pcp)
-		if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/pmcd.service -a -f $PCP_SYSTEMDUNIT_DIR/pmlogger.service -a -f $PCP_RC_DIR/pcp ]
-		then
-		    :
-		else
-		    _do_systemctl=false
-		fi
-		;;
-	    *)
-		if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service ]
-		then
-		    :
-		else
-		    _do_systemctl=false
-		fi
-		;;
-	esac
+	# don't ever use systemctl
+	:
+    else
+	which systemctl >/dev/null 2>&1 && _do_systemctl=true
+	if $_do_systemctl
+	then
+	    case "$1"
+	    in
+		pcp)
+		    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/pmcd.service -a -f $PCP_SYSTEMDUNIT_DIR/pmlogger.service -a -f $PCP_RC_DIR/pcp ]
+		    then
+			:
+		    else
+			_do_systemctl=false
+		    fi
+		    ;;
+		*)
+		    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service ]
+		    then
+			:
+		    else
+			_do_systemctl=false
+		    fi
+		    ;;
+	    esac
+	fi
     fi
 
     if $_do_systemctl
