@@ -785,19 +785,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     rp->timestamp.tv_usec = ctxp->c_origin.tv_usec;
     rp->numpmid = numpmid;
 
-    /* zeroth pass ... clear search and inresult flags */
-    for (j = 0; j < hcp->hsize; j++) {
-	for (hp = hcp->hash[j]; hp != NULL; hp = hp->next) {
-	    pcp = (pmidcntl_t *)hp->data;
-	    for (i = 0; i < pcp->hc.hsize; i++) {
-		for (ihp = pcp->hc.hash[i]; ihp != NULL; ihp = ihp->next) {
-		    icp = (instcntl_t *)ihp->data;
-		    icp->search = icp->inresult = 0;
-		}
-	    }
-	}
-    }
-
     /*
      * first pass ... scan all metrics, establish which ones are in
      * the log, and which instances are being requested ... also build
@@ -851,8 +838,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 			__pmNoMem("__pmLogFetchInterp.instcntl_t", sizeof(instcntl_t), PM_FATAL_ERR);
 		    }
 		    icp->metric = pcp;
-		    icp->inresult = icp->search = 0;
-		    icp->want = icp->unbound = NULL;
 		    icp->inst = instlist[i];
 		    icp->t_first = icp->t_last = -1;
 		    icp->t_prior = icp->t_next = -1;
@@ -884,6 +869,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    for (i = 0; i < pcp->hc.hsize; i++) {
 		for (ihp = pcp->hc.hash[i]; ihp != NULL; ihp = ihp->next) {
 		    icp = (instcntl_t *)ihp->data;
+		    icp->search = 0;
 		    if (__pmInProfile(pcp->desc.indom, ctxp->c_instprof, icp->inst)) {
 			icp->inresult = 1;
 			icp->want = (instcntl_t *)ctxp->c_archctl->ac_want;
@@ -901,6 +887,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    assert(ihp);
 	    icp = (instcntl_t *)ihp->data;
 	    icp->inresult = 1;
+	    icp->search = 0;
 	    icp->want = (instcntl_t *)ctxp->c_archctl->ac_want;
 	    ctxp->c_archctl->ac_want = icp;
 	    pcp->numval = 1;
@@ -993,74 +980,61 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
      * second pass ... see which metrics are not currently bounded below
      */
     ctxp->c_archctl->ac_unbound = NULL;
-    for (j = 0; j < numpmid; j++) {
-	if (pmidlist[j] == PM_ID_NULL)
+    for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
+	assert(icp->inresult);
+	if (icp->t_first >= 0 && t_req < icp->t_first)
+	    /* before earliest, don't bother */
 	    continue;
-	hp = __pmHashSearch((int)pmidlist[j], hcp);
-	assert(hp != NULL);
-	pcp = (pmidcntl_t *)hp->data;
-	if (pcp->numval > 0) {
-	    for (i = 0; i < pcp->hc.hsize; i++) {
-		for (ihp = pcp->hc.hash[i]; ihp != NULL; ihp = ihp->next) {
-		    icp = (instcntl_t *)ihp->data;
-		    if (!icp->inresult)
-			continue;
-		    if (icp->t_first >= 0 && t_req < icp->t_first)
-			/* before earliest, don't bother */
-			continue;
 
-		    if (icp->t_prior < 0 || icp->t_prior > t_req) {
-			if (back == 0 && !done_roll) {
-			    done_roll = 1;
-			    if (ctxp->c_delta > 0)  {
-				/* forwards before scanning back */
-				sts = do_roll(ctxp, t_req, &seen_mark);
-				if (sts < 0) {
-				    free(rp);
-				    return sts;
-				}
-			    }
-			}
-		    }
-
-		    /*
-		     *  At this stage there _may_ be a value earlier in the
-		     *  archive of interest ...
-		     *  s_prior undefined => have not explored in this direction,
-		     *  	so need to go back (unless we've already scanned in
-		     *  	this direction)
-		     *  t_prior > t_req and reading backwards or not already
-		     *  	scanned in this direction => need to push t_prior to
-		     *  	be <= t_req if possible
-		     *  t_next is mark and t_prior == t_req => search back
-		     *  	to try and bound t_req with valid values
-		     */
-		    if ((IS_UNDEFINED(icp->s_prior) && !IS_SCANNED(icp->s_prior)) ||
-			(icp->t_prior > t_req && (ctxp->c_delta < 0 || !IS_SCANNED(icp->s_prior))) ||
-			(IS_MARK(icp->s_next) && icp->t_prior == t_req)) {
-			back++;
-			icp->search = 1;
-			/* Add it to the unbound list in descending order of t_first */
-			ub_prev = NULL;
-			for (ub = (instcntl_t *)ctxp->c_archctl->ac_unbound;
-			     ub != NULL;
-			     ub = ub->unbound) {
-			    if (icp->t_first >= ub->t_first)
-				break;
-			    ub_prev = ub;
-			}
-			if (ub_prev)
-			    ub_prev->unbound = icp;
-			else
-			    ctxp->c_archctl->ac_unbound = icp;
-			icp->unbound = ub;
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_INTERP)
-			    dumpicp("search back", icp);
-#endif
+	if (icp->t_prior < 0 || icp->t_prior > t_req) {
+	    if (back == 0 && !done_roll) {
+		done_roll = 1;
+		if (ctxp->c_delta > 0)  {
+		    /* forwards before scanning back */
+		    sts = do_roll(ctxp, t_req, &seen_mark);
+		    if (sts < 0) {
+			free(rp);
+			return sts;
 		    }
 		}
 	    }
+	}
+
+	/*
+	 *  At this stage there _may_ be a value earlier in the
+	 *  archive of interest ...
+	 *  s_prior undefined => have not explored in this direction,
+	 *  	so need to go back (unless we've already scanned in
+	 *  	this direction)
+	 *  t_prior > t_req and reading backwards or not already
+	 *  	scanned in this direction => need to push t_prior to
+	 *  	be <= t_req if possible
+	 *  t_next is mark and t_prior == t_req => search back
+	 *  	to try and bound t_req with valid values
+	 */
+	if ((IS_UNDEFINED(icp->s_prior) && !IS_SCANNED(icp->s_prior)) ||
+	    (icp->t_prior > t_req && (ctxp->c_delta < 0 || !IS_SCANNED(icp->s_prior))) ||
+	    (IS_MARK(icp->s_next) && icp->t_prior == t_req)) {
+	    back++;
+	    icp->search = 1;
+	    /* Add it to the unbound list in descending order of t_first */
+	    ub_prev = NULL;
+	    for (ub = (instcntl_t *)ctxp->c_archctl->ac_unbound;
+		 ub != NULL;
+		 ub = ub->unbound) {
+		if (icp->t_first >= ub->t_first)
+		    break;
+		ub_prev = ub;
+	    }
+	    if (ub_prev)
+		ub_prev->unbound = icp;
+	    else
+		ctxp->c_archctl->ac_unbound = icp;
+	    icp->unbound = ub;
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_INTERP)
+		dumpicp("search back", icp);
+#endif
 	}
     }
 
@@ -1133,75 +1107,63 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
      * third pass ... see which metrics are not currently bounded above
      */
     ctxp->c_archctl->ac_unbound = NULL;
-    for (j = 0; j < numpmid; j++) {
-	if (pmidlist[j] == PM_ID_NULL)
+    for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
+	assert(icp->inresult);
+
+	if (icp->t_last >= 0 && t_req > icp->t_last)
+	    /* after latest, don't bother */
 	    continue;
-	hp = __pmHashSearch((int)pmidlist[j], hcp);
-	assert(hp != NULL);
-	pcp = (pmidcntl_t *)hp->data;
-	if (pcp->numval > 0) {
-	    for (i = 0; i < pcp->hc.hsize; i++) {
-		for (ihp = pcp->hc.hash[i]; ihp != NULL; ihp = ihp->next) {
-		    icp = (instcntl_t *)ihp->data;
-		    if (!icp->inresult)
-			continue;
-		    if (icp->t_last >= 0 && t_req > icp->t_last)
-			/* after latest, don't bother */
-			continue;
 
-		    if (icp->t_next < 0 || icp->t_next < t_req) {
-			if (forw == 0 && !done_roll) {
-			    done_roll = 1;
-			    if (ctxp->c_delta < 0)  {
-				/* backwards before scanning forwards */
-				sts = do_roll(ctxp, t_req, &seen_mark);
-				if (sts < 0) {
-				    free(rp);
-				    return sts;
-				}
-			    }
-			}
-		    }
-
-		    /*
-		     *  At this stage there _may_ be a value later in the
-		     *  archive of interest ...
-		     *  s_next undefined => have not explored in this direction,
-		     *  	so need to go back (unless we've already scanned in
-		     *  	this direction)
-		     *  t_next < t_req and reading forwards or not already
-		     *  	scanned in this direction => need to push t_next to
-		     *  	be >= t_req if possible
-		     *  t_prior is mark and t_next == t_req => search forward
-		     *  	to try and bound t_req with valid values
-		     */
-		    if ((IS_UNDEFINED(icp->s_next) && !IS_SCANNED(icp->s_next)) ||
-			(icp->t_next < t_req && (ctxp->c_delta > 0 || !IS_SCANNED(icp->s_next))) ||
-			(IS_MARK(icp->s_prior) && icp->t_next == t_req)) {
-			forw++;
-			icp->search = 1;
-
-			/* Add it to the unbound list in ascending order of t_last */
-			ub_prev = NULL;
-			for (ub = (instcntl_t *)ctxp->c_archctl->ac_unbound;
-			     ub != NULL;
-			     ub = ub->unbound) {
-			    if (icp->t_last <= ub->t_last)
-				break;
-			    ub_prev = ub;
-			}
-			if (ub_prev)
-			    ub_prev->unbound = icp;
-			else
-			    ctxp->c_archctl->ac_unbound = icp;
-			icp->unbound = ub;
-#ifdef PCP_DEBUG
-			if (pmDebug & DBG_TRACE_INTERP)
-			    dumpicp("search forw", icp);
-#endif
+	if (icp->t_next < 0 || icp->t_next < t_req) {
+	    if (forw == 0 && !done_roll) {
+		done_roll = 1;
+		if (ctxp->c_delta < 0)  {
+		    /* backwards before scanning forwards */
+		    sts = do_roll(ctxp, t_req, &seen_mark);
+		    if (sts < 0) {
+			free(rp);
+			return sts;
 		    }
 		}
 	    }
+	}
+
+	/*
+	 *  At this stage there _may_ be a value later in the
+	 *  archive of interest ...
+	 *  s_next undefined => have not explored in this direction,
+	 *  	so need to go back (unless we've already scanned in
+	 *  	this direction)
+	 *  t_next < t_req and reading forwards or not already
+	 *  	scanned in this direction => need to push t_next to
+	 *  	be >= t_req if possible
+	 *  t_prior is mark and t_next == t_req => search forward
+	 *  	to try and bound t_req with valid values
+	 */
+	if ((IS_UNDEFINED(icp->s_next) && !IS_SCANNED(icp->s_next)) ||
+	    (icp->t_next < t_req && (ctxp->c_delta > 0 || !IS_SCANNED(icp->s_next))) ||
+	    (IS_MARK(icp->s_prior) && icp->t_next == t_req)) {
+	    forw++;
+	    icp->search = 1;
+
+	    /* Add it to the unbound list in ascending order of t_last */
+	    ub_prev = NULL;
+	    for (ub = (instcntl_t *)ctxp->c_archctl->ac_unbound;
+		 ub != NULL;
+		 ub = ub->unbound) {
+		if (icp->t_last <= ub->t_last)
+		    break;
+		ub_prev = ub;
+	    }
+	    if (ub_prev)
+		ub_prev->unbound = icp;
+	    else
+		ctxp->c_archctl->ac_unbound = icp;
+	    icp->unbound = ub;
+#ifdef PCP_DEBUG
+	    if (pmDebug & DBG_TRACE_INTERP)
+		dumpicp("search forw", icp);
+#endif
 	}
     }
 
@@ -1278,60 +1240,50 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     /*
      * check to see how many qualifying values there are really going to be
      */
-    for (j = 0; j < numpmid; j++) {
-	if (pmidlist[j] == PM_ID_NULL)
-	    continue;
-	hp = __pmHashSearch((int)pmidlist[j], hcp);
-	assert(hp != NULL);
-	pcp = (pmidcntl_t *)hp->data;
-	for (i = 0; i < pcp->hc.hsize; i++) {
-	    for (ihp = pcp->hc.hash[i]; ihp != NULL; ihp = ihp->next) {
-		icp = (instcntl_t *)ihp->data;
-		if (!icp->inresult)
-		    continue;
-		if (pcp->desc.sem == PM_SEM_DISCRETE) {
-		    if (IS_MARK(icp->s_prior) || IS_UNDEFINED(icp->s_prior) ||
-			icp->t_prior > t_req) {
-			/* no earlier value, so no value */
-			pcp->numval--;
-			icp->inresult = 0;
-		    }
-		}
-		else {
-		    /* assume COUNTER or INSTANT */
-		    if (IS_MARK(icp->s_prior) || IS_UNDEFINED(icp->s_prior) ||
-			icp->t_prior > t_req ||
-			IS_MARK(icp->s_next) || IS_UNDEFINED(icp->s_next) || icp->t_next < t_req) {
-			/* in mid-range, and no bound, so no value */
-			pcp->numval--;
-			icp->inresult = 0;
-		    }
-		    else if (pcp->desc.sem == PM_SEM_COUNTER) {
-			/*
-			 * for counters, has to be arithmetic also,
-			 * else cannot interpolate ...
-			 */
-			if (pcp->desc.type != PM_TYPE_32 &&
-			    pcp->desc.type != PM_TYPE_U32 &&
-			    pcp->desc.type != PM_TYPE_64 &&
-			    pcp->desc.type != PM_TYPE_U64 &&
-			    pcp->desc.type != PM_TYPE_FLOAT &&
-			    pcp->desc.type != PM_TYPE_DOUBLE)
-			    pcp->numval = PM_ERR_TYPE;
-			else if (seen_mark && pcp->last_numval > 0) {
-			    /*
-			     * Counter metric and immediately previous
-			     * __pmLogFetchInterp() returned some values, but
-			     * found a <mark> record scanning archive, return
-			     * "no values" this time so PMAPI clients do not
-			     * assume last inst-values and this inst-values are
-			     * part of a continuous data stream, so for example
-			     * rate conversion should not happen.
-			     */
-			    pcp->numval--;
-			    icp->inresult = 0;
-			}
-		    }
+    for (icp = (instcntl_t *)ctxp->c_archctl->ac_want; icp != NULL; icp = icp->want) {
+	assert(icp->inresult);
+	pcp = (pmidcntl_t *)icp->metric;
+	if (pcp->desc.sem == PM_SEM_DISCRETE) {
+	    if (IS_MARK(icp->s_prior) || IS_UNDEFINED(icp->s_prior) ||
+		icp->t_prior > t_req) {
+		/* no earlier value, so no value */
+		pcp->numval--;
+		icp->inresult = 0;
+	    }
+	}
+	else {
+	    /* assume COUNTER or INSTANT */
+	    if (IS_MARK(icp->s_prior) || IS_UNDEFINED(icp->s_prior) ||
+		icp->t_prior > t_req ||
+		IS_MARK(icp->s_next) || IS_UNDEFINED(icp->s_next) || icp->t_next < t_req) {
+		/* in mid-range, and no bound, so no value */
+		pcp->numval--;
+		icp->inresult = 0;
+	    }
+	    else if (pcp->desc.sem == PM_SEM_COUNTER) {
+		/*
+		 * for counters, has to be arithmetic also,
+		 * else cannot interpolate ...
+		 */
+		if (pcp->desc.type != PM_TYPE_32 &&
+		    pcp->desc.type != PM_TYPE_U32 &&
+		    pcp->desc.type != PM_TYPE_64 &&
+		    pcp->desc.type != PM_TYPE_U64 &&
+		    pcp->desc.type != PM_TYPE_FLOAT &&
+		    pcp->desc.type != PM_TYPE_DOUBLE)
+		    pcp->numval = PM_ERR_TYPE;
+		else if (seen_mark && pcp->last_numval > 0) {
+		    /*
+		     * Counter metric and immediately previous
+		     * __pmLogFetchInterp() returned some values, but
+		     * found a <mark> record scanning archive, return
+		     * "no values" this time so PMAPI clients do not
+		     * assume last inst-values and this inst-values are
+		     * part of a continuous data stream, so for example
+		     * rate conversion should not happen.
+		     */
+		    pcp->numval--;
+		    icp->inresult = 0;
 		}
 	    }
 	}
