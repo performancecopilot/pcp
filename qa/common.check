@@ -217,7 +217,8 @@ _service()
 		if `which journalctl >/dev/null 2>&1`
 		then
 		    $sudo journalctl -n 10 -u pmcd -u pmlogger \
-		    | egrep " (pmcd)|(pmlogger)\\[" >$tmp.journal.pre
+		    | egrep " (pmcd)|(pmlogger)\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
 		elif `which systemd-journalctl >/dev/null 2>&1`
 		then
 		    $sudo systemd-journalctl -a -q -n 100 \
@@ -225,11 +226,12 @@ _service()
 		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
 		fi
 		$sudo $PCP_RC_DIR/pcp $2
-		sleep 1
+		sleep 2
 		if `which journalctl >/dev/null 2>&1`
 		then
 		    $sudo journalctl -n 10 -u pmcd -u pmlogger \
-		    | egrep " (pmcd)|(pmlogger)\\[" >$tmp.journal.post
+		    | egrep " (pmcd)|(pmlogger)\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.post
 		elif `which systemd-journalctl >/dev/null 2>&1`
 		then
 		    $sudo systemd-journalctl -a -q -n 100 \
@@ -241,7 +243,8 @@ _service()
 		if `which journalctl >/dev/null 2>&1`
 		then
 		    $sudo journalctl -n 10 -u $1 \
-		    | grep " $1\\[" >$tmp.journal.pre
+		    | grep " $1\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
 		elif `which systemd-journalctl >/dev/null 2>&1`
 		then
 		    $sudo systemd-journalctl -a -q -n 100 \
@@ -249,11 +252,12 @@ _service()
 		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
 		fi
 		$sudo systemctl $2 $1.service
-		sleep 1
+		sleep 2
 		if `which journalctl >/dev/null 2>&1`
 		then
 		    $sudo journalctl -n 10 -u $1 \
-		    | grep " $1\\[" >$tmp.journal.post
+		    | grep " $1\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.post
 		elif `which systemd-journalctl >/dev/null 2>&1`
 		then
 		    $sudo systemd-journalctl -a -q -n 100 \

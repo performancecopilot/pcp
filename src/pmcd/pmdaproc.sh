@@ -270,7 +270,9 @@ __pmda_restart_pmcd()
 	#
 	if `which journalctl >/dev/null 2>&1`
 	then
-	    journalctl -n 10 -u pmcd | grep " pmcd\\[" >$tmp.journal.pre
+	    journalctl -n 10 -u pmcd \
+	    | grep " pmcd\\[" \
+	    | sed -e 's/\.\.*done$//' >$tmp.journal.pre
 	elif `which systemd-journalctl >/dev/null 2>&1`
 	then
 	    systemd-journalctl -q -n 100 \
@@ -278,9 +280,12 @@ __pmda_restart_pmcd()
 	    | sed -e 's/\.\.*done$//' >$tmp.journal.pre
 	fi
 	systemctl restart pmcd.service
+        sleep 2
 	if `which journalctl >/dev/null 2>&1`
 	then
-	    journalctl -n 10 -u pmcd | grep " pmcd\\[" >$tmp.journal.post
+	    journalctl -n 10 -u pmcd \
+	    | grep " pmcd\\["  \
+	    | sed -e 's/\.\.*done$//' >$tmp.journal.post
 	elif `which systemd-journalctl >/dev/null 2>&1`
 	then
 	    systemd-journalctl -q -n 100 \
