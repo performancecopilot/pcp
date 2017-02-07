@@ -1108,11 +1108,16 @@ mem.vmstat {
 	balloon_inflate			60:28:104
 	balloon_migrate			60:28:105
 	compact_blocks_moved		60:28:57
+	compact_daemon_wake 		60:28:106
 	compact_fail			60:28:58
+	compact_free_scanned		60:28:107
+	compact_migrate_scanned		60:28:108
 	compact_pagemigrate_failed	60:28:59
 	compact_pages_moved		60:28:60
 	compact_stall			60:28:61
 	compact_success			60:28:62
+	drop_pagecache			60:28:109
+	drop_slab			60:28:110
 	htlb_buddy_alloc_fail		60:28:43
 	htlb_buddy_alloc_success	60:28:44
 	kswapd_inodesteal		60:28:33
@@ -1129,6 +1134,7 @@ mem.vmstat {
 	nr_dirty			60:28:0
 	nr_dirty_background_threshold	60:28:92
 	nr_dirty_threshold		60:28:93
+	nr_free_cma			60:28:111
 	nr_free_pages			60:28:47
 	nr_inactive_anon		60:28:48
 	nr_inactive_file		60:28:49
@@ -1137,6 +1143,7 @@ mem.vmstat {
 	nr_kernel_stack			60:28:52
 	nr_mapped			60:28:4
 	nr_mlock			60:28:53
+	nr_pages_scanned		60:28:112
 	nr_page_table_pages		60:28:3
 	nr_shmem			60:28:54
 	nr_slab				60:28:5
@@ -1144,6 +1151,7 @@ mem.vmstat {
 	nr_slab_unreclaimable		60:28:38
 	nr_unevictable			60:28:55
 	nr_unstable			60:28:2
+	nr_vmscan_immediate_reclaim	60:28:113
 	nr_vmscan_write			60:28:42
 	nr_writeback			60:28:1
 	nr_writeback_temp		60:28:56
@@ -1154,6 +1162,8 @@ mem.vmstat {
 	numa_local			60:28:98
 	numa_miss			60:28:99
 	numa_other			60:28:100
+	numa_pages_migrated		60:28:114
+	numa_pte_updates		60:28:115
 	pageoutrun			60:28:34
 	pgactivate			60:28:14
 	pgalloc_dma			60:28:12
@@ -1167,7 +1177,10 @@ mem.vmstat {
 	pgfault				60:28:16
 	pgfree				60:28:13
 	pginodesteal			60:28:30
+	pglazyfreed			60:28:116
 	pgmajfault			60:28:17
+	pgmigrate_fail			60:28:117
+	pgmigrate_success		60:28:118
 	pgpgin				60:28:6
 	pgpgout				60:28:7
 	pgrefill_dma			60:28:20
@@ -1192,11 +1205,15 @@ mem.vmstat {
 	pswpin				60:28:8
 	pswpout				60:28:9
 	slabs_scanned			60:28:31
-	thp_fault_alloc			60:28:73
-	thp_fault_fallback		60:28:74
 	thp_collapse_alloc		60:28:75
 	thp_collapse_alloc_failed	60:28:76
+	thp_deferred_split_page		60:28:119
+	thp_fault_alloc			60:28:73
+	thp_fault_fallback		60:28:74
 	thp_split			60:28:77
+	thp_split_page			60:28:120
+	thp_split_page_failed		60:28:121
+	thp_split_pmd			60:28:122
 	thp_zero_page_alloc	 	60:28:101
 	thp_zero_page_alloc_failed 	60:28:102
 	unevictable_pgs_cleared		60:28:78
@@ -1207,6 +1224,9 @@ mem.vmstat {
 	unevictable_pgs_rescued		60:28:83
 	unevictable_pgs_scanned		60:28:84
 	unevictable_pgs_stranded	60:28:85
+	workingset_activate		60:28:123
+	workingset_nodereclaim		60:28:124
+	workingset_refault		60:28:125
 	zone_reclaim_failed		60:28:86
 }
 

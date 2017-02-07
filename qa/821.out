@@ -437,7 +437,16 @@ mem.vmstat.balloon_migrate
 mem.vmstat.compact_blocks_moved
 No value(s) available!
 
+mem.vmstat.compact_daemon_wake
+No value(s) available!
+
 mem.vmstat.compact_fail
+    value 0
+
+mem.vmstat.compact_free_scanned
+    value 0
+
+mem.vmstat.compact_migrate_scanned
     value 0
 
 mem.vmstat.compact_pagemigrate_failed
@@ -450,6 +459,12 @@ mem.vmstat.compact_stall
     value 0
 
 mem.vmstat.compact_success
+    value 0
+
+mem.vmstat.drop_pagecache
+    value 0
+
+mem.vmstat.drop_slab
     value 0
 
 mem.vmstat.htlb_buddy_alloc_fail
@@ -500,6 +515,9 @@ mem.vmstat.nr_dirty_background_threshold
 mem.vmstat.nr_dirty_threshold
     value 588487
 
+mem.vmstat.nr_free_cma
+    value 0
+
 mem.vmstat.nr_free_pages
     value 1159538
 
@@ -527,6 +545,9 @@ mem.vmstat.nr_mlock
 mem.vmstat.nr_page_table_pages
     value 14211
 
+mem.vmstat.nr_pages_scanned
+    value 0
+
 mem.vmstat.nr_shmem
     value 101558
 
@@ -543,6 +564,9 @@ mem.vmstat.nr_unevictable
     value 4
 
 mem.vmstat.nr_unstable
+    value 0
+
+mem.vmstat.nr_vmscan_immediate_reclaim
     value 0
 
 mem.vmstat.nr_vmscan_write
@@ -573,6 +597,12 @@ mem.vmstat.numa_miss
     value 0
 
 mem.vmstat.numa_other
+    value 0
+
+mem.vmstat.numa_pages_migrated
+    value 0
+
+mem.vmstat.numa_pte_updates
     value 0
 
 mem.vmstat.pageoutrun
@@ -608,8 +638,17 @@ mem.vmstat.pgfree
 mem.vmstat.pginodesteal
     value 0
 
+mem.vmstat.pglazyfreed
+No value(s) available!
+
 mem.vmstat.pgmajfault
     value 9578
+
+mem.vmstat.pgmigrate_fail
+    value 0
+
+mem.vmstat.pgmigrate_success
+    value 0
 
 mem.vmstat.pgpgin
     value 5282454
@@ -695,6 +734,9 @@ mem.vmstat.thp_collapse_alloc
 mem.vmstat.thp_collapse_alloc_failed
     value 0
 
+mem.vmstat.thp_deferred_split_page
+No value(s) available!
+
 mem.vmstat.thp_fault_alloc
     value 0
 
@@ -703,6 +745,15 @@ mem.vmstat.thp_fault_fallback
 
 mem.vmstat.thp_split
     value 0
+
+mem.vmstat.thp_split_page
+No value(s) available!
+
+mem.vmstat.thp_split_page_failed
+No value(s) available!
+
+mem.vmstat.thp_split_pmd
+No value(s) available!
 
 mem.vmstat.thp_zero_page_alloc
     value 0
@@ -732,6 +783,15 @@ mem.vmstat.unevictable_pgs_scanned
     value 0
 
 mem.vmstat.unevictable_pgs_stranded
+    value 0
+
+mem.vmstat.workingset_activate
+    value 0
+
+mem.vmstat.workingset_nodereclaim
+    value 0
+
+mem.vmstat.workingset_refault
     value 0
 
 mem.vmstat.zone_reclaim_failed
@@ -2281,7 +2341,16 @@ No value(s) available!
 mem.vmstat.compact_blocks_moved
 No value(s) available!
 
+mem.vmstat.compact_daemon_wake
+No value(s) available!
+
 mem.vmstat.compact_fail
+    value 0
+
+mem.vmstat.compact_free_scanned
+    value 0
+
+mem.vmstat.compact_migrate_scanned
     value 0
 
 mem.vmstat.compact_pagemigrate_failed
@@ -2294,6 +2363,12 @@ mem.vmstat.compact_stall
     value 0
 
 mem.vmstat.compact_success
+    value 0
+
+mem.vmstat.drop_pagecache
+    value 0
+
+mem.vmstat.drop_slab
     value 0
 
 mem.vmstat.htlb_buddy_alloc_fail
@@ -2344,6 +2419,9 @@ mem.vmstat.nr_dirty_background_threshold
 mem.vmstat.nr_dirty_threshold
     value 11702906
 
+mem.vmstat.nr_free_cma
+    value 0
+
 mem.vmstat.nr_free_pages
     value 21821632
 
@@ -2371,6 +2449,9 @@ mem.vmstat.nr_mlock
 mem.vmstat.nr_page_table_pages
     value 10161
 
+mem.vmstat.nr_pages_scanned
+No value(s) available!
+
 mem.vmstat.nr_shmem
     value 250320
 
@@ -2387,6 +2468,9 @@ mem.vmstat.nr_unevictable
     value 37427
 
 mem.vmstat.nr_unstable
+    value 0
+
+mem.vmstat.nr_vmscan_immediate_reclaim
     value 0
 
 mem.vmstat.nr_vmscan_write
@@ -2418,6 +2502,12 @@ mem.vmstat.numa_miss
 
 mem.vmstat.numa_other
     value 65468
+
+mem.vmstat.numa_pages_migrated
+    value 82217758
+
+mem.vmstat.numa_pte_updates
+    value 3569108086
 
 mem.vmstat.pageoutrun
     value 2
@@ -2452,8 +2542,17 @@ mem.vmstat.pgfree
 mem.vmstat.pginodesteal
     value 0
 
+mem.vmstat.pglazyfreed
+No value(s) available!
+
 mem.vmstat.pgmajfault
     value 1209
+
+mem.vmstat.pgmigrate_fail
+    value 1543168
+
+mem.vmstat.pgmigrate_success
+    value 82217758
 
 mem.vmstat.pgpgin
     value 6503076
@@ -2539,6 +2638,9 @@ mem.vmstat.thp_collapse_alloc
 mem.vmstat.thp_collapse_alloc_failed
     value 0
 
+mem.vmstat.thp_deferred_split_page
+No value(s) available!
+
 mem.vmstat.thp_fault_alloc
     value 514958
 
@@ -2547,6 +2649,15 @@ mem.vmstat.thp_fault_fallback
 
 mem.vmstat.thp_split
     value 6484
+
+mem.vmstat.thp_split_page
+No value(s) available!
+
+mem.vmstat.thp_split_page_failed
+No value(s) available!
+
+mem.vmstat.thp_split_pmd
+No value(s) available!
 
 mem.vmstat.thp_zero_page_alloc
     value 1
@@ -2577,6 +2688,15 @@ mem.vmstat.unevictable_pgs_scanned
 
 mem.vmstat.unevictable_pgs_stranded
     value 323
+
+mem.vmstat.workingset_activate
+    value 0
+
+mem.vmstat.workingset_nodereclaim
+    value 0
+
+mem.vmstat.workingset_refault
+    value 0
 
 mem.vmstat.zone_reclaim_failed
     value 0
@@ -4028,7 +4148,16 @@ No value(s) available!
 mem.vmstat.compact_blocks_moved
 No value(s) available!
 
+mem.vmstat.compact_daemon_wake
+No value(s) available!
+
 mem.vmstat.compact_fail
+    value 0
+
+mem.vmstat.compact_free_scanned
+    value 0
+
+mem.vmstat.compact_migrate_scanned
     value 0
 
 mem.vmstat.compact_pagemigrate_failed
@@ -4041,6 +4170,12 @@ mem.vmstat.compact_stall
     value 0
 
 mem.vmstat.compact_success
+    value 0
+
+mem.vmstat.drop_pagecache
+    value 0
+
+mem.vmstat.drop_slab
     value 0
 
 mem.vmstat.htlb_buddy_alloc_fail
@@ -4091,6 +4226,9 @@ mem.vmstat.nr_dirty_background_threshold
 mem.vmstat.nr_dirty_threshold
     value 11702906
 
+mem.vmstat.nr_free_cma
+    value 0
+
 mem.vmstat.nr_free_pages
     value 21821632
 
@@ -4118,6 +4256,9 @@ mem.vmstat.nr_mlock
 mem.vmstat.nr_page_table_pages
     value 10161
 
+mem.vmstat.nr_pages_scanned
+No value(s) available!
+
 mem.vmstat.nr_shmem
     value 250320
 
@@ -4134,6 +4275,9 @@ mem.vmstat.nr_unevictable
     value 37427
 
 mem.vmstat.nr_unstable
+    value 0
+
+mem.vmstat.nr_vmscan_immediate_reclaim
     value 0
 
 mem.vmstat.nr_vmscan_write
@@ -4165,6 +4309,12 @@ mem.vmstat.numa_miss
 
 mem.vmstat.numa_other
     value 65468
+
+mem.vmstat.numa_pages_migrated
+    value 82217758
+
+mem.vmstat.numa_pte_updates
+    value 3569108086
 
 mem.vmstat.pageoutrun
     value 2
@@ -4199,8 +4349,17 @@ mem.vmstat.pgfree
 mem.vmstat.pginodesteal
     value 0
 
+mem.vmstat.pglazyfreed
+No value(s) available!
+
 mem.vmstat.pgmajfault
     value 1209
+
+mem.vmstat.pgmigrate_fail
+    value 1543168
+
+mem.vmstat.pgmigrate_success
+    value 82217758
 
 mem.vmstat.pgpgin
     value 6503076
@@ -4286,6 +4445,9 @@ mem.vmstat.thp_collapse_alloc
 mem.vmstat.thp_collapse_alloc_failed
     value 0
 
+mem.vmstat.thp_deferred_split_page
+No value(s) available!
+
 mem.vmstat.thp_fault_alloc
     value 514958
 
@@ -4294,6 +4456,15 @@ mem.vmstat.thp_fault_fallback
 
 mem.vmstat.thp_split
     value 6484
+
+mem.vmstat.thp_split_page
+No value(s) available!
+
+mem.vmstat.thp_split_page_failed
+No value(s) available!
+
+mem.vmstat.thp_split_pmd
+No value(s) available!
 
 mem.vmstat.thp_zero_page_alloc
     value 1
@@ -4324,6 +4495,15 @@ mem.vmstat.unevictable_pgs_scanned
 
 mem.vmstat.unevictable_pgs_stranded
     value 323
+
+mem.vmstat.workingset_activate
+    value 0
+
+mem.vmstat.workingset_nodereclaim
+    value 0
+
+mem.vmstat.workingset_refault
+    value 0
 
 mem.vmstat.zone_reclaim_failed
     value 0

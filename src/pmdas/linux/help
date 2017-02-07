@@ -850,7 +850,7 @@ Count of normal mem pages scanned since boot, from /proc/vmstat
 Count of dma mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_direct_dma32 dma32 mem pages scanned
 Count of dma32 mem pages scanned since boot, from /proc/vmstat
-@ mem.vmstat.pgscan_direct_movable 
+@ mem.vmstat.pgscan_direct_movable movable mem pages scanned
 Count of movable mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pginodesteal pages reclaimed via inode freeing
 Count of pages reclaimed via inode freeing since boot, from /proc/vmstat
@@ -931,6 +931,29 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ mem.vmstat.balloon_inflate count of virt guest balloon page inflations
 @ mem.vmstat.balloon_deflate number of virt guest balloon page deflations
 @ mem.vmstat.balloon_migrate number of virt guest balloon page migrations
+@ mem.vmstat.compact_daemon_wake number of times the memory compaction daemon was woken
+@ mem.vmstat.compact_free_scanned count of pages scanned for freeing by compaction daemon
+@ mem.vmstat.compact_migrate_scanned count of pages scanned for migration by compaction daemon
+@ mem.vmstat.drop_pagecache count of calls to drop page cache pages
+@ mem.vmstat.drop_slab count of calls to drop slab cache pages
+@ mem.vmstat.nr_free_cma count of free Contiguous Memory Allocator pages
+@ mem.vmstat.nr_pages_scanned count of pages scanned during page reclaim
+@ mem.vmstat.nr_vmscan_immediate_reclaim prioritise for reclaim when writeback ends
+@ mem.vmstat.numa_pages_migrated count of NUMA page migrations
+@ mem.vmstat.numa_pte_updates count of NUMA page table entry updates
+@ mem.vmstat.pglazyfreed count of pages lazily freed
+@ mem.vmstat.pgmigrate_fail count of unsuccessful NUMA page migrations
+@ mem.vmstat.pgmigrate_success count of successful NUMA page migrations
+@ mem.vmstat.thp_deferred_split_page count of huge page enqueues for splitting
+@ mem.vmstat.thp_split_page count of huge page splits into base pages
+@ mem.vmstat.thp_split_page_failed count of failures to split a huge page
+@ mem.vmstat.thp_split_pmd count of times a PMD was split into table of PTEs
+This can happen, for instance, when an application calls mprotect() or
+munmap() on part of huge page. It doesn't split huge page, only the page
+table entry.
+@ mem.vmstat.workingset_activate count of page activations to form the working set
+@ mem.vmstat.workingset_nodereclaim count of NUMA node working set page reclaims
+@ mem.vmstat.workingset_refault count of refaults of previously evicted pages
 @ mem.zoneinfo.free free space in each zone for each NUMA node
 @ mem.zoneinfo.min  min space in each zone for each NUMA node
 @ mem.zoneinfo.low  low space in each zone for each NUMA node

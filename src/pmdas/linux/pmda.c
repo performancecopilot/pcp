@@ -4589,6 +4589,106 @@ static pmdaMetric metrictab[] = {
     {PMDA_PMID(28,105), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+    /* mem.vmstat.compact_daemon_wake */
+    { &_pm_proc_vmstat.compact_daemon_wake,
+    {PMDA_PMID(28,106), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.compact_free_scanned */
+    { &_pm_proc_vmstat.compact_free_scanned,
+    {PMDA_PMID(28,107), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.compact_migrate_scanned */
+    { &_pm_proc_vmstat.compact_migrate_scanned,
+    {PMDA_PMID(28,108), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.drop_pagecache */
+    { &_pm_proc_vmstat.drop_pagecache,
+    {PMDA_PMID(28,109), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.drop_slab */
+    { &_pm_proc_vmstat.drop_slab,
+    {PMDA_PMID(28,110), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_free_cma */
+    { &_pm_proc_vmstat.nr_free_cma,
+    {PMDA_PMID(28,111), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_pages_scanned */
+    { &_pm_proc_vmstat.nr_pages_scanned,
+    {PMDA_PMID(28,112), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_vmscan_immediate_reclaim */
+    { &_pm_proc_vmstat.nr_vmscan_immediate_reclaim,
+    {PMDA_PMID(28,113), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.numa_pages_migrated */
+    { &_pm_proc_vmstat.numa_pages_migrated,
+    {PMDA_PMID(28,114), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.numa_pte_updates */
+    { &_pm_proc_vmstat.numa_pte_updates,
+    {PMDA_PMID(28,115), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pglazyfreed */
+    { &_pm_proc_vmstat.pglazyfreed,
+    {PMDA_PMID(28,116), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgmigrate_fail */
+    { &_pm_proc_vmstat.pgmigrate_fail,
+    {PMDA_PMID(28,117), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgmigrate_success */
+    { &_pm_proc_vmstat.pgmigrate_success,
+    {PMDA_PMID(28,118), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.thp_deferred_split_page */
+    { &_pm_proc_vmstat.thp_deferred_split_page,
+    {PMDA_PMID(28,119), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.thp_split_page */
+    { &_pm_proc_vmstat.thp_split_page,
+    {PMDA_PMID(28,120), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.thp_split_page_failed */
+    { &_pm_proc_vmstat.thp_split_page_failed,
+    {PMDA_PMID(28,121), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.thp_split_pmd */ 
+    { &_pm_proc_vmstat.thp_split_pmd,
+    {PMDA_PMID(28,122), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.workingset_activate */
+    { &_pm_proc_vmstat.workingset_activate,
+    {PMDA_PMID(28,123), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.workingset_nodereclaim */
+    { &_pm_proc_vmstat.workingset_nodereclaim,
+    {PMDA_PMID(28,124), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.workingset_refault */
+    { &_pm_proc_vmstat.workingset_refault,
+    {PMDA_PMID(28,125), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /*
  * sysfs_kernel cluster
  */
