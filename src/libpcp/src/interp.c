@@ -709,6 +709,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
     __pmHashNode	*ihp;
     pmidcntl_t	*pcp = NULL;	/* initialize to pander to gcc */
     instcntl_t	*icp = NULL;	/* initialize to pander to gcc */
+    instcntl_t	*ub, *ub_prev;
     int		back = 0;
     int		forw = 0;
     int		done;
@@ -1040,8 +1041,20 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 			(IS_MARK(icp->s_next) && icp->t_prior == t_req)) {
 			back++;
 			icp->search = 1;
-			icp->unbound = (instcntl_t *)ctxp->c_archctl->ac_unbound;
-			ctxp->c_archctl->ac_unbound = icp;
+			/* Add it to the unbound list in descending order of t_first */
+			ub_prev = NULL;
+			for (ub = (instcntl_t *)ctxp->c_archctl->ac_unbound;
+			     ub != NULL;
+			     ub = ub->unbound) {
+			    if (icp->t_first >= ub->t_first)
+				break;
+			    ub_prev = ub;
+			}
+			if (ub_prev)
+			    ub_prev->unbound = icp;
+			else
+			    ctxp->c_archctl->ac_unbound = icp;
+			icp->unbound = ub;
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_INTERP)
 			    dumpicp("search back", icp);
@@ -1088,11 +1101,14 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 
 	    /*
-	     * forget about those that can never be found from here
-	     * in this direction
+	     * Forget about those that can never be found from here
+	     * in this direction. The unbound list is sorted in order of descending t_first.
+	     * We can abandon the traversal once t_first is less than t_this.
 	     */
 	    for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
-		if (icp->search && t_this <= icp->t_first) {
+		if (icp->t_first < t_this)
+		    break;
+		if (icp->search) {
 		    icp->search = 0;
 		    SET_SCANNED(icp->s_prior);
 		    done++;
@@ -1165,8 +1181,21 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 			(IS_MARK(icp->s_prior) && icp->t_next == t_req)) {
 			forw++;
 			icp->search = 1;
-			icp->unbound = (instcntl_t *)ctxp->c_archctl->ac_unbound;
-			ctxp->c_archctl->ac_unbound = icp;
+
+			/* Add it to the unbound list in ascending order of t_last */
+			ub_prev = NULL;
+			for (ub = (instcntl_t *)ctxp->c_archctl->ac_unbound;
+			     ub != NULL;
+			     ub = ub->unbound) {
+			    if (icp->t_last <= ub->t_last)
+				break;
+			    ub_prev = ub;
+			}
+			if (ub_prev)
+			    ub_prev->unbound = icp;
+			else
+			    ctxp->c_archctl->ac_unbound = icp;
+			icp->unbound = ub;
 #ifdef PCP_DEBUG
 			if (pmDebug & DBG_TRACE_INTERP)
 			    dumpicp("search forw", icp);
@@ -1214,11 +1243,14 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 
 	    /*
-	     * forget about those that can never be found from here
-	     * in this direction
+	     * Forget about those that can never be found from here
+	     * in this direction. The unbound list is sorted in order of ascending t_last.
+	     * We can abandon the traversal once t_last is greater than than t_this.
 	     */
 	    for (icp = (instcntl_t *)ctxp->c_archctl->ac_unbound; icp != NULL; icp = icp->unbound) {
-		if (icp->search && icp->t_last >= 0 && t_this >= icp->t_last) {
+		if (icp->t_last > t_this)
+		    break;
+		if (icp->search && icp->t_last >= 0) {
 		    icp->search = 0;
 		    SET_SCANNED(icp->s_next);
 		    done++;
