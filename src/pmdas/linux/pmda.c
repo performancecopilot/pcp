@@ -4689,6 +4689,66 @@ static pmdaMetric metrictab[] = {
     {PMDA_PMID(28,125), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+    /* mem.vmstat.compact_isolated */
+    { &_pm_proc_vmstat.compact_isolated,
+    {PMDA_PMID(28,126), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_shmem_hugepages */
+    { &_pm_proc_vmstat.nr_shmem_hugepages,
+    {PMDA_PMID(28,127), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_shmem_pmdmapped */
+    { &_pm_proc_vmstat.nr_shmem_pmdmapped,
+    {PMDA_PMID(28,128), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_zone_inactive_anon */
+    { &_pm_proc_vmstat.nr_zone_inactive_anon,
+    {PMDA_PMID(28,129), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_zone_active_anon */
+    { &_pm_proc_vmstat.nr_zone_active_anon,
+    {PMDA_PMID(28,130), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_zone_inactive_file */
+    { &_pm_proc_vmstat.nr_zone_inactive_file,
+    {PMDA_PMID(28,131), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_zone_active_file */
+    { &_pm_proc_vmstat.nr_zone_active_file,
+    {PMDA_PMID(28,132), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_zone_unevictable */
+    { &_pm_proc_vmstat.nr_zone_unevictable,
+    {PMDA_PMID(28,133), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_zone_write_pending */
+    { &_pm_proc_vmstat.nr_zone_write_pending,
+    {PMDA_PMID(28,134), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_zspages */
+    { &_pm_proc_vmstat.nr_zspages,
+    {PMDA_PMID(28,135), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.thp_file_alloc */
+    { &_pm_proc_vmstat.thp_file_alloc,
+    {PMDA_PMID(28,136), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.thp_file_mapped */
+    { &_pm_proc_vmstat.thp_file_mapped,
+    {PMDA_PMID(28,137), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /*
  * sysfs_kernel cluster
  */

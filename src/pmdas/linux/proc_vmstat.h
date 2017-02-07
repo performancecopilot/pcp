@@ -29,6 +29,7 @@ typedef struct {
 	__uint64_t compact_daemon_wake;
 	__uint64_t compact_fail;
 	__uint64_t compact_free_scanned;
+	__uint64_t compact_isolated;
 	__uint64_t compact_migrate_scanned;
 	__uint64_t compact_pagemigrate_failed;
 	__uint64_t compact_pages_moved;
@@ -65,6 +66,8 @@ typedef struct {
 	__uint64_t nr_pages_scanned;
 	__uint64_t nr_page_table_pages;
 	__uint64_t nr_shmem;
+	__uint64_t nr_shmem_hugepages;
+	__uint64_t nr_shmem_pmdmapped;
 	__uint64_t nr_slab;
 	__uint64_t nr_slab_reclaimable;
 	__uint64_t nr_slab_unreclaimable;
@@ -75,6 +78,13 @@ typedef struct {
 	__uint64_t nr_writeback;
 	__uint64_t nr_writeback_temp;
 	__uint64_t nr_written;
+	__uint64_t nr_zone_inactive_anon;
+	__uint64_t nr_zone_active_anon;
+	__uint64_t nr_zone_inactive_file;
+	__uint64_t nr_zone_active_file;
+	__uint64_t nr_zone_unevictable;
+	__uint64_t nr_zone_write_pending;
+	__uint64_t nr_zspages;
 	__uint64_t numa_foreign;
 	__uint64_t numa_hint_faults;
 	__uint64_t numa_hint_faults_local;
@@ -133,6 +143,8 @@ typedef struct {
 	__uint64_t thp_deferred_split_page;
 	__uint64_t thp_fault_alloc;
 	__uint64_t thp_fault_fallback;
+	__uint64_t thp_file_alloc;
+	__uint64_t thp_file_mapped;
 	__uint64_t thp_split;
 	__uint64_t thp_split_page;
 	__uint64_t thp_split_page_failed;

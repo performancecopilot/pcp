@@ -446,6 +446,9 @@ mem.vmstat.compact_fail
 mem.vmstat.compact_free_scanned
     value 0
 
+mem.vmstat.compact_isolated
+    value 0
+
 mem.vmstat.compact_migrate_scanned
     value 0
 
@@ -551,6 +554,12 @@ mem.vmstat.nr_pages_scanned
 mem.vmstat.nr_shmem
     value 101558
 
+mem.vmstat.nr_shmem_hugepages
+No value(s) available!
+
+mem.vmstat.nr_shmem_pmdmapped
+No value(s) available!
+
 mem.vmstat.nr_slab
     value 334774
 
@@ -580,6 +589,27 @@ mem.vmstat.nr_writeback_temp
 
 mem.vmstat.nr_written
     value 4480980
+
+mem.vmstat.nr_zone_active_anon
+No value(s) available!
+
+mem.vmstat.nr_zone_active_file
+No value(s) available!
+
+mem.vmstat.nr_zone_inactive_anon
+No value(s) available!
+
+mem.vmstat.nr_zone_inactive_file
+No value(s) available!
+
+mem.vmstat.nr_zone_unevictable
+No value(s) available!
+
+mem.vmstat.nr_zone_write_pending
+No value(s) available!
+
+mem.vmstat.nr_zspages
+No value(s) available!
 
 mem.vmstat.numa_foreign
     value 0
@@ -742,6 +772,12 @@ mem.vmstat.thp_fault_alloc
 
 mem.vmstat.thp_fault_fallback
     value 0
+
+mem.vmstat.thp_file_alloc
+No value(s) available!
+
+mem.vmstat.thp_file_mapped
+No value(s) available!
 
 mem.vmstat.thp_split
     value 0
@@ -2350,6 +2386,9 @@ mem.vmstat.compact_fail
 mem.vmstat.compact_free_scanned
     value 0
 
+mem.vmstat.compact_isolated
+    value 0
+
 mem.vmstat.compact_migrate_scanned
     value 0
 
@@ -2455,6 +2494,12 @@ No value(s) available!
 mem.vmstat.nr_shmem
     value 250320
 
+mem.vmstat.nr_shmem_hugepages
+No value(s) available!
+
+mem.vmstat.nr_shmem_pmdmapped
+No value(s) available!
+
 mem.vmstat.nr_slab
     value 363002
 
@@ -2484,6 +2529,27 @@ mem.vmstat.nr_writeback_temp
 
 mem.vmstat.nr_written
     value 9249283
+
+mem.vmstat.nr_zone_active_anon
+No value(s) available!
+
+mem.vmstat.nr_zone_active_file
+No value(s) available!
+
+mem.vmstat.nr_zone_inactive_anon
+No value(s) available!
+
+mem.vmstat.nr_zone_inactive_file
+No value(s) available!
+
+mem.vmstat.nr_zone_unevictable
+No value(s) available!
+
+mem.vmstat.nr_zone_write_pending
+No value(s) available!
+
+mem.vmstat.nr_zspages
+No value(s) available!
 
 mem.vmstat.numa_foreign
     value 0
@@ -2646,6 +2712,12 @@ mem.vmstat.thp_fault_alloc
 
 mem.vmstat.thp_fault_fallback
     value 0
+
+mem.vmstat.thp_file_alloc
+No value(s) available!
+
+mem.vmstat.thp_file_mapped
+No value(s) available!
 
 mem.vmstat.thp_split
     value 6484
@@ -4157,6 +4229,9 @@ mem.vmstat.compact_fail
 mem.vmstat.compact_free_scanned
     value 0
 
+mem.vmstat.compact_isolated
+    value 0
+
 mem.vmstat.compact_migrate_scanned
     value 0
 
@@ -4262,6 +4337,12 @@ No value(s) available!
 mem.vmstat.nr_shmem
     value 250320
 
+mem.vmstat.nr_shmem_hugepages
+No value(s) available!
+
+mem.vmstat.nr_shmem_pmdmapped
+No value(s) available!
+
 mem.vmstat.nr_slab
     value 363002
 
@@ -4291,6 +4372,27 @@ mem.vmstat.nr_writeback_temp
 
 mem.vmstat.nr_written
     value 9249283
+
+mem.vmstat.nr_zone_active_anon
+No value(s) available!
+
+mem.vmstat.nr_zone_active_file
+No value(s) available!
+
+mem.vmstat.nr_zone_inactive_anon
+No value(s) available!
+
+mem.vmstat.nr_zone_inactive_file
+No value(s) available!
+
+mem.vmstat.nr_zone_unevictable
+No value(s) available!
+
+mem.vmstat.nr_zone_write_pending
+No value(s) available!
+
+mem.vmstat.nr_zspages
+No value(s) available!
 
 mem.vmstat.numa_foreign
     value 0
@@ -4453,6 +4555,12 @@ mem.vmstat.thp_fault_alloc
 
 mem.vmstat.thp_fault_fallback
     value 0
+
+mem.vmstat.thp_file_alloc
+No value(s) available!
+
+mem.vmstat.thp_file_mapped
+No value(s) available!
 
 mem.vmstat.thp_split
     value 6484

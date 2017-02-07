@@ -954,6 +954,18 @@ table entry.
 @ mem.vmstat.workingset_activate count of page activations to form the working set
 @ mem.vmstat.workingset_nodereclaim count of NUMA node working set page reclaims
 @ mem.vmstat.workingset_refault count of refaults of previously evicted pages
+@ mem.vmstat.compact_isolated count of page isolations for memory compaction
+@ mem.vmstat.nr_shmem_hugepages number of huge pages used for shared memory
+@ mem.vmstat.nr_shmem_pmdmapped number of huge page PMD mappings
+@ mem.vmstat.nr_zone_inactive_anon number of inactive anonymous memory pages in zones
+@ mem.vmstat.nr_zone_active_anon number of inactive file memory pages in zones
+@ mem.vmstat.nr_zone_inactive_file number of isolated anonymous memory pages in zones
+@ mem.vmstat.nr_zone_active_file number of isolated file memory pages in zones
+@ mem.vmstat.nr_zone_unevictable number of unevictable memory pages in zones
+@ mem.vmstat.nr_zone_write_pending count of dirty, writeback and unstable pages
+@ mem.vmstat.nr_zspages number of compressed pages
+@ mem.vmstat.thp_file_alloc count of times huge pages were allocated and put in page cache
+@ mem.vmstat.thp_file_mapped count of times huge pages were used for file mappings
 @ mem.zoneinfo.free free space in each zone for each NUMA node
 @ mem.zoneinfo.min  min space in each zone for each NUMA node
 @ mem.zoneinfo.low  low space in each zone for each NUMA node
