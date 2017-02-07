@@ -22,6 +22,8 @@ require {
 	type saslauthd_t; # pcp-lio
 	type modules_object_t; # pcp-lio
 	type nsfs_t; # filesys.used
+	type pcp_pmie_exec_t; # pmdasummary
+	type debugfs_t; # pmdalibvirt
 	class lnk_file { read getattr };
 	class file { append create execute execute_no_trans getattr ioctl open read write };
 	class dir { add_name open read search write getattr };
@@ -64,6 +66,9 @@ allow pcp_pmcd_t svirt_lxc_net_t:dir { open read search };
 allow pcp_pmcd_t sysctl_net_t:dir search;
 allow pcp_pmcd_t sysctl_net_t:file { getattr open read };
 allow pcp_pmcd_t user_home_t:file { execute execute_no_trans open read };
+allow pcp_pmcd_t debugfs_t:dir read;
+allow pcp_pmcd_t debugfs_t:file { getattr ioctl open read };
+allow pcp_pmcd_t pcp_pmie_exec_t:file { execute execute_no_trans open read };
 
 
 #type=AVC msg=audit(1463754714.313:316): avc:  denied  { net_admin } for  pid=2335 comm="pmcd" capability=12  scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=capability permissive=1
