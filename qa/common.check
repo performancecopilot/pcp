@@ -13,6 +13,10 @@ fi
 # need to know what version we're running
 . ./localconfig
 
+# Ken is never going to use systemd to control PCP daemons during QA
+#
+[ "`id -un`" = kenj ] && export PCPQA_SYSTEMD=no
+
 # common routine for preventing a test from running on some platforms
 # use: _notrun "Reason for not running this test is ..."
 # 
