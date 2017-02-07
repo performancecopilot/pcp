@@ -1,0 +1,81 @@
+QA output created by 917
+/usr/bin/sedismod
+full policy modules list on the system
+400 pcpupstream       pp         
+Checking policies.
+Reading policy...
+libsepol.policydb_index_others: security:  0 users, 1 roles, 23 types, 0 bools
+libsepol.policydb_index_others: security: 0 sens, 0 cats
+libsepol.policydb_index_others: security:  8 classes, 0 rules, 0 cond rules
+libsepol.policydb_index_others: security:  0 users, 1 roles, 23 types, 0 bools
+libsepol.policydb_index_others: security: 0 sens, 0 cats
+libsepol.policydb_index_others: security:  8 classes, 0 rules, 0 cond rules
+Binary policy module file loaded.
+Module name: pcpupstream
+Module version: 1.0
+
+
+Select a command:
+1)  display unconditional AVTAB
+2)  display conditional AVTAB
+3)  display users
+4)  display bools
+5)  display roles
+6)  display types, attributes, and aliases
+7)  display role transitions
+8)  display role allows
+9)  Display policycon
+0)  Display initial SIDs
+
+a)  Display avrule requirements
+b)  Display avrule declarations
+c)  Display policy capabilities
+l)  Link in a module
+u)  Display the unknown handling setting
+F)  Display filename_trans rules
+
+f)  set output file
+m)  display menu
+q)  quit
+
+Command ('m' for menu):  unconditional avtab:
+--- begin avrule block ---
+decl 1:
+  allow [init_t] [pcp_log_t] : [dir] { read };
+  allow [init_t] [pcp_log_t] : [file] { getattr };
+  allow [init_t] [pcp_var_lib_t] : [dir] { add_name read write };
+  allow [init_t] [pcp_var_lib_t] : [file] { append create execute execute_no_trans getattr ioctl open read write };
+  allow [init_t] [pcp_var_lib_t] : [lnk_file] { read };
+  allow [init_t] [tmp_t] : [file] { open };
+  allow [pcp_pmcd_t] [docker_var_lib_t] : [dir] { search };
+  allow [pcp_pmcd_t] [container_runtime_t] : [unix_stream_socket] { connectto };
+  allow [pcp_pmcd_t] [svirt_sandbox_file_t] : [dir] { open read search };
+  allow [pcp_pmcd_t] [svirt_lxc_net_t] : [dir] { open read search };
+  allow [pcp_pmcd_t] [sysctl_net_t] : [dir] { search };
+  allow [pcp_pmcd_t] [sysctl_net_t] : [file] { getattr open read };
+  allow [pcp_pmcd_t] [user_home_t] : [file] { execute execute_no_trans open read };
+  allow [pcp_pmcd_t] [debugfs_t] : [dir] { read };
+  allow [pcp_pmcd_t] [debugfs_t] : [file] { getattr ioctl open read };
+  allow [pcp_pmcd_t] [pcp_pmie_exec_t] : [file] { execute execute_no_trans open read };
+  allow [pcp_pmcd_t] self : [capability] { net_admin };
+  allow [pcp_pmcd_t] self : [capability] { sys_chroot };
+  allow [pcp_pmcd_t] [nsfs_t] : [file] { open read };
+  allow [pcp_pmcd_t] [pcp_log_t] : [fifo_file] { getattr read open };
+  allow [pcp_pmlogger_t] [kmsg_device_t] : [chr_file] { open write };
+  allow [pcp_pmlogger_t] self : [capability] { kill };
+  allow [pcp_pmlogger_t] [init_t] : [system] { status };
+  allow [pcp_pmlogger_t] self : [capability] { sys_ptrace };
+  allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read };
+  allow [pcp_pmie_t] self : [capability] { kill net_admin chown };
+  allow [pcp_pmie_t] [init_t] : [system] { status };
+  allow [pcp_pmcd_t] [configfs_t] : [dir] { open read search };
+  allow [pcp_pmcd_t] [configfs_t] : [file] { getattr open read };
+  allow [pcp_pmcd_t] [configfs_t] : [lnk_file] { read getattr };
+  allow [pcp_pmcd_t] [ldconfig_exec_t] : [file] { execute execute_no_trans getattr open read };
+  allow [pcp_pmcd_t] [modules_conf_t] : [dir] { open read getattr };
+  allow [pcp_pmcd_t] [modules_conf_t] : [file] { getattr open read };
+  allow [pcp_pmcd_t] [modules_object_t] : [dir] { search };
+  allow [pcp_pmcd_t] [modules_object_t] : [file] { getattr open read };
+  allow [pcp_pmcd_t] [saslauthd_t] : [unix_stream_socket] { connectto };
+
+Command ('m' for menu):  

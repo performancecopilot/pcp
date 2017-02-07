@@ -184,6 +184,11 @@ AC_ARG_WITH([parfait],
     [do_parfait=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-parfait=$withval"],
     [do_parfait=no])
 
+AC_ARG_WITH([selinux],
+    [AC_HELP_STRING([--with-selinux],
+                    [enable building of selinux package (default is on)])],
+    [do_selinux=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-selinux=$withval"],
+    [do_selinux=check])
 dnl things set in the environment by Makepkgs never make it into an RPM
 dnl build where the environment is stripped ... use a --with-foo=path
 dnl construct to workaround this
@@ -1832,6 +1837,21 @@ AS_IF([test "x$do_manager" != "xno"], [
 	AC_MSG_RESULT(no))
 ])
 AC_SUBST(enable_manager)
+
+enable_selinux=false
+AS_IF([test "x$do_selinux" != "xno"], [
+pcp_selinux_dir=""
+    if test -f /usr/share/selinux/devel/Makefile
+    then
+        pcp_selinux_dir="/var/lib/pcp/selinux"
+	enable_selinux=true
+    else
+	AC_MSG_ERROR([Cannot find SELinux Makefile to build policy package])
+    fi
+])
+AC_SUBST(enable_selinux)
+AC_SUBST(pcp_selinux_dir)
+
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL

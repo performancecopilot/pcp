@@ -701,6 +701,8 @@ fmt_uint64
 fmt_int64
 fmt_pid
 rdynamic_flag
+pcp_selinux_dir
+enable_selinux
 enable_manager
 enable_webapi
 HAVE_CAIRO
@@ -963,6 +965,7 @@ with_webapi
 with_webjs
 with_vector
 with_parfait
+with_selinux
 with_make
 with_tar
 with_zip
@@ -1677,6 +1680,7 @@ Optional Packages:
   --with-webjs            enable building of webjs packages (default is off)
   --with-vector           enable building of vector package (default is off)
   --with-parfait          enable building of parfait package (default is off)
+  --with-selinux          enable building of selinux package (default is on)
   --with-make             path to GNU compatible make(1) (default is empty for
                           auto discovery)
   --with-tar              path to GNU compatible tar(1) (default is empty for
@@ -2844,6 +2848,14 @@ else
   do_parfait=no
 fi
 
+
+
+# Check whether --with-selinux was given.
+if test "${with_selinux+set}" = set; then :
+  withval=$with_selinux; do_selinux=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-selinux=$withval"
+else
+  do_selinux=check
+fi
 
 
 
@@ -11066,6 +11078,23 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 fi
+
+
+enable_selinux=false
+if test "x$do_selinux" != "xno"; then :
+
+pcp_selinux_dir=""
+    if test -f /usr/share/selinux/devel/Makefile
+    then
+        pcp_selinux_dir="/var/lib/pcp/selinux"
+	enable_selinux=true
+    else
+	as_fn_error $? "Cannot find SELinux Makefile to build policy package" "$LINENO" 5
+    fi
+
+fi
+
+
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking return type of signal handlers" >&5

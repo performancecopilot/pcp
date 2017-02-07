@@ -58,7 +58,10 @@ Remote API metric requests are activated automatically and are fetched
 on a timer.  This timer is represented as a by
 .B pmda\*(ia
 via the
-.B docker.control.timing .
+.B docker.control.timing.
+By default,
+.B pmda\*(ia
+will be set to fetch on a 1 second interval.
 .PP
 
 .B pmda\*(ia
@@ -73,7 +76,7 @@ name or if the container is running.
 .B /version
 Basic version metrics about the current docker deamon in use.
 .TP
-.B /containers/$ID/stats?steam=0
+.B /containers/$ID/stats?stream=0
 More in depth memory and cpu metrics of the container.
 .SH INSTALLATION
 If you want access to the names, help text and values for the \*(ia
