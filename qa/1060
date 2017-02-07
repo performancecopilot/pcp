@@ -21,8 +21,10 @@ _filter()
 {
     sed \
 	-e "s/Ran 5 tests in 0.[0-9][0-9][0-9]s/Ran 5 tests in 0.XXXs/" \
+	-e "/^$/d" \
     # end
 }
+[ -d $pmda_path ] || _notrun "LIO PMDA is not installed"
 
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
@@ -35,9 +37,33 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
+pmdalio_remove()
+{
+    cd $pmda_path
+    echo
+    echo "=== remove LIO agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+}
+
+pmdalio_install()
+{
+    cd $pmda_path
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo
+    echo "=== LIO agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cd $here
+}
+
 # real QA test starts here
+_prepare_pmda lio
+
+pmdalio_install
 
 $sudo python lio/lio_test.py 2>&1 | LC_COLLATE=POSIX sort | _filter
+
+pmdalio_remove
 
 # success, all done
 status=0
