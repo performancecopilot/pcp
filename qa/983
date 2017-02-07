@@ -31,7 +31,6 @@ signal=$PCP_BINADM_DIR/pmsignal
 
 _cleanup()
 {
-    $sudo rm -f $tmp.*
     [ -z "$pmcd_pid" ] || sudo $signal $pmcd_pid
     [ -z "$socat_pid" ] || sudo $signal $socat_pid
     _wait_pmcd_end
@@ -40,6 +39,7 @@ _cleanup()
     | sed -e '/Waiting for pmcd to terminate/d'
     _wait_for_pmcd
     _wait_for_pmlogger
+    $sudo rm -f $tmp.*
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 

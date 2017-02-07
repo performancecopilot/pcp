@@ -122,7 +122,7 @@ cleanup()
 	&& $sudo sh $tmp.cmd
 	echo "Restarting pmcd"
 	_service pcp restart >/dev/null
-	_restore_systemd_restart pmcd
+	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
     fi
@@ -140,7 +140,7 @@ interrupt()
 trap "interrupt; exit \$status" 1 2 3 15
 trap "cleanup; exit \$status" 0
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 _service pcp stop | _filter_pcp_stop
 
 cat <<End-of-File >$tmp.c

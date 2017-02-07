@@ -72,10 +72,10 @@ pmns=$PCP_PMDAS_DIR/papi/root
 pmda=$PCP_PMDAS_DIR/papi/pmda_papi.$DSO_SUFFIX,papi_init
 
 _prepare_pmda papi
-# note: _restore_systemd_restart pmcd done in _cleanup_pmda()
+# note: _restore_auto_restart pmcd done in _cleanup_pmda()
 trap "_cleanup_pmda papi; exit \$status" 0 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 pmdapapi_install
 

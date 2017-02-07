@@ -124,7 +124,7 @@ _restore_config()
 
 # systemd config changes
 #
-_stop_systemd_restart()
+_stop_auto_restart()
 {
     if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service ]
     then
@@ -143,7 +143,7 @@ _stop_systemd_restart()
     fi
 }
 
-_restore_systemd_restart()
+_restore_auto_restart()
 {
     if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service.$seq ]
     then
@@ -216,11 +216,11 @@ _service()
 		#
 		if `which journalctl >/dev/null 2>&1`
 		then
-		    journalctl -n 10 -u pmcd -u pmlogger \
+		    $sudo journalctl -n 10 -u pmcd -u pmlogger \
 		    | egrep " (pmcd)|(pmlogger)\\[" >$tmp.journal.pre
 		elif `which systemd-journalctl >/dev/null 2>&1`
 		then
-		    systemd-journalctl -a -q -n 100 \
+		    $sudo systemd-journalctl -a -q -n 100 \
 		    | egrep " (pmcd)|(pmlogger)\\[" \
 		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
 		fi
@@ -228,11 +228,11 @@ _service()
 		sleep 1
 		if `which journalctl >/dev/null 2>&1`
 		then
-		    journalctl -n 10 -u pmcd -u pmlogger \
+		    $sudo journalctl -n 10 -u pmcd -u pmlogger \
 		    | egrep " (pmcd)|(pmlogger)\\[" >$tmp.journal.post
 		elif `which systemd-journalctl >/dev/null 2>&1`
 		then
-		    systemd-journalctl -a -q -n 100 \
+		    $sudo systemd-journalctl -a -q -n 100 \
 		    | egrep " (pmcd)|(pmlogger)\\[" \
 		    | sed -e 's/\.\.done$//' >$tmp.journal.post
 		fi
@@ -240,11 +240,11 @@ _service()
 	    *)
 		if `which journalctl >/dev/null 2>&1`
 		then
-		    journalctl -n 10 -u pmcd -u pmlogger \
+		    $sudo journalctl -n 10 -u $1 \
 		    | grep " $1\\[" >$tmp.journal.pre
 		elif `which systemd-journalctl >/dev/null 2>&1`
 		then
-		    systemd-journalctl -a -q -n 100 \
+		    $sudo systemd-journalctl -a -q -n 100 \
 		    | egrep " $1\\[" \
 		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
 		fi
@@ -252,11 +252,11 @@ _service()
 		sleep 1
 		if `which journalctl >/dev/null 2>&1`
 		then
-		    journalctl -n 10 -u pmcd -u pmlogger \
+		    $sudo journalctl -n 10 -u $1 \
 		    | grep " $1\\[" >$tmp.journal.post
 		elif `which systemd-journalctl >/dev/null 2>&1`
 		then
-		    systemd-journalctl -a -q -n 100 \
+		    $sudo systemd-journalctl -a -q -n 100 \
 		    | egrep " $1\\[" \
 		    | sed -e 's/\.\.done$//' >$tmp.journal.post
 		fi
@@ -377,7 +377,7 @@ _cleanup_pmda()
     else
 	_restore_config $PCP_PMCDCONF_PATH
 	_service pcp restart | _filter_pcp_start
-	_restore_systemd_restart pmcd
+	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	if $install_on_cleanup
@@ -540,10 +540,13 @@ _wait_for_pmcd()
     #debug# ping -c 2 $_host
     #debug# pcp -h $_host
     #debug# pcp -h `hostname`
+    rm -f $tmp._wait_for_pmcd.err $tmp._wait_for_pmcd.out
     while [ $_i -lt $_can_wait ]
     do
+	echo "-- $_i --" >>$tmp._wait_for_pmcd.err
+	echo "-- $_i --" >>$tmp._wait_for_pmcd.out
 	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients
-	_sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients 2>/dev/null | $PCP_AWK_PROG '{print $2}'`
+	_sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients 2>>$tmp._wait_for_pmcd.err | tee -a $tmp._wait_for_pmcd.out | $PCP_AWK_PROG '{print $2}'`
 	if [ "${_sts:-0}" -gt 0 ]
 	then
 	    # numval really > 0, we're done
@@ -558,7 +561,11 @@ _wait_for_pmcd()
     then
 	date
 	echo "Arrgghhh ... pmcd at $_host failed to start after $_can_wait seconds"
-	echo "=== failing pmprobe ==="
+	echo "=== failing pmprobes stdout ==="
+	cat $tmp._wait_for_pmcd.out
+	echo "=== failing pmprobes stderr ==="
+	cat $tmp._wait_for_pmcd.err
+	echo "... and now"
 	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients"
 	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $_host pmcd.numclients
 	case $_host

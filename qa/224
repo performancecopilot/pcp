@@ -27,7 +27,7 @@ _reset()
 	_service pcp restart \
 	| _filter_pcp_start \
 	| sed -e '/Waiting/s/\.\.\.*/[dots]/'
-	_restore_systemd_restart pmcd
+	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_reset=true
@@ -48,7 +48,7 @@ _filter()
 
 trap "_reset; exit \$status" 0 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 # real QA test starts here
 

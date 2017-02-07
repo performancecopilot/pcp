@@ -40,7 +40,6 @@ _cleanup()
 	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	    rm -f $tmp.pmcd.conf
 	fi
-	rm -f $tmp.*
 	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -52,6 +51,7 @@ _cleanup()
 	fi
 	done_clean=true
     fi
+    $sudo rm -f $tmp.*
     exit $status
 }
 
