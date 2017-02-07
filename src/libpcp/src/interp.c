@@ -793,7 +793,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		for (ihp = pcp->hc.hash[i]; ihp != NULL; ihp = ihp->next) {
 		    icp = (instcntl_t *)ihp->data;
 		    icp->search = icp->inresult = 0;
-		    icp->unbound = icp->want = NULL;
 		}
 	    }
 	}
