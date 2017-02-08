@@ -33,7 +33,7 @@ install: default
 	$(INSTALL) -m 664 $(IAM).te $(PCP_SELINUX_DIR)/$(IAM).te
 else
 build-me:
-install
+install:
 endif
 
 default_pcp: default
