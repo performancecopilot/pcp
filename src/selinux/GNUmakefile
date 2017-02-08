@@ -17,18 +17,25 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 IAM = pcpupstream
 
-default: default_pcp
+LDIRT = $(IAM).cil $(IAM).pp
+
+default: build-me
 
 include $(BUILDRULES)
 
-default_pcp:
 ifeq "$(ENABLE_SELINUX)" "true"
+build-me: $(IAM).te
 	make -f /usr/share/selinux/devel/Makefile
-endif
 
-install_pcp install: default
-ifeq "$(ENABLE_SELINUX)" "true"
+install: default
 	$(INSTALL) -m 755 -d $(PCP_SELINUX_DIR)
 	$(INSTALL) -m 664 $(IAM).pp $(PCP_SELINUX_DIR)/$(IAM).pp
 	$(INSTALL) -m 664 $(IAM).te $(PCP_SELINUX_DIR)/$(IAM).te
+else
+build-me:
+install
 endif
+
+default_pcp: default
+
+install_pcp : install
