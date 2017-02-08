@@ -1898,7 +1898,7 @@ ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
 grep -E 'pmdbg|pmclient|pmerr|genpmda' |\
 sed -e 's#^#'%{_bindir}'\/#' >>devel.list
 
-ls -1 $RPM_BUILD_ROOT/%{_datadir}/selinux/ > pcp-selnux.list
+ls -1 $RPM_BUILD_ROOT/%{_datadir}/selinux/ > pcp-selinux.list
 
 %pre testsuite
 test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}

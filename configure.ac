@@ -1840,10 +1840,8 @@ AC_SUBST(enable_manager)
 
 enable_selinux=false
 AS_IF([test "x$do_selinux" != "xno"], [
-pcp_selinux_dir=""
     if test -f /usr/share/selinux/devel/Makefile
     then
-        pcp_selinux_dir="/var/lib/pcp/selinux"
 	enable_selinux=true
     else
 	AC_MSG_ERROR([Cannot find SELinux Makefile to build policy package])
@@ -2870,6 +2868,9 @@ AC_ARG_WITH(configdir,[AC_HELP_STRING([--with-configdir],[configuration director
 
 pcp_pmdas_dir=$pcp_var_dir/pmdas
 AC_SUBST(pcp_pmdas_dir)
+
+pcp_selinux_dir=$pcp_var_dir/selinux
+AC_SUBST(pcp_selinux_dir)
 
 dnl runtime shared libraries
 pcp_lib_dir=`eval echo $libdir`

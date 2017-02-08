@@ -130,7 +130,7 @@ Requires: pcp-libs = @package_version@
 %if "@enable_selinux@" == "true"
 Requires: pcp-selinux = @package_version@
 %endif
-Obsoletes: pcp-gui-dzebuginfo
+Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-compat
 
 %description

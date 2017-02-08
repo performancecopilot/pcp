@@ -1,3 +1,4 @@
+#
 # Copyright (c) 2017 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -19,13 +20,15 @@ IAM = pcpupstream
 default: default_pcp
 
 include $(BUILDRULES)
-#ifeq "$(ENABLE_SELINUX)" "true"
+
 default_pcp:
+ifeq "$(ENABLE_SELINUX)" "true"
 	make -f /usr/share/selinux/devel/Makefile
-#else
-#endif
+endif
 
 install_pcp install: default
+ifeq "$(ENABLE_SELINUX)" "true"
 	$(INSTALL) -m 755 -d $(PCP_SELINUX_DIR)
 	$(INSTALL) -m 664 $(IAM).pp $(PCP_SELINUX_DIR)/$(IAM).pp
 	$(INSTALL) -m 664 $(IAM).te $(PCP_SELINUX_DIR)/$(IAM).te
+endif
