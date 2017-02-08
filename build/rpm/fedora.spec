@@ -14,6 +14,13 @@ Source1: vector-1.1.0.tar.gz
 # https://github.com/performancecopilot/pcp-webjs/archive/x.y.z.tar.gz
 Source2: pcp-webjs-3.11.2.tar.gz
 
+
+%if 0%{?fedora} || 0%{?rhel}
+%global disable_selinux 1
+%else
+%global disable_selinux 0
+%endif
+
 %global disable_snmp 0
 
 # There are no papi/libpfm devel packages for s390 nor for some rhels, disable
@@ -156,6 +163,9 @@ BuildRequires: qt4-devel >= 4.4
 
 Requires: bash gawk sed grep fileutils findutils initscripts which
 Requires: pcp-libs = %{version}-%{release}
+%if !%{disable_selinux}
+Requires: pcp-selinux = %{version}-%{release}
+%endif
 Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-pmda-nvidia
 
@@ -1686,6 +1696,25 @@ level performance management.  It includes tutorials, HOWTOs,
 and other detailed documentation about the internals of core
 PCP utilities and daemons, and the PCP graphical tools.
 
+#
+# pcp-selinux package
+#
+%if !%{disable_selinux}
+%package -n pcp-selinux
+License: GPLv2+ and CC-BY
+Group: Applications/System
+Summary: Selinux policy package
+URL: http://www.pcp.io
+BuildRequires: selinux-policy-devel
+Requires: policycoreutils
+Requires: pcp = %{version}-%{release}
+
+%description -n pcp-selinux
+This package contains SELinux support for PCP.  The package contains
+interface rules, type enforcement and file context adjustments for an
+updated policy package.
+%endif
+
 %prep
 %setup -q
 %setup -q -T -D -a 1 -c -n pcp-%{version}/vector
@@ -1868,6 +1897,8 @@ sed -e 's#^#'%{_datadir}'\/pcp\/demos\/#' | grep -E -v tutorials >> devel.list
 ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
 grep -E 'pmdbg|pmclient|pmerr|genpmda' |\
 sed -e 's#^#'%{_bindir}'\/#' >>devel.list
+
+ls -1 $RPM_BUILD_ROOT/%{_datadir}/selinux/ > pcp-selinux.list
 
 %pre testsuite
 test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}
@@ -2210,6 +2241,11 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %endif
 %endif
 
+%if !%{disable_selinux}
+%post selinux
+semodule -X 400 -i %{localstatedir}/lib/pcp/selinux/pcpupstream.pp
+%endif
+
 %post
 PCP_LOG_DIR=%{_logsdir}
 PCP_PMNS_DIR=%{_pmnsdir}
@@ -2268,6 +2304,11 @@ cd
 
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
+
+%if !%{disable_selinux}
+%postun selinux
+semodule -X 400 -r pcpupstream >/dev/null
+%endif
 
 %files -f base.list
 #
@@ -2690,6 +2731,8 @@ cd
 %endif
 
 %files -n pcp-doc -f pcp-doc.list
+
+%files -n pcp-selinux -f pcp-selinux.list
 
 %if !%{disable_python2} || !%{disable_python3}
 %files -n pcp-system-tools -f pcp_system_tools.list
