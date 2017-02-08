@@ -2885,12 +2885,6 @@ else
 fi
 
 
-#
-# Note: the following environment variables may be
-# set to override the defaults.
-#
-# MAKE CC CPP LD LEX YACC INSTALL AWK SED ECHO
-#
 
 ac_aux_dir=
 for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do
@@ -3995,7 +3989,6 @@ then
 fi
 
 
-# Add some security-related gcc flags
 if echo "$CFLAGS" | grep stack-protector >/dev/null
 then
         :
@@ -4033,7 +4026,6 @@ fi
 
 
 
-# Check for even more security-related gcc/linker flags, useful for daemons
 # Check whether --enable-pie was given.
 if test "${enable_pie+set}" = set; then :
   enableval=$enable_pie;
@@ -4073,7 +4065,6 @@ fi
 
 
 
-# Check for support for symbol hiding via gcc flags
 # Check whether --enable-visibility was given.
 if test "${enable_visibility+set}" = set; then :
   enableval=$enable_visibility;
@@ -4401,7 +4392,6 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-# Prevent shared libraries from being built for libpcp and other core libraries
 # Check whether --enable-shared was given.
 if test "${enable_shared+set}" = set; then :
   enableval=$enable_shared; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"
@@ -5659,9 +5649,6 @@ fi
 fi
 
 
-# NB: No AC_PREFIX_DEFAULT is needed, as the default configure invocation
-# targets a build for non-system directories such as /usr/local.
-# AC_PREFIX_DEFAULT([])
 
 . ./VERSION.pcp
 PACKAGE_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}

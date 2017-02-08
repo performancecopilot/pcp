@@ -211,12 +211,10 @@ AC_ARG_WITH([zip],
     [ZIP=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-zip=$withval"],
     [ZIP=''])
 
-#
-# Note: the following environment variables may be
-# set to override the defaults.
-#
-# MAKE CC CPP LD LEX YACC INSTALL AWK SED ECHO
-#
+dnl
+dnl Note: the following environment variables may be set to override defaults:
+dnl MAKE CC CPP LD LEX YACC INSTALL AWK SED ECHO
+dnl
 
 dnl Guess target platfrom
 AC_CANONICAL_SYSTEM
@@ -421,7 +419,7 @@ dnl some versions of gcc (e.g. version 4.8.4 on Gentoo Hardened) have added
 dnl a predefined for _FORTIFY_SOURCE but only when -O is specified ... so
 dnl to be safe we have -U_FORTIFY_SOURCE before -D_FORTIFY_SOURCE=2 below
 
-# Add some security-related gcc flags
+dnl Add some security-related gcc flags
 if echo "$CFLAGS" | grep stack-protector >/dev/null
 then
     dnl already set, probably from the environment
@@ -443,7 +441,7 @@ fi
 AC_SUBST(PCFLAGS)
 AC_SUBST(PLDFLAGS)
 
-# Check for even more security-related gcc/linker flags, useful for daemons
+dnl Check for even more security-related gcc/linker flags, useful for daemons
 AC_ARG_ENABLE([pie],
   [AS_HELP_STRING([--disable-pie], [disable position-independent-executable])])
 AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_pie" != xno],[
@@ -466,7 +464,7 @@ AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_pie" != xno],[
 AC_SUBST(PIELDFLAGS)
 AC_SUBST(PIECFLAGS)
 
-# Check for support for symbol hiding via gcc flags
+dnl Check for support for symbol hiding via gcc flags
 AC_ARG_ENABLE([visibility],
   [AS_HELP_STRING([--disable-visibility], [disable gcc symbol visibility])])
 AS_IF([test "x$cc_is_gcc" = xyes -a "$enable_visibility" != no],[
@@ -496,7 +494,7 @@ AC_COMPILE_IFELSE(
     cxx=""])
 AC_LANG_POP([C++])
 
-# Prevent shared libraries from being built for libpcp and other core libraries
+dnl Prevent shared libraries from being built for libpcp and other core libraries
 AC_ARG_ENABLE([shared],
   [AS_HELP_STRING([--disable-shared], [disable core shared libary generation])],
   [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"])
@@ -734,9 +732,9 @@ AS_IF([test "x$do_systemd" != "xno"], [
 ])
 AC_SUBST(enable_systemd)
 
-# NB: No AC_PREFIX_DEFAULT is needed, as the default configure invocation
-# targets a build for non-system directories such as /usr/local.
-# AC_PREFIX_DEFAULT([])
+dnl NB: No AC_PREFIX_DEFAULT is needed, as the default configure invocation
+dnl targets a build for non-system directories such as /usr/local.
+dnl AC_PREFIX_DEFAULT([])
 
 . ./VERSION.pcp
 PACKAGE_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
