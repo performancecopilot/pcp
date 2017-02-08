@@ -127,6 +127,9 @@ fi
 }
 
 Requires: pcp-libs = @package_version@
+%if "@enable_selinux@" == "true"
+Requires: pcp-selinux = @package_version@
+%endif
 Obsoletes: pcp-gui-debuginfo
 Obsoletes: pcp-compat
 
@@ -646,6 +649,25 @@ configuring the Performance Co-Pilot (PCP) toolkit for system
 level performance management.  It includes tutorials, HOWTOs,
 and other detailed documentation about the internals of core
 PCP utilities and daemons, and the PCP graphical tools.
+
+#
+# pcp-selinux package
+#
+%if "@enable_selinux@" == "true"
+%package -n pcp-selinux
+License: GPLv2+ and CC-BY
+Group: Applications/System
+Summary: Selinux policy package
+URL: http://www.pcp.io
+BuildRequires: selinux-policy-devel
+Requires: policycoreutils
+Requires: pcp = %{version}-%{release}
+
+%description -n pcp-selinux
+This package contains SELinux support for PCP.  The package contains
+interface rules, type enforcement and file context adjustments for an
+updated policy package.
+%endif
 
 %if "@pmda_papi@" == "true"
 #
@@ -1834,6 +1856,9 @@ PFMEOF
 # Files for the various subpackages.  We use these subpackages
 # to isolate the (somewhat exotic) dependencies for these tools.
 # Likewise, for the pcp-pmda and pcp-testsuite subpackages.
+%if "@enable_selinux@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep 'selinux' | egrep -v 'tmp' >selinux_files
+%endif
 awk '{print $NF}' $DIST_MANIFEST | egrep 'pcp-doc|man.*\.[1-9].*' | egrep -v 'out' >docs_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'tutorials' >>docs_files
 awk '{print $NF}' $DIST_MANIFEST | egrep 'testsuite|etc/systemd/system' >testsuite_files
@@ -2124,11 +2149,17 @@ BEGIN {
     while( getline < "import_mrtg2pcp_files") import_mrtg2pcp[$0]=1;
     while( getline < "import_ganglia2pcp_files") import_ganglia2pcp[$0]=1;
     while( getline < "import_collectl2pcp_files") import_collectl2pcp[$0]=1;
+%if "@enable_selinux@" == "true"
+    while( getline < "selinux_files") selinux[$0]=1;
+%endif
     while( getline < "conf_files") conf[nconf++]=$0;
 }
 {
     if (cfg[$NF]) f="cfg_files.rpm";
     else if (gui[$NF]) f="gui_files.rpm";
+%if "@enable_selinux@" == "true"
+    else if (selinux[$NF]) f="selinux_files.rpm";
+%endif
     else if (doc[$NF]) f="docs_files.rpm";
     else if (lib[$NF]) f="libs_files.rpm";
     else if (dev[$NF]) f="dev_files.rpm";
@@ -2398,6 +2429,12 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
     /sbin/service pmlogger condrestart
 %endif
 
+%if "@enable_selinux@" == "true"
+%post selinux
+PCP_SELINUX_DIR=@pcp_selinux_dir@/
+semodule -X 400 -i @pcp_selinux_dir@/pcpupstream.pp
+%endif 
+
 %if "@pmda_rpm@" == "true"
 %preun pmda-rpm
 %{pmda_remove "$1" "rpm"}
@@ -2642,6 +2679,7 @@ fi
 %post
 PCP_PMNS_DIR=@pcp_var_dir@/pmns
 PCP_LOG_DIR=@pcp_log_dir@
+
 # restore saved configs, if any
 test -s "$PCP_LOG_DIR/configs.sh" && source "$PCP_LOG_DIR/configs.sh"
 rm -f $PCP_LOG_DIR/configs.sh
@@ -2698,6 +2736,13 @@ cd
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
 
+%if "@enable_selinux@" == "true"
+%postun selinux
+PCP_SELINUX_DIR=@pcp_selinux_dir@/
+semodule -X 400 -r pcpupstream >/dev/null
+%endif 
+
+
 %files -f base_files.rpm
 
 %files conf -f cfg_files.rpm
@@ -2709,6 +2754,10 @@ cd
 %files devel -f dev_files.rpm
 
 %files doc -f docs_files.rpm
+
+%if "@enable_selinux@" == "true"
+%files selinux -f selinux_files.rpm
+%endif
 
 %if "@enable_qt@" == "true"
 %files gui -f gui_files.rpm

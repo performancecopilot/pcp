@@ -13,6 +13,10 @@ fi
 # need to know what version we're running
 . ./localconfig
 
+# Ken is never going to use systemd to control PCP daemons during QA
+#
+[ "`id -un`" = kenj ] && export PCPQA_SYSTEMD=no
+
 # common routine for preventing a test from running on some platforms
 # use: _notrun "Reason for not running this test is ..."
 # 
@@ -174,28 +178,34 @@ _service()
 	exit
     fi
     _do_systemctl=false
-    which systemctl >/dev/null 2>&1 && _do_systemctl=true
-    if $_do_systemctl
+    if [ "$PCPQA_SYSTEMD" = no ]
     then
-	case "$1"
-	in
-	    pcp)
-		if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/pmcd.service -a -f $PCP_SYSTEMDUNIT_DIR/pmlogger.service -a -f $PCP_RC_DIR/pcp ]
-		then
-		    :
-		else
-		    _do_systemctl=false
-		fi
-		;;
-	    *)
-		if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service ]
-		then
-		    :
-		else
-		    _do_systemctl=false
-		fi
-		;;
-	esac
+	# don't ever use systemctl
+	:
+    else
+	which systemctl >/dev/null 2>&1 && _do_systemctl=true
+	if $_do_systemctl
+	then
+	    case "$1"
+	    in
+		pcp)
+		    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/pmcd.service -a -f $PCP_SYSTEMDUNIT_DIR/pmlogger.service -a -f $PCP_RC_DIR/pcp ]
+		    then
+			:
+		    else
+			_do_systemctl=false
+		    fi
+		    ;;
+		*)
+		    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service ]
+		    then
+			:
+		    else
+			_do_systemctl=false
+		    fi
+		    ;;
+	    esac
+	fi
     fi
 
     if $_do_systemctl
@@ -217,7 +227,8 @@ _service()
 		if `which journalctl >/dev/null 2>&1`
 		then
 		    $sudo journalctl -n 10 -u pmcd -u pmlogger \
-		    | egrep " (pmcd)|(pmlogger)\\[" >$tmp.journal.pre
+		    | egrep " (pmcd)|(pmlogger)\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
 		elif `which systemd-journalctl >/dev/null 2>&1`
 		then
 		    $sudo systemd-journalctl -a -q -n 100 \
@@ -225,11 +236,12 @@ _service()
 		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
 		fi
 		$sudo $PCP_RC_DIR/pcp $2
-		sleep 1
+		sleep 2
 		if `which journalctl >/dev/null 2>&1`
 		then
 		    $sudo journalctl -n 10 -u pmcd -u pmlogger \
-		    | egrep " (pmcd)|(pmlogger)\\[" >$tmp.journal.post
+		    | egrep " (pmcd)|(pmlogger)\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.post
 		elif `which systemd-journalctl >/dev/null 2>&1`
 		then
 		    $sudo systemd-journalctl -a -q -n 100 \
@@ -241,7 +253,8 @@ _service()
 		if `which journalctl >/dev/null 2>&1`
 		then
 		    $sudo journalctl -n 10 -u $1 \
-		    | grep " $1\\[" >$tmp.journal.pre
+		    | grep " $1\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
 		elif `which systemd-journalctl >/dev/null 2>&1`
 		then
 		    $sudo systemd-journalctl -a -q -n 100 \
@@ -249,11 +262,12 @@ _service()
 		    | sed -e 's/\.\.done$//' >$tmp.journal.pre
 		fi
 		$sudo systemctl $2 $1.service
-		sleep 1
+		sleep 2
 		if `which journalctl >/dev/null 2>&1`
 		then
 		    $sudo journalctl -n 10 -u $1 \
-		    | grep " $1\\[" >$tmp.journal.post
+		    | grep " $1\\[" \
+		    | sed -e 's/\.\.done$//' >$tmp.journal.post
 		elif `which systemd-journalctl >/dev/null 2>&1`
 		then
 		    $sudo systemd-journalctl -a -q -n 100 \

@@ -701,6 +701,8 @@ fmt_uint64
 fmt_int64
 fmt_pid
 rdynamic_flag
+pcp_selinux_dir
+enable_selinux
 enable_manager
 enable_webapi
 HAVE_CAIRO
@@ -963,6 +965,7 @@ with_webapi
 with_webjs
 with_vector
 with_parfait
+with_selinux
 with_make
 with_tar
 with_zip
@@ -1677,6 +1680,7 @@ Optional Packages:
   --with-webjs            enable building of webjs packages (default is off)
   --with-vector           enable building of vector package (default is off)
   --with-parfait          enable building of parfait package (default is off)
+  --with-selinux          enable building of selinux package (default is on)
   --with-make             path to GNU compatible make(1) (default is empty for
                           auto discovery)
   --with-tar              path to GNU compatible tar(1) (default is empty for
@@ -2846,6 +2850,14 @@ fi
 
 
 
+# Check whether --with-selinux was given.
+if test "${with_selinux+set}" = set; then :
+  withval=$with_selinux; do_selinux=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-selinux=$withval"
+else
+  do_selinux=check
+fi
+
+
 
 # Check whether --with-make was given.
 if test "${with_make+set}" = set; then :
@@ -2873,12 +2885,6 @@ else
 fi
 
 
-#
-# Note: the following environment variables may be
-# set to override the defaults.
-#
-# MAKE CC CPP LD LEX YACC INSTALL AWK SED ECHO
-#
 
 ac_aux_dir=
 for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do
@@ -3983,7 +3989,6 @@ then
 fi
 
 
-# Add some security-related gcc flags
 if echo "$CFLAGS" | grep stack-protector >/dev/null
 then
         :
@@ -4021,7 +4026,6 @@ fi
 
 
 
-# Check for even more security-related gcc/linker flags, useful for daemons
 # Check whether --enable-pie was given.
 if test "${enable_pie+set}" = set; then :
   enableval=$enable_pie;
@@ -4061,7 +4065,6 @@ fi
 
 
 
-# Check for support for symbol hiding via gcc flags
 # Check whether --enable-visibility was given.
 if test "${enable_visibility+set}" = set; then :
   enableval=$enable_visibility;
@@ -4389,7 +4392,6 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-# Prevent shared libraries from being built for libpcp and other core libraries
 # Check whether --enable-shared was given.
 if test "${enable_shared+set}" = set; then :
   enableval=$enable_shared; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"
@@ -5647,9 +5649,6 @@ fi
 fi
 
 
-# NB: No AC_PREFIX_DEFAULT is needed, as the default configure invocation
-# targets a build for non-system directories such as /usr/local.
-# AC_PREFIX_DEFAULT([])
 
 . ./VERSION.pcp
 PACKAGE_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
@@ -11068,6 +11067,21 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
 
 
+enable_selinux=false
+if test "x$do_selinux" != "xno"; then :
+
+    if test -f /usr/share/selinux/devel/Makefile
+    then
+	enable_selinux=true
+    else
+	as_fn_error $? "Cannot find SELinux Makefile to build policy package" "$LINENO" 5
+    fi
+
+fi
+
+
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking return type of signal handlers" >&5
 $as_echo_n "checking return type of signal handlers... " >&6; }
 if ${ac_cv_type_signal+:} false; then :
@@ -13423,6 +13437,9 @@ fi
 
 
 pcp_pmdas_dir=$pcp_var_dir/pmdas
+
+
+pcp_selinux_dir=$pcp_var_dir/selinux
 
 
 pcp_lib_dir=`eval echo $libdir`
