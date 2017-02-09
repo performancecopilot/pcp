@@ -1,18 +1,18 @@
 # Copyright (c) 2015 Red Hat.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # Dockerfile to build the pcp container image. This is based on
-# Fedora rawhide (currently f22) and is intended as the base image
-# for all other PCP containers, i.e. layered.
+# Fedora rawhide and is intended as the base image for all other
+# PCP containers, i.e. layered.
 #
 FROM fedora:latest
 MAINTAINER PCP Development Team <pcp@groups.io>
@@ -45,7 +45,7 @@ COPY RPMS/*.rpm /tmp/RPMS/
 RUN createrepo /tmp/RPMS
 
 #
-# install minimal pcp (i.e. pcp-conf) and it's dependencies, clean the cache.
+# Install minimal pcp (i.e. pcp-conf) and it's dependencies, clean the cache.
 # This is intended as the base image for all other PCP containers. The
 # bintray repo is enabled by default, see comments above.
 RUN dnf -y install pcp-conf && dnf clean all
@@ -61,7 +61,7 @@ RUN echo export PS1='"[$PCP_CONTAINER_IMAGE] "' >> /root/.bash_profile
 RUN echo PATH=/usr/bin:$PATH >> /root/.bash_profile
 
 #
-# denote this as a container environment, for rc scripts
+# Denote this as a container environment, for rc scripts
 ENV PCP_CONTAINER_IMAGE pcp-base
 ENV NAME pcp-base
 ENV IMAGE pcp-base
