@@ -23,6 +23,7 @@ $sudo rm -f $tmp.*
 status=1	# failure is the default!
 hostname=`hostname`
 trap "_cleanup" 0 1 2 3 15
+_stop_auto_restart pmcd
 
 # Shorten timeouts because of the rapid-fire pmcd/pmmgr-daemon lifespan tests
 PMCD_WAIT_TIMEOUT=1
@@ -35,6 +36,7 @@ _cleanup()
     if [ -n "$pid" ]; then kill $pid; fi
     # restart pmcd and primary pmlogger
     _service pcp restart >>$seq.full 2>&1
+    _restore_auto_restart pmcd
     _wait_for_pmcd
     _wait_for_pmlogger
     $sudo rm -fr $tmp.dir
