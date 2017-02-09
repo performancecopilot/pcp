@@ -17,7 +17,7 @@
 #include "proc_zoneinfo.h"
 
 int
-refresh_proc_zoneinfo(pmInDom indom)
+refresh_proc_zoneinfo(pmInDom indom, pmInDom zoneinfo_protection_indom)
 {
     int node, values;
     zoneinfo_entry_t *info;
@@ -54,7 +54,7 @@ refresh_proc_zoneinfo(pmInDom indom)
 	    changed = 1;
 	}
 	/* inner loop to extract all values for this node */
-	while (values < ZONE_VALUES && fgets(buf, sizeof(buf), fp) != NULL) {
+	while (values < ZONE_VALUES + 1 && fgets(buf, sizeof(buf), fp) != NULL) {
 	    if ((sscanf(buf, "  pages free %llu", &value)) == 1) {
 		info->values[ZONE_FREE] = (value << _pm_pageshift) / 1024;
 		values++;
@@ -96,6 +96,24 @@ refresh_proc_zoneinfo(pmInDom indom)
 		values++;
 		continue;
 	    }
+            else if (strncmp(buf, "        protection: (", 20) == 0) {
+                char protected_name[64];
+                char *endp, *bp = buf + 20 + 1;
+                unsigned long long value = 0;
+                int index = 0;
+
+                for (index = 0;; index++) {
+                    value = (strtoul(bp, &endp, 10) << _pm_pageshift) / 1024;
+                    sprintf(protected_name, "%s::lowmem_reserved%d", 
+                            instname, index);
+                    pmdaCacheStore(zoneinfo_protection_indom, PMDA_CACHE_ADD,
+                                   protected_name, (void *)value);
+                    if (*endp != ',')
+                        break;
+                    bp = endp + 2;   /* skip comma and space, then continue */
+                }
+		values++;
+            }
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, instname, (void *)info);
 

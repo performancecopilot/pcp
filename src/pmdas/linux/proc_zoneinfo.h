@@ -32,4 +32,5 @@ typedef struct {
     __uint64_t	values[ZONE_VALUES];
 } zoneinfo_entry_t;
 
-extern int refresh_proc_zoneinfo(pmInDom indom);
+extern int refresh_proc_zoneinfo(pmInDom indom,
+                                 pmInDom zoneinfo_protection_indom);

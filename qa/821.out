@@ -863,6 +863,20 @@ mem.zoneinfo.present
     inst [N or "DMA::node0"] value 15984
     inst [N or "Normal::node0"] value 14653440
 
+mem.zoneinfo.protection
+    inst [N or "DMA32::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved1"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved2"] value 56164
+    inst [N or "DMA32::node0::lowmem_reserved3"] value 56164
+    inst [N or "DMA::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA::node0::lowmem_reserved1"] value 6336
+    inst [N or "DMA::node0::lowmem_reserved2"] value 62500
+    inst [N or "DMA::node0::lowmem_reserved3"] value 62500
+    inst [N or "Normal::node0::lowmem_reserved0"] value 0
+    inst [N or "Normal::node0::lowmem_reserved1"] value 0
+    inst [N or "Normal::node0::lowmem_reserved2"] value 0
+    inst [N or "Normal::node0::lowmem_reserved3"] value 0
+
 mem.zoneinfo.scanned
     inst [N or "DMA32::node0"] value 0
     inst [N or "DMA::node0"] value 0
@@ -1954,6 +1968,20 @@ mem.zoneinfo.present
     inst [N or "DMA::node0"] value 15984
     inst [N or "Normal::node0"] value 14653440
 
+mem.zoneinfo.protection
+    inst [N or "DMA32::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved1"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved2"] value 56164
+    inst [N or "DMA32::node0::lowmem_reserved3"] value 56164
+    inst [N or "DMA::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA::node0::lowmem_reserved1"] value 6336
+    inst [N or "DMA::node0::lowmem_reserved2"] value 62500
+    inst [N or "DMA::node0::lowmem_reserved3"] value 62500
+    inst [N or "Normal::node0::lowmem_reserved0"] value 0
+    inst [N or "Normal::node0::lowmem_reserved1"] value 0
+    inst [N or "Normal::node0::lowmem_reserved2"] value 0
+    inst [N or "Normal::node0::lowmem_reserved3"] value 0
+
 mem.zoneinfo.scanned
     inst [N or "DMA32::node0"] value 0
     inst [N or "DMA::node0"] value 0
@@ -2808,6 +2836,24 @@ mem.zoneinfo.present
     inst [N or "DMA::node0"] value 15988
     inst [N or "Normal::node0"] value 65011712
     inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.protection
+    inst [N or "DMA32::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved1"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved2"] value 249844
+    inst [N or "DMA32::node0::lowmem_reserved3"] value 249844
+    inst [N or "DMA::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA::node0::lowmem_reserved1"] value 7016
+    inst [N or "DMA::node0::lowmem_reserved2"] value 256864
+    inst [N or "DMA::node0::lowmem_reserved3"] value 256864
+    inst [N or "Normal::node0::lowmem_reserved0"] value 0
+    inst [N or "Normal::node0::lowmem_reserved1"] value 0
+    inst [N or "Normal::node0::lowmem_reserved2"] value 0
+    inst [N or "Normal::node0::lowmem_reserved3"] value 0
+    inst [N or "Normal::node1::lowmem_reserved0"] value 0
+    inst [N or "Normal::node1::lowmem_reserved1"] value 0
+    inst [N or "Normal::node1::lowmem_reserved2"] value 0
+    inst [N or "Normal::node1::lowmem_reserved3"] value 0
 
 mem.zoneinfo.scanned
     inst [N or "DMA32::node0"] value 0
@@ -3795,6 +3841,24 @@ mem.zoneinfo.present
     inst [N or "Normal::node0"] value 65011712
     inst [N or "Normal::node1"] value 67108864
 
+mem.zoneinfo.protection
+    inst [N or "DMA32::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved1"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved2"] value 249844
+    inst [N or "DMA32::node0::lowmem_reserved3"] value 249844
+    inst [N or "DMA::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA::node0::lowmem_reserved1"] value 7016
+    inst [N or "DMA::node0::lowmem_reserved2"] value 256864
+    inst [N or "DMA::node0::lowmem_reserved3"] value 256864
+    inst [N or "Normal::node0::lowmem_reserved0"] value 0
+    inst [N or "Normal::node0::lowmem_reserved1"] value 0
+    inst [N or "Normal::node0::lowmem_reserved2"] value 0
+    inst [N or "Normal::node0::lowmem_reserved3"] value 0
+    inst [N or "Normal::node1::lowmem_reserved0"] value 0
+    inst [N or "Normal::node1::lowmem_reserved1"] value 0
+    inst [N or "Normal::node1::lowmem_reserved2"] value 0
+    inst [N or "Normal::node1::lowmem_reserved3"] value 0
+
 mem.zoneinfo.scanned
     inst [N or "DMA32::node0"] value 0
     inst [N or "DMA::node0"] value 0
@@ -4651,6 +4715,24 @@ mem.zoneinfo.present
     inst [N or "DMA::node0"] value 15988
     inst [N or "Normal::node0"] value 65011712
     inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.protection
+    inst [N or "DMA32::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved1"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved2"] value 249844
+    inst [N or "DMA32::node0::lowmem_reserved3"] value 249844
+    inst [N or "DMA::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA::node0::lowmem_reserved1"] value 7016
+    inst [N or "DMA::node0::lowmem_reserved2"] value 256864
+    inst [N or "DMA::node0::lowmem_reserved3"] value 256864
+    inst [N or "Normal::node0::lowmem_reserved0"] value 0
+    inst [N or "Normal::node0::lowmem_reserved1"] value 0
+    inst [N or "Normal::node0::lowmem_reserved2"] value 0
+    inst [N or "Normal::node0::lowmem_reserved3"] value 0
+    inst [N or "Normal::node1::lowmem_reserved0"] value 0
+    inst [N or "Normal::node1::lowmem_reserved1"] value 0
+    inst [N or "Normal::node1::lowmem_reserved2"] value 0
+    inst [N or "Normal::node1::lowmem_reserved3"] value 0
 
 mem.zoneinfo.scanned
     inst [N or "DMA32::node0"] value 0
@@ -5637,6 +5719,24 @@ mem.zoneinfo.present
     inst [N or "DMA::node0"] value 15988
     inst [N or "Normal::node0"] value 65011712
     inst [N or "Normal::node1"] value 67108864
+
+mem.zoneinfo.protection
+    inst [N or "DMA32::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved1"] value 0
+    inst [N or "DMA32::node0::lowmem_reserved2"] value 249844
+    inst [N or "DMA32::node0::lowmem_reserved3"] value 249844
+    inst [N or "DMA::node0::lowmem_reserved0"] value 0
+    inst [N or "DMA::node0::lowmem_reserved1"] value 7016
+    inst [N or "DMA::node0::lowmem_reserved2"] value 256864
+    inst [N or "DMA::node0::lowmem_reserved3"] value 256864
+    inst [N or "Normal::node0::lowmem_reserved0"] value 0
+    inst [N or "Normal::node0::lowmem_reserved1"] value 0
+    inst [N or "Normal::node0::lowmem_reserved2"] value 0
+    inst [N or "Normal::node0::lowmem_reserved3"] value 0
+    inst [N or "Normal::node1::lowmem_reserved0"] value 0
+    inst [N or "Normal::node1::lowmem_reserved1"] value 0
+    inst [N or "Normal::node1::lowmem_reserved2"] value 0
+    inst [N or "Normal::node1::lowmem_reserved3"] value 0
 
 mem.zoneinfo.scanned
     inst [N or "DMA32::node0"] value 0
