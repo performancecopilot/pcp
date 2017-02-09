@@ -11074,7 +11074,8 @@ if test "x$do_selinux" != "xno"; then :
     then
 	enable_selinux=true
     else
-	as_fn_error $? "Cannot find SELinux Makefile to build policy package" "$LINENO" 5
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
     fi
 
 fi

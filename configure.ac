@@ -1842,7 +1842,7 @@ AS_IF([test "x$do_selinux" != "xno"], [
     then
 	enable_selinux=true
     else
-	AC_MSG_ERROR([Cannot find SELinux Makefile to build policy package])
+	AC_MSG_RESULT(no)
     fi
 ])
 AC_SUBST(enable_selinux)
