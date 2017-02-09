@@ -48,7 +48,12 @@ _cleanup()
 	unset PMLOGGER_PORT
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
-	unset PCPQA_SYSTEMD
+	if $restore_pcpqa_systemd
+	then
+	    export PCPQA_SYSTEMD="$save_pcpqa_systemd"
+	else
+	    unset PCPQA_SYSTEMD
+	fi
 	_service pcp restart | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_restore_auto_restart pmlogger
@@ -80,6 +85,14 @@ export PMCD_PORT PMLOGGER_PORT
 # will clobber the environment, ...
 #
 _service pcp stop | _filter_pcp_stop
+if [ "$PCPQA_SYSTEMD" = x -o "${PCPQA_SYSTEMD-x}" != x ]
+then
+    # $PCPQA_SYSTEMD is already set ...
+    save_pcpqa_systemd="$PCPQA_SYSTEMD"
+    restore_pcpqa_systemd=true
+else
+    restore_pcpqa_systemd=false
+fi
 export PCPQA_SYSTEMD=no
 
 echo "pmcd with PMCD_PORT=$PMCD_PORT, pmlogger with PMLOGGER_PORT=$PMLOGGER_PORT"
