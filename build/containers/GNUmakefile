@@ -28,6 +28,7 @@ SUBDIRS = \
 	pcp-pmwebd \
 	\
 	pcp-standalone \
+	pcp-java-app \
 	pcp-apache \
 	pcp-nginx \
 	# end
