@@ -14,6 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 which sedismod || _notrun "sedismod tool not installed (module disassembly)"
+which semodule || _notrun "basic selinux functionality not found"
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
