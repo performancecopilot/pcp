@@ -20,9 +20,20 @@ _get_libpcp_config
 $unix_domain_sockets || _notrun "No unix domain socket support available"
 $authentication || _notrun "No authentication support available"
 
+_cleanup()
+{
+    cd $here
+    _service pcp restart | _filter_pcp_start
+    _restore_auto_restart pmcd
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    $sudo rm -rf $tmp.*
+}
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
 
 # real QA test starts here
 _service pcp restart | _filter_pcp_start

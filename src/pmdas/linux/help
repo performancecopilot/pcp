@@ -974,6 +974,7 @@ table entry.
 @ mem.zoneinfo.spanned spanned space in each zone for each NUMA node
 @ mem.zoneinfo.present present space in each zone for each NUMA node
 @ mem.zoneinfo.managed managed space in each zone for each NUMA node
+@ mem.zoneinfo.protection protection space in each zone for each NUMA node
 @ mem.ksm.full_scans Number of times that KSM has scanned for duplicated content
 @ mem.ksm.merge_across_nodes Kernel allows merging across NUMA nodes
 @ mem.ksm.pages_shared The number of nodes in the stable tree

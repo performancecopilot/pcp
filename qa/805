@@ -49,6 +49,14 @@ export PMDA_POSTFIX_QSHAPE=$tmp.qshape
 # will clobber the environment, ...
 #
 _service pcp stop | _filter_pcp_stop
+if [ "$PCPQA_SYSTEMD" = x -o "${PCPQA_SYSTEMD-x}" != x ]
+then
+    # $PCPQA_SYSTEMD is already set ...
+    save_pcpqa_systemd="$PCPQA_SYSTEMD"
+    restore_pcpqa_systemd=true
+else
+    restore_pcpqa_systemd=false
+fi
 export PCPQA_SYSTEMD=no
 
 pmdapostfix_remove()
@@ -83,7 +91,12 @@ pmdapostfix_install()
 
 _cleanup()
 {
-    unset PCPQA_SYSTEMD
+    if $restore_pcpqa_systemd
+    then
+	export PCPQA_SYSTEMD="$save_pcpqa_systemd"
+    else
+	unset PCPQA_SYSTEMD
+    fi
     # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda postfix
 }

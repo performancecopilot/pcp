@@ -331,6 +331,7 @@ static pmdaIndom indomtab[] = {
     { IPC_SEM_INDOM, 0, NULL },
     { BUDDYINFO_INDOM, 0, NULL },
     { ZONEINFO_INDOM, 0, NULL },
+    { ZONEINFO_PROTECTION_INDOM, 0, NULL },
 };
 
 
@@ -3620,6 +3621,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_ZONEINFO,7), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+/* mem.zoneinfo.protection */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO_PROTECTION,0), PM_TYPE_U64, ZONEINFO_PROTECTION_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
 /*
  * /proc/cpuinfo cluster (cpu indom)
  */
@@ -5207,8 +5213,10 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_BUDDYINFO])
 	refresh_proc_buddyinfo(&proc_buddyinfo);
 
-    if (need_refresh[CLUSTER_ZONEINFO])
-	refresh_proc_zoneinfo(INDOM(ZONEINFO_INDOM));
+    if (need_refresh[CLUSTER_ZONEINFO] ||
+        need_refresh[CLUSTER_ZONEINFO_PROTECTION])
+	refresh_proc_zoneinfo(INDOM(ZONEINFO_INDOM),
+			      INDOM(ZONEINFO_PROTECTION_INDOM));
 
     if (need_refresh[CLUSTER_KSM_INFO])
 	refresh_ksm_info(&ksm_info);
@@ -5290,6 +5298,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
         break;
     case ZONEINFO_INDOM:
 	need_refresh[CLUSTER_ZONEINFO]++;
+        break;
+    case ZONEINFO_PROTECTION_INDOM:
+        need_refresh[CLUSTER_ZONEINFO_PROTECTION]++;
         break;
     /* no default label : pmdaInstance will pick up errors */
     }
@@ -6602,6 +6613,20 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     /*
      * Cluster added by Wu Liming <wulm.fnst@cn.fujitsu.com>
      */
+    case CLUSTER_ZONEINFO_PROTECTION: {
+	unsigned long long *value;
+	sts = pmdaCacheLookup(INDOM(ZONEINFO_PROTECTION_INDOM), inst, NULL, (void **)&value);
+	if (sts < 0)
+	    return sts;
+	if (sts == PMDA_CACHE_INACTIVE)
+	    return PM_ERR_INST;
+	switch (idp->item) {
+	case 0: /* mem.zoneinfo.protection */
+            atom->ull = (__uint64_t)value;
+	}
+	break;
+    }
+
     case CLUSTER_ZONEINFO: {
 	zoneinfo_entry_t *info;
 
