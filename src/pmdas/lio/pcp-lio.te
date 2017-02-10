@@ -1,0 +1,29 @@
+
+module pcp-lio 1.0;
+
+require {
+	type ldconfig_exec_t;
+	type configfs_t;
+	type modules_conf_t;
+	type saslauthd_t;
+	type modules_object_t;
+	type pcp_pmcd_t;
+	class unix_stream_socket connectto;
+	class lnk_file { getattr read };
+	class dir { getattr open read search };
+	class file { execute execute_no_trans getattr open read };
+}
+
+#============= pcp_pmcd_t ==============
+allow pcp_pmcd_t configfs_t:dir { open read search };
+
+allow pcp_pmcd_t configfs_t:file { getattr open read };
+
+allow pcp_pmcd_t configfs_t:lnk_file { getattr read };
+allow pcp_pmcd_t ldconfig_exec_t:file { execute execute_no_trans getattr open read };
+allow pcp_pmcd_t modules_conf_t:dir { getattr open read };
+allow pcp_pmcd_t modules_conf_t:file { getattr open read };
+allow pcp_pmcd_t modules_object_t:dir search;
+allow pcp_pmcd_t modules_object_t:file { getattr open read };
+
+allow pcp_pmcd_t saslauthd_t:unix_stream_socket connectto;
