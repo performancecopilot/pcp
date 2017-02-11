@@ -158,6 +158,9 @@ else
     echo "Error: primary pmlogger missing?"
 fi
 echo
+$sudo ./Remove </dev/null \
+| tee -a $here/$seq.full \
+| _filter_pmda_remove
 
 _restore_pmda_install xfs
 _prepare_pmda_install dm
@@ -187,6 +190,9 @@ else
     echo "Error: primary pmlogger missing?"
 fi
 echo
+$sudo ./Remove </dev/null \
+| tee -a $here/$seq.full \
+| _filter_pmda_remove
 
 # success, all done
 status=0

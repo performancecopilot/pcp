@@ -1194,7 +1194,7 @@ oldversion
 961 pmlogextract local
 962 archive local pmval pmdumplog
 963 libpcp local
-964 pmcd local
+964 pmcd local pmda.xfs pmda.dm
 965 derive local
 966 secure local
 967 pmda.papi local
