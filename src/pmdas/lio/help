@@ -1,0 +1,42 @@
+#
+# Copyright (c) 2017 Red Hat Inc, All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# lio PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ lio.summary.total_iops Sum of IOPS across all LUNs exported by the target
+@ lio.summary.total_read_mb Sum of Read MB across all LUNs (becomes MB/s within pmchart)
+@ lio.summary.total_write_mb Sum of Write MB across all LUNs
+@ lio.summary.total_clients Number of clients (NodeACLs) defined to the target
+@ lio.summary.total_size Sum of the capacity from each LUN (GB)
+@ lio.summary.total_luns Number of LUNs defined
+@ lio.summary.active_sessions Count of the number of clients actively logged into the target
+@ lio.summary.tpgs Number of TPGs defined to the target
+@ lio.lun.iops  IOPS (read + write) seen by the LUN
+@ lio.lun.read_mb  Read MB at the the LUN, pmchart can shows this as MB/s
+@ lio.lun.write_mb  Write MB at the LUN
+@ lio.lun.size LUN size (GB)
+

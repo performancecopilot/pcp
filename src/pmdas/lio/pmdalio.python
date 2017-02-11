@@ -259,7 +259,7 @@ class LIOPMDA(PMDA):
         self.replace_indom(self.targets_indom, self.targets)
         self.replace_indom(self.luns_indom, self.luns)
 
-    def lio_fetch_summary_calllback(self, item, inst):
+    def lio_fetch_summary_callback(self, item, inst):
         """
         provide the summary information to the caller
         :param item: item number
@@ -281,7 +281,7 @@ class LIOPMDA(PMDA):
         else:
             return [c_api.PM_ERR_INST, 0]
 
-    def lio_fetch_lun_calllback(self, item, inst):
+    def lio_fetch_lun_callback(self, item, inst):
         """
         provide the lun statistics to the caller
         :param item: item number
@@ -309,9 +309,9 @@ class LIOPMDA(PMDA):
         based on cluster number
         """
         if cluster == LIOPMDA.LIO_SUMMARY:
-            return self.lio_fetch_summary_calllback(item, inst)
+            return self.lio_fetch_summary_callback(item, inst)
         elif cluster == LIOPMDA.LUN_STATS:
-            return self.lio_fetch_lun_calllback(item, inst)
+            return self.lio_fetch_lun_callback(item, inst)
         return [c_api.PM_ERR_PMID, 0]
 
 
