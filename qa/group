@@ -1171,6 +1171,7 @@ oldversion
 922 derive pmie pmval local
 923 derive libpcp valgrind local
 924 pmda.docker local
+925 logutil local
 926 other local
 928 archive local
 929 logutil local
