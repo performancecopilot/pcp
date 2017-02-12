@@ -1177,6 +1177,7 @@ oldversion
 931 archive pmval local
 932 pmlogger local
 933 pmda.proc local
+934 logutil pmieutil local
 943 pmprobe pmda.proc local
 944 pmcd secure local
 945 pmlogrewrite pmda.xfs local

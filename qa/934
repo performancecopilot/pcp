@@ -1,0 +1,120 @@
+#!/bin/sh
+# PCP QA Test No. 934
+# Check mkdir_and_chown() from rc-proc
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_report()
+{
+    ls -lR | $PCP_AWK_PROG '
+NF < 4		{ print; next }
+$3 != "'"$PCP_USER"'" || $4 != "'"$PCP_GROUP"'"	{ print "name=" $NF; next }
+		{ print "user=pcp group=pcp name=" $NF }'
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+. $PCP_SHARE_DIR/lib/rc-proc.sh
+mkdir $tmp
+cd $tmp
+
+# real QA test starts here
+echo "Absolute path ... no chown"
+mkdir_and_chown $tmp/foo/bar/foobar
+echo return status=$?
+_report
+$sudo rm -rf foo
+
+echo
+echo "Absolute path ... with chown"
+$sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown $tmp/foo/bar/foobar $PCP_USER:$PCP_GROUP"
+echo return status=$?
+_report
+$sudo rm -rf foo
+
+echo "Relative path ... no chown"
+mkdir_and_chown foo/bar/foobar
+echo return status=$?
+_report
+$sudo rm -rf foo
+
+echo
+echo "Relative path ... with chown"
+$sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP"
+echo return status=$?
+_report
+$sudo rm -rf foo
+
+echo "Relative ./path, one level already exists ... no chown"
+mkdir foo
+mkdir_and_chown foo/bar/foobar
+echo return status=$?
+_report
+$sudo rm -rf foo
+
+echo
+echo "Relative ./path, two levels already exist ... with chown"
+mkdir -p foo/bar
+$sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP"
+echo return status=$?
+_report
+$sudo rm -rf foo
+
+echo
+echo "Error cases ..."
+
+echo
+echo "Permissions for mkdir ..."
+mkdir foo
+chmod 555 foo
+mkdir_and_chown foo/bar/foobar
+echo return status=$?
+_report
+chmod 777 foo
+$sudo rm -rf foo
+
+echo
+echo "Not root for chown ..."
+mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP
+echo return status=$?
+_report
+$sudo rm -rf foo
+
+echo
+echo "Middle level path component exists and is not a directory ..."
+mkdir foo
+touch foo/bar
+mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP
+echo return status=$?
+_report
+$sudo rm -rf foo
+
+echo
+echo "Target path exists and is not a directory ..."
+mkdir -p foo/bar
+touch foo/bar/foobar
+mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP
+echo return status=$?
+_report
+$sudo rm -rf foo
+
+# success, all done
+status=0
+exit

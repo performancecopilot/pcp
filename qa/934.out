@@ -1,0 +1,146 @@
+QA output created by 934
+Absolute path ... no chown
+return status=0
+.:
+total 4
+name=foo
+
+./foo:
+total 4
+name=bar
+
+./foo/bar:
+total 4
+name=foobar
+
+./foo/bar/foobar:
+total 0
+
+Absolute path ... with chown
+return status=0
+.:
+total 4
+user=pcp group=pcp name=foo
+
+./foo:
+total 4
+user=pcp group=pcp name=bar
+
+./foo/bar:
+total 4
+user=pcp group=pcp name=foobar
+
+./foo/bar/foobar:
+total 0
+Relative path ... no chown
+return status=0
+.:
+total 4
+name=foo
+
+./foo:
+total 4
+name=bar
+
+./foo/bar:
+total 4
+name=foobar
+
+./foo/bar/foobar:
+total 0
+
+Relative path ... with chown
+return status=0
+.:
+total 4
+user=pcp group=pcp name=foo
+
+./foo:
+total 4
+user=pcp group=pcp name=bar
+
+./foo/bar:
+total 4
+user=pcp group=pcp name=foobar
+
+./foo/bar/foobar:
+total 0
+Relative ./path, one level already exists ... no chown
+return status=0
+.:
+total 4
+name=foo
+
+./foo:
+total 4
+name=bar
+
+./foo/bar:
+total 4
+name=foobar
+
+./foo/bar/foobar:
+total 0
+
+Relative ./path, two levels already exist ... with chown
+return status=0
+.:
+total 4
+name=foo
+
+./foo:
+total 4
+name=bar
+
+./foo/bar:
+total 4
+user=pcp group=pcp name=foobar
+
+./foo/bar/foobar:
+total 0
+
+Error cases ...
+
+Permissions for mkdir ...
+mkdir: cannot create directory ‘foo/bar’: Permission denied
+mkdir_and_chown: foo/bar: mkdir failed
+return status=1
+.:
+total 4
+name=foo
+
+./foo:
+total 0
+
+Not root for chown ...
+chown: changing ownership of 'foo': Operation not permitted
+mkdir_and_chown: foo: chown pcp:pcp failed
+return status=1
+.:
+total 0
+
+Middle level path component exists and is not a directory ...
+mkdir_and_chown: foo/bar: already exists and is not a directory
+return status=1
+.:
+total 4
+name=foo
+
+./foo:
+total 0
+name=bar
+
+Target path exists and is not a directory ...
+mkdir_and_chown: foo/bar/foobar: already exists and is not a directory
+return status=1
+.:
+total 4
+name=foo
+
+./foo:
+total 4
+name=bar
+
+./foo/bar:
+total 0
+name=foobar
