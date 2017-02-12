@@ -1166,6 +1166,7 @@ oldversion
 917 selinux local
 918 pmcd local
 919 pmlogger pmstat local
+920 logutil local
 921 pmdumplog local
 922 derive pmie pmval local
 923 derive libpcp valgrind local
