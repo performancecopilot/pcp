@@ -1,23 +1,22 @@
 QA output created by 920
 Starting pmlogger ... 
 pmlogger:
-user=pcp group=pcp name=myhost
+mode=drwxr-xr-x user=pcp group=pcp name=myhost
 
 pmlogger/myhost:
-user=pcp group=pcp name=YYYY
+mode=drwxr-xr-x user=pcp group=pcp name=YYYY
 
 pmlogger/myhost/YYYY:
-user=pcp group=pcp name=NN
+mode=drwxr-xr-x user=pcp group=pcp name=NN
 
 pmlogger/myhost/YYYY/MM:
-user=pcp group=pcp name=NN
+mode=drwxr-xr-x user=pcp group=pcp name=NN
 
 pmlogger/myhost/YYYY/MM/DD:
-user=pcp group=pcp name=YYYYMMDD.HH.MM.0
-user=pcp group=pcp name=YYYYMMDD.HH.MM.index
-user=pcp group=pcp name=YYYYMMDD.HH.MM.meta
-user=pcp group=pcp name=Latest
-user=pcp group=pcp name=pmlogger.log
+mode=-rw-r--r-- user=pcp group=pcp name=YYYYMMDD.HH.MM.0
+mode=-rw-r--r-- user=pcp group=pcp name=YYYYMMDD.HH.MM.index
+mode=-rw-r--r-- user=pcp group=pcp name=YYYYMMDD.HH.MM.meta
+mode=-rw-r--r-- user=pcp group=pcp name=pmlogger.log
 
 Waiting for pmcd to terminate ...
 Starting pmcd ... 
