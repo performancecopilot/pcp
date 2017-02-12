@@ -3,15 +3,15 @@ Absolute path ... no chown
 return status=0
 .:
 total 4
-name=foo
+mode=drwxr-xr-x name=foo
 
 ./foo:
 total 4
-name=bar
+mode=drwxr-xr-x name=bar
 
 ./foo/bar:
 total 4
-name=foobar
+mode=drwxr-xr-x name=foobar
 
 ./foo/bar/foobar:
 total 0
@@ -20,15 +20,15 @@ Absolute path ... with chown
 return status=0
 .:
 total 4
-user=pcp group=pcp name=foo
+mode= drwxrwxr-x user=pcp group=pcp name=foo
 
 ./foo:
 total 4
-user=pcp group=pcp name=bar
+mode= drwxrwxr-x user=pcp group=pcp name=bar
 
 ./foo/bar:
 total 4
-user=pcp group=pcp name=foobar
+mode= drwxrwxr-x user=pcp group=pcp name=foobar
 
 ./foo/bar/foobar:
 total 0
@@ -36,15 +36,15 @@ Relative path ... no chown
 return status=0
 .:
 total 4
-name=foo
+mode=drwxr-xr-x name=foo
 
 ./foo:
 total 4
-name=bar
+mode=drwxr-xr-x name=bar
 
 ./foo/bar:
 total 4
-name=foobar
+mode=drwxr-xr-x name=foobar
 
 ./foo/bar/foobar:
 total 0
@@ -53,15 +53,15 @@ Relative path ... with chown
 return status=0
 .:
 total 4
-user=pcp group=pcp name=foo
+mode= drwxrwxr-x user=pcp group=pcp name=foo
 
 ./foo:
 total 4
-user=pcp group=pcp name=bar
+mode= drwxrwxr-x user=pcp group=pcp name=bar
 
 ./foo/bar:
 total 4
-user=pcp group=pcp name=foobar
+mode= drwxrwxr-x user=pcp group=pcp name=foobar
 
 ./foo/bar/foobar:
 total 0
@@ -69,15 +69,15 @@ Relative ./path, one level already exists ... no chown
 return status=0
 .:
 total 4
-name=foo
+mode=drwxrwxr-x name=foo
 
 ./foo:
 total 4
-name=bar
+mode=drwxrwxr-x name=bar
 
 ./foo/bar:
 total 4
-name=foobar
+mode=drwxrwxr-x name=foobar
 
 ./foo/bar/foobar:
 total 0
@@ -86,15 +86,15 @@ Relative ./path, two levels already exist ... with chown
 return status=0
 .:
 total 4
-name=foo
+mode=drwxrwxr-x name=foo
 
 ./foo:
 total 4
-name=bar
+mode=drwxrwxr-x name=bar
 
 ./foo/bar:
 total 4
-user=pcp group=pcp name=foobar
+mode= drwxr-xr-x user=pcp group=pcp name=foobar
 
 ./foo/bar/foobar:
 total 0
@@ -103,11 +103,11 @@ Error cases ...
 
 Permissions for mkdir ...
 mkdir: cannot create directory ‘foo/bar’: Permission denied
-mkdir_and_chown: foo/bar: mkdir failed
+mkdir_and_chown: foo/bar: mkdir -m 755 failed
 return status=1
 .:
 total 4
-name=foo
+mode=dr-xr-xr-x name=foo
 
 ./foo:
 total 0
@@ -124,23 +124,23 @@ mkdir_and_chown: foo/bar: already exists and is not a directory
 return status=1
 .:
 total 4
-name=foo
+mode=drwxrwxr-x name=foo
 
 ./foo:
 total 0
-name=bar
+mode=-rw-r--r-- name=bar
 
 Target path exists and is not a directory ...
 mkdir_and_chown: foo/bar/foobar: already exists and is not a directory
 return status=1
 .:
 total 4
-name=foo
+mode=drwxrwxr-x name=foo
 
 ./foo:
 total 4
-name=bar
+mode=drwxrwxr-x name=bar
 
 ./foo/bar:
 total 0
-name=foobar
+mode=-rw-rw-r-- name=foobar

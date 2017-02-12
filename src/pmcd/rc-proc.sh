@@ -437,7 +437,7 @@ fi
 # Note that if path already exists and is a directory, then no chown action
 # is done.
 #
-# Usage: mkdir_and_chown path [user:group]
+# Usage: mkdir_and_chown path mode [user:group]
 #
 mkdir_and_chown()
 {
@@ -461,21 +461,21 @@ mkdir_and_chown()
 		break
 	    fi
 	else
-	    if mkdir "$__d"
+	    if mkdir -m "$2" "$__d"
 	    then
 		:
 	    else
-		echo "mkdir_and_chown: $__d: mkdir failed"
+		echo "mkdir_and_chown: $__d: mkdir -m $2 failed"
 		break
 	    fi
-	    if [ $# -gt 1 ]
+	    if [ $# -gt 2 ]
 	    then
-		if chown "$2" "$__d"
+		if chown "$3" "$__d"
 		then
 		    :
 		else
 		    rmdir "$__d"
-		    echo "mkdir_and_chown: $__d: chown $2 failed"
+		    echo "mkdir_and_chown: $__d: chown $3 failed"
 		    break
 		fi
 	    fi

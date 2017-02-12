@@ -23,8 +23,8 @@ _report()
 {
     ls -lR | $PCP_AWK_PROG '
 NF < 4		{ print; next }
-$3 != "'"$PCP_USER"'" || $4 != "'"$PCP_GROUP"'"	{ print "name=" $NF; next }
-		{ print "user=pcp group=pcp name=" $NF }'
+$3 != "'"$PCP_USER"'" || $4 != "'"$PCP_GROUP"'"	{ print "mode=" $1 " name=" $NF; next }
+		{ print "mode= " $1 " user=pcp group=pcp name=" $NF }'
 }
 
 status=1	# failure is the default!
@@ -37,34 +37,34 @@ cd $tmp
 
 # real QA test starts here
 echo "Absolute path ... no chown"
-mkdir_and_chown $tmp/foo/bar/foobar
+mkdir_and_chown $tmp/foo/bar/foobar 755
 echo return status=$?
 _report
 $sudo rm -rf foo
 
 echo
 echo "Absolute path ... with chown"
-$sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown $tmp/foo/bar/foobar $PCP_USER:$PCP_GROUP"
+$sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown $tmp/foo/bar/foobar 775 $PCP_USER:$PCP_GROUP"
 echo return status=$?
 _report
 $sudo rm -rf foo
 
 echo "Relative path ... no chown"
-mkdir_and_chown foo/bar/foobar
+mkdir_and_chown foo/bar/foobar 755
 echo return status=$?
 _report
 $sudo rm -rf foo
 
 echo
 echo "Relative path ... with chown"
-$sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP"
+$sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown foo/bar/foobar 775 $PCP_USER:$PCP_GROUP"
 echo return status=$?
 _report
 $sudo rm -rf foo
 
 echo "Relative ./path, one level already exists ... no chown"
 mkdir foo
-mkdir_and_chown foo/bar/foobar
+mkdir_and_chown foo/bar/foobar 775
 echo return status=$?
 _report
 $sudo rm -rf foo
@@ -72,7 +72,7 @@ $sudo rm -rf foo
 echo
 echo "Relative ./path, two levels already exist ... with chown"
 mkdir -p foo/bar
-$sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP"
+$sudo sh -c ". $PCP_SHARE_DIR/lib/rc-proc.sh; mkdir_and_chown foo/bar/foobar 755 $PCP_USER:$PCP_GROUP"
 echo return status=$?
 _report
 $sudo rm -rf foo
@@ -84,7 +84,7 @@ echo
 echo "Permissions for mkdir ..."
 mkdir foo
 chmod 555 foo
-mkdir_and_chown foo/bar/foobar
+mkdir_and_chown foo/bar/foobar 755
 echo return status=$?
 _report
 chmod 777 foo
@@ -92,7 +92,7 @@ $sudo rm -rf foo
 
 echo
 echo "Not root for chown ..."
-mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP
+mkdir_and_chown foo/bar/foobar 755 $PCP_USER:$PCP_GROUP
 echo return status=$?
 _report
 $sudo rm -rf foo
@@ -101,7 +101,8 @@ echo
 echo "Middle level path component exists and is not a directory ..."
 mkdir foo
 touch foo/bar
-mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP
+chmod 644 foo/bar
+mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP 755
 echo return status=$?
 _report
 $sudo rm -rf foo
@@ -110,7 +111,7 @@ echo
 echo "Target path exists and is not a directory ..."
 mkdir -p foo/bar
 touch foo/bar/foobar
-mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP
+mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP 755
 echo return status=$?
 _report
 $sudo rm -rf foo
