@@ -430,3 +430,60 @@ else
 	return 3
     }
 fi
+
+# morally equivalent to mkdir -p path and optionally chown any directories
+# that did not exist beforehand
+#
+# Note that if path already exists and is a directory, then no chown action
+# is done.
+#
+# Usage: mkdir_and_chown path [user:group]
+#
+mkdir_and_chown()
+{
+    __i=1
+    __path="$1"
+    while true
+    do
+	[ -z "$__path" -o "$__path" = . -o "$__path" = / ] && break
+	echo $__i $__path
+	__path=`dirname "$__path"`
+	__i=`expr $__i + 1`
+    done \
+    | sort -nr \
+    | while read __o __d
+    do
+	if [ -e "$__d" ]
+	then
+	    if [ ! -d "$__d" ]
+	    then
+		echo "mkdir_and_chown: $__d: already exists and is not a directory"
+		break
+	    fi
+	else
+	    if mkdir "$__d"
+	    then
+		:
+	    else
+		echo "mkdir_and_chown: $__d: mkdir failed"
+		break
+	    fi
+	    if [ $# -gt 1 ]
+	    then
+		if chown "$2" "$__d"
+		then
+		    :
+		else
+		    rmdir "$__d"
+		    echo "mkdir_and_chown: $__d: chown $2 failed"
+		    break
+		fi
+	    fi
+	fi
+    done
+
+    [ -d "$1" ] && return 0
+
+    # oops
+    return 1
+}
