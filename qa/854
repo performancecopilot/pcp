@@ -34,11 +34,11 @@ _cleanup()
 	_service pcp restart \
 	| _filter_pcp_start \
 	| sed -e '/pmlogger not running/d'
-	rm -f $tmp.*
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_clean=true
     fi
+    rm -f $tmp.*
     exit $status
 }
 

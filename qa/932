@@ -32,11 +32,11 @@ _cleanup()
 	fi
 	_restore_primary_logger
 	_service pcp restart | _filter_pcp_start
-	rm -f $tmp.*
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_clean=true
     fi
+    rm -f $tmp.*
     exit $status
 }
 
