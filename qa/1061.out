@@ -1,0 +1,15 @@
+QA output created by 1061
+
+=== LIO agent installation ===
+----------------------------------------------------------------------
+Creating test iSCSI target using iscsi_config.json
+Deleting test iSCSI target
+OK
+Ran 5 tests in 0.XXXs
+test_LUN_count (__main__.ISCSITests) ... ok
+test_TPG_count (__main__.ISCSITests) ... ok
+test_check_LUN_IOPS (__main__.ISCSITests) ... ok
+test_check_LUN_instances (__main__.ISCSITests) ... ok
+test_client_count (__main__.ISCSITests) ... ok
+
+=== remove LIO agent ===

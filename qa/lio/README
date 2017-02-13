@@ -1,0 +1,39 @@
+
+Pre-Requisites
+In order to perform the tests we'll make some assumptions
+
+- python-rtslib is installed
+- targetcli is installed
+- the lio pmda has been installed successfully (either with selinux disabled
+  or with a local policy active)
+- you will be able to run the test as the root user (required for interaction
+  with configfs)
+
+
+What the Test does
+The test will create an ISCSI gateway based on the sample configuration defined
+in iscsi_conf.json. by changing the config you can vary the complexity of the
+test.
+
+Once the LIO config is complete, the pmda values are checked to make sure they
+match the settings in LIO (via rtslib)
+
+If any of the above checks fail an exception will be raised
+
+
+Reruns
+Once the test is complete, the LIO environment is dropped automatically so you
+may rerun the test multiple times or cycle through different configurations
+
+
+
+How to Test
+1. Make sure the pre-requisites are in place
+2. Run the lio_test.py script
+
+
+
+Issues
+------
+- None known at this time
+
