@@ -790,6 +790,7 @@ enable_qt
 qt_release
 QMAKE
 PMDA_LIBVIRT
+PMDA_LIO
 PMDA_NUTCRACKER
 PMDA_BIND2
 PMDA_ACTIVEMQ
@@ -7572,6 +7573,22 @@ fi
 PMDA_NUTCRACKER=$pmda_nutcracker
 
 if $pmda_nutcracker; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }; fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if the LIO PMDA should be included" >&5
+$as_echo_n "checking if the LIO PMDA should be included... " >&6; }
+pmda_lio=false
+if test "$have_python" = true
+then
+        if $pcp_python_prog -c "import rtslib" >/dev/null 2>&1
+    then
+	pmda_lio=true
+    fi
+fi
+PMDA_LIO=$pmda_lio
+
+if $pmda_lio; then { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; else { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }; fi
 

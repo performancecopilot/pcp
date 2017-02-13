@@ -1335,30 +1335,6 @@ Requires: python-pcp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about Intel MIC cards.
 # end pcp-pmda-mic
-
-#
-# pcp-pmda-lio
-#
-%package pmda-lio
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Weblog shell
-URL: http://www.pcp.io
-Requires: pcp = @package_version@
-%if "@enable_python3@" == "true"
-Requires: python3-pcp
-Requires: python3-rtslib
-%else
-Requires: python-rtslib
-Requires: python-pcp
-%endif
-%description pmda-lio
-This package provides a PMDA to gather performance metrics from the kernels
-iscsi target interface (LIO). The metrics are stored by LIO within the
-kernels configfs filesystem. The PMDA provides per LUN level stats, and a
-summary instance per iSCSI target, which aggregates all LUN metrics within the
-target.
-#end pcp-pmda-lio
 %endif
 
 %if "@pmda_libvirt@" == "true"
@@ -1388,6 +1364,32 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting virtualisation statistics from libvirt about behaviour of guest
 and hypervisor machines.
 #end pcp-pmda-libvirt
+%endif
+
+%if "@pmda_lio@" == "true"
+#
+# pcp-pmda-lio
+#
+%package pmda-lio
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for the Weblog shell
+URL: http://www.pcp.io
+Requires: pcp = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+Requires: python3-rtslib
+%else
+Requires: python-rtslib
+Requires: python-pcp
+%endif
+%description pmda-lio
+This package provides a PMDA to gather performance metrics from the kernels
+iscsi target interface (LIO). The metrics are stored by LIO within the Linux
+kernels configfs filesystem. The PMDA provides per LUN level stats, and a
+summary instance per iSCSI target, which aggregates all LUN metrics within the
+target.
+#end pcp-pmda-lio
 %endif
 
 %if "@pmda_json@" == "true"
@@ -1695,13 +1697,16 @@ Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
 Requires: pcp-pmda-lustrecomm pcp-pmda-redis
 %if "@have_python@" == "true"
-Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-lio
+Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 %endif
 %if "@pmda_json@" == "true"
 Requires: pcp-pmda-json
 %endif
 %if "@pmda_libvirt@" == "true"
 Requires: pcp-pmda-libvirt
+%endif
+%if "@pmda_lio@" == "true"
+Requires: pcp-pmda-lio
 %endif
 %if "@pmda_rpm@" == "true"
 Requires: pcp-pmda-rpm
@@ -1980,12 +1985,14 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/json' > pmda_json_files
 %if "@pmda_libvirt@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/libvirt' > pmda_libvirt_files
 %endif
+%if "@pmda_lio@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lio' > pmda_lio_files
+%endif
 %if "@have_python@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/unbound' > pmda_unbound_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/mic' > pmda_mic_files
-awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lio' > pmda_lio_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pcp-|pmatop|pmcollectl|pmiostat|pmrep' |\
 egrep -e 'atop|collectl|dmcache|free|iostat|mpstat|numastat|pidstat|verify|uptime|shping|pmrep' | \
 egrep -v 'testsuite|pmlogconf|pmieconf' \
@@ -2028,13 +2035,16 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
 
 %if "@have_python@" == "true"
 touch pmda_gluster_files pmda_zswap_files pmda_unbound_files \
-      pmda_mic_files pmda_lio_files system_tools_files
+      pmda_mic_files system_tools_files
 %endif
 %if "@pmda_json@" == "true"
 touch pmda_json_files
 %endif
 %if "@pmda_libvirt@" == "true"
 touch pmda_libvirt_files
+%endif
+%if "@pmda_lio@" == "true"
+touch pmda_lio_files
 %endif
 %if "@pmda_snmp@" == "true"
 touch pmda_snmp_files
@@ -2140,7 +2150,6 @@ BEGIN {
     while( getline < "pmda_zswap_files") pmda_zswap[$0]=1;
     while( getline < "pmda_unbound_files") pmda_unbound[$0]=1;
     while( getline < "pmda_mic_files") pmda_mic[$0]=1;
-    while( getline < "pmda_lio_files") pmda_lio[$0]=1;
     while( getline < "export_pcp2graphite_files") export_pcp2graphite[$0]=1;
     while( getline < "export_pcp2influxdb_files") export_pcp2influxdb[$0]=1;
 %endif
@@ -2150,6 +2159,9 @@ BEGIN {
 %endif
 %if "@pmda_libvirt@" == "true"
     while( getline < "pmda_libvirt_files") pmda_libvirt[$0]=1;
+%endif
+%if "@pmda_lio@" == "true"
+    while( getline < "pmda_lio_files") pmda_lio[$0]=1;
 %endif
     while( getline < "pmda_apache_files") pmda_apache[$0]=1;
     while( getline < "pmda_bash_files") pmda_bash[$0]=1;
@@ -2254,7 +2266,6 @@ BEGIN {
     else if (pmda_zswap[$NF]) f="pmda_zswap_files.rpm";
     else if (pmda_unbound[$NF]) f="pmda_unbound_files.rpm";
     else if (pmda_mic[$NF]) f="pmda_mic_files.rpm";
-    else if (pmda_lio[$NF]) f="pmda_lio_files.rpm";
     else if (export_pcp2graphite[$NF]) f="export_pcp2graphite_files.rpm";
     else if (export_pcp2influxdb[$NF]) f="export_pcp2influxdb_files.rpm";
 %endif
@@ -2264,6 +2275,9 @@ BEGIN {
 %endif
 %if "@pmda_libvirt@" == "true"
     else if (pmda_libvirt[$NF]) f="pmda_libvirt_files.rpm";
+%endif
+%if "@pmda_lio@" == "true"
+    else if (pmda_lio[$NF]) f="pmda_lio_files.rpm";
 %endif
     else if (pmda_apache[$NF]) f="pmda_apache_files.rpm";
     else if (pmda_bash[$NF]) f="pmda_bash_files.rpm";
@@ -2497,6 +2511,11 @@ semodule -X 400 -i @pcp_selinux_dir@/pcpupstream.pp
 %{pmda_remove "$1" "libvirt"}
 %endif #preun pmda-libvirt
 
+%if "@pmda_lio@" == "true"
+%preun pmda-lio
+%{pmda_remove "$1" "lio"}
+%endif #preun pmda-lio
+
 %if "@pmda_nginx@" == "true"
 %preun pmda-nginx
 %{pmda_remove "$1" "nginx"}
@@ -2622,9 +2641,6 @@ semodule -X 400 -i @pcp_selinux_dir@/pcpupstream.pp
 
 %preun pmda-mic
 %{pmda_remove "$1" "mic"}
-
-%preun pmda-lio
-%{pmda_remove "$1" "lio"}
 %endif #@have_python@
 
 %preun pmda-apache
@@ -2938,8 +2954,6 @@ semodule -X 400 -r pcpupstream >/dev/null
 
 %files pmda-mic -f pmda_mic_files.rpm
 
-%files pmda-lio -f pmda_lio_files.rpm
-
 %files export-pcp2graphite -f export_pcp2graphite_files.rpm
 
 %files export-pcp2influxdb -f export_pcp2influxdb_files.rpm
@@ -2953,6 +2967,10 @@ semodule -X 400 -r pcpupstream >/dev/null
 
 %if "@pmda_libvirt@" == "true"
 %files pmda-libvirt -f pmda_libvirt_files.rpm
+%endif
+
+%if "@pmda_lio@" == "true"
+%files pmda-lio -f pmda_lio_files.rpm
 %endif
 
 %files pmda-apache -f pmda_apache_files.rpm
