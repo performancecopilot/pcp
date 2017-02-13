@@ -404,6 +404,11 @@ pkg?	jsonpointer.py					[N/A (build optional)]
 slackpkg?	jsonpointer.py				[N/A (build optional)]
 pacman?	/usr/lib/python2.*/site-packages/jsonpointer.py	[python2-jsonpointer (build optional)
 pacman?	/usr/lib/python3.*/site-packages/jsonpointer.py	[python-jsonpointer (build optional)
+# -- lio
+rpm?	/usr/lib/python3.*/*-packages/rtslib		[python3-rtslib]
+rpm?	/usr/lib/python2.*/*-packages/rtslib		[python-rtslib]
+urpmi?	/usr/lib/python2.*/*-packages/rtslib		[python3-rtslib]
+urpmi?	/usr/lib/python2.*/*-packages/rtslib		[python-rtslib]
 # -- setuptools
 dpkg?	/usr/lib/python2.*/*-packages/setuptools	[python-setuptools]
 dpkg?	/usr/lib/python3/*-packages/setuptools	[python3-setuptools]
@@ -418,7 +423,7 @@ pacman?	/usr/lib/python2.*/site-packages/setuptools	[?python2-setuptools]
 pacman?	/usr/lib/python3.*/site-packages/setuptools	[?python-setuptools]
 # -- libvirt
 dpkg?	/usr/lib/python3/*-packages/libvirt.py		[libvirt-python3]
-rpm?	/usr/lib/python3.*/*-packages/libvirt.py	[libvirt-python3]
+rpm?	/usr/lib*/python3.*/*-packages/libvirt.py	[libvirt-python3]
 urpmi?	libvirt.py		[?]
 emerge?	libvirt.py		[?]
 pkgin?	libvirt.py		[?]
