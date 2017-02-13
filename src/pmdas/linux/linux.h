@@ -151,7 +151,7 @@ enum {
 	IPC_SEM_INDOM,	        /* 30 - ipc sem_stat msgid */
 	BUDDYINFO_INDOM,	/* 31 - kernel buddys */
 	ZONEINFO_INDOM,	        /* 32 - proc zoneinfo */
-	ZONEINFO_PROTECTION_INDOM,	        /* 33 - proc zoneinfo protection item */
+	ZONEINFO_PROTECTION_INDOM,	/* 33 - proc zoneinfo protection item */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

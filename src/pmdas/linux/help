@@ -57,6 +57,7 @@
 @ 60.30 IPC sem_stat semaphore IDs
 @ 60.31 buddyinfo memory fragmentation sets, per-NUMA-node
 @ 60.32 zoneinfo memory types, per-NUMA-node
+@ 60.33 low memory regions for each zoneinfo memory type, per-NUMA-node
 
 @ kernel.uname.release release level of the running kernel
 Release level of the running kernel as reported via the release[]
