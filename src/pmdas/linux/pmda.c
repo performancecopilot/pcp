@@ -60,6 +60,7 @@
 #include "proc_zoneinfo.h"
 #include "numa_meminfo.h"
 #include "ksm.h"
+#include "sysfs_tapestats.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -332,6 +333,7 @@ static pmdaIndom indomtab[] = {
     { BUDDYINFO_INDOM, 0, NULL },
     { ZONEINFO_INDOM, 0, NULL },
     { ZONEINFO_PROTECTION_INDOM, 0, NULL },
+    { TAPEDEV_INDOM, 0, NULL }
 };
 
 
@@ -4987,6 +4989,53 @@ static pmdaMetric metrictab[] = {
     /* network.softnet.percpu.flow_limit_count */
     { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,11), PM_TYPE_U64, CPU_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/*
+ * tapedev cluster
+ */
+    /* tape.dev.in_flight */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_IN_FLIGHT), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* tape.dev.io_ns */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_IO_NS), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+
+    /* tape.dev.other_cnt */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_OTHER_CNT), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* tape.dev.read_byte_cnt */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_READ_BYTE_CNT), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+    /* tape.dev.read_cnt */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_READ_CNT), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* tape.dev.read_ns */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_READ_NS), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+
+    /* tape.dev.resid_cnt */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_RESID_CNT), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* tape.dev.write_byte_cnt */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_WRITE_BYTE_CNT), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+    /* tape.dev.write_cnt */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_WRITE_CNT), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* tape.dev.write_ns */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_WRITE_NS), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+
+    /* hinv.ntape */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_HINV_NTAPE), PM_TYPE_U32, PM_INDOM_NULL,
+	PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
 typedef struct {
@@ -5221,6 +5270,9 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_KSM_INFO])
 	refresh_ksm_info(&ksm_info);
 
+    if (need_refresh[CLUSTER_TAPEDEV])
+	refresh_sysfs_tapestats(INDOM(TAPEDEV_INDOM));
+
 done:
     if (need_refresh_mtab)
 	pmdaDynamicMetricTable(pmda);
@@ -5302,6 +5354,9 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     case ZONEINFO_PROTECTION_INDOM:
         need_refresh[CLUSTER_ZONEINFO_PROTECTION]++;
         break;
+    case TAPEDEV_INDOM:
+	need_refresh[CLUSTER_TAPEDEV]++;
+	break;
     /* no default label : pmdaInstance will pick up errors */
     }
 
@@ -7199,6 +7254,28 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	default:
 	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_TAPEDEV:
+	if (idp->item == TAPESTATS_HINV_NTAPE) {
+	    /* hinv.ntape */
+	    atom->ul = pmdaCacheOp(INDOM(TAPEDEV_INDOM), PMDA_CACHE_SIZE_ACTIVE);
+	}
+	else {
+	    /*
+	     * tape.dev.* counters are direct indexed by item, see sysfs_tapestats.h
+	     */
+	    tapedev_t *tape = NULL;
+
+	    if (idp->item >= TAPESTATS_COUNT)
+		return PM_ERR_PMID;
+	    sts = pmdaCacheLookup(INDOM(TAPEDEV_INDOM), inst, NULL, (void **)&tape);
+	    if (sts < 0)
+		return sts;
+	    if (sts != PMDA_CACHE_ACTIVE || tape == NULL)
+		return PM_ERR_INST;
+	    atom->ull = tape->counts[idp->item];
 	}
 	break;
 

@@ -57,6 +57,10 @@
 @ 60.30 IPC sem_stat semaphore IDs
 @ 60.31 buddyinfo memory fragmentation sets, per-NUMA-node
 @ 60.32 zoneinfo memory types, per-NUMA-node
+@ 60.34 scsi tape devices, per scsi tape device
+The scsi tape instance domain includes st[0-9]+ devices, but not any of the
+derived devices such as nst0, nst0a, st0l, st0m and so forth. The derived
+devices all share the same statistics in the kernel as the st devices.
 
 @ kernel.uname.release release level of the running kernel
 Release level of the running kernel as reported via the release[]
@@ -1626,3 +1630,21 @@ See also the kernel.uname.* metrics
 @ vfs.dentry.free number of available dentry structures
 
 @ sysfs.kernel.uevent_seqnum counter of the number of uevents processed by the udev subsystem
+
+@ tape.dev.in_flight number of I/Os currently outstanding to this tape device
+@ tape.dev.io_ns cummulative amount of time spent waiting for all I/O to complete to tape device
+The amount of time spent waiting (in nanoseconds) for all I/O to complete
+(including read and write). This includes tape movement commands such as seeking
+between file or set marks and implicit tape movement such as when rewind on close
+tape devices are used.
+@ tape.dev.other_cnt number of I/Os issued to the tape drive other than read or write commands
+@ tape.dev.read_byte_cnt number of bytes read from the tape drive
+@ tape.dev.read_cnt number of read requests issued to the tape drive
+@ tape.dev.read_ns cummulative amount of time spent waiting for read requests to complete
+@ tape.dev.resid_cnt count of read or write residual data, per tape device
+Number of times during a read or write we found the residual amount to be non-zero.
+For reads this means a program is issuing a read larger than the block size on tape.
+For writes it means not all data made it to tape.
+@ tape.dev.write_byte_cnt number of bytes written to the tape drive
+@ tape.dev.write_cnt number of write requests issued to the tape drive
+@ tape.dev.write_ns cummulative amount of time spent waiting for write requests to complete
