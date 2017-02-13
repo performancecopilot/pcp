@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 910
+# PCP QA Test No. 917
 # SELinux Testing
 #
 # Copyright (c) 2017 Red Hat Inc.  All Rights Reserved.
@@ -13,7 +13,21 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-which sedismod || _notrun "sedismod tool not installed (module disassembly)"
+policy_name="pcpupstream"
+policy_file="$PCP_VAR_DIR/selinux/$policy_name.pp"
+which sedismod >/dev/null 2>&1 || _notrun "sedismod tool not installed (module disassembly)"
+which semodule >/dev/null 2>&1 || _notrun "semodule tool not installed"
+[ -f "$policy_file" ] || _notrun "upstream policy package not installed"
+
+_filter_semodule()
+{
+    awk '{ print $1 }'
+}
+
+_filter_sedismod()
+{
+    sed -n '/--- begin avrule block ---/,$p'
+}
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
@@ -24,12 +38,13 @@ policy_name="pcpupstream"
 policy_file="$PCP_VAR_DIR/selinux/$policy_name.pp"
 
 echo "full policy modules list on the system"
-$sudo semodule --list=full >> $seq.full
-grep pcpupstream $seq.full
+$sudo semodule -l >> $seq.full
+echo "Checking that pcpupstream policy module has been properly installed"
+grep pcpupstream $seq.full | _filter_semodule
 # real QA test starts here
 echo "Checking policies."
-printf '1\nq\n' | sedismod $policy_file # >> $seq.full
-#echo "Checking for foo"
+printf '1\nq\n' | sedismod $policy_file | _filter_sedismod
+#echo "Checking for foo"hl
 #cat $seq.full | grep pcp_pmcd_t | grep container_runtime_t
 
 # success, all done
