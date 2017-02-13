@@ -15,9 +15,13 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-# PCP RPMs to optionally be installed in the base container, for testing.
-# The default is the RPMs just built by the Makepkgs script. These packages
-# will also be used to build all containers layered on pcp-base.
+# The PCP RPMs to be installed in the base container is defined by the yum
+# repo that is enabled in $(TOPDIR)/build/containers/pcp-base/pcp.repo.
+# This can be easily modified, e.g. to use the packages just built by the
+# Makepkgs script (as defined by the PACKAGES macro below), if desired.
+# The repo enabled in the pcp.repo file supplies the packages that will be
+# used to build all containers layered on pcp-base. Also see the comments in
+# pcp-base/Dockerfile.
 #
 PACKAGES=$(shell echo ../../rpm/*.rpm)
 
@@ -31,7 +35,7 @@ pack_pcp: RPMS $(CONTAINER)-$(CONTAINER_VERSION).$(CONTAINER_ARCH).tgz
 
 RPMS: # Docker build runs createrepo RPMS
 	@echo Adding PCP RPMS from $(PACKAGES)
-	cp -a $(PACKAGES) RPMS
+	test ! -d RPMS && mkdir RPMS; cp -a $(PACKAGES) RPMS
 
 # rule to build $(CONTAINER).tgz from Dockerfile
 include ../GNUlocalrules
