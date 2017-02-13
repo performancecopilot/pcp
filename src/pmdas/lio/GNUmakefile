@@ -19,9 +19,9 @@ IAM	= lio
 PYSCRIPT = pmda$(IAM).python
 LDIRT	= domain.h root pmns $(IAM).log
 
-#MAN_SECTION = 1
-#MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
-#MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
+MAN_SECTION = 1
+MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
 DOMAIN	= LIO
 PMDADIR	= $(PCP_PMDAS_DIR)/$(IAM)
