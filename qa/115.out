@@ -178,6 +178,7 @@ Error: insufficient fields in control file record
 # $version=1.1
 + export version; version=1.1
 Check pmie -h LOCALHOST -l /tmp/SEQ-PID.nogo/subdir/bad.7 ...
+mkdir_and_chown: /tmp/SEQ-PID.nogo/subdir: mkdir -m 755 failed
 pmie_check: [/tmp/SEQ-PID.error.7:2]
 Error: cannot create directory (/tmp/SEQ-PID.nogo/subdir) for pmie log file
 ... automated performance reasoning for host "LOCALHOST" unchanged
