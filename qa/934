@@ -19,6 +19,16 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
 }
 
+# for mkdir_and_chown()
+#
+_filter()
+{
+    sed \
+	-e "s/\`/'/g" \
+    # end
+}
+
+
 _report()
 {
     ls -lR | $PCP_AWK_PROG '
@@ -98,16 +108,20 @@ echo
 echo "Permissions for mkdir ..."
 mkdir foo
 chmod 555 foo
-mkdir_and_chown foo/bar/foobar 755
-echo return status=$?
+mkdir_and_chown foo/bar/foobar 755 >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+echo return status=$sts
 _report
 chmod 777 foo
 $sudo rm -rf foo
 
 echo
 echo "Not root for chown ..."
-mkdir_and_chown foo/bar/foobar 755 $PCP_USER:$PCP_GROUP
-echo return status=$?
+mkdir_and_chown foo/bar/foobar 755 $PCP_USER:$PCP_GROUP >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+echo return status=$sts
 _report
 $sudo rm -rf foo
 
@@ -116,8 +130,10 @@ echo "Middle level path component exists and is not a directory ..."
 mkdir foo
 touch foo/bar
 chmod 644 foo/bar
-mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP 755
-echo return status=$?
+mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP 755 >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+echo return status=$sts
 _report
 $sudo rm -rf foo
 
@@ -125,8 +141,10 @@ echo
 echo "Target path exists and is not a directory ..."
 mkdir -p foo/bar
 touch foo/bar/foobar
-mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP 755
-echo return status=$?
+mkdir_and_chown foo/bar/foobar $PCP_USER:$PCP_GROUP 755 >$tmp.out 2>&1
+sts=$?
+_filter <$tmp.out
+echo return status=$sts
 _report
 $sudo rm -rf foo
 
