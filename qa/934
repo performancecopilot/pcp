@@ -40,6 +40,11 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 mkdir $tmp
 cd $tmp
 
+# let the scripts under test set all of the owner and group mode bits
+# and pick something sane for other ...
+#
+umask 2
+
 # for error messages from mkdir(1) ...
 #
 export LANG=POSIX
