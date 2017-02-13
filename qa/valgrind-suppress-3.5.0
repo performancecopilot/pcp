@@ -7,6 +7,19 @@
    fun:pmFetch
 }
 
+# ==26153== 3,264 bytes in 51 blocks are possibly lost in loss record 76 of 92
+# ==26153==    at 0x4A0610C: malloc (vg_replace_malloc.c:195)
+# ==26153==    by 0x4048A1: doscan (scan.c:169)
+# ==26153==    by 0x4024D4: main (pmlogreduce.c:392)
+# which is bogus (the vp elements go into a linked list)
+{
+   vm25: for qa/459
+   Memcheck:Leak
+   fun:malloc
+   fun:doscan
+   fun:main
+}
+
 {
     vm04: for qa/400, qa/731 and qa/957
     Memcheck:Leak
