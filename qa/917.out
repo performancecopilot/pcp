@@ -1,44 +1,8 @@
 QA output created by 917
-/usr/bin/sedismod
 full policy modules list on the system
-400 pcpupstream       pp         
+Checking that pcpupstream policy module has been properly installed
+pcpupstream
 Checking policies.
-Reading policy...
-libsepol.policydb_index_others: security:  0 users, 1 roles, 23 types, 0 bools
-libsepol.policydb_index_others: security: 0 sens, 0 cats
-libsepol.policydb_index_others: security:  8 classes, 0 rules, 0 cond rules
-libsepol.policydb_index_others: security:  0 users, 1 roles, 23 types, 0 bools
-libsepol.policydb_index_others: security: 0 sens, 0 cats
-libsepol.policydb_index_others: security:  8 classes, 0 rules, 0 cond rules
-Binary policy module file loaded.
-Module name: pcpupstream
-Module version: 1.0
-
-
-Select a command:
-1)  display unconditional AVTAB
-2)  display conditional AVTAB
-3)  display users
-4)  display bools
-5)  display roles
-6)  display types, attributes, and aliases
-7)  display role transitions
-8)  display role allows
-9)  Display policycon
-0)  Display initial SIDs
-
-a)  Display avrule requirements
-b)  Display avrule declarations
-c)  Display policy capabilities
-l)  Link in a module
-u)  Display the unknown handling setting
-F)  Display filename_trans rules
-
-f)  set output file
-m)  display menu
-q)  quit
-
-Command ('m' for menu):  unconditional avtab:
 --- begin avrule block ---
 decl 1:
   allow [init_t] [pcp_log_t] : [dir] { read };
