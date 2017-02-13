@@ -39,3 +39,9 @@ Makefile
 VERSION.pcp.daily
 .vagrant
 qaresults
+GPATH
+GRTAGS
+GTAGS
+#*
+*#
+.#*

@@ -33,6 +33,7 @@ root {
     vfs
     tmpfs
     sysfs
+    tape
 }
 
 hinv {
@@ -48,6 +49,7 @@ hinv {
     cpu
     node
     hugepagesize	60:1:59
+    ntape		60:71:16
 }
 
 hinv.map {
@@ -1271,4 +1273,21 @@ sysfs {
 
 sysfs.kernel {
     uevent_seqnum	60:35:0
+}
+
+tape {
+    dev
+}
+
+tape.dev {
+    in_flight		60:71:0
+    io_ns		60:71:1
+    other_cnt		60:71:2
+    read_byte_cnt	60:71:3
+    read_cnt		60:71:4
+    read_ns		60:71:5
+    resid_cnt		60:71:6
+    write_byte_cnt	60:71:7
+    write_cnt		60:71:8
+    write_ns		60:71:9
 }
