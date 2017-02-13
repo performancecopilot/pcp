@@ -1074,6 +1074,19 @@ fi
 AC_SUBST(PMDA_NUTCRACKER, $pmda_nutcracker)
 if $pmda_nutcracker; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
+AC_MSG_CHECKING([if the LIO PMDA should be included])
+pmda_lio=false
+if test "$have_python" = true
+then
+    dnl rpm build for LIO PMDA needs Python rtslib module
+    if $pcp_python_prog -c "import rtslib" >/dev/null 2>&1
+    then
+	pmda_lio=true
+    fi
+fi
+AC_SUBST(PMDA_LIO, $pmda_lio)
+if $pmda_lio; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
 AC_MSG_CHECKING([if the libvirt PMDA should be included])
 pmda_libvirt=false
 if test "$have_python" = true

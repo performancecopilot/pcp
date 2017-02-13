@@ -18,6 +18,13 @@ Check xfs metrics have appeared ... X metrics and Y values
 Expect same primary pmlogger to be running ...
 Found same primary pmlogger
 
+Culling the Performance Metrics Name Space ...
+xfs ... done
+quota ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check xfs metrics have gone away ... OK
+Check quota metrics have gone away ... OK
 You will need to choose an appropriate configuration for installation of
 the "dm" Performance Metrics Domain Agent (PMDA).
 
@@ -36,6 +43,13 @@ Check dmthin metrics have appeared ... X metrics and Y values
 Expect same primary pmlogger to be running ...
 Found same primary pmlogger
 
+Culling the Performance Metrics Name Space ...
+dmcache ... done
+dmthin ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check dmcache metrics have gone away ... OK
+Check dmthin metrics have gone away ... OK
 Resetting system state
 Waiting for pmcd to terminate ...
 Starting pmcd ... 

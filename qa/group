@@ -178,6 +178,7 @@ pmda.hotproc
 pmda.jbd2
 pmda.json
 pmda.kvm
+pmda.lio
 pmda.logger
 pmda.lustre
 pmda.mailq
@@ -1164,11 +1165,14 @@ oldversion
 915 pmcd pmlogger pmproxy libpcp local pmlc
 916 pmlogextract pmlogcheck local
 917 selinux local
+918 pmcd local
 919 pmlogger pmstat local
+920 logutil local
 921 pmdumplog local
 922 derive pmie pmval local
 923 derive libpcp valgrind local
 924 pmda.docker local
+925 logutil local
 926 other local
 928 archive local
 929 logutil local
@@ -1176,6 +1180,7 @@ oldversion
 931 archive pmval local
 932 pmlogger local
 933 pmda.proc local
+934 logutil pmieutil local
 943 pmprobe pmda.proc local
 944 pmcd secure local
 945 pmlogrewrite pmda.xfs local
@@ -1194,7 +1199,7 @@ oldversion
 961 pmlogextract local
 962 archive local pmval pmdumplog
 963 libpcp local
-964 pmcd local
+964 pmcd local pmda.xfs pmda.dm
 965 derive local
 966 secure local
 967 pmda.papi local
@@ -1290,6 +1295,8 @@ oldversion
 1057 pmlogrewrite local
 1058 pmda.bash local
 1059 pmcd local
+1060 pmieutil local
+1061 pmda.lio local
 1062 pmrep python local
 1065 libpcp valgrind local
 1067 zabbix zbxpcp local
@@ -1303,6 +1310,7 @@ oldversion
 1080 valgrind pcp atop local
 1081 python pcp local
 1082 python local
+1083 pmcd local
 1087 pmda.bind2 local
 1090 pmwebapi local context
 1091 pmns libpcp context local
@@ -1314,4 +1322,3 @@ oldversion
 1111 pcp2influxdb python local
 1112 pmda.linux local
 1113 pcp python local
-4751:reserved threads local archive fetch context flakey

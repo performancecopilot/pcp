@@ -1366,6 +1366,32 @@ and hypervisor machines.
 #end pcp-pmda-libvirt
 %endif
 
+%if "@pmda_lio@" == "true"
+#
+# pcp-pmda-lio
+#
+%package pmda-lio
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for the Weblog shell
+URL: http://www.pcp.io
+Requires: pcp = @package_version@
+%if "@enable_python3@" == "true"
+Requires: python3-pcp
+Requires: python3-rtslib
+%else
+Requires: python-rtslib
+Requires: python-pcp
+%endif
+%description pmda-lio
+This package provides a PMDA to gather performance metrics from the kernels
+iscsi target interface (LIO). The metrics are stored by LIO within the Linux
+kernels configfs filesystem. The PMDA provides per LUN level stats, and a
+summary instance per iSCSI target, which aggregates all LUN metrics within the
+target.
+#end pcp-pmda-lio
+%endif
+
 %if "@pmda_json@" == "true"
 #
 # pcp-pmda-json
@@ -1679,6 +1705,9 @@ Requires: pcp-pmda-json
 %if "@pmda_libvirt@" == "true"
 Requires: pcp-pmda-libvirt
 %endif
+%if "@pmda_lio@" == "true"
+Requires: pcp-pmda-lio
+%endif
 %if "@pmda_rpm@" == "true"
 Requires: pcp-pmda-rpm
 %endif
@@ -1956,6 +1985,9 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/json' > pmda_json_files
 %if "@pmda_libvirt@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/libvirt' > pmda_libvirt_files
 %endif
+%if "@pmda_lio@" == "true"
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lio' > pmda_lio_files
+%endif
 %if "@have_python@" == "true"
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gluster' > pmda_gluster_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/zswap' > pmda_zswap_files
@@ -2010,6 +2042,9 @@ touch pmda_json_files
 %endif
 %if "@pmda_libvirt@" == "true"
 touch pmda_libvirt_files
+%endif
+%if "@pmda_lio@" == "true"
+touch pmda_lio_files
 %endif
 %if "@pmda_snmp@" == "true"
 touch pmda_snmp_files
@@ -2125,6 +2160,9 @@ BEGIN {
 %if "@pmda_libvirt@" == "true"
     while( getline < "pmda_libvirt_files") pmda_libvirt[$0]=1;
 %endif
+%if "@pmda_lio@" == "true"
+    while( getline < "pmda_lio_files") pmda_lio[$0]=1;
+%endif
     while( getline < "pmda_apache_files") pmda_apache[$0]=1;
     while( getline < "pmda_bash_files") pmda_bash[$0]=1;
     while( getline < "pmda_cifs_files") pmda_cifs[$0]=1;
@@ -2237,6 +2275,9 @@ BEGIN {
 %endif
 %if "@pmda_libvirt@" == "true"
     else if (pmda_libvirt[$NF]) f="pmda_libvirt_files.rpm";
+%endif
+%if "@pmda_lio@" == "true"
+    else if (pmda_lio[$NF]) f="pmda_lio_files.rpm";
 %endif
     else if (pmda_apache[$NF]) f="pmda_apache_files.rpm";
     else if (pmda_bash[$NF]) f="pmda_bash_files.rpm";
@@ -2469,6 +2510,11 @@ semodule -X 400 -i @pcp_selinux_dir@/pcpupstream.pp
 %preun pmda-libvirt
 %{pmda_remove "$1" "libvirt"}
 %endif #preun pmda-libvirt
+
+%if "@pmda_lio@" == "true"
+%preun pmda-lio
+%{pmda_remove "$1" "lio"}
+%endif #preun pmda-lio
 
 %if "@pmda_nginx@" == "true"
 %preun pmda-nginx
@@ -2921,6 +2967,10 @@ semodule -X 400 -r pcpupstream >/dev/null
 
 %if "@pmda_libvirt@" == "true"
 %files pmda-libvirt -f pmda_libvirt_files.rpm
+%endif
+
+%if "@pmda_lio@" == "true"
+%files pmda-lio -f pmda_lio_files.rpm
 %endif
 
 %files pmda-apache -f pmda_apache_files.rpm

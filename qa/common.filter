@@ -776,6 +776,7 @@ _filter_torture_api()
 	-e '/^    stream /d' \
 	-e '/^    sysfs /d' \
 	-e '/^    sysioctl /d' \
+	-e '/^    tape /d' \
 	-e '/^    tmpfs /d' \
 	-e '/^    udf /d' \
 	-e '/^    vfs /d' \

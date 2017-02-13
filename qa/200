@@ -33,6 +33,52 @@ _cleanup()
     exit $status
 }
 
+_wait_for_pmcd_exit()
+{
+    # 3 seconds default seems like a reasonble max time to cleanup
+    #debug# set -x
+    _can_wait=${1-3}
+    _i=0
+    _dead=false
+    while [ $_i -lt $_can_wait ]
+    do
+	if netstat -t -n -l | grep :44321 >/dev/null
+	then
+	    sleep 1
+	    _i=`expr $_i + 1`
+	else
+	    _dead=true
+	    break
+	fi
+    done
+    if $_dead
+    then
+	:
+    else
+	date
+	echo "Arrgghhh ... pmcd at $_host failed to stop after $_can_wait seconds"
+	case $_host
+	in
+	    localhost|unix:|local:|`hostname`)
+		# these are all local PMCD's
+		#
+		echo "=== pmcd.log ==="
+		cat $PCP_LOG_DIR/pmcd/pmcd.log
+
+		echo "likely looking processes ..."
+		ps "$PCP_PS_ALL_FLAGS" | egrep "[p]m|[P]ID"
+		;;
+	    *)
+		# assume a remote PMCD
+		#
+		ssh pcpqa@$_host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( ps \$PCP_PS_ALL_FLAGS | egrep \"[p]m|[P]ID\" )'" </dev/null
+		;;
+	esac
+	status=2
+	exit $status
+    fi
+}
+
 _filter()
 {
     $PCP_AWK_PROG '
@@ -88,7 +134,7 @@ $sudo cp $tmp.new $PCP_PMCDCONF_PATH
 # just doing a start may race and find the pmcd socket busy,
 # so stop, wait a little, and start
 _service pcp stop >/dev/null 2>&1
-sleep 2
+_wait_for_pmcd_exit
 _service pmcd start >/dev/null 2>&1
 _wait_for_pmcd
 
@@ -116,6 +162,7 @@ do
     echo "begin stop pmcd `date`" >>$seq.full
     _service pmcd stop | _filter_pcp_stop
     echo "end stop pmcd `date`" >>$seq.full
+    _wait_for_pmcd_exit
     pmsleep 1.1
     echo "begin start pmcd `date`" >>$seq.full
     _service pmcd start \
