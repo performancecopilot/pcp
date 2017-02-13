@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat.
+ * Copyright (c) 2016-2017 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -47,26 +47,26 @@ get_ttyname_info(int pid, dev_t dev)
     struct stat statbuf;
     char fullpath[MAXPATHLEN];
     static char ttyname[MAXPATHLEN];
-    char *devpath = "/dev/";
+    char *path, *devpath = "/dev/";
     struct dirent *drp;
     DIR *rundir;
 
     strcpy(ttyname, "?");
-    if ((rundir = opendir(devpath)) == NULL){
+    if ((rundir = opendir(devpath)) == NULL)
 	return ttyname;
-    }
+
     while ((drp = readdir(rundir)) != NULL) {
-	char *path;
 	if (*(path = &drp->d_name[0]) == '.')
 	    continue;
-	sprintf(fullpath, "%s%s", devpath, path);
-	if(!stat(fullpath, &statbuf) &&
-	   S_ISCHR(statbuf.st_mode)) {
-	    if (dev == statbuf.st_rdev) {
-		strcpy(ttyname, &fullpath[5]);
-		break;
-	    }
+	snprintf(fullpath, sizeof(fullpath), "%s%s", devpath, path);
+	fullpath[sizeof(fullpath)-1] = '\0';
+	if (!stat(fullpath, &statbuf))
+	    continue;
+	if (S_ISCHR(statbuf.st_mode) && dev == statbuf.st_rdev) {
+	    strcpy(ttyname, &fullpath[5]);
+	    break;
 	}
     }
+    closedir(rundir);
     return ttyname;
 }
