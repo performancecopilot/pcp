@@ -778,13 +778,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	}
     }
 
-    if ((rp = (pmResult *)malloc(sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *))) == NULL)
-	return -oserror();
-
-    rp->timestamp.tv_sec = ctxp->c_origin.tv_sec;
-    rp->timestamp.tv_usec = ctxp->c_origin.tv_usec;
-    rp->numpmid = numpmid;
-
     /*
      * first pass ... scan all metrics, establish which ones are in
      * the log, and which instances are being requested ... also build
@@ -806,8 +799,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    __pmHashInit(&pcp->hc);
 	    sts = __pmHashAdd((int)pmidlist[j], (void *)pcp, hcp);
 	    if (sts < 0) {
-		rp->numpmid = j;
-		pmFreeResult(rp);
 		free(pcp);
 		return sts;
 	    }
@@ -828,11 +819,15 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		}
 		else {
 		    sts = pmGetInDomArchive(pcp->desc.indom, &instlist, &namelist);
+		    if (sts > 0) {
+			/* Pre allocate enough space for the instance domain. */
+			sts1 = __pmHashPreAlloc(sts, &pcp->hc);
+			if (sts1 < 0) {
+			    free(pcp);
+			    return sts1;
+			}
+		    }
 		}
-		/* Pre allocate enough space for the instance domain. */
-		sts1 = __pmHashPreAlloc(sts, &pcp->hc);
-		if (sts1 < 0)
-		    return sts1;
 		for (i = 0; i < sts; i++) {
 		    if ((icp = (instcntl_t *)malloc(sizeof(instcntl_t))) == NULL) {
 			__pmNoMem("__pmLogFetchInterp.instcntl_t", sizeof(instcntl_t), PM_FATAL_ERR);
@@ -923,8 +918,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		assert(ctxp->c_archctl->ac_offset >= 0);
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 		sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL, NULL);
-		if (sts < 0) {
-		    free(rp);
+		if (sts < 0) {		
 		    return sts;
 		}
 	    }
@@ -942,7 +936,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		ctxp->c_archctl->ac_vol = ctxp->c_archctl->ac_log->l_curvol;
 		sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_NONE, NULL, NULL);
 		if (sts < 0) {
-		    free(rp);
 		    return sts;
 		}
 	    }
@@ -993,7 +986,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    /* forwards before scanning back */
 		    sts = do_roll(ctxp, t_req, &seen_mark);
 		    if (sts < 0) {
-			free(rp);
 			return sts;
 		    }
 		}
@@ -1069,7 +1061,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_BACK, &done, &seen_mark);
 	    if (sts < 0) {
-		free(rp);
 		return sts;
 	    }
 
@@ -1130,7 +1121,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    /* backwards before scanning forwards */
 		    sts = do_roll(ctxp, t_req, &seen_mark);
 		    if (sts < 0) {
-			free(rp);
 			return sts;
 		    }
 		}
@@ -1208,7 +1198,6 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 	    sts = update_bounds(ctxp, t_req, logrp, UPD_MARK_FORW, &done, &seen_mark);
 	    if (sts < 0) {
-		free(rp);
 		return sts;
 	    }
 
@@ -1307,6 +1296,14 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 	    }
 	}
     }
+
+    /* Build the final result. */
+    if ((rp = (pmResult *)malloc(sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *))) == NULL)
+	return -oserror();
+
+    rp->timestamp.tv_sec = ctxp->c_origin.tv_sec;
+    rp->timestamp.tv_usec = ctxp->c_origin.tv_usec;
+    rp->numpmid = numpmid;
 
     for (j = 0; j < numpmid; j++) {
 	if (pmidlist[j] == PM_ID_NULL) {
