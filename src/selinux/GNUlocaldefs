@@ -2,3 +2,8 @@ ifneq "$(shell seinfo -t | grep 'container_runtime_t$$' | sed -e 's/^[ \t]*//')"
 PCP_CONTAINER_RUNTIME_T="type container_runtime_t\;"
 PCP_CONTAINER_RUNTIME_RULE="allow pcp_pmcd_t container_runtime_t:unix_stream_socket connectto\;"
 endif
+
+ifneq "$(shell seinfo -t | grep 'nsfs_t$$' | sed -e 's/^[ \t]*//')" ""
+PCP_NSFS_T="type nsfs_t\; \# filesys.used"
+PCP_NSFS_RULE="allow pcp_pmcd_t nsfs_t:file { read open }\;"
+endif

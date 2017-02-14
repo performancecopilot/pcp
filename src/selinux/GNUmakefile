@@ -30,6 +30,9 @@ $(IAM).te: $(IAM).te.in
 	$(SED) <$< >$@ \
 		-e 's;@PCP_CONTAINER_RUNTIME_T@;'$(PCP_CONTAINER_RUNTIME_T)';' \
 		-e 's;@PCP_CONTAINER_RUNTIME_RULE@;'$(PCP_CONTAINER_RUNTIME_RULE)';' \
+		-e 's;@PCP_NSFS_T@;'$(PCP_NSFS_T)';' \
+		-e 's;@PCP_NSFS_RULE@;'$(PCP_NSFS_RULE)';' \
+
 	# END
 	make -f /usr/share/selinux/devel/Makefile
 

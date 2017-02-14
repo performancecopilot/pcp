@@ -21,7 +21,7 @@ require {
 	type modules_conf_t; # pcp-lio
 	type saslauthd_t; # pcp-lio
 	type modules_object_t; # pcp-lio
-	type nsfs_t; # filesys.used
+	@PCP_NSFS_T@
 	type pcp_pmie_exec_t; # pmdasummary
 	type debugfs_t; # pmdalibvirt
 	class lnk_file { read getattr };
@@ -79,7 +79,7 @@ allow pcp_pmcd_t self:capability net_admin;
 allow pcp_pmcd_t self:capability sys_chroot;
 
 #type=AVC msg=audit(1485899838.438:13213): avc:  denied  { read } for  pid=29112 comm="pmdalinux" dev="nsfs" ino=4026532454 scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:nsfs_t:s0 tclass=file permissive=1
-allow pcp_pmcd_t nsfs_t:file { read open };
+@PCP_NSFS_RULE@
 
 allow pcp_pmcd_t pcp_log_t:fifo_file { getattr read open }; # qa/455
 
