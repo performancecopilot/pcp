@@ -1632,6 +1632,7 @@ See also the kernel.uname.* metrics
 
 @ sysfs.kernel.uevent_seqnum counter of the number of uevents processed by the udev subsystem
 
+@ hinv.ntape number of Linux scsi tape devices
 @ tape.dev.in_flight number of I/Os currently outstanding to this tape device
 @ tape.dev.io_ns cummulative amount of time spent waiting for all I/O to complete to tape device
 The amount of time spent waiting (in nanoseconds) for all I/O to complete
