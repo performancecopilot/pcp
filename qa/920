@@ -63,7 +63,7 @@ LOCALHOSTNAME n n $tmp/pmlogger/myhost/2017/02/12 -c /dev/null -L
 End-of-File
 $sudo cp $tmp.tmp ${PCP_PMLOGGERCONTROL_PATH}.d/qa-$seq
 
-_service pmlogger restart
+_service pmlogger restart | _filter_pcp_start
 _wait_for_pmlogger
 
 _report
