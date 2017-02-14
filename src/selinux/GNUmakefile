@@ -17,7 +17,7 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 IAM = pcpupstream
 
-LDIRT = $(IAM).cil $(IAM).pp
+LDIRT = $(IAM).cil $(IAM).pp $(IAM).mod $(IAM).te tmp
 
 default: build-me
 
@@ -25,6 +25,12 @@ include $(BUILDRULES)
 
 ifeq "$(ENABLE_SELINUX)" "true"
 build-me: $(IAM).te
+
+$(IAM).te: $(IAM).te.in
+	$(SED) <$< >$@ \
+		-e 's;@PCP_CONTAINER_RUNTIME_T@;'$(PCP_CONTAINER_RUNTIME_T)';' \
+		-e 's;@PCP_CONTAINER_RUNTIME_RULE@;'$(PCP_CONTAINER_RUNTIME_RULE)';' \
+	# END
 	make -f /usr/share/selinux/devel/Makefile
 
 install: default
