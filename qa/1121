@@ -13,7 +13,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-# test for-some-thing || _notrun No support for some-thing
+[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific scsi tape statistics"
 
 _cleanup()
 {
@@ -26,12 +26,6 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-
-[ $PCP_PLATFORM = linux ] || _notrun "Linux-specific scsi tape statistics"
-
-status=1	# failure is the default!
-$sudo rm -rf $tmp $tmp.* $seq.full
-trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 root=$tmp.root
 export LINUX_STATSPATH=$root
