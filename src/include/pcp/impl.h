@@ -366,6 +366,7 @@ typedef enum {
 } __pmHashWalkState;
 
 PCP_CALL extern void __pmHashInit(__pmHashCtl *);
+PCP_CALL extern int __pmHashPreAlloc(int, __pmHashCtl *);
 typedef __pmHashWalkState(*__pmHashWalkCallback)(const __pmHashNode *, void *);
 PCP_CALL extern void __pmHashWalkCB(__pmHashWalkCallback, void *, const __pmHashCtl *);
 PCP_CALL extern __pmHashNode *__pmHashWalk(__pmHashCtl *, __pmHashWalkState);
