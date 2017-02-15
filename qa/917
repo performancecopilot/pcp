@@ -19,6 +19,9 @@ which sedismod >/dev/null 2>&1 || _notrun "sedismod tool not installed (module d
 which semodule >/dev/null 2>&1 || _notrun "semodule tool not installed"
 [ -f "$policy_file" ] || _notrun "upstream policy package not installed"
 
+container_runtime_t=`seinfo -t | grep "container_runtime_t$"`
+nsfs_t=`seinfo -t | grep 'nsfs_t$'`
+
 _filter_semodule()
 {
     awk '{ print $1 }'
@@ -28,14 +31,30 @@ _filter_sedismod()
 {
     sed -n '/--- begin avrule block ---/,$p'
 }
+_filter_sedismod1()
+{
+    sed -e '/^Command/d'
+}
+_filter_outfile()
+{
+    awk -v container_t="$container_runtime_t" \
+	-v nsfs_t="$nsfs_t" \
+    '{
+    	if (container_t == "" && /container_runtime_t/)
+	   !/container_runtime_t/ ;
+	else if (nsfs_t == "" && /nsfs_t/)
+	   !/nsfs_t/ ;
+	else
+	   print;
+    }' > $seq.out
+}
 
 status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 echo > $seq.full
 
-policy_name="pcpupstream"
-policy_file="$PCP_VAR_DIR/selinux/$policy_name.pp"
+cat $seq.out.in | _filter_outfile
 
 echo "full policy modules list on the system"
 $sudo semodule -l >> $seq.full
@@ -43,7 +62,7 @@ echo "Checking that pcpupstream policy module has been properly installed"
 grep pcpupstream $seq.full | _filter_semodule
 # real QA test starts here
 echo "Checking policies."
-printf '1\nq\n' | sedismod $policy_file | _filter_sedismod
+printf '1\nq\n' | sedismod $policy_file | _filter_sedismod | _filter_sedismod1
 #echo "Checking for foo"hl
 #cat $seq.full | grep pcp_pmcd_t | grep container_runtime_t
 
