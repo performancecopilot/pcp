@@ -139,7 +139,7 @@ system-level performance monitoring and performance management.
 
 The PCP open source release provides a unifying abstraction for all of
 the interesting performance data in a system, and allows client
-applications to easily retrieve and process any subset of that data. 
+applications to easily retrieve and process any subset of that data.
 
 #
 # pcp-conf
@@ -332,7 +332,7 @@ Carbon and Whisper subsystems of Graphite are not included nor used.
 #
 %package -n perl-PCP-PMDA
 License: GPLv2+
-Group: Development/Languages
+Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings and documentation
 URL: http://www.pcp.io
 BuildRequires: perl(ExtUtils::MakeMaker)
@@ -384,7 +384,7 @@ they can be replayed with standard PCP monitoring tools.
 #
 %package -n perl-PCP-LogSummary
 License: GPLv2+
-Group: Development/Languages
+Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) Perl bindings for post-processing output of pmlogsummary
 URL: http://www.pcp.io
 Requires: pcp = @package_version@
@@ -591,7 +591,7 @@ Metric Domain Agent (PMDA) collector tools written in Python3.
 #
 # pcp-system-tools
 #
-%package -n pcp-system-tools
+%package system-tools
 License: GPLv2+
 Group: Development/Libraries
 Summary: Performance Co-Pilot (PCP) System and Monitoring Tools
@@ -602,7 +602,8 @@ Requires: python3-pcp = @package_version@
 %if "@enable_python2@" == "true"
 Requires: python-pcp = @package_version@
 %endif
-%description -n pcp-system-tools
+
+%description system-tools
 This PCP module contains additional system monitoring tools written
 in python.
 %endif #pcp-system-tools
@@ -611,14 +612,14 @@ in python.
 #
 # pcp-gui package for Qt tools
 #
-%package -n pcp-gui
+%package gui
 License: GPLv2+ and LGPLv2+ and LGPLv2+ with exceptions
 Group: Applications/System
 Summary: Visualization tools for the Performance Co-Pilot toolkit
 URL: http://www.pcp.io
 Requires: pcp-libs = %{version}-%{release}
 
-%description -n pcp-gui
+%description gui
 Visualization tools for the Performance Co-Pilot toolkit.
 The pcp-gui package primarily includes visualization tools for
 monitoring systems using live and archived Performance Co-Pilot
@@ -628,7 +629,7 @@ monitoring systems using live and archived Performance Co-Pilot
 #
 # pcp-doc package
 #
-%package -n pcp-doc
+%package doc
 License: GPLv2+ and CC-BY
 Group: Documentation
 # BuildArch: requires rpm 4.6 or later ... ./get_rpm_vesion maps version
@@ -639,7 +640,7 @@ BuildArch: noarch
 Summary: Documentation and tutorial for the Performance Co-Pilot
 URL: http://www.pcp.io
 
-%description -n pcp-doc
+%description doc
 Documentation and tutorial for the Performance Co-Pilot
 Performance Co-Pilot (PCP) provides a framework and services to support
 system-level performance monitoring and performance management.
@@ -654,7 +655,7 @@ PCP utilities and daemons, and the PCP graphical tools.
 # pcp-selinux package
 #
 %if "@enable_selinux@" == "true"
-%package -n pcp-selinux
+%package selinux
 License: GPLv2+ and CC-BY
 Group: Applications/System
 Summary: Selinux policy package
@@ -663,7 +664,7 @@ BuildRequires: selinux-policy-devel
 Requires: policycoreutils
 Requires: pcp = %{version}-%{release}
 
-%description -n pcp-selinux
+%description selinux
 This package contains SELinux support for PCP.  The package contains
 interface rules, type enforcement and file context adjustments for an
 updated policy package.
@@ -762,7 +763,7 @@ collecting metrics about the ActiveMQ message broker.
 %package pmda-bind2
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for ActiveMQ
+Summary: Performance Co-Pilot (PCP) metrics for BIND servers
 URL: http://www.pcp.io
 Requires: perl-PCP-PMDA = @package_version@
 Requires: perl(LWP::UserAgent)
@@ -1092,6 +1093,24 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics for NFS Clients.
 #end pcp-pmda-nfsclient
 
+%if "@pmda_oracle@" == "true"
+#
+# pcp-pmda-oracle
+#
+%package pmda-oracle
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics for the Oracle database
+URL: http://www.pcp.io
+Requires: perl-PCP-PMDA = @package_version@
+Requires: perl(DBI)
+
+%description pmda-oracle
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics about the Oracle database.
+#end pcp-pmda-oracle
+%endif
+
 #
 # pcp-pmda-pdns
 #
@@ -1150,24 +1169,6 @@ Requires: perl(DBD::Pg)
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the PostgreSQL database.
 #end pcp-pmda-postgresql
-%endif
-
-%if "@pmda_oracle@" == "true"
-#
-# pcp-pmda-oracle
-#
-%package pmda-oracle
-License: GPLv2+
-Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for Oracle
-URL: http://www.pcp.io
-Requires: perl-PCP-PMDA = @package_version@
-Requires: perl(DBI)
-
-%description pmda-oracle
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Oracle database.
-#end pcp-pmda-oracle
 %endif
 
 #
@@ -1358,7 +1359,7 @@ collecting metrics about Intel MIC cards.
 %package pmda-libvirt
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics from libvirt virtualisation
+Summary: Performance Co-Pilot (PCP) metrics from virtual machines
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 %if "@enable_python3@" == "true"
@@ -1387,9 +1388,8 @@ and hypervisor machines.
 %package pmda-lio
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Weblog shell
+Summary: Performance Co-Pilot (PCP) metrics for the LIO subsystem
 URL: http://www.pcp.io
-Requires: pcp = @package_version@
 %if "@enable_python3@" == "true"
 Requires: python3-pcp
 Requires: python3-rtslib
@@ -1399,7 +1399,7 @@ Requires: python-pcp
 %endif
 %description pmda-lio
 This package provides a PMDA to gather performance metrics from the kernels
-iscsi target interface (LIO). The metrics are stored by LIO within the Linux
+iSCSI target interface (LIO). The metrics are stored by LIO within the Linux
 kernels configfs filesystem. The PMDA provides per LUN level stats, and a
 summary instance per iSCSI target, which aggregates all LUN metrics within the
 target.
@@ -1469,7 +1469,7 @@ collecting metrics about the Bash shell.
 %package pmda-cifs
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Cifs shell
+Summary: Performance Co-Pilot (PCP) metrics for the CIFS protocol
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 %description pmda-cifs
@@ -1483,7 +1483,7 @@ collecting metrics about the Common Internet Filesytem.
 %package pmda-cisco
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Cisco shell
+Summary: Performance Co-Pilot (PCP) metrics for Cisco routers
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 %description pmda-cisco
@@ -1497,7 +1497,7 @@ collecting metrics about Cisco routers.
 %package pmda-gfs2
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Gfs2 shell
+Summary: Performance Co-Pilot (PCP) metrics for the GFS2 filesystem
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 %description pmda-gfs2
@@ -1511,7 +1511,7 @@ collecting metrics about the Global Filesystem v2.
 %package pmda-lmsensors
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Lmsensors shell
+Summary: Performance Co-Pilot (PCP) metrics for hardware sensors
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 %description pmda-lmsensors
@@ -1540,7 +1540,7 @@ supports both sampled and event-style metrics.
 %package pmda-mailq
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Mailq shell
+Summary: Performance Co-Pilot (PCP) metrics for the sendmail queue
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 %description pmda-mailq
@@ -1554,7 +1554,7 @@ collecting metrics about email queues managed by sendmail.
 %package pmda-mounts
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Mounts shell
+Summary: Performance Co-Pilot (PCP) metrics for filesystem mounts
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 %description pmda-mounts
@@ -1568,12 +1568,12 @@ collecting metrics about filesystem mounts.
 %package pmda-nvidia-gpu
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Nvidia shell
+Summary: Performance Co-Pilot (PCP) metrics for the Nvidia GPU
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 %description pmda-nvidia-gpu
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Nvidia gpu metrics.
+collecting metrics about Nvidia GPUs.
 # end pcp-pmda-nvidia-gpu
 
 #
@@ -1582,12 +1582,12 @@ collecting metrics about the Nvidia gpu metrics.
 %package pmda-roomtemp
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Roomtemp shell
+Summary: Performance Co-Pilot (PCP) metrics for the room temperature
 URL: http://www.pcp.io
 Requires: pcp = @package_version@
 %description pmda-roomtemp
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Room temperature metrics.
+collecting metrics about the room temperature.
 # end pcp-pmda-roomtemp
 
 %if "@pmda_rpm@" == "true"
@@ -1597,12 +1597,12 @@ collecting metrics about the Room temperature metrics.
 %package pmda-rpm
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Rpm shell
+Summary: Performance Co-Pilot (PCP) metrics for the RPM package manager
 URL: http://www.pcp.io
 Requires: pcp = @package_version@
 %description pmda-rpm
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the rpms.
+collecting metrics about the installed RPM packages.
 %endif
 # end pcp-pmda-rpm
 
@@ -1613,12 +1613,12 @@ collecting metrics about the rpms.
 %package pmda-sendmail
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Sendmail shell
+Summary: Performance Co-Pilot (PCP) metrics for Sendmail
 URL: http://www.pcp.io
 Requires: pcp = @package_version@
 %description pmda-sendmail
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about Sendmail traffic metrics.
+collecting metrics about Sendmail traffic.
 # end pcp-pmda-sendmail
 
 #
@@ -1627,7 +1627,7 @@ collecting metrics about Sendmail traffic metrics.
 %package pmda-shping
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Shping shell
+Summary: Performance Co-Pilot (PCP) metrics for shell command responses
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 %description pmda-shping
@@ -1642,7 +1642,7 @@ arbitrary shell commands.
 %package pmda-summary
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Summary shell
+Summary: Performance Co-Pilot (PCP) summary metrics from pmie
 URL: http://www.pcp.io
 Requires: pcp = @package_version@
 %description pmda-summary
@@ -1657,12 +1657,12 @@ collecting metrics about other installed pmdas.
 %package pmda-systemd
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Systemd shell
+Summary: Performance Co-Pilot (PCP) metrics from the Systemd journal
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 %description pmda-systemd
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Systemd shell.
+collecting metrics from the Systemd journal.
 # end pcp-pmda-systemd
 %endif
 
@@ -1672,12 +1672,12 @@ collecting metrics about the Systemd shell.
 %package pmda-trace
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Trace shell
+Summary: Performance Co-Pilot (PCP) metrics for application tracing
 URL: http://www.pcp.io
 Requires: pcp-libs = @package_version@
 %description pmda-trace
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about transaction performance metrics from applications.
+collecting metrics about trace performance data in applications.
 # end pcp-pmda-trace
 
 #
@@ -1686,7 +1686,7 @@ collecting metrics about transaction performance metrics from applications.
 %package pmda-weblog
 License: GPLv2+
 Group: Applications/System
-Summary: Performance Co-Pilot (PCP) metrics for the Weblog shell
+Summary: Performance Co-Pilot (PCP) metrics from web server logs
 URL: http://www.pcp.io
 Requires: pcp = @package_version@
 %description pmda-weblog
@@ -3068,9 +3068,9 @@ semodule -X 400 -r pcpupstream >/dev/null
 %endif
 
 %if "@have_python@" == "true"
-%files -n pcp-system-tools -f system_tools_files.rpm
+%files system-tools -f system_tools_files.rpm
 %endif
 
-%files -n pcp-collector
+%files collector
 
-%files -n pcp-monitor
+%files monitor
