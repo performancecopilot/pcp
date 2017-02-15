@@ -2741,6 +2741,10 @@ semodule -X 400 -r pcpupstream >/dev/null
 %endif
 
 %changelog
+* Fri Jan 17 2017 Nathan Scott <nathans@redhat.com> - 3.11.8-1
+- Support newer kernels /proc/vmstat file contents (BZ 1396148)
+- Added pcp-selinux policy (BZs 1214090, 1381127, 1337968, 1398147)
+
 * Wed Dec 21 2016 Dave Brolley <brolley@redhat.com> - 3.11.7-1
 - pmchart run-away mem leak replaying multi-archive when rewinding (BZ 1359975)
 
