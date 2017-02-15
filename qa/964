@@ -140,6 +140,7 @@ echo
 # install a PMDA, which should restart only pmcd
 cd $PCP_PMDAS_DIR/xfs
 $sudo ./Install < /dev/null 2>&1 | _filter_xfs_install
+_wait_for_pmlogger
 
 # verify primary pmlogger still running
 echo "Expect same primary pmlogger to be running ..."
@@ -173,6 +174,7 @@ current_pmda=dm
 #
 cd $PCP_PMDAS_DIR/dm
 $sudo ./Install < /dev/null 2>&1 | _filter_dm_install
+_wait_for_pmlogger
 
 # verify pmlogger is running
 echo "Expect same primary pmlogger to be running ..."
