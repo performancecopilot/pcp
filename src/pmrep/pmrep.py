@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2015-2016 Marko Myllynen <myllynen@redhat.com>
+# Copyright (C) 2015-2017 Marko Myllynen <myllynen@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -1565,7 +1565,8 @@ class PMReporter(object):
             return
 
         # Collect the results
-        ts = (self.pmfg_ts() - datetime.fromtimestamp(0)).total_seconds()
+        td = self.pmfg_ts() - datetime.fromtimestamp(0)
+        ts = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
         if self.zabbix_prevsend == None:
             self.zabbix_prevsend = ts
         for i, metric in enumerate(self.metrics):
