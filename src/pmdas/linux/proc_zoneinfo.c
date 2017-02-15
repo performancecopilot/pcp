@@ -1,7 +1,8 @@
 /*
  * Linux zoneinfo Cluster
  *
- * Copyright (c) 2016 Fujitsu.
+ * Copyright (c) 2016-2017 Fujitsu.
+ * Copyright (c) 2017 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +17,33 @@
 #include "linux.h"
 #include "proc_zoneinfo.h"
 
+static void
+extract_zone_protection(const char *bp, const char *instname, pmInDom protected)
+{
+    char *endp, protected_name[64];
+    unsigned long long value, *vp;
+    unsigned int index;
+    int sts;
+
+    for (index = 0;; index++) {
+	value = (strtoul(bp, &endp, 10) << _pm_pageshift) / 1024;
+	snprintf(protected_name, sizeof(protected_name),
+		 "%s::lowmem_reserved%u", instname, index);
+	protected_name[sizeof(protected_name)-1] = '\0';
+	/* replace existing value if one exists, else need space for new one */
+	sts = pmdaCacheLookupName(protected, protected_name, NULL, (void **)&vp);
+	if (sts < 0 && (vp = (unsigned long long *)malloc(sizeof(*vp))) == NULL)
+	    continue;
+	*vp = value;
+	pmdaCacheStore(protected, PMDA_CACHE_ADD, protected_name, (void *)vp);
+	if (*endp != ',')
+	    break;
+	bp = endp + 2;   /* skip comma and space, then continue */
+    }
+}
+
 int
-refresh_proc_zoneinfo(pmInDom indom, pmInDom zoneinfo_protection_indom)
+refresh_proc_zoneinfo(pmInDom indom, pmInDom protection_indom)
 {
     int node, values;
     zoneinfo_entry_t *info;
@@ -97,22 +123,9 @@ refresh_proc_zoneinfo(pmInDom indom, pmInDom zoneinfo_protection_indom)
 		continue;
 	    }
             else if (strncmp(buf, "        protection: (", 20) == 0) {
-                char protected_name[64];
-                char *endp, *bp = buf + 20 + 1;
-                unsigned long long value = 0;
-                int index = 0;
-
-                for (index = 0;; index++) {
-                    value = (strtoul(bp, &endp, 10) << _pm_pageshift) / 1024;
-                    sprintf(protected_name, "%s::lowmem_reserved%d", 
-                            instname, index);
-                    pmdaCacheStore(zoneinfo_protection_indom, PMDA_CACHE_ADD,
-                                   protected_name, (void *)value);
-                    if (*endp != ',')
-                        break;
-                    bp = endp + 2;   /* skip comma and space, then continue */
-                }
+		extract_zone_protection(buf+20+1, instname, protection_indom);
 		values++;
+		continue;
             }
 	}
 	pmdaCacheStore(indom, PMDA_CACHE_ADD, instname, (void *)info);

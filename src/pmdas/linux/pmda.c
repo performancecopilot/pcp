@@ -6677,7 +6677,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_INST;
 	switch (idp->item) {
 	case 0: /* mem.zoneinfo.protection */
-            atom->ull = (__uint64_t)value;
+            atom->ull = (__uint64_t)*value;
 	}
 	break;
     }
