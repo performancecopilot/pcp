@@ -939,6 +939,20 @@ collecting metrics about the Kernel based Virtual Machine.
 #end pcp-pmda-kvm
 
 #
+# pcp-pmda-docker
+#
+%package pmda-docker
+License: GPLv2+
+Group: Applications/System
+Summary: Performance Co-Pilot (PCP) metrics from the Docker daemon
+URL: http://www.pcp.io
+
+%description pmda-docker
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics using the Docker daemon REST API.
+#end pcp-pmda-docker
+
+#
 # pcp-pmda-lustre
 #
 %package pmda-lustre
@@ -1695,7 +1709,7 @@ Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-apache pcp-pmda-bash pcp-pmda-cisco pcp-pmda-dm pcp-pmda-gfs2
 Requires: pcp-pmda-lmsensors pcp-pmda-logger pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
-Requires: pcp-pmda-lustrecomm pcp-pmda-redis
+Requires: pcp-pmda-lustrecomm pcp-pmda-redis pcp-pmda-docker
 %if "@have_python@" == "true"
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic
 %endif
@@ -1947,6 +1961,7 @@ awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/elasticsearch' > pmda_elastic
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gpfs' > pmda_gpfs_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/gpsd' > pmda_gpsd_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/kvm' > pmda_kvm_files
+awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/docker' > pmda_docker_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lustrecomm' > pmda_lustrecomm_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/lustre' > pmda_lustre_files
 awk '{print $NF}' $DIST_MANIFEST | egrep -e 'pmdas/memcache' > pmda_memcache_files
@@ -2022,7 +2037,7 @@ touch gui_files webapi_files manager_files pmda_infiniband_files pmda_papi_files
       pmda_perfevent_files pmda_bonding_files pmda_dbping_files \
       pmda_ds389_files pmda_ds389log_files pmda_gpfs_files \
       pmda_gpsd_files pmda_kvm_files pmda_lustre_files pmda_lustrecomm_files \
-      pmda_memcache_files pmda_named_files pmda_redis_files \
+      pmda_memcache_files pmda_named_files pmda_redis_files pmda_docker_files \
       pmda_netfilter_files pmda_news_files pmda_nfsclient_files \
       pmda_pdns_files \
       pmda_rsyslog_files pmda_samba_files pmda_slurm_files \
@@ -2112,6 +2127,7 @@ BEGIN {
     while( getline < "pmda_gpfs_files") pmda_gpfs[$0]=1;
     while( getline < "pmda_gpsd_files") pmda_gpsd[$0]=1;
     while( getline < "pmda_kvm_files") pmda_kvm[$0]=1;
+    while( getline < "pmda_docker_files") pmda_docker[$0]=1;
     while( getline < "pmda_lustrecomm_files") pmda_lustrecomm[$0]=1;
     while( getline < "pmda_lustre_files") pmda_lustre[$0]=1;
     while( getline < "pmda_memcache_files") pmda_memcache[$0]=1;
@@ -2228,6 +2244,7 @@ BEGIN {
     else if (pmda_gpfs[$NF]) f="pmda_gpfs_files.rpm";
     else if (pmda_gpsd[$NF]) f="pmda_gpsd_files.rpm";
     else if (pmda_kvm[$NF]) f="pmda_kvm_files.rpm";
+    else if (pmda_docker[$NF]) f="pmda_docker_files.rpm";
     else if (pmda_lustrecomm[$NF]) f="pmda_lustrecomm_files.rpm";
     else if (pmda_lustre[$NF]) f="pmda_lustre_files.rpm";
     else if (pmda_memcache[$NF]) f="pmda_memcache_files.rpm";
@@ -2594,6 +2611,9 @@ PCP_SELINUX_DIR=@pcp_selinux_dir@/
 %preun pmda-kvm
 %{pmda_remove "$1" "kvm"}
 
+%preun pmda-docker
+%{pmda_remove "$1" "docker"}
+
 %preun pmda-lustre
 %{pmda_remove "$1" "lustre"}
 
@@ -2896,6 +2916,8 @@ semodule -X 400 -r pcpupstream >/dev/null
 %files pmda-gpsd -f pmda_gpsd_files.rpm
 
 %files pmda-kvm -f pmda_kvm_files.rpm
+
+%files pmda-docker -f pmda_docker_files.rpm
 
 %files pmda-lustre -f pmda_lustre_files.rpm
 
