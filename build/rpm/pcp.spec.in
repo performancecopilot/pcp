@@ -2473,7 +2473,11 @@ chown -R pcp:pcp "$PCP_LOG_DIR/pmmgr" 2>/dev/null
 %if "@enable_selinux@" == "true"
 %post selinux
 PCP_SELINUX_DIR=@pcp_selinux_dir@/
-semodule -X 400 -i @pcp_selinux_dir@/pcpupstream.pp
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+    semodule -X 400 -i @pcp_selinux_dir@/pcpupstream.pp
+%else
+    semodule -i @pcp_selinux_dir@/pcpupstream.pp
+%endif #distro version check
 %endif 
 
 %if "@pmda_rpm@" == "true"
