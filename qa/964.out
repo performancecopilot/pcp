@@ -1,9 +1,9 @@
 QA output created by 964
-Waiting for pmcd to terminate ...
+Found initial pmcd
 Found primary pmlogger
 
 You will need to choose an appropriate configuration for installation of
-the "xfs" Performance Metrics Domain Agent (PMDA).
+the "test_perl" Performance Metrics Domain Agent (PMDA).
 
   collector	collect performance statistics on this system
   monitor	allow this system to monitor local and/or remote systems
@@ -13,20 +13,13 @@ Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Met
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Starting pmcd ... 
-Check xfs metrics have appeared ... X metrics and Y values
+Check test_perl metrics have appeared ... X metrics and Y values
+Found same pmcd
 Expect same primary pmlogger to be running ...
 Found same primary pmlogger
 
-Culling the Performance Metrics Name Space ...
-xfs ... done
-quota ... done
-Updating the PMCD control file, and notifying PMCD ...
-[...removing files...]
-Check xfs metrics have gone away ... OK
-Check quota metrics have gone away ... OK
 You will need to choose an appropriate configuration for installation of
-the "dm" Performance Metrics Domain Agent (PMDA).
+the "test_perl" Performance Metrics Domain Agent (PMDA).
 
   collector	collect performance statistics on this system
   monitor	allow this system to monitor local and/or remote systems
@@ -38,18 +31,8 @@ Terminate PMDA if already installed ...
 Updating the PMCD control file, and notifying PMCD ...
 Waiting for pmcd to terminate ...
 Starting pmcd ... 
-Check dmcache metrics have appeared ... X metrics and Y values
-Check dmthin metrics have appeared ... X metrics and Y values
+Check test_perl metrics have appeared ... X metrics and Y values
+Found a new pmcd
 Expect same primary pmlogger to be running ...
 Found same primary pmlogger
 
-Culling the Performance Metrics Name Space ...
-dmcache ... done
-dmthin ... done
-Updating the PMCD control file, and notifying PMCD ...
-[...removing files...]
-Check dmcache metrics have gone away ... OK
-Check dmthin metrics have gone away ... OK
-Resetting system state
-Waiting for pmcd to terminate ...
-Starting pmcd ... 
