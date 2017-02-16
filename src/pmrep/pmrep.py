@@ -1566,7 +1566,7 @@ class PMReporter(object):
 
         # Collect the results
         td = self.pmfg_ts() - datetime.fromtimestamp(0)
-        ts = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+        ts = (td.microseconds + (td.seconds + td.days * 24.0 * 3600.0) * 10.0**6) / 10.0**6
         if self.zabbix_prevsend == None:
             self.zabbix_prevsend = ts
         for i, metric in enumerate(self.metrics):
