@@ -953,7 +953,7 @@ sub parse_bind_stats {
         # socket           => sub { get_socket_stats($_[0])          },
         resolver_default => sub { get_resstat($_[0],"_default")    },
         # resolver_bind    => sub { get_resstat($_[0],"_bind")       },
-        zone_default     => sub { get_zone_stats($_[0],"_default") },
+        # zone_default     => sub { get_zone_stats($_[0],"_default") },
         # zone_bind        => sub { get_zone_stats($_[0],"_bind")    },
         memory           => sub { get_memory_stats($_[0])          }
     );

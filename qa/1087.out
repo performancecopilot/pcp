@@ -1678,87 +1678,79 @@ bind2.total.queries.out.UPDATE PMID: 25.0.132 []
 Help: <empty entry>
     value 21238
 
-bind2.zones.serial PMID: 25.0.133 []
-    Data Type: 32-bit unsigned int  InDom: 25.1 0x6400001
-    Semantics: counter  Units: count
-Help: <empty entry>
-    inst [0 or "mydomain.example.com"] value 27585
-    inst [1 or "mydomain2.examples.com"] value 3091
-    inst [2 or "anotherdomain.example.com"] value 2
-
-bind2.zonestat.AXFRReqv4 PMID: 25.0.134 []
+bind2.zonestat.AXFRReqv4 PMID: 25.0.133 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.AXFRReqv6 PMID: 25.0.135 []
+bind2.zonestat.AXFRReqv6 PMID: 25.0.134 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.IXFRReqv4 PMID: 25.0.136 []
+bind2.zonestat.IXFRReqv4 PMID: 25.0.135 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 174
 
-bind2.zonestat.IXFRReqv6 PMID: 25.0.137 []
+bind2.zonestat.IXFRReqv6 PMID: 25.0.136 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.NotifyInv4 PMID: 25.0.138 []
+bind2.zonestat.NotifyInv4 PMID: 25.0.137 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 131
 
-bind2.zonestat.NotifyInv6 PMID: 25.0.139 []
+bind2.zonestat.NotifyInv6 PMID: 25.0.138 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.NotifyOutv4 PMID: 25.0.140 []
+bind2.zonestat.NotifyOutv4 PMID: 25.0.139 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 524
 
-bind2.zonestat.NotifyOutv6 PMID: 25.0.141 []
+bind2.zonestat.NotifyOutv6 PMID: 25.0.140 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.NotifyRej PMID: 25.0.142 []
+bind2.zonestat.NotifyRej PMID: 25.0.141 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.SOAOutv4 PMID: 25.0.143 []
+bind2.zonestat.SOAOutv4 PMID: 25.0.142 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 287
 
-bind2.zonestat.SOAOutv6 PMID: 25.0.144 []
+bind2.zonestat.SOAOutv6 PMID: 25.0.143 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 0
 
-bind2.zonestat.XfrFail PMID: 25.0.145 []
+bind2.zonestat.XfrFail PMID: 25.0.144 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
     value 47
 
-bind2.zonestat.XfrSuccess PMID: 25.0.146 []
+bind2.zonestat.XfrSuccess PMID: 25.0.145 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help: <empty entry>
