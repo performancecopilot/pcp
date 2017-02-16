@@ -2809,7 +2809,11 @@ cd
 %if "@enable_selinux@" == "true"
 %postun selinux
 PCP_SELINUX_DIR=@pcp_selinux_dir@/
-semodule -X 400 -r pcpupstream >/dev/null
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+    semodule -X 400 -r pcpupstream >/dev/null
+%else
+    semodule -X 400 -r pcpupstream >/dev/null
+%endif
 %endif 
 
 

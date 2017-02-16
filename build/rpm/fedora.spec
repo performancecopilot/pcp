@@ -15,7 +15,7 @@ Source1: vector-1.1.0.tar.gz
 Source2: pcp-webjs-3.11.8.tar.gz
 
 
-%if 0%{?fedora} || 0%{?rhel}
+%if 0%{?fedora} && 0%{?rhel}
 %global disable_selinux 1
 %else
 %global disable_selinux 0
@@ -1973,8 +1973,10 @@ ls -1 $RPM_BUILD_ROOT/%{_mandir}/man5 |\
   sed -e 's#^#'%{_mandir}'\/man5\/#' >>pcp-doc.list
 ls -1 $RPM_BUILD_ROOT/%{_datadir}/pcp/demos/tutorials |\
   sed -e 's#^#'%{_datadir}/pcp/demos/tutorials'\/#' >>pcp-doc.list
+%if !%{disable_selinux}
 ls -1 $RPM_BUILD_ROOT/%{_selinuxdir} |\
   sed -e 's#^#'%{_selinuxdir}'\/#' > pcp-selinux.list
+%endif
 %if !%{disable_qt}
 ls -1 $RPM_BUILD_ROOT/%{_pixmapdir} |\
   sed -e 's#^#'%{_pixmapdir}'\/#' > pcp-gui.list
@@ -2421,9 +2423,12 @@ cd
 
 %if !%{disable_selinux}
 %postun selinux
-semodule -X 400 -r pcpupstream >/dev/null
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+    semodule -X 400 -r pcpupstream >/dev/null
+%else
+    semodule -r pcpupstream >/dev/null
 %endif
-
+%endif
 %files -f base.list
 #
 # Note: there are some headers (e.g. domain.h) and in a few cases some
