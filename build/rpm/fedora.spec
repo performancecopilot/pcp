@@ -1856,6 +1856,10 @@ rm -f $RPM_BUILD_ROOT/%{_pmdasdir}/ib
 rm -fr $RPM_BUILD_ROOT/%{_pmdasdir}/infiniband
 %endif
 
+%if %{disable_selinux}
+rm -fr $RPM_BUILD_ROOT/%{_selinuxdir}
+%endif
+
 %if %{disable_qt}
 rm -fr $RPM_BUILD_ROOT/%{_pixmapdir}
 rm -fr $RPM_BUILD_ROOT/%{_confdir}/pmsnap
