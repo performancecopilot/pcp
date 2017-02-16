@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1121
-# test Linux scsi tape etrics
+# test Linux scsi tape metrics
 #
 # Copyright (c) 2017 Red Hat, All Rights Reserved.
 #
@@ -19,6 +19,14 @@ _cleanup()
 {
     cd $here
     $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    cat >$tmp.out
+    grep -v 'inst \[' $tmp.out
+    sed -n -e 's/inst \[[0-9][0-9]*/inst [N/p' $tmp.out \
+    | LC_COLLATE=POSIX sort
 }
 
 status=1	# failure is the default!
@@ -42,7 +50,9 @@ do
     base=`basename $tgz`
 
     echo "== Checking tape.dev metric values - $base"
-    pminfo $local -fmdt $tape_metrics
+    for metric in $tape_metrics; do
+	pminfo $local -fmdt $metric | _filter
+    done
     echo && echo "== done" && echo
 
     cd $here
