@@ -15,10 +15,10 @@ Source1: vector-1.1.0.tar.gz
 Source2: pcp-webjs-3.11.8.tar.gz
 
 
-%if 0%{?fedora} && 0%{?rhel}
-%global disable_selinux 1
-%else
+%if 0%{?fedora} || 0%{?rhel}
 %global disable_selinux 0
+%else
+%global disable_selinux 1
 %endif
 
 %global disable_snmp 0
