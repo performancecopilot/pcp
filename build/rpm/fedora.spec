@@ -15,7 +15,7 @@ Source1: vector-1.1.0.tar.gz
 Source2: pcp-webjs-3.11.2.tar.gz
 
 
-%if 0%{?fedora} || 0%{?rhel}
+%if 0%{?fedora} && 0%{?rhel}
 %global disable_selinux 1
 %else
 %global disable_selinux 0
@@ -1898,7 +1898,10 @@ ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
 grep -E 'pmdbg|pmclient|pmerr|genpmda' |\
 sed -e 's#^#'%{_bindir}'\/#' >>devel.list
 
-ls -1 $RPM_BUILD_ROOT/%{_datadir}/selinux/ > pcp-selinux.list
+%if !%{disable_selinux}
+ls -1 $RPM_BUILD_ROOT/%{_localstatedir}/lib/pcp/selinux |\
+  sed -e 's#^#'%{_localstatedir}/lib/pcp/selinux'\/#' > pcp-selinux.list
+%endif
 
 %pre testsuite
 test -d %{_testsdir} || mkdir -p -m 755 %{_testsdir}
@@ -2311,9 +2314,12 @@ cd
 
 %if !%{disable_selinux}
 %postun selinux
-semodule -X 400 -r pcpupstream >/dev/null
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+    semodule -X 400 -r pcpupstream >/dev/null
+%else
+    semodule -r pcpupstream >/dev/null
 %endif
-
+%endif
 %files -f base.list
 #
 # Note: there are some headers (e.g. domain.h) and in a few cases some
@@ -2736,7 +2742,9 @@ semodule -X 400 -r pcpupstream >/dev/null
 
 %files -n pcp-doc -f pcp-doc.list
 
+%if !%{disable_selinux}
 %files -n pcp-selinux -f pcp-selinux.list
+%endif
 
 %if !%{disable_python2} || !%{disable_python3}
 %files -n pcp-system-tools -f pcp_system_tools.list
