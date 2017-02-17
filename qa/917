@@ -17,10 +17,12 @@ policy_name="pcpupstream"
 policy_file="$PCP_VAR_DIR/selinux/$policy_name.pp"
 which sedismod >/dev/null 2>&1 || _notrun "sedismod tool not installed (module disassembly)"
 which semodule >/dev/null 2>&1 || _notrun "semodule tool not installed"
+which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
 [ -f "$policy_file" ] || _notrun "upstream policy package not installed"
 
 container_runtime_t=`seinfo -t | grep "container_runtime_t$"`
 nsfs_t=`seinfo -t | grep 'nsfs_t$'`
+docker_var_lib_t=`seinfo -t | grep "docker_var_lib_t$"`
 
 _filter_semodule()
 {
@@ -39,11 +41,14 @@ _filter_outfile()
 {
     awk -v container_t="$container_runtime_t" \
 	-v nsfs_t="$nsfs_t" \
+	-v docker_var_lib_t="$docker_var_lib_t" \
     '{
     	if (container_t == "" && /container_runtime_t/)
 	   !/container_runtime_t/ ;
 	else if (nsfs_t == "" && /nsfs_t/)
 	   !/nsfs_t/ ;
+    	if (docker_var_lib_t == "" && /docker_var_lib_t/)
+	   !/docker_var_lib_t/ ;
 	else
 	   print;
     }' > $seq.out
