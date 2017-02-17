@@ -1796,7 +1796,11 @@ Group: Applications/System
 Summary: Selinux policy package
 URL: http://www.pcp.io
 BuildRequires: selinux-policy-devel
+%if 0%{?rhel} == 5
+BuildRequires: setools
+%else
 BuildRequires: setools-console
+%endif
 Requires: policycoreutils
 Requires: pcp = %{version}-%{release}
 
@@ -2885,7 +2889,7 @@ cd
 * Fri Mar 31 2017 Nathan Scott <nathans@redhat.com> - 3.11.9-1
 - Work in progress, see http://pcp.io/roadmap
 
-* Fri Jan 17 2017 Lukas Berk <lberk@redhat.com> - 3.11.8-1
+* Fri Feb 17 2017 Lukas Berk <lberk@redhat.com> - 3.11.8-1
 - Support newer kernels /proc/vmstat file contents (BZ 1396148)
 - Added pcp-selinux policy (BZs 1214090, 1381127, 1337968, 1398147)
 

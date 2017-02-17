@@ -661,7 +661,11 @@ Group: Applications/System
 Summary: Selinux policy package
 URL: http://www.pcp.io
 BuildRequires: selinux-policy-devel
+%if 0%{?rhel} == 5
+BuildRequires: setools
+%else
 BuildRequires: setools-console
+%endif
 Requires: policycoreutils
 Requires: pcp = %{version}-%{release}
 
