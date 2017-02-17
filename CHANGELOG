@@ -1,4 +1,7 @@
-pcp-3.11.8 (17 February 2016)
+pcp-3.11.9 (31 March 2017)
+    - Work in progress, see http://pcp.io/roadmap
+
+pcp-3.11.8 (17 February 2017)
     - pmdabind2: new PMDA for BIND named REST API statistics
     - pmdadocker: new PMDA for Docker REST API statistics
     - pmdalio: new PMDA for the kernel LIO subsystem (iSCSI, FCP, FCoE)

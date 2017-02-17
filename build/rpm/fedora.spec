@@ -1,6 +1,6 @@
 Summary: System-level performance monitoring and performance management
 Name: pcp
-Version: 3.11.8
+Version: 3.11.9
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -2881,6 +2881,9 @@ cd
 %endif
 
 %changelog
+* Fri Mar 31 2017 Nathan Scott <nathans@redhat.com> - 3.11.9-1
+- Work in progress, see http://pcp.io/roadmap
+
 * Fri Jan 17 2017 Lukas Berk <lberk@redhat.com> - 3.11.8-1
 - Support newer kernels /proc/vmstat file contents (BZ 1396148)
 - Added pcp-selinux policy (BZs 1214090, 1381127, 1337968, 1398147)
