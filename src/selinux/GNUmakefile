@@ -14,7 +14,9 @@
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
+ifeq "$(ENABLE_SELINUX)" "true"
 -include ./GNUlocaldefs
+endif
 IAM = pcpupstream
 
 LDIRT = $(IAM).cil $(IAM).pp $(IAM).mod $(IAM).te tmp
