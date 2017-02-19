@@ -2365,9 +2365,9 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %if !%{disable_selinux}
 %post selinux
 %if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -i %{localstatedir}/lib/pcp/selinux/pcpupstream.pp
+    semodule -X 400 -i %{_selinuxdir}/pcpupstream.pp
 %else
-    semodule -i %{localstatedir}/lib/pcp/selinux/pcpupstream.pp
+    semodule -i %{_selinuxdir}/pcpupstream.pp
 %endif #distro version check
 %endif
 
@@ -2432,11 +2432,14 @@ cd
 
 %if !%{disable_selinux}
 %preun selinux
+if [ `semodule -l | grep pcpupstream` ]
+then
 %if 0%{?fedora} >= 24 || 0%{?rhel} > 6
     semodule -X 400 -r pcpupstream >/dev/null
 %else
     semodule -r pcpupstream >/dev/null
 %endif
+fi
 %endif
 %files -f base.list
 #
