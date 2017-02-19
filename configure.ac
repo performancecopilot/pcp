@@ -1858,8 +1858,6 @@ do
     if test -f "$makefile" -a "x$SEINFO" != "x"
     then
 	enable_selinux=true
-    else
-	AC_MSG_RESULT(no)
     fi
 done
 ])
