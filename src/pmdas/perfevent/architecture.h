@@ -49,4 +49,6 @@ archinfo_t *get_architecture();
 
 void free_architecture(archinfo_t *);
 
+int parse_delimited_list(const char *line, int *output);
+
 #endif /* ARCHITECTURE_H_ */

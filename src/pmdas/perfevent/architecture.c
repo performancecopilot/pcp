@@ -54,7 +54,7 @@ static void free_cpulist(cpulist_t *del)
  *
  * \returns number of parsed indices or -1 on failure.
  */
-static int parse_delimited_list(const char *line, int *output) { const char
+int parse_delimited_list(const char *line, int *output) { const char
     *start = line; char *end = NULL; long res = 0; int count = 0;
 
     long i;

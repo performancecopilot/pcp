@@ -24,10 +24,11 @@ CMDTARGET	= pmda$(IAM)
 PMDADIR		= $(PCP_PMDAS_DIR)/$(IAM)
 
 CFILES	= pmda.c perfmanager.c perfinterface.c architecture.c \
-		  rapl-interface.c configparser.yy.c perflock.c
+		  rapl-interface.c configparser.yy.c perflock.c \
+		  parse_events.c
 
 HFILES  = architecture.h configparser.h perfinterface.h perfmanager.h \
-		  rapl-interface.h perflock.h
+		  rapl-interface.h perflock.h parse_events.h
 
 SCRIPTS		= Install Remove perfevent-makerewrite.pl
 

@@ -32,6 +32,13 @@ static int is_derived(char *name)
     return 0;
 }
 
+static int is_dynamic(char *name)
+{
+    if (!strcmp(name, "dynamic"))
+       return 1;
+    return 0;
+}
+
 static void add_derived(configuration_t *config, char *name)
 {
     pmcderived_t *entry;
@@ -60,6 +67,26 @@ static void add_derived(configuration_t *config, char *name)
     context_derived = 1;
 }
 
+static void add_dynamic(configuration_t *config, char *name)
+{
+    pmcdynamic_t *entry;
+
+    if (!name)
+         return;
+
+    config->dynamicpmc = realloc(config->dynamicpmc, sizeof *config->dynamicpmc);
+
+    if(NULL == config->dynamicpmc)
+    {
+        return;
+    }
+
+    entry = config->dynamicpmc;
+    entry->dynamicSettingList = NULL;
+    entry->name = strdup(name);
+    context_dynamic = 1;
+}
+
 static void add_pmctype(configuration_t *config, char *name)
 {
     pmcconfiguration_t *entry;
@@ -71,6 +98,9 @@ static void add_pmctype(configuration_t *config, char *name)
     }
     if (is_derived(name))
         return add_derived(config, name);
+
+    if (is_dynamic(name))
+        return add_dynamic(config, name);
 
     if (context_newpmc)
     {
@@ -90,6 +120,7 @@ static void add_pmctype(configuration_t *config, char *name)
     newpmctype->next = entry->pmcTypeList;
     entry->pmcTypeList = newpmctype;
     context_derived = 0;
+    context_dynamic = 0;
     context_newpmc = 0;
 }
 
@@ -149,6 +180,38 @@ static void add_pmc_setting_name_derived(configuration_t *config, char *name)
     setting_lists->nsettings++;
 }
 
+static void add_pmc_setting_name_dynamic(configuration_t *config, char *name)
+{
+    pmcdynamic_t *entry;;
+    pmcsetting_t *slist, *newpmcdynamicsetting;
+
+    entry = config->dynamicpmc;
+    if (NULL == entry)
+    {
+        return;
+    }
+    newpmcdynamicsetting = calloc(1, sizeof *newpmcdynamicsetting);
+    newpmcdynamicsetting->name = strdup(name);
+    newpmcdynamicsetting->cpuConfig = 0;
+    newpmcdynamicsetting->scale = 1.0;
+    newpmcdynamicsetting->need_perf_scale = 0;
+    newpmcdynamicsetting->next = NULL;
+
+    slist = entry->dynamicSettingList;
+    if (NULL == slist)
+    {
+        entry->dynamicSettingList = newpmcdynamicsetting;
+    }
+    else
+    {
+        while(slist->next)
+        {
+            slist = slist->next;
+        }
+        slist->next = newpmcdynamicsetting;
+    }
+}
+
 static void start_alternate_pmcsetting(configuration_t *config)
 {
     pmcderived_t *entry;
@@ -197,7 +260,9 @@ static void add_pmcsetting_name(configuration_t *config, char *name)
     }
 
     if (context_derived)
-         return add_pmc_setting_name_derived(config, name);
+        return add_pmc_setting_name_derived(config, name);
+    else if (context_dynamic)
+        return add_pmc_setting_name_dynamic(config, name);
 
     entry = &config->configArr[config->nConfigEntries-1];
 
@@ -344,6 +409,17 @@ void free_configuration(configuration_t *config)
             config->configArr[i].pmcSettingList = pmcSettingDel->next;
             free(pmcSettingDel->name);
             free(pmcSettingDel);
+        }
+    }
+
+    if (config->dynamicpmc)
+    {
+    tmp = pmcSettingDel = config->dynamicpmc->dynamicSettingList;
+        while(tmp != NULL)
+        {
+            tmp = tmp->next;
+            free(pmcSettingDel);
+            pmcSettingDel = tmp;
         }
     }
 

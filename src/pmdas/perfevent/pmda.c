@@ -240,6 +240,8 @@ static int perfevent_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomV
 
     if (idp->cluster >= NUM_STATIC_DERIVED_CLUSTERS + NUM_STATIC_CLUSTERS + nhwcounters)
         pddata = &(pinfo->derived_counter->data[inst]);
+    else if (pinfo->hwcounter->counter_disabled)
+	return PM_ERR_VALUE;
     else
         pdata = &(pinfo->hwcounter->data[inst]);
 
@@ -543,7 +545,7 @@ static char *normalize_metric_name(const char *name)
     {
         for(p = res; *p != '\0'; p++)
         {
-            if( !isalnum((int)*p) && *p != '_')
+            if( !isalnum((int)*p) && *p != '_' && *p != '.' && *p != '-')
             {
                 *p = '_'; /* "underscore" - new name */
             }
