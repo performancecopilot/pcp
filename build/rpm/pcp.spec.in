@@ -661,6 +661,11 @@ Group: Applications/System
 Summary: Selinux policy package
 URL: http://www.pcp.io
 BuildRequires: selinux-policy-devel
+%if 0%{?rhel} == 5
+BuildRequires: setools
+%else
+BuildRequires: setools-console
+%endif
 Requires: policycoreutils
 Requires: pcp = %{version}-%{release}
 
@@ -2807,13 +2812,16 @@ cd
 %postun libs -p /sbin/ldconfig
 
 %if "@enable_selinux@" == "true"
-%postun selinux
+%preun selinux
 PCP_SELINUX_DIR=@pcp_selinux_dir@/
+if [ `semodule -l | grep pcpupstream` ]
+then
 %if 0%{?fedora} >= 24 || 0%{?rhel} > 6
     semodule -X 400 -r pcpupstream >/dev/null
 %else
-    semodule -X 400 -r pcpupstream >/dev/null
+    semodule -r pcpupstream >/dev/null
 %endif
+fi
 %endif 
 
 

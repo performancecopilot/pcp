@@ -1849,14 +1849,19 @@ AS_IF([test "x$do_manager" != "xno"], [
 ])
 AC_SUBST(enable_manager)
 
+AC_CHECK_PROGS(SEINFO, seinfo)
+AC_SUBST(SEINFO)
 enable_selinux=false
 AS_IF([test "x$do_selinux" != "xno"], [
-    if test -f /usr/share/selinux/devel/Makefile
+for makefile in /usr/share/selinux/devel/Makefile
+do
+    if test -f "$makefile" -a "x$SEINFO" != "x"
     then
 	enable_selinux=true
     else
 	AC_MSG_RESULT(no)
     fi
+done
 ])
 AC_SUBST(enable_selinux)
 AC_SUBST(pcp_selinux_dir)

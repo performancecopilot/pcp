@@ -15,10 +15,10 @@ Source1: vector-1.1.0.tar.gz
 Source2: pcp-webjs-3.11.8.tar.gz
 
 
-%if 0%{?fedora} && 0%{?rhel}
-%global disable_selinux 1
-%else
+%if 0%{?fedora} || 0%{?rhel}
 %global disable_selinux 0
+%else
+%global disable_selinux 1
 %endif
 
 %global disable_snmp 0
@@ -1796,6 +1796,11 @@ Group: Applications/System
 Summary: Selinux policy package
 URL: http://www.pcp.io
 BuildRequires: selinux-policy-devel
+%if 0%{?rhel} == 5
+BuildRequires: setools
+%else
+BuildRequires: setools-console
+%endif
 Requires: policycoreutils
 Requires: pcp = %{version}-%{release}
 
@@ -2360,9 +2365,9 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %if !%{disable_selinux}
 %post selinux
 %if 0%{?fedora} >= 24 || 0%{?rhel} > 6
-    semodule -X 400 -i %{localstatedir}/lib/pcp/selinux/pcpupstream.pp
+    semodule -X 400 -i %{_selinuxdir}/pcpupstream.pp
 %else
-    semodule -i %{localstatedir}/lib/pcp/selinux/pcpupstream.pp
+    semodule -i %{_selinuxdir}/pcpupstream.pp
 %endif #distro version check
 %endif
 
@@ -2426,12 +2431,15 @@ cd
 %postun libs -p /sbin/ldconfig
 
 %if !%{disable_selinux}
-%postun selinux
+%preun selinux
+if [ `semodule -l | grep pcpupstream` ]
+then
 %if 0%{?fedora} >= 24 || 0%{?rhel} > 6
     semodule -X 400 -r pcpupstream >/dev/null
 %else
     semodule -r pcpupstream >/dev/null
 %endif
+fi
 %endif
 %files -f base.list
 #
@@ -2884,7 +2892,7 @@ cd
 * Fri Mar 31 2017 Nathan Scott <nathans@redhat.com> - 3.11.9-1
 - Work in progress, see http://pcp.io/roadmap
 
-* Fri Jan 17 2017 Lukas Berk <lberk@redhat.com> - 3.11.8-1
+* Fri Feb 17 2017 Lukas Berk <lberk@redhat.com> - 3.11.8-1
 - Support newer kernels /proc/vmstat file contents (BZ 1396148)
 - Added pcp-selinux policy (BZs 1214090, 1381127, 1337968, 1398147)
 
