@@ -25,7 +25,7 @@ parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
-expr node <addr-1> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
 parse(1) state=P_INIT type=L_ANON "anon("
 parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
@@ -34,7 +34,7 @@ parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
-expr node <addr-3> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="my.space_over_time1" expr="sample.mirage + sample.mirage_longlong"
@@ -156,25 +156,25 @@ expr node <addr-38> type=SLASH left=<addr-39> right=<addr-40> save_last=0
 expr node <addr-39> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.count_down] master=1
 expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.count_up] master=1
 pmRegisterDerived: name="my.i1" expr="42 + sample.scale_step.none_up"
-parse(1) state=P_INIT type=L_NUMBER "42"
+parse(1) state=P_INIT type=L_INTEGER "42"
 parse(1) state=P_LEAF type=L_PLUS "+"
 parse(1) state=P_BINOP type=L_NAME "sample.scale_step.none_up"
 parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[13] my.i1 = 42 + sample.scale_step.none_up
 Derived metric expr dump from <addr-41>...
 expr node <addr-41> type=PLUS left=<addr-42> right=<addr-43> save_last=0
-expr node <addr-42> type=NUMBER left=(nil) right=(nil) save_last=0 [42] master=1
+expr node <addr-42> type=INTEGER left=(nil) right=(nil) save_last=0 [42] master=1
 expr node <addr-43> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.none_up] master=1
 pmRegisterDerived: name="my.i2" expr="sample.scale_step.none_up + 42"
 parse(1) state=P_INIT type=L_NAME "sample.scale_step.none_up"
 parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NUMBER "42"
+parse(1) state=P_BINOP type=L_INTEGER "42"
 parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[14] my.i2 = sample.scale_step.none_up + 42
 Derived metric expr dump from <addr-44>...
 expr node <addr-44> type=PLUS left=<addr-45> right=<addr-46> save_last=0
 expr node <addr-45> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.none_up] master=1
-expr node <addr-46> type=NUMBER left=(nil) right=(nil) save_last=0 [42] master=1
+expr node <addr-46> type=INTEGER left=(nil) right=(nil) save_last=0 [42] master=1
 pmRegisterDerived: name="my.i3" expr="pmcd.pmlogger.port - pmcd.pmlogger.port"
 parse(1) state=P_INIT type=L_NAME "pmcd.pmlogger.port"
 parse(1) state=P_LEAF type=L_MINUS "-"
@@ -192,7 +192,7 @@ expr node <addr-50> type=ANON left=<addr-51> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-51> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+expr node <addr-51> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -202,7 +202,7 @@ expr node <addr-52> type=ANON left=<addr-53> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-53> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+expr node <addr-53> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -394,7 +394,7 @@ expr node <addr-91> type=PLUS left=<addr-92> right=<addr-93> save_last=0
     PMID: PM_ID_NULL (511.0.14 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-92> type=NUMBER left=(nil) right=(nil) save_last=0 [42] master=0
+expr node <addr-92> type=INTEGER left=(nil) right=(nil) save_last=0 [42] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -413,7 +413,7 @@ expr node <addr-95> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_s
     PMID: 29.0.71 (29.0.71 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
-expr node <addr-96> type=NUMBER left=(nil) right=(nil) save_last=0 [42] master=0
+expr node <addr-96> type=INTEGER left=(nil) right=(nil) save_last=0 [42] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -685,7 +685,7 @@ expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-1> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -695,7 +695,7 @@ expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-3> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -710,7 +710,7 @@ expr node <addr-5> type=SLASH left=<addr-6> right=<addr-7> save_last=0
     PMID: PM_ID_NULL (29.0.38 from pmDesc) numval: 0 div_scale: 1000 mul_scale: 1024
     Data Type: double  InDom: 29.3 0x7400003
     Semantics: instant  Units: millisec / byte
-expr node <addr-6> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+expr node <addr-6> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -722,7 +722,7 @@ expr node <addr-8> type=SLASH left=<addr-9> right=<addr-10> save_last=0
     PMID: PM_ID_NULL (29.0.37 from pmDesc) numval: 0
     Data Type: double  InDom: 29.3 0x7400003
     Semantics: instant  Units: sec / Kbyte
-expr node <addr-9> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+expr node <addr-9> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -741,7 +741,7 @@ expr node <addr-12> type=SLASH left=<addr-13> right=<addr-14> save_last=0
     PMID: PM_ID_NULL (29.0.37 from pmDesc) numval: 0
     Data Type: double  InDom: 29.3 0x7400003
     Semantics: instant  Units: sec / Kbyte
-expr node <addr-13> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+expr node <addr-13> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -753,7 +753,7 @@ expr node <addr-15> type=SLASH left=<addr-16> right=<addr-17> save_last=0
     PMID: PM_ID_NULL (29.0.38 from pmDesc) numval: 0 div_scale: 1000 mul_scale: 1024
     Data Type: double  InDom: 29.3 0x7400003
     Semantics: instant  Units: millisec / byte
-expr node <addr-16> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+expr node <addr-16> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -804,7 +804,7 @@ expr node <addr-25> type=SLASH left=<addr-26> right=<addr-27> save_last=0
     PMID: PM_ID_NULL (29.0.115 from pmDesc) numval: 0 mul_scale: 1000
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count
-expr node <addr-26> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+expr node <addr-26> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -816,7 +816,7 @@ expr node <addr-28> type=SLASH left=<addr-29> right=<addr-30> save_last=0
     PMID: PM_ID_NULL (29.0.118 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count x 10^3
-expr node <addr-29> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+expr node <addr-29> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -835,7 +835,7 @@ expr node <addr-32> type=SLASH left=<addr-33> right=<addr-34> save_last=0
     PMID: PM_ID_NULL (29.0.119 from pmDesc) numval: 0
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count x 10^6
-expr node <addr-33> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+expr node <addr-33> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -847,7 +847,7 @@ expr node <addr-35> type=SLASH left=<addr-36> right=<addr-37> save_last=0
     PMID: PM_ID_NULL (29.0.118 from pmDesc) numval: 0 mul_scale: 1000
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: Mbyte / count x 10^3
-expr node <addr-36> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=0
+expr node <addr-36> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none

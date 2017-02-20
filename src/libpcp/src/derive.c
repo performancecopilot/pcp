@@ -106,10 +106,13 @@ static __thread char	*derive_errmsg;
 static char		*derive_errmsg;
 #endif
 
+/* follows L_ #defines from derive.h */
 static const char	*type_dbg[] = {
-	"ERROR", "EOF", "UNDEF", "NUMBER", "NAME", "PLUS", "MINUS",
+	"ERROR", "EOF", "UNDEF", "INTEGER", "NAME", "PLUS", "MINUS",
 	"STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA",
-	"MAX", "MIN", "SUM", "ANON", "RATE", "INSTANT" };
+	"MAX", "MIN", "SUM", "ANON", "RATE", "INSTANT" "DOUBLE",
+	"EQ", "NEQ", "LT", "LEQ", "GEQ", "GT",
+	};
 static const char	type_c[] = {
 	'\0', '\0', '\0', '\0', '\0', '+', '-', '*', '/', '(', ')', '\0' };
 

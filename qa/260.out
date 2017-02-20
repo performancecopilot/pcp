@@ -17,7 +17,7 @@ parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
-expr node <addr-1> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
 parse(1) state=P_INIT type=L_ANON "anon("
 parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
@@ -26,7 +26,7 @@ parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
-expr node <addr-3> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="delta.m1" expr="delta(sample.const_rate.value)"
@@ -67,7 +67,7 @@ expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.cons
 pmRegisterDerived: name="delta.m4" expr="sample.bigid - 3 * delta(sampledso.const_rate.value) / sample.long.ten"
 parse(1) state=P_INIT type=L_NAME "sample.bigid"
 parse(1) state=P_LEAF type=L_MINUS "-"
-parse(1) state=P_BINOP type=L_NUMBER "3"
+parse(1) state=P_BINOP type=L_INTEGER "3"
 parse(1) state=P_LEAF type=L_STAR "*"
 parse(1) state=P_BINOP type=L_DELTA "delta("
 parse(1) state=P_FUNC_OP type=L_NAME "sampledso.const_rate.value"
@@ -81,7 +81,7 @@ expr node <addr-14> type=MINUS left=<addr-15> right=<addr-16> save_last=0
 expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] master=1
 expr node <addr-16> type=SLASH left=<addr-17> right=<addr-21> save_last=0
 expr node <addr-17> type=STAR left=<addr-18> right=<addr-19> save_last=0
-expr node <addr-18> type=NUMBER left=(nil) right=(nil) save_last=0 [3] master=1
+expr node <addr-18> type=INTEGER left=(nil) right=(nil) save_last=0 [3] master=1
 expr node <addr-19> type=DELTA left=<addr-20> right=(nil) save_last=0
 expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.const_rate.value] master=1
 expr node <addr-21> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
@@ -147,7 +147,7 @@ expr node <addr-41> type=ANON left=<addr-42> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-42> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+expr node <addr-42> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -157,7 +157,7 @@ expr node <addr-43> type=ANON left=<addr-44> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-44> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+expr node <addr-44> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -229,7 +229,7 @@ expr node <addr-58> type=STAR left=<addr-59> right=<addr-60> save_last=0
     PMID: PM_ID_NULL (30.0.72 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
-expr node <addr-59> type=NUMBER left=(nil) right=(nil) save_last=0 [3] master=0
+expr node <addr-59> type=INTEGER left=(nil) right=(nil) save_last=0 [3] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none

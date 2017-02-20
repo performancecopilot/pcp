@@ -8,7 +8,7 @@ parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr->...
 expr node <addr-> type=ANON left=<addr-1> right=(nil) save_last=0
-expr node <addr-1> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
 parse(1) state=P_INIT type=L_ANON "anon("
 parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
@@ -17,7 +17,7 @@ parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
-expr node <addr-3> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="myname.a" expr="disk.dev.read"
 parse(1) state=P_INIT type=L_NAME "disk.dev.read"
@@ -58,7 +58,7 @@ pmRegisterDerived: register metric[5] myname.d = (disk.dev.read)
 Derived metric expr dump from <addr-13>...
 expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.read] master=1
 pmRegisterDerived: name="myname.e" expr="2 * disk.dev.write + sample.long.writeme"
-parse(1) state=P_INIT type=L_NUMBER "2"
+parse(1) state=P_INIT type=L_INTEGER "2"
 parse(1) state=P_LEAF type=L_STAR "*"
 parse(1) state=P_BINOP type=L_NAME "disk.dev.write"
 parse(1) state=P_LEAF type=L_PLUS "+"
@@ -68,11 +68,11 @@ pmRegisterDerived: register metric[6] myname.e = 2 * disk.dev.write + sample.lon
 Derived metric expr dump from <addr-14>...
 expr node <addr-14> type=PLUS left=<addr-15> right=<addr-18> save_last=0
 expr node <addr-15> type=STAR left=<addr-16> right=<addr-17> save_last=0
-expr node <addr-16> type=NUMBER left=(nil) right=(nil) save_last=0 [2] master=1
+expr node <addr-16> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=1
 expr node <addr-17> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.write] master=1
 expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.writeme] master=1
 pmRegisterDerived: name="myname.f" expr="2 + disk.dev.write * sample.long.writeme"
-parse(1) state=P_INIT type=L_NUMBER "2"
+parse(1) state=P_INIT type=L_INTEGER "2"
 parse(1) state=P_LEAF type=L_PLUS "+"
 parse(1) state=P_BINOP type=L_NAME "disk.dev.write"
 parse(1) state=P_LEAF type=L_STAR "*"
@@ -81,13 +81,13 @@ parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[7] myname.f = 2 + disk.dev.write * sample.long.writeme
 Derived metric expr dump from <addr-19>...
 expr node <addr-19> type=PLUS left=<addr-20> right=<addr-21> save_last=0
-expr node <addr-20> type=NUMBER left=(nil) right=(nil) save_last=0 [2] master=1
+expr node <addr-20> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=1
 expr node <addr-21> type=STAR left=<addr-22> right=<addr-23> save_last=0
 expr node <addr-22> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.write] master=1
 expr node <addr-23> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.writeme] master=1
 pmRegisterDerived: name="myname.g" expr="( 2 + disk.dev.write ) * sample.long.writeme"
 parse(1) state=P_INIT type=L_LPAREN "("
-parse(2) state=P_INIT type=L_NUMBER "2"
+parse(2) state=P_INIT type=L_INTEGER "2"
 parse(2) state=P_LEAF type=L_PLUS "+"
 parse(2) state=P_BINOP type=L_NAME "disk.dev.write"
 parse(2) state=P_LEAF type=L_RPAREN ")"
@@ -98,11 +98,11 @@ pmRegisterDerived: register metric[8] myname.g = ( 2 + disk.dev.write ) * sample
 Derived metric expr dump from <addr-24>...
 expr node <addr-24> type=STAR left=<addr-25> right=<addr-28> save_last=0
 expr node <addr-25> type=PLUS left=<addr-26> right=<addr-27> save_last=0
-expr node <addr-26> type=NUMBER left=(nil) right=(nil) save_last=0 [2] master=1
+expr node <addr-26> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=1
 expr node <addr-27> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.write] master=1
 expr node <addr-28> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.writeme] master=1
 pmRegisterDerived: name="myname.h" expr="2 + ( disk.dev.write * sample.long.writeme )"
-parse(1) state=P_INIT type=L_NUMBER "2"
+parse(1) state=P_INIT type=L_INTEGER "2"
 parse(1) state=P_LEAF type=L_PLUS "+"
 parse(1) state=P_BINOP type=L_LPAREN "("
 parse(2) state=P_INIT type=L_NAME "disk.dev.write"
@@ -113,7 +113,7 @@ parse(1) state=P_LEAF_PAREN type=L_EOF ""
 pmRegisterDerived: register metric[9] myname.h = 2 + ( disk.dev.write * sample.long.writeme )
 Derived metric expr dump from <addr-29>...
 expr node <addr-29> type=PLUS left=<addr-30> right=<addr-31> save_last=0
-expr node <addr-30> type=NUMBER left=(nil) right=(nil) save_last=0 [2] master=1
+expr node <addr-30> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=1
 expr node <addr-31> type=STAR left=<addr-32> right=<addr-33> save_last=0
 expr node <addr-32> type=NAME left=(nil) right=(nil) save_last=0 [disk.dev.write] master=1
 expr node <addr-33> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.writeme] master=1
@@ -334,11 +334,11 @@ expr node <addr-116> type=PLUS left=<addr-117> right=<addr-118> save_last=0
 expr node <addr-117> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pdu_in.total] master=1
 expr node <addr-118> type=NAME left=(nil) right=(nil) save_last=0 [pmcd.pdu_out.total] master=1
 pmRegisterDerived: name="myname.biggest.const" expr="4294967295"
-parse(1) state=P_INIT type=L_NUMBER "4294967295"
+parse(1) state=P_INIT type=L_INTEGER "4294967295"
 parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[19] myname.biggest.const = 4294967295
 Derived metric expr dump from <addr-119>...
-expr node <addr-119> type=NUMBER left=(nil) right=(nil) save_last=0 [4294967295] master=1
+expr node <addr-119> type=INTEGER left=(nil) right=(nil) save_last=0 [4294967295] master=1
 __dmchildren: name="", omitting invalid child "myname.a"
 __dmchildren: name="", omitting invalid child "myname.b"
 __dmchildren: name="", omitting invalid child "myname.c"
@@ -411,7 +411,7 @@ parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr->...
 expr node <addr-> type=ANON left=<addr-1> right=(nil) save_last=0
-expr node <addr-1> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
 parse(1) state=P_INIT type=L_ANON "anon("
 parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
@@ -420,7 +420,7 @@ parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
-expr node <addr-3> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="myname.a" expr="sample.long.one +"
 parse(1) state=P_INIT type=L_NAME "sample.long.one"
@@ -482,18 +482,18 @@ parse(1) state=P_LEAF_PAREN type=L_RPAREN ")"
                                                                  ^
 Unexpected ')'
 pmRegisterDerived: name="myname.a" expr="1"
-parse(1) state=P_INIT type=L_NUMBER "1"
+parse(1) state=P_INIT type=L_INTEGER "1"
 parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[2] myname.a = 1
 Derived metric expr dump from <addr-4>...
-expr node <addr-4> type=NUMBER left=(nil) right=(nil) save_last=0 [1] master=1
+expr node <addr-4> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=1
 pmRegisterDerived: name="myname.a" expr="dup.name.a"
 [TMP.config:14] Error: pmRegisterDerived(myname.a, ...) syntax error
  dup.name.a
  ^         
 Duplicate derived metric name
 pmRegisterDerived: name="myname.h" expr="4294967296"
-parse(1) state=P_INIT type=L_NUMBER "4294967296"
+parse(1) state=P_INIT type=L_INTEGER "4294967296"
 [TMP.config:15] Error: pmRegisterDerived(myname.h, ...) syntax error
  4294967296
  ^         
@@ -542,14 +542,14 @@ parse(1) state=P_BINOP type=L_ERROR """
                                                                                                                                                                                                                                                                                                                            ^      
 Illegal character
 pmRegisterDerived: name="myname.gcov.d" expr="3 * space"
-parse(1) state=P_INIT type=L_NUMBER "3"
+parse(1) state=P_INIT type=L_INTEGER "3"
 parse(1) state=P_LEAF type=L_STAR "*"
 parse(1) state=P_BINOP type=L_NAME "space"
 parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[3] myname.gcov.d = 3 * space
 Derived metric expr dump from <addr-5>...
 expr node <addr-5> type=STAR left=<addr-6> right=<addr-7> save_last=0
-expr node <addr-6> type=NUMBER left=(nil) right=(nil) save_last=0 [3] master=1
+expr node <addr-6> type=INTEGER left=(nil) right=(nil) save_last=0 [3] master=1
 expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [space] master=1
 pmRegisterDerived: name="myname.gcov.e" expr="tab"
 parse(1) state=P_INIT type=L_NAME "tab"
@@ -559,7 +559,7 @@ Derived metric expr dump from <addr-8>...
 expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [tab] master=1
 pmRegisterDerived: name="myname.gcov.f" expr="( 1 + foo + ( ?"
 parse(1) state=P_INIT type=L_LPAREN "("
-parse(2) state=P_INIT type=L_NUMBER "1"
+parse(2) state=P_INIT type=L_INTEGER "1"
 parse(2) state=P_LEAF type=L_PLUS "+"
 parse(2) state=P_BINOP type=L_NAME "foo"
 parse(2) state=P_LEAF type=L_PLUS "+"
@@ -604,7 +604,7 @@ parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
 parse(1) state=P_FUNC_END type=L_RPAREN ")"
 parse(1) state=P_LEAF type=L_MINUS "-"
 parse(1) state=P_BINOP type=L_MIN "min("
-parse(1) state=P_FUNC_OP type=L_NUMBER "1"
+parse(1) state=P_FUNC_OP type=L_INTEGER "1"
 [TMP.config:30] Error: pmRegisterDerived(myname.bad.d, ...) syntax error
  sum(sample.bin) - min(1*sample.bin)
                        ^            

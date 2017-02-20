@@ -210,7 +210,7 @@ parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
-expr node <addr-1> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
 parse(1) state=P_INIT type=L_ANON "anon("
 parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
@@ -219,7 +219,7 @@ parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
-expr node <addr-3> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="aggr.max32" expr="max(sample.bin)"
@@ -624,7 +624,7 @@ expr node <addr-99> type=ANON left=<addr-100> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-100> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+expr node <addr-100> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -634,7 +634,7 @@ expr node <addr-101> type=ANON left=<addr-102> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-102> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+expr node <addr-102> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -1354,7 +1354,7 @@ parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
-expr node <addr-1> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
 parse(1) state=P_INIT type=L_ANON "anon("
 parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
@@ -1363,7 +1363,7 @@ parse(1) state=P_LEAF type=L_EOF ""
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
-expr node <addr-3> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="aggr.non_arith" expr="max(sample.lights)"
@@ -1382,7 +1382,7 @@ expr node <addr-6> type=ANON left=<addr-7> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-7> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+expr node <addr-7> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -1392,7 +1392,7 @@ expr node <addr-8> type=ANON left=<addr-9> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-9> type=NUMBER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+expr node <addr-9> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
