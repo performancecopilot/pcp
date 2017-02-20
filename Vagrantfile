@@ -207,12 +207,44 @@ echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 SCRIPT
 
+############################################################
+# OSX - Sierra
+# TODO
+# * pcpqa user doesn't exist in the image, so the qA script can't run
+# * this error is displayed during provisionning
+#  				==> osxsierra: sed: 1: "/etc/hosts": extra characters at the end of h command
+#
+# * tar/gnutar hell still, or it could be something to do with the rsync..?
+# * pkg-build is still missing ...
+#     * maybe using https://www.vagrantup.com/docs/provisioning/file.html to copy the Pkgbuild app?
+############################################################
+
+$script_osx_sierra = <<SCRIPT
+sudo -H -u vagrant echo "Hello World" > ~/foo
+
+sudo -H -u vagrant brew update
+sudo -H -u vagrant brew install --universal coreutils automake libmicrohttpd pixman cairo libpng xz
+sudo -H -u vagrant brew install qt pyqt5
+sudo -H -u vagrant brew install gnu-tar --with-default-names
+cd /vagrant
+export PKG_CONFIG=/usr/local/bin/pkg-config
+sudo ./Makepkgs
+
+SCRIPT
+
 
 ############################################################
 # Host Definititions
 ############################################################
 
 pcp_hosts = {
+				:osxsierra => {
+								:hostname => "osxSierra",
+								:ipaddress => "10.100.10.60",
+								# https://github.com/AndrewDryga/vagrant-box-osx
+								:box => "http://files.dryga.com/boxes/osx-sierra-0.3.1.box",
+								:script => "#{$script_osx_sierra}"
+				},
         :ubuntu1204 => {
                 :hostname => "ubuntu1204",
                 :ipaddress => "10.100.10.10",
@@ -352,7 +384,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
   end
 
   # Global shared folder for pcp source.  Copy it so we have our own to muck around in
-  global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: false, :rsync__exclude => ["qaresults/"]
+  global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: false, :rsync__exclude => ["qaresults/", "pcp-*"]
 
   pcp_hosts.each_pair do |name, options|
 
@@ -367,6 +399,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
 	   
 	   # VM specific shared folder for qa results
 #  	   config.vm.synced_folder "./qaresults/#{name}", "/qaresults", mount_options: ["dmode=777", "fmode=666"], create: true
+						# TODO - this appears to fail with `vagrant provision osxsierra`
            config.vm.synced_folder "./qaresults/#{name}", "/qaresults", create: true
 
 	   #config.vm.hostname = "#{name}"
