@@ -39,3 +39,4 @@ Makefile
 VERSION.pcp.daily
 .vagrant
 qaresults
+.idea
