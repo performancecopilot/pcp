@@ -142,6 +142,7 @@ function predicate_lambda(child, div_id, metrics) {
         var part8_catchwrap = '} catch (err) { result = err.message }';
         var part9_update = '$("#' + div_id + '").html(result);';
         
+        console.log('function (metrics) { ' + part0 + part1_trywrap + part2_analysis + part3_htmlify + part8_catchwrap + part9_update + ' }');
         return 'function (metrics) { ' + part0 + part1_trywrap + part2_analysis + part3_htmlify + part8_catchwrap + part9_update + ' }';
     } else { // no pcp_predicate
         return 'function (metrics) { /* do nothing */ }';
@@ -278,11 +279,12 @@ return function (callback) {
                 var l;
                 var div_id = 'predicate_' + index + '_status'; // must also be a javascript identifier part
                 l = predicate_lambda(node_map[child], div_id, metrics);
+		console.log('l is ', l);
+                html += emit_js_a_href(pmwebd + checklist_url + "?node=" + encodeURIComponent(child), child);
+                html += " ";
                 html += emit_js_onload_div('top.rhck_predicate_metric_names.push.apply(top.rhck_predicate_metric_names,' + JSON.stringify(metrics) + ');' +
                                            'top.rhck_predicate_notifiers.push(' + l + ');',
                                            div_id);
-                html += " ";
-                html += emit_js_a_href(pmwebd + checklist_url + "?node=" + encodeURIComponent(child), child);
                 html += " | ";
             });
 

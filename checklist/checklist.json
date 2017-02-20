@@ -94,6 +94,22 @@
 	    "parents": ["Memory - swapping"]
         },
         {
+            "name": "Memory - Low mm reclaim efficency",
+	    "description": "The memory management system spending too much effort relaiming memory pages",
+	    "pcp_metrics":  [ "mem.vmstat.pgsteal_direct",  "mem.vmstat.pgsteal_kswapd", "mem.vmstat.pgscan_direct",  "mem.vmstat.pgscan_kswapd" ],
+	    "pcp_metrics_log":  [ "mem.vmstat.pgsteal_direct",  "mem.vmstat.pgsteal_kswapd", "mem.vmstat.pgscan_direct",  "mem.vmstat.pgscan_kswapd" ],
+	    "pcp_deriveds": [ "vmeff = (mem.vmstat.pgsteal_direct+mem.vmstat.pgsteal_kswapd)/(mem.vmstat.pgscan_direct+mem.vmstat.pgscan_kswapd)"],
+	    "predicate": { "label":  "< 50% scan recovery rate",
+			   "operator": "threshold_max",
+			   "metric": "vmeff",
+			   "value": 0.50 },
+	    "article": "https://engineering.linkedin.com/performance/optimizing-linux-memory-management-low-latency-high-throughput-databases",
+	    "details": "The linux virtual memory management system has a mechanism that places pages in memory into three lists: active, inactive, and free.  When a page is initially used it is put on the active list. Over time pages on the active list may fall off the end of the active list and be added to the inactive list as possible canidates to reclaim and to reuse for other data.  The inactive list is linearly scanned for possible pages to reclaim, but pages on the inactive list may have various reasons to disqualify them from being reclaimed.  This scanning of the inactive list for candidates to reclaim requires cpu processing.  One would like the the computer system to be efficient and avoid having to scan many pages on the inactive list to find few candidates to reclaim. This problem behavior can be observed with a low %vmeff in the 'sar -B' output, a low number of pgsteal/s in relation to the sum of pgscank/s and pgscand/s.",
+	    "issues": ["The various aggregate pgsteal and pgscan pcp metrics do not currently exist",
+		       "The specific pgsteal and pgscan metrics provided by vmstat vary between kernels"],
+	    "parents": ["Start"]
+        },
+        {
             "name": "Memory - huge page defragmentation",
 	    "description": "The system is spending large amounts of time grouping small pages of memory together into contigious physical regions of memory",
 	    "pcp_metrics": [ "mem.vmstat.thp_collapse_alloc", "mem.vmstat.thp_fault_alloc", "mem.vmstat.thp_fault_fallback" ],
