@@ -133,24 +133,6 @@ end
 $script_common << "domainname localdomain"
 
 ############################################################
-# QA run script
-############################################################
-
-$script_qa = <<SCRIPT
-
-touch /tmp/runqa.sh
-echo "#!/bin/sh" >> /tmp/runqa.sh
-echo "cd /var/lib/pcp/testsuite" >> /tmp/runqa.sh
-echo "./check #{QA_FLAGS} >/tmp/runqa.out 2>&1" >> /tmp/runqa.sh
-echo "cp /tmp/runqa.out /qaresults" >> /tmp/runqa.sh
-echo "cp /var/lib/pcp/testsuite/*.bad /qaresults" >> /tmp/runqa.sh
-
-chmod 777 /tmp/runqa.sh
-sudo -b -H -u pcpqa sh -c '/tmp/runqa.sh'
-
-SCRIPT
-
-############################################################
 # Main Vagrant Init : Loop over Host configs
 ############################################################
 
@@ -169,33 +151,33 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
   global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: false, :rsync__exclude => ["qaresults/", "pcp-*"]
 
   pcp_hosts.each_pair do |name, options|
+    global_config.vm.define name do |config|
 
-	global_config.vm.define name do |config|
+       config.vm.provider "virtualbox" do |v|
+          v.name = "Vagrant PCP - #{name}"
+          v.customize ["modifyvm", :id, "--groups", "/VagrantPCP", "--memory", VM_MEM, "--cpus", VM_CPU]
+       end
 
-  	   config.vm.provider "virtualbox" do |v|
-		v.name = "Vagrant PCP - #{name}"
-    		v.customize ["modifyvm", :id, "--groups", "/VagrantPCP", "--memory", VM_MEM, "--cpus", VM_CPU]
-  	   end
+       config.vm.box = options[:box]
 
-	   config.vm.box = options[:box]
-	   
-	   # VM specific shared folder for qa results
-#  	   config.vm.synced_folder "./qaresults/#{name}", "/qaresults", mount_options: ["dmode=777", "fmode=666"], create: true
-						# TODO - this appears to fail with `vagrant provision osxsierra`
-           config.vm.synced_folder "./qaresults/#{name}", "/qaresults", create: true
+       # VM specific shared folder for qa results
+       # config.vm.synced_folder "./qaresults/#{name}", "/qaresults", mount_options: ["dmode=777", "fmode=666"], create: true
 
-	   #config.vm.hostname = "#{name}"
-	   config.vm.hostname = "#{options[:hostname]}"
-           config.vm.network :private_network, ip: options[:ipaddress]
+       # TODO - this appears to fail with `vagrant provision osxsierra`
+       config.vm.synced_folder "./qaresults/#{name}", "/qaresults", create: true
 
-	   # Setup networking etc
-           config.vm.provision :shell, :inline => $script_common
+       #config.vm.hostname = "#{name}"
+       config.vm.hostname = "#{options[:hostname]}"
+       config.vm.network :private_network, ip: options[:ipaddress]
 
-	   # Do platfrom specifics: install packages, etc
-           config.vm.provision :shell, path: "provisioning/#{options[:script]}"
+       # Setup networking etc
+       config.vm.provision :shell, :inline => $script_common
 
-	   # Run QA and copy results back to host
-           config.vm.provision :shell, :inline => $script_qa
-	end
+       # Do platfrom specifics: install packages, etc
+       config.vm.provision :shell, path: "provisioning/#{options[:script]}"
+
+       # Run QA and copy results back to host
+       config.vm.provision :shell, :path => "provisioning/qa.sh"
+    end
   end
 end
