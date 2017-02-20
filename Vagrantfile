@@ -166,7 +166,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
        # TODO - this appears to fail with `vagrant provision osxsierra`
        config.vm.synced_folder "./qaresults/#{name}", "/qaresults", create: true
 
-       #config.vm.hostname = "#{name}"
        config.vm.hostname = "#{options[:hostname]}"
        config.vm.network :private_network, ip: options[:ipaddress]
 
