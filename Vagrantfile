@@ -238,95 +238,95 @@ SCRIPT
 ############################################################
 
 pcp_hosts = {
-				:osxsierra => {
-								:hostname => "osxSierra",
-								:ipaddress => "10.100.10.60",
-								# https://github.com/AndrewDryga/vagrant-box-osx
-								:box => "http://files.dryga.com/boxes/osx-sierra-0.3.1.box",
-								:script => "#{$script_osx_sierra}"
-				},
-        :ubuntu1204 => {
-                :hostname => "ubuntu1204",
-                :ipaddress => "10.100.10.10",
-                :box => "ubuntu/precise64",
-                :script => "#{$script_ubuntu}"
-        },
-#        :ubuntu1304 => {
-#                :hostname => "ubuntu1304",
-#                :ipaddress => "10.100.10.11",
-#                :box => "chef/ubuntu-13.04",
-#                :script => "#{$script_EOLubuntu}"
-#        },
-        :ubuntu1404 => {
-                :hostname => "ubuntu1404",
-                :ipaddress => "10.100.10.12",
-                :box => "ubuntu/trusty64",
-                :script => "#{$script_ubuntu}"
-        },
-#       :centos511 => {
-#                :hostname => "centos511",
-#                :ipaddress => "10.100.10.20",
-#                :box => "chef/centos-5.11",
-#                :script => "#{$script_centos}"
-#        },
-# 	 :centos511_32 => {
-#                :hostname => "centos511-32",
-#                :ipaddress => "10.100.10.21",
-#                :box => "chef/centos-5.11-i386",
-#                :script => "#{$script_centos}"
-#        },
-#        :centos65 => {
-#               :hostname => "centos65",
-#                :ipaddress => "10.100.10.22",
-#                :box => "chef/centos-6.5",
-#                :script => "#{$script_centos}"
-#        },
-        :centos7 => {
-                :hostname => "centos7",
-                :ipaddress => "10.100.10.23",
-                :box => "centos/7",
-                :script => "#{$script_centos}"
-        },
-        :fedora23 => {
-                :hostname => "fedora23",
-                :ipaddress => "10.100.10.30",
-                :box => "fedora/23-cloud-base",
-                :script => "#{$script_fedora}"
-        },
-        :debian76 => {
-                :hostname => "debianwheezy",
-                :ipaddress => "10.100.10.40",
-                :box => "debian/wheezy64",
-                :script => "#{$script_debian}"
-        },
-        :debian8 => {
-                :hostname => "debianjessie",
-                :ipaddress => "10.100.10.40",
-                :box => "debian/jessie64",
-                :script => "#{$script_debian}"
-        }
-# Built locally from : https://github.com/opscode/bento
-# NAT comes up but not the host interface
-#        :opensuse132 => {
-#                :hostname => "opensuse132",
-#                :ipaddress => "10.100.10.51",
-#                :box => "minnus-opensuse-13.2",
-#                :script => "#{$script_suse}"
-#        }
-# Networking wont come up
-#        :opensuse131 => {
-#                :hostname => "opensuse131",
-#                :ipaddress => "10.100.10.50",
-#                :box => "chef/opensuse-13.1",
-#                :script => "#{$script_suse}"
-#        }
-# Possible opensuse box?
-#        :opensuseleap42 => {
-#                :hostname => "opensuse42",
-#                :ipaddress => "10.100.10.52",
-#                :box => "opensuse/openSUSE-42.1-x86_64",
-#                :script => "#{$script_suse}"
-#        }
+    :osxsierra => {
+        :hostname => "osxSierra",
+        :ipaddress => "10.100.10.60",
+        # https://github.com/AndrewDryga/vagrant-box-osx
+        :box => "http://files.dryga.com/boxes/osx-sierra-0.3.1.box",
+        :script => "#{$script_osx_sierra}"
+    },
+    :ubuntu1204 => {
+        :hostname => "ubuntu1204",
+        :ipaddress => "10.100.10.10",
+        :box => "ubuntu/precise64",
+        :script => "#{$script_ubuntu}"
+    },
+    #        :ubuntu1304 => {
+    #                :hostname => "ubuntu1304",
+    #                :ipaddress => "10.100.10.11",
+    #                :box => "chef/ubuntu-13.04",
+    #                :script => "#{$script_EOLubuntu}"
+    #        },
+    :ubuntu1404 => {
+        :hostname => "ubuntu1404",
+        :ipaddress => "10.100.10.12",
+        :box => "ubuntu/trusty64",
+        :script => "#{$script_ubuntu}"
+    },
+    #       :centos511 => {
+    #                :hostname => "centos511",
+    #                :ipaddress => "10.100.10.20",
+    #                :box => "chef/centos-5.11",
+    #                :script => "#{$script_centos}"
+    #        },
+    # 	 :centos511_32 => {
+    #                :hostname => "centos511-32",
+    #                :ipaddress => "10.100.10.21",
+    #                :box => "chef/centos-5.11-i386",
+    #                :script => "#{$script_centos}"
+    #        },
+    #        :centos65 => {
+    #               :hostname => "centos65",
+    #                :ipaddress => "10.100.10.22",
+    #                :box => "chef/centos-6.5",
+    #                :script => "#{$script_centos}"
+    #        },
+    :centos7 => {
+        :hostname => "centos7",
+        :ipaddress => "10.100.10.23",
+        :box => "centos/7",
+        :script => "#{$script_centos}"
+    },
+    :fedora23 => {
+        :hostname => "fedora23",
+        :ipaddress => "10.100.10.30",
+        :box => "fedora/23-cloud-base",
+        :script => "#{$script_fedora}"
+    },
+    :debian76 => {
+        :hostname => "debianwheezy",
+        :ipaddress => "10.100.10.40",
+        :box => "debian/wheezy64",
+        :script => "#{$script_debian}"
+    },
+    :debian8 => {
+        :hostname => "debianjessie",
+        :ipaddress => "10.100.10.40",
+        :box => "debian/jessie64",
+        :script => "#{$script_debian}"
+    }
+    # Built locally from : https://github.com/opscode/bento
+    # NAT comes up but not the host interface
+    #        :opensuse132 => {
+    #                :hostname => "opensuse132",
+    #                :ipaddress => "10.100.10.51",
+    #                :box => "minnus-opensuse-13.2",
+    #                :script => "#{$script_suse}"
+    #        }
+    # Networking wont come up
+    #        :opensuse131 => {
+    #                :hostname => "opensuse131",
+    #                :ipaddress => "10.100.10.50",
+    #                :box => "chef/opensuse-13.1",
+    #                :script => "#{$script_suse}"
+    #        }
+    # Possible opensuse box?
+    #        :opensuseleap42 => {
+    #                :hostname => "opensuse42",
+    #                :ipaddress => "10.100.10.52",
+    #                :box => "opensuse/openSUSE-42.1-x86_64",
+    #                :script => "#{$script_suse}"
+    #        }
 }
 
 ############################################################
@@ -343,9 +343,9 @@ $script_common << "sed -i '/127.0.0.1/d' /etc/hosts\n"
 $script_common << "echo \"127.0.0.1 localhost.localdomain localhost\" >> /etc/hosts\n"
 
 pcp_hosts.each_pair do |name, options|
-        ipaddr = options[:ipaddress]
-	hostname = options[:hostname]
-        $script_common << "echo \"#{ipaddr} #{hostname} #{hostname}.localdomain\" >> /etc/hosts\n"
+  ipaddr = options[:ipaddress]
+  hostname = options[:hostname]
+  $script_common << "echo \"#{ipaddr} #{hostname} #{hostname}.localdomain\" >> /etc/hosts\n"
 end
 
 $script_common << "domainname localdomain"
@@ -388,32 +388,32 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
 
   pcp_hosts.each_pair do |name, options|
 
-	global_config.vm.define name do |config|
+    global_config.vm.define name do |config|
 
-  	   config.vm.provider "virtualbox" do |v|
-		v.name = "Vagrant PCP - #{name}"
-    		v.customize ["modifyvm", :id, "--groups", "/VagrantPCP", "--memory", VM_MEM, "--cpus", VM_CPU]
-  	   end
+      config.vm.provider "virtualbox" do |v|
+        v.name = "Vagrant PCP - #{name}"
+        v.customize ["modifyvm", :id, "--groups", "/VagrantPCP", "--memory", VM_MEM, "--cpus", VM_CPU]
+      end
 
-	   config.vm.box = options[:box]
-	   
-	   # VM specific shared folder for qa results
-#  	   config.vm.synced_folder "./qaresults/#{name}", "/qaresults", mount_options: ["dmode=777", "fmode=666"], create: true
-						# TODO - this appears to fail with `vagrant provision osxsierra`
-           config.vm.synced_folder "./qaresults/#{name}", "/qaresults", create: true
+      config.vm.box = options[:box]
 
-	   #config.vm.hostname = "#{name}"
-	   config.vm.hostname = "#{options[:hostname]}"
-           config.vm.network :private_network, ip: options[:ipaddress]
+      # VM specific shared folder for qa results
+      #  	   config.vm.synced_folder "./qaresults/#{name}", "/qaresults", mount_options: ["dmode=777", "fmode=666"], create: true
+      # TODO - this appears to fail with `vagrant provision osxsierra`
+      config.vm.synced_folder "./qaresults/#{name}", "/qaresults", create: true
 
-	   # Setup networking etc
-           config.vm.provision :shell, :inline => $script_common
+      #config.vm.hostname = "#{name}"
+      config.vm.hostname = "#{options[:hostname]}"
+      config.vm.network :private_network, ip: options[:ipaddress]
 
-	   # Do platfrom specifics: install packages, etc
-           config.vm.provision :shell, :inline => options[:script]
+      # Setup networking etc
+      config.vm.provision :shell, :inline => $script_common
 
-	   # Run QA and copy results back to host
-           config.vm.provision :shell, :inline => $script_qa
-	end
+      # Do platfrom specifics: install packages, etc
+      config.vm.provision :shell, :inline => options[:script]
+
+      # Run QA and copy results back to host
+      config.vm.provision :shell, :inline => $script_qa
+    end
   end
 end
