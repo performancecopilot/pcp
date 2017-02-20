@@ -491,11 +491,12 @@ eval_expr(node_t *np, pmResult *rp, int level)
     }
 
     /* mostly, np->left is not NULL ... */
-    assert (np->type == L_NUMBER || np->type == L_NAME || np->left != NULL);
+    assert (np->type == L_INTEGER || np->type == L_DOUBLE || np->type == L_NAME || np->left != NULL);
 
     switch (np->type) {
 
-	case L_NUMBER:
+	case L_INTEGER:
+	case L_DOUBLE:
 	    if (np->info->numval == 0) {
 		/* initialize ivlist[] for singular instance first time through */
 		np->info->numval = 1;
@@ -505,7 +506,10 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		}
 		np->info->ivlist[0].inst = PM_INDOM_NULL;
 		/* don't need error checking, done in the lexical scanner */
-		np->info->ivlist[0].value.l = atoi(np->value);
+		if (np->type == L_INTEGER)
+		    np->info->ivlist[0].value.l = atoi(np->value);
+		else
+		    np->info->ivlist[0].value.d = atof(np->value);
 	    }
 	    return 1;
 	    break;

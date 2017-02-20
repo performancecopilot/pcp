@@ -71,7 +71,7 @@ typedef struct {
 #define L_ERROR		-2
 #define	L_EOF		-1
 #define L_UNDEF		0
-#define L_NUMBER	1
+#define L_INTEGER	1
 #define L_NAME		2
 #define L_PLUS		3
 #define L_MINUS		4
@@ -88,6 +88,7 @@ typedef struct {
 #define L_ANON		15
 #define L_RATE		16
 #define L_INSTANT	17
+#define L_DOUBLE	18
 
 extern int __dmtraverse(__pmContext *, const char *, char ***) _PCP_HIDDEN;
 extern int __dmchildren(__pmContext *, const char *, char ***, int **) _PCP_HIDDEN;

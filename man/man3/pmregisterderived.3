@@ -132,10 +132,11 @@ The expression
 .I expr
 follows these syntactic rules:
 .IP * 2n
-Terminal elements are either names of existing metrics or integer constants.
+Terminal elements are either names of existing metrics or numeric constants.
 Recursive definitions are not allowed, so only the names of regular
-metrics (not other derived metrics) may be used. Integer constants are
-constrained to the precision of 32-bit unsigned integers.
+metrics (not other derived metrics) may be used. Numeric constants are
+either integers constrained to the precision of 32-bit unsigned integers
+or double precision floating point numbers.
 .IP * 2n
 The usual binary arithmetic operators are supported, namely \- addition (``+''),
 subtraction (``-''), multiplication (``*'') and division (``/'') with

@@ -452,7 +452,9 @@ lex(void)
 
 	if (ltype == L_UNDEF) {
 	    if (isdigit((int)c))
-		ltype = L_NUMBER;
+		ltype = L_INTEGER;
+	    else if (c == '.')
+		ltype = L_DOUBLE;
 	    else if (isalpha((int)c))
 		ltype = L_NAME;
 	    else {
@@ -494,11 +496,21 @@ lex(void)
 	    }
 	}
 	else {
-	    if (ltype == L_NUMBER) {
+	    if (ltype == L_INTEGER) {
+		if (c == '.') {
+		    ltype = L_DOUBLE;
+		}
+		else if (!isdigit((int)c)) {
+		    unget(c);
+		    p[-1] = '\0';
+		    return L_INTEGER;
+		}
+	    }
+	    else if (ltype == L_DOUBLE) {
 		if (!isdigit((int)c)) {
 		    unget(c);
 		    p[-1] = '\0';
-		    return L_NUMBER;
+		    return L_DOUBLE;
 		}
 	    }
 	    else if (ltype == L_NAME) {
@@ -637,7 +649,7 @@ bind_expr(int n, node_t *np)
 	    return NULL;
 	}
     }
-    else if (new->type == L_NUMBER) {
+    else if (new->type == L_INTEGER || new->type == L_DOUBLE) {
 	new->desc = np->desc;
     }
 
@@ -653,12 +665,12 @@ void report_sem_error(char *name, node_t *np)
 	case L_MINUS:
 	case L_STAR:
 	case L_SLASH:
-	    if (np->left->type == L_NUMBER || np->left->type == L_NAME)
+	    if (np->left->type == L_INTEGER || np->left->type == L_DOUBLE || np->left->type == L_NAME)
 		pmprintf("%s ", np->left->value);
 	    else
 		pmprintf("<expr> ");
 	    pmprintf("%c ", type_c[np->type+2]);
-	    if (np->right->type == L_NUMBER || np->right->type == L_NAME)
+	    if (np->right->type == L_INTEGER || np->right->type == L_DOUBLE || np->right->type == L_NAME)
 		pmprintf("%s", np->right->value);
 	    else
 		pmprintf("<expr>");
@@ -901,7 +913,7 @@ map_desc(int n, node_t *np)
      * Choose candidate descriptor ... prefer metric or expression
      * over constant
      */
-    if (np->left->type != L_NUMBER)
+    if (np->left->type != L_INTEGER && np->left->type != L_DOUBLE)
 	np->desc = *left;	/* struct copy */
     else
 	np->desc = *right;	/* struct copy */
@@ -1015,7 +1027,7 @@ check_expr(int n, node_t *np)
 
     assert(np != NULL);
 
-    if (np->type == L_NUMBER || np->type == L_NAME)
+    if (np->type == L_INTEGER || np->type == L_DOUBLE || np->type == L_NAME)
 	return 0;
 
     /* otherwise, np->left is never NULL ... */
@@ -1181,7 +1193,7 @@ __dmdumpexpr(node_t *np, int level)
     if (level == 0) fprintf(stderr, "Derived metric expr dump from " PRINTF_P_PFX "%p...\n", np);
     if (np == NULL) return;
     fprintf(stderr, "expr node " PRINTF_P_PFX "%p type=%s left=" PRINTF_P_PFX "%p right=" PRINTF_P_PFX "%p save_last=%d", np, type_dbg[np->type+2], np->left, np->right, np->save_last);
-    if (np->type == L_NAME || np->type == L_NUMBER)
+    if (np->type == L_NAME || np->type == L_INTEGER || np->type == L_DOUBLE)
 	fprintf(stderr, " [%s] master=%d", np->value, np->info == NULL ? 1 : 0);
     fputc('\n', stderr);
     if (np->info) {
@@ -1222,7 +1234,8 @@ __dmdumpexpr(node_t *np, int level)
  * Parser FSA
  * state	lex		new state
  * P_INIT	L_NAME or	P_LEAF
- * 		L_NUMBER
+ * 		L_INTEGER or
+ * 		L_DOUBLE
  * P_INIT	L_<func>	P_FUNC_OP
  * P_INIT	L_LPAREN	if parse() != NULL then P_LEAF
  * P_LEAF	L_PLUS or	P_BINOP
@@ -1230,7 +1243,8 @@ __dmdumpexpr(node_t *np, int level)
  * 		L_STAR or
  * 		L_SLASH
  * P_BINOP	L_NAME or	P_LEAF
- * 		L_NUMBER
+ * 		L_INTEGER or
+ * 		L_DOUBLE
  * P_BINOP	L_LPAREN	if parse() != NULL then P_LEAF
  * P_BINOP	L_<func>	P_FUNC_OP
  * P_LEAF_PAREN	same as P_LEAF, but no precedence rules at next operator
@@ -1294,14 +1308,14 @@ parse(int level)
 		 */
 		assert(expr == NULL && curr == NULL);
 
-		if (type == L_NAME || type == L_NUMBER) {
+		if (type == L_NAME || type == L_INTEGER || type == L_DOUBLE) {
 		    expr = curr = newnode(type);
 		    if ((curr->value = strdup(tokbuf)) == NULL) {
 			PM_UNLOCK(registered.mutex);
 			__pmNoMem("pmRegisterDerived: leaf node", strlen(tokbuf)+1, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
-		    if (type == L_NUMBER) {
+		    if (type == L_INTEGER) {
 			char		*endptr;
 			__uint64_t	check;
 			check = strtoull(tokbuf, &endptr, 10);
@@ -1312,6 +1326,13 @@ parse(int level)
 			}
 			curr->desc.pmid = PM_ID_NULL;
 			curr->desc.type = PM_TYPE_U32;
+			curr->desc.indom = PM_INDOM_NULL;
+			curr->desc.sem = PM_SEM_DISCRETE;
+			memset(&curr->desc.units, 0, sizeof(pmUnits));
+		    }
+		    else if (type == L_DOUBLE) {
+			curr->desc.pmid = PM_ID_NULL;
+			curr->desc.type = PM_TYPE_DOUBLE;
 			curr->desc.indom = PM_INDOM_NULL;
 			curr->desc.sem = PM_SEM_DISCRETE;
 			memset(&curr->desc.units, 0, sizeof(pmUnits));
@@ -1344,7 +1365,8 @@ parse(int level)
 		if (type == L_PLUS || type == L_MINUS || type == L_STAR || type == L_SLASH) {
 		    np = newnode(type);
 		    if (state == P_LEAF_PAREN ||
-		        curr->type == L_NAME || curr->type == L_NUMBER ||
+		        curr->type == L_NAME ||
+			curr->type == L_INTEGER || curr->type == L_DOUBLE ||
 			curr->type == L_AVG || curr->type == L_COUNT ||
 			curr->type == L_DELTA ||
 			curr->type == L_RATE || curr->type == L_INSTANT ||
@@ -1377,16 +1399,23 @@ parse(int level)
 		break;
 
 	    case P_BINOP:
-		if (type == L_NAME || type == L_NUMBER) {
+		if (type == L_NAME || type == L_INTEGER || type == L_DOUBLE) {
 		    np = newnode(type);
 		    if ((np->value = strdup(tokbuf)) == NULL) {
 			PM_UNLOCK(registered.mutex);
 			__pmNoMem("pmRegisterDerived: leaf node", strlen(tokbuf)+1, PM_FATAL_ERR);
 			/*NOTREACHED*/
 		    }
-		    if (type == L_NUMBER) {
+		    if (type == L_INTEGER) {
 			np->desc.pmid = PM_ID_NULL;
 			np->desc.type = PM_TYPE_U32;
+			np->desc.indom = PM_INDOM_NULL;
+			np->desc.sem = PM_SEM_DISCRETE;
+			memset(&np->desc.units, 0, sizeof(pmUnits));
+		    }
+		    else if (type == L_DOUBLE) {
+			np->desc.pmid = PM_ID_NULL;
+			np->desc.type = PM_TYPE_DOUBLE;
 			np->desc.indom = PM_INDOM_NULL;
 			np->desc.sem = PM_SEM_DISCRETE;
 			memset(&np->desc.units, 0, sizeof(pmUnits));
@@ -1458,7 +1487,7 @@ parse(int level)
 			np->desc.indom = PM_INDOM_NULL;
 			np->desc.sem = PM_SEM_DISCRETE;
 			memset((void *)&np->desc.units, 0, sizeof(np->desc.units));
-			np->type = L_NUMBER;
+			np->type = L_INTEGER;
 		    }
 		    curr->left = np;
 		    curr = expr;

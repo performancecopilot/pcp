@@ -1,0 +1,45 @@
+#!/bin/sh
+# PCP QA Test No. 927
+# New derived metric features:
+# - floating point constants
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+# real QA test starts here
+cat <<End-of-File >$tmp.config
+qa_$seq.bin_2_5 = 2 * sample.bin / 5
+qa_$seq.bin_frac = 0.4 * sample.bin
+qa_$seq.bin_frac2 = sample.bin * .4
+End-of-File
+
+echo "metadata ..."
+pminfo -d qa_$seq
+
+echo
+echo "values ..."
+pminfo -f qa_$seq
+
+# success, all done
+status=0
+exit
