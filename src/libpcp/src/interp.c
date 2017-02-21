@@ -810,6 +810,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		/* enumerate all the instances from the domain underneath */
 		int		*instlist = NULL;
 		char		**namelist = NULL;
+		sts1 = 0;
 		if (pcp->desc.indom == PM_INDOM_NULL) {
 		    sts = 1;
 		    if ((instlist = (int *)malloc(sizeof(int))) == NULL) {
@@ -824,7 +825,7 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 			sts1 = __pmHashPreAlloc(sts, &pcp->hc);
 			if (sts1 < 0) {
 			    free(pcp);
-			    return sts1;
+			    goto done_icp;
 			}
 		    }
 		}
@@ -842,13 +843,16 @@ __pmLogFetchInterp(__pmContext *ctxp, int numpmid, pmID pmidlist[], pmResult **r
 		    sts1 = __pmHashAdd((int)instlist[i], (void *)icp, &pcp->hc);
 		    if (sts1 < 0) {
 			free(icp);
-			return sts1;
+			goto done_icp;
 		    }
 		}
+	    done_icp:
 		if (instlist != NULL)
 		    free(instlist);
 		if (namelist != NULL)
 		    free(namelist);
+		if (sts1 != 0)
+		    return sts1; /* allocation error */
 	    }
 	}
 	else
