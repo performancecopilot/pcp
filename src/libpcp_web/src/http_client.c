@@ -569,7 +569,7 @@ http_should_client_redirect(http_client *cp)
 static int
 http_client_response(http_client *cp)
 {
-    size_t		bytes, total;
+    size_t		bytes;
     char		buffer[BUFSIZ];
     int			sts;
     static int		setup;
@@ -599,7 +599,6 @@ http_client_response(http_client *cp)
 	    return sts ? sts : -EAGAIN;
 	}
 	bytes = http_parser_execute(&cp->parser, &settings, buffer, sts);
-	total += bytes;
 
     } while (bytes && !(cp->flags & F_MESSAGE_END));
 
