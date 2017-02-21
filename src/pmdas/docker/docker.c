@@ -69,6 +69,7 @@ static json_metric_desc version_metrics[] = {
     { "GitCommit", 0, 1, {0}, ""},
     { "Arch", 0, 1, {0}, ""},
     { "ApiVersion", 0, 1, {0}, ""},
+    { "BuildVersion", 0, 1, {0}, ""}
 };
 #define version_metrics_size	ARRAY_SIZE(version_metrics)
 

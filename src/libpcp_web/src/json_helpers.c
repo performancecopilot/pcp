@@ -354,7 +354,8 @@ json_pointer_to_index(const char *json, jsmntok_t *json_tokens, size_t count, js
 	    pointer_final[j++] = strdup(json_pointer);
 	} else {
 	    pointer_final[j++] = strdup(pointer_part);
-	    while (pointer_part && j < sizeof(pointer_final)) {
+	    while (pointer_part &&
+		   j < sizeof(pointer_final)/sizeof(*pointer_final)) {
 		if ((pointer_part = strtok(NULL, "/")) != NULL)
 		    pointer_final[j++] = strdup(pointer_part);
 	    }
