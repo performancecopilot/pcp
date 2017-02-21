@@ -148,9 +148,13 @@ refresh_proc_buddyinfo(proc_buddyinfo_t *proc_buddyinfo)
             proc_buddyinfo->buddys = (buddyinfo_t *)realloc(proc_buddyinfo->buddys, proc_buddyinfo->nbuddys * sizeof(buddyinfo_t));
             for (j=0; j < MAX_ORDER; j++) {
                 proc_buddyinfo->buddys[i+j].id = next_id++;
-                strcpy(proc_buddyinfo->buddys[i+j].node_name, node_name);
-                strcpy(proc_buddyinfo->buddys[i+j].zone_name, zone_name);
-                sprintf(proc_buddyinfo->buddys[i+j].id_name, "%s::order%u::%s", zone_name, j, node_name);
+                strncpy(proc_buddyinfo->buddys[i+j].node_name, node_name,
+			sizeof(proc_buddyinfo->buddys[i+j].node_name) - 1);
+                strncpy(proc_buddyinfo->buddys[i+j].zone_name, zone_name,
+			sizeof(proc_buddyinfo->buddys[i+j].zone_name) - 1);
+                snprintf(proc_buddyinfo->buddys[i+j].id_name,
+			 sizeof(proc_buddyinfo->buddys[i+j].id_name),
+			 "%s::order%u::%s", zone_name, j, node_name);
             }
         }
         /* update data */
