@@ -774,13 +774,11 @@ mmv_lookup_item1(int item, unsigned int inst,
     mmv_disk_value_t *v = s->values;
     int mi, vi, sts = PM_ERR_PMID;
 
-    m1 = s->metrics1;
     for (mi = 0; mi < s->mcnt1; mi++) {
 	if (m1[mi].item != item)
 	    continue;
 
 	sts = PM_ERR_INST;
-	v = s->values;
 	for (vi = 0; vi < s->vcnt; vi++) {
 	    mmv_disk_metric_t *mt = (mmv_disk_metric_t *)
 			((char *)s->addr + v[vi].metric);
