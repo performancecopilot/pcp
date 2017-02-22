@@ -661,10 +661,10 @@ Group: Applications/System
 Summary: Selinux policy package
 URL: http://www.pcp.io
 BuildRequires: selinux-policy-devel
-%if 0%{?rhel} == 0 || 0%{?rhel} <= 5
-BuildRequires: setools
-%else
+%if 0%{?fedora} >= 19 || 0%{?rhel} >= 6 || 0%{?suse_version} >= 1200
 BuildRequires: setools-console
+%else
+BuildRequires: setools
 %endif
 Requires: policycoreutils
 Requires: pcp = %{version}-%{release}
