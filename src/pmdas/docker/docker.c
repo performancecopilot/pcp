@@ -68,8 +68,7 @@ static json_metric_desc version_metrics[] = {
     { "GoVersion", 0, 1, {0}, ""},
     { "GitCommit", 0, 1, {0}, ""},
     { "Arch", 0, 1, {0}, ""},
-    { "ApiVersion", 0, 1, {0}, ""},
-    { "BuildVersion", 0, 1, {0}, ""}
+    { "ApiVersion", 0, 1, {0}, ""}
 };
 #define version_metrics_size	ARRAY_SIZE(version_metrics)
 
@@ -564,7 +563,6 @@ docker_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 4:               /* docker.commit */
 	case 5:               /* docker.arch */
 	case 6:               /* docker.apiversion */
-	case 7:               /* docker.buildversion */
 	    if ((atom->cp = version_metrics[idp->item].values.cp) == NULL)
 		sts = PMDA_FETCH_NOVALUES;
 	    else
