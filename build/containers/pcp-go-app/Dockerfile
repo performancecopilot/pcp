@@ -45,15 +45,9 @@ RUN curl -fsSL "$SPEED_DOWNLOAD_URL" -o speed.tar.gz \
 
 RUN go install github.com/performancecopilot/speed/...
 
-#
-# Mount userspace $GOPATH/src and $GOPATH/bin inside the container
-#
-
 LABEL RUN docker run \
     --interactive --tty \
     --tmpfs=/tmp \
-    --volume=$GOPATH/src:$GOPATH/src \
-    --volume=$GOPATH/bin:$GOPATH/bin \
     --name=pcp-go-app pcp-go-app
 
 STOPSIGNAL SIGRTMIN+3
