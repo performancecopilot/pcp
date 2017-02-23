@@ -23,6 +23,7 @@ which seinfo >/dev/null 2>&1 || _notrun "seinfo tool not installed"
 container_runtime_t=`seinfo -t | grep "container_runtime_t$"`
 nsfs_t=`seinfo -t | grep 'nsfs_t$'`
 docker_var_lib_t=`seinfo -t | grep "docker_var_lib_t$"`
+svirt_lxc_net_t=`seinfo -t | grep "svirt_lxc_net_t$"`
 
 _filter_semodule()
 {
@@ -42,13 +43,17 @@ _filter_outfile()
     awk -v container_t="$container_runtime_t" \
 	-v nsfs_t="$nsfs_t" \
 	-v docker_var_lib_t="$docker_var_lib_t" \
+	-v svirt_lxc_net_t="$svirt_lxc_net_t" \
+	-v class_status="$class_status" \
     '{
     	if (container_t == "" && /container_runtime_t/)
 	   !/container_runtime_t/ ;
 	else if (nsfs_t == "" && /nsfs_t/)
 	   !/nsfs_t/ ;
-    	if (docker_var_lib_t == "" && /docker_var_lib_t/)
+    	else if (docker_var_lib_t == "" && /docker_var_lib_t/)
 	   !/docker_var_lib_t/ ;
+    	else if (svirt_lxc_net_t == "" && /svirt_lxc_net_t/)
+	   !/svirt_lxc_net_t/ ;
 	else
 	   print;
     }' > $seq.out

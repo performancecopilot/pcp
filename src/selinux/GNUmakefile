@@ -36,6 +36,11 @@ $(IAM).te: $(IAM).te.in
 		-e 's;@PCP_NSFS_RULE@;'$(PCP_NSFS_RULE)';' \
 		-e 's;@PCP_DOCKER_VAR_LIB_T@;'$(PCP_DOCKER_VAR_LIB_T)';' \
 		-e 's;@PCP_DOCKER_VAR_LIB_RULE@;'$(PCP_DOCKER_VAR_LIB_RULE)';' \
+		-e 's;@PCP_CLASS_STATUS@;'$(PCP_CLASS_STATUS)';' \
+		-e 's;@PCP_PMLOGGER_SYSTEM_STATUS_RULE@;'$(PCP_PMLOGGER_SYSTEM_STATUS_RULE)';' \
+		-e 's;@PCP_PMIE_SYSTEM_STATUS_RULE@;'$(PCP_PMIE_SYSTEM_STATUS_RULE)';' \
+		-e 's;@PCP_SVIRT_LXC_NET_T@;'$(PCP_SVIRT_LXC_NET_T)';' \
+		-e 's;@PCP_SVIRT_LXC_NET_RULE@;'$(PCP_SVIRT_LXC_NET_RULE)';' \
 
 	# END
 	make -f /usr/share/selinux/devel/Makefile
