@@ -13,7 +13,7 @@ require {
 	type pcp_pmie_t;
 	type sysctl_net_t;
 	type svirt_sandbox_file_t;
-	type svirt_lxc_net_t;
+	@PCP_SVIRT_LXC_NET_T@
 	@PCP_DOCKER_VAR_LIB_T@
 	type hostname_exec_t;
 	type ldconfig_exec_t; # pcp-lio
@@ -31,7 +31,7 @@ require {
 	class capability { kill sys_ptrace net_admin chown sys_chroot };
 	class chr_file { open write };
 	class fifo_file { getattr read open }; # qa/455
-	class system status;
+	@PCP_CLASS_STATUS@
 }
 
 #============= init_t ==============
@@ -63,7 +63,7 @@ allow init_t tmp_t:file open;
 @PCP_DOCKER_VAR_LIB_RULE@
 @PCP_CONTAINER_RUNTIME_RULE@
 allow pcp_pmcd_t svirt_sandbox_file_t:dir { open read search };
-allow pcp_pmcd_t svirt_lxc_net_t:dir { open read search };
+@PCP_SVIRT_LXC_NET_RULE@
 allow pcp_pmcd_t sysctl_net_t:dir search;
 allow pcp_pmcd_t sysctl_net_t:file { getattr open read };
 allow pcp_pmcd_t user_home_t:file { execute execute_no_trans open read };
@@ -86,7 +86,7 @@ allow pcp_pmcd_t pcp_log_t:fifo_file { getattr read open }; # qa/455
 #============= pcp_pmlogger_t ==============
 allow pcp_pmlogger_t kmsg_device_t:chr_file { open write };
 allow pcp_pmlogger_t self:capability kill;
-allow pcp_pmlogger_t init_t:system status;
+@PCP_PMLOGGER_SYSTEM_STATUS_RULE@
 
 # type=AVC msg=audit(1484681301.380:174695): avc:  denied  { sys_ptrace } for  pid=21962 comm="ps" capability=19  scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:pcp_pmlogger_t:s0 tclass=capability
 # src/pmlogger/pmnewlog.sh
@@ -95,7 +95,7 @@ allow pcp_pmlogger_t self:capability sys_ptrace;
 #============= pcp_pmie_t ==============
 allow pcp_pmie_t hostname_exec_t:file { execute execute_no_trans getattr open read };
 allow pcp_pmie_t self:capability { chown kill net_admin };
-allow pcp_pmie_t init_t:system status;
+@PCP_PMIE_SYSTEM_STATUS_RULE@
 
 #============= pmda-lio ==============
 allow pcp_pmcd_t configfs_t:dir { open read search };
