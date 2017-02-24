@@ -6,4 +6,4 @@ Illegal character
 derived: Error: pmRegisterDerivedMetric("new.metric", ...) syntax error
 rat(disk.dev.read)
    ^
-Arithmetic operator expected
+Arithmetic or relational operator expected

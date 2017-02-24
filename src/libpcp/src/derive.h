@@ -89,6 +89,12 @@ typedef struct {
 #define L_RATE		16
 #define L_INSTANT	17
 #define L_DOUBLE	18
+#define L_LT		19
+#define L_LEQ		20
+#define L_EQ		21
+#define L_GEQ		22
+#define L_GT		23
+#define L_NEQ		24
 
 extern int __dmtraverse(__pmContext *, const char *, char ***) _PCP_HIDDEN;
 extern int __dmchildren(__pmContext *, const char *, char ***, int **) _PCP_HIDDEN;

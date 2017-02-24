@@ -436,7 +436,7 @@ parse(1) state=P_LEAF type=L_NAME "sample.long.ten"
 [TMP.config:2] Error: pmRegisterDerived(myname.b, ...) syntax error
  sample.long.one sample.long.ten
                  ^              
-Arithmetic operator expected
+Arithmetic or relational operator expected
 pmRegisterDerived: name="myname.c" expr="sample.long.one**sample.long.ten"
 parse(1) state=P_INIT type=L_NAME "sample.long.one"
 parse(1) state=P_LEAF type=L_STAR "*"
@@ -500,7 +500,7 @@ parse(1) state=P_INIT type=L_INTEGER "4294967296"
 Constant value too large
 pmRegisterDerived: name="myname.gcov.a" expr="foo = bar"
 parse(1) state=P_INIT type=L_NAME "foo"
-parse(1) state=P_LEAF type=L_ERROR "=oo"
+parse(1) state=P_LEAF type=L_ERROR "="
 [TMP.config:17] Error: pmRegisterDerived(myname.gcov.a, ...) syntax error
  foo = bar
      ^    
@@ -581,7 +581,7 @@ parse(1) state=P_LEAF type=L_LPAREN "("
 [TMP.config:27] Error: pmRegisterDerived(myname.bad.a, ...) syntax error
  rat(disk.dev.read)
     ^              
-Arithmetic operator expected
+Arithmetic or relational operator expected
 pmRegisterDerived: name="myname.bad.b" expr="*"
 parse(1) state=P_INIT type=L_STAR "*"
 [TMP.config:28] Error: pmRegisterDerived(myname.bad.b, ...) syntax error

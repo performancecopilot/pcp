@@ -1,5 +1,494 @@
 QA output created by 927
-metadata ...
+expression trees ...
+pmRegisterDerived: name="event.flags" expr="anon(PM_TYPE_U32)"
+parse(1) state=P_INIT type=L_ANON "anon("
+parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+Derived metric expr dump from <addr-0>...
+expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
+parse(1) state=P_INIT type=L_ANON "anon("
+parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric expr dump from <addr-2>...
+expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: name="qa_927.bin_2_5" expr="2 * sample.bin / 5"
+parse(1) state=P_INIT type=L_INTEGER "2"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.bin"
+parse(1) state=P_LEAF type=L_SLASH "/"
+parse(1) state=P_BINOP type=L_INTEGER "5"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[2] qa_927.bin_2_5 = 2 * sample.bin / 5
+Derived metric expr dump from <addr-4>...
+expr node <addr-4> type=STAR left=<addr-5> right=<addr-6> save_last=0
+expr node <addr-5> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=1
+expr node <addr-6> type=SLASH left=<addr-7> right=<addr-8> save_last=0
+expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+expr node <addr-8> type=INTEGER left=(nil) right=(nil) save_last=0 [5] master=1
+pmRegisterDerived: name="qa_927.bin_frac" expr="0.4 * sample.bin"
+parse(1) state=P_INIT type=L_DOUBLE "0.4"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_NAME "sample.bin"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[3] qa_927.bin_frac = 0.4 * sample.bin
+Derived metric expr dump from <addr-9>...
+expr node <addr-9> type=STAR left=<addr-10> right=<addr-11> save_last=0
+expr node <addr-10> type=DOUBLE left=(nil) right=(nil) save_last=0 [0.4] master=1
+expr node <addr-11> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+pmRegisterDerived: name="qa_927.bin_frac2" expr="sample.bin * .4"
+parse(1) state=P_INIT type=L_NAME "sample.bin"
+parse(1) state=P_LEAF type=L_STAR "*"
+parse(1) state=P_BINOP type=L_DOUBLE ".4"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[4] qa_927.bin_frac2 = sample.bin * .4
+Derived metric expr dump from <addr-12>...
+expr node <addr-12> type=STAR left=<addr-13> right=<addr-14> save_last=0
+expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=1
+expr node <addr-14> type=DOUBLE left=(nil) right=(nil) save_last=0 [.4] master=1
+pmRegisterDerived: name="qa_927.rel_lt" expr="sample.long.hundred < 101"
+parse(1) state=P_INIT type=L_NAME "sample.long.hundred"
+parse(1) state=P_LEAF type=L_LT "<"
+parse(1) state=P_BINOP type=L_INTEGER "101"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[5] qa_927.rel_lt = sample.long.hundred < 101
+Derived metric expr dump from <addr-15>...
+expr node <addr-15> type=LT left=<addr-16> right=<addr-17> save_last=0
+expr node <addr-16> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
+expr node <addr-17> type=INTEGER left=(nil) right=(nil) save_last=0 [101] master=1
+pmRegisterDerived: name="qa_927.rel_leq" expr="43 - (4 * 10 + (sample.ulonglong.hundred <= 100) + 1)"
+parse(1) state=P_INIT type=L_INTEGER "43"
+parse(1) state=P_LEAF type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_INTEGER "4"
+parse(2) state=P_LEAF type=L_STAR "*"
+parse(2) state=P_BINOP type=L_INTEGER "10"
+parse(2) state=P_LEAF type=L_PLUS "+"
+parse(2) state=P_BINOP type=L_LPAREN "("
+parse(3) state=P_INIT type=L_NAME "sample.ulonglong.hundred"
+parse(3) state=P_LEAF type=L_LEQ "<="
+parse(3) state=P_BINOP type=L_INTEGER "100"
+parse(3) state=P_LEAF type=L_RPAREN ")"
+parse(2) state=P_LEAF_PAREN type=L_PLUS "+"
+parse(2) state=P_BINOP type=L_INTEGER "1"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_EOF ""
+pmRegisterDerived: register metric[6] qa_927.rel_leq = 43 - (4 * 10 + (sample.ulonglong.hundred <= 100) + 1)
+Derived metric expr dump from <addr-18>...
+expr node <addr-18> type=MINUS left=<addr-19> right=<addr-20> save_last=0
+expr node <addr-19> type=INTEGER left=(nil) right=(nil) save_last=0 [43] master=1
+expr node <addr-20> type=PLUS left=<addr-21> right=<addr-28> save_last=0
+expr node <addr-21> type=PLUS left=<addr-22> right=<addr-25> save_last=0
+expr node <addr-22> type=STAR left=<addr-23> right=<addr-24> save_last=0
+expr node <addr-23> type=INTEGER left=(nil) right=(nil) save_last=0 [4] master=1
+expr node <addr-24> type=INTEGER left=(nil) right=(nil) save_last=0 [10] master=1
+expr node <addr-25> type=LEQ left=<addr-26> right=<addr-27> save_last=0
+expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=1
+expr node <addr-27> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=1
+expr node <addr-28> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=1
+pmRegisterDerived: name="qa_927.rel_neq" expr="instant(sample.seconds) != 0"
+parse(1) state=P_INIT type=L_INSTANT "instant("
+parse(1) state=P_FUNC_OP type=L_NAME "sample.seconds"
+parse(1) state=P_FUNC_END type=L_RPAREN ")"
+parse(1) state=P_LEAF type=L_NEQ "!="
+parse(1) state=P_BINOP type=L_INTEGER "0"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[7] qa_927.rel_neq = instant(sample.seconds) != 0
+Derived metric expr dump from <addr-29>...
+expr node <addr-29> type=NEQ left=<addr-30> right=<addr-32> save_last=0
+expr node <addr-30> type=INSTANT left=<addr-31> right=(nil) save_last=0
+expr node <addr-31> type=NAME left=(nil) right=(nil) save_last=1 [sample.seconds] master=1
+expr node <addr-32> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=1
+pmRegisterDerived: name="qa_927.rel_true" expr="(sample.long.hundred <= 100) + (sample.long.hundred >= 100) - (sample.long.hundred == 100)"
+parse(1) state=P_INIT type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "sample.long.hundred"
+parse(2) state=P_LEAF type=L_LEQ "<="
+parse(2) state=P_BINOP type=L_INTEGER "100"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "sample.long.hundred"
+parse(2) state=P_LEAF type=L_GEQ ">="
+parse(2) state=P_BINOP type=L_INTEGER "100"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_MINUS "-"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "sample.long.hundred"
+parse(2) state=P_LEAF type=L_EQ "=="
+parse(2) state=P_BINOP type=L_INTEGER "100"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_EOF ""
+pmRegisterDerived: register metric[8] qa_927.rel_true = (sample.long.hundred <= 100) + (sample.long.hundred >= 100) - (sample.long.hundred == 100)
+Derived metric expr dump from <addr-33>...
+expr node <addr-33> type=MINUS left=<addr-34> right=<addr-41> save_last=0
+expr node <addr-34> type=PLUS left=<addr-35> right=<addr-38> save_last=0
+expr node <addr-35> type=LEQ left=<addr-36> right=<addr-37> save_last=0
+expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
+expr node <addr-37> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=1
+expr node <addr-38> type=GEQ left=<addr-39> right=<addr-40> save_last=0
+expr node <addr-39> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
+expr node <addr-40> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=1
+expr node <addr-41> type=EQ left=<addr-42> right=<addr-43> save_last=0
+expr node <addr-42> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
+expr node <addr-43> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=1
+pmRegisterDerived: name="qa_927.rel_false" expr="(sample.long.hundred < 100) + (sample.long.hundred > 100) + (sample.long.hundred != 100)"
+parse(1) state=P_INIT type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "sample.long.hundred"
+parse(2) state=P_LEAF type=L_LT "<"
+parse(2) state=P_BINOP type=L_INTEGER "100"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "sample.long.hundred"
+parse(2) state=P_LEAF type=L_GT ">"
+parse(2) state=P_BINOP type=L_INTEGER "100"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_LPAREN "("
+parse(2) state=P_INIT type=L_NAME "sample.long.hundred"
+parse(2) state=P_LEAF type=L_NEQ "!="
+parse(2) state=P_BINOP type=L_INTEGER "100"
+parse(2) state=P_LEAF type=L_RPAREN ")"
+parse(1) state=P_LEAF_PAREN type=L_EOF ""
+pmRegisterDerived: register metric[9] qa_927.rel_false = (sample.long.hundred < 100) + (sample.long.hundred > 100) + (sample.long.hundred != 100)
+Derived metric expr dump from <addr-44>...
+expr node <addr-44> type=PLUS left=<addr-45> right=<addr-52> save_last=0
+expr node <addr-45> type=PLUS left=<addr-46> right=<addr-49> save_last=0
+expr node <addr-46> type=LT left=<addr-47> right=<addr-48> save_last=0
+expr node <addr-47> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
+expr node <addr-48> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=1
+expr node <addr-49> type=GT left=<addr-50> right=<addr-51> save_last=0
+expr node <addr-50> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
+expr node <addr-51> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=1
+expr node <addr-52> type=NEQ left=<addr-53> right=<addr-54> save_last=0
+expr node <addr-53> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
+expr node <addr-54> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=1
+pmRegisterDerived: name="qa_927.rel_eq" expr="sample.long.hundred + sample.float.million == sample.double.million + sample.ulonglong.hundred"
+parse(1) state=P_INIT type=L_NAME "sample.long.hundred"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.float.million"
+parse(1) state=P_LEAF type=L_EQ "=="
+parse(1) state=P_BINOP type=L_NAME "sample.double.million"
+parse(1) state=P_LEAF type=L_PLUS "+"
+parse(1) state=P_BINOP type=L_NAME "sample.ulonglong.hundred"
+parse(1) state=P_LEAF type=L_EOF ""
+pmRegisterDerived: register metric[10] qa_927.rel_eq = sample.long.hundred + sample.float.million == sample.double.million + sample.ulonglong.hundred
+Derived metric expr dump from <addr-55>...
+expr node <addr-55> type=EQ left=<addr-56> right=<addr-59> save_last=0
+expr node <addr-56> type=PLUS left=<addr-57> right=<addr-58> save_last=0
+expr node <addr-57> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
+expr node <addr-58> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.million] master=1
+expr node <addr-59> type=PLUS left=<addr-60> right=<addr-61> save_last=0
+expr node <addr-60> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.million] master=1
+expr node <addr-61> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=1
+__dmopencontext(->ctx 0) called
+__dmopencontext: bind metric[0] event.flags
+Derived metric expr dump from <addr-62>...
+expr node <addr-62> type=ANON left=<addr-63> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-63> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmopencontext: bind metric[1] event.missed
+Derived metric expr dump from <addr-64>...
+expr node <addr-64> type=ANON left=<addr-65> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-65> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmgetpmid: metric "qa_927.bin_2_5" -> PMID 511.0.3
+__dmopencontext: bind metric[2] qa_927.bin_2_5
+Derived metric expr dump from <addr-66>...
+expr node <addr-66> type=STAR left=<addr-67> right=<addr-68> save_last=0
+    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-67> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-68> type=SLASH left=<addr-69> right=<addr-70> save_last=0
+    PMID: PM_ID_NULL (29.0.6 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-69> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-70> type=INTEGER left=(nil) right=(nil) save_last=0 [5] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmgetpmid: metric "qa_927.bin_frac" -> PMID 511.0.4
+__dmopencontext: bind metric[3] qa_927.bin_frac
+Derived metric expr dump from <addr-71>...
+expr node <addr-71> type=STAR left=<addr-72> right=<addr-73> save_last=0
+    PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-72> type=DOUBLE left=(nil) right=(nil) save_last=0 [0.4] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-73> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+__dmgetpmid: metric "qa_927.bin_frac2" -> PMID 511.0.5
+__dmopencontext: bind metric[4] qa_927.bin_frac2
+Derived metric expr dump from <addr-74>...
+expr node <addr-74> type=STAR left=<addr-75> right=<addr-76> save_last=0
+    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-75> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] master=0
+    PMID: 29.0.6 (29.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+expr node <addr-76> type=DOUBLE left=(nil) right=(nil) save_last=0 [.4] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmgetpmid: metric "qa_927.rel_lt" -> PMID 511.0.6
+__dmopencontext: bind metric[5] qa_927.rel_lt
+Derived metric expr dump from <addr-77>...
+expr node <addr-77> type=LT left=<addr-78> right=<addr-79> save_last=0
+    PMID: PM_ID_NULL (511.0.6 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-78> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=0
+    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-79> type=INTEGER left=(nil) right=(nil) save_last=0 [101] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmgetpmid: metric "qa_927.rel_leq" -> PMID 511.0.7
+__dmopencontext: bind metric[6] qa_927.rel_leq
+Derived metric expr dump from <addr-80>...
+expr node <addr-80> type=MINUS left=<addr-81> right=<addr-82> save_last=0
+    PMID: PM_ID_NULL (511.0.7 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-81> type=INTEGER left=(nil) right=(nil) save_last=0 [43] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-82> type=PLUS left=<addr-83> right=<addr-90> save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-83> type=PLUS left=<addr-84> right=<addr-87> save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-84> type=STAR left=<addr-85> right=<addr-86> save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-85> type=INTEGER left=(nil) right=(nil) save_last=0 [4] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-86> type=INTEGER left=(nil) right=(nil) save_last=0 [10] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-87> type=LEQ left=<addr-88> right=<addr-89> save_last=0
+    PMID: PM_ID_NULL (29.0.100 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-88> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+    PMID: 29.0.100 (29.0.100 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-89> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-90> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmgetpmid: metric "qa_927.rel_neq" -> PMID 511.0.8
+__dmopencontext: bind metric[7] qa_927.rel_neq
+Derived metric expr dump from <addr-91>...
+expr node <addr-91> type=NEQ left=<addr-92> right=<addr-94> save_last=0
+    PMID: PM_ID_NULL (511.0.8 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+expr node <addr-92> type=INSTANT left=<addr-93> right=(nil) save_last=0
+    PMID: PM_ID_NULL (29.0.2 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+expr node <addr-93> type=NAME left=(nil) right=(nil) save_last=1 [sample.seconds] master=0
+    PMID: 29.0.2 (29.0.2 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+expr node <addr-94> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmgetpmid: metric "qa_927.rel_true" -> PMID 511.0.9
+__dmopencontext: bind metric[8] qa_927.rel_true
+Derived metric expr dump from <addr-95>...
+expr node <addr-95> type=MINUS left=<addr-96> right=<addr-103> save_last=0
+    PMID: PM_ID_NULL (511.0.9 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-96> type=PLUS left=<addr-97> right=<addr-100> save_last=0
+    PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-97> type=LEQ left=<addr-98> right=<addr-99> save_last=0
+    PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-98> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=0
+    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-99> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-100> type=GEQ left=<addr-101> right=<addr-102> save_last=0
+    PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-101> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=0
+    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-102> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-103> type=EQ left=<addr-104> right=<addr-105> save_last=0
+    PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-104> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=0
+    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-105> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmgetpmid: metric "qa_927.rel_false" -> PMID 511.0.10
+__dmopencontext: bind metric[9] qa_927.rel_false
+Derived metric expr dump from <addr-106>...
+expr node <addr-106> type=PLUS left=<addr-107> right=<addr-114> save_last=0
+    PMID: PM_ID_NULL (511.0.10 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-107> type=PLUS left=<addr-108> right=<addr-111> save_last=0
+    PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-108> type=LT left=<addr-109> right=<addr-110> save_last=0
+    PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-109> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=0
+    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-110> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-111> type=GT left=<addr-112> right=<addr-113> save_last=0
+    PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-112> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=0
+    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-113> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-114> type=NEQ left=<addr-115> right=<addr-116> save_last=0
+    PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-115> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=0
+    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-116> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmgetpmid: metric "qa_927.rel_eq" -> PMID 511.0.11
+__dmopencontext: bind metric[10] qa_927.rel_eq
+Derived metric expr dump from <addr-117>...
+expr node <addr-117> type=EQ left=<addr-118> right=<addr-121> save_last=0
+    PMID: PM_ID_NULL (511.0.11 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-118> type=PLUS left=<addr-119> right=<addr-120> save_last=0
+    PMID: PM_ID_NULL (29.0.12 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-119> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=0
+    PMID: 29.0.12 (29.0.12 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-120> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.million] master=0
+    PMID: 29.0.18 (29.0.18 from pmDesc) numval: 0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-121> type=PLUS left=<addr-122> right=<addr-123> save_last=0
+    PMID: PM_ID_NULL (29.0.28 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-122> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.million] master=0
+    PMID: 29.0.28 (29.0.28 from pmDesc) numval: 0
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+expr node <addr-123> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=0
+    PMID: 29.0.100 (29.0.100 from pmDesc) numval: 0
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+__dmtraverse: name="qa_927" added "qa_927.bin_2_5"
+__dmtraverse: name="qa_927" added "qa_927.bin_frac"
+__dmtraverse: name="qa_927" added "qa_927.bin_frac2"
+__dmtraverse: name="qa_927" added "qa_927.rel_lt"
+__dmtraverse: name="qa_927" added "qa_927.rel_leq"
+__dmtraverse: name="qa_927" added "qa_927.rel_neq"
+__dmtraverse: name="qa_927" added "qa_927.rel_true"
+__dmtraverse: name="qa_927" added "qa_927.rel_false"
+__dmtraverse: name="qa_927" added "qa_927.rel_eq"
+__dmgetpmid: metric "qa_927.bin_2_5" -> PMID 511.0.3
+__dmgetpmid: metric "qa_927.bin_frac" -> PMID 511.0.4
+__dmgetpmid: metric "qa_927.bin_frac2" -> PMID 511.0.5
+__dmgetpmid: metric "qa_927.rel_lt" -> PMID 511.0.6
+__dmgetpmid: metric "qa_927.rel_leq" -> PMID 511.0.7
+__dmgetpmid: metric "qa_927.rel_neq" -> PMID 511.0.8
+__dmgetpmid: metric "qa_927.rel_true" -> PMID 511.0.9
+__dmgetpmid: metric "qa_927.rel_false" -> PMID 511.0.10
+__dmgetpmid: metric "qa_927.rel_eq" -> PMID 511.0.11
+
+live metadata ...
 
 qa_927.bin_2_5
     Data Type: double  InDom: 29.2 0x7400002
@@ -13,7 +502,31 @@ qa_927.bin_frac2
     Data Type: double  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 
-values ...
+qa_927.rel_lt
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa_927.rel_leq
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa_927.rel_neq
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+
+qa_927.rel_true
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa_927.rel_false
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa_927.rel_eq
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+live values ...
 
 qa_927.bin_2_5
     inst [100 or "bin-100"] value 40
@@ -47,3 +560,164 @@ qa_927.bin_frac2
     inst [700 or "bin-700"] value 280
     inst [800 or "bin-800"] value 320
     inst [900 or "bin-900"] value 360
+
+qa_927.rel_lt
+    value 1
+
+qa_927.rel_leq
+    value 1
+
+qa_927.rel_neq
+    value 1
+
+qa_927.rel_true
+    value 1
+
+qa_927.rel_false
+    value 0
+
+qa_927.rel_eq
+    value 1
+
+archive metadata ...
+
+sample.bin
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+sample.dupnames.two.bin
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+sample.dupnames.three.bin
+    Data Type: 32-bit int  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+sample.long.hundred
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+sample.float.million
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+sample.double.million
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+sample.ulonglong.hundred
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+pmcd.pmlogger.archive
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+
+pmcd.pmlogger.port
+    Data Type: 32-bit unsigned int  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+
+pmcd.pmlogger.host
+    Data Type: string  InDom: 2.1 0x800001
+    Semantics: discrete  Units: none
+
+event.flags
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+event.missed
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+---
+
+qa_927.bin_2_5
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa_927.bin_frac
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa_927.bin_frac2
+    Data Type: double  InDom: 29.2 0x7400002
+    Semantics: instant  Units: none
+
+qa_927.rel_lt
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa_927.rel_leq
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa_927.rel_true
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa_927.rel_false
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+qa_927.rel_eq
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+archive values ...
+
+qa_927.bin_2_5
+    inst [100 or "bin-100"] value 40
+    inst [200 or "bin-200"] value 80
+    inst [300 or "bin-300"] value 120
+    inst [400 or "bin-400"] value 160
+    inst [500 or "bin-500"] value 200
+    inst [600 or "bin-600"] value 240
+    inst [700 or "bin-700"] value 280
+    inst [800 or "bin-800"] value 320
+    inst [900 or "bin-900"] value 360
+
+qa_927.bin_frac
+    inst [100 or "bin-100"] value 40
+    inst [200 or "bin-200"] value 80
+    inst [300 or "bin-300"] value 120
+    inst [400 or "bin-400"] value 160
+    inst [500 or "bin-500"] value 200
+    inst [600 or "bin-600"] value 240
+    inst [700 or "bin-700"] value 280
+    inst [800 or "bin-800"] value 320
+    inst [900 or "bin-900"] value 360
+
+qa_927.bin_frac2
+    inst [100 or "bin-100"] value 40
+    inst [200 or "bin-200"] value 80
+    inst [300 or "bin-300"] value 120
+    inst [400 or "bin-400"] value 160
+    inst [500 or "bin-500"] value 200
+    inst [600 or "bin-600"] value 240
+    inst [700 or "bin-700"] value 280
+    inst [800 or "bin-800"] value 320
+    inst [900 or "bin-900"] value 360
+
+qa_927.rel_lt
+    value 1
+
+qa_927.rel_leq
+    value 1
+
+qa_927.rel_neq
+    value 1
+
+qa_927.rel_true
+    value 1
+
+qa_927.rel_false
+    value 0
+
+qa_927.rel_eq
+    value 1
+
+error cases ...
+[TMP.config:1] Error: pmRegisterDerived(qa_927.bad_neq, ...) syntax error
+ sample.seconds !& 0
+                ^   
+Illegal character
+Error: qa_927: Unknown metric name

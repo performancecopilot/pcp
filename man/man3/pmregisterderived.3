@@ -34,7 +34,7 @@ cc ... \-lpcp
 .PP
 Derived metrics provide a way of extending the Performance Metrics
 Name Space (PMNS) with new metrics defined at the PCP client-side using
-arithmetic expressions over the existing performance metrics.
+expressions over the existing performance metrics.
 .PP
 Typical uses would be to aggregate a number of similar metrics to provide
 a higher-level summary metric or to support the ``delta V over delta V''
@@ -60,7 +60,7 @@ are the
 .I name
 of the new derived metric and
 .I expr
-is an arithmetic expression defining how the values of
+is an expression defining how the values of
 .I name
 should be computed.
 .PP
@@ -74,17 +74,20 @@ parameter.
 .PP
 Syntactic checking is performed at the time
 .B pmRegisterDerived
-is called, but semantic checking is deferred until each new context
+is called, but semantic checking is deferred until each new PMAPI context
 is created with
 .BR pmNewContext (3)
 or re-established with
 .BR pmReconnectContext (3),
 at which time the PMNS and metadata is available to
 allow semantic checking and the metadata of the derived metrics
-to be established.
+to be fetched.
 This means
 .B pmRegisterDerived
-does not apply retrospectively to any open contexts, so the normal
+does not apply retrospectively to any open PMAPI contexts, nor
+to any PMAPI contexts already open at the time
+.B pmRegisterDerived
+is called, so the normal
 use would be to make all calls to
 .B pmRegisterDerived
 (possibly via
@@ -149,7 +152,32 @@ is evaluated as
 .ft CW
 a+(b*c)\c
 .ft R
-.
+\&.
+.IP * 2n
+C-style relational operators are supported, namely \- ``<'', ``<='', ``=='',
+\&``>='', ``>'' and ``!=''.
+Relational expresssions return a value as a 32-bit unsigned number being
+0 for false and 1 for true.
+The expected operator precedence rules 
+apply, so arithmetic operators have higher precence that relational operators,
+and
+.ft CW
+a-b>c+d
+.ft R
+is evaluated as
+.ft CW
+(a-b)>(c+d)\c
+.ft R
+\&.
+All the relational operators have equal precedence, so the (slightly odd)
+expression involving consecutive relational operators
+.ft CW
+a>b!=c
+.ft R
+is evaluated as
+.ft CW
+(a>b)!=c\c
+\&.
 .IP * 2n
 Parenthesis may be used for grouping.
 .IP * 2n
@@ -168,7 +196,7 @@ instant()\c
 double).
 .TS
 box,center;
-cf(R) | cf(R)w(5i)
+cf(R) | cf(R)w(4.5i)
 lf(CW) | lf(R).
 Function	Value
 _
@@ -248,10 +276,32 @@ There are a number of conversions required to determine the
 metadata for a derived metric and to ensure the semantics of
 the expressions are sound.
 .PP
-In a binary expression, if the semantics of both operands is not
+In an arithmetic expression or a relational expression, if the semantics of both operands is not
 a counter (i.e. PM_SEM_INSTANT or PM_SEM_DISCRETE) then the result
 will have semantics PM_SEM_INSTANT unless both operands are
 PM_SEM_DISCRETE in which case the result is also PM_SEM_DISCRETE.
+.PP
+For an arithmetic expression, the dimension of each operand must be the same.
+For a relational expression, the dimension of each operand must be the same,
+except that numeric constants (with no dimension) are allowed, e.g. in the expression
+.ft CW
+network.interface.in.drops > 0
+.ft R
+\&.
+.PP
+To prevent arbitrary and non-sensical combinations
+some restrictions apply to expressions that combine metrics with
+counter semantics to produce a result with counter semantics.
+For an arithmetic expression, if both operands have the semantics of
+a counter, then only addition or subraction is allowed, or if the
+left operand is a counter and the right operand is not, then only
+multiplication or division are allowed, or if the left operand is
+not a counter and the right operand is a counter, then only multiplication
+is allowed.
+.PP
+Because relational expressions use the current value only and produce
+a result that is not a counter, either or both operands of a relational expression
+may be counters.
 .PP
 The mapping of the pmUnits of the metadata uses the following rules:
 .IP * 2n
@@ -318,8 +368,12 @@ x	DOUBLE	Mbyte/sec
 .PP
 Because semantic checking cannot be done at the time
 .B pmRegisterDerived
-is called, errors found during semantic checking are reported
-using
+is called, errors found during semantic checking (when
+any subsequent calls to
+.B pmNewContext (3)
+or
+.B pmReconnectContext (3)
+succeed) are reported using
 .BR pmprintf (3).
 These include:
 .TP
@@ -483,6 +537,7 @@ to release the space allocated for
 .BR pmDerivedErrStr (3),
 .BR pmFetch (3),
 .BR pmLoadDerivedConfig (3),
-.BR pmNewContext (3)
+.BR pmNewContext (3),
+.BR pmprintf (3)
 and
 .BR pmReconnectContext (3).

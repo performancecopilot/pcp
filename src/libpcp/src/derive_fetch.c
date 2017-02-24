@@ -368,7 +368,7 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
     }
 
     /*
-     * Do the aritmetic ... messy!
+     * Do the operators ... messy!
      */
     switch (type) {
 	case PM_TYPE_32:
@@ -383,6 +383,24 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		    res.l = l.l * r.l;
 		    break;
 		/* semantics enforce no L_SLASH for integer results */
+		case L_LT:
+		    res.l = l.l < r.l;
+		    break;
+		case L_LEQ:
+		    res.l = l.l <= r.l;
+		    break;
+		case L_EQ:
+		    res.l = l.l == r.l;
+		    break;
+		case L_GEQ:
+		    res.l = l.l >= r.l;
+		    break;
+		case L_GT:
+		    res.l = l.l > r.l;
+		    break;
+		case L_NEQ:
+		    res.l = l.l != r.l;
+		    break;
 	    }
 	    break;
 	case PM_TYPE_U32:
@@ -397,6 +415,24 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		    res.ul = l.ul * r.ul;
 		    break;
 		/* semantics enforce no L_SLASH for integer results */
+		case L_LT:
+		    res.ul = l.ul < r.ul;
+		    break;
+		case L_LEQ:
+		    res.ul = l.ul <= r.ul;
+		    break;
+		case L_EQ:
+		    res.ul = l.ul == r.ul;
+		    break;
+		case L_GEQ:
+		    res.ul = l.ul >= r.ul;
+		    break;
+		case L_GT:
+		    res.ul = l.ul > r.ul;
+		    break;
+		case L_NEQ:
+		    res.ul = l.ul != r.ul;
+		    break;
 	    }
 	    break;
 	case PM_TYPE_64:
@@ -411,6 +447,24 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		    res.ll = l.ll * r.ll;
 		    break;
 		/* semantics enforce no L_SLASH for integer results */
+		case L_LT:
+		    res.ll = l.ll < r.ll;
+		    break;
+		case L_LEQ:
+		    res.ll = l.ll <= r.ll;
+		    break;
+		case L_EQ:
+		    res.ll = l.ll == r.ll;
+		    break;
+		case L_GEQ:
+		    res.ll = l.ll >= r.ll;
+		    break;
+		case L_GT:
+		    res.ll = l.ll > r.ll;
+		    break;
+		case L_NEQ:
+		    res.ll = l.ll != r.ll;
+		    break;
 	    }
 	    break;
 	case PM_TYPE_U64:
@@ -425,6 +479,24 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		    res.ull = l.ull * r.ull;
 		    break;
 		/* semantics enforce no L_SLASH for integer results */
+		case L_LT:
+		    res.ull = l.ull < r.ull;
+		    break;
+		case L_LEQ:
+		    res.ull = l.ull <= r.ull;
+		    break;
+		case L_EQ:
+		    res.ull = l.ull == r.ull;
+		    break;
+		case L_GEQ:
+		    res.ull = l.ull >= r.ull;
+		    break;
+		case L_GT:
+		    res.ull = l.ull > r.ull;
+		    break;
+		case L_NEQ:
+		    res.ull = l.ull != r.ull;
+		    break;
 	    }
 	    break;
 	case PM_TYPE_FLOAT:
@@ -439,6 +511,24 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		    res.f = l.f * r.f;
 		    break;
 		/* semantics enforce no L_SLASH for float results */
+		case L_LT:
+		    res.f = l.f < r.f;
+		    break;
+		case L_LEQ:
+		    res.f = l.f <= r.f;
+		    break;
+		case L_EQ:
+		    res.f = l.f == r.f;
+		    break;
+		case L_GEQ:
+		    res.f = l.f >= r.f;
+		    break;
+		case L_GT:
+		    res.f = l.f > r.f;
+		    break;
+		case L_NEQ:
+		    res.f = l.f != r.f;
+		    break;
 	    }
 	    break;
 	case PM_TYPE_DOUBLE:
@@ -457,6 +547,24 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 			res.d = 0;
 		    else
 			res.d = l.d / r.d;
+		    break;
+		case L_LT:
+		    res.d = l.d < r.d;
+		    break;
+		case L_LEQ:
+		    res.d = l.d <= r.d;
+		    break;
+		case L_EQ:
+		    res.d = l.d == r.d;
+		    break;
+		case L_GEQ:
+		    res.d = l.d >= r.d;
+		    break;
+		case L_GT:
+		    res.d = l.d > r.d;
+		    break;
+		case L_NEQ:
+		    res.d = l.d != r.d;
 		    break;
 	    }
 	    break;

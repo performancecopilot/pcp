@@ -1,7 +1,6 @@
-#!/bin/sh
-# PCP QA Test No. 927
 # New derived metric features:
 # - floating point constants
+# - relational operators
 #
 # Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
 #
@@ -24,6 +23,33 @@ status=1	# failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# Derived metric expr dump from 0x8513a48...
+# expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
+_filter()
+{
+    cat $tmp.out >>$here/$seq.full
+    awk <$tmp.out >$tmp.sed '
+BEGIN				{ n = 0 }
+$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
+				{ next }'
+    echo "=== sed ===" >>$here/$seq.full
+    cat $tmp.sed >>$here/$seq.full
+    sed -f $tmp.sed <$tmp.out \
+    | sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+	-e 's/=0x0 /=(nil) /g' \
+	-e "s;$tmp;TMP;"
+# -e 's/ val=[0-9][0-9]*/ val=<number>/g'
+}
+
+_filter2()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+	-e '/^event\./d' \
+    # end
+}
+
 export PCP_DERIVED_CONFIG=$tmp.config
 
 # real QA test starts here
@@ -31,14 +57,56 @@ cat <<End-of-File >$tmp.config
 qa_$seq.bin_2_5 = 2 * sample.bin / 5
 qa_$seq.bin_frac = 0.4 * sample.bin
 qa_$seq.bin_frac2 = sample.bin * .4
+qa_$seq.rel_lt = sample.long.hundred < 101
+qa_$seq.rel_leq = 43 - (4 * 10 + (sample.ulonglong.hundred <= 100) + 1)
+qa_$seq.rel_neq = instant(sample.seconds) != 0
+qa_$seq.rel_true = (sample.long.hundred <= 100) + (sample.long.hundred >= 100) - (sample.long.hundred == 100)
+qa_$seq.rel_false = (sample.long.hundred < 100) + (sample.long.hundred > 100) + (sample.long.hundred != 100)
+qa_$seq.rel_eq = sample.long.hundred + sample.float.million == sample.double.million + sample.ulonglong.hundred
 End-of-File
 
-echo "metadata ..."
+echo "expression trees ..."
+pminfo -v -Dderive,appl0,appl1 qa_$seq >$tmp.out 2>&1
+_filter
+
+echo
+echo "live metadata ..."
 pminfo -d qa_$seq
 
 echo
-echo "values ..."
+echo "live values ..."
 pminfo -f qa_$seq
+
+cat <<End-of-File >$tmp.logger.config
+log mandatory on 500 msec {
+    # need all the metrics in the derived metric expressions above
+    sample.bin
+    sample.long.hundred
+    sample.ulonglong.hundred
+    sample.float.million
+    sample.double.million
+}
+End-of-File
+
+pmlogger -T +1.5sec -c $tmp.logger.config -l $tmp.logger.log $tmp
+cat $tmp.logger.log >>$here/$seq.full
+
+echo
+echo "archive metadata ..."
+PCP_DERIVED_CONFIG= pminfo -d -a $tmp
+echo "---"
+pminfo -d -a $tmp qa_$seq
+
+echo
+echo "archive values ..."
+pminfo -f qa_$seq
+
+echo
+echo "error cases ..."
+cat <<End-of-File >$tmp.config
+qa_$seq.bad_neq = sample.seconds !& 0
+End-of-File
+pminfo -f 2>&1 qa_$seq | _filter2
 
 # success, all done
 status=0
