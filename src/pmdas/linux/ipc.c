@@ -197,9 +197,6 @@ refresh_shm_stat(pmInDom shm_indom)
 	    if (sts < 0) {
 		fprintf(stderr, "Warning: %s: pmdaCacheStore(%s, %s): %s\n",
 			__FUNCTION__, shmid, shm_stat->shm_key, pmErrStr(sts));
-		free(shm_stat->shm_key);
-		free(shm_stat->shm_owner);
-		free(shm_stat->shm_status);
 		free(shm_stat);
 	    }	
 	}
@@ -266,8 +263,6 @@ refresh_msg_que(pmInDom msg_indom)
 	    if (sts < 0) {
 		fprintf(stderr, "Warning: %s: pmdaCacheStore(%s, %s): %s\n",
 			__FUNCTION__, msgid, msg_que->msg_key, pmErrStr(sts));
-		free(msg_que->msg_key);
-		free(msg_que->msg_owner);
 		free(msg_que);
 	    }	
 	}
@@ -336,8 +331,6 @@ refresh_sem_array(pmInDom sem_indom)
 	    if (sts < 0) {
 		fprintf(stderr, "Warning: %s: pmdaCacheStore(%s, %s): %s\n",
 			__FUNCTION__, semid, sem_arr->sem_key, pmErrStr(sts));
-		free(sem_arr->sem_key);
-		free(sem_arr->sem_owner);
 		free(sem_arr);
 	    }
 	}

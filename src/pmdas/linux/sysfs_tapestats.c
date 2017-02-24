@@ -81,7 +81,7 @@ refresh_sysfs_tapestats(pmInDom tape_indom)
 		return sts;
 	    }
 	    memset(device, 0, sizeof(tapedev_t));
-	    strncpy(device->devname, sysdev, sizeof(device->devname));
+	    strncpy(device->devname, sysdev, sizeof(device->devname) - 1);
 #if PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_LIBPMDA)
 		fprintf(stderr, "refresh_sysfs_tapestats: added new tape device \"%s\"\n", sysdev);

@@ -189,6 +189,7 @@ pmda.mpi
 pmda.named
 pmda.netfilter
 pmda.news
+pmda.nutcracker
 pmda.nvidia
 pmda.oracle
 pmda.papi
@@ -197,6 +198,7 @@ pmda.pmcd
 pmda.postfix
 pmda.postgresql
 pmda.proc
+pmda.redis
 pmda.root
 pmda.rsyslog
 pmda.sample
@@ -1160,6 +1162,7 @@ oldversion
 909 libpcp pmns local
 910 pmda.linux pmval local
 911 pmda.linux local
+912 pmda.nutcracker local
 913 pmda.redis local
 914 pmda.papi local
 915 pmcd pmlogger pmproxy libpcp local pmlc
