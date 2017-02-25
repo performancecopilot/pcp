@@ -104,10 +104,10 @@ pcp_hosts = {
 #        }
 }
 
-okToUseOSX=false
+
 EXPECTED_PLATFORM="darwin"
-platformOkToUseOSX=RUBY_PLATFORM.include?(EXPECTED_PLATFORM)
 EXPECTED_ACK_FILE="provisioning/osxsierra.legally.ok"
+platformOkToUseOSX=RUBY_PLATFORM.include?(EXPECTED_PLATFORM)
 eulaAcknowledged = File.exists?(EXPECTED_ACK_FILE)
 okToUseOSX = platformOkToUseOSX && eulaAcknowledged
 
@@ -118,6 +118,11 @@ if(okToUseOSX)
 					:hostname => "osxSierra",
 					:ipaddress => "10.100.10.60",
 					# https://github.com/AndrewDryga/vagrant-box-osx
+					# TODO - this base image takes flipping ages to provision
+					# due to PCP dependencies that need to be built by
+					# Homebrew (eg. qt5, gettext)
+					# it would be better to have a base image based off this
+					# box that has these pre-installed
 					:box => "http://files.dryga.com/boxes/osx-sierra-0.3.1.box",
 					:script => "osxsierra.sh"
 	}
@@ -128,7 +133,6 @@ elsif(!eulaAcknowledged)
 else
 	abort("Really don't know why, but you're not allowed.. #{platformOkToUseOSX}:#{eulaAcknowledged}")
 end
-
 ############################################################
 # Common Config Setup, hostnames, etc
 # So VMs could talk to each other if we wanted
