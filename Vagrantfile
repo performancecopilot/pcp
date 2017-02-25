@@ -25,7 +25,9 @@ pcp_hosts = {
 								:ipaddress => "10.100.10.60",
 								# https://github.com/AndrewDryga/vagrant-box-osx
 								:box => "http://files.dryga.com/boxes/osx-sierra-0.3.1.box",
-								:script => "osxsierra.sh"
+								:script => "osxsierra.sh",
+								:requireEULA => true,
+								:checkPlatform => "darwinBoobs"
 				},
         :ubuntu1204 => {
                 :hostname => "ubuntu1204",
@@ -152,6 +154,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
 
   pcp_hosts.each_pair do |name, options|
     global_config.vm.define name do |config|
+
+			checkPlatform = options[:checkPlatform]
+			if checkPlatform && !RUBY_PLATFORM.include?(checkPlatform)
+				abort("'#{name}' requires the underlying hardware to contain' #{checkPlatform}' but detected #{RUBY_PLATFORM}. You are not allowed to run this." )
+			end
+			 EXPECTED_ACK="provisioning/#{name}.legally.ok"
+			 if options[:requireEULA] && !File.exists?(EXPECTED_ACK)
+				 abort("'#{name}' requires acknowledgment that you are legally allowed to execute this. Please run:\ntouch #{EXPECTED_ACK}\nto acknowledge.")
+			 end
 
        config.vm.provider "virtualbox" do |v|
           v.name = "Vagrant PCP - #{name}"
