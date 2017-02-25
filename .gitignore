@@ -39,7 +39,6 @@ Makefile
 VERSION.pcp.daily
 .vagrant
 qaresults
-<<<<<<< HEAD
 GPATH
 GRTAGS
 GTAGS
