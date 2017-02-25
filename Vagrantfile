@@ -20,15 +20,6 @@ QA_FLAGS = ""
 ############################################################
 
 pcp_hosts = {
-				:osxsierra => {
-								:hostname => "osxSierra",
-								:ipaddress => "10.100.10.60",
-								# https://github.com/AndrewDryga/vagrant-box-osx
-								:box => "http://files.dryga.com/boxes/osx-sierra-0.3.1.box",
-								:script => "osxsierra.sh",
-								:requireEULA => true,
-								:checkPlatform => "darwinBoobs"
-				},
         :ubuntu1204 => {
                 :hostname => "ubuntu1204",
                 :ipaddress => "10.100.10.10",
@@ -113,6 +104,31 @@ pcp_hosts = {
 #        }
 }
 
+okToUseOSX=false
+EXPECTED_PLATFORM="darwin"
+platformOkToUseOSX=RUBY_PLATFORM.include?(EXPECTED_PLATFORM)
+EXPECTED_ACK_FILE="provisioning/osxsierra.legally.ok"
+eulaAcknowledged = File.exists?(EXPECTED_ACK_FILE)
+okToUseOSX = platformOkToUseOSX && eulaAcknowledged
+
+# Only allowed to use oxssierra image if the underlying platform
+# is a Mac and that the user has checked
+if(okToUseOSX)
+	pcp_hosts[:osxsierra]={
+					:hostname => "osxSierra",
+					:ipaddress => "10.100.10.60",
+					# https://github.com/AndrewDryga/vagrant-box-osx
+					:box => "http://files.dryga.com/boxes/osx-sierra-0.3.1.box",
+					:script => "osxsierra.sh"
+	}
+elsif(!platformOkToUseOSX)
+	abort("'osxsierra' requires the underlying hardware/platform string to contain '#{EXPECTED_PLATFORM}' but detected #{RUBY_PLATFORM}. You are therefore not allowed to run this." )
+elsif(!eulaAcknowledged)
+	abort("'osxsierra`' requires acknowledgment that you are legally allowed to execute this.\nYou may want to read http://images.apple.com/legal/sla/docs/macOS1012.pdf\nTo acknowledge you have understood this, please run:\ntouch #{EXPECTED_ACK_FILE}\n")
+else
+	abort("Really don't know why, but you're not allowed.. #{platformOkToUseOSX}:#{eulaAcknowledged}")
+end
+
 ############################################################
 # Common Config Setup, hostnames, etc
 # So VMs could talk to each other if we wanted
@@ -154,15 +170,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
 
   pcp_hosts.each_pair do |name, options|
     global_config.vm.define name do |config|
-
-			checkPlatform = options[:checkPlatform]
-			if checkPlatform && !RUBY_PLATFORM.include?(checkPlatform)
-				abort("'#{name}' requires the underlying hardware to contain' #{checkPlatform}' but detected #{RUBY_PLATFORM}. You are not allowed to run this." )
-			end
-			 EXPECTED_ACK="provisioning/#{name}.legally.ok"
-			 if options[:requireEULA] && !File.exists?(EXPECTED_ACK)
-				 abort("'#{name}' requires acknowledgment that you are legally allowed to execute this. Please run:\ntouch #{EXPECTED_ACK}\nto acknowledge.")
-			 end
 
        config.vm.provider "virtualbox" do |v|
           v.name = "Vagrant PCP - #{name}"
