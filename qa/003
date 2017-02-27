@@ -89,9 +89,13 @@ linux_filter()
 	-e "/mem\.util\.highFree: $unavailable/d" \
 	-e "/mem\.util\.highTotal: $unavailable/d" \
 	-e "/mem\.util\.hugepagesFree: $unavailable/d" \
+	-e "/mem\.util\.hugepagesFreeBytes: $unavailable/d" \
 	-e "/mem\.util\.hugepagesRsvd: $unavailable/d" \
+	-e "/mem\.util\.hugepagesRsvdBytes: $unavailable/d" \
 	-e "/mem\.util\.hugepagesSurp: $unavailable/d" \
+	-e "/mem\.util\.hugepagesSurpBytes: $unavailable/d" \
 	-e "/mem\.util\.hugepagesTotal: $unavailable/d" \
+	-e "/mem\.util\.hugepagesTotalBytes: $unavailable/d" \
 	-e "/mem\.util\.inactive_anon: $unavailable/d" \
 	-e "/mem\.util\.inactive_file: $unavailable/d" \
 	-e "/mem\.util\.kernelStack: $unavailable/d" \

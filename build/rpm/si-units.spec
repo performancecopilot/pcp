@@ -1,6 +1,6 @@
 Summary: International System of Units (JSR 363)
 Name: si-units
-Version: 0.6
+Version: 0.6.2
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -18,9 +18,9 @@ BuildRequires: maven-install-plugin
 BuildRequires: maven-license-plugin
 BuildRequires: maven-dependency-plugin
 BuildRequires: mvn(org.jacoco:jacoco-maven-plugin)
-BuildRequires: mvn(tec.units:unit-ri)
-BuildRequires: mvn(tec.uom:uom-parent:pom:)
 BuildRequires: mvn(javax.measure:unit-api)
+BuildRequires: mvn(tec.uom:uom-parent:pom:)
+BuildRequires: mvn(tec.uom:uom-se:pom:)
 
 %description
 A library of SI quantities and unit types (JSR 363).
@@ -37,6 +37,7 @@ of Units - a library of SI quantities and unit types (JSR 363).
 %prep
 %setup -q
 %pom_disable_module units-java8
+%pom_disable_module units	# use only Java 8+
 
 %build
 %mvn_build
@@ -49,5 +50,8 @@ of Units - a library of SI quantities and unit types (JSR 363).
 %files javadoc -f .mfiles-javadoc
 
 %changelog
+* Thu Feb 16 2017 Nathan Scott <nathans@redhat.com> - 0.6.2-1
+- Update to latest upstream sources, use Java 8+ modules.
+
 * Thu Oct 13 2016 Nathan Scott <nathans@redhat.com> - 0.6-1
 - Initial version.

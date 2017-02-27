@@ -1,0 +1,123 @@
+PCP SELinux Module
+
+== Building ==
+
+make -f /usr/share/selinux/devel/Makefile
+
+== Installing ==
+
+# semodule -X 400 -i pcpupstream.pp
+
+verify installation with:
+
+# semodule --list=full 
+
+== Bugs ==
+https://bugzilla.redhat.com/show_bug.cgi?id=1337968
+https://bugzilla.redhat.com/show_bug.cgi?id=1381127
+https://bugzilla.redhat.com/show_bug.cgi?id=1398147
+https://bugzilla.redhat.com/show_bug.cgi?id=1214090
+https://bugzilla.redhat.com/show_bug.cgi?id=1336211
+
+== PCP Context Types ==
+
+# semanage fcontext -l | grep pcp
+
+/etc/rc\.d/init\.d/pmcd                regular file       system_u:object_r:pcp_pmcd_initrc_exec_t:s0 
+/etc/rc\.d/init\.d/pmie                regular file       system_u:object_r:pcp_pmie_initrc_exec_t:s0 
+/etc/rc\.d/init\.d/pmlogger            regular file       system_u:object_r:pcp_pmlogger_initrc_exec_t:s0 
+/etc/rc\.d/init\.d/pmmgr               regular file       system_u:object_r:pcp_pmmgr_initrc_exec_t:s0 
+/etc/rc\.d/init\.d/pmproxy             regular file       system_u:object_r:pcp_pmproxy_initrc_exec_t:s0 
+/etc/rc\.d/init\.d/pmwebd              regular file       system_u:object_r:pcp_pmwebd_initrc_exec_t:s0 
+/usr/bin/pmcd                          regular file       system_u:object_r:pcp_pmcd_exec_t:s0 
+/usr/bin/pmie                          regular file       system_u:object_r:pcp_pmie_exec_t:s0 
+/usr/bin/pmlogger                      regular file       system_u:object_r:pcp_pmlogger_exec_t:s0 
+/usr/bin/pmmgr                         regular file       system_u:object_r:pcp_pmmgr_exec_t:s0 
+/usr/bin/pmproxy                       regular file       system_u:object_r:pcp_pmproxy_exec_t:s0 
+/usr/bin/pmwebd                        regular file       system_u:object_r:pcp_pmwebd_exec_t:s0
+/usr/libexec/pcp/bin/pmcd              regular file       system_u:object_r:pcp_pmcd_exec_t:s0 
+/usr/libexec/pcp/bin/pmie              regular file       system_u:object_r:pcp_pmie_exec_t:s0 
+/usr/libexec/pcp/bin/pmlogger          regular file       system_u:object_r:pcp_pmlogger_exec_t:s0 
+/usr/libexec/pcp/bin/pmmgr             regular file       system_u:object_r:pcp_pmmgr_exec_t:s0 
+/usr/libexec/pcp/bin/pmproxy           regular file       system_u:object_r:pcp_pmproxy_exec_t:s0 
+/usr/libexec/pcp/bin/pmwebd            regular file       system_u:object_r:pcp_pmwebd_exec_t:s0
+/usr/share/pcp/lib/pmie                regular file       system_u:object_r:pcp_pmie_exec_t:s0 
+/usr/share/pcp/lib/pmlogger            regular file       system_u:object_r:pcp_pmlogger_exec_t:s0
+/var/lib/pcp(/.*)?                     all files          system_u:object_r:pcp_var_lib_t:s0 
+/var/log/pcp(/.*)?                     all files          system_u:object_r:pcp_log_t:s0 
+/var/run/pcp(/.*)?                     all files          system_u:object_r:pcp_var_run_t:s0 
+/var/run/pmcd\.socket                  regular file       system_u:object_r:pcp_var_run_t:s0 
+/var/run/pmlogger\.primary\.socket     symbolic link      system_u:object_r:pcp_var_run_t:s0 
+
+
+== Background ==
+
+Selinux is a layer of security on top of traditional unix permissions.
+
+ls -lZ /var/lib/pcp/
+total 88
+drwxr-xr-x. 15 root  root  system_u:object_r:pcp_var_lib_t:s0  4096 Jan 18 11:10 config
+drwxr-xr-x. 73 root  root  system_u:object_r:pcp_var_lib_t:s0  4096 Jan 18 16:23 pmdas
+drwxr-xr-x.  2 root  root  system_u:object_r:pcp_var_lib_t:s0  4096 Jan 18 17:13 pmns
+drwxr-xr-x. 34 pcpqa pcpqa system_u:object_r:pcp_var_lib_t:s0 69632 Jan 18 17:15 testsuite
+drwxrwxr-x.  8 pcp   pcp   system_u:object_r:pcp_var_lib_t:s0  4096 Jan 18 17:13 tmp
+                           |                                |
+	       	     	   \----- selinux permissions ------/
+
+system_u:object_r:pcp_var_lib_t:s0
+|-------| 
+    ^   |--------|
+    |	     ^   |-------------|
+    |	     |	 	^      |--|
+    |        |          |        ^
+    |        |          |        +- Priority
+    |        |          +---------- Context
+    |        +--------------------- Role
+    +------------------------------ User
+
+In general usage, the only portion we care about is the Context (ie pcp_var_lib_t).
+
+SELinux manages a list of 'contexts' and how contexts are allowed to interact with each other.
+
+For example, it makes sense that the 'pcp_pmlogger_t' context to be
+able to read and write to pcp log files with a 'pcp_log_t' context.
+However, it doesn't make sense for 'pcp_pmlogger_t' to write to apache
+log files, which have a 'httpd_log_t' context.
+
+Where this can be of focus for PCP is various pmda's gathering metrics from domains.  And, using the example
+with apache earlier, many of these files have different contexts.  We need to document these accesses and
+why they're required, building our own policy package for inclusion in the running policy.
+
+== Testing ==
+
+Policy Packages can be examined using the 'sedismod' tool.
+
+The testsuite makes use of the 'unconditional AVTAB' listing, for example;
+$ printf "1\nq\n" | sedismod pcpupstream.pp
+
+unconditional avtab:
+--- begin avrule block ---
+decl 1:
+  allow [init_t] [pcp_log_t] : [dir] { read };
+  allow [init_t] [pcp_log_t] : [file] { getattr };
+  allow [init_t] [pcp_var_lib_t] : [dir] { add_name read write };
+  allow [init_t] [pcp_var_lib_t] : [file] { append create execute execute_no_trans getattr ioctl open read write };
+  allow [init_t] [pcp_var_lib_t] : [lnk_file] { read };
+  allow [init_t] [tmp_t] : [file] { open };
+  allow [pcp_pmcd_t] [docker_var_lib_t] : [dir] { search };
+  allow [pcp_pmcd_t] [container_runtime_t] : [unix_stream_socket] { connectto };
+  allow [pcp_pmcd_t] [sysctl_net_t] : [dir] { search };
+  allow [pcp_pmcd_t] [sysctl_net_t] : [file] { getattr open read };
+  allow [pcp_pmcd_t] self : [capability] { net_admin };
+  allow [pcp_pmlogger_t] [kmsg_device_t] : [chr_file] { open write };
+  allow [pcp_pmlogger_t] self : [capability] { kill };
+  allow [pcp_pmlogger_t] self : [capability] { sys_ptrace };
+  allow [pcp_pmie_t] [hostname_exec_t] : [file] { execute execute_no_trans getattr open read };
+  allow [pcp_pmie_t] self : [capability] { kill net_admin chown };
+
+== Additional Resources ==
+http://equivocation.org/node/24
+http://equivocation.org/node/27
+http://equivocation.org/node/42
+http://equivocation.org/node/51
+http://equivocation.org/node/52

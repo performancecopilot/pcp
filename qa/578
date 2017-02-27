@@ -53,8 +53,9 @@ _cleanup()
         _restore_config $PCP_VAR_DIR/pmns/root
     	echo "=== Restart PMCD ==="
 	unset PMCD_PORT
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
+	_wait_for_pmlogger
     fi
     
     if grep '^simple' $PCP_PMCDCONF_PATH >/dev/null
@@ -141,9 +142,12 @@ export PMCD_PORT
 
 # don't want these guys trying to connect to pmcd either ...
 #
-$sudo $PCP_RC_DIR/pmlogger stop >>$here/$seq.full 2>&1
-$sudo $PCP_RC_DIR/pmie stop >>$here/$seq.full 2>&1
-$sudo $PCP_RC_DIR/pmmgr stop >>$here/$seq.full 2>&1
+_service pmlogger stop >>$here/$seq.full 2>&1
+_service pmie stop >>$here/$seq.full 2>&1
+_service pmmgr stop >>$here/$seq.full 2>&1
+
+# and we're starting a new pmcd ...
+_service pmcd stop
 
 # Build simple agent
 #

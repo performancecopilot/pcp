@@ -40,3 +40,10 @@ VERSION.pcp.daily
 .vagrant
 qaresults
 .idea
+GPATH
+GRTAGS
+GTAGS
+#*
+*#
+.#*
+provisioning/osxsierra.legally.ok

@@ -1,0 +1,24 @@
+QA output created by 925
+pmlogger_daily: Warning: creating directory (TMP/pmlogger/myhost/2017/02/12) for PCP archive files
+[TMP.control:5] ... logging for host "local:" unchanged
+
+=== daily maintenance of PCP archives for host local: ===
+
+pmlogger_daily: Error: no pmlogger instance running for host "local:"
+[TMP.control:5] ... logging for host "local:" unchanged
+
+pmlogger_daily: Warning: no archives found to merge
+pmlogger:
+mode=drwxr-xr-x user=pcp group=pcp name=myhost
+
+pmlogger/myhost:
+mode=drwxr-xr-x user=pcp group=pcp name=YYYY
+
+pmlogger/myhost/YYYY:
+mode=drwxr-xr-x user=pcp group=pcp name=NN
+
+pmlogger/myhost/YYYY/MM:
+mode=drwxr-xr-x user=pcp group=pcp name=NN
+
+pmlogger/myhost/YYYY/MM/DD:
+

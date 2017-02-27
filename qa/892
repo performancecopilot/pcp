@@ -47,7 +47,7 @@ _cleanup()
     # ensure we do not leave local-only settings enabled
     _restore_config $PCP_SYSCONFIG_DIR/pmcd
 
-    $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+    _service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
 
@@ -80,8 +80,9 @@ echo "# Dummy entry added by PCP QA test $seq" > $tmp.local
 echo PMCD_LOCAL=1 >> $tmp.local
 $sudo cp $tmp.local $PCP_SYSCONFIG_DIR/pmcd
 
-$sudo $PCP_RC_DIR/pmcd restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+_service pmcd restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
 _wait_for_pmcd
+_wait_for_pmlogger
 
 echo; echo "== checking loop pmcd access, expecting success"
 pminfo -f -h "pcp://$ipv6local" pmcd.feature.local 2>&1 | _filter

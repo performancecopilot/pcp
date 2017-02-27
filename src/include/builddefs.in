@@ -227,6 +227,7 @@ PCP_MAN_DIR = @pcp_man_dir@
 PCP_BOOKS_DIR = @pcp_books_dir@
 PCP_ICONS_DIR = @pcp_icons_dir@
 PCP_DESKTOP_DIR = @pcp_desktop_dir@
+PCP_SELINUX_DIR = @pcp_selinux_dir@
 
 NEED_OLD_TBL_HEADER = @need_old_tbl_header@
 RDYNAMIC_FLAG = @rdynamic_flag@
@@ -244,6 +245,7 @@ ENABLE_PYTHON3 = @enable_python3@
 ENABLE_SYSTEMD = @enable_systemd@
 ENABLE_MANAGER = @enable_manager@
 ENABLE_WEBAPI = @enable_webapi@
+ENABLE_SELINUX = @enable_selinux@
 
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@
@@ -311,6 +313,7 @@ PMDA_ACTIVEMQ = @PMDA_ACTIVEMQ@
 PMDA_POSTFIX = @PMDA_POSTFIX@
 PMDA_BIND2 = @PMDA_BIND2@
 PMDA_NUTCRACKER = @PMDA_NUTCRACKER@
+PMDA_LIO = @PMDA_LIO@
 
 SHELL = /bin/sh
 IMAGES_DIR = $(TOPDIR)/all-images

@@ -25,7 +25,7 @@ _cleanup()
     [ -f $tmp.root ] && $sudo cp $tmp.root $PCP_VAR_DIR/pmns/root
     [ -f $tmp.root.bin ] && $sudo cp $tmp.root.bin $PCP_VAR_DIR/pmns/root.bin
     [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
-    $sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+    _service pcp restart >/dev/null 2>&1
     _wait_for_pmcd
     _wait_for_pmlogger
     $sudo rm -rf $tmp.* $PCP_PMDAS_DIR/idiot
@@ -39,7 +39,9 @@ cd $home/simple
 
 # restart pmcd and copy the pmcd config file and pmns to restore state later
 #
-$sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+_service pcp restart >/dev/null 2>&1
+_wait_for_pmcd
+_wait_for_pmlogger
 cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 cp $PCP_VAR_DIR/pmns/root $tmp.root
 [ -f $PCP_VAR_DIR/pmns/root.bin ] && cp $PCP_VAR_DIR/pmns/root.bin $tmp.root.bin

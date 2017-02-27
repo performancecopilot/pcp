@@ -170,7 +170,7 @@ fi
 # as our logfile and redirect stderr there too.
 #
 PROGLOGDIR=`dirname "$PROGLOG"`
-[ -d "$PROGLOGDIR" ] || mkdir -p -m 775 "$PROGLOGDIR" 2>/dev/null
+[ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 755 $PCP_USER:$PCP_GROUP 2>/dev/null
 [ -f "$PROGLOG" ] && mv "$PROGLOG" "$PROGLOG.prev"
 exec 1>"$PROGLOG"
 exec 2>&1
@@ -606,7 +606,7 @@ s/^\\$//
 	#
 	if [ ! -d "$dir" ]
 	then
-	    mkdir -p -m 755 "$dir" >$tmp/err 2>&1
+	    mkdir_and_chown "$dir" 755 $PCP_USER:$PCP_GROUP >$tmp/err 2>&1
 	    if [ ! -d "$dir" ]
 	    then
 		cat $tmp/err

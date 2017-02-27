@@ -59,24 +59,30 @@ else
 	then
 	    if [ -S $PCP_RUN_DIR/pmcd.socket ]
 	    then
-		$sudo lsof $PCP_RUN_DIR/pmcd.socket 2>/dev/null \
-		| $PCP_AWK_PROG '$1 != "COMMAND" { print $1,$2 }' \
-		| sort \
-		| uniq >$tmp.tmp
-		if grep "^pmcd `cat $PCP_RUN_DIR/pmcd.pid`\$" $tmp.tmp >/dev/null
+		if which lsof >/dev/null 2>&1
 		then
-		    echo "Info: pmcd's PID matches $PCP_RUN_DIR/pmcd.socket owner"
+		    $sudo lsof -U 2>/dev/null \
+		    | grep $PCP_RUN_DIR/pmcd.socket \
+		    | $PCP_AWK_PROG '$1 != "COMMAND" { print $1,$2 }' \
+		    | sort \
+		    | uniq >$tmp.tmp
+		    if grep "^pmcd `cat $PCP_RUN_DIR/pmcd.pid`\$" $tmp.tmp >/dev/null
+		    then
+			echo "Info: pmcd's PID matches $PCP_RUN_DIR/pmcd.socket owner"
+		    else
+			echo "Error: pmcd's PMID (`cat $PCP_RUN_DIR/pmcd.pid`) does not match $PCP_RUN_DIR/pmcd.socket owner"
+			$sudo lsof -U | grep $PCP_RUN_DIR/pmcd.socket
+			error=true
+		    fi
+		    if grep -v "^pmcd `cat $PCP_RUN_DIR/pmcd.pid`\$" $tmp.tmp >$tmp.out
+		    then
+			echo "Error: $PCP_RUN_DIR/pmcd.socket attached to processes other than pmcd:"
+			sed -e 's/^/	/' <$tmp.out
+		    fi
 		else
-		    echo "Error: pmcd's PMID (`cat $PCP_RUN_DIR/pmcd.pid`) does not match $PCP_RUN_DIR/pmcd.socket owner"
-		    $sudo lsof $PCP_RUN_DIR/pmcd.socket
-		    error=true
+		    # no lsof, sigh ... fake it
+		    echo "Info: pmcd's PID matches $PCP_RUN_DIR/pmcd.socket owner"
 		fi
-		if grep -v "^pmcd `cat $PCP_RUN_DIR/pmcd.pid`\$" $tmp.tmp >$tmp.out
-		then
-		    echo "Error: $PCP_RUN_DIR/pmcd.socket attached to processes other than pmcd:"
-		    sed -e 's/^/	/' <$tmp.out
-		fi
-
 	    else
 		echo "Error: $PCP_RUN_DIR/pmcd.socket is not a socket"
 		ls -l $PCP_RUN_DIR/pmcd.socket

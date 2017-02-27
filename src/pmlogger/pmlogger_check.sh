@@ -158,7 +158,7 @@ fi
 # as our logfile and redirect stderr there too.
 #
 PROGLOGDIR=`dirname "$PROGLOG"`
-[ -d "$PROGLOGDIR" ] || mkdir -p -m 775 "$PROGLOGDIR" 2>/dev/null
+[ -d "$PROGLOGDIR" ] || mkdir_and_chown "$PROGLOGDIR" 755 $PCP_USER:$PCP_GROUP 2>/dev/null
 [ -f "$PROGLOG" ] && mv "$PROGLOG" "$PROGLOG.prev"
 exec 1>"$PROGLOG"
 exec 2>&1
@@ -554,11 +554,12 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    echo "$dir" >>$tmp/dir
 	fi
 
-	# make sure output directory exists
+	# make sure output directory hierarchy exists and $PCP_USER
+	# user can write there
 	#
 	if [ ! -d "$dir" ]
 	then
-	    mkdir -p -m 755 "$dir" >$tmp/err 2>&1
+	    mkdir_and_chown "$dir" 755 $PCP_USER:$PCP_GROUP >$tmp/err 2>&1
 	    if [ ! -d "$dir" ]
 	    then
 		cat $tmp/err
@@ -568,10 +569,6 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		_warning "creating directory ($dir) for PCP archive files"
 	    fi
 	fi
-
-	# and the user pcp can write there
-	#
-	chown $PCP_USER:$PCP_GROUP "$dir" >/dev/null 2>&1
 
 	# and the logfile is writeable, if it exists
 	#

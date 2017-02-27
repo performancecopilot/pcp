@@ -1,0 +1,129 @@
+QA output created by 1121
+== Checking tape.dev metric values - tape-root-001.tgz
+
+hinv.ntape PMID: 60.71.16 [number of Linux scsi tape devices]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 1
+
+tape.dev.in_flight PMID: 60.71.0 [number of I/Os currently outstanding to this tape device]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: instant  Units: count
+    inst [N or "st0"] value 0
+
+tape.dev.io_ns PMID: 60.71.1 [cummulative amount of time spent waiting for all I/O to complete to tape device]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: nanosec
+    inst [N or "st0"] value 174239975693
+
+tape.dev.other_cnt PMID: 60.71.2 [number of I/Os issued to the tape drive other than read or write commands]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: count
+    inst [N or "st0"] value 58
+
+tape.dev.read_byte_cnt PMID: 60.71.3 [number of bytes read from the tape drive]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: byte
+    inst [N or "st0"] value 2400563200
+
+tape.dev.read_cnt PMID: 60.71.4 [number of read requests issued to the tape drive]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: count
+    inst [N or "st0"] value 234430
+
+tape.dev.read_ns PMID: 60.71.5 [cummulative amount of time spent waiting for read requests to complete]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: nanosec
+    inst [N or "st0"] value 66588205359
+
+tape.dev.resid_cnt PMID: 60.71.6 [count of read or write residual data, per tape device]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: count
+    inst [N or "st0"] value 0
+
+tape.dev.write_byte_cnt PMID: 60.71.7 [number of bytes written to the tape drive]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: byte
+    inst [N or "st0"] value 1028812800
+
+tape.dev.write_cnt PMID: 60.71.8 [number of write requests issued to the tape drive]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: count
+    inst [N or "st0"] value 100470
+
+tape.dev.write_ns PMID: 60.71.9 [cummulative amount of time spent waiting for write requests to complete]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: nanosec
+    inst [N or "st0"] value 31994162683
+
+== done
+
+== Checking tape.dev metric values - tape-root-002.tgz
+
+hinv.ntape PMID: 60.71.16 [number of Linux scsi tape devices]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+    value 2
+
+tape.dev.in_flight PMID: 60.71.0 [number of I/Os currently outstanding to this tape device]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: instant  Units: count
+    inst [N or "st0"] value 0
+    inst [N or "st1"] value 0
+
+tape.dev.io_ns PMID: 60.71.1 [cummulative amount of time spent waiting for all I/O to complete to tape device]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: nanosec
+    inst [N or "st0"] value 0
+    inst [N or "st1"] value 0
+
+tape.dev.other_cnt PMID: 60.71.2 [number of I/Os issued to the tape drive other than read or write commands]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: count
+    inst [N or "st0"] value 0
+    inst [N or "st1"] value 0
+
+tape.dev.read_byte_cnt PMID: 60.71.3 [number of bytes read from the tape drive]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: byte
+    inst [N or "st0"] value 0
+    inst [N or "st1"] value 0
+
+tape.dev.read_cnt PMID: 60.71.4 [number of read requests issued to the tape drive]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: count
+    inst [N or "st0"] value 0
+    inst [N or "st1"] value 0
+
+tape.dev.read_ns PMID: 60.71.5 [cummulative amount of time spent waiting for read requests to complete]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: nanosec
+    inst [N or "st0"] value 0
+    inst [N or "st1"] value 0
+
+tape.dev.resid_cnt PMID: 60.71.6 [count of read or write residual data, per tape device]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: count
+    inst [N or "st0"] value 0
+    inst [N or "st1"] value 0
+
+tape.dev.write_byte_cnt PMID: 60.71.7 [number of bytes written to the tape drive]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: byte
+    inst [N or "st0"] value 0
+    inst [N or "st1"] value 0
+
+tape.dev.write_cnt PMID: 60.71.8 [number of write requests issued to the tape drive]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: count
+    inst [N or "st0"] value 0
+    inst [N or "st1"] value 0
+
+tape.dev.write_ns PMID: 60.71.9 [cummulative amount of time spent waiting for write requests to complete]
+    Data Type: 64-bit unsigned int  InDom: 60.34 0xf000022
+    Semantics: counter  Units: nanosec
+    inst [N or "st0"] value 0
+    inst [N or "st1"] value 0
+
+== done
+

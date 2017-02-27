@@ -111,6 +111,35 @@ pcp_hosts = {
 #        }
 }
 
+
+EXPECTED_PLATFORM="darwin"
+EXPECTED_ACK_FILE="provisioning/osxsierra.legally.ok"
+platformOkToUseOSX=RUBY_PLATFORM.include?(EXPECTED_PLATFORM)
+eulaAcknowledged = File.exists?(EXPECTED_ACK_FILE)
+okToUseOSX = platformOkToUseOSX && eulaAcknowledged
+
+# Only allowed to use oxssierra image if the underlying platform
+# is a Mac and that the user has checked
+if(okToUseOSX)
+	pcp_hosts[:osxsierra]={
+					:hostname => "osxSierra",
+					:ipaddress => "10.100.10.60",
+					# https://github.com/AndrewDryga/vagrant-box-osx
+					# TODO - this base image takes flipping ages to provision
+					# due to PCP dependencies that need to be built by
+					# Homebrew (eg. qt5, gettext)
+					# it would be better to have a base image based off this
+					# box that has these pre-installed
+					:box => "http://files.dryga.com/boxes/osx-sierra-0.3.1.box",
+					:script => "osxsierra.sh"
+	}
+elsif(!platformOkToUseOSX)
+	abort("'osxsierra' requires the underlying hardware/platform string to contain '#{EXPECTED_PLATFORM}' but detected #{RUBY_PLATFORM}. You are therefore not allowed to run this." )
+elsif(!eulaAcknowledged)
+	abort("'osxsierra`' requires acknowledgment that you are legally allowed to execute this.\nYou may want to read http://images.apple.com/legal/sla/docs/macOS1012.pdf\nTo acknowledge you have understood this, please run:\ntouch #{EXPECTED_ACK_FILE}\n")
+else
+	abort("Really don't know why, but you're not allowed.. #{platformOkToUseOSX}:#{eulaAcknowledged}")
+end
 ############################################################
 # Common Config Setup, hostnames, etc
 # So VMs could talk to each other if we wanted

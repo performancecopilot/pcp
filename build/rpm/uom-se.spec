@@ -1,6 +1,6 @@
 Summary: Unit Standard (JSR 363) Implementation for Java SE 8 and above
 Name: uom-se
-Version: 1.0.1
+Version: 1.0.3
 %global buildversion 1
 
 Release: %{buildversion}%{?dist}
@@ -55,5 +55,8 @@ Java SE 8 Implementation.
 %files javadoc -f .mfiles-javadoc
 
 %changelog
+* Thu Feb 16 2017 Nathan Scott <nathans@redhat.com> - 1.0.3-1
+- Update to latest upstream sources.
+
 * Fri Nov 25 2016 Nathan Scott <nathans@redhat.com> - 1.0.1-1
 - Initial version.

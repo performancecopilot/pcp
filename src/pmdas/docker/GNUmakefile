@@ -29,7 +29,6 @@ LCFLAGS = -I$(TOPDIR)/src/libpcp_web/src
 LCFLAGS += -g
 
 CFILES	= docker.c
-#DFILES	= README help
 DFILES	= help
 
 LDIRT	= domain.h *.o $(IAM).log $(CMDTARGET) $(LIBTARGET)

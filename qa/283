@@ -23,10 +23,12 @@ $sudo rm -rf $tmp.*
 
 _cleanup()
 {
-    $sudo rm -f $tmp.*
     [ -z "$pmcd_pid" ] || $signal -s KILL $pmcd_pid
     unset PMCD_PORT
-    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+    _service pcp restart | _filter_pcp_start
+    _wait_for_pmcd
+    _wait_for_pmlogger
+    $sudo rm -f $tmp.*
 }
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -43,7 +45,7 @@ p
 }
 
 
-$sudo $PCP_RC_DIR/pcp stop >/dev/null 2>&1
+_service pcp stop >/dev/null 2>&1
 # allow time to cleanup and close all sockets
 sleep 3
 

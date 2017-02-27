@@ -35,7 +35,8 @@ _cleanup()
 	_restore_config $PCP_PMCDCONF_PATH
 	$sudo rm -f $PCP_PMCDCONF_PATH.prev
 	_restore_loggers
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_service pcp restart | _filter_pcp_start
+	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	_needclean=false
@@ -55,7 +56,13 @@ skip == 0	{ print }
     | sed \
 	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;g" \
     | _filter_pcp_start \
-    | _filter_pmcd_log
+    | _filter_pmcd_log \
+    | sed \
+	-e '/^Job for pmcd.service failed/d' \
+	-e '/^See "systemctl status pmcd.service"/d' \
+	-e '/^pmcd.service: /d' \
+	-e '/^Job failed. See system journal/d' \
+    # end
 }
 
 if [ -d $PCP_LOG_DIR/pmlogger ]
@@ -72,6 +79,8 @@ pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 
 trap "_cleanup" 0
 trap "_interrupt; _cleanup" 1 2 3 15
+
+_stop_auto_restart pmcd
 
 # real QA test starts here
 
@@ -113,8 +122,9 @@ echo "=== initial pmcd.conf ===" >>$seq.full
 cat $tmp.conf >>$seq.full
 echo "=== ===" >>$seq.full
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart | _filter_pcp_start
 _wait_for_pmcd
+_wait_for_pmlogger
 
 cat <<End-of-File >$tmp.cmd
 rm -f $PCP_PMCDCONF_PATH.prev

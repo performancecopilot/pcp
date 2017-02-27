@@ -92,6 +92,8 @@ enum {
 	CLUSTER_BUDDYINFO,	/* 67 /proc/buddyinfo */
 	CLUSTER_ZONEINFO,	/* 68 /proc/zoneinfo */
 	CLUSTER_KSM_INFO,	/* 69 /sys/kernel/mm/ksm */
+	CLUSTER_ZONEINFO_PROTECTION,	/* 70 /proc/zoneinfo protection item */
+	CLUSTER_TAPEDEV,	/* 71 /sys/class/scsi_tape */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
@@ -150,6 +152,8 @@ enum {
 	IPC_SEM_INDOM,	        /* 30 - ipc sem_stat msgid */
 	BUDDYINFO_INDOM,	/* 31 - kernel buddys */
 	ZONEINFO_INDOM,	        /* 32 - proc zoneinfo */
+	ZONEINFO_PROTECTION_INDOM,	/* 33 - proc zoneinfo protection item */
+	TAPEDEV_INDOM,		/* 34 - tape devices */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

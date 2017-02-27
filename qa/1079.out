@@ -18,8 +18,8 @@ DSK |          sda | busy      2% | read  161108 | write 163892 | avio 6.23 ms |
 NFC | rpc       35 | read       0 | write      0 | retxmit    0 | autref    35 |
 NET | transport    | tcpi  263904 | tcpo  284726 | udpi   75245 | udpo   81495 |
 NET | network      | ipi   300472 | ipo   328158 | ipfrw      0 | deliv 298076 |
+NET | p2p1      4% | pcki  391116 | pcko  275261 | si 1168 Mbps | so  830 Mbps |
 NET | tun0      0% | pcki    5917 | pcko    6220 | si   17 Mbps | so 4842 Kbps |
-NET | p2p1    ---- | pcki  391116 | pcko  275261 | si 1168 Mbps | so  830 Mbps |
 NET | lo      ---- | pcki   60893 | pcko   60893 | si  597 Mbps | so  597 Mbps |
 WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
                    *** system and process activity since boot ***
@@ -293,7 +293,7 @@ SWP | tot    13.3G | free   13.3G |              | vmcom   4.1G | vmlim  15.2G |
 DSK |          sda | busy      8% | read       5 | write      0 | avio 16.2 ms |
 NET | transport    | tcpi       5 | tcpo       5 | udpi       0 | udpo       0 |
 NET | network      | ipi        5 | ipo        4 | ipfrw      0 | deliv      4 |
-NET | p2p1    ---- | pcki       8 | pcko       5 | si    8 Kbps | so    2 Kbps |
+NET | p2p1      0% | pcki       8 | pcko       5 | si    8 Kbps | so    2 Kbps |
 NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
 
    PID SYSCPU USRCPU  VGROW  RGROW  RDDSK  WRDSK ST EXC S  CPU CMD            
@@ -328,8 +328,8 @@ CPL | avg1    1.04 | avg5    1.06 | avg15   1.06 | csw      501 | intr     219 |
 MEM | tot     3.8G | free  195.7M | cache   1.5G | buff  275.4M | slab  358.1M |
 SWP | tot    13.3G | free   13.3G |              | vmcom   4.1G | vmlim  15.2G |
 NET | transport    | tcpi       5 | tcpo       6 | udpi       0 | udpo       0 |
+NET | p2p1      0% | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
 NET | lo      ---- | pcki       7 | pcko       7 | si    9 Kbps | so    9 Kbps |
-NET | p2p1    ---- | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
 
    PID SYSCPU USRCPU  VGROW  RGROW  RDDSK  WRDSK ST EXC S  CPU CMD            
  30579  0.01s  0.01s     4K     4K     0K     0K --   - R   2% pmdaproc       
@@ -369,8 +369,8 @@ DSK |          sda | busy      2% | read  161108 | write 163892 | avio 6.23 ms |
 NFC | rpc       35 | read       0 | write      0 | retxmit    0 | autref    35 |
 NET | transport    | tcpi  263904 | tcpo  284726 | udpi   75245 | udpo   81495 |
 NET | network      | ipi   300472 | ipo   328158 | ipfrw      0 | deliv 298076 |
+NET | p2p1      4% | pcki  391116 | pcko  275261 | si 1168 Mbps | so  830 Mbps |
 NET | tun0      0% | pcki    5917 | pcko    6220 | si   17 Mbps | so 4842 Kbps |
-NET | p2p1    ---- | pcki  391116 | pcko  275261 | si 1168 Mbps | so  830 Mbps |
 NET | lo      ---- | pcki   60893 | pcko   60893 | si  597 Mbps | so  597 Mbps |
 WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
                    *** system and process activity since boot ***
@@ -644,7 +644,7 @@ SWP | tot    13.3G | free   13.3G |              | vmcom   4.1G | vmlim  15.2G |
 DSK |          sda | busy      8% | read       5 | write      0 | avio 16.2 ms |
 NET | transport    | tcpi       5 | tcpo       5 | udpi       0 | udpo       0 |
 NET | network      | ipi        5 | ipo        4 | ipfrw      0 | deliv      4 |
-NET | p2p1    ---- | pcki       8 | pcko       5 | si    8 Kbps | so    2 Kbps |
+NET | p2p1      0% | pcki       8 | pcko       5 | si    8 Kbps | so    2 Kbps |
 NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
 
    PID VSTACK  VSIZE  RSIZE  PSIZE  VGROW  RGROW SWAPSZ  MEM CMD            
@@ -679,8 +679,8 @@ CPL | avg1    1.04 | avg5    1.06 | avg15   1.06 | csw      501 | intr     219 |
 MEM | tot     3.8G | free  195.7M | cache   1.5G | buff  275.4M | slab  358.1M |
 SWP | tot    13.3G | free   13.3G |              | vmcom   4.1G | vmlim  15.2G |
 NET | transport    | tcpi       5 | tcpo       6 | udpi       0 | udpo       0 |
+NET | p2p1      0% | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
 NET | lo      ---- | pcki       7 | pcko       7 | si    9 Kbps | so    9 Kbps |
-NET | p2p1    ---- | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
 
    PID VSTACK  VSIZE  RSIZE  PSIZE  VGROW  RGROW SWAPSZ  MEM CMD            
   7014   376K   1.8G 546.0M     ?K     0K     0K     0K  14% firefox        
@@ -720,8 +720,8 @@ DSK |          sda | busy      2% | read  161108 | write 163892 | avio 6.23 ms |
 NFC | rpc       35 | read       0 | write      0 | retxmit    0 | autref    35 |
 NET | transport    | tcpi  263904 | tcpo  284726 | udpi   75245 | udpo   81495 |
 NET | network      | ipi   300472 | ipo   328158 | ipfrw      0 | deliv 298076 |
+NET | p2p1      4% | pcki  391116 | pcko  275261 | si 1168 Mbps | so  830 Mbps |
 NET | tun0      0% | pcki    5917 | pcko    6220 | si   17 Mbps | so 4842 Kbps |
-NET | p2p1    ---- | pcki  391116 | pcko  275261 | si 1168 Mbps | so  830 Mbps |
 NET | lo      ---- | pcki   60893 | pcko   60893 | si  597 Mbps | so  597 Mbps |
 WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
                    *** system and process activity since boot ***
@@ -995,7 +995,7 @@ SWP | tot    13.3G | free   13.3G |              | vmcom   4.1G | vmlim  15.2G |
 DSK |          sda | busy      8% | read       5 | write      0 | avio 16.2 ms |
 NET | transport    | tcpi       5 | tcpo       5 | udpi       0 | udpo       0 |
 NET | network      | ipi        5 | ipo        4 | ipfrw      0 | deliv      4 |
-NET | p2p1    ---- | pcki       8 | pcko       5 | si    8 Kbps | so    2 Kbps |
+NET | p2p1      0% | pcki       8 | pcko       5 | si    8 Kbps | so    2 Kbps |
 NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
 
    PID    TID  RDDSK  WRDSK WCANCL  DSK CMD            
@@ -1030,8 +1030,8 @@ CPL | avg1    1.04 | avg5    1.06 | avg15   1.06 | csw      501 | intr     219 |
 MEM | tot     3.8G | free  195.7M | cache   1.5G | buff  275.4M | slab  358.1M |
 SWP | tot    13.3G | free   13.3G |              | vmcom   4.1G | vmlim  15.2G |
 NET | transport    | tcpi       5 | tcpo       6 | udpi       0 | udpo       0 |
+NET | p2p1      0% | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
 NET | lo      ---- | pcki       7 | pcko       7 | si    9 Kbps | so    9 Kbps |
-NET | p2p1    ---- | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
 
    PID    TID  RDDSK  WRDSK WCANCL  DSK CMD            
    662      -     0K   131K     0K 100% pmlogger       
@@ -1071,8 +1071,8 @@ DSK |          sda | busy      2% | read  161108 | write 163892 | avio 6.23 ms |
 NFC | rpc       35 | read       0 | write      0 | retxmit    0 | autref    35 |
 NET | transport    | tcpi  263904 | tcpo  284726 | udpi   75245 | udpo   81495 |
 NET | network      | ipi   300472 | ipo   328158 | ipfrw      0 | deliv 298076 |
+NET | p2p1      4% | pcki  391116 | pcko  275261 | si 1168 Mbps | so  830 Mbps |
 NET | tun0      0% | pcki    5917 | pcko    6220 | si   17 Mbps | so 4842 Kbps |
-NET | p2p1    ---- | pcki  391116 | pcko  275261 | si 1168 Mbps | so  830 Mbps |
 NET | lo      ---- | pcki   60893 | pcko   60893 | si  597 Mbps | so  597 Mbps |
 WWW | reqs       9 | totKB     17 | byt/rq  1934 | iwork      4 | bwork      1 |
                    *** system and process activity since boot ***
@@ -1346,7 +1346,7 @@ SWP | tot    13.3G | free   13.3G |              | vmcom   4.1G | vmlim  15.2G |
 DSK |          sda | busy      8% | read       5 | write      0 | avio 16.2 ms |
 NET | transport    | tcpi       5 | tcpo       5 | udpi       0 | udpo       0 |
 NET | network      | ipi        5 | ipo        4 | ipfrw      0 | deliv      4 |
-NET | p2p1    ---- | pcki       8 | pcko       5 | si    8 Kbps | so    2 Kbps |
+NET | p2p1      0% | pcki       8 | pcko       5 | si    8 Kbps | so    2 Kbps |
 NET | lo      ---- | pcki       2 | pcko       2 | si    1 Kbps | so    1 Kbps |
 
    PID TRUN TSLPI TSLPU POLI NICE PRI RTPR CPUNR ST EXC S  CPU CMD            
@@ -1381,8 +1381,8 @@ CPL | avg1    1.04 | avg5    1.06 | avg15   1.06 | csw      501 | intr     219 |
 MEM | tot     3.8G | free  195.7M | cache   1.5G | buff  275.4M | slab  358.1M |
 SWP | tot    13.3G | free   13.3G |              | vmcom   4.1G | vmlim  15.2G |
 NET | transport    | tcpi       5 | tcpo       6 | udpi       0 | udpo       0 |
+NET | p2p1      0% | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
 NET | lo      ---- | pcki       7 | pcko       7 | si    9 Kbps | so    9 Kbps |
-NET | p2p1    ---- | pcki       3 | pcko       0 | si    1 Kbps | so    0 Kbps |
 
    PID TRUN TSLPI TSLPU POLI NICE PRI RTPR CPUNR ST EXC S  CPU CMD            
  30579    1     0     0 norm    0 120    0     0 --   - R   2% pmdaproc       
