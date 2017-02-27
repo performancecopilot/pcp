@@ -20,13 +20,6 @@ QA_FLAGS = ""
 ############################################################
 
 pcp_hosts = {
-				:osxsierra => {
-								:hostname => "osxSierra",
-								:ipaddress => "10.100.10.60",
-								# https://github.com/AndrewDryga/vagrant-box-osx
-								:box => "http://files.dryga.com/boxes/osx-sierra-0.3.1.box",
-								:script => "osxsierra.sh"
-				},
         :ubuntu1204 => {
                 :hostname => "ubuntu1204",
                 :ipaddress => "10.100.10.10",
@@ -133,12 +126,11 @@ if(okToUseOSX)
 					:box => "http://files.dryga.com/boxes/osx-sierra-0.3.1.box",
 					:script => "osxsierra.sh"
 	}
-elsif(!platformOkToUseOSX)
-	abort("'osxsierra' requires the underlying hardware/platform string to contain '#{EXPECTED_PLATFORM}' but detected #{RUBY_PLATFORM}. You are therefore not allowed to run this." )
+end
+if(!platformOkToUseOSX)
+	STDERR.puts("The 'osxsierra' box requires the underlying hardware/platform string to contain '#{EXPECTED_PLATFORM}' but detected #{RUBY_PLATFORM}. You are therefore not allowed to use this image." )
 elsif(!eulaAcknowledged)
-	abort("'osxsierra`' requires acknowledgment that you are legally allowed to execute this.\nYou may want to read http://images.apple.com/legal/sla/docs/macOS1012.pdf\nTo acknowledge you have understood this, please run:\ntouch #{EXPECTED_ACK_FILE}\n")
-else
-	abort("Really don't know why, but you're not allowed.. #{platformOkToUseOSX}:#{eulaAcknowledged}")
+	STDERR.puts("The 'osxsierra` box requires acknowledgment that you are legally allowed to execute this.\nYou may want to read http://images.apple.com/legal/sla/docs/macOS1012.pdf\nTo acknowledge you have understood this, please run:\ntouch #{EXPECTED_ACK_FILE}\n")
 end
 ############################################################
 # Common Config Setup, hostnames, etc
