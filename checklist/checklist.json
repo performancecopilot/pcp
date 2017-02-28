@@ -151,12 +151,6 @@
 	    "description": "Per-cpu RX queue are filled to capacity and some RX packet are being dropped as a result",
 	    "pcp_metrics": ["network.softnet.dropped"],
 	    "pcp_metrics_log": ["network.softnet.dropped"],
-	    "pcp_deriveds": [ "rxcpuqdropped = rate(network.softnet.dropped)" ],
-	    "pcp_predicate": { "label": "rx cpu queue drop",
-                               "metric": "rxcpuqdropped",
-                               "operator": "threshold_min",
-                               "value" : 0.01 },
-
 	    "urls": [ "https://access.redhat.com/sites/default/files/attachments/20150325_network_performance_tuning.pdf",
 		      "https://access.redhat.com/solutions/1241943" ],
 	    "details": "Each processor in the machine has a queue that stores packets recieved by the NIC but not yet processed by the Linux kernel network stack.  The size of each of the queues is specified by /proc/sys/net/core/netdev_max_backlog.  If a queue has netdev_max_backlog entries in it, any additional packets received from the NIC are dropped rather than added to the full queue.",
