@@ -1,14 +1,16 @@
 Summary: International System of Units (JSR 363)
-Name: si-units
+Name: unitsofmeasurement-si-units
 Version: 0.6.2
-%global buildversion 1
+%global buildversion 2
+%global si_units si-units-%{version}
 
 Release: %{buildversion}%{?dist}
-License: BSD3
+License: BSD
 URL: https://github.com/unitsofmeasurement/si-units
 Group: Development/Languages
-# https://github.com/unitsofmeasurement/si-units/archive/%{version}.tar.gz
-Source0: %{name}-%{version}.tar.gz
+Source0: https://github.com/unitsofmeasurement/si-units/archive/%{version}.tar.gz
+Patch1: si-units-remove-plurals.patch
+Patch2: si-units-remove-Priority.patch
 
 BuildArch: noarch
 BuildRequires: junit
@@ -35,23 +37,33 @@ This package contains documentation for the International System
 of Units - a library of SI quantities and unit types (JSR 363).
 
 %prep
-%setup -q
-%pom_disable_module units-java8
+%setup -q -c -n unitsofmeasurement
+cd %{si_units}
+%patch1 -p0
+%patch2 -p0
 %pom_disable_module units	# use only Java 8+
 
 %build
+cd %{si_units}
 %mvn_build
 
 %install
+cd %{si_units}
 %mvn_install
 
-%files -f .mfiles
+%files -f %{si_units}/.mfiles
+%doc %{si_units}/README.md
 
-%files javadoc -f .mfiles-javadoc
+%files javadoc -f %{si_units}/.mfiles-javadoc
 
 %changelog
-* Thu Feb 16 2017 Nathan Scott <nathans@redhat.com> - 0.6.2-1
-- Update to latest upstream sources, use Java 8+ modules.
+* Tue Feb 28 2017 Nathan Scott <nathans@redhat.com> - 0.6.2-2
+- Resolve minor lintian errors - source, license, documentation.
+
+* Fri Feb 24 2017 Nathan Scott <nathans@redhat.com> - 0.6.2-1
+- Switch to enabling the Java 8+ maven modules only now.
+- Add unitsofmeasurement prefix to package name.
+- Update to latest upstream sources.
 
 * Thu Oct 13 2016 Nathan Scott <nathans@redhat.com> - 0.6-1
 - Initial version.

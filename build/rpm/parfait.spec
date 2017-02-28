@@ -1,7 +1,7 @@
 Summary: Parfait Java libraries for Performance Co-Pilot (PCP)
 Name: parfait
-Version: 0.4.0
-%global buildversion 5
+Version: 0.5.0
+%global buildversion 2
 
 %global disable_dropwizard 1
 
@@ -9,8 +9,7 @@ Release: %{buildversion}%{?dist}
 License: ASL2.0
 URL: https://github.com/performancecopilot/parfait
 Group: Development/Languages
-# https://github.com/performancecopilot/parfait/archive/parfait-X.Y.Z.tar.gz
-Source0: %{name}-%{version}.tar.gz
+Source0: https://github.com/performancecopilot/parfait/archive/%{version}.tar.gz
 
 BuildArch: noarch
 BuildRequires: junit
@@ -118,6 +117,7 @@ do
 done
 
 %files -f .mfiles
+%doc README.md
 
 %files javadoc -f .mfiles-javadoc
 
@@ -135,12 +135,18 @@ done
 
 
 %changelog
+* Tue Feb 28 2017 Nathan Scott <nathans@redhat.com> - 0.5.0-2
+- Resolve lintian errors - source, license, documentation.
+
+* Fri Feb 24 2017 Nathan Scott <nathans@redhat.com> - 0.5.0-1
+- Update to upstream release, dropping java8 patch.
+
 * Thu Feb 16 2017 Nathan Scott <nathans@redhat.com> - 0.4.0-5
 - Use RPM macros to ease dropwizard metrics enablement.
 - Correct the dependency on systems.uom:systems-unicode-java8
 
 * Fri Nov 25 2016 Nathan Scott <nathans@redhat.com> - 0.4.0-4
-- Switch to jdk1.8+, uom-se, enable dropwizard metrics module.
+- Switch to uom-se and conditional use of dropwizard metrics.
 
 * Fri Oct 28 2016 Nathan Scott <nathans@redhat.com> - 0.4.0-3
 - Add in parfait wrapper shell script and man page.

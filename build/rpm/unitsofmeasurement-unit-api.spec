@@ -1,14 +1,14 @@
 Summary: Units of Measurement API (JSR 363)
-Name: unit-api
+Name: unitsofmeasurement-unit-api
 Version: 1.0
-%global buildversion 1
+%global buildversion 3
+%global unit_api unit-api-%{version}
 
 Release: %{buildversion}%{?dist}
-License: BSD3
+License: BSD
 URL: https://github.com/unitsofmeasurement/unit-api
 Group: Development/Languages
-# https://github.com/unitsofmeasurement/unit-api/archive/%{version}.tar.gz
-Source0: %{name}-%{version}.tar.gz
+Source0: https://github.com/unitsofmeasurement/unit-api/archive/%{version}.tar.gz
 
 BuildArch: noarch
 BuildRequires: junit
@@ -38,21 +38,31 @@ This package contains documentation for the Units of Measurement
 API (JSR 363).
 
 %prep
-%setup -q
+%setup -q -c -n unitsofmeasurement
+cd %{unit_api}
 %pom_remove_parent
 %pom_remove_plugin com.mycila:license-maven-plugin
 %pom_remove_plugin net.revelc.code:formatter-maven-plugin
 
 %build
+cd %{unit_api}
 %mvn_build
 
 %install
+cd %{unit_api}
 %mvn_install
 
-%files -f .mfiles
+%files -f %{unit_api}/.mfiles
+%doc %{unit_api}/README.md
 
-%files javadoc -f .mfiles-javadoc
+%files javadoc -f %{unit_api}/.mfiles-javadoc
 
 %changelog
+* Tue Feb 28 2017 Nathan Scott <nathans@redhat.com> - 1.0-3
+- Resolve lintian errors - source, license, documentation.
+
+* Fri Feb 24 2017 Nathan Scott <nathans@redhat.com> - 1.0-2
+- Add unitsofmeasurement prefix to package name.
+
 * Thu Oct 13 2016 Nathan Scott <nathans@redhat.com> - 1.0-1
 - Initial version.
