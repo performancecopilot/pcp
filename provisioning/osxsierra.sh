@@ -16,7 +16,7 @@
 # TODO replace this with an updated base-box
 sudo -H -u vagrant brew update
 sudo -H -u vagrant brew upgrade
-sudo -H -u vagrant brew install --universal coreutils automake libmicrohttpd pixman cairo libpng xz
+sudo -H -u vagrant brew install --universal coreutils automake libmicrohttpd pixman cairo libpng xz pkg-config
 sudo -H -u vagrant brew install qt pyqt5
 sudo -H -u vagrant brew install gnu-tar --with-default-names
 
