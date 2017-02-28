@@ -148,6 +148,12 @@ AC_ARG_WITH([pmdajson],
     [do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"],
     [do_pmdajson=check])
 
+AC_ARG_WITH([pmdanutcracker],
+    [AC_HELP_STRING([--with-pmdanutcracker],
+		   [enable nutcracker pmda (default is on)])],
+    [do_pmdanutcracker=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdanutcracker=$withval"],
+    [do_pmdanutcracker=check])
+
 AC_ARG_WITH([pmdasnmp],
     [AC_HELP_STRING([--with-pmdasnmp],
 		   [enable SNMP pmda (default is on)])],
@@ -1060,17 +1066,20 @@ if $pmda_bind2; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the nutcracker PMDA should be included])
 pmda_nutcracker=false
-if test "$have_perl" = true
-then
-    dnl rpm build for nutcracker PMDA needs Perl JSON YAML::XS
-    if $pcp_perl_prog -e "use YAML::XS" >/dev/null 2>&1
+AS_IF([test "x$do_pmdanutcracker" = "xyes"], [pmda_nutcracker=true])
+AS_IF([test "x$do_pmdanutcracker" = "xcheck"], [
+    dnl build for nutcracker PMDA needs perl JSON & YAML::XS modules
+    if test "$have_perl" = true
     then
-	if $pcp_perl_prog -e "use JSON" >/dev/null 2>&1
+	if $pcp_perl_prog -e "use YAML::XS" >/dev/null 2>&1
 	then
-	    pmda_nutcracker=true
+	    if $pcp_perl_prog -e "use JSON" >/dev/null 2>&1
+	    then
+		pmda_nutcracker=true
+	    fi
 	fi
     fi
-fi
+])
 AC_SUBST(PMDA_NUTCRACKER, $pmda_nutcracker)
 if $pmda_nutcracker; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
