@@ -95,6 +95,8 @@ typedef struct {
 #define L_GEQ		22
 #define L_GT		23
 #define L_NEQ		24
+#define L_AND		25
+#define L_OR		26
 
 extern int __dmtraverse(__pmContext *, const char *, char ***) _PCP_HIDDEN;
 extern int __dmchildren(__pmContext *, const char *, char ***, int **) _PCP_HIDDEN;

@@ -24,6 +24,8 @@
 #include "impl.h"
 #include "internal.h"
 
+extern const int promote[6][6];
+
 static void
 get_pmids(node_t *np, int *cnt, pmID **list)
 {
@@ -401,6 +403,12 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case L_NEQ:
 		    res.l = l.l != r.l;
 		    break;
+		case L_AND:
+		    res.l = (l.l != 0) && (r.l != 0);
+		    break;
+		case L_OR:
+		    res.l = (l.l != 0) || (r.l != 0);
+		    break;
 	    }
 	    break;
 	case PM_TYPE_U32:
@@ -431,7 +439,13 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		    res.ul = l.ul > r.ul;
 		    break;
 		case L_NEQ:
-		    res.ul = l.ul != r.ul;
+		    res.ul = (l.ul != r.ul);
+		    break;
+		case L_AND:
+		    res.ul = (l.ul != 0) && (r.ul != 0);
+		    break;
+		case L_OR:
+		    res.ul = (l.ul != 0) || (r.ul != 0);
 		    break;
 	    }
 	    break;
@@ -465,6 +479,12 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case L_NEQ:
 		    res.ll = l.ll != r.ll;
 		    break;
+		case L_AND:
+		    res.ll = (l.ll != 0) && (r.ll != 0);
+		    break;
+		case L_OR:
+		    res.ll = (l.ll != 0) || (r.ll != 0);
+		    break;
 	    }
 	    break;
 	case PM_TYPE_U64:
@@ -497,6 +517,12 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		case L_NEQ:
 		    res.ull = l.ull != r.ull;
 		    break;
+		case L_AND:
+		    res.ull = (l.ull != 0) && (r.ull != 0);
+		    break;
+		case L_OR:
+		    res.ull = (l.ull != 0) || (r.ull != 0);
+		    break;
 	    }
 	    break;
 	case PM_TYPE_FLOAT:
@@ -528,6 +554,12 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		    break;
 		case L_NEQ:
 		    res.f = l.f != r.f;
+		    break;
+		case L_AND:
+		    res.f = (l.f != 0) && (r.f != 0);
+		    break;
+		case L_OR:
+		    res.f = (l.f != 0) || (r.f != 0);
 		    break;
 	    }
 	    break;
@@ -565,6 +597,12 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
 		    break;
 		case L_NEQ:
 		    res.d = l.d != r.d;
+		    break;
+		case L_AND:
+		    res.d = (l.d != 0) && (r.d != 0);
+		    break;
+		case L_OR:
+		    res.d = (l.d != 0) || (r.d != 0);
 		    break;
 	    }
 	    break;
@@ -1149,10 +1187,51 @@ eval_expr(node_t *np, pmResult *rp, int level)
 #endif
 		    }
 		}
-		np->info->ivlist[k].value =
-		    bin_op(np->desc.type, np->type,
-			   np->left->info->ivlist[i].value, np->left->desc.type, np->left->info->mul_scale, np->left->info->div_scale,
-			   np->right->info->ivlist[j].value, np->right->desc.type, np->right->info->mul_scale, np->right->info->div_scale);
+		if (np->type == L_LT || np->type == L_LEQ || np->type == L_EQ ||
+		    np->type == L_GEQ || np->type == L_GT || np->type == L_NEQ ||
+		    np->type == L_AND || np->type == L_OR) {
+		    /*
+		     * relational and boolean operators need to perform
+		     * the comparions with operand type promotion, but
+		     * then cast the result back to a U32 value
+		     */
+		    int	res_type = promote[np->left->desc.type][np->right->desc.type];
+		    pmAtomValue	res;
+		    res = bin_op(res_type, np->type,
+			   np->left->info->ivlist[i].value, np->left->desc.type,
+			   np->left->info->mul_scale, np->left->info->div_scale,
+			   np->right->info->ivlist[j].value, np->right->desc.type,
+			   np->right->info->mul_scale, np->right->info->div_scale);
+		    switch (res_type) {
+			case PM_TYPE_32:
+			    np->info->ivlist[k].value.ul = (__uint32_t)res.l;
+			    break;
+			case PM_TYPE_U32:
+			    np->info->ivlist[k].value.ul = (__uint32_t)res.ul;
+			    break;
+			case PM_TYPE_64:
+			    np->info->ivlist[k].value.ul = (__uint32_t)res.ll;
+			    break;
+			case PM_TYPE_U64:
+			    np->info->ivlist[k].value.ul = (__uint32_t)res.ull;
+			    break;
+			case PM_TYPE_FLOAT:
+			    np->info->ivlist[k].value.ul = (__uint32_t)res.f;
+			    break;
+			case PM_TYPE_DOUBLE:
+			    np->info->ivlist[k].value.ul = (__uint32_t)res.d;
+			    break;
+		    }
+		}
+		else {
+		    /* arithmetic operators, just do it */
+		    np->info->ivlist[k].value = bin_op(np->desc.type, np->type,
+			   np->left->info->ivlist[i].value, np->left->desc.type,
+			   np->left->info->mul_scale, np->left->info->div_scale,
+			   np->right->info->ivlist[j].value, np->right->desc.type,
+			   np->right->info->mul_scale, np->right->info->div_scale);
+		}
+
 		if (np->left->desc.indom != PM_INDOM_NULL)
 		    np->info->ivlist[k].inst = np->left->info->ivlist[i].inst;
 		else

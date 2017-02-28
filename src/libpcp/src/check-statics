@@ -183,9 +183,11 @@ context.o
     ?__emutls_t.curcontext	# thread private (MinGW)
     ?__emutls_v.curcontext	# thread private (MinGW)
 derive_fetch.o
+    ?promote			# const
 derive.o
     ?fmt			# const
     ?func			# const
+    ?promote			# const
     ?init			# local initialize_mutex mutex
     ?done			# guarded by local initialize_mutex mutex
     type_dbg			# const

@@ -1,6 +1,7 @@
 # New derived metric features:
 # - floating point constants
 # - relational operators
+# - boolean operators
 #
 # Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
 #
@@ -63,6 +64,9 @@ qa_$seq.rel_neq = instant(sample.seconds) != 0
 qa_$seq.rel_true = (sample.long.hundred <= 100) + (sample.long.hundred >= 100) - (sample.long.hundred == 100)
 qa_$seq.rel_false = (sample.long.hundred < 100) + (sample.long.hundred > 100) + (sample.long.hundred != 100)
 qa_$seq.rel_eq = sample.long.hundred + sample.float.million == sample.double.million + sample.ulonglong.hundred
+qa_$seq.bool.and_true = 1 && sample.long.one
+qa_$seq.bool.and_false = sample.double.one && 0
+qa_$seq.bool.or_complex = sample.long.hundred < 100 || sample.long.hundred > 100 || sample.long.hundred != 100 || sample.long.hundred == 100
 End-of-File
 
 echo "expression trees ..."
@@ -81,10 +85,14 @@ cat <<End-of-File >$tmp.logger.config
 log mandatory on 500 msec {
     # need all the metrics in the derived metric expressions above
     sample.bin
+    sample.long.one
     sample.long.hundred
     sample.ulonglong.hundred
     sample.float.million
+    sample.double.one
     sample.double.million
+    sample.seconds
+    sample.milliseconds
 }
 End-of-File
 
@@ -99,12 +107,14 @@ pminfo -d -a $tmp qa_$seq
 
 echo
 echo "archive values ..."
-pminfo -f qa_$seq
+pminfo -f -a $tmp qa_$seq
 
 echo
 echo "error cases ..."
 cat <<End-of-File >$tmp.config
 qa_$seq.bad_neq = sample.seconds !& 0
+qa_$seq.bad_and = sample.milliseconds > sample.seconds &@ 1>2
+qa_$seq.bad_or = sample.milli|seconds
 End-of-File
 pminfo -f 2>&1 qa_$seq | _filter2
 

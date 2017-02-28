@@ -112,6 +112,7 @@ static const char	*type_dbg[] = {
 	"STAR", "SLASH", "LPAREN", "RPAREN", "AVG", "COUNT", "DELTA",
 	"MAX", "MIN", "SUM", "ANON", "RATE", "INSTANT", "DOUBLE",
 	"LT", "LEQ", "EQ", "GEQ", "GT", "NEQ",
+	"AND", "OR",
 	};
 /* follows L_ #defines from derive.h */
 static const char	*type_c[] = {
@@ -119,6 +120,7 @@ static const char	*type_c[] = {
 	"*", "/", "(", ")", "", "", "",
 	"", "", "", "", "", "", "", 
 	"<", "<=", "==", ">=", ">", "!=",
+	"&&", "||",
 };
 
 /* function table for lexer */
@@ -513,6 +515,14 @@ lex(void)
 			ltype = L_NEQ;
 			break;
 
+		    case '&':
+			ltype = L_AND;
+			break;
+
+		    case '|':
+			ltype = L_OR;
+			break;
+
 		    default:
 			return L_ERROR;
 			break;
@@ -593,6 +603,28 @@ lex(void)
 		if (c == '=') {
 		    *p = '\0';
 		    return L_NEQ;
+		}
+		else {
+		    unget(c);
+		    p[-1] = '\0';
+		    return L_ERROR;
+		}
+	    }
+	    else if (ltype == L_AND) {
+		if (c == '&') {
+		    *p = '\0';
+		    return L_AND;
+		}
+		else {
+		    unget(c);
+		    p[-1] = '\0';
+		    return L_ERROR;
+		}
+	    }
+	    else if (ltype == L_OR) {
+		if (c == '|') {
+		    *p = '\0';
+		    return L_OR;
 		}
 		else {
 		    unget(c);
@@ -739,6 +771,8 @@ void report_sem_error(char *name, node_t *np)
 	case L_GEQ:
 	case L_GT:
 	case L_NEQ:
+	case L_AND:
+	case L_OR:
 	    if (np->left->type == L_INTEGER || np->left->type == L_DOUBLE || np->left->type == L_NAME)
 		pmprintf("%s ", np->left->value);
 	    else
@@ -774,7 +808,7 @@ void report_sem_error(char *name, node_t *np)
 }
 
 /* type promotion */
-static const int promote[6][6] = {
+const int promote[6][6] = {
     { PM_TYPE_32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
     { PM_TYPE_U32, PM_TYPE_U32, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
     { PM_TYPE_64, PM_TYPE_64, PM_TYPE_64, PM_TYPE_U64, PM_TYPE_FLOAT, PM_TYPE_DOUBLE },
@@ -950,11 +984,13 @@ map_desc(int n, node_t *np)
     pmDesc	*left = &np->left->desc;
 
     if (np->type == L_LT || np->type == L_LEQ || np->type == L_EQ ||
-	np->type == L_GEQ || np->type == L_GT || np->type == L_NEQ) {
+	np->type == L_GEQ || np->type == L_GT || np->type == L_NEQ ||
+	np->type == L_AND || np->type == L_OR) {
 	/*
-	 * No restrictions on relational operators ... since evaluation
-	 * will only ever use the current value, the difference between
-	 * counter and non-counter semantics is immaterial.
+	 * No restrictions on relational or boolean operators ... since
+	 * evaluation will only ever use the current value and the
+	 * result is not a counter, so the difference between counter
+	 * and non-counter semantics for the oprtands is immaterial.
 	 */
 	;
     }
@@ -1041,10 +1077,25 @@ map_desc(int n, node_t *np)
 	    PM_TPD(derive_errmsg) = "Non-arithmetic type for right operand";
 	    goto bad;
     }
-    np->desc.type = promote[left->type][right->type];
     if (np->type == L_SLASH) {
 	/* for division result is real number */
 	np->desc.type = PM_TYPE_DOUBLE;
+    }
+    else if (np->type == L_LT || np->type == L_LEQ || np->type == L_EQ ||
+	     np->type == L_GEQ || np->type == L_GT || np->type == L_NEQ ||
+	     np->type == L_AND || np->type == L_OR) {
+	/*
+	 * logical and boolean operators return a U32 result, independent
+	 * of the operands' type
+	 */
+	np->desc.type = PM_TYPE_U32;
+    }
+    else {
+	/*
+	 * for other operators, the operands' type determine the type of
+	 * the result
+	 */
+	np->desc.type = promote[left->type][right->type];
     }
 
     if (np->type == L_PLUS || np->type == L_MINUS) {
@@ -1070,6 +1121,18 @@ map_desc(int n, node_t *np)
 	    (left->units.dimCount != right->units.dimCount ||
 	     left->units.dimTime != right->units.dimTime ||
 	     left->units.dimSpace != right->units.dimSpace)) {
+	    PM_TPD(derive_errmsg) = "Dimensions are not the same";
+	    goto bad;
+	}
+    }
+
+    if (np->type == L_AND || np->type == L_OR) {
+	/*
+	 * unit dimensions have to be none
+	 */
+	if (left->units.dimCount != 0 || right->units.dimCount != 0 ||
+	    left->units.dimTime != 0 ||  right->units.dimTime != 0 ||
+	    left->units.dimSpace != 0 || right->units.dimSpace != 0) {
 	    PM_TPD(derive_errmsg) = "Dimensions are not the same";
 	    goto bad;
 	}
@@ -1358,7 +1421,9 @@ __dmdumpexpr(node_t *np, int level)
  * 		L_EQ or
  * 		L_GEQ or
  * 		L_GT or
- * 		L_NEQ
+ * 		L_NEQ or
+ * 		L_AND or
+ * 		L_OR
  * P_BINOP	L_NAME or	P_LEAF
  * 		L_INTEGER or
  * 		L_DOUBLE
@@ -1375,7 +1440,9 @@ parse(int level)
     int		type;
     node_t	*expr = NULL;
     node_t	*curr = NULL;
+    node_t	*curr_stack[10];
     node_t	*np;
+    int		sp = 0;
 
     lexpeek = 0;	/* reset in case of error in previous parse() call */
 
@@ -1483,9 +1550,10 @@ parse(int level)
 		if (type != L_PLUS && type != L_MINUS &&
 		    type != L_STAR && type != L_SLASH &&
 		    type != L_LT && type != L_LEQ && type != L_EQ &&
-		    type != L_GEQ && type != L_GT && type != L_NEQ) {
+		    type != L_GEQ && type != L_GT && type != L_NEQ &&
+		    type != L_AND && type != L_OR) {
 		    free_expr(expr);
-		    PM_TPD(derive_errmsg) = "Arithmetic or relational operator expected";
+		    PM_TPD(derive_errmsg) = "Arithmetic or relational or boolean operator expected";
 		    return NULL;
 		}
 		np = newnode(type);
@@ -1510,27 +1578,42 @@ parse(int level)
 		    expr = curr = np;
 #ifdef PCP_DEBUG
 		    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_DESPERATE))
-			fprintf(stderr, "push left #1\n");
+			fprintf(stderr, "push left leaf\n");
 #endif
 		}
 		else if (type == L_STAR || type == L_SLASH) {
-		    /*
-		     * highest precedence, push previous right
-		     * descendent branch down one level along
-		     * the left descendent branch
-		     */
-		    np->left = curr->right;
-		    curr->right = np;
-		    curr = np;
+		    if (curr->left == NULL) {
+			/* first operand */
+			np->left = curr;
+			curr_stack[sp++] = curr;
+			expr = curr = np;
 #ifdef PCP_DEBUG
-		    if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_DESPERATE))
-			fprintf(stderr, "push right #2\n");
+			if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_DESPERATE))
+			    fprintf(stderr, "push left * or /\n");
 #endif
+		    }
+		    else {
+			/*
+			 * highest precedence, push previous right
+			 * descendent branch down one level along
+			 * the left descendent branch
+			 */
+			np->left = curr->right;
+			curr->right = np;
+			curr_stack[sp++] = curr;
+			curr = np;
+#ifdef PCP_DEBUG
+			if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_DESPERATE))
+			    fprintf(stderr, "push right * or /\n");
+#endif
+		    }
 		}
 		else if (type == L_PLUS || type == L_MINUS) {
-		     if (curr->type == L_LT || curr->type == L_LEQ ||
+		    if (curr->left != NULL &&
+		        (curr->type == L_LT || curr->type == L_LEQ ||
 			 curr->type == L_EQ || curr->type == L_GEQ ||
-			 curr->type == L_GT || curr->type == L_NEQ) {
+			 curr->type == L_GT || curr->type == L_NEQ ||
+			 curr->type == L_AND || curr->type == L_OR)) {
 			/*
 			 * previous operator is lower precedence, so push
 			 * previous right descendent branch down one level
@@ -1538,59 +1621,74 @@ parse(int level)
 			 */
 			np->left = curr->right;
 			curr->right = np;
+			curr_stack[sp++] = curr;
 			curr = np;
 #ifdef PCP_DEBUG
 			if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_DESPERATE))
-			    fprintf(stderr, "push right #3\n");
+			    fprintf(stderr, "push right + or -\n");
 #endif
 		    }
 		    else {
 			/*
-			 * previous operator is of equal or higher precedence,
-			 * so make new root of tree and push previous
-			 * expr down left descendent branch
+			 * first operand or previous operator is of equal
+			 * or higher precedence, so make new root of tree
+			 * and push previous expr down left descendent branch
 			 */
 			np->left = curr;
+			curr_stack[sp++] = curr;
 			expr = curr = np;
 #ifdef PCP_DEBUG
 			if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_DESPERATE))
-			    fprintf(stderr, "push left #4\n");
+			    fprintf(stderr, "push left + or -\n");
 #endif
 		    }
 		}
 		else if (type == L_LT || type == L_LEQ || type == L_EQ ||
 		         type == L_GEQ || type == L_GT || type == L_NEQ) {
-		    if (curr->type == L_LT || curr->type == L_LEQ ||
-			curr->type == L_EQ || curr->type == L_GEQ ||
-			curr->type == L_GT || curr->type == L_NEQ) {
+		    if (curr->left != NULL &&
+		        (curr->type == L_AND || curr->type == L_OR)) {
 			/*
-			 * Note this is a bit odd ... a > b > c is
-			 * evaluated as (a > b) > c ...
 			 * previous operator is of equal or lower precedence,
 			 * so push previous right descendent branch down one
 			 * level along the left descendent branch
 			 */
 			np->left = curr->right;
 			curr->right = np;
+			curr_stack[sp++] = curr;
 			curr = np;
 #ifdef PCP_DEBUG
 			if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_DESPERATE))
-			    fprintf(stderr, "push right #5\n");
+			    fprintf(stderr, "push right <relop>\n");
 #endif
 		    }
 		    else {
 			/*
-			 * previous operator is higher precedence,
-			 * so make new root of tree and push previous
-			 * expr down left descendent branch
+			 * first operand or previous operator is of equal
+			 * or higher precedence, so make new root of tree
+			 * and push previous expr down left descendent branch
 			 */
 			np->left = curr;
+			curr_stack[sp++] = curr;
 			expr = curr = np;
 #ifdef PCP_DEBUG
 			if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_DESPERATE))
-			    fprintf(stderr, "push left #6\n");
+			    fprintf(stderr, "push left <relop>\n");
 #endif
 		    }
+		}
+		else if (type == L_AND || type == L_OR) {
+			/*
+			 * first operand or previous operator must be of
+			 * higher precedence, so make new root of tree
+			 * and push previous expr down left descendent branch
+			 */
+			np->left = curr;
+			curr_stack[sp++] = curr;
+			expr = curr = np;
+#ifdef PCP_DEBUG
+			if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_DESPERATE))
+			    fprintf(stderr, "push left <boolop>\n");
+#endif
 		}
 		state = P_BINOP;
 		break;
@@ -1618,7 +1716,13 @@ parse(int level)
 			memset(&np->desc.units, 0, sizeof(pmUnits));
 		    }
 		    curr->right = np;
+#if 0
+		    /* TODO */
+		    if (sp > 0)
+			curr = curr_stack[--sp];
+#else
 		    curr = expr;
+#endif
 		    state = P_LEAF;
 		}
 		else if (type == L_LPAREN) {
@@ -1635,6 +1739,7 @@ parse(int level)
 			 || type == L_ANON) {
 		    np = newnode(type);
 		    curr->right = np;
+		    curr_stack[sp++] = curr;
 		    curr = np;
 		    state = P_FUNC_OP;
 		}
@@ -1687,7 +1792,13 @@ parse(int level)
 			np->type = L_INTEGER;
 		    }
 		    curr->left = np;
+#if 0
+		    /* TODO */
+		    if (sp > 0)
+			curr = curr_stack[--sp];
+#else
 		    curr = expr;
+#endif
 		    state = P_FUNC_END;
 		}
 		else {
@@ -1707,6 +1818,19 @@ parse(int level)
 		free_expr(expr);
 		return NULL;
 	}
+#ifdef PCP_DEBUG
+	if ((pmDebug & DBG_TRACE_DERIVE) && (pmDebug & DBG_TRACE_DESPERATE)) {
+	    int	i;
+	    if (expr != NULL) {
+		fprintf(stderr, "expr=%p curr=%p\n", expr, curr);
+		__dmdumpexpr(expr, 0);
+	    }
+	    for (i = 0; i < sp; i++) {
+		fprintf(stderr, "curr_stack[%d] %p\n", i, curr_stack[i]);
+	    }
+
+	}
+#endif
     }
 }
 
