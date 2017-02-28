@@ -111,8 +111,12 @@ platform_ok_to_use_OSX=RUBY_PLATFORM.include?(EXPECTED_PLATFORM)
 eula_acknowledged = File.exists?(EXPECTED_ACK_FILE)
 ok_to_use_OSX = platform_ok_to_use_OSX && eula_acknowledged
 
+############################################################
 # Only allowed to use oxssierra image if the underlying platform
 # is a Mac and that the user has checked
+# 
+# see OSXREADME.md for more details
+############################################################
 if(ok_to_use_OSX)
 	pcp_hosts[:osxsierra]={
 					:hostname => "osxSierra",
@@ -127,11 +131,7 @@ if(ok_to_use_OSX)
 					:script => "osxsierra.sh"
 	}
 end
-if(!platform_ok_to_use_OSX)
-	STDERR.puts("The 'osxsierra' box requires the underlying hardware/platform string to contain '#{EXPECTED_PLATFORM}' but detected #{RUBY_PLATFORM}. You are therefore not allowed to use this image." )
-elsif(!eula_acknowledged)
-	STDERR.puts("The 'osxsierra` box requires acknowledgment that you are legally allowed to execute this.\nYou may want to read http://images.apple.com/legal/sla/docs/macOS1012.pdf\nTo acknowledge you have understood this, please run:\ntouch #{EXPECTED_ACK_FILE}\n")
-end
+
 ############################################################
 # Common Config Setup, hostnames, etc
 # So VMs could talk to each other if we wanted
