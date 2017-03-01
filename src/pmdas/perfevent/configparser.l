@@ -513,6 +513,7 @@ configuration_t *parse_configfile(const char *filename)
     config->nConfigEntries = 0;
     config->derivedArr = NULL;
     config->nDerivedEntries = 0;
+    config->dynamicpmc = NULL;
 
     yylex_init(&scanner);
     yyset_extra(config, scanner);
