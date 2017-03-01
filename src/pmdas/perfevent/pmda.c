@@ -545,7 +545,7 @@ static char *normalize_metric_name(const char *name)
     {
         for(p = res; *p != '\0'; p++)
         {
-            if( !isalnum((int)*p) && *p != '_' && *p != '.' && *p != '-')
+            if( !isalnum((int)*p) && *p != '_' && *p != '.')
             {
                 *p = '_'; /* "underscore" - new name */
             }
