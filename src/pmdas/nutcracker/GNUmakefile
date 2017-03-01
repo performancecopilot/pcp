@@ -32,7 +32,7 @@ include $(BUILDRULES)
 
 ifeq "$(PMDA_NUTCRACKER)" "true"
 build-me: check_domain
-install: default
+install_pcp install: default
 	$(INSTALL) -m 755 -d $(PMDADIR)
 	$(INSTALL) -m 755 Install Remove $(PMDADIR)
 	$(INSTALL) -m 644 pmda$(IAM).pl $(PMDADIR)/pmda$(IAM).pl
