@@ -19,13 +19,14 @@
 #ifndef PARSE_EVENTS_H_
 #define PARSE_EVENTS_H_
 
+#include <linux/limits.h>
 #include "architecture.h"
 
 #define CONFIG  0
 #define CONFIG1 1     /* Extension of config1 */
 #define CONFIG2 2     /* Extension of config2 */
 
-#define DEV_DIR "/sys/bus/event_source/devices/"
+#define DEV_DIR "/bus/event_source/devices/"
 
 #define EVENTS "events"
 #define FORMAT "format"
@@ -79,9 +80,12 @@ struct software_event {
     unsigned long long config;
 };
 
+char dev_dir[PATH_MAX];   /* Optional path prefix for the PMU devices */
+
 int init_dynamic_events(struct pmu **pmu_list);
 void setup_cpu_config(struct pmu *pmu_ptr, int *ncpus, int **cpuarr,
 		      cpulist_t *cpus);
 int get_file_string(char *path, char *buf);
+void cleanup_pmu_list(struct pmu *pmu);
 
 #endif /* PARSE_EVENTS_H_ */

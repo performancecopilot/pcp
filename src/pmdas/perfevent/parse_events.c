@@ -81,7 +81,7 @@ static void cleanup_pmu(struct pmu *pmu)
     free(pmu);
 }
 
-static void cleanup_pmu_list(struct pmu *pmu)
+void cleanup_pmu_list(struct pmu *pmu)
 {
     struct pmu *pmu_del, *curr_pmu;
 
@@ -178,7 +178,7 @@ static int setup_sw_events(struct pmu_event **events, struct pmu *pmu)
 /*
  * Sets up the software PMU.
  */
-static int setup_sw_pmu(struct pmu *pmu)
+static int setup_sw_pmu(struct pmu **pmu)
 {
     struct pmu *tmp, *ptr;
     int ret;
@@ -195,16 +195,19 @@ static int setup_sw_pmu(struct pmu *pmu)
     }
 
     tmp->type = PERF_TYPE_SOFTWARE;
-    ret = setup_sw_events(&tmp->ev, pmu);
+    ret = setup_sw_events(&tmp->ev, *pmu);
     if (ret) {
         ret = -1;
         goto err_ret;
     }
 
-    /* add the sw pmu to the end of the pmu list */
-    for (ptr = pmu; ptr->next; ptr = ptr->next);
-
-    ptr->next = tmp;
+    if (*pmu == NULL)
+        *pmu = tmp;
+    else {
+        /* add the sw pmu to the end of the pmu list */
+        for (ptr = *pmu; ptr->next; ptr = ptr->next);
+        ptr->next = tmp;
+    }
     return 0;
  err_ret:
     cleanup_pmu(tmp);
@@ -348,12 +351,13 @@ static int fetch_event_config(struct property_info *head,
 {
     struct property *pp;
     struct property_info *pi;
+    int match_count = 0, have = 0;
 
     for (pi = head; pi; pi = pi->next) {
         pp = pmu->prop;
         while (pp) {
-            if (!strncmp(pp->name, pi->name,
-                         strlen(pp->name))) {
+            if (!strcmp(pp->name, pi->name)) {
+                match_count++;
                 switch (pp->belongs_to) {
                 case CONFIG:
                     event->config = event->config |
@@ -373,6 +377,17 @@ static int fetch_event_config(struct property_info *head,
         }
     }
 
+    /*
+     * even if syntax of one property found in event string doesn't exist
+     * in the format directory of the PMU, then, we return error.
+     */
+    if (!match_count)
+        return -1;
+    for (pi = head; pi; pi = pi->next) {
+        have++;
+    }
+    if (have != match_count)
+        return -1;
     return 0;
 }
 
@@ -607,6 +622,7 @@ static int fetch_format_and_events(char *pmu_path, struct pmu *pmu)
     ret = fetch_events(events_dir, &ev, pmu, events_path);
     if (ret) {
         cleanup_property_list(tmp);
+        pmu->prop = NULL;
         goto close_dir;
     }
 
@@ -628,7 +644,7 @@ static int populate_pmus(struct pmu **pmus)
     char pmu_path[PATH_MAX];
     int ret = -1;
 
-    pmus_dir = opendir(DEV_DIR);
+    pmus_dir = opendir(dev_dir);
     if (!pmus_dir)
         return ret;
 
@@ -640,13 +656,15 @@ static int populate_pmus(struct pmu **pmus)
         }
 
         memset(pmu_path, '\0', PATH_MAX);
-        snprintf(pmu_path, PATH_MAX, "%s%s", DEV_DIR, dir->d_name);
+        snprintf(pmu_path, PATH_MAX, "%s%s", dev_dir, dir->d_name);
         tmp = calloc(1, sizeof(*tmp));
         if (!tmp) {
             ret = -E_PERFEVENT_REALLOC;
             goto free_pmulist;
         }
         tmp->next = NULL;
+        tmp->prop = NULL;
+        tmp->ev = NULL;
         ret = fetch_format_and_events(pmu_path, tmp);
         if (ret) {
             /*
@@ -707,7 +725,7 @@ void setup_cpu_config(struct pmu *pmu_ptr, int *ncpus, int **cpuarr,
     size_t len = 0;
 
     memset(cpumask_path, '\0', PATH_MAX);
-    snprintf(cpumask_path, PATH_MAX, "%s%s/%s", DEV_DIR, pmu_ptr->name,
+    snprintf(cpumask_path, PATH_MAX, "%s%s/%s", dev_dir, pmu_ptr->name,
              PMU_CPUMASK);
     cpulist = fopen(cpumask_path, "r");
     /*
@@ -742,6 +760,19 @@ void setup_cpu_config(struct pmu *pmu_ptr, int *ncpus, int **cpuarr,
 int init_dynamic_events(struct pmu **pmu_list) {
     int ret = -1;
     struct pmu *pmus = NULL;
+    char *prefix;
+
+    /*
+     * Set the path where we can find the PMU devices. If the environment
+     * variable SYSFS_PREFIX is set, then we are in testing mode and going
+     * to search in some custom sysfs directory.
+     */
+    memset(dev_dir, '\0', PATH_MAX);
+    prefix = getenv("SYSFS_PREFIX");
+    if (prefix)
+        snprintf(dev_dir, PATH_MAX, "%s%s", prefix, DEV_DIR);
+    else
+        snprintf(dev_dir, PATH_MAX, "%s%s", "/sys/", DEV_DIR);
 
     ret = populate_pmus(&pmus);
     if (ret)
@@ -751,7 +782,7 @@ int init_dynamic_events(struct pmu **pmu_list) {
      * setup the software pmu separately, since, it needs to be
      * setup with a set of static events.
      */
-    ret = setup_sw_pmu(pmus);
+    ret = setup_sw_pmu(&pmus);
     if (ret)
         return ret;
 
