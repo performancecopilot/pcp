@@ -46,6 +46,11 @@ The configuration
 file allows different counters to be programmed on different CPUs and supports
 round-robin assignment of uncore counters needed for some AMD chips.
 .PP
+The PMDA also counts for events exposed in the kernel via
+/sys/bus/event_source/devices directory. The PMU device name and the event
+name must be mentioned in the configuration file. Otherwise, the metric won't
+be available to monitor through this PMDA.
+.PP
 The PMDA configures the counters to count events in both user and kernel mode.
 This means that the hardware counters are unavailable to use by normal
 unprivileged user applications when they are in use by the PMDA.
