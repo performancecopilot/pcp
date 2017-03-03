@@ -757,7 +757,8 @@ void setup_cpu_config(struct pmu *pmu_ptr, int *ncpus, int **cpuarr,
  * pmu_list contains the list of all the PMUs and their events upon
  * execution of this function.
  */
-int init_dynamic_events(struct pmu **pmu_list) {
+int init_dynamic_events(struct pmu **pmu_list)
+{
     int ret = -1;
     struct pmu *pmus = NULL;
     char *prefix;

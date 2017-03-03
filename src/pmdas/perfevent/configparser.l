@@ -414,7 +414,7 @@ void free_configuration(configuration_t *config)
 
     if (config->dynamicpmc)
     {
-    tmp = pmcSettingDel = config->dynamicpmc->dynamicSettingList;
+        tmp = pmcSettingDel = config->dynamicpmc->dynamicSettingList;
         while(tmp != NULL)
         {
             tmp = tmp->next;
