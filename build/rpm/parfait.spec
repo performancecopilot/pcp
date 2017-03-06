@@ -1,4 +1,4 @@
-Summary: Parfait Java libraries for Performance Co-Pilot (PCP)
+Summary: Java libraries for Performance Co-Pilot (PCP)
 Name: parfait
 Version: 0.5.0
 %global buildversion 2
@@ -6,7 +6,7 @@ Version: 0.5.0
 %global disable_dropwizard 1
 
 Release: %{buildversion}%{?dist}
-License: ASL2.0
+License: ASL 2.0
 URL: https://github.com/performancecopilot/parfait
 Group: Development/Languages
 Source0: https://github.com/performancecopilot/parfait/archive/%{version}.tar.gz
@@ -72,7 +72,7 @@ machinery for extremely lightweight instrumentation.
 %package examples
 Group: Development/Languages
 BuildArch: noarch
-Summary: Parfait Java demostration programs
+Summary: Parfait Java demonstration programs
 Requires: java-headless >= 1.8
 
 %description examples
@@ -86,10 +86,11 @@ for instrumenting applications.
 %if %{disable_dropwizard}
 %pom_disable_module parfait-dropwizard
 %endif
-%pom_disable_module parfait-jdbc	# need hsqldb update?
+%pom_disable_module parfait-jdbc        # need hsqldb update?
 
 %build
-%mvn_build
+# skip tests for now, missing org.unitils:unitils-core:jar
+%mvn_build -f
 # re-instate not-shaded, not-with-all-dependencies agent jar
 pushd parfait-agent/target
 mv original-parfait-agent.jar parfait-agent.jar
@@ -126,6 +127,7 @@ done
 %{_javadir}/parfait/acme.jar
 %{_javadir}/parfait/sleep.jar
 %{_javadir}/parfait/counter.jar
+%doc README.md
 
 %files -n pcp-parfait-agent
 %dir %{_javadir}/parfait

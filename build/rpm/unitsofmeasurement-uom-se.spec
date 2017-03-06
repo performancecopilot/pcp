@@ -19,6 +19,7 @@ BuildRequires: maven-license-plugin
 BuildRequires: maven-dependency-plugin
 BuildRequires: mvn(org.hamcrest:hamcrest-all)
 BuildRequires: mvn(org.jacoco:jacoco-maven-plugin)
+BuildRequires: mvn(javax.annotation:javax.annotation-api:pom:)
 BuildRequires: mvn(javax.measure:unit-api)
 BuildRequires: mvn(tec.uom:uom-parent:pom:)
 BuildRequires: mvn(tec.uom.lib:uom-lib:pom:)
