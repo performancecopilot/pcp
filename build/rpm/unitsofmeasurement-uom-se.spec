@@ -1,7 +1,7 @@
 Summary: Unit Standard (JSR 363) implementation for Java SE 8 and above
 Name: unitsofmeasurement-uom-se
-Version: 1.0.2
-%global buildversion 2
+Version: 1.0.4
+%global buildversion 1
 %global uom_se uom-se-%{version}
 
 Release: %{buildversion}%{?dist}
@@ -60,6 +60,9 @@ cd %{uom_se}
 %files javadoc -f %{uom_se}/.mfiles-javadoc
 
 %changelog
+* Mon Mar 06 2017 Nathan Scott <nathans@redhat.com> - 1.0.4-1
+- Update to latest upstream sources.
+
 * Tue Feb 28 2017 Nathan Scott <nathans@redhat.com> - 1.0.2-2
 - Resolve lintian errors - source, license, documentation.
 

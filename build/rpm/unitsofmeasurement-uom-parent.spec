@@ -1,7 +1,7 @@
 Summary: Units of Measurement Project Parent POM
 Name: unitsofmeasurement-uom-parent
-Version: 1.0.2
-%global buildversion 2
+Version: 1.0.3
+%global buildversion 1
 %global uom_parent uom-parent-%{version}
 
 Release: %{buildversion}%{?dist}
@@ -34,6 +34,9 @@ cd %{uom_parent}
 %doc %{uom_parent}/README.md
 
 %changelog
+* Mon Mar 06 2017 Nathan Scott <nathans@redhat.com> - 1.0.3-1
+- Update to latest upstream sources.
+
 * Tue Feb 28 2017 Nathan Scott <nathans@redhat.com> - 1.0.2-2
 - Resolve lintian errors - source, license, documentation.
 

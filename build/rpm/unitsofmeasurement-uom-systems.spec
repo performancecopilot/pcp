@@ -1,7 +1,7 @@
 Summary: Units of Measurement Systems (JSR 363)
 Name: unitsofmeasurement-uom-systems
-Version: 0.5
-%global buildversion 3
+Version: 0.6
+%global buildversion 1
 %global uom_systems uom-systems-%{version}
 
 Release: %{buildversion}%{?dist}
@@ -9,10 +9,6 @@ License: BSD
 URL: https://github.com/unitsofmeasurement/uom-systems
 Group: Development/Languages
 Source0: https://github.com/unitsofmeasurement/uom-systems/archive/%{version}.tar.gz
-Patch1: uom-systems-remove-ROENTGEN.patch
-Patch2: uom-systems-remove-Priority.patch
-Patch3: uom-systems-AbstractONE.patch
-Patch4: uom-systems-remove-plurals.patch
 
 BuildArch: noarch
 BuildRequires: junit
@@ -43,10 +39,6 @@ Systems (JSR 363).
 %prep
 %setup -q -c -n unitsofmeasurement
 cd %{uom_systems}
-%patch1 -p0
-%patch2 -p0
-%patch3 -p0
-%patch4 -p0
 %pom_disable_module common	# use only Java 8+
 %pom_disable_module unicode	# use only Java 8+
 
@@ -64,6 +56,9 @@ cd %{uom_systems}
 %files javadoc -f %{uom_systems}/.mfiles-javadoc
 
 %changelog
+* Mon Mar 06 2017 Nathan Scott <nathans@redhat.com> - 0.6-1
+- Update to latest upstream sources.
+
 * Tue Feb 28 2017 Nathan Scott <nathans@redhat.com> - 0.5-3
 - Resolve lintian errors - source, license, documentation.
 

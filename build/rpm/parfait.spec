@@ -1,7 +1,7 @@
 Summary: Java libraries for Performance Co-Pilot (PCP)
 Name: parfait
-Version: 0.5.0
-%global buildversion 2
+Version: 0.5.1
+%global buildversion 1
 
 %global disable_dropwizard 1
 
@@ -106,14 +106,14 @@ install -m 644 man/parfait.1 %{buildroot}%{_mandir}/man1
 # special install of shaded, with-all-dependencies agent jar
 pushd parfait-agent/target
 install -m 644 parfait-agent-jar-with-dependencies.jar \
-               %{buildroot}%{_javadir}/parfait/parfait.jar
+            %{buildroot}%{_javadir}/parfait/parfait.jar
 popd
 # special install of with-all-dependencies sample jar files
 for example in acme sleep counter
 do
     pushd examples/${example}/target
     install -m 644 example-${example}-jar-with-dependencies.jar \
-               %{buildroot}%{_javadir}/parfait/${example}.jar
+                %{buildroot}%{_javadir}/parfait/${example}.jar
     popd
 done
 
@@ -137,6 +137,9 @@ done
 
 
 %changelog
+* Mon Mar 06 2017 Nathan Scott <nathans@redhat.com> - 0.5.1-1
+- Update to latest upstream sources.
+
 * Tue Feb 28 2017 Nathan Scott <nathans@redhat.com> - 0.5.0-2
 - Resolve lintian errors - source, license, documentation.
 
