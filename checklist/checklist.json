@@ -60,13 +60,15 @@
         },
         {
             "name": "Memory",
-	    "description": "Running low on free memory",
-	    "pcp_metrics": [ "mem.freemem", "mem.physmem" ],
-	    "pcp_deriveds": [ "mem_free = mem.freemem/mem.physmem" ],
-            "pcp_predicate": { "label": "< 5% free memory",
+	    "description": "Running low on available memory",
+	    "pcp_metrics": [ "mem.util.available", "mem.physmem" ],
+	    "pcp_deriveds": [ "mem_free = mem.util.available/mem.physmem" ],
+            "pcp_predicate": { "label": "< 10% available memory",
                                "operator": "threshold_max",
                                "metric": "mem_free",
-                               "value": 0.05 },
+                               "value": 0.10 },
+	    "urls": [ "https://access.redhat.com/articles/781733" ],
+	    "details": "When there is little memory available the system will need to free up space when addition memory is requested.  The memory can be freed by removed cached files, flushing files to disk, and paging sections of memory to swap on storage devices.",
 	    "parents": ["Start"]
         },
         {
