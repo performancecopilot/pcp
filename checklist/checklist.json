@@ -73,8 +73,15 @@
         },
         {
             "name": "Memory - swapping",
-	    "description": "Not enough physical memory and data being moved between memory and swap space",
-	    "pcp_metrics":  [ "swap.pagesin" , "swap.pagesout" ], 
+	    "description": "Not enough physical memory and data being moved out to swap space",
+	    "pcp_metrics":  [ "swap.pagesout" ],
+	    "pcp_deriveds":  [ "swaps = rate(swap.pagesout)" ],
+            "pcp_predicate": { "label": "swapping occuring",
+                               "operator": "threshold_min",
+                               "metric": "swaps",
+                               "value": 1.0 },
+	    "urls": [ "https://access.redhat.com/solutions/666753", "https://access.redhat.com/labsinfo/rhma" ],
+	    "details": "When the memory pressure is excessive the operating system will move data in memory to swap space on storage devices so that the memory can be use to store other data.  Data in swap will be moved back into memory as needed.  However, there is a cost for scanning memory for candidate data to move to swap and the cost of moving data between memory and swap space is high.",
 	    "parents": ["Memory"]
         },
         {
