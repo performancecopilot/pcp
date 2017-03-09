@@ -161,6 +161,13 @@
 	    "description": "Show network errors",
 	    "pcp_metrics": ["network.interface.out.errors.*", "network.interface.in.errors.*" ],
 	    "pcp_metrics_log": ["network.interface.out.errors", "network.interface.in.errors"],
+	    "pcp_deriveds": [ "network_errors = rate(network.interface.out.errors) + rate(network.interface.in.errors)" ],
+	    "pcp_predicate": { "label": "network errors",
+                               "metric": "network_errors",
+                               "operator": "threshold_min",
+                               "value" : 0.01 },
+	    "urls": [ "https://access.redhat.com/solutions/518893" ],
+	    "details": "In general the the operation of the network devices should be error free. ",
 	    "parents": ["Network"]
         },
         {
