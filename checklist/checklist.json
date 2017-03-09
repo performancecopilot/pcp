@@ -146,6 +146,14 @@
 	    "description": "Network packets being dropped",
 	    "pcp_metrics": ["network.interface.out.drops.*", "network.interface.in.drops.*" ],
 	    "pcp_metrics_log": ["network.interface.out.drops", "network.interface.in.drops" ],
+	    "pcp_deriveds": [ "network_drops = rate(network.interface.out.drops) + rate(network.interface.in.drops)" ],
+	    "pcp_predicate": { "label": "network drops",
+                               "metric": "network_drops",
+                               "operator": "threshold_min",
+                               "value" : 0.01 },
+	    "url": [ "https://access.redhat.com/solutions/21301"],
+	    "details": "Packets maybe dropped if there is not enough room in the ring buffers",
+	    "issues": "The URL mentions comparing the current ring buffer size to the max allowed and increase the ring buffer size, but PCP doesn't have metrics to provide ring buffer info, a 1% packet drop threshold might be too high.",
 	    "parents": ["Network"]
         },
         {
