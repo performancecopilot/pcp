@@ -214,7 +214,7 @@ return function (callback) {
             style: 'light',
             rows: [],
             services: {},
-            refresh: '120s', // XXX: parametrize
+            refresh: '5s', // XXX: parametrize
             style: 'light',
             nav: [{
                 type: "timepicker",
