@@ -427,6 +427,60 @@ expr node <addr-147> type=STAR left=<addr-148> right=<addr-149> save_last=0
 expr node <addr-148> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=1
 expr node <addr-149> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=1
 expr node <addr-150> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
+pmRegisterDerived: name="a.m22" expr="sample.long.hundred >= 10 * sample.longlong.ten"
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_GEQ ">="
+derive_lex() -> type=L_INTEGER "10"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.longlong.ten"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[23] a.m22 = sample.long.hundred >= 10 * sample.longlong.ten
+Derived metric expr dump from <addr-151>...
+expr node <addr-151> type=GEQ left=<addr-152> right=<addr-153> save_last=0
+expr node <addr-152> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
+expr node <addr-153> type=STAR left=<addr-154> right=<addr-155> save_last=0
+expr node <addr-154> type=INTEGER left=(nil) right=(nil) save_last=0 [10] master=1
+expr node <addr-155> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] master=1
+pmRegisterDerived: name="a.m23" expr="sample.ulonglong.hundred <= sample.longlong.ten + 91"
+derive_lex() -> type=L_NAME "sample.ulonglong.hundred"
+derive_lex() -> type=L_LEQ "<="
+derive_lex() -> type=L_NAME "sample.longlong.ten"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_INTEGER "91"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[24] a.m23 = sample.ulonglong.hundred <= sample.longlong.ten + 91
+Derived metric expr dump from <addr-156>...
+expr node <addr-156> type=LEQ left=<addr-157> right=<addr-158> save_last=0
+expr node <addr-157> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=1
+expr node <addr-158> type=PLUS left=<addr-159> right=<addr-160> save_last=0
+expr node <addr-159> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] master=1
+expr node <addr-160> type=INTEGER left=(nil) right=(nil) save_last=0 [91] master=1
+pmRegisterDerived: name="a.m24" expr="sample.long.hundred >= 10 * sample.longlong.ten && sample.ulonglong.hundred <= sample.longlong.ten + 91"
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_GEQ ">="
+derive_lex() -> type=L_INTEGER "10"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.longlong.ten"
+derive_lex() -> type=L_AND "&&"
+derive_lex() -> type=L_NAME "sample.ulonglong.hundred"
+derive_lex() -> type=L_LEQ "<="
+derive_lex() -> type=L_NAME "sample.longlong.ten"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_INTEGER "91"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[25] a.m24 = sample.long.hundred >= 10 * sample.longlong.ten && sample.ulonglong.hundred <= sample.longlong.ten + 91
+Derived metric expr dump from <addr-161>...
+expr node <addr-161> type=AND left=<addr-162> right=<addr-167> save_last=0
+expr node <addr-162> type=GEQ left=<addr-163> right=<addr-164> save_last=0
+expr node <addr-163> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
+expr node <addr-164> type=STAR left=<addr-165> right=<addr-166> save_last=0
+expr node <addr-165> type=INTEGER left=(nil) right=(nil) save_last=0 [10] master=1
+expr node <addr-166> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] master=1
+expr node <addr-167> type=LEQ left=<addr-168> right=<addr-169> save_last=0
+expr node <addr-168> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulonglong.hundred] master=1
+expr node <addr-169> type=PLUS left=<addr-170> right=<addr-171> save_last=0
+expr node <addr-170> type=NAME left=(nil) right=(nil) save_last=0 [sample.longlong.ten] master=1
+expr node <addr-171> type=INTEGER left=(nil) right=(nil) save_last=0 [91] master=1
 __dmopencontext: bind metric[0] event.flags
 __dmopencontext: bind metric[1] event.missed
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
@@ -471,6 +525,12 @@ __dmgetpmid: metric "a.m20" -> PMID 511.0.22
 __dmopencontext: bind metric[21] a.m20
 __dmgetpmid: metric "a.m21" -> PMID 511.0.23
 __dmopencontext: bind metric[22] a.m21
+__dmgetpmid: metric "a.m22" -> PMID 511.0.24
+__dmopencontext: bind metric[23] a.m22
+__dmgetpmid: metric "a.m23" -> PMID 511.0.25
+__dmopencontext: bind metric[24] a.m23
+__dmgetpmid: metric "a.m24" -> PMID 511.0.26
+__dmopencontext: bind metric[25] a.m24
 __dmtraverse: name="a" added "a.m1"
 __dmtraverse: name="a" added "a.m2"
 __dmtraverse: name="a" added "a.m3"
@@ -492,6 +552,9 @@ __dmtraverse: name="a" added "a.m18"
 __dmtraverse: name="a" added "a.m19"
 __dmtraverse: name="a" added "a.m20"
 __dmtraverse: name="a" added "a.m21"
+__dmtraverse: name="a" added "a.m22"
+__dmtraverse: name="a" added "a.m23"
+__dmtraverse: name="a" added "a.m24"
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4
 __dmgetpmid: metric "a.m3" -> PMID 511.0.5
@@ -513,6 +576,9 @@ __dmgetpmid: metric "a.m18" -> PMID 511.0.20
 __dmgetpmid: metric "a.m19" -> PMID 511.0.21
 __dmgetpmid: metric "a.m20" -> PMID 511.0.22
 __dmgetpmid: metric "a.m21" -> PMID 511.0.23
+__dmgetpmid: metric "a.m22" -> PMID 511.0.24
+__dmgetpmid: metric "a.m23" -> PMID 511.0.25
+__dmgetpmid: metric "a.m24" -> PMID 511.0.26
 a.m1 1 20
 a.m2 1 11
 a.m3 1 1
@@ -534,6 +600,9 @@ a.m18 1 1
 a.m19 1 1
 a.m20 1 1
 a.m21 1 1
+a.m22 1 1
+a.m23 1 1
+a.m24 1 1
 expecting ...
 a.m1	 20
 a.m2	 11
@@ -556,3 +625,6 @@ a.m18	  1
 a.m19	  1
 a.m20	  1
 a.m21	  1
+a.m22	  1
+a.m23     1
+a.m24     1

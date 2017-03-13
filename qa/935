@@ -62,6 +62,9 @@ a.m18 = 0 * 2 + sample.long.one
 a.m19 = 123 >= 0 * 2 + sample.long.hundred + sample.float.ten + sample.double.ten
 a.m20 = sample.double.million != sample.long.one
 a.m21 = 1 >= 0 * 2 + sample.long.one
+a.m22 = sample.long.hundred >= 10 * sample.longlong.ten
+a.m23 = sample.ulonglong.hundred <= sample.longlong.ten + 91
+a.m24 = sample.long.hundred >= 10 * sample.longlong.ten && sample.ulonglong.hundred <= sample.longlong.ten + 91
 End-of-File
 
 export PCP_DERIVED_CONFIG=$tmp.config
@@ -92,6 +95,9 @@ a.m18	  1
 a.m19	  1
 a.m20	  1
 a.m21	  1
+a.m22	  1
+a.m23     1
+a.m24     1
 End-of-File
 
 # success, all done

@@ -159,7 +159,7 @@ C-style relational operators are supported, namely \- ``<'', ``<='', ``=='',
 Relational expresssions return a value as a 32-bit unsigned number being
 0 for false and 1 for true.
 The expected operator precedence rules 
-apply, so arithmetic operators have higher precence that relational operators,
+apply, so arithmetic operators have higher precedence than relational operators,
 and
 .ft CW
 a-b>c+d
@@ -177,9 +177,50 @@ a>b!=c
 is evaluated as
 .ft CW
 (a>b)!=c\c
+.ft R
 \&.
 .IP * 2n
-Parenthesis may be used for grouping.
+C-style boolean operators are supported, namely \- ``&&'' and ``||''.
+Boolean expresssions return a value as a 32-bit unsigned number being
+0 for false and 1 for true.
+The expected operator precedence rules 
+apply, so relational operators have higher precedence than boolean operators
+\&``&&'' or ``||'',
+and
+.ft CW
+a>b*c&&d<=e+f
+.ft R
+is evaluated as
+.ft CW
+(a>(b*c))&&(d<=(e+f))\c
+.ft R
+\&.
+.IP * 2n
+Additionally, the ``!'' operator may be used to negate a boolean or
+relational expression, returning a value as a 32-bit unsigned number being
+0 for false and 1 for true.
+The expected operator precedence rules
+apply, so boolean (and relational) operators have higher precedence
+than boolean negation,
+and
+.ft CW
+!a>b||c<d
+.ft R
+is evaluated as
+.ft CW
+!((a>b)||(c<d))\c
+\&,
+while
+.ft CW
+!a<b+c
+.ft R
+is evaluated as
+.ft CW
+!(a<(b+c))
+.ft R
+\&.
+.IP * 2n
+Parenthesis may be used for explicit grouping.
 .IP * 2n
 The following unary functions operate on a single performance metric
 and return one or more values.

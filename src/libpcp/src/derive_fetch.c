@@ -804,12 +804,50 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    return np->info->numval;
 	    break;
 
-	case N_NOT:	/* boolean negation */
-	    np->info->numval = PM_ERR_NYI;
+	case N_NOT:	/* boolean negation, values are in the left expr */
+	    assert(np->left != NULL);
+	    free_ivlist(np);
+	    np->info->numval = np->left->info->numval;
+	    /*
+	     * empty result case first
+	     */
+	    if (np->info->numval == 0)
+		return np->info->numval;
+	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
+		__pmNoMem("eval_expr: N_NOT ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    /*
+	     * ivlist[i] = ! left-ivlist[i]
+	     */
+	    for (i = 0; i < np->info->numval; i++) {
+		switch (np->left->desc.type) {
+		    case PM_TYPE_32:
+			np->info->ivlist[i].value.ul = (np->left->info->ivlist[i].value.l == 0);
+			break;
+		    case PM_TYPE_U32:
+			np->info->ivlist[i].value.ul = (np->left->info->ivlist[i].value.ul == 0);
+			break;
+		    case PM_TYPE_64:
+			np->info->ivlist[i].value.ul = (np->left->info->ivlist[i].value.ll == 0);
+			break;
+		    case PM_TYPE_U64:
+			np->info->ivlist[i].value.ul = (np->left->info->ivlist[i].value.ull == 0);
+			break;
+		    case PM_TYPE_FLOAT:
+			np->info->ivlist[i].value.ul = (np->left->info->ivlist[i].value.f == 0);
+			break;
+		    case PM_TYPE_DOUBLE:
+			np->info->ivlist[i].value.ul = (np->left->info->ivlist[i].value.d == 0);
+			break;
+		}
+		np->info->ivlist[i].inst = np->left->info->ivlist[i].inst;
+	    }
 	    return np->info->numval;
 	    break;
 
 	case N_NEG:	/* unary arithmetic negation */
+	    assert(np->left != NULL);
 	    np->info->numval = PM_ERR_NYI;
 	    return np->info->numval;
 	    break;
@@ -818,6 +856,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    /*
 	     * values are in the left expr
 	     */
+	    assert(np->left != NULL);
 	    np->info->last_stamp = np->info->stamp;
 	    np->info->stamp = rp->timestamp;
 	    np->info->numval = np->left->info->numval;
