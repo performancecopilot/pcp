@@ -112,7 +112,7 @@ pminfo -f -a $tmp qa_$seq
 echo
 echo "error cases ..."
 cat <<End-of-File >$tmp.config
-qa_$seq.bad_neq = sample.seconds !& 0
+qa_$seq.bad_neq = sample.seconds #& 0
 qa_$seq.bad_and = sample.milliseconds > sample.seconds &@ 1>2
 qa_$seq.bad_or = sample.milli|seconds
 End-of-File

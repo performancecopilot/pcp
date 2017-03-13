@@ -18,19 +18,21 @@ my.i2 = sample.scale_step.none_up + 42
 my.i3 = pmcd.pmlogger.port - pmcd.pmlogger.port
 
 pmRegisterDerived: name="event.flags" expr="anon(PM_TYPE_U32)"
-parse(1) state=P_INIT type=L_ANON "anon("
-parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
 expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
-parse(1) state=P_INIT type=L_ANON "anon("
-parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
@@ -38,32 +40,32 @@ expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32]
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="my.space_over_time1" expr="sample.mirage + sample.mirage_longlong"
-parse(1) state=P_INIT type=L_NAME "sample.mirage"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.mirage_longlong"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.mirage"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.mirage_longlong"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[2] my.space_over_time1 = sample.mirage + sample.mirage_longlong
 Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=PLUS left=<addr-5> right=<addr-6> save_last=0
 expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] master=1
 expr node <addr-6> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage_longlong] master=1
 pmRegisterDerived: name="my.space_over_time2" expr="sample.mirage_longlong + sample.mirage"
-parse(1) state=P_INIT type=L_NAME "sample.mirage_longlong"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.mirage"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.mirage_longlong"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.mirage"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[3] my.space_over_time2 = sample.mirage_longlong + sample.mirage
 Derived metric expr dump from <addr-7>...
 expr node <addr-7> type=PLUS left=<addr-8> right=<addr-9> save_last=0
 expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage_longlong] master=1
 expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] master=1
 pmRegisterDerived: name="my.space_over_time3" expr="sample.mirage_longlong + sample.mirage - sample.byte_rate"
-parse(1) state=P_INIT type=L_NAME "sample.mirage_longlong"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.mirage"
-parse(1) state=P_LEAF type=L_MINUS "-"
-parse(1) state=P_BINOP type=L_NAME "sample.byte_rate"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.mirage_longlong"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.mirage"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_NAME "sample.byte_rate"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[4] my.space_over_time3 = sample.mirage_longlong + sample.mirage - sample.byte_rate
 Derived metric expr dump from <addr-10>...
 expr node <addr-10> type=MINUS left=<addr-11> right=<addr-14> save_last=0
@@ -72,62 +74,62 @@ expr node <addr-12> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage_
 expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] master=1
 expr node <addr-14> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=1
 pmRegisterDerived: name="my.space_over_time4" expr="sample.byte_rate + sample.byte_rate_perhour"
-parse(1) state=P_INIT type=L_NAME "sample.byte_rate"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.byte_rate_perhour"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.byte_rate"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.byte_rate_perhour"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[5] my.space_over_time4 = sample.byte_rate + sample.byte_rate_perhour
 Derived metric expr dump from <addr-15>...
 expr node <addr-15> type=PLUS left=<addr-16> right=<addr-17> save_last=0
 expr node <addr-16> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=1
 expr node <addr-17> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate_perhour] master=1
 pmRegisterDerived: name="my.space" expr="sample.byte_ctr + sample.kbyte_ctr"
-parse(1) state=P_INIT type=L_NAME "sample.byte_ctr"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.kbyte_ctr"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.byte_ctr"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.kbyte_ctr"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[6] my.space = sample.byte_ctr + sample.kbyte_ctr
 Derived metric expr dump from <addr-18>...
 expr node <addr-18> type=PLUS left=<addr-19> right=<addr-20> save_last=0
 expr node <addr-19> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_ctr] master=1
 expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=0 [sample.kbyte_ctr] master=1
 pmRegisterDerived: name="my.byte1" expr="sample.byte_rate * sample.scale_step.time_up_secs"
-parse(1) state=P_INIT type=L_NAME "sample.byte_rate"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_NAME "sample.scale_step.time_up_secs"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.byte_rate"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.scale_step.time_up_secs"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[7] my.byte1 = sample.byte_rate * sample.scale_step.time_up_secs
 Derived metric expr dump from <addr-21>...
 expr node <addr-21> type=STAR left=<addr-22> right=<addr-23> save_last=0
 expr node <addr-22> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=1
 expr node <addr-23> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.time_up_secs] master=1
 pmRegisterDerived: name="my.byte2" expr="sample.byte_rate * sample.scale_step.time_up_nanosecs"
-parse(1) state=P_INIT type=L_NAME "sample.byte_rate"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_NAME "sample.scale_step.time_up_nanosecs"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.byte_rate"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.scale_step.time_up_nanosecs"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[8] my.byte2 = sample.byte_rate * sample.scale_step.time_up_nanosecs
 Derived metric expr dump from <addr-24>...
 expr node <addr-24> type=STAR left=<addr-25> right=<addr-26> save_last=0
 expr node <addr-25> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=1
 expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.time_up_nanosecs] master=1
 pmRegisterDerived: name="my.x1" expr="sample.scale_step.bytes_down / sample.scale_step.time_up_secs"
-parse(1) state=P_INIT type=L_NAME "sample.scale_step.bytes_down"
-parse(1) state=P_LEAF type=L_SLASH "/"
-parse(1) state=P_BINOP type=L_NAME "sample.scale_step.time_up_secs"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.scale_step.bytes_down"
+derive_lex() -> type=L_SLASH "/"
+derive_lex() -> type=L_NAME "sample.scale_step.time_up_secs"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[9] my.x1 = sample.scale_step.bytes_down / sample.scale_step.time_up_secs
 Derived metric expr dump from <addr-27>...
 expr node <addr-27> type=SLASH left=<addr-28> right=<addr-29> save_last=0
 expr node <addr-28> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.bytes_down] master=1
 expr node <addr-29> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.time_up_secs] master=1
 pmRegisterDerived: name="my.x2" expr="sample.scale_step.bytes_down / sample.scale_step.time_up_secs + sample.mirage"
-parse(1) state=P_INIT type=L_NAME "sample.scale_step.bytes_down"
-parse(1) state=P_LEAF type=L_SLASH "/"
-parse(1) state=P_BINOP type=L_NAME "sample.scale_step.time_up_secs"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.mirage"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.scale_step.bytes_down"
+derive_lex() -> type=L_SLASH "/"
+derive_lex() -> type=L_NAME "sample.scale_step.time_up_secs"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.mirage"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[10] my.x2 = sample.scale_step.bytes_down / sample.scale_step.time_up_secs + sample.mirage
 Derived metric expr dump from <addr-30>...
 expr node <addr-30> type=PLUS left=<addr-31> right=<addr-34> save_last=0
@@ -136,50 +138,50 @@ expr node <addr-32> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_s
 expr node <addr-33> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.time_up_secs] master=1
 expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=0 [sample.mirage] master=1
 pmRegisterDerived: name="my.x3" expr="sample.scale_step.count_up * sample.scale_step.count_down"
-parse(1) state=P_INIT type=L_NAME "sample.scale_step.count_up"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_NAME "sample.scale_step.count_down"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.scale_step.count_up"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.scale_step.count_down"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[11] my.x3 = sample.scale_step.count_up * sample.scale_step.count_down
 Derived metric expr dump from <addr-35>...
 expr node <addr-35> type=STAR left=<addr-36> right=<addr-37> save_last=0
 expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.count_up] master=1
 expr node <addr-37> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.count_down] master=1
 pmRegisterDerived: name="my.x4" expr="sample.scale_step.count_down / sample.scale_step.count_up"
-parse(1) state=P_INIT type=L_NAME "sample.scale_step.count_down"
-parse(1) state=P_LEAF type=L_SLASH "/"
-parse(1) state=P_BINOP type=L_NAME "sample.scale_step.count_up"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.scale_step.count_down"
+derive_lex() -> type=L_SLASH "/"
+derive_lex() -> type=L_NAME "sample.scale_step.count_up"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[12] my.x4 = sample.scale_step.count_down / sample.scale_step.count_up
 Derived metric expr dump from <addr-38>...
 expr node <addr-38> type=SLASH left=<addr-39> right=<addr-40> save_last=0
 expr node <addr-39> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.count_down] master=1
 expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.count_up] master=1
 pmRegisterDerived: name="my.i1" expr="42 + sample.scale_step.none_up"
-parse(1) state=P_INIT type=L_INTEGER "42"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.scale_step.none_up"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_INTEGER "42"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.scale_step.none_up"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[13] my.i1 = 42 + sample.scale_step.none_up
 Derived metric expr dump from <addr-41>...
 expr node <addr-41> type=PLUS left=<addr-42> right=<addr-43> save_last=0
 expr node <addr-42> type=INTEGER left=(nil) right=(nil) save_last=0 [42] master=1
 expr node <addr-43> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.none_up] master=1
 pmRegisterDerived: name="my.i2" expr="sample.scale_step.none_up + 42"
-parse(1) state=P_INIT type=L_NAME "sample.scale_step.none_up"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_INTEGER "42"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.scale_step.none_up"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_INTEGER "42"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[14] my.i2 = sample.scale_step.none_up + 42
 Derived metric expr dump from <addr-44>...
 expr node <addr-44> type=PLUS left=<addr-45> right=<addr-46> save_last=0
 expr node <addr-45> type=NAME left=(nil) right=(nil) save_last=0 [sample.scale_step.none_up] master=1
 expr node <addr-46> type=INTEGER left=(nil) right=(nil) save_last=0 [42] master=1
 pmRegisterDerived: name="my.i3" expr="pmcd.pmlogger.port - pmcd.pmlogger.port"
-parse(1) state=P_INIT type=L_NAME "pmcd.pmlogger.port"
-parse(1) state=P_LEAF type=L_MINUS "-"
-parse(1) state=P_BINOP type=L_NAME "pmcd.pmlogger.port"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "pmcd.pmlogger.port"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_NAME "pmcd.pmlogger.port"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[15] my.i3 = pmcd.pmlogger.port - pmcd.pmlogger.port
 Derived metric expr dump from <addr-47>...
 expr node <addr-47> type=MINUS left=<addr-48> right=<addr-49> save_last=0

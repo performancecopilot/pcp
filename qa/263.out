@@ -203,19 +203,21 @@ aggr.countblob
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 pmRegisterDerived: name="event.flags" expr="anon(PM_TYPE_U32)"
-parse(1) state=P_INIT type=L_ANON "anon("
-parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
 expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
-parse(1) state=P_INIT type=L_ANON "anon("
-parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
@@ -223,32 +225,36 @@ expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32]
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="aggr.max32" expr="max(sample.bin)"
-parse(1) state=P_INIT type=L_MAX "max("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MAX "max"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[2] aggr.max32 = max(sample.bin)
 Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=MAX left=<addr-5> right=(nil) save_last=0
 expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=1
 pmRegisterDerived: name="aggr.min32" expr="min(sample.long.hundred)"
-parse(1) state=P_INIT type=L_MIN "min("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.long.hundred"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MIN "min"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[3] aggr.min32 = min(sample.long.hundred)
 Derived metric expr dump from <addr-6>...
 expr node <addr-6> type=MIN left=<addr-7> right=(nil) save_last=0
 expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=1 [sample.long.hundred] master=1
 pmRegisterDerived: name="aggr.maxu32_minu32" expr="max(sample.const_rate.value) - min(sample.const_rate.value)"
-parse(1) state=P_INIT type=L_MAX "max("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.const_rate.value"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_MINUS "-"
-parse(1) state=P_BINOP type=L_MIN "min("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.const_rate.value"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MAX "max"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.const_rate.value"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_MIN "min"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.const_rate.value"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[4] aggr.maxu32_minu32 = max(sample.const_rate.value) - min(sample.const_rate.value)
 Derived metric expr dump from <addr-8>...
 expr node <addr-8> type=MINUS left=<addr-9> right=<addr-11> save_last=0
@@ -257,14 +263,16 @@ expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_r
 expr node <addr-11> type=MIN left=<addr-12> right=(nil) save_last=0
 expr node <addr-12> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] master=1
 pmRegisterDerived: name="aggr.max64_min64" expr="max(sample.longlong.hundred) - min(sample.longlong.hundred)"
-parse(1) state=P_INIT type=L_MAX "max("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.longlong.hundred"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_MINUS "-"
-parse(1) state=P_BINOP type=L_MIN "min("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.longlong.hundred"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MAX "max"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.longlong.hundred"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_MIN "min"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.longlong.hundred"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[5] aggr.max64_min64 = max(sample.longlong.hundred) - min(sample.longlong.hundred)
 Derived metric expr dump from <addr-13>...
 expr node <addr-13> type=MINUS left=<addr-14> right=<addr-16> save_last=0
@@ -273,14 +281,16 @@ expr node <addr-15> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlon
 expr node <addr-16> type=MIN left=<addr-17> right=(nil) save_last=0
 expr node <addr-17> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.hundred] master=1
 pmRegisterDerived: name="aggr.maxu64_minu64" expr="max(sample.pdu) - min(sample.pdu)"
-parse(1) state=P_INIT type=L_MAX "max("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.pdu"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_MINUS "-"
-parse(1) state=P_BINOP type=L_MIN "min("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.pdu"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MAX "max"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.pdu"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_MIN "min"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.pdu"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[6] aggr.maxu64_minu64 = max(sample.pdu) - min(sample.pdu)
 Derived metric expr dump from <addr-18>...
 expr node <addr-18> type=MINUS left=<addr-19> right=<addr-21> save_last=0
@@ -289,14 +299,16 @@ expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=1 [sample.pdu] ma
 expr node <addr-21> type=MIN left=<addr-22> right=(nil) save_last=0
 expr node <addr-22> type=NAME left=(nil) right=(nil) save_last=1 [sample.pdu] master=1
 pmRegisterDerived: name="aggr.maxuf_minuf" expr="max(sample.float.million) - min(sample.float.million)"
-parse(1) state=P_INIT type=L_MAX "max("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.float.million"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_MINUS "-"
-parse(1) state=P_BINOP type=L_MIN "min("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.float.million"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MAX "max"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.float.million"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_MIN "min"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.float.million"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[7] aggr.maxuf_minuf = max(sample.float.million) - min(sample.float.million)
 Derived metric expr dump from <addr-23>...
 expr node <addr-23> type=MINUS left=<addr-24> right=<addr-26> save_last=0
@@ -305,14 +317,16 @@ expr node <addr-25> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.m
 expr node <addr-26> type=MIN left=<addr-27> right=(nil) save_last=0
 expr node <addr-27> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.million] master=1
 pmRegisterDerived: name="aggr.maxud_minud" expr="max(sample.double.million) - min(sample.double.million)"
-parse(1) state=P_INIT type=L_MAX "max("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.double.million"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_MINUS "-"
-parse(1) state=P_BINOP type=L_MIN "min("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.double.million"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MAX "max"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.double.million"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_MIN "min"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.double.million"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[8] aggr.maxud_minud = max(sample.double.million) - min(sample.double.million)
 Derived metric expr dump from <addr-28>...
 expr node <addr-28> type=MINUS left=<addr-29> right=<addr-31> save_last=0
@@ -321,298 +335,331 @@ expr node <addr-30> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.
 expr node <addr-31> type=MIN left=<addr-32> right=(nil) save_last=0
 expr node <addr-32> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.million] master=1
 pmRegisterDerived: name="aggr.count32" expr="count(sample.bin)"
-parse(1) state=P_INIT type=L_COUNT "count("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_COUNT "count"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[9] aggr.count32 = count(sample.bin)
 Derived metric expr dump from <addr-33>...
 expr node <addr-33> type=COUNT left=<addr-34> right=(nil) save_last=0
 expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=1
 pmRegisterDerived: name="aggr.avg32" expr="avg(sample.bin)"
-parse(1) state=P_INIT type=L_AVG "avg("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_AVG "avg"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[10] aggr.avg32 = avg(sample.bin)
 Derived metric expr dump from <addr-35>...
 expr node <addr-35> type=AVG left=<addr-36> right=(nil) save_last=0
 expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=1
 pmRegisterDerived: name="aggr.max32_x" expr="max(sample.bin)"
-parse(1) state=P_INIT type=L_MAX "max("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MAX "max"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[11] aggr.max32_x = max(sample.bin)
 Derived metric expr dump from <addr-37>...
 expr node <addr-37> type=MAX left=<addr-38> right=(nil) save_last=0
 expr node <addr-38> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=1
 pmRegisterDerived: name="aggr.min32_x" expr="min(sample.bin)"
-parse(1) state=P_INIT type=L_MIN "min("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MIN "min"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[12] aggr.min32_x = min(sample.bin)
 Derived metric expr dump from <addr-39>...
 expr node <addr-39> type=MIN left=<addr-40> right=(nil) save_last=0
 expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=1
 pmRegisterDerived: name="aggr.sum32" expr="sum(sample.bin)"
-parse(1) state=P_INIT type=L_SUM "sum("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_SUM "sum"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[13] aggr.sum32 = sum(sample.bin)
 Derived metric expr dump from <addr-41>...
 expr node <addr-41> type=SUM left=<addr-42> right=(nil) save_last=0
 expr node <addr-42> type=NAME left=(nil) right=(nil) save_last=1 [sample.bin] master=1
 pmRegisterDerived: name="aggr.avgu32" expr="avg(sample.ulong.bin_ctr)"
-parse(1) state=P_INIT type=L_AVG "avg("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.ulong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_AVG "avg"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.ulong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[14] aggr.avgu32 = avg(sample.ulong.bin_ctr)
 Derived metric expr dump from <addr-43>...
 expr node <addr-43> type=AVG left=<addr-44> right=(nil) save_last=0
 expr node <addr-44> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.countu32" expr="count(sample.ulong.bin_ctr)"
-parse(1) state=P_INIT type=L_COUNT "count("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.ulong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_COUNT "count"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.ulong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[15] aggr.countu32 = count(sample.ulong.bin_ctr)
 Derived metric expr dump from <addr-45>...
 expr node <addr-45> type=COUNT left=<addr-46> right=(nil) save_last=0
 expr node <addr-46> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.maxu32" expr="max(sample.ulong.bin_ctr)"
-parse(1) state=P_INIT type=L_MAX "max("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.ulong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MAX "max"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.ulong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[16] aggr.maxu32 = max(sample.ulong.bin_ctr)
 Derived metric expr dump from <addr-47>...
 expr node <addr-47> type=MAX left=<addr-48> right=(nil) save_last=0
 expr node <addr-48> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.minu32" expr="min(sample.ulong.bin_ctr)"
-parse(1) state=P_INIT type=L_MIN "min("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.ulong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MIN "min"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.ulong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[17] aggr.minu32 = min(sample.ulong.bin_ctr)
 Derived metric expr dump from <addr-49>...
 expr node <addr-49> type=MIN left=<addr-50> right=(nil) save_last=0
 expr node <addr-50> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.sumu32" expr="sum(sample.ulong.bin_ctr)"
-parse(1) state=P_INIT type=L_SUM "sum("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.ulong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_SUM "sum"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.ulong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[18] aggr.sumu32 = sum(sample.ulong.bin_ctr)
 Derived metric expr dump from <addr-51>...
 expr node <addr-51> type=SUM left=<addr-52> right=(nil) save_last=0
 expr node <addr-52> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.avgf" expr="avg(sample.float.bin)"
-parse(1) state=P_INIT type=L_AVG "avg("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.float.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_AVG "avg"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.float.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[19] aggr.avgf = avg(sample.float.bin)
 Derived metric expr dump from <addr-53>...
 expr node <addr-53> type=AVG left=<addr-54> right=(nil) save_last=0
 expr node <addr-54> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=1
 pmRegisterDerived: name="aggr.countf" expr="count(sample.float.bin)"
-parse(1) state=P_INIT type=L_COUNT "count("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.float.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_COUNT "count"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.float.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[20] aggr.countf = count(sample.float.bin)
 Derived metric expr dump from <addr-55>...
 expr node <addr-55> type=COUNT left=<addr-56> right=(nil) save_last=0
 expr node <addr-56> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=1
 pmRegisterDerived: name="aggr.maxf" expr="max(sample.float.bin)"
-parse(1) state=P_INIT type=L_MAX "max("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.float.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MAX "max"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.float.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[21] aggr.maxf = max(sample.float.bin)
 Derived metric expr dump from <addr-57>...
 expr node <addr-57> type=MAX left=<addr-58> right=(nil) save_last=0
 expr node <addr-58> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=1
 pmRegisterDerived: name="aggr.minf" expr="min(sample.float.bin)"
-parse(1) state=P_INIT type=L_MIN "min("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.float.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MIN "min"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.float.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[22] aggr.minf = min(sample.float.bin)
 Derived metric expr dump from <addr-59>...
 expr node <addr-59> type=MIN left=<addr-60> right=(nil) save_last=0
 expr node <addr-60> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=1
 pmRegisterDerived: name="aggr.sumf" expr="sum(sample.float.bin)"
-parse(1) state=P_INIT type=L_SUM "sum("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.float.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_SUM "sum"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.float.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[23] aggr.sumf = sum(sample.float.bin)
 Derived metric expr dump from <addr-61>...
 expr node <addr-61> type=SUM left=<addr-62> right=(nil) save_last=0
 expr node <addr-62> type=NAME left=(nil) right=(nil) save_last=1 [sample.float.bin] master=1
 pmRegisterDerived: name="aggr.avg64" expr="avg(sample.longlong.bin_ctr)"
-parse(1) state=P_INIT type=L_AVG "avg("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.longlong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_AVG "avg"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.longlong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[24] aggr.avg64 = avg(sample.longlong.bin_ctr)
 Derived metric expr dump from <addr-63>...
 expr node <addr-63> type=AVG left=<addr-64> right=(nil) save_last=0
 expr node <addr-64> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.count64" expr="count(sample.longlong.bin_ctr)"
-parse(1) state=P_INIT type=L_COUNT "count("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.longlong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_COUNT "count"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.longlong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[25] aggr.count64 = count(sample.longlong.bin_ctr)
 Derived metric expr dump from <addr-65>...
 expr node <addr-65> type=COUNT left=<addr-66> right=(nil) save_last=0
 expr node <addr-66> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.max64" expr="max(sample.longlong.bin_ctr)"
-parse(1) state=P_INIT type=L_MAX "max("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.longlong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MAX "max"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.longlong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[26] aggr.max64 = max(sample.longlong.bin_ctr)
 Derived metric expr dump from <addr-67>...
 expr node <addr-67> type=MAX left=<addr-68> right=(nil) save_last=0
 expr node <addr-68> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.min64" expr="min(sample.longlong.bin_ctr)"
-parse(1) state=P_INIT type=L_MIN "min("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.longlong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MIN "min"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.longlong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[27] aggr.min64 = min(sample.longlong.bin_ctr)
 Derived metric expr dump from <addr-69>...
 expr node <addr-69> type=MIN left=<addr-70> right=(nil) save_last=0
 expr node <addr-70> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.sum64" expr="sum(sample.longlong.bin_ctr)"
-parse(1) state=P_INIT type=L_SUM "sum("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.longlong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_SUM "sum"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.longlong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[28] aggr.sum64 = sum(sample.longlong.bin_ctr)
 Derived metric expr dump from <addr-71>...
 expr node <addr-71> type=SUM left=<addr-72> right=(nil) save_last=0
 expr node <addr-72> type=NAME left=(nil) right=(nil) save_last=1 [sample.longlong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.avgu64" expr="avg(sample.ulonglong.bin_ctr)"
-parse(1) state=P_INIT type=L_AVG "avg("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.ulonglong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_AVG "avg"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.ulonglong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[29] aggr.avgu64 = avg(sample.ulonglong.bin_ctr)
 Derived metric expr dump from <addr-73>...
 expr node <addr-73> type=AVG left=<addr-74> right=(nil) save_last=0
 expr node <addr-74> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.countu64" expr="count(sample.ulonglong.bin_ctr)"
-parse(1) state=P_INIT type=L_COUNT "count("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.ulonglong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_COUNT "count"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.ulonglong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[30] aggr.countu64 = count(sample.ulonglong.bin_ctr)
 Derived metric expr dump from <addr-75>...
 expr node <addr-75> type=COUNT left=<addr-76> right=(nil) save_last=0
 expr node <addr-76> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.maxu64" expr="max(sample.ulonglong.bin_ctr)"
-parse(1) state=P_INIT type=L_MAX "max("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.ulonglong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MAX "max"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.ulonglong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[31] aggr.maxu64 = max(sample.ulonglong.bin_ctr)
 Derived metric expr dump from <addr-77>...
 expr node <addr-77> type=MAX left=<addr-78> right=(nil) save_last=0
 expr node <addr-78> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.minu64" expr="min(sample.ulonglong.bin_ctr)"
-parse(1) state=P_INIT type=L_MIN "min("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.ulonglong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MIN "min"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.ulonglong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[32] aggr.minu64 = min(sample.ulonglong.bin_ctr)
 Derived metric expr dump from <addr-79>...
 expr node <addr-79> type=MIN left=<addr-80> right=(nil) save_last=0
 expr node <addr-80> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.sumu64" expr="sum(sample.ulonglong.bin_ctr)"
-parse(1) state=P_INIT type=L_SUM "sum("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.ulonglong.bin_ctr"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_SUM "sum"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.ulonglong.bin_ctr"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[33] aggr.sumu64 = sum(sample.ulonglong.bin_ctr)
 Derived metric expr dump from <addr-81>...
 expr node <addr-81> type=SUM left=<addr-82> right=(nil) save_last=0
 expr node <addr-82> type=NAME left=(nil) right=(nil) save_last=1 [sample.ulonglong.bin_ctr] master=1
 pmRegisterDerived: name="aggr.avgd" expr="avg(sample.double.bin)"
-parse(1) state=P_INIT type=L_AVG "avg("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.double.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_AVG "avg"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.double.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[34] aggr.avgd = avg(sample.double.bin)
 Derived metric expr dump from <addr-83>...
 expr node <addr-83> type=AVG left=<addr-84> right=(nil) save_last=0
 expr node <addr-84> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=1
 pmRegisterDerived: name="aggr.countd" expr="count(sample.double.bin)"
-parse(1) state=P_INIT type=L_COUNT "count("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.double.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_COUNT "count"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.double.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[35] aggr.countd = count(sample.double.bin)
 Derived metric expr dump from <addr-85>...
 expr node <addr-85> type=COUNT left=<addr-86> right=(nil) save_last=0
 expr node <addr-86> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=1
 pmRegisterDerived: name="aggr.maxd" expr="max(sample.double.bin)"
-parse(1) state=P_INIT type=L_MAX "max("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.double.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MAX "max"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.double.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[36] aggr.maxd = max(sample.double.bin)
 Derived metric expr dump from <addr-87>...
 expr node <addr-87> type=MAX left=<addr-88> right=(nil) save_last=0
 expr node <addr-88> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=1
 pmRegisterDerived: name="aggr.mind" expr="min(sample.double.bin)"
-parse(1) state=P_INIT type=L_MIN "min("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.double.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MIN "min"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.double.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[37] aggr.mind = min(sample.double.bin)
 Derived metric expr dump from <addr-89>...
 expr node <addr-89> type=MIN left=<addr-90> right=(nil) save_last=0
 expr node <addr-90> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=1
 pmRegisterDerived: name="aggr.sumd" expr="sum(sample.double.bin)"
-parse(1) state=P_INIT type=L_SUM "sum("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.double.bin"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_SUM "sum"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.double.bin"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[38] aggr.sumd = sum(sample.double.bin)
 Derived metric expr dump from <addr-91>...
 expr node <addr-91> type=SUM left=<addr-92> right=(nil) save_last=0
 expr node <addr-92> type=NAME left=(nil) right=(nil) save_last=1 [sample.double.bin] master=1
 pmRegisterDerived: name="aggr.count_err" expr="count(sample.needprofile)"
-parse(1) state=P_INIT type=L_COUNT "count("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.needprofile"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_COUNT "count"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.needprofile"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[39] aggr.count_err = count(sample.needprofile)
 Derived metric expr dump from <addr-93>...
 expr node <addr-93> type=COUNT left=<addr-94> right=(nil) save_last=0
 expr node <addr-94> type=NAME left=(nil) right=(nil) save_last=1 [sample.needprofile] master=1
 pmRegisterDerived: name="aggr.sum_err" expr="sum(sample.needprofile)"
-parse(1) state=P_INIT type=L_SUM "sum("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.needprofile"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_SUM "sum"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.needprofile"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[40] aggr.sum_err = sum(sample.needprofile)
 Derived metric expr dump from <addr-95>...
 expr node <addr-95> type=SUM left=<addr-96> right=(nil) save_last=0
 expr node <addr-96> type=NAME left=(nil) right=(nil) save_last=1 [sample.needprofile] master=1
 pmRegisterDerived: name="aggr.countblob" expr="count(sample.sysinfo)"
-parse(1) state=P_INIT type=L_COUNT "count("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.sysinfo"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_COUNT "count"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.sysinfo"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[41] aggr.countblob = count(sample.sysinfo)
 Derived metric expr dump from <addr-97>...
 expr node <addr-97> type=COUNT left=<addr-98> right=(nil) save_last=0
@@ -1347,19 +1394,21 @@ aggr.countblob
 aggr.non_arith = max(sample.lights)
 
 pmRegisterDerived: name="event.flags" expr="anon(PM_TYPE_U32)"
-parse(1) state=P_INIT type=L_ANON "anon("
-parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
 expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
-parse(1) state=P_INIT type=L_ANON "anon("
-parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
@@ -1367,10 +1416,11 @@ expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32]
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="aggr.non_arith" expr="max(sample.lights)"
-parse(1) state=P_INIT type=L_MAX "max("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.lights"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_MAX "max"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.lights"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[2] aggr.non_arith = max(sample.lights)
 Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=MAX left=<addr-5> right=(nil) save_last=0

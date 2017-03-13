@@ -375,21 +375,21 @@ expr node <addr-31> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.mi
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
-expr node <addr-32> type=STAR left=<addr-33> right=<addr-34> save_last=0
+expr node <addr-32> type=STAR left=<addr-33> right=<addr-36> save_last=0
     PMID: PM_ID_NULL (29.0.17 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1e+06
-expr node <addr-33> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-33> type=STAR left=<addr-34> right=<addr-35> save_last=0
+    PMID: PM_ID_NULL (29.0.17 from pmDesc) numval: 1
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=10000
+expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-34> type=STAR left=<addr-35> right=<addr-36> save_last=0
-    PMID: PM_ID_NULL (29.0.27 from pmDesc) numval: 1
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-[0] inst=-1, val=10000
 expr node <addr-35> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] master=0
     PMID: 29.0.27 (29.0.27 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
@@ -1521,21 +1521,21 @@ expr node <addr-32> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.mi
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1000000
-expr node <addr-33> type=STAR left=<addr-34> right=<addr-35> save_last=0
+expr node <addr-33> type=STAR left=<addr-34> right=<addr-37> save_last=0
     PMID: PM_ID_NULL (29.0.17 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=1e+06
-expr node <addr-34> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
+expr node <addr-34> type=STAR left=<addr-35> right=<addr-36> save_last=0
+    PMID: PM_ID_NULL (29.0.17 from pmDesc) numval: 1
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+[0] inst=-1, val=10000
+expr node <addr-35> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.hundred] master=0
     PMID: 29.0.17 (29.0.17 from pmDesc) numval: 1
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 [0] inst=-1, val=100
-expr node <addr-35> type=STAR left=<addr-36> right=<addr-37> save_last=0
-    PMID: PM_ID_NULL (29.0.27 from pmDesc) numval: 1
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
-[0] inst=-1, val=10000
 expr node <addr-36> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.hundred] master=0
     PMID: 29.0.27 (29.0.27 from pmDesc) numval: 1
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff

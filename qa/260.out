@@ -10,19 +10,21 @@ delta.m6 =  delta(sample.const_rate.value) / delta(sample.const_rate.value) - de
 
 === delta ===
 pmRegisterDerived: name="event.flags" expr="anon(PM_TYPE_U32)"
-parse(1) state=P_INIT type=L_ANON "anon("
-parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
 expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
-parse(1) state=P_INIT type=L_ANON "anon("
-parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
@@ -30,21 +32,23 @@ expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32]
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="delta.m1" expr="delta(sample.const_rate.value)"
-parse(1) state=P_INIT type=L_DELTA "delta("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.const_rate.value"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_DELTA "delta"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.const_rate.value"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[2] delta.m1 = delta(sample.const_rate.value)
 Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=DELTA left=<addr-5> right=(nil) save_last=0
 expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] master=1
 pmRegisterDerived: name="delta.m2" expr="delta(sampledso.const_rate.value) + sample.bigid"
-parse(1) state=P_INIT type=L_DELTA "delta("
-parse(1) state=P_FUNC_OP type=L_NAME "sampledso.const_rate.value"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.bigid"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_DELTA "delta"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sampledso.const_rate.value"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.bigid"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[3] delta.m2 = delta(sampledso.const_rate.value) + sample.bigid
 Derived metric expr dump from <addr-6>...
 expr node <addr-6> type=PLUS left=<addr-7> right=<addr-9> save_last=0
@@ -52,12 +56,13 @@ expr node <addr-7> type=DELTA left=<addr-8> right=(nil) save_last=0
 expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.const_rate.value] master=1
 expr node <addr-9> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] master=1
 pmRegisterDerived: name="delta.m3" expr="sample.bigid - delta(sampledso.const_rate.value)"
-parse(1) state=P_INIT type=L_NAME "sample.bigid"
-parse(1) state=P_LEAF type=L_MINUS "-"
-parse(1) state=P_BINOP type=L_DELTA "delta("
-parse(1) state=P_FUNC_OP type=L_NAME "sampledso.const_rate.value"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.bigid"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_DELTA "delta"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sampledso.const_rate.value"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[4] delta.m3 = sample.bigid - delta(sampledso.const_rate.value)
 Derived metric expr dump from <addr-10>...
 expr node <addr-10> type=MINUS left=<addr-11> right=<addr-12> save_last=0
@@ -65,16 +70,17 @@ expr node <addr-11> type=NAME left=(nil) right=(nil) save_last=0 [sample.bigid] 
 expr node <addr-12> type=DELTA left=<addr-13> right=(nil) save_last=0
 expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.const_rate.value] master=1
 pmRegisterDerived: name="delta.m4" expr="sample.bigid - 3 * delta(sampledso.const_rate.value) / sample.long.ten"
-parse(1) state=P_INIT type=L_NAME "sample.bigid"
-parse(1) state=P_LEAF type=L_MINUS "-"
-parse(1) state=P_BINOP type=L_INTEGER "3"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_DELTA "delta("
-parse(1) state=P_FUNC_OP type=L_NAME "sampledso.const_rate.value"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_SLASH "/"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.bigid"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_INTEGER "3"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_DELTA "delta"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sampledso.const_rate.value"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_SLASH "/"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[5] delta.m4 = sample.bigid - 3 * delta(sampledso.const_rate.value) / sample.long.ten
 Derived metric expr dump from <addr-14>...
 expr node <addr-14> type=MINUS left=<addr-15> right=<addr-16> save_last=0
@@ -86,20 +92,23 @@ expr node <addr-19> type=DELTA left=<addr-20> right=(nil) save_last=0
 expr node <addr-20> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.const_rate.value] master=1
 expr node <addr-21> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 pmRegisterDerived: name="delta.m5" expr="delta(sample.const_rate.value) / ( delta(sample.const_rate.value) + delta(sampledso.const_rate.value) )"
-parse(1) state=P_INIT type=L_DELTA "delta("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.const_rate.value"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_SLASH "/"
-parse(1) state=P_BINOP type=L_LPAREN "("
-parse(2) state=P_INIT type=L_DELTA "delta("
-parse(2) state=P_FUNC_OP type=L_NAME "sample.const_rate.value"
-parse(2) state=P_FUNC_END type=L_RPAREN ")"
-parse(2) state=P_LEAF type=L_PLUS "+"
-parse(2) state=P_BINOP type=L_DELTA "delta("
-parse(2) state=P_FUNC_OP type=L_NAME "sampledso.const_rate.value"
-parse(2) state=P_FUNC_END type=L_RPAREN ")"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_EOF ""
+derive_lex() -> type=L_DELTA "delta"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.const_rate.value"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_SLASH "/"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_DELTA "delta"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.const_rate.value"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_DELTA "delta"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sampledso.const_rate.value"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[6] delta.m5 = delta(sample.const_rate.value) / ( delta(sample.const_rate.value) + delta(sampledso.const_rate.value) )
 Derived metric expr dump from <addr-22>...
 expr node <addr-22> type=SLASH left=<addr-23> right=<addr-25> save_last=0
@@ -111,22 +120,26 @@ expr node <addr-27> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_r
 expr node <addr-28> type=DELTA left=<addr-29> right=(nil) save_last=0
 expr node <addr-29> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.const_rate.value] master=1
 pmRegisterDerived: name="delta.m6" expr="delta(sample.const_rate.value) / delta(sample.const_rate.value) - delta(sampledso.const_rate.value) / delta(sample.const_rate.value)"
-parse(1) state=P_INIT type=L_DELTA "delta("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.const_rate.value"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_SLASH "/"
-parse(1) state=P_BINOP type=L_DELTA "delta("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.const_rate.value"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_MINUS "-"
-parse(1) state=P_BINOP type=L_DELTA "delta("
-parse(1) state=P_FUNC_OP type=L_NAME "sampledso.const_rate.value"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_SLASH "/"
-parse(1) state=P_BINOP type=L_DELTA "delta("
-parse(1) state=P_FUNC_OP type=L_NAME "sample.const_rate.value"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_DELTA "delta"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.const_rate.value"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_SLASH "/"
+derive_lex() -> type=L_DELTA "delta"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.const_rate.value"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_DELTA "delta"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sampledso.const_rate.value"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_SLASH "/"
+derive_lex() -> type=L_DELTA "delta"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.const_rate.value"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[7] delta.m6 = delta(sample.const_rate.value) / delta(sample.const_rate.value) - delta(sampledso.const_rate.value) / delta(sample.const_rate.value)
 Derived metric expr dump from <addr-30>...
 expr node <addr-30> type=MINUS left=<addr-31> right=<addr-36> save_last=0

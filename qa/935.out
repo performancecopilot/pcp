@@ -1,18 +1,20 @@
 QA output created by 935
 pmRegisterDerived: name="event.flags" expr="anon(PM_TYPE_U32)"
-parse(1) state=P_INIT type=L_ANON "anon("
-parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
 expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
-parse(1) state=P_INIT type=L_ANON "anon("
-parse(1) state=P_FUNC_OP type=L_NAME "PM_TYPE_U32"
-parse(1) state=P_FUNC_END type=L_RPAREN ")"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
@@ -20,12 +22,12 @@ expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32]
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="a.m1" expr="sample.long.ten + sample.long.hundred / sample.long.ten"
-parse(1) state=P_INIT type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.long.hundred"
-parse(1) state=P_LEAF type=L_SLASH "/"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_SLASH "/"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[2] a.m1 = sample.long.ten + sample.long.hundred / sample.long.ten
 Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=PLUS left=<addr-5> right=<addr-6> save_last=0
@@ -34,14 +36,14 @@ expr node <addr-6> type=SLASH left=<addr-7> right=<addr-8> save_last=0
 expr node <addr-7> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
 expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 pmRegisterDerived: name="a.m2" expr="(sample.long.ten + sample.long.hundred) / sample.long.ten"
-parse(1) state=P_INIT type=L_LPAREN "("
-parse(2) state=P_INIT type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_PLUS "+"
-parse(2) state=P_BINOP type=L_NAME "sample.long.hundred"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_SLASH "/"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_SLASH "/"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[3] a.m2 = (sample.long.ten + sample.long.hundred) / sample.long.ten
 Derived metric expr dump from <addr-9>...
 expr node <addr-9> type=SLASH left=<addr-10> right=<addr-13> save_last=0
@@ -50,12 +52,12 @@ expr node <addr-11> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.te
 expr node <addr-12> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
 expr node <addr-13> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 pmRegisterDerived: name="a.m3" expr="sample.long.ten * sample.long.ten == sample.long.hundred"
-parse(1) state=P_INIT type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_EQ "=="
-parse(1) state=P_BINOP type=L_NAME "sample.long.hundred"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_EQ "=="
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[4] a.m3 = sample.long.ten * sample.long.ten == sample.long.hundred
 Derived metric expr dump from <addr-14>...
 expr node <addr-14> type=EQ left=<addr-15> right=<addr-18> save_last=0
@@ -64,14 +66,14 @@ expr node <addr-16> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.te
 expr node <addr-17> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
 pmRegisterDerived: name="a.m4" expr="sample.long.ten * sample.long.ten + sample.long.ten * sample.long.ten"
-parse(1) state=P_INIT type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[5] a.m4 = sample.long.ten * sample.long.ten + sample.long.ten * sample.long.ten
 Derived metric expr dump from <addr-19>...
 expr node <addr-19> type=PLUS left=<addr-20> right=<addr-23> save_last=0
@@ -82,14 +84,14 @@ expr node <addr-23> type=STAR left=<addr-24> right=<addr-25> save_last=0
 expr node <addr-24> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 expr node <addr-25> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 pmRegisterDerived: name="a.m5" expr="sample.long.ten + sample.long.ten == sample.long.ten + sample.long.ten"
-parse(1) state=P_INIT type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_EQ "=="
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_EQ "=="
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[6] a.m5 = sample.long.ten + sample.long.ten == sample.long.ten + sample.long.ten
 Derived metric expr dump from <addr-26>...
 expr node <addr-26> type=EQ left=<addr-27> right=<addr-30> save_last=0
@@ -100,16 +102,16 @@ expr node <addr-30> type=PLUS left=<addr-31> right=<addr-32> save_last=0
 expr node <addr-31> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 expr node <addr-32> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 pmRegisterDerived: name="a.m6" expr="sample.long.ten + (sample.long.ten >= sample.long.ten) + sample.long.ten"
-parse(1) state=P_INIT type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_LPAREN "("
-parse(2) state=P_INIT type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_GEQ ">="
-parse(2) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_GEQ ">="
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[7] a.m6 = sample.long.ten + (sample.long.ten >= sample.long.ten) + sample.long.ten
 Derived metric expr dump from <addr-33>...
 expr node <addr-33> type=PLUS left=<addr-34> right=<addr-39> save_last=0
@@ -120,16 +122,16 @@ expr node <addr-37> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.te
 expr node <addr-38> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 expr node <addr-39> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 pmRegisterDerived: name="a.m7" expr="sample.long.ten * sample.long.ten == sample.long.hundred * sample.long.ten / 10"
-parse(1) state=P_INIT type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_EQ "=="
-parse(1) state=P_BINOP type=L_NAME "sample.long.hundred"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_SLASH "/"
-parse(1) state=P_BINOP type=L_INTEGER "10"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_EQ "=="
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_SLASH "/"
+derive_lex() -> type=L_INTEGER "10"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[8] a.m7 = sample.long.ten * sample.long.ten == sample.long.hundred * sample.long.ten / 10
 Derived metric expr dump from <addr-40>...
 expr node <addr-40> type=EQ left=<addr-41> right=<addr-44> save_last=0
@@ -142,54 +144,54 @@ expr node <addr-46> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hu
 expr node <addr-47> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 expr node <addr-48> type=INTEGER left=(nil) right=(nil) save_last=0 [10] master=1
 pmRegisterDerived: name="a.m8" expr="(9 + 1) * sample.long.ten * sample.long.ten == sample.long.hundred * sample.long.ten"
-parse(1) state=P_INIT type=L_LPAREN "("
-parse(2) state=P_INIT type=L_INTEGER "9"
-parse(2) state=P_LEAF type=L_PLUS "+"
-parse(2) state=P_BINOP type=L_INTEGER "1"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_STAR "*"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_EQ "=="
-parse(1) state=P_BINOP type=L_NAME "sample.long.hundred"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_INTEGER "9"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_INTEGER "1"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_EQ "=="
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[9] a.m8 = (9 + 1) * sample.long.ten * sample.long.ten == sample.long.hundred * sample.long.ten
 Derived metric expr dump from <addr-49>...
 expr node <addr-49> type=EQ left=<addr-50> right=<addr-57> save_last=0
-expr node <addr-50> type=STAR left=<addr-51> right=<addr-54> save_last=0
-expr node <addr-51> type=PLUS left=<addr-52> right=<addr-53> save_last=0
-expr node <addr-52> type=INTEGER left=(nil) right=(nil) save_last=0 [9] master=1
-expr node <addr-53> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=1
-expr node <addr-54> type=STAR left=<addr-55> right=<addr-56> save_last=0
+expr node <addr-50> type=STAR left=<addr-51> right=<addr-56> save_last=0
+expr node <addr-51> type=STAR left=<addr-52> right=<addr-55> save_last=0
+expr node <addr-52> type=PLUS left=<addr-53> right=<addr-54> save_last=0
+expr node <addr-53> type=INTEGER left=(nil) right=(nil) save_last=0 [9] master=1
+expr node <addr-54> type=INTEGER left=(nil) right=(nil) save_last=0 [1] master=1
 expr node <addr-55> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 expr node <addr-56> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 expr node <addr-57> type=STAR left=<addr-58> right=<addr-59> save_last=0
 expr node <addr-58> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
 expr node <addr-59> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 pmRegisterDerived: name="a.m9" expr="(1 + sample.long.ten) * (sample.long.ten - 1) / (2 * sample.long.ten - 9)"
-parse(1) state=P_INIT type=L_LPAREN "("
-parse(2) state=P_INIT type=L_INTEGER "1"
-parse(2) state=P_LEAF type=L_PLUS "+"
-parse(2) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_STAR "*"
-parse(1) state=P_BINOP type=L_LPAREN "("
-parse(2) state=P_INIT type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_MINUS "-"
-parse(2) state=P_BINOP type=L_INTEGER "1"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_SLASH "/"
-parse(1) state=P_BINOP type=L_LPAREN "("
-parse(2) state=P_INIT type=L_INTEGER "2"
-parse(2) state=P_LEAF type=L_STAR "*"
-parse(2) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_MINUS "-"
-parse(2) state=P_BINOP type=L_INTEGER "9"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_EOF ""
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_INTEGER "1"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_INTEGER "1"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_SLASH "/"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_INTEGER "2"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_INTEGER "9"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[10] a.m9 = (1 + sample.long.ten) * (sample.long.ten - 1) / (2 * sample.long.ten - 9)
 Derived metric expr dump from <addr-60>...
 expr node <addr-60> type=SLASH left=<addr-61> right=<addr-68> save_last=0
@@ -206,18 +208,18 @@ expr node <addr-70> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=1
 expr node <addr-71> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 expr node <addr-72> type=INTEGER left=(nil) right=(nil) save_last=0 [9] master=1
 pmRegisterDerived: name="a.m10" expr="(sample.long.one + sample.long.ten) * (sample.long.ten - sample.long.one)"
-parse(1) state=P_INIT type=L_LPAREN "("
-parse(2) state=P_INIT type=L_NAME "sample.long.one"
-parse(2) state=P_LEAF type=L_PLUS "+"
-parse(2) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_STAR "*"
-parse(1) state=P_BINOP type=L_LPAREN "("
-parse(2) state=P_INIT type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_MINUS "-"
-parse(2) state=P_BINOP type=L_NAME "sample.long.one"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_EOF ""
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.long.one"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_MINUS "-"
+derive_lex() -> type=L_NAME "sample.long.one"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[11] a.m10 = (sample.long.one + sample.long.ten) * (sample.long.ten - sample.long.one)
 Derived metric expr dump from <addr-73>...
 expr node <addr-73> type=STAR left=<addr-74> right=<addr-77> save_last=0
@@ -228,30 +230,30 @@ expr node <addr-77> type=MINUS left=<addr-78> right=<addr-79> save_last=0
 expr node <addr-78> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 expr node <addr-79> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
 pmRegisterDerived: name="a.m11" expr="(sample.long.hundred > sample.long.ten)"
-parse(1) state=P_INIT type=L_LPAREN "("
-parse(2) state=P_INIT type=L_NAME "sample.long.hundred"
-parse(2) state=P_LEAF type=L_GT ">"
-parse(2) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_EOF ""
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_GT ">"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[12] a.m11 = (sample.long.hundred > sample.long.ten)
 Derived metric expr dump from <addr-80>...
 expr node <addr-80> type=GT left=<addr-81> right=<addr-82> save_last=0
 expr node <addr-81> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
 expr node <addr-82> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 pmRegisterDerived: name="a.m12" expr="(sample.long.hundred > sample.long.ten) + (sample.long.ten <= sample.long.ten)"
-parse(1) state=P_INIT type=L_LPAREN "("
-parse(2) state=P_INIT type=L_NAME "sample.long.hundred"
-parse(2) state=P_LEAF type=L_GT ">"
-parse(2) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_LPAREN "("
-parse(2) state=P_INIT type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_LEQ "<="
-parse(2) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_EOF ""
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_GT ">"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_LEQ "<="
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[13] a.m12 = (sample.long.hundred > sample.long.ten) + (sample.long.ten <= sample.long.ten)
 Derived metric expr dump from <addr-83>...
 expr node <addr-83> type=PLUS left=<addr-84> right=<addr-87> save_last=0
@@ -262,24 +264,24 @@ expr node <addr-87> type=LEQ left=<addr-88> right=<addr-89> save_last=0
 expr node <addr-88> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 expr node <addr-89> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 pmRegisterDerived: name="a.m13" expr="(sample.long.hundred > sample.long.ten) + (sample.long.ten <= sample.long.ten) + (sample.long.hundred != 99)"
-parse(1) state=P_INIT type=L_LPAREN "("
-parse(2) state=P_INIT type=L_NAME "sample.long.hundred"
-parse(2) state=P_LEAF type=L_GT ">"
-parse(2) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_LPAREN "("
-parse(2) state=P_INIT type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_LEQ "<="
-parse(2) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_LPAREN "("
-parse(2) state=P_INIT type=L_NAME "sample.long.hundred"
-parse(2) state=P_LEAF type=L_NEQ "!="
-parse(2) state=P_BINOP type=L_INTEGER "99"
-parse(2) state=P_LEAF type=L_RPAREN ")"
-parse(1) state=P_LEAF_PAREN type=L_EOF ""
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_GT ">"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_LEQ "<="
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_NEQ "!="
+derive_lex() -> type=L_INTEGER "99"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[14] a.m13 = (sample.long.hundred > sample.long.ten) + (sample.long.ten <= sample.long.ten) + (sample.long.hundred != 99)
 Derived metric expr dump from <addr-90>...
 expr node <addr-90> type=PLUS left=<addr-91> right=<addr-98> save_last=0
@@ -294,12 +296,12 @@ expr node <addr-98> type=NEQ left=<addr-99> right=<addr-100> save_last=0
 expr node <addr-99> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
 expr node <addr-100> type=INTEGER left=(nil) right=(nil) save_last=0 [99] master=1
 pmRegisterDerived: name="a.m14" expr="sample.long.hundred > sample.long.ten == sample.long.one"
-parse(1) state=P_INIT type=L_NAME "sample.long.hundred"
-parse(1) state=P_LEAF type=L_GT ">"
-parse(1) state=P_BINOP type=L_NAME "sample.long.ten"
-parse(1) state=P_LEAF type=L_EQ "=="
-parse(1) state=P_BINOP type=L_NAME "sample.long.one"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_GT ">"
+derive_lex() -> type=L_NAME "sample.long.ten"
+derive_lex() -> type=L_EQ "=="
+derive_lex() -> type=L_NAME "sample.long.one"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[15] a.m14 = sample.long.hundred > sample.long.ten == sample.long.one
 Derived metric expr dump from <addr-101>...
 expr node <addr-101> type=EQ left=<addr-102> right=<addr-105> save_last=0
@@ -308,14 +310,14 @@ expr node <addr-103> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.h
 expr node <addr-104> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.ten] master=1
 expr node <addr-105> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
 pmRegisterDerived: name="a.m15" expr="sample.double.million == 1000000 && sample.long.hundred == 100"
-parse(1) state=P_INIT type=L_NAME "sample.double.million"
-parse(1) state=P_LEAF type=L_EQ "=="
-parse(1) state=P_BINOP type=L_INTEGER "1000000"
-parse(1) state=P_LEAF type=L_AND "&&"
-parse(1) state=P_BINOP type=L_NAME "sample.long.hundred"
-parse(1) state=P_LEAF type=L_EQ "=="
-parse(1) state=P_BINOP type=L_INTEGER "100"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.double.million"
+derive_lex() -> type=L_EQ "=="
+derive_lex() -> type=L_INTEGER "1000000"
+derive_lex() -> type=L_AND "&&"
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_EQ "=="
+derive_lex() -> type=L_INTEGER "100"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[16] a.m15 = sample.double.million == 1000000 && sample.long.hundred == 100
 Derived metric expr dump from <addr-106>...
 expr node <addr-106> type=AND left=<addr-107> right=<addr-110> save_last=0
@@ -326,14 +328,14 @@ expr node <addr-110> type=EQ left=<addr-111> right=<addr-112> save_last=0
 expr node <addr-111> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
 expr node <addr-112> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=1
 pmRegisterDerived: name="a.m16" expr="sample.double.million == sample.long.one || sample.long.hundred >= 100"
-parse(1) state=P_INIT type=L_NAME "sample.double.million"
-parse(1) state=P_LEAF type=L_EQ "=="
-parse(1) state=P_BINOP type=L_NAME "sample.long.one"
-parse(1) state=P_LEAF type=L_OR "||"
-parse(1) state=P_BINOP type=L_NAME "sample.long.hundred"
-parse(1) state=P_LEAF type=L_GEQ ">="
-parse(1) state=P_BINOP type=L_INTEGER "100"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.double.million"
+derive_lex() -> type=L_EQ "=="
+derive_lex() -> type=L_NAME "sample.long.one"
+derive_lex() -> type=L_OR "||"
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_GEQ ">="
+derive_lex() -> type=L_INTEGER "100"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[17] a.m16 = sample.double.million == sample.long.one || sample.long.hundred >= 100
 Derived metric expr dump from <addr-113>...
 expr node <addr-113> type=OR left=<addr-114> right=<addr-117> save_last=0
@@ -344,12 +346,12 @@ expr node <addr-117> type=GEQ left=<addr-118> right=<addr-119> save_last=0
 expr node <addr-118> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
 expr node <addr-119> type=INTEGER left=(nil) right=(nil) save_last=0 [100] master=1
 pmRegisterDerived: name="a.m17" expr="0 + 2 * sample.long.one"
-parse(1) state=P_INIT type=L_INTEGER "0"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_INTEGER "2"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_NAME "sample.long.one"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_INTEGER "0"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_INTEGER "2"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_NAME "sample.long.one"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[18] a.m17 = 0 + 2 * sample.long.one
 Derived metric expr dump from <addr-120>...
 expr node <addr-120> type=PLUS left=<addr-121> right=<addr-122> save_last=0
@@ -358,12 +360,12 @@ expr node <addr-122> type=STAR left=<addr-123> right=<addr-124> save_last=0
 expr node <addr-123> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=1
 expr node <addr-124> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
 pmRegisterDerived: name="a.m18" expr="0 * 2 + sample.long.one"
-parse(1) state=P_INIT type=L_INTEGER "0"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_INTEGER "2"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.long.one"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_INTEGER "0"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_INTEGER "2"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.long.one"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[19] a.m18 = 0 * 2 + sample.long.one
 Derived metric expr dump from <addr-125>...
 expr node <addr-125> type=PLUS left=<addr-126> right=<addr-129> save_last=0
@@ -372,18 +374,18 @@ expr node <addr-127> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=
 expr node <addr-128> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=1
 expr node <addr-129> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
 pmRegisterDerived: name="a.m19" expr="123 >= 0 * 2 + sample.long.hundred + sample.float.ten + sample.double.ten"
-parse(1) state=P_INIT type=L_INTEGER "123"
-parse(1) state=P_LEAF type=L_GEQ ">="
-parse(1) state=P_BINOP type=L_INTEGER "0"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_INTEGER "2"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.long.hundred"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.float.ten"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.double.ten"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_INTEGER "123"
+derive_lex() -> type=L_GEQ ">="
+derive_lex() -> type=L_INTEGER "0"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_INTEGER "2"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.float.ten"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.double.ten"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[20] a.m19 = 123 >= 0 * 2 + sample.long.hundred + sample.float.ten + sample.double.ten
 Derived metric expr dump from <addr-130>...
 expr node <addr-130> type=GEQ left=<addr-131> right=<addr-132> save_last=0
@@ -398,24 +400,24 @@ expr node <addr-138> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.h
 expr node <addr-139> type=NAME left=(nil) right=(nil) save_last=0 [sample.float.ten] master=1
 expr node <addr-140> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.ten] master=1
 pmRegisterDerived: name="a.m20" expr="sample.double.million != sample.long.one"
-parse(1) state=P_INIT type=L_NAME "sample.double.million"
-parse(1) state=P_LEAF type=L_NEQ "!="
-parse(1) state=P_BINOP type=L_NAME "sample.long.one"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_NAME "sample.double.million"
+derive_lex() -> type=L_NEQ "!="
+derive_lex() -> type=L_NAME "sample.long.one"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[21] a.m20 = sample.double.million != sample.long.one
 Derived metric expr dump from <addr-141>...
 expr node <addr-141> type=NEQ left=<addr-142> right=<addr-143> save_last=0
 expr node <addr-142> type=NAME left=(nil) right=(nil) save_last=0 [sample.double.million] master=1
 expr node <addr-143> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.one] master=1
 pmRegisterDerived: name="a.m21" expr="1 >= 0 * 2 + sample.long.one"
-parse(1) state=P_INIT type=L_INTEGER "1"
-parse(1) state=P_LEAF type=L_GEQ ">="
-parse(1) state=P_BINOP type=L_INTEGER "0"
-parse(1) state=P_LEAF type=L_STAR "*"
-parse(1) state=P_BINOP type=L_INTEGER "2"
-parse(1) state=P_LEAF type=L_PLUS "+"
-parse(1) state=P_BINOP type=L_NAME "sample.long.one"
-parse(1) state=P_LEAF type=L_EOF ""
+derive_lex() -> type=L_INTEGER "1"
+derive_lex() -> type=L_GEQ ">="
+derive_lex() -> type=L_INTEGER "0"
+derive_lex() -> type=L_STAR "*"
+derive_lex() -> type=L_INTEGER "2"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_NAME "sample.long.one"
+derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[22] a.m21 = 1 >= 0 * 2 + sample.long.one
 Derived metric expr dump from <addr-144>...
 expr node <addr-144> type=GEQ left=<addr-145> right=<addr-146> save_last=0
