@@ -422,7 +422,7 @@ slackpkg?	/usr/lib*/python*/*-packages/*/*/setuptools	[?python-setuptools]
 pacman?	/usr/lib/python2.*/site-packages/setuptools	[?python2-setuptools]
 pacman?	/usr/lib/python3.*/site-packages/setuptools	[?python-setuptools]
 # -- libvirt
-dpkg?	/usr/lib/python3/*-packages/libvirt.py		[libvirt-python3]
+dpkg?	/usr/lib/python2.*/*-packages/libvirt.py	[python-libvirt]
 rpm?	/usr/lib*/python3.*/*-packages/libvirt.py	[libvirt-python3]
 urpmi?	libvirt.py		[?]
 emerge?	libvirt.py		[?]
