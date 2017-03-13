@@ -184,30 +184,59 @@ context.o
     ?__emutls_v.curcontext	# thread private (MinGW)
 derive_fetch.o
     ?promote			# const
-derive.o
+derive_parser.tab.o
     ?fmt			# const
     ?func			# const
     ?promote			# const
+    ?timefactor			# const
+    ?aexpr_str			# const
+    ?bexpr_str			# const
+    ?op_str			# const
+    ?name_str			# const
+    ?unexpected_str		# const
+    ?initial_str		# const
+    ?follow			# const
     ?init			# local initialize_mutex mutex
     ?done			# guarded by local initialize_mutex mutex
-    type_dbg			# const
-    ?type_c			# const
-    state_dbg			# const
-    ?promote			# const
-    ?timefactor			# const
     need_init			# guarded by registered.mutex
     tokbuf			# guarded by registered.mutex
     tokbuflen			# guarded by registered.mutex
     string			# guarded by registered.mutex
-    lexpeek			# guarded by registered.mutex
     this			# guarded by registered.mutex
+    lexpeek			# guarded by registered.mutex
     ?registered			# guarded by registered.mutex
     pmid			# guarded by registered.mutex
+    errmsg			# sort of guarded by registered.mutex (on
+    				# error path, and unlikely that two threads
+				# are trying to run pmRegisterDerived at the
+				# same time)
+
     ?derive_errmsg		# thread private (no __thread symbols for Mac OS X)
+    yytranslate            	# const
+    ?yyrline			# const
+    ?yytname			# const
+    ?yytoknum			# const
+    yypact                 	# const
+    yydefact               	# const
+    yypgoto                	# const
+    yydefgoto              	# const
+    yytable                	# const
+    yycheck                	# const
+    ?yystos                	# const, may be optimized away
+    yyr1                   	# const
+    yyr2                   	# const
+    derive_char			# guarded by registered.mutex
+    derive_debug		# guarded by registered.mutex
+    derive_lval			# guarded by registered.mutex
+    derive_nerrs		# guarded by registered.mutex
+    parse_tree			# guarded by registered.mutex
+    np				# guarded by registered.mutex
+    ?n_eh_str			# guarded by registered.mutex
+    ?n_eh_c			# guarded by registered.mutex
+    ?l_eh_str			# guarded by registered.mutex
+    noUnits			# const
+    ?yyval_default		# local to parser ... depends on yacc/bison version
     ?__emutls_v.derive_errmsg	# thread private (MinGW)
-    ?func			# const (MinGW)
-    ?promote			# const (MinGW)
-    ?timefactor			# const (MinGW)
     ?type_c			# const (MinGW)
     ?.LpmRegisterDerivedMetric.fmt	# static string (FreeBSD gcc)
     ?pmRegisterDerivedMetric.fmt	# static string (FreeBSD 10.2 gcc)

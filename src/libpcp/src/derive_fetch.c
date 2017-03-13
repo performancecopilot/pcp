@@ -32,7 +32,7 @@ get_pmids(node_t *np, int *cnt, pmID **list)
     assert(np != NULL);
     if (np->left != NULL) get_pmids(np->left, cnt, list);
     if (np->right != NULL) get_pmids(np->right, cnt, list);
-    if (np->type == L_NAME) {
+    if (np->type == N_NAME) {
 	(*cnt)++;
 	if ((*list = (pmID *)realloc(*list, (*cnt)*sizeof(pmID))) == NULL) {
 	    __pmNoMem("__dmprefetch: realloc xtralist", (*cnt)*sizeof(pmID), PM_FATAL_ERR);
@@ -375,233 +375,233 @@ bin_op(int type, int op, pmAtomValue a, int ltype, int lmul, int ldiv, pmAtomVal
     switch (type) {
 	case PM_TYPE_32:
 	    switch (op) {
-		case L_PLUS:
+		case N_PLUS:
 		    res.l = l.l + r.l;
 		    break;
-		case L_MINUS:
+		case N_MINUS:
 		    res.l = l.l - r.l;
 		    break;
-		case L_STAR:
+		case N_STAR:
 		    res.l = l.l * r.l;
 		    break;
-		/* semantics enforce no L_SLASH for integer results */
-		case L_LT:
+		/* semantics enforce no N_SLASH for integer results */
+		case N_LT:
 		    res.l = l.l < r.l;
 		    break;
-		case L_LEQ:
+		case N_LEQ:
 		    res.l = l.l <= r.l;
 		    break;
-		case L_EQ:
+		case N_EQ:
 		    res.l = l.l == r.l;
 		    break;
-		case L_GEQ:
+		case N_GEQ:
 		    res.l = l.l >= r.l;
 		    break;
-		case L_GT:
+		case N_GT:
 		    res.l = l.l > r.l;
 		    break;
-		case L_NEQ:
+		case N_NEQ:
 		    res.l = l.l != r.l;
 		    break;
-		case L_AND:
+		case N_AND:
 		    res.l = (l.l != 0) && (r.l != 0);
 		    break;
-		case L_OR:
+		case N_OR:
 		    res.l = (l.l != 0) || (r.l != 0);
 		    break;
 	    }
 	    break;
 	case PM_TYPE_U32:
 	    switch (op) {
-		case L_PLUS:
+		case N_PLUS:
 		    res.ul = l.ul + r.ul;
 		    break;
-		case L_MINUS:
+		case N_MINUS:
 		    res.ul = l.ul - r.ul;
 		    break;
-		case L_STAR:
+		case N_STAR:
 		    res.ul = l.ul * r.ul;
 		    break;
-		/* semantics enforce no L_SLASH for integer results */
-		case L_LT:
+		/* semantics enforce no N_SLASH for integer results */
+		case N_LT:
 		    res.ul = l.ul < r.ul;
 		    break;
-		case L_LEQ:
+		case N_LEQ:
 		    res.ul = l.ul <= r.ul;
 		    break;
-		case L_EQ:
+		case N_EQ:
 		    res.ul = l.ul == r.ul;
 		    break;
-		case L_GEQ:
+		case N_GEQ:
 		    res.ul = l.ul >= r.ul;
 		    break;
-		case L_GT:
+		case N_GT:
 		    res.ul = l.ul > r.ul;
 		    break;
-		case L_NEQ:
+		case N_NEQ:
 		    res.ul = (l.ul != r.ul);
 		    break;
-		case L_AND:
+		case N_AND:
 		    res.ul = (l.ul != 0) && (r.ul != 0);
 		    break;
-		case L_OR:
+		case N_OR:
 		    res.ul = (l.ul != 0) || (r.ul != 0);
 		    break;
 	    }
 	    break;
 	case PM_TYPE_64:
 	    switch (op) {
-		case L_PLUS:
+		case N_PLUS:
 		    res.ll = l.ll + r.ll;
 		    break;
-		case L_MINUS:
+		case N_MINUS:
 		    res.ll = l.ll - r.ll;
 		    break;
-		case L_STAR:
+		case N_STAR:
 		    res.ll = l.ll * r.ll;
 		    break;
-		/* semantics enforce no L_SLASH for integer results */
-		case L_LT:
+		/* semantics enforce no N_SLASH for integer results */
+		case N_LT:
 		    res.ll = l.ll < r.ll;
 		    break;
-		case L_LEQ:
+		case N_LEQ:
 		    res.ll = l.ll <= r.ll;
 		    break;
-		case L_EQ:
+		case N_EQ:
 		    res.ll = l.ll == r.ll;
 		    break;
-		case L_GEQ:
+		case N_GEQ:
 		    res.ll = l.ll >= r.ll;
 		    break;
-		case L_GT:
+		case N_GT:
 		    res.ll = l.ll > r.ll;
 		    break;
-		case L_NEQ:
+		case N_NEQ:
 		    res.ll = l.ll != r.ll;
 		    break;
-		case L_AND:
+		case N_AND:
 		    res.ll = (l.ll != 0) && (r.ll != 0);
 		    break;
-		case L_OR:
+		case N_OR:
 		    res.ll = (l.ll != 0) || (r.ll != 0);
 		    break;
 	    }
 	    break;
 	case PM_TYPE_U64:
 	    switch (op) {
-		case L_PLUS:
+		case N_PLUS:
 		    res.ull = l.ull + r.ull;
 		    break;
-		case L_MINUS:
+		case N_MINUS:
 		    res.ull = l.ull - r.ull;
 		    break;
-		case L_STAR:
+		case N_STAR:
 		    res.ull = l.ull * r.ull;
 		    break;
-		/* semantics enforce no L_SLASH for integer results */
-		case L_LT:
+		/* semantics enforce no N_SLASH for integer results */
+		case N_LT:
 		    res.ull = l.ull < r.ull;
 		    break;
-		case L_LEQ:
+		case N_LEQ:
 		    res.ull = l.ull <= r.ull;
 		    break;
-		case L_EQ:
+		case N_EQ:
 		    res.ull = l.ull == r.ull;
 		    break;
-		case L_GEQ:
+		case N_GEQ:
 		    res.ull = l.ull >= r.ull;
 		    break;
-		case L_GT:
+		case N_GT:
 		    res.ull = l.ull > r.ull;
 		    break;
-		case L_NEQ:
+		case N_NEQ:
 		    res.ull = l.ull != r.ull;
 		    break;
-		case L_AND:
+		case N_AND:
 		    res.ull = (l.ull != 0) && (r.ull != 0);
 		    break;
-		case L_OR:
+		case N_OR:
 		    res.ull = (l.ull != 0) || (r.ull != 0);
 		    break;
 	    }
 	    break;
 	case PM_TYPE_FLOAT:
 	    switch (op) {
-		case L_PLUS:
+		case N_PLUS:
 		    res.f = l.f + r.f;
 		    break;
-		case L_MINUS:
+		case N_MINUS:
 		    res.f = l.f - r.f;
 		    break;
-		case L_STAR:
+		case N_STAR:
 		    res.f = l.f * r.f;
 		    break;
-		/* semantics enforce no L_SLASH for float results */
-		case L_LT:
+		/* semantics enforce no N_SLASH for float results */
+		case N_LT:
 		    res.f = l.f < r.f;
 		    break;
-		case L_LEQ:
+		case N_LEQ:
 		    res.f = l.f <= r.f;
 		    break;
-		case L_EQ:
+		case N_EQ:
 		    res.f = l.f == r.f;
 		    break;
-		case L_GEQ:
+		case N_GEQ:
 		    res.f = l.f >= r.f;
 		    break;
-		case L_GT:
+		case N_GT:
 		    res.f = l.f > r.f;
 		    break;
-		case L_NEQ:
+		case N_NEQ:
 		    res.f = l.f != r.f;
 		    break;
-		case L_AND:
+		case N_AND:
 		    res.f = (l.f != 0) && (r.f != 0);
 		    break;
-		case L_OR:
+		case N_OR:
 		    res.f = (l.f != 0) || (r.f != 0);
 		    break;
 	    }
 	    break;
 	case PM_TYPE_DOUBLE:
 	    switch (op) {
-		case L_PLUS:
+		case N_PLUS:
 		    res.d = l.d + r.d;
 		    break;
-		case L_MINUS:
+		case N_MINUS:
 		    res.d = l.d - r.d;
 		    break;
-		case L_STAR:
+		case N_STAR:
 		    res.d = l.d * r.d;
 		    break;
-		case L_SLASH:
+		case N_SLASH:
 		    if (l.d == 0)
 			res.d = 0;
 		    else
 			res.d = l.d / r.d;
 		    break;
-		case L_LT:
+		case N_LT:
 		    res.d = l.d < r.d;
 		    break;
-		case L_LEQ:
+		case N_LEQ:
 		    res.d = l.d <= r.d;
 		    break;
-		case L_EQ:
+		case N_EQ:
 		    res.d = l.d == r.d;
 		    break;
-		case L_GEQ:
+		case N_GEQ:
 		    res.d = l.d >= r.d;
 		    break;
-		case L_GT:
+		case N_GT:
 		    res.d = l.d > r.d;
 		    break;
-		case L_NEQ:
+		case N_NEQ:
 		    res.d = l.d != r.d;
 		    break;
-		case L_AND:
+		case N_AND:
 		    res.d = (l.d != 0) && (r.d != 0);
 		    break;
-		case L_OR:
+		case N_OR:
 		    res.d = (l.d != 0) || (r.d != 0);
 		    break;
 	    }
@@ -637,12 +637,12 @@ eval_expr(node_t *np, pmResult *rp, int level)
     }
 
     /* mostly, np->left is not NULL ... */
-    assert (np->type == L_INTEGER || np->type == L_DOUBLE || np->type == L_NAME || np->left != NULL);
+    assert (np->type == N_INTEGER || np->type == N_DOUBLE || np->type == N_NAME || np->left != NULL);
 
     switch (np->type) {
 
-	case L_INTEGER:
-	case L_DOUBLE:
+	case N_INTEGER:
+	case N_DOUBLE:
 	    if (np->info->numval == 0) {
 		/* initialize ivlist[] for singular instance first time through */
 		np->info->numval = 1;
@@ -652,7 +652,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		}
 		np->info->ivlist[0].inst = PM_INDOM_NULL;
 		/* don't need error checking, done in the lexical scanner */
-		if (np->type == L_INTEGER)
+		if (np->type == N_INTEGER)
 		    np->info->ivlist[0].value.l = atoi(np->value);
 		else
 		    np->info->ivlist[0].value.d = atof(np->value);
@@ -660,8 +660,8 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    return 1;
 	    break;
 
-	case L_DELTA:
-	case L_RATE:
+	case N_DELTA:
+	case N_RATE:
 	    /*
 	     * this and the last values are in the left expr
 	     */
@@ -710,7 +710,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 #endif
 		}
 		np->info->ivlist[k].inst = np->left->info->ivlist[i].inst;
-		if (np->type == L_DELTA) {
+		if (np->type == N_DELTA) {
 		    /* for delta() result type == operand type */
 		    switch (np->left->desc.type) {
 			case PM_TYPE_32:
@@ -804,7 +804,17 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    return np->info->numval;
 	    break;
 
-	case L_INSTANT:
+	case N_NOT:	/* boolean negation */
+	    np->info->numval = PM_ERR_NYI;
+	    return np->info->numval;
+	    break;
+
+	case N_NEG:	/* unary arithmetic negation */
+	    np->info->numval = PM_ERR_NYI;
+	    return np->info->numval;
+	    break;
+
+	case N_INSTANT:
 	    /*
 	     * values are in the left expr
 	     */
@@ -816,11 +826,11 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    return np->info->numval;
 	    break;
 
-	case L_AVG:
-	case L_COUNT:
-	case L_SUM:
-	case L_MAX:
-	case L_MIN:
+	case N_AVG:
+	case N_COUNT:
+	case N_SUM:
+	case N_MAX:
+	case N_MIN:
 	    if (np->info->ivlist == NULL) {
 		/* initialize ivlist[] for singular instance first time through */
 		if ((np->info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
@@ -832,15 +842,15 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    /*
 	     * values are in the left expr
 	     */
-	    if (np->type == L_COUNT) {
+	    if (np->type == N_COUNT) {
 		np->info->numval = 1;
 		np->info->ivlist[0].value.l = np->left->info->numval;
 	    }
 	    else {
 		np->info->numval = 1;
-		if (np->type == L_AVG)
+		if (np->type == N_AVG)
 		    np->info->ivlist[0].value.f = 0;
-		else if (np->type == L_SUM) {
+		else if (np->type == N_SUM) {
 		    switch (np->desc.type) {
 			case PM_TYPE_32:
 			    np->info->ivlist[0].value.l = 0;
@@ -865,7 +875,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		for (i = 0; i < np->left->info->numval; i++) {
 		    switch (np->type) {
 
-			case L_AVG:
+			case N_AVG:
 			    switch (np->left->desc.type) {
 				case PM_TYPE_32:
 				    np->info->ivlist[0].value.f += (float)np->left->info->ivlist[i].value.l / np->left->info->numval;
@@ -894,7 +904,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 			    }
 			    break;
 
-			case L_MAX:
+			case N_MAX:
 			    switch (np->desc.type) {
 				case PM_TYPE_32:
 				    if (i == 0 ||
@@ -935,7 +945,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 			    }
 			    break;
 
-			case L_MIN:
+			case N_MIN:
 			    switch (np->desc.type) {
 				case PM_TYPE_32:
 				    if (i == 0 ||
@@ -976,7 +986,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 			    }
 			    break;
 
-			case L_SUM:
+			case N_SUM:
 			    switch (np->desc.type) {
 				case PM_TYPE_32:
 				    np->info->ivlist[0].value.l += np->left->info->ivlist[i].value.l;
@@ -1011,7 +1021,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    return np->info->numval;
 	    break;
 
-	case L_NAME:
+	case N_NAME:
 	    /*
 	     * Extract instance-values from pmResult and store them in
 	     * ivlist[] as <int, pmAtomValue> pairs
@@ -1096,7 +1106,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 #endif
 	    return PM_ERR_PMID;
 
-	case L_ANON:
+	case N_ANON:
 	    /* no values available for anonymous metrics */
 	    return 0;
 
@@ -1187,9 +1197,9 @@ eval_expr(node_t *np, pmResult *rp, int level)
 #endif
 		    }
 		}
-		if (np->type == L_LT || np->type == L_LEQ || np->type == L_EQ ||
-		    np->type == L_GEQ || np->type == L_GT || np->type == L_NEQ ||
-		    np->type == L_AND || np->type == L_OR) {
+		if (np->type == N_LT || np->type == N_LEQ || np->type == N_EQ ||
+		    np->type == N_GEQ || np->type == N_GT || np->type == N_NEQ ||
+		    np->type == N_AND || np->type == N_OR) {
 		    /*
 		     * relational and boolean operators need to perform
 		     * the comparions with operand type promotion, but

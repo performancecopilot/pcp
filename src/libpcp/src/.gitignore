@@ -1,6 +1,8 @@
 check.done
 getdate.h
 getdate.tab.?
+derive_parser.output
+derive_parser.tab.?
 dsotbl.h
 libpcp.a
 libpcp.so

@@ -27,10 +27,10 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c freeresult.c \
 	checksum.c rtime.c tv.c spec.c fetchlocal.c optfetch.c AF.c \
 	stuffvalue.c endian.c config.c auxconnect.c auxserver.c discovery.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
-	connectlocal.c derive.c derive_fetch.c events.c lock.c hash.c \
+	connectlocal.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c getopt.c probe.c
 HFILES = derive.h internal.h avahi.h probe.h compiler.h
-YFILES = getdate.y
+YFILES = getdate.y derive_parser.y
 VERSION_SCRIPT = exports
 
 LCFLAGS = -DPCP_INTERNAL '-DEXEC_SUFFIX="$(EXECSUFFIX)"' \
@@ -84,7 +84,7 @@ include $(BUILDRULES)
 
 *.o: internal.h compiler.h derive.h
 rtime.o: getdate.h
-derive.o derive_fetch.o: derive.h
+derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	$(TOPDIR)/src/include/pcp/pmdbg.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
@@ -94,6 +94,10 @@ $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 .NOTPARALLEL:
 getdate.h getdate.tab.c: getdate.y
 	$(YACC) -d -b `basename $< .y` $< && cp `basename $@ .h`.tab.h $@
+
+.NOTPARALLEL:
+derive_parser.tab.h derive_parser.tab.c: derive_parser.y derive.h
+	$(YACC) -d -b `basename $< .y` $<
 
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows

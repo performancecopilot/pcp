@@ -67,36 +67,33 @@ typedef struct {
     int			numpmid;	/* from pmFetch before rewrite */
 } ctl_t;
 
-/* lexical types */
-#define L_ERROR		-2
-#define	L_EOF		-1
-#define L_UNDEF		0
-#define L_INTEGER	1
-#define L_NAME		2
-#define L_PLUS		3
-#define L_MINUS		4
-#define L_STAR		5
-#define L_SLASH		6
-#define L_LPAREN	7
-#define L_RPAREN	8
-#define L_AVG		9
-#define L_COUNT		10
-#define L_DELTA		11
-#define L_MAX		12
-#define L_MIN		13
-#define L_SUM		14
-#define L_ANON		15
-#define L_RATE		16
-#define L_INSTANT	17
-#define L_DOUBLE	18
-#define L_LT		19
-#define L_LEQ		20
-#define L_EQ		21
-#define L_GEQ		22
-#define L_GT		23
-#define L_NEQ		24
-#define L_AND		25
-#define L_OR		26
+/* node_t types */
+#define N_INTEGER	1
+#define N_NAME		2
+#define N_PLUS		3
+#define N_MINUS		4
+#define N_STAR		5
+#define N_SLASH		6
+#define N_AVG		7
+#define N_COUNT		8
+#define N_DELTA		9
+#define N_MAX		10
+#define N_MIN		11
+#define N_SUM		12
+#define N_ANON		13
+#define N_RATE		14
+#define N_INSTANT	15
+#define N_DOUBLE	16
+#define N_LT		17
+#define N_LEQ		18
+#define N_EQ		19
+#define N_GEQ		20
+#define N_GT		21
+#define N_NEQ		22
+#define N_AND		23
+#define N_OR		24
+#define N_NOT		25
+#define N_NEG		26
 
 extern int __dmtraverse(__pmContext *, const char *, char ***) _PCP_HIDDEN;
 extern int __dmchildren(__pmContext *, const char *, char ***, int **) _PCP_HIDDEN;
