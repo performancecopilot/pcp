@@ -328,6 +328,26 @@ return function (callback) {
             create_metric_panel(dashboard, panel);
         }
 
+        // create "see also" urls 
+        var markdown = "";
+        if ("urls" in panel) {
+            markdown = '';
+            for (var i=0; i<panel.urls.length; i++) {
+                markdown += ' * [' + panel.urls[i] + ']('+panel.urls[i]+')\n';
+            }
+            dashboard.rows.push({
+                title: '',
+                height: '0',
+                panels: [{
+                    title: 'See also',
+                    type: 'text',
+                    span: 12,
+                    fill: 1,
+                    content: markdown
+                }]
+            });
+        }
+        
         // when dashboard is composed call the callback function and
         // pass the dashboard
         callback(dashboard);
