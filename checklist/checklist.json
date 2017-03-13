@@ -135,7 +135,7 @@
 	    "parents": ["Memory"]
         },
         {
-            "name": "Network",
+            "name": "Network TX",
 	    "description": "Amount of network trafic sent",
 	    "pcp_metrics": ["network.interface.out.bytes.*", "network.interface.baudrate.*" ],
 	    "pcp_metrics_log": ["network.interface.out.bytes", "network.interface.baudrate" ],
@@ -159,33 +159,62 @@
 	    "parents": ["Start"]
         },
         {
-            "name": "Network - Saturation",
+            "name": "Network TX - Saturation",
 	    "description": "Network packets being dropped",
-	    "pcp_metrics": ["network.interface.out.drops.*", "network.interface.in.drops.*" ],
-	    "pcp_metrics_log": ["network.interface.out.drops", "network.interface.in.drops" ],
-	    "pcp_deriveds": [ "network_drops = rate(network.interface.out.drops) + rate(network.interface.in.drops)" ],
-	    "pcp_predicate": { "label": "network drops",
-                               "metric": "network_drops",
+	    "pcp_metrics": ["network.interface.out.drops.*" ],
+	    "pcp_metrics_log": ["network.interface.out.drops" ],
+	    "pcp_deriveds": [ "network_tx_drops = rate(network.interface.out.drops)" ],
+	    "pcp_predicate": { "label": "network tx drops",
+                               "metric": "network_tx_drops",
                                "operator": "threshold_min",
                                "value" : 0.01 },
 	    "url": [ "https://access.redhat.com/solutions/21301"],
 	    "details": "Packets maybe dropped if there is not enough room in the ring buffers",
 	    "issues": "The URL mentions comparing the current ring buffer size to the max allowed and increase the ring buffer size, but PCP doesn't have metrics to provide ring buffer info, a 1% packet drop threshold might be too high.",
-	    "parents": ["Network"]
+	    "parents": ["Network TX", "Network RX"]
         },
         {
-            "name": "Network - errors",
+            "name": "Network RX - Saturation",
+	    "description": "Network packets being dropped",
+	    "pcp_metrics": ["network.interface.in.drops.*" ],
+	    "pcp_metrics_log": ["network.interface.in.drops" ],
+	    "pcp_deriveds": [ "network_rx_drops = rate(network.interface.in.drops)" ],
+	    "pcp_predicate": { "label": "network rx drops",
+                               "metric": "network_rx_drops",
+                               "operator": "threshold_min",
+                               "value" : 0.01 },
+	    "url": [ "https://access.redhat.com/solutions/21301"],
+	    "details": "Packets maybe dropped if there is not enough room in the ring buffers",
+	    "issues": "The URL mentions comparing the current ring buffer size to the max allowed and increase the ring buffer size, but PCP doesn't have metrics to provide ring buffer info, a 1% packet drop threshold might be too high.",
+	    "parents": ["Network RX"]
+        },
+        {
+            "name": "Network TX - errors",
 	    "description": "Show network errors",
-	    "pcp_metrics": ["network.interface.out.errors.*", "network.interface.in.errors.*" ],
-	    "pcp_metrics_log": ["network.interface.out.errors", "network.interface.in.errors"],
-	    "pcp_deriveds": [ "network_errors = rate(network.interface.out.errors) + rate(network.interface.in.errors)" ],
-	    "pcp_predicate": { "label": "network errors",
-                               "metric": "network_errors",
+	    "pcp_metrics": ["network.interface.out.errors.*" ],
+	    "pcp_metrics_log": ["network.interface.out.errors" ],
+	    "pcp_deriveds": [ "network_tx_errors = rate(network.interface.out.errors)" ],
+	    "pcp_predicate": { "label": "network tx errors",
+                               "metric": "network_tx_errors",
                                "operator": "threshold_min",
                                "value" : 0.01 },
 	    "urls": [ "https://access.redhat.com/solutions/518893" ],
 	    "details": "In general the the operation of the network devices should be error free. ",
-	    "parents": ["Network"]
+	    "parents": ["Network TX"]
+        },
+        {
+            "name": "Network RX - errors",
+	    "description": "Show network errors",
+	    "pcp_metrics": ["network.interface.in.errors.*" ],
+	    "pcp_metrics_log": ["network.interface.in.errors"],
+	    "pcp_deriveds": [ "network_rx_errors = rate(network.interface.in.errors)" ],
+	    "pcp_predicate": { "label": "network rx errors",
+                               "metric": "network_rx_errors",
+                               "operator": "threshold_min",
+                               "value" : 0.01 },
+	    "urls": [ "https://access.redhat.com/solutions/518893" ],
+	    "details": "In general the the operation of the network devices should be error free. ",
+	    "parents": ["Network RX"]
         },
         {
             "name": "Network - RX queue too small",
@@ -200,7 +229,7 @@
 	    "urls": [ "https://access.redhat.com/sites/default/files/attachments/20150325_network_performance_tuning.pdf",
 		      "https://access.redhat.com/solutions/1241943" ],
 	    "details": "Each processor in the machine has a queue that stores packets recieved by the NIC but not yet processed by the Linux kernel network stack.  The size of each of the queues is specified by /proc/sys/net/core/netdev_max_backlog.  If a queue has netdev_max_backlog entries in it, any additional packets received from the NIC are dropped rather than added to the full queue.",
-	    "parents": ["Network"]
+	    "parents": ["Network RX"]
         },
         {
             "name": "Network - RX packet processing exceeding time quota",
@@ -215,7 +244,7 @@
 	    "urls": [ "https://access.redhat.com/sites/default/files/attachments/20150325_network_performance_tuning.pdf",
 		      "https://access.redhat.com/solutions/1241943" ],
 	    "details": "There may be multiple packets waiting to be moved out of the NIC receive ring buffer.  For efficiency the process will attempt to process multiple packets and empty the ring buffer in a single operation.  However, to avoid monopolizing the processor time, preventing other tasks from running, the amount of time that the net_rx_action function is allowed to run is limited.  The net.core.netdev_budget sets an upper limit on how long net_rx_action can run regardless whether there is addition packets to process.  Having to do multiple net_rx_action calls to clear out the receive ring buffer can be less efficient.  Increasing the net.core.netdev_budget could avoid some of the inefficiency",
-	    "parents": ["Network"]
+	    "parents": ["Network RX"]
         }
     ]
 }
