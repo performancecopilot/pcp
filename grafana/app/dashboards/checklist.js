@@ -136,7 +136,7 @@ function predicate_lambda(child, div_id, metrics) {
                              instances.reduce(function(html,inst) { \
                              return html+\'<div style=\"display:inline\" class="\'+inst.score+\'">\' + \
                                          (inst.instance<0?\'\':inst.instance) + \
-                                         \' \' + inst.score + \
+                                         \' \' + (inst.score ? "<font color=#ff0000>check</font>" : "ok") + \
                                          \'</div>\'; \
                              }, \'\');';
         var part8_catchwrap = '} catch (err) { result = err.message }';
