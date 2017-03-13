@@ -65,6 +65,8 @@ a.m21 = 1 >= 0 * 2 + sample.long.one
 a.m22 = sample.long.hundred >= 10 * sample.longlong.ten
 a.m23 = sample.ulonglong.hundred <= sample.longlong.ten + 91
 a.m24 = sample.long.hundred >= 10 * sample.longlong.ten && sample.ulonglong.hundred <= sample.longlong.ten + 91
+a.m25 = sample.long.hundred >= 10 && sample.long.hundred == 100 || sample.long.hundred < 101 && sample.long.hundred > 100
+a.m26 = ((sample.long.hundred >= 10 && sample.long.hundred == 100) || sample.long.hundred < 101) && sample.long.hundred > 100
 End-of-File
 
 export PCP_DERIVED_CONFIG=$tmp.config
@@ -98,6 +100,8 @@ a.m21	  1
 a.m22	  1
 a.m23     1
 a.m24     1
+a.m25     0
+a.m26     0
 End-of-File
 
 # success, all done

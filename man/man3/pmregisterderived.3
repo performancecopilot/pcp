@@ -154,6 +154,12 @@ a+(b*c)\c
 .ft R
 \&.
 .IP * 2n
+Unary negation may be used, e.g. 
+.ft CW
+-3*some.metric\c
+.ft R
+\&.
+.IP * 2n
 C-style relational operators are supported, namely \- ``<'', ``<='', ``=='',
 \&``>='', ``>'' and ``!=''.
 Relational expresssions return a value as a 32-bit unsigned number being
@@ -195,6 +201,16 @@ is evaluated as
 (a>(b*c))&&(d<=(e+f))\c
 .ft R
 \&.
+Both the boolean operators have equal precedence, so the
+expression involving consecutive boolean operators
+.ft CW
+a>=b||b>c&&d!=e||f>g
+.ft R
+is evaluated as
+.ft CW
+(((a>=b)||(b>c))&&(d!=e))||(f>g)\c
+.ft R
+\&.
 .IP * 2n
 Additionally, the ``!'' operator may be used to negate a boolean or
 relational expression, returning a value as a 32-bit unsigned number being
@@ -216,7 +232,7 @@ while
 .ft R
 is evaluated as
 .ft CW
-!(a<(b+c))
+!(a<(b+c))\c
 .ft R
 \&.
 .IP * 2n
@@ -495,17 +511,6 @@ otherwise (both are PM_TYPE_32)
 T}	any	PM_TYPE_32
 .TE
 .SH CAVEATS
-.PP
-Unary negation is not supported, so the following expressions would be
-syntactically incorrect,
-.ft CW
-\-3*abc
-.ft R
-and
-.ft CW
-\-this.number\c
-.ft R
-.
 .PP
 Derived metrics are not available when using
 .BR pmFetchArchive (3)

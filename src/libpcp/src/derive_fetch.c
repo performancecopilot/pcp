@@ -818,7 +818,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		/*NOTREACHED*/
 	    }
 	    /*
-	     * ivlist[i] = ! left-ivlist[i]
+	     * ivlist[i] = ! left->ivlist[i]
 	     */
 	    for (i = 0; i < np->info->numval; i++) {
 		switch (np->left->desc.type) {
@@ -848,7 +848,43 @@ eval_expr(node_t *np, pmResult *rp, int level)
 
 	case N_NEG:	/* unary arithmetic negation */
 	    assert(np->left != NULL);
-	    np->info->numval = PM_ERR_NYI;
+	    free_ivlist(np);
+	    np->info->numval = np->left->info->numval;
+	    /*
+	     * empty result case first
+	     */
+	    if (np->info->numval == 0)
+		return np->info->numval;
+	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
+		__pmNoMem("eval_expr: N_NOT ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    /*
+	     * ivlist[i] = - left->ivlist[i]
+	     */
+	    for (i = 0; i < np->info->numval; i++) {
+		switch (np->left->desc.type) {
+		    case PM_TYPE_32:
+			np->info->ivlist[i].value.l = -np->left->info->ivlist[i].value.l;
+			break;
+		    case PM_TYPE_U32:
+			np->info->ivlist[i].value.l = -np->left->info->ivlist[i].value.ul;
+			break;
+		    case PM_TYPE_64:
+			np->info->ivlist[i].value.ll = -np->left->info->ivlist[i].value.ll;
+			break;
+		    case PM_TYPE_U64:
+			np->info->ivlist[i].value.ll = -np->left->info->ivlist[i].value.ull;
+			break;
+		    case PM_TYPE_FLOAT:
+			np->info->ivlist[i].value.f = -np->left->info->ivlist[i].value.f;
+			break;
+		    case PM_TYPE_DOUBLE:
+			np->info->ivlist[i].value.d = -np->left->info->ivlist[i].value.d;
+			break;
+		}
+		np->info->ivlist[i].inst = np->left->info->ivlist[i].inst;
+	    }
 	    return np->info->numval;
 	    break;
 
@@ -1196,7 +1232,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		/*NOTREACHED*/
 	    }
 	    /*
-	     * ivlist[k] = left-ivlist[i] <op> right-ivlist[j]
+	     * ivlist[k] = left->ivlist[i] <op> right->ivlist[j]
 	     */
 	    for (i = j = k = 0; k < np->info->numval; ) {
 		if (i >= np->left->info->numval || j >= np->right->info->numval) {

@@ -627,6 +627,14 @@ void report_sem_error(char *name, node_t *np)
 	    else
 		pmprintf("<expr>");
 	    break;
+	case N_NOT:
+	case N_NEG:
+	    pmprintf("%s ", n_type_c(np->type));
+	    if (np->left->type == N_INTEGER || np->left->type == N_DOUBLE || np->left->type == N_NAME)
+		pmprintf("%s", np->left->value);
+	    else
+		pmprintf("<expr>");
+	    break;
 	case N_AVG:
 	case N_COUNT:
 	case N_DELTA:
@@ -1061,17 +1069,19 @@ check_expr(int n, node_t *np)
 	np->desc = np->left->desc;	/* struct copy */
 	/*
 	 * special cases for functions ...
+	 * count()	u32 and instantaneous
+	 * instant()	result is instantaneous or discrete
 	 * delta()	expect numeric operand, result is instantaneous
 	 * rate()	expect numeric operand, dimension of time must be
 	 * 		0 or 1, result is instantaneous
-	 * instant()	result is instantaneous
 	 * aggr funcs	most expect numeric operand, result is instantaneous
 	 *		and singular
+	 * unary -	expect numeric operand, result is signed
 	 */
-	if (np->type == N_AVG || np->type == N_COUNT
-	    || np->type == N_DELTA 
+	if (np->type == N_AVG || np->type == N_COUNT || np->type == N_DELTA
 	    || np->type == N_RATE || np->type == N_INSTANT
-	    || np->type == N_MAX || np->type == N_MIN || np->type == N_SUM) {
+	    || np->type == N_MAX || np->type == N_MIN || np->type == N_SUM
+	    || np->type == N_NEG) {
 	    if (np->type == N_COUNT) {
 		/* count() has its own type and units */
 		np->desc.type = PM_TYPE_U32;
@@ -1101,13 +1111,16 @@ check_expr(int n, node_t *np)
 		    case PM_TYPE_DOUBLE:
 			break;
 		    default:
-			PM_TPD(derive_errmsg) = "Non-arithmetic operand for function";
+			if (np->type == N_NEG)
+			    PM_TPD(derive_errmsg) = "Non-arithmetic operand for unary negation";
+			else
+			    PM_TPD(derive_errmsg) = "Non-arithmetic operand for function";
 			report_sem_error(registered.mlist[n].name, np);
 			return -1;
 		}
 		np->desc.sem = PM_SEM_INSTANT;
 	    }
-	    if (np->type == N_DELTA || np->type == N_RATE || np->type == N_INSTANT) {
+	    if (np->type == N_DELTA || np->type == N_RATE || np->type == N_INSTANT || np->type == N_NEG) {
 		/* inherit indom */
 		if (np->type == N_RATE) {
 		    /*
@@ -1130,7 +1143,7 @@ check_expr(int n, node_t *np)
 		/* avg() returns float result */
 		np->desc.type = PM_TYPE_FLOAT;
 	    }
-	    if (np->type == N_RATE) {
+	    else if (np->type == N_RATE) {
 		/* rate() returns double result and time dimension is
 		 * reduced by one ... if time dimension is then 0, set
 		 * the scale to be none (this is time utilization)
@@ -1141,6 +1154,13 @@ check_expr(int n, node_t *np)
 		    np->desc.units.scaleTime = 0;
 		else
 		    np->desc.units.scaleTime = PM_TIME_SEC;
+	    }
+	    else if (np->type == N_NEG) {
+		/* make sure result is signed */
+		if (np->left->desc.type == PM_TYPE_U32)
+		    np->desc.type = PM_TYPE_32;
+		else if (np->left->desc.type == PM_TYPE_U64)
+		    np->desc.type = PM_TYPE_64;
 	    }
 	}
 	else if (np->type == N_ANON) {
@@ -2068,7 +2088,6 @@ static node_t *np;
 %left  L_LT L_LEQ L_EQ L_GEQ L_GT L_NEQ
 %left  L_PLUS L_MINUS
 %left  L_STAR L_SLASH
-%left  UMINUS
 %left  UNITS_SLASH UNITS_POWER
 
 %%
@@ -2162,7 +2181,7 @@ expr	: L_LPAREN expr L_RPAREN
 		{ np = newnode(N_STAR); np->left = $1; np->right = $3; $$ = np; }
 	| expr L_SLASH expr
 		{ np = newnode(N_SLASH); np->left = $1; np->right = $3; $$ = np; }
-	| L_MINUS expr		%prec UMINUS
+	| L_MINUS expr		%prec L_MINUS
 		{ np = newnode(N_NEG); np->left = $2; $$ = np; }
 
 	/* relational expressions */
@@ -2198,7 +2217,7 @@ expr	: L_LPAREN expr L_RPAREN
 		{ gramerr(aexpr_str, follow, n_type_str(N_STAR)); YYERROR; }
 	| expr L_SLASH error
 		{ gramerr(aexpr_str, follow, n_type_str(N_SLASH)); YYERROR; }
-	| L_MINUS error		%prec UMINUS
+	| L_MINUS error
 		{ gramerr(aexpr_str, follow, n_type_str(N_NEG)); YYERROR; }
 	| expr L_LT error
 		{ gramerr(aexpr_str, follow, n_type_str(N_LT)); YYERROR; }
