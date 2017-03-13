@@ -136,9 +136,26 @@
         },
         {
             "name": "Network",
-	    "description": "Amount of network trafic",
-	    "pcp_metrics": ["network.interface.in.bytes.*", "network.interface.out.bytes.*" ],
-	    "pcp_metrics_log": ["network.interface.out.bytes", "network.interface.in.bytes"],
+	    "description": "Amount of network trafic sent",
+	    "pcp_metrics": ["network.interface.out.bytes.*", "network.interface.baudrate.*" ],
+	    "pcp_metrics_log": ["network.interface.out.bytes", "network.interface.baudrate" ],
+	    "pcp_deriveds": [ "network_tx_bandwidth = rate(network.interface.out.bytes)/network.interface.baudrate" ],
+	    "pcp_predicate": { "label": "network tx bandwidth",
+                               "metric": "network_tx_bandwidth",
+                               "operator": "threshold_min",
+                               "value" : 0.85 },
+	    "parents": ["Start"]
+        },
+        {
+            "name": "Network RX",
+	    "description": "Amount of network trafic received",
+	    "pcp_metrics": ["network.interface.in.bytes.*", "network.interface.baudrate.*" ],
+	    "pcp_metrics_log": ["network.interface.in.bytes", "network.interface.baudrate" ],
+	    "pcp_deriveds": [ "network_rx_bandwidth = rate(network.interface.in.bytes)/network.interface.baudrate" ],
+	    "pcp_predicate": { "label": "network rx bandwidth",
+                               "metric": "network_rx_bandwidth",
+                               "operator": "threshold_min",
+                               "value" : 0.85 },
 	    "parents": ["Start"]
         },
         {
