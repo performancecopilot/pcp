@@ -29,8 +29,10 @@ SUBDIRS = \
 	\
 	pcp-standalone \
 	pcp-java-app \
+	pcp-go-app \
 	pcp-apache \
 	pcp-nginx \
+	pcp-redis \
 	# end
 
 default default_pcp install install_pcp pack_pcp: $(SUBDIRS)

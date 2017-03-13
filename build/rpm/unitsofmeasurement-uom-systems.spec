@@ -1,14 +1,14 @@
 Summary: Units of Measurement Systems (JSR 363)
-Name: uom-systems
-Version: 0.5
-%global buildversion 2
+Name: unitsofmeasurement-uom-systems
+Version: 0.6
+%global buildversion 1
+%global uom_systems uom-systems-%{version}
 
 Release: %{buildversion}%{?dist}
-License: BSD3
+License: BSD
 URL: https://github.com/unitsofmeasurement/uom-systems
 Group: Development/Languages
-# https://github.com/unitsofmeasurement/uom-systems/archive/%{version}.tar.gz
-Source0: %{name}-%{version}.tar.gz
+Source0: https://github.com/unitsofmeasurement/uom-systems/archive/%{version}.tar.gz
 
 BuildArch: noarch
 BuildRequires: junit
@@ -37,23 +37,33 @@ This package contains documentation for the Units of Measurement
 Systems (JSR 363).
 
 %prep
-%setup -q
+%setup -q -c -n unitsofmeasurement
+cd %{uom_systems}
 %pom_disable_module common	# use only Java 8+
 %pom_disable_module unicode	# use only Java 8+
 
 %build
+cd %{uom_systems}
 %mvn_build
 
 %install
+cd %{uom_systems}
 %mvn_install
 
-%files -f .mfiles
+%files -f %{uom_systems}/.mfiles
+%doc %{uom_systems}/README.md
 
-%files javadoc -f .mfiles-javadoc
+%files javadoc -f %{uom_systems}/.mfiles-javadoc
 
 %changelog
-* Thu Feb 16 2017 Nathan Scott <nathans@redhat.com> - 0.5-2
-- Update to build with Java 8+ modules only.
+* Mon Mar 06 2017 Nathan Scott <nathans@redhat.com> - 0.6-1
+- Update to latest upstream sources.
+
+* Tue Feb 28 2017 Nathan Scott <nathans@redhat.com> - 0.5-3
+- Resolve lintian errors - source, license, documentation.
+
+* Fri Feb 24 2017 Nathan Scott <nathans@redhat.com> - 0.5-2
+- Add unitsofmeasurement prefix to package name.
 
 * Fri Oct 14 2016 Nathan Scott <nathans@redhat.com> - 0.5-1
 - Initial version.

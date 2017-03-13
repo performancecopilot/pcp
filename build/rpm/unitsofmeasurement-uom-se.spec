@@ -1,14 +1,14 @@
-Summary: Unit Standard (JSR 363) Implementation for Java SE 8 and above
-Name: uom-se
-Version: 1.0.3
+Summary: Unit Standard (JSR 363) implementation for Java SE 8 and above
+Name: unitsofmeasurement-uom-se
+Version: 1.0.4
 %global buildversion 1
+%global uom_se uom-se-%{version}
 
 Release: %{buildversion}%{?dist}
-License: BSD3
+License: BSD
 URL: https://github.com/unitsofmeasurement/uom-se
 Group: Development/Languages
-# https://github.com/unitsofmeasurement/uom-se/archive/%{version}.tar.gz
-Source0: %{name}-%{version}.tar.gz
+Source0: https://github.com/unitsofmeasurement/uom-se/archive/%{version}.tar.gz
 
 BuildArch: noarch
 BuildRequires: junit
@@ -19,6 +19,7 @@ BuildRequires: maven-license-plugin
 BuildRequires: maven-dependency-plugin
 BuildRequires: mvn(org.hamcrest:hamcrest-all)
 BuildRequires: mvn(org.jacoco:jacoco-maven-plugin)
+BuildRequires: mvn(javax.annotation:javax.annotation-api:pom:)
 BuildRequires: mvn(javax.measure:unit-api)
 BuildRequires: mvn(tec.uom:uom-parent:pom:)
 BuildRequires: mvn(tec.uom.lib:uom-lib:pom:)
@@ -40,22 +41,33 @@ This package contains documentation for the Units Standard (JSR 363)
 Java SE 8 Implementation.
 
 %prep
-%setup -q
+%setup -q -c -n unitsofmeasurement
+cd %{uom_se}
 %pom_remove_plugin com.mycila:license-maven-plugin
 %pom_remove_plugin net.revelc.code:formatter-maven-plugin
 
 %build
+cd %{uom_se}
 %mvn_build
 
 %install
+cd %{uom_se}
 %mvn_install
 
-%files -f .mfiles
+%files -f %{uom_se}/.mfiles
+%doc %{uom_se}/README.md
 
-%files javadoc -f .mfiles-javadoc
+%files javadoc -f %{uom_se}/.mfiles-javadoc
 
 %changelog
-* Thu Feb 16 2017 Nathan Scott <nathans@redhat.com> - 1.0.3-1
+* Mon Mar 06 2017 Nathan Scott <nathans@redhat.com> - 1.0.4-1
+- Update to latest upstream sources.
+
+* Tue Feb 28 2017 Nathan Scott <nathans@redhat.com> - 1.0.2-2
+- Resolve lintian errors - source, license, documentation.
+
+* Fri Feb 24 2017 Nathan Scott <nathans@redhat.com> - 1.0.2-1
+- Add unitsofmeasurement prefix to package name.
 - Update to latest upstream sources.
 
 * Fri Nov 25 2016 Nathan Scott <nathans@redhat.com> - 1.0.1-1

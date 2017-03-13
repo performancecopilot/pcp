@@ -7,6 +7,6 @@ RuntimeError: pmGetOptions must be called first
 Impossible value or scale conversion Error: pmRegisterDerivedMetric("fuu", ...) syntax error
 rat(disk.dev.read)
    ^
-Arithmetic operator expected
+Arithmetic or relational operator expected
 
 == done

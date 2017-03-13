@@ -70,6 +70,13 @@ Source2: pcp-webjs-3.11.8.tar.gz
 %global disable_json 1
 %endif
 
+# support for pmdanutcracker (perl deps missing on rhel)
+%if 0%{?rhel} == 0
+%global disable_nutcracker 0
+%else
+%global disable_nutcracker 1
+%endif
+
 # support for pmdarpm
 %if 0%{?rhel} == 0 || 0%{?rhel} > 5
 %global disable_rpm 0
@@ -226,6 +233,12 @@ Obsoletes: pcp-gui-debuginfo
 %global _with_json --with-pmdajson=no
 %else
 %global _with_json --with-pmdajson=yes
+%endif
+
+%if %{disable_nutcracker}
+%global _with_nutcracker --with-pmdanutcracker=no
+%else
+%global _with_nutcracker --with-pmdanutcracker=yes
 %endif
 
 %if %{disable_snmp}
@@ -730,6 +743,7 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from Redis servers (redis.io).
 #end pcp-pmda-redis
 
+%if !%{disable_nutcracker}
 #
 # pcp-pmda-nutcracker
 #
@@ -746,6 +760,7 @@ Requires: perl(JSON)
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from NutCracker (TwemCache).
 #end pcp-pmda-nutcracker
+%endif
 
 #
 # pcp-pmda-bonding
@@ -1638,7 +1653,10 @@ Requires: pcp-pmda-samba pcp-pmda-slurm pcp-pmda-vmware pcp-pmda-zimbra
 Requires: pcp-pmda-dm pcp-pmda-apache
 Requires: pcp-pmda-bash pcp-pmda-cisco pcp-pmda-gfs2 pcp-pmda-lmsensors pcp-pmda-mailq pcp-pmda-mounts
 Requires: pcp-pmda-nvidia-gpu pcp-pmda-roomtemp pcp-pmda-sendmail pcp-pmda-shping
-Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2 pcp-pmda-nutcracker
+Requires: pcp-pmda-lustrecomm pcp-pmda-logger pcp-pmda-docker pcp-pmda-bind2
+%if !%{disable_nutcracker}
+Requires: pcp-pmda-nutcracker
+%endif
 %if !%{disable_python2} || !%{disable_python3}
 Requires: pcp-pmda-gluster pcp-pmda-zswap pcp-pmda-unbound pcp-pmda-mic pcp-pmda-libvirt pcp-pmda-lio
 %endif
@@ -1822,7 +1840,7 @@ rm -Rf $RPM_BUILD_ROOT
 %if !%{disable_python2} && 0%{?default_python} != 3
 export PYTHON=python%{?default_python}
 %endif
-%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_json} %{?_with_snmp}
+%configure %{?_with_initd} %{?_with_doc} %{?_with_ib} %{?_with_papi} %{?_with_perfevent} %{?_with_json} %{?_with_snmp} %{?_with_nutcracker}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -1965,13 +1983,13 @@ ls -1 $RPM_BUILD_ROOT/%{_bindir} |\
   grep -E 'pmiostat|pmcollectl|pmatop|pmrep' |\
   sed -e 's#^#'%{_bindir}'\/#' >pcp_system_tools.list
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
-  grep -E 'atop|collectl|dmcache|free|iostat|mpstat|numastat|pidstat|verify|uptime|shping' |\
+  grep -E 'atop|collectl|dmcache|free|iostat|mpstat|numastat|pidstat|tapestat|verify|uptime|shping' |\
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >>pcp_system_tools.list
 %endif
 
 ls -1 $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin |\
 %if !%{disable_python2} || !%{disable_python3}
-  grep -E -v 'atop|collectl|dmcache|free|iostat|mpstat|numastat|pidstat|verify|uptime|shping' |\
+  grep -E -v 'atop|collectl|dmcache|free|iostat|mpstat|numastat|pidstat|tapestat|verify|uptime|shping' |\
 %endif
   sed -e 's#^#'%{_libexecdir}/pcp/bin'\/#' >base_exec.list
 ls -1 $RPM_BUILD_ROOT/%{_booksdir} |\
@@ -2207,8 +2225,10 @@ fi
 %preun pmda-nfsclient
 %{pmda_remove "$1" "nfsclient"}
 
+%if !%{disable_nutcracker}
 %preun pmda-nutcracker
 %{pmda_remove "$1" "nutcracker"}
+%endif
 
 %preun pmda-pdns
 %{pmda_remove "$1" "pdns"}
@@ -2719,8 +2739,10 @@ fi
 %files pmda-nfsclient
 %{_pmdasdir}/nfsclient
 
+%if !%{disable_nutcracker}
 %files pmda-nutcracker
 %{_pmdasdir}/nutcracker
+%endif
 
 %files pmda-oracle
 %{_pmdasdir}/oracle

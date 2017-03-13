@@ -1,16 +1,15 @@
-Summary: Parfait Java libraries for Performance Co-Pilot (PCP)
+Summary: Java libraries for Performance Co-Pilot (PCP)
 Name: parfait
-Version: 0.4.0
-%global buildversion 5
+Version: 0.5.1
+%global buildversion 1
 
 %global disable_dropwizard 1
 
 Release: %{buildversion}%{?dist}
-License: ASL2.0
+License: ASL 2.0
 URL: https://github.com/performancecopilot/parfait
 Group: Development/Languages
-# https://github.com/performancecopilot/parfait/archive/parfait-X.Y.Z.tar.gz
-Source0: %{name}-%{version}.tar.gz
+Source0: https://github.com/performancecopilot/parfait/archive/%{version}.tar.gz
 
 BuildArch: noarch
 BuildRequires: junit
@@ -73,7 +72,7 @@ machinery for extremely lightweight instrumentation.
 %package examples
 Group: Development/Languages
 BuildArch: noarch
-Summary: Parfait Java demostration programs
+Summary: Parfait Java demonstration programs
 Requires: java-headless >= 1.8
 
 %description examples
@@ -87,10 +86,11 @@ for instrumenting applications.
 %if %{disable_dropwizard}
 %pom_disable_module parfait-dropwizard
 %endif
-%pom_disable_module parfait-jdbc	# need hsqldb update?
+%pom_disable_module parfait-jdbc        # need hsqldb update?
 
 %build
-%mvn_build
+# skip tests for now, missing org.unitils:unitils-core:jar
+%mvn_build -f
 # re-instate not-shaded, not-with-all-dependencies agent jar
 pushd parfait-agent/target
 mv original-parfait-agent.jar parfait-agent.jar
@@ -106,18 +106,19 @@ install -m 644 man/parfait.1 %{buildroot}%{_mandir}/man1
 # special install of shaded, with-all-dependencies agent jar
 pushd parfait-agent/target
 install -m 644 parfait-agent-jar-with-dependencies.jar \
-               %{buildroot}%{_javadir}/parfait/parfait.jar
+            %{buildroot}%{_javadir}/parfait/parfait.jar
 popd
 # special install of with-all-dependencies sample jar files
 for example in acme sleep counter
 do
     pushd examples/${example}/target
     install -m 644 example-${example}-jar-with-dependencies.jar \
-               %{buildroot}%{_javadir}/parfait/${example}.jar
+                %{buildroot}%{_javadir}/parfait/${example}.jar
     popd
 done
 
 %files -f .mfiles
+%doc README.md
 
 %files javadoc -f .mfiles-javadoc
 
@@ -126,6 +127,7 @@ done
 %{_javadir}/parfait/acme.jar
 %{_javadir}/parfait/sleep.jar
 %{_javadir}/parfait/counter.jar
+%doc README.md
 
 %files -n pcp-parfait-agent
 %dir %{_javadir}/parfait
@@ -135,12 +137,21 @@ done
 
 
 %changelog
+* Mon Mar 06 2017 Nathan Scott <nathans@redhat.com> - 0.5.1-1
+- Update to latest upstream sources.
+
+* Tue Feb 28 2017 Nathan Scott <nathans@redhat.com> - 0.5.0-2
+- Resolve lintian errors - source, license, documentation.
+
+* Fri Feb 24 2017 Nathan Scott <nathans@redhat.com> - 0.5.0-1
+- Update to upstream release, dropping java8 patch.
+
 * Thu Feb 16 2017 Nathan Scott <nathans@redhat.com> - 0.4.0-5
 - Use RPM macros to ease dropwizard metrics enablement.
 - Correct the dependency on systems.uom:systems-unicode-java8
 
 * Fri Nov 25 2016 Nathan Scott <nathans@redhat.com> - 0.4.0-4
-- Switch to jdk1.8+, uom-se, enable dropwizard metrics module.
+- Switch to uom-se and conditional use of dropwizard metrics.
 
 * Fri Oct 28 2016 Nathan Scott <nathans@redhat.com> - 0.4.0-3
 - Add in parfait wrapper shell script and man page.

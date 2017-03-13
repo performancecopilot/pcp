@@ -105,8 +105,10 @@ refresh_sysfs_tapestats(pmInDom tape_indom)
 	     * so we have to zero our buffer prior to reading. sigh.
 	     */
 	    memset(strvalue, 0, sizeof(strvalue));
-	    if (read(fd, strvalue, sizeof(strvalue)) <= 0)
+	    if (read(fd, strvalue, sizeof(strvalue)) <= 0) {
+		close(fd);
 	    	continue;
+	    }
 	    for (i=0; i < TAPESTATS_COUNT; i++) {
 		if (strncmp(tapestat_fields[i].name, ts, tslen) == 0) {
 		    device->counts[i] = strtoll(strvalue, NULL, 10);

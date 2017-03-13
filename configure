@@ -920,7 +920,6 @@ infodir
 docdir
 oldincludedir
 includedir
-runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -962,6 +961,7 @@ with_books_brand
 with_papi
 with_perfevent
 with_pmdajson
+with_pmdanutcracker
 with_pmdasnmp
 with_manager
 with_webapi
@@ -1060,7 +1060,6 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
-runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -1313,15 +1312,6 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
-  -runstatedir | --runstatedir | --runstatedi | --runstated \
-  | --runstate | --runstat | --runsta | --runst | --runs \
-  | --run | --ru | --r)
-    ac_prev=runstatedir ;;
-  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
-  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
-  | --run=* | --ru=* | --r=*)
-    runstatedir=$ac_optarg ;;
-
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1459,7 +1449,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir runstatedir
+		libdir localedir mandir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1612,7 +1602,6 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
-  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1688,6 +1677,7 @@ Optional Packages:
                           installation prefix, or a pkgconfig module name.
   --with-perfevent        enable perfevent pmda (default is on)
   --with-pmdajson         enable JSON pmda (default is on)
+  --with-pmdanutcracker   enable nutcracker pmda (default is on)
   --with-pmdasnmp         enable SNMP pmda (default is on)
   --with-manager          enable daemon manager (default is on)
   --with-webapi           enable REST API daemon (default is on)
@@ -2806,6 +2796,15 @@ if test "${with_pmdajson+set}" = set; then :
   withval=$with_pmdajson; do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"
 else
   do_pmdajson=check
+fi
+
+
+
+# Check whether --with-pmdanutcracker was given.
+if test "${with_pmdanutcracker+set}" = set; then :
+  withval=$with_pmdanutcracker; do_pmdanutcracker=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdanutcracker=$withval"
+else
+  do_pmdanutcracker=check
 fi
 
 
@@ -7573,15 +7572,22 @@ $as_echo "no" >&6; }; fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if the nutcracker PMDA should be included" >&5
 $as_echo_n "checking if the nutcracker PMDA should be included... " >&6; }
 pmda_nutcracker=false
-if test "$have_perl" = true
-then
-        if $pcp_perl_prog -e "use YAML::XS" >/dev/null 2>&1
+if test "x$do_pmdanutcracker" = "xyes"; then :
+  pmda_nutcracker=true
+fi
+if test "x$do_pmdanutcracker" = "xcheck"; then :
+
+        if test "$have_perl" = true
     then
-	if $pcp_perl_prog -e "use JSON" >/dev/null 2>&1
+	if $pcp_perl_prog -e "use YAML::XS" >/dev/null 2>&1
 	then
-	    pmda_nutcracker=true
+	    if $pcp_perl_prog -e "use JSON" >/dev/null 2>&1
+	    then
+		pmda_nutcracker=true
+	    fi
 	fi
     fi
+
 fi
 PMDA_NUTCRACKER=$pmda_nutcracker
 

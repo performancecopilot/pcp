@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "parse_events.h"
 #include "mock_pfm.h"
 
 void test_init()
@@ -680,6 +681,168 @@ void test_derived_events_scale(void)
     wrap_sysconf_override = 0;
 }
 
+/*
+ * Tests the init_dynamic_events parser code to see whether,
+ * the pmus (pmu1 and pmu2) are detected. Also, tests for the total
+ * no. of events including the software pmu.
+ */
+void test_init_dynamic_events(void)
+{
+    struct pmu *pmu_list = NULL, *tmp = NULL;
+    struct pmu_event *event;
+    int dyn_pmu_count = 0, dyn_event_count = 0;
+
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+
+    setenv("SYSFS_PREFIX", "./fakefs/syspmu", 1);
+
+    init_dynamic_events(&pmu_list);
+    for (tmp = pmu_list; tmp; tmp = tmp->next) {
+	printf("PMU name : %s\n", tmp->name);
+	dyn_pmu_count++;
+	for (event = tmp->ev; event; event = event->next) {
+	    dyn_event_count++;
+	    printf("\tevent name : %s\n", event->name);
+	}
+    }
+    /* PMUs : pmu1, pmu2, software */
+    assert(3 == dyn_pmu_count);
+    /* pmu1 : 2 events, pmu2 : 3 events, software : 9 events */
+    assert(14 == dyn_event_count);
+}
+
+/*
+ * This is the case where there are no PMUs exposed, it should only
+ * detect the software events.
+ */
+void test_minimum_dynamic_events(void)
+{
+    struct pmu *pmu_list = NULL;
+    struct pmu_event *event;
+    int count = 0;
+
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+
+    setenv("SYSFS_PREFIX", "./fakefs/syspmu_empty", 1);
+    init_dynamic_events(&pmu_list);
+    for (event = pmu_list->ev; event; event = event->next) {
+	count++;
+    }
+
+    printf("%d %s events found\n", count, pmu_list->name);
+    /* software events will be initialized in any case */
+    assert(0 == strcmp("software", pmu_list->name));
+    assert(9 == count);
+}
+
+/*
+ * A case where one of the events ("bar") in one of the pmus ("pmu1")
+ * is rogue. Only 2 pmus ("pmu2" and "software") should be detected
+ * in this case, since we won't trust the rogue event's pmu.
+ */
+void test_dynamic_events_fail_event(void)
+{
+    struct pmu *pmu_list = NULL, *tmp;
+    int count;
+
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+
+    setenv("SYSFS_PREFIX", "./fakefs/syspmu_fail_event", 1);
+    init_dynamic_events(&pmu_list);
+    for (tmp = pmu_list, count = 0; tmp; tmp = tmp->next, count++) {
+	printf("PMU : %s\n", tmp->name);
+	assert(0 != strcmp("pmu1", tmp->name));
+    }
+
+    /*
+     * 3 PMUs present, but parser reports only 2, ignoring the one
+     * (pmu1) for which we have a invalid event value.
+     */
+    assert(2 == count);
+}
+
+/*
+ * Events are fine, but one of the fields in the format directory has
+ * gone missing ("pmu2") which is needed to decode the events' string.
+ * Once again, the parser must ignore the pmu with the rogue format.
+ */
+void test_dynamic_events_fail_format(void)
+{
+    struct pmu *pmu_list = NULL, *tmp;
+    int count;
+
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+
+    setenv("SYSFS_PREFIX", "./fakefs/syspmu_fail_format", 1);
+    init_dynamic_events(&pmu_list);
+    for (tmp = pmu_list, count = 0; tmp; tmp = tmp->next, count++) {
+	printf("PMU : %s\n", tmp->name);
+	assert(0 != strcmp("pmu2", tmp->name));
+    }
+
+    /*
+     * 3 PMUs present, but parser reports only 2, ignoring the one
+     * (pmu2) for which the format dir is missing the complete syntax.
+     */
+    assert(2 == count);
+}
+
+/*
+ * With 3 dynamic events and 2 libpfm events mentioned in the config
+ * file, this tests for the total no. of events detected.
+ * Since, there are 3 dynamic events mentioned in the config file,
+ * other two dynamic events are not allowed to be monitored. This
+ * test case makes sure of that.
+ */
+void test_dynamic_events_config(void)
+{
+    setenv("SYSFS_PREFIX", "./fakefs/syspmu", 1);
+    printf( " ===== %s ==== \n", __FUNCTION__) ;
+    const char *configfile = "config/test_dynamic_counters.txt";
+    perfdata_t *h = (perfdata_t *)perf_event_create(configfile);
+    assert( h != NULL );
+
+    perf_counter *data = NULL;
+    int size = 0;
+    perf_derived_counter *pdata = NULL;
+    int derivedsize = 0;
+
+    perf_get((perfhandle_t *)h, &data, &size, &pdata, &derivedsize);
+
+    /* 2 libpfm counters, 5 dynamic PMU counters, 9 software counters */
+    assert(size == (2 + 5 + 9));
+    assert(data != NULL);
+
+    event_t *events = h->events;
+    int i, j, ev_count = h->nevents;
+
+    /* Allowed events are entered in the config file */
+    char *allowed_events[3] = {
+	"pmu1.bar",
+	"pmu2.cm_event1",
+	"pmu2.cm_event3",
+    };
+    /* Dis-allowed events */
+    char *denied_events[2] = {
+	"pmu1.foo",
+	"pmu2.cm_event2",
+    };
+    for (i = 0; i < ev_count; i++) {
+	for (j = 0; j < 3; j++) {
+	    if (!strcmp(allowed_events[j], events[i].name)) {
+		assert(0 == events[i].disable_event);
+		break;
+	    }
+	}
+	for (j = 0; j < 2; j++) {
+	    if (!strcmp(denied_events[j], events[i].name)) {
+		assert(1 == events[i].disable_event);
+		break;
+	    }
+	}
+    }
+}
+
 int runtest(int n)
 {
     init_mock();
@@ -756,6 +919,20 @@ int runtest(int n)
         case 22:
             test_derived_events_scale();
             break;
+        case 23:
+	    test_init_dynamic_events();
+	    break;
+        case 24:
+	    test_minimum_dynamic_events();
+	    break;
+        case 25:
+	    test_dynamic_events_fail_event();
+	    break;
+        case 26:
+	    test_dynamic_events_fail_format();
+	    break;
+        case 27:
+	    test_dynamic_events_config();
         default:
             ret = -1;
     }

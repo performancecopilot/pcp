@@ -1,14 +1,14 @@
 Summary: Units of Measurement Libraries (JSR 363)
-Name: uom-lib
+Name: unitsofmeasurement-uom-lib
 Version: 1.0.1
-%global buildversion 1
+%global buildversion 3
+%global uom_lib uom-lib-%{version}
 
 Release: %{buildversion}%{?dist}
-License: BSD3
+License: BSD
 URL: https://github.com/unitsofmeasurement/uom-lib
 Group: Development/Languages
-# https://github.com/unitsofmeasurement/uom-lib/archive/%{version}.tar.gz
-Source0: %{name}-%{version}.tar.gz
+Source0: https://github.com/unitsofmeasurement/uom-lib/archive/%{version}.tar.gz
 
 BuildArch: noarch
 BuildRequires: junit
@@ -34,18 +34,27 @@ This package contains documentation for the Units of Measurement
 Libraries (JSR 363).
 
 %prep
-%setup -q
+%setup -q -c -n unitsofmeasurement
 
 %build
+cd %{uom_lib}
 %mvn_build
 
 %install
+cd %{uom_lib}
 %mvn_install
 
-%files -f .mfiles
+%files -f %{uom_lib}/.mfiles
+%doc %{uom_lib}/README.md
 
-%files javadoc -f .mfiles-javadoc
+%files javadoc -f %{uom_lib}/.mfiles-javadoc
 
 %changelog
+* Tue Feb 28 2017 Nathan Scott <nathans@redhat.com> - 1.0.1-3
+- Resolve lintian errors - source, license, documentation.
+
+* Fri Feb 24 2017 Nathan Scott <nathans@redhat.com> - 1.0.1-2
+- Add unitsofmeasurement prefix to package name.
+
 * Thu Oct 13 2016 Nathan Scott <nathans@redhat.com> - 1.0.1-1
 - Initial version.

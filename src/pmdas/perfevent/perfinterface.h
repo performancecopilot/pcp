@@ -32,6 +32,7 @@ typedef struct perf_data_t_
 typedef struct perf_counter_t_
 {
     char *name;
+    int counter_disabled;
     perf_data *data;
     int ninstances;
 } perf_counter;
@@ -70,6 +71,7 @@ typedef struct eventcpuinfo_t_ {
 
 typedef struct event_t_ {
     char *name;
+    int disable_event;
     eventcpuinfo_t *info;
     int ncpus;
 } event_t;
@@ -84,6 +86,12 @@ typedef struct derived_event_t_ {
     char *name;
     event_list_t *event_list;
 } derived_event_t;
+
+typedef struct dynamic_event_t_ {
+    char *pmu;
+    char *event;
+    struct dynamic_event_t_ *next;
+} dynamic_event_t;
 
 typedef struct perfdata_t_
 {

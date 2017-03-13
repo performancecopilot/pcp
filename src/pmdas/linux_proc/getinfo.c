@@ -63,7 +63,8 @@ get_ttyname_info(int pid, dev_t dev)
 	if (!stat(fullpath, &statbuf))
 	    continue;
 	if (S_ISCHR(statbuf.st_mode) && dev == statbuf.st_rdev) {
-	    strcpy(ttyname, &fullpath[5]);
+	    strncpy(ttyname, &fullpath[5], sizeof(ttyname));
+	    ttyname[sizeof(ttyname)-1] = '\0';
 	    break;
 	}
     }

@@ -21,6 +21,7 @@
 #include "rapl-interface.h"
 #include "configparser.h"
 #include "architecture.h"
+#include "parse_events.h"
 #include <perfmon/pfmlib_perf_event.h>
 
 #include <limits.h>
@@ -137,37 +138,6 @@ static void free_event_list(event_list_t *event_list)
         free(event_list);
         event_list = tmp;
     }
-}
-
-/*
- * Utility function to fetch the contents of a
- * file(in "path") to "buf"
- */
-static int get_file_string(char *path, char *buf)
-{
-    FILE *fp;
-    int ret;
-    size_t size = BUF_SIZE;
-    char *ptr;
-
-    fp = fopen(path, "r");
-    if (NULL == fp)
-        return -1;
-
-    ret = getline(&buf, &size, fp);
-    if (ret < 0) {
-        fclose(fp);
-        return ret;
-    }
-
-    /* Strip off the new-line character (if found) */
-    ptr = strchr(buf, '\n');
-    if (ptr)
-        *ptr = '\0';
-
-    fclose(fp);
-
-    return 0;
 }
 
 /* Right now, only capable of parsing event and umask */
@@ -680,6 +650,7 @@ static int perf_setup_event(perfdata_t *inst, const char *eventname, const int c
         }
 
         /* The event was configured sucessfully */
+	curr->disable_event = 0;
         ++info;
         ++(curr->ncpus);
     }
@@ -700,6 +671,115 @@ static int perf_setup_event(perfdata_t *inst, const char *eventname, const int c
     return ret;
 }
 
+/*
+ * Setup the dynamic events
+ */
+static int perf_setup_dynamic_events(perfdata_t *inst,
+				     pmcsetting_t *dynamic_setting,
+				     struct pmu *pmu_list)
+{
+    int i, ncpus, ret = 0, *cpuarr = NULL, nevents = inst->nevents;
+    event_t *events = inst->events;
+    archinfo_t *archinfo = inst->archinfo;
+    struct pmu *pmu_ptr;
+    struct pmu_event *event_ptr;
+    char eventname[BUF_SIZE];
+    pmcsetting_t *ptr;
+    int disable_event;
+
+    for (pmu_ptr = pmu_list; pmu_ptr; pmu_ptr = pmu_ptr->next) {
+        for (event_ptr = pmu_ptr->ev; event_ptr;
+             event_ptr = event_ptr->next) {
+            ncpus = 0;
+            disable_event = 1;
+            /* Setup the event name */
+            snprintf(eventname, BUF_SIZE, "%s.%s", pmu_ptr->name,
+                     event_ptr->name);
+            for (ptr = dynamic_setting; ptr; ptr = ptr->next) {
+                if (!strncmp(eventname, ptr->name,
+                             strlen(eventname)))
+                    disable_event = 0;
+            }
+
+            /* Increase the size of event array */
+            events = realloc(events, (nevents + 1) * sizeof(*events));
+            if (!events) {
+                free(inst->events);
+                inst->nevents = 0;
+                inst->events = NULL;
+                return -E_PERFEVENT_REALLOC;
+            }
+
+            setup_cpu_config(pmu_ptr, &ncpus, &cpuarr,
+                             &archinfo->cpus);
+
+            if (ncpus <= 0) { /* Assume default cpu set */
+                cpuarr = archinfo->cpus.index;
+                ncpus = archinfo->cpus.count;
+            }
+
+            event_t *curr = events + nevents;
+            curr->name = strdup(eventname);
+
+            curr->disable_event = disable_event;
+            if (disable_event) {
+                ++nevents;
+                ret = 0;
+                continue;
+            }
+            curr->info = calloc(ncpus, (sizeof *(curr->info)) * ncpus);
+            curr->ncpus = 0;
+
+            eventcpuinfo_t *info = &curr->info[0];
+
+            for(i = 0; i < ncpus; ++i) {
+                memset(info, 0, sizeof *info);
+                info->fd = -1;
+                info->cpu = cpuarr[i];
+                info->type = EVENT_TYPE_PERF;
+                info->hw.size = sizeof(info->hw);
+
+                pfm_perf_encode_arg_t arg;
+                memset(&arg, 0, sizeof(arg));
+
+                info->idx = arg.idx;
+
+                info->hw.type = pmu_ptr->type;
+                info->hw.size = sizeof(info->hw);
+                info->hw.config = event_ptr->config;
+                info->hw.config1 = event_ptr->config1;
+                info->hw.config2 = event_ptr->config2;
+                info->hw.disabled = 1;
+                info->hw.read_format = PERF_FORMAT_TOTAL_TIME_ENABLED | PERF_FORMAT_TOTAL_TIME_RUNNING;
+
+                info->fd = perf_event_open(&info->hw, -1, info->cpu, -1, 0);
+                if(info->fd == -1) {
+                    fprintf(stderr, "perf_event_open failed on cpu%d for \"%s\": %s\n",
+                            info->cpu, curr->name, strerror(errno) );
+                    free_eventcpuinfo(info);
+                    continue;
+                }
+
+                /* The event was configured sucessfully */
+                ++info;
+                ++(curr->ncpus);
+            }
+
+            if(curr->ncpus > 0) {
+                ++nevents;
+                ret = 0;
+            } else {
+                free_event(curr);
+                ret = -E_PERFEVENT_RUNTIME;
+            }
+        }
+    }
+
+
+    inst->events = events;
+    inst->nevents = nevents;
+    return ret;
+}
 
 #define START_STATE 0
 #define IN_LIST_STATE 1
@@ -882,6 +962,10 @@ int perf_counter_enable(perfhandle_t *inst, int enable)
     for(idx = 0; idx < pdata->nevents; ++idx)
     {
         event_t *event = &pdata->events[idx];
+	if (event->disable_event) {
+	    ++n;
+	    continue;
+	}
 
         for(cpuidx = 0; cpuidx < event->ncpus; ++cpuidx)
         {
@@ -1033,6 +1117,10 @@ int perf_get(perfhandle_t *inst, perf_counter **counters, int *size,
         event_t *event = &pdata->events[idx];
 
         pcounter[idx].name = event->name;
+	pcounter[idx].counter_disabled = event->disable_event;
+	if (event->disable_event) {
+	    continue;
+	}
 
         if(0 == pcounter[idx].data)
         {
@@ -1097,6 +1185,7 @@ perfhandle_t *perf_event_create(const char *config_file)
     configuration_t *perfconfig = 0;
     pmcsetting_t *pmcsetting = 0;
     pmcderived_t *derivedpmc = 0;
+    struct pmu *pmu_list = NULL;
 
     ret = pfm_initialize();
     if (ret != PFM_SUCCESS)
@@ -1136,6 +1225,14 @@ perfhandle_t *perf_event_create(const char *config_file)
         pmcsetting = pmcsetting->next;
     }
 
+    /* Setup the dynamic events */
+    if (perfconfig->dynamicpmc) {
+	ret = init_dynamic_events(&pmu_list);
+	if (!ret)
+	    perf_setup_dynamic_events(inst,
+				      perfconfig->dynamicpmc->dynamicSettingList,
+				      pmu_list);
+    }
     /* Setup the derived events */
     if (inst && perfconfig && perfconfig->nDerivedEntries)
     {
