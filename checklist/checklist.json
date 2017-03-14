@@ -20,7 +20,7 @@
             "pcp_metrics": ["cpubusy.*"],
             "pcp_metrics_log": ["cpubusy" ],
             "pcp_deriveds": [ "cpubusy = 1 - rate(kernel.percpu.cpu.idle)" ],
-            "pcp_predicate": { "label": "processors busy",
+            "pcp_predicate": { "label": "processors 85% busy",
                                "metric": "cpubusy",
                                "operator": "threshold_min",
                                "value" : 0.85 },
@@ -32,7 +32,7 @@
 	    "pcp_metrics": ["diskbusy.*"],
 	    "pcp_metrics_log": ["diskbusy"],
             "pcp_deriveds": [ "diskbusy = rate(disk.dm.avactive)" ],
-            "pcp_predicate": { "label": "disk busy",
+            "pcp_predicate": { "label": "disk 85% busy",
                                "metric": "diskbusy",
                                "operator": "threshold_min",
                                "value" : 0.85 },
@@ -41,8 +41,8 @@
         {
             "name": "Storage - bandwidth",
 	    "description": "Saturating bandwidth of storage",
-	    "pcp_metrics": [ "disk.dm.total.*", "kernel.all.uptime.*" ],
-	    "pcp_metrics_log": [ "disk.dm.total", "kernel.all.uptime" ],
+	    "pcp_metrics": [ "disk.dm.total.*" ],
+	    "pcp_metrics_log": [ "disk.dm.total" ],
 	    "predicate": "delta(disk.dm.total)/delta(time)",
 	    "parents": ["Storage"]
         },

@@ -132,12 +132,14 @@ function predicate_lambda(child, div_id, metrics) {
         // output: var result = '<html code for instance representation>'
         if (! ('label' in node)) { node['label'] = ''; }
         var part3_htmlify = 'result = \'<div style=\"display:inline\" class=\"rhck-label\">'+node['label'] /*XXX htmlencode? */ +
-                            '</div>\' + \
+                            '</div>&nbsp;\' + \
                              instances.reduce(function(html,inst) { \
-                             return html+\'<div style=\"display:inline\" class="\'+inst.score+\'">\' + \
-                                         (inst.instance<0?\'\':inst.instance) + \
-                                         \' \' + (inst.score ? "<font color=#ff0000>check</font>" : "ok") + \
-                                         \'</div>\'; \
+			     inst.scoremsg = inst.score; \
+                             if (inst.score === false || inst.score === true) { inst.scoremsg = \'\'; } \
+                             return html+\'<div style=\"display:inline\" class="checklist-predicate checklist-\'+inst.score+\'">\' + \
+                                         (inst.instance<0?\'\':inst.instance+\':\') + \
+                                         inst.scoremsg + \
+                                         \'</div>&nbsp;\'; \
                              }, \'\');';
         var part8_catchwrap = '} catch (err) { result = err.message }';
         var part9_update = '$("#' + div_id + '").html(result);';
@@ -273,7 +275,7 @@ return function (callback) {
         });
 
         var html = " | ";
-        if ("children" in panel) {
+        if ("children" in panel && (panel.children.length > 0)) {
             $.each(panel.children, function (index, child) {
                 var metrics = [];
                 var l;
@@ -290,39 +292,37 @@ return function (callback) {
 
             // start up periodic function to poll pcp metrics & call notifiers
             html += emit_js_onload_div('top.rhck_predicate_fetch();', 'predicate_fetch');
-        }
-        dashboard.rows.push({
-            title: '',
-            height: '0',
-            panels: [{
-                title: 'Possible Causes',
-                type: 'text',
-                mode: 'html',
-                span: 12,
-                fill: 1,
+            dashboard.rows.push({
+                title: '',
+                height: '0',
+                panels: [{
+                    title: 'Possible Causes',
+                    type: 'text',
+                    mode: 'html',
+                    span: 12,
+                    fill: 1,
                 content: html
-            }]
-        });
+                }]
+            });
+        }
 
         // create description panel
         var markdown = "";
         if ("description" in panel) {
             markdown = panel.description;
-        } else {
-            markdown = "(no description)";
+            dashboard.rows.push({
+                title: '',
+                height: '0',
+                panels: [{
+                    title: 'Description',
+                    type: 'text',
+                    span: 12,
+                    fill: 1,
+                    content: markdown
+                }]
+            });
         }
-        dashboard.rows.push({
-            title: '',
-            height: '0',
-            panels: [{
-                title: 'Description',
-                type: 'text',
-                span: 12,
-                fill: 1,
-                content: markdown
-            }]
-        });
-
+        
         // create pcp metrics panel
         if ("pcp_metrics" in panel) {
             create_metric_panel(dashboard, panel);
