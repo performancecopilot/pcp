@@ -1,4 +1,4 @@
 div.checklist-predicate { color: #00F; }
-div.checklist-true { color: #F00; }
+div.checklist-true { color: #F00; text-decoration: underline;}
 div.checklist-false { color: #0F0; }
 div.checklist-undefined { color: #880; }
