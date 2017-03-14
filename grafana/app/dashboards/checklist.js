@@ -135,10 +135,8 @@ function predicate_lambda(child, div_id, metrics) {
                             '</div>&nbsp;\' + \
                              instances.reduce(function(html,inst) { \
 			     inst.scoremsg = inst.score; \
-                             if (inst.score === false || inst.score === true) { inst.scoremsg = \'\'; } \
                              return html+\'<div style=\"display:inline\" class="checklist-predicate checklist-\'+inst.score+\'">\' + \
-                                         (inst.instance<0?\'\':inst.instance+\':\') + \
-                                         inst.scoremsg + \
+                                         (inst.instance<0?\'0\':inst.instance) + \
                                          \'</div>&nbsp;\'; \
                              }, \'\');';
         var part8_catchwrap = '} catch (err) { result = err.message }';
