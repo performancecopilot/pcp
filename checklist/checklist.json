@@ -24,6 +24,7 @@
                                "metric": "cpubusy",
                                "operator": "threshold_min",
                                "value" : 0.85 },
+	    "urls": [ "https://access.redhat.com/articles/767563#cpu" ],
 	    "parents": ["Start"]
         },
         {
