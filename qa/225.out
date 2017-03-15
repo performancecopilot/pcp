@@ -502,14 +502,14 @@ derive_lex() -> type=L_ERROR "4294967296"
  4294967296
  ^         
 Constant value too large
-pmRegisterDerived: name="myname.gcov.a" expr="foo = bar"
+pmRegisterDerived: name="myname.gcov.a" expr="foo ^ bar"
 derive_lex() -> type=L_NAME "foo"
-derive_lex() -> type=L_ERROR "="
+derive_lex() -> type=L_ERROR "^"
 [TMP.config:17] Error: pmRegisterDerived(myname.gcov.a, ...) syntax error
- foo = bar
+ foo ^ bar
      ^    
 Illegal character
-pmRegisterDerived: name="myname.gcov.b" expr="sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + "bogus""
+pmRegisterDerived: name="myname.gcov.b" expr="sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + 'bogus'"
 derive_lex() -> type=L_NAME "sample.longlong.million"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "sample.longlong.million"
@@ -532,17 +532,17 @@ derive_lex() -> type=L_NAME "sample.longlong.million"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "sample.longlong.million"
 derive_lex() -> type=L_PLUS "+"
-derive_lex() -> type=L_ERROR """
+derive_lex() -> type=L_ERROR "'"
 [TMP.config:19] Error: pmRegisterDerived(myname.gcov.b, ...) syntax error
- sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + "bogus"
+ sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + 'bogus'
                                                                                                                                                                                                                                                                                                ^      
 Illegal character
-pmRegisterDerived: name="myname.gcov.c" expr="sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million + "bogus""
+pmRegisterDerived: name="myname.gcov.c" expr="sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million + 'bogus'"
 derive_lex() -> type=L_NAME "sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million"
 derive_lex() -> type=L_PLUS "+"
-derive_lex() -> type=L_ERROR """
+derive_lex() -> type=L_ERROR "'"
 [TMP.config:20] Error: pmRegisterDerived(myname.gcov.c, ...) syntax error
- sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million + "bogus"
+ sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million + 'bogus'
                                                                                                                                                                                                                                                                                                                            ^      
 Illegal character
 pmRegisterDerived: name="myname.gcov.d" expr="3 * space"

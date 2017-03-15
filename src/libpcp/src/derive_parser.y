@@ -69,6 +69,7 @@ typedef union {
     char	*s;
     node_t	*n;
     pmUnits	u;
+    pmDesc	d;
 } YYSTYPE;
 #define YYSTYPE_IS_DECLARED 1
 
@@ -94,6 +95,7 @@ static const char unexpected_str[]	 = "Unexpected";
 static const char initial_str[]	 = "Unexpected initial";
 
 static const pmUnits noUnits;
+static pmDesc specdesc;
 
 #if defined(PM_MULTI_THREAD) && !defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
 static void
@@ -2026,6 +2028,12 @@ static node_t *np;
 %token      L_NEQ
 %token      L_AND
 %token      L_OR
+%token      L_MKCONST
+%token      L_TYPE
+%token      L_SEMANTICS
+%token      L_UNITS
+%token      L_ASSIGN
+%token      L_COMMA
 
 %token <u>  EVENT_UNIT
 %token <u>  TIME_UNIT
@@ -2033,13 +2041,15 @@ static node_t *np;
 %token <s>  L_INTEGER
 %token <s>  L_DOUBLE
 %token <s>  L_NAME
+%token <s>  L_STRING
 
 %type  <n>  defn
 %type  <n>  expr
 %type  <n>  num
 %type  <n>  func
-%type  <u>  units
-%type  <u>  unit
+%type  <d>  spec
+%type  <d>  speclist
+%type  <s>  specval
 
 %left  L_QUEST L_COLON
 %left  L_AND L_OR
@@ -2047,7 +2057,6 @@ static node_t *np;
 %left  L_LT L_LEQ L_EQ L_GEQ L_GT L_NEQ
 %left  L_PLUS L_MINUS
 %left  L_STAR L_SLASH
-%left  UNITS_SLASH UNITS_POWER
 
 %%
 
@@ -2129,7 +2138,7 @@ expr	: L_LPAREN expr L_RPAREN
 		{ $$ = $1; }
 	| L_NAME
 		{ np = newnode(N_NAME);
-		  np->value = derive_lval.s;
+		  np->value = $1;
 		  $$ = np;
 		}
 	| func
@@ -2214,96 +2223,143 @@ expr	: L_LPAREN expr L_RPAREN
 		{ gramerr(aexpr_str, follow, n_type_str(N_COLON)); YYERROR; }
 	;
 
-num	: L_INTEGER units
+num	: L_INTEGER
 		{ np = newnode(N_INTEGER);
-		  np->value = derive_lval.s;
+		  np->value = $1;
 		  np->desc.pmid = PM_ID_NULL;
 		  np->desc.type = PM_TYPE_U32;
 		  np->desc.indom = PM_INDOM_NULL;
 		  np->desc.sem = PM_SEM_DISCRETE;
-		  np->desc.units = $2;
+		  np->desc.units = noUnits;
 		  $$ = np;
 		}
-	| L_DOUBLE units
+	| L_DOUBLE
 		{ np = newnode(N_DOUBLE);
-		  np->value = derive_lval.s;
+		  np->value = $1;
 		  np->desc.pmid = PM_ID_NULL;
 		  np->desc.type = PM_TYPE_DOUBLE;
 		  np->desc.indom = PM_INDOM_NULL;
 		  np->desc.sem = PM_SEM_DISCRETE;
-		  np->desc.units = $2;
+		  np->desc.units = noUnits;
+		  $$ = np;
+		}
+	| L_MKCONST L_LPAREN L_INTEGER L_COMMA
+		{ np = newnode(N_INTEGER);
+		  np->value = $3;
+		  /* defaults ... */
+		  specdesc.pmid = PM_ID_NULL;
+		  specdesc.type = PM_TYPE_U32;
+		  specdesc.indom = PM_INDOM_NULL;
+		  specdesc.sem = PM_SEM_DISCRETE;
+		  specdesc.units = noUnits;
+		}
+	    speclist L_RPAREN
+		{ np->desc = specdesc;	/* struct assignment */
+		  $$ = np;
+		}
+	| L_MKCONST L_LPAREN L_DOUBLE L_COMMA
+		{ np = newnode(N_DOUBLE);
+		  np->value = $3;
+		  /* defaults ... */
+		  specdesc.pmid = PM_ID_NULL;
+		  specdesc.type = PM_TYPE_DOUBLE;
+		  specdesc.indom = PM_INDOM_NULL;
+		  specdesc.sem = PM_SEM_DISCRETE;
+		  specdesc.units = noUnits;
+		}
+	    speclist L_RPAREN
+		{ if (specdesc.type != PM_TYPE_DOUBLE &&
+		      specdesc.type != PM_TYPE_FLOAT) {
+		      char	strbuf[20];
+		      gramerr("Incompatible floating point constant and type", NULL, pmTypeStr_r(specdesc.type, strbuf, sizeof(strbuf)));
+		      derive_error(NULL);
+		      return -1;
+		  }
+		  np->desc = specdesc;	/* struct assignment */
 		  $$ = np;
 		}
 	;
 
-units	: /* empty */
-		{ $$ = noUnits; }
-	| units unit
-		{ $$ = $1;
-		    if ($2.dimSpace) {
-			$$.dimSpace = $2.dimSpace;
-			$$.scaleSpace = $2.scaleSpace;
-		    }
-		    else if ($2.dimTime) {
-			$$.dimTime = $2.dimTime;
-			$$.scaleTime = $2.scaleTime;
-		    }
-		    else {
-			$$.dimCount = $2.dimCount;
-			$$.scaleCount = $2.scaleCount;
-		    } }
-	| units UNITS_SLASH unit
-		{ $$ = $1;
-		    if ($3.dimSpace) {
-			$$.dimSpace = -$3.dimSpace;
-			$$.scaleSpace = $3.scaleSpace;
-		    }
-		    else if ($3.dimTime) {
-			$$.dimTime = -$3.dimTime;
-			$$.scaleTime = $3.scaleTime;
-		    }
-		    else {
-			$$.dimCount = -$3.dimCount;
-			$$.scaleCount = $3.scaleCount;
-		    } }
+speclist :
+	  speclist L_COMMA spec
+	| spec
 	;
 
-unit	: SPACE_UNIT
-		{ $$ = $1; }
-	| SPACE_UNIT UNITS_POWER L_INTEGER
-		{ $$ = $1;
-		    $$.dimSpace = atoi(derive_lval.s); }
-	| TIME_UNIT
-		{ $$ = $1; }
-	| TIME_UNIT UNITS_POWER L_INTEGER
-		{ $$ = $1;
-		    $$.dimTime = atoi(derive_lval.s); }
-	| EVENT_UNIT
-		{ $$ = $1; }
-	| EVENT_UNIT UNITS_POWER L_INTEGER
-		{ $$ = $1;
-		    $$.dimCount = atoi(derive_lval.s); }
+spec	: L_TYPE L_ASSIGN specval
+		{ if (strcasecmp($3, "32") == 0)
+		      specdesc.type = PM_TYPE_32;
+		  else if (strcasecmp($3, "U32") == 0)
+		      specdesc.type = PM_TYPE_U32;
+		  else if (strcasecmp($3, "64") == 0)
+		      specdesc.type = PM_TYPE_64;
+		  else if (strcasecmp($3, "U64") == 0)
+		      specdesc.type = PM_TYPE_U64;
+		  else if (strcasecmp($3, "FLOAT") == 0)
+		      specdesc.type = PM_TYPE_FLOAT;
+		  else if (strcasecmp($3, "DOUBLE") == 0)
+		      specdesc.type = PM_TYPE_DOUBLE;
+		  else {
+		      gramerr("Unrecognized value for type", NULL, $3);
+		      derive_error(NULL);
+		      return -1;
+		  }
+		  $$ = specdesc;
+		}
+	| L_SEMANTICS L_ASSIGN specval
+		{ if (strcasecmp($3, "counter") == 0)
+		      specdesc.sem = PM_SEM_COUNTER;
+		  else if (strcasecmp($3, "instant") == 0)
+		      specdesc.sem = PM_SEM_INSTANT;
+		  else if (strcasecmp($3, "discrete") == 0)
+		      specdesc.sem = PM_SEM_DISCRETE;
+		  else {
+		      gramerr("Unrecognized value for semantics", NULL, $3);
+		      derive_error(NULL);
+		      return -1;
+		  }
+		  $$ = specdesc;
+		}
+	| L_UNITS L_ASSIGN specval
+		{ double		mult;
+		  struct pmUnits	units;
+		  char			*errmsg;
+		  if (pmParseUnitsStr($3, &units, &mult, &errmsg) == 0) {
+		      specdesc.units = units;
+		  }
+		  else {
+		      gramerr("Illegal units:", NULL, errmsg);
+		      free(errmsg);
+		      derive_error(NULL);
+		      return -1;
+		  }
+		  $$ = specdesc;
+		}
+	;
+
+specval	: L_STRING
+	| L_NAME
+	| L_INTEGER
 	;
 
 func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_ANON);
 		  np->left = newnode(N_NAME);
-		  np->left->value = derive_lval.s;
+		  np->left->value = $3;
 		  np->left->save_last = 1;
-		  if (strcmp(derive_lval.s, "PM_TYPE_32") == 0)
+		  if (strcmp($3, "PM_TYPE_32") == 0)
 		      np->left->desc.type = PM_TYPE_32;
-		  else if (strcmp(derive_lval.s, "PM_TYPE_U32") == 0)
+		  else if (strcmp($3, "PM_TYPE_U32") == 0)
 		      np->left->desc.type = PM_TYPE_U32;
-		  else if (strcmp(derive_lval.s, "PM_TYPE_64") == 0)
+		  else if (strcmp($3, "PM_TYPE_64") == 0)
 		      np->left->desc.type = PM_TYPE_64;
-		  else if (strcmp(derive_lval.s, "PM_TYPE_U64") == 0)
+		  else if (strcmp($3, "PM_TYPE_U64") == 0)
 		      np->left->desc.type = PM_TYPE_U64;
-		  else if (strcmp(derive_lval.s, "PM_TYPE_FLOAT") == 0)
+		  else if (strcmp($3, "PM_TYPE_FLOAT") == 0)
 		      np->left->desc.type = PM_TYPE_FLOAT;
-		  else if (strcmp(derive_lval.s, "PM_TYPE_DOUBLE") == 0)
+		  else if (strcmp($3, "PM_TYPE_DOUBLE") == 0)
 		      np->left->desc.type = PM_TYPE_DOUBLE;
 		  else {
-		      fprintf(stderr, "Error: type=%s not allowed for anon()\n", derive_lval.s);
+		      fprintf(stderr, "Error: type=%s not allowed for anon()\n", $3);
 		      free_expr(np->left);
 		      free_expr(np);
 		      $$ = NULL;
@@ -2318,56 +2374,56 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 	| L_AVG L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_AVG);
 		  np->left = newnode(N_NAME);
-		  np->left->value = derive_lval.s;
+		  np->left->value = $3;
 		  np->left->save_last = 1;
 		  $$ = np;
 		}
 	| L_COUNT L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_COUNT);
 		  np->left = newnode(N_NAME);
-		  np->left->value = derive_lval.s;
+		  np->left->value = $3;
 		  np->left->save_last = 1;
 		  $$ = np;
 		}
 	| L_DELTA L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_DELTA);
 		  np->left = newnode(N_NAME);
-		  np->left->value = derive_lval.s;
+		  np->left->value = $3;
 		  np->left->save_last = 1;
 		  $$ = np;
 		}
 	| L_MAX L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_MAX);
 		  np->left = newnode(N_NAME);
-		  np->left->value = derive_lval.s;
+		  np->left->value = $3;
 		  np->left->save_last = 1;
 		  $$ = np;
 		}
 	| L_MIN L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_MIN);
 		  np->left = newnode(N_NAME);
-		  np->left->value = derive_lval.s;
+		  np->left->value = $3;
 		  np->left->save_last = 1;
 		  $$ = np;
 		}
 	| L_SUM L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_SUM);
 		  np->left = newnode(N_NAME);
-		  np->left->value = derive_lval.s;
+		  np->left->value = $3;
 		  np->left->save_last = 1;
 		  $$ = np;
 		}
 	| L_RATE L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_RATE);
 		  np->left = newnode(N_NAME);
-		  np->left->value = derive_lval.s;
+		  np->left->value = $3;
 		  np->left->save_last = 1;
 		  $$ = np;
 		}
 	| L_INSTANT L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_INSTANT);
 		  np->left = newnode(N_NAME);
-		  np->left->value = derive_lval.s;
+		  np->left->value = $3;
 		  np->left->save_last = 1;
 		  $$ = np;
 		}
@@ -2407,6 +2463,7 @@ static const struct {
     { L_ANON,	"anon" },
     { L_RATE,	"rate" },
     { L_INSTANT,"instant" },
+    { L_MKCONST,"mkconst" },
     { L_UNDEF,	NULL }
 };
 static struct {
@@ -2429,6 +2486,13 @@ static struct {
     { L_COLON,		N_COLON,	"COLON",	":" },
     { L_LPAREN,		0,		"LPAREN",	"(" },
     { L_RPAREN,		0,		"RPAREN",	")" },
+    { L_RPAREN,		0,		"COMMA",	"," },
+    { L_TYPE,		0,		"TYPE",		NULL },
+    { L_SEMANTICS,	0,		"SEMANTICS",	NULL },
+    { L_UNITS,		0,		"UNITS",	NULL },
+    { L_ASSIGN,		0,		"ASSIGN",	"=" },
+    { L_COMMA,		0,		"COMMA",	"," },
+    { L_STRING,		0,		"STRING",	"\"" },
     { L_AVG,		N_AVG,		"AVG",		NULL },
     { L_COUNT,		N_COUNT,	"COUNT",	NULL },
     { L_DELTA,		N_DELTA,	"DELTA",	NULL },
@@ -2438,6 +2502,7 @@ static struct {
     { L_ANON,		N_ANON,		"ANON",		NULL },
     { L_RATE,		N_RATE,		"RATE",		NULL },
     { L_INSTANT,	N_INSTANT,	"INSTANT",	NULL },
+    { L_MKCONST,	0,		"MKCONST",	NULL },
     { L_LT,		N_LT,		"LT",		"<" },
     { L_LEQ,		N_LEQ,		"LEQ",		"<=" },
     { L_EQ,		N_EQ,		"EQ",		"==" },
@@ -2650,7 +2715,17 @@ fprintf(stderr, "lex this=%p %s\n", this, this);
 			ret = L_COLON;
 			break;
 
+		    case ',':
+			*p = '\0';
+			ret = L_COMMA;
+			break;
+
+		    case '"':
+			ltype = L_STRING;
+			break;
+
 		    default:
+			*p = '\0';
 			PM_TPD(derive_errmsg) = "Illegal character";
 			ret = L_ERROR;
 			break;
@@ -2718,12 +2793,37 @@ fprintf(stderr, "lex this=%p %s\n", this, this);
 		/* current character is end of name */
 		unget(c);
 		p[-1] = '\0';
+		if (strcmp(tokbuf, "type") == 0) {
+		    ret = L_TYPE;
+		    break;
+		}
+		else if (strcmp(tokbuf, "semantics") == 0) {
+		    ret = L_SEMANTICS;
+		    break;
+		}
+		else if (strcmp(tokbuf, "units") == 0) {
+		    ret = L_UNITS;
+		    break;
+		}
 		if ((derive_lval.s = strdup(tokbuf)) == NULL) {
 		    PM_TPD(derive_errmsg) = "strdup() for NAME failed";
 		    ret = L_ERROR;
 		    break;
 		}
 		ret = L_NAME;
+		break;
+	    }
+	    else if (ltype == L_STRING) {
+		if (c != '"')
+		    continue;
+		/* [-1] and [1] to strip quotes */
+		p[-1] = '\0';
+		if ((derive_lval.s = strdup(&tokbuf[1])) == NULL) {
+		    PM_TPD(derive_errmsg) = "strdup() for STRING failed";
+		    ret = L_ERROR;
+		    break;
+		}
+		ret = L_STRING;
 		break;
 	    }
 	    else if (ltype == L_LT) {
@@ -2761,8 +2861,7 @@ fprintf(stderr, "lex this=%p %s\n", this, this);
 		else {
 		    unget(c);
 		    p[-1] = '\0';
-		    PM_TPD(derive_errmsg) = "Illegal character";
-		    ret = L_ERROR;
+		    ret = L_ASSIGN;
 		    break;
 		}
 	    }

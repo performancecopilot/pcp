@@ -94,10 +94,10 @@ myname.a = 1
 myname.a = dup.name.a
 myname.h = 4294967296
 # extra tests here from gcov analysis
-myname.gcov.a = foo = bar
+myname.gcov.a = foo ^ bar
 # very long source lines to test buffer handling in parser
-myname.gcov.b = sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + "bogus"
-myname.gcov.c = sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million + "bogus"
+myname.gcov.b = sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + sample.longlong.million + 'bogus'
+myname.gcov.c = sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million + 'bogus'
    myname.gcov.d = 3 * space
 	myname.gcov.e = tab
 myname.gcov.f = ( 1 + foo + ( }

@@ -651,11 +651,31 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		    /*NOTREACHED*/
 		}
 		np->info->ivlist[0].inst = PM_INDOM_NULL;
-		/* don't need error checking, done in the lexical scanner */
-		if (np->type == N_INTEGER)
-		    np->info->ivlist[0].value.l = atoi(np->value);
-		else
-		    np->info->ivlist[0].value.d = atof(np->value);
+		/*
+		 * don't need error checking, done in the lexical scanner
+		 * but with the advent of mktemp() the type may not be as
+		 * simple as PM_TYPE_U32 or PM_TYPE_DOUBLE
+		 */
+		switch (np->desc.type) {
+		    case PM_TYPE_32:
+			np->info->ivlist[0].value.l = atoi(np->value);
+			break;
+		    case PM_TYPE_U32:
+			np->info->ivlist[0].value.ul = atoi(np->value);
+			break;
+		    case PM_TYPE_64:
+			np->info->ivlist[0].value.ll = strtoll(np->value, NULL, 10);
+			break;
+		    case PM_TYPE_U64:
+			np->info->ivlist[0].value.ll = strtoull(np->value, NULL, 10);
+			break;
+		    case PM_TYPE_FLOAT:
+			np->info->ivlist[0].value.f = atof(np->value);
+			break;
+		    case PM_TYPE_DOUBLE:
+			np->info->ivlist[0].value.d = atof(np->value);
+			break;
+		}
 	    }
 	    return 1;
 	    break;

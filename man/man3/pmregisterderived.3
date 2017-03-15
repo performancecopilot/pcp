@@ -247,6 +247,7 @@ expression evaluates to \f(CWbar\fP (the ``false'' operand).
 Some special semantic rules apply to the ``guard'' expression and
 the other two operand expressions:
 .RS 2n
+.PD 0
 .IP (a) 4n
 Each expression may involve a singular value or a set of values (when
 the expression involves one or more metrics with an instance domain).
@@ -283,9 +284,77 @@ foo ? scalar : set\c
 \&, if \f(CWfoo\fP is true, then the result is a set of values
 (all having the same value, \f(CWscalar\fP) over
 the instance domain of \f(CWset\fP.
+.PD
 .RE
 .IP * 2n
-Parenthesis may be used for explicit grouping.
+Numeric constants can also be specified using the
+.ft CW
+mkconst()
+.ft P
+constructor which takes a number of arguments: the first is a numeric
+constant (either integer or floating point), then follow one or more
+parameters of the form
+.I tag=value
+or
+.IR tag= " value "
+where the allowed values of
+.I tag
+and
+.I value
+are as follows:
+.TS
+box,center;
+cf(I) | cf(I)w(4.5i)
+lf(CW) | lf(R).
+tag	value
+_
+type	T{
+.fi
+one of the numeric metric types from <pcp/pmapi.h>, stripped of the
+.B PM_TYPE_
+prefix, so
+\f(CW32\fP, \f(CWU32\fP, \f(CW64\fP, \f(CWU64\fP, \f(CWFLOAT\fP or
+\f(CWDOUBLE\fP.
+T}
+_
+semantics	T{
+.fi
+one of the semantic types from <pcp/pmapi.h>, stripped of the
+.B PM_SEM_
+prefix, so
+\f(CWCOUNTER\fP, \f(CWINSTANT\fP or \f(CWDISCRETE\fP.
+T}
+_
+units	T{
+a specification of dimension and scale (together forming the units),
+in the syntax accepted by
+.BR pmParseUnitsStr (3).
+.fi
+T}
+.TE
+.RS 2n
+.PP
+The
+.I value
+may optionally be enclosed in double quotes, and may appear in any
+mix of upper and/or lower case.
+The
+.I tag
+must be in lower case as shown in the table above.
+.PP
+This is most useful when the expression semantics require matching
+type and/or semantics and/or units for operands, e.g.
+.br
+.in 4n
+.ft CW
+myalarm = rate(disk.dev.total_bytes) > mkconst(400, units="Kbyte/sec")
+avg_io_size = delta(disk.dev.total) == 0 ? \e
+    -mkconst(1.0, semantics=instant, units="kbyte / count") : \e
+    delta(disk.dev.total_bytes) / delta(disk.dev.total)
+.in
+.ft R
+.RE
+.TE
 .IP * 2n
 The following unary functions operate on a single performance metric
 and return one or more values.
@@ -374,6 +443,8 @@ sum(x)	T{
 A singular instance being the sum of the values across all instances for the metric x.
 T}
 .TE
+.IP * 2n
+Parenthesis may be used for explicit grouping.
 .IP * 2n
 White space is ignored.
 .SH "SEMANTIC CHECKS AND RULES"
