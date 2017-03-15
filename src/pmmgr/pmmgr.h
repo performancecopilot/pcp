@@ -1,5 +1,5 @@
 /* -*- C++ -*-
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,6 +47,7 @@ protected:
 
   std::ostream& timestamp(std::ostream&) const;
   int wrap_system(const std::string& cmd);
+  std::string wrap_popen(const std::string& cmd);
 };
 
 
