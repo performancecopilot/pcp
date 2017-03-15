@@ -94,6 +94,8 @@ typedef struct {
 #define N_OR		24
 #define N_NOT		25
 #define N_NEG		26
+#define N_QUEST		27
+#define N_COLON		28
 
 extern int __dmtraverse(__pmContext *, const char *, char ***) _PCP_HIDDEN;
 extern int __dmchildren(__pmContext *, const char *, char ***, int **) _PCP_HIDDEN;

@@ -561,16 +561,16 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[4] myname.gcov.e = tab
 Derived metric expr dump from <addr-8>...
 expr node <addr-8> type=NAME left=(nil) right=(nil) save_last=0 [tab] master=1
-pmRegisterDerived: name="myname.gcov.f" expr="( 1 + foo + ( ?"
+pmRegisterDerived: name="myname.gcov.f" expr="( 1 + foo + ( }"
 derive_lex() -> type=L_LPAREN "("
 derive_lex() -> type=L_INTEGER "1"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "foo"
 derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_LPAREN "("
-derive_lex() -> type=L_ERROR "?"
+derive_lex() -> type=L_ERROR "}"
 [TMP.config:23] Error: pmRegisterDerived(myname.gcov.f, ...) syntax error
- ( 1 + foo + ( ?
+ ( 1 + foo + ( }
                ^
 Illegal character
 pmRegisterDerived: name="myname.gcov.g" expr="/"

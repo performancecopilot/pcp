@@ -100,7 +100,7 @@ myname.gcov.b = sample.longlong.million + sample.longlong.million + sample.longl
 myname.gcov.c = sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million.sample.longlong.million + "bogus"
    myname.gcov.d = 3 * space
 	myname.gcov.e = tab
-myname.gcov.f = ( 1 + foo + ( ?
+myname.gcov.f = ( 1 + foo + ( }
 myname.gcov.g = /
 
 # missing cases in parser

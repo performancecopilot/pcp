@@ -808,10 +808,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    assert(np->left != NULL);
 	    free_ivlist(np);
 	    np->info->numval = np->left->info->numval;
-	    /*
-	     * empty result case first
-	     */
-	    if (np->info->numval == 0)
+	    if (np->info->numval <= 0)
 		return np->info->numval;
 	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
 		__pmNoMem("eval_expr: N_NOT ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
@@ -850,13 +847,10 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    assert(np->left != NULL);
 	    free_ivlist(np);
 	    np->info->numval = np->left->info->numval;
-	    /*
-	     * empty result case first
-	     */
-	    if (np->info->numval == 0)
+	    if (np->info->numval <= 0)
 		return np->info->numval;
 	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
-		__pmNoMem("eval_expr: N_NOT ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+		__pmNoMem("eval_expr: N_NEG ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
 		/*NOTREACHED*/
 	    }
 	    /*
@@ -884,6 +878,156 @@ eval_expr(node_t *np, pmResult *rp, int level)
 			break;
 		}
 		np->info->ivlist[i].inst = np->left->info->ivlist[i].inst;
+	    }
+	    return np->info->numval;
+	    break;
+
+	case N_COLON:
+	    /* do nothing */
+	    return 0;
+	    break;
+
+	case N_QUEST:
+	    assert(np->left != NULL);
+	    assert(np->right != NULL);
+	    assert(np->right->left != NULL);
+	    assert(np->right->right != NULL);
+	    free_ivlist(np);
+	    {
+		node_t	*pick;
+		node_t	*pick_inst;
+		int	numval;
+
+		if (np->right->left->info->numval <= 0) {
+		    np->info->numval = np->right->left->info->numval;
+		    return np->info->numval;
+		}
+		if (np->right->right->info->numval <= 0) {
+		    np->info->numval = np->right->right->info->numval;
+		    return np->info->numval;
+		}
+		numval = np->right->left->info->numval;
+		if (np->right->right->info->numval > numval)
+		    numval = np->right->right->info->numval;
+		np->info->numval = numval;
+		if ((np->info->ivlist = (val_t *)malloc(numval*sizeof(val_t))) == NULL) {
+		    __pmNoMem("eval_expr: N_QUEST ivlist", numval*sizeof(val_t), PM_FATAL_ERR);
+		    /*NOTREACHED*/
+		}
+		/*
+		 * if guard, true and false operands are a mix of singular
+		 * values and values with an indom, need to use one of the
+		 * indom ones to provide instances for the result ... note
+		 * we've previously established (at bind time) that at most
+		 * one indom is mentioned across all three operands.
+		 */
+		/* default choice, use true operand */
+		pick_inst = np->right->left;
+		if (pick_inst->info->numval == 1 && np->right->right->info->numval > 1)
+		    /* use false operand */
+		    pick_inst = np->right->right;
+		if (pick_inst->info->numval == 1 && np->left->info->numval > 1)
+		    /* use guard operand */
+		    pick_inst = np->left;
+
+		/* guard is left operand and value is arithmetic */
+		for (i = 0; i < numval; i++) {
+		    if (i < np->left->info->numval) {
+			switch (np->left->desc.type) {
+			    case PM_TYPE_32:
+				if (np->left->info->ivlist[i].value.l != 0)
+				    pick = np->right->left;
+				else
+				    pick = np->right->right;
+				break;
+			    case PM_TYPE_U32:
+				if (np->left->info->ivlist[i].value.ul != 0)
+				    pick = np->right->left;
+				else
+				    pick = np->right->right;
+				break;
+			    case PM_TYPE_64:
+				if (np->left->info->ivlist[i].value.ll != 0)
+				    pick = np->right->left;
+				else
+				    pick = np->right->right;
+				break;
+			    case PM_TYPE_U64:
+				if (np->left->info->ivlist[i].value.ull != 0)
+				    pick = np->right->left;
+				else
+				    pick = np->right->right;
+				break;
+			    case PM_TYPE_FLOAT:
+				if (np->left->info->ivlist[i].value.f != 0)
+				    pick = np->right->left;
+				else
+				    pick = np->right->right;
+				break;
+			    case PM_TYPE_DOUBLE:
+				if (np->left->info->ivlist[i].value.d != 0)
+				    pick = np->right->left;
+				else
+				    pick = np->right->right;
+				break;
+			    default:
+#ifdef PCP_DEBUG
+				if (pmDebug & DBG_TRACE_DERIVE) {
+				    char	strbuf[20];
+				    fprintf(stderr, "eval_expr: botch: drived metric%s: guard has odd type (%d)\n", pmIDStr_r(np->info->pmid, strbuf, sizeof(strbuf)), np->left->desc.type);
+				}
+#endif
+				return PM_ERR_TYPE;
+			}
+		    }
+
+		    switch (np->desc.type) {
+			case PM_TYPE_32:
+			    if (i < pick->info->numval)
+				np->info->ivlist[i].value.l = pick->info->ivlist[i].value.l;
+			    else
+				np->info->ivlist[i].value.l = pick->info->ivlist[0].value.l;
+			    break;
+			case PM_TYPE_U32:
+			    if (i < pick->info->numval)
+				np->info->ivlist[i].value.ul = pick->info->ivlist[i].value.ul;
+			    else
+				np->info->ivlist[i].value.ul = pick->info->ivlist[0].value.ul;
+			    break;
+			case PM_TYPE_64:
+			    if (i < pick->info->numval)
+				np->info->ivlist[i].value.ll = pick->info->ivlist[i].value.ll;
+			    else
+				np->info->ivlist[i].value.ll = pick->info->ivlist[0].value.ll;
+			    break;
+			case PM_TYPE_U64:
+			    if (i < pick->info->numval)
+				np->info->ivlist[i].value.ull = pick->info->ivlist[i].value.ull;
+			    else
+				np->info->ivlist[i].value.ull = pick->info->ivlist[0].value.ull;
+			    break;
+			case PM_TYPE_FLOAT:
+			    if (i < pick->info->numval)
+				np->info->ivlist[i].value.f = pick->info->ivlist[i].value.f;
+			    else
+				np->info->ivlist[i].value.f = pick->info->ivlist[0].value.f;
+			    break;
+			case PM_TYPE_DOUBLE:
+			    if (i < pick->info->numval)
+				np->info->ivlist[i].value.d = pick->info->ivlist[i].value.d;
+			    else
+				np->info->ivlist[i].value.d = pick->info->ivlist[0].value.d;
+			    break;
+			case PM_TYPE_STRING:
+			    if (i < pick->info->numval)
+				np->info->ivlist[i].value.cp = pick->info->ivlist[i].value.cp;
+			    else
+				np->info->ivlist[i].value.cp = pick->info->ivlist[0].value.cp;
+			    break;
+			/* TODO other types? */
+		    }
+		    np->info->ivlist[i].inst = pick_inst->info->ivlist[i].inst;
+		}
 	    }
 	    return np->info->numval;
 	    break;
@@ -1196,14 +1340,11 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    assert(np->right != NULL);
 
 	    free_ivlist(np);
-	    /*
-	     * empty result cases first
-	     */
-	    if (np->left->info->numval == 0) {
+	    if (np->left->info->numval <= 0) {
 		np->info->numval = 0;
 		return np->info->numval;
 	    }
-	    if (np->right->info->numval == 0) {
+	    if (np->right->info->numval <= 0) {
 		np->info->numval = 0;
 		return np->info->numval;
 	    }

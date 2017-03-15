@@ -80,6 +80,10 @@ static int derive_lex(void);
 static void derive_error(char *);
 int derive_debug;
 
+static char *n_type_str(int);
+static char *n_type_c(int);
+static char *l_type_str(int);
+
 /* strings for error reporting */
 static const char follow[]	 = "follow";
 static const char bexpr_str[]	 = "Boolean expression";
@@ -331,155 +335,6 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_PMAPI);
     }
 }
 
-/* full name for all node types */
-static char *
-n_type_str(int type)
-{
-    /* long enough for ... "unknown type XXXXXXXXXXX!" */
-    static char n_eh_str[30];
-
-    switch (type) {
-	case N_INTEGER:
-	    return "INTEGER";
-	    break;
-	case N_NAME:
-	    return "NAME";
-	    break;
-	case N_PLUS:
-	    return "PLUS";
-	    break;
-	case N_MINUS:
-	    return "MINUS";
-	    break;
-	case N_STAR:
-	    return "STAR";
-	    break;
-	case N_SLASH:
-	    return "SLASH";
-	    break;
-	case N_AVG:
-	    return "AVG";
-	    break;
-	case N_COUNT:
-	    return "COUNT";
-	    break;
-	case N_DELTA:
-	    return "DELTA";
-	    break;
-	case N_MAX:
-	    return "MAX";
-	    break;
-	case N_MIN:
-	    return "MIN";
-	    break;
-	case N_SUM:
-	    return "SUM";
-	    break;
-	case N_ANON:
-	    return "ANON";
-	    break;
-	case N_RATE:
-	    return "RATE";
-	    break;
-	case N_INSTANT:
-	    return "INSTANT";
-	    break;
-	case N_DOUBLE:
-	    return "DOUBLE";
-	    break;
-	case N_LT:
-	    return "LT";
-	    break;
-	case N_LEQ:
-	    return "LEQ";
-	    break;
-	case N_EQ:
-	    return "EQ";
-	    break;
-	case N_GEQ:
-	    return "GEQ";
-	    break;
-	case N_GT:
-	    return "GT";
-	    break;
-	case N_NEQ:
-	    return "NEQ";
-	    break;
-	case N_AND:
-	    return "AND";
-	    break;
-	case N_OR:
-	    return "OR";
-	    break;
-	case N_NOT:
-	    return "NOT";
-	    break;
-	case N_NEG:
-	    return "NEG";
-	    break;
-	default:
-	    snprintf(n_eh_str, sizeof(n_eh_str), "unknown type %d!", type);
-	    return n_eh_str;
-	    break;
-    }
-}
-
-/* short string for the operator node types */
-static char *
-n_type_c(int type)
-{
-    /* long enough for ... "op XXXXXXXXXXX!" */
-    static char n_eh_c[20];
-
-    switch (type) {
-	case N_PLUS:
-	    return "+";
-	    break;
-	case N_MINUS:
-	    return "-";
-	    break;
-	case N_STAR:
-	    return "*";
-	    break;
-	case N_SLASH:
-	    return "/";
-	    break;
-	case N_LT:
-	    return "<";
-	    break;
-	case N_LEQ:
-	    return "<=";
-	    break;
-	case N_EQ:
-	    return "==";
-	    break;
-	case N_GEQ:
-	    return ">=";
-	    break;
-	case N_GT:
-	    return ">";
-	    break;
-	case N_NEQ:
-	    return "!=";
-	    break;
-	case N_AND:
-	    return "&&";
-	    break;
-	case N_OR:
-	    return "||";
-	    break;
-	case N_NOT:
-	    return "!";
-	    break;
-	case N_NEG:
-	    return "-";
-	    break;
-	default:
-	    snprintf(n_eh_c, sizeof(n_eh_c), "op %d!", type);
-	    return n_eh_c;
-	    break;
-    }
-}
 
 static node_t *
 newnode(int type)
@@ -645,6 +500,23 @@ void report_sem_error(char *name, node_t *np)
 	case N_SUM:
 	case N_ANON:
 	    pmprintf("%s(%s)", n_type_str(np->type), np->left->value);
+	    break;
+	case N_QUEST:
+	    if (np->left->type == N_INTEGER || np->left->type == N_DOUBLE || np->left->type == N_NAME)
+		pmprintf("%s ? ", np->left->value);
+	    else
+		pmprintf("<expr> ? ");
+	    np = np->right;
+	    /* FALLTHROUGH */
+	case N_COLON:
+	    if (np->left->type == N_INTEGER || np->left->type == N_DOUBLE || np->left->type == N_NAME)
+		pmprintf("%s : ", np->left->value);
+	    else
+		pmprintf("<expr> : ");
+	    if (np->right->type == N_INTEGER || np->right->type == N_DOUBLE || np->right->type == N_NAME)
+		pmprintf("%s", np->right->value);
+	    else
+		pmprintf("<expr>");
 	    break;
 	default:
 	    /* should never get here ... */
@@ -1061,65 +933,152 @@ check_expr(int n, node_t *np)
     if (np->right != NULL) {
 	if ((sts = check_expr(n, np->right)) < 0)
 	    return sts;
-	/* build pmDesc from pmDesc of both operands */
-	if ((sts = map_desc(n, np)) < 0)
-	    return sts;
+	switch (np->type) {
+
+	case N_COLON:
+	    /*
+	     * ensures pmDesc for left and right options are
+	     * the same, and choose left arbitrarily ... start
+	     * assuming the same, may need to adjust indom if
+	     * one operand has an indom and the other does not
+	     * (see below)
+	     */
+	    np->desc = np->left->desc;
+	    if (np->left->desc.type != np->right->desc.type) {
+		PM_TPD(derive_errmsg) = "Different types for ternary operands";
+		report_sem_error(registered.mlist[n].name, np);
+		return -1;
+	    }
+	    if (np->left->desc.indom != np->right->desc.indom &&
+	        np->left->desc.indom != PM_INDOM_NULL &&
+	        np->right->desc.indom != PM_INDOM_NULL) {
+		PM_TPD(derive_errmsg) = "Different instance domains for ternary operands";
+		report_sem_error(registered.mlist[n].name, np);
+		return -1;
+	    }
+	    if (np->left->desc.indom != PM_INDOM_NULL)
+		np->desc.indom = np->left->desc.indom;
+	    else
+		np->desc.indom = np->right->desc.indom;
+	    if (np->left->desc.sem != np->right->desc.sem) {
+		PM_TPD(derive_errmsg) = "Different semantics for ternary operands";
+		report_sem_error(registered.mlist[n].name, np);
+		return -1;
+	    }
+	    if (np->left->desc.units.dimSpace != np->right->desc.units.dimSpace ||
+	        np->left->desc.units.scaleSpace != np->right->desc.units.scaleSpace)
+		{
+		PM_TPD(derive_errmsg) = "Different units or scale (space) for ternary operands";
+		report_sem_error(registered.mlist[n].name, np);
+		return -1;
+	    }
+	    if (np->left->desc.units.dimTime != np->right->desc.units.dimTime ||
+	        np->left->desc.units.scaleTime != np->right->desc.units.scaleTime)
+		{
+		PM_TPD(derive_errmsg) = "Different units or scale (time) for ternary operands";
+		report_sem_error(registered.mlist[n].name, np);
+		return -1;
+	    }
+	    if (np->left->desc.units.dimCount != np->right->desc.units.dimCount ||
+	        np->left->desc.units.scaleCount != np->right->desc.units.scaleCount)
+		{
+		PM_TPD(derive_errmsg) = "Different units or scale (count) for ternary operands";
+		report_sem_error(registered.mlist[n].name, np);
+		return -1;
+	    }
+	    return 0;
+
+	case N_QUEST:
+	    switch (np->left->desc.type) {
+		case PM_TYPE_32:
+		case PM_TYPE_U32:
+		case PM_TYPE_64:
+		case PM_TYPE_U64:
+		case PM_TYPE_FLOAT:
+		case PM_TYPE_DOUBLE:
+		    break;
+		default:
+		    PM_TPD(derive_errmsg) = "Non-arithmetic operand for ternary guard";
+		    report_sem_error(registered.mlist[n].name, np);
+		    return -1;
+	    }
+	    if (np->right->left->desc.indom == PM_INDOM_NULL &&
+	        np->right->right->desc.indom == PM_INDOM_NULL &&
+		np->left->desc.indom != PM_INDOM_NULL) {
+		PM_TPD(derive_errmsg) = "Non-scalar ternary guard with scalar expressions";
+		report_sem_error(registered.mlist[n].name, np);
+		return -1;
+	    }
+	    /* correct pmDesc promoted through COLON node at the right */
+	    np->desc = np->right->desc;
+	    return 0;
+	
+	default:
+	    /* build pmDesc from pmDesc of both operands */
+	    return map_desc(n, np);
+	}
     }
-    else {
-	np->desc = np->left->desc;	/* struct copy */
-	/*
-	 * special cases for functions ...
-	 * count()	u32 and instantaneous
-	 * instant()	result is instantaneous or discrete
-	 * delta()	expect numeric operand, result is instantaneous
-	 * rate()	expect numeric operand, dimension of time must be
-	 * 		0 or 1, result is instantaneous
-	 * aggr funcs	most expect numeric operand, result is instantaneous
-	 *		and singular
-	 * unary -	expect numeric operand, result is signed
-	 */
-	if (np->type == N_AVG || np->type == N_COUNT || np->type == N_DELTA
-	    || np->type == N_RATE || np->type == N_INSTANT
-	    || np->type == N_MAX || np->type == N_MIN || np->type == N_SUM
-	    || np->type == N_NEG) {
-	    if (np->type == N_COUNT) {
-		/* count() has its own type and units */
-		np->desc.type = PM_TYPE_U32;
-		memset((void *)&np->desc.units, 0, sizeof(np->desc.units));
-		np->desc.units.dimCount = 1;
-		np->desc.units.scaleCount = PM_COUNT_ONE;
+
+    np->desc = np->left->desc;	/* struct copy */
+    /*
+     * special cases for functions ...
+     * count()		u32 and instantaneous
+     * instant()	result is instantaneous or discrete
+     * delta()		expect numeric operand, result is instantaneous
+     * rate()		expect numeric operand, dimension of time must be
+     * 			0 or 1, result is instantaneous
+     * aggr funcs	most expect numeric operand, result is instantaneous
+     *			and singular
+     * unary -		expect numeric operand, result is signed
+     */
+    switch (np->type) {
+
+	case N_COUNT:
+	    /* count() has its own type and units */
+	    np->desc.type = PM_TYPE_U32;
+	    memset((void *)&np->desc.units, 0, sizeof(np->desc.units));
+	    np->desc.units.dimCount = 1;
+	    np->desc.units.scaleCount = PM_COUNT_ONE;
+	    np->desc.sem = PM_SEM_INSTANT;
+	    np->desc.indom = PM_INDOM_NULL;
+	    break;
+
+	case N_INSTANT:
+	    /*
+	     * semantics are INSTANT if operand is COUNTER, else
+	     * inherit the semantics of the operand
+	     */
+	    if (np->left->desc.sem == PM_SEM_COUNTER)
 		np->desc.sem = PM_SEM_INSTANT;
+	    else
+		np->desc.sem = np->left->desc.sem;
+	    break;
+
+	case N_AVG:
+	case N_SUM:
+	case N_MAX:
+	case N_MIN:
+	case N_DELTA:
+	case N_RATE:
+	case N_NEG:
+	    /* others inherit, but need arithmetic operand */
+	    switch (np->left->desc.type) {
+		case PM_TYPE_32:
+		case PM_TYPE_U32:
+		case PM_TYPE_64:
+		case PM_TYPE_U64:
+		case PM_TYPE_FLOAT:
+		case PM_TYPE_DOUBLE:
+		    break;
+		default:
+		    if (np->type == N_NEG)
+			PM_TPD(derive_errmsg) = "Non-arithmetic operand for unary negation";
+		    else
+			PM_TPD(derive_errmsg) = "Non-arithmetic operand for function";
+		    report_sem_error(registered.mlist[n].name, np);
+		    return -1;
 	    }
-	    else if (np->type == N_INSTANT) {
-		/*
-		 * semantics are INSTANT if operand is COUNTER, else
-		 * inherit the semantics of the operand
-		 */
-		if (np->left->desc.sem == PM_SEM_COUNTER)
-		    np->desc.sem = PM_SEM_INSTANT;
-		else
-		    np->desc.sem = np->left->desc.sem;
-	    }
-	    else {
-		/* others inherit, but need arithmetic operand */
-		switch (np->left->desc.type) {
-		    case PM_TYPE_32:
-		    case PM_TYPE_U32:
-		    case PM_TYPE_64:
-		    case PM_TYPE_U64:
-		    case PM_TYPE_FLOAT:
-		    case PM_TYPE_DOUBLE:
-			break;
-		    default:
-			if (np->type == N_NEG)
-			    PM_TPD(derive_errmsg) = "Non-arithmetic operand for unary negation";
-			else
-			    PM_TPD(derive_errmsg) = "Non-arithmetic operand for function";
-			report_sem_error(registered.mlist[n].name, np);
-			return -1;
-		}
-		np->desc.sem = PM_SEM_INSTANT;
-	    }
+	    np->desc.sem = PM_SEM_INSTANT;
 	    if (np->type == N_DELTA || np->type == N_RATE || np->type == N_INSTANT || np->type == N_NEG) {
 		/* inherit indom */
 		if (np->type == N_RATE) {
@@ -1162,11 +1121,11 @@ check_expr(int n, node_t *np)
 		else if (np->left->desc.type == PM_TYPE_U64)
 		    np->desc.type = PM_TYPE_64;
 	    }
-	}
-	else if (np->type == N_ANON) {
+	    break;
+
+	case N_ANON:
 	    /* do nothing, pmDesc inherited "as is" from left node */
-	    ;
-	}
+	    break;
     }
     return 0;
 }
@@ -1329,9 +1288,6 @@ registerderived(const char *name, const char *expr, int isanon)
     np = parse_tree;
     if (np == NULL) {
 	/* parser error */
-#if 0
-fprintf(stderr, "expr=%p %s\nthis=%p %s\n", expr, expr, this, this);
-#endif
 	char	*sts = (char *)this;
 	PM_UNLOCK(registered.mutex);
 	return sts;
@@ -2049,6 +2005,8 @@ static node_t *np;
 %token      L_MINUS
 %token      L_STAR
 %token      L_SLASH
+%token      L_QUEST
+%token      L_COLON
 %token      L_LPAREN
 %token      L_RPAREN
 %token      L_AVG
@@ -2083,6 +2041,7 @@ static node_t *np;
 %type  <u>  units
 %type  <u>  unit
 
+%left  L_QUEST L_COLON
 %left  L_AND L_OR
 %left  L_NOT
 %left  L_LT L_LEQ L_EQ L_GEQ L_GT L_NEQ
@@ -2157,6 +2116,10 @@ defn	: expr L_EOS
 		{ gramerr(initial_str, NULL, "&&"); YYERROR; }
 	| L_OR error
 		{ gramerr(initial_str, NULL, "||"); YYERROR; }
+	| L_QUEST error
+		{ gramerr(initial_str, NULL, "?"); YYERROR; }
+	| L_COLON error
+		{ gramerr(initial_str, NULL, ":"); YYERROR; }
 	/* not L_NOT */
 	;
 
@@ -2197,6 +2160,14 @@ expr	: L_LPAREN expr L_RPAREN
 		{ np = newnode(N_GT); np->left = $1; np->right = $3; $$ = np; }
 	| expr L_NEQ expr
 		{ np = newnode(N_NEQ); np->left = $1; np->right = $3; $$ = np; }
+	| expr L_QUEST expr L_COLON expr
+		{ np = newnode(N_QUEST);
+		  np->left = $1;
+		  np->right = newnode(N_COLON);
+		  np->right->left = $3;
+		  np->right->right = $5;
+		  $$ = np;
+		}
 
 	/* boolean expressions */
 	| expr L_AND expr
@@ -2237,6 +2208,10 @@ expr	: L_LPAREN expr L_RPAREN
 		{ gramerr(bexpr_str, follow, n_type_str(N_OR)); YYERROR; }
 	| L_NOT error
 		{ gramerr(bexpr_str, follow, n_type_str(N_NOT)); YYERROR; }
+	| expr L_QUEST error
+		{ gramerr(aexpr_str, follow, n_type_str(N_QUEST)); YYERROR; }
+	| expr L_QUEST expr L_COLON error
+		{ gramerr(aexpr_str, follow, n_type_str(N_COLON)); YYERROR; }
 	;
 
 num	: L_INTEGER units
@@ -2434,110 +2409,97 @@ static const struct {
     { L_INSTANT,"instant" },
     { L_UNDEF,	NULL }
 };
+static struct {
+    int		ltype;
+    int		ntype;
+    char	*long_name;
+    char	*short_name;
+} typetab[] = {
+    { L_UNDEF,		0,		"UNDEF",	NULL },
+    { L_ERROR,		0,		"ERROR",	NULL },
+    { L_EOS,		0,		"EOS",		NULL },
+    { L_INTEGER,	N_INTEGER,	"INTEGER",	NULL },
+    { L_DOUBLE,		N_DOUBLE,	"DOUBLE",	NULL },
+    { L_NAME,		N_NAME,		"NAME",		NULL },
+    { L_PLUS,		N_PLUS,		"PLUS",		"+" },
+    { L_MINUS,		N_MINUS,	"MINUS",	"-" },
+    { L_STAR,		N_STAR,		"STAR",		"*" },
+    { L_SLASH,		N_SLASH,	"SLASH",	"/" },
+    { L_QUEST,		N_QUEST,	"QUEST",	"?" },
+    { L_COLON,		N_COLON,	"COLON",	":" },
+    { L_LPAREN,		0,		"LPAREN",	"(" },
+    { L_RPAREN,		0,		"RPAREN",	")" },
+    { L_AVG,		N_AVG,		"AVG",		NULL },
+    { L_COUNT,		N_COUNT,	"COUNT",	NULL },
+    { L_DELTA,		N_DELTA,	"DELTA",	NULL },
+    { L_MAX,		N_MAX,		"MAX",		NULL },
+    { L_MIN,		N_MIN,		"MIN",		NULL },
+    { L_SUM,		N_SUM,		"SUM",		NULL },
+    { L_ANON,		N_ANON,		"ANON",		NULL },
+    { L_RATE,		N_RATE,		"RATE",		NULL },
+    { L_INSTANT,	N_INSTANT,	"INSTANT",	NULL },
+    { L_LT,		N_LT,		"LT",		"<" },
+    { L_LEQ,		N_LEQ,		"LEQ",		"<=" },
+    { L_EQ,		N_EQ,		"EQ",		"==" },
+    { L_GEQ,		N_GEQ,		"GEQ",		">=" },
+    { L_GT,		N_GT,		"GT",		">" },
+    { L_NEQ,		N_NEQ,		"NEQ",		"!=" },
+    { L_AND,		N_AND,		"AND",		"&&" },
+    { L_OR,		N_OR,		"OR",		"||" },
+    { L_NOT,		N_NOT,		"NOT",		"!" },
+    { 0,		N_NEG,		"NEG",		"-" },
+    { -1,		-1,		NULL,		NULL }
+};
+
+/* full name for all node types */
+static char *
+n_type_str(int type)
+{
+    int		i;
+    /* long enough for ... "unknown type XXXXXXXXXXX!" */
+    static char n_eh_str[30];
+
+    for (i = 0; typetab[i].ntype != -1; i++) {
+	if (type == typetab[i].ntype) {
+	    return typetab[i].long_name;
+	}
+    }
+    snprintf(n_eh_str, sizeof(n_eh_str), "unknown type %d!", type);
+    return n_eh_str;
+}
+
+/* short string for the operator node types */
+static char *
+n_type_c(int type)
+{
+    int		i;
+    /* long enough for ... "op XXXXXXXXXXX!" */
+    static char n_eh_c[20];
+
+    for (i = 0; typetab[i].ntype != -1; i++) {
+	if (type == typetab[i].ntype) {
+	    return typetab[i].short_name;
+	}
+    }
+    snprintf(n_eh_c, sizeof(n_eh_c), "op %d!", type);
+    return n_eh_c;
+}
 
 /* full name for all lex types */
 static char *
 l_type_str(int type)
 {
+    int		i;
     /* long enough for ... "unknown type XXXXXXXXXXX!" */
     static char l_eh_str[30];
 
-    switch (type) {
-	case L_INTEGER:
-	    return "INTEGER";
-	    break;
-	case L_DOUBLE:
-	    return "DOUBLE";
-	    break;
-	case L_NAME:
-	    return "NAME";
-	    break;
-	case L_PLUS:
-	    return "PLUS";
-	    break;
-	case L_MINUS:
-	    return "MINUS";
-	    break;
-	case L_STAR:
-	    return "STAR";
-	    break;
-	case L_SLASH:
-	    return "SLASH";
-	    break;
-	case L_LPAREN:
-	    return "LPAREN";
-	    break;
-	case L_RPAREN:
-	    return "RPAREN";
-	    break;
-	case L_AVG:
-	    return "AVG";
-	    break;
-	case L_COUNT:
-	    return "COUNT";
-	    break;
-	case L_DELTA:
-	    return "DELTA";
-	    break;
-	case L_MAX:
-	    return "MAX";
-	    break;
-	case L_MIN:
-	    return "MIN";
-	    break;
-	case L_SUM:
-	    return "SUM";
-	    break;
-	case L_ANON:
-	    return "ANON";
-	    break;
-	case L_RATE:
-	    return "RATE";
-	    break;
-	case L_INSTANT:
-	    return "INSTANT";
-	    break;
-	case L_LT:
-	    return "LT";
-	    break;
-	case L_LEQ:
-	    return "LEQ";
-	    break;
-	case L_EQ:
-	    return "EQ";
-	    break;
-	case L_GEQ:
-	    return "GEQ";
-	    break;
-	case L_GT:
-	    return "GT";
-	    break;
-	case L_NEQ:
-	    return "NEQ";
-	    break;
-	case L_AND:
-	    return "AND";
-	    break;
-	case L_OR:
-	    return "OR";
-	    break;
-	case L_NOT:
-	    return "NOT";
-	    break;
-	case L_ERROR:
-	    return "ERROR";
-	    break;
-	case L_UNDEF:
-	    return "UNDEF";
-	    break;
-	case L_EOS:
-	    return "EOS";
-	    break;
-	default:
-	    snprintf(l_eh_str, sizeof(l_eh_str), "unknown type %d!", type);
-	    return l_eh_str;
-	    break;
+    for (i = 0; typetab[i].ltype != -1; i++) {
+	if (type == typetab[i].ltype) {
+	    return typetab[i].long_name;
+	}
     }
+    snprintf(l_eh_str, sizeof(l_eh_str), "unknown type %d!", type);
+    return l_eh_str;
 }
 
 static void
@@ -2676,6 +2638,16 @@ fprintf(stderr, "lex this=%p %s\n", this, this);
 
 		    case '|':
 			ltype = L_OR;
+			break;
+
+		    case '?':
+			*p = '\0';
+			ret = L_QUEST;
+			break;
+
+		    case ':':
+			*p = '\0';
+			ret = L_COLON;
 			break;
 
 		    default:

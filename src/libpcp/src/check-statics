@@ -196,6 +196,7 @@ derive_parser.tab.o
     ?unexpected_str		# const
     ?initial_str		# const
     ?follow			# const
+    ?typetab			# const
     ?init			# local initialize_mutex mutex
     ?done			# guarded by local initialize_mutex mutex
     need_init			# guarded by registered.mutex

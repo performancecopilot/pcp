@@ -236,6 +236,55 @@ is evaluated as
 .ft R
 \&.
 .IP * 2n
+C-style ternary conditional expressions are supported. In general terms
+the expression
+.ft CW
+check ? foo : bar\c
+.ft R
+\& is evaluated as \f(CWfoo\fP (the ``true'' operand) if \f(CWcheck\fP
+(the ``guard'') is true, else the
+expression evaluates to \f(CWbar\fP (the ``false'' operand).
+Some special semantic rules apply to the ``guard'' expression and
+the other two operand expressions:
+.RS 2n
+.IP (a) 4n
+Each expression may involve a singular value or a set of values (when
+the expression involves one or more metrics with an instance domain).
+.IP (b) 4n
+.B All
+expressions with a set of values must be defined over the
+.B same
+instance domain.
+.IP (c) 4n
+Both operand expressions must have the
+.B same
+metadata, so same metric type and same semantics (dimension and scale).
+.IP (d) 4n
+The ``guard'' expression must have an aritmetic, or relational or boolean value,
+so that it can be evaluated as 0 for false, else true.
+.IP (e) 4n
+If the ``guard'' expression has a singular value and one or more of
+the other operand expressions involves an instance domain, the ``guard''
+applies to all instances.
+.IP (f) 4n
+If the ``guard'' expression has a set of values and one or more of
+the other operand expressions involves an instance domain, the ``guard''
+is evaluated once for each instance (there must be one instance
+domain as per rule (b) above).
+.IP (g) 4n
+If one of the operand expressions has a singular value and the other has
+a set of values, and the singular value is selected based on the
+evaluation of the ``guard'', then the result is a set of values
+(all the same) with instance enumeration being taken from the other
+operand expression. For example in the expression:
+.ft CW
+foo ? scalar : set\c
+.ft P
+\&, if \f(CWfoo\fP is true, then the result is a set of values
+(all having the same value, \f(CWscalar\fP) over
+the instance domain of \f(CWset\fP.
+.RE
+.IP * 2n
 Parenthesis may be used for explicit grouping.
 .IP * 2n
 The following unary functions operate on a single performance metric
