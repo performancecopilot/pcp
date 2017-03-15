@@ -1996,7 +1996,8 @@ static node_t *np;
  * yacc token and operator declarations
  ***********************************************************************/
 
-%define api.prefix {derive_}
+PUT-PREFIX-DECL-HERE ... see GNumakefile
+
 %expect     0
 %start      defn
 

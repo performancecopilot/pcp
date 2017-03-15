@@ -227,6 +227,8 @@ derive_parser.tab.o
     ?yystos                	# const, may be optimized away
     yyr1                   	# const
     yyr2                   	# const
+    ?yyprhs			# const
+    ?yyrhs			# const
     derive_char			# guarded by registered.mutex
     derive_debug		# guarded by registered.mutex
     derive_lval			# guarded by registered.mutex

@@ -1,6 +1,7 @@
 check.done
 getdate.h
 getdate.tab.?
+derive_parser.y
 derive_parser.output
 derive_parser.tab.?
 dsotbl.h

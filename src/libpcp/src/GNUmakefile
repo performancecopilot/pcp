@@ -71,7 +71,8 @@ LIBTARGET =
 SYMTARGET =
 endif
 
-LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) getdate.h check.done
+LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) getdate.h check.done \
+	derive_parser.y
 
 base default : $(LIBTARGET) check.done $(SYMTARGET) $(STATICLIBTARGET)
 
@@ -98,6 +99,9 @@ getdate.h getdate.tab.c: getdate.y
 .NOTPARALLEL:
 derive_parser.tab.h derive_parser.tab.c: derive_parser.y derive.h
 	$(YACC) -d -b `basename $< .y` $<
+
+derive_parser.y: derive_parser.y.in fix_derive_parser_y
+	./fix_derive_parser_y
 
 ifeq "$(TARGET_OS)" "mingw"
 kernel_pmda_dso	= windows
