@@ -951,6 +951,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		    pick_inst = np->left;
 
 		/* guard is left operand and value is arithmetic */
+		pick = NULL;
 		for (i = 0; i < numval; i++) {
 		    if (i < np->left->info->numval) {
 			switch (np->left->desc.type) {
@@ -1000,6 +1001,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 				return PM_ERR_TYPE;
 			}
 		    }
+		    assert(pick != NULL);
 
 		    switch (np->desc.type) {
 			case PM_TYPE_32:
