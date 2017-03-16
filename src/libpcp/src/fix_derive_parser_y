@@ -19,11 +19,11 @@ fi
 
 case "$b_version"
 in
-    2.[0-5]*)
+    2.[0-7]*)
 	rm -f derive_parser.y
 	sed -e 's/^PUT-PREFIX-DECL-HERE.*/%name-prefix "derive_"/' <derive_parser.y.in >derive_parser.y
 	;;
-    2.[6-9]*|3.*)
+    2.[8-9]*|3.*)
 	sed -e 's/^PUT-PREFIX-DECL-HERE.*/%define api.prefix {derive_}/' <derive_parser.y.in >derive_parser.y
 	;;
     *)
