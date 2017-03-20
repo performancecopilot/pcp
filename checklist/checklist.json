@@ -93,7 +93,7 @@
 	    "pcp_metrics":  [ "mem.util.free", "mem.physmem" ],
 	    "pcp_metrics_log":  [ "mem.util.free", "mem.physmem" ],
 	    "predicate": "",
-	    "article": "",
+	    "urls": "",
 	    "parents": ["Memory - swapping"]
         },
         {
@@ -102,7 +102,7 @@
 	    "pcp_metrics":  [ "mem.numa.util.free.*", "mem.numa.util.total.*" ],
 	    "pcp_metrics_log":  [ "mem.numa.util.free.*", "mem.numa.util.total.*" ],
 	    "predicate": "",
-	    "article": ["https://access.redhat.com/solutions/406253", "https://access.redhat.com/solutions/465463" ],
+	    "urls": ["https://access.redhat.com/solutions/406253", "https://access.redhat.com/solutions/465463" ],
 	    "parents": ["Memory - swapping"]
         },
         {
@@ -115,7 +115,7 @@
 			   "operator": "threshold_max",
 			   "metric": "vmeff",
 			   "value": 0.50 },
-	    "article": "https://engineering.linkedin.com/performance/optimizing-linux-memory-management-low-latency-high-throughput-databases",
+	    "urls": "https://engineering.linkedin.com/performance/optimizing-linux-memory-management-low-latency-high-throughput-databases",
 	    "details": "The linux virtual memory management system has a mechanism that places pages in memory into three lists: active, inactive, and free.  When a page is initially used it is put on the active list. Over time pages on the active list may fall off the end of the active list and be added to the inactive list as possible canidates to reclaim and to reuse for other data.  The inactive list is linearly scanned for possible pages to reclaim, but pages on the inactive list may have various reasons to disqualify them from being reclaimed.  This scanning of the inactive list for candidates to reclaim requires cpu processing.  One would like the the computer system to be efficient and avoid having to scan many pages on the inactive list to find few candidates to reclaim. This problem behavior can be observed with a low %vmeff in the 'sar -B' output, a low number of pgsteal/s in relation to the sum of pgscank/s and pgscand/s.",
 	    "issues": ["The various aggregate pgsteal and pgscan pcp metrics do not currently exist",
 		       "The specific pgsteal and pgscan metrics provided by vmstat vary between kernels"],
