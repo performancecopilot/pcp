@@ -134,7 +134,7 @@ do
     then
 	_notrun "Cannot find a 64-bit host running PCP"
     else
-	# echo $host
+	echo "$host for type=$type" >>$here/$seq.full
 	_speak_to_me $host
     fi
 done
