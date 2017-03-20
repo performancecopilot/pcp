@@ -60,6 +60,7 @@ a.err.m5 = sample.long.one ? sample.seconds : sample.ulong.ten
 a.err.m6 = sample.long.one ? sample.byte_rate : sample.byte_rate_perhour
 a.err.m7 = sample.long.one ? sample.long.hundred : sample.step
 a.err.m8 = sample.colour > 200 ? sample.ulong.hundred : sample.ulong.ten
+a.err.m9 = sample.string.hullo ? 1 : 2
 End-of-File
 
 export PCP_DERIVED_CONFIG=$tmp.config
@@ -84,6 +85,7 @@ a.err.m5	<expr2> and <expr3> different semantics
 a.err.m6	<expr2> and <expr3> different units (time)
 a.err.m7	<expr2> and <expr3> different units (count)
 a.err.m8	<expr1> with indom, <expr2> and <expr3> singular
+a.err.m9	<expr1> not arithmetic
 End-of-File
 
 # success, all done

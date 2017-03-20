@@ -950,4 +950,6 @@ Illegal character
  sample.milli|seconds
              ^       
 Illegal character
+Semantic error: derived metric qa_927.bad_non_ctr_dim_right: sample.milliseconds > hinv.physmem: Non-counter and not dimensionless for right operand
+Semantic error: derived metric qa_927.bad_non_ctr_dim_left: kernel.all.uptime <= sample.milliseconds: Non-counter and not dimensionless for left operand
 Error: qa_927: Unknown metric name

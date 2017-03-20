@@ -115,6 +115,8 @@ cat <<End-of-File >$tmp.config
 qa_$seq.bad_neq = sample.seconds #& 0
 qa_$seq.bad_and = sample.milliseconds > sample.seconds &@ 1>2
 qa_$seq.bad_or = sample.milli|seconds
+qa_$seq.bad_non_ctr_dim_right = sample.milliseconds > hinv.physmem
+qa_$seq.bad_non_ctr_dim_left = kernel.all.uptime <= sample.milliseconds
 End-of-File
 pminfo -f 2>&1 qa_$seq | _filter2
 

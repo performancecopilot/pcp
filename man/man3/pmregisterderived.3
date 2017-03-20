@@ -383,6 +383,11 @@ _
 count(x)	T{
 .fi
 A singular instance being the count of the number of instances for the metric x.
+As a special case, if fetching the metric x returns an error, then
+.ft CW
+count(x)
+.ft P
+will be 0.
 T}
 _
 delta(x)	T{
@@ -566,9 +571,15 @@ There was a problem calling
 to identify the operand metric <name2> with PMID <pmid2>
 used in the definition of the derived metric <name1>.
 .TP
-Semantic error: derived metric <name>: <operand> <op> <operand>: Illegal operator for counters
-If both operands have the semantics of counter, only addition or subtraction
-make sense, so multiplication and division are not allowed.
+Semantic error: derived metric <name>: <operand> : <operand> Different <metadata> for ternary operands
+For a ternary expression, the ``true'' operand and the ``false'' operand
+must have exactly the same metadata, so type, semantics, instance domain,
+and dimension (units and scale).
+.TP
+Semantic error: derived metric <name>: <operand> <op> <operand>: Dimensions are not the same
+Operands must have the same dimension (units and scale) for each of
+addition, subtraction, the relational operators and the boolean ``and''
+or ``or'' operators.
 .TP
 Semantic error: derived metric <name>: <operand> <op> <operand>: Illegal operator for counter and non-counter
 Only multiplication or division are allowed if the left operand has the
@@ -576,19 +587,15 @@ semantics of a counter and the right operand is
 .B not
 a counter.
 .TP
+Semantic error: derived metric <name>: <operand> <op> <operand>: Illegal operator for counters
+If both operands have the semantics of counter, only addition or subtraction
+make sense, so multiplication and division are not allowed.
+.TP
 Semantic error: derived metric <name>: <operand> <op> <operand>: Illegal operator for non-counter and counter
 Only multiplication is allowed if the right operand has the
 semantics of a counter and the left operand is
 .B not
 a counter.
-.TP
-Semantic error: derived metric <name>: <operand> <op> <operand>: Non-arithmetic type for <left-or-right> operand
-The binary arithmetic operators are only allowed with operands with an
-arithmetic type (integer of various sizes and signedness, float or
-double).
-.TP
-Semantic error: derived metric <name>: <function>(<operand>): Non-arithmetic operand for function
-The unary functions are only defined if the operand has arithmetic type.
 .TP
 Semantic error: derived metric <name>: Incorrect time dimension for operand
 Rate conversion using the
@@ -600,6 +607,37 @@ If the operand metric's Time dimension is 0, then
 the derived metrics has a value "per second" (Time dimension of \-1). 
 If the operand metric's Time dimension is 1, then
 the derived metrics has a value of time utilization (Time dimension of 0).
+.TP
+Semantic error: derived metric <name>: <function>(<operand>): Non-arithmetic operand for function
+The unary functions are only defined if the operand has arithmetic type.
+.TP
+Semantic error: derived metric <name>: <expr> ? ...: Non-arithmetic operand for ternary guard
+The first expression for a ternary operator must have an arithmetic type.
+.TP
+Semantic error: derived metric <name>: ... - ...: Non-arithmetic operand for unary negation
+Unary negation only makes sense if the following expression
+has an arithmetic type.
+.TP
+Semantic error: derived metric <name>: <operand> <op> <operand>: Non-arithmetic type for <left-or-right> operand
+The binary arithmetic operators are only allowed with operands with an
+arithmetic type (integer of various sizes and signedness, float or
+double).
+.TP
+Semantic error: derived metric <name>: <operand> <op> <operand>: Non-counter and not dimensionless <left-or-right> operand
+For multiplication or division or any of the relational operators, if
+one of the operands has the semantics of a counter and the other
+has the semantics of a non-counter (instantaneous or discrete) then
+the non-counter operand must have no dimension (units and scale).
+.TP
+Semantic error: derived metric <name>: <expr> ? <expr> : <expr>: Non-scalar ternary guard with scalar expressions
+If the ``true'' and ``false'' operands of a ternary expression have
+a scalar value, then the ``guard'' expression must also have a
+scalar value.
+.TP
+Semantic error: derived metric <name>: <expr> <op> <expr>: Operands should have the same instance domain
+For all of the binary operators (arithmetic and relational), if both
+operands have non-scalar values, then they must be defined over the
+same instance domain.
 .SH "EXPRESSION EVALUATION"
 For the binary arithmetic operators,
 if either operand must be scaled (e.g. convert bytes to Kbytes) then the

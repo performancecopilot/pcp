@@ -83,6 +83,7 @@ myname.h = disk.dev.total + sample.long.hundred
 myname.i = sample.long.hundred - disk.dev.total
 myname.j = sample.mirage * sample.step_counter
 myname.k = sample.step_counter / sample.mirage_longlong
+myname.k2 = sample.mirage_longlong * sample.step_counter
 # indom checks
 myname.l = sample.bin + sample.darkness
 # from here on down, test cases driven by gcov analysis ...

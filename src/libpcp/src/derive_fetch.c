@@ -629,7 +629,23 @@ eval_expr(node_t *np, pmResult *rp, int level)
     assert(np != NULL);
     if (np->left != NULL) {
 	sts = eval_expr(np->left, rp, level+1);
-	if (sts < 0) return sts;
+	if (sts < 0) {
+	    if (np->type == N_COUNT) {
+		/* count() ... special case, map errors to 0 */
+		if (np->info->ivlist == NULL) {
+		    /* initialize ivlist[] for singular instance first time through */
+		    if ((np->info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
+			__pmNoMem("eval_expr: count ivlist", sizeof(val_t), PM_FATAL_ERR);
+			/*NOTREACHED*/
+		    }
+		    np->info->ivlist[0].inst = PM_IN_NULL;
+		}
+		np->info->numval = 1;
+		np->info->ivlist[0].value.l = 0;
+		sts = 1;
+	    }
+	    return sts;
+	}
     }
     if (np->right != NULL) {
 	sts = eval_expr(np->right, rp, level+1);
