@@ -37,6 +37,8 @@
                                "metric": "diskbusy",
                                "operator": "threshold_min",
                                "value" : 0.85 },
+	    "urls": [ "https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html-single/Performance_Tuning_Guide/index.html#chap-Red_Hat_Enterprise_Linux-Performance_Tuning_Guide-Storage_and_File_Systems" ],
+	    "details": "Storage devices have queues for the IO requests for the device.  When the queue is empty the device is idle.  As the device utilization increases the amount of idle time drops and the avactive time increases. If the utilization is excessive and the device becomes saturated the time required to service IO request can become excessive.",
 	    "parents": ["Start"]
         },
         {
