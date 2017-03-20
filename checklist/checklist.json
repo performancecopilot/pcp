@@ -46,7 +46,10 @@
 	    "description": "Saturating bandwidth of storage",
 	    "pcp_metrics": [ "disk.dm.total.*" ],
 	    "pcp_metrics_log": [ "disk.dm.total" ],
+            "pcp_deriveds": [ "diskbw = rate(disk.dm.total)" ],
 	    "predicate": "delta(disk.dm.total)/delta(time)",
+	    "details": "There are maximum rates that data can be read from and written to a storage device which can present a bottleneck on performance.",
+	    "issues": "There does not seem to be a way to query storage devices for device's the max r/w bandwidthes, so there is not a way for checklist to have a predicate at the momement for this.",
 	    "parents": ["Storage"]
         },
         {
