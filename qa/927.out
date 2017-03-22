@@ -388,7 +388,7 @@ Derived metric expr dump from <addr-112>...
 expr node <addr-112> type=NEQ left=<addr-113> right=<addr-115> save_last=0
     PMID: PM_ID_NULL (511.0.8 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: sec
+    Semantics: instant  Units: none
 expr node <addr-113> type=INSTANT left=<addr-114> right=(nil) save_last=0
     PMID: PM_ID_NULL (29.0.2 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -668,7 +668,7 @@ qa_927.rel_leq
 
 qa_927.rel_neq
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: sec
+    Semantics: instant  Units: none
 
 qa_927.rel_true
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -849,7 +849,7 @@ qa_927.rel_leq
 
 qa_927.rel_neq
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: sec
+    Semantics: instant  Units: none
 
 qa_927.rel_true
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff

@@ -89,6 +89,13 @@ do
     pmval -z -a archives/bozo-disk -t 1sec -s 10 $metric
 done
 
+cat <<End-of-File >$tmp.config
+idle = mem.util.free > mkconst(10485760, units=Kbyte)
+End-of-File
+
+pminfo -a archives/pcp-free -d idle
+pmval -z -t1 -a archives/pcp-free idle
+
 # success, all done
 status=0
 exit

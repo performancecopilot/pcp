@@ -1,0 +1,223 @@
+QA output created by 1064
+pmRegisterDerived: name="event.flags" expr="anon(PM_TYPE_U32)"
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
+Derived metric expr dump from <addr-0>...
+expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
+derive_lex() -> type=L_ANON "anon"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "PM_TYPE_U32"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric expr dump from <addr-2>...
+expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: name="a.m1" expr="rescale(sample.byte_rate, "Kbyte/min")"
+derive_lex() -> type=L_RESCALE "rescale"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.byte_rate"
+derive_lex() -> type=L_COMMA ","
+derive_lex() -> type=L_STRING ""Kbyte/min"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[2] a.m1 = rescale(sample.byte_rate, "Kbyte/min")
+Derived metric expr dump from <addr-4>...
+expr node <addr-4> type=RESCALE left=<addr-5> right=<addr-6> save_last=0
+expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=1
+expr node <addr-6> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / min]
+pmRegisterDerived: name="a.m2" expr="rescale(mkconst(36000, units="count/hour"),"count/sec")"
+derive_lex() -> type=L_RESCALE "rescale"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_MKCONST "mkconst"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_INTEGER "36000"
+derive_lex() -> type=L_COMMA ","
+derive_lex() -> type=L_UNITS "units"
+derive_lex() -> type=L_ASSIGN "="
+derive_lex() -> type=L_STRING ""count/hour"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_COMMA ","
+derive_lex() -> type=L_STRING ""count/sec"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[3] a.m2 = rescale(mkconst(36000, units="count/hour"),"count/sec")
+Derived metric expr dump from <addr-7>...
+expr node <addr-7> type=RESCALE left=<addr-8> right=<addr-9> save_last=0
+expr node <addr-8> type=INTEGER left=(nil) right=(nil) save_last=0 [36000] master=1
+expr node <addr-9> type=SCALE left=(nil) right=(nil) save_last=0 [count / sec]
+pmRegisterDerived: name="a.m3" expr="rescale(mkconst(36000, units="count/hour")+rescale(mkconst(600, units="count/min"),"count/hour"), "count/sec")"
+derive_lex() -> type=L_RESCALE "rescale"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_MKCONST "mkconst"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_INTEGER "36000"
+derive_lex() -> type=L_COMMA ","
+derive_lex() -> type=L_UNITS "units"
+derive_lex() -> type=L_ASSIGN "="
+derive_lex() -> type=L_STRING ""count/hour"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_PLUS "+"
+derive_lex() -> type=L_RESCALE "rescale"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_MKCONST "mkconst"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_INTEGER "600"
+derive_lex() -> type=L_COMMA ","
+derive_lex() -> type=L_UNITS "units"
+derive_lex() -> type=L_ASSIGN "="
+derive_lex() -> type=L_STRING ""count/min"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_COMMA ","
+derive_lex() -> type=L_STRING ""count/hour"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_COMMA ","
+derive_lex() -> type=L_STRING ""count/sec"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[4] a.m3 = rescale(mkconst(36000, units="count/hour")+rescale(mkconst(600, units="count/min"),"count/hour"), "count/sec")
+Derived metric expr dump from <addr-10>...
+expr node <addr-10> type=RESCALE left=<addr-11> right=<addr-16> save_last=0
+expr node <addr-11> type=PLUS left=<addr-12> right=<addr-13> save_last=0
+expr node <addr-12> type=INTEGER left=(nil) right=(nil) save_last=0 [36000] master=1
+expr node <addr-13> type=RESCALE left=<addr-14> right=<addr-15> save_last=0
+expr node <addr-14> type=INTEGER left=(nil) right=(nil) save_last=0 [600] master=1
+expr node <addr-15> type=SCALE left=(nil) right=(nil) save_last=0 [count / hour]
+expr node <addr-16> type=SCALE left=(nil) right=(nil) save_last=0 [count / sec]
+pmRegisterDerived: name="a.err.m1" expr="rescale(sample.long.hundred, "Kbyte/sec")"
+derive_lex() -> type=L_RESCALE "rescale"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.long.hundred"
+derive_lex() -> type=L_COMMA ","
+derive_lex() -> type=L_STRING ""Kbyte/sec"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[5] a.err.m1 = rescale(sample.long.hundred, "Kbyte/sec")
+Derived metric expr dump from <addr-17>...
+expr node <addr-17> type=RESCALE left=<addr-18> right=<addr-19> save_last=0
+expr node <addr-18> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] master=1
+expr node <addr-19> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / sec]
+pmRegisterDerived: name="a.err.m2" expr="rescale(sample.string.hullo, "millisec/count")"
+derive_lex() -> type=L_RESCALE "rescale"
+derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "sample.string.hullo"
+derive_lex() -> type=L_COMMA ","
+derive_lex() -> type=L_STRING ""millisec/count"
+derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
+pmRegisterDerived: register metric[6] a.err.m2 = rescale(sample.string.hullo, "millisec/count")
+Derived metric expr dump from <addr-20>...
+expr node <addr-20> type=RESCALE left=<addr-21> right=<addr-22> save_last=0
+expr node <addr-21> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] master=1
+expr node <addr-22> type=SCALE left=(nil) right=(nil) save_last=0 [millisec / count]
+__dmopencontext(->ctx 0) called
+__dmopencontext: bind metric[0] event.flags
+Derived metric expr dump from <addr-23>...
+expr node <addr-23> type=ANON left=<addr-24> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-24> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmopencontext: bind metric[1] event.missed
+Derived metric expr dump from <addr-25>...
+expr node <addr-25> type=ANON left=<addr-26> right=(nil) save_last=0
+    PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+expr node <addr-26> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+__dmgetpmid: metric "a.m1" -> PMID 511.0.3
+__dmopencontext: bind metric[2] a.m1
+Derived metric expr dump from <addr-27>...
+expr node <addr-27> type=RESCALE left=<addr-28> right=<addr-29> save_last=0
+    PMID: PM_ID_NULL (511.0.3 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte / min
+expr node <addr-28> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate] master=0
+    PMID: 29.0.82 (29.0.82 from pmDesc) numval: 0
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte / sec
+expr node <addr-29> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / min]
+__dmgetpmid: metric "a.m2" -> PMID 511.0.4
+__dmopencontext: bind metric[3] a.m2
+Derived metric expr dump from <addr-30>...
+expr node <addr-30> type=RESCALE left=<addr-31> right=<addr-32> save_last=0
+    PMID: PM_ID_NULL (511.0.4 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count / sec
+expr node <addr-31> type=INTEGER left=(nil) right=(nil) save_last=0 [36000] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count / hour
+expr node <addr-32> type=SCALE left=(nil) right=(nil) save_last=0 [count / sec]
+__dmgetpmid: metric "a.m3" -> PMID 511.0.5
+__dmopencontext: bind metric[4] a.m3
+Derived metric expr dump from <addr-33>...
+expr node <addr-33> type=RESCALE left=<addr-34> right=<addr-39> save_last=0
+    PMID: PM_ID_NULL (511.0.5 from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count / sec
+expr node <addr-34> type=PLUS left=<addr-35> right=<addr-36> save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count / hour
+expr node <addr-35> type=INTEGER left=(nil) right=(nil) save_last=0 [36000] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count / hour
+expr node <addr-36> type=RESCALE left=<addr-37> right=<addr-38> save_last=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count / hour
+expr node <addr-37> type=INTEGER left=(nil) right=(nil) save_last=0 [600] master=0
+    PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count / min
+expr node <addr-38> type=SCALE left=(nil) right=(nil) save_last=0 [count / hour]
+expr node <addr-39> type=SCALE left=(nil) right=(nil) save_last=0 [count / sec]
+__dmgetpmid: metric "a.err.m1" -> PMID 511.0.6
+Semantic error: derived metric a.err.m1: sample.long.hundred RESCALE Kbyte / sec: Incompatible dimensions
+__dmgetpmid: metric "a.err.m2" -> PMID 511.0.7
+Semantic error: derived metric a.err.m2: sample.string.hullo RESCALE millisec / count: Non-arithmetic operand for function
+__dmtraverse: name="a" added "a.m1"
+__dmtraverse: name="a" added "a.m2"
+__dmtraverse: name="a" added "a.m3"
+__dmtraverse: name="a", omitting invalid child "a.err.m1"
+__dmtraverse: name="a", omitting invalid child "a.err.m2"
+__dmgetpmid: metric "a.m1" -> PMID 511.0.3
+__dmgetpmid: metric "a.m2" -> PMID 511.0.4
+__dmgetpmid: metric "a.m3" -> PMID 511.0.5
+
+a.m1
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte / min
+value OK
+
+a.m2
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count / sec
+    value 10
+
+a.m3
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: count / sec
+    value 20
+expecting ...
+a.m1		OK
+a.m2		10
+a.m2		20
+a.err.m1	Incompatible dimensions
+a.err.m2	Not arithmetic

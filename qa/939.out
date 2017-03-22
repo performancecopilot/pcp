@@ -304,7 +304,7 @@ interval:  1.00 sec
 
 myalarm
     Data Type: 32-bit unsigned int  InDom: 60.1 0xf000001
-    Semantics: instant  Units: Kbyte / sec
+    Semantics: instant  Units: none
 Note: timezone set to local timezone of host "bozo" from archive
 
 metric:    myalarm
@@ -313,7 +313,7 @@ host:      bozo
 start:     Thu Mar 16 10:31:13 2017
 end:       Thu Mar 16 10:34:13 2017
 semantics: instantaneous value
-units:     Kbyte / sec
+units:     none
 samples:   10
 interval:  1.00 sec
 10:31:13.870  No values available
@@ -328,3 +328,28 @@ interval:  1.00 sec
 10:31:20.870          1           0           1           1           0 
 10:31:21.870          1           0           1           1           0 
 10:31:22.870          1           0           1           1           0 
+
+idle
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Note: timezone set to local timezone of host "smash" from archive
+
+metric:    idle
+archive:   archives/pcp-free
+host:      smash
+start:     Fri Apr  4 11:35:46 2014
+end:       Fri Apr  4 11:35:56 2014
+semantics: instantaneous value
+units:     none
+samples:   10
+interval:  1.00 sec
+11:35:46.566  No values available
+11:35:47.566          1
+11:35:48.566          1
+11:35:49.566          1
+11:35:50.566          1
+11:35:51.566          0
+11:35:52.566          0
+11:35:53.566          0
+11:35:54.566          0
+11:35:55.566          0

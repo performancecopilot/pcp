@@ -1308,6 +1308,7 @@ oldversion
 1061 pmda.lio local
 1062 pmrep python local
 1063 derive local
+1064 derive local
 1065 libpcp valgrind local
 1067 zabbix zbxpcp local
 1068 pmrep python zabbix local

@@ -1,0 +1,79 @@
+#!/bin/sh
+# PCP QA Test No. 1064
+# derived metrics - rescale()
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# Derived metric expr dump from 0x8513a48...
+# expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
+_filter()
+{
+    awk <$tmp.out >$tmp.sed '
+BEGIN				{ n = 0 }
+$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
+				{ next }'
+    sed -f $tmp.sed <$tmp.out \
+    | sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+	-e 's/=0x0 /=(nil) /g' \
+	-e "s;$tmp;TMP;"
+}
+
+_filter_values()
+{
+    $PCP_AWK_PROG '
+NF == 1 && $1 ~ /^a\.m/	{ metric = $1 }
+$1 == "value" && metric == "a.m1"	{ if ($2 >= 0 && $2 <= 1023*60/1024) $2 = "OK" }
+			{ print }'
+
+}
+
+# real QA test starts here
+
+cat <<End-of-File >$tmp.config
+# expect 0 ... 1023 * 60 / 1024 (so around 60)
+a.m1 = rescale(sample.byte_rate, "Kbyte/min")
+a.m2 = rescale(mkconst(36000, units="count/hour"),"count/sec")
+a.m3 = rescale(mkconst(36000, units="count/hour")+rescale(mkconst(600, units="count/min"),"count/hour"), "count/sec")
+# error cases
+a.err.m1 = rescale(sample.long.hundred, "Kbyte/sec")
+a.err.m2 = rescale(sample.string.hullo, "millisec/count")
+End-of-File
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+pminfo -Dderive,appl0,appl1 -fd a >$tmp.out 2>&1
+_filter \
+| _filter_values
+
+echo "expecting ..."
+cat <<End-of-File
+a.m1		OK
+a.m2		10
+a.m2		20
+a.err.m1	Incompatible dimensions
+a.err.m2	Not arithmetic
+End-of-File
+
+# success, all done
+status=0
+exit

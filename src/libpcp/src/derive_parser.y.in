@@ -401,22 +401,27 @@ bind_expr(int n, node_t *np)
 	    return(NULL);
 	}
     }
-    if ((new->info = (info_t *)malloc(sizeof(info_t))) == NULL) {
-	PM_UNLOCK(registered.mutex);
-	__pmNoMem("bind_expr: info block", sizeof(info_t), PM_FATAL_ERR);
-	/*NOTREACHED*/
+    if (np->type != N_SCALE) {
+	if ((new->info = (info_t *)malloc(sizeof(info_t))) == NULL) {
+	    PM_UNLOCK(registered.mutex);
+	    __pmNoMem("bind_expr: info block", sizeof(info_t), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	new->info->pmid = PM_ID_NULL;
+	new->info->numval = 0;
+	new->info->mul_scale = new->info->div_scale = 1;
+	new->info->ivlist = NULL;
+	new->info->stamp.tv_sec = 0;
+	new->info->stamp.tv_usec = 0;
+	new->info->time_scale = -1;		/* one-trip initialization if needed */
+	new->info->last_numval = 0;
+	new->info->last_ivlist = NULL;
+	new->info->last_stamp.tv_sec = 0;
+	new->info->last_stamp.tv_usec = 0;
     }
-    new->info->pmid = PM_ID_NULL;
-    new->info->numval = 0;
-    new->info->mul_scale = new->info->div_scale = 1;
-    new->info->ivlist = NULL;
-    new->info->stamp.tv_sec = 0;
-    new->info->stamp.tv_usec = 0;
-    new->info->time_scale = -1;		/* one-trip initialization if needed */
-    new->info->last_numval = 0;
-    new->info->last_ivlist = NULL;
-    new->info->last_stamp.tv_sec = 0;
-    new->info->last_stamp.tv_usec = 0;
+    else {
+	new->info = NULL;
+    }
 
     /* need info to be non-null to protect copy of value in free_expr */
     new->value = np->value;
@@ -450,7 +455,7 @@ bind_expr(int n, node_t *np)
 	    return NULL;
 	}
     }
-    else if (new->type == N_INTEGER || new->type == N_DOUBLE) {
+    else if (new->type == N_INTEGER || new->type == N_DOUBLE || new->type == N_SCALE) {
 	new->desc = np->desc;
     }
 
@@ -501,6 +506,7 @@ void report_sem_error(char *name, node_t *np)
 	case N_MIN:
 	case N_SUM:
 	case N_ANON:
+	case N_DEFINED:
 	    pmprintf("%s(%s)", n_type_str(np->type), np->left->value);
 	    break;
 	case N_QUEST:
@@ -519,6 +525,22 @@ void report_sem_error(char *name, node_t *np)
 		pmprintf("%s", np->right->value);
 	    else
 		pmprintf("<expr>");
+	    break;
+	case N_RESCALE:
+	    if (np->left->type == N_INTEGER || np->left->type == N_DOUBLE || np->left->type == N_NAME)
+		pmprintf("%s ", np->left->value);
+	    else
+		pmprintf("<expr> ");
+	    pmprintf("%s ", n_type_str(np->type));
+	    {
+		const char		*units;
+		char		strbuf[60];
+		units = pmUnitsStr_r(&np->right->desc.units, strbuf, sizeof(strbuf));
+		if (*units == '\0')
+		    pmprintf("none");
+		else
+		    pmprintf("%s", units);
+	    }
 	    break;
 	default:
 	    /* should never get here ... */
@@ -706,6 +728,7 @@ map_desc(int n, node_t *np)
     pmDesc	*right = &np->right->desc;
     pmDesc	*left = &np->left->desc;
 
+    /* counter and non-counter checks */
     if (np->type == N_LT || np->type == N_LEQ || np->type == N_EQ ||
 	np->type == N_GEQ || np->type == N_GT || np->type == N_NEQ ||
 	np->type == N_AND || np->type == N_OR) {
@@ -713,9 +736,51 @@ map_desc(int n, node_t *np)
 	 * No restrictions on relational or boolean operators ... since
 	 * evaluation will only ever use the current value and the
 	 * result is not a counter, so the difference between counter
-	 * and non-counter semantics for the oprtands is immaterial.
+	 * and non-counter semantics for the operands is immaterial.
 	 */
 	;
+    }
+    else if (np->type == N_RESCALE) {
+	/*
+	 * Use metadata from np->left as base, check scale conversion
+	 * is possible, then use units from np->right
+	 */
+	pmAtomValue	in;
+	pmAtomValue	out;
+	int		sts;
+	np->desc = *left;
+	switch (np->desc.type) {
+	    case PM_TYPE_32:
+		in.l = 1;
+		break;
+	    case PM_TYPE_U32:
+		in.ul = 1;
+		break;
+	    case PM_TYPE_64:
+		in.ll = 1;
+		break;
+	    case PM_TYPE_U64:
+		in.ull = 1;
+		break;
+	    case PM_TYPE_FLOAT:
+		in.f = 1;
+		break;
+	    case PM_TYPE_DOUBLE:
+		in.d = 1;
+		break;
+	    default:
+		PM_TPD(derive_errmsg) = "Non-arithmetic operand for function";
+		report_sem_error(registered.mlist[n].name, np);
+		return -1;
+	}
+	sts = pmConvScale(np->desc.type, &in, &np->left->desc.units,
+					 &out, &np->right->desc.units);
+	if (sts < 0) {
+	    PM_TPD(derive_errmsg) = "Incompatible dimensions";
+	    goto bad;
+	}
+	np->desc.units = np->right->desc.units;		/* struct assignment */
+	return 0;
     }
     else {
 	if (left->sem == PM_SEM_COUNTER) {
@@ -889,10 +954,14 @@ map_desc(int n, node_t *np)
 
     /* do pmUnits mapping and scale conversion */
     if (np->type == N_PLUS || np->type == N_MINUS ||
-	np->type == N_STAR || np->type == N_SLASH ||
-	np->type == N_LT || np->type == N_LEQ || np->type == N_EQ ||
-	np->type == N_GEQ || np->type == N_GT || np->type == N_NEQ) {
+	np->type == N_STAR || np->type == N_SLASH) {
 	map_units(np);
+    }
+    else if (np->type == N_LT || np->type == N_LEQ || np->type == N_EQ ||
+	     np->type == N_GEQ || np->type == N_GT || np->type == N_NEQ ||
+	     np->type == N_AND || np->type == N_OR || np->type == N_NOT) {
+	/* no units for relational or boolean expressions */
+	np->desc.units = noUnits;	/* struct assignment */
     }
 
     /*
@@ -924,7 +993,8 @@ check_expr(int n, node_t *np)
 
     assert(np != NULL);
 
-    if (np->type == N_INTEGER || np->type == N_DOUBLE || np->type == N_NAME)
+    if (np->type == N_INTEGER || np->type == N_DOUBLE || np->type == N_NAME ||
+        np->type == N_SCALE)
 	return 0;
 
     /* otherwise, np->left is never NULL ... */
@@ -1184,13 +1254,26 @@ dump_value(int type, pmAtomValue *avp)
 void
 __dmdumpexpr(node_t *np, int level)
 {
-    char	strbuf[20];
+    char	strbuf[60];
 
     if (level == 0) fprintf(stderr, "Derived metric expr dump from " PRINTF_P_PFX "%p...\n", np);
     if (np == NULL) return;
     fprintf(stderr, "expr node " PRINTF_P_PFX "%p type=%s left=" PRINTF_P_PFX "%p right=" PRINTF_P_PFX "%p save_last=%d", np, n_type_str(np->type), np->left, np->right, np->save_last);
     if (np->type == N_NAME || np->type == N_INTEGER || np->type == N_DOUBLE)
 	fprintf(stderr, " [%s] master=%d", np->value, np->info == NULL ? 1 : 0);
+    else if (np->type == N_SCALE) {
+	char	*p;
+	p = pmUnitsStr_r(&np->desc.units, strbuf, sizeof(strbuf));
+	if (p == NULL) {
+	    fprintf(stderr, " [bad units: %d %d %d %d %d %d]", 
+	    	np->desc.units.scaleCount, np->desc.units.scaleTime,
+	    	np->desc.units.scaleSpace,
+	    	np->desc.units.dimCount, np->desc.units.dimTime,
+	    	np->desc.units.dimSpace);
+	}
+	else
+	    fprintf(stderr, " [%s]", strbuf);
+    }
     fputc('\n', stderr);
     if (np->info) {
 	fprintf(stderr, "    PMID: %s ", pmIDStr_r(np->info->pmid, strbuf, sizeof(strbuf)));
@@ -2030,6 +2113,8 @@ PUT-PREFIX-DECL-HERE ... see GNumakefile
 %token      L_AND
 %token      L_OR
 %token      L_MKCONST
+%token      L_RESCALE
+%token      L_DEFINED
 %token      L_TYPE
 %token      L_SEMANTICS
 %token      L_UNITS
@@ -2428,6 +2513,22 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		  np->left->save_last = 1;
 		  $$ = np;
 		}
+	| L_RESCALE L_LPAREN expr L_COMMA L_STRING L_RPAREN
+		{ double		mult;
+		  struct pmUnits	units;
+		  char			*errmsg;
+		  np = newnode(N_RESCALE);
+		  np->left = $3;
+		  if (pmParseUnitsStr($5, &units, &mult, &errmsg) < 0) {
+		      gramerr("Illegal units:", NULL, errmsg);
+		      free(errmsg);
+		      derive_error(NULL);
+		      return -1;
+		  }
+		  np->right = newnode(N_SCALE);
+		  np->right->desc.units = units;	/* struct assign */
+		  $$ = np;
+		}
 	| L_ANON L_LPAREN error
 		{ gramerr(name_str, follow, "anon("); YYERROR; }
 	| L_AVG L_LPAREN error
@@ -2446,6 +2547,10 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		{ gramerr(name_str, follow, "rate("); YYERROR; }
 	| L_INSTANT L_LPAREN error
 		{ gramerr(name_str, follow, "instant("); YYERROR; }
+	| L_RESCALE L_LPAREN error
+		{ gramerr(op_str, follow, "rescale("); YYERROR; }
+	| L_RESCALE L_LPAREN expr L_COMMA error
+		{ gramerr("Units string", follow, "rescale(<expr>,"); YYERROR; }
 	;
 
 %%
@@ -2465,6 +2570,8 @@ static const struct {
     { L_RATE,	"rate" },
     { L_INSTANT,"instant" },
     { L_MKCONST,"mkconst" },
+    { L_RESCALE,"rescale" },
+    { L_DEFINED,"defined" },
     { L_UNDEF,	NULL }
 };
 static struct {
@@ -2504,6 +2611,9 @@ static struct {
     { L_RATE,		N_RATE,		"RATE",		NULL },
     { L_INSTANT,	N_INSTANT,	"INSTANT",	NULL },
     { L_MKCONST,	0,		"MKCONST",	NULL },
+    { L_RESCALE,	N_RESCALE,	"RESCALE",	NULL },
+    { 0,		N_SCALE,	"SCALE",	NULL },
+    { L_DEFINED,	N_DEFINED,	"DEFINED",	NULL },
     { L_LT,		N_LT,		"LT",		"<" },
     { L_LEQ,		N_LEQ,		"LEQ",		"<=" },
     { L_EQ,		N_EQ,		"EQ",		"==" },
@@ -2606,9 +2716,6 @@ derive_lex(void)
 	if (firstch) {
 	    if (isspace((int)c)) continue;
 	    this = &string[-1];
-#if 0
-fprintf(stderr, "lex this=%p %s\n", this, this);
-#endif
 	    firstch = 0;
 	}
 	if (c == EOF) {

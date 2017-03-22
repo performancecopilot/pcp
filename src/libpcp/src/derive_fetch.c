@@ -653,7 +653,8 @@ eval_expr(node_t *np, pmResult *rp, int level)
     }
 
     /* mostly, np->left is not NULL ... */
-    assert (np->type == N_INTEGER || np->type == N_DOUBLE || np->type == N_NAME || np->left != NULL);
+    assert (np->type == N_INTEGER || np->type == N_DOUBLE ||
+            np->type == N_NAME || np->type == N_SCALE || np->left != NULL);
 
     switch (np->type) {
 
@@ -821,9 +822,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 			    int		i;
 			    np->info->time_scale = 1;
 			    if (np->left->desc.units.scaleTime > PM_TIME_SEC) {
-
 				for (i = PM_TIME_SEC; i < np->left->desc.units.scaleTime; i++)
-
 				    np->info->time_scale *= 60;
 			    }
 			    else {
@@ -933,7 +932,6 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		node_t	*pick;
 		node_t	*pick_inst;
 		int	numval;
-
 		if (np->right->left->info->numval <= 0) {
 		    np->info->numval = np->right->left->info->numval;
 		    return np->info->numval;
@@ -965,7 +963,6 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		if (pick_inst->info->numval == 1 && np->left->info->numval > 1)
 		    /* use guard operand */
 		    pick_inst = np->left;
-
 		/* guard is left operand and value is arithmetic */
 		pick = NULL;
 		for (i = 0; i < numval; i++) {
@@ -1018,7 +1015,6 @@ eval_expr(node_t *np, pmResult *rp, int level)
 			}
 		    }
 		    assert(pick != NULL);
-
 		    switch (np->desc.type) {
 			case PM_TYPE_32:
 			    if (i < pick->info->numval)
@@ -1067,6 +1063,31 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		    np->info->ivlist[i].inst = pick_inst->info->ivlist[i].inst;
 		}
 	    }
+	    return np->info->numval;
+	    break;
+
+	case N_RESCALE:
+	    assert(np->left != NULL);
+	    free_ivlist(np);
+	    np->info->numval = np->left->info->numval;
+	    if (np->info->numval <= 0)
+		return np->info->numval;
+	    if ((np->info->ivlist = (val_t *)malloc(np->info->numval*sizeof(val_t))) == NULL) {
+		__pmNoMem("eval_expr: N_RESCALE ivlist", np->info->numval*sizeof(val_t), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    /*
+	     * ivlist[i] = rescale(left->ivlist[i], right->desc.units)
+	     */
+	    for (j = 0, i = 0; i < np->info->numval; i++) {
+		sts = pmConvScale(np->desc.type,
+		    &np->left->info->ivlist[i].value, &np->left->desc.units,
+		    &np->info->ivlist[j].value, &np->right->desc.units);
+		np->info->ivlist[j].inst = np->left->info->ivlist[i].inst;
+		if (sts >= 0)
+		    j++;
+	    }
+	    np->info->numval = j;
 	    return np->info->numval;
 	    break;
 
@@ -1300,12 +1321,10 @@ eval_expr(node_t *np, pmResult *rp, int level)
 			    case PM_TYPE_U32:
 				np->info->ivlist[i].value.l = rp->vset[j]->vlist[i].value.lval;
 				break;
-
 			    case PM_TYPE_64:
 			    case PM_TYPE_U64:
 				memcpy((void *)&np->info->ivlist[i].value.ll, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(__int64_t));
 				break;
-
 			    case PM_TYPE_FLOAT:
 				if (rp->vset[j]->valfmt == PM_VAL_INSITU) {
 				    /* old style insitu float */
@@ -1316,11 +1335,9 @@ eval_expr(node_t *np, pmResult *rp, int level)
 				    memcpy((void *)&np->info->ivlist[i].value.f, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(float));
 				}
 				break;
-
 			    case PM_TYPE_DOUBLE:
 				memcpy((void *)&np->info->ivlist[i].value.d, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, sizeof(double));
 				break;
-
 			    case PM_TYPE_STRING:
 				need = rp->vset[j]->vlist[i].value.pval->vlen-PM_VAL_HDR_SIZE;
 				if ((np->info->ivlist[i].value.cp = (char *)malloc(need)) == NULL) {
@@ -1330,7 +1347,6 @@ eval_expr(node_t *np, pmResult *rp, int level)
 				memcpy((void *)np->info->ivlist[i].value.cp, (void *)rp->vset[j]->vlist[i].value.pval->vbuf, need);
 				np->info->ivlist[i].vlen = need;
 				break;
-
 			    case PM_TYPE_AGGREGATE:
 			    case PM_TYPE_AGGREGATE_STATIC:
 			    case PM_TYPE_EVENT:
@@ -1342,7 +1358,6 @@ eval_expr(node_t *np, pmResult *rp, int level)
 				memcpy(np->info->ivlist[i].value.vbp, (void *)rp->vset[j]->vlist[i].value.pval, rp->vset[j]->vlist[i].value.pval->vlen);
 				np->info->ivlist[i].vlen = rp->vset[j]->vlist[i].value.pval->vlen;
 				break;
-
 			    default:
 				/*
 				 * really only PM_TYPE_NOSUPPORT should
@@ -1367,6 +1382,10 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    /* no values available for anonymous metrics */
 	    return 0;
 
+	case N_SCALE:
+	    /* no associated values */
+	    return 0;
+
 	default:
 	    /*
 	     * binary operator cases ... always have a left and right
@@ -1376,7 +1395,6 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	     */
 	    assert(np->left != NULL);
 	    assert(np->right != NULL);
-
 	    free_ivlist(np);
 	    if (np->left->info->numval <= 0) {
 		np->info->numval = 0;
@@ -1495,7 +1513,6 @@ eval_expr(node_t *np, pmResult *rp, int level)
 			   np->right->info->ivlist[j].value, np->right->desc.type,
 			   np->right->info->mul_scale, np->right->info->div_scale);
 		}
-
 		if (np->left->desc.indom != PM_INDOM_NULL)
 		    np->info->ivlist[k].inst = np->left->info->ivlist[i].inst;
 		else
@@ -1516,6 +1533,7 @@ eval_expr(node_t *np, pmResult *rp, int level)
 		}
 	    }
 	    return np->info->numval;
+
     }
     /*NOTREACHED*/
 }
