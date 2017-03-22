@@ -267,6 +267,7 @@ _filter_optional_pmdas()
 	-e '/pmdapmcd/d' \
 	-e '/pmdaproc/d' \
 	-e '/pmdaprocess/d' \
+	-e '/pmdarabbitmq/d' \
 	-e '/pmdaredis/d' \
 	-e '/pmdarpm/d' \
 	-e '/pmdarsyslog/d' \
@@ -362,6 +363,7 @@ _filter_top_pmns()
 	-e '/^    postfix /d' \
 	-e '/^    postgresql /d' \
 	-e '/^    proc /d' \
+	-e '/^    rabbitmq /d' \
 	-e '/^    redis /d' \
 	-e '/^    rpm /d' \
 	-e '/^    rsyslog /d' \

@@ -5212,9 +5212,10 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_SLAB]) {
 	if (access != NULL && (access->uid == 0 && access->uid_flag)) {
 	    proc_slabinfo.permission = 1;
-	    refresh_proc_slabinfo(&proc_slabinfo);
-	} else
+	    refresh_proc_slabinfo(INDOM(SLAB_INDOM), &proc_slabinfo);
+	} else {
 	    proc_slabinfo.permission = 0;
+	}
     }
 
     if (need_refresh[CLUSTER_SEM_LIMITS])
@@ -6487,54 +6488,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_SLAB:
 	if (proc_slabinfo.permission != 1)
 	    return 0;
-
-	if (proc_slabinfo.ncaches == 0)
-	    return 0; /* no values available */
-
-	if (inst >= proc_slabinfo.ncaches)
-	    return PM_ERR_INST;
-
-	switch(idp->item) {
-	case 0:	/* mem.slabinfo.objects.active */
-	    atom->ull = proc_slabinfo.caches[inst].num_active_objs;
-	    break;
-	case 1:	/* mem.slabinfo.objects.total */
-	    atom->ull = proc_slabinfo.caches[inst].total_objs;
-	    break;
-	case 2:	/* mem.slabinfo.objects.size */
-	    if (proc_slabinfo.caches[inst].seen < 11)	/* version 1.1 or later only */
-		return 0;
-	    atom->ul = proc_slabinfo.caches[inst].object_size;
-	    break;
-	case 3:	/* mem.slabinfo.slabs.active */
-	    if (proc_slabinfo.caches[inst].seen < 11)	/* version 1.1 or later only */
-		return 0;
-	    atom->ul = proc_slabinfo.caches[inst].num_active_slabs;
-	    break;
-	case 4:	/* mem.slabinfo.slabs.total */
-	    if (proc_slabinfo.caches[inst].seen == 11)	/* version 1.1 only */
-		return 0;
-	    atom->ul = proc_slabinfo.caches[inst].total_slabs;
-	    break;
-	case 5:	/* mem.slabinfo.slabs.pages_per_slab */
-	    if (proc_slabinfo.caches[inst].seen < 11)	/* version 1.1 or later only */
-		return 0;
-	    atom->ul = proc_slabinfo.caches[inst].pages_per_slab;
-	    break;
-	case 6:	/* mem.slabinfo.slabs.objects_per_slab */
-	    if (proc_slabinfo.caches[inst].seen != 20)	/* version 2.0 only */
-		return 0;
-	    atom->ul = proc_slabinfo.caches[inst].objects_per_slab;
-	    break;
-	case 7:	/* mem.slabinfo.slabs.total_size */
-	    if (proc_slabinfo.caches[inst].seen < 11)	/* version 1.1 or later only */
-		return 0;
-	    atom->ull = proc_slabinfo.caches[inst].total_size;
-	    break;
-	default:
-	    return PM_ERR_PMID;
-	}
-    	break;
+	return proc_slabinfo_fetch(INDOM(SLAB_INDOM), idp->item, inst, atom);
 
     case CLUSTER_PARTITIONS:
 	return proc_partitions_fetch(mdesc, inst, atom);
@@ -7562,7 +7516,6 @@ linux_init(pmdaInterface *dp)
     dp->version.six.ext->e_endCallBack = linux_end_context;
     pmdaSetFetchCallBack(dp, linux_fetchCallBack);
 
-    proc_slabinfo.indom = &indomtab[SLAB_INDOM];
     proc_buddyinfo.indom = &indomtab[BUDDYINFO_INDOM];
 
     /*
