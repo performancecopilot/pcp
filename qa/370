@@ -20,7 +20,7 @@ which sadf >/dev/null 2>&1 || _notrun "sadf not installed"
 which sar2pcp >/dev/null 2>&1 || _notrun "sar2pcp not installed"
 
 platform=`uname -p`
-[ $platform = "x86_64" ] || _notrun "No qualified input data for $platform"
+[ $platform = "x86_64" ] || _notrun "No qualified input data for $platform platform"
 
 version=`sar -V 2>&1 | sed -n -e '/sysstat version /{
 s/.* //
