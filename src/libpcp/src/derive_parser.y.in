@@ -2431,7 +2431,6 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_ANON);
 		  np->left = newnode(N_NAME);
 		  np->left->value = $3;
-		  np->left->save_last = 1;
 		  if (strcmp($3, "PM_TYPE_32") == 0)
 		      np->left->desc.type = PM_TYPE_32;
 		  else if (strcmp($3, "PM_TYPE_U32") == 0)
@@ -2461,14 +2460,12 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_AVG);
 		  np->left = newnode(N_NAME);
 		  np->left->value = $3;
-		  np->left->save_last = 1;
 		  $$ = np;
 		}
 	| L_COUNT L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_COUNT);
 		  np->left = newnode(N_NAME);
 		  np->left->value = $3;
-		  np->left->save_last = 1;
 		  $$ = np;
 		}
 	| L_DELTA L_LPAREN L_NAME L_RPAREN
@@ -2482,21 +2479,18 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_MAX);
 		  np->left = newnode(N_NAME);
 		  np->left->value = $3;
-		  np->left->save_last = 1;
 		  $$ = np;
 		}
 	| L_MIN L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_MIN);
 		  np->left = newnode(N_NAME);
 		  np->left->value = $3;
-		  np->left->save_last = 1;
 		  $$ = np;
 		}
 	| L_SUM L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_SUM);
 		  np->left = newnode(N_NAME);
 		  np->left->value = $3;
-		  np->left->save_last = 1;
 		  $$ = np;
 		}
 	| L_RATE L_LPAREN L_NAME L_RPAREN
@@ -2510,7 +2504,6 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		{ np = newnode(N_INSTANT);
 		  np->left = newnode(N_NAME);
 		  np->left->value = $3;
-		  np->left->save_last = 1;
 		  $$ = np;
 		}
 	| L_RESCALE L_LPAREN expr L_COMMA L_STRING L_RPAREN

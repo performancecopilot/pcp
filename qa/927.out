@@ -9,7 +9,7 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=ANON left=<addr-1> right=(nil) save_last=0
-expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
 derive_lex() -> type=L_ANON "anon"
 derive_lex() -> type=L_LPAREN "("
@@ -19,7 +19,7 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
-expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
 Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="qa_927.bin_2_5" expr="2 * sample.bin / 5"
@@ -108,7 +108,7 @@ pmRegisterDerived: register metric[7] qa_927.rel_neq = instant(sample.seconds) !
 Derived metric expr dump from <addr-29>...
 expr node <addr-29> type=NEQ left=<addr-30> right=<addr-32> save_last=0
 expr node <addr-30> type=INSTANT left=<addr-31> right=(nil) save_last=0
-expr node <addr-31> type=NAME left=(nil) right=(nil) save_last=1 [sample.seconds] master=1
+expr node <addr-31> type=NAME left=(nil) right=(nil) save_last=0 [sample.seconds] master=1
 expr node <addr-32> type=INTEGER left=(nil) right=(nil) save_last=0 [0] master=1
 pmRegisterDerived: name="qa_927.rel_true" expr="(sample.long.hundred <= 100) + (sample.long.hundred >= 100) - (sample.long.hundred == 100)"
 derive_lex() -> type=L_LPAREN "("
@@ -253,7 +253,7 @@ expr node <addr-83> type=ANON left=<addr-84> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.1 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-84> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+expr node <addr-84> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -263,7 +263,7 @@ expr node <addr-85> type=ANON left=<addr-86> right=(nil) save_last=0
     PMID: PM_ID_NULL (511.0.2 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
-expr node <addr-86> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=0
+expr node <addr-86> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -393,7 +393,7 @@ expr node <addr-113> type=INSTANT left=<addr-114> right=(nil) save_last=0
     PMID: PM_ID_NULL (29.0.2 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: sec
-expr node <addr-114> type=NAME left=(nil) right=(nil) save_last=1 [sample.seconds] master=0
+expr node <addr-114> type=NAME left=(nil) right=(nil) save_last=0 [sample.seconds] master=0
     PMID: 29.0.2 (29.0.2 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: sec

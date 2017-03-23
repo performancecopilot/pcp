@@ -9,7 +9,7 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr->...
 expr node <addr-> type=ANON left=<addr-1> right=(nil) save_last=0
-expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
 derive_lex() -> type=L_ANON "anon"
 derive_lex() -> type=L_LPAREN "("
@@ -19,7 +19,7 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
-expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="myname.a" expr="disk.dev.read"
 derive_lex() -> type=L_NAME "disk.dev.read"
@@ -414,7 +414,7 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[0] event.flags = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr->...
 expr node <addr-> type=ANON left=<addr-1> right=(nil) save_last=0
-expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-1> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
 pmRegisterDerived: name="event.missed" expr="anon(PM_TYPE_U32)"
 derive_lex() -> type=L_ANON "anon"
 derive_lex() -> type=L_LPAREN "("
@@ -424,7 +424,7 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: register metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric expr dump from <addr-2>...
 expr node <addr-2> type=ANON left=<addr-3> right=(nil) save_last=0
-expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=1 [PM_TYPE_U32] master=1
+expr node <addr-3> type=INTEGER left=(nil) right=(nil) save_last=0 [PM_TYPE_U32] master=1
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: name="myname.a" expr="sample.long.one +"
 derive_lex() -> type=L_NAME "sample.long.one"
