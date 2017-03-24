@@ -1,0 +1,152 @@
+#!/usr/bin/env pmpython
+'''
+Performance Metrics Domain Agent exporting Prometheus endpoint metrics.
+'''
+#
+# Copyright (c) 2014-2015 Red Hat.
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+
+import cpmapi as c_api
+from pcp.pmapi import pmUnits, pmContext as PCP
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
+from resource import getpagesize
+
+import requests
+import json
+
+from os import getenv, listdir
+import sys
+import time
+
+if sys.version >= '3':
+    long = int	# python2 to python3 portability (no long() in python3)
+
+class PrometheusPMDA(PMDA):
+
+    def parse_line(self, line):
+        if not line:
+            return {}
+
+        if line[0] == '#':
+            return {}
+
+        (key,value) = line.split(' ')
+        return {"key": key, "value": value}
+
+    def refresh_metrics(self):
+        try:
+            req = requests.get(self.config["endpoint"])
+            lines = req.text.splitlines()
+
+            for line in lines:
+                tokens = self.parse_line(line)
+
+                if not tokens.get("key", False):
+                    continue
+
+                self.values[tokens["key"]] = float(tokens["value"])
+        except:
+            self.connection_error =True
+
+    def prometheus_fetch_callback(self, cluster, item, inst):
+        if cluster != 0 or self.connection_error:
+            return [c_api.PM_ERR_PMID, 0]
+
+        if inst == c_api.PM_IN_NULL:
+            key = self.indexes[item]
+            return [self.values[key],1]
+        else:
+            name = self.indexes[item]
+            type = self.types[name]
+
+            if (not type["hasInDom"]) and (inst < 0 or inst >= len(type["instance"])):
+                return [c_api.PM_ERR_PMID, 0]
+            else:
+                return [self.values[type["instances"][inst]["key"]], 1]
+
+    def prometheus_fetch(self):
+        self.refresh_metrics()
+
+    def metric_type(self, key):
+        if key.rfind('}') == -1:
+            return {"name": key}
+
+        name = key[:key.find('{')]
+        instanceName = "::".join(key[key.find('{') + 1 : len(key) - 1].split(','))
+        return {"name": name, "instanceName": instanceName}
+
+    def init_metrics(self):
+        req = requests.get(self.config["endpoint"])
+        lines = req.text.splitlines()
+
+        for line in lines:
+            tokens = self.parse_line(line)
+
+            if not tokens.get("key", False):
+                continue
+
+            mType = self.metric_type(tokens["key"])
+            mDict = self.types.get(mType["name"], {"hasInDom": False})
+
+            if mType.get("instanceName", False):
+                mDict["hasInDom"] = True
+                instances = mDict.get("instances", [])
+                instances.append({"key": tokens["key"], "instanceName": mType["instanceName"]})
+                mDict["instances"] = instances
+            else:
+                mDict["key"] = tokens["key"]
+
+            self.types[mType["name"]] = mDict
+
+    def setup_prometheus_metrics(self, pmdaName):
+        indomCount = 0
+        for i, name in enumerate(self.types):
+            self.indexes[i] = name
+            mType = self.types[name]
+            inDomVal = c_api.PM_INDOM_NULL
+            if mType["hasInDom"]:
+                inDomVal = self.indom(indomCount)
+                indomCount += 1
+                domains = []
+                for j, instance in enumerate(mType["instances"]):
+                    domains.append(pmdaInstid(j, instance["instanceName"]))
+                self.add_indom(pmdaIndom(inDomVal, domains))
+            self.add_metric(pmdaName + "." + name, pmdaMetric(
+                self.pmid(0, i),
+                c_api.PM_TYPE_FLOAT, inDomVal, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+                'Test')
+
+    def read_config(self):
+        configFile = open(self.configfile)
+        self.config = json.loads(configFile.read())
+        configFile.close()
+
+    def __init__(self, name, domain):
+        PMDA.__init__(self, name, domain)
+        self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR') +  '/' + name + '/' + name + '.conf'
+        self.connection_error = False
+        self.values = {}
+        self.types = {}
+        self.indexes = {}
+        self.config = {}
+
+        self.read_config()
+        self.init_metrics()
+        self.setup_prometheus_metrics(name)     
+        
+        self.set_fetch(self.prometheus_fetch)
+        self.set_fetch_callback(self.prometheus_fetch_callback)
+
+if __name__ == '__main__':
+    PrometheusPMDA('prometheus', 421).run()
