@@ -13,4 +13,5 @@ architecture makes it especially useful for those seeking centralized
 monitoring of distributed processing.
 
 For more information and details on how to contribute to the PCP project
-visit `pcp.io<http://pcp.io/community.html>`_
+visit `pcp.io
+<http://pcp.io/community.html>`_.
