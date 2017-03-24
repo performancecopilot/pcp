@@ -19,6 +19,8 @@ more than zero and less than five archives
 more than zero and less than four reduced archives
 monitor-0 output good
 monitor-1 output good
+monitor-host-env-0 output good
+monitor-host-env-1 output good
 === ZZZ kill pmmgr ===
 === valgrind stdout ===
 === valgrind stderr ===

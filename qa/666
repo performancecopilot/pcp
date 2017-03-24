@@ -83,7 +83,7 @@ echo 'localhost6' >>$tmp.dir/target-host
 echo 'pcp://localhost6:44321/' >>$tmp.dir/target-host
 echo 0 > $tmp.dir/target-threads
 # note -v -v here is the same as -D appl0,appl1
-$_valgrind_clean_assert $PCP_BINADM_DIR/pmmgr -v -v -p 6 -l $tmp.out -c $tmp.dir >$tmp.valout 2>$tmp.valerr &
+$_valgrind_clean_assert pmmgr -v -v -p 6 -l $tmp.out -c $tmp.dir >$tmp.valout 2>$tmp.valerr &
 pid=$!
 echo "pid=$pid" >>$seq.full
 # it takes a while for valgrind to get into gear sometimes ...
@@ -209,6 +209,8 @@ echo '-t 10' >$tmp.dir/pmlogreduce  # compare to -t 2 for in /pmlogger
 echo 30sec >$tmp.dir/pmlogreduce-retain
 echo 'pcp summary' > $tmp.dir/monitor # short-lived; will be restarted periodically
 echo 'pmstat' >> $tmp.dir/monitor # long-lived
+echo 'env' >> $tmp.dir/monitor-host-env # short-lived
+echo 'pmrep :vmstat' >> $tmp.dir/monitor-host-env # long-lived
 _service pmcd start >>$seq.full 2>&1
 _wait_for_pmcd
 
@@ -238,12 +240,14 @@ else
     ls -l $tmp.dir/$hostname/reduced*.meta
 fi
 
-for n in 0 1; do
-    if [ -s $tmp.dir/$hostname/monitor-$n.out -a -f $tmp.dir/$hostname/monitor-$n.err ]; then
-        echo "monitor-$n output good"
+for m in monitor monitor-host-env; do
+  for n in 0 1; do
+    if [ -s $tmp.dir/$hostname/$m-$n.out -a -f $tmp.dir/$hostname/$m-$n.err ]; then
+        echo "$m-$n output good"
     else
-        echo "monitor-$n output bad"
+        echo "$m-$n output bad"
     fi
+  done
 done
 
 ls -lR $tmp.dir >>$seq.full # for reference
