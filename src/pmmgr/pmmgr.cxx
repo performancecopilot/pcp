@@ -957,7 +957,11 @@ pmmgr_job_spec::note_new_hostid(const pmmgr_hostid& hid, const pcp_context_spec&
 
   vector<string> lines = get_config_multi ("monitor");
   for (unsigned i=0; i<lines.size(); i++)
-    daemons.insert(make_pair(hid, new pmmgr_monitor_daemon(config_directory, lines[i], i, hid, spec)));
+    daemons.insert(make_pair(hid, new pmmgr_monitor_daemon(config_directory, lines[i], i, hid, spec, false)));
+
+  vector<string> lines2 = get_config_multi ("monitor-host-env");
+  for (unsigned i=0; i<lines2.size(); i++)
+    daemons.insert(make_pair(hid, new pmmgr_monitor_daemon(config_directory, lines2[i], i, hid, spec, true)));
 }
 
 
@@ -1034,8 +1038,9 @@ pmmgr_monitor_daemon::pmmgr_monitor_daemon(const std::string& config_directory,
                                            const std::string& config_line,
                                            unsigned config_index,
                                            const pmmgr_hostid& hostid,
-                                           const pcp_context_spec& spec):
-  pmmgr_daemon(config_directory, hostid, spec), config_line(config_line), config_index(config_index)
+                                           const pcp_context_spec& spec,
+                                           bool env_p):
+  pmmgr_daemon(config_directory, hostid, spec), config_line(config_line), config_index(config_index), env_p(env_p)
 {
 }
 
@@ -1670,10 +1675,20 @@ pmmgr_monitor_daemon::daemon_command_line()
   (void) mkdir2 (host_log_dir.c_str(), 0777);
 
   stringstream monitor_command;
-  monitor_command << config_line
-                  << " -h " << sh_quote(spec)
-                  << " >" << sh_quote(host_log_dir) << "/monitor-"  << config_index << ".out"
-                  << " 2>" << sh_quote(host_log_dir) << "/monitor-"  << config_index << ".err";
+  string output_filename;
+  if (env_p)
+    {
+      monitor_command << "env PCP_HOST=" << sh_quote(spec) << " " << config_line;
+      output_filename = "monitor-host-env";
+    }
+  else
+    {
+      monitor_command << config_line << " -h " << sh_quote(spec);
+      output_filename = "monitor";
+    }
+
+  monitor_command << " >" << sh_quote(host_log_dir) << "/" << output_filename << "-"  << config_index << ".out"
+                  << " 2>" << sh_quote(host_log_dir) << "/" << output_filename << "-"  << config_index << ".err";
 
   return monitor_command.str();
 }

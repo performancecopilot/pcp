@@ -489,7 +489,7 @@ This can enable automated invocation of reporting or relaying tools, such as
 .BR pmrep ,
 .B pcp2graphite
 or
-.B pcp2influxdb
+.B pmrep
 without needing a specialized system service.
 .TP
 .I monitor
@@ -501,6 +501,16 @@ appends a \-h HOSTSPEC, and arranges
 to collect the standard output and standard error into separate
 .BR monitor-NN.out " and " monitor-NN.err
 files under the log directory.
+.TP
+.I monitor-host-env
+If this file exists, then for each line in this file, a new background process is
+started.   It is run the same way as for
+.I monitor
+except that that the HOSTSPEC is passed through the 
+.I PCP_HOST
+environment variable instead of the \-h option, and the
+.BR monitor-host-env-NN.out " and " monitor-host-env-NN.err
+file names are used.
 .SH FILES
 .PD 0
 .TP 10
