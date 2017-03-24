@@ -95,11 +95,12 @@ protected:
 class pmmgr_monitor_daemon: public pmmgr_daemon
 {
 public:
-  pmmgr_monitor_daemon(const std::string& config_directory, const std::string& config_line, unsigned config_index,
-                       const pmmgr_hostid& hostid, const pcp_context_spec& spec);
+  pmmgr_monitor_daemon(const std::string& config_directory, const std::string& config_line,
+                       unsigned config_index, const pmmgr_hostid& hostid, const pcp_context_spec& spec, bool env_p);
 protected:
   std::string config_line;
   unsigned config_index;
+  bool env_p;
   std::string daemon_command_line();
 };
 
