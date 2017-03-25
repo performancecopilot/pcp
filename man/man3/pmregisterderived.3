@@ -377,7 +377,11 @@ The following unary functions operate on a single performance metric
 and return one or more values.
 For all functions (except
 .ft CW
-count()
+count()\c
+.ft R
+,
+.ft CW
+defined()
 .ft R
 and
 .ft CW
@@ -405,6 +409,23 @@ As a special case, if fetching the metric x returns an error, then
 count(x)
 .ft R
 will be 0.
+T}
+_
+defined(x)	T{
+.fi
+A boolean value that is true (``1'') if the metric
+.ft CW
+x
+.ft R
+is defined in the PMNS, else false (``0'').
+The function is evaluated when a new PMAPI context
+is created with
+.BR pmNewContext (3)
+or re-established with
+.BR pmReconnectContext (3).
+So any subsequent changes to the PMNS after the PMAPI
+context has been established will not change the value
+of this function in the expression evaluation.
 T}
 _
 delta(x)	T{
