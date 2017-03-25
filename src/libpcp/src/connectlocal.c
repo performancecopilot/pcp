@@ -438,7 +438,7 @@ connected:
 		dp->dispatch.comm.pmda_interface > PMDA_INTERFACE_LATEST) {
 		pmprintf("__pmConnectLocal: Error: Unknown PMDA interface "
 			 "version %d in \"%s\" DSO\n", 
-			 dp->dispatch.comm.pmda_interface, path);
+			 dp->dispatch.comm.pmda_interface, dp->name);
 		pmflush();
 		dlclose(dp->handle);
 		dp->domain = -1;
@@ -446,7 +446,7 @@ connected:
 	    else if (dp->dispatch.comm.pmapi_version != PMAPI_VERSION_2) {
 		pmprintf("__pmConnectLocal: Error: Unknown PMAPI version %d "
 			 "in \"%s\" DSO\n",
-			 dp->dispatch.comm.pmapi_version, path);
+			 dp->dispatch.comm.pmapi_version, dp->name);
 		pmflush();
 		dlclose(dp->handle);
 		dp->domain = -1;
