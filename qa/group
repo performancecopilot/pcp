@@ -1310,6 +1310,7 @@ oldversion
 1063 derive local
 1064 derive local
 1065 libpcp valgrind local
+1066 derive valgrind local
 1067 zabbix zbxpcp local
 1068 pmrep python zabbix local
 1069 pmrep python local timezone
