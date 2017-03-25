@@ -367,11 +367,35 @@ free_expr(node_t *np)
     /* value is only allocated once for the static nodes */
     if (np->info == NULL && np->value != NULL) {
 	free(np->value);
-	np->value = NULL;
+    }
+    else if (np->type == N_DEFINED) {
+	/* value is strdup'd, but info is not NULL */
+	free(np->value);
     }
     if (np->info != NULL) {
+	/* N_INSTANT nodes copy the left ivlist pointeer */
+	if (np->info->ivlist != NULL && np->type != N_INSTANT) {
+	    if (np->desc.type == PM_TYPE_STRING) {
+		int	j;
+		for (j = 0; j < np->info->numval; j++) {
+		    if (np->info->ivlist[j].value.cp != NULL)
+			free(np->info->ivlist[j].value.cp);
+		}
+	    }
+	    free(np->info->ivlist);
+	}
+	if (np->info->last_ivlist != NULL) {
+	    if (np->desc.type == PM_TYPE_STRING) {
+		int	j;
+		for (j = 0; j < np->info->last_numval; j++) {
+		    if (np->info->last_ivlist[j].value.cp != NULL) {
+			free(np->info->last_ivlist[j].value.cp);
+		    }
+		}
+	    }
+	    free(np->info->last_ivlist);
+	}
     	free(np->info);
-	np->info = NULL;
     }
     free(np);
 }
@@ -381,21 +405,28 @@ free_expr(node_t *np)
  * expression tree and initialize the info block
  */
 static node_t *
-bind_expr(int n, node_t *np)
+bind_expr(int n, node_t *np, int lookup_err_ok)
 {
     node_t	*new;
 
     assert(np != NULL);
     new = newnode(np->type);
     if (np->left != NULL) {
-	if ((new->left = bind_expr(n, np->left)) == NULL) {
+	/*
+	 * defined(name) is special ... 
+	 */
+	if (np->type == N_DEFINED)
+	    new->left = bind_expr(n, np->left, 1);
+	else
+	    new->left = bind_expr(n, np->left, 0);
+	if (new->left == NULL) {
 	    /* error, reported deeper in the recursion, clean up */
 	    free_expr(new);
 	    return(NULL);
 	}
     }
     if (np->right != NULL) {
-	if ((new->right = bind_expr(n, np->right)) == NULL) {
+	if ((new->right = bind_expr(n, np->right, 0)) == NULL) {
 	    /* error, reported deeper in the recursion, clean up */
 	    free_expr(new);
 	    return(NULL);
@@ -423,6 +454,7 @@ bind_expr(int n, node_t *np)
 	new->info = NULL;
     }
 
+    /* TODO ... need to investigate this for N_SCALE nodes! */
     /* need info to be non-null to protect copy of value in free_expr */
     new->value = np->value;
 
@@ -433,6 +465,11 @@ bind_expr(int n, node_t *np)
 
 	sts = pmLookupName(1, &new->value, &new->info->pmid);
 	if (sts < 0) {
+	    if (lookup_err_ok) {
+		/* derived(x) -> false case */
+		new->info->pmid = PM_ID_NULL;
+		return new;
+	    }
 #ifdef PCP_DEBUG
 	    if (pmDebug & DBG_TRACE_DERIVE) {
 		char	errmsg[PM_MAXERRMSGLEN];
@@ -997,11 +1034,42 @@ check_expr(int n, node_t *np)
         np->type == N_SCALE)
 	return 0;
 
+    if (np->type == N_DEFINED) {
+	if ((np->info->ivlist = (val_t *)malloc(sizeof(val_t))) == NULL) {
+	    __pmNoMem("check_expr: defined ivlist", sizeof(val_t), PM_FATAL_ERR);
+	    /*NOTREACHED*/
+	}
+	np->info->numval = 1;
+	np->info->ivlist[0].inst = PM_IN_NULL;
+	if (np->left->info->pmid == PM_ID_NULL) {
+	    /* defined(x) is false */
+	    np->info->ivlist[0].value.ul = 0;
+	}
+	else {
+	    /* defined(x) is true */
+	    np->info->ivlist[0].value.ul = 1;
+	}
+	np->info->pmid = np->desc.pmid = PM_ID_NULL;
+	np->desc.type = PM_TYPE_U32;
+	np->desc.indom = PM_INDOM_NULL;
+	np->desc.sem = PM_SEM_DISCRETE;
+	np->desc.units = noUnits;
+	np->value = strdup(np->left->value);
+	/*
+	 * don't need metric name any more and do not need to fetch it
+	 * again ...
+	 */
+	free_expr(np->left);
+	np->left = NULL;
+	return 0;
+    }
+
     /* otherwise, np->left is never NULL ... */
     assert(np->left != NULL);
 
     if ((sts = check_expr(n, np->left)) < 0)
 	return sts;
+
     if (np->right != NULL) {
 	if ((sts = check_expr(n, np->right)) < 0)
 	    return sts;
@@ -1976,7 +2044,7 @@ __dmopencontext(__pmContext *ctxp)
 	    }
 	}
 	/* failures must be reported in bind_expr() or below */
-	cp->mlist[i].expr = bind_expr(i, registered.mlist[i].expr);
+	cp->mlist[i].expr = bind_expr(i, registered.mlist[i].expr, 0);
 	if (cp->mlist[i].expr != NULL) {
 	    /* failures must be reported in check_expr() or below */
 	    sts = check_expr(i, cp->mlist[i].expr);
@@ -2389,6 +2457,7 @@ spec	: L_TYPE L_ASSIGN specval
 		      derive_error(NULL);
 		      return -1;
 		  }
+		  free($3);
 		  $$ = specdesc;
 		}
 	| L_SEMANTICS L_ASSIGN specval
@@ -2403,6 +2472,7 @@ spec	: L_TYPE L_ASSIGN specval
 		      derive_error(NULL);
 		      return -1;
 		  }
+		  free($3);
 		  $$ = specdesc;
 		}
 	| L_UNITS L_ASSIGN specval
@@ -2418,6 +2488,7 @@ spec	: L_TYPE L_ASSIGN specval
 		      derive_error(NULL);
 		      return -1;
 		  }
+		  free($3);
 		  $$ = specdesc;
 		}
 	;
@@ -2506,6 +2577,12 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		  np->left->value = $3;
 		  $$ = np;
 		}
+	| L_DEFINED L_LPAREN L_NAME L_RPAREN
+		{ np = newnode(N_DEFINED);
+		  np->left = newnode(N_NAME);
+		  np->left->value = $3;
+		  $$ = np;
+		}
 	| L_RESCALE L_LPAREN expr L_COMMA L_STRING L_RPAREN
 		{ double		mult;
 		  struct pmUnits	units;
@@ -2520,6 +2597,7 @@ func	: L_ANON L_LPAREN L_NAME L_RPAREN
 		  }
 		  np->right = newnode(N_SCALE);
 		  np->right->desc.units = units;	/* struct assign */
+		  free($5);
 		  $$ = np;
 		}
 	| L_ANON L_LPAREN error

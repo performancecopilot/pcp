@@ -654,7 +654,8 @@ eval_expr(node_t *np, pmResult *rp, int level)
 
     /* mostly, np->left is not NULL ... */
     assert (np->type == N_INTEGER || np->type == N_DOUBLE ||
-            np->type == N_NAME || np->type == N_SCALE || np->left != NULL);
+            np->type == N_NAME || np->type == N_SCALE ||
+	    np->type == N_DEFINED || np->left != NULL);
 
     switch (np->type) {
 
@@ -1377,6 +1378,10 @@ eval_expr(node_t *np, pmResult *rp, int level)
 	    }
 #endif
 	    return PM_ERR_PMID;
+
+	case N_DEFINED:
+	    /* already setup from check_expr(), nothing to do ... */
+	    return np->info->numval;
 
 	case N_ANON:
 	    /* no values available for anonymous metrics */
