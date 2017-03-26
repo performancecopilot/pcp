@@ -2222,32 +2222,32 @@ defn	: expr L_EOS
 		{ parse_tree = $$; YYACCEPT;  }
 
 	/* error reporting for trailing operators */
-	| expr L_PLUS
+	| expr L_PLUS error
 		{ gramerr(unexpected_str, NULL, "+"); YYERROR; }
 	/* not L_MINUS */
-	| expr L_STAR
+	| expr L_STAR error
 		{ gramerr(unexpected_str, NULL, "*"); YYERROR; }
-	| expr L_SLASH
+	| expr L_SLASH error
 		{ gramerr(unexpected_str, NULL, "/"); YYERROR; }
-	| expr L_LPAREN
+	| expr L_LPAREN error
 		{ gramerr(unexpected_str, NULL, "("); YYERROR; }
-	| expr L_RPAREN
+	| expr L_RPAREN error
 		{ gramerr(unexpected_str, NULL, ")"); YYERROR; }
-	| expr L_LT
+	| expr L_LT error
 		{ gramerr(unexpected_str, NULL, "<"); YYERROR; }
-	| expr L_LEQ
+	| expr L_LEQ error
 		{ gramerr(unexpected_str, NULL, "<="); YYERROR; }
-	| expr L_EQ
+	| expr L_EQ error
 		{ gramerr(unexpected_str, NULL, "=="); YYERROR; }
-	| expr L_GEQ
+	| expr L_GEQ error
 		{ gramerr(unexpected_str, NULL, ">="); YYERROR; }
-	| expr L_GT
+	| expr L_GT error
 		{ gramerr(unexpected_str, NULL, ">"); YYERROR; }
-	| expr L_NEQ
+	| expr L_NEQ error
 		{ gramerr(unexpected_str, NULL, "!="); YYERROR; }
-	| expr L_AND
+	| expr L_AND error
 		{ gramerr(unexpected_str, NULL, "&&"); YYERROR; }
-	| expr L_OR
+	| expr L_OR error
 		{ gramerr(unexpected_str, NULL, "||"); YYERROR; }
 	/* not L_NOT */
 

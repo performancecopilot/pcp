@@ -1212,7 +1212,7 @@ oldversion
 965 derive local
 966 secure local
 967 pmda.papi local
-968 python local
+968 python local derive
 969 derive local
 970 pmclient archive multi-archive local sanity
 971 pmlogrewrite pmda.proc local

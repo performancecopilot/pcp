@@ -481,6 +481,7 @@ derive_lex() -> type=L_PLUS "+"
 derive_lex() -> type=L_NAME "pmcd.pdu_out.total"
 derive_lex() -> type=L_RPAREN ")"
 derive_lex() -> type=L_RPAREN ")"
+derive_lex() -> type=L_EOS ""
 [TMP.config:12] Error: pmRegisterDerived(myname.g, ...) syntax error
   pmcd.pdu_in.total / ( pmcd.pdu_in.total + pmcd.pdu_out.total ) )
                                                                  ^
@@ -583,9 +584,10 @@ Unexpected initial '/'
 pmRegisterDerived: name="myname.bad.a" expr="rat(disk.dev.read)"
 derive_lex() -> type=L_NAME "rat"
 derive_lex() -> type=L_LPAREN "("
+derive_lex() -> type=L_NAME "disk.dev.read"
 [TMP.config:27] Error: pmRegisterDerived(myname.bad.a, ...) syntax error
  rat(disk.dev.read)
-    ^              
+     ^             
 Unexpected '('
 pmRegisterDerived: name="myname.bad.b" expr="*"
 derive_lex() -> type=L_STAR "*"
