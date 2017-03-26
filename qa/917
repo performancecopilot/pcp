@@ -47,11 +47,11 @@ _filter_outfile()
 	   !/container_runtime_t/ ;
 	else if (nsfs_t == "" && /nsfs_t/)
 	   !/nsfs_t/ ;
-    	if (docker_var_lib_t == "" && /docker_var_lib_t/)
+    	else if (docker_var_lib_t == "" && /docker_var_lib_t/)
 	   !/docker_var_lib_t/ ;
 	else
 	   print;
-    }' > $seq.out
+    }'
 }
 
 status=1	# failure is the default!
@@ -59,7 +59,7 @@ $sudo rm -rf $tmp $tmp.* $seq.full
 trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 echo > $seq.full
 
-cat $seq.out.in | _filter_outfile
+cat $seq.out.in | _filter_outfile > $seq.out
 
 echo "full policy modules list on the system"
 $sudo semodule -l >> $seq.full
