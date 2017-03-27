@@ -91,9 +91,10 @@ MetricDetailsWindow::setupTable(Chart *chart)
 		twItem = new TableWidgetItem(itemStr);
 	    tableWidget->setItem(row, valueColumn(), twItem);
 
-	    // The time of the sample
-	    Q_ASSERT(dataStr.left(3) == "at ");
-	    dataStr.remove(0, 3);
+	    // The time of the sample -- located after "at " in the data string.
+	    int atIx = dataStr.indexOf("at ");
+	    Q_ASSERT(atIx != -1);
+	    dataStr.remove(0, atIx + 3);
 	    dataEnd = dataStr.indexOf(']');
 	    Q_ASSERT(dataEnd != -1);
 	    itemStr = dataStr.left(dataEnd);
