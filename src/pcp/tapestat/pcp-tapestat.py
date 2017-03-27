@@ -201,24 +201,24 @@ class TapestatReport(pmcc.MetricGroupPrinter):
                 # basic stats
                 r = (c_r[inst] - p_r[inst]) / dt
                 w = (c_w[inst] - p_w[inst]) / dt
-                rkb = (c_rkb[inst] - p_rkb[inst]) / dt / 1000 # bytes to kb
-                wkb = (c_wkb[inst] - p_wkb[inst]) / dt / 1000
+                rkb = (c_rkb[inst] - p_rkb[inst]) / dt / 1000.0 # bytes to kb
+                wkb = (c_wkb[inst] - p_wkb[inst]) / dt / 1000.0
                
                 
                 #calculate and convert from nano seconds
-                rpw = 100 * (c_rpw[inst] - p_rpw[inst])/ 1000000000 / dt
-                wpw = 100 * (c_wpw[inst] - p_wpw[inst]) / 1000000000 / dt
+                rpw = 100 * (c_rpw[inst] - p_rpw[inst])/ 10.0**9 / dt
+                wpw = 100 * (c_wpw[inst] - p_wpw[inst]) / 10.0**9 / dt
    
                 actual_rpw = rpw 
                 actual_wpw = wpw 
 
-                opw = 100 * (c_opw[inst] - p_opw[inst]) / 1000000000 / dt
+                opw = 100 * (c_opw[inst] - p_opw[inst]) / 10.0**9 / dt
                 actual_opw = opw 
  
-                resid_cnt = (c_resid[inst] - p_resid[inst]) / dt / 1000
+                resid_cnt = (c_resid[inst] - p_resid[inst]) / dt / 1000.0
  
                 #The  number of I/Os, expressed as the number per second averaged over the interval, that were included as "other" is o_cnt
-                o_cnt = (c_other[inst] - p_other[inst]) / dt / 1000
+                o_cnt = (c_other[inst] - p_other[inst]) / dt / 1000.0
 
 
                 device = inst   # prepare name for printing
