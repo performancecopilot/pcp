@@ -8,7 +8,6 @@ pmlogger_daily: Error: no pmlogger instance running for host "local:"
 [TMP.control:5] ... logging for host "local:" unchanged
 
 pmlogger_daily: Warning: no archives found to merge
-pmlogger:
 mode=drwxr-xr-x user=pcp group=pcp name=myhost
 
 pmlogger/myhost:
