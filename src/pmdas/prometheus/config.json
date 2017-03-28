@@ -1,0 +1,5827 @@
+{
+  "endpoint": "http://localhost:9090/metrics", 
+  "metrics": [
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "quantile=\"0\""
+          ], 
+          "name": "quantile=\"0\"", 
+          "prometheus_name": "go_gc_duration_seconds{quantile=\"0\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "quantile=\"0.25\""
+          ], 
+          "name": "quantile=\"0.25\"", 
+          "prometheus_name": "go_gc_duration_seconds{quantile=\"0.25\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "quantile=\"0.5\""
+          ], 
+          "name": "quantile=\"0.5\"", 
+          "prometheus_name": "go_gc_duration_seconds{quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "quantile=\"0.75\""
+          ], 
+          "name": "quantile=\"0.75\"", 
+          "prometheus_name": "go_gc_duration_seconds{quantile=\"0.75\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "quantile=\"1\""
+          ], 
+          "name": "quantile=\"1\"", 
+          "prometheus_name": "go_gc_duration_seconds{quantile=\"1\"}"
+        }
+      ], 
+      "name": "go_gc_duration_seconds", 
+      "pmid": [
+        0, 
+        0
+      ], 
+      "prometheus_name": "go_gc_duration_seconds{quantile=\"0\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_gc_duration_seconds_sum", 
+      "pmid": [
+        0, 
+        1
+      ], 
+      "prometheus_name": "go_gc_duration_seconds_sum", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_gc_duration_seconds_count", 
+      "pmid": [
+        0, 
+        2
+      ], 
+      "prometheus_name": "go_gc_duration_seconds_count", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_goroutines", 
+      "pmid": [
+        0, 
+        3
+      ], 
+      "prometheus_name": "go_goroutines", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_alloc_bytes", 
+      "pmid": [
+        0, 
+        4
+      ], 
+      "prometheus_name": "go_memstats_alloc_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_alloc_bytes_total", 
+      "pmid": [
+        0, 
+        5
+      ], 
+      "prometheus_name": "go_memstats_alloc_bytes_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_buck_hash_sys_bytes", 
+      "pmid": [
+        0, 
+        6
+      ], 
+      "prometheus_name": "go_memstats_buck_hash_sys_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_frees_total", 
+      "pmid": [
+        0, 
+        7
+      ], 
+      "prometheus_name": "go_memstats_frees_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_gc_sys_bytes", 
+      "pmid": [
+        0, 
+        8
+      ], 
+      "prometheus_name": "go_memstats_gc_sys_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_heap_alloc_bytes", 
+      "pmid": [
+        0, 
+        9
+      ], 
+      "prometheus_name": "go_memstats_heap_alloc_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_heap_idle_bytes", 
+      "pmid": [
+        0, 
+        10
+      ], 
+      "prometheus_name": "go_memstats_heap_idle_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_heap_inuse_bytes", 
+      "pmid": [
+        0, 
+        11
+      ], 
+      "prometheus_name": "go_memstats_heap_inuse_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_heap_objects", 
+      "pmid": [
+        0, 
+        12
+      ], 
+      "prometheus_name": "go_memstats_heap_objects", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_heap_released_bytes_total", 
+      "pmid": [
+        0, 
+        13
+      ], 
+      "prometheus_name": "go_memstats_heap_released_bytes_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_heap_sys_bytes", 
+      "pmid": [
+        0, 
+        14
+      ], 
+      "prometheus_name": "go_memstats_heap_sys_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_last_gc_time_seconds", 
+      "pmid": [
+        0, 
+        15
+      ], 
+      "prometheus_name": "go_memstats_last_gc_time_seconds", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_lookups_total", 
+      "pmid": [
+        0, 
+        16
+      ], 
+      "prometheus_name": "go_memstats_lookups_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_mallocs_total", 
+      "pmid": [
+        0, 
+        17
+      ], 
+      "prometheus_name": "go_memstats_mallocs_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_mcache_inuse_bytes", 
+      "pmid": [
+        0, 
+        18
+      ], 
+      "prometheus_name": "go_memstats_mcache_inuse_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_mcache_sys_bytes", 
+      "pmid": [
+        0, 
+        19
+      ], 
+      "prometheus_name": "go_memstats_mcache_sys_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_mspan_inuse_bytes", 
+      "pmid": [
+        0, 
+        20
+      ], 
+      "prometheus_name": "go_memstats_mspan_inuse_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_mspan_sys_bytes", 
+      "pmid": [
+        0, 
+        21
+      ], 
+      "prometheus_name": "go_memstats_mspan_sys_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_next_gc_bytes", 
+      "pmid": [
+        0, 
+        22
+      ], 
+      "prometheus_name": "go_memstats_next_gc_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_other_sys_bytes", 
+      "pmid": [
+        0, 
+        23
+      ], 
+      "prometheus_name": "go_memstats_other_sys_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_stack_inuse_bytes", 
+      "pmid": [
+        0, 
+        24
+      ], 
+      "prometheus_name": "go_memstats_stack_inuse_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_stack_sys_bytes", 
+      "pmid": [
+        0, 
+        25
+      ], 
+      "prometheus_name": "go_memstats_stack_sys_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "go_memstats_sys_bytes", 
+      "pmid": [
+        0, 
+        26
+      ], 
+      "prometheus_name": "go_memstats_sys_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "handler=\"alertmanagers\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"alertmanagers\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"alertmanagers\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "handler=\"alertmanagers\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"alertmanagers\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"alertmanagers\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "handler=\"alertmanagers\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"alertmanagers\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"alertmanagers\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "handler=\"alerts\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"alerts\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"alerts\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "handler=\"alerts\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"alerts\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"alerts\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "handler=\"alerts\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"alerts\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"alerts\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            6, 
+            "handler=\"config\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"config\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"config\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            7, 
+            "handler=\"config\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"config\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"config\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            8, 
+            "handler=\"config\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"config\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"config\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            9, 
+            "handler=\"consoles\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"consoles\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"consoles\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            10, 
+            "handler=\"consoles\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"consoles\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"consoles\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            11, 
+            "handler=\"consoles\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"consoles\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"consoles\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            12, 
+            "handler=\"drop_series\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"drop_series\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"drop_series\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            13, 
+            "handler=\"drop_series\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"drop_series\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"drop_series\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            14, 
+            "handler=\"drop_series\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"drop_series\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"drop_series\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            15, 
+            "handler=\"federate\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"federate\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"federate\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            16, 
+            "handler=\"federate\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"federate\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"federate\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            17, 
+            "handler=\"federate\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"federate\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"federate\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            18, 
+            "handler=\"flags\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"flags\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"flags\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            19, 
+            "handler=\"flags\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"flags\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"flags\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            20, 
+            "handler=\"flags\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"flags\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"flags\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            21, 
+            "handler=\"graph\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"graph\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"graph\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            22, 
+            "handler=\"graph\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"graph\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"graph\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            23, 
+            "handler=\"graph\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"graph\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"graph\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            24, 
+            "handler=\"heap\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"heap\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"heap\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            25, 
+            "handler=\"heap\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"heap\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"heap\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            26, 
+            "handler=\"heap\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"heap\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"heap\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            27, 
+            "handler=\"label_values\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"label_values\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"label_values\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            28, 
+            "handler=\"label_values\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"label_values\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"label_values\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            29, 
+            "handler=\"label_values\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"label_values\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"label_values\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            30, 
+            "handler=\"options\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"options\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"options\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            31, 
+            "handler=\"options\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"options\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"options\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            32, 
+            "handler=\"options\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"options\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"options\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            33, 
+            "handler=\"prometheus\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"prometheus\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"prometheus\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            34, 
+            "handler=\"prometheus\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"prometheus\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"prometheus\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            35, 
+            "handler=\"prometheus\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"prometheus\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"prometheus\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            36, 
+            "handler=\"query\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"query\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"query\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            37, 
+            "handler=\"query\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"query\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"query\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            38, 
+            "handler=\"query\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"query\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"query\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            39, 
+            "handler=\"query_range\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"query_range\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"query_range\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            40, 
+            "handler=\"query_range\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"query_range\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"query_range\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            41, 
+            "handler=\"query_range\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"query_range\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"query_range\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            42, 
+            "handler=\"rules\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"rules\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"rules\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            43, 
+            "handler=\"rules\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"rules\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"rules\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            44, 
+            "handler=\"rules\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"rules\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"rules\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            45, 
+            "handler=\"series\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"series\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"series\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            46, 
+            "handler=\"series\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"series\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"series\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            47, 
+            "handler=\"series\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"series\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"series\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            48, 
+            "handler=\"static\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"static\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"static\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            49, 
+            "handler=\"static\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"static\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"static\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            50, 
+            "handler=\"static\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"static\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"static\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            51, 
+            "handler=\"status\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"status\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"status\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            52, 
+            "handler=\"status\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"status\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"status\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            53, 
+            "handler=\"status\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"status\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"status\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            54, 
+            "handler=\"targets\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"targets\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"targets\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            55, 
+            "handler=\"targets\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"targets\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"targets\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            56, 
+            "handler=\"targets\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"targets\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"targets\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            57, 
+            "handler=\"version\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"version\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"version\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            58, 
+            "handler=\"version\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"version\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"version\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            59, 
+            "handler=\"version\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"version\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_duration_microseconds{handler=\"version\",quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "http_request_duration_microseconds", 
+      "pmid": [
+        0, 
+        27
+      ], 
+      "prometheus_name": "http_request_duration_microseconds{handler=\"alertmanagers\",quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "handler=\"alertmanagers\""
+          ], 
+          "name": "handler=\"alertmanagers\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"alertmanagers\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "handler=\"alerts\""
+          ], 
+          "name": "handler=\"alerts\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"alerts\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "handler=\"config\""
+          ], 
+          "name": "handler=\"config\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"config\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "handler=\"consoles\""
+          ], 
+          "name": "handler=\"consoles\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"consoles\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "handler=\"drop_series\""
+          ], 
+          "name": "handler=\"drop_series\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"drop_series\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "handler=\"federate\""
+          ], 
+          "name": "handler=\"federate\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"federate\"}"
+        }, 
+        {
+          "instId": [
+            6, 
+            "handler=\"flags\""
+          ], 
+          "name": "handler=\"flags\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"flags\"}"
+        }, 
+        {
+          "instId": [
+            7, 
+            "handler=\"graph\""
+          ], 
+          "name": "handler=\"graph\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"graph\"}"
+        }, 
+        {
+          "instId": [
+            8, 
+            "handler=\"heap\""
+          ], 
+          "name": "handler=\"heap\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"heap\"}"
+        }, 
+        {
+          "instId": [
+            9, 
+            "handler=\"label_values\""
+          ], 
+          "name": "handler=\"label_values\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"label_values\"}"
+        }, 
+        {
+          "instId": [
+            10, 
+            "handler=\"options\""
+          ], 
+          "name": "handler=\"options\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"options\"}"
+        }, 
+        {
+          "instId": [
+            11, 
+            "handler=\"prometheus\""
+          ], 
+          "name": "handler=\"prometheus\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"prometheus\"}"
+        }, 
+        {
+          "instId": [
+            12, 
+            "handler=\"query\""
+          ], 
+          "name": "handler=\"query\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"query\"}"
+        }, 
+        {
+          "instId": [
+            13, 
+            "handler=\"query_range\""
+          ], 
+          "name": "handler=\"query_range\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"query_range\"}"
+        }, 
+        {
+          "instId": [
+            14, 
+            "handler=\"rules\""
+          ], 
+          "name": "handler=\"rules\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"rules\"}"
+        }, 
+        {
+          "instId": [
+            15, 
+            "handler=\"series\""
+          ], 
+          "name": "handler=\"series\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"series\"}"
+        }, 
+        {
+          "instId": [
+            16, 
+            "handler=\"static\""
+          ], 
+          "name": "handler=\"static\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"static\"}"
+        }, 
+        {
+          "instId": [
+            17, 
+            "handler=\"status\""
+          ], 
+          "name": "handler=\"status\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"status\"}"
+        }, 
+        {
+          "instId": [
+            18, 
+            "handler=\"targets\""
+          ], 
+          "name": "handler=\"targets\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"targets\"}"
+        }, 
+        {
+          "instId": [
+            19, 
+            "handler=\"version\""
+          ], 
+          "name": "handler=\"version\"", 
+          "prometheus_name": "http_request_duration_microseconds_sum{handler=\"version\"}"
+        }
+      ], 
+      "name": "http_request_duration_microseconds_sum", 
+      "pmid": [
+        0, 
+        28
+      ], 
+      "prometheus_name": "http_request_duration_microseconds_sum{handler=\"alertmanagers\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "handler=\"alertmanagers\""
+          ], 
+          "name": "handler=\"alertmanagers\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"alertmanagers\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "handler=\"alerts\""
+          ], 
+          "name": "handler=\"alerts\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"alerts\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "handler=\"config\""
+          ], 
+          "name": "handler=\"config\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"config\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "handler=\"consoles\""
+          ], 
+          "name": "handler=\"consoles\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"consoles\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "handler=\"drop_series\""
+          ], 
+          "name": "handler=\"drop_series\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"drop_series\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "handler=\"federate\""
+          ], 
+          "name": "handler=\"federate\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"federate\"}"
+        }, 
+        {
+          "instId": [
+            6, 
+            "handler=\"flags\""
+          ], 
+          "name": "handler=\"flags\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"flags\"}"
+        }, 
+        {
+          "instId": [
+            7, 
+            "handler=\"graph\""
+          ], 
+          "name": "handler=\"graph\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"graph\"}"
+        }, 
+        {
+          "instId": [
+            8, 
+            "handler=\"heap\""
+          ], 
+          "name": "handler=\"heap\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"heap\"}"
+        }, 
+        {
+          "instId": [
+            9, 
+            "handler=\"label_values\""
+          ], 
+          "name": "handler=\"label_values\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"label_values\"}"
+        }, 
+        {
+          "instId": [
+            10, 
+            "handler=\"options\""
+          ], 
+          "name": "handler=\"options\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"options\"}"
+        }, 
+        {
+          "instId": [
+            11, 
+            "handler=\"prometheus\""
+          ], 
+          "name": "handler=\"prometheus\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"prometheus\"}"
+        }, 
+        {
+          "instId": [
+            12, 
+            "handler=\"query\""
+          ], 
+          "name": "handler=\"query\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"query\"}"
+        }, 
+        {
+          "instId": [
+            13, 
+            "handler=\"query_range\""
+          ], 
+          "name": "handler=\"query_range\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"query_range\"}"
+        }, 
+        {
+          "instId": [
+            14, 
+            "handler=\"rules\""
+          ], 
+          "name": "handler=\"rules\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"rules\"}"
+        }, 
+        {
+          "instId": [
+            15, 
+            "handler=\"series\""
+          ], 
+          "name": "handler=\"series\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"series\"}"
+        }, 
+        {
+          "instId": [
+            16, 
+            "handler=\"static\""
+          ], 
+          "name": "handler=\"static\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"static\"}"
+        }, 
+        {
+          "instId": [
+            17, 
+            "handler=\"status\""
+          ], 
+          "name": "handler=\"status\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"status\"}"
+        }, 
+        {
+          "instId": [
+            18, 
+            "handler=\"targets\""
+          ], 
+          "name": "handler=\"targets\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"targets\"}"
+        }, 
+        {
+          "instId": [
+            19, 
+            "handler=\"version\""
+          ], 
+          "name": "handler=\"version\"", 
+          "prometheus_name": "http_request_duration_microseconds_count{handler=\"version\"}"
+        }
+      ], 
+      "name": "http_request_duration_microseconds_count", 
+      "pmid": [
+        0, 
+        29
+      ], 
+      "prometheus_name": "http_request_duration_microseconds_count{handler=\"alertmanagers\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "handler=\"alertmanagers\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"alertmanagers\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"alertmanagers\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "handler=\"alertmanagers\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"alertmanagers\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"alertmanagers\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "handler=\"alertmanagers\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"alertmanagers\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"alertmanagers\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "handler=\"alerts\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"alerts\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"alerts\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "handler=\"alerts\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"alerts\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"alerts\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "handler=\"alerts\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"alerts\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"alerts\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            6, 
+            "handler=\"config\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"config\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"config\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            7, 
+            "handler=\"config\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"config\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"config\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            8, 
+            "handler=\"config\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"config\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"config\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            9, 
+            "handler=\"consoles\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"consoles\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"consoles\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            10, 
+            "handler=\"consoles\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"consoles\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"consoles\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            11, 
+            "handler=\"consoles\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"consoles\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"consoles\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            12, 
+            "handler=\"drop_series\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"drop_series\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"drop_series\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            13, 
+            "handler=\"drop_series\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"drop_series\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"drop_series\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            14, 
+            "handler=\"drop_series\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"drop_series\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"drop_series\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            15, 
+            "handler=\"federate\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"federate\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"federate\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            16, 
+            "handler=\"federate\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"federate\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"federate\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            17, 
+            "handler=\"federate\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"federate\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"federate\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            18, 
+            "handler=\"flags\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"flags\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"flags\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            19, 
+            "handler=\"flags\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"flags\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"flags\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            20, 
+            "handler=\"flags\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"flags\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"flags\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            21, 
+            "handler=\"graph\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"graph\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"graph\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            22, 
+            "handler=\"graph\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"graph\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"graph\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            23, 
+            "handler=\"graph\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"graph\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"graph\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            24, 
+            "handler=\"heap\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"heap\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"heap\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            25, 
+            "handler=\"heap\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"heap\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"heap\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            26, 
+            "handler=\"heap\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"heap\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"heap\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            27, 
+            "handler=\"label_values\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"label_values\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"label_values\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            28, 
+            "handler=\"label_values\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"label_values\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"label_values\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            29, 
+            "handler=\"label_values\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"label_values\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"label_values\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            30, 
+            "handler=\"options\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"options\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"options\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            31, 
+            "handler=\"options\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"options\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"options\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            32, 
+            "handler=\"options\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"options\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"options\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            33, 
+            "handler=\"prometheus\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"prometheus\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"prometheus\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            34, 
+            "handler=\"prometheus\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"prometheus\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"prometheus\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            35, 
+            "handler=\"prometheus\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"prometheus\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"prometheus\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            36, 
+            "handler=\"query\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"query\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"query\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            37, 
+            "handler=\"query\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"query\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"query\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            38, 
+            "handler=\"query\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"query\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"query\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            39, 
+            "handler=\"query_range\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"query_range\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"query_range\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            40, 
+            "handler=\"query_range\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"query_range\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"query_range\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            41, 
+            "handler=\"query_range\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"query_range\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"query_range\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            42, 
+            "handler=\"rules\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"rules\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"rules\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            43, 
+            "handler=\"rules\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"rules\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"rules\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            44, 
+            "handler=\"rules\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"rules\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"rules\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            45, 
+            "handler=\"series\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"series\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"series\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            46, 
+            "handler=\"series\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"series\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"series\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            47, 
+            "handler=\"series\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"series\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"series\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            48, 
+            "handler=\"static\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"static\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"static\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            49, 
+            "handler=\"static\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"static\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"static\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            50, 
+            "handler=\"static\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"static\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"static\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            51, 
+            "handler=\"status\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"status\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"status\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            52, 
+            "handler=\"status\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"status\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"status\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            53, 
+            "handler=\"status\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"status\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"status\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            54, 
+            "handler=\"targets\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"targets\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"targets\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            55, 
+            "handler=\"targets\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"targets\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"targets\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            56, 
+            "handler=\"targets\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"targets\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"targets\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            57, 
+            "handler=\"version\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"version\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"version\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            58, 
+            "handler=\"version\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"version\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"version\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            59, 
+            "handler=\"version\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"version\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_request_size_bytes{handler=\"version\",quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "http_request_size_bytes", 
+      "pmid": [
+        0, 
+        30
+      ], 
+      "prometheus_name": "http_request_size_bytes{handler=\"alertmanagers\",quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "handler=\"alertmanagers\""
+          ], 
+          "name": "handler=\"alertmanagers\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"alertmanagers\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "handler=\"alerts\""
+          ], 
+          "name": "handler=\"alerts\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"alerts\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "handler=\"config\""
+          ], 
+          "name": "handler=\"config\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"config\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "handler=\"consoles\""
+          ], 
+          "name": "handler=\"consoles\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"consoles\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "handler=\"drop_series\""
+          ], 
+          "name": "handler=\"drop_series\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"drop_series\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "handler=\"federate\""
+          ], 
+          "name": "handler=\"federate\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"federate\"}"
+        }, 
+        {
+          "instId": [
+            6, 
+            "handler=\"flags\""
+          ], 
+          "name": "handler=\"flags\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"flags\"}"
+        }, 
+        {
+          "instId": [
+            7, 
+            "handler=\"graph\""
+          ], 
+          "name": "handler=\"graph\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"graph\"}"
+        }, 
+        {
+          "instId": [
+            8, 
+            "handler=\"heap\""
+          ], 
+          "name": "handler=\"heap\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"heap\"}"
+        }, 
+        {
+          "instId": [
+            9, 
+            "handler=\"label_values\""
+          ], 
+          "name": "handler=\"label_values\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"label_values\"}"
+        }, 
+        {
+          "instId": [
+            10, 
+            "handler=\"options\""
+          ], 
+          "name": "handler=\"options\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"options\"}"
+        }, 
+        {
+          "instId": [
+            11, 
+            "handler=\"prometheus\""
+          ], 
+          "name": "handler=\"prometheus\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"prometheus\"}"
+        }, 
+        {
+          "instId": [
+            12, 
+            "handler=\"query\""
+          ], 
+          "name": "handler=\"query\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"query\"}"
+        }, 
+        {
+          "instId": [
+            13, 
+            "handler=\"query_range\""
+          ], 
+          "name": "handler=\"query_range\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"query_range\"}"
+        }, 
+        {
+          "instId": [
+            14, 
+            "handler=\"rules\""
+          ], 
+          "name": "handler=\"rules\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"rules\"}"
+        }, 
+        {
+          "instId": [
+            15, 
+            "handler=\"series\""
+          ], 
+          "name": "handler=\"series\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"series\"}"
+        }, 
+        {
+          "instId": [
+            16, 
+            "handler=\"static\""
+          ], 
+          "name": "handler=\"static\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"static\"}"
+        }, 
+        {
+          "instId": [
+            17, 
+            "handler=\"status\""
+          ], 
+          "name": "handler=\"status\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"status\"}"
+        }, 
+        {
+          "instId": [
+            18, 
+            "handler=\"targets\""
+          ], 
+          "name": "handler=\"targets\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"targets\"}"
+        }, 
+        {
+          "instId": [
+            19, 
+            "handler=\"version\""
+          ], 
+          "name": "handler=\"version\"", 
+          "prometheus_name": "http_request_size_bytes_sum{handler=\"version\"}"
+        }
+      ], 
+      "name": "http_request_size_bytes_sum", 
+      "pmid": [
+        0, 
+        31
+      ], 
+      "prometheus_name": "http_request_size_bytes_sum{handler=\"alertmanagers\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "handler=\"alertmanagers\""
+          ], 
+          "name": "handler=\"alertmanagers\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"alertmanagers\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "handler=\"alerts\""
+          ], 
+          "name": "handler=\"alerts\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"alerts\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "handler=\"config\""
+          ], 
+          "name": "handler=\"config\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"config\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "handler=\"consoles\""
+          ], 
+          "name": "handler=\"consoles\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"consoles\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "handler=\"drop_series\""
+          ], 
+          "name": "handler=\"drop_series\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"drop_series\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "handler=\"federate\""
+          ], 
+          "name": "handler=\"federate\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"federate\"}"
+        }, 
+        {
+          "instId": [
+            6, 
+            "handler=\"flags\""
+          ], 
+          "name": "handler=\"flags\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"flags\"}"
+        }, 
+        {
+          "instId": [
+            7, 
+            "handler=\"graph\""
+          ], 
+          "name": "handler=\"graph\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"graph\"}"
+        }, 
+        {
+          "instId": [
+            8, 
+            "handler=\"heap\""
+          ], 
+          "name": "handler=\"heap\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"heap\"}"
+        }, 
+        {
+          "instId": [
+            9, 
+            "handler=\"label_values\""
+          ], 
+          "name": "handler=\"label_values\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"label_values\"}"
+        }, 
+        {
+          "instId": [
+            10, 
+            "handler=\"options\""
+          ], 
+          "name": "handler=\"options\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"options\"}"
+        }, 
+        {
+          "instId": [
+            11, 
+            "handler=\"prometheus\""
+          ], 
+          "name": "handler=\"prometheus\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"prometheus\"}"
+        }, 
+        {
+          "instId": [
+            12, 
+            "handler=\"query\""
+          ], 
+          "name": "handler=\"query\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"query\"}"
+        }, 
+        {
+          "instId": [
+            13, 
+            "handler=\"query_range\""
+          ], 
+          "name": "handler=\"query_range\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"query_range\"}"
+        }, 
+        {
+          "instId": [
+            14, 
+            "handler=\"rules\""
+          ], 
+          "name": "handler=\"rules\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"rules\"}"
+        }, 
+        {
+          "instId": [
+            15, 
+            "handler=\"series\""
+          ], 
+          "name": "handler=\"series\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"series\"}"
+        }, 
+        {
+          "instId": [
+            16, 
+            "handler=\"static\""
+          ], 
+          "name": "handler=\"static\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"static\"}"
+        }, 
+        {
+          "instId": [
+            17, 
+            "handler=\"status\""
+          ], 
+          "name": "handler=\"status\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"status\"}"
+        }, 
+        {
+          "instId": [
+            18, 
+            "handler=\"targets\""
+          ], 
+          "name": "handler=\"targets\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"targets\"}"
+        }, 
+        {
+          "instId": [
+            19, 
+            "handler=\"version\""
+          ], 
+          "name": "handler=\"version\"", 
+          "prometheus_name": "http_request_size_bytes_count{handler=\"version\"}"
+        }
+      ], 
+      "name": "http_request_size_bytes_count", 
+      "pmid": [
+        0, 
+        32
+      ], 
+      "prometheus_name": "http_request_size_bytes_count{handler=\"alertmanagers\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "code=\"200\"::handler=\"alerts\"::method=\"get\""
+          ], 
+          "name": "code=\"200\"::handler=\"alerts\"::method=\"get\"", 
+          "prometheus_name": "http_requests_total{code=\"200\",handler=\"alerts\",method=\"get\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "code=\"200\"::handler=\"graph\"::method=\"get\""
+          ], 
+          "name": "code=\"200\"::handler=\"graph\"::method=\"get\"", 
+          "prometheus_name": "http_requests_total{code=\"200\",handler=\"graph\",method=\"get\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "code=\"200\"::handler=\"label_values\"::method=\"get\""
+          ], 
+          "name": "code=\"200\"::handler=\"label_values\"::method=\"get\"", 
+          "prometheus_name": "http_requests_total{code=\"200\",handler=\"label_values\",method=\"get\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "code=\"200\"::handler=\"prometheus\"::method=\"get\""
+          ], 
+          "name": "code=\"200\"::handler=\"prometheus\"::method=\"get\"", 
+          "prometheus_name": "http_requests_total{code=\"200\",handler=\"prometheus\",method=\"get\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "code=\"200\"::handler=\"query\"::method=\"get\""
+          ], 
+          "name": "code=\"200\"::handler=\"query\"::method=\"get\"", 
+          "prometheus_name": "http_requests_total{code=\"200\",handler=\"query\",method=\"get\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "code=\"200\"::handler=\"query_range\"::method=\"get\""
+          ], 
+          "name": "code=\"200\"::handler=\"query_range\"::method=\"get\"", 
+          "prometheus_name": "http_requests_total{code=\"200\",handler=\"query_range\",method=\"get\"}"
+        }, 
+        {
+          "instId": [
+            6, 
+            "code=\"200\"::handler=\"static\"::method=\"get\""
+          ], 
+          "name": "code=\"200\"::handler=\"static\"::method=\"get\"", 
+          "prometheus_name": "http_requests_total{code=\"200\",handler=\"static\",method=\"get\"}"
+        }, 
+        {
+          "instId": [
+            7, 
+            "code=\"200\"::handler=\"status\"::method=\"get\""
+          ], 
+          "name": "code=\"200\"::handler=\"status\"::method=\"get\"", 
+          "prometheus_name": "http_requests_total{code=\"200\",handler=\"status\",method=\"get\"}"
+        }
+      ], 
+      "name": "http_requests_total", 
+      "pmid": [
+        0, 
+        33
+      ], 
+      "prometheus_name": "http_requests_total{code=\"200\",handler=\"alerts\",method=\"get\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "handler=\"alertmanagers\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"alertmanagers\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"alertmanagers\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "handler=\"alertmanagers\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"alertmanagers\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"alertmanagers\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "handler=\"alertmanagers\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"alertmanagers\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"alertmanagers\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "handler=\"alerts\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"alerts\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"alerts\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "handler=\"alerts\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"alerts\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"alerts\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "handler=\"alerts\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"alerts\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"alerts\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            6, 
+            "handler=\"config\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"config\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"config\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            7, 
+            "handler=\"config\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"config\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"config\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            8, 
+            "handler=\"config\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"config\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"config\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            9, 
+            "handler=\"consoles\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"consoles\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"consoles\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            10, 
+            "handler=\"consoles\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"consoles\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"consoles\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            11, 
+            "handler=\"consoles\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"consoles\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"consoles\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            12, 
+            "handler=\"drop_series\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"drop_series\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"drop_series\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            13, 
+            "handler=\"drop_series\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"drop_series\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"drop_series\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            14, 
+            "handler=\"drop_series\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"drop_series\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"drop_series\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            15, 
+            "handler=\"federate\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"federate\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"federate\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            16, 
+            "handler=\"federate\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"federate\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"federate\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            17, 
+            "handler=\"federate\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"federate\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"federate\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            18, 
+            "handler=\"flags\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"flags\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"flags\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            19, 
+            "handler=\"flags\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"flags\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"flags\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            20, 
+            "handler=\"flags\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"flags\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"flags\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            21, 
+            "handler=\"graph\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"graph\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"graph\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            22, 
+            "handler=\"graph\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"graph\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"graph\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            23, 
+            "handler=\"graph\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"graph\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"graph\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            24, 
+            "handler=\"heap\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"heap\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"heap\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            25, 
+            "handler=\"heap\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"heap\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"heap\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            26, 
+            "handler=\"heap\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"heap\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"heap\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            27, 
+            "handler=\"label_values\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"label_values\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"label_values\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            28, 
+            "handler=\"label_values\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"label_values\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"label_values\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            29, 
+            "handler=\"label_values\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"label_values\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"label_values\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            30, 
+            "handler=\"options\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"options\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"options\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            31, 
+            "handler=\"options\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"options\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"options\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            32, 
+            "handler=\"options\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"options\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"options\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            33, 
+            "handler=\"prometheus\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"prometheus\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"prometheus\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            34, 
+            "handler=\"prometheus\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"prometheus\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"prometheus\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            35, 
+            "handler=\"prometheus\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"prometheus\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"prometheus\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            36, 
+            "handler=\"query\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"query\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"query\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            37, 
+            "handler=\"query\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"query\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"query\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            38, 
+            "handler=\"query\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"query\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"query\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            39, 
+            "handler=\"query_range\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"query_range\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"query_range\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            40, 
+            "handler=\"query_range\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"query_range\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"query_range\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            41, 
+            "handler=\"query_range\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"query_range\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"query_range\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            42, 
+            "handler=\"rules\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"rules\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"rules\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            43, 
+            "handler=\"rules\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"rules\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"rules\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            44, 
+            "handler=\"rules\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"rules\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"rules\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            45, 
+            "handler=\"series\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"series\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"series\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            46, 
+            "handler=\"series\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"series\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"series\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            47, 
+            "handler=\"series\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"series\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"series\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            48, 
+            "handler=\"static\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"static\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"static\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            49, 
+            "handler=\"static\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"static\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"static\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            50, 
+            "handler=\"static\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"static\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"static\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            51, 
+            "handler=\"status\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"status\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"status\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            52, 
+            "handler=\"status\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"status\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"status\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            53, 
+            "handler=\"status\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"status\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"status\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            54, 
+            "handler=\"targets\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"targets\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"targets\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            55, 
+            "handler=\"targets\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"targets\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"targets\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            56, 
+            "handler=\"targets\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"targets\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"targets\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            57, 
+            "handler=\"version\"::quantile=\"0.5\""
+          ], 
+          "name": "handler=\"version\"::quantile=\"0.5\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"version\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            58, 
+            "handler=\"version\"::quantile=\"0.9\""
+          ], 
+          "name": "handler=\"version\"::quantile=\"0.9\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"version\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            59, 
+            "handler=\"version\"::quantile=\"0.99\""
+          ], 
+          "name": "handler=\"version\"::quantile=\"0.99\"", 
+          "prometheus_name": "http_response_size_bytes{handler=\"version\",quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "http_response_size_bytes", 
+      "pmid": [
+        0, 
+        34
+      ], 
+      "prometheus_name": "http_response_size_bytes{handler=\"alertmanagers\",quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "handler=\"alertmanagers\""
+          ], 
+          "name": "handler=\"alertmanagers\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"alertmanagers\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "handler=\"alerts\""
+          ], 
+          "name": "handler=\"alerts\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"alerts\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "handler=\"config\""
+          ], 
+          "name": "handler=\"config\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"config\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "handler=\"consoles\""
+          ], 
+          "name": "handler=\"consoles\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"consoles\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "handler=\"drop_series\""
+          ], 
+          "name": "handler=\"drop_series\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"drop_series\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "handler=\"federate\""
+          ], 
+          "name": "handler=\"federate\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"federate\"}"
+        }, 
+        {
+          "instId": [
+            6, 
+            "handler=\"flags\""
+          ], 
+          "name": "handler=\"flags\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"flags\"}"
+        }, 
+        {
+          "instId": [
+            7, 
+            "handler=\"graph\""
+          ], 
+          "name": "handler=\"graph\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"graph\"}"
+        }, 
+        {
+          "instId": [
+            8, 
+            "handler=\"heap\""
+          ], 
+          "name": "handler=\"heap\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"heap\"}"
+        }, 
+        {
+          "instId": [
+            9, 
+            "handler=\"label_values\""
+          ], 
+          "name": "handler=\"label_values\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"label_values\"}"
+        }, 
+        {
+          "instId": [
+            10, 
+            "handler=\"options\""
+          ], 
+          "name": "handler=\"options\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"options\"}"
+        }, 
+        {
+          "instId": [
+            11, 
+            "handler=\"prometheus\""
+          ], 
+          "name": "handler=\"prometheus\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"prometheus\"}"
+        }, 
+        {
+          "instId": [
+            12, 
+            "handler=\"query\""
+          ], 
+          "name": "handler=\"query\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"query\"}"
+        }, 
+        {
+          "instId": [
+            13, 
+            "handler=\"query_range\""
+          ], 
+          "name": "handler=\"query_range\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"query_range\"}"
+        }, 
+        {
+          "instId": [
+            14, 
+            "handler=\"rules\""
+          ], 
+          "name": "handler=\"rules\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"rules\"}"
+        }, 
+        {
+          "instId": [
+            15, 
+            "handler=\"series\""
+          ], 
+          "name": "handler=\"series\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"series\"}"
+        }, 
+        {
+          "instId": [
+            16, 
+            "handler=\"static\""
+          ], 
+          "name": "handler=\"static\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"static\"}"
+        }, 
+        {
+          "instId": [
+            17, 
+            "handler=\"status\""
+          ], 
+          "name": "handler=\"status\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"status\"}"
+        }, 
+        {
+          "instId": [
+            18, 
+            "handler=\"targets\""
+          ], 
+          "name": "handler=\"targets\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"targets\"}"
+        }, 
+        {
+          "instId": [
+            19, 
+            "handler=\"version\""
+          ], 
+          "name": "handler=\"version\"", 
+          "prometheus_name": "http_response_size_bytes_sum{handler=\"version\"}"
+        }
+      ], 
+      "name": "http_response_size_bytes_sum", 
+      "pmid": [
+        0, 
+        35
+      ], 
+      "prometheus_name": "http_response_size_bytes_sum{handler=\"alertmanagers\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "handler=\"alertmanagers\""
+          ], 
+          "name": "handler=\"alertmanagers\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"alertmanagers\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "handler=\"alerts\""
+          ], 
+          "name": "handler=\"alerts\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"alerts\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "handler=\"config\""
+          ], 
+          "name": "handler=\"config\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"config\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "handler=\"consoles\""
+          ], 
+          "name": "handler=\"consoles\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"consoles\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "handler=\"drop_series\""
+          ], 
+          "name": "handler=\"drop_series\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"drop_series\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "handler=\"federate\""
+          ], 
+          "name": "handler=\"federate\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"federate\"}"
+        }, 
+        {
+          "instId": [
+            6, 
+            "handler=\"flags\""
+          ], 
+          "name": "handler=\"flags\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"flags\"}"
+        }, 
+        {
+          "instId": [
+            7, 
+            "handler=\"graph\""
+          ], 
+          "name": "handler=\"graph\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"graph\"}"
+        }, 
+        {
+          "instId": [
+            8, 
+            "handler=\"heap\""
+          ], 
+          "name": "handler=\"heap\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"heap\"}"
+        }, 
+        {
+          "instId": [
+            9, 
+            "handler=\"label_values\""
+          ], 
+          "name": "handler=\"label_values\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"label_values\"}"
+        }, 
+        {
+          "instId": [
+            10, 
+            "handler=\"options\""
+          ], 
+          "name": "handler=\"options\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"options\"}"
+        }, 
+        {
+          "instId": [
+            11, 
+            "handler=\"prometheus\""
+          ], 
+          "name": "handler=\"prometheus\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"prometheus\"}"
+        }, 
+        {
+          "instId": [
+            12, 
+            "handler=\"query\""
+          ], 
+          "name": "handler=\"query\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"query\"}"
+        }, 
+        {
+          "instId": [
+            13, 
+            "handler=\"query_range\""
+          ], 
+          "name": "handler=\"query_range\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"query_range\"}"
+        }, 
+        {
+          "instId": [
+            14, 
+            "handler=\"rules\""
+          ], 
+          "name": "handler=\"rules\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"rules\"}"
+        }, 
+        {
+          "instId": [
+            15, 
+            "handler=\"series\""
+          ], 
+          "name": "handler=\"series\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"series\"}"
+        }, 
+        {
+          "instId": [
+            16, 
+            "handler=\"static\""
+          ], 
+          "name": "handler=\"static\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"static\"}"
+        }, 
+        {
+          "instId": [
+            17, 
+            "handler=\"status\""
+          ], 
+          "name": "handler=\"status\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"status\"}"
+        }, 
+        {
+          "instId": [
+            18, 
+            "handler=\"targets\""
+          ], 
+          "name": "handler=\"targets\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"targets\"}"
+        }, 
+        {
+          "instId": [
+            19, 
+            "handler=\"version\""
+          ], 
+          "name": "handler=\"version\"", 
+          "prometheus_name": "http_response_size_bytes_count{handler=\"version\"}"
+        }
+      ], 
+      "name": "http_response_size_bytes_count", 
+      "pmid": [
+        0, 
+        36
+      ], 
+      "prometheus_name": "http_response_size_bytes_count{handler=\"alertmanagers\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "process_cpu_seconds_total", 
+      "pmid": [
+        0, 
+        37
+      ], 
+      "prometheus_name": "process_cpu_seconds_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "process_max_fds", 
+      "pmid": [
+        0, 
+        38
+      ], 
+      "prometheus_name": "process_max_fds", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "process_open_fds", 
+      "pmid": [
+        0, 
+        39
+      ], 
+      "prometheus_name": "process_open_fds", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "process_resident_memory_bytes", 
+      "pmid": [
+        0, 
+        40
+      ], 
+      "prometheus_name": "process_resident_memory_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "process_start_time_seconds", 
+      "pmid": [
+        0, 
+        41
+      ], 
+      "prometheus_name": "process_start_time_seconds", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "process_virtual_memory_bytes", 
+      "pmid": [
+        0, 
+        42
+      ], 
+      "prometheus_name": "process_virtual_memory_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "branch=\"master\"::goversion=\"go1.7.5\"::revision=\"bd1182d29f462c39544f94cc822830e1c64cf55b\"::version=\"1.5.2\""
+          ], 
+          "name": "branch=\"master\"::goversion=\"go1.7.5\"::revision=\"bd1182d29f462c39544f94cc822830e1c64cf55b\"::version=\"1.5.2\"", 
+          "prometheus_name": "prometheus_build_info{branch=\"master\",goversion=\"go1.7.5\",revision=\"bd1182d29f462c39544f94cc822830e1c64cf55b\",version=\"1.5.2\"}"
+        }
+      ], 
+      "name": "prometheus_build_info", 
+      "pmid": [
+        0, 
+        43
+      ], 
+      "prometheus_name": "prometheus_build_info{branch=\"master\",goversion=\"go1.7.5\",revision=\"bd1182d29f462c39544f94cc822830e1c64cf55b\",version=\"1.5.2\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_config_last_reload_success_timestamp_seconds", 
+      "pmid": [
+        0, 
+        44
+      ], 
+      "prometheus_name": "prometheus_config_last_reload_success_timestamp_seconds", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_config_last_reload_successful", 
+      "pmid": [
+        0, 
+        45
+      ], 
+      "prometheus_name": "prometheus_config_last_reload_successful", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_engine_queries", 
+      "pmid": [
+        0, 
+        46
+      ], 
+      "prometheus_name": "prometheus_engine_queries", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_engine_queries_concurrent_max", 
+      "pmid": [
+        0, 
+        47
+      ], 
+      "prometheus_name": "prometheus_engine_queries_concurrent_max", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "quantile=\"0.01\""
+          ], 
+          "name": "quantile=\"0.01\"", 
+          "prometheus_name": "prometheus_evaluator_duration_seconds{quantile=\"0.01\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "quantile=\"0.05\""
+          ], 
+          "name": "quantile=\"0.05\"", 
+          "prometheus_name": "prometheus_evaluator_duration_seconds{quantile=\"0.05\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "quantile=\"0.5\""
+          ], 
+          "name": "quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_evaluator_duration_seconds{quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "quantile=\"0.9\""
+          ], 
+          "name": "quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_evaluator_duration_seconds{quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "quantile=\"0.99\""
+          ], 
+          "name": "quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_evaluator_duration_seconds{quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_evaluator_duration_seconds", 
+      "pmid": [
+        0, 
+        48
+      ], 
+      "prometheus_name": "prometheus_evaluator_duration_seconds{quantile=\"0.01\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_evaluator_duration_seconds_sum", 
+      "pmid": [
+        0, 
+        49
+      ], 
+      "prometheus_name": "prometheus_evaluator_duration_seconds_sum", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_evaluator_duration_seconds_count", 
+      "pmid": [
+        0, 
+        50
+      ], 
+      "prometheus_name": "prometheus_evaluator_duration_seconds_count", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_evaluator_iterations_skipped_total", 
+      "pmid": [
+        0, 
+        51
+      ], 
+      "prometheus_name": "prometheus_evaluator_iterations_skipped_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "quantile=\"0.5\""
+          ], 
+          "name": "quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds{quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "quantile=\"0.9\""
+          ], 
+          "name": "quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds{quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "quantile=\"0.99\""
+          ], 
+          "name": "quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds{quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_local_storage_checkpoint_duration_seconds", 
+      "pmid": [
+        0, 
+        52
+      ], 
+      "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds{quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_checkpoint_duration_seconds_sum", 
+      "pmid": [
+        0, 
+        53
+      ], 
+      "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds_sum", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_checkpoint_duration_seconds_count", 
+      "pmid": [
+        0, 
+        54
+      ], 
+      "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds_count", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_checkpoint_last_duration_seconds", 
+      "pmid": [
+        0, 
+        55
+      ], 
+      "prometheus_name": "prometheus_local_storage_checkpoint_last_duration_seconds", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_checkpoint_last_size_bytes", 
+      "pmid": [
+        0, 
+        56
+      ], 
+      "prometheus_name": "prometheus_local_storage_checkpoint_last_size_bytes", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "quantile=\"0.5\""
+          ], 
+          "name": "quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written{quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "quantile=\"0.9\""
+          ], 
+          "name": "quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written{quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "quantile=\"0.99\""
+          ], 
+          "name": "quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written{quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_local_storage_checkpoint_series_chunks_written", 
+      "pmid": [
+        0, 
+        57
+      ], 
+      "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written{quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_checkpoint_series_chunks_written_sum", 
+      "pmid": [
+        0, 
+        58
+      ], 
+      "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written_sum", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_checkpoint_series_chunks_written_count", 
+      "pmid": [
+        0, 
+        59
+      ], 
+      "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written_count", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_checkpointing", 
+      "pmid": [
+        0, 
+        60
+      ], 
+      "prometheus_name": "prometheus_local_storage_checkpointing", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "type=\"create\""
+          ], 
+          "name": "type=\"create\"", 
+          "prometheus_name": "prometheus_local_storage_chunk_ops_total{type=\"create\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "type=\"persist\""
+          ], 
+          "name": "type=\"persist\"", 
+          "prometheus_name": "prometheus_local_storage_chunk_ops_total{type=\"persist\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "type=\"pin\""
+          ], 
+          "name": "type=\"pin\"", 
+          "prometheus_name": "prometheus_local_storage_chunk_ops_total{type=\"pin\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "type=\"transcode\""
+          ], 
+          "name": "type=\"transcode\"", 
+          "prometheus_name": "prometheus_local_storage_chunk_ops_total{type=\"transcode\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "type=\"unpin\""
+          ], 
+          "name": "type=\"unpin\"", 
+          "prometheus_name": "prometheus_local_storage_chunk_ops_total{type=\"unpin\"}"
+        }
+      ], 
+      "name": "prometheus_local_storage_chunk_ops_total", 
+      "pmid": [
+        0, 
+        61
+      ], 
+      "prometheus_name": "prometheus_local_storage_chunk_ops_total{type=\"create\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_chunks_to_persist", 
+      "pmid": [
+        0, 
+        62
+      ], 
+      "prometheus_name": "prometheus_local_storage_chunks_to_persist", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_fingerprint_mappings_total", 
+      "pmid": [
+        0, 
+        63
+      ], 
+      "prometheus_name": "prometheus_local_storage_fingerprint_mappings_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_inconsistencies_total", 
+      "pmid": [
+        0, 
+        64
+      ], 
+      "prometheus_name": "prometheus_local_storage_inconsistencies_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "quantile=\"0.5\""
+          ], 
+          "name": "quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds{quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "quantile=\"0.9\""
+          ], 
+          "name": "quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds{quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "quantile=\"0.99\""
+          ], 
+          "name": "quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds{quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_local_storage_indexing_batch_duration_seconds", 
+      "pmid": [
+        0, 
+        65
+      ], 
+      "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds{quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_indexing_batch_duration_seconds_sum", 
+      "pmid": [
+        0, 
+        66
+      ], 
+      "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds_sum", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_indexing_batch_duration_seconds_count", 
+      "pmid": [
+        0, 
+        67
+      ], 
+      "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds_count", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "quantile=\"0.5\""
+          ], 
+          "name": "quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_local_storage_indexing_batch_sizes{quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "quantile=\"0.9\""
+          ], 
+          "name": "quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_local_storage_indexing_batch_sizes{quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "quantile=\"0.99\""
+          ], 
+          "name": "quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_local_storage_indexing_batch_sizes{quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_local_storage_indexing_batch_sizes", 
+      "pmid": [
+        0, 
+        68
+      ], 
+      "prometheus_name": "prometheus_local_storage_indexing_batch_sizes{quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_indexing_batch_sizes_sum", 
+      "pmid": [
+        0, 
+        69
+      ], 
+      "prometheus_name": "prometheus_local_storage_indexing_batch_sizes_sum", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_indexing_batch_sizes_count", 
+      "pmid": [
+        0, 
+        70
+      ], 
+      "prometheus_name": "prometheus_local_storage_indexing_batch_sizes_count", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_indexing_queue_capacity", 
+      "pmid": [
+        0, 
+        71
+      ], 
+      "prometheus_name": "prometheus_local_storage_indexing_queue_capacity", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_indexing_queue_length", 
+      "pmid": [
+        0, 
+        72
+      ], 
+      "prometheus_name": "prometheus_local_storage_indexing_queue_length", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_ingested_samples_total", 
+      "pmid": [
+        0, 
+        73
+      ], 
+      "prometheus_name": "prometheus_local_storage_ingested_samples_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "location=\"archived\"::quantile=\"0.5\""
+          ], 
+          "name": "location=\"archived\"::quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"archived\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "location=\"archived\"::quantile=\"0.9\""
+          ], 
+          "name": "location=\"archived\"::quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"archived\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "location=\"archived\"::quantile=\"0.99\""
+          ], 
+          "name": "location=\"archived\"::quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"archived\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "location=\"memory\"::quantile=\"0.5\""
+          ], 
+          "name": "location=\"memory\"::quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"memory\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "location=\"memory\"::quantile=\"0.9\""
+          ], 
+          "name": "location=\"memory\"::quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"memory\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "location=\"memory\"::quantile=\"0.99\""
+          ], 
+          "name": "location=\"memory\"::quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"memory\",quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_local_storage_maintain_series_duration_seconds", 
+      "pmid": [
+        0, 
+        74
+      ], 
+      "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"archived\",quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "location=\"archived\""
+          ], 
+          "name": "location=\"archived\"", 
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds_sum{location=\"archived\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "location=\"memory\""
+          ], 
+          "name": "location=\"memory\"", 
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds_sum{location=\"memory\"}"
+        }
+      ], 
+      "name": "prometheus_local_storage_maintain_series_duration_seconds_sum", 
+      "pmid": [
+        0, 
+        75
+      ], 
+      "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds_sum{location=\"archived\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "location=\"archived\""
+          ], 
+          "name": "location=\"archived\"", 
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds_count{location=\"archived\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "location=\"memory\""
+          ], 
+          "name": "location=\"memory\"", 
+          "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds_count{location=\"memory\"}"
+        }
+      ], 
+      "name": "prometheus_local_storage_maintain_series_duration_seconds_count", 
+      "pmid": [
+        0, 
+        76
+      ], 
+      "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds_count{location=\"archived\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_max_chunks_to_persist", 
+      "pmid": [
+        0, 
+        77
+      ], 
+      "prometheus_name": "prometheus_local_storage_max_chunks_to_persist", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_max_memory_chunks", 
+      "pmid": [
+        0, 
+        78
+      ], 
+      "prometheus_name": "prometheus_local_storage_max_memory_chunks", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_memory_chunkdescs", 
+      "pmid": [
+        0, 
+        79
+      ], 
+      "prometheus_name": "prometheus_local_storage_memory_chunkdescs", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_memory_chunks", 
+      "pmid": [
+        0, 
+        80
+      ], 
+      "prometheus_name": "prometheus_local_storage_memory_chunks", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_memory_dirty_series", 
+      "pmid": [
+        0, 
+        81
+      ], 
+      "prometheus_name": "prometheus_local_storage_memory_dirty_series", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_memory_series", 
+      "pmid": [
+        0, 
+        82
+      ], 
+      "prometheus_name": "prometheus_local_storage_memory_series", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_non_existent_series_matches_total", 
+      "pmid": [
+        0, 
+        83
+      ], 
+      "prometheus_name": "prometheus_local_storage_non_existent_series_matches_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "reason=\"multiple_values_for_timestamp\""
+          ], 
+          "name": "reason=\"multiple_values_for_timestamp\"", 
+          "prometheus_name": "prometheus_local_storage_out_of_order_samples_total{reason=\"multiple_values_for_timestamp\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "reason=\"timestamp_out_of_order\""
+          ], 
+          "name": "reason=\"timestamp_out_of_order\"", 
+          "prometheus_name": "prometheus_local_storage_out_of_order_samples_total{reason=\"timestamp_out_of_order\"}"
+        }
+      ], 
+      "name": "prometheus_local_storage_out_of_order_samples_total", 
+      "pmid": [
+        0, 
+        84
+      ], 
+      "prometheus_name": "prometheus_local_storage_out_of_order_samples_total{reason=\"multiple_values_for_timestamp\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_persist_errors_total", 
+      "pmid": [
+        0, 
+        85
+      ], 
+      "prometheus_name": "prometheus_local_storage_persist_errors_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_persistence_urgency_score", 
+      "pmid": [
+        0, 
+        86
+      ], 
+      "prometheus_name": "prometheus_local_storage_persistence_urgency_score", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_queued_chunks_to_persist_total", 
+      "pmid": [
+        0, 
+        87
+      ], 
+      "prometheus_name": "prometheus_local_storage_queued_chunks_to_persist_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_rushed_mode", 
+      "pmid": [
+        0, 
+        88
+      ], 
+      "prometheus_name": "prometheus_local_storage_rushed_mode", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "le=\"1\""
+          ], 
+          "name": "le=\"1\"", 
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"1\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "le=\"2\""
+          ], 
+          "name": "le=\"2\"", 
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"2\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "le=\"4\""
+          ], 
+          "name": "le=\"4\"", 
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"4\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "le=\"8\""
+          ], 
+          "name": "le=\"8\"", 
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"8\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "le=\"16\""
+          ], 
+          "name": "le=\"16\"", 
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"16\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "le=\"32\""
+          ], 
+          "name": "le=\"32\"", 
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"32\"}"
+        }, 
+        {
+          "instId": [
+            6, 
+            "le=\"64\""
+          ], 
+          "name": "le=\"64\"", 
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"64\"}"
+        }, 
+        {
+          "instId": [
+            7, 
+            "le=\"128\""
+          ], 
+          "name": "le=\"128\"", 
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"128\"}"
+        }, 
+        {
+          "instId": [
+            8, 
+            "le=\"+Inf\""
+          ], 
+          "name": "le=\"+Inf\"", 
+          "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"+Inf\"}"
+        }
+      ], 
+      "name": "prometheus_local_storage_series_chunks_persisted_bucket", 
+      "pmid": [
+        0, 
+        89
+      ], 
+      "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"1\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_series_chunks_persisted_sum", 
+      "pmid": [
+        0, 
+        90
+      ], 
+      "prometheus_name": "prometheus_local_storage_series_chunks_persisted_sum", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_series_chunks_persisted_count", 
+      "pmid": [
+        0, 
+        91
+      ], 
+      "prometheus_name": "prometheus_local_storage_series_chunks_persisted_count", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "type=\"archive\""
+          ], 
+          "name": "type=\"archive\"", 
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"archive\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "type=\"create\""
+          ], 
+          "name": "type=\"create\"", 
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"create\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "type=\"maintenance_in_archive\""
+          ], 
+          "name": "type=\"maintenance_in_archive\"", 
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"maintenance_in_archive\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "type=\"maintenance_in_memory\""
+          ], 
+          "name": "type=\"maintenance_in_memory\"", 
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"maintenance_in_memory\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "type=\"purge_from_archive\""
+          ], 
+          "name": "type=\"purge_from_archive\"", 
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"purge_from_archive\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "type=\"purge_from_memory\""
+          ], 
+          "name": "type=\"purge_from_memory\"", 
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"purge_from_memory\"}"
+        }, 
+        {
+          "instId": [
+            6, 
+            "type=\"purge_on_request\""
+          ], 
+          "name": "type=\"purge_on_request\"", 
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"purge_on_request\"}"
+        }, 
+        {
+          "instId": [
+            7, 
+            "type=\"quarantine_completed\""
+          ], 
+          "name": "type=\"quarantine_completed\"", 
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"quarantine_completed\"}"
+        }, 
+        {
+          "instId": [
+            8, 
+            "type=\"quarantine_dropped\""
+          ], 
+          "name": "type=\"quarantine_dropped\"", 
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"quarantine_dropped\"}"
+        }, 
+        {
+          "instId": [
+            9, 
+            "type=\"quarantine_failed\""
+          ], 
+          "name": "type=\"quarantine_failed\"", 
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"quarantine_failed\"}"
+        }, 
+        {
+          "instId": [
+            10, 
+            "type=\"unarchive\""
+          ], 
+          "name": "type=\"unarchive\"", 
+          "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"unarchive\"}"
+        }
+      ], 
+      "name": "prometheus_local_storage_series_ops_total", 
+      "pmid": [
+        0, 
+        92
+      ], 
+      "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"archive\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_local_storage_started_dirty", 
+      "pmid": [
+        0, 
+        93
+      ], 
+      "prometheus_name": "prometheus_local_storage_started_dirty", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_notifications_dropped_total", 
+      "pmid": [
+        0, 
+        94
+      ], 
+      "prometheus_name": "prometheus_notifications_dropped_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_notifications_queue_capacity", 
+      "pmid": [
+        0, 
+        95
+      ], 
+      "prometheus_name": "prometheus_notifications_queue_capacity", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_notifications_queue_length", 
+      "pmid": [
+        0, 
+        96
+      ], 
+      "prometheus_name": "prometheus_notifications_queue_length", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "rule_type=\"alerting\""
+          ], 
+          "name": "rule_type=\"alerting\"", 
+          "prometheus_name": "prometheus_rule_evaluation_failures_total{rule_type=\"alerting\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "rule_type=\"recording\""
+          ], 
+          "name": "rule_type=\"recording\"", 
+          "prometheus_name": "prometheus_rule_evaluation_failures_total{rule_type=\"recording\"}"
+        }
+      ], 
+      "name": "prometheus_rule_evaluation_failures_total", 
+      "pmid": [
+        0, 
+        97
+      ], 
+      "prometheus_name": "prometheus_rule_evaluation_failures_total{rule_type=\"alerting\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "quantile=\"0.5\""
+          ], 
+          "name": "quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds{quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "quantile=\"0.9\""
+          ], 
+          "name": "quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds{quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "quantile=\"0.99\""
+          ], 
+          "name": "quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds{quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_sd_azure_refresh_duration_seconds", 
+      "pmid": [
+        0, 
+        98
+      ], 
+      "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds{quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_azure_refresh_duration_seconds_sum", 
+      "pmid": [
+        0, 
+        99
+      ], 
+      "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds_sum", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_azure_refresh_duration_seconds_count", 
+      "pmid": [
+        0, 
+        100
+      ], 
+      "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds_count", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_azure_refresh_failures_total", 
+      "pmid": [
+        0, 
+        101
+      ], 
+      "prometheus_name": "prometheus_sd_azure_refresh_failures_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "call=\"service\"::endpoint=\"catalog\"::quantile=\"0.5\""
+          ], 
+          "name": "call=\"service\"::endpoint=\"catalog\"::quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"service\",endpoint=\"catalog\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "call=\"service\"::endpoint=\"catalog\"::quantile=\"0.9\""
+          ], 
+          "name": "call=\"service\"::endpoint=\"catalog\"::quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"service\",endpoint=\"catalog\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "call=\"service\"::endpoint=\"catalog\"::quantile=\"0.99\""
+          ], 
+          "name": "call=\"service\"::endpoint=\"catalog\"::quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"service\",endpoint=\"catalog\",quantile=\"0.99\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "call=\"services\"::endpoint=\"catalog\"::quantile=\"0.5\""
+          ], 
+          "name": "call=\"services\"::endpoint=\"catalog\"::quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"services\",endpoint=\"catalog\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "call=\"services\"::endpoint=\"catalog\"::quantile=\"0.9\""
+          ], 
+          "name": "call=\"services\"::endpoint=\"catalog\"::quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"services\",endpoint=\"catalog\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "call=\"services\"::endpoint=\"catalog\"::quantile=\"0.99\""
+          ], 
+          "name": "call=\"services\"::endpoint=\"catalog\"::quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"services\",endpoint=\"catalog\",quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_sd_consul_rpc_duration_seconds", 
+      "pmid": [
+        0, 
+        102
+      ], 
+      "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"service\",endpoint=\"catalog\",quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "call=\"service\"::endpoint=\"catalog\""
+          ], 
+          "name": "call=\"service\"::endpoint=\"catalog\"", 
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds_sum{call=\"service\",endpoint=\"catalog\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "call=\"services\"::endpoint=\"catalog\""
+          ], 
+          "name": "call=\"services\"::endpoint=\"catalog\"", 
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds_sum{call=\"services\",endpoint=\"catalog\"}"
+        }
+      ], 
+      "name": "prometheus_sd_consul_rpc_duration_seconds_sum", 
+      "pmid": [
+        0, 
+        103
+      ], 
+      "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds_sum{call=\"service\",endpoint=\"catalog\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "call=\"service\"::endpoint=\"catalog\""
+          ], 
+          "name": "call=\"service\"::endpoint=\"catalog\"", 
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds_count{call=\"service\",endpoint=\"catalog\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "call=\"services\"::endpoint=\"catalog\""
+          ], 
+          "name": "call=\"services\"::endpoint=\"catalog\"", 
+          "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds_count{call=\"services\",endpoint=\"catalog\"}"
+        }
+      ], 
+      "name": "prometheus_sd_consul_rpc_duration_seconds_count", 
+      "pmid": [
+        0, 
+        104
+      ], 
+      "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds_count{call=\"service\",endpoint=\"catalog\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_consul_rpc_failures_total", 
+      "pmid": [
+        0, 
+        105
+      ], 
+      "prometheus_name": "prometheus_sd_consul_rpc_failures_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_dns_lookup_failures_total", 
+      "pmid": [
+        0, 
+        106
+      ], 
+      "prometheus_name": "prometheus_sd_dns_lookup_failures_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_dns_lookups_total", 
+      "pmid": [
+        0, 
+        107
+      ], 
+      "prometheus_name": "prometheus_sd_dns_lookups_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "quantile=\"0.5\""
+          ], 
+          "name": "quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds{quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "quantile=\"0.9\""
+          ], 
+          "name": "quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds{quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "quantile=\"0.99\""
+          ], 
+          "name": "quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds{quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_sd_ec2_refresh_duration_seconds", 
+      "pmid": [
+        0, 
+        108
+      ], 
+      "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds{quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_ec2_refresh_duration_seconds_sum", 
+      "pmid": [
+        0, 
+        109
+      ], 
+      "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds_sum", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_ec2_refresh_duration_seconds_count", 
+      "pmid": [
+        0, 
+        110
+      ], 
+      "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds_count", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_ec2_refresh_failures_total", 
+      "pmid": [
+        0, 
+        111
+      ], 
+      "prometheus_name": "prometheus_sd_ec2_refresh_failures_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_file_read_errors_total", 
+      "pmid": [
+        0, 
+        112
+      ], 
+      "prometheus_name": "prometheus_sd_file_read_errors_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "quantile=\"0.5\""
+          ], 
+          "name": "quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_sd_file_scan_duration_seconds{quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "quantile=\"0.9\""
+          ], 
+          "name": "quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_sd_file_scan_duration_seconds{quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "quantile=\"0.99\""
+          ], 
+          "name": "quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_sd_file_scan_duration_seconds{quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_sd_file_scan_duration_seconds", 
+      "pmid": [
+        0, 
+        113
+      ], 
+      "prometheus_name": "prometheus_sd_file_scan_duration_seconds{quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_file_scan_duration_seconds_sum", 
+      "pmid": [
+        0, 
+        114
+      ], 
+      "prometheus_name": "prometheus_sd_file_scan_duration_seconds_sum", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_file_scan_duration_seconds_count", 
+      "pmid": [
+        0, 
+        115
+      ], 
+      "prometheus_name": "prometheus_sd_file_scan_duration_seconds_count", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "quantile=\"0.5\""
+          ], 
+          "name": "quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_sd_gce_refresh_duration{quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "quantile=\"0.9\""
+          ], 
+          "name": "quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_sd_gce_refresh_duration{quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "quantile=\"0.99\""
+          ], 
+          "name": "quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_sd_gce_refresh_duration{quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_sd_gce_refresh_duration", 
+      "pmid": [
+        0, 
+        116
+      ], 
+      "prometheus_name": "prometheus_sd_gce_refresh_duration{quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_gce_refresh_duration_sum", 
+      "pmid": [
+        0, 
+        117
+      ], 
+      "prometheus_name": "prometheus_sd_gce_refresh_duration_sum", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_gce_refresh_duration_count", 
+      "pmid": [
+        0, 
+        118
+      ], 
+      "prometheus_name": "prometheus_sd_gce_refresh_duration_count", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_gce_refresh_failures_total", 
+      "pmid": [
+        0, 
+        119
+      ], 
+      "prometheus_name": "prometheus_sd_gce_refresh_failures_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "event=\"add\"::role=\"endpoints\""
+          ], 
+          "name": "event=\"add\"::role=\"endpoints\"", 
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"add\",role=\"endpoints\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "event=\"add\"::role=\"node\""
+          ], 
+          "name": "event=\"add\"::role=\"node\"", 
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"add\",role=\"node\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "event=\"add\"::role=\"pod\""
+          ], 
+          "name": "event=\"add\"::role=\"pod\"", 
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"add\",role=\"pod\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "event=\"add\"::role=\"service\""
+          ], 
+          "name": "event=\"add\"::role=\"service\"", 
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"add\",role=\"service\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "event=\"delete\"::role=\"endpoints\""
+          ], 
+          "name": "event=\"delete\"::role=\"endpoints\"", 
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"delete\",role=\"endpoints\"}"
+        }, 
+        {
+          "instId": [
+            5, 
+            "event=\"delete\"::role=\"node\""
+          ], 
+          "name": "event=\"delete\"::role=\"node\"", 
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"delete\",role=\"node\"}"
+        }, 
+        {
+          "instId": [
+            6, 
+            "event=\"delete\"::role=\"pod\""
+          ], 
+          "name": "event=\"delete\"::role=\"pod\"", 
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"delete\",role=\"pod\"}"
+        }, 
+        {
+          "instId": [
+            7, 
+            "event=\"delete\"::role=\"service\""
+          ], 
+          "name": "event=\"delete\"::role=\"service\"", 
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"delete\",role=\"service\"}"
+        }, 
+        {
+          "instId": [
+            8, 
+            "event=\"update\"::role=\"endpoints\""
+          ], 
+          "name": "event=\"update\"::role=\"endpoints\"", 
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"update\",role=\"endpoints\"}"
+        }, 
+        {
+          "instId": [
+            9, 
+            "event=\"update\"::role=\"node\""
+          ], 
+          "name": "event=\"update\"::role=\"node\"", 
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"update\",role=\"node\"}"
+        }, 
+        {
+          "instId": [
+            10, 
+            "event=\"update\"::role=\"pod\""
+          ], 
+          "name": "event=\"update\"::role=\"pod\"", 
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"update\",role=\"pod\"}"
+        }, 
+        {
+          "instId": [
+            11, 
+            "event=\"update\"::role=\"service\""
+          ], 
+          "name": "event=\"update\"::role=\"service\"", 
+          "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"update\",role=\"service\"}"
+        }
+      ], 
+      "name": "prometheus_sd_kubernetes_events_total", 
+      "pmid": [
+        0, 
+        120
+      ], 
+      "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"add\",role=\"endpoints\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "quantile=\"0.5\""
+          ], 
+          "name": "quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds{quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "quantile=\"0.9\""
+          ], 
+          "name": "quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds{quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "quantile=\"0.99\""
+          ], 
+          "name": "quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds{quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_sd_marathon_refresh_duration_seconds", 
+      "pmid": [
+        0, 
+        121
+      ], 
+      "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds{quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_marathon_refresh_duration_seconds_sum", 
+      "pmid": [
+        0, 
+        122
+      ], 
+      "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds_sum", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_marathon_refresh_duration_seconds_count", 
+      "pmid": [
+        0, 
+        123
+      ], 
+      "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds_count", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_marathon_refresh_failures_total", 
+      "pmid": [
+        0, 
+        124
+      ], 
+      "prometheus_name": "prometheus_sd_marathon_refresh_failures_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "quantile=\"0.5\""
+          ], 
+          "name": "quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds{quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "quantile=\"0.9\""
+          ], 
+          "name": "quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds{quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "quantile=\"0.99\""
+          ], 
+          "name": "quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds{quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_sd_triton_refresh_duration_seconds", 
+      "pmid": [
+        0, 
+        125
+      ], 
+      "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds{quantile=\"0.5\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_triton_refresh_duration_seconds_sum", 
+      "pmid": [
+        0, 
+        126
+      ], 
+      "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds_sum", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_triton_refresh_duration_seconds_count", 
+      "pmid": [
+        0, 
+        127
+      ], 
+      "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds_count", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_sd_triton_refresh_failures_total", 
+      "pmid": [
+        0, 
+        128
+      ], 
+      "prometheus_name": "prometheus_sd_triton_refresh_failures_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "interval=\"15s\"::quantile=\"0.01\""
+          ], 
+          "name": "interval=\"15s\"::quantile=\"0.01\"", 
+          "prometheus_name": "prometheus_target_interval_length_seconds{interval=\"15s\",quantile=\"0.01\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "interval=\"15s\"::quantile=\"0.05\""
+          ], 
+          "name": "interval=\"15s\"::quantile=\"0.05\"", 
+          "prometheus_name": "prometheus_target_interval_length_seconds{interval=\"15s\",quantile=\"0.05\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "interval=\"15s\"::quantile=\"0.5\""
+          ], 
+          "name": "interval=\"15s\"::quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_target_interval_length_seconds{interval=\"15s\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "interval=\"15s\"::quantile=\"0.9\""
+          ], 
+          "name": "interval=\"15s\"::quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_target_interval_length_seconds{interval=\"15s\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "interval=\"15s\"::quantile=\"0.99\""
+          ], 
+          "name": "interval=\"15s\"::quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_target_interval_length_seconds{interval=\"15s\",quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_target_interval_length_seconds", 
+      "pmid": [
+        0, 
+        129
+      ], 
+      "prometheus_name": "prometheus_target_interval_length_seconds{interval=\"15s\",quantile=\"0.01\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "interval=\"15s\""
+          ], 
+          "name": "interval=\"15s\"", 
+          "prometheus_name": "prometheus_target_interval_length_seconds_sum{interval=\"15s\"}"
+        }
+      ], 
+      "name": "prometheus_target_interval_length_seconds_sum", 
+      "pmid": [
+        0, 
+        130
+      ], 
+      "prometheus_name": "prometheus_target_interval_length_seconds_sum{interval=\"15s\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "interval=\"15s\""
+          ], 
+          "name": "interval=\"15s\"", 
+          "prometheus_name": "prometheus_target_interval_length_seconds_count{interval=\"15s\"}"
+        }
+      ], 
+      "name": "prometheus_target_interval_length_seconds_count", 
+      "pmid": [
+        0, 
+        131
+      ], 
+      "prometheus_name": "prometheus_target_interval_length_seconds_count{interval=\"15s\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "scrape_job=\"prometheus\""
+          ], 
+          "name": "scrape_job=\"prometheus\"", 
+          "prometheus_name": "prometheus_target_scrape_pool_sync_total{scrape_job=\"prometheus\"}"
+        }
+      ], 
+      "name": "prometheus_target_scrape_pool_sync_total", 
+      "pmid": [
+        0, 
+        132
+      ], 
+      "prometheus_name": "prometheus_target_scrape_pool_sync_total{scrape_job=\"prometheus\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_target_scrapes_exceeded_sample_limit_total", 
+      "pmid": [
+        0, 
+        133
+      ], 
+      "prometheus_name": "prometheus_target_scrapes_exceeded_sample_limit_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_target_skipped_scrapes_total", 
+      "pmid": [
+        0, 
+        134
+      ], 
+      "prometheus_name": "prometheus_target_skipped_scrapes_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "scrape_job=\"prometheus\"::quantile=\"0.01\""
+          ], 
+          "name": "scrape_job=\"prometheus\"::quantile=\"0.01\"", 
+          "prometheus_name": "prometheus_target_sync_length_seconds{scrape_job=\"prometheus\",quantile=\"0.01\"}"
+        }, 
+        {
+          "instId": [
+            1, 
+            "scrape_job=\"prometheus\"::quantile=\"0.05\""
+          ], 
+          "name": "scrape_job=\"prometheus\"::quantile=\"0.05\"", 
+          "prometheus_name": "prometheus_target_sync_length_seconds{scrape_job=\"prometheus\",quantile=\"0.05\"}"
+        }, 
+        {
+          "instId": [
+            2, 
+            "scrape_job=\"prometheus\"::quantile=\"0.5\""
+          ], 
+          "name": "scrape_job=\"prometheus\"::quantile=\"0.5\"", 
+          "prometheus_name": "prometheus_target_sync_length_seconds{scrape_job=\"prometheus\",quantile=\"0.5\"}"
+        }, 
+        {
+          "instId": [
+            3, 
+            "scrape_job=\"prometheus\"::quantile=\"0.9\""
+          ], 
+          "name": "scrape_job=\"prometheus\"::quantile=\"0.9\"", 
+          "prometheus_name": "prometheus_target_sync_length_seconds{scrape_job=\"prometheus\",quantile=\"0.9\"}"
+        }, 
+        {
+          "instId": [
+            4, 
+            "scrape_job=\"prometheus\"::quantile=\"0.99\""
+          ], 
+          "name": "scrape_job=\"prometheus\"::quantile=\"0.99\"", 
+          "prometheus_name": "prometheus_target_sync_length_seconds{scrape_job=\"prometheus\",quantile=\"0.99\"}"
+        }
+      ], 
+      "name": "prometheus_target_sync_length_seconds", 
+      "pmid": [
+        0, 
+        135
+      ], 
+      "prometheus_name": "prometheus_target_sync_length_seconds{scrape_job=\"prometheus\",quantile=\"0.01\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "scrape_job=\"prometheus\""
+          ], 
+          "name": "scrape_job=\"prometheus\"", 
+          "prometheus_name": "prometheus_target_sync_length_seconds_sum{scrape_job=\"prometheus\"}"
+        }
+      ], 
+      "name": "prometheus_target_sync_length_seconds_sum", 
+      "pmid": [
+        0, 
+        136
+      ], 
+      "prometheus_name": "prometheus_target_sync_length_seconds_sum{scrape_job=\"prometheus\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [
+        {
+          "instId": [
+            0, 
+            "scrape_job=\"prometheus\""
+          ], 
+          "name": "scrape_job=\"prometheus\"", 
+          "prometheus_name": "prometheus_target_sync_length_seconds_count{scrape_job=\"prometheus\"}"
+        }
+      ], 
+      "name": "prometheus_target_sync_length_seconds_count", 
+      "pmid": [
+        0, 
+        137
+      ], 
+      "prometheus_name": "prometheus_target_sync_length_seconds_count{scrape_job=\"prometheus\"}", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_treecache_watcher_goroutines", 
+      "pmid": [
+        0, 
+        138
+      ], 
+      "prometheus_name": "prometheus_treecache_watcher_goroutines", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }, 
+    {
+      "instances": [], 
+      "name": "prometheus_treecache_zookeeper_failures_total", 
+      "pmid": [
+        0, 
+        139
+      ], 
+      "prometheus_name": "prometheus_treecache_zookeeper_failures_total", 
+      "sem": 3, 
+      "units": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+      ]
+    }
+  ]
+}

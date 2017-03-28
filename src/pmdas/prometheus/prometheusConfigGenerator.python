@@ -1,0 +1,114 @@
+#!/usr/bin/env pmpython
+'''
+Python implementation of the Prometheus heuristics metrics config generator.
+'''
+#
+# Copyright (c) 2013,2015 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import argparse
+import json
+import os
+import requests
+
+CONF_FILE = "config.json"
+
+class Parser():
+    ''' Prometheus exporter based metrics parser '''
+
+    def __init__(self):
+        pass
+
+    ''' Parse prometheus metrics line into key and value '''
+    def __parse_line(self, line):
+        if not line or line[0] == '#':
+            return None
+
+        (key,value) = line.split(' ')
+        return key
+
+    ''' Parse prometheus metrics key into name and instanceName '''
+    #Instance name is composed instance separated by ::
+    def __metric_metadata(self, key):
+        if key.rfind('}') == -1:
+            return {"name": key}
+
+        name = key[:key.find('{')]
+        instanceName = "::".join(key[key.find('{') + 1 : len(key) - 1].split(','))
+        return {"name": name, "instanceName": instanceName}
+
+
+    def parse_metrics(self, data):
+        lines = data.splitlines()
+        metrics = []
+        metrics_index = {}
+
+        for line in lines:
+            prometheus_metric_name = self.__parse_line(line)
+            if not prometheus_metric_name:
+                continue
+
+            metadata = self.__metric_metadata(prometheus_metric_name)
+            if not metadata["name"] in metrics_index:
+                generic_metric = {
+                    "name": metadata["name"],
+                    "prometheus_name": prometheus_metric_name,
+                    "pmid": [0, len(metrics)],
+                    "units": [0,0,0,0,0],
+                    "sem": 3,
+                    "instances": [],
+                }
+                metrics.append(generic_metric)
+                metrics_index[metadata["name"]] = len(metrics)-1
+
+            metric = metrics[metrics_index[metadata["name"]]]
+            if metadata.get("instanceName", False):
+                generic_instance = {
+                    "name": metadata["instanceName"],
+                    "prometheus_name": prometheus_metric_name,
+                    "instId": [len(metric["instances"]), metadata["instanceName"]]
+                }
+                metric["instances"].append(generic_instance)
+
+        return metrics
+
+
+def get_prometheus(url):
+    try:
+        req = requests.get(url)
+        return req.text
+    except ValueError as e:
+        raise ValueError("Unable to connect to the prometheus endpoint\n"+str(e))
+
+
+def generate(url):
+    data = get_prometheus(url)
+    parser = Parser()
+    output = {
+        "endpoint": url,
+        "metrics": parser.parse_metrics(data)
+    }
+    with open(CONF_FILE, 'w') as f:
+        f.write(json.dumps(output, indent=2, sort_keys=True))
+        f.close()
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Prometheus heuristics metrics config generator.')
+    parser.add_argument('-u','--url', help='Prometheus endpoint whose config has to be generated', required=True)
+    parser.add_argument('--overwrite', action='store_true', help="Overwrite the existing config file", default=False)
+    args = vars(parser.parse_args())
+
+    if os.path.isfile(CONF_FILE) and not args['overwrite']:
+        raise IOError(CONF_FILE + ' exists, use --overwrite flag to overwrite the config')
+
+    generate(args['url'])
