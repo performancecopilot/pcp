@@ -51,6 +51,7 @@
       ], 
       "prometheus_name": "go_gc_duration_seconds{quantile=\"0\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -68,6 +69,7 @@
       ], 
       "prometheus_name": "go_gc_duration_seconds_sum", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -85,6 +87,7 @@
       ], 
       "prometheus_name": "go_gc_duration_seconds_count", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -102,6 +105,7 @@
       ], 
       "prometheus_name": "go_goroutines", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -119,6 +123,7 @@
       ], 
       "prometheus_name": "go_memstats_alloc_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -136,6 +141,7 @@
       ], 
       "prometheus_name": "go_memstats_alloc_bytes_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -153,6 +159,7 @@
       ], 
       "prometheus_name": "go_memstats_buck_hash_sys_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -170,6 +177,7 @@
       ], 
       "prometheus_name": "go_memstats_frees_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -187,6 +195,7 @@
       ], 
       "prometheus_name": "go_memstats_gc_sys_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -204,6 +213,7 @@
       ], 
       "prometheus_name": "go_memstats_heap_alloc_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -221,6 +231,7 @@
       ], 
       "prometheus_name": "go_memstats_heap_idle_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -238,6 +249,7 @@
       ], 
       "prometheus_name": "go_memstats_heap_inuse_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -255,6 +267,7 @@
       ], 
       "prometheus_name": "go_memstats_heap_objects", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -272,6 +285,7 @@
       ], 
       "prometheus_name": "go_memstats_heap_released_bytes_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -289,6 +303,7 @@
       ], 
       "prometheus_name": "go_memstats_heap_sys_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -306,6 +321,7 @@
       ], 
       "prometheus_name": "go_memstats_last_gc_time_seconds", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -323,6 +339,7 @@
       ], 
       "prometheus_name": "go_memstats_lookups_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -340,6 +357,7 @@
       ], 
       "prometheus_name": "go_memstats_mallocs_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -357,6 +375,7 @@
       ], 
       "prometheus_name": "go_memstats_mcache_inuse_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -374,6 +393,7 @@
       ], 
       "prometheus_name": "go_memstats_mcache_sys_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -391,6 +411,7 @@
       ], 
       "prometheus_name": "go_memstats_mspan_inuse_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -408,6 +429,7 @@
       ], 
       "prometheus_name": "go_memstats_mspan_sys_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -425,6 +447,7 @@
       ], 
       "prometheus_name": "go_memstats_next_gc_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -442,6 +465,7 @@
       ], 
       "prometheus_name": "go_memstats_other_sys_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -459,6 +483,7 @@
       ], 
       "prometheus_name": "go_memstats_stack_inuse_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -476,6 +501,7 @@
       ], 
       "prometheus_name": "go_memstats_stack_sys_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -493,6 +519,7 @@
       ], 
       "prometheus_name": "go_memstats_sys_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -991,6 +1018,7 @@
       ], 
       "prometheus_name": "http_request_duration_microseconds{handler=\"alertmanagers\",quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -1169,6 +1197,7 @@
       ], 
       "prometheus_name": "http_request_duration_microseconds_sum{handler=\"alertmanagers\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -1347,6 +1376,7 @@
       ], 
       "prometheus_name": "http_request_duration_microseconds_count{handler=\"alertmanagers\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -1845,6 +1875,7 @@
       ], 
       "prometheus_name": "http_request_size_bytes{handler=\"alertmanagers\",quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -2023,6 +2054,7 @@
       ], 
       "prometheus_name": "http_request_size_bytes_sum{handler=\"alertmanagers\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -2201,6 +2233,7 @@
       ], 
       "prometheus_name": "http_request_size_bytes_count{handler=\"alertmanagers\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -2283,6 +2316,7 @@
       ], 
       "prometheus_name": "http_requests_total{code=\"200\",handler=\"alerts\",method=\"get\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -2781,6 +2815,7 @@
       ], 
       "prometheus_name": "http_response_size_bytes{handler=\"alertmanagers\",quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -2959,6 +2994,7 @@
       ], 
       "prometheus_name": "http_response_size_bytes_sum{handler=\"alertmanagers\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3137,6 +3173,7 @@
       ], 
       "prometheus_name": "http_response_size_bytes_count{handler=\"alertmanagers\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3154,6 +3191,7 @@
       ], 
       "prometheus_name": "process_cpu_seconds_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3171,6 +3209,7 @@
       ], 
       "prometheus_name": "process_max_fds", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3188,6 +3227,7 @@
       ], 
       "prometheus_name": "process_open_fds", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3205,6 +3245,7 @@
       ], 
       "prometheus_name": "process_resident_memory_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3222,6 +3263,7 @@
       ], 
       "prometheus_name": "process_start_time_seconds", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3239,6 +3281,7 @@
       ], 
       "prometheus_name": "process_virtual_memory_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3265,6 +3308,7 @@
       ], 
       "prometheus_name": "prometheus_build_info{branch=\"master\",goversion=\"go1.7.5\",revision=\"bd1182d29f462c39544f94cc822830e1c64cf55b\",version=\"1.5.2\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3282,6 +3326,7 @@
       ], 
       "prometheus_name": "prometheus_config_last_reload_success_timestamp_seconds", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3299,6 +3344,7 @@
       ], 
       "prometheus_name": "prometheus_config_last_reload_successful", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3316,6 +3362,7 @@
       ], 
       "prometheus_name": "prometheus_engine_queries", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3333,6 +3380,7 @@
       ], 
       "prometheus_name": "prometheus_engine_queries_concurrent_max", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3391,6 +3439,7 @@
       ], 
       "prometheus_name": "prometheus_evaluator_duration_seconds{quantile=\"0.01\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3408,6 +3457,7 @@
       ], 
       "prometheus_name": "prometheus_evaluator_duration_seconds_sum", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3425,6 +3475,7 @@
       ], 
       "prometheus_name": "prometheus_evaluator_duration_seconds_count", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3442,6 +3493,7 @@
       ], 
       "prometheus_name": "prometheus_evaluator_iterations_skipped_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3484,6 +3536,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds{quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3501,6 +3554,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds_sum", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3518,6 +3572,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_checkpoint_duration_seconds_count", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3535,6 +3590,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_checkpoint_last_duration_seconds", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3552,6 +3608,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_checkpoint_last_size_bytes", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3594,6 +3651,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written{quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3611,6 +3669,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written_sum", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3628,6 +3687,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_checkpoint_series_chunks_written_count", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3645,6 +3705,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_checkpointing", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3703,6 +3764,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_chunk_ops_total{type=\"create\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3720,6 +3782,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_chunks_to_persist", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3737,6 +3800,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_fingerprint_mappings_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3754,6 +3818,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_inconsistencies_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3796,6 +3861,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds{quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3813,6 +3879,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds_sum", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3830,6 +3897,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_indexing_batch_duration_seconds_count", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3872,6 +3940,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_indexing_batch_sizes{quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3889,6 +3958,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_indexing_batch_sizes_sum", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3906,6 +3976,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_indexing_batch_sizes_count", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3923,6 +3994,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_indexing_queue_capacity", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3940,6 +4012,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_indexing_queue_length", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -3957,6 +4030,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_ingested_samples_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4023,6 +4097,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds{location=\"archived\",quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4057,6 +4132,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds_sum{location=\"archived\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4091,6 +4167,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_maintain_series_duration_seconds_count{location=\"archived\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4108,6 +4185,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_max_chunks_to_persist", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4125,6 +4203,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_max_memory_chunks", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4142,6 +4221,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_memory_chunkdescs", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4159,6 +4239,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_memory_chunks", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4176,6 +4257,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_memory_dirty_series", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4193,6 +4275,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_memory_series", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4210,6 +4293,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_non_existent_series_matches_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4244,6 +4328,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_out_of_order_samples_total{reason=\"multiple_values_for_timestamp\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4261,6 +4346,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_persist_errors_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4278,6 +4364,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_persistence_urgency_score", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4295,6 +4382,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_queued_chunks_to_persist_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4312,6 +4400,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_rushed_mode", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4402,6 +4491,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_series_chunks_persisted_bucket{le=\"1\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4419,6 +4509,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_series_chunks_persisted_sum", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4436,6 +4527,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_series_chunks_persisted_count", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4542,6 +4634,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"archive\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4559,6 +4652,7 @@
       ], 
       "prometheus_name": "prometheus_local_storage_started_dirty", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4576,6 +4670,7 @@
       ], 
       "prometheus_name": "prometheus_notifications_dropped_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4593,6 +4688,7 @@
       ], 
       "prometheus_name": "prometheus_notifications_queue_capacity", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4610,6 +4706,7 @@
       ], 
       "prometheus_name": "prometheus_notifications_queue_length", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4644,6 +4741,7 @@
       ], 
       "prometheus_name": "prometheus_rule_evaluation_failures_total{rule_type=\"alerting\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4686,6 +4784,7 @@
       ], 
       "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds{quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4703,6 +4802,7 @@
       ], 
       "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds_sum", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4720,6 +4820,7 @@
       ], 
       "prometheus_name": "prometheus_sd_azure_refresh_duration_seconds_count", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4737,6 +4838,7 @@
       ], 
       "prometheus_name": "prometheus_sd_azure_refresh_failures_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4803,6 +4905,7 @@
       ], 
       "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds{call=\"service\",endpoint=\"catalog\",quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4837,6 +4940,7 @@
       ], 
       "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds_sum{call=\"service\",endpoint=\"catalog\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4871,6 +4975,7 @@
       ], 
       "prometheus_name": "prometheus_sd_consul_rpc_duration_seconds_count{call=\"service\",endpoint=\"catalog\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4888,6 +4993,7 @@
       ], 
       "prometheus_name": "prometheus_sd_consul_rpc_failures_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4905,6 +5011,7 @@
       ], 
       "prometheus_name": "prometheus_sd_dns_lookup_failures_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4922,6 +5029,7 @@
       ], 
       "prometheus_name": "prometheus_sd_dns_lookups_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4964,6 +5072,7 @@
       ], 
       "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds{quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4981,6 +5090,7 @@
       ], 
       "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds_sum", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -4998,6 +5108,7 @@
       ], 
       "prometheus_name": "prometheus_sd_ec2_refresh_duration_seconds_count", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5015,6 +5126,7 @@
       ], 
       "prometheus_name": "prometheus_sd_ec2_refresh_failures_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5032,6 +5144,7 @@
       ], 
       "prometheus_name": "prometheus_sd_file_read_errors_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5074,6 +5187,7 @@
       ], 
       "prometheus_name": "prometheus_sd_file_scan_duration_seconds{quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5091,6 +5205,7 @@
       ], 
       "prometheus_name": "prometheus_sd_file_scan_duration_seconds_sum", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5108,6 +5223,7 @@
       ], 
       "prometheus_name": "prometheus_sd_file_scan_duration_seconds_count", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5150,6 +5266,7 @@
       ], 
       "prometheus_name": "prometheus_sd_gce_refresh_duration{quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5167,6 +5284,7 @@
       ], 
       "prometheus_name": "prometheus_sd_gce_refresh_duration_sum", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5184,6 +5302,7 @@
       ], 
       "prometheus_name": "prometheus_sd_gce_refresh_duration_count", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5201,6 +5320,7 @@
       ], 
       "prometheus_name": "prometheus_sd_gce_refresh_failures_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5315,6 +5435,7 @@
       ], 
       "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"add\",role=\"endpoints\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5357,6 +5478,7 @@
       ], 
       "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds{quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5374,6 +5496,7 @@
       ], 
       "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds_sum", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5391,6 +5514,7 @@
       ], 
       "prometheus_name": "prometheus_sd_marathon_refresh_duration_seconds_count", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5408,6 +5532,7 @@
       ], 
       "prometheus_name": "prometheus_sd_marathon_refresh_failures_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5450,6 +5575,7 @@
       ], 
       "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds{quantile=\"0.5\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5467,6 +5593,7 @@
       ], 
       "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds_sum", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5484,6 +5611,7 @@
       ], 
       "prometheus_name": "prometheus_sd_triton_refresh_duration_seconds_count", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5501,6 +5629,7 @@
       ], 
       "prometheus_name": "prometheus_sd_triton_refresh_failures_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5559,6 +5688,7 @@
       ], 
       "prometheus_name": "prometheus_target_interval_length_seconds{interval=\"15s\",quantile=\"0.01\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5585,6 +5715,7 @@
       ], 
       "prometheus_name": "prometheus_target_interval_length_seconds_sum{interval=\"15s\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5611,6 +5742,7 @@
       ], 
       "prometheus_name": "prometheus_target_interval_length_seconds_count{interval=\"15s\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5637,6 +5769,7 @@
       ], 
       "prometheus_name": "prometheus_target_scrape_pool_sync_total{scrape_job=\"prometheus\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5654,6 +5787,7 @@
       ], 
       "prometheus_name": "prometheus_target_scrapes_exceeded_sample_limit_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5671,6 +5805,7 @@
       ], 
       "prometheus_name": "prometheus_target_skipped_scrapes_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5729,6 +5864,7 @@
       ], 
       "prometheus_name": "prometheus_target_sync_length_seconds{scrape_job=\"prometheus\",quantile=\"0.01\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5755,6 +5891,7 @@
       ], 
       "prometheus_name": "prometheus_target_sync_length_seconds_sum{scrape_job=\"prometheus\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5781,6 +5918,7 @@
       ], 
       "prometheus_name": "prometheus_target_sync_length_seconds_count{scrape_job=\"prometheus\"}", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5798,6 +5936,7 @@
       ], 
       "prometheus_name": "prometheus_treecache_watcher_goroutines", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 
@@ -5815,6 +5954,7 @@
       ], 
       "prometheus_name": "prometheus_treecache_zookeeper_failures_total", 
       "sem": 3, 
+      "type": 4, 
       "units": [
         0, 
         0, 

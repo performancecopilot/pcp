@@ -64,9 +64,10 @@ class Parser():
                     "name": metadata["name"],
                     "prometheus_name": prometheus_metric_name,
                     "pmid": [0, len(metrics)],
-                    "units": [0,0,0,0,0],
-                    "sem": 3,
+                    "type": 4,
                     "instances": [],
+                    "sem": 3,
+                    "units": [0,0,0,0,0],
                 }
                 metrics.append(generic_metric)
                 metrics_index[metadata["name"]] = len(metrics)-1
