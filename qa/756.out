@@ -95,23 +95,23 @@ pddata[0].name = derived_event1 pddata[0].instances = 1
 clist->name : BRANCH_INSTRUCTIONS_RETIRED, scale : 0.100000
 clist->name : MISPREDICTED_BRANCH_RETIRED, scale : 1.000000
  ===== test_init_dynamic_events ==== 
+PMU name : pmu1
+	event name : bar
+	event name : foo
 PMU name : pmu2
 	event name : cm_event2
 	event name : cm_event3
 	event name : cm_event1
-PMU name : pmu1
-	event name : bar
-	event name : foo
 PMU name : software
-	event name : cpu-clock
-	event name : task-clock
-	event name : page-faults
-	event name : context-switches
-	event name : cpu-migrations
-	event name : minor-faults
-	event name : major-faults
 	event name : alignment-faults
+	event name : context-switches
+	event name : cpu-clock
+	event name : cpu-migrations
 	event name : emulation-faults
+	event name : major-faults
+	event name : minor-faults
+	event name : page-faults
+	event name : task-clock
  ===== test_minimum_dynamic_events ==== 
 9 software events found
  ===== test_dynamic_events_fail_event ==== 

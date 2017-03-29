@@ -163,12 +163,15 @@ static int setup_sw_events(struct pmu_event **events, struct pmu *pmu)
         }
         tmp->config = sw_events[i].config;
         tmp->pmu = pmu;
-        if (!head) {
+        if (!head || strcmp(head->name, tmp->name) >= 0) {
+            tmp->next = head;
             head = tmp;
-            ptr = head;
         } else {
+            ptr = head;
+            while (ptr->next && strcmp(ptr->next->name, tmp->name) < 0)
+                ptr = ptr->next;
+            tmp->next = ptr->next;
             ptr->next = tmp;
-            ptr = ptr->next;
         }
     }
     *events = head;
@@ -256,7 +259,7 @@ static int fetch_format_properties(char *format_path, struct property **prop)
     struct dirent *dir;
     char *buf, property_path[PATH_MAX], *ptr, *start;
     int ret;
-    struct property *pp = NULL, *tmp, *head = NULL;
+    struct property *pp, *tmp, *head = NULL;
 
     format_dir = opendir(format_path);
     if (!format_dir) {
@@ -320,12 +323,15 @@ static int fetch_format_properties(char *format_path, struct property **prop)
             tmp->hi_bit = atoi(ptr);
         }
 
-        if (!pp) {
-            pp = tmp;
-            head = pp;
+        if (!head || strcmp(head->name, tmp->name) >= 0) {
+            tmp->next = head;
+            head = tmp;
         } else {
+            pp = head;
+            while (pp->next && strcmp(pp->next->name, tmp->name) < 0)
+                pp = pp->next;
+            tmp->next = pp->next;
             pp->next = tmp;
-            pp = pp->next;
         }
     }
 
@@ -691,12 +697,15 @@ static int populate_pmus(struct pmu **pmus)
             goto free_pmu;
         }
 
-        if (!head) {
+        if (!head || strcmp(head->name, tmp->name) >= 0) {
+            tmp->next = head;
             head = tmp;
-            ptr = head;
         } else {
+            ptr = head;
+            while (ptr->next && strcmp(ptr->next->name, tmp->name) < 0)
+                ptr = ptr->next;
+            tmp->next = ptr->next;
             ptr->next = tmp;
-            ptr = ptr->next;
         }
     }
 
