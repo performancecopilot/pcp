@@ -88,7 +88,7 @@ class PrometheusPMDA(PMDA):
                 self.pmid(*metric["pmid"]),
                 metric["type"], instDomain, metric["sem"],
                 pmUnits(*metric["units"])),
-                '')
+                metric["description"])
 
     def read_config(self):
         configFile = open(self.configfile)
@@ -98,7 +98,8 @@ class PrometheusPMDA(PMDA):
     def __init__(self, name, domain):
         PMDA.__init__(self, name, domain)
 
-        self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR') +  '/' + name + '/' + "config.json"
+        #self.configfile = PCP.pmGetConfig('PCP_PMDAS_DIR') +  '/' + name + '/' + "config.json"
+        self.configfile =   '/home/ronakjain/project/pcp/src/pmdas/prometheus/config.json'
         self.connection_error = False
         self.values = {}
         self.indexes = {}

@@ -31,52 +31,76 @@ class Parser():
 
     ''' Parse prometheus metrics line into key and value '''
     def __parse_line(self, line):
-        if not line or line[0] == '#':
+        if not line:
             return None
 
+        if line[0] == '#':
+            tokens = line.split(' ')
+            if  tokens[1] == "TYPE":
+                return (tokens[1], tokens[3])
+            else:
+                return (tokens[1], ' '.join(tokens[3:]))
+
         (key,value) = line.split(' ')
-        return key
+        return ("METRIC" ,key)
+
+
 
     ''' Parse prometheus metrics key into name and instanceName '''
     #Instance name is composed instance separated by ::
     def __metric_metadata(self, key):
-        if key.rfind('}') == -1:
-            return {"name": key}
+        name = key
+        instanceName = None
+        if name.rfind('}') != -1:
+            name = key[:key.find('{')]
+            instanceName = "::".join(key[key.find('{') + 1 : len(key) - 1].split(','))
 
-        name = key[:key.find('{')]
-        instanceName = "::".join(key[key.find('{') + 1 : len(key) - 1].split(','))
         return {"name": name, "instanceName": instanceName}
 
+    def __metric_semantic(self, type):
+        if type == "counter":
+            return 1
+        return 3
 
     def parse_metrics(self, data):
         lines = data.splitlines()
         metrics = []
         metrics_index = {}
+        metric_type = None
+        metric_description = None
 
         for line in lines:
-            prometheus_metric_name = self.__parse_line(line)
-            if not prometheus_metric_name:
+            tokens = self.__parse_line(line)
+            if not tokens:
                 continue
 
-            metadata = self.__metric_metadata(prometheus_metric_name)
+            if tokens[0] == "HELP":
+                metric_description = tokens[1]
+                continue
+            elif tokens[0] == "TYPE":
+                metric_type = tokens[1]
+                continue
+
+            metadata = self.__metric_metadata(tokens[1])
             if not metadata["name"] in metrics_index:
                 generic_metric = {
                     "name": metadata["name"],
-                    "prometheus_name": prometheus_metric_name,
+                    "prometheus_name": tokens[1],
                     "pmid": [0, len(metrics)],
                     "type": 4,
                     "instances": [],
-                    "sem": 3,
+                    "sem": self.__metric_semantic(metric_type),
                     "units": [0,0,0,0,0],
+                    "description": metric_description,
                 }
                 metrics.append(generic_metric)
                 metrics_index[metadata["name"]] = len(metrics)-1
 
             metric = metrics[metrics_index[metadata["name"]]]
-            if metadata.get("instanceName", False):
+            if metadata["instanceName"]:
                 generic_instance = {
                     "name": metadata["instanceName"],
-                    "prometheus_name": prometheus_metric_name,
+                    "prometheus_name": tokens[1],
                     "instId": [len(metric["instances"]), metadata["instanceName"]]
                 }
                 metric["instances"].append(generic_instance)

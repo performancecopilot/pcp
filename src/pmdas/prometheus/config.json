@@ -2,6 +2,7 @@
   "endpoint": "http://localhost:9090/metrics", 
   "metrics": [
     {
+      "description": "A summary of the GC invocation durations.", 
       "instances": [
         {
           "instId": [
@@ -61,6 +62,7 @@
       ]
     }, 
     {
+      "description": "A summary of the GC invocation durations.", 
       "instances": [], 
       "name": "go_gc_duration_seconds_sum", 
       "pmid": [
@@ -79,6 +81,7 @@
       ]
     }, 
     {
+      "description": "A summary of the GC invocation durations.", 
       "instances": [], 
       "name": "go_gc_duration_seconds_count", 
       "pmid": [
@@ -97,6 +100,7 @@
       ]
     }, 
     {
+      "description": "Number of goroutines that currently exist.", 
       "instances": [], 
       "name": "go_goroutines", 
       "pmid": [
@@ -115,6 +119,7 @@
       ]
     }, 
     {
+      "description": "Number of bytes allocated and still in use.", 
       "instances": [], 
       "name": "go_memstats_alloc_bytes", 
       "pmid": [
@@ -133,6 +138,7 @@
       ]
     }, 
     {
+      "description": "Total number of bytes allocated, even if freed.", 
       "instances": [], 
       "name": "go_memstats_alloc_bytes_total", 
       "pmid": [
@@ -140,7 +146,7 @@
         5
       ], 
       "prometheus_name": "go_memstats_alloc_bytes_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -151,6 +157,7 @@
       ]
     }, 
     {
+      "description": "Number of bytes used by the profiling bucket hash table.", 
       "instances": [], 
       "name": "go_memstats_buck_hash_sys_bytes", 
       "pmid": [
@@ -169,6 +176,7 @@
       ]
     }, 
     {
+      "description": "Total number of frees.", 
       "instances": [], 
       "name": "go_memstats_frees_total", 
       "pmid": [
@@ -176,7 +184,7 @@
         7
       ], 
       "prometheus_name": "go_memstats_frees_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -187,6 +195,7 @@
       ]
     }, 
     {
+      "description": "Number of bytes used for garbage collection system metadata.", 
       "instances": [], 
       "name": "go_memstats_gc_sys_bytes", 
       "pmid": [
@@ -205,6 +214,7 @@
       ]
     }, 
     {
+      "description": "Number of heap bytes allocated and still in use.", 
       "instances": [], 
       "name": "go_memstats_heap_alloc_bytes", 
       "pmid": [
@@ -223,6 +233,7 @@
       ]
     }, 
     {
+      "description": "Number of heap bytes waiting to be used.", 
       "instances": [], 
       "name": "go_memstats_heap_idle_bytes", 
       "pmid": [
@@ -241,6 +252,7 @@
       ]
     }, 
     {
+      "description": "Number of heap bytes that are in use.", 
       "instances": [], 
       "name": "go_memstats_heap_inuse_bytes", 
       "pmid": [
@@ -259,6 +271,7 @@
       ]
     }, 
     {
+      "description": "Number of allocated objects.", 
       "instances": [], 
       "name": "go_memstats_heap_objects", 
       "pmid": [
@@ -277,6 +290,7 @@
       ]
     }, 
     {
+      "description": "Total number of heap bytes released to OS.", 
       "instances": [], 
       "name": "go_memstats_heap_released_bytes_total", 
       "pmid": [
@@ -284,7 +298,7 @@
         13
       ], 
       "prometheus_name": "go_memstats_heap_released_bytes_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -295,6 +309,7 @@
       ]
     }, 
     {
+      "description": "Number of heap bytes obtained from system.", 
       "instances": [], 
       "name": "go_memstats_heap_sys_bytes", 
       "pmid": [
@@ -313,6 +328,7 @@
       ]
     }, 
     {
+      "description": "Number of seconds since 1970 of last garbage collection.", 
       "instances": [], 
       "name": "go_memstats_last_gc_time_seconds", 
       "pmid": [
@@ -331,6 +347,7 @@
       ]
     }, 
     {
+      "description": "Total number of pointer lookups.", 
       "instances": [], 
       "name": "go_memstats_lookups_total", 
       "pmid": [
@@ -338,7 +355,7 @@
         16
       ], 
       "prometheus_name": "go_memstats_lookups_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -349,6 +366,7 @@
       ]
     }, 
     {
+      "description": "Total number of mallocs.", 
       "instances": [], 
       "name": "go_memstats_mallocs_total", 
       "pmid": [
@@ -356,7 +374,7 @@
         17
       ], 
       "prometheus_name": "go_memstats_mallocs_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -367,6 +385,7 @@
       ]
     }, 
     {
+      "description": "Number of bytes in use by mcache structures.", 
       "instances": [], 
       "name": "go_memstats_mcache_inuse_bytes", 
       "pmid": [
@@ -385,6 +404,7 @@
       ]
     }, 
     {
+      "description": "Number of bytes used for mcache structures obtained from system.", 
       "instances": [], 
       "name": "go_memstats_mcache_sys_bytes", 
       "pmid": [
@@ -403,6 +423,7 @@
       ]
     }, 
     {
+      "description": "Number of bytes in use by mspan structures.", 
       "instances": [], 
       "name": "go_memstats_mspan_inuse_bytes", 
       "pmid": [
@@ -421,6 +442,7 @@
       ]
     }, 
     {
+      "description": "Number of bytes used for mspan structures obtained from system.", 
       "instances": [], 
       "name": "go_memstats_mspan_sys_bytes", 
       "pmid": [
@@ -439,6 +461,7 @@
       ]
     }, 
     {
+      "description": "Number of heap bytes when next garbage collection will take place.", 
       "instances": [], 
       "name": "go_memstats_next_gc_bytes", 
       "pmid": [
@@ -457,6 +480,7 @@
       ]
     }, 
     {
+      "description": "Number of bytes used for other system allocations.", 
       "instances": [], 
       "name": "go_memstats_other_sys_bytes", 
       "pmid": [
@@ -475,6 +499,7 @@
       ]
     }, 
     {
+      "description": "Number of bytes in use by the stack allocator.", 
       "instances": [], 
       "name": "go_memstats_stack_inuse_bytes", 
       "pmid": [
@@ -493,6 +518,7 @@
       ]
     }, 
     {
+      "description": "Number of bytes obtained from system for stack allocator.", 
       "instances": [], 
       "name": "go_memstats_stack_sys_bytes", 
       "pmid": [
@@ -511,6 +537,7 @@
       ]
     }, 
     {
+      "description": "Number of bytes obtained by system. Sum of all system allocations.", 
       "instances": [], 
       "name": "go_memstats_sys_bytes", 
       "pmid": [
@@ -529,6 +556,7 @@
       ]
     }, 
     {
+      "description": "The HTTP request latencies in microseconds.", 
       "instances": [
         {
           "instId": [
@@ -1028,6 +1056,7 @@
       ]
     }, 
     {
+      "description": "The HTTP request latencies in microseconds.", 
       "instances": [
         {
           "instId": [
@@ -1207,6 +1236,7 @@
       ]
     }, 
     {
+      "description": "The HTTP request latencies in microseconds.", 
       "instances": [
         {
           "instId": [
@@ -1386,6 +1416,7 @@
       ]
     }, 
     {
+      "description": "The HTTP request sizes in bytes.", 
       "instances": [
         {
           "instId": [
@@ -1885,6 +1916,7 @@
       ]
     }, 
     {
+      "description": "The HTTP request sizes in bytes.", 
       "instances": [
         {
           "instId": [
@@ -2064,6 +2096,7 @@
       ]
     }, 
     {
+      "description": "The HTTP request sizes in bytes.", 
       "instances": [
         {
           "instId": [
@@ -2243,6 +2276,7 @@
       ]
     }, 
     {
+      "description": "Total number of HTTP requests made.", 
       "instances": [
         {
           "instId": [
@@ -2315,7 +2349,7 @@
         33
       ], 
       "prometheus_name": "http_requests_total{code=\"200\",handler=\"alerts\",method=\"get\"}", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -2326,6 +2360,7 @@
       ]
     }, 
     {
+      "description": "The HTTP response sizes in bytes.", 
       "instances": [
         {
           "instId": [
@@ -2825,6 +2860,7 @@
       ]
     }, 
     {
+      "description": "The HTTP response sizes in bytes.", 
       "instances": [
         {
           "instId": [
@@ -3004,6 +3040,7 @@
       ]
     }, 
     {
+      "description": "The HTTP response sizes in bytes.", 
       "instances": [
         {
           "instId": [
@@ -3183,6 +3220,7 @@
       ]
     }, 
     {
+      "description": "Total user and system CPU time spent in seconds.", 
       "instances": [], 
       "name": "process_cpu_seconds_total", 
       "pmid": [
@@ -3190,7 +3228,7 @@
         37
       ], 
       "prometheus_name": "process_cpu_seconds_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -3201,6 +3239,7 @@
       ]
     }, 
     {
+      "description": "Maximum number of open file descriptors.", 
       "instances": [], 
       "name": "process_max_fds", 
       "pmid": [
@@ -3219,6 +3258,7 @@
       ]
     }, 
     {
+      "description": "Number of open file descriptors.", 
       "instances": [], 
       "name": "process_open_fds", 
       "pmid": [
@@ -3237,6 +3277,7 @@
       ]
     }, 
     {
+      "description": "Resident memory size in bytes.", 
       "instances": [], 
       "name": "process_resident_memory_bytes", 
       "pmid": [
@@ -3255,6 +3296,7 @@
       ]
     }, 
     {
+      "description": "Start time of the process since unix epoch in seconds.", 
       "instances": [], 
       "name": "process_start_time_seconds", 
       "pmid": [
@@ -3273,6 +3315,7 @@
       ]
     }, 
     {
+      "description": "Virtual memory size in bytes.", 
       "instances": [], 
       "name": "process_virtual_memory_bytes", 
       "pmid": [
@@ -3291,6 +3334,7 @@
       ]
     }, 
     {
+      "description": "A metric with a constant '1' value labeled by version, revision, branch, and goversion from which prometheus was built.", 
       "instances": [
         {
           "instId": [
@@ -3318,6 +3362,7 @@
       ]
     }, 
     {
+      "description": "Timestamp of the last successful configuration reload.", 
       "instances": [], 
       "name": "prometheus_config_last_reload_success_timestamp_seconds", 
       "pmid": [
@@ -3336,6 +3381,7 @@
       ]
     }, 
     {
+      "description": "Whether the last configuration reload attempt was successful.", 
       "instances": [], 
       "name": "prometheus_config_last_reload_successful", 
       "pmid": [
@@ -3354,6 +3400,7 @@
       ]
     }, 
     {
+      "description": "The current number of queries being executed or waiting.", 
       "instances": [], 
       "name": "prometheus_engine_queries", 
       "pmid": [
@@ -3372,6 +3419,7 @@
       ]
     }, 
     {
+      "description": "The max number of concurrent queries.", 
       "instances": [], 
       "name": "prometheus_engine_queries_concurrent_max", 
       "pmid": [
@@ -3390,6 +3438,7 @@
       ]
     }, 
     {
+      "description": "The duration of rule group evaluations.", 
       "instances": [
         {
           "instId": [
@@ -3449,6 +3498,7 @@
       ]
     }, 
     {
+      "description": "The duration of rule group evaluations.", 
       "instances": [], 
       "name": "prometheus_evaluator_duration_seconds_sum", 
       "pmid": [
@@ -3467,6 +3517,7 @@
       ]
     }, 
     {
+      "description": "The duration of rule group evaluations.", 
       "instances": [], 
       "name": "prometheus_evaluator_duration_seconds_count", 
       "pmid": [
@@ -3485,6 +3536,7 @@
       ]
     }, 
     {
+      "description": "The total number of rule group evaluations skipped due to throttled metric storage.", 
       "instances": [], 
       "name": "prometheus_evaluator_iterations_skipped_total", 
       "pmid": [
@@ -3492,7 +3544,7 @@
         51
       ], 
       "prometheus_name": "prometheus_evaluator_iterations_skipped_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -3503,6 +3555,7 @@
       ]
     }, 
     {
+      "description": "The duration in seconds taken for checkpointing open chunks and chunks yet to be persisted", 
       "instances": [
         {
           "instId": [
@@ -3546,6 +3599,7 @@
       ]
     }, 
     {
+      "description": "The duration in seconds taken for checkpointing open chunks and chunks yet to be persisted", 
       "instances": [], 
       "name": "prometheus_local_storage_checkpoint_duration_seconds_sum", 
       "pmid": [
@@ -3564,6 +3618,7 @@
       ]
     }, 
     {
+      "description": "The duration in seconds taken for checkpointing open chunks and chunks yet to be persisted", 
       "instances": [], 
       "name": "prometheus_local_storage_checkpoint_duration_seconds_count", 
       "pmid": [
@@ -3582,6 +3637,7 @@
       ]
     }, 
     {
+      "description": "The duration in seconds it took to last checkpoint open chunks and chunks yet to be persisted.", 
       "instances": [], 
       "name": "prometheus_local_storage_checkpoint_last_duration_seconds", 
       "pmid": [
@@ -3600,6 +3656,7 @@
       ]
     }, 
     {
+      "description": "The size of the last checkpoint of open chunks and chunks yet to be persisted", 
       "instances": [], 
       "name": "prometheus_local_storage_checkpoint_last_size_bytes", 
       "pmid": [
@@ -3618,6 +3675,7 @@
       ]
     }, 
     {
+      "description": "The number of chunk written per series while checkpointing open chunks and chunks yet to be persisted.", 
       "instances": [
         {
           "instId": [
@@ -3661,6 +3719,7 @@
       ]
     }, 
     {
+      "description": "The number of chunk written per series while checkpointing open chunks and chunks yet to be persisted.", 
       "instances": [], 
       "name": "prometheus_local_storage_checkpoint_series_chunks_written_sum", 
       "pmid": [
@@ -3679,6 +3738,7 @@
       ]
     }, 
     {
+      "description": "The number of chunk written per series while checkpointing open chunks and chunks yet to be persisted.", 
       "instances": [], 
       "name": "prometheus_local_storage_checkpoint_series_chunks_written_count", 
       "pmid": [
@@ -3697,6 +3757,7 @@
       ]
     }, 
     {
+      "description": "1 if the storage is checkpointing, 0 otherwise.", 
       "instances": [], 
       "name": "prometheus_local_storage_checkpointing", 
       "pmid": [
@@ -3715,6 +3776,7 @@
       ]
     }, 
     {
+      "description": "The total number of chunk operations by their type.", 
       "instances": [
         {
           "instId": [
@@ -3763,7 +3825,7 @@
         61
       ], 
       "prometheus_name": "prometheus_local_storage_chunk_ops_total{type=\"create\"}", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -3774,6 +3836,7 @@
       ]
     }, 
     {
+      "description": "The current number of chunks waiting for persistence.", 
       "instances": [], 
       "name": "prometheus_local_storage_chunks_to_persist", 
       "pmid": [
@@ -3792,6 +3855,7 @@
       ]
     }, 
     {
+      "description": "The total number of fingerprints being mapped to avoid collisions.", 
       "instances": [], 
       "name": "prometheus_local_storage_fingerprint_mappings_total", 
       "pmid": [
@@ -3799,7 +3863,7 @@
         63
       ], 
       "prometheus_name": "prometheus_local_storage_fingerprint_mappings_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -3810,6 +3874,7 @@
       ]
     }, 
     {
+      "description": "A counter incremented each time an inconsistency in the local storage is detected. If this is greater zero, restart the server as soon as possible.", 
       "instances": [], 
       "name": "prometheus_local_storage_inconsistencies_total", 
       "pmid": [
@@ -3817,7 +3882,7 @@
         64
       ], 
       "prometheus_name": "prometheus_local_storage_inconsistencies_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -3828,6 +3893,7 @@
       ]
     }, 
     {
+      "description": "Quantiles for batch indexing duration in seconds.", 
       "instances": [
         {
           "instId": [
@@ -3871,6 +3937,7 @@
       ]
     }, 
     {
+      "description": "Quantiles for batch indexing duration in seconds.", 
       "instances": [], 
       "name": "prometheus_local_storage_indexing_batch_duration_seconds_sum", 
       "pmid": [
@@ -3889,6 +3956,7 @@
       ]
     }, 
     {
+      "description": "Quantiles for batch indexing duration in seconds.", 
       "instances": [], 
       "name": "prometheus_local_storage_indexing_batch_duration_seconds_count", 
       "pmid": [
@@ -3907,6 +3975,7 @@
       ]
     }, 
     {
+      "description": "Quantiles for indexing batch sizes (number of metrics per batch).", 
       "instances": [
         {
           "instId": [
@@ -3950,6 +4019,7 @@
       ]
     }, 
     {
+      "description": "Quantiles for indexing batch sizes (number of metrics per batch).", 
       "instances": [], 
       "name": "prometheus_local_storage_indexing_batch_sizes_sum", 
       "pmid": [
@@ -3968,6 +4038,7 @@
       ]
     }, 
     {
+      "description": "Quantiles for indexing batch sizes (number of metrics per batch).", 
       "instances": [], 
       "name": "prometheus_local_storage_indexing_batch_sizes_count", 
       "pmid": [
@@ -3986,6 +4057,7 @@
       ]
     }, 
     {
+      "description": "The capacity of the indexing queue.", 
       "instances": [], 
       "name": "prometheus_local_storage_indexing_queue_capacity", 
       "pmid": [
@@ -4004,6 +4076,7 @@
       ]
     }, 
     {
+      "description": "The number of metrics waiting to be indexed.", 
       "instances": [], 
       "name": "prometheus_local_storage_indexing_queue_length", 
       "pmid": [
@@ -4022,6 +4095,7 @@
       ]
     }, 
     {
+      "description": "The total number of samples ingested.", 
       "instances": [], 
       "name": "prometheus_local_storage_ingested_samples_total", 
       "pmid": [
@@ -4029,7 +4103,7 @@
         73
       ], 
       "prometheus_name": "prometheus_local_storage_ingested_samples_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -4040,6 +4114,7 @@
       ]
     }, 
     {
+      "description": "The duration in seconds it took to perform maintenance on a series.", 
       "instances": [
         {
           "instId": [
@@ -4107,6 +4182,7 @@
       ]
     }, 
     {
+      "description": "The duration in seconds it took to perform maintenance on a series.", 
       "instances": [
         {
           "instId": [
@@ -4142,6 +4218,7 @@
       ]
     }, 
     {
+      "description": "The duration in seconds it took to perform maintenance on a series.", 
       "instances": [
         {
           "instId": [
@@ -4177,6 +4254,7 @@
       ]
     }, 
     {
+      "description": "The maximum number of chunks that can be waiting for persistence before sample ingestion will stop.", 
       "instances": [], 
       "name": "prometheus_local_storage_max_chunks_to_persist", 
       "pmid": [
@@ -4195,6 +4273,7 @@
       ]
     }, 
     {
+      "description": "The configured maximum number of chunks that can be held in memory", 
       "instances": [], 
       "name": "prometheus_local_storage_max_memory_chunks", 
       "pmid": [
@@ -4213,6 +4292,7 @@
       ]
     }, 
     {
+      "description": "The current number of chunk descriptors in memory.", 
       "instances": [], 
       "name": "prometheus_local_storage_memory_chunkdescs", 
       "pmid": [
@@ -4231,6 +4311,7 @@
       ]
     }, 
     {
+      "description": "The current number of chunks in memory, excluding cloned chunks (i.e. chunks without a descriptor).", 
       "instances": [], 
       "name": "prometheus_local_storage_memory_chunks", 
       "pmid": [
@@ -4249,6 +4330,7 @@
       ]
     }, 
     {
+      "description": "The current number of series that would require a disk seek during crash recovery.", 
       "instances": [], 
       "name": "prometheus_local_storage_memory_dirty_series", 
       "pmid": [
@@ -4267,6 +4349,7 @@
       ]
     }, 
     {
+      "description": "The current number of series in memory.", 
       "instances": [], 
       "name": "prometheus_local_storage_memory_series", 
       "pmid": [
@@ -4285,6 +4368,7 @@
       ]
     }, 
     {
+      "description": "How often a non-existent series was referred to during label matching or chunk preloading. This is an indication of outdated label indexes.", 
       "instances": [], 
       "name": "prometheus_local_storage_non_existent_series_matches_total", 
       "pmid": [
@@ -4292,7 +4376,7 @@
         83
       ], 
       "prometheus_name": "prometheus_local_storage_non_existent_series_matches_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -4303,6 +4387,7 @@
       ]
     }, 
     {
+      "description": "The total number of samples that were discarded because their timestamps were at or before the last received sample for a series.", 
       "instances": [
         {
           "instId": [
@@ -4327,7 +4412,7 @@
         84
       ], 
       "prometheus_name": "prometheus_local_storage_out_of_order_samples_total{reason=\"multiple_values_for_timestamp\"}", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -4338,6 +4423,7 @@
       ]
     }, 
     {
+      "description": "The total number of errors while persisting chunks.", 
       "instances": [], 
       "name": "prometheus_local_storage_persist_errors_total", 
       "pmid": [
@@ -4345,7 +4431,7 @@
         85
       ], 
       "prometheus_name": "prometheus_local_storage_persist_errors_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -4356,6 +4442,7 @@
       ]
     }, 
     {
+      "description": "A score of urgency to persist chunks, 0 is least urgent, 1 most.", 
       "instances": [], 
       "name": "prometheus_local_storage_persistence_urgency_score", 
       "pmid": [
@@ -4374,6 +4461,7 @@
       ]
     }, 
     {
+      "description": "The total number of chunks queued for persistence.", 
       "instances": [], 
       "name": "prometheus_local_storage_queued_chunks_to_persist_total", 
       "pmid": [
@@ -4381,7 +4469,7 @@
         87
       ], 
       "prometheus_name": "prometheus_local_storage_queued_chunks_to_persist_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -4392,6 +4480,7 @@
       ]
     }, 
     {
+      "description": "1 if the storage is in rushed mode, 0 otherwise. In rushed mode, the system behaves as if the persistence_urgency_score is 1.", 
       "instances": [], 
       "name": "prometheus_local_storage_rushed_mode", 
       "pmid": [
@@ -4410,6 +4499,7 @@
       ]
     }, 
     {
+      "description": "The number of chunks persisted per series.", 
       "instances": [
         {
           "instId": [
@@ -4501,6 +4591,7 @@
       ]
     }, 
     {
+      "description": "The number of chunks persisted per series.", 
       "instances": [], 
       "name": "prometheus_local_storage_series_chunks_persisted_sum", 
       "pmid": [
@@ -4519,6 +4610,7 @@
       ]
     }, 
     {
+      "description": "The number of chunks persisted per series.", 
       "instances": [], 
       "name": "prometheus_local_storage_series_chunks_persisted_count", 
       "pmid": [
@@ -4537,6 +4629,7 @@
       ]
     }, 
     {
+      "description": "The total number of series operations by their type.", 
       "instances": [
         {
           "instId": [
@@ -4633,7 +4726,7 @@
         92
       ], 
       "prometheus_name": "prometheus_local_storage_series_ops_total{type=\"archive\"}", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -4644,6 +4737,7 @@
       ]
     }, 
     {
+      "description": "Whether the local storage was found to be dirty (and crash recovery occurred) during Prometheus startup.", 
       "instances": [], 
       "name": "prometheus_local_storage_started_dirty", 
       "pmid": [
@@ -4662,6 +4756,7 @@
       ]
     }, 
     {
+      "description": "Total number of alerts dropped due to errors when sending to Alertmanager.", 
       "instances": [], 
       "name": "prometheus_notifications_dropped_total", 
       "pmid": [
@@ -4669,7 +4764,7 @@
         94
       ], 
       "prometheus_name": "prometheus_notifications_dropped_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -4680,6 +4775,7 @@
       ]
     }, 
     {
+      "description": "The capacity of the alert notifications queue.", 
       "instances": [], 
       "name": "prometheus_notifications_queue_capacity", 
       "pmid": [
@@ -4698,6 +4794,7 @@
       ]
     }, 
     {
+      "description": "The number of alert notifications in the queue.", 
       "instances": [], 
       "name": "prometheus_notifications_queue_length", 
       "pmid": [
@@ -4716,6 +4813,7 @@
       ]
     }, 
     {
+      "description": "The total number of rule evaluation failures.", 
       "instances": [
         {
           "instId": [
@@ -4740,7 +4838,7 @@
         97
       ], 
       "prometheus_name": "prometheus_rule_evaluation_failures_total{rule_type=\"alerting\"}", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -4751,6 +4849,7 @@
       ]
     }, 
     {
+      "description": "The duration of a Azure-SD refresh in seconds.", 
       "instances": [
         {
           "instId": [
@@ -4794,6 +4893,7 @@
       ]
     }, 
     {
+      "description": "The duration of a Azure-SD refresh in seconds.", 
       "instances": [], 
       "name": "prometheus_sd_azure_refresh_duration_seconds_sum", 
       "pmid": [
@@ -4812,6 +4912,7 @@
       ]
     }, 
     {
+      "description": "The duration of a Azure-SD refresh in seconds.", 
       "instances": [], 
       "name": "prometheus_sd_azure_refresh_duration_seconds_count", 
       "pmid": [
@@ -4830,6 +4931,7 @@
       ]
     }, 
     {
+      "description": "Number of Azure-SD refresh failures.", 
       "instances": [], 
       "name": "prometheus_sd_azure_refresh_failures_total", 
       "pmid": [
@@ -4837,7 +4939,7 @@
         101
       ], 
       "prometheus_name": "prometheus_sd_azure_refresh_failures_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -4848,6 +4950,7 @@
       ]
     }, 
     {
+      "description": "The duration of a Consul RPC call in seconds.", 
       "instances": [
         {
           "instId": [
@@ -4915,6 +5018,7 @@
       ]
     }, 
     {
+      "description": "The duration of a Consul RPC call in seconds.", 
       "instances": [
         {
           "instId": [
@@ -4950,6 +5054,7 @@
       ]
     }, 
     {
+      "description": "The duration of a Consul RPC call in seconds.", 
       "instances": [
         {
           "instId": [
@@ -4985,6 +5090,7 @@
       ]
     }, 
     {
+      "description": "The number of Consul RPC call failures.", 
       "instances": [], 
       "name": "prometheus_sd_consul_rpc_failures_total", 
       "pmid": [
@@ -4992,7 +5098,7 @@
         105
       ], 
       "prometheus_name": "prometheus_sd_consul_rpc_failures_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -5003,6 +5109,7 @@
       ]
     }, 
     {
+      "description": "The number of DNS-SD lookup failures.", 
       "instances": [], 
       "name": "prometheus_sd_dns_lookup_failures_total", 
       "pmid": [
@@ -5010,7 +5117,7 @@
         106
       ], 
       "prometheus_name": "prometheus_sd_dns_lookup_failures_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -5021,6 +5128,7 @@
       ]
     }, 
     {
+      "description": "The number of DNS-SD lookups.", 
       "instances": [], 
       "name": "prometheus_sd_dns_lookups_total", 
       "pmid": [
@@ -5028,7 +5136,7 @@
         107
       ], 
       "prometheus_name": "prometheus_sd_dns_lookups_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -5039,6 +5147,7 @@
       ]
     }, 
     {
+      "description": "The duration of a EC2-SD refresh in seconds.", 
       "instances": [
         {
           "instId": [
@@ -5082,6 +5191,7 @@
       ]
     }, 
     {
+      "description": "The duration of a EC2-SD refresh in seconds.", 
       "instances": [], 
       "name": "prometheus_sd_ec2_refresh_duration_seconds_sum", 
       "pmid": [
@@ -5100,6 +5210,7 @@
       ]
     }, 
     {
+      "description": "The duration of a EC2-SD refresh in seconds.", 
       "instances": [], 
       "name": "prometheus_sd_ec2_refresh_duration_seconds_count", 
       "pmid": [
@@ -5118,6 +5229,7 @@
       ]
     }, 
     {
+      "description": "The number of EC2-SD scrape failures.", 
       "instances": [], 
       "name": "prometheus_sd_ec2_refresh_failures_total", 
       "pmid": [
@@ -5125,7 +5237,7 @@
         111
       ], 
       "prometheus_name": "prometheus_sd_ec2_refresh_failures_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -5136,6 +5248,7 @@
       ]
     }, 
     {
+      "description": "The number of File-SD read errors.", 
       "instances": [], 
       "name": "prometheus_sd_file_read_errors_total", 
       "pmid": [
@@ -5143,7 +5256,7 @@
         112
       ], 
       "prometheus_name": "prometheus_sd_file_read_errors_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -5154,6 +5267,7 @@
       ]
     }, 
     {
+      "description": "The duration of the File-SD scan in seconds.", 
       "instances": [
         {
           "instId": [
@@ -5197,6 +5311,7 @@
       ]
     }, 
     {
+      "description": "The duration of the File-SD scan in seconds.", 
       "instances": [], 
       "name": "prometheus_sd_file_scan_duration_seconds_sum", 
       "pmid": [
@@ -5215,6 +5330,7 @@
       ]
     }, 
     {
+      "description": "The duration of the File-SD scan in seconds.", 
       "instances": [], 
       "name": "prometheus_sd_file_scan_duration_seconds_count", 
       "pmid": [
@@ -5233,6 +5349,7 @@
       ]
     }, 
     {
+      "description": "The duration of a GCE-SD refresh in seconds.", 
       "instances": [
         {
           "instId": [
@@ -5276,6 +5393,7 @@
       ]
     }, 
     {
+      "description": "The duration of a GCE-SD refresh in seconds.", 
       "instances": [], 
       "name": "prometheus_sd_gce_refresh_duration_sum", 
       "pmid": [
@@ -5294,6 +5412,7 @@
       ]
     }, 
     {
+      "description": "The duration of a GCE-SD refresh in seconds.", 
       "instances": [], 
       "name": "prometheus_sd_gce_refresh_duration_count", 
       "pmid": [
@@ -5312,6 +5431,7 @@
       ]
     }, 
     {
+      "description": "The number of GCE-SD refresh failures.", 
       "instances": [], 
       "name": "prometheus_sd_gce_refresh_failures_total", 
       "pmid": [
@@ -5319,7 +5439,7 @@
         119
       ], 
       "prometheus_name": "prometheus_sd_gce_refresh_failures_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -5330,6 +5450,7 @@
       ]
     }, 
     {
+      "description": "The number of Kubernetes events handled.", 
       "instances": [
         {
           "instId": [
@@ -5434,7 +5555,7 @@
         120
       ], 
       "prometheus_name": "prometheus_sd_kubernetes_events_total{event=\"add\",role=\"endpoints\"}", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -5445,6 +5566,7 @@
       ]
     }, 
     {
+      "description": "The duration of a Marathon-SD refresh in seconds.", 
       "instances": [
         {
           "instId": [
@@ -5488,6 +5610,7 @@
       ]
     }, 
     {
+      "description": "The duration of a Marathon-SD refresh in seconds.", 
       "instances": [], 
       "name": "prometheus_sd_marathon_refresh_duration_seconds_sum", 
       "pmid": [
@@ -5506,6 +5629,7 @@
       ]
     }, 
     {
+      "description": "The duration of a Marathon-SD refresh in seconds.", 
       "instances": [], 
       "name": "prometheus_sd_marathon_refresh_duration_seconds_count", 
       "pmid": [
@@ -5524,6 +5648,7 @@
       ]
     }, 
     {
+      "description": "The number of Marathon-SD refresh failures.", 
       "instances": [], 
       "name": "prometheus_sd_marathon_refresh_failures_total", 
       "pmid": [
@@ -5531,7 +5656,7 @@
         124
       ], 
       "prometheus_name": "prometheus_sd_marathon_refresh_failures_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -5542,6 +5667,7 @@
       ]
     }, 
     {
+      "description": "The duration of a Triton-SD refresh in seconds.", 
       "instances": [
         {
           "instId": [
@@ -5585,6 +5711,7 @@
       ]
     }, 
     {
+      "description": "The duration of a Triton-SD refresh in seconds.", 
       "instances": [], 
       "name": "prometheus_sd_triton_refresh_duration_seconds_sum", 
       "pmid": [
@@ -5603,6 +5730,7 @@
       ]
     }, 
     {
+      "description": "The duration of a Triton-SD refresh in seconds.", 
       "instances": [], 
       "name": "prometheus_sd_triton_refresh_duration_seconds_count", 
       "pmid": [
@@ -5621,6 +5749,7 @@
       ]
     }, 
     {
+      "description": "The number of Triton-SD scrape failures.", 
       "instances": [], 
       "name": "prometheus_sd_triton_refresh_failures_total", 
       "pmid": [
@@ -5628,7 +5757,7 @@
         128
       ], 
       "prometheus_name": "prometheus_sd_triton_refresh_failures_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -5639,6 +5768,7 @@
       ]
     }, 
     {
+      "description": "Actual intervals between scrapes.", 
       "instances": [
         {
           "instId": [
@@ -5698,6 +5828,7 @@
       ]
     }, 
     {
+      "description": "Actual intervals between scrapes.", 
       "instances": [
         {
           "instId": [
@@ -5725,6 +5856,7 @@
       ]
     }, 
     {
+      "description": "Actual intervals between scrapes.", 
       "instances": [
         {
           "instId": [
@@ -5752,6 +5884,7 @@
       ]
     }, 
     {
+      "description": "Total number of syncs that were executed on a scrape pool.", 
       "instances": [
         {
           "instId": [
@@ -5768,7 +5901,7 @@
         132
       ], 
       "prometheus_name": "prometheus_target_scrape_pool_sync_total{scrape_job=\"prometheus\"}", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -5779,6 +5912,7 @@
       ]
     }, 
     {
+      "description": "Total number of scrapes that hit the sample limit and were rejected.", 
       "instances": [], 
       "name": "prometheus_target_scrapes_exceeded_sample_limit_total", 
       "pmid": [
@@ -5786,7 +5920,7 @@
         133
       ], 
       "prometheus_name": "prometheus_target_scrapes_exceeded_sample_limit_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -5797,6 +5931,7 @@
       ]
     }, 
     {
+      "description": "Total number of scrapes that were skipped because the metric storage was throttled.", 
       "instances": [], 
       "name": "prometheus_target_skipped_scrapes_total", 
       "pmid": [
@@ -5804,7 +5939,7 @@
         134
       ], 
       "prometheus_name": "prometheus_target_skipped_scrapes_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
@@ -5815,6 +5950,7 @@
       ]
     }, 
     {
+      "description": "Actual interval to sync the scrape pool.", 
       "instances": [
         {
           "instId": [
@@ -5874,6 +6010,7 @@
       ]
     }, 
     {
+      "description": "Actual interval to sync the scrape pool.", 
       "instances": [
         {
           "instId": [
@@ -5901,6 +6038,7 @@
       ]
     }, 
     {
+      "description": "Actual interval to sync the scrape pool.", 
       "instances": [
         {
           "instId": [
@@ -5928,6 +6066,7 @@
       ]
     }, 
     {
+      "description": "The current number of watcher goroutines.", 
       "instances": [], 
       "name": "prometheus_treecache_watcher_goroutines", 
       "pmid": [
@@ -5946,6 +6085,7 @@
       ]
     }, 
     {
+      "description": "The total number of ZooKeeper failures.", 
       "instances": [], 
       "name": "prometheus_treecache_zookeeper_failures_total", 
       "pmid": [
@@ -5953,7 +6093,7 @@
         139
       ], 
       "prometheus_name": "prometheus_treecache_zookeeper_failures_total", 
-      "sem": 3, 
+      "sem": 1, 
       "type": 4, 
       "units": [
         0, 
