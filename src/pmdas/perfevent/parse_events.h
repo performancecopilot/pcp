@@ -83,8 +83,7 @@ struct software_event {
 char dev_dir[PATH_MAX];   /* Optional path prefix for the PMU devices */
 
 int init_dynamic_events(struct pmu **pmu_list);
-void setup_cpu_config(struct pmu *pmu_ptr, int *ncpus, int **cpuarr,
-		      cpulist_t *cpus);
+void setup_cpu_config(struct pmu *pmu_ptr, int *ncpus, int **cpuarr);
 int get_file_string(char *path, char *buf);
 void cleanup_pmu_list(struct pmu *pmu);
 
