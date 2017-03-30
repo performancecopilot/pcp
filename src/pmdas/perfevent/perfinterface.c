@@ -710,8 +710,7 @@ static int perf_setup_dynamic_events(perfdata_t *inst,
                 return -E_PERFEVENT_REALLOC;
             }
 
-            setup_cpu_config(pmu_ptr, &ncpus, &cpuarr,
-                             &archinfo->cpus);
+            setup_cpu_config(pmu_ptr, &ncpus, &cpuarr);
 
             if (ncpus <= 0) { /* Assume default cpu set */
                 cpuarr = archinfo->cpus.index;
