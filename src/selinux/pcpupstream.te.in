@@ -1,7 +1,6 @@
 module pcpupstream 1.0;
 
 require {
-	@PCP_CONTAINER_RUNTIME_T@
 	type pcp_pmcd_t;
 	type user_home_t;
 	type tmp_t;
@@ -14,7 +13,6 @@ require {
 	type sysctl_net_t;
 	type svirt_sandbox_file_t;
 	@PCP_SVIRT_LXC_NET_T@
-	@PCP_DOCKER_VAR_LIB_T@
 	type hostname_exec_t;
 	type ldconfig_exec_t; # pcp-lio
 	type configfs_t; # pcp-lio
@@ -57,11 +55,6 @@ allow init_t tmp_t:file open;
 
 #============= pcp_pmcd_t ==============
 
-#!!!! The file '/run/docker.sock' is mislabeled on your system.  
-#!!!! Fix with $ restorecon -R -v /run/docker.sock
-#!!!! This avc can be allowed using the boolean 'daemons_enable_cluster_mode'
-@PCP_DOCKER_VAR_LIB_RULE@
-@PCP_CONTAINER_RUNTIME_RULE@
 allow pcp_pmcd_t svirt_sandbox_file_t:dir { open read search };
 @PCP_SVIRT_LXC_NET_RULE@
 allow pcp_pmcd_t sysctl_net_t:dir search;

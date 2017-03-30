@@ -2389,6 +2389,24 @@ chown -R pcp:pcp %{_logsdir}/pmmgr 2>/dev/null
 %else
     semodule -i %{_selinuxdir}/pcpupstream.pp
 %endif #distro version check
+%triggerin selinux -- docker-selinux
+if ls %{_selinuxdir} | grep -q docker 2>/dev/null
+then
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+    semodule -X 400 -i %{_selinuxdir}/pcpupstream-docker.pp
+%else
+    semodule -i %{_selinuxdir}/pcpupstream-docker.pp
+%endif #distro version check
+fi
+%triggerin selinux -- container-selinux
+if ls %{_selinuxdir} | grep -q container 2>/dev/null
+then
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+    semodule -X 400 -i %{_selinuxdir}/pcpupstream-container.pp
+%else
+    semodule -i %{_selinuxdir}/pcpupstream-container.pp
+%endif #distro version check
+fi
 %endif
 
 %post
@@ -2459,6 +2477,25 @@ then
 %else
     semodule -r pcpupstream >/dev/null
 %endif
+fi
+%triggerun selinux -- docker-selinux
+if [ `semodule -l | grep pcpupstream-docker` ]
+then
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+    semodule -X 400 -r pcpupstream-docker
+%else
+semodule -r pcpupstream-docker
+%endif #distro version check
+fi
+
+%triggerun selinux -- container-selinux
+if [ `semodule -l | grep pcpupstream-container` ]
+then
+%if 0%{?fedora} >= 24 || 0%{?rhel} > 6
+    semodule -X 400 -r pcpupstream-container
+%else
+    semodule -r pcpupstream-container
+%endif #distro version check
 fi
 %endif
 %files -f base.list

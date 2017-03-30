@@ -19,7 +19,10 @@ ifeq "$(ENABLE_SELINUX)" "true"
 endif
 IAM = pcpupstream
 
-LDIRT = $(IAM).cil $(IAM).pp $(IAM).mod $(IAM).te tmp
+LDIRT = $(IAM).cil $(IAM).pp $(IAM).mod $(IAM).te tmp \
+	$(IAM)-docker.cil $(IAM)-docker.pp $(IAM)-docker.mod \
+	$(IAM)-container.cil $(IAM)-container.pp $(IAM)-container.mod
+
 
 default: build-me
 
@@ -49,6 +52,15 @@ install: default
 	$(INSTALL) -m 755 -d $(PCP_SELINUX_DIR)
 	$(INSTALL) -m 664 $(IAM).pp $(PCP_SELINUX_DIR)/$(IAM).pp
 	$(INSTALL) -m 664 $(IAM).te $(PCP_SELINUX_DIR)/$(IAM).te
+ifneq "$(PCP_DOCKER_VAR_LIB)" ""
+	$(INSTALL) -m 664 $(IAM)-docker.pp $(PCP_SELINUX_DIR)/$(IAM)-docker.pp
+	$(INSTALL) -m 664 $(IAM)-docker.te $(PCP_SELINUX_DIR)/$(IAM)-docker.te
+endif
+ifneq "$(PCP_CONTAINER_RUNTIME_T)" ""
+	$(INSTALL) -m 664 $(IAM)-container.pp $(PCP_SELINUX_DIR)/$(IAM)-container.pp
+	$(INSTALL) -m 664 $(IAM)-container.te $(PCP_SELINUX_DIR)/$(IAM)-container.te
+endif
+
 else
 build-me:
 install:

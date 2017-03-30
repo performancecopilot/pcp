@@ -1,6 +1,9 @@
 ifneq "$(shell seinfo -t | grep 'container_runtime_t$$' | sed -e 's/^[ \t]*//')" ""
 PCP_CONTAINER_RUNTIME_T="type container_runtime_t\;"
 PCP_CONTAINER_RUNTIME_RULE="allow pcp_pmcd_t container_runtime_t:unix_stream_socket connectto\;"
+else
+PCP_CONTAINER_RUNTIME_RULE=""
+PCP_CONTAINER_RUNTIME_T=""
 endif
 
 ifneq "$(shell seinfo -t | grep 'nsfs_t$$' | sed -e 's/^[ \t]*//')" ""
@@ -11,6 +14,9 @@ endif
 ifneq "$(shell seinfo -t | grep 'docker_var_lib_t$$' | sed -e 's/^[ \t]*//')" ""
 PCP_DOCKER_VAR_LIB_T="type docker_var_lib_t\;"
 PCP_DOCKER_VAR_LIB_RULE="allow pcp_pmcd_t docker_var_lib_t:dir search\;"
+else
+PCP_DOCKER_VAR_LIB_T=""
+PCP_DOCKER_VAR_LIB_RULE=""
 endif
 
 ifneq "$(shell seinfo -t | grep 'svirt_lxc_net_t$$' | sed -e 's/^[ \t]*//')" ""
