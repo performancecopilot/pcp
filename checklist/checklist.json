@@ -99,8 +99,9 @@
         {
             "name": "Memory - low system memory",
 	    "description": "Not enough memory in the system resulting in data being moved between memory and storage",
-	    "pcp_metrics":  [ "mem.util.free", "mem.physmem" ],
-	    "pcp_metrics_log":  [ "mem.util.free", "mem.physmem" ],
+	    "pcp_metrics":  [ "mem.ratio.free"],
+	    "pcp_metrics_log":  [ "mem.util.free", "mem.physmem", "mem.ratio.free" ],
+	    "pcp_deriveds": [ "mem.ratio.free = mem.util.free/mem.physmem" ],
 	    "predicate": "",
 	    "urls": "",
 	    "parents": ["Memory - swapping"]
