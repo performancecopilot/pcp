@@ -1190,6 +1190,7 @@ oldversion
 937 derive local
 938 derive local
 939 derive local
+940 selinux local
 943 pmprobe pmda.proc local
 944 pmcd secure local
 945 pmlogrewrite pmda.xfs local
