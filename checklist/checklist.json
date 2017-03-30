@@ -109,8 +109,9 @@
         {
             "name": "Memory - low NUMA node memory",
 	    "description": "Not enough memory on or more NUMA nodes resulting in data being moved between memory and storage",
-	    "pcp_metrics":  [ "mem.numa.util.free.*", "mem.numa.util.total.*" ],
-	    "pcp_metrics_log":  [ "mem.numa.util.free.*", "mem.numa.util.total.*" ],
+	    "pcp_metrics":  [ "mem.numa.ratio.free.*" ],
+	    "pcp_metrics_log":  [ "mem.numa.util.free", "mem.numa.util.total",  "mem.numa.ratio.free" ],
+	    "pcp_deriveds": [ "mem.numa.ratio.free = mem.numa.util.free/mem.numa.util.total" ],
 	    "predicate": "",
 	    "urls": ["https://access.redhat.com/solutions/406253", "https://access.redhat.com/solutions/465463" ],
 	    "parents": ["Memory - swapping"]
