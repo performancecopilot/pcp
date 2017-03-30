@@ -40,7 +40,8 @@ function create_metric_panel(dashboard, node) {
                 yaxis: 2,
                 fill: 0,
                 linewidth: 5
-            }]
+            }],
+	    grid: {"leftMin": 0}
         };
         var subtargets = targets.split(',');
         for (j in subtargets) {
