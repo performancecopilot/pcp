@@ -681,6 +681,12 @@ void test_derived_events_scale(void)
     wrap_sysconf_override = 0;
 }
 
+static int
+compar(const void *a, const void *b)
+{
+    return strcmp(*((const char **)a), *((const char **)b));
+}
+
 /*
  * Tests the init_dynamic_events parser code to see whether,
  * the pmus (pmu1 and pmu2) are detected. Also, tests for the total
@@ -698,12 +704,26 @@ void test_init_dynamic_events(void)
 
     init_dynamic_events(&pmu_list);
     for (tmp = pmu_list; tmp; tmp = tmp->next) {
+	char	**namelist = NULL;
+	int	n = 0;
+	int	i;
 	printf("PMU name : %s\n", tmp->name);
 	dyn_pmu_count++;
+	/*
+	 * order of events is non-deterministic, depending on dir
+	 * entry in filesystem, so stash 'em and sort 'em first
+	 */
 	for (event = tmp->ev; event; event = event->next) {
 	    dyn_event_count++;
-	    printf("\tevent name : %s\n", event->name);
+	    n++;
+	    namelist = (char **)realloc(namelist, n*sizeof(namelist[0]));
+	    namelist[n-1] = event->name;
 	}
+	qsort(namelist, n, sizeof(namelist[0]), compar);
+	for (i = 0; i < n; i++) {
+	    printf("\tevent name : %s\n", namelist[i]);
+	}
+	free(namelist);
     }
     /* PMUs : pmu1, pmu2, software */
     assert(3 == dyn_pmu_count);
