@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2011-2016 Red Hat.
+# Copyright (c) 2011-2017 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@ CXXFILES = main.cxx pmwebapi.cxx pmresapi.cxx util.cxx
 
 LLDLIBS = $(PCPLIB) $(LIB_FOR_MICROHTTPD) $(LIB_FOR_PTHREADS) 
 LDIRT = pmwebd.log pmwebd.service
+SUBDIRS = webapps
 
 LCFLAGS += $(LIBMICROHTTPDCFLAGS)
 LCFLAGS += -Wextra
@@ -48,7 +49,10 @@ $(OBJECTS): $(HFILES)
 include $(BUILDRULES)
 
 ifeq "$(ENABLE_WEBAPI)" "true"
-build-me:	$(CXXMDTARGET) pmwebd.service
+build-me::	$(CXXMDTARGET) pmwebd.service
+
+build-me::	$(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 
 pmwebd.service:	pmwebd.service.in
 	$(SED) <$< >$@ \
@@ -60,12 +64,12 @@ install:	default
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMWEBDOPTIONS_PATH)`
 	$(INSTALL) -m 644 pmwebd.options $(PCP_PMWEBDOPTIONS_PATH)
 	$(INSTALL) -m 755 rc_pmwebd $(PCP_RC_DIR)/pmwebd
-	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/webapps
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmwebd.service $(PCP_SYSTEMDUNIT_DIR)/pmwebd.service
 endif
 	$(INSTALL) -m 755 $(CXXMDTARGET) $(PCP_BINADM_DIR)/$(CXXMDTARGET)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmwebd
+	$(SUBDIRS_MAKERULE)
 else
 build-me:
 install:
