@@ -254,7 +254,7 @@ Co-Pilot (PCP) client API (PMAPI) to RESTful web applications using the
 HTTP (PMWEBAPI) protocol.
 %endif
 
-%if "@have_webjs@" == "true"
+%if "@have_webapps@" == "true"
 #
 # pcp-webjs
 #
@@ -264,16 +264,15 @@ Group: Applications/Internet
 %if @rpm_version@ >= 4060000
 BuildArch: noarch
 %endif
-Requires: pcp-webapp-graphite pcp-webapp-grafana pcp-webapp-vector
+Requires: pcp-webapp-vector pcp-webapp-blinkenlights
+Requires: pcp-webapp-grafana pcp-webapp-graphite
 Summary: Performance Co-Pilot (PCP) web applications
 URL: http://www.pcp.io
 
 %description webjs
 Javascript web application content for the Performance Co-Pilot (PCP)
 web service.
-%endif
 
-%if "@have_vector@" == "true" || "@have_webjs@" == "true"
 %package webapp-vector
 License: ASL2.0
 Group: Applications/Internet
@@ -285,9 +284,7 @@ URL: https://github.com/Netflix/vector
 
 %description webapp-vector
 Vector web application for the Performance Co-Pilot (PCP).
-%endif
 
-%if "@have_webjs@" == "true"
 %package webapp-grafana
 License: ASL2.0
 Group: Applications/Internet
@@ -307,9 +304,7 @@ not used.
 Grafana can render time series dashboards at the browser via flot.js
 (more interactive, slower, for beefy browsers) or alternately at the
 server via png (less interactive, faster).
-%endif
 
-%if "@have_webjs@" == "true"
 %package webapp-graphite
 License: ASL2.0
 Group: Applications/Internet
@@ -325,6 +320,20 @@ Graphite is a highly scalable real-time graphing system. This package
 provides a graphite version that uses the Performance Co-Pilot (PCP)
 as the data repository, and Graphites web interface renders it. The
 Carbon and Whisper subsystems of Graphite are not included nor used.
+
+%package webapp-blinkenlights
+License: ASL2.0
+Group: Applications/Internet
+Conflicts: pcp-webjs < 3.11.9
+%if 0%{?rhel} == 0 || 0%{?rhel} > 5
+BuildArch: noarch
+%endif
+Summary: Blinking lights web application for Performance Co-Pilot (PCP)
+URL: http://pcp.io
+
+%description webapp-blinkenlights
+Demo web application showing traffic lights that change colour based
+on the periodic evaluation of performance metric expressions.
 %endif
 
 #
@@ -1809,14 +1818,13 @@ DIST_MANIFEST=`pwd`/install.manifest
 export NO_CHOWN DIST_ROOT DIST_MANIFEST
 rm -f $DIST_MANIFEST
 @make@ install_pcp
-%if "@have_webjs@" == "true"
-rm -fr $WEBAPP_ROOT && mkdir -p -m 755 $WEBAPP_ROOT
-tar -xz -C $WEBAPP_ROOT -f $BACKDIR/../build/tar/webjs.tar.gz
-sed -i -e 's/vector [0-9]\.[0-9]*\.[0-9]*/vector/g' $WEBAPP_ROOT/index.html
-%endif
-%if "@have_vector@" == "true"
-rm -fr $WEBAPP_ROOT/vector && mkdir -p -m 755 $WEBAPP_ROOT/vector
-tar -xz -C $WEBAPP_ROOT/vector -f $BACKDIR/../build/tar/vector.tar.gz
+%if "@have_webapps@" == "true"
+for WEBAPP in vector grafana graphite blinkenlights
+do
+    mkdir -p -m 755 $WEBAPP_ROOT/$WEBAPP
+    tar -xz -C $WEBAPP_ROOT/$WEBAPP --strip-components=1 \
+	-f $BACKDIR/../../build/tar/pcp-webapp-$WEBAPP.tar.gz
+done
 %endif
 
 PCP_CONF=$BACKDIR/src/include/pcp.conf
@@ -1915,7 +1923,7 @@ PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 awk '{print $NF}' $DIST_MANIFEST | egrep "$PCP_GUI|applications|pixmaps" | egrep -v '/pcp-doc/|/man/|pmtime.h' > gui_files
 %endif
 %if "@enable_webapi@" == "true"
-awk '{print $NF}' $DIST_MANIFEST | egrep 'pmwebd|webapps|PMWEBAPI' | \
+awk '{print $NF}' $DIST_MANIFEST | egrep 'pmwebd|webapps$|PMWEBAPI' | \
 egrep -v 'testsuite|etc/systemd/system' >webapi_files
 %endif
 %if "@enable_manager@" == "true"
@@ -2893,7 +2901,7 @@ fi
 %files manager -f manager_files.rpm
 %endif
 
-%if "@have_webjs@" == "true"
+%if "@have_webapps@" == "true"
 %files webjs
 # duplicate directories from pcp and pcp-webapi, but rpm copes with that.
 %dir @pcp_share_dir@
@@ -2901,7 +2909,10 @@ fi
 @pcp_share_dir@/webapps/*.png
 @pcp_share_dir@/webapps/*.ico
 @pcp_share_dir@/webapps/*.html
-@pcp_share_dir@/webapps/*.txt
+
+%files webapp-blinkenlights
+%dir @pcp_share_dir@
+%dir @pcp_share_dir@/webapps
 @pcp_share_dir@/webapps/blinkenlights
 
 %files webapp-grafana
@@ -2913,9 +2924,7 @@ fi
 %dir @pcp_share_dir@
 %dir @pcp_share_dir@/webapps
 @pcp_share_dir@/webapps/graphite
-%endif
 
-%if "@have_vector@" == "true" || "@have_webjs@" == "true"
 %files webapp-vector
 %dir @pcp_share_dir@
 %dir @pcp_share_dir@/webapps

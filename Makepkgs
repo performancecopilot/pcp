@@ -22,9 +22,7 @@ verbose=false
 srconly=false
 dorpm=unknown
 dodeb=unknown
-parfait=false
-vector=false
-webjs=false
+webapps=false
 docker=false
 
 if [ ! -d .git ]
@@ -160,19 +158,9 @@ do
 	target=$1
 	shift
 	;;
-    --with-parfait)
+    --with-webapps)
 	cmdline_configopts="$cmdline_configopts $opt"
-	parfait=true
-	shift
-	;;
-    --with-vector)
-	cmdline_configopts="$cmdline_configopts $opt"
-	vector=true
-	shift
-	;;
-    --with-webjs)
-	cmdline_configopts="$cmdline_configopts $opt"
-	webjs=true
+	webapps=true
 	shift
 	;;
     --with-docker)
@@ -332,9 +320,6 @@ source=pcp-${VERSION}
 SRCDIR="$topdir/$source"
 SRCTREE="$topdir/$source"
 SRCTAR=$topdir/build/tar/$source.src.tar.gz
-SRCWEBJS=$topdir/build/tar/webjs.tar.gz
-SRCVECTOR=$topdir/build/tar/vector.tar.gz
-SRCPARFAIT=$topdir/build/tar/parfait.tar.gz
 
 build_failure()
 {
@@ -375,61 +360,29 @@ fix_version()
     fi
 }
 
-# Download sources from external repositories that we might want
-# to include with the PCP packages.
+# Check web applications from external repositories are available to
+# be included with the PCP packages.
 #
-third_parties()
+prepare_webapps()
 {
-    if $parfait
+    pass=true
+
+    if $webapps
     then
-	if [ ! -f "$SRCPARFAIT" ]
-	then
-	    echo "== Downloading Parfait package"
-	    url=https://github.com/performancecopilot/parfait/archive/master.zip
-	    wget -H -q -O $tmp/java.zip "$url"
-	    [ $? -eq 0 ] && ./scripts/zip2tar $tmp/java.zip "$SRCPARFAIT"
-	fi
-	if [ -f "$SRCPARFAIT" ]
-	then
-	    DESTPARFAIT="$SRCTREE/build/tar/"`basename "$SRCPARFAIT"`
-	    cp "$SRCPARFAIT" "$DESTPARFAIT"
-	fi
+	for app in vector grafana graphite blinkenlights
+	do
+	    src="$topdir/build/tar/pcp-webapp-$app.tar.gz"
+	    if [ ! -f "$src" ]
+	    then
+		https="https://github.com/performancecopilot"
+		echo "== Download to $src using:"
+		echo $https/pcp-webapp-$app/archive/N.V.R/pcp-webapp-$app-N.V.R.tar.gz
+		pass=false
+	    fi
+	done
     fi
 
-    if $vector
-    then
-	DESTVECTOR="$SRCTREE/build/tar/"`basename "$SRCVECTOR"`
-	if [ ! -f "$SRCVECTOR" ]
-	then
-	    echo "== Downloading Vector webapp"
-	    url=https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
-	    wget -H -q -O "$SRCVECTOR" "$url"
-	    [ $? -eq 0 ] && echo "Wrote: $SRCVECTOR"
-	    mkdir $tmp/vector && pushd $tmp/vector && $TAR -zxf "$SRCVECTOR"
-	    $topdir/scripts/build-vector
-	    [ $? -eq 0] || exit 1
-	    cd dist && $TAR -czf "$DESTVECTOR" *
-	    popd
-	else
-	    cp "$SRCVECTOR" "$DESTVECTOR"
-	fi
-    fi
-
-    if $webjs
-    then
-	if [ ! -f "$SRCWEBJS" ]
-	then
-	    echo "== Downloading webjs webapps"
-	    url=https://github.com/performancecopilot/pcp-webjs/archive/master.zip
-	    wget -H -q -O $tmp/js.zip "$url"
-	    [ $? -eq 0 ] && ./scripts/zip2tar $tmp/js.zip "$SRCWEBJS"
-	fi
-	if [ -f "$SRCWEBJS" ]
-	then
-	    DESTWEBJS="$SRCTREE/build/tar/"`basename "$SRCWEBJS"`
-	    cp "$SRCWEBJS" "$DESTWEBJS"
-	fi
-    fi
+    $pass || exit 1
 }
 
 # Generate a list of all the files git knows about, create the
@@ -574,7 +527,7 @@ prepare_debian_sources()
     $TAR -zxf "$SRCTAR" || exit 1
 
     cd "$SRCTREE" || exit 1
-    third_parties
+    prepare_webapps
 
     fix_version ${topdir}/VERSION.pcp VERSION.pcp
 }
@@ -745,8 +698,8 @@ $dodeb && debian_build
 
 prepare_build
 
-# download any requested third party sources we're packaging
-third_parties
+# check for requested web application sources we're packaging
+prepare_webapps
 
 # shift into the clean packaging build tree from here onward
 cd "$SRCDIR"

@@ -620,9 +620,7 @@ ac_includes_default="\
 #endif"
 
 ac_subst_vars='PACKAGE_CONFIGURE
-have_webjs
-have_vector
-have_parfait
+have_webapps
 HAVE_ZLIB
 zlib_LIBS
 zlib_CFLAGS
@@ -965,9 +963,7 @@ with_pmdanutcracker
 with_pmdasnmp
 with_manager
 with_webapi
-with_webjs
-with_vector
-with_parfait
+with_webapps
 with_selinux
 with_make
 with_tar
@@ -1681,9 +1677,7 @@ Optional Packages:
   --with-pmdasnmp         enable SNMP pmda (default is on)
   --with-manager          enable daemon manager (default is on)
   --with-webapi           enable REST API daemon (default is on)
-  --with-webjs            enable building of webjs packages (default is off)
-  --with-vector           enable building of vector package (default is off)
-  --with-parfait          enable building of parfait package (default is off)
+  --with-webapps          enable building of webapp packages (default is off)
   --with-selinux          enable building of selinux package (default is on)
   --with-make             path to GNU compatible make(1) (default is empty for
                           auto discovery)
@@ -2836,29 +2830,11 @@ fi
 
 
 
-# Check whether --with-webjs was given.
-if test "${with_webjs+set}" = set; then :
-  withval=$with_webjs; do_webjs=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webjs=$withval"
+# Check whether --with-webapps was given.
+if test "${with_webapps+set}" = set; then :
+  withval=$with_webapps; do_webapps=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapps=$withval"
 else
-  do_webjs=no
-fi
-
-
-
-# Check whether --with-vector was given.
-if test "${with_vector+set}" = set; then :
-  withval=$with_vector; do_vector=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-vector=$withval"
-else
-  do_vector=no
-fi
-
-
-
-# Check whether --with-parfait was given.
-if test "${with_parfait+set}" = set; then :
-  withval=$with_parfait; do_parfait=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-parfait=$withval"
-else
-  do_parfait=no
+  do_webapps=no
 fi
 
 
@@ -15475,30 +15451,12 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 
-have_parfait=false
-if test -f ./build/tar/parfait.tar.gz
+have_webapps=false
+if test $do_webapps != "no"
 then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: adding Parfait package to the build" >&5
-$as_echo "$as_me: adding Parfait package to the build" >&6;}
-    have_parfait=true
-fi
-
-
-have_vector=false
-if test -f ./build/tar/vector.tar.gz
-then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: adding Vector webapp to the build" >&5
-$as_echo "$as_me: adding Vector webapp to the build" >&6;}
-    have_vector=true
-fi
-
-
-have_webjs=false
-if test -f ./build/tar/webjs.tar.gz
-then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: adding webjs webapps to the build" >&5
-$as_echo "$as_me: adding webjs webapps to the build" >&6;}
-    have_webjs=true
+    { $as_echo "$as_me:${as_lineno-$LINENO}: adding web applications to the build" >&5
+$as_echo "$as_me: adding web applications to the build" >&6;}
+    have_webapps=true
 fi
 
 

@@ -1,19 +1,17 @@
-Summary: System-level performance monitoring and performance management
-Name: pcp
+Name:    pcp
 Version: 3.11.9
-%global buildversion 1
-
-Release: %{buildversion}%{?dist}
+Release: 1%{?dist}
+Summary: System-level performance monitoring and performance management
 License: GPLv2+ and LGPLv2.1+ and CC-BY
-URL: http://www.pcp.io
-Group: Applications/System
-# https://bintray.com/artifact/download/pcp/source/pcp-%{version}.src.tar.gz
-Source0: %{name}-%{version}.src.tar.gz
-# https://bintray.com/artifact/download/netflixoss/downloads/vector.tar.gz
-Source1: vector-1.1.0.tar.gz
-# https://github.com/performancecopilot/pcp-webjs/archive/x.y.z.tar.gz
-Source2: pcp-webjs-3.11.8.tar.gz
+URL:     http://www.pcp.io
+Group:   Applications/System
 
+%global  https https://github.com/performancecopilot
+Source0: %{https}/%{name}/archive/%{version}/%{name}-%{version}.tar.gz
+Source1: %{https}/pcp-webapp-vector/archive/1.1.2/pcp-webapp-vector-1.1.2.tar.gz
+Source2: %{https}/pcp-webapp-grafana/archive/1.9.1/pcp-webapp-grafana-1.9.1.tar.gz
+Source3: %{https}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
+Source4: %{https}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
 
 %if 0%{?fedora} || 0%{?rhel}
 %global disable_selinux 0
@@ -380,10 +378,12 @@ HTTP (PMWEBAPI) protocol.
 %package webjs
 License: ASL2.0 and MIT and CC-BY
 Group: Applications/Internet
+Conflicts: pcp-webjs < 3.11.9
 %if !%{disable_noarch}
 BuildArch: noarch
 %endif
-Requires: pcp-webapp-graphite pcp-webapp-grafana pcp-webapp-vector
+Requires: pcp-webapp-vector pcp-webapp-blinkenlights
+Requires: pcp-webapp-graphite pcp-webapp-grafana
 Summary: Performance Co-Pilot (PCP) web applications
 URL: http://www.pcp.io
 
@@ -438,6 +438,19 @@ Graphite is a highly scalable real-time graphing system. This package
 provides a graphite version that uses the Performance Co-Pilot (PCP)
 as the data repository, and Graphites web interface renders it. The
 Carbon and Whisper subsystems of Graphite are not included nor used.
+
+%package webapp-blinkenlights
+License: ASL2.0
+Group: Applications/Internet
+%if !%{disable_noarch}
+BuildArch: noarch
+%endif
+Summary: Blinking lights web application for Performance Co-Pilot (PCP)
+URL: http://pcp.io
+
+%description webapp-blinkenlights
+Demo web application showing traffic lights that change colour based
+on the periodic evaluation of performance metric expressions.
 
 #
 # perl-PCP-PMDA. This is the PCP agent perl binding.
@@ -1829,9 +1842,11 @@ updated policy package.
 %endif
 
 %prep
+%setup -q -T -D -a 1 -c -n vector
+%setup -q -T -D -a 2 -c -n grafana
+%setup -q -T -D -a 3 -c -n graphite
+%setup -q -T -D -a 4 -c -n blinkenlights
 %setup -q
-%setup -q -T -D -a 1 -c -n pcp-%{version}/vector
-%setup -q -T -D -a 2
 
 %clean
 rm -Rf $RPM_BUILD_ROOT
@@ -1866,12 +1881,11 @@ rm -fr $RPM_BUILD_ROOT/%{_initddir}/pmwebd
 rm -fr $RPM_BUILD_ROOT/%{_unitdir}/pmwebd.service
 rm -f $RPM_BUILD_ROOT/%{_libexecdir}/pcp/bin/pmwebd
 %endif
-# prefer latest released Netflix version over pcp-webjs copy.
-rm -fr pcp-webjs/vector
-sed -i -e 's/vector [0-9]\.[0-9]*\.[0-9]*/vector/g' pcp-webjs/index.html
-mv pcp-webjs/* $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps
-rmdir pcp-webjs
-mv vector $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps
+for app in vector grafana graphite blinkenlights; do
+    pwd
+    webapp=`find ../$app -mindepth 1 -maxdepth 1`
+    mv $webapp $RPM_BUILD_ROOT/%{_datadir}/pcp/webapps/$app
+done
 
 %if %{disable_infiniband}
 # remove pmdainfiniband on platforms lacking IB devel packages.
@@ -2653,7 +2667,10 @@ fi
 %{_datadir}/pcp/webapps/*.png
 %{_datadir}/pcp/webapps/*.ico
 %{_datadir}/pcp/webapps/*.html
-%{_datadir}/pcp/webapps/*.txt
+
+%files webapp-blinkenlights
+%dir %{_datadir}/pcp
+%dir %{_datadir}/pcp/webapps
 %{_datadir}/pcp/webapps/blinkenlights
 
 %files webapp-grafana

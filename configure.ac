@@ -172,23 +172,11 @@ AC_ARG_WITH([webapi],
     [do_webapi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapi=$withval"],
     [do_webapi=check])
 
-AC_ARG_WITH([webjs],
-    [AC_HELP_STRING([--with-webjs],
-                    [enable building of webjs packages (default is off)])],
-    [do_webjs=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webjs=$withval"],
-    [do_webjs=no])
-
-AC_ARG_WITH([vector],
-    [AC_HELP_STRING([--with-vector],
-                    [enable building of vector package (default is off)])],
-    [do_vector=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-vector=$withval"],
-    [do_vector=no])
-
-AC_ARG_WITH([parfait],
-    [AC_HELP_STRING([--with-parfait],
-                    [enable building of parfait package (default is off)])],
-    [do_parfait=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-parfait=$withval"],
-    [do_parfait=no])
+AC_ARG_WITH([webapps],
+    [AC_HELP_STRING([--with-webapps],
+                    [enable building of webapp packages (default is off)])],
+    [do_webapps=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapps=$withval"],
+    [do_webapps=no])
 
 AC_ARG_WITH([selinux],
     [AC_HELP_STRING([--with-selinux],
@@ -3351,29 +3339,13 @@ AC_TRY_COMPILE(
 
 dnl Find external source tarballs for packaging
 
-have_parfait=false
-if test -f ./build/tar/parfait.tar.gz
+have_webapps=false
+if test $do_webapps != "no"
 then
-    AC_MSG_NOTICE([adding Parfait package to the build])
-    have_parfait=true
+    AC_MSG_NOTICE([adding web applications to the build])
+    have_webapps=true
 fi
-AC_SUBST(have_parfait)
-
-have_vector=false
-if test -f ./build/tar/vector.tar.gz
-then
-    AC_MSG_NOTICE([adding Vector webapp to the build])
-    have_vector=true
-fi
-AC_SUBST(have_vector)
-
-have_webjs=false
-if test -f ./build/tar/webjs.tar.gz
-then
-    AC_MSG_NOTICE([adding webjs webapps to the build])
-    have_webjs=true
-fi
-AC_SUBST(have_webjs)
+AC_SUBST(have_webapps)
 
 dnl Capture special options passed to configure
 AC_SUBST(PACKAGE_CONFIGURE)

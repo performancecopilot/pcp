@@ -51,8 +51,10 @@ include $(BUILDRULES)
 ifeq "$(ENABLE_WEBAPI)" "true"
 build-me::	$(CXXMDTARGET) pmwebd.service
 
+ifeq "$(HAVE_WEBAPPS)" "true"
 build-me::	$(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
+endif
 
 pmwebd.service:	pmwebd.service.in
 	$(SED) <$< >$@ \
@@ -60,7 +62,8 @@ pmwebd.service:	pmwebd.service.in
 	    -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' \
 	# END
 
-install:	default
+install:	default $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMWEBDOPTIONS_PATH)`
 	$(INSTALL) -m 644 pmwebd.options $(PCP_PMWEBDOPTIONS_PATH)
 	$(INSTALL) -m 755 rc_pmwebd $(PCP_RC_DIR)/pmwebd
@@ -69,7 +72,6 @@ ifeq ($(ENABLE_SYSTEMD),true)
 endif
 	$(INSTALL) -m 755 $(CXXMDTARGET) $(PCP_BINADM_DIR)/$(CXXMDTARGET)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmwebd
-	$(SUBDIRS_MAKERULE)
 else
 build-me:
 install:
