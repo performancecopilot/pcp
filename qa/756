@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-test -e perfevent/perfevent_test || _notrun "Optional perfevent PMDA not present"
+test -f perfevent/perf_event_test.c || _notrun "Optional perf_event_test.c not present"
 status=1	# failure is the default
 rm -f $seq.full
 cd perfevent

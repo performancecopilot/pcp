@@ -99,9 +99,9 @@ PMU name : pmu1
 	event name : bar
 	event name : foo
 PMU name : pmu2
+	event name : cm_event1
 	event name : cm_event2
 	event name : cm_event3
-	event name : cm_event1
 PMU name : software
 	event name : alignment-faults
 	event name : context-switches
