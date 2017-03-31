@@ -6,12 +6,14 @@ License: GPLv2+ and LGPLv2.1+ and CC-BY
 URL:     http://www.pcp.io
 Group:   Applications/System
 
-%global  https https://github.com/performancecopilot
-Source0: %{https}/%{name}/archive/%{version}/%{name}-%{version}.tar.gz
-Source1: %{https}/pcp-webapp-vector/archive/1.1.2/pcp-webapp-vector-1.1.2.tar.gz
-Source2: %{https}/pcp-webapp-grafana/archive/1.9.1/pcp-webapp-grafana-1.9.1.tar.gz
-Source3: %{https}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
-Source4: %{https}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
+%global  bintray https://bintray.com/artifact/download
+%global  github https://github.com/performancecopilot
+
+Source0: %{bintray}/download/pcp/source/pcp-%{version}.src.tar.gz
+Source1: %{github}/pcp-webapp-vector/archive/1.1.2/pcp-webapp-vector-1.1.2.tar.gz
+Source2: %{github}/pcp-webapp-grafana/archive/1.9.1/pcp-webapp-grafana-1.9.1.tar.gz
+Source3: %{github}/pcp-webapp-graphite/archive/0.9.10/pcp-webapp-graphite-0.9.10.tar.gz
+Source4: %{github}/pcp-webapp-blinkenlights/archive/1.0.0/pcp-webapp-blinkenlights-1.0.0.tar.gz
 
 %if 0%{?fedora} || 0%{?rhel}
 %global disable_selinux 0
@@ -2966,7 +2968,10 @@ fi
 
 %changelog
 * Fri Mar 31 2017 Nathan Scott <nathans@redhat.com> - 3.11.9-1
-- Work in progress, see http://pcp.io/roadmap
+- Fix pmchart chart legends toggling behaviour (BZ 1359961)
+- Improve multiple local context attr handling (BZ 1430248)
+- Fix error during installation of pcp-selinux (BZ 1433271)
+- Update to latest PCP Sources.
 
 * Fri Feb 17 2017 Lukas Berk <lberk@redhat.com> - 3.11.8-1
 - Support newer kernels /proc/vmstat file contents (BZ 1396148)
