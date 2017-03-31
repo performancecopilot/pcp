@@ -329,17 +329,17 @@ pcp.postrm:	pcp.postrm.head configversions pcp.postrm.tail
 
 VECTOR = $(shell echo $(PCP_SHARE_DIR)/webapps/vector | sed -e 's,^/,,g')
 VECTORPKG = pcp-webapp-vector
-VECTORTGZ = $(PWDDIR)/../../../build/tar/$(VECTORPKG).tar.gz
+VECTORTGZ = $(PWDDIR)/../../../tar/$(VECTORPKG).tar.gz
 
 vector:
 ifeq ($(HAVE_WEBAPPS), true)
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
-	$(TAR) tvzf $(VECTORTGZ) | \
-	$(AWK) '/^d/ { printf "$(VECTOR)/%s\n", $$NF }' > $(VECTORPKG).dirs
-	$(TAR) tvzf $(VECTORTGZ) | \
-	$(AWK) '/^-/ { printf "$(VECTOR)/%s\n", $$NF }' > $(VECTORPKG).install
 	mkdir -p pcp/$(VECTOR) 2>/dev/null || exit 0
 	cd pcp/$(VECTOR) && $(TAR) xzf $(VECTORTGZ) --strip-components=1
+	( cd pcp/$(VECTOR) && find . -type d ) \
+		| sed -e "s,^.,$(VECTOR),g" > $(VECTORPKG).dirs
+	( cd pcp/$(VECTOR) && find . -type f ) \
+		| sed -e "s,^.,$(VECTOR),g" > $(VECTORPKG).install
 endif
 endif
 

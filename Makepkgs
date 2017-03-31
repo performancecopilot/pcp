@@ -369,14 +369,14 @@ prepare_webapps()
 
     if $webapps
     then
-	for app in vector grafana graphite blinkenlights
+	for APP in vector grafana graphite blinkenlights
 	do
-	    src="$topdir/build/tar/pcp-webapp-$app.tar.gz"
-	    if [ ! -f "$src" ]
+	    SRC="$topdir/build/tar/pcp-webapp-$APP.tar.gz"
+	    if [ ! -f "$SRC" ]
 	    then
 		https="https://github.com/performancecopilot"
-		echo "== Download to $src using:"
-		echo $https/pcp-webapp-$app/archive/N.V.R/pcp-webapp-$app-N.V.R.tar.gz
+		echo "== Download to $SRC using:"
+		echo $https/pcp-webapp-$APP/archive/N.V.R/pcp-webapp-$APP-N.V.R.tar.gz
 		pass=false
 	    fi
 	done
