@@ -121,19 +121,19 @@ def send_to_zabbix(metrics, zabbix_host, zabbix_port, timeout=15):
     metrics_data = []
     for m in metrics:
         clock = m.clock or time.time()
-        metrics_data.append(('\t\t{\n'
-                             '\t\t\t"host":%s,\n'
-                             '\t\t\t"key":%s,\n'
-                             '\t\t\t"value":%s,\n'
-                             '\t\t\t"clock":%.5f}') % (j(m.host), j(m.key), j(m.value), clock))
-    json_data = ('{\n'
-                 '\t"request":"sender data",\n'
-                 '\t"data":[\n%s]\n'
+        # The clock must be integer as per zabbix 3.4
+        metrics_data.append(('{"host":%s,"key":%s,"value":%s,"clock":%d}') %
+                            (j(m.host), j(m.key), j(m.value), clock))
+    json_data = ('{'
+                 '"request":"sender data",'
+                 '"data":[%s]'
                  '}') % (',\n'.join(metrics_data))
 
     data_len = struct.pack('<Q', len(json_data))
     packet = b'ZBXD\1' + data_len + json_data.encode('utf-8')
     try:
+        # NB: zabbix trapper protocol (as of zabbix 3.4) only supports
+        # one transaction per connection, so we can't use a long-lived socket.
         zabbix = socket.socket()
         zabbix.connect((zabbix_host, zabbix_port))
         zabbix.settimeout(timeout)
