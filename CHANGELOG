@@ -1,3 +1,6 @@
+pcp-3.11.10 (17 May 2017)
+    - Work-in-progress - see http://pcp.io/roadmap
+
 pcp-3.11.9 (31 March 2017)
     - derived metrics: add defined() function
     - derived metrics: reduce memory footprint

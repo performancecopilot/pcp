@@ -383,7 +383,7 @@ pacman?	/usr/include/ncurses.h		[ncurses]
 # -- six
 dpkg?	/usr/lib/python2.*/*-packages/six.py	[python-six]
 dpkg?	/usr/lib/python3/*-packages/six.py	[python3-six]
-rpm?	/usr/lib/python3.*/*-packages/six.py	[python-six]
+rpm?	/usr/lib/python3.*/*-packages/six.py	[python3-six]
 urpmi?	/usr/lib/python*/*-packages/six.py	[python-six]
 emerge?	/usr/lib/python*/*-packages/six.py	[dev-python/six]
 pkgin?	/usr/pkg/lib/python*/*-packages/six.py	[py34-six]
