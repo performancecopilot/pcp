@@ -2967,6 +2967,9 @@ fi
 %endif
 
 %changelog
+* Wed May 17 2017 Dave Brolley <brolley@redhat.com> - 3.11.10-1
+- Work-in-progress - see http://pcp.io/roadmap
+
 * Fri Mar 31 2017 Nathan Scott <nathans@redhat.com> - 3.11.9-1
 - Fix pmchart chart legends toggling behaviour (BZ 1359961)
 - Improve multiple local context attr handling (BZ 1430248)
