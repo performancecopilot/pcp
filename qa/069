@@ -232,6 +232,8 @@ _wait_for_pmcd
 echo "should be OK"
 pminfo -f pmcd.numclients | _filter_numclients
 
+sleep 2		# make sure pmcd.conf timestamp changes
+
 cat <<End-of-File >>$nconfig
 
 [access]
