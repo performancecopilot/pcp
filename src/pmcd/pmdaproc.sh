@@ -138,7 +138,7 @@ __restore_pmcd()
 	eval $CHOWN root $PCP_PMCDCONF_PATH
 	eval $CHMOD 644 $PCP_PMCDCONF_PATH
 	rm -f $tmp/pmcd.conf.save
-	$PCP_RC_DIR/pmcd start
+	__pmda_restart_pmcd
 	__wait_for_pmcd
     fi
     if $__pmcd_is_dead
@@ -262,6 +262,68 @@ END					{ exit status }'
     done
 }
 
+__pmda_restart_pmcd()
+{
+    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/pmcd.service -a "$PCPQA_SYSTEMD" != no ]
+    then
+	# smells like systemctl is the go ...
+	#
+	if `which journalctl >/dev/null 2>&1`
+	then
+	    journalctl -n 10 -u pmcd \
+	    | grep " pmcd\\[" \
+	    | sed -e 's/\.\.*done$//' >$tmp.journal.pre
+	elif `which systemd-journalctl >/dev/null 2>&1`
+	then
+	    systemd-journalctl -q -n 100 \
+	    | grep " pmcd\\[" \
+	    | sed -e 's/\.\.*done$//' >$tmp.journal.pre
+	fi
+	systemctl restart pmcd.service
+        sleep 2
+	if `which journalctl >/dev/null 2>&1`
+	then
+	    journalctl -n 10 -u pmcd \
+	    | grep " pmcd\\["  \
+	    | sed -e 's/\.\.*done$//' >$tmp.journal.post
+	elif `which systemd-journalctl >/dev/null 2>&1`
+	then
+	    systemd-journalctl -q -n 100 \
+	    | grep " pmcd\\[" \
+	    | sed -e 's/\.\.*done$//' >$tmp.journal.post
+	fi
+	# diff the pre and post journal lines to find those most recently
+	# added:
+	#	- lines beginning with a digit are ed(1) commands, ignore
+	#	- --- lines are diff fluff
+	#	- lines beginnning < are only in journal.pre, ignore
+	#	- strip journal datestamp and process id info
+	#	- add trailing space for some output lines to match
+	#	  non-systemd output and QA *.out files
+	#	- bizarro (on vm19) the .post file may contain lines
+	#	  _before_ the start of a non-empty .pre file, so any
+	#	  > lines after 0a? are nonsense, but need to make sure
+	#	  the .pre file is not empty (sigh)
+	#
+	[ -s $tmp.journal.pre ] || echo "-- added by _pmda_restart_pmcd() --" >$tmp.journal.pre
+	diff $tmp.journal.pre $tmp.journal.post \
+	| $PCP_AWK_PROG '
+BEGIN		{ skip = 0 }
+$1 ~ /^0a/	{ skip = 1; next }
+skip == 1 && $1 != ">"	{ skip = 0 }
+skip == 0	{ print }' \
+	| sed \
+	    -e '/^[<0-9]/d' \
+	    -e '/^---$/d' \
+	    -e "s/^.*\\[[0-9]*]: //" \
+	    -e '/^Starting p.*[^ ]$/s/$/ /' \
+	    -e '/^Stopping p.*[^ ]$/s/$/ /' \
+	# end
+    else
+	$PCP_RC_DIR/pmcd start
+    fi
+}
+
 # __pmda_add "entry for $PCP_PMCDCONF_PATH"
 #
 __pmda_add()
@@ -324,7 +386,7 @@ $1=="'$myname'" && $2=="'$mydomain'"	{ next }
     else
 	log=$LOGDIR/pmcd.log
 	rm -f $log
-	$PCP_RC_DIR/pmcd start
+	__pmda_restart_pmcd
     fi
     __wait_for_pmcd
     $__pmcd_is_dead && __restore_pmcd

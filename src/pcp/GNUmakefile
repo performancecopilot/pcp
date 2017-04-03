@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2016 Red Hat.
+# Copyright (c) 2014-2017 Red Hat.
 # Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -28,6 +28,7 @@ SUBDIRS = \
 	python \
 	shping \
 	summary \
+	tapestat \
 	uptime \
 	verify \
 	vmstat \

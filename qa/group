@@ -165,6 +165,7 @@ pmda.install
 ## Assorted PMDAs
 pmda.activemq
 pmda.apache
+pmda.bind2
 pmda.cifs
 pmda.cisco
 pmda.dm
@@ -177,6 +178,7 @@ pmda.hotproc
 pmda.jbd2
 pmda.json
 pmda.kvm
+pmda.lio
 pmda.logger
 pmda.lustre
 pmda.mailq
@@ -187,6 +189,7 @@ pmda.mpi
 pmda.named
 pmda.netfilter
 pmda.news
+pmda.nutcracker
 pmda.nvidia
 pmda.oracle
 pmda.papi
@@ -195,6 +198,7 @@ pmda.pmcd
 pmda.postfix
 pmda.postgresql
 pmda.proc
+pmda.redis
 pmda.root
 pmda.rsyslog
 pmda.sample
@@ -1157,21 +1161,36 @@ oldversion
 908 indom help pmda pminfo local
 909 libpcp pmns local
 910 pmda.linux pmval local
+911 pmda.linux local
+912 pmda.nutcracker local
+913 pmda.redis local
 914 pmda.papi local
 915 pmcd pmlogger pmproxy libpcp local pmlc
 916 pmlogextract pmlogcheck local
+917 selinux local
+918 pmcd local
 919 pmlogger pmstat local
+920 logutil local
 921 pmdumplog local
 922 derive pmie pmval local
 923 derive libpcp valgrind local
 924 pmda.docker local
+925 logutil local
 926 other local
+927 derive local
 928 archive local
 929 logutil local
 930 pmlogrewrite local
 931 archive pmval local
 932 pmlogger local
 933 pmda.proc local
+934 logutil pmieutil local
+935 derive local
+936 pcp python local
+937 derive local
+938 derive local
+939 derive local
+940 selinux local
 943 pmprobe pmda.proc local
 944 pmcd secure local
 945 pmlogrewrite pmda.xfs local
@@ -1190,11 +1209,11 @@ oldversion
 961 pmlogextract local
 962 archive local pmval pmdumplog
 963 libpcp local
-964 pmcd local
+964 pmcd local pmda.xfs pmda.dm
 965 derive local
 966 secure local
 967 pmda.papi local
-968 python local
+968 python local derive
 969 derive local
 970 pmclient archive multi-archive local sanity
 971 pmlogrewrite pmda.proc local
@@ -1285,8 +1304,14 @@ oldversion
 1056 derive local
 1057 pmlogrewrite local
 1058 pmda.bash local
+1059 pmcd local
+1060 pmieutil local
+1061 pmda.lio local
 1062 pmrep python local
+1063 derive local
+1064 derive local
 1065 libpcp valgrind local
+1066 derive valgrind local
 1067 zabbix zbxpcp local
 1068 pmrep python zabbix local
 1069 pmrep python local timezone
@@ -1298,6 +1323,8 @@ oldversion
 1080 valgrind pcp atop local
 1081 python pcp local
 1082 python local
+1083 pmcd local
+1087 pmda.bind2 local
 1090 pmwebapi local context
 1091 pmns libpcp context local
 1092 libpcp local
@@ -1308,4 +1335,4 @@ oldversion
 1111 pcp2influxdb python local
 1112 pmda.linux local
 1113 pcp python local
-4751:reserved threads local archive fetch context flakey
+1121 pmda.linux local

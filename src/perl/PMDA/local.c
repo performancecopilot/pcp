@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Red Hat.
+ * Copyright (c) 2012-2017 Red Hat.
  * Copyright (c) 2008-2011 Aconex.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,12 @@ static timers_t *timers;
 static int ntimers;
 static files_t *files;
 static int nfiles;
+
+int
+local_install(void)
+{
+    return (getenv("PCP_PERL_PMNS") || getenv("PCP_PERL_DOMAIN"));
+}
 
 char *
 local_strdup_suffix(const char *string, const char *suffix)

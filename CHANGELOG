@@ -1,5 +1,77 @@
-pcp-3.11.8 (16 February 2016)
-    - Work in progress
+pcp-3.11.10 (17 May 2017)
+    - Work-in-progress - see http://pcp.io/roadmap
+
+pcp-3.11.9 (31 March 2017)
+    - derived metrics: add defined() function
+    - derived metrics: reduce memory footprint
+    - derived metrics: add rescale(<expr>, <units-string>) function
+    - derived metrics: extend count() for fetch errors
+    - derived metrics: add mkconst() constructor
+    - derived metrics: add check ? foo : bar (ternary operator)
+    - derived metrics: add - operator (unary negation)
+    - derived metrics: add ! operator (boolean negation)
+    - derived metrics: add support for relational expressions
+    - derived metrics: support double precision floating point constants
+    - libpcp: new implementation for derived metric parser
+    - libpcp: use correct context ID with multiple local contexts
+    - pcp-tapestat: add a new tape statistics reporting command
+    - pmchart: fix plot disappearance when legend turned off/on
+    - pmchart: fix time stamp in metric details window
+    - pmchart: don't display removed metrics in metric details window
+    - pmwebd: fix graphite filtering for non-normal floating-point data
+    - pmdadocker: remove unused buildversion artifacts
+    - pmdaperfevent: add PMU events exported from kernel
+    - pmdaperfevent: fix metrics names for the dynamic events
+    - pmdalinux: convert mem.slabinfo metrics to using pmdaCache
+    - pmdalinux: fix fd leak on an error path in tape metrics
+    - pmdalio: drop unneeded pmcd restart from Install script
+    - selinux: several updates to pcp policy
+    - selinux: add el6 focused conditional checks
+    - selinux: separated out docker/container policy
+    - coverity: series of small code fixes across the board
+    - build: overhaul the webapps packaging build extensively
+    - vagrant: first cut at osxSierra base image build via Vagrant
+    - vagrant: numerous cleanups and refactoring to Vagrantfile
+    - containers: pcp-go-app standalone Speed-instrumented container
+    - containers: add pcp-redis instrumented Redis server container
+    - containers: add pcp-elasticsearch instrumented elasticsearch server
+    - docs: fix pmParseUnitStr(3) summary section typo
+    - docs: python updates for https://pypi.python.org/pypi/pcp/1.1
+
+pcp-3.11.8 (17 February 2017)
+    - pmdabind2: new PMDA for BIND named REST API statistics
+    - pmdadocker: new PMDA for Docker REST API statistics
+    - pmdalio: new PMDA for the kernel LIO subsystem (iSCSI, FCP, FCoE)
+    - pmdanutcracker: new PMDA for NutCracker (TwemCache) metrics
+    - pmdaredis: new PMDA for redis (REmote DIctionary Service) metrics
+    - pmdalinux: additional VM metrics for zoneinfo
+    - pmdalinux: add per-node memory zone protection stats
+    - pmdalinux: add Linux VM KSM same-page-merging metrics
+    - pmdalinux: dynamic per-CPU and per-node instance domains
+    - pmdalinux: export network.interface.baudrate with 64-bit type
+    - pmdalinux: export byte version of all hugepage metrics
+    - pmdalinux: add several metrics recently added to /proc/vmstat
+    - pmdalinux: add support for SCSI tape statistics
+    - pmdaproc: switch ttyname calculation to iterate through /dev
+    - selinux: new files and package for setting custom PCP policy
+    - libpcp_web: support for callback-based JSON metrics extraction
+    - libpcp: several archive mode instance scan performance improvements
+    - pmlogger scripts: fix multi-level directory structures
+    - pcp-atopsar: fix swptotal and swpfree reporting units
+    - pcp-atop: fix up reporting of the network utilization
+    - pmval: improve handling of shifting metric instances
+    - pmns/Rebuild: rebuild PMNS if the root file is empty
+    - docs: added instance domain help text for several PMDAs
+    - docs: additional documentation for pmdamysql (MariaDB support)
+    - docs: clarifications to the Apache2 stats export setup
+    - docs: update pmdammv man pahe to mention golang bindings
+    - qt tools: update MacOSX info files keys for highres displays
+    - perl api: add missing error codes and local_install helper
+    - python api: add missing error codes
+    - containers: new pcp-standalone application container layer
+    - containers: new pcp-nginx container with pmcd & Nginx setup
+    - containers: new pcp-apache container with pmcd & Apache setup
+    - containers: new pcp-java-app container with pmcd, Java & Parfait
 
 pcp-3.11.7 (21 December 2016)
     - docs: pmLookupText added to PMAPI calls for _metric web API

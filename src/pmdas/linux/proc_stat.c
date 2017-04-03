@@ -269,6 +269,8 @@ refresh_proc_stat(proc_stat_t *proc_stat)
 	pmdaCacheLookup(cpus, 0, &name, (void **)&cp);
 	memcpy(&cp->stat, &proc_stat->all, sizeof(cp->stat));
 	pmdaCacheStore(cpus, PMDA_CACHE_ADD, name, (void *)cp);
+	pmdaCacheLookup(nodes, 0, NULL, (void **)&np);
+	memcpy(&np->stat, &proc_stat->all, sizeof(np->stat));
     }
     else {
 	for (n = 0; n < nbufindex; n++) {

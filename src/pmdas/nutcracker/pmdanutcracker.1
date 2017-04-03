@@ -1,0 +1,68 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDANUTCRACKER 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdanutcracker\f1 \- NutCracker performance metrics domain agent (PMDA)
+.SH DESCRIPTION
+This \s-1PMDA\s0 extracts performance data from NutCracker (or TwemProxy),
+a fast and lightweight proxy for memcached and Redis protocol.
+.SH INSTALLATION
+Configure to export statistics via its stats interface (see \-\-stats-port
+option to the
+.B nutcracker
+server).
+The corresponding configuration must be reflected in the
+\&\f(CW$PCP_PMDAS_DIR\fR/nutcracker/nutcracker.conf file.
+.PP
+      # cd $PCP_PMDAS_DIR/nutcracker
+.br
+      # [ edit nutcracker.conf ]
+.PP
+Once this is setup, you can access the names and values for the
+nutcracker performance metrics by doing the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/nutcracker
+.br
+      # ./Install
+.PP
+To uninstall, do the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/nutcracker
+.br
+      # ./Remove
+.PP
+\fBpmdanutcracker\fR is launched by \fIpmcd\fR(1) and should never be executed 
+directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
+agent is installed or removed.
+.SH FILES
+.IP "\fB$PCP_PMDAS_DIR/nutcracker/nutcracker.conf\fR" 4
+mandatory configuration file listing monitored memcache or Redis instances
+.IP "\fB$PCP_PMDAS_DIR/nutcracker/Install\fR" 4 
+installation script for the \fBpmdanutcracker\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/nutcracker/Remove\fR" 4 
+undo installation script for the \fBpmdanutcracker\fR agent 
+.IP "\fB$PCP_LOG_DIR/pmcd/nutcracker.log\fR" 4 
+default log file for error messages from \fBpmdanutcracker\fR 
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables. 
+The \fB$PCP_CONF\fR variable may be used to specify an alternative 
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pmdamemcache (1)
+and
+.BR pmdaredis (1).

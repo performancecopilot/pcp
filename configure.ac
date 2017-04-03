@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2016 Red Hat.
+dnl Copyright (c) 2012-2017 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl 
@@ -148,6 +148,12 @@ AC_ARG_WITH([pmdajson],
     [do_pmdajson=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdajson=$withval"],
     [do_pmdajson=check])
 
+AC_ARG_WITH([pmdanutcracker],
+    [AC_HELP_STRING([--with-pmdanutcracker],
+		   [enable nutcracker pmda (default is on)])],
+    [do_pmdanutcracker=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdanutcracker=$withval"],
+    [do_pmdanutcracker=check])
+
 AC_ARG_WITH([pmdasnmp],
     [AC_HELP_STRING([--with-pmdasnmp],
 		   [enable SNMP pmda (default is on)])],
@@ -166,24 +172,17 @@ AC_ARG_WITH([webapi],
     [do_webapi=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapi=$withval"],
     [do_webapi=check])
 
-AC_ARG_WITH([webjs],
-    [AC_HELP_STRING([--with-webjs],
-                    [enable building of webjs packages (default is off)])],
-    [do_webjs=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webjs=$withval"],
-    [do_webjs=no])
+AC_ARG_WITH([webapps],
+    [AC_HELP_STRING([--with-webapps],
+                    [enable building of webapp packages (default is off)])],
+    [do_webapps=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-webapps=$withval"],
+    [do_webapps=no])
 
-AC_ARG_WITH([vector],
-    [AC_HELP_STRING([--with-vector],
-                    [enable building of vector package (default is off)])],
-    [do_vector=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-vector=$withval"],
-    [do_vector=no])
-
-AC_ARG_WITH([parfait],
-    [AC_HELP_STRING([--with-parfait],
-                    [enable building of parfait package (default is off)])],
-    [do_parfait=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-parfait=$withval"],
-    [do_parfait=no])
-
+AC_ARG_WITH([selinux],
+    [AC_HELP_STRING([--with-selinux],
+                    [enable building of selinux package (default is on)])],
+    [do_selinux=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-selinux=$withval"],
+    [do_selinux=check])
 dnl things set in the environment by Makepkgs never make it into an RPM
 dnl build where the environment is stripped ... use a --with-foo=path
 dnl construct to workaround this
@@ -206,12 +205,10 @@ AC_ARG_WITH([zip],
     [ZIP=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-zip=$withval"],
     [ZIP=''])
 
-#
-# Note: the following environment variables may be
-# set to override the defaults.
-#
-# MAKE CC CPP LD LEX YACC INSTALL AWK SED ECHO
-#
+dnl
+dnl Note: the following environment variables may be set to override defaults:
+dnl MAKE CC CPP LD LEX YACC INSTALL AWK SED ECHO
+dnl
 
 dnl Guess target platfrom
 AC_CANONICAL_SYSTEM
@@ -416,7 +413,7 @@ dnl some versions of gcc (e.g. version 4.8.4 on Gentoo Hardened) have added
 dnl a predefined for _FORTIFY_SOURCE but only when -O is specified ... so
 dnl to be safe we have -U_FORTIFY_SOURCE before -D_FORTIFY_SOURCE=2 below
 
-# Add some security-related gcc flags
+dnl Add some security-related gcc flags
 if echo "$CFLAGS" | grep stack-protector >/dev/null
 then
     dnl already set, probably from the environment
@@ -438,7 +435,7 @@ fi
 AC_SUBST(PCFLAGS)
 AC_SUBST(PLDFLAGS)
 
-# Check for even more security-related gcc/linker flags, useful for daemons
+dnl Check for even more security-related gcc/linker flags, useful for daemons
 AC_ARG_ENABLE([pie],
   [AS_HELP_STRING([--disable-pie], [disable position-independent-executable])])
 AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_pie" != xno],[
@@ -461,7 +458,7 @@ AS_IF([test "x$cc_is_gcc" = xyes -a "x$enable_pie" != xno],[
 AC_SUBST(PIELDFLAGS)
 AC_SUBST(PIECFLAGS)
 
-# Check for support for symbol hiding via gcc flags
+dnl Check for support for symbol hiding via gcc flags
 AC_ARG_ENABLE([visibility],
   [AS_HELP_STRING([--disable-visibility], [disable gcc symbol visibility])])
 AS_IF([test "x$cc_is_gcc" = xyes -a "$enable_visibility" != no],[
@@ -491,7 +488,7 @@ AC_COMPILE_IFELSE(
     cxx=""])
 AC_LANG_POP([C++])
 
-# Prevent shared libraries from being built for libpcp and other core libraries
+dnl Prevent shared libraries from being built for libpcp and other core libraries
 AC_ARG_ENABLE([shared],
   [AS_HELP_STRING([--disable-shared], [disable core shared libary generation])],
   [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"])
@@ -729,9 +726,9 @@ AS_IF([test "x$do_systemd" != "xno"], [
 ])
 AC_SUBST(enable_systemd)
 
-# NB: No AC_PREFIX_DEFAULT is needed, as the default configure invocation
-# targets a build for non-system directories such as /usr/local.
-# AC_PREFIX_DEFAULT([])
+dnl NB: No AC_PREFIX_DEFAULT is needed, as the default configure invocation
+dnl targets a build for non-system directories such as /usr/local.
+dnl AC_PREFIX_DEFAULT([])
 
 . ./VERSION.pcp
 PACKAGE_VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
@@ -1035,6 +1032,57 @@ then
 fi
 AC_SUBST(PMDA_ACTIVEMQ, $pmda_activemq)
 if $pmda_activemq; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the bind2 PMDA should be included])
+pmda_bind2=false
+if test "$have_perl" = true
+then
+    dnl rpm build for bind2 PMDA needs Perl LWP::UserAgent, XML::LibXML
+    if $pcp_perl_prog -e "use LWP::UserAgent" >/dev/null 2>&1
+    then
+	if $pcp_perl_prog -e "use XML::LibXML" >/dev/null 2>&1
+	then
+	    if $pcp_perl_prog -e "use File::Slurp" >/dev/null 2>&1
+	    then
+	        pmda_bind2=true
+	    fi
+	fi
+    fi
+fi
+AC_SUBST(PMDA_BIND2, $pmda_bind2)
+if $pmda_bind2; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the nutcracker PMDA should be included])
+pmda_nutcracker=false
+AS_IF([test "x$do_pmdanutcracker" = "xyes"], [pmda_nutcracker=true])
+AS_IF([test "x$do_pmdanutcracker" = "xcheck"], [
+    dnl build for nutcracker PMDA needs perl JSON & YAML::XS modules
+    if test "$have_perl" = true
+    then
+	if $pcp_perl_prog -e "use YAML::XS" >/dev/null 2>&1
+	then
+	    if $pcp_perl_prog -e "use JSON" >/dev/null 2>&1
+	    then
+		pmda_nutcracker=true
+	    fi
+	fi
+    fi
+])
+AC_SUBST(PMDA_NUTCRACKER, $pmda_nutcracker)
+if $pmda_nutcracker; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the LIO PMDA should be included])
+pmda_lio=false
+if test "$have_python" = true
+then
+    dnl rpm build for LIO PMDA needs Python rtslib module
+    if $pcp_python_prog -c "import rtslib" >/dev/null 2>&1
+    then
+	pmda_lio=true
+    fi
+fi
+AC_SUBST(PMDA_LIO, $pmda_lio)
+if $pmda_lio; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the libvirt PMDA should be included])
 pmda_libvirt=false
@@ -1797,6 +1845,22 @@ AS_IF([test "x$do_manager" != "xno"], [
 	AC_MSG_RESULT(no))
 ])
 AC_SUBST(enable_manager)
+
+AC_CHECK_PROGS(SEINFO, seinfo)
+AC_SUBST(SEINFO)
+enable_selinux=false
+AS_IF([test "x$do_selinux" != "xno"], [
+for makefile in /usr/share/selinux/devel/Makefile
+do
+    if test -f "$makefile" -a "x$SEINFO" != "x"
+    then
+	enable_selinux=true
+    fi
+done
+])
+AC_SUBST(enable_selinux)
+AC_SUBST(pcp_selinux_dir)
+
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
@@ -2816,6 +2880,9 @@ AC_ARG_WITH(configdir,[AC_HELP_STRING([--with-configdir],[configuration director
 pcp_pmdas_dir=$pcp_var_dir/pmdas
 AC_SUBST(pcp_pmdas_dir)
 
+pcp_selinux_dir=$pcp_var_dir/selinux
+AC_SUBST(pcp_selinux_dir)
+
 dnl runtime shared libraries
 pcp_lib_dir=`eval echo $libdir`
 pcp_lib_dir=`eval echo $pcp_lib_dir`
@@ -3272,29 +3339,13 @@ AC_TRY_COMPILE(
 
 dnl Find external source tarballs for packaging
 
-have_parfait=false
-if test -f ./build/tar/parfait.tar.gz
+have_webapps=false
+if test $do_webapps != "no"
 then
-    AC_MSG_NOTICE([adding Parfait package to the build])
-    have_parfait=true
+    AC_MSG_NOTICE([adding web applications to the build])
+    have_webapps=true
 fi
-AC_SUBST(have_parfait)
-
-have_vector=false
-if test -f ./build/tar/vector.tar.gz
-then
-    AC_MSG_NOTICE([adding Vector webapp to the build])
-    have_vector=true
-fi
-AC_SUBST(have_vector)
-
-have_webjs=false
-if test -f ./build/tar/webjs.tar.gz
-then
-    AC_MSG_NOTICE([adding webjs webapps to the build])
-    have_webjs=true
-fi
-AC_SUBST(have_webjs)
+AC_SUBST(have_webapps)
 
 dnl Capture special options passed to configure
 AC_SUBST(PACKAGE_CONFIGURE)

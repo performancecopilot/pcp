@@ -1,0 +1,77 @@
+#!/bin/sh
+# PCP QA Test No. 1087
+# Exercise pmdabind2 ./Install, ./Remove and metric values.
+#
+# Copyright (c) 2017 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_PMDAS_DIR/bind2 ] || _notrun "PMDA bind2 is not installed"
+for module in XML::LibXML File::Slurp List::MoreUtils autodie
+do
+    perl -e "use $module" 2>/dev/null
+    test $? -eq 0 || _notrun "bind2 PMDA needs perl module $module"
+done
+
+_cleanup()
+{
+    _restore_config $PCP_PMDAS_DIR/bind2/bind2.conf
+    _restore_pmda_install $iam
+    $sudo rm -f $tmp.*
+    exit $status
+}
+
+iam=bind2
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup" 0 1 2 3 15
+
+# real QA test starts here
+_save_config $PCP_PMDAS_DIR/bind2/bind2.conf
+_prepare_pmda_install $iam
+
+xmlfiles=`ls $here/named/bind-*.xml | LC_COLLATE=POSIX sort`
+for xml in $xmlfiles
+do
+    base=`basename $xml`
+
+    echo
+    echo "=== $iam agent installation with test=$base ==="
+    $sudo ./Remove > $tmp.out 2>&1
+
+    # put the test config file in place
+    echo "test=$xml" > $tmp.conf
+    $sudo cp $tmp.conf $PCP_PMDAS_DIR/bind2/bind2.conf
+
+    $sudo ./Install </dev/null >>$tmp.out 2>&1
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e '/^Waiting for pmcd/s/\.\.\.[. ]*$/DOTS/' \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check bind2 metrics have appeared/  { if ($7 > 1 && $7 <= 5000) $7 = "X"
+                                       if ($10 >= 0 && $10 <= 5000) $10 = "Y"
+                                     }
+                                     { print }'
+
+    echo
+    echo "=== $iam metrics ==="
+    metrics=`pminfo $iam | LC_COLLATE=POSIX sort`
+    pminfo -fmdtT $metrics
+done
+
+echo
+echo "=== remove $iam agent ==="
+$sudo ./Remove >$tmp.out 2>&1
+_filter_pmda_remove <$tmp.out
+
+# success, all done
+status=0
+exit

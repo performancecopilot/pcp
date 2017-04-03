@@ -21,8 +21,8 @@
 from distutils.core import setup, Extension
 
 setup(name = 'pcp',
-    version = '1.0',
-    description = 'Python package for Performance Co-Pilot',
+    version = '1.1',
+    description = 'Performance Co-Pilot collector, monitor and instrumentation APIs',
     license = 'GPLv2+',
     author = 'Performance Co-Pilot Development Team',
     author_email = 'pcp@groups.io',

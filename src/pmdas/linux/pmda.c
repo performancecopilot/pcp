@@ -2,6 +2,7 @@
  * Linux PMDA
  *
  * Copyright (c) 2012-2017 Red Hat.
+ * Copyright (c) 2016-2017 Fujitsu.
  * Copyright (c) 2007-2011 Aconex.  All Rights Reserved.
  * Copyright (c) 2002 International Business Machines Corp.
  * Copyright (c) 2000,2004,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
@@ -58,6 +59,8 @@
 #include "proc_buddyinfo.h"
 #include "proc_zoneinfo.h"
 #include "numa_meminfo.h"
+#include "ksm.h"
+#include "sysfs_tapestats.h"
 
 static proc_stat_t		proc_stat;
 static proc_meminfo_t		proc_meminfo;
@@ -79,6 +82,7 @@ static sem_info_t              _sem_info;
 static msg_info_t              _msg_info;
 static proc_net_softnet_t	proc_net_softnet;
 static proc_buddyinfo_t		proc_buddyinfo;
+static ksm_info_t               ksm_info;
 
 static int		_isDSO = 1;	/* =0 I am a daemon */
 static int		rootfd = -1;	/* af_unix pmdaroot */
@@ -328,6 +332,8 @@ static pmdaIndom indomtab[] = {
     { IPC_SEM_INDOM, 0, NULL },
     { BUDDYINFO_INDOM, 0, NULL },
     { ZONEINFO_INDOM, 0, NULL },
+    { ZONEINFO_PROTECTION_INDOM, 0, NULL },
+    { TAPEDEV_INDOM, 0, NULL }
 };
 
 
@@ -1021,6 +1027,26 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_MEMINFO,59), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
+/* mem.util.hugepagesTotalBytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,60), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* mem.util.hugepagesFreeBytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,61), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* mem.util.hugepagesRsvdBytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,62), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* mem.util.hugepagesSurpBytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,63), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
 /* mem.numa.util.total */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,0), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
@@ -1215,6 +1241,21 @@ static pmdaMetric metrictab[] = {
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,38), PM_TYPE_DOUBLE, NODE_INDOM, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(1,-1,0,PM_SPACE_MBYTE,PM_TIME_SEC,0) }, },
+
+/* mem.numa.util.hugepagesTotalBytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,39), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* mem.numa.util.hugepagesFreeBytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,40), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* mem.numa.util.hugepagesSurpBytes */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,41), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
 /* swap.length */
     { NULL,
@@ -1453,7 +1494,7 @@ static pmdaMetric metrictab[] = {
 
 /* network.interface.baudrate */
     { NULL, 
-      { PMDA_PMID(CLUSTER_NET_DEV,23), PM_TYPE_U32, NET_DEV_INDOM, PM_SEM_DISCRETE, 
+      { PMDA_PMID(CLUSTER_NET_DEV,23), PM_TYPE_U64, NET_DEV_INDOM, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(1,-1,0,PM_SPACE_BYTE,PM_TIME_SEC,0) }, },
 
 /* network.interface.duplex */
@@ -3582,6 +3623,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_ZONEINFO,7), PM_TYPE_U64, ZONEINFO_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+/* mem.zoneinfo.protection */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ZONEINFO_PROTECTION,0), PM_TYPE_U64, ZONEINFO_PROTECTION_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
 /*
  * /proc/cpuinfo cluster (cpu indom)
  */
@@ -3932,6 +3978,54 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_SEM_STAT,3), PM_TYPE_U32, IPC_SEM_INDOM, PM_SEM_INSTANT, 
     PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/*
+ * ksm info cluster
+ */
+/* mem.ksm.full_scans */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 0), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* mem.ksm.merge_across_nodes */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 1), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* mem.ksm.pages_shared */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 2), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* mem.ksm.pages_sharing */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 3), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* mem.ksm.pages_to_scan */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 4), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* mem.ksm.pages_unshared */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 5), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* mem.ksm.pages_volatile */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 6), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* mem.ksm.run_state */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 7), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,0,0,0,0,0)}},
+
+/* mem.ksm.sleep_time */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KSM_INFO, 8), KERNEL_ULONG, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_MSEC,0)}},
 
 /*
  * number of users cluster
@@ -4503,6 +4597,166 @@ static pmdaMetric metrictab[] = {
     {PMDA_PMID(28,105), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+    /* mem.vmstat.compact_daemon_wake */
+    { &_pm_proc_vmstat.compact_daemon_wake,
+    {PMDA_PMID(28,106), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.compact_free_scanned */
+    { &_pm_proc_vmstat.compact_free_scanned,
+    {PMDA_PMID(28,107), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.compact_migrate_scanned */
+    { &_pm_proc_vmstat.compact_migrate_scanned,
+    {PMDA_PMID(28,108), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.drop_pagecache */
+    { &_pm_proc_vmstat.drop_pagecache,
+    {PMDA_PMID(28,109), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.drop_slab */
+    { &_pm_proc_vmstat.drop_slab,
+    {PMDA_PMID(28,110), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_free_cma */
+    { &_pm_proc_vmstat.nr_free_cma,
+    {PMDA_PMID(28,111), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_pages_scanned */
+    { &_pm_proc_vmstat.nr_pages_scanned,
+    {PMDA_PMID(28,112), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_vmscan_immediate_reclaim */
+    { &_pm_proc_vmstat.nr_vmscan_immediate_reclaim,
+    {PMDA_PMID(28,113), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.numa_pages_migrated */
+    { &_pm_proc_vmstat.numa_pages_migrated,
+    {PMDA_PMID(28,114), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.numa_pte_updates */
+    { &_pm_proc_vmstat.numa_pte_updates,
+    {PMDA_PMID(28,115), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pglazyfreed */
+    { &_pm_proc_vmstat.pglazyfreed,
+    {PMDA_PMID(28,116), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgmigrate_fail */
+    { &_pm_proc_vmstat.pgmigrate_fail,
+    {PMDA_PMID(28,117), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.pgmigrate_success */
+    { &_pm_proc_vmstat.pgmigrate_success,
+    {PMDA_PMID(28,118), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.thp_deferred_split_page */
+    { &_pm_proc_vmstat.thp_deferred_split_page,
+    {PMDA_PMID(28,119), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.thp_split_page */
+    { &_pm_proc_vmstat.thp_split_page,
+    {PMDA_PMID(28,120), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.thp_split_page_failed */
+    { &_pm_proc_vmstat.thp_split_page_failed,
+    {PMDA_PMID(28,121), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.thp_split_pmd */ 
+    { &_pm_proc_vmstat.thp_split_pmd,
+    {PMDA_PMID(28,122), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.workingset_activate */
+    { &_pm_proc_vmstat.workingset_activate,
+    {PMDA_PMID(28,123), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.workingset_nodereclaim */
+    { &_pm_proc_vmstat.workingset_nodereclaim,
+    {PMDA_PMID(28,124), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.workingset_refault */
+    { &_pm_proc_vmstat.workingset_refault,
+    {PMDA_PMID(28,125), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.compact_isolated */
+    { &_pm_proc_vmstat.compact_isolated,
+    {PMDA_PMID(28,126), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_shmem_hugepages */
+    { &_pm_proc_vmstat.nr_shmem_hugepages,
+    {PMDA_PMID(28,127), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_shmem_pmdmapped */
+    { &_pm_proc_vmstat.nr_shmem_pmdmapped,
+    {PMDA_PMID(28,128), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_zone_inactive_anon */
+    { &_pm_proc_vmstat.nr_zone_inactive_anon,
+    {PMDA_PMID(28,129), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_zone_active_anon */
+    { &_pm_proc_vmstat.nr_zone_active_anon,
+    {PMDA_PMID(28,130), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_zone_inactive_file */
+    { &_pm_proc_vmstat.nr_zone_inactive_file,
+    {PMDA_PMID(28,131), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_zone_active_file */
+    { &_pm_proc_vmstat.nr_zone_active_file,
+    {PMDA_PMID(28,132), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_zone_unevictable */
+    { &_pm_proc_vmstat.nr_zone_unevictable,
+    {PMDA_PMID(28,133), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_zone_write_pending */
+    { &_pm_proc_vmstat.nr_zone_write_pending,
+    {PMDA_PMID(28,134), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.nr_zspages */
+    { &_pm_proc_vmstat.nr_zspages,
+    {PMDA_PMID(28,135), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.thp_file_alloc */
+    { &_pm_proc_vmstat.thp_file_alloc,
+    {PMDA_PMID(28,136), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* mem.vmstat.thp_file_mapped */
+    { &_pm_proc_vmstat.thp_file_mapped,
+    {PMDA_PMID(28,137), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /*
  * sysfs_kernel cluster
  */
@@ -4735,6 +4989,53 @@ static pmdaMetric metrictab[] = {
     /* network.softnet.percpu.flow_limit_count */
     { NULL, { PMDA_PMID(CLUSTER_NET_SOFTNET,11), PM_TYPE_U64, CPU_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/*
+ * tapedev cluster
+ */
+    /* tape.dev.in_flight */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_IN_FLIGHT), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* tape.dev.io_ns */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_IO_NS), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+
+    /* tape.dev.other_cnt */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_OTHER_CNT), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* tape.dev.read_byte_cnt */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_READ_BYTE_CNT), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+    /* tape.dev.read_cnt */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_READ_CNT), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* tape.dev.read_ns */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_READ_NS), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+
+    /* tape.dev.resid_cnt */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_RESID_CNT), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* tape.dev.write_byte_cnt */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_WRITE_BYTE_CNT), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+    /* tape.dev.write_cnt */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_WRITE_CNT), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+    /* tape.dev.write_ns */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_WRITE_NS), PM_TYPE_U64, TAPEDEV_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+
+    /* hinv.ntape */
+    { NULL, { PMDA_PMID(CLUSTER_TAPEDEV, TAPESTATS_HINV_NTAPE), PM_TYPE_U32, PM_INDOM_NULL,
+	PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
 typedef struct {
@@ -4911,9 +5212,10 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_SLAB]) {
 	if (access != NULL && (access->uid == 0 && access->uid_flag)) {
 	    proc_slabinfo.permission = 1;
-	    refresh_proc_slabinfo(&proc_slabinfo);
-	} else
+	    refresh_proc_slabinfo(INDOM(SLAB_INDOM), &proc_slabinfo);
+	} else {
 	    proc_slabinfo.permission = 0;
+	}
     }
 
     if (need_refresh[CLUSTER_SEM_LIMITS])
@@ -4961,8 +5263,16 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_BUDDYINFO])
 	refresh_proc_buddyinfo(&proc_buddyinfo);
 
-    if (need_refresh[CLUSTER_ZONEINFO])
-	refresh_proc_zoneinfo(INDOM(ZONEINFO_INDOM));
+    if (need_refresh[CLUSTER_ZONEINFO] ||
+        need_refresh[CLUSTER_ZONEINFO_PROTECTION])
+	refresh_proc_zoneinfo(INDOM(ZONEINFO_INDOM),
+			      INDOM(ZONEINFO_PROTECTION_INDOM));
+
+    if (need_refresh[CLUSTER_KSM_INFO])
+	refresh_ksm_info(&ksm_info);
+
+    if (need_refresh[CLUSTER_TAPEDEV])
+	refresh_sysfs_tapestats(INDOM(TAPEDEV_INDOM));
 
 done:
     if (need_refresh_mtab)
@@ -5042,6 +5352,12 @@ linux_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaE
     case ZONEINFO_INDOM:
 	need_refresh[CLUSTER_ZONEINFO]++;
         break;
+    case ZONEINFO_PROTECTION_INDOM:
+        need_refresh[CLUSTER_ZONEINFO_PROTECTION]++;
+        break;
+    case TAPEDEV_INDOM:
+	need_refresh[CLUSTER_TAPEDEV]++;
+	break;
     /* no default label : pmdaInstance will pick up errors */
     }
 
@@ -5764,6 +6080,26 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    	return 0; /* no values available */
 	    atom->ul = proc_meminfo.Hugepagesize;
 	    break;
+	case 60: /* mem.util.hugepagesTotalBytes */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesTotal))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.HugepagesTotal * proc_meminfo.Hugepagesize;
+	   break;
+	case 61: /* mem.util.hugepagesFreeBytes */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesFree))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.HugepagesFree * proc_meminfo.Hugepagesize;
+	   break;
+	case 62: /* mem.util.hugepagesRsvdBytes */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesRsvd))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.HugepagesRsvd * proc_meminfo.Hugepagesize;
+	   break;
+	case 63: /* mem.util.hugepagesSurpBytes */
+	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesSurp))
+		return 0; /* no values available */
+	   atom->ull = proc_meminfo.HugepagesSurp * proc_meminfo.Hugepagesize;
+	   break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -5843,7 +6179,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 23: /* network.interface.baudrate */
 	    if (!netip->ioc.speed)
 		return 0;
-	    atom->ul = ((long long)netip->ioc.speed * 1000000 / 8);
+	    atom->ull = ((unsigned long long)netip->ioc.speed * 1000000 / 8);
 	    break;
 	case 24: /* network.interface.duplex */
 	    if (!netip->ioc.duplex)
@@ -6152,54 +6488,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_SLAB:
 	if (proc_slabinfo.permission != 1)
 	    return 0;
-
-	if (proc_slabinfo.ncaches == 0)
-	    return 0; /* no values available */
-
-	if (inst >= proc_slabinfo.ncaches)
-	    return PM_ERR_INST;
-
-	switch(idp->item) {
-	case 0:	/* mem.slabinfo.objects.active */
-	    atom->ull = proc_slabinfo.caches[inst].num_active_objs;
-	    break;
-	case 1:	/* mem.slabinfo.objects.total */
-	    atom->ull = proc_slabinfo.caches[inst].total_objs;
-	    break;
-	case 2:	/* mem.slabinfo.objects.size */
-	    if (proc_slabinfo.caches[inst].seen < 11)	/* version 1.1 or later only */
-		return 0;
-	    atom->ul = proc_slabinfo.caches[inst].object_size;
-	    break;
-	case 3:	/* mem.slabinfo.slabs.active */
-	    if (proc_slabinfo.caches[inst].seen < 11)	/* version 1.1 or later only */
-		return 0;
-	    atom->ul = proc_slabinfo.caches[inst].num_active_slabs;
-	    break;
-	case 4:	/* mem.slabinfo.slabs.total */
-	    if (proc_slabinfo.caches[inst].seen == 11)	/* version 1.1 only */
-		return 0;
-	    atom->ul = proc_slabinfo.caches[inst].total_slabs;
-	    break;
-	case 5:	/* mem.slabinfo.slabs.pages_per_slab */
-	    if (proc_slabinfo.caches[inst].seen < 11)	/* version 1.1 or later only */
-		return 0;
-	    atom->ul = proc_slabinfo.caches[inst].pages_per_slab;
-	    break;
-	case 6:	/* mem.slabinfo.slabs.objects_per_slab */
-	    if (proc_slabinfo.caches[inst].seen != 20)	/* version 2.0 only */
-		return 0;
-	    atom->ul = proc_slabinfo.caches[inst].objects_per_slab;
-	    break;
-	case 7:	/* mem.slabinfo.slabs.total_size */
-	    if (proc_slabinfo.caches[inst].seen < 11)	/* version 1.1 or later only */
-		return 0;
-	    atom->ull = proc_slabinfo.caches[inst].total_size;
-	    break;
-	default:
-	    return PM_ERR_PMID;
-	}
-    	break;
+	return proc_slabinfo_fetch(INDOM(SLAB_INDOM), idp->item, inst, atom);
 
     case CLUSTER_PARTITIONS:
 	return proc_partitions_fetch(mdesc, inst, atom);
@@ -6333,6 +6622,20 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     /*
      * Cluster added by Wu Liming <wulm.fnst@cn.fujitsu.com>
      */
+    case CLUSTER_ZONEINFO_PROTECTION: {
+	unsigned long long *value;
+	sts = pmdaCacheLookup(INDOM(ZONEINFO_PROTECTION_INDOM), inst, NULL, (void **)&value);
+	if (sts < 0)
+	    return sts;
+	if (sts == PMDA_CACHE_INACTIVE)
+	    return PM_ERR_INST;
+	switch (idp->item) {
+	case 0: /* mem.zoneinfo.protection */
+            atom->ull = (__uint64_t)*value;
+	}
+	break;
+    }
+
     case CLUSTER_ZONEINFO: {
 	zoneinfo_entry_t *info;
 
@@ -6346,6 +6649,40 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	atom->ull = info->values[idp->item];
 	break;
     }
+
+    case CLUSTER_KSM_INFO:
+	switch (idp->item) {
+	case 0: /* mem.ksm.full_scans */
+	    _pm_assign_ulong(atom, ksm_info.full_scans);
+	    break;
+	case 1: /* mem.ksm.merge_across_nodes */
+	    _pm_assign_ulong(atom, ksm_info.merge_across_nodes);
+	    break;
+	case 2: /* mem.ksm.pages_shared */
+	    _pm_assign_ulong(atom, ksm_info.pages_shared);
+	    break;
+	case 3: /* mem.ksm.pages_sharing */
+	    _pm_assign_ulong(atom, ksm_info.pages_sharing);
+	    break;
+	case 4: /* mem.ksm.pages_to_scan */
+	    _pm_assign_ulong(atom, ksm_info.pages_to_scan);
+	    break;
+	case 5: /* mem.ksm.pages_unshared */
+	    _pm_assign_ulong(atom, ksm_info.pages_unshared);
+	    break;
+	case 6: /* mem.ksm.pages_volatile */
+	    _pm_assign_ulong(atom, ksm_info.pages_volatile);
+	    break;
+	case 7: /* mem.ksm.run_state */
+	    _pm_assign_ulong(atom, ksm_info.run);
+	    break;
+	case 8: /* mem.ksm.sleep_time */
+	    _pm_assign_ulong(atom, ksm_info.sleep_millisecs);
+	    break;
+	default:
+	    return PM_ERR_PMID;
+        }
+	break;
 
     case CLUSTER_SEM_INFO:
 	switch (idp->item) {
@@ -6744,6 +7081,24 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->d = np->bandwidth;
 	    sts = (atom->d > 0.0);
 	    break;
+	case 39: /* mem.numa.util.hugepagesTotalBytes */
+	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugepagesize))
+	    	return 0; /* no values available */
+	    sts = linux_table_lookup("HugePages_Total:", np->meminfo, &atom->ull);
+	    atom->ull *= proc_meminfo.Hugepagesize;
+	    break;
+	case 40: /* mem.numa.util.hugepagesFreeBytes */
+	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugepagesize))
+	    	return 0; /* no values available */
+	    sts = linux_table_lookup("HugePages_Free:", np->meminfo, &atom->ull);
+	    atom->ull *= proc_meminfo.Hugepagesize;
+	    break;
+	case 41: /* mem.numa.util.hugepagesSurpBytes */
+	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugepagesize))
+	    	return 0; /* no values available */
+	    sts = linux_table_lookup("HugePages_Surp:", np->meminfo, &atom->ull);
+	    atom->ull *= proc_meminfo.Hugepagesize;
+	    break;
 
 	default:
 	    return PM_ERR_PMID;
@@ -6856,6 +7211,28 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 	break;
 
+    case CLUSTER_TAPEDEV:
+	if (idp->item == TAPESTATS_HINV_NTAPE) {
+	    /* hinv.ntape */
+	    atom->ul = pmdaCacheOp(INDOM(TAPEDEV_INDOM), PMDA_CACHE_SIZE_ACTIVE);
+	}
+	else {
+	    /*
+	     * tape.dev.* counters are direct indexed by item, see sysfs_tapestats.h
+	     */
+	    tapedev_t *tape = NULL;
+
+	    if (idp->item >= TAPESTATS_COUNT)
+		return PM_ERR_PMID;
+	    sts = pmdaCacheLookup(INDOM(TAPEDEV_INDOM), inst, NULL, (void **)&tape);
+	    if (sts < 0)
+		return sts;
+	    if (sts != PMDA_CACHE_ACTIVE || tape == NULL)
+		return PM_ERR_INST;
+	    atom->ull = tape->counts[idp->item];
+	}
+	break;
+
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -6900,6 +7277,11 @@ linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	case CLUSTER_NET_SOFTNET:
 	    need_refresh[idp->cluster]++;
 	    need_refresh[CLUSTER_STAT]++;
+	    break;
+
+	case CLUSTER_NUMA_MEMINFO:
+	    need_refresh[idp->cluster]++;
+	    need_refresh[CLUSTER_MEMINFO]++;
 	    break;
 
 	case CLUSTER_NET_DEV:
@@ -7134,7 +7516,6 @@ linux_init(pmdaInterface *dp)
     dp->version.six.ext->e_endCallBack = linux_end_context;
     pmdaSetFetchCallBack(dp, linux_fetchCallBack);
 
-    proc_slabinfo.indom = &indomtab[SLAB_INDOM];
     proc_buddyinfo.indom = &indomtab[BUDDYINFO_INDOM];
 
     /*

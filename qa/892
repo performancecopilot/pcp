@@ -21,6 +21,24 @@ addr=`_host_to_ipv6addrs $host | head -1`
 [ -z "$addr" ] && _notrun "Cannot translate hostname ($host) to IPv6 address"
 ipv6local=`_ipv6_localhost`
 
+if [ -f /etc/lsb-release ]
+then
+    if grep -q 'DISTRIB_ID=Ubuntu' /etc/lsb-release
+    then
+	if grep -q 'DISTRIB_RELEASE=12.04' /etc/lsb-release
+	then
+	    # getaddrinfo() for Ubuntu 12.04 does not seem to be able
+	    # to handle the IPv6 name localhost6 (or similar) ... at least
+	    # not on vm00 in the QA farm ... so don't run the test (it gets
+	    # exercised in lots of other places) because this would not
+	    # appear to be a PCP-related issue
+	    #
+	    _notrun "Ubuntu + 12.04 + getaddrinfo() == bad karma"
+	    # NOTREACHED
+	fi
+    fi
+fi
+
 status=1	# failure is the default!
 $sudo rm -rf $tmp.* $seq.full
 
@@ -29,7 +47,7 @@ _cleanup()
     # ensure we do not leave local-only settings enabled
     _restore_config $PCP_SYSCONFIG_DIR/pmcd
 
-    $sudo $PCP_RC_DIR/pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+    _service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
     _wait_for_pmcd
     _wait_for_pmlogger
 
@@ -62,8 +80,9 @@ echo "# Dummy entry added by PCP QA test $seq" > $tmp.local
 echo PMCD_LOCAL=1 >> $tmp.local
 $sudo cp $tmp.local $PCP_SYSCONFIG_DIR/pmcd
 
-$sudo $PCP_RC_DIR/pmcd restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+_service pmcd restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
 _wait_for_pmcd
+_wait_for_pmlogger
 
 echo; echo "== checking loop pmcd access, expecting success"
 pminfo -f -h "pcp://$ipv6local" pmcd.feature.local 2>&1 | _filter

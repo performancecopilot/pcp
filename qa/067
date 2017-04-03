@@ -65,7 +65,7 @@ _filter_pmda_log()
 interrupt()
 {
     echo "Interrupted"
-    _restore_systemd_restart pmcd
+    _restore_auto_restart pmcd
     exit
 }
 
@@ -82,8 +82,8 @@ cleanup()
     pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
     && $sudo sh $tmp.cmd
     echo "Restarting pmcd"
-    $sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
-    _restore_systemd_restart pmcd
+    _service pcp restart | _filter_pcp_start
+    _restore_auto_restart pmcd
     _wait_for_pmcd
     _wait_for_pmlogger
     rm -f $tmp.*
@@ -92,7 +92,7 @@ cleanup()
 trap interrupt 1 2 3 15
 trap cleanup 0
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 domain=246
 if [ $PCP_PLATFORM = linux ]
@@ -165,8 +165,13 @@ _save_config $PCP_PMCDCONF_PATH
 $sudo cp $tmp.config $PCP_PMCDCONF_PATH
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp stop | _filter_pcp_stop
+# Note: need to use $PCP_RC_DIR/* here, not _service pcp so that
+# systemd (if running) does not get to see the pmcd exit status
+#
+( $sudo $PCP_RC_DIR/pmcd start; $sudo $PCP_RC_DIR/pmlogger start ) | _filter_pcp_start
 _wait_for_pmcd
+_wait_for_pmlogger
 # echo "config:"
 # cat $config | sed -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;"
 echo

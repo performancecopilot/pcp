@@ -486,7 +486,7 @@ End-of-File
 #
 
 user=${USER-kenj}
-qa_dir=$HOME/src/pcp/qa
+qa_dir=\$HOME/src/pcp/qa
 tmp=/var/tmp/$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15

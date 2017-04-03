@@ -41,7 +41,7 @@ echo "y = sample.lights" >>$tmp/a
 echo "z = hinv.ncpu + hinv.ndisk" >>$tmp/a
 
 echo "a = sample.lights" >$tmp/b
-echo "b = bozo!" >>$tmp/b
+echo "b = bozo}" >>$tmp/b
 echo "c=sample.bin*hinv.ncpu" >>$tmp/b
 echo "d = +" >>$tmp/b
 

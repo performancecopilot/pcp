@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Red Hat.
+ * Copyright (c) 2013-2017 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
@@ -228,7 +228,8 @@ build_dsoattrs(pmdaInterface *dispatch, __pmHashCtl *attrs)
 	     node != NULL;
 	     node = __pmHashWalk(attrs, PM_HASH_WALK_NEXT)) {
 	    if ((sts = dispatch->version.six.attribute(
-				0, node->key, node->data,
+				dispatch->version.six.ext->e_context,
+				node->key, node->data,
 				node->data ? strlen(node->data)+1 : 0,
 				dispatch->version.six.ext)) < 0)
 		break;
@@ -335,8 +336,11 @@ __pmConnectLocal(__pmHashCtl *attrs)
 
     for (i = 0; i < numdso; i++) {
 	dp = &dsotab[i];
-	if (dp->domain == -1 || dp->handle != NULL)
+	if (dp->domain == -1)
 	    continue;
+	if (dp->handle != NULL)
+	    goto connected;
+
 	/*
 	 * __pmLocalPMDA() means the path to the DSO may be something
 	 * other than relative to $PCP_PMDAS_DIR ... need to try both
@@ -439,11 +443,12 @@ __pmConnectLocal(__pmHashCtl *attrs)
 	    dp->domain = -1;
 	}
 	else {
+connected:
 	    if (dp->dispatch.comm.pmda_interface < PMDA_INTERFACE_2 ||
 		dp->dispatch.comm.pmda_interface > PMDA_INTERFACE_LATEST) {
 		pmprintf("__pmConnectLocal: Error: Unknown PMDA interface "
 			 "version %d in \"%s\" DSO\n", 
-			 dp->dispatch.comm.pmda_interface, path);
+			 dp->dispatch.comm.pmda_interface, dp->name);
 		pmflush();
 		dlclose(dp->handle);
 		dp->domain = -1;
@@ -451,15 +456,19 @@ __pmConnectLocal(__pmHashCtl *attrs)
 	    else if (dp->dispatch.comm.pmapi_version != PMAPI_VERSION_2) {
 		pmprintf("__pmConnectLocal: Error: Unknown PMAPI version %d "
 			 "in \"%s\" DSO\n",
-			 dp->dispatch.comm.pmapi_version, path);
+			 dp->dispatch.comm.pmapi_version, dp->name);
 		pmflush();
 		dlclose(dp->handle);
 		dp->domain = -1;
 	    }
-	    else if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_6 &&
+	    else {
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
+		    dp->dispatch.version.four.ext->e_context = pmWhichContext();
+		if (dp->dispatch.comm.pmda_interface >= PMDA_INTERFACE_6 &&
 		    (dp->dispatch.comm.flags & PDU_FLAG_AUTH) != 0) {
-		/* Agent wants to know about connection attributes */
-		build_dsoattrs(&dp->dispatch, attrs);
+		    /* Agent wants to know about connection attributes */
+		    build_dsoattrs(&dp->dispatch, attrs);
+		}
 	    }
 	}
 #ifdef HAVE_ATEXIT

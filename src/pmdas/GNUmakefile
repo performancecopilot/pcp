@@ -31,9 +31,10 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache mysql oracle vmware kvm \
 	named news pdns samba dtsrun postfix gpsd \
 	rsyslog elasticsearch snmp nginx nfsclient \
-	ds389 ds389log activemq lustre gpfs slurm
+	ds389 ds389log activemq lustre gpfs slurm \
+	bind2 redis nutcracker
 
-PYPMDAS = gluster zswap unbound mic json libvirt
+PYPMDAS = gluster zswap unbound mic json libvirt lio
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf

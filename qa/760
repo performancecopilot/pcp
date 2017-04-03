@@ -61,14 +61,14 @@ activemq_install()
 
 activemq_cleanup()
 {
-    # note: _restore_systemd_restart pmcd done in _cleanup_pmda()
+    # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda activemq
 }
 
 _prepare_pmda activemq
 trap "activemq_cleanup; exit \$status" 0 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 _filter_activemq()
 {

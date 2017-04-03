@@ -2,6 +2,10 @@
 # PCP QA Test No. 282
 # Error handling in $PCP_RC_DIR/pcp
 #
+# Note: the core of this test needs to use the explicit init scripts,
+#	not the _service wrapper so there is no chance of systemd
+#	getting in the way
+#
 # Copyright (c) 2014 Red Hat.
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -35,7 +39,10 @@ CHECK=`which pmlogger_check`
 
 _poke_pmcd()
 {
-    $sudo $PCP_RC_DIR/pcp restart 2>&1 \
+    # Note, need to use explict pmcd, then pmlogger to avoid this maybe
+    # going off into systemd land via the pcp init script wrapper
+    #
+    ( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) 2>&1 \
     | tee -a $seq.full \
     | sed \
 	-e '/ root .* .usr.etc.pmcd /s/.*/-- ps output line --/' \
@@ -170,8 +177,9 @@ _cleanup()
 
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
+	_wait_for_pmlogger
 	_needclean=false
     fi
     $sudo rm -fr $tmp.*
@@ -276,6 +284,10 @@ End-of-File
 # real QA test starts here
 _save_setup
 _disable_loggers
+_service pcp stop | _filter_pcp_stop
+( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) 2>&1 \
+| tee -a $seq.full \
+| _filter_pcp_start
 _exercise_rc_scripts
 
 # success, all done

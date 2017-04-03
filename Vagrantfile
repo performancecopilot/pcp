@@ -14,199 +14,6 @@ QA_FLAGS = ""
 #QA_FLAGS = "-g pmda.linux"
 
 
-# Arch Specific Config Files
-
-############################################################
-# CentOS
-############################################################
-$script_centos = <<SCRIPT
-
-# Setup EPEL
-cat <<EOM >/etc/yum.repos.d/epel-bootstrap.repo
-[epel]
-name=Bootstrap EPEL
-mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-\\\$releasever&arch=\\\$basearch
-failovermethod=priority
-enabled=0
-gpgcheck=0
-EOM
-
-yum --enablerepo=epel -y install epel-release
-rm -f /etc/yum.repos.d/epel-bootstrap.repo
-
-yum -y groupinstall 'Development Tools'
-yum -y install git ncurses-devel readline-devel man libmicrohttpd-devel qt4-devel python26 python26-devel perl-JSON sysstat perl-TimeDate \
-		perl-XML-TokeParser perl-ExtUtils-MakeMaker perl-Time-HiRes systemd-devel bc cairo-devel cyrus-sasl-devel \
-		systemd-devel libibumad-devel libibmad-devel papi-devel libpfm-devel rpm-devel perl-Spreadsheet-WriteExcel \
-		perl-Text-CSV_XS bind-utils httpd python-devel nspr-devel nss-devel python-ctypes nss-tools perl-Spreadsheet-XLSX \
-		ed cpan valgrind time xdpyinfo rrdtool-perl
-
-# Lots of avahi errors on Centos511, likely due to my environment
-# avahi-devel
-
-cd /vagrant
-sudo -H -u vagrant env PYTHON=python2.6 ./Makepkgs
-rpm -ivh  pcp-*/build/rpm/*.rpm
-
-# Doesn't start automatically on all distributions
-/sbin/service pmcd start
-
-echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-
-SCRIPT
-
-############################################################
-# SUSE
-############################################################
-$script_suse = <<SCRIPT
-zypper -n in -t pattern devel_basis devel_C_C++ devel_rpm_build
-zypper -n in git ncurses-devel readline-devel man libmicrohttpd-devel libqt4-devel perl-JSON sysstat perl-TimeDate perl-ExtUtils-MakeMaker bc \
-		cyrus-sasl-devel systemd-devel avahi-devel rpm-devel  perl-Text-CSV_XS \
-		bind-utils python-devel python-curses
-
-# These dont have the right "provides" in opensuse
-# libibumad-devel libibmad-devel papi-devel libpfm-devel
-
-#SUSE doesn't get the right perms in /vagrant, hmm
-chown -R vagrant /vagrant
-
-cd /vagrant
-sudo -H -u vagrant ./Makepkgs
-rpm -ivh  pcp-*/build/rpm/*.rpm
-
-# Doesn't start automatically on all distributions
-/sbin/service pmcd start
-
-echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-
-SCRIPT
-
-############################################################
-# Ubuntu
-############################################################
-$script_ubuntu = <<SCRIPT
-apt-get update
-# Use a regex for some of the more obscure packages so apt doesn't exit if missing
-# Trying to not have one script per box
-apt-get install -y  '^(libreadline|libpapi|libpfm4|libcoin80|libicu)-dev$' \
-	bc bison curl flex  git  g++  dpkg-dev  pkg-config  debhelper chrpath \
-        python-all  python-all-dev  libnspr4-dev  libnss3-dev  libsasl2-dev  libmicrohttpd-dev  libavahi-common-dev \
-        libqt4-dev  autotools-dev  autoconf  gawk  libxml-tokeparser-perl  libspreadsheet-read-perl gdb sysv-rc-conf \
-	libcairo2-dev sysstat valgrind apache2 realpath unbound \
-	libibumad-dev libsoqt-dev libsoqt-dev-common libnss3-tools libibmad-dev x11-utils build-essential pbuilder
-
-cd /vagrant
-sudo -H -u vagrant ./Makepkgs
-dpkg -i build/deb/*.deb
-
-echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-
-SCRIPT
-
-############################################################
-# Ubuntu EOL
-############################################################
-$script_EOLubuntu = <<SCRIPT
-
-# Fix the repo names
-sed -i.bak -r 's/(us.)?(archive|security).ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
-
-apt-get update
-apt-get install  -y '^(libreadline|libpapi|libpfm4|libcoin80|libicu)-dev$' \
-	bc bison curl flex  git  g++  dpkg-dev  pkg-config  debhelper chrpath \
-        python-all  python-all-dev  libnspr4-dev  libnss3-dev  libsasl2-dev  libmicrohttpd-dev  libavahi-common-dev \
-        libqt4-dev  autotools-dev  autoconf  gawk  libxml-tokeparser-perl  libspreadsheet-read-perl gdb sysv-rc-conf \
-	libcairo2-dev sysstat valgrind apache2 realpath unbound \
-        libibumad-dev libsoqt-dev libsoqt-dev-common libnss3-tools libibmad-dev x11-utils build-essential \
-        librrds-perl
-
-cd /vagrant
-sudo -H -u vagrant ./Makepkgs
-dpkg -i build/deb/*.deb
-
-echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-
-SCRIPT
-
-############################################################
-# Debian
-############################################################
-$script_debian = <<SCRIPT
-apt-get update
-apt-get install -y '^(libreadline|libpapi|libpfm4|libcoin80)-dev$' \
-		bc bison  flex  git  g++  dpkg-dev  pkg-config  debhelper chrpath \
-		python-all  python-all-dev  libnspr4-dev  libnss3-dev  libsasl2-dev  libmicrohttpd-dev  libavahi-common-dev \
-		libqt4-dev  autotools-dev  autoconf  gawk  libxml-tokeparser-perl libspreadsheet-read-perl ed gdb sysv-rc-conf \
-		libcairo2-dev libibumad-dev libibmad-dev sysstat valgrind apache2 realpath unbound libsoqt-dev \
-		libsoqt-dev-common libnss3-tools x11-utils build-essential librrds-perl
-
-cd /vagrant
-sudo -H -u vagrant ./Makepkgs
-dpkg -i build/deb/*.deb
-
-echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-
-SCRIPT
-
-############################################################
-# Fedora EOL
-############################################################
-$script_fedora_eol = <<SCRIPT
-
-# For sudo to work from a script
-sed -i '/requiretty/d' /etc/sudoers 
-
-yum -y group install 'Development Tools' 'C Development Tools and Libraries' 'RPM Development Tools'
-yum -y install perl-ExtUtils-MakeMaker bison flex libmicrohttpd-devel qt-devel fedora-packager systemd-devel perl-JSON \
-		sysstat perl-Digest-MD5 bc ed cpan cairo-devel cyrus-sasl-devel libibumad-devel libibmad-devel avahi-devel \
-		papi-devel libpfm-devel rpm-devel perl-TimeDate perl-XML-TokeParser perl-Spreadsheet-WriteExcel \
-		perl-Text-CSV_XS bind-utils httpd python-devel nspr-devel nss-devel perl-Spreadsheet-XLSX time xorg-x11-utils
-
-# Remove too old libraries
-pfmvers=`rpm -q --qf "%{VERSION}\n" libpfm`
-[ "$pfmvers" = "`echo -e "$pfmvers\n4.3.9" | sort -V | head -n1`" ] && rpm -e libpfm libpfm-devel papi papi-devel
-
-cd /vagrant
-sudo -H -u vagrant ./Makepkgs
-rpm -ivh  pcp-*/build/rpm/*.rpm
-
-# Doesn't start automatically on all distributions
-/sbin/service pmcd start
-
-echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-
-SCRIPT
-
-############################################################
-# Fedora
-############################################################
-$script_fedora = <<SCRIPT
-
-# For sudo to work from a script
-sed -i '/requiretty/d' /etc/sudoers 
-
-dnf -y group install 'Development Tools' 'C Development Tools and Libraries' 'RPM Development Tools'
-dnf -y install perl-ExtUtils-MakeMaker bison flex libmicrohttpd-devel qt-devel fedora-packager systemd-devel perl-JSON \
-		sysstat perl-Digest-MD5 bc ed cpan cairo-devel cyrus-sasl-devel libibumad-devel libibmad-devel avahi-devel \
-		papi-devel libpfm-devel rpm-devel perl-TimeDate perl-XML-TokeParser perl-Spreadsheet-WriteExcel \
-		perl-Text-CSV_XS bind-utils httpd python-devel nspr-devel nss-devel perl-Spreadsheet-XLSX time xorg-x11-utils \
-                ncurses-devel readline-devel rrdtool-perl
-
-# Remove too old libraries
-pfmvers=`rpm -q --qf "%{VERSION}\n" libpfm`
-[ "$pfmvers" = "`echo -e "$pfmvers\n4.3.9" | sort -V | head -n1`" ] && rpm -e libpfm libpfm-devel papi papi-devel
-
-cd /vagrant
-sudo -H -u vagrant ./Makepkgs
-rpm -ivh  pcp-*/build/rpm/*.rpm
-
-# Doesn't start automatically on all distributions
-/sbin/service pmcd start
-
-echo 'pcpqa   ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-
-SCRIPT
-
 
 ############################################################
 # Host Definititions
@@ -217,7 +24,7 @@ pcp_hosts = {
                 :hostname => "ubuntu1204",
                 :ipaddress => "10.100.10.10",
                 :box => "ubuntu/precise64",
-                :script => "#{$script_ubuntu}"
+                :script => "ubuntu.sh"
         },
 #        :ubuntu1304 => {
 #                :hostname => "ubuntu1304",
@@ -229,49 +36,49 @@ pcp_hosts = {
                 :hostname => "ubuntu1404",
                 :ipaddress => "10.100.10.12",
                 :box => "ubuntu/trusty64",
-                :script => "#{$script_ubuntu}"
+                :script => "ubuntu.sh"
         },
 #       :centos511 => {
 #                :hostname => "centos511",
 #                :ipaddress => "10.100.10.20",
 #                :box => "chef/centos-5.11",
-#                :script => "#{$script_centos}"
+#                :script => "centos.sh"
 #        },
 # 	 :centos511_32 => {
 #                :hostname => "centos511-32",
 #                :ipaddress => "10.100.10.21",
 #                :box => "chef/centos-5.11-i386",
-#                :script => "#{$script_centos}"
+#                :script => "centos.sh"
 #        },
 #        :centos65 => {
 #               :hostname => "centos65",
 #                :ipaddress => "10.100.10.22",
 #                :box => "chef/centos-6.5",
-#                :script => "#{$script_centos}"
+#                :script => "centos.sh"
 #        },
         :centos7 => {
                 :hostname => "centos7",
                 :ipaddress => "10.100.10.23",
                 :box => "centos/7",
-                :script => "#{$script_centos}"
+                :script => "centos.sh"
         },
         :fedora23 => {
                 :hostname => "fedora23",
                 :ipaddress => "10.100.10.30",
                 :box => "fedora/23-cloud-base",
-                :script => "#{$script_fedora}"
+                :script => "fedora.sh"
         },
         :debian76 => {
                 :hostname => "debianwheezy",
                 :ipaddress => "10.100.10.40",
                 :box => "debian/wheezy64",
-                :script => "#{$script_debian}"
+                :script => "debian.sh"
         },
         :debian8 => {
                 :hostname => "debianjessie",
                 :ipaddress => "10.100.10.40",
                 :box => "debian/jessie64",
-                :script => "#{$script_debian}"
+                :script => "debian.sh"
         }
 # Built locally from : https://github.com/opscode/bento
 # NAT comes up but not the host interface
@@ -279,23 +86,51 @@ pcp_hosts = {
 #                :hostname => "opensuse132",
 #                :ipaddress => "10.100.10.51",
 #                :box => "minnus-opensuse-13.2",
-#                :script => "#{$script_suse}"
+#                :script => "suse.sh"
 #        }
 # Networking wont come up
 #        :opensuse131 => {
 #                :hostname => "opensuse131",
 #                :ipaddress => "10.100.10.50",
 #                :box => "chef/opensuse-13.1",
-#                :script => "#{$script_suse}"
+#                :script => "suse.sh"
 #        }
 # Possible opensuse box?
 #        :opensuseleap42 => {
 #                :hostname => "opensuse42",
 #                :ipaddress => "10.100.10.52",
 #                :box => "opensuse/openSUSE-42.1-x86_64",
-#                :script => "#{$script_suse}"
+#                :script => "suse.sh"
 #        }
 }
+
+
+EXPECTED_PLATFORM="darwin"
+EXPECTED_ACK_FILE="provisioning/osxsierra.legally.ok"
+platform_ok_to_use_OSX=RUBY_PLATFORM.include?(EXPECTED_PLATFORM)
+eula_acknowledged = File.exists?(EXPECTED_ACK_FILE)
+ok_to_use_OSX = platform_ok_to_use_OSX && eula_acknowledged
+
+############################################################
+# Only allowed to use oxssierra image if the underlying platform
+# is a Mac and that the user has checked
+# 
+# see OSXREADME.md for more details
+############################################################
+if(ok_to_use_OSX)
+	pcp_hosts[:osxsierra]={
+					:hostname => "osxSierra",
+					:ipaddress => "10.100.10.60",
+					# https://github.com/AndrewDryga/vagrant-box-osx
+					# TODO - this base image takes flipping ages to provision
+					# due to PCP dependencies that need to be built by
+					# Homebrew (eg. qt5, gettext)
+					# it would be better to have a base image based off this
+					# box that has these pre-installed
+					:box => "http://files.dryga.com/boxes/osx-sierra-0.3.1.box",
+					:script => "osxsierra.sh"
+	}
+end
 
 ############################################################
 # Common Config Setup, hostnames, etc
@@ -319,24 +154,6 @@ end
 $script_common << "domainname localdomain"
 
 ############################################################
-# QA run script
-############################################################
-
-$script_qa = <<SCRIPT
-
-touch /tmp/runqa.sh
-echo "#!/bin/sh" >> /tmp/runqa.sh
-echo "cd /var/lib/pcp/testsuite" >> /tmp/runqa.sh
-echo "./check #{QA_FLAGS} >/tmp/runqa.out 2>&1" >> /tmp/runqa.sh
-echo "cp /tmp/runqa.out /qaresults" >> /tmp/runqa.sh
-echo "cp /var/lib/pcp/testsuite/*.bad /qaresults" >> /tmp/runqa.sh
-
-chmod 777 /tmp/runqa.sh
-sudo -b -H -u pcpqa sh -c '/tmp/runqa.sh'
-
-SCRIPT
-
-############################################################
 # Main Vagrant Init : Loop over Host configs
 ############################################################
 
@@ -352,35 +169,35 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |global_config|
   end
 
   # Global shared folder for pcp source.  Copy it so we have our own to muck around in
-  global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: false, :rsync__exclude => ["qaresults/"]
+  global_config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync_auto: false, :rsync__exclude => ["qaresults/", "pcp-*"]
 
   pcp_hosts.each_pair do |name, options|
+    global_config.vm.define name do |config|
 
-	global_config.vm.define name do |config|
+       config.vm.provider "virtualbox" do |v|
+          v.name = "Vagrant PCP - #{name}"
+          v.customize ["modifyvm", :id, "--groups", "/VagrantPCP", "--memory", VM_MEM, "--cpus", VM_CPU]
+       end
 
-  	   config.vm.provider "virtualbox" do |v|
-		v.name = "Vagrant PCP - #{name}"
-    		v.customize ["modifyvm", :id, "--groups", "/VagrantPCP", "--memory", VM_MEM, "--cpus", VM_CPU]
-  	   end
+       config.vm.box = options[:box]
 
-	   config.vm.box = options[:box]
-	   
-	   # VM specific shared folder for qa results
-#  	   config.vm.synced_folder "./qaresults/#{name}", "/qaresults", mount_options: ["dmode=777", "fmode=666"], create: true
-           config.vm.synced_folder "./qaresults/#{name}", "/qaresults", create: true
+       # VM specific shared folder for qa results
+       # config.vm.synced_folder "./qaresults/#{name}", "/qaresults", mount_options: ["dmode=777", "fmode=666"], create: true
 
-	   #config.vm.hostname = "#{name}"
-	   config.vm.hostname = "#{options[:hostname]}"
-           config.vm.network :private_network, ip: options[:ipaddress]
+       # TODO - this appears to fail with `vagrant provision osxsierra`
+       config.vm.synced_folder "./qaresults/#{name}", "/qaresults", create: true
 
-	   # Setup networking etc
-           config.vm.provision :shell, :inline => $script_common
+       config.vm.hostname = "#{options[:hostname]}"
+       config.vm.network :private_network, ip: options[:ipaddress]
 
-	   # Do platfrom specifics: install packages, etc
-           config.vm.provision :shell, :inline => options[:script]
+       # Setup networking etc
+       config.vm.provision :shell, :inline => $script_common
 
-	   # Run QA and copy results back to host
-           config.vm.provision :shell, :inline => $script_qa
-	end
+       # Do platfrom specifics: install packages, etc
+       config.vm.provision :shell, path: "provisioning/#{options[:script]}"
+
+       # Run QA and copy results back to host
+       config.vm.provision :shell, :path => "provisioning/qa.sh"
+    end
   end
 end

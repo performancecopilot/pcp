@@ -20,7 +20,7 @@ _echo()
 
 _cleanup()
 {
-    _restore_systemd_restart pmcd
+    _restore_auto_restart pmcd
     _restore_primary_logger
     rm -f $tmp.*
     exit $status
@@ -30,7 +30,7 @@ status=1
 rm -f $seq.full
 trap "_cleanup" 0 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 if [ -d $PCP_LOG_DIR/pmlogger ]
 then
@@ -44,13 +44,13 @@ fi
 # clash in basename of archive between consecutive instances of the
 # primary logger.
 #
-$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
+_service pcp stop | _filter_pcp_stop
 timeleft=`date +%S`
 timesleep=`expr 60 - $timeleft`
 sleep $timesleep
 _writable_primary_logger
 
-$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
+_service pcp start | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log
 

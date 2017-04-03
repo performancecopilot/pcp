@@ -1,0 +1,75 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2017 Red Hat.
+.\" 
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\" 
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\" 
+.\"
+.TH PMDALIO 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdalio\f1 \- Linux LIO subsystem PMDA
+.SH DESCRIPTION
+\f3pmdalio\f1 is a Performance Metrics Domain Agent (PMDA) which exports 
+metric values about the Linux I/O target subsystem, which provides for
+protocols like iSCSI, FCP, FCoE.
+These allow storage available on one host to be exported and consumed by
+other hosts using industry standard protocols.
+.PP
+This PMDA exports summary metrics which are performance value aggregations
+and configuration per LIO target instance.
+Additional, it provides per LUN performance metrics including IOPS, and
+READ and WRITE throughput.
+.PP
+The LIO configuration is maintained within the kernel's
+.B configfs
+virtual filesystem.
+The
+.I python-rtslib
+module provides an interface to
+.BR configfs ,
+allowing tools like
+.B pmdalio
+to interact with the settings and metadata held in
+.BR configfs .
+.SH INSTALLATION
+Install the lio PMDA by using the Install script as root:
+.PP
+      # cd $PCP_PMDAS_DIR/lio
+.br
+      # ./Install
+.PP
+To uninstall, do the following as root:
+.PP
+      # cd $PCP_PMDAS_DIR/lio
+.br
+      # ./Remove
+.PP
+\fBpmdalio\fR is launched by \fIpmcd\fR(1) and should never be executed 
+directly. The Install and Remove scripts notify \fIpmcd\fR(1) when the 
+agent is installed or removed.
+.SH FILES
+.IP "\fB$PCP_PMDAS_DIR/lio/Install\fR" 4 
+installation script for the \fBpmdalio\fR agent 
+.IP "\fB$PCP_PMDAS_DIR/lio/Remove\fR" 4 
+undo installation script for the \fBpmdalio\fR agent 
+.IP "\fB$PCP_LOG_DIR/pmcd/lio.log\fR" 4 
+default log file for error messages from \fBpmdalio\fR 
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by \fBPCP\fR. On each installation, the
+file \fB/etc/pcp.conf\fR contains the local values for these variables. 
+The \fB$PCP_CONF\fR variable may be used to specify an alternative 
+configuration file, as described in \fIpcp.conf\fR(5).
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pminfo (1)
+and
+.BR pmpython (1).

@@ -3,6 +3,7 @@
 # Portions Copyright (c) International Business Machines Corp., 2002
 # Portions Copyright (c) 2007-2009 Aconex.  All Rights Reserved.
 # Portions Copyright (c) 2013-2017 Red Hat.
+# Portions Copyright (c) 2016-2017 Fujitsu.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -56,6 +57,11 @@
 @ 60.30 IPC sem_stat semaphore IDs
 @ 60.31 buddyinfo memory fragmentation sets, per-NUMA-node
 @ 60.32 zoneinfo memory types, per-NUMA-node
+@ 60.33 low memory regions for each zoneinfo memory type, per-NUMA-node
+@ 60.34 scsi tape devices, per scsi tape device
+The scsi tape instance domain includes st[0-9]+ devices, but not any of the
+derived devices such as nst0, nst0a, st0l, st0m and so forth. The derived
+devices all share the same statistics in the kernel as the st devices.
 
 @ kernel.uname.release release level of the running kernel
 Release level of the running kernel as reported via the release[]
@@ -697,6 +703,10 @@ you will get real memory on demand, and just as much as you use.
 @ mem.util.quicklists amount of memory in the per-CPU quicklists
 @ mem.util.corrupthardware amount of memory in hardware corrupted pages
 @ mem.util.anonhugepages amount of memory in anonymous huge pages
+@ mem.util.hugepagesTotalBytes amount of memory in total hugepages
+@ mem.util.hugepagesFreeBytes amount of memory in free hugepages
+@ mem.util.hugepagesRsvdBytes amount of memory in reserved hugepages
+@ mem.util.hugepagesSurpBytes amount of memory in surplus hugepages
 
 User memory (Kbytes) in pages not backed by files, e.g. from malloc()
 @ mem.numa.util.total per-node total memory
@@ -744,6 +754,9 @@ node_num:bandwidth
 The node_num must match with any node in sysfs/devices/system/node directory.
 And, the bandwidth is expressed in terms of MBps. This config file should be
 filled up manually after running some bandwidth saturation benchmark tools.
+@ mem.numa.util.hugepagesTotalBytes per-node total amount of hugepages memory
+@ mem.numa.util.hugepagesFreeBytes per-node amount of free hugepages memory
+@ mem.numa.util.hugepagesSurpBytes per-node amount of surplus hugepages memory
 @ mem.vmstat.nr_dirty number of pages in dirty state
 Instantaneous number of pages in dirty state, from /proc/vmstat
 @ mem.vmstat.nr_dirty_background_threshold background writeback threshold
@@ -842,7 +855,7 @@ Count of normal mem pages scanned since boot, from /proc/vmstat
 Count of dma mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pgscan_direct_dma32 dma32 mem pages scanned
 Count of dma32 mem pages scanned since boot, from /proc/vmstat
-@ mem.vmstat.pgscan_direct_movable 
+@ mem.vmstat.pgscan_direct_movable movable mem pages scanned
 Count of movable mem pages scanned since boot, from /proc/vmstat
 @ mem.vmstat.pginodesteal pages reclaimed via inode freeing
 Count of pages reclaimed via inode freeing since boot, from /proc/vmstat
@@ -923,6 +936,41 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ mem.vmstat.balloon_inflate count of virt guest balloon page inflations
 @ mem.vmstat.balloon_deflate number of virt guest balloon page deflations
 @ mem.vmstat.balloon_migrate number of virt guest balloon page migrations
+@ mem.vmstat.compact_daemon_wake number of times the memory compaction daemon was woken
+@ mem.vmstat.compact_free_scanned count of pages scanned for freeing by compaction daemon
+@ mem.vmstat.compact_migrate_scanned count of pages scanned for migration by compaction daemon
+@ mem.vmstat.drop_pagecache count of calls to drop page cache pages
+@ mem.vmstat.drop_slab count of calls to drop slab cache pages
+@ mem.vmstat.nr_free_cma count of free Contiguous Memory Allocator pages
+@ mem.vmstat.nr_pages_scanned count of pages scanned during page reclaim
+@ mem.vmstat.nr_vmscan_immediate_reclaim prioritise for reclaim when writeback ends
+@ mem.vmstat.numa_pages_migrated count of NUMA page migrations
+@ mem.vmstat.numa_pte_updates count of NUMA page table entry updates
+@ mem.vmstat.pglazyfreed count of pages lazily freed
+@ mem.vmstat.pgmigrate_fail count of unsuccessful NUMA page migrations
+@ mem.vmstat.pgmigrate_success count of successful NUMA page migrations
+@ mem.vmstat.thp_deferred_split_page count of huge page enqueues for splitting
+@ mem.vmstat.thp_split_page count of huge page splits into base pages
+@ mem.vmstat.thp_split_page_failed count of failures to split a huge page
+@ mem.vmstat.thp_split_pmd count of times a PMD was split into table of PTEs
+This can happen, for instance, when an application calls mprotect() or
+munmap() on part of huge page. It doesn't split huge page, only the page
+table entry.
+@ mem.vmstat.workingset_activate count of page activations to form the working set
+@ mem.vmstat.workingset_nodereclaim count of NUMA node working set page reclaims
+@ mem.vmstat.workingset_refault count of refaults of previously evicted pages
+@ mem.vmstat.compact_isolated count of page isolations for memory compaction
+@ mem.vmstat.nr_shmem_hugepages number of huge pages used for shared memory
+@ mem.vmstat.nr_shmem_pmdmapped number of huge page PMD mappings
+@ mem.vmstat.nr_zone_inactive_anon number of inactive anonymous memory pages in zones
+@ mem.vmstat.nr_zone_active_anon number of inactive file memory pages in zones
+@ mem.vmstat.nr_zone_inactive_file number of isolated anonymous memory pages in zones
+@ mem.vmstat.nr_zone_active_file number of isolated file memory pages in zones
+@ mem.vmstat.nr_zone_unevictable number of unevictable memory pages in zones
+@ mem.vmstat.nr_zone_write_pending count of dirty, writeback and unstable pages
+@ mem.vmstat.nr_zspages number of compressed pages
+@ mem.vmstat.thp_file_alloc count of times huge pages were allocated and put in page cache
+@ mem.vmstat.thp_file_mapped count of times huge pages were used for file mappings
 @ mem.zoneinfo.free free space in each zone for each NUMA node
 @ mem.zoneinfo.min  min space in each zone for each NUMA node
 @ mem.zoneinfo.low  low space in each zone for each NUMA node
@@ -931,6 +979,16 @@ Count of huge TLB page buddy allocation successes, from /proc/vmstat
 @ mem.zoneinfo.spanned spanned space in each zone for each NUMA node
 @ mem.zoneinfo.present present space in each zone for each NUMA node
 @ mem.zoneinfo.managed managed space in each zone for each NUMA node
+@ mem.zoneinfo.protection protection space in each zone for each NUMA node
+@ mem.ksm.full_scans Number of times that KSM has scanned for duplicated content
+@ mem.ksm.merge_across_nodes Kernel allows merging across NUMA nodes
+@ mem.ksm.pages_shared The number of nodes in the stable tree
+@ mem.ksm.pages_sharing The number of virtual pages that are sharing a single page
+@ mem.ksm.pages_to_scan Number of pages to scan at a time
+@ mem.ksm.pages_unshared The number of nodes in the unstable tree
+@ mem.ksm.pages_volatile Number of pages that are candidate to be shared
+@ mem.ksm.run_state Whether the KSM daemon has run and/or is running
+@ mem.ksm.sleep_time Time ksmd should sleep between batches
 
 @ swap.length total swap available metric from /proc/meminfo
 @ swap.used swap used metric from /proc/meminfo
@@ -1573,3 +1631,22 @@ See also the kernel.uname.* metrics
 @ vfs.dentry.free number of available dentry structures
 
 @ sysfs.kernel.uevent_seqnum counter of the number of uevents processed by the udev subsystem
+
+@ hinv.ntape number of Linux scsi tape devices
+@ tape.dev.in_flight number of I/Os currently outstanding to this tape device
+@ tape.dev.io_ns cummulative amount of time spent waiting for all I/O to complete to tape device
+The amount of time spent waiting (in nanoseconds) for all I/O to complete
+(including read and write). This includes tape movement commands such as seeking
+between file or set marks and implicit tape movement such as when rewind on close
+tape devices are used.
+@ tape.dev.other_cnt number of I/Os issued to the tape drive other than read or write commands
+@ tape.dev.read_byte_cnt number of bytes read from the tape drive
+@ tape.dev.read_cnt number of read requests issued to the tape drive
+@ tape.dev.read_ns cummulative amount of time spent waiting for read requests to complete
+@ tape.dev.resid_cnt count of read or write residual data, per tape device
+Number of times during a read or write we found the residual amount to be non-zero.
+For reads this means a program is issuing a read larger than the block size on tape.
+For writes it means not all data made it to tape.
+@ tape.dev.write_byte_cnt number of bytes written to the tape drive
+@ tape.dev.write_cnt number of write requests issued to the tape drive
+@ tape.dev.write_ns cummulative amount of time spent waiting for write requests to complete

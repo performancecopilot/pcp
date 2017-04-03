@@ -18,6 +18,10 @@ perl -e "use PCP::PMDA" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl PCP::PMDA module not installed"
 perl -e "use threads" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl threads module not installed"
+perl -e "use Slurm" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl Slurm module not installed"
+perl -e "use Slurm::Hostlist" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl Slurm::Hostlist module not installed"
 
 
 status=1	# failure is the default!
