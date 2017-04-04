@@ -19,7 +19,6 @@ Performance Metrics Domain Agent exporting Prometheus endpoint metrics.
 import cpmapi as c_api
 from pcp.pmapi import pmUnits, pmContext as PCP
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
-from resource import getpagesize
 
 import requests
 import json
@@ -112,4 +111,4 @@ class PrometheusPMDA(PMDA):
         self.set_fetch_callback(self.prometheus_fetch_callback)
 
 if __name__ == '__main__':
-    PrometheusPMDA('prometheus', 421).run()
+    PrometheusPMDA('prometheus', 144).run()
