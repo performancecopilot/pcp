@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat.
+ * Copyright (c) 2016-2017 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -49,11 +49,5 @@
 #ifndef ELEM_AT
 # define ELEM_AT(a, i, v) ((unsigned int) (i) < ARRAY_SIZE(a) ? (a)[(i)] : (v))
 #endif
-
-struct jsmntok;
-extern int jsmneq(const char *, struct jsmntok *, const char *) _PMWEB_HIDDEN;
-extern int jsmnflag(const char *, struct jsmntok *, int *, int) _PMWEB_HIDDEN;
-extern int jsmnint(const char *, struct jsmntok *, int *) _PMWEB_HIDDEN;
-extern int jsmnstrdup(const char *, struct jsmntok *, char**) _PMWEB_HIDDEN;
 
 #endif /* _PRIVATE_H */

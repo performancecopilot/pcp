@@ -107,6 +107,9 @@ in
     11.1.5)
 	ln $seq.out.10 $seq.out || exit 1
 	;;
+    11.2.0)
+	ln $seq.out.13 $seq.out || exit 1
+	;;
     *)
 	_notrun "no qualified output for sysstat version $version"
 	;;
@@ -163,16 +166,22 @@ NR == 1		{ next }
 		}'
 
 echo "check user CPU time ..."
-pmval -f 8 -t 5 -a $tmp kernel.all.cpu.user \
+# note sar's -u view of user is really usr+guest
+# ... saved by derived metrics!
+# also need to relax tolerance in comparison, 'cause sar seems to get
+# the arithmetic "not quite right" (tm)
+echo "user = kernel.all.cpu.user + kernel.all.cpu.guest" >$tmp.config
+export PCP_DERIVED_CONFIG=$tmp.config
+pmval -f 8 -t 5 -a $tmp user \
 | sed -n '/^[0-2][0-9]:/{
 s/\.[0-9][0-9][0-9]//
 p
 }' >$tmp.pcp
-( echo ""; echo "kernel.all.cpu.user" ) >>$seq.full
+( echo ""; echo "user = kernel.all.cpu.user + kernel.all.cpu.guest" ) >>$seq.full
 cat $tmp.pcp >>$seq.full
 paste $tmp.sar $tmp.pcp >$tmp.both
 $PCP_AWK_PROG <$tmp.both '
-{ if ($3-$NF > 0.000001 || $3-$NF < -0.000001) print "[",NR,"] mismatch:",$1,$3,$NF }'
+{ if ($3-$NF > 0.001 || $3-$NF < -0.001) print "[",NR,"] mismatch:",$1,$3,$NF }'
 
 echo
 echo "check timestamps ..."

@@ -1,5 +1,9 @@
 Revision history for Perl extension PCP::PMDA.
 
+1.16  Thu Sep  5 11:22:34 EST 2013
+	- Add pmda_install helper function.
+	- Make several new PM_ERR error codes available.
+
 1.15  Thu Sep  5 11:22:34 EST 2013
 	- Fix a subtle reference counting problem in the hash
 	  indom code.

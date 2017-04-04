@@ -27,20 +27,6 @@ _filter()
     #end
 }
 
-_mk_proc_stat()
-{
-    path=$1
-    ncpu=$2
-
-    echo cpu 0 0 0 0 0 0 0 0 0 > $path
-    cpu=0
-    while [ $cpu -lt $ncpu ]
-    do
-	echo cpu$cpu 0 0 0 0 0 0 0 0 0 >> $path
-	cpu=`expr $cpu + 1`
-    done
-}
-
 # real QA test starts here
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 metrics="kernel.percpu.intr kernel.percpu.interrupts kernel.percpu.softirqs"
@@ -52,7 +38,7 @@ export LINUX_NCPUS=8
 mkdir -p $LINUX_STATSPATH/proc
 cp $here/linux/interrupts-$machine $LINUX_STATSPATH/proc/interrupts
 cp $here/linux/softirqs-$machine $LINUX_STATSPATH/proc/softirqs
-_mk_proc_stat $LINUX_STATSPATH/proc/stat $LINUX_NCPUS
+_make_proc_stat $LINUX_STATSPATH/proc/stat $LINUX_NCPUS
 
 echo "== Checking interrupts and softirqs names"
 _run_valgrind pminfo -L -K clear -K add,60,$pmda $metrics | _filter

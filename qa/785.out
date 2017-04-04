@@ -70,9 +70,9 @@ HOST-SUMMARY-LINE
 11:03:19  ......................... logging restarted .........................
 
 11:03:21  memtotal memfree buffers cached dirty slabmem  swptotal swpfree _mem_
-11:03:21     3849M    196M    275M  1553M    0M    357M  13989884M 13980592M
-11:03:22     3849M    195M    275M  1553M    0M    358M  13989884M 13980592M
-11:03:23     3849M    195M    275M  1553M    0M    358M  13989884M 13980592M
+11:03:21     3849M    196M    275M  1553M    0M    357M    13661M  13652M
+11:03:22     3849M    195M    275M  1553M    0M    358M    13661M  13652M
+11:03:23     3849M    195M    275M  1553M    0M    358M    13661M  13652M
 
 == Checking sample count and interval
 OK

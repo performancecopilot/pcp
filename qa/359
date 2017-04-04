@@ -48,6 +48,9 @@ _filter()
 	-e '/^logger\.perfile\.reg\.records: No permission/d' \
 	-e '/^logger\.perfile\.fifo\.records: Try again./d' \
 	-e '/^logger\.perfile\.reg\.records: Try again./d' \
+	-e '/^redis\..*_avg_ttl: Try again./d' \
+	-e '/^redis\..*_expires: Try again./d' \
+	-e '/^redis\..*_keys: Try again./d' \
 	-e '/^containers\..*: pmLookupDesc: Unknown or illegal metric/d' \
 	-e '/^elasticsearch\..*: Try again./d' \
 	-e '/^libvirt\..*: Try again./d' \
@@ -56,20 +59,38 @@ _filter()
 	-e '/^nginx\..*: Try again./d' \
 	-e '/^zswap\..*: Try again./d' \
 	-e '/Container not found/d' \
-    #endif
+    # end
+}
+
+_filter_libvirt()
+{
+    if _libvirt_is_ok
+    then
+	cat
+    else
+	# lines like ...
+	# libvirt.dominfo.os.type: IPC protocol failure
+	# libvirt.dominfo.os.type: pmLookupDesc: No PMCD agent for domain of request
+	# libvirt: pmLookupDesc: Unknown or illegal metric identifier
+	sed \
+	    -e '/^libvirt\..*: IPC protocol failure/d' \
+	    -e '/^libvirt\..*: No PMCD agent for domain/d' \
+	    -e '/^libvirt.*: pmLookupDesc: Unknown or illegal metric/d' \
+	# end
+    fi
 }
 
 # real QA test starts here
 
 echo "First attempt ... expect nothing"
-pminfo -v | _filter
+pminfo -v | _filter | _filter_libvirt
 echo "Second attempt ... expect nothing"
-pminfo -v | _filter
+pminfo -v | _filter | _filter_libvirt
 
 echo "Once more, but with --container ... expect nothing"
 containers=`pmprobe -v pmcd.feature.containers 2>/dev/null | awk '{ print $3 }'`
 if [ "$containers" = "1" ]; then
-    pminfo -v --container=no.such.container | _filter
+    pminfo -v --container=no.such.container | _filter | _filter_libvirt
 fi
 
 # success, all done

@@ -17,8 +17,16 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_cleanup()
+{
+    _restore_auto_restart pmcd
+    $sudo rm -f $tmp.*
+}
+
 sts=0
-trap "$sudo rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+trap "_cleanup; exit \$sts" 0 1 2 3 15
+_stop_auto_restart pmcd
+
 signal=$PCP_BINADM_DIR/pmsignal
 
 rm -f $seq.full
@@ -112,7 +120,7 @@ $sudo mv $tmp.log3 $tmp.$otherfqdn_pid
 # check entries
 _check
 
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

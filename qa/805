@@ -45,6 +45,20 @@ export PMDA_POSTFIX_LOG=$tmp.logfile
 export PMDA_POSTFIX_REFRESH=1
 export PMDA_POSTFIX_QSHAPE=$tmp.qshape
 
+# don't want Install to possibly restart pmcd via systemctl, as this
+# will clobber the environment, ...
+#
+_service pcp stop | _filter_pcp_stop
+if [ "$PCPQA_SYSTEMD" = x -o "${PCPQA_SYSTEMD-x}" != x ]
+then
+    # $PCPQA_SYSTEMD is already set ...
+    save_pcpqa_systemd="$PCPQA_SYSTEMD"
+    restore_pcpqa_systemd=true
+else
+    restore_pcpqa_systemd=false
+fi
+export PCPQA_SYSTEMD=no
+
 pmdapostfix_remove()
 {
     echo | tee -a $here/$seq.full
@@ -75,11 +89,22 @@ pmdapostfix_install()
                                         { print }'
 }
 
-_prepare_pmda postfix
-# note: _restore_systemd_restart pmcd done in _cleanup_pmda()
-trap "_cleanup_pmda postfix; exit \$status" 0 1 2 3 15
+_cleanup()
+{
+    if $restore_pcpqa_systemd
+    then
+	export PCPQA_SYSTEMD="$save_pcpqa_systemd"
+    else
+	unset PCPQA_SYSTEMD
+    fi
+    # note: _restore_auto_restart pmcd done in _cleanup_pmda()
+    _cleanup_pmda postfix
+}
 
-_stop_systemd_restart pmcd
+_prepare_pmda postfix
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmcd
 
 # real QA test starts here
 pmdapostfix_install

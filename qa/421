@@ -23,6 +23,7 @@ _cleanup()
     then
 	PCP_TRACE_HOST=$savedtracehost; export PCP_TRACE_HOST
     fi
+    rm -f $tmp.*
     exit $status
 }
 

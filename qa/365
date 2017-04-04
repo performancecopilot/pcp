@@ -32,7 +32,7 @@ _cleanup()
 	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	    rm -f $tmp.pmcd.conf
 	fi
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_service pcp restart | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	done_clean=true
@@ -52,6 +52,10 @@ echo "other2=$other2" >>$seq.full
 echo "qahost=$qahost" >>$seq.full
 [ -z "$other1" ] && _notrun "Cannot find first remote host running pmcd"
 [ -z "$other2" ] && _notrun "Cannot find second remote host running pmcd"
+
+# stop pmcd and pmlogger cleanly
+#
+_service pcp stop | _filter_pcp_stop
 
 # real QA test starts here
 home=$PCP_PMDAS_DIR
@@ -119,7 +123,12 @@ echo "=== pmcd.conf ===" >>$seq.full
 cat $PCP_PMCDCONF_PATH >>$seq.full
 
 echo "=== pmcd restarting ===" >>$seq.full
-$sudo $PCP_RC_DIR/pcp restart 2>>$seq.full | _filter_pcp_start
+# Note: need to use $PCP_RC_DIR/* here, not _service pcp so that
+# systemd does not get a chance to have a look in and syphon off our
+# (expected) error messages.
+#
+$sudo $PCP_RC_DIR/pmcd restart 2>>$seq.full | _filter_pcp_start
+$sudo $PCP_RC_DIR/pmlogger restart 2>>$seq.full
 _wait_for_pmcd
 _wait_for_pmlogger
 echo "=== pmcd restarted ===" >>$seq.full

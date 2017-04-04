@@ -5,7 +5,7 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-# for _wait_for_pmlogger() and _change_config()
+# for _wait_for_pmlogger() and _change_config() and _service()
 . ./common.check 
 
 # per product QA script customization
@@ -132,7 +132,7 @@ _haveagents()
 		else
 		    _log_fyi $PCP_LOG_DIR/pmcd/pmcd.log $agentlog
 		    echo "Restarting PMCD ..."
-		    $sudo $PCP_RC_DIR/pcp restart
+		    _service pcp restart
 		    restart=true
 		fi
 		if $reinstall
@@ -215,7 +215,7 @@ End-of-File
 		$sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH.d/local
 	    fi
 	fi
-	$sudo $PCP_RC_DIR/pcp restart
+	_service pcp restart
 	_wait_for_pmlogger
     fi
 }
@@ -283,7 +283,7 @@ End-of-File
 		    ;;
 	esac
 	$sudo chown root:$grp $PCPQA_PMCDOPTIONS
-	$sudo $PCP_RC_DIR/pcp restart
+	_service pcp restart
 	_wait_for_pmlogger
     fi
 

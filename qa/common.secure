@@ -162,8 +162,9 @@ End-Of-File
     esac
     $sudo chown root:$grp $PCP_PMCDOPTIONS_PATH
     echo "Start pmcd, modified \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $here/$seq.full
-    $sudo $PCP_RC_DIR/pcp restart | tee -a $here/$seq.full >$tmp.out
+    _service pcp restart | tee -a $here/$seq.full >$tmp.out
     _wait_for_pmcd
+    _wait_for_pmlogger
     grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
     echo "Checking pmcd.log for unexpected messages" | tee -a $here/$seq.full
     egrep 'Error:|Info:' $tmp.pmcd.log

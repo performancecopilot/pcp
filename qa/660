@@ -26,9 +26,9 @@ _cleanup()
 {
     $sudo rm -f $here/src/index.html
     $sudo rm -fr $tmp.dir
-    $sudo rm -f $tmp.*
     $sudo $signal -a pmwebd >/dev/null 2>&1
-    $sudo $PCP_RC_DIR/pmwebd restart >/dev/null 2>&1
+    _service pmwebd restart >/dev/null 2>&1
+    $sudo rm -f $tmp.*
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -75,7 +75,7 @@ _filter()
 ipv6local=`_ipv6_localhost 2>>$seq.full`
 echo "ipv6local=$ipv6local" >>$seq.full
 
-$sudo $PCP_RC_DIR/pmwebd stop >/dev/null 2>&1
+_service pmwebd stop >/dev/null 2>&1
 $sudo $signal -a pmwebd >/dev/null 2>&1
 
 webargs="-U $username -P"

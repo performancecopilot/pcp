@@ -43,7 +43,7 @@ fi
 $sudo rm -f $seq.full
 $sudo rm -f /tmp/pcp.ttymap
 # make sure proc agent reloads it
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart | _filter_pcp_start
 _wait_for_pmcd
 _wait_for_pmlogger
 

@@ -1,0 +1,12 @@
+[Unit]
+Description=Instrumented Java Service
+Documentation=man:parfait(1)
+After=local-fs.target network.target pmcd.service
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/java -Dparfait.name=acme -javaagent:/usr/share/java/parfait/parfait.jar -jar /usr/share/java/parfait/acme.jar Main
+
+[Install]
+WantedBy=multi-user.target

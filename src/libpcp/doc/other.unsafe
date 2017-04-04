@@ -1,0 +1,31 @@
+# strerror() wrappers from (PCP) config.h
+osstrerror
+netstrerror
+hoststrerror
+
+# libsasl
+sasl_dispose
+sasl_setprop
+sasl_getprop
+sasl_listmech
+
+# libssl
+SSL_BadCertHook
+SSL_ClearSessionCache
+SSL_ConfigMPServerSIDCache
+SSL_ConfigSecureServer
+SSL_DataPending
+SSL_ForceHandshakeWithTimeout
+SSL_GetClientAuthDataHook
+SSL_GetImplementedCiphers
+SSL_ImportFD
+SSL_PeerCertificate
+SSL_ResetHandshake
+SSL_RevealURL
+SSL_SecurityStatus
+SSL_SetURL
+SSL_ShutdownServerSessionIDCache
+
+# Windows
+RegisterEventSource
+DeregisterEventSource

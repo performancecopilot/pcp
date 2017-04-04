@@ -57,7 +57,7 @@ echo
 echo "=== expect No route to host, no valid metrics -h [instance case] ==="
 pmdumptext -s 1 -h no.such.host.pcp.io 'proc.psinfo.utime[12345]'
 
-$sudo $PCP_RC_DIR/pcp stop >/dev/null
+_service pcp stop >/dev/null
 echo
 echo "=== pmcd not running, default case ==="
 pmdumptext -s 1 'sample.bin[bin-300]' 2>&1 | _filter2
@@ -67,7 +67,7 @@ pmdumptext -s 1 'localhost:proc.psinfo.utime[12345]'
 echo
 echo "=== pmcd not running, -h localhost case ==="
 pmdumptext -s 1 -h localhost 'proc.psinfo.utime[12345]'
-$sudo $PCP_RC_DIR/pcp start >/dev/null
+_service pcp start >/dev/null
 _wait_for_pmcd
 _wait_for_pmlogger
 

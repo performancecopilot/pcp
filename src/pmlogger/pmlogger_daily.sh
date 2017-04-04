@@ -527,10 +527,20 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    echo "Check pmlogger$pflag -h $host ... in $dir ..."
 	fi
 
-	if [ ! -d $dir ]
+	# make sure output directory hierarchy exists and $PCP_USER
+	# user can write there
+	#
+	if [ ! -d "$dir" ]
 	then
-	    _error "archive directory ($dir) does not exist"
-	    continue
+	    mkdir_and_chown "$dir" 755 $PCP_USER:$PCP_GROUP >$tmp/err 2>&1
+	    if [ ! -d "$dir" ]
+	    then
+		cat $tmp/err
+		_error "cannot create directory ($dir) for PCP archive files"
+		continue
+	    else
+		_warning "creating directory ($dir) for PCP archive files"
+	    fi
 	fi
 
 	cd $dir

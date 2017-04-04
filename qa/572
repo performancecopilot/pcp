@@ -31,7 +31,9 @@ _cleanup()
     then
 	[ -f $tmp.pmcd.bak ] && $sudo cp $tmp.pmcd.bak $pmcdconf
 	[ -f $tmp.root.bak ] && $sudo cp $tmp.root.bak $rootconf
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+	_service pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
 	$sudo rm -f $tmp.*
 	needclean=false
     fi
@@ -97,7 +99,9 @@ cp $rootconf $tmp.root.bak
 
 needclean=true
 $sudo cp $tmp.pmcd.conf $pmcdconf 
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
 
 for pmda in '' sample trivial simple
 do

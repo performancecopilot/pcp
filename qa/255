@@ -30,7 +30,7 @@ status=1	# failure is the default!
 errlist=''
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 $sudo rm -f $seq.full $tmp.*
 echo "=== I am PID $$" >>$seq.full
@@ -124,9 +124,10 @@ _cleanup()
 	cat $PCP_PMCDCONF_PATH >>$seq.full
 	echo '=== $PCP_PMCDOPTIONS_PATH before init.d/pcp/start' >>$seq.full
 	cat $PCP_PMCDOPTIONS_PATH >>$seq.full
-	$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
-	_restore_systemd_restart pmcd
+	_service pcp restart | _filter_pcp_start
+	_restore_auto_restart pmcd
 	_wait_for_pmcd
+	_wait_for_pmlogger
     fi
     if [ -f $tmp.log ]
     then
@@ -369,8 +370,9 @@ _renew_pmcd main
 # Start with a fresh pmcd log
 #
 $sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
-$sudo $PCP_RC_DIR/pcp restart | _filter_init 2>&1
+_service pcp restart | _filter_init 2>&1
 _wait_for_pmcd
+_wait_for_pmlogger
 
 # Test 2.0 PMDA first
 #
