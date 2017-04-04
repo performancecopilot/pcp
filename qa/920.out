@@ -1,6 +1,5 @@
 QA output created by 920
 Starting pmlogger ... 
-pmlogger:
 mode=drwxr-xr-x user=pcp group=pcp name=myhost
 
 pmlogger/myhost:

@@ -1,0 +1,8 @@
+[pmuname ]
+INSTRUCTIONS_RETIRED cpu
+UNHALTED_REFERENCE_CYCLES cpu_rr
+
+[dynamic]
+pmu1.bar
+pmu2.cm_event1
+pmu2.cm_event3

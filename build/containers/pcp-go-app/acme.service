@@ -1,0 +1,12 @@
+[Unit]
+Description=Instrumented Golang Service
+Documentation=https://github.com/performancecopilot/speed
+After=local-fs.target network.target pmcd.service
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/go/bin/acme --forever
+
+[Install]
+WantedBy=multi-user.target

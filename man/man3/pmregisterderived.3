@@ -34,7 +34,7 @@ cc ... \-lpcp
 .PP
 Derived metrics provide a way of extending the Performance Metrics
 Name Space (PMNS) with new metrics defined at the PCP client-side using
-arithmetic expressions over the existing performance metrics.
+expressions over the existing performance metrics.
 .PP
 Typical uses would be to aggregate a number of similar metrics to provide
 a higher-level summary metric or to support the ``delta V over delta V''
@@ -60,7 +60,7 @@ are the
 .I name
 of the new derived metric and
 .I expr
-is an arithmetic expression defining how the values of
+is an expression defining how the values of
 .I name
 should be computed.
 .PP
@@ -74,17 +74,20 @@ parameter.
 .PP
 Syntactic checking is performed at the time
 .B pmRegisterDerived
-is called, but semantic checking is deferred until each new context
+is called, but semantic checking is deferred until each new PMAPI context
 is created with
 .BR pmNewContext (3)
 or re-established with
 .BR pmReconnectContext (3),
 at which time the PMNS and metadata is available to
 allow semantic checking and the metadata of the derived metrics
-to be established.
+to be determined.
 This means
 .B pmRegisterDerived
-does not apply retrospectively to any open contexts, so the normal
+does not apply retrospectively to any open PMAPI contexts, nor
+to any PMAPI contexts already open at the time
+.B pmRegisterDerived
+is called, so the normal
 use would be to make all calls to
 .B pmRegisterDerived
 (possibly via
@@ -132,12 +135,13 @@ The expression
 .I expr
 follows these syntactic rules:
 .IP * 2n
-Terminal elements are either names of existing metrics or integer constants.
+Terminal elements are either names of existing metrics or numeric constants.
 Recursive definitions are not allowed, so only the names of regular
-metrics (not other derived metrics) may be used. Integer constants are
-constrained to the precision of 32-bit unsigned integers.
+metrics (not other derived metrics) may be used. Numeric constants are
+either integers constrained to the precision of 32-bit unsigned integers
+or double precision floating point numbers.
 .IP * 2n
-The usual binary arithmetic operators are supported, namely \- addition (``+''),
+The usual binary arithmetic operators are supported, namely addition (``+''),
 subtraction (``-''), multiplication (``*'') and division (``/'') with
 the normal precedence rules where multiplication and division have
 higher precedence than addition and subtraction, so
@@ -148,16 +152,237 @@ is evaluated as
 .ft CW
 a+(b*c)\c
 .ft R
-.
+\&.
 .IP * 2n
-Parenthesis may be used for grouping.
+Unary negation may be used, e.g. 
+.ft CW
+-3*some.metric\c
+.ft R
+\&.
+.IP * 2n
+C-style relational operators are supported, namely ``<'', ``<='', ``=='',
+\&``>='', ``>'' and ``!=''.
+Relational expresssions return a value as a 32-bit unsigned number being
+0 for false and 1 for true.
+The expected operator precedence rules 
+apply, so arithmetic operators have higher precedence than relational operators,
+and
+.ft CW
+a-b>c+d
+.ft R
+is evaluated as
+.ft CW
+(a-b)>(c+d)\c
+.ft R
+\&.
+All the relational operators have equal precedence, so the (slightly odd)
+expression involving consecutive relational operators
+.ft CW
+a>b!=c
+.ft R
+is evaluated as
+.ft CW
+(a>b)!=c\c
+.ft R
+\&.
+.IP * 2n
+C-style boolean operators are supported, namely and (``&&'') and or (``||'').
+Boolean expresssions return a value as a 32-bit unsigned number being
+0 for false and 1 for true.
+The expected operator precedence rules 
+apply, so relational operators have higher precedence than boolean operators,
+and
+.ft CW
+a>b*c&&d<=e+f
+.ft R
+is evaluated as
+.ft CW
+(a>(b*c))&&(d<=(e+f))\c
+.ft R
+\&.
+Both the boolean operators have equal precedence, so the
+expression involving consecutive boolean operators
+.ft CW
+a>=b||b>c&&d!=e||f>g
+.ft R
+is evaluated as
+.ft CW
+(((a>=b)||(b>c))&&(d!=e))||(f>g)\c
+.ft R
+\&.
+.IP * 2n
+Additionally, the ``!'' operator may be used to negate a boolean or
+relational expression, returning a value as a 32-bit unsigned number being
+0 for false and 1 for true.
+The expected operator precedence rules
+apply, so boolean (and relational) operators have higher precedence
+than boolean negation,
+and
+.ft CW
+!a>b||c<d
+.ft R
+is evaluated as
+.ft CW
+!((a>b)||(c<d))\c
+.ft R
+\&,
+while
+.ft CW
+!a<b+c
+.ft R
+is evaluated as
+.ft CW
+!(a<(b+c))\c
+.ft R
+\&.
+.IP * 2n
+C-style ternary conditional expressions are supported. In general terms
+the expression
+.ft CW
+check ? foo : bar\c
+.ft R
+\& is evaluated as \f(CWfoo\fP (the ``true'' operand) if \f(CWcheck\fP
+(the ``guard'') is true, else the
+expression evaluates to \f(CWbar\fP (the ``false'' operand).
+Some special semantic rules apply to the ``guard'' expression and
+the other two operand expressions:
+.RS 2n
+.PD 0
+.IP (a) 4n
+Each expression may involve a singular value or a set of values (when
+the expression involves one or more metrics with an instance domain).
+.IP (b) 4n
+.B All
+expressions with a set of values must be defined over the
+.B same
+instance domain.
+.IP (c) 4n
+Both operand expressions must have the
+.B same
+metadata, so the same metric type, semantics and units (dimension and scale).
+.IP (d) 4n
+The ``guard'' expression must have an aritmetic or relational or boolean value,
+so that it can be evaluated as 0 for false, else true.
+.IP (e) 4n
+If the ``guard'' expression has a singular value and one or more of
+the other operand expressions involves an instance domain, the ``guard''
+applies to all instances.
+.IP (f) 4n
+If the ``guard'' expression has a set of values and one or more of
+the other operand expressions involves an instance domain, the ``guard''
+is evaluated once for each instance (there must be one instance
+domain as per rule (b) above).
+.IP (g) 4n
+If one of the operand expressions has a singular value and the other has
+a set of values, and the singular value is selected based on the
+evaluation of the ``guard'', then the result is a set of values
+(all the same) with instance enumeration being taken from the other
+operand expression. For example in the expression:
+.ft CW
+foo ? scalar : set\c
+.ft R
+\&, if \f(CWfoo\fP is true, then the result is a set of values
+(all having the same value, \f(CWscalar\fP) over
+the instance domain of \f(CWset\fP.
+.PD
+.RE
+.IP * 2n
+Numeric constants can also be specified using the
+.ft CW
+mkconst()
+.ft R
+constructor which takes a number of arguments: the first is a numeric
+constant (either integer or floating point), then follow one or more
+parameters of the form
+.I tag=value
+or
+.IR tag= \" value \"
+where the allowed values of
+.I tag
+and
+.I value
+are as follows:
+.TS
+box,center;
+cf(I) | cf(I)w(4.5i)
+lf(CW) | lf(R).
+tag	value
+_
+type	T{
+.fi
+one of the numeric metric types from <pcp/pmapi.h>, stripped of the
+PM_TYPE_
+prefix, so
+\f(CW32\fP, \f(CWU32\fP, \f(CW64\fP, \f(CWU64\fP, \f(CWFLOAT\fP or
+\f(CWDOUBLE\fP.
+T}
+_
+semantics	T{
+.fi
+one of the semantic types from <pcp/pmapi.h>, stripped of the
+PM_SEM_
+prefix, so
+\f(CWCOUNTER\fP, \f(CWINSTANT\fP or \f(CWDISCRETE\fP.
+T}
+_
+units	T{
+a specification of dimension and scale (together forming the units),
+in the syntax accepted by
+.BR pmParseUnitsStr (3).
+.fi
+T}
+.TE
+.RS 2n
+.PP
+The
+.I value
+may optionally be enclosed in double quotes, and may appear in any
+mix of upper and/or lower case.
+The
+.I tag
+must be in lower case as shown in the table above.
+.PP
+This is most useful when the expression semantics require matching
+type and/or semantics and/or units for operands, e.g.
+.br
+.ft CW
+idle = mem.util.free > mkconst(10485760, units=Kbyte)
+avg_io_size = delta(disk.dev.total) == 0 ? \e
+    -mkconst(1.0, semantics=instant, units="kbyte / count") : \e
+    delta(disk.dev.total_bytes) / delta(disk.dev.total)
+.ft R
+.RE
+.TE
+.IP * 2n
+Expressions may be rescaled using the
+.ft CW
+rescale
+.ft R
+function that takes two arguments.  The first is an
+arithmetic expression to be
+rescaled, and the second is the desired units after rescaling that
+is a string value in the syntax accepted by
+.BR pmParseUnitsStr (3).
+For example:
+.ft CW
+.br
+rescale(network.interface.total.bytes, "Mbytes/hour")
+.RS 2n
+.PP
+The expression and the desired units must both have the same dimension,
+e.g Space=1, Time=\-1 and Count=0 in the example above.
+.RE
 .IP * 2n
 The following unary functions operate on a single performance metric
 and return one or more values.
 For all functions (except
 .ft CW
-count()
-.ft P
+count()\c
+.ft R
+,
+.ft CW
+defined()
+.ft R
 and
 .ft CW
 instant()\c
@@ -167,7 +392,7 @@ instant()\c
 double).
 .TS
 box,center;
-cf(R) | cf(R)w(5i)
+cf(R) | cf(R)w(4.5i)
 lf(CW) | lf(R).
 Function	Value
 _
@@ -179,6 +404,28 @@ _
 count(x)	T{
 .fi
 A singular instance being the count of the number of instances for the metric x.
+As a special case, if fetching the metric x returns an error, then
+.ft CW
+count(x)
+.ft R
+will be 0.
+T}
+_
+defined(x)	T{
+.fi
+A boolean value that is true (``1'') if the metric
+.ft CW
+x
+.ft R
+is defined in the PMNS, else false (``0'').
+The function is evaluated when a new PMAPI context
+is created with
+.BR pmNewContext (3)
+or re-established with
+.BR pmReconnectContext (3).
+So any subsequent changes to the PMNS after the PMAPI
+context has been established will not change the value
+of this function in the expression evaluation.
 T}
 _
 delta(x)	T{
@@ -240,6 +487,10 @@ A singular instance being the sum of the values across all instances for the met
 T}
 .TE
 .IP * 2n
+Parenthesis may be used for explicit grouping.
+.IP * 2n
+Lines beginning with ``#'' are treated as comments and ignored.
+.IP * 2n
 White space is ignored.
 .SH "SEMANTIC CHECKS AND RULES"
 .PP
@@ -247,22 +498,44 @@ There are a number of conversions required to determine the
 metadata for a derived metric and to ensure the semantics of
 the expressions are sound.
 .PP
-In a binary expression, if the semantics of both operands is not
+In an arithmetic expression or a relational expression, if the semantics of both operands is not
 a counter (i.e. PM_SEM_INSTANT or PM_SEM_DISCRETE) then the result
 will have semantics PM_SEM_INSTANT unless both operands are
 PM_SEM_DISCRETE in which case the result is also PM_SEM_DISCRETE.
 .PP
+For an arithmetic expression, the dimension of each operand must be the same.
+For a relational expression, the dimension of each operand must be the same,
+except that numeric constants (with no dimension) are allowed, e.g. in the expression
+.ft CW
+network.interface.in.drops > 0
+.ft R
+\&.
+.PP
+To prevent arbitrary and non-sensical combinations
+some restrictions apply to expressions that combine metrics with
+counter semantics to produce a result with counter semantics.
+For an arithmetic expression, if both operands have the semantics of
+a counter, then only addition or subraction is allowed, or if the
+left operand is a counter and the right operand is not, then only
+multiplication or division are allowed, or if the left operand is
+not a counter and the right operand is a counter, then only multiplication
+is allowed.
+.PP
+Because relational expressions use the current value only and produce
+a result that is not a counter, either or both operands of a relational expression
+may be counters.
+.PP
 The mapping of the pmUnits of the metadata uses the following rules:
 .IP * 2n
-If both operands have a dimension of COUNT and the scales are not
+If both operands have a dimension of Count and the scales are not
 the same, use the larger scale and convert the values of the operand
 with the smaller scale.
 .IP * 2n
-If both operands have a dimension of TIME and the scales are not
+If both operands have a dimension of Time and the scales are not
 the same, use the larger scale and convert the values of the operand
 with the smaller scale.
 .IP * 2n
-If both operands have a dimension of SPACE and the scales are not
+If both operands have a dimension of Space and the scales are not
 the same, use the larger scale and convert the values of the operand
 with the smaller scale.
 .IP * 2n
@@ -317,8 +590,12 @@ x	DOUBLE	Mbyte/sec
 .PP
 Because semantic checking cannot be done at the time
 .B pmRegisterDerived
-is called, errors found during semantic checking are reported
-using
+is called, errors found during semantic checking (when
+any subsequent calls to
+.B pmNewContext (3)
+or
+.B pmReconnectContext (3)
+succeed) are reported using
 .BR pmprintf (3).
 These include:
 .TP
@@ -334,9 +611,15 @@ There was a problem calling
 to identify the operand metric <name2> with PMID <pmid2>
 used in the definition of the derived metric <name1>.
 .TP
-Semantic error: derived metric <name>: <operand> <op> <operand>: Illegal operator for counters
-If both operands have the semantics of counter, only addition or subtraction
-make sense, so multiplication and division are not allowed.
+Semantic error: derived metric <name>: <operand> : <operand> Different <metadata> for ternary operands
+For a ternary expression, the ``true'' operand and the ``false'' operand
+must have exactly the same metadata, so type, semantics, instance domain,
+and units (dimension and scale).
+.TP
+Semantic error: derived metric <name>: <operand> <op> <operand>: Dimensions are not the same
+Operands must have the same units (dimension and scale) for each of
+addition, subtraction, the relational operators and the boolean ``and''
+or ``or'' operators.
 .TP
 Semantic error: derived metric <name>: <operand> <op> <operand>: Illegal operator for counter and non-counter
 Only multiplication or division are allowed if the left operand has the
@@ -344,19 +627,23 @@ semantics of a counter and the right operand is
 .B not
 a counter.
 .TP
+Semantic error: derived metric <name>: <operand> <op> <operand>: Illegal operator for counters
+If both operands have the semantics of counter, only addition or subtraction
+make sense, so multiplication and division are not allowed.
+.TP
 Semantic error: derived metric <name>: <operand> <op> <operand>: Illegal operator for non-counter and counter
 Only multiplication is allowed if the right operand has the
 semantics of a counter and the left operand is
 .B not
 a counter.
 .TP
-Semantic error: derived metric <name>: <operand> <op> <operand>: Non-arithmetic type for <left-or-right> operand
-The binary arithmetic operators are only allowed with operands with an
-arithmetic type (integer of various sizes and signedness, float or
-double).
-.TP
-Semantic error: derived metric <name>: <function>(<operand>): Non-arithmetic operand for function
-The unary functions are only defined if the operand has arithmetic type.
+Semantic error: derived metric <metric> <expr> RESCALE <units>: Incompatible dimensions
+The parameters <expr> and <units> to the
+.ft CW
+rescale
+.ft R
+function must have the same dimension along the axes of Time,
+Space and Count.
 .TP
 Semantic error: derived metric <name>: Incorrect time dimension for operand
 Rate conversion using the
@@ -368,6 +655,42 @@ If the operand metric's Time dimension is 0, then
 the derived metrics has a value "per second" (Time dimension of \-1). 
 If the operand metric's Time dimension is 1, then
 the derived metrics has a value of time utilization (Time dimension of 0).
+.TP
+Semantic error: derived metric <name>: <function>(<operand>): Non-arithmetic operand for function
+The unary functions are only defined if the operand has arithmetic type.
+Similarly the first argument to the
+.ft CW
+rescale
+.ft R
+function must be of arithmetic type.
+.TP
+Semantic error: derived metric <name>: <expr> ? ...: Non-arithmetic operand for ternary guard
+The first expression for a ternary operator must have an arithmetic type.
+.TP
+Semantic error: derived metric <name>: ... - ...: Non-arithmetic operand for unary negation
+Unary negation only makes sense if the following expression
+has an arithmetic type.
+.TP
+Semantic error: derived metric <name>: <operand> <op> <operand>: Non-arithmetic type for <left-or-right> operand
+The binary arithmetic operators are only allowed with operands with an
+arithmetic type (integer of various sizes and signedness, float or
+double).
+.TP
+Semantic error: derived metric <name>: <operand> <op> <operand>: Non-counter and not dimensionless <left-or-right> operand
+For multiplication or division or any of the relational operators, if
+one of the operands has the semantics of a counter and the other
+has the semantics of a non-counter (instantaneous or discrete) then
+the non-counter operand must have no units (dimension and scale).
+.TP
+Semantic error: derived metric <name>: <expr> ? <expr> : <expr>: Non-scalar ternary guard with scalar expressions
+If the ``true'' and ``false'' operands of a ternary expression have
+a scalar value, then the ``guard'' expression must also have a
+scalar value.
+.TP
+Semantic error: derived metric <name>: <expr> <op> <expr>: Operands should have the same instance domain
+For all of the binary operators (arithmetic and relational), if both
+operands have non-scalar values, then they must be defined over the
+same instance domain.
 .SH "EXPRESSION EVALUATION"
 For the binary arithmetic operators,
 if either operand must be scaled (e.g. convert bytes to Kbytes) then the
@@ -399,17 +722,6 @@ otherwise (both are PM_TYPE_32)
 T}	any	PM_TYPE_32
 .TE
 .SH CAVEATS
-.PP
-Unary negation is not supported, so the following expressions would be
-syntactically incorrect,
-.ft CW
-\-3*abc
-.ft R
-and
-.ft CW
-\-this.number\c
-.ft R
-.
 .PP
 Derived metrics are not available when using
 .BR pmFetchArchive (3)
@@ -482,6 +794,7 @@ to release the space allocated for
 .BR pmDerivedErrStr (3),
 .BR pmFetch (3),
 .BR pmLoadDerivedConfig (3),
-.BR pmNewContext (3)
+.BR pmNewContext (3),
+.BR pmprintf (3)
 and
 .BR pmReconnectContext (3).

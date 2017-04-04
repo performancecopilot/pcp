@@ -970,7 +970,9 @@ static struct {
     int len;
     int max;
     int *list;
-} ihash[HASH_SIZE] = {0};
+} ihash[HASH_SIZE] = {
+    { 0, 0, NULL }
+};
 
 static int
 find_add_ihash(int id)

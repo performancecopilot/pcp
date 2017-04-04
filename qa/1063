@@ -1,0 +1,88 @@
+#!/bin/sh
+# PCP QA Test No. 1063
+# derived metrics - boolean negation
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# Derived metric expr dump from 0x8513a48...
+# expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
+_filter()
+{
+    awk <$tmp.out >$tmp.sed '
+BEGIN				{ n = 0 }
+$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
+				{ next }'
+    sed -f $tmp.sed <$tmp.out \
+    | sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+	-e 's/=0x0 /=(nil) /g' \
+	-e "s;$tmp;TMP;"
+}
+
+# real QA test starts here
+
+cat <<End-of-File >$tmp.config
+a.m1 = ! sample.longlong.ten == 11
+a.m2 = ! sample.bin == 200
+a.m3 = sample.bin != 200
+a.m4 = ! (sample.bin >= 700 || sample.bin <= 300)
+a.m5 = ! sample.bin >= 700 || ! sample.bin <= 300
+a.m6 = sample.bin < 700 && sample.bin > 300
+# true
+a.m7 = sample.long.hundred > sample.double.ten
+# false
+a.m8 = sample.double.million < sample.float.million
+# true
+a.m9 = sample.long.hundred > sample.double.ten || sample.double.million < sample.float.million
+# false
+a.m10 = ! ((sample.long.hundred > sample.double.ten) || (sample.double.million < sample.float.million))
+# ditto ... no parenthesis
+a.m11 = ! sample.long.hundred > sample.double.ten || sample.double.million < sample.float.million
+a.m12 = ! sample.long.hundred < sample.long.ten + 89
+a.m13 = ! (sample.long.hundred < (sample.long.ten + 89))
+End-of-File
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+pmprobe -Dderive,appl0 -v a >$tmp.out 2>&1
+_filter
+
+echo "expecting ..."
+cat <<End-of-File
+a.m1	 1
+a.m2     1 0 1 1 1 1 1 1 1
+a.m3     1 0 1 1 1 1 1 1 1
+a.m4     0 0 0 1 1 1 0 0 0
+a.m5     1 1 1 1 1 1 1 1 1
+a.m6     0 0 0 1 1 1 0 0 0
+a.m7	 1
+a.m8	 0
+a.m9	 1
+a.m10	 0
+a.m11	 0
+a.m12	 1
+a.m13	 1
+End-of-File
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,122 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+    <title>Performance Co-Pilot web applications</title>
+    <script>
+      /* These routines adjust the vector invocation url so that the
+      dashboard is ready to run, connecting to the same pmwebd where
+      its static assets were downloaded from. */
+      function vectorize (id) {
+      var server = location.hostname + ":" + location.port;
+      document.getElementById(id).setAttribute("href",
+         "vector/index.html#?host=" + encodeURIComponent(server));
+      }
+    </script>
+
+    <style>
+      .webapp th { font-weight: bold; font-size: 200%; }
+    </style>
+  </head>
+
+<body onload="vectorize('vectorurl1'); vectorize('vectorurl2');">
+  <h1>Performance Co-Pilot web applications</h1>
+
+  Quick launch links:
+  <a href="blinkenlights/">blinkenlights</a> |
+  <a id="vectorurl1" href="vector/">vector</a> |
+  <a href="graphite/">graphite</a> |
+  <a href="grafana/index.html#/dashboard/script/hostselect.js">grafana host-list</a> |
+  <a href="grafana/index.html#/dashboard/file/default.json">grafana flot.js</a> |
+  <a href="grafana/index.html#/dashboard/file/default-png.json">grafana png</a>
+  <br>
+
+  <hr>
+  
+  <h2>For viewing live data</h2>
+
+  <p>The web applications in this category rely on PCP data being
+  served by <tt>pmwebd</tt> with live data from a
+  nearby <tt>pmcd</tt>.  They do not access archived metrics, so
+  cannot display historical information.</p>
+
+  <table class="webapp">
+<tr>
+  <th width="45%"><a href="blinkenlights/">blinkenlights</a></th>
+  <th width="10%"></th>
+  <th width="45%"><a id="vectorurl2" href="vector/">vector</a></th>
+</tr>
+    
+<tr>
+  <td>A demonstration of the PCP web API.</td>
+  <td></td>
+  <td>
+    <!-- the following div/a is modified by javascript to pass the pmwebd relative location. --> 
+    Vector is an open source on-host performance monitoring framework which exposes hand picked high resolution system and application metrics to every engineers browser. Having the right metrics available on-demand and at a high resolution is key to understand how a system behaves and correctly troubleshoot performance issues.
+    <a href="https://github.com/Netflix/vector">upstream</a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="blinkenlights.png"><img src="blinkenlights.png" align="inline" width="100%"></a>
+  </td>
+  <td></td>
+  <td>
+    <a href="vector.png"><img src="vector.png" align="inline" width="100%"></a>
+  </td>
+</tr>
+</table>
+
+  <hr>
+  
+<h2>For viewing archives / semi-live data</h2>
+
+<p>The web applications in this category rely on PCP data being served
+  by <tt>pmwebd -G -A $PCP_LOG_DIR</tt> with any mixture of old or current
+  <b>archives</b>.  Since they present historical rather than live data,
+  a PCP archive collector such as the <tt>pmlogger</tt> or <tt>pmmgr</tt>
+  service must also be running.</p>
+
+  <table class="webapp">
+<tr>
+  <th width="45%"><a href="graphite/">graphite</a></th>
+  <th width="10%"></th>
+  <th width="45%">grafana
+    <a href="grafana/index.html#/dashboard/script/hostselect.js">host-list</a>
+    <a href="grafana/index.html#/dashboard/file/default.json">flot.js</a>
+    <a href="grafana/index.html#/dashboard/file/default-png.json">png</a>
+  </th>
+</tr>
+
+<tr>
+  <td>
+    Graphite is a highly scalable real-time graphing system.  Here,
+    PCP is used as the data repository, and Graphites web interface
+    renders it.  (Graphites carbon &amp; whisper subsystems are not included
+    nor used.)
+    <a href="http://graphite.readthedocs.org/en/latest/index.html">upstream</a></td>
+  <td></td>
+  <td>
+    Grafana is an open source, feature rich metrics dashboard and graph
+    editor.  Here, PCP is used as the data repository.  (Grafanas other
+    backends are not used.)  Grafana can render time series dashboards at
+    the browser via <b>flot.js</b> (more interactive, slower, for beefy
+    browsers) or alternately at the server via <b>png</b> (less
+    interactive,
+    faster). <a href="https://www.grafana.org">upstream</a>
+  </td>
+</tr>
+
+<tr>
+  <td>
+    <a href="graphite.png"><img src="graphite.png" align="inline" width="75%"></a>
+  </td>
+  <td></td>
+  <td>
+    <a href="grafana1.png"><img src="grafana1.png" align="inline" width="45%"></a>
+    <a href="grafana2.png"><img src="grafana2.png" align="inline" width="45%"></a>
+  </td>
+</tr>
+</table>
+
+</body></html>

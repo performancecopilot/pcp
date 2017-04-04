@@ -1,0 +1,101 @@
+#!/bin/sh
+# PCP QA Test No. 939
+# derived metrics - mkconst()
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# Derived metric expr dump from 0x8513a48...
+# expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
+_filter()
+{
+    awk <$tmp.out >$tmp.sed '
+BEGIN				{ n = 0 }
+$1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++ }
+				{ next }'
+    sed -f $tmp.sed <$tmp.out \
+    | sed \
+	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
+	-e 's/=0x0 /=(nil) /g' \
+	-e "s;$tmp;TMP;"
+}
+
+# real QA test starts here
+
+cat <<End-of-File >$tmp.config
+# default
+a.m1 = 1
+# type= tests
+a.m2 = mkconst(2, type="32")
+a.m3 = mkconst(3, type=32)
+a.m4 = mkconst(4, type="U32")
+a.m5 = mkconst(5, type="u32")
+a.m6 = mkconst(6, type=U32)
+a.m7 = mkconst(7, type=u32)
+a.m8 = mkconst(8, type=64)
+a.m9 = mkconst(9, type=U64)
+a.m10 = mkconst(10, type=FLOAT)
+a.m11 = mkconst(11.1, type=float)
+a.m12 = mkconst(12, type=DOUBLE)
+a.m13 = mkconst(13.3, type=DOUBLE)
+# semantics= tests
+a.m14 = mkconst(14, semantics=counter)
+a.m15 = mkconst(15, semantics="COUNTER")
+a.m16 = mkconst(16.6, semantics=instant)
+a.m17 = mkconst(17.7, semantics=DISCRETE)
+# units= tests
+a.m18 = mkconst(18.8, units="kbyte")
+a.m19 = mkconst(19, units="kbyte / count")
+# putting it all together
+a.m20 = mkconst(20, type=u64, semantics=counter, units=ms)
+# error cases
+a.err.m1 = mkconst(123, type="foo bar")
+a.err.m2 = mkconst(123.456, type=32)
+a.err.m3 = mkconst(123, semantics="foo bar")
+End-of-File
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+pminfo -Dderive -fd a >$tmp.out 2>&1
+_filter
+
+echo "From the man page ..."
+cat <<End-of-File >$tmp.config
+avg_io_size = delta(disk.dev.total) == 0 ? -mkconst(1.0, semantics=instant, units="kbyte / count") : delta(disk.dev.total_bytes) / delta(disk.dev.total)
+myalarm = rate(disk.dev.total_bytes) > mkconst(400, units="Kbyte/sec")
+End-of-File
+
+for metric in disk.dev.total disk.dev.total_bytes avg_io_size myalarm
+do
+    pminfo -a archives/bozo-disk -d $metric
+    pmval -z -a archives/bozo-disk -t 1sec -s 10 $metric
+done
+
+cat <<End-of-File >$tmp.config
+idle = mem.util.free > mkconst(10485760, units=Kbyte)
+End-of-File
+
+pminfo -a archives/pcp-free -d idle
+pmval -z -t1 -a archives/pcp-free idle
+
+# success, all done
+status=0
+exit

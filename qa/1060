@@ -31,7 +31,11 @@ _cleanup()
 
 _report()
 {
+    # Note: some versions of ls(1), e.g. OS X, don't report directory
+    # names from the command line (so no pmie: line below)
+    #
     (cd $tmp; ls -lR pmie ) | $PCP_AWK_PROG '
+$1 == "pmie:"	{ next }
 NF < 4		{ print; next }
 		{ print "mode=" $1 " user=" $3 " group=" $4 " name=" $NF }' \
     | sed \
