@@ -1,0 +1,63 @@
+QA output created by 911
+== Checking KSM metric values - sysfs-ksm-001.tgz
+
+mem.ksm.full_scans
+    value 0
+
+mem.ksm.merge_across_nodes
+    value 1
+
+mem.ksm.pages_shared
+    value 0
+
+mem.ksm.pages_sharing
+    value 0
+
+mem.ksm.pages_to_scan
+    value 100
+
+mem.ksm.pages_unshared
+    value 0
+
+mem.ksm.pages_volatile
+    value 0
+
+mem.ksm.run_state
+    value 0
+
+mem.ksm.sleep_time
+    value 20
+
+== done
+
+== Checking KSM metric values - sysfs-ksm-002.tgz
+
+mem.ksm.full_scans
+    value 1234
+
+mem.ksm.merge_across_nodes
+    value 1
+
+mem.ksm.pages_shared
+    value 4294967294
+
+mem.ksm.pages_sharing
+    value 2318472134
+
+mem.ksm.pages_to_scan
+    value 10000
+
+mem.ksm.pages_unshared
+    value 123
+
+mem.ksm.pages_volatile
+    value 0
+
+mem.ksm.run_state
+    value 1
+
+mem.ksm.sleep_time
+    value 20
+
+== done
+

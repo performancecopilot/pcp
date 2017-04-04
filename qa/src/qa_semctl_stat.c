@@ -9,29 +9,43 @@
 # define KEY key
 #endif
 
-int vsemctl(int semid, int semnum, int cmd, struct semid_ds *s)
+int vsemctl(int semid, int semnum, int cmd, void *buf)
 {
-    memset(s, 0, sizeof(*s));
 
-    struct ipc_perm *ipcp = (struct ipc_perm *)(&(s->sem_perm));
-    memset(ipcp, 0, sizeof(*ipcp));
+    if (cmd == SEM_INFO) {
+	struct seminfo	*s = buf;
+	memset(s, 0, sizeof(*s));
+	s->semusz = 2;		/* one semaphore set currently */
+	s->semaem = 3;		/* total number of semaphores currently */
 
-    ipcp->KEY = 1111;
-    ipcp->uid = 0;
-    ipcp->mode = 888;
-    s->sem_nsems = 999;
-    return 0;
+	return 1;
+    }
+    else {
+	struct semid_ds *s = buf;
+	struct ipc_perm *ipcp = (struct ipc_perm *)(&(s->sem_perm));
+
+	memset(s, 0, sizeof(*s));
+
+	memset(ipcp, 0, sizeof(*ipcp));
+
+	ipcp->KEY = 1111;
+	ipcp->uid = 0;
+	ipcp->mode = 888;
+	s->sem_nsems = 999;
+
+	return 0;
+    }
 }
 
 int semctl(int semid, int semnum, int cmd, ...)
 {
-    struct semid_ds *sem;
+    void *buf;
     va_list arg;
     int sts;
 
     va_start(arg, cmd);
-    sem = va_arg(arg, struct semid_ds *);
-    sts = vsemctl(semid, semnum, cmd, sem);
+    buf = va_arg(arg, void *);
+    sts = vsemctl(semid, semnum, cmd, buf);
     va_end(arg);
 
     return sts;

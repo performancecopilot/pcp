@@ -208,8 +208,8 @@ json_metric_desc json_metrics[] = {
 #define JSON_SZ (sizeof(json_metrics)/sizeof(json_metrics[0]))
 
 int main(int argc, char** argv){
-    int fd = -1;
     FILE *fp;
+    int fd;
     unsigned int i;
     int c;
     int sts;
@@ -254,6 +254,7 @@ Options:\n\
     if ((fp = fopen(argv[optind], "r")) == NULL) {
 	return 1;
     }
+
     fd = fileno(fp);
     pmjsonInit(fd, json_metrics, JSON_SZ);
     for(i = 0; i < JSON_SZ; i++) {

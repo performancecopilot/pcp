@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2017 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -13,4 +14,5 @@
  */
 
 extern char *get_distro_info(void);
+extern char *get_machine_info(char *);
 

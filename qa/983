@@ -31,15 +31,15 @@ signal=$PCP_BINADM_DIR/pmsignal
 
 _cleanup()
 {
-    $sudo rm -f $tmp.*
     [ -z "$pmcd_pid" ] || sudo $signal $pmcd_pid
     [ -z "$socat_pid" ] || sudo $signal $socat_pid
     _wait_pmcd_end
-    $sudo $PCP_RC_DIR/pcp restart \
+    _service pcp restart \
     | _filter_pcp_start \
     | sed -e '/Waiting for pmcd to terminate/d'
     _wait_for_pmcd
     _wait_for_pmlogger
+    $sudo rm -f $tmp.*
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -60,7 +60,7 @@ _filter_pmie()
 # it will fail (since there won't be a pmcd there).
 
 # see also qa/283 for "pmcd -p" testing.
-$sudo $PCP_RC_DIR/pmcd stop >/dev/null 2>&1
+_service pmcd stop >/dev/null 2>&1
 # allow time to cleanup and close all sockets
 sleep 3
 

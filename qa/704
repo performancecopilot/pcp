@@ -23,9 +23,8 @@ _cleanup()
     if $_needclean
     then
 	[ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
-	$sudo $PCP_RC_DIR/pcp stop | _filter_pcp_stop
-	$sudo $PCP_RC_DIR/pcp start | _filter_pcp_start
-	_restore_systemd_restart pmcd
+	_service pcp restart | _filter_pcp_start
+	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
 	_needclean=false
@@ -50,14 +49,16 @@ _filter_pminfo()
 
 trap "_cleanup" 0 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 # real QA starts here
 [ -d $MMV_STATS_DIR ] && _save_config $MMV_STATS_DIR
 $sudo rm -rf $MMV_STATS_DIR
 $sudo mkdir $MMV_STATS_DIR
 $sudo chmod 1777 $MMV_STATS_DIR
-$sudo $PCP_RC_DIR/pcp restart | _filter_pcp_start
+_service pcp restart | _filter_pcp_start
+_wait_for_pmcd
+_wait_for_pmlogger
 _check_agent mmv >/dev/null || _notrun "MMV agent should be setup but is not"
 
 echo "Running python test program"

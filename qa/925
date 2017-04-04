@@ -1,0 +1,92 @@
+#!/bin/sh
+# PCP QA Test No. 925
+#
+# test case where pmlogger_daily runs before pmlogger_check with
+# Martins Innus <minnus@buffalo.edu> style multi-level directory structure.
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    if $needclean
+    then
+	needclean=false
+	# TODO - kill off a pmlogger?
+    fi
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_filter()
+{
+    # strip lines like ...
+    # Roll /var/log/pcp/NOTICES -> /var/log/pcp/NOTICES.old
+    # Start new /var/log/pcp/NOTICES
+    # + mv -f /var/log/pcp/NOTICES /var/log/pcp/NOTICES.old
+    # + touch /var/log/pcp/NOTICES
+    # as we have no control over the trigger for this (the size of the
+    # NOTICES file)
+    #
+    # and do the usual config/pid filtering
+    #
+    sed \
+	-e '/NOTICES/d' \
+	-e "s,$tmp,TMP,g" \
+	-e "s,/privateTMP,TMP,g" \
+	-e "s,$PCP_TMP_DIR,PCP_TMP_DIR,g" \
+	-e "s/$PAST/PAST/g" \
+	-e 's/\. user=/ user=/' \
+    # end
+}
+
+_report()
+{
+    (cd $tmp; ls -lR pmlogger ) | $PCP_AWK_PROG '
+NF < 4		{ print; next }
+		{ print "mode=" $1 " user=" $3 " group=" $4 " name=" $NF }' \
+    | sed \
+	-e '/^total /d' \
+	-e 's/[2-9][0-9][0-9][0-9]:$/YYYY:/' \
+	-e 's/[2-9][0-9][0-9][0-9]\/[01][0-9]:$/YYYY\/MM:/' \
+	-e 's/[2-9][0-9][0-9][0-9]\/[01][0-9]\/[0-3][0-9]:$/YYYY\/MM\/DD:/' \
+	-e 's/=[2-9][0-9][0-9][0-9]$/=YYYY/' \
+	-e 's/=[0-3][0-9]$/=NN/' \
+	-e 's/[2-9][0-9][0-9][0-9][01][0-9][0-3][0-9]/YYYYMMDD/' \
+	-e 's/[012][0-9]\.[0-5][0-9]\./HH.MM./' \
+	-e '/name=lock/d' \
+    # end
+}
+
+status=1	# failure is the default!
+needclean=true
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<End-of-File >$tmp.control
+# dummy file created by qa/$seq on `date`
+# the goal here is to have a non-primary logger that has a deeply
+# nested directory structure for the logs
+\$version=1.1
+LOCALHOSTNAME n n $tmp/pmlogger/myhost/2017/02/12 -c /dev/null -L
+End-of-File
+
+$sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.control -V -l $tmp.log
+_filter <$tmp.log
+
+_report | _filter
+echo
+
+# success, all done
+status=0
+exit
+

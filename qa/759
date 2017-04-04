@@ -54,14 +54,14 @@ unbound_install()
 
 unbound_cleanup()
 {
-    # note: _restore_systemd_restart pmcd done in _cleanup_pmda()
+    # note: _restore_auto_restart pmcd done in _cleanup_pmda()
     _cleanup_pmda unbound
 }
 
 _prepare_pmda unbound
 trap "unbound_cleanup; exit \$status" 0 1 2 3 15
 
-_stop_systemd_restart pmcd
+_stop_auto_restart pmcd
 
 _filter_unbound()
 {

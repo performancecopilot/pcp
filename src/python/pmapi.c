@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012-2016 Red Hat.
+ * Copyright (C) 2012-2017 Red Hat.
  * Copyright (C) 2009-2012 Michael T. Werner
  *
  * This file is part of the "pcp" module, the python interfaces for the
@@ -1597,10 +1597,17 @@ MOD_INIT(cpmapi)
     edict_add(dict, edict, "PM_ERR_PMDANOTREADY", PM_ERR_PMDANOTREADY);
     edict_add(dict, edict, "PM_ERR_TOOSMALL", PM_ERR_TOOSMALL);
     edict_add(dict, edict, "PM_ERR_TOOBIG", PM_ERR_TOOBIG);
-    edict_add(dict, edict, "PM_ERR_THREAD", PM_ERR_THREAD);
     edict_add(dict, edict, "PM_ERR_FAULT", PM_ERR_FAULT);
+    edict_add(dict, edict, "PM_ERR_THREAD", PM_ERR_THREAD);
     edict_add(dict, edict, "PM_ERR_NOCONTAINER", PM_ERR_NOCONTAINER);
     edict_add(dict, edict, "PM_ERR_BADSTORE", PM_ERR_BADSTORE);
+    edict_add(dict, edict, "PM_ERR_LOGOVERLAP", PM_ERR_LOGOVERLAP);
+    edict_add(dict, edict, "PM_ERR_LOGHOST", PM_ERR_LOGHOST);
+    edict_add(dict, edict, "PM_ERR_LOGCHANGETYPE", PM_ERR_LOGCHANGETYPE);
+    edict_add(dict, edict, "PM_ERR_LOGCHANGESEM", PM_ERR_LOGCHANGESEM);
+    edict_add(dict, edict, "PM_ERR_LOGCHANGEINDOM", PM_ERR_LOGCHANGEINDOM);
+    edict_add(dict, edict, "PM_ERR_LOGCHANGEUNITS", PM_ERR_LOGCHANGEUNITS);
+    edict_add(dict, edict, "PM_ERR_NEEDCLIENTCERT", PM_ERR_NEEDCLIENTCERT);
     edict_add(dict, edict, "PM_ERR_NYI", PM_ERR_NYI);
 
     return MOD_SUCCESS_VAL(module);

@@ -60,6 +60,8 @@ typedef struct {
 extern void timer_callback(int, void *);
 extern void input_callback(scalar_t *, int, char *);
 
+extern int local_install(void);
+
 extern char *local_strdup_suffix(const char *string, const char *suffix);
 extern char *local_strdup_prefix(const char *prefix, const char *string);
 

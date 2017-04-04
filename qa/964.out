@@ -1,9 +1,9 @@
 QA output created by 964
-Waiting for pmcd to terminate ...
-pmlogger count after pmcd stop (expect 1): 1
+Found initial pmcd
+Found primary pmlogger
 
 You will need to choose an appropriate configuration for installation of
-the "xfs" Performance Metrics Domain Agent (PMDA).
+the "test_perl" Performance Metrics Domain Agent (PMDA).
 
   collector	collect performance statistics on this system
   monitor	allow this system to monitor local and/or remote systems
@@ -13,12 +13,13 @@ Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Met
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Starting pmcd ... 
-Check xfs metrics have appeared ... X metrics and Y values
-pmlogger count at end of Install (expect 1): 1
+Check test_perl metrics have appeared ... X metrics and Y values
+Found same pmcd
+Expect same primary pmlogger to be running ...
+Found same primary pmlogger
 
 You will need to choose an appropriate configuration for installation of
-the "xfs" Performance Metrics Domain Agent (PMDA).
+the "test_perl" Performance Metrics Domain Agent (PMDA).
 
   collector	collect performance statistics on this system
   monitor	allow this system to monitor local and/or remote systems
@@ -28,9 +29,10 @@ Please enter c(ollector) or m(onitor) or b(oth) [b] Updating the Performance Met
 Terminate PMDA if already installed ...
 [...install files, make output...]
 Updating the PMCD control file, and notifying PMCD ...
-Check xfs metrics have appeared ... X metrics and Y values
-pmlogger count at end of Install (expect 1): 1
-
-Resetting system state
 Waiting for pmcd to terminate ...
 Starting pmcd ... 
+Check test_perl metrics have appeared ... X metrics and Y values
+Found a new pmcd
+Expect same primary pmlogger to be running ...
+Found same primary pmlogger
+

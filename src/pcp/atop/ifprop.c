@@ -27,6 +27,8 @@
 
 static struct ifprop	*ifprops;
 
+#define BTOMBIT(bytes) ((bytes)/125000)	/* bytes/second to Mbits/second */
+
 /*
 ** function searches for the properties of a particular interface
 ** the interface name should be filled in the struct ifprop before
@@ -65,6 +67,7 @@ initifprop(void)
 	pmID		pmids[IF_NMETRICS];
 	pmDesc		descs[IF_NMETRICS];
 	pmResult	*result;
+	count_t		speed;
 	size_t		propsize;
 	char		**insts;
 	int		sts, i;
@@ -98,8 +101,8 @@ initifprop(void)
 		ip->name[MAXINTNM-1] = '\0';
 
 		/* extract duplex/speed from result for given inst id */
-		sts = extract_integer_inst(result, descs, IF_SPEED, ids[i]);
-		ip->speed = sts < 0 ? 0 : sts * 8;
+		speed = extract_count_t_inst(result, descs, IF_SPEED, ids[i]);
+		ip->speed = speed < 0 ? 0 : BTOMBIT(speed); /* Mbits/second */
 		sts = extract_integer_inst(result, descs, IF_DUPLEX, ids[i]);
 		ip->fullduplex = sts < 0 ? 0 : sts;
 	}

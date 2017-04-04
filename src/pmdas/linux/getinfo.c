@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Red Hat.
+ * Copyright (c) 2014-2017 Red Hat.
  * Copyright (c) 2010 Aconex.  All Rights Reserved.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -91,4 +91,31 @@ get_distro_info(void)
     if (distro_name == NULL) 
 	distro_name = "?";
     return distro_name;
+}
+
+char *
+get_machine_info(char *fallback)
+{
+    static char	*machine_name;
+    char	*p, name[1024];
+    FILE	*f;
+
+    if (machine_name)
+	return machine_name;
+
+    /* vendor-specific hardware information - Silicon Graphics machines */
+    f = linux_statsfile("/proc/sgi_prominfo/node0/version", name, sizeof(name));
+    if (f != NULL) {
+	while (fgets(name, sizeof(name), f)) {
+	    if (strncmp(name, "SGI", 3) == 0) {
+		if ((p = strstr(name, " IP")) != NULL)
+		    machine_name = strndup(p+1, 4);
+		break;
+	    }
+	}
+	fclose(f);
+    }
+    if (machine_name == NULL)
+	machine_name = fallback;
+    return machine_name;
 }

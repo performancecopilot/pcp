@@ -1,0 +1,75 @@
+#!/bin/sh
+# PCP QA Test No. 920
+# pmlogger_check with Martins Innus <minnus@buffalo.edu> style
+# multi-level directory structure.
+#
+# Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    if $needclean
+    then
+	$sudo rm -f ${PCP_PMLOGGERCONTROL_PATH}.d/qa-$seq
+	needclean=false
+	_service pcp restart | _filter_pcp_start
+	_wait_for_pmcd
+	_wait_for_pmlogger
+    fi
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_report()
+{
+    (cd $tmp; ls -lR pmlogger ) | $PCP_AWK_PROG '
+NF < 4		{ print; next }
+		{ print "mode=" $1 " user=" $3 " group=" $4 " name=" $NF }' \
+    | sed \
+	-e '/^total /d' \
+	-e '/name=Latest/d' \
+	-e '/name=lock/d' \
+	-e 's/[2-9][0-9][0-9][0-9]:$/YYYY:/' \
+	-e 's/[2-9][0-9][0-9][0-9]\/[01][0-9]:$/YYYY\/MM:/' \
+	-e 's/[2-9][0-9][0-9][0-9]\/[01][0-9]\/[0-3][0-9]:$/YYYY\/MM\/DD:/' \
+	-e 's/=[2-9][0-9][0-9][0-9]$/=YYYY/' \
+	-e 's/=[0-3][0-9]$/=NN/' \
+	-e 's/[2-9][0-9][0-9][0-9][01][0-9][0-3][0-9]/YYYYMMDD/' \
+	-e 's/[012][0-9]\.[0-5][0-9]\./HH.MM./' \
+	-e 's/\. user=/ user=/' \
+    # end
+}
+
+status=1	# failure is the default!
+needclean=true
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+cat <<End-of-File >$tmp.tmp
+# dummy file created by qa/$seq on `date`
+# the goal here is to have a non-primary logger that has a deeply
+# nested directory structure for the logs
+\$version=1.1
+LOCALHOSTNAME n n $tmp/pmlogger/myhost/2017/02/12 -c /dev/null -L
+End-of-File
+$sudo cp $tmp.tmp ${PCP_PMLOGGERCONTROL_PATH}.d/qa-$seq
+
+_service pmlogger restart | _filter_pcp_start
+_wait_for_pmlogger
+
+_report
+echo
+
+# success, all done
+status=0
+exit
+

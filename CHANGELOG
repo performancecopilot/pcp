@@ -1,3 +1,38 @@
+pcp-3.11.8 (17 February 2016)
+    - pmdabind2: new PMDA for BIND named REST API statistics
+    - pmdadocker: new PMDA for Docker REST API statistics
+    - pmdalio: new PMDA for the kernel LIO subsystem (iSCSI, FCP, FCoE)
+    - pmdanutcracker: new PMDA for NutCracker (TwemCache) metrics
+    - pmdaredis: new PMDA for redis (REmote DIctionary Service) metrics
+    - pmdalinux: additional VM metrics for zoneinfo
+    - pmdalinux: add per-node memory zone protection stats
+    - pmdalinux: add Linux VM KSM same-page-merging metrics
+    - pmdalinux: dynamic per-CPU and per-node instance domains
+    - pmdalinux: export network.interface.baudrate with 64-bit type
+    - pmdalinux: export byte version of all hugepage metrics
+    - pmdalinux: add several metrics recently added to /proc/vmstat
+    - pmdalinux: add support for SCSI tape statistics
+    - pmdaproc: switch ttyname calculation to iterate through /dev
+    - selinux: new files and package for setting custom PCP policy
+    - libpcp_web: support for callback-based JSON metrics extraction
+    - libpcp: several archive mode instance scan performance improvements
+    - pmlogger scripts: fix multi-level directory structures
+    - pcp-atopsar: fix swptotal and swpfree reporting units
+    - pcp-atop: fix up reporting of the network utilization
+    - pmval: improve handling of shifting metric instances
+    - pmns/Rebuild: rebuild PMNS if the root file is empty
+    - docs: added instance domain help text for several PMDAs
+    - docs: additional documentation for pmdamysql (MariaDB support)
+    - docs: clarifications to the Apache2 stats export setup
+    - docs: update pmdammv man pahe to mention golang bindings
+    - qt tools: update MacOSX info files keys for highres displays
+    - perl api: add missing error codes and local_install helper
+    - python api: add missing error codes
+    - containers: new pcp-standalone application container layer
+    - containers: new pcp-nginx container with pmcd & Nginx setup
+    - containers: new pcp-apache container with pmcd & Apache setup
+    - containers: new pcp-java-app container with pmcd, Java & Parfait
+
 pcp-3.11.7 (21 December 2016)
     - docs: pmLookupText added to PMAPI calls for _metric web API
     - build: fix qt4 builds once more, no widgets module there

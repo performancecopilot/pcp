@@ -958,6 +958,50 @@ pmNameInDomArchive(pmInDom indom, int inst, char **name)
     return n;
 }
 
+/*
+ * Indoms larger than HASH_THRESHOLD will use a hash table
+ * to search the instance and name lists to be returned.
+ * Smaller indoms will use the regular linear search.
+ */
+#define HASH_THRESHOLD 16
+#define HASH_SIZE 509 /* prime */
+
+static struct {
+    int len;
+    int max;
+    int *list;
+} ihash[HASH_SIZE] = {0};
+
+static int
+find_add_ihash(int id)
+{
+    int i = id % HASH_SIZE; 
+    int j;
+
+    for (j=0; j < ihash[i].len; j++) {
+    	if (ihash[i].list[j] == id)
+	    return 1;
+    }
+    ihash[i].len++;
+    if (ihash[i].len >= ihash[i].max) {
+    	ihash[i].max += 8;
+	ihash[i].list = (int *)realloc(ihash[i].list, ihash[i].max * sizeof(int));
+    }
+    ihash[i].list[ihash[i].len-1] = id;
+
+    return 0;
+}
+
+static void
+reset_ihash(void)
+{
+    int i;
+
+    /* invalidate all entries, but don't free the memory */
+    for (i=0; i < HASH_SIZE; i++)
+    	ihash[i].len = 0;
+}
+
 int
 pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 {
@@ -973,6 +1017,7 @@ pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
     int			*ilist = NULL;
     char		**nlist = NULL;
     char		**olist;
+    int			big_indom = 0;
 
     /* avoid ambiguity when no instances or errors */
     *instlist = NULL;
@@ -995,25 +1040,42 @@ pmGetInDomArchive(pmInDom indom, int **instlist, char ***namelist)
 	}
 
 	for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
+	    if (idp->numinst > HASH_THRESHOLD) {
+		big_indom = 1;
+		reset_ihash();
+		break;
+	    }
+	}
+
+	for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
 	    for (j = 0; j < idp->numinst; j++) {
-		for (i = 0; i < numinst; i++) {
-		    if (idp->instlist[j] == ilist[i])
-			break;
+		if (big_indom) {
+		    /* big indom - use a hash table */
+		    i = find_add_ihash(idp->instlist[j]) ? 0 : numinst;
 		}
-		if (i == numinst) {
-		    numinst++;
+		else {
+		    /* small indom - linear search */
+		    for (i = 0; i < numinst; i++) {
+			if (idp->instlist[j] == ilist[i])
+			    break;
+		    }
+		}
+
+		if (i < numinst)
+		    continue;
+
+		numinst++;
 PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
-		    if ((ilist = (int *)realloc(ilist, numinst*sizeof(ilist[0]))) == NULL) {
-			__pmNoMem("pmGetInDomArchive: ilist", numinst*sizeof(ilist[0]), PM_FATAL_ERR);
-		    }
-PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
-		    if ((nlist = (char **)realloc(nlist, numinst*sizeof(nlist[0]))) == NULL) {
-			__pmNoMem("pmGetInDomArchive: nlist", numinst*sizeof(nlist[0]), PM_FATAL_ERR);
-		    }
-		    ilist[numinst-1] = idp->instlist[j];
-		    nlist[numinst-1] = idp->namelist[j];
-		    strsize += strlen(idp->namelist[j])+1;
+		if ((ilist = (int *)realloc(ilist, numinst*sizeof(ilist[0]))) == NULL) {
+		    __pmNoMem("pmGetInDomArchive: ilist", numinst*sizeof(ilist[0]), PM_FATAL_ERR);
 		}
+PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
+		if ((nlist = (char **)realloc(nlist, numinst*sizeof(nlist[0]))) == NULL) {
+		    __pmNoMem("pmGetInDomArchive: nlist", numinst*sizeof(nlist[0]), PM_FATAL_ERR);
+		}
+		ilist[numinst-1] = idp->instlist[j];
+		nlist[numinst-1] = idp->namelist[j];
+		strsize += strlen(idp->namelist[j])+1;
 	    }
 	}
 PM_FAULT_POINT("libpcp/" __FILE__ ":9", PM_FAULT_ALLOC);

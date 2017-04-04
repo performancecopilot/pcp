@@ -1,10 +1,10 @@
 QA output created by 069
+Waiting for pmcd to terminate ...
 Starting pmcd ... 
-Starting pmlogger ... 
 should be OK
 
 pmcd.numclients
-value 2..4
+value 1..3
 
 expect two access control errors:
 pminfo: Cannot connect to PMCD on host "LOCALHOST": No permission to perform requested operation
@@ -46,8 +46,6 @@ Current PMCD clients ...
      fd  client connection from                    ipc ver  operations denied
 ...
 
-access violation from host PCP_RUN_DIR/pmcd.socket
-endclient client[N]: (fd <n>) No permission to perform requested operation (-12387)
 
 active agent dom   pid  in out ver protocol parameters
 ============ === ===== === === === ======== ==========
@@ -62,6 +60,8 @@ Host access list:
  n  n     0     0 0.0.0.0                                 0.0.0.0                                   4 .*
 
 [DATE] pmcd(PID) Info: PMNS file "DEFAULT" is unchanged
+access violation from host PCP_RUN_DIR/pmcd.socket
+endclient client[N]: (fd <n>) No permission to perform requested operation (-12387)
 access violation from host MY_IP
 endclient client[N]: (fd <n>) No permission to perform requested operation (-12387)
 access violation from host OTHER1_IP

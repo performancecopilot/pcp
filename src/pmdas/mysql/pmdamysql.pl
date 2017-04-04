@@ -1,6 +1,6 @@
 #
+# Copyright (c) 2012,2017 Red Hat.
 # Copyright (c) 2012-2013 Chandana De Silva.
-# Copyright (c) 2012 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@ use DBI;
 my $database = 'DBI:mysql:mysql';
 my $username = 'dbmonitor';
 my $password = 'dbmonitor';
+my $account = 'pcp';
 
 # Configuration files for overriding the above settings
 for my $file (	'/etc/pcpdbi.conf',	# system defaults (lowest priority)
@@ -40,7 +41,7 @@ sub mysql_txt2num {
     my ($value) = lc($_[0]);
 
     if (!defined($value)) {
-	    return (PM_ERR_AGAIN, 0);
+        return (PM_ERR_AGAIN, 0);
     }
     elsif ($value eq "yes" || $value eq "true" || $value eq "on") {
         return 1;
@@ -1807,5 +1808,5 @@ $pmda->add_indom($process_indom, \@process_instances,
 $pmda->set_fetch_callback(\&mysql_fetch_callback);
 $pmda->set_fetch(\&mysql_connection_setup);
 $pmda->set_refresh(\&mysql_refresh);
-$pmda->set_user('pcp');
+$pmda->set_user($account);
 $pmda->run;

@@ -1,0 +1,121 @@
+#!/bin/sh
+#
+# Prune a call graph from mk.cgraph
+#
+# The algorithm here is a leaf to root approach to removing nodes
+# that are themselves unconditionally thread-safe (meaning they acquire
+# no locks and call only thread-safe routines), and remove all incoming
+# arcs to these nodes.
+#
+# And repeat until there are no changes.
+#
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+sts=0	# success by default
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+really_verbose=false
+verbose=false
+
+_usage()
+{
+    echo >&2 "Usage: prune.cgraph [options] file.dot"
+    echo >&2 "Options"
+    echo >&2 "-v        verbose"
+    exit
+}
+
+while getopts "v?" c
+do
+    case $c
+    in
+	v)
+	    verbose=true
+	    ;;
+
+	?)
+	    _usage
+	    # NOTREACHED
+	    ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+if [ $# -ne 1 ]
+then
+    _usage
+    # NOTREACHED
+fi
+
+# do the work for one iteration of pruning leaf nodes
+#
+_prune()
+{
+    sed -n <$1 \
+	-e '/ -> /{
+s/.* -> //
+s/;//
+p
+}' \
+    | sort \
+    | uniq \
+    | while read func
+    do
+	if grep "^    $func ->" <$1 >/dev/null
+	then
+	    $really_verbose && echo >&2 "$func: not a leaf"
+	elif grep "^    $func \[" <$1 >/dev/null
+	then
+	    if $really_verbose
+	    then
+		if grep "^    $func \[.*shape=box" <$1 >/dev/null
+		then
+		    echo >&2 "$func: acquires a lock"
+		else
+		    echo >&2 "$func: not thread-safe"
+		fi
+	    fi
+	else
+	    $really_verbose && echo >&2 "$func: leaf"
+	    echo $func >>$tmp.leaf
+	fi
+    done
+
+    if [ -s $tmp.leaf ]
+    then
+	sort <$tmp.leaf \
+	| uniq >$tmp.tmp
+	if $verbose
+	then
+	    for func in `cat $tmp.tmp`
+	    do
+		echo >&2 "$func: cull"
+	    done
+	fi
+	sed -e 's/.*/\/-> &;\/d/' <$tmp.tmp >$tmp.sed
+	sed -f $tmp.sed <$1
+    fi
+}
+
+cp $1 $tmp.in
+
+while true
+do
+    _prune $tmp.in >$tmp.out
+    if cmp $tmp.in $tmp.out >/dev/null
+    then
+	# no changes
+	break
+    fi
+    # may be more that can be done after this round of pruning
+    mv $tmp.out $tmp.in
+done
+
+if cmp $1 $tmp.in >/dev/null
+then
+    # nothing changed
+    $verbose && echo >&2 "$1: no changes"
+else
+    cp $tmp.in $1
+fi

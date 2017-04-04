@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
-    $sudo $PCP_RC_DIR/pcp restart >/dev/null 2>&1
+    _service pcp restart >/dev/null 2>&1
     _wait_for_pmcd
     _wait_for_pmlogger
     rm -f $tmp.*
@@ -29,8 +29,9 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # force sample PMDA back to a sane state
 _reset()
 {
-    $sudo $PCP_RC_DIR/pmcd restart >/dev/null 2>&1
+    _service pmcd restart >/dev/null 2>&1
     _wait_for_pmcd
+    _wait_for_pmlogger
 }
 
 _filter()

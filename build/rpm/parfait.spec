@@ -1,7 +1,9 @@
 Summary: Parfait Java libraries for Performance Co-Pilot (PCP)
 Name: parfait
 Version: 0.4.0
-%global buildversion 4
+%global buildversion 5
+
+%global disable_dropwizard 1
 
 Release: %{buildversion}%{?dist}
 License: ASL2.0
@@ -32,8 +34,10 @@ BuildRequires: mvn(org.springframework:spring-core)
 BuildRequires: mvn(org.springframework:spring-beans)
 BuildRequires: mvn(org.springframework:spring-context)
 BuildRequires: mvn(org.springframework:spring-test)
+%if !%{disable_dropwizard}
 BuildRequires: mvn(com.codahale.metrics:metrics-core)
-BuildRequires: mvn(systems.uom:systems-common:pom:)
+%endif
+BuildRequires: mvn(systems.uom:systems-unicode-java8:pom:)
 BuildRequires: mvn(javax.measure:unit-api)
 BuildRequires: mvn(tec.uom:uom-se)
 
@@ -80,6 +84,9 @@ for instrumenting applications.
 %setup -q
 %pom_disable_module parfait-benchmark
 %pom_disable_module parfait-cxf
+%if %{disable_dropwizard}
+%pom_disable_module parfait-dropwizard
+%endif
 %pom_disable_module parfait-jdbc	# need hsqldb update?
 
 %build
@@ -128,6 +135,10 @@ done
 
 
 %changelog
+* Thu Feb 16 2017 Nathan Scott <nathans@redhat.com> - 0.4.0-5
+- Use RPM macros to ease dropwizard metrics enablement.
+- Correct the dependency on systems.uom:systems-unicode-java8
+
 * Fri Nov 25 2016 Nathan Scott <nathans@redhat.com> - 0.4.0-4
 - Switch to jdk1.8+, uom-se, enable dropwizard metrics module.
 

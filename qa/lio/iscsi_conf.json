@@ -1,0 +1,22 @@
+{
+  "target": "iqn.2003-01.com.pcpio.test:iscsi-gateway",
+  "luns": [
+    {
+      "name": "ramdisk1"
+    },
+    {
+      "name": "ramdisk2"
+    },
+       {
+      "name": "ramdisk3"
+    }
+  ],
+  "clients": [
+    {
+      "client_iqn": "iqn.2003-01.com.pcpio.test:client-1"
+    },
+    {
+      "client_iqn": "iqn.2003-01.com.pcpio.test:client-2"
+    }
+  ]
+}
