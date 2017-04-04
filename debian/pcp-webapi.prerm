@@ -1,0 +1,8 @@
+#!/bin/sh -e
+#DEBHELPER#
+
+if which invoke-rc.d >/dev/null 2>&1; then
+    invoke-rc.d pmwebd stop
+else
+    /etc/init.d/pmwebd stop
+fi

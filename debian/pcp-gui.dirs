@@ -1,0 +1,4 @@
+etc/pcp/pmsnap
+usr/share/pixmaps
+var/lib/pcp/config/pmchart
+var/lib/pcp/config/pmsnap

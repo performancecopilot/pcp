@@ -1,0 +1,6 @@
+# pmdanamed man page has correct deb paths but also mentions other distros
+pcp: FSSTND-dir-in-manual-page
+
+# /etc/init.d/pcp is a legacy script and should not be registered
+# with update-rc.d
+pcp: script-in-etc-init.d-not-registered-via-update-rc.d etc/init.d/pcp

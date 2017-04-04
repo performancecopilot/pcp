@@ -1,0 +1,6 @@
+usr/include/pcp/pmafm.h
+usr/include/pcp/pmtime.h
+usr/lib/libpcp_gui.a
+usr/lib/libpcp_gui.so
+usr/share/man/man3/pmafm.3.gz
+usr/share/man/man3/pmtime.3.gz

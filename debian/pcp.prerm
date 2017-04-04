@@ -1,0 +1,26 @@
+#!/bin/sh -e
+#DEBHELPER#
+if which invoke-rc.d >/dev/null 2>&1; then
+    invoke-rc.d pmproxy stop
+    invoke-rc.d pmie stop
+    if [ -f /etc/init.d/pmcd ]; then
+	# PCP 4.0 style
+	invoke-rc.d pmlogger stop
+	invoke-rc.d pmcd stop
+    else
+	# PCP pre-4.0 style
+	invoke-rc.d pcp stop
+    fi
+else
+    /etc/init.d/pmproxy stop
+    /etc/init.d/pmie stop
+    if [ -f /etc/init.d/pmcd ]; then
+	# PCP 4.0 style
+	/etc/init.d/pmlogger stop
+	/etc/init.d/pmcd stop
+    else
+	# PCP pre-4.0 style
+	/etc/init.d/pcp stop
+    fi
+fi
+rm -f /var/lib/pcp/pmns/.NeedRebuild

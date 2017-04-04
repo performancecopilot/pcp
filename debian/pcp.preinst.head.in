@@ -1,0 +1,21 @@
+#!/bin/sh -e
+#DEBHELPER#
+#
+# The goal here is to collect PCP configuration files from places
+# they may have been stashed away in previous versions
+#
+
+# The new place ... this should match the setting in /etc/pcp.conf
+#
+PCP_SYSCONF_DIR=@pcp_sysconf_dir@
+# and same here ...
+#
+PCP_LOG_DIR=@pcp_log_dir@
+[ -d "$PCP_LOG_DIR" ] || mkdir "$PCP_LOG_DIR"
+
+PCP_ETC_DIR=@pcp_etc_dir@
+for crontab in pmlogger pmie
+do
+    test -f "$PCP_ETC_DIR/cron.d/$crontab" || continue
+    mv -f "$PCP_ETC_DIR/cron.d/$crontab" "$PCP_ETC_DIR/cron.d/pcp-$crontab"
+done

@@ -1,0 +1,8 @@
+
+Package: pcp-pmda-infiniband
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Architecture: any
+Description: Infiniband performance metrics domain agent (PMDA)
+ Performance Metrics Domain Agent (PMDA) for collecting Infiniband
+ statistics.  By default, it monitors the local HCAs but can also
+ be configured to monitor remote GUIDs such as IB switches.

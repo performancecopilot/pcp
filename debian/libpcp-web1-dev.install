@@ -1,0 +1,11 @@
+usr/include/pcp/pmhttp.h
+usr/include/pcp/pmjson.h
+usr/lib/libpcp_web.so
+usr/lib/libpcp_web.a
+usr/share/man/man3/pmhttpClientFetch.3.gz
+usr/share/man/man3/pmhttpFreeClient.3.gz
+usr/share/man/man3/pmhttpNewClient.3.gz
+usr/share/man/man3/pmhttpnewclient.3.gz
+usr/share/man/man3/pmjsonInit.3.gz
+usr/share/man/man3/pmjsonInitIndom.3.gz
+usr/share/man/man3/pmjsoninit.3.gz

@@ -1,0 +1,13 @@
+usr/include/pcp/trace.h
+usr/include/pcp/trace_dev.h
+usr/lib/libpcp_trace.a
+usr/lib/libpcp_trace.so
+usr/share/man/man3/pmdatrace.3.gz
+usr/share/man/man3/pmtraceabort.3.gz
+usr/share/man/man3/pmtracebegin.3.gz
+usr/share/man/man3/pmtracecounter.3.gz
+usr/share/man/man3/pmtraceend.3.gz
+usr/share/man/man3/pmtraceerrstr.3.gz
+usr/share/man/man3/pmtraceobs.3.gz
+usr/share/man/man3/pmtracepoint.3.gz
+usr/share/man/man3/pmtracestate.3.gz

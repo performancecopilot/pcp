@@ -1,0 +1,105 @@
+
+if dpkg-maintscript-helper supports mv_conffile
+then
+    _version_configs "$@"
+fi
+
+touch /var/lib/pcp/pmns/.NeedRebuild
+chmod 644 /var/lib/pcp/pmns/.NeedRebuild
+
+getent group pcp >/dev/null || groupadd -r pcp
+getent passwd pcp >/dev/null || \
+useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
+
+# must match GNUmakefile
+chown pcp:pcp /var/lib/pcp/config/pmda
+chmod 775 /var/lib/pcp/config/pmda
+chown pcp:pcp /var/lib/pcp/tmp
+chmod 775 /var/lib/pcp/tmp
+chown pcp:pcp /var/log/pcp
+chmod 775 /var/log/pcp
+
+# must match src/pmcd/GNUmakefile
+chown pcp:pcp /var/log/pcp/pmcd
+chmod 775 /var/log/pcp/pmcd
+
+# must match src/pmie/GNUmakefile
+chown pcp:pcp /var/lib/pcp/config/pmie
+chmod 775 /var/lib/pcp/config/pmie
+chown pcp:pcp /var/lib/pcp/tmp/pmie
+chmod 775 /var/lib/pcp/tmp/pmie
+chown pcp:pcp /var/log/pcp/pmie
+chmod 775 /var/log/pcp/pmie
+
+# must match src/pmlogger/GNUmakefile
+chown pcp:pcp /var/lib/pcp/config/pmlogger
+chmod 775 /var/lib/pcp/config/pmlogger
+chown pcp:pcp /var/lib/pcp/tmp/pmlogger
+chmod 775 /var/lib/pcp/tmp/pmlogger
+chown pcp:pcp /var/log/pcp/pmlogger
+chmod 775 /var/log/pcp/pmlogger
+
+# must match src/pmproxy/GNUmakefile
+chown pcp:pcp /var/log/pcp/pmproxy
+chmod 775 /var/log/pcp/pmproxy
+
+# and fixup the change in deployment plan for these ones in the case
+# of an upgrade, rather than an install ... they used to be pcp:pcp
+chown root:root /etc/pcp/pmie
+chmod 755 /etc/pcp/pmie
+chown root:root /etc/pcp/pmie/control
+chmod 644 /etc/pcp/pmie/control
+chown root:root /etc/pcp/pmlogger
+chmod 755 /etc/pcp/pmlogger
+chown root:root /etc/pcp/pmlogger/control
+chmod 644 /etc/pcp/pmlogger/control
+
+# migrate generated config files from /etc/pcp/* to /var/lib/pcp/config/*
+#
+if [ -f /etc/pcp/pmie/config.default ]
+then
+    cp /etc/pcp/pmie/config.default /var/lib/pcp/config/pmie/config.default
+    rm -f /etc/pcp/pmie/config.default
+    chown pcp:pcp /var/lib/pcp/config/pmie/config.default
+    chmod 644 /var/lib/pcp/config/pmie/config.default
+fi
+if [ -f /etc/pcp/pmlogger/config.default ]
+then
+    cp /etc/pcp/pmlogger/config.default /var/lib/pcp/config/pmlogger/config.default
+    rm -f /etc/pcp/pmlogger/config.default
+    chown pcp:pcp /var/lib/pcp/config/pmlogger/config.default
+    chmod 644 /var/lib/pcp/config/pmlogger/config.default
+fi
+
+update-rc.d pmcd defaults >/dev/null
+update-rc.d pmlogger defaults >/dev/null
+update-rc.d pmie defaults >/dev/null
+update-rc.d pmproxy defaults >/dev/null
+
+# migrate existing statistics files to their new (permanent!) home
+#
+for dir in /var/tmp/mmv /var/tmp/pmdabash
+do
+    [ -d $dir ] || continue
+    [ "$(LC_ALL=C stat -c '%u %g %F' $dir)" = "0 0 directory" ] && mv $dir /var/lib/pcp/tmp
+done
+_clean_tmpdirs $PCP_TMP_DIR /var/tmp pmie pmlogger
+
+# transition pmdadmcache over to pmdadm (device mapper)
+#
+PCP_PMCDCONF_PATH=/etc/pcp/pmcd/pmcd.conf
+PCP_PMDAS_DIR=/var/lib/pcp/pmdas/
+if grep -q ^dmcache $PCP_PMCDCONF_PATH 2>/dev/null
+then
+    mkdir -p -m 755 "$PCP_PMDAS_DIR/dm"
+    touch "$PCP_PMDAS_DIR/dm/.NeedInstall"
+    touch "$PCP_PMDAS_DIR/dmcache/.NeedRemove"
+fi
+
+if which invoke-rc.d >/dev/null 2>&1; then
+    invoke-rc.d pmcd start
+    invoke-rc.d pmlogger start
+else
+    /etc/init.d/pmcd start
+    /etc/init.d/pmlogger start
+fi

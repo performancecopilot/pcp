@@ -1,0 +1,271 @@
+#!/usr/bin/make -f
+
+pcp = pcp
+pcpcfg = pcp-conf
+libpcp = libpcp3
+libpcpdev = libpcp3-dev
+libpcp_pmda = libpcp-pmda3
+libpcp_pmdadev = libpcp-pmda3-dev
+libpcp_pmda_perl = libpcp-pmda-perl
+libpcp_import_perl = libpcp-import-perl
+pcp_logsummary_perl = libpcp-logsummary-perl
+libpcp_gui = libpcp-gui2
+libpcp_guidev = libpcp-gui2-dev
+libpcp_mmv = libpcp-mmv1
+libpcp_mmvdev = libpcp-mmv1-dev
+libpcp_mmv_perl = libpcp-mmv-perl
+libpcp_trace = libpcp-trace2
+libpcp_tracedev = libpcp-trace2-dev
+libpcp_import = libpcp-import1
+libpcp_importdev = libpcp-import1-dev
+libpcp_web = libpcp_web1
+libpcp_webdev = libpcp_web1-dev
+pcp_import_sar = pcp-import-sar2pcp
+pcp_import_ganglia = pcp-import-ganglia2pcp
+pcp_import_mrtg = pcp-import-mrtg2pcp
+pcp_import_sheet = pcp-import-sheet2pcp
+pcp_import_iostat = pcp-import-iostat2pcp
+pcp_import_collectl = pcp-import-collectl2pcp
+pcp_export_graphite = pcp-export-pcp2graphite
+pcp_export_influxdb = pcp-export-pcp2influxdb
+pcp_export_zabbix = pcp-export-zabbix-agent
+pcp_pmda_infiniband = pcp-pmda-infiniband
+pcp_testsuite = pcp-testsuite
+pcp_manager = pcp-manager
+pcp_webapi = pcp-webapi
+pcp_python2 = python-pcp
+pcp_python3 = python3-pcp
+pcpgui = pcp-gui
+pcpdoc = pcp-doc
+
+dirpcp = debian/$(pcp)
+dirpcpcfg = debian/$(pcpcfg)
+dirlibpcp = debian/$(libpcp)
+dirlibpcpdev = debian/$(libpcpdev)
+dirlibpcp_pmda = debian/$(libpcp_pmda)
+dirlibpcp_pmdadev = debian/$(libpcp_pmdadev)
+dirlibpcp_pmda_perl = debian/$(libpcp_pmda_perl)
+dirlibpcp_import_perl = debian/$(libpcp_import_perl)
+dirpcp_logsummary_perl = debian/$(pcp_logsummary_perl)
+dirlibpcp_gui = debian/$(libpcp_gui)
+dirlibpcp_guidev = debian/$(libpcp_guidev)
+dirlibpcp_mmv = debian/$(libpcp_mmv)
+dirlibpcp_mmvdev = debian/$(libpcp_mmvdev)
+dirlibpcp_mmv_perl = debian/$(libpcp_mmv_perl)
+dirlibpcp_trace = debian/$(libpcp_trace)
+dirlibpcp_tracedev = debian/$(libpcp_tracedev)
+dirlibpcp_import = debian/$(libpcp_import)
+dirlibpcp_importdev = debian/$(libpcp_importdev)
+dirlibpcp_web = debian/$(libpcp_web)
+dirlibpcp_webdev = debian/$(libpcp_webdev)
+dirpcp_import_sar = debian/$(pcp_import_sar)
+dirpcp_import_ganglia = debian/$(pcp_import_ganglia)
+dirpcp_import_mrtg = debian/$(pcp_import_mrtg)
+dirpcp_import_sheet = debian/$(pcp_import_sheet)
+dirpcp_import_iostat = debian/$(pcp_import_iostat)
+dirpcp_import_collectl = debian/$(pcp_import_collectl)
+dirpcp_export_graphite = debian/$(pcp_export_graphite)
+dirpcp_export_influxdb = debian/$(pcp_export_influxdb)
+dirpcp_export_zabbix = debian/$(pcp_export_zabbix)
+dirpcp_pmda_infiniband = debian/$(pcp_pmda_infiniband)
+dirpcp_testsuite = debian/$(pcp_testsuite)
+dirpcp_manager = debian/$(pcp_manager)
+dirpcp_webapi = debian/$(pcp_webapi)
+dirpcp_python2 = debian/$(pcp_python2)
+dirpcp_python3 = debian/$(pcp_python3)
+dirgui = debian/$(pcpgui)
+dirdoc = debian/$(pcpdoc)
+allperldir = $(dirlibpcp_pmda_perl) $(dirlibpcp_import_perl) \
+		$(dirpcp_logsummary_perl) $(dirlibpcp_mmv_perl)
+alldir = $(dirpcp) $(dirpcpcfg) \
+		$(dirlibpcp) $(dirlibpcpdev) \
+		$(dirlibpcp_pmda) $(dirlibpcp_pmdadev) \
+		$(dirlibpcp_trace) $(dirlibpcp_tracedev) \
+		$(dirlibpcp_gui) $(dirlibpcp_guidev) \
+		$(dirlibpcp_import) $(dirlibpcp_importdev) \
+		$(dirlibpcp_web) $(dirlibpcp_webdev) \
+		$(dirlibpcp_mmv) $(dirlibpcp_mmvdev) \
+		$(dirpcp_import_sar) $(dirpcp_import_mrtg) \
+		$(dirpcp_import_ganglia) \
+		$(dirpcp_import_sheet) $(dirpcp_import_iostat) \
+		$(dirpcp_import_collectl) $(dirpcp_testsuite) \
+		$(dirpcp_pmda_infiniband) $(allperldir) \
+		$(dirpcp_manager) $(dirpcp_webapi) \
+		$(dirpcp_python2) $(dirpcp_python3)
+
+zip = export GZIP=-9qn
+pkgpcp = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp);
+pkgpcpgui = $(zip) DIST_ROOT=`pwd`/$(dirgui);
+pkgpcpdoc = $(zip) DIST_ROOT=`pwd`/$(dirdoc);
+pkgpcpcfg = $(zip) DIST_ROOT=`pwd`/$(dirpcpcfg);
+pkglibpcp = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp);
+pkglibpcp_gui = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_gui);
+pkglibpcp_mmv = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_mmv);
+pkglibpcp_pmda = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_pmda);
+pkglibpcp_trace = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_trace);
+pkglibpcp_import = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_import);
+pkglibpcp_web = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_web);
+pkglibpcp_mmv_perl = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_mmv_perl);
+pkglibpcp_pmda_perl = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_pmda_perl);
+pkglibpcp_import_perl = $(zip) DIST_ROOT=`pwd`/$(dirlibpcp_import_perl);
+pkgpcp_logsummary_perl = $(zip) DIST_ROOT=`pwd`/$(dirpcp_logsummary_perl);
+pkgpcp_import_sar = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_sar);
+pkgpcp_import_ganglia = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_ganglia);
+pkgpcp_import_mrtg = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_mrtg);
+pkgpcp_import_sheet = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_sheet);
+pkgpcp_import_iostat = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_iostat);
+pkgpcp_import_collectl = $(zip) DIST_ROOT=`pwd`/$(dirpcp_import_collectl);
+pkgpcp_export_graphite = $(zip) DIST_ROOT=`pwd`/$(dirpcp_export_graphite);
+pkgpcp_export_influxdb = $(zip) DIST_ROOT=`pwd`/$(dirpcp_export_influxdb);
+pkgpcp_export_zabbix = $(zip) DIST_ROOT=`pwd`/$(dirpcp_export_zabbix);
+pkgpcp_pmda_infiniband = $(zip) DIST_ROOT=`pwd`/$(dirpcp_pmda_infiniband);
+pkgpcp_testsuite = $(zip) DIST_ROOT=`pwd`/$(dirpcp_testsuite);
+pkgpcp_manager = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_manager);
+pkgpcp_webapi = $(zip) NO_CHOWN=true DIST_ROOT=`pwd`/$(dirpcp_webapi);
+pkgpcp_python2 = $(zip) DIST_ROOT=`pwd`/$(dirpcp_python2);
+pkgpcp_python3 = $(zip) DIST_ROOT=`pwd`/$(dirpcp_python3);
+
+configure_tools = export DEBUG=-DNDEBUG;
+# Note: configure options come from $(configure_paths) here, _plus_
+#       any passed in from the environment via $(configure_opts)
+#       ... Makepkgs uses the latter mechanism to refine the configure
+#       options
+#
+configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-sysconfigdir=/etc/default --without-systemd
+
+checkdir = test -f debian/rules
+uninstall = cat debian/*.install | sed -e "s,^,debian/$(pcp)/," | xargs rm -f
+uninstallpy = cat python*-pcp.list | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
+uninstallpydir = ls -d debian/$(pcp)/usr/lib*/python* | xargs rm -fr
+uninstalltest = cat debian/$(pcp_testsuite).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
+uninstalldirs = rmdir debian/$(pcp)/usr/include/pcp debian/$(pcp)/usr/include debian/$(pcp)/usr/share/man/man3
+uninstallib = cat debian/$(pcp_pmda_infiniband).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
+uninstallgui = cat debian/$(pcpgui).dirs | sed -e "s,^,debian/$(pcp)/," | xargs rm -fr
+uninstallweb = find debian/$(pcp) -iname \*pmweb\* | xargs rm -fr
+uninstallmgr = find debian/$(pcp) -name \*pmmgr\* | xargs rm -fr
+unrpathperl = find $(allperldir) -name \*.so | xargs chrpath -d
+
+build: build-arch build-indep
+build-arch: build-stamp
+build-indep: build-stamp
+build-stamp: config
+	@echo "== dpkg-buildpackage: build" 1>&2
+	$(MAKE) default
+	touch build-stamp
+
+config: .census
+.census:
+	@echo "== dpkg-buildpackage: configure" 1>&2
+	$(checkdir)
+	autoconf
+	dh_autotools-dev_updateconfig
+	$(configure_tools) ./configure $(configure_paths) $(configure_opts)
+	touch .census
+
+clean:
+	@echo "== dpkg-buildpackage: clean" 1>&2
+	$(checkdir)
+	-rm -f build-stamp .census
+	$(MAKE) realclean
+	-rm -rf $(alldir)
+	-rm -f debian/*substvars debian/files* debian/*.debhelper
+	dh_autotools-dev_restoreconfig
+	dh_clean
+
+binary-indep:
+
+binary-arch: checkroot build-stamp
+	@echo "== dpkg-buildpackage: binary-arch" 1>&2
+	$(checkdir)
+	-rm -rf $(alldir)
+	$(pkgpcp) $(MAKE) -C . install
+	$(pkgpcp_testsuite) $(MAKE) -C qa install
+	$(pkgpcp_manager) $(MAKE) -C src/pmmgr install
+	$(pkgpcp_webapi) $(MAKE) -C src/pmwebapi install
+	$(pkglibpcp_mmv_perl) $(MAKE) -C src/perl/MMV install_perl
+	$(pkglibpcp_pmda_perl) $(MAKE) -C src/perl/PMDA install_perl
+	$(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl
+	$(pkgpcp_logsummary_perl) $(MAKE) -C src/perl/LogSummary install_perl
+	$(pkgpcp_import_sar) $(MAKE) -C src/sar2pcp install
+	$(pkgpcp_import_ganglia) $(MAKE) -C src/ganglia2pcp install
+	$(pkgpcp_import_mrtg) $(MAKE) -C src/mrtg2pcp install
+	$(pkgpcp_import_sheet) $(MAKE) -C src/sheet2pcp install
+	$(pkgpcp_import_iostat) $(MAKE) -C src/iostat2pcp install
+	$(pkgpcp_import_collectl) $(MAKE) -C src/collectl2pcp install
+	$(pkgpcp_export_graphite) $(MAKE) -C src/pcp2graphite install
+	$(pkgpcp_export_influxdb) $(MAKE) -C src/pcp2influxdb install
+	$(pkgpcp_export_zabbix) $(MAKE) -C src/zabbix-agent install
+	$(pkgpcp_pmda_infiniband) $(MAKE) -C src/pmdas/infiniband install
+	# need the make clean when more than one version of Python installed
+	# to ensure make install after the first version works
+	for V in $(shell pyversions -vr); do \
+	    $(MAKE) -C src/python clean; \
+	    $(pkgpcp_python2) $(MAKE) PYTHON=python$$V -C src/python install_python2; \
+	done
+	for V in $(shell py3versions -vr); do \
+	    $(MAKE) -C src/python clean; \
+	    $(pkgpcp_python3) $(MAKE) PYTHON=python$$V -C src/python install_python3; \
+	done
+
+	dh_installdocs
+	dh_installchangelogs
+	dh_link
+	# Note: --no-automatic-dbgsym not defined for all releases up to
+	# 	and including Debian 8 (jessie), but defined after that
+	# 	... expect a warning on older releases, but no other ill
+	# 	effects from the unknown option
+	dh_strip --no-automatic-dbgsym
+	dh_compress
+	# pmcd.stp added to dh_fixperms because on Ubuntu 16.04
+	# $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp was getting an
+	# unwanted mode change from 444 to 644
+	dh_fixperms -X/tmp -Xpmcd.stp
+	dh_installdirs
+	dh_install --sourcedir=debian/$(pcp)
+	@$(uninstall)
+	@$(uninstallib)
+	@$(uninstallgui)
+	@$(uninstalldirs)
+	@$(uninstalltest)
+	@$(uninstallmgr)
+	@$(uninstallweb)
+	@$(uninstallpydir)
+	@$(uninstallpy)
+	@$(unrpathperl)
+	dh_makeshlibs -N $(libpcp)
+	dh_makeshlibs --package $(libpcp)
+	dh_makeshlibs -N $(libpcp_pmda)
+	dh_makeshlibs --package $(libpcp_pmda)
+	dh_makeshlibs -N $(libpcp_trace)
+	dh_makeshlibs --package $(libpcp_trace)
+	dh_makeshlibs -N $(libpcp_import)
+	dh_makeshlibs --package $(libpcp_import)
+	dh_makeshlibs -N $(libpcp_web)
+	dh_makeshlibs --package $(libpcp_web)
+	dh_makeshlibs -N $(libpcp_gui)
+	dh_makeshlibs --package $(libpcp_gui)
+	dh_makeshlibs -N $(libpcp_mmv)
+	dh_makeshlibs --package $(libpcp_mmv)
+	dh_python2 --package $(pcp_python2)
+	dh_python3 --package $(pcp_python3)
+	dh_perl -p $(libpcp_mmv_perl)
+	dh_perl -p $(libpcp_pmda_perl)
+	dh_perl -p $(libpcp_import_perl)
+	dh_perl -p $(pcp_logsummary_perl)
+	dh_perl -p $(pcp_import_sar)
+	dh_perl -p $(pcp_import_ganglia)
+	dh_perl -p $(pcp_import_mrtg)
+	dh_perl -p $(pcp_import_sheet)
+	dh_perl -p $(pcp_import_iostat)
+	dh_installdeb
+	dh_shlibdeps 2>/dev/null	# qmake doesn't allow a library list
+	dh_gencontrol $(SUBSTVARS) 2>/dev/null	# squash the python:Versions warning
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+
+checkroot:
+	test 0 -eq `id -u`
+
+.PHONY: binary binary-arch binary-indep clean checkroot

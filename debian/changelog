@@ -1,0 +1,746 @@
+pcp (3.11.7) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 21 Dec 2016 12:00:00 +1100
+
+pcp (3.11.6) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 11 Nov 2016 08:22:25 +1100
+
+pcp (3.11.5) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Fix uninstallable s390x papi dependency (closes: #836842)
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 26 Sep 2016 14:21:21 +1000
+
+pcp (3.11.4) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 05 Aug 2016 12:00:00 +1000
+
+pcp (3.11.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 17 Jun 2016 13:03:43 +1000
+
+pcp (3.11.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 29 Apr 2016 08:11:42 +1100
+
+pcp (3.11.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 18 Mar 2016 08:11:42 +1100
+
+pcp (3.11.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 29 Jan 2016 12:00:00 +1100
+
+pcp (3.10.9) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 17 Dec 2015 08:50:33 +1100
+
+pcp (3.10.8) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 30 Oct 2015 09:02:51 +1100
+
+pcp (3.10.7) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 16 Sep 2015 12:09:07 +1000
+
+pcp (3.10.6) unstable; urgency=low
+
+  * Update documentation license notes (closes: #789376)
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 04 Aug 2015 12:38:48 +1000
+
+pcp (3.10.5) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 15 Jun 2015 12:00:00 +1000
+
+pcp (3.10.4) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 15 Apr 2015 16:09:51 +1000
+
+pcp (3.10.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 02 Mar 2015 00:00:00 +0000
+
+pcp (3.10.2) unstable; urgency=low
+
+  * Fix uninstallable i386 perl dependencies (closes: #771789)
+  * Fix insecure use of /var/tmp in postinst (closes: #771793)
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 23 Jan 2015 11:10:54 +1100
+
+pcp (3.10.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 01 Dec 2014 11:43:08 +1100
+
+pcp (3.10.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 31 Oct 2014 13:16:51 +1100
+
+pcp (3.9.10) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 05 Sep 2014 14:08:02 +1000
+
+pcp (3.9.9) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 13 Aug 2014 09:15:01 +1000
+
+pcp (3.9.8) unstable; urgency=low
+
+  * New release to update package metadata (closes: #754929)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 16 Jul 2014 15:58:31 +1000
+
+pcp (3.9.7) unstable; urgency=low
+
+  * Fix some more GNU/Hurd build issues (closes: #752513)
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 16 Jul 2014 09:45:18 +1000
+
+pcp (3.9.6) unstable; urgency=low
+
+  * Resolve FTBFS on build systems using systemd (closes: #746994)
+  * Support builds on the GNU/Hurd platform (closes: #751801)
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 19 Jun 2014 10:19:23 +1000
+
+pcp (3.9.4) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Merges pcp and pcp-gui trees into a single git repo.
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 15 May 2014 14:24:41 +1000
+
+pcp (3.9.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 15 Apr 2014 16:57:42 +1000
+
+pcp (3.9.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Fix build depends for libmicrohttpd-dev.
+  * Update debian copyright notices (closes: #739952)
+  * Fix build failure related to pcp-manager (closes: #719734)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 19 Mar 2014 12:55:16 +1100
+
+pcp (3.9.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Use autotools-dev to update config.{sub,guess} (closes: #737340)
+  * Split libpcp3 library and configuration files (closes: #655440)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 19 Feb 2014 10:38:40 +1100
+
+pcp (3.8.12) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 29 Jan 2014 13:51:39 +1100
+
+pcp (3.8.10) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 15 Jan 2014 08:44:20 +1100
+
+pcp (3.8.9) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Resolve installation bug for config files (closes: #729857)
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 12 Dec 2013 11:49:03 +1100
+
+pcp (3.8.8) unstable; urgency=low
+
+  * New release to resolve build issues only.
+
+ -- Nathan Scott <nathans@debian.org>  Sun, 03 Nov 2013 13:28:27 +1100
+
+pcp (3.8.7) unstable; urgency=low
+
+  * New release to resolve build issues only.
+  * Add pkg-config to the Build-depends list (closes: #728453)
+
+ -- Nathan Scott <nathans@debian.org>  Sun, 03 Nov 2013 07:25:23 +1100
+
+pcp (3.8.6) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Really resolve FTBFS for kfreebsd probes.h (closes: #725627)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 01 Nov 2013 10:27:24 +1100
+
+pcp (3.8.5) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Resolve FTBFS for kfreebsd probes.h (closes: #725627)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 18 Oct 2013 08:49:26 +1100
+
+pcp (3.8.4) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Remove Infiniband build deps, not there on all arches.
+
+ -- Nathan Scott <nathans@debian.org>  Sun, 15 Sep 2013 10:53:16 +1000
+
+pcp (3.8.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Resolve FTBFS for kfreebsd errno (closes: #721499)
+  * Resolve FTBFS on s390x via -fPIC (closes: #721500)
+  * Tackle a buildd issue with chown (closes: #719734)
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 09 Sep 2013 18:20:08 +1000
+
+pcp (3.8.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Fix library symlink in libpcp-gui2-dev (closes: #715100)
+  * Fix library symlink in libpcp-import1-dev (closes: #715101)
+  * Fix library symlink in libpcp-mmv1-dev (closes: #715102)
+  * Fix library symlink in libpcp-pmda3-dev (closes: #715103)
+  * Fix library symlink in libpcp-trace2-dev (closes: #715104)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 31 Jul 2013 08:12:02 +1000
+
+pcp (3.8.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Introduces a collectl2pcp format-converter package.
+  * Remove a second 'restrict' keyword use (closes: #689552)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 19 Jun 2013 09:33:00 +1000
+
+pcp (3.8.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Introduces SASL2 dependency in core PCP library.
+  * Ensure install.log turds not left behind (closes: #705994)
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 14 May 2013 08:29:36 +1000
+
+pcp (3.7.2) unstable; urgency=low
+
+  * Add build dependency on python-all-dev (closes: #704717)
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 19 Apr 2013 09:24:10 +1000
+
+pcp (3.7.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 20 Mar 2013 09:01:30 +1100
+
+pcp (3.7.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Resolve issues in python sub-package creation.
+  * Introduces NSS dependency in core PCP library.
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 11 Mar 2013 11:03:56 +1100
+
+pcp (3.6.10) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Resolves CVE-2012-5530 - insecure tmpfile flaws
+  * Remove use of "restrict" keyword (closes: #689552)
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 19 Nov 2012 10:48:01 +1100
+
+pcp (3.6.6) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Introduces a python-pcp package for client scripts.
+  * Introduces an additional testsuite package for PCP QA tests.
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 28 Aug 2012 13:09:48 +1000
+
+pcp (3.6.5) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Fixes for security advisory CVE-2012-3418 (PDU decoding errors)
+  * Workaround for security advisory CVE-2012-3419 (proc disclosure)
+  * Fixes for security advisory CVE-2012-3420 (libpcp/pmcd memleaks)
+  * Fixes for security advisory CVE-2012-3421 (pmcd slow-client DoS)
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 16 Aug 2012 00:00:00 +0000
+
+pcp (3.6.4) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Ensure correct pmpost used in startup scripts (closes: #677091)
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 12 Jun 2012 09:57:07 +1000
+
+pcp (3.6.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Further kFreeBSD fixes, final remaining issue in glibc headers.
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 27 Apr 2012 11:25:47 +1000
+
+pcp (3.6.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Resolve pcp RC script issue (closes: #668702)
+  * Resolve FreeBSD build dependency (closes: #668671)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 18 Apr 2012 20:23:05 +1000
+
+pcp (3.6.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 12 Apr 2012 11:27:26 +1000
+
+pcp (3.6.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 28 Mar 2012 10:39:34 +1100
+
+pcp (3.5.11) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 01 Dec 2011 20:39:52 +1100
+
+pcp (3.5.10) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 04 Nov 2011 11:11:11 +1100
+
+pcp (3.5.9) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Sun, 23 Oct 2011 21:43:09 +1100
+
+pcp (3.5.8) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 08 Aug 2011 12:21:13 +1000
+
+pcp (3.5.7) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 05 Aug 2011 11:20:31 +1000
+
+pcp (3.5.6) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Number of new lintian warnings resolved.
+  * Updated standards version.
+  * Resolve readline build dependency (closes: #634448)
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 21 Jul 2011 11:25:11 +1000
+
+pcp (3.5.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Fix build when $HOME not set (closes: #625961)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 03 Jun 2011 16:28:14 +1000
+
+pcp (3.5.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 31 Jan 2011 21:01:35 +1100
+
+pcp (3.4.1) unstable; urgency=low
+
+  * New release (Win32 specific changes only).
+
+ -- Nathan Scott <nathans@debian.org>  Sat, 09 Oct 2010 06:22:42 +1100
+
+pcp (3.4.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Several Debian packaging updates to get lintian happier.
+  * New packages for PCP archive importing - libs, dev, perl tools.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 29 Sep 2010 16:23:05 +1000
+
+pcp (3.3.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 16 Jul 2010 12:12:17 +1000
+
+pcp (3.3.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Fix up inter-package dependencies (closes: #586466)
+
+ -- Nathan Scott <nathans@debian.org>  Sat, 10 Jul 2010 12:29:15 +1000
+
+pcp (3.3.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 29 Jun 2010 12:10:08 +1000
+
+pcp (3.3.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 25 Jun 2010 22:12:04 +1000
+
+pcp (3.2.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 03 May 2010 15:49:59 +1000
+
+pcp (3.2.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Several Debian packaging updates to get lintian happier.
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 29 Apr 2010 12:32:09 +1000
+
+pcp (3.1.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 18 Mar 2010 08:35:56 +1100
+
+pcp (3.1.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Added package Recommends line on pcp for PCP Perl PMDA module.
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 23 Feb 2010 08:19:41 +1100
+
+pcp (3.1.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Added build dependency on readline library.
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 28 Jan 2010 22:09:49 +1100
+
+pcp (3.0.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 10 Dec 2009 17:44:53 +1100
+
+pcp (3.0.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 02 Dec 2009 12:48:38 +1100
+
+pcp (3.0.1) unstable; urgency=low
+
+  * Resolved issues with the Debian kFreeBSD build.
+  * Reverted Fedora rc script changes (closes: #544350)
+  * Add missing libpcp-mmv-perl perl dependency (closes: #552670)
+  * Add missing libpcp-pmda-perl perl dependency (closes: #552671)
+  * Add missing libpcp-mmv-perl dependency on libc (closes: #553247)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 30 Oct 2009 13:54:41 +1100
+
+pcp (3.0.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Original Alpha build issue resolved (closes: #541547)
+  * More recent Alpha build issue resolved too (closes: #545851)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 09 Oct 2009 12:55:12 +1100
+
+pcp (2.9.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 23 Sep 2009 17:03:07 +1000
+
+pcp (2.9.2) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Attempt to resolve Alpha platform build issues for Debian.
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 07 Sep 2009 16:26:54 +1000
+
+pcp (2.9.1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Add Petters start script enhancements (closes: #544350)
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 02 Sep 2009 13:30:31 +1000
+
+pcp (2.9.0) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Updated MMV and other package descriptions (closes: #537563).
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 27 Jul 2009 15:25:57 +1000
+
+pcp (2.8.12) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 08 Jul 2009 16:38:44 +1000
+
+pcp (2.8.10) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 01 Jul 2009 14:35:11 +1000
+
+pcp (2.8.9) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Updated Perl module source build (closes: #533632).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 01 Jul 2009 10:25:36 +1000
+
+pcp (2.8.8) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Updated Perl PMDA module package, new version.
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 09 Jun 2009 15:00:44 +1000
+
+pcp (2.8.7) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 29 May 2009 11:34:10 +1000
+
+pcp (2.8.5) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+  * Some libpcp packaging tweaks for builddefs/rules files.
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 21 May 2009 16:24:12 +1000
+
+pcp (2.8.4) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 12 May 2009 11:51:34 +1000
+
+pcp (2.8.3) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 11 May 2009 20:46:55 +1000
+
+pcp (2.8.2) unstable; urgency=low
+
+  * Fix a pmie && and || operator bug.
+  * Improve daily pmie/pmlogger script behaviour.
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 24 Apr 2009 09:35:55 +1000
+
+pcp (2.8.1) unstable; urgency=low
+
+  * New upstream release (closes: #524451).
+
+ -- Nathan Scott <nathans@debian.org>  Sun, 19 Apr 2009 20:03:27 +1000
+
+pcp (2.8.0) unstable; urgency=low
+
+  * New upstream release.
+  * New packages for Memory Mapped Value (MMV) library.
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 09 Apr 2009 12:26:40 +1000
+
+pcp (2.7.8-20090319) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 19 Mar 2009 12:28:54 +1100
+
+pcp (2.7.8-20090306) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 06 Mar 2009 15:56:03 +1100
+
+pcp (2.7.8-20090217) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 17 Feb 2009 08:55:16 +1100
+
+pcp (2.7.8-20090127) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 27 Jan 2009 17:08:01 +1100
+
+pcp (2.7.8-20081209) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 09 Dec 2008 13:19:38 +1100
+
+pcp (2.7.8-20081205) unstable; urgency=low
+
+  * Fix perl PMDA interface build (closes: #507830)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 05 Dec 2008 16:48:04 +1100
+
+pcp (2.7.8-20081201) unstable; urgency=low
+
+  * Merged with new code from SGI.
+  * Infiniband and KVM PMDAs included.
+  * Added PCP::LogSummary module - libpcp-logsummary-perl.
+  * Fixes build issue with gcc 4.4 (closes: #504832)
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 01 Dec 2008 13:14:41 +1100
+
+pcp (2.7.7-20080924) unstable; urgency=low
+
+  * Merged with new code from SGI.
+  * VMware PMDA included, memcached PMDA updated.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 24 Sep 2008 17:55:14 +1000
+
+pcp (2.7.4-20081001) unstable; urgency=low
+
+  * Added the Perl PCP::PMDA interface package - libpcp-pmda-perl.
+  * Several new Perl PMDAs (mysql, dbping, systemtap, memcached).
+  * Several new Linux kernel metrics (cpu steal time, IO scheduler,
+    additional NFS server metrics).
+  * Many portability changes for native Win32 builds under MinGW.
+  * Deprecated (IRIX) pmkstat tool is now removed.
+  * Old "irix." metric auto-prepend-on-failure hack removed.
+  * Huge code cleanup, most/all IRIX-specific code removed.
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 01 Sep 2008 11:49:03 +1000
+
+pcp (2.7.4-20080507) unstable; urgency=low
+
+  * Fix location of pcp.conf - moved into libpcp runtime.
+  * Introduce a shlibs.local file to track package inter-dependencies.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 07 May 2008 16:43:34 +1000
+
+pcp (2.7.4-20080506) unstable; urgency=low
+
+  * Fix location of headers - moved into dev packages.
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 06 May 2008 21:14:07 +1000
+
+pcp (2.7.4-20080430) unstable; urgency=low
+
+  * Fix network interface speed metrics.
+  * Fix "/etc/init.d/pmie status" reporting on running pmies.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 30 Apr 2008 07:44:51 +1000
+
+pcp (2.7.4-20080418) unstable; urgency=low
+
+  * Resolve duplicate names with pgpool2 (closes: #476605)
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 18 Apr 2008 11:14:45 +1000
+
+pcp (2.7.4-20080415) unstable; urgency=low
+
+  * Improve path handling in pcp.env.
+  * Cygwin and Mac OS X ps fixes making daemon restart reliable.
+  * Mac OS X local context support.
+  * Improve kmchart integration.
+
+ -- Nathan Scott <nathans@debian.org>  Tue, 15 Apr 2008 17:27:49 +1000
+
+pcp (2.7.4-20080404) unstable; urgency=low
+
+  * Fix builds on systems without deprecated C++ headers.
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 04 Apr 2008 10:40:01 +1100
+
+pcp (2.7.4-20080402) unstable; urgency=low
+
+  * Man page install now uses a deterministic sort (closes: #472322).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 02 Apr 2008 15:56:35 +1100
+
+pcp (2.7.4-20080331) unstable; urgency=low
+
+  * Jstat PMDA tweaks and Cygwin build updates.
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 31 Mar 2008 16:24:03 +1100
+
+pcp (2.7.4-20080326) unstable; urgency=low
+
+  * Fix pmloglabel exit status.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 26 Mar 2008 10:16:32 +1100
+
+pcp (2.7.4-20080322) unstable; urgency=low
+
+  * Fix pmie_check script use of control file variable.
+  * Add pmloglabel tool for fixing corrupt archive labels.
+
+ -- Nathan Scott <nathans@debian.org>  Sat, 22 Mar 2008 15:36:55 +1100
+
+pcp (2.7.4-20080317) unstable; urgency=low
+
+  * Fix curses package dependencies (closes: #471220)
+
+ -- Nathan Scott <nathans@debian.org>  Mon, 17 Mar 2008 11:37:57 +1100
+
+pcp (2.7.4-20080312) unstable; urgency=low
+
+  * Add procps package dependencies (closes: #470326)
+  * Resolve several lintian warnings on source package.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 12 Mar 2008 05:39:40 +1100
+
+pcp (2.7.4-20080306) unstable; urgency=low
+
+  * Initial version of Debian packaging of PCP (closes: #105587)
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 06 Mar 2008 20:55:42 +1100

@@ -1,0 +1,92 @@
+#!/bin/sh
+#
+# generate control preamble from control.master
+#
+tmp=/var/tmp/$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+
+# dh-python not always available ... this is not checked for in configure
+# so have to base it on the platform type and version
+#
+rm -f $tmp.no
+
+if [ -f /etc/os-release ]
+then
+    NAME=`sed -n -e 's/"//'g -e '/^NAME=/s/NAME=//p' </etc/os-release`
+    if [ "$NAME" = "Debian GNU/Linux" ]
+    then
+	VERSION_ID=`sed -n -e 's/"//'g -e '/^VERSION_ID=/s/VERSION_ID=//p' </etc/os-release`
+	case "$VERSION_ID"
+	in
+	    7)
+		touch $tmp.no
+		;;
+	esac
+    elif [ "$NAME" = "Ubuntu" ]
+    then
+	VERSION_ID=`sed -n -e 's/"//'g -e '/^VERSION_ID=/s/VERSION_ID=//p' </etc/os-release`
+	case "$VERSION_ID"
+	in
+	    12.04|12.10|13.04)
+		touch $tmp.no
+		;;
+	esac
+    fi
+elif [ -f /etc/debian_version ]
+then
+    VERSION_ID=`cat /etc/debian_version`
+    case "$VERSION_ID"
+    in
+	6.*)
+	    touch $tmp.no
+	    ;;
+    esac
+fi
+
+if [ -f $tmp.no ]
+then
+    echo "s/?{dh-python}//" >>$tmp.sed
+else
+    echo "s/?{dh-python}/dh-python,/" >>$tmp.sed
+fi
+
+# for some others we rely on what configure has discovered
+#
+if [ ! -f ../src/include/builddefs ]
+then
+    echo "fixcontrol.master: Botch: ../src/include/builddefs does not exist"
+    exit 1
+fi
+
+eval `egrep '^(PMDA_|HAVE_)' ../src/include/builddefs | sed -e 's/ //g'`
+
+if $PMDA_PAPI
+then
+    echo "s/?{libpapi-dev}/libpapi-dev [!s390x],/" >>$tmp.sed
+else
+    echo "s/?{libpapi-dev}//" >>$tmp.sed
+fi
+
+if $PMDA_PERFEVENT
+then
+    echo "s/?{libpfm4-dev}/libpfm4-dev,/" >>$tmp.sed
+else
+    echo "s/?{libpfm4-dev}//" >>$tmp.sed
+fi
+
+if $HAVE_PYTHON_JSONPOINTER
+then
+    echo "s/?{python-json-pointer}/python-json-pointer,/" >>$tmp.sed
+else
+    echo "s/?{python-json-pointer}//" >>$tmp.sed
+fi
+
+if $HAVE_PYTHON_REQUESTS
+then
+    echo "s/?{python-requests}/python-requests,/" >>$tmp.sed
+else
+    echo "s/?{python-requests}//" >>$tmp.sed
+fi
+
+sed -f $tmp.sed <control.master
