@@ -1,3 +1,17 @@
+pcp (3.11.7-0+dschinn1) dschinn-backports; urgency=low
+
+  * Initial upload to dschinn-backports.
+  * Updating maintainer field.
+  * Updating uploaders field.
+  * Updating bugs field.
+  * Updating vcs fields.
+  * Updating source local-options.
+  * Updating source format.
+  * Updating package to fix FTBFS when building architecture independent
+    packages only (Closes: #805955).
+
+ -- Daniel Baumann <daniel.baumann@progress-linux.org>  Tue, 04 Apr 2017 07:46:46 +0200
+
 pcp (3.11.7) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
