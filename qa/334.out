@@ -132,7 +132,7 @@ expr node <addr-6> type=STAR left=<addr-7> right=<addr-8> save_last=0
 [2] inst=500, val=1000
 [3] inst=700, val=1400
 [4] inst=900, val=1800
-expr node <addr-7> type=NUMBER left=(nil) right=(nil) save_last=0 [2] master=0
+expr node <addr-7> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
@@ -165,7 +165,7 @@ expr node <addr-10> type=NAME left=(nil) right=(nil) save_last=0 [sample.part_bi
 [2] inst=500, val=500
 [3] inst=700, val=700
 [4] inst=900, val=900
-expr node <addr-11> type=NUMBER left=(nil) right=(nil) save_last=0 [2] master=0
+expr node <addr-11> type=INTEGER left=(nil) right=(nil) save_last=0 [2] master=0
     PMID: PM_ID_NULL (PM_ID_NULL from pmDesc) numval: 1
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none

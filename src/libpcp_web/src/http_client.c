@@ -283,7 +283,7 @@ http_client_connect(http_client *cp)
 	snprintf(path, sizeof(path), "/%.*s/%.*s",
 		up->field_data[UF_HOST].len, url + up->field_data[UF_HOST].off,
 		up->field_data[UF_PATH].len, url + up->field_data[UF_PATH].off);
-	path[length] = '\0';
+	path[length - 1] = '\0';
 	//	__pmNotifyErr(LOG_DEBUG, "host: %.*s\n", up->field_data[UF_HOST].len, url + up->field_data[UF_HOST].off);
 	//	__pmNotifyErr(LOG_DEBUG, "UF_path: %.*s\n", up->field_data[UF_PATH].len, url + up->field_data[UF_PATH].off);
 	//	__pmNotifyErr(LOG_DEBUG, "path: %s\n", path);
@@ -448,7 +448,7 @@ reset_url_location(const char *tourl, size_t tolen, http_parser_url *top,
 	if (*suffix != '/')
 	    *str++ = '/';
 	strncat(str, suffix, length);
-	url[size] = '\0';
+	url[size - 1] = '\0';
 	http_parser_parse_url(url, size, 0, fromp);
 
 	if (pmDebug & DBG_TRACE_HTTP)
@@ -569,7 +569,7 @@ http_should_client_redirect(http_client *cp)
 static int
 http_client_response(http_client *cp)
 {
-    size_t		bytes, total;
+    size_t		bytes;
     char		buffer[BUFSIZ];
     int			sts;
     static int		setup;
@@ -599,7 +599,6 @@ http_client_response(http_client *cp)
 	    return sts ? sts : -EAGAIN;
 	}
 	bytes = http_parser_execute(&cp->parser, &settings, buffer, sts);
-	total += bytes;
 
     } while (bytes && !(cp->flags & F_MESSAGE_END));
 

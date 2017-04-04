@@ -2511,7 +2511,7 @@ pmgraphite_respond_render_json (struct MHD_Connection *connection,
                     output << ",";
                 }
                 output << "[";
-                if (pmgraphite_isnanf (results[i].what)) {
+                if (! isnormal (results[i].what)) {
                     output << "null";
                 } else {
                     output << results[i].what;

@@ -113,6 +113,7 @@ aggr.sumd = sum(sample.double.bin)
 aggr.count_err = count(sample.needprofile)
 aggr.sum_err = sum(sample.needprofile)
 aggr.countblob = count(sample.sysinfo)
+aggr.count_noinst = count(sample.noinst)
 End-of-File
 echo
 cat $tmp.config

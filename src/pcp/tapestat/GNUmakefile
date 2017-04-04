@@ -1,8 +1,5 @@
-#!/bin/sh
 #
-# Convert a .zip file from github into .tar.gz
-#
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2017 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -13,28 +10,26 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-#
+# 
 
-zip="$1"
-tgz="$2"
+TOPDIR = ../../..
+include $(TOPDIR)/src/include/builddefs
 
-status=1
-here=`pwd`
-tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
-trap "rm -rf $tmp; exit \$status" 0 1 2 3 15
+TARGET = pcp-tapestat
+MAN_SECTION = 1
+MAN_PAGES = $(TARGET).$(MAN_SECTION)
+MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-if [ -z "$zip" -o -z "$tgz" ]
-then
-	echo "Usage: $0 zipfile tgzfile"
-	exit 1
-fi
+default: $(TARGET).py $(MAN_PAGES)
 
-cd $tmp
-unzip -q "$zip"
-cd *
-tar czf "$tgz" *
-cd "$here"
-echo "Wrote: $tgz"
+include $(BUILDRULES)
 
-status=0
-exit
+install: default
+ifeq "$(HAVE_PYTHON)" "true"
+	$(INSTALL) -m 755 $(TARGET).py $(PCP_BINADM_DIR)/$(TARGET)
+	@$(INSTALL_MAN)
+endif
+
+default_pcp : default
+
+install_pcp : install

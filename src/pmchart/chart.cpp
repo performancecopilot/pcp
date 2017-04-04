@@ -890,7 +890,7 @@ Chart::setLegendVisible(bool on)
 	    // force each Legend item to "checked" state matching
 	    // the initial plotting state
 	    for (int i = 0; i < my.items.size(); i++)
-		my.items[i]->item()->setVisible(my.items[i]->removed());
+		my.items[i]->item()->setVisible(!my.items[i]->removed());
 	    replot();
 	}
     }

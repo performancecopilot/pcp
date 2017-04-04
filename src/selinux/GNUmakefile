@@ -14,10 +14,15 @@
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
+ifeq "$(ENABLE_SELINUX)" "true"
 -include ./GNUlocaldefs
+endif
 IAM = pcpupstream
 
-LDIRT = $(IAM).cil $(IAM).pp $(IAM).mod $(IAM).te tmp
+LDIRT = $(IAM).cil $(IAM).pp $(IAM).mod $(IAM).te tmp \
+	$(IAM)-docker.cil $(IAM)-docker.pp $(IAM)-docker.mod \
+	$(IAM)-container.cil $(IAM)-container.pp $(IAM)-container.mod
+
 
 default: build-me
 
@@ -32,6 +37,13 @@ $(IAM).te: $(IAM).te.in
 		-e 's;@PCP_CONTAINER_RUNTIME_RULE@;'$(PCP_CONTAINER_RUNTIME_RULE)';' \
 		-e 's;@PCP_NSFS_T@;'$(PCP_NSFS_T)';' \
 		-e 's;@PCP_NSFS_RULE@;'$(PCP_NSFS_RULE)';' \
+		-e 's;@PCP_DOCKER_VAR_LIB_T@;'$(PCP_DOCKER_VAR_LIB_T)';' \
+		-e 's;@PCP_DOCKER_VAR_LIB_RULE@;'$(PCP_DOCKER_VAR_LIB_RULE)';' \
+		-e 's;@PCP_CLASS_STATUS@;'$(PCP_CLASS_STATUS)';' \
+		-e 's;@PCP_PMLOGGER_SYSTEM_STATUS_RULE@;'$(PCP_PMLOGGER_SYSTEM_STATUS_RULE)';' \
+		-e 's;@PCP_PMIE_SYSTEM_STATUS_RULE@;'$(PCP_PMIE_SYSTEM_STATUS_RULE)';' \
+		-e 's;@PCP_SVIRT_LXC_NET_T@;'$(PCP_SVIRT_LXC_NET_T)';' \
+		-e 's;@PCP_SVIRT_LXC_NET_RULE@;'$(PCP_SVIRT_LXC_NET_RULE)';' \
 
 	# END
 	make -f /usr/share/selinux/devel/Makefile
@@ -40,6 +52,15 @@ install: default
 	$(INSTALL) -m 755 -d $(PCP_SELINUX_DIR)
 	$(INSTALL) -m 664 $(IAM).pp $(PCP_SELINUX_DIR)/$(IAM).pp
 	$(INSTALL) -m 664 $(IAM).te $(PCP_SELINUX_DIR)/$(IAM).te
+ifneq "$(PCP_DOCKER_VAR_LIB)" ""
+	$(INSTALL) -m 664 $(IAM)-docker.pp $(PCP_SELINUX_DIR)/$(IAM)-docker.pp
+	$(INSTALL) -m 664 $(IAM)-docker.te $(PCP_SELINUX_DIR)/$(IAM)-docker.te
+endif
+ifneq "$(PCP_CONTAINER_RUNTIME_T)" ""
+	$(INSTALL) -m 664 $(IAM)-container.pp $(PCP_SELINUX_DIR)/$(IAM)-container.pp
+	$(INSTALL) -m 664 $(IAM)-container.te $(PCP_SELINUX_DIR)/$(IAM)-container.te
+endif
+
 else
 build-me:
 install:

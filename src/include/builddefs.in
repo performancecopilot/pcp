@@ -260,9 +260,7 @@ HAVE_PYTHON_SETUPTOOLS = @have_python_setuptools@
 HAVE_PYTHON_JSONPOINTER = @have_python_jsonpointer@
 
 # for building packages from external sources
-HAVE_PARFAIT = @have_parfait@
-HAVE_VECTOR = @have_vector@
-HAVE_WEBJS = @have_webjs@
+HAVE_WEBAPPS = @have_webapps@
 
 # additional libraries needed for particular functions
 LIB_FOR_BASENAME = @lib_for_basename@

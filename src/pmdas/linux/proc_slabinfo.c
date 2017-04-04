@@ -1,7 +1,7 @@
 /*
  * Linux Memory Slab Cluster
  *
- * Copyright (c) 2014 Red Hat.
+ * Copyright (c) 2014,2017 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -19,49 +19,40 @@
 #include "proc_slabinfo.h"
 
 int
-refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
+refresh_proc_slabinfo(pmInDom slab_indom, proc_slabinfo_t *slabinfo)
 {
-    char buf[1024];
-    slab_cache_t sbuf;
-    slab_cache_t *s;
-    FILE *fp;
-    int i, n;
-    int instcount;
+    slab_cache_t sbuf, *s;
+    char buf[BUFSIZ];
+    char name[128];
     char *w, *p;
-    int old_cache;
-    int err = 0;
-    static int next_id = -1;
+    FILE *fp;
+    int i, sts = 0, indom_change = 0;
     static int major_version = -1;
     static int minor_version = 0;
 
-    if (next_id < 0) {
-	/* one trip initialization */
-	next_id = 0;
-
-	slabinfo->ncaches = 0;
-	slabinfo->caches = (slab_cache_t *)malloc(sizeof(slab_cache_t));
-	slabinfo->indom->it_numinst = 0;
-	slabinfo->indom->it_set = (pmdaInstid *)malloc(sizeof(pmdaInstid));
+    for (pmdaCacheOp(slab_indom, PMDA_CACHE_WALK_REWIND);;) {
+	if ((i = pmdaCacheOp(slab_indom, PMDA_CACHE_WALK_NEXT)) < 0)
+	    break;
+	if (!pmdaCacheLookup(slab_indom, i, NULL, (void **)&s) || !s)
+	    continue;
+	s->seen = 0;
     }
+    pmdaCacheOp(slab_indom, PMDA_CACHE_INACTIVE);
 
     if ((fp = linux_statsfile("/proc/slabinfo", buf, sizeof(buf))) == NULL)
 	return -oserror();
 
-    for (i=0; i < slabinfo->ncaches; i++)
-	slabinfo->caches[i].seen = 0;
-
     /* skip header */
     if (fgets(buf, sizeof(buf), fp) == NULL) {
     	/* oops, no header! */
-	err = -oserror();
-	goto out;
+	fclose(fp);
+	return -oserror();
     }
 
     if (major_version < 0) {
 	major_version = minor_version = 0;
 	if (strstr(buf, "slabinfo - version:")) {
-	    char *p;
-	    for (p=buf; *p; p++) {
+	    for (p = buf; *p; p++) {
 		if (isdigit((int)*p)) {
 		    sscanf(p, "%d.%d", &major_version, &minor_version);
 		    break;
@@ -94,12 +85,12 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 	     * <name> <active_objs> <num_objs>
 	     * (generally 2.2 kernels)
 	     */
-	    n = sscanf(buf, "%s %lu %lu", sbuf.name,
+	    i = sscanf(buf, "%s %lu %lu", name,
 			    (unsigned long *)&sbuf.num_active_objs,
 			    (unsigned long *)&sbuf.total_objs);
-	    if (n != 3) {
-		err = PM_ERR_APPVERSION;
-		goto out;
+	    if (i != 3) {
+		sts = PM_ERR_APPVERSION;
+		break;
 	    }
 	}
 	else if (major_version == 1 && minor_version == 1) {
@@ -107,16 +98,16 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 	     * <name> <active_objs> <num_objs> <objsize> <active_slabs> <num_slabs> <pagesperslab>
 	     * (generally 2.4 kernels)
 	     */
-	    n = sscanf(buf, "%s %lu %lu %u %u %u %u", sbuf.name,
+	    i = sscanf(buf, "%s %lu %lu %u %u %u %u", name,
 			    (unsigned long *)&sbuf.num_active_objs,
 			    (unsigned long *)&sbuf.total_objs,
 			    &sbuf.object_size, 
 			    &sbuf.num_active_slabs,
 			    &sbuf.total_slabs, 
 			    &sbuf.pages_per_slab);
-	    if (n != 7) {
-		err = PM_ERR_APPVERSION;
-		goto out;
+	    if (i != 7) {
+		sts = PM_ERR_APPVERSION;
+		break;
 	    }
 
 	    sbuf.total_size = sbuf.pages_per_slab * sbuf.num_active_slabs;
@@ -127,15 +118,15 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 	     * <name> <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab>  .. and more
 	     * (generally for kernels up to at least 2.6.11)
 	     */
-	    n = sscanf(buf, "%s %lu %lu %u %u %u", sbuf.name,
+	    i = sscanf(buf, "%s %lu %lu %u %u %u", name,
 			    (unsigned long *)&sbuf.num_active_objs,
 			    (unsigned long *)&sbuf.total_objs,
 			    &sbuf.object_size,
 			    &sbuf.objects_per_slab, 
 			    &sbuf.pages_per_slab);
-	    if (n != 6) {
-		err = PM_ERR_APPVERSION;
-		goto out;
+	    if (i != 6) {
+		sts = PM_ERR_APPVERSION;
+		break;
 	    }
 
 	    sbuf.total_size = sbuf.pages_per_slab * sbuf.num_active_objs;
@@ -144,42 +135,22 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 	}
 	else {
 	    /* no support */
-	    err = PM_ERR_APPVERSION;
-	    goto out;
+	    sts = PM_ERR_APPVERSION;
+	    break;
 	}
 
-	old_cache = -1;
-	for (i=0; i < slabinfo->ncaches; i++) {
-	    if (strcmp(slabinfo->caches[i].name, sbuf.name) == 0) {
-		if (slabinfo->caches[i].valid)
-		    break;
-		else
-		    old_cache = i;
-	    }
-	}
-
-	if (i == slabinfo->ncaches) {
+	sts = pmdaCacheLookupName(slab_indom, name, &i, (void **)&s);
+	if (sts < 0 || !s) {
 	    /* new cache has appeared */
-	    if (old_cache >= 0) {
-		/* same cache as last time : reuse the id */ 
-	    	i = old_cache;
-	    }
-	    else {
-		slabinfo->ncaches++;
-	    	slabinfo->caches = (slab_cache_t *)realloc(slabinfo->caches,
-		    slabinfo->ncaches * sizeof(slab_cache_t));
-		slabinfo->caches[i].id = next_id++;
-	    }
-	    slabinfo->caches[i].valid = 1;
+	    if ((s = calloc(1, sizeof(*s))) == NULL)
+		continue;
 #if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LIBPMDA) {
-		fprintf(stderr, "refresh_slabinfo: add \"%s\"\n", sbuf.name);
-	    }
+	    if (pmDebug & DBG_TRACE_LIBPMDA)
+		fprintf(stderr, "refresh_slabinfo: added \"%s\"\n", name);
 #endif
+	    indom_change++;
 	}
 
-	s = &slabinfo->caches[i];
-	strcpy(s->name, sbuf.name);
 	s->num_active_objs	= sbuf.num_active_objs;
 	s->total_objs		= sbuf.total_objs;
 	s->object_size		= sbuf.object_size;
@@ -190,47 +161,69 @@ refresh_proc_slabinfo(proc_slabinfo_t *slabinfo)
 	s->total_size		= sbuf.total_size;
 
 	s->seen = major_version * 10 + minor_version;
-    }
 
-    /* check for caches that have been deleted (eg. by rmmod) */
-    for (i=0, instcount=0; i < slabinfo->ncaches; i++) {
-	if (slabinfo->caches[i].valid) {
-	    if (slabinfo->caches[i].seen == 0) {
-		slabinfo->caches[i].valid = 0;
-#if PCP_DEBUG
-		if (pmDebug & DBG_TRACE_LIBPMDA) {
-		    fprintf(stderr, "refresh_slabinfo: drop \"%s\"\n", slabinfo->caches[i].name);
-		}
-#endif
-	    }
-	    else {
-		instcount++;
-	    }
-    	}
+	pmdaCacheStore(slab_indom, PMDA_CACHE_ADD, name, s);
     }
-
-    /* refresh slabinfo indom */
-    if (slabinfo->indom->it_numinst != instcount) {
-        slabinfo->indom->it_numinst = instcount;
-        slabinfo->indom->it_set = (pmdaInstid *)realloc(slabinfo->indom->it_set,
-		instcount * sizeof(pmdaInstid));
-	memset(slabinfo->indom->it_set, 0, instcount * sizeof(pmdaInstid));
-    }
-    for (n=0, i=0; i < slabinfo->ncaches; i++) {
-        if (slabinfo->caches[i].valid) {
-	    slabinfo->indom->it_set[n].i_inst = slabinfo->caches[i].id;
-	    slabinfo->indom->it_set[n].i_name = slabinfo->caches[i].name;
-#if PCP_DEBUG
-	    if (pmDebug & DBG_TRACE_LIBPMDA) {
-		fprintf(stderr, "refresh_slabinfo: cache[%d] = \"%s\"\n",
-		    n, slabinfo->indom->it_set[n].i_name);
-	    }
-#endif
-            n++;
-        }
-    }
-
-out:
     fclose(fp);
-    return err;
+
+    if (indom_change)
+	pmdaCacheOp(slab_indom, PMDA_CACHE_SAVE);
+
+    return sts;
+}
+
+int
+proc_slabinfo_fetch(pmInDom indom, int item, unsigned int inst, pmAtomValue *ap)
+{
+    slab_cache_t	*slab_cache = NULL;
+    int			sts;
+
+    sts = pmdaCacheLookup(indom, inst, NULL, (void **)&slab_cache);
+    if (sts < 0)
+	return sts;
+    if (sts == PMDA_CACHE_INACTIVE)
+	return PM_ERR_INST;
+
+    switch (item) {
+	case 0:	/* mem.slabinfo.objects.active */
+	    ap->ull = slab_cache->num_active_objs;
+	    break;
+	case 1:	/* mem.slabinfo.objects.total */
+	    ap->ull = slab_cache->total_objs;
+	    break;
+	case 2:	/* mem.slabinfo.objects.size */
+	    if (slab_cache->seen < 11)	/* version 1.1 or later only */
+		return 0;
+	    ap->ul = slab_cache->object_size;
+	    break;
+	case 3:	/* mem.slabinfo.slabs.active */
+	    if (slab_cache->seen < 11)	/* version 1.1 or later only */
+		return 0;
+	    ap->ul = slab_cache->num_active_slabs;
+	    break;
+	case 4:	/* mem.slabinfo.slabs.total */
+	    if (slab_cache->seen == 11)	/* version 1.1 only */
+		return 0;
+	    ap->ul = slab_cache->total_slabs;
+	    break;
+	case 5:	/* mem.slabinfo.slabs.pages_per_slab */
+	    if (slab_cache->seen < 11)	/* version 1.1 or later only */
+		return 0;
+	    ap->ul = slab_cache->pages_per_slab;
+	    break;
+	case 6:	/* mem.slabinfo.slabs.objects_per_slab */
+	    if (slab_cache->seen != 20)	/* version 2.0 only */
+		return 0;
+	    ap->ul = slab_cache->objects_per_slab;
+	    break;
+	case 7:	/* mem.slabinfo.slabs.total_size */
+	    if (slab_cache->seen < 11)	/* version 1.1 or later only */
+		return 0;
+	    ap->ull = slab_cache->total_size;
+	    break;
+
+	default:
+	    return PM_ERR_PMID;
+    }
+    return 1;
 }
